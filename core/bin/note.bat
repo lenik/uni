@@ -1,5 +1,5 @@
 @echo off
-rem $Id: note.bat,v 1.11 2004-11-25 07:11:34 dansei Exp $
+rem $Id: note.bat,v 1.12 2004-11-28 02:03:07 dansei Exp $
 
 rem 0, options
     set note_exec=%~dp0
@@ -119,7 +119,8 @@ rem 4, build '-' separated directory structure
         goto cleanup
     )
 
-    if not "%note_delete%"=="1" (
+    rem create new file if not existed.
+    if not "%note_delete%"=="1" if not exist "%note_ctr%\%note%.%note_ext%" (
         if not exist "%note_home%\.vol\*" (
             echo Initialize .vol templates
             unzip "%note_exec%notes.zip" -d "%note_home%"
