@@ -21,9 +21,9 @@
 sub note_create(ftype, path)
 	select case lcase(ftype)
 	case "doc"
-		note_create_word notehome & "\.vol\def.doc", path
+		note_create_word notehome & "\.vol\.vol-def.doc", path
 	case "xls"
-		note_create_excel notehome & "\.vol\def.xls", path
+		note_create_excel notehome & "\.vol\.vol-def.xls", path
 	case else
 		msgbox "Error File Type: " & ftype
 	end select

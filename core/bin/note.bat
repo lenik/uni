@@ -1,7 +1,9 @@
 @echo off
-rem $Id: note.bat,v 1.9 2004-11-13 13:44:17 dansei Exp $
+rem $Id: note.bat,v 1.10 2004-11-24 03:37:44 dansei Exp $
 
 rem 0, options
+    set note_exec=%~dp0
+
     if "%1"=="/del" (
         set note_delete=1
         shift
@@ -111,13 +113,18 @@ rem 4, build '-' separated directory structure
     )
 
     if not "%note_delete%"=="1" (
-        if exist "%note_home%\.vol\def.%note_ext%" (
+        if not exist "%note_home%\.vol\*" (
+            echo Initialize .vol templates
+            unzip "%note_exec%notes.zip" -d "%note_home%"
+            )
+
+        if exist "%note_home%\.vol\.vol-def.%note_ext%" (
             if "%note_ext%"=="doc" (
                 noteauto "%note_home%" create doc "%note_ctr%\%note%.%note_ext%"
             ) else if "%note_ext%"=="xls" (
                 noteauto "%note_home%" create xls "%note_ctr%\%note%.%note_ext%"
             ) else (
-                copy "%note_home%\.vol\def.%note_ext%" "%note_ctr%\%note%.%note_ext%" >nul
+                copy "%note_home%\.vol\.vol-def.%note_ext%" "%note_ctr%\%note%.%note_ext%" >nul
             )
             rem touch "%note_ctr%\%note%.%note_ext%"
         ) else (
@@ -202,6 +209,7 @@ rem 4, build '-' separated directory structure
     set note_ctr=
     set note_serial=
     set note_delete=
+    set note_exec=
     set _ret=
 
 :end
