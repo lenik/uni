@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+# $id$
+# $log$
+
 use strict;
 use Getopt::Long;
 
@@ -7,6 +10,9 @@ my $old_tab = 8;
 my $new_tab = 4;
 my $prefer_tab = 0;
 my $tabify_min = 2;
+my $write_back = 0;
+my $write_file;
+my @file_buffer;
 
 sub help();
 
@@ -18,19 +24,26 @@ GetOptions(
 	'space' 	=> sub { $prefer_tab = 0 },
 	'mintab=i'	=> \$tabify_min,
 	'help'		=> \&help,
+    'write|w'   => \$write_back,
 	);
+
+if ($write_back) {
+    if (scalar(@ARGV) != 1) {
+        die "You must specify one and only one filename to write-back. ";
+    }
+    $write_file = $ARGV[0];
+}
 
 $old_tab>0 or die 'tab-size must be positive number';
 $new_tab>0 or die 'tab-size must be positive number';
 
 # print "$old_tab -> $new_tab\n";
 
-
 while (<>) {
 	my @chars = split('', $_);
-	my ($i, $x) = (0, 0);
+    my ($i, $x) = (0, 0);
 
-	foreach my $c (@chars) {
+    foreach my $c (@chars) {
 		if ($c eq "\t") {
 			$c = ' 'x($old_tab-$x);
 			$chars[$i] = $c;
@@ -40,8 +53,7 @@ while (<>) {
 		}
 		$i++;
 	}
-
-	$_ = join('', @chars);
+    $_ = join('', @chars);
 
 	if ($prefer_tab) {
 		my @segs;
@@ -53,18 +65,35 @@ while (<>) {
 					$seg =~ s/( +)$/\t/;
 				}
 			}
-			print "$seg";
+            if ($write_back) {
+                push @file_buffer, $seg;
+            } else {
+                print "$seg";
+            }
 		}
 	} else {
-		print $_;
+        if ($write_back) {
+            push @file_buffer, $_;
+        } else {
+            print $_;
+        }
 	}
 }
 
+if ($write_back) {
+    open FH, ">$write_file" || die "Cannot write back";
+    for (@file_buffer) {
+        print FH $_;
+    }
+    close FH;
+}
+
+
 sub help() {
 	print <<"EOM";
-[TABSTYLE] Adjust tab-style of plain text
+[TABSIZE] Adjust tab-style of plain text
 Syntax
-	$0 --help --tab --space
+	$0 --help --tab --space --write
 		--old=<old tab size, default is 8>
 		--new=<new tab size, default is 4>
 		--mintab=<min spaces for tabify, default is 2>
