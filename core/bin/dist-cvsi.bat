@@ -17,6 +17,7 @@ for /d /r %%i in (. *) do (
 			echo *.bak>>.cvsignore
 			echo *.tmp>>.cvsignore
 			echo *.old>>.cvsignore
+			echo *.log>>.cvsignore
 			echo *.$*>>.cvsignore
 			echo *.~*>>.cvsignore
 			echo ~*>>.cvsignore
@@ -24,6 +25,10 @@ for /d /r %%i in (. *) do (
 			echo .local>>.cvsignore
 			echo *.obj>>.cvsignore
 			echo Thumbs.db>>.cvsignore
+			echo *.ncb>>.cvsignore
+			echo Debug>>.cvsignore
+			echo Release>>.cvsignore
+			echo *.scc>>.cvsignore
 		)
 		popd
 	)

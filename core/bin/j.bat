@@ -61,9 +61,9 @@ if not "%1"=="-c" goto fi_compile
 :fi_compile
 
 if not "%1"=="-i" goto fi_init
-	if "%JAVA_HOME%"=="" SET JAVA_HOME=c:\hejmo\java\j2se
-	if "%CATALINA_HOME%"=="" SET CATALINA_HOME=c:\hejmo\java\tomcat5
-	if "%CATALINA_BASE%"=="" SET CATALINA_BASE=c:\hejmo\java\tomcat5
+	if "%JAVA_HOME%"=="" SET JAVA_HOME=c:\varoj\java\j2se
+	if "%CATALINA_HOME%"=="" SET CATALINA_HOME=c:\varoj\java\tomcat5
+	if "%CATALINA_BASE%"=="" SET CATALINA_BASE=c:\varoj\java\tomcat5
 	if "%JSYS_HOME%"=="" (
 		set JSYS_HOME=X:\jos\common
 	) else (
@@ -89,7 +89,7 @@ if not "%1"=="-i" goto fi_init
 	echo echo running generated script...>>%J_BATCH_TEMP%
 	echo set CLASSPATH=.>>%J_BATCH_TEMP%
 
-	pushd c:\hejmo\java\jar
+	pushd c:\varoj\java\jar
 		for /R %%i in (*) do (
 			if "%%~xi"==".jar" (
 				echo set CLASSPATH=%%CLASSPATH%%;%%~fi>>%J_BATCH_TEMP%
@@ -122,7 +122,7 @@ if not "%1"=="-i" goto fi_init
 	rem del %J_BATCH_TEMP%
 	set J_BATCH_TEMP=
 
-	SET PATH=%JAVA_HOME%\bin;%CATALINA_HOME%\bin;C:\hejmo\java\.dok;%PATH%
+	SET PATH=%JAVA_HOME%\bin;%CATALINA_HOME%\bin;C:\varoj\java\.dok;%PATH%
 
 	call %JSYS_HOME%\..\bin\initsh.bat
 

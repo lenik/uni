@@ -30,15 +30,16 @@ sub adjust {
 	my ($h, $m, $s, $ms) = $t =~ m/$TIME_PARSE/;
 	my $linear = ($h*3_600 + $m*60 + $s)*1_000 + $ms;
 	$linear += $delta_ms;
+	$linear = 0 if $linear < 0;
 	($linear, $ms)= (int($linear/1_000), $linear%1_000);
 	($linear, $s) = (int($linear/60), $linear%60);
 	($linear, $m) = (int($linear/60), $linear%60);
 	($linear, $h) = (int($linear/24), $linear%24);
-	$h = '0'.$h if $h<10;
-	$m = '0'.$m if $m<10;
-	$s = '0'.$s if $s<10;
-	$ms = '0'.$ms if $ms<100;
-	$ms = '0'.$ms if $ms<10;
+	$h = "0$h"   if $h<10;
+	$m = "0$m"   if $m<10;
+	$s = "0$s"   if $s<10;
+	$ms = "0$ms" if $ms<100;
+	$ms = "0$ms" if $ms<10;
 	$t = "$h:$m:$s,$ms";
 }
 
