@@ -1,4 +1,5 @@
 @ECHO OFF
+REM $Id: apply.bat,v 1.2 2004-09-22 08:39:08 dansei Exp $
 
 SET _READONLY=
 IF "%1"=="-O" (

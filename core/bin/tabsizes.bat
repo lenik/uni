@@ -1,4 +1,5 @@
 @echo off
+    rem $Id: tabsizes.bat,v 1.2 2004-09-22 08:39:12 dansei Exp $
 
 	if "%1"=="" goto help
 

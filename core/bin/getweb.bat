@@ -1,4 +1,8 @@
 @echo off
+    rem $Id: getweb.bat,v 1.2 2004-09-22 08:39:10 dansei Exp $
+
+    rem http-get/post, powered by sockonce.
+
 
 	if "%1"=="" goto help
 

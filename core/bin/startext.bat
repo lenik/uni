@@ -1,4 +1,5 @@
 @echo off
+REM $Id: startext.bat,v 1.2 2004-09-22 08:39:11 dansei Exp $
 
 REM Find the start-button container
 lc /nologo user32::FindWindowA('Shell_TrayWnd', 0)

@@ -1,5 +1,7 @@
 @rem = '
         @echo off
+        rem $Id: advname.bat,v 1.2 2004-09-22 08:39:07 dansei Exp $
+
         if "%1"=="" goto help
 
         if "%OS%"=="Windows_NT" goto sysnt

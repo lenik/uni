@@ -1,4 +1,8 @@
 @echo off
+rem $Id: any.bat,v 1.2 2004-09-22 08:39:07 dansei Exp $
+
+rem ?? who wrote this ??
+
 
 if "%1"=="/D" goto SetParameters
 if "%1"=="/d" goto SetParameters
@@ -16,7 +20,7 @@ set ANY_PATTERN=*.*
 goto DoCmd
 
 :Usage
-echo %0 [files-pattern] docmd
+echo %0 [files-pattern] do-cmd
 goto End
 
 :LinkPatterns

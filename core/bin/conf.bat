@@ -1,4 +1,6 @@
 @echo off
+rem $Id: conf.bat,v 1.2 2004-09-22 08:39:09 dansei Exp $
+
 
 set DEFAULT_EDITOR=notepad
 

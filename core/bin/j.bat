@@ -1,6 +1,5 @@
-
 @echo off
-
+rem $Id: j.bat,v 1.3 2004-09-22 08:39:10 dansei Exp $
 
 if not "%OS%"=="" if not "%OS%"=="Windows_NT" goto error_version
 

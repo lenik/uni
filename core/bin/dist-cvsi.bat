@@ -1,4 +1,5 @@
 @echo off
+rem $Id: dist-cvsi.bat,v 1.3 2004-09-22 08:39:09 dansei Exp $
 
 echo Distribute cvs-initials to managed directory
 echo Version 1

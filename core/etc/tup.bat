@@ -1,4 +1,5 @@
 @echo off
+rem $Id: tup.bat,v 1.3 2004-09-22 08:39:12 dansei Exp $
 
 :begin
 	if "%temp%"=="" set temp=%tmp%

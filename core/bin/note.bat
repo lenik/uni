@@ -1,5 +1,5 @@
 @echo off
-
+rem $Id: note.bat,v 1.2 2004-09-22 08:39:10 dansei Exp $
 
 rem 0, options
 	if "%1"=="w" (
