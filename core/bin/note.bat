@@ -1,5 +1,5 @@
 @echo off
-rem $Id: note.bat,v 1.16 2004-12-07 04:04:16 dansei Exp $
+rem $Id: note.bat,v 1.17 2004-12-07 04:24:38 dansei Exp $
 
 rem 0, options
     set note_exec=%~dp0
@@ -133,7 +133,8 @@ rem 5, open method
         goto cleanup
     )
 
-    rem otherwise, open the note
+    rem otherwise,
+    rem   if existed, open the note
     if "%note_extf%"=="" if exist "%note_ctr%\%note%.*" (
         pushd "%note_ctr%"
         for %%i in (%note%.*) do (
@@ -145,7 +146,7 @@ rem 5, open method
         goto cleanup
     )
 
-    rem create new file if not existed.
+    rem   if not existed, create new note
     if not "%note_delete%"=="1" if not exist "%note_ctr%\%note%.%note_ext%" (
         if not exist "%note_home%\.vol\*" (
             echo Initialize .vol templates
@@ -185,11 +186,12 @@ rem 5, open method
         goto end
     )
 
-    if not "%note_app%"=="" goto open_start
-    set note_app=!note_a_%~2!
-    if "%note_app%"=="" set note_app=ue
-:open_start
-    start %note_app% "%note_ctr%\%~1"
+    if not "%note_app%"=="" goto open_1
+    set note_app1=!note_a_%~2!
+    if "%note_app1%"=="" set note_app1=ue
+:open_1
+    start %note_app1% "%note_ctr%\%~1"
+    set note_app1=
     goto end
 
 
