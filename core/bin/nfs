@@ -22,6 +22,7 @@ our $opt_program = '.dep';                  # Program used to open nfs document
                                             #   .bak    do backup
 
 our $opt_type = 'txt';                      # Document type
+our $opt_type_specified = 0;                # Is the type option be strictly specified
 
 our $opt_open_all = 0;                      # Open all types
                                             # If none type of the document is created, then create one;
@@ -82,14 +83,24 @@ our $nfs_path_full;                         # should be equal to container/title
     sub help;
 
 
+
 sub main {
     $opt_root = "$ENV{USERPROFILE}/My Documents/Notes";
 
+    sub error_report {
+        my $msg = shift;
+        print $msg;
+        exit;
+    }
+
     GetOptions(
         'root|r=s',
-        'program|p=s',
-        'type|t=s',
-        'open|a-all',
+        'program|p=s'       => sub { error_report "--program=$opt_program has already been specified" if $opt_program ne '.dep';
+                                     $opt_program = $_[1]; },
+        'type|t=s'          => sub { error_report "--open-all is specified" if $opt_open_all == 1;
+                                     $opt_type = $_[1];         $opt_type_specified = 1 },
+        'open-all|a'        => sub { error_report "--type is specified" if $opt_type_specified;
+                                     $opt_open_all = 1 },
         'backup|b'          => sub { $opt_program = '.bak' },
         'create|c'          => sub { $opt_program = '.new' },
         'delete|d'          => sub { $opt_program = '.del' },
@@ -115,11 +126,14 @@ sub main {
 
     for (@ARGV) {
         if ($_ eq '//') {       # //    --index
+            error_report "--program=$opt_program has already been specified" if $opt_program ne '.dep';
             $opt_program = '.index';
             next;
         }
         if (m/^\/(\w+)$/) {     # /ext  --type
+            error_report "--open-all is specified" if $opt_open_all == 1;
             $opt_type = $1;
+            $opt_type_specified = 1;
             next;
         }
         $opt_title = $_;
@@ -145,8 +159,8 @@ sub main {
             # temporary add the serial-name for stacked-document (which has '-' suffix)
 
             # get the container path
-            my ($t_container, $t_vol, $t_full)
-                = expand_nfs_title($opt_root, $opt_title, $opt_type);
+            my ($t_container, $t_vol, $t_full, $t_autoext)
+                = expand_nfs_title($opt_root, $opt_title, $opt_type, 1);
 
             my $stack_serial = get_serial($t_container);
             $opt_title =~ s/-placeholder$//;
@@ -156,13 +170,15 @@ sub main {
     # expand nfs-title into container-path and full-path
         ($nfs_path_container,
          $nfs_path_vol,
-         $nfs_path_full)
-            = expand_nfs_title($opt_root, $opt_title, $opt_type);
+         $nfs_path_full,
+         $opt_type)
+            = expand_nfs_title($opt_root, $opt_title, $opt_type, $opt_type_specified);
 
         print "NFS-Vol:   \"$nfs_path_vol\"\n" if $opt_verbose;
         print "Container: \"$nfs_path_container\"\n" if $opt_verbose;
         print "Fullpath:  \"$nfs_path_full\"\n" if $opt_verbose;
 
+        print "Program:   \"$opt_program\"\n" if $opt_verbose;
 
     # quick delete
         if ($opt_program eq '.del' or $opt_program eq '.new') {
@@ -302,21 +318,42 @@ sub main {
                 }
             }
 
-            # use program depends on type to open the document
-            if ($opt_program eq '.dep') {
-                my $opener = $nfs_filetype{$opt_type};
-                   $opener ||= $nfs_filetype{''};
-                my $cmdline = sprintf("start $opener", $nfs_path_full);
+            # prepare file-list to open => $full_dir/$full_name . @exts
+            my ($full_dir, $full_file) = path_split $nfs_path_full;
+            my ($full_name, $full_ext) = path_splitext $full_file;
+                $full_ext =~ s/^\.//;
+            my @exts;
 
-                print "execute: $cmdline" if $opt_verbose;
-                exec $cmdline;
+            if ($opt_open_all) {
+                my $dh = new DirHandle($nfs_path_container);
+                my @list = $dh->read;
+                $dh->close;
+                foreach my $item (@list) {
+                    next if -d path_join($nfs_path_container, $item);
+                    my ($et_name, $et_ext) = path_splitext $item;
+                    $et_ext =~ s/^\.//;
+                    push @exts, $et_ext if ($et_name eq $full_name);
+                }
             }
+            @exts = ($full_ext) if (not @exts);
 
-            # use the specified program to open the document
-            else {
-                my $cmdline = sprintf("start $opt_program", $nfs_path_full);
-                print "execute: $cmdline" if $opt_verbose;
-                exec $cmdline;
+            # open file-list
+            foreach my $each_ext (@exts) {
+                my $open_path = path_join($full_dir, "$full_name.$each_ext");
+                my $cmdline;
+
+                if ($opt_program eq '.dep') {
+                    # use program depends on type to open the document
+                    my $opener = $nfs_filetype{$each_ext};
+                       $opener ||= $nfs_filetype{''};
+                    $cmdline = sprintf("start $opener", $open_path);
+                } else {
+                    # use the specified program to open the document
+                    $cmdline = sprintf("start $opt_program", $open_path);
+                }
+
+                print "execute: $cmdline\n" if $opt_verbose;
+                system $cmdline;
             }
         }
 }
@@ -369,7 +406,7 @@ sub file_sync {
 # input:    original-root, title
 # output:   path-container, path-vol, path-full
 sub expand_nfs_title {
-    my ($root, $title, $ext) = @_;
+    my ($root, $title, $ext, $strict) = @_;
     my @segs = split('-', $title);
     my $current = '';
     my ($container, $vol, $full);
@@ -393,9 +430,30 @@ sub expand_nfs_title {
     }
     $container = path_normalize $container;
     $vol = path_normalize $vol;
-    $full = path_join $container, "$name.$ext";
 
-    return ($container, $vol, $full);
+    if (not $strict) {
+        # auto find extension
+        my $dh = new DirHandle($container);
+        my @list = $dh->read;
+        $dh->close;
+        my $autoext = undef;
+        for (@list) {
+            next if -d path_join($container, $_);
+            my ($fi, $ei) = path_splitext($_);
+            $ei =~ s/^\.//;
+            if ($fi eq $name) {
+                $autoext = $ei if not $autoext;
+                $autoext = $ei if $ei eq $ext;        # high prior for same-extension
+            }
+        }
+        $ext = $autoext if $autoext;
+    } else {
+        # extension strictly specified
+        # (do nothing)
+    }
+
+    $full = path_join $container, "$name.$ext";
+    return ($container, $vol, $full, $ext);
 }
 
 
@@ -618,7 +676,7 @@ sub get_vol_serial {
 
 
 sub version {
-    my %id = parse_id('$Id: nfs,v 1.3 2005-01-04 05:09:13 dansei Exp $');
+    my %id = parse_id('$Id: nfs,v 1.4 2005-01-04 05:54:41 dansei Exp $');
     print <<"EOM"
 [NFS] Notes for Speed
       Written by Snima Denik    Version 2.$id{rev}    Updated $id{date}
@@ -638,7 +696,7 @@ Syntax:
         --program=<open-by-program, default depends on type> (p)
         --type=<note-file-type, default txt> (t)
         --open-all (a)
-            (open all types of the specifid note, default only txt)
+            (open all types of the specifid note, exclusive with --type)
 
         --backup (b)
         --create (delete the existing document and create new) (c)
