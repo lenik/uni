@@ -1,7 +1,11 @@
 #!/usr/bin/perl
 
-# $Id: repl,v 1.4 2004-09-23 05:06:11 dansei Exp $
+# $Id: repl,v 1.5 2004-11-13 13:45:50 dansei Exp $
 # $Log: not supported by cvs2svn $
+# Revision 1.4  2004/09/23 05:06:11  dansei
+# - new option: --veryquiet
+# - add to display modified-count at last.
+#
 # Revision 1.3  2004/09/22 08:25:26  dansei
 # few
 #
@@ -26,12 +30,14 @@ my $force = 0;
 my $quiet = 0;
 my $veryquiet = 0;
 my $verbose = 0;
+my $output_only = 0;
 
 my $options = GetOptions(
                          'recursive|r' => \$recursive,
                          'backup|k' => \$backup_file,
                          'regular-expression|x' => \$regex,
                          'binary|b' => \$binary,
+                         'output|o' => \$output_only,
                          'first|n=n' => \$first_n,
                          'ignore-case' => \$no_case,
                          'force' => \$force,
@@ -42,6 +48,8 @@ my $options = GetOptions(
                          'command=s' => \$command,
                          );
 
+$backup_file = 0 if $output_only;
+$veryquiet = 1 if $output_only;
 $quiet = 1 if ($veryquiet);
 
 help() if ($command and scalar(@ARGV) < 1);
@@ -59,7 +67,7 @@ print "normalized-file-pattern: $fpat\n" if $verbose;
 
 my $n_source = length($source);
 my $n_target = length($target);
-$source = lc($source) if $no_case;
+$source = lc($source)  if $no_case;
 $source = qr/$source/i if $regex and $no_case;
 $source = qr/$source/  if $regex and not $no_case;
 
@@ -143,7 +151,18 @@ sub process_file {
 		for (my $l = 0; $l < scalar(@lines); $l++) {
 			$_ = $lines[$l];
 			if ($regex) {
-				if (s/$source/$target/g) {
+			    my $res = '';
+			    my $spos = 0;
+			    while (m/$source/g) {
+			        $res .= substr($_, $spos, $-[0] - $spos);
+			        $res .= eval("\"$target\"");
+			        $spos = $-[0] + length($&);
+			    }
+			    $res .= substr($_, $spos);
+			        #print STDERR "[$_=>$res]\n";
+
+			    if ($_ ne $res) {
+			        $_ = $res;
 					$dirty = 1;
 				}
 			} else {
@@ -165,6 +184,11 @@ sub process_file {
 		}
 	}
 
+	if ($output_only) {
+	    for (@lines) {
+	        print;
+	    }
+	} else {
 	if ($dirty) {
 		print "w $file\n" if not $veryquiet;
 		#print "result\n";
@@ -174,8 +198,11 @@ sub process_file {
 		$fh->close();
 		return 1;
 	}
+    }
+
 	return 0;
 }
+
 
 sub help() {
 	print <<"EOM";
@@ -187,6 +214,7 @@ Syntax:
         --regular-expression (x)
         --command=<external-command::arguments(\$var-names)> (c)
         --binary (b)
+        --output (o)
         --first=<number> (n)
         --ignore-case (i)
         --force (f)
@@ -198,6 +226,12 @@ Syntax:
         <source-pattern (reg-ex or plain-text)>
         <target-pattern (reg-ex or plain-text)>
         [files or directories ... (default is current directory '.') ]
+
+Variables:
+    \$fpat          file pattern
+    \$source        source pattern
+    \$target        target pattern
+    \$file          current file name
 EOM
 	exit 0;
 }
