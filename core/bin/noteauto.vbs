@@ -8,7 +8,7 @@
 	set sh=createobject("Wscript.shell")
 	set args=wscript.arguments
 
-	notehome=args(0)
+	notevol=args(0)
 
 	select case lcase(args(1))
 	case "create"
@@ -21,9 +21,9 @@
 sub note_create(ftype, path)
 	select case lcase(ftype)
 	case "doc"
-		note_create_word notehome & "\.vol\.vol-def.doc", path
+		note_create_word notevol & "\.vol-def.doc", path
 	case "xls"
-		note_create_excel notehome & "\.vol\.vol-def.xls", path
+		note_create_excel notevol & "\.vol-def.xls", path
 	case else
 		msgbox "Error File Type: " & ftype
 	end select

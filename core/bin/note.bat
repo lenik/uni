@@ -1,5 +1,5 @@
 @echo off
-rem $Id: note.bat,v 1.17 2004-12-07 04:24:38 dansei Exp $
+rem $Id: note.bat,v 1.18 2004-12-19 05:14:26 dansei Exp $
 
 rem 0, options
     set note_exec=%~dp0
@@ -68,7 +68,7 @@ rem 2, special files
     )
 
 
-rem 3, find note home directory
+rem 3, find note home (the root container) directory
     set note_home=%userprofile%\My Documents\Notes
     if exist "%note_home%.link" (
         for /f %%i in ('type "%note_home%.link"') do set note_home=%%i
@@ -78,6 +78,7 @@ rem 3, find note home directory
             goto cleanup
         )
     )
+    set note_vol=%note_home%\.vol
 
 
 rem 4, build '-' separated directory structure
@@ -104,6 +105,8 @@ rem 4, build '-' separated directory structure
                 goto parse_link
             )
         )
+        rem implements the .vol override
+        if exist "!note_ctr!\.vol\*" set note_vol=!note_ctr!\.vol
     )
     if "%note_rest%"=="" goto x_parse
     set note_cur=%note_cur%%note_char%
@@ -127,7 +130,7 @@ rem 5, open method
     rem if // option, then build index
     if "%note_ext%"=="/" (
         pushd "%note_ctr%"
-        grep -R "^>" * >%note_ctr%\%note%.txt
+        grep -R "^>" * >"%note_ctr%\%note%.txt"
         start %note_a_txt% "%note_ctr%\%note%.txt"
         popd
         goto cleanup
@@ -148,18 +151,18 @@ rem 5, open method
 
     rem   if not existed, create new note
     if not "%note_delete%"=="1" if not exist "%note_ctr%\%note%.%note_ext%" (
-        if not exist "%note_home%\.vol\*" (
-            echo Initialize .vol templates
+        if not exist "%note_vol%\*" (
+            echo Initialize .vol templates [global]
             unzip "%note_exec%notes.zip" -d "%note_home%"
             )
 
-        if exist "%note_home%\.vol\.vol-def.%note_ext%" (
+        if exist "%note_vol%\.vol-def.%note_ext%" (
             if "%note_ext%"=="doc" (
-                noteauto "%note_home%" create doc "%note_ctr%\%note%.%note_ext%"
+                noteauto "%note_vol%" create doc "%note_ctr%\%note%.%note_ext%"
             ) else if "%note_ext%"=="xls" (
-                noteauto "%note_home%" create xls "%note_ctr%\%note%.%note_ext%"
+                noteauto "%note_vol%" create xls "%note_ctr%\%note%.%note_ext%"
             ) else (
-                copy "%note_home%\.vol\.vol-def.%note_ext%" "%note_ctr%\%note%.%note_ext%" >nul
+                copy "%note_vol%\.vol-def.%note_ext%" "%note_ctr%\%note%.%note_ext%" >nul
             )
             rem touch "%note_ctr%\%note%.%note_ext%"
         ) else (
@@ -253,6 +256,7 @@ rem 5, open method
     set note_extf=
     set note=
     set note_home=
+    set note_vol=
     set note_ctr=
     set note_serial=
     set note_delete=
