@@ -138,7 +138,7 @@
 
 
 	function Help() {
-	    $id = ParseId('$Id: fontmap.php,v 1.7 2004-12-01 04:37:40 dansei Exp $');
+	    $id = ParseId('$Id: fontmap.php,v 1.8 2004-12-03 13:51:25 dansei Exp $');
 	    ?>
 [FONTMAP] Font Map Generator
 Written by Snima Denik,  Version <?=$id['rev']?>,  Last updated <?=$id['time']?>
@@ -224,9 +224,7 @@ EOM
         $opt_chars =
             "!\"#$%&\'()*+,-./0123456789:;<=>?@"
             . "ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
-            . "abcdefghijklmnopqrstuvwxyz{|}~\x7F"
-            . "\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8A\x8B\x8C\x8D\x8E\x8F"
-            . "\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9A\x9B\x9C\x9D\x9E\x9F"
+            . "abcdefghijklmnopqrstuvwxyz{|}~"
             . "\xA0\xA1\xA2\xA3\xA4\xA5\xA6\xA7\xA8\xA9\xAA\xAB\xAC\xAD\xAE\xAF"
             . "\xB0\xB1\xB2\xB3\xB4\xB5\xB6\xB7\xB8\xB9\xBA\xBB\xBC\xBD\xBE\xBF"
             . "\xC0\xC1\xC2\xC3\xC4\xC5\xC6\xC7\xC8\xC9\xCA\xCB\xCC\xCD\xCE\xCF"
@@ -298,6 +296,42 @@ EOM
         if (! isset($opt_textfont)) {
             $opt_textfont = 'cour.ttf'; #$opt_font;
         }
+
+        # chars process:  \x \[range\]
+            $tmp_chars = $opt_chars;
+            $groups = preg_match_all('/(\\\\\\[ [^\\]]+ \\\\\\]) | (\\\\.)/x',
+                    $tmp_chars, $matches,
+                    PREG_SET_ORDER+PREG_OFFSET_CAPTURE);
+
+            if ($groups) {
+                $mark = 0;
+                $opt_chars = '';
+                for ($grp = 0; $grp < $groups; $grp++) {
+                    $offset_0 = $matches[$grp][0][1];
+                    $opt_chars .= substr($tmp_chars, $mark, $offset_0 - $mark);
+
+                    $is_range = true;
+                    if (isset($matches[$grp][2])) {
+                        # \x
+                        $grp2_char = substr($matches[$grp][2][0], 1);
+                        if ($grp2_char == 'n') { $opt_chars .= "\n"; }
+                        elseif ($grp2_char == 't') { $opt_chars .= "\t"; }
+                        elseif ($grp2_char == 'r') { $opt_chars .= "\r"; }
+                        else { $opt_chars .= $grp2_char; }
+                        $mark = $offset_0 + 2;
+                    } else {
+                        # \[..-..\]
+                        $grp1 = substr($matches[$grp][1][0], 2, -2);
+                        $dash = strpos($grp1, '-');
+                        $r1 = hexdec(substr($grp1, 0, $dash));
+                        $r2 = hexdec(substr($grp1, $dash+1));
+                        for ($ri = $r1; $ri < $r2; $ri++)
+                            $opt_chars .= chr($ri);
+                        $mark = $offset_0 + strlen($grp1) + 4;
+                    }
+                }
+                $opt_chars .= substr($tmp_chars, $mark);
+            }
 
         if (! isset($opt_pattern)) {
             if ($opt_size < 7) $opt_pattern = 'tc';         #  0..6     5
