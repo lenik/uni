@@ -111,6 +111,7 @@ sub main {
 
     GetOptions(
         'root|r=s',
+        'nfs-title|n=s',
         'program|p=s'       => sub { set_program $_[1] },
         'type|t=s'          => sub { error_report "--open-all is specified" if $opt_open_all == 1;
                                      $opt_type = $_[1];         $opt_type_specified = 1 },
@@ -140,20 +141,23 @@ sub main {
         );
 
     for (@ARGV) {
-        if ($_ eq '//') {       # //    --index
+        if ($_ eq '//') {               # //        --index
             set_program '.index';
-            next;
-        }
-        if (m/^\/(\w+)$/) {     # /ext  --type
+        } elsif (m/^\/(\w+)$/) {        # /ext      --type
             error_report "--open-all is specified" if $opt_open_all == 1;
             $opt_type = $1;
             $opt_type_specified = 1;
-            next;
+        } elsif (m/^(\d+)([\+\-])$/) {  # nn+ nn-   --offset
+            my $offset = $1;
+            $offset = -$offset if $2 eq '-';
+            $opt_offset += $offset;
+        } elsif (not $opt_title) {      # <title>   --nfs-title
+            # REM-ARG-1 for title is title not defined
+            $opt_title = $_;
+        } else {
+            die "Invalid argument: $_";
         }
-        $opt_title = $_;
-        last;
     }
-    # ARGV remains...
 
 
     $opt_title = get_serial($opt_root) if (! $opt_title);
@@ -614,7 +618,8 @@ sub get_serial {
         # YYYY-MM-DD (week W) HH:NN:SS
         my $fmt = '';
         my @list = ();
-        my @lt = localtime;
+        my $timestamp = time + $opt_offset * 86400;
+        my @lt = localtime $timestamp;
         while ($opt_format_date =~ m/(.)\1*/g) {
             my $c = substr($&, 0, 1);
             my $len = length($&);
@@ -680,7 +685,7 @@ sub get_serial {
             $max = $num if $num > $max;
         }
         print "last container-serial retrieved: $max\n" if $opt_verbose;
-        $num = $max + 1;
+        $num = $max + 1 + $opt_offset;
         return sprintf($f, $num);
     }
     die "Name method $opt_name_method is not supported. ";
@@ -707,7 +712,7 @@ sub get_vol_serial {
 
 
 sub version {
-    my %id = parse_id('$Id: nfs,v 1.7 2005-01-04 06:43:29 dansei Exp $');
+    my %id = parse_id('$Id: nfs,v 1.8 2005-01-04 09:56:23 dansei Exp $');
     print <<"EOM"
 [NFS] Notes for Speed
       Written by Snima Denik    Version 2.$id{rev}    Updated $id{date}
@@ -723,7 +728,7 @@ Syntax:
     nfs (-abcdfhilmopqrstuv <title>)
         --root=<nfs-root, default "~/My Documents/Notes" for Windows, -or-
                 "~/Notes" for *Nix> (r)
-
+        --nfs-title=<nfs-title, default use-date> (n)
         --program=<open-by-program, default depends on type> (p)
         --type=<note-file-type, default txt> (t)
         --open-all (a)
