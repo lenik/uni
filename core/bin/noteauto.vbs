@@ -1,4 +1,8 @@
 
+' Repair registry destroyed by fucking STHVCD:
+'   HKCR\.vbs = "VBSFile"
+'
+
 ' note.vbs syntax:
 '	note <note-home> <command> <options>
 ' command:
