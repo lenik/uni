@@ -1,5 +1,5 @@
 @echo off
-    rem $Id: j.bat,v 1.4 2004-11-24 03:38:14 dansei Exp $
+    rem $Id: j.bat,v 1.5 2004-11-25 07:12:52 dansei Exp $
 
     if "%OS%"=="Windows_NT" goto winnt
 
@@ -72,7 +72,7 @@
 :init
     if not "%JOS_HOME%"=="" goto cleanup
 
-    set JOS_HOME=X:\jos
+    set JOS_HOME=C:\varoj\java\jos
 	if "%JAVA_HOME%"=="" SET JAVA_HOME=c:\varoj\java\j2se-1_4
 	if "%CATALINA_HOME%"=="" SET CATALINA_HOME=c:\varoj\java\tomcat5
 	if "%CATALINA_BASE%"=="" SET CATALINA_BASE=c:\varoj\java\tomcat5
