@@ -50,6 +50,9 @@ for %%i in (c d e f g h i j k l m n o p q r s t u v w x y z) do (
 	echo     target: %tup_dst%
 	xcopy /d /e /y "%tup_src%" "%tup_dst%"
 	echo dir-t update successfully.
+	pushd "%tup_dst%\0" >nul
+	call syset.bat env
+	popd >nul
 
 :end
 	set tup_src=
