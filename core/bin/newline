@@ -31,6 +31,7 @@ $Is_BSD     = $^O =~ /^(?:free|net|open)bsd|bsdos$/;
 
 
 our $opt_new_line = "\n";
+    $opt_new_line = "\r\n" if ($Is_Win32 or $Is_Dos);
 our $opt_old_line = qr/(?<=[^\r\n])((\r?\n)|(\r))/;
 our $opt_recursive = 0;
 our $opt_stdout = 0;
@@ -38,25 +39,23 @@ our $opt_quiet = 0;
 
 
 sub init {
-	$opt_new_line = "\r\n" if ($Is_Win32 or $Is_Dos);
-
-	GetOptions(
-		'new-line=s',
-		'old-line=s',
-		'recursive',
-		'stdout',
-		'unix' => sub { $opt_new_line = "\n" },
-		'dos' => sub { $opt_new_line = "\r\n" },
-		'version' => sub { &version; exit },
-		'quiet',
-		'help' => sub { &help; exit },
-	);
+    GetOptions(
+        'new-line=s',
+        'old-line=s',
+        'recursive',
+        'stdout',
+        'unix' => sub { $opt_new_line = "\n" },
+        'dos' => sub { $opt_new_line = "\r\n" },
+        'version' => sub { &version; exit },
+        'quiet',
+        'help' => sub { &help; exit },
+    );
 }
 
 
 sub version {
-	my %ver = parse_id('$Id: newline,v 1.4 2004-11-17 04:17:41 dansei Exp $');
-	print <<"EOM";
+    my %ver = parse_id('$Id: newline,v 1.5 2004-12-07 04:06:21 dansei Exp $');
+    print <<"EOM";
 [NEWLINE] Convert new-line format for text files
 Written by Denik,  Revision $ver{rev},  Last Updated $ver{date}
 EOM
@@ -64,20 +63,28 @@ EOM
 
 
 sub help {
-	&version;
-	print <<"EOM";
+    &version;
+
+    my $def_new = $opt_new_line;
+        $def_new =~ s/\r/\\r/g;
+        $def_new =~ s/\n/\\n/g;
+    my $def_old = $opt_old_line;
+        $def_old =~ s/\r/\\r/g;
+        $def_old =~ s/\n/\\n/g;
+
+    print <<"EOM";
 
 Syntax:
-	newline
-		--new-line=<character> (n)
-		--old-line=<regular-expression> (o)
-		--recursive (r)
-		--stdout (s)
-		--unix (u)
-		--dos (d)
-		--quiet (q)
-		--version (v)
-		--help (h)
+    newline
+        --new-line=<character, default $def_new> (n)
+        --old-line=<regular-expression, default $def_old> (o)
+        --recursive (r)
+        --stdout (s)
+        --unix (u)
+        --dos (d)
+        --quiet (q)
+        --version (v)
+        --help (h)
 EOM
 }
 
@@ -137,23 +144,23 @@ sub translate {
 
 
 sub process {
-	my ($item, $rec) = @_;
-	$rec ||= $opt_recursive;
-	if (-d $item) {
-		if ($rec) {
-			print "\n[DIR ] $item" unless $opt_quiet;
-			my $dh = new DirHandle($item);
-			my @subitems = $dh->read();
-			$dh->close();
-			for (@subitems) {
-				next if (m/^\.+$/);
-				process("$item/$_", $opt_recursive);
-			}
-		}
-	} else {
-		print "\n[FILE] $item" unless $opt_quiet;
-		translate $item;
-	}
+    my ($item, $rec) = @_;
+    $rec ||= $opt_recursive;
+    if (-d $item) {
+        if ($rec) {
+            print "\n[DIR ] $item" unless $opt_quiet;
+            my $dh = new DirHandle($item);
+            my @subitems = $dh->read();
+            $dh->close();
+            for (@subitems) {
+                next if (m/^\.+$/);
+                process("$item/$_", $opt_recursive);
+            }
+        }
+    } else {
+        print "\n[FILE] $item" unless $opt_quiet;
+        translate $item;
+    }
 }
 
 
@@ -164,5 +171,5 @@ sub process {
 @ARGV = qw/./ unless @ARGV;
 
 for (@ARGV) {
-	process($_, 1);
+    process($_, 1);
 }
