@@ -1,5 +1,5 @@
 @echo off
-rem $Id: note.bat,v 1.2 2004-09-22 08:39:10 dansei Exp $
+rem $Id: note.bat,v 1.3 2004-09-23 05:05:10 dansei Exp $
 
 rem 0, options
 	if "%1"=="w" (
@@ -21,8 +21,9 @@ rem 0, options
 
 rem 1, get the note title
 
+	set note_serial=%date:~0,10%
 	if "%1"=="" (
-		set note=%date:~0,10%
+		set note=%note_serial%
 		goto exit_arg
 	)
 
@@ -51,22 +52,31 @@ rem 3, build '-' separated directory structure
 	)
 
 	set note_ctr=%note_home%
-	set note_rest=%note%
 	set note_cur=
-	set note_char=
+	set note_char=%note:~0,1%
+	set note_rest=%note:~1%
 :parse
-	set note_char=%note_rest:~0,1%
-	set note_rest=%note_rest:~1%
 	if "%note_char%"=="-" set note_ctr=%note_ctr%\%note_cur%
 	if "%note_rest%"=="" goto x_parse
 	set note_cur=%note_cur%%note_char%
+	set note_char=%note_rest:~0,1%
+	set note_rest=%note_rest:~1%
 	goto parse
 :x_parse
+	if "%note_char%"=="-" set note=%note%%note_serial%
+	if exist "%note_ctr%\%note%\*" (
+	    set note_ctr=%note_ctr%\%note%
+	    set note=%note%-overall
+	)
+	set note_cur=
+	set note_char=
+	set note_rest=
 
 	if not exist "%note_ctr%" md "%note_ctr%"
 	if not exist "%note_ctr%\%note%%note_ext%" (
 		if exist "%note_home%\.vol\def%note_ext%" (
 			copy "%note_home%\.vol\def%note_ext%" "%note_ctr%\%note%%note_ext%" >nul
+			rem touch "%note_ctr%\%note%%note_ext%"
 		) else (
 			type nul >"%note_ctr%\%note%%note_ext%"
 		)
@@ -81,5 +91,4 @@ rem 3, build '-' separated directory structure
 	set note=
 	set note_home=
 	set note_ctr=
-	set note_rest=
-	set note_cur=
+	set note_serial=
