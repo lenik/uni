@@ -1,5 +1,5 @@
 @echo off
-    rem $Id: syset.bat,v 1.2 2004-09-22 08:39:12 dansei Exp $
+    rem $Id: syset.bat,v 1.3 2004-11-15 01:27:07 dansei Exp $
 
 	if not "%OS%"=="Windows_NT" goto err_notsupp
 
@@ -44,13 +44,17 @@
 
 	assoc .pl=PerlScript >nul
 	assoc .p=PerlScript >nul
-	ftype PerlScript=%t_dir%\2\bin\perl.exe "%%0" %%* >nul
+	ftype .pl=%t_dir%\2\bin\perl.exe "%%0" %%* >nul
+	ftype .p=%t_dir%\2\bin\perl.exe "%%0" %%* >nul
 
 	assoc .py=PythonScript >nul
-	ftype PythonScript=%t_dir%\2\bin\Python.exe "%%0" %%* >nul
+	ftype .py=%t_dir%\2\bin\Python.exe "%%0" %%* >nul
 
 	assoc .Main=JosMain >nul
-	ftype JosMain=jsh.bat "%%0" %%* >nul
+	ftype .Main=jsh.bat "%%0" %%* >nul
+
+	assoc .sim=SIMScript
+	ftype .sim=z:\t\2\bin\perl.exe z:\t\0\sim.pl "%%0" %%* >nul
 
 	goto end
 
