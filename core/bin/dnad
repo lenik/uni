@@ -1,0 +1,42 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::gene;
+use cmt::vcs;
+use Getopt::Long;
+
+	GetOptions(
+		'help'		=> sub { &help },
+	);
+
+	my $started = 0;
+	my @bit2s;
+	while (<>) {
+		if (m/\bDNA\s*<<DNA\b/) {
+			$started = 1;
+			next;
+		}
+		if (m/^DNA$/) {
+		    last;
+		}
+		next if (not $started);
+		push @bit2s, $_;
+	}
+
+    my $program = DNA join('', @bit2s);
+
+    print "$program";
+
+
+sub help {
+    my %id = parse_id('$Id: dnad,v 1.1 2005-03-03 03:26:40 dansei Exp $');
+    print <<"EOM";
+DNA De-Compiler    By S.N.M.
+Version $id{rev}    Last Updated $id{date}
+
+Syntax
+    dnad
+        --help
+EOM
+    exit;
+}
