@@ -1,5 +1,5 @@
 @echo off
-rem $Id: note.bat,v 1.18 2004-12-19 05:14:26 dansei Exp $
+rem $Id: note.bat,v 1.19 2004-12-22 05:21:46 dansei Exp $
 
 rem 0, options
     set note_exec=%~dp0
@@ -22,6 +22,10 @@ rem 0, options
     ) else (
         set note_extf=
         set note_ext=txt
+    )
+    if "%note_ext%"=="link" (
+        set note_ln_src=%1\text
+        shift
     )
 
 
@@ -142,7 +146,9 @@ rem 5, open method
         pushd "%note_ctr%"
         for %%i in (%note%.*) do (
             set note_x=%%~xi
-            call:open "%%i" "!note_x:~1!"
+            if not "!note_x!"==".link" (
+                call:open "%%i" "!note_x:~1!"
+            )
         )
         set note_x=
         popd
@@ -168,6 +174,20 @@ rem 5, open method
         ) else (
             type nul >"%note_ctr%\%note%.%note_ext%"
         )
+    )
+
+    if "%note_ext%"=="link" (
+        echo %note_ln_src% >"%note_ctr%\%note%.link"
+        call:ss "%note_ctr%\%note%" "\" "\\"
+        set note_t=!_ret!
+        call:ss "%note_ln_src%" "\" "\\"
+        if not exist "%note_ln_src%\*" (
+            md "%note_ln_src%"
+            lc /nologo "user32::MessageBoxA(0, 'Symbolic link of note-container is created: !note_t!.link: !_ret!', 'Notes', 64)"
+        ) else (
+            lc /nologo "user32::MessageBoxA(0, 'Symbolic link redirected to: !note_t!.link: !_ret!', 'Notes', 64)"
+        )
+        goto cleanup
     )
 
     call:open "%note%.%note_ext%" "%note_ext%"
@@ -247,20 +267,21 @@ rem 5, open method
 
 
 :cleanup
+    set _ret=
+    set note=
     set note_a_doc=
     set note_a_xls=
     set note_a_xml=
     set note_a_txt=
     set note_app=
-    set note_ext=
-    set note_extf=
-    set note=
-    set note_home=
-    set note_vol=
     set note_ctr=
-    set note_serial=
     set note_delete=
     set note_exec=
-    set _ret=
+    set note_ext=
+    set note_extf=
+    set note_home=
+    set note_ln_src=
+    set note_serial=
+    set note_vol=
 
 :end
