@@ -1,12 +1,59 @@
 #!/usr/bin/perl
 
 use strict;
+use cmt;
 use DirHandle;
 use Getopt::Long;
+use Data::Dumper;
+
+
+my $opt_quiet = 0;
+my $opt_veryquiet = 0;
+my $opt_verbose = 0;
+my $opt_force = 0;
+my $opt_recursive = 0;
+my $opt_notag = 0;
+my $opt_nobranch = 0;
+my $root_from;
+my $root_to;
+my @range_date;
+my @range_rev;
+
+sub main {
+    my $options = GetOptions(
+            'recursive|r' => \$opt_recursive,
+            'notag|nt' => \$opt_notag,
+            'nobranch|nb' => \$opt_nobranch,
+            'daterange=s' => sub { @range_date = split(',', $_[1]); },
+            'revrange=s' => sub { @range_rev = split(',', @_[1]); },
+            'force' => \$opt_force,
+            'quiet' => \$opt_quiet,
+            'veryquiet|vq' => \$opt_veryquiet,
+            'verbose' => \$opt_verbose,
+            'version' => sub { &version; },
+            'help' => sub { &help; },
+            );
+
+    my ($wdir_from, $wdir_to) = @ARGV;
+    &help if (!$wdir_from or !$wdir_to);
+
+    $root_from = ver_from_workdir($wdir_from);
+    $root_to = ver_from_workdir($wdir_to);
+
+    if (!$root_from or !$root_to) {
+        die "invalid cvs-work-dir specified. ";
+    }
+    print Dumper($root_from) if $opt_verbose;
+    print Dumper($root_to) if $opt_verbose;
+
+    my $result;
+    $result = cvs_append($root_from, $root_to);
+
+}
 
 
 sub version {
-    my $id = parse_id('$Id: cvsapp,v 1.1 2004-09-24 00:42:13 dansei Exp $');
+    my %id = parse_id('$Id: cvsapp,v 1.2 2004-10-08 08:10:09 dansei Exp $');
     print <<"EOM";
 append cvs repository from one to another
 version $id{'rev'}   last updated $id{'date'}   written by snima denik
@@ -22,8 +69,9 @@ syntax:
         - cvs-workdir must be already existed, otherwise, you can checkout one
           before execute cvsapp.
         - cvsroot module are treated differently, so don't change the name.
+
 options:
-        --help --version --about
+        --help --version --force --quiet --verbose
         --recursive (r)
         --notag (nt)
         --nobranch (nb)
@@ -32,3 +80,85 @@ options:
 EOM
     exit;
 }
+
+
+sub ver_from_workdir {
+    my ($dir) = @_;
+    my ($root, $rep, @entries, @ignores);
+
+    return undef if (! -d "$dir/CVS");
+
+    if (open FH, "<$dir/CVS/Root") {
+        $root = <FH>;
+        chomp $root;
+        close FH;
+    }
+
+    if (open FH, "<$dir/CVS/Repository") {
+        $rep = <FH>;
+        chomp $rep;
+        close FH;
+    }
+
+    if (open FH, "<$dir/CVS/Entries") {
+        my @ents = <FH>;
+        close FH;
+        for (@ents) {
+            chop;
+            # [type] /name/revision/timestamp[+conflict]/options/tagdate
+            my (@segs) = split("/", $_);
+            my $timestamp = $segs[3];
+            my $conflict = undef;
+            if ($timestamp =~ m/^(.*)\+(.*)$/) {
+                $conflict = $1;
+                $timestamp = $2;
+            }
+            my $ent = {};
+            $ent->{'type'} = $segs[0] if ($segs[0]);
+            $ent->{'name'} = $segs[1] if ($segs[1]);
+            $ent->{'rev'} = $segs[2] if ($segs[2]);
+            $ent->{'time'} = $segs[3] if ($segs[3]);
+            $ent->{'conflict'} = $conflict if ($conflict);
+            $ent->{'opt'} = $segs[4] if ($segs[4]);
+            $ent->{'tagdate'} = $segs[5] if ($segs[5]);
+
+            push @entries, $ent;
+        }
+    }
+
+    if (-f "$dir/.cvsignore") {
+        if (open FH, "<$dir/.cvsignore") {
+            while (<FH>) {
+                chop;
+                push @ignores, $_;
+            }
+            close FH;
+        }
+    }
+
+    return {
+        'root' => $root,
+        'rep' => $rep,
+        'entries' => \@entries,
+        'ignores' => \@ignores,
+    };
+}
+
+
+sub cvs_revtree {
+    my ($rep, $root) = @_;
+    my @logtext = `cvs -q -d \"$root\" log $rep`;
+    my $loglines = scalar(@logtext);
+    my $l = 0;
+    while ($l < $loglines) {
+    }
+
+}
+
+
+sub cvs_append {
+    my ($from, $to) = @_;
+}
+
+
+&main;
