@@ -1,0 +1,21 @@
+﻿
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE _____________________________________________________________________
+KEYWORDS _____________________________________________________________________
+
+
+> HTML结构化识别与系统转换
+
+	- 根据链接层次确定直接关系，所谓直接关系就是一个页面的直接归属。
+	- 将结构化 Flatten 至顺序结构，以便打印。
+		. 专门的 HTML XSLT 用于对各单页面进行预处理
+		. HTML Merge XSLT 用于合并所有页面。
+	- 将结构化信息转换至 CHM Project 文件格式，以生成 CHM 文档。
+
+
+>
