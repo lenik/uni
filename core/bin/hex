@@ -1,0 +1,152 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt;
+use Getopt::Long;
+
+
+
+our $opt_table = '0123456789abcdefghijklmnopqrstuvwxyz';
+our $opt_upper = 0;
+our $opt_force = 0;
+our $opt_from = 0;
+our $opt_to = 0;
+our $opt_print = '<report>';         # default is table-report
+our $opt_width = 1;
+
+
+    &init;
+    &main;
+
+
+
+sub systemDecode {
+    my ($text, $sys) = @_;
+    my @chars = split('', $text);
+    my $num = 0;
+    for (@chars) {
+        my $order = index($opt_table, $_);
+            die "Invalid digit: $_" if ($order < 0 and !$opt_force);
+        $num = $num * $sys + $order;
+    }
+    return $num;
+}
+
+
+sub systemEncode {
+    my ($num, $sys) = @_;
+    my $text = '';
+    my $zero = substr($opt_table, 0, 1);
+    my $len = 0;
+
+    while ($num > 0) {
+        $text = substr($opt_table, $num % $sys, 1) . $text;
+        $num = int($num / $sys);
+        $len++;
+    }
+    $text = $zero x ($opt_width-$len) . $text if ($len < $opt_width);
+    return $text;
+}
+
+
+sub init {
+    GetOptions(
+        'alphabet=s' => \$opt_table,
+        'uppercase' => sub { $opt_upper = 1 },
+        'lowercase' => sub { $opt_upper = 0 },
+        'from|f=n' => \$opt_from,
+        'to=n' => \$opt_to,
+        'print:s' => \$opt_print,
+        'width=n' => \$opt_width,
+        'force' => \$opt_force,
+        'help' => sub { &help },
+    );
+
+    $opt_table = uc $opt_table if $opt_upper;
+    $opt_table = lc $opt_table if not $opt_upper;
+    $opt_print = '$dh' if $opt_print eq '';
+}
+
+
+
+sub main {
+    for (@ARGV) {
+        die "Only positive integer are supported. " if (m/^\s*-/);
+
+        my $num_b = systemDecode($_, 2);
+        my $num_o = systemDecode($_, 8);
+        my $num_d = systemDecode($_, 10);
+        my $num_h = systemDecode($_, 16);
+
+        my $bb = systemEncode($num_b, 2);
+        my $bo = systemEncode($num_b, 8);
+        my $bd = systemEncode($num_b, 10);
+        my $bh = systemEncode($num_b, 16);
+
+        my $ob = systemEncode($num_o, 2);
+        my $oo = systemEncode($num_o, 8);
+        my $od = systemEncode($num_o, 10);
+        my $oh = systemEncode($num_o, 16);
+
+        my $db = systemEncode($num_d, 2);
+        my $do = systemEncode($num_d, 8);
+        my $dd = systemEncode($num_d, 10);
+        my $dh = systemEncode($num_d, 16);
+
+        my $hb = systemEncode($num_h, 2);
+        my $ho = systemEncode($num_h, 8);
+        my $hd = systemEncode($num_h, 10);
+        my $hh = systemEncode($num_h, 16);
+
+	    if ($opt_print eq '<report>') {
+            format =
+Number @<
+       $_
+    From  \  To |    Binary    |    Octal     |   Decimal    | Hexadecimal
+    ------------+--------------+--------------+-----------------------------
+    Binary      |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>>
+                 $bb            $bo            $bd            $bh
+    Octal       |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>>
+                 $ob            $oo            $od            $oh
+    Decimal     |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>>
+                 $db            $do            $dd            $dh
+    Hexadecimal |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>>
+                 $hb            $ho            $hd            $hh
+
+.
+            write;
+	    } else {
+	        print eval("\"$opt_print\"");
+        }
+    }
+}
+
+
+sub help {
+    my %id = parse_id('$Id: hex,v 1.1 2004-12-03 13:51:32 dansei Exp $');
+    print <<"EOM";
+[HEX] Number system reference
+Written by Snima Denik  Version $id{rev}  last updated at $id{date}
+
+Syntax: hex <options>
+
+    <options> ::=
+        --alphabet=<string> (a)
+        --lowercase (l)
+        --uppercase (u)
+        --from=<from-system> (f)
+        --to=<target-system> (t)
+        --print=<format-string, default '\$dh'> (p)
+        --width=<width-in-letters> (w)
+        --force
+        --help (h)
+
+    <format-string> ::= *
+        \$<runtime-variable>
+        \\<escape-char>
+        <literal-char>
+Example:
+    hex -p=\$dh. 233 12 55 302 34           Output: e9.c.37.12e.22.
+    hex 233 12 55 302 34 -p                 Output: e9c3712e22
+EOM
+}
