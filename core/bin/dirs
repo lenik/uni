@@ -1,0 +1,126 @@
+#!/usr/bin/perl
+
+use strict;
+use Getopt::Long;
+use cmt;
+use DirHandle;
+
+
+our $opt_recursive = -1;
+our $opt_local_only = 0;
+our $opt_pattern;
+our $opt_sort;
+
+
+sub init {
+	my $opts = GetOptions(
+		'recursive:n', 		# 0 max, -1 disabled
+		'local-only',
+		'pattern=s',
+		'sort:s',
+		'help' => sub { &help; exit }
+	);
+
+	$opt_sort ||= 'none';
+	$opt_recursive ||= 9999999;
+
+	# print "recursive: $opt_recursive\n";
+	# print "local-only: $opt_local_only\n";
+	# print "pattern: $opt_pattern\n";
+	# print "sort: $opt_sort\n";
+}
+
+
+sub help {
+	my %ver = parse_id('$Id: dirs,v 1.1 2004-11-25 07:12:30 dansei Exp $');
+	print <<"EOM";
+[DIRS] Directories' Size Report
+Written by Snima Denik,  Revision $ver{rev},  Last updated $ver{date}
+
+Syntax:
+	dirs
+		--recursive=<levels> (r, levels optional)
+		--local-only (l, size not include children)
+		--pattern=<regex> (p, only filenames of pattern are scaned)
+		--sort=<method> (s, method: none/ascend/descend)
+		directories...
+EOM
+}
+
+
+# out: hash -> { 'name'=>$, 'size'=>$, 'sub'=>\@ }
+sub summary {
+	my $path = shift;
+	my %info;
+	$path =~ s/[\\\/]*$//;
+
+	$info{'name'} = $path;
+
+	if (-d $path) {
+		my $dh = new DirHandle($path);
+		my @list = $dh->read;
+		my @listx;
+		my $totalsize = 0;
+		for my $i (@list) {
+			next if ($i =~ m/^\.+$/);
+			my $full = "$path/$i";
+			if (-d $full) {
+				my $ix = summary($full);
+				$totalsize += $ix->{'size'};
+				push @listx, $ix;
+			} else {
+				$totalsize += -s $full;
+			}
+		}
+		$info{'size'} = $totalsize;
+		$info{'sub'} = \@listx;
+	} else {
+		$info{'size'} = -s $path;
+	}
+	return \%info;
+}
+
+
+sub report {
+	my ($item, $level) = @_;
+	my $prefix = '    'x$level;
+	print "$prefix$item->{size}	$item->{name}\n";
+	if ($item->{'sub'}) {
+		my $subs = $item->{'sub'};
+		for my $s (@$subs) {
+			report($s, $level+1);
+		}
+	}
+}
+
+
+sub main {
+	&init;
+
+	my $all;
+
+	if (scalar(@ARGV) > 1) {
+		my @toplist;
+		my %top;
+		my $totalsize = 0;
+
+		for my $dir (@ARGV) {
+			my $info = summary($dir);
+			push @toplist, $info;
+			$totalsize += $info->{'size'};
+		}
+
+		$top{'name'} = 'ALL';
+		$top{'size'} = $totalsize;
+		$top{'sub'} = \@toplist;
+		$all = \%top;
+	} else {
+		$all = summary($ARGV[0]);
+	}
+
+	report $all;
+}
+
+
+&main;
+1;
