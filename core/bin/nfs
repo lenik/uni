@@ -4,7 +4,7 @@ use strict;
 use Getopt::Long;
 use DirHandle;
 use File::Copy;
-use cmt;
+use cmt::vcs;
 use cmt::path;
 use cmt::winuser;
 
@@ -714,7 +714,7 @@ sub get_vol_serial {
 
 
 sub version {
-    my %id = parse_id('$Id: nfs,v 1.10 2005-01-04 11:43:01 dansei Exp $');
+    my %id = parse_id('$Id: nfs,v 1.11 2005-01-04 12:50:01 dansei Exp $');
     print <<"EOM"
 [NFS] Notes for Speed
       Written by Snima Denik    Version 2.$id{rev}    Updated $id{date}
