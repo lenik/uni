@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+# $id$
+# $log$
+
 use strict;
 use Getopt::Long;
 use FileHandle;
@@ -13,6 +16,9 @@ my $binary = 0;
 my $no_case = 0;
 my $first_n = 0;
 
+my $command;
+my $cmd_exec;
+my $cmd_args;
 my $force = 0;
 my $quiet = 0;
 my $verbose = 0;
@@ -28,9 +34,14 @@ my $options = GetOptions(
                          'quiet' => \$quiet,
                          'verbose' => \$verbose,
                          'help|?' => sub { &help },
+                         'command=s' => \$command,
                          );
 
-help() if (scalar(@ARGV) < 3);
+
+help() if ($command and scalar(@ARGV) < 1);
+help() if (!$command and scalar(@ARGV) < 3);
+
+($cmd_exec, $cmd_args) = $command =~ m/^(.+?)(?:::(.*))?$/ if $command;
 
 my ($fpat, $source, $target, @files) = @ARGV;
 $fpat =~ s/\./\\./g;
@@ -87,7 +98,7 @@ sub process_file {
 	}
 
 	print "f $file\n" if not $quiet;
-	my $fh = new FileHandle($file);
+	my $fh = new FileHandle("<$file");
 	my @lines = <$fh>;
 	$fh->close();
 
@@ -100,28 +111,50 @@ sub process_file {
 
 	my $dirty = 0;
 
-	for (my $l = 0; $l < scalar(@lines); $l++) {
-		$_ = $lines[$l];
-		if ($regex) {
-			if (s/$source/$target/g) {
-				$dirty = 1;
-			}
-		} else {
-			my $pos = $[;
-			while (1) {
-				if ($no_case) {
-					$pos = index(lc($_), $source, $pos);
-				} else {
-					$pos = index($_, $source, $pos);
-				}
-				last if ($pos < $[);
+	if ($command) {
+		# repl.pl -c <command-line> <files-pattern> <source> <target>
+		my $cmd_arg_parsed = eval("\"$cmd_args\"");
+		print "x $cmd_exec $cmd_arg_parsed\n";
 
-				substr($_, $pos, $n_source) = $target;
-				$pos += $n_target;
-				$dirty = 1;
+		# run external program
+		my @outs = `$cmd_exec $cmd_arg_parsed`;
+
+		if (scalar(@lines) != scalar(@outs)) {
+			$dirty = 1;
+		} else {
+			for (my $l = 0; $l < scalar(@lines); $l++) {
+				if ($lines[$l] ne $outs[$l]) {
+					$dirty = 1;
+					last;
+				}
 			}
 		}
-		$lines[$l] = $_;
+		@lines = @outs if $dirty;
+	} else {
+		# default replace implementation
+		for (my $l = 0; $l < scalar(@lines); $l++) {
+			$_ = $lines[$l];
+			if ($regex) {
+				if (s/$source/$target/g) {
+					$dirty = 1;
+				}
+			} else {
+				my $pos = $[;
+				while (1) {
+					if ($no_case) {
+						$pos = index(lc($_), $source, $pos);
+					} else {
+						$pos = index($_, $source, $pos);
+					}
+					last if ($pos < $[);
+
+					substr($_, $pos, $n_source) = $target;
+					$pos += $n_target;
+					$dirty = 1;
+				}
+			}
+			$lines[$l] = $_;
+		}
 	}
 
 	if ($dirty) {
@@ -129,7 +162,7 @@ sub process_file {
 		#print "result\n";
 		#print join("\n", @lines);
 		$fh = new FileHandle(">$file");
-		$fh->write(join("\n", @lines));
+		$fh->write(join("", @lines));
 		$fh->close();
 		return 1;
 	}
@@ -140,10 +173,11 @@ sub help() {
 	print <<"EOM";
 REPLace files    Author/Danci.Z    Version/3    Date/Aug 22 2004
 Syntax:
-    repl
+    $0
         --recursive (r)
         --backup (k)
         --regular-expression (x)
+        --command=<external-command::arguments(\$var-names)> (c)
         --binary (b)
         --first=<number> (n)
         --ignore-case (i)
