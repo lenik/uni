@@ -1,5 +1,5 @@
 @echo off
-rem $Id: note.bat,v 1.10 2004-11-24 03:37:44 dansei Exp $
+rem $Id: note.bat,v 1.11 2004-11-25 07:11:34 dansei Exp $
 
 rem 0, options
     set note_exec=%~dp0
@@ -57,6 +57,13 @@ rem 3, find note home directory
             lc /nologo "user32::MessageBoxA(0, 'Not mounted: !_ret!', 'Notes', 16)"
             goto cleanup
         )
+    )
+
+    if "%note_ext%"=="/" (
+        cd "%note_home%"
+        grep -R "^>" * >%TEMP%\notes.lst
+        start notepad %TEMP%\notes.lst
+        goto cleanup
     )
 
 
