@@ -58,7 +58,7 @@ our $opt_quiet = 0;
 our $nfs_appname = 'NFS Version 2';
 
 our %nfs_filetype = (
-    ''      => 'ue "%s"',              # default
+    ''      => 'ue "%s"',                   # default
     'txt'   => 'notepad "%s"',
     'doc'   => 'winword "%s"',
     'xls'   => 'excel "%s"',
@@ -210,21 +210,22 @@ sub main {
         }
         elsif ($opt_program eq '.map') {
             print "map $nfs_path_full to $opt_map_target\n" if $opt_verbose;
-            binary_copy $nfs_path_full, $opt_map_target;
+
+            # returns the actually full-path of target,
+            # this may fill the ignored filename
+            $opt_map_target = binary_copy($nfs_path_full, $opt_map_target);
 
             if (not $opt_disable_vex_extension) {
-                print "update .VEX/sync/sync-nfs\n" if $opt_verbose;
-
                 # $new_this -> $new_source
                 my ($src_dir, $src_name) = path_split($nfs_path_full);
-                my $new_source = $nfs_path_full;
-                my $new_this = $src_name;
-                if (not -d $opt_map_target) {
-                    my ($t_dir, $t_name) = path_split($opt_map_target);
-                    $new_this = $t_name;
-                }
+                my ($dst_dir, $dst_name) = path_split($opt_map_target);
+                    $dst_dir ||= '.';
+                my $new_key = $dst_name;            # target
+                my $new_value = $nfs_path_full;     # source
 
-                my $vexdir = path_join($opt_map_target, '.VEX', 'sync');
+                print "add vex/sync entry: $new_key=$new_value\n" if $opt_verbose;
+
+                my $vexdir = path_join($dst_dir, '.VEX', 'sync');
                 auto_mkdir $vexdir;
                 my $synclist = path_join($vexdir, 'sync-nfs');
 
@@ -237,9 +238,9 @@ sub main {
                             next;
                         }
                         if (m/^(.*)=(.*)$/) {
-                            if ($1 eq $new_this) {
+                            if ($1 eq $new_key) {
                                 if (not $found) {
-                                    push @lines, "$new_this=$new_source\n";
+                                    push @lines, "$new_key=$new_value\n";
                                     $found = 1;
                                 }
                                 # otherwise merge the duplicate entries.
@@ -251,7 +252,7 @@ sub main {
                     close SYNC;
                 }
                 if (not $found) {
-                    push @lines, "$new_this=$new_source\n";
+                    push @lines, "$new_key=$new_value\n";
                 }
                 open(SYNC, ">$synclist")
                     or die "Can't open $synclist for write";
@@ -287,10 +288,10 @@ sub main {
                     while (<SYNC>) {
                         next if (m/^\s*(\#.*)$/);
                         if (m/^(.*)=(.*)$/) {
-                            my $title = $1;
-                            my $syncfrom = expand_nfs_title $2;
-                            print "synchronize $title from $syncfrom\n" if $opt_verbose;
-                            file_sync $syncfrom, path_join('.', $title), $title;
+                            my $synckey = $1;                       # sync-target
+                            my $syncvalue = expand_nfs_title $2;    # sync-source
+                            print "synchronize $synckey from $syncvalue\n" if $opt_verbose;
+                            file_sync $syncvalue, path_join('.', $synckey), $synckey;
                         }
                     }
                     close SYNC;
@@ -575,6 +576,8 @@ sub binary_copy {
 
     copy($src, $dest)
         or die "Can't copy $src to $dest";
+
+    return $dest;
 }
 
 
@@ -676,7 +679,7 @@ sub get_vol_serial {
 
 
 sub version {
-    my %id = parse_id('$Id: nfs,v 1.4 2005-01-04 05:54:41 dansei Exp $');
+    my %id = parse_id('$Id: nfs,v 1.5 2005-01-04 06:15:42 dansei Exp $');
     print <<"EOM"
 [NFS] Notes for Speed
       Written by Snima Denik    Version 2.$id{rev}    Updated $id{date}
