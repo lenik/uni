@@ -1,0 +1,222 @@
+#!/usr/bin/perl
+
+# $Id: monitor,v 1.1 2004-11-13 13:48:39 dansei Exp $
+
+use strict;
+use cmt;
+use DirHandle;
+use Getopt::Long;
+use Time::HiRes qw/usleep/;
+use POSIX qw/strftime/;
+
+
+our $opt_interval = 1000;       # 1 second
+our $opt_unit = 'b';            # 1/1000
+our $opt_unitsize = 1;          # 1:1
+our $opt_precise = 3;           # .999 precise
+our $opt_kilosize = 1000;       # 1k == 1000
+our $opt_window = 100;          # window size is 100 units
+our $opt_delim = 12;            # fixed column size 12-char
+our @trace_items = ();
+
+
+sub init {
+    GetOptions(
+        'help|h'                => sub { &help; },
+        'interval|i=n'          => \$opt_interval,
+        'byte-unit|b'           => sub { $opt_unit = 'b'; },
+        'kilo-unit|k'           => sub { $opt_unit = 'k'; },
+        'mega-unit|m'           => sub { $opt_unit = 'M'; },
+        'giga-unit|g'           => sub { $opt_unit = 'G'; },
+        '1024-for-kilo|4'       => sub { $opt_kilosize = 1024; },
+        'precise|p=n'           => \$opt_precise,
+        'summary-window|w=n'    => \$opt_window,
+        'delimiter|d=s'         => \$opt_delim,
+        'trace-item|t=s'        =>
+            sub {
+                my ($ignore, $str) = @_;
+                my %item = ();
+                if ($str =~ m/^memory$/) {
+                    $item{'script'} = 'free_memory()';
+                } elsif ($str =~ m/^freespace:(.*)$/) {
+                    $item{'script'} = "free_space('$1')";
+                } elsif ($str =~ m/^usedspace:(.*)$/) {
+                    $item{'script'} = "used_space('$1')";
+                } elsif ($str =~ m/^script:(.*)$/) {
+                    $item{'script'} = "$1";
+                } else {
+                    die "Illegal trace item specified: $str";
+                }
+                $item{'vals'} = [];
+                $item{'dels'} = [];
+                push @trace_items, \%item;
+            },
+    );
+    $opt_precise = 10**$opt_precise;
+    $opt_precise = 1 if ($opt_precise < 1);
+
+    if ($opt_unit eq 'k') {
+        $opt_unitsize = $opt_kilosize;
+    } elsif ($opt_unit eq 'M') {
+        $opt_unitsize = $opt_kilosize**2;
+    } elsif ($opt_unit eq 'G') {
+        $opt_unitsize = $opt_kilosize**3;
+    }
+}
+
+
+sub help {
+    my %id = parse_id('$Id: monitor,v 1.1 2004-11-13 13:48:39 dansei Exp $');
+
+    print <<"EOM";
+Monitor utility   Version $id{rev}   Date $id{date}
+Syntax:
+    monitor
+        --help (h)
+        --interval=<milli-seconds> (i)
+        --byte-unit (b)
+        --kilo-unit (k)
+        --mega-unit (m)
+        --giga-unit (g)
+        --1024-for-kilo (4)
+        --precise=<number> (p)
+        --trace-item=<trace-string> (t)
+        --summary-window=<units-count> (w)
+        --delimiter=<delim-string> (d)
+
+    trace-string:
+        memory
+        freespace:<drive-path>
+        usedspace:<drive-path>
+        script:<perl-script returns a number>
+EOM
+    exit;
+}
+
+
+sub format_item {
+    my ($val, $padlen) = @_;
+    if (1*$val eq $val) {
+        $val /= $opt_unitsize;
+        $val = int($opt_precise * $val) / $opt_precise;
+        $val .= $opt_unit if ($opt_unit ne 'b');
+    }
+
+    if ($padlen) {
+        return $val if (length($val) > $padlen);
+        $padlen -= length($val);
+        $val .= ' ' x $padlen;
+    }
+
+    return $val;
+}
+
+
+sub print_fields {
+    my $nfields = scalar(@_);
+    my $colsize = 1 * $opt_delim;
+    my $i;
+    if ($colsize > 1) {
+        for ($i = 0; $i < $nfields; $i++) {
+            if ($i == $nfields-1) {
+                print format_item($_[$i]);
+            } else {
+                print format_item($_[$i], $colsize);
+            }
+        }
+    } else {
+        for ($i = 0; $i < $nfields; $i++) {
+            print $opt_delim if ($i > 0);
+            print format_item($_[$i]);
+        }
+    }
+    print "\n";
+}
+
+
+sub main {
+    my $task_abbs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    my $task_cnt = scalar(@trace_items);
+
+    print_fields('time', 'item', 'current', 'average', 'delta', 'sum-d', 'avg-d');
+
+    while (1) {
+        for (my $i = 0; $i < $task_cnt; $i++) {
+            my $ti = $trace_items[$i];
+            my $tid = substr($task_abbs, $i, 1);
+            my $scr = $ti->{'script'};
+
+            my $nowtime = strftime "%H:%M:%S", localtime;
+            my $val = eval($scr);
+            my $valwin = $ti->{'vals'};
+            my $delwin = $ti->{'dels'};
+            my $valcnt = scalar(@$valwin);
+            my $delcnt = scalar(@$delwin);
+
+            if ($valcnt >= $opt_window) {
+                shift @$valwin;
+                $valcnt--;
+            }
+            push @$valwin, $val;
+            $valcnt++;
+
+            my $delta = 'n/a';
+            $delta = $val - @$valwin[$valcnt-2] if ($valcnt > 1);
+
+            if ($delta ne 'n/a') {
+                if ($delcnt >= $opt_window) {
+                    shift @$delwin;
+                    $delcnt--;
+                }
+                push @$delwin, $delta;
+                $delcnt++;
+            }
+            my $sum = 0;
+            my $it;
+            for $it (@$valwin) { $sum += $it; }
+            my $avg = $sum / $valcnt;
+
+            my $dsum = 0;
+            my $davg = 0;
+            if ($delcnt > 0) {
+                for $it (@$delwin) { $dsum += $it; }
+                $davg = $dsum / $delcnt;
+            }
+            print_fields($nowtime, $tid, $val, $avg, $delta, $dsum, $davg);
+        }
+        usleep 1000 * $opt_interval;
+    }
+    1;
+}
+
+
+&init;
+&help if (scalar(@trace_items) == 0);
+&main;
+
+
+
+# built-in functions
+
+sub free_memory {
+    10;
+}
+
+sub free_space {
+    20;
+}
+
+sub used_space {
+    my $path = shift || '.';
+    my $dh = new DirHandle($path);
+    my @files = $dh->read();
+    my $usedsum = 0;
+    $dh->close();
+    for (@files) {
+        my $full = "$path/$_";
+        if (-f $full) {
+            $usedsum += -s $full;
+        }
+    }
+    return $usedsum;
+}
