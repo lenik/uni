@@ -1,0 +1,81 @@
+﻿
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE _____________________________________________________________________
+KEYWORDS _____________________________________________________________________
+
+
+> New tc.bodz.net / CSF+XML
+
+	- 关于
+	- 项目
+		- [Diret] Diret 一般工具集
+		- [EPFS] 可扩展专家文件系统
+		- [FreeJava] Java基础扩展
+		- [Finger] 打字之家网络版
+		- [FeiyPhoto] 数码摄像系统
+		- [Graph] 图
+		- [LT] 共同基金管理
+		- [MP3R] "模型、过程与3R"模型
+		- [MSB] Mami' Secret Box
+			. About
+			. System Arch
+			. Plugins
+			. SDK Document (CHM)
+			. Discuss
+			. Download
+		- [POS] 面向实践系统
+		- [Other] 其它
+	- 语言技术参考与实现
+		- [Basic] Basic 语言
+		- [C] C/C++ 语言
+		- [COMx] 组件对象模型
+		- [Gg] Generic Language
+			. 语法分析
+			. 中文语言处理
+		- [Java] Java 语言
+			. JSF
+			. JSR 参考
+			. Model 2
+			. ORM
+		- [Latix] 分层中间语言
+		- [Perl] Perl 语言
+		- [Python] Python 语言
+		- [XML] 可扩展标记语言
+	- 下载
+	- 合作
+	- 社区
+	- 版权信息
+
+
+> Java 扩展参考1
+
+	[ ] Java 扩展参考1
+		[x] BDP-Book 模版
+		    (发布问题，需要TC.bodz.net 支持)
+		[ ] tc.bodz.net 新版
+			    (projects-menu)
+			[ ] XSF 重提
+				[ ]
+
+
+> XSF schemas
+
+	xsf-base, derived:
+		xsf-structure, include:
+			xsf-section-support
+			xsf-site
+			xsf-node
+			xsf-tree
+		xsf-media
+		xsf-data
+		xsf-script
+
+	xsf-site ^^(import all above)
+		xsf-site-jsp-extend
+		xsf-site-php-extend
+		xsf-site-rfl-extend	(refactor-layer)
