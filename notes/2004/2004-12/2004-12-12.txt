@@ -1,0 +1,16 @@
+﻿BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> XQuery 几个技巧
+
+	- 选择结点的所有属性和子结点，只能用($node/@*, $node/*)，没有更简单的。
+	  并且 @* 必须先出现。
+
+	- 列表的分隔符 "," 具有很低的优先级，所以一般要将列表用 ( ) 括起来。

@@ -1,0 +1,27 @@
+﻿BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> Living Time Trace
+
+	9.3	w/ xjl partition
+	9.10	qq/ reply
+	9.30	p/ xjl
+	10.0	j/ charset
+	10.10	p/ xjl
+	10.30	p/ xpath: string-before (reverse order)
+	11.0	dinner
+	11.30	?
+	11.40	qq/ show
+	11.53	?
+	11.56	xjl
+	12.0	lang/ Denian' invent
+	13.53	tqms/
+	17.45	supper
+	18.30	lang/ Denian -> Dekein

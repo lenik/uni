@@ -3,3 +3,37 @@
 2004-12-04.txt:> New tc.bodz.net / CSF+XML
 2004-12-04.txt:> Java 扩展参考1
 2004-12-04.txt:> XSF schemas
+2004-12-08.txt:> Email Auto-reply
+2004-12-09.txt:> Editable XML
+2004-12-09.txt:> eXtendable Javascript Library
+2004-12-12.txt:> XQuery 几个技巧
+2004-12-13.txt:> XSLT 1.0  v.s.  XSLT 2.0
+2004-12-13.txt:> xjl@ebja.com Alias
+2004-12-13.txt:> send mail test
+2004-12-14.txt:> Reinstall Windows XP
+2004-12-14.txt:> ASN.1 Spec
+2004-12-14.txt:> 信不信由你！
+2004-12-14.txt:> 白鸟之死
+2004-12-14.txt:> 小琼生日快乐
+2004-12-14.txt:> 收藏：磨刀
+2004-12-15.txt:> 新结婚礼金
+2004-12-15.txt:> XXX, 你完成了吗？
+2004-12-16.txt:> Living Time Trace
+2004-12-17.txt:> LTT. Living Time Trace
+2004-12-17.txt:> chars add to Dekein font:
+2004-12-18.txt:> LTT
+2004-12-21.txt:> LTT
+2004-12-21.txt:> Eclipse news
+2004-12-22.txt:> LTT
+2004-12-24.txt:> LTT
+2004-12-25.txt:> LHT/YF
+2004-12-25.txt:> SOSO Not yet post
+2004-12-25.txt:> Eclipse Comment Chinese-Width
+2004-12-25.txt:> 中文编程 建议
+2004-12-27.txt:>
+2004-12-28.txt:> LTT
+2004-12-28.txt:> BODZ Arch*
+2004-12-29.txt:> LTT
+2004-12-30.txt:> LTT
+2004-12-30.txt:> xjl - lang.functor [ft]
+2004-12-30.txt:> BOCA - Bodz' Open Certification & Authorization BOCA boca BOCA

@@ -1,0 +1,151 @@
+﻿BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> Reinstall Windows XP
+
+	- Windows XP		[ DON'T CONFIGURE NETWORK ]
+	- Diret, Q Users
+	- Windows XP SP1
+	- Activate
+	- SAV, Black ICE	[ CONFIGURE NETWORK ]
+	- Visual .Net
+	- Office (XP?)
+	- Visual 6
+	- Altova XXX (Re- Register)
+	- Corel Draw, Photoshop
+	- PGP, restart-tools
+	- Tools
+	- QQ Nero
+
+
+> ASN.1 Spec
+
+	Version 2002-07
+	-------------------------------
+
+	ITU-T X.680
+	Abstract Syntax Notation One (ASN.1): Basic notation
+
+	ITU-T X.681
+	Abstract Syntax Notation One (ASN.1): Information object
+
+	ITU-T X.682
+	Abstract Syntax Notation One (ASN.1): Constraint
+
+	ITU-T X.683
+	Abstract Syntax Notation One (ASN.1): Parameterization
+
+	ITU-T X.690
+	Abstract Syntax Notation One (ASN.1): Encoding Rules
+		BER - Basic Encoding Rules
+		CER - Canonical Encoding Rules
+		DER - Distinguished Encoding Rules
+
+	ITU-T X.691
+	Abstract Syntax Notation One (ASN.1): Encoding Rules
+		PER - Packed Encoding Rules
+
+	ITU-T X.692
+	Abstract Syntax Notation One (ASN.1): Encoding Rules
+		ECN - Encoding Control Notation
+
+	ITU-T X.693
+	Abstract Syntax Notation One (ASN.1): Encoding Rules
+		XER - XML Encoding Rules
+
+	ITU-T X.694
+	Abstract Syntax Notation One (ASN.1): Encoding Rules
+		Mapping W3C XML-Schema definitions into ASN.1
+
+
+> 信不信由你！
+
+	讲几个真实的故事 :)
+
+	昨天突然收到我7年~~前发给中国黄页(pages.com.cn，现在改名叫中国网页了)网管的退信，说是用户不存在..看了一下邮件的路由表，大概是邮件被路由到国外，然后转了很多圈才回到国内，可见计算机网络并不总是很快。想想这十几年程序写的不多，碰到的怪事倒不少。
+
+	- 在东方中学的时候，机房里感染了一种病毒，学名叫Lyceum.930，这个病毒拦截了键盘消息，每输入930个英文字母，接下来6个字母不管输入什么都会被代替成乱码。打个比方你输入 12345678901234567890 结果出来 12345678901xxxxxx890。这个病毒
+	- 。。Ft~~，怎么还没点保存，这个帖子就出来了。
+
+
+> 白鸟之死
+
+你若是那含泪的射手
+我就是那一只
+决心不再射闪的白鸟
+只等
+那羽箭破空而来
+射入我早已碎裂的胸怀
+你若是这世间惟一
+惟一能伤我的射手
+我就是你所有的青春岁月
+所有不能忘的欢乐和悲哀
+就好像是最后一朵云彩
+隐没在那无限澄蓝的天空
+那么
+让我死在你的手下
+就好像是
+终于能
+死在你的怀里
+
+写得真好！接一个！
+
+你若是那长发的螳螂
+我就是那一只
+在你脚边的蝉儿鸣唱
+即使
+头上是铜牙钳爪
+和青色长满铁刺的翅膀
+你若是这地上唯一
+唯一能捕蛇的螳螂
+我就是你期待已久的巨蟒
+
+静静的蜷缩在你的身旁
+
+
+> 小琼生日快乐
+
+1
+月如圆圈弯如月，
+孤身不见单影鹊。
+声如乐，
+人生何须看攻略。
+
+2
+是什么样的疑问，
+驱动着我们向东向西。
+是什么样的
+ .... ??
+月儿泊了她的船，
+躺在夜空中细听。
+是星星的歌唱，
+从停顿处继续：
+昨夜烛亮烛熄，
+明天的朝阳依旧，
+为曾经的洒水车，
+和小岛上的哨声，
+生日快乐！
+
+
+> 收藏：磨刀
+
+如果一个人总是在夜里磨刀
+既不是为了磨刀
+也不是为了杀人越货
+那么他为什么这么锲而不舍地磨这把刀呢
+我们邀请窃贼高手
+这样的刀很快到了我们手里
+但是夜里的磨刀声依旧
+据说他家没有别的的刀了
+但是磨刀声依旧
+也许真如传言所说
+他有一把看不见的刀
+不难想象
+那该是一把多么锋利的刀啊

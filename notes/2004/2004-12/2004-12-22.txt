@@ -1,0 +1,17 @@
+﻿BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> LTT
+
+	9.25	x Nsis Embed
+	10.7	install vb
+	13.0	Bex.nsis-embed
+	14.0	tqms/ new mod
+	18.30	re-install windows

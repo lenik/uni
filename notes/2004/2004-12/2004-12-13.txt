@@ -1,0 +1,65 @@
+﻿BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> XSLT 1.0  v.s.  XSLT 2.0
+
+	- <variable> 的空格处理不一样，
+	  XSLT 2.0 两个输出元素之间会自动插入空格。
+
+	- <variable .. as=type>
+	  XSLT 2.0 加入 as 属性
+	  但目前希望在 1.0 中使用以便将 node-set 转型至 text() 类型。
+
+	- 元素 -> boolean 隐式转型方式不一样，
+	  XSLT 2.0 当列表中有 true() 时列表才是 true()
+
+> xjl@ebja.com Alias
+	bodz.net
+
+	black
+	bodz
+	ceo
+	cto
+	danci.z
+	dansei
+	danz
+	denik
+	domain		域名联系
+	feiy
+	i
+	ila
+	jl
+	love
+	manager
+	name
+	news		新闻、杂志、邮件列表订阅
+	null
+	play
+	r4t-1
+	r4t-2
+	reader
+	s-certs
+	s-fia
+	support
+	topcroak
+	usnap
+	webmaster
+	whatever
+	who
+	world
+
+
+> send mail test
+
+	163 -> denik	ok
+	163 -> news	ok
+	denik -> 163
+	denik -> denik
+	denik -> news
