@@ -317,7 +317,7 @@ sub main {
                         next if (m/^\s*(\#.*)$/);
                         if (m/^(.*)=(.*)$/) {
                             my $synckey = $1;                       # sync-target
-                            my $syncvalue = expand_nfs_title $2;    # sync-source
+                            my $syncvalue = $2;                     # sync-source
                             print "synchronize $synckey from $syncvalue\n" if $opt_verbose;
                             file_sync $syncvalue, path_join('.', $synckey), $synckey;
                         }
@@ -707,7 +707,7 @@ sub get_vol_serial {
 
 
 sub version {
-    my %id = parse_id('$Id: nfs,v 1.6 2005-01-04 06:31:41 dansei Exp $');
+    my %id = parse_id('$Id: nfs,v 1.7 2005-01-04 06:43:29 dansei Exp $');
     print <<"EOM"
 [NFS] Notes for Speed
       Written by Snima Denik    Version 2.$id{rev}    Updated $id{date}
