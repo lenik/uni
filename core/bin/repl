@@ -1,7 +1,14 @@
 #!/usr/bin/perl
 
-# $Id: repl,v 1.5 2004-11-13 13:45:50 dansei Exp $
+# $Id: repl,v 1.7 2004-12-12 07:32:52 dansei Exp $
 # $Log: not supported by cvs2svn $
+# Revision 1.6  2004/12/12 07:32:09  dansei
+# split help into version and help,
+# (cuz repl.pl was refered too much, its code will be using as template)
+#
+# Revision 1.5  2004/11/13 13:45:50  dansei
+# support output only mode (don't save/writeback the replace result)
+#
 # Revision 1.4  2004/09/23 05:06:11  dansei
 # - new option: --veryquiet
 # - add to display modified-count at last.
@@ -14,6 +21,7 @@ use strict;
 use Getopt::Long;
 use FileHandle;
 use DirHandle;
+use cmt;
 
 
 my $recursive = 0;
@@ -204,9 +212,16 @@ sub process_file {
 }
 
 
+sub version() {
+    my %id = parse_id('$Id: repl,v 1.7 2004-12-12 07:32:52 dansei Exp $');
+    print "[REPL] Replace files by regular-expression\n";
+    print "Written by Snima Denik   Version $id{rev}   Last updated at $id{date}\n";
+}
+
 sub help() {
+    &version;
 	print <<"EOM";
-REPLace files    Author/Danci.Z    Version/3    Date/Aug 22 2004
+
 Syntax:
     $0
         --recursive (r)
