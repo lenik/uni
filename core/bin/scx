@@ -1,0 +1,160 @@
+#!/usr/bin/perl
+
+
+use strict;
+use Getopt::Long;
+use DirHandle;
+use cmt;
+use cmt::path;
+
+
+sub process_executable;
+sub process_directory;
+sub add_cvs;
+sub help;
+
+
+our $opt_recursive = 0;
+our %opt_executable = (
+    '.sh'   => 'x',
+    '.cmd'  => 'x',
+    '.bat'  => 'x',
+    '.pl'   => 'x',
+    '.p'    => 'x',
+    '.php'  => 'x',
+    '.cgi'  => 'x',
+    '.tcl'  => 'x',
+    '.sim'  => 'x',
+    );
+our $opt_verbose = 0;
+our $opt_quiet = 0;
+our $opt_add_cvs = 0;
+
+
+    GetOptions(
+        'recursive'     => \$opt_recursive,
+        'executable'    => sub { my ($opt, $ext) = @_; $opt_executable{$ext} = 'x' },
+        'add-cvs'       => \$opt_add_cvs,
+        'help'          => sub { &help; &exit },
+        'verbose'       => \$opt_verbose,
+        'quiet'         => \$opt_quiet,
+        );
+
+    my @dirs = @_;
+    @dirs = qw/./ if (! @dirs);
+
+    for my $d (@dirs) {
+        process_directory $d;
+    }
+
+
+sub process_executable {
+    my $path = shift;
+    print "[SCX] $path " if not $opt_quiet;
+
+    my @st = stat($path);
+    my $mode = $st[2];
+    my $modex = $mode | 0111;
+
+    my $spc = 60 - length($path);
+    $spc = 0 if $spc < 0;
+
+    if (chmod($mode, $path)) {
+        print ' 'x$spc . "ok\n" if not $opt_quiet;
+    } else {
+        print ' 'x$spc . "fail\n" if not $opt_quiet;
+    }
+}
+
+
+sub process_directory {
+    my $dir = path_normalize shift;
+    my $dh = new DirHandle($dir);
+    my @list = $dh->read();
+    $dh->close();
+
+    if (-e "$dir/.VEX/.scx") {
+        open(FH, "<$dir/.VEX/.scx")
+            || die "Can't open .scx configuration. ";
+        my @scxlist = <FH>;
+        close FH;
+        for (@scxlist) {
+            chop;
+            s/^\s*//;
+            next if m/^$/;
+            next if m/^\#/;
+            s/\s*$//;
+            my $scxitem = path_join($dir, $_);
+            if (! -e $scxitem) {
+                open(CREATE, ">$scxitem")
+                    || die "Can't create new file $scxitem. ";
+                    print CREATE "#";
+                close CREATE;
+            }
+            process_executable($scxitem);
+            add_cvs($scxitem) if $opt_add_cvs;
+        }
+    } else {
+        for (@list) {
+            next if (m/^\.+$/);
+            if (-d "$dir/$_") {
+                if ($opt_recursive) {
+                    print "[DIR] $dir/$_/\n" if $opt_verbose;
+                    process_directory("$dir/$_");
+                }
+            }
+            my ($fn, $ext) = path_splitext($_);
+            if ($opt_executable{$ext} eq 'x') {
+                process_executable("$dir/$_");
+            }
+        }
+    }
+}
+
+
+sub add_cvs {
+    my $path = shift;
+    my ($dir, $file) = path_split($path);
+
+    # retrieve cvs parameters
+    my $cvsroot_path = path_normalize "$dir/CVS/Root";
+    open(CR, "<$cvsroot_path")
+        || die "Can't get CVSROOT settings, error occured when opening $cvsroot_path";
+    my $cvsroot = <CR>;
+    close CR;
+
+    my ($proto, $userpass, $hostport, $rep) =
+        $cvsroot =~ m/^:(\w+):([^\@]+)\@([^\/]+)(.*)$/;
+    if (! $proto) {
+        die "Can't parse file CVS/Root, illegal syntax: \n$cvsroot\n";
+    }
+
+    my ($user, $pass) = split(':', $userpass);
+    my ($host, $port) = split(':', $hostport);
+
+
+}
+
+
+sub help {
+    my %id = parse_id('$Id: scx,v 1.1 2005-01-04 04:39:06 dansei Exp $');
+
+    print <<"EOM"
+[SCX] Scan & chmod for executable
+Written by Snima Denik,  Revision $id{rev},  Last updated $id{date}
+
+Syntax
+    scx
+        --recursive (r)
+        --executable=<extension>  --executable=<extension> .. (e)
+        --add-cvs (a)
+        --verbose (v)
+        --quiet (q)
+        --help (h)
+        <directory-name> ...
+
+    special executables can be configured in .VEX/.scx, the blank lines and
+    lines with first-nonspace-character is '#' are ignored.
+
+EOM
+}
