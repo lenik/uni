@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.6 2004-12-01 06:27:27 dansei Exp $';
+@rem = '$Id: syset.bat,v 1.7 2004-12-01 07:18:34 dansei Exp $';
 @rem = ' (Not strict mode)
 
         @echo off
@@ -45,7 +45,7 @@
             call perl %~dpnx0 env %t_dir%
 
         :env_shell
-            reg add hkcr\*\shell\Binary\Command /f /ve /d      "%t_dir%\3\uedit32.exe ""%%1""" >nul
+            reg add hkcr\*\shell\Binary\Command /f /ve /d      "%t_dir%\3\ue.exe ""%%1""" >nul
             reg add hkcr\*\shell\Notepad\Command /f /ve /d     "Notepad ""%%1""" >nul
             reg add hkcr\*\shell\Write\Command /f /ve /d       "Write ""%%1""" >nul
             reg add hkcr\*\shell\Register\Command /f /ve /d    "regsvr32 ""%%1""" >nul

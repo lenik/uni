@@ -1,5 +1,5 @@
 @echo off
-rem $Id: note.bat,v 1.13 2004-11-30 08:05:52 dansei Exp $
+rem $Id: note.bat,v 1.14 2004-12-01 07:18:34 dansei Exp $
 
 rem 0, options
     set note_exec=%~dp0
@@ -11,7 +11,7 @@ rem 0, options
 
     set note_a_doc=winword
     set note_a_xls=excel
-    set note_a_xml=uedit32
+    set note_a_xml=ue
     set note_a_txt=notepad
     set note_extf=%1
     if "%note_extf:~0,1%"=="/" (
