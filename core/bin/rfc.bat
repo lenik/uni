@@ -1,7 +1,7 @@
 @echo off
 
 	set rfc_home=L:\files\refer\rfc
-	set rfc_edit=notepad
+	set rfc_edit=uedit32
 
 	if "%1"=="u" (
 		set rfc_edit=uedit32
