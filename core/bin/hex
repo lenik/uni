@@ -103,7 +103,7 @@ sub main {
 Number @<
        $_
     From  \  To |    Binary    |    Octal     |   Decimal    | Hexadecimal
-    ------------+--------------+--------------+-----------------------------
+    ------------+--------------+--------------+--------------+--------------
     Binary      |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>>
                  $bb            $bo            $bd            $bh
     Octal       |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>>
@@ -123,7 +123,7 @@ Number @<
 
 
 sub help {
-    my %id = parse_id('$Id: hex,v 1.1 2004-12-03 13:51:32 dansei Exp $');
+    my %id = parse_id('$Id: hex,v 1.2 2004-12-12 07:45:19 dansei Exp $');
     print <<"EOM";
 [HEX] Number system reference
 Written by Snima Denik  Version $id{rev}  last updated at $id{date}
