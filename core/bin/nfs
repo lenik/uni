@@ -149,8 +149,8 @@ sub main {
             $opt_type_specified = 1;
         } elsif (m/^(\d+)\.$/) {        # num.      --offset=-num
             $opt_offset -= $1;
-        } elsif (m/^(\.+)$/) {          # ...       --offset=-3
-            $opt_offset -= length($1);
+        } elsif (m/^(\.+)$/) {          # ...       --offset=-2
+            $opt_offset -= length($1)-1;
         } elsif (m/^\.(\d+)$/) {        # .num      --offset=+num
             $opt_offset += $1;
         } elsif (not $opt_title) {      # <title>   --nfs-title
@@ -714,7 +714,7 @@ sub get_vol_serial {
 
 
 sub version {
-    my %id = parse_id('$Id: nfs,v 1.9 2005-01-04 11:41:52 dansei Exp $');
+    my %id = parse_id('$Id: nfs,v 1.10 2005-01-04 11:43:01 dansei Exp $');
     print <<"EOM"
 [NFS] Notes for Speed
       Written by Snima Denik    Version 2.$id{rev}    Updated $id{date}
