@@ -1,0 +1,213 @@
+#!/usr/bin/perl
+# $Id: whoare,v 1.3 2004-10-26 08:42:34 dansei Exp $
+
+use strict;
+use Socket;
+use FileHandle;
+use Getopt::Long;
+use Data::Dumper;
+
+
+our %tld_whois = (
+    'com'       => 'whois.internic.com',
+    'net'       => 'whois.internic.com',
+    'org'       => 'whois.internic.com',
+    'edu'       => 'whois.internic.com',
+    'cn'        => 'whois.cnnic.net.cn',
+    'biz'       => 'whois.neulevel.biz',
+    );
+
+our $proto_tcp = getprotobyname("tcp");
+
+our $logfile = 'whois_logs.txt';
+
+
+our $fuzzy_tbl = "abcdefghijklmnopqrstuvwxyz0123456789-";
+our @fuzzy_set = split('', $fuzzy_tbl);
+our $fuzzy_len = scalar(@fuzzy_set);
+
+our $opt_debug;
+our $opt_test;
+our $opt_mt;
+
+our $ignore_first = 0;
+
+
+sub whois {
+    my $svr = shift;
+    my ($tld) = $svr =~ m/\.([^\.]+)$/;
+    my $server = $tld_whois{$tld};
+    local $_;
+
+    die "WHOIS server undefined for TLD: $tld" if ! $server;
+    my $iaddr = inet_aton($server);
+		die "Server $server not found: $!" if !$iaddr;
+
+	my $paddr = sockaddr_in(43, $iaddr);
+
+	my $proto = $proto_tcp;
+
+	socket(SOCK, PF_INET, SOCK_STREAM, $proto)
+		or die "Can't create socket: $!";
+	connect(SOCK, $paddr)
+		or die "Connect failure: $!";
+
+	send(SOCK, "$svr\n", 0);
+
+	my $info = {};
+
+	while (<SOCK>) {
+	    # print "# $_";
+		if (m/^\s*Domain Name:\s*(.*)$/i) {
+		    $info->{domain} = $1;
+		} elsif (m/^\s*Registrar:\s*(.*)$/i) {
+		    $info->{reg} = $1 if (! $info->{reg});
+		} elsif (m/^\s*Registrant Name:\s*(.*)$/i) {
+		    $info->{reg} = $1 if (! $info->{reg});
+		} elsif (m/^\s*Registrant Organization:\s*(.*)$/i) {
+		    $info->{reg} = $1 if (! $info->{reg});
+		} elsif (m/^\s*Name Server:\s*(.*)$/i) {
+		    $info->{dns0} = $1 if (! $info->{dns0});
+		} elsif (m/Registration Date:\s*(.*)$/i) {
+		    $info->{create} = $1;
+		} elsif (m/Expiration Date:\s*(.*)$/i) {
+		    $info->{expire} = $1;
+		} elsif (m/^No match(ing)?\b/i or m/^Not found:/i) {
+		    $info = {};
+		    $info->{domain} = '***Available***';
+		    last;
+		} elsif (m/^>>> /) {
+		    last;
+		}
+	}
+
+	if (! $info->{domain}) {
+	    $info->{domain} = 'UNKNOWN';
+	}
+
+	close SOCK;
+
+	return $info;
+}
+
+
+sub process {
+    my $name = shift;
+    my $wi;
+    $wi = whois($name);
+    my $line =
+        "$name|$wi->{domain}|$wi->{reg}|$wi->{dns0}|$wi->{create}|$wi->{expire}\n";
+
+    print $line;
+
+    my $logs = new FileHandle(">>$logfile");
+    $logs->write($line);
+    $logs->close();
+}
+
+
+sub before_than {
+    my ($a, $b) = @_;
+    for (my $i = 0; $i < length($b); $i++) {
+        my $ai = index($fuzzy_tbl, substr($a, $i, 1));
+        my $bi = index($fuzzy_tbl, substr($b, $i, 1));
+
+        return 1 if $ai >= 0 and $ai < $bi;
+    }
+    return 0;
+}
+
+sub after_than {
+    my ($a, $b) = @_;
+    for (my $i = 0; $i < length($b); $i++) {
+        my $ai = index($fuzzy_tbl, substr($a, $i, 1));
+        my $bi = index($fuzzy_tbl, substr($b, $i, 1));
+
+        return 1 if $ai >= 0 and $ai > $bi;
+    }
+    return 0;
+}
+
+
+sub process_gen {
+    my $gen = shift;
+    for (qw/.com .net .org .edu .biz .com.cn .net.cn .org.cn/) {
+        process_any("$gen$_");
+    }
+}
+
+sub process_any {
+    my ($name, $st) = @_;
+    return if ($name =~ m/^-/ or $name =~ m/-\./);
+
+    if ($name =~ m/^(.*)\.\*$/) {
+        process_gen($1);
+        return;
+    }
+    if (index($name, '.') < 0) {
+        process_gen($name);
+        return;
+    }
+
+    if ($name =~ m/\?/) {
+        my $xpos = $-[0];
+        my $n2 = $name;
+        my $i = 0;
+        for (; $i < $fuzzy_len; $i++) {
+            substr($n2, $xpos, 1) = $fuzzy_set[$i];
+            if ($st) {
+                next if before_than($n2, $st);
+                undef $st if after_than($n2, $st);
+            }
+            process_any($n2, $st);
+        }
+        return;
+    }
+
+    if ($ignore_first) {
+        $ignore_first = 0;
+        return;
+    }
+
+    if ($opt_test) {
+        print "[test] $name\n";
+    } else {
+        if ($opt_mt) {
+            if (not fork) {
+                process($name);
+                return;
+            }
+        } else {
+            process($name);
+        }
+    }
+}
+
+
+
+my $options = GetOptions(
+                         'debug' => \$opt_debug,
+                         'test' => \$opt_test,
+                         'multi-threads|mt' => \$opt_mt,
+                         );
+
+
+for (@ARGV) {
+    my ($pat, $start) = $_ =~ m/^([^\/]*)(\/.*)?/;
+    $start = substr($start, 1) if $start;
+
+    if ($pat =~ m/\?/) {
+        $logfile = "whois_$pat.txt";
+        $logfile =~ s/\?/\%/g;
+
+        if (! $start) {
+            if (-f $logfile) {
+                my $last = `tail -1 $logfile`;
+                ($start) = $last =~ m/^(.*?)(?=\|)/;
+            }
+        }
+    }
+
+    $ignore_first = 1 if $start;
+    process_any($pat, $start);
+}
