@@ -1,5 +1,5 @@
 @echo off
-    rem $Id: j.bat,v 1.5 2004-11-25 07:12:52 dansei Exp $
+    rem $Id: j.bat,v 1.6 2004-12-22 05:22:15 dansei Exp $
 
     if "%OS%"=="Windows_NT" goto winnt
 
@@ -77,15 +77,18 @@
 	if "%CATALINA_HOME%"=="" SET CATALINA_HOME=c:\varoj\java\tomcat5
 	if "%CATALINA_BASE%"=="" SET CATALINA_BASE=c:\varoj\java\tomcat5
 
+    set CLASSPATH=.
     for /D %%i in (%JOS_HOME%\usr\*) do (
         set CLASSPATH=!CLASSPATH!;%%i
         )
     for /F %%i in ('dir %JOS_HOME%\lib\*.jar /s/b') do (
         set CLASSPATH=!CLASSPATH!;%%i
         )
-	set CLASSPATH=.;X:\jos\var\out;%JAVA_HOME%\lib\tools.jar;%JAVA_HOME%\lib\dt.jar;%CLASSPATH%
+	set CLASSPATH=.;%JAVA_HOME%\lib\tools.jar;%JAVA_HOME%\lib\dt.jar;%CLASSPATH%
 
+	rem the Windows Executables PATH, not CLASSPATH
 	SET PATH=%JOS_HOME%\bin;%JOS_HOME%\usr\bin;%JAVA_HOME%\bin;%CATALINA_HOME%\bin;C:\varoj\java\.dok;%PATH%
+
     goto end
 
 
