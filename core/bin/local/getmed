@@ -53,6 +53,22 @@ main();
 
 
 
+sub help() {
+	print <<"EOM";
+[GETMED] get media URLs from input
+syntax:
+	$0
+	--help --keep --nokeep
+	--ext=<explicit ext-name>
+	--regex=<reg-exp to full-name
+
+version: 1
+	this program is distributed under GPL license.
+EOM
+	exit -1;
+}
+
+
 sub main() {
 	my ($dh, @files);
 	$dh = new DirHandle '.';
@@ -71,18 +87,6 @@ sub main() {
 	use Win32::Clipboard;
 	my $clip = Win32::Clipboard();
 	$clip->Set(join("\r\n", @urls));
-}
-
-sub help() {
-	print <<"EOM";
-[GETMED] get media URLs from input
-syntax:
-	$0 --help --ext=<extension-name> --keep --nokeep
-
-version: 1
-	this program is distributed under GPL license.
-EOM
-	exit -1;
 }
 
 sub parse_file {
