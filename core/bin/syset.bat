@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.8 2004-12-03 04:27:29 dansei Exp $';
+@rem = '$Id: syset.bat,v 1.9 2005-01-04 04:39:54 dansei Exp $';
 @rem = ' (Not strict mode)
 
         @echo off
@@ -41,7 +41,7 @@
 
         :env_perlcall
             set PATH=%t_dir%;%t_dir%\0;%t_dir%\1;%t_dir%\2\bin;%t_dir%\3;%t_dir%\4;%t_dir%\5;%t_dir%\6;%t_dir%\7;%t_dir%\8;%t_dir%\9;%PATH%
-            set PERLLIB=%t_dir%\0;%t_dir%\2\lib
+            set PERLLIB=%t_dir%\0\lib;%t_dir%\2\lib
 
             call perl %~dpnx0 env %t_dir%
 
@@ -97,6 +97,7 @@
 # ---------------------------------------------------------------------------
 use Win32::Registry;
 use cmt;
+use cmt::path;
 
 our ($opt_cmd, @opt_args) = @ARGV;
 $| = 1;
@@ -106,7 +107,7 @@ sub env {
     my $regenv;
     my ($type, $value);
 
-    my $prefix = $t_dir;
+    my $prefix = path_normalize $t_dir;
     $prefix =~ s/\\/\\\\/g;
 
     print "Updating environment";
@@ -117,36 +118,59 @@ sub env {
         $regenv->SetValueEx('DIR_T_HOME', 0, &REG_EXPAND_SZ, "$t_dir");
             print ".";
 
-        $regenv->QueryValueEx('PATH', $type, $value);
-            my @path = grep { $_ !~ m/^$prefix/i } split(';', $value);
+        my @path = ();
+            if ($regenv->QueryValueEx('PATH', $type, $value)) {
+                @path = grep { $_ !~ m/^$prefix/i } split(';', $value)
+            }
             unshift @path, (
-                "$t_dir", "$t_dir\\0", "$t_dir\\1", "$t_dir\\3"
+                path_normalize "$t_dir",
+                path_normalize "$t_dir\\0",
+                path_normalize "$t_dir\\1",
+                path_normalize "$t_dir\\3"
                 );
             push @path, (
-                "$t_dir\\2\\bin", "$t_dir\\4", "$t_dir\\5", "$t_dir\\6",
-                "$t_dir\\7", "$t_dir\\8", "$t_dir\\9"
+                path_normalize "$t_dir\\2\\bin",
+                path_normalize "$t_dir\\4",
+                path_normalize "$t_dir\\5",
+                path_normalize "$t_dir\\6",
+                path_normalize "$t_dir\\7",
+                path_normalize "$t_dir\\8",
+                path_normalize "$t_dir\\9"
                 );
             $regenv->SetValueEx('PATH', 0, &REG_EXPAND_SZ, join(';', @path));
             print ".";
 
-        $regenv->QueryValueEx('PATHEXT', $type, $value);
-            my @pathext = grep { $_ !~ m/^\.(p|pl|py|php)$/i } split(';', $value);
-            push @pathext, qw/ .p .pl .py .php /;
+        my @pathext = qw/.exe .com .bat .cmd .vbs .js .sh/;
+            if ($regenv->QueryValueEx('PATHEXT', $type, $value)) {
+                @pathext = grep { $_ !~ m/^\.(p|pl|py|php)$/i } split(';', $value);
+            }
+            push @pathext, qw(
+                .p
+                .pl
+                .py
+                .php
+                );
             $regenv->SetValueEx('PATHEXT', 0, &REG_EXPAND_SZ, join(';', @pathext));
             print ".";
 
-        $regenv->QueryValueEx('PERLLIB', $type, $value);
-            my @perllib = grep { $_ !~ m/^$prefix/i } split(';', $value);
+        my @perllib = ();
+            if ($regenv->QueryValueEx('PERLLIB', $type, $value)) {
+                @perllib = grep { $_ !~ m/^$prefix/i } split(';', $value);
+            }
             push @perllib, (
-                "$t_dir/0", "$t_dir/2/lib"
+                path_normalize "$t_dir/0/lib",
+                path_normalize "$t_dir/2/lib"
                 );
             $regenv->SetValueEx('PERLLIB', 0, &REG_EXPAND_SZ, join(';', @perllib));
             print ".";
 
-        $regenv->QueryValueEx('PYTHONPATH', $type, $value);
-            my @pythonpath = grep { $_ !~ m/^$prefix/i } split(';', $value);
+        my @pythonpath = ();
+            if ($regenv->QueryValueEx('PYTHONPATH', $type, $value)) {
+                @pythonpath = grep { $_ !~ m/^$prefix/i } split(';', $value);
+            }
             push @pythonpath, (
-                "$t_dir/0", "$t_dir/2/lib"
+                path_normalize "$t_dir/0/lib",
+                path_normalize "$t_dir/2/lib"
                 );
             $regenv->SetValueEx('PYTHONPATH', 0, &REG_EXPAND_SZ, join(';', @pythonpath));
             print ".";
