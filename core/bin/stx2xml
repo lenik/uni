@@ -282,7 +282,7 @@ Syntax:
 		--normal --schema .stx-files...
 
 	--force-parse: force parse the whole file, even if the header
-		(== structural text ==) isn't exists;
+		(== structural text ==) is not existed;
 	--no-stx: disable stx features, this includes stx:properties and stx:
 		namespace for output xml file;
 	--normal: output as xml format
@@ -418,7 +418,7 @@ sub dump_xml($) {
 		my $fmt = $node->{'format'};
 		my ($li_tag, $li_pre, $li_suf) = ('ul', '', '');
 		if ($fmt =~ m/[0-9]+/) {
-			($li_tag, $li_pre, $li_suf) = ('ol', $`, $');
+			($li_tag, $li_pre, $li_suf) = ('ol', $`, $');  #'
 		} else {
 			$li_suf = $fmt;
 		}
