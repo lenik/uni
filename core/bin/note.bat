@@ -1,8 +1,9 @@
 @echo off
-rem $Id: note.bat,v 1.15 2004-12-03 03:54:39 dansei Exp $
+rem $Id: note.bat,v 1.16 2004-12-07 04:04:16 dansei Exp $
 
 rem 0, options
     set note_exec=%~dp0
+    set note_serial=%date:~0,10%
 
     if "%1"=="/del" (
         set note_delete=1
@@ -17,6 +18,7 @@ rem 0, options
     if "%note_extf:~0,1%"=="/" (
         set note_ext=%note_extf:~1%
         shift
+        if "!note_ext!"=="/" set note_serial=%date:~0,7%-index
     ) else (
         set note_extf=
         set note_ext=txt
@@ -24,31 +26,34 @@ rem 0, options
 
 
 rem 1, get the note title
-
-    set note_serial=%date:~0,10%
     if "%1"=="" (
         set note=%note_serial%
-        goto title_x
+        goto args_3
     )
     if "%1"=="." (
         set note=%note_serial%
         shift
-        goto title_x
+        goto args_3
     )
 
     set note=%1
+    if "%note:~0,1%"=="." set note=.vol-%note:~1%
 :part_1
     shift
-    if "%1"=="" goto title_x
+    if "%1"=="" goto part_x
     set _tmp=%1
-    if "%_tmp:~0,1%"=="/" goto title_x
+    if "%_tmp:~0,1%"=="/" goto part_x
     set note=!note! %1
     goto part_1
-
-:title_x
+:part_x
     set _tmp=
-    if "%note:~-1%"=="-" set note=%note%%note_serial%
+    if "%note:~-1%"=="-" (
+        set note=%note%%note_serial%
+    ) else (
+        if "!note_ext!"=="/" set note=%note%-index
+    )
 
+:args_3
     rem note [/ext] [title] [/app]
     if not "%1"=="" (
         set note_app=%1
@@ -65,21 +70,13 @@ rem 2, special files
 
 rem 3, find note home directory
     set note_home=%userprofile%\My Documents\Notes
-    if exist "%note_home%" if not exist "%note_home%\*" (
-        for /f %%i in ('type "%note_home%"') do set note_home=%%i
+    if exist "%note_home%.link" (
+        for /f %%i in ('type "%note_home%.link"') do set note_home=%%i
         if not exist "!note_home!\*" (
             call:ss "!note_home!" "\" "\\"
             lc /nologo "user32::MessageBoxA(0, 'Not mounted: !_ret!', 'Notes', 16)"
             goto cleanup
         )
-    )
-
-    rem // for notes index
-    if "%note_ext%"=="/" (
-        cd "%note_home%"
-        grep -R "^>" * >%TEMP%\notes.lst
-        start notepad %TEMP%\notes.lst
-        goto cleanup
     )
 
 
@@ -117,13 +114,26 @@ rem 4, build '-' separated directory structure
     rem create index file if the note file is a directory.
     if exist "%note_ctr%\%note%\*" (
         set note_ctr=%note_ctr%\%note%
-        set note=%note%-overall
+        set note=%note%-index
     )
     set note_cur=
     set note_char=
     set note_rest=
 
+
+rem 5, open method
     if not exist "%note_ctr%" md "%note_ctr%"
+
+    rem if // option, then build index
+    if "%note_ext%"=="/" (
+        pushd "%note_ctr%"
+        grep -R "^>" * >%note_ctr%\%note%.txt
+        start %note_a_txt% "%note_ctr%\%note%.txt"
+        popd
+        goto cleanup
+    )
+
+    rem otherwise, open the note
     if "%note_extf%"=="" if exist "%note_ctr%\%note%.*" (
         pushd "%note_ctr%"
         for %%i in (%note%.*) do (
