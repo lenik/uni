@@ -1,0 +1,284 @@
+#!/usr/bin/perl
+
+use strict;
+use Getopt::Long;
+use DirHandle;
+use cmt;
+use cmt::path;
+use cmt::winuser;
+
+
+our $opt_root;                              # NFS-Root, default "My Documents/Notes" -or- "~/Notes"
+
+our $opt_program;                           # Program used to open nfs document, depends on type
+                                            # Specials:
+                                            #   .del    delete document
+                                            #   .map    copy document to current directory
+                                            #   .link   create a symbolic link of the specified container-name
+                                            #   .index  build index file
+                                            #   .bak    do backup
+
+our $opt_type = 'txt';                      # Document type
+
+our $opt_open_all = 0;                      # Open all types
+                                            # If none type of the document is created, then create one;
+                                            # Otherwise, ignore option --type
+
+our $opt_map_target = '.';                  # Map the specified nfs document to the target directory
+
+our $opt_link = '.';                        # This relative path will be expanded to actual path.
+
+our $opt_offset = 0;                        # Time or Serial adjustment
+
+our $opt_index_range;                       # Documents range specifies which documents to be indexed
+
+our $opt_name_method = 'date';
+our $opt_format_date = 'yyyy-mm-dd';
+our $opt_format_serial = '0000';
+our $opt_title;                             # NFS-Title, Default depends on name-method
+our $opt_max_levels = 'inf';                # Max levels of directories
+
+our $opt_disable_symbolic_link = 0;
+our $opt_disable_template_substitute = 0;
+our $opt_disable_vex_extension = 0;
+
+our $opt_verbose = 0;
+our $opt_quiet = 0;
+
+
+our %nfs_filetype = (
+    ''      => 'notepad "$1"',              # default
+    'doc'   => 'winword "$1"',
+    'xls'   => 'excel "$1"',
+    'xml'   => 'ue "$1"',
+    );
+
+
+our $nfs_path_container;
+our $nfs_path_vol;                          # dynamic: maybe happened to be override in any level of container.
+our $nfs_path_full;                         # should be equal to container/title
+
+
+sub main {
+    $opt_root = "$ENV{USERPROFILE}/My Documents/Notes";
+
+    GetOptions(
+        'r|root=s',
+        'p|program=s',
+        't|type=s',
+        'a|open-all',
+        'd|delete'          => sub { $opt_program = '.del' },
+        'm|map=s'           => sub { $opt_program = '.map';     $opt_map_target = $_[1] },
+        'l|link:s'          => sub { $opt_program = '.link';    $opt_link = $_[1] },
+        'ml|max-levels=s',
+        'n|name-method=s',
+        'fd|format-date=s',
+        'fs|format-serial=s',
+        'o|offset=n',
+        'ds|disable-symbolic-link',
+        'dt|disable-template-substitute',
+        'dv|disable-vex-extension',
+        'v|verbose',
+        'q|quiet',
+        've|version'        => sub { &version; exit },
+        'h|help'            => sub { &help; exit },
+        );
+
+    for (@ARGV) {
+        if ($_ eq '//') {
+            $opt_program = '.index';
+            next;
+        }
+        $opt_title = $_;
+        last;
+    }
+    # ARGV remains...
+
+    if ($opt_title =~ m/--/) {
+        die "Invalid NFS-Title: $opt_title";
+    }
+
+    $opt_title = get_serial($opt_root) if (! $opt_title);
+
+    $opt_root = expand_symbolic_link($opt_root);
+
+    # prepare title name
+        if ($opt_title =~ m/^\.(.*)$/) {
+            $opt_title = ".vol-$1";
+        }
+        # temporary remove the trailing '-'
+        my $prepare_title = $opt_title;
+           $prepare_title =~ s/-$//;
+        my @segs = split('-', $opt_title);
+        my $current;
+        my $path = $opt_root;
+        for (@segs) {
+            $current .= '-' if $current;
+            $current .= $_;
+            $path .= '/' if $path;
+            $path .= $current;
+            $path = expand_symbolic_link($path);
+        }
+
+        if (substr($opt_title, -1) eq '-') {
+            $opt_title .= get_serial($path);
+        }
+
+    # expand nfs-title into container-path and full-path
+        @segs = split('-', $opt_title);
+        $current = '';
+        for (@segs) {
+            $current .= '-' if $current;
+            $current .= $_;
+            $_ = $current;
+        }
+        my $name = pop @segs;
+
+        $nfs_path_container = $opt_root;
+        $nfs_path_vol = path_join $opt_root, '.vol';
+        for (@segs) {
+            $nfs_path_container .= '/' if $nfs_path_container;
+            $nfs_path_container .= $_;
+            $nfs_path_container = expand_symbolic_link $nfs_path_container;
+            if (-d path_join($nfs_path_container, '.vol')) {
+                $nfs_path_vol = path_join $nfs_path_container, '.vol';
+            }
+        }
+        $nfs_path_container = path_normalize $nfs_path_container;
+        $nfs_path_vol = path_normalize $nfs_path_vol;
+        $nfs_path_full = path_join $nfs_path_container, $name;
+
+        print "NFS-Vol:   \"$nfs_path_container\"\n" if $opt_verbose;
+        print "Container: \"$nfs_path_container\"\n" if $opt_verbose;
+        print "Fullpath:  \"$nfs_path_container\"\n" if $opt_verbose;
+
+    #
+}
+
+
+
+###############################################################################
+#
+# SUBROUTINES
+#
+#   expand_symbolic_link
+#   get_serial
+#   version
+#   help
+
+sub expand_symbolic_link {
+    my $path = shift;
+    if (-e "$path.link") {
+        open(F, "<$path.link")
+            or die "Can't open symbolic-link file";
+        my @lines = <F>;
+        close F;
+
+        # remove blank and comments lines
+        @lines = grep {!/^\s*(\#.*)?$/} @lines;
+        $path = path_join($path, $lines[0]);
+        return $path;
+    }
+    return $path;
+}
+
+
+sub get_serial {
+    if ($opt_name_method eq 'date') {
+        # YYYY-MM-DD (week W) HH:NN:SS
+        my $fmt = '';
+        my @list = ();
+        my @lt = localtime;
+        while ($opt_format_date =~ m/(.)\1*/g) {
+            my $c = substr($&, 0, 1);
+            my $len = length($&);
+            my $f = '%0'.$len.'d';
+
+            if ($c eq 'Y')      { $fmt .= $f; push @list, 1900 + $lt[5] }
+            elsif ($c eq 'M')   { $fmt .= $f; push @list,    1 + $lt[4] }
+            elsif ($c eq 'D')   { $fmt .= $f; push @list,    0 + $lt[3] }
+            elsif ($c eq 'W')   { $fmt .= $f; push @list,    0 + $lt[6] }
+            elsif ($c eq 'H')   { $fmt .= $f; push @list,    0 + $lt[2] }
+            elsif ($c eq 'N')   { $fmt .= $f; push @list,    0 + $lt[1] }
+            elsif ($c eq 'S')   { $fmt .= $f; push @list,    0 + $lt[0] }
+            else                { $fmt .= $&; }
+        }
+        return printf($fmt, @list);
+    }
+    if ($opt_name_method eq 'serial') {
+        if ($opt_format_serial !~ m/^(.)\1*$/) {
+            die "Invalid serial format: $opt_format_serial";
+        }
+        my $container = shift;
+        my $dh = new DirHandle($container);
+        my @files = $dh->read;
+        $dh->close;
+
+        my ($min, $max) = (99999999, -99999999);
+        my $num;
+        for (@files) {
+            s/^.*-//;
+            $num = hex;
+            $min = $num if $num < $min;
+            $max = $num if $num > $max;
+        }
+        $num = $max + 1;
+        # return printf($fmt, $num);
+    }
+    die "Name method $opt_name_method is not supported. ";
+}
+
+
+sub version {
+    my %id = parse_id('$Id: nfs,v 1.1 2005-01-03 14:16:19 dansei Exp $');
+    print <<"EOM"
+[NFS] Notes for Speed
+      Written by Snima Denik    Version 2.$id{rev}    Updated $id{date}
+EOM
+}
+
+
+sub help {
+    &version;
+    print <<"EOM";
+
+Syntax:
+    nfs (-rptadmlnovqh <title>)
+        --root=<nfs-root, default "~/My Documents/Notes" for Windows, -or-
+                "~/Notes" for *Nix> (r)
+
+        --program=<open-by-program, default depends on type> (p)
+        --type=<note-file-type, default txt> (t)
+        --open-all (a)
+            (open all types of the specifid note, default only txt)
+
+        --delete (d)
+        --map=<target-directory, default current directory> (m)
+        --link=<directory on which the .link file resides> (l)
+               (create a symbolic link of the specified container-name)
+
+        --max-levels=<1..inf, default inf> (ml)
+
+        --name-method=<default name method(date serial), default date> (n)
+        --format-date=<date-format, default yyyy-mm-dd> (fd)
+        --format-serial=<serial-format, default 000> (fs)
+        --offset=<days for date -or- number for serial, default -1> (o)
+
+        --disable-symbolic-link (ds)
+        --disable-template-substitute (dt)
+        --disable-vex-extension (dv)
+
+        --verbose (v)
+        --quiet (q)
+
+        --version (ve)
+        --help (h)
+
+        <nfs-title>
+
+This program is distributed under GNU General Public License (GPL).
+Send bug-report to bug-report\@bodz.net, or visit http://tc.bodz.net/diret
+EOM
+}
+
+&main;
