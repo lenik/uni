@@ -1,5 +1,5 @@
 @echo off
-rem $Id: note.bat,v 1.14 2004-12-01 07:18:34 dansei Exp $
+rem $Id: note.bat,v 1.15 2004-12-03 03:54:39 dansei Exp $
 
 rem 0, options
     set note_exec=%~dp0
@@ -28,17 +28,32 @@ rem 1, get the note title
     set note_serial=%date:~0,10%
     if "%1"=="" (
         set note=%note_serial%
-        goto exit_arg
+        goto title_x
+    )
+    if "%1"=="." (
+        set note=%note_serial%
+        shift
+        goto title_x
     )
 
     set note=%1
-:next_arg
+:part_1
     shift
-    if "%1"=="" goto exit_arg
+    if "%1"=="" goto title_x
+    set _tmp=%1
+    if "%_tmp:~0,1%"=="/" goto title_x
     set note=!note! %1
-    goto next_arg
-:exit_arg
+    goto part_1
+
+:title_x
+    set _tmp=
     if "%note:~-1%"=="-" set note=%note%%note_serial%
+
+    rem note [/ext] [title] [/app]
+    if not "%1"=="" (
+        set note_app=%1
+        set note_app=!note_app:~1!
+    )
 
 
 rem 2, special files
@@ -59,6 +74,7 @@ rem 3, find note home directory
         )
     )
 
+    rem // for notes index
     if "%note_ext%"=="/" (
         cd "%note_home%"
         grep -R "^>" * >%TEMP%\notes.lst
@@ -112,7 +128,7 @@ rem 4, build '-' separated directory structure
         pushd "%note_ctr%"
         for %%i in (%note%.*) do (
             set note_x=%%~xi
-            call:open "!note_x:~1!" "%%i"
+            call:open "%%i" "!note_x:~1!"
         )
         set note_x=
         popd
@@ -140,28 +156,30 @@ rem 4, build '-' separated directory structure
         )
     )
 
-    call:open %note_ext% "%note%.%note_ext%"
+    call:open "%note%.%note_ext%" "%note_ext%"
 
     goto cleanup
 
 
 :open
     if "%note_delete%"=="1" (
-        if not exist "%note_ctr%\%~2" (
+        if not exist "%note_ctr%\%~1" (
             lc /nologo "user32::MessageBoxA(0,'Note file was not existed', 'Note', 16)"
             goto end
         )
-        del "%note_ctr%\%~2" >nul
-        if exist "%note_ctr%\%~2" (
+        del "%note_ctr%\%~1" >nul
+        if exist "%note_ctr%\%~1" (
             lc /nologo "user32::MessageBoxA(0,'Note file can not be deleted', 'Note', 16)"
             goto end
         )
         goto end
     )
 
-    set note_app=!note_a_%~1!
-    if "%note_app%"=="" set note_app=uedit32
-    start %note_app% "%note_ctr%\%~2"
+    if not "%note_app%"=="" goto open_start
+    set note_app=!note_a_%~2!
+    if "%note_app%"=="" set note_app=ue
+:open_start
+    start %note_app% "%note_ctr%\%~1"
     goto end
 
 
