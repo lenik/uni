@@ -14,3 +14,4 @@ while (<>) {
 $clip->Set(join("\r\n", @lines));
 
 print "Total ".scalar(@lines)." lines. \n";
+
