@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: so,v 1.4 2004-12-03 01:21:27 dansei Exp $
+# $Id: so,v 1.5 2004-12-03 04:26:43 dansei Exp $
 
 use strict;
 use Socket;
@@ -114,7 +114,10 @@ sub main() {
     while (my $echo = shift @sends) {
         if ($echo->{'text'}) {
             my $text = $echo->{'text'};
-            $text =~ s/\\(.)/$escape{$1}/g;
+            $text =~ s/\\n/\n/g;
+            $text =~ s/\\r/\r/g;
+            $text =~ s/\\t/\t/g;
+            $text =~ s/\\(.)/\1/g;
             send(SOCK, $text, 0);
         } elsif ($echo->{'file'}) {
             my $file = $echo->{'file'};
@@ -172,7 +175,7 @@ sub main() {
 }
 
 sub help() {
-    my %id = parse_id('$Id: so,v 1.4 2004-12-03 01:21:27 dansei Exp $');
+    my %id = parse_id('$Id: so,v 1.5 2004-12-03 04:26:43 dansei Exp $');
 
     print <<"EOM";
 [SOCKONCE] socket communication utility for simple dialog
