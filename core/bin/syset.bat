@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.5 2004-11-30 08:31:42 dansei Exp $';
+@rem = '$Id: syset.bat,v 1.6 2004-12-01 06:27:27 dansei Exp $';
 @rem = ' (Not strict mode)
 
         @echo off
@@ -45,16 +45,16 @@
             call perl %~dpnx0 env %t_dir%
 
         :env_shell
-            reg add hkcr\*\shell\Binary\Command /f /ve /d      "%t_dir%\3\uedit32.exe ""%1""" >nul
-            reg add hkcr\*\shell\Notepad\Command /f /ve /d     "Notepad ""%1""" >nul
-            reg add hkcr\*\shell\Write\Command /f /ve /d       "Write ""%1""" >nul
-            reg add hkcr\*\shell\Register\Command /f /ve /d    "regsvr32 ""%1""" >nul
-            reg add hkcr\*\shell\Unregister\Command /f /ve /d  "regsvr32 /u ""%1""" >nul
-            reg add "hkcr\*\shell\My Sign\Command" /f /ve /d   "%t_dir%\1\dsign.bat ""%1""" >nul
+            reg add hkcr\*\shell\Binary\Command /f /ve /d      "%t_dir%\3\uedit32.exe ""%%1""" >nul
+            reg add hkcr\*\shell\Notepad\Command /f /ve /d     "Notepad ""%%1""" >nul
+            reg add hkcr\*\shell\Write\Command /f /ve /d       "Write ""%%1""" >nul
+            reg add hkcr\*\shell\Register\Command /f /ve /d    "regsvr32 ""%%1""" >nul
+            reg add hkcr\*\shell\Unregister\Command /f /ve /d  "regsvr32 /u ""%%1""" >nul
+            reg add "hkcr\*\shell\My Sign\Command" /f /ve /d   "%t_dir%\1\dsign.bat ""%%1""" >nul
 
-            reg add hkcr\Directory\shell\Console\Command /f /ve /d                      "cmd ""%1""" >nul
-            reg add hkcr\Directory\shell\Serialize\Command /f /ve /d                    "%t_dir%\1\renum.exe -D -w 2 ""%1\*""" >nul
-            reg add "hkcr\Directory\shell\Gather binaries\Command" /f /ve /d            "%t_dir%\0\mvup.bat -c ""%1\..\..\bin\"" -t ""%1\..\..\bin\"" *.exe *.dll *.ocx" >nul
+            reg add hkcr\Directory\shell\Console\Command /f /ve /d                      "cmd ""%%1""" >nul
+            reg add hkcr\Directory\shell\Serialize\Command /f /ve /d                    "%t_dir%\1\renum.exe -D -w 2 ""%%1\*""" >nul
+            reg add "hkcr\Directory\shell\Gather binaries\Command" /f /ve /d            "%t_dir%\0\mvup.bat -c ""%%1\..\..\bin\"" -t ""%%1\..\..\bin\"" *.exe *.dll *.ocx" >nul
             reg add "hkcr\Directory\shell\Synchronize IMmediately\Command" /f /ve /d    "%t_dir%\2\bin\perl.exe %t_dir%\0\sim.pl" >nul
 
             reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v CompletionChar /t REG_DWORD /d 14 >nul
