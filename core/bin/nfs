@@ -147,10 +147,12 @@ sub main {
             error_report "--open-all is specified" if $opt_open_all == 1;
             $opt_type = $1;
             $opt_type_specified = 1;
-        } elsif (m/^(\d+)([\+\-])$/) {  # nn+ nn-   --offset
-            my $offset = $1;
-            $offset = -$offset if $2 eq '-';
-            $opt_offset += $offset;
+        } elsif (m/^(\d+)\.$/) {        # num.      --offset=-num
+            $opt_offset -= $1;
+        } elsif (m/^(\.+)$/) {          # ...       --offset=-3
+            $opt_offset -= length($1);
+        } elsif (m/^\.(\d+)$/) {        # .num      --offset=+num
+            $opt_offset += $1;
         } elsif (not $opt_title) {      # <title>   --nfs-title
             # REM-ARG-1 for title is title not defined
             $opt_title = $_;
@@ -712,7 +714,7 @@ sub get_vol_serial {
 
 
 sub version {
-    my %id = parse_id('$Id: nfs,v 1.8 2005-01-04 09:56:23 dansei Exp $');
+    my %id = parse_id('$Id: nfs,v 1.9 2005-01-04 11:41:52 dansei Exp $');
     print <<"EOM"
 [NFS] Notes for Speed
       Written by Snima Denik    Version 2.$id{rev}    Updated $id{date}
