@@ -1,0 +1,168 @@
+#!/usr/bin/perl
+
+use strict;
+use Config;
+use Getopt::Long;
+use DirHandle;
+use FileHandle;
+use cmt;
+
+use vars qw($Is_Mac $Is_OS2 $Is_VMS $Is_Win32 $Is_Win95  $Is_Dos $Is_VOS
+            $Is_QNX $Is_AIX $Is_OSF $Is_IRIX  $Is_NetBSD $Is_BSD
+            $Is_SunOS4 $Is_Solaris $Is_SunOS
+           );
+
+$Is_OS2     = $^O eq 'os2';
+$Is_Mac     = $^O eq 'MacOS';
+$Is_Win32   = $^O eq 'MSWin32' || $Config{osname} eq 'NetWare';
+$Is_Win95   = $Is_Win32 && Win32::IsWin95();
+$Is_Dos     = $^O eq 'dos';
+$Is_VOS     = $^O eq 'vos';
+$Is_VMS     = $^O eq 'VMS';
+$Is_QNX     = $^O eq 'qnx';
+$Is_AIX     = $^O eq 'aix';
+$Is_OSF     = $^O eq 'dec_osf';
+$Is_IRIX    = $^O eq 'irix';
+$Is_NetBSD  = $^O eq 'netbsd';
+$Is_SunOS4  = $^O eq 'sunos';
+$Is_Solaris = $^O eq 'solaris';
+$Is_SunOS   = $Is_SunOS4 || $Is_Solaris;
+$Is_BSD     = $^O =~ /^(?:free|net|open)bsd|bsdos$/;
+
+
+our $opt_new_line = "\n";
+our $opt_old_line = qr/(?<=[^\r\n])((\r?\n)|(\r))/;
+our $opt_recursive = 0;
+our $opt_stdout = 0;
+our $opt_quiet = 0;
+
+
+sub init {
+	$opt_new_line = "\r\n" if ($Is_Win32 or $Is_Dos);
+
+	GetOptions(
+		'new-line=s',
+		'old-line=s',
+		'recursive',
+		'stdout',
+		'unix' => sub { $opt_new_line = "\n" },
+		'dos' => sub { $opt_new_line = "\r\n" },
+		'version' => sub { &version; exit },
+		'quiet',
+		'help' => sub { &help; exit },
+	);
+}
+
+
+sub version {
+	my %ver = parse_id('$Id: newline,v 1.4 2004-11-17 04:17:41 dansei Exp $');
+	print <<"EOM";
+[NEWLINE] Convert new-line format for text files
+Written by Denik,  Revision $ver{rev},  Last Updated $ver{date}
+EOM
+}
+
+
+sub help {
+	&version;
+	print <<"EOM";
+
+Syntax:
+	newline
+		--new-line=<character> (n)
+		--old-line=<regular-expression> (o)
+		--recursive (r)
+		--stdout (s)
+		--unix (u)
+		--dos (d)
+		--quiet (q)
+		--version (v)
+		--help (h)
+EOM
+}
+
+
+sub translate {
+    my $path = shift;
+    my $fin;
+    my $fout;
+    my $dirty = 0;
+    my $binary = 0;
+
+    $fin = new FileHandle("<$path");
+        die "Can't open file for read: $path" unless $fin;
+        binmode $fin;
+
+    $fout = new FileHandle(">$path.tmp") unless $opt_stdout;
+        die "Can't create the temporary file: $path.tmp" unless $fout;
+        binmode $fout;
+
+    while (<$fin>) {
+        # 09-tab 0A-nl 0C-page 0D-cr
+        if (m/[\x01-\x08\x0b\x0e-\x1f]/) {
+            $binary = 1;
+            last;
+        }
+
+        my $old = $_;
+        s/$opt_old_line/$opt_new_line/g;
+        $dirty = 1 if ($old ne $_);
+
+        if ($opt_stdout) {
+            print;
+        } else {
+            $fout->write($_);
+        }
+    }
+
+    $fout->close() unless $opt_stdout;
+    $fin->close();
+
+    unless ($opt_stdout) {
+        if ($binary) {
+            print "\r[BIN ]";
+            unlink "$path.tmp";
+        } else {
+            if ($dirty) {
+                print "\r[SAVE]" unless $opt_quiet;
+                unlink "$path";
+                rename "$path.tmp", "$path";
+            } else {
+                print "\r[TEXT]" unless $opt_quiet;
+                unlink "$path.tmp";
+            }
+        }
+    }
+}
+
+
+sub process {
+	my ($item, $rec) = @_;
+	$rec ||= $opt_recursive;
+	if (-d $item) {
+		if ($rec) {
+			print "\n[DIR ] $item" unless $opt_quiet;
+			my $dh = new DirHandle($item);
+			my @subitems = $dh->read();
+			$dh->close();
+			for (@subitems) {
+				next if (m/^\.+$/);
+				process("$item/$_", $opt_recursive);
+			}
+		}
+	} else {
+		print "\n[FILE] $item" unless $opt_quiet;
+		translate $item;
+	}
+}
+
+
+
+
+&init;
+
+@ARGV = qw/./ unless @ARGV;
+
+for (@ARGV) {
+	process($_, 1);
+}
