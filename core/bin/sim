@@ -1,0 +1,145 @@
+#!/usr/bin/perl
+
+# $Id: sim,v 1.2 2004-10-20 04:54:05 dansei Exp $
+
+use strict;
+use Getopt::Long;
+use File::Basename;
+use DirHandle;
+
+
+our $opt_recursive = 0;
+our $opt_write = 0;
+our $opt_binary = 0;
+our $opt_comment = 0;
+our $opt_force = 0;
+our $opt_quiet = 0;
+our $opt_veryquiet = 0;
+our $opt_verbose = 0;
+our $opt_help = 0;
+our $opt_which_sim = $0;
+our $opt_cmdline = join(' ', @ARGV);
+
+sub getopts {
+    # print "BEFORE:: ".join(",", @ARGV)."\n";
+    our $options = GetOptions(
+        'recursive|r' => \$opt_recursive,
+        'write|w' => \$opt_write,
+        'binary|b' => \$opt_binary,
+        'comment-remove|c' => \$opt_comment,
+        'force' => \$opt_force,
+        'quiet' => \$opt_quiet,
+        'veryquiet|vq' => \$opt_veryquiet,
+        'verbose|v' => \$opt_verbose,
+        'help|?' => sub { &help; },
+        );
+    $opt_quiet = 1 if ($opt_veryquiet);
+    # print "AFTER:: ".join(",", @ARGV)."\n";
+}
+
+    &getopts;
+    if (scalar(@ARGV) < 1) {
+        process_directory('.');
+        exit 0;
+    }
+
+    my @text;
+    my $file1 = $ARGV[0];
+    my $startdir = '.';
+    my @newArgs;
+
+    if (dirname($file1) ne '.') {
+        # print "file1: $file1\n";
+        $startdir = dirname $file1 if dirname $file1;
+    }
+    $file1 = basename $file1;
+    print "Primary file: [$startdir]/$file1\n" if $opt_verbose;
+
+    while (<>) {
+        if (m/^\s*\#!\s*\S*sim\s*(.*)$/) {
+            push @ARGV, split(/\s+/, $1);
+            &getopts;
+            next;
+        }
+        if (m/^\s*\#\?\s*(.*)$/) {
+            @newArgs = split(/\s+/, $1);
+            next;
+        }
+        if (m/^\s*\#/ and $opt_comment) {
+            next;
+        }
+
+        # replacement...
+
+        push @text, $_;
+    }
+
+
+    # create the temporary file for @text
+    my $tempdir = $ENV{'TEMP'};
+    $tempdir = $ENV{'TMP'} if (!$tempdir);
+    if (!$tempdir) {
+        mkdir '/tmp' if (! -e '/tmp');
+        $tempdir = '/tmp';
+    }
+    $tempdir =~ s/[\/\\]$//;
+
+    open FILE, ">$tempdir/$file1.tmp"
+        || die "Can't create the temporary file $tempdir/$file1.tmp";
+    print FILE join('', @text);
+    close FILE;
+
+    if ($opt_write) {
+        my $file_out = $file1;
+        if ($file_out !~ s/\.sim$//) {
+            rename "$startdir/$file1", "$startdir/$file1.bak";
+        }
+        system join(' ', @newArgs)
+            ." \"$tempdir/$file1.tmp\" >\"$startdir/$file_out\"";
+    } else {
+        system join(' ', @newArgs)
+            ." \"$tempdir/$file1.tmp\"";
+    }
+
+    unlink "$tempdir/$file1.tmp";
+
+
+sub process_directory {
+    my $dir = shift;
+    my $dh = new DirHandle($dir);
+    my @files = $dh->read();
+    for (@files) {
+        next if m/^\.\.?$/;
+        if (-d) {
+            if ($opt_recursive) {
+                print STDERR "[DIR] $dir/$_\n";
+                process_directory("$dir/$_");
+            }
+        } else {
+            next unless m/\.sim$/;
+            print STDERR "[SIM] $dir/$_\n";
+            system "$opt_which_sim $opt_cmdline \"$_\"";
+        }
+    }
+}
+
+
+sub help {
+    print <<"EOM";
+[SIM] Simplifier Shell
+Syntax:
+    sim [options] [sim-script ...]
+
+Options:
+    --recursive (r)
+    --write (w)
+    --binary (b)
+    --comment-remove (c)
+    --force (f)
+    --quiet (q)
+    --veryquiet (vq)
+    --verbose (v)
+    --help (?)
+EOM
+    exit 0;
+}
