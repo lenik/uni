@@ -9,6 +9,22 @@ use cmt::path;
 use cmt::winuser;
 
 
+
+our $nfs_appname = 'NFS Version 2';
+our %nfs_id = parse_id('$Id: nfs,v 1.12 2005-01-06 01:23:09 dansei Exp $');
+
+our %nfs_filetype = (
+    ''      => 'ue "%s"',                   # default
+    'txt'   => 'notepad "%s"',
+    'doc'   => 'winword "%s"',
+    'xls'   => 'excel "%s"',
+    );
+
+our $nfs_path_container;
+our $nfs_path_vol;                          # dynamic: maybe happened to be override in any level of container.
+our $nfs_path_full;                         # should be equal to container/title
+
+
 our $opt_root;                              # NFS-Root, default "My Documents/Notes" -or- "~/Notes"
 
 our $opt_program = '.dep';                  # Program used to open nfs document
@@ -44,30 +60,16 @@ our $opt_flatten_target;                    # flatten symbolic links into single
 our $opt_name_method = 'date';              # one of (date, ser)
 our $opt_format_date = 'YYYY-MM-DD';
 our $opt_format_serial = 'DDDD';
-our $opt_title;                             # NFS-Title, Default depends on name-method
+our $opt_title = '';                        # NFS-Title, Default depends on name-method
 our $opt_max_levels = 'inf';                # Max levels of directories
 
 our $opt_disable_symbolic_link = 0;
 our $opt_disable_template_substitute = 0;
 our $opt_disable_vex_extension = 0;
 
-our $opt_verbose = 1;
+our $opt_interactive = 0;
+our $opt_verbose = 0;
 our $opt_quiet = 0;
-
-
-
-our $nfs_appname = 'NFS Version 2';
-
-our %nfs_filetype = (
-    ''      => 'ue "%s"',                   # default
-    'txt'   => 'notepad "%s"',
-    'doc'   => 'winword "%s"',
-    'xls'   => 'excel "%s"',
-    );
-
-our $nfs_path_container;
-our $nfs_path_vol;                          # dynamic: maybe happened to be override in any level of container.
-our $nfs_path_full;                         # should be equal to container/title
 
 
 # Pre-declaration
@@ -80,6 +82,10 @@ our $nfs_path_full;                         # should be equal to container/title
     sub binary_copy;
     sub get_serial;
     sub get_vol_serial;
+    sub error_report;
+    sub set_program;
+    sub set_option;
+    sub confirm_prompt;
     sub version;
     sub help;
 
@@ -88,54 +94,43 @@ our $nfs_path_full;                         # should be equal to container/title
 sub main {
     $opt_root = "$ENV{USERPROFILE}/My Documents/Notes";
 
-    sub error_report {
-        my $msg = shift;
-        print $msg;
-        exit;
-    }
-
-    sub set_program {
-        my $program = shift;
-        if ($opt_program eq '.dep') {
-            $opt_program = $program;
-            return;
-        }
-        if ($opt_program eq '.map') {
-            if ($program eq '.del') {
-                $opt_map_delete = 1;
-                return;
-            }
-        }
-        error_report "--program=$opt_program has already been specified"
-    }
 
     GetOptions(
         'root|r=s',
         'nfs-title|n=s',
         'program|p=s'       => sub { set_program $_[1] },
         'type|t=s'          => sub { error_report "--open-all is specified" if $opt_open_all == 1;
-                                     $opt_type = $_[1];         $opt_type_specified = 1 },
+                                     $opt_type = $_[1];
+                                     $opt_type_specified = 1 },
         'open-all|a'        => sub { error_report "--type is specified" if $opt_type_specified;
                                      $opt_open_all = 1 },
         'backup|b'          => sub { set_program '.bak' },
         'create|c'          => sub { set_program '.new' },
         'delete|d'          => sub { set_program '.del' },
-        'map|m:s'           => sub { set_program '.map';        $opt_map_target = $_[1] || '.' },
+        'map|m:s'           => sub { set_program '.map';
+                                     set_option "map target", \$opt_map_target, $_[1], '.' },
         'synchronize|s'     => sub { set_program '.sync' },
-        'link|l:s'          => sub { set_program '.link';       $opt_link = $_[1] },
-        'index|i:s'         => sub { set_program '.index';      $opt_index_range = $_[1] },
-        'keywords|k:s'      => sub { set_program '.keys';       $opt_keywords_range = $_[1] },
-        'flatten|f=s'       => sub { set_program '.flat';       $opt_flatten_target = $_[1] },
+        'link|l:s'          => sub { set_program '.link';
+                                     set_option "symbolic link file", \$opt_link, $_[1] },
+        'index|x:s'         => sub { set_program '.index';
+                                     set_option "index range", \$opt_index_range, $_[1] },
+        'keywords|k:s'      => sub { set_program '.keys';
+                                     set_option "keywords range", \$opt_keywords_range, $_[1] },
+        'flatten|fl=s'      => sub { set_program '.flat';
+                                     set_option "flatten target", \$opt_flatten_target, $_[1] },
         'max-levels|ml=s',
-        'n|name-method=s',
-        'use-date|ud:s'     => sub { $opt_name_method = 'date'; $opt_format_date = $_[1] || $opt_format_date },
-        'use-serial|us:s'   => sub { $opt_name_method = 'ser';  $opt_format_serial = $_[1] || $opt_format_serial },
+        'use-date|ud:s'     => sub { $opt_name_method = 'date';
+                                     set_option "date format", \$opt_format_date, $_[1], $opt_format_date },
+        'use-serial|us:s'   => sub { $opt_name_method = 'ser';
+                                     set_option "serial format", \$opt_format_serial, $_[1], $opt_format_serial },
         'offset|o=n',
         'disable-symbolic-link|ds',
         'disable-template-substitute|dt',
         'disable-vex-extension|dv',
+        'interactive|i',
         'verbose|v',
         'quiet|q',
+        'force|fo',
         'version|ve'        => sub { &version; exit },
         'help|h'            => sub { &help; exit },
         );
@@ -153,7 +148,7 @@ sub main {
             $opt_offset -= length($1)-1;
         } elsif (m/^\.(\d+)$/) {        # .num      --offset=+num
             $opt_offset += $1;
-        } elsif (not $opt_title) {      # <title>   --nfs-title
+        } elsif ($opt_title eq '') {      # <title>   --nfs-title
             # REM-ARG-1 for title is title not defined
             $opt_title = $_;
         } else {
@@ -162,7 +157,14 @@ sub main {
     }
 
 
-    $opt_title = get_serial($opt_root) if (! $opt_title);
+    if ($opt_title eq '') {
+        my $deftitle = get_serial($opt_root);
+        if ($opt_interactive) {
+            set_option 'nfs title', \$opt_title, '', $deftitle;
+        } else {
+            $opt_title = $deftitle;
+        }
+    }
 
     if ($opt_title =~ m/--/) {
         die "Invalid NFS-Title: $opt_title";
@@ -202,20 +204,15 @@ sub main {
 
     # quick delete
         if ($opt_program eq '.del' or $opt_program eq '.new') {
-            my $del_prompt = ($opt_program eq '.del') && !$opt_quiet;
             if (-e $nfs_path_full) {
-                if ($del_prompt) {
-                    my $id = msgbox("Confirm to delete $nfs_path_full", $nfs_appname, 'no', 'yes', '?');
-                    exit if $id ne 'yes';
-                }
+                my $confirm = confirm_prompt "delete file $nfs_path_full";
+                exit if not $confirm;
                 print "delete file $nfs_path_full\n" if $opt_verbose;
                 if (not unlink $nfs_path_full) {
-                    msgbox("Nfs document $nfs_path_full can not be deleted", $nfs_appname, 'yes', 'x')
-                        if $del_prompt;
+                    print "Nfs document $nfs_path_full can not be deleted\n" if $opt_quiet;
                 }
             } else {
-                msgbox("Nfs document $nfs_path_full was not existed", $nfs_appname, 'yes', 'x')
-                    if $del_prompt;
+                print "Nfs document $nfs_path_full was not existed\n" if not $opt_quiet;
             }
             exit if ($opt_program eq '.del');
             undef $opt_program;         # for .new
@@ -242,6 +239,10 @@ sub main {
             }
 
             if ($opt_map_delete) {
+                if (-e $opt_map_target) {
+                    my $confirm = "delete file $opt_map_target";
+                    exit if not $confirm;
+                }
                 unlink $opt_map_target;
             } else {
                 # returns the actually full-path of target,
@@ -263,6 +264,17 @@ sub main {
                 if ($opt_map_delete) {
                     print "remove vex/sync entry: $new_key=$new_value\n" if $opt_verbose;
                 } else {
+                    # os-branch
+                    # if (not -e ".sync-nfs.bat") {
+                        open(F, ">.sync-nfs.bat");
+                        print F "\@echo off\n";
+                        print F "rem NFS-Rev: $nfs_id{rev}\n";
+                        print F "rem Thie file is auto generated by NFS Program $nfs_id{rev}, and it will\n";
+                        print F "rem be automaticly updated. Please don't edit this file. \n";
+                        print F "call nfs --synchronize\n";
+                        close F;
+                    # }
+
                     print "add vex/sync entry: $new_key=$new_value\n" if $opt_verbose;
                     auto_mkdir $vexdir;
                 }
@@ -293,6 +305,11 @@ sub main {
                     close SYNC;
                 } else {
                     unlink $synclist;
+
+                    # os-branch
+                    if (-e ".sync-nfs.bat") {
+                        unlink ".sync-nfs.bat";
+                    }
                 }
             }
         }
@@ -424,7 +441,7 @@ sub file_sync {
         my $mt_src = $st_src[9];
         my $mt_dst = $st_dst[9];
         if ($mt_src == $mt_dst) {
-            print "skip $name\n";
+            print "skip $name\n" if not $opt_quiet;
         } elsif ($mt_src > $mt_dst) {
             # source is newer
             print "download $name\n" if not $opt_quiet;
@@ -594,6 +611,12 @@ sub binary_copy {
         my ($src_dir, $srcfile) = path_split($src);
         $dest = path_join($dest, $srcfile);
     }
+
+    if (-e $dest) {
+        my $confirm = confirm_prompt "overwrite file $dest";
+        exit if not $confirm;
+    }
+
     print "copy $src to $dest\n" if $opt_verbose;
 
     #open(FSRC, "<$src")
@@ -713,11 +736,62 @@ sub get_vol_serial {
 }
 
 
+sub error_report {
+    my $msg = shift;
+    print $msg;
+    exit;
+}
+
+sub set_program {
+    my $program = shift;
+    if ($opt_program eq '.dep') {
+        $opt_program = $program;
+        return;
+    }
+    if ($opt_program eq '.map') {
+        if ($program eq '.del') {
+            $opt_map_delete = 1;
+            return;
+        }
+    }
+    error_report "--program=$opt_program has already been specified"
+}
+
+sub set_option {
+    my ($prompt, $optvar, $optval, $defval) = @_;
+    if ($opt_interactive) {
+        if ($optval eq '') {
+            print "Enter $prompt: ";
+            my $userinput = <>;
+            chomp $userinput;
+            $optval = $userinput;
+        }
+    }
+    $optval = $defval if $optval eq '';
+    $$optvar = $optval;
+}
+
+sub confirm_prompt {
+    my $prompt = shift;
+    return 1 if $opt_quiet;
+
+    while (1) {
+        print "Confirm $prompt? ([y]es, [n]o) ";
+        my $userinput = <>;
+        chomp $userinput;
+        $userinput = lc $userinput;
+
+        return 1 if $userinput =~ m/y(e(s)?)?/;
+        return 0 if $userinput =~ m/n(o)?/;
+        print "Please enter yes or no. ";
+    }
+}
+
+
 sub version {
-    my %id = parse_id('$Id: nfs,v 1.11 2005-01-04 12:50:01 dansei Exp $');
     print <<"EOM"
 [NFS] Notes for Speed
-      Written by Snima Denik    Version 2.$id{rev}    Updated $id{date}
+      Written by Snima Denik    Version 2.$nfs_id{rev}    Updated $nfs_id{date}
 EOM
 }
 
@@ -727,7 +801,7 @@ sub help {
     print <<"EOM";
 
 Syntax:
-    nfs (-abcdfhilmopqrstuv <title>)
+    nfs (-abcdhilmnopqrstuvx <title>)
         --root=<nfs-root, default "~/My Documents/Notes" for Windows, -or-
                 "~/Notes" for *Nix> (r)
         --nfs-title=<nfs-title, default use-date> (n)
@@ -743,7 +817,7 @@ Syntax:
         --synchronize (synchronize the mappings in current directory) (s)
         --link=<directory on which the .link file resides> (l)
                (create a symbolic link of the specified container-name)
-        --index=<index-range, default "h1">
+        --index=<index-range, default "h1"> (x)
 
         --keywords-build=<keywords-range, default "h1 keywords title"> (k)
         --flatten=<target-directory> (f)
@@ -758,6 +832,7 @@ Syntax:
         --disable-symbolic-link (ds)
         --disable-template-substitute (dt)
         --disable-vex-extension (dv)
+        --interactive (i)
         --verbose (v)
         --quiet (q)
         --version (ve)
