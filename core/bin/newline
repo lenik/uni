@@ -33,6 +33,7 @@ $Is_BSD     = $^O =~ /^(?:free|net|open)bsd|bsdos$/;
 our $opt_new_line = "\n";
     $opt_new_line = "\r\n" if ($Is_Win32 or $Is_Dos);
 our $opt_old_line = qr/(?<=[^\r\n])((\r?\n)|(\r))/;
+our $opt_pattern = "^.+\$";
 our $opt_recursive = 0;
 our $opt_stdout = 0;
 our $opt_quiet = 0;
@@ -44,17 +45,19 @@ sub init {
         'old-line=s',
         'recursive',
         'stdout',
+        'pattern=s',
         'unix' => sub { $opt_new_line = "\n" },
         'dos' => sub { $opt_new_line = "\r\n" },
         'version' => sub { &version; exit },
         'quiet',
         'help' => sub { &help; exit },
     );
+    $opt_pattern = qr/$opt_pattern/i;
 }
 
 
 sub version {
-    my %ver = parse_id('$Id: newline,v 1.5 2004-12-07 04:06:21 dansei Exp $');
+    my %ver = parse_id('$Id: newline,v 1.6 2004-12-12 07:44:56 dansei Exp $');
     print <<"EOM";
 [NEWLINE] Convert new-line format for text files
 Written by Denik,  Revision $ver{rev},  Last Updated $ver{date}
@@ -78,6 +81,7 @@ Syntax:
     newline
         --new-line=<character, default $def_new> (n)
         --old-line=<regular-expression, default $def_old> (o)
+        --pattern=<path-regex, default ^.*\$>
         --recursive (r)
         --stdout (s)
         --unix (u)
@@ -85,6 +89,7 @@ Syntax:
         --quiet (q)
         --version (v)
         --help (h)
+        < dirname/filename(can contain wild chars) > ...
 EOM
 }
 
@@ -144,22 +149,36 @@ sub translate {
 
 
 sub process {
-    my ($item, $rec) = @_;
+    my ($path, $rec) = @_;
+
+    my ($dir, $file) = $path =~ m/^(.*?)([^\/]+)$/;
+    if ($dir) {
+        $dir = substr($dir, 0, -1);
+    } else {
+        $dir = '.';
+    }
+
     $rec ||= $opt_recursive;
-    if (-d $item) {
+
+    my $full = "$dir/$file";
+
+    if (-d "$dir/$file") {
         if ($rec) {
-            print "\n[DIR ] $item" unless $opt_quiet;
-            my $dh = new DirHandle($item);
+            print "\n[DIR ] $full/" unless $opt_quiet;
+            my $dh = new DirHandle($full);
             my @subitems = $dh->read();
             $dh->close();
             for (@subitems) {
                 next if (m/^\.+$/);
-                process("$item/$_", $opt_recursive);
+                next if (! m/$opt_pattern/);
+                process("$full/$_", $opt_recursive);
             }
         }
     } else {
-        print "\n[FILE] $item" unless $opt_quiet;
-        translate $item;
+        return if $file !~ m/$opt_pattern/;
+
+        print "\n[FILE] $full" unless $opt_quiet;
+        translate $full;
     }
 }
 
@@ -168,8 +187,31 @@ sub process {
 
 &init;
 
-@ARGV = qw/./ unless @ARGV;
+&help unless @ARGV;
 
 for (@ARGV) {
-    process($_, 1);
+    if ($_ =~ m/[\*\?]/) {      # special wild-chars
+        my ($dir, $pat) = m/^(.*?)([^\/]+)$/;
+        if ($dir) {
+            $dir = substr($dir, 0, 1);
+        } else {
+            $dir = '.';
+        }
+        my $patre = $pat;
+            $patre =~ s/\./\\./g;
+            $patre =~ s/\*/.*/g;
+            $patre =~ s/\?/./g;
+            $patre = qr/^$patre$/i;
+        my $dh = new DirHandle($dir);
+        my @fs = $dh->read();
+        $dh->close();
+        for (@fs) {
+            next if (m/^\.+$/);
+            next if (! m/$opt_pattern/);
+            next if (! m/$patre/);
+            process("$dir/$_", 1);
+        }
+    } else {
+        process($_, 1);         # use global opt_pattern
+    }
 }
