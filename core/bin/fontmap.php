@@ -138,7 +138,7 @@
 
 
 	function Help() {
-	    $id = ParseId('$Id: fontmap.php,v 1.8 2004-12-03 13:51:25 dansei Exp $');
+	    $id = ParseId('$Id: fontmap.php,v 1.9 2005-01-04 04:44:16 dansei Exp $');
 	    ?>
 [FONTMAP] Font Map Generator
 Written by Snima Denik,  Version <?=$id['rev']?>,  Last updated <?=$id['time']?>
@@ -299,7 +299,12 @@ EOM
 
         # chars process:  \x \[range\]
             $tmp_chars = $opt_chars;
-            $groups = preg_match_all('/(\\\\\\[ [^\\]]+ \\\\\\]) | (\\\\.)/x',
+            # reg-exp:  / ( \\\[ [^ \] ]+ \\\] ) | ( \\. ) /x
+            #           / ( $BS $LB [^$LB]+ $BS $RB ) | ($BS .) /
+            # command-line:
+            #           \ [ ... \ ]
+            #           \ .
+            $groups = preg_match_all('/(\\\\\\[ [^\\]]+ \\\\\\]) | (\\\\x[0-9a-fA-F]+) | (\\\\.)/x',
                     $tmp_chars, $matches,
                     PREG_SET_ORDER+PREG_OFFSET_CAPTURE);
 
@@ -312,20 +317,35 @@ EOM
 
                     $is_range = true;
                     if (isset($matches[$grp][2])) {
-                        # \x
-                        $grp2_char = substr($matches[$grp][2][0], 1);
-                        if ($grp2_char == 'n') { $opt_chars .= "\n"; }
-                        elseif ($grp2_char == 't') { $opt_chars .= "\t"; }
-                        elseif ($grp2_char == 'r') { $opt_chars .= "\r"; }
-                        else { $opt_chars .= $grp2_char; }
-                        $mark = $offset_0 + 2;
+                        # \.
+                        $esctr = substr($matches[$grp][2][0], 1);
+                        if (substr($esctr, 0, 1) == 'x') {
+                            $opt_chars .= chr(hexdec(substr($esctr, 1)));
+                        } else {
+                            if ($esctr == 'n') { $opt_chars .= "\n"; }
+                            elseif ($esctr == 't') { $opt_chars .= "\t"; }
+                            elseif ($esctr == 'r') { $opt_chars .= "\r"; }
+                            else { $opt_chars .= $esctr; }
+                        }
+                        $mark = $offset_0 + strlen($esctr) + 1;
                     } else {
                         # \[..-..\]
                         $grp1 = substr($matches[$grp][1][0], 2, -2);
                         $dash = strpos($grp1, '-');
-                        $r1 = hexdec(substr($grp1, 0, $dash));
-                        $r2 = hexdec(substr($grp1, $dash+1));
-                        for ($ri = $r1; $ri < $r2; $ri++)
+                        $r1 = trim(substr($grp1, 0, $dash));
+                        $r2 = trim(substr($grp1, $dash+1));
+
+                        if (substr($r1, 0, 2) == '\x')
+                            $r1 = hexdec($r1);
+                        else
+                            $r1 = ord($r1);
+
+                        if (substr($r2, 0, 2) == '\x')
+                            $r2 = hexdec($r2);
+                        else
+                            $r2 = ord($r2);
+
+                        for ($ri = $r1; $ri <= $r2; $ri++)
                             $opt_chars .= chr($ri);
                         $mark = $offset_0 + strlen($grp1) + 4;
                     }
