@@ -1,10 +1,10 @@
 @echo off
 
 	set rfc_home=L:\files\refer\rfc
-	set rfc_edit=uedit32
+	set rfc_edit=ue
 
 	if "%1"=="u" (
-		set rfc_edit=uedit32
+		set rfc_edit=ue
 		shift
 	)
 
