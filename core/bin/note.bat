@@ -1,5 +1,5 @@
 @echo off
-rem $Id: note.bat,v 1.12 2004-11-28 02:03:07 dansei Exp $
+rem $Id: note.bat,v 1.13 2004-11-30 08:05:52 dansei Exp $
 
 rem 0, options
     set note_exec=%~dp0
@@ -53,7 +53,7 @@ rem 3, find note home directory
     if exist "%note_home%" if not exist "%note_home%\*" (
         for /f %%i in ('type "%note_home%"') do set note_home=%%i
         if not exist "!note_home!\*" (
-            call:replace "!note_home!" "\" "\\"
+            call:ss "!note_home!" "\" "\\"
             lc /nologo "user32::MessageBoxA(0, 'Not mounted: !_ret!', 'Notes', 16)"
             goto cleanup
         )
@@ -80,11 +80,11 @@ rem 4, build '-' separated directory structure
 :parse_link
             if exist "%note_ctr%\%note_cur%.link" (
                 for /f %%i in ('type "%note_ctr%\%note_cur%.link"') do set note_ctr_link=%%i
-                call:join "!note_ctr!" "!note_ctr_link!"
+                call:pj "!note_ctr!" "!note_ctr_link!"
                 set note_ctr=!_ret!
                 set note_ctr_link=
                 if not exist "!note_ctr!\*" if not exist "!note_ctr!.link" (
-                    call:replace "!note_ctr!" "\" "\\"
+                    call:ss "!note_ctr!" "\" "\\"
                     lc /nologo "user32::MessageBoxA(0, 'Link target not existed: !_ret!', 'Notes', 16)"
                     goto cleanup
                 )
@@ -165,42 +165,51 @@ rem 4, build '-' separated directory structure
     goto end
 
 
-:replace
-    set rp_src=%~1
-    set rp_from=%~2
-    set rp_to=%~3
+    rem ######################################################################
+    rem # Function: String Substitute
+    rem # Synopsis: ss(string str, char source, string target)
+    rem # Revision: 1.3
+:ss
+    set _ss_src=%~1
+    set _ss_from=%~2
+    set _ss_to=%~3
     set _ret=
-:replace_loop
-    if "%rp_src%"=="" goto replace_end
-    set rp_chr=%rp_src:~0,1%
-    set rp_src=%rp_src:~1%
-    if "%rp_chr%"=="%rp_from%" (
-        set _ret=%_ret%%rp_to%
+:ss_1
+    if "%_ss_src%"=="" goto ss_x
+    set _ss_chr=%_ss_src:~0,1%
+    set _ss_src=%_ss_src:~1%
+    if "%_ss_chr%"=="%_ss_from%" (
+        set _ret=%_ret%%_ss_to%
     ) else (
-        set _ret=%_ret%%rp_chr%
+        set _ret=%_ret%%_ss_chr%
     )
-    goto replace_loop
-:replace_end
-    set rp_chr=
-    set rp_src=
-    set rp_from=
-    set rp_to=
+    goto ss_1
+:ss_x
+    set _ss_chr=
+    set _ss_src=
+    set _ss_from=
+    set _ss_to=
     goto end
 
 
-:join
+    rem ######################################################################
+    rem # Function: Path Join
+    rem # Synopsis: pj(string path1, string path2)
+    rem # Return:   path1\path2 (with no trialing slash)
+    rem # Revision: 1.3
+:pj
     set _ret=%~2
-    if "%_ret:~1,1%"==":" goto join_end
-    if "%_ret:~0,1%"=="\" goto join_end
-    if "%_ret:~0,1%"=="/" goto join_end
-    set jp_a=%~1
-    set jp_b=%~2
-    if "%jp_a:~-1%"=="\" set jp_a=%jp_a:~0,-1%
-    if "%jp_b:~-1%"=="\" set jp_b=%jp_b:~0,-1%
-    set _ret=%jp_a%\%jp_b%
-:join_end
-    set jp_a=
-    set jp_b=
+    if "%_ret:~1,1%"==":" goto pj_x
+    if "%_ret:~0,1%"=="\" goto pj_x
+    if "%_ret:~0,1%"=="/" goto pj_x
+    set _pj_a=%~1
+    set _pj_b=%~2
+    if "%_pj_a:~-1%"=="\" set _pj_a=%_pj_a:~0,-1%
+    if "%_pj_a:~-1%"=="/" set _pj_a=%_pj_a:~0,-1%
+    set _ret=%_pj_a%\%_pj_b%
+:pj_x
+    set _pj_a=
+    set _pj_b=
     goto end
 
 
