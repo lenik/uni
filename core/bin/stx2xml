@@ -1,0 +1,600 @@
+#!/usr/bin/perl -w
+
+# stx2xml utility: convert structural text -> xml
+# author danci.z
+#
+# todo:
+#	- command-line options
+#	- get_structure:
+#		. xsd output
+#		. dtd output
+#		. recursive discover, use complexType instead
+
+use strict;
+use FileHandle;
+use Getopt::Long;
+use Data::Dumper;
+
+
+sub L_NODE()	{ 1 }
+sub L_ITEM()	{ 2 }
+sub L_PROPS()	{ 4 }
+sub L_TEXT()	{ 8 }
+sub L_DEF()		{ 16 }
+sub L_UNDEF()	{ 32 }
+
+sub main();
+sub parser();
+sub help();
+sub line_split;
+sub node_child;
+sub node_add_text;
+sub node_add_props;
+sub node_parse;
+sub parse_error($);
+sub dump_xml;
+sub dump_xml_props;
+sub dump_xml_text;
+sub dump_xml_children;
+sub get_structure;
+sub dump_structure;
+sub escape_c;
+sub escape_xml;
+
+
+# Globals
+	# symbol-override by *:=tag-name, use *:= to restore symbol usage.
+	my %symbols = (
+		'-'			=> &L_NODE,
+		':'			=> &L_PROPS,
+		'|'			=> &L_TEXT,
+		'stx:node'	=> &L_NODE,
+		'stx:props'	=> &L_PROPS,
+		'stx:text'	=> &L_TEXT,
+		);
+	my %overloads;
+
+	# current directory-level
+	my $level = 0;
+
+	# [lazy-] number of the first continuous spaces
+	my $tab_width;
+	my $tab_spaces;
+
+	# this stx2xml interpreter will be enabled until
+	#	(== structural text ==)
+	# is matched.
+	my $interpret_enabled = 0;
+
+	# no stx: properties support, and don't output stx: namespace.
+	my $stx_disabled = 0;
+
+	# maybe: xml, xml-schema, (not impl:)stx
+	my $output_format = 'xml';
+
+	# root node
+	my $node_root = {
+		'level'		=> -1,
+		'name'		=> '__ROOT__',
+		};
+
+
+main();
+
+sub main() {
+	my $getopt = GetOptions(
+		'help'			=> \&help,
+		'force-parse'	=> \$interpret_enabled,
+		'no-stx'		=> \$stx_disabled,
+		'normal'		=> sub { $output_format = 'xml' },
+		'schema'		=> sub { $output_format = 'xml-schema' },
+		);
+
+	if (!$stx_disabled) {
+		# default overloads
+		%overloads = (
+			'-'			=> 'stx:node :name=',
+			'.'			=> 'stx:item',
+		);
+	}
+
+	parser();
+
+	if (!$interpret_enabled) {
+		parse_error "nothing to do: don't find any (== structural text ==)\n";
+		exit -1;
+	}
+
+	if ($output_format eq 'xml') {
+		dump_xml $node_root;
+	} elsif ($output_format eq 'xml-schema') {
+		my $st0 = get_structure $node_root;
+		dump_structure $st0;
+	} elsif ($output_format eq 'stx') {
+		die "output as .stx not implemented";
+	}
+}
+
+
+
+#############################################################################
+#
+# Subroutines
+#
+sub parser() {
+	# context node
+	my $c_node = $node_root;
+
+	while (<>) {
+		chop;
+		if (/\(==\s*(.*?)\s*==\)/) {
+			last if ($1 eq 'end');
+			if ($1 eq 'structural text') {
+				if (!$interpret_enabled) {
+					$interpret_enabled = 1;
+				}
+			} else {
+				die "unexpected content: ".$1;
+			}
+			next;
+		}
+		next if !$interpret_enabled;
+
+		my ($c_level, $level, $type);
+		($_, $level) = line_split;
+		$c_level = $c_node->{'level'};
+		$level = $c_level+1 if (!$_); 		# for blank lines.
+
+		if ($level > $c_level+1) {
+			# indent too much??
+			parse_error "level break: indent from $c_level to $level ($_)";
+			next;
+		}
+
+		# parse-order: *(punct) L(letter) S(space)
+		# overload:
+		# 	*** S|L		punct overload
+		# 	L*L*L S		key-word overload
+		# tokens:
+		#	..:=		L_DEF/L_UNDEF
+		#	- dirname	L_NODE
+		#	.?? S		L_ITEM
+		#	: ...		L_PROPS
+		#	| ...		L_TEXT
+		#	LL:LL		(dynamic)
+
+		# current context node is the parent node based on $level
+		# c_node is the most recently created node
+		if ($level <= $c_level) {
+			foreach ($level..$c_level) {
+				$c_node = $c_node->{'parent'};
+			}
+		}
+
+		my ($prefix, $text);
+
+	    if (m/^((?:[^ =]|\\.)+):=(.*)$/) {
+		# *L*L*:= (trim-)...
+			my ($key, $val) = ($1, $2);
+			$val =~ s/^\s*//; 		        # left-trim space
+			if ($val) {
+				$type = &L_DEF;
+				$val.='|' if ($val !~ m/[[:punct:]]$/);
+	            $overloads{$key} = $val;
+				next;
+			} else {
+				$type = &L_UNDEF;
+				delete $overloads{$key};
+				next;
+			}
+	    } elsif (m/^([[:punct:]]+)(.*)$/) {
+			# (***) [S] (...)
+			($prefix, $text) = ($1, $2);
+		} elsif (m/^((?:[^[:space:]\\]|\\.)+)\s{1}(.*)$/) {
+			# (L*L*) S (...)
+			($prefix, $text) = ($1, $2);
+		} else {
+			# (otherwise)
+			# text of parents'
+			$type = &L_TEXT;
+			node_add_text $c_node, $_;
+			next;
+		}
+
+		if ($text =~ s/\s*(~~+)$//) {
+			my $term_lines = length($1);
+			my $count = 0;
+			while (<>) {
+				chop;
+				if (m/^\s*$/) {
+					$count++;
+					last if ($count == $term_lines);
+					next;
+				}
+				$count = 0;
+				$text .= "\n" x $count;
+				$text .= "$_\n";
+			}
+		}
+
+	    if (defined $overloads{$prefix}) {
+			$type = &L_NODE;
+
+			# remove leading space in text if prefix was defined
+			# and end with punctuations.
+			if ($prefix =~ m/[[:punct:]]$/) {
+				$text =~ s/^\s*//;
+				$text = $overloads{$prefix}.$text;
+			} else {
+				$text = $overloads{$prefix}.$text;
+			}
+
+			my $node = node_child $c_node;
+			node_parse $node, $text;
+			$c_node = $node;
+			next;
+		} elsif ($prefix eq '--') {
+			# comments
+			$type = &L_NODE;
+			my $node = node_child $c_node;
+			$node->{'name'} = 'stx:comment';
+			node_add_text $node, $text;
+			$c_node = $node;
+		} elsif ($prefix =~ s/^\.//) {
+			$type = &L_ITEM;
+			my $node = node_child $c_node;
+			$node->{'name'} = 'stx:item';
+			$node->{'format'} = $prefix;
+			node_add_text $node, $text;
+			$c_node = $node;
+		} else {
+			if ($type = $symbols{$prefix}) {
+				# process on symbol-type
+				if ($type == &L_NODE) {
+					my $node = node_child $c_node;
+					node_parse $node, $text;
+					$c_node = $node;
+				} elsif ($type == &L_PROPS) {
+					$text = node_add_props($c_node, $text);
+					# continue process the text part.
+					if ($text =~ s/^\s*(\|\s*)?//) {
+						node_add_text $c_node, $text;
+					}
+				} elsif ($type == &L_TEXT) {
+					node_add_text $c_node, $text;
+				} else {
+					parse_error "Unexpected: type($type) text($text)";
+				}
+			} else {
+				# symbol was not defined
+				$type = &L_TEXT;
+				node_add_text $c_node, $prefix.$text;
+			}
+		} # switch on $prefix
+	}
+}
+
+sub help() {
+	print << "EOM";
+STX2XML - Convert .stx document to .xml document, XML-Schema is supported.
+Syntax:
+	$0 --help --force-parse --no-stx
+		--normal --schema .stx-files...
+
+	--force-parse: force parse the whole file, even if the header
+		(== structural text ==) isn't exists;
+	--no-stx: disable stx features, this includes stx:properties and stx:
+		namespace for output xml file;
+	--normal: output as xml format
+	--schema: output xml-schema file which most suitable for the xml file
+
+Version 1
+Author/Danci.Z   Apr 11, 2004
+THIS PROGRAM IS DISTRIBUTED UNDER GPL LICENSE.
+EOM
+	exit -1;
+}
+
+sub line_split {
+	# left=the leading white spaces, right=text
+	my ($l, $r) = ($_[0]||$_) =~ m/^([ \t]*)(.*)$/;
+	if (wantarray) {
+		if (!$tab_width) {
+			# define the first occurance of continuous spaces as tab-width
+			$tab_spaces = $l =~ m/( +)/;
+			$tab_width = length($tab_spaces);
+		}
+		if ($tab_width) {
+			if ($l =~ s/$tab_spaces/\t/g) {
+				$l =~ s/ +//g;			# remove extra spaces.
+			}
+		}
+		$l = length($l);
+	}
+	return wantarray ? ($r, $l) : $r;
+}
+
+sub node_child($) {
+	my ($parent) = @_;
+	my $node = {
+		'parent'	=> $parent,
+		'level'		=> $parent->{'level'}+1,
+	};
+	push @{$parent->{'children'}}, $node;
+	$node->{'index'} = scalar(@{$parent->{'children'}})-1;
+	return $node;
+}
+
+sub node_add_text($$) {
+	my ($node, $text) = @_;
+	$text =~ s/^\s*//;
+	push @{$node->{'text'}}, $text;
+}
+
+sub node_add_props($$) {
+	my ($node, $text) = @_;
+
+	# tech:
+	#	create an empty hash if the undefined.
+	$node->{'props'} = {} if (!defined $node->{'props'});
+	my $props = $node->{'props'};
+
+	# left-trim space, (key)=
+	#	"..."
+	#	'...'
+	#	simple-word
+	#	other: invalid
+	while ($text =~ s/^\s*((?:[^=|\\]|\\.)+)=//) {
+		my $key = $1;
+		my $val;
+		if ($text =~ s/^\"((?:[^\"\\]|\\.)*?)\"( |$)//) {
+			# "..."
+			$val = $1;
+		} elsif ($text =~ s/^\'((?:[^\'\\]|\\.)*?)\'( |$)//) {
+			# '...'
+			$val = $1;
+		} elsif ($text =~ s/^((?:[^ :\\]|\\.)+)//) {
+			# simple-word
+			$val = $1;
+		} else {
+			# non-of ("...", '...', [^ ]...), so invalid-key
+			parse_error "invalid property definition ($key)";
+			next;
+		}
+		$props->{$key} = $val;
+
+		# remove prefix-':' if exists, this is useful when
+		# multi properties section is used.
+		$text =~ s/^\s*://;
+	}
+
+	# return the rest.
+	$text;
+}
+
+sub node_parse($$) {
+	my ($node, $text) = @_;
+
+	# Word don't contain ' ', '|', '\' (use-escape)
+	if ($text =~ s/^\s*((?:[^[[:space:]]|\\]|\\.)+)//) {
+		$node->{'name'} = $1;
+	}
+
+	# get props in "  : ..."
+	if ($text =~ s/^\s*:\s*//) {
+		$text = node_add_props($node, $text);
+	}
+
+	# get text in "| text..."
+	$text =~ s/^\s*(\|\s*)?//;
+	if ($text) {
+		node_add_text $node, $text;
+	}
+	return $node;
+}
+
+sub parse_error($) {
+	my ($msg) = @_;
+	print STDERR $msg."\n";
+}
+
+sub dump_xml($) {
+	my ($node) = @_;
+	my $is_root = $node->{'level'} == -1;
+	my $name = $node->{'name'};
+	my $leading = "\t" x $node->{'level'};
+
+	if ($is_root) {
+		print '<?xml version="1.0" encoding="gb2312"?>'."\n";
+		dump_xml_children $node;
+	} elsif ($name eq 'stx:comment') {
+		print "$leading<!--";
+		if ($node->{'text'}) {
+			print join("\n", @{$node->{'text'}});
+		}
+		dump_xml_children $node;
+		print "-->";
+	} elsif ($name eq 'stx:item') {
+		my $fmt = $node->{'format'};
+		my ($li_tag, $li_pre, $li_suf) = ('ul', '', '');
+		if ($fmt =~ m/[0-9]+/) {
+			($li_tag, $li_pre, $li_suf) = ('ol', $`, $');
+		} else {
+			$li_suf = $fmt;
+		}
+		#print "$leading<$li_tag>\n";
+		print "$leading<li>$li_pre";
+		dump_xml_text $node;
+		print "$li_suf";
+		dump_xml_children $node;
+		print "</li>\n";
+		#print "$leading</$li_tag>\n";
+	} else {
+		print "$leading<$name";
+		if ($node->{'level'} == 0) {
+			if (!$stx_disabled) {
+				print " xmlns:stx=\"Gg://interpreter/test/standard text/1\"";
+			}
+		}
+		dump_xml_props $node;
+		if ($node->{'text'} || $node->{'children'}) {
+			print ">";
+			dump_xml_text $node;
+			dump_xml_children $node;
+			print "</$name>\n";
+		} else {
+			print "/>\n";
+		}
+	}
+}
+
+sub dump_xml_props($) {
+	my ($node) = @_;
+	my $props = $node->{'props'};
+	foreach (keys %$props) {
+		my $val = $props->{$_};
+		if ($val) {
+			print " $_=\"".escape_xml($val)."\"";
+		} else {
+			print " $_";
+		}
+	}
+}
+
+sub dump_xml_text($) {
+	my ($node) = @_;
+	if ($node->{'text'}) {
+		print join("\n", @{$node->{'text'}});
+	}
+}
+
+sub dump_xml_children($) {
+	my ($node) = @_;
+	if ($node->{'children'}) {
+		print "\n";
+		foreach (@{$node->{'children'}}) {
+			dump_xml $_;
+		}
+		print "\t" x $node->{'level'};
+	}
+};
+
+sub get_structure($;$) {
+	my ($node, $st_root) = @_;
+	$st_root ||= {};
+
+	# structure-node:
+	#	%subs: 	sub-name => st-node
+	#	%props: property-name => 0(reserved)
+	#	@iref: 	reference of instance nodes
+	my @path;
+	my ($name, $n);
+	$n = $node;
+	while ($n->{'level'} >= 0) {
+		$name = $n->{'name'};
+		next if ($name =~ m/^stx:/);
+		unshift @path, [$name, $n];
+	} continue {
+		$n = $n->{'parent'};
+	}
+
+	my $st = $st_root;
+	foreach (@path) {
+		$name = $_->[0];
+		$n = $_->[1];
+		if (!$st->{'subs'}->{$name}) {
+			$st->{'subs'}->{$name}->{'iref'}->{$n}++;
+		}
+		$st = $st->{'subs'}->{$name};
+
+		my $props = $n->{'props'};
+		foreach (keys %$props) {
+			push @{$st->{'props'}->{$_}}, $props->{$_};
+		}
+	}
+	# $st->{'iref'}->{$node}++;
+
+	# also the children
+	if ($node->{'children'}) {
+		foreach (@{$node->{'children'}}) {
+			get_structure $_, $st_root;
+		}
+	}
+
+	return $st_root;
+}
+
+sub dump_structure($;$) {
+	my ($st, $level) = @_;
+	$level ||= 0;
+
+	if ($level == 0) {
+		print <<"EOM";
+(== structural text ==)
+
+-:xs:element : name=
+
+xs:schema : xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified"
+EOM
+		dump_structure $st, $level+1;
+
+	} else {
+		my $leading = "\t" x $level;
+		my $subs = $st->{'subs'};
+		foreach (keys %$subs) {
+			my $props = $subs->{$_}->{'props'};
+			print "$leading- $_";
+			if ($props) {
+				print ":".join(",", keys %$props);
+			}
+			print "\n";
+
+			dump_structure $subs->{$_}, $level+1
+		}
+	}
+}
+
+sub escape_c {
+	my ($text) = @_;
+	$text ||= $_;
+	my %t = (
+		"\""	=> "\\\"",
+		"\'"	=> "\\\'",
+		"\\"	=> "\\\\",
+		"\n"	=> "\\n",
+		"\t"	=> "\\t",
+		"\r"	=> "\\r",
+		);
+	my @chars = split('', $text);
+	my ($i, $l) = (0, scalar(@chars));
+	for (;$i<$l;$i++) {
+		my $c = $chars[$i];
+		if ($c = $t{$c}) {
+			$chars[$i] = $c;
+		}
+	}
+	join('', @chars);
+}
+
+sub escape_xml {
+	my ($text) = @_;
+	$text ||= $_;
+	my %t = (
+		"&"		=> "&amps;",
+		"<"		=> "&lt;",
+		">"		=> "&gt;",
+		"\""	=> "&quot;",
+		);
+	my @chars = split('', $text);
+	my ($i, $l) = (0, scalar(@chars));
+	for (;$i<$l;$i++) {
+		my $c = $chars[$i];
+		if ($c = $t{$c}) {
+			$chars[$i] = $c;
+		}
+	}
+	join('', @chars);
+}
+
+
+1;

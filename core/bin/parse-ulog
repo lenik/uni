@@ -1,0 +1,56 @@
+#!/usr/bin/perl
+
+use strict;
+use Data::Dumper;
+
+
+my @targets = qw(
+	020922_0.mp3
+	030911_0.mp3
+	040419_0.mp3
+	);
+
+
+my %T_url;
+my %T_size;
+my %T_local;
+
+open LOGFILE, "<log.htm";
+while (<LOGFILE>) {
+
+	# <li><b>Name:</b><a href="http://music.km169.net/donor/donor_fullxp.exe">donor_fullxp.exe</a>
+	# <li><b>Size:</b> 19816K
+	# <li><b>Complete Time:</b>Thu Jan 15 17:59:03 2004
+	# <li><b>Save as:</b><a href="file://C:\Downloads\PROE\donor_fullxp.exe">C:\Downloads\PROE\donor_fullxp.exe</a>
+	# <li><b>Referer:</b><a href=""></a>
+	# <li><b>Comment:</b>&nbsp;<br>
+	# <p>
+
+	my ($url)  = m"<li><b>Name:</b><a href=\"([^\"]*)\">[^<]*</a>";
+	my ($size) = m"<li><b>Size:</b> ([0-9]+)K";
+	my ($file) = m"<li><b>Save as:</b><a [^>]*>[^<]*</a>";
+	next if (!$url);
+
+	#
+	next if ($url !~ m/.mp3$/);
+
+	my $unit = [$url, $file, $size];
+	$T_url{$url} = $unit;
+	$T_size{$size} = $unit;
+	$T_local{$file} = $unit;
+}
+close LOGFILE;
+
+# print Dumper(\%T_size);
+
+foreach (@targets) {
+	next if ! -f;
+	my $size = -s;
+	$size = int($size / 1024);
+	#print "$_/$size\n";
+	my $unit = $T_size{$size};
+	my $r_url = $unit->[0];
+	my $r_file = $unit->[1];
+	my ($r_base) = $r_url =~ m/([^\\\/]+)$/;
+	print "$_ [$size] => $r_base\n";
+}

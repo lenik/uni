@@ -1,0 +1,61 @@
+#!/usr/bin/perl
+
+
+# .srt file
+# adjust time by milliseconds
+
+
+my $delay 	= shift;
+if (!$delay) {
+	print <<"EOM";
+SRT-Delay Movie Utility (Version 1)
+Adjust playback delay time for SRT caption file
+
+Syntax:
+	$0 delay-time(ms) [.srt filename]
+
+Author/Danci.Z, Apr 7th, 2004
+[GPL] Distributed under GPL license.
+EOM
+	exit -1;
+}
+
+my $TIME_PAT	= "[0-9]+:[0-9]+:[0-9]+,[0-9]+";
+my $TIME_PARSE	= "^([0-9]+):([0-9]+):([0-9]+),([0-9]+)\$";
+
+
+sub adjust {
+	my ($delta_ms, $t) = @_;
+	$t ||= $_;
+	my ($h, $m, $s, $ms) = $t =~ m/$TIME_PARSE/;
+	my $linear = ($h*3_600 + $m*60 + $s)*1_000 + $ms;
+	$linear += $delta_ms;
+	($linear, $ms)= (int($linear/1_000), $linear%1_000);
+	($linear, $s) = (int($linear/60), $linear%60);
+	($linear, $m) = (int($linear/60), $linear%60);
+	($linear, $h) = (int($linear/24), $linear%24);
+	$h = '0'.$h if $h<10;
+	$m = '0'.$m if $m<10;
+	$s = '0'.$s if $s<10;
+	$ms = '0'.$ms if $ms<100;
+	$ms = '0'.$ms if $ms<10;
+	$t = "$h:$m:$s,$ms";
+}
+
+while (<>) {
+
+	if (
+		my ($left, $from, $mid, $to, $right)
+			= m/^(.*?)($TIME_PAT)(.*?)($TIME_PAT)(.*)$/
+	   )
+	{
+		$from = adjust($delay, $from);
+		$to = adjust($delay, $to);
+		print "$left$from$mid$to$right\n";
+	} else {
+		print;
+	}
+
+}
+
+1;

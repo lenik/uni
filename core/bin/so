@@ -1,0 +1,189 @@
+#!/usr/bin/perl
+
+use strict;
+use Socket;
+use FileHandle;
+use Getopt::Long;
+use Data::Dumper;
+
+
+my $server = "localhost";
+my $port = 80;
+my $type = SOCK_STREAM;
+my $protoname = 'tcp';
+
+# [0]: imm after connected, each [1.. for each responses
+my @sends;
+
+# default enabled only for HTTP (80)
+my $last_till_end;
+
+# binary mode
+my $binary = 1;
+
+my %escape = (
+	"n"			=> "\n",
+	"t"			=> "\t",
+	" "			=> " ",
+	);
+
+sub help();
+sub init();
+sub main();
+
+
+init();
+main();
+
+
+sub init() {
+	my $echo;
+	my $next_as = 'text';
+
+	GetOptions(
+		'remote=s'			=> \$server,
+		'port=n'			=> \$port,
+		'last-till-end!'	=> \$last_till_end,
+		'TCP'				=> sub { $type = SOCK_STREAM; $protoname = 'tcp'; },
+		'UDP'				=> sub { $type = SOCK_DGRAM;  $protoname = 'udp'; },
+		'binary'			=> \$binary,
+		'text'				=> sub { $binary = 0; },
+		'help'				=> \&help,
+		'as=s'				=> \$next_as,
+		'send:s'			=> sub {
+				my ($_sub, $text) = @_;
+				push(@sends, $echo) if $echo;
+				$echo = { $next_as => $text };
+			},
+		'get=s'			=> sub {
+				# --get=size:800,x=3..4,y=/hello/,save:file1.dat
+				my ($_sub, $expect) = @_;
+				while ($expect) {
+					if ($expect =~ s/(^|,)size:(\d+)//) {
+						$echo->{'size'} = int($2);
+					} elsif ($expect =~ s/(^|,)save:(.*)$//) {
+						$echo->{'save'} = $2;
+					} elsif ($expect =~ s/(^|,)([a-z]+)=(\d+)\.\.(\d+)//) {
+						$echo->{'quote'}->{$2} = [int($3), int($4)];
+					} elsif ($expect =~ s/(^|,)([a-z]+)=\/((?:[^\/]|\\.)+)\///) {
+						$echo->{'quote'}->{$2} = ['regex', $3];
+					} else {
+						last;
+					}
+				}
+			},
+		);
+	push (@sends, $echo) if $echo;
+
+	$last_till_end = 1 if ($port == 80 and !defined $last_till_end);
+
+	if ($binary) {
+		binmode STDOUT;
+	}
+
+	#print Dumper(\@sends); exit -1;
+}
+
+sub main() {
+	my $iaddr = inet_aton($server);
+		die "Server $server not found: $!" if !$iaddr;
+	my $paddr = sockaddr_in($port, $iaddr);
+
+	my $proto = getprotobyname($protoname);
+
+	socket(SOCK, PF_INET, $type, $proto)
+		or die "Can't create socket: $!";
+	connect(SOCK, $paddr)
+		or die "Connect failure: $!";
+
+	my $data;
+	while (my $echo = shift @sends) {
+		if ($echo->{'text'}) {
+			my $text = $echo->{'text'};
+			$text =~ s/\\(.)/$escape{$1}/g;
+			send(SOCK, $text, 0);
+		} elsif ($echo->{'file'}) {
+			my $file = $echo->{'file'};
+			$file =~ s/\\(.)/$escape{$1}/g;
+			(my $send_file = new FileHandle("<$file"))
+				|| die "Can't open input file $echo->{file}: $!";
+			while (<$send_file>) {
+				send(SOCK, $_, 0);
+			}
+			$send_file->close();
+		}
+
+		if ($last_till_end and !@sends) {
+			while ($data = <SOCK>) {
+				print $data;
+				if ($echo->{'save'}) {
+					open SAVE, ">>$echo->{save}";
+					print SAVE $data;
+					close SAVE;
+				}
+			}
+			last;
+		} else {
+			if ($echo->{'size'}) {
+				read(SOCK, $data, $echo->{'size'});
+			} else {
+				$data = <SOCK>;
+			}
+		}
+
+		if ($echo->{'quote'}) {
+			my $quotes = $echo->{'quote'};
+			foreach (keys %$quotes) {
+				my $range = $quotes->{$_};
+				my $value;
+				if ($range->[0] eq 'regex') {
+					if ($data =~ m/$range->[1]/) {
+						$escape{$_} = $&;
+					}
+				} else {
+					$escape{$_} = substr($data, $range->[0], $range->[1]);
+				}
+			}
+		}
+
+		print $data;
+		if ($echo->{'save'}) {
+			open SAVE, ">>$echo->{save}";
+			print SAVE $data;
+			close SAVE;
+		}
+
+	}
+	close SOCK;
+}
+
+sub help() {
+	print <<"EOM";
+[SOCKONCE] socket communication utility for simple dialog
+syntax:
+	$0 -hTUbtrpuls --help --TCP --UDP --binary --text
+		--remote=<server name> --port=<port number>
+		--use-protocol=<http, ...> --last-till-end
+		--as=<method for next-send, can be 'text', 'file'>
+		--send=message
+		--get=<method for get, can be 'size:NN', 'save:save-file-name',
+		      '<single-char-varname>=START..LENGTH (range)',
+		      '<single-char-varname>=/reg-ex/',
+		      you can join several get elements by comma(,).
+		[--as --send --get ... ]
+
+example:
+	$0 -r=localhost -p=2345
+		-s=hello
+		-a=file -s=input1.dat -g="x=/(?<=\().*(?=\))/,save:file1.dat"
+		-a=text -s="you said \x, see you later!"
+
+	$0 -r=www.microsoft.com -s="GET /\\n\\n" -g=save:microsoft.htm
+
+author:
+	danci.z (jljljjl\@yahoo.com) 2004 CHINA
+version: 1
+	this program is distributed under FreeBSD license.
+EOM
+	exit 0;
+}

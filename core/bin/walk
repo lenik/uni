@@ -1,0 +1,25 @@
+#!/usr/bin/perl
+
+# walk over a directory
+
+
+sub showHelp {
+	my ($level) = @_;
+	my $msg = <<END;
+		Directory walker [under development]
+		Syntax:
+			walk [-i source-dir] [-o target-dir] [-e exec-file] [arguments...]
+			source-dir default: . (current directory)
+			target-dir default: . (the same directory as source)
+			exec-file default:  print the file entry
+			arguments:          provider arguments for exec-file
+		Examples:
+			walk -o ../pod-out -e pod2html.bat [inpath] [outpath]
+END
+	$msg =~ s/(^|\n)\t\t/\1/g;
+	print $msg;
+	exit 0;
+}
+
+print join('-', @ARGV);
+showHelp;

@@ -1,0 +1,57 @@
+#!/usr/bin/perl
+
+use strict;
+
+my %abbs; 		# $style -> $abbs
+my %abbVers; 	# $abb -> %vers, %vers: $ver -> $count
+
+my $current;
+my @lines;
+
+while (<>) {
+	my @repl = ();
+	while (
+		m/<([^<>[:space:]]+)([^>]*)>/g
+		)
+	{
+		my $tag = $1;
+		my $tail = $2;
+		my $tail_offset = $-[2];
+
+		if ($tail =~ m/\s*(\s*class\s*=\s*[a-zA-Z_0-9]+)?\s*style\s*=\s*\"([^\"]{10,})\"/)
+		{
+			my $kill_len = length($&);
+			my $style = "$2";
+			my $a = $abbs{$style};
+			if (!$a) {
+				$current++;
+				$a = "S_$current";
+				$abbs{$style} = $a;
+			}
+			$abbVers{$a}->{$tag}++;
+			push @repl, [ $tail_offset+$-[0], $kill_len, " class=$a" ];
+		}
+	}
+
+	for my $r (reverse @repl) {
+		substr($_, $r->[0], $r->[1]) = $r->[2];
+	}
+
+	push @lines, $_;
+}
+
+print "<style type=\"text/css\">\n";
+print "<!--\n";
+for (keys %abbs) {
+	my $a = $abbs{$_};
+	my $vers = $abbVers{$a};
+	for my $v (keys %$vers) {
+		print "$v.$a { $_; }\n";
+	}
+}
+print "-->\n";
+print "</style>\n";
+
+for (@lines) {
+	print;
+}

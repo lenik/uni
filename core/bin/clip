@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+
+use strict;
+use Win32::Clipboard;
+
+my $clip = Win32::Clipboard();
+my @lines = ();
+
+while (<>) {
+	chomp;
+	push @lines, $_;
+}
+
+$clip->Set(join("\r\n", @lines));
+
+print "Total ".scalar(@lines)." lines. \n";

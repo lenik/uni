@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+
+use DirHandle;
+
+my $dh = new DirHandle '.';
+
+my @files = $dh->read();
+for my $f (@files) {
+	next if -d $f;
+
+	open FH, $f;
+	my $title="";
+	while (<FH>) {
+		chop;
+		s/^\s*//;
+		next if m/^$/;
+		s/\s*$//;
+		next if m/^Asali.com - Best/;
+		next if m/^\d\d\/\d\d\/\d\d/;
+
+		next if m/^From\s.*
+			\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b.*
+			\b(Jan|Feb|Mar|Apr|May|Jue|Jul|Aug|Sep|Oct|Nov|Dec)\b.*
+			\d\d:\d\d:\d\d/ix;
+
+		next if m/^(
+			Path|From|Newsgroups|Subject|Date|
+			Organization|Lines|Message-ID|Reply-To|
+			NNTP-Posting-Host|X-[a-zA-A\-]+):/ix;
+
+		my $merge = $_;
+		while ($merge =~ s/(.)\1/$1/) {}
+		next if length($merge)<3;
+
+		$title = $_;
+		last;
+	}
+	close FH;
+
+	if ($title) {
+		print "%HDR% \"$f\" \"$title.txt\" %END%\n";
+	}
+}

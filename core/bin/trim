@@ -1,0 +1,33 @@
+#!/usr/bin/perl
+
+use strict;
+use Getopt::Long;
+
+
+my $trim_left = 0;
+my $trim_right = 1;
+my $comment_char;
+my $skip_blankline = 0;
+
+GetOptions(
+	'left!'			=> \$trim_left,
+	'right!'		=> \$trim_right,
+	'comment=s'		=> \$comment_char,
+	'dropblanks'	=> \$skip_blankline,
+	);
+
+
+while (<>) {
+	chop;
+
+	if ($comment_char) {
+		s/$comment_char.*$//;
+	}
+
+	s/^\s*// if $trim_left;
+	s/\s*$// if $trim_right;
+
+	next if (!$_ and $skip_blankline);
+
+	print "$_\n";
+}
