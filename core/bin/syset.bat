@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.4 2004-11-30 08:04:44 dansei Exp $';
+@rem = '$Id: syset.bat,v 1.5 2004-11-30 08:31:42 dansei Exp $';
 @rem = ' (Not strict mode)
 
         @echo off
@@ -110,48 +110,82 @@ sub env {
 
     print "Updating environment";
 
-    $::HKEY_LOCAL_MACHINE->Open("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment",
-        $regenv)  or die "Can't open environment key";
+        $::HKEY_LOCAL_MACHINE->Open("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment",
+            $regenv)  or die "Can't open environment key";
 
-    $regenv->SetValueEx('DIR_T_HOME', 0, &REG_EXPAND_SZ, "$t_dir");
-        print ".";
+        $regenv->SetValueEx('DIR_T_HOME', 0, &REG_EXPAND_SZ, "$t_dir");
+            print ".";
 
-    $regenv->QueryValueEx('PATH', $type, $value);
-        my @path = grep { $_ !~ m/^$prefix/i } split(';', $value);
-        unshift @path, (
-            "$t_dir", "$t_dir\\0", "$t_dir\\1", "$t_dir\\3"
-            );
-        push @path, (
-            "$t_dir\\2\\bin", "$t_dir\\4", "$t_dir\\5", "$t_dir\\6",
-            "$t_dir\\7", "$t_dir\\8", "$t_dir\\9"
-            );
-        $regenv->SetValueEx('PATH', 0, &REG_EXPAND_SZ, join(';', @path));
-        print ".";
+        $regenv->QueryValueEx('PATH', $type, $value);
+            my @path = grep { $_ !~ m/^$prefix/i } split(';', $value);
+            unshift @path, (
+                "$t_dir", "$t_dir\\0", "$t_dir\\1", "$t_dir\\3"
+                );
+            push @path, (
+                "$t_dir\\2\\bin", "$t_dir\\4", "$t_dir\\5", "$t_dir\\6",
+                "$t_dir\\7", "$t_dir\\8", "$t_dir\\9"
+                );
+            $regenv->SetValueEx('PATH', 0, &REG_EXPAND_SZ, join(';', @path));
+            print ".";
 
-    $regenv->QueryValueEx('PATHEXT', $type, $value);
-        my @pathext = grep { $_ !~ m/^\.(p|pl|py|php)$/i } split(';', $value);
-        push @pathext, qw/ .p .pl .py .php /;
-        $regenv->SetValueEx('PATHEXT', 0, &REG_EXPAND_SZ, join(';', @pathext));
-        print ".";
+        $regenv->QueryValueEx('PATHEXT', $type, $value);
+            my @pathext = grep { $_ !~ m/^\.(p|pl|py|php)$/i } split(';', $value);
+            push @pathext, qw/ .p .pl .py .php /;
+            $regenv->SetValueEx('PATHEXT', 0, &REG_EXPAND_SZ, join(';', @pathext));
+            print ".";
 
-    $regenv->QueryValueEx('PERLLIB', $type, $value);
-        my @perllib = grep { $_ !~ m/^$prefix/i } split(';', $value);
-        push @perllib, (
-            "$t_dir/0", "$t_dir/2/lib"
-            );
-        $regenv->SetValueEx('PERLLIB', 0, &REG_EXPAND_SZ, join(';', @perllib));
-        print ".";
+        $regenv->QueryValueEx('PERLLIB', $type, $value);
+            my @perllib = grep { $_ !~ m/^$prefix/i } split(';', $value);
+            push @perllib, (
+                "$t_dir/0", "$t_dir/2/lib"
+                );
+            $regenv->SetValueEx('PERLLIB', 0, &REG_EXPAND_SZ, join(';', @perllib));
+            print ".";
 
-    $regenv->QueryValueEx('PYTHONPATH', $type, $value);
-        my @pythonpath = grep { $_ !~ m/^$prefix/i } split(';', $value);
-        push @pythonpath, (
-            "$t_dir/0", "$t_dir/2/lib"
-            );
-        $regenv->SetValueEx('PYTHONPATH', 0, &REG_EXPAND_SZ, join(';', @pythonpath));
-        print ".";
+        $regenv->QueryValueEx('PYTHONPATH', $type, $value);
+            my @pythonpath = grep { $_ !~ m/^$prefix/i } split(';', $value);
+            push @pythonpath, (
+                "$t_dir/0", "$t_dir/2/lib"
+                );
+            $regenv->SetValueEx('PYTHONPATH', 0, &REG_EXPAND_SZ, join(';', @pythonpath));
+            print ".";
 
-    $regenv->Close();
-    print "\n";
+        $regenv->Close();
+        print "\n";
+
+
+    my $windir = $ENV{'SystemRoot'};
+    if (-f "$windir/php.ini") {
+        print "Found PHP installed\n";
+        print "Configure PHP settings";
+
+        my @lines;
+        open(FH, "<$windir/php.ini")
+            or die "Can't open php.ini";
+        while (<FH>) {
+            chop;
+
+            if (m/^extension_dir\b/) {
+                s/=.*$/= $t_dir\\2\\bin\\ext/;
+                print ".";
+            } elsif (m/^upload_tmp_dir\b/) {
+                s/=.*$/= $windir\\temp\\php_upload/;
+                print ".";
+            } elsif (m/^session\.save_path\b/) {
+                s/=.*$/= $windir\\temp\\php_session/;
+                print ".";
+            }
+            push @lines, $_;
+        }
+        close FH;
+
+        open(FH, ">$windir/php.ini")
+            or die "Can't save php.ini, maybe you haven't write permission";
+        print FH join("\n", @lines);
+        close FH;
+        print "\n";
+    }
+
 }
 
 &env(@opt_args) if ($opt_cmd eq 'env');
