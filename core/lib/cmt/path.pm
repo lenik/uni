@@ -14,11 +14,15 @@ $setFS  = "\\\\/";
 $patFS  = "[$setFS]";
 
 
+my $opt_verbose = 1;
+
+
 # path functions based on literal
 
     # normalize path
     sub path_normalize($) {
 	my $path = shift;
+        # print "path_normalize $path" if $opt_verbose;
 
 	return '.' if !$path;
 
@@ -52,6 +56,9 @@ $patFS  = "[$setFS]";
 	}
 
 	$path = $root.join($charFS, @dest) || '.';
+	# print " -> $path\n" if $opt_verbose;
+
+	return $path;
     }
 
 
@@ -88,6 +95,8 @@ $patFS  = "[$setFS]";
     sub path_comp {
 	return '.' if !scalar(@_);
 
+        # print "path_comp [".join(',', @_)."]" if $opt_verbose;
+
 	my $root = $_[0] ? '' : $charFS;
 	my @dest;
 	foreach (@_) {
@@ -105,7 +114,11 @@ $patFS  = "[$setFS]";
 			push @dest, $_;
 		}
 	}
-	return $root.join($charFS, @dest);
+
+	my $path = $root.join($charFS, @dest);
+	# print " -> $path\n" if $opt_verbose;
+
+	return $path;
     }
 
 
