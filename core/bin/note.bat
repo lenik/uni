@@ -1,14 +1,14 @@
 @echo off
-rem $Id: note.bat,v 1.6 2004-10-11 01:45:57 dansei Exp $
+rem $Id: note.bat,v 1.7 2004-10-11 05:48:32 dansei Exp $
 
 rem 0, options
     set note_a_doc=winword
     set note_a_xls=excel
     set note_a_xml=uedit32
     set note_a_txt=notepad
-    set note_ext=%1
-    if "%note_ext:~0,1%"=="/" (
-        set note_ext=%note_ext:~1%
+    set note_extf=%1
+    if "%note_extf:~0,1%"=="/" (
+        set note_ext=%note_extf:~1%
         shift
     ) else (
         set note_ext=txt
@@ -93,7 +93,7 @@ rem 4, build '-' separated directory structure
     set note_rest=
 
     if not exist "%note_ctr%" md "%note_ctr%"
-    if exist "%note_ctr%\%note%.*" (
+    if "%note_extf%"=="" if exist "%note_ctr%\%note%.*" (
         pushd "%note_ctr%"
         for %%i in (%note%.*) do (
             set note_x=%%~xi
@@ -101,16 +101,23 @@ rem 4, build '-' separated directory structure
         )
         set note_x=
         popd
-    ) else (
-        if exist "%note_home%\.vol\def%note_ext%" (
-            copy "%note_home%\.vol\def%note_ext%" "%note_ctr%\%note%%note_ext%" >nul
-            rem touch "%note_ctr%\%note%%note_ext%"
-        ) else (
-            type nul >"%note_ctr%\%note%%note_ext%"
-        )
-
-        call:open %note_ext% "%note%.%note_ext%"
+        goto cleanup
     )
+
+    if exist "%note_home%\.vol\def.%note_ext%" (
+        if "%note_ext%"=="doc" (
+            noteauto "%note_home%" create doc "%note_ctr%\%note%.%note_ext%"
+        ) else if "%note_ext%"=="xls" (
+            noteauto "%note_home%" create xls "%note_ctr%\%note%.%note_ext%"
+        ) else (
+            copy "%note_home%\.vol\def.%note_ext%" "%note_ctr%\%note%.%note_ext%" >nul
+        )
+        rem touch "%note_ctr%\%note%.%note_ext%"
+    ) else (
+        type nul >"%note_ctr%\%note%.%note_ext%"
+    )
+
+    call:open %note_ext% "%note%.%note_ext%"
 
     goto cleanup
 
@@ -168,6 +175,7 @@ rem 4, build '-' separated directory structure
     set note_a_txt=
     set note_app=
     set note_ext=
+    set note_extf=
     set note=
     set note_home=
     set note_ctr=
