@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+
+use strict;
+use DirHandle;
+use Getopt::Long;
+
+
+sub version {
+    my $id = parse_id('$Id: cvsapp,v 1.1 2004-09-24 00:42:13 dansei Exp $');
+    print <<"EOM";
+append cvs repository from one to another
+version $id{'rev'}   last updated $id{'date'}   written by snima denik
+EOM
+}
+
+sub help {
+    &version;
+    print <<"EOM";
+syntax:
+        cvsapp [options] <cvs-workdir-from> <cvs-workdir-to>
+
+        - cvs-workdir must be already existed, otherwise, you can checkout one
+          before execute cvsapp.
+        - cvsroot module are treated differently, so don't change the name.
+options:
+        --help --version --about
+        --recursive (r)
+        --notag (nt)
+        --nobranch (nb)
+        --daterange=from,to (d)     -d 2004/03/22,2004/09/11
+        --revrange=from,to (v)      -v 1.3,1.109
+EOM
+    exit;
+}

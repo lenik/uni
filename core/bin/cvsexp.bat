@@ -1,5 +1,5 @@
 @echo off
-rem $Id: cvsexp.bat,v 1.3 2004-09-23 14:11:02 dansei Exp $
+rem $Id: cvsexp.bat,v 1.4 2004-09-24 00:42:38 dansei Exp $
 
 if "%1"=="-d" shift & set _opt_md=1
 
@@ -9,11 +9,11 @@ if "%1"=="" goto help
 goto start
 
 :help
-    set _idrev=$Revision: 1.3 $
-    set _iddate=$Date: 2004-09-23 14:11:02 $
+    set _idrev=$Revision: 1.4 $
+    set _iddate=$Date: 2004-09-24 00:42:38 $
 
     echo export cvs module in current directory to specified directory
-    echo written by s.n.m.   version %_idrev:~12,-2%   date %_iddate:~6,-2%
+    echo written by s.n.m.   version %_idrev:~11,-2%   date %_iddate:~7,-11%
     echo.
     echo syntax:
     echo    cvsexp [-d] target-dir
