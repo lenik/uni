@@ -1,232 +1,146 @@
 @echo off
-rem $Id: j.bat,v 1.3 2004-09-22 08:39:10 dansei Exp $
+    rem $Id: j.bat,v 1.4 2004-11-24 03:38:14 dansei Exp $
 
-if not "%OS%"=="" if not "%OS%"=="Windows_NT" goto error_version
+    if "%OS%"=="Windows_NT" goto winnt
 
-goto j_begin
-
-:error_version
 	echo The script doesn't support OS other than Windows NT.
 	echo The Windows NT includes Windows 2000/XP/2003.
 	echo.
-	goto show_version
-
-goto exit_program
+	goto help
 
 
-:j_begin
-if not "%1"=="-javac" goto fi_java_wrapper
-	if not "%J_QUIET%"=="1" echo javac %J_JAVAC_ARGS% %2 %3 %4 %5 %6 %7 %8 %9
-	javac %J_JAVAC_ARGS% %2 %3 %4 %5 %6 %7 %8 %9
-	goto exit_program
-:fi_java_wrapper
+:winnt
+    if "%1"=="-v" (
+        set _VERBOSE=1
+        shift
+        goto winnt
+        )
+    if "%1"=="-c" (
+        set _COMPILE=1
+        shift
+        goto winnt
+        )
+    if "%1"=="-i" goto init
+    if "%1"=="-p" goto classpath
+    if "%1"=="-h" goto help
+
+    goto parse
 
 
-if not "%1"=="-addcp" goto fi_add_classpath
-	if not "%2"=="" (
-		echo add item [%2]:
-		set CLASSPATH=%CLASSPATH%;%2
-	) else echo empty item is skipped.
-	goto exit_program
-:fi_add_classpath
+:help
+	echo [J] Javashell      Java utility for environment usage
+	echo Written by Danci.Z, S-FIA / TC  All rights reserved.
+	echo.
+	echo Syntax:
+	echo    J [options] [items]
+	echo Options:
+	echo    -h          Print this help page
+	echo    -i          Initilize shell environment
+	echo    -c          Compile only
+	echo    -p [path]   Print classpath or add path to classpath
+	echo    -v          Verbose mode
+	echo Items:
+	echo    *           Compile and run all java classes
+	echo    d           Delete all classes (del *.class)
+	echo    filen.java  compile and run the specified java class
+	echo    ClassName   compile and run the specified java class
+	goto cleanup
 
 
+:compile
+    shift
+	if "%_VERBOSE%"=="1" echo javac %_JARGS% %1 %2 %3 %4 %5 %6 %7 %8 %9
+	javac %_JARGS% %1 %2 %3 %4 %5 %6 %7 %8 %9
+	goto cleanup
 
 
+:classpath
+    if "%2"=="" (
+        echo %CLASSPATH%|tr ";" "\n"
+        goto cleanup
+        )
+:add
+    shift
+    if not "%1"=="" (
+		if "%_VERBOSE%"=="1" echo add "%1" to classpath
+		set CLASSPATH=%CLASSPATH%;%1
+		goto add
+	)
+	goto cleanup
 
-REM *************************************************************
-REM **
-REM ** Parsing Arguments
-REM **
-REM *************************************************************
 
-set J_EXEC_FILE=%0
-:pre_loop
+:init
+    if not "%JOS_HOME%"=="" goto cleanup
 
-
-if not "%1"=="-v" goto fi_version
-:show_version
-	echo Author: Danci.Z      Labja Software Corp. (cvi)
-	echo (C) Copyright CHINA, 2003.  All rights reserved.
-	shift
-	if "%1"=="" goto end
-	goto pre_loop
-:fi_version
-
-if not "%1"=="-c" goto fi_compile
-	set J_COMPILE_ONLY=1
-	shift
-	goto pre_loop
-:fi_compile
-
-if not "%1"=="-i" goto fi_init
-	if "%JAVA_HOME%"=="" SET JAVA_HOME=c:\varoj\java\j2se
+    set JOS_HOME=X:\jos
+	if "%JAVA_HOME%"=="" SET JAVA_HOME=c:\varoj\java\j2se-1_4
 	if "%CATALINA_HOME%"=="" SET CATALINA_HOME=c:\varoj\java\tomcat5
 	if "%CATALINA_BASE%"=="" SET CATALINA_BASE=c:\varoj\java\tomcat5
-	if "%JSYS_HOME%"=="" (
-		set JSYS_HOME=X:\jos\common
-	) else (
-		REM avoid of appending to classpath.
-		set CLASSPATH=
-	)
 
-	if "%CLASSPATH%"=="" (set CLASSPATH=.) else set CLASSPATH=%CLASSPATH%;.
-	set CLASSPATH=%CLASSPATH%;X:\java\proj\out
-	set CLASSPATH=%CLASSPATH%;%JAVA_HOME%\lib\tools.jar
+    for /D %%i in (%JOS_HOME%\usr\*) do (
+        set CLASSPATH=!CLASSPATH!;%%i
+        )
+    for /F %%i in ('dir %JOS_HOME%\lib\*.jar /s/b') do (
+        set CLASSPATH=!CLASSPATH!;%%i
+        )
+	set CLASSPATH=.;X:\jos\var\out;%JAVA_HOME%\lib\tools.jar;%JAVA_HOME%\lib\dt.jar;%CLASSPATH%
 
-	REM for %%i in (%JSYS_HOME%\jar\*) do call j -addcp %%~fi
-	REM 	REM set CLASSPATH=%CLASSPATH%;%%~fi
-
-	echo generating script...
-	if "%TEMP%"=="" (
-		mkdir c:\temp
-		SET TEMP=C:\temp
-	)
-	set J_BATCH_TEMP=%TEMP%\~$j-scp$.bat
-
-	echo @echo off >%J_BATCH_TEMP%
-	echo echo running generated script...>>%J_BATCH_TEMP%
-	echo set CLASSPATH=.>>%J_BATCH_TEMP%
-
-	pushd c:\varoj\java\jar
-		for /R %%i in (*) do (
-			if "%%~xi"==".jar" (
-				echo set CLASSPATH=%%CLASSPATH%%;%%~fi>>%J_BATCH_TEMP%
-			)
-		)
-	popd
-
-	pushd %CATALINA_HOME%\common\lib
-		for /R %%i in (*) do (
-			if "%%~xi"==".jar" (
-				echo set CLASSPATH=%%CLASSPATH%%;%%~fi>>%J_BATCH_TEMP%
-			)
-		)
-	popd
-
-	set J_WEBAPP=X:\java\proj\J2eeGarbage\NewTams\WebApp
-	if exist "%J_WEBAPP%\WEB-INF\lib" (
-		pushd "%J_WEBAPP%\WEB-INF\lib"
-			for /R %%i in (*) do (
-				if "%%~xi"==".jar" (
-					echo set CLASSPATH=%%~fi;%%CLASSPATH%%>>%J_BATCH_TEMP%
-				)
-			)
-		popd
-
-		echo set CLASSPATH=%J_WEBAPP%\WEB-INF\classes;%%CLASSPATH%%>>%J_BATCH_TEMP%
-	)
-
-	call %J_BATCH_TEMP%
-	rem del %J_BATCH_TEMP%
-	set J_BATCH_TEMP=
-
-	SET PATH=%JAVA_HOME%\bin;%CATALINA_HOME%\bin;C:\varoj\java\.dok;%PATH%
-
-	call %JSYS_HOME%\..\bin\initsh.bat
-
-	shift
-	if "%1"=="" goto end
-	goto pre_loop
-:fi_init
+	SET PATH=%JOS_HOME%\bin;%JOS_HOME%\usr\bin;%JAVA_HOME%\bin;%CATALINA_HOME%\bin;C:\varoj\java\.dok;%PATH%
+    goto end
 
 
-set J_JAVAC_ARGS=
-if not "%1"=="-q" goto fi_quiet
-	set J_JAVAC_ARGS=
-	shift
-	goto pre_loop
-:fi_quiet
+:parse
+    set _J=%0
 
-
-if not "%1"=="-d" goto fi_debug
-	shift
-	echo on
-	goto pre_loop
-:fi_debug
-
-
-if not "%1"=="" goto fi_syntax
-	@echo off
-	echo %J_EXEC_FILE% -v -c -i -q -d { * (or) d (or) filename.java (or) classname }
-	echo option: Verbose, Compile-only, Init, Quiet, Debug
-	echo 	*		compile and run all java classes
-	echo 	d		delete all classes (del *.class)
-	echo 	filename.java	compile and run the specified java class
-	echo 	classname	compile and run the specified java class
-	goto end
-:fi_syntax
-
-
-
-REM *************************************************************
-REM **
-REM ** Main Program
-REM **
-REM *************************************************************
-
-REM try "j -i" once, if JSYS_HOME isn't set.
-	if "%JSYS_HOME%"=="" if not "%JSYS_LAZY_INIT%"=="BUSY" (
-		SET JSYS_LAZY_INIT=BUSY
-		call %0 -i
-		SET JSYS_LAZY_INIT=
-	) else echo It is strongly recommended that you install JSYS_HOME.
-
-if not "%1"=="d" goto fi_delete_all
-	if exist *.class del *.class
-	goto end
-:fi_delete_all
-
-if not "%1"=="*" goto fi_wild
-	REM **** for %%i in (%1.class) do java %%~ni
-
-	REM call %J_EXEC_FILE% -javac %1.java
-	echo javac %J_JAVAC_ARGS% %1.java
-	javac %J_JAVAC_ARGS% %1.java
-	goto end
-:fi_wild
-
-
-if not exist "%1" goto fi_full_name
-	REM for %%i in (%1) do if "%%~xi"==".java" call %J_EXEC_FILE% -javac %%i
+:item
+    if "%1"=="" goto item_end
+    if "%1"=="d" (
+        if exist *.class del *.class
+        shift
+        goto item
+        )
+    if "%1"=="*" (
+        if "%_VERBOSE%"=="1" echo javac %_JARGS% *.java
+        javac %_JARGS% *.java
+        shift
+        goto item
+        )
+    if exist "%1" (
 	for %%i in (%1) do if "%%~xi"==".java" (
-		echo javac %J_JAVAC_ARGS% %%i
-		javac %J_JAVAC_ARGS% %%i
-	)
-	if "%J_COMPILE_ONLY%"=="1" goto fn_skip_run
-	for %%i in (%~n1.class) do java %%~ni %2 %3 %4 %5 %6 %7 %8 %9
-:fn_skip_run
-	goto end
-:fi_full_name
+		if "%_VERBOSE%"=="1" echo javac %_JARGS% %%i
+		javac %_JARGS% %%i
+	    )
+        if not "%_COMPILE%"=="1" (
+            for %%i in (%~n1.class) do java %%~ni %2 %3 %4 %5 %6 %7 %8 %9
+            )
+        goto cleanup
+        )
+
+    set _MATCH=
+	if exist "*%1*.java" set _MATCH="*%1*"
+	if exist "%1*.java" set _MATCH="%1*"
+	if exist "%1.java" set _MATCH="%1"
+    if "%_MATCH%"=="" (
+        echo "%1" or "%1.java" not existed
+        goto cleanup
+        )
+	for %%i in (%_MATCH%.java) do (
+		if "%_VERBOSE%"=="1" echo javac %_JARGS% %%i
+		javac %_JARGS% %%i
+	    )
+	if not "%_COMPILE%"=="1" (
+        for %%i in (%_MATCH%.class) do java %%~ni %2 %3 %4 %5 %6 %7 %8 %9
+        )
+
+:item_end
 
 
-	set J_CRIT=
-	if exist "*%1*.java" set J_CRIT="*%1*"
-	if exist "%1*.java" set J_CRIT="%1*"
-	if exist "%1.java" set J_CRIT="%1"
-if "%J_CRIT%"=="" goto fi_fuzzy
-	REM for %%i in (%1.java) do call %J_EXEC_FILE% -javac %%i
-	for %%i in (%J_CRIT%.java) do (
-		echo javac %J_JAVAC_ARGS% %%i
-		javac %J_JAVAC_ARGS% %%i
-	)
-	if "%J_COMPILE_ONLY%"=="1" goto ne_skip_run
-	for %%i in (%J_CRIT%.class) do java %%~ni %2 %3 %4 %5 %6 %7 %8 %9
-:ne_skip_run
-	goto end
-:fi_fuzzy
-	set J_CRIT=
-
-
-
-:default
-	echo "%1" or "%1.java" not existed!
-	goto end
-
+:cleanup
+	set _VERBOSE=
+	set _COMPILE_ONLY=
+	set _JARGS=
+	set _J=
+    set _MATCH=
 
 :end
-	set J_COMPILE_ONLY=
-	set J_JAVAC_ARGS=
-	set J_EXEC_FILE=
 
-:exit_program
