@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.7 2004-12-01 07:18:34 dansei Exp $';
+@rem = '$Id: syset.bat,v 1.8 2004-12-03 04:27:29 dansei Exp $';
 @rem = ' (Not strict mode)
 
         @echo off
@@ -42,6 +42,7 @@
         :env_perlcall
             set PATH=%t_dir%;%t_dir%\0;%t_dir%\1;%t_dir%\2\bin;%t_dir%\3;%t_dir%\4;%t_dir%\5;%t_dir%\6;%t_dir%\7;%t_dir%\8;%t_dir%\9;%PATH%
             set PERLLIB=%t_dir%\0;%t_dir%\2\lib
+
             call perl %~dpnx0 env %t_dir%
 
         :env_shell
@@ -155,8 +156,37 @@ sub env {
 
 
     my $windir = $ENV{'SystemRoot'};
+
+        # Force PHP.ini exists
+        if (! -f "$windir/php.ini") {
+            print "PHP not installed, install one\n";
+            open(FH, "$t_dir/2/etc/php.ini")
+                or die "Install failed: source";
+            my @data = <FH>;
+            open(FH, ">$windir/php.ini")
+                or die "Install failed: target";
+            print FH join('', @data);
+            close FH;
+        } else {
+            print "Found PHP installed\n";
+        }
+
     if (-f "$windir/php.ini") {
-        print "Found PHP installed\n";
+        my $usrdir = $ENV{'USERPROFILE'};
+        my $updir = "$usrdir\\Local Settings\\php_upload";
+        my $sessdir = "$usrdir\\Local Settings\\php_session";
+
+        if (! -d $updir) {
+            mkdir($updir)
+                && print "Created the php upload directory\n";
+            print ">>> The php upload directory ($updir) should be accessable by Internet Users\n";
+        }
+        if (! -d $sessdir) {
+            mkdir($sessdir)
+                && print "Created the php session directory\n";
+            print ">>> The php session directory ($sessdir) should be accessable by Internet Users\n";
+        }
+
         print "Configure PHP settings";
 
         my @lines;
@@ -169,10 +199,10 @@ sub env {
                 s/=.*$/= $t_dir\\2\\bin\\ext/;
                 print ".";
             } elsif (m/^upload_tmp_dir\b/) {
-                s/=.*$/= $windir\\temp\\php_upload/;
+                s/=.*$/= $updir/;
                 print ".";
             } elsif (m/^session\.save_path\b/) {
-                s/=.*$/= $windir\\temp\\php_session/;
+                s/=.*$/= $sessdir/;
                 print ".";
             }
             push @lines, $_;
