@@ -32,6 +32,7 @@ sub init();
 sub main();
 
 
+&help if scalar(@ARGV) == 0;
 init();
 main();
 
