@@ -1,0 +1,114 @@
+#!/usr/bin/perl
+# $Id: cvsco,v 1.1 2004-10-20 00:09:32 dansei Exp $
+
+use strict;
+use cmt;
+use Getopt::Long;
+
+
+sub help;
+
+
+my %cfg = (
+    'sf' => {
+        'websvr' => 'cvs.sourceforge.net',
+        'url' => '/viewcvs.py/$prj/',
+        'cvsroot' => ':pserver:anonymous@cvs.sourceforge.net:/cvsroot/$prj',
+        },
+    'nongnu' => {
+        'websvr' => 'savannah.nongnu.org',
+        'url' => '/cgi-bin/viewcvs/$prj/',
+        'cvsroot' => ':pserver:anoncvs@csv.nongnu',
+        },
+    'apache' => {
+        'websvr' => 'cvs.apache.org',
+        'url' => '/viewcvs.cgi/',
+        'cvsroot' => ':pserver:anoncvs@cvs.apache.org:/home/cvspublic',
+        },
+    );
+
+my $cfgname = 'sf';
+my ($websvr, $url, $cvsroot);
+my $opt_mkdir = 1;
+my $opt_cvsroot = 0;
+my $prj;
+my $modpat;
+my $printonly;
+
+
+    GetOptions(
+        'server-model|s=s'          => \$cfgname,
+        'create-dir|d!'             => \$opt_mkdir,
+        'include-cvsroot|a!'        => \$opt_cvsroot,
+        'webcvs-server|w=s'         => \$websvr,
+        'webcvs-url|u=s'            => \$url,
+        'cvsroot|r=s'               => \$cvsroot,
+        'project|p=s'               => \$prj,
+        'module-pattern|m=s'        => \$modpat,
+        'help|h'                    => sub { &help },
+        'print-command-only|c'      => \$printonly,
+        );
+
+    &help if not $prj;
+
+    $websvr ||= $cfg{$cfgname}->{'websvr'};
+    $url    ||= $cfg{$cfgname}->{'url'};
+    $cvsroot||= $cfg{$cfgname}->{'cvsroot'};
+
+    $websvr =~ s/\@/\\\@/g;
+    $url    =~ s/\@/\\\@/g;
+    $cvsroot=~ s/\@/\\\@/g;
+
+    $websvr = eval("\"$websvr\"");
+    $url    = eval("\"$url\"");
+    $cvsroot= eval("\"$cvsroot\"");
+
+    if ($opt_mkdir) {
+        mkdir $prj if not -d "$prj";
+        chdir $prj;
+    }
+
+    my @html = `getweb $websvr http://$websvr$url`;
+    for (my $i = 0; $i < scalar(@html); $i++) {
+        $_ = $html[$i];
+        if (m/\balt=\"\(dir\)\"/) {
+            $_ = $html[++$i];
+            my ($module) = m/^([^\/]+)/;
+            if ($modpat) {
+                next if ($module !~ m/^$modpat$/i);
+            }
+            if ($module eq 'CVSROOT') {
+                next if (not $opt_cvsroot);
+            }
+            print "cvs -z3 -d $cvsroot co $module\n";
+            system "cvs -z3 -d $cvsroot co $module\n"
+                if not $printonly;
+        }
+    }
+
+    if ($opt_mkdir) {
+        chdir "..";
+    }
+
+
+
+sub help {
+    my %id = parse_id('$Id: cvsco,v 1.1 2004-10-20 00:09:32 dansei Exp $');
+    print <<"EOM";
+[CVSCOS] CVS Checkout On Sites
+Author Snima Denik   Version $id{'rev'}   Date $id{'date'}
+Syntax:
+    cvsco
+        --help
+        --create-dir (-d)
+        --include-cvsroot (-a)
+        --server-model=<model> (-s)
+        --webcvs-server=<host> (-w)
+        --webcvs-url=<url> (-u)
+        --cvsroot=<cvsroot> (-r)
+        --project=<project> (-p)
+        --module-pattern=<regex> (-m)
+        --print-command-only (-c)
+EOM
+    exit 0;
+}
