@@ -1,0 +1,235 @@
+#!/usr/bin/perl
+# $Id: wcc,v 1.4 2004-09-23 09:06:50 dansei Exp $
+
+use strict;
+use Getopt::Long;
+use DirHandle;
+use Data::Dumper;
+
+my %opt_ext = (
+        'c' => 'c',
+        'cxx' => 'c',
+        'cpp' => 'c',
+        'h' => 'c',
+        'hxx' => 'c',
+        'hpp' => 'c',
+        'java' => 'c',
+
+        'sh' => 'unix',
+        'p' => 'unix',
+        'pl' => 'unix',
+        'python' => 'unix',
+        'tcl' => 'unix',
+
+        'bas' => 'text',
+        'frm' => 'vb',
+        'cls' => 'vb',
+
+        'txt' => 'text',
+        'htm' => 'text',
+        'html' => 'text',
+        'php' => 'text',
+        'asp' => 'text',
+        'bat' => 'text',
+       );
+
+my $opt_quiet = 0;
+my $opt_veryquiet = 0;
+my $opt_verbose = 0;
+my $opt_force = 0;
+my $opt_recursive = 0;
+
+my %summary = ();               # summary of all.
+my %summary_x = ();             # summary by different extensions.
+
+
+sub main {
+    my $options = GetOptions(
+            'extension|e=s' =>
+                    sub {
+                        my ($key, $val) = split('=', $_[1]);
+                        $val ||= "text";
+                        $opt_ext{$key} = $val;
+                    },
+            'exclude|x=s' =>
+                    sub {
+                        my $key = $_[1];
+                        delete $opt_ext{$key};
+                    },
+            'recursive' => \$opt_recursive,
+            'force' => \$opt_force,
+            'quiet' => \$opt_quiet,
+            'veryquiet|vq' => \$opt_veryquiet,
+            'verbose|v' => \$opt_verbose,
+            'help|h' => sub { &help; },
+            );
+    #print Dumper(\%opt_ext);
+
+
+    my @list = @ARGV;
+    @list = ('con') if (scalar(@list) == 0);
+
+    while (my $fn = shift @list) {
+        my $counts = process($fn);
+    }
+
+    # summary::
+}
+
+
+sub process {
+    my ($fn) = @_;
+    my %counts = ();
+    my ($fext, $fmodel);
+    if (-d $fn) {
+        print "d $fn\n" if $opt_verbose;
+
+        my $dh = new DirHandle($fn);
+        my @files = $dh->read();
+        $dh->close();
+        for (@files) {
+            my %c = ();
+            if (-d "$fn/$_") {
+                next if (m/^\.{1,2}$/);
+                next if (! $opt_recursive);
+                %c = process("$fn/$_");
+            } else {
+                ($fext) = m/\.([^.\/]+)$/;
+                if (defined $opt_ext{$fext}) {
+                    %c = process("$fn/$_");
+                }
+            }
+            for my $k (keys %c) {
+                $counts{$k} += 1 * $c{$k};
+            }
+        }
+        $fn = "$fn/";
+    } else {
+        ($fext) = $fn =~ m/\.([^.\/]+)$/;
+        $fext ||= 'txt';
+        $fmodel = $opt_ext{$fext};
+            # || die "Unknown extension: $fext";
+            $fmodel ||= 'text';
+
+        eval "%counts = &count_$fmodel(\$fn)";
+    }
+
+    printf "%10d $fn\n", $counts{'body'};
+    return %counts;
+}
+
+
+sub count_text {
+    my ($filename) = @_;
+    my $lines = 0;
+    my $words = 0;
+    open FH, $filename or die "can't open file $filename";
+    while (<FH>) {
+        $words++ while (m/\w+/g);
+        $lines++;
+    }
+    close FH;
+    return (
+            'body' => $lines,
+            'words' => $words,
+            );
+}
+
+
+sub count_c {
+    my ($filename) = @_;
+    my $lines = 0;
+    my $words = 0;
+    my $cmtlines = 0;
+    open FH, $filename or die "can't open file $filename";
+    while (<FH>) {
+        $words++ while (m/\w+/g);
+        $lines++;
+        $cmtlines++ if (m/^\s*(\/\/.*)?$/);
+    }
+    close FH;
+    return (
+            'body' => $lines,
+            'words' => $words,
+            'comments' => $cmtlines,
+            );
+}
+
+
+sub count_vb {
+    my ($filename) = @_;
+    my $hdrlevel = -100;
+    my ($lines, $words) = (0, 0);
+    my ($hdrlines, $cmtlines) = (0, 0);
+    my $attr = 1;
+
+    open FH, $filename or die "can't open file $filename";
+    while (<FH>) {
+        $hdrlines++;
+        if (m/^\s*VERSION\b/i)  { $hdrlevel = 0; next; }
+        if (m/^\s*OBJECT\b/i)   { next; }
+        if (m/^\s*BEGIN\s+=/i)  { next; }
+        if (m/^\s*BEGIN\b/i)    { $hdrlevel++; }
+        if (m/^\s*END\b/i)      { $hdrlevel--; }
+        if ($hdrlevel == 0)     { last; }
+    }
+    while (<FH>) {
+        if ($attr) {
+            if (m/^\s*ATTRIBUTE\b/i) {
+                $hdrlines++;
+                next;
+            }
+        }
+        $attr = 0;
+
+        $lines++;
+        $words++ while (m/\w+/g);
+        $cmtlines++ if (m/^\s*(\'.*)?$/);
+    }
+
+    close FH;
+    return (
+            'body' => $lines,
+            'words' => $words,
+            'header' => $hdrlines,
+            'comments' => $cmtlines,
+            );
+}
+
+
+sub count_unix {
+    my ($filename) = @_;
+    my $lines = 0;
+    my $words = 0;
+    my $cmtlines = 0;
+    open FH, $filename or die "can't open file $filename";
+    while (<FH>) {
+        $words++ while (m/\w+/g);
+        $lines++;
+        $cmtlines++ if (m/^\s*(#.*)?$/);
+    }
+    close FH;
+    return (
+            'body' => $lines,
+            'words' => $words,
+            );
+}
+
+
+sub help {
+    my $rev = '$Revision: 1.4 $';
+    $rev = substr($rev, 11, length($rev)-13);
+    print <<"EOM";
+Words Count for Source Code   Rev $rev
+Syntax:
+    wcc
+        --help(h)
+        --extension(x)=<ext-name>[=<type-mapping>]
+        --recursive(r)
+        files...
+EOM
+    exit;
+}
+
+
+&main;
