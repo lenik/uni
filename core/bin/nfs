@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 use strict;
 use Getopt::Long;
@@ -11,8 +11,8 @@ use cmt::winuser;
 
 our $opt_root;                              # NFS-Root, default "My Documents/Notes" -or- "~/Notes"
 
-our $opt_program;                           # Program used to open nfs document, depends on type
-                                            # Specials:
+our $opt_program = '.dep';                  # Program used to open nfs document
+                                            #   .dep    Depends on type
                                             #   .del    delete document
                                             #   .new    delete and create
                                             #   .map    copy document to specified directory
@@ -114,8 +114,12 @@ sub main {
         );
 
     for (@ARGV) {
-        if ($_ eq '//') {
+        if ($_ eq '//') {       # //    --index
             $opt_program = '.index';
+            next;
+        }
+        if (m/^\/(\w+)$/) {     # /ext  --type
+            $opt_type = $1;
             next;
         }
         $opt_title = $_;
@@ -123,11 +127,12 @@ sub main {
     }
     # ARGV remains...
 
+
+    $opt_title = get_serial($opt_root) if (! $opt_title);
+
     if ($opt_title =~ m/--/) {
         die "Invalid NFS-Title: $opt_title";
     }
-
-    $opt_title = get_serial($opt_root) if (! $opt_title);
 
     $opt_root = expand_symbolic_link($opt_root, 'Not mounted: %s');
 
@@ -161,7 +166,7 @@ sub main {
 
     # quick delete
         if ($opt_program eq '.del' or $opt_program eq '.new') {
-            my $del_prompt = $opt_program eq '.del' and not $opt_quiet;
+            my $del_prompt = ($opt_program eq '.del') && !$opt_quiet;
             if (-e $nfs_path_full) {
                 if ($del_prompt) {
                     my $id = msgbox("Confirm to delete $nfs_path_full", $nfs_appname, 'no', 'yes', '?');
@@ -279,10 +284,7 @@ sub main {
 
     # for normal open
         else {
-            my $opener = $nfs_filetype{$opt_type};
-               $opener ||= $nfs_filetype{''};
-            my $cmdline = sprintf("start $opener", $nfs_path_full);
-
+            # lazy- create
             if (! -e $nfs_path_full) {
                 # auto create the container levels
                 auto_mkdir $nfs_path_container;
@@ -299,8 +301,23 @@ sub main {
                     close FH;
                 }
             }
-            print "$cmdline" if $opt_verbose;
-            exec "$cmdline";
+
+            # use program depends on type to open the document
+            if ($opt_program eq '.dep') {
+                my $opener = $nfs_filetype{$opt_type};
+                   $opener ||= $nfs_filetype{''};
+                my $cmdline = sprintf("start $opener", $nfs_path_full);
+
+                print "execute: $cmdline" if $opt_verbose;
+                exec $cmdline;
+            }
+
+            # use the specified program to open the document
+            else {
+                my $cmdline = sprintf("start $opt_program", $nfs_path_full);
+                print "execute: $cmdline" if $opt_verbose;
+                exec $cmdline;
+            }
         }
 }
 
@@ -384,8 +401,12 @@ sub expand_nfs_title {
 
 sub template_instantiate {
     my ($temp, $file) = @_;
-    if ($opt_type eq '.doc') {
-    } elsif ($opt_type eq '.xls') {
+    my @noteauto_supports = qw/doc xls/;
+    if (grep { $_ eq $opt_type } @noteauto_supports) {
+        # e.g.
+        #   noteauto path/vol create doc path/full.ext
+        #   noteauto path/vol create xls path/full.ext
+        system "noteauto \"$nfs_path_vol\" create $opt_type \"$nfs_path_full\"";
     } else {
         print "instantating $temp to $file\n" if $opt_verbose;
         open(FSRC, "<$temp")
@@ -597,7 +618,7 @@ sub get_vol_serial {
 
 
 sub version {
-    my %id = parse_id('$Id: nfs,v 1.2 2005-01-04 04:40:25 dansei Exp $');
+    my %id = parse_id('$Id: nfs,v 1.3 2005-01-04 05:09:13 dansei Exp $');
     print <<"EOM"
 [NFS] Notes for Speed
       Written by Snima Denik    Version 2.$id{rev}    Updated $id{date}
