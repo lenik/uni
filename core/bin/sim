@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# $Id: sim,v 1.2 2004-10-20 04:54:05 dansei Exp $
+# $Id: sim,v 1.3 2004-11-17 02:42:07 dansei Exp $
 
 use strict;
 use Getopt::Long;
@@ -19,6 +19,7 @@ our $opt_verbose = 0;
 our $opt_help = 0;
 our $opt_which_sim = $0;
 our $opt_cmdline = join(' ', @ARGV);
+our $opt_extension = 'tmp';
 
 sub getopts {
     # print "BEFORE:: ".join(",", @ARGV)."\n";
@@ -26,6 +27,7 @@ sub getopts {
         'recursive|r' => \$opt_recursive,
         'write|w' => \$opt_write,
         'binary|b' => \$opt_binary,
+        'extension|e=s' => \$opt_extension,
         'comment-remove|c' => \$opt_comment,
         'force' => \$opt_force,
         'quiet' => \$opt_quiet,
@@ -84,8 +86,9 @@ sub getopts {
     }
     $tempdir =~ s/[\/\\]$//;
 
-    open FILE, ">$tempdir/$file1.tmp"
-        || die "Can't create the temporary file $tempdir/$file1.tmp";
+    my $tempfile = "$tempdir/$file1.$opt_extension";
+    open FILE, ">$tempfile"
+        || die "Can't create the temporary file $tempfile";
     print FILE join('', @text);
     close FILE;
 
@@ -95,13 +98,13 @@ sub getopts {
             rename "$startdir/$file1", "$startdir/$file1.bak";
         }
         system join(' ', @newArgs)
-            ." \"$tempdir/$file1.tmp\" >\"$startdir/$file_out\"";
+            ." \"$tempfile\" >\"$startdir/$file_out\"";
     } else {
         system join(' ', @newArgs)
-            ." \"$tempdir/$file1.tmp\"";
+            ." \"$tempfile\"";
     }
 
-    unlink "$tempdir/$file1.tmp";
+    unlink "$tempfile";
 
 
 sub process_directory {
@@ -135,6 +138,7 @@ Options:
     --write (w)
     --binary (b)
     --comment-remove (c)
+    --extension=<ext> (e)
     --force (f)
     --quiet (q)
     --veryquiet (vq)
