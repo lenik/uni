@@ -1,5 +1,7 @@
 @echo off
 
+title "%*"
+
 :loop
 	%*
 
