@@ -1,0 +1,114 @@
+#!/usr/bin/perl
+
+# $id$
+# $log$
+
+use strict;
+use Getopt::Long;
+use FileHandle;
+use DirHandle;
+
+
+my ($force, $verbose) = (0, 0);
+my ($decode, $newline, $quotes) = (0, 0, 0);
+
+my $options = GetOptions(
+                         'force' => \$force,
+                         'verbose' => \$verbose,
+                         'encode' => sub { $decode = 0; },
+                         'decode' => \$decode,
+                         'newline' => \$newline,
+                         'quotes' => \$quotes,
+                         'help|?' => sub { &help },
+                         );
+
+while (<>) {
+	if ($decode) {
+		$_ = c_decode($_);
+	} else {
+		$_ = c_encode($_);
+	}
+	print;
+}
+
+
+sub c_encode {
+	my ($str) = @_;
+	my $len = length($str);
+	my @ret;
+	my ($i, $ss, $c);
+
+	for ($i = 0; $i < $len; $i++) {
+		$c = substr($str, $i, 1);
+		if ($c =~ m/([\n\r\t\a\0\"\'\\])/) {
+			S1: {
+				if ($1 eq "\n") {
+					$c = "\\n" if $newline; last S1;
+				}
+				if ($1 eq "\r") { $c = "\\r"; last S1; }
+				if ($1 eq "\t") { $c = "\\t"; last S1; }
+				if ($1 eq "\"") { $c = "\\\""; last S1; }
+				if ($1 eq "\'") { $c = "\\\'"; last S1; }
+				if ($1 eq "\\") { $c = "\\\\"; last S1; }
+				if ($1 eq "\a") { $c = "\\a"; last S1; }
+				if ($1 eq "\b") { $c = "\\b"; last S1; }
+				if ($1 eq "\f") { $c = "\\f"; last S1; }
+				if ($1 eq "\0") { $c = "\\0"; last S1; }
+			}
+		}
+		push @ret, $c;
+	}
+	join("", @ret);
+}
+
+
+sub c_decode {
+	my ($str) = @_;
+	my $len = length($str);
+	my @ret;
+	my ($i, $ss, $c);
+
+	for ($i = 0; $i < $len; $i++) {
+		$c = substr($str, $i, 1);
+		if ($c eq "\\") {
+			if (substr($str, $i+1) =~ m/^([nrabtf0\"\'\\])/) {
+				S1: {
+					if ($1 eq "n") { $c = "\n"; last S1; }
+					if ($1 eq "r") { $c = "\r"; last S1; }
+					if ($1 eq "t") { $c = "\t"; last S1; }
+					if ($1 eq "\"") { $c = "\""; last S1; }
+					if ($1 eq "\'") { $c = "\'"; last S1; }
+					if ($1 eq "\\") { $c = "\\"; last S1; }
+					if ($1 eq "a") { $c = "\a"; last S1; }
+					if ($1 eq "b") { $c = "\b"; last S1; }
+					if ($1 eq "f") { $c = "\f"; last S1; }
+					if ($1 eq "0") { $c = "\0"; last S1; }
+					$c = "?";
+				}
+				$i += length($1);
+			} elsif (substr($str, $i+1) =~ m/^[Xx]([0-9a-fA-F]+)/) {
+				$c = chr(hex $1);
+				$i += length($1)+1;
+			} elsif (substr($str, $i+1) =~ m/^([1-7][0-7]*)/) {
+				$c = eval("\"\\$1\"");
+				$i += length($1);
+			}
+			$c = "\\n" if (! $newline and $c eq "\n");
+		}
+		push @ret, $c;
+	}
+	join("", @ret);
+}
+
+
+sub help() {
+	print <<"EOM";
+C-Escape encode/decode   Author/Danci.Z    Version/1    Date/Sep 14 2004
+Syntax:
+    $0
+		--encode(default) --decode
+		--newline --quotes
+		--force --verbose
+		--help
+EOM
+}
