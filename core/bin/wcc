@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-use cmt;
+use cmt::vcs;
 use DirHandle;
 use Getopt::Long;
 
@@ -271,7 +271,7 @@ sub count_unix {
 }
 
 sub help {
-    my %id = parse_id('$Id: wcc,v 1.6 2004-09-24 02:51:37 dansei Exp $');
+    my %id = parse_id('$Id: wcc,v 1.7 2005-01-06 04:21:47 dansei Exp $');
     print <<"EOM";
 Words Count for Source Code   Version $id{'rev'}   Date $id{'date'}
 Syntax:

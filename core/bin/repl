@@ -1,7 +1,10 @@
 #!/usr/bin/perl
 
-# $Id: repl,v 1.7 2004-12-12 07:32:52 dansei Exp $
+# $Id: repl,v 1.8 2005-01-06 04:21:46 dansei Exp $
 # $Log: not supported by cvs2svn $
+# Revision 1.7  2004/12/12 07:32:52  dansei
+# missing of "use cmt"
+#
 # Revision 1.6  2004/12/12 07:32:09  dansei
 # split help into version and help,
 # (cuz repl.pl was refered too much, its code will be using as template)
@@ -21,7 +24,7 @@ use strict;
 use Getopt::Long;
 use FileHandle;
 use DirHandle;
-use cmt;
+use cmt::vcs;
 
 
 my $recursive = 0;
@@ -213,7 +216,7 @@ sub process_file {
 
 
 sub version() {
-    my %id = parse_id('$Id: repl,v 1.7 2004-12-12 07:32:52 dansei Exp $');
+    my %id = parse_id('$Id: repl,v 1.8 2005-01-06 04:21:46 dansei Exp $');
     print "[REPL] Replace files by regular-expression\n";
     print "Written by Snima Denik   Version $id{rev}   Last updated at $id{date}\n";
 }

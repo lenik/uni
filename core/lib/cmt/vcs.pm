@@ -1,7 +1,7 @@
 
 # Common Module for dir-T
 
-package cmt;
+package cmt::vcs;
 
 use strict;
 use Exporter;
@@ -10,7 +10,7 @@ use vars qw/@ISA @EXPORT/;
 
 sub parse_id {
     my ($id) = @_;
-    $id ||= '$Id: vcs.pm,v 1.2 2004-09-24 01:28:26 dansei Exp $';
+    $id ||= '$Id: vcs.pm,v 1.3 2005-01-06 04:21:47 dansei Exp $';
     my @segs = $id =~ m/
         ^ \$ [I][d][:] \s (.*?) \s ([0-9.]+) \s ([0-9\/\\\-]+) \s
              ([0-9:]+) \s (.*?) \s (\w+) \s \$ $

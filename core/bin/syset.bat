@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.9 2005-01-04 04:39:54 dansei Exp $';
+@rem = '$Id: syset.bat,v 1.10 2005-01-06 04:21:46 dansei Exp $';
 @rem = ' (Not strict mode)
 
         @echo off
@@ -56,7 +56,9 @@
             reg add hkcr\Directory\shell\Console\Command /f /ve /d                      "cmd ""%%1""" >nul
             reg add hkcr\Directory\shell\Serialize\Command /f /ve /d                    "%t_dir%\1\renum.exe -D -w 2 ""%%1\*""" >nul
             reg add "hkcr\Directory\shell\Gather binaries\Command" /f /ve /d            "%t_dir%\0\mvup.bat -c ""%%1\..\..\bin\"" -t ""%%1\..\..\bin\"" *.exe *.dll *.ocx" >nul
-            reg add "hkcr\Directory\shell\Synchronize IMmediately\Command" /f /ve /d    "%t_dir%\2\bin\perl.exe %t_dir%\0\sim.pl" >nul
+            reg add "hkcr\Directory\shell\Build TGZ archive\Command" /f /ve /d            "%t_dir%\0\tgz.bat ""%%1""" >nul
+            reg add "hkcr\Directory\shell\SIMplifiers expand\Command" /f /ve /d         "%t_dir%\2\bin\perl.exe %t_dir%\0\sim.pl" >nul
+            reg add "hkcr\Directory\shell\Add nfs mapping\Command" /f /ve /d            "%t_dir%\2\bin\perl.exe %t_dir%\0\nfs.pl -i -m" >nul
 
             reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v CompletionChar /t REG_DWORD /d 14 >nul
             reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v PathCompletionChar /t REG_DWORD /d 14 >nul
@@ -96,7 +98,7 @@
 # The Perl-section
 # ---------------------------------------------------------------------------
 use Win32::Registry;
-use cmt;
+use cmt::vcs;
 use cmt::path;
 
 our ($opt_cmd, @opt_args) = @ARGV;

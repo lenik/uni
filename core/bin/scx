@@ -4,7 +4,7 @@
 use strict;
 use Getopt::Long;
 use DirHandle;
-use cmt;
+use cmt::vcs;
 use cmt::path;
 
 
@@ -137,7 +137,7 @@ sub add_cvs {
 
 
 sub help {
-    my %id = parse_id('$Id: scx,v 1.1 2005-01-04 04:39:06 dansei Exp $');
+    my %id = parse_id('$Id: scx,v 1.2 2005-01-06 04:21:46 dansei Exp $');
 
     print <<"EOM"
 [SCX] Scan & chmod for executable

@@ -1,11 +1,11 @@
 #!/usr/bin/perl
-# $Id: so,v 1.6 2004-12-07 04:08:25 dansei Exp $
+# $Id: so,v 1.7 2005-01-06 04:21:46 dansei Exp $
 
 use strict;
 use Socket;
 use FileHandle;
 use Getopt::Long;
-use cmt;
+use cmt::vcs;
 
 
 our $opt_server = "localhost";
@@ -189,7 +189,7 @@ sub main {
 }
 
 sub help {
-    my %id = parse_id('$Id: so,v 1.6 2004-12-07 04:08:25 dansei Exp $');
+    my %id = parse_id('$Id: so,v 1.7 2005-01-06 04:21:46 dansei Exp $');
 
     print <<"EOM";
 [SOCKONCE] socket communication utility for simple dialog

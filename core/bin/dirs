@@ -2,7 +2,7 @@
 
 use strict;
 use Getopt::Long;
-use cmt;
+use cmt::vcs;
 use DirHandle;
 
 
@@ -32,7 +32,7 @@ sub init {
 
 
 sub help {
-	my %ver = parse_id('$Id: dirs,v 1.1 2004-11-25 07:12:30 dansei Exp $');
+	my %ver = parse_id('$Id: dirs,v 1.2 2005-01-06 04:21:46 dansei Exp $');
 	print <<"EOM";
 [DIRS] Directories' Size Report
 Written by Snima Denik,  Revision $ver{rev},  Last updated $ver{date}
