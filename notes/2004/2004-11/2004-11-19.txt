@@ -1,0 +1,39 @@
+﻿
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE _____________________________________________________________________
+KEYWORDS _____________________________________________________________________
+
+
+> (LT) Taglib of LCT - Level Coded Tree
+
+	LT's LCT:
+
+		A 资料设置
+		B 我的基金
+			000 设置基金
+			。。
+		D 我的日记
+			1 消费活动
+			2 资本活动
+			3 其它记事
+		F 开放基金
+			000
+		T 目标机构
+			000
+		F 统计预测
+			1 关键项
+			2 消费状况
+			3 利息计算
+			4 目标诚信度分析
+		H 帮助
+		X 退出
+
+
+	<lct>
+		<lci code='D2'><a href=..>资本活动</a></lci>
+	</lct>

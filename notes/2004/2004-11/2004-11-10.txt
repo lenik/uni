@@ -1,0 +1,26 @@
+﻿
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE _____________________________________________________________________
+KEYWORDS _____________________________________________________________________
+
+
+> latix 统一元素
+
+	Schema 中通过使用 base-type-full 统一了 type, element。
+	可以直接定义复杂的 element，element/@type 实现直接继承（单根），
+	可以在element中定义方法，也可以在function中定义可导出的方法。
+
+	几个问题：
+
+	- 统一的namespace/type-name，即type的统一标识符，
+	  以免去pre-declare的麻烦。
+	  参考Java命名方式，即：name.name.name.type
+	  其中
+	  仍旧保留function 的pre-declare，以便于对compiled library的引用。
+
+	-

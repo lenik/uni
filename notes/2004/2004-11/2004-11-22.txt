@@ -1,0 +1,34 @@
+﻿
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE _____________________________________________________________________
+KEYWORDS _____________________________________________________________________
+
+
+> Task
+	- OpenSSL' source: CA.config format
+	- ASN.1 format
+	- Advanced Certificate Fields
+	- New CA Tree => .PGP Disk Modify
+		. Denik.Z - Denik Q.Zappist /DQZ
+		. Bytes of Denik.Z Root Authority
+
+
+> LT Framework
+
+	Keys:  Resin JSTL Struts Tiles Hibernate
+
+	x- Hibernate: Agent ORM
+		. hbm -> pojo
+		. hbm -> ddl
+		manual:  	ddl-sql -> (database)
+		middlegen: 	(database) -> hbm
+		hibernate-ext:	hbm -> pojo
+
+	- Homepage: Tree menu / Tiles
+	- Action start.jsp -> home.jsp
+	- Cookie: expires=... GMT

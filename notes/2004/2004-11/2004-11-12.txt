@@ -1,0 +1,35 @@
+﻿
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE _____________________________________________________________________
+KEYWORDS _____________________________________________________________________
+
+
+> Schema 的几个问题
+
+	- 交叉XML，但根据一定法则从合成XML树中去除任一XML仍旧为合法XML。
+	-
+
+
+> winvod 下载
+	ser value:
+		1.杭州
+		2.宁波
+		3.温州
+		4.湖州
+		5.嘉兴
+		6.绍兴
+		7.金华
+		8.衢州
+		9.舟山
+		10.台州
+		11.丽水
+
+	http://www.winvod.com/chinavnet/play.asp?id='+id+'&ser='+ser
+
+	赵公元帅斗瘟神 10221..10240
+	http://www.winvod.com/chinavnet/play.asp?ser=5&id=10221

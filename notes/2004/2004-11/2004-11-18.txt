@@ -1,0 +1,39 @@
+﻿
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE _____________________________________________________________________
+KEYWORDS _____________________________________________________________________
+
+
+> DTC-2: Live Together
+
+	New features:
+		- Cost Details
+		- Browse by date-tree
+		- Cache relations
+
+	New technologies [JAVA]:
+		- Hibernate
+		- Struts
+		- Java beans for logic
+		- JSP Images?
+
+
+	Tables:
+		agents	用户
+		funds	基金
+		actions	活动
+		targets	消费目标
+
+		fund_alloc	基金结构
+		action_alloc	活动结构
+		target_menu	目标菜单 [据编号分层]
+
+		agent_diary
+			import, action, profile-edit
+
+		system_diary

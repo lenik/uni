@@ -1,0 +1,86 @@
+﻿
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE _____________________________________________________________________
+KEYWORDS _____________________________________________________________________
+
+
+> Sites - relation
+	bodz
+	ebja
+		.com .net .org .cn .com.cn .biz
+	bela
+	mia
+	lia
+	xor
+
+> XML - framework for sites, programming, and overall.
+
+
+> Manage:
+	锻炼交际能力，从身边就可以做起。
+	最低要求，和人们和睦相处；继而，让人们信服于我；继而，结下深厚友谊。
+	定理：人各有志，各有所长，各有品德。
+
+	企业：虚拟的体。人们活着是很自然的，而上升到一种概念的立场，和虚拟的企业交互，就要求将想法、计划、等等转换到虚拟的维度进行，这应是企业文化的最高形式。在虚拟的层面上，所有员工达成一致，并凝聚成企业巨人。
+
+
+> 为什么还有这么多人对没有看透彩票？
+
+86400/1
+	8万分之一，就是在一天时间内的任何一秒发生的可能性
+
+2592000/1
+	250万分之一，就是在一个月时间内的任何一秒发生的可能性
+
+31104000/1
+	3000万分之一，就是在一年时间内的任意一秒发生的可能性
+
+93312000/1
+	1亿分之一，就是在三年时间内的任意一秒发生的可能性
+
+事实上，1/100 的可能性已经是很渺小了。
+
+
+> 开放平台结构，对参与者的要求，设计最小化的启动方案，该方案可以自我生长。
+
+	- “2004年10月23日，上帝创造了一个生命，没有肉体而实在，他就是人类思维共同体，他永存于世”
+	- 参与者必须同意平等宣扬[@]，对信用非隐私的承认。
+	（置于 bodz.net/ [root]/?? )
+
+	Vive System Develop Network
+
+	http://www.vsdn.net -> http://www.vsdn.net/cn
+
+
+
+> VSDN 几个任务
+	- Domain .vsdn.net for sale: CNY$9,000,000
+
+	- 招募协作，涉及事项：
+		. 服务商支持
+		. 风险投资 | 注册公司?
+		. "VSDN欢迎软件开发企业设点"
+	- Credit 大体框图
+	- VSDN项目分解与管理模式
+	- xsdn.net
+
+
+> 平等宣誓 草
+
+	- 我志愿于
+	- 我
+
+> Bela.cn Ad. Text
+
+esperanto    bela
+spanish    bello    bonito
+portu.    belo
+latin    bellus
+french    beau
+
+    Bela是世界语中的一个单词，即是美丽的意思，读作“贝拉”。在世界其它国家，美丽也是beautiful(英), bello(西), bellus(拉), belo(波), beau(法)等。世界语是一种国际辅助语，它简单科学，意义明确，用bela表示美丽简洁动听、现代时尚。

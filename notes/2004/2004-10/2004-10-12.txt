@@ -1,0 +1,26 @@
+
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE _____________________________________________________________________
+KEYWORDS _____________________________________________________________________
+
+
+> Todo:
+	Esperanto Name Card
+	Open Source (pack-src-public), linux-src.
+
+	CHSID
+
+	Download POSIX, read, find standard typedefs.
+		[ POS collision ]
+
+	Glimpse, orgnize linux-src, load the w2k glimpse image.
+
+	DTC update
+		- ODBC migrate.
+		- More features.
+		- Set on tc.bodz.net/..

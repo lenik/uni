@@ -1,0 +1,35 @@
+﻿
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE _____________________________________________________________________
+KEYWORDS _____________________________________________________________________
+
+
+> Domains to register:
+  .* except
+	latix.*-	(.*- means .* except .com)
+  .cn
+	cnos *
+	inos
+	esdn
+	thinks *
+	zix
+	vix
+	msys
+	irg *
+	tro *
+	beckon
+	beckoning
+	echonet
+	econet
+	voli
+	4com
+
+  .biz
+	6com
+	8com
+	bigcom

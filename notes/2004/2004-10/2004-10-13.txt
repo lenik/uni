@@ -1,0 +1,89 @@
+
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE 专注的精神
+KEYWORDS 专注 POS任务分解 大创作空间(BCS: Big Create Space)
+
+
+h1- BODZ Common Abbreviation (Initial)
+
+	h2- Common:
+		Comment		CCT (#)
+
+	h2- Notes:
+					(Prefix N- ignorable in note contents)
+		Head1			NH1 (>)
+		Head2			NH2 (-)
+		Head3			NH3 (o)
+		Head4			NH4 (.)
+		Remind			NRM (!)
+		To Do			NTD (=)
+		Just Note		NNT (')
+		Reference		NRF (@)
+
+	h2- Task:
+		Shopping		KSP (+)
+		Learn			KLR (@)
+		Research & Develop	KRD (&)
+		Money Relate		KMN ($)
+		Life			KLF (*)
+		Reply			KRP (>)
+		Meeting, Discussion	KMT (%)
+		Go to			KTO (/)
+		Think			KTK (?)
+		Task Done		KDN (v)
+		Task Passed		KPS (o)
+		Task Canceled		KCC (c)
+		Task Failure		KFL (x)
+
+	h2- Diary:
+		General Matter		YMA
+		Ticket Traffic		YTT
+		Ticket Food		YTF
+		Ticket Shopping		YTS
+		Ticket Anything		YTA
+		Ticket Valuable, Cards	YTV
+		Ticket Medical		YTM
+
+	h2- Technology:
+
+	h2- Private:
+
+
+> POS任务分解
+
+
+> 大创作空间
+	- 表示至实现的映射
+	- 多种表示形式
+	- 基元素的表示层变动，如何Refactor
+
+
+> POS特殊表示层
+	- 为了解决困扰已久的符号问题，提出POS特殊表示层。
+	  （一种类似于bodz.版权前缀的方案，将来可发展成为通用表示层）
+
+	- 以下可用列表：
+		o 在源代码中用前缀 p` 表示POS符号。
+		o 专用的图、文档用于描述C算法、结构等内容。
+
+
+> 拍教育视频。
+	- 大多数人看不懂专业文档，而看电视人人都会。
+	- 有助于扩大宣传力度，深入人心，所谓先入为主。
+
+> 向军用化发展
+	' 有部电影关于一个科学家设计了一种清除石油污染的微型机器人，
+	  被政客用于战争用途。
+
+
+> HTML Directory => CHM File
+
+> 电影帐号
+	www.zj.chinavnet.com
+	www.jx001.com
+	zfy200311  7022958

@@ -1,0 +1,57 @@
+﻿
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE _____________________________________________________________________
+KEYWORDS _____________________________________________________________________
+
+
+> Perl XSUB Learn
+
+	z:\t\0;z:\t\2\lib;:z:\t\0:z:\t\2\lib
+
+	config.pm
+
+	ExtUtils::MM_Unix.pm **BUG::
+
+		. my $inc = dirname $found;
+		+ $inc = $self->catdir($inc, "CORE") if $Is_Win32;
+		. if (-e $self->catdir($inc, "perl.h")) { ...
+
+		** FAILED
+
+
+> latis samples
+
+	LaTiS - Layered Think-infinite Script
+
+	hello.lts
+		namespace global {
+			type strtype : ".asz"
+				[ align=3, access=public, managed=true];
+
+			element abc : strtype {
+				construct { "hello, world"; }
+			}
+
+			function main [layer="main"] {
+				printf(abc);
+			}
+		}
+
+
+> 看小丸子有感
+
+什么事都做不好的日子里，就像被关进精神的牢笼，一切值得快乐的事情都索然无味。
+
+白纸，一叠叠的白纸。
+我曾经满怀激情的给每一张白纸印上未来的标题，到今天仍是空白。不确定的未来，和无知的现在。
+
+一些念头在脑中闪烁即逝，我生活在肤浅的灵感火花上，从来没有深刻过。
+
+，用自己的语言写另一个自我，又去实现又另一个语言。感谢我对语言的天赋，得来全不费功夫。暗叹人生如程序，程序如人生。
+
+只有吃的时候才能感觉到自己的真实。剥开一个橘子，品尝酸甜的实在。是否可以将味觉映射至符号；是否可以将符号组成诗句，谱成乐曲。

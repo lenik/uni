@@ -1,0 +1,18 @@
+
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE _____________________________________________________________________
+KEYWORDS _____________________________________________________________________
+
+
+>> 透明与不透明
+
+	在生活中透明
+
+> CHSID on sf
+	For security reasons, Windows doesn't allow anyone to change the SID (Internal ID of User/Group, like uid, gid in Unix). This often troubles system administrator, because after the operating system re-installed, all users/groups should be re-created, and all files, directories, registry-keys, printers, etc. have to be re-configured to remove the old users/groups, and to use those new users/groups, because the users/groups with same name is completely different!! Simply says, the user/groups information are completely lost after the system reinstalled, because their SID numbers are random generated (and Microsoft seems not hope anyone to change that)
+	CHSID is designed to modify the SID of user/groups, for administrators, they can write a batch file which create the new users and groups and configure its SID numbers to be constant. So they will never have to do the user configure works again and again, once is enough!

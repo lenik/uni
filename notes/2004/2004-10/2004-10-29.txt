@@ -1,0 +1,20 @@
+﻿
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE _____________________________________________________________________
+KEYWORDS _____________________________________________________________________
+
+
+> VSP模型
+
+	- 所有VSP结点都可以被看作是“事”、“物”、或“贡献”
+	- 只有两种评分方式：agent/node, agent/agent
+	-
+
+> VSP协议
+
+	- 参考股份制，一部分作为vsdn财产，一部分按参与人股份分发。

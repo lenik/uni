@@ -1,0 +1,37 @@
+
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE _____________________________________________________________________
+KEYWORDS _____________________________________________________________________
+
+
+>> 时间戳认证设想
+
+	一块数据的摘要提交给时间戳服务器，返回一个对应的时间戳摘要，参照GMT。
+
+	Data -> Digest ===> [TMS] ===> TimingMark
+
+	TMS - Timestamp Mark Server
+
+	Data & TimingMark 证明 Data 是产生于某个时间的。
+
+	TMS 传入参数： Digest, 时间精度。
+
+
+> 点子加强
+
+	>^ 点子加强
+		一种提醒方法，反复提醒某件事情，通过对notes/<DATE>整理分析
+		可以得到对某件事的关注程度。
+
+	(>! 是 note/.txt 的符号集，必须行首有效。)
+
+
+>^ 文件系统的信息标记
+	（如.vol/目录、dirty标记、backup-enabled标记等）
+
+	标记使用工具与dir-T集成。

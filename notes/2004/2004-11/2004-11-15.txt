@@ -1,0 +1,36 @@
+﻿
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE _____________________________________________________________________
+KEYWORDS _____________________________________________________________________
+
+
+> XTO : XSF Tree Object
+
+	- XTO相当于一种逻辑文件系统
+	- CSF中定义一些XTO的专用应用
+
+
+> XTO Patterns
+
+	- Document
+	  普通视图页面嵌入。如文字、图片、注释等。
+	- Community
+	  社区如讨论、聊天、投票等
+	- Cell “细胞”
+	  自组织单元
+	- Map
+	  文件系统映射
+	- Custom
+	  自定义，如实现小型MIS系统
+
+
+> 涉政组织的联系方式
+
+	- 获得所有成员的地址信息。
+	  .cn可能被政府取消，.com仍旧可能被政府取消
+	  即使是邮件列表，还是有可能被政府取消。

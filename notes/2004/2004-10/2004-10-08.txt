@@ -1,0 +1,101 @@
+
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+
+   TITLE _____________________________________________________________________
+KEYWORDS _____________________________________________________________________
+
+
+> The Latix Project
+  Layered Translation Intermediate XML
+
+	- Change name TiX to LaTiX
+	- Create new POS related projects' layout
+	  (Rearrange BODZ'XML structures)
+	  http://www.bodz.net/usnap/<project>/<name>
+
+	  standard names:
+
+		text		docuemnts
+		mat		materials
+		src		source code
+		inc		include files
+		bin		binary, release executables
+		sub		sub-projects
+		mod		sub-modules
+		lab		test, debug, etc. laboratory utilities.
+		admin		管理工具
+		btw		衍生物、副产品
+		etc		其它、参考链接、未归类
+		.vol		发布包、历史、过期事物等等
+		.current	进行中的工作
+
+	其中 .vol 专门管理、备份（目前可先放在crit-vol的专门目录中），
+	而不进入vcs。
+	.current 只供临时用，也不进入vcs。
+
+
+> Latix 若干缩略语
+
+	LaTi		LaTi标准中间模型
+	LaTiX		LaTi XML 文档，.ltx
+	LaTiS		LaTi 的一种标准英语脚本，.lts
+	LaTiB		LaTi 的标准二进制格式，运行于LTP-VM之上
+	含语		LaTi 的一种标准中文脚本，.han (.含)
+	LaTi Platform	LaTi 的支持平台，简称LTP
+	  LTP-C		LaTi C 映射的支持库
+	  LTP-C++, LTP-Pascal, LTP-VB, LTP-Java 等等
+	  LTP-VM	LaTi 独立 LaTiB 虚拟机
+
+
+todo' Word/Excel File (OLE-Storage) Parse
+
+todo' CVSApp
+
+todo' POSv2 built-in types must go first.
+
+typedef unsigned char u1_t
+typedef unsigned short u2_t
+typedef unsigned long u4_t
+typedef unsigned __int64 u8_t
+typedef unsigned __int128 u16_t
+
+u4p_t
+u4v_t
+u4w_t
+u4pp_t
+u4vv_t
+u4ww_t
+s1_t
+s2_t
+s4_t
+s8_t
+s16_t
+f2_t
+f4_t
+f8_t
+f10_t
+f16_t
+f4p_t
+mpi_t
+mpr_t
+mni_t
+mnin_t
+mnis_t
+mnisn_t
+mnnan_t
+
+
+ca_t
+cu7_t
+cu8_t
+cl_t
+cb_t
+cs_t
+cm_t
+caz_t
+clz_t
+cms_t
