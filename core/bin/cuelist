@@ -1,0 +1,156 @@
+#!/usr/bin/perl
+
+use strict;
+use Getopt::Long;
+use cmt::vcs;
+
+
+    our $opt_comment = "S.N.M. Collection";
+    our $opt_genre = "Pop";
+    our $opt_album;
+
+    my $album_title;
+    my $album_performer;
+    my $album_file;
+    my $album_type;
+
+    my $track = -1;
+    my $index0 = -1;
+    my $index1 = -1;
+    my $title;
+    my $performer;
+
+    my @tracks;
+
+
+    GetOptions(
+        'album=s',
+        'genre=s',
+        'comment=s',
+        'help'      => sub { &help },
+    );
+
+
+    while (<>) {
+        chop;
+        s/^\s*//;
+        if (m/^TRACK\s+(\d+)/) {
+            if ($track >= 0) {
+                $index1 = $index0 if $index1 == -1;
+                $index0 = $index1 if $index0 == -1;
+                push @tracks,
+                    [$track, $title, $performer, $index0, $index1];
+                $index0 = -1;
+                $index1 = -1;
+            }
+            $track = $1;
+        }
+        if (m/^TITLE\s+\"(.*)\"/) {
+            if ($track == -1) {
+                $album_title = $1;
+            } else {
+                $title = $1;
+            }
+        }
+        if (m/^PERFORMER\s+\"(.*)\"/) {
+            if ($track == -1) {
+                $album_performer = $1;
+            } else {
+                $performer = $1;
+            }
+        }
+        if (m/^FILE\s+\"(.*)\"\s+(\w+)/) {
+            $album_file = $1;
+            $album_type = $2;
+        }
+        if (m/^INDEX\s+(\d+)\s+([0-9:]+)/) {
+            my $indexnum = 1 * $1;
+            my $tm = $2;
+            my ($min, $sec, $dec) = $tm =~ m/^(\d+):(\d+):(\d+)$/;
+            $sec = 1 * "$sec.$dec";
+            $sec = 60 * $min + $sec;
+            $index0 = $sec if ($indexnum == 0);
+            $index1 = $sec if ($indexnum == 1);
+        }
+    }
+
+    if ($index0 != -1 or $index1 != -1) {
+        $index1 = $index0 if $index1 == -1;
+        $index0 = $index1 if $index0 == -1;
+        push @tracks,
+            [$track, $title, $performer, $index0, $index1];
+    }
+
+
+    my $ntracks = scalar(@tracks);
+    for (my $i = 0; $i < $ntracks; $i++) {
+        my ($track, $title, $performer, $index0, $index1) = @{$tracks[$i]};
+        my $from = $index1;
+        my $to = -1;
+            if ($i < $ntracks - 1) {
+                # next[index0]
+                $to = $tracks[$i + 1]->[3];
+            }
+        print "Track $track   Range ".sectime($from)." - ".sectime($to)."\n";
+        $track = '0' x (2 - length($track)) . $track;  # padding with 0
+        print "      $track - $performer - $title\n";
+        print "\n";
+    }
+
+    $opt_album = $album_title if not $opt_album;
+    for (my $i = 0; $i < $ntracks; $i++) {
+        my ($track, $title, $performer, $index0, $index1) = @{$tracks[$i]};
+        my $pad_track = $track;
+        my $filetitle = $title;
+
+        $performer = $album_performer if not $performer;
+        $track = int($track);
+        $filetitle =~ s/[\&\/\\\"\*\?]/_/g;
+
+        my $cmdline = <<"EOM";
+            --r3mix
+            -b128
+            --tn $track
+            --ta "$performer"
+            --tt "$title"
+            --tl "$opt_album"
+            --tc "$opt_comment"
+            --tg "$opt_genre"
+            $track.wav "$pad_track - $filetitle.mp3"
+EOM
+        $cmdline =~ s/^\s+/ /gm;
+        $cmdline =~ s/\n//g;
+        print "lame $cmdline\n";
+    }
+
+
+sub help {
+    my %id = parse_id('$Id: cuelist,v 1.1 2005-03-02 01:29:33 dansei Exp $');
+    print <<"EOM";
+Cuelist by S.N.M.
+Version $id{rev}  last update $id{date}
+
+Syntax:
+    cuelist
+        --album=<album-name>
+        --genre=<genre-name>
+        --comment=<comment>
+        --help
+EOM
+    exit;
+}
+
+
+sub sectime {
+    my $sec = shift;
+    return "9999:00.00" if ($sec == -1);
+
+    # precise-error
+    # my $dec = $sec - int($sec);
+    my $dec = int(100 * ($sec - int($sec)) + 0.5) / 100;
+        $sec = int($sec - $dec);
+        $dec = ($dec * 10000);
+    my $min = int($sec / 60);
+        $sec -= 60 * $min;
+    return "$min:$sec.$dec";
+}
