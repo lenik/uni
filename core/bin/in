@@ -1,0 +1,70 @@
+#!/usr/bin/perl
+
+
+use strict;
+use Getopt::Long;
+use cmt;
+
+
+our $opt_verbose = 0;
+our $opt_quiet = 0;
+
+
+
+# ======================================================================
+#                               HELPER FUNCTIONS
+# ======================================================================
+sub version() {
+    my %id = parse_id('$Id: in,v 1.1 2004-12-12 07:45:25 dansei Exp $');
+    print "[IN] Internet Connection Additional Management Utility\n";
+    print "Written by Snima Denik   Version $id{rev}   Last updated at $id{date}\n";
+}
+
+sub help() {
+    &version;
+    print <<"EOM";
+
+Syntax:
+    in
+        --alias <hostname>=<ip-address>
+        --quiet
+        --verbose
+        --version
+        --help
+EOM
+}
+
+sub typeFile {
+    my $path = shift;
+    open FH, "<$path";
+    while (<FH>) {
+        print;
+    }
+    close FH;
+}
+
+
+
+
+# ======================================================================
+#                                SUB-MODULES
+# ======================================================================
+sub funcAddAlias {
+    my ($cmd, $host, $addr) = @_;
+    my $hostfile = "$ENV{windir}/system32/drivers/etc/hosts";
+    print "Add alias $host=$addr\n" unless $opt_quiet;
+    open FH, ">>$hostfile";
+    print FH "$addr\t$host\n";
+    close FH;
+    typeFile($hostfile) if $opt_verbose;
+}
+
+
+# main
+    GetOptions(
+        'alias=s%' => \&funcAddAlias,
+        'quiet' => \$opt_quiet,
+        'verbose' => \$opt_verbose,
+        'version' => \&version,
+        'help' => \&help,
+    );
