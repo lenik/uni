@@ -2,7 +2,7 @@
 Dir-T|Note                                                  http://tc.bodz.net
 Snima Denik Personal                                            denik@bodz.net
 
-NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00000
 
    TITLE  ____________________________________________________________________
 KEYWORDS  ____________________________________________________________________
@@ -67,7 +67,7 @@ html {
 html
 	head
 		title Mia Domo Estas Granda
-		title Mia _
+		title Mia \
 			Domo Estas Granda
 	body
 		div Centered-1
@@ -83,7 +83,7 @@ html {
 	head {
 		#symbol $ title
 		$ Mia Domo Estas Granda
-		$ Mia _
+		$ Mia \
 			Domo Estas Granda
 	}
 	body {
@@ -150,10 +150,17 @@ html {
 
 		#pragma <pragma-name> <pragma-arguments>
 
-		indent		yes|no [tab-size, 0 if use tab-char]	缩进格式
-		space		preserved|normalized			空格处理模式
-		strict		[yes|no]				严格变量模式
-		undefined	empty|copy				未定义变量处理方式
+		缩进格式
+		indent		yes|no [tab-size, 0 if use tab-char]
+
+		空格处理模式
+		space		preserved|normalized
+
+		严格变量模式
+		strict		[yes|no]
+
+		未定义变量处理方式
+		undefined	empty|copy
 
 
 
@@ -178,3 +185,5 @@ html {
 			#symbol % ?xml
 			[version=1.0 encoding=UTF-8]
 			%
+
+-

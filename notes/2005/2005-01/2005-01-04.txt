@@ -1,0 +1,50 @@
+﻿BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00001
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> LTT
+
+	8.0	continue nfs-rewrite
+	11.0	lunch
+	11.30	continue nfs-rewrite
+	14.30	nfs-rewrite commit.
+	14.30	export simxml
+	15.10	tqms/ work
+	17.0	supper
+	17.30	tqms/ work
+	18.30	meeting
+	20.0	idle
+	21.0	1na orgs.
+	21.43	start new ca-home
+
+
+> SSH Private Key [No password remember]
+
+	- PuTTY (Simon Tatham)
+	  plink "PuTTY Link 0.53b"
+
+	- CVSNT
+	  plink.dll "GNU plink ssh library 2.1.1.0"
+
+	- Tortoise CVS
+	  TortoisePlink "TortoisePlink Release 0.53"
+
+	Add an Putty entry with the name same as server name,
+	then plink will automaticly using the defined identity file.
+
+	TortoisePlink also look up the putty's registry for identity file.
+
+	No password prompt anymore!
+
+
+> RedOVN 关键特性
+	- 参与者只能盲人摸象的看到一小部分，而无法重构整个系统。
+	- 涵盖面广，从需求到测试全范围覆盖。但关键架构部分只有降低至某个层次才进入参与者界面。
+	- 版权问题。但参与者与最终用户皆可免费申请进入某个模块（低于某个层次）并在该模块内修改。修改后的版权？
+	- 红卡双重验证：客户端用于减少流量，服务器端用于验证，验证代码不一致。
