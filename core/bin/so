@@ -1,12 +1,11 @@
 #!/usr/bin/perl
-# $Id: so,v 1.5 2004-12-03 04:26:43 dansei Exp $
+# $Id: so,v 1.6 2004-12-07 04:08:25 dansei Exp $
 
 use strict;
 use Socket;
 use FileHandle;
 use Getopt::Long;
 use cmt;
-use Data::Dumper;
 
 
 our $opt_server = "localhost";
@@ -23,15 +22,13 @@ our $opt_until_end;
 # binary mode
 our $opt_binary = 1;
 
-our %escape = (
-    "n"         => "\n",
-    "t"         => "\t",
-    " "         => " ",
-    );
+our %vars;
 
-sub help();
-sub init();
-sub main();
+
+sub help;
+sub init;
+sub main;
+sub unescape;
 
 
 &help if scalar(@ARGV) == 0;
@@ -39,7 +36,29 @@ init();
 main();
 
 
-sub init() {
+sub unescape {
+    my $oldtext = shift;
+    my $text = '';
+    my $mark = 0;
+    while ($oldtext =~ m/(\\.)/g) {
+	$text .= substr($oldtext, $mark, $-[0] - $mark);
+	if ($1) {
+	    my $char = substr($1, 1);
+		if ($char eq 'n') { $text .= "\n" }
+		elsif ($char eq 't') { $text .= "\t" }
+		elsif ($char eq 'r') { $text .= "\r" }
+		elsif ($char =~ m/[a-z]/i) {
+		    $text = $vars{$char};
+		    }
+		else { $text .= $char }
+	}
+	$mark = $-[0] + length($&);
+    }
+    $text .= substr($oldtext, $mark);
+}
+
+
+sub init {
     my $echo;
     our $opt_as = 'text';
 
@@ -98,7 +117,7 @@ sub init() {
     #print Dumper(\@sends); exit -1;
 }
 
-sub main() {
+sub main {
     my $iaddr = inet_aton($opt_server);
         die "Server $opt_server not found: $!" if !$iaddr;
     my $paddr = sockaddr_in($opt_port, $iaddr);
@@ -113,15 +132,10 @@ sub main() {
     my $data;
     while (my $echo = shift @sends) {
         if ($echo->{'text'}) {
-            my $text = $echo->{'text'};
-            $text =~ s/\\n/\n/g;
-            $text =~ s/\\r/\r/g;
-            $text =~ s/\\t/\t/g;
-            $text =~ s/\\(.)/\1/g;
+            my $text = unescape($echo->{'text'});
             send(SOCK, $text, 0);
         } elsif ($echo->{'file'}) {
-            my $file = $echo->{'file'};
-            $file =~ s/\\(.)/$escape{$1}/g;
+            my $file = unescape($echo->{'file'});
             (my $send_file = new FileHandle("<$file"))
                 || die "Can't open input file $echo->{file}: $!";
             while (<$send_file>) {
@@ -155,10 +169,10 @@ sub main() {
                 my $value;
                 if ($range->[0] eq 'regex') {
                     if ($data =~ m/$range->[1]/) {
-                        $escape{$_} = $&;
+                        $vars{$_} = $&;
                     }
                 } else {
-                    $escape{$_} = substr($data, $range->[0], $range->[1]);
+                    $vars{$_} = substr($data, $range->[0], $range->[1]);
                 }
             }
         }
@@ -174,8 +188,8 @@ sub main() {
     close SOCK;
 }
 
-sub help() {
-    my %id = parse_id('$Id: so,v 1.5 2004-12-03 04:26:43 dansei Exp $');
+sub help {
+    my %id = parse_id('$Id: so,v 1.6 2004-12-07 04:08:25 dansei Exp $');
 
     print <<"EOM";
 [SOCKONCE] socket communication utility for simple dialog
