@@ -52,7 +52,7 @@
 
 
 	function Help() {
-	    $id = ParseId('$Id: fontmap.php,v 1.4 2004-11-30 00:46:56 dansei Exp $');
+	    $id = ParseId('$Id: fontmap.php,v 1.5 2004-12-01 00:25:14 dansei Exp $');
 	    ?>
 [FONTMAP] Font Map Generator
 Written by Snima Denik,  Version <?=$id['rev']?>,  Last updated <?=$id['time']?>
@@ -72,6 +72,7 @@ Syntax:
         --color=<font-color, default 0 (black)>
         --bgcolor=<background-color, default transparent>
         --format=<image-format, default png>
+        --quality=<jpeg-quality, default 75>
         --chars=<characters-to-map, default [0-9a-z]>
         --pad=<pad-size-all, default 1>
         --padl=<pad-size-left>
@@ -97,6 +98,7 @@ Syntax:
         color   = $opt_color
         bgcolor = $opt_bgcolor
         format  = $opt_format
+        quality = $opt_quality
         chars   = $opt_chars
         padl    = $opt_padl
         padr    = $opt_padr
@@ -125,6 +127,7 @@ EOM
         $opt_color = 0;     # black
         $opt_bgcolor = 'trans';
         $opt_format = 'png';
+        $opt_quality = 75;
         $opt_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $opt_padl = 1;
         $opt_padr = 1;
@@ -158,6 +161,7 @@ EOM
                 case 'color':   $opt_color = $val; break;
                 case 'bgcolor': $opt_bgcolor = $val; break;
                 case 'format':  $opt_format = $val; break;
+                case 'quality': $opt_quality = $val * 1; break;
                 case 'chars':   $opt_chars = $val; break;
                 case 'pad':     $opt_pad = $val; break;
                 case 'padl':    $opt_padl = $val; break;
@@ -271,7 +275,15 @@ EOM
                      $imageh - $opt_padb + $t_bottom,
                      $colorindex, $opt_family, $char);
 
-        imagepng($im, $filename);
+        switch ($opt_format) {
+            case 'png':     imagepng($im, $filename); break;
+            case 'gif':     imagegif($im, $filename); break;
+            case 'jpg':     imagejpeg($im, $filename, $opt_quality); break;
+            case 'bmp':     imagewbmp($im, $filename); break;
+            case 'gd':      imagegd($im, $filename); break;
+            case 'gd2':     imagegd2($im, $filename); break;
+        }
+
         snm_freecolor($im, $color);
         snm_freecolor($im, $bgcolor);
         imagedestroy($im);
