@@ -39,6 +39,8 @@ my $opt_veryquiet = 0;
 my $opt_verbose = 0;
 my $opt_force = 0;
 my $opt_recursive = 0;
+my @opt_matches;                # only matches if defined.
+my $opt_summary = 1;
 
 my %summary = ();               # summary of all.
 my %summary_x = ();             # summary by different extensions.
@@ -58,23 +60,53 @@ sub main {
                         delete $opt_ext{$key};
                     },
             'recursive' => \$opt_recursive,
+            'summary!' => \$opt_summary,
             'force' => \$opt_force,
             'quiet' => \$opt_quiet,
             'veryquiet|vq' => \$opt_veryquiet,
             'verbose|v' => \$opt_verbose,
             'help|h' => sub { &help; },
             );
-    #print Dumper(\%opt_ext);
+    $opt_quiet = 1 if $opt_veryquiet;
 
+    my @list;
+    my $k;
 
-    my @list = @ARGV;
-    @list = ('con') if (scalar(@list) == 0);
-
-    while (my $fn = shift @list) {
-        my $counts = process($fn);
+    for (@ARGV) {
+        if (m/\?/ or m/\*/) {
+            s/\./\\./g;
+            s/\?/./g;
+            s/\*/.*/g;
+            push @opt_matches, $_;
+        } else {
+            push @list, $_;
+        }
     }
 
-    # summary::
+    if (scalar(@list) == 0) {
+        if ($opt_recursive or @opt_matches) {
+            # all files under current directory if patterns specified
+            @list = ('.');
+        } else {
+            # otherwise, use stdin if no arguments
+            @list = ('con');
+        }
+    }
+
+    while (my $fn = shift @list) {
+        my %c = process($fn);
+        for $k (keys %c) {
+            $summary{$k} += 1 * $c{$k};
+        }
+    }
+
+    if ($opt_summary) {
+        for $k (keys %summary_x) {
+            my $c_x = $summary_x{$k};
+            printf "%10d <.$k>\n", $c_x->{'body'} if not $opt_quiet;
+        }
+        printf "%10d <<total>>\n", $summary{'body'} if not $opt_veryquiet;
+    }
 }
 
 
@@ -83,18 +115,34 @@ sub process {
     my %counts = ();
     my ($fext, $fmodel);
     if (-d $fn) {
-        print "d $fn\n" if $opt_verbose;
+        # print "d $fn\n" if $opt_verbose;
 
         my $dh = new DirHandle($fn);
         my @files = $dh->read();
         $dh->close();
         for (@files) {
             my %c = ();
+
             if (-d "$fn/$_") {
+                # recursive into sub-directories
                 next if (m/^\.{1,2}$/);
                 next if (! $opt_recursive);
                 %c = process("$fn/$_");
             } else {
+                # file-item in a directory
+
+                # only matches if @opt_matches is defined.
+                if (@opt_matches) {
+                    my $matches = 0;
+                    for my $pat (@opt_matches) {
+                        if (m/^$pat$/i) {
+                            $matches = 1;
+                            last;
+                        }
+                    }
+                    next if not $matches;
+                }
+
                 ($fext) = m/\.([^.\/]+)$/;
                 if (defined $opt_ext{$fext}) {
                     %c = process("$fn/$_");
@@ -107,15 +155,21 @@ sub process {
         $fn = "$fn/";
     } else {
         ($fext) = $fn =~ m/\.([^.\/]+)$/;
-        $fext ||= 'txt';
-        $fmodel = $opt_ext{$fext};
+        my $fext_as = $fext;
+            $fext_as ||= 'txt';
+        $fmodel = $opt_ext{$fext_as};
             # || die "Unknown extension: $fext";
             $fmodel ||= 'text';
 
         eval "%counts = &count_$fmodel(\$fn)";
+        for my $k (keys %counts) {
+            $summary_x{$fext}->{$k} += 1 * $counts{$k};
+        }
     }
 
-    printf "%10d $fn\n", $counts{'body'};
+    my $disp = not $opt_quiet;
+    $disp = 0 if ($counts{'body'} == 0 and not $opt_verbose);
+    printf "%10d $fn\n", $counts{'body'} if $disp;
     return %counts;
 }
 
@@ -217,7 +271,7 @@ sub count_unix {
 }
 
 sub help {
-    my %id = parse_id('$Id: wcc,v 1.5 2004-09-23 14:21:33 dansei Exp $');
+    my %id = parse_id('$Id: wcc,v 1.6 2004-09-24 02:51:37 dansei Exp $');
     print <<"EOM";
 Words Count for Source Code   Version $id{'rev'}   Date $id{'date'}
 Syntax:
@@ -225,6 +279,7 @@ Syntax:
         --help(h)
         --extension(x)=<ext-name>[=<type-mapping>]
         --recursive(r)
+        --summary --nosummary
         files...
 EOM
     exit;
