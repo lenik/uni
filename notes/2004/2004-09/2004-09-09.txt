@@ -9,41 +9,41 @@ NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
 KEYWORDS _____________________________________________________________________
 
 
-> ʧ���� 2
+> 失恋曲 2
 
 
-���ﲻ֪�ߣ�
-�����ߺ��ڡ�
-�Լ�������������
-�Ǹ���ֻ�ԡ�
-		(�­� guan,��4��)
+梦里不知眠，
+觉后眠何在。
+试间眠身与梦身，
+那个能只对。
+		(陈�� guan,第4声)
 		http://www.easysea.com/gudian/s/s-cgqj.htm
 
-���������֣�
-����������
-��ֻ�������ѡ��
-׽������ҵ����⡣
-����ͬ�ǿ��ͣ�
-��Զ����һ��ǽ��
-ǽ����ͷʲô��û�У�
-ǽ����һ�С�
-�ڷ�ζ�ĳ´������
-��һ��ɫ�ʸ��֡�
-���ҵ����У�
-����Զ����С����
+择人如择乐，
+乐如心声。
+我只在意你的选择，
+捉摸你对我的理解。
+你我同是看客，
+看远处的一堵墙，
+墙的两头什么都没有，
+墙就是一切。
+在乏味的陈词岁月里，
+另一种色彩浮现。
+在我的心中，
+你永远都是小琼。
 
-�޷���ɵ�ƪ�£�
-����δ��ɵ����
-���ٱ���Ϊ���̵ı���
-����������Ⱥ�鲼������ʱ����
+无法完成的篇章，
+和尚未达成的信念，
+沉沦冰结为铭刻的碑，
+竖立在那狼群遍布的蛮荒时代。
 
-С�������ҵ�ãȻ��˭˵��
+小琼啊，我的茫然与谁说。
 
 
 
-> blog ����
-������ǰ����Ľ��������õ��ĵ�ʹ��������wiki�ķ�����
-���ڣ�Ҳ���Կ��ǽ�notes for speed�̳е�blog�ϡ�
+> blog 集成
+正如以前打算的将交叉引用的文档使用类似于wiki的方案，
+现在，也可以考虑将notes for speed继承到blog上。
 
 note/<exec>: execute note/.vol/exec* (the first executable if exec* match many)
 	built-in exec::
@@ -51,14 +51,14 @@ note/<exec>: execute note/.vol/exec* (the first executable if exec* match many)
 	rm	remove current note.
 
 
-> �´����� (style only for myself)
+> 新代码风格 (style only for myself)
 
-	<��Ƭ���>
-	ͨ������Ĺ������ﵽ�ı�ṹ��Ŀ�ġ�
+	<切片风格>
+	通过额外的工具来达到改变结构的目的。
 
-	- ���Ƕ������Ӱ����벼�֣����㡣
+	- 多层嵌套严重影响代码布局，减层。
 		while for if/else array-init internal-def
 
-	- �̶��ṹ�������Ƿ��Ĺؼ���
+	- 固定结构的折行是风格的关键。
 
-	- ע���γ���ͼ�ṹ
+	- 注释形成视图结构

@@ -27,28 +27,28 @@ KEYWORDS _____________________________________________________________________
 		sub		sub-projects
 		mod		sub-modules
 		lab		test, debug, etc. laboratory utilities.
-		admin		¹ÜÀí¹¤¾ß
-		btw		ÑÜÉúÎï¡¢¸±²úÆ·
-		etc		ÆäËü¡¢²Î¿¼Á´½Ó¡¢Î´¹éÀà
-		.vol		·¢²¼°ü¡¢ÀúÊ·¡¢¹ýÆÚÊÂÎïµÈµÈ
-		.current	½øÐÐÖÐµÄ¹¤×÷
+		admin		ç®¡ç†å·¥å…·
+		btw		è¡ç”Ÿç‰©ã€å‰¯äº§å“
+		etc		å…¶å®ƒã€å‚è€ƒé“¾æŽ¥ã€æœªå½’ç±»
+		.vol		å‘å¸ƒåŒ…ã€åŽ†å²ã€è¿‡æœŸäº‹ç‰©ç­‰ç­‰
+		.current	è¿›è¡Œä¸­çš„å·¥ä½œ
 
-	ÆäÖÐ .vol ×¨ÃÅ¹ÜÀí¡¢±¸·Ý£¨Ä¿Ç°¿ÉÏÈ·ÅÔÚcrit-volµÄ×¨ÃÅÄ¿Â¼ÖÐ£©£¬
-	¶ø²»½øÈëvcs¡£
-	.current Ö»¹©ÁÙÊ±ÓÃ£¬Ò²²»½øÈëvcs¡£
+	å…¶ä¸­ .vol ä¸“é—¨ç®¡ç†ã€å¤‡ä»½ï¼ˆç›®å‰å¯å…ˆæ”¾åœ¨crit-volçš„ä¸“é—¨ç›®å½•ä¸­ï¼‰ï¼Œ
+	è€Œä¸è¿›å…¥vcsã€‚
+	.current åªä¾›ä¸´æ—¶ç”¨ï¼Œä¹Ÿä¸è¿›å…¥vcsã€‚
 
 
-> Latix Èô¸ÉËõÂÔÓï
+> Latix è‹¥å¹²ç¼©ç•¥è¯­
 
-	LaTi		LaTi±ê×¼ÖÐ¼äÄ£ÐÍ
-	LaTiX		LaTi XML ÎÄµµ£¬.ltx
-	LaTiS		LaTi µÄÒ»ÖÖ±ê×¼Ó¢Óï½Å±¾£¬.lts
-	LaTiB		LaTi µÄ±ê×¼¶þ½øÖÆ¸ñÊ½£¬ÔËÐÐÓÚLTP-VMÖ®ÉÏ
-	º¬Óï		LaTi µÄÒ»ÖÖ±ê×¼ÖÐÎÄ½Å±¾£¬.han (.º¬)
-	LaTi Platform	LaTi µÄÖ§³ÖÆ½Ì¨£¬¼ò³ÆLTP
-	  LTP-C		LaTi C Ó³ÉäµÄÖ§³Ö¿â
-	  LTP-C++, LTP-Pascal, LTP-VB, LTP-Java µÈµÈ
-	  LTP-VM	LaTi ¶ÀÁ¢ LaTiB ÐéÄâ»ú
+	LaTi		LaTiæ ‡å‡†ä¸­é—´æ¨¡åž‹
+	LaTiX		LaTi XML æ–‡æ¡£ï¼Œ.ltx
+	LaTiS		LaTi çš„ä¸€ç§æ ‡å‡†è‹±è¯­è„šæœ¬ï¼Œ.lts
+	LaTiB		LaTi çš„æ ‡å‡†äºŒè¿›åˆ¶æ ¼å¼ï¼Œè¿è¡ŒäºŽLTP-VMä¹‹ä¸Š
+	å«è¯­		LaTi çš„ä¸€ç§æ ‡å‡†ä¸­æ–‡è„šæœ¬ï¼Œ.han (.å«)
+	LaTi Platform	LaTi çš„æ”¯æŒå¹³å°ï¼Œç®€ç§°LTP
+	  LTP-C		LaTi C æ˜ å°„çš„æ”¯æŒåº“
+	  LTP-C++, LTP-Pascal, LTP-VB, LTP-Java ç­‰ç­‰
+	  LTP-VM	LaTi ç‹¬ç«‹ LaTiB è™šæ‹Ÿæœº
 
 
 todo' Word/Excel File (OLE-Storage) Parse

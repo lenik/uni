@@ -9,9 +9,9 @@ NOTES FOR SPEED                                 STATUS Draft   SERIAL ________
 KEYWORDS _____________________________________________________________________
 
 
->> 透明与不透明
+>> 閫忔槑涓庝笉閫忔槑
 
-	在生活中透明
+	鍦ㄧ敓娲讳腑閫忔槑
 
 > CHSID on sf
 	For security reasons, Windows doesn't allow anyone to change the SID (Internal ID of User/Group, like uid, gid in Unix). This often troubles system administrator, because after the operating system re-installed, all users/groups should be re-created, and all files, directories, registry-keys, printers, etc. have to be re-configured to remove the old users/groups, and to use those new users/groups, because the users/groups with same name is completely different!! Simply says, the user/groups information are completely lost after the system reinstalled, because their SID numbers are random generated (and Microsoft seems not hope anyone to change that)
