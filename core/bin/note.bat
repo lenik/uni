@@ -1,5 +1,5 @@
 @echo off
-rem $Id: note.bat,v 1.3 2004-09-23 05:05:10 dansei Exp $
+rem $Id: note.bat,v 1.4 2004-10-02 05:11:17 dansei Exp $
 
 rem 0, options
 	if "%1"=="w" (
@@ -49,6 +49,12 @@ rem 3, build '-' separated directory structure
 	if exist "%note_home%" if not exist "%note_home%\*" (
 		if not exist %temp%\notehome.tmp type "%note_home%" >%temp%\notehome.tmp
 		for /f %%i in (%temp%\notehome.tmp) do set note_home=%%i
+		if not exist "!note_home!\*" (
+		    call:replace "!note_home!" "\" "\\"
+		    lc /nologo "user32::MessageBoxA(0, 'Not mounted: !rp_ret!', 'Notes', 16)"
+		    set rp_ret=
+		    goto cleanup
+		)
 	)
 
 	set note_ctr=%note_home%
@@ -84,6 +90,31 @@ rem 3, build '-' separated directory structure
 
 	start %note_app% "%note_ctr%\%note%%note_ext%"
 
+	goto cleanup
+
+
+:replace
+    set rp_src=%~1
+    set rp_from=%~2
+    set rp_to=%~3
+    set rp_ret=
+:replace_loop
+    if "%rp_src%"=="" goto replace_end
+    set rp_chr=%rp_src:~0,1%
+    set rp_src=%rp_src:~1%
+    if "%rp_chr%"=="%rp_from%" (
+        set rp_ret=%rp_ret%%rp_to%
+    ) else (
+        set rp_ret=%rp_ret%%rp_chr%
+    )
+    goto replace_loop
+:replace_end
+    set rp_chr=
+    set rp_src=
+    set rp_from=
+    set rp_to=
+    goto end
+
 
 :cleanup
 	set note_app=
@@ -92,3 +123,5 @@ rem 3, build '-' separated directory structure
 	set note_home=
 	set note_ctr=
 	set note_serial=
+
+:end
