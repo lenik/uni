@@ -1,21 +1,17 @@
 @echo off
-rem $Id: note.bat,v 1.5 2004-10-08 08:09:34 dansei Exp $
+rem $Id: note.bat,v 1.6 2004-10-11 01:45:57 dansei Exp $
 
 rem 0, options
-    if "%1"=="w" (
-        set note_app=winword
-        set note_ext=.doc
+    set note_a_doc=winword
+    set note_a_xls=excel
+    set note_a_xml=uedit32
+    set note_a_txt=notepad
+    set note_ext=%1
+    if "%note_ext:~0,1%"=="/" (
+        set note_ext=%note_ext:~1%
         shift
-    ) else if "%1"=="e" (
-        set note_app=excel
-        set note_ext=.xls
-        shift
-    ) else if "%1"=="x" (
-        set note_app=uedit32
-        set note_ext=.xml
     ) else (
-        set note_app=notepad
-        set note_ext=.txt
+        set note_ext=txt
     )
 
 
@@ -39,7 +35,7 @@ rem 1, get the note title
 
 rem 2, special files
     if exist "%note%" (
-        start %note_app% "%note%"
+        start %note%
         goto cleanup
     )
 
@@ -97,18 +93,33 @@ rem 4, build '-' separated directory structure
     set note_rest=
 
     if not exist "%note_ctr%" md "%note_ctr%"
-    if not exist "%note_ctr%\%note%%note_ext%" (
+    if exist "%note_ctr%\%note%.*" (
+        pushd "%note_ctr%"
+        for %%i in (%note%.*) do (
+            set note_x=%%~xi
+            call:open "!note_x:~1!" "%%i"
+        )
+        set note_x=
+        popd
+    ) else (
         if exist "%note_home%\.vol\def%note_ext%" (
             copy "%note_home%\.vol\def%note_ext%" "%note_ctr%\%note%%note_ext%" >nul
             rem touch "%note_ctr%\%note%%note_ext%"
         ) else (
             type nul >"%note_ctr%\%note%%note_ext%"
         )
+
+        call:open %note_ext% "%note%.%note_ext%"
     )
 
-    start %note_app% "%note_ctr%\%note%%note_ext%"
-
     goto cleanup
+
+
+:open
+    set note_app=!note_a_%~1!
+    if "%note_app%"=="" set note_app=uedit32
+    start %note_app% "%note_ctr%\%~2"
+    goto end
 
 
 :replace
@@ -151,6 +162,10 @@ rem 4, build '-' separated directory structure
 
 
 :cleanup
+    set note_a_doc=
+    set note_a_xls=
+    set note_a_xml=
+    set note_a_txt=
     set note_app=
     set note_ext=
     set note=
