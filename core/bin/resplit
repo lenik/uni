@@ -1,0 +1,55 @@
+#!/usr/bin/perl
+# $Id: resplit,v 1.1 2004-11-13 13:48:20 dansei Exp $
+
+# resplit
+
+use strict;
+use FileHandle;
+use Getopt::Long;
+
+
+my $opt_seq = 0;
+my $opt_re = '^$';
+my $opt_pat = 'split.out.$seq';
+
+my $opts = GetOptions(
+		'regex|r=s' => \$opt_re,
+		'sequence-from|s=s' => \$opt_seq,
+		'pattern|p=s' => \$opt_pat,
+		'help|h' => sub { &help; },
+		);
+
+
+my $seq = $opt_seq;
+my $lineno = 0;
+my $rand;
+
+while (<>) {
+	$lineno++;
+	if (m/$opt_re/) {
+		close FILE;
+		my $fn = eval("\"$opt_pat\"");
+		print "Part $fn\n";
+		open FILE, ">$fn";
+		$seq++;
+	}
+	print FILE;
+}
+close FILE;
+
+
+sub help {
+	print <<"EOM";
+[RESPLIT] Split by regular-exp
+Syntax:
+	resplit
+		--help
+		--regex=<regular-exp> (r)
+		--sequence-from=<number> (s)
+		--pattern=<pattern-string> (p)
+Variables:
+	\$seq \$lineno \$rand
+	\$0 \$1 \$2 \$3 \$4 \$5 \$6 \$7 \$8 \$9
+EOM
+	exit;
+}
