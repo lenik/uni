@@ -1,5 +1,5 @@
 @echo off
-rem $Id: note.bat,v 1.7 2004-10-11 05:48:32 dansei Exp $
+rem $Id: note.bat,v 1.8 2004-10-20 00:10:30 dansei Exp $
 
 rem 0, options
     set note_a_doc=winword
@@ -11,6 +11,7 @@ rem 0, options
         set note_ext=%note_extf:~1%
         shift
     ) else (
+        set note_extf=
         set note_ext=txt
     )
 
