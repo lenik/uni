@@ -1,0 +1,72 @@
+#!/usr/bin/perl
+
+use strict;
+use DirHandle;
+use cmt::vcs;
+use Getopt::Long;
+
+
+sub lpad;
+sub version;
+sub help;
+
+
+    our $opt_quiet = 0;
+
+    GetOptions(
+        'quiet',
+        'help'          => sub { &help; exit },
+        'version'       => sub { &version; exit },
+        );
+
+
+    my $dh = new DirHandle('.');
+    my @files = $dh->read();
+    foreach (@files) {
+        next if -d;
+        next if m/^\.+$/;
+
+        if (my ($prefix, $track, $title, $extname) =
+                m/^ (?: (.*) \s* - )?   \s* (\d+) \.? \s* -? \s* (.*) \s* \. ([^\.]+) $/x
+            ) {
+            # my $preparts = split('-', $prefix);
+
+            $track = lpad($track, 2);
+            my $new_name = "$track - $title.$extname";
+
+            print "rename $_ -> $new_name\n" if not $opt_quiet;
+            rename $_, $new_name;
+        }
+    }
+
+
+sub lpad {
+    my ($str, $len) = @_;
+    if (length($str) < $len) {
+        $str = '0' x ($len - length($str)) . $str;
+    }
+    return $str;
+}
+
+
+sub version {
+    my %id = parse_id('$Id: mp3ltrim,v 1.1 2005-04-17 10:21:43 dansei Exp $');
+    print <<"EOM";
+MP3 Utilities - LTrim
+Version $id{rev}
+Last updated $id{date}
+EOM
+}
+
+
+sub help {
+    &version;
+    print <<"EOM";
+
+Syntax:
+    mp3ltrim
+        --quiet
+        --help
+        --version
+EOM
+}

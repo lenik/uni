@@ -1,20 +1,32 @@
 #!/usr/bin/perl
-# $Id: getmed,v 1.3 2004-09-22 08:39:09 dansei Exp $
+# $Id: getmed,v 1.4 2005-04-17 10:21:42 dansei Exp $
 
 use strict;
 use DirHandle;
 use Getopt::Long;
 
 
-my @name_pats = (
+our @name_pats = (
 	qr/\s*(?:href|src)\s*=\s*\"([^\"]+)\"/,
-	qr/\s*(?:href|src)\s*=([^\"]\S*)/,
+	qr/\s*(?:href|src)\s*=\s*\'([^\']+)\'/,
+	qr/\s*(?:href|src)\s*=([^\"\']\S*)/,
+	qr/(http:\/\/[^\"\' \t\n]+)/,
+	qr/(ftp:\/\/[^\"\' \t\n]+)/,
 	qr/\"([^\"]+)\"/,
-	qr/(http:\/\/[^\"\' \t\n]+)\s+/,
-	qr/(ftp:\/\/[^\"\' \t\n]+)\s+/,
+	qr/\'([^\']+)\'/,
 	);
 
-my @name_valids = (
+our @name_pats_rec = (
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    );
+
+our @name_valids = (
 	qr/\.wma$/,
 	qr/\.mp3$/,
 	qr/\.avi$/,
@@ -27,28 +39,26 @@ my @name_valids = (
 
 my ($upat, $npat);
 
-my $text;
 my @urls;
+my $filename;
 
-my $clean_files = 1;
+
+our $opt_keep = 0;
+our $opt_file_prefix = 0;
 
 
 sub main();
 sub help();
 sub parse_file;
 
-my $getopt = GetOptions(
+    GetOptions(
 	'ext=s'			=> sub { push @name_valids, qr/\.$_[1]$/ },
 	'regex=s'		=> sub { push @name_valids, qr/$_[1]/ },
-	'keep'			=> sub { $clean_files = 0 },
+	'keep',
+	'file-prefix',
 	'help'			=> \&help,
 	);
 
-if (not $getopt) {
-	die "syntax error: $!";
-} elsif (@ARGV) {
-	die "syntax error: @ARGV";
-}
 
 main();
 
@@ -60,8 +70,9 @@ sub help() {
 syntax:
 	$0
 	--help --keep --nokeep
+	--file-prefix
 	--ext=<explicit ext-name>
-	--regex=<reg-exp to full-name
+	--regex=<reg-exp to full-name>
 
 version: 1
 	this program is distributed under GPL license.
@@ -76,10 +87,9 @@ sub main() {
 	@files = $dh->read();
 
 	foreach (@files) {
-		parse_file if -f;
-		if ($clean_files) {
-			unlink if -f;
-		}
+		next if not -f;
+		parse_file $_;
+		unlink if not $opt_keep;
 	}
 
 	# print join("\n", @urls);
@@ -90,29 +100,58 @@ sub main() {
 	$clip->Set(join("\r\n", @urls));
 }
 
+
+sub parse_buffer {
+    my $line = shift @_;
+
+	my $rightmost = 0;
+
+	for (my $i = 0; $i < scalar(@name_pats); $i++) {
+	    my $upat = $name_pats[$i];
+	    my $rec = $name_pats_rec[$i];
+
+		while ($line =~ m/$upat/) {
+			$line = substr($line, 0, $-[0])
+			      . substr($line, $-[0]+length($&));
+		    $rightmost = $-[0];
+
+			my $seg = $1;
+			# print "[$seg]\n";
+
+			my $matched = 0;
+			foreach $npat (@name_valids) {
+				if ($seg =~ m/$npat/) {
+					push @urls, $seg;
+					printf("%16s: ", $filename) if $opt_file_prefix;
+					print "$seg\n";
+					$matched = 1;
+					last;
+				}
+			}
+
+			if ($matched == 0 && $rec == 1) {
+			    # print ">>>>";
+			    parse_buffer($seg);
+			}
+
+		}
+	}
+
+	return substr($line, $rightmost);
+}
+
+
 sub parse_file {
-	my $filename = shift @_;
-	$filename ||= $_;
-	local $_;
+	my $text;
+
+	$filename = shift @_;
+
 	if (open FH, "<$filename") {
 		while (<FH>) {
 			chop;
 			$text.=$_;
 			if (length($text)>1000) {
-				$text = substr($text, 1000-length($text));
-			}
-
-			foreach $upat (@name_pats) {
-				while ($text =~ m/$upat/) {
-					$text = substr($text, $-[0]+length($&));
-					my $url = $1;
-					foreach $npat (@name_valids) {
-						if ($url =~ m/$npat/) {
-							push @urls, $url;
-							print "$url\n";
-						}
-					}
-				}
+			    $text = parse_buffer($text);
 			}
 		}
 		close FH;

@@ -1,5 +1,5 @@
 @echo off
-    rem $Id: getweb.bat,v 1.2 2004-09-22 08:39:10 dansei Exp $
+    rem $Id: getweb.bat,v 1.3 2005-04-17 10:21:43 dansei Exp $
 
     rem http-get/post, powered by sockonce.
 
@@ -18,8 +18,8 @@
 :x_arg
 
 
-	echo sockonce -r=%gw_host% -s="GET %gw_arg%\n\n"
-	sockonce -r=%gw_host% -s="GET %gw_arg%\n\n"
+	echo so -r=%gw_host% -s="GET %gw_arg%\n\n"
+	so -r=%gw_host% -s="GET %gw_arg%\n\n"
 	goto end
 
 :help

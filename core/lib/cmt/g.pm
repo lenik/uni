@@ -55,12 +55,22 @@ sub Encode {
 sub DNA {
     my @bit2s;
        @bit2s = split("\n", shift);
-    my $data = '';
+    my @lines;
+    my $line = '';
     my $bit2i = 0;
     my $v = 0;
     my $contoff_rev = 0;
+    my $copymode = 0;
+
     while (@bit2s) {
         my $bit2 = shift @bit2s;
+
+        if ($copymode) {
+            print "$bit2\n";
+            $copymode = 0;
+            next;
+        }
+
         $bit2 =~ s/^\s+//;
         next if not $bit2;
         next if $bit2 =~ m/^[\<\#]/;
@@ -75,17 +85,41 @@ sub DNA {
         if ($bit2i >= 3) {
             # one byte composed
             $bit2i = 0;
-            $data .= chr $v;
+            if ($v == 13) {
+            } elsif ($v == 10) {
+                if ($line =~ m/^\#\@DNAC::(\w+)\s+(.*)$/) {
+                    my ($_cmd, $_args) = ($1, $2);
+                    if ($_cmd eq 'COPY') {
+                        $copymode = 1;
+                    }
+                }
+                push @lines, $line;
+                $line = '';
+            } else {
+                $line .= chr $v;
+            }
             $v = 0;
         } else {
             $bit2i++;
         }
     }
+    if ($line) {
+        push @lines, $line;
+        $line = '';
+    }
+
     if (defined(wantarray)) {
-        return $data;
+        if (wantarray) {
+            return @lines;
+        } else {
+            return join("\n", @lines);
+        }
     } else {
         # void-context, global last-eval
-        eval($data);
+        my $program = join("\n", @lines);
+        if (!defined(eval($program))) {
+            print "Gene Error: $@\n";
+        }
     }
 }
 

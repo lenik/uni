@@ -1,5 +1,5 @@
 @echo off
-    rem $Id: j.bat,v 1.6 2004-12-22 05:22:15 dansei Exp $
+    rem $Id: j.bat,v 1.7 2005-04-17 10:21:43 dansei Exp $
 
     if "%OS%"=="Windows_NT" goto winnt
 
@@ -73,12 +73,15 @@
     if not "%JOS_HOME%"=="" goto cleanup
 
     set JOS_HOME=C:\varoj\java\jos
-	if "%JAVA_HOME%"=="" SET JAVA_HOME=c:\varoj\java\j2se-1_4
-	if "%CATALINA_HOME%"=="" SET CATALINA_HOME=c:\varoj\java\tomcat5
-	if "%CATALINA_BASE%"=="" SET CATALINA_BASE=c:\varoj\java\tomcat5
+	if "%JAVA_HOME%"=="" SET JAVA_HOME=c:\varoj\java\jdk
+	if "%CATALINA_HOME%"=="" SET CATALINA_HOME=c:\varoj\java\tomcat
+	if "%CATALINA_BASE%"=="" SET CATALINA_BASE=c:\varoj\java\tomcat
 
     set CLASSPATH=.
     for /D %%i in (%JOS_HOME%\usr\*) do (
+        set CLASSPATH=!CLASSPATH!;%%i
+        )
+    for /F %%i in ('dir %JOS_HOME%\usr\lib\*.jar /s/b') do (
         set CLASSPATH=!CLASSPATH!;%%i
         )
     for /F %%i in ('dir %JOS_HOME%\lib\*.jar /s/b') do (
