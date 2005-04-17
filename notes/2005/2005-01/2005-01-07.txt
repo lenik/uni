@@ -1,0 +1,24 @@
+﻿BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00009
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> LTT
+
+	8.30	xjm.bxp
+		=> net.bodz.commons
+		=> JDK 5
+		=> Eclipse 3.1M4
+	11.30	lunch
+	12.0	JLS for generics
+	15.0	freejava -> net.bodz.commons
+		& imports
+	15.30	move computers in Haining Hotel.
+	17.30	supper
+		movie "Cellular"
+	19.0	import xjm/bxp into sf.net
