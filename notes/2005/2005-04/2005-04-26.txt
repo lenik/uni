@@ -20,12 +20,13 @@ KEYWORDS  ____________________________________________________________________
 			Scripting, Remoting, Orbing (Middleware)
 	bas.k.exp	Exception capturing framework
 	bas.k.ins	Runtime install support
+	bas.k.nls	Charset, Encoding, Locale, etc.
 
 
 
 	Security Framework
 
-	bas.e.ac.	Anti-Crack for unlicensed-copy, user-database-crack
+	bas.e.ac.	Anti-Crack, prevent from unlicensed-copy
 		.u		Anti-unassemble
 		.t		Anti-trace
 		.c		Binary Hash Check (anti-virus also)
@@ -38,9 +39,17 @@ KEYWORDS  ____________________________________________________________________
 
 
 
+	Stream Interface
+
+	bas.i.con	Console (HIS-style?)
+	bas.i.phd	Program-Local httpd
+	bas.i.dde	DDE Service
+	bas.i.cmp	Complex/Centralized multiplex port
+
+
+
 	UI Framework
 
-	bas.u.con	Console (HIS-style?)
 	bas.u.frm	Windows Forming
 	bas.u.prs	Property sheet
 
@@ -49,9 +58,6 @@ KEYWORDS  ____________________________________________________________________
 	Enterprise Service
 
 	bas.v.log	Logging
-	bas.v.phd	Program-Local httpd
-	bas.v.dde	DDE Service
-	bas.v.cmp	Complex/Centralized multiplex port
 
 
 
@@ -59,7 +65,9 @@ KEYWORDS  ____________________________________________________________________
 
 	bas.m.com	bas.k.com Modeling
 	bas.m.mom	(.bml) Memory-Object Mapping, .mom => .h
-	bas.m.tds	Top-Down Structure Modeling => k.exp, v.log, m.nls
+	bas.m.xmm	XML-Model Mapping
+	bas.m.tds	Top-Down Structure Modeling
+			=> k.exp, v.log, m.nls
 			tds-instance.xsd
 			tds-trace-embedded.xsd
 	bas.m.nls	National language support
@@ -77,7 +85,7 @@ KEYWORDS  ____________________________________________________________________
 	bas.s.art	User data/artifacts share
 	bas.s.spt	On-line support for trial and registered users
 			Not within bas.s.for cuz privacy & cost reasons.
-	bas.s.for	"Bundled" Forum for all-users, with client-side function
+	bas.s.for	"Bundled" Forum for all-users
 	bas.s.new	Software News
 	bas.s.adv	Software Advertisements
 

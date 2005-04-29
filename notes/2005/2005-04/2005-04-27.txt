@@ -18,3 +18,33 @@ KEYWORDS  ____________________________________________________________________
 	吴巨会	wjh_sw@hotmail.com
 	金卫林	superjwl@hotmail.com ?: beprog@mail.jxptt.zj.cn
 	叶金飞	zhafeiyan@163.com
+
+
+> EPFS Modules
+
+	Kernel
+
+	eps.k.seg	Segment archetecture prototype
+			-o ISegmentAccess
+			-o ISegmentHeader (Prop URI = Prop Value)*
+			Implementations:
+				Paged/FAT
+				Paged/Linked-List (NTFS)
+				AVT/Linear Space
+
+
+
+	Filters
+
+	eps.f.mom	MOM mapping filter
+	eps.f.mrg	Merge filter
+	eps.f.lnk	Symbolic/Hard link filter
+	eps.f.xml	XML filter
+
+
+
+	Applications
+
+	eps.a.nav	Navigator (Browser like explorer.exe)
+
+
