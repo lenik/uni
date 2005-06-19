@@ -27,7 +27,7 @@ sub help;
         next if m/^\.+$/;
 
         if (my ($prefix, $track, $title, $extname) =
-                m/^ (?: (.*) \s* - )?   \s* (\d+) \.? \s* -? \s* (.*) \s* \. ([^\.]+) $/x
+                m/^ (?: (.*) \s* [[:punct:]] )?   \s* (\d+) \s* [[:punct:]]? \s* (.*) \s* \. ([^\.]+) $/x
             ) {
             # my $preparts = split('-', $prefix);
 
@@ -50,7 +50,7 @@ sub lpad {
 
 
 sub version {
-    my %id = parse_id('$Id: mp3ltrim,v 1.1 2005-04-17 10:21:43 dansei Exp $');
+    my %id = parse_id('$Id: mp3ltrim,v 1.2 2005-06-19 08:28:17 dansei Exp $');
     print <<"EOM";
 MP3 Utilities - LTrim
 Version $id{rev}

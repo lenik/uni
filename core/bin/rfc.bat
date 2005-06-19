@@ -1,6 +1,6 @@
 @echo off
 
-	set rfc_home=L:\files\refer\rfc
+	set rfc_home=L:\Files\temoj\RFC
 	set rfc_edit=ue
 
 	if "%1"=="u" (
@@ -25,7 +25,9 @@
 
 :listing
 	echo RFC-files::
+	cd xref
 	for %%i in ("*%1*") do echo %%i
+	cd..
 	echo.
 
 	echo RFC-index::

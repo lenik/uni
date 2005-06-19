@@ -1,137 +1,152 @@
-#!/usr/bin/perl
-
-# $Id: sim,v 1.3 2004-11-17 02:42:07 dansei Exp $
+#!/usr/bin/perl -w
 
 use strict;
 use Getopt::Long;
 use File::Basename;
-use DirHandle;
+use cmt::path;
+use cmt::util;
+use cmt::vcs;
+use Data::Dumper;
 
 
-our $opt_recursive = 0;
-our $opt_write = 0;
-our $opt_binary = 0;
-our $opt_comment = 0;
-our $opt_force = 0;
-our $opt_quiet = 0;
-our $opt_veryquiet = 0;
-our $opt_verbose = 0;
-our $opt_help = 0;
-our $opt_which_sim = $0;
-our $opt_cmdline = join(' ', @ARGV);
-our $opt_extension = 'tmp';
+our $TEMPDIR = $ENV{'TEMP'};
+    $TEMPDIR = $ENV{'TMP'} if (!$TEMPDIR);
+    if (!$TEMPDIR) {
+        mkdir '/tmp' if (! -e '/tmp');
+        $TEMPDIR = '/tmp';
+    }
+    $TEMPDIR =~ s/[\/\\]$//;
 
-sub getopts {
-    # print "BEFORE:: ".join(",", @ARGV)."\n";
-    our $options = GetOptions(
-        'recursive|r' => \$opt_recursive,
-        'write|w' => \$opt_write,
-        'binary|b' => \$opt_binary,
-        'extension|e=s' => \$opt_extension,
-        'comment-remove|c' => \$opt_comment,
-        'force' => \$opt_force,
-        'quiet' => \$opt_quiet,
-        'veryquiet|vq' => \$opt_veryquiet,
-        'verbose|v' => \$opt_verbose,
-        'help|?' => sub { &help; },
-        );
-    $opt_quiet = 1 if ($opt_veryquiet);
-    # print "AFTER:: ".join(",", @ARGV)."\n";
+# global options
+our %opts = (
+    'extension'     => 'tmp',
+    );
+
+sub main;
+sub getopt;
+sub process;
+sub help;
+
+
+sub main {
+    %opts = getopt(@ARGV);
+    @ARGV = qw/./ if (scalar(@ARGV) < 1);
+    my @files = @ARGV;
+
+    for (@files) {
+        if (-d) {
+            # (no user-parameter)
+            scanDirectory $_, $opts{recursive}, \&process, \%opts;
+        } elsif (-f) {
+            process $_;
+        } else {
+            die "Illegal argument: $_";
+        }
+    }
 }
 
-    &getopts;
-    if (scalar(@ARGV) < 1) {
-        process_directory('.');
-        exit 0;
-    }
 
-    my @text;
-    my $file1 = $ARGV[0];
-    my $startdir = '.';
-    my @newArgs;
 
-    if (dirname($file1) ne '.') {
-        # print "file1: $file1\n";
-        $startdir = dirname $file1 if dirname $file1;
-    }
-    $file1 = basename $file1;
-    print "Primary file: [$startdir]/$file1\n" if $opt_verbose;
+################################################################
+#
+#   SUBROUTINES
+#
+sub getopt {
+    @ARGV = @_;
+    # print "--> ".join(',',@ARGV)."\n";
+    my %myopts = %opts;
 
-    while (<>) {
+    GetOptions(\%myopts,
+        'recursive',
+        'write',
+        'binary',
+        'extension=s',
+        'comment-remove',
+        'force',
+        'quiet',
+        'verbose',
+        'debug',
+        'help|?'            => sub { &help; },
+        );
+    # print Dumper(\%opts);
+    return %myopts;
+}
+
+
+sub process {
+    my ($path) = @_;
+    return if (-d $path);
+    return if $path !~ m/\.sim$/;
+
+    print STDERR "[SIM] $path\n" if not $opts{'quiet'};
+
+    open(FH, "<$path")
+        || die "Can't open file: $path";
+
+    my %targetSimOpts = %opts;
+    my @targetCmdArgs;
+    my @targetText;
+
+    $. = 0;
+    while (<FH>) {
+        # remove the BOM at the beginning line (line number #1)
+        if ($. == 1) {
+            s/^\xEF\xBB\xBF//;  # remove utf-8 bom
+        }
+
         if (m/^\s*\#!\s*\S*sim\s*(.*)$/) {
-            push @ARGV, split(/\s+/, $1);
-            &getopts;
+            %targetSimOpts = getopt(split(/\s+/, $1));
             next;
         }
         if (m/^\s*\#\?\s*(.*)$/) {
-            @newArgs = split(/\s+/, $1);
+            @targetCmdArgs = split(/\s+/, eval("\"$1\""));
             next;
         }
-        if (m/^\s*\#/ and $opt_comment) {
+        if (m/^\s*\#/ and $targetSimOpts{'comment-remove'}) {
             next;
         }
 
-        # replacement...
-
-        push @text, $_;
+        # more replacement...
+        push @targetText, $_;
     }
 
-
-    # create the temporary file for @text
-    my $tempdir = $ENV{'TEMP'};
-    $tempdir = $ENV{'TMP'} if (!$tempdir);
-    if (!$tempdir) {
-        mkdir '/tmp' if (! -e '/tmp');
-        $tempdir = '/tmp';
-    }
-    $tempdir =~ s/[\/\\]$//;
-
-    my $tempfile = "$tempdir/$file1.$opt_extension";
-    open FILE, ">$tempfile"
+    # create the temporary file for @targetText
+    my $basename = basename $path;
+    my $tempfile = path_join $TEMPDIR, "$basename.$targetSimOpts{extension}";
+    open(TEMP, ">$tempfile")
         || die "Can't create the temporary file $tempfile";
-    print FILE join('', @text);
-    close FILE;
+    print TEMP join('', @targetText);
+    close TEMP;
 
-    if ($opt_write) {
-        my $file_out = $file1;
+    my $targetCmd = join(' ', @targetCmdArgs) . " \"$tempfile\"";
+
+    # write the output of target to file
+    if ($targetSimOpts{'write'}) {
+        my $file_out = $path;
         if ($file_out !~ s/\.sim$//) {
-            rename "$startdir/$file1", "$startdir/$file1.bak";
+            rename "$path", "$path.bak";
         }
-        system join(' ', @newArgs)
-            ." \"$tempfile\" >\"$startdir/$file_out\"";
-    } else {
-        system join(' ', @newArgs)
-            ." \"$tempfile\"";
+        $targetCmd .= ">\"$file_out\"";
     }
 
+    # execute the target command
+    print "[EXEC] $targetCmd\n" if $opts{'verbose'};
+    system($targetCmd) unless $opts{'debug'};
+
+    # remove the tempfile
     unlink "$tempfile";
-
-
-sub process_directory {
-    my $dir = shift;
-    my $dh = new DirHandle($dir);
-    my @files = $dh->read();
-    for (@files) {
-        next if m/^\.\.?$/;
-        if (-d) {
-            if ($opt_recursive) {
-                print STDERR "[DIR] $dir/$_\n";
-                process_directory("$dir/$_");
-            }
-        } else {
-            next unless m/\.sim$/;
-            print STDERR "[SIM] $dir/$_\n";
-            system "$opt_which_sim $opt_cmdline \"$_\"";
-        }
-    }
 }
 
 
 sub help {
+    my %id = parse_id('$Id: sim,v 1.4 2005-06-19 08:29:37 dansei Exp $');
+
     print <<"EOM";
-[SIM] Simplifier Shell
+[SIM] SIMplified Expander
+Written by Snima Denik,  Version $id{rev},  last updated $id{date}
+
 Syntax:
-    sim [options] [sim-script ...]
+    sim [options] <sim-script> ...
 
 Options:
     --recursive (r)
@@ -141,9 +156,11 @@ Options:
     --extension=<ext> (e)
     --force (f)
     --quiet (q)
-    --veryquiet (vq)
     --verbose (v)
+    --debug (d)
     --help (?)
 EOM
     exit 0;
 }
+
+&main;

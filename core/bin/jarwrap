@@ -1,0 +1,126 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::vcs;
+use Getopt::Long;
+use Win32::Registry;
+
+
+sub prepare;
+sub main;
+sub createfile;
+sub help;
+
+&prepare;
+&main;
+
+
+our $opt_name;
+our $opt_jvm;
+our $opt_quiet;
+our $opt_execute;
+
+our $makensis;
+
+
+sub prepare {
+	my $nsis;
+	$HKEY_LOCAL_MACHINE->Open('SOFTWARE\NSIS', $nsis)
+		or die "Nsis wasn't installed. ";
+	my ($type, $val);
+	($nsis->QueryValueEx('', $type, $val) and $val)
+		or die "No default value set. ";
+	$makensis = "\"$val/makensis.exe\"";
+}
+
+
+sub main {
+	GetOptions(
+		'name',
+		'jvm',
+		'help' => sub { &help; exit },
+		'version' => sub { &version; exit },
+		'quiet',
+		'execute',
+		);
+
+	&help if scalar(@ARGV) < 1;
+
+	my $jarfile = $ARGV[0];
+	my $name = $jarfile;
+		$name =~ s/\.\w+$//; 	# remove extension name
+	$name = $opt_name if ($opt_name);
+
+	createfile 'run.bat', <<"EOM";
+\@echo off
+start javaw -jar "$jarfile"
+EOM
+
+	createfile 'package.nsi', <<"EOM";
+Name "$name"
+OutFile "$name.exe"
+ShowInstDetails show
+
+Page instfiles
+
+Section -copyfile
+	SetOutPath "\$TEMP\\$name"
+	File "$jarfile"
+	File "run.bat"
+	Exec "run.bat"
+	Quit
+SectionEnd
+
+EOM
+
+	# invoke compiling
+
+	my $result = `$makensis package.nsi`;
+	print $result if not $opt_quiet;
+
+	unlink 'run.bat';
+	unlink 'package.nsi';
+
+	if (-f "$name.exe") {
+		if ($opt_execute) {
+			exec "\"$name.exe\"";
+		}
+	}
+}
+
+
+sub createfile {
+	my ($fn, $text) = @_;
+	open FH, ">$fn"
+		or die "Can't create file $fn";
+	print FH $text;
+	close FH;
+}
+
+
+sub version {
+	my %id = parse_id('$Id: jarwrap,v 1.1 2005-06-19 08:28:17 dansei Exp $');
+	print <<"EOM";
+[JARWRAP] JAR application executable wrapper  Version $id{rev}
+author: xima lenik,  last updated $id{date}
+EOM
+}
+
+
+sub help {
+	&version;
+
+	print <<"EOM";
+
+syntax:
+	jarwrap
+		--name=<runner-name> (n, default as jar-file name)
+		--jvm=<jvm-arguments> (j)
+		--execute
+		--quiet
+		--help
+		--version
+		<jar-file>
+
+EOM
+}

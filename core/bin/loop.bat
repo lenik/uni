@@ -3,6 +3,6 @@
 title "%*"
 
 :loop
-	%*
+	call %*
 
 goto loop

@@ -1,0 +1,221 @@
+#!/usr/bin/perl
+
+#
+# Transform csv-style text records into XML document.
+#
+
+use strict;
+use cmt::vcs;
+use Getopt::Long;
+
+sub regex_escape;
+sub decoder_default;
+sub encoder_default;
+sub version;
+sub help;
+
+
+	our $opt_columns;
+	our $opt_field_separator = ',';
+	our $opt_explicit;
+	our $opt_multiline;
+	our $opt_without_header;
+	our $opt_decoder = 'default';
+	our $opt_encoder = 'default';
+
+	GetOptions(
+		'columns=n',
+		'field-separator=s',
+		'explicit!',
+		'multiline!',
+		'without-header',
+		'decoder=s',
+		'encoder=s',
+		'version' => sub { &version, exit },
+		'help' => sub { &help, exit },
+		);
+
+	$opt_field_separator = regex_escape($opt_field_separator);
+
+	if ($opt_multiline && !defined($opt_columns)) {
+		die "You must specify columns option in multiline mode. ";
+	}
+	$opt_decoder = eval("\\&decoder_$opt_decoder");
+		die "Invalid decoder: $@" if $@;
+	$opt_encoder = eval("\\&encoder_$opt_encoder");
+		die "Invalid encoder: $@" if $@;
+
+	# print &$opt_decoder('"Hello""World"')."\n";
+	# print &$opt_encoder('value << 34 & 0x12 > 12')."\n";
+
+	&main;
+
+
+
+sub main {
+	my $cur = $opt_without_header ? 0 : -1; 	# for header
+	my $col = 0;
+	my $col_pending;
+	my $flush = 0;
+	my @fields;
+	my $entry;
+	my $buffer;
+
+	my $re_normal = qr/
+		( "(?:[^"]|"")*"
+		| '(?:[^']|'')'
+		| .*? )
+		($opt_field_separator | $)
+		/x;
+
+	&xml_head;
+
+	while (<>) {
+		s/\r?\n$//;
+
+		if ($opt_multiline) {
+			if ($col_pending) {
+				if ($col_pending =~ m/["']/) {
+					my $c = $col_pending;
+					if (m/^([^$c]|$c$c)*/) {
+						$buffer .= "$&";
+						$_ = substr($_, $- + length($&));
+					}
+				}
+			}
+			while (m/$re_normal/gx) {
+				$entry = $&;
+				if ($entry !~ m/$opt_field_separator$/) {
+					if ($col_pending) {
+						$buffer = "$buffer$entry\n";
+					} else {
+						$entry =~ s/^\s*//;
+						next if $entry eq '';
+						# start pending...
+						$buffer = "$buffer$entry\n";
+						$col_pending = substr($entry, 0, 1);
+						$col_pending = 1 if ($col_pending !~ m/["']/);
+					}
+					last;
+				}
+				$col_pending = 0;
+				$entry =~ s/$opt_field_separator$//;
+				if ($buffer) {
+					$entry = "$buffer$entry";
+					$buffer = '';
+				}
+				push @fields, &$opt_decoder($entry);
+				$col++;
+			}
+			next if $col_pending;
+
+			die "Records must not on the same line (Row #$cur)" if $col > $opt_columns;
+			$flush = 1 if ($col == $opt_columns);
+		} else {
+			s/^\s*//;
+			next if $_ eq '';
+			while (m/$re_normal/gx) {
+				$entry = $&;
+				my $cont = $entry =~ s/$opt_field_separator$//;
+				push @fields, &$opt_decoder($entry);
+				$col++;
+				last if not $cont;
+			}
+			$opt_columns = $col if (!defined($opt_columns));
+				die "Invalid record #$cur" if $col != $opt_columns;
+			$flush = 1;
+		}
+
+		if ($flush) {
+			print "<record";
+			print " header='1' columns='$opt_columns'" if $cur == -1;
+			print ">\n";
+			for (my $i = 0; $i < $col; $i++) {
+				print "	<field_$i>";
+				print &$opt_encoder($fields[$i]);
+				print "</field_$i>\n";
+			}
+			print "</record>\n";
+			$cur++;
+			@fields = ();
+			$col = 0;
+			$flush = 0;
+		}
+	}
+
+	&xml_foot;
+}
+
+
+sub regex_escape {
+	my $literal = shift;
+	$literal =~ s/([[:punct:]])/\\$1/g;
+	return $literal;
+}
+
+
+sub decoder_default {
+	my $csv = shift;
+	$csv =~ s/^\s*(.*?)\s*$/$1/s;
+	if ($csv =~ m/^([\"\'])(.*)\1$/s) {
+		my $qc = $1;
+		$csv = $2;
+		$csv =~ s/$qc$qc/$qc/sg;
+	}
+	return $csv;
+}
+
+
+sub encoder_default {
+	my %esc = (
+		'<' => '&lt;',
+		'&' => '&amp;',
+		'>' => '&gt;',
+		);
+	my $text = shift;
+	$text =~ s/([<&])/$esc{$1}/g;
+	return $text;
+}
+
+
+sub xml_head {
+	print <<"EOM";
+<?xml version="1.0" encoding="utf-8"?>
+<csv2xml-result>
+EOM
+}
+
+
+sub xml_foot {
+	print <<"EOM";
+</csv2xml-result>
+EOM
+}
+
+
+sub version {
+	my %id = parse_id('$Id: csv2xml,v 1.1 2005-06-19 08:28:17 dansei Exp $');
+	print <<"EOM";
+csv2xml   version $id{rev}
+written by s.n.m,  last updated $id{date}
+EOM
+}
+
+
+sub help {
+	&version;
+	print <<"EOM";
+
+syntax:
+	csv2xml
+		--field-separator=<separator, default :>
+		--columns=<columns of each record>
+		--explicit (all fields are requred), --noexplicit (default)
+		--multiline (a post-separator is required), --nomultiline (default)
+		--without-header
+		--decoder=<csv-decoder>
+		--encoder=<xml-encoder>
+		--version
+		--help
+EOM
+}

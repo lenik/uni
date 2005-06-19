@@ -1,5 +1,5 @@
 @echo off
-    rem $Id: j.bat,v 1.7 2005-04-17 10:21:43 dansei Exp $
+    rem $Id: j.bat,v 1.8 2005-06-19 08:28:16 dansei Exp $
 
     if "%OS%"=="Windows_NT" goto winnt
 
@@ -72,10 +72,10 @@
 :init
     if not "%JOS_HOME%"=="" goto cleanup
 
-    set JOS_HOME=C:\varoj\java\jos
-	if "%JAVA_HOME%"=="" SET JAVA_HOME=c:\varoj\java\jdk
-	if "%CATALINA_HOME%"=="" SET CATALINA_HOME=c:\varoj\java\tomcat
-	if "%CATALINA_BASE%"=="" SET CATALINA_BASE=c:\varoj\java\tomcat
+    set JOS_HOME=C:\.radiko\varoj\java\jos
+	if "%JAVA_HOME%"=="" SET JAVA_HOME=c:\.radiko\varoj\java\jdk
+	if "%CATALINA_HOME%"=="" SET CATALINA_HOME=c:\.radiko\varoj\java\tomcat
+	if "%CATALINA_BASE%"=="" SET CATALINA_BASE=c:\.radiko\varoj\java\tomcat
 
     set CLASSPATH=.
     for /D %%i in (%JOS_HOME%\usr\*) do (
@@ -90,7 +90,7 @@
 	set CLASSPATH=.;%JAVA_HOME%\lib\tools.jar;%JAVA_HOME%\lib\dt.jar;%CLASSPATH%
 
 	rem the Windows Executables PATH, not CLASSPATH
-	SET PATH=%JOS_HOME%\bin;%JOS_HOME%\usr\bin;%JAVA_HOME%\bin;%CATALINA_HOME%\bin;C:\varoj\java\.dok;%PATH%
+	SET PATH=%JOS_HOME%\bin;%JOS_HOME%\usr\bin;%JOS_HOME%\ref;%JAVA_HOME%\bin;%CATALINA_HOME%\bin;%PATH%
 
     goto end
 
