@@ -1,0 +1,77 @@
+#!/usr/bin/perl
+
+use strict;
+use Getopt::Long;
+use cmt::vcs;
+use LWP::UserAgent;
+use HTTP::Request;
+use HTTP::Cookies;
+use HTML::Parser;
+
+
+our $opt_host = 'localhost';
+our $opt_user_agent = 'Dirt:doweb/1';
+our @opt_actions;
+our @opt_cookies;
+our $opt_quiet;
+
+
+sub main {
+    GetOptions(
+               'user-agent=s',
+               'action=s' => \@opt_actions,
+               'cookie=%' => \@opt_cookies,
+               'quiet',
+               'version' => sub { &version; exit },
+               'help' => sub { &help; exit },
+               );
+    push @opt_actions, @ARGV if @ARGV;
+    die "No actions specified. " if ! $opt_actions;
+    die "Cookies haven't been supported, yet" if @opt_cookies;
+
+    my $agent = new LWP::UserAgent;
+
+    # BUGFIX: avoid if concat with other strings
+    $agent->agent("$opt_user_agent ");
+
+    for (@opt_actions) {
+        #
+    }
+}
+
+
+sub version {
+    my %id = parse_id('$Id: doweb,v 1.1 2005-06-28 12:31:13 dansei Exp $');
+    print <<"EOM";
+[doweb] http actions for user agent scripting
+    written by s.n.m.,  version $id{rev}  last updated $id{date}
+EOM
+}
+
+
+sub help {
+    &version;
+    print <<"EOM";
+
+syntax:
+    doweb [options] action ...
+        --host=<www-host>
+        --user-agent=<fake name>
+        --cookie=<cookie> [--cookie=...]
+        --quiet
+        --version
+        --help
+
+action:
+    uri [??post-params=value [??...]]
+
+uri-expansion:
+    ${input-field}  -> html field of hidden, text
+
+example:
+    doweb -h=company.net:80 -u=auto-arrival
+          /login.asp??user=tommy??pwd=1234
+          /arrival.asp?session=${session}   (session field is on /login.asp)
+          /logout.asp?session=${session}    (variable session is held in cache)
+EOM
+}

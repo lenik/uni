@@ -1,0 +1,206 @@
+#!/usr/bin/perl
+
+use strict;
+use Getopt::Long;
+use cmt::vcs;
+use Win32::Clipboard;
+use Win32::TieRegistry(Delimiter=>'/');
+use Digest::MD5 qw/md5_base64/;
+use Digest::SHA1 qw/sha1_base64/;
+use Crypt::DES;
+use Crypt::CBC;
+
+
+sub main;
+sub _Verbose;
+sub version;
+sub help;
+
+sub system_encode;
+sub system_decode;
+sub codec_dq;
+sub codec_sy;
+sub save;
+
+
+our $opt_scheme;
+our $opt_phrase;
+our $opt_category;
+our $opt_make_default;
+our $opt_out = 'C';     # Clipboard  Print  None
+our $opt_verbose;
+our $opt_text;
+
+
+&main;
+
+
+sub main {
+    my $reg_path = "HKEY_CURRENT_USER/Software/S-FIA & TC/dir-T/usecode/";
+    my $reg = $Registry->{$reg_path};
+    if ($reg) {
+        $opt_scheme = system_decode $reg->{'/scheme'};
+        $opt_phrase = system_decode $reg->{'/phrase'};
+        $opt_category = system_decode $reg->{'/category'};
+    }
+
+    ::GetOptions(
+               'scheme=s',
+               'phrase|h=s',
+               'category|c=s',
+               'make-default',
+               'clipboard' => sub { $opt_out = 'C' },
+               'print|p' => sub { $opt_out = 'P' },
+               'verbose|v',
+               'version' => sub { &version; exit },
+               'help' => sub { &help; exit },
+               );
+
+    die 'No text specified. ' if (scalar(@ARGV) == 0);
+
+    $opt_scheme = shift @ARGV if (scalar(@ARGV) > 1);
+    $opt_category = shift @ARGV if (scalar(@ARGV) > 1);
+    $opt_text = join(' ', @ARGV);
+
+    _Verbose "S=$opt_scheme P=$opt_phrase C=$opt_category T=$opt_text. \n";
+    if ($opt_make_default) {
+        $Registry->{"HKEY_CURRENT_USER/Software/S-FIA & TC/"} =
+            { "dir-T/" => { "usecode/" => {} } };
+        $Registry->{"$reg_path/scheme"} = system_encode $opt_scheme;
+        $Registry->{"$reg_path/phrase"} = system_encode $opt_phrase;
+        $Registry->{"$reg_path/category"} = system_encode $opt_category;
+    }
+
+    my $codec_f = eval("\\&codec_$opt_scheme");
+    my $result = &$codec_f($opt_phrase, $opt_category, $opt_text);
+
+    _Verbose "Out=$opt_out Length=" . length($result) . "\n";
+    if ($opt_out eq 'C') {
+        Win32::Clipboard($result);
+    } elsif ($opt_out eq 'P') {
+        print "$result\n";
+    }
+}
+
+
+sub system_encode {
+    my $t = shift;
+    codec_sy('bodz', 'e', $t) if $t;
+}
+
+
+sub system_decode {
+    my $t = shift;
+    codec_sy('bodz', 'd', $t) if $t;
+}
+
+
+sub _Verbose {
+    print shift if ($opt_verbose);
+}
+
+
+sub version {
+	my %id = parse_id('$Id: usecode,v 1.1 2005-06-28 12:31:13 dansei Exp $');
+    print <<"EOM";
+[usecode] use codec (critic)
+written by s.n.m.  version $id{rev}  last updated $id{date}
+
+EOM
+}
+
+
+sub help {
+    &version;
+    print <<"EOM";
+syntax:
+    usecode [options] [--] [[scheme] category] text
+        --scheme=<use-scheme> (s)
+        --phrase=<prephrase-for-category> (h)
+        --category=<category-name> (c)
+        --make-default (save to registry)
+        --print (p) or --clipboard (default)
+        --verbose (v)
+        --version
+        --help
+EOM
+}
+
+
+
+sub binhex {
+    my $binstr = shift;
+    my $len = length($binstr) * 2;
+    unpack "H$len", $binstr;
+}
+
+
+sub hexbin {
+    my $hexstr = shift;
+    my $len = length($hexstr);
+    pack "H$len", $hexstr;
+}
+
+
+sub codec_sy {
+    my ($ph, $cat, $text) = @_;
+    my $cipher = new Crypt::CBC($ph, 'DES');
+    my $result;
+    if ($cat eq 'e') {
+        $result = binhex $cipher->encrypt(pack('n', length($text)) . $text);
+    } elsif ($cat eq 'd') {
+        $result = $cipher->decrypt(hexbin $text);
+        my $len = unpack('n', $result);
+        $result = substr($result, 2, $len);
+    } else {
+        die "Illegal category: $cat";
+    }
+    $result;
+}
+
+
+sub codec_dq {
+    my ($ph, $cat, $n) = @_;
+    my @A = (
+             (500000 + ($n % 4869) * (5465 - $n % 5466)) % 1000000,
+             (782434 + ($n % 6368) * (3141 - $n % 3142)) % 1000000,
+             (812953 + ($n % 6806) * (6299 - $n % 6300)) % 1000000,
+             (110221 + ($n % 1947) * (1680 - $n % 1681)) % 1000000,
+             );
+    my @B = (
+             ($A[0] + 10 * $A[1] + 100 * $A[2] + 1000 * $A[3]) % 1000000,
+             ($A[1] + 10 * $A[2] + 100 * $A[3] + 1000 * $A[0]) % 1000000,
+             ($A[2] + 10 * $A[3] + 100 * $A[0] + 1000 * $A[1]) % 1000000,
+             ($A[3] + 10 * $A[0] + 100 * $A[1] + 1000 * $A[2]) % 1000000,
+             );
+    my @C = (
+             ($B[0] + 10 * $B[1] + 100 * $B[2] + 1000 * $B[3]) % 1000000,
+             ($B[1] + 10 * $B[2] + 100 * $B[3] + 1000 * $B[0]) % 1000000,
+             ($B[2] + 10 * $B[3] + 100 * $B[0] + 1000 * $B[1]) % 1000000,
+             ($B[3] + 10 * $B[0] + 100 * $B[1] + 1000 * $B[2]) % 1000000,
+             );
+    my %map = (
+               'a1' => $A[0], 'a2' => $A[1], 'a3' => $A[2], 'a4' => $A[3],
+               'b1' => $B[0], 'b2' => $B[1], 'b3' => $B[2], 'b4' => $B[3],
+               'c1' => $C[0], 'c2' => $C[1], 'c3' => $C[2], 'c4' => $C[3],
+               );
+    $map{$cat};
+}
+
+
+sub codec_dm {
+    my ($ph, $cat, $text) = @_;
+    my $digest = md5_base64("$ph (at) $text");
+    my $result = substr($digest, 0, $cat);
+    $result;
+}
+
+
+
+__DATA__
+
+use-scheme ::=
+    sy  system codec (phrase=[sys-id], category=[e,d], text=[text])
+	dq	digest for question (phrase=[], category=[a1..c4], text=[number])
+    dm  digest for site-key (phrase=[user], category=[len], text=[site])
+

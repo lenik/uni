@@ -1,7 +1,7 @@
-@rem = '$Id: syset.bat,v 1.10 2005-01-06 04:21:46 dansei Exp $';
+@rem = '$Id: syset.bat,v 1.11 2005-06-28 12:31:13 dansei Exp $';
 @rem = ' (Not strict mode)
 
-        @echo off
+    @echo off
 
         if not "%OS%"=="Windows_NT" goto err_notsupp
 
@@ -35,30 +35,52 @@
 	goto end
 
     :env
-	set t_dir=%~dp0
-	set t_dir=%t_dir:~,-3%
-	echo Found installed dir-t at %t_dir%
+	set dir_t=%~dp0
+	set dir_t=%dir_t:~,-3%
+
+	if not exist %dir_t%\.dir-t (
+	    echo Cannot found dir-t, please install it first
+	    goto end
+	    )
+	echo Found installed dir-t at %dir_t%
+
+        if exist "%dir_t%\2\.cirkonstancoj" (
+            set dir_cir=%dir_t%\2
+            echo Found built-in cirkonstancoj
+            goto env_perlcall
+        )
+
+        for %%i in (c d e f g h i j k l m n o p q r s t u v w x y z) do (
+            if exist %%i:\.cirkonstancoj\.cirkonstancoj (
+                set dir_cir=%%i:\.cirkonstancoj
+                echo Found cirkonstancoj installed at %dir_cir%
+                goto env_perlcall
+            )
+        )
+
+        echo Cannot found cirkonstancoj, please install it first.
+        goto end
 
         :env_perlcall
-            set PATH=%t_dir%;%t_dir%\0;%t_dir%\1;%t_dir%\2\bin;%t_dir%\3;%t_dir%\4;%t_dir%\5;%t_dir%\6;%t_dir%\7;%t_dir%\8;%t_dir%\9;%PATH%
-            set PERLLIB=%t_dir%\0\lib;%t_dir%\2\lib
-
-            call perl %~dpnx0 env %t_dir%
+            set PATH=%dir_t%;%dir_t%\0;%dir_t%\1;%dir_t%\2;%dir_t%\3;%dir_t%\4;%dir_t%\5;%dir_t%\6;%dir_t%\7;%dir_t%\8;%dir_t%\9;%PATH%
+            set PATH=%dir_cir%\perl\perl5\bin;%PATH%
+            set PERLLIB=%dir_t%\0\lib;%dir_cir%\perl\perl5\lib;%dir_cir%\perl\perl5\site\lib
+            call perl %~dpnx0 env %dir_t% %dir_cir%
 
         :env_shell
-            reg add hkcr\*\shell\Binary\Command /f /ve /d      "%t_dir%\3\ue.exe ""%%1""" >nul
+            reg add hkcr\*\shell\Binary\Command /f /ve /d      "%dir_t%\3\ue.exe ""%%1""" >nul
             reg add hkcr\*\shell\Notepad\Command /f /ve /d     "Notepad ""%%1""" >nul
             reg add hkcr\*\shell\Write\Command /f /ve /d       "Write ""%%1""" >nul
             reg add hkcr\*\shell\Register\Command /f /ve /d    "regsvr32 ""%%1""" >nul
             reg add hkcr\*\shell\Unregister\Command /f /ve /d  "regsvr32 /u ""%%1""" >nul
-            reg add "hkcr\*\shell\My Sign\Command" /f /ve /d   "%t_dir%\1\dsign.bat ""%%1""" >nul
+            reg add "hkcr\*\shell\My Sign\Command" /f /ve /d   "%dir_t%\1\dsign.bat ""%%1""" >nul
 
             reg add hkcr\Directory\shell\Console\Command /f /ve /d                      "cmd ""%%1""" >nul
-            reg add hkcr\Directory\shell\Serialize\Command /f /ve /d                    "%t_dir%\1\renum.exe -D -w 2 ""%%1\*""" >nul
-            reg add "hkcr\Directory\shell\Gather binaries\Command" /f /ve /d            "%t_dir%\0\mvup.bat -c ""%%1\..\..\bin\"" -t ""%%1\..\..\bin\"" *.exe *.dll *.ocx" >nul
-            reg add "hkcr\Directory\shell\Build TGZ archive\Command" /f /ve /d            "%t_dir%\0\tgz.bat ""%%1""" >nul
-            reg add "hkcr\Directory\shell\SIMplifiers expand\Command" /f /ve /d         "%t_dir%\2\bin\perl.exe %t_dir%\0\sim.pl" >nul
-            reg add "hkcr\Directory\shell\Add nfs mapping\Command" /f /ve /d            "%t_dir%\2\bin\perl.exe %t_dir%\0\nfs.pl -i -m" >nul
+            reg add hkcr\Directory\shell\Serialize\Command /f /ve /d                    "%dir_t%\1\renum.exe -D -w 2 ""%%1\*""" >nul
+            reg add "hkcr\Directory\shell\Gather binaries\Command" /f /ve /d            "%dir_t%\0\mvup.bat -c ""%%1\..\..\bin\"" -t ""%%1\..\..\bin\"" *.exe *.dll *.ocx" >nul
+            reg add "hkcr\Directory\shell\Build TGZ archive\Command" /f /ve /d          "%dir_t%\0\tgz.bat ""%%1""" >nul
+            reg add "hkcr\Directory\shell\SIMplifiers expand\Command" /f /ve /d         "%dir_cir%\perl\perl5\bin\perl.exe %dir_t%\0\sim.pl" >nul
+            reg add "hkcr\Directory\shell\Add nfs mapping\Command" /f /ve /d            "%dir_cir%\perl\perl5\bin\perl.exe %dir_t%\0\nfs.pl -i -m" >nul
 
             reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v CompletionChar /t REG_DWORD /d 14 >nul
             reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v PathCompletionChar /t REG_DWORD /d 14 >nul
@@ -75,19 +97,23 @@
 		echo Binding file types...
 		assoc .stx=txtfile >nul
 
-		assoc .pl=PerlScript >nul
-		assoc .p=PerlScript >nul
-		ftype .pl=%t_dir%\2\bin\perl.exe "%%0" %%* >nul
-		ftype .p=%t_dir%\2\bin\perl.exe "%%0" %%* >nul
+		assoc   .p=PerlScript >nul
+		assoc  .pl=PerlScript >nul
+		assoc .plc=PerlScript Compiled>nul
+		ftype   .p=%dir_cir%\perl\perl5\bin\perl.exe "%%0" %%* >nul
+		ftype  .pl=%dir_cir%\perl\perl5\bin\perl.exe "%%0" %%* >nul
+		ftype .plc=%dir_cir%\perl\perl5\bin\perl.exe "%%0" %%* >nul
 
-		assoc .py=PythonScript >nul
-		ftype .py=%t_dir%\2\bin\Python.exe "%%0" %%* >nul
+		assoc  .py=PythonScript >nul
+		assoc .pyc=PythonScript Compiled>nul
+		ftype  .py=%dir_cir%\python\python23\Python.exe "%%0" %%* >nul
+		ftype .pyc=%dir_cir%\python\python23\Python.exe "%%0" %%* >nul
 
             assoc .php=PHPScript >nul
-            ftype .php=%t_dir%\2\bin\php.exe "%%0" %%* >nul
+            ftype .php=%dir_cir%\php\php5\bin\php.exe "%%0" %%* >nul
 
 		assoc .sim=SIMScript >nul
-		ftype .sim=z:\t\2\bin\perl.exe z:\t\0\sim.pl "%%0" %%* >nul
+		ftype .sim=%dir_cir%\perl\perl5\bin\perl.exe %dir_t%\0\sim.pl "%%0" %%* >nul
 
             echo Initialize completed.
 	goto end
@@ -105,11 +131,12 @@ our ($opt_cmd, @opt_args) = @ARGV;
 $| = 1;
 
 sub env {
-    my ($t_dir) = @_;
+    my ($dir_t, $dir_cir) = @_;
     my $regenv;
     my ($type, $value);
 
-    my $prefix = path_normalize $t_dir;
+    my $prefix = path_normalize($dir_t)
+         . "|" . path_normalize($dir_cir);
     $prefix =~ s/\\/\\\\/g;
 
     print "Updating environment";
@@ -117,7 +144,7 @@ sub env {
         $::HKEY_LOCAL_MACHINE->Open("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment",
             $regenv)  or die "Can't open environment key";
 
-        $regenv->SetValueEx('DIR_T_HOME', 0, &REG_EXPAND_SZ, "$t_dir");
+        $regenv->SetValueEx('DIR_T_HOME', 0, &REG_EXPAND_SZ, "$dir_t");
             print ".";
 
         my @path = ();
@@ -125,19 +152,24 @@ sub env {
                 @path = grep { $_ !~ m/^$prefix/i } split(';', $value)
             }
             unshift @path, (
-                path_normalize "$t_dir",
-                path_normalize "$t_dir\\0",
-                path_normalize "$t_dir\\1",
-                path_normalize "$t_dir\\3"
+                path_normalize "$dir_t",
+                path_normalize "$dir_t\\0",
+                path_normalize "$dir_t\\1",
+                path_normalize "$dir_t\\3"
                 );
             push @path, (
-                path_normalize "$t_dir\\2\\bin",
-                path_normalize "$t_dir\\4",
-                path_normalize "$t_dir\\5",
-                path_normalize "$t_dir\\6",
-                path_normalize "$t_dir\\7",
-                path_normalize "$t_dir\\8",
-                path_normalize "$t_dir\\9"
+                path_normalize "$dir_cir\\Perl\\Perl5\\bin",
+                path_normalize "$dir_cir\\Python\\Python23",
+                path_normalize "$dir_cir\\PHP\\PHP5",
+                path_normalize "$dir_cir\\MinGW\\bin",
+                path_normalize "$dir_cir\\Cygwin\\bin",
+                path_normalize "$dir_t\\2",
+                path_normalize "$dir_t\\4",
+                path_normalize "$dir_t\\5",
+                path_normalize "$dir_t\\6",
+                path_normalize "$dir_t\\7",
+                path_normalize "$dir_t\\8",
+                path_normalize "$dir_t\\9"
                 );
             $regenv->SetValueEx('PATH', 0, &REG_EXPAND_SZ, join(';', @path));
             print ".";
@@ -149,7 +181,9 @@ sub env {
             push @pathext, qw(
                 .p
                 .pl
+                .plc
                 .py
+                .pyc
                 .php
                 );
             $regenv->SetValueEx('PATHEXT', 0, &REG_EXPAND_SZ, join(';', @pathext));
@@ -160,8 +194,10 @@ sub env {
                 @perllib = grep { $_ !~ m/^$prefix/i } split(';', $value);
             }
             push @perllib, (
-                path_normalize "$t_dir/0/lib",
-                path_normalize "$t_dir/2/lib"
+                path_normalize "$dir_t/0/lib",
+                path_normalize "$dir_cir/perl/perl5/lib",
+                path_normalize "$dir_cir/perl/perl5/site/lib",
+                path_normalize "$dir_cir/perl/libcpan",
                 );
             $regenv->SetValueEx('PERLLIB', 0, &REG_EXPAND_SZ, join(';', @perllib));
             print ".";
@@ -171,8 +207,9 @@ sub env {
                 @pythonpath = grep { $_ !~ m/^$prefix/i } split(';', $value);
             }
             push @pythonpath, (
-                path_normalize "$t_dir/0/lib",
-                path_normalize "$t_dir/2/lib"
+                path_normalize "$dir_t/0/lib",
+                path_normalize "$dir_cir/python/python23/lib",
+                path_normalize "$dir_cir/python/python23/lib/site-packages",
                 );
             $regenv->SetValueEx('PYTHONPATH', 0, &REG_EXPAND_SZ, join(';', @pythonpath));
             print ".";
@@ -185,14 +222,18 @@ sub env {
 
         # Force PHP.ini exists
         if (! -f "$windir/php.ini") {
-            print "PHP not installed, install one\n";
-            open(FH, "$t_dir/2/etc/php.ini")
-                or die "Install failed: source";
-            my @data = <FH>;
-            open(FH, ">$windir/php.ini")
-                or die "Install failed: target";
-            print FH join('', @data);
-            close FH;
+            if (-f "$dir_cir/php/php5/php.ini") {
+                print "PHP not installed, install one\n";
+                open(FH, "$dir_cir/php/php5/php.ini")
+                    or die "Install failed: source";
+                my @data = <FH>;
+                open(FH, ">$windir/php.ini")
+                    or die "Install failed: target";
+                print FH join('', @data);
+                close FH;
+            } else {
+                print "PHP not installed, and cirkonstancoj doesn't contain one. \n";
+            }
         } else {
             print "Found PHP installed\n";
         }
@@ -222,7 +263,7 @@ sub env {
             chop;
 
             if (m/^extension_dir\b/) {
-                s/=.*$/= $t_dir\\2\\bin\\ext/;
+                s/=.*$/= $dir_cir\\php\\php5\\ext/;
                 print ".";
             } elsif (m/^upload_tmp_dir\b/) {
                 s/=.*$/= $updir/;

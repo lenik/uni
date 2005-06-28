@@ -1,12 +1,15 @@
 @echo off
-rem $Id: tup.bat,v 1.3 2004-09-22 08:39:12 dansei Exp $
+rem $Id: tup.bat,v 1.4 2005-06-28 12:31:13 dansei Exp $
 
 :begin
+    rem find where to download
+
 	if "%temp%"=="" set temp=%tmp%
 	if "%temp%"=="" (
 		md c:\temp
 		set temp=c:\temp
 	)
+
 	echo open q.host.bodz.net>%temp%\ftp-log.tmp
 	echo anonymous>>%temp%\ftp-log.tmp
 	echo t-user@q>>%temp%\ftp-log.tmp
@@ -20,13 +23,16 @@ rem $Id: tup.bat,v 1.3 2004-09-22 08:39:12 dansei Exp $
 	set tup_src=
 	for /f %%i in (%temp%\q.local) do (
 		set tup_src=\\%%i\public_dir-t
+		set tup_cir=\\%%i\.cirkonstancoj
 	)
 
 	del "%temp%\ftp-log.tmp" >nul 2>nul
 	del "%temp%\q.local" >nul 2>nul
 
-	if not exist %tup_src% echo dir-t %tup_src% on public isn't available.
-	if not exist %tup_src% goto end
+	if not exist %tup_src%\.dir_t (
+	    echo dir-t %tup_src% on public isn't available.
+	    goto end
+    )
 
 	if not "%1"=="" goto t_found
 
@@ -49,12 +55,22 @@ for %%i in (c d e f g h i j k l m n o p q r s t u v w x y z) do (
 	echo updating
 	echo     source: %tup_src%
 	echo     target: %tup_dst%
-	xcopy /d /e /y "%tup_src%" "%tup_dst%"
+	xcopy /d /e /y %tup_src% %tup_dst%
 	echo dir-t update successfully.
+
+	if exist %tup_cir%\.cirkonstancoj (
+	echo updating cirkonstancoj
+	xcopy /d /e /y %tup_cir% %tup_dst%\2
+	echo cirkonstancoj update successfully
+	)
+
+
 	pushd "%tup_dst%\0" >nul
 	call syset.bat env
 	popd >nul
 
+
 :end
 	set tup_src=
+	set tup_cir=
 	set tup_dst=
