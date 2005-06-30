@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.11 2005-06-28 12:31:13 dansei Exp $';
+@rem = '$Id: syset.bat,v 1.12 2005-06-30 08:14:18 dansei Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -38,7 +38,7 @@
 	set dir_t=%~dp0
 	set dir_t=%dir_t:~,-3%
 
-	if not exist %dir_t%\.dir-t (
+	if not exist %dir_t%\.dirt (
 	    echo Cannot found dir-t, please install it first
 	    goto end
 	    )

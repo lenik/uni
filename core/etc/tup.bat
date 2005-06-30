@@ -1,5 +1,5 @@
 @echo off
-rem $Id: tup.bat,v 1.4 2005-06-28 12:31:13 dansei Exp $
+rem $Id: tup.bat,v 1.5 2005-06-30 08:14:20 dansei Exp $
 
 :begin
     rem find where to download
@@ -29,7 +29,7 @@ rem $Id: tup.bat,v 1.4 2005-06-28 12:31:13 dansei Exp $
 	del "%temp%\ftp-log.tmp" >nul 2>nul
 	del "%temp%\q.local" >nul 2>nul
 
-	if not exist %tup_src%\.dir_t (
+	if not exist %tup_src%\.dirt (
 	    echo dir-t %tup_src% on public isn't available.
 	    goto end
     )
