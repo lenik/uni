@@ -5,43 +5,108 @@ use Getopt::Long;
 use cmt::vcs;
 use LWP::UserAgent;
 use HTTP::Request;
+use HTTP::Headers;
 use HTTP::Cookies;
 use HTML::Parser;
 
 
-our $opt_host = 'localhost';
+our $opt_server_host = 'localhost';
 our $opt_user_agent = 'Dirt:doweb/1';
 our @opt_actions;
 our @opt_cookies;
+our $opt_wait = 0;
+our $opt_wait_random = 0;
 our $opt_quiet;
+
+
+sub main;
+sub _Verbose;
+sub version;
+sub help;
+
+    &main;
 
 
 sub main {
     GetOptions(
+               'server-host=s',
                'user-agent=s',
                'action=s' => \@opt_actions,
-               'cookie=%' => \@opt_cookies,
+               'cookie=s' => \@opt_cookies,
+               'wait|w=n',
+               'wait-random|r=n',
                'quiet',
                'version' => sub { &version; exit },
                'help' => sub { &help; exit },
                );
     push @opt_actions, @ARGV if @ARGV;
-    die "No actions specified. " if ! $opt_actions;
+    die "No actions specified. " if !@opt_actions;
     die "Cookies haven't been supported, yet" if @opt_cookies;
 
-    my $agent = new LWP::UserAgent;
+    my $wait_sec = int($opt_wait + rand($opt_wait_random));
+    if ($wait_sec) {
+        _Verbose "wait $wait_sec seconds\n";
+        sleep($wait_sec);
+    }
 
-    # BUGFIX: avoid if concat with other strings
-    $agent->agent("$opt_user_agent ");
+    my $agent = new LWP::UserAgent(
+        env_proxy => 1,
+        keep_alive => 1,
+        timeout => 30,
+        agent => "$opt_user_agent",
+        );
+
+    push @{ $agent->requests_redirectable }, 'POST';
+
+
+    my ($hdr, $cookies, $req, $res);
+
+    # $hdr = new HTTP::Headers();
+
+    $cookies = new HTTP::Cookies(
+        file => "$ENV{TEMP}/doweb-cookies.txt",
+        autosave => 1,
+        );
+
+    $req = new HTTP::Request(POST => 'about:blank');
+
+    $agent->cookie_jar($cookies);
 
     for (@opt_actions) {
-        #
+        my ($base, $gets, $posts) = m/^(.*?)(\?[^?]*)?(\?\?[^?]*)*$/;
+        my $geturi = "http://$opt_server_host$base$gets";
+        my (%posts);
+
+        if ($posts) {
+            my @params = split('\?\?', substr($gets, 2));
+            for my $param (@params) {
+                my ($key, $val) = $param =~
+                    m/^(.*?)=(.*)$/;
+                $posts{$key} = $val if $key;
+            }
+        }
+
+        $req = $agent->prepare_request($req);
+
+        $req->uri($geturi);
+        print "Action: $geturi\n";
+        _Verbose $req->as_string;
+
+        $res = $agent->request($req);
+        print $res->status_line, "\n";
+        _Verbose $res->as_string;
     }
 }
 
 
+sub _Verbose {
+    my $msg = shift;
+    print $msg if !$opt_quiet;
+}
+
+
 sub version {
-    my %id = parse_id('$Id: doweb,v 1.1 2005-06-28 12:31:13 dansei Exp $');
+    my %id = parse_id('$Id: doweb,v 1.2 2005-07-01 09:10:08 dansei Exp $');
     print <<"EOM";
 [doweb] http actions for user agent scripting
     written by s.n.m.,  version $id{rev}  last updated $id{date}
@@ -55,23 +120,26 @@ sub help {
 
 syntax:
     doweb [options] action ...
-        --host=<www-host>
-        --user-agent=<fake name>
-        --cookie=<cookie> [--cookie=...]
-        --quiet
-        --version
-        --help
+        --server-host=<www-host> (s)
+        --user-agent=<fake name> (u)
+        --cookie=<cookie> [--cookie=...] (c)
+        --wait=<fixed seconds to wait> (w)
+        --wait-random=<additional random seconds to wait> (r)
+        --quiet (q)
+        --version (v)
+        --help (h)
 
 action:
     uri [??post-params=value [??...]]
 
 uri-expansion:
-    ${input-field}  -> html field of hidden, text
+    \${input-field}  -> html field of hidden, text
 
 example:
-    doweb -h=company.net:80 -u=auto-arrival
+    doweb -w=0 -r=60 -s=company.net:80 -u=auto-arrival
+          /page.asp?getparam??postparam1??postparam2..
           /login.asp??user=tommy??pwd=1234
-          /arrival.asp?session=${session}   (session field is on /login.asp)
-          /logout.asp?session=${session}    (variable session is held in cache)
+          /arrival.asp?session=\${session}   (session field is on /login.asp)
+          /logout.asp?session=\${session}    (variable session is held in cache)
 EOM
 }
