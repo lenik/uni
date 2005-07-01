@@ -1,7 +1,3 @@
-#
-# DNA forming
-#
-
 package cmt::gene;
 
 use strict;
@@ -9,135 +5,150 @@ use Exporter;
 use vars qw/@ISA @EXPORT/;
 
 
-my @def_pad = ( 1, 0, 0, 0, 1, 2, 3, 4, 5, 5, 4, 3, 2, 1, 0, 0, 0, 1, );
-my @def_len = ( 0, 2, 3, 4, 4, 4, 3, 2, 0, 0, 2, 3, 4, 4, 4, 3, 2, 0, );
-my $def_num = scalar(@def_pad);
-my $def_pos = -1;
-my @def_set = qw/A T C G/;
-my @def_setc= qw/T A G C/;
+sub DNA;
+sub DNA_decode;
 
-sub def_encoder {
-	$def_pos = ($def_pos + 1) % $def_num;
-	return ($def_pad[$def_pos], $def_len[$def_pos]);
-};
-
-
-sub Encode {
-	my ($data, $encoder) = @_;
-	    $encoder ||= \&def_encoder;
-	my $datalen = length($data);
-	my $contoff = 0;
-
-	my @ret;
-	my $print = wantarray == undef;
-
-	for (my $i = 0; $i < $datalen; $i++) {
-		my $vc = substr($data, $i, 1);
-		my $v = ord $vc;
-		for (my $j = 0; $j < 4; $j++) {
-			my ($pad, $blen) = &$encoder;
-			my $bit2 = (($v >> 6) + $contoff++) & 3;
-			$v <<= 2;
-			my ($c, $cc) = ($def_set[$bit2], $def_setc[$bit2]);
-			my $line = ' 'x$pad . $c . '-'x$blen . $cc . "\n";
-
-			if ($print) {
-			    print $line;
-			} else {
-			    push @ret, $line;
-			}
-		}
-	}
-	return @ret;
-}
+our $opt_protect_scheme;
+our $opt_protect;
+our $opt_cipher;
 
 
 sub DNA {
-    my @bit2s;
-       @bit2s = split("\n", shift);
-    my @lines;
-    my $line = '';
-    my $bit2i = 0;
-    my $v = 0;
-    my $contoff_rev = 0;
-    my $copymode = 0;
+    my $dna_slices = shift;
+    my $program = DNA_decode $dna_slices;
+    my $ret = eval "package main; $program";
+        die "Gene Error: $@\n" if ($@);
+    return $program;
+}
 
-    while (@bit2s) {
-        my $bit2 = shift @bit2s;
 
-        if ($copymode) {
-            print "$bit2\n";
-            $copymode = 0;
-            next;
-        }
+sub DNA_decode {
+    my @slice_lines;
+       @slice_lines = split("\n", shift);
+    my $slice_line;
+    my @decoded_lines;
+    my $decoded_line = '';
+    my $current_slice = 0;
+    my $i_ord = 0;
+    my $demess = 0;
+    #my $state = 'PARTIAL';
 
-        $bit2 =~ s/^\s+//;
-        next if not $bit2;
-        next if $bit2 =~ m/^[\<\#]/;
+    while (@slice_lines) {
+        my $slice_line = shift @slice_lines;
 
-        my $b2 = index('ATCG', substr($bit2, 0, 1));
-            $b2 = ($b2 + $contoff_rev) & 3;
-            if (--$contoff_rev < 0) {
-                $contoff_rev = 3;
-            }
-        $v <<= 2;
-        $v |= $b2;
-        if ($bit2i >= 3) {
-            # one byte composed
-            $bit2i = 0;
-            if ($v == 13) {
-            } elsif ($v == 10) {
-                if ($line =~ m/^\#\@DNAC::(\w+)\s+(.*)$/) {
+        #if ($state eq 'COPY') {
+        #    $state = 'PARTIAL';
+        #    next;
+        #}
+
+        next if $slice_line !~ m/^\s*(\w)/;
+
+        my $bit2 = index('ATCG', $1);
+        $bit2 = ($bit2 + $demess) & 3;
+        $demess = 3 if --$demess == -1;
+        $i_ord = ($i_ord << 2) | $bit2;
+
+        if ($current_slice == 3) {
+            # Submit a byte
+            my $byte = $i_ord;
+            $i_ord = 0;
+            $current_slice = 0;
+
+            if ($byte == 13) {
+                # ignore CR
+            } elsif ($byte == 10) {
+                if ($opt_cipher) {
+                    $decoded_line = $opt_cipher->decrypt(hexbin($decoded_line));
+                    my $len = unpack('n', $decoded_line);
+                    $decoded_line = substr($decoded_line, 2, $len);
+                }
+
+                if ($decoded_line =~ m/^\#\@DNA::(\w+)\s*(.*)$/) {
                     my ($_cmd, $_args) = ($1, $2);
-                    if ($_cmd eq 'COPY') {
-                        $copymode = 1;
+
+                    if ($_cmd eq 'PARTIAL') {
+                        #$state = $_cmd;
+                    } elsif ($_cmd eq 'COPY') {
+                        #$state = $_cmd;
+                    } elsif ($_cmd eq 'PROTECT') {
+                        &DNA_init_protect;
+                        $decoded_line = '';     # ignore #@DNA::PROTECT
+                        next;
                     }
                 }
-                push @lines, $line;
-                $line = '';
+
+                push @decoded_lines, $decoded_line;
+                $decoded_line = '';
             } else {
-                $line .= chr $v;
+                $decoded_line .= chr $byte;
             }
-            $v = 0;
+
         } else {
-            $bit2i++;
+            $current_slice++;
         }
-    }
-    if ($line) {
-        push @lines, $line;
-        $line = '';
     }
 
-    if (defined(wantarray)) {
-        if (wantarray) {
-            return @lines;
-        } else {
-            return join("\n", @lines);
+    if ($decoded_line) {
+        if ($opt_cipher) {
+            $decoded_line = $opt_cipher->decrypt(hexbin $decoded_line);
+            my $len = unpack('n', $decoded_line);
+            $decoded_line = substr($decoded_line, 2, $len);
         }
+        push @decoded_lines, $decoded_line;
+        $decoded_line = '';
+    }
+
+    if (wantarray) {
+        return @decoded_lines;
     } else {
-        # void-context, global last-eval
-        my $program = join("\n", @lines);
-        if (!defined(eval($program))) {
-            print "Gene Error: $@\n";
-        }
+        return join("\n", @decoded_lines);
+    }
+}
+
+
+sub DNA_init_protect {
+    my $args = shift;
+
+    use cmt::codec;
+    use Crypt::DES;
+    use Crypt::CBC;
+    use Term::ReadKey;
+
+    $opt_protect_scheme = $args;
+    if (not defined $opt_protect) {
+        ReadMode 'noecho';
+        print STDERR "Enter passphrase: \n";
+        $opt_protect = ReadLine 0;
+        chomp $opt_protect;
+        ReadMode 'normal';
+        $opt_cipher = new Crypt::CBC($opt_protect, 'DES');
     }
 }
 
 
 
 @ISA = qw/Exporter/;
-@EXPORT = qw/Encode DNA/;
+@EXPORT = qw/DNA DNA_decode/;
+
 
 
 __END__
 
+=head1 NAME
 
-Example
+gene - Graphical Script Encoder Vol.gene
 
-use gene;
+=head1 SYNOPSIS
 
-DNA << DNA;
-	AT
-	C G
-	...
-DNA
+    use gene;
+
+    DNA << DNA;
+        AT
+        C G
+        ...
+    DNA
+
+=head1 DESCRIPTION
+
+    No description.
+
