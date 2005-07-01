@@ -1,4 +1,4 @@
-package cmt::gene;
+package cmt::g;
 
 use strict;
 use Exporter;
