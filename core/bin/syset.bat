@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.12 2005-06-30 08:14:18 dansei Exp $';
+@rem = '$Id: syset.bat,v 1.13 2005-07-04 03:31:24 dansei Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -197,7 +197,7 @@ sub env {
                 path_normalize "$dir_t/0/lib",
                 path_normalize "$dir_cir/perl/perl5/lib",
                 path_normalize "$dir_cir/perl/perl5/site/lib",
-                path_normalize "$dir_cir/perl/libcpan",
+                path_normalize "$dir_cir/perl/blib",
                 );
             $regenv->SetValueEx('PERLLIB', 0, &REG_EXPAND_SZ, join(';', @perllib));
             print ".";
