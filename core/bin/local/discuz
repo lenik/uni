@@ -27,11 +27,13 @@ our @opt_cookies;
 our $opt_interval = 16;
 our $opt_verbose;
 
+our $opt_caption = '';      # [超长连载]
 our $opt_username = 'jljljjl';
 our $opt_password = 'Z7sL0KYT';
 our $opt_question = '0';
 our $opt_answer = '';
 our $opt_forum = 26;
+our $opt_thread = 0;        # create one
 our $opt_line_min = 15;
 
 our $agent;
@@ -41,6 +43,7 @@ our $thread_id;
 our @send_queue;
 
 
+    $| = 0;
     &main;
 
 
@@ -59,11 +62,13 @@ sub main {
                'verbose|v',
                'version' => sub { &version; exit },
                'help' => sub { &help; exit },
+               'caption=s',
                'username|u=s',
                'password=s',
                'question|q=s',
                'answer=s',
                'forum=s',
+               'thread=n',
                'line-min=n',
                );
     push @opt_actions, @ARGV if @ARGV;
@@ -182,32 +187,36 @@ sub main {
         $formhash = $formhash2;
 
 
-    # start a thread
-        $res =
-        request POST "http://$opt_server/post.php"
-                        ."?action=newthread&fid=$opt_forum"
-                        ."&topicsubmit=yes",
-                [
-                    formhash    => "$formhash",
-                    iconid      => '59',
-                    mode        => '2',
-                    font        => '',
-                    size        => '',
-                    color       => '',
-                    subject     => "[超长连载] $textname",
-                    message     => "超常连载\n\n题目：$textname\n\n",
-                    typeid      => '0',
-                    usesig      => '1',
-                ], Content_Type => 'form-data';
+    if ($opt_thread == 0) {
+        # start a new thread
+            $res =
+            request POST "http://$opt_server/post.php"
+                            ."?action=newthread&fid=$opt_forum"
+                            ."&topicsubmit=yes",
+                    [
+                        formhash    => "$formhash",
+                        iconid      => '59',
+                        mode        => '2',
+                        font        => '',
+                        size        => '',
+                        color       => '',
+                        subject     => "$opt_caption$textname",
+                        message     => "超常连载\n\n题目：$textname\n\n",
+                        typeid      => '0',
+                        usesig      => '1',
+                    ], Content_Type => 'form-data';
 
 
-    # fetch thread-id
-        $res->as_string =~ m/
-                <meta \s+ http-equiv \s* = \s* "refresh" \s+
-                content \s* = \s* "\d+;url=viewthread.php\?tid=(\d+)
-            /six;
-        $thread_id = $1;
-        die "Can't start thread / $thread_id" if $thread_id !~ m/^\d+$/;
+        # fetch thread-id
+            $res->as_string =~ m/
+                    <meta \s+ http-equiv \s* = \s* "refresh" \s+
+                    content \s* = \s* "\d+;url=viewthread.php\?tid=(\d+)
+                /six;
+            $thread_id = $1;
+            die "Can't start thread / $thread_id" if $thread_id !~ m/^\d+$/;
+    } else {
+        $thread_id = $opt_thread;
+    }
 
 
     # process the thread
@@ -246,6 +255,10 @@ sub main {
 
         &process_queue;
 
+        if (@send_queue) {
+            send_item join('', @send_queue);
+        }
+
     #
     close FH;
 
@@ -256,10 +269,19 @@ sub process_queue {
     my $expanded = '';
     while (@send_queue) {
         my $item = shift @send_queue;
+
+        # if only space
         if ($item =~ m/^\s*$/s) {
             $expanded .= $item;
             next;
         }
+
+        # if not enough
+        if (length($expanded) + length($item) < $opt_line_min) {
+            $expanded .= $item;
+            next;
+        }
+
         $item = "$expanded$item";
         $expanded = '';
         $item =~ s/^\s+//;
@@ -293,7 +315,10 @@ sub request {
 sub send_item {
     my $item = shift;
 
-    sleep $opt_interval;
+    for (my $i = 0; $i < $opt_interval; $i++) {
+        sleep 1;
+        print STDERR '.';
+    }
 
     print "Add post: $item\n";
     request POST "http://$opt_server/post.php",
@@ -317,7 +342,7 @@ sub _Verbose {
 
 
 sub version {
-    my %id = parse_id('$Id: discuz,v 1.2 2005-07-05 08:06:06 dansei Exp $');
+    my %id = parse_id('$Id: discuz,v 1.3 2005-07-05 13:06:25 dansei Exp $');
     print <<"EOM";
 [discuz] make story thread at discuz(php) forum
     written by s.n.m.,  version $id{rev}  last updated $id{date}
@@ -351,6 +376,6 @@ uri-expansion:
     \${input-field}  -> html field of hidden, text
 
 example:
-    discuz -w=0 -r=60 -s=company.net:80 -u=auto-arrival "Legend of 1900.txt"
+    discuz -s=www.haining.com.cn/bbs -u=Tommy -p=1234 -f="Love Stories" "Legend of 1900.txt"
 EOM
 }
