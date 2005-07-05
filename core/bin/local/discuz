@@ -12,7 +12,9 @@ use HTML::Parser;
 
 
 sub main;
+sub process_queue;
 sub request;
+sub send_item;
 sub _Verbose;
 sub version;
 sub help;
@@ -196,7 +198,7 @@ sub main {
                     message     => "超常连载\n\n题目：$textname\n\n",
                     typeid      => '0',
                     usesig      => '1',
-                ]; #, Content_Type => 'form-data';
+                ], Content_Type => 'form-data';
 
 
     # fetch thread-id
@@ -209,40 +211,63 @@ sub main {
 
 
     # process the thread
-        my @txtbuf;
-        my @segs;
-        while (<FH>) {
-            my $linebuf = '';
+        my $poet = '';
+        my $smalls = '';
+        my $c = qr/(?:[\x80-\xff].|.)/;
+        my $cc = qr/(?:“$c*?”|[\x80-\xA0\xA2-\xFF].|[\xA1][^\xB0]|[\x0-\x7f])/;
+        while (<>) {
+            while (s/^($cc*?。)//) {
+                if ($poet) {
+                    push @send_queue, "$poet";
+                    $poet = '';
+                }
 
-            # ----。----。| -。| ---？   => @segs, $line_buf, $_
-            while (s/(.*?。)//) {
                 if (length($1) < $opt_line_min) {
-                    $linebuf .= $1;
+                    $smalls .= $1;
                 } else {
-                    push @segs, "$linebuf$1";
-                    $linebuf = '';
+                    push @send_queue, "$smalls$1";
+                    $smalls = '';
                 }
             }
 
-            if (scalar(@segs) > 0) {
-                if (@txtbuf) {
-                    push @send_queue, join("\n", @txtbuf);
-                    @txtbuf = ();
-                }
-                push @send_queue, @segs;
-            } else {
-                push @txtbuf, $_;
+            if ($smalls) {
+                push @send_queue, "$smalls";
+                $smalls = '';
             }
+            $poet .= $_ if $_;
 
             &process_queue;
         }
 
-        &process_queue;
+        if ($poet) {
+            push @send_queue, "$poet";
+            $poet = '';
+        }
 
+        &process_queue;
 
     #
     close FH;
 
+}
+
+
+sub process_queue {
+    my $expanded = '';
+    while (@send_queue) {
+        my $item = shift @send_queue;
+        if ($item =~ m/^\s*$/s) {
+            $expanded .= $item;
+            next;
+        }
+        $item = "$expanded$item";
+        $expanded = '';
+        $item =~ s/^\s+//;
+        $item =~ s/\s+$//;
+
+        send_item $item if $item;
+    }
+    push @send_queue, $expanded if $expanded;
 }
 
 
@@ -265,25 +290,23 @@ sub request {
 }
 
 
-sub process_queue {
-    while (@send_queue) {
-        my $item = shift @send_queue;
+sub send_item {
+    my $item = shift;
 
-        sleep $opt_interval;
+    sleep $opt_interval;
 
-        print "Send: $item\n";
-        request POST "http://$opt_server/post.php",
-                [
-                    action      => 'reply',
-                    fid         => "$opt_forum",
-                    tid         => "$thread_id",
-                    extra       => '',
-                    replysubmit => 'yes',
-                    formhash    => "$formhash",
-                    subject     => '(续)',
-                    message     => $item,
-                ];
-    }
+    print "Add post: $item\n";
+    request POST "http://$opt_server/post.php",
+            [
+                action      => 'reply',
+                fid         => "$opt_forum",
+                tid         => "$thread_id",
+                extra       => '',
+                replysubmit => 'yes',
+                formhash    => "$formhash",
+                subject     => '(续)',
+                message     => $item,
+            ];
 }
 
 
@@ -294,7 +317,7 @@ sub _Verbose {
 
 
 sub version {
-    my %id = parse_id('$Id: discuz,v 1.1 2005-07-05 07:04:16 dansei Exp $');
+    my %id = parse_id('$Id: discuz,v 1.2 2005-07-05 08:06:06 dansei Exp $');
     print <<"EOM";
 [discuz] make story thread at discuz(php) forum
     written by s.n.m.,  version $id{rev}  last updated $id{date}
