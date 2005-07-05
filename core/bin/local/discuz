@@ -1,0 +1,333 @@
+#!/usr/bin/perl
+
+use strict;
+use Getopt::Long;
+use cmt::vcs;
+use LWP::UserAgent;
+use HTTP::Request;
+use HTTP::Request::Common;
+use HTTP::Headers;
+use HTTP::Cookies;
+use HTML::Parser;
+
+
+sub main;
+sub request;
+sub _Verbose;
+sub version;
+sub help;
+
+
+our $opt_server = 'www.haining.com.cn/bbs';
+our $opt_user_agent = 'Dirt:Discuz/1';
+our @opt_actions;
+our @opt_cookies;
+our $opt_interval = 16;
+our $opt_verbose;
+
+our $opt_username = 'jljljjl';
+our $opt_password = 'Z7sL0KYT';
+our $opt_question = '0';
+our $opt_answer = '';
+our $opt_forum = 26;
+our $opt_line_min = 15;
+
+our $agent;
+our $cookies;
+our $formhash;
+our $thread_id;
+our @send_queue;
+
+
+    &main;
+
+
+sub main {
+    my $wait_sec;
+    my $textfile;
+    my $textname;
+    my $res;
+
+
+    GetOptions(
+               'server=s',
+               'user-agent=s',
+               'cookie=s' => \@opt_cookies,
+               'interval=n',
+               'verbose|v',
+               'version' => sub { &version; exit },
+               'help' => sub { &help; exit },
+               'username|u=s',
+               'password=s',
+               'question|q=s',
+               'answer=s',
+               'forum=s',
+               'line-min=n',
+               );
+    push @opt_actions, @ARGV if @ARGV;
+    die "No actions specified. " if !@opt_actions;
+    die "Cookies haven't been supported, yet" if @opt_cookies;
+
+
+    $agent = new LWP::UserAgent(
+        env_proxy => 1,
+        keep_alive => 1,
+        timeout => 300,
+        agent => "$opt_user_agent",
+        );
+
+    push @{ $agent->requests_redirectable }, 'POST';
+
+
+    $textfile = shift @opt_actions;
+    $textname = $textfile;
+    $textname =~ s/\.\w+$//;        # remove ext-name
+    open(FH, "<$textfile")
+        || die "Can't open $textfile";
+
+
+    $cookies = new HTTP::Cookies(
+        file => "$ENV{TEMP}/discuz-cookies.txt",
+        autosave => 1,
+        );
+    $agent->cookie_jar($cookies);
+
+
+    # logout
+        request GET "http://$opt_server/logging.php?action=logout";
+
+
+    # calculate formhash-1, question-id
+        $res =
+        request GET "http://$opt_server/logging.php?action=login";
+
+        $res->as_string =~ m/
+                <input \s+ type="hidden" \s+ name="formhash" \s+
+                 value="([^"]+)">
+            /six;
+        $formhash = $1;
+        print "Formhash = $formhash\n";
+
+
+        $res->as_string =~ m/
+                (<select \s+ name="questionid" [^>]*> \s*
+                    (
+                    <option \s+ value="(\d+)"> \s* ([^<]*?) \s* <\/option> \s*
+                    )+)
+            /six;
+        $_ = $1;
+        my ($qid, $qname);
+        while (/<option \s+ value="(\d+)"> \s* ([^<]*?) \s* <\/option>/sixg) {
+            ($qid, $qname) = ($1, $2);
+            if ($qname =~ m/$opt_question/) {
+                $opt_question = $qid;
+                last;
+            }
+        }
+        die "Invalid question $opt_question" if $opt_question !~ m/^\d+$/;
+        print "Question $opt_question - $qname, Answer '$opt_answer'\n";
+
+
+    # calculate forum-id
+        $res =
+        request GET "http://$opt_server/index.php";
+
+        $_ = $res->as_string;
+        my $fid;
+        my $fname;
+        while (/
+                    <a \s+ href="forumdisplay\.php\?fid=(\d+)"> \s*
+                    (?:<[^>]+>)* \s*
+                    (.*?) \s* <\/
+                /sixg) {
+            ($fid, $fname) = ($1, $2);
+            if ($fname =~ m/$opt_forum/i) {
+                $opt_forum = $fid;
+                last;
+            }
+        }
+        die "Invalid forum $opt_forum" if $opt_forum !~ m/^\d+$/;
+        print "Forum $opt_forum - $fname\n";
+
+
+    # login
+        request POST "http://$opt_server/logging.php",
+                [
+                    action      => 'login',
+                    formhash    => "$formhash",
+                    referer     => 'http://$opt_server/index.php',
+                    cookietime  => '315360000',
+                    loginfield  => 'username',
+                    username    => $opt_username,
+                    password    => $opt_password,
+                    questionid  => $opt_question,
+                    answer      => $opt_answer,
+                    loginsubmit => '提 &nbsp; 交',
+                ];
+
+
+    # fetch formhash-2
+        $res =
+        request GET "http://$opt_server/post.php?action=newthread&fid=$opt_forum";
+
+        $res->as_string =~ m/
+                <input \s+ type="hidden" \s+ name="formhash" \s+
+                 value="([^"]+)">
+            /six;
+        my $formhash2 = $1;
+        print "Formhash = $formhash2\n";
+        print "Login failed\n" if ($formhash eq $formhash2);
+        $formhash = $formhash2;
+
+
+    # start a thread
+        $res =
+        request POST "http://$opt_server/post.php"
+                        ."?action=newthread&fid=$opt_forum"
+                        ."&topicsubmit=yes",
+                [
+                    formhash    => "$formhash",
+                    iconid      => '59',
+                    mode        => '2',
+                    font        => '',
+                    size        => '',
+                    color       => '',
+                    subject     => "[超长连载] $textname",
+                    message     => "超常连载\n\n题目：$textname\n\n",
+                    typeid      => '0',
+                    usesig      => '1',
+                ]; #, Content_Type => 'form-data';
+
+
+    # fetch thread-id
+        $res->as_string =~ m/
+                <meta \s+ http-equiv \s* = \s* "refresh" \s+
+                content \s* = \s* "\d+;url=viewthread.php\?tid=(\d+)
+            /six;
+        $thread_id = $1;
+        die "Can't start thread / $thread_id" if $thread_id !~ m/^\d+$/;
+
+
+    # process the thread
+        my @txtbuf;
+        my @segs;
+        while (<FH>) {
+            my $linebuf = '';
+
+            # ----。----。| -。| ---？   => @segs, $line_buf, $_
+            while (s/(.*?。)//) {
+                if (length($1) < $opt_line_min) {
+                    $linebuf .= $1;
+                } else {
+                    push @segs, "$linebuf$1";
+                    $linebuf = '';
+                }
+            }
+
+            if (scalar(@segs) > 0) {
+                if (@txtbuf) {
+                    push @send_queue, join("\n", @txtbuf);
+                    @txtbuf = ();
+                }
+                push @send_queue, @segs;
+            } else {
+                push @txtbuf, $_;
+            }
+
+            &process_queue;
+        }
+
+        &process_queue;
+
+
+    #
+    close FH;
+
+}
+
+
+sub request {
+    my ($req, $res);
+    $req = shift;
+    $req = $agent->prepare_request($req);
+
+    print "Action: ", $req->uri, "\n";
+    _Verbose $req->as_string;
+
+    $res = $agent->request($req);
+    $req = $res->request();
+    $cookies->extract_cookies($res);
+
+    print "Result: ", $res->status_line, "\n";
+    _Verbose $res->as_string."\n\n\n\n";
+
+    return $res;
+}
+
+
+sub process_queue {
+    while (@send_queue) {
+        my $item = shift @send_queue;
+
+        sleep $opt_interval;
+
+        print "Send: $item\n";
+        request POST "http://$opt_server/post.php",
+                [
+                    action      => 'reply',
+                    fid         => "$opt_forum",
+                    tid         => "$thread_id",
+                    extra       => '',
+                    replysubmit => 'yes',
+                    formhash    => "$formhash",
+                    subject     => '(续)',
+                    message     => $item,
+                ];
+    }
+}
+
+
+sub _Verbose {
+    my $msg = shift;
+    print $msg if $opt_verbose;
+}
+
+
+sub version {
+    my %id = parse_id('$Id: discuz,v 1.1 2005-07-05 07:04:16 dansei Exp $');
+    print <<"EOM";
+[discuz] make story thread at discuz(php) forum
+    written by s.n.m.,  version $id{rev}  last updated $id{date}
+EOM
+}
+
+
+sub help {
+    &version;
+    print <<"EOM";
+
+syntax:
+    discuz [options] <text-file>
+        --server=<server-prefix, e.g. localhost/discuz> (s)
+        --user-agent=<fake name>
+        --cookie=<cookie> [--cookie=...] (c)
+        --interval=<seconds between thread post> (i)
+        --question=<question-id, or question-name> (q)
+        --answer=<answer> (a)
+        --username=<username> (u)
+        --password=<password> (p)
+        --forum=<forum-id, or forum-name> (f)
+        --verbose
+        --version
+        --help (h)
+
+action:
+    uri [??post-params=value [??...]]
+
+uri-expansion:
+    \${input-field}  -> html field of hidden, text
+
+example:
+    discuz -w=0 -r=60 -s=company.net:80 -u=auto-arrival "Legend of 1900.txt"
+EOM
+}
