@@ -27,7 +27,7 @@ our @opt_cookies;
 our $opt_interval = 16;
 our $opt_verbose;
 
-our $opt_caption = '';      # [超长连载]
+our $opt_caption = '';      # 超长连载
 our $opt_username = 'jljljjl';
 our $opt_password = 'Z7sL0KYT';
 our $opt_question = '0';
@@ -191,6 +191,10 @@ sub main {
 
     if ($opt_thread == 0) {
         # start a new thread
+            my $subject = $opt_caption
+                ? "[$opt_caption] - $textname"
+                : "$textname";
+
             $res =
             request POST "http://$opt_server/post.php"
                             ."?action=newthread&fid=$opt_forum"
@@ -202,8 +206,8 @@ sub main {
                         font        => '',
                         size        => '',
                         color       => '',
-                        subject     => "$opt_caption$textname",
-                        message     => "超长连载\n\n题目：$textname\n\n",
+                        subject     => "$subject",
+                        message     => "$opt_caption\n\n题目：$textname\n\n",
                         typeid      => '0',
                         usesig      => '1',
                     ], Content_Type => 'form-data';
@@ -344,7 +348,7 @@ sub _Verbose {
 
 
 sub version {
-    my %id = parse_id('$Id: discuz,v 1.5 2005-07-06 00:40:11 dansei Exp $');
+    my %id = parse_id('$Id: discuz,v 1.6 2005-07-06 05:46:02 dansei Exp $');
     print <<"EOM";
 [discuz] make story thread at discuz(php) forum
     written by s.n.m.,  version $id{rev}  last updated $id{date}
