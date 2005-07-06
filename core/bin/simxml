@@ -1,12 +1,12 @@
 #!/usr/bin/perl
 
-# $Id: simxml,v 1.2 2004-10-20 04:54:56 dansei Exp $
+# $Id: simxml,v 1.3 2005-07-06 07:05:56 dansei Exp $
 
 use strict;
 use Getopt::Long;
 use File::Basename;
 use DirHandle;
-use cmt;
+use cmt::vcs;
 
 
 our $opt_comment = 0;
@@ -61,22 +61,22 @@ sub getopts {
     my @state_stack;
     my @tag_stack;
 
-    my $c_element;
+    my $c_element = 'ROOT';
     my $c_attrkey;
     my $c_attrvalue;
     my $c_preprocessor;
     my $c_string;
 
+    my @lines;
+    my $text;
     my $line = 0;
     my $c;
     my $buf;
-    my $lastword;
-    my $lastword_got = 0;
 
 
     @state_stack = ('ELEMENT');
 
-    LINE: while (<>) {
+    while (<>) {
         while (m/[^\\]\$(\w+)/) {
             my $v = $opt_constants{$1};
             if ($v) {
@@ -85,160 +85,43 @@ sub getopts {
                 s/([^\\])\$(\w+)/$1\\\$$2/;
             }
         }
-        $_ = reverse;
+        push @lines, $_;
+    }
 
-        $line++;
+    $_ = join('', @lines);
 
-        CHAR: while ($c = chop) {
-            my $state = $state_stack[-1];
-#print ">> '$c' / $state\n";
-            STATE: {
-                if ($state eq 'STRING_QQ') {
-                    if ($c eq '"') {
-                        pop @state_stack;
-                        last STATE;
-                    }
-                    if ($c eq '\\') {
-                        $c = chop;
-                        if ($opt_escapes{$c}) {
-                            $c = $opt_escapes{$c};
-                        }
-                    }
-                    $$c_string .= $c;
-                    last STATE;
-                }
+    SCAN: while ($_) {
 
-                if ($state eq 'STRING_Q') {
-                    if ($c eq '\'') {
-                        pop @state_stack;
-                        last STATE;
-                    }
-                    $$c_string .= $c;
-                    last STATE;
-                }
-
-                if ($c eq '#') {
-                    chomp($_ = reverse $_);
-                    if ($opt_comment) {
-                        print "<!-- $_ -->\n";
-                    }
-                    next LINE;
-                }
-
-                if (! $lastword_got) {
-                    if ($c =~ m/\s/) {
-                        if ($lastword ne '') {
-                            $lastword_got = 1;
-                        }
-                    } else {
-                        $lastword .= $c;
-                    }
-                } else {
-                    if ($c =~ m/\w/) {
-                        $lastword = $c;
-                        $lastword_got = 0;
-                    }
-                }
-
-                if ($state eq 'ELEMENT') {
-                    if ($c eq '[') {
-                        # ELEMENT | ATTRLIST
-                        push @state_stack, 'ATTRLIST';
-                        if (! $c_element) {
-                            $lastword_got || die "Nonamed element at line $line. ";
-                            $c_element = $lastword;
-                        }
-                    } elsif ($c eq '{') {
-                        # ELEMENT | BODY
-                        push @state_stack, 'ELEMENT';
-                        if (! $c_element) {
-                            $lastword_got || die "Nonamed element at line $line. ";
-                            $c_element = $lastword;
-                        }
-                        push @tag_stack, $c_element;
-                        $c_element = '';
-                    } elsif ($c eq '}') {
-                        # ELEMENT << BODY
-                        pop @state_stack;
-                        $c_element = pop @tag_stack;
-                        print "</$c_element>\n";
-                    } else {
-                        $buf .= $c;
-                        #die "Illegal character: '$c' at line $line, expected for [...] or {...} ";
-                    }
-                    last STATE;
-                }
-                if ($state eq 'ATTRLIST') {
-                    if ($c_attrkey) {
-                        print " $c_attrkey=\"$c_attrvalue\"";
-                    }
-
-                    next CHAR if ($c =~ m/\s/);
-                    if ($c eq ']') {
-                        # ELEMENT << ATTRLIST
-                        pop @state_stack;
-                        last STATE;
-                    }
-                    if ($c !~ m/\w/) {
-                        die "Illegal character: '$c' at line $line, expected for attribute-name. ";
-                    }
-                    $c_attrkey = $c;
-                    $c_attrvalue = '';
-                    while (substr($_, -1) =~ m/\w/) {
-                        $c_attrkey .= chop;
-                    }
-                    # ATTRLIST | ATTR_EQ
-                    push @state_stack, 'ATTR_EQ';
-                    last STATE;
-                }
-
-                if ($state eq 'ATTR_EQ') {
-                    next CHAR if ($c =~ m/\s/);
-                    if ($c eq '=') {
-                        # ATTR_EQ -> ATTR_VAL
-                        $state_stack[-1] = 'ATTR_VAL';   # ATTR_EQ
-                        last STATE;
-                    }
-                    die "Illegal character: '$c' at line $line, expected for =. ";
-                }
-
-                if ($state eq 'ATTR_VAL') {
-                    next CHAR if ($c =~ m/\s/);
-                    $c_attrvalue = '';
-                    if ($c eq '"') {
-                        $c_string = \$c_attrvalue;
-                        # ATTR_EQ -> STRING_QQ
-                        $state_stack[-1] = 'STRING_QQ';
-                        last STATE;
-                    }
-                    if ($c eq '\'') {
-                        $c_string = \$c_attrvalue;
-                        # ATTR_EQ -> STRING_Q
-                        $state_stack[-1] = 'STRING_Q';
-                        last STATE;
-                    }
-                    $c_attrvalue = $c;
-                    while (substr($_, -1) =~ m/\S/) {
-                        $c_attrvalue .= chop;
-                    }
-                    # ATTRLIST << ATTR_VAL
-                    pop @state_stack;
-                    last STATE;
-                }
-
-                if ($state eq 'BODY') {
-                    if ($c eq '\\' and substr($_, -1) =~ m/[\{\}]/) {
-                        $c = chop;
-                    }
-                    last STATE;
-                }
-            } # STATE-SWITCH
+        if (m/^\#[^\n]*/) {
+            print "<!-- $& -->\n";
+            $_ = substr($_, length($&));
+            next SCAN;
         }
+
+        $state = $stack_stack[-1];
+
+        STATE: {
+
+            if ($state eq 'ELEMENT') {
+                if (m/^(\w+)\s*(\[.*\])\s*\{/) {
+                    push @tag_stack, $c_element;
+                    $c_element = $1;
+                    if ($2) {
+                        my @attrs = split(/(?=[^\\])\s+/, $2);
+                        print "<$c_element";
+                        for my $attr (@attrs) {
+                            my ($k, $v) = $attr =~ m/(\w+)\s*=\s*(.*?)\s*$/;
+                            if ($v !~ m/^[\"\']/) { $v = "\"$v\""; }
+                            print " $k=$v";
+                        }
+                    }
+                }
+            }
     }
 
 
 sub help {
-    my %id = parse_id('$Id: simxml,v 1.2 2004-10-20 04:54:56 dansei Exp $');
+    my %id = parse_id('$Id: simxml,v 1.3 2005-07-06 07:05:56 dansei Exp $');
 
     print <<"EOM";
 [SIMXML] Simplified XML Document based on Symbols

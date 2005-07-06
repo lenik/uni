@@ -35,7 +35,7 @@ our $opt_answer = '';
 our $opt_forum = 26;
 our $opt_thread = 0;        # create one
 our $opt_line_min = 15;
-our $opt_picture = '59';
+our $opt_icon = '59';
 
 our $agent;
 our $cookies;
@@ -59,18 +59,18 @@ sub main {
                'server=s',
                'user-agent=s',
                'cookie=s' => \@opt_cookies,
-               'interval=n',
+               'interval|i=n',
                'verbose|v',
                'version' => sub { &version; exit },
                'help' => sub { &help; exit },
                'caption|c=s',
                'username|u=s',
-               'password=s',
+               'password|p=s',
                'question|q=s',
                'answer=s',
                'forum=s',
                'thread=n',
-               'picture=s',
+               'icon=s',
                'line-min=n',
                );
     push @opt_actions, @ARGV if @ARGV;
@@ -201,7 +201,7 @@ sub main {
                             ."&topicsubmit=yes",
                     [
                         formhash    => "$formhash",
-                        iconid      => "$opt_picture",
+                        iconid      => "$opt_icon",
                         mode        => '2',
                         font        => '',
                         size        => '',
@@ -348,7 +348,7 @@ sub _Verbose {
 
 
 sub version {
-    my %id = parse_id('$Id: discuz,v 1.6 2005-07-06 05:46:02 dansei Exp $');
+    my %id = parse_id('$Id: discuz,v 1.7 2005-07-06 07:05:55 dansei Exp $');
     print <<"EOM";
 [discuz] make story thread at discuz(php) forum
     written by s.n.m.,  version $id{rev}  last updated $id{date}
@@ -373,7 +373,7 @@ syntax:
         --answer=<answer> (a)
         --interval=<seconds between thread post> (i)
         --line-min=<minimum post size> (l)
-        --picture=<icon-id for new thread> (p)
+        --icon=<icon-id for new thread> (ic)
         --verbose
         --version
         --help (h)
