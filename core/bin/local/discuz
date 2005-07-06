@@ -201,7 +201,7 @@ sub main {
                         size        => '',
                         color       => '',
                         subject     => "$opt_caption$textname",
-                        message     => "超常连载\n\n题目：$textname\n\n",
+                        message     => "超长连载\n\n题目：$textname\n\n",
                         typeid      => '0',
                         usesig      => '1',
                     ], Content_Type => 'form-data';
@@ -342,7 +342,7 @@ sub _Verbose {
 
 
 sub version {
-    my %id = parse_id('$Id: discuz,v 1.3 2005-07-05 13:06:25 dansei Exp $');
+    my %id = parse_id('$Id: discuz,v 1.4 2005-07-06 00:33:05 dansei Exp $');
     print <<"EOM";
 [discuz] make story thread at discuz(php) forum
     written by s.n.m.,  version $id{rev}  last updated $id{date}
