@@ -35,6 +35,7 @@ our $opt_answer = '';
 our $opt_forum = 26;
 our $opt_thread = 0;        # create one
 our $opt_line_min = 15;
+our $opt_picture = '59';
 
 our $agent;
 our $cookies;
@@ -62,13 +63,14 @@ sub main {
                'verbose|v',
                'version' => sub { &version; exit },
                'help' => sub { &help; exit },
-               'caption=s',
+               'caption|c=s',
                'username|u=s',
                'password=s',
                'question|q=s',
                'answer=s',
                'forum=s',
                'thread=n',
+               'picture=s',
                'line-min=n',
                );
     push @opt_actions, @ARGV if @ARGV;
@@ -195,7 +197,7 @@ sub main {
                             ."&topicsubmit=yes",
                     [
                         formhash    => "$formhash",
-                        iconid      => '59',
+                        iconid      => "$opt_picture",
                         mode        => '2',
                         font        => '',
                         size        => '',
@@ -342,7 +344,7 @@ sub _Verbose {
 
 
 sub version {
-    my %id = parse_id('$Id: discuz,v 1.4 2005-07-06 00:33:05 dansei Exp $');
+    my %id = parse_id('$Id: discuz,v 1.5 2005-07-06 00:40:11 dansei Exp $');
     print <<"EOM";
 [discuz] make story thread at discuz(php) forum
     written by s.n.m.,  version $id{rev}  last updated $id{date}
@@ -359,12 +361,15 @@ syntax:
         --server=<server-prefix, e.g. localhost/discuz> (s)
         --user-agent=<fake name>
         --cookie=<cookie> [--cookie=...] (c)
-        --interval=<seconds between thread post> (i)
-        --question=<question-id, or question-name> (q)
-        --answer=<answer> (a)
         --username=<username> (u)
         --password=<password> (p)
         --forum=<forum-id, or forum-name> (f)
+        --thread=<thread-id to add> (t)
+        --question=<question-id, or question-name> (q)
+        --answer=<answer> (a)
+        --interval=<seconds between thread post> (i)
+        --line-min=<minimum post size> (l)
+        --picture=<icon-id for new thread> (p)
         --verbose
         --version
         --help (h)
