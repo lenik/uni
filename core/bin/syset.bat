@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.13 2005-07-04 03:31:24 dansei Exp $';
+@rem = '$Id: syset.bat,v 1.14 2005-07-07 10:20:12 dansei Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -75,12 +75,12 @@
             reg add hkcr\*\shell\Unregister\Command /f /ve /d  "regsvr32 /u ""%%1""" >nul
             reg add "hkcr\*\shell\My Sign\Command" /f /ve /d   "%dir_t%\1\dsign.bat ""%%1""" >nul
 
-            reg add hkcr\Directory\shell\Console\Command /f /ve /d                      "cmd ""%%1""" >nul
-            reg add hkcr\Directory\shell\Serialize\Command /f /ve /d                    "%dir_t%\1\renum.exe -D -w 2 ""%%1\*""" >nul
-            reg add "hkcr\Directory\shell\Gather binaries\Command" /f /ve /d            "%dir_t%\0\mvup.bat -c ""%%1\..\..\bin\"" -t ""%%1\..\..\bin\"" *.exe *.dll *.ocx" >nul
-            reg add "hkcr\Directory\shell\Build TGZ archive\Command" /f /ve /d          "%dir_t%\0\tgz.bat ""%%1""" >nul
-            reg add "hkcr\Directory\shell\SIMplifiers expand\Command" /f /ve /d         "%dir_cir%\perl\perl5\bin\perl.exe %dir_t%\0\sim.pl" >nul
-            reg add "hkcr\Directory\shell\Add nfs mapping\Command" /f /ve /d            "%dir_cir%\perl\perl5\bin\perl.exe %dir_t%\0\nfs.pl -i -m" >nul
+            reg add hkcr\Directory\shell\Console\Command /f /ve /d              "cmd ""%%1""" >nul
+            reg add hkcr\Directory\shell\Serialize\Command /f /ve /d            "%dir_t%\1\renum.exe -D -w 2 ""%%1\*""" >nul
+            reg add "hkcr\Directory\shell\Gather binaries\Command" /f /ve /d    "%dir_t%\0\mvup.bat -c ""%%1\..\..\bin\"" -t ""%%1\..\..\bin\"" *.exe *.dll *.ocx" >nul
+            reg add "hkcr\Directory\shell\Build TGZ archive\Command" /f /ve /d  "%dir_t%\0\tgz.bat ""%%1""" >nul
+            reg add "hkcr\Directory\shell\SIMplifiers expand\Command" /f /ve /d "%dir_cir%\perl\perl5\bin\perl.exe %dir_t%\0\sim.pl" >nul
+            reg add "hkcr\Directory\shell\Add nfs mapping\Command" /f /ve /d    "%dir_cir%\perl\perl5\bin\perl.exe %dir_t%\0\nfs.pl -i -m" >nul
 
             reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v CompletionChar /t REG_DWORD /d 14 >nul
             reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v PathCompletionChar /t REG_DWORD /d 14 >nul
@@ -92,6 +92,20 @@
             reg add "hkcu\SOFTWARE\Microsoft\Command Processor" /f /v EnableExtensions /t REG_DWORD /d 1 >nul
             reg add "hkcu\SOFTWARE\Microsoft\Command Processor" /f /v DelayedExpansion /t REG_DWORD /d 1 >nul
 
+            reg add "hkcu\SOFTWARE\metapad" /f /v m_Hyperlinks         /t REG_DWORD /d 0 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v m_ShowStatus         /t REG_DWORD /d 0 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v m_ShowToolbar        /t REG_DWORD /d 0 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v bNoCaptionDir        /t REG_DWORD /d 1 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v bSaveWindowPlacement /t REG_DWORD /d 1 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v bSaveMenuSettings    /t REG_DWORD /d 1 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v bAutoIndent          /t REG_DWORD /d 1 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v bInsertSpaces        /t REG_DWORD /d 1 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v nTabStops            /t REG_DWORD /d 4 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v szLangPlugin         /d "%dir_t%\3\metapad.dll" >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v w_Left               /t REG_DWORD /d 200 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v w_Top                /t REG_DWORD /d 120 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v w_Width              /t REG_DWORD /d 320 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v w_Height             /t REG_DWORD /d 240 >nul
 
         :env_ext
 		echo Binding file types...
