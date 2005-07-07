@@ -1,5 +1,5 @@
 @echo off
-    rem $Id: em.bat,v 1.4 2005-06-19 08:28:16 dansei Exp $
+    rem $Id: em.bat,v 1.5 2005-07-07 09:40:03 dansei Exp $
 
-    c:\.radiko\varoj\Office\Emacs\bin\emacs %*
+    C:\.cirkonstancoj\Emacs\bin\emacs %*
 
