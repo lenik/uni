@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.14 2005-07-07 10:20:12 dansei Exp $';
+@rem = '$Id: syset.bat,v 1.15 2005-07-08 02:12:26 dansei Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -69,7 +69,7 @@
 
         :env_shell
             reg add hkcr\*\shell\Binary\Command /f /ve /d      "%dir_t%\3\ue.exe ""%%1""" >nul
-            reg add hkcr\*\shell\Notepad\Command /f /ve /d     "Notepad ""%%1""" >nul
+            reg add hkcr\*\shell\Notepad\Command /f /ve /d     "%dir_t%\3\metapad.exe ""%%1""" >nul
             reg add hkcr\*\shell\Write\Command /f /ve /d       "Write ""%%1""" >nul
             reg add hkcr\*\shell\Register\Command /f /ve /d    "regsvr32 ""%%1""" >nul
             reg add hkcr\*\shell\Unregister\Command /f /ve /d  "regsvr32 /u ""%%1""" >nul
@@ -92,20 +92,27 @@
             reg add "hkcu\SOFTWARE\Microsoft\Command Processor" /f /v EnableExtensions /t REG_DWORD /d 1 >nul
             reg add "hkcu\SOFTWARE\Microsoft\Command Processor" /f /v DelayedExpansion /t REG_DWORD /d 1 >nul
 
-            reg add "hkcu\SOFTWARE\metapad" /f /v m_Hyperlinks         /t REG_DWORD /d 0 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v m_ShowStatus         /t REG_DWORD /d 0 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v m_ShowToolbar        /t REG_DWORD /d 0 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v bNoCaptionDir        /t REG_DWORD /d 1 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v bSaveWindowPlacement /t REG_DWORD /d 1 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v bSaveMenuSettings    /t REG_DWORD /d 1 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v m_ShowStatus         /t REG_DWORD /d 0 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v m_Hyperlinks         /t REG_DWORD /d 0 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v bAutoIndent          /t REG_DWORD /d 1 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v bInsertSpaces        /t REG_DWORD /d 1 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v nTabStops            /t REG_DWORD /d 4 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v bNoCaptionDir        /t REG_DWORD /d 1 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v bSaveWindowPlacement /t REG_DWORD /d 1 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v bSuppressUndoBufferPrompt /t REG_DWORD /d 1 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v nSelectionMarginWidth /t REG_DWORD /d 5 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v nTransparentPct      /t REG_DWORD /d 50 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v szLangPlugin         /d "%dir_t%\3\metapad.dll" >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v szFavDir             /d "%userprofile%\Local Settings" >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v w_Left               /t REG_DWORD /d 200 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v w_Top                /t REG_DWORD /d 120 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v w_Width              /t REG_DWORD /d 320 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v w_Height             /t REG_DWORD /d 240 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v BackColour           /t REG_BINARY /d 2e335000 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v BackColour2          /t REG_BINARY /d 263a4400 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v PrimaryFont          /t REG_BINARY /d f3ffffff000000000000000000000000900100000000008603020131d0c2cbcecce500004e65770000204d5420426f6c640000000000000000000000 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v SecondaryFont        /t REG_BINARY /d f0ffffff000000000000000000000000bc0200000000000003020131436f7572696572204e6577000000000000000000000000000000000000000000 >nul
 
         :env_ext
 		echo Binding file types...
@@ -151,7 +158,7 @@ sub env {
 
     my $prefix = path_normalize($dir_t)
          . "|" . path_normalize($dir_cir);
-    $prefix =~ s/\\/\\\\/g;
+    $prefix =~ s/\\/[\/\\\\]/g;
 
     print "Updating environment";
 
@@ -190,7 +197,7 @@ sub env {
 
         my @pathext = qw/.exe .com .bat .cmd .vbs .js .sh/;
             if ($regenv->QueryValueEx('PATHEXT', $type, $value)) {
-                @pathext = grep { $_ !~ m/^\.(p|pl|py|php)$/i } split(';', $value);
+                @pathext = grep { $_ !~ m/^\.(p|pl|plc|py|pyc|php)$/i } split(';', $value);
             }
             push @pathext, qw(
                 .p
