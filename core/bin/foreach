@@ -8,13 +8,12 @@ use cmt::path;
 
 
     our $opt_recursive = 0;
-    our $opt_quiet = 0;
-    our $opt_verbose = 0;
     our $opt_directories_only = 0;
-    our $opt_files_only = 0;
     our $opt_continue_with_errors = 0;
     our $opt_script = undef;            # <STDIN> default
     our @opt_files;
+    our $opt_quiet = 0;
+    our $opt_verbose = 0;
 
 
     # COMMAND-LINE PARSING
@@ -25,15 +24,12 @@ use cmt::path;
         'files-only',
         'continue-with-errors',
         'script=s',
+        'noscript' => sub { $opt_script = '' },
         'version' => sub { &version; exit },
         'help' => sub { &help, exit },
         );
 
     $opt_verbose = not $opt_quiet;
-
-    if ($opt_directories_only && $opt_files_only) {
-        die 'Illegal arguments: Both directories-only and files-only are specified. ';
-    }
 
     my @lines;
     if ($opt_script) {
@@ -42,7 +38,9 @@ use cmt::path;
         @lines = <SCRIPT>;
         close SCRIPT;
     } else {
-        @lines = <STDIN>;
+        if (!defined $opt_script) {
+            @lines = <STDIN>;
+        }
     }
     $opt_script = join('', @lines);
 
@@ -64,12 +62,19 @@ EOM
     @opt_files = splice(@ARGV, 0, $el - 1);
     shift @ARGV;    # remove --
 
-    # default ./ if none is specified.
-    @opt_files = ('.') unless @opt_files;
+    # default ./* if none is specified.
+    if (! @opt_files) {
+        @opt_files = grep { !(/^\.+$/ or $opt_directories_only and -f) } (<.*>, <*>);
+    }
 
 
     # PROCESSING
-    my $count = process_files('', @opt_files);
+    my $count = 0;
+    for (@opt_files) {
+        $count += process_item($_);
+        $count += scan_dir($_) if $opt_recursive and -d;
+    }
+
 
     # RESULTS
     if (not $opt_quiet) {
@@ -80,14 +85,9 @@ EOM
 
 
 
-sub process_dir {
+sub scan_dir {
     my $dir = shift || $_;
     # print "[SCAN] $dir\n" if $opt_verbose;
-
-    my $count = 0;
-    if (not $opt_files_only) {
-        $count += process_file($dir);
-    }
 
     my $dh = new DirHandle($dir);
     if (not $dh) {
@@ -103,29 +103,21 @@ sub process_dir {
         my $k = 0;
         $k = 1 if m/^\.+$/;
         $_ = "$dir/$_";
-        $k = 1 if not $opt_recursive and -d;
-        $k = 1 if not -d and not -f;
+        $k = 1 if $opt_directories_only and -f;
         splice(@files, $i, 1) if $k;
     }
 
-    return process_files($dir, @files);
-}
-
-
-sub process_files {
-    my $base = shift;
     my $count = 0;
-    for (@_) {
-        my $path = "$_";
-        $path = "$base/$_" if $base;
-        $count += &process_dir($path) if -d $path;
-        $count += &process_file($path) if -f $path;
+    for (@files) {
+        my $path = "$dir/$_";
+        $count += process_item($path);
+        $count += scan_dir($path) if $opt_recursive and -d $path;
     }
     return $count;
 }
 
 
-sub process_file {
+sub process_item {
     my $path = shift || $_;
     print " [DIR] $path\n" if -d $path and not $opt_quiet;
     print "[FILE] $path\n" if -f $path and not $opt_quiet;
@@ -138,7 +130,7 @@ sub process_file {
 
 
 sub version {
-    my %id = parse_id('$Id: foreach,v 1.2 2005-07-05 07:04:16 dansei Exp $');
+    my %id = parse_id('$Id: foreach,v 1.3 2005-07-14 02:27:56 dansei Exp $');
     print <<"EOM";
 [foreach] files processor framework   version $id{rev}
 author: lenik,  last update: $id{date}
@@ -155,9 +147,9 @@ syntax:
         --recursive (r)
         --quiet (q)
         --directories-only (d)
-        --files-only (f)
         --continue-with-errors (c)
         --script=<perl-script-file> (s, default read from stdin)
+        --noscript
         --version (v)
         --help (h)
         [files/directories ...]     (default '.')
