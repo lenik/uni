@@ -16,6 +16,7 @@ sub process_queue;
 sub request;
 sub send_item;
 sub _Verbose;
+sub ui_set_options;
 sub version;
 sub help;
 
@@ -26,6 +27,7 @@ our @opt_actions;
 our @opt_cookies;
 our $opt_interval = 16;
 our $opt_verbose;
+our $opt_graphics_user_interface;
 
 our $opt_caption = '';      # ≥¨≥§¡¨‘ÿ
 our $opt_username = 'jljljjl';
@@ -55,6 +57,8 @@ sub main {
     my $res;
 
 
+    $opt_graphics_user_interface = 1 if not @ARGV;
+
     GetOptions(
                'server=s',
                'user-agent=s',
@@ -72,8 +76,14 @@ sub main {
                'thread=n',
                'icon=s',
                'line-min=n',
+               'graphics-user-interface',
                );
     push @opt_actions, @ARGV if @ARGV;
+
+    if ($opt_graphics_user_interface) {
+        &ui_set_options;
+    }
+
     die "No actions specified. " if !@opt_actions;
     die "Cookies haven't been supported, yet" if @opt_cookies;
 
@@ -90,6 +100,7 @@ sub main {
 
     $textfile = shift @opt_actions;
     $textname = $textfile;
+    $textname =~ s/^(.*\/\\)+//;    # basename
     $textname =~ s/\.\w+$//;        # remove ext-name
     open(FH, "<$textfile")
         || die "Can't open $textfile";
@@ -112,7 +123,7 @@ sub main {
 
         $res->as_string =~ m/
                 <input \s+ type="hidden" \s+ name="formhash" \s+
-                 value="([^"]+)">
+                 value="([^\"]+)">
             /six;
         $formhash = $1;
         print "Formhash = $formhash\n";
@@ -181,7 +192,7 @@ sub main {
 
         $res->as_string =~ m/
                 <input \s+ type="hidden" \s+ name="formhash" \s+
-                 value="([^"]+)">
+                 value="([^\"]+)">
             /six;
         my $formhash2 = $1;
         print "Formhash = $formhash2\n";
@@ -347,8 +358,59 @@ sub _Verbose {
 }
 
 
+sub ui_set_options {
+    use Tk;
+    use Tk::LabEntry;
+
+    my %id = version;
+
+    my $mw = new MainWindow(
+            -title => "Story Post for Discuz Forum   Version $id{rev}",
+            -width => 400,
+            -height => 300,
+        );
+
+    my @packs = qw/-pady 5/;
+
+    $mw->Frame->pack(@packs)->LabEntry(
+        -label => 'server address: ',
+        -width => 40,
+        -labelPack => [qw/-side left -anchor w -padx 10/],
+        -textvariable => \$opt_server,
+        )->pack(qw/-side left/);
+
+    $mw->Frame->pack(@packs)->LabEntry(
+        -label => 'user agent: ',
+        -width => 40,
+        -labelPack => [qw/-side left -anchor w -padx 10/],
+        -textvariable => \$opt_user_agent,
+        )->pack(qw/-side left/);
+
+    $mw->Frame->pack(@packs)->LabEntry(
+        -label => 'user name: ',
+        -width => 40,
+        -labelPack => [qw/-side left -anchor w -padx 10/],
+        -textvariable => \$opt_username,
+        )->pack(qw/-side left/);
+
+    $mw->Frame->pack(@packs)->LabEntry(
+        -label => 'password: ',
+        -width => 40,
+        -labelPack => [qw/-side left -anchor w -padx 10/],
+        -textvariable => \$opt_password,
+        )->pack(qw/-side left/);
+
+    my $commands = $mw->Frame->pack(@packs);
+    $commands->Button(
+        -text => 'okay',
+        -command =>
+    MainLoop;
+}
+
+
 sub version {
-    my %id = parse_id('$Id: discuz,v 1.7 2005-07-06 07:05:55 dansei Exp $');
+    my %id = parse_id('$Id: discuz,v 1.8 2005-07-14 02:27:05 dansei Exp $');
+    return %id if wantarray;
     print <<"EOM";
 [discuz] make story thread at discuz(php) forum
     written by s.n.m.,  version $id{rev}  last updated $id{date}
@@ -374,6 +436,7 @@ syntax:
         --interval=<seconds between thread post> (i)
         --line-min=<minimum post size> (l)
         --icon=<icon-id for new thread> (ic)
+        --graphics-user-interface
         --verbose
         --version
         --help (h)
