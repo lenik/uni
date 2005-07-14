@@ -1,5 +1,5 @@
 @echo off
-rem $Id: tup.bat,v 1.6 2005-07-05 13:06:29 dansei Exp $
+rem $Id: tup.bat,v 1.7 2005-07-14 02:28:37 dansei Exp $
 
 :begin
     rem find where to download
@@ -62,7 +62,7 @@ for %%i in (c d e f g h i j k l m n o p q r s t u v w x y z) do (
         echo updating cirkonstancoj
         if not exist %tup_dst%\2\* mkdir %tup_dst%\2
         xcopy /d /y %tup_cir% %tup_dst%\2
-        for %%i in (Cygwin MinGW Perl PHP Python) do (
+        for %%i in (Cygwin MinGW Perl PHP Python Ruby) do (
             xcopy /d /e /y %tup_cir%\%%i %tup_dst%\2\%%i
         )
         echo cirkonstancoj update successfully

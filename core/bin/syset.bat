@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.15 2005-07-08 02:12:26 dansei Exp $';
+@rem = '$Id: syset.bat,v 1.16 2005-07-14 02:28:19 dansei Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -133,7 +133,10 @@
             assoc .php=PHPScript >nul
             ftype .php=%dir_cir%\php\php5\bin\php.exe "%%0" %%* >nul
 
-		assoc .sim=SIMScript >nul
+		assoc  .rb=RubyScript >nul
+            ftype  .rb=%dir_cir%\ruby\ruby\bin\ruby.exe "%%1" %%* >nul
+
+            assoc .sim=SIMScript >nul
 		ftype .sim=%dir_cir%\perl\perl5\bin\perl.exe %dir_t%\0\sim.pl "%%0" %%* >nul
 
             echo Initialize completed.
@@ -180,8 +183,9 @@ sub env {
                 );
             push @path, (
                 path_normalize "$dir_cir\\Perl\\Perl5\\bin",
-                path_normalize "$dir_cir\\Python\\Python23",
                 path_normalize "$dir_cir\\PHP\\PHP5",
+                path_normalize "$dir_cir\\Python\\Python23",
+                path_normalize "$dir_cir\\Ruby\\ruby\\bin",
                 path_normalize "$dir_cir\\MinGW\\bin",
                 path_normalize "$dir_cir\\Cygwin\\bin",
                 path_normalize "$dir_t\\2",
@@ -206,6 +210,7 @@ sub env {
                 .py
                 .pyc
                 .php
+                .rb
                 );
             $regenv->SetValueEx('PATHEXT', 0, &REG_EXPAND_SZ, join(';', @pathext));
             print ".";
