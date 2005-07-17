@@ -1,0 +1,190 @@
+#!/usr/bin/perl
+
+use strict;
+use DirHandle;
+use Getopt::Long;
+use cmt::vcs;
+use cmt::path;
+
+
+sub scan_dir;
+sub process_item;
+sub ls;
+sub search;
+sub version;
+sub help;
+
+
+    our $opt_recursive = 0;
+    our $opt_directories_only = 0;
+    our $opt_continue_with_errors = 0;
+    our $opt_script = '';            # undef if <STDIN>
+    our $opt_quiet = 0;
+    our $opt_verbose = 0;
+    our $dir_base;
+    our $dir_target = '.';
+
+
+    # COMMAND-LINE PARSING
+    GetOptions(
+        'recursive',
+        'quiet',
+        'directories-only',
+        'files-only',
+        'continue-with-errors',
+        'script=s',
+        'noscript' => sub { $opt_script = '' },
+        'version' => sub { &version; exit },
+        'help' => sub { &help, exit },
+        );
+
+    # $opt_verbose = not $opt_quiet;
+
+    my @lines;
+    if ($opt_script) {
+        open(SCRIPT, "<$opt_script")
+            or die "Can't read from file $opt_script";
+        @lines = <SCRIPT>;
+        close SCRIPT;
+    } else {
+        if (!defined $opt_script) {
+            @lines = <STDIN>;
+        }
+    }
+    $opt_script = join('', @lines);
+
+    my $compile = eval(<<"EOM");
+        sub process {
+            my \$path = \$_[0];
+            my (\$dir, \$base) = path_split(\$path);
+            my (\$file, \$ext) = path_splitext(\$base);
+            1;
+            $opt_script
+        }
+EOM
+    die "Can't evaluate: $@" if $@;
+
+    die "You must specify <compare base directory>" if !@ARGV;
+
+    $dir_base = shift @ARGV if @ARGV;
+    $dir_target = shift @ARGV if @ARGV;
+
+    # removing trailing / (or \)  if length > 1
+    #   (length > 1 is to avoid the "root /" directory. )
+    chop $dir_base if $dir_base =~ m/.[\/\\]$/;
+    chop $dir_target if $dir_target =~ m/.[\/\\]$/;
+
+    print "<compare base directory>: $dir_base\n" if $opt_verbose;
+    print "<compare target directory>: $dir_target\n" if $opt_verbose;
+
+    # PROCESSING
+    my $count = scan_dir($dir_target, $dir_base);
+
+    # RESULTS
+    if (not $opt_quiet) {
+        print <<"EOM";
+Total $count files/directories processed.
+EOM
+    }
+
+
+
+sub scan_dir {
+    my ($target, $base) = @_;
+    # print "[SCAN] $target\n" if $opt_verbose;
+
+    my @files = ls $target;
+    for (my $i = scalar(@files) - 1; $i >= 0; $i--) {
+        local $_ = $files[$i];
+        my $k = 0;
+        $k = 1 if m/^\.+$/;
+        $_ = "$target/$_";
+        $k = 1 if $opt_directories_only and -f;
+        splice(@files, $i, 1) if $k;
+    }
+    return 0 if !@files;
+
+    my @files_base = ls $base;
+    return 0 if !@files_base;
+
+    my $count = 0;
+    for (@files) {
+        my $target_item = "$target/$_";
+        # my $base_item = "$base/$_";
+        if (! search(\@files_base, $_)) {
+            $count += process_item($target_item);
+            $count += scan_dir($target_item) if $opt_recursive and -d $target_item;
+	} else {
+	    print "[skip] $target_item\n" if $opt_verbose;
+	}
+    }
+    return $count;
+}
+
+
+sub process_item {
+    my $path = shift || $_;
+    print " [DIR] $path\n" if -d $path and not $opt_quiet;
+    print "[FILE] $path\n" if -f $path and not $opt_quiet;
+
+    my $count = 0;
+    $count++ if process($path);
+
+    return $count;
+}
+
+
+sub ls {
+    my $path = shift;
+    my $dh = new DirHandle($path);
+    if (not $dh) {
+        if ($opt_continue_with_errors) {
+            return ();
+        }
+        die "Can't access directory $path";
+    }
+    my @files = $dh->read;
+    return @files;
+}
+
+
+sub search {
+    my ($list, $item) = @_;
+    for (@$list) {
+        return 1 if ($item eq $_);
+    }
+    return 0;
+}
+
+
+sub version {
+    my %id = parse_id('$Id: forx,v 1.1 2005-07-17 03:03:14 dansei Exp $');
+    print <<"EOM";
+[forx] extra-files processor framework   version $id{rev}
+author: lenik,  last update: $id{date}
+EOM
+}
+
+
+sub help {
+    &version;
+    print <<"EOM";
+
+syntax:
+    forx
+        --recursive (r)
+        --quiet (q)
+        --directories-only (d)
+        --continue-with-errors (c)
+        --script=<perl-script-file> (s, default read from stdin)
+        --noscript
+        --version (v)
+        --help (h)
+        <compare base directory>
+        <compare target directory (default .)>
+
+variables:
+    path dir base file ext opt_*
+
+EOM
+}
