@@ -47,6 +47,7 @@ sub help;
         close SCRIPT;
     } else {
         if (!defined $opt_script) {
+            print STDERR "Enter the script (use -n option to suppress): \n";
             @lines = <STDIN>;
         }
     }
@@ -153,7 +154,7 @@ sub search {
 
 
 sub version {
-    my %id = parse_id('$Id: foreach,v 1.4 2005-07-17 03:03:06 dansei Exp $');
+    my %id = parse_id('$Id: foreach,v 1.5 2005-07-17 03:13:46 dansei Exp $');
     print <<"EOM";
 [foreach] files processor framework   version $id{rev}
 author: lenik,  last update: $id{date}
