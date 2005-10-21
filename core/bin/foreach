@@ -56,8 +56,15 @@ sub help;
     my $compile = eval(<<"EOM");
         sub process {
             my \$path = \$_[0];
+            local (\$_) = \$path;
             my (\$dir, \$base) = path_split(\$path);
             my (\$file, \$ext) = path_splitext(\$base);
+            my (\$path2, \$dir2, \$base2, \$file2, \$ext2) =
+               (\$path,  \$dir,  \$base,  \$file,  \$ext );
+            my (\$a, \$b, \$c, \$d, \$e, \$f, \$g, \$h, \$i, \$j,
+                \$k, \$l, \$m, \$n, \$o, \$p, \$q, \$r, \$s, \$t,
+                \$u, \$v, \$w, \$x, \$y, \$z);
+            1;
             $opt_script
         }
 EOM
@@ -154,7 +161,7 @@ sub search {
 
 
 sub version {
-    my %id = parse_id('$Id: foreach,v 1.5 2005-07-17 03:13:46 dansei Exp $');
+    my %id = parse_id('$Id: foreach,v 1.6 2005-10-21 03:58:55 dansei Exp $');
     print <<"EOM";
 [foreach] files processor framework   version $id{rev}
 author: lenik,  last update: $id{date}
