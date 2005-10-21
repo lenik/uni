@@ -11,7 +11,7 @@
         for %%i in (c d e f g h i j k l m n o p q r s t u v w x y z) do (
             if exist %%i:\.cirkonstancoj\.cirkonstancoj (
                 set dir_cir=%%i:\.cirkonstancoj
-                echo Found cirkonstancoj installed at %dir_cir%
+                echo Found cirkonstancoj installed at !dir_cir!
                 goto cont
             )
         )
@@ -19,4 +19,6 @@
         goto end
 
 :cont
-    %dir_cir%\scheme\plt\mzscheme "%1" %*
+    %dir_cir%\lisp\plt\mzscheme "%1" %*
+
+:end

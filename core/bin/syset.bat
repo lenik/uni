@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.16 2005-07-14 02:28:19 dansei Exp $';
+@rem = '$Id: syset.bat,v 1.17 2005-10-21 04:00:13 dansei Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -53,7 +53,7 @@
         for %%i in (c d e f g h i j k l m n o p q r s t u v w x y z) do (
             if exist %%i:\.cirkonstancoj\.cirkonstancoj (
                 set dir_cir=%%i:\.cirkonstancoj
-                echo Found cirkonstancoj installed at %dir_cir%
+                echo Found cirkonstancoj installed at !dir_cir!
                 goto env_perlcall
             )
         )
@@ -69,7 +69,8 @@
 
         :env_shell
             reg add hkcr\*\shell\Binary\Command /f /ve /d      "%dir_t%\3\ue.exe ""%%1""" >nul
-            reg add hkcr\*\shell\Notepad\Command /f /ve /d     "%dir_t%\3\metapad.exe ""%%1""" >nul
+            reg add hkcr\*\shell\Notepad\Command /f /ve /d     "%windir%\system32\Notepad.exe ""%%1""" >nul
+            reg add hkcr\*\shell\Metapad\Command /f /ve /d     "%dir_t%\3\metapad.exe ""%%1""" >nul
             reg add hkcr\*\shell\Write\Command /f /ve /d       "Write ""%%1""" >nul
             reg add hkcr\*\shell\Register\Command /f /ve /d    "regsvr32 ""%%1""" >nul
             reg add hkcr\*\shell\Unregister\Command /f /ve /d  "regsvr32 /u ""%%1""" >nul
@@ -118,26 +119,43 @@
 		echo Binding file types...
 		assoc .stx=txtfile >nul
 
-		assoc   .p=PerlScript >nul
-		assoc  .pl=PerlScript >nul
-		assoc .plc=PerlScript Compiled>nul
+		assoc   .p=xPLC >nul
+		assoc  .pl=xPLC >nul
+		assoc .plc=xPLC Compiled>nul
 		ftype   .p=%dir_cir%\perl\perl5\bin\perl.exe "%%0" %%* >nul
 		ftype  .pl=%dir_cir%\perl\perl5\bin\perl.exe "%%0" %%* >nul
 		ftype .plc=%dir_cir%\perl\perl5\bin\perl.exe "%%0" %%* >nul
+		ftype xPLC=%dir_cir%\perl\perl5\bin\perl.exe "%%0" %%* >nul
 
-		assoc  .py=PythonScript >nul
-		assoc .pyc=PythonScript Compiled>nul
+		assoc  .py=xPYC >nul
+		assoc .pyc=xPYC Compiled>nul
 		ftype  .py=%dir_cir%\python\python23\Python.exe "%%0" %%* >nul
 		ftype .pyc=%dir_cir%\python\python23\Python.exe "%%0" %%* >nul
+		ftype xPYC=%dir_cir%\python\python23\Python.exe "%%0" %%* >nul
 
-            assoc .php=PHPScript >nul
+            assoc .php=xPHP >nul
             ftype .php=%dir_cir%\php\php5\bin\php.exe "%%0" %%* >nul
+            ftype xPHP=%dir_cir%\php\php5\bin\php.exe "%%0" %%* >nul
 
-		assoc  .rb=RubyScript >nul
+		assoc  .rb=xRB >nul
             ftype  .rb=%dir_cir%\ruby\ruby\bin\ruby.exe "%%1" %%* >nul
+            ftype  xRB=%dir_cir%\ruby\ruby\bin\ruby.exe "%%1" %%* >nul
 
-            assoc .sim=SIMScript >nul
+            assoc  .ss=xSS >nul
+            ftype  .ss=%dir_cir%\lisp\plt\mzscheme.exe "%%1" %%* >nul
+            ftype  xSS=%dir_cir%\lisp\plt\mzscheme.exe "%%1" %%* >nul
+
+            assoc .sim=xSIM >nul
 		ftype .sim=%dir_cir%\perl\perl5\bin\perl.exe %dir_t%\0\sim.pl "%%0" %%* >nul
+            ftype xSIM=%dir_cir%\perl\perl5\bin\perl.exe %dir_t%\0\sim.pl "%%0" %%* >nul
+
+            assoc   .6=x6 >nul
+            ftype   .6=%dir_cir%\1\simxml.exe "%%1" %%* >nul
+            ftype   x6=%dir_cir%\1\simxml.exe "%%1" %%* >nul
+
+            assoc  .m4=xM4 >nul
+            ftype  .m4=%dir_cir%\cygwin\bin\m4.exe "%%1" %%* >nul
+            ftype  xM4=%dir_cir%\cygwin\bin\m4.exe "%%1" %%* >nul
 
             echo Initialize completed.
 	goto end
@@ -159,9 +177,10 @@ sub env {
     my $regenv;
     my ($type, $value);
 
+    # prefix == x:/t | y:/.cir
     my $prefix = path_normalize($dir_t)
          . "|" . path_normalize($dir_cir);
-    $prefix =~ s/\\/[\/\\\\]/g;
+    $prefix =~ s/\\/[\/\\\\]/g;         # \ -> [/\], because prefix is regexp.
 
     print "Updating environment";
 
@@ -201,9 +220,10 @@ sub env {
 
         my @pathext = qw/.exe .com .bat .cmd .vbs .js .sh/;
             if ($regenv->QueryValueEx('PATHEXT', $type, $value)) {
-                @pathext = grep { $_ !~ m/^\.(p|pl|plc|py|pyc|php)$/i } split(';', $value);
+                @pathext = grep { $_ !~ m/^\.(6|m4|p|pl|plc|py|pyc|php|rb|ss)$/i } split(';', $value);
             }
             push @pathext, qw(
+                .6
                 .p
                 .pl
                 .plc
@@ -211,6 +231,7 @@ sub env {
                 .pyc
                 .php
                 .rb
+                .ss
                 );
             $regenv->SetValueEx('PATHEXT', 0, &REG_EXPAND_SZ, join(';', @pathext));
             print ".";
@@ -236,8 +257,19 @@ sub env {
                 path_normalize "$dir_t/0/lib",
                 path_normalize "$dir_cir/python/python23/lib",
                 path_normalize "$dir_cir/python/python23/lib/site-packages",
+                path_normalize "$dir_cir/python/blib",
                 );
             $regenv->SetValueEx('PYTHONPATH', 0, &REG_EXPAND_SZ, join(';', @pythonpath));
+            print ".";
+
+        my @simxmlpath = ();
+            if ($regenv->QueryValueEx('SIMXMLPATH', $type, $value)) {
+                @simxmlpath = grep { $_ !~ m/^$prefix/i } split(';', $value);
+            }
+            push @simxmlpath, (
+                path_normalize "$dir_t/0/lib/6",
+                );
+            $regenv->SetValueEx('SIMXMLPATH', 0, &REG_EXPAND_SZ, join(';', @simxmlpath));
             print ".";
 
         $regenv->Close();
@@ -248,9 +280,9 @@ sub env {
 
         # Force PHP.ini exists
         if (! -f "$windir/php.ini") {
-            if (-f "$dir_cir/php/php5/php.ini") {
+            if (-f "$dir_cir/php/php5/php.ini-dist") {
                 print "PHP not installed, install one\n";
-                open(FH, "$dir_cir/php/php5/php.ini")
+                open(FH, "$dir_cir/php/php5/php.ini-dist")
                     or die "Install failed: source";
                 my @data = <FH>;
                 open(FH, ">$windir/php.ini")
