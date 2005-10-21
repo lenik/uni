@@ -1,7 +1,10 @@
 #!/usr/bin/perl
 
-# $Id: repl,v 1.8 2005-01-06 04:21:46 dansei Exp $
+# $Id: repl,v 1.9 2005-10-21 04:01:26 dansei Exp $
 # $Log: not supported by cvs2svn $
+# Revision 1.8  2005/01/06 04:21:46  dansei
+# fd.  cmt.pm => cmt/vcs.pm
+#
 # Revision 1.7  2004/12/12 07:32:52  dansei
 # missing of "use cmt"
 #
@@ -81,6 +84,7 @@ my $n_target = length($target);
 $source = lc($source)  if $no_case;
 $source = qr/$source/i if $regex and $no_case;
 $source = qr/$source/  if $regex and not $no_case;
+print "source pattern: $source\n" if $verbose;
 
 @files = '.' if (scalar(@files) == 0);
 
@@ -126,6 +130,8 @@ sub process_file {
 
 	print "f $file\n" if not $quiet;
 	my $fh = new FileHandle("<$file");
+	return 0 if (! $fh);
+
 	my @lines = <$fh>;
 	$fh->close();
 
@@ -216,7 +222,7 @@ sub process_file {
 
 
 sub version() {
-    my %id = parse_id('$Id: repl,v 1.8 2005-01-06 04:21:46 dansei Exp $');
+    my %id = parse_id('$Id: repl,v 1.9 2005-10-21 04:01:26 dansei Exp $');
     print "[REPL] Replace files by regular-expression\n";
     print "Written by Snima Denik   Version $id{rev}   Last updated at $id{date}\n";
 }
