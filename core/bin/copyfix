@@ -1,0 +1,126 @@
+use strict;
+use Getopt::Long;
+use Fcntl;
+use IO::Seekable;
+use constant { BLOCKMIN=>10 };
+
+our $opt_source;
+our $opt_dest;
+our $opt_fc = "fc";
+our $opt_part = "<INTERNAL>";
+our $opt_test_only = 0;
+
+sub version {
+    print <<"EOM";
+copy-fix for binary version
+using fc for compare binary and generate part-copy scripts
+EOM
+}
+
+sub help {
+    &version;
+    print <<"EOM";
+
+syntax:
+    copyfix
+        --source=<src-path> (s)
+        --dest=<dest-path> (d)
+        --fc=<fc.exe alternate> (f)
+        --part=<part.exe alternate> (p)
+        --test-only (t)
+        --help (h)
+        --version (v)
+EOM
+    exit;
+}
+
+
+sub partcopy {
+    my ($source, $dest, $from, $len) = @_;
+    if ($opt_part eq '<INTERNAL>') {
+        my $to = $from + $len - 1;
+        my $buffer;
+
+        print "Copy Range: $source($from..$to) => $dest\n";
+        return if $opt_test_only;
+
+        open(FS, "<:raw", $source)
+            or die "Can't open source file $source for random access";
+        seek(FS, $from, SEEK_SET)
+            or die "Seek failed on source file $source +$from";
+        read(FS, $buffer, $len) == $len
+            or die "Read failed on source file $source";
+        close FS;
+
+        open(FD, "+<:raw", $dest)
+            or die "Can't open dest file $dest for random access";
+        seek(FD, $from, SEEK_SET)
+            or die "Seek failed on source file $source +$from";
+        print FD $buffer;
+        close FD;
+    } else {
+        my $cmd = "$opt_part $source $from $dest $from $len";
+        print "$cmd\n";
+        exec "$cmd" unless $opt_test_only;
+    }
+}
+
+
+sub main {
+    my @ranges;
+
+    GetOptions(
+        'source=s',
+        'dest=s',
+        'fc=s',
+        'part=s',
+        'test-only',
+        'help' => \&help,
+        'version' => sub { &version; exit }
+        );
+
+    if (@ARGV) {
+        ($opt_source, $opt_dest) = @ARGV;
+    }
+
+    &help unless $opt_source;
+    &help unless $opt_dest;
+
+    open(FC, "$opt_fc /b $opt_source $opt_dest |")
+        or die "can't open fc pipe.";
+
+    my $from = -1;
+    my $last = -1;
+    while (<FC>) {
+        next if (! m/^(\w+):\s*(\w+)\s*(\w+)/);
+
+        my ($off, $s, $d) = ($1, $2, $3);
+        $off = hex $off;
+        if ($off - $last > BLOCKMIN) {
+            if ($from != -1) {
+                push @ranges, [$from, $last];
+                print "Corrupted: $from .. $last\n";
+            }
+            $from = $off;
+        }
+        $last = $off;
+    }
+    close FC;
+
+    if ($from != -1) {
+        push @ranges, [$from, $last];
+        print "Corrupted: $from .. $last\n";
+    }
+
+    if (! @ranges) {
+        print "The files are same, nothing to do. \n";
+    } else {
+        foreach (@ranges) {
+            my ($from, $to) = @$_;
+            my $len = $to - $from + 1;
+            partcopy($opt_source, $opt_dest, $from, $len);
+        }
+    }
+}
+
+&main;
