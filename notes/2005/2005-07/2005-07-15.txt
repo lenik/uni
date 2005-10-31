@@ -1,0 +1,25 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00094
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> sf.net notes
+
+Now the XML document could be automaticlly synchronized to CVS
+
+This function is imlemented by changing CVS/Entries revisions.  The modified document is downloaded to my local computer and commited to CVS on sourceforge by SSH connection, because this can't be done within sourceforge shell, so the script is running on my local computer.  Then the CVS/Entries is updated by a PHP script.  The source code which doing the syncrhonization: 1) <a href=aaa>downloads.pl</a>  2) <a href=bbb>notify.php</a>
+
+
+> task
+
+    C PHP config (php.ini in linux)
+
+    V Gnome read / Bonobo
+
+    X Simxml dev.
+

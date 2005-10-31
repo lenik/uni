@@ -1,0 +1,30 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00102
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> simxml charsets
+
+    simxml has a parser structure as:
+
+        layer 1:  common parser - a top-down parser
+            common parser is designed for reuse, at first I want to use
+            GScanner or some kind of generators like yacc, but they were
+            not suitable for parse simxml documents, some reasons as:
+
+                - it's not easy to write lalr(1) definition of simxml,
+                  for example, the quoted string in [attribute] is a
+                  token, but in normal text of simxml body, it is just
+                  literal text.
+
+                - i want the simxml parser support as many charsets as it
+                  could, but GScanner seems not support encoding other
+                  than ascii very well.
+
+        layer 2:  simxml specific parser
+

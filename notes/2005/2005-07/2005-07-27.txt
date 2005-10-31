@@ -1,0 +1,68 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00105
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+
+> SimXML 进展
+
+关于 unicode 与 ascii 最好的共存方案已经解决了，关键的函数是 g_string_append_unichar。其实这是一个很简单的函数，无非就是对 utf-16 进行 utf-8 拆分。这样原来低效的 CHAR_SIZE / g_array_append_val 就不需要了。又做了大量改动，总算 parser 测试通过。
+
+加入了数值分析的分析器，虽然算法很简单，考虑到处理输入流的复杂性，还是加入此支持。
+
+    - http://cvs.sourceforge.net/viewcvs.py/xjl/simxml/test/words.c?view=markup
+    - http://cvs.sourceforge.net/viewcvs.py/xjl/simxml/test/dbls.c?view=markup
+
+
+> 韩语gogogo 并入usnap计划
+
+    @crit {机密}
+
+    状态
+        草案 #1
+
+    类型
+        开放作业
+
+    名称
+        hyg - Han Yu Gogogo
+
+    摘要
+        hyg.shr 共享任务信息
+        hyg.log 发布学习日志
+
+    并入模块
+        开放内容互联
+        USNAP.Intertalk
+
+    涉及组件
+        Intertalk.Entity
+        Intertalk.SiteDef
+
+
+    -- Intertalk:
+        开放内容互联 简介
+
+        1) 实体
+
+        以前，用户需要在每个论坛、新闻组等注册一个帐号。有一些组织提供
+        通行证，而这些通行证又只能在有限的范围内使用。
+
+        Intertalk 通过第三方的名称 (1NA.net) 支持以获得实体的统一性和安
+        全性。
+
+        站点、新闻组等通过 1NA.net 成为服务性实体，简称站点实体。
+
+        2) 内容提供
+
+        站点实体提供的不同内容服务，通过标准的接口映射到 Intertalk 。
+
+        3) 内容发布
+
+        Intertalk 发布的内容，依据站点定义与各站点实体同步。
+

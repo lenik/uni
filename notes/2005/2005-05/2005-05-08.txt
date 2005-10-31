@@ -1,0 +1,25 @@
+﻿BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00038
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> CCS-5 (Compact-Charset 5-bit, 32') Table
+	_ a b c d e f g h i j k l m n o p q r s t u v w x y z . : $ @ %
+
+
+> CCS-6 (Compact-Charset 6-bit, 64') Table
+	_ a b c d e f g h i j k l m n o	p q r s t u v w x y z 0 1 2 3 4
+	. A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 5 6 7 8 9
+
+
+> SF announced new statistics formula:
+	  sum log(last 7-days # / highest):
+		download, logo-click, site-click, commit,
+		tracker, ML-post, forum-post
+	+ sum (100 - last login #):
+		release, admin

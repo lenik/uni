@@ -1,0 +1,19 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00106
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> Èý½Ü
+
+    ñ¼Î¨ ÕÅ³þ
+
+
+> Tasks
+
+    com wrapper
+    simxml dev.

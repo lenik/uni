@@ -1,0 +1,57 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00141
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> 桃壳内部统一数据库
+
+    参考 .xls 。
+
+    mp-3 类似的 xml 系统还是有必要的。
+    并且是非常重要的。
+
+
+> Schemas TODO
+
+    bas.daf
+    ( daf - Database Application Framework )
+
+    daf.res     Resource Connection
+    daf.model
+    daf.view
+    daf.
+
+
+> uninstall:
+  V mysql 5.0
+  V firefox
+  V protege
+  V python
+  V msdn 2000
+  V winpcap
+  V ffdshow
+  V monkey's audio
+  V quicktime
+  V driverstudio
+  V wma workshop
+  V coreldraw 11
+  V cooledit 2
+  V google earth
+  V google toolbar
+  V daemon tools
+  V quicktime
+  V vmware
+  V emule
+  V flash player
+  V ai roboform
+  V crystal report
+    ibm rational arch
+
+    office 2003
+    vs 98
+    putty

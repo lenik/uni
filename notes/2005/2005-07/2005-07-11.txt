@@ -1,0 +1,55 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00089
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> stack
+
+    perl
+        tk, xs, dbi
+
+    V  scheme: call/cc Y-comb
+
+    gamlet
+        scheme, ruby, python version
+
+    p2p: Jxta
+
+    adaptive: Ace
+
+    book:
+        SICP
+        software switch
+
+    ruby-on-rails => DTC adapt
+        LT ?
+
+    V  USB-cert
+
+    C  fuckufo/key-exchange, $ v-server U.S.
+
+    simxml
+        V  Gdk/g_scanner ...
+
+    QJL
+        concurrent..
+        SWT window
+
+    ITFF - Intertalk for Free
+        => 0YY
+
+    Mego project
+
+    ---------------
+
+    BAS-framework
+
+
+> 物化
+
+    在去杭州的火车上与一位东北的女子对坐。从谈话得知她24岁，她穿着很卡通的衣服，淡绿色的衬衫有波浪的边角，上面印着浅浅的kitty猫。手上戴着一个蛮大的布熊。大概是天比较热，她脱下衬衫，里面的背心下面也绣着一只小猫。

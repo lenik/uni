@@ -1,0 +1,99 @@
+﻿BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00058
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> buddy: Cloudscope~
+	eiiq@msn.com
+	济南大学，研究过spring+hibernate，曾翻译bindows。
+
+
+> msn topic
+
+	msn支持一种运动式手表，类似订阅短信
+	http://direct.msn.com/default.aspx
+
+	RFC MIME
+	RFC 1738 URL-Encode
+	RFC 1928 SOCKS5
+
+
+> Mego
+
+	VER <TrID> <Protocol>+
+
+	CVR <TrID> <LocaleID> <OS> <OSVer> <Arch> <Agent> <Ver> MSMSGS <Account>
+		=> CVR <TrID> <VerRec> <$2> <VerMin> <DownURL> <AboutURL>
+
+	USR <TrID> <AuthSys> I <Account>
+		=> XFR <TrID> NS <NSIP:Port> 0 <OldNSIP:Port>
+		=> USR <TrID> <AuthSys> S <Auth-String>
+
+	USR <TrID> <AuthSys> S
+		-> USR <TrID> OK <Account> <Display> <IsVerified=0,1> 0
+
+	OUT [OTH|SSD]
+
+	CHG <TrID> <Status=NLN|BSY|IDL|BRB|AWY|PHN|LUN|HDN> <ClientID>
+		-> ILN <TrID> <Status> <Account> <Display> <ClientID>
+		-> NLN <Status> <Account> <Display> <ClientID>
+		-> FLN <Account>
+
+	REA <TrID> <Display>
+
+	REA <TrID> <TgtAccount> <TgtDisplay>
+		-> REA <TrID> <TgtVer> <TgtAccount> <TgtDisplay>
+
+	PNG
+		-> QNG
+
+	CHL 0 <ChlString>
+		-> QRY <TrID> <ClientString> <PayLen>
+		   <MD5(ChlString-ClientCode)>
+
+	SYN <TrID> <VerC>
+		-> SYN <TrID> <VerC>
+		-> SYN <TrID> <VerU> <PriNum> <GrpNum>
+		   GTC|BLP|PRP|LST|LST ...
+
+		GTC A|N
+		BLP AL|BL
+		PRP <PType=PHH|PHW|PHM|MOB|MBE|WWE> <String>
+		LSG <GrpId> <GrpName> 0
+		LST <Account> <Display> <ListMask> [<GrpsByComma>]
+		.. BPR <PType> <String>
+
+	GTC <TrID> A|N
+		-> GTC <TrID> <Error> A|N
+
+	BLP <TrID> AL|BL
+		-> BLP <TrID> <Error> AL|BL
+
+
+	PRP <TrID> <PType> <String>
+		-> PRP <TrID> <Error> <PType> <String>
+
+	ADD 0 RL <VerC> <TgtAccount> <TgtDisplay>
+	.. BPH
+
+	ADD <TrID> <List> <TgtAccount> <TgtDisplay> [<GrpId>]
+		-> ADD <TrID> <List> <TgtVer> <TgtAccount> <TgtDisplay> [..]
+		   .. BPR <TrID> <Account> <PType> <String>
+		   .. ILN
+
+	REM <TrID> <List> <TgtAccount> [<GrpId>]
+		-> REM <TrID> <List> <TgtVer> <TgtAccount> [..]
+
+	ADG <TrID> <GrpName> ?
+		-> ADG <TrID> <VerC> <GrpName> <GrpID> ?
+
+	RMG <TrID> <GrpID>
+		-> RMG <TrID> <VerC> <GrpID>
+
+	REG <TrID> <GrpID> <GrpName> ?
+		-> REG <TrID> <VerC> <GrpID> <GrpName> ?

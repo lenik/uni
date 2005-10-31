@@ -1,0 +1,17 @@
+﻿BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00042
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> QJL Test Script
+
+ver 1
+enc gb2312
+name Test App
+binary
+cmdl net.bodz.qjl.test.HelloWorld

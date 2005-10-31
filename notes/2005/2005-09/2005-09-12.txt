@@ -1,0 +1,19 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00130
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> tasks
+
+    Autolife new api structure
+    7PF test
+    Object-Oriented CSS Builder
+    DTC -> AA
+    MLV
+
+>

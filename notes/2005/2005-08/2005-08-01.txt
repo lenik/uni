@@ -1,0 +1,28 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00115
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> 韩语表情图库 拼音版
+
+其中每个字用 "," 结尾，开头字母大写，比如 (han)(gul) 就写成 "Han," "Gul,"
+有些拼音长度比较长的，就取最前面五个字母，比如 (ddaess)，就写成 "Ddaes,"
+没有声母的音用 "O" 开头，比如 (an) 就写成 "Oan,"
+韩语字根必须用全称的形式输入，比如 (g) 这个音，就写成 "Giyeok,"
+字根<ieung>作尾音时（发 -ng 音)，因为 "o" 已经留作他用，因此用 "v" 表示，比如 (geung) 就写作 "Geuv,"
+
+拼音名称参考
+http://zh.wikipedia.org/wiki/%E6%9C%9D%E9%AE%AE%E8%AA%9E#-.7Bzh-cn:.E6.9C.9D.E9.B2.9C.E8.AF.AD.3Bzh-tw:.E9.9F.93.E8.AA.9E.3Bzh-hk:.E6.9C.9D.E9.AE.AE.E8.AA.9E.7D-.E5.AD.97.E6.AF.8D.E8.A1.A8
+
+拆字顺序
+http://zh.wikipedia.org/wiki/%E9%9F%A9%E8%AF%AD%E5%AD%90%E9%9F%B3%E5%AD%97%E6%AF%8D%E8%A1%A8
+
+本图库原版由 尼姑 提供。我只是把快捷方式重新定义一下。
+参考 http://www.ybcom.com/yb/2005/Soft/ShowSoft.asp?SoftID=48
+
+我的 qq/ 83592583

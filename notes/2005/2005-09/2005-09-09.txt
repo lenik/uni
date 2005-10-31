@@ -1,0 +1,82 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00129
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> 软件安全虚拟机
+
+    - 操作符混乱、重排
+    - 虚拟内存混乱基础
+
+    地址 (Little-endian)
+        0000 F1..F16 -> L1..L8  (Full, float)
+        0001 Q1..Q16 -> H1..H8  (Quarter)
+        0010 H1..H16 -> F1..F8  (Half)
+        0011 D1..D16            (Long, double)
+        0100 B1..B16 -> Q1..Q2  (Bit)
+        0111 0000 FL (Flags)
+
+        1xx 0yyyy F1..F16 indirect
+            10 000 constant
+            10 111 variant indirect
+          xx:
+                00 32-bit
+                01 16-bit
+                10 8-bit
+                11 64-bit
+
+
+    堆栈结构
+        双堆栈：支持某个调用暂停返回、继续
+            call call-b
+            push push-b
+            pop  pop-b
+
+    指令集
+
+        mov
+        clr
+
+        and
+        or
+        xor
+        shl
+        shr
+        rol
+        ror
+
+        inc
+        dec
+        add
+        sub
+        mul
+        div
+        cmp
+        test
+
+        fadd
+        fsub
+        fmul
+        fdiv
+        fcmp
+        flog
+        flog2
+        flog10
+        fsin
+        fcos
+        ftan
+        fcot
+        fasin
+        facos
+
+        push ?
+        pop ?
+        jmp ?
+        call ?
+
+        syscall sysptr ?

@@ -1,0 +1,17 @@
+﻿BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00037
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> eBay Individual security keys
+
+DevID = F1RKZ4H84UN6I16899HBW1E19164HD
+
+AppID = 6FKEJIBUILC3A23OWI6NS76B1JO4EM
+
+CertID = F1BPE13231J$D9U7GY2HP-4788E711

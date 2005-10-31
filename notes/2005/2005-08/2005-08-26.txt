@@ -1,0 +1,36 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00127
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> imath on sf.net
+
+imath is very like to math.h, which support float computation, but different in parameter and return values.
+
+most devices don't support float operations in hardware-level, and they use software emulation like ieee-754 float/double math or other complex technologies like thaler series, these implementation is high precise but very slow. when programming on embeded devices, most often, we don't need this high precise, and just want faster.
+
+the imath library using scaled integers to represent fixed-point decimals, and using lookup-table for faster speed. the scale and table size are configurable, and so is compliant for embedded devices.
+
+
+> LWB - Libwww for Basic
+
+
+-- Structs
+    .getStructPtr(); => void *
+    .getStructSizeOf(); => sizeof(struct)
+
+    func(struct st *) =>
+        .method(StructST *) {
+            st * = (st *)ST->getPtr();
+        }
+    func(struct st **) =>
+        .method(ST **ret) {
+            *ret = new ST;
+            ret_st = *ret->getPtr;
+            ret_st->...
+        }

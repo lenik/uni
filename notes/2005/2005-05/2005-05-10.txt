@@ -1,0 +1,39 @@
+﻿BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00041
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> Uv / AD
+
+
+
+	抽象
+		抽象类型，泛型兼容
+		AOP 过程设计
+			Authentication
+			Caching
+			Context passing
+			Error handling
+			Lazy loading
+			Debugging
+			logging, tracing, profiling and monitoring
+			Performance optimization
+			Persistence
+			Resource pooling
+			Synchronization
+			Transactions
+
+
+	具体
+		编译期优化：reduce validate
+		具体化接口，效率参数权重指导
+
+
+
+	转换能力
+		能够转换成C/C++, IDL 等能力

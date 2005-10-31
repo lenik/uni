@@ -1,0 +1,26 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00095
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> Intertalk register
+
+    Intertalk is a software suite, which contains follow components (planning):
+
+    1, Object Model Definition
+       This is a document for "SDK" purpose.
+
+
+> Tasks
+
+    SimXML dev.
+
+
+> Glib src.
+
+    g_newa(type, n)

@@ -1,0 +1,47 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00128
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> 项目进展
+
+(八月) 新增项目
+
+    Stack.005 Match La Vortojn - 背单词比赛
+
+        多语言背单词Web游戏
+        参见 http://www.vchelp.net/copathway/project_view.asp?prj_id=1341
+
+        提供复杂的单词定义格式，使 MLV 不仅游戏也可作为多国语言词汇参考。
+        玩家可以将背单词计划挂在其它计划系统上。
+        玩家可以管理单词学习过程。
+        提供公共接口，使其它网站可以在 MLV 上设立公开比赛事项。
+
+        如果九月份不能完成此项目则取消。
+
+    Stack.008 Max Space - 三维积木 Palm 版
+    Stack.011 La Vertigo - Palm 版电子琴
+
+        两个小游戏作为 Palm 的初步尝试。
+        为了更快的计算三角函数，以及充分发挥受限设备的整数运算能力，
+        将不使用 IEEE-754 的浮点运算库，而重新开发定点小数运算库。
+
+        定点小数运算库位于 011/imath，已经提交给 sourceforge 尚在审批中。
+        参考 http://www.sf.net/projects/imath
+
+        La Vertigo 如果可能将考虑使用音频混音来提供乐器效果。
+        但可能无法忍受 Palm 上的运算延迟。
+
+        Max Space 如果九月份不能完成则取消。
+
+    Stack.012 FileInfo - (Vex组件) 简易通用文件格式
+
+    Stack.013 Auto Life - QQ 宠物自动喂养程序
+
+        喂养 QQ 宠物真是太麻烦了。
+        有人写好了一个自动喂养程序，不过有很多缺陷。

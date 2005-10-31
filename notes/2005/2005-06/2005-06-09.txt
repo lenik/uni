@@ -1,0 +1,28 @@
+﻿BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00060
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> Mego on SF.net
+
+There're some defects of MSN Messenger, for example, the contact list contains no more than 150 items; the group chat (2 more users chatting) only for online buddies, that is, group chat can't include off-line buddies; you can't send messages to off-line buddies; etc.
+
+The Advanced Group for MSN Messenger has following features:
+- make possible of more than 150 contact list
+- send message to group which consists of both online and offline buddies, off-line buddies will receive the message when next time start.
+- the contact list of group is persistant, so everyone don't have to add all other contact in the members list, this makes the group maintaince easier
+- the group is similar to discussion board, everyone is convienient to take part in, and just to join and chat, no other works.
+- the protocols to be supported are MSNP8, MSNP9, MSNP10.
+
+
+> Treated rather than Birned
+
+
+> MSN
+
+	RFC 2543 -> 3261

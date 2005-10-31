@@ -1,0 +1,19 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00140
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> redovn - 1
+
+    - 开发过程
+    -
+
+    - 统计
+    - 自动验收，分布式测试
+    - 安全？
+

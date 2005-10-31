@@ -1,0 +1,27 @@
+﻿BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00043
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> TODO
+
+	qjl:
+		client
+		GUI / event-queue
+		ENV??  classpath..
+		argument ""-remove
+		<backspace>-merge (recvbuf)
+
+		qjl-server [charset Cs]
+		qjl-client [charset Cc]
+		client-input, always-text-mode:
+			decode(recvbuf,Cc) => encode(str,Cs) => in-pipeout
+		server-output, text-mode:
+			decode(localbuf,Cs) => encode(str,Cc) => send
+
+		charset-parseexception-position

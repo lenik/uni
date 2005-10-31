@@ -1,0 +1,38 @@
+﻿BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00081
+
+   TITLE  SIMXML Dev. Progress
+KEYWORDS  simxml xml
+
+
+> simxml tasks
+
+	- simxml parser, simxml => xml
+	- xml2sim, xml => simxml
+
+	xml2sim --header=<macro-template> .xml >.stx
+
+
+> simxml parser
+
+	-
+
+
+>
+
+>
+
+	http://www.winvod.com/chinavnet/movie.asp?typeid= &page=
+	http://www.winvod.com/chinavnet/showdata/2018.html
+	http://www.winvod.com/chinavnet/showdata/getdata.asp?id=2018
+		parent.server.ser5.checked=1;parent.serchange(5);
+		parent.pingfen.innerHTML='好';
+		parent.renshu.innerHTML='12';
+		parent.hits.innerHTML='<font color="#FFFFFF">304(0)</font>';
+
+	typeid=1..12
+
+http://mathsblog.blogbus.com/logs/2004/05/

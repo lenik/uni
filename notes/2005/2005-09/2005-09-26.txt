@@ -1,0 +1,71 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00136
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> task
+
+    AA ddl, 以及一般站点css框架的开发方法
+        --> user 使用 mlv 的公共框架
+
+    simxml 进展
+
+
+> simxml normalization
+
+    空格
+
+    转义，实体
+        , &#44;     &com;
+        { &#123;    &lbr;
+        } &#125;    &rbr;
+
+
+
+    -- Merge roots.
+    -- default=1 so [ merge ] is same as [ merge=1 ]
+
+    [ default=1 ]
+    simxml::root {
+    }
+
+    [ merge ]
+    simxml::define {
+        @name { my-macro }
+        @style { line | block }
+        @indent { 4 }   -- using indent, tabsize: 4
+        @merge { 1 }    -- contents of concat macros will be concated.
+        @foreach { 0 }  -- only for line-mode. line content will be splited.
+        @match {
+
+        -- line
+            body {
+                user1 \{ .. $arg1 . \}
+                user2 \{ . $arg2 .... \}
+            }
+
+        -- block
+            prefix {
+                [ ... ]
+                div \{
+            }
+
+            suffix {
+                \}
+            }
+
+        -- element
+            element {
+            }
+    }
+
+    my-macro {
+        macro-body.
+    }
+
+    [ attributes ] 可以邻接

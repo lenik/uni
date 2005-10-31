@@ -67,7 +67,7 @@ html {
 html
 	head
 		title Mia Domo Estas Granda
-		title Mia \
+		title Mia _
 			Domo Estas Granda
 	body
 		div Centered-1
@@ -83,7 +83,7 @@ html {
 	head {
 		#symbol $ title
 		$ Mia Domo Estas Granda
-		$ Mia \
+		$ Mia _
 			Domo Estas Granda
 	}
 	body {
@@ -187,3 +187,63 @@ html {
 			%
 
 -
+
+html {
+	body {
+		p {
+			Hello, world!
+
+			[id=test]
+			div {
+				some text. without braces.
+
+				but when a word followed by a brace, it is considered as
+				an element, for strong { example }.
+
+				however, escape \{ is okay.
+			}
+
+			[style="color: #ffeecc"]
+			div {
+				comma(,) after \} is used for inherit attributes.
+			},
+			div {
+				so, this second div with same attributes.
+			},
+
+			The mixed text is supported.
+
+			[title="very 3rd!"]
+			div {
+				the third div with same attributes, and additional 'title' attribute.
+			}
+
+			-- comments must be in separate line, and must preceding by
+			-- only spaces.
+			-- adjacent comments will be merged.
+
+			== simxml::comment  process-instruction is also supported, like this.
+			== simxml::comment  the syntax is the same as comments, but however, adjacent
+			== simxml::comment  pi will not be merged.
+
+			== simxml::comment  whether process-instruction of simxml:: scope be mapped
+			== simxml::comment  into generated xml-file is configurable.
+
+			-- == simxml::include  "html-style.sth"
+
+			== simxml::define   > "h1 { [color=\"#ff0000\"] font {"   "}}"
+			== simxml::define   - "h2 { em {"   "}}"
+
+			> Example of Macro / Heading 1
+				- Example of Macro / Heading 2 A
+				- Example of Macro / _
+					Heading 2 B for long text
+				- Example of Macro / Heading 2 C _
+					for very very very very very very very very _
+					very very very very very very long text
+
+			== simxml::undef    >
+			== simxml::undef    -
+		}
+	}
+}

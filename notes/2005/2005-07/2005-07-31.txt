@@ -1,0 +1,113 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00111
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+>
+01．The Mummers' Dance
+专辑名称: The Book Of Secrets
+艺人歌手: Loreena Mckennitt
+发行时间: 1997年
+
+02．The Bonny Swans
+专辑名称: Live in Paris and Toronto
+艺人歌手: Loreena Mckennitt
+发行时间: 1999年
+
+03.The dark night of the soul
+专辑名称: The Mask and Mirror
+艺人歌手: Lorena McKennitt
+发行时间: 1994年
+
+05. Dust In The Wind
+专辑名称: La Luna
+艺人歌手: Sarah Brightman
+
+09. Tears On Min Chuan Road
+艺人歌手: Matthew Lien
+
+10. Daily Growing
+专辑名称: The Blue Idol
+艺人歌手: Altan
+发行时间: 2002年
+
+12.Maclan Of Glencoe
+专辑名称: 爱恋凯尔特
+艺人歌手: Moira Kerr
+
+13. Moment_of_Peace
+专辑名称: Masters of Chant II Moment
+艺人歌手: Gregorian
+
+14.Dantes prayer-Méav媚雅.mp3
+专辑名称: Méav
+艺人歌手: Méav媚雅
+
+15.Over the Rainbow
+专辑名称: Songbird
+艺人歌手: Eva Cassidy
+发行时间: 1998年
+
+16. Riding On The Waves Of Time
+专辑名称: Back In Time
+艺人歌手: Ginkgo Garden
+发行时间: 2002年
+
+18.The Other Side
+专辑名称: Banba 班芭
+艺人歌手: Clannad
+发行时间: 1993年
+
+19. Under a Violet Moon
+专辑名称: Under A Violet Moon
+艺人歌手: Blackmore’s Nigt
+发行时间: 2001年
+
+20. Veni Redemptor Gentium
+专辑名称: State of Grace 心境
+艺人歌手: Paul Schwartz
+发行时间: 2000年
+
+
+ProgrammerLove
+程序员的心
+
+
+
+位高权重责任轻
+钱多事少离家近
+睡觉睡到自然醒
+数钱数到手抽筋
+
+553     Apache -74
+479     MySQL -24
+455     vmware: -3
+            auth    2
+            dhcp    0
+            nat     1
+452     Dudu -10 -3(pros)
+439     realschd -2
+437     ue -10
+427     cvs(2) -4
+
+441     services
+            automatic updates -0.3
+            ssdp discovery -0.3
+            application layer gateway service -1.1
+            help support -0
+            remote registry -0
+            shell headware detection -0
+            system restore service -0
+            tcp/ip netbios helper -0
+            windows audio -0
+            protected storage -0
+            ipsec services -1.4
+430     blackice -11
+
+383     maxthon -30
+353
