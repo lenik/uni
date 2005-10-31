@@ -11,7 +11,6 @@ KEYWORDS  ____________________________________________________________________
 > LTT
 
 	8.0 	Simxml parser.1
-	9.0	eXtendable Language Framework draft
 
 
 > Simxml parser
@@ -20,13 +19,9 @@ KEYWORDS  ____________________________________________________________________
 	Space break between non-terminators.
 
 
-	(low prior)
-	TOKEN		TOKEN_M? TOKEN_P (TOKEN_B? TOKEN_S)?
-			--
-	TOKEN_M		@
-			?
+	TOKEN		TOKEN_P (TOKEN_B? TOKEN_S)?
 	TOKEN_P		letter _
-	TOKEN_B		letter digit _ . - :
+	TOKEN_B		letter digit _ . -
 	TOKEN_S		letter digit _ .
 
 	STRING		" (\\. | [^\"])* "
@@ -57,84 +52,6 @@ KEYWORDS  ____________________________________________________________________
 	NUMBER_F	. NUMBER_I
 			NUMBER_I . NUMBER_I?
 
-	NUMBER_S	NUMBER_F [+-] e NUMBER_I
-
-	BOOLEAN		true
-			false
-
-	CHAR		(otherwise)
-
-
-	Word		TOKEN
-			STRING
-			NUMBER
-			BOOLEAN
-
-	(C.1)
-	Element		TOKEN : Content* ;
-	Content		Element
-			Word
-			CHAR
-
-	(C.2)
-	Element		TOKEN { Content* }
-	Content		Elements
-			Word
-			CHAR
-	Elements	[ Attribute+ ] Element ( , Element )*
-	Attribute	TOKEN = Word
-
-	(P.1)
-	CHAR - overload:
-		CHAR	if symbols($1) defined, then
-				{
-				s-this = lspace-stack-top
-				s-this -> indent-level
-				if indent-level-- >0
-					reject
-					return ElemT (tab)
-				else
-					return ElemP (pre-element)
-				}
-			else return CHAR
-
-	SPACE - overload
-		^SPACE	push lspace-stack, $1; return SPACE
-
-	Element		ElemT* ElemP Content
-
-
-	- Part: Simxml-Preprocess  ?simxml ____
-
-	Pragma		PragmaName 	PragmaValue
-			indent		yes|no
-			space		preserved|normalized|stripped
-			strict		yes|no
-			undefined	empty|copy
-
-	(terminator)
-	SCALAR		$ TOKEN
-			${.*}
-
-	Scalar		SCALAR
-			$ [ Expression ]
-	Expression	Scalar
-			Expression (op) Expression
-			( Expression )
-
-
-> XLF comments
-
-	- macro support
-	  #include
-	  #define
-	  #ifdef #if #else #endif
-
-	- comments strip
-	  //
-	  /* */
-	  # (unknown)
-
-	- $scalar variable (auto mode, default undef)
-	  simple expression ( + - * / () ^ & % | && || ! ~ )
+	NUMBER_S
+			NUMBER_F [+-] e NUMBER_I
 
