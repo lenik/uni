@@ -4,6 +4,7 @@ use strict;
 use cmt::vcs;
 use DirHandle;
 use Getopt::Long;
+use Data::Dumper;
 
 my %opt_ext = (
         'c' => 'c',
@@ -13,25 +14,36 @@ my %opt_ext = (
         'hxx' => 'c',
         'hpp' => 'c',
         'java' => 'c',
+        'js' => 'c',
 
         'sh' => 'unix',
+        'bat' => 'text',
+
         'p' => 'unix',
         'pl' => 'unix',
         'python' => 'unix',
         'tcl' => 'unix',
 
-        'bas' => 'text',
+        'bas' => 'vb',
         'frm' => 'vb',
         'cls' => 'vb',
 
         'txt' => 'text',
+
         'htm' => 'text',
         'html' => 'text',
+        'css' => 'text',
+
+        'xml' => 'xml',
+        'xsl' => 'xml',
+        'xslt' => 'xml',
+        'xsd' => 'xml',
+        'dtd' => 'xml',
+        'xq' => 'xml',
+
         'php' => 'text',
         'asp' => 'text',
         'jsp' => 'text',
-
-        'bat' => 'text',
        );
 
 my $opt_quiet = 0;
@@ -115,7 +127,7 @@ sub process {
     my %counts = ();
     my ($fext, $fmodel);
     if (-d $fn) {
-        # print "d $fn\n" if $opt_verbose;
+        print "[DIR] $fn\n" if $opt_verbose;
 
         my $dh = new DirHandle($fn);
         my @files = $dh->read();
@@ -154,6 +166,8 @@ sub process {
         }
         $fn = "$fn/";
     } else {
+        print "[FILE] $fn\n" if $opt_verbose;
+
         ($fext) = $fn =~ m/\.([^.\/]+)$/;
         my $fext_as = $fext;
             $fext_as ||= 'txt';
@@ -161,7 +175,8 @@ sub process {
             # || die "Unknown extension: $fext";
             $fmodel ||= 'text';
 
-        eval "%counts = &count_$fmodel(\$fn)";
+        my $count_func = eval "\\&count_$fmodel";
+        %counts = &$count_func($fn);
         for my $k (keys %counts) {
             $summary_x{$fext}->{$k} += 1 * $counts{$k};
         }
@@ -267,23 +282,35 @@ sub count_unix {
     return (
             'body' => $lines,
             'words' => $words,
+            'comments' => $cmtlines,
             );
 }
 
+
+sub count_xml {
+    return count_text(@_);
+}
+
+
 sub help {
-    my %id = parse_id('$Id: wcc,v 1.7 2005-01-06 04:21:47 dansei Exp $');
+    my %id = parse_id('$Id: wcc,v 1.8 2005-12-20 02:39:25 dansei Exp $');
     print <<"EOM";
 Words Count for Source Code   Version $id{'rev'}   Date $id{'date'}
 Syntax:
     wcc
-        --help(h)
-        --extension(x)=<ext-name>[=<type-mapping>]
-        --recursive(r)
+        --help (h)
+        --extension=<ext-name>[=<type-mapping>] (e)
+        --exclude=<ext-name to be excluded> (x)
+        --recursive (r)
         --summary --nosummary
+        --force (f)
+        --quiet (q)
+        --veryquiet (vq)
+        --verbose (v)
+        --help (h)
         files...
 EOM
     exit;
 }
-
 
 &main;
