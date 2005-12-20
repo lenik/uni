@@ -11,13 +11,17 @@ use cmt::winuser;
 
 
 our $nfs_appname = 'NFS Version 2';
-our %nfs_id = parse_id('$Id: nfs,v 1.14 2005-07-07 09:40:03 dansei Exp $');
+our %nfs_id = parse_id('$Id: nfs,v 1.15 2005-12-20 02:43:22 dansei Exp $');
 
 our %nfs_filetype = (
     ''      => 'ue "%s"',                   # default
+
     'txt'   => 'metapad "%s"',
     'doc'   => 'winword "%s"',
     'xls'   => 'excel "%s"',
+
+    'x'     => 'SPECIAL',
+    'lst'   => 'metapad "%s"',
     );
 
 our $nfs_path_container;
@@ -25,7 +29,7 @@ our $nfs_path_vol;                          # dynamic: maybe happened to be over
 our $nfs_path_full;                         # should be equal to container/title
 
 
-our $opt_root;                              # NFS-Root, default "My Documents/Notes" -or- "~/Notes"
+our $opt_root;                              # NFS-Root, default "My Documents/Notes" -or- "~/Notes" for most types.
 
 our $opt_program = '.dep';                  # Program used to open nfs document
                                             #   .dep    Depends on type
@@ -36,6 +40,7 @@ our $opt_program = '.dep';                  # Program used to open nfs document
                                             #   .link   create a symbolic link of the specified container-name
                                             #   .index  build index file
                                             #   .bak    do backup
+                                            #   .ls     browsing in the directory
 
 our $opt_type = 'txt';                      # Document type
 our $opt_type_specified = 0;                # Is the type option be strictly specified
@@ -92,9 +97,6 @@ our $opt_quiet = 0;
 
 
 sub main {
-    $opt_root = "$ENV{USERPROFILE}/My Documents/Notes";
-
-
     GetOptions(
         'root|r=s',
         'nfs-title|n=s',
@@ -156,6 +158,15 @@ sub main {
         }
     }
 
+    if (! defined $opt_root) {
+        if ($opt_type eq 'x') {
+            $opt_root = "$ENV{USERPROFILE}/My Documents/scratch";
+            $opt_type = 'lst';
+            $opt_program = '.ls';
+        } else {
+            $opt_root = "$ENV{USERPROFILE}/My Documents/notes";
+        }
+    }
 
     if ($opt_title eq '') {
         my $deftitle = get_serial($opt_root);
@@ -220,194 +231,208 @@ sub main {
 
 
     # for special operations
-        if ($opt_program eq '.bak') {
-            print "backup $nfs_path_full to $nfs_path_full.bak\n" if $opt_verbose;
-            binary_copy $nfs_path_full, "$nfs_path_full.bak";
-            exit;
-        }
-        elsif ($opt_program eq '.map') {
-            print "map $nfs_path_full to $opt_map_target\n" if $opt_verbose;
 
-            # check source existance and get the extension
-            if (not $opt_map_delete) {
-                if (not -e $nfs_path_full) {
-                    die "Mapping source $nfs_path_full isn't existed. ";
-                }
+    if ($opt_program eq '.bak') {
+        print "backup $nfs_path_full to $nfs_path_full.bak\n" if $opt_verbose;
+        binary_copy $nfs_path_full, "$nfs_path_full.bak";
+        return;
+    }
+
+    if ($opt_program eq '.map') {
+        print "map $nfs_path_full to $opt_map_target\n" if $opt_verbose;
+
+        # check source existance and get the extension
+        if (not $opt_map_delete) {
+            if (not -e $nfs_path_full) {
+                die "Mapping source $nfs_path_full isn't existed. ";
             }
-            if ($opt_map_target !~ m/\./) {
-                $opt_map_target .= ".$opt_type";
+        }
+        if ($opt_map_target !~ m/\./) {
+            $opt_map_target .= ".$opt_type";
+        }
+
+        if ($opt_map_delete) {
+            if (-e $opt_map_target) {
+                my $confirm = "delete file $opt_map_target";
+                exit if not $confirm;
             }
+            unlink $opt_map_target;
+        } else {
+            # returns the actually full-path of target,
+            # this may fill the ignored filename
+            $opt_map_target = binary_copy($nfs_path_full, $opt_map_target);
+        }
+
+        if (not $opt_disable_vex_extension) {
+            # $new_this -> $new_source
+            my ($src_dir, $src_name) = path_split($nfs_path_full);
+            my ($dst_dir, $dst_name) = path_split($opt_map_target);
+                $dst_dir ||= '.';
+            my $new_key = $dst_name;            # target
+            my $new_value = $nfs_path_full;     # source
+
+            my $vexdir = path_join($dst_dir, '.VEX', 'sync');
+            my $synclist = path_join($vexdir, 'sync-nfs');
 
             if ($opt_map_delete) {
-                if (-e $opt_map_target) {
-                    my $confirm = "delete file $opt_map_target";
-                    exit if not $confirm;
-                }
-                unlink $opt_map_target;
+                print "remove vex/sync entry: $new_key=$new_value\n" if $opt_verbose;
             } else {
-                # returns the actually full-path of target,
-                # this may fill the ignored filename
-                $opt_map_target = binary_copy($nfs_path_full, $opt_map_target);
+                # os-branch
+                # if (not -e ".sync-nfs.bat") {
+                    open(F, ">.sync-nfs.bat");
+                    print F "\@echo off\n";
+                    print F "rem NFS-Rev: $nfs_id{rev}\n";
+                    print F "rem Thie file is auto generated by NFS Program $nfs_id{rev}, and it will\n";
+                    print F "rem be automaticly updated. Please don't edit this file. \n";
+                    print F "call nfs --synchronize --quiet\n";
+                    close F;
+                # }
+
+                print "add vex/sync entry: $new_key=$new_value\n" if $opt_verbose;
+                auto_mkdir $vexdir;
             }
 
-            if (not $opt_disable_vex_extension) {
-                # $new_this -> $new_source
-                my ($src_dir, $src_name) = path_split($nfs_path_full);
-                my ($dst_dir, $dst_name) = path_split($opt_map_target);
-                    $dst_dir ||= '.';
-                my $new_key = $dst_name;            # target
-                my $new_value = $nfs_path_full;     # source
-
-                my $vexdir = path_join($dst_dir, '.VEX', 'sync');
-                my $synclist = path_join($vexdir, 'sync-nfs');
-
-                if ($opt_map_delete) {
-                    print "remove vex/sync entry: $new_key=$new_value\n" if $opt_verbose;
-                } else {
-                    # os-branch
-                    # if (not -e ".sync-nfs.bat") {
-                        open(F, ">.sync-nfs.bat");
-                        print F "\@echo off\n";
-                        print F "rem NFS-Rev: $nfs_id{rev}\n";
-                        print F "rem Thie file is auto generated by NFS Program $nfs_id{rev}, and it will\n";
-                        print F "rem be automaticly updated. Please don't edit this file. \n";
-                        print F "call nfs --synchronize --quiet\n";
-                        close F;
-                    # }
-
-                    print "add vex/sync entry: $new_key=$new_value\n" if $opt_verbose;
-                    auto_mkdir $vexdir;
-                }
-
-                my @lines = ();
-                if (open(SYNC, "<$synclist")) {
-                    while (<SYNC>) {
-                        if (m/^\s*(\#.*)$/) {
-                            push @lines, $_;
-                            next;
-                        }
-                        if (m/^(.*)=(.*)$/) {
-                            next if ($1 eq $new_key);
-                        }
+            my @lines = ();
+            if (open(SYNC, "<$synclist")) {
+                while (<SYNC>) {
+                    if (m/^\s*(\#.*)$/) {
                         push @lines, $_;
+                        next;
                     }
-                    close SYNC;
-                }
-                if (not $opt_map_delete) {
-                    push @lines, "$new_key=$new_value\n";
-                }
-                if (@lines) {
-                    open(SYNC, ">$synclist")
-                        or die "Can't open $synclist for write";
-                    for (@lines) {
-                        print SYNC;
+                    if (m/^(.*)=(.*)$/) {
+                        next if ($1 eq $new_key);
                     }
-                    close SYNC;
-                } else {
-                    unlink $synclist;
-
-                    # os-branch
-                    if (-e ".sync-nfs.bat") {
-                        unlink ".sync-nfs.bat";
-                    }
+                    push @lines, $_;
                 }
+                close SYNC;
             }
-        }
-        elsif ($opt_program eq '.sync') {
-            if ($opt_disable_vex_extension) {
-                # treat all files under current directory as mapping-items
-                my $dh = new DirHandle('.');
-                my @files = $dh->read;
-                $dh->close;
-                while (@files) {
-                    next if (m/^\.+$/);
-                    my $fullpath = expand_nfs_title($_);
-                    if (-e $fullpath) {
-                        print "synchronize $_ from $fullpath\n" if $opt_verbose;
-                        file_sync $fullpath, path_join('.', $_), $_;
-                    }
+            if (not $opt_map_delete) {
+                push @lines, "$new_key=$new_value\n";
+            }
+            if (@lines) {
+                open(SYNC, ">$synclist")
+                    or die "Can't open $synclist for write";
+                for (@lines) {
+                    print SYNC;
                 }
+                close SYNC;
             } else {
-                my $vexdir = path_join($opt_map_target, '.VEX', 'sync');
-                my $synclist = path_join($vexdir, 'sync-nfs');
-                if (not -e $vexdir) {
-                    print "no items to synchronize\n" if $opt_verbose;
-                    exit;
-                }
+                unlink $synclist;
 
-                if (open(SYNC, "<$synclist")) {
-                    while (<SYNC>) {
-                        next if (m/^\s*(\#.*)$/);
-                        if (m/^(.*)=(.*)$/) {
-                            my $synckey = $1;                       # sync-target
-                            my $syncvalue = $2;                     # sync-source
-                            print "synchronize $synckey from $syncvalue\n" if $opt_verbose;
-                            file_sync $syncvalue, path_join('.', $synckey), $synckey;
-                        }
-                    }
-                    close SYNC;
+                # os-branch
+                if (-e ".sync-nfs.bat") {
+                    unlink ".sync-nfs.bat";
                 }
             }
         }
+        return;
+    }
+
+    if ($opt_program eq '.sync') {
+        if ($opt_disable_vex_extension) {
+            # treat all files under current directory as mapping-items
+            my $dh = new DirHandle('.');
+            my @files = $dh->read;
+            $dh->close;
+            while (@files) {
+                next if (m/^\.+$/);
+                my $fullpath = expand_nfs_title($_);
+                if (-e $fullpath) {
+                    print "synchronize $_ from $fullpath\n" if $opt_verbose;
+                    file_sync $fullpath, path_join('.', $_), $_;
+                }
+            }
+        } else {
+            my $vexdir = path_join($opt_map_target, '.VEX', 'sync');
+            my $synclist = path_join($vexdir, 'sync-nfs');
+            if (not -e $vexdir) {
+                print "no items to synchronize\n" if $opt_verbose;
+                exit;
+            }
+
+            if (open(SYNC, "<$synclist")) {
+                while (<SYNC>) {
+                    next if (m/^\s*(\#.*)$/);
+                    if (m/^(.*)=(.*)$/) {
+                        my $synckey = $1;                       # sync-target
+                        my $syncvalue = $2;                     # sync-source
+                        print "synchronize $synckey from $syncvalue\n" if $opt_verbose;
+                        file_sync $syncvalue, path_join('.', $synckey), $synckey;
+                    }
+                }
+                close SYNC;
+            }
+        }
+        return;
+    }
 
     # for normal open
-        else {
-            # lazy- create
-            if (! -e $nfs_path_full) {
-                # auto create the container levels
-                auto_mkdir $nfs_path_container;
 
-                # apply the template
-                my $template = path_join $nfs_path_vol, ".vol-def.$opt_type";
-                if (-e $template) {
-                    print "create new nfs document based on template: $template\n" if $opt_verbose;
-                    template_instantiate $template, $nfs_path_full;
-                } else {
-                    print "create new nfs document (empty)\n" if $opt_verbose;
-                    open(FH, ">$nfs_path_full")
-                        or die "Can't create file $nfs_path_full";
-                    close FH;
-                }
-            }
+    # browsing?
+    if ($opt_program eq '.ls') {
+        my $termdir = path_join $nfs_path_container, $opt_title;
+        auto_mkdir $termdir;
+        $opt_program = '.dep';
+        system "start \"$termdir\"";
+        # continue operations.
+    }
 
-            # prepare file-list to open => $full_dir/$full_name . @exts
-            my ($full_dir, $full_file) = path_split $nfs_path_full;
-            my ($full_name, $full_ext) = path_splitext $full_file;
-                $full_ext =~ s/^\.//;
-            my @exts;
+    # lazy- create
+    if (! -e $nfs_path_full) {
+        # auto create the container levels
+        auto_mkdir $nfs_path_container;
 
-            if ($opt_open_all) {
-                my $dh = new DirHandle($nfs_path_container);
-                my @list = $dh->read;
-                $dh->close;
-                foreach my $item (@list) {
-                    next if -d path_join($nfs_path_container, $item);
-                    my ($et_name, $et_ext) = path_splitext $item;
-                    $et_ext =~ s/^\.//;
-                    push @exts, $et_ext if ($et_name eq $full_name);
-                }
-            }
-            @exts = ($full_ext) if (not @exts);
-
-            # open file-list
-            foreach my $each_ext (@exts) {
-                my $open_path = path_join($full_dir, "$full_name.$each_ext");
-                my $cmdline;
-
-                if ($opt_program eq '.dep') {
-                    # use program depends on type to open the document
-                    my $opener = $nfs_filetype{$each_ext};
-                       $opener ||= $nfs_filetype{''};
-                    $cmdline = sprintf("start $opener", $open_path);
-                } else {
-                    # use the specified program to open the document
-                    $cmdline = sprintf("start $opt_program", $open_path);
-                }
-
-                print "execute: $cmdline\n" if $opt_verbose;
-                system $cmdline;
-            }
+        # apply the template
+        my $template = path_join $nfs_path_vol, ".vol-def.$opt_type";
+        if (-e $template) {
+            print "create new nfs document based on template: $template\n" if $opt_verbose;
+            template_instantiate $template, $nfs_path_full;
+        } else {
+            print "create new nfs document (empty)\n" if $opt_verbose;
+            open(FH, ">$nfs_path_full")
+                or die "Can't create file $nfs_path_full";
+            close FH;
         }
+    }
+
+    # prepare file-list to open => $full_dir/$full_name . @exts
+    my ($full_dir, $full_file) = path_split $nfs_path_full;
+    my ($full_name, $full_ext) = path_splitext $full_file;
+        $full_ext =~ s/^\.//;
+    my @exts;
+
+    if ($opt_open_all) {
+        my $dh = new DirHandle($nfs_path_container);
+        my @list = $dh->read;
+        $dh->close;
+        foreach my $item (@list) {
+            next if -d path_join($nfs_path_container, $item);
+            my ($et_name, $et_ext) = path_splitext $item;
+            $et_ext =~ s/^\.//;
+            push @exts, $et_ext if ($et_name eq $full_name);
+        }
+    }
+    @exts = ($full_ext) if (not @exts);
+
+    # open file-list
+    foreach my $each_ext (@exts) {
+        my $open_path = path_join($full_dir, "$full_name.$each_ext");
+        my $cmdline;
+
+        if ($opt_program eq '.dep') {
+            # use program depends on type to open the document
+            my $opener = $nfs_filetype{$each_ext};
+               $opener ||= $nfs_filetype{''};
+            $cmdline = sprintf("start $opener", $open_path);
+        } else {
+            # use the specified program to open the document
+            $cmdline = sprintf("start $opt_program", $open_path);
+        }
+
+        print "execute: $cmdline\n" if $opt_verbose;
+        system $cmdline;
+    }
+
 }
 
 
@@ -582,8 +607,10 @@ sub expand_symbolic_link {
     my ($path, $errmsg) = @_;
     return $path if $opt_disable_symbolic_link;
 
-    if (-e "$path.link") {
-        open(F, "<$path.link")
+    chop $path if $path =~ m/[\\\/]$/;
+
+    if (-f "$path") {
+        open(F, "<$path")
             or die "Can't open symbolic-link file";
         my @lines = <F>;
         close F;
