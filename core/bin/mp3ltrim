@@ -26,14 +26,21 @@ sub help;
         next if -d;
         next if m/^\.+$/;
 
+        my $new_name = $_;
+
+        # (prefix *)? track * title .extname
+        # track:  '(' 000 ')' '.'
         if (my ($prefix, $track, $title, $extname) =
-                m/^ (?: (.*) \s* [[:punct:]] )?   \s* (\d+) \s* [[:punct:]]? \s* (.*) \s* \. ([^\.]+) $/x
+                m/^ (?: (.*) \s* [[:punct:]] )?   \s*
+                    \(? (\d+) \)? \s* [[:punct:]]? \s* (.*) \s* \. ([^\.]+) $/x
             ) {
             # my $preparts = split('-', $prefix);
 
             $track = lpad($track, 2);
-            my $new_name = "$track - $title.$extname";
+            $new_name = "$track - $title.$extname";
+        }
 
+        if ($_ ne $new_name) {
             print "rename $_ -> $new_name\n" if not $opt_quiet;
             rename $_, $new_name;
         }
@@ -50,7 +57,7 @@ sub lpad {
 
 
 sub version {
-    my %id = parse_id('$Id: mp3ltrim,v 1.2 2005-06-19 08:28:17 dansei Exp $');
+    my %id = parse_id('$Id: mp3ltrim,v 1.3 2005-12-20 02:40:46 dansei Exp $');
     print <<"EOM";
 MP3 Utilities - LTrim
 Version $id{rev}
