@@ -9,7 +9,9 @@ sub main;
 sub xml;
 sub _Verbose;
 
+our $opt_server = 'www.winvod.com';
 our $opt_typeid = 1;
+our $opt_output;
 
 &main;
 
@@ -17,9 +19,17 @@ our $opt_typeid = 1;
 
 sub main {
     GetOptions(
+        'server=s',
         'typeid=n',
+        'output=s',
+        'help' => \&help,
         );
 
+    if ($opt_output) {
+        # redirect stdout
+        open(STDOUT, ">$opt_output")
+            or die "can't redirect stdout: $!";
+    }
 
     # index => info
     #   id
@@ -32,7 +42,7 @@ sub main {
 
 
 # get total records
-    $html = get "http://www.winvod.com/chinavnet/movie.asp?typeid=$opt_typeid";
+    $html = get "http://$opt_server/chinavnet/movie.asp?typeid=$opt_typeid";
 
     # 共 <font color="#FF6600">151</font> 部影片
     $html =~ m/共 \s* (?:<[^>]+> \s*)* (\d+) \s* (?:<[^>]+> \s*)* 部影片/x
@@ -96,7 +106,7 @@ sub main {
             my $pagesize = 0;
             my $pagecap = ($count-1) % 16;
 
-            $html = get "http://www.winvod.com/chinavnet/movie.asp?typeid=$opt_typeid&page=$page";
+            $html = get "http://$opt_server/chinavnet/movie.asp?typeid=$opt_typeid&page=$page";
 
             while ($html =~ m/$re_overview/g) {
                 $movies{$i + $pagesize} = {
@@ -115,7 +125,7 @@ sub main {
 
         my $id          = $movies{$i}->{id};
 
-        $html = get "http://www.winvod.com/chinavnet/showdata/getdata.asp?id=$id";
+        $html = get "http://$opt_server/chinavnet/showdata/getdata.asp?id=$id";
 
         my ($rank)      = $html =~ m/pingfen\.innerHTML \s* = \s* \'(.*?)\'/x;
             $rank       = $rank_names{$rank};
@@ -190,4 +200,18 @@ sub xml {
 
 sub _Verbose {
     print STDERR shift;
+}
+
+sub help {
+    print <<"EOM";
+winvod by s.n.m.
+syntax:
+    winvod
+        --server=<server, default www.winvod.com> (s)
+        --typeid=<movie type> (t)
+        --output=<filename, default stdout> (o)
+server tries:
+    202.107.248.188
+EOM
+    exit;
 }
