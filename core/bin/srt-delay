@@ -1,62 +1,159 @@
 #!/usr/bin/perl
-# $Id: srt-delay,v 1.3 2004-09-22 08:39:11 dansei Exp $
+# $Id: srt-delay,v 1.4 2006-01-26 14:20:28 dansei Exp $
 
-# .srt file
-# adjust time by milliseconds
+use strict;
+use Getopt::Long;
+
+sub main;
+sub adjust;
+sub time_parse;
+sub time_format;
+sub verbose;
+sub version;
+sub help;
+
+our $opt_delay = 0;
+our $opt_scale_offset = 0;
+our $opt_scale_ratio = 1;
+our $opt_mark_old;
+our $opt_mark_new;
+our $opt_verbose = 0;
+
+my $TIME_PAT    = qr/[0-9]+:[0-9]+:[0-9]+,[0-9]+/;
+my $TIME_PARSE  = qr/^([0-9]+):([0-9]+)(?::([0-9]+)(?:,([0-9]+))?)?/;
+
+    GetOptions(
+        'delay=n',
+        'scale-offset|b=s',
+        'scale-ratio|r=n',
+        'mark-old|o=s',
+        'mark-new|n=s',
+        'flatten|f' => sub { &flatten; exit },
+        'verbose|v',
+        'version|ver' => sub { &version; exit },
+        'help|h' => sub { &help; exit },
+        );
+
+    if ($opt_mark_old and $opt_mark_new) {
+        my ($o1s, $o2s) = split('-', $opt_mark_old);
+        my ($n1s, $n2s) = split('-', $opt_mark_new);
+        my ($o1, $n1, $o2, $n2);
+        $o1 = time_parse($o1s);
+        $n1 = time_parse($n1s);
+        $o2 = time_parse($o2s);
+        $n2 = time_parse($n2s);
+        if ($o1s and $n1s) {
+            verbose "mark delay: $o1 -> $n1\n";
+            $opt_delay += $n1 - $o1;
+            if ($o2s and $n2s) {
+                verbose "mark scale: $o1,$o2 -> $n1,$n2\n";
+                $opt_scale_offset = $o1;
+                $opt_scale_ratio = ($n2 - $n1) / ($o2 - $o1);
+            }
+        }
+    }
+
+    verbose "delay: $opt_delay ms\n";
+    verbose "scale: $opt_scale_ratio (offset $opt_scale_offset ms)\n";
+
+    &main;
 
 
-my $delay 	= shift;
-if (!$delay) {
-	print <<"EOM";
+sub main {
+    while (<>) {
+        if (my ($left, $from, $mid, $to, $right)
+                = m/^(.*?)($TIME_PAT)(.*?)($TIME_PAT)(.*)$/)
+        {
+            my $from = time_parse($from);
+            my $to = time_parse($to);
+            my $new_from = adjust($from);
+            my $new_to = adjust($to);
+            print $left . time_format($new_from)
+                . $mid . time_format($new_to) . $right
+                . "\n";
+        } else {
+            print;
+        }
+    }
+}
+
+sub verbose {
+    my $msg = shift;
+    print STDERR $msg if $opt_verbose;
+}
+
+sub adjust {
+    my $t = shift;
+    $t = ($t - $opt_scale_offset) * $opt_scale_ratio
+        + $opt_scale_offset
+        + $opt_delay;
+    $t = 0 if $t < 0;
+    return $t;
+}
+
+sub time_parse {
+    my $str = shift;
+    my ($h, $m, $s, $ms) = $str =~ m/$TIME_PARSE/;
+    my $linear = ($h*3_600 + $m*60 + $s)*1_000 + $ms;
+    # assert $linear >= 0
+    $linear = 0 if $linear < 0;
+    return $linear;
+}
+
+sub time_format {
+    my $linear = shift;
+    my ($h, $m, $s, $ms);
+    ($linear, $ms)= (int($linear/1_000), $linear%1_000);
+    ($linear, $s) = (int($linear/60), $linear%60);
+    ($linear, $m) = (int($linear/60), $linear%60);
+    ($linear, $h) = (int($linear/24), $linear%24);
+    $h = "0$h"   if $h<10;
+    $m = "0$m"   if $m<10;
+    $s = "0$s"   if $s<10;
+    $ms = "0$ms" if $ms<100;
+    $ms = "0$ms" if $ms<10;
+    return "$h:$m:$s,$ms";
+}
+
+sub version {
+    print <<"EOM";
 SRT-Delay Movie Utility (Version 1)
 Adjust playback delay time for SRT caption file
+EOM
+}
 
+sub help {
+    &version;
+print <<"EOM";
 Syntax:
-	$0 delay-time(ms) [.srt filename]
+    $0
+      (method A)
+        --delay=<delay (ms)> (d)
+        --scale-offset=<offset-time, default 0 (ms)> (b)
+        --scale-ratio=<ratio, less than 0 for slower> (r)
+      (method B)
+        --mark-old=<from-time '-' to-time> (o)
+        --mark-new=<from-time '-' to-time> (n)
+      --verbose (v)
+      --version (ver)
+      --help (h)
+
+      [.srt filename]
+
+Example:
+    $0 -d 60000 example.srt
+    $0 -o=00:01:41,799-1:9:11,153 -n=2:19:50-1:12:41 example.srt
 
 Author/Danci.Z, Apr 7th, 2004
 [GPL] Distributed under GPL license.
 EOM
-	exit -1;
 }
 
-my $TIME_PAT	= "[0-9]+:[0-9]+:[0-9]+,[0-9]+";
-my $TIME_PARSE	= "^([0-9]+):([0-9]+):([0-9]+),([0-9]+)\$";
-
-
-sub adjust {
-	my ($delta_ms, $t) = @_;
-	$t ||= $_;
-	my ($h, $m, $s, $ms) = $t =~ m/$TIME_PARSE/;
-	my $linear = ($h*3_600 + $m*60 + $s)*1_000 + $ms;
-	$linear += $delta_ms;
-	$linear = 0 if $linear < 0;
-	($linear, $ms)= (int($linear/1_000), $linear%1_000);
-	($linear, $s) = (int($linear/60), $linear%60);
-	($linear, $m) = (int($linear/60), $linear%60);
-	($linear, $h) = (int($linear/24), $linear%24);
-	$h = "0$h"   if $h<10;
-	$m = "0$m"   if $m<10;
-	$s = "0$s"   if $s<10;
-	$ms = "0$ms" if $ms<100;
-	$ms = "0$ms" if $ms<10;
-	$t = "$h:$m:$s,$ms";
+sub flatten {
+    while (<>) {
+        next if m/^\d+$/;
+        next if m/$TIME_PAT/;
+        next if m/^\s*$/;
+        print;
+    }
 }
-
-while (<>) {
-
-	if (
-		my ($left, $from, $mid, $to, $right)
-			= m/^(.*?)($TIME_PAT)(.*?)($TIME_PAT)(.*)$/
-	   )
-	{
-		$from = adjust($delay, $from);
-		$to = adjust($delay, $to);
-		print "$left$from$mid$to$right\n";
-	} else {
-		print;
-	}
-
-}
-
-1;
