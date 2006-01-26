@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.17 2005-10-21 04:00:13 dansei Exp $';
+@rem = '$Id: syset.bat,v 1.18 2006-01-26 14:20:47 dansei Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -129,9 +129,9 @@
 
 		assoc  .py=xPYC >nul
 		assoc .pyc=xPYC Compiled>nul
-		ftype  .py=%dir_cir%\python\python23\Python.exe "%%0" %%* >nul
-		ftype .pyc=%dir_cir%\python\python23\Python.exe "%%0" %%* >nul
-		ftype xPYC=%dir_cir%\python\python23\Python.exe "%%0" %%* >nul
+		ftype  .py=%dir_cir%\python\python24\Python.exe "%%0" %%* >nul
+		ftype .pyc=%dir_cir%\python\python24\Python.exe "%%0" %%* >nul
+		ftype xPYC=%dir_cir%\python\python24\Python.exe "%%0" %%* >nul
 
             assoc .php=xPHP >nul
             ftype .php=%dir_cir%\php\php5\bin\php.exe "%%0" %%* >nul
@@ -172,6 +172,40 @@ use cmt::path;
 our ($opt_cmd, @opt_args) = @ARGV;
 $| = 1;
 
+sub env_open {
+    my $reg;
+    $::HKEY_LOCAL_MACHINE->Open(
+        "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment",
+        $reg) or die "Can't open environment key";
+    return $reg;
+}
+
+sub env_set {
+    my ($name, $value) = @_;
+    my $reg;
+    $reg = env_open();
+    $reg->SetValueEx($name, 0, &REG_EXPAND_SZ, $value);
+    $reg->Close();
+}
+
+sub env_add {
+    my $reg;
+    my ($type, $value);
+    my ($name, $removes, $append, $insert) = @_;
+    my @list = ();
+    $reg = env_open();
+    if ($reg->QueryValueEx($name, $type, $value)) {
+        @list = split(';', $value);
+        if ($removes) {
+            @list = grep { $_ !~ m/$removes/ } @list;
+        }
+    }
+    push @list, @$append if $append;
+    unshift @list, @$insert if $insert;
+    $reg->SetValueEx($name, 0, &REG_EXPAND_SZ, join(';', @list));
+    $reg->Close();
+}
+
 sub env {
     my ($dir_t, $dir_cir) = @_;
     my $regenv;
@@ -183,28 +217,15 @@ sub env {
     $prefix =~ s/\\/[\/\\\\]/g;         # \ -> [/\], because prefix is regexp.
 
     print "Updating environment";
+        env_set('DIR_T_HOME', "$dir_t");
+        print ".";
 
-        $::HKEY_LOCAL_MACHINE->Open("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment",
-            $regenv)  or die "Can't open environment key";
-
-        $regenv->SetValueEx('DIR_T_HOME', 0, &REG_EXPAND_SZ, "$dir_t");
-            print ".";
-
-        my @path = ();
-            if ($regenv->QueryValueEx('PATH', $type, $value)) {
-                @path = grep { $_ !~ m/^$prefix/i } split(';', $value)
-            }
-            unshift @path, (
-                path_normalize "$dir_t",
-                path_normalize "$dir_t\\0",
-                path_normalize "$dir_t\\1",
-                path_normalize "$dir_t\\3"
-                );
-            push @path, (
+        env_add('PATH', qr/^$prefix/i, [
                 path_normalize "$dir_cir\\Perl\\Perl5\\bin",
                 path_normalize "$dir_cir\\PHP\\PHP5",
-                path_normalize "$dir_cir\\Python\\Python23",
+                path_normalize "$dir_cir\\Python\\Python24",
                 path_normalize "$dir_cir\\Ruby\\ruby\\bin",
+                path_normalize "$dir_cir\\Java\\Jos\\bin",
                 path_normalize "$dir_cir\\MinGW\\bin",
                 path_normalize "$dir_cir\\Cygwin\\bin",
                 path_normalize "$dir_t\\2",
@@ -213,66 +234,50 @@ sub env {
                 path_normalize "$dir_t\\6",
                 path_normalize "$dir_t\\7",
                 path_normalize "$dir_t\\8",
-                path_normalize "$dir_t\\9"
-                );
-            $regenv->SetValueEx('PATH', 0, &REG_EXPAND_SZ, join(';', @path));
-            print ".";
+                path_normalize "$dir_t\\9",
+                ], [
+                path_normalize "$dir_t",
+                path_normalize "$dir_t\\0",
+                path_normalize "$dir_t\\1",
+                path_normalize "$dir_t\\3",
+                ]);
+        print ".";
 
-        my @pathext = qw/.exe .com .bat .cmd .vbs .js .sh/;
-            if ($regenv->QueryValueEx('PATHEXT', $type, $value)) {
-                @pathext = grep { $_ !~ m/^\.(6|m4|p|pl|plc|py|pyc|php|rb|ss)$/i } split(';', $value);
-            }
-            push @pathext, qw(
-                .6
-                .p
-                .pl
-                .plc
-                .py
-                .pyc
-                .php
-                .rb
-                .ss
-                );
-            $regenv->SetValueEx('PATHEXT', 0, &REG_EXPAND_SZ, join(';', @pathext));
-            print ".";
+        env_add('PATHEXT', qr/^\.(6|m4|p|pl|plc|py|pyc|php|rb|ss)$/i,
+                [qw/.6 .p .pl .plc .py .pyc .php .rb .ss/]);
+        print ".";
 
-        my @perllib = ();
-            if ($regenv->QueryValueEx('PERLLIB', $type, $value)) {
-                @perllib = grep { $_ !~ m/^$prefix/i } split(';', $value);
-            }
-            push @perllib, (
+        env_add('INCLUDE', qr/^$prefix/i, [
+                path_normalize "$dir_cir/sdk/include",
+                ]);
+        print ".";
+
+        env_add('LIB', qr/^$prefix/i, [
+                path_normalize "$dir_cir/sdk/lib",
+                ]);
+        print ".";
+
+        env_add('PERLLIB', qr/^$prefix/i, [
                 path_normalize "$dir_t/0/lib",
                 path_normalize "$dir_cir/perl/perl5/lib",
                 path_normalize "$dir_cir/perl/perl5/site/lib",
                 path_normalize "$dir_cir/perl/blib",
-                );
-            $regenv->SetValueEx('PERLLIB', 0, &REG_EXPAND_SZ, join(';', @perllib));
-            print ".";
+                ]);
+        print ".";
 
-        my @pythonpath = ();
-            if ($regenv->QueryValueEx('PYTHONPATH', $type, $value)) {
-                @pythonpath = grep { $_ !~ m/^$prefix/i } split(';', $value);
-            }
-            push @pythonpath, (
+        env_add('PYTHONPATH', qr/^$prefix/i, [
                 path_normalize "$dir_t/0/lib",
-                path_normalize "$dir_cir/python/python23/lib",
-                path_normalize "$dir_cir/python/python23/lib/site-packages",
+                path_normalize "$dir_cir/python/python24/lib",
+                path_normalize "$dir_cir/python/python24/lib/site-packages",
                 path_normalize "$dir_cir/python/blib",
-                );
-            $regenv->SetValueEx('PYTHONPATH', 0, &REG_EXPAND_SZ, join(';', @pythonpath));
-            print ".";
+                ]);
+        print ".";
 
-        my @simxmlpath = ();
-            if ($regenv->QueryValueEx('SIMXMLPATH', $type, $value)) {
-                @simxmlpath = grep { $_ !~ m/^$prefix/i } split(';', $value);
-            }
-            push @simxmlpath, (
+        env_add('SIMXMLPATH', qr/^$prefix/i, [
                 path_normalize "$dir_t/0/lib/6",
-                );
-            $regenv->SetValueEx('SIMXMLPATH', 0, &REG_EXPAND_SZ, join(';', @simxmlpath));
-            print ".";
+                ]);
+        print ".";
 
-        $regenv->Close();
         print "\n";
 
 
