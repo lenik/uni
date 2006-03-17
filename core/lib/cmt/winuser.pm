@@ -40,7 +40,7 @@ my @msgbox_ids = qw(
 sub msgbox {
     my ($msg, $title, @options) = @_;
     $title ||= 'Diret Commons';
-    @options = ('ok') if !@options;
+    @options = qw/ok/ unless @options;
 
     my $com = 0;
     for (@options) {
@@ -51,14 +51,26 @@ sub msgbox {
     my $button = 0;
 
     my $com1 = $com & 0b1111111;
+
+    # ok only
     if ($com1 == 0b0000001) { $button = 0; }
+
+    # ok cancel
     if ($com1 == 0b0000011) { $button = 1; $button |= 0x100 if ($options[0] eq 'cancel'); }
+
+    # abort retry ignore
     if ($com1 == 0b1110000) { $button = 2; $button |= 0x100 if ($options[0] eq 'retry');
                                            $button |= 0x200 if ($options[0] eq 'ignore'); }
+
+    # yes no cancel
     if ($com1 == 0b0001110) { $button = 3; $button |= 0x100 if ($options[0] eq 'no');
                                            $button |= 0x200 if ($options[0] eq 'cancel'); }
+
+    # yes no
     if ($com1 == 0b0001100) { $button = 4; $button |= 0x100 if ($options[0] eq 'no'); }
-    if ($com1 == 0b0010010) { $button = 5; $button |= 0x100 if ($options[0] eq 'cancel'); }
+
+    # retry cancel
+    if ($com1 == 0b0100010) { $button = 5; $button |= 0x100 if ($options[0] eq 'cancel'); }
 
     $button |= 0x10 if $com & $msgbox_tokens{'x'};
     $button |= 0x20 if $com & $msgbox_tokens{'?'};
