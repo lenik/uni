@@ -1,0 +1,4 @@
+
+[repl]
+    repl -r -c="iconv::-f gb2312 -t utf-8 $file" *.php *
+    repl -r *.php gb2312 utf-8
