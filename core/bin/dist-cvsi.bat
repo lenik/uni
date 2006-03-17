@@ -1,48 +1,41 @@
 @echo off
-rem $Id: dist-cvsi.bat,v 1.3 2004-09-22 08:39:09 dansei Exp $
+rem $Id: dist-cvsi.bat,v 1.4 2006-03-17 07:51:56 dansei Exp $
 
-echo Distribute cvs-initials to managed directory
-echo Version 1
-echo Author by Danci.Z
+:version
+    echo Distribute cvs-initials to managed directory
+    echo Version 1
+    echo Author by Danci.Z
 
-if "%1"=="" goto help
+:begin
+    REM if "%1"=="" goto help
 
-pushd "%1"
-set count=0
-for /d /r %%i in (. *) do (
-	if not "%%i"=="CVS" (
-		pushd %%i
-		if not exist ".cvsignore" (
-			set /a count=count+1
-			echo %%i/
-			echo *.bak>>.cvsignore
-			echo *.tmp>>.cvsignore
-			echo *.old>>.cvsignore
-			echo *.log>>.cvsignore
-			echo *.$*>>.cvsignore
-			echo *.~*>>.cvsignore
-			echo ~*>>.cvsignore
-			echo .private>>.cvsignore
-			echo .local>>.cvsignore
-			echo *.obj>>.cvsignore
-			echo Thumbs.db>>.cvsignore
-			echo *.ncb>>.cvsignore
-			echo Debug>>.cvsignore
-			echo Release>>.cvsignore
-			echo *.scc>>.cvsignore
-		)
-		popd
-	)
-)
-popd
+    if exist .cvsignore (
+        copy /y .cvsignore %TEMP%\CVSIGNOR >nul
+    ) else (
+        copy /y "%~dp0cvsignor.def" %TEMP%\CVSIGNOR >nul
+    )
 
-echo.
-echo Total %count% entries initialized.
-set count=
-goto end
+:scan
+    set /a count=count+1
+    echo ./
+    copy %TEMP%\CVSIGNOR .\.cvsignore >nul
+
+    for /d /r %%i in (*) do (
+	if not "%%~nxi"=="CVS" (
+            set /a count=count+1
+	    echo %%i/
+            copy %TEMP%\CVSIGNOR %%i\.cvsignore >nul
+        )
+    )
+
+:report
+    echo.
+    echo Total %count% entries initialized.
+    set count=
+    goto end
 
 :help
-echo Syntax:
-echo     dist-cvsi dir-name
+    echo Syntax:
+    echo     dist-cvsi
 
 :end
