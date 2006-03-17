@@ -27,6 +27,7 @@ my %opt_ext = (
         'bas' => 'vb',
         'frm' => 'vb',
         'cls' => 'vb',
+        'ctl' => 'vb',
 
         'txt' => 'text',
 
@@ -293,7 +294,7 @@ sub count_xml {
 
 
 sub help {
-    my %id = parse_id('$Id: wcc,v 1.8 2005-12-20 02:39:25 dansei Exp $');
+    my %id = parse_id('$Id: wcc,v 1.9 2006-03-17 07:50:52 dansei Exp $');
     print <<"EOM";
 Words Count for Source Code   Version $id{'rev'}   Date $id{'date'}
 Syntax:
