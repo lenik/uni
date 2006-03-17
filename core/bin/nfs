@@ -11,7 +11,7 @@ use cmt::winuser;
 
 
 our $nfs_appname = 'NFS Version 2';
-our %nfs_id = parse_id('$Id: nfs,v 1.15 2005-12-20 02:43:22 dansei Exp $');
+our %nfs_id = parse_id('$Id: nfs,v 1.16 2006-03-17 07:50:23 dansei Exp $');
 
 our %nfs_filetype = (
     ''      => 'ue "%s"',                   # default
@@ -620,10 +620,14 @@ sub expand_symbolic_link {
 
         chomp $lines[0];
         $path = path_join($path, '..', $lines[0]);
-        if ($errmsg and not -e $path) {
+
+        if (not -e $path and $errmsg) {
             $errmsg = sprintf $errmsg, $path;
-            msgbox $errmsg, $nfs_appname, 'ok', 'x';
-            exit;
+            while ('retry' eq
+                    msgbox($errmsg, $nfs_appname, 'retry', 'cancel', 'x')) {
+                last if -e $path;
+            }
+            exit if not -e $path;
         }
 
         return $path;
