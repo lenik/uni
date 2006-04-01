@@ -1,0 +1,49 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00166
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> abstract-form 的几个特性及解决方案
+
+    - 避免表单重复提交，以及链接重复点击
+      common-php/transaction.php
+        client:
+            form.onsubmit: for allinput: disable.
+            form['.transaction'] = random().
+        server:
+            logging request['.transation'].
+
+    - 安全
+        通过 SSL 实现。
+        在 http (not https) 通过 tcp-over-http (or tcp-over-cgi) 承载。
+
+    - 安全 cookie
+        1, af: @hold 代替 session
+        2, common-php/cookie.php 实现加密
+            缺陷：用户识别的局限性：无法通过 http 协议验证一个用户。
+
+> TODO
+    V 1. XSL variable redefine
+        Failed. using t-param instead.
+    V 2. _* => .*
+    V 3. page variables
+    V 4. file renames
+        af-utils -> c-php/af.php
+    5. transaction, c-php/
+        (submit once)
+    6. check-constraints initial
+        form onsubmit,
+    7. (server) constnotenoraint checkings framework
+    V 8. vbank.vtype
+    9. vbank.user
+    10. vbank.group
+    11. vbank.member
+    12. vbank.ttype
+    13. vbank.process
+    14. vbank.trans
+    15. vbank.trans_more

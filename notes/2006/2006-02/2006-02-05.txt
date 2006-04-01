@@ -1,0 +1,44 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00198
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> tasks
+
+    1  思考新的las分层程序结构，及miad方案
+    2  zlw-af 要不要改进？
+
+
+> New LaS
+
+    node::insert
+        // @layer pre-check
+            this != NULL
+        // @layer param-check
+            node' != NULL
+            test closure contains node'
+        // @layer log
+            print [NODE] add ...
+        // @layer kernel
+            this->prev->next = node'
+            this->prev...
+        // @layer post-check
+            ...
+
+== cc layered ==
+
+class {
+    public {
+        function ..
+        ...
+    }
+    protected {
+    }
+    private {
+    }
+

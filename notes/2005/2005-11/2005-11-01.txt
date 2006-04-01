@@ -1,0 +1,17 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00149
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> Altova auto block
+
+    ping link.altova.com =>
+        firewall.ini
+            [MANUAL IP ACCEPT]
+                REJECT, <IP>,Altova, 2005-11-01 12:19:40, 2005-12-02 12:24:01, 2000, BIgui
+

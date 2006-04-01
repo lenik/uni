@@ -1,0 +1,16 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00211
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> mvcarch components
+
+    controller
+        basic-co
+        co-bar
+        |C:\.lokaj\zbmis\mat\icons\Autoscalelayout.gif|0.1|C:\.lokaj\zbmis\mat\icons\Auxiliaryshape.gif|0.1|C:\.lokaj\zbmis\mat\icons\Controller.gif|0.1|C:\.lokaj\zbmis\mat\icons\Eventfilter.gif|0.1|C:\.lokaj\zbmis\mat\icons\Favoritebox.gif|0.1|C:\.lokaj\zbmis\mat\icons\ScrollableContainer.gif|0.1|C:\.lokaj\zbmis\mat\icons\State.gif|0.1

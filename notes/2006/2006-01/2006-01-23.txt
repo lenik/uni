@@ -1,0 +1,98 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00195
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> Tasks
+
+    A  Internet time protocol
+    B  FastCGI module
+       How to add fastxml filter to apache?
+    C  Web path evaluator
+
+
+A. Internet time protoco
+
+    CPU 时钟大概在纳秒级，设想在 Internet （传输时延在秒级）进行时间同步。
+    这相当于将 Internet 覆盖太阳系，然后在地球和火星之间进行毫秒级的时间同步。
+
+    有两种常见的时间协议:
+        A.1  daytime (RFC 867)
+        A.2  time (RFC 868)
+    这两个协议都很简单，daytime 在 13 端口，time 在 37 端口，都支持TCP/UDP两种模式。
+
+    现在有个问题，当用户请求时间时，包含服务器当前时间的数据包在网络传输时存在延时，使服务器时间在用户看来总是“偏慢了一点”。
+    比如 服务器S 的当前时间是10:00，用户U 的当前时间是11:00 （位于不同时区）
+    Action              U-time      S-time
+    ------------------- ----------- ----------
+    U Connect           11:00
+    S Accept                        10:01.123
+    U Connected         11:02.234
+    S Connected                     10:02.567
+    S Send time->U                  10:03.345
+    U Receive time      10:05.678
+
+    当用户收到含有服务器时间 "10:03.345" 的数据包时，如何得知究竟延时了多少呢？
+
+    - 统计方法
+
+        时间序列同步后，诸如
+            执行类似 S->U "请在 S时间 12:34:56.789 执行 xxx" 的命令，
+        就能可靠工作。
+
+        当服务器时间变更，
+            A.1 time-server 应该能够发现这种变化，并将这种变化通知给 U。
+                以及，U 定时向服务器发送时间检验命令，
+                当检验失败，服务器通知变化量。
+
+                U: get <time-format>
+                S: <current-time>
+
+                U: calibrate <timestamp>
+                S: <delta>
+
+            A.2 客户端应保持 "GMTIME" ？
+                如果客户端有可靠的 GMTIME，那么就只需要服务器的 TZ 参数，
+                因此客户端不可能有 GMTIME。则服务器端应维持一个 GMTIME，
+                当U 需要与S 的 GMTIME 同步（通过 calibrate）时，
+                需要完全通过时间序列进行。
+
+                U: getgm <time-format>
+                S: <current-time> ...
+
+                U: gettz
+                S: <TZ-setting>
+
+    - 结论
+        两个结点之间是无法通过统计方法获得精确时差的。
+        因为发送和接收可能不同路径的不同延时，而这两个方向的延时无法分离。
+        （比如 ADSL 的上行链路和下行链路速率不同）
+        但是否可以在多个结点之间通过统计方法实现精确同步尚待研究。
+
+B.  FastCGI
+
+    开始阶段，可以不使用FastCGI，但可以将程序分为
+        初始化、可循环的核心过程、清理
+    三个部分，以后则可以方便的加入 FastCGI 框架。
+
+    研究 FastCGI 的实现，这样非 HTTP 通信也可应用 FastCGI 技术。
+
+    研究 Apache2 源码，将来插入 XML/XSLT 的后端解析支持。
+
+
+C.  Web Path Evaluator
+    C.1 MFC/CHTMLView 使用
+        基本上是 IWebBrowser2 的简单 MFC 封装。
+
+        - 是否有必要使用 MFC 框架？
+            无必要。
+
+        - 如果不用 MFC，有什么替代？
+            VB。
+
+    C.2 Node, Range 选择

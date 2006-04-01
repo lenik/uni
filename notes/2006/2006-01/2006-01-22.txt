@@ -1,0 +1,47 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00194
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> Tasks
+
+    A Download.com
+        -> Web Pattern
+        -> WebData
+
+    B ZLW::AF
+        -> Redesign?
+        -> FastCGI Model.
+           (Based upon Apache HTTP server)
+
+
+A> Web Pattern
+
+    1, Xpath on HTML
+    2, 提取Web 内容至数据库的几个模型
+
+C> 调查
+        C.1 html -> database 的工具、应用
+        C.2 C/C++ 结构的 Server-Pages 框架
+
+C.1> 被称为 Web Data Extract
+
+    有很多应用和相关研究。
+    有关的程序开发工具尚未发现。
+    有一个 "Web..Sunker??" 据称这样工作：
+        1 记录宏 - Web 页面流
+        2 在某个页面进行 data extract
+    大多数 extract 执行两个功能：
+        1 Web Crawl，相关的 URL Filter 等
+        2 提取 E-mail, phone number 等特殊信息
+
+    Web Scraper Plus+：
+        1 Web Crawl
+        2 Datapages 用于可视化定义数据模式
+
+C.2>

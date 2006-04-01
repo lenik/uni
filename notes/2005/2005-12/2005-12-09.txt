@@ -1,0 +1,38 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00167
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> pend
+
+    C 5. transaction, c-php/
+        (submit once)
+    C 6. check-constraints initial
+        form onsubmit,
+    C 7. (server) constraint checkings framework
+    V 9. vbank.user
+    V 10. vbank.group
+    V 11. vbank.member
+    V 12. vbank.ttype
+    13. vbank.process
+    14. vbank.trans
+    15. vbank.trans_more
+
+> todo
+    1. aol: move header vars into func.
+    2. aol: using thread techs.
+    V 3. vbank add ptype, valueex.
+    V 4. add built-in collection in selector.
+    V 5. trans: disable control
+    V 6. trans: af-base path make
+    7. trans: random tr-id
+    8. trans: tr-id checking
+    9. trans: trans logging
+    V 10. php class.method add dynamic for add DBI::error
+    V 11. sql-error in af-framework
+    V 12. dbi: sql-transaction
