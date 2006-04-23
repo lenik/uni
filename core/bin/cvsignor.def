@@ -22,6 +22,8 @@
 *.ILK
 *.lib
 *.LIB
+*.lnk
+*.LNK
 *.log
 *.LOG
 *.map
@@ -36,6 +38,8 @@
 *.OCA
 *.opt
 *.OPT
+*.patch
+*.PATCH
 *.pch
 *.PCH
 *.pdb
