@@ -1,6 +1,6 @@
 @echo off
 
-	set rfc_home=L:\Files\standard\rfc
+	set rfc_home=Z:\Files\standard\rfc
 	set rfc_edit=ue
 
 	if "%1"=="u" (
