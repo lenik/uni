@@ -11,7 +11,7 @@ use cmt::winuser;
 
 
 our $nfs_appname = 'NFS Version 2';
-our %nfs_id = parse_id('$Id: nfs,v 1.16 2006-03-17 07:50:23 dansei Exp $');
+our %nfs_id = parse_id('$Id: nfs,v 1.17 2006-04-23 05:39:12 lenik Exp $');
 
 our %nfs_filetype = (
     ''      => 'ue "%s"',                   # default
@@ -73,6 +73,7 @@ our $opt_disable_template_substitute = 0;
 our $opt_disable_vex_extension = 0;
 
 our $opt_interactive = 0;
+our $opt_test_only = 0;
 our $opt_verbose = 0;
 our $opt_quiet = 0;
 
@@ -91,6 +92,7 @@ our $opt_quiet = 0;
     sub set_program;
     sub set_option;
     sub confirm_prompt;
+    sub cmdexec;
     sub version;
     sub help;
 
@@ -130,6 +132,7 @@ sub main {
         'disable-template-substitute|dt',
         'disable-vex-extension|dv',
         'interactive|i',
+        'test-only|to',
         'verbose|v',
         'quiet|q',
         'force|fo',
@@ -373,7 +376,7 @@ sub main {
         my $termdir = path_join $nfs_path_container, $opt_title;
         auto_mkdir $termdir;
         $opt_program = '.dep';
-        system "start \"$termdir\"";
+        cmdexec "start \"$termdir\"";
         # continue operations.
     }
 
@@ -429,8 +432,7 @@ sub main {
             $cmdline = sprintf("start $opt_program", $open_path);
         }
 
-        print "execute: $cmdline\n" if $opt_verbose;
-        system $cmdline;
+        cmdexec $cmdline;
     }
 
 }
@@ -820,6 +822,17 @@ sub confirm_prompt {
 }
 
 
+sub cmdexec {
+    my $cmdline = shift;
+    print "$cmdline\n" if $opt_verbose;
+    if ($opt_test_only) {
+        # do nothing
+    } else {
+        system $cmdline;
+    }
+}
+
+
 sub version {
     print <<"EOM"
 [NFS] Notes for Speed
@@ -865,6 +878,7 @@ Syntax:
         --disable-template-substitute (dt)
         --disable-vex-extension (dv)
         --interactive (i)
+        --test-only (to)
         --verbose (v)
         --quiet (q)
         --version (ve)
