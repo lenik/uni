@@ -1,19 +1,17 @@
 @echo off
-    rem $Id: tabsizes.bat,v 1.2 2004-09-22 08:39:12 dansei Exp $
+    rem $Id: tabsizes.bat,v 1.3 2006-04-23 05:40:54 lenik Exp $
 
-	if "%1"=="" goto help
+	if "%1"=="-h" goto help
 
-	pushd %1 >nul
 	set OLDSIZE=8
 	set NEWSIZE=4
-	if not "%2"=="" set OLDSIZE=%2
+	if not "%1"=="" set OLDSIZE=%1
 	call repl.pl "-c=tabsize::--space -o=%OLDSIZE% -n=%NEWSIZE% $file" -r *
 	set OLDSIZE=
-	popd >nul
 	goto end
 
 :help
-	echo tabsizes directory [tabsize-from] [tabsize-to]
+	echo tabsizes [tabsize-from] [tabsize-to]
 	goto end
 
 :end
