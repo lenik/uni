@@ -45,6 +45,8 @@ my %opt_ext = (
         'php' => 'text',
         'asp' => 'text',
         'jsp' => 'text',
+
+	'sql' => 'text',
        );
 
 my $opt_quiet = 0;
@@ -118,7 +120,8 @@ sub main {
             my $c_x = $summary_x{$k};
             printf "%10d <.$k>\n", $c_x->{'body'} if not $opt_quiet;
         }
-        printf "%10d <<total>>\n", $summary{'body'} if not $opt_veryquiet;
+	my $total = $summary{'body'};
+        printf "%10d <<total, %.1f kloc>>\n", $total, $total/1000 if not $opt_veryquiet;
     }
 }
 
@@ -294,7 +297,7 @@ sub count_xml {
 
 
 sub help {
-    my %id = parse_id('$Id: wcc,v 1.9 2006-03-17 07:50:52 dansei Exp $');
+    my %id = parse_id('$Id: wcc,v 1.10 2006-04-23 05:41:12 lenik Exp $');
     print <<"EOM";
 Words Count for Source Code   Version $id{'rev'}   Date $id{'date'}
 Syntax:
