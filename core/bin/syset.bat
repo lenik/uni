@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.18 2006-01-26 14:20:47 dansei Exp $';
+@rem = '$Id: syset.bat,v 1.19 2006-04-23 05:41:30 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -68,13 +68,14 @@
             call perl %~dpnx0 env %dir_t% %dir_cir%
 
         :env_shell
-            reg add hkcr\*\shell\Binary\Command /f /ve /d      "%dir_t%\3\ue.exe ""%%1""" >nul
-            reg add hkcr\*\shell\Notepad\Command /f /ve /d     "%windir%\system32\Notepad.exe ""%%1""" >nul
-            reg add hkcr\*\shell\Metapad\Command /f /ve /d     "%dir_t%\3\metapad.exe ""%%1""" >nul
-            reg add hkcr\*\shell\Write\Command /f /ve /d       "Write ""%%1""" >nul
-            reg add hkcr\*\shell\Register\Command /f /ve /d    "regsvr32 ""%%1""" >nul
-            reg add hkcr\*\shell\Unregister\Command /f /ve /d  "regsvr32 /u ""%%1""" >nul
-            reg add "hkcr\*\shell\My Sign\Command" /f /ve /d   "%dir_t%\1\dsign.bat ""%%1""" >nul
+            reg add hkcr\*\shell\Binary\Command /f /ve /d       "%dir_t%\3\ue.exe ""%%1""" >nul
+            reg add hkcr\*\shell\Notepad\Command /f /ve /d      "%windir%\system32\Notepad.exe ""%%1""" >nul
+            reg add hkcr\*\shell\Metapad\Command /f /ve /d      "%dir_t%\3\metapad.exe ""%%1""" >nul
+            reg add hkcr\*\shell\Write\Command /f /ve /d        "Write ""%%1""" >nul
+            reg add hkcr\*\shell\Register\Command /f /ve /d     "regsvr32 ""%%1""" >nul
+            reg add hkcr\*\shell\Unregister\Command /f /ve /d   "regsvr32 /u ""%%1""" >nul
+            reg add hkcr\*\shell\MySign\Command /f /ve /d       "%dir_t%\1\dsign.bat ""%%1""" >nul
+            reg add hkcr\.patch\shell\Merge\Command /f /ve /d   "%dir_cir%\cygwin\bin\patch.exe ""%%1""" >nul
 
             reg add hkcr\Directory\shell\Console\Command /f /ve /d              "cmd ""%%1""" >nul
             reg add hkcr\Directory\shell\Serialize\Command /f /ve /d            "%dir_t%\1\renum.exe -D -w 2 ""%%1\*""" >nul
