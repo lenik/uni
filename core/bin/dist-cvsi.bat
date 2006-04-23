@@ -1,5 +1,5 @@
 @echo off
-rem $Id: dist-cvsi.bat,v 1.4 2006-03-17 07:51:56 dansei Exp $
+rem $Id: dist-cvsi.bat,v 1.5 2006-04-23 05:40:16 lenik Exp $
 
 :version
     echo Distribute cvs-initials to managed directory
@@ -24,7 +24,7 @@ rem $Id: dist-cvsi.bat,v 1.4 2006-03-17 07:51:56 dansei Exp $
 	if not "%%~nxi"=="CVS" (
             set /a count=count+1
 	    echo %%i/
-            copy %TEMP%\CVSIGNOR %%i\.cvsignore >nul
+            copy "%TEMP%\CVSIGNOR" "%%i\.cvsignore" >nul
         )
     )
 
