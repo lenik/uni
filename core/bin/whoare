@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: whoare,v 1.4 2004-11-13 13:53:20 dansei Exp $
+# $Id: whoare,v 1.5 2006-07-27 15:51:27 lenik Exp $
 
 use strict;
 use Socket;
@@ -7,6 +7,7 @@ use FileHandle;
 use Getopt::Long;
 use Time::HiRes qw/usleep/;
 #use Thread;
+use File::Basename;
 use Data::Dumper;
 
 
@@ -97,9 +98,22 @@ our @dict;
 
 our $opt_debug;
 our $opt_test;
-our $opt_mt;
+our $opt_mt = 1;
 our $opt_maxt = 4;
 our $opt_numbers;
+our @opt_tla;
+
+our @def_tla = qw/
+        .com
+        .net
+        .org
+        .edu
+        .biz
+        .cn
+        .com.cn
+        .net.cn
+        .org.cn
+    /;
 
 our $ignore_first = 0;
 our $active_threads = 0;
@@ -111,68 +125,68 @@ sub whois {
 
     die "WHOIS server undefined for TLD: $tld" if ! $server;
     my $iaddr = inet_aton($server);
-		die "Server $server not found: $!" if !$iaddr;
+        die "Server $server not found: $!" if !$iaddr;
 
-	my $paddr = sockaddr_in(43, $iaddr);
-	my $proto = $proto_tcp;
-	my $info = {};
+    my $paddr = sockaddr_in(43, $iaddr);
+    my $proto = $proto_tcp;
+    my $info = {};
     local $_;
 
-	socket(SOCK, PF_INET, SOCK_STREAM, $proto)
-		or die "Can't create socket: $!";
+    socket(SOCK, PF_INET, SOCK_STREAM, $proto)
+        or die "Can't create socket: $!";
 
-	# svr|...
-	print "$svr";
+    # svr|...
+    print "$svr" unless $opt_mt;
 
-	my $connected = 0;
-	my $failcount = 0;
-	while (not $connected) {
-	$connected = connect(SOCK, $paddr);
-	if (not $connected) {
-	    $failcount++;
-	    die "Connect failure: $!" if $failcount > 10;
-		print STDERR "Connect failed: $!, Retry $failcount\n";
-	}
+    my $connected = 0;
+    my $failcount = 0;
+    while (not $connected) {
+        $connected = connect(SOCK, $paddr);
+        if (not $connected) {
+            $failcount++;
+            die "Connect failure: $!" if $failcount > 10;
+            print STDERR "Connect failed: $!, Retry $failcount\n";
+        }
     }
 
-	send(SOCK, "$svr\n", 0);
+    send(SOCK, "$svr\n", 0);
 
-	# svr|...
-	print "|";
+    # svr|...
+    print "|" unless $opt_mt;
 
-	while (<SOCK>) {
-	    s/\r|\n//;
-	    # print "# $_";
-		if (m/^\s*Domain Name:\s*(.*)$/i) {
-		    $info->{domain} = $1;
-		} elsif (m/^\s*Registrar:\s*(.*)$/i) {
-		    $info->{reg} = $1 if (! $info->{reg});
-		} elsif (m/^\s*Registrant Name:\s*(.*)$/i) {
-		    $info->{reg} = $1 if (! $info->{reg});
-		} elsif (m/^\s*Registrant Organization:\s*(.*)$/i) {
-		    $info->{reg} = $1 if (! $info->{reg});
-		} elsif (m/^\s*Name Server:\s*(.*)$/i) {
-		    $info->{dns0} = $1 if (! $info->{dns0});
-		} elsif (m/Registration Date:\s*(.*)$/i) {
-		    $info->{create} = $1;
-		} elsif (m/Expiration Date:\s*(.*)$/i) {
-		    $info->{expire} = $1;
-		} elsif (m/^No match(ing)?\b/i or m/^Not found\b/i) {
-		    $info = {};
-		    $info->{domain} = '***Available***';
-		    last;
-		} elsif (m/^>>> /) {
-		    last;
-		}
-	}
+    while (<SOCK>) {
+        s/\r|\n//;
+        # print "# $_";
+        if (m/^\s*Domain Name:\s*(.*)$/i) {
+            $info->{domain} = $1;
+        } elsif (m/^\s*Registrar:\s*(.*)$/i) {
+            $info->{reg} = $1 if (! $info->{reg});
+        } elsif (m/^\s*Registrant Name:\s*(.*)$/i) {
+            $info->{reg} = $1 if (! $info->{reg});
+        } elsif (m/^\s*Registrant Organization:\s*(.*)$/i) {
+            $info->{reg} = $1 if (! $info->{reg});
+        } elsif (m/^\s*Name Server:\s*(.*)$/i) {
+            $info->{dns0} = $1 if (! $info->{dns0});
+        } elsif (m/Registration Date:\s*(.*)$/i) {
+            $info->{create} = $1;
+        } elsif (m/Expiration Date:\s*(.*)$/i) {
+            $info->{expire} = $1;
+        } elsif (m/^No match(ing)?\b/i or m/^Not found\b/i) {
+            $info = {};
+            $info->{domain} = '***Available***';
+            last;
+        } elsif (m/^>>> /) {
+            last;
+        }
+    }
 
-	if (! $info->{domain}) {
-	    $info->{domain} = 'UNKNOWN';
-	}
+    if (! $info->{domain}) {
+        $info->{domain} = 'UNKNOWN';
+    }
 
-	close SOCK;
+    close SOCK;
 
-	return $info;
+    return $info;
 }
 
 
@@ -221,6 +235,7 @@ sub process {
     my $line =
         "$wi->{domain}|$wi->{reg}|$wi->{dns0}|$wi->{create}|$wi->{expire}\n";
 
+    print "$name|" if $opt_mt;
     print $line;
 
     my $logs = new FileHandle(">>$logfile");
@@ -258,16 +273,7 @@ sub after_than {
 
 sub process_gen {
     my $gen = shift;
-    for (qw/.com
-            .net
-            .org
-            .edu
-            .biz
-            .cn
-            .com.cn
-            .net.cn
-            .org.cn
-            /) {
+    for (@opt_tla) {
         process_any("$gen$_");
     }
 }
@@ -383,12 +389,25 @@ sub process_arg {
 my $options = GetOptions(
                          'debug' => \$opt_debug,
                          'test' => \$opt_test,
-                         'multi-threads|mt' => \$opt_mt,
+                         'multi-threads|mt'  => sub { $opt_mt = 1 },
+                         'single-threads|mt' => sub { $opt_mt = 0 },
                          'max-threads=n' => \$opt_maxt,
                          'numbers|n' => \$opt_numbers,
-                         'words-list|w=s' =>
+                         'tla|a=s' =>
                                 sub {
-                                    my ($cmd, $fn) = @_;
+                                    my ($opt, $ext) = @_;
+                                    foreach (split(/[,:; ]/, $ext)) {
+                                        $_ = '.' . $_ if ($_ !~ m/^\./);
+                                        # print "[$_]\n";
+                                        push @opt_tla, $_;
+                                    }
+                                },
+                         'words-list|w:s' =>
+                                sub {
+                                    my ($opt, $fn) = @_;
+                                    $fn = dirname($0) . '/words.txt' unless $fn;
+                                    print "Word file: $fn\n";
+
                                     open LIST, "<$fn";
                                     my @words = <LIST>;
                                     push @dict, map { chomp; $_ } @words;
@@ -403,6 +422,9 @@ my $options = GetOptions(
         $fuzzy_len = scalar(@fuzzy_set);
     }
 
+    if (scalar(@opt_tla) == 0) {
+        @opt_tla = @def_tla;
+    }
 
 for (@ARGV) {
     process_arg $_;
@@ -418,9 +440,11 @@ Syntax:
         --help (h)
         --debug (d)
         --test (t)
+        --single-threads (st)
         --multi-threads (mt)
         --max-threads=<number> (max)
         --numbers (n)
+        --tla <TLA-list> (a)
         --words-list=<filename> (w)
 EOM
     exit;
