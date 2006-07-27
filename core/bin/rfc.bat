@@ -2,15 +2,16 @@
 
 	set rfc_home=Z:\Files\standard\rfc
 	set rfc_edit=ue
+    set rfc_name=%~1
 
-	if "%1"=="u" (
+	if "%rfc_name%"=="u" (
 		set rfc_edit=ue
 		shift
 	)
 
-	if "%1"=="" goto help
+	if "%rfc_name%"=="" goto help
 
-	set rfc_n=%1
+	set rfc_n=%rfc_name%
 	set rfc_m=%rfc_n:~-2%
 	call libstr sn "%rfc_n%"
 
@@ -21,14 +22,14 @@
 :start
 	pushd %rfc_home% >nul
 
-	if exist "%rfc_p%\%1.*" (
-		for %%i in (%rfc_p%\%1.*) do start %rfc_edit% "%%i"
+	if exist "%rfc_p%\%rfc_name%.*" (
+		for %%i in (%rfc_p%\%rfc_name%.*) do start %rfc_edit% "%%i"
 		goto end
 	)
 
 :listing
 	echo RFC-index::
-	grep -i "%1" rfc-index.txt
+	grep -i "%rfc_name%" rfc-index.txt
 
 	if /i not "%0"=="rfc" pause
 
