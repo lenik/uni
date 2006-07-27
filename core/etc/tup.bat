@@ -1,36 +1,15 @@
 @echo off
-rem $Id: tup.bat,v 1.7 2005-07-14 02:28:37 dansei Exp $
+rem $Id: tup.bat,v 1.8 2006-07-27 15:49:36 lenik Exp $
 
 :begin
     rem find where to download
 
-    if "%temp%"=="" set temp=%tmp%
-    if "%temp%"=="" (
-        md c:\temp
-        set temp=c:\temp
-    )
+    call nu q
+    set src_t=\\q\c$\t
+    set src_cir=\\q\c$\.cirkonstancoj
 
-    echo open q.host.bodz.net>%temp%\ftp-log.tmp
-    echo anonymous>>%temp%\ftp-log.tmp
-    echo t-user@q>>%temp%\ftp-log.tmp
-    echo cd /public/export>>%temp%\ftp-log.tmp
-    echo lcd %temp%>>%temp%\ftp-log.tmp
-    echo get q.local>>%temp%\ftp-log.tmp
-    echo close>>%temp%\ftp-log.tmp
-    echo quit>>%temp%\ftp-log.tmp
-    ftp -s:"%temp%\ftp-log.tmp" >nul 2>nul
-
-    set tup_src=
-    for /f %%i in (%temp%\q.local) do (
-        set tup_src=\\%%i\public_dir-t
-        set tup_cir=\\%%i\.cirkonstancoj
-    )
-
-    del "%temp%\ftp-log.tmp" >nul 2>nul
-    del "%temp%\q.local" >nul 2>nul
-
-    if not exist %tup_src%\.dirt (
-        echo dir-t %tup_src% on public isn't available.
+    if not exist %src_t%\.dirt (
+        echo dir-t %src_t% on public isn't available.
         goto end
     )
 
@@ -38,43 +17,45 @@ rem $Id: tup.bat,v 1.7 2005-07-14 02:28:37 dansei Exp $
 
 :find_dst
 for %%i in (c d e f g h i j k l m n o p q r s t u v w x y z) do (
-    if exist %%i:\t\0\null.bat set tup_dst=%%i:\t
-    if exist %%i:\t\0\null.bat goto t_found
-
-    for %%j in (%%i\t*) do (
-        if exist %%j\0\null.bat set tup_dst=%%j
-        if exist %%j\0\null.bat goto t_found
+    if exist %%i:\t\.dirt set dst_t=%%i:\t
+    if not "!dst_t!"=="" if not "!dst_cir!"=="" goto t_found
+    if exist %%i:\t\2\.cirkonstancoj set dst_cir=%%i:\t\2
+    if not "!dst_t!"=="" if not "!dst_cir!"=="" goto t_found
+    for /d %%j in (%%i:\*) do (
+        if exist %%j\.dirt set dst_t=%%j
+        if not "!dst_t!"=="" if not "!dst_cir!"=="" goto t_found
+        if exist %%j\.cirkonstancoj set dst_cir=%%j
+        if not "!dst_t!"=="" if not "!dst_cir!"=="" goto t_found
     )
 )
 
 :t_not_found
-    echo source directory of dir-t not found
+    echo Unknown install-location of dirt and cirkonstancoj.
+    echo You may need to re-install the full dirt.
     goto end
 
 :t_found
     echo updating
-    echo     source: %tup_src%
-    echo     target: %tup_dst%
-    xcopy /d /e /y %tup_src% %tup_dst%
-    echo dir-t update successfully.
+    echo     source: %src_t%, %src_cir%
+    echo     target: %dst_t%, %dst_cir%
 
-    if exist %tup_cir%\.cirkonstancoj (
-        echo updating cirkonstancoj
-        if not exist %tup_dst%\2\* mkdir %tup_dst%\2
-        xcopy /d /y %tup_cir% %tup_dst%\2
-        for %%i in (Cygwin MinGW Perl PHP Python Ruby) do (
-            xcopy /d /e /y %tup_cir%\%%i %tup_dst%\2\%%i
-        )
-        echo cirkonstancoj update successfully
-    )
+    rem /C: continue on error
+    rem /D: only copy newer files
+    rem /E: sub-directories, even empty dirs.
 
+    xcopy /c /d /e /y %src_t% %dst_t%
+    echo dirt update successfully.
 
-    pushd "%tup_dst%\0" >nul
+    xcopy /c /d /e /y %src_cir% %dst_cir%
+    echo cirkonstancoj update successfully.
+
+    pushd "%dst_t%\0" >nul
     call syset.bat env
     popd >nul
 
 
 :end
-    set tup_src=
-    set tup_cir=
-    set tup_dst=
+    set src_t=
+    set src_cir=
+    set dst_t=
+    set dst_cir=
