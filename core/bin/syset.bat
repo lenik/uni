@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.19 2006-04-23 05:41:30 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.20 2006-07-27 15:43:04 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -209,6 +209,7 @@ sub env_add {
 
 sub env {
     my ($dir_t, $dir_cir) = @_;
+    my $disk_cygwin = 'B:';
     my $regenv;
     my ($type, $value);
 
@@ -218,7 +219,8 @@ sub env {
     $prefix =~ s/\\/[\/\\\\]/g;         # \ -> [/\], because prefix is regexp.
 
     print "Updating environment";
-        env_set('DIR_T_HOME', "$dir_t");
+        env_set('DIR_T_HOME', $dir_t);
+        env_set('CIRK_HOME', $dir_cir);
         print ".";
 
         env_add('PATH', qr/^$prefix/i, [
@@ -228,6 +230,7 @@ sub env {
                 path_normalize "$dir_cir\\Ruby\\ruby\\bin",
                 path_normalize "$dir_cir\\Java\\Jos\\bin",
                 path_normalize "$dir_cir\\MinGW\\bin",
+                path_normalize "$disk_cygwin\\bin",
                 path_normalize "$dir_cir\\Cygwin\\bin",
                 path_normalize "$dir_t\\2",
                 path_normalize "$dir_t\\4",
