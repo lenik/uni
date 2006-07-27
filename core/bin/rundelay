@@ -1,0 +1,138 @@
+#!/usr/bin/perl
+
+use strict;
+use Getopt::Long;
+use cmt::vcs;
+use Tk;
+use Tk::DialogBox;
+use Tk::ProgressBar;
+
+if (0) {                                # BEGIN {
+    # kill the console window
+    if ($^O eq 'MSWin32') {
+        use Win32::Console;
+        Win32::Console::Free();
+    }
+}
+
+sub version;
+sub help;
+sub prompt_window;
+
+our $opt_timeout = 10000;               # 10 seconds
+our $opt_message = 'Launcher is waiting for timeout...';
+our $opt_force = 0;
+our $opt_verbose = 0;
+our $opt_cmdline;
+
+# Process X11-specific options
+Tk::CmdLine::SetArguments();
+
+GetOptions('timeout=n',
+           'message=s',
+           'force',
+           'verbose|v',
+           'nogui',
+           'help' => sub { &help },
+           'version' => sub { &version; exit },
+           );
+
+if (! scalar(@ARGV)) {
+    print "no command-line specified\n";
+    &help;
+}
+
+$opt_cmdline = join(' ', @ARGV);
+
+$signal = 'wait';
+$starttime = 1000 * time;               # in ms
+
+if (my $pid = fork) {
+    # parent pid
+    while (1000 * time - $starttime <= $opt_timeout) {
+        if ($signal eq 'exit') {
+            exit;
+        }
+        sleep(1);                       # XXX  should be faster
+    }
+    # Timeout
+    kill 'KILL' => $pid;                # no more wait
+} else {
+    # child pid
+    my $select = prompt_window();
+    print "selected: " . $select . "\n";
+    exit if ($select ne 'run');
+}
+
+exit;
+
+sub prompt_window {
+    my $mw = new MainWindow;
+
+    my $dlg = $mw->DialogBox(-title => "Run after $opt_timeout ms delay",
+                             -buttons => ['Run',
+                                          'Cancel'],
+                             -default_button => 'Run',
+                             );
+
+    my $msg = $dlg->Label(-text => <<"EOM",
+$opt_message
+
+The following command will be launched after timeout:
+"$opt_cmdline"
+EOM
+                          -width => 60,
+                          -height => 6,
+                          )->pack();
+
+    my $current_timeout = 0;
+    my $progress = $dlg->ProgressBar(-length => 350,
+                                     -width => 20,
+                                     -anchor => 'w', # left->right
+                                     -from => 0,
+                                     -to => $opt_timeout,
+                                     -blocks => 20,
+                                     -colors => [0, 'green',
+                                                 0.5 * $opt_timeout, 'yellow',
+                                                 0.8 * $opt_timeout, 'red', ],
+                                     -variable => \$current_timeout,
+                                     )->pack();
+
+    my $buttons = $dlg->Frame()->pack(-side => 'bottom');
+    $buttons->Button(-text => 'Delay 1x',
+                 -command => sub {
+                     $opt_timeout *= 2;
+                     $progress->configure(-to => $opt_timeout);
+                 })->pack(-side => 'left');
+    $buttons->Button(-text => 'Delay 2x',
+                 -command => sub {
+                     $opt_timeout *= 4;
+                     $progress->configure(-to => $opt_timeout);
+                 })->pack(-side => 'left');
+
+}
+
+sub version {
+    my %id = parse_id('$Id: rundelay,v 1.1 2006-07-27 15:52:27 lenik Exp $');
+    print <<"EOM";
+[runtimeout]
+    launch a command after a specified timeout time
+    author: lenik   version: $id{rev}   last updated: $id{date}
+EOM
+}
+
+sub help {
+    &version;
+    print <<"EOM";
+syntax:
+    runtimeout [<options>] <command-line>
+options:
+        --timeout=<timeout-time, in ms> (t)
+        --message=<text> (m)
+        --force (f)
+        --verbose (v)
+        --help (h)
+        --version (v)
+EOM
+    exit 0;
+}

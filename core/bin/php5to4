@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+
+use strict;
+
+# convert about following keywords:
+#   instanceof
+#   public
+#   protected
+#   private
+#
+
+sub convert_line {
+    my $line = shift;
+
+    $line =~ s/ (\$\S+) \s+ instanceof \s+ (\w+) /is_a($1, $2)/xg;
+
+    $line =~ s/((?:^|;) \s*) (public|protected|private) (\s+ \$)/$1var$3/xg;
+
+    return $line;
+}
+
+
+# .section.  apply.pl ext-point
+
+my $path = shift @ARGV;
+my $lines = [];
+
+if ($path !~ m/\.(php|php5|phtml|inc)$/i) {
+    &nochange;
+}
+
+
+sub read_all {
+	my $path = shift;
+	my $lines = [];
+	open(FH, "<$path") || die "Can't open file $path";
+	while (<FH>) {
+		chomp;
+		push @$lines, $_;
+	}
+	close FH;
+	$lines;
+}
+
+sub on_file {
+    my $lines = read_all $path;
+    for (@$lines) {
+        print convert_line($_), "\n";
+    }
+}

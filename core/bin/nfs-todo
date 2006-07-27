@@ -1,0 +1,35 @@
+
+__END__
+
+rem 5, open method
+    if not exist "%note_ctr%" md "%note_ctr%"
+
+    rem if // option, then build index
+
+    rem create index file if the note file is a directory.
+    if exist "%note_ctr%\%note%\*" (
+        set note_ctr=%note_ctr%\%note%
+        set note=%note%-index
+    )
+
+    if "%note_ext%"=="/" (
+        pushd "%note_ctr%"
+        grep -R "^>" * >"%note_ctr%\%note%.txt"
+        start %note_a_txt% "%note_ctr%\%note%.txt"
+        popd
+        goto cleanup
+    )
+
+    if "%note_ext%"=="link" (
+        echo %note_ln_src% >"%note_ctr%\%note%.link"
+        call:ss "%note_ctr%\%note%" "\" "\\"
+        set note_t=!_ret!
+        call:ss "%note_ln_src%" "\" "\\"
+        if not exist "%note_ln_src%\*" (
+            md "%note_ln_src%"
+            lc /nologo "user32::MessageBoxA(0, 'Symbolic link of note-container is created: !note_t!.link: !_ret!', 'Notes', 64)"
+        ) else (
+            lc /nologo "user32::MessageBoxA(0, 'Symbolic link redirected to: !note_t!.link: !_ret!', 'Notes', 64)"
+        )
+        goto cleanup
+    )
