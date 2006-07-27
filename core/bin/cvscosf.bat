@@ -1,6 +1,6 @@
 @echo off
 
-	rem $Id: cvscosf.bat,v 1.2 2004-10-20 00:09:49 dansei Exp $
+	rem $Id: cvscosf.bat,v 1.3 2006-07-27 15:49:07 lenik Exp $
 
 	if "%1"=="" goto help
 
@@ -16,6 +16,7 @@
 	if not "%1"=="" goto arg_loop
 :arg_exit
 
+	echo cvsco %_mkdir% %_cvsroot% -p %_prj%
 	call cvsco %_mkdir% %_cvsroot% -p %_prj%
 	goto cleanup
 

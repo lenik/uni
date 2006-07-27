@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: cvsco,v 1.2 2005-01-06 04:21:45 dansei Exp $
+# $Id: cvsco,v 1.3 2006-07-27 15:49:07 lenik Exp $
 
 use strict;
 use cmt::vcs;
@@ -11,9 +11,9 @@ sub help;
 
 my %cfg = (
     'sf' => {
-        'websvr' => 'cvs.sourceforge.net',
-        'url' => '/viewcvs.py/$prj/',
-        'cvsroot' => ':pserver:anonymous@cvs.sourceforge.net:/cvsroot/$prj',
+        'websvr' => '$prj.cvs.sourceforge.net',
+        'url' => '/$prj/',
+        'cvsroot' => ':pserver:anonymous@$prj.cvs.sourceforge.net:/cvsroot/$prj',
         },
     'nongnu' => {
         'websvr' => 'savannah.nongnu.org',
@@ -68,11 +68,15 @@ my $printonly;
         chdir $prj;
     }
 
-    my @html = `getweb $websvr http://$websvr$url`;
+    print "getweb $websvr $url\n";
+    my @html = `getweb $websvr $url`;
+    print "getweb done\n";
     for (my $i = 0; $i < scalar(@html); $i++) {
         $_ = $html[$i];
-        if (m/\balt=\"\(dir\)\"/) {
+        #print $_;
+        if (m/<img[^<]*\bdir\b/i) {
             $_ = $html[++$i];
+            #print $_ . "\n";
             my ($module) = m/^([^\/]+)/;
             if ($modpat) {
                 next if ($module !~ m/^$modpat$/i);
@@ -93,7 +97,7 @@ my $printonly;
 
 
 sub help {
-    my %id = parse_id('$Id: cvsco,v 1.2 2005-01-06 04:21:45 dansei Exp $');
+    my %id = parse_id('$Id: cvsco,v 1.3 2006-07-27 15:49:07 lenik Exp $');
     print <<"EOM";
 [CVSCOS] CVS Checkout On Sites
 Author Snima Denik   Version $id{'rev'}   Date $id{'date'}
