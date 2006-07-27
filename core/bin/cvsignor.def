@@ -66,6 +66,7 @@ Debug*
 DEBUG*
 Release*
 RELEASE*
+*_Win32_*
 *.$*
 *.~*
 ~*
