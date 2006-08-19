@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.20 2006-07-27 15:43:04 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.21 2006-08-19 02:16:01 dansei Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -20,69 +20,67 @@
 	echo You must run this program under Windows NT/2000 or above.
 	goto end
 
-    :help
-	echo [SYSET] Config system settings   * dir-t public *
-	echo Written by Snima Denik               Version 1
-	echo.
-	echo Syntax:  syset sub-function [arguments]
-	echo sub-functions:
-	echo     help    show this help page
-	echo     env     initialize environment variables for dir-t
-	echo.
-	echo This program is distributed under GPL license.
-	echo If you have problems with this program, you can
-	echo   mail to: dansei@163.com
-	goto end
-
     :env
-	set dir_t=%~dp0
-	set dir_t=%dir_t:~,-3%
+        call .dirt.0
+        if not "%errorlevel%"=="70" goto init
+        call .dirt.2
+        if not "%errorlevel%"=="72" goto init
+        goto end
 
-	if not exist %dir_t%\.dirt (
+    :init
+	set dirt_home=%~dp0
+	set dirt_home=%dirt_home:~,-3%
+
+	if not exist %dirt_home%\.dirt (
 	    echo Cannot found dir-t, please install it first
 	    goto end
 	    )
-	echo Found installed dir-t at %dir_t%
+	echo Found installed dir-t at %dirt_home%
 
-        if exist "%dir_t%\2\.cirkonstancoj" (
-            set dir_cir=%dir_t%\2
-            echo Found built-in cirkonstancoj
-            goto env_perlcall
+        if exist "%dirt_home%\2\.cirkonstancoj" (
+            set cirk_home=%dirt_home%\2
+            echo Found cirkonstancoj installed at t:2
+            goto env_end
         )
 
         for %%i in (c d e f g h i j k l m n o p q r s t u v w x y z) do (
             if exist %%i:\.cirkonstancoj\.cirkonstancoj (
-                set dir_cir=%%i:\.cirkonstancoj
-                echo Found cirkonstancoj installed at !dir_cir!
-                goto env_perlcall
+                set cirk_home=%%i:\.cirkonstancoj
+                echo Found cirkonstancoj installed at !cirk_home!
+                goto env_end
             )
         )
 
         echo Cannot found cirkonstancoj, please install it first.
         goto end
 
-        :env_perlcall
-            set PATH=%dir_t%;%dir_t%\0;%dir_t%\1;%dir_t%\2;%dir_t%\3;%dir_t%\4;%dir_t%\5;%dir_t%\6;%dir_t%\7;%dir_t%\8;%dir_t%\9;%PATH%
-            set PATH=%dir_cir%\perl\perl5\bin;%PATH%
-            set PERLLIB=%dir_t%\0\lib;%dir_cir%\perl\perl5\lib;%dir_cir%\perl\perl5\site\lib
-            call perl %~dpnx0 env %dir_t% %dir_cir%
+        :env_end
+            set PATH=%dirt_home%;%dirt_home%\0;%dirt_home%\1;%cirk_home%;%dirt_home%\3;%dirt_home%\4;%dirt_home%\5;%dirt_home%\6;%PATH%;%dirt_home%\7;%dirt_home%\8;%dirt_home%\9
+            set PATH=%cirk_home%\perl\perl5\bin;%PATH%
+            set PATH=%PATH%;%cirk_home%\python\python24
+            set PATH=%PATH%;%cirk_home%\cygwin\bin
+            if "%1"=="env" goto end
 
-        :env_shell
-            reg add hkcr\*\shell\Binary\Command /f /ve /d       "%dir_t%\3\ue.exe ""%%1""" >nul
-            reg add hkcr\*\shell\Notepad\Command /f /ve /d      "%windir%\system32\Notepad.exe ""%%1""" >nul
-            reg add hkcr\*\shell\Metapad\Command /f /ve /d      "%dir_t%\3\metapad.exe ""%%1""" >nul
-            reg add hkcr\*\shell\Write\Command /f /ve /d        "Write ""%%1""" >nul
-            reg add hkcr\*\shell\Register\Command /f /ve /d     "regsvr32 ""%%1""" >nul
-            reg add hkcr\*\shell\Unregister\Command /f /ve /d   "regsvr32 /u ""%%1""" >nul
-            reg add hkcr\*\shell\MySign\Command /f /ve /d       "%dir_t%\1\dsign.bat ""%%1""" >nul
-            reg add hkcr\.patch\shell\Merge\Command /f /ve /d   "%dir_cir%\cygwin\bin\patch.exe ""%%1""" >nul
+        :init_perlcall
+            set PERLLIB=%dirt_home%\0\lib;%cirk_home%\perl\perl5\lib;%cirk_home%\perl\perl5\site\lib
+            call perl %~dpnx0 init %dirt_home% %cirk_home%
+
+        :init_shell
+            reg add hkcr\*\shell\Binary\Command /f /ve /d      "%dirt_home%\3\ue.exe ""%%1""" >nul
+            reg add hkcr\*\shell\Notepad\Command /f /ve /d     "%windir%\system32\Notepad.exe ""%%1""" >nul
+            reg add hkcr\*\shell\Metapad\Command /f /ve /d     "%dirt_home%\3\metapad.exe ""%%1""" >nul
+            reg add hkcr\*\shell\Write\Command /f /ve /d       "Write ""%%1""" >nul
+            reg add hkcr\*\shell\Register\Command /f /ve /d    "regsvr32 ""%%1""" >nul
+            reg add hkcr\*\shell\Unregister\Command /f /ve /d  "regsvr32 /u ""%%1""" >nul
+            reg add "hkcr\*\shell\My Sign\Command" /f /ve /d   "%dirt_home%\1\dsign.bat ""%%1""" >nul
+            reg add hkcr\.patch\shell\Merge\Command /f /ve /d   "%cirk_home%\cygwin\bin\patch.exe ""%%1""" >nul
 
             reg add hkcr\Directory\shell\Console\Command /f /ve /d              "cmd ""%%1""" >nul
-            reg add hkcr\Directory\shell\Serialize\Command /f /ve /d            "%dir_t%\1\renum.exe -D -w 2 ""%%1\*""" >nul
-            reg add "hkcr\Directory\shell\Gather binaries\Command" /f /ve /d    "%dir_t%\0\mvup.bat -c ""%%1\..\..\bin\"" -t ""%%1\..\..\bin\"" *.exe *.dll *.ocx" >nul
-            reg add "hkcr\Directory\shell\Build TGZ archive\Command" /f /ve /d  "%dir_t%\0\tgz.bat ""%%1""" >nul
-            reg add "hkcr\Directory\shell\SIMplifiers expand\Command" /f /ve /d "%dir_cir%\perl\perl5\bin\perl.exe %dir_t%\0\sim.pl" >nul
-            reg add "hkcr\Directory\shell\Add nfs mapping\Command" /f /ve /d    "%dir_cir%\perl\perl5\bin\perl.exe %dir_t%\0\nfs.pl -i -m" >nul
+            reg add hkcr\Directory\shell\Serialize\Command /f /ve /d            "%dirt_home%\1\renum.exe -D -w 2 ""%%1\*""" >nul
+            reg add "hkcr\Directory\shell\Gather binaries\Command" /f /ve /d    "%dirt_home%\0\mvup.bat -c ""%%1\..\..\bin\"" -t ""%%1\..\..\bin\"" *.exe *.dll *.ocx" >nul
+            reg add "hkcr\Directory\shell\Build TGZ archive\Command" /f /ve /d  "%dirt_home%\0\tgz.bat ""%%1""" >nul
+            reg add "hkcr\Directory\shell\SIMplifiers expand\Command" /f /ve /d "%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\sim.pl" >nul
+            reg add "hkcr\Directory\shell\Add nfs mapping\Command" /f /ve /d    "%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\nfs.pl -i -m" >nul
 
             reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v CompletionChar /t REG_DWORD /d 14 >nul
             reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v PathCompletionChar /t REG_DWORD /d 14 >nul
@@ -105,7 +103,7 @@
             reg add "hkcu\SOFTWARE\metapad" /f /v bSuppressUndoBufferPrompt /t REG_DWORD /d 1 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v nSelectionMarginWidth /t REG_DWORD /d 5 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v nTransparentPct      /t REG_DWORD /d 50 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v szLangPlugin         /d "%dir_t%\3\metapad.dll" >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v szLangPlugin         /d "%dirt_home%\3\metapad.dll" >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v szFavDir             /d "%userprofile%\Local Settings" >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v w_Left               /t REG_DWORD /d 200 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v w_Top                /t REG_DWORD /d 120 >nul
@@ -116,49 +114,63 @@
             reg add "hkcu\SOFTWARE\metapad" /f /v PrimaryFont          /t REG_BINARY /d f3ffffff000000000000000000000000900100000000008603020131d0c2cbcecce500004e65770000204d5420426f6c640000000000000000000000 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v SecondaryFont        /t REG_BINARY /d f0ffffff000000000000000000000000bc0200000000000003020131436f7572696572204e6577000000000000000000000000000000000000000000 >nul
 
-        :env_ext
-		echo Binding file types...
-		assoc .stx=txtfile >nul
+        :init_ext
+            echo Binding file types...
+            assoc .stx=txtfile >nul
 
-		assoc   .p=xPLC >nul
-		assoc  .pl=xPLC >nul
-		assoc .plc=xPLC Compiled>nul
-		ftype   .p=%dir_cir%\perl\perl5\bin\perl.exe "%%0" %%* >nul
-		ftype  .pl=%dir_cir%\perl\perl5\bin\perl.exe "%%0" %%* >nul
-		ftype .plc=%dir_cir%\perl\perl5\bin\perl.exe "%%0" %%* >nul
-		ftype xPLC=%dir_cir%\perl\perl5\bin\perl.exe "%%0" %%* >nul
+            assoc   .p=xPLC >nul
+            assoc  .pl=xPLC >nul
+            assoc .plc=xPLC Compiled>nul
+            ftype   .p=%cirk_home%\perl\perl5\bin\perl.exe "%%0" %%* >nul
+            ftype  .pl=%cirk_home%\perl\perl5\bin\perl.exe "%%0" %%* >nul
+            ftype .plc=%cirk_home%\perl\perl5\bin\perl.exe "%%0" %%* >nul
+            ftype xPLC=%cirk_home%\perl\perl5\bin\perl.exe "%%0" %%* >nul
 
-		assoc  .py=xPYC >nul
-		assoc .pyc=xPYC Compiled>nul
-		ftype  .py=%dir_cir%\python\python24\Python.exe "%%0" %%* >nul
-		ftype .pyc=%dir_cir%\python\python24\Python.exe "%%0" %%* >nul
-		ftype xPYC=%dir_cir%\python\python24\Python.exe "%%0" %%* >nul
+            assoc  .py=xPYC >nul
+            assoc .pyc=xPYC Compiled>nul
+            ftype  .py=%cirk_home%\python\python24\Python.exe "%%0" %%* >nul
+            ftype .pyc=%cirk_home%\python\python24\Python.exe "%%0" %%* >nul
+            ftype xPYC=%cirk_home%\python\python24\Python.exe "%%0" %%* >nul
 
             assoc .php=xPHP >nul
-            ftype .php=%dir_cir%\php\php5\bin\php.exe "%%0" %%* >nul
-            ftype xPHP=%dir_cir%\php\php5\bin\php.exe "%%0" %%* >nul
+            ftype .php=%cirk_home%\php\php5\bin\php.exe "%%0" %%* >nul
+            ftype xPHP=%cirk_home%\php\php5\bin\php.exe "%%0" %%* >nul
 
-		assoc  .rb=xRB >nul
-            ftype  .rb=%dir_cir%\ruby\ruby\bin\ruby.exe "%%1" %%* >nul
-            ftype  xRB=%dir_cir%\ruby\ruby\bin\ruby.exe "%%1" %%* >nul
+            assoc  .rb=xRB >nul
+            ftype  .rb=%cirk_home%\ruby\ruby\bin\ruby.exe "%%1" %%* >nul
+            ftype  xRB=%cirk_home%\ruby\ruby\bin\ruby.exe "%%1" %%* >nul
 
             assoc  .ss=xSS >nul
-            ftype  .ss=%dir_cir%\lisp\plt\mzscheme.exe "%%1" %%* >nul
-            ftype  xSS=%dir_cir%\lisp\plt\mzscheme.exe "%%1" %%* >nul
+            ftype  .ss=%cirk_home%\lisp\plt\mzscheme.exe "%%1" %%* >nul
+            ftype  xSS=%cirk_home%\lisp\plt\mzscheme.exe "%%1" %%* >nul
 
             assoc .sim=xSIM >nul
-		ftype .sim=%dir_cir%\perl\perl5\bin\perl.exe %dir_t%\0\sim.pl "%%0" %%* >nul
-            ftype xSIM=%dir_cir%\perl\perl5\bin\perl.exe %dir_t%\0\sim.pl "%%0" %%* >nul
+            ftype .sim=%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\sim.pl "%%0" %%* >nul
+            ftype xSIM=%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\sim.pl "%%0" %%* >nul
 
             assoc   .6=x6 >nul
-            ftype   .6=%dir_cir%\1\simxml.exe "%%1" %%* >nul
-            ftype   x6=%dir_cir%\1\simxml.exe "%%1" %%* >nul
+            ftype   .6=%cirk_home%\1\simxml.exe "%%1" %%* >nul
+            ftype   x6=%cirk_home%\1\simxml.exe "%%1" %%* >nul
 
             assoc  .m4=xM4 >nul
-            ftype  .m4=%dir_cir%\cygwin\bin\m4.exe "%%1" %%* >nul
-            ftype  xM4=%dir_cir%\cygwin\bin\m4.exe "%%1" %%* >nul
+            ftype  .m4=%cirk_home%\cygwin\bin\m4.exe "%%1" %%* >nul
+            ftype  xM4=%cirk_home%\cygwin\bin\m4.exe "%%1" %%* >nul
 
             echo Initialize completed.
+	goto end
+
+    :help
+	echo [SYSET] Config system settings   * dir-t public *
+	echo Written by Snima Denik               Version 1
+	echo.
+	echo Syntax:  syset sub-function [arguments]
+	echo sub-functions:
+	echo     help    show this help page
+	echo     init    initialize environment variables for dir-t
+	echo.
+	echo This program is distributed under GPL license.
+	echo If you have problems with this program, you can
+	echo   mail to: dansei@163.com
 	goto end
 
         rem ';
@@ -207,43 +219,43 @@ sub env_add {
     $reg->Close();
 }
 
-sub env {
-    my ($dir_t, $dir_cir) = @_;
+sub init {
+    my ($dirt_home, $cirk_home) = @_;
     my $disk_cygwin = 'B:';
     my $regenv;
     my ($type, $value);
 
     # prefix == x:/t | y:/.cir
-    my $prefix = path_normalize($dir_t)
-         . "|" . path_normalize($dir_cir);
+    my $prefix = path_normalize($dirt_home)
+         . "|" . path_normalize($cirk_home);
     $prefix =~ s/\\/[\/\\\\]/g;         # \ -> [/\], because prefix is regexp.
 
     print "Updating environment";
-        env_set('DIR_T_HOME', $dir_t);
-        env_set('CIRK_HOME', $dir_cir);
+        env_set('DIRT_HOME', "$dirt_home");
+        env_set('CIRK_HOME', "$cirk_home");
         print ".";
 
         env_add('PATH', qr/^$prefix/i, [
-                path_normalize "$dir_cir\\Perl\\Perl5\\bin",
-                path_normalize "$dir_cir\\PHP\\PHP5",
-                path_normalize "$dir_cir\\Python\\Python24",
-                path_normalize "$dir_cir\\Ruby\\ruby\\bin",
-                path_normalize "$dir_cir\\Java\\Jos\\bin",
-                path_normalize "$dir_cir\\MinGW\\bin",
+                path_normalize "$cirk_home",
+                path_normalize "$cirk_home\\Perl\\Perl5\\bin",
+                path_normalize "$cirk_home\\PHP\\PHP5",
+                path_normalize "$cirk_home\\Python\\Python24",
+                path_normalize "$cirk_home\\Ruby\\ruby\\bin",
+                path_normalize "$cirk_home\\Java\\bin",
+                path_normalize "$cirk_home\\MinGW\\bin",
                 path_normalize "$disk_cygwin\\bin",
-                path_normalize "$dir_cir\\Cygwin\\bin",
-                path_normalize "$dir_t\\2",
-                path_normalize "$dir_t\\4",
-                path_normalize "$dir_t\\5",
-                path_normalize "$dir_t\\6",
-                path_normalize "$dir_t\\7",
-                path_normalize "$dir_t\\8",
-                path_normalize "$dir_t\\9",
+                path_normalize "$cirk_home\\Cygwin\\bin",
+                path_normalize "$dirt_home\\4",
+                path_normalize "$dirt_home\\5",
+                path_normalize "$dirt_home\\6",
+                path_normalize "$dirt_home\\7",
+                path_normalize "$dirt_home\\8",
+                path_normalize "$dirt_home\\9",
                 ], [
-                path_normalize "$dir_t",
-                path_normalize "$dir_t\\0",
-                path_normalize "$dir_t\\1",
-                path_normalize "$dir_t\\3",
+                path_normalize "$dirt_home",
+                path_normalize "$dirt_home\\0",
+                path_normalize "$dirt_home\\1",
+                path_normalize "$dirt_home\\3",
                 ]);
         print ".";
 
@@ -252,33 +264,33 @@ sub env {
         print ".";
 
         env_add('INCLUDE', qr/^$prefix/i, [
-                path_normalize "$dir_cir/sdk/include",
+                path_normalize "$cirk_home/sdk/include",
                 ]);
         print ".";
 
         env_add('LIB', qr/^$prefix/i, [
-                path_normalize "$dir_cir/sdk/lib",
+                path_normalize "$cirk_home/sdk/lib",
                 ]);
         print ".";
 
         env_add('PERLLIB', qr/^$prefix/i, [
-                path_normalize "$dir_t/0/lib",
-                path_normalize "$dir_cir/perl/perl5/lib",
-                path_normalize "$dir_cir/perl/perl5/site/lib",
-                path_normalize "$dir_cir/perl/blib",
+                path_normalize "$dirt_home/0/lib",
+                path_normalize "$cirk_home/perl/perl5/lib",
+                path_normalize "$cirk_home/perl/perl5/site/lib",
+                path_normalize "$cirk_home/perl/blib",
                 ]);
         print ".";
 
         env_add('PYTHONPATH', qr/^$prefix/i, [
-                path_normalize "$dir_t/0/lib",
-                path_normalize "$dir_cir/python/python24/lib",
-                path_normalize "$dir_cir/python/python24/lib/site-packages",
-                path_normalize "$dir_cir/python/blib",
+                path_normalize "$dirt_home/0/lib",
+                path_normalize "$cirk_home/python/python24/lib",
+                path_normalize "$cirk_home/python/python24/lib/site-packages",
+                path_normalize "$cirk_home/python/blib",
                 ]);
         print ".";
 
         env_add('SIMXMLPATH', qr/^$prefix/i, [
-                path_normalize "$dir_t/0/lib/6",
+                path_normalize "$dirt_home/0/lib/6",
                 ]);
         print ".";
 
@@ -289,9 +301,9 @@ sub env {
 
         # Force PHP.ini exists
         if (! -f "$windir/php.ini") {
-            if (-f "$dir_cir/php/php5/php.ini-dist") {
+            if (-f "$cirk_home/php/php5/php.ini-dist") {
                 print "PHP not installed, install one\n";
-                open(FH, "$dir_cir/php/php5/php.ini-dist")
+                open(FH, "$cirk_home/php/php5/php.ini-dist")
                     or die "Install failed: source";
                 my @data = <FH>;
                 open(FH, ">$windir/php.ini")
@@ -330,7 +342,7 @@ sub env {
             chop;
 
             if (m/^extension_dir\b/) {
-                s/=.*$/= $dir_cir\\php\\php5\\ext/;
+                s/=.*$/= $cirk_home\\php\\php5\\ext/;
                 print ".";
             } elsif (m/^upload_tmp_dir\b/) {
                 s/=.*$/= $updir/;
@@ -352,7 +364,9 @@ sub env {
 
 }
 
-&env(@opt_args) if ($opt_cmd eq 'env');
+if ($opt_cmd eq 'init') {
+    init(@opt_args);
+}
 
 
 __END__
