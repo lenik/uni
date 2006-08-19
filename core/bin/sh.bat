@@ -1,4 +1,8 @@
 @echo off
-B:
+rem login lenik
+
 set HOME=/home/lenik
+
+B:
+cd \
 bash
