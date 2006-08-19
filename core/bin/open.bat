@@ -9,4 +9,5 @@
     nc %_HOST% %_PORT%
 
 :end
+    set _HOST=
     set _PORT=
