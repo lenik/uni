@@ -1,0 +1,174 @@
+#!/usr/bin/perl
+
+use strict;
+use Getopt::Long;
+use Cwd;
+use DirHandle;
+use File::Temp qw/:POSIX/;
+use cmt::vcs;
+use cmt::path;
+use Win32::TieRegistry(Delimiter=>'/');
+
+sub main;
+sub _Verbose;
+sub version;
+sub help;
+
+sub save;
+
+
+our $opt_server     = 'localhost';
+our $opt_user       = 'anonymous';
+our $opt_password   = 'ftpsend@dirt.bodz.net';
+our $opt_initdir    = '/';
+our $opt_make_default;
+our $opt_verbose;
+
+
+&main;
+
+
+sub main {
+    my $reg_path = "HKEY_CURRENT_USER/Software/DIRT/ftpsend/";
+    my $reg = $Registry->{$reg_path};
+    if ($reg) {
+        $opt_server   = $reg->{'/server'}   || $opt_server;
+        $opt_user     = $reg->{'/user'}     || $opt_user;
+        $opt_password = $reg->{'/password'} || $opt_password;
+        $opt_initdir  = $reg->{'/initdir'}  || $opt_initdir;
+    }
+
+    ::GetOptions(
+               'server=s',
+               'user=s',
+               'password=s',
+               'initdir|c=s',
+               'make-default|d',
+               'verbose|v',
+               'version' => sub { &version; exit },
+               'help' => sub { &help; exit },
+               );
+
+    die 'No file specified. ' if (scalar(@ARGV) == 0);
+
+    if ($opt_make_default) {
+        $Registry->{"HKEY_CURRENT_USER/Software/DIRT/"} =
+            { "ftpsend/" => {} };
+        $Registry->{"$reg_path/server"}     = $opt_server;
+        $Registry->{"$reg_path/user"}       = $opt_user;
+        $Registry->{"$reg_path/password"}   = $opt_password;
+        $Registry->{"$reg_path/initdir"}    = $opt_initdir;
+    }
+
+    _Verbose "Server    =$opt_server\n";
+    _Verbose "User      =$opt_user\n";
+    _Verbose "Password  =$opt_password\n";
+    _Verbose "InitDir   =$opt_initdir\n";
+
+    my $cwd = getcwd;
+    my @puts;
+
+    for (@ARGV) {
+        my $path;
+        if (-d) {
+            _Verbose "Add all files in directory $_: \n";
+            my $dh = new DirHandle($_);
+            my @files = $dh->read;
+            $dh->close;
+            for (@files) {
+                next if -d;     # skip subdirectories.
+                $path = path_join($cwd, $_);
+                _Verbose "  File $path\n";
+                push @puts, $path;
+            }
+        } elsif (m/^\@/) {
+            my $listfile = substr($_, 1);
+            open(FH, "<$listfile")
+                || die "Can't open list file $listfile";
+            _Verbose "Add all files in listfile $listfile: \n";
+            while (<FH>) {
+                chomp;
+                $path = path_join($cwd, $_);
+                _Verbose "  File $path\n";
+                push @puts, $path;
+            }
+            close FH;
+        } else {
+            _Verbose "Add all files match glob pattern $_: \n";
+            my @globs = glob $_;
+            for (@globs) {
+                $path = path_join($cwd, $_);
+                _Verbose "  File $path\n";
+                push @puts, $path;
+            }
+        }
+    }
+
+    _Verbose "Generating ftp script...\n";
+
+    my @ftpcmds;
+    push @ftpcmds, "open $opt_server";
+    push @ftpcmds, "$opt_user";
+    push @ftpcmds, "$opt_password";
+    push(@ftpcmds, "cd $opt_initdir") if $opt_initdir;
+    push @ftpcmds, "binary";
+
+    for (@puts) {
+        _Verbose "  Put $_\n";
+        push @ftpcmds, "put \"$_\"";
+    }
+    push @ftpcmds, "close";
+    push @ftpcmds, "quit";
+
+    my $tmpnam = tmpnam();
+    _Verbose "Generating ftp script to file $tmpnam\n";
+    open(FH, ">$tmpnam")
+        || die "Can't write to temp file $tmpnam";
+    print FH join("\n", @ftpcmds) . "\n\n";
+    close FH;
+
+    _Verbose "Execute ftp script...\n";
+  #  open(FTP, "|ftp -i")
+  #      || die "Can't open and send commands to ftp program\n";
+  #  for (@ftpcmds) {
+  #      my $cmd = "$_\r\n";
+  #      print "send: $cmd";
+  #      print FTP $cmd;
+  #  }
+  #  close FTP;
+
+    system "ftp -i -s:$tmpnam";
+    unlink $tmpnam;
+}
+
+
+sub _Verbose {
+    print shift if ($opt_verbose);
+}
+
+
+sub version {
+	my %id = parse_id('$Id: ftpsend,v 1.1 2006-09-15 10:51:50 lenik Exp $');
+    print <<"EOM";
+[ftpsend] send files through ftp
+written by s.n.m.  version $id{rev}  last updated $id{date}
+
+EOM
+}
+
+
+sub help {
+    &version;
+    print <<"EOM";
+syntax:
+    sendftp [options] [--] files...
+        --server=<ftp server> (s)
+        --user=<login user name> (u)
+        --password=<login password. (p)
+        --initdir=<initial path in remote server> (c)
+        --make-default (d, save to registry)
+        --verbose (v)
+        --version
+        --help
+EOM
+}
