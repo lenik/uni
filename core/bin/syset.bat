@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.21 2006-08-19 02:16:01 dansei Exp $';
+@rem = '$Id: syset.bat,v 1.22 2006-09-15 10:45:41 dansei Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -270,6 +270,11 @@ sub init {
 
         env_add('LIB', qr/^$prefix/i, [
                 path_normalize "$cirk_home/sdk/lib",
+                ]);
+        print ".";
+
+        env_add('JAVA_LIB', qr/^$prefix/i, [
+                path_normalize "$cirk_home/Java/lib",
                 ]);
         print ".";
 
