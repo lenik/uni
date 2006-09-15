@@ -31,7 +31,7 @@ our $opt_text;
 
 
 sub main {
-    my $reg_path = "HKEY_CURRENT_USER/Software/S-FIA & TC/dir-T/usecode/";
+    my $reg_path = "HKEY_CURRENT_USER/Software/DIRT/usecode/";
     my $reg = $Registry->{$reg_path};
     if ($reg) {
         $opt_scheme = system_decode $reg->{'/scheme'};
@@ -59,8 +59,8 @@ sub main {
 
     _Verbose "S=$opt_scheme P=$opt_phrase C=$opt_category T=$opt_text. \n";
     if ($opt_make_default) {
-        $Registry->{"HKEY_CURRENT_USER/Software/S-FIA & TC/"} =
-            { "dir-T/" => { "usecode/" => {} } };
+        $Registry->{"HKEY_CURRENT_USER/Software/DIRT/"} =
+            { "usecode/" => {} };
         $Registry->{"$reg_path/scheme"} = system_encode $opt_scheme;
         $Registry->{"$reg_path/phrase"} = system_encode $opt_phrase;
         $Registry->{"$reg_path/category"} = system_encode $opt_category;
@@ -96,7 +96,7 @@ sub _Verbose {
 
 
 sub version {
-	my %id = parse_id('$Id: usecode,v 1.2 2005-07-01 09:10:08 dansei Exp $');
+	my %id = parse_id('$Id: usecode,v 1.3 2006-09-15 10:51:38 lenik Exp $');
     print <<"EOM";
 [usecode] use codec (critic)
 written by s.n.m.  version $id{rev}  last updated $id{date}
