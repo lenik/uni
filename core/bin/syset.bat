@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.22 2006-09-15 10:45:41 dansei Exp $';
+@rem = '$Id: syset.bat,v 1.23 2006-10-17 13:54:39 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -233,6 +233,9 @@ sub init {
     print "Updating environment";
         env_set('DIRT_HOME', "$dirt_home");
         env_set('CIRK_HOME', "$cirk_home");
+        print ".";
+
+        env_set('ARK_HOME', "Z:\\.radiko\\arkivoj");
         print ".";
 
         env_add('PATH', qr/^$prefix/i, [
