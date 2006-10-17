@@ -23,7 +23,7 @@ sub verbose;
 sub echohh {
     my ($url, %args) = @_;
 
-    verbose "[echohh] $url\n";
+    verbose "retr from $url";
 
     my $method = $args{'method'} || 'GET';
     my $formref = $args{'form'} || {};
@@ -46,7 +46,7 @@ sub echohh {
     }
 
     if ($response->is_error) {
-        verbose "[echohh] " . $response->status_line . "\n";
+        verbose "error: " . $response->status_line;
         return $response->status_line;
     }
 
@@ -116,7 +116,7 @@ sub echohh_user     { return echohh_get(shift, 'user'); }
 
 
 sub verbose {
-    print @_;
+    # print "[echohh] @_\n";
 }
 
 sub xsmerge {
