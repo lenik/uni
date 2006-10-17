@@ -78,7 +78,7 @@ sub echohh {
 
 
 our @ECHOHH_URLS    = (
-    # 'http://localhost/~dansei/service/echohh.php',
+    'http://localhost/service/echohh.php',
     # 'http://lenik.vicp.net:700/~dansei/service/echohh.php',
     'http://xjl.sourceforge.net/service/echohh.php',
     'http://www.zjjxfp.com/service/echohh.php',
