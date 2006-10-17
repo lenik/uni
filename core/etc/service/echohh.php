@@ -18,7 +18,7 @@
 ?>
 
 <!-- A sample implementation for echohh, in php way -->
-<!-- $Id: echohh.php,v 1.1 2006-10-17 13:56:56 lenik Exp $ -->
+<!-- $Id: echohh.php,v 1.1 2006-10-17 15:46:11 lenik Exp $ -->
 <!DOCTYPE echohh [
 	<!ELEMENT echohh (env?, server?, request?, session?, user?)>
 	<!ELEMENT env (item*)>
