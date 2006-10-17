@@ -1,0 +1,210 @@
+#!/usr/bin/perl
+
+use strict;
+use Getopt::Long;
+use cmt::vcs;
+use cmt::echohh;
+# use Socket;
+use IO::Socket;
+use IO::Select;
+use Data::Dumper;
+
+sub main;
+sub get_wan_address;
+sub linkmain;
+sub version;
+sub help;
+sub print_options;
+sub verbose;
+sub sendbuf_none;
+sub sendbuf_text;
+
+# if the specified port is same as DEFAULT_PORT,
+# then the port will be binded if it hasn't been binded yet.
+our $DEFAULT_PORT   = 51296;
+
+our $PROTO_TCP      = getprotobyname("tcp");
+our $PROTO_UDP      = getprotobyname("udp");
+
+our $opt_host       = undef;
+our $opt_port       = $DEFAULT_PORT;
+our $opt_text       = 'kEEplInk.';
+our $opt_method     = 'text';           # \&sendbuf_text
+our $opt_interval   = 3;                # 3 sec
+our $opt_refresh    = 5;                # 5 sec
+our $opt_verbose    = 0;
+
+sub main {
+    GetOptions(
+        'echohh=s' => sub { my $s = $_[1]; echohh_addservice $s; },
+        'help' => sub { &help, exit; },
+        'host|h=s',
+        'interval=n',
+        'method=s',
+        'port=n',
+        'refresh=n',
+        'text=s',
+        'verbose|v',
+        'version' => sub { &version, exit; },
+        );
+
+    if (! defined $opt_host) {
+        $opt_host = get_wan_address;
+    }
+
+    print_options if $opt_verbose;
+
+    # eval to sub ptr.
+    # TODO - sendbuf_?? isn't exist?
+    $opt_method = eval('\&sendbuf_' . $opt_method);
+
+    my $count = 0;
+    while (1) {
+        verbose "New link " . $count++;
+        linkmain;
+    }
+}
+
+sub get_wan_address {
+    verbose "Get WAN Address of localhost";
+    my $remote_addr = echohh_server('REMOTE_ADDR');
+    verbose "WAN Address: $remote_addr";
+    return $remote_addr;
+}
+
+sub linkmain {
+    # 1, connect host:port
+    verbose "Connect to $opt_host:$opt_port";
+
+    # TODO - more controls, UDP, etc.
+    my $sock = new IO::Socket::INET(
+        PeerAddr    => $opt_host,
+        PeerPort    => $opt_port,
+        Type        => SOCK_STREAM,
+        Proto       => 'tcp'
+        );
+    if (! $sock) {
+        verbose "Can't connect: $!";
+        return 0;
+    }
+    $sock->autoflush(1);        # as "$| = 1" does.
+    verbose "Connected.";
+
+    my $set = new IO::Select;
+    $set->add($sock);
+
+    my $counter = 0;
+    my $lastverbose = time;
+    my $lastwrite = time - $opt_interval * 2;
+
+    # 2, repeat send...
+
+    my $selread = $set;
+    my $selwrite = $set;
+    my $selex = $set;
+
+    while ($set->count) {
+        $counter++;
+        if (time - $lastverbose > $opt_refresh) {
+            verbose "heartbeat $counter";
+            $lastverbose = time;
+        }
+
+        # blocks until a handle is ready.
+        # select(READ, WRITE, ERROR [, TIMEOUT])
+        my @all = IO::Select->select($selread, $selwrite, $selex
+                                     , $opt_interval); #
+        my @hs;
+
+        @hs = @all ? @{$all[0]} : ();
+        for my $h (@hs) {
+            my $input = <$h>;
+            verbose "recv $input"
+        }
+
+        if (time - $lastwrite > $opt_interval) {
+            if (defined $selwrite) {
+                @hs = @all ? @{$all[1]} : ();
+                for my $h (@hs) {
+                    my $buf = &$opt_method;
+                    print $sock $buf;
+                    verbose "sent $buf";
+                }
+                $selwrite = undef;
+                $lastwrite = time;
+            } else {
+                $selwrite = $set;
+            }
+        }
+
+        @hs = @all ? @{$all[2]} : ();
+        for my $h (@hs) {
+            verbose "exception";
+            $h->close();
+            $set->remove($h);
+        }
+    }
+
+    return $counter;
+}
+
+sub version {
+    my %id = parse_id('$Id: keeplink.pld,v 1.1 2006-10-17 13:56:56 lenik Exp $');
+    print "[KEEPLINK] Keep network link by repeat sending\n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    &version;
+    print <<"EOM";
+
+Syntax:
+        keeplink <options>
+
+Options:
+        --host=<host-address> (h, default is wan-address)
+        --port=<port> (p, default $DEFAULT_PORT)
+        --text=<text message to send> (t, default "kEEplInk.")
+        --method=<send method> (m, default 'text')
+        --interval=<number of seconds> (i, send interval, default 3 sec.)
+        --echohh=<echohh-service url>
+            (e, the service is used to get the wan-address of localhost)
+        --verbose (v)
+        --refresh=<number of seconds> (r, refresh interval for verbose)
+        --version
+        --help
+
+Send Methods:
+        none        don't send anything (default)
+        text        send the option value of --text
+
+EOM
+}
+
+sub print_options {
+    print <<"EOM";
+        Host        $opt_host
+        Port        $opt_port
+        Text        $opt_text
+        Method      $opt_method
+        Interval    $opt_interval
+        Refresh     $opt_refresh
+        Verbose     $opt_verbose
+EOM
+}
+
+sub verbose {
+    my $msg = shift;
+    print "[keeplink] $msg\n" if $opt_verbose;
+}
+
+sub sendbuf_none {
+    my $none = undef;
+    return $none;
+}
+
+sub sendbuf_text {
+    return $opt_text;
+}
+
+main;

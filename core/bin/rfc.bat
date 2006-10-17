@@ -2,7 +2,7 @@
 
 	set rfc_home=%ARK_HOME%\standard\rfc
 	set rfc_edit=metapad
-    set rfc_name=%~1
+	set rfc_name=%~1
 
 	if "%rfc_name%"=="u" (
 		set rfc_edit=ue

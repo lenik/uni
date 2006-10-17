@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: whoare,v 1.5 2006-07-27 15:51:27 lenik Exp $
+# $Id: whoare,v 1.6 2006-10-17 13:56:56 lenik Exp $
 
 use strict;
 use Socket;
@@ -10,6 +10,7 @@ use Time::HiRes qw/usleep/;
 use File::Basename;
 use Data::Dumper;
 
+sub _Verbose;
 
 $| = 1;
 
@@ -96,10 +97,10 @@ our @fuzzy_set = split('', $fuzzy_tbl);
 our $fuzzy_len = scalar(@fuzzy_set);
 our @dict;
 
-our $opt_debug;
+our $opt_verbose;
 our $opt_test;
 our $opt_mt = 1;
-our $opt_maxt = 4;
+our $opt_maxt = 10;
 our $opt_numbers;
 our @opt_tla;
 
@@ -107,16 +108,19 @@ our @def_tla = qw/
         .com
         .net
         .org
-        .edu
-        .biz
+        .info
         .cn
         .com.cn
-        .net.cn
-        .org.cn
     /;
+        # .edu
+        # .biz
+        # .net.cn
+        # .org.cn
 
 our $ignore_first = 0;
-our $active_threads = 0;
+
+# pid -> { starttime }
+our %threads;
 
 sub whois {
     my $svr = shift;
@@ -149,14 +153,16 @@ sub whois {
         }
     }
 
+    # _Verbose "<send $svr";
     send(SOCK, "$svr\n", 0);
+    # _Verbose " send>";
 
     # svr|...
     print "|" unless $opt_mt;
 
     while (<SOCK>) {
         s/\r|\n//;
-        # print "# $_";
+        # _Verbose "<recv $_ />";
         if (m/^\s*Domain Name:\s*(.*)$/i) {
             $info->{domain} = $1;
         } elsif (m/^\s*Registrar:\s*(.*)$/i) {
@@ -241,10 +247,6 @@ sub process {
     my $logs = new FileHandle(">>$logfile");
     $logs->write("$name|$line");
     $logs->close();
-
-    if ($opt_mt) {
-        $active_threads--;
-    }
 }
 
 
@@ -334,14 +336,34 @@ sub process_any {
     }
 
     if ($opt_mt) {
+        my $active_threads = 1 * scalar(%threads);
         if ($active_threads < $opt_maxt) {
-            $active_threads++;
-            if (not fork) {
+            my $pid = fork;
+            if ($pid) {
+                $threads{$pid} = [ time() ];
+            } else {
+                _Verbose "[thread $$] start\n";
                 process($name);
                 exit;
             }
         } else {
-            process($name);
+            my $kill_timeouts = 1;
+            if ($kill_timeouts) {
+                for (keys %threads) {
+                    my $pid = $_;
+                    my @info = @{$threads{$pid}};
+                    my $start = $info[0];
+                    my $dur = time() - $start;
+                    if ($dur > 10) {
+                        _Verbose "[thread $pid timeout($dur)]\n";
+                        kill $pid;
+                        delete $threads{$pid};
+                    }
+                }
+            }
+            my $pid = wait;
+            _Verbose "[thread $pid] end\n";
+            delete $threads{$pid};
         }
     } else {
         process($name);
@@ -385,12 +407,21 @@ sub process_arg {
     process_any($pat, $start);
 }
 
+sub importwords {
+    my $fn = shift;
+    print "Word file: $fn\n";
+
+    open LIST, "<$fn";
+    my @words = <LIST>;
+    push @dict, map { chomp; $_ } @words;
+    close LIST;
+}
 
 my $options = GetOptions(
-                         'debug' => \$opt_debug,
+                         'verbose' => \$opt_verbose,
                          'test' => \$opt_test,
                          'multi-threads|mt'  => sub { $opt_mt = 1 },
-                         'single-threads|mt' => sub { $opt_mt = 0 },
+                         'single-threads|st' => sub { $opt_mt = 0 },
                          'max-threads=n' => \$opt_maxt,
                          'numbers|n' => \$opt_numbers,
                          'tla|a=s' =>
@@ -406,12 +437,7 @@ my $options = GetOptions(
                                 sub {
                                     my ($opt, $fn) = @_;
                                     $fn = dirname($0) . '/words.txt' unless $fn;
-                                    print "Word file: $fn\n";
-
-                                    open LIST, "<$fn";
-                                    my @words = <LIST>;
-                                    push @dict, map { chomp; $_ } @words;
-                                    close LIST;
+                                    importwords($fn);
                                 },
                          'help' => sub { &help; },
                          );
@@ -426,10 +452,19 @@ my $options = GetOptions(
         @opt_tla = @def_tla;
     }
 
+_Verbose $opt_mt == 1
+    ? "Multithreads Mode($opt_maxt)\n"
+    : "Singlethread Mode\n";
+
 for (@ARGV) {
     process_arg $_;
 }
 
+
+sub _Verbose {
+    return if (! $opt_verbose);
+    print join('', @_);
+}
 
 sub help {
     print <<"EOM";
@@ -438,7 +473,7 @@ sub help {
 Syntax:
     whoare
         --help (h)
-        --debug (d)
+        --verbose (v)
         --test (t)
         --single-threads (st)
         --multi-threads (mt)
