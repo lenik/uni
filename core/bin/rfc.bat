@@ -1,7 +1,7 @@
 @echo off
 
-	set rfc_home=Z:\Files\standard\rfc
-	set rfc_edit=ue
+	set rfc_home=%ARK_HOME%\standard\rfc
+	set rfc_edit=metapad
     set rfc_name=%~1
 
 	if "%rfc_name%"=="u" (
@@ -20,7 +20,7 @@
 	if "%_ret%"=="4" set rfc_p=%rfc_n:~0,2%xx
 
 :start
-	pushd %rfc_home% >nul
+	pushd "%rfc_home%" >nul
 
 	if exist "%rfc_p%\%rfc_name%.*" (
 		for %%i in (%rfc_p%\%rfc_name%.*) do start %rfc_edit% "%%i"
