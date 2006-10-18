@@ -1,0 +1,89 @@
+
+# win32 service edit
+
+use strict;
+use cmt::vcs;
+use cmt::service;
+
+sub main;
+sub verbose;
+sub version;
+sub help;
+
+our $opt_sub        = 'add';
+our $opt_name       = undef;
+our $opt_description= undef;
+our $opt_cmdline    = undef;
+our $opt_startup    = 'auto';       # auto, manual, disabled
+our $opt_hidden     = 0;
+
+sub main {
+    GetOptions(
+        'a|add'     => sub { $opt_sub = 'add' },
+        'd|delete'  => sub { $opt_sub = 'delete' },
+        'q|query'   => sub { $opt_sub = 'query' },
+        's|start'   => sub { $opt_sub = 'start' },
+        't|stop'    => sub { $opt_sub = 'stop' },
+        'r|restart' => sub { $opt_sub = 'restart' },
+        'n|name=s',
+        'l|description=s',
+        'auto'      => sub
+            { $opt_sub ||= 'update'; $opt_startup = 'auto' },
+        'manual'    => sub
+            { $opt_sub ||= 'update'; $opt_startup = 'auto' },
+        'disable'   => sub
+            { $opt_sub ||= 'update'; $opt_startup = 'auto' },
+        'v|verbose',
+        'version'   => sub { version; exit },
+        'h|help'    => sub { help; exit },
+        );
+
+    # ..
+}
+
+sub verbose {
+    print "[served] %s\n" if $opt_verbose;
+}
+
+sub version {
+    print <<"EOM";
+[served] Win32 Service Editor
+Author: lenik,  Version $id{rev},  Last updated $id{date}
+EOM
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+    served <options> <command> [<properties>]
+
+Options:
+    -h, --help          show this help page
+    -v, --verbose       output verbose info
+    --version           show version
+
+Commands:
+    -a, --add           add/update service<name, cmdline, etc.>
+    -d, --delete        delete service<name>
+    -q, --query         query service<name>
+    -s, --start         start service<name>
+    -t, --stop          stop service<name>
+    -r, --restart       restart service<name>
+
+Service Properties:
+    -n=<string>, --name=<string>
+                specify service name
+
+    -l=<string>
+    --description=<string>
+                specify service description
+
+    --auto      auto start
+    --manual    manual start
+    --disable   the service is disabled
+
+    name, description, cmdline, startup-mode, hidden
+EOM
+}
