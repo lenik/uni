@@ -2,15 +2,16 @@
 
 use strict;
 use Getopt::Long;
-use cmt::vcs;
-use cmt::echohh;
-# use Socket;
 use IO::Socket;
 use IO::Select;
+use cmt::vcs;
+use cmt::echohh;
+use cmt::simpled;
 use Data::Dumper;
 
 sub main;
 sub get_wan_address;
+sub serv;
 sub linkmain;
 sub version;
 sub help;
@@ -28,11 +29,13 @@ our $PROTO_UDP      = getprotobyname("udp");
 
 our $opt_host       = undef;
 our $opt_port       = $DEFAULT_PORT;
+our $opt_serv       = undef;        # running a simple serv at the port ?
 our $opt_text       = 'kEEplInk.';
-our $opt_method     = 'text';           # \&sendbuf_text
-our $opt_interval   = 3;                # 3 sec
-our $opt_refresh    = 5;                # 5 sec
+our $opt_method     = 'text';       # \&sendbuf_text
+our $opt_interval   = 3;            # 3 sec
+our $opt_refresh    = 5;            # 5 sec
 our $opt_verbose    = 0;
+our $opt_verbtitle  = 'keeplink';
 
 sub main {
     GetOptions(
@@ -43,20 +46,31 @@ sub main {
         'method=s',
         'port=n',
         'refresh=n',
+        'serv!',
         'text=s',
         'verbose|v',
         'version' => sub { &version, exit; },
         );
 
-    if (! defined $opt_host) {
-        $opt_host = get_wan_address;
-    }
+    $opt_host = get_wan_address if not defined $opt_host;
 
     print_options if $opt_verbose;
 
     # eval to sub ptr.
     # TODO - sendbuf_?? isn't exist?
     $opt_method = eval('\&sendbuf_' . $opt_method);
+
+    # start a default server
+    $opt_serv = $opt_port == $DEFAULT_PORT
+        unless defined $opt_serv;
+    if ($opt_serv) {
+        # start serv in a separate thread
+        if (! fork) { # child process
+            $opt_verbtitle = 'klserv';
+            serv;
+            exit;
+        }
+    }
 
     my $count = 0;
     while (1) {
@@ -70,6 +84,13 @@ sub get_wan_address {
     my $remote_addr = echohh_server('REMOTE_ADDR');
     verbose "WAN Address: $remote_addr";
     return $remote_addr;
+}
+
+sub serv {
+    verbose "Initialize echod service at port $opt_port";
+    my $serv = echod($opt_port);
+    $serv->verbose(1) if $opt_verbose;
+    return $serv->serv;
 }
 
 sub linkmain {
@@ -140,7 +161,7 @@ sub linkmain {
         @hs = @all ? @{$all[2]} : ();
         for my $h (@hs) {
             verbose "exception";
-            $h->close();
+            $h->shutdown(2);
             $set->remove($h);
         }
     }
@@ -149,7 +170,7 @@ sub linkmain {
 }
 
 sub version {
-    my %id = parse_id('$Id: keeplink.pld,v 1.1 2006-10-17 13:56:56 lenik Exp $');
+    my %id = parse_id('$Id: keeplink.pld,v 1.2 2006-10-18 15:32:59 lenik Exp $');
     print "[KEEPLINK] Keep network link by repeat sending\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -164,6 +185,7 @@ Syntax:
 Options:
         --host=<host-address> (h, default is wan-address)
         --port=<port> (p, default $DEFAULT_PORT)
+        --serv or --noserv (s, running a simple service at the port)
         --text=<text message to send> (t, default "kEEplInk.")
         --method=<send method> (m, default 'text')
         --interval=<number of seconds> (i, send interval, default 3 sec.)
@@ -195,7 +217,7 @@ EOM
 
 sub verbose {
     my $msg = shift;
-    print "[keeplink] $msg\n" if $opt_verbose;
+    print "[$opt_verbtitle] $msg\n" if $opt_verbose;
 }
 
 sub sendbuf_none {
