@@ -4,48 +4,124 @@
 use strict;
 use cmt::vcs;
 use cmt::service;
+use cmt::english;
+use Getopt::Long;
 
 sub main;
-sub verbose;
+sub info;
 sub version;
 sub help;
 
-our $opt_sub        = 'add';
+sub list;
+sub install;
+sub modify;
+sub uninstall;
+sub query;
+sub start;
+sub stop;
+sub restart;
+sub pause;
+sub resume;
+
+our $opt_sub        = undef;
+our $opt_host       = undef;
 our $opt_name       = undef;
+our $opt_display    = undef;
 our $opt_description= undef;
-our $opt_cmdline    = undef;
+our $opt_program    = undef;
+our $opt_parameters = '';
+our $opt_user       = undef;
+our $opt_password   = undef;
 our $opt_startup    = 'auto';       # auto, manual, disabled
 our $opt_hidden     = 0;
+our $opt_verbose    = 0;
+
+main;
 
 sub main {
     GetOptions(
-        'a|add'     => sub { $opt_sub = 'add' },
-        'd|delete'  => sub { $opt_sub = 'delete' },
-        'q|query'   => sub { $opt_sub = 'query' },
-        's|start'   => sub { $opt_sub = 'start' },
-        't|stop'    => sub { $opt_sub = 'stop' },
-        'r|restart' => sub { $opt_sub = 'restart' },
-        'n|name=s',
-        'l|description=s',
-        'auto'      => sub
-            { $opt_sub ||= 'update'; $opt_startup = 'auto' },
-        'manual'    => sub
-            { $opt_sub ||= 'update'; $opt_startup = 'auto' },
-        'disable'   => sub
-            { $opt_sub ||= 'update'; $opt_startup = 'auto' },
-        'v|verbose',
-        'version'   => sub { version; exit },
-        'h|help'    => sub { help; exit },
+        'list|l'        => sub { list; exit },
+        'install|i'     => sub { $opt_sub = 'install' },
+        'uninstall|u'   => sub { $opt_sub = 'uninstall' },
+        'query|q'       => sub { $opt_sub = 'query' },
+        'start|s'       => sub { $opt_sub = 'start' },
+        'stop|t'        => sub { $opt_sub = 'stop' },
+        'restart|r'     => sub { $opt_sub = 'restart' },
+        'pause|p'       => sub { $opt_sub = 'pause' },
+        'resume|c'      => sub { $opt_sub = 'resume' },
+        'name|n=s',
+        'display|d=s',
+        'description|de=s',
+        'program|x=s',
+        'parameters|y=s',
+        'user=s',
+        'password=s',
+        'auto'          => sub
+            { $opt_sub ||= 'modify'; $opt_startup = 'auto' },
+        'manual'        => sub
+            { $opt_sub ||= 'modify'; $opt_startup = 'manual' },
+        'disable'       => sub
+            { $opt_sub ||= 'modify'; $opt_startup = 'disable' },
+        'hidden',
+        'verbose|v',
+        'version'       => sub { version; exit },
+        'help|h'        => sub { help; exit },
         );
 
-    # ..
+    my $list;
+    my $displist;
+
+    if (my $guess = shift @ARGV) {
+        if (!defined $opt_name) {
+            info "guess service by name";
+            $list = service_list;
+            $opt_name = $guess if defined $list->{$guess};
+        }
+        if (!defined $opt_name) {
+            info "guess service by display name";
+            $displist = service_list(undef, 1);
+            $opt_name = $displist->{$guess};
+        }
+        if (!defined $opt_name) {
+            info "guess service by display pattern";
+            my @disps = values %$list;
+            $guess =~ s/\*/.*/g;
+            my @found = grep { m/^$guess/i } @disps;
+            my $count = scalar(@found);
+            if ($count == 1) {
+                $opt_name = $found[0];
+            } elsif ($count > 1) {
+                info "unambiguous name, may be following? ";
+                info "  -- $_ (".$displist->{$_}.")" for (@found);
+                exit;
+            }
+        }
+    }
+
+    if (!defined $opt_sub) { help; exit }
+
+    if (!defined $opt_name) {
+        die "Service name isn't specified or not exists. ";
+    }
+
+    if (!defined $opt_display) { $opt_display = $list->{$opt_name} }
+
+    my $subref = eval('\&$opt_sub');
+    if (not ref $subref) {
+        info "Error: invalid command $opt_sub";
+    }
+
+    info "invoke $opt_sub on service $opt_name";
+
+    &$subref;
 }
 
-sub verbose {
-    print "[served] %s\n" if $opt_verbose;
+sub info {
+    print "[served] @_\n" if $opt_verbose;
 }
 
 sub version {
+    my %id = parse_id('$Id: served,v 1.2 2006-10-19 11:28:12 lenik Exp $');
     print <<"EOM";
 [served] Win32 Service Editor
 Author: lenik,  Version $id{rev},  Last updated $id{date}
@@ -60,30 +136,131 @@ Syntax:
     served <options> <command> [<properties>]
 
 Options:
+    -n=<string>, --name=<string>
+                        specify service name
+    -a=<string>, --host
+                        specify the target host name, default local
     -h, --help          show this help page
     -v, --verbose       output verbose info
     --version           show version
 
 Commands:
-    -a, --add           add/update service<name, cmdline, etc.>
-    -d, --delete        delete service<name>
-    -q, --query         query service<name>
-    -s, --start         start service<name>
-    -t, --stop          stop service<name>
-    -r, --restart       restart service<name>
+    -l, --list          list all installed service
+    -i, --install       install/modify service
+    -u, --uninstall     uninstall service
+    -q, --query         query service
+    -s, --start         start service
+    -t, --stop          stop service
+    -r, --restart       restart service
+    -p, --pause         pause service
+    -c, --resume        resume service
 
-Service Properties:
-    -n=<string>, --name=<string>
-                specify service name
-
-    -l=<string>
-    --description=<string>
-                specify service description
-
-    --auto      auto start
-    --manual    manual start
-    --disable   the service is disabled
-
-    name, description, cmdline, startup-mode, hidden
+Service Install Properties:
+    -d=<string>, --display=<string>
+                        specify service display name (must be unique)
+    -de=<string>, --description=<string>
+                        specify service description
+    -x=<string>, --program=<string>
+                        specify the path of service program
+    -y=<string>, --parameters=<string>
+                        specify the parameters passed to program
+    --user=<string>     specify the user to run service
+    --password=<string> specify the password to run service
+    --auto              auto start
+    --manual            manual start
+    --disable           the service is disabled
 EOM
 }
+
+# .section. commands implementation
+
+sub list {
+    my $list = service_list(undef, 1);
+    my ($name, $disp, $state, $detail);
+    format =
+[@<<<<<<<] @<<<<<<<<<< - @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ $state,   $name,        $disp
+.
+    my @disps = sort keys %$list;
+    for (@disps) {
+        $disp = $_;
+        $name = $list->{$disp};
+        $state = service_state($name);
+        write;
+        # verbose $detail;
+    }
+}
+
+sub install {
+    # required: name, display, path
+    if (! defined $opt_display)
+        { die "service property: display name (--display) is required" }
+    if (! defined $opt_program)
+        { die "service property: program path (--program) is required" }
+    if (! defined $opt_parameters)
+        { die "service property: program parameters (--parameters) is required" }
+
+    my $def = {};
+    $def->{name}        = $opt_name;
+    $def->{display}     = $opt_display;
+    $def->{description} = $opt_description;
+    $def->{path}        = $opt_program;
+    $def->{parameters}  = $opt_parameters;
+    $def->{user}        = $opt_user;
+    $def->{password}    = $opt_password;
+    $def->{start_type}  = undef;                # TODO
+    $def->{service_type}= undef;                # TODO
+    $def->{machine}     = $opt_host;
+
+    my $ok = service_install($def);
+    if ($ok) {
+        info "service $opt_name installed. ";
+    } else {
+        info "can't install service $opt_name: ($@) $!";
+    }
+}
+
+sub modify {
+    return install @_;
+}
+
+sub uninstall {
+    my $ok = service_uninstall($opt_name);
+    if ($ok) {
+        info "service $opt_name uninstalled. ";
+    } else {
+        info "can't uninstall service $opt_name: ($@) $!";
+    }
+}
+
+sub query {
+    my $info = service_status($opt_name);
+    print %$info;
+}
+
+sub control {
+    my $command = shift;
+    my $tstate = shift;
+
+    my $disp = "$opt_display ($opt_name)";
+
+    my $state = service_state($opt_name, $opt_host);
+    if ($state eq $tstate) {
+        info "already " . perfectp($command) . " $disp";
+        return;
+    }
+
+    info presentp($command) . " $disp...";
+    my $ok = service_command($opt_name, $command);
+    if ($ok) {
+        info perfectp($command) . " $disp...";
+    } else {
+        info "can't $command $disp: ($@) $!";
+    }
+}
+
+sub start   { return control('start', 'started', @_) }
+sub stop    { return control('stop', 'stopped', @_) }
+sub restart { return control('restart', undef, @_) }
+sub pause   { return control('pause', 'paused', @_) }
+sub resume  { return control('resume', 'started', @_) }
