@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.23 2006-10-17 13:54:39 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.24 2006-10-19 11:30:06 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -118,40 +118,55 @@
             echo Binding file types...
             assoc .stx=txtfile >nul
 
-            assoc   .p=xPLC >nul
-            assoc  .pl=xPLC >nul
-            assoc .plc=xPLC Compiled>nul
+            rem Perl Script
+            assoc   .p=Perl >nul
+            assoc  .pl=Perl >nul
+            assoc .plc=xPLC>nul
             ftype   .p=%cirk_home%\perl\perl5\bin\perl.exe "%%0" %%* >nul
             ftype  .pl=%cirk_home%\perl\perl5\bin\perl.exe "%%0" %%* >nul
             ftype .plc=%cirk_home%\perl\perl5\bin\perl.exe "%%0" %%* >nul
             ftype xPLC=%cirk_home%\perl\perl5\bin\perl.exe "%%0" %%* >nul
 
+            rem Perl Daemon
+            assoc .pld=xPLD>nul
+            ftype .pld=%cirk_home%\perl\perl5\bin\wperl.exe "%%0" %%* >nul
+            ftype xPLD=%cirk_home%\perl\perl5\bin\wperl.exe "%%0" %%* >nul
+
+            rem Python Script
             assoc  .py=xPYC >nul
             assoc .pyc=xPYC Compiled>nul
             ftype  .py=%cirk_home%\python\python24\Python.exe "%%0" %%* >nul
             ftype .pyc=%cirk_home%\python\python24\Python.exe "%%0" %%* >nul
             ftype xPYC=%cirk_home%\python\python24\Python.exe "%%0" %%* >nul
 
+            rem PHP Script
             assoc .php=xPHP >nul
             ftype .php=%cirk_home%\php\php5\bin\php.exe "%%0" %%* >nul
             ftype xPHP=%cirk_home%\php\php5\bin\php.exe "%%0" %%* >nul
 
+            rem Ruby Script
             assoc  .rb=xRB >nul
             ftype  .rb=%cirk_home%\ruby\ruby\bin\ruby.exe "%%1" %%* >nul
             ftype  xRB=%cirk_home%\ruby\ruby\bin\ruby.exe "%%1" %%* >nul
 
+            rem Scheme/Guile Script
             assoc  .ss=xSS >nul
             ftype  .ss=%cirk_home%\lisp\plt\mzscheme.exe "%%1" %%* >nul
             ftype  xSS=%cirk_home%\lisp\plt\mzscheme.exe "%%1" %%* >nul
 
+            rem Obsoluted: use .six expansion instead
             assoc .sim=xSIM >nul
             ftype .sim=%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\sim.pl "%%0" %%* >nul
             ftype xSIM=%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\sim.pl "%%0" %%* >nul
 
-            assoc   .6=x6 >nul
+            rem Six Expansion
+            assoc   .6=xSIX >nul
+            assoc .six=xSIX >nul
             ftype   .6=%cirk_home%\1\simxml.exe "%%1" %%* >nul
-            ftype   x6=%cirk_home%\1\simxml.exe "%%1" %%* >nul
+            ftype .six=%cirk_home%\1\simxml.exe "%%1" %%* >nul
+            ftype xSIX=%cirk_home%\1\simxml.exe "%%1" %%* >nul
 
+            rem M4 Script
             assoc  .m4=xM4 >nul
             ftype  .m4=%cirk_home%\cygwin\bin\m4.exe "%%1" %%* >nul
             ftype  xM4=%cirk_home%\cygwin\bin\m4.exe "%%1" %%* >nul
@@ -263,7 +278,7 @@ sub init {
         print ".";
 
         env_add('PATHEXT', qr/^\.(6|m4|p|pl|plc|py|pyc|php|rb|ss)$/i,
-                [qw/.6 .p .pl .plc .py .pyc .php .rb .ss/]);
+                [qw/.6 .p .pl .plc .pld .py .pyc .php .rb .ss .six/]);
         print ".";
 
         env_add('INCLUDE', qr/^$prefix/i, [
