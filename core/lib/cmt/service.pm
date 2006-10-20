@@ -65,6 +65,8 @@ sub service_command {
     } elsif ('stop' eq $cmd) {
         $ref = \&Win32::Service::StopService;
         $tstate = 'stopped';
+    } elsif ('restart' eq $cmd) {
+        return service_restart($name, $host, $timeout);
     } elsif ('pause' eq $cmd) {
         $ref = \&Win32::Service::PauseService;
         $tstate = 'paused';
