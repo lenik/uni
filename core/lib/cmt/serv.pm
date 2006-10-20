@@ -6,7 +6,7 @@ use Fcntl;
 use IO::Socket;
 use IO::Select;
 use cmt::ftime;
-# use Data::Dumper;
+use cmt::util;
 
 sub nonblock;
 sub fsleep;
@@ -220,7 +220,7 @@ sub info {
     my $self = shift;
     if ($self->{verbose} >= 1) {
         my $name = $self->name;
-        print "[serv.$name] @_\n";
+        print datetime." [serv.$name] @_\n";
     }
 }
 
@@ -228,7 +228,7 @@ sub info2 {
     my $self = shift;
     if ($self->{verbose} >= 2) {
         my $name = $self->name;
-        print "(serv.$name) @_\n";
+        print datetime." (serv.$name) @_\n";
     }
 }
 

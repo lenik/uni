@@ -4,6 +4,7 @@ use strict;
 use Getopt::Long;
 use IO::Socket;
 use IO::Select;
+use cmt::util;
 use cmt::vcs;
 use cmt::echohh;
 use cmt::simpled;
@@ -35,6 +36,7 @@ our $opt_text       = 'kEEplInk';
 our $opt_method     = 'text';       # \&sendbuf_text
 our $opt_interval   = 3;            # 3 sec
 our $opt_refresh    = 5;            # 5 sec
+our $opt_logfile    = undef;
 our $opt_verbose    = 0;
 our $opt_verbtitle  = 'keeplink';
 
@@ -49,9 +51,22 @@ sub main {
         'refresh=n',
         'serv!',
         'text=s',
+        'logfile:s',
         'verbose|v' => sub { $opt_verbose++ },
         'version' => sub { &version, exit },
         );
+
+    if (defined $opt_logfile) {
+        if ('' eq $opt_logfile) {
+            my $tmp = $ENV{'TMP'} || $ENV{'TEMP'};
+            $opt_logfile = $tmp . '/keeplink.log';
+        }
+        info "log to file: $opt_logfile";
+        open(LOGFILE, ">>$opt_logfile")
+            || die("can't open logfile");
+        LOGFILE->autoflush(1);
+        select(LOGFILE);
+    }
 
     $opt_host = get_wan_address if not defined $opt_host;
 
@@ -170,7 +185,7 @@ sub linkmain {
 }
 
 sub version {
-    my %id = parse_id('$Id: keeplink.pld,v 1.3 2006-10-18 15:55:26 lenik Exp $');
+    my %id = parse_id('$Id: keeplink.pld,v 1.4 2006-10-20 10:18:10 lenik Exp $');
     print "[KEEPLINK] Keep network link by repeat sending\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -191,6 +206,7 @@ Options:
         --interval=<number of seconds> (i, send interval, default 3 sec.)
         --echohh=<echohh-service url>
             (e, the service is used to get the wan-address of localhost)
+        --logfile=<path> (l, default log to stdout)
         --verbose (v, repeat twice give you more verbose info)
         --refresh=<number of seconds> (r, refresh interval for verbose)
         --version
@@ -218,14 +234,15 @@ EOM
 sub info {
     if ($opt_verbose >= 1) {
         my $msg = shift;
-        print "[$opt_verbtitle] $msg\n";
+        my $date = datetime;
+        print "$date [$opt_verbtitle] $msg\n";
     }
 }
 
 sub info2 {
     if ($opt_verbose >= 2) {
         my $msg = shift;
-        print "[$opt_verbtitle] $msg\n";
+        print datetime." [$opt_verbtitle] $msg\n";
     }
 }
 
