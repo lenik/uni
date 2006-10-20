@@ -4,7 +4,6 @@ use strict;
 use Getopt::Long;
 use File::Basename;
 use cmt::path;
-use cmt::util;
 use cmt::vcs;
 use Data::Dumper;
 
@@ -25,6 +24,7 @@ our %opts = (
 sub main;
 sub getopt;
 sub process;
+sub scanDirectory;
 sub help;
 
 
@@ -137,9 +137,27 @@ sub process {
     unlink "$tempfile";
 }
 
+sub scanDirectory {
+    my ($dir, $recursive, $callback, $user) = @_;
+    my $dh = new DirHandle($dir) || return;
+
+    my @files = $dh->read;
+    $dh->close;
+    for (@files) {
+        next if (m/^\.+$/);
+        my $path = "$dir/$_";
+        if (-d $path) {
+            if ($recursive) {
+                scanDirectory($path, $recursive, $callback, $user);
+            }
+        }
+        # for each file or directory
+        &$callback($path, $user);
+    }
+}
 
 sub help {
-    my %id = parse_id('$Id: sim,v 1.4 2005-06-19 08:29:37 dansei Exp $');
+    my %id = parse_id('$Id: sim,v 1.5 2006-10-20 10:18:39 lenik Exp $');
 
     print <<"EOM";
 [SIM] SIMplified Expander
