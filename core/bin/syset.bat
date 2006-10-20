@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.24 2006-10-19 11:30:06 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.25 2006-10-20 10:16:58 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -94,25 +94,22 @@
 
             reg add "hkcu\SOFTWARE\metapad" /f /v m_ShowToolbar        /t REG_DWORD /d 0 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v m_ShowStatus         /t REG_DWORD /d 0 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v m_Hyperlinks         /t REG_DWORD /d 0 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v bAutoIndent          /t REG_DWORD /d 1 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v bInsertSpaces        /t REG_DWORD /d 1 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v nTabStops            /t REG_DWORD /d 4 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v bNoCaptionDir        /t REG_DWORD /d 1 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v bSaveWindowPlacement /t REG_DWORD /d 1 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v bSuppressUndoBufferPrompt /t REG_DWORD /d 1 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v nSelectionMarginWidth /t REG_DWORD /d 5 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v nSelectionMarginWidth /t REG_DWORD /d 3 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v nTransparentPct      /t REG_DWORD /d 50 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v szLangPlugin         /d "%dirt_home%\3\metapad.dll" >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v szFavDir             /d "%userprofile%\Local Settings" >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v w_Left               /t REG_DWORD /d 200 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v w_Top                /t REG_DWORD /d 120 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v w_Width              /t REG_DWORD /d 320 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v w_Height             /t REG_DWORD /d 240 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v BackColour           /t REG_BINARY /d 2e335000 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v BackColour2          /t REG_BINARY /d 263a4400 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v w_Width              /t REG_DWORD /d 660 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v w_Height             /t REG_DWORD /d 400 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v BackColour           /t REG_BINARY /d 292f4100 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v BackColour2          /t REG_BINARY /d 2c353f00 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v PrimaryFont          /t REG_BINARY /d f3ffffff000000000000000000000000900100000000008603020131d0c2cbcecce500004e65770000204d5420426f6c640000000000000000000000 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v SecondaryFont        /t REG_BINARY /d f0ffffff000000000000000000000000bc0200000000000003020131436f7572696572204e6577000000000000000000000000000000000000000000 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v SecondaryFont        /t REG_BINARY /d f4ffffff000000000000000000000000900100000000000003020131436f7572696572204e6577000000000000000000000000000000000000000000 >nul
 
         :init_ext
             echo Binding file types...
@@ -242,7 +239,8 @@ sub init {
 
     # prefix == x:/t | y:/.cir
     my $prefix = path_normalize($dirt_home)
-         . "|" . path_normalize($cirk_home);
+         . "|" . path_normalize($cirk_home)
+         . "|" . path_normalize($disk_cygwin);
     $prefix =~ s/\\/[\/\\\\]/g;         # \ -> [/\], because prefix is regexp.
 
     print "Updating environment";
