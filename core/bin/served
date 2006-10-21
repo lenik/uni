@@ -75,12 +75,21 @@ sub main {
         if (!defined $opt_name) {
             info "guess service by name";
             $list = service_list;
-            $opt_name = $guess if defined $list->{$guess};
+            if (defined $list->{$guess}) {
+                $opt_name = $guess;
+            } else {
+                grep { $opt_name = $_ if lc($_) eq lc($guess) }
+                     keys %$list;
+            }
         }
         if (!defined $opt_name) {
             info "guess service by display name";
             $displist = service_list(undef, 1);
             $opt_name = $displist->{$guess};
+            if (!defined $opt_name) {
+                grep { $opt_name = $displist->{$_} if lc($_) eq lc($guess) }
+                     keys %$list;
+            }
         }
         if (!defined $opt_name) {
             info "guess service by display pattern";
@@ -121,7 +130,7 @@ sub info {
 }
 
 sub version {
-    my %id = parse_id('$Id: served,v 1.2 2006-10-19 11:28:12 lenik Exp $');
+    my %id = parse_id('$Id: served,v 1.3 2006-10-21 03:56:43 lenik Exp $');
     print <<"EOM";
 [served] Win32 Service Editor
 Author: lenik,  Version $id{rev},  Last updated $id{date}
