@@ -1,0 +1,221 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::vcs;
+use cmt::ftime;
+use cmt::util;
+use cmt::service;
+use cmt::english;
+use Getopt::Long;
+use Term::ReadKey;
+
+sub boot;
+sub testc;
+sub getch;
+sub timefmt;
+sub durfmt;
+sub info;
+sub version;
+sub help;
+sub main;
+
+our $opt_port           = 1234;
+our $opt_interval       = 1.000;    # 1 sec refresh interval
+our $opt_period         = 0;
+our $opt_verbose        = 1;
+
+sub boot {
+    GetOptions(
+        'port|p=n',
+        'interval|n=n',
+        'verbose|v'     => sub { $opt_verbose++ },
+        'version'       => sub { version; exit },
+        'help'          => sub { help; exit },
+    );
+
+    # 0-restore, 1-cooked, 2-echo off, 3-cbreak, 4-raw, 5-very raw
+    ReadMode 4;
+    $| = 1;
+
+    main;
+}
+
+# most fast.
+sub testc {
+    ReadKey -1;
+}
+
+# wait for timeout
+sub getch {
+    ReadKey $opt_interval;
+}
+
+sub timefmt {
+    return cftime(@_);
+}
+
+sub durfmt {
+    my $dur = shift;
+    my $ms = $dur - int($dur);
+    $dur -= $ms;
+    my $s = $dur % 60;
+    $dur = int($dur / 60);
+    my $m = $dur % 60;
+    $dur = int($dur / 60);
+    my $h = $dur;
+    return sprintf("%2d:%2d:%2.3f", $h, $m, $s + $ms);
+}
+
+sub info {
+    print "[elaps] @_\n" if $opt_verbose;
+}
+
+sub version {
+    my %id = parse_id('$Id: elaps,v 1.1 2006-11-16 13:49:24 lenik Exp $');
+    print <<"EOM";
+[elaps] Elaps Time
+Author: lenik,  Version $id{rev},  Last updated $id{date}
+EOM
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+    elaps [options]
+
+Options:
+    -p=<port>           controller listening port
+    -h, --help          show this help page
+    -v, --verbose       output verbose info
+    --version           show version
+EOM
+}
+
+sub rt_state;
+sub rt_state_onlyrun;
+sub rt_pause;
+sub rt_resume;
+sub rt_switch;
+sub rt_help;
+sub rt_quit;
+sub rt_report;
+
+our @ranges;
+our $begint;
+our $endt;
+our $paused     = 1;
+our $quit       = 0;
+our %routines   = (
+    '.0'    => \&rt_state_onlyrun,  # refresh timeout
+    ' '     => \&rt_state,          # space
+
+    '.27'   => \&rt_switch,         # esc
+
+    '.13'   => \&rt_switch,         # enter
+    # '.13'   => \&rt_switch_new,     # enter
+    # '.10'   => \&rt_switch_new,     # ctrl-j
+
+    'p'     => \&rt_pause,
+    'r'     => \&rt_resume,
+
+    '?'     => \&rt_help,
+    'h'     => \&rt_help,
+
+    '.3'    => \&rt_quit,           # ctrl-c
+    'q'     => \&rt_quit,
+    );
+
+sub main {
+    info "Press 'h' for help";
+    rt_resume;
+    while (! $quit) {
+        my $c = getch;
+        $c = '.' . ord($c) if (ord($c) < 32);
+        my $rt = $routines{$c};
+        if ($rt) {
+            &$rt;
+        } else {
+            info "invalid key stroke: $c";
+        }
+    }
+    rt_report;
+}
+
+sub rt_state {
+    my $ps = $paused ? 'P' : 'R';
+    my $t  = $paused ? $endt : ftime;
+    my $dur = $t - $begint;
+    info "Period $opt_period $ps: "
+       . timefmt($begint) . " .. " . timefmt($t)
+       . ' [' . durfmt($dur) . ']';
+}
+
+sub rt_state_onlyrun {
+    rt_state if not $paused;
+}
+
+sub rt_pause {
+    if ($paused) {
+        info "already paused";
+        return;
+    }
+    $endt = ftime;
+    my $dt = $endt - $begint;
+    push @ranges, [$begint, $dt];
+    $paused = 1;
+    info "Paused at time: " . timefmt($endt);
+    info "Duration of last period: " . durfmt($dt);
+}
+
+sub rt_resume {
+    if (! $paused) {
+        info "already resumed";
+        return;
+    }
+    $begint = ftime;
+    $paused = 0;
+    $opt_period++;
+    info "Resumed at time: " . timefmt($begint);
+}
+
+sub rt_switch {
+    if ($paused) {
+        rt_resume;
+    } else {
+        rt_pause;
+    }
+    rt_state;
+}
+
+sub rt_help {
+    info 'Control key: ';
+    info '  <ESC>, <CR> switch between pause/resume';
+    info '  <SP>        view state of current period';
+    info '  p           pause';
+    info '  r           resume';
+    info '  h, ?        help';
+    info '  q, ctrl-c   quit';
+}
+
+sub rt_quit {
+    rt_pause;
+    $quit = 1;
+}
+
+sub rt_report {
+    my $i = 0;
+    my $t = 0;
+    info "Total Report:";
+    for (@ranges) {
+        $i++;
+        my ($begint, $durt) = @$_;
+        info "    Part $i: " . timefmt($begint)
+            . " [" . durfmt($durt) . "]";
+        $t += $durt;
+    }
+    info "  Total duration: [" . durfmt($t) . "]";
+}
+
+boot;
