@@ -110,12 +110,12 @@ sub serv {
 
         # THE BUG IS FIXED BY USING SHUTDOWN INSTEAD OF CLOSE.
         # wait more if no events, to avoid some bugs in IO::Select
-        # my $select_elaps = ftime() - $select_begin;
-        # if (! @all and $select_elaps < $timeout) {
-        #     my $wait = $timeout - $select_elaps;
-        #     $self->info2("wait more $wait");
-        #     fsleep($wait);
-        # }
+        my $select_elaps = ftime() - $select_begin;
+        if (! @all and $select_elaps < $timeout) {
+            my $wait = $timeout - $select_elaps;
+            $self->info2("wait more $wait");
+            fsleep($wait);
+        }
 
         my @rs = @all[0] ? @{$all[0]} : ();
         my @ws = @all[1] ? @{$all[1]} : ();
