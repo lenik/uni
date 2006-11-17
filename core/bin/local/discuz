@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!perl
 
 use strict;
 use Getopt::Long;
@@ -409,7 +409,7 @@ sub ui_set_options {
 
 
 sub version {
-    my %id = parse_id('$Id: discuz,v 1.8 2005-07-14 02:27:05 dansei Exp $');
+    my %id = parse_id('$Id: discuz,v 1.9 2006-11-17 20:28:08 lenik Exp $');
     return %id if wantarray;
     print <<"EOM";
 [discuz] make story thread at discuz(php) forum

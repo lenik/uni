@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!perl
 
 use strict;
 use DirHandle;
@@ -57,7 +57,7 @@ sub lpad {
 
 
 sub version {
-    my %id = parse_id('$Id: mp3ltrim,v 1.3 2005-12-20 02:40:46 dansei Exp $');
+    my %id = parse_id('$Id: mp3ltrim,v 1.4 2006-11-17 20:28:09 lenik Exp $');
     print <<"EOM";
 MP3 Utilities - LTrim
 Version $id{rev}

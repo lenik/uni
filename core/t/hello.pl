@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!perl
 
 #@DNAC::COPY
 ERR

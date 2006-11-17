@@ -1,5 +1,5 @@
-#!/usr/bin/perl
-# $Id: whoare,v 1.6 2006-10-17 13:56:56 lenik Exp $
+#!perl
+# $Id: whoare,v 1.7 2006-11-17 20:28:10 lenik Exp $
 
 use strict;
 use Socket;

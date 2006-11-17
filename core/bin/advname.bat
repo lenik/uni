@@ -1,6 +1,6 @@
 @rem = '
         @echo off
-        rem $Id: advname.bat,v 1.2 2004-09-22 08:39:07 dansei Exp $
+        rem $Id: advname.bat,v 1.3 2006-11-17 20:28:08 lenik Exp $
 
         if "%1"=="" goto help
 
@@ -30,7 +30,7 @@
         goto end
 @';
 
-#!/usr/bin/perl
+#!perl
 
 use strict;
 use Config;

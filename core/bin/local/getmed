@@ -1,5 +1,5 @@
-#!/usr/bin/perl
-# $Id: getmed,v 1.4 2005-04-17 10:21:42 dansei Exp $
+#!perl
+# $Id: getmed,v 1.5 2006-11-17 20:28:09 lenik Exp $
 
 use strict;
 use DirHandle;

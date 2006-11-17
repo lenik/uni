@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!perl
 
 use strict;
 use Getopt::Long;
@@ -148,7 +148,7 @@ sub _Verbose {
 
 
 sub version {
-	my %id = parse_id('$Id: ftpsend,v 1.1 2006-09-15 10:51:50 lenik Exp $');
+	my %id = parse_id('$Id: ftpsend,v 1.2 2006-11-17 20:28:09 lenik Exp $');
     print <<"EOM";
 [ftpsend] send files through ftp
 written by s.n.m.  version $id{rev}  last updated $id{date}

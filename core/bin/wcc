@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!perl
 
 use strict;
 use cmt::vcs;
@@ -295,7 +295,7 @@ sub count_xml {
 
 
 sub help {
-    my %id = parse_id('$Id: wcc,v 1.12 2006-10-18 16:02:09 lenik Exp $');
+    my %id = parse_id('$Id: wcc,v 1.13 2006-11-17 20:28:10 lenik Exp $');
     print <<"EOM";
 Words Count for Source Code   Version $id{'rev'}   Date $id{'date'}
 Syntax:

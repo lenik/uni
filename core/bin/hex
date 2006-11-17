@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!perl
 
 use strict;
 use cmt::vcs;
@@ -185,7 +185,7 @@ sub main {
 
 
 sub help {
-    my %id = parse_id('$Id: hex,v 1.5 2005-01-19 04:25:36 dansei Exp $');
+    my %id = parse_id('$Id: hex,v 1.6 2006-11-17 20:28:09 lenik Exp $');
     print <<"EOM";
 [HEX] Number system reference
 Written by Snima Denik  Version $id{rev}  last updated at $id{date}

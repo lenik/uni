@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!perl
 
 use strict;
 use cmt::vcs;
@@ -99,7 +99,7 @@ sub createfile {
 
 
 sub version {
-	my %id = parse_id('$Id: jarwrap,v 1.1 2005-06-19 08:28:17 dansei Exp $');
+	my %id = parse_id('$Id: jarwrap,v 1.2 2006-11-17 20:28:09 lenik Exp $');
 	print <<"EOM";
 [JARWRAP] JAR application executable wrapper  Version $id{rev}
 author: xima lenik,  last updated $id{date}

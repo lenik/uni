@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!perl
 
 #
 # Transform csv-style text records into XML document.
@@ -194,7 +194,7 @@ EOM
 
 
 sub version {
-	my %id = parse_id('$Id: csv2xml,v 1.1 2005-06-19 08:28:17 dansei Exp $');
+	my %id = parse_id('$Id: csv2xml,v 1.2 2006-11-17 20:28:08 lenik Exp $');
 	print <<"EOM";
 csv2xml   version $id{rev}
 written by s.n.m,  last updated $id{date}
