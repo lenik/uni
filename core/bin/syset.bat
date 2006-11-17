@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.26 2006-10-21 03:56:19 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.27 2006-11-17 20:47:49 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -106,6 +106,8 @@
             reg add "hkcu\SOFTWARE\metapad" /f /v szFavDir             /d "%userprofile%\Local Settings" >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v w_Width              /t REG_DWORD /d 670 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v w_Height             /t REG_DWORD /d 400 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v FontColour           /t REG_BINARY /d ffffff00 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v FontColour2          /t REG_BINARY /d ffffff00 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v BackColour           /t REG_BINARY /d 292f4100 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v BackColour2          /t REG_BINARY /d 2c353f00 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v PrimaryFont          /t REG_BINARY /d f3ffffff000000000000000000000000900100000000008603020131d0c2cbcecce500004e65770000204d5420426f6c640000000000000000000000 >nul
