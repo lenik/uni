@@ -6,6 +6,7 @@ use Getopt::Long;
 
 sub boot;
 sub main;
+sub add_decl;
 sub add_braced_text;
 sub info;
 sub version;
@@ -17,6 +18,9 @@ our $opt_decl = '%';
 our $opt_preload = 1;                   # currently, streaming isn't supported.
 our $opt_save = 1;
 our $opt_verbose = 1;
+
+my %marks;                              # $name => $line_no
+my %decls;                              # $name => $decl_body
 
 sub escape_regex {
     my $t = shift;
@@ -78,8 +82,8 @@ sub boot {
 
 sub main {
     my $src = shift;                    # \@srclines
-    my %marks;                          # $name => $line_no
-    my %decls;                          # $name => $decl_body
+    %marks = ();
+    %decls = ();
 
     my $name;
     my $body;                           # $decl_body
@@ -106,7 +110,7 @@ sub main {
                 $body = $text;
                 if ($brace == 0) {
                     # $_ = substr($_, length($text));
-                    $decls{$name} = $body;
+                    add_decl $name, $body;
                 }
             }
         } else {
@@ -119,7 +123,7 @@ sub main {
             $body .= $text;
             if ($brace == 0) {
                 # $_ = substr($_, length($text));
-                $decls{$name} = $body;
+                add_decl $name, $body;
             }
         }
     }
@@ -139,6 +143,14 @@ sub main {
     }
 
     return 'ok';
+}
+
+sub add_decl {
+    my ($name, $body) = @_;
+    if ($name eq 'EVAL') {
+        eval($body);
+    }
+    $decls{$name} = $body;
 }
 
 sub add_braced_text {
@@ -164,7 +176,7 @@ sub info {
 }
 
 sub version {
-    my %id = parse_id('$Id: sev,v 1.1 2006-11-17 20:47:42 lenik Exp $');
+    my %id = parse_id('$Id: sev,v 1.2 2006-11-18 09:16:06 lenik Exp $');
     print "[sev, modself] Self Evolution, self-editing scripts\n";
     print "Written by Lenik   Version $id{rev}   Last updated at $id{date}\n";
 }

@@ -3,8 +3,8 @@ sev - Self Evolution
 
     <!-- <self-evolution mark='*' decl='%' preload='true'> -->
 
-     <!-- *eval %eval { print 'Hi, everyone!' } -->
-     <!-- *eval %eval { print 'Hello, world!' } -->
+     <!-- %EVAL { print 'Hi, everyone!' } -->
+     <!-- %EVAL { print 'Hello, world!' } -->
 
      <!-- %number1 {
             m/(\d+)/;
@@ -16,10 +16,10 @@ sev - Self Evolution
           }
      -->
 
-     jklsjfdkjfdf 43 sdlj <!-- *number1 -->
+     jklsjfdkjfdf 45 sdlj <!-- *number1 -->
 
      fdsk f
-       fsdlj <!-- *line -->
+       fsdlj ..<!-- *line -->
 
      f dslj a
      fdsfjasda
