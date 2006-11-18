@@ -52,8 +52,8 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: resolv,v 1.1 2006-11-18 09:17:04 lenik Exp $');
-    print "[opt_verbtitle] Perl simple cli program template\n";
+    my %id = parse_id('$Id: resolv,v 1.2 2006-11-18 09:21:01 lenik Exp $');
+    print "[$opt_verbtitle] Simple Domain Name Resolver\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
