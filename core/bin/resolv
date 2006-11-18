@@ -1,0 +1,116 @@
+#!perl
+
+use strict;
+use Socket;
+use cmt::util;
+use cmt::vcs;
+use Getopt::Long;
+
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
+
+our $opt_all            = 0;
+our $opt_verbtitle      = 'resolv';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+
+our $opt_test_dnsutil   = 0;
+
+sub boot {
+    GetOptions(
+               'all|a',
+               'quiet|q'   => sub { $opt_verbose-- },
+               'verbose|v' => sub { $opt_verbose++ },
+               'version' => sub { version; exit },
+               'help|h'    => sub { help; exit },
+               'test-dnsutil',
+               );
+
+    if ($opt_test_dnsutil) {
+        use cmt::dnsutil;
+    }
+
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: resolv,v 1.1 2006-11-18 09:17:04 lenik Exp $');
+    print "[opt_verbtitle] Perl simple cli program template\n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 [<options>] <domain-name>...
+
+Options:
+        --all (a, show all addresses)
+        --quiet (q)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
+        --help (h)
+EOM
+}
+
+boot;
+
+sub main {
+    # cmd::dnsutil test
+    if ($opt_test_dnsutil) {
+        for my $domain (@ARGV) {
+            my $addr = resolv($domain);
+            info "$domain - $addr";
+            return;
+        }
+    }
+
+    for my $domain (@ARGV) {
+        info2 "domain name: $domain";
+
+        # ($name,$aliases,$addrtype,$length,@addrs) = gethost*
+        my @res = gethostbyname($domain);
+
+        info2 "     name: " . $res[0];
+        info2 "    alias: " . $_ for split(/\s+/, $res[1]);
+        info2 " addrtype: " . $res[2];
+        info2 "   length: " . $res[3];
+
+        my @addrs;
+        for (@res[4..$#res]) {
+            my $addr = inet_ntoa($_);
+            push @addrs, $addr;
+        }
+
+        my $top = shift @addrs;
+        info2 "  addr  1: " . $top;
+        print "$top\n";
+
+        my $i = 2;
+        for (@addrs) {
+            my $_i = substr('        '.$i++, -3);
+            info2 "  addr$_i: " . $_;
+            print "$_\n" if $opt_all;
+        }
+    }
+}
