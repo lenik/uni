@@ -1,0 +1,610 @@
+2006-11-18
+
+	* modified version info
+
+	* special form: %EVAL
+
+	* add font color.
+
+	* replace #!/usr/bin/perl -> #!perl
+
+2006-11-16
+
+	* elaps time test
+
+	* ctime + ftime => cftime
+
+	* enable check against the deadloop
+
+2006-10-21
+
+	* the explicit name can't be guessed...
+
+	* changed metapad settings
+
+2006-10-20
+
+	* sub scanDirectory is merged to sim.pl
+
+	* add log to file support, with date column added.
+
+	* modified metapad settings
+
+	  readd cygwin disk (B:)
+
+	* fixed the missing of 'restart' command
+
+2006-10-19
+
+	* add .pld, .six extensions
+
+	* initial.
+
+	* add .pm files
+
+2006-10-18
+
+	* append \n to the send-text. otherwise the sending is buffered.
+	  adjust verbose info.
+
+	* using simpled/echod as a dummy server
+
+	* new cmt::serv help creation of services.  new cmt::simpled
+	  implemented simple tcp services.
+
+2006-10-17
+
+	* only assoc metapad to text type file.
+
+	* move echohh.php from lib/cmt/ to service/
+
+	* add ARK_HOME var.
+
+	* add ARK_HOME environment variable to replace z:/Files/ directory.
+	  set default editor to metapad.
+
+2006-09-15
+
+	* change registry path /S-FIA../Dir-T/ to /DIRT/
+
+	* add JAVA_LIB env
+
+2006-08-19
+
+	* set defaulat home note/ to .note/
+
+	* override PORT
+
+	* std env: dirt_home, cirk_home
+
+2006-07-27
+
+	* initial
+
+	* print atom in multi-thread mode.(which is safer) rather print
+	  fragments in singlethread mode (which is faster)
+
+	* add bas file type
+
+	* no more use q.host.bodz.net
+
+	* sf cvs web changed.
+
+	* using cmt::path
+
+	* add header: Host: <host>
+
+	* ignore *.patch, *.lnk
+
+	* add vars
+
+	* using cygwin disk (B:)
+
+	* ignore _win32_ ...
+
+2006-04-23
+
+	* add merge command to *.patch fiels
+
+	* add .sql type
+
+	* display help if no args
+
+	* path changes
+
+	* quote "%TEMP%" if temp dir contains space
+
+	* ignore *.lnk and *.patch
+
+	* add test-only option
+
+	* add cvscmdopts so can copy specified tag/branch
+
+2006-03-17
+
+	* code review
+
+	* new solution
+
+	* examples file
+
+	* ctl => vb
+
+	* retry if link not available
+
+	* writable checkout
+
+2006-01-26
+
+	* modulize, add include/lib to .cirkonstancoj/sdk
+
+	* add scale function
+
+2005-12-20
+
+	* add "directory of any files" note type, this replace the old
+	  work-box.  the symbolic now must with extension .link
+
+	* fix filename pattern
+
+	* customizable server
+
+	* add xml extension (but not impl.)
+
+2005-10-28
+
+	* initial
+
+2005-10-21
+
+	* die if file error
+
+	* maintaince
+
+	* initial
+
+	* add userproc variables
+
+	* fixed complex module path bug.
+
+2005-07-17
+
+	* fix recursive bug
+
+	* prompt for enter script
+
+	* initial
+
+	* add ls, search from forx.pl, fix $count undefined.
+
+2005-07-14
+
+	* fix sync-.bat filename bug
+
+	* for ruby-scite & mxscheme
+
+	* add ruby component
+
+	* fixed recursion bug
+
+	* syntax changed. not compatible to lower than 1.7
+
+2005-07-08
+
+	* include metapad
+
+2005-07-06
+
+	* change --picture to --icon (ic)
+
+	* re-add (no dna-encoding)
+
+	* fix --cookie/--caption ambigouous add --picture
+
+2005-07-05
+
+	* fix arguments, add
+
+2005-07-01
+
+	* full-DNA
+
+	* test ok
+
+2005-06-30
+
+	* .dir-t -> .dirt
+
+2005-06-19
+
+	* attris -> attrib
+
+	* make readonly copy
+
+	* don't clean, for merge
+
+2005-03-30
+
+	* add comments about .vbs-association this is always be modified by
+	  sthvcd
+
+2005-03-03
+
+	* Compiled by DNA-Compiler
+
+	* indent mistake
+
+	* initial
+
+2005-03-02
+
+	* initial
+
+2005-01-19
+
+	* add ccr (control-character representation) support
+
+	* generate .nfs-sync.bat with --quiet option
+
+	* add chars support, e.g.:   hex -p=$dh. 'hello'   hex -p=$dd.
+	  '.upd'
+
+2005-01-06
+
+	* fm.  "Revision"
+
+	* fd.  cmt.pm => cmt/vcs.pm
+
+	* - add generated bat script - add interactive option - enhanced
+	  user interface
+
+2005-01-05
+
+	* don't create .vex directory cuz not used.
+
+	* in.
+
+2005-01-04
+
+	* fd- cmt.pm => cmt/vcs.pm
+
+	* Nfs-Transition
+
+	* use . for today and .. for yesterday
+
+	* more convienient offset format, like days<-.., ..->days
+
+	* implement offset option
+
+	* fb- entry in sync-nfs is already expanded.
+
+	* add remove mapping-entry support
+
+	* fb- map support
+
+	* auto-extension
+
+	* initial
+
+	* add more powerful char-table format ( \x?? char support )
+
+	* shell wrapper
+
+	* - fixed PERLLIB/PYTHONLIB incorrects - using normalized-path
+	  instead of mixed-slash path
+
+	* initial
+
+	* pa. some comments
+
+	* initial
+
+	* mi. from webcon::Test::Base
+
+2005-01-03
+
+	* rewritten of note.bat, initial
+
+	* mi. from webcon
+
+2004-12-22
+
+	* adjust classpath
+
+	* add link maintaince
+
+2004-12-19
+
+	* add multi .vol/ support
+
+2004-12-12
+
+	* initial
+
+	* fixed a display char mistake
+
+	* - add global filename-pattern support - add wild-chars in
+	  filename support
+
+	* missing of "use cmt"
+
+	* split help into version and help, (cuz repl.pl was refered too
+	  much, its code will be using as template)
+
+2004-12-07
+
+	* move .help out from .def
+
+	* fixed a reentrant bug
+
+	* enhanced escape/unescape functionality (see re-parts reference
+	  impl.)
+
+	* - show more detail of position info - add reference
+	  implementation of complex global replace
+
+	* display current line-format info in help page
+
+	* - option // now build index file in given container-name, instead
+	  of temp dir - symbolic link filename of note-home now use
+	  Notes.link instead Notes - resolve .name to .vol-name
+
+2004-12-03
+
+	* initial
+
+	* removed 7f-9f from default chars
+
+	* - change php-upload/session directory to userhome/local settings/
+	  - include php.ini template in t/2/etc/
+
+	* fixed: replace escaped-char as \n \r \t \\  seperately, instead
+	  of \(.)=>table-lookup
+
+	* rename uedit32 to ue
+
+	* - add /<open-app> options at end of command-line   (as: note
+	  [{//|/del|/<ext>}] {<empty>|.|<name>} [/<open-app>] - support '.'
+	  for auto-serial naming (also empty string does)
+
+	* add --print, --wait options rename options with opt_ prefix
+
+2004-12-01
+
+	* uedit32 renamed to ue
+
+	* fixed an unescaped-% error
+
+	* - use Courier New as default text font - enhanced angle-rotate
+	  option, but still have bug (when angle >45, crop happened.) -
+	  implemented --bold option by repeat drawing along x-axis.
+
+	* - add interlace option for png-interlace or jpeg-progressive -
+	  index the options by alphabet-order - add text-format for build
+	  character cartoons, - add --textfont options to view the cartoons
+	  in different fonts.
+
+	* - add format-dependent codes - add jpeg-quality option
+
+2004-11-30
+
+	* add php configuration
+
+	* rewritten in perl script embedded in syset.bat.
+
+	* initial
+
+	* moved replace/join into libstr, and modified the name.
+
+	* - implemented environment-updater in perl instead of calling
+	  syset.exe, so full-script.  - enhanced dir-t path layout - add
+	  php in dir-t.
+
+	* Code clearify
+
+	* use revision instead of id in function comments
+
+	* - initial
+
+	* - fixed a version display error - show help when family not
+	  specified
+
+2004-11-29
+
+	* add sameh option
+
+	* - have calculated the correct formula of Y-positioning to chars -
+	  fixed a auto [tsnlh] naming error - fixed a gradient color error
+	  in anti-alias
+
+	* Initial
+
+2004-11-28
+
+	* Fixed bug: when /<ext> specified, the new note is always
+	  overwrite the old.
+
+2004-11-25
+
+	* JOS Home Moved
+
+	* [DIRS] Like old "T" utility for calc directories' size - Initial
+
+	* Add option // for list titles of all notes.
+
+2004-11-24
+
+	* New J-shell
+
+	* add template note-support in self, using "note .vol-def"
+
+2004-11-17
+
+	* fix an CR-redundancy when output lines by use binmode()
+
+	* add binary-file recognize.
+
+	* Initial-2
+
+	* Initial
+
+	* Add temp extension-name support for .bat, .vbs using.
+
+2004-11-15
+
+	* add .sim assoc
+
+2004-11-13
+
+	* - add lot more whois server list.  - iterate by word-list file,
+	  and resume support.  - iterate by numbers only.  - enhanced
+	  multi-threads function.  - general name query (include .com,
+	  .net, .cn etc.) - display each record part by part, by the stages
+	  of query session.  - new log file naming method.
+
+	* Initial
+
+	* Regular-Expression SPLIT: Split into files by occurance of
+	  pattern-match - Initial
+
+	* use ultraedit as the default editor.
+
+	* support output only mode (don't save/writeback the replace
+	  result)
+
+	* display command line at titlebar.
+
+	* add /del option for delete note.
+
+2004-10-26
+
+	* initial
+
+	* - whois .biz server - auto naming log-file for fuzzy-query -
+	  debug/test options - sub whois/ fix un-reentrantable - remove
+	  (fhout) whois dump - more specific whois format support - resume
+	  fuzzy-query thru 'tail -1 logfile' - general name query (name.*)
+
+2004-10-25
+
+	* supp cnnic whois format
+
+	* initial [whois *]
+
+2004-10-20
+
+	* [keep] this state-machine version is hard to maintain.
+
+	* Use temporary file for both write-mode and output-mode, to clear
+	  sim-preprocessors for specific interpreters.
+
+	* - Initial, SIM is A GG-style interpreter - Update .stx to
+	  .xml.sim
+
+	* fixed a dirty-variable bug.
+
+	* Splited into cvsco
+
+	* Generalized from cvscosf
+
+2004-10-11
+
+	* indent.
+
+	* env-clear for general purpose.
+
+	* ole-automation support for note.bat.
+
+	* - auto-recognize file type only if /type arguments not specified.
+	  - add ole-auto support for creating template-based documents.
+	  (for avoid timestamp-bug in copy-mode)
+
+	* - new extension mapping   (now note/xls .. instead of note e ..)
+	  - auto extension recognize   (now note <xlsnote> instead of note
+	  e <xlsnote>)
+
+	* initial
+
+	* binwrap  [ testing Plink arguments ]	  envkey       cmdex
+
+2004-10-08
+
+	* progress.
+
+	* add link-following support, so notes package can be placed at
+	  different places.
+
+	* initial
+
+2004-10-02
+
+	* add mount-check.
+
+2004-09-24
+
+	* - add total lines at last (forbidden by --nosummary) - add
+	  classification by .extension - don't show directories with zero
+	  lines, unless verbose-mode.
+
+	* the literal $.I.d.$ is modified by cvs mistake, so fix it.
+
+	* fixed a version display bug
+
+	* initial
+
+2004-09-23
+
+	* use parse_id to show version info
+
+	* add version info
+
+	* fixed a sum bug
+
+	* ignore Object .. at begining of vb files.
+
+	* fix revision display
+
+	* initial
+
+	* removed.
+
+	* - new option: --veryquiet - add to display modified-count at
+	  last.
+
+	* - trailing '-' in 'title-' will be substituted by serial number
+
+2004-09-22
+
+	* these were expired or from 3rd-parties
+
+	* add version info at header.
+
+	* few
+
+	* removed
+
+	* source from tab-style.pl
+
+	* initial
+
+	* auto initialize system settings after updated.
+
+	* few
+
+	* show help if no arguments are specified.
+
+	* add external command support
+
+	* make help page more clear
+
+2004-08-23
+
+	* at last, automatic update -- being commited!
+
+	* usnap merging plan
+
+2004-08-08
+
+	* Dispatch .cvsignore (and other initializers) to sub-directories
+
+	* MERGED INTO USNAP PROJECT
