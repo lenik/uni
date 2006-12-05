@@ -140,7 +140,12 @@ my $opt_verbose = 1;
 	path_comp(@seqs);
     }
 
+# filesystem utilities
 
+    sub dir_size {
+        my ($path, $rec) = @_;
+        # TODO - ...
+    }
 
 @ISA = qw(Exporter);
 @EXPORT = qw(
@@ -155,6 +160,8 @@ my $opt_verbose = 1;
 	path_segs
 	path_comp
 	path_join
+
+	dir_size
 	);
 
 1;
