@@ -1,0 +1,23 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00314
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> Pattern -> AstNodes.
+
+    repeat
+    flags
+    enum
+    alias
+    noorder
+
+> createPattern -> expand imm.
+
+> Generate auto-named alias
+
+> contrib eclipse

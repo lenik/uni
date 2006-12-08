@@ -1,0 +1,26 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00273
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> universal -> transformer
+
+    universal
+    viewer
+    particle
+    spacewarp
+    transformer
+        translate
+        scale
+        rotate
+    group
+    shape
+
+    ²Î¿¼ j3d, 3d graph
+
+>

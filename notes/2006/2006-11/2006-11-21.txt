@@ -1,0 +1,39 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00358
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> ±ûÐçÖ®Ä© ¼Æ»®
+    40 days
+
+    - six review, release version 0.1:
+        * environment registry, "initial-context"
+        * kernel grammer
+            . preprocessor-instruction
+            . character encoding: only utf-8, utf-16
+                == simxml::encoding gb2312 ==
+            . load module (SDL support)
+                == simxml::load <filename.6m> ==
+        * SDL API
+        * simxml.6m
+            attribute, element, abbrev-elements
+            entity-support?     => PI-parameter
+        * macro.6m
+            character escaping, basic macro
+
+      (Future:)
+        * m4.6m
+            m4-style macros support
+
+    - zlw::af/j
+
+    - cached-db-api
+
+    - vup plans, tags
+
+    - jsj

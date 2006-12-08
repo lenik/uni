@@ -1,0 +1,20 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00343
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> 主机代号
+
+    [动物园网 zoo.]
+    192.168.0.0/16
+
+    海宁 家     [熊猫]   192.168.2.1    panda.zoo.
+    海宁 工作   [狮子]   192.168.2.100  lion.zoo.
+    临平 家     [老虎]   192.168.5.1    tiger.zoo.
+    移动 AmoiV3 [Amoi]   192.168.6.3    amoi.zoo.
+    虚拟 Fedora [凤凰]   192.168.9.1    phoenix.zoo.

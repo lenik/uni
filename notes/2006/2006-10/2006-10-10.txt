@@ -1,0 +1,43 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00331
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> zlw framework:
+
+    - 注重过程，状态间数据交换的严谨性
+
+    - 视图的可扩展性和可复用性 (xjl 属于 zlw 子项目)
+
+    - 增加：服务的可用性
+
+    - 作为一般动态应用/网站的统一基础
+
+> six project: (plp)
+
+    - 敏捷、轻便、可扩展
+        smart, immediate, extendable
+
+    - 结构化数据，文字描述的基础结构
+
+    - 作为一般结构化信息的通用语言
+
+> csp process:
+
+    - 代码，标准化
+
+    - 卡片，工件，模块化，注重流程
+
+    - 自动测试，各种类型的有价服务转换，提高项目的内在统一性
+
+        vsp     有价转换之 工件等级 ar: artifact ranking
+        jac&6sn 有价转换之 服务价值 sv: service value
+
+    - 作为一般项目的通用过程
+
+>

@@ -1,0 +1,35 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00318
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> nodeinfo/treexml
+
+    @XMLInfo(name)
+    @XMLInfo(name, XMLFormat)
+
+        XMLFormat :-
+            Object.toString
+            Persist/Serializable
+
+    @Retent(value=RUNTIME) : so Member.getAnnotation() works.
+
+> ObjectTreeBuilder
+
+    Primary
+        x:datatype
+    Array
+    List
+    Map
+    Object
+        getXXX()
+
+> binding.xml
+
+    test of unmarshaled object.
+

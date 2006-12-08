@@ -1,0 +1,31 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00266
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> Time Table
+
+    CBL
+        Polygon
+        GUI
+
+    zbComm
+        packing
+        vol-info?
+
+    Misbook
+        zlw-af
+        mb pages
+        Flex
+
+    isa.php
+
+    six parser
+        sf.net project
+
+    Pricing (MIMS)

@@ -1,0 +1,37 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00240
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+> Today, Misbook
+
+    1，phpx-xml review
+
+    2，拿插做
+
+    3，上淘宝买报警器
+
+    4，include config => add include-path
+        include 'zlw/..'
+        include 'vbank/..'
+
+    5，include 'zlw/af/quickmode.php';
+        zlw_af_quick_table('table-name');
+            | if .method = 'insert, update, edit':
+            |   [process.., reload]
+            | else
+            |   query_view.. or query_edit..
+
+
+> 近期事项
+
+    1，数字水印，与程序大体结构确定
+
+    2，责任追究论文
+
+    3，ctais-sync 完工

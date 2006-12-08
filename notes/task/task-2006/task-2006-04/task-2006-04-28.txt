@@ -1,0 +1,95 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00250
+
+   TITLE  libns commands
+KEYWORDS  ____________________________________________________________________
+
+
+> core
+
+    (hiddens)
+
+    [<trId>] <cmd> <args>... [<opt-args>...]
+
+    .ver [cmd]
+        .st fail <cmd not found...>
+        .st ok <info>
+
+    .help [cmd]
+        .st ok <info>
+
+    .bind <app> [<port>]
+        使远程打开port端口与app程序的连接，
+        若 port 省略则 libns 重定向到 app i/o
+        .st ok
+        .st fail <app not found, port in use...>
+
+    .connect <ip:port> [<port>]
+        使远程打开port端口与 ip:port 相连，
+        若 port 省略则 libns 重定向到 ip:port
+        .st ok
+        .st fail <can't connect, port in use...>
+
+    .text
+    .q
+    .qq
+    .base64
+    .hex
+
+> sysinfo
+
+    osinfo
+        .st ok <uname>..
+
+> filesys
+
+    pwd
+    cd <dir>
+    md <dir>
+    rd <dir>
+
+    mv <path1> <path2>
+    cp <path1> <path2>
+    rm <path>
+    ls -FLAGS [<pattern>]
+        .st ok
+        ...
+        ^EOM$
+
+    get <path> [<offset> [<size>]]
+        .st chunk <size> ...
+      .st ok
+        .st chunk <size> ...
+      .st ok
+        .st end
+      .st end                   ( whenever want to end )
+        .st ok
+
+    put <path> [<offset>]
+        .st ok
+      .st chunk <size>:...
+        .st ok
+      .st chunk <size>:...
+        .st end                 ( whenever want to end )
+      .st end
+        .st ok
+
+    crc <path>
+        .st ok <crc>
+    md5 <path>
+        .st ok <md5>
+    sha1 <path>
+        .st ok <sha1>
+
+    size <path> [<new-size>]
+        .st ok <oldsize> [<newsize>]
+
+> process
+    ps
+        .st ok
+
+    kill <pid>
+        .st ok

@@ -1,0 +1,35 @@
+BODZ | S-FIA & TC
+Dir-T|Note                                                  http://tc.bodz.net
+Snima Denik Personal                                            denik@bodz.net
+
+NOTES FOR SPEED                                 STATUS Draft   SERIAL NFS00285
+
+   TITLE  ____________________________________________________________________
+KEYWORDS  ____________________________________________________________________
+
+
+>
+行为艺术
+==========================
+
+Graph
+    graphData
+
+    send(msg)
+    currentState    RO
+    isTerminated    current.isterm()
+    isError         current.iserr
+
+    onError         return resume-state
+    onTerminated    return new-state
+
+pick
+    select
+    move
+    scale
+    rotate
+
+editing
+    affine
+    insert
+    remove
