@@ -1,29 +1,28 @@
-#!perl
+package fun::test;
 
 use strict;
 use cmt::util;
 use cmt::vcs;
 use Getopt::Long;
+use Exporter;
+use vars qw/@ISA @EXPORT/;
 
 sub boot;
-sub main;
 sub info;
 sub info2;
 sub version;
 sub help;
 
-our $opt_verbtitle      = 'unknown';
+sub myfun;
+
+@ISA = qw(Exporter);
+@EXPORT = qw(
+	myfun
+	);
+
+our $opt_verbtitle      = 'libunknown';
 our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
-
-sub boot {
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help|h'     => sub { help; exit },
-               );
-    main;
-}
 
 sub info {
     return if $opt_verbose < 1;
@@ -40,8 +39,8 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: .pl,v 1.2 2006-12-12 11:15:57 lenik Exp $');
-    print "[opt_verbtitle] Perl simple cli program template\n";
+    my %id = parse_id('$Id: test.pm,v 1.1 2006-12-12 11:15:57 lenik Exp $');
+    print "[opt_verbtitle] Perl simple cli/libfun template\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
@@ -60,8 +59,17 @@ Options:
 EOM
 }
 
-boot;
-
-sub main {
-    info "TODO...";
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               );
 }
+
+sub myfun {
+    boot;
+    # main
+}
+
+1;
