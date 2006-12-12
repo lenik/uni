@@ -44,7 +44,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: test.pm,v 1.2 2006-12-12 11:29:49 lenik Exp $');
+    my %id = parse_id('$Id: .pm,v 1.1 2006-12-12 11:29:49 lenik Exp $');
     print "[opt_verbtitle] Perl simple cli/libfun template\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
