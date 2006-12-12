@@ -13,7 +13,7 @@ sub info2;
 sub version;
 sub help;
 
-our $PACKAGE            = 'fun::test';
+our $PACKAGE            = ':i18n';
 
 our $opt_verbtitle      = 'i18n';
 our $opt_verbtime       = 0;
@@ -44,7 +44,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: i18n.pm,v 1.1 2006-12-12 11:41:13 lenik Exp $');
+    my %id = parse_id('$Id: i18n.pm,v 1.2 2006-12-12 11:48:36 lenik Exp $');
     print "[opt_verbtitle] Perl simple cli/libfun template\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
