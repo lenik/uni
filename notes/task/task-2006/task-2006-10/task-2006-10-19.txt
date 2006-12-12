@@ -35,3 +35,25 @@ C apache conf.
 > x-file, dtd
 
 > zjjxfp.com
+
+
+    C read win32::daemon source
+
+    V install service
+
+    C apache proxy :82
+
+    C mail server
+        smtp, pop3
+
+    V dirt: set date=for /f %i in (..)      to std format.
+
+    X common-zlw
+
+    X dbcp review
+
+    V radmin 2.2
+
+    V radmin 3.0beta2 (for test purpose)
+
+    V dtc

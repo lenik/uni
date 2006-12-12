@@ -2,8 +2,8 @@
 
 Class:      ?
 Status:     ?
-Date:       <? datetime ?>
-Serial:     NFS<? sprintf("%05d", get_vol_serial) ?>
+Date:       2006-12-12 18:29:51
+Serial:     NFS00369
 
 Author:     Xima J.Lenik
 Reply-To:   lenik@bodz.net
@@ -12,4 +12,4 @@ Title:      __________________________________________________________________
 Keywords:   __________________________________________________________________
 
 
-          * Notes
+          * 重新设计 NFS 文档结构，以便于以后应用 six 规范。

@@ -28,3 +28,18 @@ KEYWORDS  ____________________________________________________________________
     -
 
 > tommorrow plan
+
+V keeplink logfile
+
+V conf.make
+    proxy by rewrite?
+    and by vhost
+
+C sysy register.
+
+<VirtualHost *>
+    ServerName
+
+kelingpc.vicp.net
+klcrm.vicp.net
+qju.vicp.net
