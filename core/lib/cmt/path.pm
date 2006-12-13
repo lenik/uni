@@ -125,9 +125,10 @@ my $opt_verbose = 1;
     # join paths
     sub path_join {
 	my @seqs;
-	my $test_root = qr/^$patFS/;
+	my $test_root;
+	$test_root = qr/^$patFS/;
 	# if ("os" == "windows") {
-		$test_root = qr/^($patFS|[A-Z]:)/;
+	$test_root = qr/^($patFS|[A-Za-z]:)/;
 
 	foreach (@_) {
 		my @this_segs = path_segs $_;

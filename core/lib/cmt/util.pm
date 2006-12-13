@@ -25,10 +25,20 @@ sub cftime {
     return $secfmt . '.' . substr("00000$ms", -6);
 }
 
+sub timestamp10 {
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
+                localtime;
+    my $y = substr('00' . ($year % 100), -2);
+    my $d = substr('000' . $yday, -3);
+    my $s = (($hour * 60) + $min) * 60 + $sec;
+    return "$y$d-$s";
+}
+
 @ISA = qw(Exporter);
 @EXPORT = qw(
 	datetime
 	cftime
+	timestamp10
 	);
 
 1;
