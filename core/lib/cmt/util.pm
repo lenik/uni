@@ -26,12 +26,16 @@ sub cftime {
 }
 
 sub timestamp10 {
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
-                localtime;
-    my $y = substr('00' . ($year % 100), -2);
-    my $d = substr('000' . $yday, -3);
-    my $s = (($hour * 60) + $min) * 60 + $sec;
-    return "$y$d-$s";
+    my @now     = localtime;
+    my $t       = shift || \@now;
+    my $sep     = shift;
+    my $sep1    = shift;
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)
+                = @$t;
+    my $YY      = substr($year, -2);
+    my $DDD     = substr("000$yday", -3);
+    my $SSSSS   = substr('00000'. (($hour * 24 + $min) * 60 + $sec), -5);
+    $YY . $sep1 . $DDD . $sep . $SSSSS;
 }
 
 @ISA = qw(Exporter);
