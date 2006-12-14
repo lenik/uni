@@ -3,7 +3,7 @@
 Class:      ?
 Status:     ?
 Date:       <? datetime ?>
-Serial:     NFS<? sprintf("%05d", get_vol_serial) ?>
+Serial:     NFS<? timestamp10(undef, '-') ?>
 
 Author:     Xima J.Lenik
 Reply-To:   lenik@bodz.net
@@ -13,3 +13,4 @@ Keywords:   __________________________________________________________________
 
 
           * Notes
+            __________________________________________________________________
