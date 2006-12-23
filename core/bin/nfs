@@ -11,7 +11,7 @@ use cmt::util;
 
 
 our $nfs_appname = 'NFS Version 2';
-our %nfs_id = parse_id('$Id: nfs,v 1.21 2006-12-13 14:46:25 lenik Exp $');
+our %nfs_id = parse_id('$Id: nfs,v 1.22 2006-12-23 01:25:06 lenik Exp $');
 
 our %nfs_filetype = (
     ''      => 'ue "%s"',                   # default
@@ -830,6 +830,11 @@ sub cmdexec {
     print "$cmdline\n" if $opt_verbose;
     if ($opt_test_only) {
         # do nothing
+        my $local = $nfs_path_container;
+        chdir $local;
+
+        $local =~ s {\/}{\\}g;
+        print "HOWTO? - cd \"$local\"";
     } else {
         system $cmdline;
     }
