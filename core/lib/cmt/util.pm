@@ -15,7 +15,7 @@ sub cftime {
     my $t = shift || ftime;
     my $ms = $t - int($t);
     my $dot = index($ms, '.');
-    my $ms = $dot == -1 ? 0 : substr($ms, $dot + 1, 6);
+    $ms = $dot == -1 ? 0 : substr($ms, $dot + 1, 6);
     # my $s = $ms + $t % 60;
     # $t = int($t / 60);
     # my $m = $t % 60;
@@ -30,7 +30,7 @@ sub localftime {
     my $t = shift || ftime;
     my $ms = $t - int($t);
     my $dot = index($ms, '.');
-    my $ms = $dot == -1 ? 0 : substr($ms, $dot + 1, 6);
+       $ms = $dot == -1 ? 0 : substr($ms, $dot + 1, 6);
     # my $s = $ms + $t % 60;
     # $t = int($t / 60);
     # my $m = $t % 60;
