@@ -1,4 +1,3 @@
-
 package cmt::util;
 
 use strict;
@@ -15,6 +14,8 @@ sub datetime {
 sub cftime {
     my $t = shift || ftime;
     my $ms = $t - int($t);
+    my $dot = index($ms, '.');
+    my $ms = $dot == -1 ? 0 : substr($ms, $dot + 1, 6);
     # my $s = $ms + $t % 60;
     # $t = int($t / 60);
     # my $m = $t % 60;
@@ -28,8 +29,8 @@ sub cftime {
 sub timestamp10 {
     my @now     = localtime;
     my $t       = shift || \@now;
-    my $sep     = shift;
-    my $sep1    = shift;
+    my $sep     = shift || '';
+    my $sep1    = shift || '';
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)
                 = @$t;
     my $YY      = substr($year, -2);
