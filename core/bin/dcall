@@ -1,0 +1,108 @@
+#!perl
+
+use strict;
+use cmt::ftime;
+use cmt::util;
+use cmt::vcs;
+use Getopt::Long;
+
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
+
+our $opt_verbtitle      = 'dcall';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+
+sub boot {
+    my $clargs;
+    my @clargs;
+    for (my $i = 0; $i < scalar(@ARGV); $i++) {
+        if ($ARGV[$i] eq '-') {
+            $clargs = 1;
+            @clargs = splice(@ARGV, $i + 1);
+            pop @ARGV;  # '-'
+            last;
+        }
+    }
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               );
+    if ($clargs) {
+        my @unparsed = @ARGV;
+        @ARGV = @clargs;
+    }
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub timing {
+    my $text = shift;
+    my $t = cftime;
+    $t = substr($t, 3) if ($opt_verbose < 1);
+    print '[' . $t . '] ' . $text . "\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: dcall,v 1.1 2006-12-23 01:23:00 lenik Exp $');
+    print "[opt_verbtitle] Perl simple cli program template\n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> [-] <command-line>
+
+Options:
+        --quiet (q, only begin time)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
+        --help (h)
+EOM
+}
+
+boot;
+
+sub main {
+    for (my $i = 0; $i < scalar(@ARGV); $i++) {
+        info2 "arg.$i = \"$ARGV[$i]\"";
+    }
+    my $cmdline = join(' ', @ARGV);
+
+    timing $cmdline;
+
+    # this time may little difference to cftime.
+    # but the result stat would be more correctly.
+    my $begin = ftime;
+
+    # Execution
+    system $cmdline;
+    my $end = ftime;
+
+    # my $errno =
+    my $cost = $end - $begin;   # ms
+
+    timing "last operation cost ${cost}ms (" . cftime($cost) . ')'
+        if ($opt_verbose > 0);
+}
