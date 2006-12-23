@@ -1,5 +1,5 @@
 #!perl
-# $Id: names,v 1.3 2006-11-17 20:28:09 lenik Exp $
+# $Id: names,v 1.4 2006-12-23 01:23:51 lenik Exp $
 
 use strict;
 use Config;
@@ -35,214 +35,218 @@ my ($a, $b, $c, $d, $e, $f, $g, $h, $i, $j, $k, $l);
 my ($m, $n, $o, $p, $q, $r, $s, $t, $u, $v, $w, $x, $y, $z);
 
 # System variables
-my ($full, $path, $base, $ext);
-my ($name, @n); 			# array @n for reg-parts in matched pattern for --files
+my ($full, $dir, $base, $ext);
+my ($name, @n);             # array @n for reg-parts in matched pattern for --files
 my ($size, $date, $time, $serial, $random);
-my $refdoc; 				# whole text of reference document
-my $refdoc_read = 0; 		# lazy- for reference document
+my $refdoc;                 # whole text of reference document
+my $refdoc_read = 0;        # lazy- for reference document
 
 boot();
 
 sub main() {
-	scandir('.');
+    scandir('.');
 }
 
 sub scandir($) {
-	my ($the_dir) = @_;
-	my $DH = new DirHandle($the_dir);
+    my ($the_dir) = @_;
+    my $DH = new DirHandle($the_dir);
 
-	if (!$DH) {
-		print STDERR "Can't open directory: $the_dir\n";
-		return;
-	}
+    if (!$DH) {
+        print STDERR "Can't open directory: $the_dir\n";
+        return;
+    }
 
-	my @list = $DH->read();
-	$DH->close();
+    my @list = $DH->read();
+    $DH->close();
 
-	for my $entry (@list) {
-		next if ($entry =~ m/^\.{1,2}$/);
+    for my $entry (@list) {
+        next if ($entry =~ m/^\.{1,2}$/);
 
-		if (-d $entry) {
-			if ($recursive and -d $entry) {
-				scandir("$the_dir$SLASH$entry");
-			}
-			next if (!$include_directories);
-		}
+        if (-d $entry) {
+            if ($recursive and -d $entry) {
+                scandir("$the_dir$SLASH$entry");
+            }
+            next if (!$include_directories);
+        }
 
-		for my $pat (@files) {
-			if ($entry =~ m/$pat/) {
-				$name = $entry;
-				@n = matched_parts();
+        for my $pat (@files) {
+            if ($entry =~ m/$pat/) {
+                $name = $entry;
+                @n = matched_parts();
 
-				$path = $the_dir;
-				$full = "$path$SLASH$name";
-				($ext) = $name =~ m/(\.[^.]+)$/;
-				$base = substr($name, 0, length($name) - length($ext));
-				$nserial++;
-				$serial = substr("0000000000$nserial", -$serial_length);
-				my $nrandom = int($random_base + $random_range * rand());
-				$random = substr("0000000000$nrandom", -$random_length);
-				#$date = -d $entry;
-				#$time = -t $entry;
-				$size = -s $entry;
+                $dir = $the_dir;
+                $full = "$dir$SLASH$name";
+                ($ext) = $name =~ m/(\.[^.]+)$/;
+                $base = substr($name, 0, length($name) - length($ext));
+                $nserial++;
+                $serial = substr("0000000000$nserial", -$serial_length);
+                my $nrandom = int($random_base + $random_range * rand());
+                $random = substr("0000000000$nrandom", -$random_length);
+                #$date = -d $entry;
+                #$time = -t $entry;
+                $size = -s $entry;
 
-				for my $command (@commands) {
-					my $method = $command->[0];
-					if ($method eq 'SET') {
-						my ($varname, $varval) =
-							$command->[1] =~ m/^([^:]+):(.*)$/;
-						my $res = eval($varval);
-						eval "\$$varname = \$res";
-						print "SET: $varname=$res\n" if ($verbose);
-					} elsif ($method eq 'CMD') {
-						my $cmd = $command->[1];
-						print "CMD: $cmd\n" if ($verbose);
-						my $res = eval $cmd;
-					} elsif ($method eq 'EXE') {
-						my $exe = $command->[1];
-						print "EXE: $exe\n" if ($verbose);
-						`$exe` or print "$!\n";
-					}
-				}
-			}
-		}
-	}
+                for my $command (@commands) {
+                    my $method = $command->[0];
+                    if ($method eq 'SET') {
+                        my ($varname, $varval) =
+                            $command->[1] =~ m/^([^:]+):(.*)$/;
+                        my $res = eval($varval);
+                        eval "\$$varname = \$res";
+                        print "SET: $varname=$res\n" if ($verbose);
+                    } elsif ($method eq 'CMD') {
+                        my $cmd = $command->[1];
+                        print "CMD: $cmd\n" if ($verbose);
+                        my $res = eval $cmd;
+                    } elsif ($method eq 'EXE') {
+                        my $exe = $command->[1];
+                        print "EXE: $exe\n" if ($verbose);
+                        `$exe` or print "$!\n";
+                    }
+                }
+            }
+        }
+    }
 }
 
 sub boot() {
-	my $serial_start;
-	my ($random_min, $random_max) = (0, 9999);
+    my $serial_start;
+    my ($random_min, $random_max) = (0, 9999);
 
-	GetOptions(
-		'directories!'			=> \$include_directories,
-		'files=s@'				=> \@files,
-		'recursive!'			=> \$recursive,
-		'set=s'					=> sub { push @commands, ['SET', $_[1]] },
-		'command=s'				=> sub { push @commands, ['CMD', $_[1]] },
-		'print'					=> sub { push @commands, ['CMD', 'print_entry()'] },
-		'execute=s'				=> sub { push @commands, ['EXE', $_[1]] },
-		'nsstart=n'				=> \$serial_start,
-		'nslength=n'			=> \$serial_length,
-		'nrmin=n'				=> \$random_min,
-		'nrmax=n'				=> \$random_max,
-		'nrlength=n'			=> \$random_length,
-		'verbose'				=> \$verbose,
-		'help'					=> \&help,
-		) or die "Syntax: $!";
+    GetOptions(
+        'directories!'          => \$include_directories,
+        'files=s@'              => \@files,
+        'recursive!'            => \$recursive,
+        'set=s'                 => sub { push @commands, ['SET', $_[1]] },
+        'command=s'             => sub { push @commands, ['CMD', $_[1]] },
+        'print'                 => sub { push @commands, ['CMD', 'print_entry()'] },
+        'execute=s'             => sub { push @commands, ['EXE', $_[1]] },
+        'nsstart=n'             => \$serial_start,
+        'nslength=n'            => \$serial_length,
+        'nrmin=n'               => \$random_min,
+        'nrmax=n'               => \$random_max,
+        'nrlength=n'            => \$random_length,
+        'verbose'               => \$verbose,
+        'help'                  => \&help,
+        ) or die "Syntax: $!";
 
-	# print filenames for default
-	push @commands, ['CMD', 'print_entry()'] if (!@commands);
+    # print filenames for default
+    push @commands, ['CMD', 'print_entry()'] if (!@commands);
 
-	# for reg-ex, '' means everything.
-	push @files, '' if (!@files);
+    # for reg-ex, '' means everything.
+    push @files, '' if (!@files);
 
-	$nserial = 1 * $serial_start;
-	$random_range = $random_max - $random_min + 1;
+    $nserial = 1 * $serial_start;
+    $random_range = $random_max - $random_min + 1;
 
-	if ($verbose) {
-		print <<"EOM";
-			SLASH = $SLASH
-			include_directories($include_directories)
-			recursive($recursive)
-			random[$random_length]: $random_base +$random_range
-			serial[$serial_length]: $nserial
-			files: @files
-			commands:
+    if ($verbose) {
+        print <<"EOM";
+            SLASH = $SLASH
+            include_directories($include_directories)
+            recursive($recursive)
+            random[$random_length]: $random_base +$random_range
+            serial[$serial_length]: $nserial
+            files: @files
+            commands:
 EOM
-		print Dumper(\@commands);
-	}
+        print Dumper(\@commands);
+    }
 
-	main();
+    main();
 }
 
 sub help() {
-	print <<"EOM";
+    print <<"EOM";
 [NAMES] Advanced utility for processing file names
 Syntax:
-	$0 --help --verbose --[no]directories --recursive
-		--file=<regex-filename> --set=<var-name>:<expression>
-		--command=<command name> --print (same as --command=print)
-		--execute=<shell command line>
-		--nsstart=<serial starts from> --nslength=<serial digits>
-		--nrmin=<random minimum> --nrmax=<random maximum>
-		--nrlength=<random digits>
-		<external text files containing names information...>
+    $0 --help --verbose --[no]directories --recursive
+        --file=<regex-filename> --set=<var-name>:<expression>
+        --command=<command name> --print (same as --command=print)
+        --execute=<shell command line>
+        --nsstart=<serial starts from> --nslength=<serial digits>
+        --nrmin=<random minimum> --nrmax=<random maximum>
+        --nrlength=<random digits>
+        <external text files containing names information...>
 System variables:
-	\$full, \$path, \$base, \$ext, \$name, \@n
-	\$date, \$time, \$size, \$serial, \$random
+    \$full, \$dir, \$base, \$ext, \$name, \@n
+    \$date, \$time, \$size, \$serial, \$random
 Functions:
-	scan(<reg-ex>, <parts-list>)  get num: scan('(.*?)(\d+)(.*$)', 2)
-	ren(<re-match>, <re-subs>[, option])  add .bak: ren('\$','.bak')
+    scan(<reg-ex>, <parts-list>)  get num: scan('(.*?)(\d+)(.*$)', 2)
+    ren(<re-match>, <re-subs>[, option])  add .bak: ren('\$','.bak')
 Examples:
-	$0 -nss=100 -nsl=5 -c=ren('$',"-$serial")
-	$0 "-set=x:scan(qq/Save as:.*?$name.*Comment:<\/b>(.*)<br>/,1)"
-		-c=ren(qq/$name/,qq/$x.mid/) -v ..\\flashget.htm
+    $0 -nss=100 -nsl=5 -c=ren('$',"-$serial")
+    $0 "-set=x:scan(qq/Save as:.*?$name.*Comment:<\/b>(.*)<br>/,1)"
+        -c=ren(qq/$name/,qq/$x.mid/) -v ..\\flashget.htm
 
 Version: 1  Author: Danzci July, Last updated: May 2, 2004
 License: This program is distributed under GPL license.
 EOM
-	exit 0;
+    exit 0;
 }
 
 sub matched_parts() {
-	my @groups;
-	for (my $i = 0; $i < @-; $i++) {
-		push @groups, eval("\$$i");
-	}
-	return @groups;
+    my @groups;
+    for (my $i = 0; $i < @-; $i++) {
+        push @groups, eval("\$$i");
+    }
+    return @groups;
 }
 
 sub scan($@) {
-	my ($regex, @parts) = @_;
-	if (!$refdoc_read) {
-		my @document;
-		while (<>) {
-			push @document, $_;
-		}
-		$refdoc = join('', @document);
-		$refdoc_read = 1;
-	}
-#	print "$regex\n";
-	if ($refdoc =~ m/$regex/) {
-		my @groups = matched_parts();
-		return join('', @groups[@parts]);
-	}
-	return '';
+    my ($regex, @parts) = @_;
+    if (!$refdoc_read) {
+        my @document;
+        while (<>) {
+            push @document, $_;
+        }
+        $refdoc = join('', @document);
+        $refdoc_read = 1;
+    }
+#   print "$regex\n";
+    if ($refdoc =~ m/$regex/) {
+        my @groups = matched_parts();
+        return join('', @groups[@parts]);
+    }
+    return '';
 }
 
 sub reg_subs($$$$) {
-	my ($src, $match, $subs, $options) = @_;
-	eval "\$src =~ s/\$match/\$subs/$options";
-	return $src;
+    my ($src, $match, $subs, $options) = @_;
+    eval "\$src =~ s/\$match/\$subs/$options";
+    return $src;
 }
 
 sub renx($$;$) {
-	my ($match, $subs, $options) = @_;
-	my $oldname = $name;
-	my $newname = reg_subs($oldname, $match, $subs, $options);
+    my ($match, $subs, $options) = @_;
+    my $oldname = $name;
+    my $newname = reg_subs($oldname, $match, $subs, $options);
 
-	ren($oldname, $newname);
+    ren($oldname, $newname);
 }
 
 sub ren($$) {
-	my ($oldname, $newname) = @_;
-	$oldname = "$path$SLASH$oldname";
-	$newname = "$path$SLASH$newname";
+    my ($oldname, $newname) = @_;
+    $oldname = "$dir$SLASH$oldname";
+    $newname = "$dir$SLASH$newname";
 
-	print "Rename $oldname to $newname\n" if ($verbose);
-	rename($oldname, $newname)
-		or print "\tError: $!\n";
+    print "Rename $oldname to $newname\n" if ($verbose);
+    rename($oldname, $newname)
+        or print "\tError: $!\n";
 }
 
+    format =
+@<<<<<<<<<<<<|@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<|@<<<<<<|[@>>>>>>>>>>]|@<<<<
+$dir,         $base,                                         $ext,    $size,       ''
+.
 sub print_entry {
-	print "\n$path|$base|$ext [$size] $date $time\n";
+    write;
 }
 
 sub test {
-	my $i = 0;
-	for (@_) {
-		++$i;
-		print "	$i: $_\n";
-	}
-	pop @_; 		# last as return value
+    my $i = 0;
+    for (@_) {
+        ++$i;
+        print " $i: $_\n";
+    }
+    pop @_;         # last as return value
 }
