@@ -1,5 +1,5 @@
 #!perl
-# $Id: whoare,v 1.7 2006-11-17 20:28:10 lenik Exp $
+# $Id: whoare,v 1.8 2007-03-04 12:17:26 lenik Exp $
 
 use strict;
 use Socket;
@@ -480,7 +480,7 @@ Syntax:
         --max-threads=<number> (max)
         --numbers (n)
         --tla <TLA-list> (a)
-        --words-list=<filename> (w)
+        --words-list=<filename> (w, e.g. -w=t\0\words.txt)
 EOM
     exit;
 }
