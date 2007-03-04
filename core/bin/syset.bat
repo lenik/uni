@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.27 2006-11-17 20:47:49 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.28 2007-03-04 12:13:43 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -81,6 +81,7 @@
             reg add "hkcr\Directory\shell\Build TGZ archive\Command" /f /ve /d  "%dirt_home%\0\tgz.bat ""%%1""" >nul
             reg add "hkcr\Directory\shell\SIMplifiers expand\Command" /f /ve /d "%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\sim.pl" >nul
             reg add "hkcr\Directory\shell\Add nfs mapping\Command" /f /ve /d    "%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\nfs.pl -i -m" >nul
+            reg add "hkcr\Directory\shell\MP3LTRIM\Command" /f /ve /d           "%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\mp3ltrim.pl" >nul
 
             reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v CompletionChar /t REG_DWORD /d 14 >nul
             reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v PathCompletionChar /t REG_DWORD /d 14 >nul
