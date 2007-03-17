@@ -17,6 +17,7 @@
     set path=%path%;%vchome%;%vchome%\codecs\
 
     set prefix=m6-
+    set ext=.avi
 
     set menc_args=
     set menc_args=%menc_args% -mc 0
@@ -39,7 +40,7 @@
     set menc_args=%menc_args% -xvidencopts max_bframes=0:nogmc:noqpel
 
     set src=%~1
-    set dst=%~dp1%prefix%%~nx1
+    set dst=%~dp1%prefix%%~n1%ext%
     echo Convert %src% to %dst%...
     mencoder -noodml "%src%" -o "%dst%" %menc_args% 2>&1 |grep %% |pc -e
 
