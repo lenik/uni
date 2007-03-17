@@ -63,6 +63,7 @@
                 call :main "%%i"
             )
         )
+        goto end
     )
 
 :main
