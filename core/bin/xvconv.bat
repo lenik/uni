@@ -2,6 +2,31 @@
 
     setlocal
 
+    set vchome=C:\Program Files\Video Converter
+    set path=%path%;%vchome%;%vchome%\codecs\
+
+    set _debug=0
+    set _prefix=m6-
+    set _rotate=1
+
+    if not "%1"=="[" goto begin
+:prep
+    if "%1"=="]" (
+        shift
+        goto begin
+    )
+
+    if "%1"=="d" (
+        set _prefix=d-
+        set _rotate=0
+    )
+
+    rem more options...
+
+    shift
+    goto prep
+
+:begin
     set _fn=%~1
     if "%_fn:~0,1%"=="@" (
         set _fn=!_fn:~1!
@@ -13,10 +38,6 @@
     )
 
 :main
-    set vchome=C:\Program Files\Video Converter
-    set path=%path%;%vchome%;%vchome%\codecs\
-
-    set prefix=m6-
     set ext=.avi
 
     set menc_args=
@@ -25,7 +46,7 @@
     set menc_args=%menc_args% -vf-add crop=0:0:-1:-1
     set menc_args=%menc_args% -vf-add scale=320:240
     set menc_args=%menc_args% -vf-add expand=320:240:-1:-1:1
-    set menc_args=%menc_args% -vf-add rotate=1
+    set menc_args=%menc_args% -vf-add rotate=%_rotate%
     set menc_args=%menc_args% -srate 44100
     set menc_args=%menc_args% -ovc xvid
     set menc_args=%menc_args% -xvidencopts bitrate=384
@@ -40,8 +61,12 @@
     set menc_args=%menc_args% -xvidencopts max_bframes=0:nogmc:noqpel
 
     set src=%~1
-    set dst=%~dp1%prefix%%~n1%ext%
+    set dst=%~dp1%_prefix%%~n1%ext%
     echo Convert %src% to %dst%...
-    mencoder -noodml "%src%" -o "%dst%" %menc_args% 2>&1 |grep %% |pc -e
+    if "%_debug%"=="1" (
+        mencoder -noodml "%src%" -o "%dst%" %menc_args%
+    ) else (
+        mencoder -noodml "%src%" -o "%dst%" %menc_args% 2>&1 |grep %% |pc -e
+    )
 
 :end
