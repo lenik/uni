@@ -3,31 +3,67 @@
 use strict;
 use cmt::util;
 use cmt::vcs;
-use Getopt::Long;
-use Data::Dumper;
 # use cmt::msc;
 use cmt::winuser;
 use cmt::path;
+use cmt::ftime;
+use Data::Dumper;
+use Encode;
+use Encode::Alias;
+use Getopt::Long;
 
+sub is_visible;
 sub boot;
 sub info;
 sub info2;
 sub version;
 sub help;
 
+sub build_tree;
+sub get_text;
+sub set_text;
+sub bools;
+sub set_kbdstate;
+sub send_string;
+sub set_focus;
+sub send_input;
+sub dump_tree;
+
+sub streq;
+sub strstr;
+sub match;
+sub in_list;
+
 sub init;
 sub main;
+
+our $FindClass_N;
+our $FindClass_P;
+our $SendMessage_NN;
+our $SendMessage_NP;
+our $SendMessage_PN;
+our $SendMessage_PP;
+our $SendDlgMessage_NN;
+our $SendDlgMessage_NP;
+our $SendDlgMessage_PN;
+our $SendDlgMessage_PP;
 
 our $opt_verbtitle      = 'wm';
 our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
 our $opt_tree           = 0;
 our @opt_hwnd;
-our @opt_match;
+our @opt_class_name;
+# our @opt_match;
 our $opt_ignore_case    = 0;
 our $opt_sw;
 our $opt_recursive      = 0;
 our $opt_restore        = 0;
+our @opt_send_message;
+our @opt_send_string;
+our $opt_set_text;
+our $opt_use_active     = 0;
+our $opt_invisible      = 0;
 
 sub init {
     sub GW_HWNDFIRST        { 0 }
@@ -61,30 +97,122 @@ sub init {
     # GetActiveWindow
     # GetFocus
 
+    # HWND FindWindowEx(HWND parent, HWND child_after, LPCTSTR class, LPCTSTR window)
+    $FindClass_N = new Win32::API('user32', 'FindWindowEx', 'NNNN', 'N');
+    $FindClass_P = new Win32::API('user32', 'FindWindowEx', 'NNPN', 'N');
+
     Win32::API->Import('kernel32', 'GetConsoleTitle', 'PN', 'N'); #(LPTSTR lpTitle, DWORD nSize)');
 
     Win32::API->Import('user32', 'BOOL ShowWindow(HWND hWnd, UINT nCmdShow)');
 
     Win32::API->Import('user32', 'int GetWindowTextLength(HWND hWnd)');
     Win32::API->Import('user32', 'GetWindowText', 'NPN', 'N'); #(HWND hWnd, LPTSTR lpString, int nMaxCount)');
+
+    Win32::API->Import('user32', 'HWND SetFocus(HWND hWnd)');
+    Win32::API->Import('user32', 'HWND SetActiveWindow(HWND hWnd)');
+    Win32::API->Import('user32', 'BOOL SetForegroundWindow(HWND hWnd)');
+
+    Win32::API->Import('user32', 'GetKeyboardState', 'P', 'N');
+    Win32::API->Import('user32', 'SetKeyboardState', 'P', 'N');
+
+    Win32::API->Import('user32', 'LRESULT PostMessageA(HWND hWnd, UINT Msg, LONG wParam, LONG lParam)');
+    Win32::API->Import('user32', 'LRESULT PostMessageW(HWND hWnd, UINT Msg, LONG wParam, LONG lParam)');
+
+    Win32::API->Import('user32', 'LRESULT SendMessageA(HWND hWnd, UINT Msg, LONG wParam, LONG lParam)');
+    Win32::API->Import('user32', 'LRESULT SendMessageW(HWND hWnd, UINT Msg, LONG wParam, LONG lParam)');
+    $SendMessage_NN = new Win32::API('user32', 'SendMessage', 'NNNN', 'N');
+    $SendMessage_NP = new Win32::API('user32', 'SendMessage', 'NNNP', 'N');
+    $SendMessage_PN = new Win32::API('user32', 'SendMessage', 'NNPN', 'N');
+    $SendMessage_PP = new Win32::API('user32', 'SendMessage', 'NNPP', 'N');
+
+    Win32::API->Import('user32', 'LONG SendDlgItemMessage(HWND hDlg, int nIDDlgItem, UINT Msg, WPARAM wParam, LPARAM lParam)');
+    $SendDlgMessage_NN = new Win32::API('user32', 'SendDlgItemMessage', 'NNNNN', 'N');
+    $SendDlgMessage_NP = new Win32::API('user32', 'SendDlgItemMessage', 'NNNNP', 'N');
+    $SendDlgMessage_PN = new Win32::API('user32', 'SendDlgItemMessage', 'NNNPN', 'N');
+    $SendDlgMessage_PP = new Win32::API('user32', 'SendDlgItemMessage', 'NNNPP', 'N');
+
+    Win32::API::Struct->typedef( WINDOWPLACEMENT => qw{
+        UINT len;
+        UINT flags;
+        UINT showCmd;
+        LONG xmini;
+        LONG ymini;
+        LONG xmaxi;
+        LONG ymaxi;
+        LONG left;
+        LONG top;
+        LONG right;
+        LONG bottom;
+    });
+    Win32::API->Import('user32', 'BOOL GetWindowPlacement(HWND hWnd, LPWINDOWPLACEMENT lpwndpl)');
+    Win32::API->Import('user32', 'BOOL IsWindowVisible(HWND hWnd)');
+
+    # type == INPUT_KEYBOARD (1)
+    Win32::API::Struct->typedef( INPUTKBD => qw{
+        UINT type;
+        WORD wVk;
+        WORD wScan;
+        LONG dwFlags;
+        LONG time;
+        LONG dwExtraInfo;
+        LONG res1;
+    });
+    Win32::API->Import('user32', 'UINT SendInput(UINT nInputs, LPINPUTKBD pInputs, int cbSize)');
+    Win32::API->Import('user32', 'LONG GetMessageExtraInfo()');
+}
+
+sub is_visible {
+    return 100 if $opt_invisible;
+    my $hwnd = shift;
+    return IsWindowVisible($hwnd);
+    # my $wndpl = Win32::API::Struct->new('WINDOWPLACEMENT');
+    # $wndpl->{len} = $wndpl->sizeof;
+    # GetWindowPlacement($hwnd, $wndpl) or die ("Can't get window placement");
+    # return 0 if ($wndpl->{showCmd} == SW_HIDE);
+    # my $w = abs $wndpl->{right} - $wndpl->{left};
+    # my $h = abs $wndpl->{bottom} - $wndpl->{top};
+    # return -1 if $w == 0 or $h == 0;
+    # return 1;
 }
 
 sub boot {
     init;
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help'       => sub { help; exit },
+    GetOptions('quiet|q'        => sub { $opt_verbose-- },
+               'verbose|v'      => sub { $opt_verbose++ },
+               'version'        => sub { version; exit },
+               'help'           => sub { help; exit },
                'tree|t',
-               'hwnd|h',
-               'match|m',
+               'hwnd|h=s',      => \@opt_hwnd,
+               'class-name|c=s' => \@opt_class_name,
+               # 'match|m'        => \@opt_match,
+               'use-active',
                'ignore-case|i',
-               'hide'       => sub { $opt_sw = SW_HIDE },
-               'show'       => sub { $opt_sw = SW_SHOW },
+               'hide'           => sub { $opt_sw = SW_HIDE },
+               'show'           => sub { $opt_sw = SW_SHOW; $opt_invisible = 1 },
                'sw=n',
+               'send-message|m=s'=>\@opt_send_message,
+               'send-string|s=s'=>\@opt_send_string,
+               'set-text|st=s',
                'recursive|r',
                'restore',
+               'invisible',
                );
+    for (my $i = 0; $i <= $#opt_hwnd; $i++) {
+        my $hwnd = $opt_hwnd[$i];
+        if ($hwnd =~ m/^0x(.*)$/i) {
+            $hwnd = hex($1);
+        } elsif ($hwnd =~ m/^(.+)h$/i) {
+            $hwnd = hex($1);
+        } elsif ($hwnd =~ m/^00/) {
+            $hwnd = hex($hwnd);
+        } elsif ($hwnd =~ m/[a-f]/i) {
+            $hwnd = hex($hwnd);
+        } else {
+            next;
+        }
+        $opt_hwnd[$i] = $hwnd;
+    }
+
     main;
 }
 
@@ -103,7 +231,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: wm,v 1.1 2007-04-27 13:33:54 lenik Exp $');
+    my %id = parse_id('$Id: wm,v 1.2 2007-04-27 13:40:59 lenik Exp $');
     print "[$opt_verbtitle] Windows Manager\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -117,12 +245,16 @@ Syntax:
 
 Options:
         --tree (t, list windows tree)
-        --hwnd (h, add an HWND to manage-list)
-        --match (m, add matched windows to manage-list)
+        --hwnd=<hwnd> (h, add an HWND to mlist)
+        --class-name=<class-name> (c, add windows of certain class to mlist)
+        --match (m, add title-matched windows to mlist)
         --ignore-case (i, match ignore case)
         --hide (hide the window list)
         --show (show the window list)
         --sw=<number> (show the window list in specified mode)
+        --send-message=<message,wparam,lparam> (m, params could be num or str)
+        --send-string=<string> (s, using WM_CHAR to send)
+        --set-text=<string> (st, using SetWindowText)
         --restore (restore last window list)
         --quiet (q)
         --verbose (v, repeat twice give you more verbose info)
@@ -137,17 +269,17 @@ sub build_tree {
     my %children;
     my $child = GetWindow($parent, GW_CHILD);
     while ($child) {
-        my $ctree = $opt_recursive ? build_tree($child) : undef;
-        if ($ctree) {
-            $children{$child} = $ctree;
-        } else {
-            $children{$child} = undef;
+        if (is_visible($child) > 0) {
+            my $ctree = $opt_recursive ? build_tree($child) : undef;
+            if ($ctree) {
+                $children{$child} = $ctree;
+            } else {
+                $children{$child} = undef;
+            }
         }
         $child = GetWindow($child, GW_HWNDNEXT);
     }
-    if (%children) {
-        return \%children;
-    }
+    return %children ? \%children : undef;
 }
 
 sub get_text {
@@ -156,6 +288,135 @@ sub get_text {
     my $buf = ' ' x $len;
     $len = GetWindowText($hwnd, $buf, $len);
     return substr($buf, 0, $len);
+}
+
+sub set_text {
+    my $hwnd = shift;
+    my $text = shift;
+    SetWindowText($hwnd, $text);
+}
+
+sub bools {
+    my $bin = shift;
+    my $buf;
+    for (my $i = 0; $i < length($bin); $i++) {
+        my $b = substr($bin, $i, 1);
+        $buf .= ord($b) . ".";
+    }
+    return $buf;
+}
+sub set_kbdstate {
+    my ($vk, $st) = shift;
+    my $KBD = ' 'x256;
+    #GetKeyboardState($KBD);
+    #info2 "KBD 1=". bools($KBD);
+    substr($KBD, $vk, 1) = chr($st);
+    SetKeyboardState($KBD);
+    #GetKeyboardState($KBD);
+    #info2 "KBD 2=". bools($KBD);
+}
+
+my %escapes = (
+    'n' => "\n",
+    'r' => "\r",
+    't' => "\t",
+    '0' => "\0",
+    );
+my %ctrlmap = (
+    'c' => [ $_WM{WM_KEYDOWN},  $_VK{VK_CONTROL},   0x1D ],
+    'C' => [ $_WM{WM_KEYUP},    $_VK{VK_CONTROL},   0x1D ],
+    'a' => [ $_WM{WM_KEYDOWN},  $_VK{VK_MENU},      0x38 ],
+    'A' => [ $_WM{WM_KEYUP},    $_VK{VK_MENU},      0x38 ],
+    's' => [ $_WM{WM_KEYDOWN},  $_VK{VK_SHIFT},     0x2A ],
+    'S' => [ $_WM{WM_KEYUP},    $_VK{VK_SHIFT},     0x2A ],
+    'r' => [ $_WM{WM_KEYDOWN},  $_VK{VK_RETURN},    0x1C ],
+    'R' => [ $_WM{WM_KEYUP},    $_VK{VK_RETURN},    0x1C ],
+
+    # Don't work::
+    'focus'     => sub { set_focus(@_) },
+    'sleep'     => \&fsleep,
+    'ctrl'      => sub { set_kbdstate($_VK{VK_CONTROL}, 128) },
+    '/ctrl'     => sub { set_kbdstate($_VK{VK_CONTROL},   0) },
+    'alt'       => sub { set_kbdstate($_VK{VK_MENU},    128) },
+    '/alt'      => sub { set_kbdstate($_VK{VK_MENU},      0) },
+    'shift'     => sub { set_kbdstate($_VK{VK_SHIFT},   128) },
+    '/shift'    => sub { set_kbdstate($_VK{VK_SHIFT},     0) },
+    );
+sub send_string {
+    my ($hwnd, $str_l) = @_;
+    my $cs = 'gb2312';
+    my $str = decode($cs, $str_l);
+    my $str0 = encode($cs, $str);
+    my $len = length($str);
+    info2 "send_string($hwnd, $str0)";
+
+    for (my $i = 0; $i < $len; $i++) {
+        my $c = substr($str, $i, 1);
+        if ($c eq '\\') {
+            $i++; $c = substr($str, $i, 1);
+            if (defined $escapes{$c}) {
+                $c = $escapes{$c};
+            } elsif ($c eq '{') {
+                if (substr($str, $i + 1) =~ m/^(.*?)( .+?)?\}/) {
+                    my ($ctrl, $args) = ($1, $2);
+                    $i += length($&);
+                    my ($msg, $vk, $sc) = (0, 0, 0);
+                    if (defined $ctrlmap{$ctrl}) {
+                        my $cm = $ctrlmap{$ctrl};
+                        if (ref $cm eq 'ARRAY') {
+                            ($msg, $vk, $sc) = @$cm;
+                        } elsif (ref $cm eq 'CODE') {
+                            &$cm($args, $hwnd);
+                            next;
+                        }
+                    } elsif (substr($ctrl, 0, 1) eq 'k') {
+                        $vk = ord(substr($ctrl, 1, 1));
+                        $msg = $_WM{WM_KEYDOWN};
+                    } elsif (substr($ctrl, 0, 1) eq 'K') {
+                        $vk = ord(substr($ctrl, 1, 1));
+                        $msg = $_WM{WM_KEYUP};
+                    } else {
+                        die "Unknown control: $ctrl";
+                    }
+                    info2 "send_input($msg, $vk, $sc)"; #hwnd
+                    #PostMessageA($hwnd, $msg, $vk, $sc);
+                    send_input($msg, $vk, $sc);
+                    next;
+                } # \{ ... }
+            } # \{
+        } # \
+        info2 "SendMessageW($hwnd, $_WM{WM_CHAR}, ".ord($c).", 0); ";
+        SendMessageW($hwnd, $_WM{WM_CHAR}, ord($c), 0);
+    }
+}
+
+sub set_focus {
+    shift;
+    my $hwnd = shift;
+    SetActiveWindow($hwnd);
+    SetFocus($hwnd);
+    SetForegroundWindow($hwnd);
+}
+
+sub send_input {
+    my ($msg, $vk, $sc) = @_;
+    my $flags = 0;
+
+    # KEYEVENTF_KEYUP
+    $flags |= 0x0002 if ($msg == $_WM{WM_KEYUP});
+
+    my $kbdin = Win32::API::Struct->new('INPUTKBD');
+    $kbdin->{type}      = 1;     # INPUT_KEYBOARD
+    $kbdin->{wVk}       = $vk;
+    $kbdin->{wScan}     = $sc;
+    $kbdin->{dwFlags}   = $flags;
+    $kbdin->{time}      = 0;
+    $kbdin->{dwExtraInfo}=GetMessageExtraInfo();
+
+    my $n = SendInput(1, $kbdin, $kbdin->sizeof);
+    info2 "SendInput(1, $kbdin, ".$kbdin->sizeof."): $n";
+
+    fsleep .01;
 }
 
 sub dump_tree {
@@ -178,7 +439,6 @@ sub dump_tree {
 
 our $TREE;
 our $FLAT = [];
-our @opt_list;
 
 sub streq {
     my ($a, $b) = @_;
@@ -199,8 +459,8 @@ sub strstr {
 sub match {
     my $pattern = shift;
     my @list;
-    my @consoles = grep { strstr($_, $pattern) >= 0 } @$FLAT;
-    for (@consoles) {
+    my @matches = grep { strstr($_, $pattern) >= 0 } @$FLAT;
+    for (@matches) {
         my $hwnd_hex = substr($_, 0, 8);
         my $hwnd = hex($hwnd_hex);
         push @list, $hwnd;
@@ -247,16 +507,31 @@ sub main {
             my @matches = match($is_cap);
             # remove console from @matches
             @matches = grep { not in_list($_, @consoles) } @matches;
-            push @opt_list, @matches;
+            push @opt_hwnd, @matches;
         } else {
-            push @opt_list, $is_hwnd;
+            push @opt_hwnd, $is_hwnd;
         }
     } else {
-        if (scalar(@consoles) > 1) {
-            info "Warning: multiple console with the same title";
+        $opt_use_active = 1;
+    }
+
+    for (@opt_class_name) {
+        my $cls = $_;
+        my $fun = $FindClass_P;
+        if ($cls =~ m/^#(\d+)/) {
+            $cls = $1;
+            $fun = $FindClass_N;
         }
-        info2 "Use Active Window: $console1";
-        push @opt_list, $console1;
+        info2 "Find-Class: $cls";
+        my $last = 0;
+        my $hwnd;
+        while ($hwnd = $fun->Call(0, $last, $cls, 0)) {
+            if (is_visible $hwnd) {
+                info2 "Window-Of-Class: $hwnd - " . get_text($hwnd);
+                push @opt_hwnd, $hwnd;
+            }
+            $last = $hwnd;
+        }
     }
 
     if ($opt_restore) {
@@ -267,24 +542,85 @@ sub main {
         $script =~ s/^\s* \$\w+ \s* = //x;
         my $val = eval($script);
         close DUMP;
-        @opt_list = @$val;
+        @opt_hwnd = @$val;
         $opt_sw = SW_SHOW;
     }
 
-    info2 "dump last-list to $path_dump: \n" . Dumper(\@opt_list);
+    if ($opt_use_active && !@opt_hwnd) {
+        if (scalar(@consoles) > 1) {
+            info "Warning: multiple console with the same title";
+        }
+        info2 "Use Active Window: $console1";
+        push @opt_hwnd, $console1;
+    }
+
+    info2 "mlist: $_ - " . get_text($_) for @opt_hwnd;
     if (open(DUMP, ">$path_dump")) {
-        print DUMP Dumper(\@opt_list);
+        info2 "dump last-list to $path_dump";
+        print DUMP Dumper(\@opt_hwnd);
         close DUMP;
     }
 
     if (defined $opt_sw) {
-        for (@opt_list) {
+        for (@opt_hwnd) {
             my $t = get_text($_);
             info "ShowWindow($opt_sw): $t";
             ShowWindow($_, $opt_sw);
         }
     }
 
+    for (@opt_send_message) {
+        my @args;
+        while (m/((?: \\.|[^,])+?) \s* (?: ,|$)/xg) {
+            push @args, $1;
+        }
+        my $ctrl = undef;
+        $ctrl = shift @args if (scalar(@args) == 4 or defined $_ID{$args[0]} );
+        $ctrl = $_ID{$ctrl} if defined $_ID{$ctrl};
+
+        # assert scalar(@args) > 0;
+        my ($msg, $wparam, $lparam) = @args;
+        $msg = $_WM{$msg} if defined $_WM{$msg};
+        $msg ||= $_WM{WM_COMMAND};
+        $wparam ||= 0;
+        $lparam ||= 0;
+        my $nw = $wparam =~ m/^\d+$/;
+        my $np = $lparam =~ m/^\d+$/;
+        my $proto = ($nw ? 'N' : 'P') . ($np ? 'N' : 'P');
+        if (defined $ctrl) {
+            if ($msg == $_WM{WM_COMMAND}) {
+                for my $hwnd (@opt_hwnd) {
+                    info2 "SendMessageA($hwnd, $msg, $ctrl, $lparam)";
+                    SendMessageA($hwnd, $msg, $ctrl, $lparam);
+                }
+            } else {
+                my $funname = 'SendDlgMessage_' . $proto;
+                my $fun = eval('$'.$funname);
+                info2 "$funname($ctrl, $msg, $wparam, $lparam)";
+                for my $hwnd (@opt_hwnd) {
+                    $fun->Call($hwnd, $ctrl, $msg, $wparam, $lparam);
+                }
+            }
+        } else {
+            my $funname = 'SendMessage_' . $proto;
+            my $fun = eval('$'.$funname);
+            info2 "$funname($msg, $wparam, $lparam)";
+            for my $hwnd (@opt_hwnd) {
+                $fun->Call($hwnd, $msg, $wparam, $lparam);
+            }
+        }
+    }
+
+    if ($opt_set_text) {
+        for my $hwnd (@opt_hwnd) {
+            set_text($hwnd, $opt_set_text);
+        }
+    }
+    for my $sendstr (@opt_send_string) {
+        for my $hwnd (@opt_hwnd) {
+            send_string($hwnd, $sendstr);
+        }
+    }
 }
 
 boot;
