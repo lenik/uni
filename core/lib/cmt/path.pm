@@ -108,7 +108,7 @@ my $opt_verbose = 1;
 			} else {
 				pop @dest;
 			}
-		} elsif (!$_ or ($_ eq '.')) {
+		} elsif ($_ eq '' or ($_ eq '.')) {
 			# skip
 		} else {
 			push @dest, $_;
