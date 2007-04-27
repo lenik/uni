@@ -11,33 +11,37 @@ sub scan_dir;
 sub process_item;
 sub ls;
 sub search;
+sub info;
+sub info2;
 sub version;
 sub help;
+sub ren;
 
 
-    our $opt_recursive = 0;
+    our $opt_recursive      = 0;
     our $opt_directories_only = 0;
     our $opt_continue_with_errors = 0;
-    our $opt_script = undef;            # <STDIN> default
+    our $opt_script         = undef;    # <STDIN> default
     our @opt_files;
-    our $opt_quiet = 0;
-    our $opt_verbose = 0;
-
+    our $opt_verbose        = 1;
+    our $opt_verbtitle      = 'foreach';
+    our $opt_verbtime       = 0;
+    our $opt_test_only      = 0;
 
     # COMMAND-LINE PARSING
     GetOptions(
         'recursive',
-        'quiet',
         'directories-only',
         'files-only',
         'continue-with-errors',
         'script=s',
-        'noscript' => sub { $opt_script = '' },
-        'version' => sub { &version; exit },
-        'help' => sub { &help, exit },
+        'noscript'      => sub { $opt_script = '' },
+        'quiet|q'       => sub { $opt_verbose-- },
+        'verbose|v'     => sub { $opt_verbose++ },
+        'version'       => sub { &version; exit },
+        'help'          => sub { &help, exit },
+        'test-only',
         );
-
-    $opt_verbose = not $opt_quiet;
 
     my @lines;
     if ($opt_script) {
@@ -91,14 +95,7 @@ EOM
         $count += scan_dir($_) if $opt_recursive and -d;
     }
 
-
-    # RESULTS
-    if (not $opt_quiet) {
-        print <<"EOM";
-Total $count files/directories processed.
-EOM
-    }
-
+    info "Total $count files/directories processed. ";
 
 
 sub scan_dir {
@@ -127,8 +124,8 @@ sub scan_dir {
 
 sub process_item {
     my $path = shift || $_;
-    print " [DIR] $path\n" if -d $path and not $opt_quiet;
-    print "[FILE] $path\n" if -f $path and not $opt_quiet;
+    info2 "$path/" if -d $path;
+    info2 "$path" if -f $path;
 
     my $count = 0;
     $count++ if process($path);
@@ -160,8 +157,24 @@ sub search {
 }
 
 
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+
 sub version {
-    my %id = parse_id('$Id: foreach,v 1.7 2006-11-17 20:28:08 lenik Exp $');
+    my %id = parse_id('$Id: foreach,v 1.8 2007-04-27 13:30:46 lenik Exp $');
     print <<"EOM";
 [foreach] files processor framework   version $id{rev}
 author: lenik,  last update: $id{date}
@@ -176,17 +189,38 @@ sub help {
 syntax:
     foreach
         --recursive (r)
-        --quiet (q)
         --directories-only (d)
         --continue-with-errors (c)
         --script=<perl-script-file> (s, default read from stdin)
         --noscript
-        --version (v)
+        --test-only
+        --quiet (q)
+        --verbose (v)
+        --version
         --help (h)
         [files/directories ...]     (default '.')
 
 variables:
     path dir base file ext opt_*
 
+function:
+    ren(old, new)
 EOM
+}
+
+
+my $padx = ' 'x40;
+sub ren {
+    my ($old, $new) = @_;
+    return if $old eq $new;
+    die "Non-Existing source: $old" unless -e $old;
+    die "Existing target: $new" if -e $new;
+    if ($opt_verbose > 0) {
+        if (length($old) < 40) {
+            print "rename ".substr("$old$padx", 0, 40)."--> $new\n";
+        } else {
+            print "rename $old\n   --> $new\n";
+        }
+    }
+    rename($old, $new) unless $opt_test_only;
 }
