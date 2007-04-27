@@ -1,13 +1,31 @@
 #!perl
 
 use strict;
-use Getopt::Long;
+use cmt::util;
 use cmt::vcs;
+use Getopt::Long;
 use Tk;
 use Tk::DialogBox;
 use Tk::ProgressBar;
 
-if (0) {                                # BEGIN {
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
+sub runwin;
+
+our $opt_verbtitle      = 'rundelay';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_timeout        = 1000;     # 1 second
+our $opt_message        = 'Launcher is waiting for timeout...';
+our $opt_force          = 0;
+our $opt_cmdline;
+
+if (0) {
+# BEGIN {
     # kill the console window
     if ($^O eq 'MSWin32') {
         use Win32::Console;
@@ -15,124 +33,147 @@ if (0) {                                # BEGIN {
     }
 }
 
-sub version;
-sub help;
-sub prompt_window;
+sub boot {
+    # Process X11-specific options
+    Tk::CmdLine::SetArguments();
 
-our $opt_timeout = 10000;               # 10 seconds
-our $opt_message = 'Launcher is waiting for timeout...';
-our $opt_force = 0;
-our $opt_verbose = 0;
-our $opt_cmdline;
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'timeout=n',
+               'message=s',
+               'force',
+               'nogui',
+               );
 
-# Process X11-specific options
-Tk::CmdLine::SetArguments();
+    $opt_cmdline = join(' ', @ARGV)
+        or die("No command-line specified!");
 
-GetOptions('timeout=n',
-           'message=s',
-           'force',
-           'verbose|v',
-           'nogui',
-           'help' => sub { &help },
-           'version' => sub { &version; exit },
-           );
-
-if (! scalar(@ARGV)) {
-    print "no command-line specified\n";
-    &help;
+    main;
 }
 
-$opt_cmdline = join(' ', @ARGV);
-
-$signal = 'wait';
-$starttime = 1000 * time;               # in ms
-
-if (my $pid = fork) {
-    # parent pid
-    while (1000 * time - $starttime <= $opt_timeout) {
-        if ($signal eq 'exit') {
-            exit;
-        }
-        sleep(1);                       # XXX  should be faster
-    }
-    # Timeout
-    kill 'KILL' => $pid;                # no more wait
-} else {
-    # child pid
-    my $select = prompt_window();
-    print "selected: " . $select . "\n";
-    exit if ($select ne 'run');
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
 }
 
-exit;
-
-sub prompt_window {
-    my $mw = new MainWindow;
-
-    my $dlg = $mw->DialogBox(-title => "Run after $opt_timeout ms delay",
-                             -buttons => ['Run',
-                                          'Cancel'],
-                             -default_button => 'Run',
-                             );
-
-    my $msg = $dlg->Label(-text => <<"EOM",
-$opt_message
-
-The following command will be launched after timeout:
-"$opt_cmdline"
-EOM
-                          -width => 60,
-                          -height => 6,
-                          )->pack();
-
-    my $current_timeout = 0;
-    my $progress = $dlg->ProgressBar(-length => 350,
-                                     -width => 20,
-                                     -anchor => 'w', # left->right
-                                     -from => 0,
-                                     -to => $opt_timeout,
-                                     -blocks => 20,
-                                     -colors => [0, 'green',
-                                                 0.5 * $opt_timeout, 'yellow',
-                                                 0.8 * $opt_timeout, 'red', ],
-                                     -variable => \$current_timeout,
-                                     )->pack();
-
-    my $buttons = $dlg->Frame()->pack(-side => 'bottom');
-    $buttons->Button(-text => 'Delay 1x',
-                 -command => sub {
-                     $opt_timeout *= 2;
-                     $progress->configure(-to => $opt_timeout);
-                 })->pack(-side => 'left');
-    $buttons->Button(-text => 'Delay 2x',
-                 -command => sub {
-                     $opt_timeout *= 4;
-                     $progress->configure(-to => $opt_timeout);
-                 })->pack(-side => 'left');
-
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
 }
 
 sub version {
-    my %id = parse_id('$Id: rundelay,v 1.2 2006-11-17 20:28:09 lenik Exp $');
-    print <<"EOM";
-[runtimeout]
-    launch a command after a specified timeout time
-    author: lenik   version: $id{rev}   last updated: $id{date}
-EOM
+    my %id = parse_id('$Id: rundelay,v 1.3 2007-04-27 13:46:55 lenik Exp $');
+    print "[$opt_verbtitle] launch a command after a specified timeout time\n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {
-    &version;
+    version;
     print <<"EOM";
 syntax:
-    runtimeout [<options>] <command-line>
+    rundelay [<options>] <command-line>
 options:
+EOM
+    print <<"EOM";
+
+Syntax:
+        $0 [<options>] <command-line>
+
+Options:
         --timeout=<timeout-time, in ms> (t)
         --message=<text> (m)
         --force (f)
-        --verbose (v)
+        --quiet (q)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
         --help (h)
-        --version (v)
 EOM
-    exit 0;
+}
+
+our $signal;
+
+boot;
+
+sub main {
+    my $starttime = 1000 * time;               # in ms
+
+    if (my $pid = 0) {
+        # parent pid
+        while (1000 * time - $starttime <= $opt_timeout) {
+            if ($signal eq 'exit') {
+                exit;
+            }
+            sleep(1);                       # XXX  should be faster
+        }
+        # Timeout
+        kill 'KILL' => $pid;                # no more wait
+    } else {
+        # child pid
+        my $select = runwin();
+        info2 "runwin selected: " . $select . "\n";
+        exit if ($select ne 'run');
+    }
+}
+
+our $current_timeout = 0;
+
+sub runwin {
+    my $mw = new MainWindow;
+
+    my $fparam = $mw->Frame()->pack();
+    my $msg = $fparam->Label(-justify   => 'left',
+                             -text      => "$opt_message\n\nThe following command will be launched after timeout: \n\"$opt_cmdline\"",
+                             # -textvariable
+                             )->pack();
+
+    my $progbar = $fparam->ProgressBar(-length      => 350,
+                                        -width      => 20,
+                                        -anchor     => 'w', # left->right
+                                        -from       => 0,
+                                        -to         => $opt_timeout,
+                                        -blocks     => 20,
+                                        -colors     => [ 0, 'green',
+                                                         0.5 * $opt_timeout, 'yellow',
+                                                         0.8 * $opt_timeout, 'red', ],
+                                        -variable   => \$current_timeout,
+                                        )->pack(-pady => 4);
+    my $fctrl = $mw->Frame()->pack(-pady => 4);
+    $fctrl->Button(-text        => 'Delay 1x',
+                    -underline  => 6,
+                    -padx       => 4,
+                    -command    => sub { $opt_timeout *= 2;
+                                         $progbar->configure(-to => $opt_timeout);
+                                       })->pack(-ipadx=>4, -side=>'left', -padx=>4);
+    $fctrl->Button(-text => 'Delay 2x',
+                    -underline  => 6,
+                    -padx       => 4,
+                    -command    => sub { $opt_timeout *= 4;
+                                         $progbar->configure(-to => $opt_timeout);
+                                       })->pack(-ipadx=>4, -side=>'left', -padx=>4);
+
+    my $fcmds = $mw->Frame()->pack(-pady => 4);
+    my $btnRun = $fcmds->Button(-underline  => 0,
+                                -overrelief => 'raised',
+                                -state      => 'normal',
+                                -relief     => 'raised',
+                                -text       => 'Run',
+                                -compound   => 'left',
+                                -bitmap     => 'warning',
+                                -padx       => 4)->pack(-ipadx=>4, -side=>'left', -padx=>4);
+
+    my $btnCancel = $fcmds->Button(-underline   => 0,
+                                   -overrelief  => 'raised',
+                                   -state       => 'normal',
+                                   -relief      => 'raised',
+                                   -text        => 'Cancel',
+                                   -compound    => 'left',
+                                   -bitmap      => 'error',
+                                   -padx        => 4)->pack(-ipadx=>4, -side=>'left', -padx=>4);
+    MainLoop;
 }
