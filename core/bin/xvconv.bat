@@ -3,7 +3,11 @@
     setlocal
 
     set vchome=C:\Program Files\Video Converter
-    set path=%path%;%vchome%;%vchome%\codecs\
+    set path=%vchome%;%vchome%\codecs;%path%
+
+    if not exist "%vchome%\mc.exe" (
+        copy /y "%vchome%\mencoder.exe" "%vchome%\mc.exe" >nul
+    )
 
     set _debug=0
     set _prefix=m6-
@@ -72,6 +76,7 @@
     rem set font=?
 
     set menc_args=
+    set menc_args=%menc_args% -priority idle
     set menc_args=%menc_args% -mc 0
         set menc_args=%menc_args% -font "c:\windows\fonts\simsun.ttc"
     set menc_args=%menc_args% -srate 44100
@@ -92,10 +97,10 @@
     echo Convert %src% to %dst%...
     if "%_debug%"=="1" (
         echo mencoder -noodml "%src%" -o "%dst%" %menc_args%
-        mencoder -noodml "%src%" -o "%dst%" %menc_args%
+        "%vchome%\mc" -noodml "%src%" -o "%dst%" %menc_args%
     ) else (
-        echo mencoder -noodml "%src%" -o "%dst%" %menc_args% >_lastxvc.bat
-        mencoder -noodml "%src%" -o "%dst%" %menc_args% 2>&1 |grep %% |pc -e
+        echo "%vchome%\mc" -noodml "%src%" -o "%dst%" %menc_args% >_lastxvc.bat
+        "%vchome%\mc" -noodml "%src%" -o "%dst%" %menc_args% 2>&1 |grep %% |pc -e
     )
 
 :end
