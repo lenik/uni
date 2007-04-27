@@ -12,7 +12,7 @@
     set _param=%_param% -vf-add crop=0:0:-1:-1
     set _param=%_param% -vf-add scale=320:240
     set _param=%_param% -vf-add expand=320:240:-1:-1:1
-    set _param=%_param% -vf-add rotate=%_rotate%
+    set _param=%_param% -vf-add rotate=1
     set _param=%_param% -xvidencopts bitrate=384
 
     if not "%1"=="[" goto begin
@@ -69,8 +69,11 @@
 :main
     set ext=.avi
 
+    rem set font=?
+
     set menc_args=
     set menc_args=%menc_args% -mc 0
+        set menc_args=%menc_args% -font "c:\windows\fonts\simsun.ttc"
     set menc_args=%menc_args% -srate 44100
     set menc_args=%menc_args% -ovc xvid
     set menc_args=%menc_args% -oac mp3lame
@@ -91,7 +94,7 @@
         echo mencoder -noodml "%src%" -o "%dst%" %menc_args%
         mencoder -noodml "%src%" -o "%dst%" %menc_args%
     ) else (
-        rem echo mencoder -noodml "%src%" -o "%dst%" %menc_args%
+        echo mencoder -noodml "%src%" -o "%dst%" %menc_args% >_lastxvc.bat
         mencoder -noodml "%src%" -o "%dst%" %menc_args% 2>&1 |grep %% |pc -e
     )
 
