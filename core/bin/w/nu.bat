@@ -1,5 +1,12 @@
 @echo off
 
+    setlocal
+
+    if "%1"=="-v" (
+        set _verbose=1
+        shift
+    )
+
     set _REGISTRY=%USERPROFILE%\Registry
 
     if not exist "%_REGISTRY%\*" (
@@ -56,8 +63,12 @@
 :host_set
     echo Connecting %_HOST%...
 
-    rem echo net use \\%_HOST% /user:%_USER% "%_PASSWORD%"
-    net use \\%_HOST% /user:%_USER% "%_PASSWORD%" >nul 2>nul
+    if "%_verbose%"=="1" (
+        echo net use \\%_HOST% /user:%_USER% "%_PASSWORD%"
+             net use \\%_HOST% /user:%_USER% "%_PASSWORD%"
+    ) else (
+        net use \\%_HOST% /user:%_USER% "%_PASSWORD%" >nul 2>nul
+    )
 
     if errorlevel 2 (
         echo Failed to connect to %_HOST%.
