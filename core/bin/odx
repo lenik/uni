@@ -1,0 +1,443 @@
+@rem = '
+    @echo off
+
+    setlocal
+    set _verbose=0
+    set _program=%~dpnx0
+    rem set _program=%~dpn0.pl
+
+:prep
+    if "%1"=="" goto spawn
+    if "%1"=="-v" set _verbose=1
+    if "%1"=="--v" set _verbose=1
+    if "%1"=="--ve" set _verbose=1
+    if "%1"=="--ver" set _verbose=1
+    if "%1"=="--verb" set _verbose=1
+    if "%1"=="--verbo" set _verbose=1
+    if "%1"=="--verbos" set _verbose=1
+    if "%1"=="--verbose" set _verbose=1
+    shift
+    goto prep
+
+:spawn
+    if "%_verbose%"=="1" (
+        perl "%_program%" %*
+    ) else (
+        start wperl "%_program%" %*
+    )
+    goto end
+    ';
+#!/usr/bin/perl -w
+
+# ODX
+
+use strict;
+
+#===vptk user code before tk===< THE CODE BELOW WILL RUN BEFORE TK STARTED >===
+
+use cmt::util;
+use cmt::vcs;
+use cmt::path;
+use cmt::db_ora;
+use cmt::winuser;
+use cmt::guiutil;
+use Getopt::Long;
+use DirHandle;
+use Win32;
+use Win32::TieRegistry(Delimiter=>'/');
+use Data::Dumper;
+
+our $REG_ODX;
+
+use Tk;
+use Tk::Adjuster;
+use Tk::Button;
+use Tk::Frame;
+use Tk::BrowseEntry;
+use Tk::LabEntry;
+use Tk::Listbox;
+use Tk::Radiobutton;
+
+$| = 1;
+
+my $mw = MainWindow->new(-title=>'Oracle Data Exchange');
+
+our $opt_verbtitle      = 'odx';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_autoclose      = 1;
+
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
+
+our $odx_xhome;
+our %odx_profiles;
+our $odx_profile;
+our $odx_curstore       = 0;        # current store
+
+sub modload;
+sub modsave;
+sub modprof;
+sub modexp;
+sub modimp;
+sub modexec;
+sub modreq;
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'autoclose=n',
+               );
+
+    $Registry->{'CUser/Software/DIRT/'}->{'ODX/'} = {};
+    $REG_ODX = $Registry->{'CUser/Software/DIRT/ODX/'};
+
+    $odx_xhome = $REG_ODX->{'xhome'};
+    unless ($odx_xhome) {
+        $REG_ODX->{'xhome'} = $odx_xhome = temp_path('odx');
+    }
+    info2 "odx_xhome=$odx_xhome";
+    mkdir $odx_xhome;
+
+    Win32::SetChildShowWindow(Win32::SW_HIDE);
+
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: odx,v 1.1 2007-04-27 13:51:11 lenik Exp $');
+    print "[$opt_verbtitle] Perl simple cli program template\n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> ...
+
+Options:
+        --quiet (q)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
+        --help (h)
+EOM
+}
+
+#===vptk widgets definition===< DO NOT WRITE UNDER THIS LINE >===
+use Tk::Balloon;
+my $vptk_balloon=$mw->Balloon(-background=>"lightyellow",-initwait=>550);
+my $fbody       = $mw->Frame(-relief=>'ridge')->pack(-fill=>'both', -expand=>1);
+my $fprof       = $fbody->Frame(-label=>'Profiles', -relief=>'flat')->pack(-side=>'left', -fill=>'both', -expand=>1);
+my $lstprof     = $fprof->Listbox(-selectmode=>'single', -relief=>'sunken', -state=>'normal')->pack(-fill=>'both', -expand=>1); $vptk_balloon->attach($lstprof,-balloonmsg=>"List of profiles");
+my $fprofmod    = $fprof->Frame(-relief=>'flat')->pack(-fill=>'x');
+my $btnAddProf  = $fprofmod->Button(-underline=>0, -overrelief=>'raised', -relief=>'raised', -text=>'Add', -compound=>'left', -state=>'normal')->pack(-side=>'left', -fill=>'x', -expand=>1);
+my $btnDelProf  = $fprofmod->Button(-underline=>0, -overrelief=>'raised', -relief=>'raised', -text=>'Delete', -compound=>'left', -state=>'normal')->pack(-side=>'right');
+my $btnImport   = $fprof->Button(-underline=>0, -overrelief=>'raised', -relief=>'raised', -text=>'Import', -compound=>'none', -state=>'normal')->pack(-fill=>'x'); $vptk_balloon->attach($btnImport,-balloonmsg=>"Import tables from current store to selected profile");
+my $fprofmod_a  = $fprof->packAdjust();
+my $ftbl        = $fbody->Frame(-label=>'Tables', -relief=>'flat')->pack(-side=>'right', -fill=>'both', -expand=>1);
+my $lsttbl      = $ftbl->Scrolled('Listbox', -scrollbars=>'se', -selectmode=>'extended', -relief=>'sunken', -state=>'normal')->pack(-fill=>'both', -expand=>1); $vptk_balloon->attach($lsttbl,-balloonmsg=>"List of tables under selected profile");
+my $btnExport   = $ftbl->Button(-underline=>0, -overrelief=>'raised', -relief=>'raised', -text=>'Export', -compound=>'none', -state=>'normal')->pack(-anchor=>'s', -side=>'bottom', -fill=>'x'); $vptk_balloon->attach($btnExport,-balloonmsg=>"Export the selected tables to current store");
+my $fboard      = $mw->Frame(-borderwidth=>1, -relief=>'ridge')->pack(-anchor=>'s', -side=>'bottom', -fill=>'x');
+my $fbparams    = $fboard->Frame(-relief=>'flat')->pack(-fill=>'x', -expand=>1);
+my $le_xhome    = $fbparams->LabEntry(-textvariable => \$odx_xhome, -label=>'Store Home', -justify=>'left', -labelPack=>[-side=>'left',-anchor=>'n'], -relief=>'sunken', -state=>'normal')->pack(-side=>'left', -fill=>'x', -expand=>1);
+my $brow_xhome  = $fbparams->Button(-underline=>0, -overrelief=>'raised', -relief=>'raised', -text=>'Browse', -compound=>'none', -state=>'normal')->pack(-side=>'right');
+my $fbsels      = $fboard->Frame(-relief=>'flat')->pack(-side=>'bottom', -fill=>'both', -expand=>1); $vptk_balloon->attach($fbsels,-balloonmsg=>"Store List");
+
+#===vptk user code before main===< THE CODE BELOW WILL RUN BEFORE GUI STARTED >===
+sub main {
+    modload;
+
+MainLoop;
+
+#===vptk end===< DO NOT CODE ABOVE THIS LINE >===
+} # sub main
+
+boot;
+
+sub modload {
+    # Init controls
+
+    # FIX - the event seems before 'active' changed, (occasionally)
+    $lstprof->bind("<<ListboxSelect>>", sub {
+        # $odx_profile = $lstprof->get('active');
+        my @sels = $lstprof->curselection;
+        my $sel0 = shift @sels;
+        return unless defined $sel0;
+        $odx_profile = $lstprof->get($sel0);
+
+        $fprof->configure(-label => "Profiles - $odx_profile");
+       info2 "Set active profile: $odx_profile";
+        my $prof = $odx_profiles{$odx_profile};
+        $lsttbl->delete(0, 'end');
+       info2 "Connect to $prof->{server} using $prof->{username}/$prof->{password}";
+        my $h = ora_connect($prof->{server}, $prof->{username}, $prof->{password});
+       info2 "Get tables...";
+        my @tab = ora_tab($h);
+       info2 "Disconnect $prof->{server}";
+        ora_disconnect $h;
+        $lsttbl->insert('end', $_) for @tab;
+    });
+
+    $btnAddProf->configure(-command => sub {
+        my %prof = (name=>'', server=>'', username=>'system', password=>'');
+        modprof($mw, \%prof);
+        return unless $prof{name};
+        info2 "Added a profile: ".Dumper(\%prof);
+        $odx_profiles{$prof{name}} = \%prof;
+        $lstprof->insert('end', $prof{name});
+        modsave;
+    });
+
+    $btnDelProf->configure(-command => sub {
+        my $name = $lstprof->get('active');
+        if ($name) {
+            delete $odx_profiles{$name};
+            $lstprof->delete('active');
+            modsave;
+        }
+    });
+
+    $btnExport->configure(-command => sub {
+        my $prof = $odx_profiles{$odx_profile};
+        my @tables;
+        for ($lsttbl->curselection) {
+            my $table = $lsttbl->get($_);
+            push @tables, $table;
+        }
+        my $store = path_join($odx_xhome, "$odx_curstore");
+        if (! open(LST, ">$store.lst")) {
+            msgbox("can't write to $store.lst");
+            return -1;
+        }
+        print LST join("\n", @tables);
+        close LST;
+        modexp($prof, \@tables, "$store.dat");
+    });
+
+    $btnImport->configure(-command => sub {
+        my $prof = $odx_profiles{$odx_profile};
+        my $store = path_join($odx_xhome, "$odx_curstore");
+        if (! -f "$store.lst") {
+            msgbox("empty store");
+            return 0;
+        }
+        if (! open(LST, "<$store.lst")) {
+            msgbox("can't read from $store.lst");
+            return -1;
+        }
+        my @tables = <LST>;
+        close LST;
+        modimp($prof, \@tables, "$store.dat");
+    });
+
+    # Load profiles
+    my $profiles = $REG_ODX->{'profiles'} || '$VAR1 = {};';
+    $profiles = eval('my '. $profiles);
+    info2 "Saved profiles: " . Dumper($profiles);
+    %odx_profiles = %$profiles;
+    for (keys %odx_profiles) {
+        $lstprof->insert('end', $_);
+    }
+
+    # Load stores in xhome
+    # my $dh = new DirHandle($odx_xhome);
+    # my @dats = $dh->read;
+    for (my $i = 0; $i < 10; $i++) {
+        my $sel = $fbsels->Radiobutton(
+            -value      => $i,
+            -justify    => 'left',
+            -relief     => 'groove',
+            -indicatoron=> 0,
+            -text       => "Store.$i",
+            -state      => 'normal',
+            -variable   => \$odx_curstore,
+            -command    => sub {
+                info2 "Store changed to: $odx_curstore";
+            })->pack(-side=>'left');
+    }
+
+}
+
+sub modsave {
+    $REG_ODX->{'profiles'} = Dumper(\%odx_profiles);
+}
+
+sub modprof {
+    my ($mw, $prof) = @_;
+    my %prof = %$prof;
+    my $name = $prof{name};
+    my $server = $prof{server};
+    my $username = $prof{username};
+    my $password = $prof{password};
+
+    my @tnsnames = ora_tnsnames;
+
+    my $dlg = $mw->Toplevel(-title => 'Profile Settings');
+
+    my $labName = $dlg->Label(-anchor=>'w', -underline=>0, -justify=>'left', -text=>'Name')->grid(-row=>0, -column=>0);
+    my $entName = $dlg->Entry(-textvariable=>\$name, -justify=>'left')->grid(-row=>0, -column=>1);
+    my $labServer = $dlg->Label(-anchor=>'w', -underline=>0, -justify=>'left', -text=>'Server')->grid(-row=>1, -column=>0);
+    my $entServer = $dlg->BrowseEntry(-choices=>\@tnsnames, -textvariable=>\$server, -justify=>'left')->grid(-row=>1, -column=>1);
+    my $labUsername = $dlg->Label(-underline=>0, -justify=>'left', -text=>'Username')->grid(-row=>2, -column=>0);
+    my $entUsername = $dlg->Entry(-textvariable=>\$username, -justify=>'left')->grid(-row=>2, -column=>1);
+    my $labPassword = $dlg->Label(-underline=>0, -justify=>'left', -text=>'Password')->grid(-row=>3, -column=>0);
+    my $entPassword = $dlg->Entry(-textvariable=>\$password, -justify=>'left')->grid(-row=>3, -column=>1);
+    my $fctrl = $dlg->Frame()->grid(-row=>4, -columnspan=>2, -column=>0);
+    my $btnOK = $fctrl->Button(-underline=>0, -text=>'OK', -compound=>'left', -bitmap=>'warning', -padx=>4)->pack(-ipadx=>4, -side=>'left', -padx=>4);
+    my $btnCancel = $fctrl->Button(-underline=>0, -text=>'Cancel', -compound=>'left', -bitmap=>'error', -padx=>4)->pack(-ipadx=>4, -side=>'left', -padx=>4);
+
+    $entServer->configure(-browsecmd => sub {
+        my ($w, $text) = @_;
+        $name = $text;
+    });
+
+    $btnOK->configure(-command => sub {
+        $prof->{name} = $name;
+        $prof->{server} = $server;
+        $prof->{username} = $username;
+        $prof->{password} = $password;
+        $dlg->destroy;
+    });
+
+    $btnCancel->configure(-command => sub {
+        $dlg->destroy;
+    });
+
+    $dlg->grab;
+    $dlg->waitWindow;
+    return $prof;
+}
+
+sub modexp {
+    my ($prof, $tables, $dat) = @_;
+    my $cn = "$prof->{username}/$prof->{password}\@$prof->{server}";
+    my $exp_bin = path_join(ora_home, 'bin/exp.exe');
+    my $cmd;
+    info2 "exp_bin = $exp_bin";
+
+    my $par = temp_path('modexp.par');
+    if (! open(PAR, ">$par")) {
+        msgbox "Can't write to $par";
+        return 0;
+    }
+    print PAR "FILE=$dat\n";
+    print PAR "TABLES=(\n" . join("\n", @$tables) . "\n)\n";
+    close PAR;
+    $cmd = "$exp_bin $cn parfile=$par";
+    modexec("Exporting to store $odx_curstore",
+            $cmd, $mw,
+            's/^.*table\s+\"?(\w+)\"?\s+(\d+).*$/Table $1: $2 rows exported/');
+}
+
+sub modimp {
+    my ($prof, $tables, $dat) = @_;
+    my $cn = "$prof->{username}/$prof->{password}\@$prof->{server}";
+    my $sql_bin = path_join(ora_home, 'bin/sqlplus.exe');
+    my $imp_bin = path_join(ora_home, 'bin/imp.exe');
+    my $cmd;
+    info2 "sql_bin = $sql_bin";
+    info2 "imp_bin = $imp_bin";
+
+    my $drop_sql = temp_path('drops.sql');
+    if (! open(DROP, ">$drop_sql")) {
+        msgbox "Can't write to $drop_sql";
+        return -1;
+    }
+    print DROP "exec bakref; \n";       # disable all foreign keys
+    for (@$tables) {
+        print DROP "drop table $_; \n";
+    }
+    print DROP "commit; \n";
+    print DROP "exit; \n";
+    print DROP "exec rstref; \n";       # restore all foreign keys
+    close DROP;
+    $cmd = "$sql_bin $cn \@$drop_sql";
+    modexec('Removing existing tables',
+            $cmd, $mw);
+
+    my $par = temp_path('modimp.par');
+    if (! open(PAR, ">$par")) {
+        msgbox "Can't write to $par";
+        return -1;
+    }
+    print PAR "FILE=$dat\n";
+    print PAR "TABLES=(\n" . join("\n", @$tables) . "\n)\n";
+    close PAR;
+    $cmd = "$imp_bin $cn parfile=$par";
+    modexec("Importing from store $odx_curstore",
+            $cmd, $mw,
+            's/^.*table\s+\"?(\w+)\"?\s+(\d+).*$/Table $1: $2 rows imported/');
+}
+
+sub modexec {
+    return unless modreq;
+
+    my ($title, $cmd, $mw, $proc) = @_;
+    info2 "exec $cmd";
+    # . . exporting table     NAME nnn rows exported
+    my @args = ('execgui',
+                '--verbose',
+                '--err2out',
+                '--eventmode=100',
+                '--slowdown=0.01',
+                "--title=\"$title\"",
+                );
+    push(@args, "--autoclose=$opt_autoclose") if $opt_autoclose;
+    push(@args, "--process=\"$proc\"") if $proc;
+    push(@args, $cmd);
+    my $cmdline = join(' ', @args);
+    info2 "system $cmdline";
+    system $cmdline;
+    return 1;
+    ##################################################
+
+    my $out_read;
+    my $pid = open($out_read, "$cmd|");
+    unless ($pid) {
+        msgbox "Can't open command for pipe-in read";
+        return 0;
+    }
+    mon_fdout($out_read, $mw,
+              -proc => \&modproc,
+              -slowdown => .01,
+              -eventmode => 100,
+              );
+    close $out_read;
+    waitpid $pid, 0;
+    return 1;
+}
+
+sub modreq {
+    my $resp = `ping -n 1 80.32.48.184`;
+    my ($sent, $recv, $lost) =
+        $resp =~ /sent = (\d+), received = (\d+), lost = (\d+)/si;
+    info "resp: sent=$sent, recv=$recv, lost=$lost";
+    return 1 if $recv > 0;
+    msgbox("prerequisition not fulfilled.");
+    return 0;
+}
+
+__END__
+:end

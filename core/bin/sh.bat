@@ -3,6 +3,5 @@ rem login lenik
 
 set HOME=/home/lenik
 
-B:
-cd \
+cd /d B:\
 bash

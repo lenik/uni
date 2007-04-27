@@ -1,0 +1,213 @@
+#!perl
+
+use strict;
+use cmt::util;
+use cmt::vcs;
+use cmt::guiutil;
+use Getopt::Long;
+use IO::Handle;
+use IPC::Open2;
+use IPC::Open3;
+# use Data::Dumper;
+
+sub boot;
+sub main;
+sub process;
+
+sub info;
+sub info2;
+sub version;
+sub help;
+
+our $opt_verbtitle      = 'execgui';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_title          = $opt_verbtitle;
+our $opt_open           = 1;            # 1=open, 2=open2, 3=open3
+our $opt_autoclose;
+our $opt_err2out        = 0;            # 2>&1
+our $opt_eventmode      = 100;          # fileevent, idle, or repeat(ms)
+our $opt_slowdown       = 0.0001;       # sleep seconds for each line
+our $opt_timeout        = 0.00015;      # timeout when (block) reading buffer
+our $opt_refresh        = 1;            # how many lines to refresh screen
+our $opt_cancel         = 0;
+our $opt_hide           = 1;
+our $opt_status;
+our $opt_info           = 1;
+our $opt_dir;                           # exec in directory
+our $opt_read_from;                     # TODO
+our $opt_write_to;                      # TODO
+our $opt_process;
+our @opt_cmdline;
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'title|t=s',
+               'open=s',
+               'autoclose=n',
+               'err2out!',              # no-err2out
+               'eventmode=s',
+               'slowdown|s=s',
+               'timeout=s',
+               'refresh=n',
+               'cancel!',               # no-cancel
+               'hide!',                 # no-hide
+               'status=s',
+               'info!',                 # no-info to disable
+               'dir=s',
+               'read-from=s',
+               'write-to=s',
+               'process=s',             # process script, or @script-file
+               );
+    if ($opt_eventmode !~ /^fileevent|idle|(\d+)$/) {
+        die("Invalid eventmode: $opt_eventmode");
+    };
+
+    $opt_open =~ s/^open\b//;
+    $opt_open = 1 if $opt_open eq '';
+    if ($opt_open !~ m/^\d+$/) {
+        die("Invalid open-mode: $opt_open");
+    }
+
+    if (1*$opt_slowdown != $opt_slowdown) {
+        die("Invalid slowdown format: $opt_slowdown");
+    }
+
+    if (1*$opt_timeout != $opt_timeout) {
+        die("Invalid timeout format: $opt_timeout");
+    }
+
+    @opt_cmdline = @ARGV;
+    @ARGV = ();
+    if (! @opt_cmdline) {
+        die("No command to execute");
+    }
+
+    if ($opt_process =~ s/^\@//) {
+        open(PF, "<$opt_process")
+            or die("Can't open script file $opt_process");
+        my @lines = <$opt_process>;
+        my $script = join('', @lines);
+        $opt_process = $script;
+    }
+    info "process-script: $opt_process" if $opt_process;
+
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: execgui,v 1.1 2007-04-27 13:51:11 lenik Exp $');
+    print "[$opt_verbtitle] Perl simple cli program template\n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> ...
+
+Options:
+        --quiet (q)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
+        --help (h)
+EOM
+}
+
+boot;
+
+sub quote_args {
+    my $args = shift;
+    for (my $i = 0; $i < length(@$args); $i++) {
+        my $arg = $args->[$i];
+
+        # already quoted
+        next if ($arg =~ m/^\".*\"$/);
+
+        my $touch = 0;
+        $touch += $arg =~ s/\\/\\\\/g;  # \ => \\
+        $touch += $arg =~ s/\"/\"\"/g;  # " => \"
+        $touch += $arg =~ m/\s/;        # has space
+        if ($touch) {
+            $args->[$i] = "\"$args\"";
+        }
+    }
+}
+
+sub main {
+    my %cfg = (-title => $opt_title,
+               -eventmode => $opt_eventmode,
+               -slowdown => $opt_slowdown,
+               -timeout => $opt_timeout,
+               -refresh => $opt_refresh,
+               -cancel => $opt_cancel,
+               -hide => $opt_hide,
+               -status => $opt_status,
+               -displayinfo => $opt_info,
+               -process => $opt_process ? \&process : undef,
+               -endtext => '(done)',
+               -autoclose => $opt_autoclose,
+               -verbose => $opt_verbose,
+               );
+    my @cmdline_quoted = @opt_cmdline;
+    quote_args \@cmdline_quoted;
+    my $cmdline = join(' ', @cmdline_quoted);
+    info2 "cmdline: ".join(' | ', @opt_cmdline);
+    info2 "cmdline-quoted: $cmdline";
+
+    if ($opt_dir) {
+        chdir($opt_dir) or die("Can't change directory to $opt_dir");
+    }
+
+    my ($in_write, $out_read, $err_read);
+    my ($pid);
+    if ($opt_open == 1) {
+        $cmdline .= ' 2>&1' if $opt_err2out;
+        $pid = open($out_read, "$cmdline |");
+    } elsif ($opt_open = 2) {
+        $cmdline .= ' 2>&1' if $opt_err2out;
+        $pid = open($out_read, $in_write, @opt_cmdline);
+    } elsif ($opt_open = 3) {
+        # if opt_err2out ...
+        $pid = open($in_write, $out_read, $err_read, @opt_cmdline);
+    }
+    die("Can't open($opt_open) program to be executed") unless $pid;
+
+    # only open(1) is supported.
+    mon_fdout($out_read, undef, %cfg);
+
+    if ($opt_open == 1) {
+        close $out_read;
+    } else {
+        # don't have to close handles in open2, open3 ?
+    }
+
+    info2 "waitpid($pid, 0)";
+    waitpid $pid, 0;
+}
+
+sub process {
+    local ($_) = shift;
+    my $ret = eval($opt_process);
+    return undef unless $ret;
+    return $_;
+}

@@ -1,0 +1,246 @@
+#!perl
+
+use strict;
+use cmt::util;
+use cmt::vcs;
+use cmt::codec;
+use Crypt::DES;
+use Crypt::CBC;
+use Digest::MD5 qw/md5 md5_hex md5_base64/;
+use Digest::SHA1 qw/sha1 sha1_hex sha1_base64/;
+use Getopt::Long;
+use MIME::Base64;
+
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
+sub list_functions;
+sub get_func;
+sub get_src;
+sub get_stdin_src;
+sub concat;
+sub base64;
+sub md5;
+sub sha1;
+
+our $opt_verbtitle      = 'hackdict';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_passwd_file;
+our $opt_combine_func   = 'concat';
+our $opt_test_func      = 'md5,encode_base64';
+our @opt_dicts;
+our @opt_filters;
+
+our @DICT;
+our @FILTER;
+our $PASSWD;                            # passwd src
+our @PASSWD;                            # cached passwd list
+our $combinef;
+our $testf;
+
+# our (@D, @E, @F, @G, @H, @I, @J, @K, @L, @M, @N, @O, @P, @Q, @R);
+our ($d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $q, $r);
+our ($x, $y);
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'list-functions|l' => sub { list_functions; exit },
+               'passwd-file|f=s',
+               'combine-func|c=s',
+               'test-func|t=s',
+               );
+    if ($opt_passwd_file) {
+        $PASSWD = get_src($opt_passwd_file);
+    } else {
+        $PASSWD = get_stdin_src;
+    }
+    for (@ARGV) {
+        my ($src, $func) = split('%%', $_);
+        $src = get_src($src);
+        push @opt_dicts, $path;
+        push @opt_filters, $func;
+        push @DICT, $src;
+        push @FILTER, get_func($f);
+    }
+    $combinef = get_func($opt_combine_func);
+    $testf = get_func($opt_test_func);
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: hackdict,v 1.1 2007-04-27 13:51:11 lenik Exp $');
+    print "[$opt_verbtitle] Perl simple cli program template\n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> [dict1 [dict2 ...]] < passwd_file
+
+Options:
+        --quiet (q)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
+        --help (h)
+        --passwd-file=<path> (f, default STDIN)
+        --combine-func=<func> (c, default strcat)
+        --test-func=<func> (t, default md5,encode_base64)
+        --list-functions (l)
+
+Grammer:
+        dict ::= path [ '%%' filter-func ]
+        passwd_file ::= { passwd_line '\n' }
+        passwd_line ::= id ':' passwd [ ':' .* $ ]
+            (The field delimiter is set by regex ^\w+(.), for each line)
+        func ::= sub_func | ref_func
+        sub_func ::= 'sub{' func_body '}'
+        ref_func ::= \w+ { ',' \w+ }
+
+Variables:
+        @D($d) = dict1 (current-entry of dict1)
+        @E($e) = dict2 (current-entry of dict2)
+        ... (@D, @E, @F, ... isn\'ot supported in current version)
+
+        @FILTER = filter of each dict
+        @PASSWD ($passwd) = passwd (current-entry of passwd)
+EOM
+}
+
+sub list_functions {
+    print <<"EOM";
+        encode_base64 decode_base64
+        md5 md5_hex md5_base64
+        sha1 sha1_hex sha1_base64
+EOM
+}
+
+boot;
+
+sub main {
+    @D, @E, @F, ... => 1.dic, 2.dic, 3.dic
+    @PASSWD = passwd
+    for $d (@D) {
+        $d = &$FILTER[0]($d); next unless $d;
+        for $e (@E) {
+            $e = &$FILTER[1]($e); next unless $e;
+            for $f (@F) {
+                $f = &$FILTER[2]($f); next unless $f;
+                ...
+                $x = combine($d, $e, $f, ...);
+                for $y (@PASSWD) {
+                    if test($x, $y) {
+                        # FIND 1
+                    }
+                }
+            }}}
+    info "TODO...";
+}
+
+sub get_func {
+    my $text = shift;
+    my $func;
+    if ($text =~ m/^\w+$/) {
+        # func-ref
+        $func = eval("\&$text") or
+            die("Bad func-ref: $text");
+    } elsif ($text =~ m/^\w+(,\w+)+$/) {
+        # func-ref chained
+        my @ts = split(',', $text);
+        my @fs;
+        push @fs, get_func($_) for @ts;
+        $func = sub {
+            my $in = shift;
+            $in = \&$_($in) for @fs;
+            return $in;
+        };
+    } else {
+        # func-def
+        $func = eval('\\'.$text) or
+            die("Invalid func-def: $text");
+    }
+    return $func;
+}
+
+sub get_src {
+    my $src = shift;
+    if ($src =~ /^(\d+):/) {
+        # generated dict
+        die("Unsupported now");
+    } else {
+        die("File not existed: $src") unless -e $src;
+        $src = (
+                    'reset' => sub {
+            my $self = shift;
+            close $self->{h} if $self->(h);
+            open($self->{h}, $self->{path})
+                or die("Can't open file $self->{path}"); },
+                    'read' => sub {
+                        my $self = shift;
+                        <$self->{h}>; }
+                    'path' => $src,
+                    );
+    }
+    return $src;
+}
+
+sub get_stdin_src {
+    return ('read' = sub { <STDIN> },
+            'close' = sub {},
+            );
+}
+
+sub concat {
+    my ($a, $b) = @_;
+    $a.$b;
+}
+
+sub md5 {
+    my $text = shift;
+}
+
+sub sha1 {
+    my $text = shift;
+}
+
+__END__
+hackdict 1.dic 2.dic 3.dic <passwd
+    @D, @E, @F, ... => 1.dic, 2.dic, 3.dic
+    @PASSWD = passwd
+    for $d (@D) {
+        $d = &$FILTER[0]($d); next unless $d;
+        for $e (@E) {
+            $e = &$FILTER[1]($e); next unless $e;
+            for $f (@F) {
+                $f = &$FILTER[2]($f); next unless $f;
+                ...
+                $x = combine($d, $e, $f, ...);
+                for $y (@PASSWD) {
+                    if test($x, $y) {
+                        # FIND 1
+                    }
+                }
+            }}}

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+X=${RANDOM:0,3}
+
+while [ ! "$X" = "$Y" ]; do
+    read -p "Guess?" Y
+    if [ "$Y" -gt "$X" ]; then echo Too large!; fi
+    if [ "$Y" -lt "$X" ]; then echo Too small!; fi
+done
+
+echo Good job!

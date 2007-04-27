@@ -1,0 +1,8 @@
+#!/bin/bash
+
+case "$OS" in
+    Windows_NT)
+        rpath.bat $* ;;
+    *)
+        readlink -f $* ;;
+esac

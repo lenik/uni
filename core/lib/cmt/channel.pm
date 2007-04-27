@@ -1,4 +1,3 @@
-
 package cmt::channel;
 
 use strict;
