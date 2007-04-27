@@ -19,7 +19,7 @@
 
     rem ######################################################################
     rem #        LIBSTR - String Library for Batch Script (Windows NT)
-    rem # Version:  $Id: libstr.bat,v 1.3 2004-11-30 05:40:16 dansei Exp $
+    rem # Version:  $Id: libstr.bat,v 1.4 2007-04-27 13:44:04 lenik Exp $
     rem # Notice:   You shall remove the $ in comments in your function copy
     rem # Notice:   You can use characters ' " % ! < > | & in the string* type
     rem #
@@ -34,6 +34,8 @@
     rem #     st/sn sl  String Starts-With
     rem #     se/sn sr  String Ends-With
     rem #     ss        String Substitute
+    rem #     uc        String toUpperCase
+    rem #     lc        String toLowerCase
     rem #     pj        Path Join
     rem # --------------------------------------------------------------------
 
@@ -41,7 +43,7 @@
     rem ######################################################################
     rem # Function: String Length
     rem # Synopsis: sn(string str)
-    rem #$Revision: 1.3 $
+    rem #$Revision: 1.4 $
 :sn
     set _ret=0
     set _sn_str=%~1
@@ -57,7 +59,7 @@
     rem ######################################################################
     rem # Function: String Left
     rem # Synopsis: sl(string str, int chars)
-    rem #$Revision: 1.3 $
+    rem #$Revision: 1.4 $
 :sl
     set _ret=
     set _sl_str=%~1
@@ -78,7 +80,7 @@
     rem ######################################################################
     rem # Function: String Right
     rem # Synopsis: sr(string str, int chars)
-    rem #$Revision: 1.3 $
+    rem #$Revision: 1.4 $
 :sr
     set _ret=
     set _sr_str=%~1
@@ -99,7 +101,7 @@
     rem ######################################################################
     rem # Function: Substring
     rem # Synopsis: sb(string str, int start, int length)
-    rem #$Revision: 1.3 $
+    rem #$Revision: 1.4 $
 :sb
     set _sb_str=%~1
     set /a _sb_i=%~2
@@ -119,7 +121,7 @@
     rem ######################################################################
     rem # Function: String Repeat
     rem # Synopsis: sx(string str, int times, string delim)
-    rem #$Revision: 1.3 $
+    rem #$Revision: 1.4 $
 :sx
     set _ret=
     set _sx_str=%~1
@@ -142,7 +144,7 @@
     rem ######################################################################
     rem # Function: String Index (Find)
     rem # Synopsis: si(string str, string sub-str)
-    rem #$Revision: 1.3 $
+    rem #$Revision: 1.4 $
 :si
     set _si_t=%~1
     set _si_pat=%~2
@@ -175,7 +177,7 @@
     rem ######################################################################
     rem # Function: String Starts-With
     rem # Synopsis: st(string str, string prefix)
-    rem #$Revision: 1.3 $
+    rem #$Revision: 1.4 $
 :st
     set _st_str=%~1
     set _st_pat=%~2
@@ -197,7 +199,7 @@
     rem ######################################################################
     rem # Function: String Ends-With
     rem # Synopsis: se(string str, string suffix)
-    rem #$Revision: 1.3 $
+    rem #$Revision: 1.4 $
 :se
     set _se_str=%~1
     set _se_pat=%~2
@@ -219,7 +221,7 @@
     rem ######################################################################
     rem # Function: String Substitute
     rem # Synopsis: ss(string str, char source, string target)
-    rem #$Revision: 1.3 $
+    rem #$Revision: 1.4 $
 :ss
     set _ss_src=%~1
     set _ss_from=%~2
@@ -244,10 +246,42 @@
 
 
     rem ######################################################################
+    rem # Function: String toUpperCase
+    rem # Synopsis: uc(string str)
+    rem #$Revision: 1.4 $
+:uc
+    echo %~1| tr a-z A-Z >%TMP%\libst_uc.tmp
+    for /f "delims=^^" %%i in (%TMP%\libst_uc.tmp) do (
+        set _ret=%%i
+        goto uc_x
+    )
+    goto uc_x
+:uc_x
+    del %TMP%\libst_uc.tmp >nul 2>nul
+    goto end
+
+
+    rem ######################################################################
+    rem # Function: String toLowerCase
+    rem # Synopsis: lc(string str)
+    rem #$Revision: 1.4 $
+:lc
+    echo %~1| tr A-Z a-z >%TMP%\libst_lc.tmp
+    for /f "delims=^^" %%i in (%TMP%\libst_lc.tmp) do (
+        set _ret=%%i
+        goto lc_x
+    )
+    goto lc_x
+:lc_x
+    del %TMP%\libst_lc.tmp >nul 2>nul
+    goto end
+
+
+    rem ######################################################################
     rem # Function: Path Join
     rem # Synopsis: pj(string path1, string path2)
     rem # Return:   path1\path2 (with no trialing slash)
-    rem #$Revision: 1.3 $
+    rem #$Revision: 1.4 $
 :pj
     set _ret=%~2
     if "%_ret:~1,1%"==":" goto pj_x
