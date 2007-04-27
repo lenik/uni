@@ -5,7 +5,7 @@ use strict;
 use Exporter;
 #use os-portable
 use vars qw/@ISA @EXPORT/;
-
+use Win32::API;
 
 sub escape {
     my $str = shift;
@@ -88,7 +88,6 @@ sub msgbox {
 
     return $msgbox_ids[$id];
 }
-
 
 @ISA = qw(Exporter);
 @EXPORT = qw(

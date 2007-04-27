@@ -1,0 +1,290 @@
+#!perl
+
+use strict;
+use cmt::util;
+use cmt::vcs;
+use Getopt::Long;
+use Data::Dumper;
+# use cmt::msc;
+use cmt::winuser;
+use cmt::path;
+
+sub boot;
+sub info;
+sub info2;
+sub version;
+sub help;
+
+sub init;
+sub main;
+
+our $opt_verbtitle      = 'wm';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_tree           = 0;
+our @opt_hwnd;
+our @opt_match;
+our $opt_ignore_case    = 0;
+our $opt_sw;
+our $opt_recursive      = 0;
+our $opt_restore        = 0;
+
+sub init {
+    sub GW_HWNDFIRST        { 0 }
+    sub GW_HWNDLAST         { 1 }
+    sub GW_HWNDNEXT         { 2 }
+    sub GW_HWNDPREV         { 3 }
+    sub GW_OWNER            { 4 }
+    sub GW_CHILD            { 5 }
+
+    sub SW_HIDE             { 0 }
+    sub SW_SHOWNORMAL       { 1 }
+    sub SW_NORMAL           { 1 }
+    sub SW_SHOWMINIMIZED    { 2 }
+    sub SW_SHOWMAXIMIZED    { 3 }
+    sub SW_MAXIMIZE         { 3 }
+    sub SW_SHOWNOACTIVATE   { 4 }
+    sub SW_SHOW             { 5 }
+    sub SW_MINIMIZE         { 6 }
+    sub SW_SHOWMINNOACTIVE  { 7 }
+    sub SW_SHOWNA           { 8 }
+    sub SW_RESTORE          { 9 }
+    sub SW_SHOWDEFAULT      { 10 }
+    sub SW_FORCEMINIMIZE    { 11 }
+
+    Win32::API->Import('user32', 'HWND GetDesktopWindow()');
+    Win32::API->Import('user32', 'HWND GetTopWindow(HWND hWnd)');
+
+    Win32::API->Import('user32', 'HWND GetWindow(HWND hWnd, UINT uCmd)');
+
+    # these can't get the active console window
+    # GetActiveWindow
+    # GetFocus
+
+    Win32::API->Import('kernel32', 'GetConsoleTitle', 'PN', 'N'); #(LPTSTR lpTitle, DWORD nSize)');
+
+    Win32::API->Import('user32', 'BOOL ShowWindow(HWND hWnd, UINT nCmdShow)');
+
+    Win32::API->Import('user32', 'int GetWindowTextLength(HWND hWnd)');
+    Win32::API->Import('user32', 'GetWindowText', 'NPN', 'N'); #(HWND hWnd, LPTSTR lpString, int nMaxCount)');
+}
+
+sub boot {
+    init;
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help'       => sub { help; exit },
+               'tree|t',
+               'hwnd|h',
+               'match|m',
+               'ignore-case|i',
+               'hide'       => sub { $opt_sw = SW_HIDE },
+               'show'       => sub { $opt_sw = SW_SHOW },
+               'sw=n',
+               'recursive|r',
+               'restore',
+               );
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: wm,v 1.1 2007-04-27 13:33:54 lenik Exp $');
+    print "[$opt_verbtitle] Windows Manager\n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> ...
+
+Options:
+        --tree (t, list windows tree)
+        --hwnd (h, add an HWND to manage-list)
+        --match (m, add matched windows to manage-list)
+        --ignore-case (i, match ignore case)
+        --hide (hide the window list)
+        --show (show the window list)
+        --sw=<number> (show the window list in specified mode)
+        --restore (restore last window list)
+        --quiet (q)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
+        --help
+EOM
+}
+
+# return  children: { hwnd -> tree }
+sub build_tree {
+    my $parent = shift;
+    my %children;
+    my $child = GetWindow($parent, GW_CHILD);
+    while ($child) {
+        my $ctree = $opt_recursive ? build_tree($child) : undef;
+        if ($ctree) {
+            $children{$child} = $ctree;
+        } else {
+            $children{$child} = undef;
+        }
+        $child = GetWindow($child, GW_HWNDNEXT);
+    }
+    if (%children) {
+        return \%children;
+    }
+}
+
+sub get_text {
+    my $hwnd = shift;
+    my $len = GetWindowTextLength($hwnd) + 10;
+    my $buf = ' ' x $len;
+    $len = GetWindowText($hwnd, $buf, $len);
+    return substr($buf, 0, $len);
+}
+
+sub dump_tree {
+    my ($tree, $tab, $indent, $output) = @_;
+    for my $hwnd (keys %$tree) {
+        my $text = get_text($hwnd);
+        my $line = sprintf("$indent%08x - %s", $hwnd, $text);
+        if (defined $output) {
+            push @$output, $line;
+        } else {
+            print $line."\n";
+        }
+
+        my $ctree = $tree->{$hwnd};
+        if (defined $ctree) {
+            dump_tree($ctree, $tab, $tab.$indent, $output);
+        }
+    }
+}
+
+our $TREE;
+our $FLAT = [];
+our @opt_list;
+
+sub streq {
+    my ($a, $b) = @_;
+    if ($opt_ignore_case) {
+        return lc($a) eq lc($b);
+    }
+    return $a eq $b;
+}
+
+sub strstr {
+    my ($a, $b) = @_;
+    if ($opt_ignore_case) {
+        return index(lc($a), lc($b));
+    }
+    return index($a, $b);
+}
+
+sub match {
+    my $pattern = shift;
+    my @list;
+    my @consoles = grep { strstr($_, $pattern) >= 0 } @$FLAT;
+    for (@consoles) {
+        my $hwnd_hex = substr($_, 0, 8);
+        my $hwnd = hex($hwnd_hex);
+        push @list, $hwnd;
+    }
+    return @list;
+}
+
+sub in_list {
+    my ($e, @list) = @_;
+    my @matches = grep { streq($_, $e) } @list;
+    return scalar(@matches) > 0;
+}
+
+sub main {
+
+    my $path_dump = temp_path('wm_last.lst');
+
+    my $req_tree = 1; # $opt_tree
+    if ($req_tree) {
+        info2 "Building windows tree...";
+        my $desk = GetDesktopWindow();
+        $TREE = build_tree $desk;
+    }
+
+    dump_tree($TREE, '', '', $FLAT);
+    dump_tree $TREE if $opt_tree;
+
+    my @consoles;
+    my $console1;
+    {
+        my $buf = ' ' x 1000;
+        my $len = GetConsoleTitle($buf, 1000);
+        my $cap = substr($buf, 0, $len);
+        info2 "Console Title: $cap";
+
+        @consoles = match($cap); #GetActiveWindow();
+        $console1 = $consoles[0];
+    }
+
+    if (@ARGV) {
+        my $is_cap = shift @ARGV;
+        my $is_hwnd = 1 * $is_cap;
+        if (get_text($is_hwnd) eq '') {
+            my @matches = match($is_cap);
+            # remove console from @matches
+            @matches = grep { not in_list($_, @consoles) } @matches;
+            push @opt_list, @matches;
+        } else {
+            push @opt_list, $is_hwnd;
+        }
+    } else {
+        if (scalar(@consoles) > 1) {
+            info "Warning: multiple console with the same title";
+        }
+        info2 "Use Active Window: $console1";
+        push @opt_list, $console1;
+    }
+
+    if ($opt_restore) {
+        open(DUMP, "<$path_dump")
+            or die "Can't open last-list ($path_dump)";
+        my @lines = <DUMP>;
+        my $script = join('', @lines);
+        $script =~ s/^\s* \$\w+ \s* = //x;
+        my $val = eval($script);
+        close DUMP;
+        @opt_list = @$val;
+        $opt_sw = SW_SHOW;
+    }
+
+    info2 "dump last-list to $path_dump: \n" . Dumper(\@opt_list);
+    if (open(DUMP, ">$path_dump")) {
+        print DUMP Dumper(\@opt_list);
+        close DUMP;
+    }
+
+    if (defined $opt_sw) {
+        for (@opt_list) {
+            my $t = get_text($_);
+            info "ShowWindow($opt_sw): $t";
+            ShowWindow($_, $opt_sw);
+        }
+    }
+
+}
+
+boot;
