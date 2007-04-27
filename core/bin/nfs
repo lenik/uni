@@ -11,7 +11,7 @@ use cmt::util;
 
 
 our $nfs_appname = 'NFS Version 2';
-our %nfs_id = parse_id('$Id: nfs,v 1.22 2006-12-23 01:25:06 lenik Exp $');
+our %nfs_id = parse_id('$Id: nfs,v 1.23 2007-04-27 13:31:59 lenik Exp $');
 
 our %nfs_filetype = (
     ''      => 'ue "%s"',                   # default
@@ -628,6 +628,7 @@ sub expand_symbolic_link {
 
         if (not -e $path and $errmsg) {
             $errmsg = sprintf $errmsg, $path;
+            print($errmsg), exit if $opt_test_only;
             while ('retry' eq
                     msgbox($errmsg, $nfs_appname, 'retry', 'cancel', 'x')) {
                 last if -e $path;
