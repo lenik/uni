@@ -148,6 +148,30 @@ my $opt_verbose = 1;
         # TODO - ...
     }
 
+    my $_TEMP_HOME;
+    sub temp_home {
+        unless (defined $_TEMP_HOME) {
+            my $t = $ENV{'TEMP'};
+            $t = $ENV{'TMP'} if (!$t);
+            if (!$t) {
+                mkdir '/tmp' if (! -e '/tmp');
+                $t = '/tmp';
+            }
+            $t =~ s/[\/\\]$//;
+            $_TEMP_HOME = $t;
+        }
+        return $_TEMP_HOME;
+    }
+
+    sub temp_path {
+        my $name = shift;
+        if ($name) {
+            return temp_home . $charFS . $name;
+        } else {
+            return temp_home;
+        }
+    }
+
 @ISA = qw(Exporter);
 @EXPORT = qw(
 	$charFS
@@ -163,6 +187,7 @@ my $opt_verbose = 1;
 	path_join
 
 	dir_size
+	temp_path
 	);
 
 1;
