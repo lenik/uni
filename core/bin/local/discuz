@@ -358,6 +358,52 @@ sub _Verbose {
 }
 
 
+sub version {
+    my %id = parse_id('$Id: discuz,v 1.10 2007-04-27 13:43:41 lenik Exp $');
+    return %id if wantarray;
+    print <<"EOM";
+[discuz] make story thread at discuz(php) forum
+    written by s.n.m.,  version $id{rev}  last updated $id{date}
+EOM
+}
+
+
+sub help {
+    &version;
+    print <<"EOM";
+
+syntax:
+    discuz [options] <text-file>
+        --server=<server-prefix, e.g. localhost/discuz> (s)
+        --user-agent=<fake name>
+        --cookie=<cookie> [--cookie=...] (c)
+        --username=<username> (u)
+        --password=<password> (p)
+        --forum=<forum-id, or forum-name> (f)
+        --thread=<thread-id to add> (t)
+        --question=<question-id, or question-name> (q)
+        --answer=<answer> (a)
+        --interval=<seconds between thread post> (i)
+        --line-min=<minimum post size> (l)
+        --icon=<icon-id for new thread> (ic)
+        --graphics-user-interface
+        --verbose
+        --version
+        --help (h)
+
+action:
+    uri [??post-params=value [??...]]
+
+uri-expansion:
+    \${input-field}  -> html field of hidden, text
+
+example:
+    discuz -s=www.haining.com.cn/bbs -u=Tommy -p=1234 -f="Love Stories" "Legend of 1900.txt"
+EOM
+}
+
+# TODO...
+__END__
 sub ui_set_options {
     use Tk;
     use Tk::LabEntry;
@@ -405,49 +451,4 @@ sub ui_set_options {
         -text => 'okay',
         -command =>
     MainLoop;
-}
-
-
-sub version {
-    my %id = parse_id('$Id: discuz,v 1.9 2006-11-17 20:28:08 lenik Exp $');
-    return %id if wantarray;
-    print <<"EOM";
-[discuz] make story thread at discuz(php) forum
-    written by s.n.m.,  version $id{rev}  last updated $id{date}
-EOM
-}
-
-
-sub help {
-    &version;
-    print <<"EOM";
-
-syntax:
-    discuz [options] <text-file>
-        --server=<server-prefix, e.g. localhost/discuz> (s)
-        --user-agent=<fake name>
-        --cookie=<cookie> [--cookie=...] (c)
-        --username=<username> (u)
-        --password=<password> (p)
-        --forum=<forum-id, or forum-name> (f)
-        --thread=<thread-id to add> (t)
-        --question=<question-id, or question-name> (q)
-        --answer=<answer> (a)
-        --interval=<seconds between thread post> (i)
-        --line-min=<minimum post size> (l)
-        --icon=<icon-id for new thread> (ic)
-        --graphics-user-interface
-        --verbose
-        --version
-        --help (h)
-
-action:
-    uri [??post-params=value [??...]]
-
-uri-expansion:
-    \${input-field}  -> html field of hidden, text
-
-example:
-    discuz -s=www.haining.com.cn/bbs -u=Tommy -p=1234 -f="Love Stories" "Legend of 1900.txt"
-EOM
 }
