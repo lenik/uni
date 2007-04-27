@@ -1,7 +1,10 @@
-#!perl
+#!/usr/bin/perl -w
 
-# $Id: repl,v 1.10 2006-11-17 20:28:09 lenik Exp $
+# $Id: repl,v 1.11 2007-04-27 13:46:14 lenik Exp $
 # $Log: not supported by cvs2svn $
+# Revision 1.10  2006/11/17 20:28:09  lenik
+# replace #!/usr/bin/perl -> #!perl
+#
 # Revision 1.9  2005/10/21 04:01:26  dansei
 # die if file error
 #
@@ -225,7 +228,7 @@ sub process_file {
 
 
 sub version() {
-    my %id = parse_id('$Id: repl,v 1.10 2006-11-17 20:28:09 lenik Exp $');
+    my %id = parse_id('$Id: repl,v 1.11 2007-04-27 13:46:14 lenik Exp $');
     print "[REPL] Replace files by regular-expression\n";
     print "Written by Snima Denik   Version $id{rev}   Last updated at $id{date}\n";
 }
