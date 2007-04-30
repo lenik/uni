@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/perl
 
 use strict;
 use cmt::util;
@@ -6,21 +6,30 @@ use cmt::vcs;
 use cmt::codec;
 use Crypt::DES;
 use Crypt::CBC;
+use Data::Dumper;
 use Digest::MD5 qw/md5 md5_hex md5_base64/;
 use Digest::SHA1 qw/sha1 sha1_hex sha1_base64/;
+use Encode;
+use Encode::Alias;
+use FileHandle;
 use Getopt::Long;
 use MIME::Base64;
 
 sub boot;
 sub main;
+sub call;
 sub info;
 sub info2;
 sub version;
 sub help;
 sub list_functions;
+sub output_result;
 sub get_func;
 sub get_src;
 sub get_stdin_src;
+sub true;
+sub pass;
+sub equal;
 sub concat;
 sub base64;
 sub md5;
@@ -30,21 +39,29 @@ our $opt_verbtitle      = 'hackdict';
 our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
 our $opt_passwd_file;
+our $opt_encoding       = 'utf-8';      # passwd-file
 our $opt_combine_func   = 'concat';
-our $opt_test_func      = 'md5,encode_base64';
+our $opt_crypt_func     = 'pass';       # md5_base64
+our $opt_test_func      = 'equal';
 our @opt_dicts;
 our @opt_filters;
+our $opt_got_file;
+our $opt_rest_file;
 
 our @DICT;
 our @FILTER;
 our $PASSWD;                            # passwd src
 our @PASSWD;                            # cached passwd list
-our $combinef;
-our $testf;
+our $combinef;                          # (part1, part2): combined
+our $cryptf;                            # (data): crypted-data
+our $testf;                             # (cat', pwd, cat, %pwd): bool
+our $got_file;
+our $rest_file;
 
 # our (@D, @E, @F, @G, @H, @I, @J, @K, @L, @M, @N, @O, @P, @Q, @R);
+our ($D, $E, $F, $G, $H, $I, $J, $K, $L, $M, $N, $O, $P, $Q, $R); # %$ref
 our ($d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $q, $r);
-our ($x, $y);
+our ($tt, $x, $y);
 
 sub boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
@@ -54,24 +71,46 @@ sub boot {
                'list-functions|l' => sub { list_functions; exit },
                'passwd-file|f=s',
                'combine-func|c=s',
+               'crypt-func|k=s',
                'test-func|t=s',
                );
     if ($opt_passwd_file) {
-        $PASSWD = get_src($opt_passwd_file);
+        $PASSWD = get_src('passwd', $opt_passwd_file);
+        $opt_got_file = "$opt_passwd_file.got";
+        $opt_rest_file = "$opt_passwd_file.rest";
     } else {
         $PASSWD = get_stdin_src;
+        $opt_got_file = "passwd.got";
+        $opt_rest_file = "passwd.rest";
     }
+
+    my $Dref = ord('D');
     for (@ARGV) {
-        my ($src, $func) = split('%%', $_);
-        $src = get_src($src);
+        my ($path, $func) = split('%%', $_);
+        my $src = get_src("dict $_", $path);
         push @opt_dicts, $path;
         push @opt_filters, $func;
         push @DICT, $src;
-        push @FILTER, get_func($f);
+        my $Drefv = eval('\\$'.chr($Dref++));
+        $$Drefv = $src;
+        my $filter = \&true;
+        $filter = get_func("filter $_", $func) if $func;
+        push @FILTER, $filter;
     }
-    $combinef = get_func($opt_combine_func);
-    $testf = get_func($opt_test_func);
+    $combinef = get_func('combinef', $opt_combine_func);
+    $cryptf = get_func('cryptf', $opt_crypt_func);
+    $testf = get_func('testf', $opt_test_func);
+
+    $| = 1;
     main;
+}
+
+sub call {
+    my $obj = shift;
+    my $mtd = shift;
+    die "Invalid call: $obj->$mtd" unless ref($obj) eq 'HASH';
+    my $f = $obj->{$mtd};
+    &$f($obj, @_);
 }
 
 sub info {
@@ -89,17 +128,16 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: hackdict,v 1.1 2007-04-27 13:51:11 lenik Exp $');
-    print "[$opt_verbtitle] Perl simple cli program template\n";
+    my %id = parse_id('$Id: hackdict,v 1.2 2007-04-30 15:24:27 lenik Exp $');
+    print "[$opt_verbtitle] Hack dict decrypt(brute-force) utility\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {
     version;
-    print <<"EOM";
-
+    print <<'EOM';
 Syntax:
-        $0 <options> [dict1 [dict2 ...]] < passwd_file
+        hackdict <options> [dict1 [dict2 ...]] < passwd_file
 
 Options:
         --quiet (q)
@@ -107,8 +145,11 @@ Options:
         --version
         --help (h)
         --passwd-file=<path> (f, default STDIN)
-        --combine-func=<func> (c, default strcat)
-        --test-func=<func> (t, default md5,encode_base64)
+        --got-file=<path> (default passwd.got)
+        --rest-file=<path> (default passwd.rest)
+        --combine-func=<func> (c(bin,bin):bin, default strcat)
+        --crypt-func=<func> (k=(bin):bin, default pass)
+        --test-func=<func> (t=(cat\',pwd,cat,%pwd):bool, default equal)
         --list-functions (l)
 
 Grammer:
@@ -116,8 +157,9 @@ Grammer:
         passwd_file ::= { passwd_line '\n' }
         passwd_line ::= id ':' passwd [ ':' .* $ ]
             (The field delimiter is set by regex ^\w+(.), for each line)
-        func ::= sub_func | ref_func
-        sub_func ::= 'sub{' func_body '}'
+        func ::= file_func | sub_func | ref_func
+        file_func ::= '@' path
+        sub_func ::= '{' func_body '}'
         ref_func ::= \w+ { ',' \w+ }
 
 Variables:
@@ -127,6 +169,11 @@ Variables:
 
         @FILTER = filter of each dict
         @PASSWD ($passwd) = passwd (current-entry of passwd)
+        $passwd = [ id, pwd(y), user1, user2, ... ]
+
+Examples:
+        hackdict -v -k=md5,encode_base64 -t=equal_base64 -f=passwd dicts...
+        hackdict -v -t=@testf -f=passwd dicts...
 EOM
 }
 
@@ -140,77 +187,186 @@ EOM
 
 boot;
 
-sub main {
-    @D, @E, @F, ... => 1.dic, 2.dic, 3.dic
-    @PASSWD = passwd
-    for $d (@D) {
-        $d = &$FILTER[0]($d); next unless $d;
-        for $e (@E) {
-            $e = &$FILTER[1]($e); next unless $e;
-            for $f (@F) {
-                $f = &$FILTER[2]($f); next unless $f;
-                ...
-                $x = combine($d, $e, $f, ...);
-                for $y (@PASSWD) {
-                    if test($x, $y) {
-                        # FIND 1
+sub iterate {
+    my $depth = shift;
+    my $prefix = shift;
+    my $top = shift;
+    my $filter = $FILTER[$depth];
+    # @_ == the rest list
+    local $_;
+    call($top, 'reset');
+    while ($_ = call($top, 'read')) {
+        next unless &$filter($_);
+        my $cat = &$combinef($prefix, $_);
+        if (@_) {
+            iterate($depth + 1, $cat, @_);
+        } else {
+            print "Testing: $cat                             \r";
+            if (@PASSWD) {
+                my $npasswd = scalar(@PASSWD);
+                for (my $i = 0; $i < $npasswd; $i++) {
+                    my $passwd = $PASSWD[$i];
+                    my ($id, $y) = @$passwd;
+                    $x = &$cryptf($cat);
+                    if (&$testf($x, $y, $cat, $passwd)) {
+                        delete $PASSWD[$i];
+                        output_result($passwd, $cat);
+                        $i--;
                     }
                 }
-            }}}
-    info "TODO...";
+            } else {
+                call $PASSWD, 'reset';
+                while (defined ($_ = call($PASSWD, 'read'))) {
+                    # info2 "PASSWD Line: $_";
+                    next if m/^\#/ or m/^\s*$/;
+                    $_ = decode($opt_encoding, $_);
+                    die "Invalid passwd line: $_"
+                        unless m/^\w+(.)/;
+                    my $delim = $1;
+                    my @segs;
+                    my $passwd = \@segs;
+                    my $i = 0;
+                    while (m/(\\.|[^$delim])*/g) {
+                        next if $i++ % 2; # ignore evens
+                        push @segs, $&;
+                    }
+                    push @PASSWD, $passwd;
+                    my ($id, $y) = @$passwd;
+                    $x = &$cryptf($cat);
+                    if (&$testf($x, $y, $cat, $passwd)) {
+                        output_result($passwd, $cat);
+                    }
+                } # while $PASSWD->read
+            } # @PASSWD cached?
+        }
+    }
+    call($top, 'close');
+}
+
+sub main {
+    die "No dict specified" unless @DICT;
+
+    $got_file = new FileHandle(">$opt_got_file")
+        or die("Can't write to got-file $opt_got_file");
+
+    $rest_file = new FileHandle(">$opt_rest_file")
+        or die("Can't write to rest-file $opt_rest_file");
+
+    iterate(0, '', @DICT);
+
+    close $got_file;
+    close $rest_file;
+}
+
+sub output_result {
+    my ($passwd, $ls) = @_;
+    my ($id, $pwd, @other) = @$passwd;
+    info "FoundPassword:$id:$ls";
+    print $got_file "$id:$ls\n";
 }
 
 sub get_func {
-    my $text = shift;
+    my ($name, $text) = @_;
     my $func;
     if ($text =~ m/^\w+$/) {
         # func-ref
-        $func = eval("\&$text") or
-            die("Bad func-ref: $text");
+        $func = eval("\\&$text") or
+            die("$name: Bad func-ref: $text");
     } elsif ($text =~ m/^\w+(,\w+)+$/) {
         # func-ref chained
         my @ts = split(',', $text);
         my @fs;
-        push @fs, get_func($_) for @ts;
+        push @fs, get_func($name."/$_", $_) for @ts;
         $func = sub {
             my $in = shift;
-            $in = \&$_($in) for @fs;
+            $in = &$_($in) for @fs;
             return $in;
         };
-    } else {
+    } elsif ($text =~ m/^\@/) {
+        my $path = substr($text, 1);
+        open(FH, $path)
+            or die("$name: Can't open script $path for read");
+        my @lines = <FH>;
+        close FH;
+        my $script = join('', @lines);
+        # info2 "script $path: $script";
+        $func = eval('sub {'.$script.'}');
+    } elsif ($text =~ m/^\{.*\}$/) {
         # func-def
-        $func = eval('\\'.$text) or
-            die("Invalid func-def: $text");
+        $func = eval('sub '.$text) or
+            die("$name: Invalid func-def: $text");
     }
+    info2 "get_func($name) = $func";
     return $func;
 }
 
 sub get_src {
-    my $src = shift;
-    if ($src =~ /^(\d+):/) {
+    my ($name, $path) = @_;
+    my $src;
+    if ($path =~ /^(\d+):/) {
         # generated dict
-        die("Unsupported now");
+        die("$name: Unsupported now");
     } else {
-        die("File not existed: $src") unless -e $src;
-        $src = (
-                    'reset' => sub {
-            my $self = shift;
-            close $self->{h} if $self->(h);
-            open($self->{h}, $self->{path})
-                or die("Can't open file $self->{path}"); },
-                    'read' => sub {
-                        my $self = shift;
-                        <$self->{h}>; }
-                    'path' => $src,
-                    );
+        die("$name: File not existed: $path") unless -e $path;
+        $src = {
+            'path' => $path,
+            'reset' => sub {
+                my $self = shift;
+                my $path2 = $self->{path};
+                close $self->{h} if defined $self->{h};
+                $self->{h} = new FileHandle($path2)
+                    or die("$name: Can't open file $path2");
+            },
+            'read' => sub {
+                my $self = shift;
+                my $h = $self->{h};
+                local $_;
+                $_ = <$h>;
+                chomp;
+                return $_;
+            },
+            'close' => sub {
+                my $self = shift;
+                close $self->{h} if $self->{h};
+                delete $self->{h};
+            },
+        };
+        # print Dumper($src);
     }
     return $src;
 }
 
 sub get_stdin_src {
-    return ('read' = sub { <STDIN> },
-            'close' = sub {},
-            );
+    my $src = {
+        'reset' => sub {},
+        'read'  => sub { local $_; $_ = <STDIN>; chomp; return $_ },
+        'close' => sub {},
+    };
+    return $src;
+}
+
+sub true {
+    1;
+}
+
+sub pass {
+    $_[0];
+}
+
+sub equal {
+    my ($x, $y, $cat, $passwd) = @_;
+    my $r = $x eq $y;
+    # info2 "equal: $cat=>$x eq $y => $r";
+    return $r;
+}
+
+sub equal_base64 {
+    my ($x, $y, $cat, $passwd) = @_;
+    $x =~ s/=|\s//g;
+    $y =~ s/=|\s//g;
+    my $r = $x eq $y;
+    # info2 "equal: $cat=>$x eq $y => $r";
+    return $r;
 }
 
 sub concat {
@@ -218,29 +374,20 @@ sub concat {
     $a.$b;
 }
 
-sub md5 {
-    my $text = shift;
+sub binhex {
+    my $bin = shift;
+    my $len = length $bin;
+    my $buf;
+    for ($i = 0; $i < $len; $i++) {
+        my $d = ord(substr($bin, $i, 1));
+        $buf .= sprintf('%02x', $d);
+    }
+    info "binhex: $bin -> $buf";
+    return $buf;
 }
 
-sub sha1 {
-    my $text = shift;
+sub echo {
+    my $x = shift;
+    info "echo: $x";
+    $x;
 }
-
-__END__
-hackdict 1.dic 2.dic 3.dic <passwd
-    @D, @E, @F, ... => 1.dic, 2.dic, 3.dic
-    @PASSWD = passwd
-    for $d (@D) {
-        $d = &$FILTER[0]($d); next unless $d;
-        for $e (@E) {
-            $e = &$FILTER[1]($e); next unless $e;
-            for $f (@F) {
-                $f = &$FILTER[2]($f); next unless $f;
-                ...
-                $x = combine($d, $e, $f, ...);
-                for $y (@PASSWD) {
-                    if test($x, $y) {
-                        # FIND 1
-                    }
-                }
-            }}}
