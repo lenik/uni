@@ -1,5 +1,16 @@
 @echo off
-    rem $Id: em.bat,v 1.5 2005-07-07 09:40:03 dansei Exp $
+    rem $Id: em.bat,v 1.6 2007-04-30 15:24:39 lenik Exp $
+
+    setlocal
+
+    set _T=Emacs-%RANDOM%
+
+    title %_T%
+    rem sleep -m 500
+    rem wm -v -hide %_T%
+
+    wm -hide
 
     C:\.cirkonstancoj\Emacs\bin\emacs %*
 
+    wm -show
