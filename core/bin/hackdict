@@ -41,7 +41,7 @@ our $opt_verbose        = 1;
 our $opt_passwd_file;
 our $opt_encoding       = 'utf-8';      # passwd-file
 our $opt_combine_func   = 'concat';
-our $opt_crypt_func     = 'pass';       # md5_base64
+our $opt_crypt_func     = undef;        # md5_base64
 our $opt_test_func      = 'equal';
 our @opt_dicts;
 our @opt_filters;
@@ -93,13 +93,13 @@ sub boot {
         push @DICT, $src;
         my $Drefv = eval('\\$'.chr($Dref++));
         $$Drefv = $src;
-        my $filter = \&true;
+        my $filter = undef; # \&true;
         $filter = get_func("filter $_", $func) if $func;
         push @FILTER, $filter;
     }
-    $combinef = get_func('combinef', $opt_combine_func);
-    $cryptf = get_func('cryptf', $opt_crypt_func);
-    $testf = get_func('testf', $opt_test_func);
+    $combinef = get_func('combinef', $opt_combine_func) if $opt_combine_func;
+    $cryptf = get_func('cryptf', $opt_crypt_func) if $opt_crypt_func;
+    $testf = get_func('testf', $opt_test_func) if $opt_test_func;
 
     $| = 1;
     main;
@@ -128,7 +128,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: hackdict,v 1.2 2007-04-30 15:24:27 lenik Exp $');
+    my %id = parse_id('$Id: hackdict,v 1.3 2007-04-30 16:33:36 lenik Exp $');
     print "[$opt_verbtitle] Hack dict decrypt(brute-force) utility\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -192,26 +192,29 @@ sub iterate {
     my $prefix = shift;
     my $top = shift;
     my $filter = $FILTER[$depth];
+    my $npasswd = scalar(@PASSWD);
+    my $I = 0;
     # @_ == the rest list
     local $_;
     call($top, 'reset');
     while ($_ = call($top, 'read')) {
-        next unless &$filter($_);
+        next if $filter and !&$filter($_);
         my $cat = &$combinef($prefix, $_);
         if (@_) {
             iterate($depth + 1, $cat, @_);
         } else {
-            print "Testing: $cat                             \r";
+            print "Testing $I: $cat ($npasswd)             \r";
+            $I++;
             if (@PASSWD) {
-                my $npasswd = scalar(@PASSWD);
                 for (my $i = 0; $i < $npasswd; $i++) {
                     my $passwd = $PASSWD[$i];
                     my ($id, $y) = @$passwd;
-                    $x = &$cryptf($cat);
+                    $x = $cryptf ? &$cryptf($cat) : $cat;
                     if (&$testf($x, $y, $cat, $passwd)) {
-                        delete $PASSWD[$i];
                         output_result($passwd, $cat);
+                        splice @PASSWD, $i, 1;
                         $i--;
+                        $npasswd--;
                     }
                 }
             } else {
@@ -230,11 +233,13 @@ sub iterate {
                         next if $i++ % 2; # ignore evens
                         push @segs, $&;
                     }
-                    push @PASSWD, $passwd;
                     my ($id, $y) = @$passwd;
-                    $x = &$cryptf($cat);
+                    $x = $cryptf ? &$cryptf($cat) : $cat;
                     if (&$testf($x, $y, $cat, $passwd)) {
                         output_result($passwd, $cat);
+                    } else {
+                        push @PASSWD, $passwd;
+                        $npasswd++;
                     }
                 } # while $PASSWD->read
             } # @PASSWD cached?
