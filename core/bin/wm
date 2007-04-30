@@ -231,7 +231,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: wm,v 1.2 2007-04-27 13:40:59 lenik Exp $');
+    my %id = parse_id('$Id: wm,v 1.3 2007-04-30 15:25:19 lenik Exp $');
     print "[$opt_verbtitle] Windows Manager\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -256,6 +256,7 @@ Options:
         --send-string=<string> (s, using WM_CHAR to send)
         --set-text=<string> (st, using SetWindowText)
         --restore (restore last window list)
+        --invisible (include invisible windows)
         --quiet (q)
         --verbose (v, repeat twice give you more verbose info)
         --version
@@ -331,9 +332,13 @@ my %ctrlmap = (
     'S' => [ $_WM{WM_KEYUP},    $_VK{VK_SHIFT},     0x2A ],
     'r' => [ $_WM{WM_KEYDOWN},  $_VK{VK_RETURN},    0x1C ],
     'R' => [ $_WM{WM_KEYUP},    $_VK{VK_RETURN},    0x1C ],
+    'del' => [ $_WM{WM_KEYDOWN},$_VK{VK_DELETE},    0x53 ],
+    '/del'=> [ $_WM{WM_KEYUP},  $_VK{VK_DELETE},    0x53 ],
 
     # Don't work::
     'focus'     => sub { set_focus(@_) },
+    'show'      => sub { shift; ShowWindow(shift, SW_SHOW) },
+    'hide'      => sub { shift; ShowWindow(shift, SW_HIDE) },
     'sleep'     => \&fsleep,
     'ctrl'      => sub { set_kbdstate($_VK{VK_CONTROL}, 128) },
     '/ctrl'     => sub { set_kbdstate($_VK{VK_CONTROL},   0) },
