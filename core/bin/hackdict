@@ -128,7 +128,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: hackdict,v 1.3 2007-04-30 16:33:36 lenik Exp $');
+    my %id = parse_id('$Id: hackdict,v 1.4 2007-05-11 17:03:24 lenik Exp $');
     print "[$opt_verbtitle] Hack dict decrypt(brute-force) utility\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -197,7 +197,7 @@ sub iterate {
     # @_ == the rest list
     local $_;
     call($top, 'reset');
-    while ($_ = call($top, 'read')) {
+    while (defined ($_ = call($top, 'read'))) {
         next if $filter and !&$filter($_);
         my $cat = &$combinef($prefix, $_);
         if (@_) {
