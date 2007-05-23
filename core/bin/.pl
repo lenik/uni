@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/perl
 
 use strict;
 use cmt::util;
@@ -40,7 +40,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: .pl,v 1.3 2007-03-04 12:17:26 lenik Exp $');
+    my %id = parse_id('$Id: .pl,v 1.4 2007-05-23 14:45:04 lenik Exp $');
     print "[$opt_verbtitle] Perl simple cli program template\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }

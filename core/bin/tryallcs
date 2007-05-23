@@ -1,0 +1,103 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::path;
+use cmt::util;
+use cmt::vcs;
+use Data::Dumper;
+use Getopt::Long;
+
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
+
+our $opt_verbtitle      = 'tryallcs';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_to             = 'utf-8';
+our @opt_from;
+our $opt_file;
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'to|t=s',
+               );
+    $opt_file = shift @ARGV;
+    die "File not specified." unless defined $opt_file;
+
+    my $lst = `iconv -l`;
+    while ($lst =~ m/^(\w|-)+/mg) {
+        push @opt_from, $&;
+    }
+    info2 'from-charsets: '.Dumper(\@opt_from);
+    info2 'count-of-charsets: '.scalar(@opt_from);
+
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: tryallcs,v 1.1 2007-05-23 14:45:04 lenik Exp $');
+    print "[$opt_verbtitle] Try all possible charsets (by iconv)\n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> file
+
+Options:
+        --to=<charset> (t, default utf-8)
+        --quiet (q)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
+        --help (h)
+EOM
+}
+
+boot;
+
+sub readf {
+    my $path = shift;
+    open(FH, "<$path") or die("Can't open file $path");
+    binmode FH;
+    my $in = join('', <FH>);
+    close FH;
+    return $in;
+}
+
+sub main {
+    my $tmpout = temp_path('tryallcs_out');
+
+    for (@opt_from) {
+        print STDERR "Decode by charset: $_\n";
+        print "Decode by charset: $_\n";
+        my $cmd = "iconv -c -f $_ -t $opt_to \"$opt_file\" >$tmpout 2>nul";
+        system $cmd;
+        my $res = readf($tmpout);
+        print $res;
+        print "\n-------------------------------------------------------\n";
+    }
+}
