@@ -172,6 +172,15 @@ my $opt_verbose = 1;
         }
     }
 
+    # quote globbing pattern
+    sub qg {
+        my $p = shift;
+        $p =~ s/([.+@\#\$^&()])/\\$1/g;
+        $p =~ s/\*/.*/g;
+        $p =~ s/\?/./g;
+        return qr/^$p$/i;
+    }
+
 @ISA = qw(Exporter);
 @EXPORT = qw(
 	$charFS
@@ -188,6 +197,8 @@ my $opt_verbose = 1;
 
 	dir_size
 	temp_path
+
+	qg
 	);
 
 1;

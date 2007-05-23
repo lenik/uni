@@ -19,7 +19,7 @@ sub info2;
 sub version;
 sub help;
 
-our $opt_verbtitle      = 'tabsize';
+our $opt_verbtitle      = 'unknown';
 our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
 our $opt_recursive      = 1;
@@ -30,10 +30,6 @@ our $opt_dir_only       = 0;
 our $opt_include_hiddens= 0;
 our @opt_files          = ();
 our $opt_writeback      = 0;
-our $opt_old_tabsize    = 8;
-our $opt_new_tabsize    = 4;
-our $opt_min_tabsize    = 2;
-our $opt_tabify         = 0;    # 0: using space instead.
 
 our $stat_total         = 0;
 our $stat_proc          = 0;
@@ -50,10 +46,6 @@ sub boot {
                'dir-only|do',
                'include-hiddens|ih',
                'writeback|w',
-               'old-tabsize|o=i',
-               'new-tabsize|n=i',
-               'min-tabsize|m=i',
-               'tabify|t',
                );
     $opt_dir = 1 if $opt_dir_only;
 
@@ -68,11 +60,6 @@ sub boot {
     info2 "--and-test: $_" for @opt_and_test;
     info2 "--xor-test: $_" for @opt_xor_test;
     info2 "file: $_" for @opt_files;
-
-    die 'tab-size must be positive number'
-        if $opt_old_tabsize < 1
-        or $opt_new_tabsize < 1
-        or $opt_min_tabsize < 1;
 
     findfile($_, $opt_recursive) for @opt_files;
 
@@ -103,8 +90,8 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: tabsize,v 1.4 2007-05-23 14:44:57 lenik Exp $');
-    print "[$opt_verbtitle] Adjust tab-style of plain text\n";
+    my %id = parse_id('$Id: .batch,v 1.1 2007-05-23 14:44:57 lenik Exp $');
+    print "[$opt_verbtitle] Perl simple cli program template\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
@@ -127,9 +114,6 @@ Options:
         --dir-only (do)
         --include-hiddens (ih)
         --writeback (w, default test-only)
-	--old-tabsize=<size> (o, default 8)
-	--new-tabsize=<size> (n, default 4)
-	--min-tabsize=<size> (m, default 2)
 EOM
 }
 
@@ -181,53 +165,17 @@ sub fileproc {
 
 sub main {
     my $path = shift;
-    return 0 unless -f $path;
-
-    my @in = readfile($path);
-    my @out;
-    for my $lineno (0..$#in) {
-        $_ = $in[$lineno];
-
-        ############################## BEGIN ###########################
-        my @chars = split('', $_);
-        my ($i, $x) = (0, 0);
-
-        foreach my $c (@chars) {
-            if ($c eq "\t") {
-                $c = ' 'x($opt_old_tabsize-$x);
-                $chars[$i] = $c;
-                $x = 0;
-            } else {
-                $x = ($x+1) % $opt_old_tabsize;
-            }
-            $i++;
+    if (-f $path) {
+        my @in = readfile($path);
+        my @out;
+        for my $i (0..$#in) {
+            $_ = $in[$i];
         }
-        $_ = join('', @chars);
-
-        if ($opt_tabify) {
-            my @segs;
-            while (m/.{1,$opt_new_tabsize}/sg) {
-                #assert no '\t' inside.
-                my $seg = $&;
-                if ($seg =~ m/( +)$/) {
-                    if (length($1) >= $opt_min_tabsize) {
-                        $seg =~ s/( +)$/\t/;
-                    }
-                }
-                push @out, $seg;
-            }
-        } else {
-            push @out, $_;
+        if (arrayne(\@in, \@out)) {
+            mesg "\r[save] $path";
+            writefile($path, @out) if $opt_writeback;
+            return 1;
         }
-        ##############################  END  ###########################
-
     }
-    if (join('', @in) ne join('', @out)) {
-        mesg "\r[save] $path";
-        writefile($path, @out) if $opt_writeback;
-        return 1;
-    }
-    print join('', @out) unless $opt_writeback;
-
     return 0;
 }

@@ -54,11 +54,62 @@ sub timestamp10 {
     $YY . $sep1 . $DDD . $sep . $SSSSS;
 }
 
+sub readfile {
+    my $path = shift;
+    open(FH, "<$path")
+        or die("Can't open file $path for read");
+    my @lines = <FH>;
+    close FH;
+    return wantarray ? @lines : join('', @lines);
+}
+
+sub writefile {
+    my $path = shift;
+    open(FH, ">$path")
+        or die("Can't open file $path to write");
+    print FH for @_;
+    close FH;
+}
+
+sub arraycmp {
+    my ($a, $b) = @_;
+    my $c = $#$a - $#$b;
+    return $c if $c != 0;
+    for (0..$#$a) {
+        $c = $a->[$_] cmp $b->[$_];
+        return $c if $c != 0;
+    }
+    return 0;
+}
+
+sub arrayeq     { arraycmp(@_) == 0 }
+sub arrayne     { arraycmp(@_) != 0 }
+
+sub hasheq {
+    my ($a, $b) = @_;
+    my $na = scalar(keys %$a);
+    my $nb = scalar(keys %$b);
+    return 0 if $na != $nb;
+    for (keys %$a) {
+        return 0 if $a->{$_} ne $b->{$_};
+    }
+    return 1;
+}
+
+sub hashne      { ! hasheq(@_) }
+
 @ISA = qw(Exporter);
 @EXPORT = qw(
 	datetime
 	cftime
 	timestamp10
+	readfile
+	writefile
+	arraycmp
+	arrayeq
+	arrayne
+	hasheq
+	hashne
 	);
 
 1;

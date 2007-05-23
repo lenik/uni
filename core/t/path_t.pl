@@ -87,7 +87,21 @@ my $tests = [
 	        ['../ends-with-specials/..']
 	            => ['../ends-with-specials/', '..'],
 	        ],
-	},
+	}, {
+	    'type' => 'function',
+	    'name' => 'qg: quote globbings',
+	    'entry' => 'cmt::path::qg($)',
+	    'cases' => [
+	        ['hello']
+	            => qr/^hello$/i,
+                ['a*b']
+                    => qr/^a.*b$/i,
+                ['*.bm?']
+                    => qr/^.*\.bm.$/i,
+                ['spec+!@#$%^']
+                    => qr/^spec\+\!\@\#\$\%\^$/i,
+                ],
+        },
 	];
 
 test_batch $tests;
