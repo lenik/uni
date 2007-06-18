@@ -1,0 +1,374 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::util;
+use cmt::vcs;
+use Getopt::Long;
+use Win32::API;
+
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
+sub spi_failed;
+sub spi_getstr;
+sub spi_setstr;
+sub spi_getint;
+sub spi_setint;
+sub spi_getuint;
+sub spi_setuint;
+sub spi_str;
+sub spi_int;
+sub spi_uint;
+sub spi_bool;
+
+our $opt_verbtitle      = 'ntspi';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_name;
+our $opt_get;
+our $opt_set;
+our $opt_uiaction;
+our $opt_uiparam        = 0;
+our $opt_pvparam;
+our $opt_fwinini        = 0;
+
+our $buffer             = ' ' x 16384;
+
+sub init {
+    sub SPI_GETBEEP               {   1 }
+    sub SPI_SETBEEP               {   2 }
+    sub SPI_GETMOUSE              {   3 }
+    sub SPI_SETMOUSE              {   4 }
+    sub SPI_GETBORDER             {   5 }
+    sub SPI_SETBORDER             {   6 }
+    sub SPI_GETKEYBOARDSPEED      {  10 }
+    sub SPI_SETKEYBOARDSPEED      {  11 }
+    sub SPI_LANGDRIVER            {  12 }
+    sub SPI_ICONHORIZONTALSPACING {  13 }
+    sub SPI_GETSCREENSAVETIMEOUT  {  14 }
+    sub SPI_SETSCREENSAVETIMEOUT  {  15 }
+    sub SPI_GETSCREENSAVEACTIVE   {  16 }
+    sub SPI_SETSCREENSAVEACTIVE   {  17 }
+    sub SPI_GETGRIDGRANULARITY    {  18 }
+    sub SPI_SETGRIDGRANULARITY    {  19 }
+    sub SPI_SETDESKWALLPAPER      {  20 }
+    sub SPI_SETDESKPATTERN        {  21 }
+    sub SPI_GETKEYBOARDDELAY      {  22 }
+    sub SPI_SETKEYBOARDDELAY      {  23 }
+    sub SPI_ICONVERTICALSPACING   {  24 }
+    sub SPI_GETICONTITLEWRAP      {  25 }
+    sub SPI_SETICONTITLEWRAP      {  26 }
+    sub SPI_GETMENUDROPALIGNMENT  {  27 }
+    sub SPI_SETMENUDROPALIGNMENT  {  28 }
+    sub SPI_SETDOUBLECLKWIDTH     {  29 }
+    sub SPI_SETDOUBLECLKHEIGHT    {  30 }
+    sub SPI_GETICONTITLELOGFONT   {  31 }
+    sub SPI_SETDOUBLECLICKTIME    {  32 }
+    sub SPI_SETMOUSEBUTTONSWAP    {  33 }
+    sub SPI_SETICONTITLELOGFONT   {  34 }
+    sub SPI_GETFASTTASKSWITCH     {  35 }
+    sub SPI_SETFASTTASKSWITCH     {  36 }
+    sub SPI_SETDRAGFULLWINDOWS    {  37 }
+    sub SPI_GETDRAGFULLWINDOWS    {  38 }
+    sub SPI_GETNONCLIENTMETRICS   {  41 }
+    sub SPI_SETNONCLIENTMETRICS   {  42 }
+    sub SPI_GETMINIMIZEDMETRICS   {  43 }
+    sub SPI_SETMINIMIZEDMETRICS   {  44 }
+    sub SPI_GETICONMETRICS        {  45 }
+    sub SPI_SETICONMETRICS        {  46 }
+    sub SPI_SETWORKAREA           {  47 }
+    sub SPI_GETWORKAREA           {  48 }
+    sub SPI_SETPENWINDOWS         {  49 }
+    sub SPI_GETHIGHCONTRAST       {  66 }
+    sub SPI_SETHIGHCONTRAST       {  67 }
+    sub SPI_GETKEYBOARDPREF       {  68 }
+    sub SPI_SETKEYBOARDPREF       {  69 }
+    sub SPI_GETSCREENREADER       {  70 }
+    sub SPI_SETSCREENREADER       {  71 }
+    sub SPI_GETANIMATION          {  72 }
+    sub SPI_SETANIMATION          {  73 }
+    sub SPI_GETFONTSMOOTHING      {  74 }
+    sub SPI_SETFONTSMOOTHING      {  75 }
+    sub SPI_SETDRAGWIDTH          {  76 }
+    sub SPI_SETDRAGHEIGHT         {  77 }
+    sub SPI_SETHANDHELD           {  78 }
+    sub SPI_GETLOWPOWERTIMEOUT    {  79 }
+    sub SPI_GETPOWEROFFTIMEOUT    {  80 }
+    sub SPI_SETLOWPOWERTIMEOUT    {  81 }
+    sub SPI_SETPOWEROFFTIMEOUT    {  82 }
+    sub SPI_GETLOWPOWERACTIVE     {  83 }
+    sub SPI_GETPOWEROFFACTIVE     {  84 }
+    sub SPI_SETLOWPOWERACTIVE     {  85 }
+    sub SPI_SETPOWEROFFACTIVE     {  86 }
+    sub SPI_SETCURSORS            {  87 }
+    sub SPI_SETICONS              {  88 }
+    sub SPI_GETDEFAULTINPUTLANG   {  89 }
+    sub SPI_SETDEFAULTINPUTLANG   {  90 }
+    sub SPI_SETLANGTOGGLE         {  91 }
+    sub SPI_GETWINDOWSEXTENSION   {  92 }
+    sub SPI_SETMOUSETRAILS        {  93 }
+    sub SPI_GETMOUSETRAILS        {  94 }
+    sub SPI_SETSCREENSAVERRUNNING {  97 }
+    sub SPI_SCREENSAVERRUNNING    {  SPI_SETSCREENSAVERRUNNING }
+    sub SPI_GETFILTERKEYS         {  50 }
+    sub SPI_SETFILTERKEYS         {  51 }
+    sub SPI_GETTOGGLEKEYS         {  52 }
+    sub SPI_SETTOGGLEKEYS         {  53 }
+    sub SPI_GETMOUSEKEYS          {  54 }
+    sub SPI_SETMOUSEKEYS          {  55 }
+    sub SPI_GETSHOWSOUNDS         {  56 }
+    sub SPI_SETSHOWSOUNDS         {  57 }
+    sub SPI_GETSTICKYKEYS         {  58 }
+    sub SPI_SETSTICKYKEYS         {  59 }
+    sub SPI_GETACCESSTIMEOUT      {  60 }
+    sub SPI_SETACCESSTIMEOUT      {  61 }
+    sub SPI_GETSERIALKEYS         {  62 }
+    sub SPI_SETSERIALKEYS         {  63 }
+    sub SPI_GETSOUNDSENTRY        {  64 }
+    sub SPI_SETSOUNDSENTRY        {  65 }
+    sub SPI_GETMOUSEHOVERWIDTH    {  98 }
+    sub SPI_SETMOUSEHOVERWIDTH    {  99 }
+    sub SPI_GETMOUSEHOVERHEIGHT   { 100 }
+    sub SPI_SETMOUSEHOVERHEIGHT   { 101 }
+    sub SPI_GETMOUSEHOVERTIME     { 102 }
+    sub SPI_SETMOUSEHOVERTIME     { 103 }
+    sub SPI_GETWHEELSCROLLLINES   { 104 }
+    sub SPI_SETWHEELSCROLLLINES   { 105 }
+    sub SPI_GETSHOWIMEUI          { 110 }
+    sub SPI_SETSHOWIMEUI          { 111 }
+    sub SPI_GETMOUSESPEED         { 112 }
+    sub SPI_SETMOUSESPEED         { 113 }
+    sub SPI_GETSCREENSAVERRUNNING { 114 }
+    sub SPI_GETACTIVEWINDOWTRACKING       { 0x1000 }
+    sub SPI_SETACTIVEWINDOWTRACKING       { 0x1001 }
+    sub SPI_GETMENUANIMATION              { 0x1002 }
+    sub SPI_SETMENUANIMATION              { 0x1003 }
+    sub SPI_GETCOMBOBOXANIMATION          { 0x1004 }
+    sub SPI_SETCOMBOBOXANIMATION          { 0x1005 }
+    sub SPI_GETLISTBOXSMOOTHSCROLLING     { 0x1006 }
+    sub SPI_SETLISTBOXSMOOTHSCROLLING     { 0x1007 }
+    sub SPI_GETGRADIENTCAPTIONS           { 0x1008 }
+    sub SPI_SETGRADIENTCAPTIONS           { 0x1009 }
+    sub SPI_GETMENUUNDERLINES             { 0x100A }
+    sub SPI_SETMENUUNDERLINES             { 0x100B }
+    sub SPI_GETACTIVEWNDTRKZORDER         { 0x100C }
+    sub SPI_SETACTIVEWNDTRKZORDER         { 0x100D }
+    sub SPI_GETHOTTRACKING                { 0x100E }
+    sub SPI_SETHOTTRACKING                { 0x100F }
+    sub SPI_GETFOREGROUNDLOCKTIMEOUT      { 0x2000 }
+    sub SPI_SETFOREGROUNDLOCKTIMEOUT      { 0x2001 }
+    sub SPI_GETACTIVEWNDTRKTIMEOUT        { 0x2002 }
+    sub SPI_SETACTIVEWNDTRKTIMEOUT        { 0x2003 }
+    sub SPI_GETFOREGROUNDFLASHCOUNT       { 0x2004 }
+    sub SPI_SETFOREGROUNDFLASHCOUNT       { 0x2005 }
+
+    sub SPIF_UPDATEINIFILE    { 0x0001 }
+    sub SPIF_SENDWININICHANGE { 0x0002 }
+    sub SPIF_SENDCHANGE       { SPIF_SENDWININICHANGE }
+
+    # BOOL SystemParametersInfo(UINT uiAction, UINT uiParam,
+    #                           PVOID pvParam, UINT fWinIni);
+    Win32::API->Import('user32', 'SystemParametersInfo', 'NNPN', 'N');
+}
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'update'     => sub { $opt_fwinini |= SPIF_UPDATEINIFILE },
+               'send'       => sub { $opt_fwinini |= SPIF_SENDCHANGE },
+               );
+    $opt_name = shift @ARGV
+        or die("No action-name specified");
+    $opt_set = scalar(@ARGV);
+    $opt_get = !$opt_set;
+    init;
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: ntspi,v 1.1 2007-06-18 12:48:37 lenik Exp $');
+    print "[$opt_verbtitle] NT System Parameters Info\n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> action-name [new-value]
+
+Options:
+        --quiet (q)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
+        --help (h)
+        --update (update ini)
+        --send (send change)
+
+EOM
+}
+
+boot;
+
+sub main {
+    my $proc = lc($opt_name);
+    die("Parameter $opt_name isn't supported, yet. ") unless 'main'->can($proc);
+    $opt_uiaction = 'SPI_'.($opt_get?'GET':'SET').uc($opt_name);
+    die("Unexpected: constant $opt_uiaction not defined") unless 'main'->can($opt_uiaction);
+    $opt_uiaction = eval($opt_uiaction);
+
+    info2 "uiAction = $opt_uiaction";
+    info2 "fWinINI  = $opt_fwinini";
+    $proc = eval('\&'.$proc);
+    $proc->();
+}
+
+sub spi_failed {
+    die("SPI function failed.");
+}
+
+sub spi_getstr {
+    SystemParametersInfo($opt_uiaction, $opt_uiparam, $buffer, $opt_fwinini)
+        or spi_failed;
+    return $buffer;
+}
+
+sub spi_setstr {
+    my $str = shift;
+    SystemParametersInfo($opt_uiaction, $opt_uiparam, $str, $opt_fwinini)
+        or spi_failed;
+}
+
+sub spi_getint {
+    my $buf = ' ' x 4;
+    SystemParametersInfo($opt_uiaction, $opt_uiparam, $buf, $opt_fwinini)
+        or spi_failed;
+    return unpack('i4', $buf);
+}
+
+sub spi_setint {
+    my $num = shift;
+    SystemParametersInfo($opt_uiaction, $num, $buffer, $opt_fwinini)
+        or spi_failed;
+}
+
+sub spi_getuint {
+    my $buf = ' ' x 4;
+    SystemParametersInfo($opt_uiaction, $opt_uiparam, $buf, $opt_fwinini)
+        or spi_failed;
+    return unpack('I4', $buf);
+}
+
+sub spi_setuint {
+    my $num = shift;
+    SystemParametersInfo($opt_uiaction, $num, $buffer, $opt_fwinini)
+        or spi_failed;
+}
+
+sub spi_str  { print $opt_get ? spi_getstr  : spi_setstr(@ARGV) }
+sub spi_int  { print $opt_get ? spi_getint  : spi_setint(@ARGV) }
+sub spi_uint { print $opt_get ? spi_getuint : spi_setuint(@ARGV) }
+sub spi_bool { print $opt_get ? spi_getuint : spi_setuint(@ARGV) }
+
+# accessibility
+sub mousesonar              { spi_bool }
+sub mousevanish             { spi_bool }
+sub screenreader            { spi_bool }
+sub showsounds              { spi_bool }
+
+# desktop
+sub deskwallpaper           { spi_str  }
+sub dropshadow              { spi_bool }
+sub flatmenu                { spi_bool }
+sub fontsmoothing           { spi_bool }
+sub fontsmoothingcontrast   { spi_uint }
+sub fontsmoothingtype       { spi_uint }
+
+# icon
+sub icontitlewrap           { spi_bool }
+sub iconhorizontalspacing   { spi_uint }
+sub iconverticalspacing     { spi_uint }
+sub icons                   { spi_bool }
+
+# input
+sub beep                    { spi_bool }
+sub blocksendingrequests    { spi_bool }
+sub defaultinputlang        { spi_str  }
+sub keyboardcues            { spi_bool }
+sub keyboarddelay           { spi_int  }
+sub keyboardpref            { spi_bool }
+sub keyboardspeed           { spi_uint }
+sub mousehoverheight        { spi_uint }
+sub mousehovertime          { spi_uint }
+sub mousehoverwidth         { spi_uint }
+sub mousespeed              { spi_int  }
+sub mousetrails             { spi_int  }
+sub snaptodefbutton         { spi_bool }
+sub wheelscrolllines        { spi_uint }
+
+# menu
+sub menudropalignment       { spi_bool }
+sub menufade                { spi_bool }
+sub menushowdelay           { spi_uint }
+
+# power
+sub lowpoweractive          { spi_bool }
+sub lowpowertimeout         { spi_int  }
+sub poweroffactive          { spi_bool }
+sub powerofftimeout         { spi_int  }
+
+# screensaver
+sub screensaveactive        { spi_bool }
+sub screensaverunning       { spi_bool }
+sub screensavetimeout       { spi_int  }
+
+# ui effects
+sub comboboxanimation       { spi_bool }
+sub cursorshadow            { spi_bool }
+sub gradientcaptions        { spi_bool }
+sub hottracking             { spi_bool }
+sub listboxsmoothscrolling  { spi_bool }
+sub menuanimation           { spi_bool }
+sub menuunderlines          { spi_bool }
+sub selectionfade           { spi_bool }
+sub tooltipanimation        { spi_bool }
+sub tooltipfade             { spi_bool }
+sub uieffects               { spi_bool }
+
+# window
+sub activewindowtracking    { spi_bool }
+sub activewndtrkzorder      { spi_bool }
+sub activewndtrktimeout     { spi_uint }
+sub animation               { spi_bool }    # ANIMATION
+sub border                  { spi_int  }
+sub caretwidth              { spi_uint }
+sub dragfullwindows         { spi_bool }
+sub foregroundflashcount    { spi_uint }
+sub foregroundlocktimeout   { spi_uint }
+sub minimizedmetrics        { spi_bool }    # MINIMIZEDMETRICS
+sub nonclientmetrics        { spi_bool }    # NONCLIENTMETRICS
+sub showimeui               { spi_bool }
+
+# misc
+sub windowsextension        { spi_bool }    # check Windows Plus!
+sub penwindows              { spi_bool }    # load/unload Pen Windows
