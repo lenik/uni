@@ -15,7 +15,7 @@ our $opt_quiet = 0;
 #                               HELPER FUNCTIONS
 # ======================================================================
 sub version() {
-    my %id = parse_id('$Id: in,v 1.3 2006-11-17 20:28:09 lenik Exp $');
+    my %id = parse_id('$Id: in,v 1.4 2007-06-20 10:57:58 lenik Exp $');
     print "[IN] Internet Connection Additional Management Utility\n";
     print "Written by Snima Denik   Version $id{rev}   Last updated at $id{date}\n";
 }
@@ -49,22 +49,45 @@ sub typeFile {
 # ======================================================================
 #                                SUB-MODULES
 # ======================================================================
-sub funcAddAlias {
+sub funcSetAlias {
     my ($cmd, $host, $addr) = @_;
     my $hostfile = "$ENV{windir}/system32/drivers/etc/hosts";
-    print "Add alias $host=$addr\n" unless $opt_quiet;
-    open FH, ">>$hostfile";
-    print FH "$addr\t$host\n";
+
+    open(FH, "<$hostfile") or die("Can't open hosts file");
+    my @lines = <FH>;
     close FH;
-    typeFile($hostfile) if $opt_verbose;
+
+    my $f;
+    for (my $i = 0; $i < scalar(@lines); $i++) {
+        $_ = $lines[$i];
+        if (/^\s* ([0-9.]+) \s+ (\S+) \s*$/x) {
+            my ($addr, $name) = ($1, $2);
+            if (lc($name) eq lc($host)) {
+                $f = $i;
+                last;
+            }
+        }
+    }
+    $f ||= scalar(@lines);
+    print "Set alias $host=$addr (Line $f)\n" unless $opt_quiet;
+
+    if ($addr) {
+        $lines[$f] = "$addr\t$host\n";
+    } else {
+        splice @lines, $f, 1;
+    }
+
+    open(FH, ">$hostfile") or die("Can't write to hosts file");
+    print FH join('', @lines);
+    close FH;
 }
 
 
 # main
     GetOptions(
-        'alias=s%' => \&funcAddAlias,
+        'alias=s%' => \&funcSetAlias,
         'quiet' => \$opt_quiet,
-        'verbose' => \$opt_verbose,
+        'verbose|v' => \$opt_verbose,
         'version' => \&version,
         'help' => \&help,
     );
