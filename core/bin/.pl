@@ -40,8 +40,8 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: .pl,v 1.4 2007-05-23 14:45:04 lenik Exp $');
-    print "[$opt_verbtitle] Perl simple cli program template\n";
+    my %id = parse_id('$Id: .pl,v 1.5 2007-06-20 10:58:40 lenik Exp $');
+    print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
