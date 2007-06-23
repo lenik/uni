@@ -1,155 +1,206 @@
-#!/usr/bin/perl -w
-
-# $Id: repl,v 1.12 2007-06-15 11:33:43 lenik Exp $
-# $Log: not supported by cvs2svn $
-# Revision 1.11  2007/04/27 13:46:14  lenik
-# linux compat.
-#
-# Revision 1.10  2006/11/17 20:28:09  lenik
-# replace #!/usr/bin/perl -> #!perl
-#
-# Revision 1.9  2005/10/21 04:01:26  dansei
-# die if file error
-#
-# Revision 1.8  2005/01/06 04:21:46  dansei
-# fd.  cmt.pm => cmt/vcs.pm
-#
-# Revision 1.7  2004/12/12 07:32:52  dansei
-# missing of "use cmt"
-#
-# Revision 1.6  2004/12/12 07:32:09  dansei
-# split help into version and help,
-# (cuz repl.pl was refered too much, its code will be using as template)
-#
-# Revision 1.5  2004/11/13 13:45:50  dansei
-# support output only mode (don't save/writeback the replace result)
-#
-# Revision 1.4  2004/09/23 05:06:11  dansei
-# - new option: --veryquiet
-# - add to display modified-count at last.
-#
-# Revision 1.3  2004/09/22 08:25:26  dansei
-# few
-#
+#!/usr/bin/perl
 
 use strict;
-use Getopt::Long;
-use FileHandle;
-use DirHandle;
+use cmt::util;
 use cmt::vcs;
+use DirHandle;
+use FileHandle;
+use Getopt::Long;
 
-my $recursive   = 0;
-my $backup_file = 0;
-my $regex       = 0;
-my $binary      = 0;
-my $no_case     = 0;
-my $first_n     = 0;
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub info3;
+sub version;
+sub help;
 
-my $command;
-my $cmd_exec;
-my $cmd_args;
-my $force       = 0;
-my $quiet       = 0;
-my $veryquiet   = 0;
-my $verbose     = 0;
-my $output_only = 0;
+sub process_file;
 
-my $options = GetOptions(
-    'recursive|r'          => \$recursive,
-    'backup|k'             => \$backup_file,
-    'regular-expression|x' => \$regex,
-    'binary|b'             => \$binary,
-    'output|o'             => \$output_only,
-    'first|n=n'            => \$first_n,
-    'ignore-case'          => \$no_case,
-    'force'                => \$force,
-    'quiet'                => \$quiet,
-    'veryquiet|vq'         => \$veryquiet,
-    'verbose|v'            => \$verbose,
-    'help|?'               => sub { &help },
-    'command=s'            => \$command,
-);
+our $opt_verbtitle      = 'repl';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 2;
+our $opt_recursive      = 0;
+our $opt_backup_file    = 0;
+our $opt_regex          = 0;
+our $opt_binary         = 0;
+our $opt_no_case        = 0;
+our $opt_first_n        = 0;
+our $opt_force          = 0;
+our $opt_output_only    = 0;
+our $opt_command;
+our $cmd_exec;
+our $cmd_args;
+our $fpat;
+our ($source, $target);
+our ($n_source, $n_target);
 
-$backup_file = 0 if $output_only;
-$veryquiet   = 1 if $output_only;
-$quiet       = 1 if ($veryquiet);
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'recursive|r',
+               'backup|k',
+               'regular-expression|x',
+               'binary|b',
+               'output|o',
+               'first|n=n',
+               'ignore-case|i',
+               'force|f',
+               'command|c=s',
+               );
 
-help() if ( $command  and scalar(@ARGV) < 1 );
-help() if ( !$command and scalar(@ARGV) < 3 );
+    if ($opt_output_only) {
+        $opt_backup_file = 0;
+        $opt_verbose--;
+    }
 
-( $cmd_exec, $cmd_args ) = $command =~ m/^(.+?)(?:::(.*))?$/ if $command;
+    if ( $opt_command  and scalar(@ARGV) < 1 ) { help; exit }
+    if ( !$opt_command and scalar(@ARGV) < 3 ) { help; exit }
 
-my ( $fpat, $source, $target, @files ) = @ARGV;
-$fpat =~ s/\./\\./g;
-$fpat =~ s/\*/.*/g;
-$fpat =~ s/\?/./g;
-$fpat = qr/$fpat/i;
+    ( $cmd_exec, $cmd_args ) =
+        $opt_command =~ m/^(.+?)(?:::(.*))?$/ if $opt_command;
 
-print "normalized-file-pattern: $fpat\n" if $verbose;
+    $fpat   = shift @ARGV;
+    $source = shift @ARGV;
+    $target = shift @ARGV;
+    $fpat =~ s/\./\\./g;
+    $fpat =~ s/\*/.*/g;
+    $fpat =~ s/\?/./g;
+    $fpat = qr/$fpat/i;
 
-my $n_source = length($source);
-my $n_target = length($target);
-$source = lc($source) if $no_case;
-$source = qr/$source/i if $regex and $no_case;
-$source = qr/$source/  if $regex and not $no_case;
-print "source pattern: $source\n" if $verbose;
+    info3 "normalized-file-pattern: $fpat";
 
-@files = '.' if ( scalar(@files) == 0 );
+    my $n_source = length($source);
+    my $n_target = length($target);
+    $source = lc($source) if $opt_no_case;
+    $source = qr/$source/i if $opt_regex and $opt_no_case;
+    $source = qr/$source/  if $opt_regex and not $opt_no_case;
+    info3 "source pattern: $source";
 
-if ($regex) {
+    if ($opt_regex) {
 
-    # process reg-ex escapes
+        # process reg-ex escapes
+    }
+    else {
+
+        # process text escapes
+    }
+
+    main;
 }
-else {
 
-    # process text escapes
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
 }
 
-my $total_dirty = 0;
-for (@files) {
-
-    # always enter into the specified directories
-    $total_dirty += process_file( $_, 1 );
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
 }
 
-print "Total $total_dirty files are modified. \n" if not $veryquiet;
+sub info3 {
+    return if $opt_verbose < 3;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: repl,v 1.13 2007-06-23 04:56:19 lenik Exp $');
+    print "[$opt_verbtitle] Replace files by regular-expression \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    &version;
+    print <<"EOM";
+
+Syntax:
+    $0
+        --recursive (r)
+        --backup (k)
+        --regular-expression (x)
+        --command=<external-command::arguments(\$var-names)> (c)
+        --binary (b)
+        --output (o)
+        --first=<number> (n)
+        --ignore-case (i)
+        --force (f)
+        --quiet (q)
+        --verbose (v)
+        --help (?)
+        <file-pattern (reg-ex except .  ?  * instead of  \\.  .  .* )>
+        <source-pattern (reg-ex or plain-text)>
+        <target-pattern (reg-ex or plain-text)>
+        [files or directories ... (default is current directory '.') ]
+
+Variables:
+    \$fpat          file pattern
+    \$source        source pattern
+    \$target        target pattern
+    \$file          current file name
+EOM
+}
+
+boot;
+
+sub main {
+    my $total_dirty = 0;
+
+    my @files = @ARGV;
+    @files = '.' if ( scalar(@files) == 0 );
+
+    for (@files) {
+        # always enter into the specified directories
+        $total_dirty += process_file( $_, 1 );
+    }
+
+    info "Total $total_dirty files are modified. ";
+}
 
 sub process_file {
     my ( $file, $recur ) = @_;
 
     if ( -d $file ) {
-        print "d $file\n" if $verbose;
+        info3 "d $file";
         my $count = 0;
         if ($recur) {
             my $dir  = new DirHandle($file);
             my @list = $dir->read;
             for (@list) {
 
-                # print "[".join(',',@list)."]\n" if $verbose;
+                # info3 "[".join(',',@list)."]";
                 next if (m/^\.\.?$/);
 
                 my $fpath = "$file/$_";
                 if ( -f $fpath ) {
 
-                    #print "s $file\n" if $verbose;
+                    # info3 "s $file";
                     next if ( $fpath !~ m/$fpat/ );
                 }
 
-                $count += process_file( $fpath, $recursive );
+                $count += process_file( $fpath, $opt_recursive );
             }
         }
         return $count;
     }
 
-    print "f $file\n" if not $quiet;
+    info2 "f $file";
     my $fh = new FileHandle("<$file");
     return 0 if ( !$fh );
 
     my @lines = <$fh>;
     $fh->close();
 
-    if ($backup_file) {
-        print "w $file.bak\n" if $verbose;
+    if ($opt_backup_file) {
+        info3 "w $file.bak";
         my $fh_bak = new FileHandle("$file.bak");
         $fh_bak->write(@lines);
         $fh_bak->close();
@@ -157,11 +208,11 @@ sub process_file {
 
     my $dirty = 0;
 
-    if ($command) {
+    if ($opt_command) {
 
         # repl.pl -c <command-line> <files-pattern> <source> <target>
         my $cmd_arg_parsed = eval("\"$cmd_args\"");
-        print "x $cmd_exec $cmd_arg_parsed\n" if not $veryquiet;
+        info "x $cmd_exec $cmd_arg_parsed";
 
         # run external program
         my @outs = `$cmd_exec $cmd_arg_parsed`;
@@ -184,7 +235,7 @@ sub process_file {
         # default replace implementation
         for ( my $l = 0 ; $l < scalar(@lines) ; $l++ ) {
             $_ = $lines[$l];
-            if ($regex) {
+            if ($opt_regex) {
                 my $res  = '';
                 my $spos = 0;
                 while (m/$source/g) {
@@ -204,7 +255,7 @@ sub process_file {
             else {
                 my $pos = $[;
                 while (1) {
-                    if ($no_case) {
+                    if ($opt_no_case) {
                         $pos = index( lc($_), $source, $pos );
                     }
                     else {
@@ -221,14 +272,14 @@ sub process_file {
         }
     }
 
-    if ($output_only) {
+    if ($opt_output_only) {
         for (@lines) {
             print;
         }
     }
     else {
         if ($dirty) {
-            print "w $file\n" if not $veryquiet;
+            info "w $file";
 
             #print "result\n";
             #print join("\n", @lines);
@@ -240,44 +291,4 @@ sub process_file {
     }
 
     return 0;
-}
-
-sub version() {
-    my %id = parse_id('$Id: repl,v 1.12 2007-06-15 11:33:43 lenik Exp $');
-    print "[REPL] Replace files by regular-expression\n";
-    print
-      "Written by Snima Denik   Version $id{rev}   Last updated at $id{date}\n";
-}
-
-sub help() {
-    &version;
-    print <<"EOM";
-
-Syntax:
-    $0
-        --recursive (r)
-        --backup (k)
-        --regular-expression (x)
-        --command=<external-command::arguments(\$var-names)> (c)
-        --binary (b)
-        --output (o)
-        --first=<number> (n)
-        --ignore-case (i)
-        --force (f)
-        --quiet (q)
-        --veryquiet (vq)
-        --verbose (v)
-        --help (?)
-        <file-pattern (reg-ex except .  ?  * instead of  \\.  .  .* )>
-        <source-pattern (reg-ex or plain-text)>
-        <target-pattern (reg-ex or plain-text)>
-        [files or directories ... (default is current directory '.') ]
-
-Variables:
-    \$fpat          file pattern
-    \$source        source pattern
-    \$target        target pattern
-    \$file          current file name
-EOM
-    exit 0;
 }
