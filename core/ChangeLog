@@ -1,6 +1,6 @@
 2007-06-25
 
-	* apply.pl, c-text.pl, cleanhtml.pl, clip.pl, csv2xml.pl,
+  * apply.pl, c-text.pl, cleanhtml.pl, clip.pl, csv2xml.pl,
 	  cuelist.pl, cvsapp.pl, cvsco.pl, dcall.pl, dirs.pl, discuz.pl,
 	  doweb.pl, dumpclip.pl, elaps.pl, execgui.pl, findjsp.pl,
 	  foreach.pl, forx.pl, fs2xml.pl, ftpsend.pl, fun.pl, getmed.pl,
@@ -14,55 +14,55 @@
 
 	replace #!perl -> #!/usr/bin/perl
 
-	* repl.pl:
+  * repl.pl:
 
 	bugfix
 
-	* lib/cmt/util.pm, t/t-qsplit.pl:
+  * lib/cmt/util.pm, t/t-qsplit.pl:
 
 	add forx regexp processor
 
 	add qsplit to support append_cmdline
 
-	* foreach.pl:
+  * foreach.pl:
 
 	define lexical sub as sub f "; *f = sub" {...}
 
 2007-06-23
 
-	* repl.pl:
+  * repl.pl:
 
 	.pl-template applied
 
-	* rmclear.bat:
+  * rmclear.bat:
 
 	bugfix
 
 2007-06-20
 
-	* mp3ltrim.pl:
+  * mp3ltrim.pl:
 
 	template applied, and add -1, -2, etc. part removal support.
 
-	* foreach.pl:
+  * foreach.pl:
 
 	rename style as "new=f(old); r; "
 
-	* .pl:
+  * .pl:
 
 	text_with_underline for easy selection.
 
-	* in.pl:
+  * in.pl:
 
 	modify alias if exists; and set alias="" to remove it.
 
 2007-06-15
 
-	* repl.pl:
+  * repl.pl:
 
 	code style
 
-	* foreach.pl:
+  * foreach.pl:
 
 	add --sort (name,size), --reversed sorting features
 
@@ -72,233 +72,233 @@
 
 2007-05-23
 
-	* .batch.pl, tabsize.pl, tabsizes.bat, lib/cmt/path.pm,
+  * .batch.pl, tabsize.pl, tabsizes.bat, lib/cmt/path.pm,
 	  lib/cmt/test.pm, lib/cmt/util.pm, t/path_t.pl:
 
 	rewrite tabsize.pl, and add a new template .batch.pl to make life easier.
 
 2007-05-12
 
-	* execj.bat, spawn.c, spawn.exe, waitpid.c, waitpid.exe:
+  * execj.bat, spawn.c, spawn.exe, waitpid.c, waitpid.exe:
 
 	execj initial released.
 
-	* hackdict.pl:
+  * hackdict.pl:
 
 	fixbug: stop when read '0'.
 
 2007-05-01
 
-	* hackdict.pl:
+  * hackdict.pl:
 
 	profiler.
 
 2007-04-30
 
-	* wm.pl:
+  * wm.pl:
 
 	add \{del}, \{show}, \{hide} ctrls
 
-	* em.bat:
+  * em.bat:
 
 	hide console
 
-	* hackdict.pl, t/animals, t/numbers, t/passwd, t/verbs:
+  * hackdict.pl, t/animals, t/numbers, t/passwd, t/verbs:
 
 	dev.
 
 2007-04-27
 
-	* lib/cmt/winuser.pm:
+  * lib/cmt/winuser.pm:
 
 	add %_ID, %_WM, %_VK constants
 
-	* lib/cmt/path.pm:
+  * lib/cmt/path.pm:
 
 	bugfix: to distinguish if ('') and if(undef)
 
-	* xvconv.bat:
+  * xvconv.bat:
 
 	automaticly copy mencoder.exe to mc.exe (this change the display-name in tasklist. for hacking purpose)
 
-	* tup.bat:
+  * tup.bat:
 
 	add xdel to TUP for cleaning unnecessaries parts
 
-	* rundelay.pl:
+  * rundelay.pl:
 
 	dev.
 
-	* repl.pl:
+  * repl.pl:
 
 	linux compat.
 
-	* nu.bat:
+  * nu.bat:
 
 	add -v (verbose) option to nu.bat
 
-	* loop.bat:
+  * loop.bat:
 
 	add delay option to loop.bat
 
-	* libstr.bat:
+  * libstr.bat:
 
 	add uc, lc for case convert
 
-	* discuz.pl:
+  * discuz.pl:
 
 	disable Tk-GUI temporary
 
-	* wm.pl:
+  * wm.pl:
 
 	add send-string, send-input
 
-	* lib/cmt/path.pm:
+  * lib/cmt/path.pm:
 
 	add temp_home, temp_path
 
-	* xvconv.bat:
+  * xvconv.bat:
 
 	fix mistake (%_rotate% -> 1)
 
-	* nfs.pl:
+  * nfs.pl:
 
 	add --test-only for retrieve nfs-home
 
-	* foreach.pl:
+  * foreach.pl:
 
 	new safe ren() method and --test-only option
 
-	* dcall.bat:
+  * dcall.bat:
 
 	variation dCall, DCALL for different verbose modes
 
 2007-03-17
 
-	* xvconv.bat:
+  * xvconv.bat:
 
 	goto end after [* batch] finished
 
-	* xvconv.bat:
+  * xvconv.bat:
 
 	customize bitrate: '[' <number> ']'
 
-	* xvconv.bat:
+  * xvconv.bat:
 
 	support more custom options
 
-	* xvconv.bat:
+  * xvconv.bat:
 
 	override default extension to .avi
 
-	* pc.bat:
+  * pc.bat:
 
 	print-counter now supports input-echo (by \r only)
 
 2007-03-04
 
-	* jads.bat:
+  * jads.bat:
 
 	rewrite
 
-	* syset.bat:
+  * syset.bat:
 
 	add "send to sf..." command
 
-	* recv.bat, send.bat:
+  * recv.bat, send.bat:
 
 	"start cmd" if run in windows, or "exec cmd" if run in console
 
-	* syset.bat:
+  * syset.bat:
 
 	add mp3ltrim to mouse-right-menu
 
-	* lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 
 	delete "my"
 
 2006-12-24
 
-	* lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 
 	del duplicated "my"
 
 2006-12-23
 
-	* nfs.pl:
+  * nfs.pl:
 
 	(unresolved) want to change directory to NFS_Container when specify option -to
 
-	* lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 
 	changed cftime to using gmtime instead of localtime.
 	add localftime.
 
-	* names.pl:
+  * names.pl:
 
 	modified for mp3 tagnames
 
-	* dcall.pl:
+  * dcall.pl:
 
 	rewrite dcall.bat
 
-	* lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 
 	fixed a calc error in millisecond
 
-	* dcall.bat:
+  * dcall.bat:
 
 	replaced by new dcall.pl
 
 2006-12-13
 
-	* nfs.pl, lib/cmt/path.pm, lib/cmt/util.pm:
+  * nfs.pl, lib/cmt/path.pm, lib/cmt/util.pm:
 
 	add support of dynamic symbolic link (<?...?>)
 
 2006-12-12
 
-	* fun.pl, lib/fun/.pm, lib/fun/i18n.pm, lib/fun/test.pm:
+  * fun.pl, lib/fun/.pm, lib/fun/i18n.pm, lib/fun/test.pm:
 
 	fixed returns values
 
-	* fun.pl, lib/fun/i18n.pm:
+  * fun.pl, lib/fun/i18n.pm:
 
 	new i18n (~is_utf8) for nfs/six refactor
 
-	* fun.pl, lib/fun/.pm, lib/fun/test.pm:
+  * fun.pl, lib/fun/.pm, lib/fun/test.pm:
 
 	new fun.pl to run utilities functions as programs
 
-	* nfs.pl:
+  * nfs.pl:
 
 	use cmt::date to support datetime function
 
-	* .pl, fun.pl, lib/fun/test.pm:
+  * .pl, fun.pl, lib/fun/test.pm:
 
 	new fun.pl to run utilities functions as programs
 
 2006-12-05
 
-	* lib/cmt/path.pm:
+  * lib/cmt/path.pm:
 
 	add dir_size
 
 2006-11-18
 
-	* resolv.pl:
+  * resolv.pl:
 
 	modified version info
 
-	* sev.pl, t/sev-1.txt:
+  * sev.pl, t/sev-1.txt:
 
 	special form: %EVAL
 
-	* syset.bat:
+  * syset.bat:
 
 	add font color.
 
-	* advname.bat, apply.pl, c-text.pl, cleanhtml.pl, clip.pl,
+  * advname.bat, apply.pl, c-text.pl, cleanhtml.pl, clip.pl,
 	  csv2xml.pl, cuelist.pl, cvsapp.pl, cvsco.pl, dirs.pl, discuz.pl,
 	  doweb.pl, dumpclip.pl, elaps.pl, foreach.pl, forx.pl, fs2xml.pl,
 	  ftpsend.pl, getmed.pl, hex.pl, in.pl, jarwrap.pl, keeplink.pld,
@@ -313,74 +313,74 @@
 
 2006-11-16
 
-	* elaps.pl:
+  * elaps.pl:
 
 	elaps time test
 
-	* lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 
 	ctime + ftime => cftime
 
-	* lib/cmt/serv.pm:
+  * lib/cmt/serv.pm:
 
 	enable check against the deadloop
 
 2006-10-21
 
-	* served.pl:
+  * served.pl:
 
 	the explicit name can't be guessed...
 
-	* syset.bat:
+  * syset.bat:
 
 	changed metapad settings
 
 2006-10-20
 
-	* sim.pl, lib/cmt/util.pm:
+  * sim.pl, lib/cmt/util.pm:
 
 	sub scanDirectory is merged to sim.pl
 
-	* keeplink.pld, lib/cmt/serv.pm:
+  * keeplink.pld, lib/cmt/serv.pm:
 
 	add log to file support, with date column added.
 
-	* syset.bat:
+  * syset.bat:
 
 	modified metapad settings
 
 	readd cygwin disk (B:)
 
-	* lib/cmt/service.pm:
+  * lib/cmt/service.pm:
 
 	fixed the missing of 'restart' command
 
 2006-10-19
 
-	* syset.bat:
+  * syset.bat:
 
 	add .pld, .six extensions
 
-	* served.pl:
+  * served.pl:
 
 	initial.
 
-	* wcc.pl:
+  * wcc.pl:
 
 	add .pm files
 
 2006-10-18
 
-	* keeplink.pld:
+  * keeplink.pld:
 
 	append \n to the send-text. otherwise the sending is buffered.
 	adjust verbose info.
 
-	* keeplink.pld:
+  * keeplink.pld:
 
 	using simpled/echod as a dummy server
 
-	* simpled.pld, lib/cmt/channel.pm, lib/cmt/ftime.pm,
+  * simpled.pld, lib/cmt/channel.pm, lib/cmt/ftime.pm,
 	  lib/cmt/serv.pm, lib/cmt/simpled.pm:
 
 	new cmt::serv help creation of services.
@@ -388,349 +388,349 @@
 
 2006-10-17
 
-	* rfc.bat:
+  * rfc.bat:
 
 	only assoc metapad to text type file.
 
-	* lib/cmt/echohh.php, service/echohh.php:
+  * lib/cmt/echohh.php, service/echohh.php:
 
 	move echohh.php from lib/cmt/ to service/
 
-	* syset.bat:
+  * syset.bat:
 
 	add ARK_HOME var.
 
-	* rfc.bat:
+  * rfc.bat:
 
 	add ARK_HOME environment variable to replace z:/Files/ directory.
 	set default editor to metapad.
 
 2006-09-15
 
-	* usecode.pl:
+  * usecode.pl:
 
 	change registry path /S-FIA../Dir-T/ to /DIRT/
 
-	* syset.bat:
+  * syset.bat:
 
 	add JAVA_LIB env
 
 2006-08-19
 
-	* nfs.pl:
+  * nfs.pl:
 
 	set defaulat home note/ to .note/
 
-	* listen.bat, open.bat:
+  * listen.bat, open.bat:
 
 	override PORT
 
-	* syset.bat:
+  * syset.bat:
 
 	std env: dirt_home, cirk_home
 
 2006-07-27
 
-	* apply2.bat, clup.bat, jads.bat, listen.bat, ml.bat, nfs-todo.pl,
+  * apply2.bat, clup.bat, jads.bat, listen.bat, ml.bat, nfs-todo.pl,
 	  not.bat, nu.bat, open.bat, php5to4.pl, rundelay.pl, selicon.bat,
 	  sh.bat, words.txt:
 
 	initial
 
-	* whoare.pl:
+  * whoare.pl:
 
 	print atom in multi-thread mode.(which is safer)
 	rather print fragments in singlethread mode (which is faster)
 
-	* wcc.pl:
+  * wcc.pl:
 
 	add bas file type
 
-	* tup.bat:
+  * tup.bat:
 
 	no more use q.host.bodz.net
 
-	* cvsco.pl, cvscosf.bat:
+  * cvsco.pl, cvscosf.bat:
 
 	sf cvs web changed.
 
-	* apply.pl:
+  * apply.pl:
 
 	using cmt::path
 
-	* getweb.bat:
+  * getweb.bat:
 
 	add header: Host: <host>
 
-	* cvsignor.def:
+  * cvsignor.def:
 
 	ignore *.patch, *.lnk
 
-	* rfc.bat:
+  * rfc.bat:
 
 	add vars
 
-	* syset.bat:
+  * syset.bat:
 
 	using cygwin disk (B:)
 
-	* cvsignor.def:
+  * cvsignor.def:
 
 	ignore _win32_ ...
 
 2006-04-23
 
-	* syset.bat:
+  * syset.bat:
 
 	add merge command to *.patch fiels
 
-	* wcc.pl:
+  * wcc.pl:
 
 	add .sql type
 
-	* tabsizes.bat:
+  * tabsizes.bat:
 
 	display help if no args
 
-	* rfc.bat:
+  * rfc.bat:
 
 	path changes
 
-	* dist-cvsi.bat:
+  * dist-cvsi.bat:
 
 	quote "%TEMP%" if temp dir contains space
 
-	* cvsignor.def:
+  * cvsignor.def:
 
 	ignore *.lnk and *.patch
 
-	* nfs.pl:
+  * nfs.pl:
 
 	add test-only option
 
-	* cvscopy.bat:
+  * cvscopy.bat:
 
 	add cvscmdopts so can copy specified tag/branch
 
 2006-03-17
 
-	* lib/cmt/winuser.pm:
+  * lib/cmt/winuser.pm:
 
 	code review
 
-	* cvsignor.def, dist-cvsi.bat:
+  * cvsignor.def, dist-cvsi.bat:
 
 	new solution
 
-	* examples:
+  * examples:
 
 	examples file
 
-	* wcc.pl:
+  * wcc.pl:
 
 	ctl => vb
 
-	* nfs.pl:
+  * nfs.pl:
 
 	retry if link not available
 
-	* cvscopy.bat:
+  * cvscopy.bat:
 
 	writable checkout
 
 2006-01-26
 
-	* syset.bat:
+  * syset.bat:
 
 	modulize, add include/lib to .cirkonstancoj/sdk
 
-	* srt-delay.pl:
+  * srt-delay.pl:
 
 	add scale function
 
 2005-12-20
 
-	* nfs.pl:
+  * nfs.pl:
 
 	add "directory of any files" note type, this replace the old work-box.
 	the symbolic now must with extension .link
 
-	* mp3ltrim.pl:
+  * mp3ltrim.pl:
 
 	fix filename pattern
 
-	* winvod.pl:
+  * winvod.pl:
 
 	customizable server
 
-	* wcc.pl:
+  * wcc.pl:
 
 	add xml extension (but not impl.)
 
 2005-10-28
 
-	* deltags.bat:
+  * deltags.bat:
 
 	initial
 
 2005-10-21
 
-	* repl.pl:
+  * repl.pl:
 
 	die if file error
 
-	* syset.bat, ss.bat:
+  * syset.bat, ss.bat:
 
 	maintaince
 
-	* copyfix.pl:
+  * copyfix.pl:
 
 	initial
 
-	* forx.pl, foreach.pl:
+  * forx.pl, foreach.pl:
 
 	add userproc variables
 
-	* cvscopy.bat:
+  * cvscopy.bat:
 
 	fixed complex module path bug.
 
 2005-07-17
 
-	* forx.pl:
+  * forx.pl:
 
 	fix recursive bug
 
-	* foreach.pl:
+  * foreach.pl:
 
 	prompt for enter script
 
-	* forx.pl:
+  * forx.pl:
 
 	initial
 
-	* foreach.pl:
+  * foreach.pl:
 
 	add ls, search from forx.pl, fix $count undefined.
 
 2005-07-14
 
-	* cvscopy.bat:
+  * cvscopy.bat:
 
 	fix sync-.bat filename bug
 
-	* re.bat, ss.bat:
+  * re.bat, ss.bat:
 
 	for ruby-scite & mxscheme
 
-	* syset.bat, tup.bat:
+  * syset.bat, tup.bat:
 
 	add ruby component
 
-	* foreach.pl:
+  * foreach.pl:
 
 	fixed recursion bug
 
-	* cvscopy.bat:
+  * cvscopy.bat:
 
 	syntax changed. not compatible to lower than 1.7
 
 2005-07-08
 
-	* syset.bat:
+  * syset.bat:
 
 	include metapad
 
 2005-07-06
 
-	* discuz.pl, simxml.pl:
+  * discuz.pl, simxml.pl:
 
 	change --picture to --icon (ic)
 
-	* winvod.pl:
+  * winvod.pl:
 
 	re-add (no dna-encoding)
 
-	* discuz.pl:
+  * discuz.pl:
 
 	fix --cookie/--caption ambigouous
 	add --picture
 
 2005-07-05
 
-	* discuz.pl:
+  * discuz.pl:
 
 	fix arguments, add
 
 2005-07-01
 
-	* dnac.pl, dnad.pl, lib/cmt/g.pm:
+  * dnac.pl, dnad.pl, lib/cmt/g.pm:
 
 	full-DNA
 
-	* dnac.pl, dnad.pl, lib/cmt/g.pm:
+  * dnac.pl, dnad.pl, lib/cmt/g.pm:
 
 	test ok
 
 2005-06-30
 
-	* syset.bat, tup.bat:
+  * syset.bat, tup.bat:
 
 	.dir-t -> .dirt
 
 2005-06-19
 
-	* cvscopy.bat:
+  * cvscopy.bat:
 
 	attris -> attrib
 
-	* cvscopy.bat:
+  * cvscopy.bat:
 
 	make readonly copy
 
-	* cvscopy.bat:
+  * cvscopy.bat:
 
 	don't clean, for merge
 
 2005-03-30
 
-	* noteauto.vbs:
+  * noteauto.vbs:
 
 	add comments about .vbs-association
 	this is always be modified by sthvcd
 
 2005-03-03
 
-	* dnac.pl, dnad.pl:
+  * dnac.pl, dnad.pl:
 
 	Compiled by DNA-Compiler
 
-	* dnac.pl:
+  * dnac.pl:
 
 	indent mistake
 
-	* dnac.pl, dnad.pl, lib/cmt/g.pm, lib/cmt/util.pm, t/hello-gen.pl,
+  * dnac.pl, dnad.pl, lib/cmt/g.pm, lib/cmt/util.pm, t/hello-gen.pl,
 	  t/hello.pl:
 
 	initial
 
 2005-03-02
 
-	* cuelist.pl:
+  * cuelist.pl:
 
 	initial
 
 2005-01-19
 
-	* hex.pl:
+  * hex.pl:
 
 	add ccr (control-character representation) support
 
-	* nfs.pl:
+  * nfs.pl:
 
 	generate .nfs-sync.bat with --quiet option
 
-	* hex.pl:
+  * hex.pl:
 
 	add chars support, e.g.:
 	  hex -p=$dh. 'hello'
@@ -738,17 +738,17 @@
 
 2005-01-06
 
-	* cvscopy.bat:
+  * cvscopy.bat:
 
 	fm.  "Revision"
 
-	* cvsapp.pl, cvsco.pl, dirs.pl, hex.pl, in.pl, monitor.pl,
+  * cvsapp.pl, cvsco.pl, dirs.pl, hex.pl, in.pl, monitor.pl,
 	  newline.pl, repl.pl, scx.pl, so.pl, syset.bat, wcc.pl,
 	  lib/cmt/vcs.pm, t/path_t.pl:
 
 	fd.  cmt.pm => cmt/vcs.pm
 
-	* nfs.pl:
+  * nfs.pl:
 
 	- add generated bat script
 	- add interactive option
@@ -756,159 +756,159 @@
 
 2005-01-05
 
-	* cvscopy.bat:
+  * cvscopy.bat:
 
 	don't create .vex directory cuz not used.
 
-	* cvscopy.bat:
+  * cvscopy.bat:
 
 	in.
 
 2005-01-04
 
-	* nfs.pl:
+  * nfs.pl:
 
 	fd- cmt.pm => cmt/vcs.pm
 
-	* note.bat:
+  * note.bat:
 
 	Nfs-Transition
 
-	* nfs.pl:
+  * nfs.pl:
 
 	use . for today and .. for yesterday
 
-	* nfs.pl:
+  * nfs.pl:
 
 	more convienient offset format, like days<-.., ..->days
 
-	* nfs.pl:
+  * nfs.pl:
 
 	implement offset option
 
-	* nfs.pl:
+  * nfs.pl:
 
 	fb- entry in sync-nfs is already expanded.
 
-	* nfs.pl:
+  * nfs.pl:
 
 	add remove mapping-entry support
 
-	* nfs.pl:
+  * nfs.pl:
 
 	fb- map support
 
-	* nfs.pl:
+  * nfs.pl:
 
 	auto-extension
 
-	* nfs.pl:
+  * nfs.pl:
 
 	initial
 
-	* fontmap.php:
+  * fontmap.php:
 
 	add more powerful char-table format ( \x?? char support )
 
-	* nfs.bat:
+  * nfs.bat:
 
 	shell wrapper
 
-	* syset.bat:
+  * syset.bat:
 
 	- fixed PERLLIB/PYTHONLIB incorrects
 	- using normalized-path instead of mixed-slash path
 
-	* scx.pl, tgz.bat, nfs.pl:
+  * scx.pl, tgz.bat, nfs.pl:
 
 	initial
 
-	* lib/cmt/path.pm:
+  * lib/cmt/path.pm:
 
 	pa. some comments
 
-	* lib/cmt/winuser.pm:
+  * lib/cmt/winuser.pm:
 
 	initial
 
-	* lib/cmt/test.pm:
+  * lib/cmt/test.pm:
 
 	mi. from webcon::Test::Base
 
 2005-01-03
 
-	* nfs.pl:
+  * nfs.pl:
 
 	rewritten of note.bat, initial
 
-	* lib/cmt/path.pm:
+  * lib/cmt/path.pm:
 
 	mi. from webcon
 
 2004-12-22
 
-	* j.bat:
+  * j.bat:
 
 	adjust classpath
 
-	* note.bat:
+  * note.bat:
 
 	add link maintaince
 
 2004-12-19
 
-	* note.bat, noteauto.vbs:
+  * note.bat, noteauto.vbs:
 
 	add multi .vol/ support
 
 2004-12-12
 
-	* in.pl:
+  * in.pl:
 
 	initial
 
-	* hex.pl:
+  * hex.pl:
 
 	fixed a display char mistake
 
-	* newline.pl:
+  * newline.pl:
 
 	- add global filename-pattern support
 	- add wild-chars in filename support
 
-	* repl.pl:
+  * repl.pl:
 
 	missing of "use cmt"
 
-	* repl.pl:
+  * repl.pl:
 
 	split help into version and help,
 	(cuz repl.pl was refered too much, its code will be using as template)
 
 2004-12-07
 
-	* notes.zip:
+  * notes.zip:
 
 	move .help out from .def
 
-	* note.bat:
+  * note.bat:
 
 	fixed a reentrant bug
 
-	* so.pl:
+  * so.pl:
 
 	enhanced escape/unescape functionality (see re-parts reference impl.)
 
-	* re-parts.pl:
+  * re-parts.pl:
 
 	- show more detail of position info
 	- add reference implementation of complex global replace
 
-	* newline.pl:
+  * newline.pl:
 
 	display current line-format info in help page
 
-	* note.bat:
+  * note.bat:
 
 	- option // now build index file in given container-name, instead of temp dir
 	- symbolic link filename of note-home now use Notes.link instead Notes
@@ -916,185 +916,185 @@
 
 2004-12-03
 
-	* hex.pl:
+  * hex.pl:
 
 	initial
 
-	* fontmap.php:
+  * fontmap.php:
 
 	removed 7f-9f from default chars
 
-	* syset.bat:
+  * syset.bat:
 
 	- change php-upload/session directory to userhome/local settings/
 	- include php.ini template in t/2/etc/
 
-	* so.pl:
+  * so.pl:
 
 	fixed: replace escaped-char as \n \r \t \\  seperately, instead of \(.)=>table-lookup
 
-	* rfc.bat:
+  * rfc.bat:
 
 	rename uedit32 to ue
 
-	* note.bat:
+  * note.bat:
 
 	- add /<open-app> options at end of command-line
 	  (as: note [{//|/del|/<ext>}] {<empty>|.|<name>} [/<open-app>]
 	- support '.' for auto-serial naming (also empty string does)
 
-	* so.pl:
+  * so.pl:
 
 	add --print, --wait options
 	rename options with opt_ prefix
 
 2004-12-01
 
-	* note.bat, syset.bat:
+  * note.bat, syset.bat:
 
 	uedit32 renamed to ue
 
-	* syset.bat:
+  * syset.bat:
 
 	fixed an unescaped-% error
 
-	* fontmap.php:
+  * fontmap.php:
 
 	- use Courier New as default text font
 	- enhanced angle-rotate option, but still have bug (when angle >45, crop happened.)
 	- implemented --bold option by repeat drawing along x-axis.
 
-	* fontmap.php:
+  * fontmap.php:
 
 	- add interlace option for png-interlace or jpeg-progressive
 	- index the options by alphabet-order
 	- add text-format for build character cartoons,
 	- add --textfont options to view the cartoons in different fonts.
 
-	* fontmap.php:
+  * fontmap.php:
 
 	- add format-dependent codes
 	- add jpeg-quality option
 
 2004-11-30
 
-	* syset.bat:
+  * syset.bat:
 
 	add php configuration
 
-	* syset_env.exe:
+  * syset_env.exe:
 
 	rewritten in perl script embedded in syset.bat.
 
-	* args.bat, t/libstr_t.bat:
+  * args.bat, t/libstr_t.bat:
 
 	initial
 
-	* note.bat:
+  * note.bat:
 
 	moved replace/join into libstr, and modified the name.
 
-	* syset.bat:
+  * syset.bat:
 
 	- implemented environment-updater in perl instead of calling syset.exe, so full-script.
 	- enhanced dir-t path layout
 	- add php in dir-t.
 
-	* libstr.bat:
+  * libstr.bat:
 
 	Code clearify
 
-	* libstr.bat:
+  * libstr.bat:
 
 	use revision instead of id in function comments
 
-	* libstr.bat:
+  * libstr.bat:
 
 	- initial
 
-	* fontmap.php:
+  * fontmap.php:
 
 	- fixed a version display error
 	- show help when family not specified
 
 2004-11-29
 
-	* fontmap.php:
+  * fontmap.php:
 
 	add sameh option
 
-	* fontmap.php:
+  * fontmap.php:
 
 	- have calculated the correct formula of Y-positioning to chars
 	- fixed a auto [tsnlh] naming error
 	- fixed a gradient color error in anti-alias
 
-	* fontmap.php:
+  * fontmap.php:
 
 	Initial
 
 2004-11-28
 
-	* note.bat:
+  * note.bat:
 
 	Fixed bug: when /<ext> specified, the new note is always overwrite the old.
 
 2004-11-25
 
-	* j.bat:
+  * j.bat:
 
 	JOS Home Moved
 
-	* dirs.pl:
+  * dirs.pl:
 
 	[DIRS] Like old "T" utility for calc directories' size
 	- Initial
 
-	* note.bat:
+  * note.bat:
 
 	Add option // for list titles of all notes.
 
 2004-11-24
 
-	* j.bat:
+  * j.bat:
 
 	New J-shell
 
-	* note.bat, noteauto.vbs, notes.zip:
+  * note.bat, noteauto.vbs, notes.zip:
 
 	add template note-support in self, using "note .vol-def"
 
 2004-11-17
 
-	* newline.pl:
+  * newline.pl:
 
 	fix an CR-redundancy when output lines by use binmode()
 
-	* newline.pl:
+  * newline.pl:
 
 	add binary-file recognize.
 
-	* newline.pl:
+  * newline.pl:
 
 	Initial-2
 
-	* newline.pl:
+  * newline.pl:
 
 	Initial
 
-	* sim.pl:
+  * sim.pl:
 
 	Add temp extension-name support for .bat, .vbs using.
 
 2004-11-15
 
-	* syset.bat:
+  * syset.bat:
 
 	add .sim assoc
 
 2004-11-13
 
-	* whoare.pl:
+  * whoare.pl:
 
 	- add lot more whois server list.
 	- iterate by word-list file, and resume support.
@@ -1104,38 +1104,38 @@
 	- display each record part by part, by the stages of query session.
 	- new log file naming method.
 
-	* minimode.bat, monitor.pl:
+  * minimode.bat, monitor.pl:
 
 	Initial
 
-	* resplit.pl:
+  * resplit.pl:
 
 	Regular-Expression SPLIT: Split into files by occurance of pattern-match
 	- Initial
 
-	* rfc.bat:
+  * rfc.bat:
 
 	use ultraedit as the default editor.
 
-	* repl.pl:
+  * repl.pl:
 
 	support output only mode (don't save/writeback the replace result)
 
-	* loop.bat:
+  * loop.bat:
 
 	display command line at titlebar.
 
-	* note.bat:
+  * note.bat:
 
 	add /del option for delete note.
 
 2004-10-26
 
-	* loop.bat:
+  * loop.bat:
 
 	initial
 
-	* whoare.pl:
+  * whoare.pl:
 
 	- whois .biz server
 	- auto naming log-file for fuzzy-query
@@ -1148,73 +1148,73 @@
 
 2004-10-25
 
-	* whoare.pl:
+  * whoare.pl:
 
 	supp cnnic whois format
 
-	* whoare.pl:
+  * whoare.pl:
 
 	initial [whois *]
 
 2004-10-20
 
-	* simxml.pl:
+  * simxml.pl:
 
 	[keep] this state-machine version is hard to maintain.
 
-	* sim.pl:
+  * sim.pl:
 
 	Use temporary file for both write-mode and output-mode, to clear sim-preprocessors for specific interpreters.
 
-	* sim.pl, simxml.pl:
+  * sim.pl, simxml.pl:
 
 	- Initial, SIM is A GG-style interpreter
 	- Update .stx to .xml.sim
 
-	* note.bat:
+  * note.bat:
 
 	fixed a dirty-variable bug.
 
-	* cvscosf.bat:
+  * cvscosf.bat:
 
 	Splited into cvsco
 
-	* cvsco.pl:
+  * cvsco.pl:
 
 	Generalized from cvscosf
 
 2004-10-11
 
-	* binwrap.bat:
+  * binwrap.bat:
 
 	indent.
 
-	* envkey.bat:
+  * envkey.bat:
 
 	env-clear for general purpose.
 
-	* noteauto.vbs:
+  * noteauto.vbs:
 
 	ole-automation support for note.bat.
 
-	* note.bat:
+  * note.bat:
 
 	- auto-recognize file type only if /type arguments not specified.
 	- add ole-auto support for creating template-based documents.
 	  (for avoid timestamp-bug in copy-mode)
 
-	* note.bat:
+  * note.bat:
 
 	- new extension mapping
 	  (now note/xls .. instead of note e ..)
 	- auto extension recognize
 	  (now note <xlsnote> instead of note e <xlsnote>)
 
-	* cvscosf.bat:
+  * cvscosf.bat:
 
 	initial
 
-	* binwrap.bat, cmdex.bat, envkey.bat:
+  * binwrap.bat, cmdex.bat, envkey.bat:
 
 	binwrap  [ testing Plink arguments ]
 	   envkey
@@ -1222,91 +1222,91 @@
 
 2004-10-08
 
-	* cvsapp.pl:
+  * cvsapp.pl:
 
 	progress.
 
-	* note.bat:
+  * note.bat:
 
 	add link-following support, so notes package can be placed at different places.
 
-	* rfc.bat:
+  * rfc.bat:
 
 	initial
 
 2004-10-02
 
-	* note.bat:
+  * note.bat:
 
 	add mount-check.
 
 2004-09-24
 
-	* wcc.pl:
+  * wcc.pl:
 
 	- add total lines at last (forbidden by --nosummary)
 	- add classification by .extension
 	- don't show directories with zero lines, unless verbose-mode.
 
-	* lib/cmt/vcs.pm:
+  * lib/cmt/vcs.pm:
 
 	the literal $.I.d.$ is modified by cvs mistake, so fix it.
 
-	* cvsexp.bat:
+  * cvsexp.bat:
 
 	fixed a version display bug
 
-	* lib/cmt/vcs.pm, cvsapp.pl:
+  * lib/cmt/vcs.pm, cvsapp.pl:
 
 	initial
 
 2004-09-23
 
-	* wcc.pl:
+  * wcc.pl:
 
 	use parse_id to show version info
 
-	* cvsexp.bat:
+  * cvsexp.bat:
 
 	add version info
 
-	* wcc.pl:
+  * wcc.pl:
 
 	fixed a sum bug
 
-	* wcc.pl:
+  * wcc.pl:
 
 	ignore Object .. at begining of vb files.
 
-	* wcc.pl:
+  * wcc.pl:
 
 	fix revision display
 
-	* wcc.pl:
+  * wcc.pl:
 
 	initial
 
-	* clip.bat:
+  * clip.bat:
 
 	removed.
 
-	* repl.pl:
+  * repl.pl:
 
 	- new option: --veryquiet
 	- add to display modified-count at last.
 
-	* note.bat:
+  * note.bat:
 
 	- trailing '-' in 'title-' will be substituted by serial number
 
 2004-09-22
 
-	* HIS.BAT, LM.BAT, StartMap.bat, asp-decode.pl, jackhash.bat,
+  * HIS.BAT, LM.BAT, StartMap.bat, asp-decode.pl, jackhash.bat,
 	  tom.bat:
 
 	these were expired or from 3rd-parties
 
-	* MCopy.bat, MkRoot.bat, SWAP.BAT, TestErr.bat, advname.bat,
+  * MCopy.bat, MkRoot.bat, SWAP.BAT, TestErr.bat, advname.bat,
 	  any.bat, apply.bat, apply.pl, c-text.pl, cexp.bat, cexp_ip.bat,
 	  cleanhtml.pl, clear-recent.bat, clip.pl, conf.bat, cvsexp.bat,
 	  dist-cvsi.bat, dumpclip.pl, em.bat, exp.bat, fors.bat,
@@ -1318,61 +1318,61 @@
 
 	add version info at header.
 
-	* repl.pl:
+  * repl.pl:
 
 	few
 
-	* frepls.bat, m.bat:
+  * frepls.bat, m.bat:
 
 	removed
 
-	* tabsize.pl, tabsizes.bat:
+  * tabsize.pl, tabsizes.bat:
 
 	source from tab-style.pl
 
-	* c-text.pl, clear-recent.bat, cvsexp.bat, get-mp4cn.bat,
+  * c-text.pl, clear-recent.bat, cvsexp.bat, get-mp4cn.bat,
 	  getweb.bat, note.bat, syset.bat, syset_env.exe:
 
 	initial
 
-	* tup.bat:
+  * tup.bat:
 
 	auto initialize system settings after updated.
 
-	* stx2xml.pl:
+  * stx2xml.pl:
 
 	few
 
-	* so.pl:
+  * so.pl:
 
 	show help if no arguments are specified.
 
-	* repl.pl:
+  * repl.pl:
 
 	add external command support
 
-	* getmed.pl:
+  * getmed.pl:
 
 	make help page more clear
 
 2004-08-23
 
-	* tup.bat:
+  * tup.bat:
 
 	at last, automatic update -- being commited!
 
-	* dist-cvsi.bat, em.bat, j.bat, srt-delay.pl, conf.bat, patcat.pl,
+  * dist-cvsi.bat, em.bat, j.bat, srt-delay.pl, conf.bat, patcat.pl,
 	  repl.pl, startext.bat:
 
 	usnap merging plan
 
 2004-08-08
 
-	* dist-cvsi.bat:
+  * dist-cvsi.bat:
 
 	Dispatch .cvsignore (and other initializers) to sub-directories
 
-	* HIS.BAT, LM.BAT, MCopy.bat, MkRoot.bat, SWAP.BAT, StartMap.bat,
+  * HIS.BAT, LM.BAT, MCopy.bat, MkRoot.bat, SWAP.BAT, StartMap.bat,
 	  TestErr.bat, advname.bat, any.bat, apply.bat, apply.pl,
 	  asp-decode.pl, cexp.bat, cexp_ip.bat, cleanhtml.pl, clip.bat,
 	  clip.pl, dumpclip.pl, em.bat, exp.bat, fors.bat, frepls.bat,
