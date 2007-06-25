@@ -1,3 +1,164 @@
+2007-06-25
+
+	* replace #!perl -> #!/usr/bin/perl
+
+	* bugfix
+
+	* add forx regexp processor
+
+	  add qsplit to support append_cmdline
+
+	* define lexical sub as sub f "; *f = sub" {...}
+
+2007-06-23
+
+	* .pl-template applied
+
+	* bugfix
+
+2007-06-20
+
+	* template applied, and add -1, -2, etc. part removal support.
+
+	* rename style as "new=f(old); r; "
+
+	* text_with_underline for easy selection.
+
+	* modify alias if exists; and set alias="" to remove it.
+
+2007-06-15
+
+	* code style
+
+	* add --sort (name,size), --reversed sorting features
+
+	  add inline-script (or @script-file)
+
+	  add file-list reference options (--list=..., and $L, $M, etc.
+	  vars)
+
+2007-05-23
+
+	* rewrite tabsize.pl, and add a new template .batch.pl to make life
+	  easier.
+
+2007-05-12
+
+	* execj initial released.
+
+	* fixbug: stop when read '0'.
+
+2007-05-01
+
+	* profiler.
+
+2007-04-30
+
+	* add \{del}, \{show}, \{hide} ctrls
+
+	* hide console
+
+	* dev.
+
+2007-04-27
+
+	* add %_ID, %_WM, %_VK constants
+
+	* bugfix: to distinguish if ('') and if(undef)
+
+	* automaticly copy mencoder.exe to mc.exe (this change the
+	  display-name in tasklist. for hacking purpose)
+
+	* add xdel to TUP for cleaning unnecessaries parts
+
+	* dev.
+
+	* linux compat.
+
+	* add -v (verbose) option to nu.bat
+
+	* add delay option to loop.bat
+
+	* add uc, lc for case convert
+
+	* disable Tk-GUI temporary
+
+	* add send-string, send-input
+
+	* add temp_home, temp_path
+
+	* fix mistake (%_rotate% -> 1)
+
+	* add --test-only for retrieve nfs-home
+
+	* new safe ren() method and --test-only option
+
+	* variation dCall, DCALL for different verbose modes
+
+2007-03-17
+
+	* goto end after [* batch] finished
+
+	* customize bitrate: '[' <number> ']'
+
+	* support more custom options
+
+	* override default extension to .avi
+
+	* print-counter now supports input-echo (by \r only)
+
+2007-03-04
+
+	* rewrite
+
+	* add "send to sf..." command
+
+	* "start cmd" if run in windows, or "exec cmd" if run in console
+
+	* add mp3ltrim to mouse-right-menu
+
+	* delete "my"
+
+2006-12-24
+
+	* del duplicated "my"
+
+2006-12-23
+
+	* (unresolved) want to change directory to NFS_Container when
+	  specify option -to
+
+	* changed cftime to using gmtime instead of localtime.	add
+	  localftime.
+
+	* modified for mp3 tagnames
+
+	* rewrite dcall.bat
+
+	* fixed a calc error in millisecond
+
+	* replaced by new dcall.pl
+
+2006-12-13
+
+	* add support of dynamic symbolic link (<?...?>)
+
+2006-12-12
+
+	* fixed returns values
+
+	* new i18n (~is_utf8) for nfs/six refactor
+
+	* new fun.pl to run utilities functions as programs
+
+	* use cmt::date to support datetime function
+
+	* new fun.pl to run utilities functions as programs
+
+2006-12-05
+
+	* add dir_size
+
 2006-11-18
 
 	* modified version info
