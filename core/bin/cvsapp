@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/perl
 
 use strict;
 use cmt::vcs;
@@ -53,7 +53,7 @@ sub main {
 
 
 sub version {
-    my %id = parse_id('$Id: cvsapp,v 1.4 2006-11-17 20:28:08 lenik Exp $');
+    my %id = parse_id('$Id: cvsapp,v 1.5 2007-06-25 12:58:13 lenik Exp $');
     print <<"EOM";
 append cvs repository from one to another
 version $id{'rev'}   last updated $id{'date'}   written by snima denik

@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/perl
 
 use strict;
 use Getopt::Long;
@@ -125,7 +125,7 @@ EOM
 
 
 sub help {
-    my %id = parse_id('$Id: cuelist,v 1.2 2006-11-17 20:28:08 lenik Exp $');
+    my %id = parse_id('$Id: cuelist,v 1.3 2007-06-25 12:58:13 lenik Exp $');
     print <<"EOM";
 Cuelist by S.N.M.
 Version $id{rev}  last update $id{date}

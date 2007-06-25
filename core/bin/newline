@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/perl
 
 use strict;
 use Config;
@@ -57,7 +57,7 @@ sub init {
 
 
 sub version {
-    my %ver = parse_id('$Id: newline,v 1.8 2006-11-17 20:28:09 lenik Exp $');
+    my %ver = parse_id('$Id: newline,v 1.9 2007-06-25 12:58:14 lenik Exp $');
     print <<"EOM";
 [NEWLINE] Convert new-line format for text files
 Written by Denik,  Revision $ver{rev},  Last Updated $ver{date}

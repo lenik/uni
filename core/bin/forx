@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/perl
 
 use strict;
 use DirHandle;
@@ -168,7 +168,7 @@ sub search {
 
 
 sub version {
-    my %id = parse_id('$Id: forx,v 1.4 2006-11-17 20:28:09 lenik Exp $');
+    my %id = parse_id('$Id: forx,v 1.5 2007-06-25 12:58:13 lenik Exp $');
     print <<"EOM";
 [forx] extra-files processor framework   version $id{rev}
 author: lenik,  last update: $id{date}

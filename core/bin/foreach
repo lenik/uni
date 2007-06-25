@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/perl
 
 use strict;
 use DirHandle;
@@ -213,7 +213,7 @@ sub info2 {
 
 
 sub version {
-    my %id = parse_id('$Id: foreach,v 1.11 2007-06-25 11:28:03 lenik Exp $');
+    my %id = parse_id('$Id: foreach,v 1.12 2007-06-25 12:58:13 lenik Exp $');
     print <<"EOM";
 [foreach] files processor framework   version $id{rev}
 author: lenik,  last update: $id{date}

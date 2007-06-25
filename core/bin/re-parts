@@ -1,5 +1,5 @@
-#!perl
-# $Id: re-parts,v 1.4 2006-11-17 20:28:09 lenik Exp $
+#!/usr/bin/perl
+# $Id: re-parts,v 1.5 2007-06-25 12:58:14 lenik Exp $
 
 # re-parts <regex> ...
 

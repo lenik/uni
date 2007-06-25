@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/perl
 
 use strict;
 use cmt::util;
@@ -90,7 +90,7 @@ sub _info2 {
 }
 
 sub _version {
-    my %id = parse_id('$Id: fun,v 1.4 2006-12-12 11:48:36 lenik Exp $');
+    my %id = parse_id('$Id: fun,v 1.5 2007-06-25 12:58:13 lenik Exp $');
     print "[opt_verbtitle] Perl simple function caller\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }

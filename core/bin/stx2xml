@@ -1,5 +1,5 @@
-#!perl -w
-# $Id: stx2xml,v 1.4 2006-11-17 20:28:09 lenik Exp $
+#!/usr/bin/perl -w
+# $Id: stx2xml,v 1.5 2007-06-25 12:58:14 lenik Exp $
 
 # stx2xml utility: convert structural text -> xml
 # author danci.z

@@ -1,4 +1,4 @@
-#!perl -w
+#!/usr/bin/perl -w
 
 use strict;
 use Getopt::Long;
@@ -11,7 +11,7 @@ use cmt::util;
 
 
 our $nfs_appname = 'NFS Version 2';
-our %nfs_id = parse_id('$Id: nfs,v 1.23 2007-04-27 13:31:59 lenik Exp $');
+our %nfs_id = parse_id('$Id: nfs,v 1.24 2007-06-25 12:58:14 lenik Exp $');
 
 our %nfs_filetype = (
     ''      => 'ue "%s"',                   # default
