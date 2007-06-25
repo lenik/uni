@@ -75,12 +75,11 @@ sub sortby_size;
     $opt_script ||= join('', @lines);
 
     eval(<<"EOM");
-        our (\$old, \$new);
         sub process {
             my \$path = \$_[0];
             local (\$_) = \$path;
             my (\$dir, \$base) = path_split(\$path);
-            local (\$old, \$new) = (\$base, \$base);
+            my (\$old, \$new) = (\$base, \$base);
             my (\$file, \$ext) = path_splitext(\$base);
             my (\$path2, \$dir2, \$base2, \$file2, \$ext2) =
                (\$path,  \$dir,  \$base,  \$file,  \$ext );
@@ -88,7 +87,8 @@ sub sortby_size;
                 \$k, \$l, \$m, \$n, \$o, \$p, \$q, \$r, \$s, \$t,
                 \$u, \$v, \$w, \$x, \$y, \$z);
             my (\$L, \$M, \$N, \$O, \$P, \$Q, \$R, \$S, \$T, \$U) = \@L;
-            sub r { ren(\$old, \$new) }
+            sub r   ; *r = sub
+                    { print "ren(\$old, \$new)\n" };
             1;
             $opt_script
         }
@@ -213,7 +213,7 @@ sub info2 {
 
 
 sub version {
-    my %id = parse_id('$Id: foreach,v 1.10 2007-06-20 11:03:45 lenik Exp $');
+    my %id = parse_id('$Id: foreach,v 1.11 2007-06-25 11:28:03 lenik Exp $');
     print <<"EOM";
 [foreach] files processor framework   version $id{rev}
 author: lenik,  last update: $id{date}
