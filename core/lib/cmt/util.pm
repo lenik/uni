@@ -71,6 +71,49 @@ sub writefile {
     close FH;
 }
 
+sub forx(&$;$) {
+    my $code = shift;
+    my $exp = shift;
+    my $s = shift || $_;
+    my $off = 0;
+    my $buf;
+    local $_;
+    while ($s =~ /$exp/g) {
+        $_ = $&;
+        $code->();
+        # die "Eval fails: $!" if $@;
+        $buf .= substr($s, $off, $-[0] - $off) . $_;
+        $off = $+[0];
+    }
+    $buf .= substr($s, $off);
+    return $buf;
+}
+
+sub qsplit {
+    my $sep = shift;
+    my $s = shift || $_;
+    $s =~ s/\\/\\\\/g;
+    $s =~ s/>/\\>/g;
+    my @mem;
+    my $k = 0;
+    $s = forx { push @mem, $_; $_ = '<'.$k++.'>' }
+              # qr/(["']) (\\\\.|[^\1])* \1/x, $s;
+              qr/ (" (\\\\.|[^"])* ")
+                 |(' (\\\\.|[^'])* ')/x, $s;
+    map {
+            s/<(\d+)>/$mem[$1]/g;
+            s/\\>/>/g;
+            s/\\\\/\\/g;
+            $_
+        }
+        split($sep, $s);
+}
+
+sub append_cmdline {
+    my $cmdline = shift;
+    push @ARGV, qsplit(qr/\s+/, $cmdline);
+}
+
 sub arraycmp {
     my ($a, $b) = @_;
     my $c = $#$a - $#$b;
@@ -105,6 +148,9 @@ sub hashne      { ! hasheq(@_) }
 	timestamp10
 	readfile
 	writefile
+	forx
+	qsplit
+	append_cmdline
 	arraycmp
 	arrayeq
 	arrayne
