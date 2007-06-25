@@ -1,0 +1,120 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::path;
+use cmt::util;
+use cmt::vcs;
+use Getopt::Long;
+
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
+
+our $opt_verbtitle      = 'catvia';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_dump           = 0;
+our $opt_rewrite        = 0;
+our @opt_via;
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'dump|d',
+               'rewrite|r',
+               'via-module|m=s' => \@opt_via,
+               );
+
+    die "please specify either dump-mode or rewrite-mode"
+        if $opt_dump and $opt_rewrite;
+
+    # check via-modules
+    for (@opt_via) {
+        my $mod = 'PerlIO::via::'.$_;
+        eval "use $mod; 1" or die "Can't load module $mod: $!";
+    }
+
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: catvia,v 1.1 2007-06-25 11:14:15 lenik Exp $');
+    print "[$opt_verbtitle] Perl simple cli program template\n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> ...
+
+Options:
+        --quiet (q)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
+        --help (h)
+        --dump (d, dump mode)
+        --rewrite (r, rewrite mode)
+        --via-module=<perl-module> (m, add via-module(s) )
+EOM
+}
+
+boot;
+
+sub main {
+    my $mode;
+    $mode .= ':via('.$_.')' for @opt_via;
+
+    my $usetmp = 0;
+    my $tmpout;
+    my $tmp = '';
+
+    if ($opt_dump or $opt_rewrite) {
+        # redirect STDOUT
+        my $ok = open(my $oldout, '>&STDOUT');
+        if ($ok) {
+            open STDOUT, '>&'.$mode, $oldout
+                or die "Can't re-open STDOUT: $!";
+        } else {
+            open($tmpout, '>'.$mode, \$tmp)
+                or die "Can't in-memory file: $!";
+            select $tmpout;
+            $usetmp = 1;
+        }
+    }
+
+    for (@ARGV) {
+        open(my $fh, $opt_dump ? '<' : '<'.$mode, $_)
+            or die("error open file $_: $!");
+        print while <$fh>;
+        close $fh;
+    }
+
+    if ($usetmp) {
+        select STDOUT;
+        close $tmpout;
+        print $tmp;
+        undef $tmp;
+    }
+}
