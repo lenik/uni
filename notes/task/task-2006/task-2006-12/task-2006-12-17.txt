@@ -1,0 +1,18 @@
+== sixor::nfs Task.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2006-12-17 21:14:50
+Serial:     NFS06350-31130
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+
+        [V] serialization
+
+        [V] request save/load
+
+        [V] address ..?
+
+        [V] LAReader

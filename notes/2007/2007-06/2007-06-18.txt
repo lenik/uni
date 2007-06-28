@@ -1,0 +1,44 @@
+== sixor::nfs Normal.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2007-06-18 18:23:48
+Serial:     NFS07168-27348
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+Title:      __________________________________________________________________
+Keywords:   __________________________________________________________________
+
+
+          * node: java vs. 66
+            - api styles
+                1, tree
+                   parent, children, child(i), sibling(i)
+                2, coll
+                   get(i), size, iterator
+                3, coll-graph
+                   in(i), out(i)
+                2, node4
+                   in, out, out..,
+                   next.., in..in, out..out
+
+                Java: ITree, IColl, ICollGraph, INode4
+                      ArrayTree, ArrayColl, ArrayCollGraph,
+                      SListTree, SListColl, SListCollGraph, SListNode4
+                      (balanced binary tree)
+                      BbtTree, BbtColl, BbtCollGraph, BbtNode4
+
+                66:   IColl
+                          implied_cast(ITree) = ...
+                          implied_cast(ICollGraph) = ...
+                          implied_cast(INode4) = ...
+
+            * 简单/复杂
+                1，接口如果简单，就需要 tool functions.
+                2，接口如果复杂，就难以 inline impl.
+
+                66：通过implied-caster以支持简单的接口，且不需 tool functions.
+
+            * 混合体

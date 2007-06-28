@@ -1,0 +1,12 @@
+== sixor::nfs Task.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2007-05-18 18:24:57
+Serial:     NFS07137-27417
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+
+        [V] Node

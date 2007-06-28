@@ -1,0 +1,24 @@
+== sixor::nfs Task.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2006-12-18 19:03:52
+Serial:     NFS06351-27592
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+
+        [:] pagi class
+
+        [-] pig.replace -> pig.birth
+
+        [.] new makefile
+
+        [V] Josnet -> net.bodz.dirt
+
+        [.] bas.cli
+
+        [-] bas framework -> jira, bas review
+
+        [.] bas.i.srt serialization

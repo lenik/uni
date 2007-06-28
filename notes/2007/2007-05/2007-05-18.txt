@@ -1,0 +1,34 @@
+== sixor::nfs Normal.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2007-05-18 07:24:56
+Serial:     NFS07137-11576
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+Title:      __________________________________________________________________
+Keywords:   __________________________________________________________________
+
+
+          * sixor::pyt
+
+== sixor::pyt default ==
+
+    -- divby it.
+    def main =
+        int x,y;
+        vartbl =
+            | name      | type      | default
+            --------------------------------------
+            | age       | int       | 20
+            | firstname | ..        | ..
+            | sex       | char      | 'f'
+            --------------------------------------
+
+        for i=3 to 10:
+            print 'python is good. '
+
+
+    -- CM-interactive.
