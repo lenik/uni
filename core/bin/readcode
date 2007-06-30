@@ -1,0 +1,206 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::codec;
+use cmt::guiutil;
+use cmt::util;
+use cmt::vcs;
+use cmt::winuser;
+use Data::Dumper;
+use Getopt::Long;
+use Tk;
+use Tk::Adjuster;
+use Tk::Button;
+use Tk::Frame;
+use Tk::BrowseEntry;
+use Tk::LabEntry;
+use Tk::Listbox;
+use Tk::Radiobutton;
+
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
+sub mkgui;
+sub load_codec;
+sub encode;
+sub decode;
+
+our $opt_verbtitle      = 'readcode';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+
+my $var_codec;
+my $var_param;
+my @codec_param;
+my $t_src;
+my $t_dst;
+my $encodef;
+my $decodef;
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               );
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: readcode,v 1.1 2007-06-30 14:47:18 lenik Exp $');
+    my $ver =
+        "[$opt_verbtitle] Read Code \n"
+      . "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    if (wantarray) {
+        return ($ver);
+    } else {
+        print $ver;
+    }
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> ...
+
+Options:
+        --quiet (q)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
+        --help (h)
+EOM
+}
+
+exit boot;
+
+sub main {
+    mkgui;
+
+    if (my $init_file = shift @ARGV) {
+        if (! -e $init_file) {
+            die "File not existed: $init_file";
+        }
+        my $content = readfile $init_file;
+        $t_src->insert('end', $content);
+        $t_dst->insert('end', $content);
+    } else {
+        $t_src->insert('end', 'Example Decoded Data. ');
+        $t_dst->insert('end', 'Example Encoded Data. ');
+    }
+
+    MainLoop;
+}
+
+sub mkgui {
+    my $mw = MainWindow->new(
+        -title => "$opt_verbtitle - Read Code");
+    $mw->geometry('500x400+0+0');
+
+    my $f_top = $mw->Frame()
+        ->pack(-side => 'top', -anchor => 'n', -fill => 'x', -expand => 1);
+    my $mnu_codec = $f_top->BrowseEntry(
+        -label => 'Codec', -width => 10,
+        -variable => \$var_codec)
+        ->pack(-side => 'left');
+    $mnu_codec->insert('end', $_) for keys %CODECS;
+    my $l_param = $f_top->Label(
+        -text => 'Param', -underline => 0)
+        ->pack(-side => 'left');
+    my $e_param = $f_top->Entry(
+        -textvariable => \$var_param)
+        ->pack(-side => 'left', -fill => 'x', -expand => 1);
+
+    my $btn_decode = $f_top->Button(
+        -text => 'Decode', -underline => 0,
+        -command => \&decode)
+        ->pack(-side => 'right', -padx => 2);
+    my $btn_encode = $f_top->Button(
+        -text => 'Encode', -underline => 0,
+        -command => \&encode)
+        ->pack(-side => 'right', -padx => 2);
+
+    my $f_bottom = $mw->Frame()
+        ->pack(-side => 'bottom', -fill => 'x', -expand => 1);
+    my $btn_exit = $f_bottom->Button(
+        -text => 'Exit', -underline => 1)
+        ->pack(-side => 'right', -padx => 2);
+    my $btn_about = $f_bottom->Button(
+        -text => 'About', -underline => 0)
+        ->pack(-side => 'right', -padx => 2);
+    my $btn_clear = $f_bottom->Button(
+        -text => 'Clear', -underline => 0)
+        ->pack(-side => 'right', -padx => 2);
+
+    my $f_body = $mw->Frame()
+        ->pack(-side => 'top', -fill => 'both', -expand => 1);
+    $t_src = $f_body->Scrolled('Text', -scrollbars => 'e',
+        -width => 60, -height => 12, -wrap => 'word', )
+        ->pack(-fill => 'both', -expand => 1);
+    $t_src->packAdjust();
+    $t_dst = $f_body->Scrolled('Text', -scrollbars => 'se',
+        -width => 60, -height => 12, -wrap => 'none', )
+        ->pack(-fill => 'both', -expand => 1);
+
+    $var_codec = 'base64';
+
+    $btn_clear->configure(-command => sub {
+        $t_src->delete('1.0', 'end');
+        $t_dst->delete('1.0', 'end');
+    });
+
+    $btn_about->configure(-command => sub {
+        my ($ver) = version;
+        msgbox $ver;
+    });
+
+    $btn_exit->configure(-command => sub {
+        $mw->destroy
+    });
+}
+
+sub load_codec {
+    my $codec = $CODECS{$var_codec};
+    if (! defined $codec) {
+        msgbox "Codec $var_codec isn't supported";
+        return 0;
+    }
+    $encodef = $codec->[0];
+    $decodef = $codec->[1];
+
+    @codec_param = qsplit(qr/\s+/, $var_param);
+}
+
+sub encode {
+    load_codec;
+    my $src = $t_src->get('1.0', 'end');
+    my $dst = $encodef->($src, @codec_param);
+    $t_dst->delete('1.0', 'end');
+    $t_dst->insert('end', $dst);
+}
+
+sub decode {
+    load_codec;
+    my $dst = $t_dst->get('1.0', 'end');
+    my $src = $decodef->($dst, @codec_param);
+    $t_src->delete('1.0', 'end');
+    $t_src->insert('end', $src);
+}

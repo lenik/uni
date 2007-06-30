@@ -1,0 +1,259 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::ftime;
+use cmt::path;
+use cmt::util;
+use cmt::vcs;
+use cmt::winuser;
+use File::Copy qw/cp/;
+use Getopt::Long;
+use POSIX;
+use Term::ReadKey;
+
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
+
+sub fwait;
+sub run;
+sub get_text;
+sub set_focus;
+sub killpid;
+sub quit;
+
+our $opt_verbtitle      = 'loop2';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_delay          = -1;
+our $opt_interval       = 0.1;
+our $opt_change_driven  = 0;
+our $opt_run_dupped     = 0;
+our $opt_findex         = 0;
+our $opt_keep_active    = 0;
+
+my $opt_srcprog;
+my $opt_runprog;
+# our $opt_cmdline;
+my @opt_args;
+my @keyqueue;
+my $run_count           = 0;
+
+sub boot {
+
+    Win32::API->Import('user32', 'HWND GetTopWindow(HWND hWnd)');
+    Win32::API->Import('user32', 'HWND GetForegroundWindow()');
+    Win32::API->Import('user32', 'BOOL SetForegroundWindow(HWND hWnd)');
+    Win32::API->Import('user32', 'HWND GetActiveWindow()');
+    Win32::API->Import('user32', 'HWND SetActiveWindow(HWND hWnd)');
+    Win32::API->Import('user32', 'HWND GetFocus()');
+    Win32::API->Import('user32', 'HWND SetFocus(HWND hWnd)');
+    Win32::API->Import('user32', 'BOOL ShowWindow(HWND hWnd, UINT nCmdShow)');
+    Win32::API->Import('user32', 'int GetWindowTextLength(HWND hWnd)');
+    Win32::API->Import('user32', 'GetWindowText', 'NPN', 'N'); #(HWND hWnd, LPTSTR lpString, int nMaxCount)');
+
+    for my $i (0..$#ARGV) {
+        if ($ARGV[$i] eq '--') {
+            @opt_args = splice(@ARGV, $i + 1);
+            pop @ARGV;
+        }
+    }
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'delay|d=n',
+               'change-driven|c',
+               'run-dupped|d',
+               'findex|f=n',
+               'keep-active',
+               );
+    # $opt_run_dupped = 1 if $opt_change_driven;
+
+    if (@ARGV) {
+        push @opt_args, @ARGV;
+        @ARGV = ();
+    }
+
+    $opt_srcprog = $opt_args[$opt_findex] unless $opt_srcprog;
+    die "No command specified. " unless $opt_srcprog;
+
+    $opt_runprog = $opt_srcprog;
+    if ($opt_run_dupped) {
+        my ($dir, $base) = path_split $opt_srcprog;
+        my ($file, $ext) = path_splitext $base;
+        $base = $file . '.copied' . $ext;
+        $opt_runprog = path_join($dir, $base);
+        $opt_args[$opt_findex] = $opt_runprog;
+    }
+    # $opt_cmdline = "\"$opt_runprog\" " . join(' ', @opt_args);
+
+    info2 "delay         = $opt_delay";
+    info2 "change-driven = $opt_change_driven";
+    info2 "src-program   = $opt_srcprog";
+    info2 "run-program   = $opt_runprog";
+    info2 "run-args      = ".join(',', @opt_args);
+    # info2 "run-cmdline   = $opt_cmdline";
+
+    # die "File $opt_srcprog isn't executable" unless -X $opt_srcprog;
+
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: loop2,v 1.1 2007-06-30 14:47:18 lenik Exp $');
+    print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> [--] command arguments...
+
+Options:
+        --delay=<seconds> (d, repeat interval)
+        --change-driven (c, restart the program if changes)
+        --run-dupped (d, run dupped program to enable write-access)
+        --keep-active (keep active window always active)
+        --quiet (q)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
+        --help (h)
+EOM
+}
+
+exit boot;
+
+
+sub main {
+    my $t_last = -M $opt_srcprog;
+    while (1) {
+        my $pid = run;
+        info "pid: $pid" if $pid;
+        if ($opt_delay) {
+            fwait $opt_delay;
+        }
+        if ($opt_change_driven) {
+            info2 "waiting for changes of $opt_srcprog";
+            while (-M $opt_srcprog >= $t_last) {
+                # not-modified
+                fwait $opt_interval;
+            }
+            info2 "changement detected: $opt_srcprog";
+            killpid $pid;
+            $t_last = -M $opt_srcprog;
+        }
+    }
+}
+
+sub fwait {
+    my $interval = shift;
+    my $k = ReadKey $interval;
+    if ($k) {
+        info2 'pressed: '.ord($k)." '$k'";
+        quit if $k eq 'q';
+        push(@keyqueue, $k);
+    }
+    $k;
+}
+
+sub run {
+    my $win;
+    if ($opt_keep_active) {
+        $win = GetForegroundWindow();
+        info2 "current window = $win: " . get_text($win);
+    }
+
+    if ($opt_run_dupped) {
+        info2 "dup: $opt_srcprog -> $opt_runprog";
+        cp $opt_srcprog, $opt_runprog
+            or die("Error copy file $opt_srcprog to $opt_runprog: $!");
+    }
+    $run_count++;
+
+    my $pid;
+
+    if ($opt_change_driven) {
+        # return pid[31..8] core?[7] signal[6..0]
+        my $pid_file = temp_path('pid_'.int(rand 10000));
+        info2 "set pid-file: $pid_file";
+        $ENV{'pid_file'} = $pid_file;
+
+        info "spawn $opt_runprog ($run_count)";
+        my $ret = system('spawn', @opt_args);
+        die "failed to spawn: signal ".($ret & 127) if $ret & 127;
+
+        # return $ret >> 8;
+        die "pid-file $pid_file is expected to be created"
+            unless -e $pid_file;
+        $pid = readfile($pid_file);
+        unlink $pid_file;
+    } else {
+        # return exit-code
+        info "exec $opt_runprog ($run_count)";
+        system @opt_args;
+    }
+
+    if($opt_keep_active) {
+        sleep 2 if $opt_change_driven;
+        info2 "restore window: $win";
+        set_focus $win;
+    }
+
+    return $pid;
+}
+
+sub get_text {
+    my $hwnd = shift;
+    my $len = GetWindowTextLength($hwnd) + 10;
+    my $buf = ' ' x $len;
+    $len = GetWindowText($hwnd, $buf, $len);
+    return substr($buf, 0, $len);
+}
+
+# Don't work.
+sub set_focus {
+    my $hwnd = shift;
+    #info2 "SetActiveWindow = ".
+        SetActiveWindow($hwnd);
+    #info2 "SetFocus = ".
+        SetFocus($hwnd);
+    #info2 "SetForegroundWindow = ".
+        SetForegroundWindow($hwnd);
+}
+
+sub killpid {
+    my $pid = shift;
+    system 'kill '.$pid;
+    #my $cnt = kill 'HUP' => $pid;
+    #info2 "kill process $pid: $cnt";
+}
+
+sub quit {
+    info "quitting";
+    if ($opt_run_dupped) {
+        info2 "remove dupped program: $opt_runprog";
+        unlink $opt_runprog;
+    }
+    exit;
+}
