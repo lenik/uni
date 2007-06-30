@@ -1,34 +1,46 @@
 package cmt::codec;
 
 use strict;
-use Digest::MD5 qw/md5_base64/;
-use Digest::SHA1 qw/sha1_base64/;
-use Crypt::DES;
 use Crypt::CBC;
+use Crypt::DES;
+use Digest::MD5 qw/md5 md5_hex md5_base64/;
+use Digest::SHA1 qw/sha1 sha1_hex sha1_base64/;
+use Encode;
+use Encode::Alias;
+use MIME::Base64;
 use Exporter;
 use vars qw/@ISA @EXPORT/;
 
-
-sub binhex;
-sub hexbin;
-sub codec_sy;
-sub codec_dq;
-sub codec_dm;
-
-
-sub binhex {
+sub hex_encode {
     my $binstr = shift;
     my $len = length($binstr) * 2;
     unpack "H$len", $binstr;
 }
 
-
-sub hexbin {
+sub hex_decode {
     my $hexstr = shift;
     my $len = length($hexstr);
     pack "H$len", $hexstr;
 }
 
+sub base64_encode {
+    encode_base64 shift;
+}
+
+sub base64_decode {
+    decode_base64 shift;
+}
+
+our %CODECS = (
+    'hex'       => [\&hex_encode,       \&hex_decode],
+    'base64'    => [\&base64_encode,    \&base64_decode],
+    );
+
+sub binhex; *binhex = \&hex_encode;
+sub hexbin; *hexbin = \&hex_decode;
+sub codec_sy;
+sub codec_dq;
+sub codec_dm;
 
 sub codec_sy {
     my ($ph, $cat, $text) = @_;
@@ -45,7 +57,6 @@ sub codec_sy {
     }
     $result;
 }
-
 
 sub codec_dq {
     my ($ph, $cat, $n) = @_;
@@ -75,7 +86,6 @@ sub codec_dq {
     $map{$cat};
 }
 
-
 sub codec_dm {
     my ($ph, $cat, $text) = @_;
     my $digest = md5_base64("$ph (at) $text");
@@ -83,13 +93,12 @@ sub codec_dm {
     $result;
 }
 
-
-@ISA = qw/Exporter/;
-@EXPORT = qw/binhex hexbin
-             codec_sy codec_dq codec_dm/;
-
-
-
+@ISA    = qw(Exporter);
+@EXPORT = qw(
+             %CODECS
+             binhex hexbin
+             codec_sy codec_dq codec_dm
+            );
 __END__
 
 =head1 NAME
