@@ -34,6 +34,7 @@ our $opt_change_driven  = 0;
 our $opt_run_dupped     = 0;
 our $opt_findex         = 0;
 our $opt_keep_active    = 0;
+our $opt_scriptdev;
 
 my $opt_srcprog;
 my $opt_runprog;
@@ -41,6 +42,14 @@ my $opt_runprog;
 my @opt_args;
 my @keyqueue;
 my $run_count           = 0;
+
+my %extensions = (
+    '.pl'   => 'perl',
+    '.p'    => 'perl',
+    '.py'   => 'python',
+    '.pyc'  => 'python',
+    '.rb'   => 'ruby',
+);
 
 sub boot {
 
@@ -70,12 +79,24 @@ sub boot {
                'run-dupped|d',
                'findex|f=n',
                'keep-active',
+               'scriptdev|s',
                );
     # $opt_run_dupped = 1 if $opt_change_driven;
 
     if (@ARGV) {
         push @opt_args, @ARGV;
         @ARGV = ();
+    }
+
+    if ($opt_scriptdev) {
+        my ($file, $ext) = path_splitext $opt_args[0];
+        my $p = $extensions{$ext};
+        die "Script with extension $ext isn't support" unless defined $p;
+        info2 "using interpreter $p for script$ext";
+        unshift @opt_args, $p;
+        $opt_findex++;
+        $opt_change_driven = 1;
+        $opt_keep_active = 1;
     }
 
     $opt_srcprog = $opt_args[$opt_findex] unless $opt_srcprog;
@@ -118,7 +139,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: loop2,v 1.1 2007-06-30 14:47:18 lenik Exp $');
+    my %id = parse_id('$Id: loop2,v 1.2 2007-06-30 14:57:24 lenik Exp $');
     print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -135,6 +156,8 @@ Options:
         --change-driven (c, restart the program if changes)
         --run-dupped (d, run dupped program to enable write-access)
         --keep-active (keep active window always active)
+        --findex=<integer> (f, program-file index in arguments, default 0)
+        --scriptdev (s, auto detect file type, also set -c --keep-active)
         --quiet (q)
         --verbose (v, repeat twice give you more verbose info)
         --version
