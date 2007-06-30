@@ -1,0 +1,82 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::util;
+use cmt::vcs;
+use Getopt::Long;
+use Term::ReadKey;
+
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
+
+our $opt_verbtitle      = 'readkey';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_timeout        = -1;           # don't wait
+our $opt_default        = 0;
+our $opt_scan_code      = 0;
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'timeout|t=n',
+               'default|d=n',
+               );
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: readkey,v 1.1 2007-06-30 10:17:30 lenik Exp $');
+    print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options>
+
+Returns:
+        The ascii-code or scan-code of the pressed key.
+
+Options:
+        --quiet (q)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
+        --help (h)
+        --timeout=<seconds> (t, timeout if no key pressed, fraction is ok)
+        --default=<char-code> (d, default char if no key pressed)
+        --scan-code (s, return scan-code instead of ascii-code)
+EOM
+}
+
+exit boot;
+
+sub main {
+    my $ret = ReadKey($opt_timeout);
+    my $code = ord($ret);
+    info2 "readkey: $code: '$ret'";
+    return $code || $opt_default;
+}
