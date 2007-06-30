@@ -1,9 +1,11 @@
+#include <stdio.h>
 #include <windows.h>
 
 #define d1 if (verb >= 1)
 #define d2 if (verb >= 2)
 
-static int verb = 1;
+static int      verb        = 1;
+static char *   pid_file    = 0;
 
 /*
 int WINAPI WinMain(HINSTANCE hInst,
@@ -12,7 +14,7 @@ int WINAPI WinMain(HINSTANCE hInst,
                    int nCmdShow) {
 */
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv, char **env) {
     int pargs = 1;
     char lpCmdLine[1000] = "";
     STARTUPINFO startup;
@@ -37,6 +39,16 @@ int main(int argc, char **argv) {
         strcat(lpCmdLine, *argv);
     }
 
+    while (*env) {
+        char *tok = strtok(*env, "=");
+        if (strcmpi(tok, "pid_file") == 0) {
+            pid_file = strtok(0, ";");
+            break;
+        }
+        env++;
+    }
+    if (pid_file)
+        d2 printf("pid file: \"%s\"\n", pid_file);
     d2 printf("create process: \"%s\"\n", lpCmdLine);
 
     memset(&startup, 0, sizeof(STARTUPINFO));
@@ -57,5 +69,17 @@ int main(int argc, char **argv) {
     }
     pid = (int)procinf.dwProcessId;
     d2 printf("pid = %d\n", pid);
+
+    if (pid_file) {
+        FILE *f;
+        d2 printf("writing to pid file %s\n", pid_file);
+        if (f = fopen(pid_file, "wt")) {
+            fprintf(f, "%d\n", pid);
+            fclose(f);
+        } else {
+            perror("error open pid file");
+        }
+    }
+
     return pid;
 }
