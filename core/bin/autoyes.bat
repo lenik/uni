@@ -10,4 +10,4 @@
 
     set _id=ID%_id%
 
-    loop [ 1000 ] wm -c=#32770 -s="%_id%"
+    loop [ 1 ] wm -c=#32770 -s="%_id%"
