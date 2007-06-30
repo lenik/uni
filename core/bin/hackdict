@@ -30,10 +30,9 @@ sub get_stdin_src;
 sub true;
 sub pass;
 sub equal;
+sub equal_base64;
 sub concat;
-sub base64;
-sub md5;
-sub sha1;
+sub echo;
 
 our $opt_verbtitle      = 'hackdict';
 our $opt_verbtime       = 0;
@@ -128,7 +127,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: hackdict,v 1.4 2007-05-11 17:03:24 lenik Exp $');
+    my %id = parse_id('$Id: hackdict,v 1.5 2007-06-30 10:16:45 lenik Exp $');
     print "[$opt_verbtitle] Hack dict decrypt(brute-force) utility\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -377,18 +376,6 @@ sub equal_base64 {
 sub concat {
     my ($a, $b) = @_;
     $a.$b;
-}
-
-sub binhex {
-    my $bin = shift;
-    my $len = length $bin;
-    my $buf;
-    for ($i = 0; $i < $len; $i++) {
-        my $d = ord(substr($bin, $i, 1));
-        $buf .= sprintf('%02x', $d);
-    }
-    info "binhex: $bin -> $buf";
-    return $buf;
 }
 
 sub echo {
