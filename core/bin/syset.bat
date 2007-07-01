@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.31 2007-07-01 12:41:35 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.32 2007-07-01 13:37:14 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -79,10 +79,10 @@
             reg add hkcr\Directory\shell\Serialize\Command /f /ve /d            "%dirt_home%\1\renum.exe -D -w 2 ""%%1\*""" >nul
             reg add "hkcr\Directory\shell\Gather binaries\Command" /f /ve /d    "%dirt_home%\0\mvup.bat -c ""%%1\..\..\bin\"" -t ""%%1\..\..\bin\"" *.exe *.dll *.ocx" >nul
             reg add "hkcr\Directory\shell\Build TGZ archive\Command" /f /ve /d  "%dirt_home%\0\tgz.bat ""%%1""" >nul
-            reg add "hkcr\Directory\shell\SIMplifiers expand\Command" /f /ve /d "%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\sim.pl" >nul
-            reg add "hkcr\Directory\shell\Add nfs mapping\Command" /f /ve /d    "%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\nfs.pl -i -m" >nul
-            reg add "hkcr\Directory\shell\Send to sf\Command" /f /ve /d         "%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\ftpsend.pl ." >nul
-            reg add "hkcr\Directory\shell\MP3LTRIM\Command" /f /ve /d           "%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\mp3ltrim.pl" >nul
+            reg add "hkcr\Directory\shell\SIMplifiers expand\Command" /f /ve /d "%%perl%% %dirt_home%\0\sim.pl" >nul
+            reg add "hkcr\Directory\shell\Add nfs mapping\Command" /f /ve /d    "%%perl%% %dirt_home%\0\nfs.pl -i -m" >nul
+            reg add "hkcr\Directory\shell\Send to sf\Command" /f /ve /d         "%%perl%% %dirt_home%\0\ftpsend.pl ." >nul
+            reg add "hkcr\Directory\shell\MP3LTRIM\Command" /f /ve /d           "%%perl%% %dirt_home%\0\mp3ltrim.pl" >nul
 
             reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v CompletionChar /t REG_DWORD /d 14 >nul
             reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v PathCompletionChar /t REG_DWORD /d 14 >nul
@@ -123,10 +123,10 @@
             assoc   .p=Perl >nul
             assoc  .pl=Perl >nul
             assoc .plc=xPLC>nul
-            ftype   .p=%cirk_home%\perl\perl5\bin\perl.exe "%%0" %%* >nul
-            ftype  .pl=%cirk_home%\perl\perl5\bin\perl.exe "%%0" %%* >nul
-            ftype .plc=%cirk_home%\perl\perl5\bin\perl.exe "%%0" %%* >nul
-            ftype xPLC=%cirk_home%\perl\perl5\bin\perl.exe "%%0" %%* >nul
+            ftype   .p=%%perl%% "%%0" %%* >nul
+            ftype  .pl=%%perl%% "%%0" %%* >nul
+            ftype .plc=%%perl%% "%%0" %%* >nul
+            ftype xPLC=%%perl%% "%%0" %%* >nul
 
             rem Perl Daemon
             assoc .pld=xPLD>nul
@@ -157,8 +157,8 @@
 
             rem Obsoluted: use .six expansion instead
             assoc .sim=xSIM >nul
-            ftype .sim=%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\sim.pl "%%0" %%* >nul
-            ftype xSIM=%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\sim.pl "%%0" %%* >nul
+            ftype .sim=%%perl%% %dirt_home%\0\sim.pl "%%0" %%* >nul
+            ftype xSIM=%%perl%% %dirt_home%\0\sim.pl "%%0" %%* >nul
 
             rem Six Expansion
             assoc   .6=xSIX >nul
@@ -174,8 +174,8 @@
 
             rem X shell script
             assoc   .x=xXSH >nul
-            ftype   .x=%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\runx.bat -p -k -- "%%0" %%* >nul
-            ftype xXSH=%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\runx.bat -p -k -- "%%0" %%* >nul
+            ftype   .x=%%perl%% %dirt_home%\0\runx.bat -p -k -- "%%0" %%* >nul
+            ftype xXSH=%%perl%% %dirt_home%\0\runx.bat -p -k -- "%%0" %%* >nul
 
             echo Initialize completed.
 	goto end
@@ -260,6 +260,9 @@ sub init {
         env_set('ARK_HOME', "Z:\\.radiko\\arkivoj");
         print ".";
 
+        env_set('PERL', '%CIRK_HOME%\perl\perl5\bin\perl.exe');
+        print ".";
+
         env_add('PATH', qr/^$prefix/i, [
                 path_normalize "$cirk_home",
                 path_normalize "$cirk_home\\Perl\\Perl5\\bin",
@@ -289,12 +292,17 @@ sub init {
         print ".";
 
         env_add('INCLUDE', qr/^$prefix/i, [
+                path_normalize "$cirk_home/mingw/include",
                 path_normalize "$cirk_home/sdk/include",
+                path_normalize "$cirk_home/perl/perl5/lib/CORE",
+                path_normalize "$cirk_home/perl/perl5/lib/Encode",
                 ]);
         print ".";
 
         env_add('LIB', qr/^$prefix/i, [
+                path_normalize "$cirk_home/mingw/lib",
                 path_normalize "$cirk_home/sdk/lib",
+                path_normalize "$cirk_home/perl/perl5/lib",
                 ]);
         print ".";
 
