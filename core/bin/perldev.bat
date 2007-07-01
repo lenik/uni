@@ -14,6 +14,7 @@
     if not exist %DEV_HOME%\workspace mkdir %DEV_HOME%\workspace
     cd %DEV_HOME%\workspace
 
+    rem %RANDOM%
     title Perldev Console Id.%RANDOM%
 
     %ComSpec% /K
