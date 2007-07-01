@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.30 2007-07-01 12:20:58 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.31 2007-07-01 12:41:35 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -174,8 +174,8 @@
 
             rem X shell script
             assoc   .x=xXSH >nul
-            ftype   .x=%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\runx.bat -p -k "%%0" %%* >nul
-            ftype xXSH=%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\runx.bat -p -k "%%0" %%* >nul
+            ftype   .x=%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\runx.bat -p -k -- "%%0" %%* >nul
+            ftype xXSH=%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\runx.bat -p -k -- "%%0" %%* >nul
 
             echo Initialize completed.
 	goto end
