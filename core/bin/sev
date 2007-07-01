@@ -1,56 +1,100 @@
 #!/usr/bin/perl
 
 use strict;
+use cmt::util;
 use cmt::vcs;
 use Getopt::Long;
 
 sub boot;
 sub main;
-sub add_decl;
-sub add_braced_text;
 sub info;
+sub info2;
 sub version;
 sub help;
+sub escape_regex;
+sub add_decl;
+sub add_braced_text;
+sub process;
 
-our $opt_sev_tag = 'self-evolution';
-our $opt_mark = '*';
-our $opt_decl = '%';
-our $opt_preload = 1;                   # currently, streaming isn't supported.
-our $opt_save = 1;
-our $opt_verbose = 1;
+our $opt_verbtitle      = 'sev';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_sev_tag        = 'self-evolution';
+our $opt_mark           = '*';
+our $opt_decl           = '%';
+our $opt_preload        = 1;    # currently, streaming isn't supported.
+our $opt_save           = 1;
 
 my %marks;                              # $name => $line_no
 my %decls;                              # $name => $decl_body
 
-sub escape_regex {
-    my $t = shift;
-    $t =~ s/([?*+{}()\[\]\\])/\\$1/g;
-    return $t;
-}
-
 sub boot {
-    GetOptions('mark=s',
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'mark=s',
                'decl=s',
                'preload' => sub { $opt_preload++ },
                'save!',
-               'quiet'   => sub { $opt_verbose-- },
-               'verbose' => sub { $opt_verbose++ },
-               'version' => sub { version; exit },
-               'help'    => sub { help; exit },
                );
-
     $opt_mark = escape_regex $opt_mark;
     $opt_decl = escape_regex $opt_decl;
-    info "mark symbol in regex: $opt_mark";
-    info "decl symbol in regex: $opt_decl";
+    info2 "mark symbol in regex: $opt_mark";
+    info2 "decl symbol in regex: $opt_decl";
 
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: sev,v 1.4 2007-07-01 11:46:13 lenik Exp $');
+    print "[$opt_verbtitle] Self Evolution, self-editing scripts \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> files...
+
+Options:
+        --mark=<mark-symbol> (the symbol used to mark line of name)
+        --decl=<decl-symbol> (the symbol used to declare function of name)
+        --preload (load all content before process (2 steps) )
+        --save, --no-save (save itself or just print out)
+        --quiet (q)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
+        --help (h)
+EOM
+}
+
+exit boot;
+
+sub main {
     if (@ARGV) {
         for my $file (@ARGV) {
             info "load file $file";
             open(FH, "<$file")
                 or die "Cannot open file $file to read";
             my @lines = <FH>;
-            my $ok = main \@lines;
+            my $ok = process \@lines;
             close FH;
 
             if ($ok ne 'ok') {
@@ -71,7 +115,7 @@ sub boot {
     } else {
         my @lines = <>;
         print @lines;
-        my $ok = main \@lines;
+        my $ok = process \@lines;
         if ($ok ne 'ok') {
             info "load fails: $ok";
             return;
@@ -80,9 +124,39 @@ sub boot {
     }
 }
 
-sub main {
+sub escape_regex {
+    my $t = shift;
+    $t =~ s/([?*+{}()\[\]\\])/\\$1/g;
+    return $t;
+}
+
+sub add_decl {
+    my ($name, $body) = @_;
+    if ($name eq 'EVAL') {
+        eval($body);
+    }
+    $decls{$name} = $body;
+}
+
+sub add_braced_text {
+    my ($line, $br) = @_;
+    my $text = $line;
+    while ($line =~ m/[\{\}]/g) {
+        my $inc = $& eq '{' ? 1 : -1;
+        last if ($br == 0 && $inc == -1);
+        $br += $inc;
+        if ($br == 0) {
+            # assert $& eq '}'
+            $text = substr($line, 0, $+[0]);
+        }
+    }
+    # $line_rest = substr($line, length($text))
+    return ($text, $br);
+}
+
+sub process {
     my $src = shift;                    # \@srclines
-    %marks = ();
+    %marks = ();                        # mark_name => [ positions ]
     %decls = ();
 
     my $name;
@@ -90,13 +164,13 @@ sub main {
     my $brace = 0;                      # level of open-brace '{'
 
     # preloading
-    info 'preloading...';
+    info2 'preloading...';
     my $srclines = scalar(@$src);
     for (my $i = 0; $i < $srclines; $i++) {
         $_ = $src->[$i];
-        if (m/${opt_mark}(\w+)/) {
+        if (m/${opt_mark}(\w+)/) {      # *mark_name
             my $name = $1;
-            $marks{$name} = $i;
+            push @{$marks{$name}}, $i;
         }
         if ($brace == 0) {
             if (m/${opt_decl}(\w+)/) {
@@ -128,76 +202,21 @@ sub main {
         }
     }
 
-    info "mark $_: line " . $marks{$_} for (keys %marks);
-    info "decl $_ = " . $decls{$_} for (keys %decls);
+    info2 "mark $_: line " . join(', ', @{$marks{$_}}) for (keys %marks);
+    info2 "decl $_ = " . $decls{$_} for (keys %decls);
 
     for (keys %marks) {
-        my $line_no = $marks{$_};
+        my $linenums = $marks{$_};
         my $decl = $decls{$_};
         next if not defined $decl;
 
-        my $line = $src->[$line_no];
-        $_ = $line;
-        eval($decl);
-        $src->[$line_no] = $_;
+        for my $line_no (@$linenums) {
+            my $line = $src->[$line_no];
+            $_ = $line;
+            eval($decl);
+            $src->[$line_no] = $_;
+        }
     }
 
     return 'ok';
 }
-
-sub add_decl {
-    my ($name, $body) = @_;
-    if ($name eq 'EVAL') {
-        eval($body);
-    }
-    $decls{$name} = $body;
-}
-
-sub add_braced_text {
-    my ($line, $br) = @_;
-    my $text = $line;
-    while ($line =~ m/[\{\}]/g) {
-        my $inc = $& eq '{' ? 1 : -1;
-        last if ($br == 0 && $inc == -1);
-        $br += $inc;
-        if ($br == 0) {
-            # assert $& eq '}'
-            $text = substr($line, 0, $+[0]);
-        }
-    }
-    # $line_rest = substr($line, length($text))
-    return ($text, $br);
-}
-
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print STDERR "[sev] $text\n";
-}
-
-sub version {
-    my %id = parse_id('$Id: sev,v 1.3 2007-06-25 12:58:14 lenik Exp $');
-    print "[sev, modself] Self Evolution, self-editing scripts\n";
-    print "Written by Lenik   Version $id{rev}   Last updated at $id{date}\n";
-}
-
-sub help {
-    version;
-    print <<"EOM";
-
-Syntax:
-    $0 <options> files...
-
-Options:
-    --mark=<mark-symbol>     the symbol used to mark line of name
-    --decl=<decl-symbol>     the symbol used to declare function of name
-    --preload                load all content before process (2 steps).
-    --nosave                 print instead of save itself
-    --quiet
-    --verbose
-    --version
-    --help
-EOM
-}
-
-boot;
