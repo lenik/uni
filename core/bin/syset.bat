@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.29 2007-03-04 12:16:57 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.30 2007-07-01 12:20:58 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -172,6 +172,11 @@
             ftype  .m4=%cirk_home%\cygwin\bin\m4.exe "%%1" %%* >nul
             ftype  xM4=%cirk_home%\cygwin\bin\m4.exe "%%1" %%* >nul
 
+            rem X shell script
+            assoc   .x=xXSH >nul
+            ftype   .x=%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\runx.bat -p -k "%%0" %%* >nul
+            ftype xXSH=%cirk_home%\perl\perl5\bin\perl.exe %dirt_home%\0\runx.bat -p -k "%%0" %%* >nul
+
             echo Initialize completed.
 	goto end
 
@@ -279,8 +284,8 @@ sub init {
                 ]);
         print ".";
 
-        env_add('PATHEXT', qr/^\.(6|m4|p|pl|plc|py|pyc|php|rb|ss)$/i,
-                [qw/.6 .p .pl .plc .pld .py .pyc .php .rb .ss .six/]);
+        env_add('PATHEXT', qr/^\.(6|m4|p|pl|plc|py|pyc|php|rb|ss|six|x)$/i,
+                [qw/.6 .p .pl .plc .pld .py .pyc .php .rb .ss .six .x/]);
         print ".";
 
         env_add('INCLUDE', qr/^$prefix/i, [

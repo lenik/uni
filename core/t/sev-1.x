@@ -1,3 +1,4 @@
+#? sev -q --no-save
 
 sev - Self Evolution
 

@@ -1,0 +1,3 @@
+#! foreach -v -s=@?
+
+print ":-) ";
