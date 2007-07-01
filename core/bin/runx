@@ -1,0 +1,275 @@
+@rem = '
+    @echo off
+
+        if not "%OS%"=="Windows_NT" goto err_os
+
+        call perl %~dpnx0 %*
+        goto end
+
+    :err_os
+	echo You must run this program under Windows NT/2000 or above.
+	goto end
+    ';
+
+#!/usr/bin/perl
+
+use strict;
+use cmt::path;
+use cmt::util;
+use cmt::vcs;
+use Getopt::Long;
+use IPC::Open2;
+
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
+sub find_path;
+sub mk_cmdline;
+
+our $opt_verbtitle      = 'runx';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_path_find      = 0;
+our $opt_kill_header    = 0;
+
+my $opt_program;
+my @opt_args;
+
+# GET:  send program-file as an argument to the shell
+# POST: send program-file to STDOUT to the shell
+my $opt_method          = 'POST';
+
+my %opt_escapes;
+
+sub boot {
+    %opt_escapes = (
+        "\\" => "\\\\",
+        "\n" => "\\n",
+        "\r" => "\\r",
+        "\t" => "\\t",
+        "\"" => "\\\"",
+        "\'" => "\\\'",
+        );
+    for my $i (0..31) {
+        $opt_escapes{chr($i)} ||= '\x'.substr('00'.$i, -2);
+    }
+
+    for my $i (0..$#ARGV) {
+        if ($ARGV[$i] eq '--') {
+            @opt_args = splice(@ARGV, $i + 1);
+            pop @ARGV;
+        }
+    }
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'path-find',
+               'kill-header',
+               );
+    if (@ARGV) {
+        push @opt_args, @ARGV;
+        @ARGV = ();
+    }
+
+    $opt_program = shift @opt_args;
+    die "No program specified. " unless $opt_program;
+
+    if (! -e $opt_program) {
+        if ($opt_path_find) {
+            $opt_program = find_path($opt_program)
+                or die "Program $opt_program isn't existed (in PATH)";
+        } else {
+            die "Program $opt_program isn't existed";
+        }
+    }
+
+    info2 "program       = $opt_program";
+    info2 "arguments     = ".join(',', @opt_args);
+
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: runx,v 1.1 2007-07-01 12:20:46 lenik Exp $');
+    print "[$opt_verbtitle] Run .x file \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> [--] command [arguments...]
+
+Options:
+        --path-find (p, find command in PATH and PATHEXT)
+        --kill-header (k, remove #! headers, this will create a tmp file
+                          for GET method)
+        --quiet (q)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
+        --help (h)
+EOM
+}
+
+exit boot;
+
+sub main {
+
+  # Parse headers and guess method
+
+    open PF, "<$opt_program"
+        or die("Can't open program $opt_program: $!");
+    my $header;
+    while (<PF>) {
+        if (/^#!\s*(.*)$/) {
+            $header .= $1;
+            last unless $header =~ s/\\$//;
+        } elsif (/^#\?\s*(.*)$/) {
+            $opt_method = 'GET';
+            $header .= $1;
+            last unless $header =~ s/\\$//;
+        }
+    }
+
+    my @sh_args = qsplit(qr/\s+/, $header);
+    my $appear = 0;
+    if (grep { /\?$/ } @sh_args) {
+        $opt_method = 'GET';
+        $appear = 1;
+    }
+
+    info2 "method        = $opt_method";
+
+  # Prepare tmp file
+
+    my $runtmp = $opt_kill_header && $opt_method eq 'GET';
+    my $runpath= $opt_program;
+    if ($runtmp) {
+        my ($tdir, $tbase) = path_split($opt_program);
+        # my ($tfile, $text) = path_splitext($tbase);
+        $runpath = path_join($tdir, 't_'.int(rand 10000).'_'.$tbase);
+        open TF, ">$runpath"
+            or die("Can't create tmp file $runpath: $!");
+        print TF while (<PF>);
+        close TF;
+        eval 'END {
+            info2 "remove tmp file $runpath";
+            unlink $runpath;
+        }';
+    }
+
+    # unshift @opt_args, $runpath;
+    $ENV{PROGRAM} = $runpath;
+
+    close PF;
+
+  # Preprocess shell arguments
+
+    for my $i (0..$#sh_args) {
+        $_ = $sh_args[$i];
+        if (/\?$/) {
+            chop;
+            $_ .= $runpath;
+        }
+        s/\$\{([^}]+)\}/$ENV{$1}/g;
+        $sh_args[$i] = $_;
+    }
+    push @sh_args, $runpath unless $appear;
+
+    my $sh_cmd = shift @sh_args;
+    die "No shell-command specified in the header lines"
+        unless defined $sh_cmd;
+
+    if (! -e $sh_cmd) {
+        if ($opt_path_find) {
+            $sh_cmd = find_path($sh_cmd)
+                or die "Shell-command $sh_cmd isn't existed (in PATH)";
+        } else {
+            die "Shell-command $sh_cmd isn't existed";
+        }
+    }
+
+    info2 "sh-command    = $sh_cmd";
+    info2 "sh-arguments  = ".join(',', @sh_args);
+
+  # Invoking shell
+
+    my $ret;
+    my @args = ($sh_cmd, @sh_args, @opt_args);
+    my $cmdline = mk_cmdline @args;
+
+    if ($opt_method eq 'GET') {
+        info2 "system: $cmdline";
+        $ret = system(@args);
+    } elsif ($opt_method eq 'POST') {
+        open PF, "<$runpath"
+            or die("Can't read from $runpath");
+
+        # my $pid = open2(\*RDOUT, \*WRIN, @args)
+        #     or die("Can't open command for piping: $!");
+        info2 "Open command for piping: $cmdline";
+        open PROC, "|$cmdline"
+            or die("Can't open command for piping: $!");
+        while (<PF>) {
+            next if $opt_kill_header && /^#!/;
+            info2 "POST: $_";
+            print PROC;
+        }
+
+        close PROC;
+        close PF;
+    } else {
+        die "Unexpected: unknown method: $opt_method";
+    }
+    return $ret;
+}
+
+sub find_path {
+    my $name    = shift;
+    my @PATH    = split(';', $ENV{PATH});       # unix ':'
+    my @PATHEXT = split(';', $ENV{PATHEXT});    # unix ':'
+    for my $path (@PATH) {
+        my $full = path_join($path, $name);
+        return $full if -e $full;
+        for my $pathext (@PATHEXT) {
+            $full = path_join($path, $name.$pathext);
+            return $full if -e $full;
+        }
+    }
+    return undef;
+}
+
+sub mk_cmdline {
+    my $line;
+    for (@_) {
+        if (/[\x01-\x20]|\s/) {
+            s/([\x01-\x1F"'\\])/$opt_escapes{$1}/g;
+        }
+        $line .= $_ . ' ';
+    }
+    chop $line;
+    return $line;
+}
+
+__END__
+:end
