@@ -1,5 +1,47 @@
 
+2007-07-01
+  * perldev.bat, syset.bat:
+	using environment %PERL% = path\perl.exe, to support alternative versions of perl.
+
+  * syset.bat:
+	assoc .x=runx
+
+  * runx.bat:
+	new .x file type for shell-script
+
+  * sev.pl:
+	code formatted using .pl
+
+  * redperl.c:
+	add p=pause, q=quote options
+
+2007-06-30
+  * spawn.c, spawn.exe:
+	Win32 doesn't support fork well: save PID value to file named $ENV{'pid_file'}.
+
+  * loop2.pl:
+	add -scriptdev option
+
+  * lib/cmt/codec.pm:
+	add %CODECS for readcode.
+
+  * hackdict.pl:
+	using better binhex/hexbin in codec.pm
+
+  * .pl:
+	exit code correctly
+
+  * autoyes.bat:
+	loop.bat change unit ms to sec
+
+  * loop.bat:
+	deprecated.
+
 2007-06-25
+  * clup.bat:
+	- custom clup by config .clflags file
+	- add bundled clup:util
+
   * apply.pl, c-text.pl, cleanhtml.pl, clip.pl, csv2xml.pl, e.t.c...
 	replace #!perl -> #!/usr/bin/perl
 
@@ -200,7 +242,7 @@
   * resolv.pl:
 	modified version info
 
-  * sev.pl, t/sev-1.txt:
+  * sev.pl, t/sev-1.x:
 	special form: %EVAL
 
   * syset.bat:
