@@ -103,7 +103,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: tabsize,v 1.4 2007-05-23 14:44:57 lenik Exp $');
+    my %id = parse_id('$Id: tabsize,v 1.5 2007-07-02 15:01:14 lenik Exp $');
     print "[$opt_verbtitle] Adjust tab-style of plain text\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -127,9 +127,9 @@ Options:
         --dir-only (do)
         --include-hiddens (ih)
         --writeback (w, default test-only)
-	--old-tabsize=<size> (o, default 8)
-	--new-tabsize=<size> (n, default 4)
-	--min-tabsize=<size> (m, default 2)
+        --old-tabsize=<size> (o, default 8)
+        --new-tabsize=<size> (n, default 4)
+        --min-tabsize=<size> (m, default 2)
 EOM
 }
 
