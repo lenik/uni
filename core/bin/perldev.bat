@@ -9,7 +9,7 @@
     set      LIB=%DEV_HOME%\mingw\lib;%DEV_HOME%\perl\bin;%LIB%
     set  INCLUDE=%DEV_HOME%\mingw\include;%DEV_HOME%\perl\lib\CORE;%DEV_HOME%\perl\lib\encode;%INCLUDE%
     set     PERL=%DEV_HOME%\perl\bin\perl.exe
-    set  PERLLIB=%DEV_HOME%\perl\lib;%DEV_HOME%\perl\site\lib
+    set  PERLLIB=%DEV_HOME%\perl\lib;%DEV_HOME%\perl\site\lib;%DIRT_HOME%\0\lib
 
     if not exist %DEV_HOME%\workspace mkdir %DEV_HOME%\workspace
     cd %DEV_HOME%\workspace

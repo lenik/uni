@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.32 2007-07-01 13:37:14 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.33 2007-07-02 15:03:26 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -287,21 +287,21 @@ sub init {
                 ]);
         print ".";
 
-        env_add('PATHEXT', qr/^\.(6|m4|p|pl|plc|py|pyc|php|rb|ss|six|x)$/i,
-                [qw/.6 .p .pl .plc .pld .py .pyc .php .rb .ss .six .x/]);
+        env_add('PATHEXT', qr/^\.(6|m4|p|pl|plc|py|pyc|php|rb|ss|six|x|prj)$/i,
+                [qw/.6 .p .pl .plc .pld .py .pyc .php .rb .ss .six .x .prj/]);
         print ".";
 
         env_add('INCLUDE', qr/^$prefix/i, [
-                path_normalize "$cirk_home/mingw/include",
                 path_normalize "$cirk_home/sdk/include",
+                path_normalize "$cirk_home/mingw/include",
                 path_normalize "$cirk_home/perl/perl5/lib/CORE",
                 path_normalize "$cirk_home/perl/perl5/lib/Encode",
                 ]);
         print ".";
 
         env_add('LIB', qr/^$prefix/i, [
-                path_normalize "$cirk_home/mingw/lib",
                 path_normalize "$cirk_home/sdk/lib",
+                path_normalize "$cirk_home/mingw/lib",
                 path_normalize "$cirk_home/perl/perl5/lib",
                 ]);
         print ".";
