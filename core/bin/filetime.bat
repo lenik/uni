@@ -13,7 +13,7 @@
     )
 
     if "%~1"=="" (
-        echo filetime ^<path^>
+        err 0
         goto end
     )
 
