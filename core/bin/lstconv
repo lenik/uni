@@ -1,0 +1,108 @@
+@rem = '
+    @echo off
+
+        if not "%OS%"=="Windows_NT" goto err_os
+
+        call perl %~dpnx0 %*
+        goto end
+
+    :err_os
+	echo You must run this program under Windows NT/2000 or above.
+	goto end
+    ';
+
+#!/usr/bin/perl
+
+use strict;
+use cmt::util;
+use cmt::vcs;
+use Getopt::Long;
+
+sub boot;
+sub info;
+sub info2;
+sub version;
+sub help;
+
+our $opt_verbtitle      = 'lstconv';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_scheme;
+
+my %aliases = (
+    'ue'    => 'ultra_edit_project',
+);
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'scheme|s=s',
+               );
+    $opt_scheme = shift @ARGV unless defined $opt_scheme;
+    die "No scheme specified" unless defined $opt_scheme;
+
+    if (! main->can($opt_scheme)) {
+        my $alias = $aliases{$opt_scheme};
+        if (! defined $alias or ! main->can($alias)) {
+            die "Scheme $opt_scheme isn't supported";
+        } else {
+            $opt_scheme = $alias;
+        }
+    }
+    my $f = eval('\&'.$opt_scheme);
+    $f->();
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: lstconv,v 1.1 2007-07-02 15:02:58 lenik Exp $');
+    print "[$opt_verbtitle] list converter \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> ...
+
+Options:
+        --scheme=<id> (s, scheme used to convert)
+        --quiet (q)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
+        --help (h)
+EOM
+}
+
+exit boot;
+
+sub ultra_edit_project {
+    print <<HDR;
+[Project ID]
+Signature=UE Proj: v.1
+[Files]
+HDR
+    while (<>) {
+        print $.-1, '=', $_;
+    }
+}
+
+__END__
+:end
