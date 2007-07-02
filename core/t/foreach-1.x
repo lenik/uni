@@ -1,3 +1,3 @@
-#! foreach -v -s=@?
+#? foreach -v -s
 
 print ":-) ";

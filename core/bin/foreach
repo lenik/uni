@@ -1,56 +1,70 @@
 #!/usr/bin/perl
 
 use strict;
-use DirHandle;
-use Getopt::Long;
-use cmt::vcs;
 use cmt::path;
+use cmt::util;
+use cmt::vcs;
+use Getopt::Long;
+
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
 
 sub scan_dir;
 sub process_item;
 sub ls;
 sub search;
-sub info;
-sub info2;
-sub version;
-sub help;
 sub ren;
 sub safechar;
 sub sortby_name;
 sub sortby_size;
 
-    our $opt_recursive      = 0;
-    our $opt_directories_only = 0;
-    our $opt_continue_with_errors = 0;
-    our $opt_script         = undef;    # <STDIN> default
-    our @files;
-    our $opt_verbose        = 1;
-    our $opt_verbtitle      = 'foreach';
-    our $opt_verbtime       = 0;
-    our $opt_test_only      = 0;
-    our $opt_sort           = undef;    # 'name' default
-    our $opt_reversed       = 0;
-    our @opt_lists          = ();
-    our @lists;
-    our @L;
+our $opt_verbtitle          = 'foreach';
+our $opt_verbtime           = 0;
+our $opt_verbose            = 1;
+our $opt_recursive          = 0;
+our $opt_directories_only   = 0;
+our $opt_cont_errors        = 0;
+our $opt_eval               = undef;    # <STDIN> default
+our $opt_first_is_script    = 0;
+our $opt_test_only          = 0;
+our $opt_sort               = undef;    # 'name' default
+our $opt_reversed           = 0;
+our @opt_lists              = ();
 
-    # COMMAND-LINE PARSING
-    GetOptions(
-        'recursive|r',
-        'directories-only',
-        'files-only',
-        'continue-with-errors',
-        'script|s=s',
-        'noscript'      => sub { $opt_script = '' },
-        'quiet|q'       => sub { $opt_verbose-- },
-        'verbose|v'     => sub { $opt_verbose++ },
-        'version'       => sub { &version; exit },
-        'help'          => sub { &help, exit },
-        'test-only',
-        'sort|o=s',
-        'reversed',
-        'list|l=s'      => \@opt_lists,
-        );
+my @files;
+my @lists;
+my @L;
+
+sub boot {
+    for my $i (0..$#ARGV) {
+        if ($ARGV[$i] eq '--') {
+            @files = splice(@ARGV, $i + 1);
+            pop @ARGV;
+        }
+    }
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'recursive|r',
+               'directories-only',
+               'files-only',
+               'cont-errors',
+               'eval|e=s',
+               'first-is-script|s',
+               'test-only',
+               'sort|o=s',
+               'reversed',
+               'list|l=s'   => \@opt_lists,
+               );
+    if (@ARGV) {
+        push @files, @ARGV;
+        @ARGV = ();
+    }
 
     if ($opt_sort) {
         my $func = 'sortby_'.$opt_sort;
@@ -58,21 +72,20 @@ sub sortby_size;
         $opt_sort = \&$func;
     }
 
-    my @lines;
-    if ($opt_script) {
-        if ($opt_script =~ s/^\@//) {
-            open(SCRIPT, "<$opt_script")
-                or die "Can't read from file $opt_script";
-            @lines = <SCRIPT>;
-            close SCRIPT;
-        }
-    } else {
-        if (!defined $opt_script) {
-            print STDERR "Enter the script (use -n option to suppress): \n";
-            @lines = <STDIN>;
+    if ($opt_first_is_script) {
+        my $f = shift @files;
+        die "script file isn't specified" unless defined $f;
+        die "script file isn't existed" unless -e $f;
+        my $script = readfile($f);
+        $opt_eval .= $script;
+    }
+
+    unless (defined $opt_eval) {
+        print STDERR "Enter the script (use -n option to suppress): \n";
+        while (<STDIN>) {
+            $opt_eval .= $_;
         }
     }
-    $opt_script ||= join('', @lines);
 
     eval(<<"EOM");
         sub process {
@@ -90,42 +103,64 @@ sub sortby_size;
             sub r   ; *r = sub
                     { print "ren(\$old, \$new)\n" };
             1;
-            $opt_script
+            $opt_eval
         }
 EOM
     die "Can't evaluate: $@" if $@;
 
-    for (@opt_lists) {
-        open my $fh, "<$_" or die "Can't open list-file: $_";
-        push @lists, $fh;
-    }
+    main;
+}
 
-    # find -- if any
-    my $el = -1;
-    while (++$el < scalar(@ARGV)) {
-        last if ($ARGV[$el] eq '--');
-    }
-    @files = splice(@ARGV, 0, $el - 1);
-    shift @ARGV;    # remove --
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
 
-    # default ./* if none is specified.
-    if (! @files) {
-        @files = grep { !(/^\.+$/ or $opt_directories_only and -f) } (<.*>, <*>);
-    }
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
 
+sub version {
+    my %id = parse_id('$Id: foreach,v 1.13 2007-07-02 10:30:09 lenik Exp $');
+    print "[$opt_verbtitle] files processor framework \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
 
-    # PROCESSING
-    my $count = 0;
-    @files = sort $opt_sort @files if $opt_sort;
-    @files = reverse @files if $opt_reversed;
-    for (@files) {
-        $count += process_item($_);
-        $count += scan_dir($_) if $opt_recursive and -d;
-    }
+sub help {
+    version;
+    print <<"EOM";
 
-    close $_ for @opt_lists;
-    info "Total $count files/directories processed. ";
+Syntax:
+    foreach
+        --recursive (r)
+        --directories-only (d)
+        --cont-errors (c)
+        --eval=<script> (e, default read from stdin)
+        --first-is-script (s, first of files is the script file)
+        --noscript
+        --test-only
+        --sort=<type> (o, can be name(default), size, etc)
+        --reversed (reverse sort)
+        --quiet (q)
+        --verbose (v)
+        --version
+        --help (h)
+        [files/directories ...]     (default '.')
 
+variables:
+    path dir base file ext opt_*
+
+function:
+    ren(old, new)
+EOM
+}
+
+exit boot;
 
 sub scan_dir {
     my $dir = shift || $_;
@@ -150,7 +185,6 @@ sub scan_dir {
     return $count;
 }
 
-
 sub process_item {
     my $path = shift || $_;
     info2 "$path/" if -d $path;
@@ -172,12 +206,11 @@ sub process_item {
     return $count;
 }
 
-
 sub ls {
     my $path = shift;
     my $dh = new DirHandle($path);
     if (not $dh) {
-        if ($opt_continue_with_errors) {
+        if ($opt_cont_errors) {
             return ();
         }
         die "Can't access directory $path";
@@ -186,7 +219,6 @@ sub ls {
     return @fs;
 }
 
-
 sub search {
     my ($list, $item) = @_;
     for (@$list) {
@@ -194,61 +226,6 @@ sub search {
     }
     return 0;
 }
-
-
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print datetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
-
-
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print datetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
-
-
-sub version {
-    my %id = parse_id('$Id: foreach,v 1.12 2007-06-25 12:58:13 lenik Exp $');
-    print <<"EOM";
-[foreach] files processor framework   version $id{rev}
-author: lenik,  last update: $id{date}
-EOM
-}
-
-
-sub help {
-    &version;
-    print <<"EOM";
-
-syntax:
-    foreach
-        --recursive (r)
-        --directories-only (d)
-        --continue-with-errors (c)
-        --script=<script or \@file> (s, default read from stdin)
-        --noscript
-        --test-only
-        --sort=<type> (s, can be name(default), size, etc)
-        --reversed (reverse sort)
-        --quiet (q)
-        --verbose (v)
-        --version
-        --help (h)
-        [files/directories ...]     (default '.')
-
-variables:
-    path dir base file ext opt_*
-
-function:
-    ren(old, new)
-EOM
-}
-
 
 my $padx = ' 'x40;
 sub ren {
@@ -278,4 +255,28 @@ sub sortby_name {
 
 sub sortby_size {
     return -s $a <=> -s $b;
+}
+
+sub main {
+    for (@opt_lists) {
+        open my $fh, "<$_" or die "Can't open list-file: $_";
+        push @lists, $fh;
+    }
+
+    # default ./* if none is specified.
+    if (! @files) {
+        @files = grep { !(/^\.+$/ or $opt_directories_only and -f) } (<.*>, <*>);
+    }
+
+    # PROCESSING
+    my $count = 0;
+    @files = sort $opt_sort @files if $opt_sort;
+    @files = reverse @files if $opt_reversed;
+    for (@files) {
+        $count += process_item($_);
+        $count += scan_dir($_) if $opt_recursive and -d;
+    }
+
+    close $_ for @opt_lists;
+    info "Total $count files/directories processed. ";
 }
