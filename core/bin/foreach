@@ -52,7 +52,7 @@ sub boot {
                'help|h'     => sub { help; exit },
                'recursive|r',
                'directories-only',
-               'files-only',
+               'files-only|f',
                'cont-errors',
                'eval|e=s',
                'first-is-script|s',
@@ -126,7 +126,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: foreach,v 1.13 2007-07-02 10:30:09 lenik Exp $');
+    my %id = parse_id('$Id: foreach,v 1.14 2007-07-02 15:02:39 lenik Exp $');
     print "[$opt_verbtitle] files processor framework \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -139,10 +139,11 @@ Syntax:
     foreach
         --recursive (r)
         --directories-only (d)
+        --files-only (f)
         --cont-errors (c)
         --eval=<script> (e, default read from stdin)
         --first-is-script (s, first of files is the script file)
-        --noscript
+        --list=<list-file> (l, multiple lists are supported)
         --test-only
         --sort=<type> (o, can be name(default), size, etc)
         --reversed (reverse sort)
@@ -153,10 +154,11 @@ Syntax:
         [files/directories ...]     (default '.')
 
 variables:
-    path dir base file ext opt_*
+    path=dir/base, old=new=base=file.ext, opt_*
+    a..z: user-variable, L..U: \\\$list-current
 
 function:
-    ren(old, new)
+    r = ren(old, new)
 EOM
 }
 
