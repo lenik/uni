@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.33 2007-07-02 15:03:26 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.34 2007-07-03 23:26:07 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -108,10 +108,10 @@
             reg add "hkcu\SOFTWARE\metapad" /f /v szFavDir             /d "%userprofile%\Local Settings" >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v w_Width              /t REG_DWORD /d 670 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v w_Height             /t REG_DWORD /d 400 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v FontColour           /t REG_BINARY /d ffffff00 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v FontColour2          /t REG_BINARY /d ffffff00 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v BackColour           /t REG_BINARY /d 292f4100 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v BackColour2          /t REG_BINARY /d 2c353f00 >nul
+            REM reg add "hkcu\SOFTWARE\metapad" /f /v FontColour           /t REG_BINARY /d ffffff00 >nul
+            REM reg add "hkcu\SOFTWARE\metapad" /f /v FontColour2          /t REG_BINARY /d ffffff00 >nul
+            REM reg add "hkcu\SOFTWARE\metapad" /f /v BackColour           /t REG_BINARY /d 292f4100 >nul
+            REM reg add "hkcu\SOFTWARE\metapad" /f /v BackColour2          /t REG_BINARY /d 2c353f00 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v PrimaryFont          /t REG_BINARY /d f3ffffff000000000000000000000000900100000000008603020131d0c2cbcecce500004e65770000204d5420426f6c640000000000000000000000 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v SecondaryFont        /t REG_BINARY /d f2ffffff000000000000000000000000900100000000000003020131436f7572696572204e6577000000000000000000000000000000000000000000 >nul
 
