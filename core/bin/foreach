@@ -88,6 +88,9 @@ sub boot {
     }
 
     eval(<<"EOM");
+        my (\$a, \$b, \$c, \$d, \$e, \$f, \$g, \$h, \$i, \$j,
+            \$k, \$l, \$m, \$n, \$o, \$p, \$q, \$r, \$s, \$t,
+            \$u, \$v, \$w, \$x, \$y, \$z);
         sub process {
             my \$path = \$_[0];
             local (\$_) = \$path;
@@ -96,12 +99,9 @@ sub boot {
             my (\$file, \$ext) = path_splitext(\$base);
             my (\$path2, \$dir2, \$base2, \$file2, \$ext2) =
                (\$path,  \$dir,  \$base,  \$file,  \$ext );
-            my (\$a, \$b, \$c, \$d, \$e, \$f, \$g, \$h, \$i, \$j,
-                \$k, \$l, \$m, \$n, \$o, \$p, \$q, \$r, \$s, \$t,
-                \$u, \$v, \$w, \$x, \$y, \$z);
             my (\$L, \$M, \$N, \$O, \$P, \$Q, \$R, \$S, \$T, \$U) = \@L;
             sub r   ; *r = sub
-                    { print "ren(\$old, \$new)\n" };
+                    { ren(\$old, \$new) };
             1;
             $opt_eval
         }
@@ -126,7 +126,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: foreach,v 1.14 2007-07-02 15:02:39 lenik Exp $');
+    my %id = parse_id('$Id: foreach,v 1.15 2007-07-03 22:14:02 lenik Exp $');
     print "[$opt_verbtitle] files processor framework \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
