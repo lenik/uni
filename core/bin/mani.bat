@@ -20,11 +20,19 @@
 
     if not exist "%list%" (
         echo Generating list file...
-        for /r %%i in (*) do (
+        for %%i in (*) do (
             set f=%%i
-            set f=!f:~%len%!
             if not "%%~ni"=="" (
                 echo !f!>>"%list%"
+            )
+        )
+        for /r /d %%d in (*) do (
+            for %%i in ("%%d\*") do (
+                set f=%%i
+                set f=!f:~%len%!
+                if not "%%~ni"=="" (
+                    echo !f!>>"%list%"
+                )
             )
         )
     )
