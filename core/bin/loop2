@@ -139,7 +139,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: loop2,v 1.2 2007-06-30 14:57:24 lenik Exp $');
+    my %id = parse_id('$Id: loop2,v 1.3 2007-07-04 14:07:49 lenik Exp $');
     print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -172,7 +172,7 @@ sub main {
     my $t_last = -M $opt_srcprog;
     while (1) {
         my $pid = run;
-        info "pid: $pid" if $pid;
+        info2 "pid: $pid" if $pid;
         if ($opt_delay) {
             fwait $opt_delay;
         }
