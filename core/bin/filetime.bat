@@ -13,12 +13,12 @@
     )
 
     if "%~1"=="" (
-        err 0
+        echo filetime ^<path^>
         goto end
     )
 
     if "%~t1"=="" (
-        echo Error get time of file %1
+        err 0
         goto end
     )
 
