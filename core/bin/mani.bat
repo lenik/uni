@@ -2,30 +2,43 @@
 
     setlocal
 
-    set LST=MANIFEST
-    if not "%~1"=="" set LST=%~1
+    if "%~1"=="-r" (
+        shift
+        set _reset=1
+    )
+
+    set list=MANIFEST
+    if not "%~1"=="" set list=%~1
 
     call libstr sn "%CD%\"
     set len=%_ret%
 
-    if not exist "%LST%" (
+    if "%_reset%"=="1" (
+        del "%list%" >nul
+        del "%list%.prj" >nul
+    )
+
+    if not exist "%list%" (
+        echo Generating list file...
         for /r %%i in (*) do (
-            if not "%%~nxi"=="%LST%" (
-                set f=%%i
-                echo !f:~%len%! >>"%LST%"
+            set f=%%i
+            set f=!f:~%len%!
+            if not "%%~ni"=="" (
+                echo !f!>>"%list%"
             )
         )
     )
 
-    call filetime "%LST%"
+    call filetime "%list%"
     set T_LST=!ERRORLEVEL!
 
-    call filetime "%LST%.prj"
+    call filetime "%list%.prj"
     set T_PRJ=!ERRORLEVEL!
 
+    REM echo LST=%T_LST%, PRJ=%T_PRJ%
     if %T_LST% GTR %T_PRJ% (
         echo Generating project file...
-        call lstconv ue "%LST%" >"%LST%.prj"
+        call lstconv ue "%list%" >"%list%.prj"
     )
 
-    start ue "%LST%.prj"
+    start ue "%list%.prj"
