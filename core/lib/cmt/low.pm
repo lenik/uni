@@ -1,6 +1,6 @@
 package cmt::low;
 
-use 5.008008;
+use 5.008;
 use strict;
 use warnings;
 
