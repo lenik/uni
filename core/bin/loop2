@@ -23,7 +23,6 @@ sub run;
 sub get_text;
 sub set_focus;
 sub killpid;
-sub touch;
 sub quit;
 sub do_keyq;
 sub do_actq;
@@ -48,6 +47,8 @@ my $run_count           = 0;
 my @keyq;
 my @actq;
 my $last_modified;
+my $hwnd;
+my $hidef;
 
 my %extensions = (
     '.pl'   => 'perl',
@@ -145,7 +146,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: loop2,v 1.5 2007-07-05 12:00:11 lenik Exp $');
+    my %id = parse_id('$Id: loop2,v 1.6 2007-07-05 12:22:22 lenik Exp $');
     print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -202,7 +203,7 @@ sub fwait {
     my $interval = shift;
     my $k = ReadKey $interval;
     if ($k) {
-        info2 'pressed: '.ord($k)." '$k'";
+        # info2 'pressed: '.ord($k);
         quit if $k eq 'q';
         push(@keyq, $k);
     }
@@ -217,15 +218,16 @@ sub do_keyq {
             push @actq, 'touch';
         } elsif ($k eq 'h') {
             push @actq, 'hide';
+        } elsif ($k eq 's') {
+            push @actq, 'show';
         } else {
-            info "ignore keypress: $k";
+            info "ignored keypress: $k";
         }
     }
 }
 
 sub do_actq {
     while (my $act = shift @actq) {
-    info2 "process act: $act";
         if ($act eq 'touch-ps') {
             info "do pseudo-touch $opt_srcprog";
             undef $last_modified;
@@ -238,10 +240,33 @@ sub do_actq {
             undef $current_pid;
         } elsif ($act eq 'hide') {
             # tray-icon...
-            # Currently, delete $TEMP/loop2.hide to show the window.
-            system 'wm -hide';
+            # Currently, delete $TEMP/HIDE.$hwnd to show the window.
+            my $hide_info = `wm -v -hide`;
+            my ($h) = $hide_info =~ /mlist: (\d+)/;
+            if ($h) {
+                $hwnd = $h;
+                $hidef = temp_path('HIDE.'.$hwnd);
+                writefile $hidef, '1';
+                info "this window($hwnd) is hidden, please remove $hidef to show it again";
+            } else {
+                info "error when hiding the window";
+                info2 "wm output: \n$hide_info";
+            }
+        } elsif ($act eq 'show') {
+            # show self,
+            # system 'wm -show';
+            unlink $hidef if -f $hidef;
         } else {
             info "unknown action: $act";
+        }
+    }
+    # check if restore the hidden windows
+    if (defined $hidef) {
+        if (! -f $hidef) {
+            info2 "file-removal detected: $hidef";
+            undef $hidef;
+            info2 "show window: $hwnd";
+            my $show_info = `wm -v -show -h $hwnd`;
         }
     }
 }
