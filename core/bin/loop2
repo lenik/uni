@@ -23,7 +23,10 @@ sub run;
 sub get_text;
 sub set_focus;
 sub killpid;
+sub touch;
 sub quit;
+sub do_keyq;
+sub do_actq;
 
 our $opt_verbtitle      = 'loop2';
 our $opt_verbtime       = 0;
@@ -40,9 +43,11 @@ my $opt_srcprog;
 my $opt_runprog;
 # our $opt_cmdline;
 my @opt_args;
+my $current_pid;
+my $run_count           = 0;
 my @keyq;
 my @actq;
-my $run_count           = 0;
+my $last_modified;
 
 my %extensions = (
     '.pl'   => 'perl',
@@ -140,7 +145,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: loop2,v 1.4 2007-07-05 11:00:07 lenik Exp $');
+    my %id = parse_id('$Id: loop2,v 1.5 2007-07-05 12:00:11 lenik Exp $');
     print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -170,38 +175,26 @@ exit boot;
 
 
 sub main {
-    my $t_last = -M $opt_srcprog;
     while (1) {
-        my $pid = run;
-        info2 "pid: $pid" if $pid;
+        $last_modified = -M $opt_srcprog;
+
+        $current_pid = run;
+        info2 "still running: pid = $current_pid" if $current_pid;
+
         if ($opt_delay) {
             fwait $opt_delay;
         }
         if ($opt_change_driven) {
             info2 "waiting for changes of $opt_srcprog";
-            while (-M $opt_srcprog >= $t_last) {
+            while (-M $opt_srcprog == $last_modified) {
                 # not-modified
                 fwait $opt_interval;
+                do_actq;
             }
             info2 "changement detected: $opt_srcprog";
-            push @actq, 'restart';
+            push @actq, 'kill';
         }
-        while (my $k = shift @keyq) {
-            if ($k eq 'r') {
-                push @actq, 'restart';
-            } else {
-                info "ignore keypress: $k";
-            }
-        }
-        while (my $act = shift @actq) {
-            if ($act eq 'restart') {
-                info 'do restart';
-                killpid $pid;
-                $t_last = -M $opt_srcprog;
-            } else {
-                info "unknown action: $act";
-            }
-        }
+        do_actq;
     }
 }
 
@@ -213,7 +206,44 @@ sub fwait {
         quit if $k eq 'q';
         push(@keyq, $k);
     }
-    $k;
+    do_keyq;
+}
+
+sub do_keyq {
+    while (my $k = shift @keyq) {
+        if ($k eq 't') {
+            push @actq, 'touch-ps';
+        } elsif ($k eq 'T') {
+            push @actq, 'touch';
+        } elsif ($k eq 'h') {
+            push @actq, 'hide';
+        } else {
+            info "ignore keypress: $k";
+        }
+    }
+}
+
+sub do_actq {
+    while (my $act = shift @actq) {
+    info2 "process act: $act";
+        if ($act eq 'touch-ps') {
+            info "do pseudo-touch $opt_srcprog";
+            undef $last_modified;
+        } elsif ($act eq 'touch') {
+            info "do touch $opt_srcprog";
+            utime undef, undef, $opt_srcprog;
+        } elsif ($act eq 'kill') {
+            info "do kill $current_pid";
+            killpid $current_pid;
+            undef $current_pid;
+        } elsif ($act eq 'hide') {
+            # tray-icon...
+            # Currently, delete $TEMP/loop2.hide to show the window.
+            system 'wm -hide';
+        } else {
+            info "unknown action: $act";
+        }
+    }
 }
 
 sub run {
@@ -235,7 +265,7 @@ sub run {
     if ($opt_change_driven) {
         # return pid[31..8] core?[7] signal[6..0]
         my $pid_file = temp_path('pid_'.int(rand 10000));
-        info2 "set pid-file: $pid_file";
+        info2 "enable pid-file: $pid_file";
         $ENV{'pid_file'} = $pid_file;
 
         info "spawn $opt_runprog ($run_count)";
@@ -247,6 +277,7 @@ sub run {
             unless -e $pid_file;
         $pid = readfile($pid_file);
         unlink $pid_file;
+        chomp $pid;
     } else {
         # return exit-code
         info "exec $opt_runprog ($run_count)";
@@ -255,7 +286,7 @@ sub run {
 
     if($opt_keep_active) {
         sleep 2 if $opt_change_driven;
-        info2 "restore window: $win";
+        info2 "focus back to window: $win";
         set_focus $win;
     }
 
