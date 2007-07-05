@@ -146,8 +146,8 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: loop2,v 1.6 2007-07-05 12:22:22 lenik Exp $');
-    print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
+    my %id = parse_id('$Id: loop2,v 1.7 2007-07-05 12:25:34 lenik Exp $');
+    print "[$opt_verbtitle] Repeat running command \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
