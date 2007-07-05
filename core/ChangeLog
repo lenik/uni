@@ -1,5 +1,57 @@
 
+2007-07-05
+  * loop2.pl:
+	added hide/show feature
+
+  * loop2.pl:
+	implement 'restart' by 'touch', and changes the event-queue styles.
+
+  * readcode.pl:
+	gui enhancement
+
+  * loop2.pl:
+	keypress 'r' to restart
+
+2007-07-04
+  * mani.bat:
+	using 2-level iteration: "for /r /d" because "for /r" scans hidden files
+
+  * mani.bat:
+	add option -r to regenerate .prj file .
+
+  * mani.bat:
+	add option -r to regenerate .prj file .
+
+  * filetime.bat:
+	(fixed) return 0 if file not exists. (so to test "file A is newer then B")
+
+  * syset.bat:
+	don't reset metapad's color
+
+  * foreach.pl:
+	- globalized temp var $a..$z.
+	- fixed a mistake in r = ren()
+
+2007-07-02
+  * perldev.bat, syset.bat:
+	changed some path
+
+  * lstconv.bat, mani.bat:
+	generate ultraedit project file easily.
+
+  * foreach.pl:
+	--files-only or -f; better help text
+
+  * filetime.bat:
+	return 0 if file not exists. (so to test "file A is newer then B")
+
+  * foreach.pl, t/foreach-1.x:
+	rewrite using .pl template. (a changement is lost acidently.)
+
 2007-07-01
+  * perldev.bat:
+	win32 %RANDOM% is timer seeded, so dropped the pseduo seed to get a better random.
+
   * perldev.bat, syset.bat:
 	using environment %PERL% = path\perl.exe, to support alternative versions of perl.
 
