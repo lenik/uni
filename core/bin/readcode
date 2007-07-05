@@ -64,7 +64,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: readcode,v 1.1 2007-06-30 14:47:18 lenik Exp $');
+    my %id = parse_id('$Id: readcode,v 1.2 2007-07-05 11:00:25 lenik Exp $');
     my $ver =
         "[$opt_verbtitle] Read Code \n"
       . "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
@@ -113,10 +113,10 @@ sub main {
 sub mkgui {
     my $mw = MainWindow->new(
         -title => "$opt_verbtitle - Read Code");
-    $mw->geometry('500x400+0+0');
+    $mw->geometry('500x400');
 
     my $f_top = $mw->Frame()
-        ->pack(-side => 'top', -anchor => 'n', -fill => 'x', -expand => 1);
+        ->pack(-side => 'top', -fill => 'x', -padx => 2, -pady => 2);
     my $mnu_codec = $f_top->BrowseEntry(
         -label => 'Codec', -width => 10,
         -variable => \$var_codec)
@@ -129,29 +129,29 @@ sub mkgui {
         -textvariable => \$var_param)
         ->pack(-side => 'left', -fill => 'x', -expand => 1);
 
+    my $btn_encode = $f_top->Button(
+        -text => 'Encode', -underline => 0,
+        -command => \&encode)
+        ->pack(-side => 'left', -padx => 2);
     my $btn_decode = $f_top->Button(
         -text => 'Decode', -underline => 0,
         -command => \&decode)
         ->pack(-side => 'right', -padx => 2);
-    my $btn_encode = $f_top->Button(
-        -text => 'Encode', -underline => 0,
-        -command => \&encode)
-        ->pack(-side => 'right', -padx => 2);
 
     my $f_bottom = $mw->Frame()
-        ->pack(-side => 'bottom', -fill => 'x', -expand => 1);
-    my $btn_exit = $f_bottom->Button(
-        -text => 'Exit', -underline => 1)
-        ->pack(-side => 'right', -padx => 2);
+        ->pack(-side => 'bottom', -anchor => 'e', -padx => 2, -pady => 2);
     my $btn_about = $f_bottom->Button(
         -text => 'About', -underline => 0)
-        ->pack(-side => 'right', -padx => 2);
+        ->pack(-side => 'left', -padx => 2);
     my $btn_clear = $f_bottom->Button(
         -text => 'Clear', -underline => 0)
-        ->pack(-side => 'right', -padx => 2);
+        ->pack(-side => 'left', -padx => 2);
+    my $btn_exit = $f_bottom->Button(
+        -text => 'Exit', -underline => 1)
+        ->pack(-side => 'left', -padx => 2);
 
     my $f_body = $mw->Frame()
-        ->pack(-side => 'top', -fill => 'both', -expand => 1);
+        ->pack(-side => 'top', -fill => 'both', -expand => 1, -padx => 2, -pady => 2);
     $t_src = $f_body->Scrolled('Text', -scrollbars => 'e',
         -width => 60, -height => 12, -wrap => 'word', )
         ->pack(-fill => 'both', -expand => 1);
