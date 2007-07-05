@@ -40,7 +40,8 @@ my $opt_srcprog;
 my $opt_runprog;
 # our $opt_cmdline;
 my @opt_args;
-my @keyqueue;
+my @keyq;
+my @actq;
 my $run_count           = 0;
 
 my %extensions = (
@@ -139,7 +140,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: loop2,v 1.3 2007-07-04 14:07:49 lenik Exp $');
+    my %id = parse_id('$Id: loop2,v 1.4 2007-07-05 11:00:07 lenik Exp $');
     print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -183,8 +184,23 @@ sub main {
                 fwait $opt_interval;
             }
             info2 "changement detected: $opt_srcprog";
-            killpid $pid;
-            $t_last = -M $opt_srcprog;
+            push @actq, 'restart';
+        }
+        while (my $k = shift @keyq) {
+            if ($k eq 'r') {
+                push @actq, 'restart';
+            } else {
+                info "ignore keypress: $k";
+            }
+        }
+        while (my $act = shift @actq) {
+            if ($act eq 'restart') {
+                info 'do restart';
+                killpid $pid;
+                $t_last = -M $opt_srcprog;
+            } else {
+                info "unknown action: $act";
+            }
         }
     }
 }
@@ -195,7 +211,7 @@ sub fwait {
     if ($k) {
         info2 'pressed: '.ord($k)." '$k'";
         quit if $k eq 'q';
-        push(@keyqueue, $k);
+        push(@keyq, $k);
     }
     $k;
 }
