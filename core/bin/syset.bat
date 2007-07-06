@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.34 2007-07-03 23:26:07 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.35 2007-07-06 11:38:28 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -77,12 +77,14 @@
 
             reg add hkcr\Directory\shell\Console\Command /f /ve /d              "cmd ""%%1""" >nul
             reg add hkcr\Directory\shell\Serialize\Command /f /ve /d            "%dirt_home%\1\renum.exe -D -w 2 ""%%1\*""" >nul
-            reg add "hkcr\Directory\shell\Gather binaries\Command" /f /ve /d    "%dirt_home%\0\mvup.bat -c ""%%1\..\..\bin\"" -t ""%%1\..\..\bin\"" *.exe *.dll *.ocx" >nul
+            REM reg add "hkcr\Directory\shell\Gather binaries\Command" /f /ve /d    "%dirt_home%\0\mvup.bat -c ""%%1\..\..\bin\"" -t ""%%1\..\..\bin\"" *.exe *.dll *.ocx" >nul
             reg add "hkcr\Directory\shell\Build TGZ archive\Command" /f /ve /d  "%dirt_home%\0\tgz.bat ""%%1""" >nul
-            reg add "hkcr\Directory\shell\SIMplifiers expand\Command" /f /ve /d "%%perl%% %dirt_home%\0\sim.pl" >nul
-            reg add "hkcr\Directory\shell\Add nfs mapping\Command" /f /ve /d    "%%perl%% %dirt_home%\0\nfs.pl -i -m" >nul
-            reg add "hkcr\Directory\shell\Send to sf\Command" /f /ve /d         "%%perl%% %dirt_home%\0\ftpsend.pl ." >nul
-            reg add "hkcr\Directory\shell\MP3LTRIM\Command" /f /ve /d           "%%perl%% %dirt_home%\0\mp3ltrim.pl" >nul
+            REM reg add "hkcr\Directory\shell\SIMplifiers expand\Command" /f /ve /d "%%perl%% %dirt_home%\0\sim.pl" >nul
+            REM reg add "hkcr\Directory\shell\Add nfs mapping\Command" /f /ve /d    "%%perl%% %dirt_home%\0\nfs.pl -i -m" >nul
+            REM reg add "hkcr\Directory\shell\Send to sf\Command" /f /ve /d         "%%perl%% %dirt_home%\0\ftpsend.pl ." >nul
+            REM reg add "hkcr\Directory\shell\MP3LTRIM\Command" /f /ve /d           "%%perl%% %dirt_home%\0\mp3ltrim.pl" >nul
+            reg add "hkcr\Directory\shell\Manifest Edit\Command" /f /ve /d      "%dirt_home%\0\mani.bat -f" >nul
+            reg add "hkcr\.lst\shell\Manifest Edit\Command" /f /ve /d           "%dirt_home%\0\mani.bat -f ""%%1""" >nul
 
             reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v CompletionChar /t REG_DWORD /d 14 >nul
             reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v PathCompletionChar /t REG_DWORD /d 14 >nul
