@@ -7,6 +7,11 @@
         shift
     )
 
+    if "%~1"=="-" (
+        set prefix=1
+        shift
+    )
+
     if not "%~1"=="" goto kill_list
 
 :kill_all
@@ -16,12 +21,15 @@
 :kill_list
     if "%~1"=="" goto end
 
+    set _n=%TEMP%\%~1
+    if "%prefix%"=="1" set _n=%_n%*
+
     if exist "%TEMP%\%~1\*" (
         echo kill directory: "%TEMP%\%~1"
         rd /s /q "%TEMP%\%~1"
-    ) else if exist "%TEMP%\%~1" (
-        echo kill file^(s^): "%TEMP%\%~1"
-        del /f /q "%TEMP%\%~1"
+    ) else if exist "%_n%" (
+        echo kill file^(s^): "%_n%"
+        del /f /q "%_n%"
     ) else (
         echo file^(s^) not exist: %~1
     )
