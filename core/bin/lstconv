@@ -14,8 +14,10 @@
 #!/usr/bin/perl
 
 use strict;
+use cmt::path;
 use cmt::util;
 use cmt::vcs;
+use Data::Dumper;
 use Getopt::Long;
 
 sub boot;
@@ -70,7 +72,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: lstconv,v 1.1 2007-07-02 15:02:58 lenik Exp $');
+    my %id = parse_id('$Id: lstconv,v 1.2 2007-07-07 01:43:02 lenik Exp $');
     print "[$opt_verbtitle] list converter \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -94,13 +96,33 @@ EOM
 exit boot;
 
 sub ultra_edit_project {
+    my %dirs;
+    while (<>) {
+        chomp;
+        my ($dir, $base) = path_split($_);
+        $dir =~ s/[\\\/]$//;
+        push @{$dirs{$dir}}, $_;
+    }
     print <<HDR;
 [Project ID]
 Signature=UE Proj: v.1
-[Files]
+[Group]
 HDR
-    while (<>) {
-        print $.-1, '=', $_;
+    my $i = 0;
+    for (keys %dirs) {
+        if ($_ ne '') {
+            s/[\\\/]/ - /g;
+            print $i++, '=', $_, "\n";
+        }
+    }
+    for (keys %dirs) {
+        my $t = $_ eq '' ? '' : ' - '.$_;
+        $t =~ s/[\\\/]/ - /g;
+        print "[Files$t]\n";
+        $i = 0;
+        for (@{$dirs{$_}}) {
+            print $i++, '=', $_, "\n";
+        }
     }
 }
 
