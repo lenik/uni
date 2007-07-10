@@ -15,7 +15,7 @@ sub help;
 
 our $PACKAGE            = ':test';
 
-our $opt_verbtitle      = 'libunknown';
+our $opt_verbtitle      = 'test';
 our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
 our $opt_name;
@@ -27,6 +27,9 @@ sub boot {
                'help|h'     => sub { help; exit },
                'name=s',
                );
+    unless (defined $opt_name) {
+        $opt_name = shift @ARGV;
+    }
 }
 
 sub info {
@@ -44,8 +47,8 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: test.pm,v 1.3 2006-12-12 11:48:36 lenik Exp $');
-    print "[opt_verbtitle] Perl simple cli/libfun template\n";
+    my %id = parse_id('$Id: test.pm,v 1.4 2007-07-10 15:30:30 lenik Exp $');
+    print "[$opt_verbtitle] Test fun \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
@@ -54,7 +57,7 @@ sub help {
     print <<"EOM";
 
 Syntax:
-        fun -u $PACKAGE ~$0 <options> ...
+        fun ~$0 <options> ...
 
 Options:
         --quiet (q)
@@ -65,15 +68,21 @@ EOM
 }
 
 sub hello {
-    boot;
     die "name isn't specified" unless defined $opt_name;
-    info "name: $opt_name";
-    print "Hello, $opt_name! \n";
+    info2 "name: $opt_name";
+    info "Hello, $opt_name! ";
+}
+
+sub add {
+    my $sum = 0;
+    $sum += $_ for @_;
+    info "Sum: $sum\n";
 }
 
 @ISA = qw(Exporter);
 @EXPORT = qw(
 	hello
+	add
 	);
 
 1;

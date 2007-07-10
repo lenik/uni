@@ -1,11 +1,15 @@
 package fun::test;
 
 use strict;
+use vars qw/@ISA @EXPORT/;
 use cmt::util;
 use cmt::vcs;
-use Getopt::Long;
 use Exporter;
-use vars qw/@ISA @EXPORT/;
+use Getopt::Long;
+
+@ISA    = qw(Exporter);
+@EXPORT = qw(hello
+             );
 
 sub boot;
 sub info;
@@ -13,19 +17,15 @@ sub info2;
 sub version;
 sub help;
 
-our $PACKAGE            = ':libunknown';
-
 our $opt_verbtitle      = 'libunknown';
 our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
-our $opt_name;
 
 sub boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },
                'help|h'     => sub { help; exit },
-               'name=s',
                );
 }
 
@@ -44,8 +44,8 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: .pm,v 1.2 2006-12-12 11:48:36 lenik Exp $');
-    print "[opt_verbtitle] Perl simple cli/libfun template\n";
+    my %id = parse_id('$Id: .pm,v 1.3 2007-07-10 15:30:30 lenik Exp $');
+    print "[$opt_verbtitle] Perl_simple_cli_libfun_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
@@ -54,7 +54,7 @@ sub help {
     print <<"EOM";
 
 Syntax:
-        fun -u $PACKAGE ~$0 <options> ...
+        fun ~$0 <options> ...
 
 Options:
         --quiet (q)
@@ -65,15 +65,7 @@ EOM
 }
 
 sub hello {
-    boot;
-    die "name isn't specified" unless defined $opt_name;
-    info "name: $opt_name";
-    print "Hello, $opt_name! \n";
+    info 'TODO...';
 }
-
-@ISA = qw(Exporter);
-@EXPORT = qw(
-	hello
-	);
 
 1;

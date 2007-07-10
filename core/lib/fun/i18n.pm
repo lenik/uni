@@ -44,8 +44,8 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: i18n.pm,v 1.2 2006-12-12 11:48:36 lenik Exp $');
-    print "[opt_verbtitle] Perl simple cli/libfun template\n";
+    my %id = parse_id('$Id: i18n.pm,v 1.3 2007-07-10 15:30:30 lenik Exp $');
+    print "[$opt_verbtitle] I18n utilities\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
@@ -54,7 +54,7 @@ sub help {
     print <<"EOM";
 
 Syntax:
-        fun -u $PACKAGE ~$0 <options> ...
+        fun ~$0 <options> ...
 
 Options:
         --quiet (q)
@@ -65,7 +65,6 @@ EOM
 }
 
 sub is_utf8 {
-    boot;
     $_ = <>;
     my $bom = m/^\xEF\xBB\xBF/;
     info "found utf-8 bom (EFBBBF)" if $bom;

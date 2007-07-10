@@ -1,11 +1,27 @@
+@rem = '
+    @echo off
+
+        if not "%OS%"=="Windows_NT" goto err_os
+
+        call perl %~dpnx0 %*
+        goto end
+
+    :err_os
+	echo You must run this program under Windows NT/2000 or above.
+	goto end
+    ';
+
 #!/usr/bin/perl
 
 use strict;
+use vars qw/@ISA @EXPORT/;
+use cmt::path;
+use cmt::perlsys;
 use cmt::util;
 use cmt::vcs;
-use Getopt::Long;
+use DirHandle;
 use Exporter;
-use vars qw/@ISA @EXPORT/;
+use Getopt::Long;
 
 sub _boot;
 sub _main;
@@ -90,8 +106,8 @@ sub _info2 {
 }
 
 sub _version {
-    my %id = parse_id('$Id: fun,v 1.5 2007-06-25 12:58:13 lenik Exp $');
-    print "[opt_verbtitle] Perl simple function caller\n";
+    my %id = parse_id('$Id: fun,v 1.6 2007-07-10 15:30:30 lenik Exp $');
+    print "[$opt_verbtitle] Perl simple function caller\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
@@ -101,7 +117,7 @@ sub _help {
 
 Syntax:
         $0 [<options>] [<use-package>...]
-            ~<fun-name> <fun-options>...
+            ~<fun-name> [<fun-options>...]
 
 Option:
         --use=<package> (u)
@@ -110,13 +126,39 @@ Option:
         --verbose (v, repeat twice give you more verbose info)
         --version
         --help (h)
+
+Examples:
+        fun ~hello world
 EOM
 }
 
 exit _boot;
 
-use fun::test;
 sub _main {
-    my $sub = eval('\&$0');
-    &$sub(@ARGV);
+    my $sub = $0;
+    # unless necessary libraries are used.
+    unless (main->can($sub)) {
+        for my $d (which_package('fun::')) {
+            _info2 "scan for autoload: $d/";
+            for ((new DirHandle($d))->read) {
+                next unless s/\.pm$//;
+                next unless $_ =~ /^\w+$/;
+                _info2 "autoload fun::$_";
+                eval("use fun::$_; 1")
+                    or die("Can't load fun::$_: $!");
+            }
+        }
+        die "Unknown fun $sub" unless main->can($sub);
+    }
+
+    $sub = eval('\&'.$sub);
+    my $pkg = which_sub($sub);
+    if ($pkg->can('boot')) {
+        _info2 "boot $pkg";
+        $pkg->boot;
+    }
+    $sub->(@ARGV);
 }
+
+__END__
+:end
