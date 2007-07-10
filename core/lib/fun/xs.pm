@@ -1,4 +1,4 @@
-package fun::test;
+package fun::xs;
 
 use strict;
 use vars qw/@ISA @EXPORT/;
@@ -8,7 +8,7 @@ use Exporter;
 use Getopt::Long;
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(hello
+@EXPORT = qw(stwrap
              );
 
 sub boot;
@@ -17,7 +17,7 @@ sub info2;
 sub version;
 sub help;
 
-our $opt_verbtitle      = 'libunknown';
+our $opt_verbtitle      = 'xsutil';
 our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
 
@@ -44,8 +44,8 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: .pm,v 1.4 2007-07-10 15:43:00 lenik Exp $');
-    print "[$opt_verbtitle] Perl_simple_cli_libfun_template \n";
+    my %id = parse_id('$Id: xs.pm,v 1.1 2007-07-10 15:43:00 lenik Exp $');
+    print "[$opt_verbtitle] XSUB Utilities \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
@@ -63,12 +63,14 @@ Common Options:
         --help (h)
 
 Commands:
-        ~hello  Hello world test
+        ~stwrap     C-Struct Wrapper
 EOM
 }
 
-sub hello {
-    info 'TODO...';
+sub stwrap {
+
+    while (<>) {
+    }
 }
 
 1

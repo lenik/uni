@@ -1,4 +1,4 @@
-package fun::test;
+package fun::nmap;
 
 use strict;
 use vars qw/@ISA @EXPORT/;
@@ -8,10 +8,10 @@ use Exporter;
 use Getopt::Long;
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(hello
+@EXPORT = qw(macs
              );
 
-sub boot;
+sub opts;
 sub info;
 sub info2;
 sub version;
@@ -44,7 +44,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: .pm,v 1.4 2007-07-10 15:43:00 lenik Exp $');
+    my %id = parse_id('$Id: nmap.pm,v 1.1 2007-07-10 15:43:00 lenik Exp $');
     print "[$opt_verbtitle] Perl_simple_cli_libfun_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -63,12 +63,33 @@ Common Options:
         --help (h)
 
 Commands:
-        ~hello  Hello world test
+        ~macs   Nmap (-sP) MAC List
 EOM
 }
 
-sub hello {
-    info 'TODO...';
+sub macs {
+    my ($host, $hostname, $up, $mac, $spec);
+    while (<>) {
+        # Host 192.168.1.40 appears to be up.
+        # Host hnlly (192.168.1.38) appears to be up.
+        # MAC Address: 00:01:6C:8E:1A:B0 (Foxconn)
+        if (/^Host (.+) appears to be (up|down)/) {
+            $host = $1;
+            $up = $2 eq 'up' ? 1 : 0;
+            if ($host =~ /^(\S+) \((\S+)\)$/) {
+                ($host, $hostname) = ($2, $1);
+            }
+        } elsif (/^MAC Address: (\S+)(?: \(([^)]+)\))?/) {
+            $mac = $1;
+            $spec = $2;
+            $mac =~ s/://g;
+            print "$mac:$host:$hostname:$up:$spec\n";
+
+            undef $host;
+            undef $hostname;
+            undef $up;
+        }
+    }
 }
 
 1

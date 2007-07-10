@@ -47,7 +47,7 @@ sub _boot {
     my @FARGV;
     for (my $i = 0; $i < scalar(@ARGV); $i++) {
         my $arg = $ARGV[$i];
-        if ($arg =~ m/^~/) {
+        if ($arg =~ m/^[~\/]/) {
             @FARGV = splice(@ARGV, $i + 1);
             $opt_funname = substr(pop @ARGV, 1);
             last;
@@ -106,7 +106,7 @@ sub _info2 {
 }
 
 sub _version {
-    my %id = parse_id('$Id: fun,v 1.6 2007-07-10 15:30:30 lenik Exp $');
+    my %id = parse_id('$Id: fun,v 1.7 2007-07-10 15:43:00 lenik Exp $');
     print "[$opt_verbtitle] Perl simple function caller\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
