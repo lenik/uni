@@ -1,10 +1,12 @@
 package cmt::util;
 
 use strict;
-use POSIX;
-use Exporter;
-use cmt::ftime;
 use vars qw/@ISA @EXPORT/;
+use cmt::ftime;
+use Data::Dumper;
+use Exporter;
+use POSIX;
+use YAML;
 
 # -> cdatetime
 sub datetime {
@@ -141,6 +143,42 @@ sub hasheq {
 
 sub hashne      { ! hasheq(@_) }
 
+sub hashindex {
+    my ($hash, $val) = @_;
+    for (keys %$hash) {
+        return $_ if $hash->{$_} == $val;
+    }
+    undef;
+}
+
+sub hash2tuples {
+    my $hashref = shift;
+    my @tuples;
+    for my $k (keys %$hashref) {
+        push @tuples, [$k => $hashref->{$k}];
+    }
+    return \@tuples;
+}
+
+sub bsearch(&$@) {
+    my $cmp = shift || sub { $a cmp $b };
+    my $x = shift;
+    my ($l, $r) = (0, scalar @_);
+    while ($l < $r) {
+        my $m = $l + int(($r - $l) / 2);
+        my $t = $_[$m];
+        if ($t < $x) {
+            $l = $m + 1;
+        } elsif ($x < $t) {
+            $r = $m;
+        } else {
+            # $t == $x
+            return $m;
+        }
+    }
+    return $l;
+}
+
 @ISA = qw(Exporter);
 @EXPORT = qw(
 	datetime
@@ -156,6 +194,9 @@ sub hashne      { ! hasheq(@_) }
 	arrayne
 	hasheq
 	hashne
+	hashindex
+	hash2tuples
+	bsearch
 	);
 
 1;
