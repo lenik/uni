@@ -10,8 +10,14 @@ use YAML;
 sub perlsh {
     my @ret;
     my $buf;
+    local ($|) = 1;
+
     while (<STDIN>) {
         chomp;
+
+        # ctrl-d
+        last if $_ eq chr(4);
+
         if (!/;\s*$/ and /^\s|\s$/) {
             $buf .= "\n".$_;
             next;
