@@ -5,6 +5,7 @@ use cmt::ftime;
 use cmt::path;
 use cmt::util;
 use cmt::vcs;
+use cmt::win32;
 use cmt::winuser;
 use File::Copy qw/cp/;
 use Getopt::Long;
@@ -22,7 +23,6 @@ sub fwait;
 sub run;
 sub get_text;
 sub set_focus;
-sub killpid;
 sub quit;
 sub do_keyq;
 sub do_actq;
@@ -58,8 +58,11 @@ my %extensions = (
     '.rb'   => 'ruby',
 );
 
-sub boot {
+END {
+    ntkill $current_pid if $current_pid;
+}
 
+sub boot {
     Win32::API->Import('user32', 'HWND GetTopWindow(HWND hWnd)');
     Win32::API->Import('user32', 'HWND GetForegroundWindow()');
     Win32::API->Import('user32', 'BOOL SetForegroundWindow(HWND hWnd)');
@@ -146,7 +149,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: loop2,v 1.8 2007-07-05 12:40:02 lenik Exp $');
+    my %id = parse_id('$Id: loop2,v 1.9 2007-07-11 15:28:21 lenik Exp $');
     print "[$opt_verbtitle] Repeat running command \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -236,7 +239,7 @@ sub do_actq {
             utime undef, undef, $opt_srcprog;
         } elsif ($act eq 'kill') {
             info "do kill $current_pid";
-            killpid $current_pid;
+            ntkill $current_pid;
             undef $current_pid;
         } elsif ($act eq 'hide') {
             # tray-icon...
@@ -288,21 +291,8 @@ sub run {
     my $pid;
 
     if ($opt_change_driven) {
-        # return pid[31..8] core?[7] signal[6..0]
-        my $pid_file = temp_path('pid_'.int(rand 10000));
-        info2 "enable pid-file: $pid_file";
-        $ENV{'pid_file'} = $pid_file;
-
         info "spawn $opt_runprog ($run_count)";
-        my $ret = system('spawn', @opt_args);
-        die "failed to spawn: signal ".($ret & 127) if $ret & 127;
-
-        # return $ret >> 8;
-        die "pid-file $pid_file is expected to be created"
-            unless -e $pid_file;
-        $pid = readfile($pid_file);
-        unlink $pid_file;
-        chomp $pid;
+        $pid = ntspawn(@opt_args);
     } else {
         # return exit-code
         info "exec $opt_runprog ($run_count)";
@@ -335,13 +325,6 @@ sub set_focus {
         SetFocus($hwnd);
     #info2 "SetForegroundWindow = ".
         SetForegroundWindow($hwnd);
-}
-
-sub killpid {
-    my $pid = shift;
-    system 'kill '.$pid;
-    #my $cnt = kill 'HUP' => $pid;
-    #info2 "kill process $pid: $cnt";
 }
 
 sub quit {
