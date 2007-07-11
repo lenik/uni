@@ -3,7 +3,7 @@
 
         if not "%OS%"=="Windows_NT" goto err_os
 
-        call perl %~dpnx0 %*
+        perl %~dpnx0 %*
         goto end
 
     :err_os
@@ -45,7 +45,7 @@ our $opt_funname;
 
 sub _boot {
     my @FARGV;
-    for (my $i = 0; $i < scalar(@ARGV); $i++) {
+    for my $i (0..$#ARGV) {
         my $arg = $ARGV[$i];
         if ($arg =~ m/^[~\/]/) {
             @FARGV = splice(@ARGV, $i + 1);
@@ -106,7 +106,7 @@ sub _info2 {
 }
 
 sub _version {
-    my %id = parse_id('$Id: fun,v 1.7 2007-07-10 15:43:00 lenik Exp $');
+    my %id = parse_id('$Id: fun,v 1.8 2007-07-11 15:26:01 lenik Exp $');
     print "[$opt_verbtitle] Perl simple function caller\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }

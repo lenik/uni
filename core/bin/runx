@@ -3,7 +3,7 @@
 
         if not "%OS%"=="Windows_NT" goto err_os
 
-        call perl %~dpnx0 %*
+        perl %~dpnx0 %*
         goto end
 
     :err_os
@@ -108,7 +108,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: runx,v 1.1 2007-07-01 12:20:46 lenik Exp $');
+    my %id = parse_id('$Id: runx,v 1.2 2007-07-11 15:26:41 lenik Exp $');
     print "[$opt_verbtitle] Run .x file \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }

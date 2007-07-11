@@ -1,9 +1,8 @@
 
-all: err.exe redperl.exe
+all: *.exe
 
-err.exe: err.c
-
-redperl.exe: redperl.c
+%.exe: %.c
+	gcc -o $@ $^
 
 clean:
 	del *.obj
