@@ -1,0 +1,174 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::path;
+use cmt::util;
+use cmt::vcs;
+use cmt::win32;
+use Getopt::Long;
+use Term::ReadKey;
+
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
+sub fwait;
+sub run;
+sub quit;
+
+our $opt_verbtitle      = 'tsh';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_nc             = 'nc';
+our $opt_setuid;
+our $opt_setgid;
+our $opt_port           = 1023;     # 1000 + "telnet"
+our $opt_chdir;
+our $opt_exec;
+
+my $current_pid;
+my $hwnd;
+my $hidef;
+my @actq;
+
+END {
+    ntkill $current_pid if $current_pid;
+}
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'nc=s',
+               'setuid|u',  # Reserved
+               'setgid|g',  # Reserved
+               'port|p=n',
+               'chdir|C=s',
+               'exec|e=s',
+               );
+    unless (defined $opt_exec) {
+        if (@ARGV) {
+            $opt_exec = join(' ', @ARGV);
+        } else {
+            $opt_exec = $ENV{COMSPEC};
+        }
+    }
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: dsd,v 1.1 2007-07-11 15:25:42 lenik Exp $');
+    print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> ...
+
+Options:
+        --quiet (q)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
+        --help (h)
+EOM
+}
+
+exit boot;
+
+sub main {
+    my $cmd = "$opt_nc -l -p $opt_port -e \"$opt_exec\" ";
+
+    # see loop2.
+ R: while (1) {
+        $current_pid = run $cmd;
+        info2 "still running: pid = $current_pid" if $current_pid;
+
+     W: while (1) {
+            fwait 0.1;          # $opt_interval
+            while ($_ = shift) {
+                if ($_ eq 'hide') {
+                    # tray-icon...
+                    # Currently, delete $TEMP/HIDE.$hwnd to show the window.
+                    my $hide_info = `wm -v -hide`;
+                    my ($h) = $hide_info =~ /mlist: (\d+)/;
+                    if ($h) {
+                        $hwnd = $h;
+                        $hidef = temp_path('HIDE.'.$hwnd);
+                        writefile $hidef, '1';
+                        info "this window($hwnd) is hidden, please remove $hidef to show it again";
+                    } else {
+                        info "error when hiding the window";
+                        info2 "wm output: \n$hide_info";
+                    }
+                } elsif ($_ eq 'show') {
+                    # show self,
+                    # system 'wm -show';
+                    unlink $hidef if -f $hidef;
+                } else {
+                    info "unknown action: $_";
+                }
+            }
+
+            # check if restore the hidden windows
+            if (defined $hidef) {
+                if (! -f $hidef) {
+                    info2 "file-removal detected: $hidef";
+                    undef $hidef;
+                    info2 "show window: $hwnd";
+                    my $show_info = `wm -v -show -h $hwnd`;
+                }
+            }
+
+            # check if current_pid died
+            last W unless nttestpid $current_pid;
+        }
+    }
+}
+
+sub fwait {
+    my $interval = shift;
+    my $k = ReadKey $interval;
+    return unless defined $k;
+
+    if ($k eq 'h') {
+        push @actq, 'hide';
+    } elsif ($k eq 's') {
+        push @actq, 'show';
+    } elsif ($k eq 'q') {
+        quit;
+    } else {
+        info "ignored keypress: $k";
+    }
+}
+
+sub run {
+    info2 "run: ".join(' ', @_);
+    chdir $opt_chdir if defined $opt_chdir;
+    ntspawn @_;
+}
+
+sub quit {
+    info "quitting";
+    exit;
+}

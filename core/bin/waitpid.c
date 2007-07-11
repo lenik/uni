@@ -6,18 +6,25 @@
 #define ERR_OPENPROCTOK 101
 #define ERR_LOOKPRIV    102
 #define ERR_ADJUSTPRIV  103
-#define ERR_OPENPROCESS 104
-#define ERR_WAIT        105
+#define ERR_OPENPROCESS 0
+#define ERR_WAIT        104
+#define ERR_SIGNALED    0
+#define ERR_TIMEOUT     3
 
-static int verb = 1;
+static int verb         = 1;
+static int timeout      = INFINITE;
+
+void help() {
+    printf("waitpid <pid> [timeout]\n");
+}
 
 int main(int argc, char **argv) {
-    DWORD ret;
-    int pid;
-    HANDLE hproctok;
-    LUID luid;
-    TOKEN_PRIVILEGES priv;
-    HANDLE hproc;
+    DWORD               ret;
+    int                 pid = -1;
+    HANDLE              hproctok;
+    LUID                luid;
+    TOKEN_PRIVILEGES    priv;
+    HANDLE              hproc;
 
     while (--argc) {
         ++argv;
@@ -31,7 +38,17 @@ int main(int argc, char **argv) {
         }
     }
 
+    if (pid == -1) {
+        help();
+        return -1;
+    }
+    if (argc > 1) {
+        --argc;
+        ++argv;
+        timeout = (int) strtol(*argv, NULL, 0);
+    }
     d2 printf("pid: %d\n", pid);
+    d2 printf("timeout: %d\n", timeout);
 
     /*
     if (! OpenProcessToken(GetCurrentProcess(),
@@ -63,14 +80,22 @@ int main(int argc, char **argv) {
                         FALSE,          /* inheritable */
                         pid);
     if (hproc == NULL) {
-        printf("can't open process: %d\n", GetLastError());
+        d1 printf("can't open process: error %d\n", GetLastError());
         return ERR_OPENPROCESS;
     }
 
-    ret = WaitForSingleObject(hproc, INFINITE);
-    if (ret == WAIT_FAILED) {
-        printf("wait failed: %d\n", GetLastError());
-        return ERR_WAIT;
+    ret = WaitForSingleObject(hproc, timeout);
+    switch (ret) {
+    case WAIT_OBJECT_0:
+        ret = ERR_SIGNALED;
+        break;
+    case WAIT_TIMEOUT:
+        ret = ERR_TIMEOUT;
+        break;
+    case WAIT_FAILED:
+        d1 printf("wait failed: error %d\n", GetLastError());
+    default:
+        ret = ERR_WAIT;
     }
 
     CloseHandle(hproc);
