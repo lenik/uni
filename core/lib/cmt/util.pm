@@ -56,23 +56,6 @@ sub timestamp10 {
     $YY . $sep1 . $DDD . $sep . $SSSSS;
 }
 
-sub readfile {
-    my $path = shift;
-    open(FH, "<$path")
-        or die("Can't open file $path for read");
-    my @lines = <FH>;
-    close FH;
-    return wantarray ? @lines : join('', @lines);
-}
-
-sub writefile {
-    my $path = shift;
-    open(FH, ">$path")
-        or die("Can't open file $path to write");
-    print FH for @_;
-    close FH;
-}
-
 sub forx(&$;$) {
     my $code = shift;
     my $exp = shift;
@@ -160,7 +143,8 @@ sub hash2tuples {
     return \@tuples;
 }
 
-sub bsearch(&$@) {
+# to avoid conflict with POSIX::bsearch
+sub bserchi(&$@) {
     my $cmp = shift || sub { $a cmp $b };
     my $x = shift;
     my ($l, $r) = (0, scalar @_);
@@ -179,13 +163,28 @@ sub bsearch(&$@) {
     return $l;
 }
 
+sub readfile {
+    my $path = shift;
+    open(FH, "<$path")
+        or die("Can't open file $path for read");
+    my @lines = <FH>;
+    close FH;
+    return wantarray ? @lines : join('', @lines);
+}
+
+sub writefile {
+    my $path = shift;
+    open(FH, ">$path")
+        or die("Can't open file $path to write");
+    print FH for @_;
+    close FH;
+}
+
 @ISA = qw(Exporter);
 @EXPORT = qw(
 	datetime
 	cftime
 	timestamp10
-	readfile
-	writefile
 	forx
 	qsplit
 	append_cmdline
@@ -196,7 +195,9 @@ sub bsearch(&$@) {
 	hashne
 	hashindex
 	hash2tuples
-	bsearch
+	bserchi
+	readfile
+	writefile
 	);
 
 1;
