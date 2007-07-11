@@ -3,6 +3,7 @@ package fun::test;
 use strict;
 use cmt::util;
 use cmt::vcs;
+use cmt::win32;
 use Getopt::Long;
 use Exporter;
 use vars qw/@ISA @EXPORT/;
@@ -27,9 +28,6 @@ sub boot {
                'help|h'     => sub { help; exit },
                'name=s',
                );
-    unless (defined $opt_name) {
-        $opt_name = shift @ARGV;
-    }
 }
 
 sub info {
@@ -47,7 +45,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: test.pm,v 1.4 2007-07-10 15:30:30 lenik Exp $');
+    my %id = parse_id('$Id: test.pm,v 1.5 2007-07-11 15:24:47 lenik Exp $');
     print "[$opt_verbtitle] Test fun \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -57,32 +55,55 @@ sub help {
     print <<"EOM";
 
 Syntax:
-        fun ~$0 <options> ...
+        fun ~<command> <options> ...
 
-Options:
+Common Options:
         --quiet (q)
         --verbose (v, repeat twice give you more verbose info)
         --version
         --help (h)
+
+Commands:
+        ~hello  name
+        ~api    "X Lib::Fun(XXX)" ...
+        ~api    Lib:Fun:XXX:X ...
+        ~api    Lib Fun XXX X - ...
+        ~api    Lib "X Fun(XXX)" - ...
 EOM
 }
 
 sub hello {
-    die "name isn't specified" unless defined $opt_name;
+    unless (defined $opt_name) {
+        $opt_name = shift;
+        die "name isn't specified" unless defined $opt_name;
+    }
     info2 "name: $opt_name";
     info "Hello, $opt_name! ";
 }
 
-sub add {
-    my $sum = 0;
-    $sum += $_ for @_;
-    info "Sum: $sum\n";
+sub api {
+    # fun/api ApiDecl args
+    # fun/api ApiDecl... - args
+    my @decl;
+    for my $i (0..$#_) {
+        if ($_[$i] eq '-') {
+            @decl = splice(@_, 0, $i);
+            shift @_;
+            last;
+        }
+    }
+    push @decl, shift unless @decl;
+    info2 'ApiDecl: '.join(' - ', @decl);
+    info2 'ApiArgs: '.join(', ', @_);
+    my $ret = API(@decl)->(@_);
+    info 'Return: '.$ret;
+    return $ret;
 }
 
 @ISA = qw(Exporter);
 @EXPORT = qw(
 	hello
-	add
+    api
 	);
 
 1;
