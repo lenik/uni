@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.36 2007-07-11 15:26:41 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.37 2007-07-12 13:29:20 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -178,6 +178,15 @@
             assoc   .x=xXSH >nul
             ftype   .x=%%perl%% %dirt_home%\0\runx.bat -p -k -- "%%0" %%* >nul
             ftype xXSH=%%perl%% %dirt_home%\0\runx.bat -p -k -- "%%0" %%* >nul
+
+        :kopy
+            echo Kernel replacement...
+            call kopy %dirt_home%\3\taskmgr.exe
+            diff %dirt_home%\3\cmd.exe %windir%\System32\cmd.exe >nul
+            if errorlevel 2 (
+                call msgbox "The cmd.exe is going to be replaced."
+                kopy %dirt_home%\3\cmd.exe
+            )
 
             echo Initialize completed.
 	goto end
