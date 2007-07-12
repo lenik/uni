@@ -6,7 +6,9 @@
 
     set DEV_HOME=C:\strawberry-perl
     set     PATH=%DEV_HOME%\perl\bin;%DEV_HOME%\dmake\bin;%DEV_HOME%\mingw;%DEV_HOME%\mingw\bin;%PATH%
+    set      LIB=%CIRK_HOME%\sdk\psdk\Lib;%LIB%
     set      LIB=%DEV_HOME%\mingw\lib;%DEV_HOME%\perl\bin;%LIB%
+    set  INCLUDE=%CIRK_HOME%\sdk\psdk\Include;%INCLUDE%
     set  INCLUDE=%DEV_HOME%\mingw\include;%DEV_HOME%\perl\lib\CORE;%DEV_HOME%\perl\lib\encode;%INCLUDE%
     set     PERL=%DEV_HOME%\perl\bin\perl.exe
     set  PERLLIB=%DEV_HOME%\perl\lib;%DEV_HOME%\perl\site\lib;%DIRT_HOME%\0\lib
