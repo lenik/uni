@@ -17,9 +17,9 @@ sub info2;
 sub version;
 sub help;
 
-my $opt_verbtitle       = 'libunknown';
-my $opt_verbtime        = 0;
-my $opt_verbose         = 1;
+our $opt_verbtitle      = 'libunknown';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
 
 sub boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
@@ -44,7 +44,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: .pm,v 1.5 2007-07-11 15:24:08 lenik Exp $');
+    my %id = parse_id('$Id: .pm,v 1.6 2007-07-13 11:41:19 lenik Exp $');
     print "[$opt_verbtitle] Perl_simple_cli_libfun_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
