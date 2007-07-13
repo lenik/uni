@@ -14,8 +14,8 @@ our $opt_verbose        = 1;
              );
 
 sub new {
-    my $class   = shift;
-    my $self    = bless {}, $class;
+    my $class           = shift;
+    my $self            = bless {}, $class;
     $self->{method}     = \&method;
     $self->{attribute}  = undef;
     return $self;

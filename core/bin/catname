@@ -1,0 +1,34 @@
+# Mode:
+#   $n  $cat[n]
+#   $$  $rest
+
+#? foreach -x -o=mode=s -t
+
+use cmt::pp;
+
+die "Mode(-m) isn't specified"
+    unless defined $opt_mode;
+
+$file =~ s/\./ /g;
+
+my @cat;
+my $rest = $file;
+
+# [...]
+while ($file =~ /\[([^\]]+)\]/g) {
+    push @cat, $1;
+    $rest = substr($file, $+[0]);
+}
+#print "C=".join(':',@cat)."|$rest\n";
+$file = ppvar sub {
+    my $var = shift;
+    my $val;
+    if ($var =~ /^(\d+)$/) {
+        $val = $cat[$1-1];
+    } elsif ($var eq '$') {
+        $val = $rest;
+    }
+    return defined $val ? $val : '';
+}, $opt_mode;
+
+print "$old -> $file\n";
