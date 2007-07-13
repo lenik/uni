@@ -1,10 +1,13 @@
 #!/usr/bin/perl
 
 use strict;
+use cmt::cstr;
 use cmt::path;
 use cmt::util;
 use cmt::vcs;
+use Data::Dumper;
 use Getopt::Long;
+use YAML;
 
 sub boot;
 sub main;
@@ -29,42 +32,76 @@ our $opt_recursive          = 0;
 our $opt_directories_only   = 0;
 our $opt_cont_errors        = 0;
 our $opt_eval               = undef;    # <STDIN> default
-our $opt_first_is_script    = 0;
+our $opt_x_mode             = 0;
 our $opt_test_only          = 0;
 our $opt_sort               = undef;    # 'name' default
 our $opt_reversed           = 0;
 our @opt_lists              = ();
+our @opt_options;
 
 my @files;
 my @lists;
 my @L;
 
 sub boot {
-    for my $i (0..$#ARGV) {
-        if ($ARGV[$i] eq '--') {
+    my $i = 0;
+    while ($i < scalar @ARGV) {
+        $_ = $ARGV[$i];
+        #    1  2 3 4 5 6            7 8
+        if (/^(-o(p(t(i(o(n)?)?)?)?)?)(=(.+))?$/) {
+            my ($optk, $optv) = ($1, $8);
+            splice @ARGV, $i, 1;
+            unless (defined $7) {
+                ($optv) = splice @ARGV, $i, 1;
+            }
+            die "$optk without a value" if $optv eq '';
+
+            $optv =~ /^(\w+)((?:\|\w+)*)(?:[=:](\w+)(\@?))?$/
+                or die "Invalid getopt-spec: $optv";
+            my ($optname, $optaliases, $opttype, $optarray)
+                = ($1, [split(/\|/, substr($2, 1))], $3, $4);
+            my $optvar = ($optarray ? '@opt_' : '$opt_').$optname;
+            chop $optv if $optarray;
+            eval "our $optvar; 1\n"
+                or die("Can't define option variable: $@");
+            my $optref = eval("no strict; \\$optvar");
+            push @opt_options,
+                [ $optv, $optref, $optname, $optaliases, $opttype, $optarray];
+        } elsif ($_ eq '--') {
             @files = splice(@ARGV, $i + 1);
-            pop @ARGV;
+            pop @ARGV;  # --
+            last;
+        } else {
+            $i++;
         }
     }
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+
+    GetOptions(
+               'cont-errors',
+               'directories-only',
+               'eval=s',
+               'files-only',
+               'help'       => sub { help; exit },
+               'list=s'     => \@opt_lists,
+               'quiet'      => sub { $opt_verbose-- },
+               'recursive|r',
+               'reversed',
+               'sort=s',
+               'test-only',
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },
-               'help|h'     => sub { help; exit },
-               'recursive|r',
-               'directories-only',
-               'files-only|f',
-               'cont-errors',
-               'eval|e=s',
-               'first-is-script|s',
-               'test-only',
-               'sort|o=s',
-               'reversed',
-               'list|l=s'   => \@opt_lists,
+               'x-mode',
+               map( { @$_[0..1] } @opt_options),
                );
     if (@ARGV) {
         push @files, @ARGV;
         @ARGV = ();
     }
+
+    info2 "user option $_->[2] = ".($_->[5]
+            ? eval("no strict; join(',', \@opt_$_->[2])")
+            : eval("no strict; \$opt_$_->[2]"))
+        for @opt_options;
 
     if ($opt_sort) {
         my $func = 'sortby_'.$opt_sort;
@@ -72,7 +109,7 @@ sub boot {
         $opt_sort = \&$func;
     }
 
-    if ($opt_first_is_script) {
+    if ($opt_x_mode) {
         my $f = shift @files;
         die "script file isn't specified" unless defined $f;
         die "script file isn't existed" unless -e $f;
@@ -99,10 +136,32 @@ sub boot {
             my (\$file, \$ext) = path_splitext(\$base);
             my (\$path2, \$dir2, \$base2, \$file2, \$ext2) =
                (\$path,  \$dir,  \$base,  \$file,  \$ext );
+            cs_comp \$base  => [ \\\$file, \\\$ext ],
+                    -join   => sub { join('', \@_) },
+                    -split  => sub { path_splitext(shift) };
+            cs_alias \$new  => \$base;
+            cs_comp \$path  => [ \\\$dir, \\\$base ],
+                    -join   => sub { path_join(\@_) },
+                    -split  => sub { path_split(shift) };
+            cs_alias \$_    => \$path;
+
             my (\$L, \$M, \$N, \$O, \$P, \$Q, \$R, \$S, \$T, \$U) = \@L;
             sub r   ; *r = sub
                     { ren(\$old, \$new) };
+            sub dmp ; *dmp = sub
+                    { info Dump {
+                        _       => \$_,
+                        path    => \$path,
+                        dir     => \$dir,
+                        base    => \$base,
+                        file    => \$file,
+                        ext     => \$ext,
+                        old     => \$old,
+                        new     => \$new,
+                        }
+                    };
             1;
+            no strict;
             $opt_eval
         }
 EOM
@@ -126,7 +185,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: foreach,v 1.15 2007-07-03 22:14:02 lenik Exp $');
+    my %id = parse_id('$Id: foreach,v 1.16 2007-07-13 16:03:20 lenik Exp $');
     print "[$opt_verbtitle] files processor framework \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -137,15 +196,16 @@ sub help {
 
 Syntax:
     foreach
+        --option=<getopt-spec> (o, add additional/user options)
         --recursive (r)
         --directories-only (d)
         --files-only (f)
         --cont-errors (c)
         --eval=<script> (e, default read from stdin)
-        --first-is-script (s, first of files is the script file)
+        --x-mode (x, first of files is the script file)
         --list=<list-file> (l, multiple lists are supported)
         --test-only
-        --sort=<type> (o, can be name(default), size, etc)
+        --sort=<type> (s, can be name(default), size, etc)
         --reversed (reverse sort)
         --quiet (q)
         --verbose (v)
@@ -154,7 +214,7 @@ Syntax:
         [files/directories ...]     (default '.')
 
 variables:
-    path=dir/base, old=new=base=file.ext, opt_*
+    _=path=dir/base, (old=)new=base=file.ext, opt_*
     a..z: user-variable, L..U: \\\$list-current
 
 function:
