@@ -56,9 +56,9 @@ sub timestamp10 {
     $YY . $sep1 . $DDD . $sep . $SSSSS;
 }
 
-sub forx(&$;$) {
-    my $code = shift;
+sub forx($&;$) {
     my $exp = shift;
+    my $code = shift;
     my $s = shift || $_;
     my $off = 0;
     my $buf;
@@ -81,10 +81,11 @@ sub qsplit {
     $s =~ s/>/\\>/g;
     my @mem;
     my $k = 0;
-    $s = forx { push @mem, $_; $_ = '<'.$k++.'>' }
-              # qr/(["']) (\\\\.|[^\1])* \1/x, $s;
-              qr/ (" (\\\\.|[^"])* ")
-                 |(' (\\\\.|[^'])* ')/x, $s;
+            # qr/(["']) (\\\\.|[^\1])* \1/x, $s;
+    $s = forx qr{ (" (\\\\.|[^"])* ")
+                 |(' (\\\\.|[^'])* ')}x,
+              sub { push @mem, $_; $_ = '<'.$k++.'>' },
+              $s;
     map {
             s/<(\d+)>/$mem[$1]/g;
             s/\\>/>/g;
