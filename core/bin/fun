@@ -106,7 +106,7 @@ sub _info2 {
 }
 
 sub _version {
-    my %id = parse_id('$Id: fun,v 1.8 2007-07-11 15:26:01 lenik Exp $');
+    my %id = parse_id('$Id: fun,v 1.9 2007-07-13 11:42:14 lenik Exp $');
     print "[$opt_verbtitle] Perl simple function caller\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -136,6 +136,7 @@ exit _boot;
 
 sub _main {
     my $sub = $0;
+    my %autoloaded;
     # unless necessary libraries are used.
     unless (main->can($sub)) {
         for my $d (which_package('fun::')) {
@@ -143,9 +144,12 @@ sub _main {
             for ((new DirHandle($d))->read) {
                 next unless s/\.pm$//;
                 next unless $_ =~ /^\w+$/;
-                _info2 "autoload fun::$_";
-                eval("use fun::$_; 1")
-                    or die("Can't load fun::$_: $!");
+                my $lib = "fun::$_";
+                unless (defined $autoloaded{$lib}) {
+                    _info2 "autoload $lib";
+                    $autoloaded{$lib} = eval("use fun::$_; 1")
+                        or die("Can't load fun::$_: $!");
+                }
             }
         }
         die "Unknown fun $sub" unless main->can($sub);
@@ -158,6 +162,10 @@ sub _main {
         $pkg->boot;
     }
     $sub->(@ARGV);
+    if ($pkg->can('exit')) {
+        _info2 "exit $pkg";
+        $pkg->exit;
+    }
 }
 
 __END__
