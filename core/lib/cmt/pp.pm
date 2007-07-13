@@ -2,11 +2,13 @@ package cmt::pp;
 
 use strict;
 use vars qw/@ISA @EXPORT/;
+use cmt::util;
 use Exporter;
 
 @ISA    = qw(Exporter);
 @EXPORT = qw(pp
-	     ppcmt);
+             ppcmt
+             ppvar);
 
 my %ENDC = (
     '"'         => qr/(\\.|[^"])*"/,
@@ -95,6 +97,18 @@ sub ppcmt(&) {
         local $_ = $buf;
         $call->();
     }
+}
+
+sub ppvar(&$) {
+    my $resolv  = shift;
+    my $text    = shift;
+    forx qr/\$(\w+|\{.*?\}|\S)/, sub {
+        if (substr($text, $-[0] - 1, 1) ne '\\') {
+            my $name = $1;
+            my $value = $resolv->($name);
+            $_ = $value if defined $value;
+        }
+    }, $text;
 }
 
 1
