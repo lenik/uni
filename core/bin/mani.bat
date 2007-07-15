@@ -2,13 +2,19 @@
 
     setlocal
 
+    if "%~1"=="-h" (
+        echo mani [-r] [-f] BASENAME
+        echo    -r  reset the MANIFEST file.
+        echo    -f  force to generate the project, no time condition.
+        goto end
+    )
+
     if "%~1"=="-r" (
         shift
         set _reset=1
     )
     if "%~1"=="-f" (
         shift
-        rem Force to re-generate the project file, without time-compare
         set _nocmp=1
     )
 
@@ -28,12 +34,14 @@
     )
 
 :auto_list
+    set _tmp=%TEMP%\manitemp.%RANDOM%
     if not exist "%list%" (
         echo Generating list file...
+        echo %list%>"%_tmp%"
         for %%i in (*) do (
             set f=%%i
             if not "%%~ni"=="" (
-                echo !f!>>"%list%"
+                echo !f!>>"%_tmp%"
             )
         )
         for /r /d %%d in (*) do (
@@ -41,10 +49,11 @@
                 set f=%%i
                 set f=!f:~%len%!
                 if not "%%~ni"=="" (
-                    echo !f!>>"%list%"
+                    echo !f!>>"%_tmp%"
                 )
             )
         )
+        move /y "%_tmp%" "%list%"
     )
 
 :conv_req
