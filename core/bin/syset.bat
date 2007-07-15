@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.37 2007-07-12 13:29:20 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.38 2007-07-15 13:56:00 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -305,6 +305,7 @@ sub init {
         env_add('INCLUDE', qr/^$prefix/i, [
                 path_normalize "$cirk_home/sdk/include",
                 path_normalize "$cirk_home/mingw/include",
+                path_normalize "$dirt_home/0/lib",
                 path_normalize "$cirk_home/perl/perl5/lib/CORE",
                 path_normalize "$cirk_home/perl/perl5/lib/Encode",
                 ]);
@@ -312,7 +313,9 @@ sub init {
 
         env_add('LIB', qr/^$prefix/i, [
                 path_normalize "$cirk_home/sdk/lib",
+                path_normalize "$cirk_home/sdk/lib/cpf",
                 path_normalize "$cirk_home/mingw/lib",
+                path_normalize "$dirt_home/0/lib",
                 path_normalize "$cirk_home/perl/perl5/lib",
                 ]);
         print ".";
