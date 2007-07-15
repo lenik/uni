@@ -19,7 +19,7 @@ while ($file =~ /\[([^\]]+)\]/g) {
     push @cat, $1;
     $rest = substr($file, $+[0]);
 }
-#print "C=".join(':',@cat)."|$rest\n";
+
 $file = ppvar sub {
     my $var = shift;
     my $val;
@@ -31,4 +31,4 @@ $file = ppvar sub {
     return defined $val ? $val : '';
 }, $opt_mode;
 
-print "$old -> $file\n";
+r

@@ -3,6 +3,7 @@ package cmt::util;
 use strict;
 use vars qw/@ISA @EXPORT/;
 use cmt::ftime;
+use cmt::proxy;
 use Data::Dumper;
 use Exporter;
 use POSIX;
@@ -62,7 +63,10 @@ sub forx($&;$) {
     my $s = shift || $_;
     my $off = 0;
     my $buf;
+
+    untie $_ if my $tieback = tied $_;
     local $_;
+
     while ($s =~ /$exp/g) {
         $_ = $&;
         $code->();
@@ -70,6 +74,9 @@ sub forx($&;$) {
         $buf .= substr($s, $off, $-[0] - $off) . $_;
         $off = $+[0];
     }
+
+    tie $_, 'cmt::proxy', $tieback if defined $tieback;
+
     $buf .= substr($s, $off);
     return $buf;
 }
