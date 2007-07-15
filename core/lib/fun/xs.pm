@@ -32,6 +32,7 @@ our $opt_package;
 our $opt_pkgprefix;
 our $opt_before;
 our $opt_after;
+our %opt_struct_only;
 
 my $TYPES;
 
@@ -43,6 +44,7 @@ sub boot {
                'package|p=s',
                'before|b=s',
                'after|a=s',
+               'struct=s'   => sub { $opt_struct_only{$_[1]} = 1 },
                );
     if (defined $opt_package) {
         $opt_pkgprefix = $opt_package;
@@ -73,7 +75,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: xs.pm,v 1.3 2007-07-13 11:42:50 lenik Exp $');
+    my %id = parse_id('$Id: xs.pm,v 1.4 2007-07-15 00:30:16 lenik Exp $');
     print "[$opt_verbtitle] XSUB Utilities \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -96,6 +98,7 @@ Common Options:
 
 Commands:
         ~stwrap     C-Struct Wrapper
+                    --struct=<name> (output only specified structs)
 EOM
 }
 
@@ -113,9 +116,10 @@ sub stwrap {
         }
 
         # typedef... } (*XXX (, *XXX)) ;
-        if (/\}\s*(\*?\w+(?:\s*,\s*\*?\w+)*)\s*;/) {
+        if (/\}\s*(\**\w+(?:\s*,\s*\**\w+)*)\s*;/) {
             my @typedefs = split(/\s*,\s*/, $1);
             for (@typedefs) {
+                next if /^\*/;      # skip ptr typedefs.
                 stdump $_, \%mm;
             }
             undef $name;
@@ -123,9 +127,11 @@ sub stwrap {
             next;
         }
 
-        # (long long int *) (MEMBER (, MEMBER2)) ([10][20]);
+        # (NAME) ([10][20])
         my $_var = qr/(\w+)((?:\s*\[\s*\w*\s*\])*)/;
-        while (/^\s* (.+?) \s+ ($_var(?:,\s*$_var)*) \s*;/xg) {
+
+        # (long long int *) (MEMBER (, MEMBER2));
+        while (/^\s* (.+?) \b ($_var(?:,\s*$_var)*) \s*;/xg) {
             my $type = $1;
             my @mems = split(/\s*,\s*/, $2);
             # info "MEMBER ".join(' - ', @mems).": $type";
@@ -153,6 +159,8 @@ sub INDENTED {
 
 sub stdump {
     my ($n, $mm) = @_;
+    return if (%opt_struct_only and ! defined $opt_struct_only{$n});
+
     info2 "dump: $n => ".Dumper($mm);
 
     # (lib_stname_)member
@@ -185,6 +193,7 @@ EOM
 sub addtype {
     my $type = shift; # @_ == @dim
     # struct|class TYPE **
+    $type =~ s/(^\s+)|(\s+$)//g;
     $type =~ s/\s+/_/g;
     my $orig = [$type, @_];
 
