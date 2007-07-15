@@ -1,5 +1,104 @@
 
+2007-07-15
+  * lib/fun/xs.pm:
+	don't dump typedef *PTRTYPE.
+	add --struct-only=<structs...>
+
+  * fun.bat:
+	error-continue when autoload.
+
+  * lstconv.bat, mani.bat:
+	always add MANIFEST file to the list self.
+	introduced the extern/ for the absolute paths.
+
+  * catname.x, lib/cmt/proxy.pm, lib/cmt/util.pm:
+	resolved the (local $_) can't be set problem, by "localuntie $_" facility. (see cmt::proxy also)
+
+2007-07-14
+  * lib/cmt/pp.pm:
+	moved Roco::Misc/interp_params -> cmt::pp/ppvar
+
+  * lib/cmt/util.pm:
+	forx: changed order of code/regexp -> regexp/code
+
+  * foreach.pl:
+	add support of user options, so in x-mode you can specify "#?foreach -o myopt ... "
+	add dmp built-in function
+	make the variables related, so change one variable will cause another to change. (using cmt::cstr)
+
+2007-07-13
+  * lib/: cmt/pp.pm, fun/xs.pm:
+	stwrap impl.
+
+  * fun.bat:
+	- autoload once
+	- add support to cleanup by pkg->exit
+
+  * lib/: cmt/.class.pm, cmt/.pm, cmt/win32.pm, fun/.pm:
+	my $opt_xxx -> our
+
+2007-07-12
+  * kopy.bat, ppid.c, ppid.exe, syset.bat:
+	rewrite kopy using wfpreplace, and replace cmd.exe by spawn a new console, with waiting for ppid.
+
+  * perldev.bat:
+	add psdk/include, psdk/lib
+
+2007-07-11
+  * loop2.pl:
+	exec... -> win32::spawn
+	killpid -> win32::ntkill
+
+  * tin.bat, tsh.pl, waitpid.c, waitpid.exe, lib/cmt/win32.pm:
+	waitpid with a timeout
+
+  * lib/fun/xs.pm:
+	add xs/~stwrap
+
+  * lib/fun/test.pm:
+	add ~API, for calling SFC_OS::TerminateSFC.. (undocumented)
+
+  * lib/fun/.pm:
+	fun/~sub template enhancement
+
+  * lib/cmt/util.pm:
+	bsearch -> bserchi to avoid POSIX::bsearch
+
+  * lib/cmt/perlsys.pm:
+	ctrl-d to terminiate the stdin
+
+2007-07-10
+  * fun.bat, lib/fun/.pm, lib/fun/i18n.pm, lib/fun/test.pm:
+	- using stash to get package of a subroutine
+	- autoload fun/modules
+
+  * psh.bat, lib/cmt/perlsys.pm:
+	add a simple perl shell
+
+  * lib/cmt/util.pm:
+	moved hashindex(find_key), hash2tuples, bsearch (Roco::Misc --> cmt::util)
+
+2007-07-07
+  * lstconv.bat:
+	Subdirectories goes into Groups in the ue-project.
+
+  * killtemp.bat:
+	'killtemp name*' => 'killtemp - name'
+
+2007-07-06
+  * killtemp.bat:
+	call 'killtemp hide*' to show/restore the hidden window (of loop2)
+
+  * mani.bat, syset.bat:
+	better system integration, MANIFEST.lst -> MANIFEST.prj (instead of .lst.prj)
+
 2007-07-05
+  * lib/: auto/cmt/low/.packlist, auto/cmt/low/low.dll, cmt/low.pm:
+	make by "makefile.pl PREFIX=%DIRT_HOME%/0"
+
+  * lib/: auto/cmt/low/.packlist, auto/cmt/low/low.bs, e.t.c...
+	the first xsub.
+
   * loop2.pl:
 	added hide/show feature
 
@@ -271,19 +370,19 @@
 	add support of dynamic symbolic link (<?...?>)
 
 2006-12-12
-  * fun.pl, lib/fun/.pm, lib/fun/i18n.pm, lib/fun/test.pm:
+  * fun.bat, lib/fun/.pm, lib/fun/i18n.pm, lib/fun/test.pm:
 	fixed returns values
 
-  * fun.pl, lib/fun/i18n.pm:
+  * fun.bat, lib/fun/i18n.pm:
 	new i18n (~is_utf8) for nfs/six refactor
 
-  * fun.pl, lib/fun/.pm, lib/fun/test.pm:
+  * fun.bat, lib/fun/.pm, lib/fun/test.pm:
 	new fun.pl to run utilities functions as programs
 
   * nfs.pl:
 	use cmt::date to support datetime function
 
-  * .pl, fun.pl, lib/fun/test.pm:
+  * .pl, fun.bat, lib/fun/test.pm:
 	new fun.pl to run utilities functions as programs
 
 2006-12-05
