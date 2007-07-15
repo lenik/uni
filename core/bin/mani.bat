@@ -18,8 +18,8 @@
         set _nocmp=1
     )
 
-    set list=MANIFEST
-    set proj=MANIFEST.prj
+    set list=.MANIFEST
+    set proj=.MANIFEST.prj
     if not "%~1"=="" (
         set list=%~1
         set proj=%~dpn1.prj
