@@ -188,6 +188,20 @@ sub writefile {
     close FH;
 }
 
+sub indent {
+    my $prefix = shift;
+        $prefix = ' 'x$prefix if $prefix =~ /^\d+$/;
+    my @lines = split(/\n/, shift);
+    join("\n", map { $prefix.$_ } @lines);
+}
+
+sub unindent_most {
+    my @lines = split(/\n/, shift);
+    my ($s) = ($lines[0] =~ /^(\s*)/);
+    my $l = length $s;
+    join("\n", map { substr($_, $l) } @lines);
+}
+
 @ISA = qw(Exporter);
 @EXPORT = qw(
 	datetime
@@ -206,6 +220,8 @@ sub writefile {
 	bserchi
 	readfile
 	writefile
+	indent
+	unindent_most
 	);
 
 1;
