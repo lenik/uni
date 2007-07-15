@@ -80,7 +80,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: xs.pm,v 1.5 2007-07-15 07:58:35 lenik Exp $');
+    my %id = parse_id('$Id: xs.pm,v 1.6 2007-07-15 13:56:54 lenik Exp $');
     print "[$opt_verbtitle] XSUB Utilities \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -195,6 +195,7 @@ sub stdump {
         my $origtype    = $TYPES->{$type}->[0];
         my $st          = $TYPES->{$type}->[1];
         my $is_array    = defined $TYPES->{$type}->[2];
+        my $is_string   = $type =~ /^char(\b|_)/i;
         if (defined $st) {
             my $l = getlevel($origtype, $st->[0]);
             if ($l >= 0) {
@@ -211,7 +212,9 @@ sub stdump {
             "    PROTOTYPE: \$",
             "    CODE: ",
             $is_array
-                ? "        memcpy(RETVAL, self->$nam, sizeof($type)); "
+                ? ($is_string
+                        ? "        strncpy((char *)RETVAL, (const char *)self->$nam, sizeof($type)); "
+                        : "        memcpy(RETVAL, self->$nam, sizeof($type)); ")
                 : "        RETVAL = self->$nam; ",
             "    OUTPUT: ",
             "        RETVAL",
@@ -224,7 +227,9 @@ sub stdump {
                     "    PROTOTYPE: \$\$",
                     "    CODE: ",
                     $is_array
-                        ? "        memcpy(self->$nam, newval, sizeof($type)); "
+                        ? ($is_string
+                                ? "        strncpy((char *)self->$nam, (const char *)newval, sizeof($type)); "
+                                : "        memcpy(self->$nam, newval, sizeof($type)); ")
                         : "        self->$nam = newval; ",
                     "    OUTPUT: ",
                     "        self",
