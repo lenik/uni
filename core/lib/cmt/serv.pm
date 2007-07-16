@@ -134,6 +134,7 @@ sub serv {
                 # create a channel
                 my $ch = &$chprov;
                 $ch->_bind_($self, $client);
+                $ch->fire_init($client);
                 $ch->{req} = ++$st_req;
 
                 # assoc sock with channel
