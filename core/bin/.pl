@@ -40,7 +40,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: .pl,v 1.6 2007-06-30 10:16:12 lenik Exp $');
+    my %id = parse_id('$Id: .pl,v 1.7 2007-07-16 12:08:39 lenik Exp $');
     print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -53,10 +53,10 @@ Syntax:
         $0 <options> ...
 
 Options:
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
+        --quiet                 (q)
+        --verbose               (v, repeat to get more info)
         --version
-        --help (h)
+        --help                  (h)
 EOM
 }
 
