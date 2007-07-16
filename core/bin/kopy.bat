@@ -29,15 +29,15 @@
     )
     set base=%~nx1
 
-    echo disable sfc...
+    REM echo disable sfc...
 
     rem do the copy
-    call :copy "%~1" "%windir%\ServicePackFiles\i386\%base%"
+    REM call :copy "%~1" "%windir%\ServicePackFiles\i386\%base%"
     call :copy "%~1" "%windir%\System32\dllcache\%base%"
     call :copy "%~1" "%windir%\System32\%base%"
     call :copy "%~1" "%windir%\%base%"
 
-    echo enable sfc...
+    REM echo enable sfc...
 
     if not "%_final%"=="" (
         echo finalizing...
@@ -49,9 +49,14 @@
 
 :copy
     if exist "%~2" (
-        echo Overwriting %2...
-        rem copy /y "%~1" "%~2" >nul
-        wfpreplace  "%~2" "%~1" >nul
+        diff "%~1" "%~2" >nul
+        if errorlevel 2 (
+            echo Overwriting %2...
+            rem copy /y "%~1" "%~2" >nul
+            wfpreplace  "%~2" "%~1" >nul
+        )
+    ) else (
+        copy "%~1" "%~2" >nul
     )
     goto end
 

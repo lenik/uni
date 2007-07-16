@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.40 2007-07-16 12:07:03 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.41 2007-07-16 12:19:10 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -102,7 +102,7 @@
             reg add "hkcu\Console"          /f /v QuickEdit             /t REG_DWORD /d 1           >nul
             reg add "hkcu\Console"          /f /v ScreenBufferSize      /t REG_DWORD /d 0x03e80064  >nul
             reg add "hkcu\Console"          /f /v WindowSize            /t REG_DWORD /d 0x00190064  >nul
-            reg add "hkcu\Console"          /f /v FontFamily            /t REG_DWORD /d 1           >nul
+            reg add "hkcu\Console"          /f /v FontFamily            /t REG_DWORD /d 0           >nul
             reg add "hkcu\Console"          /f /v FontSize              /t REG_DWORD /d 0x000c0006  >nul
             reg add "hkcu\Console"          /f /v FontWeight            /t REG_DWORD /d 400         >nul
             reg add "hkcu\Console"          /f /v FaceName                           /d "Terminal"  >nul
@@ -111,7 +111,7 @@
             reg add "hkcu\Console"          /f /v ScreenColors          /t REG_DWORD /d 0x2a        >nul
             reg add "hkcu\Console\Big"      /f /v ScreenBufferSize      /t REG_DWORD /d 0x03e80046  >nul
             reg add "hkcu\Console\Big"      /f /v WindowSize            /t REG_DWORD /d 0x00140046  >nul
-            reg add "hkcu\Console\Big"      /f /v FontSize              /t REG_DWORD /d 0x000c0006  >nul
+            reg add "hkcu\Console\Big"      /f /v FontSize              /t REG_DWORD /d 0x0014000a  >nul
 
             echo   Preference - Metapad
             reg add "hkcu\SOFTWARE\metapad" /f /v m_ShowToolbar         /t REG_DWORD /d 0 >nul
