@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.39 2007-07-16 11:34:41 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.40 2007-07-16 12:07:03 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -66,6 +66,8 @@
             call perl %~dpnx0 init %dirt_home% %cirk_home%
 
         :init_shell
+            echo Add shell context-menu (right-click):
+            echo    * files
             reg add hkcr\*\shell\Binary\Command /f /ve /d      "%dirt_home%\3\ue.exe ""%%1""" >nul
             reg add hkcr\*\shell\Notepad\Command /f /ve /d     "%windir%\system32\Notepad.exe ""%%1""" >nul
             reg add hkcr\*\shell\Metapad\Command /f /ve /d     "%dirt_home%\3\metapad.exe ""%%1""" >nul
@@ -73,8 +75,14 @@
             reg add hkcr\*\shell\Register\Command /f /ve /d    "regsvr32 ""%%1""" >nul
             reg add hkcr\*\shell\Unregister\Command /f /ve /d  "regsvr32 /u ""%%1""" >nul
             reg add "hkcr\*\shell\My Sign\Command" /f /ve /d   "%dirt_home%\1\dsign.bat ""%%1""" >nul
+
+            echo    *.patch files
             reg add hkcr\.patch\shell\Merge\Command /f /ve /d   "%cirk_home%\cygwin\bin\patch.exe ""%%1""" >nul
 
+            echo    .lst file
+            reg add "hkcr\.lst\shell\Manifest Edit\Command" /f /ve /d           "%dirt_home%\0\mani.bat -f ""%%1""" >nul
+
+            echo    directories
             reg add hkcr\Directory\shell\Console\Command /f /ve /d              "cmd ""%%1""" >nul
             reg add hkcr\Directory\shell\Serialize\Command /f /ve /d            "%dirt_home%\1\renum.exe -D -w 2 ""%%1\*""" >nul
             REM reg add "hkcr\Directory\shell\Gather binaries\Command" /f /ve /d    "%dirt_home%\0\mvup.bat -c ""%%1\..\..\bin\"" -t ""%%1\..\..\bin\"" *.exe *.dll *.ocx" >nul
@@ -84,25 +92,35 @@
             REM reg add "hkcr\Directory\shell\Send to sf\Command" /f /ve /d         "%%perl%% %dirt_home%\0\ftpsend.pl ." >nul
             REM reg add "hkcr\Directory\shell\MP3LTRIM\Command" /f /ve /d           "%%perl%% %dirt_home%\0\mp3ltrim.pl" >nul
             reg add "hkcr\Directory\shell\Manifest Edit\Command" /f /ve /d      "%dirt_home%\0\mani.bat -f" >nul
-            reg add "hkcr\.lst\shell\Manifest Edit\Command" /f /ve /d           "%dirt_home%\0\mani.bat -f ""%%1""" >nul
 
-            reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v CompletionChar /t REG_DWORD /d 14 >nul
-            reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v PathCompletionChar /t REG_DWORD /d 14 >nul
-            reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v EnableExtensions /t REG_DWORD /d 1 >nul
-            reg add "hklm\SOFTWARE\Microsoft\Command Processor" /f /v DelayedExpansion /t REG_DWORD /d 1 >nul
+            echo Set system application preference:
+            echo   Preference - CMD
+            reg add "hkcu\SOFTWARE\Microsoft\Command Processor" /f  /v CompletionChar       /t REG_DWORD /d 14 >nul
+            reg add "hkcu\SOFTWARE\Microsoft\Command Processor" /f  /v PathCompletionChar   /t REG_DWORD /d 14 >nul
+            reg add "hkcu\SOFTWARE\Microsoft\Command Processor" /f  /v EnableExtensions     /t REG_DWORD /d 1 >nul
+            reg add "hkcu\SOFTWARE\Microsoft\Command Processor" /f  /v DelayedExpansion     /t REG_DWORD /d 1 >nul
+            reg add "hkcu\Console"          /f /v QuickEdit             /t REG_DWORD /d 1           >nul
+            reg add "hkcu\Console"          /f /v ScreenBufferSize      /t REG_DWORD /d 0x03e80064  >nul
+            reg add "hkcu\Console"          /f /v WindowSize            /t REG_DWORD /d 0x00190064  >nul
+            reg add "hkcu\Console"          /f /v FontFamily            /t REG_DWORD /d 1           >nul
+            reg add "hkcu\Console"          /f /v FontSize              /t REG_DWORD /d 0x000c0006  >nul
+            reg add "hkcu\Console"          /f /v FontWeight            /t REG_DWORD /d 400         >nul
+            reg add "hkcu\Console"          /f /v FaceName                           /d "Terminal"  >nul
+            reg add "hkcu\Console"          /f /v ColorTable02          /t REG_DWORD /d 0x004200    >nul
+            reg add "hkcu\Console"          /f /v ColorTable10          /t REG_DWORD /d 0x80ff80    >nul
+            reg add "hkcu\Console"          /f /v ScreenColors          /t REG_DWORD /d 0x2a        >nul
+            reg add "hkcu\Console\Big"      /f /v ScreenBufferSize      /t REG_DWORD /d 0x03e80046  >nul
+            reg add "hkcu\Console\Big"      /f /v WindowSize            /t REG_DWORD /d 0x00140046  >nul
+            reg add "hkcu\Console\Big"      /f /v FontSize              /t REG_DWORD /d 0x000c0006  >nul
 
-            reg add "hkcu\SOFTWARE\Microsoft\Command Processor" /f /v CompletionChar /t REG_DWORD /d 14 >nul
-            reg add "hkcu\SOFTWARE\Microsoft\Command Processor" /f /v PathCompletionChar /t REG_DWORD /d 14 >nul
-            reg add "hkcu\SOFTWARE\Microsoft\Command Processor" /f /v EnableExtensions /t REG_DWORD /d 1 >nul
-            reg add "hkcu\SOFTWARE\Microsoft\Command Processor" /f /v DelayedExpansion /t REG_DWORD /d 1 >nul
-
-            reg add "hkcu\SOFTWARE\metapad" /f /v m_ShowToolbar        /t REG_DWORD /d 0 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v m_ShowStatus         /t REG_DWORD /d 0 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v bAutoIndent          /t REG_DWORD /d 1 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v bInsertSpaces        /t REG_DWORD /d 1 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v nTabStops            /t REG_DWORD /d 4 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v bNoCaptionDir        /t REG_DWORD /d 1 >nul
-            reg add "hkcu\SOFTWARE\metapad" /f /v bSaveWindowPlacement /t REG_DWORD /d 1 >nul
+            echo   Preference - Metapad
+            reg add "hkcu\SOFTWARE\metapad" /f /v m_ShowToolbar         /t REG_DWORD /d 0 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v m_ShowStatus          /t REG_DWORD /d 0 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v bAutoIndent           /t REG_DWORD /d 1 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v bInsertSpaces         /t REG_DWORD /d 1 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v nTabStops             /t REG_DWORD /d 4 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v bNoCaptionDir         /t REG_DWORD /d 1 >nul
+            reg add "hkcu\SOFTWARE\metapad" /f /v bSaveWindowPlacement  /t REG_DWORD /d 1 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v bSuppressUndoBufferPrompt /t REG_DWORD /d 1 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v nSelectionMarginWidth /t REG_DWORD /d 5 >nul
             reg add "hkcu\SOFTWARE\metapad" /f /v nTransparentPct      /t REG_DWORD /d 50 >nul
