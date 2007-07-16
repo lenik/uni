@@ -1,0 +1,181 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::channel;
+use cmt::ftime;
+use cmt::serv;
+use cmt::util;
+use cmt::vcs;
+use cmt::win32;
+use Data::Dumper;
+use Getopt::Long;
+use IO::Socket;
+use IO::Select;
+
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
+
+our $opt_verbtitle      = 'relay';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_bind_address;
+our $opt_bind_port;
+our $opt_target_host    = 'localhost';
+our $opt_target_port    = 80;
+our $opt_start_recver;
+our $opt_start_sender;
+our $opt_start_delay    = 1000;
+our $opt_hexdump        = 0;
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help'       => sub { help; exit },
+               'bind-address|a=s',
+               'bind-port|b=n',
+               'target-host|h=s',
+               'target-port|p=n',
+               'start-recver|sr=s',
+               'start-sender|ss=s',
+               'start-delay|sd=n',
+               'hexdump|x',
+               );
+
+    $opt_target_host = shift @ARGV if @ARGV;
+    $opt_target_port = shift @ARGV if @ARGV;
+
+    unless (defined $opt_bind_port) {
+        $opt_bind_port = $opt_target_port;
+        $opt_bind_port += 1000
+            if ($opt_target_host eq $opt_bind_host);
+    }
+
+    info2 "bind-address:    $opt_bind_address";
+    info2 "bind-port:       $opt_bind_port";
+    info2 "target-host:     $opt_target_host";
+    info2 "target-port:     $opt_target_port";
+    info2 "start-recver:    $opt_start_recver";
+    info2 "start-sender:    $opt_start_sender";
+    info2 "start-delay:     $opt_start_delay";
+
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: relay,v 1.1 2007-07-16 12:08:59 lenik Exp $');
+    print "[$opt_verbtitle] TCP Connection Relay And Sniff \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> [ <target-host> [<target-port>] ]
+
+Options:
+        --bind-address=<address>    (a, when specified, 1000 will be added to the bind-port)
+        --bind-port=<port>          (b, default <target-port>)
+        --target-host=<hostname>    (h, default localhost)
+        --target-port=<port>        (p, default 80)
+        --start-recver=<cmdline>    (sr)
+        --start-sender=<cmdline>    (ss, cmdline is executed after the delay)
+        --start-delay=<delay ms>    (sd, default 1000 ms)
+        --hexdump                   (x, show hexdump column)
+        --quiet                     (q)
+        --verbose                   (v, repeat to get more info)
+        --version
+        --help
+EOM
+}
+
+exit boot;
+
+sub main {
+    my $pid_recver;
+    my $pid_sender;
+    if (defined $opt_start_recver) {
+        $pid_recver = ntspawn($opt_start_recver);
+        die "Can't spawn the recver process" unless defined $pid_recver;
+        atexit { ntkill $pid_recver };
+    }
+    if (defined $opt_start_sender) {
+        fsleep($opt_start_delay / 1000.0);
+        $pid_sender = ntspawn($opt_start_sender);
+        atexit { ntkill $pid_sender };
+    }
+
+    my $chprov;
+    my $serv;
+    $chprov = mkchprov(\&relay_recv, \&relay_idle,
+                       \&relay_init, \&relay_uninit);
+    $serv = new cmt::serv($chprov, $opt_bind_port, 'relay');
+    $serv->verbose($opt_verbose);
+
+    info "Start relay-service at $opt_bind_address:$opt_bind_port";
+    $serv->serv;
+}
+
+sub relay_init {
+    my $self = shift;
+    my ($client) = @_;
+    info2 "Init: $client";
+}
+
+sub relay_uninit {
+    my $self = shift;
+    info2 "Uninit";
+}
+
+sub relay_recv {
+    my $self = shift;
+    my ($input) = @_;
+    my $resp;
+    $resp = relay($input);
+    $self->send($resp);
+}
+
+sub relay_idle {
+    my $self = shift;
+    info2 "Idle";
+}
+
+sub relay_send {
+}
+
+my %FROMBUF;
+sub puts {
+    my $from = shift;
+    my $cont = $FROMBUF{$from};
+
+    if ($opt_hexdump) {
+        print "HEX\n";
+    } else {
+        for (@_) {
+            my $line = '';
+            print "$from> $line";
+        }
+    }
+}
+
+# sub lines(&) {..}
