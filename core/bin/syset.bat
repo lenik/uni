@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.38 2007-07-15 13:56:00 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.39 2007-07-16 11:34:41 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -329,7 +329,7 @@ sub init {
                 path_normalize "$dirt_home/0/lib",
                 path_normalize "$cirk_home/perl/perl5/lib",
                 path_normalize "$cirk_home/perl/perl5/site/lib",
-                path_normalize "$cirk_home/perl/lib",
+                path_normalize "$cirk_home/perl/site/lib",
                 ]);
         print ".";
 
@@ -337,7 +337,7 @@ sub init {
                 path_normalize "$dirt_home/0/lib",
                 path_normalize "$cirk_home/python/python24/lib",
                 path_normalize "$cirk_home/python/python24/lib/site-packages",
-                path_normalize "$cirk_home/python/lib",
+                path_normalize "$cirk_home/python/site/lib",
                 ]);
         print ".";
 
