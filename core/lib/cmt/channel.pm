@@ -7,11 +7,11 @@ use IO::Select;
 sub new {
     my $class = shift;
     my $self = bless {}, $class;
-    $self->{initf}  = \&_init;
-    $self->{uninitf}= \&_uninit;
-    $self->{recvf}  = \&_recv;
-    $self->{sentf}  = \&_sent;
-    $self->{idlef}  = \&_idle;
+    $self->{initf}  = \&init;
+    $self->{uninitf}= \&uninit;
+    $self->{recvf}  = \&recv;
+    $self->{sentf}  = \&sent;
+    $self->{idlef}  = \&idle;
     $self->{serv}   = undef;
     $self->{IN}     = \*STDIN;
     $self->{OUT}    = \*STDOUT;
@@ -32,27 +32,27 @@ sub serv        { return shift->{serv}; }
 sub IN          { return shift->{IN}; }
 sub OUT         { return shift->{OUT}; }
 
-sub _init {
+sub init {
     my $self = shift;
     # do nothing.
 }
 
-sub _uninit {
+sub uninit {
     my ($self) = @_;
     # ignore this event
 }
 
-sub _recv {
+sub recv {
     my ($self, $msg) = @_;
     # ignore this event
 }
 
-sub _sent {
+sub sent {
     my ($self) = @_;
     # ignore this event
 }
 
-sub _idle {
+sub idle {
     my ($self) = @_;
     # ignore this event
 }
@@ -60,31 +60,31 @@ sub _idle {
 sub fire_init {
     my $self = shift;
     my $f = $self->{initf};
-    return &$f($self, @_);
+    return $f->($self, @_);
 }
 
 sub fire_uninit {
     my $self = shift;
     my $f = $self->{uninitf};
-    return &$f($self, @_);
+    return $f->($self, @_);
 }
 
 sub fire_recv {
     my $self = shift;
     my $f = $self->{recvf};
-    return &$f($self, @_);
+    return $f->($self, @_);
 }
 
 sub fire_sent {
     my $self = shift;
     my $f = $self->{sentf};
-    return &$f($self, @_);
+    return $f->($self, @_);
 }
 
 sub fire_idle {
     my $self = shift;
     my $f = $self->{idlef};
-    return &$f($self, @_);
+    return $f->($self, @_);
 }
 
 sub send {
@@ -125,21 +125,23 @@ sub shutdown {
 use Exporter;
 use vars qw/@ISA @EXPORT/;
 
-sub mkchprov {
+sub mkch {
     my ($recvf, $idlef, $initf, $uninitf) = @_;
-    my $chprov = sub {
-        my $ch = new cmt::channel;
-        $ch->{initf}    = $initf if ($initf);
-        $ch->{uninitf}  = $uninitf if ($uninitf);
-        $ch->{recvf}    = $recvf if ($recvf);
-        $ch->{idlef}    = $idlef if ($idlef);
-        return $ch;
-    };
-    return $chprov;
+    my $ch = new cmt::channel;
+    $ch->{initf}    = $initf if ($initf);
+    $ch->{uninitf}  = $uninitf if ($uninitf);
+    $ch->{recvf}    = $recvf if ($recvf);
+    $ch->{idlef}    = $idlef if ($idlef);
+    return $ch;
+}
+
+sub mkchprov {
+    sub { mkch @_ }
 }
 
 @ISA = qw(Exporter);
 @EXPORT = qw(
+    mkch
 	mkchprov
 	);
 
