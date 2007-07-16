@@ -11,7 +11,7 @@ use cmt::util;
 
 
 our $nfs_appname = 'NFS Version 2';
-our %nfs_id = parse_id('$Id: nfs,v 1.24 2007-06-25 12:58:14 lenik Exp $');
+our %nfs_id = parse_id('$Id: nfs,v 1.25 2007-07-16 15:18:27 lenik Exp $');
 
 our %nfs_filetype = (
     ''      => 'ue "%s"',                   # default
@@ -894,6 +894,11 @@ Syntax:
         --help (h)
 
         [--] <nfs-title>
+
+Examples:
+
+        nfs -m /public/myopinion 2001-02-03
+        nfs -l .. (TODO)
 
 This program is distributed under GNU General Public License (GPL).
 Send bug-report to bug-report\@bodz.net, or visit http://tc.bodz.net/diret
