@@ -202,6 +202,15 @@ sub unindent_most {
     join("\n", map { substr($_, $l) } @lines);
 }
 
+my  @ATEXIT;
+sub atexit(&) {
+    my $dstr = shift;
+    push @ATEXIT, [$dstr, \@_];
+}
+END {
+    $_->[0]->(@{$_->[1]}) for @ATEXIT;
+}
+
 @ISA = qw(Exporter);
 @EXPORT = qw(
 	datetime
@@ -222,6 +231,7 @@ sub unindent_most {
 	writefile
 	indent
 	unindent_most
+	atexit
 	);
 
 1;

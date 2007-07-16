@@ -108,7 +108,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: runx,v 1.2 2007-07-11 15:26:41 lenik Exp $');
+    my %id = parse_id('$Id: runx,v 1.3 2007-07-16 15:19:24 lenik Exp $');
     print "[$opt_verbtitle] Run .x file \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -172,10 +172,10 @@ sub main {
             or die("Can't create tmp file $runpath: $!");
         print TF while (<PF>);
         close TF;
-        eval 'END {
+        atexit {
             info2 "remove tmp file $runpath";
             unlink $runpath;
-        }';
+        }
     }
 
     # unshift @opt_args, $runpath;
