@@ -125,7 +125,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: odx,v 1.1 2007-04-27 13:51:11 lenik Exp $');
+    my %id = parse_id('$Id: odx,v 1.2 2007-07-17 11:04:07 lenik Exp $');
     print "[$opt_verbtitle] Perl simple cli program template\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -400,12 +400,12 @@ sub modexec {
     my @args = ('execgui',
                 '--verbose',
                 '--err2out',
-                '--eventmode=100',
+                # '--eventmode=auto',
                 '--slowdown=0.01',
                 "--title=\"$title\"",
                 );
     push(@args, "--autoclose=$opt_autoclose") if $opt_autoclose;
-    push(@args, "--process=\"$proc\"") if $proc;
+    push(@args, "--srcfilter=\"$proc\"") if $proc;
     push(@args, $cmd);
     my $cmdline = join(' ', @args);
     info2 "system $cmdline";
@@ -430,13 +430,7 @@ sub modexec {
 }
 
 sub modreq {
-    my $resp = `ping -n 1 80.32.48.184`;
-    my ($sent, $recv, $lost) =
-        $resp =~ /sent = (\d+), received = (\d+), lost = (\d+)/si;
-    info "resp: sent=$sent, recv=$recv, lost=$lost";
-    return 1 if $recv > 0;
-    msgbox("prerequisition not fulfilled.");
-    return 0;
+    return 1;
 }
 
 __END__

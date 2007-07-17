@@ -1,21 +1,59 @@
 package cmt::guiutil;
 
 use strict;
-use Exporter;
 use vars qw/@ISA @EXPORT/;
 use cmt::ftime;
-use Socket;
-use Thread;
+use cmt::ios;
+use Data::Dumper;
+use Exporter;
 use IO::Handle;
 use IO::Select;
+use Socket;
+use Thread;
 use Tk;
 use Tk::Event;
 
+sub bgloop;
+sub mon_fdout;
 sub fdout_readable;
 
 sub info {
     my $msg = shift;
     print "  -- $msg\n";
+}
+
+sub bgloop {
+    my $widget      = shift;
+    my $interval    = shift;        # ms
+    my $callback    = shift;
+    my @args        = @_;
+    my $timeout     = $interval;    # ms
+    my $wrapper;
+       $wrapper = sub {
+        my $ret = $callback->(@args);
+
+        # return undef to terminate
+        return unless defined $ret;
+
+        # return 1 to continue immediately
+        if ($ret > 0) {
+            $timeout = $interval;
+
+        # return -1 to slowdown
+        } else {
+            if ($timeout <= 0) {
+                $timeout = 1;       # to avoid multiply with 0, or negatives.
+            } else {
+                $timeout = 2 * $timeout;
+            }
+        }
+
+        # register for the next call
+        $widget->after($timeout, $wrapper);
+    };
+
+    # Don't write "$wrapper->(); " as the initial timeout may be very big.
+    $widget->after($timeout, $wrapper);
 }
 
 sub mon_fdout {
@@ -54,20 +92,20 @@ sub mon_fdout {
     my $btnoptions  = $fctrl->Button(-underline=>0, -overrelief=>'raised',
                                      -state=>'normal', -relief=>'raised', -text=>'Options',-compound=>'left', -bitmap=>'info',   -padx=>4)->pack(-ipadx=>4, -side=>'left', -padx=>4);
 
-    my %ui = (mw => $mw,
-              w => $w,
-              body => $body,
-              finfo => $finfo,
+    my %ui = (mw        => $mw,
+              w         => $w,
+              body      => $body,
+              finfo     => $finfo,
               labstatus => $labstatus,
-              labinfo => $labinfo,
-              btnok => $btnok,
+              labinfo   => $labinfo,
+              btnok     => $btnok,
               btncancel => $btncancel,
-              btnhide => $btnhide,
-              btnoptions => $btnoptions,
+              btnhide   => $btnhide,
+              btnoptions=> $btnoptions,
               statusvar => $statusvar,
-              infovar => $infovar,
-              refresh => 0,
-              line_no => 0,
+              infovar   => $infovar,
+              blocklines=> 0,
+              line_no   => 0,
               );
 
     $btnok->configure(-command => sub {
@@ -104,40 +142,35 @@ sub mon_fdout {
                              # sub {print "read!\n";},
                              [\&fdout_readable, $fdout_rd, \%cfg, \%ui],
                              );
-    } elsif ($eventmode eq 'idle' || $eventmode =~ /^\d+$/) {
-        my $idletask;
-        my $select = new IO::Select($fdout_rd);
-        my $intv = $eventmode =~ /^\d+$/ ? 1*$eventmode : 0;
-        my $cancel_id;
-        my $slowdown = $cfg{-slowdown} || 0.1;
-        my $timeout = $cfg{-timeout} || 1 * $slowdown;
-        my $refresh = $cfg{-refresh} || 10000;
-        $idletask = sub {
-            my $done;
-            my $cc = 0;                 # continuous_select counter
-            while (my @ready = $select->can_read($timeout)) {
-                my $rh = shift @ready;
-                # assert $rh == $fdout_rd
-                $done = !fdout_readable($fdout_rd, \%cfg, \%ui);
-                $cc++;
-                last if $done;
-                last if $cc > $refresh;
-            }
-            # $body->insert('end', "-- cont $cc\n");
-            # info "done!" if $done;
-            if ($eventmode eq 'idle') {
-                $eventmgr->afterIdle($idletask) unless $done;
+    } elsif ($eventmode =~ /^auto$/) {
+        my $ios = new cmt::ios(
+            readout => [ $fdout_rd ],
+            -read   =>
+                sub {
+                    my ($ctx, $fd) = @_;
+                    # assert $fd == $fdout_rd;
+                    my $eof = ! fdout_readable($fd, \%cfg, \%ui);
+                    if ($eof) {
+                        $ctx->exit;
+                    }
+                    return 1;       # never slowdown.
+                },
+            -write  => sub { undef },
+            -err    => sub { undef },
+        );
+
+        my $ctx = $ios->create_context('readout');
+
+        my $bgcall = sub {
+            my $cont = $ctx->iterate();
+            if ($cont) {
+                return 1;           # next immediately
             } else {
-                # $cancel_id->cancel if $done;
-                $eventmgr->after($intv, $idletask) unless $done;
+                return undef;       # break bgloop
             }
         };
-        if ($intv) {
-            $cancel_id = $eventmgr->afterIdle($idletask);
-        } else {
-            #$cancel_id = $eventmgr->repeat($intv, $idletask);
-            $cancel_id = $eventmgr->after($intv, $idletask);
-        }
+
+        bgloop $eventmgr, 0, $bgcall;
     } else {
         die("Invalid eventmode: $eventmode");
     }
@@ -145,10 +178,10 @@ sub mon_fdout {
     # my $child = fork;
     my $child = new Thread(sub {
         my $slowdown = $cfg{-slowdown};
-        my $process = $cfg{-process};
+        my $srcfilter = $cfg{-srcfilter};
         while (<$fd>) {
-            if ($process) {
-                $_ = &$process($_);
+            if ($srcfilter) {
+                $_ = $srcfilter->($_);
                 next unless defined $_;
             }
             # info "Send: $_";
@@ -218,9 +251,9 @@ sub fdout_readable {
     }
 
     $ui->{line_no}++;
-    if ($ui->{refresh}-- < 0) {
+    if ($ui->{blocklines}-- < 0) {
         $body->yview('end');
-        $ui->{refresh} = $cfg->{refresh};
+        $ui->{blocklines} = $cfg->{blocklines};
         if ($cfg->{-displayinfo}) {
             ${$ui->{infovar}} = 'Line: '.$ui->{line_no};
         }
@@ -234,9 +267,8 @@ sub fdout_readable {
     return ! $eof;
 }
 
-@ISA = qw(Exporter);
-@EXPORT = qw(
-	mon_fdout
-	);
+@ISA    = qw(Exporter);
+@EXPORT = qw(bgloop
+             mon_fdout);
 
-1;
+1

@@ -4,15 +4,15 @@ use strict;
 use cmt::util;
 use cmt::vcs;
 use cmt::guiutil;
+# use Data::Dumper;
 use Getopt::Long;
 use IO::Handle;
 use IPC::Open2;
 use IPC::Open3;
-# use Data::Dumper;
 
 sub boot;
 sub main;
-sub process;
+sub srcfilter;
 
 sub info;
 sub info2;
@@ -26,10 +26,10 @@ our $opt_title          = $opt_verbtitle;
 our $opt_open           = 1;            # 1=open, 2=open2, 3=open3
 our $opt_autoclose;
 our $opt_err2out        = 0;            # 2>&1
-our $opt_eventmode      = 100;          # fileevent, idle, or repeat(ms)
+our $opt_eventmode      = 'auto';       # fileevent, idle, or repeat(ms)
 our $opt_slowdown       = 0.0001;       # sleep seconds for each line
 our $opt_timeout        = 0.00015;      # timeout when (block) reading buffer
-our $opt_refresh        = 1;            # how many lines to refresh screen
+our $opt_blocklines     = 1;            # how many lines to refresh screen
 our $opt_cancel         = 0;
 our $opt_hide           = 1;
 our $opt_status;
@@ -37,32 +37,32 @@ our $opt_info           = 1;
 our $opt_dir;                           # exec in directory
 our $opt_read_from;                     # TODO
 our $opt_write_to;                      # TODO
-our $opt_process;
+our $opt_srcfilter;
 our @opt_cmdline;
 
 sub boot {
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help|h'     => sub { help; exit },
-               'title|t=s',
-               'open=s',
-               'autoclose=n',
-               'err2out!',              # no-err2out
-               'eventmode=s',
-               'slowdown|s=s',
-               'timeout=s',
-               'refresh=n',
-               'cancel!',               # no-cancel
-               'hide!',                 # no-hide
-               'status=s',
-               'info!',                 # no-info to disable
+    GetOptions('autoclose=n',
+               'blocklines=n',
+               'cancel!',       # no-cancel
                'dir=s',
+               'err2out!',      # no-err2out
+               'eventmode=s',
+               'help|h'         => sub { help; exit },
+               'hide!',         # no-hide
+               'info!',         # no-info to disable
+               'open=s',
+               'quiet|q'        => sub { $opt_verbose-- },
                'read-from=s',
+               'slowdown|s=s',
+               'srcfilter=s',   # perl script, or @script-file
+               'status=s',
+               'timeout=s',
+               'title|t=s',
+               'verbose|v'      => sub { $opt_verbose++ },
+               'version'        => sub { version; exit },
                'write-to=s',
-               'process=s',             # process script, or @script-file
                );
-    if ($opt_eventmode !~ /^fileevent|idle|(\d+)$/) {
+    if ($opt_eventmode !~ /^fileevent|auto$/) {
         die("Invalid eventmode: $opt_eventmode");
     };
 
@@ -82,18 +82,11 @@ sub boot {
 
     @opt_cmdline = @ARGV;
     @ARGV = ();
-    if (! @opt_cmdline) {
-        die("No command to execute");
-    }
+    die "No command to execute" unless @opt_cmdline;
 
-    if ($opt_process =~ s/^\@//) {
-        open(PF, "<$opt_process")
-            or die("Can't open script file $opt_process");
-        my @lines = <$opt_process>;
-        my $script = join('', @lines);
-        $opt_process = $script;
-    }
-    info "process-script: $opt_process" if $opt_process;
+    $opt_srcfilter = readfile($1)
+        if $opt_srcfilter =~ /^\@(.*)$/;
+    info "srcfilter: $opt_srcfilter" if $opt_srcfilter;
 
     main;
 }
@@ -113,7 +106,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: execgui,v 1.2 2007-06-25 12:58:13 lenik Exp $');
+    my %id = parse_id('$Id: execgui,v 1.3 2007-07-17 11:04:06 lenik Exp $');
     print "[$opt_verbtitle] Perl simple cli program template\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -126,14 +119,29 @@ Syntax:
         $0 <options> ...
 
 Options:
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
+        --title=<string>    (specifies the window title)
+        --open=<open-type>  (1=open, 2=open2, 3=open3)
+        --autoclose         (close the window after EOF)
+        --err2out           (if specified redirect stderr to stdout as 2>&1)
+        --eventmode=<mode>  (fileevent or auto(default) )
+        --slowdown=<sec>    (delay time for each line, default 0.0001)
+        --blocklines=<n>    (how many lines to refresh screen)
+        --cancel            (enable cancel button)
+        --hide              (enable hide button)
+        --status            (display status bar)
+        --info              (display info, such as line-no)
+        --dir=<path>        (chdir to path before exec)
+        --read-from=<path>  (NOT IMPLEMENTED)
+        --write-to=<path>   (NOT IMPLEMENTED)
+        --srcfilter=<perl-script or \@perl-file>
+        --quiet             (q)
+        --verbose           (v, repeat twice give you more verbose info)
         --version
-        --help (h)
+        --help              (h)
 EOM
 }
 
-boot;
+exit boot;
 
 sub quote_args {
     my $args = shift;
@@ -154,19 +162,19 @@ sub quote_args {
 }
 
 sub main {
-    my %cfg = (-title => $opt_title,
-               -eventmode => $opt_eventmode,
-               -slowdown => $opt_slowdown,
-               -timeout => $opt_timeout,
-               -refresh => $opt_refresh,
-               -cancel => $opt_cancel,
-               -hide => $opt_hide,
-               -status => $opt_status,
+    my %cfg = (-title       => $opt_title,
+               -eventmode   => $opt_eventmode,
+               -slowdown    => $opt_slowdown,
+               -timeout     => $opt_timeout,
+               -blocklines  => $opt_blocklines,
+               -cancel      => $opt_cancel,
+               -hide        => $opt_hide,
+               -status      => $opt_status,
                -displayinfo => $opt_info,
-               -process => $opt_process ? \&process : undef,
-               -endtext => '(done)',
-               -autoclose => $opt_autoclose,
-               -verbose => $opt_verbose,
+               -srcfilter   => $opt_srcfilter ? \&srcfilter : undef,
+               -endtext     => '(done)',
+               -autoclose   => $opt_autoclose,
+               -verbose     => $opt_verbose,
                );
     my @cmdline_quoted = @opt_cmdline;
     quote_args \@cmdline_quoted;
@@ -205,9 +213,9 @@ sub main {
     waitpid $pid, 0;
 }
 
-sub process {
+sub srcfilter {
     local ($_) = shift;
-    my $ret = eval($opt_process);
+    my $ret = eval($opt_srcfilter);
     return undef unless $ret;
     return $_;
 }
