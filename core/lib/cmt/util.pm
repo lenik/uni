@@ -107,6 +107,22 @@ sub append_cmdline {
     push @ARGV, qsplit(qr/\s+/, $cmdline);
 }
 
+sub get_named_args(\@) {
+    my $arg = shift;
+    my %config;
+    my @passby;
+    while (@$arg) {
+        $_ = shift @$arg;
+        if (ref($_) eq '' and /^-(\w+)$/) {
+            $config{$1} = shift @$arg;
+        } else {
+            push @passby, $_;
+        }
+    }
+    @$arg = @passby;
+    return %config;
+}
+
 sub arraycmp {
     my ($a, $b) = @_;
     my $c = $#$a - $#$b;
@@ -211,6 +227,7 @@ END {
     $_->[0]->(@{$_->[1]}) for @ATEXIT;
 }
 
+
 @ISA = qw(Exporter);
 @EXPORT = qw(
 	datetime
@@ -219,6 +236,7 @@ END {
 	forx
 	qsplit
 	append_cmdline
+	get_named_args
 	arraycmp
 	arrayeq
 	arrayne
