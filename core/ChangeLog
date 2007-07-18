@@ -1,5 +1,98 @@
 
+2007-07-18
+  * relay.pl:
+	adapted cmt::serv & cmt::inet
+
+  * lib/cmt/ios.pm:
+	default reads/writes/errs group names as "READ"/"WRITE"/"ERR"
+
+  * lib/cmt/inet.pm, lib/cmt/stream.pm, t/ct.pl:
+	- tcp_connect with additional paramters passed to new IO::Socket::INET.
+	- unified handles in cmt::stream->{IO}, add hinfo debug property.
+	- add more debug outputs
+
+  * words.txt:
+	-> words.txt.gz
+
+  * whoare.pl, words.txt.gz, lib/cmt/util.pm:
+	whoare now accepts words file in .gz format.
+
+  * dnac.pl, dnad.pl:
+	back to decoded version.
+
+  * lib/cmt/util.pm:
+	add setnonblock/nbread
+
+  * lib/cmt/inet.pm, lib/cmt/ios.pm, lib/cmt/serv.pm, e.t.c...
+	- new cmt:;stream (rewrite of cmt::channel, which is obsoleted).
+	- convention: cmt::stream->{ctx} refer to cmt::context object.
+	- add cmt::ios -init callback.
+	- replaced IO::Select by cmt::ios in cmt::serv.
+	- rename t-client, t-serv to ct/st.
+
+  * lib/cmt/.class.pm:
+	add info/info2 in the class-module template.
+
+  * lib/cmt/channel.pm:
+	deprecated, using cmt::stream instead.
+
+2007-07-17
+  * execgui.pl, odx.bat, lib/cmt/guiutil.pm, lib/cmt/ios.pm:
+	new cmt::ios to simplify the usage of IO::Select.
+	refactor guiutil to use cmt::ios. (seems a lot more faster!)
+	(and no more "refresh, interval, timeout, etc. " ambiguous keywords, just "auto" only.)
+
+  * lib/cmt/util.pm:
+	add get_named_args
+
+  * lib/cmt/ftime.pm:
+	using prototype() to avoid the function absorb arguments.
+
+2007-07-16
+  * lib/cmt/channel.pm:
+	derive from cmt::channel if you want to implement your "recvf".
+
+  * lib/cmt/serv.pm:
+	fire_init when connection established.
+
+  * runx.bat, lib/cmt/util.pm:
+	add cmt::util::atexit, don't use eval('END {}') any more.
+
+  * nfs.pl:
+	add examples in help page
+
+  * .pl, cpnew.bat:
+	cpnew to do files-update, with hidden-files, readonly-overwrite support, etc.
+
+  * syset.bat:
+	- add more console (cmd.exe) preferences
+	- output in more detail
+
+  * big.bat, ml.bat:
+	using 'start "big"' to have a big-font window
+
+  * syset.bat:
+	perl, python's blib -> site/lib
+
 2007-07-15
+  * lib/fun/xs.pm:
+	using strncpy instead of memcpy for a string-type
+
+  * lib/cmt/util.pm:
+	+ indent/unindent_most
+
+  * mani.bat:
+	change default list file from "MANIFEST" to ".MANIFEST"
+
+  * syset.bat:
+	add include/lib path
+
+  * hex.bat, ugrep.bat:
+	make a unicode-grep by \x?? work-arounds.
+
+  * lib/fun/xs.pm:
+	initial release
+
   * lib/fun/xs.pm:
 	don't dump typedef *PTRTYPE.
 	add --struct-only=<structs...>
