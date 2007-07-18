@@ -1,17 +1,16 @@
-package cmt::client;
+package cmt::inet;
 
 use strict;
 use vars qw/@ISA @EXPORT/;
-use cmt::channel;
 use cmt::ios;
+use cmt::stream;
 use cmt::util;
 use Exporter;
-use IO::Select;
 use IO::Socket;
 
 our $opt_verbtitle      = __PACKAGE__;
 our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
+our $opt_verbose        = 2;
 
 # Not used.
 our $PROTO_TCP          = getprotobyname("tcp");
@@ -39,10 +38,9 @@ sub info2 {
 }
 
 sub tcp_connect {
-    my ($ch, $host, $port) = @_;
-    my $sendbuf;
+    my ($host, $port, $stream) = @_;
 
-    info "tcp connect to $host:$port";
+    info2 "tcp connect to $host:$port";
 
     # TODO - Ignore the bind-address/port options
     # TODO - more controls, UDP, etc.
@@ -51,47 +49,75 @@ sub tcp_connect {
         PeerPort    => $port,
         Type        => SOCK_STREAM,
         Proto       => 'tcp'
-        );
+    );
     if (! $sock) {
-        info "Can't connect: $!";
+        info2 "can't connect: $!";
         return 0;
     }
-    info "connected.";
-    $sock->autoflush(1);        # as "$| = 1" does.
-    $ch->_bind_(undef, $sock);
-    $ch->fire_init($sock);
+
+    info2 "connected.";
+    $sock->autoflush(1);            # as "$| = 1" does.
+    $stream->bind($sock);
 
     my $ios = new cmt::ios(
         net     => [ $sock ],
+        -init   => sub {
+            my $ctx         = shift;
+            $stream->{ctx}  = $ctx; # convention, see also cmt::serv
+        },
         -read   => sub {
-            my ($ctx, $fd) = @_;
-            my $in = <$fd>;
-            $ch->fire_recv($in);
+            my ($ctx, $fd)  = @_;
+            my $data        = $stream->read($fd); # non-block
+            if (length($data) == 0) {
+                # closed
+                $stream->shutdown(2);
+                $ctx->exit;
+            } else {
+                $stream->push($data);
+            }
         },
         -write  => sub {
-            my ($ctx, $fd) = @_;
-            $ch->fire_send($fd);
+            my ($ctx, $fd)  = @_;
+            $stream->pull();
         },
         -err    => sub {
-            my ($ctx, $fd) = @_;
+            my ($ctx, $fd)  = @_;
+            $ctx->exit unless $stream->err($!);
         },
         );
     $ios->loop('net', 'net', 'net');
 }
 
 sub tcp_connect_http {
-    my ($ch, $host, $port, $proxyhost, $proxyport) = @_;
-    # tcp_connect($ch, $proxyhost, $proxyport);
+    my ($host, $port, $proxyhost, $proxyport, $stream) = @_;
+    my ($ctx, $ios);
+    my $err;
+    tcp_connect($proxyhost, $proxyport, new ios::stream(
+        -init => sub {
+            ($ctx, $ios) = @_;
+        },
+        -gotdata => sub {
+            my $this = shift;       # assert $_[1] == $this->{IN/OUT}
+            my $data = $this->sysread;
+            1
+        },
+        -askdata => sub {
+            my $this = shift;       # assert $_[1] == $this->{IN/OUT}
+        },
+        -goterr => sub {
+            my $this = shift;       # assert $_[1] == $this->{IN/OUT}
+            $this->info("goterr: $!, going to shutdown");
+            $ctx->exit;
+            $err = "Error when communicating with proxy server $proxyhost:$proxyhost";
+        },
+    ));
+    return $err;
 }
 
 sub tcp_connect_sock4 {
-    my ($ch, $host, $port, $proxyhost, $proxyport) = @_;
-    # tcp_connect($ch, $proxyhost, $proxyport);
 }
 
 sub tcp_connect_sock5 {
-    my ($ch, $host, $port, $proxyhost, $proxyport) = @_;
-    # tcp_connect($ch, $proxyhost, $proxyport);
 }
 
 1

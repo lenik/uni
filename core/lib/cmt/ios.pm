@@ -12,6 +12,12 @@ use Exporter;
 use IO::Select;
 use List::Util          qw/min max/;
 
+sub info;
+sub info2;
+sub count_undefs;
+sub zero_to_undef;
+sub double(\$);
+
 our $opt_verbtitle      = __PACKAGE__;
 our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
@@ -19,38 +25,6 @@ our $opt_verbose        = 1;
 @ISA    = qw(Exporter);
 @EXPORT = qw(static_method
              );
-
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print datetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
-
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print datetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
-
-sub count_undefs {
-    my $count = 0;
-    for (@_) {
-        $count++ if defined $_;
-    }
-    return $count;
-}
-
-sub zero_to_undef {
-    my $x = shift;
-    $x == 0 ? undef : $x;
-}
-
-sub double(\$) {
-    my $x = shift;
-    $$x = $$x ? (2 * $$x) : 1;
-}
 
 {
     package cmt::ios::context;
@@ -81,7 +55,7 @@ sub new {
     my %groups;
     for (keys %config) {
         my $val = $config{$_};
-        if (/^-(\w+)$/) {       # -read, -write, etc.
+        if (/^-(\w+)$/) {       # -init, -read, -write, -err, etc.
             $this->{$1} = $val;
         } elsif (/^\w+$/) {     # fd-group, create IO::Select object for each group
             $groups{$_} = $val;
@@ -92,14 +66,6 @@ sub new {
     }
     $this->{GROUP} = \%groups;
     return $this;
-}
-
-sub group {
-    my ($this, $name) = @_;
-    my $fd_set;
-    $fd_set = $this->{GROUP}->{$name};
-    die "Group $name isn't existed" unless ref($fd_set) eq 'ARRAY';
-    return @$fd_set;
 }
 
 sub create_context {
@@ -222,16 +188,64 @@ sub create_context {
         return $next;
     };
 
+    my $initf = $this->{init};
+    $initf->($context, $this) if defined $initf;
+
     return $context;
 }
 
 sub loop {
     my $this    = shift;
-    my $ctx     = create_context(@_);
-    my $iterator = $ctx->{ITERATOR};
+    my $ctx     = $this->create_context(@_);
+    my $iterator= $ctx->{ITERATOR};
     while ($iterator->()) {
     }
     # ctx->DESTROY.
+    return $ctx->{STAT};
+}
+
+# utilities
+
+sub group {
+    my ($this, $name) = @_;
+    my $fd_set;
+    $fd_set = $this->{GROUP}->{$name};
+    die "Group $name isn't existed" unless ref($fd_set) eq 'ARRAY';
+    return @$fd_set;
+}
+
+# statics
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub count_undefs {
+    my $count = 0;
+    for (@_) {
+        $count++ if defined $_;
+    }
+    return $count;
+}
+
+sub zero_to_undef {
+    my $x = shift;
+    $x == 0 ? undef : $x;
+}
+
+sub double(\$) {
+    my $x = shift;
+    $$x = $$x ? (2 * $$x) : 1;
 }
 
 1
@@ -241,8 +255,11 @@ __END__
     my $ios = new ioevt(
         group1  => [ $fd1, $fd2, ... ],
         group2  => ...,
-        -read   => sub { $buf=read; return $wbuf },
-        -write  => sub { return $wbuf; },
+        -read   => sub { shift; $buf=<shift>; return $wbuf },
+        -write  => sub { shift; print <shift> $wbuf; },
+        -err    => sub { shift; $fd=<shift>; $fd->shutdown; remove($fd)... }
+                   -or-
+                   sub { my $ctx = shift; $ctx->exit unless $stream->err(shift) }
         );
 
     1

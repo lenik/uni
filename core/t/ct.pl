@@ -1,32 +1,96 @@
 #!/usr/bin/perl
 
 use strict;
-use Getopt::Long;
+use cmt::inet;
+use cmt::stream;
 use cmt::util;
-use cmt::channel;
-use cmt::client;
+use Data::Dumper;
+use Getopt::Long;
 
-my ($opt_host, $opt_port) = @ARGV;
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
 
-sub init {
-    print "Init\n";
+our $opt_verbtitle      = 'tcp-connect';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_host;
+our $opt_port           = 80;
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               );
+
+    $opt_host   = shift @ARGV   if @ARGV;
+    $opt_port   = shift @ARGV   if @ARGV;
+
+    main;
 }
 
-sub uninit {
-    print "Uninit\n";
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
 }
 
-sub recv {
-    shift;
-    my $msg = shift;
-    print "Recv: [$msg]\n";
-    my $line = <STDIN>;
-    return $line;
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
 }
 
-sub idle {
-    print "Idle\n";
+sub version {
+    my %id = parse_id('$Id: ct.pl,v 1.2 2007-07-18 11:08:14 lenik Exp $');
+    print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
-my $ch = mkch(\&recv, \&idle, \&init, \&uninit);
-client_comm($ch, $opt_host, $opt_port);
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> ...
+
+Options:
+        --quiet                 (q)
+        --verbose               (v, repeat to get more info)
+        --version
+        --help                  (h)
+EOM
+}
+
+exit boot;
+
+sub main {
+    my $res = tcp_connect($opt_host, $opt_port, new cmt::stream(
+        -binded => sub {
+            info "binded ".join(',', @_);
+        },
+        -unbinded => sub {
+            info "unbinded ".join(',', @_);
+        },
+        -gotdata => sub {
+            info "gotdata ".join(',', @_);
+        },
+        -askdata => sub {
+            my $s = shift;
+            info "askdata ".join(',', @_);
+            #my $enter = <STDIN>;
+            #$s->write($enter);
+            undef;
+        },
+        -goterr => sub {
+            info "goterr ".join(',', @_);
+        },
+    ));
+    info "Result: ".Dumper($res);
+}

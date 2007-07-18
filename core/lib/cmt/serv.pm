@@ -1,233 +1,177 @@
 package cmt::serv;
 
 use strict;
+use cmt::ftime;
+use cmt::ios;
+use cmt::stream;
+use cmt::util;
 use Fcntl;
 use IO::Socket;
-use IO::Select;
-use cmt::ftime;
-use cmt::util;
-
-sub nonblock;
-sub fsleep;
-sub info;
-sub info2;
 
 my $DEFAULT_PORT    = 51296;
 
 sub new {
-    my $class = shift;
-    my ($chprov, $port, $name) = @_;
-
-    $port       ||= $DEFAULT_PORT;
-    $name       ||= $port . 'd';
-
-    my $self = bless {}, $class;
-    $self->{name}       = $name;
-    $self->{address}    = 'localhost';
-    $self->{port}       = $port;
-    $self->{proto}      = 'tcp';            #
-    $self->{chprov}     = $chprov;          # channel provider
-    $self->{interval}   = 2;                # idle-loop interval
-    $self->{capacity}   = 10;               # max clients allowed
-    $self->{verbose}    = 0;                # disable verbose
-    return $self;
+    my $class       = shift;
+    my $sfac        = shift;
+    my $port        = shift || $DEFAULT_PORT;
+    my $name        = shift || $port.'d';
+    bless {
+        name        => $name,
+        address     => 'localhost',
+        port        => $port,
+        proto       => 'tcp',           #
+        sfac        => $sfac,           # stream factory
+        interval    => 2,               # idle-timeout
+        capacity    => 10,              # max clients allowed
+        verbose     => 0,               # disable verbose
+    }, $class;
 }
 
-sub name        { return shift->{name}; }
-sub address     { return shift->{address}; }
-sub port        { return shift->{port}; }
-sub proto       { return shift->{proto}; }
-sub chprov      { return shift->{chprov}; }
-sub interval    { return shift->{interval}; }
-sub capacity    { return shift->{capacity}; }
-sub select      { return shift->{select}; }
-sub verbose {
-    my $self = shift;
-    my $value = shift;
-    $self->{verbose} = $value if defined $value;
-    return $self->{verbose};
-}
+sub name            { return shift->{name}; }
+sub address         { return shift->{address}; }
+sub port            { return shift->{port}; }
+sub proto           { return shift->{proto}; }
+sub sfac            { return shift->{sfac}; }
+sub interval        { return shift->{interval}; }
+sub capacity        { return shift->{capacity}; }
+sub select          { return shift->{select}; }
 
 sub serv {
-    my $self        = shift;
-    my $port        = $self->port;
-    my $chprov      = $self->chprov;
-    my $interval    = $self->interval;    # idle timeout
-    my $timeout     = $interval / 3;
-    my $st_req      = 0;
+    my $this        = shift;
+    my $port        = $this->port;
+    my $sfac        = $this->sfac;
+    my $interval    = $this->interval;
+
+    my $st_seq      = 0;
     my $st_select   = 0;
-    my $st_recv     = 0;
-    my $st_idle     = 0;
+    my $st_push     = 0;
+    my $st_pull     = 0;
     my $st_err      = 0;
 
-    $self->info("initializing...");
+    $this->info("initializing...");
     my $server = new IO::Socket::INET(
-                # LocalAddr   => $self->address,
-                MultiHomed  => 1,
-                LocalPort   => $port,
-                Proto       => $self->proto,
-                Listen      => $self->capacity,
-                );
+      # LocalAddr   => $this->address,
+        MultiHomed  => 1,
+        LocalPort   => $port,
+        Proto       => $this->proto,
+        Listen      => $this->capacity,
+    );
 
     if (! $server) {
-        $self->info("can't create server socket: $@");
+        $this->info("can't create server socket: $@");
         return -1;
     }
 
-    if (! nonblock($server)) {
-        $self->info("can't make socket nonblocking: $!\n");
+    if (! setnonblock($server)) {
+        $this->info("can't make socket nonblocking: $!\n");
         $server->shutdown(2);
         return -1;
     }
 
-    my %sockinfo;
-    my $select = new IO::Select($server);
+    my $streams = {};
+    my $clients = 0;
 
-    my $selread = $select;
-    my $selwrite = $select;
-    my $selex = $select;
+    my $ios;
+       $ios = new cmt::ios(
+        SERVER  => [$server],   # skip server socket for "can_write" event.
+        CLIENTS => [],
+        ALL     => [$server],   # server & clients
+        -read   => sub {
+            my $ctx     = shift;
+            my $client  = shift;
 
-    my $lastidle = ftime() - $interval * 2;
-
-    $self->info("started");
-
-    while ($select->count) {
-        my $clients = $select->count - 1;
-
-        # check if idle after idletimeout
-        # the checking will also touch channels' can_write status.
-        $selwrite = $select if (ftime() - $lastidle > $interval);
-
-        # blocks until a handle is ready.
-        # select(READ, WRITE, ERROR [, TIMEOUT])
-        $! = undef;
-        my $select_begin = ftime();
-        my @all = IO::Select->select(
-            $selread, $selwrite, $selex, $timeout);
-        $st_select++;
-        $self->info2("select error: $!") if $!;
-
-        # THE BUG IS FIXED BY USING SHUTDOWN INSTEAD OF CLOSE.
-        # wait more if no events, to avoid some bugs in IO::Select
-        my $select_elaps = ftime() - $select_begin;
-        if (! @all and $select_elaps < $timeout) {
-            my $wait = $timeout - $select_elaps;
-            $self->info2("wait more $wait");
-            fsleep($wait);
-        }
-
-        my @rs = @all[0] ? @{$all[0]} : ();
-        my @ws = @all[1] ? @{$all[1]} : ();
-        my @xs = @all[2] ? @{$all[2]} : ();
-        $self->info2("selected r".scalar(@rs)." w".scalar(@ws)." x".scalar(@xs));
-
-        for my $s (@rs) {
-            $self->info2("read $s");
             # accept incoming connection
-            if ($s == $server) {
-                my $client = $server->accept;
+            if ($client == $server) {
+                my $client          = $server->accept;
                 # TODO - if (! $client) ...?
-                $self->info("connection $st_req accepted"
-                             . "(total $clients): $client");
-                nonblock($client);  # ignore this error.
+                $this->info("connection $st_seq accepted(total $clients): $client");
 
-                # create a channel
-                my $ch = &$chprov;
-                $ch->_bind_($self, $client);
-                $ch->fire_init($client);
-                $ch->{req} = ++$st_req;
+                setnonblock($client);           # (FIX...)
 
-                # assoc sock with channel
-                $sockinfo{$client} = $ch;
+                my $stream          = $sfac->();
+                $streams->{$client} = $stream;
+                $stream->{seq}      = ++$st_seq;
+                $stream->{ctx}      = $ctx;
+                $stream->bind($client);
 
-                $select->add($client);
+                $ctx->reads->add($client);
+                $ctx->writes->add($client);
+                $ctx->errs->add($client);
             }
 
             # dispatch recv data to corresponding channel
             else {
-                my $ch = $sockinfo{$s};
-                my $msg = <$s>;
+                my $stream  = $streams->{$client};
+                my $msg     = $stream->read;    # non-block
                 if (length($msg)) {
-                    $ch->fire_recv($msg);
-                    $st_recv++;
+                    my $resp = $stream->push($msg);
+                    $st_push++;
                 } else {
-                    $self->info("remote $s is disconnected");
-                    $ch->fire_uninit;
-                    $s->shutdown(2);
-                    $select->remove($s);
+                    $this->info("remote $client is disconnected");
+                    $stream->shutdown(2);
+                    $ctx->reads->remove($client);
+                    $ctx->writes->remove($client);
+                    $ctx->errs->remove($client);
                 }
             }
-        }
+        },
+        -write  => sub {
+            my $ctx     = shift;
+            my $client  = shift;
+            my $stream  = $streams->{$client};
+            my $resp    = $stream->pull();
+            $st_pull++;
+            return $resp;
+        },
+        -err    => sub {
+            my $ctx     = shift;
+            my $client  = shift;
 
-        for my $s (@ws) {
-            $self->info2("can_write $s");
-            # skip server socket for "can_write" event.
-            next if ($s == $server);
-            my $ch = $sockinfo{$s};
-            $ch->{can_write} = 1;
-        }
-
-        for my $s (@xs) {
-            $self->info2("exception $s");
+            $this->info2("exception $client");
             # remove errored sockets.
-            if ($s == $server) {
-                $self->info("TODO - server error happened...");
-                next;
+            if ($client == $server) {
+                $this->info("TODO - server error happened...");
+                # next;
             }
-            $self->info("client $s errored, removed. ");
-            my $ch = $sockinfo{$s};
-            $ch->fire_uninit;
-            $s->shutdown(2);
-            $select->remove($s);
+            $this->info("client $client errored, removed. ");
+
+            my $stream  = $streams->{$client};
+            my $resp    = $stream->err();
+            # TO DO with resp ?...
+
+            $stream->shutdown(2);
+            $ctx->reads->remove($client);
+            $ctx->writes->remove($client);
+            $ctx->errs->remove($client);
             $st_err++;
-        }
-
-        if (scalar(@rs) == 0 and scalar(@ws) == $clients) {
-            # idle encountered.
-            @all = $select->handles;
-            for my $s (@all) {
-                next if ($s == $server);
-                $self->info2("idle $s");
-                my $ch = $sockinfo{$s};
-                $ch->fire_idle;
-                $st_idle++;
-            }
-            $lastidle = ftime;
-            $selwrite = undef;
-        }
-    }
-
-    $self->info("exited");
-    my %stat = (
-        'reqs'      => $st_req,
-        'selects'   => $st_select,
-        'recv'      => $st_recv,
-        'idle'      => $st_idle,
-        'err'       => $st_err,
+        },
         );
-    return \%stat;
+
+    $this->info("started");
+    $ios->loop('ALL', 'CLIENTS', 'ALL');
 }
 
-sub nonblock {
-    my $socket = shift;
-    # my $flags = fcntl($socket, F_GETFL, 0);
-    # return 0 if (! $flags);
-    # return 0 if (! fcntl($socket, F_SETFL, $flags | O_NONBLOCK));
-    return 1;
+# utilities
+
+sub verbose {
+    my $this = shift;
+    my $value = shift;
+    $this->{verbose} = $value if defined $value;
+    return $this->{verbose};
 }
 
 sub info {
-    my $self = shift;
-    if ($self->{verbose} >= 1) {
-        my $name = $self->name;
+    my $this = shift;
+    if ($this->{verbose} >= 1) {
+        my $name = $this->name;
         print datetime." [serv.$name] @_\n";
     }
 }
 
 sub info2 {
-    my $self = shift;
-    if ($self->{verbose} >= 2) {
-        my $name = $self->name;
+    my $this = shift;
+    if ($this->{verbose} >= 2) {
+        my $name = $this->name;
         print datetime." (serv.$name) @_\n";
     }
 }
