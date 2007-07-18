@@ -1,16 +1,15 @@
 #!/usr/bin/perl
 
 use strict;
-use cmt::channel;
-use cmt::ftime;
+use cmt::inet;
 use cmt::serv;
+use cmt::stream;
 use cmt::util;
 use cmt::vcs;
 use cmt::win32;
 use Data::Dumper;
 use Getopt::Long;
 use IO::Socket;
-use IO::Select;
 
 sub boot;
 sub main;
@@ -18,6 +17,8 @@ sub info;
 sub info2;
 sub version;
 sub help;
+sub f_filter;
+sub b_filter;
 
 our $opt_verbtitle      = 'relay';
 our $opt_verbtime       = 0;
@@ -52,7 +53,7 @@ sub boot {
     unless (defined $opt_bind_port) {
         $opt_bind_port = $opt_target_port;
         $opt_bind_port += 1000
-            if ($opt_target_host eq $opt_bind_host);
+            if ($opt_target_host eq $opt_bind_address);
     }
 
     info2 "bind-address:    $opt_bind_address";
@@ -81,8 +82,8 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: relay,v 1.1 2007-07-16 12:08:59 lenik Exp $');
-    print "[$opt_verbtitle] TCP Connection Relay And Sniff \n";
+    my %id = parse_id('$Id: relay,v 1.2 2007-07-18 15:06:24 lenik Exp $');
+    print "[$opt_verbtitle] TCP Relay And Sniff \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
@@ -106,6 +107,28 @@ Options:
         --verbose                   (v, repeat to get more info)
         --version
         --help
+
+Deployment:
+            +--------+      +----------------+      +--------+
+            | source |----->| relayer (serv) |----->| target |
+            +--------+      +----------------+      +--------+
+
+    1, The source connects to the relayer and the relayer accepts the incoming
+       request and creates a forward-stream (F-stm).
+    2, F-stm::binded is triggered, where a connection from the relayer to the
+       target is made (B-conn).  a backward-stream (B-stm) is also created.
+       The B-conn & B-stm are encapsulated in field {Bk} of cmt::inet type.
+   3a, The source sends data to the relayer and F-stm::gotdata is triggered,
+       the data may be processed by F-filter, and then forwards to the target
+       thru B-stm.
+   3b, The target sends data to the relayer and B-stm::gotdata is triggered,
+       the data may be processed by B-filter, and then forwards to the source
+       thru F-stm.
+   4a, Source disconnects from the relayer and F-stm::uninit is trigger, then
+       the relayer disconnects from the target.
+   4b, Target disconnects from the relayer and B-stm::uninit is trigger, then
+       the relayer disconnects from the source.
+
 EOM
 }
 
@@ -125,42 +148,120 @@ sub main {
         atexit { ntkill $pid_sender };
     }
 
-    my $chprov;
-    my $serv;
-    $chprov = mkchprov(\&relay_recv, \&relay_idle,
-                       \&relay_init, \&relay_uninit);
-    $serv = new cmt::serv($chprov, $opt_bind_port, 'relay');
+    my $serv = new cmt::serv(sub {
+        # Forward-Stream
+        new cmt::stream(
+            -binded => sub {
+                # the source connected to the relayer (F-conn and this F-stm),
+                # create a corresponding Bk object.
+                my $s = shift;
+
+                # my $b_ios = relay_connect($s);
+                # $b_ios->
+            },
+            -unbinded => sub {
+                # the source disconnected from the relayer,
+                # so let's disconnect the target.
+                my $s = shift;
+                my $bk = $s->{Bk};
+                $bk->shutdown(2);
+            },
+            -gotdata => sub {
+                # the source sent data to the relayer,
+                # do f_filter and forward to the target.
+                my ($s, $data) = @_;
+                my $bk = $s->{Bk};
+                $data = f_filter($data);
+                if (defined $data) {
+                    # return value??
+                    return $bk->push($data);
+                }
+                1
+            },
+            -askdata => sub {
+                # IGNORE
+                # # Now can_write to the source
+                # # let's check if any data available in the target.
+                # my $s = shift;
+                # my $bk = $s->{Bk};
+                # my $sendbuf = $bk->pull;
+                # if ($sendbuf ne '') {
+                #     $s->write($sendbuf);
+                #     return 1;
+                # }
+                undef   # no sendbuf, let's skip -askdata next time.
+            },
+            -goterr => sub {
+                # error between the source and the relayer
+                # let's break both F-conn and B-conn
+                my $s = shift;
+                my $bk = $s->{Bk};
+                $bk->{ctx}->exit;
+                $s->{ctx}->exit;
+            },
+        )}, $opt_bind_port, 'relay');
     $serv->verbose($opt_verbose);
 
     info "Start relay-service at $opt_bind_address:$opt_bind_port";
     $serv->serv;
 }
 
-sub relay_init {
-    my $self = shift;
-    my ($client) = @_;
-    info2 "Init: $client";
+sub relay_connect {
+    my $f_stm = shift;
+    my $b_stm = new cmt::stream(
+        -binded => sub {
+            # the connection is always made from the source to the target,
+            # if the target would send-on-connect, this stream would gotdata, then.
+            # so the relayer has nothing do with on-connect event.
+        },
+        -unbinded => sub {
+            my $s = shift;
+            # the target is disconnected from the relayer,
+            # so let's disconnect the source.
+            info2 "target ".$s->hinfo." disconnected";
+            $f_stm->shutdown(2);
+        },
+        -gotdata => sub {
+            # the target sent data to the relayer,
+            # do b_filter and forward to the source.
+            my ($s, $data) = @_;
+            $data = b_filter($data);
+            if (defined $data) {
+                # The return value??
+                return $f_stm->push($data);
+            }
+            1
+        },
+        -askdata => sub {
+            # now can_write to the target,
+            # let's check if any data available in the source.
+            my $s = shift;
+            my $sendbuf = $f_stm->pull;
+            if ($sendbuf ne '') {
+                $s->write($sendbuf);
+                return 1;
+            }
+            undef   # no sendbuf, let's skip -askdata next time.
+        },
+        -goterr => sub {
+            # error between the relayer and the target
+            # let's break both B-conn and F-conn
+            my $s = shift;
+            $s->{ctx}->exit;
+            $f_stm->{ctx}->exit;
+        },
+    );
+    return tcp_connect($opt_target_host, $opt_target_port, $b_stm);
 }
 
-sub relay_uninit {
-    my $self = shift;
-    info2 "Uninit";
+sub f_filter {
+    my $data = shift;
+    return $data;
 }
 
-sub relay_recv {
-    my $self = shift;
-    my ($input) = @_;
-    my $resp;
-    $resp = relay($input);
-    $self->send($resp);
-}
-
-sub relay_idle {
-    my $self = shift;
-    info2 "Idle";
-}
-
-sub relay_send {
+sub b_filter {
+    my $data = shift;
+    return $data;
 }
 
 my %FROMBUF;
