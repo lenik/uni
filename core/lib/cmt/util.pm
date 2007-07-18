@@ -1,13 +1,33 @@
 package cmt::util;
 
 use strict;
-use vars qw/@ISA @EXPORT/;
+use vars            qw/@ISA @EXPORT @EXPORT_OK/;
 use cmt::ftime;
 use cmt::proxy;
 use Data::Dumper;
 use Exporter;
+use Fcntl;
+use Socket qw(:all);
 use POSIX;
 use YAML;
+
+our $opt_verbtitle      = __PACKAGE__;
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
 
 # -> cdatetime
 sub datetime {
@@ -107,20 +127,20 @@ sub append_cmdline {
     push @ARGV, qsplit(qr/\s+/, $cmdline);
 }
 
-sub get_named_args(\@) {
+sub get_named_args(\@;\%) {
     my $arg = shift;
-    my %config;
+    my $cfg = shift || {};
     my @passby;
     while (@$arg) {
         $_ = shift @$arg;
         if (ref($_) eq '' and /^-(\w+)$/) {
-            $config{$1} = shift @$arg;
+            $cfg->{$1} = shift @$arg;
         } else {
             push @passby, $_;
         }
     }
     @$arg = @passby;
-    return %config;
+    return %$cfg;
 }
 
 sub arraycmp {
@@ -204,6 +224,53 @@ sub writefile {
     close FH;
 }
 
+sub setnonblock {
+    my $h = shift;
+    eval {
+        info2 "setnonblock $h by Fcntl";
+        my $flags = 0;
+        fcntl($h, F_GETFL, $flags) or return undef;
+        $flags |= O_NONBLOCK;
+        fcntl($h, F_SETFL, $flags) or return undef;
+        1
+    } or eval {
+        info2 "setnonblock $h by ioctl";
+        my $temp = 1;
+        ioctl $h, 0x8004667E, \$temp;
+        1
+    } or eval {
+        info2 "setnonblock $h by setsockopt";
+        setsockopt $h, IPPROTO_TCP, TCP_NODELAY, 1;
+        1
+    } or die "Can't setnonblock, system doesn't support the operation";
+}
+
+sub nbread {
+    my ($h, $size)  = @_;
+
+    # set non-block
+    setnonblock($h) or return undef;
+
+    my $buf;
+    my $size1 = defined $size ? $size : 4096;
+    my $len = sysread($h, $buf, $size1);
+
+    # May be need this?
+    if (defined $len) {
+        $buf = '' if $len == 0;
+    } else {
+        return undef;
+    }
+
+    if (! defined $size) {
+        my $block;
+        while (($len = sysread($h, $block, 4096)) > 0) {
+            $buf .= $block;
+        }
+    }
+    return $buf;
+}
+
 sub indent {
     my $prefix = shift;
         $prefix = ' 'x$prefix if $prefix =~ /^\d+$/;
@@ -227,8 +294,28 @@ END {
     $_->[0]->(@{$_->[1]}) for @ATEXIT;
 }
 
+sub fire {
+    my $obj = shift;
+    my $name = shift;
+    my $callback = $obj->{$name};
+    if (defined $callback) {
+        if (ref $callback eq 'CODE') {
+            return $callback->($obj, @_);
+        } elsif (ref $callback eq '') {     # string
+            return eval($callback);
+        } else {
+            die "$obj->\{$name\}: invalid callback value: $callback";
+        }
+    } elsif ($obj->can($name)) {
+        return $obj->$name(@_);
+    } else {
+        # Strict-Mode:
+        #   die "can't evaluate the callback $name of $obj.";
+        return undef;
+    }
+}
 
-@ISA = qw(Exporter);
+@ISA    = qw(Exporter);
 @EXPORT = qw(
 	datetime
 	cftime
@@ -247,9 +334,14 @@ END {
 	bserchi
 	readfile
 	writefile
+	setnonblock
+	nbread
 	indent
 	unindent_most
 	atexit
+	fire
 	);
+
+@EXPORT_OK = ();
 
 1;
