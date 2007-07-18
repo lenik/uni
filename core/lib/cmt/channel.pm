@@ -1,8 +1,6 @@
 package cmt::channel;
 
 use strict;
-use IO::Socket;
-use IO::Select;
 
 sub new {
     my $class = shift;
