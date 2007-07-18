@@ -42,22 +42,26 @@ our $opt_verbose        = 1;
     sub next        { my $next = shift->{NEXT}; $$next = 1 }
     sub exit        { my $next = shift->{NEXT}; $$next = 0 }
 
-    sub reads       { shift->{READS} }
-    sub writes      { shift->{READS} }
-    sub errs        { shift->{READS} }
-    sub stat        { shift->{STAT}  }
+    sub reads       { shift->{READS}  }
+    sub writes      { shift->{WRITES} }
+    sub errs        { shift->{ERRS}   }
+    sub stat        { shift->{STAT}   }
 }
 
 sub new {
     my $class   = shift;
     my $this    = bless {}, $class;
     my %config  = @_;
-    my %groups;
+    my %groups  = (
+        READ    => [],          # default group for can_read
+        WRITE   => [],          # default group for can_write
+        ERR     => [],          # default group for error_test
+    );
     for (keys %config) {
         my $val = $config{$_};
         if (/^-(\w+)$/) {       # -init, -read, -write, -err, etc.
             $this->{$1} = $val;
-        } elsif (/^\w+$/) {     # fd-group, create IO::Select object for each group
+        } elsif (/^\w+$/) {     # fd-group, an IO::Select for each group
             $groups{$_} = $val;
         } else {
             # croak ?
@@ -69,12 +73,13 @@ sub new {
 }
 
 sub create_context {
-    my $this = shift;
-  # my ($mask, @groups) = @_;
-    my ($mask)      = RR | WW | EE;
-    my ($readg, $writeg, $errg) = @_;
+    my $this        = shift;
+    my $readg       = shift || 'READ';
+    my $writeg      = shift || 'WRITE';
+    my $errg        = shift || 'ERR';
     my ($readf, $writef, $errf, $idlef) =
         ($this->{read}, $this->{write}, $this->{err}, $this->{idle});
+    my $mask        = RR | WW | EE;
 
     my $st_select   = 0;
     my $st_read     = 0;
