@@ -5,6 +5,7 @@ use vars                qw/@ISA @EXPORT/;
 use cmt::util;
 use Data::Dumper;
 use Exporter;
+use Socket;
 
 sub info;
 sub info2;
@@ -20,9 +21,8 @@ sub new {
     my $class           = shift;
     my $this            = bless {}, $class;
     get_named_args(@_, %$this);
-    my ($in, $out)      = @_;
-    $this->{IN}         = $in   if defined $in;
-    $this->{OUT}        = $out  if defined $out;
+    my $fh              = shift;
+    $this->{'IO'}       = $fh;
     # info2 Dumper(\@_);
     # info2 'new cmt::stream = '.Dumper($this);
     return $this;
@@ -35,17 +35,14 @@ sub fire {
 
 sub bind {
     my $this            = shift;
-    my ($in, $out)      = @_;
-        $out ||= $in;
-    $this->{IN}         = $in;
-    $this->{OUT}        = $out;
+    my $fh              = shift;
+    $this->{'IO'}       = $fh;
     $this->fire('binded');
 }
 
 sub unbind {
     my $this            = shift;
-    undef $this->{IN};
-    undef $this->{OUT};
+    undef $this->{'IO'};
     $this->fire('unbinded');
 }
 
@@ -67,42 +64,81 @@ sub err {
 # non-block read
 sub read {
     my $this    = shift;
-    my $fd      = shift || $this->{IN};
-    return nbread($fd);
+    my $fh      = shift || $this->{IO};
+    return nbread($fh);
 }
 
 sub write {
     my $this    = shift;
-    my $fd      = $this->{OUT};
-    print $fd join('', @_);
+    my $fh      = shift || $this->{IO};
+    print $fh join('', @_);
 }
 
 sub autoflush {
     my $this    = shift;
-    my $fd      = $this->{OUT};
     my $val     = shift || 1;
-    $fd->autoflush($val),
+    my $fh      = shift || $this->{IO};
+    $fh->autoflush($val),
 }
 
 sub close {
     my $this            = shift;
-    my $IN              = $this->{IN};
-    my $OUT             = $this->{OUT};
-    undef $OUT          if $OUT == $IN;
-    close $IN           if defined $IN;
-    close $OUT          if defined $OUT;
+    $this->forh(sub {
+        my ($h, $name)  = @_;
+        close $h;
+        undef $this->{$name};
+    });
     $this->unbind;
 }
 
 sub shutdown {
     my $this            = shift;
     my $m               = shift || 2;
-    my $IN              = $this->{IN};
-    my $OUT             = $this->{OUT};
-    undef $OUT          if $OUT == $IN;
-    shutdown($IN, $m)   if defined $IN;
-    shutdown($OUT, $m)  if defined $OUT;
+    $this->forh(sub {
+        my ($h, $name)  = @_;
+        shutdown $h, 2;
+        undef $this->{$name};
+    });
     $this->unbind;
+}
+
+# utilities
+
+sub forh {
+    my $this = shift;
+    my $code = shift;
+    for (keys %$this) {
+        my $val = $this->{$_};
+        if (UNIVERSAL::isa($val, 'GLOB')) {
+            $code->($val, $_);
+        }
+    }
+}
+
+sub format_inaddr {
+    my $sockaddr = shift;
+    my ($port, $iaddr) = sockaddr_in($sockaddr);
+    my $ip   = inet_ntoa($iaddr);
+    my $host = gethostbyaddr($iaddr, AF_INET);
+    return $host ne '' ? "$host:$port" : "$ip:$port";
+}
+
+sub hinfo {
+    my $this = shift;
+    my $info = $this->{info};
+    unless (defined $info) {
+        $this->forh(sub {
+            my ($h, $name) = @_;
+            if (defined (my $local = getsockname($h))) {
+                my $peer = getpeername($h);
+                $h = format_inaddr($local) . '->' . format_inaddr($peer);
+            }
+            $info .= "$name($h) ";
+        });
+        chop $info;
+        $this->{info} = $info;
+    }
+    return $info;
 }
 
 1

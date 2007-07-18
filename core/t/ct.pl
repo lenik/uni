@@ -48,7 +48,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: ct.pl,v 1.2 2007-07-18 11:08:14 lenik Exp $');
+    my %id = parse_id('$Id: ct.pl,v 1.3 2007-07-18 15:04:41 lenik Exp $');
     print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -71,9 +71,11 @@ EOM
 exit boot;
 
 sub main {
-    my $res = tcp_connect($opt_host, $opt_port, new cmt::stream(
+    my $cn = tcp_connect($opt_host, $opt_port, new cmt::stream(
         -binded => sub {
+            my $s = shift;
             info "binded ".join(',', @_);
+            info "binded-stream: ".$s->hinfo;
         },
         -unbinded => sub {
             info "unbinded ".join(',', @_);
@@ -84,6 +86,8 @@ sub main {
         -askdata => sub {
             my $s = shift;
             info "askdata ".join(',', @_);
+            # my $write_t = $s->{ctx}->{STAT}->{write_t};
+            # info "write_t = $$write_t";   # => inf
             #my $enter = <STDIN>;
             #$s->write($enter);
             undef;
@@ -92,5 +96,7 @@ sub main {
             info "goterr ".join(',', @_);
         },
     ));
+
+    my $res = $cn->loop;
     info "Result: ".Dumper($res);
 }

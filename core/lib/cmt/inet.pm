@@ -1,12 +1,15 @@
 package cmt::inet;
 
 use strict;
-use vars qw/@ISA @EXPORT/;
+use vars                qw/@ISA @EXPORT/;
 use cmt::ios;
 use cmt::stream;
 use cmt::util;
 use Exporter;
 use IO::Socket;
+
+sub info;
+sub info2;
 
 our $opt_verbtitle      = __PACKAGE__;
 our $opt_verbtime       = 0;
@@ -23,6 +26,8 @@ our $PROTO_UDP          = getprotobyname("udp");
              tcp_connect_sock5
              );
 
+# utilities
+
 sub info {
     return if $opt_verbose < 1;
     my $text = shift;
@@ -37,18 +42,20 @@ sub info2 {
     print "[$opt_verbtitle] $text\n";
 }
 
+# static methods
+
 sub tcp_connect {
+    my %props = get_named_args(@_);
     my ($host, $port, $stream) = @_;
 
     info2 "tcp connect to $host:$port";
 
-    # TODO - Ignore the bind-address/port options
-    # TODO - more controls, UDP, etc.
     my $sock = new IO::Socket::INET(
         PeerAddr    => $host,
         PeerPort    => $port,
         Type        => SOCK_STREAM,
-        Proto       => 'tcp'
+        Proto       => 'tcp',
+        %props,     # interface-binding, etc..
     );
     if (! $sock) {
         info2 "can't connect: $!";
@@ -59,8 +66,11 @@ sub tcp_connect {
     $sock->autoflush(1);            # as "$| = 1" does.
     $stream->bind($sock);
 
+    my $g = [ $sock ];
     my $ios = new cmt::ios(
-        net     => [ $sock ],
+        READ    => $g,
+        WRITE   => $g,
+        ERR     => $g,
         -init   => sub {
             my $ctx         = shift;
             $stream->{ctx}  = $ctx; # convention, see also cmt::serv
@@ -85,14 +95,14 @@ sub tcp_connect {
             $ctx->exit unless $stream->err($!);
         },
         );
-    $ios->loop('net', 'net', 'net');
+    return $ios;
 }
 
 sub tcp_connect_http {
-    my ($host, $port, $proxyhost, $proxyport, $stream) = @_;
+    my ($host, $port, $proxyhost, $proxyport, $stream, @props) = @_;
     my ($ctx, $ios);
     my $err;
-    tcp_connect($proxyhost, $proxyport, new ios::stream(
+    my $s = new ios::stream(
         -init => sub {
             ($ctx, $ios) = @_;
         },
@@ -110,8 +120,8 @@ sub tcp_connect_http {
             $ctx->exit;
             $err = "Error when communicating with proxy server $proxyhost:$proxyhost";
         },
-    ));
-    return $err;
+    );
+    return tcp_connect($proxyhost, $proxyport, $s, @props);
 }
 
 sub tcp_connect_sock4 {
