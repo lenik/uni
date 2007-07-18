@@ -1,14 +1,15 @@
 #!/usr/bin/perl
-# $Id: whoare,v 1.9 2007-06-25 12:58:14 lenik Exp $
+# $Id: whoare,v 1.10 2007-07-18 11:51:30 lenik Exp $
 
 use strict;
-use Socket;
-use FileHandle;
-use Getopt::Long;
-use Time::HiRes qw/usleep/;
-#use Thread;
-use File::Basename;
+use cmt::util;          # readfile /.gz
 use Data::Dumper;
+use FileHandle;
+use File::Basename;
+use Getopt::Long;
+use Socket;
+#use Thread;
+use Time::HiRes qw/usleep/;
 
 sub _Verbose;
 
@@ -411,10 +412,10 @@ sub importwords {
     my $fn = shift;
     print "Word file: $fn\n";
 
-    open LIST, "<$fn";
-    my @words = <LIST>;
-    push @dict, map { chomp; $_ } @words;
-    close LIST;
+    # readfile supports decompress of .gz
+    my @lines = split(/\n/, readfile($fn));
+
+    push @dict, map { chomp; $_ } @lines;
 }
 
 my $options = GetOptions(
@@ -436,7 +437,7 @@ my $options = GetOptions(
                          'words-list|w:s' =>
                                 sub {
                                     my ($opt, $fn) = @_;
-                                    $fn = dirname($0) . '/words.txt' unless $fn;
+                                    $fn = dirname($0) . '/words.txt.gz' unless $fn;
                                     importwords($fn);
                                 },
                          'help' => sub { &help; },
@@ -480,7 +481,7 @@ Syntax:
         --max-threads=<number> (max)
         --numbers (n)
         --tla <TLA-list> (a)
-        --words-list=<filename> (w, e.g. -w=t\0\words.txt)
+        --words-list=<filename> (w, e.g. -w=/tmp/words.txt.gz)
 EOM
     exit;
 }

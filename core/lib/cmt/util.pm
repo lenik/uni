@@ -209,10 +209,31 @@ sub bserchi(&$@) {
 
 sub readfile {
     my $path = shift;
-    open(FH, "<$path")
-        or die("Can't open file $path for read");
-    my @lines = <FH>;
-    close FH;
+    my @lines;
+    undef $!;
+    if ($path =~ /\.gz$/i) {
+        eval('use Compress::Zlib; 1')
+            or die("Can't load Compress::Zlib: $@");
+        open(FH, "<$path")
+            or die("Can't open file $path for read");
+        my $h = gzopen(\*FH, "rt")
+            or die("Can't open gzip-file $path for read");
+        while ($h->gzreadline($_)) {
+            push @lines, $_;
+        }
+        # return 'string' when success, otherwise an error-code
+        my $err = eval('$gzerrno');
+        if ($err != eval('Z_STREAM_END')) {
+            $! = "Error deflating from $path: $err\n";
+        }
+        $h->gzclose();
+        close FH;
+    } else {
+        open(FH, "<$path")
+            or die("Can't open file $path for read");
+        @lines = <FH>;
+        close FH;
+    }
     return wantarray ? @lines : join('', @lines);
 }
 
