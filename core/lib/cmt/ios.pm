@@ -42,10 +42,78 @@ our $opt_verbose        = 1;
     sub next        { my $next = shift->{NEXT}; $$next = 1 }
     sub exit        { my $next = shift->{NEXT}; $$next = 0 }
 
+    sub ios         { shift->{IOS} }
     sub reads       { shift->{READS}  }
     sub writes      { shift->{WRITES} }
     sub errs        { shift->{ERRS}   }
     sub stat        { shift->{STAT}   }
+}
+
+{
+    package cmt::ios::merged;
+
+    our @ISA    = qw(cmt::ios);
+
+    sub new {
+        my $class   = shift;
+
+        my %groups;
+        my %fd_idx;     # fd -> ios-object
+
+        my $merged  = bless {
+            SUBS    => [],
+            GROUPS  => \%groups,
+            FD_IDX  => \%fd_idx,
+        }, $class;
+
+        $merged->merge(@_);
+
+        $merged->{init} = sub {
+            # this should return the last retval.
+            fire_sub($_, 'init', @_) for $merged->subs;
+        };
+
+        for my $method qw(read write err) {
+            $merged->{$method} = sub {
+                my ($ctx, $fd) = @_;
+                my $sub_ios = $merged->fdindex($fd);
+                fire_sub($sub_ios, $method, @_);
+            }
+        }
+
+        return $merged;
+    }
+
+    sub merge {
+        my $this    = shift;
+
+        my $subs    = $this->{SUBS};
+        my $groups  = $this->{GROUPS};
+        my $fd_idx  = $this->{FD_IDX};
+
+        push @$subs, @_;
+
+        for my $child (@_) {
+            my $child_groups = $child->{GROUPS};
+            for my $gname (keys %$child_groups) {
+                my $fd_set = $child_groups->{$gname};
+
+                # building reverse-index
+                for (@$fd_set) {
+                    if (defined (my $child_0 = $fd_idx->{$_})) {
+                        die "overlapped group $gname: $_ in $child_0 and $child"
+                    }
+                    $fd_idx->{$_} = $child;
+                }
+
+                # merge group
+                my $all = $groups->{$gname};
+                   $all = $groups->{$gname} = [] unless defined $all;
+                push @$all, @$fd_set;
+            }
+        }
+        return $this;
+    }
 }
 
 sub new {
@@ -68,8 +136,12 @@ sub new {
             die "Invalid key name $_";
         }
     }
-    $this->{GROUP} = \%groups;
+    $this->{GROUPS} = \%groups;
     return $this;
+}
+
+sub merge {
+    new cmt::ios::merged(@_)
 }
 
 sub create_context {
@@ -194,7 +266,7 @@ sub create_context {
     };
 
     my $initf = $this->{init};
-    $initf->($context, $this) if defined $initf;
+    fire_method $this, 'init', $context, $this if defined $initf;
 
     return $context;
 }
@@ -214,9 +286,26 @@ sub loop {
 sub group {
     my ($this, $name) = @_;
     my $fd_set;
-    $fd_set = $this->{GROUP}->{$name};
+    $fd_set = $this->{GROUPS}->{$name};
     die "Group $name isn't existed" unless ref($fd_set) eq 'ARRAY';
     return @$fd_set;
+}
+
+sub subs {
+    my $this = shift;
+    my $subs = $this->{SUBS};
+       $subs = [] unless defined $subs;
+    return @$subs;
+}
+
+sub fdindex {
+    my $this = shift;
+    my $fd = shift;
+    my $idx = $this->{FD_IDX};
+    die "This $this is not a merged cmt::ios" unless defined $idx;
+    my $ios = $idx->{$fd};
+    die "Not found $fd in FD_IDX of $ios" unless defined $ios;
+    return $ios;
 }
 
 # statics
