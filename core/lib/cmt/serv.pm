@@ -36,7 +36,7 @@ sub interval        { return shift->{interval}; }
 sub capacity        { return shift->{capacity}; }
 sub select          { return shift->{select}; }
 
-sub serv {
+sub create_ios {
     my $this        = shift;
     my $port        = $this->port;
     my $sfac        = $this->sfac;
@@ -71,11 +71,10 @@ sub serv {
     my $streams = {};
     my $clients = 0;
 
-    my $ios;
-       $ios = new cmt::ios(
-        SERVER  => [$server],   # skip server socket for "can_write" event.
-        CLIENTS => [],
-        ALL     => [$server],   # server & clients
+    new cmt::ios(
+        READ    => [$server],   # skip server socket for "can_write" event.
+        WRITE   => [],
+        ERR     => [$server],   # server & clients
         -read   => sub {
             my $ctx     = shift;
             my $client  = shift;
@@ -145,10 +144,14 @@ sub serv {
             $ctx->errs->remove($client);
             $st_err++;
         },
-        );
+    );
+}
 
+sub serv {
+    my $this = shift;
+    my $ios = $this->create_ios(@_);
     $this->info("started");
-    $ios->loop('ALL', 'CLIENTS', 'ALL');
+    $ios->loop;
 }
 
 # utilities
