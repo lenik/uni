@@ -30,7 +30,7 @@ sub new {
 
 sub fire {
     my $this            = shift;
-    cmt::util::fire $this, @_;
+    fire_method $this, @_;
 }
 
 sub bind {
@@ -70,8 +70,9 @@ sub read {
 
 sub write {
     my $this    = shift;
+    my $data    = shift;
     my $fh      = shift || $this->{IO};
-    print $fh join('', @_);
+    print $fh $data;
 }
 
 sub autoflush {
