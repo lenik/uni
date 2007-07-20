@@ -14,6 +14,7 @@ use YAML;
 our $opt_verbtitle      = __PACKAGE__;
 our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
+our $opt_strict         = 0;
 
 sub info {
     return if $opt_verbose < 1;
@@ -311,29 +312,38 @@ sub atexit(&) {
     my $dstr = shift;
     push @ATEXIT, [$dstr, \@_];
 }
+
+# XXX - thread-unsafe ("free unreferenced scalars" in multi-threads.)
 END {
     $_->[0]->(@{$_->[1]}) for @ATEXIT;
 }
 
-sub fire {
+sub fire_sub {
     my $obj = shift;
     my $name = shift;
-    my $callback = $obj->{$name};
-    if (defined $callback) {
+    if (defined (my $callback = $obj->{$name})) {
         if (ref $callback eq 'CODE') {
-            return $callback->($obj, @_);
+            return $callback->(@_);
         } elsif (ref $callback eq '') {     # string
             return eval($callback);
         } else {
             die "$obj->\{$name\}: invalid callback value: $callback";
         }
-    } elsif ($obj->can($name)) {
-        return $obj->$name(@_);
     } else {
-        # Strict-Mode:
-        #   die "can't evaluate the callback $name of $obj.";
+        if ($opt_strict) {
+            die "callback $name isn't existed in $obj.";
+        }
         return undef;
     }
+}
+
+sub fire_method {
+    my $obj = shift;
+    my $name = shift;
+    if ($obj->can($name)) {
+        return $obj->$name(@_);
+    }
+    return fire_sub($obj, $name, $obj, @_);
 }
 
 @ISA    = qw(Exporter);
@@ -360,7 +370,8 @@ sub fire {
 	indent
 	unindent_most
 	atexit
-	fire
+	fire_sub
+	fire_method
 	);
 
 @EXPORT_OK = ();
