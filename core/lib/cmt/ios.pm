@@ -181,6 +181,7 @@ sub new {
 }
 
 sub merge {
+    # @_ includes $this
     new cmt::ios::merged(@_)
 }
 

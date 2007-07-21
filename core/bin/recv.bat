@@ -9,7 +9,12 @@
         shift
     )
 
-    set _=nc %1 %2 %3 %4 %5 %6 %7 %8 %9 -L -p %_PORT%
+    nc -h 2>&1 | grep "\-L[ 	]*listen harder" >nul
+    if errorlevel 1 (
+        set _=loop -v nc %1 %2 %3 %4 %5 %6 %7 %8 %9 -l -p %_PORT%
+    ) else (
+        set _=nc %1 %2 %3 %4 %5 %6 %7 %8 %9 -L -p %_PORT%
+    )
 
     if "%verbose%"=="1" echo %_%
 
