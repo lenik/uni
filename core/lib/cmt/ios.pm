@@ -38,14 +38,54 @@ our $opt_verbose        = 1;
         return $this;
     }
 
+    sub add {
+        my $this    = shift;
+        my $sel;
+        $sel = $this->reads;    $sel->add(@_) if defined $sel;
+        $sel = $this->writes;   $sel->add(@_) if defined $sel;
+        $sel = $this->errs;     $sel->add(@_) if defined $sel;
+    }
+
+    sub count {
+        my $this    = shift;
+        my $count   = 0;
+        my $sel;
+        $sel = $this->reads;    $count += $sel->count if defined $sel;
+        $sel = $this->writes;   $count += $sel->count if defined $sel;
+        $sel = $this->errs;     $count += $sel->count if defined $sel;
+        return $count;
+    }
+
+    sub exists {
+        my $this    = shift;
+        my $sel;
+        $sel = $this->reads;    return 1 if defined $sel && $sel->exists(@_);
+        $sel = $this->writes;   return 1 if defined $sel && $sel->exists(@_);
+        $sel = $this->errs;     return 1 if defined $sel && $sel->exists(@_);
+        return undef;
+    }
+
+    sub remove {
+        my $this    = shift;
+        my $sel;
+        $sel = $this->reads;    $sel->remove(@_) if defined $sel;
+        $sel = $this->writes;   $sel->remove(@_) if defined $sel;
+        $sel = $this->errs;     $sel->remove(@_) if defined $sel;
+    }
+
     sub iterate     { shift->{ITERATOR}->() }
     sub next        { my $next = shift->{NEXT}; $$next = 1 }
     sub exit        { my $next = shift->{NEXT}; $$next = 0 }
 
+    # cmt::ios
     sub ios         { shift->{IOS} }
+
+    # IO::Select
     sub reads       { shift->{READS}  }
     sub writes      { shift->{WRITES} }
     sub errs        { shift->{ERRS}   }
+
+    # user data
     sub stat        { shift->{STAT}   }
 }
 
@@ -362,3 +402,23 @@ __END__
     2
     my $ctx = $ios->create_context(@read_fds, @write_fds, @err_fds);
     while ($ctx->iterate);
+
+    3
+    while ($ctx->iterate) {
+        # ...
+        if (connect_command) {
+            $ios = $ios->merge(new cmt::ios(...));
+            $ctx = $ios->create_context;
+        }
+    }
+
+    4
+    new cmt::ios {
+        -read = {
+            my ($ctx, $sock) = @_;
+            if (connect_command) {
+                new socket;
+                $ctx->add($socket);
+            }
+        }
+    }
