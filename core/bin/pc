@@ -27,6 +27,7 @@ our $opt_total          = 0;
 our $opt_caption        = '';
 our $opt_lines          = 0;
 our $opt_echo           = 0;
+our $opt_gui            = 0;
 
 sub boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
@@ -37,6 +38,7 @@ sub boot {
                'caption|c=s',
                'lines|l',
                'echo|e',
+               'gui|g',
                );
     if (@ARGV) {
         $opt_caption = join(' ', @ARGV);
@@ -60,7 +62,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: pc,v 1.2 2007-03-17 00:25:22 lenik Exp $');
+    my %id = parse_id('$Id: pc,v 1.3 2007-07-21 01:12:59 lenik Exp $');
     print "[$opt_verbtitle] Progress/Percent Counter\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -73,14 +75,15 @@ Syntax:
         $0 [options] <caption...>
 
 Options:
-        --total=<count> (t, total lines)
+        --total=<count>     (t, total lines)
         --caption=<caption> (c, or the rest arguments)
-        --lines (l, show line no)
-        --echo (e, echo the input line)
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
+        --lines             (l, show line no)
+        --echo              (e, echo the input line)
+        --gui               (g, graphics-mode, NOT IMPLEMENT)
+        --quiet             (q)
+        --verbose           (v, repeat twice give you more verbose info)
         --version
-        --help (h)
+        --help              (h)
 EOM
 }
 

@@ -1,17 +1,18 @@
 #!/usr/bin/perl -w
 
 use strict;
-use Getopt::Long;
+use cmt::path;
+use cmt::perlsys;
+use cmt::util;
+use cmt::vcs;
+use cmt::winuser;
 use DirHandle;
 use File::Copy;
-use cmt::vcs;
-use cmt::path;
-use cmt::winuser;
-use cmt::util;
-
+use Getopt::Long;
+use YAML;
 
 our $nfs_appname = 'NFS Version 2';
-our %nfs_id = parse_id('$Id: nfs,v 1.25 2007-07-16 15:18:27 lenik Exp $');
+our %nfs_id = parse_id('$Id: nfs,v 1.26 2007-07-21 01:12:59 lenik Exp $');
 
 our %nfs_filetype = (
     ''      => 'ue "%s"',                   # default

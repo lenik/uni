@@ -82,7 +82,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: relay,v 1.3 2007-07-20 10:34:48 lenik Exp $');
+    my %id = parse_id('$Id: relay,v 1.4 2007-07-21 01:12:59 lenik Exp $');
     print "[$opt_verbtitle] TCP Relay And Sniff \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -140,12 +140,12 @@ sub main {
     if (defined $opt_start_recver) {
         $pid_recver = ntspawn($opt_start_recver);
         die "Can't spawn the recver process" unless defined $pid_recver;
-        atexit { ntkill $pid_recver };
+        at_exit { ntkill $pid_recver };
     }
     if (defined $opt_start_sender) {
         fsleep($opt_start_delay / 1000.0);
         $pid_sender = ntspawn($opt_start_sender);
-        atexit { ntkill $pid_sender };
+        at_exit { ntkill $pid_sender };
     }
 
     my $serv = new cmt::serv(sub {

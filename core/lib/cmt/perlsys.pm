@@ -31,7 +31,7 @@ sub perlsh {
         if ($@) {
             print STDERR "ERR $@ - $!\n" if $@;
         } else {
-            print Dump(@ret) if defined @ret;
+            print Dump(@ret) if @ret;
         }
     }
     return wantarray ? @ret : $ret[0];
