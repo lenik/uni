@@ -16,6 +16,8 @@ our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
 our $opt_strict         = 0;
 
+sub datetime;
+
 sub info {
     return if $opt_verbose < 1;
     my $text = shift;
@@ -308,7 +310,7 @@ sub unindent_most {
 }
 
 my  @ATEXIT;
-sub atexit(&) {
+sub at_exit(&) {
     my $dstr = shift;
     push @ATEXIT, [$dstr, \@_];
 }
@@ -369,7 +371,7 @@ sub fire_method {
 	nbread
 	indent
 	unindent_most
-	atexit
+	at_exit
 	fire_sub
 	fire_method
 	);
