@@ -19,6 +19,7 @@ use cmt::util;
 use cmt::vcs;
 use Data::Dumper;
 use Getopt::Long;
+use YAML;
 
 sub boot;
 sub info;
@@ -72,7 +73,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: lstconv,v 1.4 2007-07-15 00:28:46 lenik Exp $');
+    my %id = parse_id('$Id: lstconv,v 1.5 2007-07-21 01:12:29 lenik Exp $');
     print "[$opt_verbtitle] list converter \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -90,6 +91,10 @@ Options:
         --verbose (v, repeat twice give you more verbose info)
         --version
         --help (h)
+
+Schemes:
+    ultra_edit_project, ue
+
 EOM
 }
 
@@ -99,10 +104,22 @@ sub ultra_edit_project {
     my %dirs;
     while (<>) {
         chomp;
-        my ($dir, $base) = path_split($_);
+        my ($dir, $base);
+
+        # [group] path
+        if (/^\[(.*?)\] (.*)$/) {
+            ($dir, $_) = ($1, $2);
+            push @{$dirs{$dir}}, $_;
+        }
 
         # absolute path goes into extern/
-        ($dir, $base) = ('extern', $_) if /^.:/;
+        if (/^.:/) {
+            ($dir, $base) = ('extern', $_);
+
+        # directory/file
+        } else {
+            ($dir, $base) = path_split($_);
+        }
 
         # remove trailing '/'
         $dir =~ s/[\\\/]$//;
