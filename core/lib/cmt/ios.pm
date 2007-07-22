@@ -23,8 +23,7 @@ our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(static_method
-             );
+@EXPORT = qw();
 
 {
     package cmt::ios::context;
@@ -46,6 +45,30 @@ our $opt_verbose        = 1;
         $sel = $this->errs;     $sel->add(@_) if defined $sel;
     }
 
+    sub remove {
+        my $this    = shift;
+        my $sel;
+        $sel = $this->reads;    $sel->remove(@_) if defined $sel;
+        $sel = $this->writes;   $sel->remove(@_) if defined $sel;
+        $sel = $this->errs;     $sel->remove(@_) if defined $sel;
+    }
+
+    sub add_main {
+        my $this    = shift;
+        $this->add(@_);
+        if (defined (my $idx = $this->ios->{FD_IDX})) {
+            $idx->{$_} = $this->ios->{MAIN} for @_;
+        }
+    }
+
+    sub remove_main {
+        my $this    = shift;
+        $this->remove(@_);
+        if (defined (my $idx = $this->ios->{FD_IDX})) {
+            delete $idx->{$_} for @_;
+        }
+    }
+
     sub count {
         my $this    = shift;
         my $count   = 0;
@@ -63,14 +86,6 @@ our $opt_verbose        = 1;
         $sel = $this->writes;   return 1 if defined $sel && $sel->exists(@_);
         $sel = $this->errs;     return 1 if defined $sel && $sel->exists(@_);
         return undef;
-    }
-
-    sub remove {
-        my $this    = shift;
-        my $sel;
-        $sel = $this->reads;    $sel->remove(@_) if defined $sel;
-        $sel = $this->writes;   $sel->remove(@_) if defined $sel;
-        $sel = $this->errs;     $sel->remove(@_) if defined $sel;
     }
 
     sub iterate     { shift->{ITERATOR}->() }
@@ -92,6 +107,9 @@ our $opt_verbose        = 1;
 {
     package cmt::ios::merged;
 
+    use cmt::util;
+    use Data::Dumper;
+
     our @ISA    = qw(cmt::ios);
 
     sub new {
@@ -101,6 +119,7 @@ our $opt_verbose        = 1;
         my %fd_idx;     # fd -> ios-object
 
         my $merged  = bless {
+            MAIN    => $_[0],
             SUBS    => [],
             GROUPS  => \%groups,
             FD_IDX  => \%fd_idx,
@@ -120,7 +139,6 @@ our $opt_verbose        = 1;
                 fire_sub($sub_ios, $method, @_);
             }
         }
-
         return $merged;
     }
 
@@ -134,6 +152,7 @@ our $opt_verbose        = 1;
         push @$subs, @_;
 
         for my $child (@_) {
+            cmt::ios::info2 "merge child $child\n";
             my $child_groups = $child->{GROUPS};
             for my $gname (keys %$child_groups) {
                 my $fd_set = $child_groups->{$gname};
@@ -141,7 +160,7 @@ our $opt_verbose        = 1;
                 # building reverse-index
                 for (@$fd_set) {
                     if (defined (my $child_0 = $fd_idx->{$_})) {
-                        die "overlapped group $gname: $_ in $child_0 and $child"
+                        # die "overlapped group $gname: $_ in $child_0 and $child"
                     }
                     $fd_idx->{$_} = $child;
                 }
@@ -153,6 +172,34 @@ our $opt_verbose        = 1;
             }
         }
         return $this;
+    }
+
+    sub remove {
+        my $this = shift;
+
+        my $subs    = $this->{SUBS};
+        my $groups  = $this->{GROUPS};
+        my $fd_idx  = $this->{FD_IDX};
+
+        for my $child (@_) {
+            cmt::ios::info2 "remove child $child\n";
+            array_remove @$subs, $child;
+
+            my $child_groups = $child->{GROUPS};
+            for my $gname (keys %$child_groups) {
+                my $fd_set = $child_groups->{$gname};
+                my $all = $groups->{$gname};
+                   $all = $groups->{$gname} = [] unless defined $all;
+                for my $fd (@$fd_set) {
+                    # remove reverse-index
+                    delete $fd_idx->{$fd};
+                    # subtract from the group
+                    array_remove @$all, $fd;
+                }
+                # remove empty groups
+                delete $groups->{$gname} unless @$all;
+            }
+        }
     }
 }
 
@@ -181,8 +228,12 @@ sub new {
 }
 
 sub merge {
-    # @_ includes $this
+    # $_[0] == $this
     new cmt::ios::merged(@_)
+}
+
+sub remove {
+    die "Can't remove: not a merged ios";
 }
 
 sub create_context {
@@ -345,7 +396,7 @@ sub fdindex {
     my $idx = $this->{FD_IDX};
     die "This $this is not a merged cmt::ios" unless defined $idx;
     my $ios = $idx->{$fd};
-    die "Not found $fd in FD_IDX of $ios" unless defined $ios;
+    #die "Not found $fd in FD_IDX of $ios" unless defined $ios;
     return $ios;
 }
 
@@ -414,6 +465,17 @@ __END__
     }
 
     4
+    $mios = $ios->merge();
+    $mctx = $mios->create_context;
+    while ($mctx->iterate) {
+        if (connect_command) {
+            $sock = new socket;
+            $mios->merge(new cmt::ios(GROUP=>[$sock], ...));
+            $mctx->add($sock);
+        }
+    }
+
+    5
     new cmt::ios {
         -read = {
             my ($ctx, $sock) = @_;

@@ -48,7 +48,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: ct.pl,v 1.3 2007-07-18 15:04:41 lenik Exp $');
+    my %id = parse_id('$Id: ct.pl,v 1.4 2007-07-22 04:28:59 lenik Exp $');
     print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -95,7 +95,7 @@ sub main {
         -goterr => sub {
             info "goterr ".join(',', @_);
         },
-    ));
+    )) or die;
 
     my $res = $cn->loop;
     info "Result: ".Dumper($res);

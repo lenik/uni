@@ -36,21 +36,20 @@ sub discard {
         $port, 'discard');
 }
 
-sub timed_idle {
-    shift->shutdown;
-}
 sub timed {
     my $port = shift || 13;
     return new cmt::serv(
         sub {
             new cmt::stream(
                 -binded => sub {
-                    my $this = shift;
+                    my $s = shift;
                     my $str = gmtime;
-                    $this->write($str);
+                    $s->write($str);
                 },
                 -sent => sub {              # ???
-                    shift->shutdown(2);
+                    my $s = shift;
+                    $s->shutdown(2);
+                    $s->unbind;
                 },
             )
         },

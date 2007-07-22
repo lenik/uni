@@ -10,6 +10,7 @@ use cmt::win32;
 use Data::Dumper;
 use Getopt::Long;
 use IO::Socket;
+use Term::ReadKey;
 
 sub boot;
 sub main;
@@ -17,13 +18,17 @@ sub info;
 sub info2;
 sub version;
 sub help;
+
 sub f_filter;
 sub b_filter;
+sub f_dump;
+sub b_dump;
+sub puts;
 
 our $opt_verbtitle      = 'relay';
 our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
-our $opt_bind_address;
+our $opt_bind_address   = 'localhost';
 our $opt_bind_port;
 our $opt_target_host    = 'localhost';
 our $opt_target_port    = 80;
@@ -32,11 +37,14 @@ our $opt_start_sender;
 our $opt_start_delay    = 1000;
 our $opt_hexdump        = 0;
 
+my  $mios;
+my  $mctx;
+
 sub boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },
-               'help'       => sub { help; exit },
+               'help|he'    => sub { help; exit },
                'bind-address|a=s',
                'bind-port|b=n',
                'target-host|h=s',
@@ -82,7 +90,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: relay,v 1.4 2007-07-21 01:12:59 lenik Exp $');
+    my %id = parse_id('$Id: relay,v 1.5 2007-07-22 04:28:59 lenik Exp $');
     print "[$opt_verbtitle] TCP Relay And Sniff \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -155,27 +163,29 @@ sub main {
                 # the source connected to the relayer (F-conn and this F-stm),
                 # create a corresponding Bk object.
                 my $s = shift;
-
-                my $b_ios = relay_connect($s);
-                $ios = $ios->merge($b_ios);
-                $ctx = $ios->create_context;
+                info "source ".$s->hinfo." connected";
+                my $b_stm = relay_connect($s);
+                $s->{b_stm} = $b_stm;
             },
             -unbinded => sub {
                 # the source disconnected from the relayer,
                 # so let's disconnect the target.
-                my $s = shift;
-                my $bk = $s->{Bk};
-                $bk->shutdown(2);
+                my ($s, $fd) = @_;
+                info2 "source ".$s->hinfo." disconnected";
+                my $b_stm = $s->{b_stm};
+                $b_stm->shutdown(2);
             },
             -gotdata => sub {
                 # the source sent data to the relayer,
                 # do f_filter and forward to the target.
                 my ($s, $data) = @_;
-                my $bk = $s->{Bk};
+                my $b_stm = $s->{b_stm};
+                info2 "F-gotdata $s($b_stm): $data";
                 $data = f_filter($data);
+                f_dump $data;
                 if (defined $data) {
                     # return value??
-                    return $bk->push($data);
+                    return $b_stm->write($data);
                 }
                 1
             },
@@ -184,52 +194,71 @@ sub main {
                 # # Now can_write to the source
                 # # let's check if any data available in the target.
                 # my $s = shift;
-                # my $bk = $s->{Bk};
-                # my $sendbuf = $bk->pull;
+                # my $b_stm = $s->{b_stm};
+                # my $sendbuf = $b_stm->pull;
                 # if ($sendbuf ne '') {
                 #     $s->write($sendbuf);
                 #     return 1;
                 # }
+                info2 "F-askdata @_";
                 undef   # no sendbuf, let's skip -askdata next time.
             },
             -goterr => sub {
                 # error between the source and the relayer
                 # let's break both F-conn and B-conn
                 my $s = shift;
-                my $bk = $s->{Bk};
-                $bk->{ctx}->exit;
+                my $b_stm = $s->{b_stm};
+                info2 "F-goterr $s($b_stm)";
+                $b_stm->{ctx}->exit;
                 $s->{ctx}->exit;
             },
         )}, $opt_bind_port, 'relay');
     $serv->verbose($opt_verbose);
 
-    info "Start relay-service at $opt_bind_address:$opt_bind_port";
-    $serv->serv;
+    $mios = $serv->create_ios()->merge;
+    info "start relay-service at $opt_bind_address:$opt_bind_port";
+    $mctx = $mios->create_context;
+    while ($mctx->iterate) {
+        my $k = ReadKey -1;
+        if ($k) {
+            info2 'pressed: $k('.ord($k).')';
+            last if $k eq 'q';
+        }
+    }
+    info2 Dumper($mctx->{STAT});
 }
 
 sub relay_connect {
     my $f_stm = shift;
+    my $b_ios;
     my $b_stm = new cmt::stream(
         -binded => sub {
             # the connection is always made from the source to the target,
             # if the target would send-on-connect, this stream would gotdata, then.
             # so the relayer has nothing do with on-connect event.
+            my ($s, $fd) = @_;
+            info "target ".$s->hinfo." connected";
         },
         -unbinded => sub {
-            my $s = shift;
             # the target is disconnected from the relayer,
             # so let's disconnect the source.
+            my ($s, $fd) = @_;
             info2 "target ".$s->hinfo." disconnected";
+            info2 "Remove $b_ios, $fd";
+            $mios->remove($b_ios);
+            $mctx->remove($fd);
             $f_stm->shutdown(2);
         },
         -gotdata => sub {
             # the target sent data to the relayer,
             # do b_filter and forward to the source.
             my ($s, $data) = @_;
+            info2 "B-gotdata $s: $data";
             $data = b_filter($data);
+            b_dump $data;
             if (defined $data) {
                 # The return value??
-                return $f_stm->push($data);
+                return $f_stm->write($data);
             }
             1
         },
@@ -237,7 +266,9 @@ sub relay_connect {
             # now can_write to the target,
             # let's check if any data available in the source.
             my $s = shift;
+            info2 "B-askdata $s";
             my $sendbuf = $f_stm->pull;
+            info2 "B-askdata resp: $sendbuf";
             if ($sendbuf ne '') {
                 $s->write($sendbuf);
                 return 1;
@@ -248,11 +279,18 @@ sub relay_connect {
             # error between the relayer and the target
             # let's break both B-conn and F-conn
             my $s = shift;
+            info2 "B-goterr $s";
             $s->{ctx}->exit;
             $f_stm->{ctx}->exit;
         },
     );
-    return tcp_connect($opt_target_host, $opt_target_port, $b_stm);
+    $b_ios = tcp_connect($opt_target_host, $opt_target_port, $b_stm,
+                            -cont => 1);
+    my $b_fd = $b_ios->{HANDLE};
+    info2 "Merge  $b_ios, $b_fd";
+    $mios->merge($b_ios);
+    $mctx->add($b_fd);
+    return $b_stm;
 }
 
 sub f_filter {
@@ -265,19 +303,21 @@ sub b_filter {
     return $data;
 }
 
+sub f_dump  { puts 'F', shift }
+sub b_dump  { puts 'B', shift }
+
 my %FROMBUF;
 sub puts {
-    my $from = shift;
-    my $cont = $FROMBUF{$from};
+    my $from    = shift;
+    my $cont    = $FROMBUF{$from};
 
     if ($opt_hexdump) {
         print "HEX\n";
     } else {
+        my $indent = length($from) + 2;
         for (@_) {
-            my $line = '';
-            print "$from> $line";
+            my $line = substr(indent($indent, $_), 3);
+            print "$from> ".$line."\n";
         }
     }
 }
-
-# sub lines(&) {..}

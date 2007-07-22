@@ -37,13 +37,14 @@ sub bind {
     my $this            = shift;
     my $fh              = shift;
     $this->{'IO'}       = $fh;
-    $this->fire('binded');
+    $this->fire('binded', $fh);
 }
 
 sub unbind {
     my $this            = shift;
+    my $fh              = $this->{'IO'};
     undef $this->{'IO'};
-    $this->fire('unbinded');
+    $this->fire('unbinded', $fh);
 }
 
 sub push {
@@ -87,9 +88,9 @@ sub close {
     $this->forh(sub {
         my ($h, $name)  = @_;
         close $h;
-        undef $this->{$name};
+        # undef $this->{$name};
     });
-    $this->unbind;
+    # $this->unbind;
 }
 
 sub shutdown {
@@ -98,9 +99,9 @@ sub shutdown {
     $this->forh(sub {
         my ($h, $name)  = @_;
         shutdown $h, 2;
-        undef $this->{$name};
+        # undef $this->{$name};
     });
-    $this->unbind;
+    # $this->unbind;
 }
 
 # utilities
@@ -116,26 +117,11 @@ sub forh {
     }
 }
 
-sub format_inaddr {
-    my $sockaddr = shift;
-    my ($port, $iaddr) = sockaddr_in($sockaddr);
-    my $ip   = inet_ntoa($iaddr);
-    my $host = gethostbyaddr($iaddr, AF_INET);
-    return $host ne '' ? "$host:$port" : "$ip:$port";
-}
-
 sub hinfo {
     my $this = shift;
     my $info = $this->{info};
     unless (defined $info) {
-        $this->forh(sub {
-            my ($h, $name) = @_;
-            if (defined (my $local = getsockname($h))) {
-                my $peer = getpeername($h);
-                $h = format_inaddr($local) . '->' . format_inaddr($peer);
-            }
-            $info .= "$name($h) ";
-        });
+        $this->forh(sub { $info .= sockinfo(@_) . ' ' });
         chop $info;
         $this->{info} = $info;
     }

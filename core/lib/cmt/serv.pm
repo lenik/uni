@@ -23,7 +23,7 @@ sub new {
         sfac        => $sfac,           # stream factory
         interval    => 2,               # idle-timeout
         capacity    => 10,              # max clients allowed
-        verbose     => 0,               # disable verbose
+        verbose     => 1,               # disable verbose
     }, $class;
 }
 
@@ -48,7 +48,7 @@ sub create_ios {
     my $st_pull     = 0;
     my $st_err      = 0;
 
-    $this->info("initializing...");
+    $this->info2("initializing...");
     my $server = new IO::Socket::INET(
       # LocalAddr   => $this->address,
         MultiHomed  => 1,
@@ -83,7 +83,7 @@ sub create_ios {
             if ($client == $server) {
                 my $client          = $server->accept;
                 # TODO - if (! $client) ...?
-                $this->info("connection $st_seq accepted(total $clients): $client");
+                $this->info2("connection $st_seq accepted(total $clients): $client");
 
                 setnonblock($client);           # (FIX...)
 
@@ -93,9 +93,7 @@ sub create_ios {
                 $stream->{ctx}      = $ctx;
                 $stream->bind($client);
 
-                $ctx->reads->add($client);
-                $ctx->writes->add($client);
-                $ctx->errs->add($client);
+                $ctx->add_main($client);
             }
 
             # dispatch recv data to corresponding channel
@@ -106,11 +104,10 @@ sub create_ios {
                     my $resp = $stream->push($msg);
                     $st_push++;
                 } else {
-                    $this->info("remote $client is disconnected");
+                    $this->info2("remote ".sockinfo($client)." is disconnected");
                     $stream->shutdown(2);
-                    $ctx->reads->remove($client);
-                    $ctx->writes->remove($client);
-                    $ctx->errs->remove($client);
+                    $stream->unbind;
+                    $ctx->remove_main($client);
                 }
             }
         },
@@ -129,19 +126,18 @@ sub create_ios {
             $this->info2("exception $client");
             # remove errored sockets.
             if ($client == $server) {
-                $this->info("TODO - server error happened...");
+                $this->info2("TODO - server error happened...");
                 # next;
             }
-            $this->info("client $client errored, removed. ");
+            $this->info2("client $client errored, removed. ");
 
             my $stream  = $streams->{$client};
             my $resp    = $stream->err();
             # TO DO with resp ?...
 
             $stream->shutdown(2);
-            $ctx->reads->remove($client);
-            $ctx->writes->remove($client);
-            $ctx->errs->remove($client);
+            $stream->unbind;
+            $ctx->remove($client);
             $st_err++;
         },
     );
@@ -150,7 +146,7 @@ sub create_ios {
 sub serv {
     my $this = shift;
     my $ios = $this->create_ios(@_);
-    $this->info("started");
+    $this->info2("started");
     $ios->loop;
 }
 

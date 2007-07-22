@@ -1,8 +1,13 @@
-@echo off
+@echo on
 
     setlocal
-    set port=00%random%
-    set port=%port:~-2%
+
+    if "%~1"=="" (
+        set port=00%random%
+        set port=%port:~-2%
+    ) else (
+        set port=%~1
+    )
     set /a tport=1000 + port
 
     start "Target server at port %port%" recv %port%
