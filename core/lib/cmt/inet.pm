@@ -13,7 +13,7 @@ sub info2;
 
 our $opt_verbtitle      = __PACKAGE__;
 our $opt_verbtime       = 0;
-our $opt_verbose        = 2;
+our $opt_verbose        = 1;
 
 # Not used.
 our $PROTO_TCP          = getprotobyname("tcp");
@@ -48,6 +48,8 @@ sub tcp_connect {
     my %props = get_named_args(@_);
     my ($host, $port, $stream) = @_;
 
+    my $cont = $props{cont};
+
     info2 "tcp connect to $host:$port";
 
     my $sock = new IO::Socket::INET(
@@ -55,11 +57,11 @@ sub tcp_connect {
         PeerPort    => $port,
         Type        => SOCK_STREAM,
         Proto       => 'tcp',
-        %props,     # interface-binding, etc..
+        # %props,     # interface-binding, etc..
     );
     if (! $sock) {
         info2 "can't connect: $!";
-        return 0;
+        return undef;
     }
 
     info2 "connected.";
@@ -81,7 +83,8 @@ sub tcp_connect {
             if (length($data) == 0) {
                 # closed
                 $stream->shutdown(2);
-                $ctx->exit;
+                $stream->unbind;
+                $ctx->exit unless $cont;
             } else {
                 $stream->push($data);
             }
@@ -92,9 +95,15 @@ sub tcp_connect {
         },
         -err    => sub {
             my ($ctx, $fd)  = @_;
-            $ctx->exit unless $stream->err($!);
+            $stream->shutdown(2);
+            $stream->unbind;
+            unless ($cont) {
+                $ctx->exit unless $stream->err($!);
+            }
         },
         );
+    $ios->{HANDLE} = $sock;
+    $ios->{STREAM} = $stream;
     return $ios;
 }
 
