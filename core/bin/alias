@@ -1,0 +1,149 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::util;
+use cmt::vcs;
+use Getopt::Long;
+use Win32::Registry;
+use YAML;
+
+sub boot;
+sub info;
+sub info2;
+sub version;
+sub help;
+sub list;
+sub main;
+
+our $opt_verbtitle      = 'alias';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_name;
+our $opt_value;
+our $opt_delete;
+our $opt_path;
+our %opt_option;
+our $opt_useshortname;
+our $opt_useurl;
+our $opt_saveurl;
+
+my  $APP_PATHS;
+
+sub boot {
+    $::HKEY_LOCAL_MACHINE->Open(
+        "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths",
+        $APP_PATHS) or die "Can't open registry of App-Paths";
+
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'list|l'     => sub { list; exit },
+               'delete|d',
+               'useshortname|s',
+               'useurl|u',
+               'saveurl|su',
+               'option|o=s',    # TODO
+               );
+    unless (@ARGV) { list; exit }
+
+    if ($opt_delete) {
+        die "alias name isn't specified" unless @ARGV;
+        $opt_name = shift @ARGV;
+    } else {
+        #if (scalar(@ARGV) == 1) {
+            my $line = join(' ', @ARGV);
+            if ($line =~ /^(.*?)\s*=\s*(.*)$/) {
+                ($opt_name, $opt_value) = ($1, $2);
+            } elsif ($line =~ /^(.*?)\s+(.*)$/) {
+                ($opt_name, $opt_value) = ($1, $2);
+            } else {
+                die "invalid syntax of set-alias";
+            }
+        #} else {
+        #    $opt_name = shift @ARGV;
+        #    shift @ARGV if $ARGV[0] eq '=';
+        #    $opt_value = join(' ', @ARGV);
+        #    @ARGV = ();
+        #}
+        info2 "set alias $opt_name to \"$opt_value\"";
+    }
+
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: alias,v 1.2 2007-07-23 03:20:34 lenik Exp $');
+    print "[$opt_verbtitle] Windows Alias \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> <name>=<command...>
+
+Options:
+        --list                  (l)
+        --delete                (d)
+        --path=<directory>      (p, running under the specified directory)
+        --useshortname          (s)
+        --useurl                (u)
+        --saveurl               (su)
+        --quiet                 (q)
+        --verbose               (v, repeat to get more info)
+        --version
+        --help                  (h)
+EOM
+}
+
+sub list {
+    my @keys;
+    $APP_PATHS->GetKeys(\@keys) or die "GetKeys";
+    for (@keys) {
+        my $value;
+        $APP_PATHS->QueryValue($_, $value);
+        printf "%-20s = %s\n", $_, $value;
+        if ($opt_verbose > 1) {
+            my $entry;
+            my %values;
+            $APP_PATHS->Open($_, $entry) or die "Open $_";
+            $entry->GetValues(\%values);    # [ name, type, data ]
+            for (keys %values) {
+                next if $_ eq '';
+                my $value = $values{$_};
+                my ($type, $data) = @$value[1, 2];
+                printf "        %-12s = %s\n", $_, $data;
+            }
+        }
+    }
+}
+
+exit boot;
+
+sub main {
+    if ($opt_delete) {
+        $APP_PATHS->DeleteKey($opt_name)
+            or die "can't delete key $opt_name: $!";
+    } else {
+        $APP_PATHS->SetValue($opt_name, REG_SZ, $opt_value)
+            or die "can't set value of $opt_name to $opt_value: $!";
+    }
+    return 0;
+}
