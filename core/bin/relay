@@ -36,6 +36,7 @@ our $opt_start_recver;
 our $opt_start_sender;
 our $opt_start_delay    = 1000;
 our $opt_hexdump        = 0;
+our $opt_width          = 16;
 
 my  $mios;
 my  $mctx;
@@ -90,7 +91,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: relay,v 1.5 2007-07-22 04:28:59 lenik Exp $');
+    my %id = parse_id('$Id: relay,v 1.6 2007-07-22 23:04:27 lenik Exp $');
     print "[$opt_verbtitle] TCP Relay And Sniff \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -309,15 +310,31 @@ sub b_dump  { puts 'B', shift }
 my %FROMBUF;
 sub puts {
     my $from    = shift;
+    local $_    = shift;
     my $cont    = $FROMBUF{$from};
+    my $indent  = length($from) + 2;
 
     if ($opt_hexdump) {
-        print "HEX\n";
-    } else {
-        my $indent = length($from) + 2;
-        for (@_) {
-            my $line = substr(indent($indent, $_), 3);
-            print "$from> ".$line."\n";
+        my $TOHEX = 'H'.($opt_width * 2);
+        my $buf;
+        while (length $_) {
+            $buf .= "\n" if defined $buf;
+            my $part = substr($_, 0, $opt_width);
+                  $_ = substr($_, $opt_width);
+            (my $txt = $part) =~ s/[\x00-\x1f]/./g;
+            my $code;
+            $code = unpack $TOHEX, $part;
+            while (length $code) {
+                $buf .= substr($code, 0, 2) . ' ';
+                $code = substr($code, 2);
+            }
+            $buf .= '   'x($opt_width - length $part);
+            $buf .= "| $txt";
         }
+        $_ = substr(indent($indent, $buf), $indent);
+        print "$from> $_\n";
+    } else {
+        $_ = substr(indent($indent, $_), $indent);
+        print "$from> $_\n";
     }
 }
