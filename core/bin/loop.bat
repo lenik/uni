@@ -51,18 +51,21 @@
         echo [loop] src-program: %_srcprog%
         echo [loop] run-program: %_runprog%
     )
-    set _cl=%_runprog%
-    shift
+    set _cl_n=1
 
 :get_cl_args
     if "%~1"=="" goto begin
-    set _cl=%_cl% %1
+    if "%~1"=="::" (
+        set /a _cl_n = _cl_n + 1
+    ) else (
+        set _cl_%_cl_n%=!_cl_%_cl_n%!%1
+    )
     shift
     goto get_cl_args
 
 :help
     echo [loop] Running command repeatly
-    echo Written by Lenik,  $Revision: 1.6 $
+    echo Written by Lenik,  $Revision: 1.7 $
     echo Syntax:
     echo     loop [options] command arguments...
     echo Options:
@@ -83,13 +86,19 @@
         if "%_verbose%"=="1" echo [loop] Initial version of %_srcprog%: !_last!
     )
 
-    if "%_verbose%"=="1" title %_cl%
+    if "%_verbose%"=="1" title %_cl_1% %_cl_2% %_cl_3% %_cl_4% %_cl_5%
 
 :loop
 
-    if "%_verbose%"=="1" echo [loop] execute: %_cl%
-    copy /y "%_srcprog%" "%_runprog%" >nul
+    if "%_runcopy%"=="1" copy /y "%_srcprog%" "%_runprog%" >nul
+
+    set /a i = 1
+  :stmt_loop
+    set _cl=!_cl_%i%!
+    if "%_verbose%"=="1" echo [loop] execute.%i%: %_cl%
     call %_cl%
+    set /a i = i + 1
+    if %i% leq %_cl_n% goto stmt_loop
 
     set _keygot=0
 
