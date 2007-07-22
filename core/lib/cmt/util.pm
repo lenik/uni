@@ -160,6 +160,23 @@ sub arraycmp {
 sub arrayeq     { arraycmp(@_) == 0 }
 sub arrayne     { arraycmp(@_) != 0 }
 
+sub array_index(\@$@) {
+    sub _eq { $_[0] == $_[1] }
+    my ($array, $v, $cmp) = @_;
+    $cmp = \&_eq unless defined $cmp;
+    for (0..$#$array) {
+        return $_ if $cmp->($array->[$_], $v);
+    }
+    return -1;
+}
+
+sub array_remove(\@$@) {
+    my ($array, $v, $cmp) = @_;
+    my $i = array_index(@$array, $v, $cmp);
+    return undef if $i < 0;
+    splice @$array, $i, 1;
+}
+
 sub hasheq {
     my ($a, $b) = @_;
     my $na = scalar(keys %$a);
@@ -295,6 +312,23 @@ sub nbread {
     return $buf;
 }
 
+sub format_inaddr {
+    my $sockaddr = shift;
+    my ($port, $iaddr) = sockaddr_in($sockaddr);
+    my $ip   = inet_ntoa($iaddr);
+    my $host = gethostbyaddr($iaddr, AF_INET);
+    return $host ne '' ? "$host:$port" : "$ip:$port";
+}
+
+sub sockinfo {
+    my ($h, $name) = @_;
+    if (defined (my $local = getsockname($h))) {
+        my $peer = getpeername($h);
+        $h = format_inaddr($local) . '->' . format_inaddr($peer);
+    }
+    defined $name ? "$name($h)" : $h;
+}
+
 sub indent {
     my $prefix = shift;
         $prefix = ' 'x$prefix if $prefix =~ /^\d+$/;
@@ -360,6 +394,8 @@ sub fire_method {
 	arraycmp
 	arrayeq
 	arrayne
+	array_index
+	array_remove
 	hasheq
 	hashne
 	hashindex
@@ -369,6 +405,8 @@ sub fire_method {
 	writefile
 	setnonblock
 	nbread
+	format_inaddr
+	sockinfo
 	indent
 	unindent_most
 	at_exit
