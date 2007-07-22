@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.41 2007-07-16 12:19:10 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.42 2007-07-22 04:25:41 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -150,8 +150,8 @@
 
             rem Perl Daemon
             assoc .pld=xPLD>nul
-            ftype .pld=%cirk_home%\perl\perl5\bin\wperl.exe "%%0" %%* >nul
-            ftype xPLD=%cirk_home%\perl\perl5\bin\wperl.exe "%%0" %%* >nul
+            ftype .pld=%%wperl%% "%%0" %%* >nul
+            ftype xPLD=%%wperl%% "%%0" %%* >nul
 
             rem Python Script
             assoc  .py=xPYC >nul
@@ -169,6 +169,11 @@
             assoc  .rb=xRB >nul
             ftype  .rb=%cirk_home%\ruby\ruby\bin\ruby.exe "%%1" %%* >nul
             ftype  xRB=%cirk_home%\ruby\ruby\bin\ruby.exe "%%1" %%* >nul
+
+            rem sh/bash Script
+            assoc  .sh=xSH >nul
+            ftype  .sh=%dirt_home%\0\myexec.exe /2 %%SHELL%% -c %%0 %%* >nul
+            ftype  xSH=%dirt_home%\0\myexec.exe /2 %%SHELL%% -c %%0 %%* >nul
 
             rem Scheme/Guile Script
             assoc  .ss=xSS >nul
@@ -292,6 +297,16 @@ sub init {
         env_set('PERL', '%CIRK_HOME%\perl\perl5\bin\perl.exe');
         print ".";
 
+        env_set('WPERL', '%CIRK_HOME%\perl\perl5\bin\wperl.exe');
+        print ".";
+
+        if (-d 'b:/bin') {
+            env_set('SHELL', 'b:\bin\bash.exe');
+        } else {
+            env_set('SHELL', '%CIRK_HOME%\Cygwin\bin\bash.exe');
+        }
+        print ".";
+
         env_add('PATH', qr/^$prefix/i, [
                 path_normalize "$cirk_home",
                 path_normalize "$cirk_home\\Perl\\Perl5\\bin",
@@ -316,8 +331,8 @@ sub init {
                 ]);
         print ".";
 
-        env_add('PATHEXT', qr/^\.(6|m4|p|pl|plc|py|pyc|php|rb|ss|six|x|prj)$/i,
-                [qw/.6 .p .pl .plc .pld .py .pyc .php .rb .ss .six .x .prj/]);
+        env_add('PATHEXT', qr/^\.(6|m4|p|pl|plc|pld|py|pyc|php|rb|sh|ss|six|x|prj)$/i,
+                [qw/.6 .p .pl .plc .pld .py .pyc .php .rb .sh .ss .six .x .prj/]);
         print ".";
 
         env_add('INCLUDE', qr/^$prefix/i, [
