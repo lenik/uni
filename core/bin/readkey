@@ -46,8 +46,8 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: readkey,v 1.1 2007-06-30 10:17:30 lenik Exp $');
-    print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
+    my %id = parse_id('$Id: readkey,v 1.2 2007-07-22 23:04:02 lenik Exp $');
+    print "[$opt_verbtitle] Read Key \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
@@ -62,13 +62,13 @@ Returns:
         The ascii-code or scan-code of the pressed key.
 
 Options:
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
+        --timeout=<seconds>     (t, timeout if no key pressed, fraction is ok)
+        --default=<char-code>   (d, default char if no key pressed)
+        --scan-code             (s, return scan-code instead of ascii-code)
+        --quiet                 (q)
+        --verbose               (v, repeat twice give you more verbose info)
         --version
-        --help (h)
-        --timeout=<seconds> (t, timeout if no key pressed, fraction is ok)
-        --default=<char-code> (d, default char if no key pressed)
-        --scan-code (s, return scan-code instead of ascii-code)
+        --help                  (h)
 EOM
 }
 
