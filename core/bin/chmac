@@ -1,0 +1,202 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::ftime;
+use cmt::util;
+use cmt::vcs;
+use cmt::win32;
+use Data::Dumper;
+use Getopt::Long;
+use Net::Adapter;
+use Win32::API;
+use Win32::API::Struct;
+use YAML;
+
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
+
+sub macstr;
+sub macbin;
+sub iplist;
+sub build_devices;
+sub dump_devices;
+
+our $opt_verbtitle      = 'chmac';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_device;
+our $opt_mac;
+
+my @index;
+my %index_id;
+my %index_desc;
+my %index_mac;
+my %index_ip;
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'device|d:s',
+               'mac|m=s',
+               );
+
+    $opt_device = shift @ARGV unless defined $opt_device;
+    $opt_mac    = shift @ARGV unless defined $opt_device;
+
+    build_devices;
+
+    if ($opt_device eq '') {
+        dump_devices;
+        exit;
+    }
+
+    if (defined $opt_device) {
+        if ($opt_device =~ /^\d$/) {
+            die "Index $opt_device isn't existed"
+                unless defined $index[$opt_device];
+            $opt_device = $index[$opt_device];
+        } elsif (exists $index_id   {$opt_device}) {
+            $opt_device = $index_id {$opt_device};
+        } elsif (exists $index_desc {$opt_device}) {
+            $opt_device = $index_desc{$opt_device};
+        } elsif (exists $index_mac  {$opt_device}) {
+            $opt_device = $index_mac{$opt_device};
+        } elsif (exists $index_ip   {$opt_device}) {
+            $opt_device = $index_ip {$opt_device};
+        } else {
+            die "no found of $opt_device";
+        }
+    }
+    info "$opt_device->{addr} ($opt_device->{desc})";
+    info2 'device-info: '.Dump($opt_device);
+
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: chmac,v 1.1 2007-07-23 03:20:53 lenik Exp $');
+    print "[$opt_verbtitle] MAC Address Changer\n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 <options> [<device-selector> [<new MAC address>] ]
+
+        The <device-selector> could be one of:
+            (none)      list all devices
+            index:      number 1, 2, 3...
+            ip:         1.2.3.4
+            mac:        11:22:33:44:55:66
+            guid:       {11111111-2222-3333-4444-555555555555}
+
+        To reset the mac address, just omit the <new MAC address> field.
+
+Options:
+        --quiet (q)
+        --verbose (v, repeat twice give you more verbose info)
+        --version
+        --help (h)
+EOM
+}
+
+exit boot;
+
+sub macstr {
+    my $bin = shift;
+    my $str = unpack "H12", $bin;
+    my $buf;
+    while (length $str) {
+        $buf .= ':' if defined $buf;
+        $buf .= substr($str, 0, 2, '');
+    }
+    $buf
+}
+
+sub macbin {
+    my $str = shift;
+    $str =~ s/:-\s//g;
+    pack "H12", $str;
+}
+
+sub iplist {
+    my $bin = shift;
+    my $next = unpack "U4", substr($bin, 0, 4);
+    my $addr = substr($bin, 4, 16);     $addr =~ s/\x0+$//;
+    my $mask = substr($bin, 20, 16);    $mask =~ s/\x0+$//;
+    my $context = unpack "U4", substr($bin, 36, 4);
+    return wantarray ? ($addr) : $addr;
+}
+
+sub build_devices {
+    enum_adapters sub {
+        my $adap                = shift;
+        my $dev;
+        $dev->{id}              = $adap->AdapterName;
+        $dev->{desc}            = $adap->Description;
+        $dev->{index}           = $adap->Index;
+
+        $dev->{addr}            = macstr substr($adap->Address, 0, $adap->AddressLength);
+        $dev->{iplist}          = iplist $adap->IpAddressList;
+        $dev->{ip}              = $dev->{iplist};           # $adap->CurrentIpAddress;
+
+        # Not used:
+        $dev->{combo}           = $adap->ComboIndex;        # reserved
+        $dev->{type}            = $adap->Type;              # ETH, TOKENRING, FDDI, PPP, SLIP, LOOPBACK, etc.
+        $dev->{gwlist}          = iplist $adap->GatewayList;
+        $dev->{dhcp}            = $adap->DhcpEnabled;
+        $dev->{dhcpserver}      = iplist $adap->DhcpServer;
+        $dev->{wins}            = $adap->HaveWins;
+        $dev->{wins1}           = iplist $adap->PrimaryWinsServer;
+        $dev->{wins2}           = iplist $adap->SecondaryWinsServer;
+        $dev->{l_obtained}      = $adap->LeaseObtained;     # dhcp
+        $dev->{l_expires}       = $adap->LeaseExpires;      # dhcp
+
+        my $i = $dev->{index};
+        $index[$i]                  = $dev;
+        $index_id   {$dev->{id}}    = $dev;
+        $index_desc {$dev->{desc}}  = $dev;
+        $index_mac  {$dev->{addr}}  = $dev;
+        $index_ip   {$dev->{ip}}    = $dev;
+    }
+}
+
+sub dump_devices {
+    for my $i (0..$#index) {
+        my $dev = $index[$i];
+        next unless defined $dev;
+        print "$i - $dev->{id} ($dev->{desc})\n";
+        if ($opt_verbose > 1) {
+            print "    MAC = ".$dev->{addr}."\n";
+            print "     IP = ".$dev->{ip}."\n";
+        }
+    }
+}
+
+sub main {
+    my $id = $opt_device->{id};
+    chmac $id, $opt_mac;
+}
