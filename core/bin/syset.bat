@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.42 2007-07-22 04:25:41 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.43 2007-07-23 10:39:33 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -233,9 +233,10 @@
 
 # The Perl-section
 # ---------------------------------------------------------------------------
-use Win32::Registry;
-use cmt::vcs;
 use cmt::path;
+use cmt::util;
+use cmt::vcs;
+use Win32::Registry;
 
 our ($opt_cmd, @opt_args) = @ARGV;
 $| = 1;
@@ -260,9 +261,14 @@ sub env_add {
     my $reg;
     my ($type, $value);
     my ($name, $removes, $append, $insert) = @_;
-    my @list = ();
+    my @head;
+    my @list;
     $reg = env_open();
     if ($reg->QueryValueEx($name, $type, $value)) {
+        if ($value =~ /^(.*;_HEAD_)\b(.*)$/) {
+            $value = $2;
+            @head = split(';', $1);
+        }
         @list = split(';', $value);
         if ($removes) {
             @list = grep { $_ !~ m/$removes/ } @list;
@@ -270,6 +276,7 @@ sub env_add {
     }
     push @list, @$append if $append;
     unshift @list, @$insert if $insert;
+    unshift @list, @head;
     $reg->SetValueEx($name, 0, &REG_EXPAND_SZ, join(';', @list));
     $reg->Close();
 }
