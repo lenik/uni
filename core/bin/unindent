@@ -42,8 +42,8 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: unindent,v 1.2 2007-06-25 12:58:14 lenik Exp $');
-    print "[opt_verbtitle] Perl simple cli program template\n";
+    my %id = parse_id('$Id: unindent,v 1.3 2007-07-23 10:39:47 lenik Exp $');
+    print "[$opt_verbtitle] Remove the extra indents but keep the structure\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
@@ -55,11 +55,11 @@ Syntax:
         $0 <options> ...
 
 Options:
-        --lines=<number> (l, min lines of a paragraph to unindent)
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
+        --lines=<number>    (l, min lines of a paragraph to unindent)
+        --quiet             (q)
+        --verbose           (v, repeat twice give you more verbose info)
         --version
-        --help (h)
+        --help              (h)
 EOM
 }
 
