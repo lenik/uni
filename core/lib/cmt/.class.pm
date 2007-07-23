@@ -5,6 +5,10 @@ use vars                qw/@ISA @EXPORT/;
 use cmt::util;
 use Exporter;
 
+@ISA    = qw(Exporter);
+@EXPORT = qw(static_method
+             );
+
 sub info;
 sub info2;
 sub static_method;
@@ -12,10 +16,6 @@ sub static_method;
 our $opt_verbtitle      = __PACKAGE__;
 our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
-
-@ISA    = qw(Exporter);
-@EXPORT = qw(static_method
-             );
 
 sub new {
     my $class           = shift;

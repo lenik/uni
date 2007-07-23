@@ -4,18 +4,12 @@ package Net::Adapter;
 use 5.008;
 use strict;
 use warnings;
-
-require Exporter;
+use cmt::util;
+use Exporter;
+use Win32::Registry;
 
 our @ISA = qw(Exporter);
 
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
-
-# This allows declaration	use Net::Adapter ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
 our %EXPORT_TAGS = ( 'all' => [ qw(
 
 ) ] );
@@ -27,17 +21,25 @@ our @EXPORT = qw(
 	netcon_connect
 	netcon_disconnect
 	netcon_reset
+	chmac
 );
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 require XSLoader;
 XSLoader::load('Net::Adapter', $VERSION);
 
+sub info;
+sub info2;
+
+our $opt_verbtitle      = __PACKAGE__;
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+
 sub check_hr {
     my $hr = shift;
     if ($hr != 0) {
-        # warn "..."
+        info2 "failed: $hr";
     }
     return $hr == 0;
 }
@@ -50,18 +52,87 @@ sub netcon_reset {
     1
 }
 
+my $CC_Net;
+sub get_registry {
+    my $id = lc shift;
+
+    unless (defined $CC_Net) {
+        $::HKEY_LOCAL_MACHINE->Open(
+            "SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002bE10318}",
+            $CC_Net) or die "Can't open registry of [Control-Class Net]";
+    }
+
+    my @seq;
+    $CC_Net->GetKeys(\@seq) or die "can't enum network-adapters: $!";
+    for (@seq) {
+        my $inst;
+        next unless $CC_Net->Open($_, $inst);
+        my $inst_id;
+        $inst->QueryValueEx("NetCfgInstanceId", REG_SZ, $inst_id)
+            or next;
+        if (lc($inst_id) eq $id) {
+            return $inst;
+        }
+        $inst->Close;
+    }
+    return undef;
+}
+
 sub chmac {
     my ($id, $mac) = @_;
 
-    # ÍøÂçÊÊÅäÆ÷
-    #SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002bE10318}
-    #    \\000?
-    #        \\DriverDesc        = VMware Virtual Ethernet Adapter for VMnet1
-    #        \\NetCfgInstanceId  = $id
-    #        \\NetworkAddress    = $mac  (delete if $mac is null)
-    #                              REG_SZ
+    my $reset = 0;
 
-    netcon_reset($id);
+    my $inst = get_registry($id)
+        or die "can't find the config-entry in the registry: $!";
+
+    # @DriverDesc        = REG_SZ Hamachi Network Interface
+    # @NetCfgInstanceId  = REG_SZ $id   {05CB1FA2-26F4-4936-BE55-FC1860AB4C6F}
+    # @NetworkAddress    = REG_SZ $mac  7A7905454D71 (delete if $mac is null)
+
+    $mac =~ s/:-\s//g if defined $mac;
+
+    my $mac0;
+    $inst->QueryValueEx("NetworkAddress", REG_SZ, $mac0);
+    info2 "Old MAC-Override: $mac0" if defined $mac0;
+
+    if (defined $mac) {
+        if (!defined $mac0 or $mac ne $mac0) {
+            info2 "set $inst/\@NetworkAddress";
+            $inst->SetValueEx("NetworkAddress", undef, REG_SZ, $mac)
+                or die "can't set value of NetworkAddress: $!";
+            $reset = 1;
+        }
+    } else {
+        info2 "delete $inst/\@NetworkAddress";
+        if ($inst->DeleteValue("NetworkAddress")) {
+            $reset = 1 if defined $mac0;
+        }
+    }
+
+    $inst->Close;
+
+    if ($reset) {
+        info2 "netcon_reset $id";
+        return netcon_reset($id);
+    }
+    return 1;
+}
+
+# utilities
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
 }
 
 1;

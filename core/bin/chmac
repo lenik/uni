@@ -2,10 +2,12 @@
 
 use strict;
 use cmt::ftime;
+use cmt::g;
 use cmt::util;
 use cmt::vcs;
 use cmt::win32;
 use Data::Dumper;
+
 use Getopt::Long;
 use Net::Adapter;
 use Win32::API;
@@ -31,11 +33,12 @@ our $opt_verbose        = 1;
 our $opt_device;
 our $opt_mac;
 
-my @index;
-my %index_id;
-my %index_desc;
-my %index_mac;
-my %index_ip;
+my %idx_index;
+my %idx_combo;
+my %idx_id;
+my %idx_desc;
+my %idx_mac;
+my %idx_ip;
 
 sub boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
@@ -47,7 +50,7 @@ sub boot {
                );
 
     $opt_device = shift @ARGV unless defined $opt_device;
-    $opt_mac    = shift @ARGV unless defined $opt_device;
+    $opt_mac    = shift @ARGV unless defined $opt_mac;
 
     build_devices;
 
@@ -57,18 +60,20 @@ sub boot {
     }
 
     if (defined $opt_device) {
-        if ($opt_device =~ /^\d$/) {
-            die "Index $opt_device isn't existed"
-                unless defined $index[$opt_device];
-            $opt_device = $index[$opt_device];
-        } elsif (exists $index_id   {$opt_device}) {
-            $opt_device = $index_id {$opt_device};
-        } elsif (exists $index_desc {$opt_device}) {
-            $opt_device = $index_desc{$opt_device};
-        } elsif (exists $index_mac  {$opt_device}) {
-            $opt_device = $index_mac{$opt_device};
-        } elsif (exists $index_ip   {$opt_device}) {
-            $opt_device = $index_ip {$opt_device};
+        if (0) {
+            # dummy
+        } elsif (exists $idx_combo  {$opt_device}) {
+            $opt_device = $idx_combo{$opt_device};
+        } elsif (exists $idx_index  {$opt_device}) {
+            $opt_device = $idx_index{$opt_device};
+        } elsif (exists $idx_id     {$opt_device}) {
+            $opt_device = $idx_id   {$opt_device};
+        } elsif (exists $idx_desc   {$opt_device}) {
+            $opt_device = $idx_desc {$opt_device};
+        } elsif (exists $idx_mac    {$opt_device}) {
+            $opt_device = $idx_mac  {$opt_device};
+        } elsif (exists $idx_ip     {$opt_device}) {
+            $opt_device = $idx_ip   {$opt_device};
         } else {
             die "no found of $opt_device";
         }
@@ -94,7 +99,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: chmac,v 1.1 2007-07-23 03:20:53 lenik Exp $');
+    my %id = parse_id('$Id: chmac,v 1.2 2007-07-23 11:23:23 lenik Exp $');
     print "[$opt_verbtitle] MAC Address Changer\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -108,7 +113,8 @@ Syntax:
 
         The <device-selector> could be one of:
             (none)      list all devices
-            index:      number 1, 2, 3...
+            index:      <number>    1, 2, 3, ...
+            combo:      :<number>   :1, :2, :3, ...
             ip:         1.2.3.4
             mac:        11:22:33:44:55:66
             guid:       {11111111-2222-3333-4444-555555555555}
@@ -175,18 +181,18 @@ sub build_devices {
         $dev->{l_obtained}      = $adap->LeaseObtained;     # dhcp
         $dev->{l_expires}       = $adap->LeaseExpires;      # dhcp
 
-        my $i = $dev->{index};
-        $index[$i]                  = $dev;
-        $index_id   {$dev->{id}}    = $dev;
-        $index_desc {$dev->{desc}}  = $dev;
-        $index_mac  {$dev->{addr}}  = $dev;
-        $index_ip   {$dev->{ip}}    = $dev;
+        $idx_index{$dev->{index}}   = $dev;
+        $idx_combo{':'.$dev->{combo}} = $dev;
+        $idx_id   {$dev->{id}}      = $dev;
+        $idx_desc {$dev->{desc}}    = $dev;
+        $idx_mac  {$dev->{addr}}    = $dev;
+        $idx_ip   {$dev->{ip}}      = $dev;
     }
 }
 
 sub dump_devices {
-    for my $i (0..$#index) {
-        my $dev = $index[$i];
+    for my $i (keys %idx_index) {
+        my $dev = $idx_index{$i};
         next unless defined $dev;
         print "$i - $dev->{id} ($dev->{desc})\n";
         if ($opt_verbose > 1) {
@@ -198,5 +204,7 @@ sub dump_devices {
 
 sub main {
     my $id = $opt_device->{id};
-    chmac $id, $opt_mac;
+    chmac($id, $opt_mac)
+        or die "can't change the mac: $!";
+
 }
