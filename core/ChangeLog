@@ -1,4 +1,74 @@
 
+2007-07-23
+  * chmac.pl, lib/Net/Adapter.pm, lib/auto/Net/Adapter/Adapter.dll, e.t.c...
+	add select by combo option (the index is changed after netcon_reset, however the combo seems to be static.)
+
+  * cvsuser.bat:
+	create the cvsuser utility to replace the pserver+ project.
+
+  * syset.bat:
+	by insert _HEAD_ placeholder into PATH variable, to make some path always at the very beginning.
+
+  * sh.bat:
+	take account of USERNAME, SHELL, and auto 'mount'ing the root fs (by mapping B:).
+
+  * perldev.bat:
+	clear $SHELL, which is used in make program.
+
+  * chmac.pl:
+	initial released
+
+  * hexdump.pl, relay.pl:
+	impl hexdump
+
+  * loop.bat:
+	add support of statement-list
+
+2007-07-22
+  * lib/cmt/util.pm:
+	add array_index, array_remove, format_inaddr, sockinfo
+
+  * relay.pl, lib/cmt/ios.pm, lib/cmt/serv.pm, lib/cmt/simpled.pm, e.t.c...
+	relay initial released!
+
+  * lib/cmt/inet.pm:
+	call tcp_connect with (... -cont=>1) to leave the cmt::ios::context running.
+
+  * myexec.c, myexec.exe, perldev.bat, syset.bat:
+	add extension of .sh unix shells, and exec bash by myexec to resolve the slash-problem.
+
+2007-07-21
+  * .bat, moduse.bat:
+	new .bat template provide common structure and to resolve the "%* shift bug"
+
+  * lstconv.bat:
+	add support of virtual-group: "[Group] path"
+
+  * lib/cmt/util.pm:
+	atexit -> at_exit to avoid name conflicts
+
+  * lib/cmt/ios.pm:
+	new methods in cmt::ios::context: add, count, exists, remove
+
+2007-07-20
+  * lib/cmt/ipc.pm:
+	deprecated, using cmt::ios instead.
+
+  * lib/cmt/channel.pm:
+	deprecated, using cmt::stream instead.
+
+  * lib/cmt/util.pm:
+	add fire_sub to invoke simple-callback.
+
+  * lib/cmt/stream.pm:
+	change syntax from stream->($fd, @data) to stream->write($data, [$fd])
+
+  * lib/cmt/serv.pm:
+	add create_ios method to create the serv/ios only for custom extensions.
+
+  * lib/cmt/ios.pm:
+	add cmt::ios::merged derivation:  when multiple cmt::ios were created, they have to be 'loop'ing in separated threads, this cause many problems.  the new merged-model allows one to 'loop'ing in one thread, by IO::Select all the sockets of cmt::ios(s).
+
 2007-07-18
   * relay.pl:
 	adapted cmt::serv & cmt::inet
