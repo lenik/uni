@@ -13,6 +13,7 @@
     set     PERL=%DEV_HOME%\perl\bin\perl.exe
     set    WPERL=%DEV_HOME%\perl\bin\wperl.exe
     set  PERLLIB=%DEV_HOME%\perl\lib;%DEV_HOME%\perl\site\lib;%DIRT_HOME%\0\lib
+    set    SHELL=
 
     if not exist %DEV_HOME%\workspace mkdir %DEV_HOME%\workspace
     cd %DEV_HOME%\workspace
