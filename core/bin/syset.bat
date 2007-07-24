@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.43 2007-07-23 10:39:33 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.44 2007-07-24 12:36:26 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -462,4 +462,11 @@ if ($opt_cmd eq 'init') {
 
 
 __END__
+
+    TODO:
+        regmon, filemon:
+            HKCU\Software\Sysinternals\...
+        ultraedit:
+            %USERPROFILE%\Application Data\IDMComp\UltraEdit\ue.ini
+
 :end
