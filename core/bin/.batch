@@ -31,8 +31,8 @@ our $opt_include_hiddens= 0;
 our @opt_files          = ();
 our $opt_writeback      = 0;
 
-our $stat_total         = 0;
-our $stat_proc          = 0;
+my  $stat_total         = 0;
+my  $stat_proc          = 0;
 
 sub boot {
     GetOptions('quiet|q'        => sub { $opt_verbose-- },
@@ -90,7 +90,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: .batch,v 1.1 2007-05-23 14:44:57 lenik Exp $');
+    my %id = parse_id('$Id: .batch,v 1.2 2007-07-25 16:14:21 lenik Exp $');
     print "[$opt_verbtitle] Perl simple cli program template\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }

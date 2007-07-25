@@ -80,6 +80,18 @@ sub timestamp10 {
     $YY . $sep1 . $DDD . $sep . $SSSSS;
 }
 
+my %QRMODE = (
+    'c'         => qr/[()\[\]{}?*+.|^\$\\]/,
+    'o'         => qr/[()\[\]{}?*+.^\$\\]/,
+);
+sub qr_literal {
+    my $text    = shift;
+    my $mode    = shift || 'c';
+       $mode    = $QRMODE{$mode} or die "Invalid mode $mode";
+    $text       =~ s/$mode/\\$&/g;
+    return qr/$text/;
+}
+
 sub forx($&;$) {
     my $exp = shift;
     my $code = shift;
@@ -387,6 +399,7 @@ sub fire_method {
 	datetime
 	cftime
 	timestamp10
+	qr_literal
 	forx
 	qsplit
 	append_cmdline

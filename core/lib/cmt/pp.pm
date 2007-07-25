@@ -3,11 +3,13 @@ package cmt::pp;
 use strict;
 use vars qw/@ISA @EXPORT/;
 use cmt::util;
+# use Data::Dumper;
 use Exporter;
 
 @ISA    = qw(Exporter);
 @EXPORT = qw(pp
              ppcmt
+             ppcmtstr
              ppvar);
 
 my %ENDC = (
@@ -33,15 +35,17 @@ my %ENDC = (
     '#'         => qr/.*$/,
 );
 
-sub pp(&) {
+sub pp(&;@) {
     my $call = shift;
-    # %exclude state:
+    my %cfg; get_named_args @_, %cfg;
+    my $tok  = qr_literal($cfg{tok} || '\'|"|/*', 'o');
+
     my $X;
     my @Xbuf;
     # (\\.|[^"])*"
     my $endc;
     my $cut;
-    while (<>) {
+    my $proc = sub {
         if (defined $X) {
             if (s/^($endc)//) {
                 push @Xbuf, $1;
@@ -54,7 +58,7 @@ sub pp(&) {
             }
         }
         if (! defined $X) {
-            while (/\"|\'|\/\*/) {
+            while (/$tok/) {
                 $X = $&;
                 $endc = $ENDC{$X};
                 die "Unknown X-begin($X)" unless defined $endc;
@@ -75,16 +79,33 @@ sub pp(&) {
             }
             $call->() if $_ ne '';
         }
+    };
+
+    if (scalar @_ == 0) {
+        $proc->() while <>;
+    } else {
+        for my $d (@_) {
+            if (UNIVERSAL::isa($d, 'GLOB')) {
+                $proc->() while <$d>;
+            } else {
+                $proc->() for @$d;
+            }
+        }
     }
 }
 
-sub ppcmt(&) {
+sub ppcmt(&;@) {
     my $call = shift;
+    @_ = [@_] if @_;
     my $buf;
     pp {
         my $X = shift;
         if (defined $X) {
-            $buf .= $X if $X ne '/*';
+            if ($X eq '/*' or $X eq '#') {
+                # comments
+            } else {
+                $buf .= $X;
+            }
         } elsif (/\n$/s) {
             local $_ = $buf . $_;
             $call->();
@@ -92,11 +113,28 @@ sub ppcmt(&) {
         } else {
             $buf .= $_;
         }
-    };
+    } -tok => q('|"|/*|#), @_;
     if ($buf ne '') {
         local $_ = $buf;
         $call->();
     }
+}
+
+sub ppcmtstr(&;@) {
+    my $call = shift;
+    @_ = [@_] if @_;
+    pp {
+        my $X = shift;
+        if (defined $X) {
+            return if ($X eq '/*' or $X eq '#');
+            $_ = substr($_, 1, length($_) - 2);
+            return $call->($X);
+        }
+        for (split(/\s+/, $_)) {
+            next unless /\S/;
+            $call->()
+        }
+    } -tok => q('|"|/*|#), @_;
 }
 
 sub ppvar(&$) {

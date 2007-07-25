@@ -80,7 +80,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: xs.pm,v 1.6 2007-07-15 13:56:54 lenik Exp $');
+    my %id = parse_id('$Id: xs.pm,v 1.7 2007-07-25 16:14:21 lenik Exp $');
     print "[$opt_verbtitle] XSUB Utilities \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -129,7 +129,7 @@ sub stwrap {
             }
             %mm = ();
             $st = [ $levels, \%mm ];
-            next;
+            return;
         }
 
       # typedef: dump and clean
@@ -156,7 +156,7 @@ sub stwrap {
             $levels = [[], []];
             %mm = ();
             $st = [ $levels, \%mm ];
-            next;
+            return;
         }
 
         # (NAME) ([][1+2])
