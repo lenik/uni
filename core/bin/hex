@@ -1,10 +1,30 @@
 #!/usr/bin/perl
 
 use strict;
+use cmt::util;
 use cmt::vcs;
 use Getopt::Long;
 
+sub boot;
+sub main;
+sub info;
+sub info2;
+sub version;
+sub help;
 
+our $opt_verbtitle      = 'hex';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+
+our $opt_table          = '0123456789abcdefghijklmnopqrstuvwxyz';
+our $opt_upper          = 0;
+our $opt_force          = 0;
+our $opt_from           = 0;
+our $opt_to             = 0;
+our $opt_print          = '<report>';       # default is table-report
+our $opt_width          = 1;
+our $opt_ccr_mode       = 0;
+our $opt_dump;
 
 # Control-Code Representation
 our @ccr_table_n2c  = (
@@ -45,22 +65,86 @@ our @ccr_table_c2n  = (
         -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,      # F0
         );
 
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'alphabet=s' => \$opt_table,
+               'uppercase'  => sub { $opt_upper = 1 },
+               'lowercase'  => sub { $opt_upper = 0 },
+               'from|f=n',
+               'to=n',
+               'print:s',
+               'width=n',
+               'ccr-mode',
+               'force',
+               'dump:n',
+               );
+    $opt_table = uc $opt_table if $opt_upper;
+    $opt_table = lc $opt_table if not $opt_upper;
+    $opt_print = '$dh' if $opt_print eq '';
 
+    $opt_dump ||= 16 if defined $opt_dump;
+    main;
+}
 
-our $opt_table      = '0123456789abcdefghijklmnopqrstuvwxyz';
-our $opt_upper      = 0;
-our $opt_force      = 0;
-our $opt_from       = 0;
-our $opt_to         = 0;
-our $opt_print      = '<report>';       # default is table-report
-our $opt_width      = 1;
-our $opt_ccr_mode   = 0;
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
 
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
 
-    &init;
-    &main;
+sub version {
+    my %id = parse_id('$Id: hex,v 1.8 2007-07-27 13:39:33 lenik Exp $');
+    print "[$opt_verbtitle] Number system reference \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
 
+sub help {
+    version;
+    print <<"EOM";
 
+Syntax:
+        $0 <options> ...
+
+Options:
+        --alphabet=<string>         (a)
+        --ccr-mode                  (c)
+        --dump=<line-width>         (d, set -d to have a 16-byte width)
+        --force
+        --from=<from-system>        (f)
+        --lowercase                 (l)
+        --print=<format>            (p, default '\$dh'>
+        --to=<target-system>        (t)
+        --uppercase                 (u)
+        --width=<width-in-letters>  (w)
+        --quiet                     (q)
+        --verbose                   (v, repeat to get more info)
+        --version
+        --help                      (h)
+
+Format-String: *
+        \$<runtime-variable>
+        \\<escape-char>
+        <literal-char>
+
+Example:
+    hex -p=\$dh. 233 12 55 302 34           Output: e9.c.37.12e.22.
+    hex 233 12 55 302 34 -p                 Output: e9c3712e22
+    hex -c -p=\$dd. '.brp'                   Output:
+EOM
+}
+
+exit boot;
 
 sub systemDecode {
     my ($text, $sys) = @_;
@@ -73,7 +157,6 @@ sub systemDecode {
     }
     return $num;
 }
-
 
 sub systemEncode {
     my ($num, $sys) = @_;
@@ -89,7 +172,6 @@ sub systemEncode {
     $text = $zero x ($opt_width-$len) . $text if ($len < $opt_width);
     return $text;
 }
-
 
 sub radixTable {
     local $_ = $_;
@@ -142,29 +224,19 @@ Number @<
     }
 }
 
-
-sub init {
-    GetOptions(
-        'alphabet=s' => \$opt_table,
-        'uppercase' => sub { $opt_upper = 1 },
-        'lowercase' => sub { $opt_upper = 0 },
-        'from|f=n',
-        'to=n',
-        'print:s',
-        'width=n',
-        'ccr-mode',
-        'force',
-        'help' => sub { &help },
-    );
-
-    $opt_table = uc $opt_table if $opt_upper;
-    $opt_table = lc $opt_table if not $opt_upper;
-    $opt_print = '$dh' if $opt_print eq '';
-}
-
-
-
 sub main {
+    if (defined $opt_dump) {
+        die "Only hex-dump is supported, yet" if $opt_dump != 16;
+        my $s = join(' ', @ARGV);
+        $s = readfile $s if -f $s;
+        for (my $i = 0; $i < length($s); $i++) {
+            my $c = substr($s, $i, 1);
+            printf("%02x", ord $c);
+        }
+        print "\n";
+        exit;
+    }
+
     for (@ARGV) {
         if (m/^[\'\"]/) {
             my @chars = split('', substr($_, 1, -1));
@@ -181,36 +253,4 @@ sub main {
             radixTable;
         }
     }
-}
-
-
-sub help {
-    my %id = parse_id('$Id: hex,v 1.7 2007-06-25 12:58:13 lenik Exp $');
-    print <<"EOM";
-[HEX] Number system reference
-Written by Snima Denik  Version $id{rev}  last updated at $id{date}
-
-Syntax: hex <options>
-
-    <options> ::=
-        --alphabet=<string> (a)
-        --lowercase (l)
-        --uppercase (u)
-        --from=<from-system> (f)
-        --to=<target-system> (t)
-        --print=<format-string, default '\$dh'> (p)
-        --width=<width-in-letters> (w)
-        --ccr-mode (c)
-        --force
-        --help (h)
-
-    <format-string> ::= *
-        \$<runtime-variable>
-        \\<escape-char>
-        <literal-char>
-Example:
-    hex -p=\$dh. 233 12 55 302 34           Output: e9.c.37.12e.22.
-    hex 233 12 55 302 34 -p                 Output: e9c3712e22
-    hex -c -p=\$dd. '.brp'                   Output:
-EOM
 }
