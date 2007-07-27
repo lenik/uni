@@ -1,84 +1,96 @@
 package cmt::pp;
 
 use strict;
-use vars qw/@ISA @EXPORT/;
+use vars        qw(@ISA @EXPORT);
+use cmt::atext;
 use cmt::util;
 # use Data::Dumper;
 use Exporter;
+use UNIVERSAL   qw(isa);
 
 @ISA    = qw(Exporter);
 @EXPORT = qw(pp
              ppcmt
              ppcmtstr
-             ppvar);
+             ppdom
+             ppvar
+             ppfmt_foobar);
 
-my %ENDC = (
-    '"'         => qr/(\\.|[^"])*"/,
-    '\''        => qr/(\\.|[^'])*'/,
-    '`'         => qr/(\\.|[^`])*`/,
-    '/'         => qr/(\\.|[^\/])*\//,  # for regex
+my %PDEF = (    # Pairs
+    '('         => ')',     # qr/.*?\)/,
+    '['         => ']',     # qr/.*?\]/,
+    '{'         => '}',     # qr/.*?\}/,
+    '<'         => '>',     # qr/.*?\>/,
+);
+
+my %QDEF = (    # Quotes
+    '"'         => qr/((?:\\.|[^"])*)"/,
+    '\''        => qr/((?:\\.|[^'])*)'/,
+    '`'         => qr/((?:\\.|[^`])*)`/,
+    '/'         => qr/((?:\\.|[^\/])*)\//, # regex
+    '%'         => qr/((?:\\.|[^%])*)%/,
 
     # NOT TESTED: """?
-    'D"'        => qr/(""|[^"])*"/,
-    'D\''       => qr/(''|[^'])*'/,
-    'D`'        => qr/(``|[^`])*`/,
+    'D"'        => qr/((?:""|[^"])*)"/,
+    'D\''       => qr/((?:''|[^'])*)'/,
+    'D`'        => qr/((?:``|[^`])*)`/,
 
-    '/*'        => qr/.*?\*\//,
-    '{*'        => qr/.*?\*\}/,         # WARNING: pascal comment is structured
-    '(*'        => qr/.*?\*\)/,         # WARNING: pascal comment is structured
-    '<?'        => qr/.*?\?>/,          # &gt; escape
-    '<![CDATA[' => qr/.*?\]\]>/,        # &gt; escape
-    '<'         => qr/.*?>/,            # &gt; escape
+    '/*'        => qr/(.*?)\*\//,
+    '{*'        => qr/(.*?)\*\}/,       # WARNING: pascal comment is structured
+    '(*'        => qr/(.*?)\*\)/,       # WARNING: pascal comment is structured
+    '<?'        => qr/(.*?)\?>/,        # &gt; escape
+    '<![CDATA[' => qr/(.*?)\]\]>/,      # &gt; escape
+    '<'         => qr/(.*?)>/,          # &gt; escape
 
-    '//'        => qr/.*$/,
-    '--'        => qr/.*$/,
-    '#'         => qr/.*$/,
+    '//'        => qr/(.*)$/,
+    '--'        => qr/(.*)$/,
+    '#'         => qr/(.*)$/,
 );
 
 sub pp(&;@) {
-    my $call = shift;
-    my %cfg; get_named_args @_, %cfg;
-    my $tok  = qr_literal($cfg{tok} || '\'|"|/*', 'o');
+    my $call    = shift;
+    my %cfg;      get_named_args @_, %cfg;
+    my $qdef    = $cfg{-qdef} || \%QDEF;
+    my $qset    = qr_literal($cfg{-qset} || '\'|"|#', 'o');
+    my $rem     = $cfg{-rem};
 
     my $X;
     my @Xbuf;
     # (\\.|[^"])*"
-    my $endc;
-    my $cut;
+    my $qend;
     my $proc = sub {
         if (defined $X) {
-            if (s/^($endc)//) {
-                push @Xbuf, $1;
+            if (s/^$qend//) {
+                push @Xbuf, $rem ? $1 : $&;
                 local $_ = join('', @Xbuf);
                 $call->($X);
                 undef $X;
                 undef @Xbuf;
             } else {
                 push @Xbuf, $_;
+                return;
             }
         }
-        if (! defined $X) {
-            while (/$tok/) {
-                $X = $&;
-                $endc = $ENDC{$X};
-                die "Unknown X-begin($X)" unless defined $endc;
-                if ($` ne '') {
-                    my $cut = $`;
-                    $_ = substr($_, $-[0]);
-                    local $_ = $cut; #$`;
-                    $call->();
-                }
-                if (s/^($X$endc)//) {
-                    local $_ = $1;
-                    $call->($X);
-                    undef $X;
-                } else {
-                    push @Xbuf, $_;
-                    undef $_;
-                }
+        # assert $X == undefined
+        while (/$qset/) {
+            $X = $&;
+            $qend = $qdef->{$X};
+            die "Unknown quote-char($X)" unless defined $qend;
+            if ($` ne '') {
+                local $_ = substr($_, 0, $-[0], '');
+                $call->();
             }
-            $call->() if $_ ne '';
+            if (s/^$X$qend//) {
+                local $_ = $rem ? $1 : $&;
+                $call->($X);
+                undef $X;
+            } else {
+                $_ = substr($_, length $X) if $rem;
+                push @Xbuf, $_;
+                undef $_;
+            }
         }
+        $call->() if $_ ne '';
     };
 
     if (scalar @_ == 0) {
@@ -113,7 +125,7 @@ sub ppcmt(&;@) {
         } else {
             $buf .= $_;
         }
-    } -tok => q('|"|/*|#), @_;
+    } -qset => q('|"|/*|#), @_;
     if ($buf ne '') {
         local $_ = $buf;
         $call->();
@@ -134,19 +146,117 @@ sub ppcmtstr(&;@) {
             next unless /\S/;
             $call->()
         }
-    } -tok => q('|"|/*|#), @_;
+    } -qset => q('|"|/*|#), @_;
+}
+
+sub _errdie { die shift }
+sub _expar  { my $x = shift; ref $x eq 'ARRAY' ? @$x : ($x) }
+sub ppdom(&;@) {
+    my $call    = shift;
+    my %cfg;      get_named_args @_, %cfg;
+    my $pdef    = $cfg{-pdef} || \%PDEF;
+    my $pset    = $cfg{-pset} || [ keys %$pdef ];
+       $pset    = [ split(/\|/, $pset) ] unless ref $pset; # '(|[|{'
+    my $pset2   = qr_literal(join('|', @$pset, @$pdef{@$pset}), 'o');
+    my $rem     = $cfg{-rem};
+    my $errf    = $cfg{-err} || \&_errdie;
+    delete $cfg{-pdef};
+    delete $cfg{-pset};
+    @_ = [@_] if @_;
+
+    my @Xst;                # X-stack
+    my @stack;              # node-stack
+    my $curr    = atext(''); # current-node
+    pp {
+        my $X = shift;  # NOTE: This is quote-char, not pair-char
+        if (defined $X) {
+            local $_ = atext_tag($X, $_);
+            $call->($X);
+            $curr = $curr->cat(_expar $_);
+            return;
+        }
+        my $X0 = $Xst[-1];
+        while (/$pset2/) {
+            $X = $&;
+            if (exists $pdef->{$X}) {   # left-open
+                my $pend = $pdef->{$X};
+                $errf->("Unknown pair-char($X)") unless defined $pend;
+                if ($` ne '') {
+                    local $_ = substr($_, 0, $-[0], '');
+                    $call->($X0);       # ^<...>[...
+                    $curr = $curr->cat(_expar $_);
+                }
+                push @Xst, $X;
+                push @stack, $curr;
+                local $_ = substr($_, 0, length($X), '');
+                $call->($X) unless $rem; # ...<[>...
+                $curr = $rem ? atext_tag($X) : atext_tag($X, _expar $_);
+                $X0 = $X;
+            } else {                    # right-close
+                $X0 = pop @Xst;
+                my $expect = $pdef->{$X0};
+                $errf->("Expected $expect, but got $X") if $expect ne $X;
+                local $_ = substr($_, 0, $+[0], '');
+                      $_ = substr($_, 0, $-[0]) if $rem;
+                if ($_ eq '') {
+                    $_ = $curr;         # ^<]>...
+                } else {
+                    $call->($X0);       # ^<...]>...
+                    $_ = $curr->cat(_expar $_);
+                }
+                $call->($X0);           # a node is made up
+                $curr = pop @stack;
+                $curr = $curr->cat(_expar $_);
+                $X0 = $Xst[-1];
+            }
+        }
+        if ($_ ne '') {
+            $call->($X0);               # ...]<...>$
+            $curr = $curr->cat(_expar $_);
+        }
+    } %cfg, @_;
+    $errf->("Pending pairs: ".join('..', @Xst)) if @Xst;
+    return @stack ? $stack[0] : $curr;
 }
 
 sub ppvar(&$) {
     my $resolv  = shift;
     my $text    = shift;
     forx qr/\$(\w+|\{.*?\}|\S)/, sub {
-        if (substr($text, $-[0] - 1, 1) ne '\\') {
+        if (substr($_, $-[0] - 1, 1) ne '\\') {
             my $name = $1;
             my $value = $resolv->($name);
             $_ = $value if defined $value;
         }
     }, $text;
+}
+
+# [$artist - ][$album - [%track number% - ]]$title
+sub ppfmt_foobar(&$) {
+    my $resolv  = shift;
+    my $text    = shift;
+    my $root    = ppdom {
+        if (isa $_, 'cmt::atext::Tag') {
+            if ($_->tag eq '%') {
+                $_ = atext_call $resolv, $_->val;
+            } elsif ($_->tag eq '[') {
+                $_ = atext_cat # this prefix made Gat->val never undef.
+                     atext_gat @$_[1..$#$_];
+            }
+        }
+        return if ref $_;
+        my @decomp;
+        my $apply;
+        forx qr/\$(\w+|\{.*?\}|\S)/, sub {
+            push @decomp, atext_call($resolv, $1);
+            $apply = 1;
+        }, sub {
+            push @decomp, $_
+        }, $_;
+        $_ = \@decomp if $apply;
+    } -qset => q('|"|%),
+      -pset => ['[', '('],
+      -rem => 1, $text;
 }
 
 1
