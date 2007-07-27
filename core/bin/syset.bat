@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.44 2007-07-24 12:36:26 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.45 2007-07-27 13:46:49 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -141,12 +141,12 @@
 
             rem Perl Script
             assoc   .p=Perl >nul
+            assoc  .pc=Perl >nul
             assoc  .pl=Perl >nul
-            assoc .plc=xPLC>nul
             ftype   .p=%%perl%% "%%0" %%* >nul
+            ftype  .pc=%%perl%% "%%0" %%* >nul
             ftype  .pl=%%perl%% "%%0" %%* >nul
-            ftype .plc=%%perl%% "%%0" %%* >nul
-            ftype xPLC=%%perl%% "%%0" %%* >nul
+            ftype Perl=%%perl%% "%%0" %%* >nul
 
             rem Perl Daemon
             assoc .pld=xPLD>nul
@@ -338,8 +338,8 @@ sub init {
                 ]);
         print ".";
 
-        env_add('PATHEXT', qr/^\.(6|m4|p|pl|plc|pld|py|pyc|php|rb|sh|ss|six|x|prj)$/i,
-                [qw/.6 .p .pl .plc .pld .py .pyc .php .rb .sh .ss .six .x .prj/]);
+        env_add('PATHEXT', qr/^\.(6|m4|p|pc|pl|pld|pyc|py|php|rb|sh|ss|six|x|prj)$/i,
+                [qw/.6 .p .pc .pl .pld .pyc .py .php .rb .sh .ss .six .x .prj/]);
         print ".";
 
         env_add('INCLUDE', qr/^$prefix/i, [
