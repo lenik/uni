@@ -127,12 +127,12 @@ our $opt_verbose        = 1;
 
         $merged->merge(@_);
 
-        $merged->{init} = sub {
+        $merged->{-init} = sub {
             # this should return the last retval.
-            fire_sub($_, 'init', @_) for $merged->subs;
+            fire_sub($_, '-init', @_) for $merged->subs;
         };
 
-        for my $method qw(read write err) {
+        for my $method qw(-read -write -err) {
             $merged->{$method} = sub {
                 my ($ctx, $fd) = @_;
                 my $sub_ios = $merged->fdindex($fd);
@@ -214,7 +214,7 @@ sub new {
     );
     for (keys %config) {
         my $val = $config{$_};
-        if (/^-(\w+)$/) {       # -init, -read, -write, -err, etc.
+        if (/^(-\w+)$/) {       # -init, -read, -write, -err, etc.
             $this->{$1} = $val;
         } elsif (/^\w+$/) {     # fd-group, an IO::Select for each group
             $groups{$_} = $val;
@@ -242,7 +242,7 @@ sub create_context {
     my $writeg      = shift || 'WRITE';
     my $errg        = shift || 'ERR';
     my ($readf, $writef, $errf, $idlef) =
-        ($this->{read}, $this->{write}, $this->{err}, $this->{idle});
+        ($this->{-read}, $this->{-write}, $this->{-err}, $this->{-idle});
     my $mask        = RR | WW | EE;
 
     my $st_select   = 0;
@@ -357,9 +357,8 @@ sub create_context {
         return $next;
     };
 
-    my $initf = $this->{init};
-    fire_method $this, 'init', $context, $this if defined $initf;
-
+    my $initf = $this->{-init};
+       $initf->($context, $this) if defined $initf;
     return $context;
 }
 

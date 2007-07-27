@@ -2,6 +2,7 @@ package cmt::stream;
 
 use strict;
 use vars                qw/@ISA @EXPORT/;
+use cmt::netutil;
 use cmt::util;
 use Data::Dumper;
 use Exporter;
@@ -37,29 +38,29 @@ sub bind {
     my $this            = shift;
     my $fh              = shift;
     $this->{'IO'}       = $fh;
-    $this->fire('binded', $fh);
+    $this->fire('-binded', $fh);
 }
 
 sub unbind {
     my $this            = shift;
     my $fh              = $this->{'IO'};
     undef $this->{'IO'};
-    $this->fire('unbinded', $fh);
+    $this->fire('-unbinded', $fh);
 }
 
 sub push {
     my $this    = shift;
-    $this->fire('gotdata', @_);
+    $this->fire('-gotdata', @_);
 }
 
 sub pull {
     my $this    = shift;
-    $this->fire('askdata', @_);
+    $this->fire('-askdata', @_);
 }
 
 sub err {
     my $this    = shift;
-    $this->fire('goterr', @_);
+    $this->fire('-goterr', @_);
 }
 
 # non-block read

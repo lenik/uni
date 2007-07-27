@@ -48,7 +48,7 @@ sub tcp_connect {
     my %props = get_named_args(@_);
     my ($host, $port, $stream) = @_;
 
-    my $cont = $props{cont};
+    my $cont = $props{-cont};
 
     info2 "tcp connect to $host:$port";
 

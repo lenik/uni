@@ -3,6 +3,7 @@ package cmt::serv;
 use strict;
 use cmt::ftime;
 use cmt::ios;
+use cmt::netutil;
 use cmt::stream;
 use cmt::util;
 use Fcntl;
