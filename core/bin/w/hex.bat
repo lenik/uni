@@ -25,7 +25,7 @@ sub info2;
 sub version;
 sub help;
 
-our $opt_verbtitle      = 'unknown';
+our $opt_verbtitle      = 'hex';
 our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
 
@@ -117,7 +117,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: hex.bat,v 1.1 2007-07-15 13:55:24 lenik Exp $');
+    my %id = parse_id('$Id: hex.bat,v 1.2 2007-07-27 13:32:23 lenik Exp $');
     print "[$opt_verbtitle] Number system reference \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
