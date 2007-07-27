@@ -1,15 +1,12 @@
 package cmt::util;
 
 use strict;
-use vars            qw/@ISA @EXPORT @EXPORT_OK/;
+use vars                qw/@ISA @EXPORT @EXPORT_OK/;
 use cmt::ftime;
 use cmt::proxy;
-use Data::Dumper;
+# use Data::Dumper;
 use Exporter;
-use Fcntl;
-use Socket qw(:all);
-use POSIX;
-use YAML;
+use POSIX               qw/strftime/;
 
 our $opt_verbtitle      = __PACKAGE__;
 our $opt_verbtime       = 0;
@@ -92,10 +89,13 @@ sub qr_literal {
     return qr/$text/;
 }
 
-sub forx($&;$) {
-    my $exp = shift;
-    my $code = shift;
-    my $s = shift || $_;
+sub forx($&;$$) {
+    my $exp     = shift;
+    my $hit     = shift;
+    my $miss;
+    my $s       = $_[0];
+    ($miss, $s) = @_ if ref $s eq 'CODE';
+
     my $off = 0;
     my $buf;
 
@@ -103,16 +103,27 @@ sub forx($&;$) {
     local $_;
 
     while ($s =~ /$exp/g) {
-        $_ = $&;
-        $code->();
-        # die "Eval fails: $!" if $@;
-        $buf .= substr($s, $off, $-[0] - $off) . $_;
+        my $m = $&;
+
+        $_ = substr($s, $off, $-[0] - $off);
+        if ($_ ne '') {
+            $miss->() if defined $miss;
+            $buf .= $_;
+        }
+
+        $_ = $m;
+        $hit->() if defined $hit;
+        $buf .= $_;
+
         $off = $+[0];
+    }
+    $_ = substr($s, $off);
+    if ($_ ne '') {
+        $miss->() if defined $miss;
+        $buf .= $_;
     }
 
     tie $_, 'cmt::proxy', $tieback if defined $tieback;
-
-    $buf .= substr($s, $off);
     return $buf;
 }
 
@@ -148,7 +159,7 @@ sub get_named_args(\@;\%) {
     my @passby;
     while (@$arg) {
         $_ = shift @$arg;
-        if (ref($_) eq '' and /^-(\w+)$/) {
+        if (ref($_) eq '' and /^(-\w+)$/) {
             $cfg->{$1} = shift @$arg;
         } else {
             push @passby, $_;
@@ -277,70 +288,6 @@ sub writefile {
     close FH;
 }
 
-sub setnonblock {
-    my $h = shift;
-    eval {
-        info2 "setnonblock $h by Fcntl";
-        my $flags = 0;
-        fcntl($h, F_GETFL, $flags) or return undef;
-        $flags |= O_NONBLOCK;
-        fcntl($h, F_SETFL, $flags) or return undef;
-        1
-    } or eval {
-        info2 "setnonblock $h by ioctl";
-        my $temp = 1;
-        ioctl $h, 0x8004667E, \$temp;
-        1
-    } or eval {
-        info2 "setnonblock $h by setsockopt";
-        setsockopt $h, IPPROTO_TCP, TCP_NODELAY, 1;
-        1
-    } or die "Can't setnonblock, system doesn't support the operation";
-}
-
-sub nbread {
-    my ($h, $size)  = @_;
-
-    # set non-block
-    setnonblock($h) or return undef;
-
-    my $buf;
-    my $size1 = defined $size ? $size : 4096;
-    my $len = sysread($h, $buf, $size1);
-
-    # May be need this?
-    if (defined $len) {
-        $buf = '' if $len == 0;
-    } else {
-        return undef;
-    }
-
-    if (! defined $size) {
-        my $block;
-        while (($len = sysread($h, $block, 4096)) > 0) {
-            $buf .= $block;
-        }
-    }
-    return $buf;
-}
-
-sub format_inaddr {
-    my $sockaddr = shift;
-    my ($port, $iaddr) = sockaddr_in($sockaddr);
-    my $ip   = inet_ntoa($iaddr);
-    my $host = gethostbyaddr($iaddr, AF_INET);
-    return $host ne '' ? "$host:$port" : "$ip:$port";
-}
-
-sub sockinfo {
-    my ($h, $name) = @_;
-    if (defined (my $local = getsockname($h))) {
-        my $peer = getpeername($h);
-        $h = format_inaddr($local) . '->' . format_inaddr($peer);
-    }
-    defined $name ? "$name($h)" : $h;
-}
-
 sub indent {
     my $prefix = shift;
         $prefix = ' 'x$prefix if $prefix =~ /^\d+$/;
@@ -348,22 +295,29 @@ sub indent {
     join("\n", map { $prefix.$_ } @lines);
 }
 
-sub unindent_most {
-    my @lines = split(/\n/, shift);
-    my ($s) = ($lines[0] =~ /^(\s*)/);
-    my $l = length $s;
-    join("\n", map { substr($_, $l) } @lines);
+sub unindent_ {
+    my $len     = shift;
+    my @lines   = scalar @_ > 1 ? @_ : split(/\n/, shift);
+    if ($len <= 0) {
+        my ($s) = ($lines[0] =~ /^(\s*)/);
+        $len    = length $s;
+    }
+    my $pattern = qr/^\s{1,$len}/;
+    join("\n", map { s/$pattern//; $_ } @lines);
 }
 
-my  @ATEXIT;
-sub at_exit(&) {
-    my $dstr = shift;
-    push @ATEXIT, [$dstr, \@_];
+sub unindent {
+    unindent_ 0, @_
 }
 
-# XXX - thread-unsafe ("free unreferenced scalars" in multi-threads.)
-END {
-    $_->[0]->(@{$_->[1]}) for @ATEXIT;
+sub abbrev {
+    my $maxlen = shift;
+    my $text = join(@_);
+    $text =~ s/\n/ /g;
+    if (length $text > $maxlen) {
+        substr($text, $maxlen - 5) = '...';
+    }
+    return $text;
 }
 
 sub fire_sub {
@@ -394,6 +348,17 @@ sub fire_method {
     return fire_sub($obj, $name, $obj, @_);
 }
 
+my  @ATEXIT;
+sub at_exit(&) {
+    my $dstr = shift;
+    push @ATEXIT, [$dstr, \@_];
+}
+
+# XXX - thread-unsafe ("free unreferenced scalars" in multi-threads.)
+END {
+    $_->[0]->(@{$_->[1]}) for @ATEXIT;
+}
+
 @ISA    = qw(Exporter);
 @EXPORT = qw(
 	datetime
@@ -416,15 +381,13 @@ sub fire_method {
 	bserchi
 	readfile
 	writefile
-	setnonblock
-	nbread
-	format_inaddr
-	sockinfo
 	indent
-	unindent_most
-	at_exit
+	unindent_
+	unindent
+	abbrev
 	fire_sub
 	fire_method
+	at_exit
 	);
 
 @EXPORT_OK = ();
