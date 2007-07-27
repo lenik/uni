@@ -3,8 +3,8 @@
 package cmt::msc;
 
 use strict;
+use vars        qw/@ISA @EXPORT/;
 use Exporter;
-use vars qw/@ISA @EXPORT/;
 use Win32::OLE;
 
 my $SC_VBS;

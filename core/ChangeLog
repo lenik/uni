@@ -1,4 +1,43 @@
 
+2007-07-27
+  * lib/cmt/chm.pm:
+	initial
+
+  * lib/cmt/atext.pm:
+	new abstract-text model for dynamic texts.
+
+  * lib/cmt/: netutil.pm, util.pm:
+	- keep the -(dash) in option names.
+	- moved network-related functions to netutil.pm
+
+  * lib/cmt/: inet.pm, ios.pm, serv.pm, stream.pm:
+	keep the -(dash) in option names.
+
+  * lib/cmt/pp.pm:
+	- add -options: -qdef, -qset, -pdef, -pset to select the tokens; -rem to remove the quote-char self.
+	- add ppdom to support simple structured text.
+	- new ppfmt_foobar to replace ppvar which support more complex grammer.
+
+  * syset.bat:
+	change.plc to .pc
+
+  * Makefile:
+	compile *.pl to *.pc
+
+  * hex.bat:
+	back into hex.pl
+
+  * hex.pl:
+	- make a unicode-grep by \x?? work-arounds.
+	- updated help info
+
+  * hex.bat:
+	formatted the help info
+
+2007-07-26
+  * .batch.pl, lib/cmt/pp.pm, lib/cmt/util.pm, lib/fun/xs.pm:
+	add file-handle support in cmt::pp, also the pp() function now accepts token-config (you can customize which of /*, # etc. comment chars are used)
+
 2007-07-23
   * chmac.pl, lib/Net/Adapter.pm, lib/auto/Net/Adapter/Adapter.dll, e.t.c...
 	add select by combo option (the index is changed after netcon_reset, however the combo seems to be static.)

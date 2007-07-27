@@ -22,7 +22,9 @@ sub trace_use {
     {
         local *INC      = [@INC[1..$#INC]];
         my $start_time  = [ gettimeofday ];
+        # printf "loading %-20s", $mod_name;
         eval "package $package; require '$mod_name';";
+        # print "\t", tv_interval($start_time) * 1000, "\n";
         $elapsed        = tv_interval($start_time);
     }
     $package = $filename if $package eq 'main';

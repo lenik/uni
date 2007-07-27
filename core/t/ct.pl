@@ -4,6 +4,7 @@ use strict;
 use cmt::inet;
 use cmt::stream;
 use cmt::util;
+use cmt::vcs;
 use Data::Dumper;
 use Getopt::Long;
 
@@ -48,7 +49,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: ct.pl,v 1.4 2007-07-22 04:28:59 lenik Exp $');
+    my %id = parse_id('$Id: ct.pl,v 1.5 2007-07-27 13:47:08 lenik Exp $');
     print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -58,7 +59,7 @@ sub help {
     print <<"EOM";
 
 Syntax:
-        $0 <options> ...
+        $0 <options> [<host> [<port=80>]]
 
 Options:
         --quiet                 (q)

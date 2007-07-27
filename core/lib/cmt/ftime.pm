@@ -2,9 +2,13 @@
 package cmt::ftime;
 
 use strict;
-use Time::HiRes qw/time usleep/;
+use vars        qw/@ISA @EXPORT/;
 use Exporter;
-use vars qw/@ISA @EXPORT/;
+use Time::HiRes qw/time usleep/;
+
+@ISA    = qw(Exporter);
+@EXPORT = qw(ftime
+		 fsleep);
 
 # the prototype () is required, to avoid
 #       $elaps = ftime - $last_time;
@@ -21,11 +25,5 @@ sub fsleep {
     my $us = 1000000 * $fsec;
     usleep($us);
 }
-
-@ISA = qw(Exporter);
-@EXPORT = qw(
-	ftime
-	fsleep
-	);
 
 1;

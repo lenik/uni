@@ -226,7 +226,10 @@ t\t-guiutil.pl
 t\t-qsplit.pl
 t\t-service.pl
 t\verbs
+lib\cmt\.pm
 lib\cmt\.class.pm
+lib\cmt\atext.pm
+lib\cmt\chm.pm
 lib\cmt\codec.pm
 lib\cmt\cstr.pm
 lib\cmt\db_ora.pm
@@ -241,6 +244,7 @@ lib\cmt\guiutil.pm
 lib\cmt\low.pm
 lib\cmt\mat.pm
 lib\cmt\msc.pm
+[NET] lib\cmt\netutil.pm
 lib\cmt\path.pm
 lib\cmt\perlsys.pm
 lib\cmt\pp.pm

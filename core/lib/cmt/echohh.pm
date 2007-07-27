@@ -25,16 +25,16 @@ sub echohh {
 
     verbose "retr from $url";
 
-    my $method = $args{'method'} || 'GET';
+    my $method  = $args{'method'} || 'GET';
     my $formref = $args{'form'} || {};
 
-    my $_headers = $args{'headers'} || {};
+    my $_headers= $args{'headers'} || {};
     my %headers = %$_headers;
 
     # Not used.
     my $content = $args{'content'} || '';
 
-    my $agent = LWP::UserAgent->new();
+    my $agent   = LWP::UserAgent->new();
     my $response;
 
     if ($method eq 'GET') {
@@ -50,13 +50,13 @@ sub echohh {
         return $response->status_line;
     }
 
-    my $title = $response->title || "Unknown";
-    $content = $response->content;
+    my $title   = $response->title || "Unknown";
+    $content    = $response->content;
     my $headers = $response->headers;
 
     my %HEADERS = %$headers;
 
-    my $ref = XMLin($content);
+    my $ref     = XMLin($content);
 
     my $ENV     = xsmerge($ref->{env});
     my $SERVER  = xsmerge($ref->{server});

@@ -1,7 +1,7 @@
 package cmt::XXX;
 
 use strict;
-use vars qw/@ISA @EXPORT/;
+use vars                qw(@ISA @EXPORT);
 use cmt::util;
 use Exporter;
 
