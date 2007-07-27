@@ -117,7 +117,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: hex.bat,v 1.2 2007-07-27 13:32:23 lenik Exp $');
+    my %id = parse_id('$Id: hex.bat,v 1.3 2007-07-27 13:35:56 lenik Exp $');
     print "[$opt_verbtitle] Number system reference \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -130,19 +130,20 @@ Syntax:
         $0 <options> ...
 
 Options:
-        --alphabet=<string> (a)
-        --lowercase (l)
-        --uppercase (u)
-        --from=<from-system> (f)
-        --to=<target-system> (t)
-        --print=<format-string, default '\$dh'> (p)
-        --width=<width-in-letters> (w)
-        --ccr-mode (c)
+        --alphabet=<string>         (a)
+        --ccr-mode                  (c)
+        --dump=<line-width>         (d, set -d to have a 16-byte width)
         --force
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
+        --from=<from-system>        (f)
+        --lowercase                 (l)
+        --print=<format>            (p, default '\$dh'>
+        --to=<target-system>        (t)
+        --uppercase                 (u)
+        --width=<width-in-letters>  (w)
+        --quiet                     (q)
+        --verbose                   (v, repeat to get more info)
         --version
-        --help (h)
+        --help                      (h)
 
 Format-String: *
         \$<runtime-variable>
