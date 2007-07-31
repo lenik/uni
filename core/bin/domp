@@ -1,0 +1,131 @@
+@rem = '
+    @echo off
+
+        if not "%OS%"=="Windows_NT" goto err_os
+
+        perl %~dpnx0 %*
+        goto end
+
+    :err_os
+	echo You must run this program under Windows NT/2000 or above.
+	goto end
+    ';
+#!/usr/bin/perl
+
+use strict;
+use cmt::netutil;
+use cmt::path;
+use cmt::util;
+use cmt::utree;
+use cmt::vcs;
+use Getopt::Long;
+# use LWP::Simple;
+
+sub boot;
+sub info;
+sub info2;
+sub version;
+sub help;
+
+sub main;
+sub dump_tree;
+sub isurl;
+
+our $opt_verbtitle      = 'domp';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our @opt_post;
+our $opt_select;
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'post|p=s'   => \@opt_post,
+               'wget'       => \$cmt::netutil::opt_wget,
+               'select|s=s',
+               );
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: domp,v 1.1 2007-07-31 15:05:39 lenik Exp $');
+    print "[$opt_verbtitle] DOM-dump the tree of html \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+    $0 [OPTION] [file | url]...
+
+Common options:
+    -p, --post=DATA         add post data to the specified URL
+        --wget              using wget utility to fetch the URL
+    -s, --select=ADDRESS    select a sub-node within the whole tree
+    -h, --help              show this help page
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+        --version           print the version info
+EOM
+}
+
+exit boot;
+
+sub main {
+    if (@ARGV) {
+        for (@ARGV) {
+            my $t = new cmt::utree();
+            if (-f $_) {
+                info2 "loading file $_...";
+                $t->parse_file($_);
+            } else {
+                $_ = 'http://'.$_ unless isurl $_;
+                info2 "loading url $_...";
+                my $post;
+                   $post = join('\n', @opt_post) if @opt_post;
+                $t->parse(loadurl $_, $post);
+                $t->eof;
+            }
+            dump_tree $t;
+        }
+    } else {
+        info2 "reading contents from stdin...";
+        my $t = new cmt::utree;
+        while (<>) {
+            $t->parse($_);
+        }
+        $t->eof;
+        dump_tree $t;
+    }
+}
+
+sub dump_tree {
+    my $t = shift;
+    if (defined $opt_select) {
+        $t = $t->address($opt_select);
+    }
+    $t->dump;
+}
+
+sub isurl { index(shift, '://') >= 0 }
+
+__END__
+:end
