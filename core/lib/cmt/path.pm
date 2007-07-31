@@ -148,11 +148,12 @@ my $opt_verbose = 1;
 
     sub temp_path {
         my $name = shift;
-        if ($name) {
-            return temp_home . $charFS . $name;
+        if (defined $name) {
+            $name =~ s/\?/$$/g;
         } else {
-            return temp_home;
+            $name = "cmt_$$.tmp";
         }
+        return temp_home . $charFS . $name;
     }
 
     # quote globbing pattern
