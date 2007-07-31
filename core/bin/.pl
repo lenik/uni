@@ -40,7 +40,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: .pl,v 1.7 2007-07-16 12:08:39 lenik Exp $');
+    my %id = parse_id('$Id: .pl,v 1.8 2007-07-31 15:04:04 lenik Exp $');
     print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -50,13 +50,13 @@ sub help {
     print <<"EOM";
 
 Syntax:
-        $0 <options> ...
+    $0 [OPTION] ...
 
-Options:
-        --quiet                 (q)
-        --verbose               (v, repeat to get more info)
-        --version
-        --help                  (h)
+Common options:
+    -h, --help              show this help page
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+        --version           print the version info
 EOM
 }
 
