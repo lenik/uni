@@ -1,15 +1,14 @@
 package fun::test;
 
 use strict;
-use vars qw/@ISA @EXPORT/;
 use cmt::util;
 use cmt::vcs;
+use fun::_booter(':info');
 use Exporter;
 use Getopt::Long;
 
-@ISA    = qw(Exporter);
-@EXPORT = qw(hello
-             );
+our @ISA                = qw(Exporter);
+our @EXPORT             = qw(hello);
 
 sub boot;
 sub info;
@@ -44,8 +43,8 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: .pm,v 1.6 2007-07-13 11:41:19 lenik Exp $');
-    print "[$opt_verbtitle] Perl_simple_cli_libfun_template \n";
+    my %id = parse_id('$Id: .pm,v 1.7 2007-07-31 14:59:43 lenik Exp $');
+    print "[$opt_verbtitle] Perl_funs_common_cli_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
@@ -54,16 +53,16 @@ sub help {
     print <<"EOM";
 
 Syntax:
-        fun ~command <options>...
+    $funpack->{name} ~command <options>...
 
-Common Options:
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
-        --version
-        --help (h)
+Common options:
+    -h, --help              show this help page
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+        --version           print the version info
 
 Commands:
-        ~hello  Hello world test
+    ~hello      Hello world test
 EOM
 }
 

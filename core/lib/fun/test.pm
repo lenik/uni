@@ -4,17 +4,19 @@ use strict;
 use cmt::util;
 use cmt::vcs;
 use cmt::win32;
-use Getopt::Long;
+use fun::_booter(':info');
 use Exporter;
-use vars qw/@ISA @EXPORT/;
+use Getopt::Long;
+
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(hello
+                 api);
 
 sub boot;
 sub info;
 sub info2;
 sub version;
 sub help;
-
-our $PACKAGE            = ':test';
 
 our $opt_verbtitle      = 'test';
 our $opt_verbtime       = 0;
@@ -45,7 +47,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: test.pm,v 1.5 2007-07-11 15:24:47 lenik Exp $');
+    my %id = parse_id('$Id: test.pm,v 1.6 2007-07-31 14:59:43 lenik Exp $');
     print "[$opt_verbtitle] Test fun \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -55,20 +57,20 @@ sub help {
     print <<"EOM";
 
 Syntax:
-        fun ~<command> <options> ...
+    $funpack->{name} ~<command> <options> ...
 
-Common Options:
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
-        --version
-        --help (h)
+Common options:
+    -h, --help              show this help page
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+        --version           print the version info
 
 Commands:
-        ~hello  name
-        ~api    "X Lib::Fun(XXX)" ...
-        ~api    Lib:Fun:XXX:X ...
-        ~api    Lib Fun XXX X - ...
-        ~api    Lib "X Fun(XXX)" - ...
+    ~hello  name
+    ~api    "X Lib::Fun(XXX)" ...
+    ~api    Lib:Fun:XXX:X ...
+    ~api    Lib Fun XXX X - ...
+    ~api    Lib "X Fun(XXX)" - ...
 EOM
 }
 
@@ -100,10 +102,4 @@ sub api {
     return $ret;
 }
 
-@ISA = qw(Exporter);
-@EXPORT = qw(
-	hello
-    api
-	);
-
-1;
+1
