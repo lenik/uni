@@ -20,7 +20,7 @@ while ($file =~ /\[([^\]]+)\]/g) {
     $rest = substr($file, $+[0]);
 }
 
-$file = ppvar sub {
+$file = ppvarf sub {
     my $var = shift;
     my $val;
     if ($var =~ /^(\d+)$/) {
