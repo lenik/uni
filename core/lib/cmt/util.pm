@@ -354,6 +354,14 @@ sub at_exit(&) {
     push @ATEXIT, [$dstr, \@_];
 }
 
+sub _use {
+    my $mod = shift;
+    my $par;
+       $par = 'qw('.join(' ', @_).')' if defined $par;
+    my $val = eval("package ".caller()."; use $mod$par; 1")
+        or die "failed to load $mod: $!";
+}
+
 # XXX - thread-unsafe ("free unreferenced scalars" in multi-threads.)
 END {
     $_->[0]->(@{$_->[1]}) for @ATEXIT;
@@ -388,6 +396,7 @@ END {
 	fire_sub
 	fire_method
 	at_exit
+	_use
 	);
 
 @EXPORT_OK = ();
