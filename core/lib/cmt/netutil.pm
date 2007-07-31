@@ -2,6 +2,7 @@ package cmt::netutil;
 
 use strict;
 use vars                qw/@ISA @EXPORT @EXPORT_OK/;
+use cmt::path;
 use cmt::util;
 use Exporter;
 use Fcntl;
@@ -11,6 +12,7 @@ our $opt_verbtitle      = __PACKAGE__;
 our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
 our $opt_strict         = 0;
+our $opt_wget           = 0;
 
 sub info {
     return if $opt_verbose < 1;
@@ -90,12 +92,53 @@ sub sockinfo {
     defined $name ? "$name($h)" : $h;
 }
 
-@ISA    = qw(Exporter);
-@EXPORT = qw(setnonblock
-             nbread
-             format_inaddr
-             sockinfo);
+sub post {
+    require LWP::UserAgent;
 
-@EXPORT_OK = ();
+    my $url = shift;
+    my $cnt;
+       $cnt = pop @_ if scalar(@_) & 1;     # odd
+    my $agent = new LWP::UserAgent;
+    my $resp = $agent->post($url, Content => $cnt);
+    if ($resp->is_success) {
+        return $resp->content;
+    }
+    return undef;
+}
+
+sub loadurl {
+    my ($l, $post) = @_;
+    my $cnt;
+
+    if ($opt_wget) {
+        my $tmp = temp_path;
+        my $wget = "wget -q -O\"$tmp\"";
+           $wget .= " --post-data=$post" if defined $post;
+        system "$wget \"$l\"";
+        if (-f $tmp) {
+            $cnt = readfile $tmp;
+            unlink $tmp;
+        } else {
+            die "Failed to load $l (errno of wget: $?)";
+        }
+    } else {
+        if (defined $post) {
+            $cnt = post($l, $post);
+        } else {
+            require LWP::Simple;
+            $cnt = LWP::Simple::get($l);
+        }
+        die "Failed to load $l" unless defined $cnt;
+    }
+    return $cnt;
+}
+
+@ISA        = qw(Exporter);
+@EXPORT     = qw(setnonblock
+                 nbread
+                 format_inaddr
+                 sockinfo
+                 loadurl);
+@EXPORT_OK  = qw(post);
 
 1
