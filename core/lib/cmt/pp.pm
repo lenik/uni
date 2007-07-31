@@ -13,6 +13,7 @@ use UNIVERSAL   qw(isa);
              ppcmt
              ppcmtstr
              ppdom
+             ppvarf
              ppvar
              ppfmt_foobar);
 
@@ -219,7 +220,7 @@ sub ppdom(&;@) {
     return @stack ? $stack[0] : $curr;
 }
 
-sub ppvar(&$) {
+sub ppvarf(&$) {
     my $resolv  = shift;
     my $text    = shift;
     forx qr/\$(\w+|\{.*?\}|\S)/, sub {
@@ -229,6 +230,11 @@ sub ppvar(&$) {
             $_ = $value if defined $value;
         }
     }, $text;
+}
+
+sub ppvar(\%@) {
+    my $vartbl  = shift;
+    ppvarf sub { $vartbl->{do{shift}}}, join('', @_);
 }
 
 # [$artist - ][$album - [%track number% - ]]$title
