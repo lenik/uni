@@ -12,7 +12,7 @@ use Getopt::Long;
 use YAML;
 
 our $nfs_appname = 'NFS Version 2';
-our %nfs_id = parse_id('$Id: nfs,v 1.26 2007-07-21 01:12:59 lenik Exp $');
+our %nfs_id = parse_id('$Id: nfs,v 1.27 2007-08-02 22:51:09 lenik Exp $');
 
 our %nfs_filetype = (
     ''      => 'ue "%s"',                   # default
@@ -84,7 +84,6 @@ our $opt_quiet = 0;
     sub expand_nfs_title;
     sub template_instantiate;
     sub template_substitute;
-    sub auto_mkdir;
     sub expand_symbolic_link;
     sub binary_copy;
     sub get_serial;
@@ -293,7 +292,7 @@ sub main {
                 # }
 
                 print "add vex/sync entry: $new_key=$new_value\n" if $opt_verbose;
-                auto_mkdir $vexdir;
+                mkdir_p $vexdir;
             }
 
             my @lines = ();
@@ -375,7 +374,7 @@ sub main {
     # browsing?
     if ($opt_program eq '.ls') {
         my $termdir = path_join $nfs_path_container, $opt_title;
-        auto_mkdir $termdir;
+        mkdir_p $termdir;
         $opt_program = '.dep';
         cmdexec "start \"$termdir\"";
         # continue operations.
@@ -384,7 +383,7 @@ sub main {
     # lazy- create
     if (! -e $nfs_path_full) {
         # auto create the container levels
-        auto_mkdir $nfs_path_container;
+        mkdir_p $nfs_path_container;
 
         # apply the template
         my $template = path_join $nfs_path_vol, ".vol-def.$opt_type";
@@ -447,7 +446,6 @@ sub main {
 #   file_sync
 #   expand_nfs_title
 #   template_instantiate
-#   auto_mkdir
 #   expand_symbolic_link
 #   binary_copy
 #   get_serial
@@ -584,25 +582,6 @@ sub template_substitute {
             $newtext .= substr($oldtext, $posmark);
 
     return $newtext;
-}
-
-
-sub auto_mkdir {
-    my $path = shift;
-    print "auto_mkdir $path\n" if $opt_verbose;
-
-    my @segs = path_segs($path);
-    my $current;
-    for (@segs) {
-        $current .= '/' if $current;
-        $current .= $_;
-        $_ = $current;
-        if (not -e) {
-            print "mkdir $_\n" if $opt_verbose;
-            mkdir $_;
-        }
-    }
-    return -d $path;
 }
 
 
