@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.45 2007-07-27 13:46:49 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.46 2007-08-02 22:52:53 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -76,21 +76,24 @@
             reg add hkcr\*\shell\Unregister\Command /f /ve /d  "regsvr32 /u ""%%1""" >nul
             reg add "hkcr\*\shell\My Sign\Command" /f /ve /d   "%dirt_home%\1\dsign.bat ""%%1""" >nul
 
-            echo    *.patch files
-            reg add hkcr\.patch\shell\Merge\Command /f /ve /d   "%cirk_home%\cygwin\bin\patch.exe ""%%1""" >nul
+            echo    .chm files
+            reg add "hkcr\chm.file\shell\Uncompress\Command" /f /ve /d          "%perl% %dirt_home%\0\unchm.pl ""%%1""" >nul
 
-            echo    .lst file
+            echo    .lst files
             reg add "hkcr\.lst\shell\Manifest Edit\Command" /f /ve /d           "%dirt_home%\0\mani.bat -f ""%%1""" >nul
+
+            echo    *.patch files
+            reg add hkcr\.patch\shell\Merge\Command /f /ve /d                   "%cirk_home%\cygwin\bin\patch.exe ""%%1""" >nul
 
             echo    directories
             reg add hkcr\Directory\shell\Console\Command /f /ve /d              "cmd ""%%1""" >nul
             reg add hkcr\Directory\shell\Serialize\Command /f /ve /d            "%dirt_home%\1\renum.exe -D -w 2 ""%%1\*""" >nul
-            REM reg add "hkcr\Directory\shell\Gather binaries\Command" /f /ve /d    "%dirt_home%\0\mvup.bat -c ""%%1\..\..\bin\"" -t ""%%1\..\..\bin\"" *.exe *.dll *.ocx" >nul
+        REM reg add "hkcr\Directory\shell\Gather binaries\Command" /f /ve /d    "%dirt_home%\0\mvup.bat -c ""%%1\..\..\bin\"" -t ""%%1\..\..\bin\"" *.exe *.dll *.ocx" >nul
             reg add "hkcr\Directory\shell\Build TGZ archive\Command" /f /ve /d  "%dirt_home%\0\tgz.bat ""%%1""" >nul
-            REM reg add "hkcr\Directory\shell\SIMplifiers expand\Command" /f /ve /d "%%perl%% %dirt_home%\0\sim.pl" >nul
-            REM reg add "hkcr\Directory\shell\Add nfs mapping\Command" /f /ve /d    "%%perl%% %dirt_home%\0\nfs.pl -i -m" >nul
-            REM reg add "hkcr\Directory\shell\Send to sf\Command" /f /ve /d         "%%perl%% %dirt_home%\0\ftpsend.pl ." >nul
-            REM reg add "hkcr\Directory\shell\MP3LTRIM\Command" /f /ve /d           "%%perl%% %dirt_home%\0\mp3ltrim.pl" >nul
+        REM reg add "hkcr\Directory\shell\SIMplifiers expand\Command" /f /ve /d "%perl% %dirt_home%\0\sim.pl" >nul
+        REM reg add "hkcr\Directory\shell\Add nfs mapping\Command" /f /ve /d    "%perl% %dirt_home%\0\nfs.pl -i -m" >nul
+        REM reg add "hkcr\Directory\shell\Send to sf\Command" /f /ve /d         "%perl% %dirt_home%\0\ftpsend.pl ." >nul
+        REM reg add "hkcr\Directory\shell\MP3LTRIM\Command" /f /ve /d           "%perl% %dirt_home%\0\mp3ltrim.pl" >nul
             reg add "hkcr\Directory\shell\Manifest Edit\Command" /f /ve /d      "%dirt_home%\0\mani.bat -f" >nul
 
             echo Set system application preference:
@@ -312,6 +315,9 @@ sub init {
         } else {
             env_set('SHELL', '%CIRK_HOME%\Cygwin\bin\bash.exe');
         }
+        print ".";
+
+        env_set('PAGER', '"less" -Ceifr');
         print ".";
 
         env_add('PATH', qr/^$prefix/i, [
