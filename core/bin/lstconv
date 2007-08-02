@@ -73,7 +73,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: lstconv,v 1.5 2007-07-21 01:12:29 lenik Exp $');
+    my %id = parse_id('$Id: lstconv,v 1.6 2007-08-02 22:50:00 lenik Exp $');
     print "[$opt_verbtitle] list converter \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -104,12 +104,12 @@ sub ultra_edit_project {
     my %dirs;
     while (<>) {
         chomp;
-        my ($dir, $base);
+        my ($grp, $dir, $base);
 
         # [group] path
         if (/^\[(.*?)\] (.*)$/) {
-            ($dir, $_) = ($1, $2);
-            push @{$dirs{$dir}}, $_;
+            ($grp, $_) = ($1, $2);
+            push @{$dirs{$grp}}, $_;
         }
 
         # absolute path goes into extern/
@@ -120,6 +120,9 @@ sub ultra_edit_project {
         } else {
             ($dir, $base) = path_split($_);
         }
+
+        # grouped root-items won't show again.
+        next if defined $grp and $dir eq '';
 
         # remove trailing '/'
         $dir =~ s/[\\\/]$//;
