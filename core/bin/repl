@@ -1,21 +1,20 @@
 #!/usr/bin/perl
 
 use strict;
+use cmt::lang;
 use cmt::util;
 use cmt::vcs;
-use DirHandle;
-use FileHandle;
 use Getopt::Long;
 
 sub boot;
-sub main;
 sub info;
 sub info2;
 sub info3;
 sub version;
 sub help;
 
-sub process_file;
+sub main;
+sub iterator;
 
 our $opt_verbtitle      = 'repl';
 our $opt_verbtime       = 0;
@@ -81,16 +80,13 @@ sub boot {
             $source = qr/$source/;
         }
     } else {
-        $source = lc($source) if $opt_no_case;
+        $source = lc $source if $opt_no_case;
     }
     info3 "source pattern: $source";
 
     if ($opt_regex) {
-
         # process reg-ex escapes
-    }
-    else {
-
+    } else {
         # process text escapes
     }
 
@@ -119,7 +115,7 @@ sub info3 {
 }
 
 sub version {
-    my %id = parse_id('$Id: repl,v 1.15 2007-06-25 14:11:42 lenik Exp $');
+    my %id = parse_id('$Id: repl,v 1.16 2007-08-02 22:51:55 lenik Exp $');
     print "[$opt_verbtitle] Replace files by regular-expression \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -161,72 +157,51 @@ sub main {
     my $total_dirty = 0;
 
     my @files = @ARGV;
-    @files = '.' if ( scalar(@files) == 0 );
+       @files = '.' if ( scalar(@files) == 0 );
+
+    my %cfg = (
+        -depth  => $opt_recursive ? 1000 : 0,
+        );
 
     for (@files) {
         # always enter into the specified directories
-        $total_dirty += process_file( $_, 1 );
+        $total_dirty += fswalk \&iterator,
+            -start => $_,
+            %cfg;
     }
 
     info "Total $total_dirty files are modified. ";
 }
 
-sub process_file {
-    my ( $file, $recur ) = @_;
+sub iterator {
+    local $_ = shift;
 
-    if ( -d $file ) {
-        info3 "d $file";
-        my $count = 0;
-        if ($recur) {
-            my $dir  = new DirHandle($file);
-            my @list = $dir->read;
-            for (@list) {
-
-                # info3 "[".join(',',@list)."]";
-                next if (m/^\.\.?$/);
-
-                my $fpath = "$file/$_";
-                if ( -f $fpath ) {
-
-                    # info3 "s $file";
-                    next if ( $fpath !~ m/$fpat/ );
-                }
-
-                $count += process_file( $fpath, $opt_recursive );
-            }
-        }
-        return $count;
+    if (-d) {
+        info3 "d $_";
+        return 1;
     }
 
-    info2 "f $file";
-    my $fh = new FileHandle("<$file");
-    return 0 if ( !$fh );
+    return 0 if defined $fpat and !/$fpat/;
 
-    my @lines = <$fh>;
-    $fh->close();
+    info2 "f $_";
+    my @lines = readfile($_);
 
     if ($opt_backup_file) {
-        info3 "w $file.bak";
-        my $fh_bak = new FileHandle("$file.bak");
-        $fh_bak->write(@lines);
-        $fh_bak->close();
+        info3 "w $_.bak";
+        writefile "$_.bak", @lines;
     }
 
     my $dirty = 0;
 
     if ($opt_command) {
-
+        # TODO: using ppfmt_foobar to expand, rather than eval().
         # repl.pl -c <command-line> <files-pattern> <source> <target>
         my $cmd_arg_parsed = eval("\"$cmd_args\"");
         info "x $cmd_exec $cmd_arg_parsed";
-
-        # run external program
         my @outs = `$cmd_exec $cmd_arg_parsed`;
-
-        if ( scalar(@lines) != scalar(@outs) ) {
+        if (scalar(@lines) != scalar(@outs)) {
             $dirty = 1;
-        }
-        else {
+        } else {
             for ( my $l = 0 ; $l < scalar(@lines) ; $l++ ) {
                 if ( $lines[$l] ne $outs[$l] ) {
                     $dirty = 1;
@@ -236,8 +211,9 @@ sub process_file {
         }
         @lines = @outs if $dirty;
     }
-    else {
 
+    else {
+        local $_;
         # default replace implementation
         for ( my $l = 0 ; $l < scalar(@lines) ; $l++ ) {
             $_ = $lines[$l];
@@ -250,9 +226,6 @@ sub process_file {
                     $spos = $-[0] + length($&);
                 }
                 $res .= substr( $_, $spos );
-
-                #print STDERR "[$_=>$res]\n";
-
                 if ( $_ ne $res ) {
                     $_     = $res;
                     $dirty = 1;
@@ -279,21 +252,11 @@ sub process_file {
     }
 
     if ($opt_output_only) {
-        for (@lines) {
-            print;
-        }
-    }
-    else {
-        if ($dirty) {
-            info "w $file";
-
-            #print "result\n";
-            #print join("\n", @lines);
-            $fh = new FileHandle(">$file");
-            $fh->write( join( "", @lines ) );
-            $fh->close();
-            return 1;
-        }
+        print for @lines;
+    } elsif ($dirty) {
+        info "w $_";
+        writefile $_, @lines;
+        return 1;
     }
 
     return 0;
