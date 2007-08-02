@@ -1,16 +1,36 @@
-
 package cmt::path;
 
 use strict;
-use Digest::MD5 qw(md5_hex);
+# use Digest::MD5 qw(md5_hex);
 use Exporter;
-#use os-portable
-use vars qw/@ISA @EXPORT/;
-use vars qw/$charFS $setFS $patFS/;
 
-our $charFS = "/";
-our $setFS  = "\\\\/";
-our $patFS  = "[$setFS]";
+our @ISA        = qw(Exporter);
+our @EXPORT     = qw($charFS
+                     $setFS
+                     $patFS
+                     path_normalize
+                     path_split
+                     path_splitext
+                     path_segs
+                     path_comp
+                     path_join
+                     dir_size
+                     temp_path
+                     mkdir_p
+                     ishidden
+                     );
+our @EXPORT_OK  = qw(qg);
+
+our $opt_win32  = $^O eq 'MSWin32';
+
+    if ($opt_win32) {
+        eval "use Win32::File('GetAttributes'); 1"
+            or die "failed to load Win32::File: $!";
+    }
+
+our $charFS     = "/";
+our $setFS      = "\\\\/";
+our $patFS      = "[$setFS]";
 
 my $opt_verbose = 1;
 
@@ -165,24 +185,29 @@ my $opt_verbose = 1;
         return qr/^$p$/i;
     }
 
-@ISA = qw(Exporter);
-@EXPORT = qw(
-        $charFS
-        $setFS
-        $patFS
+    sub mkdir_p {
+        my $path = shift;
+        return 1 if -d $path;
+        return 1 if mkdir $path;
+        my $i = rindex($path, '/');
+        my $j = rindex($path, '\\');
+        my $last = $i > $j ? $i : $j;
+        return 0 if $last < 0;
+        return 0 unless mkdir_p(substr($path, 0, $last));
+        return 1 if -d $path;
+        mkdir $path;
+    }
 
-        path_normalize
-        path_split
-        path_splitext
+    sub ishidden {
+        my $path = shift;
+        return undef unless -e $path;
+        if ($opt_win32) {
+            GetAttributes($path, my $attrib);
+            return 1 if $attrib & 2;
+        }
+        my ($dir, $base) = path_split $path;
+        return 1 if $base =~ /^\./;
+        return 0;
+    }
 
-        path_segs
-        path_comp
-        path_join
-
-        dir_size
-        temp_path
-
-        qg
-        );
-
-1;
+1
