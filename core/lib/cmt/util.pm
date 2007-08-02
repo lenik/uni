@@ -3,6 +3,8 @@ package cmt::util;
 use strict;
 use vars                qw/@ISA @EXPORT @EXPORT_OK/;
 use cmt::ftime;
+use cmt::lang;
+use cmt::path;
 use cmt::proxy;
 # use Data::Dumper;
 use Exporter;
@@ -129,9 +131,9 @@ sub forx($&;$$) {
 
 sub qsplit {
     my $sep = shift;
-    my $s = shift || $_;
-    $s =~ s/\\/\\\\/g;
-    $s =~ s/>/\\>/g;
+    my $s   = _or(shift, $_);
+       $s   =~ s/\\/\\\\/g;
+       $s   =~ s/>/\\>/g;
     my @mem;
     my $k = 0;
             # qr/(["']) (\\\\.|[^\1])* \1/x, $s;
@@ -155,6 +157,7 @@ sub append_cmdline {
 
 sub get_named_args(\@;\%) {
     my $arg = shift;
+      @$arg = @$arg;    # de-alias
     my $cfg = shift || {};
     my @passby;
     while (@$arg) {
@@ -168,6 +171,8 @@ sub get_named_args(\@;\%) {
     @$arg = @passby;
     return %$cfg;
 }
+
+sub _eq { $_[0] eq $_[1] }
 
 sub arraycmp {
     my ($a, $b) = @_;
@@ -183,19 +188,18 @@ sub arraycmp {
 sub arrayeq     { arraycmp(@_) == 0 }
 sub arrayne     { arraycmp(@_) != 0 }
 
-sub array_index(\@$@) {
-    sub _eq { $_[0] == $_[1] }
-    my ($array, $v, $cmp) = @_;
-    $cmp = \&_eq unless defined $cmp;
+sub array_index(\@$;$) {
+    my ($array, $v, $equalf) = @_;
+    $equalf = \&_eq unless defined $equalf;
     for (0..$#$array) {
-        return $_ if $cmp->($array->[$_], $v);
+        return $_ if $equalf->($array->[$_], $v);
     }
     return -1;
 }
 
-sub array_remove(\@$@) {
-    my ($array, $v, $cmp) = @_;
-    my $i = array_index(@$array, $v, $cmp);
+sub array_remove(\@$;$) {
+    my ($array, $v, $equalf) = @_;
+    my $i = array_index(@$array, $v, $equalf);
     return undef if $i < 0;
     splice @$array, $i, 1;
 }
@@ -213,10 +217,11 @@ sub hasheq {
 
 sub hashne      { ! hasheq(@_) }
 
-sub hashindex {
-    my ($hash, $val) = @_;
+sub hash_index(\%$;$) {
+    my ($hash, $v, $equalf) = @_;
+    $equalf = \&_eq unless defined $equalf;
     for (keys %$hash) {
-        return $_ if $hash->{$_} == $val;
+        return $_ if $equalf->($hash->{$_}, $v);
     }
     undef;
 }
@@ -367,6 +372,72 @@ END {
     $_->[0]->(@{$_->[1]}) for @ATEXIT;
 }
 
+sub listdir {
+    my $dir = _or(shift, $_, '.');
+    my ($incl, $excl, $filter) = @_;
+    opendir(DIR, $dir) || die "can't opendir $dir: $!";
+    my @files = readdir(DIR);
+    @files = grep { /$incl/ } @files if defined $incl;
+    @files = grep {!/$excl/ } @files if defined $excl;
+    @files = grep { $filter->($dir, $_) } @files if defined $filter;
+    closedir DIR;
+    return @files;
+}
+
+sub fswalk(&;@) {
+    my $cb      = shift;
+    my %cfg     = get_named_args @_;
+    my $start   = _or($cfg{-start}, '.');
+    my $filter  = $cfg{-filter};
+    my $hidden  = $cfg{-hidden};
+    my $depth   = _or($cfg{-depth}, 999);
+    my $bfirst  = index('bw', $cfg{-order}); # breadth-first
+    my $iter;
+       $iter    = sub {
+        #my ($dir, $level) = @_;
+            my $dir = shift;
+            my $level = shift;
+        my @files = listdir($dir, undef, qr/^\.\.?$/,
+                            $hidden ? sub { ishidden(path_join @_) } : undef);
+           @files = grep { $filter->() } @files if defined $filter;
+        my $ret;
+        my $count = 0;
+        my @dirs;
+        for (@files) {
+            my $path = path_join($dir, $_);
+            if (-d $path) {
+                next if $level >= $depth;
+                if ($bfirst) {
+                    push @dirs, $path;
+                } else {
+                    $ret = $cb->($path);
+                    return -1 if $ret == -1;    # break
+                    next      if $ret == 0;     # ignore
+                    $count += $ret - 1;
+                    $ret = $iter->($path, $level + 1);
+                    return -1 if $ret == -1;    # break
+                    $count += $ret;
+                }
+            } else {
+                $ret = $cb->($path);
+                return -1 if $ret == -1;        # break
+                $count += $ret;
+            }
+        }
+        for (@dirs) {
+            $ret = $cb->($_);
+            return -1 if $ret == -1;    # break
+            next      if $ret == 0;     # ignore
+            $count += $ret - 1;
+            $ret = $iter->($_, $level + 1);
+            return -1 if $ret == -1;    # break
+            $count += $ret;
+        }
+        $count
+    };
+    $iter->($start, 0);
+}
+
 @ISA    = qw(Exporter);
 @EXPORT = qw(
 	datetime
@@ -397,6 +468,8 @@ END {
 	fire_method
 	at_exit
 	_use
+	listdir
+	fswalk
 	);
 
 @EXPORT_OK = ();
