@@ -1,11 +1,11 @@
 @echo off
 
-    rem t-login
+    rem dirtix shell login
 
     setlocal
 
     if "%~1"=="" (
-        echo t-login ^<remote-host^> [^<remote-port=1023^>]
+        echo dsl ^<remote-host^> [^<remote-port=1023^>]
         goto end
     )
 
