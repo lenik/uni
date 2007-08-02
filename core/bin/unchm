@@ -1,0 +1,125 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::libchm;
+use cmt::path;
+use cmt::util;
+use cmt::vcs;
+use Getopt::Long;
+
+sub boot;
+sub info;
+sub info2;
+sub version;
+sub help;
+sub main;
+sub enum_proc;
+
+our $opt_verbtitle      = 'unchm';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_meta_files;
+our $opt_system_files;
+our $opt_outdir;
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'meta-files|m',
+               'system-files|s',
+               'outdir|o=s',
+               );
+    $opt_outdir =~ s/[\\\/]+$//;
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: unchm,v 1.1 2007-08-02 22:53:15 lenik Exp $');
+    print "[$opt_verbtitle] Decompress CHM File\n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+    $0 [OPTION] ...
+
+Common options:
+    -o, --outdir=PATH       output to the specified directory
+    -m, --meta-files        meta files included
+    -s, --system-files      system files included
+    -h, --help              show this help page
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+        --version           print the version info
+EOM
+}
+
+exit boot;
+
+sub main {
+    my $what = CHM_ENUMERATE_NORMAL;
+       $what|= CHM_ENUMERATE_META    if $opt_meta_files;
+       $what|= CHM_ENUMERATE_SPECIAL if $opt_system_files;
+    for (@ARGV) {
+        info "decompress $_";
+        die "file $_ isn't existed" unless -f $_;
+        my ($name, $ext) = path_splitext($_);
+        my $prefix = $name;
+           $prefix = $opt_outdir if defined $opt_outdir;
+
+        mkdir_p($prefix) or die "can't mkdir $prefix";
+
+        my $h = chm_open($_) or die "chm_open $_";
+        chm_enumerate($h, $what, \&enum_proc, $prefix);
+        chm_close($h);
+    }
+}
+
+sub enum_proc {
+    my ($h, $ui, $prefix) = @_;
+    my ($path, $fl, $start, $len) = getUnitInfo($ui);
+    my $phy = $path;
+       $phy =~ s/[:]/_/g;
+       $phy = '/'.$phy unless substr($phy, 0, 1) eq '/';
+       $phy = $prefix.$phy;
+    if ($fl & CHM_ENUMERATE_DIRS) {
+        info "dir $phy";
+        mkdir_p($phy) or die "can't mkdir $phy";
+    } else {
+        if ($opt_verbose > 1) {
+            info2 "file $phy ($len/$start bytes)";
+        } else {
+            info "file $phy ($len bytes)";
+        }
+
+        # FIX: some system-files without create-directory entries.
+        my ($dir, $base) = path_split $phy;
+        unless (-d $dir) {
+            info "!mkdir $dir";
+            mkdir_p($dir) or die "can't mkdir $dir";
+        }
+
+        my $buf = chm_retrieve_object($h, $ui, 0, $len);
+        writefile $phy, $buf;
+    }
+    return CHM_ENUMERATOR_CONTINUE;
+}
