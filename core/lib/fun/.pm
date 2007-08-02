@@ -43,13 +43,13 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: .pm,v 1.7 2007-07-31 14:59:43 lenik Exp $');
+    my %id = parse_id('$Id: .pm,v 1.8 2007-08-02 22:49:15 lenik Exp $');
     print "[$opt_verbtitle] Perl_funs_common_cli_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {
-    version;
+    version unless shift;
     print <<"EOM";
 
 Syntax:

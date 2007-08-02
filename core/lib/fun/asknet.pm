@@ -49,13 +49,13 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: asknet.pm,v 1.1 2007-07-31 15:05:39 lenik Exp $');
-    print "[$opt_verbtitle] Perl_funs_common_cli_template \n";
+    my %id = parse_id('$Id: asknet.pm,v 1.2 2007-08-02 22:49:15 lenik Exp $');
+    print "[$opt_verbtitle] find specific answers from the internet \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {
-    version;
+    version unless shift;
     print <<"EOM";
 
 Syntax:
