@@ -1,0 +1,189 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::chm;
+use cmt::path;
+use cmt::pp;
+use cmt::util;
+use cmt::vcs;
+use Data::Dumper;
+use DirHandle;
+use Getopt::Long;
+use YAML;
+
+sub boot;
+sub info;
+sub info2;
+sub version;
+sub help;
+
+sub main;
+sub ishtml;
+sub find_index_page;
+
+our $opt_verbtitle      = 'mkchm';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+
+our @opt_files;
+our $opt_output;                        # default <root-dir>.chm
+our $opt_has_root;                      # prefer root-node to root-list
+our %opt_fswalk         = (-depth => 0);
+our $opt_style          = 'auto';       # styles: auto, fs
+our $opt_no_anchors     = 1;
+our $opt_title_format   = '(if $title $title $filename)';
+our @opt_index          = qw(default index);
+our @opt_html_ext       = qw(html htm cgi php jsp asp aspx);
+our @opt_page_filter;                   # join by and
+our @opt_media_filter;                  # join by and
+our $opt_dict;                          # user dict file for keyword-replace
+our %opt_chm;
+
+my  $stat_pages         = 0;
+my  $stat_media         = 0;
+
+sub boot {
+    GetOptions('quiet|q'        => sub { $opt_verbose-- },
+               'verbose|v'      => sub { $opt_verbose++ },
+               'version'        => sub { version; exit },
+               'help|h'         => sub { help; exit },
+               'output|o=s',
+               'has-root',
+               'recursive|r:n'  => sub { shift; $opt_fswalk{-depth} = shift || 100 },
+               'hiddens'        => \$opt_fswalk{-hidden},
+               'style|s=s',
+               'page-filter|p=s'=> \@opt_page_filter,
+               'media-filter|m=s'=> \@opt_media_filter,
+               'dict|d=s',
+               'index|i=s',     => \@opt_index,
+               'extension|e=s'  => \@opt_html_ext,
+               );
+
+    @opt_files = @ARGV;
+    unless (@opt_files) {
+        die("No file specified. ");
+    }
+
+    if (!$opt_output and -d $opt_files[0]) {
+        my ($dir, $base) = path_split($opt_files[0]);
+        $opt_output = $base.'.chm';
+    }
+    $opt_chm{-output} = $opt_output if defined $opt_output;
+
+    if (defined $opt_dict) {
+        if (-f $opt_dict) {
+            my $dict;
+            my $key;
+            my @lines = readfile($opt_dict);
+
+            ppcmtstr {
+                my $X = shift;
+                if (defined $key) {
+                    $dict->{$key} = $_;
+                    undef $key;
+                } else {
+                    $key = $_;
+                }
+            } @lines;
+            $opt_dict = $dict;
+        } else {
+            die "Dict file $opt_dict isn't existed";
+        }
+        print "Dict-Content: \n".Dump($opt_dict) if $opt_verbose > 1;
+    }
+
+    info2 "start file: $_" for @opt_files;
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: mkchm,v 1.1 2007-08-02 22:53:26 lenik Exp $');
+    print "[$opt_verbtitle] CHM Help Maker \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+        $0 [OPTION] files/directories to be packaged...
+
+Common options:
+    -o, --output=CHMFILE    default <root-dir>.chm
+        --has-root          prefer root-node to root-list
+        --recursive=MAX     max depth recurse into the directory
+        --hiddens           include hidden files (.file)
+    -s, --style=STYLE       auto or fs, default auto
+    -p, --page-filter=EXP   filters of html pages to be packaged)
+    -m, --media-filter=EXP  filters of media files to be packaged)
+    -d, --dict=FILE         user dict file
+    -i, --index=FILENAME    prefered index-page file names (ordered)
+    -e, --extension=EXT     default: html htm cgi php jsp asp aspx
+    -h, --help              show this help page
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+        --version           print the version info
+EOM
+}
+
+exit boot;
+
+sub main {
+    for (@opt_files) {
+        fswalk {
+            my $path = shift;
+            if (-d $path) {
+                info "dir $path/";
+                return 1;
+            }
+
+            if (ishtml $path) {
+                info "page $path";
+                my $info = htmlinfo [readfile($path)];
+                info2 "  title $info->{'.title'}";
+                info2 Dumper($info);
+            } else {
+                info "media $path";
+            }
+            return 1;
+        } -start => $_, %opt_fswalk;
+    }
+
+    info "Total $stat_pages pages and $stat_media medias to be packaged";
+
+    if ($opt_verbose > 1) {
+        info2 "The file-list to be packaged: ";
+    }
+}
+
+sub ishtml {
+    my $path = shift;
+    my $ext  = substr(path_splitext($path), 1);
+    array_index(@opt_html_ext, $ext) >= 0
+}
+
+sub find_index_page {
+    my $path = shift;
+    for my $ext (@opt_html_ext) {
+        for my $name (@opt_index) {
+            my $file = "$name.$ext";
+            return $file if -f path_join($path, $file);
+        }
+    }
+    return undef;
+}
