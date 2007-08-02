@@ -1,4 +1,82 @@
 
+2007-08-03
+  * mkchm.pl:
+	initial
+
+  * unchm.pl:
+	first release
+
+  * syset.bat:
+	add .chm/Uncompress
+	add PAGER=less
+
+  * repl.pl:
+	adopted fswalk.
+
+  * nfs.pl:
+	auto_mkdir -> mkdir_p
+
+  * relay.pl:
+	no use Socket
+
+  * lstconv.bat:
+	remove grouped roots from root list.
+
+  * lib/fun/: .pm, _booter.pm, asknet.pm:
+	append fun's help page to the funpack's help page
+
+  * lib/cmt/util.pm:
+	- _or is preferred to ||, which using defined() rather then true()
+	- array_index/hash_index default using eq instead of ==
+	- add de-alias to get_named_args.
+	- added listdir() and fswalk()
+
+  * lib/cmt/pp.pm:
+	add typecheck to ppdom(&;FILELIST) where FILE could be a GLOB or ARRAY-REF.
+
+  * lib/cmt/path.pm:
+	+ mkdir_p, ishidden
+
+  * lib/cmt/chm.pm:
+	impl chm_hhk, chm_build, chm_compile
+
+  * lib/cmt/.pm:
+	use vars -> our.
+
+  * dsd.pl:
+	rename tsh -> dsd; fixed 'h'-hide no affects.
+
+  * dsl.bat:
+	rename tin.bat -> dsl.bat
+
+2007-07-31
+  * lib/cmt/path.pm:
+	temp_name generate with process-id, so as to avoid name conflicts.
+
+  * asknet.pl, domp.bat, lib/fun/asknet.pm:
+	implemented asknet/where to query location info about a mobilephone number.
+
+  * catname.x:
+	ppvar -> ppvarf
+
+  * .pl:
+	new help page format (more unix-like)
+
+  * fun.bat:
+	the branching part went into fun::_booter.
+
+  * lib/cmt/netutil.pm:
+	add post(url, post-data) and loadurl(url, [post-data])
+
+  * lib/cmt/pp.pm:
+	change ppvar to ppvarf, and the old ppvar became to accept %hash instead of &callback.
+
+  * lib/cmt/util.pm:
+	add _use() which evaluates 'require+import' at later time.
+
+  * lib/fun/: .pm, _booter.pm, test.pm:
+	splitted _booter from common fun-programs
+
 2007-07-27
   * lib/cmt/chm.pm:
 	initial
@@ -251,7 +329,7 @@
 	exec... -> win32::spawn
 	killpid -> win32::ntkill
 
-  * tin.bat, tsh.pl, waitpid.c, waitpid.exe, lib/cmt/win32.pm:
+  * dsd.pl, dsl.bat, waitpid.c, waitpid.exe, lib/cmt/win32.pm:
 	waitpid with a timeout
 
   * lib/fun/xs.pm:
