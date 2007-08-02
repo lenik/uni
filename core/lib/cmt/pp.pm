@@ -100,8 +100,10 @@ sub pp(&;@) {
         for my $d (@_) {
             if (UNIVERSAL::isa($d, 'GLOB')) {
                 $proc->() while <$d>;
-            } else {
+            } elsif (ref $d eq 'ARRAY') {
                 $proc->() for @$d;
+            } else {
+                die "$d: Neither a glob nor an array-ref";
             }
         }
     }
