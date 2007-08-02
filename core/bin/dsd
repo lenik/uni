@@ -18,7 +18,7 @@ sub fwait;
 sub run;
 sub quit;
 
-our $opt_verbtitle      = 'tsh';
+our $opt_verbtitle      = 'dsd';
 our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
 our $opt_nc             = 'nc';
@@ -74,8 +74,8 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: dsd,v 1.1 2007-07-11 15:25:42 lenik Exp $');
-    print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
+    my %id = parse_id('$Id: dsd,v 1.2 2007-08-02 22:41:45 lenik Exp $');
+    print "[$opt_verbtitle] Dirtix Shell Daemon \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
@@ -84,13 +84,19 @@ sub help {
     print <<"EOM";
 
 Syntax:
-        $0 <options> ...
+        $0 [OPTION] ...
 
-Options:
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
-        --version
-        --help (h)
+Common options:
+        --nc=NC_PROGRAM     netcat program to use, default 'nc'
+    -u, --setuid=UID        setuid of exec
+    -g, --setgid=GID        setgid of exec
+    -p, --port=PORT         bind at specified port, default 1023
+    -C, --chdir=PATH        chdir before exec
+    -e, --exec=CMDSPEC      default using environment variable CMDSPEC
+    -h, --help              show this help page
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+        --version           print the version info
 EOM
 }
 
@@ -106,7 +112,7 @@ sub main {
 
      W: while (1) {
             fwait 0.1;          # $opt_interval
-            while ($_ = shift) {
+            while ($_ = shift @actq) {
                 if ($_ eq 'hide') {
                     # tray-icon...
                     # Currently, delete $TEMP/HIDE.$hwnd to show the window.
