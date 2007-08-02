@@ -17,20 +17,20 @@ our $opt_verbose        = 1;
              chm_hhc
              chm_hhk
              chm_build
+             chm_compile
              );
 
-sub htmlinfo {
-
-    sub attrs {
-        my $s = shift || $_;
-        while (/(\w+)\s*=\s*(".*?"|'.*?'|\S+)/g) {
-            my ($k, $v) = ($1, $2);
-            $v = $2 if $v =~ /^(["'])(.*?)\1$/;
-            push @_, [$k, $v];
-        }
-        return @_;
+sub parse_attributes {
+    my $s = shift || $_;
+    while (/(\w+)\s*=\s*(".*?"|'.*?'|\S+)/g) {
+        my ($k, $v) = ($1, $2);
+        $v = $2 if $v =~ /^(["'])(.*?)\1$/;
+        push @_, [$k, $v];
     }
+    return @_;
+}
 
+sub htmlinfo {
     my $info    = {};
     my $tag;
     my $tagbuf;
@@ -53,7 +53,7 @@ sub htmlinfo {
             $tagbuf = '';
             if ($tag eq 'meta') {
                 my ($nam, $cnt);
-                for (attrs) {
+                for (parse_attributes) {
                     my ($k, $v) = (lc $_->[0], $_->[1]);
                     if ($k eq 'name') {
                         $nam = $v;
@@ -63,7 +63,7 @@ sub htmlinfo {
                     push @{$info->{lc $nam}}, $cnt if defined $nam and defined $cnt;
                 }
             } elsif ($tag eq 'a') {
-                for (attrs) {
+                for (parse_attributes) {
                     if (lc $_->[0] eq 'name') {
                         push @{$info->{'.a'}}, $_->[1];
                     }
@@ -74,13 +74,27 @@ sub htmlinfo {
     return $info;
 }
 
+sub xml_value {
+    my $v = shift || $_;
+    return $v;
+}
+
+sub sitemap {
+    my ($name, $loc) = @_;
+    return '<LI><OBJECT type="text/sitemap"><param name="Name" value="'
+            . xml_value($name) . '"><param name="Local" value="'
+            . $loc . '"></OBJECT></LI>'."\n";
+}
+
 sub chm_hhp {
     my %cfg         = @_;
     my $files       = $cfg{-files};
     $cfg{-output}   ||= 'a.chm';
     $cfg{-tocfile}  ||= 'toc.hhc';
+    $cfg{-idxfile}  ||= 'index.hhk';
     $cfg{-default}  ||= $files->[0];
     $cfg{-title}    ||= 'cmt::chm example';
+    $cfg{-lang}     ||= '0x0804 Chinese';
 
     unindent <<"EOM" . join("\n", @$files);
     [OPTIONS]
@@ -88,11 +102,12 @@ sub chm_hhp {
     Compatibility=1.1 or later
     Compiled file=$cfg{-output}
     Contents file=$cfg{-tocfile}
+    Index file=$cfg{-idxfile}
     Default Window=Main
     Default topic=$cfg{-default}
     Display compile progress=No
     Full-text search=Yes
-    Language=0x0804 Chinese
+    Language=$cfg{-lang}
     Title=$cfg{-title}
     ; Enhanced decompilation=No
 
@@ -100,7 +115,6 @@ sub chm_hhp {
     Main="$cfg{-title}", "$cfg{-tocfile}",,"$cfg{-default}","$cfg{-default}",,,,,0x2520,,0x603006,,,,,,,,0
 
     [FILES]
-
 EOM
 }
 
@@ -110,14 +124,9 @@ sub chm_hhc {
     sub hhc_node {
         my $node = shift;
         my ($file, $title, @child) = @$node;
-        my $buf  = unindent <<"EOM";
-        <LI><OBJECT type="text/sitemap">
-        <param name="Name" value="$title">
-        <param name="Local" value="$file"></OBJECT></LI>
-
-EOM
-           $buf .= "<UL>\n".join("\n", map { hhc_node($_) } @child)."</UL>\n" if @child;
-        return $buf;
+        sitemap($title, $file) . (@child
+            ? "<UL>\n".join("\n", map { hhc_node($_) } @child)."</UL>\n"
+            : '');
     }
 
     my %cfg = @_;
@@ -135,7 +144,8 @@ EOM
     $buf .= join("\n", map { hhc_node($_) } @$roots);
     $buf .= unindent <<'EOM';
     </UL>
-    </BODY></HTML>
+    </BODY>
+    </HTML>
 
 EOM
     return $buf;
@@ -143,12 +153,82 @@ EOM
 
 sub chm_hhk {
     my %cfg = @_;
-    return '';
+    my $idx = $cfg{-index};
+    my $buf = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">\n<HTML>\n<BODY>\n";
+    for (sort keys %$idx) {
+        $buf .= sitemap($_, $idx->{$_});
+    }
+    $buf .= "</BODY>\n</HTML>\n";
+    return $buf;
 }
 
 sub chm_build {
-    my %cfg = @_;
+    my %cfg     = @_;
+    my $basedir = $cfg{-basedir} || '.';
+    my $prjfile = $cfg{-prjfile};
+    my $preview = $cfg{-preview};
+    unless (defined $prjfile) {
+        $prjfile = 'a.hhp';
+        if ($cfg{-output}) {
+            my ($dir, $base) = path_split($cfg{-output});
+            my ($file, $ext) = path_splitext($base);
+            $prjfile = $file.'.hhp';
+        }
+        $cfg{-prjfile} = $prjfile;
+    }
+    my $tocfile = $cfg{-tocfile};
+    my $idxfile = $cfg{-idxfile};
 
+    writefile path_join($basedir, $prjfile), chm_hhp(%cfg);
+    writefile path_join($basedir, $tocfile), chm_hhc(%cfg);
+    writefile path_join($basedir, $idxfile), chm_hhk(%cfg);
+
+    return 1 if $preview;
+
+    my $ret = chm_compile(%cfg);
+
+    unlink $prjfile;
+    unlink $tocfile;
+    unlink $idxfile;
+
+    return $ret;
+}
+
+sub chm_compile {
+    my %cfg     = @_;
+
+    my $prjfile = $cfg{-prjfile};
+    my $tocfile = $cfg{-tocfile};
+    my $idxfile = $cfg{-idxfile};
+
+    open (CAP, "hhc $prjfile|")
+        or die "can't invoke hhc utility to do the compilation: $!";
+    while (<CAP>) {
+        print "hhc> $_";
+    }
+    close CAP;
+    return 1;
 }
 
 1
+
+__END__
+
+%htmlinfo:
+    .title          TITLE
+    .a              [ anchors... ]
+    meta-name       meta-value
+
+%chm-config structure:
+    -output         a.chm
+    -tocfile        toc.hhc
+    -idxfile        index.hhk
+    -default        ? ( files[0] )
+    -title          cmt::chm example
+    -lang           0x0804 Chinese
+    -files          [ files, ... ]
+    -roots          [ node, node, ... ]
+                    node: [ file, title, node, node, ... ]
+    -index          { keyword => file }
+    -basedir        where write .hhc and .hhk to
+    -preview        no make and clean
