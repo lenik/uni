@@ -66,7 +66,7 @@
     goto start
 
 :version
-    set _id=$Id: .bat,v 1.1 2007-07-21 01:14:03 lenik Exp $
+    set _id=$Id: .bat,v 1.2 2007-08-03 23:50:09 lenik Exp $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
@@ -81,13 +81,13 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% ^<options^> ...
+    echo    %_program% [OPTION] ...
     echo.
     echo Options:
-    echo    --quiet             (q)
-    echo    --verbose           (v, repeat to get more info)
-    echo    --version
-    echo    --help              (h)
+    echo    -q, --quiet         repeat to get less info
+    echo    -v, --verbose       repeat to get more info
+    echo        --version       show version info
+    echo    -h, --help          show this help page
     goto end
 
 :cleanup
