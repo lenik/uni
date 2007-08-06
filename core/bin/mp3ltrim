@@ -17,23 +17,31 @@ sub help;
 our $opt_verbtitle      = 'mp3ltrim';
 our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
+our $opt_delimiter      = '[[:punct:]]';
+our $opt_test;
 our $opt_rem;
 our $opt_at;
-our $opt_test;
+our $opt_max            = 2;
 
 sub boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },
                'help|h'     => sub { help; exit },
+               'delimiter|d=s',
                'rem|r',
-               'at=n',
+               'test|t',
+               'at|a=n',
+               'max=n',
                '1'          => sub { $opt_at = 1 },
                '2'          => sub { $opt_at = 2 },
                '3'          => sub { $opt_at = 3 },
                '4'          => sub { $opt_at = 4 },
                '5'          => sub { $opt_at = 5 },
-               'test|t',
+               '6'          => sub { $opt_at = 6 },
+               '7'          => sub { $opt_at = 7 },
+               '8'          => sub { $opt_at = 8 },
+               '9'          => sub { $opt_at = 9 },
                );
     #$opt_verbose++ if $opt_test;
 
@@ -63,7 +71,7 @@ sub lpad {
 }
 
 sub version {
-    my %id = parse_id('$Id: mp3ltrim,v 1.5 2007-06-20 11:05:59 lenik Exp $');
+    my %id = parse_id('$Id: mp3ltrim,v 1.6 2007-08-06 15:43:14 lenik Exp $');
     print "[$opt_verbtitle] MP3 Utilities - LTrim\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -73,16 +81,21 @@ sub help {
     print <<"EOM";
 
 Syntax:
-        $0 <options> ...
+    $0 [OPTION] ...
 
-Options:
-        --rem (r, remove (...), [...] marks)
-        --at=n, --<number> (part of title)
-        --test (t, test only)
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
-        --version
-        --help (h)
+Common options:
+    -t, --test              test only
+    -r, --rem               remove (...), [...] marks
+    -N, --at=N              replace title with Nth's part
+        --max=N             max number of parts, default 2
+    -d, --delimiter=CHAR    default [[:punct:]], a long-space is always be.
+    -h, --help              show this help page
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+        --version           print the version info
+
+Part split rule (after --rem removals) (--max=3):
+    123 * [part1] * [part2] * [part3 * part3..].mp3
 EOM
 }
 
@@ -102,8 +115,10 @@ sub main {
         # title: (at) artist *|__ title
         #        (ta) title *|__ artist
         if (my ($prefix, $track, $title, $extname) =
-                m/^ (?: (.*) \s* [[:punct:]] )?   \s*
-                    \(? (\d+) \)? \s* [[:punct:]]? \s* (.*) \s* \. ([^\.]+) $/x
+                m/^ (?: (.*) \s* (?:[[:punct:]]|$opt_delimiter) )?   \s*
+                    \(? (\d+) \)? \s* (?:[[:punct:]]|$opt_delimiter)? \s*
+                    (.*) \s*
+                    \. ([^\.]+) $/x
             ) {
             # my $preparts = split('-', $prefix);
 
@@ -113,9 +128,10 @@ sub main {
             $title =~ s/\s*\[[^\]]+\]//g if $opt_rem;
 
             if ($opt_at) {
-                my $max = $opt_at > 2 ? $opt_at : 2;
-                my @parts = split(/ (?: \s* [[:punct:]] \s*)
+                my $max = $opt_at > $opt_max ? $opt_at : $opt_max;
+                my @parts = split(/ (?: \s* $opt_delimiter \s*)
                                    |(?: \s \s+)/x, $title, $max);
+                # info "Parts $title: ".join(',',@parts)."\n";
                 my $part = $parts[$opt_at - 1];
                 $title = $part if length $part;
             }
