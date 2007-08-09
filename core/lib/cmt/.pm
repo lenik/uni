@@ -1,4 +1,4 @@
-package cmt::XXX;
+package cmt::XXX;       # package description
 
 use strict;
 use cmt::util;
