@@ -18,7 +18,7 @@
     set  _program=%~dpnx0
 
 :prep1
-    if "%~1"==""            goto init_ok
+    if "%~1"==""            goto prep2
     if "%~1"=="--version"   goto version
     if "%~1"=="-h"          goto help
     if "%~1"=="--help"      goto help
@@ -52,21 +52,27 @@
     goto prep1
 
 :prep2
+    if "%~1"=="" goto help
+    set _arg1=%~1
+    shift
+
+:prep3
     if "%~1"=="" goto init_ok
     set _rest=%_rest%%~1
     shift
-    goto prep2
+    goto prep3
 
 :init_ok
     if %_verbose% geq 1 (
         echo _startdir=%_startdir%
         echo  _program=%_program%
         echo     _rest=%_rest%
+        echo     _arg1=%_arg1%
     )
     goto start
 
 :version
-    set _id=$Id: .bat,v 1.2 2007-08-03 23:50:09 lenik Exp $
+    set _id=$Id: .bat,v 1.3 2007-08-09 13:47:29 lenik Exp $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
