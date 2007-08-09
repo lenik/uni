@@ -6,11 +6,11 @@ use cmt::vcs;
 use Getopt::Long;
 
 sub boot;
-sub main;
 sub info;
 sub info2;
 sub version;
 sub help;
+sub main;
 
 our $opt_verbtitle      = 'unknown';
 our $opt_verbtime       = 0;
@@ -40,17 +40,14 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: .pl,v 1.8 2007-07-31 15:04:04 lenik Exp $');
+    my %id = parse_id('$Id: .pl,v 1.9 2007-08-09 13:49:15 lenik Exp $');
     print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {
     version;
-    print <<"EOM";
-
-Syntax:
-    $0 [OPTION] ...
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
 
 Common options:
     -h, --help              show this help page
