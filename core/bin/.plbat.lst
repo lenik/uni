@@ -1,5 +1,7 @@
 u.bat:usecode.pl
+ccat.bat
 domp.bat
+fddump.bat
 fun.bat
 lstconv.bat
 odx.bat
