@@ -13,6 +13,22 @@ our @EXPORT = qw(oop_compile
                  oop
                  );
 
+sub oop_compile {
+    my $rwdef = shift;
+    return 'yaccdef';
+}
+
+sub oop {
+    my $rwdef = shift;
+    my $text = shift;
+
+    my $yaccdef = oop_compile($rwdef)
+        or die "failed to compile rewrite-definition";
+    my $parser; # = yapp_compile($yaccdef);
+    # $parser->parse($text);
+    # return $parser->yylval;
+}
+
 __DATA__
 
 start:
