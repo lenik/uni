@@ -1,0 +1,101 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::util;
+use cmt::vcs;
+use Getopt::Long;
+
+sub boot;
+sub info;
+sub info2;
+sub version;
+sub help;
+sub main;
+
+our $opt_verbtitle      = 'fddump';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_fd;
+our $opt_output;
+our $opt_append;
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'output|o=s',
+               'append|a=s' => sub { $opt_output = $_[1]; $opt_append = 1 },
+               );
+
+    $opt_fd = shift @ARGV;
+    #die "file-descriptor isn't specified"
+    #    unless defined $opt_fd;
+
+    $opt_output = \*STDOUT unless defined $opt_output;
+
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: fddump,v 1.1 2007-08-09 13:50:54 lenik Exp $');
+    print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print <<"EOM";
+
+Syntax:
+    $0 [OPTION] [--] file-descriptor
+    (the file-descriptor should be valid for fdopen)
+
+Common options:
+    -o, --output=FILE       default output to stdout
+    -a, --append=FILE       output to FILE in append-mode
+    -h, --help              show this help page
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+        --version           print the version info
+EOM
+}
+
+exit boot;
+
+sub main {
+    unless (ref $opt_output) {
+        open(my $h, $opt_append ? '>>' : '>', $opt_output)
+            or die "can't open output-file $opt_output: $!";
+        $opt_output = $h;
+    }
+
+    if (defined $opt_fd) {
+        open(F, '<&'.$opt_fd)
+            or die "can't fdopen $opt_fd: $!";
+        while (<F>) {
+            print $opt_output $_;
+        }
+        close F;
+    } else {
+        while (<>) {
+            print $opt_output $_;
+        }
+    }
+
+    close $opt_output;
+}

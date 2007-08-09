@@ -1,0 +1,179 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::atext;
+use cmt::pp;
+use cmt::util;
+use cmt::vcs;
+use Getopt::Long;
+
+sub boot;
+sub info;
+sub info2;
+sub version;
+sub help;
+
+sub main;
+sub resolv;
+
+our $opt_verbtitle      = 'ccat';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_eof_end;
+our $opt_range;
+our $opt_primary;
+our $opt_undef          = '';
+our $opt_format;
+
+
+my @line;
+
+my %const = (
+    q   => '\'',
+    Q   => '"',
+    );
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'range|r=s',
+               'eof-end|e',
+               'undef|u=s',
+               'format|f=s',
+               );
+
+    for (my $i = 0; $i <= $#ARGV; $i++) {
+        my $arg = $ARGV[$i];
+        if (substr($arg, 0, 2) eq '!!') {
+            $ARGV[$i] = substr($arg, 2);
+            $opt_primary = $i;
+            last;
+        }
+    }
+
+    die "primary-file is disabled when --end-eof is specified"
+        if $opt_eof_end and defined $opt_primary;
+
+    unless (defined $opt_format) {
+        my $fmt;
+        for (0..$#ARGV) {
+            $fmt .= ' ' if defined $fmt;
+            $fmt .= '$'.($_+1);
+        }
+        $opt_format = $fmt;
+    }
+
+    info2 'file: '.$_ for @ARGV;
+    info2 'primary-file: '.$ARGV[$opt_primary]
+        if defined $opt_primary;
+
+    info2 'format: '.$opt_format;
+    $opt_format = ppfmt_foobar \&resolv, $opt_format;
+    info2 'compiled-format: '.atext_dump($opt_format);
+
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: ccat,v 1.1 2007-08-09 13:50:54 lenik Exp $');
+    print "[$opt_verbtitle] column-oriented cat utility \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print "\nSyntax: \n    $0 [OPTION] [--] files...\n", <<'EOM';
+
+Primary file:
+    Filename with prefix '!!' will be treated as primary-file, if a primary-
+    -file is specified, then the count of output lines of ccat is explicitly
+    equals to the count of lines of primary file.
+
+    When --eof-end is specified, the primary-file feature is disabled.
+
+Common options:
+    -e, --eof-end           end when eof of any of files
+    -r, --range=SKIPS,LINES skips head lines, and read no more than LINES
+                            (-r=SKIPS -r=,LINES is ok.)
+    -u, --undef=STRING      replace non-existing columns
+    -f, --format=FORMAT     output format
+    -h, --help              show this help page
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+        --version           print the version info
+
+Format:
+    (see cmt::ppfmt_foobat)
+    vars:
+        $1, $2, ...         current columns of files
+    const:
+        $q='    $Q="
+
+Examples:
+    ccat -e -f "ren $Q$1$Q $Q$2$Q" old.lst new.lst | source
+
+EOM
+}
+
+exit boot;
+
+sub main {
+    my @h;
+    for (@ARGV) {
+        open(my $h, '<', $_)
+            or die "can't open file $_: $!";
+        push @h, $h;
+    }
+
+    my $end;
+    until ($end) {
+        undef @line;
+        my $eof_count = 0;
+        for (my $i = 0; $i <= $#h; $i++) {
+            my $h = $h[$i];
+            $_ = <$h>;
+            if (defined $_) {
+                chop;
+            } else {
+                if ($opt_eof_end) { $end = 1 }
+                elsif (! defined $opt_primary) { $eof_count++ }
+                elsif ($opt_primary == $i) { $end = 1 }
+                else { $_ = $opt_undef }
+            }
+            push @line, $_;
+        }
+        $end = 1 if $eof_count == scalar @h;
+        last if $end;
+
+        print $opt_format->val, "\n";
+    }
+
+    close $_ for @h;
+    0
+}
+
+sub resolv {
+    my $name = shift;
+    if (exists $const{$name}) {
+        return $const{$name};
+    } elsif ($name =~ /^\d+$/) {
+        return $line[$name-1];
+    }
+    return '?';
+}
