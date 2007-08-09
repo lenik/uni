@@ -3,6 +3,7 @@
 use strict;
 use cmt::util;
 use cmt::vcs;
+use Data::Dumper;
 use DirHandle;
 use Getopt::Long;
 
@@ -21,7 +22,7 @@ our $opt_delimiter      = '[[:punct:]]';
 our $opt_test;
 our $opt_rem;
 our $opt_at;
-our $opt_max            = 2;
+our $opt_max            = 1;
 
 sub boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
@@ -33,6 +34,7 @@ sub boot {
                'test|t',
                'at|a=n',
                'max=n',
+               '0'          => sub { $opt_at = 0 },
                '1'          => sub { $opt_at = 1 },
                '2'          => sub { $opt_at = 2 },
                '3'          => sub { $opt_at = 3 },
@@ -71,7 +73,7 @@ sub lpad {
 }
 
 sub version {
-    my %id = parse_id('$Id: mp3ltrim,v 1.6 2007-08-06 15:43:14 lenik Exp $');
+    my %id = parse_id('$Id: mp3ltrim,v 1.7 2007-08-09 13:50:12 lenik Exp $');
     print "[$opt_verbtitle] MP3 Utilities - LTrim\n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -95,7 +97,7 @@ Common options:
         --version           print the version info
 
 Part split rule (after --rem removals) (--max=3):
-    123 * [part1] * [part2] * [part3 * part3..].mp3
+    123 * [part0] * [part1] * [part2 * part2..].mp3
 EOM
 }
 
@@ -124,15 +126,28 @@ sub main {
 
             $track = lpad($track, 2);
 
-            $title =~ s/\s*\([^\)]+\)//g if $opt_rem;
-            $title =~ s/\s*\[[^\]]+\]//g if $opt_rem;
+            my @rem;
+            if ($opt_rem) {
+                while ($title =~ /\([^\)]*\)|\[[^\]]*\]/g) {
+                    push @rem, substr($&, 1, -1);
+                }
+                $title =~ s/\s*\([^\)]+\)//g;
+                $title =~ s/\s*\[[^\]]+\]//g;
+            }
 
-            if ($opt_at) {
+            if (defined $opt_at) {
                 my $max = $opt_at > $opt_max ? $opt_at : $opt_max;
                 my @parts = split(/ (?: \s* $opt_delimiter \s*)
                                    |(?: \s \s+)/x, $title, $max);
                 # info "Parts $title: ".join(',',@parts)."\n";
-                my $part = $parts[$opt_at - 1];
+                my $part;
+                if ($opt_at <= $#parts) {
+                    $part = $parts[$opt_at];
+                } elsif ($opt_at - scalar(@parts) <= $#rem) {
+                    $part = $rem[$opt_at - scalar(@parts)];
+                } else {
+                    info "Part-index overflow: $opt_at";
+                }
                 $title = $part if length $part;
             }
 
