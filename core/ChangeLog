@@ -1,5 +1,60 @@
 
+2007-08-11
+  * ccat.pl:
+	add support of "expression" source files
+
+2007-08-09
+  * .plbat.lst, ccat.bat, fddump.bat, u.bat:
+	add generator version
+
+  * plbat.pl:
+	test ok
+
+  * plbat.pl:
+	add var $GENERATOR
+
+  * plbat.pl:
+	add --make for batch processing
+
+  * ccat.bat, ccat.pl, fddump.bat, fddump.pl, source.bat:
+	create for mp3 tags
+
+  * mp3ltrim.pl:
+	change --at=N based on 0, and support --rem(remarks/removal) better
+
+  * .pl:
+	help page quoted in single-quote(')
+
+  * .bat:
+	add prep3
+
+2007-08-06
+  * mp3ltrim.pl:
+	enhanced support of delimit by space
+
+2007-08-04
+  * .bat:
+	more unix-like help info.
+
+  * cpnew.bat:
+	adopted .bat-framework
+
 2007-08-03
+  * .cvsignore, .plbat, .plbat.lst, plbat.pl:
+	new pl/bat wrapping method
+
+  * unchm.bat:
+	replaced by unchm.pl
+
+  * .cvsignore:
+	the .bat filelist in .cvsignore will be used to do the batch update of perl/bat-wrappers.
+
+  * .plbat:
+	don't bind .bat wrapper with .pl anymore, for compat with unix.
+
+  * .batch.pl:
+	see fswalk.
+
   * mkchm.pl:
 	initial
 
@@ -19,7 +74,7 @@
   * relay.pl:
 	no use Socket
 
-  * lstconv.bat:
+  * lstconv.pl:
 	remove grouped roots from root list.
 
   * lib/fun/: .pm, _booter.pm, asknet.pm:
@@ -53,7 +108,7 @@
   * lib/cmt/path.pm:
 	temp_name generate with process-id, so as to avoid name conflicts.
 
-  * asknet.pl, domp.bat, lib/fun/asknet.pm:
+  * asknet.pl, domp.pl, lib/fun/asknet.pm:
 	implemented asknet/where to query location info about a mobilephone number.
 
   * catname.x:
@@ -62,7 +117,7 @@
   * .pl:
 	new help page format (more unix-like)
 
-  * fun.bat:
+  * fun.pl:
 	the branching part went into fun::_booter.
 
   * lib/cmt/netutil.pm:
@@ -158,7 +213,7 @@
   * .bat, moduse.bat:
 	new .bat template provide common structure and to resolve the "%* shift bug"
 
-  * lstconv.bat:
+  * lstconv.pl:
 	add support of virtual-group: "[Group] path"
 
   * lib/cmt/util.pm:
@@ -224,7 +279,7 @@
 	deprecated, using cmt::stream instead.
 
 2007-07-17
-  * execgui.pl, odx.bat, lib/cmt/guiutil.pm, lib/cmt/ios.pm:
+  * execgui.pl, odx.pl, lib/cmt/guiutil.pm, lib/cmt/ios.pm:
 	new cmt::ios to simplify the usage of IO::Select.
 	refactor guiutil to use cmt::ios. (seems a lot more faster!)
 	(and no more "refresh, interval, timeout, etc. " ambiguous keywords, just "auto" only.)
@@ -242,7 +297,7 @@
   * lib/cmt/serv.pm:
 	fire_init when connection established.
 
-  * runx.bat, lib/cmt/util.pm:
+  * runx.pl, lib/cmt/util.pm:
 	add cmt::util::atexit, don't use eval('END {}') any more.
 
   * nfs.pl:
@@ -284,10 +339,10 @@
 	don't dump typedef *PTRTYPE.
 	add --struct-only=<structs...>
 
-  * fun.bat:
+  * fun.pl:
 	error-continue when autoload.
 
-  * lstconv.bat, mani.bat:
+  * lstconv.pl, mani.bat:
 	always add MANIFEST file to the list self.
 	introduced the extern/ for the absolute paths.
 
@@ -310,7 +365,7 @@
   * lib/: cmt/pp.pm, fun/xs.pm:
 	stwrap impl.
 
-  * fun.bat:
+  * fun.pl:
 	- autoload once
 	- add support to cleanup by pkg->exit
 
@@ -348,18 +403,18 @@
 	ctrl-d to terminiate the stdin
 
 2007-07-10
-  * fun.bat, lib/fun/.pm, lib/fun/i18n.pm, lib/fun/test.pm:
+  * fun.pl, lib/fun/.pm, lib/fun/i18n.pm, lib/fun/test.pm:
 	- using stash to get package of a subroutine
 	- autoload fun/modules
 
-  * psh.bat, lib/cmt/perlsys.pm:
+  * psh.pl, lib/cmt/perlsys.pm:
 	add a simple perl shell
 
   * lib/cmt/util.pm:
 	moved hashindex(find_key), hash2tuples, bsearch (Roco::Misc --> cmt::util)
 
 2007-07-07
-  * lstconv.bat:
+  * lstconv.pl:
 	Subdirectories goes into Groups in the ue-project.
 
   * killtemp.bat:
@@ -415,7 +470,7 @@
   * perldev.bat, syset.bat:
 	changed some path
 
-  * lstconv.bat, mani.bat:
+  * lstconv.pl, mani.bat:
 	generate ultraedit project file easily.
 
   * foreach.pl:
@@ -437,7 +492,7 @@
   * syset.bat:
 	assoc .x=runx
 
-  * runx.bat:
+  * runx.pl:
 	new .x file type for shell-script
 
   * sev.pl:
@@ -602,7 +657,7 @@
   * xvconv.bat:
 	override default extension to .avi
 
-  * pc.bat:
+  * pc.pl:
 	print-counter now supports input-echo (by \r only)
 
 2007-03-04
@@ -650,19 +705,19 @@
 	add support of dynamic symbolic link (<?...?>)
 
 2006-12-12
-  * fun.bat, lib/fun/.pm, lib/fun/i18n.pm, lib/fun/test.pm:
+  * fun.pl, lib/fun/.pm, lib/fun/i18n.pm, lib/fun/test.pm:
 	fixed returns values
 
-  * fun.bat, lib/fun/i18n.pm:
+  * fun.pl, lib/fun/i18n.pm:
 	new i18n (~is_utf8) for nfs/six refactor
 
-  * fun.bat, lib/fun/.pm, lib/fun/test.pm:
+  * fun.pl, lib/fun/.pm, lib/fun/test.pm:
 	new fun.pl to run utilities functions as programs
 
   * nfs.pl:
 	use cmt::date to support datetime function
 
-  * .pl, fun.bat, lib/fun/test.pm:
+  * .pl, fun.pl, lib/fun/test.pm:
 	new fun.pl to run utilities functions as programs
 
 2006-12-05
