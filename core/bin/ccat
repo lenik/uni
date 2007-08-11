@@ -24,7 +24,8 @@ our $opt_range;
 our $opt_primary;
 our $opt_undef          = '';
 our $opt_format;
-
+our $opt_canonical_mode;
+our $opt_trim_lines;
 
 my @line;
 
@@ -42,11 +43,13 @@ sub boot {
                'eof-end|e',
                'undef|u=s',
                'format|f=s',
+               'canonical-mode|c',
+               'trim-lines|t',
                );
 
     for (my $i = 0; $i <= $#ARGV; $i++) {
         my $arg = $ARGV[$i];
-        if (substr($arg, 0, 2) eq '!!') {
+        if (substr($arg, 0, 2) eq 'p;') {
             $ARGV[$i] = substr($arg, 2);
             $opt_primary = $i;
             last;
@@ -69,9 +72,9 @@ sub boot {
     info2 'primary-file: '.$ARGV[$opt_primary]
         if defined $opt_primary;
 
-    info2 'format: '.$opt_format;
+    info2 'format.src: '.$opt_format;
     $opt_format = ppfmt_foobar \&resolv, $opt_format;
-    info2 'compiled-format: '.atext_dump($opt_format);
+    info2 'format.dom: '.atext_dump($opt_format);
 
     main;
 }
@@ -91,7 +94,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: ccat,v 1.1 2007-08-09 13:50:54 lenik Exp $');
+    my %id = parse_id('$Id: ccat,v 1.2 2007-08-11 04:27:55 lenik Exp $');
     print "[$opt_verbtitle] column-oriented cat utility \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -101,18 +104,24 @@ sub help {
     print "\nSyntax: \n    $0 [OPTION] [--] files...\n", <<'EOM';
 
 Primary file:
-    Filename with prefix '!!' will be treated as primary-file, if a primary-
+    Filename with prefix 'p;' will be treated as primary-file, if a primary-
     -file is specified, then the count of output lines of ccat is explicitly
     equals to the count of lines of primary file.
 
     When --eof-end is specified, the primary-file feature is disabled.
 
+Virtual files:
+    Filename with prefix 'v;' will be treated as an expression evaluated for
+    each line.  The format of expression is same to the output format.
+
 Common options:
+    -c, --canonical-mode    disable "X;" prefix feature
     -e, --eof-end           end when eof of any of files
     -r, --range=SKIPS,LINES skips head lines, and read no more than LINES
                             (-r=SKIPS -r=,LINES is ok.)
     -u, --undef=STRING      replace non-existing columns
     -f, --format=FORMAT     output format
+    -t, --trim-lines        trim input lines
     -h, --help              show this help page
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
@@ -134,37 +143,58 @@ EOM
 exit boot;
 
 sub main {
-    my @h;
-    for (@ARGV) {
-        open(my $h, '<', $_)
-            or die "can't open file $_: $!";
-        push @h, $h;
+    my @fd;
+    my $hcount = 0;
+    for (my $i = 0; $i <= $#ARGV; $i++) {
+        $_ = $ARGV[$i];
+        if (substr($_, 0, 2) eq 'v;') {
+            my $exp = substr($_, 2);
+            info2 'exp<$i>.src: '.$exp;
+            $exp = ppfmt_foobar \&resolv, $exp;
+            info2 'exp<$i>.dom: '.atext_dump($exp);
+            push @fd, $exp;
+        } else {
+            open(my $h, '<', $_)
+                or die "can't open file $_: $!";
+            push @fd, $h;
+            $hcount++;
+        }
     }
 
     my $end;
     until ($end) {
         undef @line;
         my $eof_count = 0;
-        for (my $i = 0; $i <= $#h; $i++) {
-            my $h = $h[$i];
-            $_ = <$h>;
-            if (defined $_) {
-                chop;
+        for (my $i = 0; $i <= $#fd; $i++) {
+            my $fd = $fd[$i];
+            if (ref $fd eq 'GLOB') {
+                $_ = <$fd>;
+                if (defined $_) {
+                    chop;
+                } else {
+                    if ($opt_eof_end) { $end = 1 }
+                    elsif (! defined $opt_primary) { $eof_count++ }
+                    elsif ($opt_primary == $i) { $end = 1 }
+                    else { $_ = $opt_undef }
+                }
             } else {
-                if ($opt_eof_end) { $end = 1 }
-                elsif (! defined $opt_primary) { $eof_count++ }
-                elsif ($opt_primary == $i) { $end = 1 }
-                else { $_ = $opt_undef }
+                $_ = $fd->val;
             }
+            $_ =~ s/^\s+// if $opt_trim_lines;
+            $_ =~ s/\s+$// if $opt_trim_lines;
             push @line, $_;
         }
-        $end = 1 if $eof_count == scalar @h;
+        $end = 1 if $eof_count >= $hcount;
         last if $end;
 
         print $opt_format->val, "\n";
     }
 
-    close $_ for @h;
+    for (@fd) {
+        if (ref $_ eq 'GLOB') {
+            close $_;
+        }
+    }
     0
 }
 
