@@ -1,13 +1,12 @@
 package cmt::CLASS_NAME;
 
 use strict;
-use vars                qw/@ISA @EXPORT/;
 use cmt::util;
 use Exporter;
 
-@ISA    = qw(Exporter);
-@EXPORT = qw(static_method
-             );
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(static_method
+                 );
 
 sub info;
 sub info2;
