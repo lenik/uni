@@ -1,4 +1,16 @@
 
+2007-08-13
+  * lib/cmt/english.pm:
+	add plural()
+
+  * lib/cmt/: lexutil.pm, oop.pm, oop_mod.pm, oop_y.pm, oop_y.y:
+	- add (empty), {n..m range}
+	- implemented oop_conv which converts rw-def to yacc-def
+
+2007-08-12
+  * lib/cmt/: .class.pm, Makefile, oop.pm, oop_mod.pm, oop_y.pm, e.t.c...
+	implemented oop_parse.
+
 2007-08-11
   * ccat.pl:
 	add support of "expression" source files
