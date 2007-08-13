@@ -12,6 +12,16 @@
 %nonassoc   _char _string _id _rw_cntl _code
 %nonassoc   '(' ')' '{' '}'
 
+%{
+    sub _J {
+        my $t = shift;
+        $t eq $_[0]->[0]
+            ? [@{$_[0]}, $_[1]]
+            : $t eq $_[1]->[0]
+                ? [$t, $_[0], @{$_[1]}[1..$#{$_[1]}]]
+                : [$t, $_[0], $_[1]]
+    }
+%}
 %%
 
 start:
@@ -46,14 +56,11 @@ rule_exp:
   | _code                           { ['code',      $_[1]] }
   | quantifiers
   | call
+  | '(' ')'                         { ['empty'] }
   | '(' rule_exp ')'                { ['group',     $_[2]] }
   | alias_name '=' rule_exp         { ['alias',     $_[1], $_[3]] }
-  | rule_exp rule_exp %prec _cc     { $_[1]->[0] eq 'concat'
-                                        ? [@{$_[1]}, $_[2]]
-                                        : ['concat',$_[1], $_[2]] }
-  | rule_exp '|' rule_exp           { $_[1]->[0] eq 'or'
-                                        ? [@{$_[1]}, $_[3]]
-                                        : ['or',    $_[1], $_[3]] }
+  | rule_exp rule_exp %prec _cc     { _J('concat',  $_[1], $_[2]) }
+  | rule_exp '|' rule_exp           { _J('or',      $_[1], $_[3]) }
   ;
 
 term:
@@ -69,7 +76,15 @@ quantifiers:
     rule_exp '?'                    { ['q',         $_[1], 0, 1] }
   | rule_exp '*'                    { ['q',         $_[1], 0] }
   | rule_exp '+'                    { ['q',         $_[1], 1] }
+  | rule_exp '{' range '}'          { ['q',         $_[1], @{$_[3]}] }
   | '{' rule_exp ',' rule_exp '}'   { ['repeat',    $_[2], $_[4]] }
+  ;
+
+range:
+    _number                         { [ $_[1], $_[1] ] }
+  | _number '.' '.'                 { [ $_[1], ] }
+  | '.' '.' _number                 { [ 0, $_[3] ] }
+  | _number '.' '.' _number         { [ $_[1], $_[4] ] }
   ;
 
 call:

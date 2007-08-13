@@ -1,6 +1,7 @@
 package cmt::oop;       # object-oriented parser
 
 use strict;
+use cmt::lexutil;
 use cmt::oop_y;
 use cmt::oop_mod;
 use cmt::util;
@@ -61,6 +62,7 @@ sub oop_parse {
         qw(_del_n %%\n) => sub { $lexer->start('footer');['sect_delim','%%']},
         qw(
             id          [a-zA-Z_][a-zA-Z_0-9]*
+            number      \d+
             rw_cntl     \^[a-zA-Z_][a-zA-Z_0-9]*
             ruledef_op  ::=
         ),
@@ -73,32 +75,7 @@ sub oop_parse {
     $lexer->from($f);
     $lexer->start('header');
 
-    my $yylex = sub {
-        my $t;
-        my ($n, $v);
-      T:while (1) {
-            $t = $lexer->next;
-            last if !defined($t) || $lexer->eoi;
-            $n = $t->name;
-            $v = $t->text;
-          N:while (1) {
-                # print "<$n>\n";
-                next T if substr($n, 0, 2) eq '__';
-                if (substr($n, 0, 1) eq '_') {
-                    if (ref $v eq 'ARRAY') {
-                        ($n, $v) = @$v;
-                        next N;
-                    } else {
-                        $n = $v;
-                    }
-                }
-                last
-            }
-            last
-        }
-        $n = '_'.$n if $n =~ /^[a-zA-Z]/;
-        ($n, $v)
-    };
+    my $yylex = yylex2 $lexer;
     # _lexdump($lexer, $yylex); return;
 
     my $parser = new cmt::oop_y;
@@ -115,16 +92,26 @@ sub oop_parse {
 }
 
 sub oop_conv {
-    my $dom = shift;
-    my $mod = shift || new cmt::oop_mod;
-    $mod->prep_rules($dom->{'rules'});
-    $mod->dump($dom)
+    my ($dom, $mod) = @_;
+    if (defined $mod) {
+        $mod->add_ruledefs($dom->{'rules'});
+    } else {
+        $mod = new cmt::oop_mod($dom);
+    }
+    my ($yylex, $lexer) = $mod->newlexer;
+    {
+        'mod'   => $mod,
+        'y'     => $mod->dump,
+        'yylex' => $yylex,
+        'lexer' => $lexer,
+    };
 }
 
 sub oop_compile {
     my $f = shift;
     my $dom = oop_parse $f;
-    oop_conv($dom, @_)
+    my $mod = oop_conv($dom, @_);
+    my ($yylex, $lexer)$mod->newlexer
 }
 
 sub oop {
@@ -137,3 +124,5 @@ sub oop {
     # $parser->parse($text);
     # return $parser->yylval;
 }
+
+1

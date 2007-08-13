@@ -1,32 +1,28 @@
 package cmt::oop_mod;
 
 use strict;
+use cmt::english;
+use cmt::lang;
+use cmt::lexutil;
+use Data::Dumper;
 use Exporter;
+use Parse::Lex;
 
 our @ISA    = qw(Exporter);
 our @EXPORT = qw();
-
-our $opt_verbtitle      = __PACKAGE__;
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
-
-sub new {
-    my $class   = shift;
-    bless {
-        dom     => $_[0],
-        rules   => $_[0]->{'rules'},
-        tokens  => {},
-    }, $class
-}
 
 my %PERLKW; $PERLKW{$_} = '_'.$_ for
     qw(continue do else elsif exit for foreach goto if last local my next
        no our package redo require return sub unless until use while);
 sub _perlkw { $PERLKW{$_[0]} || $_[0] }
 
-sub _strid  { my $s = shift; $s =~ s/\s+|\W/_/g; $s =~ /^\d/ ? '_'.$s : $s }
+sub _strid  { my $s = shift; $s =~ s/\s+|\W/_/g;
+                 $s =~ /^\d/ ? '__'.$s : '_'.$s }
 
-sub _uniq(\%$) { exists $_[0]->{$_[1]} ? _uniq($_[0], '_'.$_[1]) : $_[1] }
+sub _uniq(\%$;$) {
+    my $t = $_[1].$_[2];
+    exists $_[0]->{$t} ? _uniq($_[0], $_[1], $_[2] + 1) : $t
+}
 
 sub _uniqs {
     my $n = shift;
@@ -40,123 +36,297 @@ sub _uniqs {
     $n
 }
 
-sub _sel    { '$_['.$_[1].']' }
+my %_res_token = (
+    _id     => '[a-zA-Z_][a-zA-Z_0-9]*',
+    _number => '\d+',
+    _char   => [ qw(' (?:\\.|[^'])* ') ],
+    _string => [ qw(" (?:\\.|[^"])* "), sub { substr($_[1], 1, -1) } ],
+);
 
-# ref. group. alias.. concat.. or.. char. string. rw_cntl. q... repeat.. call.*
+sub new {
+    my $class   = shift;
+    my $this = bless {
+        # dom   => $_[0],
+        ruledef => {},
+        rule    => {},
+        token   => { %_res_token },
+        tokidx  => {},
+        rc      => {},      # ref-count
+    }, $class;
+    my $init_defs = $_[0]->{'rules'};
+       $this->add_ruledefs($init_defs) if defined $init_defs;
+    $this
+}
 
-sub prep_rules {
-    my $this = @_;
-    my $rules = $this->{rules};
-    my @orig_names = keys %$rules;
-    for my $name (@orig_names) {
-        my $rule = $rules->{$name};
-        # assert ref $rule
-        $rule = $this->call(@$rule)
-        $rules->{$name} = $rule;
+# No (empty) in rule-def
+sub _Ne     { $_[0]->[0] ne 'empty' or die "(empty) isn't allowed in ".$_[1];
+              $_[0] }
+
+sub _Rc     { $_[0]->{rc}->{$_[1]}++; $_[1] }
+
+sub add_ruledefs {
+    my ($this, $defs) = @_;
+    for (keys %$defs) {
+        $this->{'ruledef'}->{$_} = 1;
     }
+    for (keys %$defs) {
+        my $def = $defs->{$_};
+        my $rule = $this->add_ruledef($_, $def);
+    }
+}
+
+sub add_ruledef {
+    my ($this, $nam, $def) = @_;
+    $this->{ruledef}->{$nam} = $def;
+    my  $rule = $this->call(@$def);
+    if ($rule->[0] ne ':') {
+        $rule = $this->flat($rule);
+    }
+    $this->{rule}->{$nam} = $rule
+}
+
+sub mk_rule {
+    my ($this, $nampref, $def) = @_;
+    my $nam = $this->newnam($nampref);
+    $this->add_ruledef($nam, $def);
+    [ '.', $nam ]
 }
 
 sub call {
-    my ($this, $tag) = splice @_, 2;
+    my ($this, $tag) = splice @_, 0, 2;
     # return: [ symbol, alias ]
-    $this->tag(@_)
+    # print "parsing $tag - ".Dumper(\@_);
+    $this->$tag(@_)
 }
 
 sub newnam {
-    my ($this, $prefix) = @_;
-    _uniqs $prefix, $this->{rules}, $this->{tokens}
+    my ($this, $nampref) = @_;
+    _uniqs $nampref, $this->{ruledef}, $this->{token}
 }
 
-sub mkrule {
-    my ($this, $prefix) = splice @_, 2;
+sub toknam { _or($_[0]->{tokidx}->{$_[1]}, $_[0]->newnam(_strid $_[1])) }
+
+sub guessnam {
+    my ($this, $d) = @_;
+    my $tag = $d->[0];
+    if ($tag eq 'alias') {
+        return $d->[1];
+    } elsif ($tag eq 'ref') {
+        return $d->[1];
+    } elsif ($tag eq 'string') {
+        return $this->toknam($d->[1]);
+    } elsif ($tag eq 'concat') {
+        return guessnam($d->[1]);
+    } elsif ($tag eq 'group') {
+        return guessnam($d->[1]);
+    } elsif ($tag eq 'q') {
+        return guessnam($d->[1]);
+    } elsif ($tag eq 'repeat') {
+        return guessnam($d->[1]);
+    } else {
+        return $tag;
+    }
 }
 
-sub ref     { [ $_[1], $_[1] ]}
-sub alias   { [ $_[2]->[0], $_[1] ] }   # ignore any exists: $_[2]->[1]
+sub flat {
+    my $this = shift;
+
+    # (empty)
+    return [ ':', '' ] if ($#_ == 0 && ! defined $_[0]->[1]);
+
+    my %scope;
+    my @alias;
+    my $buf;
+    my $defcode = 1;
+    for (0..$#_) {
+        my $t = $_[$_];
+        my $alias = _or($t->[2], $t->[1]);
+           $alias = _uniq %scope, $alias;
+        $scope{$alias}++;
+        if ($t->[0] eq '!') {
+            my $decl = 'my ($' . join(', $', @alias) . ') = @_; '
+                if @alias and !defined $t->[3];
+            $t->[1] = '{ '. $decl . $t->[1] . ' }';
+            undef $defcode if $_ == $#_;
+        }
+        push @alias, $alias;
+        $buf .= ' ' if defined $buf;
+        $buf .= $t->[1];
+    }
+    if ($defcode) {
+        my $decl = 'my ($' . join(', $', @alias) . ') = @_; ' if @alias;
+        $defcode = '{ '. $decl . ' [ @_ ] }';
+        $buf .= ' ' if defined $buf;
+        $buf .= $defcode;
+    }
+    [ ':', $buf, @alias ]
+}
+
+# ref. group. alias.. concat.. or.. char. string. rw_cntl. q... repeat.. call.*
+
+sub empty   { [ '.', undef ] }
+sub ref     { [ '.', $_[0]->_Rc($_[1]) ] }
+sub code    { [ '!', $_[1], 'code', $_[2] ] }
+sub alias   { _R($_[2]); $_[2]->[2] = $_[1]; $_[2] }
 sub rw_cntl { undef }
-sub char    { [ $_[1], 'ch' ] }
+sub char    { [ '.', "'$_[1]'", 'ch' ] }
+
 sub string  {
     my ($this, $s) = @_;
-    my $toks    = $this->{tokens};
-    my $toknam  = $toks->{$s};
-    if ($toknam eq '') {
-        $toknam = _strid $s;
-        $toknam = $this->newnam($toknam);
-        $toks->{$s} = $toknam;
-    }
-    [ $toknam, $toknam ]
+    my $nam = $this->{tokidx}->{$s} = $this->toknam($s);
+    $this->{token}->{$nam} = $s;
+    [ '.', $this->_Rc($nam) ]
 }
 
 sub concat {
     my $this = shift;
-    @_ = map { $this->call(@$_) } @_;
-    [ @_ ]
+    @_ = map { _Ne($_, 'concat'); $this->call(@$_) } @_;
+    $this->flat(@_)
 }
 
 sub or {
     my $this = shift;
     @_ = map { $this->call(@$_) } @_;
-    @_
+    my $buf;
+    my @used_aliases;
+    for (@_) {
+        my $t = $_;
+           $t = $this->flat($t) if $t->[0] ne ':';
+        $buf .= "\n  | " if defined $buf;
+        $buf .= $t->[1];
+        push @used_aliases, @$t[2..$#$t];
+    }
+    [ ':', $buf, @used_aliases ]
 }
 
 sub group {
-    my ($this, $node) = @_;
-    $node = $this->call(@$node);
-    my $rules = $this->{rules};
-    my $gnam = $this->newnam('group');
-    $rules->{$gnam} = [ $node ];
-    [ $gnam, $gnam ]
+    my ($this, $d) = @_;
+    $this->mk_rule('group', _Ne($d, 'group'))
 }
 
 sub q {
-    my ($this, $node, $min, $max) = @_;
-    # assert 0 <= min <= max
-    $node = $this->call(@$node);
-    my $qnam = $this->newnam('quant');
-    if (defined $max) {
-        my $comb = [];
-        for (my $i = $min; $i <= $max; $i++) {
-            my $fixed = $node; # x $i;
-            push @$comb, $fixed;
-        }
-        $rules->{$qnam} = $comb;
-    } else {
-        my $fixed = $node; # x $min;
-        my $qnam_a = $this->newnam('quant_a');
-        # qnam_a: (empty)
-        #       | qnam_a $node
-        $rules->{$qnam} = [ $fixed, $any ];
-        $rules->{$qnam_a} = [ $any ];
+    my ($this, $d, $min, $max) = @_;    # assert 0 <= min <= max
+    _Ne($d, 'quantifier');
+    my $nampref = plural $this->guessnam($d);
+    my $nam = $this->newnam($nampref);
+    my $def;
+    my $prefix = [ 'concat' ];
+    for (my $i = 0; $i < $min; $i++) {
+        push @$prefix, $d;
     }
-    [ $qnam, $qnam ]
+    if (defined $max) {
+        $def = [ 'or', $min == 0
+                        ? [ 'code', '[]', 'RAW' ]
+                        : [ @$prefix, [ 'code', '[ @_ ]', 'RAW' ]]];
+        my $varlen = $max - $min + 1;
+        for (my $i = 1; $i < $varlen; $i++) {
+            my @vfixed = @$prefix;
+            for (my $j = 0; $j < $i; $j++) {
+                push @vfixed, $d;
+            }
+            push @$def, [ @vfixed, [ 'code', '[ @_ ]', 'RAW' ] ];
+        }
+    } elsif ($min == 0) {
+        # q:    (empty)
+        #     | q node
+        $def = [ 'or', [ 'code', '[]', 'RAW' ],
+                       [ 'concat', [ 'ref', $nam ],
+                                   $d,
+                                   [ 'code', '[ @{$_[1]}, $_[2] ]', 'RAW' ]]];
+    } else {
+        # q:    node ... node (x $min)
+        #     | q qe
+        # qe:   (empty)
+        #     | qe node
+        my $nam2 = $this->newnam($nampref.'_a');
+        my $def2 = [ 'or', [ 'code', '[]', 'RAW' ],
+                           [ 'concat',
+                                [ 'ref', $nam2 ],
+                                $d,
+                                [ 'code', '[ @{$_[1]}, $_[2] ]', 'RAW' ]]];
+        $this->add_ruledef($nam2, $def2);
+        $def = [ 'or', [ @$prefix, [ 'code', '[ @_ ]', 'RAW' ] ],
+                       [ 'concat',
+                            [ 'ref', $nam ],
+                            [ 'ref', $nam2 ],
+                            [ 'code', '[ @{$_[1]}, @{$_[2]} ]', 'RAW' ]]];
+    }
+    my $rule = $this->add_ruledef($nam, $def);
+    # my $alias = $rule->[2] if $#$rule == 2;
+    [ '.', $nam ]
+}
+
+sub _imgrp {
+    my $d = shift;
+    _Ne($d, 'implied-grouping');
+    if ($d->[0] eq 'concat' or $d->[0] eq 'or') {
+        $d = [ 'group', $d ]
+    }
+    $d
 }
 
 sub repeat {
     my ($this, $ker, $delim) = @_;
+    $ker    = _imgrp _Ne($ker, 'repeat/ker');
+    $delim  = _imgrp _Ne($delim, 'repeat/delim');
+
     # repeat: ker
     #       | repeat delim ker
-    my $repnam = $this->newnam('repeat');
-    $this->mkrule(
-        'or', $ker,
-              [ 'concat', [ 'ref', $repnam ],
-                          $delim, $ker ])
+    my $nam = $this->newnam('repeat');
+    my $def = [ 'or', $ker,
+                      [ 'concat', [ 'ref', $nam ],
+                                  $delim,
+                                  $ker ]];
+    $this->add_ruledef($nam, $def);
+    [ '.', $nam ]
 }
 
-sub dump    {
-    my ($this, $dom) = @_;
-    my $f = $dom->{'header'} . "\n%%\n";
-    my $rules = $dom->{'rules'};
-    for my $name (keys %$rules) {
-        my $or_list = $rules->{$name};
-        $f .= $name . ": \n    ";
-        for my $i (0..$#$or_list) {
-            my $items = $or_list->[$i];
-            $f .= "\n  | " if $i;
-            $f .= join(' ', @$items);
+sub newlexer {
+    my ($this, $lexer) = @_;
+    my $tokens = $this->{token};
+    my @Toks = qw(
+    );
+    for (keys %$tokens) {
+        print "? $_\n";
+        next unless exists $this->{rc}->{$_};
+        print "- $_\n";
+        my $tokdef = $tokens->{$_};
+        if (ref $tokdef eq 'ARRAY') {
+            my @xtok = @$tokdef;
+            my $code = pop @xtok if ref $xtok[-1] eq 'CODE';
+            my $tokg = @xtok > 1 ? \@xtok : $xtok[0];
+            if (defined $code) {
+                push @Toks, ($_, $tokg, $code);
+            } else {
+                push @Toks, ($_, $tokg);
+            }
+        } else {
+            push @Toks, ($_ => $tokdef);
         }
-        $f .= "\n  ;\n";
     }
-    $f . "%%\n" . $dom->{'footer'}
+    print Dumper(\@Toks);
+    if (defined $lexer) {
+        $lexer->defineTokens(@Toks);
+    } else {
+        $lexer = new Parse::Lex(@Toks);
+    }
+    my $yylex = yylex2 $lexer;
+    ( $yylex, $lexer )
+}
+
+sub dump {
+    my ($this, $dom) = @_;
+    my $header = $dom->{'header'} . "\n" if defined $dom;
+    my $footer = $dom->{'footer'} . "\n" if defined $dom;
+
+    my $rules = $this->{rule};
+    my $f = '';
+    for my $name (keys %$rules) {
+        my $rule = $rules->{$name};
+        my $flat = $rule->[1];
+        $f .= "$name: \n    $flat\n  ;\n\n";
+    }
+    $header . "%%\n" . $f . "%%\n" . $footer
 }
 
 1
