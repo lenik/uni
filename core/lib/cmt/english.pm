@@ -1,22 +1,36 @@
-
 package cmt::english;
 
 use Exporter;
-use vars qw/@ISA @EXPORT/;
+
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(plural
+                 presentp
+                 pastp
+                 perfectp
+                 );
+
+# V - vowel
+# C - consonant
+sub isVe    { /[aeiou]e$/ }
+sub isCe    { /[^aeiou]e$/ }
+sub isVVC   { /[aeiou][aeiou][^aeiou]$/ }
+sub isCVC   { /[^aeiou][aeiou][^aeiou]$/ }
+
+sub plural {
+    # [C]y      -> *ies     fly *ies
+    # [xsaiou]  -> ~es      fax -es, go -es
+    # [else]    -> ~s       dog -s
+    local $_ = shift;
+    return substr($_, 0, -1) . 'ies'
+                        if /[^aeiou]y$/;
+    return $_.'es'      if /[xsaiou]$/;
+    return $_.'s';
+}
 
 sub irr_init;
 
 our $irr_pastp      = undef;
 our $irr_perfectp   = undef;
-
-# participles
-
-# V - vowel
-# C - consonant
-sub isVe    { $_ =~ m/[aeiou]e$/ }
-sub isCe    { $_ =~ m/[^aeiou]e$/ }
-sub isVVC   { $_ =~ m/[aeiou][aeiou][^aeiou]$/ }
-sub isCVC   { $_ =~ m/[^aeiou][aeiou][^aeiou]$/ }
 
 sub presentp {
     # [V]e -> ~ying     d(ie) -ying
@@ -76,16 +90,7 @@ sub irr_init {
     }
 }
 
-@ISA = qw(Exporter);
-@EXPORT = qw(
-	presentp
-	pastp
-	perfectp
-	);
-
-1;
-
-
+1
 __DATA__
 arise                 arose                 arisen
 awake                 awoke                 awoken
