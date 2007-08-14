@@ -1,4 +1,4 @@
-@rem = '$Id: syset.bat,v 1.46 2007-08-02 22:52:53 lenik Exp $';
+@rem = '$Id: syset.bat,v 1.47 2007-08-14 15:20:37 lenik Exp $';
 @rem = ' (Not strict mode)
 
     @echo off
@@ -322,25 +322,29 @@ sub init {
 
         env_add('PATH', qr/^$prefix/i, [
                 path_normalize "$cirk_home",
-                path_normalize "$cirk_home\\Perl\\Perl5\\bin",
-                path_normalize "$cirk_home\\PHP\\PHP5",
-                path_normalize "$cirk_home\\Python\\Python24",
-                path_normalize "$cirk_home\\Ruby\\ruby\\bin",
-                path_normalize "$cirk_home\\Java\\bin",
-                path_normalize "$cirk_home\\MinGW\\bin",
-                path_normalize "$disk_cygwin\\bin",
-                path_normalize "$cirk_home\\Cygwin\\bin",
-                path_normalize "$dirt_home\\4",
-                path_normalize "$dirt_home\\5",
-                path_normalize "$dirt_home\\6",
-                path_normalize "$dirt_home\\7",
-                path_normalize "$dirt_home\\8",
-                path_normalize "$dirt_home\\9",
+                path_normalize "$cirk_home/Perl/Perl5/bin",
+                path_normalize "$cirk_home/PHP/PHP5",
+                path_normalize "$cirk_home/Python/Python24",
+                path_normalize "$cirk_home/Ruby/ruby/bin",
+                path_normalize "$cirk_home/Java/bin",
+                path_normalize "$cirk_home/MinGW/bin",
+                path_normalize "$disk_cygwin/bin",
+                path_normalize "$cirk_home/Cygwin/bin",
+                path_normalize "$dirt_home/4",
+                path_normalize "$dirt_home/5",
+                path_normalize "$dirt_home/6",
+                path_normalize "$dirt_home/7",
+                path_normalize "$dirt_home/8",
+                path_normalize "$dirt_home/9",
                 ], [
                 path_normalize "$dirt_home",
-                path_normalize "$dirt_home\\0",
-                path_normalize "$dirt_home\\1",
-                path_normalize "$dirt_home\\3",
+                path_normalize "$dirt_home/0/xt/bin/overwrite",
+                path_normalize "$dirt_home/0/xt/sbin/overwrite",
+                path_normalize "$dirt_home/0",
+                path_normalize "$dirt_home/0/xt/bin",
+                path_normalize "$dirt_home/0/xt/sbin",
+                path_normalize "$dirt_home/1",
+                path_normalize "$dirt_home/3",
                 ]);
         print ".";
 
