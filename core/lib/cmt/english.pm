@@ -20,7 +20,8 @@ sub plural {
     # [C]y      -> *ies     fly *ies
     # [xsaiou]  -> ~es      fax -es, go -es
     # [else]    -> ~s       dog -s
-    local $_ = shift;
+    local  $_ = $_[0];
+    return $_[1]        if $_ eq '';
     return substr($_, 0, -1) . 'ies'
                         if /[^aeiou]y$/;
     return $_.'es'      if /[xsaiou]$/;
@@ -38,7 +39,8 @@ sub presentp {
     # [VVC] -> ~ing     eat -ing
     # [CVC] -> ~$ing    program -ming
     # (else)-> ~ing     act -ing
-    local($_) = shift;
+    local  $_ = $_[0];
+    return $_[1]        if $_ eq '';
     my $x = substr($_, -1);
     return $_.'ying'    if isVe;
     return $_.'ing'     if isCe;
@@ -53,7 +55,8 @@ sub _pastp {
     # [VVC] -> ~ed      eat -ed
     # [CVC] -> ~$ed     program -med
     # [else]-> ~ed      act -ed
-    local($_) = shift;
+    local  $_ = $_[0];
+    return $_[1]        if $_ eq '';
     my $x = substr($_, -1);
     return $_.'d'       if isVe;
     return $_.'d'       if isCe;
