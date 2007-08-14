@@ -1,9 +1,13 @@
 package cmt::oop_mod;
 
 use strict;
+use constant(
+    C_GA    => '[@_[1..$#_]]',
+    );
 use cmt::english;
 use cmt::lang;
 use cmt::lexutil;
+use cmt::util;
 use Data::Dumper;
 use Exporter;
 use Parse::Lex;
@@ -41,6 +45,7 @@ my %_res_token = (
     _number => '\d+',
     _char   => [ qw(' (?:\\.|[^'])* ') ],
     _string => [ qw(" (?:\\.|[^"])* "), sub { substr($_[1], 1, -1) } ],
+    _nl     => '\n',
 );
 
 sub new {
@@ -96,6 +101,7 @@ sub call {
     my ($this, $tag) = splice @_, 0, 2;
     # return: [ symbol, alias ]
     # print "parsing $tag - ".Dumper(\@_);
+    die "unknown pattern name: $tag" unless $this->can($tag);
     $this->$tag(@_)
 }
 
@@ -119,7 +125,7 @@ sub guessnam {
         return guessnam($d->[1]);
     } elsif ($tag eq 'group') {
         return guessnam($d->[1]);
-    } elsif ($tag eq 'q') {
+    } elsif ($tag eq 'qt') {
         return guessnam($d->[1]);
     } elsif ($tag eq 'repeat') {
         return guessnam($d->[1]);
@@ -154,22 +160,26 @@ sub flat {
         $buf .= $t->[1];
     }
     if ($defcode) {
-        my $decl = 'my ($' . join(', $', @alias) . ') = @_; ' if @alias;
-        $defcode = '{ '. $decl . ' [ @_ ] }';
-        $buf .= ' ' if defined $buf;
-        $buf .= $defcode;
+        # my $decl = 'my ($' . join(', $', @alias) . ') = @_; ' if @alias;
+        if (@_ > 1) {
+            $defcode = '{ '. C_GA . ' }';
+            $buf .= ' ' if defined $buf;
+            $buf .= $defcode;
+        } else {
+            # yapp: the default semantic of a rule is equal to $_[1]
+        }
     }
     [ ':', $buf, @alias ]
 }
 
-# ref. group. alias.. concat.. or.. char. string. rw_cntl. q... repeat.. call.*
-
 sub empty   { [ '.', undef ] }
 sub ref     { [ '.', $_[0]->_Rc($_[1]) ] }
 sub code    { [ '!', $_[1], 'code', $_[2] ] }
-sub alias   { _R($_[2]); $_[2]->[2] = $_[1]; $_[2] }
-sub rw_cntl { undef }
+sub alias   { $_[2]->[2] = $_[1]; $_[2] }
 sub char    { [ '.', "'$_[1]'", 'ch' ] }
+
+sub rw_cntl { undef }
+sub raw     { [ '.', $_[1] ] }
 
 sub string  {
     my ($this, $s) = @_;
@@ -204,10 +214,10 @@ sub group {
     $this->mk_rule('group', _Ne($d, 'group'))
 }
 
-sub q {
+sub qt {
     my ($this, $d, $min, $max) = @_;    # assert 0 <= min <= max
     _Ne($d, 'quantifier');
-    my $nampref = plural $this->guessnam($d);
+    my $nampref = plural($this->guessnam($d), 'quant');
     my $nam = $this->newnam($nampref);
     my $def;
     my $prefix = [ 'concat' ];
@@ -217,14 +227,14 @@ sub q {
     if (defined $max) {
         $def = [ 'or', $min == 0
                         ? [ 'code', '[]', 'RAW' ]
-                        : [ @$prefix, [ 'code', '[ @_ ]', 'RAW' ]]];
+                        : [ @$prefix, [ 'code', C_GA, 'RAW' ]]];
         my $varlen = $max - $min + 1;
         for (my $i = 1; $i < $varlen; $i++) {
             my @vfixed = @$prefix;
             for (my $j = 0; $j < $i; $j++) {
                 push @vfixed, $d;
             }
-            push @$def, [ @vfixed, [ 'code', '[ @_ ]', 'RAW' ] ];
+            push @$def, [ @vfixed, [ 'code', C_GA, 'RAW' ] ];
         }
     } elsif ($min == 0) {
         # q:    (empty)
@@ -245,7 +255,7 @@ sub q {
                                 $d,
                                 [ 'code', '[ @{$_[1]}, $_[2] ]', 'RAW' ]]];
         $this->add_ruledef($nam2, $def2);
-        $def = [ 'or', [ @$prefix, [ 'code', '[ @_ ]', 'RAW' ] ],
+        $def = [ 'or', [ @$prefix, [ 'code', C_GA, 'RAW' ] ],
                        [ 'concat',
                             [ 'ref', $nam ],
                             [ 'ref', $nam2 ],
@@ -273,10 +283,10 @@ sub repeat {
     # repeat: ker
     #       | repeat delim ker
     my $nam = $this->newnam('repeat');
-    my $def = [ 'or', $ker,
-                      [ 'concat', [ 'ref', $nam ],
-                                  $delim,
-                                  $ker ]];
+    my $def = [ 'or', [ 'concat', $ker,
+                                  [ 'code', '[$_[1]]', 'RAW' ]],
+                      [ 'concat', [ 'ref', $nam ], $delim, $ker,
+                                  [ 'code', '[@{$_[1]}, $_[3]]', 'RAW' ]]];
     $this->add_ruledef($nam, $def);
     [ '.', $nam ]
 }
@@ -287,44 +297,51 @@ sub newlexer {
     my @Toks = qw(
     );
     for (keys %$tokens) {
-        print "? $_\n";
         next unless exists $this->{rc}->{$_};
-        print "- $_\n";
         my $tokdef = $tokens->{$_};
+        my $toknam = substr($_, 1);     # remove the leading _(underline)
         if (ref $tokdef eq 'ARRAY') {
             my @xtok = @$tokdef;
             my $code = pop @xtok if ref $xtok[-1] eq 'CODE';
             my $tokg = @xtok > 1 ? \@xtok : $xtok[0];
             if (defined $code) {
-                push @Toks, ($_, $tokg, $code);
+                push @Toks, ($toknam, $tokg, $code);
             } else {
-                push @Toks, ($_, $tokg);
+                push @Toks, ($toknam, $tokg);
             }
         } else {
-            push @Toks, ($_ => $tokdef);
+            push @Toks, ($toknam => $tokdef);
         }
     }
-    print Dumper(\@Toks);
+    push @Toks, (
+        qw(
+            _op         .
+        ));
+    # print Dumper(\@Toks);
     if (defined $lexer) {
         $lexer->defineTokens(@Toks);
     } else {
         $lexer = new Parse::Lex(@Toks);
     }
-    my $yylex = yylex2 $lexer;
-    ( $yylex, $lexer )
+    yylex2 $lexer
 }
 
 sub dump {
     my ($this, $dom) = @_;
     my $header = $dom->{'header'} . "\n" if defined $dom;
     my $footer = $dom->{'footer'} . "\n" if defined $dom;
-
-    my $rules = $this->{rule};
-    my $f = '';
-    for my $name (keys %$rules) {
-        my $rule = $rules->{$name};
+    my $seq    = $dom->{'seq'};
+    my $seqm   = $dom->{'seqm'};
+    my $rules  = $this->{rule};
+    my $f      = '';
+    my @namseq = @$seq if defined $seq;
+    for (keys %$rules) {
+        push @namseq, $_ unless defined $seqm and exists $seqm->{$_};
+    }
+    for (@namseq) {
+        my $rule = $rules->{$_};
         my $flat = $rule->[1];
-        $f .= "$name: \n    $flat\n  ;\n\n";
+        $f .= "$_: \n    $flat\n  ;\n\n";
     }
     $header . "%%\n" . $f . "%%\n" . $footer
 }
