@@ -147,20 +147,24 @@ sub flat {
     for (0..$#_) {
         my $t = $_[$_];
         my $alias = _or($t->[2], $t->[1]);
-           $alias = _uniq %scope, $alias;
-        $scope{$alias}++;
+        if ($alias =~ /^\w/) {
+            $alias = _uniq %scope, $alias;
+            $scope{$alias}++;
+        } else {
+            undef $alias;
+        }
         if ($t->[0] eq '!') {
-            my $decl = 'my ($' . join(', $', @alias) . ') = @_; '
+            my $decl = 'shift; my ($' . join(', $', @alias) . ') = @_; '
                 if @alias and !defined $t->[3];
             $t->[1] = '{ '. $decl . $t->[1] . ' }';
             undef $defcode if $_ == $#_;
         }
-        push @alias, $alias;
+        push @alias, $alias if defined $alias;
         $buf .= ' ' if defined $buf;
         $buf .= $t->[1];
     }
     if ($defcode) {
-        # my $decl = 'my ($' . join(', $', @alias) . ') = @_; ' if @alias;
+        # my $decl = 'shift; my ($' . join(', $', @alias) . ') = @_; ' if @alias;
         if (@_ > 1) {
             $defcode = '{ '. C_GA . ' }';
             $buf .= ' ' if defined $buf;
