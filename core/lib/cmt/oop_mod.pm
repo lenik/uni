@@ -140,7 +140,7 @@ sub flat {
     # (empty)
     return [ ':', '' ] if ($#_ == 0 && ! defined $_[0]->[1]);
 
-    my %scope;
+    my %scope = (_0 => 1);
     my @alias;
     my $buf;
     my $defcode = 1;
@@ -154,7 +154,7 @@ sub flat {
             undef $alias;
         }
         if ($t->[0] eq '!') {
-            my $decl = 'shift; my ($' . join(', $', @alias) . ') = @_; '
+            my $decl = 'my ($_0, $' . join(', $', @alias) . ') = @_; '
                 if @alias and !defined $t->[3];
             $t->[1] = '{ '. $decl . $t->[1] . ' }';
             undef $defcode if $_ == $#_;
@@ -164,7 +164,7 @@ sub flat {
         $buf .= $t->[1];
     }
     if ($defcode) {
-        # my $decl = 'shift; my ($' . join(', $', @alias) . ') = @_; ' if @alias;
+        # my $decl = 'my ($_0, $' . join(', $', @alias) . ') = @_; ' if @alias;
         if (@_ > 1) {
             $defcode = '{ '. C_GA . ' }';
             $buf .= ' ' if defined $buf;
