@@ -1,25 +1,30 @@
 @echo off
 
     setlocal
-    set _strict=1
     goto init
 
 :start
+    if not "%_file%"=="" goto exec
 
     ppid
-    set _tmpf=$SRC_%errorlevel%_%random%.bat
+    set _file=$SRC_%errorlevel%_%random%.bat
+    set _istmp=1
 
     if %_verbose% leq 0 (
-        echo @echo off >"%_tmpf%"
+        echo @echo off >"%_file%"
     ) else (
-        echo @echo on >"%_tmpf%"
+        echo @echo on >"%_file%"
     )
-    call fddump -a "%_tmpf%"
+    call fddump -a "%_file%"
 
-    call "%_tmpf%" %_rest%
+:exec
+    if %_verbose% geq 1 (
+        echo executing %_file%
+    )
+
+    call "%_file%" %_rest%
    @echo off
 
-    del %_tmpf%
     goto cleanup
 
 :init
@@ -64,6 +69,9 @@
     goto prep1
 
 :prep2
+    if "%~1"=="" goto prep3
+    if not "%~1"=="-" set _file=%~1
+    shift
 
 :prep3
     if "%~1"=="" goto init_ok
@@ -81,7 +89,7 @@
     goto start
 
 :version
-    set _id=$Id: source.bat,v 1.1 2007-08-09 13:50:54 lenik Exp $
+    set _id=$Id: source.bat,v 1.2 2007-08-16 10:50:16 lenik Exp $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
@@ -106,5 +114,15 @@
     goto end
 
 :cleanup
+    if "%_istmp%"=="1" (
+        if %_verbose% leq 0 del %_file%
+    )
 
 :end
+    set  _verbose=
+    set      _ret=
+    set     _rest=
+    set _startdir=
+    set  _program=
+    set     _file=
+    set    _istmp=
