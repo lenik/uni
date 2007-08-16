@@ -3,16 +3,20 @@
 %token      _rw_cntl
 %token      _ruledef_op _sect_delim
 
+%nonassoc   _char _string _id _rw_cntl _code
+%nonassoc   '(' ')'
+%nonassoc   '%'
+
 %left       '|'
 %left       ','
-%left       _cc
+%nonassoc   _cc_low
+%nonassoc   _cc
+%nonassoc   _repeat
 %left       '/'
 %right      '='
-%right      '?' '*' '+'
+%nonassoc   '{' '}'
+%nonassoc   '?' '*' '+'
 
-%nonassoc   _char _string _id _rw_cntl _code
-%nonassoc   '(' ')' '{' '}'
-%nonassoc   '%'
 
 %{
     my @S;
@@ -64,22 +68,38 @@ rules:
   ;
 
 rule:
-    symbol_name ruledef_op rule_exp ';'
+    symbol_name ruledef_op ruledefs ';'
                                     { [ $_[1], $_[3] ] }
   ;
 
-rule_exp:
+ruledefs:
+    ruledef
+  | ruledefs '|' ruledef            { _J('or',      $_[1], $_[3]) }
+  ;
+
+ruledef:                            { ['empty'] }
+  | nonempty
+  ;
+
+nonempty:
+    ruleexp
+  | concat                          { ['concat',    @{$_[1]}] }
+  ;
+
+concat:
+    ruleexp ruleexp %prec _cc_low   { [ $_[1], $_[2] ] }
+  | concat ruleexp %prec _cc        { [ @{$_[1]}, $_[2] ] }
+  ;
+
+ruleexp:
     term
   | symbol_name                     { ['ref',       $_[1]] }
   | _code                           { ['code',      $_[1]] }
   | quantifiers
   | call
-  | '(' ')'                         { ['empty'] }
-  | '(' rule_exp ')'                { ['group',     $_[2]] }
-  | alias_name '=' rule_exp         { ['alias',     $_[1], $_[3]] }
-  | rule_exp '/' alias_name         { ['alias',     $_[3], $_[1]] }
-  | rule_exp rule_exp %prec _cc     { _J('concat',  $_[1], $_[2]) }
-  | rule_exp '|' rule_exp           { _J('or',      $_[1], $_[3]) }
+  | '(' ruledefs ')'                { ['group',     $_[2]] }
+  | alias_name '=' ruleexp          { ['alias',     $_[1], $_[3]] }
+  | ruleexp '/' alias_name          { ['alias',     $_[3], $_[1]] }
   | rw_exp
   | spec
   ;
@@ -90,11 +110,12 @@ term:
   ;
 
 quantifiers:
-    rule_exp '?'                    { ['qt',        $_[1], 0, 1] }
-  | rule_exp '*'                    { ['qt',        $_[1], 0] }
-  | rule_exp '+'                    { ['qt',        $_[1], 1] }
-  | rule_exp '{' range '}'          { ['qt',        $_[1], @{$_[3]}] }
-  | '{' rule_exp ',' rule_exp '}'   { ['repeat',    $_[2], $_[4]] }
+    ruleexp '?'                     { ['qt',        $_[1], 0, 1] }
+  | ruleexp '*'                     { ['qt',        $_[1], 0] }
+  | ruleexp '+'                     { ['qt',        $_[1], 1] }
+  | ruleexp '{' range '}'           { ['qt',        $_[1], @{$_[3]}] }
+  | '{' ruledefs ',' nonempty '}' %prec _repeat
+                                    { ['repeat',    $_[2], $_[4]] }
   ;
 
 range:
@@ -109,8 +130,8 @@ call:
   ;
 
 explist:
-    rule_exp                        { [$_[1]] }
-  | explist ',' rule_exp            { [@{$_[1]}, $_[3]] }
+    ruleexp                         { [$_[1]] }
+  | explist ',' ruleexp             { [@{$_[1]}, $_[3]] }
   ;
 
 rw_exp:
@@ -119,7 +140,7 @@ rw_exp:
 
 spec:
     '%' _id _id                     { ['raw',       '%'.$_[2].' '.$_[3]] }
-  | '%' _id _char                   { ['raw',       '%'.$_[2].' '.$_[3]] }
+  | '%' _id _char                   { ['raw',       '%'.$_[2]." '$_[3]'"] }
   ;
 
 symbol_name:    _id;

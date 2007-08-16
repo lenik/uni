@@ -14,7 +14,7 @@ use strict;
 @ISA= qw ( Parse::Yapp::Driver );
 use Parse::Yapp::Driver;
 
-#line 17 "oop_y.y"
+#line 21 "oop_y.y"
 
     my @S;
 
@@ -96,7 +96,7 @@ sub new {
 		}
 	},
 	{#State 9
-		DEFAULT => -41
+		DEFAULT => -46
 	},
 	{#State 10
 		DEFAULT => -8
@@ -116,32 +116,37 @@ sub new {
 		DEFAULT => 0
 	},
 	{#State 13
-		DEFAULT => -44
+		DEFAULT => -49
 	},
 	{#State 14
-		DEFAULT => -45
+		DEFAULT => -50
 	},
 	{#State 15
 		ACTIONS => {
-			'_string' => 19,
-			'_id' => 23,
-			"{" => 24,
-			"%" => 25,
-			'_char' => 27,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			'_code' => 34
+			'_string' => 27,
+			'_id' => 21,
+			"{" => 29,
+			"%" => 22,
+			'_char' => 34,
+			"(" => 35,
+			'_rw_cntl' => 36,
+			'_code' => 38
 		},
+		DEFAULT => -13,
 		GOTOS => {
-			'quantifiers' => 28,
-			'alias_name' => 20,
-			'symbol_name' => 22,
-			'spec' => 21,
-			'rule_exp' => 31,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35,
-			'term' => 26
+			'ruleexp' => 26,
+			'alias_name' => 19,
+			'spec' => 28,
+			'symbol_name' => 20,
+			'concat' => 30,
+			'ruledefs' => 31,
+			'ruledef' => 32,
+			'term' => 23,
+			'quantifiers' => 33,
+			'nonempty' => 24,
+			'function_name' => 37,
+			'rw_exp' => 39,
+			'call' => 25
 		}
 	},
 	{#State 16
@@ -150,7 +155,7 @@ sub new {
 		},
 		DEFAULT => -4,
 		GOTOS => {
-			'text' => 36,
+			'text' => 40,
 			'textl' => 3
 		}
 	},
@@ -161,602 +166,504 @@ sub new {
 		DEFAULT => -1
 	},
 	{#State 19
-		DEFAULT => -25
+		ACTIONS => {
+			"=" => 41
+		}
 	},
 	{#State 20
-		ACTIONS => {
-			"=" => 37
-		}
+		DEFAULT => -20
 	},
 	{#State 21
-		DEFAULT => -23
+		ACTIONS => {
+			"<" => -48,
+			"=" => -47
+		},
+		DEFAULT => -46
 	},
 	{#State 22
-		DEFAULT => -12
+		ACTIONS => {
+			'_id' => 42
+		}
 	},
 	{#State 23
-		ACTIONS => {
-			"<" => -43,
-			"=" => -42
-		},
-		DEFAULT => -41
+		DEFAULT => -19
 	},
 	{#State 24
-		ACTIONS => {
-			'_string' => 19,
-			'_id' => 23,
-			"{" => 24,
-			"%" => 25,
-			'_char' => 27,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			'_code' => 34
-		},
-		GOTOS => {
-			'quantifiers' => 28,
-			'alias_name' => 20,
-			'symbol_name' => 22,
-			'spec' => 21,
-			'rule_exp' => 38,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35,
-			'term' => 26
-		}
+		DEFAULT => -14
 	},
 	{#State 25
-		ACTIONS => {
-			'_id' => 39
-		}
+		DEFAULT => -23
 	},
 	{#State 26
-		DEFAULT => -11
+		ACTIONS => {
+			"+" => 43,
+			'_id' => 21,
+			"%" => 22,
+			"*" => 44,
+			'_string' => 27,
+			"?" => 46,
+			"{" => 47,
+			"/" => 48,
+			'_char' => 34,
+			"(" => 35,
+			'_rw_cntl' => 36,
+			'_code' => 38
+		},
+		DEFAULT => -15,
+		GOTOS => {
+			'quantifiers' => 33,
+			'ruleexp' => 45,
+			'alias_name' => 19,
+			'spec' => 28,
+			'symbol_name' => 20,
+			'function_name' => 37,
+			'rw_exp' => 39,
+			'call' => 25,
+			'term' => 23
+		}
 	},
 	{#State 27
-		DEFAULT => -24
+		DEFAULT => -30
 	},
 	{#State 28
-		DEFAULT => -14
+		DEFAULT => -28
 	},
 	{#State 29
 		ACTIONS => {
-			'_string' => 19,
-			'_id' => 23,
-			"{" => 24,
-			"%" => 25,
-			'_char' => 27,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			'_code' => 34,
-			")" => 40
+			'_string' => 27,
+			'_id' => 21,
+			"{" => 29,
+			"%" => 22,
+			'_char' => 34,
+			"(" => 35,
+			'_rw_cntl' => 36,
+			'_code' => 38
 		},
+		DEFAULT => -13,
 		GOTOS => {
-			'quantifiers' => 28,
-			'alias_name' => 20,
-			'spec' => 21,
-			'symbol_name' => 22,
-			'rule_exp' => 41,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35,
-			'term' => 26
+			'ruleexp' => 26,
+			'alias_name' => 19,
+			'spec' => 28,
+			'symbol_name' => 20,
+			'concat' => 30,
+			'ruledefs' => 49,
+			'ruledef' => 32,
+			'term' => 23,
+			'quantifiers' => 33,
+			'nonempty' => 24,
+			'function_name' => 37,
+			'rw_exp' => 39,
+			'call' => 25
 		}
 	},
 	{#State 30
-		DEFAULT => -38
+		ACTIONS => {
+			'_string' => 27,
+			'_id' => 21,
+			"{" => 29,
+			"%" => 22,
+			'_char' => 34,
+			"(" => 35,
+			'_rw_cntl' => 36,
+			'_code' => 38
+		},
+		DEFAULT => -16,
+		GOTOS => {
+			'quantifiers' => 33,
+			'ruleexp' => 50,
+			'alias_name' => 19,
+			'spec' => 28,
+			'symbol_name' => 20,
+			'function_name' => 37,
+			'rw_exp' => 39,
+			'call' => 25,
+			'term' => 23
+		}
 	},
 	{#State 31
 		ACTIONS => {
-			'_string' => 19,
-			"?" => 45,
-			";" => 43,
-			"+" => 42,
-			'_id' => 23,
-			"{" => 46,
-			"/" => 47,
-			"%" => 25,
-			'_char' => 27,
-			"|" => 48,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			"*" => 44,
-			'_code' => 34
-		},
-		GOTOS => {
-			'quantifiers' => 28,
-			'alias_name' => 20,
-			'spec' => 21,
-			'symbol_name' => 22,
-			'rule_exp' => 49,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35,
-			'term' => 26
+			"|" => 52,
+			";" => 51
 		}
 	},
 	{#State 32
-		ACTIONS => {
-			"<" => 50
-		}
+		DEFAULT => -11
 	},
 	{#State 33
 		DEFAULT => -22
 	},
 	{#State 34
-		DEFAULT => -13
+		DEFAULT => -29
 	},
 	{#State 35
-		DEFAULT => -15
+		ACTIONS => {
+			'_string' => 27,
+			'_id' => 21,
+			"{" => 29,
+			"%" => 22,
+			'_char' => 34,
+			"(" => 35,
+			'_rw_cntl' => 36,
+			'_code' => 38
+		},
+		DEFAULT => -13,
+		GOTOS => {
+			'ruleexp' => 26,
+			'alias_name' => 19,
+			'spec' => 28,
+			'symbol_name' => 20,
+			'concat' => 30,
+			'ruledefs' => 53,
+			'ruledef' => 32,
+			'term' => 23,
+			'quantifiers' => 33,
+			'nonempty' => 24,
+			'function_name' => 37,
+			'rw_exp' => 39,
+			'call' => 25
+		}
 	},
 	{#State 36
-		DEFAULT => -3
+		DEFAULT => -43
 	},
 	{#State 37
 		ACTIONS => {
-			'_string' => 19,
-			'_id' => 23,
-			"{" => 24,
-			"%" => 25,
-			'_char' => 27,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			'_code' => 34
-		},
-		GOTOS => {
-			'quantifiers' => 28,
-			'alias_name' => 20,
-			'spec' => 21,
-			'symbol_name' => 22,
-			'rule_exp' => 51,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35,
-			'term' => 26
+			"<" => 54
 		}
 	},
 	{#State 38
-		ACTIONS => {
-			'_string' => 19,
-			"?" => 45,
-			"+" => 42,
-			'_id' => 23,
-			"{" => 46,
-			"/" => 47,
-			"," => 52,
-			"%" => 25,
-			'_char' => 27,
-			"|" => 48,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			"*" => 44,
-			'_code' => 34
-		},
-		GOTOS => {
-			'quantifiers' => 28,
-			'alias_name' => 20,
-			'spec' => 21,
-			'symbol_name' => 22,
-			'rule_exp' => 49,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35,
-			'term' => 26
-		}
+		DEFAULT => -21
 	},
 	{#State 39
-		ACTIONS => {
-			'_char' => 54,
-			'_id' => 53
-		}
+		DEFAULT => -27
 	},
 	{#State 40
-		DEFAULT => -16
+		DEFAULT => -3
 	},
 	{#State 41
 		ACTIONS => {
-			'_string' => 19,
-			"?" => 45,
-			"+" => 42,
-			'_id' => 23,
-			"{" => 46,
-			"/" => 47,
-			"%" => 25,
-			'_char' => 27,
-			"|" => 48,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			"*" => 44,
-			'_code' => 34,
-			")" => 55
+			'_string' => 27,
+			'_id' => 21,
+			"{" => 29,
+			"%" => 22,
+			'_char' => 34,
+			"(" => 35,
+			'_rw_cntl' => 36,
+			'_code' => 38
 		},
 		GOTOS => {
-			'quantifiers' => 28,
-			'alias_name' => 20,
-			'spec' => 21,
-			'symbol_name' => 22,
-			'rule_exp' => 49,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35,
-			'term' => 26
+			'quantifiers' => 33,
+			'ruleexp' => 55,
+			'alias_name' => 19,
+			'spec' => 28,
+			'symbol_name' => 20,
+			'function_name' => 37,
+			'rw_exp' => 39,
+			'call' => 25,
+			'term' => 23
 		}
 	},
 	{#State 42
-		DEFAULT => -28
+		ACTIONS => {
+			'_char' => 57,
+			'_id' => 56
+		}
 	},
 	{#State 43
-		DEFAULT => -10
+		DEFAULT => -33
 	},
 	{#State 44
-		DEFAULT => -27
+		DEFAULT => -32
 	},
 	{#State 45
-		DEFAULT => -26
+		ACTIONS => {
+			"+" => 43,
+			"*" => 44,
+			"?" => 46,
+			"{" => 58,
+			"/" => 48
+		},
+		DEFAULT => -17
 	},
 	{#State 46
-		ACTIONS => {
-			'_string' => 19,
-			'_id' => 23,
-			"{" => 24,
-			"%" => 25,
-			'_number' => 57,
-			'_char' => 27,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			'_code' => 34,
-			"." => 58
-		},
-		GOTOS => {
-			'alias_name' => 20,
-			'spec' => 21,
-			'symbol_name' => 22,
-			'range' => 56,
-			'term' => 26,
-			'quantifiers' => 28,
-			'rule_exp' => 38,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35
-		}
+		DEFAULT => -31
 	},
 	{#State 47
 		ACTIONS => {
-			'_id' => 60
+			'_string' => 27,
+			'_id' => 21,
+			"{" => 29,
+			"%" => 22,
+			'_number' => 60,
+			'_char' => 34,
+			"(" => 35,
+			'_rw_cntl' => 36,
+			'_code' => 38,
+			"." => 61
 		},
+		DEFAULT => -13,
 		GOTOS => {
-			'alias_name' => 59
+			'ruleexp' => 26,
+			'alias_name' => 19,
+			'spec' => 28,
+			'symbol_name' => 20,
+			'concat' => 30,
+			'range' => 59,
+			'ruledefs' => 49,
+			'ruledef' => 32,
+			'term' => 23,
+			'quantifiers' => 33,
+			'nonempty' => 24,
+			'function_name' => 37,
+			'rw_exp' => 39,
+			'call' => 25
 		}
 	},
 	{#State 48
 		ACTIONS => {
-			'_string' => 19,
-			'_id' => 23,
-			"{" => 24,
-			"%" => 25,
-			'_char' => 27,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			'_code' => 34
+			'_id' => 63
 		},
 		GOTOS => {
-			'quantifiers' => 28,
-			'alias_name' => 20,
-			'spec' => 21,
-			'symbol_name' => 22,
-			'rule_exp' => 61,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35,
-			'term' => 26
+			'alias_name' => 62
 		}
 	},
 	{#State 49
 		ACTIONS => {
-			"+" => 42,
-			'_id' => 23,
-			"%" => 25,
-			"*" => 44,
-			'_string' => 19,
-			"?" => 45,
-			"{" => 46,
-			"/" => 47,
-			'_char' => 27,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			'_code' => 34
-		},
-		DEFAULT => -20,
-		GOTOS => {
-			'quantifiers' => 28,
-			'alias_name' => 20,
-			'spec' => 21,
-			'symbol_name' => 22,
-			'rule_exp' => 49,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35,
-			'term' => 26
+			"|" => 52,
+			"," => 64
 		}
 	},
 	{#State 50
 		ACTIONS => {
-			'_string' => 19,
-			'_id' => 23,
-			"{" => 24,
-			"%" => 25,
-			'_char' => 27,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			'_code' => 34
+			"+" => 43,
+			"*" => 44,
+			"?" => 46,
+			"{" => 58,
+			"/" => 48
 		},
-		GOTOS => {
-			'explist' => 62,
-			'quantifiers' => 28,
-			'alias_name' => 20,
-			'spec' => 21,
-			'symbol_name' => 22,
-			'rule_exp' => 63,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35,
-			'term' => 26
-		}
+		DEFAULT => -18
 	},
 	{#State 51
-		ACTIONS => {
-			"+" => 42,
-			'_id' => 23,
-			"%" => 25,
-			"*" => 44,
-			'_string' => 19,
-			"?" => 45,
-			"{" => 46,
-			'_char' => 27,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			'_code' => 34
-		},
-		DEFAULT => -18,
-		GOTOS => {
-			'quantifiers' => 28,
-			'alias_name' => 20,
-			'spec' => 21,
-			'symbol_name' => 22,
-			'rule_exp' => 49,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35,
-			'term' => 26
-		}
+		DEFAULT => -10
 	},
 	{#State 52
 		ACTIONS => {
-			'_string' => 19,
-			'_id' => 23,
-			"{" => 24,
-			"%" => 25,
-			'_char' => 27,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			'_code' => 34
+			'_string' => 27,
+			'_id' => 21,
+			"{" => 29,
+			"%" => 22,
+			'_char' => 34,
+			"(" => 35,
+			'_rw_cntl' => 36,
+			'_code' => 38
 		},
+		DEFAULT => -13,
 		GOTOS => {
-			'quantifiers' => 28,
-			'alias_name' => 20,
-			'spec' => 21,
-			'symbol_name' => 22,
-			'rule_exp' => 64,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35,
-			'term' => 26
+			'ruleexp' => 26,
+			'alias_name' => 19,
+			'spec' => 28,
+			'symbol_name' => 20,
+			'concat' => 30,
+			'ruledef' => 65,
+			'term' => 23,
+			'quantifiers' => 33,
+			'nonempty' => 24,
+			'function_name' => 37,
+			'rw_exp' => 39,
+			'call' => 25
 		}
 	},
 	{#State 53
-		DEFAULT => -39
-	},
-	{#State 54
-		DEFAULT => -40
-	},
-	{#State 55
-		DEFAULT => -17
-	},
-	{#State 56
 		ACTIONS => {
-			"}" => 65
+			"|" => 52,
+			")" => 66
 		}
 	},
-	{#State 57
+	{#State 54
 		ACTIONS => {
-			"." => 66
+			'_string' => 27,
+			'_id' => 21,
+			"{" => 29,
+			"%" => 22,
+			'_char' => 34,
+			"(" => 35,
+			'_rw_cntl' => 36,
+			'_code' => 38
 		},
-		DEFAULT => -31
+		GOTOS => {
+			'ruleexp' => 67,
+			'alias_name' => 19,
+			'spec' => 28,
+			'symbol_name' => 20,
+			'term' => 23,
+			'quantifiers' => 33,
+			'explist' => 68,
+			'function_name' => 37,
+			'rw_exp' => 39,
+			'call' => 25
+		}
+	},
+	{#State 55
+		ACTIONS => {
+			"+" => 43,
+			"*" => 44,
+			"?" => 46,
+			"{" => 58
+		},
+		DEFAULT => -25
+	},
+	{#State 56
+		DEFAULT => -44
+	},
+	{#State 57
+		DEFAULT => -45
 	},
 	{#State 58
 		ACTIONS => {
-			"." => 67
+			"." => 61,
+			'_number' => 60
+		},
+		GOTOS => {
+			'range' => 59
 		}
 	},
 	{#State 59
-		DEFAULT => -19
+		ACTIONS => {
+			"}" => 69
+		}
 	},
 	{#State 60
-		DEFAULT => -42
+		ACTIONS => {
+			"." => 70
+		},
+		DEFAULT => -36
 	},
 	{#State 61
-		ACTIONS => {
-			"+" => 42,
-			'_id' => 23,
-			"%" => 25,
-			"*" => 44,
-			'_string' => 19,
-			"?" => 45,
-			"{" => 46,
-			"/" => 47,
-			'_char' => 27,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			'_code' => 34
-		},
-		DEFAULT => -21,
-		GOTOS => {
-			'quantifiers' => 28,
-			'alias_name' => 20,
-			'spec' => 21,
-			'symbol_name' => 22,
-			'rule_exp' => 49,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35,
-			'term' => 26
-		}
-	},
-	{#State 62
-		ACTIONS => {
-			"," => 68,
-			">" => 69
-		}
-	},
-	{#State 63
-		ACTIONS => {
-			'_string' => 19,
-			"?" => 45,
-			"+" => 42,
-			'_id' => 23,
-			"{" => 46,
-			"/" => 47,
-			"%" => 25,
-			'_char' => 27,
-			"|" => 48,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			"*" => 44,
-			'_code' => 34
-		},
-		DEFAULT => -36,
-		GOTOS => {
-			'quantifiers' => 28,
-			'alias_name' => 20,
-			'spec' => 21,
-			'symbol_name' => 22,
-			'rule_exp' => 49,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35,
-			'term' => 26
-		}
-	},
-	{#State 64
-		ACTIONS => {
-			'_string' => 19,
-			"}" => 70,
-			"?" => 45,
-			"+" => 42,
-			'_id' => 23,
-			"{" => 46,
-			"/" => 47,
-			"%" => 25,
-			'_char' => 27,
-			"|" => 48,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			"*" => 44,
-			'_code' => 34
-		},
-		GOTOS => {
-			'quantifiers' => 28,
-			'alias_name' => 20,
-			'spec' => 21,
-			'symbol_name' => 22,
-			'rule_exp' => 49,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35,
-			'term' => 26
-		}
-	},
-	{#State 65
-		DEFAULT => -29
-	},
-	{#State 66
 		ACTIONS => {
 			"." => 71
 		}
 	},
+	{#State 62
+		DEFAULT => -26
+	},
+	{#State 63
+		DEFAULT => -47
+	},
+	{#State 64
+		ACTIONS => {
+			'_string' => 27,
+			'_id' => 21,
+			"{" => 29,
+			"%" => 22,
+			'_char' => 34,
+			"(" => 35,
+			'_rw_cntl' => 36,
+			'_code' => 38
+		},
+		GOTOS => {
+			'ruleexp' => 26,
+			'alias_name' => 19,
+			'spec' => 28,
+			'symbol_name' => 20,
+			'concat' => 30,
+			'term' => 23,
+			'quantifiers' => 33,
+			'nonempty' => 72,
+			'function_name' => 37,
+			'rw_exp' => 39,
+			'call' => 25
+		}
+	},
+	{#State 65
+		DEFAULT => -12
+	},
+	{#State 66
+		DEFAULT => -24
+	},
 	{#State 67
 		ACTIONS => {
-			'_number' => 72
-		}
+			"?" => 46,
+			"*" => 44,
+			"+" => 43,
+			"{" => 58,
+			"/" => 48
+		},
+		DEFAULT => -41
 	},
 	{#State 68
 		ACTIONS => {
-			'_string' => 19,
-			'_id' => 23,
-			"{" => 24,
-			"%" => 25,
-			'_char' => 27,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			'_code' => 34
-		},
-		GOTOS => {
-			'quantifiers' => 28,
-			'alias_name' => 20,
-			'spec' => 21,
-			'symbol_name' => 22,
-			'rule_exp' => 73,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35,
-			'term' => 26
+			"," => 73,
+			">" => 74
 		}
 	},
 	{#State 69
-		DEFAULT => -35
+		DEFAULT => -34
 	},
 	{#State 70
-		DEFAULT => -30
+		ACTIONS => {
+			"." => 75
+		}
 	},
 	{#State 71
 		ACTIONS => {
-			'_number' => 74
-		},
-		DEFAULT => -32
+			'_number' => 76
+		}
 	},
 	{#State 72
-		DEFAULT => -33
+		ACTIONS => {
+			"}" => 77
+		}
 	},
 	{#State 73
 		ACTIONS => {
-			'_string' => 19,
-			"?" => 45,
-			"+" => 42,
-			'_id' => 23,
-			"{" => 46,
-			"/" => 47,
-			"%" => 25,
-			'_char' => 27,
-			"|" => 48,
-			"(" => 29,
-			'_rw_cntl' => 30,
-			"*" => 44,
-			'_code' => 34
+			'_string' => 27,
+			'_id' => 21,
+			"{" => 29,
+			"%" => 22,
+			'_char' => 34,
+			"(" => 35,
+			'_rw_cntl' => 36,
+			'_code' => 38
 		},
-		DEFAULT => -37,
 		GOTOS => {
-			'quantifiers' => 28,
-			'alias_name' => 20,
-			'spec' => 21,
-			'symbol_name' => 22,
-			'rule_exp' => 49,
-			'function_name' => 32,
-			'rw_exp' => 33,
-			'call' => 35,
-			'term' => 26
+			'quantifiers' => 33,
+			'ruleexp' => 78,
+			'alias_name' => 19,
+			'spec' => 28,
+			'symbol_name' => 20,
+			'function_name' => 37,
+			'rw_exp' => 39,
+			'call' => 25,
+			'term' => 23
 		}
 	},
 	{#State 74
-		DEFAULT => -34
+		DEFAULT => -40
+	},
+	{#State 75
+		ACTIONS => {
+			'_number' => 79
+		},
+		DEFAULT => -37
+	},
+	{#State 76
+		DEFAULT => -38
+	},
+	{#State 77
+		DEFAULT => -35
+	},
+	{#State 78
+		ACTIONS => {
+			"?" => 46,
+			"*" => 44,
+			"+" => 43,
+			"{" => 58,
+			"/" => 48
+		},
+		DEFAULT => -42
+	},
+	{#State 79
+		DEFAULT => -39
 	}
 ],
                                   yyrules  =>
@@ -767,7 +674,7 @@ sub new {
 	[#Rule 1
 		 'start', 3,
 sub
-#line 35 "oop_y.y"
+#line 39 "oop_y.y"
 { { 'header' => $_[1],
                                         'rules'  => $_[2],
                                         'footer' => $_[3],
@@ -777,236 +684,257 @@ sub
 	[#Rule 2
 		 'header', 2,
 sub
-#line 43 "oop_y.y"
+#line 47 "oop_y.y"
 { undef @S; $_[1] }
 	],
 	[#Rule 3
 		 'footer', 2,
 sub
-#line 47 "oop_y.y"
+#line 51 "oop_y.y"
 { $_[2] }
 	],
 	[#Rule 4
 		 'text', 0,
 sub
-#line 51 "oop_y.y"
+#line 55 "oop_y.y"
 { '' }
 	],
 	[#Rule 5
 		 'text', 1,
 sub
-#line 52 "oop_y.y"
+#line 56 "oop_y.y"
 { join('', @{$_[1]}) }
 	],
 	[#Rule 6
 		 'textl', 1,
 sub
-#line 56 "oop_y.y"
+#line 60 "oop_y.y"
 { [$_[1]] }
 	],
 	[#Rule 7
 		 'textl', 2,
 sub
-#line 57 "oop_y.y"
+#line 61 "oop_y.y"
 { [@{$_[1]}, $_[2]] }
 	],
 	[#Rule 8
 		 'rules', 1,
 sub
-#line 61 "oop_y.y"
+#line 65 "oop_y.y"
 { _H { _S($_[1]->[0]) => $_[1]->[1] } }
 	],
 	[#Rule 9
 		 'rules', 2,
 sub
-#line 62 "oop_y.y"
+#line 66 "oop_y.y"
 { $_[1]->{_S($_[2]->[0])} = $_[2]->[1];
                                       $_[1] }
 	],
 	[#Rule 10
 		 'rule', 4,
 sub
-#line 68 "oop_y.y"
+#line 72 "oop_y.y"
 { [ $_[1], $_[3] ] }
 	],
 	[#Rule 11
-		 'rule_exp', 1, undef
+		 'ruledefs', 1, undef
 	],
 	[#Rule 12
-		 'rule_exp', 1,
-sub
-#line 73 "oop_y.y"
-{ ['ref',       $_[1]] }
-	],
-	[#Rule 13
-		 'rule_exp', 1,
-sub
-#line 74 "oop_y.y"
-{ ['code',      $_[1]] }
-	],
-	[#Rule 14
-		 'rule_exp', 1, undef
-	],
-	[#Rule 15
-		 'rule_exp', 1, undef
-	],
-	[#Rule 16
-		 'rule_exp', 2,
+		 'ruledefs', 3,
 sub
 #line 77 "oop_y.y"
-{ ['empty'] }
-	],
-	[#Rule 17
-		 'rule_exp', 3,
-sub
-#line 78 "oop_y.y"
-{ ['group',     $_[2]] }
-	],
-	[#Rule 18
-		 'rule_exp', 3,
-sub
-#line 79 "oop_y.y"
-{ ['alias',     $_[1], $_[3]] }
-	],
-	[#Rule 19
-		 'rule_exp', 3,
-sub
-#line 80 "oop_y.y"
-{ ['alias',     $_[3], $_[1]] }
-	],
-	[#Rule 20
-		 'rule_exp', 2,
-sub
-#line 81 "oop_y.y"
-{ _J('concat',  $_[1], $_[2]) }
-	],
-	[#Rule 21
-		 'rule_exp', 3,
-sub
-#line 82 "oop_y.y"
 { _J('or',      $_[1], $_[3]) }
 	],
-	[#Rule 22
-		 'rule_exp', 1, undef
-	],
-	[#Rule 23
-		 'rule_exp', 1, undef
-	],
-	[#Rule 24
-		 'term', 1,
+	[#Rule 13
+		 'ruledef', 0,
 sub
-#line 88 "oop_y.y"
-{ ['char',      $_[1]] }
+#line 80 "oop_y.y"
+{ ['empty'] }
 	],
-	[#Rule 25
-		 'term', 1,
+	[#Rule 14
+		 'ruledef', 1, undef
+	],
+	[#Rule 15
+		 'nonempty', 1, undef
+	],
+	[#Rule 16
+		 'nonempty', 1,
 sub
-#line 89 "oop_y.y"
-{ ['string',    $_[1]] }
+#line 86 "oop_y.y"
+{ ['concat',    @{$_[1]}] }
 	],
-	[#Rule 26
-		 'quantifiers', 2,
+	[#Rule 17
+		 'concat', 2,
 sub
-#line 93 "oop_y.y"
-{ ['qt',        $_[1], 0, 1] }
+#line 90 "oop_y.y"
+{ [ $_[1], $_[2] ] }
 	],
-	[#Rule 27
-		 'quantifiers', 2,
+	[#Rule 18
+		 'concat', 2,
 sub
-#line 94 "oop_y.y"
-{ ['qt',        $_[1], 0] }
+#line 91 "oop_y.y"
+{ [ @{$_[1]}, $_[2] ] }
 	],
-	[#Rule 28
-		 'quantifiers', 2,
-sub
-#line 95 "oop_y.y"
-{ ['qt',        $_[1], 1] }
+	[#Rule 19
+		 'ruleexp', 1, undef
 	],
-	[#Rule 29
-		 'quantifiers', 4,
+	[#Rule 20
+		 'ruleexp', 1,
 sub
 #line 96 "oop_y.y"
-{ ['qt',        $_[1], @{$_[3]}] }
+{ ['ref',       $_[1]] }
 	],
-	[#Rule 30
-		 'quantifiers', 5,
+	[#Rule 21
+		 'ruleexp', 1,
 sub
 #line 97 "oop_y.y"
-{ ['repeat',    $_[2], $_[4]] }
+{ ['code',      $_[1]] }
 	],
-	[#Rule 31
-		 'range', 1,
+	[#Rule 22
+		 'ruleexp', 1, undef
+	],
+	[#Rule 23
+		 'ruleexp', 1, undef
+	],
+	[#Rule 24
+		 'ruleexp', 3,
+sub
+#line 100 "oop_y.y"
+{ ['group',     $_[2]] }
+	],
+	[#Rule 25
+		 'ruleexp', 3,
 sub
 #line 101 "oop_y.y"
-{ [ $_[1], $_[1] ] }
+{ ['alias',     $_[1], $_[3]] }
 	],
-	[#Rule 32
-		 'range', 3,
+	[#Rule 26
+		 'ruleexp', 3,
 sub
 #line 102 "oop_y.y"
-{ [ $_[1], ] }
+{ ['alias',     $_[3], $_[1]] }
 	],
-	[#Rule 33
-		 'range', 3,
-sub
-#line 103 "oop_y.y"
-{ [ 0, $_[3] ] }
+	[#Rule 27
+		 'ruleexp', 1, undef
 	],
-	[#Rule 34
-		 'range', 4,
-sub
-#line 104 "oop_y.y"
-{ [ $_[1], $_[4] ] }
+	[#Rule 28
+		 'ruleexp', 1, undef
 	],
-	[#Rule 35
-		 'call', 4,
+	[#Rule 29
+		 'term', 1,
 sub
 #line 108 "oop_y.y"
-{ ['call',      $_[1], @{$_[3]}] }
+{ ['char',      $_[1]] }
 	],
-	[#Rule 36
-		 'explist', 1,
+	[#Rule 30
+		 'term', 1,
 sub
-#line 112 "oop_y.y"
-{ [$_[1]] }
+#line 109 "oop_y.y"
+{ ['string',    $_[1]] }
 	],
-	[#Rule 37
-		 'explist', 3,
+	[#Rule 31
+		 'quantifiers', 2,
 sub
 #line 113 "oop_y.y"
-{ [@{$_[1]}, $_[3]] }
+{ ['qt',        $_[1], 0, 1] }
 	],
-	[#Rule 38
-		 'rw_exp', 1,
+	[#Rule 32
+		 'quantifiers', 2,
 sub
-#line 117 "oop_y.y"
-{ ['rw_cntl',   $_[1]] }
+#line 114 "oop_y.y"
+{ ['qt',        $_[1], 0] }
 	],
-	[#Rule 39
-		 'spec', 3,
+	[#Rule 33
+		 'quantifiers', 2,
 sub
-#line 121 "oop_y.y"
-{ ['raw',       '%'.$_[2].' '.$_[3]] }
+#line 115 "oop_y.y"
+{ ['qt',        $_[1], 1] }
 	],
-	[#Rule 40
-		 'spec', 3,
+	[#Rule 34
+		 'quantifiers', 4,
+sub
+#line 116 "oop_y.y"
+{ ['qt',        $_[1], @{$_[3]}] }
+	],
+	[#Rule 35
+		 'quantifiers', 5,
+sub
+#line 118 "oop_y.y"
+{ ['repeat',    $_[2], $_[4]] }
+	],
+	[#Rule 36
+		 'range', 1,
 sub
 #line 122 "oop_y.y"
-{ ['raw',       '%'.$_[2].' '.$_[3]] }
+{ [ $_[1], $_[1] ] }
+	],
+	[#Rule 37
+		 'range', 3,
+sub
+#line 123 "oop_y.y"
+{ [ $_[1], ] }
+	],
+	[#Rule 38
+		 'range', 3,
+sub
+#line 124 "oop_y.y"
+{ [ 0, $_[3] ] }
+	],
+	[#Rule 39
+		 'range', 4,
+sub
+#line 125 "oop_y.y"
+{ [ $_[1], $_[4] ] }
+	],
+	[#Rule 40
+		 'call', 4,
+sub
+#line 129 "oop_y.y"
+{ ['call',      $_[1], @{$_[3]}] }
 	],
 	[#Rule 41
-		 'symbol_name', 1, undef
+		 'explist', 1,
+sub
+#line 133 "oop_y.y"
+{ [$_[1]] }
 	],
 	[#Rule 42
-		 'alias_name', 1, undef
+		 'explist', 3,
+sub
+#line 134 "oop_y.y"
+{ [@{$_[1]}, $_[3]] }
 	],
 	[#Rule 43
-		 'function_name', 1, undef
+		 'rw_exp', 1,
+sub
+#line 138 "oop_y.y"
+{ ['rw_cntl',   $_[1]] }
 	],
 	[#Rule 44
-		 'ruledef_op', 1, undef
+		 'spec', 3,
+sub
+#line 142 "oop_y.y"
+{ ['raw',       '%'.$_[2].' '.$_[3]] }
 	],
 	[#Rule 45
+		 'spec', 3,
+sub
+#line 143 "oop_y.y"
+{ ['raw',       '%'.$_[2]." '$_[3]'"] }
+	],
+	[#Rule 46
+		 'symbol_name', 1, undef
+	],
+	[#Rule 47
+		 'alias_name', 1, undef
+	],
+	[#Rule 48
+		 'function_name', 1, undef
+	],
+	[#Rule 49
+		 'ruledef_op', 1, undef
+	],
+	[#Rule 50
 		 'ruledef_op', 1, undef
 	]
 ],
@@ -1014,7 +942,7 @@ sub
     bless($self,$class);
 }
 
-#line 130 "oop_y.y"
+#line 151 "oop_y.y"
 
 
 1;
