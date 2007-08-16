@@ -36,6 +36,8 @@ our $opt_start_recver;
 our $opt_start_sender;
 our $opt_start_delay    = 1000;
 our $opt_hexdump        = 0;
+our $opt_rawdump;
+our $opt_rawmask        = qr/[\x07]/;   # no-beep
 our $opt_width          = 16;
 
 my  $mios;
@@ -54,6 +56,7 @@ sub boot {
                'start-sender|ss=s',
                'start-delay|sd=n',
                'hexdump|x',
+               'rawdump|r:s',
                );
 
     $opt_target_host = shift @ARGV if @ARGV;
@@ -73,6 +76,18 @@ sub boot {
     info2 "start-sender:    $opt_start_sender";
     info2 "start-delay:     $opt_start_delay";
 
+    if (defined $opt_rawdump) {
+        my $range   = '^' if $opt_rawdump =~ s/^!//;
+        for (split(',', $opt_rawdump)) {
+            my ($from, $to) = split('-', $_);
+            $from   = '\x'.$from if defined $from;
+            $to     = '\x'.$to   if defined $to;
+            $range .= defined $to ? $from.'-'.$to : $from;
+        }
+        $opt_rawmask = eval "qr/[$range]/";
+        info2 "rawmask:         $opt_rawdump";
+    }
+
     main;
 }
 
@@ -85,13 +100,14 @@ sub info {
 
 sub info2 {
     return if $opt_verbose < 2;
-    my $text = shift;
+    local $_ = $_[0];
+    s/\a/^G/gs if $_[1];  # nobeep
     print datetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
+    print "[$opt_verbtitle] $_\n";
 }
 
 sub version {
-    my %id = parse_id('$Id: relay,v 1.7 2007-08-02 22:50:40 lenik Exp $');
+    my %id = parse_id('$Id: relay,v 1.8 2007-08-16 10:32:17 lenik Exp $');
     print "[$opt_verbtitle] TCP Relay And Sniff \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -112,6 +128,7 @@ Options:
         --start-sender=<cmdline>    (ss, cmdline is executed after the delay)
         --start-delay=<delay ms>    (sd, default 1000 ms)
         --hexdump                   (x, show hexdump column)
+        --rawdump=[char-range]      (r, charcode out of range is shown as '.')
         --quiet                     (q)
         --verbose                   (v, repeat to get more info)
         --version
@@ -181,7 +198,7 @@ sub main {
                 # do f_filter and forward to the target.
                 my ($s, $data) = @_;
                 my $b_stm = $s->{b_stm};
-                info2 "F-gotdata $s($b_stm): $data";
+                info2 "F-gotdata $s($b_stm): $data", 1;
                 $data = f_filter($data);
                 f_dump $data;
                 if (defined $data) {
@@ -254,7 +271,7 @@ sub relay_connect {
             # the target sent data to the relayer,
             # do b_filter and forward to the source.
             my ($s, $data) = @_;
-            info2 "B-gotdata $s: $data";
+            info2 "B-gotdata $s: $data", 1;
             $data = b_filter($data);
             b_dump $data;
             if (defined $data) {
@@ -269,7 +286,7 @@ sub relay_connect {
             my $s = shift;
             info2 "B-askdata $s";
             my $sendbuf = $f_stm->pull;
-            info2 "B-askdata resp: $sendbuf";
+            info2 "B-askdata resp: $sendbuf", 1;
             if ($sendbuf ne '') {
                 $s->write($sendbuf);
                 return 1;
@@ -334,6 +351,7 @@ sub puts {
         $_ = substr(indent($indent, $buf), $indent);
         print "$from> $_\n";
     } else {
+        s/$opt_rawmask/./sg if defined $opt_rawmask;
         $_ = substr(indent($indent, $_), $indent);
         print "$from> $_\n";
     }
