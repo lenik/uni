@@ -16,12 +16,16 @@ our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
 
 our @ISA        = qw(Exporter);
-our @EXPORT     = qw(oop_compile
-                     oop_parse
+our @EXPORT     = qw(oop_parse
                      oop_conv
+                     oop_newparser
                      oop);
+our @EXPORT_OK  = qw(_lexdump
+                     y_compile
+                     y_newparser
+                     y_error);
 
-sub _lexdump {
+sub lex_dump {
     my $lexer = shift;
     my $next = shift || sub {
         my $t = $lexer->next;
@@ -40,13 +44,20 @@ sub _lexdump {
 sub y_compile {
     my $ydef = shift;
     my $cls = shift || 'OOP_'.int(10000 * rand);
-    my $yp = new Parse::Yapp(input => $ydef);
+    my $yp = eval { new Parse::Yapp(input => $ydef) };
+    if ($@ ne '') {
+        print STDERR $@;
+        print $ydef;
+        exit;
+    }
     my $warnings = $yp->Warnings();
     my $conflicts = $yp->Conflicts();
     my $verbinfo;
-    if ($warnings or $conflicts) {
+    if ($warnings) {
         my $lin = "---------------------------------\n";
-        $verbinfo = "Rules: \n$lin".$yp->ShowRules
+        $verbinfo = "Warnings: \n$lin".$warnings
+                  . "\nConflicts: \n$lin".$conflicts
+                  . "\nRules: \n$lin".$yp->ShowRules
                   . "\nDFA: \n$lin".$yp->ShowDfa
                   . "\nSummary: \n$lin".$yp->Summary;
     }
@@ -75,9 +86,7 @@ sub y_newparser {
     my $ydef = shift;
     my $lexer = shift;
     my ($cls, $warnings, $conflicts, $verbinfo) = y_compile $ydef;
-    print STDERR $warnings  if $warnings;
-    print STDERR $conflicts if $conflicts;
-    print STDERR $verbinfo  if $verbinfo;
+    print STDERR $verbinfo if $verbinfo;
     my $parser = new $cls;
     # print "Created the parser for generated yacc-def: $parser\n";
     sub {
@@ -139,7 +148,7 @@ sub oop_parse {
     my $lexer = yylex2 $lex;
     my $yylex = $lexer->($f);
     $lex->start('header');
-    # _lexdump($lexer, $yylex); return;
+    # lex_dump($lexer, $yylex); return;
 
     my $parser = new cmt::oop_y;
     my $dom = $parser->YYParse(
@@ -172,7 +181,7 @@ sub oop_compile {
 
 sub oop_newparser {
     my ($ydef, $lexer) = oop_compile @_;
-    # return sub { _lexdump(undef, $lexer->(shift)); exit -1 };
+    # return sub { lex_dump(undef, $lexer->(shift)); exit -1 };
     my $yparser = y_newparser($ydef, $lexer);
     sub {
         $yparser->(shift)
