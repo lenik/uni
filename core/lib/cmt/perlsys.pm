@@ -7,6 +7,11 @@ use B;
 use Exporter;
 use YAML;
 
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(perlsh
+                 which_package
+                 which_sub);
+
 sub perlsh {
     my @ret;
     my $buf;
@@ -61,6 +66,11 @@ sub which_package {
 
 sub which_sub {
     my $sub = shift;
+    if (ref $sub eq '') {
+        return undef unless main->can($sub);
+        $sub = \&$sub;
+    }
+
     my $cv = B::svref_2object($sub);
     if (wantarray) {
         return ($cv->STASH->NAME(), $cv->FILE(), $cv->GV->LINE());
@@ -69,9 +79,4 @@ sub which_sub {
     }
 }
 
-@ISA    = qw(Exporter);
-@EXPORT = qw(perlsh
-	     which_package
-	     which_sub);
-
-1;
+1
