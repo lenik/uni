@@ -1,0 +1,256 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::pp;
+use cmt::util;
+use cmt::vcs;
+use Cwd;
+use Data::Dumper;
+use Getopt::Long;
+
+sub boot;
+sub info;
+sub info2;
+sub infob;
+sub version;
+sub help;
+
+sub out;
+sub outb;
+sub inputb;
+sub expand_alias;
+sub _main;
+sub cl_exec;
+
+our $opt_verbtitle      = 'pcs';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our %opt_alias;
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               );
+
+    eval "sub k_$_ { info2 '$_: '.$_(shift) }\n" for qw(
+        abs atan2 cos exp hex int lc lcfirst length log oct ord rand reverse
+        sin sqrt srand uc ucfirst
+
+        die dump exec exit gmtime localtime kill sleep utime system wait
+        waitpid warn
+    );
+
+    eval "sub v_$_ { info2 '$_: '.$_(shift) }\n" for qw(
+        chdir lstat mkdir rmdir stat truncate umask
+    );
+
+    eval "sub v_$_ { info2 '$_: '.$_(\@_) }" for qw(
+        crypt pack unpack
+        chmod chown chroot link rename symlink unlink
+    );
+
+    eval "sub v_$_ { $_(\@_) }" for qw(
+        print printf
+    );
+
+    binmode STDOUT;
+
+    _main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = ($opt_verbtime ? datetime.' ' : '') . shift;
+    out '#', "[$opt_verbtitle] $text";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = ($opt_verbtime ? datetime.' ' : '') . shift;
+    out '#', "[$opt_verbtitle] $text";
+}
+
+sub infob {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    outb '# '.($opt_verbtime ? datetime.' ' : ''), $text;
+}
+
+sub version {
+    my %id = parse_id('$Id: pcs,v 1.1 2007-08-22 15:48:48 lenik Exp $');
+    return \%id if shift;
+    print "[$opt_verbtitle] Perl Console Server \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -h, --help              show this help page
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+        --version           print the version info
+EOM
+}
+
+exit boot;
+
+sub out {
+    my $cap = shift;
+    print $cap . ' ' . join('', @_) . "\n";
+}
+
+sub out_ {
+    my $cap = shift;
+    print $cap . ' ' . join('', @_);
+}
+
+sub outb {
+    my $cap = shift;
+    my $bin = join('', @_);
+    print '['.length($bin)."] $cap\n";
+    print $bin;
+    print "\n";
+}
+
+sub inputb {
+    my $cb = shift if ref $_[0] eq 'CODE';
+    my $buf = join(' ', @_);
+    my $n;
+    my $len;
+    if ($buf =~ /^\[(\d+)\]/) {
+        $len = $1;
+        my $off = 0;
+        while ($off < $len) {
+            info2 "reading $off/$len";
+            my $read;
+            if ($cb) {
+                undef $buf;
+                $read = read(STDIN, $buf, $len - $off);
+                $cb->($buf);
+                $n++;
+            } else {
+                $read = read(STDIN, $buf, $len - $off, $off);
+            }
+            last if ($read == 0);
+            $off += $read;
+        }
+    } elsif ($cb) {
+        while (<STDIN>) {
+            last if ($_ eq "\n");
+            $cb->($_);
+            $n++;
+        }
+    } else {
+        while (<STDIN>) {
+            last if ($_ eq "\n");
+            $buf .= $_;
+        }
+    }
+    $cb ? $n : $buf
+}
+
+sub expand_alias {
+    my $n = $_[0];
+    if (defined (my $v = $opt_alias{$n})) {
+        my $param;
+        ($_[0], $param) = split(/\s+/, $v, 2);
+        $_[1] .= ' ' . $param;
+    }
+}
+
+sub _main {
+    info "welcome pcs ".version(1)->{rev};
+    while (<DATA>) {
+        cl_exec $_;
+    }
+    while (<STDIN>) {
+        cl_exec $_;
+    }
+}
+
+sub cl_exec {
+    local $_ = shift;
+
+    s/^\s+//;
+    next if $_ eq '' or /^#/;
+    chomp;
+
+    # don't call qsplit at this time, cuz it's expansive.
+    my ($cmd, $param) = split(/\s+/, $_, 2);
+    expand_alias $cmd, $param;
+
+    if ($cmd =~ s/^!//) {
+        outb 'echo', `$cmd $param 2>&1`;
+        next
+    }
+
+    if (main->can('k_'.$cmd)) {
+        my $cmdf = eval '\&k_'.$cmd;
+        eval { $cmdf->($param) };
+        info "failed to $cmd: $@" if $@;
+    } elsif (main->can('v_'.$cmd)) {
+        my $cmdf = eval '\&v_'.$cmd;
+        eval { $cmdf->(qsplit(qr/\s+/, $param)) };
+        info "failed to $cmd: $@" if $@;
+    } else {
+        info "don't know how to $cmd";
+        next
+    }
+}
+
+sub k_info      { info @_ }
+sub k_info2     { info2 @_ }
+sub k_echo_     { print @_ }
+sub k_echo      { print @_, "\n" }
+
+sub k_alias     { @_ = split('=', shift, 2); $opt_alias{$_[0]} = $_[1] }
+sub k_unalias   { delete $opt_alias{shift} }
+
+sub k_pwd       { info cwd }
+sub v_args      { info sprintf("%4d. %s", $_, $_[$_]) for (0..$#_) }
+
+sub k_eval {
+    my $code = inputb @_;
+    my $val = eval $code;
+    info $@ ? "can't evaluate: $@" : "evaluated: $val";
+}
+
+sub v_cat {
+    for (@_) {
+        my $data = readfile $_;
+        outb "# $_", $data;
+    }
+}
+
+sub v_get {
+    my $path = shift;
+    my $data = readfile $path;
+    outb "retr $path", $data;
+}
+
+sub v_put {
+    my $path = shift;
+    my $data = inputb @_;
+    if (writefile $path, $data) {
+        my $size = -s $path;
+        info "file $path has a size of $size bytes.";
+    }
+}
+
+__DATA__
+
+info init built-in commands
+alias dir=!dir
+alias ls=!ls
+alias l=!ls -FANo
+alias cd=chdir
+alias md=mkdir
+alias rd=rmdir
+alias rm=unlink
+alias del=unlink
+info init done
