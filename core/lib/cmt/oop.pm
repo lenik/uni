@@ -25,22 +25,6 @@ our @EXPORT_OK  = qw(_lexdump
                      y_newparser
                      y_error);
 
-sub lex_dump {
-    my $lexer = shift;
-    my $next = shift || sub {
-        my $t = $lexer->next;
-        if ($lexer->eoi || !defined $t) {
-            ('', undef)
-        } else {
-            ($t->name, $t->text)
-        }
-    };
-    while (my @ret = $next->()) {
-        last if $ret[0] eq '';
-        printf "%-10s '%s'\n", @ret;
-    }
-}
-
 sub y_compile {
     my $ydef = shift;
     my $cls = shift || 'OOP_'.int(10000 * rand);
@@ -90,6 +74,7 @@ sub y_newparser {
     my $parser = new $cls;
     # print "Created the parser for generated yacc-def: $parser\n";
     sub {
+        return $parser unless @_;
         my $yylex = $lexer->(shift);
         $parser->YYParse(
             yylex => $yylex,
@@ -111,25 +96,25 @@ sub oop_parse {
 
     my $bl = 0;
     my $cbuf;
-    my $lex = new Parse::Lex;
-    $lex->exclusive('header'=>1, 'footer'=>1, 'code'=>1);
-    # $lex->skip('\s*#(?s:.*)|\s+');
-    $lex->defineTokens(
+    my $plex = new Parse::Lex;
+    $plex->exclusive('header'=>1, 'footer'=>1, 'code'=>1);
+    # $plex->skip('\s*#(?s:.*)|\s+');
+    $plex->defineTokens(
         qw(header:_del_h %%\n)
-                        => sub { $lex->end('header'); ['sect_delim','%%']},
+                        => sub { $plex->end('header'); ['sect_delim','%%']},
         qw(header:_str_h .*\n)
                         => sub { [ 'string', $_[1] ] },
         qw(footer:_str_f .*(\n|$))
                         => sub { [ 'string', $_[1] ] },
         qw(code:_br_c \?>)
                         => sub { if (--$bl) { $cbuf .= $_[1]; '__br_' } else
-                                 { $lex->end('code'); [ 'code', $cbuf ] } },
+                                 { $plex->end('code'); [ 'code', $cbuf ] } },
         qw(code:__bl_ <\?)
                         => sub { ++$bl; $cbuf .= $_[1] },
         qw(code:__code ([^<?]|<[^?]|\?[^>]|\n)+)
                         => sub { $cbuf .= $_[1] },
-        qw(__bl <\?)    => sub { ++$bl; $cbuf = ''; $lex->start('code') },
-        qw(_del_n %%\n) => sub { $lex->start('footer');['sect_delim','%%']},
+        qw(__bl <\?)    => sub { ++$bl; $cbuf = ''; $plex->start('code') },
+        qw(_del_n %%\n) => sub { $plex->start('footer');['sect_delim','%%']},
         qw(
             id          [a-zA-Z_][a-zA-Z_0-9]*
             number      \d+
@@ -145,10 +130,9 @@ sub oop_parse {
         ),
     );
 
-    my $lexer = yylex2 $lex;
-    my $yylex = $lexer->($f);
-    $lex->start('header');
-    # lex_dump($lexer, $yylex); return;
+    my $yylex = yylex2($plex)->($f);
+    $plex->start('header');
+    # lex_dump($yylex); return;
 
     my $parser = new cmt::oop_y;
     my $dom = $parser->YYParse(
@@ -181,10 +165,16 @@ sub oop_compile {
 
 sub oop_newparser {
     my ($ydef, $lexer) = oop_compile @_;
-    # return sub { lex_dump(undef, $lexer->(shift)); exit -1 };
     my $yparser = y_newparser($ydef, $lexer);
     sub {
-        $yparser->(shift)
+        my $input = shift;
+        if (@_) {
+            my $opt = shift;
+            my $yapp = $yparser->();
+            if ($opt =~ /d/)
+                { lex_dump($lexer->($input)) }
+        }
+        $yparser->($input)
     }
 }
 
