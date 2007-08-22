@@ -1,10 +1,14 @@
-
 package cmt::test;
 
 use strict;
+use cmt::ftime;
 use Exporter;
-use vars qw/@ISA @EXPORT/;
 
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(is_same
+                 ref_detail
+                 test_batch
+                 cps);
 
 sub is_same {
     my ($a, $b) = @_;
@@ -60,7 +64,6 @@ sub is_same {
     die "Not supported reference type: $r";
 }
 
-
 sub ref_detail {
     my $val = shift;
     my $r = ref $val;
@@ -83,7 +86,6 @@ sub ref_detail {
     }
     die "Not supported reference type: $r";
 }
-
 
 sub test_batch {
     my ($batch) = @_;
@@ -187,12 +189,21 @@ EOM
     }
 }
 
+sub cps(&@) {
+    my $c = shift;
+    my $t0 = ftime;
+    my $d0 = 0;
+    my $n = 1000000;
+    $| = 1;
+    for (my $i = 1; $i <= $n; $i++) {
+        $c->();
+        my $d = ftime - $t0;
+        if ($d - $d0 > 1) {
+            $d0 = $d;
+            my $sp = $i / $d;
+            printf "\r%.2f cps    ", $sp;
+        }
+    }
+}
 
-@ISA = qw(Exporter);
-@EXPORT = qw(
-    is_same
-    ref_detail
-    test_batch
-    );
-
-1;
+1
