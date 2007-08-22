@@ -195,4 +195,100 @@ sub tr {
     }
 }
 
+my $parser;
+sub parse {
+    unless (defined $parser) {
+        require cmt::oop;
+        $parser = cmt::oop::oop_newparser(\*DATA);
+    }
+    my $text = shift;
+    my $data = $parser->($text);
+    new cmt::table($data);
+}
+
 1
+
+__DATA__
+
+%{
+    use Data::Dumper;
+
+    my @cont;
+    sub cont_last {
+        my $cur = shift;
+        my $n = 0;          # non-empties
+        local $_;
+        for my $i (0..$#cont) {
+            $_ = $cur->[$i];
+            my $open = /(?<!\\)_$/;
+            if (my $lastref = $cont[$i]) {
+                chop if $open;
+                $$lastref .= $_;
+                undef $cur->[$i];
+                undef $cont[$i] unless $open;
+            } else {
+                if ($open) {
+                    chop $cur->[$i];
+                    $cont[$i] = \$cur->[$i];
+                }
+                $n++ if $_ ne '';
+            }
+        }
+        for (my $i = @cont; $i < @$cur; $i++) {
+            $_ = $cur->[$i];
+            my $open = /(?<!\\)_$/;
+            if ($open) {
+                chop $cur->[$i];
+                $cont[$i] = \$cur->[$i];
+            }
+            $n++ if $_ ne '';
+        }
+        $n ? $cur : undef
+    }
+%}
+
+%%
+
+%lexer:
+    <?
+        my $cbuf;
+        my $plex = new Parse::Lex;
+        $plex->exclusive('cell' => 1);
+        $plex->defineTokens(
+            qw(cell:__dat   [^|\n\\\\]+)
+                         => sub { $cbuf .= $_[1] },
+            qw(cell:__e1    \\\\[|\n])
+                         => sub { $cbuf .= substr($_[1], 1) },
+            qw(cell:__e2    \\\\.)
+                         => sub { $cbuf .= $_[1] },
+            qw(cell:_m      (?=[|\n]))
+                         => sub { $plex->end('cell'); [ 'cell', $cbuf ] },
+            qw(__cs         \|)
+                         => sub { $cbuf = ''; $plex->start('cell') },
+            qw(
+                __comment   --.*\n
+                nl          \n
+                __space     \s+
+            ),
+        );
+        my $lexer = yylex2 $plex;
+    ?>
+
+table:
+    rows _nl*           <? $rows ?>
+  ;
+
+rows:
+    row                 <? defined $row ? [ $row ] : [] ?>
+  | rows row            <? defined $row ? [ @$rows, $row ] : $rows ?>
+  ;
+
+row:
+    cell+ _nl           <? cont_last($cells) ?>
+  ;
+
+cell:
+    _cell               <? $_cell =~ s/^\s+|\s+$//g; $_cell ?>
+  ;
+
+%%
