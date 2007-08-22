@@ -1,4 +1,83 @@
 
+2007-08-22
+  * pcs.bat, pcs.pl, pct.pl:
+	new perl-console (server/terminal)
+
+  * lib/cmt/util.pm:
+	- qsplit now interpolate the "..." and '...' strings (maybe even a bit faster)
+	- readfile/writefile in binmode
+
+  * lib/cmt/test.pm:
+	add cps()
+
+  * lib/cmt/table.pm:
+	add |-style table file parser
+
+  * lib/cmt/oop.pm:
+	- unified the lex/lexer/yylex name convention
+	- add debug options to yparser->() returned by oop_newparser
+
+  * lib/cmt/: oop_mod.pm, oop_y.pm, oop_y.y:
+	add support of %lexer, %yylex attributes.
+	add debug options to yparser->() returned by oop_newparser
+
+  * lib/cmt/lexutil.pm:
+	- unified the lex/lexer/yylex name convention
+	- if the last token __xxx is returned after EOF, then the token is changed to EOF-token.
+	- moved lex_dump from cmt::oop to cmt::lexutil
+
+2007-08-18
+  * lib/cmt/table.pm:
+	first test passed. (with _cut2->_cut1 unreversable exception.)
+
+  * lib/cmt/table.pm:
+	initial for yaml/table format.
+
+2007-08-16
+  * lib/cmt/oop_mod.pm:
+	can't shift @_ because $_[i] is in used in the semantic actions.
+
+  * source.bat:
+	- accepts a filename as source
+	- no setlocal, so environment changes are took affected. But when source.bat is used in pipe-mode, this doesn't work. (maybe the source.bat is executed in a separated process, so it can't modify the current process(shell)'s environment. )
+
+  * relay.pl:
+	add --rawdump=charrange to suppress some unwanted chars(like \a beep) for reading purpose.
+
+  * lib/cmt/oop_mod.pm:
+	@_ includes "yylval" in semantic actions, so the first component is shifted out.
+
+  * lib/cmt/: oop_y.pm, oop_y.y:
+	- using more strict grammer, don't use empty=() any more.
+	- also repeat-delimiter can't be empty.
+	- carefully adjusted the precedence, so all conflicts are resolved as supposed.
+
+  * lib/cmt/perlsys.pm:
+	which_sub now supports to specify the sub by name.
+
+  * lib/cmt/oop.pm:
+	- catch 'die' from Yapp::Driver.
+	- output diagnostic info only if any warnings.
+
+  * lib/cmt/Makefile:
+	using bash shell instead of cmd
+
+  * kopy.bat:
+	add a DEST option to override default system file locations
+
+2007-08-14
+  * syset.bat:
+	add xt/bin to path
+
+  * lib/cmt/: lexutil.pm, oop.pm, oop_mod.pm, oop_y.pm, oop_y.y:
+	- implemented oop_compile and the final oop. congratulation!
+	- syntax exp/alias ::= alias=exp
+	- semantic {repeat} => plain-array
+	- semantic concat[1] => scalar
+
+  * lib/cmt/english.pm:
+	add 'alternative when empty string' for simplify.
+
 2007-08-13
   * lib/cmt/english.pm:
 	add plural()
