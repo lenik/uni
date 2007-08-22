@@ -54,6 +54,7 @@ sub new {
         # dom   => $_[0],
         ruledef => {},
         rule    => {},
+        attr    => {},
         token   => { %_res_token },
         tokidx  => {},
         rc      => {},      # ref-count
@@ -72,11 +73,21 @@ sub _Rc     { $_[0]->{rc}->{$_[1]}++; $_[1] }
 sub add_ruledefs {
     my ($this, $defs) = @_;
     for (keys %$defs) {
-        $this->{'ruledef'}->{$_} = 1;
+        $this->{'ruledef'}->{$_} = 1
+            unless /^%/;
     }
     for (keys %$defs) {
         my $def = $defs->{$_};
-        my $rule = $this->add_ruledef($_, $def);
+        if (/^%/) {
+            my $nam = substr($_, 1);
+            my $val = eval $def;
+            if ($@ ne '') {
+                die "failed to compile $nam(): $@\n$def";
+            }
+            $this->{'attr'}->{$nam} = $val;
+        } else {
+            my $rule = $this->add_ruledef($_, $def);
+        }
     }
 }
 
@@ -229,6 +240,10 @@ sub qt {
         push @$prefix, $d;
     }
     if (defined $max) {
+        # q:    prefix
+        #     | prefix node x 1
+        #     ...
+        #     | prefix node x (max - min - 1)
         $def = [ 'or', $min == 0
                         ? [ 'code', '[]', 'RAW' ]
                         : [ @$prefix, [ 'code', C_GA, 'RAW' ]]];
@@ -240,30 +255,15 @@ sub qt {
             }
             push @$def, [ @vfixed, [ 'code', C_GA, 'RAW' ] ];
         }
-    } elsif ($min == 0) {
-        # q:    (empty)
+    } else {
+        # q:    (empty | prefix)
         #     | q node
-        $def = [ 'or', [ 'code', '[]', 'RAW' ],
+        $def = [ 'or', $min == 0
+                        ? [ 'code', '[]', 'RAW' ]
+                        : [ @$prefix, [ 'code', C_GA, 'RAW' ]],
                        [ 'concat', [ 'ref', $nam ],
                                    $d,
                                    [ 'code', '[ @{$_[1]}, $_[2] ]', 'RAW' ]]];
-    } else {
-        # q:    node ... node (x $min)
-        #     | q qe
-        # qe:   (empty)
-        #     | qe node
-        my $nam2 = $this->newnam($nampref.'_a');
-        my $def2 = [ 'or', [ 'code', '[]', 'RAW' ],
-                           [ 'concat',
-                                [ 'ref', $nam2 ],
-                                $d,
-                                [ 'code', '[ @{$_[1]}, $_[2] ]', 'RAW' ]]];
-        $this->add_ruledef($nam2, $def2);
-        $def = [ 'or', [ @$prefix, [ 'code', C_GA, 'RAW' ] ],
-                       [ 'concat',
-                            [ 'ref', $nam ],
-                            [ 'ref', $nam2 ],
-                            [ 'code', '[ @{$_[1]}, @{$_[2]} ]', 'RAW' ]]];
     }
     my $rule = $this->add_ruledef($nam, $def);
     # my $alias = $rule->[2] if $#$rule == 2;
@@ -296,7 +296,19 @@ sub repeat {
 }
 
 sub newlexer {
-    my ($this, $lexer) = @_;
+    my $this = shift;
+    my $attr = $this->{'attr'};
+    if (ref $attr->{'lexer'}) {
+        die "Conflict with existing lexer()" if @_;
+        return $attr->{'lexer'};
+    }
+
+    my $plex = shift;
+    if (ref $attr->{'plex'}) {
+        die "Conflict with existing plex()" if defined $plex;
+        $plex = $attr->{'plex'};
+    }
+
     my $tokens = $this->{token};
     my @Toks = qw(
     );
@@ -304,7 +316,7 @@ sub newlexer {
         next unless exists $this->{rc}->{$_};
         my $tokdef = $tokens->{$_};
         my $toknam = substr($_, 1);     # remove the leading _(underline)
-        if (ref $tokdef eq 'ARRAY') {
+        if (ref $tokdef eq 'ARRAY') {   # TOK => DEF => CODE
             my @xtok = @$tokdef;
             my $code = pop @xtok if ref $xtok[-1] eq 'CODE';
             my $tokg = @xtok > 1 ? \@xtok : $xtok[0];
@@ -322,12 +334,12 @@ sub newlexer {
             _op         .
         ));
     # print Dumper(\@Toks);
-    if (defined $lexer) {
-        $lexer->defineTokens(@Toks);
+    if (defined $plex) {
+        $plex->defineTokens(@Toks);
     } else {
-        $lexer = new Parse::Lex(@Toks);
+        $plex = new Parse::Lex(@Toks);
     }
-    yylex2 $lexer
+    yylex2 $plex
 }
 
 sub dump {

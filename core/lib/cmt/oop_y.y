@@ -8,6 +8,7 @@
 %nonassoc   '%'
 
 %left       '|'
+%nonassoc   ':'
 %left       ','
 %nonassoc   _cc_low
 %nonassoc   _cc
@@ -62,14 +63,15 @@ textl:
   ;
 
 rules:
-    rule                            { _H { _S($_[1]->[0]) => $_[1]->[1] } }
-  | rules rule                      { $_[1]->{_S($_[2]->[0])} = $_[2]->[1];
+    rule                            { _H { $_[1]->[0] => $_[1]->[1] } }
+  | rules rule                      { $_[1]->{$_[2]->[0]} = $_[2]->[1];
                                       $_[1] }
   ;
 
 rule:
-    symbol_name ruledef_op ruledefs ';'
-                                    { [ $_[1], $_[3] ] }
+    rule_name ruledef_op ruledefs ';'
+                                    { [ _S($_[1]) => $_[3] ] }
+  | '%' _id ruledef_op _code        { [ '%'.$_[2] => $_[4] ] }
   ;
 
 ruledefs:
@@ -79,6 +81,7 @@ ruledefs:
 
 ruledef:                            { ['empty'] }
   | nonempty
+  | nonempty ':' rule_alias         { $_[1] }
   ;
 
 nonempty:
@@ -93,13 +96,13 @@ concat:
 
 ruleexp:
     term
-  | symbol_name                     { ['ref',       $_[1]] }
+  | _id                             { ['ref',       $_[1]] }
   | _code                           { ['code',      $_[1]] }
   | quantifiers
   | call
   | '(' ruledefs ')'                { ['group',     $_[2]] }
-  | alias_name '=' ruleexp          { ['alias',     $_[1], $_[3]] }
-  | ruleexp '/' alias_name          { ['alias',     $_[3], $_[1]] }
+  | alias '=' ruleexp               { ['alias',     $_[1], $_[3]] }
+  | ruleexp '/' alias               { ['alias',     $_[3], $_[1]] }
   | rw_exp
   | spec
   ;
@@ -143,8 +146,9 @@ spec:
   | '%' _id _char                   { ['raw',       '%'.$_[2]." '$_[3]'"] }
   ;
 
-symbol_name:    _id;
-alias_name:     _id;
+rule_name:      _id;
+rule_alias:     _id | _number;
+alias:          _id;
 function_name:  _id;
 ruledef_op:     ':' | _ruledef_op;
 
