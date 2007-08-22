@@ -6,7 +6,7 @@ use cmt::ftime;
 use cmt::lang;
 use cmt::path;
 use cmt::proxy;
-# use Data::Dumper;
+use Data::Dumper;
 use Exporter;
 use POSIX               qw/strftime/;
 
@@ -129,30 +129,36 @@ sub forx($&;$$) {
     return $buf;
 }
 
+sub dequote {
+    eval shift
+}
+
 sub qsplit {
-    my $sep = shift;
+    my $sep = _or(shift, qr/\s+/);
     my $s   = _or(shift, $_);
-       $s   =~ s/\\/\\\\/g;
-       $s   =~ s/>/\\>/g;
+       $s   =~ s/~/~;/g;
+    my $deq = shift || \&dequote;
     my @mem;
     my $k = 0;
-            # qr/(["']) (\\\\.|[^\1])* \1/x, $s;
-    $s = forx qr{ (" (\\\\.|[^"])* ")
-                 |(' (\\\\.|[^'])* ')}x,
-              sub { push @mem, $_; $_ = '<'.$k++.'>' },
+            # qr/(["']) (\\.|[^\1])* \1/x, $s;
+    $s = forx qr/ (" (\\.|[^"])* ")
+                 |(' (\\.|[^'])* ')/x,
+              sub {
+                push @mem, $deq->($_);
+                $_ = '~'.$k++.';'
+              },
               $s;
     map {
-            s/<(\d+)>/$mem[$1]/g;
-            s/\\>/>/g;
-            s/\\\\/\\/g;
+            s/~(\d+);/$mem[$1]/g;
+            s/~;/~/g;
             $_
         }
         split($sep, $s);
 }
 
 sub append_cmdline {
-    my $cmdline = shift;
-    push @ARGV, qsplit(qr/\s+/, $cmdline);
+    local $_ = shift;
+    push @ARGV, qsplit;
 }
 
 sub get_named_args(\@;\%) {
@@ -279,6 +285,7 @@ sub readfile {
     } else {
         open(FH, "<$path")
             or die("Can't open file $path for read");
+        binmode FH;
         @lines = <FH>;
         close FH;
     }
@@ -289,6 +296,7 @@ sub writefile {
     my $path = shift;
     open(FH, ">$path")
         or die("Can't open file $path to write");
+    binmode FH;
     print FH for @_;
     close FH;
 }
@@ -445,6 +453,7 @@ sub fswalk(&;@) {
 	timestamp10
 	qr_literal
 	forx
+	dequote
 	qsplit
 	append_cmdline
 	get_named_args
