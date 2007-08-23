@@ -1,0 +1,164 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::util;
+use cmt::vcs;
+use cmt::serv;
+use Data::Dumper;
+use Getopt::Long;
+use Socket;
+use Term::ReadKey;
+
+sub boot;
+sub info;
+sub info2;
+sub version;
+sub help;
+sub main;
+sub binded;
+sub unbinded;
+sub gotdata;
+sub askdata;
+sub goterr;
+
+our $opt_verbtitle      = 'unknown';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_daemon         = 0;
+
+our $opt_serv_addr      = 'localhost';
+our $opt_serv_port      = $cmt::serv::DEFAULT_PORT;
+our $opt_serv_type      = SOCK_STREAM;
+our $opt_serv_proto     = 'tcp';
+our $opt_serv_cap       = $cmt::serv::DEFAULT_CAP;
+our $opt_serv_intv      = $cmt::serv::DEFAULT_INTERVAL;
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'daemon|d',
+               'serv-addr|s',
+               'serv-port|p',
+               'serv-type',
+               'serv-proto',
+               'serv-cap',
+               'serv-intv',
+               );
+
+    info2 "serv-addr:   $opt_serv_addr";
+    info2 "serv-port:   $opt_serv_port";
+    info2 "serv-type:   $opt_serv_type";
+    info2 "serv-proto:  $opt_serv_proto";
+    info2 "serv-cap:    $opt_serv_cap";
+    info2 "serv-intv:   $opt_serv_intv";
+
+    main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: .net,v 1.1 2007-08-23 10:53:57 lenik Exp $');
+    print "[$opt_verbtitle] Perl_simple_net_cli_program_template \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print "\nSyntax: \n    $0 [OPTION] [--] [ADDR [PORT]]\n", <<'EOM';
+
+Common options:
+    -d, --daemon            running in daemon-mode, no kbd input
+    -s, --serv-addr=ADDR    bind with net-if of this address/host
+    -p, --serv-port=PORT    listen at this PORT
+        --serv-type=TYPE    default SOCK_STREAM, not used
+        --serv-proto=PROTO  set the transfer protocol, default tcp
+        --serv-cap=NUM      the max clients allowed
+        --serv-intv=NUM     interval(idle timeout) in seconds
+    -h, --help              show this help page
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+        --version           print the version info
+EOM
+}
+
+exit boot;
+
+sub main {
+    my $serv = new cmt::serv(
+        sub {
+            new cmt::stream(
+                -binded     => \&binded,
+                -unbinded   => \&unbinded,
+                -gotdata    => \&gotdata,
+                -askdata    => \&askdata,
+                -goterr     => \&goterr,
+            )
+        },
+        -name   => $opt_verbtitle,
+        -addr   => $opt_serv_addr,
+        -port   => $opt_serv_port,
+        -proto  => $opt_serv_proto,
+        -cap    => $opt_serv_cap,
+      # -intv   => $opt_serv_intv,
+    );
+    $serv->verbose($opt_verbose - 1);
+
+    my $stat;
+    if ($opt_daemon) {
+        $stat = $serv->serv();
+    } else {
+        my $mios = $serv->create_ios()->merge;
+        info "start $opt_verbtitle service at $opt_serv_addr:$opt_serv_port";
+        my $mctx = $mios->create_context;
+        while ($mctx->iterate) {
+            my $k = ReadKey -1;
+            if ($k) {
+                info2 'pressed: $k('.ord($k).')';
+                last if $k eq 'q';
+            }
+        }
+        $stat = $mctx->{STAT};
+    }
+    info Dumper($stat);
+}
+
+sub binded {
+    my ($s, $fd) = @_;
+    info2 "binded $s to $fd";
+}
+
+sub unbinded {
+    my ($s, $fd) = @_;
+    info2 "unbinded $s from $fd";
+}
+
+sub gotdata {
+    my ($s, $data) = @_;
+    info2 "gotdata from $s: $data";
+}
+
+sub askdata {
+    my ($s) = @_;
+    info2 "askdata from $s";
+    undef
+}
+
+sub goterr {
+    my ($s) = @_;
+    info2 "goterr from $s";
+}
