@@ -1,17 +1,19 @@
 #!/usr/bin/perl
 
 use strict;
-use cmt::pp;
 use cmt::util;
 use cmt::vcs;
+use cmt::serv;
 use Cwd;
 use Data::Dumper;
 use Getopt::Long;
+use Socket;
+use Term::ReadKey;
+use YAML;
 
 sub boot;
 sub info;
 sub info2;
-sub infob;
 sub version;
 sub help;
 
@@ -19,26 +21,54 @@ sub out;
 sub outb;
 sub inputb;
 sub expand_alias;
-sub _main;
 sub cl_exec;
+sub _main;
 
 our $opt_verbtitle      = 'pcs';
 our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
+our $opt_daemon         = 0;
+
+our $opt_serv_addr      = 'localhost';
+our $opt_serv_port      = 21; # $cmt::serv::DEFAULT_PORT;
+our $opt_serv_type      = SOCK_STREAM;
+our $opt_serv_proto     = 'tcp';
+our $opt_serv_cap       = $cmt::serv::DEFAULT_CAP;
+our $opt_serv_intv      = $cmt::serv::DEFAULT_INTERVAL;
+
 our %opt_alias;
+
+our $config             = Load(join('', <DATA>));
+my  $init_script        = $config->{'init'};
+my  $_STDIN             = \*STDIN;
+my  $_STDOUT            = \*STDOUT;
 
 sub boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },
                'help|h'     => sub { help; exit },
+               'daemon|d',
+               'serv-addr|s',
+               'serv-port|p',
+               'serv-type',
+               'serv-proto',
+               'serv-cap',
+               'serv-intv',
                );
+
+    info2 "serv-addr:   $opt_serv_addr";
+    info2 "serv-port:   $opt_serv_port";
+    info2 "serv-type:   $opt_serv_type";
+    info2 "serv-proto:  $opt_serv_proto";
+    info2 "serv-cap:    $opt_serv_cap";
+    info2 "serv-intv:   $opt_serv_intv";
 
     eval "sub k_$_ { info2 '$_: '.$_(shift) }\n" for qw(
         abs atan2 cos exp hex int lc lcfirst length log oct ord rand reverse
         sin sqrt srand uc ucfirst
 
-        die dump exec exit gmtime localtime kill sleep utime system wait
+        die dump exec gmtime localtime kill sleep utime system wait
         waitpid warn
     );
 
@@ -63,38 +93,51 @@ sub boot {
 sub info {
     return if $opt_verbose < 1;
     my $text = ($opt_verbtime ? datetime.' ' : '') . shift;
-    out '#', "[$opt_verbtitle] $text";
+    if ($text =~ /\n/) {
+        outb '#', $text;
+    } else {
+        out '#', $text;
+    }
 }
 
 sub info2 {
     return if $opt_verbose < 2;
     my $text = ($opt_verbtime ? datetime.' ' : '') . shift;
-    out '#', "[$opt_verbtitle] $text";
-}
-
-sub infob {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    outb '# '.($opt_verbtime ? datetime.' ' : ''), $text;
+    if ($text =~ /\n/) {
+        outb '#', $text;
+    } else {
+        out '#', $text;
+    }
 }
 
 sub version {
-    my %id = parse_id('$Id: pcs,v 1.1 2007-08-22 15:48:48 lenik Exp $');
-    return \%id if shift;
-    print "[$opt_verbtitle] Perl Console Server \n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    my %id = parse_id('$Id: pcs,v 1.2 2007-08-23 10:57:33 lenik Exp $');
+    my $msg =
+        "[$opt_verbtitle] Perl Console Server \n"
+       ."Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    return $_[0] ? \%id : $msg if @_;
+    print $msg;
 }
 
 sub help {
-    version;
-    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+    my $msg = version(0);
+    $msg .= "\nSyntax: \n    $0 [OPTION] [--] [ADDR [PORT]]\n" . <<'EOM';
 
 Common options:
+    -d, --daemon            running in daemon-mode, no kbd input
+    -s, --serv-addr=ADDR    bind with net-if of this address/host
+    -p, --serv-port=PORT    listen at this PORT, default 21
+        --serv-type=TYPE    default SOCK_STREAM, not used
+        --serv-proto=PROTO  set the transfer protocol, default tcp
+        --serv-cap=NUM      the max clients allowed
+        --serv-intv=NUM     interval(idle timeout) in seconds
     -h, --help              show this help page
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
         --version           print the version info
 EOM
+    return $msg if @_;
+    print $msg;
 }
 
 exit boot;
@@ -163,18 +206,10 @@ sub expand_alias {
     }
 }
 
-sub _main {
-    info "welcome pcs ".version(1)->{rev};
-    while (<DATA>) {
-        cl_exec $_;
-    }
-    while (<STDIN>) {
-        cl_exec $_;
-    }
-}
-
 sub cl_exec {
     local $_ = shift;
+    my $OUT = shift;
+    my $IN  = shift || $OUT;
 
     s/^\s+//;
     next if $_ eq '' or /^#/;
@@ -184,12 +219,12 @@ sub cl_exec {
     my ($cmd, $param) = split(/\s+/, $_, 2);
     expand_alias $cmd, $param;
 
-    if ($cmd =~ s/^!//) {
-        outb 'echo', `$cmd $param 2>&1`;
-        next
-    }
+    my $oldout = select $OUT if $OUT;
+    my $oldin  = seleci $IN  if $IN;
 
-    if (main->can('k_'.$cmd)) {
+    if ($cmd =~ s/^!//) {
+        outb 'echo', `$cmd $param`;
+    } elsif (main->can('k_'.$cmd)) {
         my $cmdf = eval '\&k_'.$cmd;
         eval { $cmdf->($param) };
         info "failed to $cmd: $@" if $@;
@@ -199,8 +234,65 @@ sub cl_exec {
         info "failed to $cmd: $@" if $@;
     } else {
         info "don't know how to $cmd";
-        next
     }
+
+    select $oldout if $OUT;
+    $oldin->() if $IN;
+}
+
+sub _main {
+    my $serv = new cmt::serv(
+        sub {
+            new cmt::stream(
+                -binded     => sub {
+                    my ($s, $fd) = @_;
+                    info2 "binded $s to $fd";
+                    my $vid = version(1);
+                    cl_exec "info welcome pcs version $vid->{rev}", $fd, $fd;
+                    for (@$init_script) {
+                        cl_exec $_, $fd, $fd;
+                    }
+                },
+                -unbinded   => sub {
+                    my ($s) = @_;
+                    info2 "unbinded $s";
+                },
+                -gotdata    => sub {
+                    my ($s, $data) = @_;
+                    my $fd = $s->{'IO'};
+                    info2 "gotdata from $s($fd): $data";
+                    cl_exec $data, $fd, $fd;
+                },
+                # -askdata    => \&askdata,
+                # -goterr     => \&goterr,
+            )
+        },
+        -name   => $opt_verbtitle,
+        -addr   => $opt_serv_addr,
+        -port   => $opt_serv_port,
+        -proto  => $opt_serv_proto,
+        -cap    => $opt_serv_cap,
+      # -intv   => $opt_serv_intv,
+    );
+    $serv->verbose($opt_verbose - 1);
+
+    my $stat;
+    if ($opt_daemon) {
+        $stat = $serv->serv();
+    } else {
+        my $mios = $serv->create_ios()->merge;
+        info "start $opt_verbtitle service at $opt_serv_addr:$opt_serv_port";
+        my $mctx = $mios->create_context;
+        while ($mctx->iterate) {
+            my $k = ReadKey -1;
+            if ($k) {
+                info2 'pressed: $k('.ord($k).')';
+                last if $k eq 'q';
+            }
+        }
+        $stat = $mctx->{STAT};
+    }
+    info Dumper($stat);
 }
 
 sub k_info      { info @_ }
@@ -208,11 +300,28 @@ sub k_info2     { info2 @_ }
 sub k_echo_     { print @_ }
 sub k_echo      { print @_, "\n" }
 
-sub k_alias     { @_ = split('=', shift, 2); $opt_alias{$_[0]} = $_[1] }
+sub k_alias {
+    @_ = split('=', shift, 2);
+    if (@_ == 2) {
+        $opt_alias{$_[0]} = $_[1];
+    } else {
+        my $prefix = shift;
+        for (keys %opt_alias) {
+            if (substr($_, 0, length($prefix)) eq $prefix) {
+                info "alias $_=$opt_alias{$_}";
+            }
+        }
+    }
+}
 sub k_unalias   { delete $opt_alias{shift} }
 
 sub k_pwd       { info cwd }
 sub v_args      { info sprintf("%4d. %s", $_, $_[$_]) for (0..$#_) }
+
+sub k_help      { info $config->{'help'}->{$_[0]}
+                    || $config->{'help'}->{'?'}}
+
+sub k_exit      { info 'you have to disconnect to exit' }
 
 sub k_eval {
     my $code = inputb @_;
@@ -243,14 +352,80 @@ sub v_put {
 }
 
 __DATA__
+init:
+    - info init built-in commands
+    - alias dir=!dir
+    - alias ls=!ls
+    - alias l=!ls -FANo
+    - alias cd=chdir
+    - alias md=mkdir
+    - alias rd=rmdir
+    - alias rm=unlink
+    - alias del=unlink
+    - info init done
 
-info init built-in commands
-alias dir=!dir
-alias ls=!ls
-alias l=!ls -FANo
-alias cd=chdir
-alias md=mkdir
-alias rd=rmdir
-alias rm=unlink
-alias del=unlink
-info init done
+help:
+    '?': unknown command, try `help cmd' to list all supported command names.
+    cmd: |-
+        -- CORE --
+        Functions(X):
+            abs atan2 cos exp hex int lc lcfirst length log oct ord rand
+            reverse sin sqrt srand uc ucfirst
+        Functions(LIST)
+            crypt pack unpack
+            print printf
+        System commands(TEXT):
+            die dump exec gmtime localtime kill sleep utime system wait
+            waitpid warn
+        File commands(path):
+            chdir lstat mkdir rmdir stat truncate umask
+        File commands(LIST)
+            chmod chown chroot link rename symlink unlink
+
+        -- BAISC --
+        Debug commands:
+            info info2 echo_ echo args
+        Kernel commands:
+            alias unalias eval
+        File commands:
+            pwd cat get put
+
+    die:    die TEXT - die the evaluate block, with message TEXT
+    dump:   dump LABEL - This function causes an immediate core dump.
+    exec:   exec [PROGRAM] LIST - executes system command and exit
+    gmtime: gmtime - print GMT time
+    localtime: localtime - print local time
+    kill:   kill SIGNAL LIST - Sends a signal to a list of processes.
+    sleep:  sleep SECONDS - Causes the script to sleep for SECONDS
+    utime:  utime ATIME MTIME LIST - Changes the access and modification times on each file of the list
+    system: system [PROGRAM] LIST - executes system command
+    wait:   wait - wait for any child process to terminate
+    waitpid: waitpid PID FLAGS - waits for a particular child process to terminate
+    warn:   warn TEXT - Produces a message on STDERR
+    chdir:  chdir PATH - change the working directory
+    lstat:  lstat PATH - print file stat without following symlink
+    stat:   stat PATH - print file stat with symlink followed
+    mkdir:  mkdir PATH - create a new directory
+    rmdir:  rmdir PATH - remove an existing directory
+    truncate: truncate PATH SIZE - truncate a file to the specified size
+    umask:  umask NUM - set umask of process
+    chmod:  chmod MODE LIST - Changes the permissions of a list of files
+    chown:  chown UID GID LIST - Changes the owner (and group) of a list of files.
+    chroot: chroot PATH - makes the named directory the new root directory
+    link:   link OLD NEW - Creates a new filename linked to the old filename.
+    rename: rename OLD NEW - Changes the name of a file; an existing file NEWNAME will be clobbered.
+    symlink: symlink OLD NEW - Creates a new filename symbolically linked to the old filename.
+    unlink: unlink LINK - Deletes a list of files.
+
+    info:   info TEXT - print verbose(1) information
+    info2:  info TEXT - print verbose(2) information
+    echo_:  echo_ TEXT - echo TEXT without newline to sender
+    echo:   echo TEXT - echo TEXT to sender
+    args:   args LIST - print the dequoted arguments list
+    alias:  alias NAME=TEXT - set/add alias
+    unalias: unalias NAME - remove alias
+    eval:   eval BLOCK - evaluate the BLOCK in perl
+    pwd:    pwd - print the working directory
+    cat:    cat LIST - concat the LIST of files
+    get:    get PATH - retrieve contents of a given file
+    put:    put PATH BLOCK - create/modify the given file
