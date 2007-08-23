@@ -161,14 +161,16 @@ sub append_cmdline {
     push @ARGV, qsplit;
 }
 
-sub get_named_args(\@;\%) {
+sub get_named_args(\@;\%$) {
     my $arg = shift;
       @$arg = @$arg;    # de-alias
     my $cfg = shift || {};
+    my $nolead = shift;
+    my $namp = $nolead ? qr/^-(\w+)$/ : qr/^(-\w+)$/;
     my @passby;
     while (@$arg) {
         $_ = shift @$arg;
-        if (ref($_) eq '' and /^(-\w+)$/) {
+        if (ref($_) eq '' and /$namp/) {
             $cfg->{$1} = shift @$arg;
         } else {
             push @passby, $_;
@@ -299,6 +301,24 @@ sub writefile {
     binmode FH;
     print FH for @_;
     close FH;
+}
+
+sub select_input {
+    my $oldin;
+    my $newin = shift;
+    open($oldin, '<&STDIN')
+        or die "can't dup (the original) STDIN: $!";
+    open(STDIN, '<&', $newin)
+        or die "can't redirect STDIN to a new one: $!";
+    $oldin
+}
+
+sub seleci {
+    my $oldin = select_input @_;
+    sub {
+        open(STDIN, '<&', $oldin)
+            or die "can't restore STDIN to the dup-backuped one: $!";
+    }
 }
 
 sub indent {
@@ -469,6 +489,8 @@ sub fswalk(&;@) {
 	bserchi
 	readfile
 	writefile
+	select_input
+	seleci
 	indent
 	unindent_
 	unindent
