@@ -14,7 +14,9 @@ my $serv = new cmt::serv(
                 $this->write("Repeat - $msg");
             },
         )
-    }, 7, 'echod');
+    },
+    -port => 7,
+    -name => 'echod');
 
 $serv->verbose(1);
 # print Dumper($serv);

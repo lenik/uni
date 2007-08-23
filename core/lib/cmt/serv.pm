@@ -9,39 +9,42 @@ use cmt::util;
 use Fcntl;
 use IO::Socket;
 
-my $DEFAULT_PORT    = 51296;
+our $DEFAULT_PORT   = 51296;
+our $DEFAULT_CAP    = 10;
+our $DEFAULT_INTV   = 2;
 
 sub new {
     my $class       = shift;
     my $sfac        = shift;
-    my $port        = shift || $DEFAULT_PORT;
-    my $name        = shift || $port.'d';
-    bless {
-        name        => $name,
-        address     => 'localhost',
-        port        => $port,
+    my $this = {
+        addr        => 'localhost',
+        port        => $DEFAULT_PORT,
         proto       => 'tcp',           #
         sfac        => $sfac,           # stream factory
-        interval    => 2,               # idle-timeout
-        capacity    => 10,              # max clients allowed
+        intv        => $DEFAULT_INTV,   # interval (idle-timeout)
+        cap         => $DEFAULT_CAP,    # max clients allowed
         verbose     => 1,               # disable verbose
-    }, $class;
+    };
+    get_named_args @_, %$this, 1;
+    $this->{'name'} = $this->{'port'}.'d'
+        unless defined $this->{'name'};
+    bless $this, $class;
 }
 
-sub name            { return shift->{name}; }
-sub address         { return shift->{address}; }
-sub port            { return shift->{port}; }
-sub proto           { return shift->{proto}; }
-sub sfac            { return shift->{sfac}; }
-sub interval        { return shift->{interval}; }
-sub capacity        { return shift->{capacity}; }
-sub select          { return shift->{select}; }
+sub name            { return shift->{'name'}; }
+sub address         { return shift->{'addr'}; }
+sub port            { return shift->{'port'}; }
+sub proto           { return shift->{'proto'}; }
+sub sfac            { return shift->{'sfac'}; }
+sub interval        { return shift->{'intv'}; }
+sub capacity        { return shift->{'cap'}; }
+sub select          { return shift->{'select'}; }
 
 sub create_ios {
     my $this        = shift;
-    my $port        = $this->port;
-    my $sfac        = $this->sfac;
-    my $interval    = $this->interval;
+    my $port        = $this->{'port'};
+    my $sfac        = $this->{'sfac'};
+    my $intv        = $this->{'intv'};
 
     my $st_seq      = 0;
     my $st_select   = 0;
@@ -51,11 +54,11 @@ sub create_ios {
 
     $this->info2("initializing...");
     my $server = new IO::Socket::INET(
-      # LocalAddr   => $this->address,
+      # LocalAddr   => $this->{'addr'},
         MultiHomed  => 1,
         LocalPort   => $port,
-        Proto       => $this->proto,
-        Listen      => $this->capacity,
+        Proto       => $this->{'proto'},
+        Listen      => $this->{'cap'},
     );
 
     if (! $server) {

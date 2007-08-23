@@ -20,7 +20,8 @@ sub echod {
                 },
             )
         },
-        $port, 'echod');
+        -port => $port,
+        -name => 'echod');
 }
 
 sub discard {
@@ -33,7 +34,8 @@ sub discard {
                 },
             )
         },
-        $port, 'discard');
+        -port => $port,
+        -name => 'discard');
 }
 
 sub timed {
@@ -53,7 +55,8 @@ sub timed {
                 },
             )
         },
-        $port, 'timed');
+        -port => $port,
+        -name => 'timed');
 }
 
 my @QOTD = (
@@ -74,7 +77,8 @@ sub qotd {
                 },
             )
         },
-        $port, 'qotd');
+        -port => $port,
+        -name => 'qotd');
 }
 
 sub chargend {
@@ -90,7 +94,8 @@ sub chargend {
                 },
             )
         },
-        $port, 'chargend');
+        -port => $port,
+        -name => 'chargend');
     return $serv;
 }
 

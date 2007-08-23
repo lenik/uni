@@ -107,7 +107,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: relay,v 1.8 2007-08-16 10:32:17 lenik Exp $');
+    my %id = parse_id('$Id: relay,v 1.9 2007-08-23 11:01:30 lenik Exp $');
     print "[$opt_verbtitle] TCP Relay And Sniff \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -230,7 +230,9 @@ sub main {
                 $b_stm->{ctx}->exit;
                 $s->{ctx}->exit;
             },
-        )}, $opt_bind_port, 'relay');
+        )},
+        -port => $opt_bind_port,
+        -name => 'relay');
     $serv->verbose($opt_verbose);
 
     $mios = $serv->create_ios()->merge;
