@@ -1,1457 +1,1466 @@
 
 2007-08-25
-  * lapiota-init.bat, start-apps.bat:
+  * .cvsignore, .env.as, bin/lapiota-init.bat, bin/start-apps.bat, e.t.c...
 	init profile.d
 
-  * nfs.pl:
+  * bin/nfs.pl:
 	add --wait-close to interact with autohotkey.
 
 2007-08-24
-  * findabc.bat:
+  * bin/findabc.bat:
 	auto chdir if called as `findabc prefix/'
 
-  * .bat:
+  * bin/.bat:
 	using `exit /b CODE' instead of `goto end'
 
-  * lapiota-init.bat:
-	using a: as ~(HOME) directory
-
-  * lapiota-init.bat:
-	add init-cygwin(3)
-
-  * sml.bat:
+  * abc.d/bin/: gcl.bat, ml.bat:
 	find home by findabc.
 
-  * .bat:
+  * bin/lapiota-init.bat:
+	using a: as ~(HOME) directory
+
+  * .cvsignore, .env.as, __LAPIOTA__, etc/hotkey, etc/sysdict, e.t.c...
+	The Beginning Of Kachori Lapiota.
+
+  * bin/lapiota-init.bat:
+	add init-cygwin(3)
+
+  * abc.d/bin/em.bat, abc.d/bin/ms.bat, bin/sml.bat:
+	find home by findabc.
+
+  * abc.d/bin/em.bat, abc.d/bin/gcl.bat, bin/.bat:
 	borrowed the test of end-of-arglist from args.bat
 
-  * args.bat:
+  * bin/args.bat:
 	test end-of-arglist using "-translate method. (still not complete)
 
-  * export.bat:
+  * bin/export.bat:
 	export variable(s) from setlocal/endlocal block (replace the 'endlocal' by '%leave%')
 	(now only export of single variable is supported.)
 
-  * ugrep.bat:
+  * bin/ugrep.bat:
 	grep -abo to print the byte offset, however the offset of the beginning of the matched null-terminated block is printed.
 
-  * .lib.bat, libpath.bat:
+  * bin/: .lib.bat, libpath.bat:
 	new libpath based on .bat-lib framework. (realpath/lapiota in future will base on this framework)
 
 2007-08-23
-  * so.pl:
+  * bin/so.pl:
 	subject to using Lisp-style script language.
 
-  * relay.pl, lib/cmt/serv.pm, lib/cmt/simpled.pm, t/st.pl:
+  * bin/: relay.pl, lib/cmt/serv.pm, lib/cmt/simpled.pm, t/st.pl:
 	support of cmt::serv->new with -options
 
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	- get_named_args with nolead option to remove -(dash) leader
 	- add select_input/seleci which redirects the STDIN
 
-  * resolv.pl:
+  * bin/resolv.pl:
 	use only Socket::inet_ntoa
 
-  * pcs.pl:
+  * bin/pcs.pl:
 	- framework by .net.pl
 	- redirect STDIN/STDOUT to the socket handle
 	- init script and help info are went into YAML data.
 
 2007-08-22
-  * pcs.bat, pcs.pl, pct.pl:
+  * bin/: pcs.bat, pcs.pl, pct.pl:
 	new perl-console (server/terminal)
 
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	- qsplit now interpolate the "..." and '...' strings (maybe even a bit faster)
 	- readfile/writefile in binmode
 
-  * lib/cmt/test.pm:
+  * bin/lib/cmt/test.pm:
 	add cps()
 
-  * lib/cmt/table.pm:
+  * bin/lib/cmt/table.pm:
 	add |-style table file parser
 
-  * lib/cmt/oop.pm:
+  * bin/lib/cmt/oop.pm:
 	- unified the lex/lexer/yylex name convention
 	- add debug options to yparser->() returned by oop_newparser
 
-  * lib/cmt/: oop_mod.pm, oop_y.pm, oop_y.y:
+  * bin/lib/cmt/: oop_mod.pm, oop_y.pm, oop_y.y:
 	add support of %lexer, %yylex attributes.
 	add debug options to yparser->() returned by oop_newparser
 
-  * lib/cmt/lexutil.pm:
+  * bin/lib/cmt/lexutil.pm:
 	- unified the lex/lexer/yylex name convention
 	- if the last token __xxx is returned after EOF, then the token is changed to EOF-token.
 	- moved lex_dump from cmt::oop to cmt::lexutil
 
 2007-08-18
-  * lib/cmt/table.pm:
+  * bin/lib/cmt/table.pm:
 	first test passed. (with _cut2->_cut1 unreversable exception.)
 
-  * lib/cmt/table.pm:
+  * bin/lib/cmt/table.pm:
 	initial for yaml/table format.
 
 2007-08-16
-  * lib/cmt/oop_mod.pm:
+  * bin/lib/cmt/oop_mod.pm:
 	can't shift @_ because $_[i] is in used in the semantic actions.
 
-  * source.bat:
+  * bin/source.bat:
 	- accepts a filename as source
 	- no setlocal, so environment changes are took affected. But when source.bat is used in pipe-mode, this doesn't work. (maybe the source.bat is executed in a separated process, so it can't modify the current process(shell)'s environment. )
 
-  * relay.pl:
+  * bin/relay.pl:
 	add --rawdump=charrange to suppress some unwanted chars(like \a beep) for reading purpose.
 
-  * lib/cmt/oop_mod.pm:
+  * bin/lib/cmt/oop_mod.pm:
 	@_ includes "yylval" in semantic actions, so the first component is shifted out.
 
-  * lib/cmt/: oop_y.pm, oop_y.y:
+  * bin/lib/cmt/: oop_y.pm, oop_y.y:
 	- using more strict grammer, don't use empty=() any more.
 	- also repeat-delimiter can't be empty.
 	- carefully adjusted the precedence, so all conflicts are resolved as supposed.
 
-  * lib/cmt/perlsys.pm:
+  * bin/lib/cmt/perlsys.pm:
 	which_sub now supports to specify the sub by name.
 
-  * lib/cmt/oop.pm:
+  * bin/lib/cmt/oop.pm:
 	- catch 'die' from Yapp::Driver.
 	- output diagnostic info only if any warnings.
 
-  * lib/cmt/Makefile:
+  * bin/lib/cmt/Makefile:
 	using bash shell instead of cmd
 
-  * kopy.bat:
+  * bin/kopy.bat:
 	add a DEST option to override default system file locations
 
 2007-08-14
-  * syset.bat:
+  * bin/syset.bat:
 	add xt/bin to path
 
-  * lib/cmt/: lexutil.pm, oop.pm, oop_mod.pm, oop_y.pm, oop_y.y:
+  * bin/lib/cmt/: lexutil.pm, oop.pm, oop_mod.pm, oop_y.pm, oop_y.y:
 	- implemented oop_compile and the final oop. congratulation!
 	- syntax exp/alias ::= alias=exp
 	- semantic {repeat} => plain-array
 	- semantic concat[1] => scalar
 
-  * lib/cmt/english.pm:
+  * bin/lib/cmt/english.pm:
 	add 'alternative when empty string' for simplify.
 
 2007-08-13
-  * lib/cmt/english.pm:
+  * bin/lib/cmt/english.pm:
 	add plural()
 
-  * lib/cmt/: lexutil.pm, oop.pm, oop_mod.pm, oop_y.pm, oop_y.y:
+  * bin/lib/cmt/: lexutil.pm, oop.pm, oop_mod.pm, oop_y.pm, oop_y.y:
 	- add (empty), {n..m range}
 	- implemented oop_conv which converts rw-def to yacc-def
 
 2007-08-12
-  * lib/cmt/: .class.pm, Makefile, oop.pm, oop_mod.pm, oop_y.pm, e.t.c...
+  * bin/lib/cmt/: .class.pm, Makefile, oop.pm, oop_mod.pm, oop_y.pm, e.t.c...
 	implemented oop_parse.
 
 2007-08-11
-  * ccat.pl:
+  * bin/ccat.pl:
 	add support of "expression" source files
 
 2007-08-09
-  * .plbat.lst, ccat.bat, fddump.bat, u.bat:
+  * bin/: .plbat.lst, ccat.bat, fddump.bat, u.bat:
 	add generator version
 
-  * plbat.pl:
+  * bin/plbat.pl:
 	test ok
 
-  * plbat.pl:
+  * bin/plbat.pl:
 	add var $GENERATOR
 
-  * plbat.pl:
+  * bin/plbat.pl:
 	add --make for batch processing
 
-  * ccat.bat, ccat.pl, fddump.bat, fddump.pl, source.bat:
+  * bin/: ccat.bat, ccat.pl, fddump.bat, fddump.pl, source.bat:
 	create for mp3 tags
 
-  * mp3ltrim.pl:
+  * bin/mp3ltrim.pl:
 	change --at=N based on 0, and support --rem(remarks/removal) better
 
-  * .pl:
+  * bin/.pl:
 	help page quoted in single-quote(')
 
-  * .bat:
+  * bin/.bat:
 	add prep3
 
 2007-08-06
-  * mp3ltrim.pl:
+  * bin/mp3ltrim.pl:
 	enhanced support of delimit by space
 
 2007-08-04
-  * .bat:
+  * bin/.bat:
 	more unix-like help info.
 
-  * cpnew.bat:
+  * bin/cpnew.bat:
 	adopted .bat-framework
 
 2007-08-03
-  * .cvsignore, .plbat, .plbat.lst, plbat.pl:
+  * bin/: .cvsignore, .plbat, .plbat.lst, plbat.pl:
 	new pl/bat wrapping method
 
-  * unchm.bat:
+  * bin/unchm.bat:
 	replaced by unchm.pl
 
-  * .cvsignore:
+  * bin/.cvsignore:
 	the .bat filelist in .cvsignore will be used to do the batch update of perl/bat-wrappers.
 
-  * .plbat:
+  * bin/.plbat:
 	don't bind .bat wrapper with .pl anymore, for compat with unix.
 
-  * .batch.pl:
+  * bin/.batch.pl:
 	see fswalk.
 
-  * mkchm.pl:
+  * bin/mkchm.pl:
 	initial
 
-  * unchm.pl:
+  * bin/unchm.pl:
 	first release
 
-  * syset.bat:
+  * bin/syset.bat:
 	add .chm/Uncompress
 	add PAGER=less
 
-  * repl.pl:
+  * bin/repl.pl:
 	adopted fswalk.
 
-  * nfs.pl:
+  * bin/nfs.pl:
 	auto_mkdir -> mkdir_p
 
-  * relay.pl:
+  * bin/relay.pl:
 	no use Socket
 
-  * lstconv.pl:
+  * bin/lstconv.pl:
 	remove grouped roots from root list.
 
-  * lib/fun/: .pm, _booter.pm, asknet.pm:
+  * bin/lib/fun/: .pm, _booter.pm, asknet.pm:
 	append fun's help page to the funpack's help page
 
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	- _or is preferred to ||, which using defined() rather then true()
 	- array_index/hash_index default using eq instead of ==
 	- add de-alias to get_named_args.
 	- added listdir() and fswalk()
 
-  * lib/cmt/pp.pm:
+  * bin/lib/cmt/pp.pm:
 	add typecheck to ppdom(&;FILELIST) where FILE could be a GLOB or ARRAY-REF.
 
-  * lib/cmt/path.pm:
+  * bin/lib/cmt/path.pm:
 	+ mkdir_p, ishidden
 
-  * lib/cmt/chm.pm:
+  * bin/lib/cmt/chm.pm:
 	impl chm_hhk, chm_build, chm_compile
 
-  * lib/cmt/.pm:
+  * bin/lib/cmt/.pm:
 	use vars -> our.
 
-  * dsd.pl:
+  * bin/dsd.pl:
 	rename tsh -> dsd; fixed 'h'-hide no affects.
 
-  * dsl.bat:
+  * bin/dsl.bat:
 	rename tin.bat -> dsl.bat
 
 2007-07-31
-  * lib/cmt/path.pm:
+  * bin/lib/cmt/path.pm:
 	temp_name generate with process-id, so as to avoid name conflicts.
 
-  * asknet.pl, domp.pl, lib/fun/asknet.pm:
+  * bin/: asknet.pl, domp.pl, lib/fun/asknet.pm:
 	implemented asknet/where to query location info about a mobilephone number.
 
-  * catname.x:
+  * bin/catname.x:
 	ppvar -> ppvarf
 
-  * .pl:
+  * bin/.pl:
 	new help page format (more unix-like)
 
-  * fun.pl:
+  * bin/fun.pl:
 	the branching part went into fun::_booter.
 
-  * lib/cmt/netutil.pm:
+  * bin/lib/cmt/netutil.pm:
 	add post(url, post-data) and loadurl(url, [post-data])
 
-  * lib/cmt/pp.pm:
+  * bin/lib/cmt/pp.pm:
 	change ppvar to ppvarf, and the old ppvar became to accept %hash instead of &callback.
 
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	add _use() which evaluates 'require+import' at later time.
 
-  * lib/fun/: .pm, _booter.pm, test.pm:
+  * bin/lib/fun/: .pm, _booter.pm, test.pm:
 	splitted _booter from common fun-programs
 
 2007-07-27
-  * lib/cmt/chm.pm:
+  * bin/lib/cmt/chm.pm:
 	initial
 
-  * lib/cmt/atext.pm:
+  * bin/lib/cmt/atext.pm:
 	new abstract-text model for dynamic texts.
 
-  * lib/cmt/: netutil.pm, util.pm:
+  * bin/lib/cmt/: netutil.pm, util.pm:
 	- keep the -(dash) in option names.
 	- moved network-related functions to netutil.pm
 
-  * lib/cmt/: inet.pm, ios.pm, serv.pm, stream.pm:
+  * bin/lib/cmt/: inet.pm, ios.pm, serv.pm, stream.pm:
 	keep the -(dash) in option names.
 
-  * lib/cmt/pp.pm:
+  * bin/lib/cmt/pp.pm:
 	- add -options: -qdef, -qset, -pdef, -pset to select the tokens; -rem to remove the quote-char self.
 	- add ppdom to support simple structured text.
 	- new ppfmt_foobar to replace ppvar which support more complex grammer.
 
-  * syset.bat:
+  * bin/syset.bat:
 	change.plc to .pc
 
-  * Makefile:
+  * bin/Makefile:
 	compile *.pl to *.pc
 
-  * hex.bat:
+  * bin/hex.bat:
 	back into hex.pl
 
-  * hex.pl:
+  * bin/hex.pl:
 	- make a unicode-grep by \x?? work-arounds.
 	- updated help info
 
-  * hex.bat:
+  * bin/hex.bat:
 	formatted the help info
 
 2007-07-26
-  * .batch.pl, lib/cmt/pp.pm, lib/cmt/util.pm, lib/fun/xs.pm:
+  * bin/: .batch.pl, lib/cmt/pp.pm, lib/cmt/util.pm, lib/fun/xs.pm:
 	add file-handle support in cmt::pp, also the pp() function now accepts token-config (you can customize which of /*, # etc. comment chars are used)
 
 2007-07-23
-  * chmac.pl, lib/Net/Adapter.pm, lib/auto/Net/Adapter/Adapter.dll, e.t.c...
+  * bin/: chmac.pl, lib/Net/Adapter.pm, e.t.c...
 	add select by combo option (the index is changed after netcon_reset, however the combo seems to be static.)
 
-  * cvsuser.bat:
+  * bin/cvsuser.bat:
 	create the cvsuser utility to replace the pserver+ project.
 
-  * syset.bat:
+  * bin/syset.bat:
 	by insert _HEAD_ placeholder into PATH variable, to make some path always at the very beginning.
 
-  * sh.bat:
+  * bin/sh.bat:
 	take account of USERNAME, SHELL, and auto 'mount'ing the root fs (by mapping B:).
 
-  * perldev.bat:
+  * bin/perldev.bat:
 	clear $SHELL, which is used in make program.
 
-  * chmac.pl:
+  * bin/chmac.pl:
 	initial released
 
-  * hexdump.pl, relay.pl:
+  * bin/: hexdump.pl, relay.pl:
 	impl hexdump
 
-  * loop.bat:
+  * bin/loop.bat:
 	add support of statement-list
 
 2007-07-22
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	add array_index, array_remove, format_inaddr, sockinfo
 
-  * relay.pl, lib/cmt/ios.pm, lib/cmt/serv.pm, lib/cmt/simpled.pm, e.t.c...
+  * bin/: relay.pl, lib/cmt/ios.pm, lib/cmt/serv.pm, e.t.c...
 	relay initial released!
 
-  * lib/cmt/inet.pm:
+  * bin/lib/cmt/inet.pm:
 	call tcp_connect with (... -cont=>1) to leave the cmt::ios::context running.
 
-  * myexec.c, myexec.exe, perldev.bat, syset.bat:
+  * bin/: myexec.c, myexec.exe, perldev.bat, syset.bat:
 	add extension of .sh unix shells, and exec bash by myexec to resolve the slash-problem.
 
 2007-07-21
-  * .bat, moduse.bat:
+  * bin/: .bat, moduse.bat:
 	new .bat template provide common structure and to resolve the "%* shift bug"
 
-  * lstconv.pl:
+  * bin/lstconv.pl:
 	add support of virtual-group: "[Group] path"
 
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	atexit -> at_exit to avoid name conflicts
 
-  * lib/cmt/ios.pm:
+  * bin/lib/cmt/ios.pm:
 	new methods in cmt::ios::context: add, count, exists, remove
 
 2007-07-20
-  * lib/cmt/ipc.pm:
+  * bin/lib/cmt/ipc.pm:
 	deprecated, using cmt::ios instead.
 
-  * lib/cmt/channel.pm:
+  * bin/lib/cmt/channel.pm:
 	deprecated, using cmt::stream instead.
 
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	add fire_sub to invoke simple-callback.
 
-  * lib/cmt/stream.pm:
+  * bin/lib/cmt/stream.pm:
 	change syntax from stream->($fd, @data) to stream->write($data, [$fd])
 
-  * lib/cmt/serv.pm:
+  * bin/lib/cmt/serv.pm:
 	add create_ios method to create the serv/ios only for custom extensions.
 
-  * lib/cmt/ios.pm:
+  * bin/lib/cmt/ios.pm:
 	add cmt::ios::merged derivation:  when multiple cmt::ios were created, they have to be 'loop'ing in separated threads, this cause many problems.  the new merged-model allows one to 'loop'ing in one thread, by IO::Select all the sockets of cmt::ios(s).
 
 2007-07-18
-  * relay.pl:
+  * bin/relay.pl:
 	adapted cmt::serv & cmt::inet
 
-  * lib/cmt/ios.pm:
+  * bin/lib/cmt/ios.pm:
 	default reads/writes/errs group names as "READ"/"WRITE"/"ERR"
 
-  * lib/cmt/inet.pm, lib/cmt/stream.pm, t/ct.pl:
+  * bin/: lib/cmt/inet.pm, lib/cmt/stream.pm, t/ct.pl:
 	- tcp_connect with additional paramters passed to new IO::Socket::INET.
 	- unified handles in cmt::stream->{IO}, add hinfo debug property.
 	- add more debug outputs
 
-  * words.txt:
+  * bin/words.txt:
 	-> words.txt.gz
 
-  * whoare.pl, words.txt.gz, lib/cmt/util.pm:
+  * bin/: whoare.pl, words.txt.gz, lib/cmt/util.pm:
 	whoare now accepts words file in .gz format.
 
-  * dnac.pl, dnad.pl:
+  * bin/: dnac.pl, dnad.pl:
 	back to decoded version.
 
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	add setnonblock/nbread
 
-  * lib/cmt/inet.pm, lib/cmt/ios.pm, lib/cmt/serv.pm, e.t.c...
+  * bin/: lib/cmt/inet.pm, lib/cmt/ios.pm, lib/cmt/serv.pm, e.t.c...
 	- new cmt:;stream (rewrite of cmt::channel, which is obsoleted).
 	- convention: cmt::stream->{ctx} refer to cmt::context object.
 	- add cmt::ios -init callback.
 	- replaced IO::Select by cmt::ios in cmt::serv.
 	- rename t-client, t-serv to ct/st.
 
-  * lib/cmt/.class.pm:
+  * bin/lib/cmt/.class.pm:
 	add info/info2 in the class-module template.
 
-  * lib/cmt/channel.pm:
+  * bin/lib/cmt/channel.pm:
 	deprecated, using cmt::stream instead.
 
 2007-07-17
-  * execgui.pl, odx.pl, lib/cmt/guiutil.pm, lib/cmt/ios.pm:
+  * bin/: execgui.pl, odx.pl, lib/cmt/guiutil.pm, lib/cmt/ios.pm:
 	new cmt::ios to simplify the usage of IO::Select.
 	refactor guiutil to use cmt::ios. (seems a lot more faster!)
 	(and no more "refresh, interval, timeout, etc. " ambiguous keywords, just "auto" only.)
 
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	add get_named_args
 
-  * lib/cmt/ftime.pm:
+  * bin/lib/cmt/ftime.pm:
 	using prototype() to avoid the function absorb arguments.
 
 2007-07-16
-  * lib/cmt/channel.pm:
+  * bin/lib/cmt/channel.pm:
 	derive from cmt::channel if you want to implement your "recvf".
 
-  * lib/cmt/serv.pm:
+  * bin/lib/cmt/serv.pm:
 	fire_init when connection established.
 
-  * runx.pl, lib/cmt/util.pm:
+  * bin/: runx.pl, lib/cmt/util.pm:
 	add cmt::util::atexit, don't use eval('END {}') any more.
 
-  * nfs.pl:
+  * bin/nfs.pl:
 	add examples in help page
 
-  * .pl, cpnew.bat:
+  * bin/: .pl, cpnew.bat:
 	cpnew to do files-update, with hidden-files, readonly-overwrite support, etc.
 
-  * syset.bat:
+  * bin/syset.bat:
 	- add more console (cmd.exe) preferences
 	- output in more detail
 
-  * big.bat:
+  * abc.d/bin/ml.bat, bin/big.bat:
 	using 'start "big"' to have a big-font window
 
-  * syset.bat:
+  * bin/syset.bat:
 	perl, python's blib -> site/lib
 
 2007-07-15
-  * lib/fun/xs.pm:
+  * bin/lib/fun/xs.pm:
 	using strncpy instead of memcpy for a string-type
 
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	+ indent/unindent_most
 
-  * mani.bat:
+  * bin/mani.bat:
 	change default list file from "MANIFEST" to ".MANIFEST"
 
-  * syset.bat:
+  * bin/syset.bat:
 	add include/lib path
 
-  * hex.bat, ugrep.bat:
+  * bin/: hex.bat, ugrep.bat:
 	make a unicode-grep by \x?? work-arounds.
 
-  * lib/fun/xs.pm:
+  * bin/lib/fun/xs.pm:
 	initial release
 
-  * lib/fun/xs.pm:
+  * bin/lib/fun/xs.pm:
 	don't dump typedef *PTRTYPE.
 	add --struct-only=<structs...>
 
-  * fun.pl:
+  * bin/fun.pl:
 	error-continue when autoload.
 
-  * lstconv.pl, mani.bat:
+  * bin/: lstconv.pl, mani.bat:
 	always add MANIFEST file to the list self.
 	introduced the extern/ for the absolute paths.
 
-  * catname.x, lib/cmt/proxy.pm, lib/cmt/util.pm:
+  * bin/: catname.x, lib/cmt/proxy.pm, lib/cmt/util.pm:
 	resolved the (local $_) can't be set problem, by "localuntie $_" facility. (see cmt::proxy also)
 
 2007-07-14
-  * lib/cmt/pp.pm:
+  * bin/lib/cmt/pp.pm:
 	moved Roco::Misc/interp_params -> cmt::pp/ppvar
 
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	forx: changed order of code/regexp -> regexp/code
 
-  * foreach.pl:
+  * bin/foreach.pl:
 	add support of user options, so in x-mode you can specify "#?foreach -o myopt ... "
 	add dmp built-in function
 	make the variables related, so change one variable will cause another to change. (using cmt::cstr)
 
 2007-07-13
-  * lib/: cmt/pp.pm, fun/xs.pm:
+  * bin/lib/: cmt/pp.pm, fun/xs.pm:
 	stwrap impl.
 
-  * fun.pl:
+  * bin/fun.pl:
 	- autoload once
 	- add support to cleanup by pkg->exit
 
-  * lib/: cmt/.class.pm, cmt/.pm, cmt/win32.pm, fun/.pm:
+  * bin/lib/: cmt/.class.pm, cmt/.pm, cmt/win32.pm, fun/.pm:
 	my $opt_xxx -> our
 
 2007-07-12
-  * kopy.bat, ppid.c, ppid.exe, syset.bat:
+  * bin/: kopy.bat, ppid.c, ppid.exe, syset.bat:
 	rewrite kopy using wfpreplace, and replace cmd.exe by spawn a new console, with waiting for ppid.
 
-  * perldev.bat:
+  * bin/perldev.bat:
 	add psdk/include, psdk/lib
 
 2007-07-11
-  * loop2.pl:
+  * bin/loop2.pl:
 	exec... -> win32::spawn
 	killpid -> win32::ntkill
 
-  * dsd.pl, dsl.bat, waitpid.c, waitpid.exe, lib/cmt/win32.pm:
+  * bin/: dsd.pl, dsl.bat, waitpid.c, waitpid.exe, lib/cmt/win32.pm:
 	waitpid with a timeout
 
-  * lib/fun/xs.pm:
+  * bin/lib/fun/xs.pm:
 	add xs/~stwrap
 
-  * lib/fun/test.pm:
+  * bin/lib/fun/test.pm:
 	add ~API, for calling SFC_OS::TerminateSFC.. (undocumented)
 
-  * lib/fun/.pm:
+  * bin/lib/fun/.pm:
 	fun/~sub template enhancement
 
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	bsearch -> bserchi to avoid POSIX::bsearch
 
-  * lib/cmt/perlsys.pm:
+  * bin/lib/cmt/perlsys.pm:
 	ctrl-d to terminiate the stdin
 
 2007-07-10
-  * fun.pl, lib/fun/.pm, lib/fun/i18n.pm, lib/fun/test.pm:
+  * bin/: fun.pl, lib/fun/.pm, lib/fun/i18n.pm, lib/fun/test.pm:
 	- using stash to get package of a subroutine
 	- autoload fun/modules
 
-  * psh.pl, lib/cmt/perlsys.pm:
+  * bin/: psh.pl, lib/cmt/perlsys.pm:
 	add a simple perl shell
 
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	moved hashindex(find_key), hash2tuples, bsearch (Roco::Misc --> cmt::util)
 
 2007-07-07
-  * lstconv.pl:
+  * bin/lstconv.pl:
 	Subdirectories goes into Groups in the ue-project.
 
-  * killtemp.bat:
+  * bin/killtemp.bat:
 	'killtemp name*' => 'killtemp - name'
 
 2007-07-06
-  * killtemp.bat:
+  * bin/killtemp.bat:
 	call 'killtemp hide*' to show/restore the hidden window (of loop2)
 
-  * mani.bat, syset.bat:
+  * bin/: mani.bat, syset.bat:
 	better system integration, MANIFEST.lst -> MANIFEST.prj (instead of .lst.prj)
 
 2007-07-05
-  * lib/: auto/cmt/low/.packlist, auto/cmt/low/low.dll, cmt/low.pm:
+  * bin/lib/: auto/cmt/low/.packlist, auto/cmt/low/low.dll, e.t.c...
 	make by "makefile.pl PREFIX=%DIRT_HOME%/0"
 
-  * lib/: auto/cmt/low/.packlist, auto/cmt/low/low.bs, e.t.c...
+  * bin/lib/: auto/cmt/low/.packlist, auto/cmt/low/low.bs, e.t.c...
 	the first xsub.
 
-  * loop2.pl:
+  * bin/loop2.pl:
 	added hide/show feature
 
-  * loop2.pl:
+  * bin/loop2.pl:
 	implement 'restart' by 'touch', and changes the event-queue styles.
 
-  * readcode.pl:
+  * bin/readcode.pl:
 	gui enhancement
 
-  * loop2.pl:
+  * bin/loop2.pl:
 	keypress 'r' to restart
 
 2007-07-04
-  * mani.bat:
+  * bin/mani.bat:
 	using 2-level iteration: "for /r /d" because "for /r" scans hidden files
 
-  * mani.bat:
+  * bin/mani.bat:
 	add option -r to regenerate .prj file .
 
-  * mani.bat:
+  * bin/mani.bat:
 	add option -r to regenerate .prj file .
 
-  * filetime.bat:
+  * bin/filetime.bat:
 	(fixed) return 0 if file not exists. (so to test "file A is newer then B")
 
-  * syset.bat:
+  * bin/syset.bat:
 	don't reset metapad's color
 
-  * foreach.pl:
+  * bin/foreach.pl:
 	- globalized temp var $a..$z.
 	- fixed a mistake in r = ren()
 
 2007-07-02
-  * perldev.bat, syset.bat:
+  * bin/: perldev.bat, syset.bat:
 	changed some path
 
-  * lstconv.pl, mani.bat:
+  * bin/: lstconv.pl, mani.bat:
 	generate ultraedit project file easily.
 
-  * foreach.pl:
+  * bin/foreach.pl:
 	--files-only or -f; better help text
 
-  * filetime.bat:
+  * bin/filetime.bat:
 	return 0 if file not exists. (so to test "file A is newer then B")
 
-  * foreach.pl, t/foreach-1.x:
+  * bin/: foreach.pl, t/foreach-1.x:
 	rewrite using .pl template. (a changement is lost acidently.)
 
 2007-07-01
-  * perldev.bat:
+  * bin/perldev.bat:
 	win32 %RANDOM% is timer seeded, so dropped the pseduo seed to get a better random.
 
-  * perldev.bat, syset.bat:
+  * bin/: perldev.bat, syset.bat:
 	using environment %PERL% = path\perl.exe, to support alternative versions of perl.
 
-  * syset.bat:
+  * bin/syset.bat:
 	assoc .x=runx
 
-  * runx.pl:
+  * bin/runx.pl:
 	new .x file type for shell-script
 
-  * sev.pl:
+  * bin/sev.pl:
 	code formatted using .pl
 
-  * redperl.c:
+  * bin/redperl.c:
 	add p=pause, q=quote options
 
 2007-06-30
-  * spawn.c, spawn.exe:
+  * bin/: spawn.c, spawn.exe:
 	Win32 doesn't support fork well: save PID value to file named $ENV{'pid_file'}.
 
-  * loop2.pl:
+  * bin/loop2.pl:
 	add -scriptdev option
 
-  * lib/cmt/codec.pm:
+  * bin/lib/cmt/codec.pm:
 	add %CODECS for readcode.
 
-  * hackdict.pl:
+  * bin/hackdict.pl:
 	using better binhex/hexbin in codec.pm
 
-  * .pl:
+  * bin/.pl:
 	exit code correctly
 
-  * autoyes.bat:
+  * bin/autoyes.bat:
 	loop.bat change unit ms to sec
 
-  * loop.bat:
+  * bin/loop.bat:
 	deprecated.
 
 2007-06-25
-  * clup.bat:
+  * bin/clup.bat:
 	- custom clup by config .clflags file
 	- add bundled clup:util
 
-  * apply.pl, c-text.pl, cleanhtml.pl, clip.pl, csv2xml.pl, e.t.c...
+  * bin/: apply.pl, c-text.pl, cleanhtml.pl, clip.pl, csv2xml.pl, e.t.c...
 	replace #!perl -> #!/usr/bin/perl
 
-  * repl.pl:
+  * bin/repl.pl:
 	bugfix
 
-  * lib/cmt/util.pm, t/t-qsplit.pl:
+  * bin/: lib/cmt/util.pm, t/t-qsplit.pl:
 	add forx regexp processor
 	add qsplit to support append_cmdline
 
-  * foreach.pl:
+  * bin/foreach.pl:
 	define lexical sub as sub f "; *f = sub" {...}
 
 2007-06-23
-  * repl.pl:
+  * bin/repl.pl:
 	.pl-template applied
 
-  * rmclear.bat:
+  * bin/rmclear.bat:
 	bugfix
 
 2007-06-20
-  * mp3ltrim.pl:
+  * bin/mp3ltrim.pl:
 	template applied, and add -1, -2, etc. part removal support.
 
-  * foreach.pl:
+  * bin/foreach.pl:
 	rename style as "new=f(old); r; "
 
-  * .pl:
+  * bin/.pl:
 	text_with_underline for easy selection.
 
-  * in.pl:
+  * bin/in.pl:
 	modify alias if exists; and set alias="" to remove it.
 
 2007-06-15
-  * repl.pl:
+  * bin/repl.pl:
 	code style
 
-  * foreach.pl:
+  * bin/foreach.pl:
 	add --sort (name,size), --reversed sorting features
 	add inline-script (or @script-file)
 	add file-list reference options (--list=..., and $L, $M, etc. vars)
 
 2007-05-23
-  * .batch.pl, tabsize.pl, tabsizes.bat, lib/cmt/path.pm, e.t.c...
+  * bin/: .batch.pl, tabsize.pl, tabsizes.bat, lib/cmt/path.pm, e.t.c...
 	rewrite tabsize.pl, and add a new template .batch.pl to make life easier.
 
 2007-05-12
-  * execj.bat, spawn.c, spawn.exe, waitpid.c, waitpid.exe:
+  * bin/: execj.bat, spawn.c, spawn.exe, waitpid.c, waitpid.exe:
 	execj initial released.
 
-  * hackdict.pl:
+  * bin/hackdict.pl:
 	fixbug: stop when read '0'.
 
 2007-05-01
-  * hackdict.pl:
+  * bin/hackdict.pl:
 	profiler.
 
 2007-04-30
-  * wm.pl:
+  * bin/wm.pl:
 	add \{del}, \{show}, \{hide} ctrls
 
-  * hackdict.pl, t/animals, t/numbers, t/passwd, t/verbs:
+  * abc.d/bin/em.bat:
+	hide console
+
+  * bin/: hackdict.pl, t/animals, t/numbers, t/passwd, t/verbs:
 	dev.
 
 2007-04-27
-  * lib/cmt/winuser.pm:
+  * bin/lib/cmt/winuser.pm:
 	add %_ID, %_WM, %_VK constants
 
-  * lib/cmt/path.pm:
+  * bin/lib/cmt/path.pm:
 	bugfix: to distinguish if ('') and if(undef)
 
-  * xvconv.bat:
+  * bin/xvconv.bat:
 	automaticly copy mencoder.exe to mc.exe (this change the display-name in tasklist. for hacking purpose)
 
-  * tup.bat:
+  * bin/tup.bat:
 	add xdel to TUP for cleaning unnecessaries parts
 
-  * rundelay.pl:
+  * bin/rundelay.pl:
 	dev.
 
-  * repl.pl:
+  * bin/repl.pl:
 	linux compat.
 
-  * nu.bat:
+  * bin/nu.bat:
 	add -v (verbose) option to nu.bat
 
-  * loop.bat:
+  * bin/loop.bat:
 	add delay option to loop.bat
 
-  * libstr.bat:
+  * bin/libstr.bat:
 	add uc, lc for case convert
 
-  * discuz.pl:
+  * bin/discuz.pl:
 	disable Tk-GUI temporary
 
-  * wm.pl:
+  * bin/wm.pl:
 	add send-string, send-input
 
-  * lib/cmt/path.pm:
+  * bin/lib/cmt/path.pm:
 	add temp_home, temp_path
 
-  * xvconv.bat:
+  * bin/xvconv.bat:
 	fix mistake (%_rotate% -> 1)
 
-  * nfs.pl:
+  * bin/nfs.pl:
 	add --test-only for retrieve nfs-home
 
-  * foreach.pl:
+  * bin/foreach.pl:
 	new safe ren() method and --test-only option
 
-  * dcall.bat:
+  * bin/dcall.bat:
 	variation dCall, DCALL for different verbose modes
 
 2007-03-17
-  * xvconv.bat:
+  * bin/xvconv.bat:
 	goto end after [* batch] finished
 
-  * xvconv.bat:
+  * bin/xvconv.bat:
 	customize bitrate: '[' <number> ']'
 
-  * xvconv.bat:
+  * bin/xvconv.bat:
 	support more custom options
 
-  * xvconv.bat:
+  * bin/xvconv.bat:
 	override default extension to .avi
 
-  * pc.pl:
+  * bin/pc.pl:
 	print-counter now supports input-echo (by \r only)
 
 2007-03-04
-  * jads.bat:
+  * bin/jads.bat:
 	rewrite
 
-  * syset.bat:
+  * bin/syset.bat:
 	add "send to sf..." command
 
-  * recv.bat, send.bat:
+  * bin/: recv.bat, send.bat:
 	"start cmd" if run in windows, or "exec cmd" if run in console
 
-  * syset.bat:
+  * bin/syset.bat:
 	add mp3ltrim to mouse-right-menu
 
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	delete "my"
 
 2006-12-24
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	del duplicated "my"
 
 2006-12-23
-  * nfs.pl:
+  * bin/nfs.pl:
 	(unresolved) want to change directory to NFS_Container when specify option -to
 
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	changed cftime to using gmtime instead of localtime.
 	add localftime.
 
-  * names.pl:
+  * bin/names.pl:
 	modified for mp3 tagnames
 
-  * dcall.pl:
+  * bin/dcall.pl:
 	rewrite dcall.bat
 
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	fixed a calc error in millisecond
 
-  * dcall.bat:
+  * bin/dcall.bat:
 	replaced by new dcall.pl
 
 2006-12-13
-  * nfs.pl, lib/cmt/path.pm, lib/cmt/util.pm:
+  * bin/: nfs.pl, lib/cmt/path.pm, lib/cmt/util.pm:
 	add support of dynamic symbolic link (<?...?>)
 
 2006-12-12
-  * fun.pl, lib/fun/.pm, lib/fun/i18n.pm, lib/fun/test.pm:
+  * bin/: fun.pl, lib/fun/.pm, lib/fun/i18n.pm, lib/fun/test.pm:
 	fixed returns values
 
-  * fun.pl, lib/fun/i18n.pm:
+  * bin/: fun.pl, lib/fun/i18n.pm:
 	new i18n (~is_utf8) for nfs/six refactor
 
-  * fun.pl, lib/fun/.pm, lib/fun/test.pm:
+  * bin/: fun.pl, lib/fun/.pm, lib/fun/test.pm:
 	new fun.pl to run utilities functions as programs
 
-  * nfs.pl:
+  * bin/nfs.pl:
 	use cmt::date to support datetime function
 
-  * .pl, fun.pl, lib/fun/test.pm:
+  * bin/: .pl, fun.pl, lib/fun/test.pm:
 	new fun.pl to run utilities functions as programs
 
 2006-12-05
-  * lib/cmt/path.pm:
+  * bin/lib/cmt/path.pm:
 	add dir_size
 
 2006-11-18
-  * resolv.pl:
+  * bin/resolv.pl:
 	modified version info
 
-  * sev.pl, t/sev-1.x:
+  * bin/: sev.pl, t/sev-1.x:
 	special form: %EVAL
 
-  * syset.bat:
+  * bin/syset.bat:
 	add font color.
 
-  * advname.bat, apply.pl, c-text.pl, cleanhtml.pl, clip.pl, e.t.c...
+  * bin/: advname.bat, apply.pl, c-text.pl, cleanhtml.pl, clip.pl, e.t.c...
 	replace #!/usr/bin/perl -> #!perl
 
 2006-11-16
-  * elaps.pl:
+  * bin/elaps.pl:
 	elaps time test
 
-  * lib/cmt/util.pm:
+  * bin/lib/cmt/util.pm:
 	ctime + ftime => cftime
 
-  * lib/cmt/serv.pm:
+  * bin/lib/cmt/serv.pm:
 	enable check against the deadloop
 
 2006-10-21
-  * served.pl:
+  * bin/served.pl:
 	the explicit name can't be guessed...
 
-  * syset.bat:
+  * bin/syset.bat:
 	changed metapad settings
 
 2006-10-20
-  * sim.pl, lib/cmt/util.pm:
+  * bin/: sim.pl, lib/cmt/util.pm:
 	sub scanDirectory is merged to sim.pl
 
-  * keeplink.pld, lib/cmt/serv.pm:
+  * bin/: keeplink.pld, lib/cmt/serv.pm:
 	add log to file support, with date column added.
 
-  * syset.bat:
+  * bin/syset.bat:
 	modified metapad settings
 	readd cygwin disk (B:)
 
-  * lib/cmt/service.pm:
+  * bin/lib/cmt/service.pm:
 	fixed the missing of 'restart' command
 
 2006-10-19
-  * syset.bat:
+  * bin/syset.bat:
 	add .pld, .six extensions
 
-  * served.pl:
+  * bin/served.pl:
 	initial.
 
-  * wcc.pl:
+  * bin/wcc.pl:
 	add .pm files
 
 2006-10-18
-  * keeplink.pld:
+  * bin/keeplink.pld:
 	append \n to the send-text. otherwise the sending is buffered.
 	adjust verbose info.
 
-  * keeplink.pld:
+  * bin/keeplink.pld:
 	using simpled/echod as a dummy server
 
-  * simpled.pld, lib/cmt/channel.pm, lib/cmt/ftime.pm, e.t.c...
+  * bin/: simpled.pld, lib/cmt/channel.pm, lib/cmt/ftime.pm, e.t.c...
 	new cmt::serv help creation of services.
 	new cmt::simpled implemented simple tcp services.
 
 2006-10-17
-  * rfc.bat:
+  * bin/rfc.bat:
 	only assoc metapad to text type file.
 
-  * lib/cmt/echohh.php, service/echohh.php:
+  * bin/: lib/cmt/echohh.php, service/echohh.php:
 	move echohh.php from lib/cmt/ to service/
 
-  * syset.bat:
+  * bin/syset.bat:
 	add ARK_HOME var.
 
-  * rfc.bat:
+  * bin/rfc.bat:
 	add ARK_HOME environment variable to replace z:/Files/ directory.
 	set default editor to metapad.
 
 2006-09-15
-  * usecode.pl:
+  * bin/usecode.pl:
 	change registry path /S-FIA../Dir-T/ to /DIRT/
 
-  * syset.bat:
+  * bin/syset.bat:
 	add JAVA_LIB env
 
 2006-08-19
-  * nfs.pl:
+  * bin/nfs.pl:
 	set defaulat home note/ to .note/
 
-  * listen.bat, open.bat:
+  * bin/: listen.bat, open.bat:
 	override PORT
 
-  * syset.bat:
+  * bin/syset.bat:
 	std env: dirt_home, cirk_home
 
 2006-07-27
-  * apply2.bat, clup.bat, jads.bat, listen.bat, nfs-todo.pl, not.bat, e.t.c...
+  * abc.d/bin/ml.bat, bin/apply2.bat, bin/clup.bat, bin/jads.bat, e.t.c...
 	initial
 
-  * whoare.pl:
+  * bin/whoare.pl:
 	print atom in multi-thread mode.(which is safer)
 	rather print fragments in singlethread mode (which is faster)
 
-  * wcc.pl:
+  * bin/wcc.pl:
 	add bas file type
 
-  * tup.bat:
+  * bin/tup.bat:
 	no more use q.host.bodz.net
 
-  * cvsco.pl, cvscosf.bat:
+  * bin/: cvsco.pl, cvscosf.bat:
 	sf cvs web changed.
 
-  * apply.pl:
+  * bin/apply.pl:
 	using cmt::path
 
-  * getweb.bat:
+  * bin/getweb.bat:
 	add header: Host: <host>
 
-  * cvsignor.def:
+  * bin/cvsignor.def:
 	ignore *.patch, *.lnk
 
-  * rfc.bat:
+  * bin/rfc.bat:
 	add vars
 
-  * syset.bat:
+  * bin/syset.bat:
 	using cygwin disk (B:)
 
-  * cvsignor.def:
+  * bin/cvsignor.def:
 	ignore _win32_ ...
 
 2006-04-23
-  * syset.bat:
+  * bin/syset.bat:
 	add merge command to *.patch fiels
 
-  * wcc.pl:
+  * bin/wcc.pl:
 	add .sql type
 
-  * tabsizes.bat:
+  * bin/tabsizes.bat:
 	display help if no args
 
-  * rfc.bat:
+  * bin/rfc.bat:
 	path changes
 
-  * dist-cvsi.bat:
+  * bin/dist-cvsi.bat:
 	quote "%TEMP%" if temp dir contains space
 
-  * cvsignor.def:
+  * bin/cvsignor.def:
 	ignore *.lnk and *.patch
 
-  * nfs.pl:
+  * bin/nfs.pl:
 	add test-only option
 
-  * cvscopy.bat:
+  * bin/cvscopy.bat:
 	add cvscmdopts so can copy specified tag/branch
 
 2006-03-17
-  * lib/cmt/winuser.pm:
+  * bin/lib/cmt/winuser.pm:
 	code review
 
-  * cvsignor.def, dist-cvsi.bat:
+  * bin/: cvsignor.def, dist-cvsi.bat:
 	new solution
 
-  * examples:
+  * bin/examples:
 	examples file
 
-  * wcc.pl:
+  * bin/wcc.pl:
 	ctl => vb
 
-  * nfs.pl:
+  * bin/nfs.pl:
 	retry if link not available
 
-  * cvscopy.bat:
+  * bin/cvscopy.bat:
 	writable checkout
 
 2006-01-26
-  * syset.bat:
+  * bin/syset.bat:
 	modulize, add include/lib to .cirkonstancoj/sdk
 
-  * srt-delay.pl:
+  * bin/srt-delay.pl:
 	add scale function
 
 2005-12-20
-  * nfs.pl:
+  * bin/nfs.pl:
 	add "directory of any files" note type, this replace the old work-box.
 	the symbolic now must with extension .link
 
-  * mp3ltrim.pl:
+  * bin/mp3ltrim.pl:
 	fix filename pattern
 
-  * winvod.pl:
+  * bin/winvod.pl:
 	customizable server
 
-  * wcc.pl:
+  * bin/wcc.pl:
 	add xml extension (but not impl.)
 
 2005-10-28
-  * deltags.bat:
+  * bin/deltags.bat:
 	initial
 
 2005-10-21
-  * repl.pl:
+  * bin/repl.pl:
 	die if file error
 
-  * syset.bat:
+  * bin/syset.bat, abc.d/bin/ms.bat:
 	maintaince
 
-  * copyfix.pl:
+  * bin/copyfix.pl:
 	initial
 
-  * forx.pl, foreach.pl:
+  * bin/: forx.pl, foreach.pl:
 	add userproc variables
 
-  * cvscopy.bat:
+  * bin/cvscopy.bat:
 	fixed complex module path bug.
 
 2005-07-17
-  * forx.pl:
+  * bin/forx.pl:
 	fix recursive bug
 
-  * foreach.pl:
+  * bin/foreach.pl:
 	prompt for enter script
 
-  * forx.pl:
+  * bin/forx.pl:
 	initial
 
-  * foreach.pl:
+  * bin/foreach.pl:
 	add ls, search from forx.pl, fix $count undefined.
 
 2005-07-14
-  * cvscopy.bat:
+  * bin/cvscopy.bat:
 	fix sync-.bat filename bug
 
-  * re.bat:
+  * bin/re.bat, abc.d/bin/ms.bat:
 	for ruby-scite & mxscheme
 
-  * syset.bat, tup.bat:
+  * bin/: syset.bat, tup.bat:
 	add ruby component
 
-  * foreach.pl:
+  * bin/foreach.pl:
 	fixed recursion bug
 
-  * cvscopy.bat:
+  * bin/cvscopy.bat:
 	syntax changed. not compatible to lower than 1.7
 
 2005-07-08
-  * syset.bat:
+  * bin/syset.bat:
 	include metapad
 
 2005-07-06
-  * discuz.pl, simxml.pl:
+  * bin/: discuz.pl, simxml.pl:
 	change --picture to --icon (ic)
 
-  * winvod.pl:
+  * bin/winvod.pl:
 	re-add (no dna-encoding)
 
-  * discuz.pl:
+  * bin/discuz.pl:
 	fix --cookie/--caption ambigouous
 	add --picture
 
 2005-07-05
-  * discuz.pl:
+  * bin/discuz.pl:
 	fix arguments, add
 
 2005-07-01
-  * dnac.pl, dnad.pl, lib/cmt/g.pm:
+  * bin/: dnac.pl, dnad.pl, lib/cmt/g.pm:
 	full-DNA
 
-  * dnac.pl, dnad.pl, lib/cmt/g.pm:
+  * bin/: dnac.pl, dnad.pl, lib/cmt/g.pm:
 	test ok
 
 2005-06-30
-  * syset.bat, tup.bat:
+  * bin/: syset.bat, tup.bat:
 	.dir-t -> .dirt
 
 2005-06-19
-  * cvscopy.bat:
+  * bin/cvscopy.bat:
 	attris -> attrib
 
-  * cvscopy.bat:
+  * bin/cvscopy.bat:
 	make readonly copy
 
-  * cvscopy.bat:
+  * bin/cvscopy.bat:
 	don't clean, for merge
 
 2005-03-30
-  * noteauto.vbs:
+  * bin/noteauto.vbs:
 	add comments about .vbs-association
 	this is always be modified by sthvcd
 
 2005-03-03
-  * dnac.pl, dnad.pl:
+  * bin/: dnac.pl, dnad.pl:
 	Compiled by DNA-Compiler
 
-  * dnac.pl:
+  * bin/dnac.pl:
 	indent mistake
 
-  * dnac.pl, dnad.pl, lib/cmt/g.pm, lib/cmt/util.pm, t/hello-gen.pl, e.t.c...
+  * bin/: dnac.pl, dnad.pl, lib/cmt/g.pm, lib/cmt/util.pm, e.t.c...
 	initial
 
 2005-03-02
-  * cuelist.pl:
+  * bin/cuelist.pl:
 	initial
 
 2005-01-19
-  * hex.pl:
+  * bin/hex.pl:
 	add ccr (control-character representation) support
 
-  * nfs.pl:
+  * bin/nfs.pl:
 	generate .nfs-sync.bat with --quiet option
 
-  * hex.pl:
+  * bin/hex.pl:
 	add chars support, e.g.:
 	  hex -p=$dh. 'hello'
 	  hex -p=$dd. '.upd'
 
 2005-01-06
-  * cvscopy.bat:
+  * bin/cvscopy.bat:
 	fm.  "Revision"
 
-  * cvsapp.pl, cvsco.pl, dirs.pl, hex.pl, in.pl, monitor.pl, e.t.c...
+  * bin/: cvsapp.pl, cvsco.pl, dirs.pl, hex.pl, in.pl, monitor.pl, e.t.c...
 	fd.  cmt.pm => cmt/vcs.pm
 
-  * nfs.pl:
+  * bin/nfs.pl:
 	- add generated bat script
 	- add interactive option
 	- enhanced user interface
 
 2005-01-05
-  * cvscopy.bat:
+  * bin/cvscopy.bat:
 	don't create .vex directory cuz not used.
 
-  * cvscopy.bat:
+  * bin/cvscopy.bat:
 	in.
 
 2005-01-04
-  * nfs.pl:
+  * bin/nfs.pl:
 	fd- cmt.pm => cmt/vcs.pm
 
-  * note.bat:
+  * bin/note.bat:
 	Nfs-Transition
 
-  * nfs.pl:
+  * bin/nfs.pl:
 	use . for today and .. for yesterday
 
-  * nfs.pl:
+  * bin/nfs.pl:
 	more convienient offset format, like days<-.., ..->days
 
-  * nfs.pl:
+  * bin/nfs.pl:
 	implement offset option
 
-  * nfs.pl:
+  * bin/nfs.pl:
 	fb- entry in sync-nfs is already expanded.
 
-  * nfs.pl:
+  * bin/nfs.pl:
 	add remove mapping-entry support
 
-  * nfs.pl:
+  * bin/nfs.pl:
 	fb- map support
 
-  * nfs.pl:
+  * bin/nfs.pl:
 	auto-extension
 
-  * nfs.pl:
+  * bin/nfs.pl:
 	initial
 
-  * fontmap.php:
+  * bin/fontmap.php:
 	add more powerful char-table format ( \x?? char support )
 
-  * nfs.bat:
+  * bin/nfs.bat:
 	shell wrapper
 
-  * syset.bat:
+  * bin/syset.bat:
 	- fixed PERLLIB/PYTHONLIB incorrects
 	- using normalized-path instead of mixed-slash path
 
-  * scx.pl, tgz.bat, nfs.pl:
+  * bin/: scx.pl, tgz.bat, nfs.pl:
 	initial
 
-  * lib/cmt/path.pm:
+  * bin/lib/cmt/path.pm:
 	pa. some comments
 
-  * lib/cmt/winuser.pm:
+  * bin/lib/cmt/winuser.pm:
 	initial
 
-  * lib/cmt/test.pm:
+  * bin/lib/cmt/test.pm:
 	mi. from webcon::Test::Base
 
 2005-01-03
-  * nfs.pl:
+  * bin/nfs.pl:
 	rewritten of note.bat, initial
 
-  * lib/cmt/path.pm:
+  * bin/lib/cmt/path.pm:
 	mi. from webcon
 
 2004-12-22
-  * j.bat:
+  * bin/j.bat:
 	adjust classpath
 
-  * note.bat:
+  * bin/note.bat:
 	add link maintaince
 
 2004-12-19
-  * note.bat, noteauto.vbs:
+  * bin/: note.bat, noteauto.vbs:
 	add multi .vol/ support
 
 2004-12-12
-  * in.pl:
+  * bin/in.pl:
 	initial
 
-  * hex.pl:
+  * bin/hex.pl:
 	fixed a display char mistake
 
-  * newline.pl:
+  * bin/newline.pl:
 	- add global filename-pattern support
 	- add wild-chars in filename support
 
-  * repl.pl:
+  * bin/repl.pl:
 	missing of "use cmt"
 
-  * repl.pl:
+  * bin/repl.pl:
 	split help into version and help,
 	(cuz repl.pl was refered too much, its code will be using as template)
 
 2004-12-07
-  * notes.zip:
+  * bin/notes.zip:
 	move .help out from .def
 
-  * note.bat:
+  * bin/note.bat:
 	fixed a reentrant bug
 
-  * so.pl:
+  * bin/so.pl:
 	enhanced escape/unescape functionality (see re-parts reference impl.)
 
-  * re-parts.pl:
+  * bin/re-parts.pl:
 	- show more detail of position info
 	- add reference implementation of complex global replace
 
-  * newline.pl:
+  * bin/newline.pl:
 	display current line-format info in help page
 
-  * note.bat:
+  * bin/note.bat:
 	- option // now build index file in given container-name, instead of temp dir
 	- symbolic link filename of note-home now use Notes.link instead Notes
 	- resolve .name to .vol-name
 
 2004-12-03
-  * hex.pl:
+  * bin/hex.pl:
 	initial
 
-  * fontmap.php:
+  * bin/fontmap.php:
 	removed 7f-9f from default chars
 
-  * syset.bat:
+  * bin/syset.bat:
 	- change php-upload/session directory to userhome/local settings/
 	- include php.ini template in t/2/etc/
 
-  * so.pl:
+  * bin/so.pl:
 	fixed: replace escaped-char as \n \r \t \\  seperately, instead of \(.)=>table-lookup
 
-  * rfc.bat:
+  * bin/rfc.bat:
 	rename uedit32 to ue
 
-  * note.bat:
+  * bin/note.bat:
 	- add /<open-app> options at end of command-line
 	  (as: note [{//|/del|/<ext>}] {<empty>|.|<name>} [/<open-app>]
 	- support '.' for auto-serial naming (also empty string does)
 
-  * so.pl:
+  * bin/so.pl:
 	add --print, --wait options
 	rename options with opt_ prefix
 
 2004-12-01
-  * note.bat, syset.bat:
+  * bin/: note.bat, syset.bat:
 	uedit32 renamed to ue
 
-  * syset.bat:
+  * bin/syset.bat:
 	fixed an unescaped-% error
 
-  * fontmap.php:
+  * bin/fontmap.php:
 	- use Courier New as default text font
 	- enhanced angle-rotate option, but still have bug (when angle >45, crop happened.)
 	- implemented --bold option by repeat drawing along x-axis.
 
-  * fontmap.php:
+  * bin/fontmap.php:
 	- add interlace option for png-interlace or jpeg-progressive
 	- index the options by alphabet-order
 	- add text-format for build character cartoons,
 	- add --textfont options to view the cartoons in different fonts.
 
-  * fontmap.php:
+  * bin/fontmap.php:
 	- add format-dependent codes
 	- add jpeg-quality option
 
 2004-11-30
-  * syset.bat:
+  * bin/syset.bat:
 	add php configuration
 
-  * syset_env.exe:
+  * bin/syset_env.exe:
 	rewritten in perl script embedded in syset.bat.
 
-  * args.bat, t/libstr_t.bat:
+  * bin/: args.bat, t/libstr_t.bat:
 	initial
 
-  * note.bat:
+  * bin/note.bat:
 	moved replace/join into libstr, and modified the name.
 
-  * syset.bat:
+  * bin/syset.bat:
 	- implemented environment-updater in perl instead of calling syset.exe, so full-script.
 	- enhanced dir-t path layout
 	- add php in dir-t.
 
-  * libstr.bat:
+  * bin/libstr.bat:
 	Code clearify
 
-  * libstr.bat:
+  * bin/libstr.bat:
 	use revision instead of id in function comments
 
-  * libstr.bat:
+  * bin/libstr.bat:
 	- initial
 
-  * fontmap.php:
+  * bin/fontmap.php:
 	- fixed a version display error
 	- show help when family not specified
 
 2004-11-29
-  * fontmap.php:
+  * bin/fontmap.php:
 	add sameh option
 
-  * fontmap.php:
+  * bin/fontmap.php:
 	- have calculated the correct formula of Y-positioning to chars
 	- fixed a auto [tsnlh] naming error
 	- fixed a gradient color error in anti-alias
 
-  * fontmap.php:
+  * bin/fontmap.php:
 	Initial
 
 2004-11-28
-  * note.bat:
+  * bin/note.bat:
 	Fixed bug: when /<ext> specified, the new note is always overwrite the old.
 
 2004-11-25
-  * j.bat:
+  * bin/j.bat:
 	JOS Home Moved
 
-  * dirs.pl:
+  * bin/dirs.pl:
 	[DIRS] Like old "T" utility for calc directories' size
 	- Initial
 
-  * note.bat:
+  * bin/note.bat:
 	Add option // for list titles of all notes.
 
 2004-11-24
-  * j.bat:
+  * bin/j.bat:
 	New J-shell
 
-  * note.bat, noteauto.vbs, notes.zip:
+  * bin/: note.bat, noteauto.vbs, notes.zip:
 	add template note-support in self, using "note .vol-def"
 
 2004-11-17
-  * newline.pl:
+  * bin/newline.pl:
 	fix an CR-redundancy when output lines by use binmode()
 
-  * newline.pl:
+  * bin/newline.pl:
 	add binary-file recognize.
 
-  * newline.pl:
+  * bin/newline.pl:
 	Initial-2
 
-  * newline.pl:
+  * bin/newline.pl:
 	Initial
 
-  * sim.pl:
+  * bin/sim.pl:
 	Add temp extension-name support for .bat, .vbs using.
 
 2004-11-15
-  * syset.bat:
+  * bin/syset.bat:
 	add .sim assoc
 
 2004-11-13
-  * whoare.pl:
+  * bin/whoare.pl:
 	- add lot more whois server list.
 	- iterate by word-list file, and resume support.
 	- iterate by numbers only.
@@ -1460,30 +1469,30 @@
 	- display each record part by part, by the stages of query session.
 	- new log file naming method.
 
-  * minimode.bat, monitor.pl:
+  * bin/: minimode.bat, monitor.pl:
 	Initial
 
-  * resplit.pl:
+  * bin/resplit.pl:
 	Regular-Expression SPLIT: Split into files by occurance of pattern-match
 	- Initial
 
-  * rfc.bat:
+  * bin/rfc.bat:
 	use ultraedit as the default editor.
 
-  * repl.pl:
+  * bin/repl.pl:
 	support output only mode (don't save/writeback the replace result)
 
-  * loop.bat:
+  * bin/loop.bat:
 	display command line at titlebar.
 
-  * note.bat:
+  * bin/note.bat:
 	add /del option for delete note.
 
 2004-10-26
-  * loop.bat:
+  * bin/loop.bat:
 	initial
 
-  * whoare.pl:
+  * bin/whoare.pl:
 	- whois .biz server
 	- auto naming log-file for fuzzy-query
 	- debug/test options
@@ -1494,163 +1503,163 @@
 	- general name query (name.*)
 
 2004-10-25
-  * whoare.pl:
+  * bin/whoare.pl:
 	supp cnnic whois format
 
-  * whoare.pl:
+  * bin/whoare.pl:
 	initial [whois *]
 
 2004-10-20
-  * simxml.pl:
+  * bin/simxml.pl:
 	[keep] this state-machine version is hard to maintain.
 
-  * sim.pl:
+  * bin/sim.pl:
 	Use temporary file for both write-mode and output-mode, to clear sim-preprocessors for specific interpreters.
 
-  * sim.pl, simxml.pl:
+  * bin/: sim.pl, simxml.pl:
 	- Initial, SIM is A GG-style interpreter
 	- Update .stx to .xml.sim
 
-  * note.bat:
+  * bin/note.bat:
 	fixed a dirty-variable bug.
 
-  * cvscosf.bat:
+  * bin/cvscosf.bat:
 	Splited into cvsco
 
-  * cvsco.pl:
+  * bin/cvsco.pl:
 	Generalized from cvscosf
 
 2004-10-11
-  * binwrap.bat:
+  * bin/binwrap.bat:
 	indent.
 
-  * envkey.bat:
+  * bin/envkey.bat:
 	env-clear for general purpose.
 
-  * noteauto.vbs:
+  * bin/noteauto.vbs:
 	ole-automation support for note.bat.
 
-  * note.bat:
+  * bin/note.bat:
 	- auto-recognize file type only if /type arguments not specified.
 	- add ole-auto support for creating template-based documents.
 	  (for avoid timestamp-bug in copy-mode)
 
-  * note.bat:
+  * bin/note.bat:
 	- new extension mapping
 	  (now note/xls .. instead of note e ..)
 	- auto extension recognize
 	  (now note <xlsnote> instead of note e <xlsnote>)
 
-  * cvscosf.bat:
+  * bin/cvscosf.bat:
 	initial
 
-  * binwrap.bat, cmdex.bat, envkey.bat:
+  * bin/: binwrap.bat, cmdex.bat, envkey.bat:
 	binwrap  [ testing Plink arguments ]
 	   envkey
 	      cmdex
 
 2004-10-08
-  * cvsapp.pl:
+  * bin/cvsapp.pl:
 	progress.
 
-  * note.bat:
+  * bin/note.bat:
 	add link-following support, so notes package can be placed at different places.
 
-  * rfc.bat:
+  * bin/rfc.bat:
 	initial
 
 2004-10-02
-  * note.bat:
+  * bin/note.bat:
 	add mount-check.
 
 2004-09-24
-  * wcc.pl:
+  * bin/wcc.pl:
 	- add total lines at last (forbidden by --nosummary)
 	- add classification by .extension
 	- don't show directories with zero lines, unless verbose-mode.
 
-  * lib/cmt/vcs.pm:
+  * bin/lib/cmt/vcs.pm:
 	the literal $.I.d.$ is modified by cvs mistake, so fix it.
 
-  * cvsexp.bat:
+  * bin/cvsexp.bat:
 	fixed a version display bug
 
-  * lib/cmt/vcs.pm, cvsapp.pl:
+  * bin/: lib/cmt/vcs.pm, cvsapp.pl:
 	initial
 
 2004-09-23
-  * wcc.pl:
+  * bin/wcc.pl:
 	use parse_id to show version info
 
-  * cvsexp.bat:
+  * bin/cvsexp.bat:
 	add version info
 
-  * wcc.pl:
+  * bin/wcc.pl:
 	fixed a sum bug
 
-  * wcc.pl:
+  * bin/wcc.pl:
 	ignore Object .. at begining of vb files.
 
-  * wcc.pl:
+  * bin/wcc.pl:
 	fix revision display
 
-  * wcc.pl:
+  * bin/wcc.pl:
 	initial
 
-  * clip.bat:
+  * bin/clip.bat:
 	removed.
 
-  * repl.pl:
+  * bin/repl.pl:
 	- new option: --veryquiet
 	- add to display modified-count at last.
 
-  * note.bat:
+  * bin/note.bat:
 	- trailing '-' in 'title-' will be substituted by serial number
 
 2004-09-22
-  * HIS.BAT, LM.BAT, StartMap.bat, asp-decode.pl, jackhash.bat, e.t.c...
+  * bin/: HIS.BAT, LM.BAT, StartMap.bat, asp-decode.pl, jackhash.bat, e.t.c...
 	these were expired or from 3rd-parties
 
-  * MCopy.bat, MkRoot.bat, SWAP.BAT, TestErr.bat, advname.bat, e.t.c...
+  * bin/MCopy.bat, bin/MkRoot.bat, bin/SWAP.BAT, bin/TestErr.bat, e.t.c...
 	add version info at header.
 
-  * repl.pl:
+  * bin/repl.pl:
 	few
 
-  * frepls.bat, m.bat:
+  * bin/: frepls.bat, m.bat:
 	removed
 
-  * tabsize.pl, tabsizes.bat:
+  * bin/: tabsize.pl, tabsizes.bat:
 	source from tab-style.pl
 
-  * c-text.pl, clear-recent.bat, cvsexp.bat, get-mp4cn.bat, e.t.c...
+  * bin/: c-text.pl, clear-recent.bat, cvsexp.bat, get-mp4cn.bat, e.t.c...
 	initial
 
-  * tup.bat:
+  * bin/tup.bat:
 	auto initialize system settings after updated.
 
-  * stx2xml.pl:
+  * bin/stx2xml.pl:
 	few
 
-  * so.pl:
+  * bin/so.pl:
 	show help if no arguments are specified.
 
-  * repl.pl:
+  * bin/repl.pl:
 	add external command support
 
-  * getmed.pl:
+  * bin/getmed.pl:
 	make help page more clear
 
 2004-08-23
-  * tup.bat:
+  * bin/tup.bat:
 	at last, automatic update -- being commited!
 
-  * dist-cvsi.bat, j.bat, srt-delay.pl, conf.bat, patcat.pl, repl.pl, e.t.c...
+  * abc.d/bin/em.bat, bin/dist-cvsi.bat, bin/j.bat, bin/srt-delay.pl, e.t.c...
 	usnap merging plan
 
 2004-08-08
-  * dist-cvsi.bat:
+  * bin/dist-cvsi.bat:
 	Dispatch .cvsignore (and other initializers) to sub-directories
 
-  * HIS.BAT, LM.BAT, MCopy.bat, MkRoot.bat, SWAP.BAT, StartMap.bat, e.t.c...
+  * bin/HIS.BAT, bin/LM.BAT, bin/MCopy.bat, bin/MkRoot.bat, e.t.c...
 	MERGED INTO USNAP PROJECT
