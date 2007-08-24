@@ -1,0 +1,77 @@
+#NoTrayIcon
+#SingleInstance
+
+funpack(count, prefix) {
+	global
+	local index = 0
+	local pid
+	loop %count% {
+		pid := %prefix%_p%a_index%
+		if pid {
+			process, exist, % pid
+			if errorlevel {
+				continue
+			}
+		}
+		index := a_index
+		break
+	}
+	if index {
+		local prog = %prefix%%index%
+		run, %prog%, , , %prefix%_p%index%
+	}
+}
+
+home() {
+	ifexist B:/cygwin.*
+        {
+		envset HOME, B:/home/%username%
+		ifnotexist %HOME%
+			filecreatedir %HOME%
+		setworkingdir %HOME%
+        }
+}
+
+lwin & tab::alttab
+lwin & capslock::shiftalttab
+!tab::send {escape}{tab}
+
+#!e::edit
+#!r::reload
+#!p::pause
+#!s::suspend
+#!bs::exitapp
+#!h::
+	splitpath, a_ahkpath, name, dir
+	run % dir . "/autohotkey.chm"
+	return
+#!/::
+	if A_IconHidden {
+		menu, tray, icon
+	} else {
+		menu, tray, noicon
+	}
+	return
+
+#!z::media_stop
+#!x::media_play_pause
+#!c::send {media_stop}{media_play_pause}
+#!v::media_prev
+#!b::media_next
+#!numpadadd::send {volumn_up}
+#!numpadsub::send {volumn_down}
+
+#b::run big
+#c::run cmd
+#f::run firefox
+#n::run metapad
+#p::run psh
+#t::run sh
+#u::run ue
+#-::
+	nfs1 = notepad
+	nfs2 = nfs
+	nfs3 = nfs temp-
+	nfs4 = nfs xxx-
+	funpack(4, "nfs")
+	return
