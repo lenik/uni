@@ -1,6 +1,8 @@
 #NoTrayIcon
 #SingleInstance
 
+setworkingdir %USERPROFILE%
+
 funpack(count, prefix) {
 	global
 	local index = 0
@@ -20,16 +22,6 @@ funpack(count, prefix) {
 		local prog = %prefix%%index%
 		run, %prog%, , , %prefix%_p%index%
 	}
-}
-
-home() {
-	ifexist B:/cygwin.*
-        {
-		envset HOME, B:/home/%username%
-		ifnotexist %HOME%
-			filecreatedir %HOME%
-		setworkingdir %HOME%
-        }
 }
 
 lwin & tab::alttab
