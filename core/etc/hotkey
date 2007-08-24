@@ -1,5 +1,5 @@
 #NoTrayIcon
-#SingleInstance
+#SingleInstance ignore
 
 setworkingdir %USERPROFILE%
 
@@ -22,6 +22,11 @@ funpack(count, prefix) {
 		local prog = %prefix%%index%
 		run, %prog%, , , %prefix%_p%index%
 	}
+}
+
+runp(pre, cmd) {
+	regwrite, REG_SZ, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Command Processor, AutoRun, %pre%
+	run %cmd%
 }
 
 lwin & tab::alttab
@@ -57,13 +62,13 @@ lwin & capslock::shiftalttab
 #c::run cmd
 #f::run firefox
 #n::run metapad
-#p::run psh
+#p::run perldev
+#s::run scilab
 #t::run sh
 #u::run ue
 #-::
-	nfs1 = notepad
-	nfs2 = nfs
-	nfs3 = nfs temp-
-	nfs4 = nfs xxx-
-	funpack(4, "nfs")
+	nfs1 = %wperl% %lapiota%\bin\nfs.pl --wait-close
+	nfs2 = %wperl% %lapiota%\bin\nfs.pl --wait-close temp-
+	nfs3 = %wperl% %lapiota%\bin\nfs.pl --wait-close xxx-
+	funpack(3, "nfs")
 	return

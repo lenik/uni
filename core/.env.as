@@ -11,12 +11,12 @@
 #	*	recurse into sub-directory's PARAM/.env.as
 #	z	end of list
 
-* * abc.d
 * * bin
 * * etc
-* * home
-* * lib
-* * local
+* * proc
 * * usr
-
+* * lib
+* * abc.d
+* * local
+* * home
 z z z
