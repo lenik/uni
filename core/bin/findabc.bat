@@ -15,7 +15,7 @@
     set _st=!_name:~0,%_lev%!
     if "%_st%"=="%_name%" (
         echo failed to find %_name%
-        goto end
+        exit /b 1
     )
     set _prefix=%_prefix%\%_st%
     goto st_loop
@@ -28,8 +28,13 @@
     goto st_next
 
 :leave
+    if "%_chdir%"=="1" set _home=%_home%/
     call export _home
     %leave%
+    if "%_home:~-1%"=="/" (
+        set _home=%_home:~0,-1%
+        cd /d "%_home%"
+    )
 
 :add_path
     if "%~1"=="" goto end
@@ -40,6 +45,9 @@
     )
     shift
     goto add_path
+
+:end
+    exit /b 0
 
 :init
     set  _verbose=0
@@ -84,6 +92,11 @@
 :prep2
     if "%~1"=="" goto help
     set _name=%~1
+    set _chdir=0
+    if "%_name:~-1%"=="/" (
+        set _name=%_name:~0,-1%
+        set _chdir=1
+    )
     shift
 
 :init_ok
@@ -91,11 +104,12 @@
         echo _startdir=%_startdir%
         echo  _program=%_program%
         echo     _name=%_name%
+        echo    _chdir=%_chdir%
     )
     goto start
 
 :version
-    set _id=$Id: findabc.bat,v 1.1 2007-08-24 11:44:56 lenik Exp $
+    set _id=$Id: findabc.bat,v 1.2 2007-08-24 15:26:01 lenik Exp $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
@@ -104,7 +118,7 @@
     )
     echo [findabc] Find out directory/prefix of an installed abc-package
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
-    goto end
+    exit /b 0
 
 :help
     call :version
@@ -117,8 +131,4 @@
     echo    -v, --verbose       repeat to get more info
     echo        --version       show version info
     echo    -h, --help          show this help page
-    goto end
-
-:cleanup
-
-:end
+    exit /b 0
