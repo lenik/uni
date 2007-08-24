@@ -1,4 +1,62 @@
 
+2007-08-25
+  * lapiota-init.bat, start-apps.bat:
+	init profile.d
+
+  * nfs.pl:
+	add --wait-close to interact with autohotkey.
+
+2007-08-24
+  * findabc.bat:
+	auto chdir if called as `findabc prefix/'
+
+  * .bat:
+	using `exit /b CODE' instead of `goto end'
+
+  * lapiota-init.bat:
+	using a: as ~(HOME) directory
+
+  * lapiota-init.bat:
+	add init-cygwin(3)
+
+  * sml.bat:
+	find home by findabc.
+
+  * .bat:
+	borrowed the test of end-of-arglist from args.bat
+
+  * args.bat:
+	test end-of-arglist using "-translate method. (still not complete)
+
+  * export.bat:
+	export variable(s) from setlocal/endlocal block (replace the 'endlocal' by '%leave%')
+	(now only export of single variable is supported.)
+
+  * ugrep.bat:
+	grep -abo to print the byte offset, however the offset of the beginning of the matched null-terminated block is printed.
+
+  * .lib.bat, libpath.bat:
+	new libpath based on .bat-lib framework. (realpath/lapiota in future will base on this framework)
+
+2007-08-23
+  * so.pl:
+	subject to using Lisp-style script language.
+
+  * relay.pl, lib/cmt/serv.pm, lib/cmt/simpled.pm, t/st.pl:
+	support of cmt::serv->new with -options
+
+  * lib/cmt/util.pm:
+	- get_named_args with nolead option to remove -(dash) leader
+	- add select_input/seleci which redirects the STDIN
+
+  * resolv.pl:
+	use only Socket::inet_ntoa
+
+  * pcs.pl:
+	- framework by .net.pl
+	- redirect STDIN/STDOUT to the socket handle
+	- init script and help info are went into YAML data.
+
 2007-08-22
   * pcs.bat, pcs.pl, pct.pl:
 	new perl-console (server/terminal)
@@ -401,7 +459,7 @@
 	- add more console (cmd.exe) preferences
 	- output in more detail
 
-  * big.bat, ml.bat:
+  * big.bat:
 	using 'start "big"' to have a big-font window
 
   * syset.bat:
@@ -680,9 +738,6 @@
   * wm.pl:
 	add \{del}, \{show}, \{hide} ctrls
 
-  * em.bat:
-	hide console
-
   * hackdict.pl, t/animals, t/numbers, t/passwd, t/verbs:
 	dev.
 
@@ -913,7 +968,7 @@
 	std env: dirt_home, cirk_home
 
 2006-07-27
-  * apply2.bat, clup.bat, jads.bat, listen.bat, ml.bat, nfs-todo.pl, e.t.c...
+  * apply2.bat, clup.bat, jads.bat, listen.bat, nfs-todo.pl, not.bat, e.t.c...
 	initial
 
   * whoare.pl:
@@ -1020,7 +1075,7 @@
   * repl.pl:
 	die if file error
 
-  * syset.bat, ss.bat:
+  * syset.bat:
 	maintaince
 
   * copyfix.pl:
@@ -1049,7 +1104,7 @@
   * cvscopy.bat:
 	fix sync-.bat filename bug
 
-  * re.bat, ss.bat:
+  * re.bat:
 	for ruby-scite & mxscheme
 
   * syset.bat, tup.bat:
@@ -1590,7 +1645,7 @@
   * tup.bat:
 	at last, automatic update -- being commited!
 
-  * dist-cvsi.bat, em.bat, j.bat, srt-delay.pl, conf.bat, patcat.pl, e.t.c...
+  * dist-cvsi.bat, j.bat, srt-delay.pl, conf.bat, patcat.pl, repl.pl, e.t.c...
 	usnap merging plan
 
 2004-08-08
