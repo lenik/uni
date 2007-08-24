@@ -12,7 +12,7 @@ use Getopt::Long;
 use YAML;
 
 our $nfs_appname = 'NFS Version 2';
-our %nfs_id = parse_id('$Id: nfs,v 1.27 2007-08-02 22:51:09 lenik Exp $');
+our %nfs_id = parse_id('$Id: nfs,v 1.28 2007-08-24 17:04:21 lenik Exp $');
 
 our %nfs_filetype = (
     ''      => 'ue "%s"',                   # default
@@ -73,6 +73,7 @@ our $opt_disable_symbolic_link = 0;
 our $opt_disable_template_substitute = 0;
 our $opt_disable_vex_extension = 0;
 
+our $opt_wait_close = 0;                    # used in hotkey bindings
 our $opt_interactive = 0;
 our $opt_test_only = 0;
 our $opt_verbose = 0;
@@ -131,6 +132,7 @@ sub main {
         'disable-symbolic-link|ds',
         'disable-template-substitute|dt',
         'disable-vex-extension|dv',
+        'wait-close',
         'interactive|i',
         'test-only|to',
         'verbose|v',
@@ -376,7 +378,7 @@ sub main {
         my $termdir = path_join $nfs_path_container, $opt_title;
         mkdir_p $termdir;
         $opt_program = '.dep';
-        cmdexec "start \"$termdir\"";
+        cmdexec "\"$termdir\"";
         # continue operations.
     }
 
@@ -426,10 +428,10 @@ sub main {
             # use program depends on type to open the document
             my $opener = $nfs_filetype{$each_ext};
                $opener ||= $nfs_filetype{''};
-            $cmdline = sprintf("start $opener", $open_path);
+            $cmdline = sprintf("$opener", $open_path);
         } else {
             # use the specified program to open the document
-            $cmdline = sprintf("start $opt_program", $open_path);
+            $cmdline = sprintf("$opt_program", $open_path);
         }
 
         cmdexec $cmdline;
@@ -817,7 +819,16 @@ sub cmdexec {
         $local =~ s {\/}{\\}g;
         print "HOWTO? - cd \"$local\"";
     } else {
-        system $cmdline;
+        if ($opt_wait_close) {
+            #if (my $pid = fork) {
+            #    waitpid -$pid, 0;
+            #} else {
+            #    exec $cmdline;
+            #}
+            system "$cmdline";
+        } else {
+            system "start $cmdline";
+        }
     }
 }
 
