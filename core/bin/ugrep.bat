@@ -2,7 +2,7 @@
 
     setlocal
 
-    set FLAGS=-P
+    set FLAGS=-Pabo
 
     if "%~1"=="-?" (
         set _verb=1
