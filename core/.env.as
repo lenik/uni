@@ -11,7 +11,9 @@
 #	*	recurse into sub-directory's PARAM/.env.as
 #	z	end of list
 
-* * bin
+PERLLIB         lp-     lib
+PYTHONPATH      lp-     lib
+
 * * etc
 * * proc
 * * usr

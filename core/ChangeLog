@@ -48,10 +48,10 @@
   * bin/so.pl:
 	subject to using Lisp-style script language.
 
-  * bin/: relay.pl, lib/cmt/serv.pm, lib/cmt/simpled.pm, t/st.pl:
+  * bin/relay.pl, lib/cmt/serv.pm, lib/cmt/simpled.pm, t/st.pl:
 	support of cmt::serv->new with -options
 
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	- get_named_args with nolead option to remove -(dash) leader
 	- add select_input/seleci which redirects the STDIN
 
@@ -67,38 +67,38 @@
   * bin/: pcs.bat, pcs.pl, pct.pl:
 	new perl-console (server/terminal)
 
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	- qsplit now interpolate the "..." and '...' strings (maybe even a bit faster)
 	- readfile/writefile in binmode
 
-  * bin/lib/cmt/test.pm:
+  * lib/cmt/test.pm:
 	add cps()
 
-  * bin/lib/cmt/table.pm:
+  * lib/cmt/table.pm:
 	add |-style table file parser
 
-  * bin/lib/cmt/oop.pm:
+  * lib/cmt/oop.pm:
 	- unified the lex/lexer/yylex name convention
 	- add debug options to yparser->() returned by oop_newparser
 
-  * bin/lib/cmt/: oop_mod.pm, oop_y.pm, oop_y.y:
+  * lib/cmt/: oop_mod.pm, oop_y.pm, oop_y.y:
 	add support of %lexer, %yylex attributes.
 	add debug options to yparser->() returned by oop_newparser
 
-  * bin/lib/cmt/lexutil.pm:
+  * lib/cmt/lexutil.pm:
 	- unified the lex/lexer/yylex name convention
 	- if the last token __xxx is returned after EOF, then the token is changed to EOF-token.
 	- moved lex_dump from cmt::oop to cmt::lexutil
 
 2007-08-18
-  * bin/lib/cmt/table.pm:
+  * lib/cmt/table.pm:
 	first test passed. (with _cut2->_cut1 unreversable exception.)
 
-  * bin/lib/cmt/table.pm:
+  * lib/cmt/table.pm:
 	initial for yaml/table format.
 
 2007-08-16
-  * bin/lib/cmt/oop_mod.pm:
+  * lib/cmt/oop_mod.pm:
 	can't shift @_ because $_[i] is in used in the semantic actions.
 
   * bin/source.bat:
@@ -108,22 +108,22 @@
   * bin/relay.pl:
 	add --rawdump=charrange to suppress some unwanted chars(like \a beep) for reading purpose.
 
-  * bin/lib/cmt/oop_mod.pm:
+  * lib/cmt/oop_mod.pm:
 	@_ includes "yylval" in semantic actions, so the first component is shifted out.
 
-  * bin/lib/cmt/: oop_y.pm, oop_y.y:
+  * lib/cmt/: oop_y.pm, oop_y.y:
 	- using more strict grammer, don't use empty=() any more.
 	- also repeat-delimiter can't be empty.
 	- carefully adjusted the precedence, so all conflicts are resolved as supposed.
 
-  * bin/lib/cmt/perlsys.pm:
+  * lib/cmt/perlsys.pm:
 	which_sub now supports to specify the sub by name.
 
-  * bin/lib/cmt/oop.pm:
+  * lib/cmt/oop.pm:
 	- catch 'die' from Yapp::Driver.
 	- output diagnostic info only if any warnings.
 
-  * bin/lib/cmt/Makefile:
+  * lib/cmt/Makefile:
 	using bash shell instead of cmd
 
   * bin/kopy.bat:
@@ -133,25 +133,25 @@
   * bin/syset.bat:
 	add xt/bin to path
 
-  * bin/lib/cmt/: lexutil.pm, oop.pm, oop_mod.pm, oop_y.pm, oop_y.y:
+  * lib/cmt/: lexutil.pm, oop.pm, oop_mod.pm, oop_y.pm, oop_y.y:
 	- implemented oop_compile and the final oop. congratulation!
 	- syntax exp/alias ::= alias=exp
 	- semantic {repeat} => plain-array
 	- semantic concat[1] => scalar
 
-  * bin/lib/cmt/english.pm:
+  * lib/cmt/english.pm:
 	add 'alternative when empty string' for simplify.
 
 2007-08-13
-  * bin/lib/cmt/english.pm:
+  * lib/cmt/english.pm:
 	add plural()
 
-  * bin/lib/cmt/: lexutil.pm, oop.pm, oop_mod.pm, oop_y.pm, oop_y.y:
+  * lib/cmt/: lexutil.pm, oop.pm, oop_mod.pm, oop_y.pm, oop_y.y:
 	- add (empty), {n..m range}
 	- implemented oop_conv which converts rw-def to yacc-def
 
 2007-08-12
-  * bin/lib/cmt/: .class.pm, Makefile, oop.pm, oop_mod.pm, oop_y.pm, e.t.c...
+  * lib/cmt/: .class.pm, Makefile, oop.pm, oop_mod.pm, oop_y.pm, e.t.c...
 	implemented oop_parse.
 
 2007-08-11
@@ -232,25 +232,25 @@
   * bin/lstconv.pl:
 	remove grouped roots from root list.
 
-  * bin/lib/fun/: .pm, _booter.pm, asknet.pm:
+  * lib/fun/: .pm, _booter.pm, asknet.pm:
 	append fun's help page to the funpack's help page
 
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	- _or is preferred to ||, which using defined() rather then true()
 	- array_index/hash_index default using eq instead of ==
 	- add de-alias to get_named_args.
 	- added listdir() and fswalk()
 
-  * bin/lib/cmt/pp.pm:
+  * lib/cmt/pp.pm:
 	add typecheck to ppdom(&;FILELIST) where FILE could be a GLOB or ARRAY-REF.
 
-  * bin/lib/cmt/path.pm:
+  * lib/cmt/path.pm:
 	+ mkdir_p, ishidden
 
-  * bin/lib/cmt/chm.pm:
+  * lib/cmt/chm.pm:
 	impl chm_hhk, chm_build, chm_compile
 
-  * bin/lib/cmt/.pm:
+  * lib/cmt/.pm:
 	use vars -> our.
 
   * bin/dsd.pl:
@@ -260,10 +260,10 @@
 	rename tin.bat -> dsl.bat
 
 2007-07-31
-  * bin/lib/cmt/path.pm:
+  * lib/cmt/path.pm:
 	temp_name generate with process-id, so as to avoid name conflicts.
 
-  * bin/: asknet.pl, domp.pl, lib/fun/asknet.pm:
+  * bin/asknet.pl, bin/domp.pl, lib/fun/asknet.pm:
 	implemented asknet/where to query location info about a mobilephone number.
 
   * bin/catname.x:
@@ -275,33 +275,33 @@
   * bin/fun.pl:
 	the branching part went into fun::_booter.
 
-  * bin/lib/cmt/netutil.pm:
+  * lib/cmt/netutil.pm:
 	add post(url, post-data) and loadurl(url, [post-data])
 
-  * bin/lib/cmt/pp.pm:
+  * lib/cmt/pp.pm:
 	change ppvar to ppvarf, and the old ppvar became to accept %hash instead of &callback.
 
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	add _use() which evaluates 'require+import' at later time.
 
-  * bin/lib/fun/: .pm, _booter.pm, test.pm:
+  * lib/fun/: .pm, _booter.pm, test.pm:
 	splitted _booter from common fun-programs
 
 2007-07-27
-  * bin/lib/cmt/chm.pm:
+  * lib/cmt/chm.pm:
 	initial
 
-  * bin/lib/cmt/atext.pm:
+  * lib/cmt/atext.pm:
 	new abstract-text model for dynamic texts.
 
-  * bin/lib/cmt/: netutil.pm, util.pm:
+  * lib/cmt/: netutil.pm, util.pm:
 	- keep the -(dash) in option names.
 	- moved network-related functions to netutil.pm
 
-  * bin/lib/cmt/: inet.pm, ios.pm, serv.pm, stream.pm:
+  * lib/cmt/: inet.pm, ios.pm, serv.pm, stream.pm:
 	keep the -(dash) in option names.
 
-  * bin/lib/cmt/pp.pm:
+  * lib/cmt/pp.pm:
 	- add -options: -qdef, -qset, -pdef, -pset to select the tokens; -rem to remove the quote-char self.
 	- add ppdom to support simple structured text.
 	- new ppfmt_foobar to replace ppvar which support more complex grammer.
@@ -323,11 +323,11 @@
 	formatted the help info
 
 2007-07-26
-  * bin/: .batch.pl, lib/cmt/pp.pm, lib/cmt/util.pm, lib/fun/xs.pm:
+  * bin/.batch.pl, lib/cmt/pp.pm, lib/cmt/util.pm, lib/fun/xs.pm:
 	add file-handle support in cmt::pp, also the pp() function now accepts token-config (you can customize which of /*, # etc. comment chars are used)
 
 2007-07-23
-  * bin/: chmac.pl, lib/Net/Adapter.pm, e.t.c...
+  * bin/chmac.pl, lib/Net/Adapter.pm, e.t.c...
 	add select by combo option (the index is changed after netcon_reset, however the combo seems to be static.)
 
   * bin/cvsuser.bat:
@@ -352,13 +352,13 @@
 	add support of statement-list
 
 2007-07-22
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	add array_index, array_remove, format_inaddr, sockinfo
 
-  * bin/: relay.pl, lib/cmt/ios.pm, lib/cmt/serv.pm, e.t.c...
+  * bin/relay.pl, lib/cmt/ios.pm, lib/cmt/serv.pm, e.t.c...
 	relay initial released!
 
-  * bin/lib/cmt/inet.pm:
+  * lib/cmt/inet.pm:
 	call tcp_connect with (... -cont=>1) to leave the cmt::ios::context running.
 
   * bin/: myexec.c, myexec.exe, perldev.bat, syset.bat:
@@ -371,39 +371,39 @@
   * bin/lstconv.pl:
 	add support of virtual-group: "[Group] path"
 
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	atexit -> at_exit to avoid name conflicts
 
-  * bin/lib/cmt/ios.pm:
+  * lib/cmt/ios.pm:
 	new methods in cmt::ios::context: add, count, exists, remove
 
 2007-07-20
-  * bin/lib/cmt/ipc.pm:
+  * lib/cmt/ipc.pm:
 	deprecated, using cmt::ios instead.
 
-  * bin/lib/cmt/channel.pm:
+  * lib/cmt/channel.pm:
 	deprecated, using cmt::stream instead.
 
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	add fire_sub to invoke simple-callback.
 
-  * bin/lib/cmt/stream.pm:
+  * lib/cmt/stream.pm:
 	change syntax from stream->($fd, @data) to stream->write($data, [$fd])
 
-  * bin/lib/cmt/serv.pm:
+  * lib/cmt/serv.pm:
 	add create_ios method to create the serv/ios only for custom extensions.
 
-  * bin/lib/cmt/ios.pm:
+  * lib/cmt/ios.pm:
 	add cmt::ios::merged derivation:  when multiple cmt::ios were created, they have to be 'loop'ing in separated threads, this cause many problems.  the new merged-model allows one to 'loop'ing in one thread, by IO::Select all the sockets of cmt::ios(s).
 
 2007-07-18
   * bin/relay.pl:
 	adapted cmt::serv & cmt::inet
 
-  * bin/lib/cmt/ios.pm:
+  * lib/cmt/ios.pm:
 	default reads/writes/errs group names as "READ"/"WRITE"/"ERR"
 
-  * bin/: lib/cmt/inet.pm, lib/cmt/stream.pm, t/ct.pl:
+  * lib/cmt/inet.pm, lib/cmt/stream.pm, t/ct.pl:
 	- tcp_connect with additional paramters passed to new IO::Socket::INET.
 	- unified handles in cmt::stream->{IO}, add hinfo debug property.
 	- add more debug outputs
@@ -411,48 +411,48 @@
   * bin/words.txt:
 	-> words.txt.gz
 
-  * bin/: whoare.pl, words.txt.gz, lib/cmt/util.pm:
+  * bin/whoare.pl, bin/words.txt.gz, lib/cmt/util.pm:
 	whoare now accepts words file in .gz format.
 
   * bin/: dnac.pl, dnad.pl:
 	back to decoded version.
 
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	add setnonblock/nbread
 
-  * bin/: lib/cmt/inet.pm, lib/cmt/ios.pm, lib/cmt/serv.pm, e.t.c...
+  * lib/cmt/inet.pm, lib/cmt/ios.pm, lib/cmt/serv.pm, e.t.c...
 	- new cmt:;stream (rewrite of cmt::channel, which is obsoleted).
 	- convention: cmt::stream->{ctx} refer to cmt::context object.
 	- add cmt::ios -init callback.
 	- replaced IO::Select by cmt::ios in cmt::serv.
 	- rename t-client, t-serv to ct/st.
 
-  * bin/lib/cmt/.class.pm:
+  * lib/cmt/.class.pm:
 	add info/info2 in the class-module template.
 
-  * bin/lib/cmt/channel.pm:
+  * lib/cmt/channel.pm:
 	deprecated, using cmt::stream instead.
 
 2007-07-17
-  * bin/: execgui.pl, odx.pl, lib/cmt/guiutil.pm, lib/cmt/ios.pm:
+  * bin/execgui.pl, bin/odx.pl, lib/cmt/guiutil.pm, lib/cmt/ios.pm:
 	new cmt::ios to simplify the usage of IO::Select.
 	refactor guiutil to use cmt::ios. (seems a lot more faster!)
 	(and no more "refresh, interval, timeout, etc. " ambiguous keywords, just "auto" only.)
 
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	add get_named_args
 
-  * bin/lib/cmt/ftime.pm:
+  * lib/cmt/ftime.pm:
 	using prototype() to avoid the function absorb arguments.
 
 2007-07-16
-  * bin/lib/cmt/channel.pm:
+  * lib/cmt/channel.pm:
 	derive from cmt::channel if you want to implement your "recvf".
 
-  * bin/lib/cmt/serv.pm:
+  * lib/cmt/serv.pm:
 	fire_init when connection established.
 
-  * bin/: runx.pl, lib/cmt/util.pm:
+  * bin/runx.pl, lib/cmt/util.pm:
 	add cmt::util::atexit, don't use eval('END {}') any more.
 
   * bin/nfs.pl:
@@ -472,10 +472,10 @@
 	perl, python's blib -> site/lib
 
 2007-07-15
-  * bin/lib/fun/xs.pm:
+  * lib/fun/xs.pm:
 	using strncpy instead of memcpy for a string-type
 
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	+ indent/unindent_most
 
   * bin/mani.bat:
@@ -487,10 +487,10 @@
   * bin/: hex.bat, ugrep.bat:
 	make a unicode-grep by \x?? work-arounds.
 
-  * bin/lib/fun/xs.pm:
+  * lib/fun/xs.pm:
 	initial release
 
-  * bin/lib/fun/xs.pm:
+  * lib/fun/xs.pm:
 	don't dump typedef *PTRTYPE.
 	add --struct-only=<structs...>
 
@@ -501,14 +501,14 @@
 	always add MANIFEST file to the list self.
 	introduced the extern/ for the absolute paths.
 
-  * bin/: catname.x, lib/cmt/proxy.pm, lib/cmt/util.pm:
+  * bin/catname.x, lib/cmt/proxy.pm, lib/cmt/util.pm:
 	resolved the (local $_) can't be set problem, by "localuntie $_" facility. (see cmt::proxy also)
 
 2007-07-14
-  * bin/lib/cmt/pp.pm:
+  * lib/cmt/pp.pm:
 	moved Roco::Misc/interp_params -> cmt::pp/ppvar
 
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	forx: changed order of code/regexp -> regexp/code
 
   * bin/foreach.pl:
@@ -517,14 +517,14 @@
 	make the variables related, so change one variable will cause another to change. (using cmt::cstr)
 
 2007-07-13
-  * bin/lib/: cmt/pp.pm, fun/xs.pm:
+  * lib/: cmt/pp.pm, fun/xs.pm:
 	stwrap impl.
 
   * bin/fun.pl:
 	- autoload once
 	- add support to cleanup by pkg->exit
 
-  * bin/lib/: cmt/.class.pm, cmt/.pm, cmt/win32.pm, fun/.pm:
+  * lib/: cmt/.class.pm, cmt/.pm, cmt/win32.pm, fun/.pm:
 	my $opt_xxx -> our
 
 2007-07-12
@@ -539,33 +539,33 @@
 	exec... -> win32::spawn
 	killpid -> win32::ntkill
 
-  * bin/: dsd.pl, dsl.bat, waitpid.c, waitpid.exe, lib/cmt/win32.pm:
+  * bin/dsd.pl, bin/dsl.bat, bin/waitpid.c, bin/waitpid.exe, e.t.c...
 	waitpid with a timeout
 
-  * bin/lib/fun/xs.pm:
+  * lib/fun/xs.pm:
 	add xs/~stwrap
 
-  * bin/lib/fun/test.pm:
+  * lib/fun/test.pm:
 	add ~API, for calling SFC_OS::TerminateSFC.. (undocumented)
 
-  * bin/lib/fun/.pm:
+  * lib/fun/.pm:
 	fun/~sub template enhancement
 
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	bsearch -> bserchi to avoid POSIX::bsearch
 
-  * bin/lib/cmt/perlsys.pm:
+  * lib/cmt/perlsys.pm:
 	ctrl-d to terminiate the stdin
 
 2007-07-10
-  * bin/: fun.pl, lib/fun/.pm, lib/fun/i18n.pm, lib/fun/test.pm:
+  * bin/fun.pl, lib/fun/.pm, lib/fun/i18n.pm, lib/fun/test.pm:
 	- using stash to get package of a subroutine
 	- autoload fun/modules
 
-  * bin/: psh.pl, lib/cmt/perlsys.pm:
+  * bin/psh.pl, lib/cmt/perlsys.pm:
 	add a simple perl shell
 
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	moved hashindex(find_key), hash2tuples, bsearch (Roco::Misc --> cmt::util)
 
 2007-07-07
@@ -583,10 +583,10 @@
 	better system integration, MANIFEST.lst -> MANIFEST.prj (instead of .lst.prj)
 
 2007-07-05
-  * bin/lib/: auto/cmt/low/.packlist, auto/cmt/low/low.dll, e.t.c...
+  * lib/: auto/cmt/low/.packlist, auto/cmt/low/low.dll, cmt/low.pm:
 	make by "makefile.pl PREFIX=%DIRT_HOME%/0"
 
-  * bin/lib/: auto/cmt/low/.packlist, auto/cmt/low/low.bs, e.t.c...
+  * lib/: auto/cmt/low/.packlist, auto/cmt/low/low.bs, e.t.c...
 	the first xsub.
 
   * bin/loop2.pl:
@@ -634,7 +634,7 @@
   * bin/filetime.bat:
 	return 0 if file not exists. (so to test "file A is newer then B")
 
-  * bin/: foreach.pl, t/foreach-1.x:
+  * bin/foreach.pl, t/foreach-1.x:
 	rewrite using .pl template. (a changement is lost acidently.)
 
 2007-07-01
@@ -663,7 +663,7 @@
   * bin/loop2.pl:
 	add -scriptdev option
 
-  * bin/lib/cmt/codec.pm:
+  * lib/cmt/codec.pm:
 	add %CODECS for readcode.
 
   * bin/hackdict.pl:
@@ -683,13 +683,13 @@
 	- custom clup by config .clflags file
 	- add bundled clup:util
 
-  * bin/: apply.pl, c-text.pl, cleanhtml.pl, clip.pl, csv2xml.pl, e.t.c...
+  * bin/apply.pl, bin/c-text.pl, bin/cleanhtml.pl, bin/clip.pl, e.t.c...
 	replace #!perl -> #!/usr/bin/perl
 
   * bin/repl.pl:
 	bugfix
 
-  * bin/: lib/cmt/util.pm, t/t-qsplit.pl:
+  * lib/cmt/util.pm, t/t-qsplit.pl:
 	add forx regexp processor
 	add qsplit to support append_cmdline
 
@@ -726,7 +726,7 @@
 	add file-list reference options (--list=..., and $L, $M, etc. vars)
 
 2007-05-23
-  * bin/: .batch.pl, tabsize.pl, tabsizes.bat, lib/cmt/path.pm, e.t.c...
+  * bin/.batch.pl, bin/tabsize.pl, bin/tabsizes.bat, lib/cmt/path.pm, e.t.c...
 	rewrite tabsize.pl, and add a new template .batch.pl to make life easier.
 
 2007-05-12
@@ -747,14 +747,14 @@
   * abc.d/bin/em.bat:
 	hide console
 
-  * bin/: hackdict.pl, t/animals, t/numbers, t/passwd, t/verbs:
+  * bin/hackdict.pl, t/animals, t/numbers, t/passwd, t/verbs:
 	dev.
 
 2007-04-27
-  * bin/lib/cmt/winuser.pm:
+  * lib/cmt/winuser.pm:
 	add %_ID, %_WM, %_VK constants
 
-  * bin/lib/cmt/path.pm:
+  * lib/cmt/path.pm:
 	bugfix: to distinguish if ('') and if(undef)
 
   * bin/xvconv.bat:
@@ -784,7 +784,7 @@
   * bin/wm.pl:
 	add send-string, send-input
 
-  * bin/lib/cmt/path.pm:
+  * lib/cmt/path.pm:
 	add temp_home, temp_path
 
   * bin/xvconv.bat:
@@ -828,18 +828,18 @@
   * bin/syset.bat:
 	add mp3ltrim to mouse-right-menu
 
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	delete "my"
 
 2006-12-24
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	del duplicated "my"
 
 2006-12-23
   * bin/nfs.pl:
 	(unresolved) want to change directory to NFS_Container when specify option -to
 
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	changed cftime to using gmtime instead of localtime.
 	add localftime.
 
@@ -849,57 +849,57 @@
   * bin/dcall.pl:
 	rewrite dcall.bat
 
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	fixed a calc error in millisecond
 
   * bin/dcall.bat:
 	replaced by new dcall.pl
 
 2006-12-13
-  * bin/: nfs.pl, lib/cmt/path.pm, lib/cmt/util.pm:
+  * bin/nfs.pl, lib/cmt/path.pm, lib/cmt/util.pm:
 	add support of dynamic symbolic link (<?...?>)
 
 2006-12-12
-  * bin/: fun.pl, lib/fun/.pm, lib/fun/i18n.pm, lib/fun/test.pm:
+  * bin/fun.pl, lib/fun/.pm, lib/fun/i18n.pm, lib/fun/test.pm:
 	fixed returns values
 
-  * bin/: fun.pl, lib/fun/i18n.pm:
+  * bin/fun.pl, lib/fun/i18n.pm:
 	new i18n (~is_utf8) for nfs/six refactor
 
-  * bin/: fun.pl, lib/fun/.pm, lib/fun/test.pm:
+  * bin/fun.pl, lib/fun/.pm, lib/fun/test.pm:
 	new fun.pl to run utilities functions as programs
 
   * bin/nfs.pl:
 	use cmt::date to support datetime function
 
-  * bin/: .pl, fun.pl, lib/fun/test.pm:
+  * bin/.pl, bin/fun.pl, lib/fun/test.pm:
 	new fun.pl to run utilities functions as programs
 
 2006-12-05
-  * bin/lib/cmt/path.pm:
+  * lib/cmt/path.pm:
 	add dir_size
 
 2006-11-18
   * bin/resolv.pl:
 	modified version info
 
-  * bin/: sev.pl, t/sev-1.x:
+  * bin/sev.pl, t/sev-1.x:
 	special form: %EVAL
 
   * bin/syset.bat:
 	add font color.
 
-  * bin/: advname.bat, apply.pl, c-text.pl, cleanhtml.pl, clip.pl, e.t.c...
+  * bin/advname.bat, bin/apply.pl, bin/c-text.pl, bin/cleanhtml.pl, e.t.c...
 	replace #!/usr/bin/perl -> #!perl
 
 2006-11-16
   * bin/elaps.pl:
 	elaps time test
 
-  * bin/lib/cmt/util.pm:
+  * lib/cmt/util.pm:
 	ctime + ftime => cftime
 
-  * bin/lib/cmt/serv.pm:
+  * lib/cmt/serv.pm:
 	enable check against the deadloop
 
 2006-10-21
@@ -910,17 +910,17 @@
 	changed metapad settings
 
 2006-10-20
-  * bin/: sim.pl, lib/cmt/util.pm:
+  * bin/sim.pl, lib/cmt/util.pm:
 	sub scanDirectory is merged to sim.pl
 
-  * bin/: keeplink.pld, lib/cmt/serv.pm:
+  * bin/keeplink.pld, lib/cmt/serv.pm:
 	add log to file support, with date column added.
 
   * bin/syset.bat:
 	modified metapad settings
 	readd cygwin disk (B:)
 
-  * bin/lib/cmt/service.pm:
+  * lib/cmt/service.pm:
 	fixed the missing of 'restart' command
 
 2006-10-19
@@ -941,7 +941,7 @@
   * bin/keeplink.pld:
 	using simpled/echod as a dummy server
 
-  * bin/: simpled.pld, lib/cmt/channel.pm, lib/cmt/ftime.pm, e.t.c...
+  * bin/simpled.pld, lib/cmt/channel.pm, lib/cmt/ftime.pm, e.t.c...
 	new cmt::serv help creation of services.
 	new cmt::simpled implemented simple tcp services.
 
@@ -949,7 +949,7 @@
   * bin/rfc.bat:
 	only assoc metapad to text type file.
 
-  * bin/: lib/cmt/echohh.php, service/echohh.php:
+  * etc/service/echohh.php, lib/cmt/echohh.php:
 	move echohh.php from lib/cmt/ to service/
 
   * bin/syset.bat:
@@ -1037,7 +1037,7 @@
 	add cvscmdopts so can copy specified tag/branch
 
 2006-03-17
-  * bin/lib/cmt/winuser.pm:
+  * lib/cmt/winuser.pm:
 	code review
 
   * bin/: cvsignor.def, dist-cvsi.bat:
@@ -1145,10 +1145,10 @@
 	fix arguments, add
 
 2005-07-01
-  * bin/: dnac.pl, dnad.pl, lib/cmt/g.pm:
+  * bin/dnac.pl, bin/dnad.pl, lib/cmt/g.pm:
 	full-DNA
 
-  * bin/: dnac.pl, dnad.pl, lib/cmt/g.pm:
+  * bin/dnac.pl, bin/dnad.pl, lib/cmt/g.pm:
 	test ok
 
 2005-06-30
@@ -1177,7 +1177,7 @@
   * bin/dnac.pl:
 	indent mistake
 
-  * bin/: dnac.pl, dnad.pl, lib/cmt/g.pm, lib/cmt/util.pm, e.t.c...
+  * bin/dnac.pl, bin/dnad.pl, lib/cmt/g.pm, lib/cmt/util.pm, e.t.c...
 	initial
 
 2005-03-02
@@ -1200,7 +1200,7 @@
   * bin/cvscopy.bat:
 	fm.  "Revision"
 
-  * bin/: cvsapp.pl, cvsco.pl, dirs.pl, hex.pl, in.pl, monitor.pl, e.t.c...
+  * bin/cvsapp.pl, bin/cvsco.pl, bin/dirs.pl, bin/hex.pl, bin/in.pl, e.t.c...
 	fd.  cmt.pm => cmt/vcs.pm
 
   * bin/nfs.pl:
@@ -1259,20 +1259,20 @@
   * bin/: scx.pl, tgz.bat, nfs.pl:
 	initial
 
-  * bin/lib/cmt/path.pm:
+  * lib/cmt/path.pm:
 	pa. some comments
 
-  * bin/lib/cmt/winuser.pm:
+  * lib/cmt/winuser.pm:
 	initial
 
-  * bin/lib/cmt/test.pm:
+  * lib/cmt/test.pm:
 	mi. from webcon::Test::Base
 
 2005-01-03
   * bin/nfs.pl:
 	rewritten of note.bat, initial
 
-  * bin/lib/cmt/path.pm:
+  * lib/cmt/path.pm:
 	mi. from webcon
 
 2004-12-22
@@ -1381,7 +1381,7 @@
   * bin/syset_env.exe:
 	rewritten in perl script embedded in syset.bat.
 
-  * bin/: args.bat, t/libstr_t.bat:
+  * bin/args.bat, t/libstr_t.bat:
 	initial
 
   * bin/note.bat:
@@ -1578,13 +1578,13 @@
 	- add classification by .extension
 	- don't show directories with zero lines, unless verbose-mode.
 
-  * bin/lib/cmt/vcs.pm:
+  * lib/cmt/vcs.pm:
 	the literal $.I.d.$ is modified by cvs mistake, so fix it.
 
   * bin/cvsexp.bat:
 	fixed a version display bug
 
-  * bin/: lib/cmt/vcs.pm, cvsapp.pl:
+  * lib/cmt/vcs.pm, bin/cvsapp.pl:
 	initial
 
 2004-09-23
