@@ -1,18 +1,13 @@
 @echo off
 
-if not exist "%SMLNJ_HOME%\bin\sml.bat" (
-    echo Environment variable SMLNJ_HOME has not been set correctly.
-    goto end
-)
+    setlocal
 
-if "%0"=="ml" goto manual
-if "%0"=="ML" goto manual
+    call findabc smlnj bin
 
-:auto
-    start "Big" "%SMLNJ_HOME%\bin\sml" %1 %2 %3 %4 %5 %6 %7 %8 %9
-    goto end
+    set SMLNJ_HOME=%_home%
+    set CM_PATHCONFIG=%SMLNJ_HOME%\lib\pathconfig
 
-:manual
-    "%SMLNJ_HOME%\bin\sml" %1 %2 %3 %4 %5 %6 %7 %8 %9
+    set SMLNJ=%SMLNJ_HOME%\bin\.run\run.x86-win32.exe
+    set _="@SMLload=%SMLNJ_HOME%\bin\.heap\sml"
 
-:end
+    %SMLNJ% %_% %*
