@@ -39,7 +39,7 @@
     ) else if "%_arg:~0,1%"=="-" (
         if "%_strict%"=="1" (
             echo Invalid option: %1
-            goto end
+            exit /b 1
         ) else (
             set _%_arg:~1%=%~2
             if %_verbose% geq 1 echo _%_arg:~1%=%~2
@@ -76,7 +76,7 @@
     goto start
 
 :version
-    set _id=$Id: .bat,v 1.4 2007-08-24 10:32:22 lenik Exp $
+    set _id=$Id: .bat,v 1.5 2007-08-24 15:25:02 lenik Exp $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
@@ -85,7 +85,7 @@
     )
     echo [TITLE] CMD_simple_cli_program_template
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
-    goto end
+    exit /b 0
 
 :help
     call :version
@@ -98,8 +98,4 @@
     echo    -v, --verbose       repeat to get more info
     echo        --version       show version info
     echo    -h, --help          show this help page
-    goto end
-
-:cleanup
-
-:end
+    exit /b 0
