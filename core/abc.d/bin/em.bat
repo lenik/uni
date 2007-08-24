@@ -1,5 +1,5 @@
 @echo off
-    rem $Id: em.bat,v 1.7 2007-08-24 10:32:22 lenik Exp $
+    rem $Id: em.bat,v 1.8 2007-08-24 11:44:24 lenik Exp $
 
     setlocal
 
@@ -11,6 +11,7 @@
 
     wm -hide
 
-    %cirk_home%\Emacs\bin\emacs %*
+    call findabc emacs bin
+    emacs %*
 
     wm -show
