@@ -57,7 +57,11 @@
     shift
 
 :prep3
-    if "%~1"=="" goto init_ok
+    if "%~1"=="" (
+        set _=%1.
+        set _=!_:"=?!
+        if !_!==. goto init_ok
+    )
     set _rest=%_rest%%~1
     shift
     goto prep3
@@ -72,7 +76,7 @@
     goto start
 
 :version
-    set _id=$Id: .bat,v 1.3 2007-08-09 13:47:29 lenik Exp $
+    set _id=$Id: .bat,v 1.4 2007-08-24 10:32:22 lenik Exp $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
