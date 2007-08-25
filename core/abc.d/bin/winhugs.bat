@@ -2,4 +2,4 @@
 
     setlocal
     call findabc hugs .
-    "%_home%\winhugs" %*
+    start %_home%\winhugs %*

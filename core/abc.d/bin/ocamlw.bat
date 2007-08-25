@@ -2,4 +2,4 @@
 
     setlocal
     call findabc ocaml .
-    %_home%\ocamlwin %*
+    start %_home%\ocamlwin %*

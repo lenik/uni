@@ -2,4 +2,4 @@
 
     setlocal
     call findabc npp .
-    %_home%\notepad++ %*
+    start %_home%\notepad++ %*

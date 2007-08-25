@@ -2,4 +2,4 @@
 
     setlocal
     call findabc mit_scheme bin
-    scheme -library %_home%\lib -compiler %*
+    start scheme -library %_home%\lib -compiler %*
