@@ -1,0 +1,118 @@
+#!/usr/bin/perl
+
+use strict;
+use cmt::util;
+use cmt::vcs;
+use Data::Dumper;
+use Getopt::Long;
+use YAML;
+
+sub boot;
+sub info;
+sub info2;
+sub version;
+sub help;
+sub _main;
+
+sub parse_perl;
+sub parse_yaml;
+sub dump_perl;
+sub dump_yaml;
+
+our $opt_verbtitle      = 'ydump';
+our $opt_verbtime       = 0;
+our $opt_verbose        = 1;
+our $opt_parser         = 'yaml';
+our $opt_dumper         = 'yaml';
+our $opt_code;
+
+sub boot {
+    GetOptions('quiet|q'    => sub { $opt_verbose-- },
+               'verbose|v'  => sub { $opt_verbose++ },
+               'version'    => sub { version; exit },
+               'help|h'     => sub { help; exit },
+               'use|u=s'    => sub { _use $_[1] },
+               'type|t=s'   => sub { $opt_parser = $_[1] },
+               'dumper|d'   => sub { $opt_dumper = 'perl' },
+               'yaml|y'     => sub { $opt_dumper = 'yaml' },
+               'code|c',
+               );
+    if ($opt_code) {
+        info2 "enabling dump of code";
+        $YAML::DumpCode = 1;
+    }
+    _main;
+}
+
+sub info {
+    return if $opt_verbose < 1;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub info2 {
+    return if $opt_verbose < 2;
+    my $text = shift;
+    print datetime.' ' if $opt_verbtime;
+    print "[$opt_verbtitle] $text\n";
+}
+
+sub version {
+    my %id = parse_id('$Id: ydump,v 1.1 2007-08-26 12:47:08 lenik Exp $');
+    print "[$opt_verbtitle] YAML Dump \n";
+    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+}
+
+sub help {
+    version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -u, --use=PACKAGE       using extra PACKAGEs
+    -t, --type=TYPE         input type, default 'yaml'
+    -d, --dumper            using Data::Dumper
+    -y, --yaml              using YAML::Dump (default)
+    -c, --code              dump source of code closures
+    -h, --help              show this help page
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+        --version           print the version info
+EOM
+}
+
+exit boot;
+
+sub _main {
+    my $parser = 'parse_'.$opt_parser;
+    my $dumper = 'dump_'.$opt_dumper;
+    die "no parser for $opt_parser" unless main->can($parser);
+    die "no dumper for $opt_dumper" unless main->can($dumper);
+    $parser = eval '\&'.$parser;
+    $dumper = eval '\&'.$dumper;
+    my $text = join('', <>);
+    my $data = $parser->($text);
+    my $repr = $dumper->($data);
+    print $repr;
+}
+
+sub parse_perl {
+    my $text = shift;
+    my $data = eval $text;
+    die "failed to evaluate: $@" if $@;
+    $data
+}
+
+sub parse_yaml {
+    my $text = shift;
+    my $data = Load($text);
+    $data
+}
+
+sub dump_perl {
+    Dumper(shift)
+}
+
+sub dump_yaml {
+    Dump(shift)
+}
