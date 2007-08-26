@@ -7,6 +7,7 @@ use cmt::util;
 use Exporter;
 use Win32::API;
 use Win32::API::Struct;
+use Win32::Console;
 
 our $opt_verbtitle      = __PACKAGE__;
 our $opt_verbtime       = 0;
@@ -18,6 +19,7 @@ our $opt_verbose        = 1;
              ntkill
              ntwaitpid
              nttestpid
+             clear_screen
              );
 
 # API('X Lib::Fun(XXX)')->(...)
@@ -77,6 +79,32 @@ sub ntwaitpid {
 sub nttestpid {
     my $pid = shift;
     return ntwaitpid($pid, 0) != 0;
+}
+
+my $CONSOLE = new Win32::Console(STD_OUTPUT_HANDLE);
+sub clear_screen {
+    my ($x, $y) = $CONSOLE->Cursor();
+    my ($bw, $bh) = $CONSOLE->Size();
+    my ($x0, $y0, $x1, $y1) = $CONSOLE->Window();
+    my ($w, $h) = ($x1 - $x0 + 1, $y1 - $y0 + 1);
+    my $scrolls = $y + $h - $bh;
+    if (0) {
+        print "current-cursor: $x, $y\n";
+        print "current-window: $x0, $y0, $w, $h\n";
+        print "buffer-size:    $bw x $bh\n";
+        print "set-window:     $x0, $y, $x1, ".($y + $h - 1)."\n";
+        print "need-to-scrolls:$scrolls\n";
+    }
+    if ($scrolls > 0) {
+        my $attr = $CONSOLE->Attr();
+        # $CONSOLE->Scroll(0, $scrolls, $bw - 1, $bh - $scrolls - 1, 0, 0);
+        $CONSOLE->Cursor(0, $bh - 1);
+        $CONSOLE->Write("\n" x $scrolls);
+        $y -= $scrolls;
+    }
+    $CONSOLE->Window(1, $x0, $y, $x1, $y + $h - 1);
+    $CONSOLE->Cursor($x0, $y);
+    # print "test".rand(100);
 }
 
 1
