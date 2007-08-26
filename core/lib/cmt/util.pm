@@ -392,7 +392,7 @@ sub _use {
     my $par;
        $par = 'qw('.join(' ', @_).')' if defined $par;
     my $val = eval("package ".caller()."; use $mod$par; 1")
-        or die "failed to load $mod: $!";
+        or die "failed to load $mod: $@";
 }
 
 # XXX - thread-unsafe ("free unreferenced scalars" in multi-threads.)
