@@ -10,7 +10,7 @@ sub info;
 sub info2;
 sub version;
 sub help;
-sub main;
+sub _main;
 
 our $opt_verbtitle      = 'unknown';
 our $opt_verbtime       = 0;
@@ -22,7 +22,7 @@ sub boot {
                'version'    => sub { version; exit },
                'help|h'     => sub { help; exit },
                );
-    main;
+    _main;
 }
 
 sub info {
@@ -40,7 +40,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: .pl,v 1.9 2007-08-09 13:49:15 lenik Exp $');
+    my %id = parse_id('$Id: .pl,v 1.10 2007-08-26 12:42:33 lenik Exp $');
     print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -59,6 +59,6 @@ EOM
 
 exit boot;
 
-sub main {
+sub _main {
     info "TODO...";
 }
