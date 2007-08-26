@@ -13,11 +13,11 @@ use POSIX;
 use Term::ReadKey;
 
 sub boot;
-sub main;
 sub info;
 sub info2;
 sub version;
 sub help;
+sub _main;
 
 sub fwait;
 sub run;
@@ -32,15 +32,15 @@ our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
 our $opt_delay          = -1;
 our $opt_interval       = 0.1;
-our $opt_change_driven  = 0;
+our $opt_clear          = 1;
+our $opt_cmode;         # change-restart mode
+our $opt_cfile;         # change-file
+our $opt_cfile_dup;     # dupped change-file
 our $opt_run_dupped     = 0;
-our $opt_findex         = 0;
 our $opt_keep_active    = 0;
 our $opt_scriptdev;
 
-my $opt_srcprog;
-my $opt_runprog;
-# our $opt_cmdline;
+my $opt_runcmd;
 my @opt_args;
 my $current_pid;
 my $run_count           = 0;
@@ -85,53 +85,69 @@ sub boot {
                'version'    => sub { version; exit },
                'help|h'     => sub { help; exit },
                'delay=n',
-               'change-driven|c',
+               'clear|l!',
+               'change-restart|r' => \$opt_cmode,
+               'change-file|c=s' => \$opt_cfile,
                'run-dupped|d',
-               'findex|f=n',
-               'keep-active',
+               'keep-active|k',
                'scriptdev|s',
                );
-    # $opt_run_dupped = 1 if $opt_change_driven;
+    $opt_cmode = 1 if defined $opt_cfile;
+    # $opt_run_dupped = 1 if $opt_cmode;
 
     if (@ARGV) {
         push @opt_args, @ARGV;
         @ARGV = ();
     }
 
+    my $_argbase = 0;
     if ($opt_scriptdev) {
-        my ($file, $ext) = path_splitext $opt_args[0];
+        my $f = $opt_args[0];
+        unless (-f $f) {
+            $f = which $f;
+            die "can't find script file $f" unless defined $f;
+            $opt_args[0] = $f;
+        }
+        my ($file, $ext) = path_splitext $f;
         my $p = $extensions{$ext};
         die "Script with extension $ext isn't support" unless defined $p;
-        info2 "using interpreter $p for script$ext";
+        info2 "using interpreter $p for script file $f";
         unshift @opt_args, $p;
-        $opt_findex++;
-        $opt_change_driven = 1;
+        $_argbase = 1;
+        $opt_cmode = 1;
+        $opt_cfile = $f unless defined $opt_cfile;
         $opt_keep_active = 1;
+    } else {
+        die "No command specified. " unless @opt_args;
     }
-
-    $opt_srcprog = $opt_args[$opt_findex] unless $opt_srcprog;
-    die "No command specified. " unless $opt_srcprog;
-
-    $opt_runprog = $opt_srcprog;
+    if (defined $opt_cfile) {
+        if ($opt_cfile =~ /^\@(\d+)$/) {
+            $opt_cfile = $opt_args[$_argbase + $1];
+        } elsif (!-f $opt_cfile and $opt_cfile =~ /^(\d+)$/) {
+            $opt_cfile = $opt_args[$_argbase + $1];
+        }
+    } else {
+        $opt_cfile = $opt_args[$_argbase];
+    }
     if ($opt_run_dupped) {
-        my ($dir, $base) = path_split $opt_srcprog;
+        my ($dir, $base) = path_split $opt_cfile;
         my ($file, $ext) = path_splitext $base;
         $base = $file . '.copied' . $ext;
-        $opt_runprog = path_join($dir, $base);
-        $opt_args[$opt_findex] = $opt_runprog;
+        $opt_cfile_dup = path_join($dir, $base);
+        $opt_args[$_argbase] = $opt_cfile_dup;
     }
-    # $opt_cmdline = "\"$opt_runprog\" " . join(' ', @opt_args);
+    $opt_runcmd = join(' ', @opt_args);
 
     info2 "delay         = $opt_delay";
-    info2 "change-driven = $opt_change_driven";
-    info2 "src-program   = $opt_srcprog";
-    info2 "run-program   = $opt_runprog";
-    info2 "run-args      = ".join(',', @opt_args);
-    # info2 "run-cmdline   = $opt_cmdline";
+    info2 "change-restart= $opt_cmode";
+    info2 "change-file   = $opt_cfile";
+    info2 "dupped-file   = $opt_cfile_dup";
+    info2 "run-cmdline   = $opt_runcmd";
 
-    # die "File $opt_srcprog isn't executable" unless -X $opt_srcprog;
+    my $program = $opt_args[0];
+    # die "File $program isn't executable" unless -X $program;
 
-    main;
+    _main;
 }
 
 sub info {
@@ -149,53 +165,56 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: loop2,v 1.9 2007-07-11 15:28:21 lenik Exp $');
+    my %id = parse_id('$Id: loop2,v 1.10 2007-08-26 12:46:42 lenik Exp $');
     print "[$opt_verbtitle] Repeat running command \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {
     version;
-    print <<"EOM";
+    print "\nSyntax: \n    $0 [OPTION] [--] CMD ARGS...\n", <<'EOM';
 
-Syntax:
-        $0 <options> [--] command arguments...
+Common options:
+        --delay=SECONDS     repeat interval
+    -l, --clear             clear screen before run each time
+        -nol, --noclear     don't clear screen
+    -r, --change-restart    restart the program if changes
+    -c, --change-file=FILE  check if changes happen to this FILE, default CMD
+        --change-file=@INDEX set change-file to INDEX of ARGS (1-based)
+    -d, --run-dupped        run dupped program to enable write-access
+                            (the program file to be dupped is change-file)
+    -k, --keep-active       keep active window always active
+    -s, --scriptdev         auto detect file type, also set -r -k
+    -h, --help              show this help page
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+        --version           print the version info
 
-Options:
-        --delay=<integer> (repeat interval, in seconds)
-        --change-driven (c, restart the program if changes)
-        --run-dupped (d, run dupped program to enable write-access)
-        --keep-active (keep active window always active)
-        --findex=<integer> (f, program-file index in arguments, default 0)
-        --scriptdev (s, auto detect file type, also set -c --keep-active)
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
-        --version
-        --help (h)
+Examples:
+    loop2 -s -c 1 ydump file.yml
 EOM
 }
 
 exit boot;
 
-
-sub main {
+sub _main {
     while (1) {
-        $last_modified = -M $opt_srcprog;
+        $last_modified = -M $opt_cfile;
 
         $current_pid = run;
-        info2 "still running: pid = $current_pid" if $current_pid;
+        info2 "running in background: pid = $current_pid" if $current_pid;
 
         if ($opt_delay) {
             fwait $opt_delay;
         }
-        if ($opt_change_driven) {
-            info2 "waiting for changes of $opt_srcprog";
-            while (-M $opt_srcprog == $last_modified) {
+        if ($opt_cmode) {
+            info2 "waiting for changes of $opt_cfile";
+            while (-M $opt_cfile == $last_modified) {
                 # not-modified
                 fwait $opt_interval;
                 do_actq;
             }
-            info2 "changement detected: $opt_srcprog";
+            info2 "changement detected: $opt_cfile";
             push @actq, 'kill';
         }
         do_actq;
@@ -232,11 +251,11 @@ sub do_keyq {
 sub do_actq {
     while (my $act = shift @actq) {
         if ($act eq 'touch-ps') {
-            info "do pseudo-touch $opt_srcprog";
+            info "do pseudo-touch $opt_cfile";
             undef $last_modified;
         } elsif ($act eq 'touch') {
-            info "do touch $opt_srcprog";
-            utime undef, undef, $opt_srcprog;
+            info "do touch $opt_cfile";
+            utime undef, undef, $opt_cfile;
         } elsif ($act eq 'kill') {
             info "do kill $current_pid";
             ntkill $current_pid;
@@ -282,25 +301,27 @@ sub run {
     }
 
     if ($opt_run_dupped) {
-        info2 "dup: $opt_srcprog -> $opt_runprog";
-        cp $opt_srcprog, $opt_runprog
-            or die("Error copy file $opt_srcprog to $opt_runprog: $!");
+        info2 "dup: $opt_cfile -> $opt_cfile_dup";
+        cp $opt_cfile, $opt_cfile_dup
+            or die("Error copy file $opt_cfile to $opt_cfile_dup: $!");
     }
     $run_count++;
 
     my $pid;
 
-    if ($opt_change_driven) {
-        info "spawn $opt_runprog ($run_count)";
+    clear_screen if $opt_clear;
+
+    if ($opt_cmode) {
+        info "spawn $opt_runcmd ($run_count)";
         $pid = ntspawn(@opt_args);
     } else {
         # return exit-code
-        info "exec $opt_runprog ($run_count)";
+        info "exec $opt_runcmd ($run_count)";
         system @opt_args;
     }
 
     if($opt_keep_active) {
-        sleep 2 if $opt_change_driven;
+        sleep 2 if $opt_cmode;
         info2 "focus back to window: $win";
         set_focus $win;
     }
@@ -330,8 +351,8 @@ sub set_focus {
 sub quit {
     info "quitting";
     if ($opt_run_dupped) {
-        info2 "remove dupped program: $opt_runprog";
-        unlink $opt_runprog;
+        info2 "remove dupped file: $opt_cfile_dup";
+        unlink $opt_cfile_dup;
     }
     exit;
 }
