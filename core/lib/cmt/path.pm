@@ -18,6 +18,7 @@ our @EXPORT     = qw($charFS
                      temp_path
                      mkdir_p
                      ishidden
+                     which
                      );
 our @EXPORT_OK  = qw(qg);
 
@@ -208,6 +209,21 @@ my $opt_verbose = 1;
         my ($dir, $base) = path_split $path;
         return 1 if $base =~ /^\./;
         return 0;
+    }
+
+    sub which {
+        my $name    = shift;
+        my @PATH    = split(';', $ENV{PATH});       # unix ':'
+        my @PATHEXT = split(';', $ENV{PATHEXT});    # unix ':'
+        for my $path (@PATH) {
+            my $pn = path_join($path, $name);
+            return $pn if -f $pn;
+            for my $ext (@PATHEXT) {
+                my $pnx = $pn.$ext;
+                return $pnx if -f $pnx;
+            }
+        }
+        return undef;
     }
 
 1

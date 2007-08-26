@@ -26,7 +26,6 @@ sub info;
 sub info2;
 sub version;
 sub help;
-sub find_path;
 sub mk_cmdline;
 
 our $opt_verbtitle      = 'runx';
@@ -78,9 +77,9 @@ sub boot {
     $opt_program = shift @opt_args;
     die "No program specified. " unless $opt_program;
 
-    if (! -e $opt_program) {
+    unless (-f $opt_program) {
         if ($opt_path_find) {
-            $opt_program = find_path($opt_program)
+            $opt_program = which($opt_program)
                 or die "Program $opt_program isn't existed (in PATH)";
         } else {
             die "Program $opt_program isn't existed";
@@ -108,7 +107,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: runx,v 1.4 2007-07-21 01:12:59 lenik Exp $');
+    my %id = parse_id('$Id: runx,v 1.5 2007-08-26 12:45:16 lenik Exp $');
     print "[$opt_verbtitle] Run .x file \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -200,9 +199,9 @@ sub main {
     die "No shell-command specified in the header lines"
         unless defined $sh_cmd;
 
-    if (! -e $sh_cmd) {
+    unless (-f $sh_cmd) {
         if ($opt_path_find) {
-            $sh_cmd = find_path($sh_cmd)
+            $sh_cmd = which($sh_cmd)
                 or die "Shell-command $sh_cmd isn't existed (in PATH)";
         } else {
             die "Shell-command $sh_cmd isn't existed";
@@ -242,21 +241,6 @@ sub main {
         die "Unexpected: unknown method: $opt_method";
     }
     return $ret;
-}
-
-sub find_path {
-    my $name    = shift;
-    my @PATH    = split(';', $ENV{PATH});       # unix ':'
-    my @PATHEXT = split(';', $ENV{PATHEXT});    # unix ':'
-    for my $path (@PATH) {
-        my $full = path_join($path, $name);
-        return $full if -e $full;
-        for my $pathext (@PATHEXT) {
-            $full = path_join($path, $name.$pathext);
-            return $full if -e $full;
-        }
-    }
-    return undef;
 }
 
 sub mk_cmdline {
