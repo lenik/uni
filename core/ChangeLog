@@ -1,5 +1,33 @@
 
+2007-08-26
+  * bin/ydump.pl:
+	initial
+
+  * bin/loop2.pl:
+	clarify the usage of --change-file. also find script-file in PATH, if necessary.
+
+  * bin/runx.pl, lib/cmt/path.pm:
+	move runx::find_path to cmt::path::which
+
+  * lib/cmt/win32.pm:
+	clear_screen by scroll window to home cursor
+
+  * lib/cmt/util.pm:
+	eval failure message in $@ (rather than $!)
+
+  * bin/.pl:
+	main() is conflict with main:: package.
+
 2007-08-25
+  * abc.d/bin/: edwin.bat, mitc.bat, mits.bat, no.bat, ocamlw.bat, e.t.c...
+	start bg-mode for windows.
+
+  * abc.d/bin/: scilab.bat, .erl_init.bat, edwin.bat, erl.bat, e.t.c...
+	add installs
+
+  * bin/zero.bat:
+	rewrite, using dd
+
   * .cvsignore, .env.as, bin/lapiota-init.bat, bin/start-apps.bat, e.t.c...
 	init profile.d
 
@@ -13,7 +41,7 @@
   * bin/.bat:
 	using `exit /b CODE' instead of `goto end'
 
-  * abc.d/bin/: gcl.bat, ml.bat:
+  * abc.d/bin/: gcl.bat, sml.bat:
 	find home by findabc.
 
   * bin/lapiota-init.bat:
@@ -25,7 +53,7 @@
   * bin/lapiota-init.bat:
 	add init-cygwin(3)
 
-  * abc.d/bin/em.bat, abc.d/bin/ms.bat, bin/sml.bat:
+  * abc.d/bin/em.bat, abc.d/bin/plts.bat, bin/sml.bat:
 	find home by findabc.
 
   * abc.d/bin/em.bat, abc.d/bin/gcl.bat, bin/.bat:
@@ -465,7 +493,7 @@
 	- add more console (cmd.exe) preferences
 	- output in more detail
 
-  * abc.d/bin/ml.bat, bin/big.bat:
+  * abc.d/bin/sml.bat, bin/big.bat:
 	using 'start "big"' to have a big-font window
 
   * bin/syset.bat:
@@ -977,7 +1005,7 @@
 	std env: dirt_home, cirk_home
 
 2006-07-27
-  * abc.d/bin/ml.bat, bin/apply2.bat, bin/clup.bat, bin/jads.bat, e.t.c...
+  * abc.d/bin/sml.bat, bin/apply2.bat, bin/clup.bat, bin/jads.bat, e.t.c...
 	initial
 
   * bin/whoare.pl:
@@ -1084,7 +1112,7 @@
   * bin/repl.pl:
 	die if file error
 
-  * bin/syset.bat, abc.d/bin/ms.bat:
+  * bin/syset.bat, abc.d/bin/plts.bat:
 	maintaince
 
   * bin/copyfix.pl:
@@ -1113,7 +1141,7 @@
   * bin/cvscopy.bat:
 	fix sync-.bat filename bug
 
-  * bin/re.bat, abc.d/bin/ms.bat:
+  * bin/re.bat, abc.d/bin/plts.bat:
 	for ruby-scite & mxscheme
 
   * bin/: syset.bat, tup.bat:
