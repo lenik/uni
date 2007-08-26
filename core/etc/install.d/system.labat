@@ -1,0 +1,112 @@
+---
+
+# labat: lapiota batch-process system
+
+-
+    use:
+        - cmt::install
+
+-
+  :system:
+    :: Initialize system base settings
+    set-env:
+        - LAPIOTA       = $LAPIOTA
+        - ARK_HOME      = Z:\.radiko\arkivoj
+        - PERL          = `findabc -p perl`\bin\perl.exe
+        - WPERL         = `findabc -p perl`\bin\wperl.exe
+        # !perl/code: if -d "b:\bin\bash.exe"
+        - SHELL         = b:\bin\bash.exe
+        - PAGER         = "less" -Ceifr
+        - PATH        pr- /^$LAPIOTA/i
+        - PATH         p+ ...
+    add-opentype:
+        - .*            editbin     edit in binary-mode
+        -    ...
+        - .*            edittxt     edit in text-mode
+        - .*            comreg      register as com-service
+        - .*            comunreg    register as com-service
+        - Directory     ar-tgz      build .tgz archive
+    set-assoc:
+        - Perl-Program      .p .pc .pl
+        -   %%perl%% "%%0" %%*
+        - Perl-Daemon       .pld
+        - Python-Program    .py .pyc
+        - PHP-Program       .php
+        - Ruby-Program      .rb
+        - Shell-Program     .sh
+        - Scheme-Program    .ss .sch .scheme
+        - Sixl-Program      .6 .six
+        - M4-Program        .m4
+
+-
+  :application:
+    :: Set applications' preferences
+    :sysapp:
+        :: System applications
+        :cmd:
+            :: Command Processor
+            set-reg:
+                - HKCU\SOFTWARE\Microsoft\Command Processor
+                -
+                    - CompletionChar        14
+                    - PathCompletionChar    14
+                    - EnableExtensions      1
+                    - DelayedExpansion      1
+                    - AutoRun               ???
+                - HKCU\Console
+                -
+                    - QuickEdit             1
+                    - ScreenBufferSize      0x03e80064
+                    - WindowSize            0x00190064
+                    - FontFamily            0
+                    - FontSize              0x000c0006
+                    - FontWeight            400
+                    - FaceName              "Terminal"
+                    - ColorTable02          0x004200
+                    - ColorTable10          0x80ff80
+                    - ScreenColors          0x2a
+                - HKCU\Console\Big
+                -
+                    - ScreenBufferSize      0x03e80046
+                    - WindowSize            0x00140046
+                    - FontSize              0x0014000a
+        :sysmon:
+            :: System Monitors
+            set-reg:
+                - HKCU\Software\Sysinternals
+                -
+                    - ...
+    :editor:
+        :: Editors
+        :metapad:
+            :: Metapad
+            set-reg:
+                - HKCU\SOFTWARE\Metapad
+                -
+                    - m_ShowToolbar         0
+                    - m_ShowStatus          0
+                    - bAutoIndent           1
+                    - bInsertSpaces         1
+                    - nTabStops             4
+                    - bNoCaptionDir         1
+                    - bSaveWindowPlacement  1
+                    - bSuppressUndoBufferPrompt 1
+                    - nSelectionMarginWidth 5
+                    - nTransparentPct       50
+                    - szLangPlugin          "$LAPIOTA/usr/local/bin/metapad.dll"
+                    - szFavDir              "$HOME/.metapad"
+                    - w_Width               670
+                    - w_Height              400
+                    # FontColour            bin:ffffff00
+                    # FontColour2           bin:ffffff00
+                    # BackColour            bin:292f4100
+                    # BackColour2           bin:2c353f00
+                    - PrimaryFont           bin:f3ffffff000000000000000000000000900100000000008603020131d0c2cbcecce500004e65770000204d5420426f6c640000000000000000000000
+                    - SecondaryFont         bin:f2ffffff000000000000000000000000900100000000000003020131436f7572696572204e6577000000000000000000000000000000000000000000
+        :ultra-edit:
+            :: Ultra Editor
+    :dev:
+        :: Development Tools
+        :php:
+            :: PHP HTML Preprocessor
+            if-exist: php.ini-dist copy
