@@ -1,57 +1,48 @@
 #!/usr/bin/perl
 
 use strict;
-use cmt::labat;
 use cmt::util;
 use cmt::vcs;
+use Data::Dumper;
 use Getopt::Long;
+use labat;
 use YAML;
 
 sub boot;
-sub info;
-sub info2;
+sub info;   *info = \*labat::info;
+sub info2;  *info2= \*labat::info2;
 sub version;
 sub help;
 sub _main;
 
 our $opt_verbtitle      = 'labat';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
+our @opt_category;
+our $opt_parallel       = 0;
 
 sub boot {
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
+    GetOptions('quiet|q'    => sub { $labat::opt_verbose-- },
+               'verbose|v'  => sub { $labat::opt_verbose++ },
                'version'    => sub { version; exit },
                'help|h'     => sub { help; exit },
+               'category|c=s' => \@opt_category,
+               'parallel|p',
                );
     _main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print datetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
-
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print datetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
-
 sub version {
-    my %id = parse_id('$Id: labat,v 1.1 2007-08-27 11:14:52 lenik Exp $');
-    print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
+    my %id = parse_id('$Id: labat,v 1.2 2007-08-28 12:06:23 lenik Exp $');
+    print "[$opt_verbtitle] Lapiota Batch Processing System \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {
     version;
-    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+    print "\nSyntax: \n    $0 [OPTION] [--] files.lb...\n", <<'EOM';
 
 Common options:
+    -c, --category=CATEGORY do CATEGORY(s) only
+    -p, --parallel          execute in parallel mode
     -h, --help              show this help page
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
@@ -62,7 +53,10 @@ EOM
 exit boot;
 
 sub _main {
-    my $root = Load(join('', <>));
-    labat_compile($root);
-    labat_eval($root);
+    my $root = Load(join('', <>)."\n");
+    my ($ev, $ctx) = labat_compile($root);
+    #!info2 "ctx:     " . Dump($ctx);
+    # info2 "ev-list: " . Dump($ev);
+    labat_eval($ev, $ctx);
+
 }
