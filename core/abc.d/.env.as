@@ -1,5 +1,5 @@
 
-PATH            lp      bin
+PATH            lp-     bin
 
 PATH            lp-     p\perl-5.8.7\bin
 PERL            l       p\perl-5.8.7\bin\perl.exe

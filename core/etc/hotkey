@@ -29,9 +29,9 @@ runp(pre, cmd) {
 	run %cmd%
 }
 
+; !tab::send {escape}{tab}
 lwin & tab::alttab
 lwin & capslock::shiftalttab
-!tab::send {escape}{tab}
 
 #!e::edit
 #!r::reload
@@ -61,14 +61,16 @@ lwin & capslock::shiftalttab
 #b::run big
 #c::run cmd
 #f::run firefox
-#n::run metapad
+#n::run no
 #p::run perldev
 #s::run scilab
 #t::run sh
-#u::run ue
 #-::
 	nfs1 = %wperl% %lapiota%\bin\nfs.pl --wait-close
 	nfs2 = %wperl% %lapiota%\bin\nfs.pl --wait-close temp-
 	nfs3 = %wperl% %lapiota%\bin\nfs.pl --wait-close xxx-
 	funpack(3, "nfs")
 	return
+
+#,::run stairs
+; #u::run ue

@@ -1,0 +1,55 @@
+- _eval: |-
+    my $windir = $ENV{'SystemRoot'};
+    my $php = `findabc -p -s php-5`;
+    # make sure PHP.ini exists
+    if (! -f "$windir/php.ini") {
+        if (-f "$php/php.ini-dist") {
+            print "PHP not installed, install one\n";
+            my $dist = readfile "$php/php.ini-dist";
+            writefile "$windir/php.ini", $dist;
+        }
+    }
+    if (-f "$windir/php.ini") {
+        my $usrdir = $ENV{'USERPROFILE'};
+        my $updir = "$usrdir\\Local Settings\\php_upload";
+        my $sessdir = "$usrdir\\Local Settings\\php_session";
+
+        if (! -d $updir) {
+            mkdir($updir)
+                && print "Created the php upload directory\n";
+            print ">>> The php upload directory ($updir) should be accessable by Internet Users\n";
+        }
+        if (! -d $sessdir) {
+            mkdir($sessdir)
+                && print "Created the php session directory\n";
+            print ">>> The php session directory ($sessdir) should be accessable by Internet Users\n";
+        }
+
+        print "Configure PHP settings";
+
+        my @lines;
+        open(FH, "<$windir/php.ini")
+            or die "Can't open php.ini";
+        while (<FH>) {
+            chop;
+
+            if (m/^extension_dir\b/) {
+                s/=.*$/= $cirk_home\\php\\php5\\ext/;
+                print ".";
+            } elsif (m/^upload_tmp_dir\b/) {
+                s/=.*$/= $updir/;
+                print ".";
+            } elsif (m/^session\.save_path\b/) {
+                s/=.*$/= $sessdir/;
+                print ".";
+            }
+            push @lines, $_;
+        }
+        close FH;
+
+        open(FH, ">$windir/php.ini")
+            or die "Can't save php.ini, maybe you haven't write permission";
+        print FH join("\n", @lines);
+        close FH;
+        print "\n";
+    }
