@@ -116,7 +116,7 @@ sub boot {
         $_argbase = 1;
         $opt_cmode = 1;
         $opt_cfile = $f unless defined $opt_cfile;
-        $opt_keep_active = 1;
+        # $opt_keep_active = 1;
     } else {
         die "No command specified. " unless @opt_args;
     }
@@ -165,7 +165,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: loop2,v 1.10 2007-08-26 12:46:42 lenik Exp $');
+    my %id = parse_id('$Id: loop2,v 1.11 2007-08-28 11:45:23 lenik Exp $');
     print "[$opt_verbtitle] Repeat running command \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -242,6 +242,8 @@ sub do_keyq {
             push @actq, 'hide';
         } elsif ($k eq 's') {
             push @actq, 'show';
+        } elsif ($k eq 'c') {
+            push @actq, 'cls';
         } else {
             info "ignored keypress: $k";
         }
@@ -278,6 +280,8 @@ sub do_actq {
             # show self,
             # system 'wm -show';
             unlink $hidef if -f $hidef;
+        } elsif ($act eq 'cls') {
+            clear_screen(1);
         } else {
             info "unknown action: $act";
         }
