@@ -140,6 +140,7 @@ sub qsplit {
        $s   =~ s/~/~;/g;
     my $deq = shift || \&dequote;
     my $qc  = shift || '"\'';
+       $s   =~ s/\\([\\$qc])/'~.'.ord($1).';'/eg;
     my $pat;  # /(["'`]) (\\.|[^\1])* \1/x
         $pat .= "(?:$_(?:\\\\.|[^$_])*$_)|"
             for split('', $qc);
@@ -155,6 +156,7 @@ sub qsplit {
               $s;
     map {
             s/~(\d+);/$mem[$1]/g;
+            s/~\.(\d+);/chr($1)/eg;
             s/~;/~/g;
             $_
         }
