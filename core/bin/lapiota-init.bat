@@ -25,19 +25,19 @@
         set initlevel=9
     ) else if "%~1"=="logo" (
         set initlevel=9
+    ) else (
+        set /a initlevel=%~1 + 0
     )
 
-    if "%initlevel%"=="" set initlevel=%~1
-    set /a initlevel=initlevel+0
-
-    if exist "%LAPIOTA%\__LAPIOTA__" shift & goto level_1
+    if exist "%LAPIOTA%\.LAPIOTA" shift & goto level_1
     set LAPIOTA=%~dp0
 
   :loop_0
     set LAPIOTA=%LAPIOTA:~0,-1%
+    if "%LAPIOTA%"=="" goto err_0
     if "%LAPIOTA:~-1%"=="\" set LAPIOTA=%LAPIOTA:~0,-1%
     if "%LAPIOTA%"=="" goto err_0
-    if exist "%LAPIOTA%\__LAPIOTA__" goto level_1
+    if exist "%LAPIOTA%\.LAPIOTA" goto level_1
     goto loop_0
   :err_0
     echo Can't locate the root directory of lapiota.
@@ -50,7 +50,13 @@
     which lapiota-init >nul 2>nul
     if not errorlevel 1 goto level_2
 
-    set PATH=%LAPIOTA%\bin\xt\bin\overwrite;%LAPIOTA%\bin\xt\bin;%LAPIOTA%\bin\xt\sbin\overwrite;%LAPIOTA%\bin\xt\sbin;%LAPIOTA%\bin;%LAPIOTA%\sbin;%LAPIOTA%\lib;%LAPIOTA%\local\bin;%PATH%;%LAPIOTA%\usr\bin;%LAPIOTA%\local\lib
+    rem insert before path, the later insertions get higher priority
+    set PATH=%LAPIOTA%\lib;%LAPIOTA%\usr\lib;%LAPIOTA%\local\lib;%PATH%
+    set PATH=%LAPIOTA%\bin;%LAPIOTA%\sbin;%LAPIOTA%\usr\bin;%LAPIOTA%\local\bin;%PATH%
+    set PATH=%LAPIOTA%\bin\xt\sbin\overwrite;%LAPIOTA%\bin\xt\sbin;%PATH%
+    set PATH=%LAPIOTA%\bin\xt\bin\overwrite;%LAPIOTA%\bin\xt\bin;%PATH%
+    rem append after path, the first insertions get higher priority
+    rem ...
 
 :level_2
 :init_auto_env
