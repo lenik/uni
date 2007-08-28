@@ -1,4 +1,41 @@
 
+2007-08-28
+  * lib/cmt/util.pm:
+	fixed an escaping-bug in qsplit ( \"string-not-quoted\" )
+
+  * bin/lapiota-init.bat:
+	rename signature __LAPIOTA__ to .LAPIOTA
+
+  * lib/: labat.pm, labat/win32.pm:
+	fixed some parse bugs, also add NIDC in %BTAB
+
+  * etc/install:
+	nearly ready for migration.
+
+  * bin/labat.pl:
+	add load_syaml() which make Yaml little simpler.
+
+  * bin/findabc.bat:
+	add --root, --slash options
+
+  * bin/labat.pl:
+	dev
+
+  * lib/: labat.pm, labat/.pm, labat/win32.pm:
+	initial
+
+  * bin/findabc.bat:
+	`findabc -p' to get home directory.
+
+  * bin/loop2.pl:
+	press 'c' to clear screen.
+
+  * lib/cmt/win32.pm:
+	clear_screen(1) to do buffer-clear (rather than window-scroll)
+
+  * lib/cmt/util.pm:
+	qsplit now accepts "quotechar-set", to allow quoting by `(back-tick).
+
 2007-08-26
   * bin/ydump.pl:
 	initial
@@ -47,7 +84,7 @@
   * bin/lapiota-init.bat:
 	using a: as ~(HOME) directory
 
-  * .cvsignore, .env.as, __LAPIOTA__, etc/hotkey, etc/sysdict, e.t.c...
+  * .LAPIOTA, .cvsignore, .env.as, etc/hotkey, etc/sysdict, e.t.c...
 	The Beginning Of Kachori Lapiota.
 
   * bin/lapiota-init.bat:
