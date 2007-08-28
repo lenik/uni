@@ -83,28 +83,33 @@ sub nttestpid {
 
 my $CONSOLE = new Win32::Console(STD_OUTPUT_HANDLE);
 sub clear_screen {
-    my ($x, $y) = $CONSOLE->Cursor();
-    my ($bw, $bh) = $CONSOLE->Size();
-    my ($x0, $y0, $x1, $y1) = $CONSOLE->Window();
-    my ($w, $h) = ($x1 - $x0 + 1, $y1 - $y0 + 1);
-    my $scrolls = $y + $h - $bh;
-    if (0) {
-        print "current-cursor: $x, $y\n";
-        print "current-window: $x0, $y0, $w, $h\n";
-        print "buffer-size:    $bw x $bh\n";
-        print "set-window:     $x0, $y, $x1, ".($y + $h - 1)."\n";
-        print "need-to-scrolls:$scrolls\n";
+    my $mode = shift;
+    if ($mode == 0) {
+        my ($x, $y) = $CONSOLE->Cursor();
+        my ($bw, $bh) = $CONSOLE->Size();
+        my ($x0, $y0, $x1, $y1) = $CONSOLE->Window();
+        my ($w, $h) = ($x1 - $x0 + 1, $y1 - $y0 + 1);
+        my $scrolls = $y + $h - $bh;
+        if (0) {
+            print "current-cursor: $x, $y\n";
+            print "current-window: $x0, $y0, $w, $h\n";
+            print "buffer-size:    $bw x $bh\n";
+            print "set-window:     $x0, $y, $x1, ".($y + $h - 1)."\n";
+            print "need-to-scrolls:$scrolls\n";
+        }
+        if ($scrolls > 0) {
+            my $attr = $CONSOLE->Attr();
+            # $CONSOLE->Scroll(0, $scrolls, $bw - 1, $bh - $scrolls - 1, 0, 0);
+            $CONSOLE->Cursor(0, $bh - 1);
+            $CONSOLE->Write("\n" x $scrolls);
+            $y -= $scrolls;
+        }
+        $CONSOLE->Window(1, $x0, $y, $x1, $y + $h - 1);
+        $CONSOLE->Cursor($x0, $y);
+        # print "test".rand(100);
+    } else {
+        $CONSOLE->Cls;
     }
-    if ($scrolls > 0) {
-        my $attr = $CONSOLE->Attr();
-        # $CONSOLE->Scroll(0, $scrolls, $bw - 1, $bh - $scrolls - 1, 0, 0);
-        $CONSOLE->Cursor(0, $bh - 1);
-        $CONSOLE->Write("\n" x $scrolls);
-        $y -= $scrolls;
-    }
-    $CONSOLE->Window(1, $x0, $y, $x1, $y + $h - 1);
-    $CONSOLE->Cursor($x0, $y);
-    # print "test".rand(100);
 }
 
 1
