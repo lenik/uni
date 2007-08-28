@@ -2,11 +2,12 @@
 
     setlocal
     set _strict=1
+    set _root=/abc.d
     goto init
 
 :start
     set _lev=0
-    set _prefix=%LAPIOTA%\abc.d
+    set _prefix=%LAPIOTA%%_root:/=\%
 :st_loop
     rem echo find with prefix: %_prefix%
     if exist %_prefix%\%_name%* goto found
@@ -28,8 +29,9 @@
     goto st_next
 
 :leave
+    if "%_slash%"=="1" set _home=%_home:\=/%
     if "%_chdir%"=="1" set _home=%_home%/
-    if "%_print%"=="1" echo %_home%
+    if "%_print%"=="1" printf %%s %_home%
     call export _home
     %leave%
     if "%_home:~-1%"=="/" (
@@ -42,6 +44,7 @@
     if "%~1"=="." (
         set PATH=%_home%;%PATH%
     ) else (
+        rem %_slash% is ignored here.
         set PATH=%_home%\%~1;%PATH%
     )
     shift
@@ -71,10 +74,20 @@
         set /a _verbose = _verbose - 1
     ) else if "%~1"=="-v" (
         set /a _verbose = _verbose + 1
+    ) else if "%~1"=="-r" (
+        set _root=%~2
+        shift
+    ) else if "%~1"=="--root" (
+        set _root=%~2
+        shift
     ) else if "%~1"=="-p" (
         set _print=1
     ) else if "%~1"=="--print" (
         set _print=1
+    ) else if "%~1"=="-s" (
+        set _slash=1
+    ) else if "%~1"=="--slash" (
+        set _slash=1
     ) else if "%_arg:~0,1%"=="-" (
         if "%_strict%"=="1" (
             echo Invalid option: %1
@@ -110,7 +123,7 @@
     goto start
 
 :version
-    set _id=$Id: findabc.bat,v 1.3 2007-08-28 11:45:56 lenik Exp $
+    set _id=$Id: findabc.bat,v 1.4 2007-08-28 15:47:58 lenik Exp $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
@@ -129,7 +142,9 @@
     echo    %_program% [OPTION] abc-package/ [DIR... add to PATH]
     echo.
     echo Options:
+    echo    -r, --root DIR      start directory to find, default /abc.d
     echo    -p, --print         print home-directory to STDOUT
+    echo    -s, --slash         use slash(/) instead of default back-slash(\)
     echo    -q                  repeat to get less info
     echo    -v                  repeat to get more info
     echo        --version       show version info
