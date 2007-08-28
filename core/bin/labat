@@ -31,7 +31,7 @@ sub boot {
 }
 
 sub version {
-    my %id = parse_id('$Id: labat,v 1.2 2007-08-28 12:06:23 lenik Exp $');
+    my %id = parse_id('$Id: labat,v 1.3 2007-08-28 15:48:58 lenik Exp $');
     print "[$opt_verbtitle] Lapiota Batch Processing System \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
@@ -52,11 +52,39 @@ EOM
 
 exit boot;
 
+sub load_syaml {
+    my ($ll) = $_[0] =~ /^(\s*)/; # last-lead
+    my @t;
+    local $_;
+    for (my $i = 0; $i < @_; $i++) {
+        $_ = $_[$i];
+        my ($l) = /^(\s*)/;
+        if (length($l) > length($ll)) {
+            if (/^\s*-\s*/) {
+                if ($_[$i-1] =~ /^\s*-\s*(\S+)/) {
+                    if ($1 !~ /:$/) {
+                        push @t, "$ll-\n";
+                    }
+                }
+            }
+        }
+        if (/^(\s*)-(\s+)(?=`)/) {
+            my ($lead, $pre, $text) = ($1, $2, $');
+            $text =~ s/[\\']/\\$1/g;
+            chop $text;
+            $_ = "$lead-$pre'$text'\n";
+        }
+        $ll = $l;
+        push @t, $_;
+    }
+    push @t, "\n";
+    Load(join('', @t))
+}
+
 sub _main {
-    my $root = Load(join('', <>)."\n");
+    my $root = load_syaml(<>);
     my ($ev, $ctx) = labat_compile($root);
     #!info2 "ctx:     " . Dump($ctx);
     # info2 "ev-list: " . Dump($ev);
     labat_eval($ev, $ctx);
-
 }
