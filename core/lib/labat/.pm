@@ -1,4 +1,4 @@
-package cmt::XXX;       # package description
+package labat::XXX;     # package description
 
 use strict;
 use cmt::util;
