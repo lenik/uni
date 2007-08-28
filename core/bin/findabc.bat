@@ -29,6 +29,7 @@
 
 :leave
     if "%_chdir%"=="1" set _home=%_home%/
+    if "%_print%"=="1" echo %_home%
     call export _home
     %leave%
     if "%_home:~-1%"=="/" (
@@ -68,12 +69,12 @@
 
     if "%~1"=="-q" (
         set /a _verbose = _verbose - 1
-    ) else if "%~1"=="--quiet" (
-        set /a _verbose = _verbose - 1
     ) else if "%~1"=="-v" (
         set /a _verbose = _verbose + 1
-    ) else if "%~1"=="--verbose" (
-        set /a _verbose = _verbose + 1
+    ) else if "%~1"=="-p" (
+        set _print=1
+    ) else if "%~1"=="--print" (
+        set _print=1
     ) else if "%_arg:~0,1%"=="-" (
         if "%_strict%"=="1" (
             echo Invalid option: %1
@@ -109,7 +110,7 @@
     goto start
 
 :version
-    set _id=$Id: findabc.bat,v 1.2 2007-08-24 15:26:01 lenik Exp $
+    set _id=$Id: findabc.bat,v 1.3 2007-08-28 11:45:56 lenik Exp $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
@@ -124,11 +125,13 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] abc-package
+    echo    %_program% [OPTION] abc-package  [DIR... add to PATH]
+    echo    %_program% [OPTION] abc-package/ [DIR... add to PATH]
     echo.
     echo Options:
-    echo    -q, --quiet         repeat to get less info
-    echo    -v, --verbose       repeat to get more info
+    echo    -p, --print         print home-directory to STDOUT
+    echo    -q                  repeat to get less info
+    echo    -v                  repeat to get more info
     echo        --version       show version info
     echo    -h, --help          show this help page
     exit /b 0
