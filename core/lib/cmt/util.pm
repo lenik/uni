@@ -133,16 +133,21 @@ sub dequote {
     eval shift
 }
 
+# qsplit [$sep=SPC [$string=$_ [\&q_eval [$qchars]]]]
 sub qsplit {
     my $sep = _or(shift, qr/\s+/);
     my $s   = _or(shift, $_);
        $s   =~ s/~/~;/g;
     my $deq = shift || \&dequote;
+    my $qc  = shift || '"\'';
+    my $pat;  # /(["'`]) (\\.|[^\1])* \1/x
+        $pat .= "(?:$_(?:\\\\.|[^$_])*$_)|"
+            for split('', $qc);
+        chop $pat;
+        $pat = qr/$pat/;
     my @mem;
     my $k = 0;
-            # qr/(["']) (\\.|[^\1])* \1/x, $s;
-    $s = forx qr/ (" (\\.|[^"])* ")
-                 |(' (\\.|[^'])* ')/x,
+    $s = forx $pat,
               sub {
                 push @mem, $deq->($_);
                 $_ = '~'.$k++.';'
