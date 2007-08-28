@@ -60,16 +60,18 @@ sub labat_eval {
 
 sub _stdargs    { qsplit(qr/\s+/, join('', @_)) }
 
-sub _resolv     { my $ctx = shift; my ($funs, $vars) = @$ctx;
+sub _resolvf    { my $ctx = shift; my ($funs, $vars) = @$ctx;
                   sub { my $name = shift;   # vars -> env -> other...
                         $vars->{$name}
                      || $ENV{$name} } }
+sub _resolv     { my ($ctx, $s) = @_; my $f = _resolvf($ctx);
+                  ppvarf(\&$f, $s) }
+sub _resolv2    { my ($ctx, $s) = @_;
+                  qsplit(qr/\s+/, _resolv($ctx, $s), undef, '\'"`') }
 
 sub _behav_RAW  { shift }
 sub _behav_STD  { my $code = shift;
-                  sub { my $ctx = shift; my $bind = _resolv($ctx);
-                        my $s = ppvarf \&$bind, join('', @_);
-                        @_ = qsplit(qr/\s+/, $s, undef, '\'"`');
+                  sub { my $ctx = shift; @_ = _resolv2($ctx, join('', @_));
                         $code->($ctx, @_) } }
 
 sub _die        { shift; die shift }
@@ -133,7 +135,7 @@ sub _arg_unzip {
             } else {
                 push @list, $_;
             }
-        } elsif (s/\s*->$//) {
+        } elsif (s/->$//) {
             push @prefix, $_;
         } elsif (not ref $node->[$i + 1] and $node->[$i + 1] =~ /^\|/) {
             push @prefix, $_;
