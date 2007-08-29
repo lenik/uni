@@ -18,7 +18,9 @@ PATH            lp      r\ruby-1.8.2\bin
 PATH            lp      m\mingw-3.1.0-1\bin
 
 PATH            lp      c\cygwin-1.5.24-2\bin
-PATH            lp      c\cygwin-1.5.24-2\bin\usr\X11R6\bin
+PATH            lp      c\cygwin-1.5.24-2\sbin
+PATH            lp      c\cygwin-1.5.24-2\usr\bin
+PATH            lp      c\cygwin-1.5.24-2\usr\X11R6\bin
 CYGWIN_ROOT     l       c\cygwin-1.5.24-2
 DISPLAY         =       127.0.0.1:0.0
 
