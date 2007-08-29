@@ -47,7 +47,8 @@
 :init_basic_vars
     if %initlevel% lss 1 exit /b 0
 
-    which lapiota-init >nul 2>nul
+    rem either no `which` or no `lapiota-init`
+    which lapiota-init.bat >nul 2>nul
     if not errorlevel 1 goto level_2
 
     rem insert before path, the later insertions get higher priority
