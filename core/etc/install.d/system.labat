@@ -103,7 +103,7 @@
         - .lst      medit   edit files in the list
         -   | $LAPIOTA/bin/mani.bat -f "%1"
         - .patch    merge   merge the patch into current directory
-        -   | $CYGWIN_HOME/bin/patch
+        -   | $CYGWIN_ROOT/bin/patch
 
     - set-assoc:
         - shell-script     .sh
@@ -127,7 +127,7 @@
         - six-program       .6 .six
         -   | reserved
         - M4-script         .m4
-        -   | $CYGWIN_HOME\bin\m4 \"%0\" %*
+        -   | $CYGWIN_ROOT\bin\m4 \"%0\" %*
 -
   :application:
     :: Set applications' preferences
