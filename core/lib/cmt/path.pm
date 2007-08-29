@@ -78,7 +78,7 @@ my $opt_verbose = 1;
     sub path_split($) {
         my $path = shift;
         my ($dir, $name) =
-                ($path =~ m/^(.*$patFS)?([^$setFS]*)$/);
+                ($path =~ m/^(?:(.*)$patFS)?([^$setFS]*)$/);
         wantarray ? ($dir, $name) : $name;
     }
 
