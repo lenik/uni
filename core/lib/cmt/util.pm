@@ -10,6 +10,45 @@ use Data::Dumper;
 use Exporter;
 use POSIX               qw/strftime/;
 
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(datetime
+                 cftime
+                 timestamp10
+                 qr_literal
+                 forx
+                 qeval_perl
+                 _qeval
+                 qeval
+                 qsplit
+                 append_cmdline
+                 get_named_args
+                 arraycmp
+                 arrayeq
+                 arrayne
+                 array_index
+                 array_remove
+                 hasheq
+                 hashne
+                 hashindex
+                 hash2tuples
+                 bserchi
+                 readfile
+                 writefile
+                 select_input
+                 seleci
+                 indent
+                 unindent_
+                 unindent
+                 abbrev
+                 fire_sub
+                 fire_method
+                 at_exit
+                 _use
+                 listdir
+                 fswalk
+                 );
+our @EXPORT_OK = ();
+
 our $opt_verbtitle      = __PACKAGE__;
 our $opt_verbtime       = 0;
 our $opt_verbose        = 1;
@@ -91,6 +130,7 @@ sub qr_literal {
     return qr/$text/;
 }
 
+# forx $pattern \&hit [\&miss] $text
 sub forx($&;$$) {
     my $exp     = shift;
     my $hit     = shift;
@@ -129,38 +169,47 @@ sub forx($&;$$) {
     return $buf;
 }
 
-sub dequote {
+sub qeval_perl {
     eval shift
 }
 
-# qsplit [$sep=SPC [$string=$_ [\&q_eval [$qchars]]]]
-sub qsplit {
-    my $sep = _or(shift, qr/\s+/);
-    my $s   = _or(shift, $_);
-       $s   =~ s/~/~;/g;
-    my $deq = shift || \&dequote;
-    my $qc  = shift || '"\'';
-       $s   =~ s/\\([\\$qc])/'~.'.ord($1).';'/eg;
-    my $pat;  # /(["'`]) (\\.|[^\1])* \1/x
-        $pat .= "(?:$_(?:\\\\.|[^$_])*$_)|"
-            for split('', $qc);
-        chop $pat;
-        $pat = qr/$pat/;
+# _qeval $string [\&evaluator [$qchars]]
+sub _qeval {
+    my ($s, $evl, $qc) = @_;
+    $evl ||= \&qeval_perl;
+    $qc  ||= '"\'';
+    $s   =~ s/~/~;/g;
+    $s   =~ s/\\([\\$qc])/'~.'.ord($1).';'/eg;
+    my $pat = join('|', map {"(?:$_(?:\\\\.|[^$_])*$_)"} split('', $qc) );
     my @mem;
     my $k = 0;
-    $s = forx $pat,
-              sub {
-                push @mem, $deq->($_);
-                $_ = '~'.$k++.';'
-              },
-              $s;
+    $s =~ s/$pat/push @mem, $evl->($&); '~'.$k++.';'/eg;
+    $_[0] = $s;
+    @mem
+}
+
+# qeval [$string=$_ [\&evaluator [$qchars]]]
+sub qeval {
+    local $_= _or(shift, $_);
+    my @mem = _qeval($_, @_);
+    s/~(\d+);/$mem[$1]/g;
+    s/~\.(\d+);/chr($1)/eg;
+    s/~;/~/g;
+    $_
+}
+
+# qsplit [$sep=SPC [$string=$_ [\&evaluator [$qchars]]]]
+sub qsplit {
+    my $sep = _or(shift, qr/\s+/);
+    local $_= _or(shift, $_);
+    my @mem = _qeval($_, @_);
     map {
             s/~(\d+);/$mem[$1]/g;
             s/~\.(\d+);/chr($1)/eg;
             s/~;/~/g;
             $_
         }
-        split($sep, $s);
+        split($sep, $_)
 }
 
 sub append_cmdline {
@@ -473,43 +522,4 @@ sub fswalk(&;@) {
     $iter->($start, 0);
 }
 
-@ISA    = qw(Exporter);
-@EXPORT = qw(
-	datetime
-	cftime
-	timestamp10
-	qr_literal
-	forx
-	dequote
-	qsplit
-	append_cmdline
-	get_named_args
-	arraycmp
-	arrayeq
-	arrayne
-	array_index
-	array_remove
-	hasheq
-	hashne
-	hashindex
-	hash2tuples
-	bserchi
-	readfile
-	writefile
-	select_input
-	seleci
-	indent
-	unindent_
-	unindent
-	abbrev
-	fire_sub
-	fire_method
-	at_exit
-	_use
-	listdir
-	fswalk
-	);
-
-@EXPORT_OK = ();
-
-1;
+1
