@@ -32,6 +32,7 @@ our $opt_recursive          = 0;
 our $opt_directories_only   = 0;
 our $opt_cont_errors        = 0;
 our $opt_eval               = undef;    # <STDIN> default
+our $opt_just_substitute;               # OLD=NEW, exclusive with --eval.
 our $opt_x_mode             = 0;
 our $opt_test_only          = 0;
 our $opt_sort               = undef;    # 'name' default
@@ -91,6 +92,7 @@ sub boot {
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },
                'x-mode',
+               'just-substitute=s',
                map( { @$_[0..1] } @opt_options),
                );
     if (@ARGV) {
@@ -115,6 +117,28 @@ sub boot {
         die "script file isn't existed" unless -e $f;
         my $script = readfile($f);
         $opt_eval .= $script;
+    }
+
+    if ($opt_just_substitute) {
+        if (defined $opt_eval) {
+            die "can't eval when --just-substitute is specified";
+        } else {
+            my ($OLD, $NEW) = split('=', $opt_just_substitute, 2);
+            my $opt;
+            if ($OLD =~ s/^(\w)://) { $opt = $1 }
+            if ($opt eq 'a') {
+                $OLD = '^'.$OLD.'$';
+            } elsif ($opt eq 's') {
+                $OLD = '^.*?'.$OLD.'.*$';
+            } elsif ($opt eq 'S') {
+                $OLD = '^.*'.$OLD.'.*?$';
+            } elsif ($opt eq 'l') {
+                $OLD = '^.*?'.$OLD.'.*?$';
+            } else {
+            }
+            $opt_eval = "\$new =~ s/$OLD/$NEW/; r";
+            info2 "compile --just to $opt_eval";
+        }
     }
 
     unless (defined $opt_eval) {
@@ -185,39 +209,45 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: foreach,v 1.16 2007-07-13 16:03:20 lenik Exp $');
+    my %id = parse_id('$Id: foreach,v 1.17 2007-08-29 17:56:50 lenik Exp $');
     print "[$opt_verbtitle] files processor framework \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {
     version;
-    print <<"EOM";
+    print "\nSyntax: \n    $0 [OPTION] [--] files...\n", <<'EOM';
 
-Syntax:
-    foreach
-        --option=<getopt-spec> (o, add additional/user options)
-        --recursive (r)
-        --directories-only (d)
-        --files-only (f)
-        --cont-errors (c)
-        --eval=<script> (e, default read from stdin)
-        --x-mode (x, first of files is the script file)
-        --list=<list-file> (l, multiple lists are supported)
-        --test-only
-        --sort=<type> (s, can be name(default), size, etc)
-        --reversed (reverse sort)
-        --quiet (q)
-        --verbose (v)
-        --version
-        --help (h)
-        [files/directories ...]     (default '.')
+Common options:
+    -l, --list=FILE         get filenames from list-file(s)
+    -r, --recursive
+    -d, --directories-only
+    -f, --files-only
+    -s, --sort=TYPE         can be name(default), size, etc
+        --reversed          use descending sort
+    -j, --just-substitute=[OPT:]OLD=NEW
+                            just substitute using perl-regex
+    -e, --eval=PERLSCRIPT   default read from stdin
+    -t, --test-only         only print what would be did
+    -c, --cont-errors
+    -x, --x-mode            first of files is the script file
+    -o, --option=GETOPT-STR add additional/user options
+    -h, --help              show this help page
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+        --version           print the version info
 
-variables:
+Substitute Option:
+    a:OLD=NEW               The whold OLD must be explicitly matched
+    s:OLD=NEW               Match OLD as short as can in the left-side
+    S:OLD=NEW               Match OLD as short as can in the right-side
+    l:OLD=NEW               Match OLD as long as can
+
+Variable:
     _=path=dir/base, (old=)new=base=file.ext, opt_*
     a..z: user-variable, L..U: \\\$list-current
 
-function:
+Function:
     r = ren(old, new)
 EOM
 }
