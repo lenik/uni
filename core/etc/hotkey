@@ -29,7 +29,7 @@ runp(pre, cmd) {
 	run %cmd%
 }
 
-; !tab::send {escape}{tab}
+!tab::send {escape}{tab}
 lwin & tab::alttab
 lwin & capslock::shiftalttab
 
@@ -50,13 +50,13 @@ lwin & capslock::shiftalttab
 	}
 	return
 
-#!z::media_stop
-#!x::media_play_pause
-#!c::send {media_stop}{media_play_pause}
-#!v::media_prev
-#!b::media_next
-#!numpadadd::send {volumn_up}
-#!numpadsub::send {volumn_down}
+appskey & down::send {media_play_pause}
+appskey & up::send {media_stop}
+appskey & left::send {media_prev}
+appskey & right::send {media_next}
+appskey & numpadadd::send {volumn_up}
+appskey & numpadsub::send {volumn_down}
+appskey::send {appskey}
 
 #b::run big
 #c::run cmd
