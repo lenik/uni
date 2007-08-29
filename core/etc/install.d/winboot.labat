@@ -1,0 +1,11 @@
+
+- def-ntext:
+    Lapiota:
+        zh_CN:      Æ¤©–Ëþ
+    'Start-Lapiota':
+        zh_CN:      ${nt:Lapiota}
+- add-startup-file:
+	- ${nt:Start-Lapiota}.bat |-
+        @echo off
+        mount $lapiota.pgd
+        $LAPIOTA\bin\lapiota-init.bat 100
