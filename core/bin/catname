@@ -1,8 +1,13 @@
-# Mode:
-#   $n  $cat[n]
-#   $$  $rest
+#? foreach -x -o=mode=s
 
-#? foreach -x -o=mode=s -t
+# catname [foreach-options] --mode=MODE files...
+# MODE: specify the name-pattern
+#       $n  == $cat[n]
+#       $$  == $rest
+#
+# e.g.
+#       catname -m $3-$$ *.mpg
+#           will rename [aaa][bbb][ccc]rest...mpg to ccc-rest...mpg
 
 use cmt::pp;
 
