@@ -1,15 +1,4 @@
 #!/usr/bin/perl
-# $Id: apply,v 1.5 2007-06-25 12:58:13 lenik Exp $
-# $Log: not supported by cvs2svn $
-# Revision 1.4  2006/11/17 20:28:08  lenik
-# replace #!/usr/bin/perl -> #!perl
-#
-# Revision 1.3  2006/07/27 15:48:27  lenik
-# using cmt::path
-#
-# Revision 1.2  2004/09/22 08:39:08  dansei
-# add version info at header.
-#
 
 use strict;
 use FileHandle;
