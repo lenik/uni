@@ -125,7 +125,10 @@ sub boot {
         } else {
             my ($OLD, $NEW) = split('=', $opt_just_substitute, 2);
             my $opt;
+            my $mod;
             if ($OLD =~ s/^(\w)://) { $opt = $1 }
+            $mod .= 'g' if $opt =~ s/g//;
+            $mod .= 'i' if $opt =~ s/i//;
             if ($opt eq 'a') {
                 $OLD = '^'.$OLD.'$';
             } elsif ($opt eq 's') {
@@ -136,7 +139,7 @@ sub boot {
                 $OLD = '^.*?'.$OLD.'.*?$';
             } else {
             }
-            $opt_eval = "\$new =~ s/$OLD/$NEW/; r";
+            $opt_eval = "\$new =~ s/$OLD/$NEW/$mod; r";
             info2 "compile --just to $opt_eval";
         }
     }
@@ -209,7 +212,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: foreach,v 1.17 2007-08-29 17:56:50 lenik Exp $');
+    my %id = parse_id('$Id: foreach,v 1.18 2007-09-02 03:41:30 lenik Exp $');
     print "[$opt_verbtitle] files processor framework \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
