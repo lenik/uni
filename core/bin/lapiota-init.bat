@@ -71,13 +71,17 @@
 :init_cygwin
     if %initlevel% lss 3 exit /b 0
 
-    if not exist b:\ subst b: "%CYGWIN_ROOT%"
+    if not exist #:\ subst #: "%CYGWIN_ROOT%"
     if "%USERNAME%"=="" set USERNAME=someone
     set HOME=%LAPIOTA%\home\%USERNAME%
     if not exist "%HOME%" mkdir "%HOME%"
     if "%CD%"=="%USERPROFILE%" (
         if not "%INITDIR%"=="" (
-            cd /d "%INITDIR%"
+            rem work-around for `~:': cd /d "%INITDIR%"
+            if "%INITDIR:~1,1%"==":" (
+                %INITDIR:~0,2%
+                cd "%INITDIR:~2%"
+            )
         ) else (
             cd /d "%HOME%"
         )
