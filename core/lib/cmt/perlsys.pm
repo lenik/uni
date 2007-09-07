@@ -5,7 +5,6 @@ use vars qw/@ISA @EXPORT/;
 use cmt::path;
 use B;
 use Exporter;
-use YAML;
 
 our @ISA    = qw(Exporter);
 our @EXPORT = qw(perlsh
@@ -13,10 +12,10 @@ our @EXPORT = qw(perlsh
                  which_sub);
 
 sub perlsh {
+    require YAML;
     my @ret;
     my $buf;
     local ($|) = 1;
-
     while (<STDIN>) {
         chomp;
 
@@ -36,7 +35,7 @@ sub perlsh {
         if ($@) {
             print STDERR "ERR $@ - $!\n" if $@;
         } else {
-            print Dump(@ret) if @ret;
+            print YAML::Dump(@ret) if @ret;
         }
     }
     return wantarray ? @ret : $ret[0];
