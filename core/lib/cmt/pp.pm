@@ -235,8 +235,9 @@ sub ppvarf(&$) {
 }
 
 sub ppvar(\%@) {
-    my $vartbl  = shift;
-    ppvarf sub { $vartbl->{do{shift}}}, join('', @_);
+    my $vars = shift;
+    ppvarf sub { my $k = shift; my $v; return undef unless exists $vars->{$k};
+                 defined ($v = $vars->{$k}) ? $v : '' }, join('', @_);
 }
 
 # [$artist - ][$album - [%track number% - ]]$title
