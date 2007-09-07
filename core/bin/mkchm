@@ -2,14 +2,19 @@
 
 use strict;
 use cmt::chm;
+    $cmt::chm::opt_verbtitle= 'mkchm';
+use cmt::i18n;
+    # $cmt::i18n::DFL_ENC     = $LC_ENCODING;
+    $cmt::i18n::DFL_FB      = ' ';
+use cmt::lang;
 use cmt::path;
 use cmt::pp;
 use cmt::util;
 use cmt::vcs;
+use Cwd;
 use Data::Dumper;
 use DirHandle;
 use Getopt::Long;
-use YAML;
 
 sub boot;
 sub info;
@@ -18,20 +23,29 @@ sub version;
 sub help;
 
 sub main;
+sub ls_sort;
 sub ishtml;
-sub find_index_page;
+sub isindex;
+sub findindex;
+sub ext_dirproc;
+sub urldecode;
 
-our $opt_verbtitle      = 'mkchm';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
+my  %RCSID  = parse_id('$Id: mkchm,v 1.2 2007-09-07 21:21:44 lenik Exp $');
+    $cmt::chm::opt_appname = "mkchm-$RCSID{rev}";
+
+our $opt_verbose;       *opt_verbose    = *cmt::chm::opt_verbose;
+our $opt_verbtitle;     *opt_verbtitle  = *cmt::chm::opt_verbtitle;
+sub info;               *info           = *cmt::chm::info;
+sub info2;              *info2          = *cmt::chm::info2;
 
 our @opt_files;
 our $opt_output;                        # default <root-dir>.chm
 our $opt_has_root;                      # prefer root-node to root-list
-our %opt_fswalk         = (-depth => 0);
+our %opt_fswalk         = (-depth => 0, -leave => 1, -sort => \&ls_sort);
 our $opt_style          = 'auto';       # styles: auto, fs
 our $opt_no_anchors     = 1;
 our $opt_title_format   = '(if $title $title $filename)';
+our $opt_compact_min    = 3;
 our @opt_index          = qw(default index);
 our @opt_html_ext       = qw(html htm cgi php jsp asp aspx);
 our @opt_page_filter;                   # join by and
@@ -39,12 +53,11 @@ our @opt_media_filter;                  # join by and
 our $opt_dict;                          # user dict file for keyword-replace
 our %opt_chm;
 
-my  $stat_pages         = 0;
-my  $stat_media         = 0;
+our $BUGFIX_5F          = 1;
 
 sub boot {
-    GetOptions('quiet|q'        => sub { $opt_verbose-- },
-               'verbose|v'      => sub { $opt_verbose++ },
+    GetOptions('quiet|q'        => sub { $cmt::chm::opt_verbose-- },
+               'verbose|v'      => sub { $cmt::chm::opt_verbose++ },
                'version'        => sub { version; exit },
                'help|h'         => sub { help; exit },
                'output|o=s',
@@ -53,10 +66,11 @@ sub boot {
                'hiddens'        => \$opt_fswalk{-hidden},
                'style|s=s',
                'page-filter|p=s'=> \@opt_page_filter,
-               'media-filter|m=s'=> \@opt_media_filter,
+               'media-filter|m=s'=>\@opt_media_filter,
                'dict|d=s',
                'index|i=s',     => \@opt_index,
                'extension|e=s'  => \@opt_html_ext,
+               'chm-option|c=s' => \%opt_chm,
                );
 
     @opt_files = @ARGV;
@@ -64,8 +78,12 @@ sub boot {
         die("No file specified. ");
     }
 
-    if (!$opt_output and -d $opt_files[0]) {
+    if (! defined $opt_output and -d $opt_files[0]) {
         my ($dir, $base) = path_split($opt_files[0]);
+        if ($base eq '' or $base eq '.') {
+            ($dir, $base) = path_split(cwd);
+            $base = 'a' if $base eq '';
+        }
         $opt_output = $base.'.chm';
     }
     $opt_chm{-output} = $opt_output if defined $opt_output;
@@ -96,24 +114,10 @@ sub boot {
     main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print datetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
-
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print datetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
-
 sub version {
-    my %id = parse_id('$Id: mkchm,v 1.1 2007-08-02 22:53:26 lenik Exp $');
-    print "[$opt_verbtitle] CHM Help Maker \n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    my %id = parse_id('$Id: mkchm,v 1.2 2007-09-07 21:21:44 lenik Exp $');
+    print "[$opt_verbtitle] General CHM Packager \n";
+    print "Written by Lenik,  Version $RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 
 sub help {
@@ -126,7 +130,7 @@ Syntax:
 Common options:
     -o, --output=CHMFILE    default <root-dir>.chm
         --has-root          prefer root-node to root-list
-        --recursive=MAX     max depth recurse into the directory
+    -r, --recursive=MAX     max depth recurse into the directory
         --hiddens           include hidden files (.file)
     -s, --style=STYLE       auto or fs, default auto
     -p, --page-filter=EXP   filters of html pages to be packaged)
@@ -134,6 +138,7 @@ Common options:
     -d, --dict=FILE         user dict file
     -i, --index=FILENAME    prefered index-page file names (ordered)
     -e, --extension=EXT     default: html htm cgi php jsp asp aspx
+    -c, --chm-option=NAME=VALUE  chm-options passed to chm::chm_compile
     -h, --help              show this help page
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
@@ -144,31 +149,175 @@ EOM
 exit boot;
 
 sub main {
+    my @files;
+    my @stack = ( [ undef, 'start', { dir => '.' }, ] );
+    my $start;
+    my $has_index;
+    my %idx;
     for (@opt_files) {
         fswalk {
             my $path = shift;
+            my ($dir, $base) = path_split($path);
             if (-d $path) {
+                my $leave = shift;
                 info "dir $path/";
+                if ($leave) {
+                    my $node = ext_dirproc(pop @stack);
+                    my $top = $stack[-1];
+                    push @$top, $node;
+                    $has_index = @stack == 1 ? defined $start : defined $top->[0];
+                } else {
+                    push @stack, [ undef, $base.'/', { type => 'dir', dir => $path } ];
+                    $has_index = 0;
+                }
                 return 1;
             }
 
+            return 0 if $base =~ /^\$MKCHM_/;
             if (ishtml $path) {
                 info "page $path";
                 my $info = htmlinfo [readfile($path)];
-                info2 "  title $info->{'.title'}";
-                info2 Dumper($info);
+                my $attrs = { info => $info, type => 'page' };
+                info2 Dumper($info) if $opt_verbose > 2;
+                my $title = _or($info->{'.title'}, $info->{'title'});
+                my ($head, $htab);
+                   if (ref (my $h1 = $info->{'.h1'})) { $head = $h1->[0]; $htab = 0 }
+                elsif (ref (my $h2 = $info->{'.h2'})) { $head = $h2->[0]; $htab = 1 }
+                elsif (ref (my $h3 = $info->{'.h3'})) { $head = $h3->[0]; $htab = 2 }
+                elsif (ref (my $h4 = $info->{'.h4'})) { $head = $h4->[0]; $htab = 3 }
+
+                if (defined $title) {
+                    $title =~ s/\s+/ /sg; # normalize-space, also remove newlines
+                    info2 "  title $title";
+                    # BUGFIX: htmlhelp can't handle with &#xxx; in menu caption
+                    $title = hremoveents($title);
+                }
+                $title = $head if $title eq '';
+                $title = $base   if $title eq '';
+                if (defined $head) {
+                    my $hlev = $htab + 1;
+                    info2 "  head$hlev $head";
+                    # BUGFIX: htmlhelp can't handle with &#xxx; in menu caption
+                    $head = hremoveents($head);
+                    $attrs->{'head'} = $head;
+                    $attrs->{'htab'} = $htab;
+                }
+
+                my $pagenode = [ $path, $title, $attrs ];
+                my $anchors = $info->{'.a'};
+                if (ref $anchors) {
+                    for (@$anchors) {
+                        my $anchortext = urldecode $_;
+                        my $anchornode = [ $path.'#'.$_, $anchortext, { type => 'anchor' } ];
+                        push @$pagenode, $anchornode;
+                    }
+                }
+                my $kw = $info->{'keywords'};
+                if (ref $kw) {
+                    push @{$idx{$_}}, $path for @$kw;
+                }
+                my $top = $stack[-1];
+                push @$top, $pagenode;
+                unless ($has_index) {
+                    if (isindex $path) {
+                        if (@stack == 1) {
+                            info "  set start page: $path";
+                            $start = $path;
+                            $opt_chm{-default} = $path unless exists $opt_chm{-default};
+                            $opt_chm{-title} = $title  unless exists $opt_chm{-title};
+                        } else {
+                            info "  set index page: $path";
+                            # splice(@$top, 0, 3) = @$pagenode;
+                            $top->[0] = $path;
+                            $top->[1] = $title; # . ' ('.$top->[1].')';
+                            $top->[2] = { type => 'dir.index' };
+                        }
+                        $has_index = 1;
+                    }
+                }
             } else {
+                if ($base =~ /\.hh[pck]$/i or $base =~ /\.h\w+$/i) {
+                    # BUGFIX: don't add .h* non-html files, to avoid hhc dump.
+                    # See: http://www.helpware.net/htmlhelp/how_to_merge_ctx2.htm
+                    info "dropped file $path (BUGFIX)";
+                    return 0;
+                }
+                if ($base =~ /\.chm$/i) {
+                    # HINT: so you can mkchm for each sub-directories,
+                    # and than mkchm the whole without remove the children.chm.
+                    info "dropped file $path (for convienient)";
+                    return 0;
+                }
+                #if ($dir eq '' || $dir eq '.') {
+                #    info "dropped rec*self $path";
+                #    return 0 if $base eq $opt_output;
+                #}
                 info "media $path";
             }
+            push @files, $path;     # filter
             return 1;
         } -start => $_, %opt_fswalk;
     }
-
-    info "Total $stat_pages pages and $stat_media medias to be packaged";
-
-    if ($opt_verbose > 1) {
-        info2 "The file-list to be packaged: ";
+    while (@stack > 1) {
+        my $node = ext_dirproc(pop @stack);
+        my $top = $stack[-1];
+        push @$top, $node;
     }
+    my $roots = ext_dirproc(pop @stack);
+    push @files, autogen_index($roots);
+    prefix_compact $roots, qr/^((.......+?)\s*[:.\-\/>\)\]~|]\s+)(.+)$/,
+        $opt_compact_min;
+    htabindent $roots;
+
+    $opt_chm{-files} = \@files;
+    $opt_chm{-roots} = $roots;
+    $opt_chm{-index} = \%idx;
+
+    unless (defined $opt_chm{-title}) {
+        info "Can't determine the title of $opt_output, you may specify here:";
+        print "Enter the title: \n";
+        my $title = <STDIN>;
+        chop $title;
+        $opt_chm{-title} = $title;
+    }
+    $opt_chm{-default} = $roots->[0] unless defined $opt_chm{-default};
+    $opt_chm{-default} = 'about:blank' unless defined $opt_chm{-default};
+
+    if ($opt_verbose > 2) {
+        info2 "chm-options: ".Dumper(\%opt_chm);
+    } elsif ($opt_verbose == 1) {
+        info2 "chm-option $_: ".$opt_chm{$_} for keys %opt_chm;
+    }
+    chm_compile %opt_chm;
+
+    info "Done!";
+}
+
+sub dsplit {
+    my @list;
+    # forx qr/\d+/, sub { push @list, $_ }, sub { push @list, $_ }, shift;
+    local $_ = shift; push @list, $& while /\d+|\D+/g;
+    @list;
+}
+
+sub ls_sort {
+    my ($a, $b) = @_;
+    my (@a, @b, @n, @m);
+    if ($BUGFIX_5F) {
+        $a =~ s/_5F(\d+)\./_$1./;
+        $b =~ s/_5F(\d+)\./_$1./;
+    }
+    while ($a =~ /(\d+)|(\D+)/g) { push @n, $1; push @a, $2; }
+    while ($b =~ /(\d+)|(\D+)/g) { push @m, $1; push @b, $2; }
+    for (my $i = 0; $i < @n; $i++) {
+        if ($n[$i] == $m[$i]) {
+            next if $a[$i] eq $b[$i];
+            return $a[$i] cmp $b[$i];
+        } else {
+            return $n[$i] <=> $m[$i];
+        }
+    }
+    return @n <=> @m;
 }
 
 sub ishtml {
@@ -177,13 +326,46 @@ sub ishtml {
     array_index(@opt_html_ext, $ext) >= 0
 }
 
-sub find_index_page {
-    my $path = shift;
+sub isindex {
+    my ($path, $case_sens) = @_;
+    my ($dir, $base) = path_split($path);
+    $base = lc $base unless $case_sens;
     for my $ext (@opt_html_ext) {
         for my $name (@opt_index) {
             my $file = "$name.$ext";
-            return $file if -f path_join($path, $file);
+            $file = lc $file unless $case_sens;
+            return 1 if $file eq $base;
         }
     }
     return undef;
+}
+
+sub findindex {
+    my $dir = shift;
+    for my $ext (@opt_html_ext) {
+        for my $name (@opt_index) {
+            my $file = "$name.$ext";
+            return $file if -f path_join($dir, $file);
+        }
+    }
+    return undef;
+}
+
+sub ext_dirproc {
+    my $node = shift;
+    my ($dir, $index) = path_split($node->[0]);
+    if (-f "$dir/\$MKCHM_TITLESORT") {
+        info "titlesort $dir/";
+        if (@$node > 3) {
+            my @sublist = sort { ls_sort($a->[1], $b->[1]) } splice(@$node, 3);
+            push @$node, @sublist;
+        }
+    }
+    return $node;
+}
+
+sub urldecode {
+    my $str = shift;
+    $str =~ s/\%([A-Fa-f0-9]{2})/pack('C', hex($1))/seg;
+    $str;
 }

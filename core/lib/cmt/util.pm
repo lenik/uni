@@ -46,6 +46,7 @@ our @EXPORT = qw(datetime
                  _use
                  listdir
                  fswalk
+                 ieval
                  );
 our @EXPORT_OK = ();
 
@@ -456,15 +457,17 @@ END {
     $_->[0]->(@{$_->[1]}) for @ATEXIT;
 }
 
+# listdir start-dir, incl, excl, filter, sort
 sub listdir {
     my $dir = _or(shift, $_, '.');
-    my ($incl, $excl, $filter) = @_;
+    my ($incl, $excl, $filter, $sort) = @_;
     opendir(DIR, $dir) || die "can't opendir $dir: $!";
     my @files = readdir(DIR);
     @files = grep { /$incl/ } @files if defined $incl;
     @files = grep {!/$excl/ } @files if defined $excl;
     @files = grep { $filter->($dir, $_) } @files if defined $filter;
     closedir DIR;
+    @files = sort { $sort->($a, $b) } @files if defined $sort;
     return @files;
 }
 
@@ -476,13 +479,17 @@ sub fswalk(&;@) {
     my $hidden  = $cfg{-hidden};
     my $depth   = _or($cfg{-depth}, 999);
     my $bfirst  = index('bw', $cfg{-order}); # breadth-first
+    my $leave   = $cfg{-leave};
+    my $sort    = $cfg{-sort};
+    my $excl    = not $cfg{-inclusive};     # include start self
     my $iter;
        $iter    = sub {
         #my ($dir, $level) = @_;
             my $dir = shift;
             my $level = shift;
         my @files = listdir($dir, undef, qr/^\.\.?$/,
-                            $hidden ? sub { ishidden(path_join @_) } : undef);
+                            $hidden ? sub { ishidden(path_join @_) } : undef,
+                            $sort);
            @files = grep { $filter->() } @files if defined $filter;
         my $ret;
         my $count = 0;
@@ -494,6 +501,7 @@ sub fswalk(&;@) {
                 if ($bfirst) {
                     push @dirs, $path;
                 } else {
+                    # BREADTH-FIRST-COPY-BEGIN
                     $ret = $cb->($path);
                     return -1 if $ret == -1;    # break
                     next      if $ret == 0;     # ignore
@@ -501,6 +509,8 @@ sub fswalk(&;@) {
                     $ret = $iter->($path, $level + 1);
                     return -1 if $ret == -1;    # break
                     $count += $ret;
+                    $cb->($dir, 1) if $leave;
+                    # BREADTH-FIRST-COPY-END
                 }
             } else {
                 $ret = $cb->($path);
@@ -509,6 +519,7 @@ sub fswalk(&;@) {
             }
         }
         for (@dirs) {
+            # BREADTH-FIRST-COPY-BEGIN
             $ret = $cb->($_);
             return -1 if $ret == -1;    # break
             next      if $ret == 0;     # ignore
@@ -516,10 +527,47 @@ sub fswalk(&;@) {
             $ret = $iter->($_, $level + 1);
             return -1 if $ret == -1;    # break
             $count += $ret;
+            $cb->($dir, 1) if $leave;
+            # BREADTH-FIRST-COPY-END
         }
         $count
     };
-    $iter->($start, 0);
+    if ($excl) {
+        $iter->($start, 0)
+    } else {
+        my $count = $cb->($start);
+        return $count if $count <= 0;       # break or ignore
+        my $ret = $iter->($start, 0);
+        return -1 if $ret == -1;            # break
+        $cb->($start, 1) if $leave;
+        $count = $count - 1 + $ret
+    }
+}
+
+# incremental-eval
+sub ieval($&;$$) {
+    my ($stage, $cb, $loader, $dumper) = @_;
+    unless (defined $loader) {
+        require YAML;
+        $loader = \&YAML::Load;
+        $dumper = \&YAML::Dump;
+    }
+    my $stagefile = $opt_verbtitle.'.stage'.$stage;
+    if (-f $stagefile) {
+        my $file = readfile $stagefile;
+        my $root =$loader->($file);
+        wantarray ? @$root : $root
+    } else {
+        if (wantarray) {
+            my @rebuilt = $cb->();
+            writefile $stagefile, $dumper->(\@rebuilt)."\n";
+            @rebuilt
+        } else {
+            my $rebuilt = $cb->();
+            writefile $stagefile, $dumper->($rebuilt)."\n";
+            $rebuilt
+        }
+    }
 }
 
 1
