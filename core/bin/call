@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# . /lapiota/lib/shell-functions/string
+
+# BUG: the cygwin always translate " to \" when it pass arguments to cmd.exe
+#      so, this can't be fixed.
+# BUG: the cygwin add quote("") only when necessary, for example, space in the argument.
+#      so, you can't determine how many caret(^) chars should be inserted.
+# cmd_escape VAR
+function cmd_escape() {
+    local v=${!1}
+    #v=${v//\"/\\\"\\\"}
+    #v=${v//[\^]/^^}
+    #v=${v//[&]/^&}
+    #v=${v//[<]/^<}
+    #v=${v//[>]/^>}
+    #v=${v//[|]/^|}
+    eval $1=\"$v\"
+}
+
+cl="$1"
+for ((i = 2; i <= $#; i++)); do
+	arg="${!i}"
+	if [ -f "$arg" ]; then
+		arg=`cygpath -aw "$arg"`
+	fi
+	cmd_escape arg
+	cl="$cl \"$arg\""
+done
+
+# echo exec: $cl
+eval $cl
