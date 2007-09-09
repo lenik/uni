@@ -1,0 +1,33 @@
+#!/bin/bash
+
+PERLLIB=/usr/lib/perl5/5.8
+PERLLIB=$PERLLIB:/usr/lib/perl5/site_perl/5.8
+PERLLIB=$PERLLIB:/usr/lib/perl5/vendor_perl/5.8
+PERLLIB=$PERLLIB:/lapiota/lib
+# PERLLIB=$PERLLIB:/lapiota/usr/lib/perl5/5.8/site
+# PERLLIB=$PERLLIB:/lapiota/usr/lib/perl5/5.8/cpan
+export PERLLIB
+
+function test_perl() {
+    if ! perl -e "use strict; use YAML; "; then
+        echo "cygwin/perl isn't correctly installed."
+        echo "maybe your lapiota is corrupted?"
+        return 1
+    fi
+    if ! perl -e "use strict; use Win32::Registry; "; then
+        echo "cygwin/perl failed to use Win32"
+        return 1
+    fi
+}
+
+if ! test_perl; then
+    echo "perl test failed: $?"
+    exit $?
+fi
+
+if ! labat --version; then
+    echo "can't launch labat, the install system for lapiota."
+    return 1
+fi
+
+labat $* /lapiota/etc/install.d/system.labat
