@@ -1,107 +1,121 @@
-# labat: lapiota batch-process system
+#!/lapiota/bin/labat
 
-- use:
-    - labat::win32
-
+- _use: labat::lapiota
+- _use: labat::win32
+# - _include: inc/lapiota-commons.labat
 -
   :system:
     - :: Initialize system base settings
     - set-env:
-        - set   LAPIOTA     $LAPIOTA
-        - set   PERL        $PERL
-        - set   WPERL       $WPERL
-        - set   PAGER       $PAGER
-        - p-    PATH        /^$LAPIOTA\b/
-        - p+|   PATH        ->
-        -
+        - w=        LAPIOTA     $LAPIOTA
+        - =         LAPIOTA_VER 0.0.1
+        - w=        CYGWIN_ROOT $CYGWIN_ROOT
+        - w=        SHELL       $CYGWIN_ROOT\bin\bash
+        - w=        CMD         $LAPIOTA\local\bin\cmd
+        - w=        CMDW        $LAPIOTA\local\bin\cmdw
+        - w=        PERL        $CYGWIN_ROOT\bin\perl
+        - w=        PERLW       $CYGWIN_ROOT\bin\perlw
+        - w=        PAGER       '"$CYGWIN_ROOT\bin\less" -Ceifr'
+        - =         DISPLAY     127.0.0.1:0.0
+        - w-%       PATH        $LAPIOTA
+        - w+.HDR    PATH        ->
             - $LAPIOTA\bin\xt\bin\overwrite
             - $LAPIOTA\bin\xt\bin
             - $LAPIOTA\bin\xt\sbin\overwrite
             - $LAPIOTA\bin\xt\sbin
+            - $LAPIOTA\abc.d\bin
             - $LAPIOTA\bin
             - $LAPIOTA\sbin
             - $LAPIOTA\lib
-            - $LAPIOTA\abc.d\bin
             - $LAPIOTA\usr\bin
             - $LAPIOTA\usr\lib
-        - p+    PATH        ->
+            - $CYGWIN_ROOT\bin
+            - $CYGWIN_ROOT\sbin
+        - w+$       PATH        ->
             - $LAPIOTA\local\bin
             - $LAPIOTA\local\lib
             - $LAPIOTA\t
             - $LAPIOTA\usr\chm
             - $LAPIOTA\usr\html
             - $LAPIOTA\usr\pdf
-        - p*s   PATHEXT     .p .pc .pl .pld .pyc .py .php .rb .sh .ss .prj
-        - p*s   PATHEXT     .6 .six .x
-        - p-    INCLUDE     /^$LAPIOTA\b/
-        - p+    INCLUDE     ->
-            - $LAPIOTA/lib
-            - $LAPIOTA/usr/include
-            - $PERL/lib/CORE
-            - $PERL/lib/Encode
-            - `findabc -p -s mingw`/include
-        - p-    LIB         /^$LAPIOTA\b/
-        - p+    LIB         ->
-            - $LAPIOTA/lib
-            - $LAPIOTA/lib/cpf
-            - $LAPIOTA/usr/lib
-            - $PERL/lib
-            - `findabc -p -s mingw`/lib
-        - p-    JAVA_LIB    /^$LAPIOTA\b/
-        - p+    JAVA_LIB    $LAPIOTA/usr/lib/java
-        - p-    PERL_LIB    /^$LAPIOTA\b/
-        - p+    PERL_LIB    ->
-            - $LAPIOTA/lib
-            - $PERL/lib
-            - $PERL/site/lib
-            - `findabc -r /usr/lib -p -s perl`
-        - p-    PYTHONPATH  /^$LAPIOTA\b/
-        - p+    PYTHONPATH  ->
-            - $LAPIOTA/lib
-            - `findabc -p -s python`/lib
-            - `findabc -p -s python`/lib/site-packages
-            - `findabc -r /usr/lib -p -s python`
+            - $CYGWIN_ROOT\usr\bin
+            - $CYGWIN_ROOT\usr\sbin
+            - $CYGWIN_ROOT\usr\local\bin
+            - $CYGWIN_ROOT\usr\X11R6\bin
+        - w&        PATHEXT     .p .pc .pl .pld .pyc .py .php .rb .sh .ss .prj
+        - w&        PATHEXT     .6 .six .x
+        - w-        INCLUDE     $LAPIOTA
+        - w+$       INCLUDE     ->
+            - $LAPIOTA\lib
+            - $LAPIOTA\usr\include
+            - $CYGWIN_ROOT\lib\perl5\5.8\cygwin\CORE
+            - $CYGWIN_ROOT\lib\perl5\5.8\Encode
+            - ${findabc -w mingw}\include
+        - w-        LIB         $LAPIOTA
+        - w+$       LIB         ->
+            - $LAPIOTA\lib
+            - $LAPIOTA\lib\cpf
+            - $LAPIOTA\usr\lib
+            - ${findabc -w mingw}\lib
+        - w-        JAVA_LIB    $LAPIOTA
+        - w+        JAVA_LIB    $LAPIOTA\usr\lib\java
+        - u-        PERLLIB     /lapiota
+        - u-        PERLLIB     /usr/lib
+        - u+$       PERLLIB     ->
+            - /lapiota/lib
+            - /usr/lib/perl5/5.8
+            - /usr/lib/perl5/5.8/cygwin
+            - /usr/lib/perl5/site_perl/5.8
+            - /usr/lib/perl5/vendor_perl/5.8
+            # /lapiota/usr/lib/perl5/5.8/site
+            # /lapiota/usr/lib/perl5/5.8/cpan
+        - u-        PYTHONPATH  /lapiota
+        - u-        PYTHONPATH  /usr/lib
+        - w+$       PYTHONPATH  ->
+            - /lapiota/lib
+            - /usr/lib/python2.5
+            - /usr/lib/python2.5/site-packages
+            - /lapiota/usr/lib/python2.4
 
-    - _eval: |-
-        if (-f 'b:/.CYGWIN') {
-            set_env qw(set  SHELL   b:/bin/bash);
-        } else {
-            my $cyghome = `findabc -p -s cygwin`;
-            set_env qw(set  SHELL), $cyghome.'/bin/bash';
-        }
     - set-ctxmenu:
-        - .* ->
+        - \* ->
             - edittxt   edit in text-mode
-            -           | `findabc -p npp`\notepad++ "%1"
+            -           | ${findabc -w npp}\notepad++ \"%1\"
             - editbin   edit in binary-mode
-            -           | $LAPIOTA\local\bin\ue.exe "%1"
+            -           | $LAPIOTA\local\bin\ue.exe \"%1\"
             - comreg    register com-service
-            -           | regsvr32 "%1"
+            -           | regsvr32 \"%1\"
             - comunreg  unregister com-service
-            -           | regsvr32 /u "%1"
+            -           | regsvr32 /u \"%1\"
+            - touch     touch (to invalidate the timestamp)
+            -           | cmdw /c $CYGWIN_ROOT\bin\touch \"%1\"
         - Directory ->
-            - tcmd      start CMD-shell here
-            -           | cmd "%1"
-            - usersh    start user-shell here
-            -           | $LAPIOTA\bin\sh.bat "%1"
+            - cmd       start win32 console here
+            -           | cmd /k $LAPIOTA\bin\lapiota-init.bat login
+            - bigcmd    start big win32 console here
+            -           | wcmd /c start \"Big\" $LAPIOTA\bin\lapiota-init.bat login
+            - ushell    start unix shell here
+            -           | $CYGWIN_ROOT\bin\bash
+            - bigushell start big unix shell here
+            -           | wcmd /c start \"Big\" $CYGWIN_ROOT\bin\bash
             - medit     edit files under this directory
             -           | $LAPIOTA\bin\mani.bat -f
             - ar-tgz    build .tgz archive for this directory
-            -           | $LAPIOTA\bin\tgz.bat "%1"
+            -           | $LAPIOTA\bin\tgz.bat \"%1\"
             - renum     renumbering files in this directory
-            -           | $LAPIOTA\usr\bin\renum -D -w 2 "%1\*"
+            -           | $LAPIOTA\usr\bin\renum -D -w 2 \"%1\*\"
             - mp3ltrim  format file names for media files (mp3, etc.)
-            -           | $PERL $LAPITOA\bin\mp3ltrim.pl
+            -           | $CYGWIN_ROOT\bin\perl /lapiota/bin/mp3ltrim.pl
             # nfsmap    add nfs mapping
-            #           | $PERL $LAPIOTA\bin\nfs.pl -i -m
+            #           | $CYGWIN_ROOT\bin\perl /lapiota/bin/nfs.pl -i -m
             - send2sf   send to sourceforge (ftp/incoming)
-            -           | $PERL $LAPITOA\bin\ftpsend.pl .
+            -           | $CYGWIN_ROOT\bin\perl /lapiota/bin/ftpsend.pl .
             # gbin      gather binaries
             #           | $LAPIOTA\bin\mvup.bat -c "%1\..\..\bin\" -t "%1\..\..\bin\" *.exe *.dll *.ocx
         - chm.file  unchm   uncompress chm
-        -   | $PERL $LAPIOTA/bin/unchm.pl "%1"
+        -   | $CYGWIN_ROOT\bin\perl $LAPIOTA/bin/unchm.pl \"%1\"
         - .lst      medit   edit files in the list
-        -   | $LAPIOTA/bin/mani.bat -f "%1"
+        -   | $LAPIOTA/bin/mani.bat -f \"%1\"
         - .patch    merge   merge the patch into current directory
         -   | $CYGWIN_ROOT/bin/patch
 
@@ -109,21 +123,21 @@
         - shell-script     .sh
         -   | $LAPIOTA\bin\myexec /2 $SHELL -c \"%0\" %*
         - X-shell-script    .x
-        -   | $PERL $LAPIOTA\bin\runx.pl -p -k -- \"%0\" %*
+        -   | cmd /c %%PERL%% $LAPIOTA\bin\runx.pl -k -- \"%0\" %*
         - perl-program      .p .pc .pl
-        -   | $PERL \"%0\" %*
+        -   | cmd /c %%PERL%% \"%0\" %*
         - perl-daemon       .pld
-        -   | $WPERL \"%0\" %*
+        -   | wcmd /c %%PERLW%% \"%0\" %*
         - python-program    .py .pyc
-        -   | `findabc -p python`\python.exe \"%0\" %*
+        -   | $CYGWIN_ROOT\bin\python.exe \"%0\" %*
         - php-program       .php
-        -   | `findabc -p php`\php.exe \"%0\" %*
+        -   | ${findabc -w php}\php.exe \"%0\" %*
         - ruby-program      .rb
-        -   | `findabc -p ruby`\bin\ruby \"%0\" %*
+        -   | ${findabc -w ruby}\bin\ruby \"%0\" %*
         - PLT-scheme        .ss
-        -   | `findabc -p plt_scheme`\mzscheme \"%0\" %*
+        -   | ${findabc -w plt_scheme}\mzscheme \"%0\" %*
         - MIT-scheme        .scm
-        -   | `findabc -p mit_scheme`\bin\scheme \"%0\" %*
+        -   | ${findabc -w mit_scheme}\bin\scheme \"%0\" %*
         - six-program       .6 .six
         -   | reserved
         - M4-script         .m4
@@ -136,38 +150,50 @@
         :cmd:
             :: Command Processor
             set-reg:
-                - HKCU\SOFTWARE\Microsoft\"Command Processor"\->
+                - CUser/SOFTWARE/Microsoft/"Command Processor"/@->
                     - CompletionChar        14
                     - PathCompletionChar    14
                     - EnableExtensions      1
                     - DelayedExpansion      1
-                    - AutoRun               str:xx
-                - HKCU\Console\->
+                    # AutoRun               sz:xx
+                - CUser/Console/@->
                     - QuickEdit             1
+                    - InsertMode            1
                     - ScreenBufferSize      0x03e80064
                     - WindowSize            0x00190064
                     - FontFamily            0
                     - FontSize              0x000c0006
                     - FontWeight            400
-                    - FaceName              str:Terminal
+                    - FaceName              sz:Terminal
                     - ColorTable02          0x004200
                     - ColorTable10          0x80ff80
                     - ScreenColors          0x2a
-                - HKCU\Console\Big\->
+                - CUser/Console/ANSI/@->
+                    - CodePage              437
+                    - ScreenBufferSize      0x03e80050
+                    - WindowSize            0x00190050
+                    - FaceName              sz:"Lucida Console"
+                    - FontSize              0x000c0000
+                - CUser/Console/Big/@->
                     - ScreenBufferSize      0x03e80046
                     - WindowSize            0x00140046
                     - FontSize              0x0014000a
+                - CUser/Console/Cart/@->
+                    - CodePage              437
+                    - ScreenBufferSize      0x03e80010
+                    - WindowSize            0x00070010
+                    - FaceName              sz:"Lucida Console"
+                    - FontSize              0x00480000
         :sysmon:
             :: System Monitors
-            set-reg:
-                - HKCU\Software\Sysinternals->
-                    - ...
+            # set-reg:
+                # - CUser/Software/Sysinternals->
     :editor:
         :: Editors
         :metapad:
             :: Metapad
             set-reg:
-                - HKCU\SOFTWARE\Metapad\->
+                - CUser/SOFTWARE/Metapad/@->
                     - m_ShowToolbar         0
                     - m_ShowStatus          0
                     - bAutoIndent           1
@@ -178,8 +204,8 @@
                     - bSuppressUndoBufferPrompt 1
                     - nSelectionMarginWidth 5
                     - nTransparentPct       50
-                    - szLangPlugin          "$LAPIOTA/usr/local/bin/metapad.dll"
-                    - szFavDir              "$HOME/.metapad"
+                    - szLangPlugin          sz:$LAPIOTA/usr/local/bin/metapad.dll
+                    - szFavDir              sz:$HOME/.metapad
                     - w_Width               670
                     - w_Height              400
                     # FontColour            bin:ffffff00
@@ -192,3 +218,5 @@
             :: Ultra Editor
     :dev:
         :: Development Tools
+
+---
