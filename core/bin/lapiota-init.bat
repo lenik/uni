@@ -38,9 +38,9 @@
         set /a initlevel=%~1 + 0
     )
 
-    if "%LAPIOTA_VER%"=="" set LAPIOTA_VER=0.0.1
     if exist "%LAPIOTA%\.LAPIOTA" shift & goto level_1
     set LAPIOTA=%~dp0
+    if "%LAPIOTA_VER%"=="" set LAPIOTA_VER=0.0.1
 
   :loop_0
     set LAPIOTA=%LAPIOTA:~0,-1%
