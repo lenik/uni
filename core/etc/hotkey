@@ -50,27 +50,46 @@ lwin & capslock::shiftalttab
 	}
 	return
 
+appskey::send {appskey}
 appskey & down::send {media_play_pause}
 appskey & up::send {media_stop}
 appskey & left::send {media_prev}
 appskey & right::send {media_next}
 appskey & numpadadd::send {volumn_up}
 appskey & numpadsub::send {volumn_down}
-appskey::send {appskey}
 
-#b::run big
-#c::run cmd
+#pgup::wheelup
+#pgdn::wheeldown
+
+#a::run cmdw /c start "ANSI" %LAPIOTA%\bin\lapiota-init login
+#b::run cmdw /c start "Big" %LAPIOTA%\bin\lapiota-init login
+#c::run cmd /k %LAPIOTA%\bin\lapiota-init login
 #f::run firefox
-#n::run no
-#p::run perldev
-#s::run scilab
-#t::run sh
+#m::run metapad
+#n::run cmdw /c no
+#s::run cmdw /c scilab
+#t::run %SHELL% --login
+#x::run startx
 #-::
-	nfs1 = %wperl% %lapiota%\bin\nfs.pl --wait-close
-	nfs2 = %wperl% %lapiota%\bin\nfs.pl --wait-close temp-
-	nfs3 = %wperl% %lapiota%\bin\nfs.pl --wait-close xxx-
+	nfs1 = %perlw% /lapiota/bin/nfs.pl --wait-close
+	nfs2 = %perlw% /lapiota/bin/nfs.pl --wait-close temp-
+	nfs3 = %perlw% /lapiota/bin/nfs.pl --wait-close xxx-
 	funpack(3, "nfs")
+	return
+#=::
+	calc1 = cmdw /c start "Cart" cmd /c settitle "1 + 1 = 2" bc -ilq
+	funpack(1, "calc")
 	return
 
 #,::run stairs
-; #u::run ue
+#u::run ue
+
+#+e::run cmdw /c em
+#+d::
+	ifexist C:\ntddk
+		run ntddk
+	return
+#+p::
+	ifexist C:\strawberry-perl
+		run perldev
+	return

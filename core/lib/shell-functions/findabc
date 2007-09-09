@@ -1,0 +1,5 @@
+
+# findabc [-p] NAME[/] dirs...
+function findabc() {
+	getopt
+}
