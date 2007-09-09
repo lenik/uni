@@ -48,7 +48,6 @@ our @EXPORT = qw(datetime
                  fswalk
                  ieval
                  );
-our @EXPORT_OK = ();
 
 our $opt_verbtitle      = __PACKAGE__;
 our $opt_verbtime       = 0;
@@ -134,10 +133,10 @@ sub qr_literal {
 # forx $pattern \&hit [\&miss] $text
 sub forx($&;$$) {
     my $exp     = shift;
-    my $hit     = shift;
-    my $miss;
+    my $hitf    = shift;
+    my $missf;
     my $s       = $_[0];
-    ($miss, $s) = @_ if ref $s eq 'CODE';
+    ($missf, $s) = @_ if ref $s eq 'CODE';
 
     my $off = 0;
     my $buf;
@@ -146,23 +145,24 @@ sub forx($&;$$) {
     local $_;
 
     while ($s =~ /$exp/g) {
-        my $m = $&;
-
+        my $hit = $&;
+        #               |MISS |   HIT    |
+        # ...(last match)<...>(this match)...
+        #               |     |          |
+        #              off   $-[0]     $+[0]
         $_ = substr($s, $off, $-[0] - $off);
+        $off = $+[0];
         if ($_ ne '') {
-            $miss->() if defined $miss;
+            $missf->() if defined $missf;
             $buf .= $_;
         }
-
-        $_ = $m;
-        $hit->() if defined $hit;
+        $_ = $hit;
+        $hitf->() if defined $hitf;
         $buf .= $_;
-
-        $off = $+[0];
     }
     $_ = substr($s, $off);
     if ($_ ne '') {
-        $miss->() if defined $miss;
+        $missf->() if defined $missf;
         $buf .= $_;
     }
 
@@ -202,7 +202,7 @@ sub qeval {
 # qsplit [$sep=SPC [$string=$_ [\&evaluator [$qchars]]]]
 sub qsplit {
     my $sep = _or(shift, qr/\s+/);
-    local $_= _or(shift, $_);
+    local $_= @_ ? shift : $_;
     my @mem = _qeval($_, @_);
     map {
             s/~(\d+);/$mem[$1]/g;
