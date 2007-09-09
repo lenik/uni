@@ -1,8 +1,13 @@
 @echo off
-    rem $Id: em.bat,v 1.8 2007-08-24 11:44:24 lenik Exp $
 
     setlocal
 
+:GUI
+    call findabc emacs bin
+    "%_HOME%\bin\runemacs" %*
+    exit /b
+
+:CUI
     set _T=Emacs-%RANDOM%
 
     title %_T%
