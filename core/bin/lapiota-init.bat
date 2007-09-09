@@ -1,10 +1,19 @@
 @echo off
 
+    rem init:
+    rem     00 - find lapiota home
+    rem     01 - init basic vars: PATH  (exec which)
+    rem     02 - find CYGWIN_ROOT       (exec findabc)
+    rem     03 -!get PID                (exec ppid)
+    rem     04 - find SHELL             (parse passwd)
+    rem login:
+    rem     10 - run profile            (using CSG)
+
 :check_os
     if "%OS%"=="" goto check_cmd
     if "%OS%"=="Windows_NT" goto check_cmd
     echo The operating system isn't supported: %OS%
-    exit /b
+    exit /b 1
 
 :check_cmd
     verify other 2>nul
@@ -12,7 +21,7 @@
     if not errorlevel 1 goto level_0
     echo The cmd extensions isn't supported.
     echo Maybe your windows version is too old.
-    exit /b
+    exit /b 1
 
 :check_more
 
@@ -21,14 +30,15 @@
     endlocal
 
     rem if "%initlevel%" gtr "%~1" ( SKIPING... )
-    if "%~1"=="start" (
+    if "%~1"=="boot" (
         set initlevel=9
-    ) else if "%~1"=="logo" (
-        set initlevel=9
+    ) else if "%~1"=="login" (
+        set initlevel=19
     ) else (
         set /a initlevel=%~1 + 0
     )
 
+    if "%LAPIOTA_VER%"=="" set LAPIOTA_VER=0.0.1
     if exist "%LAPIOTA%\.LAPIOTA" shift & goto level_1
     set LAPIOTA=%~dp0
 
@@ -45,82 +55,81 @@
 
 :level_1
 :init_basic_vars
-    if %initlevel% lss 1 exit /b 0
+    if %initlevel% lss 1 goto done
 
     rem either no `which` or no `lapiota-init`
     which lapiota-init.bat >nul 2>nul
     if not errorlevel 1 goto level_2
 
-    rem insert before path, the later insertions get higher priority
-    set PATH=%LAPIOTA%\lib;%LAPIOTA%\usr\lib;%LAPIOTA%\local\lib;%PATH%
-    set PATH=%LAPIOTA%\bin;%LAPIOTA%\sbin;%LAPIOTA%\usr\bin;%LAPIOTA%\local\bin;%PATH%
-    set PATH=%LAPIOTA%\bin\xt\sbin\overwrite;%LAPIOTA%\bin\xt\sbin;%PATH%
-    set PATH=%LAPIOTA%\bin\xt\bin\overwrite;%LAPIOTA%\bin\xt\bin;%PATH%
-    rem append after path, the first insertions get higher priority
-    rem ...
+    set PATH=%LAPIOTA%\bin;%PATH%
 
 :level_2
-:init_auto_env
-    if %initlevel% lss 2 exit /b 0
+:find_cygwin_root
+    if %initlevel% lss 2 goto done
 
-    if exist %LAPIOTA%\.env.as (
-        call as-env %LAPIOTA%\.env.as
+    if exist "%CYGWIN_ROOT%\.CYGWIN" goto add_cygwin_path
+    call findabc cygwin
+    if errorlevel 1 (
+        echo Can't find cygwin
+        exit /b 2
     )
+    set CYGWIN_ROOT=%_HOME%
+
+:add_cygwin_path
+    which cygpath >nul 2>nul
+    if not errorlevel 1 goto level_3
+    set PATH=%CYGWIN_ROOT%\bin;%PATH%
 
 :level_3
-:init_cygwin
-    if %initlevel% lss 3 exit /b 0
+    if %initlevel% lss 3 goto done
+:level_4
+    if %initlevel% lss 4 goto done
 
-    if not exist #:\ subst #: "%CYGWIN_ROOT%"
+:level_5
+:get_pid
+    if %initlevel% lss 5 goto done
+    ppid
+    set PID=%ERRORLEVEL%
+
+:level_6
+:find_shell
+    if %initlevel% lss 6 goto done
+
+    if exist "%SHELL%" goto level_7
+    rem The lapiota-boot program must have mounted the root(/) filesystem.
+    set SHELL=%CYGWIN_ROOT%\bin\bash
     if "%USERNAME%"=="" set USERNAME=someone
-    set HOME=%LAPIOTA%\home\%USERNAME%
-    if not exist "%HOME%" mkdir "%HOME%"
-    if "%CD%"=="%USERPROFILE%" (
-        if not "%INITDIR%"=="" (
-            rem work-around for `~:': cd /d "%INITDIR%"
-            if "%INITDIR:~1,1%"==":" (
-                %INITDIR:~0,2%
-                cd "%INITDIR:~2%"
-            )
-        ) else (
-            cd /d "%HOME%"
+    for /f "delims=: tokens=1-7" %%i in (%CYGWIN_ROOT%\etc\passwd) do (
+        rem i=name j=pwd k:uid l:gid m:fullname n:home o:shell
+        if "%%i"=="%USERNAME%" (
+            set SHELL=%%o
         )
     )
-
-:level_9
-    if %initlevel% lss 9 exit /b 0
-
-    if "%~0"=="logo" (
-        reg delete "HKLM\Software\Microsoft\Command Processor" /v AutoRun /f >nul
+    for /f %%i in ('cygpath -w %SHELL%') do (
+        set SHELL=%%i
     )
+
+:level_7
+    if %initlevel% lss 7 goto done
+:level_8
+    if %initlevel% lss 8 goto done
+:level_9
+    if %initlevel% lss 9 goto done
 
 :level_10
-    if %initlevel% lss 10 exit /b 0
+:run_profile
+    if %initlevel% lss 10 goto done
 
-    set _err=0
-    for %%f in (%LAPIOTA%\etc\profile.d\*) do (
-        rem echo loading %%f
-        set _f=%%f
-        set _level=%%~nf
-        set _level=!_level:~0,2!
-        set _mesg=
-        if %initlevel% geq !_level! (
-            set /p _mesg=<%%f
-            if not "!_mesg!"=="" printf ">> %%-60s" "!_mesg:~5!"
-            call !_f!
-            if not "!_mesg!"=="" (
-                if errorlevel 1 (
-                    set _mesg=[ FAILED ]
-                    set /a _err = _err + 1
-                ) else (
-                    set _mesg=[   OK   ]
-                )
-                echo !_mesg!
-            )
-        )
+    call csg %LAPIOTA%\etc\profile
+
+:level_20
+    if %initlevel% lss 20 goto done
+
+:done
+    set errorlevel=0
+:error
+    if %initlevel% geq 10 (
+        echo Welcome LAPIOTA %LAPIOTA_VER%
+        echo This program is distributed under GPL license.
     )
-    set _f=
-    set _level=
-    set _mesg=
-    err %_err%
-    set _err=
+    set initlevel=
