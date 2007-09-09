@@ -1,0 +1,12 @@
+#!/lapiota/bin/labat
+
+- _use: labat::win32
+
+- _include: test.inc
+
+- hello: lenik
+- tell: lenik
+
+- tell: This $TEST and <${`1+2`}> exist $TEMP some..
+
+- set-env: set~ tst $TEST

@@ -1,0 +1,5 @@
+#!/lapiota/bin/labat
+
+- _eval: |-
+    my ($ctx) = @_;
+    my ($funs, $vars) = @$ctx;
