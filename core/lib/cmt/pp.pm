@@ -225,9 +225,10 @@ sub ppdom(&;@) {
 sub ppvarf(&$) {
     my $resolv  = shift;
     my $text    = shift;
-    forx qr/\$(\w+|\{.*?\}|\S)/, sub {
+    forx qr/\$(\w+|\{(\\.|[^\}])*\}|\S)/, sub {
         if (substr($_, $-[0] - 1, 1) ne '\\') {
-            my $name = $1;
+            my $name = (substr($1, 0, 1) eq '{')
+                ? substr($1, 1, length($1) - 2) : $1;
             my $value = $resolv->($name);
             $_ = $value if defined $value;
         }
