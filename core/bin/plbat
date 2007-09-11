@@ -21,7 +21,7 @@ our $opt_output;
 our $opt_console;
 our $opt_make;
 
-my %id = parse_id('$Id: plbat,v 1.5 2007-09-10 00:19:06 lenik Exp $');
+my %id = parse_id('$Id: plbat,v 1.6 2007-09-11 11:03:17 lenik Exp $');
 
 sub boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
@@ -42,8 +42,8 @@ sub boot {
                 my ($bat_name, $bat_ext) = path_splitext $bat;
                 $pl = $bat_name . '';
             }
-            info "wrap $bat -> $pl";
-            $opt_output = $bat;
+            info "wrap w/$bat -> $pl";
+            $opt_output = 'w/'.$bat;
             main $pl;
         }
     } else {
@@ -109,7 +109,7 @@ sub main {
             $target_name = $file;
         }
     } else {
-        $bat_file = path_join($dir, "$file.bat");
+        $bat_file = path_join($dir.'/w', "$file.bat");
     }
 
     my %vars = (
@@ -135,21 +135,22 @@ __DATA__
     if not "%OS%"=="Windows_NT" goto err_os
 
     setlocal
+    set _dir=%~dp0../
     set _nam=$NAME
     set _ext=
-    if not exist "%~dp0%_nam%" (
+    if not exist "%_dir%%_nam%" (
         for %%i in (pl p pc pld) do (
-            if exist "%~dp0%_nam%.%%i" (
+            if exist "%_dir%%_nam%.%%i" (
                 set _ext=.%%i
                 goto start
             )
         )
-        echo is file %~dp0%_nam%.^(,p,pc,pl,pld^) lost?
+        echo is file %_dir%%_nam%.^(,p,pc,pl,pld^) lost?
         goto end
     )
 
 :start
-    %perl% "%~dp0%_nam%%_ext%" %*
+    %perl% "%_dir%%_nam%%_ext%" %*
     goto end
 
 :err_os
