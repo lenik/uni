@@ -1,10 +1,12 @@
 package cmt::utree;
 
 use strict;
-use vars qw/@ISA @EXPORT @EXPORT_OK/;
 use Encode;
 use Exporter;
 use HTML::TreeBuilder;
+
+our @ISA    = qw(HTML::TreeBuilder);
+our @EXPORT = qw();
 
 sub new {
     my $class   = shift;
@@ -63,9 +65,7 @@ sub iconv {
         }, 1);
 }
 
-@ISA = qw(HTML::TreeBuilder);
-
-1;
+1
 
 __END__
 
