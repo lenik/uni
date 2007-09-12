@@ -1,54 +1,52 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+usecode - dynamic codes
+
+=cut
 use strict;
-use Getopt::Long;
-use cmt::vcs;
-use Win32::Clipboard;
-use Win32::TieRegistry(Delimiter=>'/');
 use cmt::codec;
+use cmt::log;
+use cmt::vcs('parse_id');
+    my %RCSID = parse_id('$Id: usecode,v 1.6 2007-09-12 16:56:30 lenik Exp $');
+use Getopt::Long;
+use Win32::Clipboard;
+use Win32::TieRegistry(Delimiter => '/');
 
-
-sub main;
-sub _Verbose;
-sub version;
-sub help;
+sub _main; sub _version; sub _help;
 
 sub system_encode;
 sub system_decode;
-sub save;
 
+my  $cfg = $Registry->{'CUser/Software/Lapiota/usecode'} = {};
 
-our $opt_scheme;
-our $opt_phrase;
-our $opt_category;
+our $opt_scheme         = system_decode $cfg->{'/scheme'} if $cfg->{'/scheme'};
+our $opt_phrase         = system_decode $cfg->{'/phrase'} if $cfg->{'/phrase'};
+our $opt_category       = system_decode $cfg->{'/category'} if $cfg->{'/category'};
 our $opt_make_default;
-our $opt_out = 'C';     # Clipboard  Print  None
-our $opt_verbose;
+our $opt_out            = 'C';      # Clipboard  Print  None
 our $opt_text;
 
+BEGIN {
+    ($opt_verbtitle) = 'UnKnOwN'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+    sub _log2 { $opt_verbose >= 2 && &_log }
+    sub _log3 { return if $opt_verbose < 3; &_log }
+    sub _sig2 { return if $opt_verbose < 2; &_sig }
+    sub _sig3 { return if $opt_verbose < 3; &_sig }
+}
 
-&main;
-
-
-sub main {
-    my $reg_path = "HKEY_CURRENT_USER/Software/DIRT/usecode/";
-    my $reg = $Registry->{$reg_path};
-    if ($reg) {
-        $opt_scheme = system_decode $reg->{'/scheme'};
-        $opt_phrase = system_decode $reg->{'/phrase'};
-        $opt_category = system_decode $reg->{'/category'};
-    }
-
-    ::GetOptions(
+sub boot {
+    GetOptions('quiet|q'        => sub { $opt_verbose-- },
+               'verbose|v'      => sub { $opt_verbose++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
                'scheme=s',
                'phrase|h=s',
                'category|c=s',
                'make-default',
-               'clipboard' => sub { $opt_out = 'C' },
-               'print|p' => sub { $opt_out = 'P' },
-               'verbose|v',
-               'version' => sub { &version; exit },
-               'help' => sub { &help; exit },
+               'clipboard'      => sub { $opt_out = 'C' },
+               'print|p'        => sub { $opt_out = 'P' },
                );
 
     die 'No text specified. ' if (scalar(@ARGV) == 0);
@@ -57,19 +55,101 @@ sub main {
     $opt_category = shift @ARGV if (scalar(@ARGV) > 1);
     $opt_text = join(' ', @ARGV);
 
-    _Verbose "S=$opt_scheme P=$opt_phrase C=$opt_category T=$opt_text. \n";
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<UnKnOwN>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<UnKnOwN> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-UnKnOwN-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item -m, --myoptions
+
+use-scheme ::=
+    sy  system codec (phrase=[sys-id], category=[e,d], text=[text])
+    dq	digest for question (phrase=[], category=[a1..c4], text=[number])
+    dm  digest for site-key (phrase=[user], category=[len], text=[site])
+
+
+=item -q, --quiet
+
+Repeat this option to suppress unimportant information to display.
+
+=item -v, --verbose
+
+Repeat this option to display more detailed information.
+
+=item -h, --help
+
+Display a breif help page and exit(0).
+
+=item --version
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] [[SCHEME] CATEGORY] TEXT\n", <<'EOM';
+
+    -s, --scheme=SCHEME     which scheme to use
+    -h, --phrase=PHRASE     the key phrase
+    -c, --category=CAT      which sub-category of scheme to use
+        --make-default      save options
+    -p, --print             output to stdout
+        --clipboard         output to clipboard
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+}
+
+exit boot;
+
+sub _main {
+    _log2 "S=$opt_scheme P=$opt_phrase C=$opt_category T=$opt_text";
     if ($opt_make_default) {
-        $Registry->{"HKEY_CURRENT_USER/Software/DIRT/"} =
-            { "usecode/" => {} };
-        $Registry->{"$reg_path/scheme"} = system_encode $opt_scheme;
-        $Registry->{"$reg_path/phrase"} = system_encode $opt_phrase;
-        $Registry->{"$reg_path/category"} = system_encode $opt_category;
+        $cfg->{'/scheme'}   = system_encode $opt_scheme;
+        $cfg->{'/phrase'}   = system_encode $opt_phrase,
+        $cfg->{'/category'} = system_encode $opt_category,
     }
 
-    my $codec_f = eval("\\&codec_$opt_scheme");
-    my $result = &$codec_f($opt_phrase, $opt_category, $opt_text);
+    my $codec_f = main->can('codec_'.$opt_scheme)
+        or die "illegal scheme name: $opt_scheme";
+    my $result = $codec_f->($opt_phrase, $opt_category, $opt_text);
 
-    _Verbose "Out=$opt_out Length=" . length($result) . "\n";
+    _log2 "Out=$opt_out Length=", length($result);
     if ($opt_out eq 'C') {
         Win32::Clipboard($result);
     } elsif ($opt_out eq 'P') {
@@ -77,58 +157,50 @@ sub main {
     }
 }
 
+=head1 DIAGNOSTICS
 
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
 sub system_encode {
     my $t = shift;
     codec_sy('bodz', 'e', $t) if $t;
 }
-
 
 sub system_decode {
     my $t = shift;
     codec_sy('bodz', 'd', $t) if $t;
 }
 
+=head1 HISTORY
 
-sub _Verbose {
-    print shift if ($opt_verbose);
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$opt_verbtitle] dynamic codes (critic) \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 
+=head1 SEE ALSO
 
-sub version {
-	my %id = parse_id('$Id: usecode,v 1.5 2007-06-25 12:58:14 lenik Exp $');
-    print <<"EOM";
-[usecode] use codec (critic)
-written by s.n.m.  version $id{rev}  last updated $id{date}
+The L<cmt/"Perl_simple_cli_program_template">
 
-EOM
-}
+=head1 AUTHOR
 
+Xima Lenik <lenik@bodz.net>
 
-sub help {
-    &version;
-    print <<"EOM";
-syntax:
-    usecode [options] [--] [[scheme] category] text
-        --scheme=<use-scheme> (s)
-        --phrase=<prephrase-for-category> (h)
-        --category=<category-name> (c)
-        --make-default (save to registry)
-        --print (p) or --clipboard (default)
-        --verbose (v)
-        --version
-        --help
-EOM
-}
-
-
-
-
-
-__DATA__
-
-use-scheme ::=
-    sy  system codec (phrase=[sys-id], category=[e,d], text=[text])
-    dq	digest for question (phrase=[], category=[a1..c4], text=[number])
-    dm  digest for site-key (phrase=[user], category=[len], text=[site])
-
+=cut
