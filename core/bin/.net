@@ -1,31 +1,30 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+UnKnOwN - Perl_simple_net_cli_program_template
+
+=cut
 use strict;
-use cmt::util;
-use cmt::vcs;
+use cmt::log;
 use cmt::serv;
+use cmt::util;
+use cmt::vcs('parse_id');
+    my %RCSID = parse_id('$Id: .net,v 1.2 2007-09-12 17:11:25 lenik Exp $');
 use Data::Dumper;
 use Getopt::Long;
 use Socket;
 use Term::ReadKey;
 
-sub boot;
-sub info;
-sub info2;
-sub version;
-sub help;
-sub main;
+sub _main; sub _version; sub _help;
+
 sub binded;
 sub unbinded;
 sub gotdata;
 sub askdata;
 sub goterr;
 
-our $opt_verbtitle      = 'unknown';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
 our $opt_daemon         = 0;
-
 our $opt_serv_addr      = 'localhost';
 our $opt_serv_port      = $cmt::serv::DEFAULT_PORT;
 our $opt_serv_type      = SOCK_STREAM;
@@ -33,11 +32,19 @@ our $opt_serv_proto     = 'tcp';
 our $opt_serv_cap       = $cmt::serv::DEFAULT_CAP;
 our $opt_serv_intv      = $cmt::serv::DEFAULT_INTERVAL;
 
+BEGIN {
+    ($opt_verbtitle) = 'UnKnOwN'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+    sub _log2 { $opt_verbose >= 2 && &_log }
+    sub _log3 { return if $opt_verbose < 3; &_log }
+    sub _sig2 { return if $opt_verbose < 2; &_sig }
+    sub _sig3 { return if $opt_verbose < 3; &_sig }
+}
+
 sub boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help|h'     => sub { help; exit },
+               'version'    => sub { _version; exit },
+               'help|h'     => sub { _help; exit },
                'daemon|d',
                'serv-addr|s',
                'serv-port|p',
@@ -47,38 +54,111 @@ sub boot {
                'serv-intv',
                );
 
-    info2 "serv-addr:   $opt_serv_addr";
-    info2 "serv-port:   $opt_serv_port";
-    info2 "serv-type:   $opt_serv_type";
-    info2 "serv-proto:  $opt_serv_proto";
-    info2 "serv-cap:    $opt_serv_cap";
-    info2 "serv-intv:   $opt_serv_intv";
+    _log2 "serv-addr:   $opt_serv_addr";
+    _log2 "serv-port:   $opt_serv_port";
+    _log2 "serv-type:   $opt_serv_type";
+    _log2 "serv-proto:  $opt_serv_proto";
+    _log2 "serv-cap:    $opt_serv_cap";
+    _log2 "serv-intv:   $opt_serv_intv";
 
-    main;
+    _main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print datetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print datetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+B<UnKnOwN>
+    S<[ B<-d> | B<--daemon> ]>
+    S<[ B<-s> | B<--serv-addr> = I<ADDR> ]>
+    S<[ B<-p> | B<--serv-port> = I<PORT> ]>
+    S<[ B<--serv-type> = I<TYPE> ]>
+    S<[ B<--serv-proto> = I<PROTO> ]>
+    S<[ B<--serv-cap> = I<NUM> ]>
+    S<[ B<--serv-intv> = I<NUM> ]>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<ADDR> ]>
+    S<[ I<PORT> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub version {
-    my %id = parse_id('$Id: .net,v 1.1 2007-08-23 10:53:57 lenik Exp $');
-    print "[$opt_verbtitle] Perl_simple_net_cli_program_template \n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
-}
+=head1 DESCRIPTION
 
-sub help {
-    version;
+B<UnKnOwN> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-UnKnOwN-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item S<[ B<-m> | B<--my-option> ]>
+
+...
+
+=item S<[ B<-d> | B<--daemon> ]>
+
+running in daemon-mode, no kbd input
+
+=item S<[ B<-s> | B<--serv-addr> = I<ADDR> ]>
+
+bind with net-if of this address/host
+
+=item S<[ B<-p> | B<--serv-port> = I<PORT> ]>
+
+listen at this PORT
+
+=item S<[ B<--serv-type> = I<TYPE> ]>
+
+default SOCK_STREAM, not used
+
+=item S<[ B<--serv-proto> = I<PROTO> ]>
+
+set the transfer protocol, default tcp
+
+=item S<[ B<--serv-cap> = I<NUM> ]>
+
+the max clients allowed
+
+=item S<[ B<--serv-intv> = I<NUM> ]>
+
+interval(idle timeout) in seconds.
+
+=item S<[ B<-q> | B<--quiet> ]>
+
+Repeat this option to suppress unimportant information to display.
+
+=item S<[ B<-v> | B<--verbose> ]>
+
+Repeat this option to display more detailed information.
+
+=item S<[ B<-h> | B<--help> ]>
+
+Display a breif help page and exit(0).
+
+=item S<[ B<--version> ]>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
     print "\nSyntax: \n    $0 [OPTION] [--] [ADDR [PORT]]\n", <<'EOM';
 
 Common options:
@@ -98,7 +178,7 @@ EOM
 
 exit boot;
 
-sub main {
+sub _main {
     my $serv = new cmt::serv(
         sub {
             new cmt::stream(
@@ -123,42 +203,80 @@ sub main {
         $stat = $serv->serv();
     } else {
         my $mios = $serv->create_ios()->merge;
-        info "start $opt_verbtitle service at $opt_serv_addr:$opt_serv_port";
+        _log "start $opt_verbtitle service at $opt_serv_addr:$opt_serv_port";
         my $mctx = $mios->create_context;
         while ($mctx->iterate) {
             my $k = ReadKey -1;
             if ($k) {
-                info2 'pressed: $k('.ord($k).')';
+                _log2 'pressed: $k('.ord($k).')';
                 last if $k eq 'q';
             }
         }
         $stat = $mctx->{STAT};
     }
-    info Dumper($stat);
+    _log Dumper($stat);
 }
 
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
 sub binded {
     my ($s, $fd) = @_;
-    info2 "binded $s to $fd";
+    _log2 "binded $s to $fd";
 }
 
 sub unbinded {
     my ($s, $fd) = @_;
-    info2 "unbinded $s from $fd";
+    _log2 "unbinded $s from $fd";
 }
 
 sub gotdata {
     my ($s, $data) = @_;
-    info2 "gotdata from $s: $data";
+    _log2 "gotdata from $s: $data";
 }
 
 sub askdata {
     my ($s) = @_;
-    info2 "askdata from $s";
+    _log2 "askdata from $s";
     undef
 }
 
 sub goterr {
     my ($s) = @_;
-    info2 "goterr from $s";
+    _log2 "goterr from $s";
 }
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$opt_verbtitle] Perl_simple_net_cli_program_template \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <lenik@bodz.net>
+
+=cut
