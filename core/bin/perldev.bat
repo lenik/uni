@@ -21,7 +21,7 @@
     rem %RANDOM%
     title Perldev Console Id.%RANDOM%
 
-    %ComSpec% /K
+    %ComSpec% /D /K
     goto end
 
 :about_rel
