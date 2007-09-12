@@ -8,7 +8,7 @@ UnKnOwN - Perl_simple_cli_program_template
 use strict;
 use cmt::log;
 use cmt::vcs('parse_id');
-    my %RCSID = parse_id('$Id: .pl,v 1.11 2007-09-12 16:12:40 lenik Exp $');
+    my %RCSID = parse_id('$Id: .pl,v 1.12 2007-09-12 16:31:19 lenik Exp $');
 use Getopt::Long;
 
 sub _main; sub _version; sub _help;
@@ -22,10 +22,10 @@ BEGIN {
 }
 
 sub boot {
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { _version; exit 0 },
-               'help|h'     => sub { _help; exit 0 },
+    GetOptions('quiet|q'        => sub { $opt_verbose-- },
+               'verbose|v'      => sub { $opt_verbose++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
                );
     _main;
 }
