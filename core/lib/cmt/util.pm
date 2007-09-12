@@ -6,6 +6,7 @@ use cmt::ftime;
 use cmt::lang;
 use cmt::path;
 use cmt::proxy;
+use Cwd;
 use Data::Dumper;
 use Exporter;
 use POSIX               qw/strftime/;
@@ -481,16 +482,28 @@ sub fswalk(&;@) {
     my $bfirst  = index('bw', $cfg{-order}); # breadth-first
     my $leave   = $cfg{-leave};
     my $sort    = $cfg{-sort};
-    my $excl    = not $cfg{-inclusive};     # include start self
+    my $excl    = not $cfg{-inclusive};     # include the start file
     my $iter;
        $iter    = sub {
-        #my ($dir, $level) = @_;
-            my $dir = shift;
-            my $level = shift;
-        my @files = listdir($dir, undef, qr/^\.\.?$/,
-                            $hidden ? sub { ishidden(path_join @_) } : undef,
-                            $sort);
-           @files = grep { $filter->() } @files if defined $filter;
+        my $start = shift;
+        my $dir   = $start;
+        my $level = shift;
+        my @files;
+        if (-d $start) {
+            $dir = $start;
+            @files = listdir($dir, undef, qr/^\.\.?$/,
+                             $hidden ? sub { ishidden(path_join @_) } : undef,
+                             $sort);
+        } else {
+            my $fpat;
+            ($dir, $fpat) = path_split($start);
+            $dir = '.' unless defined $dir;
+            my $cwd = cwd();
+            chdir($dir) or die "can't chdir to $dir: $!";
+            @files = grep { -e "$dir/$_" } glob $fpat;
+            chdir($cwd) or die "can't chdir to $cwd: $!";
+        }
+        @files = grep { $filter->() } @files if defined $filter;
         my $ret;
         my $count = 0;
         my @dirs;
@@ -534,7 +547,7 @@ sub fswalk(&;@) {
     };
     if ($excl) {
         $iter->($start, 0)
-    } else {
+    } else { # include the start file
         my $count = $cb->($start);
         return $count if $count <= 0;       # break or ignore
         my $ret = $iter->($start, 0);
