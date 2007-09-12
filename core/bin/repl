@@ -1,25 +1,34 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+repl - Batch file replacer
+
+=cut
 use strict;
 use cmt::lang;
+use cmt::log;
 use cmt::util;
-use cmt::vcs;
+use cmt::vcs('parse_id');
+    my %RCSID = parse_id('$Id: repl,v 1.18 2007-09-12 16:33:27 lenik Exp $');
 use Data::Dumper;
 use File::Copy;
 use File::Temp('tempfile');
 use Getopt::Long;
 use Text::Diff;
 
-sub boot;
-sub info;
-sub info2;
-sub info3;
-sub lmsg;
-sub lmsg2;
-sub lmsg3;
-sub version;
-sub help;
-sub _main;
+sub _main; sub _version; sub _help;
+
+BEGIN {
+    $opt_verbtitle = 'repl';
+    $opt_verbose = 2;
+    sub _log2 { $opt_verbose >= 2 && &_log }
+    sub _log3 { return if $opt_verbose < 3; &_log }
+    sub _sig2 { return if $opt_verbose < 2; &_sig }
+    sub _sig3 { return if $opt_verbose < 3; &_sig }
+}
+
+sub esc_slash;
 sub proc_plain;
 sub proc_eval;
 sub proc_regexp;
@@ -43,11 +52,7 @@ sub proc_regexp;
     }
 }
 
-our $opt_verbtitle      = 'repl';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 2;
 our $opt_force;
-
 our %opt_fswalk         = (-depth => 0);
 our $opt_filter;
 our $opt_ascii          = 1;
@@ -66,19 +71,11 @@ our $opt_diff_ext;
 our $opt_diff_style;
 our $opt_test;
 
-sub esc_slash {
-    local $_ = shift;
-    s-\\\\-\\\\X-g;
-    s-/-\\/-g;
-    s-\\\\X-\\\\-g;
-    $_
-}
-
 sub boot {
     GetOptions('quiet|q'        => sub { $opt_verbose-- },
                'verbose|v'      => sub { $opt_verbose++ },
-               'version'        => sub { version; exit },
-               'help|h'         => sub { help; exit },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
                'force|f',
                'walkopt|w=n'    => \%opt_fswalk,
                'recursive|r:n'  => sub { shift; $opt_fswalk{-depth} = shift || 100 },
@@ -144,58 +141,79 @@ sub boot {
     die "no files specified." unless @ARGV;
 
     if ($opt_verbose > 2) {
-        info3 "fswalk$_: $opt_fswalk{$_}" for keys %opt_fswalk;
-        info3 "filetype:    ".($opt_ascii?'ascii':'').' '.($opt_binary?'binary':'');
-        info3 "mode:        $opt_mode";
-        info3 "pattern:     $opt_pattern (flags: $opt_regexp_flags)" if defined $opt_pattern;
-        info3 "replacement: $opt_replacement" if defined $opt_replacement;
-        info3 "ignore-case" if $opt_ignore_case;
-        info3 "command:     ".(ref $opt_command ? join('|', @$opt_command) : $opt_command);
-        info3 "diff:        $opt_diff_ext/$opt_diff_style" if $opt_diff;
-        info3 "select:      $_->[0]..$_->[1]" for @opt_select;
-        info3 "running in test-mode" if $opt_test;
+        _log3 "fswalk$_: $opt_fswalk{$_}" for keys %opt_fswalk;
+        _log3 "filetype:    ".($opt_ascii?'ascii':'').' '.($opt_binary?'binary':'');
+        _log3 "mode:        $opt_mode";
+        _log3 "pattern:     $opt_pattern (flags: $opt_regexp_flags)" if defined $opt_pattern;
+        _log3 "replacement: $opt_replacement" if defined $opt_replacement;
+        _log3 "ignore-case" if $opt_ignore_case;
+        _log3 "command:     ".(ref $opt_command ? join('|', @$opt_command) : $opt_command);
+        _log3 "diff:        $opt_diff_ext/$opt_diff_style" if $opt_diff;
+        _log3 "select:      $_->[0]..$_->[1]" for @opt_select;
+        _log3 "running in test-mode" if $opt_test;
     }
     _main
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print STDERR datetime.' ' if $opt_verbtime;
-    print STDERR "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub lmsg {
-    return if $opt_verbose < 1;
-    my $cls = shift;
-    my $text = join('', @_);
-    if (-t STDERR) {
-        printf STDERR "[%4s] %-72s\r", $cls, $text;
-    } else {
-        return if $text !~ /\n$/s;
-        printf STDERR "[%4s] %-72s", $cls, $text;
-    }
-}
+B<repl>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub lmsgerr {
-    return if $opt_verbose < 1;
-    my $text = join('', @_);
-    printf STDERR "\n       err: $text\n";
-}
+=head1 DESCRIPTION
 
-sub info2 { return if $opt_verbose < 2; &info }
-sub info3 { return if $opt_verbose < 3; &info }
-sub lmsg2 { return if $opt_verbose < 2; &lmsg }
-sub lmsg3 { return if $opt_verbose < 3; &lmsg }
+B<repl> is a file utility used to change files in batch. It find files and
+replace the file by pattern or execute a command.
 
-sub version {
-    my %id = parse_id('$Id: repl,v 1.17 2007-09-12 14:45:48 lenik Exp $');
-    print "[$opt_verbtitle] Batch file replacer \n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
-}
+BACKGROUND-PROBLEM.
 
+HOW-repl-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item -m, --myoptions
+
+...
+
+=item -q, --quiet
+
+Repeat this option to suppress unimportant information to display.
+
+=item -v, --verbose
+
+Repeat this option to display more detailed information.
+
+=item -h, --help
+
+Display a breif help page and exit(0).
+
+=item --version
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
 sub help {
-    version;
+    _version;
     print "\nSyntax: \n    $0 [OPTION] [--] [MODE-ARGUMENTS] FILE...\n", <<'EOM';
 
 Common options:
@@ -270,7 +288,7 @@ sub _main {
         fswalk {
             my $path = shift;
             if (-d $path) {
-                lmsg2 'dir', $path;
+                _sig2 'dir', $path;
                 return 1;
             }
             my $oldmode = undef;
@@ -285,7 +303,7 @@ sub _main {
             return 0 if !$opt_binary and !$T;
 
             $n_all++;
-            lmsg2 'file', $opt_verbose > 2 ? $path."\n" : $path;
+            _sig2 'file', $opt_verbose > 2 ? $path."\n" : $path;
             seek($tmph, 0, 0) or die "seek $tmpf: $!";
             truncate($tmph, 0) or die "truncate $tmpf: $!";
 
@@ -304,15 +322,15 @@ sub _main {
                 open(STDOUT, '>&', $oldout)
                     or die "can't redirect stdout(reset): $!";
                 if ($ret == -1) {
-                    lmsg 'exec', "\n     failed to execute: $!\n";
+                    _sig 'exec', "\n     failed to execute: $!\n";
                     return 0;
                 }
             } else {
-                lmsg2 'file', $path;
+                _sig2 'file', $path;
                 my ($x, $t);
                 my $fh;
                 unless (open $fh, '<', $path) {
-                    lmsgerr "can't open: $!";
+                    _sigx "can't open: $!";
                     return 0;
                 }
                 if ($opt_mode eq 'plain' or $linebyline) {
@@ -364,18 +382,18 @@ sub _main {
                         }
                         close $fh;
                     } else {
-                        lmsgerr "open $path: $!";
+                        _sigx "open $path: $!";
                         return 0;
                     }
                 }
-                lmsg 'save', $path."\n";
+                _sig 'save', $path."\n";
                 seek($tmph, 0, 0) or die "seek $tmpf: $!";
                 if ($opt_stdout) {
                     print while <$tmph>;
                 } else {
                     if ($opt_backup) {
                         my $bak = $path.'.'.$opt_backup;
-                        lmsg2 'bak', $bak;
+                        _sig2 'bak', $bak;
                         move($path, $bak) unless $opt_test;
                     }
                     unless ($opt_test) {
@@ -383,7 +401,7 @@ sub _main {
                             print $fh $_ while <$tmph>;
                             close $fh;
                         } else {
-                            lmsgerr "open $path for write: $!";
+                            _sigx "open $path for write: $!";
                             return 0;
                         }
                         chmod $oldmode, $path if defined $oldmode;
@@ -393,11 +411,29 @@ sub _main {
             }
         } -start => $_, %opt_fswalk;
     }
-    lmsg 'done', "total $n_diff/$n_all files changed, $n_save files saved.";
+    _sig 'done', "total $n_diff/$n_all files changed, $n_save files saved.";
     unlink $tmpf;
     close $tmph;
 }
 
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+sub esc_slash {
+    local $_ = shift;
+    s-\\\\-\\\\X-g;
+    s-/-\\/-g;
+    s-\\\\X-\\\\-g;
+    $_
+}
+
+=head1 HACKING
+
+(No Information)
+
+=cut
 sub proc_plain {
     local $_ = shift;
     my $t = $opt_ignore_case ? lc($_) : $_;
@@ -414,6 +450,7 @@ sub proc_plain {
 }
 
 sub proc_eval { &proc_regexp }
+
 sub proc_regexp {
     local $_ = shift;
     my $old = $_;
@@ -423,3 +460,33 @@ sub proc_regexp {
 }
 
 sub proc_exec { 'placeholder' }
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=item 1.x
+
+Rewrite version, with a lot of enhancement. (Incompatible with 0.x)
+
+=back
+
+=cut
+sub version {
+    print "[$opt_verbtitle] Batch file replacer \n";
+    print "Written by Lenik,  Version 1.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <lenik@bodz.net>
+
+=cut
