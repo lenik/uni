@@ -10,7 +10,7 @@ use cmt::lang;
 use cmt::log;
 use cmt::util;
 use cmt::vcs('parse_id');
-    my %RCSID = parse_id('$Id: repl,v 1.18 2007-09-12 16:33:27 lenik Exp $');
+    my %RCSID = parse_id('$Id: repl,v 1.19 2007-09-12 17:15:28 lenik Exp $');
 use Data::Dumper;
 use File::Copy;
 use File::Temp('tempfile');
@@ -212,7 +212,7 @@ temporary files.
 =back
 
 =cut
-sub help {
+sub _help {
     _version;
     print "\nSyntax: \n    $0 [OPTION] [--] [MODE-ARGUMENTS] FILE...\n", <<'EOM';
 
@@ -476,7 +476,7 @@ Rewrite version, with a lot of enhancement. (Incompatible with 0.x)
 =back
 
 =cut
-sub version {
+sub _version {
     print "[$opt_verbtitle] Batch file replacer \n";
     print "Written by Lenik,  Version 1.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }

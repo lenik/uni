@@ -8,7 +8,7 @@ UnKnOwN - Perl_simple_cli_program_template
 use strict;
 use cmt::log;
 use cmt::vcs('parse_id');
-    my %RCSID = parse_id('$Id: .pl,v 1.12 2007-09-12 16:31:19 lenik Exp $');
+    my %RCSID = parse_id('$Id: .pl,v 1.13 2007-09-12 17:11:06 lenik Exp $');
 use Getopt::Long;
 
 sub _main; sub _version; sub _help;
@@ -52,23 +52,23 @@ HOW-UnKnOwN-RESOLVES.
 
 =over 8
 
-=item -m, --myoptions
+=item S<[ B<-m> | B<--my-option> ]>
 
 ...
 
-=item -q, --quiet
+=item S<[ B<-q> | B<--quiet> ]>
 
 Repeat this option to suppress unimportant information to display.
 
-=item -v, --verbose
+=item S<[ B<-v> | B<--verbose> ]>
 
 Repeat this option to display more detailed information.
 
-=item -h, --help
+=item S<[ B<-h> | B<--help> ]>
 
 Display a breif help page and exit(0).
 
-=item --version
+=item S<[ B<--version> ]>
 
 Display a short version information and exit(0).
 
