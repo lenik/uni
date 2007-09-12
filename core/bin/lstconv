@@ -73,9 +73,9 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: lstconv,v 1.6 2007-08-02 22:50:00 lenik Exp $');
+    my %id = parse_id('$Id: lstconv,v 1.7 2007-09-12 17:12:42 lenik Exp $');
     print "[$opt_verbtitle] list converter \n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {

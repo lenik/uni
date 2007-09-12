@@ -30,7 +30,7 @@ sub findindex;
 sub ext_dirproc;
 sub urldecode;
 
-my  %RCSID  = parse_id('$Id: mkchm,v 1.2 2007-09-07 21:21:44 lenik Exp $');
+my  %RCSID  = parse_id('$Id: mkchm,v 1.3 2007-09-12 17:12:42 lenik Exp $');
     $cmt::chm::opt_appname = "mkchm-$RCSID{rev}";
 
 our $opt_verbose;       *opt_verbose    = *cmt::chm::opt_verbose;
@@ -115,9 +115,9 @@ sub boot {
 }
 
 sub version {
-    my %id = parse_id('$Id: mkchm,v 1.2 2007-09-07 21:21:44 lenik Exp $');
+    my %id = parse_id('$Id: mkchm,v 1.3 2007-09-12 17:12:42 lenik Exp $');
     print "[$opt_verbtitle] General CHM Packager \n";
-    print "Written by Lenik,  Version $RCSID{rev},  Last updated at $RCSID{date}\n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 
 sub help {

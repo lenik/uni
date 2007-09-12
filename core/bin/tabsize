@@ -103,9 +103,9 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: tabsize,v 1.5 2007-07-02 15:01:14 lenik Exp $');
+    my %id = parse_id('$Id: tabsize,v 1.6 2007-09-12 17:12:42 lenik Exp $');
     print "[$opt_verbtitle] Adjust tab-style of plain text\n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {

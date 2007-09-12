@@ -1,7 +1,7 @@
 #!/lapiota/bin/foreach -x|-o=mode=s
 
 # catname [foreach-options] --mode=MODE files...
-# MODE: specify the name-pattern
+# MODE: specify the name-pattern (the prefix may be $ or %)
 #       $n  == $cat[n]
 #       $$  == $rest
 #

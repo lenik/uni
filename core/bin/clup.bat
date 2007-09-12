@@ -80,9 +80,9 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: clup.bat,v 1.2 2007-06-25 14:10:58 lenik Exp $');
+    my %id = parse_id('$Id: clup.bat,v 1.3 2007-09-12 17:12:41 lenik Exp $');
     print "[$opt_verbtitle] clup bundled utility \n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {

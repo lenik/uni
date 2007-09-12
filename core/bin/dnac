@@ -3,7 +3,7 @@
 #@DNA::COPY
 use vars qw/$idt/;
 #@DNA::COPY
-our $idt = '$Id: dnac,v 1.7 2007-07-18 11:19:14 lenik Exp $';
+our $idt = '$Id: dnac,v 1.8 2007-09-12 17:12:41 lenik Exp $';
 
 use strict;
 use POSIX qw/strftime/;
@@ -227,7 +227,7 @@ sub init_protect {
 sub help {
     print <<"EOM";
 DNA Compiler    By S.N.M.
-Version $id{rev}    Last Updated $id{date}
+Version 0.$id{rev}    Last Updated $id{date}
 
 Syntax
     dnac

@@ -9,10 +9,11 @@ use cmt::winuser;
 use DirHandle;
 use File::Copy;
 use Getopt::Long;
+use Tk;
 use YAML;
 
 our $nfs_appname = 'NFS Version 2';
-our %nfs_id = parse_id('$Id: nfs,v 1.28 2007-08-24 17:04:21 lenik Exp $');
+our %nfs_id = parse_id('$Id: nfs,v 1.29 2007-09-12 17:12:42 lenik Exp $');
 
 our %nfs_filetype = (
     ''      => 'ue "%s"',                   # default

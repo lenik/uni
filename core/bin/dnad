@@ -45,10 +45,10 @@ use Getopt::Long;
 
 
 sub help {
-    my %id = parse_id('$Id: dnad,v 1.5 2007-07-18 11:19:15 lenik Exp $');
+    my %id = parse_id('$Id: dnad,v 1.6 2007-09-12 17:12:41 lenik Exp $');
     print <<"EOM";
 DNA De-Compiler    By S.N.M.
-Version $id{rev}    Last Updated $id{date}
+Version 0.$id{rev}    Last Updated $id{date}
 
 Syntax
     dnad

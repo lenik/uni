@@ -205,9 +205,9 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: ntspi,v 1.1 2007-06-18 12:48:37 lenik Exp $');
+    my %id = parse_id('$Id: ntspi,v 1.2 2007-09-12 17:12:42 lenik Exp $');
     print "[$opt_verbtitle] NT System Parameters Info\n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {

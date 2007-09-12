@@ -56,9 +56,9 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: tryallcs,v 1.1 2007-05-23 14:45:04 lenik Exp $');
+    my %id = parse_id('$Id: tryallcs,v 1.2 2007-09-12 17:12:42 lenik Exp $');
     print "[$opt_verbtitle] Try all possible charsets (by iconv)\n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {

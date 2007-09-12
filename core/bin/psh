@@ -41,9 +41,9 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: psh,v 1.3 2007-09-09 23:25:07 lenik Exp $');
+    my %id = parse_id('$Id: psh,v 1.4 2007-09-12 17:12:42 lenik Exp $');
     print "[$opt_verbtitle] Simple Perl Shell \n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {

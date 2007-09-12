@@ -21,7 +21,7 @@ our $opt_output;
 our $opt_console;
 our $opt_make;
 
-my %id = parse_id('$Id: plbat,v 1.6 2007-09-11 11:03:17 lenik Exp $');
+my %id = parse_id('$Id: plbat,v 1.7 2007-09-12 17:12:42 lenik Exp $');
 
 sub boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
@@ -69,7 +69,7 @@ sub info2 {
 
 sub version {
     print "[$opt_verbtitle] perl/bat wrapper \n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {

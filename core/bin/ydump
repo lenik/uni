@@ -59,9 +59,9 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: ydump,v 1.1 2007-08-26 12:47:08 lenik Exp $');
+    my %id = parse_id('$Id: ydump,v 1.2 2007-09-12 17:12:43 lenik Exp $');
     print "[$opt_verbtitle] YAML Dump \n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {

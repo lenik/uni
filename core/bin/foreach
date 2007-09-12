@@ -45,6 +45,10 @@ my @lists;
 my @L;
 
 sub boot {
+    if ($ARGV[0] =~ /\|/) {
+        my $m = shift @ARGV;
+        unshift @ARGV, split(/\|/, $m);
+    }
     my $i = 0;
     while ($i < scalar @ARGV) {
         $_ = $ARGV[$i];
@@ -212,9 +216,9 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: foreach,v 1.18 2007-09-02 03:41:30 lenik Exp $');
+    my %id = parse_id('$Id: foreach,v 1.19 2007-09-12 17:12:41 lenik Exp $');
     print "[$opt_verbtitle] files processor framework \n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {

@@ -52,9 +52,9 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: resolv,v 1.4 2007-08-23 10:58:26 lenik Exp $');
+    my %id = parse_id('$Id: resolv,v 1.5 2007-09-12 17:12:42 lenik Exp $');
     print "[$opt_verbtitle] Simple Domain Name Resolver\n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {

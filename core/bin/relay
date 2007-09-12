@@ -107,9 +107,9 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: relay,v 1.9 2007-08-23 11:01:30 lenik Exp $');
+    my %id = parse_id('$Id: relay,v 1.10 2007-09-12 17:12:42 lenik Exp $');
     print "[$opt_verbtitle] TCP Relay And Sniff \n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {

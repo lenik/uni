@@ -52,9 +52,9 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: fddump,v 1.1 2007-08-09 13:50:54 lenik Exp $');
+    my %id = parse_id('$Id: fddump,v 1.2 2007-09-12 17:12:41 lenik Exp $');
     print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {

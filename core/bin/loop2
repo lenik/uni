@@ -165,9 +165,9 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: loop2,v 1.11 2007-08-28 11:45:23 lenik Exp $');
+    my %id = parse_id('$Id: loop2,v 1.12 2007-09-12 17:12:42 lenik Exp $');
     print "[$opt_verbtitle] Repeat running command \n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {

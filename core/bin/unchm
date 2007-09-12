@@ -50,9 +50,9 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: unchm,v 1.1 2007-08-02 22:53:15 lenik Exp $');
+    my %id = parse_id('$Id: unchm,v 1.2 2007-09-12 17:12:42 lenik Exp $');
     print "[$opt_verbtitle] Decompress CHM File\n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {

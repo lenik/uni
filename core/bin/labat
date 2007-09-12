@@ -35,9 +35,9 @@ sub boot {
 }
 
 sub version {
-    my %id = parse_id('$Id: labat,v 1.4 2007-09-09 23:20:47 lenik Exp $');
+    my %id = parse_id('$Id: labat,v 1.5 2007-09-12 17:12:42 lenik Exp $');
     print "[$opt_verbtitle] Lapiota Batch Processing System \n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {

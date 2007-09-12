@@ -1,32 +1,3 @@
-@rem = '
-    @echo off
-
-    setlocal
-    set _verbose=0
-    set _program=%~dpnx0
-    rem set _program=%~dpn0.pl
-
-:prep
-    if "%1"=="" goto spawn
-    if "%1"=="-v" set _verbose=1
-    if "%1"=="--v" set _verbose=1
-    if "%1"=="--ve" set _verbose=1
-    if "%1"=="--ver" set _verbose=1
-    if "%1"=="--verb" set _verbose=1
-    if "%1"=="--verbo" set _verbose=1
-    if "%1"=="--verbos" set _verbose=1
-    if "%1"=="--verbose" set _verbose=1
-    shift
-    goto prep
-
-:spawn
-    if "%_verbose%"=="1" (
-        perl "%_program%" %*
-    ) else (
-        start wperl "%_program%" %*
-    )
-    goto end
-    ';
 #!/usr/bin/perl -w
 
 # ODX
@@ -125,9 +96,9 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: odx,v 1.2 2007-07-17 11:04:07 lenik Exp $');
+    my %id = parse_id('$Id: odx,v 1.3 2007-09-12 17:12:42 lenik Exp $');
     print "[$opt_verbtitle] Perl simple cli program template\n";
-    print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
+    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
 
 sub help {
@@ -433,5 +404,3 @@ sub modreq {
     return 1;
 }
 
-__END__
-:end

@@ -157,11 +157,11 @@ sub scanDirectory {
 }
 
 sub help {
-    my %id = parse_id('$Id: sim,v 1.7 2007-06-25 12:58:14 lenik Exp $');
+    my %id = parse_id('$Id: sim,v 1.8 2007-09-12 17:12:42 lenik Exp $');
 
     print <<"EOM";
 [SIM] SIMplified Expander
-Written by Snima Denik,  Version $id{rev},  last updated $id{date}
+Written by Snima Denik,  Version 0.$id{rev},  last updated $id{date}
 
 Syntax:
     sim [options] <sim-script> ...
