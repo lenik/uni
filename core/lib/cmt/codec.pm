@@ -36,15 +36,15 @@ our %CODECS = (
     'base64'    => [\&base64_encode,    \&base64_decode],
     );
 
-sub binhex; *binhex = \&hex_encode;
-sub hexbin; *hexbin = \&hex_decode;
+sub binhex; *binhex = *hex_encode;
+sub hexbin; *hexbin = *hex_decode;
 sub codec_sy;
 sub codec_dq;
 sub codec_dm;
 
 sub codec_sy {
     my ($ph, $cat, $text) = @_;
-    my $cipher = new Crypt::CBC($ph, 'DES');
+    my $cipher = new Crypt::CBC(-key => $ph, -cipher => 'DES');
     my $result;
     if ($cat eq 'e') {
         $result = binhex $cipher->encrypt(pack('n', length($text)) . $text);
