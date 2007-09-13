@@ -1,4 +1,3 @@
-
 package cmt::winuser;
 
 use strict;
@@ -6,6 +5,8 @@ use Exporter;
 #use os-portable
 use vars qw/@ISA @EXPORT/;
 use Win32::API;
+
+my $MessageBox_NPPN = new Win32::API('user32', 'MessageBox', 'NPPN', 'N');
 
 sub escape {
     my $str = shift;
@@ -39,7 +40,7 @@ my @msgbox_ids = qw(
 
 sub msgbox {
     my ($msg, $title, @options) = @_;
-    $title ||= 'Diret Commons';
+    $title ||= __PACKAGE__;
     @options = qw/ok/ unless @options;
 
     my $com = 0;
@@ -82,10 +83,7 @@ sub msgbox {
     $msg = escape $msg;
     $title = escape $title;
 
-    # TODO: Win32::API->Import('user32', 'MessageBox', 'NPPN', 'N');
-    my $output = `lc /nologo user32::MessageBoxA(0, '$msg', '$title', $button)`;
-
-    my $id = $? >> 8;
+    my $id = $MessageBox_NPPN->Call(0, $msg, $title, $button);
 
     return $msgbox_ids[$id];
 }
