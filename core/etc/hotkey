@@ -29,11 +29,79 @@ runp(pre, cmd) {
 	run %cmd%
 }
 
-!tab::send {escape}{tab}
+do_usecode() {
+    local scheme, cat, ph, mkdef, text, t
+
+    GuiControlGet, scheme,, UScheme
+    GuiControlGet, cat,, UCategory
+    GuiControlGet, ph,, UPhrase
+    GuiControlGet, mkdef,, UMakeDefault
+    GuiControlGet, text,, UText
+    if %mkdef%
+        mkdef=--make-default
+    else
+        mkdef=
+    if ph
+        t=%mkdef% "-s=%scheme%" "-c=%cat%" "-h=%ph%" -- "%text%"
+    else
+        t=-- "%text%"
+    t=%perlw% /lapiota/bin/usecode %t%
+    clipboard=
+    run, %t%, , , pid
+    clipwait
+    return %clipboard%
+}
+
+usecode_dlg() {
+    global UScheme, UCategory, UPhrase, UMakeDefault, UText
+
+    Gui, Add, Text, x16 y16 w45 h13, &Scheme:
+    Gui, Add, Edit, x76 y12 w77 h19 vUScheme, dm
+
+    Gui, Add, Text, x176 y16 w45 h13, &Category:
+    Gui, Add, Edit, x236 y12 w161 h19 vUCategory, 32
+
+    Gui, Add, Text, x16 y44 w45 h13, P&hrase:
+    Gui, Add, Edit, x76 y40 w321 h19 password# vUPhrase
+
+    Gui, Add, CheckBox, x288 y68 w109 h17 vUMakeDefault, Save as &default
+
+    Gui, Add, Text, x16 y108 w45 h13, &Text:
+    Gui, Add, Edit, x76 y104 w321 h19 password# vUText
+    GuiControl, Focus, UText
+
+    Gui, Add, Text, x12 y92 w393 h1
+
+    Gui, Add, Button, x16 y136 w65 h25, &Print
+
+    Gui, Add, Button, x272 y136 w57 h25 default, OK
+    Gui, Add, Button, x340 y136 w57 h25, &Quit
+
+    Gui, Show, w415 h179, Enter Usecode Parameters
+    Return
+
+    ButtonPrint:
+        code := do_usecode()
+        msgbox %code%
+        return
+
+    ButtonOK:
+        do_usecode()
+
+    ButtonQuit:
+    GuiClose:
+        Gui, Destroy
+        return
+}
+
+!tab::
+	winhide ahk_class #32771 ; BUGFIX for ahk.
+	send {escape}{tab}
+	return
 lwin & tab::alttab
 lwin & capslock::shiftalttab
 
-#!e::edit
+#!e::run cmdw /c no %A_ScriptFullPath%
 #!r::reload
 #!p::pause
 #!s::suspend
@@ -49,10 +117,18 @@ lwin & capslock::shiftalttab
 		menu, tray, noicon
 	}
 	return
+#!u::
+	usecode_dlg()
+	return
 
 appskey::send {appskey}
+appskey & up::
+	process, exist, foobar2000.exe
+	if not errorlevel
+		run cmdw /c foobar
+	send {media_stop}
+	return
 appskey & down::send {media_play_pause}
-appskey & up::send {media_stop}
 appskey & left::send {media_prev}
 appskey & right::send {media_next}
 appskey & numpadadd::send {volumn_up}
@@ -84,12 +160,9 @@ appskey & numpadsub::send {volumn_down}
 #,::run stairs
 #u::run ue
 
+#^e::run cmdw /c eclipse
 #+e::run cmdw /c em
 #+d::
 	ifexist C:\ntddk
 		run ntddk
-	return
-#+p::
-	ifexist C:\strawberry-perl
-		run perldev
 	return
