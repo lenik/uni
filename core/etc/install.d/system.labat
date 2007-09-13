@@ -57,6 +57,7 @@
             - $LAPIOTA\lib\cpf
             - $LAPIOTA\usr\lib
             - ${findabc -w mingw}\lib
+        - w=        JAVA_HOME   ${findabc -w jdk}
         - w-        JAVA_LIB    $LAPIOTA
         - w+        JAVA_LIB    $LAPIOTA\usr\lib\java
         - u-        PERLLIB     /lapiota
@@ -79,9 +80,9 @@
 
     - set-ctxmenu:
         - \* ->
-            - edittxt   edit in text-mode
+            - edittxt   Text Editor
             -           | ${findabc -w npp}\notepad++ \"%1\"
-            - editbin   edit in binary-mode
+            - editbin   Binary Editor
             -           | $LAPIOTA\local\bin\ue.exe \"%1\"
             - comreg    register com-service
             -           | regsvr32 \"%1\"
@@ -90,13 +91,13 @@
             - touch     touch (to invalidate the timestamp)
             -           | cmdw /c $CYGWIN_ROOT\bin\touch \"%1\"
         - Directory ->
-            - cmd       start win32 console here
+            - cmd       Win32 Console
             -           | cmd /k $LAPIOTA\bin\lapiota-init.bat login
-            - bigcmd    start big win32 console here
+            - bigcmd    Win32 Console (Big)
             -           | wcmd /c start \"Big\" $LAPIOTA\bin\lapiota-init.bat login
-            - ushell    start unix shell here
+            - ushell    Unix Shell
             -           | $CYGWIN_ROOT\bin\bash
-            - bigushell start big unix shell here
+            - bigushell Unix Shell (Big)
             -           | wcmd /c start \"Big\" $CYGWIN_ROOT\bin\bash
             - medit     edit files under this directory
             -           | $LAPIOTA\bin\mani.bat -f
@@ -113,14 +114,19 @@
             # gbin      gather binaries
             #           | $LAPIOTA\bin\mvup.bat -c "%1\..\..\bin\" -t "%1\..\..\bin\" *.exe *.dll *.ocx
         - chm.file  unchm   uncompress chm
-        -   | $CYGWIN_ROOT\bin\perl $LAPIOTA/bin/unchm.pl \"%1\"
+        -           | $CYGWIN_ROOT\bin\perl $LAPIOTA/bin/unchm.pl \"%1\"
         - .lst      medit   edit files in the list
-        -   | $LAPIOTA/bin/mani.bat -f \"%1\"
+        -           | $LAPIOTA/bin/mani.bat -f \"%1\"
         - .patch    merge   merge the patch into current directory
-        -   | $CYGWIN_ROOT/bin/patch
+        -           | $CYGWIN_ROOT/bin/patch
+        - AutoHotkeyScript ->
+            - open
+            -           | ${findabc -w autohotkey}\autohotkey \"%1\"
+            - Compile   Compile Script
+            -           | ${findabc -w autohotkey}\Compiler\ahk2exe /in \"%1\"
 
     - set-assoc:
-        - shell-script     .sh
+        - shell-script      .sh
         -   | $LAPIOTA\bin\myexec /2 $SHELL -c \"%0\" %*
         - X-shell-script    .x
         -   | cmd /c %%PERL%% $LAPIOTA\bin\runx.pl -k -- \"%0\" %*
