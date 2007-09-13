@@ -1,14 +1,4 @@
-u.bat:usecode.pl
-ccat.bat
-domp.bat
-fddump.bat
-fun.bat
-lstconv.bat
-odx.bat
-pc.bat
-psh.bat
-rpath.bat
-runx.bat
+! prefix=w/
 
 alias.bat
 amaze.bat
