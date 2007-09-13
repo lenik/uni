@@ -9,17 +9,23 @@ use strict;
 use cmt::codec;
 use cmt::log;
 use cmt::vcs('parse_id');
-    my %RCSID = parse_id('$Id: usecode,v 1.6 2007-09-12 16:56:30 lenik Exp $');
+    my %RCSID = parse_id('$Id: usecode,v 1.7 2007-09-13 17:41:32 lenik Exp $');
 use Getopt::Long;
 use Win32::Clipboard;
 use Win32::TieRegistry(Delimiter => '/');
+    sub _automk {
+        my $k = ref $_[0] ? shift : $Registry->{'/'};
+        my $path = shift;
+        $k = $k->{$_} = {} for (split '/', $path);
+    }
 
 sub _main; sub _version; sub _help;
 
 sub system_encode;
 sub system_decode;
 
-my  $cfg = $Registry->{'CUser/Software/Lapiota/usecode'} = {};
+    _automk $Registry, 'CUser/Software/Lapiota/usecode';
+my  $cfg = $Registry->{'CUser'}->{'Software'}->{'Lapiota'}->{'usecode'};
 
 our $opt_scheme         = system_decode $cfg->{'/scheme'} if $cfg->{'/scheme'};
 our $opt_phrase         = system_decode $cfg->{'/phrase'} if $cfg->{'/phrase'};
