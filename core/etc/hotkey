@@ -69,7 +69,7 @@ appskey & numpadsub::send {volumn_down}
 #n::run cmdw /c no
 #s::run cmdw /c scilab
 #t::run %SHELL% --login
-#x::run startx
+#x::run cmdw /c startx -notrayicon
 #-::
 	nfs1 = %perlw% /lapiota/bin/nfs.pl --wait-close
 	nfs2 = %perlw% /lapiota/bin/nfs.pl --wait-close temp-
