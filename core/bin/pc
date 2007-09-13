@@ -1,11 +1,4 @@
-@rem = '
-    @echo off
-
-    perl "%~dpnx0" %*
-    goto end
-    ';
-
-#!perl
+#!/usr/bin/perl
 
 use strict;
 use cmt::util;
@@ -62,7 +55,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: pc,v 1.4 2007-09-12 17:12:42 lenik Exp $');
+    my %id = parse_id('$Id: pc,v 1.5 2007-09-13 00:37:39 lenik Exp $');
     print "[$opt_verbtitle] Progress/Percent Counter\n";
     print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
@@ -110,6 +103,3 @@ sub main {
     }
     print "\n";
 }
-
-__END__
-:end
