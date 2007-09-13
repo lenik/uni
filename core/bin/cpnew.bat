@@ -2,7 +2,7 @@
 
     setlocal
     set _strict=1
-    set flags=/d /h /r /y
+    set flags=/d /h /r
     goto init
 
 :start
@@ -46,6 +46,10 @@
         set /a _verbose = _verbose + 1
     ) else if "%~1"=="--verbose" (
         set /a _verbose = _verbose + 1
+    ) else if "%~1"=="-f" (
+        set flags=%flags% /c /y
+    ) else if "%~1"=="--force" (
+        set flags=%flags% /c /y
     ) else if "%~1"=="-r" (
         set flags=%flags% /e
     ) else if "%~1"=="--recursive" (
@@ -80,7 +84,7 @@
     goto start
 
 :version
-    set _id=$Id: cpnew.bat,v 1.2 2007-08-03 23:47:44 lenik Exp $
+    set _id=$Id: cpnew.bat,v 1.3 2007-09-13 01:04:13 lenik Exp $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
