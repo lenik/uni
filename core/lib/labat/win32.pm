@@ -237,8 +237,15 @@ sub set_env { &hi;
     return 1;
 }
 
+sub _automk {
+    my $k = ref $_[0] ? shift : $Registry->{'/'};
+    my $path = shift;
+    $k = $k->{$_} = {} for (split '/', $path);
+}
+
 sub set_ctxmenu { &hi;
     my ($ctx, $nam, $id, $desc, $cmd) = @_;
+    _automk $CROOT, "$nam/Shell/$id/Command";
     $CROOT->{$nam}->{'Shell'}->{$id} = {
         '/' => $desc,
         'Command//' => $cmd,
@@ -250,8 +257,9 @@ sub set_assoc { &hi;
     for my $ext (@$exts) {
         $CROOT->{$ext}->{'/'} = $progid;
     }
+    _automk $CROOT, "$progid/Shell/Open/Command";
     $CROOT->{$progid}->{'Shell'}->{'Open'} = {
-        'Command//' => $cmd,
+        'Command//' => $cmd
     };
 }
 
