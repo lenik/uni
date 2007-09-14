@@ -15,22 +15,15 @@ our $opt_fastlog    = 1;
 
 sub has {
     my ($pkg, $nam) = @_;
-    my $s = 'use strict; package '.$pkg.'; \$'.$nam;
-          # 'use strict; \$'.$pkg.'::'.$nam;
-    eval $s
+    my $vnam = '$'.$pkg.'::'.$nam;
+    eval 'defined '.$vnam.' ? \\'.$vnam.' : undef'
 }
 
 sub addmissing {
     my ($pkg, $nam, $val) = @_;
-    my $ref = has($pkg, $nam);
-    unless (defined $ref) {
-        my $s = 'use strict; package '.$pkg.'; our $'.$nam.' = undef';
-        eval $s;
-        die "can't declare \$$pkg\::$nam: $@" if $@;
-        $ref = has($pkg, $nam)
-            or die "failed to define \$$pkg\::$nam";
-    }
-    $$ref = $val;
+    my $vnam = '$'.$pkg.'::'.$nam;
+    my $ref = eval '\\'.$vnam;
+    $$ref = $val unless defined $$ref;
 }
 
 sub import {
