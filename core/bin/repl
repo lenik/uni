@@ -6,11 +6,14 @@ repl - Batch file replacer
 
 =cut
 use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'repl';
+    $LOGLEVEL   = 2;
 use cmt::lang;
-use cmt::log;
+use cmt::log(3);
 use cmt::util;
 use cmt::vcs('parse_id');
-    my %RCSID = parse_id('$Id: repl,v 1.19 2007-09-12 17:15:28 lenik Exp $');
+    my %RCSID = parse_id('$Id: repl,v 1.20 2007-09-14 15:55:16 lenik Exp $');
 use Data::Dumper;
 use File::Copy;
 use File::Temp('tempfile');
@@ -18,15 +21,6 @@ use Getopt::Long;
 use Text::Diff;
 
 sub _main; sub _version; sub _help;
-
-BEGIN {
-    $opt_verbtitle = 'repl';
-    $opt_verbose = 2;
-    sub _log2 { $opt_verbose >= 2 && &_log }
-    sub _log3 { return if $opt_verbose < 3; &_log }
-    sub _sig2 { return if $opt_verbose < 2; &_sig }
-    sub _sig3 { return if $opt_verbose < 3; &_sig }
-}
 
 sub esc_slash;
 sub proc_plain;
@@ -72,8 +66,8 @@ our $opt_diff_style;
 our $opt_test;
 
 sub boot {
-    GetOptions('quiet|q'        => sub { $opt_verbose-- },
-               'verbose|v'      => sub { $opt_verbose++ },
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
                'help|h'         => sub { _help; exit 0 },
                'force|f',
@@ -97,13 +91,13 @@ sub boot {
     $opt_fswalk{-filter} = qr/$opt_filter/ if defined $opt_filter;
     if ($opt_stdout) {
         $opt_backup = 0;
-        $opt_verbose--;
+        $LOGLEVEL--;
     }
     for (0..$#opt_select) {
         $opt_select[$_] = [ split('-', $opt_select[$_]) ];
     }
     $opt_diff_style ||= $opt_diff_ext ? 'Unified'
-        : ($opt_verbose > 2 ? 'Unified' : 'simdiff');
+        : ($LOGLEVEL > 2 ? 'Unified' : 'simdiff');
 
     if ($opt_mode eq 'exec') {
         undef @opt_select;
@@ -140,7 +134,7 @@ sub boot {
 
     die "no files specified." unless @ARGV;
 
-    if ($opt_verbose > 2) {
+    if ($LOGLEVEL > 2) {
         _log3 "fswalk$_: $opt_fswalk{$_}" for keys %opt_fswalk;
         _log3 "filetype:    ".($opt_ascii?'ascii':'').' '.($opt_binary?'binary':'');
         _log3 "mode:        $opt_mode";
@@ -303,7 +297,7 @@ sub _main {
             return 0 if !$opt_binary and !$T;
 
             $n_all++;
-            _sig2 'file', $opt_verbose > 2 ? $path."\n" : $path;
+            _sig2 'file', $LOGLEVEL > 2 ? $path."\n" : $path;
             seek($tmph, 0, 0) or die "seek $tmpf: $!";
             truncate($tmph, 0) or die "truncate $tmpf: $!";
 
@@ -322,7 +316,7 @@ sub _main {
                 open(STDOUT, '>&', $oldout)
                     or die "can't redirect stdout(reset): $!";
                 if ($ret == -1) {
-                    _sig 'exec', "\n     failed to execute: $!\n";
+                    _sig1 'exec', "\n     failed to execute: $!\n";
                     return 0;
                 }
             } else {
@@ -386,7 +380,7 @@ sub _main {
                         return 0;
                     }
                 }
-                _sig 'save', $path."\n";
+                _sig1 'save', $path."\n";
                 seek($tmph, 0, 0) or die "seek $tmpf: $!";
                 if ($opt_stdout) {
                     print while <$tmph>;
@@ -411,7 +405,7 @@ sub _main {
             }
         } -start => $_, %opt_fswalk;
     }
-    _sig 'done', "total $n_diff/$n_all files changed, $n_save files saved.";
+    _sig1 'done', "total $n_diff/$n_all files changed, $n_save files saved.";
     unlink $tmpf;
     close $tmph;
 }
@@ -477,7 +471,7 @@ Rewrite version, with a lot of enhancement. (Incompatible with 0.x)
 
 =cut
 sub _version {
-    print "[$opt_verbtitle] Batch file replacer \n";
+    print "[$LOGNAME] Batch file replacer \n";
     print "Written by Lenik,  Version 1.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 

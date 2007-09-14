@@ -6,24 +6,18 @@ UnKnOwN - Perl_simple_cli_program_template
 
 =cut
 use strict;
-use cmt::log;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'UnKnOwN'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::log(2);
 use cmt::vcs('parse_id');
-    my %RCSID = parse_id('$Id: .pl,v 1.13 2007-09-12 17:11:06 lenik Exp $');
+    my %RCSID   = parse_id('$Id: .pl,v 1.14 2007-09-14 15:55:16 lenik Exp $');
 use Getopt::Long;
 
 sub _main; sub _version; sub _help;
 
-BEGIN {
-    ($opt_verbtitle) = 'UnKnOwN'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
-    sub _log2 { $opt_verbose >= 2 && &_log }
-    sub _log3 { return if $opt_verbose < 3; &_log }
-    sub _sig2 { return if $opt_verbose < 2; &_sig }
-    sub _sig3 { return if $opt_verbose < 3; &_sig }
-}
-
 sub boot {
-    GetOptions('quiet|q'        => sub { $opt_verbose-- },
-               'verbose|v'      => sub { $opt_verbose++ },
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
                'help|h'         => sub { _help; exit 0 },
                );
@@ -101,8 +95,8 @@ EOM
 exit boot;
 
 sub _main {
-    _sig 'ARG', $_ for @ARGV;
-    _log "TODO...";
+    _sig1 'ARG', $_ for @ARGV;
+    _log1 "TODO...";
 }
 
 =head1 DIAGNOSTICS
@@ -131,7 +125,7 @@ The initial version.
 
 =cut
 sub _version {
-    print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
+    print "[$LOGNAME] Perl_simple_cli_program_template \n";
     print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 
