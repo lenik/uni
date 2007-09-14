@@ -10,7 +10,7 @@ use vars qw($LOGNAME $LOGLEVEL);
     $LOGNAME    = 'UnKnOwN'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::log(2);
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: .pl,v 1.14 2007-09-14 15:55:16 lenik Exp $');
+    my %RCSID   = parse_id('$Id: .pl,v 1.15 2007-09-14 16:10:05 lenik Exp $');
 use Getopt::Long;
 
 sub _main; sub _version; sub _help;
@@ -135,6 +135,6 @@ The L<cmt/"Perl_simple_cli_program_template">
 
 =head1 AUTHOR
 
-Xima Lenik <lenik@bodz.net>
+Xima Lenik <name@mail.box>
 
 =cut
