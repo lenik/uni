@@ -9,9 +9,11 @@ use strict;
 use vars qw($LOGNAME $LOGLEVEL);
     $LOGNAME    = 'dirdiff';    # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::dirdiff;
+    $cmt::dirdiff::LOGNAME = 'libdd';
 use cmt::log(2);
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: dirdiff,v 1.1 2007-09-14 16:18:44 lenik Exp $');
+    my %RCSID   = parse_id('$Id: dirdiff,v 1.2 2007-09-15 03:34:41 lenik Exp $');
+use Data::Dumper;
 use Getopt::Long;
 
 sub _main; sub _version; sub _help;
@@ -21,6 +23,9 @@ sub boot {
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
                'help|h'         => sub { _help; exit 0 },
+               'cache|c'        => sub { my $opt = shift; if ($opt eq 'C') {
+                                         undef $cmt::dirdiff::opt_digest_cache } },
+               'cachedir=s'     => \$cmt::dirdiff::opt_digest_cache,
                );
     _main;
 }
@@ -96,8 +101,11 @@ EOM
 exit boot;
 
 sub _main {
-    _sig1 'ARG', $_ for @ARGV;
-    _log1 "TODO...";
+    die "At least 2 directories to compare" unless @ARGV > 1;
+
+    my $det = dirdiff @ARGV;
+    print Dumper($det);
+    dump_plain $det, 1;
 }
 
 =head1 DIAGNOSTICS
@@ -126,7 +134,7 @@ The initial version.
 
 =cut
 sub _version {
-    print "[$LOGNAME] Perl_simple_cli_program_template \n";
+    print "[$LOGNAME] Compare Directories \n";
     print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 
