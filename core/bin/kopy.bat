@@ -47,7 +47,7 @@
         REM set _final=start
         goto start
     )
-    set _sh=%DIRT_HOME%\3\cmd.exe
+    set _sh=%LAPIOTA%\local\bin\cmd.exe
     ppid
     start %_sh% /c %0 :chsh %errorlevel% %*
     exit
@@ -119,7 +119,7 @@
     goto start
 
 :version
-    set _id=$Id: kopy.bat,v 1.4 2007-08-16 10:21:44 lenik Exp $
+    set _id=$Id: kopy.bat,v 1.5 2007-09-18 13:46:15 lenik Exp $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
