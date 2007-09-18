@@ -30,7 +30,7 @@
     endlocal
 
     rem if "%initlevel%" gtr "%~1" ( SKIPING... )
-    if "%~1"=="boot" (
+    if "%~1"=="init" (
         set initlevel=9
     ) else if "%~1"=="login" (
         set initlevel=19
@@ -96,7 +96,7 @@
     if %initlevel% lss 6 goto done
 
     if exist "%SHELL%" goto level_7
-    rem The lapiota-boot program must have mounted the root(/) filesystem.
+    rem The lapiota-init program must have mounted the root(/) filesystem.
     set SHELL=%CYGWIN_ROOT%\bin\bash
     if "%USERNAME%"=="" set USERNAME=someone
     for /f "delims=: tokens=1-7" %%i in (%CYGWIN_ROOT%\etc\passwd) do (
@@ -133,3 +133,6 @@
         echo This program is distributed under GPL license.
     )
     set initlevel=
+
+    rem BUGFIX to cmd: set errorlevel doesn't affect the exit code
+    exit /b %errorlevel%
