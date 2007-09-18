@@ -1,0 +1,217 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+Nu - Wrapper for NET USE (Start A NETBIOS Session)
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'Nu'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::log(2);
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: nu,v 1.1 2007-09-18 13:42:11 lenik Exp $');
+use File::Path;
+use Getopt::Long;
+use YAML;
+
+sub _main; sub _version; sub _help;
+
+our $opt_host;
+our $opt_user;
+our $opt_password;
+our $opt_cache_dir      = '~/.nucache';
+our $opt_crypto;
+our $opt_just_once;
+
+sub boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'host|n=s',
+               'user|u=s',
+               'password|p=s',
+               'cache-dir|d=s',
+               'crypto|c=s',
+               'just-once|1',
+               );
+
+    $opt_host       = shift @ARGV unless defined $opt_host;
+    $opt_password   = shift @ARGV unless defined $opt_password;
+    $opt_user       = shift @ARGV unless defined $opt_user;
+    $opt_user       = 'Administrator' unless defined $opt_user;
+
+    die "Host isn't specified" unless defined $opt_host;
+
+    my $home = $ENV{'HOME'} || $ENV{'USERPROFILE'};
+    $opt_cache_dir =~ s/^~/$home/;
+    mkpath $opt_cache_dir unless -d $opt_cache_dir;
+
+    if ($opt_crypto) {
+        die "Crypto $opt_crypto isn't supported. ";
+    }
+
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<Nu>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<Nu> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-Nu-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item S<[ B<-m> | B<--my-option> ]>
+
+...
+
+=item S<[ B<-q> | B<--quiet> ]>
+
+Repeat this option to suppress unimportant information to display.
+
+=item S<[ B<-v> | B<--verbose> ]>
+
+Repeat this option to display more detailed information.
+
+=item S<[ B<-h> | B<--help> ]>
+
+Display a breif help page and exit(0).
+
+=item S<[ B<--version> ]>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] HOST [PWD [USER]] \n", <<'EOM';
+
+Common options:
+    -n, --host=HOST         netbios name of host to login
+    -u, --user=USER         login user name (default Administrator)
+    -p, --password=PWD      login password
+    -d, --cache-dir=DIR     set cache directory to DIR (default ~/.nucache)
+    -c, --crypto=CRYPTO     using CRYPTO to encrypt the login info
+    -1, --just-once         don't cache login info
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+}
+
+exit boot;
+
+sub _main {
+    my $hostdb;
+    my $dbfile = "$opt_cache_dir/$opt_host";
+    if (-f $dbfile) {
+        _log2 "load host db";
+        $hostdb = Load($dbfile)
+            or "can't load host db file $dbfile: $!";
+        # TODO - using crypto...
+    }
+    if (defined $opt_password) {
+        _log2 "overwrite host db with user provided password";
+        $hostdb->{$opt_user} = $opt_password;
+        # TODO - using crypto...
+        Dump($dbfile, $hostdb) unless $opt_just_once;
+    } else {
+        if (defined $hostdb->{$opt_user}) {
+            $opt_password = $hostdb->{$opt_user};
+        } else {
+            die "password is required for $opt_user\@$opt_host";
+        }
+    }
+
+    _log2 "login with $opt_user:$opt_password\@$opt_host";
+    # net use \\\\host\\IPC$ -> bash
+    # \\host\IPC$ -> cmd
+    my $cmd = 'net use \\\\\\\\'.$opt_host.'\\\\IPC$ "/user:'.$opt_user.'"';
+
+    # TODO - dup STDIN and STDOUT, instead of open |
+    my $exec_mode = 0;
+    if ($exec_mode eq 'pipe') {
+        $cmd .= ' \*';
+        open(FH, '|'.$cmd) or die "can't exec with redirected stdin: $!";
+        print FH $opt_password, "\n";
+        while (<FH>) {
+            print FH $opt_password, "\n";
+            print "> $_";
+        }
+        close FH;
+    } else {
+        $cmd .= ' "'.$opt_password.'"';
+        _log2 $cmd;
+        system $cmd;
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Wrapper for NET USE (Start A NETBIOS Session) \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
