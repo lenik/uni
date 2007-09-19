@@ -7,9 +7,11 @@ usecode - dynamic codes
 =cut
 use strict;
 use cmt::codec;
-use cmt::log;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'usecode';
+use cmt::log(2);
 use cmt::vcs('parse_id');
-    my %RCSID = parse_id('$Id: usecode,v 1.7 2007-09-13 17:41:32 lenik Exp $');
+    my %RCSID = parse_id('$Id: usecode,v 1.8 2007-09-19 07:51:28 lenik Exp $');
 use Getopt::Long;
 use Win32::Clipboard;
 use Win32::TieRegistry(Delimiter => '/');
@@ -34,17 +36,9 @@ our $opt_make_default;
 our $opt_out            = 'C';      # Clipboard  Print  None
 our $opt_text;
 
-BEGIN {
-    ($opt_verbtitle) = 'UnKnOwN'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
-    sub _log2 { $opt_verbose >= 2 && &_log }
-    sub _log3 { return if $opt_verbose < 3; &_log }
-    sub _sig2 { return if $opt_verbose < 2; &_sig }
-    sub _sig3 { return if $opt_verbose < 3; &_sig }
-}
-
 sub boot {
-    GetOptions('quiet|q'        => sub { $opt_verbose-- },
-               'verbose|v'      => sub { $opt_verbose++ },
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
                'help|h'         => sub { _help; exit 0 },
                'scheme=s',
@@ -197,7 +191,7 @@ The initial version.
 
 =cut
 sub _version {
-    print "[$opt_verbtitle] dynamic codes (critic) \n";
+    print "[$LOGNAME] dynamic codes (critic) \n";
     print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 
