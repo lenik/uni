@@ -13,7 +13,7 @@ use cmt::lang;
 use cmt::log(3);
 use cmt::util;
 use cmt::vcs('parse_id');
-    my %RCSID = parse_id('$Id: repl,v 1.20 2007-09-14 15:55:16 lenik Exp $');
+    my %RCSID = parse_id('$Id: repl,v 1.21 2007-09-19 07:50:05 lenik Exp $');
 use Data::Dumper;
 use File::Copy;
 use File::Temp('tempfile');
@@ -118,8 +118,10 @@ sub boot {
         die "pattern isn't specified" if @ARGV < 2;
         ($opt_pattern, $opt_replacement) = splice(@ARGV, 0, 2);
         die "pattern can't be empty" unless length $opt_pattern;
-        $opt_pattern     = esc_slash $opt_pattern;
-        $opt_replacement = esc_slash $opt_replacement;
+        if ($opt_mode eq 'regexp' or $opt_mode eq 'eval') {
+            $opt_pattern     = esc_slash $opt_pattern;
+            $opt_replacement = esc_slash $opt_replacement;
+        }
         if ($opt_ignore_case) {
             if ($opt_mode eq 'plain') {
                 $opt_pattern = lc $opt_pattern;
