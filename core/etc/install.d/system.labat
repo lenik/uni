@@ -60,6 +60,8 @@
         - w=        JAVA_HOME   ${findabc -w jdk}
         - w-        JAVA_LIB    $LAPIOTA
         - w+        JAVA_LIB    $LAPIOTA\usr\lib\java
+        - w-        JAVA_SRC    $LAPIOTA
+        - w+        JAVA_SRC    $LAPIOTA\usr\src\java
         - u-        PERLLIB     /lapiota
         - u-        PERLLIB     /usr/lib
         - u+$       PERLLIB     ->
