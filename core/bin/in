@@ -15,7 +15,7 @@ our $opt_quiet = 0;
 #                               HELPER FUNCTIONS
 # ======================================================================
 sub version() {
-    my %id = parse_id('$Id: in,v 1.6 2007-09-12 17:12:42 lenik Exp $');
+    my %id = parse_id('$Id: in,v 1.7 2007-09-20 14:52:42 lenik Exp $');
     print "[IN] Internet Connection Additional Management Utility\n";
     print "Written by Snima Denik   Version 0.$id{rev}   Last updated at $id{date}\n";
 }
@@ -51,7 +51,8 @@ sub typeFile {
 # ======================================================================
 sub funcSetAlias {
     my ($cmd, $host, $addr) = @_;
-    my $hostfile = "$ENV{windir}/system32/drivers/etc/hosts";
+    # my $root = "$ENV{windir}/system32/drivers";
+    my $hostfile = "/etc/hosts";
 
     open(FH, "<$hostfile") or die("Can't open hosts file");
     my @lines = <FH>;
