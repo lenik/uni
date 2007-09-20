@@ -1,155 +1,126 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
+=head1 NAME
+
+NFS - Notes for Speed
+
+=cut
 use strict;
-use cmt::path;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'NFS';
+use cmt::log(2);
+use cmt::path('path_join', 'path_split', 'path_splitext', 'path_normalize');
 use cmt::perlsys;
-use cmt::util;
-use cmt::vcs;
+use cmt::util('php_perl', 'readfile', 'writefile');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: nfs,v 1.30 2007-09-20 15:25:21 lenik Exp $');
 use cmt::winuser;
 use DirHandle;
 use File::Copy;
+use File::Path;
 use Getopt::Long;
-use Tk;
+# use Tk;
 use YAML;
 
-our $nfs_appname = 'NFS Version 2';
-our %nfs_id = parse_id('$Id: nfs,v 1.29 2007-09-12 17:12:42 lenik Exp $');
+sub _main; sub _version; sub _help;
 
-our %nfs_filetype = (
-    ''      => 'ue "%s"',                   # default
+sub file_sync;
+sub expand_nfs_title;
+sub template_instantiate;
+sub template_substitute;
+sub expand_symbolic_link;
+sub binary_copy;
+sub get_serial;
+sub get_vol_serial;
+sub set_program;
+sub set_option;
+sub confirm_prompt;
+sub cmdexec;
 
+our $opt_program            = '.dep';
+our $opt_type;              # document type
+our $opt_type_spec;
+our $opt_open_all;          # create if none type exists, otherwise ignore option --type
+our $opt_map_target         = '.';      # Map the specified nfs document to the target directory
+our $opt_map_delete         = 0;        # Delete the target mapping entry
+our $opt_link               = '.';      # This relative path will be expanded to actual path.
+our $opt_offset             = 0;        # Time or Serial adjustment
+our $opt_index_range;                   # Documents range specifies which documents to be indexed
+our $opt_keywords_range;                # default "h1 keywords title"
+our $opt_flatten_target;                # flatten symbolic links into single directory-tree
+our $opt_name_method        = 'date';   # one of (date, ser)
+our $opt_format_date        = 'YYYY-MM-DD';
+our $opt_format_serial      = 'DDDD';
+our $opt_title              = '';       # NFS-Title, Default depends on name-method
+our $opt_max_levels         = 'inf';    # Max levels of directories
+our $opt_disable_symbolic_link;
+our $opt_disable_vex_extension;
+our $opt_wait_close;                    # used in hotkey bindings
+our $opt_interactive;
+our $opt_test_only;
+
+my %FILETYPE = (
+    ''      => 'no "%s"',                   # default
     'txt'   => 'metapad "%s"',
     'doc'   => 'winword "%s"',
     'xls'   => 'excel "%s"',
-
     'x'     => 'SPECIAL',
-    'lst'   => 'metapad "%s"',
-    );
+    'lst'   => 'no "%s"',
+);
 
-our $nfs_path_container;
-our $nfs_path_vol;                          # dynamic: maybe happened to be override in any level of container.
-our $nfs_path_full;                         # should be equal to container/title
+my $APPNAME                 = 'NFS Version 2';
+my $HOME                    = "$ENV{USERPROFILE}/My Documents";
+my $NFS_ROOT;               # NFS-Root, default "My Documents/.notes" -or- "~/.notes" for most types.
+my $NFS_VOL;                # dynamic: maybe happened to be override in any level of container.
+my $NFS_CONTAINER;
+my $NFS_FILE;               # should be equal to container/title
 
-
-our $opt_root;                              # NFS-Root, default "My Documents/.notes" -or- "~/.notes" for most types.
-
-our $opt_program = '.dep';                  # Program used to open nfs document
-                                            #   .dep    Depends on type
-                                            #   .del    delete document
-                                            #   .new    delete and create
-                                            #   .map    copy document to specified directory
-                                            #   .sync   synchronize the mappings in current directory
-                                            #   .link   create a symbolic link of the specified container-name
-                                            #   .index  build index file
-                                            #   .bak    do backup
-                                            #   .ls     browsing in the directory
-
-our $opt_type = 'txt';                      # Document type
-our $opt_type_specified = 0;                # Is the type option be strictly specified
-
-our $opt_open_all = 0;                      # Open all types
-                                            # If none type of the document is created, then create one;
-                                            # Otherwise, ignore option --type
-
-our $opt_map_target = '.';                  # Map the specified nfs document to the target directory
-our $opt_map_delete = 0;                    # Delete the target mapping entry
-
-our $opt_link = '.';                        # This relative path will be expanded to actual path.
-
-our $opt_offset = 0;                        # Time or Serial adjustment
-
-our $opt_index_range;                       # Documents range specifies which documents to be indexed
-
-our $opt_keywords_range;                    # default "h1 keywords title"
-
-our $opt_flatten_target;                    # flatten symbolic links into single directory-tree
-
-our $opt_name_method = 'date';              # one of (date, ser)
-our $opt_format_date = 'YYYY-MM-DD';
-our $opt_format_serial = 'DDDD';
-our $opt_title = '';                        # NFS-Title, Default depends on name-method
-our $opt_max_levels = 'inf';                # Max levels of directories
-
-our $opt_disable_symbolic_link = 0;
-our $opt_disable_template_substitute = 0;
-our $opt_disable_vex_extension = 0;
-
-our $opt_wait_close = 0;                    # used in hotkey bindings
-our $opt_interactive = 0;
-our $opt_test_only = 0;
-our $opt_verbose = 0;
-our $opt_quiet = 0;
-
-
-# Pre-declaration
-    sub file_sync;
-    sub expand_nfs_title;
-    sub template_instantiate;
-    sub template_substitute;
-    sub expand_symbolic_link;
-    sub binary_copy;
-    sub get_serial;
-    sub get_vol_serial;
-    sub error_report;
-    sub set_program;
-    sub set_option;
-    sub confirm_prompt;
-    sub cmdexec;
-    sub version;
-    sub help;
-
-
-
-sub main {
-    GetOptions(
-        'root|r=s',
-        'nfs-title|n=s',
-        'program|p=s'       => sub { set_program $_[1] },
-        'type|t=s'          => sub { error_report "--open-all is specified" if $opt_open_all == 1;
-                                     $opt_type = $_[1];
-                                     $opt_type_specified = 1 },
-        'open-all|a'        => sub { error_report "--type is specified" if $opt_type_specified;
-                                     $opt_open_all = 1 },
-        'backup|b'          => sub { set_program '.bak' },
-        'create|c'          => sub { set_program '.new' },
-        'delete|d'          => sub { set_program '.del' },
-        'map|m:s'           => sub { set_program '.map';
-                                     set_option "map target", \$opt_map_target, $_[1], '.' },
-        'synchronize|s'     => sub { set_program '.sync' },
-        'link|l:s'          => sub { set_program '.link';
-                                     set_option "symbolic link file", \$opt_link, $_[1] },
-        'index|x:s'         => sub { set_program '.index';
-                                     set_option "index range", \$opt_index_range, $_[1] },
-        'keywords|k:s'      => sub { set_program '.keys';
-                                     set_option "keywords range", \$opt_keywords_range, $_[1] },
-        'flatten|fl=s'      => sub { set_program '.flat';
-                                     set_option "flatten target", \$opt_flatten_target, $_[1] },
-        'max-levels|ml=s',
-        'use-date|ud:s'     => sub { $opt_name_method = 'date';
-                                     set_option "date format", \$opt_format_date, $_[1], $opt_format_date },
-        'use-serial|us:s'   => sub { $opt_name_method = 'ser';
-                                     set_option "serial format", \$opt_format_serial, $_[1], $opt_format_serial },
-        'offset|o=n',
-        'disable-symbolic-link|ds',
-        'disable-template-substitute|dt',
-        'disable-vex-extension|dv',
-        'wait-close',
-        'interactive|i',
-        'test-only|to',
-        'verbose|v',
-        'quiet|q',
-        'force|fo',
-        'version|ve'        => sub { &version; exit },
-        'help|h'            => sub { &help; exit },
-        );
+sub boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'root|r=s'          => \$NFS_ROOT,
+               'nfs-title|n=s',
+               'program|p=s'       => sub { set_program $_[1] },
+               'type|t=s'          => sub { die "--type exclusive with --open-all" if $opt_open_all;
+                                            $opt_type = $_[1]; },
+               'open-all|a'        => sub { die "--open-all exclusive with --type" if defined $opt_type;
+                                            $opt_open_all = 1 },
+               'backup|b'          => sub { set_program '.bak' },
+               'create|c'          => sub { set_program '.new' },
+               'delete|d'          => sub { set_program '.del' },
+               'map|m:s'           => sub { set_program '.map';
+                                            set_option "map target", \$opt_map_target, $_[1], '.' },
+               'synchronize|s'     => sub { set_program '.sync' },
+               'link|l:s'          => sub { set_program '.link';
+                                            set_option "symbolic link file", \$opt_link, $_[1] },
+               'index|x:s'         => sub { set_program '.index';
+                                            set_option "index range", \$opt_index_range, $_[1] },
+               'keywords|k:s'      => sub { set_program '.keys';
+                                            set_option "keywords range", \$opt_keywords_range, $_[1] },
+               'flatten|fl=s'      => sub { set_program '.flat';
+                                            set_option "flatten target", \$opt_flatten_target, $_[1] },
+               'max-levels|ml=s',
+               'use-date|ud:s'     => sub { $opt_name_method = 'date';
+                                            set_option "date format", \$opt_format_date, $_[1], $opt_format_date },
+               'use-serial|us:s'   => sub { $opt_name_method = 'ser';
+                                            set_option "serial format", \$opt_format_serial, $_[1], $opt_format_serial },
+               'offset|o=n',
+               'disable-symbolic-link|ds',
+               'disable-vex-extension|dv',
+               'wait-close',
+               'interactive|i',
+               'test-only|to',
+               'force|fo',
+               );
 
     for (@ARGV) {
         if ($_ eq '//') {               # //        --index
             set_program '.index';
         } elsif (m/^\/(\w+)$/) {        # /ext      --type
-            error_report "--open-all is specified" if $opt_open_all == 1;
+            die "$_: exclusive with --open-all" if $opt_open_all;
             $opt_type = $1;
-            $opt_type_specified = 1;
         } elsif (m/^(\d+)\.$/) {        # num.      --offset=-num
             $opt_offset -= $1;
         } elsif (m/^(\.+)$/) {          # ...       --offset=-2
@@ -164,18 +135,20 @@ sub main {
         }
     }
 
-    if (! defined $opt_root) {
+    unless (defined $NFS_ROOT) {
         if ($opt_type eq 'x') {
-            $opt_root = "$ENV{USERPROFILE}/My Documents/.scratch";
+            $NFS_ROOT = "$HOME/.scratch";
             $opt_type = 'lst';
             $opt_program = '.ls';
         } else {
-            $opt_root = "$ENV{USERPROFILE}/My Documents/.notes";
+            $NFS_ROOT = "$HOME/.notes";
         }
     }
 
+    $opt_type = 'txt' unless $opt_type_spec = defined $opt_type;
+
     if ($opt_title eq '') {
-        my $deftitle = get_serial($opt_root);
+        my $deftitle = get_serial($NFS_ROOT);
         if ($opt_interactive) {
             set_option 'nfs title', \$opt_title, '', $deftitle;
         } else {
@@ -187,7 +160,7 @@ sub main {
         die "Invalid NFS-Title: $opt_title";
     }
 
-    $opt_root = expand_symbolic_link($opt_root, 'Not mounted: %s');
+    $NFS_ROOT = expand_symbolic_link($NFS_ROOT, 'Not mounted: %s');
 
     # prepare title name
         if ($opt_title =~ m/^\.(.*)$/) {
@@ -199,7 +172,7 @@ sub main {
 
             # get the container path
             my ($t_container, $t_vol, $t_full, $t_autoext)
-                = expand_nfs_title($opt_root, $opt_title, $opt_type, 1);
+                = expand_nfs_title($NFS_ROOT, $opt_title, $opt_type, 1);
 
             my $stack_serial = get_serial($t_container);
             $opt_title =~ s/-placeholder$//;
@@ -207,29 +180,126 @@ sub main {
         }
 
     # expand nfs-title into container-path and full-path
-        ($nfs_path_container,
-         $nfs_path_vol,
-         $nfs_path_full,
-         $opt_type)
-            = expand_nfs_title($opt_root, $opt_title, $opt_type, $opt_type_specified);
+    ($NFS_CONTAINER, $NFS_VOL, $NFS_FILE, $opt_type)
+        = expand_nfs_title($NFS_ROOT, $opt_title, $opt_type, $opt_type_spec);
 
-        print "NFS-Vol:   \"$nfs_path_vol\"\n" if $opt_verbose;
-        print "Container: \"$nfs_path_container\"\n" if $opt_verbose;
-        print "Fullpath:  \"$nfs_path_full\"\n" if $opt_verbose;
+    _log2 'NFS_VOL:         '.$NFS_VOL;
+    _log2 'NFS_CONTAINER:   '.$NFS_CONTAINER;
+    _log2 'NFS_FILE:        '.$NFS_FILE;
+    _log2 'program:         '.$opt_program;
 
-        print "Program:   \"$opt_program\"\n" if $opt_verbose;
+    _main;
+}
 
+=head1 SYNOPSIS
+
+B<UnKnOwN>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<UnKnOwN> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-UnKnOwN-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item S<[ B<-m> | B<--my-option> ]>
+
+...
+
+=item S<[ B<-q> | B<--quiet> ]>
+
+Repeat this option to suppress unimportant information to display.
+
+=item S<[ B<-v> | B<--verbose> ]>
+
+Repeat this option to display more detailed information.
+
+=item S<[ B<-h> | B<--help> ]>
+
+Display a breif help page and exit(0).
+
+=item S<[ B<--version> ]>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] TITLE\n", <<'EOM';
+
+Common options:
+    -r, --root=DIR          default ~/.notes
+    -n, --nfs-title=TITLE   default use-date
+    -p, --program=PROGRAM   override the default program
+    -t, --type=TYPE         default txt
+    -a, --open-all          open all types of TITLE, exclusive with --type)
+    -b, --backup            (not implemented)
+    -c, --create            recreate a new file
+    -d, --delete            delete the TITLE
+    -m, --map=DIR           default current directory
+    -s, --synchronize       synchronize the mappings in current directory
+    -l, --link=DIR          ln -s DIR CONTAINER/TITLE.link
+    -x, --index=TAGS        default "h1"
+    -kb,--keywords-build=TAGS default "h1 keywords title"
+        --flatten=DIR       flatten symlinks into single directory-tree
+    -ml,--max-levels=NUM    limit max levels, must be greater than 1
+    -ud,--use-date=FORMAT   default YYYY-MM-DD
+    -us,--use-serial=FORMAT default 000
+    -o, --offset=DAYS(date-diff) or NUM(serial-diff)
+    -ds,--disable-symbolic-link
+    -dv,--disable-vex-extension
+    -i, --interactive
+    -to,--test-only
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+
+Examples:
+    nfs -m /public/myopinion 2001-02-03
+    nfs -l .. (TODO)
+
+EOM
+}
+
+exit boot;
+
+sub _main {
     # quick delete
         if ($opt_program eq '.del' or $opt_program eq '.new') {
-            if (-e $nfs_path_full) {
-                my $confirm = confirm_prompt "delete file $nfs_path_full";
+            if (-e $NFS_FILE) {
+                my $confirm = confirm_prompt "delete file $NFS_FILE";
                 exit if not $confirm;
-                print "delete file $nfs_path_full\n" if $opt_verbose;
-                if (not unlink $nfs_path_full) {
-                    print "Nfs document $nfs_path_full can not be deleted\n" if $opt_quiet;
+                _log2 "delete file $NFS_FILE";
+                unless (unlink $NFS_FILE) {
+                    _log1 "Nfs document $NFS_FILE can not be deleted";
                 }
             } else {
-                print "Nfs document $nfs_path_full was not existed\n" if not $opt_quiet;
+                _log1 "Nfs document $NFS_FILE was not existed";
             }
             exit if ($opt_program eq '.del');
             undef $opt_program;         # for .new
@@ -239,18 +309,18 @@ sub main {
     # for special operations
 
     if ($opt_program eq '.bak') {
-        print "backup $nfs_path_full to $nfs_path_full.bak\n" if $opt_verbose;
-        binary_copy $nfs_path_full, "$nfs_path_full.bak";
+        _log2 "backup $NFS_FILE to $NFS_FILE.bak";
+        binary_copy $NFS_FILE, "$NFS_FILE.bak";
         return;
     }
 
     if ($opt_program eq '.map') {
-        print "map $nfs_path_full to $opt_map_target\n" if $opt_verbose;
+        _log2 "map $NFS_FILE to $opt_map_target";
 
         # check source existance and get the extension
         if (not $opt_map_delete) {
-            if (not -e $nfs_path_full) {
-                die "Mapping source $nfs_path_full isn't existed. ";
+            if (not -e $NFS_FILE) {
+                die "Mapping source $NFS_FILE isn't existed. ";
             }
         }
         if ($opt_map_target !~ m/\./) {
@@ -266,36 +336,36 @@ sub main {
         } else {
             # returns the actually full-path of target,
             # this may fill the ignored filename
-            $opt_map_target = binary_copy($nfs_path_full, $opt_map_target);
+            $opt_map_target = binary_copy($NFS_FILE, $opt_map_target);
         }
 
         if (not $opt_disable_vex_extension) {
             # $new_this -> $new_source
-            my ($src_dir, $src_name) = path_split($nfs_path_full);
+            my ($src_dir, $src_name) = path_split($NFS_FILE);
             my ($dst_dir, $dst_name) = path_split($opt_map_target);
                 $dst_dir ||= '.';
             my $new_key = $dst_name;            # target
-            my $new_value = $nfs_path_full;     # source
+            my $new_value = $NFS_FILE;     # source
 
             my $vexdir = path_join($dst_dir, '.VEX', 'sync');
             my $synclist = path_join($vexdir, 'sync-nfs');
 
             if ($opt_map_delete) {
-                print "remove vex/sync entry: $new_key=$new_value\n" if $opt_verbose;
+                _log2 "remove vex/sync entry: $new_key=$new_value";
             } else {
                 # os-branch
                 # if (not -e ".sync-nfs.bat") {
                     open(F, ">.sync-nfs.bat");
                     print F "\@echo off\n";
-                    print F "rem NFS-Rev: $nfs_id{rev}\n";
-                    print F "rem Thie file is auto generated by NFS Program $nfs_id{rev}, and it will\n";
+                    print F "rem NFS-Rev: $RCSID{rev}\n";
+                    print F "rem Thie file is auto generated by NFS Program $RCSID{rev}, and it will\n";
                     print F "rem be automaticly updated. Please don't edit this file. \n";
                     print F "call nfs --synchronize --quiet\n";
                     close F;
                 # }
 
-                print "add vex/sync entry: $new_key=$new_value\n" if $opt_verbose;
-                mkdir_p $vexdir;
+                _log2 "add vex/sync entry: $new_key=$new_value";
+                mkpath $vexdir;
             }
 
             my @lines = ();
@@ -344,7 +414,7 @@ sub main {
                 next if (m/^\.+$/);
                 my $fullpath = expand_nfs_title($_);
                 if (-e $fullpath) {
-                    print "synchronize $_ from $fullpath\n" if $opt_verbose;
+                    _log2 "synchronize $_ from $fullpath";
                     file_sync $fullpath, path_join('.', $_), $_;
                 }
             }
@@ -352,7 +422,7 @@ sub main {
             my $vexdir = path_join($opt_map_target, '.VEX', 'sync');
             my $synclist = path_join($vexdir, 'sync-nfs');
             if (not -e $vexdir) {
-                print "no items to synchronize\n" if $opt_verbose;
+                _log2 "no items to synchronize";
                 exit;
             }
 
@@ -362,7 +432,7 @@ sub main {
                     if (m/^(.*)=(.*)$/) {
                         my $synckey = $1;                       # sync-target
                         my $syncvalue = $2;                     # sync-source
-                        print "synchronize $synckey from $syncvalue\n" if $opt_verbose;
+                        _log2 "synchronize $synckey from $syncvalue";
                         file_sync $syncvalue, path_join('.', $synckey), $synckey;
                     }
                 }
@@ -376,7 +446,7 @@ sub main {
 
     # browsing?
     if ($opt_program eq '.ls') {
-        my $termdir = path_join $nfs_path_container, $opt_title;
+        my $termdir = path_join $NFS_CONTAINER, $opt_title;
         mkdir_p $termdir;
         $opt_program = '.dep';
         cmdexec "\"$termdir\"";
@@ -384,35 +454,35 @@ sub main {
     }
 
     # lazy- create
-    if (! -e $nfs_path_full) {
+    if (! -e $NFS_FILE) {
         # auto create the container levels
-        mkdir_p $nfs_path_container;
+        mkpath $NFS_CONTAINER;
 
         # apply the template
-        my $template = path_join $nfs_path_vol, ".vol-def.$opt_type";
+        my $template = path_join $NFS_VOL, ".vol-def.$opt_type";
         if (-e $template) {
-            print "create new nfs document based on template: $template\n" if $opt_verbose;
-            template_instantiate $template, $nfs_path_full;
+            _log2 "create new nfs document based on template: $template";
+            template_instantiate $template, $NFS_FILE;
         } else {
-            print "create new nfs document (empty)\n" if $opt_verbose;
-            open(FH, ">$nfs_path_full")
-                or die "Can't create file $nfs_path_full";
+            _log2 "create new nfs document (empty)";
+            open(FH, ">$NFS_FILE")
+                or die "Can't create file $NFS_FILE";
             close FH;
         }
     }
 
     # prepare file-list to open => $full_dir/$full_name . @exts
-    my ($full_dir, $full_file) = path_split $nfs_path_full;
+    my ($full_dir, $full_file) = path_split $NFS_FILE;
     my ($full_name, $full_ext) = path_splitext $full_file;
         $full_ext =~ s/^\.//;
     my @exts;
 
     if ($opt_open_all) {
-        my $dh = new DirHandle($nfs_path_container);
+        my $dh = new DirHandle($NFS_CONTAINER);
         my @list = $dh->read;
         $dh->close;
         foreach my $item (@list) {
-            next if -d path_join($nfs_path_container, $item);
+            next if -d path_join($NFS_CONTAINER, $item);
             my ($et_name, $et_ext) = path_splitext $item;
             $et_ext =~ s/^\.//;
             push @exts, $et_ext if ($et_name eq $full_name);
@@ -427,8 +497,8 @@ sub main {
 
         if ($opt_program eq '.dep') {
             # use program depends on type to open the document
-            my $opener = $nfs_filetype{$each_ext};
-               $opener ||= $nfs_filetype{''};
+            my $opener = $FILETYPE{$each_ext};
+               $opener ||= $FILETYPE{''};
             $cmdline = sprintf("$opener", $open_path);
         } else {
             # use the specified program to open the document
@@ -440,29 +510,18 @@ sub main {
 
 }
 
+=head1 INTERNALS
 
+(No Information)
 
-###############################################################################
-#
-# SUBROUTINES
-#
-#   file_sync
-#   expand_nfs_title
-#   template_instantiate
-#   expand_symbolic_link
-#   binary_copy
-#   get_serial
-#   get_vol_serial
-#   version
-#   help
-
+=cut
 sub file_sync {
     my ($source, $dest, $name) = @_;
     if (not -e $dest) {
-        print "download/new $name\n" if not $opt_quiet;
+        _log2 "download/new $name";
         binary_copy $source, $dest;
     } elsif (not -e $source) {
-        print "upload/new $name\n" if not $opt_quiet;
+        _log2 "upload/new $name";
         binary_copy $dest, $source;
     } else {
         my @st_src = stat $source;
@@ -470,19 +529,18 @@ sub file_sync {
         my $mt_src = $st_src[9];
         my $mt_dst = $st_dst[9];
         if ($mt_src == $mt_dst) {
-            print "skip $name\n" if not $opt_quiet;
+            _log2 "skip $name";
         } elsif ($mt_src > $mt_dst) {
             # source is newer
-            print "download $name\n" if not $opt_quiet;
+            _log2 "download $name";
             binary_copy $source, $dest;
         } else {
             # dest is newer
-            print "upload $name\n" if not $opt_quiet;
+            _log2 "upload $name";
             binary_copy $dest, $source;
         }
     }
 }
-
 
 # input:    original-root, title
 # output:   path-container, path-vol, path-full
@@ -537,56 +595,20 @@ sub expand_nfs_title {
     return ($container, $vol, $full, $ext);
 }
 
-
 sub template_instantiate {
-    my ($temp, $file) = @_;
+    my ($tmpl, $file) = @_;
     my @noteauto_supports = qw/doc xls/;
     if (grep { $_ eq $opt_type } @noteauto_supports) {
         # e.g.
         #   noteauto path/vol create doc path/full.ext
         #   noteauto path/vol create xls path/full.ext
-        system "noteauto \"$nfs_path_vol\" create $opt_type \"$nfs_path_full\"";
+        system "noteauto \"$NFS_VOL\" create $opt_type \"$NFS_FILE\"";
     } else {
-        print "instantating $temp to $file\n" if $opt_verbose;
-        open(FSRC, "<$temp")
-            or die "Can't open file $temp for read";
-        open(FDEST, ">$file")
-            or die "Can't open file $file for write";
-        while (<FSRC>) {
-            if (not $opt_disable_template_substitute) {
-                $_ = template_substitute $_;
-            }
-            print FDEST;
-        }
-        close FSRC;
-        close FDEST;
+        _log2 "instantating $tmpl to $file";
+        my $cnt = php_perl readfile $tmpl;
+        writefile($file, $cnt) or die "Can't write to $file";
     }
 }
-
-
-sub template_substitute {
-    # Format <? Perl-scriptlet ?> must be in one-line
-    my $oldtext = shift;
-
-    # Copy from re-parts.pl
-    # Complex-Replacement based:
-            my $newtext = '';
-            my $posmark = 0;
-            while ($oldtext =~ m/ <\? ( ( (\\.) | ([^\?]) | (\?[^>]) )* ) \?> /xg) {
-		$newtext .= substr($oldtext, $posmark, $-[0] - $posmark);
-
-		my $scriptlet = $1;
-		my $result = eval($scriptlet);
-		$newtext .= $result;
-		print "template substitute: <?$scriptlet?> => $result\n" if $opt_verbose;
-
-		$posmark = $-[0] + length($&);
-            }
-            $newtext .= substr($oldtext, $posmark);
-
-    return $newtext;
-}
-
 
 sub expand_symbolic_link {
     my ($path, $errmsg) = @_;
@@ -595,35 +617,23 @@ sub expand_symbolic_link {
     chop $path if $path =~ m/[\\\/]$/;
 
     if (-f "$path") {
-        open(F, "<$path")
-            or die "Can't open symbolic-link file";
-        my @lines = <F>;
-        close F;
-
-        # remove blank and comments lines
-        @lines = grep {!/^\s*(\#.*)?$/} @lines;
-        my $content = join('', @lines);
-        $content = template_substitute($content);
-        chomp $content;
+        my $sym_to = php_perl readfile $path;
+        $sym_to =~ s/^\s+|\s+$//g;
 
         my $context_dir = path_join($path, '..');
-        $path = path_join($context_dir, $content);
-
+        $path = path_join($context_dir, $sym_to);
         if (not -e $path and $errmsg) {
             $errmsg = sprintf $errmsg, $path;
             print($errmsg), exit if $opt_test_only;
             while ('retry' eq
-                    msgbox($errmsg, $nfs_appname, 'retry', 'cancel', 'x')) {
+                    msgbox($errmsg, $APPNAME, 'retry', 'cancel', 'x')) {
                 last if -e $path;
             }
             exit if not -e $path;
         }
-
-        return $path;
     }
     return $path;
 }
-
 
 sub binary_copy {
     my ($src, $dest) = @_;
@@ -637,7 +647,7 @@ sub binary_copy {
         exit if not $confirm;
     }
 
-    print "copy $src to $dest\n" if $opt_verbose;
+    _log2 "copy $src to $dest";
 
     #open(FSRC, "<$src")
     #    or die "Can't open file $src for read";
@@ -656,7 +666,6 @@ sub binary_copy {
 
     return $dest;
 }
-
 
 sub get_serial {
     if ($opt_name_method eq 'date') {
@@ -707,7 +716,7 @@ sub get_serial {
         $f .= 'x' if $ordix == 16 and $capital = 0;
         $f .= 'X' if $ordix == 16 and $capital = 1;
         my $container = shift;
-        print "calculate the container-serial for $container\n" if $opt_verbose;
+        _log2 "calculate the container-serial for $container";
 
         my $dh = new DirHandle($container);
         my @files = $dh->read;
@@ -725,11 +734,11 @@ sub get_serial {
             } elsif ($ordix == 16) {
                 $num = hex $_;
             }
-            # print "container-serial number discovered: $num\n" if $opt_verbose;
+            # _log2 "container-serial number discovered: $num";
             $min = $num if $num < $min;
             $max = $num if $num > $max;
         }
-        print "last container-serial retrieved: $max\n" if $opt_verbose;
+        _log2 "last container-serial retrieved: $max";
         $num = $max + 1 + $opt_offset;
 
         return sprintf($f, $num);
@@ -737,15 +746,14 @@ sub get_serial {
     die "Name method $opt_name_method is not supported. ";
 }
 
-
 sub get_vol_serial {
     my $serial = 0;
-    my $path_serial = path_join($nfs_path_vol, '.vol-serial');
+    my $path_serial = path_join($NFS_VOL, '.vol-serial');
     if (-e $path_serial) {
         open(F, "<$path_serial")
             or die "Can't open serial file $path_serial to read";
         $serial = 1 * <F>;
-        print "last serial retrieved: $serial\n" if $opt_verbose;
+        _log2 "last serial retrieved: $serial";
         close F;
     }
     $serial++;
@@ -756,13 +764,21 @@ sub get_vol_serial {
     return $serial;
 }
 
+=head2 set_program
 
-sub error_report {
-    my $msg = shift;
-    print $msg;
-    exit;
-}
+Program used to open nfs document
 
+    .dep    Depends on type
+    .del    delete document
+    .new    delete and create
+    .map    copy document to specified directory
+    .sync   synchronize the mappings in current directory
+    .link   create a symbolic link of the specified container-name
+    .index  build index file
+    .bak    do backup
+    .ls     browsing in the directory
+
+=cut
 sub set_program {
     my $program = shift;
     if ($opt_program eq '.dep') {
@@ -775,7 +791,7 @@ sub set_program {
             return;
         }
     }
-    error_report "--program=$opt_program has already been specified"
+    die "--program=$opt_program has already been specified"
 }
 
 sub set_option {
@@ -794,7 +810,7 @@ sub set_option {
 
 sub confirm_prompt {
     my $prompt = shift;
-    return 1 if $opt_quiet;
+    return 1 if $LOGLEVEL < 1;
 
     while (1) {
         print "Confirm $prompt? ([y]es, [n]o) ";
@@ -811,14 +827,14 @@ sub confirm_prompt {
 
 sub cmdexec {
     my $cmdline = shift;
-    print "$cmdline\n" if $opt_verbose;
+    _log2 "$cmdline";
     if ($opt_test_only) {
         # do nothing
-        my $local = $nfs_path_container;
+        my $local = $NFS_CONTAINER;
         chdir $local;
 
         $local =~ s {\/}{\\}g;
-        print "HOWTO? - cd \"$local\"";
+        _log1 "HOWTO? - cd \"$local\"";
     } else {
         if ($opt_wait_close) {
             #if (my $pid = fork) {
@@ -828,73 +844,40 @@ sub cmdexec {
             #}
             system "$cmdline";
         } else {
-            system "start $cmdline";
+            system "cmd /c start $cmdline";
         }
     }
 }
 
+=head1 HACKING
 
-sub version {
-    print <<"EOM"
-[NFS] Notes for Speed
-      Written by Snima Denik    Version 2.$nfs_id{rev}    Updated $nfs_id{date}
-EOM
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Notes for Speed \n";
+    print "Written by Lenik,  Version 2.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 
+=head1 SEE ALSO
 
-sub help {
-    &version;
-    print <<"EOM";
+The L<cmt/"Perl_simple_cli_program_template">
 
-Syntax:
-    nfs (-abcdhilmnopqrstuvx <title>)
-        --root=<nfs-root, default "~/My Documents/.notes" for Windows, -or-
-                "~/.notes" for *Nix> (r)
-        --nfs-title=<nfs-title, default use-date> (n)
-        --program=<open-by-program, default depends on type> (p)
-        --type=<note-file-type, default txt> (t)
-        --open-all (a)
-            (open all types of the specifid note, exclusive with --type)
+=head1 AUTHOR
 
-        --backup (b)
-        --create (delete the existing document and create new) (c)
-        --delete (d)
-        --map=<target-directory, default current directory> (m)
-        --synchronize (synchronize the mappings in current directory) (s)
-        --link=<directory on which the .link file resides> (l)
-               (create a symbolic link of the specified container-name)
-        --index=<index-range, default "h1"> (x)
+Xima Lenik <name@mail.box>
 
-        --keywords-build=<keywords-range, default "h1 keywords title"> (k)
-        --flatten=<target-directory> (f)
-                  (flatten symbolic links into single directory-tree)
-
-        --max-levels=<1..inf, default inf> (ml)
-
-        --use-date=<date-format, default YYYY-MM-DD> (ud)
-        --use-serial=<serial-format, default 000> (us)
-        --offset=<days for date -or- number for serial, default -1> (o)
-
-        --disable-symbolic-link (ds)
-        --disable-template-substitute (dt)
-        --disable-vex-extension (dv)
-        --interactive (i)
-        --test-only (to)
-        --verbose (v)
-        --quiet (q)
-        --version (ve)
-        --help (h)
-
-        [--] <nfs-title>
-
-Examples:
-
-        nfs -m /public/myopinion 2001-02-03
-        nfs -l .. (TODO)
-
-This program is distributed under GNU General Public License (GPL).
-Send bug-report to bug-report\@bodz.net, or visit http://tc.bodz.net/diret
-EOM
-}
-
-&main;
+=cut
