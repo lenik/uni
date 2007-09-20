@@ -147,9 +147,9 @@ appskey & numpadsub::send {volumn_down}
 #t::run %SHELL% --login
 #x::run cmdw /c startx -notrayicon
 #-::
-	nfs1 = %perlw% /lapiota/bin/nfs.pl --wait-close
-	nfs2 = %perlw% /lapiota/bin/nfs.pl --wait-close temp-
-	nfs3 = %perlw% /lapiota/bin/nfs.pl --wait-close xxx-
+	nfs1 = %perlw% /lapiota/bin/nfs --wait-close
+	nfs2 = %perlw% /lapiota/bin/nfs --wait-close temp-
+	nfs3 = %perlw% /lapiota/bin/nfs --wait-close xxx-
 	funpack(3, "nfs")
 	return
 #=::
