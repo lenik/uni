@@ -17,6 +17,7 @@ our @EXPORT = qw(datetime
                  timestamp10
                  qr_literal
                  forx
+                 php_perl
                  qeval_perl
                  _qeval
                  qeval
@@ -169,6 +170,12 @@ sub forx($&;$$) {
 
     tie $_, 'cmt::proxy', $tieback if defined $tieback;
     return $buf;
+}
+
+sub php_perl {
+    local $_ = join('', @_);
+    s/<\? ( ( (\\.) | ([^\?]) | (\?[^>]) )* ) \?>/eval($1)/sgex;
+    return $_;
 }
 
 sub qeval_perl {
