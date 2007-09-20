@@ -33,6 +33,7 @@
             - $LAPIOTA\usr\lib
             - $CYGWIN_ROOT\bin
             - $CYGWIN_ROOT\sbin
+            - ${findabc -w jdk}\bin
         - w+$       PATH        ->
             - $LAPIOTA\local\bin
             - $LAPIOTA\local\lib
@@ -58,6 +59,7 @@
             - $LAPIOTA\usr\lib
             - ${findabc -w mingw}\lib
         - w=        JAVA_HOME   ${findabc -w jdk}
+        - =         JAVA_OPTS   -ea
         - w-        JAVA_LIB    $LAPIOTA
         - w+        JAVA_LIB    $LAPIOTA\usr\lib\java
         - w-        JAVA_SRC    $LAPIOTA
