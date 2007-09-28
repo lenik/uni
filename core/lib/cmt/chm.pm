@@ -226,7 +226,7 @@ sub dump_hhp {
     );
 
     my $inst = ppvar %vars, $opt_templates->{'chm.project'};
-    print $fh $inst;
+    print $fh $inst, "\n";
     print $fh "$_\n" for @$files;
     close $fh;
 }
@@ -282,9 +282,9 @@ sub _hhc {
 
     my $mode = 0;
     if ($mode == 0) {
-        exec "hhc $prjfile";
+        exec "hhc \"$prjfile\"";
     } else {
-        open (CAP, "hhc $prjfile|")
+        open (CAP, "hhc \"$prjfile\"|")
             or die "can't invoke hhc utility to do the compilation: $!";
         while (<CAP>) {
             print "hhc> $_";
@@ -522,7 +522,7 @@ __DATA__
 
 chm.project: |-
     [OPTIONS]
-    Binary TOC=Yes
+    Binary TOC=No
     Compatibility=1.1 or later
     Compiled file=$output
     Contents file=$tocfile
