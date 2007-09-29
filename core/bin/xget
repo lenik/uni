@@ -2,17 +2,17 @@
 
 =head1 NAME
 
-UnKnOwN - Perl_simple_cli_program_template
+xget - Get files from specific websites
 
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
-    $LOGNAME    = 'UnKnOwN'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+    $LOGNAME    = 'xget';
 use cmt::log(2);
 use cmt::perlsys('which_package');
 use cmt::util('listdir');
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: xget,v 1.1 2007-09-29 10:32:48 lenik Exp $');
+    my %RCSID   = parse_id('$Id: xget,v 1.2 2007-09-29 11:32:00 lenik Exp $');
 use Getopt::Long;
 use WWW::Xget('load_driver');
 
@@ -51,7 +51,7 @@ sub boot {
 
 =head1 SYNOPSIS
 
-B<UnKnOwN>
+B<xget>
     S<[ B<-q> | B<--quiet> ]>
     S<[ B<-v> | B<--verbose> ]>
     S<[ B<-h> | B<--help> ]>
@@ -61,33 +61,33 @@ B<UnKnOwN>
 
 =head1 DESCRIPTION
 
-B<UnKnOwN> is a WHAT used for WHAT. It HOW-WORKS.
+B<xget> is a WHAT used for WHAT. It HOW-WORKS.
 
 BACKGROUND-PROBLEM.
 
-HOW-UnKnOwN-RESOLVES.
+HOW-xget-RESOLVES.
 
 =head1 OPTIONS
 
 =over 8
 
-=item S<[ B<-m> | B<--my-option> ]>
+=item B<-m> | B<--my-option>
 
 ...
 
-=item S<[ B<-q> | B<--quiet> ]>
+=item B<-q> | B<--quiet>
 
 Repeat this option to suppress unimportant information to display.
 
-=item S<[ B<-v> | B<--verbose> ]>
+=item B<-v> | B<--verbose>
 
 Repeat this option to display more detailed information.
 
-=item S<[ B<-h> | B<--help> ]>
+=item B<-h> | B<--help>
 
 Display a breif help page and exit(0).
 
-=item S<[ B<--version> ]>
+=item B<--version>
 
 Display a short version information and exit(0).
 
@@ -119,12 +119,17 @@ Common options:
         --version           print the version info
 EOM
     if ($opt_driver->{'HELP'}) {
-        print "\nDriver $opt_driver_name options: \n".$opt_driver->{'HELP'}."\n";
+        print "\n$opt_driver_name driver options: \n".$opt_driver->{'HELP'}."\n";
     }
     print "\nInstalled Xget-Drivers: \n";
-    my $libdir = which_package('WWW::Xget');
-    for (listdir($libdir, qr/\.pm$/)) {
-        print "$_\n";
+    my $libdir = which_package('WWW::Xget::');
+    for (listdir($libdir, qr/^(\w+).pm$/)) {
+        my ($name) = /^(\w+).pm$/;
+        my $driver = eval { load_driver($name) };
+        unless ($@) {
+            printf "%16s-%-10s %s\n",
+                $name, $driver->{'VERSION'}, $driver->{'DESCRIPTION'};
+        }
     }
 }
 
@@ -161,7 +166,7 @@ The initial version.
 
 =cut
 sub _version {
-    print "[$LOGNAME] Perl_simple_cli_program_template \n";
+    print "[$LOGNAME] Get files from specific websites \n";
     print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 
