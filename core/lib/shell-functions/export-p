@@ -1,0 +1,60 @@
+#!/bin/sh
+
+# export --permanent
+# export-p [-u] NAME[=value]
+
+# which regtool || (echo regtool is required.; exit 2)
+
+# set -- `getopt -aluser,system,help,version -o n -- $*`
+scope=machine
+cmd=set
+for ARG; do
+	case $ARG in
+	-u|--user)
+		shift; scope=user;;
+	-s|--system)
+		shift; scope=system;;
+	-n)
+		shift; cmd=unset;;
+	-h|--help)
+		echo $0 [OPTION] NAME[=VALUE] [[NAME[=VALUE]...]
+		echo OPTION:
+		echo     -u, --user     affect current-user only
+		echo     -s, --system   affect all users
+		echo     -n             remove the variable from exports
+		echo     -h, --help     show this help page
+		echo     -v, --version  show version info
+		exit 0;;
+	-v|--version)
+		echo export-p version 1.0
+		echo written by Lenik, distributed under GPL license.
+		exit 0;;
+	--) shift; break;;
+	-*) echo invalid option: $ARG; exit 2;;
+	*) break;
+	esac
+done
+
+case $scope in
+user)		regpath="/user/Environment";;
+machine)	regpath="/machine/SYSTEM/CurrentControlSet/Control/Session Manager/Environment";;
+esac
+
+for ARG; do
+	name="${ARG%%=*}"
+	if [ ${#name} -eq ${#ARG} ]; then
+		value="${!name}"
+	else
+		value="${ARG#*=}"
+	fi
+
+	if [ $cmd = set ]; then
+		# echo "set $name=\"$value\""
+		regtool -e set "$regpath/$name" "$value" 2>/dev/null ||
+			(echo can\'t set $name.; exit 10)
+	else
+		# echo remove $name
+		regtool unset "$regpath/$name" 2>/dev/null ||
+			(echo can\'t remove $name.; exit 20)
+	fi
+done
