@@ -8,14 +8,18 @@ Nu - Wrapper for NET USE (Start A NETBIOS Session)
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
     $LOGNAME    = 'Nu'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use constant{NO_ERROR => 0, RESOURCETYPE_ANY => 0};
 use cmt::log(2);
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: nu,v 1.1 2007-09-18 13:42:11 lenik Exp $');
-use File::Path;
+    my %RCSID   = parse_id('$Id: nu,v 1.2 2007-09-29 10:29:09 lenik Exp $');
+use File::Path('mkpath');
 use Getopt::Long;
-use YAML;
+use Win32::API;
+use YAML('LoadFile', 'DumpFile');
 
 sub _main; sub _version; sub _help;
+sub wn_die;
+sub wn_use;
 
 our $opt_host;
 our $opt_user;
@@ -23,6 +27,26 @@ our $opt_password;
 our $opt_cache_dir      = '~/.nucache';
 our $opt_crypto;
 our $opt_just_once;
+
+BEGIN {
+    Win32::API->Import('mpr', 'WNetGetLastError', 'PPNPN', 'N');
+
+    Win32::API::Struct->typedef(NETRESOURCE => qw{
+        DWORD  dwScope;
+        DWORD  dwType;
+        DWORD  dwDisplayType;
+        DWORD  dwUsage;
+        LPSTR  lpLocalName;
+        LPSTR  lpRemoteName;
+        LPSTR  lpComment;
+        LPSTR  lpProvider;
+    });
+    Win32::API->Import('mpr', 'DWORD WNetAddConnection2('
+        .'LPNETRESOURCE lpNetResource, '
+        .'LPSTR lpPassword, '
+        .'LPSTR lpUsername, '
+        .'DWORD dwFlags)');
+}
 
 sub boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
@@ -45,8 +69,11 @@ sub boot {
     die "Host isn't specified" unless defined $opt_host;
 
     my $home = $ENV{'HOME'} || $ENV{'USERPROFILE'};
-    $opt_cache_dir =~ s/^~/$home/;
-    mkpath $opt_cache_dir unless -d $opt_cache_dir;
+    $opt_cache_dir =~ s/^~/$home/; # if $^O eq 'MSWin32';
+    unless (-d $opt_cache_dir) {
+        _log2 "mkpath $opt_cache_dir";
+        mkpath $opt_cache_dir or die;
+    }
 
     if ($opt_crypto) {
         die "Crypto $opt_crypto isn't supported. ";
@@ -136,7 +163,7 @@ sub _main {
     my $dbfile = "$opt_cache_dir/$opt_host";
     if (-f $dbfile) {
         _log2 "load host db";
-        $hostdb = Load($dbfile)
+        $hostdb = LoadFile($dbfile)
             or "can't load host db file $dbfile: $!";
         # TODO - using crypto...
     }
@@ -144,7 +171,7 @@ sub _main {
         _log2 "overwrite host db with user provided password";
         $hostdb->{$opt_user} = $opt_password;
         # TODO - using crypto...
-        Dump($dbfile, $hostdb) unless $opt_just_once;
+        DumpFile($dbfile, $hostdb) unless $opt_just_once;
     } else {
         if (defined $hostdb->{$opt_user}) {
             $opt_password = $hostdb->{$opt_user};
@@ -156,23 +183,30 @@ sub _main {
     _log2 "login with $opt_user:$opt_password\@$opt_host";
     # net use \\\\host\\IPC$ -> bash
     # \\host\IPC$ -> cmd
-    my $cmd = 'net use \\\\\\\\'.$opt_host.'\\\\IPC$ "/user:'.$opt_user.'"';
+    my $res = '\\\\'.$opt_host.'\\IPC$';
+    unless (wn_use $res, $opt_user, $opt_password) {
+        my $cmd = 'net use '.$res.' "/user:'.$opt_user.'"';
+           $cmd =~ s-\\-\\\\-g;
 
-    # TODO - dup STDIN and STDOUT, instead of open |
-    my $exec_mode = 0;
-    if ($exec_mode eq 'pipe') {
-        $cmd .= ' \*';
-        open(FH, '|'.$cmd) or die "can't exec with redirected stdin: $!";
-        print FH $opt_password, "\n";
-        while (<FH>) {
+        my $exec_mode = 'exec';
+        if ($exec_mode eq 'pipe') {
+            # TODO - dup STDIN and STDOUT, instead of open |
+            $cmd .= ' \*';
+            open(FH, '|'.$cmd) or die "can't exec with redirected stdin: $!";
             print FH $opt_password, "\n";
-            print "> $_";
+            while (<FH>) {
+                print FH $opt_password, "\n";
+                print "> $_";
+            }
+            close FH;
+        } elsif ($exec_mode eq 'exec') {
+            $cmd .= ' "'.$opt_password.'"';
+            _log2 $cmd;
+            system $cmd.' >nul 2>nul';
+            _log2 'errcode: '.$? if $?;
+        } else {
+            die 'unexpected';
         }
-        close FH;
-    } else {
-        $cmd .= ' "'.$opt_password.'"';
-        _log2 $cmd;
-        system $cmd;
     }
 }
 
@@ -189,6 +223,31 @@ sub _main {
 
 =cut
 # (MODULE FUNCTIONS)
+
+sub wn_die {
+    my $err = shift;
+    my $code = '?'x4;
+    my $errbuf = ' 'x1024;
+    my $nambuf = ' 'x128;
+    my $ret = WNetGetLastError($code, $errbuf, 1024, $nambuf, 128);
+    $code = unpack 'I4', $code;
+    $errbuf =~ s/\s+$//;
+    $nambuf =~ s/\s+$//;
+    die "WNet Error($err/$code): $errbuf (Provider: $nambuf)";
+}
+
+sub wn_use($$$;$) {
+    my ($remote, $user, $pwd, $local) = @_;
+    my $res = Win32::API::Struct->new('NETRESOURCE');
+    $res->{dwType} = RESOURCETYPE_ANY;
+    $res->{lpRemoteName} = $remote;
+    $res->{lpLocalName} = $local if defined $local;
+    $res->{lpComment} = 'A connection by '.$LOGNAME;
+    _log2 "WNetAddConnection2 $remote (user=$user, pwd=$pwd)";
+    my $err = WNetAddConnection2($res, $pwd, $user, 0);
+    _log2 "WNetAddConnection2 failed: $err" if $err;
+    !$err
+}
 
 =head1 HISTORY
 
