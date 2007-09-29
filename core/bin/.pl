@@ -10,7 +10,7 @@ use vars qw($LOGNAME $LOGLEVEL);
     $LOGNAME    = 'UnKnOwN'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::log(2);
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: .pl,v 1.15 2007-09-14 16:10:05 lenik Exp $');
+    my %RCSID   = parse_id('$Id: .pl,v 1.16 2007-09-29 11:31:33 lenik Exp $');
 use Getopt::Long;
 
 sub _main; sub _version; sub _help;
@@ -46,23 +46,23 @@ HOW-UnKnOwN-RESOLVES.
 
 =over 8
 
-=item S<[ B<-m> | B<--my-option> ]>
+=item B<-m> | B<--my-option>
 
 ...
 
-=item S<[ B<-q> | B<--quiet> ]>
+=item B<-q> | B<--quiet>
 
 Repeat this option to suppress unimportant information to display.
 
-=item S<[ B<-v> | B<--verbose> ]>
+=item B<-v> | B<--verbose>
 
 Repeat this option to display more detailed information.
 
-=item S<[ B<-h> | B<--help> ]>
+=item B<-h> | B<--help>
 
 Display a breif help page and exit(0).
 
-=item S<[ B<--version> ]>
+=item B<--version>
 
 Display a short version information and exit(0).
 

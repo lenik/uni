@@ -12,7 +12,7 @@ use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
 use cmt::util;
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: Xget.pm,v 1.1 2007-09-29 10:33:09 lenik Exp $');
+    my %RCSID   = parse_id('$Id: Xget.pm,v 1.2 2007-09-29 11:34:21 lenik Exp $');
     our $VER    = "0.$RCSID{rev}";
 use Exporter;
 
@@ -24,16 +24,21 @@ our %ALIAS;
 
 =head1 SYNOPSIS
 
-    use UnKnOwN;
-    mysub(arguments...)
+    use WWW::Xget;
+
+    my $driver = load_driver('DRIVER');
+    $driver->{OPT} = VALUE;
+
+    chdir(LOCAL-PATH);
+    $driver->get(FILES);
 
 =head1 DESCRIPTION
 
-B<UnKnOwN> is a WHAT used for WHAT. It HOW-WORKS.
+B<WWW::Xget> is a WHAT used for WHAT. It HOW-WORKS.
 
 BACKGROUND-PROBLEM.
 
-HOW-UnKnOwN-RESOLVES.
+HOW-WWW::Xget-RESOLVES.
 
 =head1 FUNCTIONS
 

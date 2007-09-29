@@ -143,6 +143,7 @@ appskey & numpadsub::send {volumn_down}
 #f::run firefox
 #m::run metapad
 #n::run cmdw /c no
+#p::run cmdw /c paint
 #s::run cmdw /c scilab
 #t::run %SHELL% --login
 #x::run cmdw /c startx -notrayicon
@@ -160,9 +161,9 @@ appskey & numpadsub::send {volumn_down}
 #,::run stairs
 #u::run ue
 
-#^e::run cmdw /c eclipse
-#+e::run cmdw /c em
 #+d::
 	ifexist C:\ntddk
 		run ntddk
 	return
+#+e::run cmdw /c em
+#+j::run cmdw /c eclipse
