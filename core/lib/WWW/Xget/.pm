@@ -1,8 +1,8 @@
-package WWW::Xget::SourceForge;
+package WWW::Xget::UnknOwn;
 
 =head1 NAME
 
-WWW::Xget::SourceForge - SourceForge Xget driver
+WWW::Xget::UnknOwn - UnknOwn Xget driver
 
 =cut
 use strict;
@@ -12,7 +12,7 @@ use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
 use cmt::util('addopts_long');
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: SourceForge.pm,v 1.2 2007-09-29 11:31:06 lenik Exp $');
+    my %RCSID   = parse_id('$Id: .pm,v 1.1 2007-09-29 11:31:06 lenik Exp $');
     our $VER    = "0.$RCSID{rev}";
 use Exporter;
 use WWW::Xget;
@@ -22,42 +22,44 @@ our @EXPORT = qw();
 
 # INITIALIZORS
 
+=head1 SYNOPSIS
+
+    use UnKnOwN;
+    mysub(arguments...)
+
 =head1 DESCRIPTION
 
-B<WWW::Xget::SourceForge> is a Xget driver.
+B<UnKnOwN> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-UnKnOwN-RESOLVES.
+
+=head1 FUNCTIONS
+
+=cut
+=head2 new()
 
 =cut
 sub new {
     my $package = shift;
     my $this = {
-        'DESCRIPTION'   => 'sf.net releases',
+        'OPTIONS'       => [
+            'user|u=s',
+            'password|p=s',
+        ],
+        'DESCRIPTION'   => '(No Description)',
         'HELP'          => help(),
         'VERSION'       => $VER,
-        'packages'      => [],
-        'patterns'      => [],
     };
-    $this->{'OPTIONS'} = [
-        'source|s',
-        'user|u=s',
-        'password|p=s',
-        'package|k=s' => $this->{'packages'},
-        'pattern|r=s' => $this->{'patterns'},
-        'all-packages|a',
-        'full-package|f',
-    ];
     addopts_long $this->{'OPTIONS'}, $this;
     bless $this, $package;
     $this
 }
 
-sub help { << 'EOM';
-    -s, --source            checkout source code through VCS
+sub help {<< 'EOM';
     -u, --user=USER         login with USER
     -p, --password=PASSWORD login with PASSWORD
-    -k, --package=PACKAGE   include this PACKAGE
-    -r, --pattern=REGEXP    get files match REGEXP, instead of the most recent
-    -a, --all-packages      get all packages
-    -f, --full-package      get all files under a package
 EOM
 }
 
