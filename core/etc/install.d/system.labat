@@ -68,10 +68,12 @@
         - u-        PERLLIB     /usr/lib
         - u+$       PERLLIB     ->
             - /lapiota/lib
-            - /usr/lib/perl5/5.8
-            - /usr/lib/perl5/5.8/cygwin
-            - /usr/lib/perl5/site_perl/5.8
-            - /usr/lib/perl5/vendor_perl/5.8
+            # /usr/lib/perl5/5.8/cygwin
+            # /usr/lib/perl5/5.8
+            # /usr/lib/perl5/site_perl/5.8/cygwin
+            # /usr/lib/perl5/site_perl/5.8
+            # /usr/lib/perl5/vendor_perl/5.8/cygwin
+            # /usr/lib/perl5/vendor_perl/5.8
             # /lapiota/usr/lib/perl5/5.8/site
             # /lapiota/usr/lib/perl5/5.8/cpan
         - u-        PYTHONPATH  /lapiota
@@ -95,18 +97,20 @@
             - touch     touch (to invalidate the timestamp)
             -           | cmdw /c $CYGWIN_ROOT\bin\touch \"%1\"
         - Directory ->
+            - ar-tgz    archive this directory into .tgz file
+            -           | $LAPIOTA\bin\tgz.bat \"%1\"
+            - ar-chm    archive this directory into .chm file
+            -           | $CYGWIN_ROOT\bin\perl /lapiota/bin/mkchm -v \"%1\"
             - cmd       Win32 Console
             -           | cmd /k $LAPIOTA\bin\lapiota-init.bat login
             - bigcmd    Win32 Console (Big)
-            -           | wcmd /c start \"Big\" $LAPIOTA\bin\lapiota-init.bat login
+            -           | cmdw /c start \"Big\" $LAPIOTA\bin\lapiota-init.bat login
             - ushell    Unix Shell
             -           | $CYGWIN_ROOT\bin\bash
             - bigushell Unix Shell (Big)
-            -           | wcmd /c start \"Big\" $CYGWIN_ROOT\bin\bash
+            -           | cmdw /c start \"Big\" $CYGWIN_ROOT\bin\bash
             - medit     edit files under this directory
             -           | $LAPIOTA\bin\mani.bat -f
-            - ar-tgz    build .tgz archive for this directory
-            -           | $LAPIOTA\bin\tgz.bat \"%1\"
             - renum     renumbering files in this directory
             -           | $LAPIOTA\usr\bin\renum -D -w 2 \"%1\*\"
             - mp3ltrim  format file names for media files (mp3, etc.)
@@ -117,7 +121,7 @@
             -           | $CYGWIN_ROOT\bin\perl /lapiota/bin/ftpsend.pl .
             # gbin      gather binaries
             #           | $LAPIOTA\bin\mvup.bat -c "%1\..\..\bin\" -t "%1\..\..\bin\" *.exe *.dll *.ocx
-        - chm.file  unchm   uncompress chm
+        - chm.file  unchm   extract files in current directory
         -           | $CYGWIN_ROOT\bin\perl /lapiota/bin/unchm \"%1\"
         - .lst      medit   edit files in the list
         -           | $LAPIOTA/bin/mani.bat -f \"%1\"
@@ -137,7 +141,7 @@
         - perl-program      .p .pc .pl
         -   | cmd /c %%PERL%% \"%0\" %*
         - perl-daemon       .pld
-        -   | wcmd /c %%PERLW%% \"%0\" %*
+        -   | cmdw /c %%PERLW%% \"%0\" %*
         - python-program    .py .pyc
         -   | $CYGWIN_ROOT\bin\python.exe \"%0\" %*
         - php-program       .php
