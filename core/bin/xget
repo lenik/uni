@@ -1,0 +1,176 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+UnKnOwN - Perl_simple_cli_program_template
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'UnKnOwN'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::log(2);
+use cmt::perlsys('which_package');
+use cmt::util('listdir');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: xget,v 1.1 2007-09-29 10:32:48 lenik Exp $');
+use Getopt::Long;
+use WWW::Xget('load_driver');
+
+sub _main; sub _version; sub _help;
+
+our $opt_driver         = 'SourceForge';
+our $opt_driver_name;
+our $opt_local_path;
+our $opt_cookie_jar;
+our $opt_mkdir;
+
+sub boot {
+    if ($ARGV[0] =~ /^~(\w+)$/) {
+        $opt_driver = $1;
+        shift @ARGV;
+    }
+    $opt_driver = load_driver($opt_driver)
+        or die "failed to load driver: $opt_driver";
+    $opt_driver_name = ref $opt_driver;
+    $opt_driver_name =~ s/^WWW::Xget:://;
+
+    use Data::Dumper;
+    print Dumper($opt_driver);
+
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'local-path|l=s',
+               'cookie-jar|j=s',
+               'mkdir|d',
+               @{$opt_driver->{'OPTIONS'}},
+               );
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<UnKnOwN>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<UnKnOwN> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-UnKnOwN-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item S<[ B<-m> | B<--my-option> ]>
+
+...
+
+=item S<[ B<-q> | B<--quiet> ]>
+
+Repeat this option to suppress unimportant information to display.
+
+=item S<[ B<-v> | B<--verbose> ]>
+
+Repeat this option to display more detailed information.
+
+=item S<[ B<-h> | B<--help> ]>
+
+Display a breif help page and exit(0).
+
+=item S<[ B<--version> ]>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [~DRIVER] [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -l, --local-path=PATH   where to save the downloaded files
+    -j, --cookie-jar=FILE   send request with existed http cookie jars
+    -d, --mkdir             create directories for different packages
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+    if ($opt_driver->{'HELP'}) {
+        print "\nDriver $opt_driver_name options: \n".$opt_driver->{'HELP'}."\n";
+    }
+    print "\nInstalled Xget-Drivers: \n";
+    my $libdir = which_package('WWW::Xget');
+    for (listdir($libdir, qr/\.pm$/)) {
+        print "$_\n";
+    }
+}
+
+exit boot;
+
+sub _main {
+    _sig1 'ARG', $_ for @ARGV;
+    _log1 "TODO...";
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Perl_simple_cli_program_template \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
