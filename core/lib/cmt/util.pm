@@ -1,21 +1,18 @@
 package cmt::util;
 
 use strict;
-use vars                qw/@ISA @EXPORT @EXPORT_OK/;
-use cmt::ftime;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = __PACKAGE__;
 use cmt::lang;
+use cmt::log(2);
 use cmt::path;
 use cmt::proxy;
 use Cwd;
 use Data::Dumper;
 use Exporter;
-use POSIX               qw/strftime/;
 
 our @ISA    = qw(Exporter);
-our @EXPORT = qw(datetime
-                 cftime
-                 timestamp10
-                 qr_literal
+our @EXPORT = qw(qr_literal
                  forx
                  php_perl
                  qeval_perl
@@ -24,6 +21,7 @@ our @EXPORT = qw(datetime
                  qsplit
                  append_cmdline
                  get_named_args
+                 addopts_long
                  arraycmp
                  arrayeq
                  arrayne
@@ -51,74 +49,7 @@ our @EXPORT = qw(datetime
                  ieval
                  );
 
-our $opt_verbtitle      = __PACKAGE__;
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
 our $opt_strict         = 0;
-
-sub datetime;
-
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print datetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
-
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print datetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
-
-# -> cdatetime
-sub datetime {
-    return strftime('%Y-%m-%d %H:%M:%S', localtime);
-}
-
-sub cftime {
-    my $t = shift || ftime;
-    my $ms = $t - int($t);
-    my $dot = index($ms, '.');
-    $ms = $dot == -1 ? 0 : substr($ms, $dot + 1, 6);
-    # my $s = $ms + $t % 60;
-    # $t = int($t / 60);
-    # my $m = $t % 60;
-    # $t = int($t / 60);
-    # my $h = $t % 24;
-    # return sprintf("%02d:%02d:%02.6f", $h, $m, $s);
-    my $secfmt = strftime('%H:%M:%S', gmtime($t));
-    return $secfmt . '.' . substr("00000$ms", -6);
-}
-
-sub localftime {
-    my $t = shift || ftime;
-    my $ms = $t - int($t);
-    my $dot = index($ms, '.');
-       $ms = $dot == -1 ? 0 : substr($ms, $dot + 1, 6);
-    # my $s = $ms + $t % 60;
-    # $t = int($t / 60);
-    # my $m = $t % 60;
-    # $t = int($t / 60);
-    # my $h = $t % 24;
-    # return sprintf("%02d:%02d:%02.6f", $h, $m, $s);
-    my $secfmt = strftime('%H:%M:%S', localtime($t));
-    return $secfmt . '.' . substr("00000$ms", -6);
-}
-
-sub timestamp10 {
-    my @now     = localtime;
-    my $t       = shift || \@now;
-    my $sep     = shift || '';
-    my $sep1    = shift || '';
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)
-                = @$t;
-    my $YY      = substr($year, -2);
-    my $DDD     = substr("000$yday", -3);
-    my $SSSSS   = substr('00000'. (($hour * 24 + $min) * 60 + $sec), -5);
-    $YY . $sep1 . $DDD . $sep . $SSSSS;
-}
 
 my %QRMODE = (
     'c'         => qr/[()\[\]{}?*+.|^\$\\]/,
@@ -243,6 +174,43 @@ sub get_named_args(\@;\%$) {
     }
     @$arg = @passby;
     return %$cfg;
+}
+
+sub addopts_long {
+    my ($cfg, $vars) = @_;
+    $vars = {} unless defined $vars;
+    if (ref $cfg eq 'ARRAY') {
+        my $n = @$cfg;
+        for (my $i = 0; $i < $n; $i += 2) {
+            my $optnam = $cfg->[$i];
+            if ($optnam =~ /^\w+/) {
+                my $varnam = $&;
+                unless (ref $cfg->[$i + 1]) {
+                    $vars->{$varnam} = undef;
+                    # insert the reference
+                    splice @$cfg, $i + 1, 0, \$vars->{$varnam};
+                    $n++;
+                }
+            } else {
+                die "invalid option name: $optnam";
+            }
+        }
+    } elsif (ref $cfg eq 'HASH') {
+        for (keys %$cfg) {
+            if (/^\w+/) {
+                my $varnam = $&;
+                unless (ref $cfg->{$_}) {
+                    $vars->{$varnam} = undef;
+                    $cfg->{$_} = \$vars->{$varnam};
+                }
+            } else {
+                die "invalid option name: $_";
+            }
+        }
+    } else {
+        die "invalid addopts-config type: ".(ref $cfg);
+    }
+    $vars;
 }
 
 sub _eq { $_[0] eq $_[1] }
@@ -572,7 +540,7 @@ sub ieval($&;$$) {
         $loader = \&YAML::Load;
         $dumper = \&YAML::Dump;
     }
-    my $stagefile = $opt_verbtitle.'.stage'.$stage;
+    my $stagefile = $LOGNAME.'.stage'.$stage;
     if (-f $stagefile) {
         my $file = readfile $stagefile;
         my $root =$loader->($file);

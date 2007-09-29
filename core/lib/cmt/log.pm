@@ -1,7 +1,7 @@
 package cmt::log;
 
 use strict;
-use cmt::util('datetime');
+use cmt::time('datetime');
 # use Data::Dumper;
 use Exporter;
 

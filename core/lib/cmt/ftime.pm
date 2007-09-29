@@ -1,14 +1,16 @@
-
 package cmt::ftime;
 
 use strict;
-use vars        qw/@ISA @EXPORT/;
 use Exporter;
-use Time::HiRes qw/time usleep/;
+use POSIX('strftime');
+use Time::HiRes('time', 'usleep');
 
-@ISA    = qw(Exporter);
-@EXPORT = qw(ftime
-		 fsleep);
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(ftime
+		 fsleep
+                 cftime
+                 localftime
+                 );
 
 # the prototype () is required, to avoid
 #       $elaps = ftime - $last_time;
@@ -26,4 +28,34 @@ sub fsleep {
     usleep($us);
 }
 
-1;
+sub cftime {
+    my $t = shift || ftime;
+    my $ms = $t - int($t);
+    my $dot = index($ms, '.');
+    $ms = $dot == -1 ? 0 : substr($ms, $dot + 1, 6);
+    # my $s = $ms + $t % 60;
+    # $t = int($t / 60);
+    # my $m = $t % 60;
+    # $t = int($t / 60);
+    # my $h = $t % 24;
+    # return sprintf("%02d:%02d:%02.6f", $h, $m, $s);
+    my $secfmt = strftime('%H:%M:%S', gmtime($t));
+    return $secfmt . '.' . substr("00000$ms", -6);
+}
+
+sub localftime {
+    my $t = shift || ftime;
+    my $ms = $t - int($t);
+    my $dot = index($ms, '.');
+       $ms = $dot == -1 ? 0 : substr($ms, $dot + 1, 6);
+    # my $s = $ms + $t % 60;
+    # $t = int($t / 60);
+    # my $m = $t % 60;
+    # $t = int($t / 60);
+    # my $h = $t % 24;
+    # return sprintf("%02d:%02d:%02.6f", $h, $m, $s);
+    my $secfmt = strftime('%H:%M:%S', localtime($t));
+    return $secfmt . '.' . substr("00000$ms", -6);
+}
+
+1
