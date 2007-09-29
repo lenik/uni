@@ -186,7 +186,7 @@ sub addopts_long {
             if ($optnam =~ /^\w+/) {
                 my $varnam = $&;
                 unless (ref $cfg->[$i + 1]) {
-                    $vars->{$varnam} = undef;
+                    $vars->{$varnam} = undef unless exists $vars->{$varnam};
                     # insert the reference
                     splice @$cfg, $i + 1, 0, \$vars->{$varnam};
                     $n++;
@@ -200,7 +200,7 @@ sub addopts_long {
             if (/^\w+/) {
                 my $varnam = $&;
                 unless (ref $cfg->{$_}) {
-                    $vars->{$varnam} = undef;
+                    $vars->{$varnam} = undef unless exists $vars->{$varnam};
                     $cfg->{$_} = \$vars->{$varnam};
                 }
             } else {
