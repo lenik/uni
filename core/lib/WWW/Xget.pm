@@ -12,7 +12,7 @@ use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
 use cmt::util;
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: Xget.pm,v 1.2 2007-09-29 11:34:21 lenik Exp $');
+    my %RCSID   = parse_id('$Id: Xget.pm,v 1.3 2007-09-30 10:20:52 lenik Exp $');
     our $VER    = "0.$RCSID{rev}";
 use Exporter;
 
@@ -30,7 +30,7 @@ our %ALIAS;
     $driver->{OPT} = VALUE;
 
     chdir(LOCAL-PATH);
-    $driver->get(FILES);
+    $driver->do_get(NAMES);
 
 =head1 DESCRIPTION
 
@@ -52,8 +52,14 @@ sub load_driver {
         $name = __PACKAGE__.'::'.$name;
     }
     eval "use $name; 1"
-        or "failed to load $name: $@";
+        or die "failed to load $name: $@";
     return $name->new();
+}
+
+{
+    package WWW::Xget::Driver;
+
+    sub do_get      { die "not implemented" }
 }
 
 =head1 DIAGNOSTICS
