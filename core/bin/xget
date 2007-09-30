@@ -12,7 +12,7 @@ use cmt::log(2);
 use cmt::perlsys('which_package');
 use cmt::util('listdir');
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: xget,v 1.2 2007-09-29 11:32:00 lenik Exp $');
+    my %RCSID   = parse_id('$Id: xget,v 1.3 2007-09-30 10:19:21 lenik Exp $');
 use Getopt::Long;
 use WWW::Xget('load_driver');
 
@@ -25,7 +25,7 @@ our $opt_cookie_jar;
 our $opt_mkdir;
 
 sub boot {
-    if ($ARGV[0] =~ /^~(\w+)$/) {
+    if ($ARGV[0] =~ /^[~\/](\w+)$/) {
         $opt_driver = $1;
         shift @ARGV;
     }
@@ -33,9 +33,6 @@ sub boot {
         or die "failed to load driver: $opt_driver";
     $opt_driver_name = ref $opt_driver;
     $opt_driver_name =~ s/^WWW::Xget:://;
-
-    use Data::Dumper;
-    print Dumper($opt_driver);
 
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
@@ -136,8 +133,8 @@ EOM
 exit boot;
 
 sub _main {
-    _sig1 'ARG', $_ for @ARGV;
-    _log1 "TODO...";
+    my $count = $opt_driver->do_get(@ARGV);
+    _log1 'Total '.$count.' files got';
 }
 
 =head1 DIAGNOSTICS
