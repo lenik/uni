@@ -534,16 +534,28 @@ sub fswalk(&;@) {
 
 # incremental-eval
 sub ieval($&;$$) {
-    my ($stage, $cb, $loader, $dumper) = @_;
+    my ($stage, $cb, $timeout, $loader, $dumper) = @_;
     unless (defined $loader) {
         require YAML;
         $loader = \&YAML::Load;
         $dumper = \&YAML::Dump;
     }
-    my $stagefile = $LOGNAME.'.stage'.$stage;
+    my ($base, $lev) = $stage =~ /^(?:(\w+)\.)?([^.]+)$/
+        or die "invalid stage name: $stage";
+    $base = (defined $base ? $base : $LOGNAME).'.st';
+    my $stagefile = $base.$lev;
+    if ($lev =~ /^\d+$/) {
+        my $prev = $lev - 1;
+        if (-f $base.$prev and -M $base.$prev < -M $stagefile) {
+            unlink $stagefile;
+        }
+    }
+    if (defined $timeout and 86400 * -M $stagefile > $timeout) {
+        unlink $stagefile;
+    }
     if (-f $stagefile) {
         my $file = readfile $stagefile;
-        my $root =$loader->($file);
+        my $root = $loader->($file);
         wantarray ? @$root : $root
     } else {
         if (wantarray) {
