@@ -1,6 +1,6 @@
 @echo off
 
-    set rfc_home=%ARK_HOME%\standard\rfc
+    set rfc_home=%LAPIOTA%\usr\ref\rfc
     set rfc_edit=metapad
     set rfc_name=%~1
 
