@@ -83,6 +83,8 @@ sub _log {
 sub _sig {
     my $cls = shift; local $_ = join('', @_);
     return unless -t STDERR or s/\n$//s;
+    # STDERR is always autoflush(1)
+    # local $| = 1 if -t STDERR;
     printf STDERR "[%4s] %-72s".(-t STDERR ? "\r" : "\n"), $cls, $_;
 }
 

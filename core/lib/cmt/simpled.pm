@@ -4,6 +4,7 @@
 package cmt::simpled;
 
 use strict;
+use cmt::ftime('fsleep');
 use cmt::serv;
 use cmt::stream;
 use Exporter;
