@@ -101,24 +101,29 @@ usecode_dlg() {
 lwin & tab::alttab
 lwin & capslock::shiftalttab
 
+#!c::
+    wingetactivetitle _atitle
+    wingetclass _acls, A
+    msgbox "[%_acls%] %_atitle%"
+    return
 #!e::run cmdw /c no %A_ScriptFullPath%
-#!r::reload
-#!p::pause
-#!s::suspend
-#!bs::exitapp
 #!h::
 	splitpath, a_ahkpath, name, dir
 	run % dir . "/autohotkey.chm"
 	return
+#!p::pause
+#!r::reload
+#!s::suspend
+#!u::
+	usecode_dlg()
+	return
+#!bs::exitapp
 #!/::
 	if A_IconHidden {
 		menu, tray, icon
 	} else {
 		menu, tray, noicon
 	}
-	return
-#!u::
-	usecode_dlg()
 	return
 
 appskey::send {appskey}
@@ -165,9 +170,22 @@ appskey & numpadsub::send {volumn_down}
 #,::run stairs
 #u::run ue
 
+#+e::run cmdw /c em
+
+#+j::run cmdw /c eclipse
+^enter::
+    settitlematchmode 2
+    ifwinactive, Eclipse SDK
+    {
+        send {end}+{home}^+d
+        sleep 300
+        send {end}{enter}{left 2}
+    } else {
+        send ^{enter}
+    }
+    return
+
 #+d::
 	ifexist C:\ntddk
 		run ntddk
 	return
-#+e::run cmdw /c em
-#+j::run cmdw /c eclipse
