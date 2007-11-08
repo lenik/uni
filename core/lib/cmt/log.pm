@@ -1,7 +1,7 @@
 package cmt::log;
 
 use strict;
-use cmt::time('datetime');
+use cmt::time('cdatetime');
 # use Data::Dumper;
 use Exporter;
 
@@ -76,11 +76,12 @@ sub _vec {
 
 sub _log {
     my $V = _vec; my (undef, $n, $t) = @$V;
-    print STDERR datetime.' ' if $$t;
+    print STDERR cdatetime.' ' if $$t;
     print STDERR "[$$n] ", @_, "\n";
 }
 
 sub _sig {
+        no warnings('printf');
     my $cls = shift; local $_ = join('', @_);
     return unless -t STDERR or s/\n$//s;
     # STDERR is always autoflush(1)

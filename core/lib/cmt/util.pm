@@ -448,6 +448,7 @@ sub listdir {
 }
 
 sub fswalk(&;@) {
+        no warnings('uninitialized');
     my $cb      = shift;
     my %cfg     = get_named_args @_;
     my $start   = _or($cfg{-start}, '.');

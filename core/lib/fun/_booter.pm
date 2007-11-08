@@ -35,7 +35,7 @@ our $opt_verbose        = 1;
 our $opt_version;
 our $opt_help;
 our $opt_ver_title      = "Perl simple function caller";
-our $opt_ver_id         = '$Id: _booter.pm,v 1.2 2007-08-02 22:49:15 lenik Exp $';
+our $opt_ver_id         = '$Id: _booter.pm,v 1.3 2007-11-08 10:52:38 lenik Exp $';
 our $opt_funname;
 our $opt_funcode;
 our $opt_funpkg;
@@ -103,14 +103,14 @@ sub _boot {
 sub _info {
     return if $opt_verbose < 1;
     my $text = shift;
-    print datetime.' ' if $opt_verbtime;
+    print cdatetime.' ' if $opt_verbtime;
     print "[$opt_verbtitle] $text\n";
 }
 
 sub _info2 {
     return if $opt_verbose < 2;
     my $text = shift;
-    print datetime.' ' if $opt_verbtime;
+    print cdatetime.' ' if $opt_verbtime;
     print "[$opt_verbtitle] $text\n";
 }
 

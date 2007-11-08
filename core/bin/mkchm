@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+no  warnings('uninitialized');
 
 use strict;
 use cmt::chm;
@@ -30,7 +31,7 @@ sub findindex;
 sub ext_dirproc;
 sub urldecode;
 
-my  %RCSID  = parse_id('$Id: mkchm,v 1.4 2007-09-14 16:19:42 lenik Exp $');
+my  %RCSID  = parse_id('$Id: mkchm,v 1.5 2007-11-08 10:52:37 lenik Exp $');
     $cmt::chm::opt_appname = "mkchm-$RCSID{rev}";
 
 our $opt_verbose;       *opt_verbose    = *cmt::chm::opt_verbose;
@@ -115,7 +116,7 @@ sub boot {
 }
 
 sub version {
-    my %id = parse_id('$Id: mkchm,v 1.4 2007-09-14 16:19:42 lenik Exp $');
+    my %id = parse_id('$Id: mkchm,v 1.5 2007-11-08 10:52:37 lenik Exp $');
     print "[$opt_verbtitle] General CHM Packager \n";
     print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
@@ -193,7 +194,7 @@ sub main {
                     $title = hremoveents($title);
                 }
                 $title = $head if $title eq '';
-                $title = $base   if $title eq '';
+                $title = $base if $title eq '';
                 if (defined $head) {
                     my $hlev = $htab + 1;
                     info2 "  head$hlev $head";

@@ -76,6 +76,7 @@ my $opt_verbose = 1;
 
     # split dirname and filename
     sub path_split($) {
+            no warnings('uninitialized');
         my $path = shift;
         my ($dir, $name) =
                 ($path =~ m/^(?:(.*)$patFS)?([^$setFS]*)$/);

@@ -124,14 +124,14 @@ sub chmac {
 sub info {
     return if $opt_verbose < 1;
     my $text = shift;
-    print datetime.' ' if $opt_verbtime;
+    print cdatetime.' ' if $opt_verbtime;
     print "[$opt_verbtitle] $text\n";
 }
 
 sub info2 {
     return if $opt_verbose < 2;
     my $text = shift;
-    print datetime.' ' if $opt_verbtime;
+    print cdatetime.' ' if $opt_verbtime;
     print "[$opt_verbtitle] $text\n";
 }
 

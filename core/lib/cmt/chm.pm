@@ -18,10 +18,11 @@ package cmt::chm;
 
 =cut
 use strict;
-use cmt::i18n;
+#use cmt::i18n();
 use cmt::path;
-use cmt::pp;
-use cmt::util;
+use cmt::pp('ppvar');
+use cmt::time('cdatetime');
+use cmt::util('writefile');
 use Data::Dumper;
 use Exporter;
 use YAML;
@@ -62,14 +63,14 @@ sub autogen_index;
 sub info {
     return if $opt_verbose < 1;
     my $text = shift;
-    print datetime.' ' if $opt_verbtime;
+    print cdatetime.' ' if $opt_verbtime;
     print "[$opt_verbtitle] $text\n";
 }
 
 sub info2 {
     return if $opt_verbose < 2;
     my $text = shift;
-    print datetime.' ' if $opt_verbtime;
+    print cdatetime.' ' if $opt_verbtime;
     print "[$opt_verbtitle] $text\n";
 }
 
@@ -506,7 +507,7 @@ sub autogen_index {
             title   => $node->[1],
             body    => $body,
             total   => (@$node - 3),
-            now     => datetime,
+            now     => cdatetime,
             appname => $opt_appname,
         );
         my $html = ppvar %vars, $opt_templates->{'autogen.index'};

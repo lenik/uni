@@ -22,7 +22,7 @@ our $opt_console;
 our $opt_make;
 our $opt_prefix;
 
-my %id = parse_id('$Id: plbat,v 1.9 2007-09-13 00:55:42 lenik Exp $');
+my %id = parse_id('$Id: plbat,v 1.10 2007-11-08 10:52:37 lenik Exp $');
 
 sub boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
@@ -66,14 +66,14 @@ sub boot {
 sub info {
     return if $opt_verbose < 1;
     my $text = shift;
-    print datetime.' ' if $opt_verbtime;
+    print cdatetime.' ' if $opt_verbtime;
     print "[$opt_verbtitle] $text\n";
 }
 
 sub info2 {
     return if $opt_verbose < 2;
     my $text = shift;
-    print datetime.' ' if $opt_verbtime;
+    print cdatetime.' ' if $opt_verbtime;
     print "[$opt_verbtitle] $text\n";
 }
 
@@ -162,6 +162,7 @@ __DATA__
     setlocal
     set _nam=$NAME
     set _ext=
+    set PERLFLAGS=-w
 
 :find_target
     for %%d in ("" ../) do (
@@ -210,12 +211,12 @@ __DATA__
 
 :start
     if "%PERL%"=="" set PERL=perl
-    "%PERL%" "%_dir%%_nam%%_ext%" %_args%
+    "%PERL%" %PERLFLAGS% "%_dir%%_nam%%_ext%" %_args%
     goto end
 
 :startw
     if "%PERLW%"=="" set PERLW=perlw
-    "%PERLW%" "%_dir%%_nam%%_ext%" %_args%
+    "%PERLW%" %PERLFLAGS% "%_dir%%_nam%%_ext%" %_args%
     goto end
 
 :end

@@ -167,7 +167,7 @@ sub info {
     my $this = shift;
     if ($this->{verbose} >= 1) {
         my $name = $this->name;
-        print datetime." [serv.$name] @_\n";
+        print cdatetime." [serv.$name] @_\n";
     }
 }
 
@@ -175,7 +175,7 @@ sub info2 {
     my $this = shift;
     if ($this->{verbose} >= 2) {
         my $name = $this->name;
-        print datetime." (serv.$name) @_\n";
+        print cdatetime." (serv.$name) @_\n";
     }
 }
 

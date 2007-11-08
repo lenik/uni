@@ -5,12 +5,11 @@ use Exporter;
 use POSIX('strftime');
 
 our @ISA    = qw(Exporter);
-our @EXPORT = qw(datetime
+our @EXPORT = qw(cdatetime
                  timestamp10
                  );
 
-# -> cdatetime
-sub datetime {
+sub cdatetime {
     return strftime('%Y-%m-%d %H:%M:%S', localtime);
 }
 

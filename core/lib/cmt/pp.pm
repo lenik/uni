@@ -223,6 +223,7 @@ sub ppdom(&;@) {
 }
 
 sub ppvarf(&$) {
+        no warnings('substr', 'uninitialized');
     my $resolv  = shift;
     my $text    = shift;
     forx qr/\$(\w+|\{(\\.|[^\}])*\}|\S)/, sub {

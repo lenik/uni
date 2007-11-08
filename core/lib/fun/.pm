@@ -31,19 +31,19 @@ sub boot {
 sub info {
     return if $opt_verbose < 1;
     my $text = shift;
-    print datetime.' ' if $opt_verbtime;
+    print cdatetime.' ' if $opt_verbtime;
     print "[$opt_verbtitle] $text\n";
 }
 
 sub info2 {
     return if $opt_verbose < 2;
     my $text = shift;
-    print datetime.' ' if $opt_verbtime;
+    print cdatetime.' ' if $opt_verbtime;
     print "[$opt_verbtitle] $text\n";
 }
 
 sub version {
-    my %id = parse_id('$Id: .pm,v 1.8 2007-08-02 22:49:15 lenik Exp $');
+    my %id = parse_id('$Id: .pm,v 1.9 2007-11-08 10:52:38 lenik Exp $');
     print "[$opt_verbtitle] Perl_funs_common_cli_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }

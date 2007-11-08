@@ -37,19 +37,19 @@ sub boot {
 sub info {
     return if $opt_verbose < 1;
     my $text = shift;
-    print datetime.' ' if $opt_verbtime;
+    print cdatetime.' ' if $opt_verbtime;
     print "[$opt_verbtitle] $text\n";
 }
 
 sub info2 {
     return if $opt_verbose < 2;
     my $text = shift;
-    print datetime.' ' if $opt_verbtime;
+    print cdatetime.' ' if $opt_verbtime;
     print "[$opt_verbtitle] $text\n";
 }
 
 sub version {
-    my %id = parse_id('$Id: asknet.pm,v 1.2 2007-08-02 22:49:15 lenik Exp $');
+    my %id = parse_id('$Id: asknet.pm,v 1.3 2007-11-08 10:52:38 lenik Exp $');
     print "[$opt_verbtitle] find specific answers from the internet \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }

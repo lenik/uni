@@ -185,7 +185,7 @@ sub linkmain {
 }
 
 sub version {
-    my %id = parse_id('$Id: keeplink.pld,v 1.7 2007-09-12 17:12:42 lenik Exp $');
+    my %id = parse_id('$Id: keeplink.pld,v 1.8 2007-11-08 10:52:37 lenik Exp $');
     print "[KEEPLINK] Keep network link by repeat sending\n";
     print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }
@@ -234,7 +234,7 @@ EOM
 sub info {
     if ($opt_verbose >= 1) {
         my $msg = shift;
-        my $date = datetime;
+        my $date = cdatetime;
         print "$date [$opt_verbtitle] $msg\n";
     }
 }
@@ -242,7 +242,7 @@ sub info {
 sub info2 {
     if ($opt_verbose >= 2) {
         my $msg = shift;
-        print datetime." [$opt_verbtitle] $msg\n";
+        print cdatetime." [$opt_verbtitle] $msg\n";
     }
 }
 

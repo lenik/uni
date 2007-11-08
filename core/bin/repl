@@ -13,7 +13,7 @@ use cmt::lang;
 use cmt::log(3);
 use cmt::util;
 use cmt::vcs('parse_id');
-    my %RCSID = parse_id('$Id: repl,v 1.21 2007-09-19 07:50:05 lenik Exp $');
+    my %RCSID = parse_id('$Id: repl,v 1.22 2007-11-08 10:52:38 lenik Exp $');
 use Data::Dumper;
 use File::Copy;
 use File::Temp('tempfile');
@@ -59,7 +59,7 @@ our @opt_select;
 our $opt_pattern;
 our $opt_replacement;
 our $opt_command;
-our $opt_regexp_flags;
+our $opt_regexp_flags   = '';
 our $opt_diff;
 our $opt_diff_ext;
 our $opt_diff_style;
@@ -334,7 +334,7 @@ sub _main {
                     while (<$fh>) {
                         ($x, $t) = $proc->($buf.$_);
                         if (defined $t) {
-                            undef $buf;
+                            $buf = '';
                             print $tmph $t;
                         } else {
                             $buf .= $_;
@@ -356,6 +356,7 @@ sub _main {
                 # the file may be deleted, and if this happens, do replace.
                 my ($a, $b);
               F:while (open my $fh, '<', $path) {
+                        no warnings('uninitialized');
                     do {
                         $a = <$fh>;
                         $b = <$tmph>;

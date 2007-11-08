@@ -68,19 +68,19 @@ sub boot {
 sub info {
     return if $opt_verbose < 1;
     my $text = shift;
-    print datetime.' ' if $opt_verbtime;
+    print cdatetime.' ' if $opt_verbtime;
     print "[$opt_verbtitle] $text\n";
 }
 
 sub info2 {
     return if $opt_verbose < 2;
     my $text = shift;
-    print datetime.' ' if $opt_verbtime;
+    print cdatetime.' ' if $opt_verbtime;
     print "[$opt_verbtitle] $text\n";
 }
 
 sub version {
-    my %id = parse_id('$Id: clup.bat,v 1.3 2007-09-12 17:12:41 lenik Exp $');
+    my %id = parse_id('$Id: clup.bat,v 1.4 2007-11-08 10:52:37 lenik Exp $');
     print "[$opt_verbtitle] clup bundled utility \n";
     print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }

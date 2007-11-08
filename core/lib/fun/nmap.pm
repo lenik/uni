@@ -32,19 +32,19 @@ sub boot {
 sub info {
     return if $opt_verbose < 1;
     my $text = shift;
-    print datetime.' ' if $opt_verbtime;
+    print cdatetime.' ' if $opt_verbtime;
     print "[$opt_verbtitle] $text\n";
 }
 
 sub info2 {
     return if $opt_verbose < 2;
     my $text = shift;
-    print datetime.' ' if $opt_verbtime;
+    print cdatetime.' ' if $opt_verbtime;
     print "[$opt_verbtitle] $text\n";
 }
 
 sub version {
-    my %id = parse_id('$Id: nmap.pm,v 1.1 2007-07-10 15:43:00 lenik Exp $');
+    my %id = parse_id('$Id: nmap.pm,v 1.2 2007-11-08 10:52:38 lenik Exp $');
     print "[$opt_verbtitle] Perl_simple_cli_libfun_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }
