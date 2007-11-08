@@ -22,6 +22,7 @@
     setlocal
     set _nam=%~n0
     set _ext=
+    set PERLFLAGS=-w
 
 :find_target
     for %%d in ("" ../) do (
@@ -70,12 +71,12 @@
 
 :start
     if "%PERL%"=="" set PERL=perl
-    "%PERL%" "%_dir%%_nam%%_ext%" %_args%
+    "%PERL%" %PERLFLAGS% "%_dir%%_nam%%_ext%" %_args%
     goto end
 
 :startw
     if "%PERLW%"=="" set PERLW=perlw
-    "%PERLW%" "%_dir%%_nam%%_ext%" %_args%
+    "%PERLW%" %PERLFLAGS% "%_dir%%_nam%%_ext%" %_args%
     goto end
 
 :end
