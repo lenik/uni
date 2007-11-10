@@ -2,8 +2,13 @@
 
     setlocal
 
+    call findabc bin
     set name=%~n0
     call findabc %name%
+    if "%exec%"=="" (
+        REM if not "%cd%"=="%_home%" set exec=start "%_home%"
+        if "%cd%"=="%USERPROFILE%" set exec=start "%_home%"
+    )
 
     if exist "%_home%\%name%.exe" goto _implicit
     for /d %%i in (%_home%\*) do (
@@ -14,9 +19,9 @@
     exit /b 1
 
 :_implicit
-    "%_home%\%name%" %*
+    %exec% "%_home%\%name%" %*
     exit /b
 
 :_bin
-    "%_home%\%bindir%\%name%" %*
+    %exec% "%_home%\%bindir%\%name%" %*
     exit /b
