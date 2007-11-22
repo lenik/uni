@@ -1,6 +1,6 @@
 @echo off
 
-    setlocal
+    setlocal enabledelayedexpansion
     set _strict=1
     set _root=/abc.d
     goto init
@@ -123,7 +123,7 @@
     goto start
 
 :version
-    set _id=$Id: findabc.bat,v 1.4 2007-08-28 15:47:58 lenik Exp $
+    set _id=$Id: findabc.bat,v 1.4 2007/08/28 15:47:58 lenik Exp $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
