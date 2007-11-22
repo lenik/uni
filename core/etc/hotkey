@@ -166,6 +166,7 @@ appskey & numpadsub::send {volumn_down}
 	calc1 = cmdw /c start "Cart" cmd /c settitle "1 + 1 = 2" bc -ilq
 	funpack(1, "calc")
 	return
+#f2::run cmdw /c stardict
 
 #,::run stairs
 #u::run ue
@@ -186,6 +187,10 @@ appskey & numpadsub::send {volumn_down}
     return
 
 #+d::
-	ifexist C:\ntddk
-		run ntddk
+	ddk1 = cmd /c %HOME%\bin\ddk-chk
+	ddk2 = cmd /c %HOME%\bin\ddk-fre
+	ddk3 = cmd /c %HOME%\bin\ddk-chk
+	ddk4 = cmd /c %HOME%\bin\ddk-chk
+	ddk5 = cmd /c %HOME%\bin\ddk-hal
+	funpack(5, "ddk")
 	return
