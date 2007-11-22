@@ -120,13 +120,21 @@
 :run_profile
     if %initlevel% lss 10 goto done
 
-    call csg %LAPIOTA%\etc\profile
+    REM if not "%_profile%"=="1" goto level_11
+    REM call csg %LAPIOTA%\etc\profile
+    if exist "%USERPROFILE%\.homepath" (
+        set /p HOME= <"%USERPROFILE%\.homepath"
+    )
+    if "%CD%"=="%USERPROFILE%" cd /d "%HOME%"
 
+:level_11
+    if %initlevel% lss 11 goto done
 :level_20
     if %initlevel% lss 20 goto done
 
 :done
-    set errorlevel=0
+    set _err=0
+
 :error
     if %initlevel% geq 10 (
         echo Welcome LAPIOTA %LAPIOTA_VER%
@@ -135,4 +143,5 @@
     set initlevel=
 
     rem BUGFIX to cmd: set errorlevel doesn't affect the exit code
-    exit /b %errorlevel%
+    if "%_err%"=="" set _err=%ERRORLEVEL%
+    exit /b %_err%
