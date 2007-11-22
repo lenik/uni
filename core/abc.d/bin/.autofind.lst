@@ -1,3 +1,5 @@
+# name          defext  defexec
+
 ethereal
 ettercap
 hugs
@@ -5,3 +7,5 @@ mencoder
 squeak
 stardict
 wireshark
+
+cvs2svn         *       python
