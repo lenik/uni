@@ -18,8 +18,12 @@
         - w=        PERLW       $CYGWIN_ROOT\bin\perlw
         - w=        PAGER       'less -Ceifr'
         - =         DISPLAY     127.0.0.1:0.0
+        - w=        HOME        $LAPIOTA\home\$USERNAME
         - w-%       PATH        $LAPIOTA
+        - w-%       PATH        %HOME%
         - w+.HDR    PATH        ->
+            - %HOME%\bin
+            - %HOME%\sbin
             - $LAPIOTA\bin\xt\bin\overwrite
             - $LAPIOTA\bin\xt\bin
             - $LAPIOTA\bin\xt\sbin\overwrite
