@@ -7,6 +7,7 @@ dirdiff - Perl_simple_module_template
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
+use cmt::lang('_def');
     $LOGNAME    = __PACKAGE__;
     $LOGLEVEL   = 1;
 use cmt::log(2);
@@ -17,6 +18,7 @@ use cmt::vcs('parse_id');
     our $VER    = "0.$RCSID{rev}";
 use Exporter;
 use File::Path('mkpath');
+use Digest::SHA1;
 
 our @ISA    = qw(Exporter);
 our @EXPORT = qw(dirdiff
@@ -24,13 +26,20 @@ our @EXPORT = qw(dirdiff
                  );
 
 our $opt_digest_cache   = '.digest';
-our $opt_digest_method  = sub { -s shift };
 
 sub dirdiff;
 sub dump_plain;
 
 sub gname;
+sub sha1_hex_f;
+sub new_diglist;
+sub load_diglist;
+sub save_diglist;
+sub calc_diglist;
+sub flatten_diglist;
 sub get_digest;
+
+sub shortdig    { my $t = shift; $t =~ s/:.+$/:/; $t }
 
 # INITIALIZORS
 
@@ -55,6 +64,7 @@ HOW-dirdiff-RESOLVES.
 
 =cut
 sub dirdiff {
+    _sig1 '1', $_[0];
     # assert @_ > 1
     my @digest = map { get_digest $_ } @_;
     my %digest;
@@ -96,7 +106,8 @@ sub dirdiff {
 sub dump_plain {
     my ($det, $lev) = @_;
     my $lead = '    'x$lev;
-    my $glead = sub { sprintf('%'.(8 + length $lead).'s', @_ ? gname(shift).'> ' : '') };
+    my $glead = sub { sprintf '%'.(8 + length $lead).'s',
+                        @_ ? gname(shift).'> ' : '' };
     my $i = 0;
     while ($i < @$det) {
         my $file = $det->[$i++];
@@ -110,19 +121,20 @@ sub dump_plain {
                     print $glead->($g).$file.'/'."\n";
                     dump_plain($sub, $lev + 1);
                 } else {
-                    $sub = ' ('.$sub.')' if $sub ne '/';
+                    $sub = ' ('.shortdig($sub).')' if $sub ne '/';
                     if (ref $g or $g =~ /[\/\\]/) {
                         # the same in group or single-group
-                        print $glead->($g).$file.$sub."\n";
+                        # (partial same or distinct different??)
+                        _P0 $glead->($g).$file.$sub;
                     } else {
                         # the same in whole
-                        print '    '.$glead->().$g.$sub."\n";
+                        _P0 '    '.$glead->().$g.$sub;
                     }
                 }
             }
         } else { # the same in whole
-            $dig = ' ('.$dig.')' if $dig ne '/';
-            print $glead->().$file.$dig."\n";
+            $dig = ' ('.shortdig($dig).')' if $dig ne '/';
+            _P0 $glead->().$file.$dig;
         }
     }
 }
@@ -133,6 +145,8 @@ sub dump_plain {
 
 =cut
 # (HELPER FUNCTIONS)
+
+# group-name: concat of the outmost dirname of members
 sub gname {
     my $g = shift;
     if (ref $g) {
@@ -143,24 +157,75 @@ sub gname {
     }
 }
 
+sub sha1_hex_f {
+    my $f = shift;
+    open(FH, '<', $f) or die "error open $f for read";
+    my $sd = new Digest::SHA1;
+    $sd->addfile(*FH);
+    my $sha1 = $sd->hexdigest;
+    close FH;
+    $sha1
+}
+
+sub new_diglist {
+    my $f = shift;
+    [ -s $f, sub { sha1_hex_f($f) } ]
+}
+
+sub load_diglist {
+    my $digfile = shift;
+    my $digs = readfile $digfile;
+    my @list = split(/\n/, $digs);
+    \@list
+}
+
+sub save_diglist {
+    my $digfile = shift;
+    my $list = shift;
+    calc_diglist $list;
+    writefile $digfile, join("\n", @$list);
+}
+
+sub calc_diglist {
+    my $list = shift;
+    my $i = 0;
+    while ($i <= $#$list) {
+        my $v = $list->[$i];
+        if (ref $v eq 'CODE') {
+            splice @$list, $i, 1, $v->();
+        } else {
+            $i++;
+        }
+    }
+}
+
+sub flatten_diglist {
+    my $list = shift;
+    calc_diglist $list;
+    join(':', @$list)
+}
+
 sub get_digest {
     my $path = shift;
     return undef unless -e $path;
     return '/' if -d $path;
     my $digdir;
     my $digfile;
+    my $diglist;
     if (defined $opt_digest_cache) {
         my ($dir, $base) = path_split $path;
         $digdir = path_join($dir, $opt_digest_cache);
         $digfile = path_join($digdir, $base);
-        return readfile $digfile if -f $digfile and -M $digfile > -M $path;
+        $diglist = load_diglist($digfile) if -f $digfile and -M $digfile > -M $path;
     }
-    my $digest = $opt_digest_method->($path);
-    if (defined $opt_digest_cache) {
-        mkpath $digdir;
-        writefile $digfile, $digest;
+    unless (defined $diglist) {
+        $diglist = new_diglist($path);
+        if (defined $opt_digest_cache) {
+            mkpath $digdir;
+            save_diglist $digfile, $diglist;
+        }
     }
-    return $digest;
+    return flatten_diglist($diglist);
 }
 
 =head1 HISTORY

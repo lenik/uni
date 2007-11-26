@@ -88,9 +88,12 @@ temporary files.
 =cut
 sub _help {
     &_version;
-    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+    print "\nSyntax: \n    $0 [OPTION] [--] DIR-LIST\n", <<'EOM';
 
 Common options:
+    -c, --cache             enable caching of files' digests
+    -C                      same as --cache, but reset any existings
+        --cachedir=DIR      set cache directory
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
     -h, --help              show this help page
@@ -104,7 +107,7 @@ sub _main {
     die "At least 2 directories to compare" unless @ARGV > 1;
 
     my $det = dirdiff @ARGV;
-    print Dumper($det);
+    _P2 Dumper($det);
     dump_plain $det, 1;
 }
 
