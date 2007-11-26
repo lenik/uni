@@ -14,6 +14,7 @@ csv2xml.bat
 cuelist.bat
 cvsapp.bat
 cvsco.bat
+dirdiff.bat
 dirs.bat
 discuz.bat
 dnac.bat
@@ -56,6 +57,7 @@ pcs.bat
 pct.bat
 php5to4.bat
 plbat.bat
+plargs.bat
 psh.bat
 re-parts.bat
 readcode.bat
@@ -75,6 +77,7 @@ sim.bat
 simxml.bat
 so.bat
 srt-delay.bat
+strwrap.bat
 stx2xml.bat
 tabsize.bat
 titleize.bat
@@ -84,6 +87,7 @@ trycp.bat
 u.bat:usecode.pl
 unchm.bat
 unindent.bat
+urlconv.bat
 walk.bat
 wcc.bat
 whoare.bat
