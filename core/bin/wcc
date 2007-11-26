@@ -1,88 +1,169 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+wcc - Count words for source code
+
+=cut
 use strict;
-use cmt::vcs;
+# no  warnings('uninitialized');
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::lang('_def');
+    $LOGNAME    = 'wcc'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::log(2);
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl,v 1.16 2007-09-29 11:31:33 lenik Exp $');
+use Data::Dumper;
 use DirHandle;
 use Getopt::Long;
-use Data::Dumper;
 
-my %opt_ext = (
-        'c' => 'c',
-        'cxx' => 'c',
-        'cpp' => 'c',
-        'h' => 'c',
-        'hxx' => 'c',
-        'hpp' => 'c',
-        'java' => 'c',
-        'js' => 'c',
+sub _main; sub _version; sub _help;
+sub process;
+sub count_text;
+sub count_c;
+sub count_vb;
+sub count_unix;
+sub count_xml;
 
-        'sh' => 'unix',
-        'bat' => 'text',
-
-        'p' => 'unix',
-        'pl' => 'unix',
-        'pm' => 'unix',
-        'python' => 'unix',
-        'tcl' => 'unix',
-
-        'bas' => 'text',
-        'frm' => 'vb',
-        'cls' => 'vb',
-        'ctl' => 'vb',
-
-        'txt' => 'text',
-
-        'htm' => 'text',
-        'html' => 'text',
-        'css' => 'text',
-
-        'xml' => 'xml',
-        'xsl' => 'xml',
-        'xslt' => 'xml',
-        'xsd' => 'xml',
-        'dtd' => 'xml',
-        'xq' => 'xml',
-
-        'php' => 'text',
-        'asp' => 'text',
-        'jsp' => 'text',
-       );
-
-my $opt_quiet = 0;
-my $opt_veryquiet = 0;
-my $opt_verbose = 0;
-my $opt_force = 0;
-my $opt_recursive = 0;
-my @opt_matches;                # only matches if defined.
-my $opt_summary = 1;
+our $opt_recursive  = 0;
+our @opt_matches;                # only matches if defined.
+our $opt_summary    = 1;
+our %opt_ext        = qw(
+        asp     text
+        bas     text
+        bat     text
+        c       c
+        cls     vb
+        cpp     c
+        cs      c
+        css     text
+        ctl     vb
+        cxx     c
+        dtd     xml
+        frm     vb
+        h       c
+        hpp     c
+        htm     text
+        html    text
+        hxx     c
+        java    c
+        js      c
+        jsp     text
+        p       unix
+        php     text
+        pl      unix
+        pm      unix
+        python  unix
+        sh      unix
+        tcl     unix
+        txt     text
+        xml     xml
+        xq      xml
+        xsd     xml
+        xsl     xml
+        xslt    xml
+        );
 
 my %summary = ();               # summary of all.
 my %summary_x = ();             # summary by different extensions.
 
+sub boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+                'extension|e=s' =>
+                        sub {
+                            my ($key, $val) = split('=', $_[1]);
+                            $val ||= "text";
+                            $opt_ext{$key} = $val;
+                        },
+                'exclude|x=s'   =>
+                        sub {
+                            my $key = $_[1];
+                            delete $opt_ext{$key};
+                        },
+                'recursive|r',
+                'summary!',
+               );
+    _main;
+}
 
-sub main {
-    my $options = GetOptions(
-            'extension|e=s' =>
-                    sub {
-                        my ($key, $val) = split('=', $_[1]);
-                        $val ||= "text";
-                        $opt_ext{$key} = $val;
-                    },
-            'exclude|x=s' =>
-                    sub {
-                        my $key = $_[1];
-                        delete $opt_ext{$key};
-                    },
-            'recursive' => \$opt_recursive,
-            'summary!' => \$opt_summary,
-            'force' => \$opt_force,
-            'quiet' => \$opt_quiet,
-            'veryquiet|vq' => \$opt_veryquiet,
-            'verbose|v' => \$opt_verbose,
-            'help|h' => sub { &help; },
-            );
-    $opt_quiet = 1 if $opt_veryquiet;
+=head1 SYNOPSIS
 
+B<wcc>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<wcc> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-wcc-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] FILES\n", <<'EOM';
+
+Common options:
+    -e, --extension=EXT[=TYPE] add type mapping
+    -x, --exclude=EXT       don't count files with EXT
+    -r, --recursive         recurse into sub-directories
+        --[no]summary       print summaries
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+}
+
+exit (boot or 0);
+
+sub _main {
     my @list;
     my $k;
 
@@ -117,19 +198,24 @@ sub main {
     if ($opt_summary) {
         for $k (keys %summary_x) {
             my $c_x = $summary_x{$k};
-            printf "%10d <.$k>\n", $c_x->{'body'} if not $opt_quiet;
+            _PF1 "%10d <.$k>", $c_x->{'body'};
         }
-        printf "%10d <<total>>\n", $summary{'body'} if not $opt_veryquiet;
+        _PF1 "%10d <<total>>", $summary{'body'};
     }
 }
 
+=head1 DIAGNOSTICS
 
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
 sub process {
     my ($fn) = @_;
     my %counts = ();
     my ($fext, $fmodel);
     if (-d $fn) {
-        print "[DIR] $fn\n" if $opt_verbose;
+        _sig2 'DIR', $fn;
 
         my $dh = new DirHandle($fn);
         my @files = $dh->read();
@@ -157,7 +243,7 @@ sub process {
                     next if not $matches;
                 }
 
-                ($fext) = m/\.([^.\/]+)$/;
+                ($fext) = m/\.([^.\/]+)$/; _def $fext, '';
                 if (defined $opt_ext{$fext}) {
                     %c = process("$fn/$_");
                 }
@@ -168,29 +254,27 @@ sub process {
         }
         $fn = "$fn/";
     } else {
-        print "[FILE] $fn\n" if $opt_verbose;
+        _sig2 'FILE', $fn;
 
-        ($fext) = $fn =~ m/\.([^.\/]+)$/;
-        my $fext_as = $fext;
-            $fext_as ||= 'txt';
-        $fmodel = $opt_ext{$fext_as};
-            # || die "Unknown extension: $fext";
-            $fmodel ||= 'text';
-
-        my $count_func = eval "\\&count_$fmodel";
-        %counts = &$count_func($fn);
-        for my $k (keys %counts) {
-            $summary_x{$fext}->{$k} += 1 * $counts{$k};
-        }
+        ($fext) = $fn =~ m/\.([^.\/]+)$/;   _def $fext, '';
+        $fmodel = $opt_ext{$fext};          _def $fmodel, 'text';
+        my $fun = 'count_'.$fmodel;
+        my $cb = main->can($fun);
+        die "count for $fmodel isn't supported" unless defined $cb;
+        %counts = $cb->($fn);
+        $summary_x{$fext}->{$_} += 1 * $counts{$_}
+            for keys %counts;
     }
-
-    my $disp = not $opt_quiet;
-    $disp = 0 if ($counts{'body'} == 0 and not $opt_verbose);
-    printf "%10d $fn\n", $counts{'body'} if $disp;
+    _PF1 "%10d $fn", $counts{'body'} if $counts{'body'};
     return %counts;
 }
 
+=head1 HACKING
 
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
 sub count_text {
     my ($filename) = @_;
     my $lines = 0;
@@ -206,7 +290,6 @@ sub count_text {
             'words' => $words,
             );
 }
-
 
 sub count_c {
     my ($filename) = @_;
@@ -226,7 +309,6 @@ sub count_c {
             'comments' => $cmtlines,
             );
 }
-
 
 sub count_vb {
     my ($filename) = @_;
@@ -268,7 +350,6 @@ sub count_vb {
             );
 }
 
-
 sub count_unix {
     my ($filename) = @_;
     my $lines = 0;
@@ -288,31 +369,32 @@ sub count_unix {
             );
 }
 
-
 sub count_xml {
     return count_text(@_);
 }
 
+=head1 HISTORY
 
-sub help {
-    my %id = parse_id('$Id: wcc,v 1.15 2007-09-12 17:12:42 lenik Exp $');
-    print <<"EOM";
-Words Count for Source Code   Version 0.$id{'rev'}   Date $id{'date'}
-Syntax:
-    wcc
-        --help (h)
-        --extension=<ext-name>[=<type-mapping>] (e)
-        --exclude=<ext-name to be excluded> (x)
-        --recursive (r)
-        --summary --nosummary
-        --force (f)
-        --quiet (q)
-        --veryquiet (vq)
-        --verbose (v)
-        --help (h)
-        files...
-EOM
-    exit;
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Count words for source code \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 
-&main;
+=head1 SEE ALSO
+
+The L<cmt/"Count words for source code">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

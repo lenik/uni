@@ -1,34 +1,35 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+plbat - perl/bat wrapper
+
+=cut
 use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'plbat'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::log(2);
 use cmt::path;
-use cmt::pp;
-use cmt::util;
-use cmt::vcs;
+use cmt::pp('ppvar');
+use cmt::util('writefile');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl,v 1.16 2007-09-29 11:31:33 lenik Exp $');
 use Getopt::Long;
 
-sub boot;
-sub main;
-sub info;
-sub info2;
-sub version;
-sub help;
+sub _main; sub _version; sub _help;
 
-our $opt_verbtitle      = 'plbat';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
 our $opt_output;
 our $opt_console;
 our $opt_make;
 our $opt_prefix;
 
-my %id = parse_id('$Id: plbat,v 1.10 2007-11-08 10:52:37 lenik Exp $');
+my $tmpl;
 
 sub boot {
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help|h'     => sub { help; exit },
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
                'output|o=s',
                'console|c',
                'make|m',
@@ -38,10 +39,10 @@ sub boot {
     if ($opt_make) {
         while (<>) {
             next if /^\s*$/;
-            chop;
+            s/\s*$//;
             if (/^!\s+([^=]+)=(.*)$/) {
                 my ($opt, $val) = ($1, $2);
-                info "set $opt to $val";
+                _log1 "set $opt to $val";
                 my $ref = eval '\$opt_'.$opt;
                 die "invalid option $opt: $@" if $@;
                 $$ref = $2;
@@ -52,60 +53,93 @@ sub boot {
                 my ($bat_name, $bat_ext) = path_splitext $bat;
                 $pl = $bat_name . '';
             }
-            info "wrap $opt_prefix$bat -> $pl";
+            _log1 "wrap $opt_prefix$bat -> $pl";
             $opt_output = $opt_prefix.$bat;
-            main $pl;
+            _main $pl;
         }
     } else {
         die "no perl-file specified" unless @ARGV;
-        info "wrap $ARGV[0]";
-        main $ARGV[0];
+        _log1 "wrap $ARGV[0]";
+        _main $ARGV[0];
     }
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+B<plbat>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub version {
-    print "[$opt_verbtitle] perl/bat wrapper \n";
-    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-}
+=head1 DESCRIPTION
 
-sub help {
-    version;
-    print <<"EOM";
+B<plbat> is a WHAT used for WHAT. It HOW-WORKS.
 
-Syntax:
-    $0 [OPTION] perl-file.pl
-    $0 -m list-file
+BACKGROUND-PROBLEM.
+
+HOW-plbat-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n";
+    print "    $0 [OPTION] [--] PERL-FILE.pl\n";
+    print "    $0 [OPTION] -m [--] [LIST-FILES]\n", <<'EOM';
 
 Common options:
     -c, --console           output to stdout
     -o, --output=FILE       specify output file name, default perl-file.bat
-    -m, --make
-    -h, --help              show this help page
+    -m, --make              read file entries from STDIN or the given LIST-FILE
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
+    -h, --help              show this help page
         --version           print the version info
 EOM
 }
 
-exit boot;
+exit (boot or 0);
 
-my $tmpl;
-
-sub main {
+sub _main {
     my $perl_file    = shift;
     my $bat_file     = $opt_output;
 
@@ -124,7 +158,7 @@ sub main {
 
     my %vars = (
         NAME        => $target_name,
-        GENERATOR   => "plbat $id{rev}",
+        GENERATOR   => "plbat $RCSID{rev}",
         );
 
     $tmpl = join('', <DATA>) unless defined $tmpl;
@@ -136,6 +170,46 @@ sub main {
         writefile $bat_file, $cnt;
     }
 }
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] perl/bat wrapper \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"perl/bat wrapper">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
 
 __DATA__
 @echo off
@@ -162,20 +236,22 @@ __DATA__
     setlocal
     set _nam=$NAME
     set _ext=
-    set PERLFLAGS=-w
+    set PERLFLAGS=-w -Mcmt::mess
 
 :find_target
-    for %%d in ("" ../) do (
-        set _dir=%~dp0%%~d
-        if exist "!_dir!%_nam%" (
+    for %%x in ("" .pl .p .pc .pld) do (
+        set _ext=%%~x
+        if exist "%_nam%%%~x" (
+            set _dir=
             goto find_shell
-        ) else (
-            for %%i in (pl p pc pld) do (
-                if exist "!_dir!%_nam%.%%i" (
-                    set _ext=.%%i
-                    goto find_shell
-                )
-            )
+        )
+        if exist "../%_nam%%%~x" (
+            set _dir=../
+            goto find_shell
+        )
+        for %%i in ("%_nam%%%~x") do (
+            set _dir=%%~dp$PATH:i
+            if exist "!_dir!%%~i" goto find_shell
         )
     )
     echo Can't find the target program %_nam%.

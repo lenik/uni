@@ -1,41 +1,44 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+wm - Windows Manager
+
+=cut
 use strict;
-use cmt::util;
-use cmt::vcs;
-# use cmt::msc;
-use cmt::winuser;
-use cmt::path;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'wm'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::ftime;
+use cmt::log(2);
+# use cmt::msc;
+use cmt::path('temp_path');
+# use cmt::util;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl,v 1.16 2007-09-29 11:31:33 lenik Exp $');
+use cmt::winuser;
 use Data::Dumper;
 use Encode;
 use Encode::Alias;
 use Getopt::Long;
 
+sub _main; sub _version; sub _help;
+
 sub is_visible;
-sub boot;
-sub info;
-sub info2;
-sub version;
-sub help;
 
 sub build_tree;
-sub get_text;
-sub set_text;
-sub bools;
-sub set_kbdstate;
-sub send_string;
-sub set_focus;
-sub send_input;
-sub dump_tree;
+sub get_text;       #(HWND)
+sub set_text;       #(HWND, TEXT)
+sub bools;          #("123"): "49.50.51"
+sub set_kbdstate;   #(VKEY, STATE)
+sub send_string;    #(HWND, char[])
+sub set_focus;      #(?, HWND)
+sub send_input;     #(MSG, VKEY, SCANCODE)
+sub dump_tree;      #($TREE, TABCHAR, INDENT-PREFIX, \@OUTPUT)
 
 sub streq;
 sub strstr;
 sub match;
 sub in_list;
-
-sub init;
-sub main;
 
 our $FindClass_N;
 our $FindClass_P;
@@ -48,9 +51,6 @@ our $SendDlgMessage_NP;
 our $SendDlgMessage_PN;
 our $SendDlgMessage_PP;
 
-our $opt_verbtitle      = 'wm';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
 our $opt_tree           = 0;
 our @opt_hwnd;
 our @opt_class_name;
@@ -65,7 +65,10 @@ our $opt_set_text;
 our $opt_use_active     = 0;
 our $opt_invisible      = 0;
 
-sub init {
+our $TREE;
+our $FLAT = [];
+
+BEGIN {
     sub GW_HWNDFIRST        { 0 }
     sub GW_HWNDLAST         { 1 }
     sub GW_HWNDNEXT         { 2 }
@@ -161,30 +164,14 @@ sub init {
     Win32::API->Import('user32', 'LONG GetMessageExtraInfo()');
 }
 
-sub is_visible {
-    return 100 if $opt_invisible;
-    my $hwnd = shift;
-    return IsWindowVisible($hwnd);
-    # my $wndpl = Win32::API::Struct->new('WINDOWPLACEMENT');
-    # $wndpl->{len} = $wndpl->sizeof;
-    # GetWindowPlacement($hwnd, $wndpl) or die ("Can't get window placement");
-    # return 0 if ($wndpl->{showCmd} == SW_HIDE);
-    # my $w = abs $wndpl->{right} - $wndpl->{left};
-    # my $h = abs $wndpl->{bottom} - $wndpl->{top};
-    # return -1 if $w == 0 or $h == 0;
-    # return 1;
-}
-
 sub boot {
-    init;
-    GetOptions('quiet|q'        => sub { $opt_verbose-- },
-               'verbose|v'      => sub { $opt_verbose++ },
-               'version'        => sub { version; exit },
-               'help'           => sub { help; exit },
-               'tree|t',
-               'hwnd|h=s',      => \@opt_hwnd,
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },'tree|t',
+               'hwnd|w=s',      => \@opt_hwnd,
                'class-name|c=s' => \@opt_class_name,
-               # 'match|m'        => \@opt_match,
+             # 'match'          => \@opt_match,
                'use-active',
                'ignore-case|i',
                'hide'           => sub { $opt_sw = SW_HIDE },
@@ -197,6 +184,7 @@ sub boot {
                'restore',
                'invisible',
                );
+
     for (my $i = 0; $i <= $#opt_hwnd; $i++) {
         my $hwnd = $opt_hwnd[$i];
         if ($hwnd =~ m/^0x(.*)$/i) {
@@ -213,56 +201,273 @@ sub boot {
         $opt_hwnd[$i] = $hwnd;
     }
 
-    main;
+    _main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+B<wm>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub version {
-    my %id = parse_id('$Id: wm,v 1.6 2007-11-08 10:52:38 lenik Exp $');
-    print "[$opt_verbtitle] Windows Manager\n";
-    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-}
+=head1 DESCRIPTION
 
-sub help {
-    version;
-    print <<"EOM";
+B<wm> is a WHAT used for WHAT. It HOW-WORKS.
 
-Syntax:
-        $0 <options> ...
+BACKGROUND-PROBLEM.
 
-Options:
-        --tree (t, list windows tree)
-        --hwnd=<hwnd> (h, add an HWND to mlist)
-        --class-name=<class-name> (c, add windows of certain class to mlist)
-        --match (m, add title-matched windows to mlist)
-        --ignore-case (i, match ignore case)
-        --hide (hide the window list)
-        --show (show the window list)
-        --sw=<number> (show the window list in specified mode)
-        --send-message=<message,wparam,lparam> (m, params could be num or str)
-        --send-string=<string> (s, using WM_CHAR to send)
-        --set-text=<string> (st, using SetWindowText)
-        --restore (restore last window list)
-        --invisible (include invisible windows)
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
-        --version
-        --help
+HOW-wm-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -t, --tree              dump windows tree
+    -w, --hwnd=HWND         add an HWND to mlist
+    -c, --class-name=CLASS  add windows of certain class to mlist
+        --match             add windows with title matched
+    -i, --ignore-case       case-insensitive matching
+        --hide              hide the window list
+        --show              show the window list
+        --sw=<number>       show the window list in specified mode
+    -m, --send-message=MSG,WPARAM,LPARAM
+                            specify PARAM in number or string
+    -s, --send-string=STR   send each char in WM_CHAR
+    -st,--set-text=TEXT     by calling SetWindowText
+        --restore           restore last window list
+        --invisible         include invisible windows
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
 EOM
 }
+
+exit (boot or 0);
+
+sub _main {
+    my $path_dump = temp_path('wm_last.lst');
+
+    my $req_tree = 1; # $opt_tree
+    if ($req_tree) {
+        _log2 "Building windows tree...";
+        my $desk = GetDesktopWindow();
+        $TREE = build_tree $desk;
+    }
+
+    dump_tree($TREE, '', '', $FLAT);
+    dump_tree $TREE if $opt_tree;
+
+    my @consoles;
+    my $console1;
+    {
+        my $buf = ' ' x 1000;
+        my $len = GetConsoleTitle($buf, 1000);
+        my $cap = substr($buf, 0, $len);
+        chop $cap if substr($cap, -1) eq "\0";
+        _log2 "Console Title: '$cap'";
+
+        @consoles = match($cap); #GetActiveWindow();
+        _log2 "recognize as a console: $_" for @consoles;
+        $console1 = $consoles[0];
+    }
+
+    if (@ARGV) {
+        my $query = shift @ARGV;
+        _log2 "query $query";
+        my $test_hwnd = 1 * $query;
+        if (get_text($test_hwnd) eq '') {
+            my @matches = match($query);
+            # remove console from @matches
+            @matches = grep { not in_list($_, @consoles) } @matches;
+            _log2 "query matched: $_" for @matches;
+            push @opt_hwnd, @matches;
+        } else {
+            _log2 "query-hwnd: $test_hwnd";
+            push @opt_hwnd, $test_hwnd;
+        }
+    } else {
+        $opt_use_active = 1;
+    }
+
+    for (@opt_class_name) {
+        my $cls = $_;
+        my $fun = $FindClass_P;
+        if ($cls =~ m/^#(\d+)/) {
+            $cls = $1;
+            $fun = $FindClass_N;
+        }
+        _log2 "Find-Class: $cls";
+        my $last = 0;
+        my $hwnd;
+        while ($hwnd = $fun->Call(0, $last, $cls, 0)) {
+            if (is_visible $hwnd) {
+                _log2 "Window-Of-Class: $hwnd - " . get_text($hwnd);
+                push @opt_hwnd, $hwnd;
+            }
+            $last = $hwnd;
+        }
+    }
+
+    if ($opt_restore) {
+        open(DUMP, "<$path_dump")
+            or die "Can't open last-list ($path_dump)";
+        my @lines = <DUMP>;
+        my $script = join('', @lines);
+        $script =~ s/^\s* \$\w+ \s* = //x;
+        my $val = eval($script);
+        close DUMP;
+        @opt_hwnd = @$val;
+        $opt_sw = SW_SHOW;
+    }
+
+    if ($opt_use_active && !@opt_hwnd) {
+        if (scalar(@consoles) > 1) {
+            _log1 "Warning: multiple console with the same title";
+        }
+        _log2 "Use Active Window: $console1";
+        push @opt_hwnd, $console1;
+    }
+
+    _log2 "mlist: $_ - " . get_text($_) for @opt_hwnd;
+    if (open(DUMP, ">$path_dump")) {
+        _log2 "dump last-list to $path_dump";
+        print DUMP Dumper(\@opt_hwnd);
+        close DUMP;
+    }
+
+    if (defined $opt_sw) {
+        for (@opt_hwnd) {
+            my $t = get_text($_);
+            _log1 "ShowWindow($opt_sw): $t";
+            ShowWindow($_, $opt_sw);
+        }
+    }
+
+    for (@opt_send_message) {
+        my @args;
+        while (m/((?: \\.|[^,])+?) \s* (?: ,|$)/xg) {
+            push @args, $1;
+        }
+        my $ctrl = undef;
+        $ctrl = shift @args if (scalar(@args) == 4 or defined $_ID{$args[0]} );
+        $ctrl = $_ID{$ctrl} if defined $_ID{$ctrl};
+
+        # assert scalar(@args) > 0;
+        my ($msg, $wparam, $lparam) = @args;
+        $msg = $_WM{$msg} if defined $_WM{$msg};
+        $msg ||= $_WM{WM_COMMAND};
+        $wparam ||= 0;
+        $lparam ||= 0;
+        my $nw = $wparam =~ m/^\d+$/;
+        my $np = $lparam =~ m/^\d+$/;
+        my $proto = ($nw ? 'N' : 'P') . ($np ? 'N' : 'P');
+        if (defined $ctrl) {
+            if ($msg == $_WM{WM_COMMAND}) {
+                for my $hwnd (@opt_hwnd) {
+                    _log2 "SendMessageA($hwnd, $msg, $ctrl, $lparam)";
+                    SendMessageA($hwnd, $msg, $ctrl, $lparam);
+                }
+            } else {
+                my $funname = 'SendDlgMessage_' . $proto;
+                my $fun = eval('$'.$funname);
+                _log2 "$funname($ctrl, $msg, $wparam, $lparam)";
+                for my $hwnd (@opt_hwnd) {
+                    $fun->Call($hwnd, $ctrl, $msg, $wparam, $lparam);
+                }
+            }
+        } else {
+            my $funname = 'SendMessage_' . $proto;
+            my $fun = eval('$'.$funname);
+            _log2 "$funname($msg, $wparam, $lparam)";
+            for my $hwnd (@opt_hwnd) {
+                $fun->Call($hwnd, $msg, $wparam, $lparam);
+            }
+        }
+    }
+
+    if ($opt_set_text) {
+        for my $hwnd (@opt_hwnd) {
+            set_text($hwnd, $opt_set_text);
+        }
+    }
+    for my $sendstr (@opt_send_string) {
+        for my $hwnd (@opt_hwnd) {
+            send_string($hwnd, $sendstr);
+        }
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+sub is_visible {
+    return 100 if $opt_invisible;
+    my $hwnd = shift;
+    return IsWindowVisible($hwnd);
+    # my $wndpl = Win32::API::Struct->new('WINDOWPLACEMENT');
+    # $wndpl->{len} = $wndpl->sizeof;
+    # GetWindowPlacement($hwnd, $wndpl) or die ("Can't get window placement");
+    # return 0 if ($wndpl->{showCmd} == SW_HIDE);
+    # my $w = abs $wndpl->{right} - $wndpl->{left};
+    # my $h = abs $wndpl->{bottom} - $wndpl->{top};
+    # return -1 if $w == 0 or $h == 0;
+    # return 1;
+}
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
 
 # return  children: { hwnd -> tree }
 sub build_tree {
@@ -310,11 +515,11 @@ sub set_kbdstate {
     my ($vk, $st) = shift;
     my $KBD = ' 'x256;
     #GetKeyboardState($KBD);
-    #info2 "KBD 1=". bools($KBD);
+    #_log2 "KBD 1=". bools($KBD);
     substr($KBD, $vk, 1) = chr($st);
     SetKeyboardState($KBD);
     #GetKeyboardState($KBD);
-    #info2 "KBD 2=". bools($KBD);
+    #_log2 "KBD 2=". bools($KBD);
 }
 
 my %escapes = (
@@ -353,7 +558,7 @@ sub send_string {
     my $str = decode($cs, $str_l);
     my $str0 = encode($cs, $str);
     my $len = length($str);
-    info2 "send_string($hwnd, $str0)";
+    _log2 "send_string($hwnd, $str0)";
 
     for (my $i = 0; $i < $len; $i++) {
         my $c = substr($str, $i, 1);
@@ -383,14 +588,14 @@ sub send_string {
                     } else {
                         die "Unknown control: $ctrl";
                     }
-                    info2 "send_input($msg, $vk, $sc)"; #hwnd
+                    _log2 "send_input($msg, $vk, $sc)"; #hwnd
                     #PostMessageA($hwnd, $msg, $vk, $sc);
                     send_input($msg, $vk, $sc);
                     next;
                 } # \{ ... }
             } # \{
         } # \
-        info2 "SendMessageW($hwnd, $_WM{WM_CHAR}, ".ord($c).", 0); ";
+        _log2 "SendMessageW($hwnd, $_WM{WM_CHAR}, ".ord($c).", 0); ";
         SendMessageW($hwnd, $_WM{WM_CHAR}, ord($c), 0);
     }
 }
@@ -419,7 +624,7 @@ sub send_input {
     $kbdin->{dwExtraInfo}=GetMessageExtraInfo();
 
     my $n = SendInput(1, $kbdin, $kbdin->sizeof);
-    info2 "SendInput(1, $kbdin, ".$kbdin->sizeof."): $n";
+    _log2 "SendInput(1, $kbdin, ".$kbdin->sizeof."): $n";
 
     fsleep .01;
 }
@@ -442,9 +647,6 @@ sub dump_tree {
     }
 }
 
-our $TREE;
-our $FLAT = [];
-
 sub streq {
     my ($a, $b) = @_;
     if ($opt_ignore_case) {
@@ -454,11 +656,11 @@ sub streq {
 }
 
 sub strstr {
-    my ($a, $b) = @_;
+    my ($str, $pattern) = @_;
     if ($opt_ignore_case) {
-        return index(lc($a), lc($b));
+        return index(lc($str), lc($pattern));
     }
-    return index($a, $b);
+    return index($str, $pattern);
 }
 
 sub match {
@@ -466,6 +668,7 @@ sub match {
     my @list;
     my @matches = grep { strstr($_, $pattern) >= 0 } @$FLAT;
     for (@matches) {
+        _log2 "matched: $_";
         my $hwnd_hex = substr($_, 0, 8);
         my $hwnd = hex($hwnd_hex);
         push @list, $hwnd;
@@ -479,153 +682,28 @@ sub in_list {
     return scalar(@matches) > 0;
 }
 
-sub main {
+=head1 HISTORY
 
-    my $path_dump = temp_path('wm_last.lst');
+=over
 
-    my $req_tree = 1; # $opt_tree
-    if ($req_tree) {
-        info2 "Building windows tree...";
-        my $desk = GetDesktopWindow();
-        $TREE = build_tree $desk;
-    }
+=item 0.x
 
-    dump_tree($TREE, '', '', $FLAT);
-    dump_tree $TREE if $opt_tree;
+The initial version.
 
-    my @consoles;
-    my $console1;
-    {
-        my $buf = ' ' x 1000;
-        my $len = GetConsoleTitle($buf, 1000);
-        my $cap = substr($buf, 0, $len);
-        info2 "Console Title: $cap";
+=back
 
-        @consoles = match($cap); #GetActiveWindow();
-        $console1 = $consoles[0];
-    }
-
-    if (@ARGV) {
-        my $is_cap = shift @ARGV;
-        my $is_hwnd = 1 * $is_cap;
-        if (get_text($is_hwnd) eq '') {
-            my @matches = match($is_cap);
-            # remove console from @matches
-            @matches = grep { not in_list($_, @consoles) } @matches;
-            push @opt_hwnd, @matches;
-        } else {
-            push @opt_hwnd, $is_hwnd;
-        }
-    } else {
-        $opt_use_active = 1;
-    }
-
-    for (@opt_class_name) {
-        my $cls = $_;
-        my $fun = $FindClass_P;
-        if ($cls =~ m/^#(\d+)/) {
-            $cls = $1;
-            $fun = $FindClass_N;
-        }
-        info2 "Find-Class: $cls";
-        my $last = 0;
-        my $hwnd;
-        while ($hwnd = $fun->Call(0, $last, $cls, 0)) {
-            if (is_visible $hwnd) {
-                info2 "Window-Of-Class: $hwnd - " . get_text($hwnd);
-                push @opt_hwnd, $hwnd;
-            }
-            $last = $hwnd;
-        }
-    }
-
-    if ($opt_restore) {
-        open(DUMP, "<$path_dump")
-            or die "Can't open last-list ($path_dump)";
-        my @lines = <DUMP>;
-        my $script = join('', @lines);
-        $script =~ s/^\s* \$\w+ \s* = //x;
-        my $val = eval($script);
-        close DUMP;
-        @opt_hwnd = @$val;
-        $opt_sw = SW_SHOW;
-    }
-
-    if ($opt_use_active && !@opt_hwnd) {
-        if (scalar(@consoles) > 1) {
-            info "Warning: multiple console with the same title";
-        }
-        info2 "Use Active Window: $console1";
-        push @opt_hwnd, $console1;
-    }
-
-    info2 "mlist: $_ - " . get_text($_) for @opt_hwnd;
-    if (open(DUMP, ">$path_dump")) {
-        info2 "dump last-list to $path_dump";
-        print DUMP Dumper(\@opt_hwnd);
-        close DUMP;
-    }
-
-    if (defined $opt_sw) {
-        for (@opt_hwnd) {
-            my $t = get_text($_);
-            info "ShowWindow($opt_sw): $t";
-            ShowWindow($_, $opt_sw);
-        }
-    }
-
-    for (@opt_send_message) {
-        my @args;
-        while (m/((?: \\.|[^,])+?) \s* (?: ,|$)/xg) {
-            push @args, $1;
-        }
-        my $ctrl = undef;
-        $ctrl = shift @args if (scalar(@args) == 4 or defined $_ID{$args[0]} );
-        $ctrl = $_ID{$ctrl} if defined $_ID{$ctrl};
-
-        # assert scalar(@args) > 0;
-        my ($msg, $wparam, $lparam) = @args;
-        $msg = $_WM{$msg} if defined $_WM{$msg};
-        $msg ||= $_WM{WM_COMMAND};
-        $wparam ||= 0;
-        $lparam ||= 0;
-        my $nw = $wparam =~ m/^\d+$/;
-        my $np = $lparam =~ m/^\d+$/;
-        my $proto = ($nw ? 'N' : 'P') . ($np ? 'N' : 'P');
-        if (defined $ctrl) {
-            if ($msg == $_WM{WM_COMMAND}) {
-                for my $hwnd (@opt_hwnd) {
-                    info2 "SendMessageA($hwnd, $msg, $ctrl, $lparam)";
-                    SendMessageA($hwnd, $msg, $ctrl, $lparam);
-                }
-            } else {
-                my $funname = 'SendDlgMessage_' . $proto;
-                my $fun = eval('$'.$funname);
-                info2 "$funname($ctrl, $msg, $wparam, $lparam)";
-                for my $hwnd (@opt_hwnd) {
-                    $fun->Call($hwnd, $ctrl, $msg, $wparam, $lparam);
-                }
-            }
-        } else {
-            my $funname = 'SendMessage_' . $proto;
-            my $fun = eval('$'.$funname);
-            info2 "$funname($msg, $wparam, $lparam)";
-            for my $hwnd (@opt_hwnd) {
-                $fun->Call($hwnd, $msg, $wparam, $lparam);
-            }
-        }
-    }
-
-    if ($opt_set_text) {
-        for my $hwnd (@opt_hwnd) {
-            set_text($hwnd, $opt_set_text);
-        }
-    }
-    for my $sendstr (@opt_send_string) {
-        for my $hwnd (@opt_hwnd) {
-            send_string($hwnd, $sendstr);
-        }
-    }
+=cut
+sub _version {
+    print "[$LOGNAME] Windows Manager \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 
-boot;
+=head1 SEE ALSO
+
+The L<cmt/"Windows Manager">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
