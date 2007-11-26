@@ -162,17 +162,17 @@ sub mkgui {
 
     $var_codec = 'base64';
 
-    $btn_clear->configure(-command => sub {
+    $btn_clear->configure(-command => sub { *__ANON__ = '<btn_clear>';
         $t_src->delete('1.0', 'end');
         $t_dst->delete('1.0', 'end');
     });
 
-    $btn_about->configure(-command => sub {
+    $btn_about->configure(-command => sub { *__ANON__ = '<btn_about>';
         my ($ver) = version;
         msgbox $ver;
     });
 
-    $btn_exit->configure(-command => sub {
+    $btn_exit->configure(-command => sub { *__ANON__ = '<btn_exit>';
         $mw->destroy
     });
 }

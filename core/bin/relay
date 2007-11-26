@@ -209,10 +209,10 @@ sub _main {
         at_exit { ntkill $pid_sender };
     }
 
-    my $serv = new cmt::serv(sub {
+    my $serv = new cmt::serv(sub { *__ANON__ = '<sfac>';
         # Forward-Stream
         new cmt::stream(
-            -binded => sub {
+            -binded => sub { *__ANON__ = '<binded>';
                 # the source connected to the relayer (F-conn and this F-stm),
                 # create a corresponding Bk object.
                 my $s = shift;
@@ -220,7 +220,7 @@ sub _main {
                 my $b_stm = relay_connect($s);
                 $s->{b_stm} = $b_stm;
             },
-            -unbinded => sub {
+            -unbinded => sub { *__ANON__ = '<unbinded>';
                 # the source disconnected from the relayer,
                 # so let's disconnect the target.
                 my ($s, $fd) = @_;
@@ -228,7 +228,7 @@ sub _main {
                 my $b_stm = $s->{b_stm};
                 $b_stm->shutdown(2);
             },
-            -gotdata => sub {
+            -gotdata => sub { *__ANON__ = '<gotdata>';
                 # the source sent data to the relayer,
                 # do f_filter and forward to the target.
                 my ($s, $data) = @_;
@@ -242,7 +242,7 @@ sub _main {
                 }
                 1
             },
-            -askdata => sub {
+            -askdata => sub { *__ANON__ = '<askdata>';
                 # IGNORE
                 # # Now can_write to the source
                 # # let's check if any data available in the target.
@@ -256,7 +256,7 @@ sub _main {
                 _log2 "F-askdata @_";
                 undef   # no sendbuf, let's skip -askdata next time.
             },
-            -goterr => sub {
+            -goterr => sub { *__ANON__ = '<goterr>';
                 # error between the source and the relayer
                 # let's break both F-conn and B-conn
                 my $s = shift;
@@ -345,14 +345,14 @@ sub relay_connect {
     my $f_stm = shift;
     my $b_ios;
     my $b_stm = new cmt::stream(
-        -binded => sub {
+        -binded => sub { *__ANON__ = "<binded:$f_stm>";
             # the connection is always made from the source to the target,
             # if the target would send-on-connect, this stream would gotdata, then.
             # so the relayer has nothing do with on-connect event.
             my ($s, $fd) = @_;
             _log1 "target ".$s->hinfo." connected";
         },
-        -unbinded => sub {
+        -unbinded => sub { *__ANON__ = "<unbinded:$f_stm>";
             # the target is disconnected from the relayer,
             # so let's disconnect the source.
             my ($s, $fd) = @_;
@@ -362,7 +362,7 @@ sub relay_connect {
             $mctx->remove($fd);
             $f_stm->shutdown(2);
         },
-        -gotdata => sub {
+        -gotdata => sub { *__ANON__ = "<gotdata:$f_stm>";
             # the target sent data to the relayer,
             # do b_filter and forward to the source.
             my ($s, $data) = @_;
@@ -375,7 +375,7 @@ sub relay_connect {
             }
             1
         },
-        -askdata => sub {
+        -askdata => sub { *__ANON__ = "<askdata:$f_stm>";
             # now can_write to the target,
             # let's check if any data available in the source.
             my $s = shift;
@@ -388,7 +388,7 @@ sub relay_connect {
             }
             undef   # no sendbuf, let's skip -askdata next time.
         },
-        -goterr => sub {
+        -goterr => sub { *__ANON__ = "<goterr:$f_stm>";
             # error between the relayer and the target
             # let's break both B-conn and F-conn
             my $s = shift;

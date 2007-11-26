@@ -281,9 +281,9 @@ sub get_func {
         my @ts = split(',', $text);
         my @fs;
         push @fs, get_func($name."/$_", $_) for @ts;
-        $func = sub {
+        $func = sub { *__ANON__ = '<filter-by-chain>';
             my $in = shift;
-            $in = &$_($in) for @fs;
+            $in = $_->($in) for @fs;
             return $in;
         };
     } elsif ($text =~ m/^\@/) {
@@ -294,7 +294,7 @@ sub get_func {
         close FH;
         my $script = join('', @lines);
         # info2 "script $path: $script";
-        $func = eval('sub {'.$script.'}');
+        $func = eval('sub {*__ANON__ = \'<gen1>\'; '.$script.'}');
     } elsif ($text =~ m/^\{.*\}$/) {
         # func-def
         $func = eval('sub '.$text) or
@@ -314,14 +314,14 @@ sub get_src {
         die("$name: File not existed: $path") unless -e $path;
         $src = {
             'path' => $path,
-            'reset' => sub {
+            'reset' => sub { *__ANON__ = '<reset>';
                 my $self = shift;
                 my $path2 = $self->{path};
                 close $self->{h} if defined $self->{h};
                 $self->{h} = new FileHandle($path2)
                     or die("$name: Can't open file $path2");
             },
-            'read' => sub {
+            'read' => sub { *__ANON__ = '<read>';
                 my $self = shift;
                 my $h = $self->{h};
                 local $_;
@@ -329,7 +329,7 @@ sub get_src {
                 chomp;
                 return $_;
             },
-            'close' => sub {
+            'close' => sub { *__ANON__ = '<close>';
                 my $self = shift;
                 close $self->{h} if $self->{h};
                 delete $self->{h};
@@ -343,7 +343,7 @@ sub get_src {
 sub get_stdin_src {
     my $src = {
         'reset' => sub {},
-        'read'  => sub { local $_; $_ = <STDIN>; chomp; return $_ },
+        'read'  => sub { local $_; $_ = <STDIN>; chomp; $_ },
         'close' => sub {},
     };
     return $src;

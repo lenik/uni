@@ -79,14 +79,14 @@ sub do_get {
     my $count = 0;
     for (@_) {
         _sig1 $_, 'get group-id';
-        my $id = ieval($_.'.1', sub {
+        my $id = ieval($_.'.1', sub { *__ANON__ = '<1>';
             my $t = get 'http://sourceforge.net/projects/'.$_;
             $t =~ m|<a href=\"(/project/showfiles\.php\?group_id=(\d+))#downloads|
                 or return undef;
             return $2;
         }) or die "invalid project name: $_";
         _sig1 $_, 'list download files';
-        my $files = ieval($_.'.2', sub {
+        my $files = ieval($_.'.2', sub { *__ANON__ = '<2>';
             my $t = get 'http://sourceforge.net/project/showfiles.php?group_id='.$id;
             $t = new cmt::utree->parse($t);
             return [];

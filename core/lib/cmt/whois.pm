@@ -124,7 +124,7 @@ sub whois_exec {
     my $domain = shift;
     my $resp = `whois $domain`;
     my @lines = split(/\n/, $resp);
-    parse_whois sub { shift @lines }
+    parse_whois sub {  *__ANON__ = '<exec-input>'; shift @lines }
 }
 
 sub whois_inet {
@@ -140,14 +140,14 @@ sub whois_inet {
     my $try = 0;
     for (my $try = 0; $try < 10; $try++) {
         $cn = tcp_connect($server, 43, new cmt::stream(
-            -binded => sub {
+            -binded => sub { *__ANON__ = '<binded>';
                 my $s = shift;
                 $s->write(shift @sendbuf);
             },
-            -unbinded => sub {
+            -unbinded => sub { *__ANON__ = '<unbinded>';
                 $eof = 1;
             },
-            -gotdata => sub {
+            -gotdata => sub { *__ANON__ = '<gotdata>';
                 my ($s, $data) = @_;
                 # _sig2 'recv', $data;
                 push @recvbuf, split(/\n/, $data);
@@ -157,7 +157,7 @@ sub whois_inet {
     die "failed to connect: $!" unless defined $cn;
 
     my $ctx = $cn->create_context;
-    parse_whois sub {
+    parse_whois sub { *__ANON__ = '<inet-input>';
         unless (@recvbuf) {
             for (my $iters = 0; $iters < 100; $iters++) {
                 # _sig2 'iter', $iters;

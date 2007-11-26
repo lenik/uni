@@ -29,7 +29,7 @@ sub bgloop {
     my @args        = @_;
     my $timeout     = $interval;    # ms
     my $wrapper;
-       $wrapper = sub {
+       $wrapper = sub { *__ANON__ = '<bgloop-wrapper>';
         my $ret = $callback->(@args);
 
         # return undef to terminate
@@ -108,17 +108,17 @@ sub mon_fdout {
               line_no   => 0,
               );
 
-    $btnok->configure(-command => sub {
+    $btnok->configure(-command => sub { *__ANON__ = '<btnok>';
         $exit_on = 'ok';
         $w->destroy;
     });
 
-    $btncancel->configure(-command => sub {
+    $btncancel->configure(-command => sub { *__ANON__ = '<btncancel>';
         $exit_on = 'cancel';
         $w->destroy;
     });
 
-    $btnhide->configure(-command => sub {
+    $btnhide->configure(-command => sub { *__ANON__ = '<btnhide>';
         $exit_on = 'hide';
         $w->destroy;                    # hide function?..
     });
@@ -146,7 +146,7 @@ sub mon_fdout {
         my $ios = new cmt::ios(
             readout => [ $fdout_rd ],
             -read   =>
-                sub {
+                sub { *__ANON__ = '<read>';
                     my ($ctx, $fd) = @_;
                     # assert $fd == $fdout_rd;
                     my $eof = ! fdout_readable($fd, \%cfg, \%ui);
@@ -155,13 +155,13 @@ sub mon_fdout {
                     }
                     return 1;       # never slowdown.
                 },
-            -write  => sub { undef },
-            -err    => sub { undef },
+            -write  => sub {  *__ANON__ = '<write>'; undef },
+            -err    => sub {  *__ANON__ = '<err>'; undef },
         );
 
         my $ctx = $ios->create_context('readout');
 
-        my $bgcall = sub {
+        my $bgcall = sub { *__ANON__ = '<bgcall>';
             my $cont = $ctx->iterate();
             if ($cont) {
                 return 1;           # next immediately
@@ -176,7 +176,7 @@ sub mon_fdout {
     }
 
     # my $child = fork;
-    my $child = new Thread(sub {
+    my $child = new Thread(sub { *__ANON__ = '<child>';
         my $slowdown = $cfg{-slowdown};
         my $srcfilter = $cfg{-srcfilter};
         while (<$fd>) {

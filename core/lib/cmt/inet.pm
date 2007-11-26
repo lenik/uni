@@ -79,11 +79,11 @@ sub tcp_connect {
         READ    => $g,
         WRITE   => $g,
         ERR     => $g,
-        -init   => sub {
+        -init   => sub { *__ANON__ = '<init>';
             my $ctx         = shift;
             $stream->{ctx}  = $ctx; # convention, see also cmt::serv
         },
-        -read   => sub {
+        -read   => sub { *__ANON__ = '<read>';
             my ($ctx, $fd)  = @_;
             my $data        = $stream->read($fd); # non-block
             if (length($data) == 0) {
@@ -95,11 +95,11 @@ sub tcp_connect {
                 $stream->push($data);
             }
         },
-        -write  => sub {
+        -write  => sub { *__ANON__ = '<write>';
             my ($ctx, $fd)  = @_;
             $stream->pull();
         },
-        -err    => sub {
+        -err    => sub { *__ANON__ = '<err>';
             my ($ctx, $fd)  = @_;
             $stream->shutdown(2);
             $stream->unbind;
@@ -118,18 +118,18 @@ sub tcp_connect_http {
     my ($ctx, $ios);
     my $err;
     my $s = new ios::stream(
-        -init => sub {
+        -init => sub { *__ANON__ = '<init>';
             ($ctx, $ios) = @_;
         },
-        -gotdata => sub {
+        -gotdata => sub { *__ANON__ = '<gotdata>';
             my $this = shift;       # assert $_[1] == $this->{IN/OUT}
             my $data = $this->sysread;
             1
         },
-        -askdata => sub {
+        -askdata => sub { *__ANON__ = '<askdata>';
             my $this = shift;       # assert $_[1] == $this->{IN/OUT}
         },
-        -goterr => sub {
+        -goterr => sub { *__ANON__ = '<goterr>';
             my $this = shift;       # assert $_[1] == $this->{IN/OUT}
             $this->log1("goterr: $!, going to shutdown");
             $ctx->exit;

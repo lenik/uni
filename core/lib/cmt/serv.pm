@@ -114,7 +114,7 @@ sub create_ios {
         READ    => [$server],   # skip server socket for "can_write" event.
         WRITE   => [],
         ERR     => [$server],   # server & clients
-        -read   => sub {
+        -read   => sub { *__ANON__ = '<read>';
             my $ctx     = shift;
             my $client  = shift;
 
@@ -150,7 +150,7 @@ sub create_ios {
                 }
             }
         },
-        -write  => sub {
+        -write  => sub { *__ANON__ = '<write>';
             my $ctx     = shift;
             my $client  = shift;
             my $stream  = $streams->{$client};
@@ -158,7 +158,7 @@ sub create_ios {
             $st_pull++;
             return $resp;
         },
-        -err    => sub {
+        -err    => sub { *__ANON__ = '<err>';
             my $ctx     = shift;
             my $client  = shift;
 

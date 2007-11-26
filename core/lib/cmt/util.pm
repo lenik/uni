@@ -460,7 +460,7 @@ sub fswalk(&;@) {
     my $sort    = $cfg{-sort};
     my $excl    = not $cfg{-inclusive};     # include the start file
     my $iter;
-       $iter    = sub {
+       $iter    = sub { *__ANON__ = '<iter>';
         my $start = shift;
         my $dir   = $start;
         my $level = shift;

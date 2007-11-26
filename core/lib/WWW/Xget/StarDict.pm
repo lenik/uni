@@ -62,11 +62,11 @@ EOM
 =cut
 # (HELPER FUNCTIONS)
 sub _main {
-    my $tree = ieval 0, sub {
+    my $tree = ieval 0, sub { *__ANON__ = '<0>';
         _log1 'building download tree';
         mktree 'download.php'
     };
-    my $list = ieval 1, sub {
+    my $list = ieval 1, sub { *__ANON__ = '<1>';
         my @list = findhref $tree;
         \@list
     };

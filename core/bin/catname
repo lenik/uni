@@ -25,7 +25,7 @@ while ($file =~ /\[([^\]]+)\]/g) {
     $rest = substr($file, $+[0]);
 }
 
-$file = ppvarf sub {
+$file = ppvarf sub { *__ANON__ = '<index-to-part>';
     my $var = shift;
     my $val;
     if ($var =~ /^(\d+)$/) {

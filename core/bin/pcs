@@ -242,9 +242,9 @@ sub cl_exec {
 
 sub _main {
     my $serv = new cmt::serv(
-        sub {
+        sub { *__ANON__ = '<pcs-sfac>';
             new cmt::stream(
-                -binded     => sub {
+                -binded     => sub { *__ANON__ = '<pcs-binded>';
                     my ($s, $fd) = @_;
                     info2 "binded $s to $fd";
                     my $vid = version(1);
@@ -253,11 +253,11 @@ sub _main {
                         cl_exec $_, $fd, $fd;
                     }
                 },
-                -unbinded   => sub {
+                -unbinded   => sub { *__ANON__ = '<pcs-unbinded>';
                     my ($s) = @_;
                     info2 "unbinded $s";
                 },
-                -gotdata    => sub {
+                -gotdata    => sub { *__ANON__ = '<pcs-gotdata>';
                     my ($s, $data) = @_;
                     my $fd = $s->{'IO'};
                     info2 "gotdata from $s($fd): $data";

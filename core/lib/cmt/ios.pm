@@ -198,13 +198,13 @@ HOW-cmt::ios-RESOLVES.
 
         $merged->merge(@_);
 
-        $merged->{-init} = sub {
+        $merged->{-init} = sub { *__ANON__ = '<init>';
             # this should return the last retval.
             fire_sub($_, '-init', @_) for $merged->subs;
         };
 
         for my $method qw(-read -write -err) {
-            $merged->{$method} = sub {
+            $merged->{$method} = sub { *__ANON__ = '<'.$method.'>';
                 my ($ctx, $fd) = @_;
                 my $sub_ios = $merged->fdindex($fd);
                 fire_sub($sub_ios, $method, @_);
@@ -363,7 +363,7 @@ sub create_context {
         NEXT    => \$next,
     );
 
-    $context->{ITERATOR} = sub {
+    $context->{ITERATOR} = sub { *__ANON__ = '<ITERATOR>';
         my $timeout = zero_to_undef(min(
             $read_t, $write_t, $err_t, $max_timeout));
         my $_begin = ftime;                         # BUGFIX

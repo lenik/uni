@@ -48,7 +48,7 @@ sub iconv {
     my $self = shift;
     my ($from, $to) = @_;
     $to ||= $from;
-    $self->traverse( sub {
+    $self->traverse( sub { *__ANON__ = "<traverse: $self>";
             my ($node, $start) = @_;
             return unless $start;
             my $c = $node->{_content};

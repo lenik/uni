@@ -151,7 +151,7 @@ sub modload {
     # Init controls
 
     # FIX - the event seems before 'active' changed, (occasionally)
-    $lstprof->bind("<<ListboxSelect>>", sub {
+    $lstprof->bind("<<ListboxSelect>>", sub { *__ANON__ = '<ListboxSelect>';
         # $odx_profile = $lstprof->get('active');
         my @sels = $lstprof->curselection;
         my $sel0 = shift @sels;
@@ -171,7 +171,7 @@ sub modload {
         $lsttbl->insert('end', $_) for @tab;
     });
 
-    $btnAddProf->configure(-command => sub {
+    $btnAddProf->configure(-command => sub { *__ANON__ = '<addprof-command>';
         my %prof = (name=>'', server=>'', username=>'system', password=>'');
         modprof($mw, \%prof);
         return unless $prof{name};
@@ -181,7 +181,7 @@ sub modload {
         modsave;
     });
 
-    $btnDelProf->configure(-command => sub {
+    $btnDelProf->configure(-command => sub { *__ANON__ = '<delproc-command>';
         my $name = $lstprof->get('active');
         if ($name) {
             delete $odx_profiles{$name};
@@ -190,7 +190,7 @@ sub modload {
         }
     });
 
-    $btnExport->configure(-command => sub {
+    $btnExport->configure(-command => sub { *__ANON__ = '<export-command>';
         my $prof = $odx_profiles{$odx_profile};
         my @tables;
         for ($lsttbl->curselection) {
@@ -207,7 +207,7 @@ sub modload {
         modexp($prof, \@tables, "$store.dat");
     });
 
-    $btnImport->configure(-command => sub {
+    $btnImport->configure(-command => sub { *__ANON__ = '<import-command>';
         my $prof = $odx_profiles{$odx_profile};
         my $store = path_join($odx_xhome, "$odx_curstore");
         if (! -f "$store.lst") {
@@ -244,7 +244,7 @@ sub modload {
             -text       => "Store.$i",
             -state      => 'normal',
             -variable   => \$odx_curstore,
-            -command    => sub {
+            -command    => sub { *__ANON__ = '<fbsel'.$i.'-command>';
                 info2 "Store changed to: $odx_curstore";
             })->pack(-side=>'left');
     }
@@ -279,12 +279,12 @@ sub modprof {
     my $btnOK = $fctrl->Button(-underline=>0, -text=>'OK', -compound=>'left', -bitmap=>'warning', -padx=>4)->pack(-ipadx=>4, -side=>'left', -padx=>4);
     my $btnCancel = $fctrl->Button(-underline=>0, -text=>'Cancel', -compound=>'left', -bitmap=>'error', -padx=>4)->pack(-ipadx=>4, -side=>'left', -padx=>4);
 
-    $entServer->configure(-browsecmd => sub {
+    $entServer->configure(-browsecmd => sub { *__ANON__ = '<entServer>';
         my ($w, $text) = @_;
         $name = $text;
     });
 
-    $btnOK->configure(-command => sub {
+    $btnOK->configure(-command => sub { *__ANON__ = '<btnOK>';
         $prof->{name} = $name;
         $prof->{server} = $server;
         $prof->{username} = $username;
@@ -292,7 +292,7 @@ sub modprof {
         $dlg->destroy;
     });
 
-    $btnCancel->configure(-command => sub {
+    $btnCancel->configure(-command => sub { *__ANON__ = '<btnCancel>';
         $dlg->destroy;
     });
 

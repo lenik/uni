@@ -13,9 +13,9 @@ use vars qw/@ISA @EXPORT/;
 sub echod {
     my $port = shift || 7;
     return new cmt::serv(
-        sub {
+        sub { *__ANON__ = '<echod-sfac>';
             new cmt::stream(
-                -gotdata => sub {
+                -gotdata => sub { *__ANON__ = '<echod-gotdata>';
                     my ($this, $msg) = @_;
                     $this->write($msg);      # ...
                 },
@@ -28,9 +28,9 @@ sub echod {
 sub discard {
     my $port = shift || 9;
     return new cmt::serv(
-        sub {
+        sub { *__ANON__ = '<discard-sfac>';
             new cmt::stream(
-                -gotdata => sub {
+                -gotdata => sub { *__ANON__ = '<discard-gotdata>';
                     1
                 },
             )
@@ -42,14 +42,15 @@ sub discard {
 sub timed {
     my $port = shift || 13;
     return new cmt::serv(
-        sub {
+        sub { *__ANON__ = '<timed-sfac>';
             new cmt::stream(
-                -binded => sub {
+                -binded => sub { *__ANON__ = '<timed-binded>';
                     my $s = shift;
                     my $str = gmtime;
                     $s->write($str);
                 },
-                -sent => sub {              # ???
+                # ???
+                -sent => sub { *__ANON__ = '<timed-sent>';
                     my $s = shift;
                     $s->shutdown(2);
                     $s->unbind;
@@ -67,9 +68,9 @@ my @QOTD = (
 sub qotd {
     my $port = shift || 17;
     return new cmt::serv(
-        sub {
+        sub { *__ANON__ = '<qotd-sfac>';
             new cmt::stream(
-                -binded => sub {
+                -binded => sub { *__ANON__ = '<qtod-binded>';
                     my $this = shift;
                     my $count = scalar(@QOTD);
                     my $index = int($count * rand);
@@ -85,9 +86,9 @@ sub qotd {
 sub chargend {
     my $port = shift || 19;
     my $serv = new cmt::serv(
-        sub {
+        sub { *__ANON__ = '<chargend-sfac>';
             new cmt::stream(
-                -reqdata => sub {
+                -reqdata => sub { *__ANON__ = '<chargend-reqdata>';
                     my $this = shift;
                     $this->write("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
                     fsleep 0.1;

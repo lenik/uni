@@ -55,7 +55,7 @@ our $CROOT          = $Registry->{'Classes'};
 # Description - List, Command
 sub _cs_DLC {
     my $code = shift;
-    sub {
+    sub { *__ANON__ = '<_cs_DLC>';
         my $ctx = shift;
         my ($dl, $c) = @_;
         my ($d, @l) = split(/\s+/, $dl);
@@ -67,7 +67,7 @@ sub _cs_DLC {
 # Name - Id - Description, Command
 sub _cs_NIDC {
     my $code = shift;
-    sub {
+    sub { *__ANON__ = '<_cs_NIDC>';
         my $ctx = shift;
         my ($nid, $c) = @_;
         my ($n, $i, $d) = split(/\s+/, $nid, 3);
