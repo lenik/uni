@@ -1,30 +1,101 @@
 package cmt::ios;
 
+=head1 NAME
+
+cmt::ios - I/O Stream
+
+=cut
 use strict;
-use constant RR         => 1;
-use constant WW         => 2;
-use constant EE         => 4;
-use vars                qw/@ISA @EXPORT/;
+use constant RR => 1;
+use constant WW => 2;
+use constant EE => 4;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = __PACKAGE__;
+    $LOGLEVEL   = 1;
 use cmt::ftime;
+use cmt::log(2);
 use cmt::util;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pm,v 1.7 2007-09-14 16:09:45 lenik Exp $');
+    our $VER    = "0.$RCSID{rev}";
 use Data::Dumper;
 use Exporter;
 use IO::Select;
 use List::Util          qw/min max/;
 
-sub info;
-sub info2;
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(mysub
+                 );
+
 sub count_undefs;
 sub zero_to_undef;
 sub double(\$);
 
-our $opt_verbtitle      = __PACKAGE__;
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
+# INITIALIZORS
 
-@ISA    = qw(Exporter);
-@EXPORT = qw();
+=head1 SYNOPSIS
 
+    use cmt::ios;
+
+    my $ios = new ioevt(
+        group1  => [ $fd1, $fd2, ... ],
+        group2  => ...,
+        -read   => sub { shift; $buf=<shift>; return $wbuf },
+        -write  => sub { shift; print <shift> $wbuf; },
+        -err    => sub { shift; $fd=<shift>; $fd->shutdown; remove($fd)... }
+                   -or-
+                   sub { my $ctx = shift; $ctx->exit unless $stream->err(shift) }
+        );
+
+    1
+    $ios->loop(@read_fds, @write_fds, @err_fds);
+
+    2
+    my $ctx = $ios->create_context(@read_fds, @write_fds, @err_fds);
+    while ($ctx->iterate);
+
+    3
+    while ($ctx->iterate) {
+        # ...
+        if (connect_command) {
+            $ios = $ios->merge(new cmt::ios(...));
+            $ctx = $ios->create_context;
+        }
+    }
+
+    4
+    $mios = $ios->merge();
+    $mctx = $mios->create_context;
+    while ($mctx->iterate) {
+        if (connect_command) {
+            $sock = new socket;
+            $mios->merge(new cmt::ios(GROUP=>[$sock], ...));
+            $mctx->add($sock);
+        }
+    }
+
+    5
+    new cmt::ios {
+        -read = {
+            my ($ctx, $sock) = @_;
+            if (connect_command) {
+                new socket;
+                $ctx->add($socket);
+            }
+        }
+    }
+
+=head1 DESCRIPTION
+
+B<cmt::ios> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-cmt::ios-RESOLVES.
+
+=head1 SUB-PACKAGE
+
+=cut
 {
     package cmt::ios::context;
 
@@ -152,7 +223,7 @@ our $opt_verbose        = 1;
         push @$subs, @_;
 
         for my $child (@_) {
-            cmt::ios::info2 "merge child $child\n";
+            cmt::ios::_log2 "merge child $child\n";
             my $child_groups = $child->{GROUPS};
             for my $gname (keys %$child_groups) {
                 my $fd_set = $child_groups->{$gname};
@@ -182,7 +253,7 @@ our $opt_verbose        = 1;
         my $fd_idx  = $this->{FD_IDX};
 
         for my $child (@_) {
-            cmt::ios::info2 "remove child $child\n";
+            cmt::ios::_log2 "remove child $child\n";
             array_remove @$subs, $child;
 
             my $child_groups = $child->{GROUPS};
@@ -203,6 +274,9 @@ our $opt_verbose        = 1;
     }
 }
 
+=head1 METHOD
+
+=cut
 sub new {
     my $class   = shift;
     my $this    = bless {}, $class;
@@ -399,22 +473,12 @@ sub fdindex {
     return $ios;
 }
 
-# statics
+=head1 DIAGNOSTICS
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+(No Information)
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
-
+=cut
+# (HELPER FUNCTIONS)
 sub count_undefs {
     my $count = 0;
     for (@_) {
@@ -425,7 +489,7 @@ sub count_undefs {
 
 sub zero_to_undef {
     my $x = shift;
-    $x == 0 ? undef : $x;
+    (defined $x && $x == 0) ? undef : $x;
 }
 
 sub double(\$) {
@@ -433,54 +497,23 @@ sub double(\$) {
     $$x = $$x ? (2 * $$x) : 1;
 }
 
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=head1 SEE ALSO
+
+The L<cmt/"I/O Stream">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
 1
-
-__END__
-
-    my $ios = new ioevt(
-        group1  => [ $fd1, $fd2, ... ],
-        group2  => ...,
-        -read   => sub { shift; $buf=<shift>; return $wbuf },
-        -write  => sub { shift; print <shift> $wbuf; },
-        -err    => sub { shift; $fd=<shift>; $fd->shutdown; remove($fd)... }
-                   -or-
-                   sub { my $ctx = shift; $ctx->exit unless $stream->err(shift) }
-        );
-
-    1
-    $ios->loop(@read_fds, @write_fds, @err_fds);
-
-    2
-    my $ctx = $ios->create_context(@read_fds, @write_fds, @err_fds);
-    while ($ctx->iterate);
-
-    3
-    while ($ctx->iterate) {
-        # ...
-        if (connect_command) {
-            $ios = $ios->merge(new cmt::ios(...));
-            $ctx = $ios->create_context;
-        }
-    }
-
-    4
-    $mios = $ios->merge();
-    $mctx = $mios->create_context;
-    while ($mctx->iterate) {
-        if (connect_command) {
-            $sock = new socket;
-            $mios->merge(new cmt::ios(GROUP=>[$sock], ...));
-            $mctx->add($sock);
-        }
-    }
-
-    5
-    new cmt::ios {
-        -read = {
-            my ($ctx, $sock) = @_;
-            if (connect_command) {
-                new socket;
-                $ctx->add($socket);
-            }
-        }
-    }

@@ -1,201 +1,194 @@
 #!/usr/bin/perl
-# $Id: whoare,v 1.10 2007-07-18 11:51:30 lenik Exp $
 
+=head1 NAME
+
+whoare - batch whois query
+
+=cut
 use strict;
-use cmt::util;          # readfile /.gz
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'whoare'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::ftime('fsleep');
+use cmt::log(2);
+use cmt::util('readfile'); # readfile /.gz
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl,v 1.16 2007-09-29 11:31:33 lenik Exp $');
+use cmt::whois('whois');
 use Data::Dumper;
 use FileHandle;
 use File::Basename;
 use Getopt::Long;
-use Socket;
-#use Thread;
-use Time::HiRes qw/usleep/;
 
-sub _Verbose;
+sub _main; sub _version; sub _help;
+sub process;
+sub process_any;
+sub importwords;
+sub before_than;
+sub after_than;
 
-$| = 1;
-
-our %tld_whois = (
-    'com'       => 'whois.internic.com',
-    'net'       => 'whois.internic.com',
-    'org'       => 'whois.internic.com',
-    'edu'       => 'whois.internic.com',
-    'cn'        => 'whois.cnnic.net.cn',
-    'biz'       => 'whois.biz',         #'whois.neulevel.biz',
-    'bz'        => 'mhpwhois1.verisign-grs.net',
-    'to'        => 'monarch.tonic.to',
-    'gs'        => 'whois.adamsnames.tc',
-    'ms'        => 'whois.adamsnames.tc',
-    'tc'        => 'whois.adamsnames.tc',
-    'tf'        => 'whois.adamsnames.tc',
-    'vg'        => 'whois.adamsnames.tc',
-    'aero'      => 'whois.aero',
-    'info'      => 'whois.afilias.net',
-    'am'        => 'whois.amnic.net',
-    'au'        => 'whois.aunic.net',   # whois.apnic.net',
-    'com.au'    => 'whois.ausregistry.net.au',
-    'si'        => 'whois.arnes.si',
-    'eu.lv'     => 'whois.biz',
-    'cd'        => 'whois.cd',
-    'br.com'    => 'whois.centralnic.com',
-    'cn.com'    => 'whois.centralnic.com',
-    'eu.com'    => 'whois.centralnic.com',
-    'hu.com'    => 'whois.centralnic.com',
-    'no.com'    => 'whois.centralnic.com',
-    'qc.com'    => 'whois.centralnic.com',
-    'sa.com'    => 'whois.centralnic.com',
-    'se.com'    => 'whois.centralnic.com',
-    'se.net'    => 'whois.centralnic.com',
-    'us.com'    => 'whois.centralnic.com',
-    'uy.com'    => 'whois.centralnic.com',
-    'za.com'    => 'whois.centralnic.com',
-    'uk.com'    => 'whois.centralnic.com',
-    'uk.net'    => 'whois.centralnic.com',
-    'gb.com'    => 'whois.centralnic.com',
-    'gb.net'    => 'whois.centralnic.com',
-    'gg.je'     => 'whois.channelisles.net',
-    'ca'        => 'whois.cira.ca',
-    'ug'        => 'whois.co.ug',
-    'za'        => 'whois.co.za',
-    'de'        => 'whois.denic.de',
-    'dk'        => 'whois.dk-hostmaster.dk',
-    'be'        => 'whois.dns.be',
-    'lu'        => 'whois.dns.lu',
-    'pl'        => 'whois.dns.pl',
-    'nl'        => 'whois.domain-registry.nl',
-    'kz'        => 'whois.domain.kz',
-    'ie'        => 'whois.domainregistry.ie',
-    'nz'        => 'whois.domainz.net.nz',
-    'tk'        => 'whois.dot.tk',
-    'gov'       => 'whois.dotgov.gov',
-    'edu'       => 'whois.educause.edu',
-    'ee'        => 'whois.eenet.ee',
-    'hk'        => 'whois.hkirc.net',
-    'int'       => 'whois.iana.org',
-    'in'        => 'whois.iisc.ernet.in',
-    'mil'       => 'whois.internic.net',
-    'pro'       => 'whois.internic.net',
-    'is'        => 'whois.isnic.is',
-    'il'        => 'whois.isoc.org.il',
-    'ke'        => 'whois.kenic.or.ke',
-    'ec'        => 'whois.lac.net',
-    'my'        => 'whois.mynic.net.my',
-    'museum'    => 'whois.meseum',
-    'ua'        => 'whois.net.ua',
-    'jp'        => 'whois.nic.ad.jp',
-    'org'       => 'whois.pir.org',
-    'tw'        => 'whois.twnic.net.tw',
-    'tv'        => 'whois.www.tv',
-    );
-
-our $proto_tcp = getprotobyname("tcp");
-
-our $logfile = 'whois_logs.txt';
-
-
-our $fuzzy_tbl = "abcdefghijklmnopqrstuvwxyz0123456789-";
-our @fuzzy_set = split('', $fuzzy_tbl);
-our $fuzzy_len = scalar(@fuzzy_set);
-our @dict;
-
-our $opt_verbose;
-our $opt_test;
-our $opt_mt = 1;
-our $opt_maxt = 10;
-our $opt_numbers;
 our @opt_tla;
+our $opt_numbers;
+our $fuzzy_tbl      = "0123456789abcdefghijklmnopqrstuvwxyz-";
+our @fuzzy_set;
+our @dict;
+our $ignore_first;
+our $opt_multi_threads;
+our $opt_threads;
+our $opt_test;
+our $opt_logfile    = 'whois_logs.txt';
 
-our @def_tla = qw/
-        .com
-        .net
-        .org
-        .info
-        .cn
-        .com.cn
-    /;
-        # .edu
-        # .biz
-        # .net.cn
-        # .org.cn
+my $logfile;        # current logfile
+my %threads;        # pid -> { starttime }
 
-our $ignore_first = 0;
-
-# pid -> { starttime }
-our %threads;
-
-sub whois {
-    my $svr = shift;
-    my ($tld) = $svr =~ m/\.([^\.]+)$/;
-    my $server = $tld_whois{$tld} || "whois.nic.$tld";
-
-    die "WHOIS server undefined for TLD: $tld" if ! $server;
-    my $iaddr = inet_aton($server);
-        die "Server $server not found: $!" if !$iaddr;
-
-    my $paddr = sockaddr_in(43, $iaddr);
-    my $proto = $proto_tcp;
-    my $info = {};
-    local $_;
-
-    socket(SOCK, PF_INET, SOCK_STREAM, $proto)
-        or die "Can't create socket: $!";
-
-    # svr|...
-    print "$svr" unless $opt_mt;
-
-    my $connected = 0;
-    my $failcount = 0;
-    while (not $connected) {
-        $connected = connect(SOCK, $paddr);
-        if (not $connected) {
-            $failcount++;
-            die "Connect failure: $!" if $failcount > 10;
-            print STDERR "Connect failed: $!, Retry $failcount\n";
-        }
+sub boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'tla|a=s'        => sub { push @opt_tla, map { /^\./ ? $_ : '.'.$_ }
+                                            split(/[,:; ]/, $_[1]) },
+               'numbers|n'      => sub { $fuzzy_tbl = '0123456789' },
+               'wordlist|w:s'   => sub { importwords defined $_[1] ? $_[1]
+                                            : (dirname($0).'/../etc/words.txt.gz') },
+               'multi-threads|m',
+               'threads|t=n',
+               'test',
+               );
+    unless (@opt_tla) {
+        @opt_tla = qw(.com .net .org .info .cn .com.cn);
+                 #    .edu .biz .net.cn .org.cn
     }
 
-    # _Verbose "<send $svr";
-    send(SOCK, "$svr\n", 0);
-    # _Verbose " send>";
+    @fuzzy_set = split('', $fuzzy_tbl);
 
-    # svr|...
-    print "|" unless $opt_mt;
-
-    while (<SOCK>) {
-        s/\r|\n//;
-        # _Verbose "<recv $_ />";
-        if (m/^\s*Domain Name:\s*(.*)$/i) {
-            $info->{domain} = $1;
-        } elsif (m/^\s*Registrar:\s*(.*)$/i) {
-            $info->{reg} = $1 if (! $info->{reg});
-        } elsif (m/^\s*Registrant Name:\s*(.*)$/i) {
-            $info->{reg} = $1 if (! $info->{reg});
-        } elsif (m/^\s*Registrant Organization:\s*(.*)$/i) {
-            $info->{reg} = $1 if (! $info->{reg});
-        } elsif (m/^\s*Name Server:\s*(.*)$/i) {
-            $info->{dns0} = $1 if (! $info->{dns0});
-        } elsif (m/Registration Date:\s*(.*)$/i) {
-            $info->{create} = $1;
-        } elsif (m/Expiration Date:\s*(.*)$/i) {
-            $info->{expire} = $1;
-        } elsif (m/^No match(ing)?\b/i or m/^Not found\b/i) {
-            $info = {};
-            $info->{domain} = '***Available***';
-            last;
-        } elsif (m/^>>> /) {
-            last;
-        }
+    if ($opt_threads) {
+        $opt_multi_threads = 1;
+    } elsif ($opt_multi_threads) {
+        $opt_threads = 10;
     }
 
-    if (! $info->{domain}) {
-        $info->{domain} = 'UNKNOWN';
-    }
-
-    close SOCK;
-
-    return $info;
+    $| = 1;
+    _main;
 }
 
+=head1 SYNOPSIS
+
+B<whoare>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<whoare> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-whoare-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] QUERY/START ...\n", <<'EOM';
+
+Common options:
+    -m, --multi-threads     running in multi-threads mode
+    -t, --threads=COUNT     count of threads, default 10
+    -n, --numbers           expand ? to [0-9] (otherwise [0-9a-z-])
+    -a, --tla=TLALIST       implicit TLAs, e.g. -a=com,net,org,edu
+    -w, --wordlist=FILE     add words in FILE, default bin/../etc/words.txt.gz
+        --test              just see what domain names are expanded
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+
+Examples:
+    whoare -n my???         try my000-my999.*
+    whoare my@/mydog        replace `@' with each word in wordlist, and start
+                            from `dog'
+    whoare -t=30 ???.com    search three letters .com domains, using 30 threads
+
+EOM
+}
+
+exit (boot or 0);
+
+sub _main {
+    for (@ARGV) {
+        my ($query, $start) = split('/', $_, 2);
+
+        # set log-file and start-number for resuming
+
+        $logfile = "whois_$query.txt";
+        $logfile =~ s/\?/_/g;
+        $logfile =~ s/[\@\*]/=/g;
+
+        if ($query =~ m/\?/) {
+            unless (defined $start) {
+                if (-f $logfile) {
+                    my $last = `tail -1 $logfile`;
+                    ($start) = split(/\|/, $last);
+                }
+            }
+        } elsif ($query =~ m/[\@\*]/) {
+            unless (defined $start) {
+                if (-f $logfile) {
+                    my ($sl, $sr) = map { length($_) }
+                            $logfile =~ m/^whois_(.*)=(.*)\.txt$/;
+                    my $last = `tail -1 $logfile`;
+                    ($start) = $last =~ m/^(.*?)(?=\|)/;
+                    $start = substr($start, $sl, length($start) - $sl - $sr);
+                }
+            }
+        } else {
+            $logfile =~ $opt_logfile;
+        }
+
+        $ignore_first = 1 if $start;
+        process_any($query, $start);
+    }
+}
 
 sub process {
     my $name = shift;
@@ -242,7 +235,7 @@ sub process {
     my $line =
         "$wi->{domain}|$wi->{reg}|$wi->{dns0}|$wi->{create}|$wi->{expire}\n";
 
-    print "$name|" if $opt_mt;
+    print "$name|" if $opt_multi_threads;
     print $line;
 
     my $logs = new FileHandle(">>$logfile");
@@ -250,48 +243,22 @@ sub process {
     $logs->close();
 }
 
-
-sub before_than {
-    my ($a, $b) = @_;
-    for (my $i = 0; $i < length($b); $i++) {
-        my $ai = index($fuzzy_tbl, substr($a, $i, 1));
-        my $bi = index($fuzzy_tbl, substr($b, $i, 1));
-
-        return 1 if $ai >= 0 and $ai < $bi;
-    }
-    return 0;
-}
-
-sub after_than {
-    my ($a, $b) = @_;
-    for (my $i = 0; $i < length($b); $i++) {
-        my $ai = index($fuzzy_tbl, substr($a, $i, 1));
-        my $bi = index($fuzzy_tbl, substr($b, $i, 1));
-
-        return 1 if $ai >= 0 and $ai > $bi;
-    }
-    return 0;
-}
-
-
-sub process_gen {
-    my $gen = shift;
-    for (@opt_tla) {
-        process_any("$gen$_");
-    }
-}
-
 sub process_any {
+    sub expand_stem {
+        my $gen = shift;
+        process_any "$gen$_" for @opt_tla;
+    }
+
     my ($name, $st) = @_;
     $name = lc $name;
     return if ($name =~ m/^-/ or $name =~ m/-\./);
 
     if ($name =~ m/^(.*)\.\*$/) {
-        process_gen($1);
+        expand_stem($1);
         return;
     }
     if (index($name, '.') < 0) {
-        process_gen($name);
+        expand_stem($name);
         return;
     }
 
@@ -299,8 +266,7 @@ sub process_any {
     if ($name =~ m/\?/) {
         my $xpos = $-[0];
         my $n2 = $name;
-        my $i = 0;
-        for (; $i < $fuzzy_len; $i++) {
+        for (my $i = 0; $i <= $#fuzzy_set; $i++) {
             substr($n2, $xpos, 1) = $fuzzy_set[$i];
             if ($st) {
                 next if before_than($n2, $st);
@@ -336,14 +302,14 @@ sub process_any {
         return;
     }
 
-    if ($opt_mt) {
+    if ($opt_multi_threads) {
         my $active_threads = 1 * scalar(%threads);
-        if ($active_threads < $opt_maxt) {
+        if ($active_threads < $opt_threads) {
             my $pid = fork;
             if ($pid) {
                 $threads{$pid} = [ time() ];
             } else {
-                _Verbose "[thread $$] start\n";
+                _log2 "[thread $$] start\n";
                 process($name);
                 exit;
             }
@@ -356,14 +322,14 @@ sub process_any {
                     my $start = $info[0];
                     my $dur = time() - $start;
                     if ($dur > 10) {
-                        _Verbose "[thread $pid timeout($dur)]\n";
+                        _log2 "[thread $pid timeout($dur)]\n";
                         kill $pid;
                         delete $threads{$pid};
                     }
                 }
             }
             my $pid = wait;
-            _Verbose "[thread $pid] end\n";
+            _log2 "[thread $pid] end\n";
             delete $threads{$pid};
         }
     } else {
@@ -371,42 +337,11 @@ sub process_any {
     }
 }
 
-sub process_arg {
-    my $arg = shift;
+=head1 DIAGNOSTICS
 
-    my ($pat, $start) = $arg =~ m/^([^\/]*)(\/.*)?/;
-    $start = substr($start, 1) if $start;
+(No Information)
 
-    # set log-file and start-number for resuming
-    if ($pat =~ m/\?/) {
-        $logfile = "whois_$pat.txt";
-        $logfile =~ s/\?/\%/g;
-
-        if (! $start) {
-            if (-f $logfile) {
-                my $last = `tail -1 $logfile`;
-                ($start) = $last =~ m/^(.*?)(?=\|)/;
-            }
-        }
-    }
-    if ($pat =~ m/\@/) {
-        $logfile = "whois_$pat.txt";
-        $logfile =~ s/\@/\$/g;
-
-        if (! $start) {
-            if (-f $logfile) {
-                my ($sl, $sr) = map { length($_) }
-                        $logfile =~ m/^whois_(.*)\$(.*)\.txt$/;
-                my $last = `tail -1 $logfile`;
-                ($start) = $last =~ m/^(.*?)(?=\|)/;
-                $start = substr($start, $sl, length($start) - $sl - $sr);
-            }
-        }
-    }
-
-    $ignore_first = 1 if $start;
-    process_any($pat, $start);
-}
+=cut
 
 sub importwords {
     my $fn = shift;
@@ -418,70 +353,55 @@ sub importwords {
     push @dict, map { chomp; $_ } @lines;
 }
 
-my $options = GetOptions(
-                         'verbose' => \$opt_verbose,
-                         'test' => \$opt_test,
-                         'multi-threads|mt'  => sub { $opt_mt = 1 },
-                         'single-threads|st' => sub { $opt_mt = 0 },
-                         'max-threads=n' => \$opt_maxt,
-                         'numbers|n' => \$opt_numbers,
-                         'tla|a=s' =>
-                                sub {
-                                    my ($opt, $ext) = @_;
-                                    foreach (split(/[,:; ]/, $ext)) {
-                                        $_ = '.' . $_ if ($_ !~ m/^\./);
-                                        # print "[$_]\n";
-                                        push @opt_tla, $_;
-                                    }
-                                },
-                         'words-list|w:s' =>
-                                sub {
-                                    my ($opt, $fn) = @_;
-                                    $fn = dirname($0) . '/words.txt.gz' unless $fn;
-                                    importwords($fn);
-                                },
-                         'help' => sub { &help; },
-                         );
-
-    if ($opt_numbers) {
-        $fuzzy_tbl = "0123456789";
-        @fuzzy_set = split('', $fuzzy_tbl);
-        $fuzzy_len = scalar(@fuzzy_set);
+sub before_than {
+    my ($a, $b) = @_;
+    for (my $i = 0; $i < length($b); $i++) {
+        my $ai = index($fuzzy_tbl, substr($a, $i, 1));
+        my $bi = index($fuzzy_tbl, substr($b, $i, 1));
+        return 1 if $ai >= 0 and $ai < $bi;
     }
+    return 0;
+}
 
-    if (scalar(@opt_tla) == 0) {
-        @opt_tla = @def_tla;
+sub after_than {
+    my ($a, $b) = @_;
+    for (my $i = 0; $i < length($b); $i++) {
+        my $ai = index($fuzzy_tbl, substr($a, $i, 1));
+        my $bi = index($fuzzy_tbl, substr($b, $i, 1));
+        return 1 if $ai >= 0 and $ai > $bi;
     }
-
-_Verbose $opt_mt == 1
-    ? "Multithreads Mode($opt_maxt)\n"
-    : "Singlethread Mode\n";
-
-for (@ARGV) {
-    process_arg $_;
+    return 0;
 }
 
+=head1 HACKING
 
-sub _Verbose {
-    return if (! $opt_verbose);
-    print join('', @_);
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] batch whois query \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 
-sub help {
-    print <<"EOM";
-[WHOARE] Multi-domains Whois Query
+=head1 SEE ALSO
 
-Syntax:
-    whoare
-        --help (h)
-        --verbose (v)
-        --test (t)
-        --single-threads (st)
-        --multi-threads (mt)
-        --max-threads=<number> (max)
-        --numbers (n)
-        --tla <TLA-list> (a)
-        --words-list=<filename> (w, e.g. -w=/tmp/words.txt.gz)
-EOM
-    exit;
-}
+The L<cmt/"batch whois query">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

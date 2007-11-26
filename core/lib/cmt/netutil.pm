@@ -1,49 +1,72 @@
 package cmt::netutil;
 
+=head1 NAME
+
+cmt::netutil - Network Utilities
+
+=cut
 use strict;
-use vars                qw/@ISA @EXPORT @EXPORT_OK/;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = __PACKAGE__;
+    $LOGLEVEL   = 1;
+use cmt::log(2);
 use cmt::path;
 use cmt::util;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pm,v 1.7 2007-09-14 16:09:45 lenik Exp $');
+    our $VER    = "0.$RCSID{rev}";
 use Exporter;
 use Fcntl;
 use Socket qw(:all);
 
-our $opt_verbtitle      = __PACKAGE__;
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(setnonblock
+                 nbread
+                 format_inaddr
+                 sockinfo
+                 loadurl);
+our @EXPORT_OK = qw(post);
+
+# INITIALIZORS
 our $opt_strict         = 0;
 our $opt_wget           = 0;
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+    use cmt::netutil;
+    mysub(arguments...)
+
+=head1 DESCRIPTION
+
+B<cmt::netutil> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-cmt::netutil-RESOLVES.
+
+=head1 FUNCTIONS
+
+=cut
+=head2 mysub(arguments)
+
+=cut
 
 sub setnonblock {
     my $h = shift;
     eval {
-        info2 "setnonblock $h by Fcntl";
+        _log2 "setnonblock $h by Fcntl";
         my $flags = 0;
         fcntl($h, F_GETFL, $flags) or return undef;
         $flags |= O_NONBLOCK;
         fcntl($h, F_SETFL, $flags) or return undef;
         1
     } or eval {
-        info2 "setnonblock $h by ioctl";
+        _log2 "setnonblock $h by ioctl";
         my $temp = 1;
         ioctl $h, 0x8004667E, \$temp;
         1
     } or eval {
-        info2 "setnonblock $h by setsockopt";
+        _log2 "setnonblock $h by setsockopt";
         setsockopt $h, IPPROTO_TCP, TCP_NODELAY, 1;
         1
     } or die "Can't setnonblock, system doesn't support the operation";
@@ -133,12 +156,30 @@ sub loadurl {
     return $cnt;
 }
 
-@ISA        = qw(Exporter);
-@EXPORT     = qw(setnonblock
-                 nbread
-                 format_inaddr
-                 sockinfo
-                 loadurl);
-@EXPORT_OK  = qw(post);
+=head1 DIAGNOSTICS
 
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=head1 SEE ALSO
+
+The L<cmt/"Network Utilities">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
 1

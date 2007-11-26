@@ -1,26 +1,30 @@
 #!/usr/bin/perl
 
-use strict;
-use Getopt::Long;
-use IO::Socket;
-use IO::Select;
-use cmt::util;
-use cmt::vcs;
-use cmt::echohh;
-use cmt::simpled;
-use Data::Dumper;
+=head1 NAME
 
-sub main;
-sub get_wan_address;
+keeplink - Simulate a busy I/O connection
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'keeplink'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::echohh;
+use cmt::inet;
+use cmt::log(2);
+use cmt::serv;
+use cmt::simpled;
+use cmt::stream;
+use cmt::util;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl,v 1.16 2007-09-29 11:31:33 lenik Exp $');
+use Data::Dumper;
+use Getopt::Long;
+
+sub _main; sub _version; sub _help;
 sub serv;
-sub linkmain;
-sub version;
-sub help;
-sub print_options;
-sub info;
-sub info2;
 sub sendbuf_none;
 sub sendbuf_text;
+sub get_wan_address;
 
 # if the specified port is same as DEFAULT_PORT,
 # then the port will be binded if it hasn't been binded yet.
@@ -37,31 +41,29 @@ our $opt_method     = 'text';       # \&sendbuf_text
 our $opt_interval   = 3;            # 3 sec
 our $opt_refresh    = 5;            # 5 sec
 our $opt_logfile    = undef;
-our $opt_verbose    = 0;
-our $opt_verbtitle  = 'keeplink';
 
-sub main {
-    GetOptions(
-        'echohh=s' => sub { my $s = $_[1]; echohh_addservice $s; },
-        'help' => sub { &help, exit },
-        'host|h=s',
-        'interval=n',
-        'method=s',
-        'port=n',
-        'refresh=n',
-        'serv!',
-        'text=s',
-        'logfile:s',
-        'verbose|v' => sub { $opt_verbose++ },
-        'version' => sub { &version, exit },
-        );
+sub boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'echohh=s'       => sub { my $s = $_[1]; echohh_addservice $s; },
+               'host|h=s',
+               'interval=n',
+               'method=s',
+               'port=n',
+               'refresh=n',
+               'serv!',
+               'text=s',
+               'logfile:s',
+               );
 
     if (defined $opt_logfile) {
         if ('' eq $opt_logfile) {
             my $tmp = $ENV{'TMP'} || $ENV{'TEMP'};
             $opt_logfile = $tmp . '/keeplink.log';
         }
-        info "log to file: $opt_logfile";
+        _log2 "log to file: $opt_logfile";
         open(LOGFILE, ">>$opt_logfile")
             || die("can't open logfile");
         LOGFILE->autoflush(1);
@@ -70,7 +72,12 @@ sub main {
 
     $opt_host = get_wan_address if not defined $opt_host;
 
-    print_options if $opt_verbose;
+    _log2 "host        = $opt_host";
+    _log2 "port        = $opt_port";
+    _log2 "text        = $opt_text";
+    _log2 "method      = $opt_method";
+    _log2 "interval    = $opt_interval";
+    _log2 "refresh     = $opt_refresh";
 
     # eval to sub ptr.
     # TODO - sendbuf_?? isn't exist?
@@ -87,163 +94,185 @@ sub main {
         }
     }
 
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<keeplink>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<keeplink> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-keeplink-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -h, --host=HOST         default is wan-address
+    -p, --port=PORT         default 51296
+    -e, --echohh=URL        the page to get the wan-address of localhost
+    -s, --serv or --noserv  running a simple service at the port
+    -m, --method=METHOD     send method, default 'text'
+    -t, --text=MESSAGE      what to send, default "kEEplInk"
+    -l, --logfile=<path>    default log to stdout
+    -i, --interval=SECONDS  send interval, default 3
+    -r, --refresh=SECONDS   refresh interval (verbose info)
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+
+Send method:
+    none                    don't send anything
+    text                    send the --text value
+
+EOM
+}
+
+exit (boot or 0);
+
+sub _main {
     my $count = 0;
     while (1) {
-        info "New link " . $count++;
-        linkmain;
-    }
-}
+        _log1 "New link " . $count++;
 
-sub get_wan_address {
-    info "Get WAN Address of localhost";
-    my $remote_addr = echohh_server('REMOTE_ADDR');
-    info "WAN Address: $remote_addr";
-    return $remote_addr;
-}
+        # 1, connect host:port
+        _log1 "Connect to $opt_host:$opt_port";
 
-sub serv {
-    info "Initialize echod service at port $opt_port";
-    my $serv = echod($opt_port);
-    $serv->verbose($opt_verbose);
-    return $serv->serv;
-}
-
-sub linkmain {
-    # 1, connect host:port
-    info "Connect to $opt_host:$opt_port";
-
-    # TODO - more controls, UDP, etc.
-    my $sock = new IO::Socket::INET(
-        PeerAddr    => $opt_host,
-        PeerPort    => $opt_port,
-        Type        => SOCK_STREAM,
-        Proto       => 'tcp'
-        );
-    if (! $sock) {
-        info "Can't connect: $!";
-        return 0;
-    }
-    $sock->autoflush(1);        # as "$| = 1" does.
-    info "Connected.";
-
-    my $set = new IO::Select;
-    $set->add($sock);
-
-    my $counter = 0;
-    my $lastinfo = time;
-    my $lastwrite = time - $opt_interval * 2;
-
-    # 2, repeat send...
-
-    my $selread = $set;
-    my $selwrite = $set;
-    my $selex = $set;
-
-    while ($set->count) {
-        $counter++;
-        if (time - $lastinfo > $opt_refresh) {
-            info2 "heartbeat $counter";
-            $lastinfo = time;
+        # TODO - more controls, UDP, etc.
+        my $sock = new IO::Socket::INET(
+            PeerAddr    => $opt_host,
+            PeerPort    => $opt_port,
+            Type        => SOCK_STREAM,
+            Proto       => 'tcp'
+            );
+        if (! $sock) {
+            _log1 "Can't connect: $!";
+            return 0;
         }
+        $sock->autoflush(1);        # as "$| = 1" does.
+        _log1 "Connected.";
 
-        # blocks until a handle is ready.
-        # select(READ, WRITE, ERROR [, TIMEOUT])
-        my @all = IO::Select->select($selread, $selwrite, $selex
-                                     , $opt_interval); #
-        my @hs;
+        my $set = new IO::Select;
+        $set->add($sock);
 
-        @hs = @all ? @{$all[0]} : ();
-        for my $h (@hs) {
-            my $input = <$h>;
-            info2 "recv $input"
-        }
+        my $counter = 0;
+        my $lastinfo = time;
+        my $lastwrite = time - $opt_interval * 2;
 
-        if (time - $lastwrite > $opt_interval) {
-            if (defined $selwrite) {
-                @hs = @all ? @{$all[1]} : ();
-                for my $h (@hs) {
-                    my $buf = &$opt_method;
-                    print $sock $buf;
-                    info2 "sent $buf";
+        # 2, repeat send...
+
+        my $selread = $set;
+        my $selwrite = $set;
+        my $selex = $set;
+
+        while ($set->count) {
+            $counter++;
+            if (time - $lastinfo > $opt_refresh) {
+                _log2 "heartbeat $counter";
+                $lastinfo = time;
+            }
+
+            # blocks until a handle is ready.
+            # select(READ, WRITE, ERROR [, TIMEOUT])
+            my @all = IO::Select->select($selread, $selwrite, $selex
+                                         , $opt_interval); #
+            my @hs;
+
+            @hs = @all ? @{$all[0]} : ();
+            for my $h (@hs) {
+                my $input = <$h>;
+                _log2 "recv $input"
+            }
+
+            if (time - $lastwrite > $opt_interval) {
+                if (defined $selwrite) {
+                    @hs = @all ? @{$all[1]} : ();
+                    for my $h (@hs) {
+                        my $buf = &$opt_method;
+                        print $sock $buf;
+                        _log2 "sent $buf";
+                    }
+                    $selwrite = undef;
+                    $lastwrite = time;
+                } else {
+                    $selwrite = $set;
                 }
-                $selwrite = undef;
-                $lastwrite = time;
-            } else {
-                $selwrite = $set;
+            }
+
+            @hs = @all ? @{$all[2]} : ();
+            for my $h (@hs) {
+                _log1 "exception";
+                $h->shutdown(2);
+                $set->remove($h);
             }
         }
 
-        @hs = @all ? @{$all[2]} : ();
-        for my $h (@hs) {
-            info "exception";
-            $h->shutdown(2);
-            $set->remove($h);
-        }
-    }
-
-    return $counter;
-}
-
-sub version {
-    my %id = parse_id('$Id: keeplink.pld,v 1.8 2007-11-08 10:52:37 lenik Exp $');
-    print "[KEEPLINK] Keep network link by repeat sending\n";
-    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-}
-
-sub help {
-    &version;
-    print <<"EOM";
-
-Syntax:
-        keeplink <options>
-
-Options:
-        --host=<host-address> (h, default is wan-address)
-        --port=<port> (p, default $DEFAULT_PORT)
-        --serv or --noserv (s, running a simple service at the port)
-        --text=<text message to send> (t, default "kEEplInk")
-        --method=<send method> (m, default 'text')
-        --interval=<number of seconds> (i, send interval, default 3 sec.)
-        --echohh=<echohh-service url>
-            (e, the service is used to get the wan-address of localhost)
-        --logfile=<path> (l, default log to stdout)
-        --verbose (v, repeat twice give you more verbose info)
-        --refresh=<number of seconds> (r, refresh interval for verbose)
-        --version
-        --help
-
-Send Methods:
-        none        don't send anything
-        text        send the option value of --text
-
-EOM
-}
-
-sub print_options {
-    print <<"EOM";
-        Host        $opt_host
-        Port        $opt_port
-        Text        $opt_text
-        Method      $opt_method
-        Interval    $opt_interval
-        Refresh     $opt_refresh
-        Verbose     $opt_verbose
-EOM
-}
-
-sub info {
-    if ($opt_verbose >= 1) {
-        my $msg = shift;
-        my $date = cdatetime;
-        print "$date [$opt_verbtitle] $msg\n";
+        return $counter;
     }
 }
 
-sub info2 {
-    if ($opt_verbose >= 2) {
-        my $msg = shift;
-        print cdatetime." [$opt_verbtitle] $msg\n";
-    }
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+sub serv {
+    _log1 "Initialize echod service at port $opt_port";
+    my $serv = echod($opt_port);
+    ## TODO -
+    ## $serv->verbose($opt_verbose);
+    return $serv->serv;
 }
 
 sub sendbuf_none {
@@ -255,4 +284,40 @@ sub sendbuf_text {
     return "$opt_text\n";
 }
 
-main;
+=head1 HACKING
+
+(No Information)
+
+=cut
+sub get_wan_address {
+    _log1 "Get WAN Address of localhost";
+    my $remote_addr = echohh_server('REMOTE_ADDR');
+    _log1 "WAN Address: $remote_addr";
+    return $remote_addr;
+}
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Simulate a busy I/O connection \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Simulate a busy I/O connection">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

@@ -1,33 +1,37 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+relay - TCP Relay And Sniff
+
+=cut
 use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'relay'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::inet;
+use cmt::log(2);
+    sub _text($;$) {
+        local $_ = $_[0];
+        s/\a/^G/gs if $_[1];  # nobeep
+    }
 use cmt::serv;
 use cmt::stream;
-use cmt::util;
-use cmt::vcs;
+use cmt::util('indent');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl,v 1.16 2007-09-29 11:31:33 lenik Exp $');
 use cmt::win32;
 use Data::Dumper;
 use Getopt::Long;
-# use IO::Socket;
 use Term::ReadKey;
 
-sub boot;
-sub main;
-sub info;
-sub info2;
-sub version;
-sub help;
-
+sub _main; sub _version; sub _help;
 sub f_filter;
 sub b_filter;
 sub f_dump;
 sub b_dump;
 sub puts;
+sub relay_connect;
 
-our $opt_verbtitle      = 'relay';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
 our $opt_bind_address   = 'localhost';
 our $opt_bind_port;
 our $opt_target_host    = 'localhost';
@@ -44,21 +48,20 @@ my  $mios;
 my  $mctx;
 
 sub boot {
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help|he'    => sub { help; exit },
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
                'bind-address|a=s',
                'bind-port|b=n',
-               'target-host|h=s',
-               'target-port|p=n',
+               'target-host|th=s',
+               'target-port|tp=n',
                'start-recver|sr=s',
                'start-sender|ss=s',
                'start-delay|sd=n',
                'hexdump|x',
                'rawdump|r:s',
                );
-
     $opt_target_host = shift @ARGV if @ARGV;
     $opt_target_port = shift @ARGV if @ARGV;
 
@@ -68,13 +71,13 @@ sub boot {
             if ($opt_target_host eq $opt_bind_address);
     }
 
-    info2 "bind-address:    $opt_bind_address";
-    info2 "bind-port:       $opt_bind_port";
-    info2 "target-host:     $opt_target_host";
-    info2 "target-port:     $opt_target_port";
-    info2 "start-recver:    $opt_start_recver";
-    info2 "start-sender:    $opt_start_sender";
-    info2 "start-delay:     $opt_start_delay";
+    _log2 "bind-address:    $opt_bind_address";
+    _log2 "bind-port:       $opt_bind_port";
+    _log2 "target-host:     $opt_target_host";
+    _log2 "target-port:     $opt_target_port";
+    _log2 "start-recver:    $opt_start_recver" if defined $opt_start_recver;
+    _log2 "start-sender:    $opt_start_sender" if defined $opt_start_sender;
+    _log2 "start-delay:     $opt_start_delay";
 
     if (defined $opt_rawdump) {
         my $range   = '^' if $opt_rawdump =~ s/^!//;
@@ -85,54 +88,86 @@ sub boot {
             $range .= defined $to ? $from.'-'.$to : $from;
         }
         $opt_rawmask = eval "qr/[$range]/";
-        info2 "rawmask:         $opt_rawdump";
+        _log2 "rawmask:         $opt_rawdump";
     }
 
-    main;
+    _main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    local $_ = $_[0];
-    s/\a/^G/gs if $_[1];  # nobeep
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $_\n";
-}
+B<relay>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub version {
-    my %id = parse_id('$Id: relay,v 1.11 2007-11-08 10:52:37 lenik Exp $');
-    print "[$opt_verbtitle] TCP Relay And Sniff \n";
-    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-}
+=head1 DESCRIPTION
 
-sub help {
-    version;
-    print <<"EOM";
+B<relay> is a WHAT used for WHAT. It HOW-WORKS.
 
-Syntax:
-        $0 <options> [ <target-host> [<target-port>] ]
+BACKGROUND-PROBLEM.
 
-Options:
-        --bind-address=<address>    (a, when specified, 1000 will be added to the bind-port)
-        --bind-port=<port>          (b, default <target-port>)
-        --target-host=<hostname>    (h, default localhost)
-        --target-port=<port>        (p, default 80)
-        --start-recver=<cmdline>    (sr)
-        --start-sender=<cmdline>    (ss, cmdline is executed after the delay)
-        --start-delay=<delay ms>    (sd, default 1000 ms)
-        --hexdump                   (x, show hexdump column)
-        --rawdump=[char-range]      (r, charcode out of range is shown as '.')
-        --quiet                     (q)
-        --verbose                   (v, repeat to get more info)
-        --version
-        --help
+HOW-relay-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] [TARGET-HOST [TARGET-PORT]]\n", <<'EOM';
+
+Common options:
+    -a, --bind-address=ADDR bind to the interface with specified address
+    -b, --bind-port=PORT    default as --target-port (+1000 if both localhost)
+    -th,--target-host=HOST  default localhost
+    -tp,--target-port=PORT  default 80
+    -sr,--start-recver=CMD
+    -ss,--start-sender=CMD  execute after delay
+    -sd,--start-delay=DELAY default 1000 (ms)
+    -x, --hexdump           show hexdump column
+    -r, --rawdump[=RANGE]   char code out of RANGE are shown as '.'
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
 
 Deployment:
             +--------+      +----------------+      +--------+
@@ -158,9 +193,9 @@ Deployment:
 EOM
 }
 
-exit boot;
+exit (boot or 0);
 
-sub main {
+sub _main {
     my $pid_recver;
     my $pid_sender;
     if (defined $opt_start_recver) {
@@ -181,7 +216,7 @@ sub main {
                 # the source connected to the relayer (F-conn and this F-stm),
                 # create a corresponding Bk object.
                 my $s = shift;
-                info "source ".$s->hinfo." connected";
+                _log1 "source ".$s->hinfo." connected";
                 my $b_stm = relay_connect($s);
                 $s->{b_stm} = $b_stm;
             },
@@ -189,7 +224,7 @@ sub main {
                 # the source disconnected from the relayer,
                 # so let's disconnect the target.
                 my ($s, $fd) = @_;
-                info2 "source ".$s->hinfo." disconnected";
+                _log2 "source ".$s->hinfo." disconnected";
                 my $b_stm = $s->{b_stm};
                 $b_stm->shutdown(2);
             },
@@ -198,7 +233,7 @@ sub main {
                 # do f_filter and forward to the target.
                 my ($s, $data) = @_;
                 my $b_stm = $s->{b_stm};
-                info2 "F-gotdata $s($b_stm): $data", 1;
+                _log2 "F-gotdata $s($b_stm): "._text($data);
                 $data = f_filter($data);
                 f_dump $data;
                 if (defined $data) {
@@ -218,7 +253,7 @@ sub main {
                 #     $s->write($sendbuf);
                 #     return 1;
                 # }
-                info2 "F-askdata @_";
+                _log2 "F-askdata @_";
                 undef   # no sendbuf, let's skip -askdata next time.
             },
             -goterr => sub {
@@ -226,93 +261,34 @@ sub main {
                 # let's break both F-conn and B-conn
                 my $s = shift;
                 my $b_stm = $s->{b_stm};
-                info2 "F-goterr $s($b_stm)";
+                _log2 "F-goterr $s($b_stm)";
                 $b_stm->{ctx}->exit;
                 $s->{ctx}->exit;
             },
         )},
         -port => $opt_bind_port,
         -name => 'relay');
-    $serv->verbose($opt_verbose);
+    $serv->verbose($LOGLEVEL);
 
     $mios = $serv->create_ios()->merge;
-    info "start relay-service at $opt_bind_address:$opt_bind_port";
+    _log1 "start relay-service at $opt_bind_address:$opt_bind_port";
     $mctx = $mios->create_context;
     while ($mctx->iterate) {
         my $k = ReadKey -1;
         if ($k) {
-            info2 'pressed: $k('.ord($k).')';
+            _log2 'pressed: $k('.ord($k).')';
             last if $k eq 'q';
         }
     }
-    info2 Dumper($mctx->{STAT});
+    _log2 Dumper($mctx->{STAT});
 }
 
-sub relay_connect {
-    my $f_stm = shift;
-    my $b_ios;
-    my $b_stm = new cmt::stream(
-        -binded => sub {
-            # the connection is always made from the source to the target,
-            # if the target would send-on-connect, this stream would gotdata, then.
-            # so the relayer has nothing do with on-connect event.
-            my ($s, $fd) = @_;
-            info "target ".$s->hinfo." connected";
-        },
-        -unbinded => sub {
-            # the target is disconnected from the relayer,
-            # so let's disconnect the source.
-            my ($s, $fd) = @_;
-            info2 "target ".$s->hinfo." disconnected";
-            info2 "Remove $b_ios, $fd";
-            $mios->remove($b_ios);
-            $mctx->remove($fd);
-            $f_stm->shutdown(2);
-        },
-        -gotdata => sub {
-            # the target sent data to the relayer,
-            # do b_filter and forward to the source.
-            my ($s, $data) = @_;
-            info2 "B-gotdata $s: $data", 1;
-            $data = b_filter($data);
-            b_dump $data;
-            if (defined $data) {
-                # The return value??
-                return $f_stm->write($data);
-            }
-            1
-        },
-        -askdata => sub {
-            # now can_write to the target,
-            # let's check if any data available in the source.
-            my $s = shift;
-            info2 "B-askdata $s";
-            my $sendbuf = $f_stm->pull;
-            info2 "B-askdata resp: $sendbuf", 1;
-            if ($sendbuf ne '') {
-                $s->write($sendbuf);
-                return 1;
-            }
-            undef   # no sendbuf, let's skip -askdata next time.
-        },
-        -goterr => sub {
-            # error between the relayer and the target
-            # let's break both B-conn and F-conn
-            my $s = shift;
-            info2 "B-goterr $s";
-            $s->{ctx}->exit;
-            $f_stm->{ctx}->exit;
-        },
-    );
-    $b_ios = tcp_connect($opt_target_host, $opt_target_port, $b_stm,
-                            -cont => 1);
-    my $b_fd = $b_ios->{HANDLE};
-    info2 "Merge  $b_ios, $b_fd";
-    $mios->merge($b_ios);
-    $mctx->add($b_fd);
-    return $b_stm;
-}
+=head1 DIAGNOSTICS
 
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
 sub f_filter {
     my $data = shift;
     return $data;
@@ -358,3 +334,100 @@ sub puts {
         print "$from> $_\n";
     }
 }
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+sub relay_connect {
+    my $f_stm = shift;
+    my $b_ios;
+    my $b_stm = new cmt::stream(
+        -binded => sub {
+            # the connection is always made from the source to the target,
+            # if the target would send-on-connect, this stream would gotdata, then.
+            # so the relayer has nothing do with on-connect event.
+            my ($s, $fd) = @_;
+            _log1 "target ".$s->hinfo." connected";
+        },
+        -unbinded => sub {
+            # the target is disconnected from the relayer,
+            # so let's disconnect the source.
+            my ($s, $fd) = @_;
+            _log2 "target ".$s->hinfo." disconnected";
+            _log2 "Remove $b_ios, $fd";
+            $mios->remove($b_ios);
+            $mctx->remove($fd);
+            $f_stm->shutdown(2);
+        },
+        -gotdata => sub {
+            # the target sent data to the relayer,
+            # do b_filter and forward to the source.
+            my ($s, $data) = @_;
+            _log2 "B-gotdata $s: "._text($data);
+            $data = b_filter($data);
+            b_dump $data;
+            if (defined $data) {
+                # The return value??
+                return $f_stm->write($data);
+            }
+            1
+        },
+        -askdata => sub {
+            # now can_write to the target,
+            # let's check if any data available in the source.
+            my $s = shift;
+            _log2 "B-askdata $s";
+            my $sendbuf = $f_stm->pull;
+            _log2 "B-askdata resp: "._text($sendbuf);
+            if ($sendbuf ne '') {
+                $s->write($sendbuf);
+                return 1;
+            }
+            undef   # no sendbuf, let's skip -askdata next time.
+        },
+        -goterr => sub {
+            # error between the relayer and the target
+            # let's break both B-conn and F-conn
+            my $s = shift;
+            _log2 "B-goterr $s";
+            $s->{ctx}->exit;
+            $f_stm->{ctx}->exit;
+        },
+    );
+    $b_ios = tcp_connect($opt_target_host, $opt_target_port, $b_stm,
+                            -cont => 1);
+    my $b_fd = $b_ios->{HANDLE};
+    _log2 "Merge  $b_ios, $b_fd";
+    $mios->merge($b_ios);
+    $mctx->add($b_fd);
+    return $b_stm;
+}
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] TCP Relay And Sniff \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"TCP Relay And Sniff">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
