@@ -1,152 +1,220 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+chlmod - Change newline-mode of text files
+
+=cut
 use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'chlmod'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::log(2);
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl,v 1.16 2007-09-29 11:31:33 lenik Exp $');
 use Config;
-use Getopt::Long;
 use DirHandle;
-use FileHandle;
-use cmt::vcs;
+use Getopt::Long;
 
-use vars qw($Is_Mac $Is_OS2 $Is_VMS $Is_Win32 $Is_Win95  $Is_Dos $Is_VOS
-            $Is_QNX $Is_AIX $Is_OSF $Is_IRIX  $Is_NetBSD $Is_BSD
-            $Is_SunOS4 $Is_Solaris $Is_SunOS
-           );
+sub _main; sub _version; sub _help;
+sub translate;
+sub process;
 
-$Is_OS2     = $^O eq 'os2';
-$Is_Mac     = $^O eq 'MacOS';
-$Is_Win32   = $^O eq 'MSWin32' || $Config{osname} eq 'NetWare';
-$Is_Win95   = $Is_Win32 && Win32::IsWin95();
-$Is_Dos     = $^O eq 'dos';
-$Is_VOS     = $^O eq 'vos';
-$Is_VMS     = $^O eq 'VMS';
-$Is_QNX     = $^O eq 'qnx';
-$Is_AIX     = $^O eq 'aix';
-$Is_OSF     = $^O eq 'dec_osf';
-$Is_IRIX    = $^O eq 'irix';
-$Is_NetBSD  = $^O eq 'netbsd';
-$Is_SunOS4  = $^O eq 'sunos';
-$Is_Solaris = $^O eq 'solaris';
-$Is_SunOS   = $Is_SunOS4 || $Is_Solaris;
-$Is_BSD     = $^O =~ /^(?:free|net|open)bsd|bsdos$/;
+our $Is_OS2     = $^O eq 'os2';
+our $Is_Mac     = $^O eq 'MacOS';
+our $Is_Win32   = $^O eq 'MSWin32' || $Config{osname} eq 'NetWare';
+our $Is_Win95   = $Is_Win32 && Win32::IsWin95();
+our $Is_Dos     = $^O eq 'dos';
+our $Is_VOS     = $^O eq 'vos';
+our $Is_VMS     = $^O eq 'VMS';
+our $Is_QNX     = $^O eq 'qnx';
+our $Is_AIX     = $^O eq 'aix';
+our $Is_OSF     = $^O eq 'dec_osf';
+our $Is_IRIX    = $^O eq 'irix';
+our $Is_NetBSD  = $^O eq 'netbsd';
+our $Is_SunOS4  = $^O eq 'sunos';
+our $Is_Solaris = $^O eq 'solaris';
+our $Is_SunOS   = $Is_SunOS4 || $Is_Solaris;
+our $Is_BSD     = $^O =~ /^(?:free|net|open)bsd|bsdos$/;
 
+our $opt_new_line   = "\n";
+    $opt_new_line   = "\r\n" if ($Is_Win32 or $Is_Dos);
+our $opt_old_line   = qr/(?<=[^\r\n])((\r?\n)|(\r))/;
+our $opt_recursive  = 0;
+our $opt_stdout     = 0;
+our $opt_pattern    = '^.+$';
 
-our $opt_new_line = "\n";
-    $opt_new_line = "\r\n" if ($Is_Win32 or $Is_Dos);
-our $opt_old_line = qr/(?<=[^\r\n])((\r?\n)|(\r))/;
-our $opt_pattern = "^.+\$";
-our $opt_recursive = 0;
-our $opt_stdout = 0;
-our $opt_quiet = 0;
-
-
-sub init {
-    GetOptions(
-        'new-line=s',
-        'old-line=s',
-        'recursive',
-        'stdout',
-        'pattern=s',
-        'unix' => sub { $opt_new_line = "\n" },
-        'dos' => sub { $opt_new_line = "\r\n" },
-        'version' => sub { &version; exit },
-        'quiet',
-        'help' => sub { &help; exit },
-    );
+sub boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'old-line|f=s',
+               'new-line|t=s',
+               'pattern=s',
+               'recursive|r',
+               'stdout|c',
+               'unix|u'         => sub { $opt_new_line = "\n" },
+               'dos|d'          => sub { $opt_new_line = "\r\n" },
+               );
     $opt_pattern = qr/$opt_pattern/i;
+    _main;
 }
 
+=head1 SYNOPSIS
 
-sub version {
-    my %ver = parse_id('$Id: newline,v 1.9 2007-06-25 12:58:14 lenik Exp $');
-    print <<"EOM";
-[NEWLINE] Convert new-line format for text files
-Written by Denik,  Revision $ver{rev},  Last Updated $ver{date}
-EOM
-}
+B<chlmod>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
+=head1 DESCRIPTION
 
-sub help {
-    &version;
+B<chlmod> is a WHAT used for WHAT. It HOW-WORKS.
 
+BACKGROUND-PROBLEM.
+
+HOW-chlmod-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
     my $def_new = $opt_new_line;
         $def_new =~ s/\r/\\r/g;
         $def_new =~ s/\n/\\n/g;
     my $def_old = $opt_old_line;
         $def_old =~ s/\r/\\r/g;
         $def_old =~ s/\n/\\n/g;
+    print "\nSyntax: \n    $0 [OPTION] [--] FILES\n", <<"EOM";
 
-    print <<"EOM";
-
-Syntax:
-    newline
-        --new-line=<character, default $def_new> (n)
-        --old-line=<regular-expression, default $def_old> (o)
-        --pattern=<path-regex, default ^.*\$>
-        --recursive (r)
-        --stdout (s)
-        --unix (u)
-        --dos (d)
-        --quiet (q)
-        --version (v)
-        --help (h)
-        < dirname/filename(can contain wild chars) > ...
+Common options:
+    -f, --old-line=REGEXP   default $def_old
+    -t, --new-line=CHAR     default $def_new
+        --pattern=REGEXP    default ^.*\$
+    -r, --recursive         recurse into sub-directories
+    -c, --stdout            just print out, don't write to file
+    -u, --unix              convert to unix-mode
+    -d, --dos               convert to dos-mode
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
 EOM
 }
 
+exit (boot or 0);
 
-sub translate {
-    my $path = shift;
-    my $fin;
-    my $fout;
-    my $dirty = 0;
-    my $binary = 0;
-
-    $fin = new FileHandle("<$path");
-        die "Can't open file for read: $path" unless $fin;
-        binmode $fin;
-
-    $fout = new FileHandle(">$path.tmp") unless $opt_stdout;
-        die "Can't create the temporary file: $path.tmp" unless $fout;
-        binmode $fout;
-
-    while (<$fin>) {
-        # 09-tab 0A-nl 0C-page 0D-cr
-        if (m/[\x01-\x08\x0b\x0e-\x1f]/) {
-            $binary = 1;
-            last;
-        }
-
-        my $old = $_;
-        s/$opt_old_line/$opt_new_line/g;
-        $dirty = 1 if ($old ne $_);
-
-        if ($opt_stdout) {
-            print;
-        } else {
-            $fout->write($_);
-        }
-    }
-
-    $fout->close() unless $opt_stdout;
-    $fin->close();
-
-    unless ($opt_stdout) {
-        if ($binary) {
-            print "\r[BIN ]";
-            unlink "$path.tmp";
-        } else {
-            if ($dirty) {
-                print "\r[SAVE]" unless $opt_quiet;
-                unlink "$path";
-                rename "$path.tmp", "$path";
+sub _main {
+    for (@ARGV) {
+        if ($_ =~ m/[\*\?]/) {      # special wild-chars
+            my ($dir, $pat) = m/^(.*?)([^\/]+)$/;
+            if ($dir) {
+                $dir = substr($dir, 0, 1);
             } else {
-                print "\r[TEXT]" unless $opt_quiet;
-                unlink "$path.tmp";
+                $dir = '.';
             }
+            my $patre = $pat;
+                $patre =~ s/\./\\./g;
+                $patre =~ s/\*/.*/g;
+                $patre =~ s/\?/./g;
+                $patre = qr/^$patre$/i;
+            my $dh = new DirHandle($dir);
+            my @fs = $dh->read();
+            $dh->close();
+            for (@fs) {
+                next if (m/^\.+$/);
+                next if (! m/$opt_pattern/);
+                next if (! m/$patre/);
+                process("$dir/$_", 1);
+            }
+        } else {
+            process($_, 1);         # use global opt_pattern
         }
     }
 }
 
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+sub translate {
+    my $path = shift;
+    my $dirty = 0;
+    my $binary = 0;
+    my $stdout1 = 0;
+    my @buf;
+
+    _sig1 'file', $path;
+
+    open(IN, '<', $path)
+        or die "Can't open $path for read";
+    binmode IN;
+
+    while (<IN>) {
+        if (m/[\x00-\x08\x10-\x1f]/) {
+            _sig1 'bin', $path;
+            $binary = 1;
+            last;
+        }
+        $dirty++ if s/$opt_old_line/$opt_new_line/sg;
+        if ($opt_stdout) {
+            unless ($stdout1) {
+                print "\n";
+                $stdout1 = 1;
+            }
+            print;
+        } else {
+            push @buf, $_;
+        }
+    }
+    close IN;
+
+    if ($dirty and !$opt_stdout) {
+        _sig1 'save', $path."\n";
+        writefile $path, join('', @buf);
+    }
+}
 
 sub process {
     my ($path, $rec) = @_;
@@ -164,54 +232,51 @@ sub process {
 
     if (-d "$dir/$file") {
         if ($rec) {
-            print "\n[DIR ] $full/" unless $opt_quiet;
+            _sig1 'dir', $full;
             my $dh = new DirHandle($full);
             my @subitems = $dh->read();
             $dh->close();
             for (@subitems) {
                 next if (m/^\.+$/);
-                next if (! m/$opt_pattern/);
-                process("$full/$_", $opt_recursive);
+                process("$full/$_", $opt_recursive)
+                    unless defined $opt_pattern and $file =~ $opt_pattern;
             }
         }
     } else {
-        return if $file !~ m/$opt_pattern/;
-
-        print "\n[FILE] $full" unless $opt_quiet;
-        translate $full;
+        translate $full
+            unless defined $opt_pattern and $file =~ $opt_pattern;
     }
 }
 
+=head1 HACKING
 
+(No Information)
 
+=cut
+# (MODULE FUNCTIONS)
 
-&init;
+=head1 HISTORY
 
-&help unless @ARGV;
+=over
 
-for (@ARGV) {
-    if ($_ =~ m/[\*\?]/) {      # special wild-chars
-        my ($dir, $pat) = m/^(.*?)([^\/]+)$/;
-        if ($dir) {
-            $dir = substr($dir, 0, 1);
-        } else {
-            $dir = '.';
-        }
-        my $patre = $pat;
-            $patre =~ s/\./\\./g;
-            $patre =~ s/\*/.*/g;
-            $patre =~ s/\?/./g;
-            $patre = qr/^$patre$/i;
-        my $dh = new DirHandle($dir);
-        my @fs = $dh->read();
-        $dh->close();
-        for (@fs) {
-            next if (m/^\.+$/);
-            next if (! m/$opt_pattern/);
-            next if (! m/$patre/);
-            process("$dir/$_", 1);
-        }
-    } else {
-        process($_, 1);         # use global opt_pattern
-    }
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Convert newline-mode of text files \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
+
+=head1 SEE ALSO
+
+The L<cmt/"Convert newline-mode of text files">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

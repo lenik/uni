@@ -58,8 +58,8 @@ our $opt_ignore_case;
 our @opt_select;
 our $opt_pattern;
 our $opt_replacement;
-our $opt_command;
-our $opt_regexp_flags   = '';
+our $opt_command        = '';
+our $opt_regexp_flags   = 'g';
 our $opt_diff;
 our $opt_diff_ext;
 our $opt_diff_style;
@@ -121,12 +121,15 @@ sub boot {
         if ($opt_mode eq 'regexp' or $opt_mode eq 'eval') {
             $opt_pattern     = esc_slash $opt_pattern;
             $opt_replacement = esc_slash $opt_replacement;
+            if ($opt_pattern =~ /(^|[^\\])\\[nr]/) {
+                $opt_regexp_flags .= 's';
+            }
         }
         if ($opt_ignore_case) {
             if ($opt_mode eq 'plain') {
                 $opt_pattern = lc $opt_pattern;
             } elsif ($opt_mode eq 'regexp' or $opt_mode eq 'eval') {
-                $opt_regexp_flags = 'i';
+                $opt_regexp_flags .= 'i';
             }
         }
         if ($opt_mode eq 'eval') {
@@ -451,7 +454,7 @@ sub proc_eval { &proc_regexp }
 sub proc_regexp {
     local $_ = shift;
     my $old = $_;
-    my $match = eval "s/$opt_pattern/$opt_replacement/g$opt_regexp_flags";
+    my $match = eval "s/$opt_pattern/$opt_replacement/$opt_regexp_flags";
     die "can't do reg-exp substitute: $@" if $@;
     ($_ ne $old, $_)
 }
