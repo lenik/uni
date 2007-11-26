@@ -1,0 +1,192 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+urlconv - iconv on url-escapes
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'urlconv'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::log(2);
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl,v 1.15 2007-09-14 16:10:05 lenik Exp $');
+use encoding();
+use Encode;
+use Encode::Alias;
+use Getopt::Long;
+
+sub _main; sub _version; sub _help;
+
+our $opt_from;
+our $opt_to     = 'utf-8';
+
+our $DFL_ENC    = encoding::_get_locale_encoding() || do {
+                    'gb2312'        # TODO: get system default encoding.
+                };
+our $DFL_FB     = '?';
+
+sub boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'from|f=s',
+               'to|t=s',
+               );
+    $opt_from ||= $DFL_ENC;
+    _log2 "iconv $opt_from -> $opt_to";
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<urlconv>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<urlconv> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-urlconv-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item S<[ B<-m> | B<--my-option> ]>
+
+...
+
+=item S<[ B<-q> | B<--quiet> ]>
+
+Repeat this option to suppress unimportant information to display.
+
+=item S<[ B<-v> | B<--verbose> ]>
+
+Repeat this option to display more detailed information.
+
+=item S<[ B<-h> | B<--help> ]>
+
+Display a breif help page and exit(0).
+
+=item S<[ B<--version> ]>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -f, --from=ENCODING     iconv from ENCODING, default system's encoding
+    -t, --to=ENCODING       iconv to ENCODING, default utf-8
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+}
+
+exit (boot or 0);
+
+sub conv {
+    my $from_e = shift;
+    _log2 "from-escaped: $from_e";
+    $from_e =~ s/%([0-9a-z]+)/chr(hex($1))/eig;
+    my $wstr;
+    while (length $from_e) {
+        $wstr .= decode($opt_from, $from_e, Encode::FB_QUIET);
+        if (length $from_e) {
+            my $c = substr($from_e, 0, 1);
+            $from_e = substr($from_e, 1);
+            $wstr .= $DFL_FB;
+        }
+    }
+    # _log2 "wstr: $wstr";
+    my $to_b;
+    while (length $wstr) {
+        $to_b .= encode($opt_to, $wstr, Encode::FB_QUIET);
+        if (length $wstr) {
+            my $c = substr($wstr, 0, 1);
+            $wstr = substr($wstr, 1);
+            $to_b .= $DFL_FB;
+        }
+    }
+    # _log2 "to-bin: $to_b";
+    my $to_e;
+    for (my $i = 0; $i < length($to_b); $i++) {
+        my $c = substr($to_b, $i, 1);
+        $to_e .= '%'.unpack('H4', $c);
+    }
+    _log2 "to-escaped:   $to_e";
+    return $to_e;
+}
+
+sub _main {
+    while (<>) {
+        s{(%[0-9a-z][0-9a-z])+}{conv($&)}seig;
+        print
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] iconv on url-escapes \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"iconv on url-escapes">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
