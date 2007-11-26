@@ -101,10 +101,12 @@ Common options:
 EOM
 }
 
-exit boot;
+exit (boot or 0);
 
 sub _main {
     # Do nothing.
+    # Maybe you want some test here.
+    #
 }
 
 =head1 DIAGNOSTICS
