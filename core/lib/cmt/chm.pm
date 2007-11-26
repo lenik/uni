@@ -416,7 +416,7 @@ sub prefix_compact {
     my @range;
     my ($prefix, $text);
     my $last_i = 3;
-    my $lastprefix = undef;
+    my $lastprefix = '';
     my $lasthtab;
     local $_;
     for (my $i = 3; $i < @$node; $i++) {
