@@ -10,7 +10,7 @@ use vars qw($LOGNAME $LOGLEVEL);
     $LOGNAME    = 'repl';
     $LOGLEVEL   = 2;
 use cmt::lang;
-use cmt::log(3);
+use cmt::log(3, '_sigx');
 use cmt::util;
 use cmt::vcs('parse_id');
     my %RCSID = parse_id('$Id: repl,v 1.22 2007-11-08 10:52:38 lenik Exp $');

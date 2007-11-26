@@ -6,11 +6,9 @@ use cmt::time('cdatetime');
 # use Data::Dumper;
 use Exporter;
 
-our @ISA    = qw(Exporter);
-our @EXPORT = qw(_log
-                 _sig
-                 _sigx
-                 );
+our @ISA            = qw(Exporter);
+our @EXPORT_OK      = qw(_log _sig _sigx
+                         _p _P _pf _PF);
 
 our $opt_fastlog    = 1;
 
