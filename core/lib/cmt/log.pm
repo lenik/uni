@@ -1,6 +1,7 @@
 package cmt::log;
 
 use strict;
+no  warnings('printf', 'uninitialized');
 use cmt::time('cdatetime');
 # use Data::Dumper;
 use Exporter;
@@ -37,7 +38,7 @@ sub import {
     __PACKAGE__->export_to_level(1, @_);
 
     for (my $i = 0; $i <= $level; $i++) {
-        for (qw(_log _sig)) {
+        for (qw(_log _sig _p _P _pf _PF)) {
             my $s = "sub $pkg\::$_$i { \$$pkg\::LOGLEVEL >= $i && &$_ }; 1\n";
             eval $s or die "can't import level $i: $@";
         }
@@ -81,7 +82,6 @@ sub _log {
 }
 
 sub _sig {
-        no warnings('printf');
     my $cls = shift; local $_ = join('', @_);
     return unless -t STDERR or s/\n$//s;
     # STDERR is always autoflush(1)
@@ -89,8 +89,11 @@ sub _sig {
     printf STDERR "[%4s] %-72s".(-t STDERR ? "\r" : "\n"), $cls, $_;
 }
 
-sub _sigx {
-    print STDERR (-t STDERR ? '' : "\n"), '    err: ', @_, "\n";
-}
+sub _sigx   { print STDERR (-t STDERR ? '' : "\n"), '    err: ', @_, "\n" }
+
+sub _p      { print @_ }
+sub _P      { print @_, "\n" }
+sub _pf     { printf @_ }
+sub _PF     { printf @_; print "\n" }
 
 1
