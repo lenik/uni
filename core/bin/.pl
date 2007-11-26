@@ -92,7 +92,7 @@ Common options:
 EOM
 }
 
-exit boot;
+exit (boot or 0);
 
 sub _main {
     _sig1 'ARG', $_ for @ARGV;

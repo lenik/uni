@@ -54,7 +54,7 @@ Common options:
 EOM
 }
 
-exit boot;
+exit (boot or 0);
 
 sub _main {
     die "no filename specified" unless @ARGV;

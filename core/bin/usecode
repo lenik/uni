@@ -135,7 +135,7 @@ sub _help {
 EOM
 }
 
-exit boot;
+exit (boot or 0);
 
 sub _main {
     _log2 "S=$opt_scheme P=$opt_phrase C=$opt_category T=$opt_text";

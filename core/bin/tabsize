@@ -133,7 +133,7 @@ Options:
 EOM
 }
 
-exit boot;
+exit (boot or 0);
 
 sub findfile {
     my ($path, $recur) = @_;

@@ -98,7 +98,7 @@ Schemes:
 EOM
 }
 
-exit boot;
+exit (boot or 0);
 
 sub ultra_edit_project {
     my %dirs;

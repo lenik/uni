@@ -156,7 +156,7 @@ Common options:
 EOM
 }
 
-exit boot;
+exit (boot or 0);
 
 sub _main {
     my $hostdb;
@@ -203,7 +203,7 @@ sub _main {
             $cmd .= ' "'.$opt_password.'"';
             _log2 $cmd;
             system $cmd.' >nul 2>nul';
-            _log2 'errcode: '.$? if $?;
+            _log1 'errcode: '.$? if $?;
         } else {
             die 'unexpected';
         }
@@ -245,7 +245,7 @@ sub wn_use($$$;$) {
     $res->{lpComment} = 'A connection by '.$LOGNAME;
     _log2 "WNetAddConnection2 $remote (user=$user, pwd=$pwd)";
     my $err = WNetAddConnection2($res, $pwd, $user, 0);
-    _log2 "WNetAddConnection2 failed: $err" if $err;
+    _log1 "WNetAddConnection2 failed: $err" if $err;
     !$err
 }
 

@@ -61,7 +61,7 @@ Options:
 EOM
 }
 
-exit boot;
+exit (boot or 0);
 
 sub main {
     perlsh

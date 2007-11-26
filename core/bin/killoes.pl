@@ -61,7 +61,7 @@ Common options:
 EOM
 }
 
-exit boot;
+exit (boot or 0);
 
 sub _main {
     for (@ARGV) {
