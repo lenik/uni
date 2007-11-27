@@ -15,45 +15,38 @@ use cmt::vcs('parse_id');
 use Getopt::Long;
 use Win32::Clipboard;
 use Win32::TieRegistry(Delimiter => '/');
-    sub _automk {
-        my $k = ref $_[0] ? shift : $Registry->{'/'};
-        my $path = shift;
-        $k = $k->{$_} = {} for (split '/', $path);
-    }
+    $Registry->{'CUser'}->{'Software'} =
+        { 'Lapiota' => { 'usecode' => {} } };
 
 sub _main; sub _version; sub _help;
-
 sub system_encode;
 sub system_decode;
 
-    _automk $Registry, 'CUser/Software/Lapiota/usecode';
-my  $cfg = $Registry->{'CUser'}->{'Software'}->{'Lapiota'}->{'usecode'};
-
-our $opt_scheme         = system_decode $cfg->{'/scheme'} if $cfg->{'/scheme'};
-our $opt_phrase         = system_decode $cfg->{'/phrase'} if $cfg->{'/phrase'};
-our $opt_category       = system_decode $cfg->{'/category'} if $cfg->{'/category'};
-our $opt_make_default;
-our $opt_out            = 'C';      # Clipboard  Print  None
+our $CFG                = $Registry->{'CUser/Software/Lapiota/usecode'};
+our $opt_scheme         = system_decode $CFG->{'/scheme'} if $CFG->{'/scheme'};
+our $opt_phrase         = system_decode $CFG->{'/phrase'} if $CFG->{'/phrase'};
+our $opt_group          = system_decode $CFG->{'/category'} if $CFG->{'/category'};
+our $opt_out            = sub { Win32::Clipboard(shift) };
 our $opt_text;
+our $opt_make_default;
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
                'help|h'         => sub { _help; exit 0 },
-               'scheme=s',
-               'phrase|h=s',
-               'category|c=s',
+               'scheme|s=s',
+               'phrase|p=s',
+               'group|g=s',
+               'stdout|c'       => sub { $opt_out = sub { _P1 shift } },
                'make-default',
-               'clipboard'      => sub { $opt_out = 'C' },
-               'print|p'        => sub { $opt_out = 'P' },
                );
 
     die 'No text specified. ' if (scalar(@ARGV) == 0);
 
     $opt_scheme = shift @ARGV if (scalar(@ARGV) > 1);
-    $opt_category = shift @ARGV if (scalar(@ARGV) > 1);
-    $opt_text = join(' ', @ARGV);
+    $opt_group  = shift @ARGV if (scalar(@ARGV) > 1);
+    $opt_text   = join(' ', @ARGV);
 
     _main;
 }
@@ -83,9 +76,9 @@ HOW-UnKnOwN-RESOLVES.
 =item -m, --myoptions
 
 use-scheme ::=
-    sy  system codec (phrase=[sys-id], category=[e,d], text=[text])
-    dq	digest for question (phrase=[], category=[a1..c4], text=[number])
-    dm  digest for site-key (phrase=[user], category=[len], text=[site])
+    sy  system codec (phrase=[sys-id], group=[e,d], text=[text])
+    dq	digest for question (phrase=[], group=[a1..c4], text=[number])
+    dm  digest for site-key (phrase=[user], group=[len], text=[site])
 
 
 =item -q, --quiet
@@ -120,14 +113,13 @@ temporary files.
 =cut
 sub _help {
     &_version;
-    print "\nSyntax: \n    $0 [OPTION] [--] [[SCHEME] CATEGORY] TEXT\n", <<'EOM';
+    print "\nSyntax: \n    $0 [OPTION] [--] [[SCHEME] GROUP] TEXT\n", <<'EOM';
 
     -s, --scheme=SCHEME     which scheme to use
-    -h, --phrase=PHRASE     the key phrase
-    -c, --category=CAT      which sub-category of scheme to use
+    -p, --phrase=PHRASE     the key phrase
+    -g, --group=GROUP       which sub-category of scheme to use
+    -c, --stdout            just print out, don't modify clipboard
         --make-default      save options
-    -p, --print             output to stdout
-        --clipboard         output to clipboard
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
     -h, --help              show this help page
@@ -135,26 +127,22 @@ sub _help {
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
-    _log2 "S=$opt_scheme P=$opt_phrase C=$opt_category T=$opt_text";
+    _log2 "S=$opt_scheme P=$opt_phrase C=$opt_group T=$opt_text";
     if ($opt_make_default) {
-        $cfg->{'/scheme'}   = system_encode $opt_scheme;
-        $cfg->{'/phrase'}   = system_encode $opt_phrase,
-        $cfg->{'/category'} = system_encode $opt_category,
+        $CFG->{'/scheme'}   = system_encode $opt_scheme;
+        $CFG->{'/phrase'}   = system_encode $opt_phrase,
+        $CFG->{'/category'} = system_encode $opt_group,
     }
 
     my $codec_f = main->can('codec_'.$opt_scheme)
         or die "illegal scheme name: $opt_scheme";
-    my $result = $codec_f->($opt_phrase, $opt_category, $opt_text);
+    my $result = $codec_f->($opt_phrase, $opt_group, $opt_text);
 
     _log2 "Out=$opt_out Length=", length($result);
-    if ($opt_out eq 'C') {
-        Win32::Clipboard($result);
-    } elsif ($opt_out eq 'P') {
-        print "$result\n";
-    }
+    $opt_out->($result);
 }
 
 =head1 DIAGNOSTICS

@@ -1,43 +1,37 @@
 #!/usr/bin/perl
-no  warnings('uninitialized');
 
+=head1 NAME
+
+mkchm - General CHM Packager
+
+=cut
 use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'mkchm'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::chm;
-    $cmt::chm::opt_verbtitle= 'mkchm';
 use cmt::i18n;
     # $cmt::i18n::DFL_ENC     = $LC_ENCODING;
     $cmt::i18n::DFL_FB      = ' ';
 use cmt::lang;
+use cmt::log(2);
 use cmt::path;
 use cmt::pp;
 use cmt::util;
-use cmt::vcs;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl,v 1.16 2007-09-29 11:31:33 lenik Exp $');
+    $cmt::chm::opt_appname = "mkchm-$RCSID{rev}";
 use Cwd;
 use Data::Dumper;
 use DirHandle;
 use Getopt::Long;
 
-sub boot;
-sub info;
-sub info2;
-sub version;
-sub help;
-
-sub main;
+sub _main; sub _version; sub _help;
 sub ls_sort;
 sub ishtml;
 sub isindex;
 sub findindex;
 sub ext_dirproc;
 sub urldecode;
-
-my  %RCSID  = parse_id('$Id: mkchm,v 1.5 2007-11-08 10:52:37 lenik Exp $');
-    $cmt::chm::opt_appname = "mkchm-$RCSID{rev}";
-
-our $opt_verbose;       *opt_verbose    = *cmt::chm::opt_verbose;
-our $opt_verbtitle;     *opt_verbtitle  = *cmt::chm::opt_verbtitle;
-sub info;               *info           = *cmt::chm::info;
-sub info2;              *info2          = *cmt::chm::info2;
 
 our @opt_files;
 our $opt_output;                        # default <root-dir>.chm
@@ -56,11 +50,11 @@ our %opt_chm;
 
 our $BUGFIX_5F          = 1;
 
-sub boot {
-    GetOptions('quiet|q'        => sub { $cmt::chm::opt_verbose-- },
-               'verbose|v'      => sub { $cmt::chm::opt_verbose++ },
-               'version'        => sub { version; exit },
-               'help|h'         => sub { help; exit },
+sub _boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
                'output|o=s',
                'has-root',
                'recursive|r:n'  => sub { shift; $opt_fswalk{-depth} = shift || 100 },
@@ -73,6 +67,9 @@ sub boot {
                'extension|e=s'  => \@opt_html_ext,
                'chm-option|c=s' => \%opt_chm,
                );
+    $cmt::chm::LOGNAME  = 'mkchm';
+    # $cmt::chm::LOGTIME  = $LOGTIME;
+    $cmt::chm::LOGLEVEL = $LOGLEVEL;
 
     @opt_files = @ARGV;
     unless (@opt_files) {
@@ -111,22 +108,69 @@ sub boot {
         print "Dict-Content: \n".Dump($opt_dict) if $opt_verbose > 1;
     }
 
-    info2 "start file: $_" for @opt_files;
-    main;
+    _log2 "start file: $_" for @opt_files;
+    _main;
 }
 
-sub version {
-    my %id = parse_id('$Id: mkchm,v 1.5 2007-11-08 10:52:37 lenik Exp $');
-    print "[$opt_verbtitle] General CHM Packager \n";
-    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
-}
+=head1 SYNOPSIS
 
-sub help {
-    version;
-    print <<"EOM";
+B<mkchm>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-Syntax:
-        $0 [OPTION] files/directories to be packaged...
+=head1 DESCRIPTION
+
+B<mkchm> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-mkchm-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] FILES\n", <<'EOM';
 
 Common options:
     -o, --output=CHMFILE    default <root-dir>.chm
@@ -140,16 +184,16 @@ Common options:
     -i, --index=FILENAME    prefered index-page file names (ordered)
     -e, --extension=EXT     default: html htm cgi php jsp asp aspx
     -c, --chm-option=OPT=VAL chm-options passed to chm::chm_compile
-    -h, --help              show this help page
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
+    -h, --help              show this help page
         --version           print the version info
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
-sub main {
+sub _main {
     my @files;
     my @stack = ( [ undef, 'start', { dir => '.' }, ] );
     my $start;
@@ -161,7 +205,7 @@ sub main {
             my ($dir, $base) = path_split($path);
             if (-d $path) {
                 my $leave = shift;
-                info "dir $path/";
+                _log1 "dir $path/";
                 if ($leave) {
                     my $node = ext_dirproc(pop @stack);
                     my $top = $stack[-1];
@@ -176,10 +220,10 @@ sub main {
 
             return 0 if $base =~ /^\$MKCHM_/;
             if (ishtml $path) {
-                info "page $path";
+                _log1 "page $path";
                 my $info = htmlinfo [readfile($path)];
                 my $attrs = { info => $info, type => 'page' };
-                info2 Dumper($info) if $opt_verbose > 2;
+                _log2 Dumper($info) if $opt_verbose > 2;
                 my $title = _or($info->{'.title'}, $info->{'title'});
                 my ($head, $htab);
                    if (ref (my $h1 = $info->{'.h1'})) { $head = $h1->[0]; $htab = 0 }
@@ -189,7 +233,7 @@ sub main {
 
                 if (defined $title) {
                     $title =~ s/\s+/ /sg; # normalize-space, also remove newlines
-                    info2 "  title $title";
+                    _log2 "  title $title";
                     # BUGFIX: htmlhelp can't handle with &#xxx; in menu caption
                     $title = hremoveents($title);
                 }
@@ -197,7 +241,7 @@ sub main {
                 $title = $base if $title eq '';
                 if (defined $head) {
                     my $hlev = $htab + 1;
-                    info2 "  head$hlev $head";
+                    _log2 "  head$hlev $head";
                     # BUGFIX: htmlhelp can't handle with &#xxx; in menu caption
                     $head = hremoveents($head);
                     $attrs->{'head'} = $head;
@@ -222,12 +266,12 @@ sub main {
                 unless ($has_index) {
                     if (isindex $path) {
                         if (@stack == 1) {
-                            info "  set start page: $path";
+                            _log1 "  set start page: $path";
                             $start = $path;
                             $opt_chm{-default} = $path unless exists $opt_chm{-default};
                             $opt_chm{-title} = $title  unless exists $opt_chm{-title};
                         } else {
-                            info "  set index page: $path";
+                            _log1 "  set index page: $path";
                             # splice(@$top, 0, 3) = @$pagenode;
                             $top->[0] = $path;
                             $top->[1] = $title; # . ' ('.$top->[1].')';
@@ -240,20 +284,20 @@ sub main {
                 if ($base =~ /\.hh[pck]$/i or $base =~ /\.h\w+$/i) {
                     # BUGFIX: don't add .h* non-html files, to avoid hhc dump.
                     # See: http://www.helpware.net/htmlhelp/how_to_merge_ctx2.htm
-                    info "dropped file $path (BUGFIX)";
+                    _log1 "dropped file $path (BUGFIX)";
                     return 0;
                 }
                 if ($base =~ /\.chm$/i) {
                     # HINT: so you can mkchm for each sub-directories,
                     # and than mkchm the whole without remove the children.chm.
-                    info "dropped file $path (for convienient)";
+                    _log1 "dropped file $path (for convienient)";
                     return 0;
                 }
                 #if ($dir eq '' || $dir eq '.') {
-                #    info "dropped rec*self $path";
+                #    _log1 "dropped rec*self $path";
                 #    return 0 if $base eq $opt_output;
                 #}
-                info "media $path";
+                _log1 "media $path";
             }
             push @files, $path;     # filter
             return 1;
@@ -275,7 +319,7 @@ sub main {
     $opt_chm{-index} = \%idx;
 
     unless (defined $opt_chm{-title}) {
-        info "Can't determine the title of $opt_output, you may specify here:";
+        _log1 "Can't determine the title of $opt_output, you may specify here:";
         print "Enter the title: \n";
         my $title = <STDIN>;
         chop $title;
@@ -285,15 +329,21 @@ sub main {
     $opt_chm{-default} = 'about:blank' unless defined $opt_chm{-default};
 
     if ($opt_verbose > 2) {
-        info2 "chm-options: ".Dumper(\%opt_chm);
+        _log2 "chm-options: ".Dumper(\%opt_chm);
     } elsif ($opt_verbose == 1) {
-        info2 "chm-option $_: ".$opt_chm{$_} for keys %opt_chm;
+        _log2 "chm-option $_: ".$opt_chm{$_} for keys %opt_chm;
     }
     chm_compile %opt_chm;
 
-    info "Done!";
+    _log1 "Done!";
 }
 
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
 sub dsplit {
     my @list;
     # forx qr/\d+/, sub { push @list, $_ }, sub { push @list, $_ }, shift;
@@ -356,7 +406,7 @@ sub ext_dirproc {
     my $node = shift;
     my ($dir, $index) = path_split($node->[0]);
     if (-f "$dir/\$MKCHM_TITLESORT") {
-        info "titlesort $dir/";
+        _log1 "titlesort $dir/";
         if (@$node > 3) {
             my @sublist = sort { ls_sort($a->[1], $b->[1]) } splice(@$node, 3);
             push @$node, @sublist;
@@ -370,3 +420,36 @@ sub urldecode {
     $str =~ s/\%([A-Fa-f0-9]{2})/pack('C', hex($1))/seg;
     $str;
 }
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] General CHM Packager \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"General CHM Packager">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

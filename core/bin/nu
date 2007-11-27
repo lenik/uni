@@ -27,6 +27,7 @@ our $opt_password;
 our $opt_cache_dir      = '~/.nucache';
 our $opt_crypto;
 our $opt_just_once;
+our $opt_force;
 
 BEGIN {
     Win32::API->Import('mpr', 'WNetGetLastError', 'PPNPN', 'N');
@@ -48,7 +49,7 @@ BEGIN {
         .'DWORD dwFlags)');
 }
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
@@ -59,6 +60,7 @@ sub boot {
                'cache-dir|d=s',
                'crypto|c=s',
                'just-once|1',
+               'force|f',
                );
 
     $opt_host       = shift @ARGV unless defined $opt_host;
@@ -149,6 +151,7 @@ Common options:
     -d, --cache-dir=DIR     set cache directory to DIR (default ~/.nucache)
     -c, --crypto=CRYPTO     using CRYPTO to encrypt the login info
     -1, --just-once         don't cache login info
+    -f, --force             try many methods to make the connection
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
     -h, --help              show this help page
@@ -156,7 +159,7 @@ Common options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
     my $hostdb;
@@ -184,29 +187,30 @@ sub _main {
     # net use \\\\host\\IPC$ -> bash
     # \\host\IPC$ -> cmd
     my $res = '\\\\'.$opt_host.'\\IPC$';
-    unless (wn_use $res, $opt_user, $opt_password) {
-        my $cmd = 'net use '.$res.' "/user:'.$opt_user.'"';
-           $cmd =~ s-\\-\\\\-g;
+    my $ret = wn_use $res, $opt_user, $opt_password;
+    return $ret ? 0 : 1 if $ret or !$opt_force;
 
-        my $exec_mode = 'exec';
-        if ($exec_mode eq 'pipe') {
-            # TODO - dup STDIN and STDOUT, instead of open |
-            $cmd .= ' \*';
-            open(FH, '|'.$cmd) or die "can't exec with redirected stdin: $!";
+    my $cmd = 'net use '.$res.' "/user:'.$opt_user.'"';
+       $cmd =~ s-\\-\\\\-g;
+
+    my $exec_mode = 'exec';
+    if ($exec_mode eq 'pipe') {
+        # TODO - dup STDIN and STDOUT, instead of open |
+        $cmd .= ' \*';
+        open(FH, '|'.$cmd) or die "can't exec with redirected stdin: $!";
+        print FH $opt_password, "\n";
+        while (<FH>) {
             print FH $opt_password, "\n";
-            while (<FH>) {
-                print FH $opt_password, "\n";
-                print "> $_";
-            }
-            close FH;
-        } elsif ($exec_mode eq 'exec') {
-            $cmd .= ' "'.$opt_password.'"';
-            _log2 $cmd;
-            system $cmd.' >nul 2>nul';
-            _log1 'errcode: '.$? if $?;
-        } else {
-            die 'unexpected';
+            print "> $_";
         }
+        close FH;
+    } elsif ($exec_mode eq 'exec') {
+        $cmd .= ' "'.$opt_password.'"';
+        _log2 $cmd;
+        system $cmd.' >nul 2>nul';
+        _log1 'errcode: '.$? if $?;
+    } else {
+        die 'unexpected';
     }
 }
 

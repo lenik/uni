@@ -1,9 +1,25 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+pcs - Perl Console Server
+
+=cut
 use strict;
-use cmt::util;
-use cmt::vcs;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'pcs'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+
+# TODO: _logXX - print:
+    if ($text =~ /\n/) {
+        outb '#', $text;
+    } else {
+        out '#', $text;
+    }
+use cmt::log(2);
 use cmt::serv;
+use cmt::util();
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl,v 1.16 2007-09-29 11:31:33 lenik Exp $');
 use Cwd;
 use Data::Dumper;
 use Getopt::Long;
@@ -11,24 +27,15 @@ use Socket;
 use Term::ReadKey;
 use YAML;
 
-sub boot;
-sub info;
-sub info2;
-sub version;
-sub help;
+sub _main; sub _version; sub _help;
 
 sub out;
 sub outb;
 sub inputb;
 sub expand_alias;
 sub cl_exec;
-sub _main;
 
-our $opt_verbtitle      = 'pcs';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
 our $opt_daemon         = 0;
-
 our $opt_serv_addr      = 'localhost';
 our $opt_serv_port      = 21; # $cmt::serv::DEFAULT_PORT;
 our $opt_serv_type      = SOCK_STREAM;
@@ -43,11 +50,11 @@ my  $init_script        = $config->{'init'};
 my  $_STDIN             = \*STDIN;
 my  $_STDOUT            = \*STDOUT;
 
-sub boot {
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help|h'     => sub { help; exit },
+sub _boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
                'daemon|d',
                'serv-addr|s',
                'serv-port|p',
@@ -57,14 +64,14 @@ sub boot {
                'serv-intv',
                );
 
-    info2 "serv-addr:   $opt_serv_addr";
-    info2 "serv-port:   $opt_serv_port";
-    info2 "serv-type:   $opt_serv_type";
-    info2 "serv-proto:  $opt_serv_proto";
-    info2 "serv-cap:    $opt_serv_cap";
-    info2 "serv-intv:   $opt_serv_intv";
+    _log2 "serv-addr:   $opt_serv_addr";
+    _log2 "serv-port:   $opt_serv_port";
+    _log2 "serv-type:   $opt_serv_type";
+    _log2 "serv-proto:  $opt_serv_proto";
+    _log2 "serv-cap:    $opt_serv_cap";
+    _log2 "serv-intv:   $opt_serv_intv";
 
-    eval "sub k_$_ { info2 '$_: '.$_(shift) }\n" for qw(
+    eval "sub k_$_ { _log2 '$_: '.$_(shift) }\n" for qw(
         abs atan2 cos exp hex int lc lcfirst length log oct ord rand reverse
         sin sqrt srand uc ucfirst
 
@@ -72,11 +79,11 @@ sub boot {
         waitpid warn
     );
 
-    eval "sub v_$_ { info2 '$_: '.$_(shift) }\n" for qw(
+    eval "sub v_$_ { _log2 '$_: '.$_(shift) }\n" for qw(
         chdir lstat mkdir rmdir stat truncate umask
     );
 
-    eval "sub v_$_ { info2 '$_: '.$_(\@_) }" for qw(
+    eval "sub v_$_ { _log2 '$_: '.$_(\@_) }" for qw(
         crypt pack unpack
         chmod chown chroot link rename symlink unlink
     );
@@ -90,37 +97,64 @@ sub boot {
     _main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = ($opt_verbtime ? cdatetime.' ' : '') . shift;
-    if ($text =~ /\n/) {
-        outb '#', $text;
-    } else {
-        out '#', $text;
-    }
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = ($opt_verbtime ? cdatetime.' ' : '') . shift;
-    if ($text =~ /\n/) {
-        outb '#', $text;
-    } else {
-        out '#', $text;
-    }
-}
+B<pcs>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub version {
-    my %id = parse_id('$Id: pcs,v 1.4 2007-11-08 10:52:37 lenik Exp $');
-    my $msg =
-        "[$opt_verbtitle] Perl Console Server \n"
-       ."Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-    return $_[0] ? \%id : $msg if @_;
-    print $msg;
-}
+=head1 DESCRIPTION
 
-sub help {
-    my $msg = version(0);
+B<pcs> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-pcs-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    my $msg = _version(0);
     $msg .= "\nSyntax: \n    $0 [OPTION] [--] [ADDR [PORT]]\n" . <<'EOM';
 
 Common options:
@@ -131,17 +165,78 @@ Common options:
         --serv-proto=PROTO  set the transfer protocol, default tcp
         --serv-cap=NUM      the max clients allowed
         --serv-intv=NUM     interval(idle timeout) in seconds
-    -h, --help              show this help page
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
+    -h, --help              show this help page
         --version           print the version info
 EOM
     return $msg if @_;
     print $msg;
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
+sub _main {
+    my $serv = new cmt::serv(
+        sub { *__ANON__ = '<pcs-sfac>';
+            new cmt::stream(
+                -binded     => sub { *__ANON__ = '<pcs-binded>';
+                    my ($s, $fd) = @_;
+                    _log2 "binded $s to $fd";
+                    my $vid = version(1);
+                    cl_exec "info welcome pcs version $vid->{rev}", $fd, $fd;
+                    for (@$init_script) {
+                        cl_exec $_, $fd, $fd;
+                    }
+                },
+                -unbinded   => sub { *__ANON__ = '<pcs-unbinded>';
+                    my ($s) = @_;
+                    _log2 "unbinded $s";
+                },
+                -gotdata    => sub { *__ANON__ = '<pcs-gotdata>';
+                    my ($s, $data) = @_;
+                    my $fd = $s->{'IO'};
+                    _log2 "gotdata from $s($fd): $data";
+                    cl_exec $data, $fd, $fd;
+                },
+                # -askdata    => \&askdata,
+                # -goterr     => \&goterr,
+            )
+        },
+        -name   => $LOGNAME,
+        -addr   => $opt_serv_addr,
+        -port   => $opt_serv_port,
+        -proto  => $opt_serv_proto,
+        -cap    => $opt_serv_cap,
+      # -intv   => $opt_serv_intv,
+    );
+    $serv->verbose($opt_verbose - 1);
+
+    my $stat;
+    if ($opt_daemon) {
+        $stat = $serv->serv();
+    } else {
+        my $mios = $serv->create_ios()->merge;
+        _log1 "start $LOGNAME service at $opt_serv_addr:$opt_serv_port";
+        my $mctx = $mios->create_context;
+        while ($mctx->iterate) {
+            my $k = ReadKey -1;
+            if ($k) {
+                _log2 'pressed: $k('.ord($k).')';
+                last if $k eq 'q';
+            }
+        }
+        $stat = $mctx->{STAT};
+    }
+    _log1 Dumper($stat);
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
 sub out {
     my $cap = shift;
     print $cap . ' ' . join('', @_) . "\n";
@@ -169,7 +264,7 @@ sub inputb {
         $len = $1;
         my $off = 0;
         while ($off < $len) {
-            info2 "reading $off/$len";
+            _log2 "reading $off/$len";
             my $read;
             if ($cb) {
                 undef $buf;
@@ -240,63 +335,14 @@ sub cl_exec {
     $oldin->() if $IN;
 }
 
-sub _main {
-    my $serv = new cmt::serv(
-        sub { *__ANON__ = '<pcs-sfac>';
-            new cmt::stream(
-                -binded     => sub { *__ANON__ = '<pcs-binded>';
-                    my ($s, $fd) = @_;
-                    info2 "binded $s to $fd";
-                    my $vid = version(1);
-                    cl_exec "info welcome pcs version $vid->{rev}", $fd, $fd;
-                    for (@$init_script) {
-                        cl_exec $_, $fd, $fd;
-                    }
-                },
-                -unbinded   => sub { *__ANON__ = '<pcs-unbinded>';
-                    my ($s) = @_;
-                    info2 "unbinded $s";
-                },
-                -gotdata    => sub { *__ANON__ = '<pcs-gotdata>';
-                    my ($s, $data) = @_;
-                    my $fd = $s->{'IO'};
-                    info2 "gotdata from $s($fd): $data";
-                    cl_exec $data, $fd, $fd;
-                },
-                # -askdata    => \&askdata,
-                # -goterr     => \&goterr,
-            )
-        },
-        -name   => $opt_verbtitle,
-        -addr   => $opt_serv_addr,
-        -port   => $opt_serv_port,
-        -proto  => $opt_serv_proto,
-        -cap    => $opt_serv_cap,
-      # -intv   => $opt_serv_intv,
-    );
-    $serv->verbose($opt_verbose - 1);
+=head1 HACKING
 
-    my $stat;
-    if ($opt_daemon) {
-        $stat = $serv->serv();
-    } else {
-        my $mios = $serv->create_ios()->merge;
-        info "start $opt_verbtitle service at $opt_serv_addr:$opt_serv_port";
-        my $mctx = $mios->create_context;
-        while ($mctx->iterate) {
-            my $k = ReadKey -1;
-            if ($k) {
-                info2 'pressed: $k('.ord($k).')';
-                last if $k eq 'q';
-            }
-        }
-        $stat = $mctx->{STAT};
-    }
-    info Dumper($stat);
-}
+(No Information)
 
+=cut
+# (MODULE FUNCTIONS)
 sub k_info      { info @_ }
-sub k_info2     { info2 @_ }
+sub k__log2     { _log2 @_ }
 sub k_echo_     { print @_ }
 sub k_echo      { print @_, "\n" }
 
@@ -351,6 +397,35 @@ sub v_put {
     }
 }
 
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    my $msg =
+        "[$LOGNAME] Perl Console Server \n";
+       ."Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+    return $_[0] ? \%id : $msg if @_;
+    print $msg;
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl Console Server">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
+
 __DATA__
 init:
     - info init built-in commands
@@ -384,7 +459,7 @@ help:
 
         -- BAISC --
         Debug commands:
-            info info2 echo_ echo args
+            info _log2 echo_ echo args
         Kernel commands:
             alias unalias eval
         File commands:
@@ -418,7 +493,7 @@ help:
     unlink: unlink LINK - Deletes a list of files.
 
     info:   info TEXT - print verbose(1) information
-    info2:  info TEXT - print verbose(2) information
+    _log2:  info TEXT - print verbose(2) information
     echo_:  echo_ TEXT - echo TEXT without newline to sender
     echo:   echo TEXT - echo TEXT to sender
     args:   args LIST - print the dequoted arguments list

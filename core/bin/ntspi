@@ -1,17 +1,22 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+ntspi - NT System Parameters Info
+
+=cut
 use strict;
-use cmt::util;
-use cmt::vcs;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'ntspi'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::log(2);
+use cmt::util();
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl,v 1.16 2007-09-29 11:31:33 lenik Exp $');
 use Getopt::Long;
 use Win32::API;
 
-sub boot;
-sub main;
-sub info;
-sub info2;
-sub version;
-sub help;
+sub _main; sub _version; sub _help;
+
 sub spi_failed;
 sub spi_getstr;
 sub spi_setstr;
@@ -24,9 +29,6 @@ sub spi_int;
 sub spi_uint;
 sub spi_bool;
 
-our $opt_verbtitle      = 'ntspi';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
 our $opt_name;
 our $opt_get;
 our $opt_set;
@@ -37,7 +39,7 @@ our $opt_fwinini        = 0;
 
 our $buffer             = ' ' x 16384;
 
-sub init {
+sub _init {
     sub SPI_GETBEEP               {   1 }
     sub SPI_SETBEEP               {   2 }
     sub SPI_GETMOUSE              {   3 }
@@ -174,75 +176,120 @@ sub init {
     Win32::API->Import('user32', 'SystemParametersInfo', 'NNPN', 'N');
 }
 
-sub boot {
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help|h'     => sub { help; exit },
-               'update'     => sub { $opt_fwinini |= SPIF_UPDATEINIFILE },
-               'send'       => sub { $opt_fwinini |= SPIF_SENDCHANGE },
+sub _boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'update'         => sub { $opt_fwinini |= SPIF_UPDATEINIFILE },
+               'send'           => sub { $opt_fwinini |= SPIF_SENDCHANGE },
                );
     $opt_name = shift @ARGV
         or die("No action-name specified");
     $opt_set = scalar(@ARGV);
     $opt_get = !$opt_set;
-    init;
-    main;
+    _init;
+    _main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+B<ntspi>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub version {
-    my %id = parse_id('$Id: ntspi,v 1.3 2007-11-08 10:52:37 lenik Exp $');
-    print "[$opt_verbtitle] NT System Parameters Info\n";
-    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-}
+=head1 DESCRIPTION
 
-sub help {
-    version;
-    print <<"EOM";
+B<ntspi> is a WHAT used for WHAT. It HOW-WORKS.
 
-Syntax:
-        $0 <options> action-name [new-value]
+BACKGROUND-PROBLEM.
 
-Options:
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
-        --version
-        --help (h)
-        --update (update ini)
-        --send (send change)
+HOW-ntspi-RESOLVES.
 
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ACTION VALUE\n", <<'EOM';
+
+Common options:
+        --update            update ini
+        --send              send change
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
 EOM
 }
 
-boot;
+exit (_boot or 0);
 
-sub main {
+sub _main {
     my $proc = lc($opt_name);
     die("Parameter $opt_name isn't supported, yet. ") unless 'main'->can($proc);
     $opt_uiaction = 'SPI_'.($opt_get?'GET':'SET').uc($opt_name);
     die("Unexpected: constant $opt_uiaction not defined") unless 'main'->can($opt_uiaction);
     $opt_uiaction = eval($opt_uiaction);
 
-    info2 "uiAction = $opt_uiaction";
-    info2 "fWinINI  = $opt_fwinini";
+    _log2 "uiAction = $opt_uiaction";
+    _log2 "fWinINI  = $opt_fwinini";
     $proc = eval('\&'.$proc);
     $proc->();
 }
 
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
 sub spi_failed {
     die("SPI function failed.");
 }
@@ -372,3 +419,29 @@ sub showimeui               { spi_bool }
 # misc
 sub windowsextension        { spi_bool }    # check Windows Plus!
 sub penwindows              { spi_bool }    # load/unload Pen Windows
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] NT System Parameters Info \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"NT System Parameters Info">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
