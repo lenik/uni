@@ -47,7 +47,7 @@ our $opt_width          = 16;
 my  $mios;
 my  $mctx;
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
@@ -193,7 +193,7 @@ Deployment:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
     my $pid_recver;

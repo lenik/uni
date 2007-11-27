@@ -25,7 +25,7 @@ our $opt_prefix;
 
 my $tmpl;
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
@@ -53,8 +53,8 @@ sub boot {
                 my ($bat_name, $bat_ext) = path_splitext $bat;
                 $pl = $bat_name . '';
             }
-            _log1 "wrap $opt_prefix$bat -> $pl";
             $opt_output = $opt_prefix.$bat;
+            _log1 "wrap $opt_output -> $pl";
             _main $pl;
         }
     } else {
@@ -137,7 +137,7 @@ Common options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
     my $perl_file    = shift;

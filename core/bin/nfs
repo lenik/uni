@@ -75,7 +75,7 @@ my $NFS_VOL;                # dynamic: maybe happened to be override in any leve
 my $NFS_CONTAINER;
 my $NFS_FILE;               # should be equal to container/title
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
@@ -286,7 +286,7 @@ Examples:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
     # quick delete

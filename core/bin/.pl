@@ -15,7 +15,7 @@ use Getopt::Long;
 
 sub _main; sub _version; sub _help;
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
@@ -92,7 +92,7 @@ Common options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
     _sig1 'ARG', $_ for @ARGV;

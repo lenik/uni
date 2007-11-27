@@ -42,7 +42,7 @@ our $opt_interval   = 3;            # 3 sec
 our $opt_refresh    = 5;            # 5 sec
 our $opt_logfile    = undef;
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
@@ -179,7 +179,7 @@ Send method:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
     my $count = 0;

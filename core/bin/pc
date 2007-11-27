@@ -6,7 +6,7 @@ use cmt::vcs;
 use cmt::ftime;
 use Getopt::Long;
 
-sub boot;
+sub _boot;
 sub main;
 sub info;
 sub info2;
@@ -22,7 +22,7 @@ our $opt_lines          = 0;
 our $opt_echo           = 0;
 our $opt_gui            = 0;
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },

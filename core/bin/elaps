@@ -9,7 +9,7 @@ use cmt::english;
 use Getopt::Long;
 use Term::ReadKey;
 
-sub boot;
+sub _boot;
 sub testc;
 sub getch;
 sub timefmt;
@@ -24,7 +24,7 @@ our $opt_interval       = 1.000;    # 1 sec refresh interval
 our $opt_period         = 0;
 our $opt_verbose        = 1;
 
-sub boot {
+sub _boot {
     GetOptions(
         'port|p=n',
         'interval|n=n',

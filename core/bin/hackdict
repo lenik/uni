@@ -15,7 +15,7 @@ use FileHandle;
 use Getopt::Long;
 use MIME::Base64;
 
-sub boot;
+sub _boot;
 sub main;
 sub call;
 sub info;
@@ -62,7 +62,7 @@ our ($D, $E, $F, $G, $H, $I, $J, $K, $L, $M, $N, $O, $P, $Q, $R); # %$ref
 our ($d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $q, $r);
 our ($tt, $x, $y);
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },

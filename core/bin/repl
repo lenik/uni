@@ -65,7 +65,7 @@ our $opt_diff_ext;
 our $opt_diff_style;
 our $opt_test;
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
@@ -268,7 +268,7 @@ RANGE format (ignored in mode `exec'):
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
     my ($tmph, $tmpf);

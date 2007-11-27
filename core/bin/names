@@ -8,7 +8,7 @@ use Getopt::Long;
 use Data::Dumper;
 
 
-sub boot();
+sub _boot();
 sub main();
 sub help();
 sub scan($@);
@@ -109,7 +109,7 @@ sub scandir($) {
     }
 }
 
-sub boot() {
+sub _boot() {
     my $serial_start;
     my ($random_min, $random_max) = (0, 9999);
 

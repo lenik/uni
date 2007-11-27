@@ -38,7 +38,7 @@ use cmt::util;
 use cmt::vcs;
 use Getopt::Long;
 
-sub boot;
+sub _boot;
 sub info;
 sub info2;
 sub version;
@@ -51,7 +51,7 @@ our $opt_verbose        = 1;
 our $opt_style;
 our $opt_abbreviate     = 0;
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },

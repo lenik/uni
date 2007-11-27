@@ -24,7 +24,7 @@ our $opt_local_path;
 our $opt_cookie_jar;
 our $opt_mkdir;
 
-sub boot {
+sub _boot {
     if ($ARGV[0] =~ /^[~\/](\w+)$/) {
         $opt_driver = $1;
         shift @ARGV;
@@ -130,7 +130,7 @@ EOM
     }
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
     my $count = $opt_driver->do_get(@ARGV);

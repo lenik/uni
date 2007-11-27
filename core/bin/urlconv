@@ -26,7 +26,7 @@ our $DFL_ENC    = encoding::_get_locale_encoding() || do {
                 };
 our $DFL_FB     = '?';
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
@@ -109,7 +109,7 @@ Common options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub conv {
     my $from_e = shift;

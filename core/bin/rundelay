@@ -8,7 +8,7 @@ use Tk;
 use Tk::DialogBox;
 use Tk::ProgressBar;
 
-sub boot;
+sub _boot;
 sub main;
 sub info;
 sub info2;
@@ -33,7 +33,7 @@ if (0) {
     }
 }
 
-sub boot {
+sub _boot {
     # Process X11-specific options
     Tk::CmdLine::SetArguments();
 

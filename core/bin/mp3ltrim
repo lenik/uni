@@ -7,7 +7,7 @@ use Data::Dumper;
 use DirHandle;
 use Getopt::Long;
 
-sub boot;
+sub _boot;
 sub main;
 sub info;
 sub info2;
@@ -24,7 +24,7 @@ our $opt_rem;
 our $opt_at;
 our $opt_max            = 1;
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },

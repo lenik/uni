@@ -40,7 +40,7 @@ our $opt_logfile    = 'whois_logs.txt';
 my $logfile;        # current logfile
 my %threads;        # pid -> { starttime }
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
@@ -152,7 +152,7 @@ Examples:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
     for (@ARGV) {

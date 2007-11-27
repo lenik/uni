@@ -164,7 +164,7 @@ BEGIN {
     Win32::API->Import('user32', 'LONG GetMessageExtraInfo()');
 }
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
@@ -286,7 +286,7 @@ Common options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
     my $path_dump = temp_path('wm_last.lst');

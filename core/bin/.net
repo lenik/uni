@@ -40,7 +40,7 @@ BEGIN {
     sub _sig3 { return if $opt_verbose < 3; &_sig }
 }
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { _version; exit },
@@ -176,7 +176,7 @@ Common options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
     my $serv = new cmt::serv(

@@ -17,7 +17,7 @@ use Getopt::Long;
 sub _main; sub _version; sub _help;
 sub dumpargs;
 
-sub boot {
+sub _boot {
     _P1 "Before GetOptions: ";
     dumpargs(\@ARGV);
 
@@ -101,7 +101,7 @@ Common options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
     # Do nothing.

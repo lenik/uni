@@ -6,7 +6,7 @@ use cmt::util;
 use cmt::vcs;
 use Getopt::Long;
 
-sub boot;
+sub _boot;
 sub main;
 sub info;
 sub info2;
@@ -20,7 +20,7 @@ our $opt_dump           = 0;
 our $opt_rewrite        = 0;
 our @opt_via;
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },

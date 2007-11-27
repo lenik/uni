@@ -67,7 +67,7 @@ our %opt_ext        = qw(
 my %summary = ();               # summary of all.
 my %summary_x = ();             # summary by different extensions.
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
@@ -161,7 +161,7 @@ Common options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
     my @list;

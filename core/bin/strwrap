@@ -30,7 +30,7 @@ our $opts_escape    = \&c_slashes;      # escaping function
 our $opts_unescape  = \&c_unslashes;    # unescaping function
 
 <% fskd fdslk jsak %>
-sub boot {
+sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
@@ -116,7 +116,7 @@ Common options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
     _sig1 'ARG', $_ for @ARGV;

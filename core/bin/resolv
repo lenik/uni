@@ -6,7 +6,7 @@ use cmt::vcs;
 use Getopt::Long;
 use Socket('inet_ntoa');
 
-sub boot;
+sub _boot;
 sub main;
 sub info;
 sub info2;
@@ -20,7 +20,7 @@ our $opt_verbose        = 1;
 
 our $opt_test_dnsutil   = 0;
 
-sub boot {
+sub _boot {
     GetOptions(
                'all|a',
                'quiet|q'   => sub { $opt_verbose-- },

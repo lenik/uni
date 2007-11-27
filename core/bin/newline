@@ -43,7 +43,7 @@ our $opt_recursive  = 0;
 our $opt_stdout     = 0;
 our $opt_pattern    = '^.+$';
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
@@ -141,7 +141,7 @@ Common options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
     for (@ARGV) {
