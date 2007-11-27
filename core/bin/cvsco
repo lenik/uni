@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: cvsco,v 1.6 2007-09-12 17:12:41 lenik Exp $
+# $Id$
 
 use strict;
 use cmt::vcs;
@@ -97,7 +97,7 @@ my $printonly;
 
 
 sub help {
-    my %id = parse_id('$Id: cvsco,v 1.6 2007-09-12 17:12:41 lenik Exp $');
+    my %id = parse_id('$Id$');
     print <<"EOM";
 [CVSCOS] CVS Checkout On Sites
 Author Snima Denik   Version 0.$id{'rev'}   Date $id{'date'}

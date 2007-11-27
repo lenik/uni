@@ -71,7 +71,7 @@ sub info {
 }
 
 sub version {
-    my %id = parse_id('$Id: elaps,v 1.4 2007-09-12 17:12:41 lenik Exp $');
+    my %id = parse_id('$Id$');
     print <<"EOM";
 [elaps] Elaps Time
 Author: lenik,  Version 0.$id{rev},  Last updated $id{date}

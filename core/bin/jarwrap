@@ -99,7 +99,7 @@ sub createfile {
 
 
 sub version {
-	my %id = parse_id('$Id: jarwrap,v 1.4 2007-09-12 17:12:42 lenik Exp $');
+	my %id = parse_id('$Id$');
 	print <<"EOM";
 [JARWRAP] JAR application executable wrapper  Version 0.$id{rev}
 author: xima lenik,  last updated $id{date}

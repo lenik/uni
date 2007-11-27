@@ -10,7 +10,7 @@ use vars qw($LOGNAME $LOGLEVEL);
     $LOGNAME    = 'chlmod'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::log(2);
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: .pl,v 1.16 2007-09-29 11:31:33 lenik Exp $');
+    my %RCSID   = parse_id('$Id$');
 use Config;
 use DirHandle;
 use Getopt::Long;

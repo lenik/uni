@@ -14,7 +14,7 @@ use cmt::log(2);
 use cmt::path('path_join', 'path_split');
 use cmt::util('readfile', 'writefile', 'listdir');
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: dirdiff.pm,v 1.2 2007-09-15 03:34:41 lenik Exp $');
+    my %RCSID   = parse_id('$Id$');
     our $VER    = "0.$RCSID{rev}";
 use Exporter;
 use File::Path('mkpath');

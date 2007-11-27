@@ -18,7 +18,7 @@ use cmt::path;
 use cmt::pp;
 use cmt::util;
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: .pl,v 1.16 2007-09-29 11:31:33 lenik Exp $');
+    my %RCSID   = parse_id('$Id$');
     $cmt::chm::opt_appname = "mkchm-$RCSID{rev}";
 use Cwd;
 use Data::Dumper;

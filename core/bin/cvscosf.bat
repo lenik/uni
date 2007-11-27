@@ -1,6 +1,6 @@
 @echo off
 
-	rem $Id: cvscosf.bat,v 1.3 2006-07-27 15:49:07 lenik Exp $
+	rem $Id$
 
 	if "%1"=="" goto help
 

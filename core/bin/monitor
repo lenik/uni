@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# $Id: monitor,v 1.5 2007-09-12 17:12:42 lenik Exp $
+# $Id$
 
 use strict;
 use cmt::vcs;
@@ -66,7 +66,7 @@ sub init {
 
 
 sub help {
-    my %id = parse_id('$Id: monitor,v 1.5 2007-09-12 17:12:42 lenik Exp $');
+    my %id = parse_id('$Id$');
 
     print <<"EOM";
 Monitor utility   Version 0.$id{rev}   Date $id{date}

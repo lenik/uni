@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: srt-delay,v 1.6 2007-06-25 12:58:14 lenik Exp $
+# $Id$
 
 use strict;
 use Getopt::Long;

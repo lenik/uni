@@ -130,7 +130,7 @@ sub info {
 }
 
 sub version {
-    my %id = parse_id('$Id: served,v 1.4 2007-09-12 17:12:42 lenik Exp $');
+    my %id = parse_id('$Id$');
     print <<"EOM";
 [served] Win32 Service Editor
 Author: lenik,  Version 0.$id{rev},  Last updated $id{date}

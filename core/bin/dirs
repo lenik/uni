@@ -32,7 +32,7 @@ sub init {
 
 
 sub help {
-	my %ver = parse_id('$Id: dirs,v 1.4 2007-06-25 12:58:13 lenik Exp $');
+	my %ver = parse_id('$Id$');
 	print <<"EOM";
 [DIRS] Directories' Size Report
 Written by Snima Denik,  Revision $ver{rev},  Last updated $ver{date}

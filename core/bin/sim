@@ -157,7 +157,7 @@ sub scanDirectory {
 }
 
 sub help {
-    my %id = parse_id('$Id: sim,v 1.8 2007-09-12 17:12:42 lenik Exp $');
+    my %id = parse_id('$Id$');
 
     print <<"EOM";
 [SIM] SIMplified Expander

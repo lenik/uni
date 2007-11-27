@@ -11,7 +11,7 @@ use vars qw($LOGNAME $LOGLEVEL);
     $LOGNAME    = 'usecode';
 use cmt::log(2);
 use cmt::vcs('parse_id');
-    my %RCSID = parse_id('$Id: usecode,v 1.8 2007-09-19 07:51:28 lenik Exp $');
+    my %RCSID = parse_id('$Id$');
 use Getopt::Long;
 use Win32::Clipboard;
 use Win32::TieRegistry(Delimiter => '/');

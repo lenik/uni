@@ -1,5 +1,5 @@
 @ECHO OFF
-    REM $Id: fors.bat,v 1.2 2004-09-22 08:39:09 dansei Exp $
+    REM $Id$
 
 	SET _F_INDEX=
 	IF "%1"=="/0" GOTO index_0

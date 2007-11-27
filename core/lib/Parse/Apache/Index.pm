@@ -13,7 +13,7 @@ use cmt::log(2);
 use cmt::netutil('loadurl');
 use cmt::util;
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: Index.pm,v 1.1 2007-09-29 10:33:09 lenik Exp $');
+    my %RCSID   = parse_id('$Id$');
     our $VER    = "0.$RCSID{rev}";
 use Exporter;
 use HTML::Entities;

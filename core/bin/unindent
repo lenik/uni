@@ -42,7 +42,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: unindent,v 1.5 2007-11-08 10:52:38 lenik Exp $');
+    my %id = parse_id('$Id$');
     print "[$opt_verbtitle] Remove the extra indents but keep the structure\n";
     print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }

@@ -13,7 +13,7 @@ use cmt::lang;
 use cmt::log(3, '_sigx');
 use cmt::util;
 use cmt::vcs('parse_id');
-    my %RCSID = parse_id('$Id: repl,v 1.22 2007-11-08 10:52:38 lenik Exp $');
+    my %RCSID = parse_id('$Id$');
 use Data::Dumper;
 use File::Copy;
 use File::Temp('tempfile');

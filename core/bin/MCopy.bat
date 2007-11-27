@@ -1,5 +1,5 @@
 @ECHO OFF
-REM $Id: MCopy.bat,v 1.2 2004-09-22 08:39:07 dansei Exp $
+REM $Id$
 
 IF "%1"=="" GOTO SYNTAX
 IF "%2"=="" MCopy %1 .

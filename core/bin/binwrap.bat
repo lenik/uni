@@ -1,6 +1,6 @@
 @echo off
 
-    rem $Id: binwrap.bat,v 1.2 2004-10-11 05:50:05 dansei Exp $
+    rem $Id$
 
     if "%1"=="" goto help
 

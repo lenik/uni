@@ -16,7 +16,7 @@ use cmt::simpled;
 use cmt::stream;
 use cmt::util;
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: .pl,v 1.16 2007-09-29 11:31:33 lenik Exp $');
+    my %RCSID   = parse_id('$Id$');
 use Data::Dumper;
 use Getopt::Long;
 

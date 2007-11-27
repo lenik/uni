@@ -64,7 +64,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: readcode,v 1.4 2007-11-08 10:52:37 lenik Exp $');
+    my %id = parse_id('$Id$');
     my $ver =
         "[$opt_verbtitle] Read Code \n"
       . "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";

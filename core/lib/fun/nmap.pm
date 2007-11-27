@@ -44,7 +44,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: nmap.pm,v 1.2 2007-11-08 10:52:38 lenik Exp $');
+    my %id = parse_id('$Id$');
     print "[$opt_verbtitle] Perl_simple_cli_libfun_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }

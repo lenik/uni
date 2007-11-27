@@ -1,5 +1,5 @@
 @echo off
-rem $Id: cvscopy.bat,v 1.12 2006-04-23 05:38:01 lenik Exp $
+rem $Id$
 
 
     set _copy_for_retry=%0 %*

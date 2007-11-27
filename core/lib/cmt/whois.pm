@@ -14,7 +14,7 @@ use cmt::log(2);
 use cmt::stream;
 use cmt::util;
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: whois.pm,v 1.1 2007-10-28 14:33:30 lenik Exp $');
+    my %RCSID   = parse_id('$Id$');
     our $VER    = "0.$RCSID{rev}";
 use Data::Dumper;
 use Exporter;

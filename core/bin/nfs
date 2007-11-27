@@ -13,7 +13,7 @@ use cmt::path('path_join', 'path_split', 'path_splitext', 'path_normalize');
 use cmt::perlsys;
 use cmt::util('php_perl', 'readfile', 'writefile');
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: nfs,v 1.30 2007-09-20 15:25:21 lenik Exp $');
+    my %RCSID   = parse_id('$Id$');
 use cmt::winuser;
 use DirHandle;
 use File::Copy;

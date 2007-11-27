@@ -111,7 +111,7 @@
     goto start
 
 :version
-    set _id=$Id: cvsuser.bat,v 1.1 2007-07-23 10:40:23 lenik Exp $
+    set _id=$Id$
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j

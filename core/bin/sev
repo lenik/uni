@@ -61,7 +61,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: sev,v 1.6 2007-11-08 10:52:38 lenik Exp $');
+    my %id = parse_id('$Id$');
     print "[$opt_verbtitle] Self Evolution, self-editing scripts \n";
     print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }

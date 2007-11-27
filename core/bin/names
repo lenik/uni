@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: names,v 1.5 2007-06-25 12:58:14 lenik Exp $
+# $Id$
 
 use strict;
 use Config;

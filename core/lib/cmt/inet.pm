@@ -14,7 +14,7 @@ use cmt::log(2);
 use cmt::stream;
 use cmt::util('get_named_args');
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: .pm,v 1.7 2007-09-14 16:09:45 lenik Exp $');
+    my %RCSID   = parse_id('$Id$');
     our $VER    = "0.$RCSID{rev}";
 use Exporter;
 use IO::Socket;

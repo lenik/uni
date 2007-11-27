@@ -13,7 +13,7 @@ use cmt::path;
 use cmt::pp('ppvar');
 use cmt::util('writefile');
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: .pl,v 1.16 2007-09-29 11:31:33 lenik Exp $');
+    my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
 
 sub _main; sub _version; sub _help;

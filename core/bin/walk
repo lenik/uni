@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: walk,v 1.4 2007-06-25 12:58:14 lenik Exp $
+# $Id$
 
 # walk over a directory
 

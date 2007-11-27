@@ -1,5 +1,5 @@
 @echo off
-rem $Id: get-mp4cn.bat,v 1.2 2004-09-22 08:39:09 dansei Exp $
+rem $Id$
 
 echo [GET] %1
 	call getweb www.mp4cn.com %1 >_get1

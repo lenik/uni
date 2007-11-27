@@ -106,7 +106,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: execgui,v 1.5 2007-11-08 10:52:37 lenik Exp $');
+    my %id = parse_id('$Id$');
     print "[$opt_verbtitle] Perl simple cli program template\n";
     print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }

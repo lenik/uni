@@ -1,5 +1,5 @@
 @ECHO OFF
-REM $Id: TestErr.bat,v 1.2 2004-09-22 08:39:07 dansei Exp $
+REM $Id$
 
 SET TE_CMDLINE=
 

@@ -11,7 +11,7 @@ use vars qw($LOGNAME $LOGLEVEL);
 use constant{NO_ERROR => 0, RESOURCETYPE_ANY => 0};
 use cmt::log(2);
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: nu,v 1.2 2007-09-29 10:29:09 lenik Exp $');
+    my %RCSID   = parse_id('$Id$');
 use File::Path('mkpath');
 use Getopt::Long;
 use Win32::API;

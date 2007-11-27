@@ -14,7 +14,7 @@ use cmt::netutil('loadurl');
 use cmt::util('addopts_long', 'ieval');
 use cmt::utree;
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: StarDict.pm,v 1.1 2007-09-29 11:31:06 lenik Exp $');
+    my %RCSID   = parse_id('$Id$');
     our $VER    = "0.$RCSID{rev}";
 use Exporter;
 use LWP::Simple('get');

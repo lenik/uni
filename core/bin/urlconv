@@ -10,7 +10,7 @@ use vars qw($LOGNAME $LOGLEVEL);
     $LOGNAME    = 'urlconv'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::log(2);
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: .pl,v 1.15 2007-09-14 16:10:05 lenik Exp $');
+    my %RCSID   = parse_id('$Id$');
 use encoding();
 use Encode;
 use Encode::Alias;

@@ -10,7 +10,7 @@ use vars qw/@ISA @EXPORT/;
 
 sub parse_id {
     my ($id) = @_;
-    $id ||= '$Id: vcs.pm,v 1.3 2005-01-06 04:21:47 dansei Exp $';
+    $id ||= '$Id$';
     my @segs = $id =~ m/
         ^ \$ [I][d][:] \s (.*?) \s ([0-9.]+) \s ([0-9\/\\\-]+) \s
              ([0-9:]+) \s (.*?) \s (\w+) \s \$ $

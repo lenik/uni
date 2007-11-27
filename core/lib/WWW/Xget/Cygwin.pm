@@ -12,7 +12,7 @@ use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
 use cmt::util('addopts_long');
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: Cygwin.pm,v 1.1 2007-09-29 11:31:06 lenik Exp $');
+    my %RCSID   = parse_id('$Id$');
     our $VER    = "0.$RCSID{rev}";
 use Exporter;
 use WWW::Xget;

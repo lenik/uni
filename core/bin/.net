@@ -10,7 +10,7 @@ use cmt::log;
 use cmt::serv;
 use cmt::util;
 use cmt::vcs('parse_id');
-    my %RCSID = parse_id('$Id: .net,v 1.2 2007-09-12 17:11:25 lenik Exp $');
+    my %RCSID = parse_id('$Id$');
 use Data::Dumper;
 use Getopt::Long;
 use Socket;

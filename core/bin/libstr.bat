@@ -19,7 +19,7 @@
 
     rem ######################################################################
     rem #        LIBSTR - String Library for Batch Script (Windows NT)
-    rem # Version:  $Id: libstr.bat,v 1.4 2007-04-27 13:44:04 lenik Exp $
+    rem # Version:  $Id$
     rem # Notice:   You shall remove the $ in comments in your function copy
     rem # Notice:   You can use characters ' " % ! < > | & in the string* type
     rem #

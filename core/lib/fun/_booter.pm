@@ -35,7 +35,7 @@ our $opt_verbose        = 1;
 our $opt_version;
 our $opt_help;
 our $opt_ver_title      = "Perl simple function caller";
-our $opt_ver_id         = '$Id: _booter.pm,v 1.3 2007-11-08 10:52:38 lenik Exp $';
+our $opt_ver_id         = '$Id$';
 our $opt_funname;
 our $opt_funcode;
 our $opt_funpkg;

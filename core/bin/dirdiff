@@ -12,7 +12,7 @@ use cmt::dirdiff;
     $cmt::dirdiff::LOGNAME = 'libdd';
 use cmt::log(2);
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: dirdiff,v 1.2 2007-09-15 03:34:41 lenik Exp $');
+    my %RCSID   = parse_id('$Id$');
 use Data::Dumper;
 use Getopt::Long;
 

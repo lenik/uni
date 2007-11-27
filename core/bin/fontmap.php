@@ -138,7 +138,7 @@
 
 
 	function Help() {
-	    $id = ParseId('$Id: fontmap.php,v 1.9 2005-01-04 04:44:16 dansei Exp $');
+	    $id = ParseId('$Id$');
 	    ?>
 [FONTMAP] Font Map Generator
 Written by Snima Denik,  Version <?=$id['rev']?>,  Last updated <?=$id['time']?>

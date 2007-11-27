@@ -1,6 +1,6 @@
 @rem = '
         @echo off
-        rem $Id: advname.bat,v 1.3 2006-11-17 20:28:08 lenik Exp $
+        rem $Id$
 
         if "%1"=="" goto help
 

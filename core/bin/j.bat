@@ -1,5 +1,5 @@
 @echo off
-    rem $Id: j.bat,v 1.8 2005-06-19 08:28:16 dansei Exp $
+    rem $Id$
 
     if "%OS%"=="Windows_NT" goto winnt
 

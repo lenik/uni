@@ -4,6 +4,6 @@ use strict;
 use fun::_booter(':pack');
 
 $opt_ver_title  = 'find specific answers from the internet';
-$opt_ver_id     = '$Id: asknet,v 1.1 2007-07-31 15:05:39 lenik Exp $';
+$opt_ver_id     = '$Id$';
 
 exit _boot;

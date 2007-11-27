@@ -80,7 +80,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: xs.pm,v 1.8 2007-11-08 10:52:38 lenik Exp $');
+    my %id = parse_id('$Id$');
     print "[$opt_verbtitle] XSUB Utilities \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }

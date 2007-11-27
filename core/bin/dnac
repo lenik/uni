@@ -3,7 +3,7 @@
 #@DNA::COPY
 use vars qw/$idt/;
 #@DNA::COPY
-our $idt = '$Id: dnac,v 1.8 2007-09-12 17:12:41 lenik Exp $';
+our $idt = '$Id$';
 
 use strict;
 use POSIX qw/strftime/;

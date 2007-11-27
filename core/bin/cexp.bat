@@ -1,5 +1,5 @@
 @echo off
-    rem $Id: cexp.bat,v 1.2 2004-09-22 08:39:08 dansei Exp $
+    rem $Id$
 
     rem with local, remote, handler
     rem what's this means??

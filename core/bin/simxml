@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# $Id: simxml,v 1.6 2007-09-12 17:12:42 lenik Exp $
+# $Id$
 
 use strict;
 use Getopt::Long;
@@ -121,7 +121,7 @@ sub getopts {
 
 
 sub help {
-    my %id = parse_id('$Id: simxml,v 1.6 2007-09-12 17:12:42 lenik Exp $');
+    my %id = parse_id('$Id$');
 
     print <<"EOM";
 [SIMXML] Simplified XML Document based on Symbols

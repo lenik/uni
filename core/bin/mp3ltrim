@@ -73,7 +73,7 @@ sub lpad {
 }
 
 sub version {
-    my %id = parse_id('$Id: mp3ltrim,v 1.9 2007-11-08 10:52:37 lenik Exp $');
+    my %id = parse_id('$Id$');
     print "[$opt_verbtitle] MP3 Utilities - LTrim\n";
     print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
 }

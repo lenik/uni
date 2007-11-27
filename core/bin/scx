@@ -137,7 +137,7 @@ sub add_cvs {
 
 
 sub help {
-    my %id = parse_id('$Id: scx,v 1.4 2007-06-25 12:58:14 lenik Exp $');
+    my %id = parse_id('$Id$');
 
     print <<"EOM"
 [SCX] Scan & chmod for executable

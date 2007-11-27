@@ -125,7 +125,7 @@ EOM
 
 
 sub help {
-    my %id = parse_id('$Id: cuelist,v 1.4 2007-09-12 17:12:41 lenik Exp $');
+    my %id = parse_id('$Id$');
     print <<"EOM";
 Cuelist by S.N.M.
 Version 0.$id{rev}  last update $id{date}

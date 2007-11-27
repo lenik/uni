@@ -1,5 +1,5 @@
 @echo off
-rem $Id: cvsexp.bat,v 1.4 2004-09-24 00:42:38 dansei Exp $
+rem $Id$
 
 if "%1"=="-d" shift & set _opt_md=1
 

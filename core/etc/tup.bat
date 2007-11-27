@@ -1,5 +1,5 @@
 @echo off
-rem $Id: tup.bat,v 1.9 2007-04-27 13:47:57 lenik Exp $
+rem $Id$
 
 :begin
     rem find where to download

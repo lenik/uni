@@ -1,5 +1,5 @@
 @echo off
-    rem $Id: getweb.bat,v 1.5 2006-07-27 15:47:27 lenik Exp $
+    rem $Id$
 
     rem http-get/post, powered by sockonce.
 

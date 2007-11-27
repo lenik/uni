@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: cleanhtml,v 1.4 2007-06-25 12:58:13 lenik Exp $
+# $Id$
 
 use strict;
 

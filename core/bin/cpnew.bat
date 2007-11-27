@@ -84,7 +84,7 @@
     goto start
 
 :version
-    set _id=$Id: cpnew.bat,v 1.3 2007-09-13 01:04:13 lenik Exp $
+    set _id=$Id$
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j

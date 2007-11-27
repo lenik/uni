@@ -1,5 +1,5 @@
 @echo off
-rem $Id: dist-cvsi.bat,v 1.5 2006-04-23 05:40:16 lenik Exp $
+rem $Id$
 
 :version
     echo Distribute cvs-initials to managed directory

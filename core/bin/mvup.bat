@@ -1,5 +1,5 @@
 @echo off
-rem $Id: mvup.bat,v 1.2 2004-09-22 08:39:10 dansei Exp $
+rem $Id$
 
 
 set mvup_dir=..
