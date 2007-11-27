@@ -22,7 +22,6 @@ dnad.bat
 domp.bat
 doweb.bat
 dsd.bat
-dumpclip.bat
 elaps.bat
 execgui.bat
 fddump.bat
@@ -49,9 +48,10 @@ names.bat
 newline.bat
 nfs.bat
 ntspi.bat
+nu.bat
 odx.bat
 parse-ulog.bat
-patcat.bat
+patchs.bat
 pc.bat
 pcs.bat
 pct.bat

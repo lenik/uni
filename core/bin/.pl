@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-UnKnOwN - Perl_simple_cli_program_template
+UnKnOwN - DeScRiPtIoN
 
 =cut
 use strict;
@@ -125,7 +125,7 @@ The initial version.
 
 =cut
 sub _version {
-    print "[$LOGNAME] Perl_simple_cli_program_template \n";
+    print "[$LOGNAME] DeScRiPtIoN \n";
     print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 

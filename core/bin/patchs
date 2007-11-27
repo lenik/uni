@@ -1,0 +1,299 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+patchs - Patch Summary
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'patchs'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::log(2);
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl,v 1.16 2007-09-29 11:31:33 lenik Exp $');
+use Data::Dumper;
+use Getopt::Long;
+use Win32::Clipboard;
+
+sub _main; sub _version; sub _help;
+
+sub input_buffer;
+sub style_normal;
+sub style_batch_rm;
+
+our $opt_style;
+our $opt_stylef         = \&style_normal;
+our $opt_input          = sub { *__ANON__ = '<stdin>'; <> };
+our $opt_clipboard;
+our $opt_clipboard_disabled;
+
+my  $buffer;
+my  $offset = 0;
+
+sub boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'style|s=s',
+               'clipboard|c',
+               );
+    if (defined $opt_style) {
+        $opt_stylef = main->can('style_'.$opt_style)
+            or die "no such style: $opt_style";
+    }
+    if (defined $opt_clipboard) {
+        if ($opt_clipboard) {
+            _log2 'get clipboard';
+            $buffer = Win32::Clipboard()->GetText();
+            $opt_input = \&input_buffer;
+        } else {
+            $opt_clipboard_disabled = 1;
+        }
+    }
+    if (!@ARGV and !$opt_clipboard_disabled and !defined $buffer) {
+        my $cdat = Win32::Clipboard()->GetText();
+        if ($cdat =~ /^Index:/) {
+            _log2 'found patch file in the clipboard';
+            $buffer = $cdat;
+            $opt_input = \&input_buffer;
+        }
+    }
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<patchs>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<patchs> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-patchs-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] [FILE.patch]\n", <<'EOM';
+
+Common options:
+    -s, --style=STYLE       default 'normal'
+    -c, --clipboard         get patch file from the clipboard
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+
+Styles:
+    normal      - group patches by the content of each patch
+    batch-rm    - generate a batch script for removing files
+EOM
+}
+
+exit (boot or 0);
+
+sub _main {
+    my @patches;
+
+    # 1, get summaries of all file-unit
+    my @block_diff;
+    my ($block_name, $in_block);
+
+    local $_;
+    while (defined ($_ = $opt_input->())) {
+        s/\r?\n$//s;    # chop; chop
+        if (m/^Index: (.*)$/) {
+            if ($in_block) {
+                my $unit = [$block_name, join("\n", @block_diff)];
+                push @patches, $unit;
+            }
+            $in_block = 1;
+            $block_name = $1;
+            @block_diff = ();
+        }
+
+        if ($in_block) {
+            next if (m/^\+\+\+/);
+            next if (m/^---/);
+            push @block_diff, $_ if (m/^[+\-]/);
+        }
+    }
+
+    # 2, sort by diff
+    sub by_diff {
+        $a->[1] cmp $b->[1];
+    }
+    @patches = sort by_diff @patches;
+
+    my (@result, @file_list);
+    my $last_patch = $patches[0];
+    push @file_list, $last_patch->[0];
+
+    for (1..$#patches) {
+        my $patch = $patches[$_];
+        if ($last_patch->[1] eq $patch->[1]) {
+            push @file_list, $patch->[0];
+        } else {
+            push @result, [[@file_list], $last_patch->[1]];
+            $last_patch = $patch;
+            @file_list = ($last_patch->[0]);
+        }
+    }
+
+    if (@file_list) {
+        push @result, [[@file_list], $last_patch->[1]];
+    }
+
+    # 3, sort by diff-count
+    sub by_count {
+        my @lista = @{$a->[0]};
+        my @listb = @{$b->[0]};
+        $#listb cmp $#lista;
+    }
+    @result = sort by_count @result;
+
+    # 4, output
+    _log2 substr(Dumper(\@result), 8);
+
+    $opt_stylef->(\@result);
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+sub input_buffer {
+    return undef unless defined $buffer;
+    my $len = length $buffer;
+    my $off = index($buffer, "\n", $offset);
+    if ($off == -1) {
+        my $t = substr($buffer, $offset);
+        undef $buffer;
+        return $t;
+    }
+    my $t = substr($buffer, $offset, $off - $offset + 1);
+    $offset = $off + 1;
+    return $t;
+}
+
+sub style_normal {
+    my $result = shift;
+    my $total = 0;
+    foreach (@$result) {
+        my $list = $_->[0];
+        my $diff = $_->[1];
+        my $files = join("\n\t", @$list);
+        my $count = scalar @$list;
+        $total += $count;
+
+        print "Patch of following $count files: \n\t$files\n";
+        print $diff;
+        print "\n\n";
+    }
+
+    my $results = scalar @$result;
+    print "\nTotal $total patches, in $results types. ";
+}
+
+sub style_batch_rm {
+    my $result = shift;
+    print "\@echo off\n";
+    foreach (@$result) {
+        my $list = $_->[0];
+        my $diff = $_->[1];
+        $diff =~ s/(^|\n)([^\n]?)[ \t]*/${1}rem $2 /g;
+
+        print "rem Patches on following files: \n";
+        print "$diff\n";
+
+        foreach (@$list) {
+            my $path = $_;
+            $path =~ s:/:\\:g;
+            print "echo Remove $path ...\n";
+            print "del \"$path\"\n";
+        }
+
+        print "\n";
+    }
+}
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Patch Summary \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Patch Summary">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

@@ -1,18 +1,228 @@
 #!/usr/bin/perl
-# $Id: clip,v 1.4 2007-06-25 12:58:13 lenik Exp $
 
+=head1 NAME
+
+clip - Clipboard Accessor
+
+=cut
 use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::lang('_def');
+    $LOGNAME    = 'clip'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::log(2);
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl,v 1.16 2007-09-29 11:31:33 lenik Exp $');
+use Getopt::Long;
 use Win32::Clipboard;
 
-my $clip = Win32::Clipboard();
-my @lines = ();
+our %FORMATS = (
+	'text'		=> CF_TEXT,
+	'dib'		=> CF_DIB,
+	'hdrop'		=> CF_HDROP,
+	'bitmap'	=> CF_BITMAP,
+	'wmf'		=> CF_METAFILEPICT,
+	'sylk'		=> CF_SYLK,
+	'dif'		=> CF_DIF,
+	'tiff'		=> CF_TIFF,
+	'oemtext'	=> CF_OEMTEXT,
+	'palette'	=> CF_PALETTE,
+	'pendata'	=> CF_PENDATA,
+	'riff'		=> CF_RIFF,
+	'wave'		=> CF_WAVE,
+	'unicode'	=> CF_UNICODETEXT,
+	'emf'		=> CF_ENHMETAFILE,
+	'locale'	=> CF_LOCALE,
+	);
 
-while (<>) {
-	chomp;
-	push @lines, $_;
+sub _main; sub _version; sub _help;
+sub list;
+
+our $opt_command    = 'dump';
+our $opt_format     = 'text';
+our $opt_write;
+our $opt_wait_before;
+our $opt_wait_after;
+our $opt_newline    = "\n";
+
+sub boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'list|l'         => sub { list; exit 0 },
+               'dump|d'         => sub { $opt_command = 'dump' },
+               'write|w'        => sub { $opt_command = 'write' },
+               'erase|e'        => sub { $opt_command = 'erase' },
+               'format|t=s',
+               'crlf'           => sub { $opt_newline = "\r\n" },
+               'wait-before|b',
+               'wait-after|a',
+               );
+    unless ($opt_format =~ /^\d+$/) {
+        die "format $opt_format is unknown" unless exists $FORMATS{$opt_format};
+        $opt_format = $FORMATS{$opt_format};
+    }
+    _main;
 }
 
-$clip->Set(join("\r\n", @lines));
+=head1 SYNOPSIS
 
-print "Total ".scalar(@lines)." lines. \n";
+B<clip>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
+=head1 DESCRIPTION
+
+B<clip> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-clip-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] [FILE]\n", <<'EOM';
+
+Command:
+    -l, --list              list formats of data in the clipboard
+    -d, --dump              dump the clipboard (default)
+    -w, --write             write FILE (or stdin) to the clipboard
+    -e, --erase             erase the clipboard to empty
+
+Common options:
+    -f, --format=FORMAT     access clipboard data in the specified format
+        --crlf              using \r\n instead of \n for newline (write-mode)
+    -b, --wait-before       wait for change before dump/write
+    -a, --wait-after        wait for change after dumped/written
+    -f, --force             don't prompt anything at all
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+}
+
+exit (boot or 0);
+
+sub _main {
+    my $clip = Win32::Clipboard();
+    if ($opt_wait_before) {
+        _log2 'wait before...';
+        $clip->WaitForChange();
+    }
+
+    if ($opt_command eq 'dump') {
+        _log2 "Clipboard::GetAs($opt_format)";
+        my $data = $clip->GetAs($opt_format);
+        binmode STDOUT;
+        print $data;
+    } elsif ($opt_command eq 'write') {
+        die "can't write data other of `text' format to the clipboard"
+            if $opt_format ne CF_TEXT;
+        my $data = '';
+        while (<>) {
+            chop;
+            $data .= $_.$opt_newline;
+        }
+        _log2 "Clipboard::SetAs($opt_format, ...(".length($data).' bytes)...)';
+        $clip->Set($data);
+    } elsif ($opt_command eq 'erase') {
+        _log2 'Clipboard::Empty()';
+        $clip->Empty();
+    }
+
+    if ($opt_wait_after) {
+        _log2 'wait after...';
+        $clip->WaitForChange();
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+sub list {
+    my $clip = Win32::Clipboard;
+    for ($clip->EnumFormats()) {
+        my $name = $clip->GetFormatName($_);
+        _def $name, 'UNKNOWN';
+        _PF0 '%08x: %s (%d)', $_, $name, $_;
+    }
+}
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Clipboard Accessor \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
