@@ -6,7 +6,7 @@ use cmt::vcs;
 use Getopt::Long;
 use Term::ReadKey;
 
-sub boot;
+sub _boot;
 sub main;
 sub info;
 sub info2;
@@ -20,7 +20,7 @@ our $opt_timeout        = -1;           # don't wait
 our $opt_default        = 0;
 our $opt_scan_code      = 0;
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },
@@ -72,7 +72,7 @@ Options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub main {
     my $ret = ReadKey($opt_timeout);

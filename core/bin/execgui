@@ -10,7 +10,7 @@ use IO::Handle;
 use IPC::Open2;
 use IPC::Open3;
 
-sub boot;
+sub _boot;
 sub main;
 sub srcfilter;
 
@@ -40,7 +40,7 @@ our $opt_write_to;                      # TODO
 our $opt_srcfilter;
 our @opt_cmdline;
 
-sub boot {
+sub _boot {
     GetOptions('autoclose=n',
                'blocklines=n',
                'cancel!',       # no-cancel
@@ -141,7 +141,7 @@ Options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub quote_args {
     my $args = shift;

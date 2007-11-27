@@ -17,7 +17,7 @@ use Tk::LabEntry;
 use Tk::Listbox;
 use Tk::Radiobutton;
 
-sub boot;
+sub _boot;
 sub main;
 sub info;
 sub info2;
@@ -40,7 +40,7 @@ my $t_dst;
 my $encodef;
 my $decodef;
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },
@@ -90,7 +90,7 @@ Options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub main {
     mkgui;

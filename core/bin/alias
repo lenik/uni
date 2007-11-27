@@ -7,7 +7,7 @@ use Getopt::Long;
 use Win32::Registry;
 use YAML;
 
-sub boot;
+sub _boot;
 sub info;
 sub info2;
 sub version;
@@ -29,7 +29,7 @@ our $opt_saveurl;
 
 my  $APP_PATHS;
 
-sub boot {
+sub _boot {
     $::HKEY_LOCAL_MACHINE->Open(
         "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths",
         $APP_PATHS) or die "Can't open registry of App-Paths";
@@ -135,7 +135,7 @@ sub list {
     }
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub main {
     if ($opt_delete) {

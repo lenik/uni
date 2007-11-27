@@ -20,7 +20,7 @@ use cmt::vcs;
 use Getopt::Long;
 use IPC::Open2;
 
-sub boot;
+sub _boot;
 sub main;
 sub info;
 sub info2;
@@ -43,7 +43,7 @@ my $opt_method          = 'POST';
 
 my %opt_escapes;
 
-sub boot {
+sub _boot {
     %opt_escapes = (
         "\\" => "\\\\",
         "\n" => "\\n",
@@ -130,7 +130,7 @@ Options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub main {
 

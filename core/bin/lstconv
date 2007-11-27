@@ -21,7 +21,7 @@ use Data::Dumper;
 use Getopt::Long;
 use YAML;
 
-sub boot;
+sub _boot;
 sub info;
 sub info2;
 sub version;
@@ -36,7 +36,7 @@ my %aliases = (
     'ue'    => 'ultra_edit_project',
 );
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },
@@ -98,7 +98,7 @@ Schemes:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub ultra_edit_project {
     my %dirs;

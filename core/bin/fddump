@@ -5,7 +5,7 @@ use cmt::util;
 use cmt::vcs;
 use Getopt::Long;
 
-sub boot;
+sub _boot;
 sub info;
 sub info2;
 sub version;
@@ -19,7 +19,7 @@ our $opt_fd;
 our $opt_output;
 our $opt_append;
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },
@@ -75,7 +75,7 @@ Common options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub main {
     unless (ref $opt_output) {

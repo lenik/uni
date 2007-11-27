@@ -5,7 +5,7 @@ use cmt::util;
 use cmt::vcs;
 use Getopt::Long;
 
-sub boot;
+sub _boot;
 sub main;
 sub info;
 sub info2;
@@ -65,7 +65,7 @@ our @ccr_table_c2n  = (
         -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,      # F0
         );
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },
@@ -144,7 +144,7 @@ Example:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub systemDecode {
     my ($text, $sys) = @_;

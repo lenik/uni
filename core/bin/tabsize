@@ -7,7 +7,7 @@ use cmt::vcs;
 use DirHandle;
 use Getopt::Long;
 
-sub boot;
+sub _boot;
 sub findfile;
 sub dirproc;
 sub fileproc;
@@ -38,7 +38,7 @@ our $opt_tabify         = 0;    # 0: using space instead.
 our $stat_total         = 0;
 our $stat_proc          = 0;
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'        => sub { $opt_verbose-- },
                'verbose|v'      => sub { $opt_verbose++ },
                'version'        => sub { version; exit },
@@ -133,7 +133,7 @@ Options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub findfile {
     my ($path, $recur) = @_;

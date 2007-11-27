@@ -12,7 +12,7 @@ use Getopt::Long;
 use POSIX;
 use Term::ReadKey;
 
-sub boot;
+sub _boot;
 sub info;
 sub info2;
 sub version;
@@ -62,7 +62,7 @@ END {
     ntkill $current_pid if $current_pid;
 }
 
-sub boot {
+sub _boot {
     Win32::API->Import('user32', 'HWND GetTopWindow(HWND hWnd)');
     Win32::API->Import('user32', 'HWND GetForegroundWindow()');
     Win32::API->Import('user32', 'BOOL SetForegroundWindow(HWND hWnd)');
@@ -195,7 +195,7 @@ Examples:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
     while (1) {

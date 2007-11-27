@@ -12,7 +12,7 @@ use Getopt::Long;
 use labat;
 use YAML;
 
-sub boot;
+sub _boot;
 sub info;   *info = *labat::info;
 sub info2;  *info2= *labat::info2;
 sub version;
@@ -23,7 +23,7 @@ our $opt_verbtitle      = 'labat';
 our @opt_category;
 our $opt_parallel       = 0;
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'    => sub { $labat::opt_verbose-- },
                'verbose|v'  => sub { $labat::opt_verbose++ },
                'version'    => sub { version; exit },
@@ -54,7 +54,7 @@ Common options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub _main {
     die "no filename specified" unless @ARGV;

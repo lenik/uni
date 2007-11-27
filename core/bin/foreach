@@ -9,7 +9,7 @@ use Data::Dumper;
 use Getopt::Long;
 use YAML;
 
-sub boot;
+sub _boot;
 sub main;
 sub info;
 sub info2;
@@ -44,7 +44,7 @@ my @files;
 my @lists;
 my @L;
 
-sub boot {
+sub _boot {
     if ($ARGV[0] =~ /\|/) {
         my $m = shift @ARGV;
         unshift @ARGV, split(/\|/, $m);
@@ -259,7 +259,7 @@ Function:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub scan_dir {
     my $dir = shift || $_;

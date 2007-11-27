@@ -8,7 +8,7 @@ use cmt::win32;
 use Getopt::Long;
 use Term::ReadKey;
 
-sub boot;
+sub _boot;
 sub main;
 sub info;
 sub info2;
@@ -37,7 +37,7 @@ END {
     ntkill $current_pid if $current_pid;
 }
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },
@@ -100,7 +100,7 @@ Common options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub main {
     my $cmd = "$opt_nc -l -p $opt_port -e \"$opt_exec\" ";

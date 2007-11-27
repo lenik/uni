@@ -14,7 +14,7 @@ use Win32::API;
 use Win32::API::Struct;
 use YAML;
 
-sub boot;
+sub _boot;
 sub main;
 sub info;
 sub info2;
@@ -40,7 +40,7 @@ my %idx_desc;
 my %idx_mac;
 my %idx_ip;
 
-sub boot {
+sub _boot {
     GetOptions('quiet|q'    => sub { $opt_verbose-- },
                'verbose|v'  => sub { $opt_verbose++ },
                'version'    => sub { version; exit },
@@ -129,7 +129,7 @@ Options:
 EOM
 }
 
-exit (boot or 0);
+exit (_boot or 0);
 
 sub macstr {
     my $bin = shift;
