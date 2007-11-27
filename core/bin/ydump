@@ -1,36 +1,37 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+ydump - YAML Dumper
+
+=cut
 use strict;
-use cmt::util;
-use cmt::vcs;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'ydump'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::log(2);
+use cmt::util();
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
 use Data::Dumper;
 use Getopt::Long;
 use YAML;
 
-sub _boot;
-sub info;
-sub info2;
-sub version;
-sub help;
-sub _main;
+sub _main; sub _version; sub _help;
 
 sub parse_perl;
 sub parse_yaml;
 sub dump_perl;
 sub dump_yaml;
 
-our $opt_verbtitle      = 'ydump';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
 our $opt_parser         = 'yaml';
 our $opt_dumper         = 'yaml';
 our $opt_code;
 
 sub _boot {
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help|h'     => sub { help; exit },
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
                'use|u=s'    => sub { _use $_[1] },
                'type|t=s'   => sub { $opt_parser = $_[1] },
                'dumper|d'   => sub { $opt_dumper = 'perl' },
@@ -38,34 +39,71 @@ sub _boot {
                'code|c',
                );
     if ($opt_code) {
-        info2 "enabling dump of code";
+        _log2 "enabling dump of code";
+        no warnings('once');
         $YAML::DumpCode = 1;
     }
     _main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+B<ydump>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub version {
-    my %id = parse_id('$Id$');
-    print "[$opt_verbtitle] YAML Dump \n";
-    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-}
+=head1 YAML Dumper
 
-sub help {
-    version;
+B<ydump> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-ydump-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
     print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
 
 Common options:
@@ -74,9 +112,9 @@ Common options:
     -d, --dumper            using Data::Dumper
     -y, --yaml              using YAML::Dump (default)
     -c, --code              dump source of code closures
-    -h, --help              show this help page
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
+    -h, --help              show this help page
         --version           print the version info
 EOM
 }
@@ -95,6 +133,20 @@ sub _main {
     my $repr = $dumper->($data);
     print $repr;
 }
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
 
 sub parse_perl {
     my $text = shift;
@@ -116,3 +168,29 @@ sub dump_perl {
 sub dump_yaml {
     Dump(shift)
 }
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] YAML Dumper \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
