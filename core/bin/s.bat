@@ -2,18 +2,58 @@
 
     setlocal
     set _strict=1
+    set format=
     goto init
 
 :start
+    set i=0
+    set pre=
+    set post=
+    set state=pre
+    if "%~1"=="" (
+        echo file pattern isn't specified.
+        goto help
+    )
+    set files=%1
+    shift
 
-    REM _____________________________________________
+    :insert
+        if "%~1"=="" goto run
+        if %i% equ %n% set state=post
+        if "%~1"=="--" (
+            set files=%files%%pre%%post%
+            set pre=
+            set post=
+            set state=pre
+            set i=0
+            shift
+            goto insert
+        )
+        if "%state%"=="pre" (
+            set pre=%pre% %1
+        ) else (
+            set post=%post% %1
+        )
+        shift
+        set /a i = i + 1
+        goto insert
+
+    :run
+        if not "%pre%"=="" set pre=%pre:~1%
+        for %%i in (%files%) do (
+            if %_verbose% geq 1 echo [s/%n%] %%~dpnxi
+            if "%format%"=="dpnx" (
+                %pre% %%~dpnxi%post%
+            ) else (
+                %pre% %%i%post%
+            )
+        )
 
     exit /b 0
 
 :init
     set  _verbose=0
     set      _ret=
-    set     _rest=
     set _startdir=%~dp0
     set  _program=%~dpnx0
 
@@ -36,6 +76,10 @@
         set /a _verbose = _verbose + 1
     ) else if "%~1"=="--verbose" (
         set /a _verbose = _verbose + 1
+    ) else if "%~1"=="-f" (
+        set format=dpnx
+    ) else if "%~1"=="--fullpath" (
+        set format=dpnx
     ) else if "%_arg:~0,1%"=="-" (
         if "%_strict%"=="1" (
             echo Invalid option: %1
@@ -53,25 +97,24 @@
 
 :prep2
     if "%~1"=="" goto help
-    set _arg1=%~1
-    shift
-
-:prep3
-    if "%~1"=="" (
-        set _=%1.
-        set _=!_:"=?!
-        if !_!==. goto init_ok
+    set _n=%~1
+    set n=
+    if "%_n:~0,1%"=="/" set n=%_n:~1%
+    if "%_n:~0,1%"=="-" set n=%_n:~1%
+    if "%n%"=="" (
+        rem n=default(1)
+        set n=1
+    ) else (
+        set /a n = n
+        shift
     )
-    set _rest=%_rest%%~1
-    shift
-    goto prep3
 
 :init_ok
     if %_verbose% geq 1 (
         echo _startdir=%_startdir%
         echo  _program=%_program%
         echo     _rest=%_rest%
-        echo     _arg1=%_arg1%
+        echo         n=%n%
     )
     goto start
 
@@ -83,7 +126,7 @@
         set      _time=%%k
         set    _author=%%l
     )
-    echo [TITLE] CMD_simple_cli_program_template
+    echo [s/n] Substitute at argument#n
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
     exit /b 0
 
@@ -91,9 +134,10 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] ...
+    echo    %_program% [OPTION] /n FILE [FILE... --] cmd arg_1 arg_2 arg_3 ...
     echo.
     echo Options:
+    echo    -f, --fullpath      substitute with full path
     echo    -q, --quiet         repeat to get less info
     echo    -v, --verbose       repeat to get more info
     echo        --version       show version info

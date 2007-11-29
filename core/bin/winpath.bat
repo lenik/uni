@@ -5,6 +5,10 @@
     goto init
 
 :start
+    if "%_mode%"=="list" (
+        reg query "%_key%" /s
+        exit /b 0
+    )
 
 :next_file
     if "%~1"=="" (
@@ -13,13 +17,13 @@
         if !_!==. goto end_files
     )
     for %%f in ("%~1") do (
-        if "%_del%"=="1" (
+        if "%_mode%"=="del" (
             if %_verbose% geq 1 echo delete path %%f
             reg delete "%_key%\%%~nxf" /f >nul
         ) else (
             if %_verbose% geq 1 echo add path %%f
-            reg add "%_key%\%%~nxf" /f /ve /d "%%~fsf" >nul
-            reg add "%_key%\%%~nxf" /f /v PATH /t REG_SZ /d "%%~dpf" >nul
+            reg add "%_key%\%%~nxf" /f /ve     /t REG_EXPAND_SZ /d "%%~fsf" >nul
+            reg add "%_key%\%%~nxf" /f /v PATH /t REG_EXPAND_SZ /d "%%~dpf" >nul
         )
     )
     shift
@@ -54,10 +58,14 @@
         set /a _verbose = _verbose + 1
     ) else if "%~1"=="--verbose" (
         set /a _verbose = _verbose + 1
+    ) else if "%~1"=="-l" (
+        set _mode=list
+    ) else if "%~1"=="--list" (
+        set _mode=list
     ) else if "%~1"=="-d" (
-        set _del=1
+        set _mode=del
     ) else if "%~1"=="--delete" (
-        set _del=1
+        set _mode=del
     ) else if "%~1"=="-u" (
         set _all=0
     ) else if "%~1"=="--user" (
@@ -82,7 +90,7 @@
     goto prep1
 
 :prep2
-    if "%~1"=="" goto help
+    if "%~1"=="" set _mode=list
 
     if "%_all%"=="1" (
         set _key=HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
@@ -95,7 +103,7 @@
         echo _startdir=%_startdir%
         echo  _program=%_program%
         echo     _rest=%_rest%
-        echo      _del=%_del%
+        echo     _mode=%_mode%
         echo      _all=%_all%
         echo      _key=%_key%
     )
@@ -109,7 +117,7 @@
         set      _time=%%k
         set    _author=%%l
     )
-    echo [TITLE] Add/remove path shortcuts in the registry
+    echo [winpath] Add/remove path shortcuts in the registry
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
     exit /b 0
 
@@ -120,6 +128,7 @@
     echo    %_program% [OPTION] FILE-LIST
     echo.
     echo Options:
+    echo    -l, --list          list defined paths
     echo    -d, --delete        delete the path
     echo    -u, --user          affect only current user
     echo    -a, --all           affect all users (default)

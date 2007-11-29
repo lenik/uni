@@ -13,7 +13,7 @@ use cmt::i18n;
     # $cmt::i18n::DFL_ENC     = $LC_ENCODING;
     $cmt::i18n::DFL_FB      = ' ';
 use cmt::lang;
-use cmt::log(2);
+use cmt::log(3);
 use cmt::path;
 use cmt::pp;
 use cmt::util;
@@ -105,7 +105,7 @@ sub _boot {
         } else {
             die "Dict file $opt_dict isn't existed";
         }
-        print "Dict-Content: \n".Dump($opt_dict) if $opt_verbose > 1;
+        _P2 "Dict-Content: \n".Dump($opt_dict);
     }
 
     _log2 "start file: $_" for @opt_files;
@@ -223,7 +223,7 @@ sub _main {
                 _log1 "page $path";
                 my $info = htmlinfo [readfile($path)];
                 my $attrs = { info => $info, type => 'page' };
-                _log2 Dumper($info) if $opt_verbose > 2;
+                _log3 Dumper($info);
                 my $title = _or($info->{'.title'}, $info->{'title'});
                 my ($head, $htab);
                    if (ref (my $h1 = $info->{'.h1'})) { $head = $h1->[0]; $htab = 0 }
@@ -328,9 +328,9 @@ sub _main {
     $opt_chm{-default} = $roots->[0] unless defined $opt_chm{-default};
     $opt_chm{-default} = 'about:blank' unless defined $opt_chm{-default};
 
-    if ($opt_verbose > 2) {
+    if ($LOGLEVEL > 2) {
         _log2 "chm-options: ".Dumper(\%opt_chm);
-    } elsif ($opt_verbose == 1) {
+    } elsif ($LOGLEVEL == 1) {
         _log2 "chm-option $_: ".$opt_chm{$_} for keys %opt_chm;
     }
     chm_compile %opt_chm;
