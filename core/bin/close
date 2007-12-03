@@ -1,0 +1,231 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+close - Close Handles [for Windows]
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'close'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::log(2);
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl 756 2007-11-27 12:51:15Z Lenik $');
+use Data::Dumper;
+use Getopt::Long;
+
+sub _main; sub _version; sub _help;
+sub cmp_i;
+sub eq_i;
+sub ne_i;
+
+our $opt_ignore_case;
+our $opt_process_id;            # id | name
+our $opt_process_name;          #   or all processes if both undef
+our $opt_file_name;             # name + pattern,
+our $opt_file_pattern;          #   or all files if both undef
+
+sub defcount {
+    my $c = 0; for (@_) { $c++ if defined $_ } $c;
+}
+
+sub _boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'ignore-case|i',
+               'process|p=s'    => sub { $_[1] =~ /^\d+|0x[0-9a-f]+$/i
+                                            ? $opt_process_id = eval $_[1]
+                                            : $opt_process_name = $_[1] },
+               'process-id=s',
+               'process-name=s',
+               'file|f=s'       => sub { $_[1] =~ s-^\/--
+                                            ? $opt_file_pattern = qr/$_[1]/
+                                            : $opt_file_name = $_[1] },
+               'file-name=s',
+               'file-pattern=s',
+               );
+    $opt_file_pattern = qr/$opt_file_pattern/i if $opt_ignore_case;
+    die "at least one of process or file is required to be limited"
+        unless defcount($opt_process_id, $opt_process_name,
+                        $opt_file_name, $opt_file_pattern);
+
+    _log2 " ignore-case: $opt_ignore_case"  if defined $opt_ignore_case;
+    _log2 "   file-name: $opt_file_name"    if defined $opt_file_name;
+    _log2 "file-pattern: $opt_file_pattern" if defined $opt_file_pattern;
+    _log2 "  process-id: $opt_process_id"   if defined $opt_process_id;
+    _log2 "process-name: $opt_process_name" if defined $opt_process_name;
+
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<close>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 Close Handles [for Windows]
+
+B<close> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-close-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -i, --ignore-case       case-insensitive in file name/pattern match
+    -p, --process=ID|NAME
+        --process-id=ID     limit to process of ID
+        --process-name=NAME limit to process of NAME
+    -f, --file=NAME|REGEXP
+        --file-name=NAME    include filenames exactly as NAME
+        --file-pattern=REGEXP include filenames match to REGEXP
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    my %PNAME2PID;
+    my %PID2PNAME;
+    my %PINFO;
+    my ($pname, $pid, $loc, $user);
+    my $curp;
+
+    # which handle
+    my $handles = defined $opt_process_id
+        ? `handle -p $opt_process_id`
+        : defined $opt_process_name
+            ? `handle -p "$opt_process_name"`
+            : `handle`;
+    for (split(/[\r]\n/, $handles)) {
+        next if /^-+$/;
+        if (/^(.+) \s+ pid: \s+ (\d+) \s+ (?:(.+\\)?(\w+))$/x) {
+            ( $pname,           $pid,        $loc,  $user) = ($1, $2, $3, $4);
+            # $PNAME2PID{$pname} = $pid;
+            # $PID2PNAME{$pid} = $pname;
+            # $curp = $PINFO{$pid} = [];
+        } elsif (/^\s*([0-9A-F]+): \s+ (\w+) (?:\s+\(([^\(\)]*)\))? \s+ (.*)$/ix) {
+            my (      $h,              $type,        $flags,            $path)
+                = ($1, $2, $3, $4);
+            # $h = eval '0x'.$h;
+            if (defined $opt_file_name or defined $opt_file_pattern) {
+                my $n = -1;
+                $n = eq_i $opt_file_name, $path, $opt_ignore_case
+                    if defined $opt_file_name;
+                my $p = -1;
+                $p = $path =~ $opt_file_pattern
+                    if defined $opt_file_pattern;
+                next unless $n and $p;
+            }
+            # _log2 "$n,$p -- $path";
+            # push @$curp, [$h, $type, $flags, $path];
+            _log2 "closing $path";
+            my $resp = `handle -p $pid -c $h -y`;
+        }
+    }
+    # _log2 Dumper(\%PINFO);
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+sub cmp_i {
+    $_[2] ? (lc($_[0]) cmp lc($_[1])) : ($_[0] cmp $_[1]);
+}
+
+sub eq_i {
+    $_[2] ? (lc($_[0]) eq lc($_[1])) : ($_[0] eq $_[1]);
+}
+
+sub ne_i {
+    $_[2] ? (lc($_[0]) ne lc($_[1])) : ($_[0] ne $_[1]);
+}
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Close Handles [for Windows] \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

@@ -453,6 +453,7 @@ sub fswalk(&;@) {
     my %cfg     = get_named_args @_;
     my $start   = _or($cfg{-start}, '.');
     my $filter  = $cfg{-filter};
+    my $filterf = ref $filter eq 'Regexp' ? sub { /$filter/ } : $filter;
     my $hidden  = $cfg{-hidden};
     my $depth   = _or($cfg{-depth}, 999);
     my $bfirst  = index('bw', $cfg{-order}); # breadth-first
@@ -479,7 +480,7 @@ sub fswalk(&;@) {
             @files = grep { -e "$dir/$_" } glob $fpat;
             chdir($cwd) or die "can't chdir to $cwd: $!";
         }
-        @files = grep { $filter->() } @files if defined $filter;
+        @files = grep { $filterf->() } @files if defined $filterf;
         my $ret;
         my $count = 0;
         my @dirs;

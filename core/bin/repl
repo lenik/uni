@@ -137,7 +137,8 @@ sub _boot {
         }
     }
 
-    die "no files specified." unless @ARGV;
+    # die "no files specified." unless @ARGV;
+    @ARGV = qw(.) unless @ARGV;
 
     if ($LOGLEVEL > 2) {
         _log3 "fswalk$_: $opt_fswalk{$_}" for keys %opt_fswalk;
