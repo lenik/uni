@@ -1,100 +1,129 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+resolv - Simple Domain Name Resolver
+
+=cut
 use strict;
-use cmt::util;
-use cmt::vcs;
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'resolv'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::log(2);
+use cmt::util();
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
 use Socket('inet_ntoa');
 
-sub _boot;
-sub main;
-sub info;
-sub info2;
-sub version;
-sub help;
+sub _main; sub _version; sub _help;
 
 our $opt_all            = 0;
-our $opt_verbtitle      = 'resolv';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
-
 our $opt_test_dnsutil   = 0;
 
 sub _boot {
-    GetOptions(
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
                'all|a',
-               'quiet|q'   => sub { $opt_verbose-- },
-               'verbose|v' => sub { $opt_verbose++ },
-               'version' => sub { version; exit },
-               'help|h'    => sub { help; exit },
                'test-dnsutil',
                );
+    require cmt::dnsutil if $opt_test_dnsutil;
 
-    if ($opt_test_dnsutil) {
-        use cmt::dnsutil;
-    }
-
-    main;
+    _main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+B<resolv>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub version {
-    my %id = parse_id('$Id$');
-    print "[$opt_verbtitle] Simple Domain Name Resolver\n";
-    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-}
+=head1 Simple Domain Name Resolver
 
-sub help {
-    version;
-    print <<"EOM";
+B<resolv> is a WHAT used for WHAT. It HOW-WORKS.
 
-Syntax:
-        $0 [<options>] <domain-name>...
+BACKGROUND-PROBLEM.
 
-Options:
-        --all (a, show all addresses)
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
-        --version
-        --help (h)
+HOW-resolv-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] DOMAIN-NAMES\n", <<'EOM';
+
+Common options:
+    -a, --all               show all addresses
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
 EOM
 }
 
-boot;
+exit (_boot or 0);
 
-sub main {
+sub _main {
     # cmd::dnsutil test
     if ($opt_test_dnsutil) {
         for my $domain (@ARGV) {
             my $addr = resolv($domain);
-            info "$domain - $addr";
+            _log1 "$domain - $addr";
             return;
         }
     }
 
     for my $domain (@ARGV) {
-        info2 "domain name: $domain";
+        _log2 "domain name: $domain";
 
         # ($name,$aliases,$addrtype,$length,@addrs) = gethost*
         my @res = gethostbyname($domain);
 
-        info2 "     name: " . $res[0];
-        info2 "    alias: " . $_ for split(/\s+/, $res[1]);
-        info2 " addrtype: " . $res[2];
-        info2 "   length: " . $res[3];
+        _log2 "     name: " . $res[0];
+        _log2 "    alias: " . $_ for split(/\s+/, $res[1]);
+        _log2 " addrtype: " . $res[2];
+        _log2 "   length: " . $res[3];
 
         my @addrs;
         for (@res[4..$#res]) {
@@ -103,14 +132,54 @@ sub main {
         }
 
         my $top = shift @addrs;
-        info2 "  addr  1: " . $top;
+        _log2 "  addr  1: " . $top;
         print "$top\n";
 
         my $i = 2;
         for (@addrs) {
             my $_i = substr('        '.$i++, -3);
-            info2 "  addr$_i: " . $_;
+            _log2 "  addr$_i: " . $_;
             print "$_\n" if $opt_all;
         }
     }
 }
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Simple Domain Name Resolver \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

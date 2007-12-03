@@ -1,0 +1,199 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+gresp - General Regexp Split
+
+=cut
+use strict;
+no  warnings('uninitialized');
+use vars qw($LOGNAME $LOGLEVEL);
+    $LOGNAME    = 'gresp'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::log(3);
+use cmt::pp('ppfmt_foobar');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
+use Getopt::Long;
+
+sub _main; sub _version; sub _help;
+
+our $opt_regexp;
+our $opt_ignore_case;
+our $opt_dot_all;
+our $opt_newfile        = '$file.$seq[-$group]';
+our $opt_start;
+our $opt_end;
+our $opt_groups;
+our $opt_fallback;
+
+sub _boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'ignore-case|i',
+               'dot-all',
+               'newfile|n=s',
+               'select|s=s'     => sub { ($opt_start, $opt_end) = split(/,/, $_[1]) },
+               'groups|g=n',
+               'fallback=n',
+               );
+    die "Regexp isn't specified" unless @ARGV;
+    $opt_regexp = shift @ARGV;
+    $opt_regexp = qr/$opt_regexp/i if $opt_ignore_case;
+    $opt_regexp = qr/$opt_regexp/s if $opt_dot_all;
+
+    undef $opt_start if $opt_start eq '';
+    undef $opt_end if $opt_end eq '';
+
+    _log2 "      regexp: $opt_regexp"   if defined $opt_regexp;
+    _log2 "     newfile: $opt_newfile"  if defined $opt_newfile;
+    _log2 "select-start: $opt_start"    if defined $opt_start;
+    _log2 "  select-end: $opt_end"      if defined $opt_end;
+    _log2 "    fallback: $opt_fallback" if defined $opt_fallback;
+
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<gresp>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 General Regexp Split
+
+B<gresp> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-gresp-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    while (<>) {
+        s/\r?\n$// unless $opt_dot_all;   # dot-all isn't supported well, yet
+        unless (/$opt_regexp/) {
+            _PF1 "%8d unmatched", $.;
+            if (defined $opt_fallback and $opt_fallback == 0) {
+                # write(FILE %=$_, $0) for 1..$opt_groups;
+            }
+            next;
+        }
+
+	my $info;
+        my $part = 0;
+	while (/$opt_regexp/g) {
+		#print "$`|" if ($part == 0);
+		$info = "    $`<$&>$'.";
+            $info .= " $-[0] $-[1] $-[2] $-[3] $-[4] $-[5] $-[6] $-[7]"
+                if $LOGLEVEL <= 2;
+		eval { $info =~ s/\s*$// };
+		_P2 $info;
+            if ($LOGLEVEL >= 3) {
+			_P3 "        \@- = (@-)";
+                for (1..$#-) {
+                    my $t = eval '$'.$_;
+                    _P3 "        \$$_^$-[$_]: $t." if defined $t;
+                }
+			_P3 "        \$&: $&.";
+            }
+		$part++;
+	}
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] General Regexp Split \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
