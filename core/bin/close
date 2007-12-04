@@ -47,6 +47,7 @@ sub _boot {
                'file-pattern=s' => \@opt_file_pattern,
                'test-mode|t',
                );
+    add_file $_ for @ARGV;
     if ($opt_ignore_case) {
         $_ = qr/$_/i for @opt_file_pattern;
     }
@@ -153,6 +154,7 @@ sub _main {
             parse_handles `handle -p "$_"`;
         }
     } else {
+        _log2 "scanning all processes";
         parse_handles `handle`;
     }
 }
@@ -160,7 +162,8 @@ sub _main {
 sub parse_handles {
     my ($pname, $pid, $loc, $user);
     my $curp;
-    for (split(/[\r]\n/, shift)) {
+    for (@_) {
+        s/\r?\n$//; # chop;
         next if /^-+$/;
         if (/^(.+) \s+ pid: \s+ (\d+) \s+ (?:(.+\\)?(\w+))$/x) {
             ( $pname,           $pid,        $loc,  $user) = ($1, $2, $3, $4);
