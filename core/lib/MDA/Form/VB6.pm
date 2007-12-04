@@ -1,8 +1,8 @@
-package UnKnOwN;
+package MDA::Form::VB6;
 
 =head1 NAME
 
-UnKnOwN - DeScRiPtIoN
+MDA::Form::VB6 - .frm Form description [Visual Basic]
 
 =cut
 use strict;
@@ -12,28 +12,27 @@ use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
 use cmt::util();
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id$');
+    my %RCSID   = parse_id('$Id: .pm 756 2007-11-27 12:51:15Z Lenik $');
     our $VER    = "0.$RCSID{rev}";
 use Exporter;
 
-our @ISA    = qw(Exporter);
-our @EXPORT = qw(static_method
-                 );
+our @ISA    = qw(MDA::Form);
+our @EXPORT = qw();
 
 # INITIALIZORS
 
 =head1 SYNOPSIS
 
-    use UnKnOwN;
+    use MDA::Form::VB6;
     static_method(arguments...)
 
-=head1 DESCRIPTION
+=head1 .frm Form description [Visual Basic]
 
-B<UnKnOwN> is a WHAT used for WHAT. It HOW-WORKS.
+B<MDA::Form::VB6> is a WHAT used for WHAT. It HOW-WORKS.
 
 BACKGROUND-PROBLEM.
 
-HOW-UnKnOwN-RESOLVES.
+HOW-MDA::Form::VB6-RESOLVES.
 
 =head1 METHODS
 
@@ -52,7 +51,7 @@ sub new {
 =head2 method()
 
 =cut
-sub method {
+sub parse {
     my $this = shift;
     # TODO
 }

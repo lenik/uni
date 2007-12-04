@@ -1,8 +1,8 @@
-package UnKnOwN;
+package MDA::Form::NSIS;
 
 =head1 NAME
 
-UnKnOwN - DeScRiPtIoN
+MDA::Form::NSIS - .ini Form parameters file [Nsis]
 
 =cut
 use strict;
@@ -12,7 +12,7 @@ use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
 use cmt::util();
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id$');
+    my %RCSID   = parse_id('$Id: .pm 756 2007-11-27 12:51:15Z Lenik $');
     our $VER    = "0.$RCSID{rev}";
 use Exporter;
 
@@ -24,16 +24,16 @@ our @EXPORT = qw(static_method
 
 =head1 SYNOPSIS
 
-    use UnKnOwN;
+    use MDA::Form::NSIS;
     static_method(arguments...)
 
-=head1 DESCRIPTION
+=head1 .ini Form parameters file [Nsis]
 
-B<UnKnOwN> is a WHAT used for WHAT. It HOW-WORKS.
+B<MDA::Form::NSIS> is a WHAT used for WHAT. It HOW-WORKS.
 
 BACKGROUND-PROBLEM.
 
-HOW-UnKnOwN-RESOLVES.
+HOW-MDA::Form::NSIS-RESOLVES.
 
 =head1 METHODS
 

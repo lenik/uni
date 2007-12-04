@@ -1,16 +1,16 @@
-package cmt::UnKnOwN;
+package UnKnOwN;
 
 =head1 NAME
 
-UnKnOwN - Perl_simple_module_template
+UnKnOwN - DeScRiPtIoN
 
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
     $LOGNAME    = __PACKAGE__;
-    $LOGLEVEL   = 0;
+    $LOGLEVEL   = 1;
 use cmt::log(2);
-use cmt::util;
+use cmt::util();
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
     our $VER    = "0.$RCSID{rev}";
