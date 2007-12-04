@@ -15,15 +15,19 @@ use Data::Dumper;
 use Getopt::Long;
 
 sub _main; sub _version; sub _help;
+sub parse_handles;
+sub add_process;
+sub add_file;
 sub cmp_i;
 sub eq_i;
 sub ne_i;
 
 our $opt_ignore_case;
-our $opt_process_id;            # id | name
-our $opt_process_name;          #   or all processes if both undef
-our $opt_file_name;             # name + pattern,
-our $opt_file_pattern;          #   or all files if both undef
+our @opt_process_id;            # id | name
+our @opt_process_name;          #   or all processes if both undef
+our @opt_file_name;             # name + pattern,
+our @opt_file_pattern;          #   or all files if both undef
+our $opt_test_mode;
 
 sub defcount {
     my $c = 0; for (@_) { $c++ if defined $_ } $c;
@@ -35,27 +39,28 @@ sub _boot {
                'version'        => sub { _version; exit 0 },
                'help|h'         => sub { _help; exit 0 },
                'ignore-case|i',
-               'process|p=s'    => sub { $_[1] =~ /^\d+|0x[0-9a-f]+$/i
-                                            ? $opt_process_id = eval $_[1]
-                                            : $opt_process_name = $_[1] },
-               'process-id=s',
-               'process-name=s',
-               'file|f=s'       => sub { $_[1] =~ s-^\/--
-                                            ? $opt_file_pattern = qr/$_[1]/
-                                            : $opt_file_name = $_[1] },
-               'file-name=s',
-               'file-pattern=s',
+               'process|p=s'    => sub { add_process $_[1] },
+               'process-id=s'   => \@opt_process_id,
+               'process-name=s' => \@opt_process_name,
+               'file|f=s'       => sub { add_file $_[1] },
+               'file-name=s'    => \@opt_file_name,
+               'file-pattern=s' => \@opt_file_pattern,
+               'test-mode|t',
                );
-    $opt_file_pattern = qr/$opt_file_pattern/i if $opt_ignore_case;
+    if ($opt_ignore_case) {
+        $_ = qr/$_/i for @opt_file_pattern;
+    }
     die "at least one of process or file is required to be limited"
-        unless defcount($opt_process_id, $opt_process_name,
-                        $opt_file_name, $opt_file_pattern);
+        unless @opt_process_id
+            or @opt_process_name
+            or @opt_file_name
+            or @opt_file_pattern;
 
-    _log2 " ignore-case: $opt_ignore_case"  if defined $opt_ignore_case;
-    _log2 "   file-name: $opt_file_name"    if defined $opt_file_name;
-    _log2 "file-pattern: $opt_file_pattern" if defined $opt_file_pattern;
-    _log2 "  process-id: $opt_process_id"   if defined $opt_process_id;
-    _log2 "process-name: $opt_process_name" if defined $opt_process_name;
+    _log2 " ignore-case" if defined $opt_ignore_case;
+    _log2 "  process-id: $_" for @opt_process_id;
+    _log2 "process-name: $_" for @opt_process_name;
+    _log2 "   file-name: $_" for @opt_file_name;
+    _log2 "file-pattern: $_" for @opt_file_pattern;
 
     _main;
 }
@@ -118,14 +123,14 @@ temporary files.
 =cut
 sub _help {
     &_version;
-    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+    print "\nSyntax: \n    $0 [OPTION] [--] (FILE...)\n", <<'EOM';
 
 Common options:
     -i, --ignore-case       case-insensitive in file name/pattern match
     -p, --process=ID|NAME
         --process-id=ID     limit to process of ID
         --process-name=NAME limit to process of NAME
-    -f, --file=NAME|REGEXP
+    -f, --file=NAME|/REGEXP
         --file-name=NAME    include filenames exactly as NAME
         --file-pattern=REGEXP include filenames match to REGEXP
     -q, --quiet             repeat to get less info
@@ -138,45 +143,42 @@ EOM
 exit (_boot or 0);
 
 sub _main {
-    my %PNAME2PID;
-    my %PID2PNAME;
-    my %PINFO;
+    if (@opt_process_id or @opt_process_name) {
+        for (@opt_process_id) {
+            _log2 "scanning process (id: $_)";
+            parse_handles `handle -p $_`;
+        }
+        for (@opt_process_name) {
+            _log2 "scanning process (name: $_)";
+            parse_handles `handle -p "$_"`;
+        }
+    } else {
+        parse_handles `handle`;
+    }
+}
+
+sub parse_handles {
     my ($pname, $pid, $loc, $user);
     my $curp;
-
-    # which handle
-    my $handles = defined $opt_process_id
-        ? `handle -p $opt_process_id`
-        : defined $opt_process_name
-            ? `handle -p "$opt_process_name"`
-            : `handle`;
-    for (split(/[\r]\n/, $handles)) {
+    for (split(/[\r]\n/, shift)) {
         next if /^-+$/;
         if (/^(.+) \s+ pid: \s+ (\d+) \s+ (?:(.+\\)?(\w+))$/x) {
             ( $pname,           $pid,        $loc,  $user) = ($1, $2, $3, $4);
-            # $PNAME2PID{$pname} = $pid;
-            # $PID2PNAME{$pid} = $pname;
-            # $curp = $PINFO{$pid} = [];
         } elsif (/^\s*([0-9A-F]+): \s+ (\w+) (?:\s+\(([^\(\)]*)\))? \s+ (.*)$/ix) {
             my (      $h,              $type,        $flags,            $path)
                 = ($1, $2, $3, $4);
             # $h = eval '0x'.$h;
-            if (defined $opt_file_name or defined $opt_file_pattern) {
-                my $n = -1;
-                $n = eq_i $opt_file_name, $path, $opt_ignore_case
-                    if defined $opt_file_name;
-                my $p = -1;
-                $p = $path =~ $opt_file_pattern
-                    if defined $opt_file_pattern;
-                next unless $n and $p;
+         F: if (@opt_file_name or @opt_file_pattern) {
+                do { last F if eq_i $path, $_, $opt_ignore_case }
+                    for @opt_file_name;
+                do { last F if $path =~ $_ }
+                    for @opt_file_pattern;
+                next
             }
-            # _log2 "$n,$p -- $path";
-            # push @$curp, [$h, $type, $flags, $path];
             _log2 "closing $path";
-            my $resp = `handle -p $pid -c $h -y`;
+            `handle -p $pid -c $h -y` unless $opt_test_mode;
         }
     }
-    # _log2 Dumper(\%PINFO);
 }
 
 =head1 DIAGNOSTICS
@@ -185,6 +187,24 @@ sub _main {
 
 =cut
 # (HELPER FUNCTIONS)
+sub add_process {
+    my $key = shift;
+    if ($key =~ /^\d+|0x[0-9a-f]+$/i) {
+        push @opt_process_id, eval $key;
+    } else {
+        push @opt_process_name, $key;
+    }
+}
+
+sub add_file {
+    my $key = shift;
+    if ($key =~ s-^/--) {
+        push @opt_file_pattern, qr/$key/;
+    } else {
+        push @opt_file_name, $key;
+    }
+}
+
 sub cmp_i {
     $_[2] ? (lc($_[0]) cmp lc($_[1])) : ($_[0] cmp $_[1]);
 }
