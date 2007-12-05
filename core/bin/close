@@ -162,7 +162,7 @@ sub _main {
 sub parse_handles {
     my ($pname, $pid, $loc, $user);
     my $curp;
-    for (@_) {
+ L: for (@_) {
         s/\r?\n$//; # chop;
         next if /^-+$/;
         if (/^(.+) \s+ pid: \s+ (\d+) \s+ (?:(.+\\)?(\w+))$/x) {
@@ -171,12 +171,12 @@ sub parse_handles {
             my (      $h,              $type,        $flags,            $path)
                 = ($1, $2, $3, $4);
             # $h = eval '0x'.$h;
-         F: if (@opt_file_name or @opt_file_pattern) {
+         F: while (@opt_file_name or @opt_file_pattern) {
                 do { last F if eq_i $path, $_, $opt_ignore_case }
                     for @opt_file_name;
                 do { last F if $path =~ $_ }
                     for @opt_file_pattern;
-                next
+                next L
             }
             _log2 "closing $path";
             `handle -p $pid -c $h -y` unless $opt_test_mode;
