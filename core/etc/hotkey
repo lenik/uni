@@ -1,103 +1,156 @@
 #NoTrayIcon
 #SingleInstance ignore
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; functions {
+    funpack(count, prefix) {
+        global
+        local index = 0
+        local pid
+        loop %count% {
+            pid := %prefix%_p%a_index%
+            if pid {
+                process, exist, % pid
+                if errorlevel {
+                    continue
+                }
+            }
+            index := a_index
+            break
+        }
+        if index {
+            local prog = %prefix%%index%
+            run, %prog%, , , %prefix%_p%index%
+        }
+    }
+
+    runp(pre, cmd) {
+        regwrite, REG_SZ, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Command Processor, AutoRun, %pre%
+        run %cmd%
+    }
+
+    do_usecode() {
+        local scheme, cat, ph, mkdef, text, t
+
+        GuiControlGet, scheme,, UScheme
+        GuiControlGet, cat,, UCategory
+        GuiControlGet, ph,, UPhrase
+        GuiControlGet, mkdef,, UMakeDefault
+        GuiControlGet, text,, UText
+        if %mkdef%
+            mkdef=--make-default
+        else
+            mkdef=
+        if ph
+            t=%mkdef% "-s=%scheme%" "-c=%cat%" "-h=%ph%" -- "%text%"
+        else
+            t=-- "%text%"
+        t=%perlw% /lapiota/bin/usecode %t%
+        clipboard=
+        run, %t%, , , pid
+        clipwait
+        return %clipboard%
+    }
+
+    usecode_dlg() {
+        global UScheme, UCategory, UPhrase, UMakeDefault, UText
+
+        Gui, Add, Text, x16 y16 w45 h13, &Scheme:
+        Gui, Add, Edit, x76 y12 w77 h19 vUScheme, dm
+
+        Gui, Add, Text, x176 y16 w45 h13, &Category:
+        Gui, Add, Edit, x236 y12 w161 h19 vUCategory, 32
+
+        Gui, Add, Text, x16 y44 w45 h13, P&hrase:
+        Gui, Add, Edit, x76 y40 w321 h19 password# vUPhrase
+
+        Gui, Add, CheckBox, x288 y68 w109 h17 vUMakeDefault, Save as &default
+
+        Gui, Add, Text, x16 y108 w45 h13, &Text:
+        Gui, Add, Edit, x76 y104 w321 h19 password# vUText
+        GuiControl, Focus, UText
+
+        Gui, Add, Text, x12 y92 w393 h1
+
+        Gui, Add, Button, x16 y136 w65 h25, &Print
+
+        Gui, Add, Button, x272 y136 w57 h25 default, OK
+        Gui, Add, Button, x340 y136 w57 h25, &Quit
+
+        Gui, Show, w415 h179, Enter Usecode Parameters
+        Return
+
+        ButtonPrint:
+            code := do_usecode()
+            msgbox %code%
+            return
+
+        ButtonOK:
+            do_usecode()
+
+        ButtonQuit:
+        GuiClose:
+            Gui, Destroy
+            return
+    }
+
+    stackpush(name, val) {
+        global
+        local ptr := %name%_p
+        ptr++
+        %name%_p := ptr
+        %name%_%ptr% := val
+    }
+
+    stackpop(name, err="") {
+        global
+        local ptr = %name%_p
+        if (ptr = "" or ptr = 0) {
+            %name% := err
+        } else {
+            local val = %name%_%ptr%
+            ptr--
+            %name%_p := ptr
+            %name% := val
+        }
+    }
+
+    stackdump(name) {
+        global
+        local ptr = %name%_p
+        local msg
+        msg = Stack of %name%:
+        loop %ptr% {
+            local val = %name%_%a_index%
+            msg = %msg%`n%name%[%a_index%] = "%val%"
+        }
+        msgbox %msg%
+    }
+
+    restore() {
+        global
+        loop {
+            stackpop("mwin")
+            if (mwin == "")
+                return
+            winshow ahk_id %mwin%
+            winactivate ahk_id %mwin%
+        }
+    }
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; initialize {
 setworkingdir %USERPROFILE%
+onexit onexit
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
-funpack(count, prefix) {
-	global
-	local index = 0
-	local pid
-	loop %count% {
-		pid := %prefix%_p%a_index%
-		if pid {
-			process, exist, % pid
-			if errorlevel {
-				continue
-			}
-		}
-		index := a_index
-		break
-	}
-	if index {
-		local prog = %prefix%%index%
-		run, %prog%, , , %prefix%_p%index%
-	}
-}
-
-runp(pre, cmd) {
-	regwrite, REG_SZ, HKEY_LOCAL_MACHINE, SOFTWARE\Microsoft\Command Processor, AutoRun, %pre%
-	run %cmd%
-}
-
-do_usecode() {
-    local scheme, cat, ph, mkdef, text, t
-
-    GuiControlGet, scheme,, UScheme
-    GuiControlGet, cat,, UCategory
-    GuiControlGet, ph,, UPhrase
-    GuiControlGet, mkdef,, UMakeDefault
-    GuiControlGet, text,, UText
-    if %mkdef%
-        mkdef=--make-default
-    else
-        mkdef=
-    if ph
-        t=%mkdef% "-s=%scheme%" "-c=%cat%" "-h=%ph%" -- "%text%"
-    else
-        t=-- "%text%"
-    t=%perlw% /lapiota/bin/usecode %t%
-    clipboard=
-    run, %t%, , , pid
-    clipwait
-    return %clipboard%
-}
-
-usecode_dlg() {
-    global UScheme, UCategory, UPhrase, UMakeDefault, UText
-
-    Gui, Add, Text, x16 y16 w45 h13, &Scheme:
-    Gui, Add, Edit, x76 y12 w77 h19 vUScheme, dm
-
-    Gui, Add, Text, x176 y16 w45 h13, &Category:
-    Gui, Add, Edit, x236 y12 w161 h19 vUCategory, 32
-
-    Gui, Add, Text, x16 y44 w45 h13, P&hrase:
-    Gui, Add, Edit, x76 y40 w321 h19 password# vUPhrase
-
-    Gui, Add, CheckBox, x288 y68 w109 h17 vUMakeDefault, Save as &default
-
-    Gui, Add, Text, x16 y108 w45 h13, &Text:
-    Gui, Add, Edit, x76 y104 w321 h19 password# vUText
-    GuiControl, Focus, UText
-
-    Gui, Add, Text, x12 y92 w393 h1
-
-    Gui, Add, Button, x16 y136 w65 h25, &Print
-
-    Gui, Add, Button, x272 y136 w57 h25 default, OK
-    Gui, Add, Button, x340 y136 w57 h25, &Quit
-
-    Gui, Show, w415 h179, Enter Usecode Parameters
-    Return
-
-    ButtonPrint:
-        code := do_usecode()
-        msgbox %code%
-        return
-
-    ButtonOK:
-        do_usecode()
-
-    ButtonQuit:
-    GuiClose:
-        Gui, Destroy
-        return
-}
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; system hack {
 !tab::
-	winhide ahk_class #32771 ; BUGFIX for ahk.
-	send {escape}{tab}
-	return
+    winhide ahk_class #32771 ; BUGFIX for ahk.
+    send {escape}{tab}
+    return
 lwin & tab::alttab
 lwin & capslock::shiftalttab
 
@@ -106,42 +159,84 @@ lwin & capslock::shiftalttab
     wingetclass _acls, A
     msgbox "[%_acls%] %_atitle%"
     return
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; autohotkey management {
 #!e::run cmdw /c no %A_ScriptFullPath%
 #!h::
-	splitpath, a_ahkpath, name, dir
-	run % dir . "/autohotkey.chm"
-	return
+    splitpath, a_ahkpath, name, dir
+    run % dir . "/autohotkey.chm"
+    return
 #!p::pause
 #!r::reload
 #!s::suspend
 #!u::
-	usecode_dlg()
-	return
+    usecode_dlg()
+    return
 #!bs::exitapp
 #!/::
-	if A_IconHidden {
-		menu, tray, icon
-	} else {
-		menu, tray, noicon
-	}
-	return
+    if A_IconHidden {
+        menu, tray, icon
+    } else {
+        menu, tray, noicon
+    }
+    return
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; multimedia functions {
 appskey::send {appskey}
 appskey & up::
-	process, exist, foobar2000.exe
-	if not errorlevel
-		run cmdw /c foobar
-	send {media_stop}
-	return
+    process, exist, foobar2000.exe
+    if not errorlevel
+        run cmdw /c foobar
+    send {media_stop}
+    return
 appskey & down::send {media_play_pause}
 appskey & left::send {media_prev}
 appskey & right::send {media_next}
 appskey & numpadadd::send {volumn_up}
 appskey & numpadsub::send {volumn_down}
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; console enhancement {
 #pgup::wheelup
 #pgdn::wheeldown
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; windows management {
+#up::
+    stackpop("mwin")
+    if (mwin == "") {
+        soundplay *-1
+    } else {
+        winshow ahk_id %mwin%
+        winactivate ahk_id %mwin%
+    }
+    return
+
+#down::
+    winget mwin, ID, A
+    if (mwin == "") {
+        soundplay *-1
+    } else {
+        stackpush("mwin", mwin)
+        winhide ahk_id %mwin%
+    }
+    return
+
+#left::
+    stackdump("mwin")
+    return
+
+#right::restore()
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; application shortcuts {
 #a::run cmdw /c start "ANSI" %LAPIOTA%\bin\lapiota-init login
 #b::run cmdw /c start "Big" %LAPIOTA%\bin\lapiota-init login
 #c::run cmd /k %LAPIOTA%\bin\lapiota-init login
@@ -153,21 +248,24 @@ appskey & numpadsub::send {volumn_down}
 #t::run %SHELL% --login
 #x::run cmdw /c startx -notrayicon
 #-::
-	nfs1 = %perlw% /lapiota/bin/nfs --wait-close
-	nfs2 = %perlw% /lapiota/bin/nfs --wait-close ..
-	nfs3 = %perlw% /lapiota/bin/nfs --wait-close ...
-	nfs4 = %perlw% /lapiota/bin/nfs --wait-close ....
-	nfs5 = %perlw% /lapiota/bin/nfs --wait-close .....
-	nfs6 = %perlw% /lapiota/bin/nfs --wait-close ......
-	nfs7 = %perlw% /lapiota/bin/nfs --wait-close .......
-	funpack(7, "nfs")
-	return
+    nfs1 = %perlw% /lapiota/bin/nfs --wait-close
+    nfs2 = %perlw% /lapiota/bin/nfs --wait-close ..
+    nfs3 = %perlw% /lapiota/bin/nfs --wait-close ...
+    nfs4 = %perlw% /lapiota/bin/nfs --wait-close ....
+    nfs5 = %perlw% /lapiota/bin/nfs --wait-close .....
+    nfs6 = %perlw% /lapiota/bin/nfs --wait-close ......
+    nfs7 = %perlw% /lapiota/bin/nfs --wait-close .......
+    funpack(7, "nfs")
+    return
 #=::
-	calc1 = cmdw /c start "Cart" cmd /c settitle "1 + 1 = 2" bc -ilq
-	funpack(1, "calc")
-	return
+    calc1 = cmdw /c start "Cart" cmd /c settitle "1 + 1 = 2" bc -ilq
+    funpack(1, "calc")
+    return
 #f2::run cmdw /c stardict
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; more applications {
 #,::run stairs
 #u::run ue
 
@@ -187,10 +285,20 @@ appskey & numpadsub::send {volumn_down}
     return
 
 #+d::
-	ddk1 = cmd /c %HOME%\bin\ddk-chk
-	ddk2 = cmd /c %HOME%\bin\ddk-fre
-	ddk3 = cmd /c %HOME%\bin\ddk-chk
-	ddk4 = cmd /c %HOME%\bin\ddk-chk
-	ddk5 = cmd /c %HOME%\bin\ddk-hal
-	funpack(5, "ddk")
-	return
+    ddk1 = cmd /c %HOME%\bin\ddk-chk
+    ddk2 = cmd /c %HOME%\bin\ddk-fre
+    ddk3 = cmd /c %HOME%\bin\ddk-chk
+    ddk4 = cmd /c %HOME%\bin\ddk-chk
+    ddk5 = cmd /c %HOME%\bin\ddk-hal
+    funpack(5, "ddk")
+    return
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
+
+return
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; handlers {
+onexit:
+    restore()
+    exitapp
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
