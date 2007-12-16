@@ -243,10 +243,15 @@ sub wn_die {
 sub wn_use($$$;$) {
     my ($remote, $user, $pwd, $local) = @_;
     my $res = Win32::API::Struct->new('NETRESOURCE');
-    $res->{dwType} = RESOURCETYPE_ANY;
-    $res->{lpRemoteName} = $remote;
-    $res->{lpLocalName} = $local if defined $local;
-    $res->{lpComment} = 'A connection by '.$LOGNAME;
+    $res->{dwScope}         = 0;
+    $res->{dwType}          = RESOURCETYPE_ANY;
+    $res->{dwDisplayType}   = 0;
+    $res->{dwUsage}         = 0;
+    $res->{lpLocalName}     = defined $local ? $local : '';
+    $res->{lpRemoteName}    = $remote;
+    $res->{lpComment}       = 'A connection by '.$LOGNAME;
+    $res->{lpProvider}      = '';
+
     _log2 "WNetAddConnection2 $remote (user=$user, pwd=$pwd)";
     my $err = WNetAddConnection2($res, $pwd, $user, 0);
     _log1 "WNetAddConnection2 failed: $err" if $err;

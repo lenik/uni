@@ -299,7 +299,7 @@ sub _main {
     }
 
     dump_tree($TREE, '', '', $FLAT);
-    dump_tree $TREE if $opt_tree;
+    dump_tree($TREE, '', '') if $opt_tree;
 
     my @consoles;
     my $console1;

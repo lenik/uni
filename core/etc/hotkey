@@ -115,16 +115,18 @@
         }
     }
 
-    stackdump(name) {
+    stackdump(name, desc="") {
         global
         local ptr = %name%_p
         local msg
-        msg = Stack of %name%:
+        if (desc = "")
+            desc = %name%
+        msg = Stack of %desc%:
         loop %ptr% {
             local val = %name%_%a_index%
             msg = %msg%`n%name%[%a_index%] = "%val%"
         }
-        msgbox %msg%
+        msgbox 0, Stack Dump, %msg%
     }
 
     restore() {
@@ -153,16 +155,15 @@ onexit onexit
     return
 lwin & tab::alttab
 lwin & capslock::shiftalttab
-
-#!c::
-    wingetactivetitle _atitle
-    wingetclass _acls, A
-    msgbox "[%_acls%] %_atitle%"
-    return
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; autohotkey management {
+#!c::
+    wingetactivetitle _atitle
+    wingetclass _acls, A
+    msgbox 0, Class Info, Window: "%_atitle%"`nClass: "%_acls%"
+    return
 #!e::run cmdw /c no %A_ScriptFullPath%
 #!h::
     splitpath, a_ahkpath, name, dir
@@ -213,8 +214,10 @@ appskey & numpadsub::send {volumn_down}
     if (mwin == "") {
         soundplay *-1
     } else {
-        winshow ahk_id %mwin%
-        winactivate ahk_id %mwin%
+        id_len := instr(mwin, " - ") - 1
+        id := substr(mwin, 1, id_len)
+        winshow ahk_id %id%
+        winactivate ahk_id %id%
     }
     return
 
@@ -223,13 +226,15 @@ appskey & numpadsub::send {volumn_down}
     if (mwin == "") {
         soundplay *-1
     } else {
-        stackpush("mwin", mwin)
+        wingettitle t, ahk_id %mwin%
+        t = %mwin% - %t%
+        stackpush("mwin", t)
         winhide ahk_id %mwin%
     }
     return
 
 #left::
-    stackdump("mwin")
+    stackdump("mwin", "Hidden Windows")
     return
 
 #right::restore()
