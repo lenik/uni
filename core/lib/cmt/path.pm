@@ -97,6 +97,7 @@ my $opt_verbose = 1;
     # split into segments
     sub path_segs($) {
         my $path = shift;
+        return undef unless defined $path;
         split($patFS, $path);
     }
 
@@ -137,7 +138,7 @@ my $opt_verbose = 1;
 
         foreach (@_) {
             my @this_segs = path_segs $_;
-            if ($_ =~ m/$test_root/) {
+            if (defined $_ and /$test_root/) {
                 @seqs = @this_segs;
             } else {
                 push @seqs, @this_segs;

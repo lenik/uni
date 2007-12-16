@@ -131,7 +131,7 @@ Common options:
     -p, --process=ID|NAME
         --process-id=ID     limit to process of ID
         --process-name=NAME limit to process of NAME
-    -f, --file=NAME|/REGEXP
+    -f, --file=NAME|*REGEXP
         --file-name=NAME    include filenames exactly as NAME
         --file-pattern=REGEXP include filenames match to REGEXP
     -q, --quiet             repeat to get less info
@@ -178,7 +178,7 @@ sub parse_handles {
                     for @opt_file_pattern;
                 next L
             }
-            _log2 "closing $path";
+            _log1 $path;
             `handle -p $pid -c $h -y` unless $opt_test_mode;
         }
     }
@@ -201,7 +201,7 @@ sub add_process {
 
 sub add_file {
     my $key = shift;
-    if ($key =~ s-^/--) {
+    if ($key =~ s/^\*//) {
         push @opt_file_pattern, qr/$key/;
     } else {
         push @opt_file_name, $key;

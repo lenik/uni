@@ -2,7 +2,8 @@ package cmt::cstr;
 
 use strict;
 use vars qw/@ISA @EXPORT/;
-use cmt::util;
+# no  warnings; # Not a SCALAR reference
+use cmt::util();
 use Data::Dumper;
 use Exporter;
 use Tie::Scalar;

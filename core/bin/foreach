@@ -1,20 +1,25 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+foreach - batch file process framework
+
+=cut
 use strict;
+no  warnings('redefine');   # temporary generated named-subs
+use vars qw($LOGNAME $LOGLEVEL);
 use cmt::cstr;
+    $LOGNAME    = 'foreach'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::log(2);
 use cmt::path;
-use cmt::util;
-use cmt::vcs;
+use cmt::util();
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
 use Data::Dumper;
 use Getopt::Long;
 use YAML;
 
-sub _boot;
-sub main;
-sub info;
-sub info2;
-sub version;
-sub help;
+sub _main; sub _version; sub _help;
 
 sub scan_dir;
 sub process_item;
@@ -25,9 +30,6 @@ sub safechar;
 sub sortby_name;
 sub sortby_size;
 
-our $opt_verbtitle          = 'foreach';
-our $opt_verbtime           = 0;
-our $opt_verbose            = 1;
 our $opt_recursive          = 0;
 our $opt_directories_only   = 0;
 our $opt_cont_errors        = 0;
@@ -45,7 +47,7 @@ my @lists;
 my @L;
 
 sub _boot {
-    if ($ARGV[0] =~ /\|/) {
+    if (@ARGV and $ARGV[0] =~ /\|/) {
         my $m = shift @ARGV;
         unshift @ARGV, split(/\|/, $m);
     }
@@ -81,20 +83,19 @@ sub _boot {
         }
     }
 
-    GetOptions(
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
                'cont-errors',
                'directories-only',
                'eval=s',
                'files-only',
-               'help'       => sub { help; exit },
-               'list=s'     => \@opt_lists,
-               'quiet'      => sub { $opt_verbose-- },
+               'list=s'         => \@opt_lists,
                'recursive|r',
                'reversed',
                'sort=s',
                'test-only',
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
                'x-mode',
                'just-substitute=s',
                map( { @$_[0..1] } @opt_options),
@@ -104,7 +105,7 @@ sub _boot {
         @ARGV = ();
     }
 
-    info2 "user option $_->[2] = ".($_->[5]
+    _log2 "user option $_->[2] = ".($_->[5]
             ? eval("no strict; join(',', \@opt_$_->[2])")
             : eval("no strict; \$opt_$_->[2]"))
         for @opt_options;
@@ -144,7 +145,7 @@ sub _boot {
             } else {
             }
             $opt_eval = "\$new =~ s/$OLD/$NEW/$mod; r";
-            info2 "compile --just to $opt_eval";
+            _log2 "compile --just to $opt_eval";
         }
     }
 
@@ -155,75 +156,112 @@ sub _boot {
         }
     }
 
+    no warnings('uninitialized');
     eval(<<"EOM");
-        my (\$a, \$b, \$c, \$d, \$e, \$f, \$g, \$h, \$i, \$j,
-            \$k, \$l, \$m, \$n, \$o, \$p, \$q, \$r, \$s, \$t,
-            \$u, \$v, \$w, \$x, \$y, \$z);
-        sub process {
-            my \$path = \$_[0];
-            local (\$_) = \$path;
-            my (\$dir, \$base) = path_split(\$path);
-            my (\$old, \$new) = (\$base, \$base);
-            my (\$file, \$ext) = path_splitext(\$base);
-            my (\$path2, \$dir2, \$base2, \$file2, \$ext2) =
-               (\$path,  \$dir,  \$base,  \$file,  \$ext );
-            cs_comp \$base  => [ \\\$file, \\\$ext ],
-                    -join   => sub { join('', \@_) },
-                    -split  => sub { path_splitext(shift) };
-            cs_alias \$new  => \$base;
-            cs_comp \$path  => [ \\\$dir, \\\$base ],
-                    -join   => sub { path_join(\@_) },
-                    -split  => sub { path_split(shift) };
-            cs_alias \$_    => \$path;
+    my (\$a, \$b, \$c, \$d, \$e, \$f, \$g, \$h, \$i, \$j,
+        \$k, \$l, \$m, \$n, \$o, \$p, \$q, \$r, \$s, \$t,
+        \$u, \$v, \$w, \$x, \$y, \$z);
+    sub process {
+        my \$path = \$_[0];
+        local (\$_) = \$path;
+        my (\$dir, \$base) = path_split(\$path);
+        my (\$old, \$new) = (\$base, \$base);
+        my (\$file, \$ext) = path_splitext(\$base);
+        my (\$path2, \$dir2, \$base2, \$file2, \$ext2) =
+           (\$path,  \$dir,  \$base,  \$file,  \$ext );
+        cs_comp \$base  => [ \\\$file, \\\$ext ],
+                -join   => sub { join('', \@_) },
+                -split  => sub { path_splitext(shift) };
+        cs_alias \$new  => \$base;
+        cs_comp \$path  => [ \\\$dir, \\\$base ],
+                -join   => sub { path_join(\@_) },
+                -split  => sub { path_split(shift) };
+        cs_alias \$_    => \$path;
 
-            my (\$L, \$M, \$N, \$O, \$P, \$Q, \$R, \$S, \$T, \$U) = \@L;
-            sub r   ; *r = sub
-                    { ren(\$old, \$new) };
-            sub dmp ; *dmp = sub
-                    { info Dump {
-                        _       => \$_,
-                        path    => \$path,
-                        dir     => \$dir,
-                        base    => \$base,
-                        file    => \$file,
-                        ext     => \$ext,
-                        old     => \$old,
-                        new     => \$new,
-                        }
-                    };
-            1;
-            no strict;
-            $opt_eval
-        }
+        my (\$L, \$M, \$N, \$O, \$P, \$Q, \$R, \$S, \$T, \$U) = \@L;
+        sub r   ; *r = sub
+                { ren(\$old, \$new) };
+        sub dmp ; *dmp = sub
+                { _log1 Dump {
+                    _       => \$_,
+                    path    => \$path,
+                    dir     => \$dir,
+                    base    => \$base,
+                    file    => \$file,
+                    ext     => \$ext,
+                    old     => \$old,
+                    new     => \$new,
+                    }
+                };
+        1;
+        no strict;
+        $opt_eval
+    }
 EOM
     die "Can't evaluate: $@" if $@;
 
-    main;
+    _main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+B<foreach>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub version {
-    my %id = parse_id('$Id$');
-    print "[$opt_verbtitle] files processor framework \n";
-    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-}
+=head1 DESCRIPTION
 
-sub help {
-    version;
-    print "\nSyntax: \n    $0 [OPTION] [--] files...\n", <<'EOM';
+B<foreach> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-foreach-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] FILES\n", <<'EOM';
 
 Common options:
     -l, --list=FILE         get filenames from list-file(s)
@@ -261,9 +299,39 @@ EOM
 
 exit (_boot or 0);
 
+sub _main {
+    for (@opt_lists) {
+        open my $fh, "<$_" or die "Can't open list-file: $_";
+        push @lists, $fh;
+    }
+
+    # default ./* if none is specified.
+    if (! @files) {
+        @files = grep { !(/^\.+$/ or $opt_directories_only and -f) } (<.*>, <*>);
+    }
+
+    # PROCESSING
+    my $count = 0;
+    @files = sort $opt_sort @files if $opt_sort;
+    @files = reverse @files if $opt_reversed;
+    for (@files) {
+        $count += process_item($_);
+        $count += scan_dir($_) if $opt_recursive and -d;
+    }
+
+    close $_ for @opt_lists;
+    _log1 "Total $count files/directories processed. ";
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
 sub scan_dir {
     my $dir = shift || $_;
-    # print "[SCAN] $dir\n" if $opt_verbose;
+    _sig1 'scan', $dir;
 
     my @fs = ls $dir;
     for (my $i = scalar(@fs) - 1; $i >= 0; $i--) {
@@ -286,8 +354,8 @@ sub scan_dir {
 
 sub process_item {
     my $path = shift || $_;
-    info2 "$path/" if -d $path;
-    info2 "$path" if -f $path;
+    _log2 "$path/" if -d $path;
+    _log2 "$path" if -f $path;
 
     my $count = 0;
     for (@opt_lists) {
@@ -332,11 +400,11 @@ sub ren {
     return if $old eq $new;
     die "Non-Existing source: $old" unless -e $old;
     die "Existing target: $new" if -e $new;
-    if ($opt_verbose > 0) {
+    if ($LOGLEVEL > 0) {
         if (length($old) < 40) {
-            print "rename ".substr("$old$padx", 0, 40)."--> $new\n";
+            _P1 "rename ".substr("$old$padx", 0, 40)."--> $new";
         } else {
-            print "rename $old\n   --> $new\n";
+            _P1 "rename $old\n   --> $new\n";
         }
     }
     rename($old, $new) unless $opt_test_only;
@@ -356,26 +424,35 @@ sub sortby_size {
     return -s $a <=> -s $b;
 }
 
-sub main {
-    for (@opt_lists) {
-        open my $fh, "<$_" or die "Can't open list-file: $_";
-        push @lists, $fh;
-    }
+=head1 HACKING
 
-    # default ./* if none is specified.
-    if (! @files) {
-        @files = grep { !(/^\.+$/ or $opt_directories_only and -f) } (<.*>, <*>);
-    }
+(No Information)
 
-    # PROCESSING
-    my $count = 0;
-    @files = sort $opt_sort @files if $opt_sort;
-    @files = reverse @files if $opt_reversed;
-    for (@files) {
-        $count += process_item($_);
-        $count += scan_dir($_) if $opt_recursive and -d;
-    }
+=cut
+# (MODULE FUNCTIONS)
 
-    close $_ for @opt_lists;
-    info "Total $count files/directories processed. ";
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] batch file process framework \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
