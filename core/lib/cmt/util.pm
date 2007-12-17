@@ -5,16 +5,18 @@ use vars qw($LOGNAME $LOGLEVEL);
     $LOGNAME    = __PACKAGE__;
 use cmt::lang;
 use cmt::log(2);
-use cmt::path;
+use cmt::path();
 use cmt::proxy;
-use Cwd;
 use Data::Dumper;
 use Exporter;
 
 our @ISA    = qw(Exporter);
-our @EXPORT = qw(qr_literal
-                 forx
-                 php_perl
+our @EXPORT = qw(forx
+                 qr_literal
+                 qr_dos
+                 qr_auto
+                 safeslash
+                 ssub
                  qeval_perl
                  _qeval
                  qeval
@@ -50,18 +52,6 @@ our @EXPORT = qw(qr_literal
                  );
 
 our $opt_strict         = 0;
-
-my %QRMODE = (
-    'c'         => qr/[()\[\]{}?*+.|^\$\\]/,
-    'o'         => qr/[()\[\]{}?*+.^\$\\]/,
-);
-sub qr_literal {
-    my $text    = shift;
-    my $mode    = shift || 'c';
-       $mode    = $QRMODE{$mode} or die "Invalid mode $mode";
-    $text       =~ s/$mode/\\$&/g;
-    return qr/$text/;
-}
 
 # forx $pattern \&hit [\&miss] $text
 sub forx($&;$$) {
@@ -103,16 +93,58 @@ sub forx($&;$$) {
     return $buf;
 }
 
-sub php_perl {
-    local $_ = join('', @_);
-    s/<\? ( ( (\\.) | ([^\?]) | (\?[^>]) )* ) \?>/eval($1)/sgex;
-    return $_;
+my %QRMODE = (
+    'all'       => qr/[()\[\]{}?*+.\$\\^|]/,
+    'or'        => qr/[()\[\]{}?*+.\$\\^]/,
+);
+sub qr_literal {
+    local $_ = shift;
+    my $mode = shift || 'all';
+       $mode = $QRMODE{$mode} or die "Invalid mode $mode";
+    s/$mode/\\$&/g;
+    qr/$_/
 }
 
+sub qr_dos {
+    local $_ = shift;
+    s/\./\\./g;
+    s/\?/./g;
+    s/\*/.*?/g;  # s/\*\*/.*/g;
+    s/[()\[\]{}+\$\\^|]/\\$&/g;
+    qr/$_/
+}
+
+sub qr_auto {
+    local $_ = shift;
+    $_ = qr/$_/s if /(^|[^\\])\\[nr]/;
+    $_ = qr/$_/s if /[\n\r]/s;
+    $_
+}
+
+sub safeslash {
+    local $_ = shift;
+    s|\\\\|\\\\X|g;
+    s|\\?/|\\/|g;
+    s|\\\\X|\\\\|g;
+    $_
+}
+
+sub ssub {
+    local $_ = safeslash shift;
+    my $dst = safeslash shift;
+    my $mod = _or(shift, '');
+    $mod .= 's' if (/(^|[^\\])\\[nr]/ or /[\n\r]/s);
+    my $code = eval 'sub(\$) { $_[0] =~ s/'."$_/$dst/$mod }";
+    die "can't compile substitute-regexp: $@" if $@;
+    return $code;
+}
+
+# eval quoted-string by perl-language
 sub qeval_perl {
     eval shift
 }
 
+# eval quoted-string into syntax elements
 # _qeval $string [\&evaluator [$qchars]]
 sub _qeval {
     my ($s, $evl, $qc) = @_;
@@ -128,6 +160,7 @@ sub _qeval {
     @mem
 }
 
+# eval quoted-string with a specified variable evaluator
 # qeval [$string=$_ [\&evaluator [$qchars]]]
 sub qeval {
     local $_= _or(shift, $_);
@@ -445,93 +478,6 @@ sub listdir {
     closedir DIR;
     @files = sort { $sort->($a, $b) } @files if defined $sort;
     return @files;
-}
-
-sub fswalk(&;@) {
-        no warnings('uninitialized');
-    my $cb      = shift;
-    my %cfg     = get_named_args @_;
-    my $start   = _or($cfg{-start}, '.');
-    my $filter  = $cfg{-filter};
-    my $filterf = ref $filter eq 'Regexp' ? sub { /$filter/ } : $filter;
-    my $hidden  = $cfg{-hidden};
-    my $depth   = _or($cfg{-depth}, 999);
-    my $bfirst  = index('bw', $cfg{-order}); # breadth-first
-    my $leave   = $cfg{-leave};
-    my $sort    = $cfg{-sort};
-    my $excl    = not $cfg{-inclusive};     # include the start file
-    my $iter;
-       $iter    = sub { *__ANON__ = '<iter>';
-        my $start = shift;
-        my $dir   = $start;
-        my $level = shift;
-        my @files;
-        if (-d $start) {
-            $dir = $start;
-            @files = listdir($dir, undef, qr/^\.\.?$/,
-                             $hidden ? sub { ishidden(path_join @_) } : undef,
-                             $sort);
-        } else {
-            my $fpat;
-            ($dir, $fpat) = path_split($start);
-            $dir = '.' unless defined $dir;
-            my $cwd = cwd();
-            chdir($dir) or die "can't chdir to $dir: $!";
-            @files = grep { -e "$dir/$_" } glob $fpat;
-            chdir($cwd) or die "can't chdir to $cwd: $!";
-        }
-        @files = grep { $filterf->() } @files if defined $filterf;
-        my $ret;
-        my $count = 0;
-        my @dirs;
-        for (@files) {
-            my $path = path_join($dir, $_);
-            if (-d $path) {
-                next if $level >= $depth;
-                if ($bfirst) {
-                    push @dirs, $path;
-                } else {
-                    # BREADTH-FIRST-COPY-BEGIN
-                    $ret = $cb->($path);
-                    return -1 if $ret == -1;    # break
-                    next      if $ret == 0;     # ignore
-                    $count += $ret - 1;
-                    $ret = $iter->($path, $level + 1);
-                    return -1 if $ret == -1;    # break
-                    $count += $ret;
-                    $cb->($dir, 1) if $leave;
-                    # BREADTH-FIRST-COPY-END
-                }
-            } else {
-                $ret = $cb->($path);
-                return -1 if $ret == -1;        # break
-                $count += $ret;
-            }
-        }
-        for (@dirs) {
-            # BREADTH-FIRST-COPY-BEGIN
-            $ret = $cb->($_);
-            return -1 if $ret == -1;    # break
-            next      if $ret == 0;     # ignore
-            $count += $ret - 1;
-            $ret = $iter->($_, $level + 1);
-            return -1 if $ret == -1;    # break
-            $count += $ret;
-            $cb->($dir, 1) if $leave;
-            # BREADTH-FIRST-COPY-END
-        }
-        $count
-    };
-    if ($excl) {
-        $iter->($start, 0)
-    } else { # include the start file
-        my $count = $cb->($start);
-        return $count if $count <= 0;       # break or ignore
-        my $ret = $iter->($start, 0);
-        return -1 if $ret == -1;            # break
-        $cb->($start, 1) if $leave;
-        $count = $count - 1 + $ret
-    }
 }
 
 # incremental-eval

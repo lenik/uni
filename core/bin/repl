@@ -7,97 +7,52 @@ repl - Batch file replacer
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
+use cmt::fileproc('/[$%]/', 'batch_main');
+use cmt::lang();
     $LOGNAME    = 'repl';
     $LOGLEVEL   = 2;
-use cmt::lang;
 use cmt::log(3, '_sigx');
-use cmt::util;
+use cmt::util('safeslash', 'ssub');
 use cmt::vcs('parse_id');
     my %RCSID = parse_id('$Id$');
-use Data::Dumper;
-use File::Copy;
-use File::Temp('tempfile');
+# use Data::Dumper;
 use Getopt::Long;
-use Text::Diff;
 
 sub _main; sub _version; sub _help;
+sub process;
 
-sub esc_slash;
 sub proc_plain;
 sub proc_eval;
 sub proc_regexp;
 
-{
-    package simdiff;
-    our @ISA = ('Text::Diff::Base');
-    sub hunk {
-        shift;
-        my $buf;
-        for (@{$_[2]}) {    # ops
-            my $op = $_->[Text::Diff::OPCODE];
-            my $fl = $_->[Text::Diff::FLAG];
-            $op = $fl if defined $fl;
-            next if $op eq ' ';
-            my $sel = $op eq '+' ? 1 : 0;
-            my $line = $_->[$sel];
-            $buf .= sprintf "%7d$op%s", $line, $_[$sel][$line]
-        }
-        $buf
-    }
-}
-
-our $opt_force;
-our %opt_fswalk         = (-depth => 0);
-our $opt_filter;
-our $opt_ascii          = 1;
-our $opt_binary;
-our $opt_stdout;
-our $opt_backup;
 our $opt_mode           = 'plain';
-our $opt_ignore_case;
+our $opt_linemode       = 1;
 our @opt_select;
 our $opt_pattern;
 our $opt_replacement;
 our $opt_command        = '';
 our $opt_regexp_flags   = 'g';
-our $opt_diff;
-our $opt_diff_ext;
-our $opt_diff_style;
-our $opt_test;
+our $opt_ignore_case;
+our $opt_ssub;
 
 sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
                'help|h'         => sub { _help; exit 0 },
-               'force|f',
-               'walkopt|w=n'    => \%opt_fswalk,
-               'recursive|r:n'  => sub { shift; $opt_fswalk{-depth} = shift || 100 },
-               'filter|t=s', #  => sub { shift; $opt_fswalk{-filter} = shift },
-               'both'           => \$opt_binary,
-               'binary-only|b'  => sub { $opt_binary = 1; $opt_ascii = shift eq 'b' },
-               'stdout|c',
-               'backup|k:s',    => sub { shift; $opt_backup = shift || 'bak' },
+               %COMOPT,         # bcdfikrtw
                'mode|m=s',
                'regexp|p'       => sub { $opt_mode = 'regexp' },
                'eval|e'         => sub { $opt_mode = 'eval' },
                'exec|x'         => sub { $opt_mode = 'exec' },
-               'ignore-case|i',
                'select|s=s'     => \@opt_select,
-               'diff|d:s'       => sub { shift; $opt_diff = 1; $opt_diff_ext = shift },
-               'diff-style|ds=s',
-               'test',
                );
-    $opt_fswalk{-filter} = qr/$opt_filter/ if defined $opt_filter;
-    if ($opt_stdout) {
-        $opt_backup = 0;
-        $LOGLEVEL--;
-    }
+    $opt_ignore_case = $cmt::fileproc::opt_ignore_case;
+    $cmt::fileproc::LOGLEVEL = $LOGLEVEL - 1;
+
     for (0..$#opt_select) {
         $opt_select[$_] = [ split('-', $opt_select[$_]) ];
     }
-    $opt_diff_style ||= $opt_diff_ext ? 'Unified'
-        : ($LOGLEVEL > 2 ? 'Unified' : 'simdiff');
 
     if ($opt_mode eq 'exec') {
         undef @opt_select;
@@ -119,8 +74,8 @@ sub _boot {
         ($opt_pattern, $opt_replacement) = splice(@ARGV, 0, 2);
         die "pattern can't be empty" unless length $opt_pattern;
         if ($opt_mode eq 'regexp' or $opt_mode eq 'eval') {
-            $opt_pattern     = esc_slash $opt_pattern;
-            $opt_replacement = esc_slash $opt_replacement;
+            $opt_pattern     = safeslash $opt_pattern;
+            $opt_replacement = safeslash $opt_replacement;
             if ($opt_pattern =~ /(^|[^\\])\\[nr]/) {
                 $opt_regexp_flags .= 's';
             }
@@ -135,22 +90,20 @@ sub _boot {
         if ($opt_mode eq 'eval') {
             $opt_regexp_flags .= 'e';
         }
+        $opt_ssub = ssub $opt_pattern, $opt_replacement, $opt_regexp_flags;
     }
+
+    $opt_linemode = index($opt_regexp_flags, 's') == -1;
 
     # die "no files specified." unless @ARGV;
     @ARGV = qw(.) unless @ARGV;
 
     if ($LOGLEVEL > 2) {
-        _log3 "fswalk$_: $opt_fswalk{$_}" for keys %opt_fswalk;
-        _log3 "filetype:    ".($opt_ascii?'ascii':'').' '.($opt_binary?'binary':'');
         _log3 "mode:        $opt_mode";
         _log3 "pattern:     $opt_pattern (flags: $opt_regexp_flags)" if defined $opt_pattern;
         _log3 "replacement: $opt_replacement" if defined $opt_replacement;
-        _log3 "ignore-case" if $opt_ignore_case;
         _log3 "command:     ".(ref $opt_command ? join('|', @$opt_command) : $opt_command);
-        _log3 "diff:        $opt_diff_ext/$opt_diff_style" if $opt_diff;
         _log3 "select:      $_->[0]..$_->[1]" for @opt_select;
-        _log3 "running in test-mode" if $opt_test;
     }
     _main
 }
@@ -214,37 +167,22 @@ temporary files.
 =cut
 sub _help {
     _version;
-    print "\nSyntax: \n    $0 [OPTION] [--] [MODE-ARGUMENTS] FILE...\n", <<'EOM';
+    print "\nSyntax: \n    $0 [OPTION] [--] [MODE-ARGUMENTS] FILE...\n", <<"EOM";
 
-Common options:
-    -w, --walkopt=OPTION    extra options for directory iterator (see follow)
-    -r, --recursive[=DEPTH] => --walkopt=-depth=DEPTH
-    -t, --filter=REGEXP     => --walkopt=-filter=REGEXP
-    -b, --both              both text files and binary files are processed
-    -B, --binary-only       only binary files are processed
-    -c, --stdout            send the replaced file to stdout, don't change file
-    -k, --backup[=EXT]      backup the original files (default EXT=bak)
+Common Options:
+$COMOPT    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+
+Replacement Options:
     -m, --mode=MODE         specify how to interpret MODE-ARGUMENTS
     -p, --regexp            => --mode=regexp
     -e, --eval              => --mode=eval
     -x, --exec              => --mode=exec
-    -i, --ignore-case       ignore case for pattern match
     -s, --select=RANGE      select RANGE(s) of file to replace
-    -d, --diff[=EXT]        show diff to change, or dump diff to files.EXT
-        --diff-style=STYLE  set diff style: Unified(default), Table, Context
-    -f, --force             force change read-only files
-    -h, --help              show this help page
-    -q, --quiet             repeat to get less info
-    -v, --verbose           repeat to get more info
-        --version           print the version info
 
-Walker Options:
-        -filter=REGEXP      only files with basename matches (perl-)REGEXP
-        -hidden             whether hidden files are iterated
-                            (both .* files and files with hidden attribute)
-        -depth=NUMBER       how deep recursive into the directory
-        -order=[bd]         breadth-first scanning if specified -order=b
-
+$WALKOPT
 Mode `plain':   OPTION...) PATTERN REPLACEMENT (FILE...
     Both PATTERN and REPLACEMENT are specified in plain texts.
 
@@ -272,149 +210,62 @@ EOM
 exit (_boot or 0);
 
 sub _main {
-    my ($tmph, $tmpf);
-    #if ($opt_mode eq 'exec') {
-    #    $tmpf = tmpnam();
-    #} else {
-        ($tmph, $tmpf) = tempfile(CLEANUP => 1, SUFFIX => '.repl');
-    #}
-    my $linebyline = index($opt_regexp_flags, 's') == -1;
     my $proc = main->can('proc_'.$opt_mode) or die "illegal mode: $opt_mode";
-    my $n_all = 0;
-    my $n_diff = 0;
-    my $n_save = 0;
+    batch_main [\&process, $proc], @ARGV;
+}
 
-    for (@ARGV) {
-        fswalk {
-            my $path = shift;
-            if (-d $path) {
-                _sig2 'dir', $path;
-                return 1;
-            }
-            my $oldmode = undef;
-            unless (-w $path) {
-                return 0 unless $opt_force;
-                (undef, undef, $oldmode) = stat $path;
-                chmod(0777, $path);
-            }
+sub process {
+    my ($path, $tmph, $tmpf, $proc) = @_;
 
-            my $T = -T $path;
-            return 0 if !$opt_ascii and $T;
-            return 0 if !$opt_binary and !$T;
-
-            $n_all++;
-            _sig2 'file', $LOGLEVEL > 2 ? $path."\n" : $path;
-            seek($tmph, 0, 0) or die "seek $tmpf: $!";
-            truncate($tmph, 0) or die "truncate $tmpf: $!";
-
-            my $diffs = undef;
-            if ($opt_mode eq 'exec') {
-                open(my $oldout, '>&STDOUT')
-                    or die "can't redirect stdout(get): $!";
-                open(STDOUT, '>&', $tmph)
-                    or die "can't redirect stdout(set): $!";
-                my ($ret, $err);
-                if (ref $opt_command) {
-                    $ret = system @$opt_command, $path;
+    if ($opt_mode eq 'exec') {
+        open(my $oldout, '>&STDOUT')
+            or die "can't redirect stdout(get): $!";
+        open(STDOUT, '>&', $tmph)
+            or die "can't redirect stdout(set): $!";
+        my ($ret, $err);
+        if (ref $opt_command) {
+            $ret = system @$opt_command, $path;
+        } else {
+            $ret = system $opt_command." \"$path\"";
+        }
+        open(STDOUT, '>&', $oldout)
+            or die "can't redirect stdout(reset): $!";
+        if ($ret == -1) {
+            _sig1 'exec', "\n     failed to execute: $!\n";
+            return 0;
+        }
+        return undef;
+    } else {
+        _sig2 'file', $path;
+        my $diffs = 0;
+        my ($diff, $t);
+        my $fh;
+        unless (open $fh, '<', $path) {
+            _sigx "can't open: $!";
+            return 0;
+        }
+        if ($opt_mode eq 'plain' or $opt_linemode) {
+            my $buf = '';
+            while (<$fh>) {
+                ($diff, $t) = $proc->($buf.$_);
+                if (defined $t) {
+                    $buf = '';
+                    print $tmph $t;
                 } else {
-                    $ret = system $opt_command." \"$path\"";
+                    $buf .= $_;
                 }
-                open(STDOUT, '>&', $oldout)
-                    or die "can't redirect stdout(reset): $!";
-                if ($ret == -1) {
-                    _sig1 'exec', "\n     failed to execute: $!\n";
-                    return 0;
-                }
-            } else {
-                _sig2 'file', $path;
-                my ($x, $t);
-                my $fh;
-                unless (open $fh, '<', $path) {
-                    _sigx "can't open: $!";
-                    return 0;
-                }
-                if ($opt_mode eq 'plain' or $linebyline) {
-                    my $buf = '';
-                    while (<$fh>) {
-                        ($x, $t) = $proc->($buf.$_);
-                        if (defined $t) {
-                            $buf = '';
-                            print $tmph $t;
-                        } else {
-                            $buf .= $_;
-                        }
-                        $diffs += $x if defined $x;
-                    }
-                    print $tmph $buf if defined $buf;
-                } else {
-                    my $text = join('', <$fh>);
-                    ($x, $t) = $proc->($text);
-                    print $tmph (defined $t ? $t : $text);
-                    $diffs += $x if defined $x;
-                }
-                close $fh;
+                $diffs += $diff if defined $diff;
             }
-            unless (defined $diffs) {
-                seek($tmph, 0, 0) or die "seek $tmpf: $!";
-                $diffs = 1;
-                # the file may be deleted, and if this happens, do replace.
-                my ($a, $b);
-              F:while (open my $fh, '<', $path) {
-                        no warnings('uninitialized');
-                    do {
-                        $a = <$fh>;
-                        $b = <$tmph>;
-                        last F if $a ne $b;
-                    } while (defined $a);
-                    $diffs = 0;
-                    last
-                }
-            }
-            if ($diffs) {
-                $n_diff++;
-                if ($opt_diff) {
-                    seek($tmph, 0, 0) or die "seek $tmpf: $!";
-                    if (open my $fh, '<', $path) {
-                        my $diff = diff $fh, $tmph, { STYLE => $opt_diff_style };
-                        if ($opt_diff_ext) {
-                            # writefile "$path.$opt_diff_ext", $diff;
-                        } else {
-                            print STDERR "\n", $diff;
-                        }
-                        close $fh;
-                    } else {
-                        _sigx "open $path: $!";
-                        return 0;
-                    }
-                }
-                _sig1 'save', $path."\n";
-                seek($tmph, 0, 0) or die "seek $tmpf: $!";
-                if ($opt_stdout) {
-                    print while <$tmph>;
-                } else {
-                    if ($opt_backup) {
-                        my $bak = $path.'.'.$opt_backup;
-                        _sig2 'bak', $bak;
-                        move($path, $bak) unless $opt_test;
-                    }
-                    unless ($opt_test) {
-                        if (open my $fh, '>', $path) {
-                            print $fh $_ while <$tmph>;
-                            close $fh;
-                        } else {
-                            _sigx "open $path for write: $!";
-                            return 0;
-                        }
-                        chmod $oldmode, $path if defined $oldmode;
-                    }
-                    $n_save++;
-                }
-            }
-        } -start => $_, %opt_fswalk;
+            print $tmph $buf if defined $buf;
+        } else {
+            my $text = join('', <$fh>);
+            ($diff, $t) = $proc->($text);
+            print $tmph (defined $t ? $t : $text);
+            $diffs += $diff if defined $diff;
+        }
+        close $fh;
+        return $diffs;
     }
-    _sig1 'done', "total $n_diff/$n_all files changed, $n_save files saved.";
-    unlink $tmpf;
-    close $tmph;
 }
 
 =head1 DIAGNOSTICS
@@ -422,19 +273,13 @@ sub _main {
 (No Information)
 
 =cut
-sub esc_slash {
-    local $_ = shift;
-    s-\\\\-\\\\X-g;
-    s-/-\\/-g;
-    s-\\\\X-\\\\-g;
-    $_
-}
 
 =head1 HACKING
 
 (No Information)
 
 =cut
+
 sub proc_plain {
     local $_ = shift;
     my $t = $opt_ignore_case ? lc($_) : $_;
@@ -450,14 +295,15 @@ sub proc_plain {
     ($edit, $_)
 }
 
-sub proc_eval { &proc_regexp }
+sub proc_eval {
+    &proc_regexp;
+}
 
 sub proc_regexp {
     local $_ = shift;
     my $old = $_;
-    my $match = eval "s/$opt_pattern/$opt_replacement/$opt_regexp_flags";
-    die "can't do reg-exp substitute: $@" if $@;
-    ($_ ne $old, $_)
+    $opt_ssub->($_);
+    ($_ ne $old, $_);
 }
 
 sub proc_exec { 'placeholder' }

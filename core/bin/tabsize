@@ -7,75 +7,43 @@ tabsize - change tab size for text files
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
+use cmt::fileproc('/[$%]/', 'batch_main');
     $LOGNAME    = 'tabsize'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
-use cmt::log(2);
+    $LOGLEVEL   = 2;
+use cmt::log(3, '_sigx');
+use cmt::util('safeslash', 'ssub');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
 
 sub _main; sub _version; sub _help;
+sub process;
 
-sub findfile;
-sub dirproc;
-sub fileproc;
-
-our $opt_recursive      = 1;
-our @opt_and_test       = ();
-our @opt_xor_test       = ();
-our $opt_dir            = 0;
-our $opt_dir_only       = 0;
-our $opt_include_hiddens= 0;
-our @opt_files          = ();
-our $opt_writeback      = 0;
 our $opt_old_tabsize    = 8;
 our $opt_new_tabsize    = 4;
 our $opt_min_tabsize    = 2;
 our $opt_tabify         = 0;    # 0: using space instead.
-
-our $stat_total         = 0;
-our $stat_proc          = 0;
 
 sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
                'help|h'         => sub { _help; exit 0 },
-               'recursive|r'    => sub { $opt_recursive = 100 },
-               'and-test|at=s'  => \@opt_and_test,
-               'xor-test|xt=s'  => \@opt_xor_test,
-               'dir|d',
-               'dir-only|do',
-               'include-hiddens|ih',
-               'writeback|w',
+               %COMOPT,         # bcdfikrtw
                'old-tabsize|o=i',
                'new-tabsize|n=i',
                'min-tabsize|m=i',
-               'tabify|t',
+               'tabify',
                );
-    $opt_dir = 1 if $opt_dir_only;
-
-    @opt_files = @ARGV;
-    unless (@opt_files) {
-        die("No file specified. ");
-    }
-
-    @opt_and_test = map \&qg, @opt_and_test;
-    @opt_xor_test = map \&qg, @opt_xor_test;
-
-    _log2 "--and-test: $_" for @opt_and_test;
-    _log2 "--xor-test: $_" for @opt_xor_test;
-    _log2 "file: $_" for @opt_files;
+    $opt_ignore_case = $cmt::fileproc::opt_ignore_case;
+    $cmt::fileproc::LOGLEVEL = $LOGLEVEL - 1;
 
     die 'tab-size must be positive number'
         if $opt_old_tabsize < 1
         or $opt_new_tabsize < 1
         or $opt_min_tabsize < 1;
 
-    findfile($_, $opt_recursive) for @opt_files;
-
-    _log1 "Total $stat_proc / $stat_total files processed";
-
-    return $stat_proc;
+    _main;
 }
 
 =head1 SYNOPSIS
@@ -136,56 +104,51 @@ temporary files.
 =cut
 sub _help {
     &_version;
-    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<"EOM";
 
 Common options:
-    -r, --recursive         include sub-directories
-    -at,--and-test=REGEXP   multiple tests are joined by '\r'
-    -xt,--xor-test=REGEXP   multiple tests are joined by '\r'
-    -d, --dir
-    -do,--dir-only
-    -ih,--include-hiddens
-    -w, --writeback         default test-only
-    -o, --old-tabsize=SIZE  default 8
-    -n, --new-tabsize=SIZE  default 4
-    -m, --min-tabsize=SIZE  default 2
-    -q, --quiet             repeat to get less info
+$COMOPT    -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
     -h, --help              show this help page
         --version           print the version info
+
+$WALKOPT
+Tabify options:
+    -o, --old-tabsize=SIZE  default 8
+    -n, --new-tabsize=SIZE  default 4
+    -m, --min-tabsize=SIZE  default 2
 EOM
 }
 
 exit (_boot or 0);
 
 sub _main {
-    my $path = shift;
-    return 0 unless -f $path;
+    batch_main \&process, @ARGV;
+}
 
-    my @in = readfile($path);
-    my @out;
-    for my $lineno (0..$#in) {
-        $_ = $in[$lineno];
-
-        ############################## BEGIN ###########################
+sub process {
+    my ($path, $tmph) = @_;
+    my $diffs = 0;
+    open(FH, '<', $path) or die "can't open $path to read: $!";
+    while (<FH>) {
         my @chars = split('', $_);
         my ($i, $x) = (0, 0);
 
-        foreach my $c (@chars) {
+        for my $c (@chars) {
             if ($c eq "\t") {
-                $c = ' 'x($opt_old_tabsize-$x);
+                $c = ' ' x ($opt_old_tabsize - $x);
                 $chars[$i] = $c;
                 $x = 0;
             } else {
-                $x = ($x+1) % $opt_old_tabsize;
+                $x = ($x + 1) % $opt_old_tabsize;
             }
             $i++;
         }
-        $_ = join('', @chars);
-
+        my $untab = join('', @chars);
+        my $retab = '';
         if ($opt_tabify) {
             my @segs;
-            while (m/.{1,$opt_new_tabsize}/sg) {
+            while ($untab =~ m/.{1,$opt_new_tabsize}/sg) {
                 #assert no '\t' inside.
                 my $seg = $&;
                 if ($seg =~ m/( +)$/) {
@@ -193,22 +156,15 @@ sub _main {
                         $seg =~ s/( +)$/\t/;
                     }
                 }
-                push @out, $seg;
+                $retab .= $seg;
             }
         } else {
-            push @out, $_;
+            $retab = $untab;
         }
-        ##############################  END  ###########################
-
+        print $tmph $retab;
+        $diffs++ if $retab ne $_;
     }
-    if (join('', @in) ne join('', @out)) {
-        _sig1 'save', $path;
-        writefile($path, @out) if $opt_writeback;
-        return 1;
-    }
-    print join('', @out) unless $opt_writeback;
-
-    return 0;
+    return $diffs;
 }
 
 =head1 DIAGNOSTICS
@@ -217,48 +173,6 @@ sub _main {
 
 =cut
 # (HELPER FUNCTIONS)
-sub findfile {
-    my ($path, $recur) = @_;
-    if (-d $path) {
-        dirproc($path) if $opt_dir;
-        if ($recur--) {
-            my $dh = new DirHandle($path);
-            my @files = $dh->read;
-            $dh->close;
-            for (@files) {
-                next if /^\.+$/;
-                next if /^\./ and !$opt_include_hiddens;
-                my $base = $_;
-                my $path2 = "$path/$_";
-                if (@opt_and_test) {
-                    my @passed = grep { $base =~ $_ } @opt_and_test;
-                    next unless @passed;
-                }
-                if (@opt_xor_test) {
-                    my @passed = grep { $base =~ $_ } @opt_xor_test;
-                    next if @passed;
-                }
-                findfile($path2, $recur);
-            }
-        }
-    } else {
-        fileproc($path) unless $opt_dir_only;
-    }
-}
-
-sub dirproc {
-    my ($path) = @_;
-    _sig1 'dir', $path;
-    $stat_total++;
-    $stat_proc++ if _main @_;
-}
-
-sub fileproc {
-    my ($path) = @_;
-    _sig1 'file', $path;
-    $stat_total++;
-    $stat_proc++ if _main @_;
-}
 
 =head1 HACKING
 
