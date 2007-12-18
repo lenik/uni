@@ -7,11 +7,13 @@ NFS - Notes for Speed
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
+use cmt::lang('_or');
     $LOGNAME    = 'NFS';
 use cmt::log(2);
 use cmt::path('path_join', 'path_split', 'path_splitext', 'path_normalize');
 use cmt::perlsys;
-use cmt::util('php_perl', 'readfile', 'writefile');
+use cmt::php('php_perl');
+use cmt::util('readfile', 'writefile');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
 use cmt::winuser;
@@ -136,7 +138,8 @@ sub _boot {
     }
 
     unless (defined $NFS_ROOT) {
-        if ($opt_type eq 'x') {
+        my $t = _or($opt_type, '');
+        if ($t eq 'x') {
             $NFS_ROOT = "$HOME/.scratch";
             $opt_type = 'lst';
             $opt_program = '.ls';

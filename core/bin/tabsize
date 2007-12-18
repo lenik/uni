@@ -43,6 +43,8 @@ sub _boot {
         or $opt_new_tabsize < 1
         or $opt_min_tabsize < 1;
 
+    die "No file specified" unless @ARGV;
+
     _main;
 }
 
