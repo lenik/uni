@@ -131,40 +131,34 @@ sub _main {
 sub process {
     my ($path, $tmph) = @_;
     my $diffs = 0;
+    my $S = $opt_old_tabsize;
+    my $T = $opt_new_tabsize;
     open(FH, '<', $path) or die "can't open $path to read: $!";
     while (<FH>) {
-        my @chars = split('', $_);
-        my ($i, $x) = (0, 0);
-
-        for my $c (@chars) {
-            if ($c eq "\t") {
-                $c = ' ' x ($opt_old_tabsize - $x);
-                $chars[$i] = $c;
-                $x = 0;
-            } else {
-                $x = ($x + 1) % $opt_old_tabsize;
-            }
-            $i++;
-        }
-        my $untab = join('', @chars);
-        my $retab = '';
-        if ($opt_tabify) {
-            my @segs;
-            while ($untab =~ m/.{1,$opt_new_tabsize}/sg) {
-                #assert no '\t' inside.
-                my $seg = $&;
-                if ($seg =~ m/( +)$/) {
-                    if (length($1) >= $opt_min_tabsize) {
-                        $seg =~ s/( +)$/\t/;
-                    }
+        my $last = 0;
+        my $p = 0;
+        my $t = $_;
+        $t =~ s{(\t)|( {$opt_min_tabsize,})}{
+            my $d = $-[0] - $last;
+            $last = $-[0];
+            $p += $d;
+            my $n = defined $1 ? $S - $p % $S : length($2); # 0~7 => 8~1
+            my $pad = ' ' x $n;
+            if ($opt_tabify) {
+                my $tailchars = $p % $T;
+                my $leadspace = ($T - $tailchars) % $T;
+                if ($n >= $leadspace) {
+                    $pad = $leadspace ? "\t" : '';
+                    my $m = $n - $leadspace;
+                    $pad .= "\t" x ($m / $T);
+                    $pad .= ' ' x ($m % $T);
                 }
-                $retab .= $seg;
             }
-        } else {
-            $retab = $untab;
-        }
-        print $tmph $retab;
-        $diffs++ if $retab ne $_;
+            $p += $n - length($&); # add the expand-delta
+            $pad
+        }eg;
+        print $tmph $t;
+        $diffs++ if $t ne $_;
     }
     return $diffs;
 }
