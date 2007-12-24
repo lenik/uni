@@ -7,9 +7,9 @@ UnKnOwN - DeScRiPtIoN
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
     $LOGNAME    = __PACKAGE__;
     $LOGLEVEL   = 1;
-use cmt::log(2);
 use cmt::util();
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');

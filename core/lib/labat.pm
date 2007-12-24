@@ -12,17 +12,21 @@ use YAML;
 =cut
 
 use strict;
-use cmt::path;
-use cmt::perlsys;
-use cmt::pp;
-use cmt::util();
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::lang('_o');
+use cmt::log(3);
+    $LOGNAME    = __PACKAGE__;
+    $LOGLEVEL   = 1;
+use cmt::path('path_join', 'path_split');
+use cmt::perlsys('which_sub');
+use cmt::pp('ppvarf');
+use cmt::util('qsplit', 'readfile');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
+    our $VER    = "0.$RCSID{rev}";
 use vars('%ALIAS');
 use Data::Dumper;
 use Exporter;
-
-our $opt_verbtitle      = 'labat';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
 
 our @ISA    = qw(Exporter);
 our @EXPORT = qw(labat_eval
@@ -34,20 +38,6 @@ sub labat_compile;
 sub _compact;
 sub _compile;
 sub _compile2;
-
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cmt::util::cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
-
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cmt::util::cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
 
 =head1 EVALUATE
     my $funs = {};      # function-proto    name => [\&eval, \&proto-parser]
@@ -181,7 +171,7 @@ sub load_syaml {
     }
     push @t, "";
     my $yaml = join("\n", @t);
-    info2 "load yaml: \"$yaml\"" if $opt_verbose > 2;
+    _log3 "load yaml: \"$yaml\"" if $LOGLEVEL >= 3;
     my @docs = YAML::Load($yaml);
     pop @docs until defined $docs[-1] or !@docs;
     @docs > 1 ? [ @docs ] : $docs[0]
@@ -201,7 +191,7 @@ sub _resolvf    {
             return eval $1;
         }
         if (/\s/) {
-            my ($call, @args) = cmt::util::qsplit(qr/\s+/, _resolv($ctx, $_));
+            my ($call, @args) = qsplit(qr/\s+/, _resolv($ctx, $_));
             my $code = __PACKAGE__->can($call);
             return $code->(@args) if ref $code;
         }
@@ -211,7 +201,7 @@ sub _resolvf    {
 sub _resolv     { my ($ctx, $s) = @_; my $f = _resolvf($ctx);
                   ppvarf(\&$f, $s) }
 sub _resolv2    { my ($ctx, $s) = @_; $s = _resolv($ctx, $s);
-                  cmt::util::qsplit(qr/\s+/, $s, undef, '\'"`') }
+                  qsplit(qr/\s+/, $s, undef, '\'"`') }
 
 sub _compact {
     if (wantarray) {
@@ -244,7 +234,7 @@ sub _calls_unzip {
             push @calls, [ $fun_code, @args ];
         }
     }
-    # info2 'unzipped '.Dumper($arg_node).' to '.Dumper(\@calls);
+    # _log2 'unzipped '.Dumper($arg_node).' to '.Dumper(\@calls);
     @calls
 }
 
@@ -281,6 +271,7 @@ sub _args_unzip {
     local $_;
     for (my $i = 0; $i < @$node; $i++) {
         $_ = $node->[$i];
+        my $folw = $node->[$i + 1];
         if (ref $_ eq 'ARRAY') {
             if (defined $prefix) {          # p x [A]       => (p x A(i), ...)
                 my @sublist = _args_unzip($_);
@@ -318,12 +309,12 @@ sub _args_unzip {
             } else {
                 $prefix .= $_;
             }
-        } elsif (not ref $node->[$i + 1] and $node->[$i + 1] =~ /^\|/) {
+        } elsif (defined $folw and $folw =~ /^\|/) {
                                             # p x ? x "|.." => p=[p,?], next
             if (ref $prefix) {
                 push @$prefix, $_;
             } else {
-                $prefix = [ $prefix . $_ ];
+                $prefix = [ _o($prefix) . $_ ];
             }
             $node->[$i + 1] =~ s/^\|\s*//;
         } else {                            # p x str       => p.str
@@ -495,7 +486,8 @@ sub hi {
     my @caller = caller(1);
     my $sub = $caller[3];
     $sub =~ s/^labat:://;
-    info $sub.': '.join(' -> ', @_[1..$#_]);
+    no warnings 'uninitialized';
+    _log1 $sub.': '.join(' -> ', @_[1..$#_]);
 }
 
 =back
@@ -574,13 +566,13 @@ sub include { &hi;
     my $loadpath = path_join($fdir, $path);
     die "can't find file $loadpath (include: $path)"
         unless -f $loadpath;
-    info2 "parse $loadpath";
-    my $cnt = cmt::util::readfile($loadpath);
+    _log2 "parse $loadpath";
+    my $cnt = readfile($loadpath);
     my $root = load_syaml($cnt);
     push @$fs, $loadpath;
-    my ($ev, $ctx) = labat_compile($root, $ctx);
+    my ($ev, $ctx2) = labat_compile($root, $ctx);
     pop @$fs;
-    labat_eval($ev, $ctx);
+    labat_eval($ev, $ctx2);
 }
 
 =head2 Function Alias (Global)

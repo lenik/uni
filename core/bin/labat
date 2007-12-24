@@ -1,55 +1,105 @@
 #!/usr/bin/perl
 
-=head1 DESCRIPTION
+=head1 NAME
+
+labat - Lapiota Batch Processing System
 
 =cut
-
 use strict;
-use cmt::util;
-use cmt::vcs;
+use vars qw($LOGNAME $LOGLEVEL);
+use labat;
+use cmt::log(2);
+    $LOGNAME    = 'labat'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::util('readfile');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
 use Data::Dumper;
 use Getopt::Long;
-use labat;
 use YAML;
 
-sub _boot;
-sub info;   *info = *labat::info;
-sub info2;  *info2= *labat::info2;
-sub version;
-sub help;
-sub _main;
+sub _main; sub _version; sub _help;
 
-our $opt_verbtitle      = 'labat';
 our @opt_category;
 our $opt_parallel       = 0;
 
 sub _boot {
-    GetOptions('quiet|q'    => sub { $labat::opt_verbose-- },
-               'verbose|v'  => sub { $labat::opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help|h'     => sub { help; exit },
-               'category|c=s' => \@opt_category,
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'category|c=s'   => \@opt_category,
                'parallel|p',
                );
+    $labat::LOGLEVEL = $LOGLEVEL;
     _main;
 }
 
-sub version {
-    my %id = parse_id('$Id$');
-    print "[$opt_verbtitle] Lapiota Batch Processing System \n";
-    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-}
+=head1 SYNOPSIS
 
-sub help {
-    version;
-    print "\nSyntax: \n    $0 [OPTION] [--] files.lb...\n", <<'EOM';
+B<labat>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 Lapiota Batch Processing System
+
+B<labat> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-labat-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] FILES\n", <<'EOM';
 
 Common options:
     -c, --category=CATEGORY do CATEGORY(s) only
     -p, --parallel          execute in parallel mode
-    -h, --help              show this help page
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
+    -h, --help              show this help page
         --version           print the version info
 EOM
 }
@@ -66,17 +116,57 @@ sub _main {
     my $ctx  = [ $funs, $vars, [$cat], $fs ];
 
     for my $file (@ARGV) {
-        info2 "parse $file";
+        _log2 "parse $file";
         my $cnt = readfile($file);
         my $root = load_syaml($cnt);
-        info2 Dump($root) if $labat::opt_verbose > 1;
+        _log2 Dump($root) if $LOGLEVEL >= 2;
 
-        info "process $file";
+        _log1 "process $file";
         push @$fs, $file;
         my ($ev, $ctx) = labat_compile($root, $ctx);
         pop @$fs;
-        #!info2 "ctx:     " . Dump($ctx);
-        # info2 "ev-list: " . Dump($ev);
+        #!_log2 "ctx:     " . Dump($ctx);
+        # _log2 "ev-list: " . Dump($ev);
         labat_eval($ev, $ctx);
     }
 }
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Lapiota Batch Processing System \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

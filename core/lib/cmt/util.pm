@@ -3,7 +3,7 @@ package cmt::util;
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
     $LOGNAME    = __PACKAGE__;
-use cmt::lang;
+use cmt::lang('_or');
 use cmt::log(2);
 use cmt::path();
 use cmt::proxy;
@@ -455,8 +455,8 @@ sub at_exit(&) {
 
 sub _use {
     my $mod = shift;
-    my $par;
-       $par = 'qw('.join(' ', @_).')' if defined $par;
+    my $par = '';
+       $par = 'qw('.join(' ', @_).')' if @_;
     my $val = eval("package ".caller()."; use $mod$par; 1")
         or die "failed to load $mod: $@";
 }

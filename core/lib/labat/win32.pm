@@ -4,31 +4,22 @@ package labat::win32;
 
 labat::win32 - Win32 Functions For Labat
 
-=head1 DESCRIPTION
-
-Support for:
-
-=over
-
-=item Registry
-
-=back
-
-=head1 REFERENCE
-
 =cut
-
 use strict;
+use vars qw($LOGNAME $LOGLEVEL %ROOT);
 # use cmt::codec;
-use cmt::util;
+use cmt::lang('_o', '_or');
+use cmt::log(2);
+    $LOGNAME    = __PACKAGE__;
+    $LOGLEVEL   = $labat::LOGLEVEL;
+use cmt::util('qsplit');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
+    our $VER    = "0.$RCSID{rev}";
 use labat;
 use Data::Dumper;
 use Exporter;
-use Win32::TieRegistry(':REG_', Delimiter => '/');
-
-our $opt_verbtitle      = __PACKAGE__;
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
+use Win32::TieRegistry(':REG_', Delimiter => '/', TiedHash => \%ROOT);
 
 our @ISA    = qw(Exporter);
 our @EXPORT = qw(set_env
@@ -42,15 +33,30 @@ our %CTAB   = qw(set_env            STD
                  set_reg            STD
                  );
 
-sub info;   *info   = *labat::info;
-sub info2;  *info2  = *labat::info2;
 sub hi;     *hi     = *labat::hi;
 
-our $SS_MGR         = $Registry->{'LMachine/SYSTEM/CurrentControlSet/Control'}
+our $CROOT          = $ROOT{'Classes'};
+our $USR_ENV        = $ROOT{'CUser/Environment'};
+our $SS_MGR         = $ROOT{'LMachine/SYSTEM/CurrentControlSet/Control'}
                                ->{'Session Manager'};
-our $USR_ENV        = $Registry->{'CUser/Environment'};
 our $SYS_ENV        = $SS_MGR->{'Environment'};
-our $CROOT          = $Registry->{'Classes'};
+
+=head1 SYNOPSIS
+
+    use win32;
+    mysub(arguments...)
+
+=head1 Win32 Functions For Labat
+
+B<win32> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-win32-RESOLVES.
+
+=head1 FUNCTIONS
+
+=cut
 
 # Description - List, Command
 sub _cs_DLC {
@@ -187,7 +193,7 @@ sub set_env { &hi;
             $new = join($IFS, @new);
         } elsif ($op =~ /^(?:\+([\^\$]?)|([\^\$])\+)$/) {
             # prepend/append
-            if ($1 eq '^' or $2 eq '^') {
+            if (_o($1) eq '^' or _o($2) eq '^') {
                 $new = $old eq '' ? $val : $val.$IFS.$old;
             } else {
                 $new = $old eq '' ? $val : $old.$IFS.$val;
@@ -238,16 +244,21 @@ sub set_env { &hi;
 }
 
 sub _automk {
-    my $k = ref $_[0] ? shift : $Registry->{'/'};
+    my $k = ref $_[0] ? shift : undef;
     my $path = shift;
-    $k = $k->{$_} = {} for (split '/', $path);
+    unless (defined $k) {
+        $path =~ s|^/?(\w+)/||;
+        my $start = $1;
+        $k = $ROOT{$start};
+    }
+    $k->CreateKey($path)
 }
 
 sub set_ctxmenu { &hi;
     my ($ctx, $nam, $id, $desc, $cmd) = @_;
     _automk $CROOT, "$nam/Shell/$id/Command";
     $CROOT->{$nam}->{'Shell'}->{$id} = {
-        '/' => $desc,
+        '/' => _or($desc, $id),
         'Command//' => $cmd,
     };
 }
@@ -257,10 +268,8 @@ sub set_assoc { &hi;
     for my $ext (@$exts) {
         $CROOT->{$ext}->{'/'} = $progid;
     }
-    _automk $CROOT, "$progid/Shell/Open/Command";
-    $CROOT->{$progid}->{'Shell'}->{'Open'} = {
-        'Command//' => $cmd
-    };
+    my $h = _automk $CROOT, "$progid/Shell/Open/Command";
+    $h->{'/'} = $cmd;
 }
 
 sub set_reg { &hi;
@@ -276,16 +285,29 @@ sub set_reg { &hi;
         $val = eval($val) + 0;
         $val = pack 'I1', $val;
     }
-    my $h = $Registry->{'/'};
     my $vname = '/';
-    for (split('/', $key)) {
-        if (s/^\@//) {
-            $vname = '/'.$_;
-            last;
-        }
-        $h = $h->{$_} = {};
-    }
+       $vname = '/'.$1 if $key =~ s/\@(.*?)$//;
+    my $h = _automk $key;
     $h->{$vname} = [ $val, $vt ];
 }
 
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_module_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
 1
