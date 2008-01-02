@@ -16,6 +16,7 @@ use cmt::vcs('parse_id');
     our $VER    = "0.$RCSID{rev}";
 use labat;
 use Exporter;
+use Getopt::Long;
 
 our @ISA    = qw(Exporter);
 our @EXPORT = qw(getopts

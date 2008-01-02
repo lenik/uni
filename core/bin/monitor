@@ -1,148 +1,181 @@
 #!/usr/bin/perl
 
-# $Id$
+=head1 NAME
 
+monitor - DeScRiPtIoN
+
+=cut
 use strict;
-use cmt::vcs;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'monitor'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
 use DirHandle;
 use Getopt::Long;
-use Time::HiRes qw/usleep/;
-use POSIX qw/strftime/;
+use POSIX('strftime');
+use Time::HiRes('usleep');
 
+sub _main; sub _version; sub _help;
 
-our $opt_interval = 1000;       # 1 second
-our $opt_unit = 'b';            # 1/1000
-our $opt_unitsize = 1;          # 1:1
-our $opt_precise = 3;           # .999 precise
-our $opt_kilosize = 1000;       # 1k == 1000
-our $opt_window = 100;          # window size is 100 units
-our $opt_delim = 12;            # fixed column size 12-char
-our @trace_items = ();
+our $opt_interval   = 1000;         # 1 second
+our $opt_precise    = 3;            # .999 precise
+our $opt_window     = 100;          # window size is 100 units
+our $opt_delimiter  = 12;           # fixed column size 12-char
+our @opt_trace;
 
-
-sub init {
-    GetOptions(
-        'help|h'                => sub { &help; },
-        'interval|i=n'          => \$opt_interval,
-        'byte-unit|b'           => sub { $opt_unit = 'b'; },
-        'kilo-unit|k'           => sub { $opt_unit = 'k'; },
-        'mega-unit|m'           => sub { $opt_unit = 'M'; },
-        'giga-unit|g'           => sub { $opt_unit = 'G'; },
-        '1024-for-kilo|4'       => sub { $opt_kilosize = 1024; },
-        'precise|p=n'           => \$opt_precise,
-        'summary-window|w=n'    => \$opt_window,
-        'delimiter|d=s'         => \$opt_delim,
-        'trace-item|t=s'        =>
-            sub {
-                my ($ignore, $str) = @_;
-                my %item = ();
-                if ($str =~ m/^memory$/) {
-                    $item{'script'} = 'free_memory()';
-                } elsif ($str =~ m/^freespace:(.*)$/) {
-                    $item{'script'} = "free_space('$1')";
-                } elsif ($str =~ m/^usedspace:(.*)$/) {
-                    $item{'script'} = "used_space('$1')";
-                } elsif ($str =~ m/^script:(.*)$/) {
-                    $item{'script'} = "$1";
-                } else {
-                    die "Illegal trace item specified: $str";
-                }
-                $item{'vals'} = [];
-                $item{'dels'} = [];
-                push @trace_items, \%item;
-            },
+my  %UNIT = (
+    k   => 1_000,
+    m   => 1_000_000,
+    g   => 1_000_000_000,
+    t   => 1_000_000_000_000,
+    K   => 1_024,
+    M   => 1_048_576,
+    G   => 1_073_741_824,
+    T   => 1_099_511_627_776,
     );
+my  %UNITREV = reverse %UNIT;
+our $opt_unit       = 'k';          # k/m/g/t: k=1000; K/M/G/T: K=1024
+my  $opt_unit_size  = 1000;
+
+sub _boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'interval|i=n',
+               'unit|u=s',
+               'precise|p=n',
+               'summary-window|w=n',
+               'delimiter|d=s',
+               'trace|t=s'      => \@opt_trace,
+               );
+
     $opt_precise = 10**$opt_precise;
-    $opt_precise = 1 if ($opt_precise < 1);
+    $opt_precise = 1 if $opt_precise < 1;
 
-    if ($opt_unit eq 'k') {
-        $opt_unitsize = $opt_kilosize;
-    } elsif ($opt_unit eq 'M') {
-        $opt_unitsize = $opt_kilosize**2;
-    } elsif ($opt_unit eq 'G') {
-        $opt_unitsize = $opt_kilosize**3;
+    if (defined $opt_unit) {
+        if ($opt_unit =~ /^\d+$/) {
+            $opt_unit_size = $opt_unit;
+            $opt_unit = _or($UNITREV{$opt_unit}, 'u');
+        } else {
+            $opt_unit_size = $UNIT{$opt_unit} or die "invalid unit: $opt_unit";
+        }
     }
+
+    for my $i (0..$#opt_trace) {
+        local $_ = $opt_trace[$i];
+        my %item = ();
+        if (/^memory$/) {
+            $item{'script'} = 'free_memory()';
+        } elsif (/^freespace:(.*)$/) {
+            $item{'script'} = "free_space('$1')";
+        } elsif (/^usedspace:(.*)$/) {
+            $item{'script'} = "used_space('$1')";
+        } elsif (/^script:(.*)$/) {
+            $item{'script'} = "$1";
+        } else {
+            die "Illegal trace item specified: $_";
+        }
+        $item{'vals'} = [];
+        $item{'dels'} = [];
+        $opt_trace[$i] = $_;
+    }
+
+    _main;
 }
 
+=head1 SYNOPSIS
 
-sub help {
-    my %id = parse_id('$Id$');
+B<monitor>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-    print <<"EOM";
-Monitor utility   Version 0.$id{rev}   Date $id{date}
-Syntax:
-    monitor
-        --help (h)
-        --interval=<milli-seconds> (i)
-        --byte-unit (b)
-        --kilo-unit (k)
-        --mega-unit (m)
-        --giga-unit (g)
-        --1024-for-kilo (4)
-        --precise=<number> (p)
-        --trace-item=<trace-string> (t)
-        --summary-window=<units-count> (w)
-        --delimiter=<delim-string> (d)
+=head1 DESCRIPTION
 
-    trace-string:
+B<monitor> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-monitor-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -i, --interval=MSEC
+    -u, --unit=NAME|SIZE    k/m/g/t for 1000-based, or K/M/G/T for 1024-based
+    -p, --precise=NUM
+    -w, --window=SIZE
+    -d, --delimiter=CHAR|LEN
+    -t, --trace=DESCRIPTOR
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+
+Trace descriptor:
         memory
-        freespace:<drive-path>
-        usedspace:<drive-path>
-        script:<perl-script returns a number>
+        freespace:PATH
+        usedspace:PATH
+        script:PERLSCRIPT
 EOM
-    exit;
 }
 
+exit (_boot or 0);
 
-sub format_item {
-    my ($val, $padlen) = @_;
-    if (1*$val eq $val) {
-        $val /= $opt_unitsize;
-        $val = int($opt_precise * $val) / $opt_precise;
-        $val .= $opt_unit if ($opt_unit ne 'b');
-    }
-
-    if ($padlen) {
-        return $val if (length($val) > $padlen);
-        $padlen -= length($val);
-        $val .= ' ' x $padlen;
-    }
-
-    return $val;
-}
-
-
-sub print_fields {
-    my $nfields = scalar(@_);
-    my $colsize = 1 * $opt_delim;
-    my $i;
-    if ($colsize > 1) {
-        for ($i = 0; $i < $nfields; $i++) {
-            if ($i == $nfields-1) {
-                print format_item($_[$i]);
-            } else {
-                print format_item($_[$i], $colsize);
-            }
-        }
-    } else {
-        for ($i = 0; $i < $nfields; $i++) {
-            print $opt_delim if ($i > 0);
-            print format_item($_[$i]);
-        }
-    }
-    print "\n";
-}
-
-
-sub main {
+sub _main {
     my $task_abbs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    my $task_cnt = scalar(@trace_items);
+    my $task_cnt = scalar(@opt_trace);
 
     print_fields('time', 'item', 'current', 'average', 'delta', 'sum-d', 'avg-d');
 
     while (1) {
         for (my $i = 0; $i < $task_cnt; $i++) {
-            my $ti = $trace_items[$i];
+            my $ti = $opt_trace[$i];
             my $tid = substr($task_abbs, $i, 1);
             my $scr = $ti->{'script'};
 
@@ -186,18 +219,56 @@ sub main {
         }
         usleep 1000 * $opt_interval;
     }
-    1;
 }
 
+=head1 DIAGNOSTICS
 
-&init;
-&help if (scalar(@trace_items) == 0);
-&main;
+(No Information)
 
+=cut
+# (HELPER FUNCTIONS)
+sub format_item {
+    my ($val, $padlen) = @_;
+    if (1*$val eq $val) {
+        $val /= $opt_unit_size;
+        $val = int($opt_precise * $val) / $opt_precise;
+        $val .= $opt_unit if ($opt_unit ne 'b');
+    }
+    if ($padlen) {
+        return $val if (length($val) > $padlen);
+        $padlen -= length($val);
+        $val .= ' ' x $padlen;
+    }
+    return $val;
+}
 
+sub print_fields {
+    my $nfields = scalar(@_);
+    my $colsize = 1 * $opt_delimiter;
+    my $i;
+    if ($colsize > 1) {
+        for ($i = 0; $i < $nfields; $i++) {
+            if ($i == $nfields-1) {
+                print format_item($_[$i]);
+            } else {
+                print format_item($_[$i], $colsize);
+            }
+        }
+    } else {
+        for ($i = 0; $i < $nfields; $i++) {
+            print $opt_delimiter if ($i > 0);
+            print format_item($_[$i]);
+        }
+    }
+    print "\n";
+}
 
-# built-in functions
+=head1 HACKING
 
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
 sub free_memory {
     10;
 }
@@ -220,3 +291,29 @@ sub used_space {
     }
     return $usedsum;
 }
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] DeScRiPtIoN \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

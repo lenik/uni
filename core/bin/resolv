@@ -7,6 +7,8 @@ resolv - Simple Domain Name Resolver
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
+use cmt::dnsutil('resolv');
+use cmt::lang('_or');
     $LOGNAME    = 'resolv'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::log(2);
 use cmt::util();
@@ -16,8 +18,9 @@ use Getopt::Long;
 use Socket('inet_ntoa');
 
 sub _main; sub _version; sub _help;
+sub resolv_addr;
 
-our $opt_all            = 0;
+our $opt_arp;
 our $opt_test_dnsutil   = 0;
 
 sub _boot {
@@ -25,7 +28,7 @@ sub _boot {
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
                'help|h'         => sub { _help; exit 0 },
-               'all|a',
+               'arp|a',
                'test-dnsutil',
                );
     require cmt::dnsutil if $opt_test_dnsutil;
@@ -94,7 +97,7 @@ sub _help {
     print "\nSyntax: \n    $0 [OPTION] [--] DOMAIN-NAMES\n", <<'EOM';
 
 Common options:
-    -a, --all               show all addresses
+    -a, --arp               send arp packet
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
     -h, --help              show this help page
@@ -115,15 +118,17 @@ sub _main {
     }
 
     for my $domain (@ARGV) {
-        _log2 "domain name: $domain";
+        _log2 "     name: $domain";
 
         # ($name,$aliases,$addrtype,$length,@addrs) = gethost*
         my @res = gethostbyname($domain);
 
-        _log2 "     name: " . $res[0];
-        _log2 "    alias: " . $_ for split(/\s+/, $res[1]);
-        _log2 " addrtype: " . $res[2];
-        _log2 "   length: " . $res[3];
+        _log2 "true name: " . _or($res[0], 'n/a');
+        if ($res[1]) {
+            _log2 "    alias: " . $_ for split(/\s+/, $res[1]);
+        }
+        _log2 " addrtype: " . _or($res[2], 'n/a');
+        _log2 "   length: " . _or($res[3], 'n/a');
 
         my @addrs;
         for (@res[4..$#res]) {
@@ -131,15 +136,11 @@ sub _main {
             push @addrs, $addr;
         }
 
-        my $top = shift @addrs;
-        _log2 "  addr  1: " . $top;
-        print "$top\n";
-
-        my $i = 2;
-        for (@addrs) {
-            my $_i = substr('        '.$i++, -3);
-            _log2 "  addr$_i: " . $_;
-            print "$_\n" if $opt_all;
+        if (@addrs) {
+            my $max = $LOGLEVEL > 1 ? $#addrs : 0;
+            resolv_addr $addrs[$_] for 0..$max;
+        } else {
+            _P2 "(empty address list)";
         }
     }
 }
@@ -157,6 +158,14 @@ sub _main {
 
 =cut
 # (MODULE FUNCTIONS)
+sub resolv_addr {
+    my $addr = shift;
+    my $buf = $addr;
+    if ($opt_arp) {
+
+    }
+    _P1 $buf;
+}
 
 =head1 HISTORY
 

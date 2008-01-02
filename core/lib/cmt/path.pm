@@ -5,9 +5,7 @@ use strict;
 use Exporter;
 
 our @ISA        = qw(Exporter);
-our @EXPORT     = qw($charFS
-                     $setFS
-                     $patFS
+our @EXPORT     = qw($charFS $setFS $patFS
                      path_normalize
                      path_split
                      path_splitext
@@ -17,7 +15,7 @@ our @EXPORT     = qw($charFS
                      dir_size
                      temp_path
                      mkdir_p
-                     ishidden
+                     _H _S
                      which
                      );
 our @EXPORT_OK  = qw(qg);
@@ -201,15 +199,25 @@ my $opt_verbose = 1;
         mkdir $path;
     }
 
-    sub ishidden {
+    sub _H {
         my $path = shift;
         return undef unless -e $path;
         if ($opt_win32) {
             GetAttributes($path, my $attrib);
             return 1 if $attrib & 2;
         }
-        my ($dir, $base) = path_split $path;
+        my (undef, $base) = path_split $path;
         return 1 if $base =~ /^\./;
+        return 0;
+    }
+
+    my %_SYSFILES = (
+        '.svn'  => 1,
+        'CVS'   => 1,
+    );
+    sub _S {
+        my (undef, $base) = path_split shift;
+        return 1 if $_SYSFILES{$base};
         return 0;
     }
 

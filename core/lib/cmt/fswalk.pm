@@ -11,7 +11,7 @@ use vars qw($LOGNAME $LOGLEVEL);
     $LOGLEVEL   = 1;
 use cmt::lang;
 use cmt::log(2);
-use cmt::path('path_join', 'path_split');
+use cmt::path('path_join', 'path_split', '_H', '_S');
 use cmt::util('get_named_args', 'listdir');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id: .pm 764 2007-12-04 14:20:23Z Lenik $');
@@ -85,7 +85,8 @@ sub fswalk(&;@) {
         if (-d $start) {
             $dir = $start;
             @files = listdir($dir, undef, qr/^\.\.?$/,
-                             $hidden ? sub { ishidden(path_join @_) } : undef,
+                             $hidden ? undef : sub { my $p = path_join @_;
+                                                     ! (_H($p) || _S($p)) },
                              $sort);
         } else {
             my $fpat;

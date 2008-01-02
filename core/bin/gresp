@@ -8,8 +8,9 @@ gresp - General Regexp Split
 use strict;
 no  warnings('uninitialized');
 use vars qw($LOGNAME $LOGLEVEL);
-    $LOGNAME    = 'gresp'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::log(3);
+    $LOGNAME    = 'gresp'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+    $LOGLEVEL   = 1;
 use cmt::pp('ppfmt_foobar');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
@@ -38,8 +39,13 @@ sub _boot {
                'groups|g=n',
                'fallback=n',
                );
-    die "Regexp isn't specified" unless @ARGV;
-    $opt_regexp = shift @ARGV;
+    if (@ARGV) {
+        $opt_regexp = shift @ARGV;
+    } else {
+        _P1 "please input the regexp to be evaluated: ";
+        $opt_regexp = <>;
+        chop $opt_regexp;
+    }
     $opt_regexp = qr/$opt_regexp/i if $opt_ignore_case;
     $opt_regexp = qr/$opt_regexp/s if $opt_dot_all;
 

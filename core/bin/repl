@@ -76,7 +76,7 @@ sub _boot {
         if ($opt_mode eq 'regexp' or $opt_mode eq 'eval') {
             $opt_pattern     = safeslash $opt_pattern;
             $opt_replacement = safeslash $opt_replacement;
-            if ($opt_pattern =~ /(^|[^\\])\\[nr]/) {
+            if ($opt_pattern =~ /(?<!\\)\\[nr]/) {
                 $opt_regexp_flags .= 's';
             }
         }

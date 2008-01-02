@@ -71,6 +71,8 @@
         - u-        PERLLIB     /lapiota
         - u-        PERLLIB     /usr/lib
         - u+$       PERLLIB     ->
+            - blib/lib
+            - blib/arch
             - /lapiota/lib
             # /usr/lib/perl5/5.8/cygwin
             # /usr/lib/perl5/5.8
