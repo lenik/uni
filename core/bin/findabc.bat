@@ -29,15 +29,24 @@
     goto st_next
 
 :leave
-    if "%_slash%"=="1" set _home=%_home:\=/%
-    if "%_chdir%"=="1" set _home=%_home%/
-    if "%_print%"=="1" printf %%s %_home%
-    call export _home
+    set _=%_home%
+    if "%_slash%"=="1" set _=%_:\=/%
+    if not "%_chdir%"=="" set _=%_%::%_chdir%
+    if "%_print%"=="1" printf %%s %_%
+    call export _
     %leave%
-    if "%_home:~-1%"=="/" (
-        set _home=%_home:~0,-1%
-        cd /d "%_home%"
+
+    set _home=
+    set _chdir=
+    for %%i in (%_:::= %) do (
+        if "!_home!"=="" (
+            set _home=%%i
+        ) else (
+            set _chdir=%%i
+        )
     )
+    set _=
+    if not "%_chdir%"=="" cd /d "%_home%/%_chdir%"
 
 :add_path
     if "%~1"=="" goto end
@@ -105,11 +114,18 @@
 
 :prep2
     if "%~1"=="" goto help
-    set _name=%~1
-    set _chdir=0
-    if "%_name:~-1%"=="/" (
-        set _name=%_name:~0,-1%
-        set _chdir=1
+    set _=%~1
+    if "%_:~-1%"=="/" set _=%_%.
+    set _name=
+    set _chdir=
+    for %%i in (%_:/= %) do (
+        if "!_name!"=="" (
+            set _name=%%i
+        ) else if "!_chdir!"=="" (
+            set _chdir=%%i
+        ) else (
+            set _chdir=%_chdir%/%%i
+        )
     )
     shift
 

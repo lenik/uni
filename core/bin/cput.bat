@@ -13,7 +13,7 @@
     set im=%~1
 
 :get_t1
-    tasklist /v | grep -i %im% > %TEMP%\res1
+    tasklist /v | grep -i %im% >%TEMP%\res1
     for /f "tokens=1-10," %%i in (%TEMP%\res1) do (
         if "%%i"=="%im%" (
             set pid=%%j
@@ -35,10 +35,9 @@
 
 :get_t0
     set t0=0
-    for /f %%i in (%temp%\%im%.cput) do (
-        set t0=%%i
-    )
-    echo %t1% >"%temp%\%im%.cput"
+    set _cputf="%temp%\%im%.cput"
+    if exist %_cputf% set /p t0=<%_cputf%
+    echo %t1% >%_cputf%
     REM echo t0=%t0%
 
     set /a cput = t1 - t0
