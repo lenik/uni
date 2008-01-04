@@ -1,0 +1,300 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+tabify - convert lines to beautiful table in ascii
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::lang('_def', '_or', '_NA');
+use cmt::log(2);
+    $LOGNAME    = 'tabify'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::util('qr_literal');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl 776 2007-12-24 12:11:36Z lenik $');
+use Getopt::Long;
+
+sub _main; sub _version; sub _help;
+sub print_rows;
+sub print_hr;
+
+our $opt_border     = 'NN*N';
+our $opt_delimiter  = ':';
+our $opt_tabstop;
+our $opt_tabsize    = 8;        # not used
+
+our $border_def;
+our @border         = ();
+our @field_size;
+our @field_auto;                # auto field indexes
+our $field_autof    = 0;        # the first auto field
+our @field_align;
+our @posinfo;
+our $delim_def;
+our @delim;
+# our $regexp;
+
+sub _boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'border|b=s',
+               'delimiter|d=s',
+               'tabstop|t=s',
+               );
+    if (defined $opt_border) {
+        while ($opt_border =~ s/([NFOIH])(\*?)//) {
+            push @border, $1;
+            if ($2 eq '*') {
+                die "only one border-style* is allowed" if defined $border_def;
+                $border_def = $1;
+            }
+        }
+        die "unknown border style: `$opt_border'" if length $opt_border;
+    }
+    _def($border_def, 'N');
+
+    my $rest_inc = 0;
+    if (defined $opt_delimiter) {
+        while ($opt_delimiter =~ s/(\\.|'.*?'|\*|.)//) {
+            my $c = substr($1, 0, 1);
+            if ($c eq '\\') {
+                $c = substr($1, 1);
+            } elsif ($c eq '\'') {
+                $c = substr($1, 1, -1);
+                $c = [split(/,/, $c, 2)] if index($c, ',') != -1;
+            } elsif ($c eq '*') {
+                $rest_inc = 1;
+            }
+            push @delim, $c;
+        }
+        die "unknown delimiter syntax: `$opt_delimiter'" if length $opt_delimiter;
+    }
+    _def($delim_def, _or($delim[-1], ':')) unless $rest_inc;
+
+    if (defined $opt_tabstop) {
+        # convert .=-% to <|>*
+        my %AC = qw(. < = | - > % *);
+        my $i = 0;
+        while ($opt_tabstop =~ s/(^|[.=\-%])(\d+|\*)//) {
+            my $align = $1 || '.';
+            my $size = $2;
+            push @field_align, $AC{$align};
+            if ($size eq '*') {
+                push @field_auto, $i;
+                push @field_size, undef;
+            } else {
+                push @field_size, $size;
+            }
+            $i++;
+        }
+    }
+    $field_autof = $field_auto[0] if @field_auto;
+
+    if ($LOGLEVEL >= 2) {
+        _log2 "border: ("._NA($border_def).") ".join(' - ', @border);
+        _log2 "delim:  ("._NA($delim_def).") ".join(' - ', @delim);
+        # _log2 "regexp: $regexp";
+        my @t;
+        for (0..$#field_size) {
+            my $s = $field_size[$_];
+            my $a = $field_align[$_];
+            push @t, $a x $s;
+        }
+        _log2 "fields: ".join(' - ', @t);
+        _log2 "autofield: ($field_autof) ".join(' - ', @field_auto);
+    }
+
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<tabify>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 convert lines to beautiful table in ascii
+
+B<tabify> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-tabify-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] [FILES]\n", <<'EOM';
+
+Common options:
+    -b, --border=LIST       border styles of each line, * matches to the rest
+    -d, --delimiter=LIST    delimiter of each fields, * matches to the rest
+    -t, --tabstop=LIST      * means auto size (default)
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+
+Border style:
+    N   none                  age   sex   location
+    F   full                | age | sex | location |
+    O   out                 | age   sex   location |
+    I   in                    age | sex | location
+    H   horizontal line     +----------------------+
+
+Delimiter syntax:
+    CHAR        :           age:sex:location
+    \CHAR       \'          age'sex'location
+    'STRING'    '->'        first->second->third
+    'BEGIN,END' '(,)'       (apple) (pear) (banana)
+
+Tabstop format:
+    [.=-%]NUMBER            left(.), center(=), right(-), full(%)
+
+Examples:
+    tabify -b=HFHF*H -d=":'(,)''->'*" -t="12.10=7=7-10"
+        plane: (Shanghai) 19:30 -> 22:10 Beijing
+     => | plane        | Shanghai   |  19:30  |  22:10  |    Beijing |
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    my @rows;
+    my @fields;
+    while (<>) {
+        if ($field_autof >= @fields) {
+            print_rows @rows;
+            @rows = ();
+        } else {
+            push @rows, \@fields;
+            undef @fields;
+        }
+    }
+    print_rows @rows if @rows;
+    for (@border) {
+        if ($_ eq 'H') {
+            print_hr;
+        } else {
+            # print empty row.
+        }
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+sub print_rows {
+    my @size = @field_size;
+    for my $row (@_) {
+        next if $field_autof >= @$row;
+        for (0..$#$row) {
+            next if defined $field_size[$_];
+            my $field = $row->[$_];
+            if (length $field > _or($size[$_], 0)) {
+                $size[$_] = length $field;
+            }
+        }
+    }
+    for my $row (@_) {
+    }
+}
+
+sub print_hr {
+}
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] convert lines to beautiful table in ascii \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
+
+__END__
+
+    $regexp = '';
+    for (@delim) {
+        my $item;
+        if (ref $_) {
+            my ($b, $e) = @$_;
+            $item = qr_literal($b).".*?".qr_literal($e);
+        } else {
+            $item = qr_literal($_);
+        }
+        $regexp .= '|' if length $regexp;
+        $regexp .= '('.$item.')';
+    }

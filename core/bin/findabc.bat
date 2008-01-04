@@ -7,7 +7,8 @@
 
 :start
     set _lev=0
-    set _prefix=%LAPIOTA%%_root:/=\%
+    if not "%_root%"=="" set _root=%_root:/=\%
+    set _prefix=%LAPIOTA%%_root%
 :st_loop
     rem echo find with prefix: %_prefix%
     if exist %_prefix%\%_name%* goto found
@@ -115,6 +116,7 @@
 :prep2
     if "%~1"=="" goto help
     set _=%~1
+    if "%_:~0,1%"=="/" set _root=
     if "%_:~-1%"=="/" set _=%_%.
     set _name=
     set _chdir=
@@ -130,12 +132,7 @@
     shift
 
 :init_ok
-    if %_verbose% geq 1 (
-        echo _startdir=%_startdir%
-        echo  _program=%_program%
-        echo     _name=%_name%
-        echo    _chdir=%_chdir%
-    )
+    if %_verbose% geq 1 (set _)
     goto start
 
 :version

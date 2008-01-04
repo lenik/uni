@@ -79,6 +79,7 @@ so.bat
 srt-delay.bat
 strwrap.bat
 stx2xml.bat
+tabify.bat
 tabsize.bat
 titleize.bat
 trim.bat
