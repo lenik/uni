@@ -99,14 +99,7 @@
     )
 
 :init_ok
-    if %_verbose% geq 2 (
-        echo _startdir=%_startdir%
-        echo  _program=%_program%
-        echo     _rest=%_rest%
-        echo     _mode=%_mode%
-        echo      _all=%_all%
-        echo      _key=%_key%
-    )
+    if %_verbose% geq 1 (set _ | tabify -b -d==)
     goto start
 
 :version

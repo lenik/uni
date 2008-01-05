@@ -67,7 +67,7 @@
     goto prep3
 
 :init_ok
-    if %_verbose% geq 1 (set _)
+    if %_verbose% geq 1 (set _ | tabify -d="=" -b=HF*H)
     goto start
 
 :version

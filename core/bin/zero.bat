@@ -63,15 +63,7 @@
     if not "%~4"=="" set _char=%~4
 
 :init_ok
-    if %_verbose% geq 1 (
-        echo _startdir=%_startdir%
-        echo  _program=%_program%
-        echo     _rest=%_rest%
-        echo     _file=%_file%
-        echo     _bnum=%_bnum%
-        echo     _blen=%_blen%
-        echo     _char=%_char%
-    )
+    if %_verbose% geq 1 (set _ | tabify -b -d==)
     goto start
 
 :version

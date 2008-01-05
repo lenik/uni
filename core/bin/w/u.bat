@@ -45,13 +45,15 @@
 
 :find_shell
     if "%_shell%"=="" (
-        for %%a in (%CMDCMDLINE%) do (
+        rem CMDCMDLINE doesn't work, this is a Windows' BUG.
+        for %%a in (%COMSPEC%) do (
             for %%c in (%%a) do (
                 set _shell=%%~nc
                 goto start_mode
             )
         )
     )
+    set _shell=cmd
 
 :start_mode
     set _args=%*

@@ -80,12 +80,7 @@
     goto prep3
 
 :init_ok
-    if %_verbose% geq 1 (
-        echo _startdir=%_startdir%
-        echo  _program=%_program%
-        echo     _rest=%_rest%
-        echo  _verbose=%_verbose%
-    )
+    if %_verbose% geq 1 (set _ | tabify -b -d==)
     goto start
 
 :version

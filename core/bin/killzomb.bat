@@ -115,21 +115,7 @@
     set _runas=lsrunas /user:%_user% /password:%_passwd% /domain:
     if not "%_runpath%"=="" set _runas=%_runas% /runpath:"%_runpath%"
 
-    if %_verbose% geq 1 (
-        echo _startdir=%_startdir%
-        echo  _program=%_program%
-        echo     _rest=%_rest%
-        echo  _progdir=%_progdir%
-        echo _progbase=%_progbase%
-        echo    _sleep=%_sleep%
-        echo     _hide=%_hide%
-        echo     _user=%_user%
-        echo   _passwd=%_passwd%
-        echo   _logdir=%_logdir%
-        echo  _logfile=%_logfile%
-        echo  _runpath=%_runpath%
-        echo    _runas=%_runas%
-    )
+    if %_verbose% geq 1 (set _ | tabify -b -d==)
     goto start
 
 :version

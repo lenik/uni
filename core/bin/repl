@@ -9,9 +9,9 @@ use strict;
 use vars qw($LOGNAME $LOGLEVEL);
 use cmt::fileproc('/[$%]/', 'batch_main');
 use cmt::lang();
+use cmt::log(3, '_sigx');
     $LOGNAME    = 'repl';
     $LOGLEVEL   = 2;
-use cmt::log(3, '_sigx');
 use cmt::util('safeslash', 'ssub');
 use cmt::vcs('parse_id');
     my %RCSID = parse_id('$Id$');
@@ -54,6 +54,8 @@ sub _boot {
         $opt_select[$_] = [ split('-', $opt_select[$_]) ];
     }
 
+    my %use_regexp = map { $_ => 1 } qw(regexp eval);
+
     if ($opt_mode eq 'exec') {
         undef @opt_select;
         # undef @ignore_case;       # ignore-case used in filename also.
@@ -73,7 +75,7 @@ sub _boot {
         die "pattern isn't specified" if @ARGV < 2;
         ($opt_pattern, $opt_replacement) = splice(@ARGV, 0, 2);
         die "pattern can't be empty" unless length $opt_pattern;
-        if ($opt_mode eq 'regexp' or $opt_mode eq 'eval') {
+        if ($use_regexp{$opt_mode}) {
             $opt_pattern     = safeslash $opt_pattern;
             $opt_replacement = safeslash $opt_replacement;
             if ($opt_pattern =~ /(?<!\\)\\[nr]/) {
@@ -83,14 +85,16 @@ sub _boot {
         if ($opt_ignore_case) {
             if ($opt_mode eq 'plain') {
                 $opt_pattern = lc $opt_pattern;
-            } elsif ($opt_mode eq 'regexp' or $opt_mode eq 'eval') {
+            } elsif ($use_regexp{$opt_mode}) {
                 $opt_regexp_flags .= 'i';
             }
         }
         if ($opt_mode eq 'eval') {
             $opt_regexp_flags .= 'e';
         }
-        $opt_ssub = ssub $opt_pattern, $opt_replacement, $opt_regexp_flags;
+        if ($use_regexp{$opt_mode}) {
+            $opt_ssub = ssub $opt_pattern, $opt_replacement, $opt_regexp_flags;
+        }
     }
 
     $opt_linemode = index($opt_regexp_flags, 's') == -1;

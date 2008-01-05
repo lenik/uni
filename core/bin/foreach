@@ -7,6 +7,7 @@ foreach - batch file process framework
 =cut
 use strict;
 no  warnings('redefine');   # temporary generated named-subs
+no  warnings('all');
 use vars qw($LOGNAME $LOGLEVEL);
 use cmt::cstr;
     $LOGNAME    = 'foreach'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
@@ -453,6 +454,6 @@ The L<cmt/"Perl_simple_cli_program_template">
 
 =head1 AUTHOR
 
-Xima Lenik <name@mail.box>
+Xima Lenik <lenik@bodz.net>
 
 =cut

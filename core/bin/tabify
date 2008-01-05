@@ -8,55 +8,54 @@ tabify - convert lines to beautiful table in ascii
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
 use cmt::lang('_def', '_or', '_NA');
-use cmt::log(2);
+use cmt::log(3);
     $LOGNAME    = 'tabify'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::util('qr_literal');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id: .pl 776 2007-12-24 12:11:36Z lenik $');
+use Data::Dumper;
 use Getopt::Long;
 
 sub _main; sub _version; sub _help;
 sub print_rows;
+sub print_row;
 sub print_hr;
 
-our $opt_border     = 'NN*N';
+sub split_ex;
+sub mix_chars;
+
+our $opt_border;                # 'NN*N';
 our $opt_delimiter  = ':';
 our $opt_tabstop;
 our $opt_tabsize    = 8;        # not used
+our $opt_trim;
 
-our $border_def;
-our @border         = ();
+our $field_max;
 our @field_size;
+my  @last_size;
 our @field_auto;                # auto field indexes
 our $field_autof    = 0;        # the first auto field
 our @field_align;
-our @posinfo;
-our $delim_def;
 our @delim;
-# our $regexp;
+our @border         = ();
+our $border_def;
+our $border_tail;
+my  $border_index   = 0;
+my  $last_border    = 'F';
+our $MARGIN         = '';
+our $MARGIN_HR      = '';
+our $NL             = '';       # non-line
 
 sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
                'help|h'         => sub { _help; exit 0 },
-               'border|b=s',
                'delimiter|d=s',
                'tabstop|t=s',
+               'border|b:s',
+               'trim|k:s',
                );
-    if (defined $opt_border) {
-        while ($opt_border =~ s/([NFOIH])(\*?)//) {
-            push @border, $1;
-            if ($2 eq '*') {
-                die "only one border-style* is allowed" if defined $border_def;
-                $border_def = $1;
-            }
-        }
-        die "unknown border style: `$opt_border'" if length $opt_border;
-    }
-    _def($border_def, 'N');
-
-    my $rest_inc = 0;
     if (defined $opt_delimiter) {
         while ($opt_delimiter =~ s/(\\.|'.*?'|\*|.)//) {
             my $c = substr($1, 0, 1);
@@ -66,20 +65,20 @@ sub _boot {
                 $c = substr($1, 1, -1);
                 $c = [split(/,/, $c, 2)] if index($c, ',') != -1;
             } elsif ($c eq '*') {
-                $rest_inc = 1;
+                $field_max = @delim + 1;
+                last;
             }
             push @delim, $c;
         }
-        die "unknown delimiter syntax: `$opt_delimiter'" if length $opt_delimiter;
+        die "too many delimiters: `$opt_delimiter'" if length $opt_delimiter;
     }
-    _def($delim_def, _or($delim[-1], ':')) unless $rest_inc;
 
     if (defined $opt_tabstop) {
-        # convert .=-% to <|>*
-        my %AC = qw(. < = | - > % *);
+        # convert -=+% to <|>*
+        my %AC = qw(- < = | + > % *);
         my $i = 0;
-        while ($opt_tabstop =~ s/(^|[.=\-%])(\d+|\*)//) {
-            my $align = $1 || '.';
+        while ($opt_tabstop =~ s/(^|[-=+%])(\d+|\*)//) {
+            my $align = $1 || '-';
             my $size = $2;
             push @field_align, $AC{$align};
             if ($size eq '*') {
@@ -93,18 +92,37 @@ sub _boot {
     }
     $field_autof = $field_auto[0] if @field_auto;
 
+    if (defined $opt_border) {
+        $opt_border = 'HF*H' if $opt_border eq '';
+        while ($opt_border =~ s/([NFOIH])(\*?)//) {
+            push @border, $1;
+            if ($2 eq '*') {
+                die "only one border-style* is allowed" if defined $border_def;
+                $border_def = $1;
+                $border_tail = @border;
+            }
+        }
+        die "unknown border style: `$opt_border'" if length $opt_border;
+        _def($border_def,   'N');
+        _def($border_tail,  scalar(@border));
+        $MARGIN     = ' ';
+        $MARGIN_HR  = '-';
+        $NL         = ' ';
+    }
+
     if ($LOGLEVEL >= 2) {
-        _log2 "border: ("._NA($border_def).") ".join(' - ', @border);
-        _log2 "delim:  ("._NA($delim_def).") ".join(' - ', @delim);
-        # _log2 "regexp: $regexp";
+        _log2 "delimiters:  ".join(', ', @delim);
         my @t;
         for (0..$#field_size) {
             my $s = $field_size[$_];
             my $a = $field_align[$_];
             push @t, $a x $s;
         }
-        _log2 "fields: ".join(' - ', @t);
-        _log2 "autofield: ($field_autof) ".join(' - ', @field_auto);
+        _log2 "max fields:  "._NA($field_max);
+        _log2 "fields:      ".join(' - ', @t);
+        _log2 "autofield:   ($field_autof) ".join(' - ', @field_auto);
+        _log2 "border:      ("._NA($border_def).") ".join(' - ', @border);
+        _log2 "border-tail: "._NA($border_tail);
     }
 
     _main;
@@ -171,20 +189,13 @@ sub _help {
     print "\nSyntax: \n    $0 [OPTION] [--] [FILES]\n", <<'EOM';
 
 Common options:
-    -b, --border=LIST       border styles of each line, * matches to the rest
     -d, --delimiter=LIST    delimiter of each fields, * matches to the rest
     -t, --tabstop=LIST      * means auto size (default)
+    -b, --border=LIST       border styles of each line, * matches to the rest
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
     -h, --help              show this help page
         --version           print the version info
-
-Border style:
-    N   none                  age   sex   location
-    F   full                | age | sex | location |
-    O   out                 | age   sex   location |
-    I   in                    age | sex | location
-    H   horizontal line     +----------------------+
 
 Delimiter syntax:
     CHAR        :           age:sex:location
@@ -193,11 +204,18 @@ Delimiter syntax:
     'BEGIN,END' '(,)'       (apple) (pear) (banana)
 
 Tabstop format:
-    [.=-%]NUMBER            left(.), center(=), right(-), full(%)
+    [-=+%]SIZE              left(-), center(=), right(+), full(%)
+
+Border style:
+    N   none                  age   sex   location
+    F   full                | age | sex | location |
+    O   out                 | age   sex   location |
+    I   in                    age | sex | location
+    H   horizontal line     +----------------------+
 
 Examples:
-    tabify -b=HFHF*H -d=":'(,)''->'*" -t="12.10=7=7-10"
-        plane: (Shanghai) 19:30 -> 22:10 Beijing
+    tabify -d=":'(,)''->'=*" -t="12-10=7=7+10" -b=HFHF*H
+        plane: (Shanghai) 19:30 -> 22:10 = Beijing
      => | plane        | Shanghai   |  19:30  |  22:10  |    Beijing |
 EOM
 }
@@ -208,20 +226,25 @@ sub _main {
     my @rows;
     my @fields;
     while (<>) {
+        s/\s+$//s; # chop;
+        @fields = split_ex(\@delim, $_, $field_max);
         if ($field_autof >= @fields) {
             print_rows @rows;
             @rows = ();
         } else {
-            push @rows, \@fields;
-            undef @fields;
+            push @rows, [ @fields ];
         }
     }
-    print_rows @rows if @rows;
-    for (@border) {
-        if ($_ eq 'H') {
-            print_hr;
-        } else {
-            # print empty row.
+    if (@rows) {
+        print_rows @rows;
+    }
+    if (defined $opt_border) {
+        for (@border[$border_tail..$#border]) {
+            if ($_ eq 'H') {
+                print_hr;
+            } else {
+                # print empty row.
+            }
         }
     }
 }
@@ -232,23 +255,111 @@ sub _main {
 
 =cut
 # (HELPER FUNCTIONS)
+
 sub print_rows {
     my @size = @field_size;
+    _log3 "print_rows: ".Dumper(\@_) if $LOGLEVEL >= 3;
     for my $row (@_) {
         next if $field_autof >= @$row;
         for (0..$#$row) {
             next if defined $field_size[$_];
-            my $field = $row->[$_];
-            if (length $field > _or($size[$_], 0)) {
-                $size[$_] = length $field;
+            my $len = length($row->[$_]);
+            $len++ unless defined $opt_border;
+            if ($len > _or($size[$_], 0)) {
+                $size[$_] = $len;
             }
         }
     }
-    for my $row (@_) {
+    @last_size = @size;
+    print_row @$_ for @_;
+}
+
+sub print_row {
+    my $border = 'N';
+    if (defined $opt_border) {
+        while (1) {
+            $border = $border[$border_index];
+            $border_index++ unless $border_index >= $border_tail - 1;
+            if ($border eq 'H') {
+                print_hr;
+            } else {
+                last;
+            }
+        }
     }
+    $last_border = $border;
+
+    # left-border
+    print(($border eq 'F' or $border eq 'O') ? '|' : $NL);
+    print $MARGIN;
+
+    for (0..$#_) {
+        my $cell = $_[$_];
+        my $len = length $cell;
+        my $size = $last_size[$_];
+        my $align = _or($field_align[$_], '<');
+        if ($size > $len) {
+            my $alloc = $size - $len;
+            if ($align eq '>') {
+                $cell = ' 'x$alloc . $cell;
+            } elsif ($align eq '|') {
+                my $left = int($alloc / 2);
+                my $right = $alloc - $left;
+                $cell = ' 'x$left . $cell . ' 'x$right;
+            } elsif ($align eq '%') {
+                $cell = mix_chars($cell, ' 'x$alloc);
+            } else {
+                $cell .= ' 'x$alloc;
+            }
+        } elsif ($len > $size) {
+            if (defined $opt_trim) {
+                my $el = length $opt_trim;
+                my $vsize = $size >= $el ? $size - $el : $size;
+                my $esize = $size - $vsize;
+                $cell = substr($cell, 0, $vsize) . substr($opt_trim, 0, $esize);
+            }
+        }
+
+        # inside-border
+        if ($_ != 0) {
+            print $MARGIN;
+            print(($border eq 'F' or $border eq 'I') ? '|' : $NL);
+            print $MARGIN;
+        }
+
+        print $cell;
+    }
+
+    # right-border
+    print $MARGIN;
+    print(($border eq 'F' or $border eq 'O') ? '|' : $NL);
+    print "\n";
 }
 
 sub print_hr {
+    my $border = $last_border;
+
+    # left-border
+    print(($border eq 'F' or $border eq 'O') ? '+' : $NL);
+    print $MARGIN_HR;
+
+    for (0..$#last_size) {
+        my $size = $last_size[$_];
+
+        # inside-border
+        if ($_ != 0) {
+            print $MARGIN_HR;
+            print(($border eq 'F' or $border eq 'I') ? '+' : $NL);
+            print $MARGIN_HR;
+        }
+
+        print '-'x$size;
+    }
+
+    # right-border
+    print $MARGIN_HR;
+    print(($border eq 'F' or $border eq 'O') ? '+' : $NL);
+    print "\n";
 }
 
 =head1 HACKING
@@ -257,6 +368,74 @@ sub print_hr {
 
 =cut
 # (MODULE FUNCTIONS)
+sub split_ex {
+    my $delims = shift;
+    my $fn = scalar(@$delims) + 1;
+    local $_ = shift;
+    my $max = shift;
+       $max = $fn if defined $max and $fn < $max;
+    my @list;
+    for (my $i = 0; (!defined $max) or $i < $max; $i++) {
+        my $d = $delims->[$i];
+           $d = $delims->[-1] unless defined $d or defined $max;
+        my $item;
+        if (ref $d eq 'ARRAY') {
+            my ($b, $e, $optional) = @$d;
+            my $bpos = index($_, $b);
+            if ($bpos != -1) {
+                $bpos += length($b);
+                my $epos = index($_, $e, $bpos);
+                if ($epos != -1) {
+                    $item = substr($_, $bpos, $epos - $bpos);
+                    $_ = substr($_, $epos + length($e));
+                }
+            }
+            unless (defined $item) {
+                if ($optional) {
+                    $item = '';
+                } else {
+                    $_ = '';
+                }
+            }
+        } elsif (!defined $d) {
+            $item = $_;
+            $_ = '';
+        } elsif (ref $d ne '') {
+            die "unknown delimiter: $d";
+        } else {
+            my $pos = index($_, $d);
+            if ($pos == -1) {
+                $item = $_;
+                $_ = '';
+            } else {
+                $item = substr($_, 0, $pos);
+                $_ = substr($_, $pos + length($d));
+            }
+        }
+        if (defined $item) {
+            $item =~ s/^\s+//;
+            $item =~ s/\s+$//;
+        }
+        push @list, $item;
+        last unless length $_;
+    }
+    @list;
+}
+
+sub mix_chars {
+    my $out = shift @_;
+    for (@_) {
+        my $len0 = length $out;
+        my $l = length $_;
+        for (my $i = $l - 1; $i >= 0; $i--) {
+            my $c = substr($_, $i, 1);
+            my $perc = $l <= 1 ? 0.5 : ($i / $l);
+            my $ins = int(($len0 - 1) * $perc);
+            substr $out, 1 + $ins, 0, $c;
+        }
+    }
+    $out;
+}
 
 =head1 HISTORY
 
@@ -280,21 +459,6 @@ The L<cmt/"Perl_simple_cli_program_template">
 
 =head1 AUTHOR
 
-Xima Lenik <name@mail.box>
+Xima Lenik <lenik@bodz.net>
 
 =cut
-
-__END__
-
-    $regexp = '';
-    for (@delim) {
-        my $item;
-        if (ref $_) {
-            my ($b, $e) = @$_;
-            $item = qr_literal($b).".*?".qr_literal($e);
-        } else {
-            $item = qr_literal($_);
-        }
-        $regexp .= '|' if length $regexp;
-        $regexp .= '('.$item.')';
-    }
