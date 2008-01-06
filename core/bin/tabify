@@ -191,7 +191,8 @@ sub _help {
 Common options:
     -d, --delimiter=LIST    delimiter of each fields, * matches to the rest
     -t, --tabstop=LIST      * means auto size (default)
-    -b, --border=LIST       border styles of each line, * matches to the rest
+    -b, --border[=LIST]     border styles of each line, * matches to the rest
+    -k, --trim[=HINT]       truncate long-field to fit in the cell
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
     -h, --help              show this help page

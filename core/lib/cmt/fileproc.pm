@@ -99,11 +99,13 @@ EOM
 
 our $WALKOPT = <<'EOM';
 Walker Options:
-        -depth=NUMBER       how deep recursive into the directory
-        -filter=REGEXP      only files with basename matches (perl-)REGEXP
-        -hidden             whether hidden files are iterated
-                            (both .* files and files with hidden attribute)
-        -order=[bd]         breadth-first scanning if specified -order=b
+    -depth=NUMBER       max depth recursive into the directory
+    -filter=FILTER      (function/regexp) match files on basename
+    -hidden             whether hidden files are iterated
+                        (.* or hidden attribute set)
+    -order=[bd]         breadth-first scanning if specified -order=b
+    -leave              iterate twice on directories (enter/leave)
+    -sort=COMPARATOR    (function) sort method on each directory
 EOM
 
 =head1 SYNOPSIS
