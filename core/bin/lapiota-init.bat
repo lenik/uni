@@ -126,6 +126,7 @@
         set /p HOME= <"%USERPROFILE%\.homepath"
     )
     if "%CD%"=="%USERPROFILE%" cd /d "%HOME%"
+    if not "%~1"=="" cd /d "%~1"
 
 :level_11
     if %initlevel% lss 11 goto done

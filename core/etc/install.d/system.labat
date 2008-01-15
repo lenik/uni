@@ -96,47 +96,63 @@
             -           | ${findabc -w npp}\notepad++ \"%1\"
             - editbin   Binary Editor
             -           | $LAPIOTA\local\bin\ue.exe \"%1\"
-            - comreg    register com-service
+            - comreg    Register com-service
             -           | regsvr32 \"%1\"
-            - comunreg  unregister com-service
+            - comunreg  Unregister com-service
             -           | regsvr32 /u \"%1\"
-            - touch     touch (to invalidate the timestamp)
+            - touch     Touch (to invalidate the timestamp)
             -           | cmdw /c $CYGWIN_ROOT\bin\touch \"%1\"
-        - Directory ->
-            - ar-tgz    archive this directory into .tgz file
+        - '"Directory Drive Folder" ->'
+            - ar-tgz    Archive this directory into .tgz file
             -           | $LAPIOTA\bin\tgz.bat \"%1\"
-            - ar-chm    archive this directory into .chm file
+            - ar-chm    Archive this directory into .chm file
             -           | $CYGWIN_ROOT\bin\perl /lapiota/bin/mkchm -v \"%1\"
-            - cmd       Win32 Console
-            -           | cmd /k $LAPIOTA\bin\lapiota-init.bat login
-            - bigcmd    Win32 Console (Big)
-            -           | cmdw /c start \"Big\" $LAPIOTA\bin\lapiota-init.bat login
-            - ushell    Unix Shell
+            - cmd       [1] Win32 Console
+            -           | cmd /k $LAPIOTA\bin\lapiota-init.bat login \"%1\"
+            - bigcmd    [1] Win32 Console (Big)
+            -           | cmdw /c start \"Big\" $LAPIOTA\bin\lapiota-init.bat login \"%1\"
+            - ushell    [1] Unix Shell
             -           | $CYGWIN_ROOT\bin\bash
-            - bigushell Unix Shell (Big)
+            - bigushell [1] Unix Shell (Big)
             -           | cmdw /c start \"Big\" $CYGWIN_ROOT\bin\bash
-            - medit     edit files under this directory
+            - medit     Edit files under this directory
             -           | $LAPIOTA\bin\mani.bat -f
-            - renum     renumbering files in this directory
+            - renum     Renumbering files in this directory
             -           | $LAPIOTA\usr\bin\renum -D -w 2 \"%1\*\"
-            - mp3ltrim  format file names for media files (mp3, etc.)
+            - mp3ltrim  Format file names for media files (mp3, etc.)
             -           | $CYGWIN_ROOT\bin\perl /lapiota/bin/mp3ltrim.pl
-            # nfsmap    add nfs mapping
+            # nfsmap    Add nfs mapping
             #           | $CYGWIN_ROOT\bin\perl /lapiota/bin/nfs.pl -i -m
-            - send2sf   send to sourceforge (ftp/incoming)
+            - send2sf   Send to sourceforge (ftp/incoming)
             -           | $CYGWIN_ROOT\bin\perl /lapiota/bin/ftpsend.pl .
-            # gbin      gather binaries
+            # gbin      Gather binaries
             #           | $LAPIOTA\bin\mvup.bat -c "%1\..\..\bin\" -t "%1\..\..\bin\" *.exe *.dll *.ocx
-        - chm.file  unchm   extract files in current directory
+            - make      Make
+            -           | $LAPIOTA\bin\xmake.bat -C \"%1\"
+            - makerun   Make and run
+            -           | $LAPIOTA\bin\xmake.bat -x -C \"%1\"
+        - '".c .cpp .cxx .pas" ->'
+            - compl     Compile
+            -           | notimpl
+            - complrun  Compile and run
+            -           | notimpl
+        - .chm      unchm   Extract files in current directory
         -           | $CYGWIN_ROOT\bin\perl /lapiota/bin/unchm \"%1\"
+        -  chm.file unchm   Extract files in current directory
+        -           | $CYGWIN_ROOT\bin\perl /lapiota/bin/unchm \"%1\"
+        - .class    decompl Decompile java class
+        -           | $LAPIOTA\bin\pi.bat $LAPIOTA\usr\bin\jad -p %1 \pi; $CYGWIN_ROOT\bin\less
+        - '".jar .war .ear jarfile warfile earfile" ->'
+            - decompl   Decompile java archive
+            -       | $LAPIOTA\bin\dejar.bat \"%1\"
         - .lst      medit   edit files in the list
         -           | $LAPIOTA/bin/mani.bat -f \"%1\"
         - .patch    merge   merge the patch into current directory
         -           | $CYGWIN_ROOT/bin/patch
-        - AutoHotkeyScript ->
+        - '".ahk AutoHotkeyScript" ->'
             - open
             -           | ${findabc -w autohotkey}\autohotkey \"%1\"
-            - Compile   Compile Script
+            - compl     Compile Script
             -           | ${findabc -w autohotkey}\Compiler\ahk2exe /in \"%1\"
 
     - set-assoc:
@@ -163,6 +179,14 @@
         - M4-script         .m4
         -   | $CYGWIN_ROOT\bin\m4 \"%0\" %*
 -
+  :ntsys:
+    :: NT system adjust
+    :kernel:
+        :: Kernel preferences
+        set-reg:
+            - LMachine/SOFTWARE/Microsoft/"Windows NT"/CurrentVersion/->
+                - AeDebug/@Auto             sz:0
+                - AeDebug/@Debugger         sz:"drwtsn32 -p %ld -e %ld -g"
   :application:
     :: Set applications' preferences
     :sysapp:

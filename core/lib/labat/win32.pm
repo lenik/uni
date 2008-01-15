@@ -76,9 +76,11 @@ sub _cs_NIDC {
     sub { *__ANON__ = '<_cs_NIDC>';
         my $ctx = shift;
         my ($nid, $c) = @_;
-        my ($n, $i, $d) = split(/\s+/, $nid, 3);
-        $c = join(' ', labat::_resolv2($ctx, $c));
-        $code->($ctx, $n, $i, $d, $c)
+        my ($n, $i, $d) = qsplit(qr/\s+/, $nid, 3);
+        for (split(/\s+/, $n)) {
+            $c = join(' ', labat::_resolv2($ctx, $c));
+            $code->($ctx, $_, $i, $d, $c)
+        }
     }
 }
 

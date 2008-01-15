@@ -7,16 +7,17 @@ mkchm - General CHM Packager
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
-    $LOGNAME    = 'mkchm'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::chm;
+use cmt::fswalk('fswalk');
 use cmt::i18n;
     # $cmt::i18n::DFL_ENC     = $LC_ENCODING;
     $cmt::i18n::DFL_FB      = ' ';
-use cmt::lang;
+use cmt::lang('_or');
 use cmt::log(3);
-use cmt::path;
-use cmt::pp;
-use cmt::util;
+    $LOGNAME    = 'mkchm'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::path('path_join', 'path_split', 'path_splitext');
+use cmt::pp('ppcmtstr');
+use cmt::util('array_index', 'readfile');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
     $cmt::chm::opt_appname = "mkchm-$RCSID{rev}";
@@ -67,6 +68,7 @@ sub _boot {
                'extension|e=s'  => \@opt_html_ext,
                'chm-option|c=s' => \%opt_chm,
                );
+    no warnings('once');
     $cmt::chm::LOGNAME  = 'mkchm';
     # $cmt::chm::LOGTIME  = $LOGTIME;
     $cmt::chm::LOGLEVEL = $LOGLEVEL;
@@ -310,6 +312,7 @@ sub _main {
     }
     my $roots = ext_dirproc(pop @stack);
     push @files, autogen_index($roots);
+    print Dump(\@files);
     prefix_compact $roots, qr/^((.......+?)\s*[:.\-\/>\)\]~|]\s+)(.+)$/,
         $opt_compact_min;
     htabindent $roots;

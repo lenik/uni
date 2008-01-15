@@ -2,47 +2,36 @@
 
 =head1 NAME
 
-pc - Progress/Percent Counter
+ss - safe-save after received all contents
 
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
-    $LOGNAME    = 'pc'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+    $LOGNAME    = 'ss'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id$');
+    my %RCSID   = parse_id('$Id: .pl 776 2007-12-24 12:11:36Z lenik $');
 use Getopt::Long;
 
 sub _main; sub _version; sub _help;
-sub percent;
 
-our $opt_total;
-our $opt_caption        = '';
-our $opt_lines;
-our $opt_echo;
-our $opt_gui;
+our $opt_file;
 
 sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
                'help|h'         => sub { _help; exit 0 },
-               'total|t=n',
-               'caption|c=s',
-               'lines|l',
-               'echo|e',
-               'gui|g',
                );
-    if (@ARGV) {
-        $opt_caption = join(' ', @ARGV);
-    }
-    $| = 1;
+    die "please specify a filename to save" unless @ARGV;
+    $opt_file = shift @ARGV;
+
     _main;
 }
 
 =head1 SYNOPSIS
 
-B<pc>
+B<ss>
     S<[ B<-q> | B<--quiet> ]>
     S<[ B<-v> | B<--verbose> ]>
     S<[ B<-h> | B<--help> ]>
@@ -50,13 +39,13 @@ B<pc>
     S<[ B<--> ]>
     S<[ I<...the rest of arguments...> ]>
 
-=head1 Progress/Percent Counter
+=head1 safe-save after received all contents
 
-B<pc> is a WHAT used for WHAT. It HOW-WORKS.
+B<ss> is a WHAT used for WHAT. It HOW-WORKS.
 
 BACKGROUND-PROBLEM.
 
-HOW-pc-RESOLVES.
+HOW-ss-RESOLVES.
 
 =head1 OPTIONS
 
@@ -101,11 +90,6 @@ sub _help {
     print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
 
 Common options:
-    -t, --total=NUMBER      total lines to show percentage
-    -c, --caption=STRING    default using the rest arguments
-    -l, --lines             show line no
-    -e, --echo              echo the input line
-    -g, --gui               graphics-mode, NOT IMPLEMENTED
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
     -h, --help              show this help page
@@ -116,20 +100,18 @@ EOM
 exit (_boot or 0);
 
 sub _main {
-    my $line_no = 0;
+    my @buffer;
+    my $lines = 0;
     while (<STDIN>) {
-        $line_no++;
-        print "\r";
-        print $opt_caption . ' ' if $opt_caption;
-        if ($opt_echo) {
-            chomp;
-            print;
-        }
-        print percent($line_no / $opt_total) . ' '
-            if defined $opt_total;
-        print " $line_no" if $opt_lines;
+        push @buffer, $_;
+        _sig2 'buffer', ++$lines;
     }
-    print "\n";
+    _log2 "save to file $opt_file";
+    open(FH, '>', $opt_file)
+        or die "can't write to file $opt_file: $!";
+    print FH for @buffer;
+    close FH;
+    _log2 "total $lines lines.";
 }
 
 =head1 DIAGNOSTICS
@@ -145,10 +127,6 @@ sub _main {
 
 =cut
 # (MODULE FUNCTIONS)
-sub percent {
-    my $perc = 100 * shift;
-    return sprintf("%2.0f%%", $perc);
-}
 
 =head1 HISTORY
 
@@ -162,7 +140,7 @@ The initial version.
 
 =cut
 sub _version {
-    print "[$LOGNAME] Progress/Percent Counter \n";
+    print "[$LOGNAME] safe-save after received all contents \n";
     print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 

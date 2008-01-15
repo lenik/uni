@@ -201,7 +201,7 @@ sub _resolvf    {
 sub _resolv     { my ($ctx, $s) = @_; my $f = _resolvf($ctx);
                   ppvarf(\&$f, $s) }
 sub _resolv2    { my ($ctx, $s) = @_; $s = _resolv($ctx, $s);
-                  qsplit(qr/\s+/, $s, undef, '\'"`') }
+                  qsplit(qr/\s+/, $s, undef, undef, '\'"`') }
 
 sub _compact {
     if (wantarray) {

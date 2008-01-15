@@ -12,7 +12,7 @@ use cmt::lang();
 use cmt::log(3, '_sigx');
     $LOGNAME    = 'repl';
     $LOGLEVEL   = 2;
-use cmt::util('safeslash', 'ssub');
+use cmt::util('array_index', 'safeslash', 'ssub');
 use cmt::vcs('parse_id');
     my %RCSID = parse_id('$Id$');
 # use Data::Dumper;

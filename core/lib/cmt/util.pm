@@ -171,10 +171,11 @@ sub qeval {
     $_
 }
 
-# qsplit [$sep=SPC [$string=$_ [\&evaluator [$qchars]]]]
+# qsplit [$sep=SPC [$string=$_ [$max [\&evaluator [$qchars]]]]]
 sub qsplit {
     my $sep = _or(shift, qr/\s+/);
     local $_= @_ ? shift : $_;
+    my $max = _or(shift, 0);
     my @mem = _qeval($_, @_);
     map {
             s/~(\d+);/$mem[$1]/g;
@@ -182,7 +183,7 @@ sub qsplit {
             s/~;/~/g;
             $_
         }
-        split($sep, $_)
+        split($sep, $_, $max)
 }
 
 sub append_cmdline {
