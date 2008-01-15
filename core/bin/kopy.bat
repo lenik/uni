@@ -10,24 +10,33 @@
 
 :start
 :normal
-    if not exist "%~1" (
-        echo %1 isn't existed.
-        goto end
-    )
+    set _src=%~1
+    set _dir=%~dp1
     set _base=%~nx1
+    if exist "%_src%" goto got_target
 
+    set _dir=%~dp$PATH:1
+    if exist "!_dir!%~nx1" (
+        if not exist "!_dir!%~nx1\*" (
+            set _src=!_dir!%~nx1
+            goto got_target
+        )
+    )
+
+    echo %1 isn't existed.
+    exit /b 1
+
+:got_target
   :_disable_sfc
-
   :_copy
     if "%~2"=="" (
-    rem call :copy "%~1" "%windir%\ServicePackFiles\i386\%_base%"
-        call :copy "%~1" "%windir%\System32\dllcache\%_base%"
-        call :copy "%~1" "%windir%\System32\%_base%"
-        call :copy "%~1" "%windir%\%_base%"
+    rem call :copy "%_src%" "%windir%\ServicePackFiles\i386\%_base%"
+        call :copy "%_src%" "%windir%\System32\dllcache\%_base%"
+        call :copy "%_src%" "%windir%\System32\%_base%"
+        call :copy "%_src%" "%windir%\%_base%"
     ) else (
-        call :copy "%~1" "%~2"
+        call :copy "%_src%" "%~2"
     )
-
   :_enable_sfc
 
   :_finalize
@@ -36,7 +45,7 @@
         %_final%
     )
     echo done.
-    goto cleanup
+    exit /b 0
 
 :chsh
 :change_shell
@@ -63,7 +72,7 @@
     ) else (
         copy "%~1" "%~2" >nul
     )
-    goto end
+    exit /b
 
 :init
     set  _verbose=0
@@ -94,7 +103,7 @@
     ) else if "%_arg:~0,1%"=="-" (
         if "%_strict%"=="1" (
             echo Invalid option: %1
-            goto end
+            exit /b 1
         ) else (
             set _%_arg:~1%=%~2
             if %_verbose% geq 1 echo _%_arg:~1%=%~2
@@ -121,9 +130,9 @@
         set      _time=%%k
         set    _author=%%l
     )
-    echo [TITLE] System/Kernel files replacer
+    echo [kopy] System/Kernel files replacer
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
-    goto end
+    exit /b 0
 
 :help
     call :version
@@ -139,8 +148,4 @@
     echo    -v, --verbose       repeat to get more info
     echo        --version       show version info
     echo    -h, --help          show this help page
-    goto end
-
-:cleanup
-
-:end
+    exit /b 0
