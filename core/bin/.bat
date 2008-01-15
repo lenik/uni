@@ -22,7 +22,7 @@
     if "%~1"=="--version"   goto version
     if "%~1"=="-h"          goto help
     if "%~1"=="--help"      goto help
-    if "%~1"=="-" (
+    if "%~1"=="--" (
         shift
         goto prep2
     )
@@ -67,7 +67,7 @@
     goto prep3
 
 :init_ok
-    if %_verbose% geq 1 (set _ | tabify -d="=" -b=HF*H)
+    if %_verbose% geq 1 (set _ | tabify -b -d==)
     goto start
 
 :version

@@ -1,20 +1,22 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+hex - convert numbers between different systems
+
+=cut
 use strict;
-use cmt::util;
-use cmt::vcs;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'hex'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
 
-sub _boot;
-sub main;
-sub info;
-sub info2;
-sub version;
-sub help;
-
-our $opt_verbtitle      = 'hex';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
+sub _main; sub _version; sub _help;
+sub systemDecode;
+sub systemEncode;
+sub radixTable;
 
 our $opt_table          = '0123456789abcdefghijklmnopqrstuvwxyz';
 our $opt_upper          = 0;
@@ -66,13 +68,13 @@ our @ccr_table_c2n  = (
         );
 
 sub _boot {
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help|h'     => sub { help; exit },
-               'alphabet=s' => \$opt_table,
-               'uppercase'  => sub { $opt_upper = 1 },
-               'lowercase'  => sub { $opt_upper = 0 },
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'alphabet=s'     => \$opt_table,
+               'uppercase'      => sub { $opt_upper = 1 },
+               'lowercase'      => sub { $opt_upper = 0 },
                'from|f=n',
                'to=n',
                'print:s',
@@ -86,65 +88,134 @@ sub _boot {
     $opt_print = '$dh' if $opt_print eq '';
 
     $opt_dump ||= 16 if defined $opt_dump;
-    main;
+    _main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+B<hex>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub version {
-    my %id = parse_id('$Id$');
-    print "[$opt_verbtitle] Number system reference \n";
-    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-}
+=head1 convert numbers between different systems
 
-sub help {
-    version;
-    print <<"EOM";
+B<hex> is a WHAT used for WHAT. It HOW-WORKS.
 
-Syntax:
-        $0 <options> ...
+BACKGROUND-PROBLEM.
 
-Options:
-        --alphabet=<string>         (a)
-        --ccr-mode                  (c)
-        --dump=<line-width>         (d, set -d to have a 16-byte width)
+HOW-hex-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -f, --from=ORDIX
+    -t, --to=ORDIX
+    -a, --alphabet=STRING
+    -c, --ccr-mode
         --force
-        --from=<from-system>        (f)
-        --lowercase                 (l)
-        --print=<format>            (p, default '\$dh'>
-        --to=<target-system>        (t)
-        --uppercase                 (u)
-        --width=<width-in-letters>  (w)
-        --quiet                     (q)
-        --verbose                   (v, repeat to get more info)
-        --version
-        --help                      (h)
+    -p, --print=FORMAT      default '$dh'
+    -l, --lowercase
+    -u, --uppercase
+    -w, --width=WIDTH
+    -d, --dump[=LINEWIDTH]  default 16
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
 
-Format-String: *
-        \$<runtime-variable>
-        \\<escape-char>
-        <literal-char>
+Format:
+    CHAR    $VARS   \ESC_CHAR
 
-Example:
+Examples:
     hex -p=\$dh. 233 12 55 302 34           Output: e9.c.37.12e.22.
     hex 233 12 55 302 34 -p                 Output: e9c3712e22
-    hex -c -p=\$dd. '.brp'                   Output:
+    hex -c -p=$dd. '.brp'                   Output:
 EOM
 }
 
 exit (_boot or 0);
+
+sub _main {
+    if (defined $opt_dump) {
+        die "Only hex-dump is supported, yet" if $opt_dump != 16;
+        my $s = join(' ', @ARGV);
+        $s = readfile $s if -f $s;
+        for (my $i = 0; $i < length($s); $i++) {
+            my $c = substr($s, $i, 1);
+            printf("%02x", ord $c);
+        }
+        print "\n";
+        exit;
+    }
+
+    for (@ARGV) {
+        if (m/^[\'\"]/) {
+            my @chars = split('', substr($_, 1, -1));
+            for (@chars) {
+                my $num = ord;
+                if ($opt_ccr_mode) {
+                    $num = $ccr_table_c2n[$num];
+                    die "Undefined CCR character: $_" if ($num < 0);
+                }
+                radixTable $num;
+            }
+        } else {
+            die "Only positive integer are supported. " if (m/^\s*-/);
+            radixTable;
+        }
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
 
 sub systemDecode {
     my ($text, $sys) = @_;
@@ -209,13 +280,13 @@ Number @<
     From  \  To |    Binary    |    Octal     |   Decimal    | Hexadecimal
     ------------+--------------+--------------+--------------+--------------
     Binary      |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>>
-                 $bb            $bo            $bd            $bh
+                 $bb,           $bo,           $bd,           $bh,
     Octal       |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>>
-                 $ob            $oo            $od            $oh
+                 $ob,           $oo,           $od,           $oh,
     Decimal     |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>>
-                 $db            $do            $dd            $dh
+                 $db,           $do,           $dd,           $dh,
     Hexadecimal |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>> |@>>>>>>>>>>>>
-                 $hb            $ho            $hd            $hh
+                 $hb,           $ho,           $hd,           $hh,
 
 .
         write;
@@ -224,33 +295,35 @@ Number @<
     }
 }
 
-sub main {
-    if (defined $opt_dump) {
-        die "Only hex-dump is supported, yet" if $opt_dump != 16;
-        my $s = join(' ', @ARGV);
-        $s = readfile $s if -f $s;
-        for (my $i = 0; $i < length($s); $i++) {
-            my $c = substr($s, $i, 1);
-            printf("%02x", ord $c);
-        }
-        print "\n";
-        exit;
-    }
+=head1 HACKING
 
-    for (@ARGV) {
-        if (m/^[\'\"]/) {
-            my @chars = split('', substr($_, 1, -1));
-            for (@chars) {
-                my $num = ord;
-                if ($opt_ccr_mode) {
-                    $num = $ccr_table_c2n[$num];
-                    die "Undefined CCR character: $_" if ($num < 0);
-                }
-                radixTable $num;
-            }
-        } else {
-            die "Only positive integer are supported. " if (m/^\s*-/);
-            radixTable;
-        }
-    }
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] convert numbers between different systems \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

@@ -63,7 +63,7 @@
     if not "%~4"=="" set _char=%~4
 
 :init_ok
-    if %_verbose% geq 1 (set _ | tabify -b -d==)
+    if %_verbose% geq 2 (set _ | tabify -b -d==)
     goto start
 
 :version
