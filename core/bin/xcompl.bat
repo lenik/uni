@@ -5,20 +5,16 @@
     goto init
 
 :start
+    gcc %_cflags% -o "%_dst%" %_rest%
+    if not "%_exec%"=="1" goto end
 
-    set _testdir=_rentest
+:exec
+    clear
+    "%_dst%"
 
-    if not exist "%_testdir%\." mkdir "%_testdir%"
-    for %%i in (%_oldp%) do touch "%_testdir%\%%i"
-
-    pushd "%_testdir%" 2>nul
-        ren "%_oldp%" "%_newp%"
-        dir /b
-    popd 2>nul
-
-    rd /s /q "%_testdir%"
-
-    goto cleanup
+:end
+    if "%_pause%"=="1" pause
+    exit /b 0
 
 :init
     set  _verbose=0
@@ -26,7 +22,11 @@
     set     _rest=
     set _startdir=%~dp0
     set  _program=%~dpnx0
+    set     _exec=
+    set    _pause=
+    set   _cflags=
 
+:: BUGFIX (512-ALIGNMENT) :::::::::::::::::::::::::::::::::::::::::::::::::::::
 :prep1
     if "%~1"==""            goto prep2
     if "%~1"=="--version"   goto version
@@ -46,15 +46,12 @@
         set /a _verbose = _verbose + 1
     ) else if "%~1"=="--verbose" (
         set /a _verbose = _verbose + 1
-    ) else if "%_arg:~0,1%"=="-" (
-        if "%_strict%"=="1" (
-            echo Invalid option: %1
-            goto end
-        ) else (
-            set _%_arg:~1%=%~2
-            if %_verbose% geq 1 echo _%_arg:~1%=%~2
-            shift
-        )
+    ) else if "%~1"=="-p" (
+        set _pause=1
+    ) else if "%~1"=="--pause" (
+        set _pause=1
+    ) else if "%~1"=="-x" (
+        set _exec=1
     ) else (
         goto prep2
     )
@@ -62,47 +59,51 @@
     goto prep1
 
 :prep2
-    if "%~2"=="" goto help
-    set _oldp=%~1
-    set _newp=%~2
-    shift
-    shift
+    if "%~1"=="" goto help
+    set _src=%~dpnx1
+    set _dst=%~dpn1.exe
+    REM shift
 
 :prep3
-    if "%~1"=="" goto init_ok
+    if "%~1"=="" (
+        set _=%1.
+        set _=!_:"=?!
+        if !_!==. goto init_ok
+    )
     set _rest=%_rest%%1
     shift
     goto prep3
 
 :init_ok
-    if %_verbose% geq 2 (set _ | tabify -b -d==)
+    if %_verbose% geq 1 (set _ | tabify -b -d==)
     goto start
 
 :version
-    set _id=$Id$
+    set _id=$Id: .bat 783 2008-01-15 09:53:52Z lenik $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
         set      _time=%%k
         set    _author=%%l
     )
-    echo [TITLE] REN test utility
+    echo [xcompl] launch c compiler for windows
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
-    goto end
+    echo.
+    make --version
+    exit /b 0
 
 :help
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] oldpattern newpattern
+    echo    %_program% [OPTION] MAIN-FILE OTHER-FILES
     echo.
     echo Options:
+    echo    -x                  execute the program after compiled
     echo    -q, --quiet         repeat to get less info
     echo    -v, --verbose       repeat to get more info
     echo        --version       show version info
     echo    -h, --help          show this help page
-    goto end
-
-:cleanup
-
-:end
+    echo.
+    make --help
+    exit /b 0

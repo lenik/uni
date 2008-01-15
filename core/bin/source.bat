@@ -75,7 +75,7 @@
 
 :prep3
     if "%~1"=="" goto init_ok
-    set _rest=%_rest%%~1
+    set _rest=%_rest%%1
     shift
     goto prep3
 

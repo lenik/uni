@@ -116,6 +116,10 @@ sub _main {
     my $ctx  = [ $funs, $vars, [$cat], $fs ];
 
     for my $file (@ARGV) {
+        unless (-f $file) {
+            $file .= '.labat' if -f "$file.labat";
+            die "file isn't existed: $file" unless -f $file;
+        }
         _log2 "parse $file";
         my $cnt = readfile($file);
         my $root = load_syaml($cnt);
