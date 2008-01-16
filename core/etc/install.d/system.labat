@@ -106,7 +106,7 @@
             - ar-tgz    Archive this directory into .tgz file
             -           | $LAPIOTA\bin\tgz.bat \"%1\"
             - ar-chm    Archive this directory into .chm file
-            -           | $CYGWIN_ROOT\bin\perl /lapiota/bin/mkchm -v \"%1\"
+            -           | $LAPIOTA\bin\w\mkchm.bat -v \"%1\"
             - cmd       [1] Win32 Console
             -           | cmd /k $LAPIOTA\bin\lapiota-init.bat login \"%1\"
             - bigcmd    [1] Win32 Console (Big)
@@ -120,40 +120,44 @@
             - renum     Renumbering files in this directory
             -           | $LAPIOTA\usr\bin\renum -D -w 2 \"%1\*\"
             - mp3ltrim  Format file names for media files (mp3, etc.)
-            -           | $CYGWIN_ROOT\bin\perl /lapiota/bin/mp3ltrim.pl
+            -           | $LAPIOTA\bin\w\mp3ltrim.bat
             # nfsmap    Add nfs mapping
-            #           | $CYGWIN_ROOT\bin\perl /lapiota/bin/nfs.pl -i -m
+            #           | $LAPIOTA\bin\w\nfs.bat -i -m
             - send2sf   Send to sourceforge (ftp/incoming)
-            -           | $CYGWIN_ROOT\bin\perl /lapiota/bin/ftpsend.pl .
+            -           | $LAPIOTA\bin\w\ftpsend.bat .
             # gbin      Gather binaries
             #           | $LAPIOTA\bin\mvup.bat -c "%1\..\..\bin\" -t "%1\..\..\bin\" *.exe *.dll *.ocx
             - make      Make
             -           | $LAPIOTA\bin\xmake.bat --pause -C \"%1\"
             - makerun   Make and run
             -           | $LAPIOTA\bin\xmake.bat --pause -x -C \"%1\"
-        - '".c .cpp .cxx .pas" ->'
-            - compl     Compile
-            -           | $LAPIOTA\bin\xcompl.bat --pause \"%1\"
-            - complrun  Compile and run
-            -           | $LAPIOTA\bin\xcompl.bat --pause -x \"%1\"
-        - .chm      unchm   Extract files in current directory
-        -           | $CYGWIN_ROOT\bin\perl /lapiota/bin/unchm \"%1\"
-        -  chm.file unchm   Extract files in current directory
-        -           | $CYGWIN_ROOT\bin\perl /lapiota/bin/unchm \"%1\"
-        - .class    decompl Decompile java class
-        -           | $LAPIOTA\bin\pi.bat $LAPIOTA\usr\bin\jad -p %1 \pi; $CYGWIN_ROOT\bin\less
-        - '".jar .war .ear jarfile warfile earfile" ->'
-            - decompl   Decompile java archive
-            -       | $LAPIOTA\bin\dejar.bat \"%1\"
-        - .lst      medit   edit files in the list
-        -           | $LAPIOTA/bin/mani.bat -f \"%1\"
-        - .patch    merge   merge the patch into current directory
-        -           | $CYGWIN_ROOT/bin/patch
         - '".ahk AutoHotkeyScript" ->'
             - open
             -           | ${findabc -w autohotkey}\autohotkey \"%1\"
             - compl     Compile Script
             -           | ${findabc -w autohotkey}\Compiler\ahk2exe /in \"%1\"
+        - '".c .cpp .cxx .pas" ->'
+            - compl     Compile
+            -           | $LAPIOTA\bin\xcompl.bat --pause \"%1\"
+            - complrun  Compile and run
+            -           | $LAPIOTA\bin\xcompl.bat --pause -x \"%1\"
+        - '".chm chm.file" ->'
+            - unchm     Extract files in current directory
+            -           | $LAPIOTA\bin\w\unchm.bat \"%1\"
+        - .class ->
+            - decompl   Decompile java class
+            -           | $LAPIOTA\bin\pi.bat $LAPIOTA\usr\bin\jad -p \"%1\" \pi; $CYGWIN_ROOT\bin\less
+        - '".jar .war .ear jarfile warfile earfile" ->'
+            - decompl   Decompile java archive
+            -           | $LAPIOTA\bin\dejar.bat \"%1\"
+        - .lst ->
+            - medit     edit files in the list
+            -           | $LAPIOTA/bin/mani.bat -f \"%1\"
+        - .patch ->
+            - cat       Print in categories
+            -           | $LAPIOTA\bin\pi.bat $LAPIOTA\bin\w\patchs.bat \"%1\" \pi; $CYGWIN_ROOT\bin\less -p \"Patch of .*"
+            - merge     Merge the patch into current directory
+            -           | $CYGWIN_ROOT/bin/patch
 
     - set-assoc:
         - shell-script      .sh
