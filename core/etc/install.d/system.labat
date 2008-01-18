@@ -106,7 +106,7 @@
             - ar-tgz    Archive this directory into .tgz file
             -           | $LAPIOTA\bin\tgz.bat \"%1\"
             - ar-chm    Archive this directory into .chm file
-            -           | $LAPIOTA\bin\w\mkchm.bat -v \"%1\"
+            -           | $LAPIOTA\bin\w\mkchm.bat -v -r -cd -o .. \"%1\"
             - cmd       [1] Win32 Console
             -           | cmd /k $LAPIOTA\bin\lapiota-init.bat login \"%1\"
             - bigcmd    [1] Win32 Console (Big)

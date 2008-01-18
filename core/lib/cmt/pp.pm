@@ -1,30 +1,42 @@
 package cmt::pp;
 
+=head1 NAME
+
+cmt::pp - General Preprocessor
+
+=cut
 use strict;
-use vars        qw(@ISA @EXPORT);
+use vars qw($LOGNAME $LOGLEVEL);
 use cmt::atext;
-use cmt::util;
-# use Data::Dumper;
+use cmt::log(2);
+    our $LOGNAME    = __PACKAGE__;
+    our $LOGLEVEL   = 1;
+use cmt::util('forx', 'get_named_args', 'qr_literal');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
+    our $VER    = "0.$RCSID{rev}";
 use Exporter;
-use UNIVERSAL   qw(isa);
 
-@ISA    = qw(Exporter);
-@EXPORT = qw(pp
-             ppcmt
-             ppcmtstr
-             ppdom
-             ppvarf
-             ppvar
-             ppfmt_foobar);
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(pp
+                 ppcmt
+                 ppcmtstr
+                 ppdom
+                 ppvarf
+                 ppvar
+                 ppfmt_foobar
+                 );
 
-my %PDEF = (    # Pairs
+# INITIALIZORS
+
+our %PDEF = (    # Pairs
     '('         => ')',     # qr/.*?\)/,
     '['         => ']',     # qr/.*?\]/,
     '{'         => '}',     # qr/.*?\}/,
     '<'         => '>',     # qr/.*?\>/,
 );
 
-my %QDEF = (    # Quotes
+our %QDEF = (    # Quotes
     '"'         => qr/((?:\\.|[^"])*)"/,
     '\''        => qr/((?:\\.|[^'])*)'/,
     '`'         => qr/((?:\\.|[^`])*)`/,
@@ -48,18 +60,42 @@ my %QDEF = (    # Quotes
     '#'         => qr/(.*)$/,
 );
 
+=head1 SYNOPSIS
+
+    use cmt::pp;
+    mysub(arguments...)
+
+=head1 General Preprocessor
+
+B<cmt::pp> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-cmt::pp-RESOLVES.
+
+=head1 FUNCTIONS
+
+=cut
+=head2 mysub(arguments)
+
+=cut
 sub pp(&;@) {
     my $call    = shift;
     my %cfg;      get_named_args @_, %cfg;
     my $qdef    = $cfg{-qdef} || \%QDEF;
-    my $qset    = qr_literal($cfg{-qset} || '\'|"|#', 'o');
+
+    # -qset specifies a set of quote chars (char `|' should be escaped as `\|')
+    # the default set is: (', ", #), while # is a line-comment char.
+    my $qset    = qr_literal($cfg{-qset} || '\'|"|#', 'or');
+
+    # remove the quote char itself when callback.
     my $rem     = $cfg{-rem};
 
-    my $X;
-    my @Xbuf;
+    my $X;      # starting quote char
+    my @Xbuf;   # quote buffer
     # (\\.|[^"])*"
     my $qend;
-    my $proc = sub {
+    my $proc = sub { *__ANON__ = '<line>';
         if (defined $X) {
             if (s/^$qend//) {
                 push @Xbuf, $rem ? $1 : $&;
@@ -89,9 +125,10 @@ sub pp(&;@) {
                 $_ = substr($_, length $X) if $rem;
                 push @Xbuf, $_;
                 undef $_;
+                last;
             }
         }
-        $call->() if $_ ne '';
+        $call->() if defined $_;
     };
 
     if (scalar @_ == 0) {
@@ -160,7 +197,7 @@ sub ppdom(&;@) {
     my $pdef    = $cfg{-pdef} || \%PDEF;
     my $pset    = $cfg{-pset} || [ keys %$pdef ];
        $pset    = [ split(/\|/, $pset) ] unless ref $pset; # '(|[|{'
-    my $pset2   = qr_literal(join('|', @$pset, @$pdef{@$pset}), 'o');
+    my $pset2   = qr_literal(join('|', @$pset, @$pdef{@$pset}), 'or');
     my $rem     = $cfg{-rem};
     my $errf    = $cfg{-err} || \&_errdie;
     delete $cfg{-pdef};
@@ -247,7 +284,7 @@ sub ppfmt_foobar(&$) {
     my $resolv  = shift;
     my $text    = shift;
     my $root    = ppdom {
-        if (isa $_, 'cmt::atext::Tag') {
+        if (UNIVERSAL::isa($_, 'cmt::atext::Tag')) {
             if ($_->tag eq '%') {
                 $_ = atext_call $resolv, $_->val;
             } elsif ($_->tag eq '[') {
@@ -270,4 +307,30 @@ sub ppfmt_foobar(&$) {
       -rem => 1, $text;
 }
 
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_module_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
 1

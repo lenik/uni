@@ -86,7 +86,7 @@ my $opt_verbose = 1;
         my $path = shift;
         my ($dir, $name) = path_split($path);
         my ($base, $ext) =
-                ($name =~ m/^(.*?)(\.[^.]*)?$/);
+                ($name =~ m/^(.*?)((?:\.[^.]*)?)$/);
         wantarray ? ($base, $ext) : $ext;
     }
 
@@ -109,9 +109,9 @@ my $opt_verbose = 1;
         my @dest;
         foreach (@_) {
             if ($_ eq '..') {
-                if ($dest[-1] eq '..') {
+                if (! @dest) {
                     push @dest, '..';
-                } elsif (!@dest) {
+                } elsif ($dest[-1] eq '..') {
                     push @dest, '..';
                 } else {
                     pop @dest;

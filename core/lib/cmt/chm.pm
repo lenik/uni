@@ -18,19 +18,21 @@ package cmt::chm;
 
 =cut
 use strict;
-#use cmt::i18n();
-use cmt::path;
-use cmt::pp('ppvar');
+use cmt::i18n('hiconv');
+use cmt::lang('_emptyp', '_NA');
+use cmt::log(2);
+    our $LOGNAME    = __PACKAGE__;
+    our $LOGLEVEL   = 1;
+use cmt::path('path_join', 'path_split', 'path_splitext');
+use cmt::pp('pp', 'ppvar');
+use cmt::str('trim');
 use cmt::time('cdatetime');
 use cmt::util('writefile');
 use Data::Dumper;
 use Exporter;
 use YAML;
 
-our $opt_verbtitle      = __PACKAGE__;
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
-our $opt_appname        = $opt_verbtitle;
+our $opt_appname        = $LOGNAME;
 our $opt_templates;
     $opt_templates      = Load(join('', <DATA>));
 
@@ -60,20 +62,6 @@ sub htabindent;
 sub prefix_compact;
 sub autogen_index;
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
-
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
-
 sub parse_attributes {
     my $s = shift || $_;
     while (/((?:\w|-)+)\s*=\s*(".*?"|'.*?'|\S+)/g) {
@@ -102,25 +90,27 @@ sub htmlinfo {
     my $tag;
     my $tagbuf;
     my $charset;
-    pp {
+    pp { *__ANON__ = '<htmlinfo.pp>';
         my $X = shift;
         $tagbuf .= $_ if !$X && defined $tag;
-        return unless $X eq '<';
+        return unless defined $X and $X eq '<';
         $_ = hiconv($_, $charset) if defined $charset;
-        if (/^\/((?:\w|-)+)/) {           # endtag: </tag>
+        if (defined $tag and /^\/((?:\w|-)+)/) { # endtag: </tag>
             if ($tag eq lc $1) {
                 if ($tag eq 'title') {
                     $tagbuf = hiconv($tagbuf, $charset) if defined $charset;
+                    trim $tagbuf;
                     $info->{'.title'} = $tagbuf;
                 } elsif ($tag =~ /^h\d+$/i) {
                     $tagbuf = hiconv($tagbuf, $charset) if defined $charset;
+                    trim $tagbuf;
                     my $hX = '.'.lc($tag);
                     push @{$info->{$hX}}, $tagbuf;
                 }
             } else {
                 # ignore unmatched starttag/endtag
                 # force to close the tag, exception for NOBREAK ones.
-                return if defined $tag and $TAG_NOBREAK{$tag};
+                return if $TAG_NOBREAK{$tag};
             }
             undef $tag;
             undef $tagbuf;
@@ -161,12 +151,12 @@ sub htmlinfo {
 
 my %XMLENTS = (
     '"'     => '&quot;',
-    # '\''    => '&apos;',
+    '\''    => '&apos;',
     '&'     => '&amp;',
     );
 sub xml_value {
     my $v = shift || $_;
-    $v =~ s/["'&]/$XMLENTS{$&}/g;
+    $v =~ s/["&]/$XMLENTS{$&}/g;
     return $v;
 }
 
@@ -196,12 +186,11 @@ sub icon_index {
 
 sub sitemap {
     my ($name, $loc, $icon) = @_;
-    $name =~ s/\s+/ /sg; # normalize-space, also remove newlines
-    my $more = '<param name="ImageNumber" value="'.icon_index($icon).'">'
-        if defined $icon;
-    return '<LI><OBJECT type="text/sitemap"><param name="Name" value="'
-            . xml_value($name) . '"><param name="Local" value="'
-            . $loc . '">'.$more.'</OBJECT></LI>'."\n";
+    $name =~ s/\s+/ /sg if defined $name; # normalize-space, also remove newlines
+    my $pname   = defined $name ? '<param name="Name" value="' . xml_value($name) . '">' : '';
+    my $plocal  = defined $loc  ? '<param name="Local" value="' . $loc . '">' : '';
+    my $more    = defined $icon ? '<param name="ImageNumber" value="'.icon_index($icon).'">' : '';
+    return '<LI><OBJECT type="text/sitemap">'.$pname.$plocal.$more.'</OBJECT></LI>'."\n";
 }
 
 sub dump_hhp {
@@ -312,7 +301,7 @@ sub chm_compile {
 
     my $g_prjfile = !-f $prjfile;
     unless (0) { #-f $prjfile) {
-        info2 "writing $prjfile";
+        _log2 "writing $prjfile";
         dump_hhp $prjfile, \%cfg;
     }
 
@@ -321,16 +310,16 @@ sub chm_compile {
     my $g_tocfile = !-f $tocfile;
     my $g_idxfile = !-f $idxfile;
     unless (0) { #-f $tocfile) {
-        info2 "writing $tocfile";
+        _log2 "writing $tocfile";
         dump_hhc path_join($basedir, $tocfile), $cfg{-roots};
     }
     unless (0) { #-f $idxfile) {
-        info2 "writing $idxfile";
+        _log2 "writing $idxfile";
         dump_hhk path_join($basedir, $idxfile), $cfg{-index};
     }
     return 1 if $preview;
 
-    info2 "invoking hhc";
+    _log2 "invoking hhc";
     my $ret;
        $ret = _hhc($prjfile);
     # unlink $prjfile if $g_prjfile;
@@ -387,7 +376,7 @@ sub htabindent {
             }
         }
         if (defined $parent) {
-            info2 "htabindent $tab: ".$sibling->[1];
+            _log2 "htabindent $tab: ".$sibling->[1];
             my $htabrange = $parent->[2]->{'htabrange'}++;
             if ($htabrange == 0) {
                 # add the first indented child, this is a chance to init
@@ -422,7 +411,9 @@ sub prefix_compact {
     for (my $i = 3; $i < @$node; $i++) {
         my $child = $node->[$i];
         if (@$child > 3) {
-            unless ($child->[3]->[0] =~ /#[^\/]+$/) {   # never compact anchors
+            my $childanchor = $child->[3]->[0];
+            next unless defined $childanchor;
+            unless ($childanchor =~ /#[^\/]+$/) {   # never compact anchors
                 prefix_compact($child, $pattern, $minrep);
             }
         }
@@ -452,16 +443,20 @@ sub prefix_compact {
     while (@range) {
         my $range = pop @range;
         my ($prefix, $off, $len) = @$range;
-        info2 "compact $prefix into a section. (off=$off len=$len)";
+        _log2 "compact $prefix into a section. (off=$off len=$len)";
         my @compact = splice(@$node, $off, $len, undef);
         my $skipped = 0;
         for (my $i = 0; $i < @compact; $i++) {
             my $cnode = $compact[$i];
-            my $ctitle = substr($cnode->[1], length($prefix));
-            if ($ctitle eq '') {
+            my $ctitle = $cnode->[1];
+            if (length($ctitle) < length($prefix)) {
+                $ctitle = '<prefix-compact error> ' . $ctitle;
+            } else {
+                $ctitle = substr($ctitle, length($prefix));
+            }
+            if (_emptyp $ctitle) {
                 $ctitle = $cnode->[2]->{'head'};
-                $ctitle = '<<'.($i - $skipped).'>>' if $ctitle eq '';
-                $cnode->[1] = $ctitle;
+                $ctitle = '<<'.($i - $skipped).'>>' if _emptyp $ctitle;
                 if (0) {    # DISABLED.
                     # merge the descendent (level 1)
                     my @merge_down = splice(@$cnode, 3);
@@ -469,9 +464,8 @@ sub prefix_compact {
                     $skipped += @merge_down;
                     $i += @merge_down;
                 }
-            } else {
-                $cnode->[1] = $ctitle;
             }
+            $cnode->[1] = $ctitle;
         }
         $prefix = $1 if $prefix =~ /$pattern/;
         $node->[$off] = [ $compact[0]->[0], $prefix, { type => 'dir.pc' },
@@ -482,11 +476,12 @@ sub prefix_compact {
 sub autogen_index {
     my $node = shift;
     my @addfiles;
-    my $body;
+    my $body = '';
     for (my $i = 3; $i < @$node; $i++) {
         my $child = $node->[$i];
         if (@$child > 3) {
             my $childanchor = $child->[3]->[0];
+            next unless defined $childanchor;
             if ($childanchor =~ /#[^\/]+$/) {
                 # child is a file, so don't have to recursive into.
             } else {
@@ -494,7 +489,8 @@ sub autogen_index {
             }
         }
         my $file = $child->[0];
-        my $title = $child->[1];
+        next unless defined $file;  # special/dirs don't assoc with a file.
+        my $title = _NA($child->[1]);
         my $size = -s $file;
         $body .= "<tr><td>$title</td><td><a href=\"$file\">$file</a></td>"
                 ."<td>$size</td></tr>\n";
@@ -502,7 +498,7 @@ sub autogen_index {
     if (!defined $node->[0] and defined (my $dir = $node->[2]->{'dir'})) {
         my $indexfile = '$MKCHM_INDEX.html';
         my $file = $dir.'/'.$indexfile;
-        info "auto generate index: $file";
+        _log1 "auto generate index: $file";
         my %vars = (
             title   => $node->[1],
             body    => $body,

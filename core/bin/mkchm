@@ -9,10 +9,10 @@ use strict;
 use vars qw($LOGNAME $LOGLEVEL);
 use cmt::chm;
 use cmt::fswalk('fswalk');
-use cmt::i18n;
+use cmt::i18n('hremoveents');
     # $cmt::i18n::DFL_ENC     = $LC_ENCODING;
     $cmt::i18n::DFL_FB      = ' ';
-use cmt::lang('_or');
+use cmt::lang('_def', '_or');
 use cmt::log(3);
     $LOGNAME    = 'mkchm'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::path('path_join', 'path_split', 'path_splitext');
@@ -25,6 +25,7 @@ use Cwd;
 use Data::Dumper;
 use DirHandle;
 use Getopt::Long;
+use YAML;
 
 sub _main; sub _version; sub _help;
 sub ls_sort;
@@ -34,16 +35,18 @@ sub findindex;
 sub ext_dirproc;
 sub urldecode;
 
+our $opt_chdir;
 our @opt_files;
 our $opt_output;                        # default <root-dir>.chm
 our $opt_has_root;                      # prefer root-node to root-list
 our %opt_fswalk         = (-depth => 0, -leave => 1, -sort => \&ls_sort);
 our $opt_style          = 'auto';       # styles: auto, fs
 our $opt_no_anchors     = 1;
-our $opt_title_format   = '(if $title $title $filename)';
+our $opt_title_format   = 'Tthf';
+our $opt_title_sort;
 our $opt_compact_min    = 3;
 our @opt_index          = qw(default index);
-our @opt_html_ext       = qw(html htm cgi php jsp asp aspx);
+our @opt_html_ext       = qw(.html .htm .cgi .php .jsp .asp .aspx);
 our @opt_page_filter;                   # join by and
 our @opt_media_filter;                  # join by and
 our $opt_dict;                          # user dict file for keyword-replace
@@ -56,6 +59,7 @@ sub _boot {
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
                'help|h'         => sub { _help; exit 0 },
+               'chdir|cd:s',
                'output|o=s',
                'has-root',
                'recursive|r:n'  => sub { shift; $opt_fswalk{-depth} = shift || 100 },
@@ -67,10 +71,10 @@ sub _boot {
                'index|i=s',     => \@opt_index,
                'extension|e=s'  => \@opt_html_ext,
                'chm-option|c=s' => \%opt_chm,
+               'title-sort|ts',
+               'title-format|tf=s',
                );
-    no warnings('once');
     $cmt::chm::LOGNAME  = 'mkchm';
-    # $cmt::chm::LOGTIME  = $LOGTIME;
     $cmt::chm::LOGLEVEL = $LOGLEVEL;
 
     @opt_files = @ARGV;
@@ -78,6 +82,28 @@ sub _boot {
         die("No file specified. ");
     }
 
+    if (defined $opt_chdir) {
+        my $basedir;
+        if (@opt_files == 1) {
+            my $file = $opt_files[0];
+            $basedir = $file if -d $file;
+        }
+        if ($opt_chdir eq '') {
+            if (defined $basedir) {
+                $opt_chdir = $basedir;
+                $opt_files[0] = '.';
+            } else {
+                die "don't know where to chdir";
+            }
+        }
+        chdir($opt_chdir) or die "can't chdir to $opt_chdir: $!";
+    }
+
+    my $outdir;
+    if (-d $opt_output) {
+        $outdir = $opt_output;
+        undef $opt_output;
+    }
     if (! defined $opt_output and -d $opt_files[0]) {
         my ($dir, $base) = path_split($opt_files[0]);
         if ($base eq '' or $base eq '.') {
@@ -86,6 +112,8 @@ sub _boot {
         }
         $opt_output = $base.'.chm';
     }
+    $opt_output = path_join($outdir, $opt_output)
+        if defined $outdir;
     $opt_chm{-output} = $opt_output if defined $opt_output;
 
     if (defined $opt_dict) {
@@ -108,6 +136,11 @@ sub _boot {
             die "Dict file $opt_dict isn't existed";
         }
         _P2 "Dict-Content: \n".Dump($opt_dict);
+    }
+
+    if ($opt_title_format eq '?') {
+    # TODO
+        require cmt::
     }
 
     _log2 "start file: $_" for @opt_files;
@@ -175,21 +208,30 @@ sub _help {
     print "\nSyntax: \n    $0 [OPTION] [--] FILES\n", <<'EOM';
 
 Common options:
+    -cd,--chdir=DIR         chdir into DIR
     -o, --output=CHMFILE    default <root-dir>.chm
         --has-root          prefer root-node to root-list
     -r, --recursive=MAX     max depth recurse into the directory
         --hiddens           include hidden files (.file)
     -s, --style=STYLE       auto or fs, default auto
+    -ts,--title-sort        always sort by title (ignore $MKCHM_TITLESORT file)
+    -tf,--title-format=FMT  title format (`?' for interactive), default `Tthf'
     -p, --page-filter=EXP   filters of html pages to be packaged)
     -m, --media-filter=EXP  filters of media files to be packaged)
     -d, --dict=FILE         user dict file
     -i, --index=FILENAME    prefered index-page file names (ordered)
-    -e, --extension=EXT     default: html htm cgi php jsp asp aspx
+    -e, --extension=EXT     default: .html .htm .cgi .php .jsp .asp .aspx
     -c, --chm-option=OPT=VAL chm-options passed to chm::chm_compile
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
     -h, --help              show this help page
         --version           print the version info
+
+Title format preference:
+    T   title section in META tags
+    t   title in TITLE
+    h   head (h1, h2, etc.)
+    f   file name
 EOM
 }
 
@@ -197,12 +239,13 @@ exit (_boot or 0);
 
 sub _main {
     my @files;
+    # see helpdoc in cmt::chm
     my @stack = ( [ undef, 'start', { dir => '.' }, ] );
     my $start;
     my $has_index;
     my %idx;
     for (@opt_files) {
-        fswalk {
+        fswalk { *__ANON__ = '<walkit>';
             my $path = shift;
             my ($dir, $base) = path_split($path);
             if (-d $path) {
@@ -223,15 +266,22 @@ sub _main {
             return 0 if $base =~ /^\$MKCHM_/;
             if (ishtml $path) {
                 _log1 "page $path";
-                my $info = htmlinfo [readfile($path)];
+                my $info = htmlinfo [ readfile($path) ];
                 my $attrs = { info => $info, type => 'page' };
                 _log3 Dumper($info);
-                my $title = _or($info->{'.title'}, $info->{'title'});
                 my ($head, $htab);
                    if (ref (my $h1 = $info->{'.h1'})) { $head = $h1->[0]; $htab = 0 }
                 elsif (ref (my $h2 = $info->{'.h2'})) { $head = $h2->[0]; $htab = 1 }
                 elsif (ref (my $h3 = $info->{'.h3'})) { $head = $h3->[0]; $htab = 2 }
                 elsif (ref (my $h4 = $info->{'.h4'})) { $head = $h4->[0]; $htab = 3 }
+
+                my %frags = (
+                    'T' => $info->{'title'},    # decl in <meta> section
+                    't' => $info->{'.title'},   # decl in <title> section
+                    'h' => $head,
+                    'f' => $base,
+                    );
+                my $title = _sor();
 
                 if (defined $title) {
                     $title =~ s/\s+/ /sg; # normalize-space, also remove newlines
@@ -239,8 +289,6 @@ sub _main {
                     # BUGFIX: htmlhelp can't handle with &#xxx; in menu caption
                     $title = hremoveents($title);
                 }
-                $title = $head if $title eq '';
-                $title = $base if $title eq '';
                 if (defined $head) {
                     my $hlev = $htab + 1;
                     _log2 "  head$hlev $head";
@@ -312,7 +360,7 @@ sub _main {
     }
     my $roots = ext_dirproc(pop @stack);
     push @files, autogen_index($roots);
-    print Dump(\@files);
+    print Dump(\@files) if $LOGLEVEL >= 3;
     prefix_compact $roots, qr/^((.......+?)\s*[:.\-\/>\)\]~|]\s+)(.+)$/,
         $opt_compact_min;
     htabindent $roots;
@@ -355,28 +403,33 @@ sub dsplit {
 }
 
 sub ls_sort {
-    my ($a, $b) = @_;
-    my (@a, @b, @n, @m);
+    my ($sa, $sb) = @_;
     if ($BUGFIX_5F) {
-        $a =~ s/_5F(\d+)\./_$1./;
-        $b =~ s/_5F(\d+)\./_$1./;
+        $sa =~ s/_5F(\d+)\./_$1./;
+        $sb =~ s/_5F(\d+)\./_$1./;
     }
-    while ($a =~ /(\d+)|(\D+)/g) { push @n, $1; push @a, $2; }
-    while ($b =~ /(\d+)|(\D+)/g) { push @m, $1; push @b, $2; }
-    for (my $i = 0; $i < @n; $i++) {
-        if ($n[$i] == $m[$i]) {
-            next if $a[$i] eq $b[$i];
-            return $a[$i] cmp $b[$i];
+    my (@A, @B, @N, @M);
+    # $sa nums->@N words->@A
+    while ($sa =~ /(\d+)|(\D+)/g) { push @N, $1; push @A, $2; }
+    # $s nums->@M words->@B
+    while ($sb =~ /(\d+)|(\D+)/g) { push @M, $1; push @B, $2; }
+    my $min = @N < @M ? @N : @M;
+    for (my $i = 0; $i < $min; $i++) {
+        my ($n, $m) = (_or($N[$i], 0), _or($M[$i], 0));
+        if ($n == $m) {
+            my ($a, $b) = (_or($A[$i], ''), _or($B[$i], ''));
+            next if $a eq $b;
+            return $a cmp $b;
         } else {
-            return $n[$i] <=> $m[$i];
+            return $n <=> $m;
         }
     }
-    return @n <=> @m;
+    return @N <=> @M;
 }
 
 sub ishtml {
     my $path = shift;
-    my $ext  = substr(path_splitext($path), 1);
+    my $ext  = path_splitext($path);
     array_index(@opt_html_ext, $ext) >= 0
 }
 
@@ -386,7 +439,7 @@ sub isindex {
     $base = lc $base unless $case_sens;
     for my $ext (@opt_html_ext) {
         for my $name (@opt_index) {
-            my $file = "$name.$ext";
+            my $file = "$name$ext";
             $file = lc $file unless $case_sens;
             return 1 if $file eq $base;
         }
@@ -398,7 +451,7 @@ sub findindex {
     my $dir = shift;
     for my $ext (@opt_html_ext) {
         for my $name (@opt_index) {
-            my $file = "$name.$ext";
+            my $file = "$name$ext";
             return $file if -f path_join($dir, $file);
         }
     }
@@ -408,8 +461,10 @@ sub findindex {
 sub ext_dirproc {
     my $node = shift;
     my ($dir, $index) = path_split($node->[0]);
-    if (-f "$dir/\$MKCHM_TITLESORT") {
-        _log1 "titlesort $dir/";
+    return $node unless defined $dir; # root node doesn't have dir.
+
+    if ($opt_title_sort or -f "$dir/\$MKCHM_TITLESORT") {
+        _log1 "title-sort $dir/";
         if (@$node > 3) {
             my @sublist = sort { ls_sort($a->[1], $b->[1]) } splice(@$node, 3);
             push @$node, @sublist;

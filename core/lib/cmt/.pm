@@ -8,8 +8,8 @@ UnKnOwN - DeScRiPtIoN
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
-    $LOGNAME    = __PACKAGE__;
-    $LOGLEVEL   = 1;
+    our $LOGNAME    = __PACKAGE__;
+    our $LOGLEVEL   = 1;
 use cmt::util();
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');

@@ -1,9 +1,31 @@
 package cmt::g;
 
-use strict;
-use Exporter;
-use vars qw/@ISA @EXPORT/;
+=head1 NAME
 
+cmt::g - Graphical Script Encoder Vol.gene
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::codec;
+use cmt::log(2);
+    our $LOGNAME    = __PACKAGE__;
+    our $LOGLEVEL   = 1;
+use cmt::util();
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
+    our $VER    = "0.$RCSID{rev}";
+use Crypt::DES;
+use Crypt::CBC;
+use Exporter;
+use Term::ReadKey;
+
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(DNA
+                 DNA_decode
+                 );
+
+# INITIALIZORS
 
 sub DNA;
 sub DNA_decode;
@@ -12,6 +34,30 @@ our $opt_protect_scheme;
 our $opt_protect;
 our $opt_cipher;
 
+=head1 SYNOPSIS
+
+    use cmt::g;
+
+    DNA << DNA;
+        AT
+        C G
+        ...
+    DNA
+
+=head1 Graphical Script Encoder Vol.gene
+
+B<cmt::g> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-cmt::g-RESOLVES.
+
+=head1 FUNCTIONS
+
+=cut
+=head2 mysub(arguments)
+
+=cut
 
 sub DNA {
     my $dna_slices = shift;
@@ -21,10 +67,9 @@ sub DNA {
     return $program;
 }
 
-
 sub DNA_decode {
     my @slice_lines;
-       @slice_lines = split("\n", shift);
+       @slice_lines = split(/\n/, shift);
     my $slice_line;
     my @decoded_lines;
     my $decoded_line = '';
@@ -105,14 +150,8 @@ sub DNA_decode {
     }
 }
 
-
 sub DNA_init_protect {
     my $args = shift;
-
-    use cmt::codec;
-    use Crypt::DES;
-    use Crypt::CBC;
-    use Term::ReadKey;
 
     $opt_protect_scheme = $args;
     if (not defined $opt_protect) {
@@ -125,30 +164,30 @@ sub DNA_init_protect {
     }
 }
 
+=head1 DIAGNOSTICS
 
+(No Information)
 
-@ISA = qw/Exporter/;
-@EXPORT = qw/DNA DNA_decode/;
+=cut
+# (HELPER FUNCTIONS)
 
+=head1 HISTORY
 
+=over
 
-__END__
+=item 0.x
 
-=head1 NAME
+The initial version.
 
-gene - Graphical Script Encoder Vol.gene
+=back
 
-=head1 SYNOPSIS
+=head1 SEE ALSO
 
-    use gene;
+The L<cmt/"Perl_simple_module_template">
 
-    DNA << DNA;
-        AT
-        C G
-        ...
-    DNA
+=head1 AUTHOR
 
-=head1 DESCRIPTION
+Xima Lenik <name@mail.box>
 
-    No description.
-
+=cut
+1

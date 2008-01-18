@@ -16,7 +16,8 @@ use cmt::log(2);
     }
 use cmt::serv;
 use cmt::stream;
-use cmt::util('indent');
+use cmt::util();
+use cmt::str('indent');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
 use cmt::win32;

@@ -31,7 +31,8 @@ sub esc_code { ord shift }
 
 sub hdecode {
     my ($enc, $bin) = @_;
-    my $buf;
+    return undef unless defined $bin;
+    my $buf = '';
     while (length $bin) {
         $buf .= decode($enc, $bin, Encode::FB_QUIET);
         if (length $bin) {
@@ -46,7 +47,8 @@ sub hdecode {
 
 sub hencode {
     my ($enc, $wstr) = @_;
-    my $buf;
+    return undef unless defined $wstr;
+    my $buf = '';
     while (length $wstr) {
         $buf .= encode($enc, $wstr, Encode::FB_QUIET);
         if (length $wstr) {
@@ -60,15 +62,18 @@ sub hencode {
 
 sub hiconv {
     my $bin     = shift;
-    my $from    = shift || 'iso-8859-1';    # from raw ascii
-    my $to      = shift || $DFL_ENC;        # to locale default encoding
+    return undef unless defined $bin;
+    my $from    = _or(shift, 'iso-8859-1');     # from raw ascii
+    my $to      = _or(shift, $DFL_ENC);         # to locale default encoding
     my $wstr    = hdecode($from, $bin);
-    hencode($to, $wstr)
+    my $cbin    = hencode($to, $wstr);
+    return $cbin;
 }
 
 sub _encode {
     my ($enc, $wstr, $fallback) = @_;
-    my $buf;
+    return undef unless defined $wstr;
+    my $buf = '';
     while (length $wstr) {
         $buf .= encode($enc, $wstr, Encode::FB_QUIET);
         if (length $wstr) {
@@ -82,7 +87,7 @@ sub _encode {
 
 sub hremoveents {   # remove entities in html
     my $str     = shift;
-    my $enc     = shift || $DFL_ENC;
+    my $enc     = _or(shift, $DFL_ENC);
     my $fallback= _or(shift, $DFL_FB);
     $str =~ s/&#(\d+);/ my $c = chr($1); my $bin = encode($enc, $c, Encode::FB_QUIET);
                         $bin = $fallback if (length $c); $bin /seg;

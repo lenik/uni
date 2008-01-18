@@ -1,9 +1,21 @@
 package cmt::guiutil;
 
+=head1 NAME
+
+cmt::guiutil - DeScRiPtIoN
+
+=cut
 use strict;
-use vars qw/@ISA @EXPORT/;
-use cmt::ftime;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::ftime();
 use cmt::ios;
+use cmt::log(2);
+    our $LOGNAME    = __PACKAGE__;
+    our $LOGLEVEL   = 1;
+use cmt::util();
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
+    our $VER    = "0.$RCSID{rev}";
 use Data::Dumper;
 use Exporter;
 use IO::Handle;
@@ -13,15 +25,36 @@ use Thread;
 use Tk;
 use Tk::Event;
 
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(bgloop
+                 mon_fdout
+                 );
+
+# INITIALIZORS
+
 sub bgloop;
 sub mon_fdout;
 sub fdout_readable;
 
-sub info {
-    my $msg = shift;
-    print "  -- $msg\n";
-}
+=head1 SYNOPSIS
 
+    use cmt::guiutil;
+    mysub(arguments...)
+
+=head1 DESCRIPTION
+
+B<cmt::guiutil> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-cmt::guiutil-RESOLVES.
+
+=head1 FUNCTIONS
+
+=cut
+=head2 mysub(arguments)
+
+=cut
 sub bgloop {
     my $widget      = shift;
     my $interval    = shift;        # ms
@@ -184,14 +217,14 @@ sub mon_fdout {
                 $_ = $srcfilter->($_);
                 next unless defined $_;
             }
-            # info "Send: $_";
+            _log2 "Send: $_";
             print $fdout_wt $_;
             fsleep $slowdown if $slowdown;
         }
         shutdown $fdout_wt, 2;
     });
 
-    # info "MainLoop";
+    _log2 "MainLoop";
     if ($mw) {
         $w->grab;
         $w->waitWindow;
@@ -199,7 +232,7 @@ sub mon_fdout {
         MainLoop;
     }
 
-    # info "exit on $exit_on";
+    _log2 "exit on $exit_on";
     if ($exit_on eq 'ok') {
         # Block, the btnok only enabled after EOF
         $child->join;                   # Block
@@ -217,7 +250,7 @@ sub mon_fdout {
 }
 
 sub fdout_readable {
-    # info "read";
+    _log2 "read";
     my ($fdout_rd, $cfg, $ui) = @_;
     my $eventmode = $cfg->{-eventmode};
     my $out = <$fdout_rd>;
@@ -230,7 +263,7 @@ sub fdout_readable {
     $out =~ s/\r//g;                    # improve display: don't show "\x{d}"
 
     my $body = $ui->{body};
-    # info "read $out";
+    _log2 "read $out";
     $body->insert('end', $out);
 
     if (my $maxlines = $cfg->{maxlines} || 100) {
@@ -239,7 +272,7 @@ sub fdout_readable {
     }
 
     if ($eof) {
-        # info "read: EOF";
+        _log2 "read: EOF";
         if ($eventmode eq 'fileevent') {
             my $eventmgr = $ui->{eventmgr};
             $eventmgr->fileevent($fdout_rd, 'readable' => undef);
@@ -267,8 +300,30 @@ sub fdout_readable {
     return ! $eof;
 }
 
-@ISA    = qw(Exporter);
-@EXPORT = qw(bgloop
-             mon_fdout);
+=head1 DIAGNOSTICS
 
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_module_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
 1

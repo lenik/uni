@@ -38,10 +38,6 @@ our @EXPORT = qw(forx
                  writefile
                  select_input
                  seleci
-                 indent
-                 unindent_
-                 unindent
-                 abbrev
                  fire_sub
                  fire_method
                  at_exit
@@ -247,7 +243,11 @@ sub addopts_long {
     $vars;
 }
 
-sub _eq { $_[0] eq $_[1] }
+sub _eq {
+    my ($a, $b) = @_;
+    defined $a ? (defined $b ? $a eq $b : undef)
+               : (! defined $b)
+}
 
 sub arraycmp {
     my ($a, $b) = @_;
@@ -386,38 +386,6 @@ sub seleci {
         open(STDIN, '<&', $oldin)
             or die "can't restore STDIN to the dup-backuped one: $!";
     }
-}
-
-sub indent {
-    my $prefix = shift;
-        $prefix = ' 'x$prefix if $prefix =~ /^\d+$/;
-    my @lines = split(/\n/, shift);
-    join("\n", map { $prefix.$_ } @lines);
-}
-
-sub unindent_ {
-    my $len     = shift;
-    my @lines   = scalar @_ > 1 ? @_ : split(/\n/, shift);
-    if ($len <= 0) {
-        my ($s) = ($lines[0] =~ /^(\s*)/);
-        $len    = length $s;
-    }
-    my $pattern = qr/^\s{1,$len}/;
-    join("\n", map { s/$pattern//; $_ } @lines);
-}
-
-sub unindent {
-    unindent_ 0, @_
-}
-
-sub abbrev {
-    my $maxlen = shift;
-    my $text = join(@_);
-    $text =~ s/\n/ /g;
-    if (length $text > $maxlen) {
-        substr($text, $maxlen - 5) = '...';
-    }
-    return $text;
 }
 
 sub fire_sub {

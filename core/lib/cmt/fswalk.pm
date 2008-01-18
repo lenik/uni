@@ -7,10 +7,10 @@ cmt::fswalk - DeScRiPtIoN
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
-    $LOGNAME    = __PACKAGE__;
-    $LOGLEVEL   = 1;
-use cmt::lang;
+use cmt::lang('_or');
 use cmt::log(2);
+    our $LOGNAME    = __PACKAGE__;
+    our $LOGLEVEL   = 1;
 use cmt::path('path_join', 'path_split', '_H', '_S');
 use cmt::util('get_named_args', 'listdir');
 use cmt::vcs('parse_id');
@@ -65,7 +65,7 @@ HOW-cmt::fswalk-RESOLVES.
 =cut
 sub fswalk(&;@) {
         no warnings('uninitialized');
-    my $cb      = shift;
+    my $cb      = shift;    # (file, [leave])
     my %cfg     = get_named_args @_;
     my $start   = _or($cfg{-start}, '.');
     my $filter  = $cfg{-filter};
@@ -83,7 +83,7 @@ sub fswalk(&;@) {
     my $leave   = $cfg{-leave};
     my $sort    = $cfg{-sort};
     my $excl    = not $cfg{-inclusive};     # include the start file
-    my $iter;
+    my $iter;   # (start, level)
        $iter    = sub { *__ANON__ = '<iter>';
         my $start = shift;
         my $dir   = $start;
