@@ -3,7 +3,6 @@ package net.bodz.lapiota.ant.tasks;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -177,10 +176,9 @@ public class GenerateBatches extends Task {
 
     static {
         id = Rcs.parseId(GenerateBatches.class);
-
-        URL tmpl = Files.getClassURL(GenerateBatches.class, "bat.tmpl");
         try {
-            template = Files.readAll(tmpl, "utf-8");
+            template = Files.readAll(GenerateBatches.class, //
+                    "bat.tmpl", "utf-8");
         } catch (IOException e) {
             throw new IdentifiedException(e.getMessage(), e);
         }

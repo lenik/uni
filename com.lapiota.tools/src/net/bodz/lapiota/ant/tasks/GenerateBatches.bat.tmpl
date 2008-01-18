@@ -24,6 +24,7 @@
     set _namf=%_nam:.=\%
     set _ext=
     set JAVAFLAGS=-ea -DGenerateBatches=1
+    if not "%JAVA_HOME%"=="" set PATH=%JAVA_HOME%\bin;%PATH%
 
 :find_target
     for %%f in (%_namf%.class setcp.bat) do (
@@ -69,12 +70,12 @@
     goto next_arg
 
 :bycmd
-    if not "%_dir%"=="" (
-        set JAVAFLAGS=%JAVAFLAGS% -cp "%_dir%"
-    )
-
     if exist "%_dir%setcp.bat" (
         call "%_dir%setcp.bat"
+    )
+
+    if not "%_dir%"=="" (
+        set CLASSPATH=%CLASSPATH%;%_dir:\=/%
     )
 
     if "%_shell%"=="cmdw" goto startw

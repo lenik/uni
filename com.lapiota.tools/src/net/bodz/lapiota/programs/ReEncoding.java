@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashSet;
@@ -259,14 +258,14 @@ public class ReEncoding implements FilenameFilter {
     public static void help() {
         System.out.print("ReEncoding: Change encodings for text files\n"
                 + "Available charsets: \n");
-        Map charsets = Charset.availableCharsets();
-        Iterator charsetNames = charsets.keySet().iterator();
+        Map<?, ?> charsets = Charset.availableCharsets();
+        Iterator<?> charsetNames = charsets.keySet().iterator();
         while (charsetNames.hasNext()) {
             String charsetName = (String) charsetNames.next();
             System.out.print("	" + charsetName);
             Charset charset = (Charset) charsets.get(charsetName);
 
-            Iterator aliases = charset.aliases().iterator();
+            Iterator<?> aliases = charset.aliases().iterator();
             while (aliases.hasNext()) {
                 String aliasName = (String) aliases.next();
                 System.out.print(", " + aliasName);
@@ -274,10 +273,9 @@ public class ReEncoding implements FilenameFilter {
             System.out.println();
         }
 
-        URL help = Files.getClassURL(ReEncoding.class, "help");
         String helpdoc;
         try {
-            helpdoc = Files.readAll(help, "utf-8");
+            helpdoc = Files.readAll(ReEncoding.class, "help", "utf-8");
         } catch (IOException e) {
             throw new IdentifiedException(e.getMessage(), e);
         }
