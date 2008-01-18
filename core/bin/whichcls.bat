@@ -16,6 +16,7 @@
     set     _rest=
     set _startdir=%~dp0
     set  _program=%~dpnx0
+    set    _recur=
     set       _cp=.
     set    _names=
 
@@ -38,6 +39,10 @@
         set /a _verbose = _verbose + 1
     ) else if "%~1"=="--verbose" (
         set /a _verbose = _verbose + 1
+    ) else if "%~1"=="-r" (
+        set _recur=1
+    ) else if "%~1"=="--recursive" (
+        set _recur=1
     ) else if "%_arg:~0,1%"=="-" (
         if "%_strict%"=="1" (
             echo Invalid option: %1
@@ -65,8 +70,16 @@
 
 :prepcp
     if "%~1"=="" goto prep3
-    for %%i in ("%~1") do (
-        set _cp=!_cp!;%%~dpnxi
+    if "%_recur%"=="1" (
+        for /r %%i in ("%~1") do (
+            if %_verbose% geq 1 echo classpath - %%~dpnxi
+            set _cp=!_cp!;%%~dpnxi
+        )
+    ) else (
+        for %%i in ("%~1") do (
+            if %_verbose% geq 1 echo classpath - %%~dpnxi
+            set _cp=!_cp!;%%~dpnxi
+        )
     )
     shift
     goto prepcp
@@ -82,7 +95,7 @@
     goto prep3
 
 :init_ok
-    if %_verbose% geq 1 (set _ | tabify -b -d==)
+    if %_verbose% geq 2 (set _ | tabify -b -d==)
     goto start
 
 :version
@@ -104,6 +117,7 @@
     echo    %_program% [OPTION] CLASSES [--] CLASSPATHS
     echo.
     echo Options:
+    echo    -r, --recursive     recursive into subdirectories when necessary
     echo    -q, --quiet         repeat to get less info
     echo    -v, --verbose       repeat to get more info
     echo        --version       show version info

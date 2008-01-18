@@ -91,7 +91,7 @@
             - /lapiota/usr/lib/python2.4
 
     - set-ctxmenu:
-        - \* ->
+        - '* ->'
             - edittxt   Text Editor
             -           | ${findabc -w npp}\notepad++ \"%1\"
             - editbin   Binary Editor
@@ -150,9 +150,12 @@
         - '".jar .war .ear jarfile warfile earfile" ->'
             - decompl   Decompile java archive
             -           | $LAPIOTA\bin\dejar.bat \"%1\"
+        - .labat ->
+            - install   Install
+            -           | $LAPIOTA\bin\w\labat.bat \"%1\"
         - .lst ->
-            - medit     edit files in the list
-            -           | $LAPIOTA/bin/mani.bat -f \"%1\"
+            - medit     Edit files in the list
+            -           | $LAPIOTA\bin\mani.bat -f \"%1\"
         - .patch ->
             - cat       Print in categories
             -           | $LAPIOTA\bin\pi.bat $LAPIOTA\bin\w\patchs.bat \"%1\" \pi; $CYGWIN_ROOT\bin\less -p \"Patch of .*"
@@ -160,28 +163,28 @@
             -           | $CYGWIN_ROOT/bin/patch
 
     - set-assoc:
-        - shell-script      .sh
-        -   | $LAPIOTA\bin\myexec /2 $SHELL -c \"%0\" %*
-        - X-shell-script    .x
-        -   | cmd /c %%PERL%% $LAPIOTA\bin\runx.pl -k -- \"%0\" %*
-        - perl-program      .p .pc .pl
+        - M4-script         .m4
+        -   | $CYGWIN_ROOT\bin\m4 \"%0\" %*
+        - php-program       .php
+        -   | ${findabc -w php}\php.exe \"%0\" %*
+        - perl-program      .pl .p .pc
         -   | cmd /c %%PERL%% \"%0\" %*
         - perl-daemon       .pld
         -   | cmdw /c %%PERLW%% \"%0\" %*
         - python-program    .py .pyc
         -   | $CYGWIN_ROOT\bin\python.exe \"%0\" %*
-        - php-program       .php
-        -   | ${findabc -w php}\php.exe \"%0\" %*
         - ruby-program      .rb
         -   | ${findabc -w ruby}\bin\ruby \"%0\" %*
-        - PLT-scheme        .ss
-        -   | ${findabc -w plt_scheme}\mzscheme \"%0\" %*
         - MIT-scheme        .scm
         -   | ${findabc -w mit_scheme}\bin\scheme \"%0\" %*
-        - six-program       .6 .six
+        - shell-script      .sh
+        -   | $LAPIOTA\bin\myexec /2 $SHELL -c \"%0\" %*
+        - six-program       .six .6
         -   | reserved
-        - M4-script         .m4
-        -   | $CYGWIN_ROOT\bin\m4 \"%0\" %*
+        - PLT-scheme        .ss
+        -   | ${findabc -w plt_scheme}\mzscheme \"%0\" %*
+        - X-shell-script    .x
+        -   | cmd /c %%PERL%% $LAPIOTA\bin\runx.pl -k -- \"%0\" %*
 -
   :ntsys:
     :: NT system adjust
