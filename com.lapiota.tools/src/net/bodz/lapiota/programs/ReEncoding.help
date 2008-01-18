@@ -1,0 +1,13 @@
+Syntax:
+    ReEncoding [OPTION] FILES...
+Options:
+    -i, --ignore-case
+        --inclusive=PATTERN
+        --exclusive=PATTERN
+        --source=SOURCE-ENCODING
+        --target=TARGET-ENCODING
+        --no-byte-order-detect
+    -h, --help
+        --version
+    -v, --versbose
+    -q, --quiet

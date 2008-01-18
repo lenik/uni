@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<project name="net.bodz.lapiota" default="default">
+
+	<property environment="env" />
+	<property name="JAVA_LIB" value="${env.JAVA_LIB}" />
+	<property file="${JAVA_LIB}/versions.property" />
+
+	<property name="distdir" value="${env.JAVA_LIB}" />
+	<property name="distsrc" value="${env.JAVA_SRC}" />
+	<property name="batdir" value="${env.LAPIOTA}/bin/w" />
+
+	<taskdef name="mkbat" classname="net.bodz.lapiota.ant.tasks.GenerateBatches">
+		<classpath path="bin" />
+		<classpath>
+			<fileset dir="${JAVA_LIB}">
+				<include name="${libfreejava}" />
+			</fileset>
+		</classpath>
+	</taskdef>
+
+	<target name="default" depends="dist, :bat" />
+
+	<target name="dist" depends=":bin.jar, :src.jar">
+		<copy todir="${distdir}">
+			<fileset dir="${basedir}/build">
+				<exclude name="*-source.jar" />
+			</fileset>
+		</copy>
+		<copy todir="${distsrc}">
+			<fileset dir="${basedir}/build">
+				<include name="*-source.jar" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name=":bin.jar">
+		<jar destfile="build/net.bodz.lapiota.jar">
+			<fileset dir="bin" />
+		</jar>
+	</target>
+
+	<target name=":src.jar">
+		<jar destfile="build/net.bodz.lapiota-source.jar">
+			<fileset dir="src" />
+		</jar>
+	</target>
+
+	<target name=":bat">
+		<mkbat srcdir="bin" batdir="${batdir}" charset="utf-8" loglevel="1" />
+	</target>
+
+</project>
