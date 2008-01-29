@@ -1,23 +1,23 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+alias - set aliase names of programs for windows
+
+=cut
 use strict;
-use cmt::util;
-use cmt::vcs;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'alias'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
 use Win32::Registry;
 use YAML;
 
-sub _boot;
-sub info;
-sub info2;
-sub version;
-sub help;
+sub _main; sub _version; sub _help;
 sub list;
-sub main;
 
-our $opt_verbtitle      = 'alias';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
 our $opt_name;
 our $opt_value;
 our $opt_delete;
@@ -34,10 +34,10 @@ sub _boot {
         "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths",
         $APP_PATHS) or die "Can't open registry of App-Paths";
 
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help|h'     => sub { help; exit },
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
                'list|l'     => sub { list; exit },
                'delete|d',
                'useshortname|s',
@@ -66,52 +66,111 @@ sub _boot {
         #    $opt_value = join(' ', @ARGV);
         #    @ARGV = ();
         #}
-        info2 "set alias $opt_name to \"$opt_value\"";
+        _log2 "set alias $opt_name to \"$opt_value\"";
     }
 
-    main;
+    _main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+B<alias>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub version {
-    my %id = parse_id('$Id$');
-    print "[$opt_verbtitle] Windows Alias \n";
-    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-}
+=head1 set aliase names of programs for windows
 
-sub help {
-    version;
-    print <<"EOM";
+B<alias> is a WHAT used for WHAT. It HOW-WORKS.
 
-Syntax:
-        $0 <options> <name>=<command...>
+BACKGROUND-PROBLEM.
 
-Options:
-        --list                  (l)
-        --delete                (d)
-        --path=<directory>      (p, running under the specified directory)
-        --useshortname          (s)
-        --useurl                (u)
-        --saveurl               (su)
-        --quiet                 (q)
-        --verbose               (v, repeat to get more info)
-        --version
-        --help                  (h)
+HOW-alias-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] NAME[=COMMAND]\n", <<'EOM';
+
+Common options:
+    -l, --list              list alias names in use
+    -d, --delete            delete specified aliases
+    -p, --path=DIR          execute under the specified DIR
+    -s, --useshortname      execute the command using shortname("name~1")
+    -u, --useurl
+    -su,--saveurl
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
 EOM
 }
+
+exit (_boot or 0);
+
+sub _main {
+    if ($opt_delete) {
+        $APP_PATHS->DeleteKey($opt_name)
+            or die "can't delete key $opt_name: $!";
+    } else {
+        $APP_PATHS->SetValue($opt_name, REG_SZ, $opt_value)
+            or die "can't set value of $opt_name to $opt_value: $!";
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
 
 sub list {
     my @keys;
@@ -120,7 +179,7 @@ sub list {
         my $value;
         $APP_PATHS->QueryValue($_, $value);
         printf "%-20s = %s\n", $_, $value;
-        if ($opt_verbose > 1) {
+        if ($LOGLEVEL > 1) {
             my $entry;
             my %values;
             $APP_PATHS->Open($_, $entry) or die "Open $_";
@@ -135,15 +194,28 @@ sub list {
     }
 }
 
-exit (_boot or 0);
+=head1 HISTORY
 
-sub main {
-    if ($opt_delete) {
-        $APP_PATHS->DeleteKey($opt_name)
-            or die "can't delete key $opt_name: $!";
-    } else {
-        $APP_PATHS->SetValue($opt_name, REG_SZ, $opt_value)
-            or die "can't set value of $opt_name to $opt_value: $!";
-    }
-    return 0;
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] set aliase names of programs for windows \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

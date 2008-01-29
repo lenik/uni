@@ -1,55 +1,36 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
-# ODX
+=head1 NAME
 
+odx - Oracle Data Exchange
+
+=cut
 use strict;
-
-#===vptk user code before tk===< THE CODE BELOW WILL RUN BEFORE TK STARTED >===
-
-use cmt::util;
-use cmt::vcs;
-use cmt::path;
+use vars qw($LOGNAME $LOGLEVEL);
 use cmt::db_ora;
-use cmt::winuser;
 use cmt::guiutil;
-use Getopt::Long;
-use DirHandle;
-use Win32;
-use Win32::TieRegistry(Delimiter=>'/');
+use cmt::log(2);
+    $LOGNAME    = 'odx'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::path;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
+use cmt::winuser;
 use Data::Dumper;
-
-our $REG_ODX;
-
+use DirHandle;
+use Getopt::Long;
 use Tk;
 use Tk::Adjuster;
+use Tk::Balloon;
 use Tk::Button;
 use Tk::Frame;
 use Tk::BrowseEntry;
 use Tk::LabEntry;
 use Tk::Listbox;
 use Tk::Radiobutton;
+use Win32;
+use Win32::TieRegistry(Delimiter=>'/');
 
-$| = 1;
-
-my $mw = MainWindow->new(-title=>'Oracle Data Exchange');
-
-our $opt_verbtitle      = 'odx';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
-our $opt_autoclose      = 1;
-
-sub _boot;
-sub main;
-sub info;
-sub info2;
-sub version;
-sub help;
-
-our $odx_xhome;
-our %odx_profiles;
-our $odx_profile;
-our $odx_curstore       = 0;        # current store
-
+sub _main; sub _version; sub _help;
 sub modload;
 sub modsave;
 sub modprof;
@@ -58,95 +39,144 @@ sub modimp;
 sub modexec;
 sub modreq;
 
+our $REG_ODX;
+our $opt_autoclose      = 1;
+our $odx_xhome;
+our %odx_profiles;
+our $odx_profile;
+our $odx_curstore       = 0;        # current store
+
 sub _boot {
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help|h'     => sub { help; exit },
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
                'autoclose=n',
                );
+    $| = 1;
 
-    $Registry->{'CUser/Software/DIRT/'}->{'ODX/'} = {};
-    $REG_ODX = $Registry->{'CUser/Software/DIRT/ODX/'};
+    $Registry->{'CUser/Software/Lapiota/'}->{'ODX/'} = {};
+    $REG_ODX = $Registry->{'CUser/Software/Lapiota/ODX/'};
 
     $odx_xhome = $REG_ODX->{'xhome'};
     unless ($odx_xhome) {
         $REG_ODX->{'xhome'} = $odx_xhome = temp_path('odx');
     }
-    info2 "odx_xhome=$odx_xhome";
+    _log2 "odx_xhome=$odx_xhome";
     mkdir $odx_xhome;
 
     Win32::SetChildShowWindow(Win32::SW_HIDE);
 
-    main;
+    _main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+B<odx>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub version {
-    my %id = parse_id('$Id$');
-    print "[$opt_verbtitle] Perl simple cli program template\n";
-    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-}
+=head1 Oracle Data Exchange
 
-sub help {
-    version;
-    print <<"EOM";
+B<odx> is a WHAT used for WHAT. It HOW-WORKS.
 
-Syntax:
-        $0 <options> ...
+BACKGROUND-PROBLEM.
 
-Options:
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
-        --version
-        --help (h)
+HOW-odx-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
 EOM
 }
 
-#===vptk widgets definition===< DO NOT WRITE UNDER THIS LINE >===
-use Tk::Balloon;
-my $vptk_balloon=$mw->Balloon(-background=>"lightyellow",-initwait=>550);
-my $fbody       = $mw->Frame(-relief=>'ridge')->pack(-fill=>'both', -expand=>1);
-my $fprof       = $fbody->Frame(-label=>'Profiles', -relief=>'flat')->pack(-side=>'left', -fill=>'both', -expand=>1);
-my $lstprof     = $fprof->Listbox(-selectmode=>'single', -relief=>'sunken', -state=>'normal')->pack(-fill=>'both', -expand=>1); $vptk_balloon->attach($lstprof,-balloonmsg=>"List of profiles");
-my $fprofmod    = $fprof->Frame(-relief=>'flat')->pack(-fill=>'x');
-my $btnAddProf  = $fprofmod->Button(-underline=>0, -overrelief=>'raised', -relief=>'raised', -text=>'Add', -compound=>'left', -state=>'normal')->pack(-side=>'left', -fill=>'x', -expand=>1);
-my $btnDelProf  = $fprofmod->Button(-underline=>0, -overrelief=>'raised', -relief=>'raised', -text=>'Delete', -compound=>'left', -state=>'normal')->pack(-side=>'right');
-my $btnImport   = $fprof->Button(-underline=>0, -overrelief=>'raised', -relief=>'raised', -text=>'Import', -compound=>'none', -state=>'normal')->pack(-fill=>'x'); $vptk_balloon->attach($btnImport,-balloonmsg=>"Import tables from current store to selected profile");
-my $fprofmod_a  = $fprof->packAdjust();
-my $ftbl        = $fbody->Frame(-label=>'Tables', -relief=>'flat')->pack(-side=>'right', -fill=>'both', -expand=>1);
-my $lsttbl      = $ftbl->Scrolled('Listbox', -scrollbars=>'se', -selectmode=>'extended', -relief=>'sunken', -state=>'normal')->pack(-fill=>'both', -expand=>1); $vptk_balloon->attach($lsttbl,-balloonmsg=>"List of tables under selected profile");
-my $btnExport   = $ftbl->Button(-underline=>0, -overrelief=>'raised', -relief=>'raised', -text=>'Export', -compound=>'none', -state=>'normal')->pack(-anchor=>'s', -side=>'bottom', -fill=>'x'); $vptk_balloon->attach($btnExport,-balloonmsg=>"Export the selected tables to current store");
-my $fboard      = $mw->Frame(-borderwidth=>1, -relief=>'ridge')->pack(-anchor=>'s', -side=>'bottom', -fill=>'x');
-my $fbparams    = $fboard->Frame(-relief=>'flat')->pack(-fill=>'x', -expand=>1);
-my $le_xhome    = $fbparams->LabEntry(-textvariable => \$odx_xhome, -label=>'Store Home', -justify=>'left', -labelPack=>[-side=>'left',-anchor=>'n'], -relief=>'sunken', -state=>'normal')->pack(-side=>'left', -fill=>'x', -expand=>1);
-my $brow_xhome  = $fbparams->Button(-underline=>0, -overrelief=>'raised', -relief=>'raised', -text=>'Browse', -compound=>'none', -state=>'normal')->pack(-side=>'right');
-my $fbsels      = $fboard->Frame(-relief=>'flat')->pack(-side=>'bottom', -fill=>'both', -expand=>1); $vptk_balloon->attach($fbsels,-balloonmsg=>"Store List");
+exit (_boot or 0);
 
-#===vptk user code before main===< THE CODE BELOW WILL RUN BEFORE GUI STARTED >===
-sub main {
+sub _main {
+    our $mw          = MainWindow->new(-title=>'Oracle Data Exchange');
+    our $vptk_balloon= $mw->Balloon(-background=>"lightyellow",-initwait=>550);
+    our $fbody       = $mw->Frame(-relief=>'ridge')->pack(-fill=>'both', -expand=>1);
+    our $fprof       = $fbody->Frame(-label=>'Profiles', -relief=>'flat')->pack(-side=>'left', -fill=>'both', -expand=>1);
+    our $lstprof     = $fprof->Listbox(-selectmode=>'single', -relief=>'sunken', -state=>'normal')->pack(-fill=>'both', -expand=>1); $vptk_balloon->attach($lstprof,-balloonmsg=>"List of profiles");
+    our $fprofmod    = $fprof->Frame(-relief=>'flat')->pack(-fill=>'x');
+    our $btnAddProf  = $fprofmod->Button(-underline=>0, -overrelief=>'raised', -relief=>'raised', -text=>'Add', -compound=>'left', -state=>'normal')->pack(-side=>'left', -fill=>'x', -expand=>1);
+    our $btnDelProf  = $fprofmod->Button(-underline=>0, -overrelief=>'raised', -relief=>'raised', -text=>'Delete', -compound=>'left', -state=>'normal')->pack(-side=>'right');
+    our $btnImport   = $fprof->Button(-underline=>0, -overrelief=>'raised', -relief=>'raised', -text=>'Import', -compound=>'none', -state=>'normal')->pack(-fill=>'x'); $vptk_balloon->attach($btnImport,-balloonmsg=>"Import tables from current store to selected profile");
+    our $fprofmod_a  = $fprof->packAdjust();
+    our $ftbl        = $fbody->Frame(-label=>'Tables', -relief=>'flat')->pack(-side=>'right', -fill=>'both', -expand=>1);
+    our $lsttbl      = $ftbl->Scrolled('Listbox', -scrollbars=>'se', -selectmode=>'extended', -relief=>'sunken', -state=>'normal')->pack(-fill=>'both', -expand=>1); $vptk_balloon->attach($lsttbl,-balloonmsg=>"List of tables under selected profile");
+    our $btnExport   = $ftbl->Button(-underline=>0, -overrelief=>'raised', -relief=>'raised', -text=>'Export', -compound=>'none', -state=>'normal')->pack(-anchor=>'s', -side=>'bottom', -fill=>'x'); $vptk_balloon->attach($btnExport,-balloonmsg=>"Export the selected tables to current store");
+    our $fboard      = $mw->Frame(-borderwidth=>1, -relief=>'ridge')->pack(-anchor=>'s', -side=>'bottom', -fill=>'x');
+    our $fbparams    = $fboard->Frame(-relief=>'flat')->pack(-fill=>'x', -expand=>1);
+    our $le_xhome    = $fbparams->LabEntry(-textvariable => \$odx_xhome, -label=>'Store Home', -justify=>'left', -labelPack=>[-side=>'left',-anchor=>'n'], -relief=>'sunken', -state=>'normal')->pack(-side=>'left', -fill=>'x', -expand=>1);
+    our $brow_xhome  = $fbparams->Button(-underline=>0, -overrelief=>'raised', -relief=>'raised', -text=>'Browse', -compound=>'none', -state=>'normal')->pack(-side=>'right');
+    our $fbsels      = $fboard->Frame(-relief=>'flat')->pack(-side=>'bottom', -fill=>'both', -expand=>1); $vptk_balloon->attach($fbsels,-balloonmsg=>"Store List");
+
     modload;
+    MainLoop;
+}
 
-MainLoop;
+=head1 DIAGNOSTICS
 
-#===vptk end===< DO NOT CODE ABOVE THIS LINE >===
-} # sub main
+(No Information)
 
-boot;
+=cut
+# (HELPER FUNCTIONS)
 
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
 sub modload {
     # Init controls
 
@@ -159,14 +189,14 @@ sub modload {
         $odx_profile = $lstprof->get($sel0);
 
         $fprof->configure(-label => "Profiles - $odx_profile");
-       info2 "Set active profile: $odx_profile";
+       _log2 "Set active profile: $odx_profile";
         my $prof = $odx_profiles{$odx_profile};
         $lsttbl->delete(0, 'end');
-       info2 "Connect to $prof->{server} using $prof->{username}/$prof->{password}";
+       _log2 "Connect to $prof->{server} using $prof->{username}/$prof->{password}";
         my $h = ora_connect($prof->{server}, $prof->{username}, $prof->{password});
-       info2 "Get tables...";
+       _log2 "Get tables...";
         my @tab = ora_tab($h);
-       info2 "Disconnect $prof->{server}";
+       _log2 "Disconnect $prof->{server}";
         ora_disconnect $h;
         $lsttbl->insert('end', $_) for @tab;
     });
@@ -175,7 +205,7 @@ sub modload {
         my %prof = (name=>'', server=>'', username=>'system', password=>'');
         modprof($mw, \%prof);
         return unless $prof{name};
-        info2 "Added a profile: ".Dumper(\%prof);
+        _log2 "Added a profile: ".Dumper(\%prof);
         $odx_profiles{$prof{name}} = \%prof;
         $lstprof->insert('end', $prof{name});
         modsave;
@@ -226,7 +256,7 @@ sub modload {
     # Load profiles
     my $profiles = $REG_ODX->{'profiles'} || '$VAR1 = {};';
     $profiles = eval('my '. $profiles);
-    info2 "Saved profiles: " . Dumper($profiles);
+    _log2 "Saved profiles: " . Dumper($profiles);
     %odx_profiles = %$profiles;
     for (keys %odx_profiles) {
         $lstprof->insert('end', $_);
@@ -245,7 +275,7 @@ sub modload {
             -state      => 'normal',
             -variable   => \$odx_curstore,
             -command    => sub { *__ANON__ = '<fbsel'.$i.'-command>';
-                info2 "Store changed to: $odx_curstore";
+                _log2 "Store changed to: $odx_curstore";
             })->pack(-side=>'left');
     }
 
@@ -306,7 +336,7 @@ sub modexp {
     my $cn = "$prof->{username}/$prof->{password}\@$prof->{server}";
     my $exp_bin = path_join(ora_home, 'bin/exp.exe');
     my $cmd;
-    info2 "exp_bin = $exp_bin";
+    _log2 "exp_bin = $exp_bin";
 
     my $par = temp_path('modexp.par');
     if (! open(PAR, ">$par")) {
@@ -328,8 +358,8 @@ sub modimp {
     my $sql_bin = path_join(ora_home, 'bin/sqlplus.exe');
     my $imp_bin = path_join(ora_home, 'bin/imp.exe');
     my $cmd;
-    info2 "sql_bin = $sql_bin";
-    info2 "imp_bin = $imp_bin";
+    _log2 "sql_bin = $sql_bin";
+    _log2 "imp_bin = $imp_bin";
 
     my $drop_sql = temp_path('drops.sql');
     if (! open(DROP, ">$drop_sql")) {
@@ -366,7 +396,7 @@ sub modexec {
     return unless modreq;
 
     my ($title, $cmd, $mw, $proc) = @_;
-    info2 "exec $cmd";
+    _log2 "exec $cmd";
     # . . exporting table     NAME nnn rows exported
     my @args = ('execgui',
                 '--verbose',
@@ -379,7 +409,7 @@ sub modexec {
     push(@args, "--srcfilter=\"$proc\"") if $proc;
     push(@args, $cmd);
     my $cmdline = join(' ', @args);
-    info2 "system $cmdline";
+    _log2 "system $cmdline";
     system $cmdline;
     return 1;
     ##################################################
@@ -404,3 +434,28 @@ sub modreq {
     return 1;
 }
 
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Oracle Data Exchange \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

@@ -1,23 +1,22 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+mp3ltrim - Format file names for media files (mp3, etc.)
+
+=cut
 use strict;
-use cmt::util;
-use cmt::vcs;
-use Data::Dumper;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'mp3ltrim'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
 use DirHandle;
 use Getopt::Long;
 
-sub _boot;
-sub main;
-sub info;
-sub info2;
+sub _main; sub _version; sub _help;
 sub lpad;
-sub version;
-sub help;
 
-our $opt_verbtitle      = 'mp3ltrim';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
 our $opt_delimiter      = '[[:punct:]]';
 our $opt_test;
 our $opt_rem;
@@ -25,10 +24,10 @@ our $opt_at;
 our $opt_max            = 1;
 
 sub _boot {
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help|h'     => sub { help; exit },
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
                'delimiter|d=s',
                'rem|r',
                'test|t',
@@ -46,44 +45,68 @@ sub _boot {
                '9'          => sub { $opt_at = 9 },
                );
     #$opt_verbose++ if $opt_test;
-
-    main;
+    _main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+B<mp3ltrim>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub lpad {
-    my ($str, $len) = @_;
-    if (length($str) < $len) {
-        $str = '0' x ($len - length($str)) . $str;
-    }
-    return $str;
-}
+=head1 Format file names for media files (mp3, etc.)
 
-sub version {
-    my %id = parse_id('$Id$');
-    print "[$opt_verbtitle] MP3 Utilities - LTrim\n";
-    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-}
+B<mp3ltrim> is a WHAT used for WHAT. It HOW-WORKS.
 
-sub help {
-    version;
-    print <<"EOM";
+BACKGROUND-PROBLEM.
 
-Syntax:
-    $0 [OPTION] ...
+HOW-mp3ltrim-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
 
 Common options:
     -t, --test              test only
@@ -91,9 +114,9 @@ Common options:
     -N, --at=N              replace title with Nth's part
         --max=N             max number of parts, default 2
     -d, --delimiter=CHAR    default [[:punct:]], a long-space is always be.
-    -h, --help              show this help page
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
+    -h, --help              show this help page
         --version           print the version info
 
 Part split rule (after --rem removals) (--max=3):
@@ -101,9 +124,9 @@ Part split rule (after --rem removals) (--max=3):
 EOM
 }
 
-boot;
+exit (_boot or 0);
 
-sub main {
+sub _main {
     my $dh = new DirHandle('.');
     my @files = $dh->read();
     foreach (@files) {
@@ -139,14 +162,14 @@ sub main {
                 my $max = $opt_at > $opt_max ? $opt_at : $opt_max;
                 my @parts = split(/ (?: \s* $opt_delimiter \s*)
                                    |(?: \s \s+)/x, $title, $max);
-                # info "Parts $title: ".join(',',@parts)."\n";
+                # _log1 "Parts $title: ".join(',',@parts)."\n";
                 my $part;
                 if ($opt_at <= $#parts) {
                     $part = $parts[$opt_at];
                 } elsif ($opt_at - scalar(@parts) <= $#rem) {
                     $part = $rem[$opt_at - scalar(@parts)];
                 } else {
-                    info "Part-index overflow: $opt_at";
+                    _log1 "Part-index overflow: $opt_at";
                 }
                 $title = $part if length $part;
             }
@@ -155,8 +178,55 @@ sub main {
         }
 
         if ($_ ne $new) {
-            info "rename $_ -> $new";
+            _log1 "rename $_ -> $new";
             rename($_, $new) unless $opt_test;
         }
     }
 }
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+sub lpad {
+    my ($str, $len) = @_;
+    if (length($str) < $len) {
+        $str = '0' x ($len - length($str)) . $str;
+    }
+    return $str;
+}
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Format file names for media files (mp3, etc.) \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
