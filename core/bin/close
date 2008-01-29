@@ -10,7 +10,7 @@ use vars qw($LOGNAME $LOGLEVEL);
     $LOGNAME    = 'close'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::log(2);
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: .pl 756 2007-11-27 12:51:15Z Lenik $');
+    my %RCSID   = parse_id('$Id$');
 use Data::Dumper;
 use Getopt::Long;
 
