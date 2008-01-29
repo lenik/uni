@@ -29,7 +29,10 @@ our @EXPORT_OK = qw(
     %COMOPT $COMOPT $WALKOPT
     $opt_force %opt_fswalk $opt_filter $opt_ascii $opt_binary $opt_stdout
     $opt_backup $opt_ignore_case $opt_diff $opt_diff_ext $opt_diff_style
-    $opt_dry_run);
+    $opt_dry_run
+    save_opts
+    load_opts
+    );
 
 # INITIALIZORS
 {
@@ -200,6 +203,40 @@ sub batch_main {
     }
     _sig1 'done', "total $n_diff/$n_all files changed, $n_save files saved.";
     unlink $tmpf;
+}
+
+sub save_opts {
+    my %opts = (
+        'force'         => $opt_force,
+        'fswalk'        => \%opt_fswalk,
+        'filter'        => $opt_filter,
+        'ascii'         => $opt_ascii,
+        'binary'        => $opt_binary,
+        'stdout'        => $opt_stdout,
+        'backup'        => $opt_backup,
+        'ignore_case'   => $opt_ignore_case,
+        'diff'          => $opt_diff,
+        'diff_ext'      => $opt_diff_ext,
+        'diff_style'    => $opt_diff_style,
+        'dry_run'       => $opt_dry_run,
+    );
+    return %opts;
+}
+
+sub load_opts {
+    my %opts        = @_;
+    $opt_force      = $opts{'force'};
+    %opt_fswalk     = %{$opts{'fswalk'}};
+    $opt_filter     = $opts{'filter'};
+    $opt_ascii      = $opts{'ascii'};
+    $opt_binary     = $opts{'binary'};
+    $opt_stdout     = $opts{'stdout'};
+    $opt_backup     = $opts{'backup'};
+    $opt_ignore_case= $opts{'ignore_case'};
+    $opt_diff       = $opts{'diff'};
+    $opt_diff_ext   = $opts{'diff_ext'};
+    $opt_diff_style = $opts{'diff_style'};
+    $opt_dry_run    = $opts{'dry_run'};
 }
 
 =head1 DIAGNOSTICS

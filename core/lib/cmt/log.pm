@@ -79,12 +79,19 @@ sub _log {
     print STDERR "[$$n] ", @_, "\n";
 }
 
+sub __fit {
+    my $s = shift;
+    my $w = shift || 80;
+    my $n = length $s;
+    $n < $w ? $s : '...'.substr($s, $n - $w + 3)
+}
+
 sub _sig {
     my $cls = shift; local $_ = join('', @_);
     return unless -t STDERR or s/\n$//s;
     # STDERR is always autoflush(1)
     # local $| = 1 if -t STDERR;
-    printf STDERR "[%4s] %-72s".(-t STDERR ? "\r" : "\n"), $cls, $_;
+    printf STDERR "[%4s] %-72s".(-t STDERR ? "\r" : "\n"), $cls, __fit($_, 72);
 }
 
 sub _sigx   { print STDERR (-t STDERR ? '' : "\n"), '    err: ', @_, "\n" }
