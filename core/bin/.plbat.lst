@@ -15,6 +15,7 @@ csv2xml.bat
 cuelist.bat
 cvsapp.bat
 cvsco.bat
+delaxar.bat
 dirdiff.bat
 dirs.bat
 discuz.bat
@@ -97,3 +98,4 @@ winvod.bat
 wm.bat
 xget.bat
 ydump.bat
+zzcat.bat

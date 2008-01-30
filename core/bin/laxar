@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-laxar - Lapiota import/export archiver
+laxar - Lapiota import/export archive packager
 
 =cut
 use strict;
@@ -11,33 +11,37 @@ use cmt::fileproc('/[$%]/', 'batch_main');
 use cmt::lang();
 use cmt::log(3);
     $LOGNAME    = 'laxar'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
-use cmt::path('path_join');
+use cmt::path('path_join', 'path_split', 'path_splitext');
 use cmt::util('qsplit', 'readfile');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
-use Digest::MD5 qw/md5 md5_hex md5_base64/;
-use Digest::SHA1 qw/sha1 sha1_hex sha1_base64/;
+use Digest::MD5('md5_hex');
+use Digest::SHA1('sha1_hex');
 use Getopt::Long;
 
 sub _main; sub _version; sub _help;
 sub parse_err;
 sub do_archive;
 sub output;
+sub set_var(\$$$);
 
 our %opt_COMOPT_tmpl;
 our $opt_ignore_case;
 our $opt_algorithm      = 'md5';
 our $opt_sum;
-our $opt_executable;
 our $opt_out;
 our $opt_stdout;
-our $opt_extname        = '.lxar';
+our $opt_encoding;
+our $opt_zip;
+our $opt_executable;
 
 our $lxl_basenam;
 our $lxl_baseval;
 our @lxl_filelist;
 our $lxl_algorithm;
 our $lxl_sum;
+
+our $outf               = sub { print };
 
 sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
@@ -47,9 +51,10 @@ sub _boot {
                %COMOPT,         # bcdfikrtw
                'algorithm|a=s',
                'sum|s=s',
-               'executable|e',
-               'encoding=s',
+               'encoding|e=s',
                'out|o=s',
+               'zip|z',
+               'executable|x',
                );
     $opt_ignore_case            = $cmt::fileproc::opt_ignore_case;
     $opt_stdout                 = $cmt::fileproc::opt_stdout;
@@ -57,7 +62,56 @@ sub _boot {
 
     %opt_COMOPT_tmpl = cmt::fileproc::save_opts;
 
-    die "executable is not supported, yet." if $opt_executable;
+    unless (defined $opt_out) {
+        if (@ARGV) {
+            my ($dir, $base) = path_split($ARGV[0]);
+            my ($name, $ext) = path_splitext($base);
+            if ($opt_zip)
+            if ($opt_executable) {
+                $ext = '.pl';
+            } else {
+                $ext = $opt_zip ? '.lxar.gz' : '.lxar';
+            }
+            $opt_out = path_join($dir, $name.$ext);
+        }
+    }
+
+    my $fh = \*STDOUT;
+    if (defined $opt_out) {
+        undef $fh;
+        open($fh, '>', $opt_out)
+            or die "can't write to $opt_out: $!";
+    }
+
+    if ($opt_executable) {
+        my ($pdir, $pbase) = path_split($0);
+        my $exprog = path_join($pdir, 'de'.$pbase);
+        my $header = readfile($exprog);
+        set_var($header, 'opt_zipped', $opt_zip) if defined $opt_zip;
+        set_var($header, 'opt_self_extract', 1);
+        print $fh $header;
+    }
+
+    if ($opt_zip) {
+        require Compress::Zlib;
+        my $zh = Compress::Zlib::gzopen($fh, 'wt');
+        $outf = sub {
+            if (@_) {
+                $zh->gzwrite($_) for @_;
+            } else {
+                $zh->gzclose();
+                close $fh;
+            }
+        };
+    } else {
+        $outf = sub {
+            if (@_) {
+                print $fh $_ for @_;
+            } else {
+                close $fh;
+            }
+        };
+    }
 
     _main;
 }
@@ -72,7 +126,7 @@ B<laxar>
     S<[ B<--> ]>
     S<[ I<...the rest of arguments...> ]>
 
-=head1 Lapiota import/export archiver
+=head1 DESCRIPTION
 
 B<laxar> is a WHAT used for WHAT. It HOW-WORKS.
 
@@ -142,6 +196,8 @@ EOM
 exit (_boot or 0);
 
 sub _main {
+    output "#? laxar-encoding = $opt_encoding\n" if defined $opt_encoding;
+
     my $paramidx = 0;
     my $lxl_section = 0;
     while (<>) {
@@ -186,9 +242,9 @@ sub _main {
         _sig2 'prepdone';
         do_archive;
         @ARGV = @ARGV_bak;
-        $paramidx++;
     }
 
+    output();
 }
 
 =head1 DIAGNOSTICS
@@ -232,7 +288,13 @@ sub sum {
 }
 
 sub output {
-    print for @_;
+    $outf->(@_);
+}
+
+sub set_var(\$$$) {
+    my ($datref, $nam, $val) = @_;
+    print "[", length($$datref), "]\n";
+    $$datref =~ s/(\$$nam\s*=\s*).*?(\s*;)/$1$val$2/;
 }
 
 =head1 HISTORY
@@ -247,7 +309,7 @@ The initial version.
 
 =cut
 sub _version {
-    print "[$LOGNAME] Lapiota import/export archiver \n";
+    print "[$LOGNAME] Lapiota import/export archive packager \n";
     print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 

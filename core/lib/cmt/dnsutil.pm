@@ -1,9 +1,9 @@
 package cmt::dnsutil;
 
 use strict;
-use Socket;
-use Exporter;
 use vars qw/@ISA @EXPORT/;
+use Exporter;
+use Socket;
 
 sub resolv {
     my $name = shift;

@@ -7,10 +7,10 @@ cmt::inet - Internet Client Functions
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
-    $LOGNAME    = __PACKAGE__;
-    $LOGLEVEL   = 1;
 use cmt::ios;
 use cmt::log(2);
+    $LOGNAME    = __PACKAGE__;
+    $LOGLEVEL   = 1;
 use cmt::stream;
 use cmt::util('get_named_args');
 use cmt::vcs('parse_id');

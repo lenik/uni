@@ -10,10 +10,10 @@ use constant RR => 1;
 use constant WW => 2;
 use constant EE => 4;
 use vars qw($LOGNAME $LOGLEVEL);
-    $LOGNAME    = __PACKAGE__;
-    $LOGLEVEL   = 1;
 use cmt::ftime;
 use cmt::log(2);
+    $LOGNAME    = __PACKAGE__;
+    $LOGLEVEL   = 1;
 use cmt::util;
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
@@ -21,7 +21,7 @@ use cmt::vcs('parse_id');
 use Data::Dumper;
 use Exporter;
 use IO::Select;
-use List::Util          qw/min max/;
+use List::Util('min', 'max');
 
 our @ISA    = qw(Exporter);
 our @EXPORT = qw(mysub

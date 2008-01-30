@@ -335,11 +335,11 @@ sub readfile {
     my @lines;
     undef $!;
     if ($path =~ /\.gz$/i) {
-        eval('use Compress::Zlib; 1')
+        require Compress::Zlib
             or die("Can't load Compress::Zlib: $@");
         open(FH, "<$path")
             or die("Can't open file $path for read");
-        my $h = gzopen(\*FH, "rt")
+        my $h = Compress::Zlib::gzopen(\*FH, "rt")
             or die("Can't open gzip-file $path for read");
         while ($h->gzreadline($_)) {
             push @lines, $_;

@@ -7,10 +7,10 @@ cmt::fileproc - Batch file process framework
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
-    $LOGNAME    = __PACKAGE__;
-    $LOGLEVEL   = 1;
 use cmt::fswalk('fswalk');
 use cmt::log(2, '_sigx');
+    $LOGNAME    = __PACKAGE__;
+    $LOGLEVEL   = 1;
 use cmt::util();
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id: .pm 764 2007-12-04 14:20:23Z Lenik $');

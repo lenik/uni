@@ -8,9 +8,9 @@ dirdiff - Perl_simple_module_template
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
 use cmt::lang('_def');
+use cmt::log(2);
     $LOGNAME    = __PACKAGE__;
     $LOGLEVEL   = 1;
-use cmt::log(2);
 use cmt::path('path_join', 'path_split');
 use cmt::util('readfile', 'writefile', 'listdir');
 use cmt::vcs('parse_id');

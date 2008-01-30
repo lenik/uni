@@ -2,7 +2,7 @@ package cmt::fswalk;
 
 =head1 NAME
 
-cmt::fswalk - DeScRiPtIoN
+cmt::fswalk - files iterator
 
 =cut
 use strict;

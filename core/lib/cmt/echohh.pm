@@ -2,11 +2,11 @@
 package cmt::echohh;
 
 use strict;
-use LWP::UserAgent;
-use HTTP::Response;
-use XML::Simple;
-use Exporter;
 use vars qw/@ISA @EXPORT/;
+use Exporter;
+use HTTP::Response;
+use LWP::UserAgent;
+use XML::Simple;
 
 sub xsmerge;
 sub verbose;
