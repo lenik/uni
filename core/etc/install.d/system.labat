@@ -96,10 +96,6 @@
             -           | ${findabc -w npp}\notepad++ \"%1\"
             - editbin   Binary Editor
             -           | $LAPIOTA\local\bin\ue.exe \"%1\"
-            - comreg    Register com-service
-            -           | regsvr32 \"%1\"
-            - comunreg  Unregister com-service
-            -           | regsvr32 /u \"%1\"
             - touch     Touch (to invalidate the timestamp)
             -           | cmdw /c $CYGWIN_ROOT\bin\touch \"%1\"
         - '"Drive Folder" ->'
@@ -147,12 +143,35 @@
         - .class ->
             - decompl   Decompile java class
             -           | $LAPIOTA\bin\pi.bat $LAPIOTA\usr\bin\jad -p \"%1\" \pi; $CYGWIN_ROOT\bin\less
+        - '".tlb .dll .sys .exe .ocx .ax" ->'
+            - comreg    Register com-service
+            -           | regsvr32 \"%1\"
+            - comunreg  Unregister com-service
+            -           | regsvr32 /u \"%1\"
+            - tlbreg    Register type library
+            -           | $LAPIOTA\bin\regtlb \"%1\"
+            - tlbunreg  Unregister type library
+            -           | $LAPIOTA\bin\regtlb /u \"%1\"
         - '".jar .war .ear jarfile warfile earfile" ->'
             - decompl   Decompile java archive
             -           | $LAPIOTA\bin\dejar.bat \"%1\"
         - .labat ->
             - install   Install
             -           | $LAPIOTA\bin\w\labat.bat \"%1\"
+        - .lxas ->
+            - ar-l      Make laxar archive (.lxar)
+            -           | $LAPIOTA\bin\w\laxar.bat \"%1\"
+            - ar-l-gz   Make compressed laxar archive (.lxar.gz)
+            -           | $LAPIOTA\bin\w\laxar.bat -z \"%1\"
+            - ar-lgz    Make compressed laxar archive (.lgz)
+            -           | $LAPIOTA\bin\w\laxar.bat --ext=.lgz -z \"%1\"
+            - ar-xgz    Make self-extract laxar archive (-installer.pl)
+            -           | $LAPIOTA\bin\w\laxar.bat -z -x \"%1\"
+        - '".lxar .lgz" ->'
+            - xar       Extract the laxar archive
+            -           | $LAPIOTA\bin\w\delaxar.bat -f \"%1\"
+            - xar-p     Extract the laxar archive with preference
+            -           | $LAPIOTA\bin\w\delaxar.bat -f -p \"%1.pref\" \"%1\"
         - .lst ->
             - medit     Edit files in the list
             -           | $LAPIOTA\bin\mani.bat -f \"%1\"

@@ -68,6 +68,7 @@ our $opt_diff_style;
 our $opt_dry_run;
 
 our %COMOPT = ( # bcdfikrtw
+               'ascii-only'     => sub { $opt_binary = 0; $opt_ascii = 1 },
                'backup|k:s',    => sub { shift; $opt_backup = shift || 'bak' },
                'binary-only|b'  => sub { $opt_binary = 1; $opt_ascii = shift eq 'b' },
                'both'           => sub { $opt_binary = 1; $opt_ascii = 1 },
@@ -87,6 +88,7 @@ our %COMOPT = ( # bcdfikrtw
                'walkopt|w=n'    => \%opt_fswalk,
                );
 our $COMOPT = <<'EOM';
+        --ascii-only        only ascii/text files are processed
     -B, --binary-only       only binary files are processed
     -b, --both              both text files and binary files are processed
     -c, --stdout            send the replaced file to stdout, don't change file

@@ -91,6 +91,7 @@ sub fswalk(&;@) {
         my @files;
         if (-d $start) {
             $dir = $start;
+            # start-dir, [incl], excl, filter, sort
             @files = listdir($dir, undef, qr/^\.\.?$/,
                              $hidden ? undef : sub { my $p = path_join @_;
                                                      ! (_H($p) || _S($p)) },

@@ -43,7 +43,7 @@ sub _boot {
         $opt_regexp = shift @ARGV;
     } else {
         _P1 "please input the regexp to be evaluated: ";
-        $opt_regexp = <>;
+        $opt_regexp = <STDIN>;
         chop $opt_regexp;
     }
     $opt_regexp = qr/$opt_regexp/i if $opt_ignore_case;

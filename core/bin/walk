@@ -1,26 +1,168 @@
 #!/usr/bin/perl
-# $Id$
 
-# walk over a directory
+=head1 NAME
 
+walk - cmt::fswalk test utility
 
-sub showHelp {
-	my ($level) = @_;
-	my $msg = <<END;
-		Directory walker [under development]
-		Syntax:
-			walk [-i source-dir] [-o target-dir] [-e exec-file] [arguments...]
-			source-dir default: . (current directory)
-			target-dir default: . (the same directory as source)
-			exec-file default:  print the file entry
-			arguments:          provider arguments for exec-file
-		Examples:
-			walk -o ../pod-out -e pod2html.bat [inpath] [outpath]
-END
-	$msg =~ s/(^|\n)\t\t/\1/g;
-	print $msg;
-	exit 0;
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::fileproc('/[$%]/', 'batch_main');
+use cmt::log(3, '_sigx');
+    $LOGNAME    = 'walk'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+    $LOGLEVEL   = 2;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
+use Getopt::Long;
+
+sub _main; sub _version; sub _help;
+sub filter;
+
+our $opt_ignore_case;
+
+sub _boot {
+    $cmt::fileproc::opt_binary  = 1;
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               %COMOPT,         # bcdfikrtw
+               );
+    $opt_ignore_case = $cmt::fileproc::opt_ignore_case;
+    $cmt::fileproc::LOGLEVEL = $LOGLEVEL - 1;
+
+    # die "no files specified." unless @ARGV;
+    @ARGV = qw(.) unless @ARGV;
+
+    _main;
 }
 
-print join('-', @ARGV);
-showHelp;
+=head1 SYNOPSIS
+
+B<walk>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<walk> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-walk-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] FILES\n", <<"EOM";
+
+Common options:
+$COMOPT    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    batch_main \&filter, @ARGV;
+}
+
+sub filter {
+    my ($path, $tmph, $tmpf, $proc) = @_;
+    my $type = 'file';
+    $type = 'dir' if -d $path;
+    if ($LOGLEVEL > 1) {
+        _log2 "$type: $path";
+    } elsif ($LOGLEVEL > 0) {
+        _sig1 $type, $path;
+    }
+    if ($type eq 'dir') {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] cmt::fswalk test utility \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

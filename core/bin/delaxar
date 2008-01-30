@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-delaxar - Lapiota import/export archive extracter
+delaxar - Lapiota import/export archive extractor
 
 =cut
 use strict;
@@ -38,16 +38,17 @@ our $opt_zipped         = undef;
 our $opt_self_extract   = undef;
 
 our %basedef;
-our $lxl_basenam;
-our $lxl_baseval;
-our $lxl_algorithm;
-our $lxl_sum;
-our $lxl_sumd;
-our $lxl_file;
-our $lxl_path;
-our $lxl_size;
-our $lxl_offset;
-our $lxl_fh;
+our $v_basenam;
+our $v_baseval;
+our $v_algorithm;
+our $v_sum;
+our $v_sumd;
+our $v_file;
+our $v_path;
+our $v_size;
+our $v_offset;
+our $v_lastperc;
+our $v_fh;
 
 sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
@@ -165,7 +166,7 @@ exit (_boot or 0);
 
 sub _main {
     my $paramidx = 0;
-    my $lxl_section = 0;
+    my $v_section = 0;
     my $input = zargs_iter($opt_zipped, $opt_self_extract ? \*DATA : \*STDIN);
     while ($input = $input->()) {
         if ($paramidx < 3) {
@@ -191,65 +192,65 @@ sub _main {
             if ($paramidx == 0) {       # basedef
                 my ($key, $val) = split(/\s*=\s*/, $_, 2);
                 if ($key eq '') { err_cont "invalid param: base is empty"; next }
-                $lxl_basenam = $key;
-                $lxl_baseval = $basedef{$lxl_basenam};
-                unless (defined $lxl_baseval) {
+                $v_basenam = $key;
+                $v_baseval = $basedef{$v_basenam};
+                unless (defined $v_baseval) {
                     _def($val, '.');
-                    _P1 "please specify a value for $lxl_basenam: "
+                    _P1 "please specify a value for $v_basenam: "
                         . " (default $val)";
                     my $newval = <STDIN>;
                     chop $newval;
                     $newval = $val if $newval eq '';
-                    $lxl_baseval = $newval;
-                    $basedef{$lxl_basenam} = $newval;
+                    $v_baseval = $newval;
+                    $basedef{$v_basenam} = $newval;
                     $opt_savepref = 1;
                 }
-            } elsif ($paramidx == 1) {  # lxl-section
+            } elsif ($paramidx == 1) {  # lxas-section
                 my @ARGV_bak = @ARGV;
                 @ARGV = qsplit(qr/\s+/, $_);
                 cmt::fileproc::load_opts %opt_COMOPT_tmpl;
-                $lxl_algorithm = 'md5';
-                $lxl_sum       = undef;
+                $v_algorithm = 'md5';
+                $v_sum       = undef;
                 GetOptions(%COMOPT,
-                           'algorithm|a=s'  => \$lxl_algorithm,
-                           'sum|s=s'        => \$lxl_sum,
+                           'algorithm|a=s'  => \$v_algorithm,
+                           'sum|s=s'        => \$v_sum,
                            );
-                my $digest_class = $DIGEST{$lxl_algorithm}
-                    or die "unsupported algorithm: $lxl_algorithm";
+                my $digest_class = $DIGEST{$v_algorithm}
+                    or die "unsupported algorithm: $v_algorithm";
                 eval "require $digest_class; 1"
                     or die "failed to load library $digest_class: $!";
-                $lxl_sumd = $digest_class->new();
+                $v_sumd = $digest_class->new();
 
-                $lxl_file = join(' ', @ARGV);
-                $lxl_path = path_join($lxl_baseval, $lxl_file);
+                $v_file = join(' ', @ARGV);
+                $v_path = path_join($v_baseval, $v_file);
                 @ARGV = @ARGV_bak;
 
-                if (-f $lxl_path and !$opt_force) {
-                    _P1 "file $lxl_path is already existed, please specify a"
+                if (-f $v_path and !$opt_force) {
+                    _P1 "file $v_path is already existed, please specify a"
                       . " new path, or press enter to overwrite it";
                     my $newval = <STDIN>;
                     chop $newval;
                     if ($newval ne '') {
-                        $lxl_path = $newval;
+                        $v_path = $newval;
                     }
                 }
-                if (defined $lxl_path) {
-                    my ($dir, $name) = path_split($lxl_path);
+                if (defined $v_path) {
+                    my ($dir, $name) = path_split($v_path);
                     unless (-d $dir) {
                         _log2 "mkdir $dir/";
                         mkdir_p($dir)
                             or err_cont "can't mkdir $dir: $!";
                     }
-                    open($lxl_fh, '>', $lxl_path)
-                        or err_cont "can't write to $lxl_path: $!";
-                    binmode $lxl_fh;
-                    # $lxl_fh->autoflush(1);
+                    open($v_fh, '>', $v_path)
+                        or err_cont "can't write to $v_path: $!";
+                    binmode $v_fh;
+                    # $v_fh->autoflush(1);
                 }
             } elsif ($paramidx == 2) {  # size
-                $lxl_size = 0;
-                $lxl_offset = 0;
+                $v_size = 0;
+                $v_offset = 0;
                 if (/^(\d+)$/) {
-                    $lxl_size = $_;
+                    $v_size = $_;
                 } else {
                     err_cont "invalid size: $_";
                 }
@@ -258,35 +259,43 @@ sub _main {
             next;
         }
         # paramidx >= 3
-        my $bsize = length $_;
-        # my $end = $lxl_offset + $bsize;
-        # _log2 "extract $lxl_section.$. | $lxl_offset - $end / $lxl_size";
-        print $lxl_fh $_;
-        $lxl_sumd->add($_) if defined $lxl_sumd;
 
-        $lxl_offset += length $_;
-        if ($LOGLEVEL > 1) {
-            my $perc = int($lxl_offset / $lxl_size * 1000) / 10 . '%';
-            _sig2 $lxl_section, "$lxl_path ($perc)";
+        if ($v_offset + length($_) > $v_size) { # truncate
+            $_ = substr($_, 0, $v_size - $v_offset);
         }
-        if ($lxl_offset >= $lxl_size) {
-            close $lxl_fh;
-            undef $lxl_fh;
-            ++$lxl_section;
+        my $bsize = length $_;
+        my $end = $v_offset + $bsize;
+        # _log2 "extract $v_section.$. | $v_offset - $end / $v_size";
+        print $v_fh $_;
+        $v_sumd->add($_) if defined $v_sumd;
+
+        $v_offset += length $_;
+        if ($LOGLEVEL > 0) {
+            my $perc = int($v_offset / $v_size * 1000) / 10;
+            if ($perc != $v_lastperc) {
+                $v_lastperc = $perc;
+                _sig1 $v_section, "$v_path ($perc%)";
+            }
+        }
+        if ($v_offset >= $v_size) {
+            close $v_fh;
+            undef $v_fh;
+            ++$v_section;
             $paramidx = 0;
 
-            if (defined $lxl_sumd) {
-                my $sum = $lxl_sumd->hexdigest;
-                if ($sum ne $lxl_sum) {
-                    err_cont "invalid checksum: $sum (file $lxl_sum)";
+            my $dpath = $v_basenam.'::'.$v_file;
+
+            if (defined $v_sumd) {
+                my $sum = $v_sumd->hexdigest;
+                if ($sum ne $v_sum) {
+                    err_cont "$dpath: invalid checksum $sum (expected $v_sum)";
                 }
             }
 
-            my $dpath = $lxl_basenam.'::'.$lxl_file;
             if ($LOGLEVEL > 1) {
-                _log2 "extracted $lxl_path";
+                _log2 "extracted $v_path";
             } elsif ($LOGLEVEL > 0) {
-                _sig1 $lxl_section, "$dpath ($lxl_size bytes)";
+                _sig1 $v_section, "$dpath ($v_size bytes)";
             }
         }
     }
@@ -326,7 +335,7 @@ The initial version.
 
 =cut
 sub _version {
-    print "[$LOGNAME] Lapiota import/export archive extracter \n";
+    print "[$LOGNAME] Lapiota import/export archive extractor \n";
     print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 
