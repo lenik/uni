@@ -127,7 +127,7 @@
             -           | $LAPIOTA\bin\xmake.bat --pause -C \"%1\"
             - makerun   Make and run
             -           | $LAPIOTA\bin\xmake.bat --pause -x -C \"%1\"
-        - '".ahk AutoHotkeyScript" ->'
+        - '".ahk" ->'
             - open
             -           | ${findabc -w autohotkey}\autohotkey \"%1\"
             - compl     Compile Script
@@ -137,13 +137,13 @@
             -           | $LAPIOTA\bin\xcompl.bat --pause \"%1\"
             - complrun  Compile and run
             -           | $LAPIOTA\bin\xcompl.bat --pause -x \"%1\"
-        - '".chm chm.file" ->'
+        - '".chm" ->'
             - unchm     Extract files in current directory
             -           | $LAPIOTA\bin\w\unchm.bat \"%1\"
         - .class ->
             - decompl   Decompile java class
             -           | $LAPIOTA\bin\pi.bat $LAPIOTA\usr\bin\jad -p \"%1\" \pi; $CYGWIN_ROOT\bin\less
-        - '".tlb .dll .sys .exe .ocx .ax" ->'
+        - '".tlb .exe .dll .sys .ocx .cpl .ax" ->'
             - comreg    Register com-service
             -           | regsvr32 \"%1\"
             - comunreg  Unregister com-service
@@ -152,7 +152,7 @@
             -           | $LAPIOTA\bin\regtlb \"%1\"
             - tlbunreg  Unregister type library
             -           | $LAPIOTA\bin\regtlb /u \"%1\"
-        - '".jar .war .ear jarfile warfile earfile" ->'
+        - '".jar .war .ear" ->'
             - decompl   Decompile java archive
             -           | $LAPIOTA\bin\dejar.bat \"%1\"
         - .labat ->
@@ -175,6 +175,11 @@
         - .lst ->
             - medit     Edit files in the list
             -           | $LAPIOTA\bin\mani.bat -f \"%1\"
+        - .nsi ->
+            - compl     Compile (window mode)
+            -           | ${findabc -w nsis}\makensisw.exe \"%1\"
+            - complc    Compile (console mode)
+            -           | ${findabc -w nsis}\makensis.exe \"%1\"
         - .patch ->
             - cat       Print in categories
             -           | $LAPIOTA\bin\pi.bat $LAPIOTA\bin\w\patchs.bat \"%1\" \pi; $CYGWIN_ROOT\bin\less -p \"Patch of .*"

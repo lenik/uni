@@ -258,6 +258,15 @@ sub _automk {
 
 sub set_ctxmenu { &hi;
     my ($ctx, $nam, $id, $desc, $cmd) = @_;
+    if ($nam =~ /^\./) {
+        my $alias = $CROOT->{"$nam//"};
+        if (defined $alias) {
+            $alias =~ s/\s+//s;
+            if ($alias ne '') {
+                $nam = $alias;
+            }
+        }
+    }
     _automk $CROOT, "$nam/Shell/$id/Command";
     $CROOT->{$nam}->{'Shell'}->{$id} = {
         '/' => _or($desc, $id),
