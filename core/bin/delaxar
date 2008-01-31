@@ -47,7 +47,7 @@ our $v_file;
 our $v_path;
 our $v_size;
 our $v_offset;
-our $v_lastperc;
+our $v_lastperc         = 0;
 our $v_fh;
 
 sub _boot {
