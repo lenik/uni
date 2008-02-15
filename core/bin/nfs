@@ -620,19 +620,35 @@ sub expand_symbolic_link {
     chop $path if $path =~ m/[\\\/]$/;
 
     if (-f "$path") {
-        my $sym_to = php_perl readfile $path;
-        $sym_to =~ s/^\s+|\s+$//g;
-
-        my $context_dir = path_join($path, '..');
-        $path = path_join($context_dir, $sym_to);
-        if (not -e $path and $errmsg) {
-            $errmsg = sprintf $errmsg, $path;
-            print($errmsg), exit if $opt_test_only;
-            while ('retry' eq
-                    msgbox($errmsg, $APPNAME, 'retry', 'cancel', 'x')) {
-                last if -e $path;
+        my @targets;
+        for (readfile $path) {
+            $_ = php_perl $_;
+            s/^\s+//s;
+            s/\s+$//s;
+            _log2 "$path: $_";
+            next if $_ eq '';
+            push @targets, $_;
+        }
+        my $i = 0;
+        while ($i != -1) {
+            my $sym_to = $targets[$i];
+            my $context_dir = path_join($path, '..');
+            $path = path_join($context_dir, $sym_to);
+            last if -e $path;
+            if ($i >= $#targets) {
+                if (defined $errmsg) {
+                    $errmsg = sprintf $errmsg, $path;
+                    print($errmsg), exit if $opt_test_only;
+                    while ('retry' eq
+                            msgbox($errmsg, $APPNAME, 'retry', 'cancel', 'x')) {
+                        last if -e $path;
+                    }
+                    exit if not -e $path;
+                }
+                $i = -1;
+            } else {
+                $i++;
             }
-            exit if not -e $path;
         }
     }
     return $path;

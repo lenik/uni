@@ -1,35 +1,29 @@
 #!/usr/bin/perl
 
-use strict;
-use cmt::ftime;
-use cmt::g;
-use cmt::util;
-use cmt::vcs;
-use cmt::win32;
-use Data::Dumper;
+=head1 NAME
 
+chmac - Change MAC Address
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'chmac'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
 use Net::Adapter;
 use Win32::API;
 use Win32::API::Struct;
 use YAML;
 
-sub _boot;
-sub main;
-sub info;
-sub info2;
-sub version;
-sub help;
-
+sub _main; sub _version; sub _help;
 sub macstr;
 sub macbin;
 sub iplist;
 sub build_devices;
 sub dump_devices;
 
-our $opt_verbtitle      = 'chmac';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
 our $opt_device;
 our $opt_mac;
 
@@ -41,14 +35,13 @@ my %idx_mac;
 my %idx_ip;
 
 sub _boot {
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help|h'     => sub { help; exit },
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
                'device|d:s',
                'mac|m=s',
                );
-
     $opt_device = shift @ARGV unless defined $opt_device;
     $opt_mac    = shift @ARGV unless defined $opt_mac;
 
@@ -78,59 +71,111 @@ sub _boot {
             die "no found of $opt_device";
         }
     }
-    info "$opt_device->{addr} ($opt_device->{desc})";
-    info2 'device-info: '.Dump($opt_device);
+    _log1 "$opt_device->{addr} ($opt_device->{desc})";
+    _log2 'device-info: '.Dump($opt_device);
 
-    main;
+    _main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+B<chmac>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub version {
-    my %id = parse_id('$Id$');
-    print "[$opt_verbtitle] MAC Address Changer\n";
-    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-}
+=head1 DESCRIPTION
 
-sub help {
-    version;
-    print <<"EOM";
+B<chmac> is a WHAT used for WHAT. It HOW-WORKS.
 
-Syntax:
-        $0 <options> [<device-selector> [<new MAC address>] ]
+BACKGROUND-PROBLEM.
 
-        The <device-selector> could be one of:
-            (none)      list all devices
-            index:      <number>    1, 2, 3, ...
-            combo:      :<number>   :1, :2, :3, ...
-            ip:         1.2.3.4
-            mac:        11:22:33:44:55:66
-            guid:       {11111111-2222-3333-4444-555555555555}
+HOW-chmac-RESOLVES.
 
-        To reset the mac address, just omit the <new MAC address> field.
+=head1 OPTIONS
 
-Options:
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
-        --version
-        --help (h)
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] [DEVICE [NEWMAC] ]\n", <<'EOM';
+
+Common options:
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+
+DEVICE:
+        (none)      list all devices
+        index:      NUMBER      1, 2, 3, ...
+        combo:      :NUMBER     :1, :2, :3, ...
+        ip:         1.2.3.4
+        mac:        11:22:33:44:55:66
+        guid:       {11111111-2222-3333-4444-555555555555}
+
+        To reset the mac address, just omit the NEWMAC field.
 EOM
 }
 
 exit (_boot or 0);
 
+sub _main {
+    my $id = $opt_device->{id};
+    chmac($id, $opt_mac)
+        or die "can't change the mac: $!";
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
 sub macstr {
     my $bin = shift;
     my $str = unpack "H12", $bin;
@@ -202,9 +247,28 @@ sub dump_devices {
     }
 }
 
-sub main {
-    my $id = $opt_device->{id};
-    chmac($id, $opt_mac)
-        or die "can't change the mac: $!";
+=head1 HISTORY
 
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Change MAC Address \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

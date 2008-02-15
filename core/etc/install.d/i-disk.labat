@@ -1,0 +1,24 @@
+#!/lapiota/bin/labat
+
+- _use: labat::lapiota
+- _use: labat::win32
+# - _include: inc/lapiota-commons.labat
+-
+  :system:
+    - :: Initialize system base settings
+    - set-env:
+        - w-        PATH        .I_HDR
+        - w-        PATH        i:\
+        - w+.I_HDR  PATH        ->
+            - i:\lapiota\abc.d\bin
+            - i:\lapiota\local\bin
+            - i:\lapiota\usr\bin
+            - i:\lapiota\bin
+        - u-        PERLLIB     .I_HDR
+        - u-        PERLLIB     /mnt/i/lapiota
+        - u+.I_HDR  PERLLIB     ->
+            - /mnt/i/lapiota/lib
+        - u-        PYTHONPATH  .I_HDR
+        - u-        PYTHONPATH  /mnt/i/lapiota
+        - u+.I_HDR  PYTHONPATH  ->
+            - /mnt/i/lapiota/lib

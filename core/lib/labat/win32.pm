@@ -172,8 +172,8 @@ sub set_env { &hi;
     if ($op =~ s/^[wum]//) {
         my $st = $&;                # slash-type
         my $IFS = $st eq 'w' ? ';' : ':';
-        my $IDS = $st eq 'w' ? '\\' : '/';
-            $val =~ s/[\/\\]/$IDS/g;
+        my $SLASH = $st eq 'w' ? '\\' : '/';
+            $val =~ s/[\/\\]/$SLASH/g;
         my $case = $st eq 'u' ? 1 : 0;
         my @old = qsplit qr/$IFS/, $old;
 
@@ -189,8 +189,9 @@ sub set_env { &hi;
             } else {                    # prefix-remove
                 $val = lc $val unless $case;
                 my $len = length $val;
-                @new = grep { my $t = substr($_, 0, $len); $t =~ s/[\/\\]/$IDS/g;
+                @new = grep { my $t = substr($_, 0, $len); $t =~ s/[\/\\]/$SLASH/g;
                               $t = lc $t unless $case; $val ne $t } @old;
+                # _log2 "[$val] ", join(',',@old), " -> ", join(',', @new);
             }
             $new = join($IFS, @new);
         } elsif ($op =~ /^(?:\+([\^\$]?)|([\^\$])\+)$/) {
@@ -259,13 +260,14 @@ sub _automk {
 sub set_ctxmenu { &hi;
     my ($ctx, $nam, $id, $desc, $cmd) = @_;
     if ($nam =~ /^\./) {
-        my $alias = $CROOT->{"$nam//"};
-        if (defined $alias) {
-            $alias =~ s/\s+//s;
-            if ($alias ne '') {
-                $nam = $alias;
-            }
+        my $alias = _or($CROOT->{"$nam//"}, '');
+        $alias =~ s/\s+$//s;
+        if ($alias eq '') {
+            $alias = 'lapiota.file'.$nam;
+            _automk $CROOT, "$nam/";
+            $CROOT->{"$nam//"} = $alias;
         }
+        $nam = $alias;
     }
     _automk $CROOT, "$nam/Shell/$id/Command";
     $CROOT->{$nam}->{'Shell'}->{$id} = {

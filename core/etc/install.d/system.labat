@@ -49,14 +49,14 @@
             - $CYGWIN_ROOT\usr\X11R6\bin
         - w&        PATHEXT     .p .pc .pl .pld .pyc .py .php .rb .sh .ss .prj
         - w&        PATHEXT     .6 .six .x
-        - w-        INCLUDE     $LAPIOTA
+        - w-%       INCLUDE     $LAPIOTA
         - w+$       INCLUDE     ->
             - $LAPIOTA\lib
             - $LAPIOTA\usr\include
             - $CYGWIN_ROOT\lib\perl5\5.8\cygwin\CORE
             - $CYGWIN_ROOT\lib\perl5\5.8\Encode
             - ${findabc -w mingw}\include
-        - w-        LIB         $LAPIOTA
+        - w-%       LIB         $LAPIOTA
         - w+$       LIB         ->
             - $LAPIOTA\lib
             - $LAPIOTA\lib\cpf
@@ -64,12 +64,13 @@
             - ${findabc -w mingw}\lib
         - w=        JAVA_HOME   ${findabc -w jdk}
         - =         JAVA_OPTS   -ea
-        - w-        JAVA_LIB    $LAPIOTA
+        - w-%       JAVA_LIB    $LAPIOTA
         - w+        JAVA_LIB    $LAPIOTA\usr\lib\java
-        - w-        JAVA_SRC    $LAPIOTA
+        - w-%       JAVA_SRC    $LAPIOTA
         - w+        JAVA_SRC    $LAPIOTA\usr\src\java
         - u-        PERLLIB     /lapiota
-        - u-        PERLLIB     /usr/lib
+        - u-        PERLLIB     blib/
+      # - u-        PERLLIB     /usr/lib
         - u+$       PERLLIB     ->
             - blib/lib
             - blib/arch
@@ -83,12 +84,37 @@
             # /lapiota/usr/lib/perl5/5.8/site
             # /lapiota/usr/lib/perl5/5.8/cpan
         - u-        PYTHONPATH  /lapiota
-        - u-        PYTHONPATH  /usr/lib
-        - w+$       PYTHONPATH  ->
+      # - u-        PYTHONPATH  /usr/lib
+        - u+^       PYTHONPATH  ->
             - /lapiota/lib
-            - /usr/lib/python2.5
-            - /usr/lib/python2.5/site-packages
+          # - /usr/lib/python2.5
+          # - /usr/lib/python2.5/site-packages
+        - u+$       PYTHONPATH  ->
             - /lapiota/usr/lib/python2.4
+
+    - set-assoc:
+        - M4-script         .m4
+        -   | $CYGWIN_ROOT\bin\m4 \"%0\" %*
+        - php-program       .php
+        -   | ${findabc -w php}\php.exe \"%0\" %*
+        - perl-program      .pl .p .pc
+        -   | cmd /c %%PERL%% \"%0\" %*
+        - perl-daemon       .pld
+        -   | cmdw /c %%PERLW%% \"%0\" %*
+        - python-program    .py .pyc
+        -   | $CYGWIN_ROOT\bin\python.exe \"%0\" %*
+        - ruby-program      .rb
+        -   | ${findabc -w ruby}\bin\ruby \"%0\" %*
+        - MIT-scheme        .scm
+        -   | ${findabc -w mit_scheme}\bin\scheme \"%0\" %*
+        - shell-script      .sh
+        -   | $LAPIOTA\bin\myexec /2 $SHELL -c \"%0\" %*
+        - six-program       .six .6
+        -   | reserved
+        - PLT-scheme        .ss
+        -   | ${findabc -w plt_scheme}\mzscheme \"%0\" %*
+        - X-shell-script    .x
+        -   | cmd /c %%PERL%% $LAPIOTA\bin\runx.pl -k -- \"%0\" %*
 
     - set-ctxmenu:
         - '* ->'
@@ -186,29 +212,6 @@
             - merge     Merge the patch into current directory
             -           | $CYGWIN_ROOT/bin/patch
 
-    - set-assoc:
-        - M4-script         .m4
-        -   | $CYGWIN_ROOT\bin\m4 \"%0\" %*
-        - php-program       .php
-        -   | ${findabc -w php}\php.exe \"%0\" %*
-        - perl-program      .pl .p .pc
-        -   | cmd /c %%PERL%% \"%0\" %*
-        - perl-daemon       .pld
-        -   | cmdw /c %%PERLW%% \"%0\" %*
-        - python-program    .py .pyc
-        -   | $CYGWIN_ROOT\bin\python.exe \"%0\" %*
-        - ruby-program      .rb
-        -   | ${findabc -w ruby}\bin\ruby \"%0\" %*
-        - MIT-scheme        .scm
-        -   | ${findabc -w mit_scheme}\bin\scheme \"%0\" %*
-        - shell-script      .sh
-        -   | $LAPIOTA\bin\myexec /2 $SHELL -c \"%0\" %*
-        - six-program       .six .6
-        -   | reserved
-        - PLT-scheme        .ss
-        -   | ${findabc -w plt_scheme}\mzscheme \"%0\" %*
-        - X-shell-script    .x
-        -   | cmd /c %%PERL%% $LAPIOTA\bin\runx.pl -k -- \"%0\" %*
 -
   :ntsys:
     :: NT system adjust

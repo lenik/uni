@@ -13,8 +13,8 @@ our @EXPORT = qw(_a
 # de-alias
 sub _a          { shift }
 
-sub _emptyp     { my $v = shift; defined $v and $v ne '' }
-sub _zerop      { my $v = shift; defined $v and $v == 0 }
+sub _emptyp     { my $v = shift; !defined($v) || ($v eq '') }
+sub _zerop      { my $v = shift; !defined($v) || ($v == 0) }
 
 sub _or         { for (@_) { return $_ if defined $_ } undef }
 sub _o          { for (@_) { return $_ if defined $_ } '' }

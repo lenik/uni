@@ -12,7 +12,7 @@ use cmt::fswalk('fswalk');
 use cmt::i18n('hremoveents');
     # $cmt::i18n::DFL_ENC     = $LC_ENCODING;
     $cmt::i18n::DFL_FB      = ' ';
-use cmt::lang('_def', '_or');
+use cmt::lang('_def', '_or', '_sor');
 use cmt::log(3);
     $LOGNAME    = 'mkchm'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::path('path_join', 'path_split', 'path_splitext');
@@ -100,7 +100,7 @@ sub _boot {
     }
 
     my $outdir;
-    if (-d $opt_output) {
+    if (defined $opt_output and -d $opt_output) {
         $outdir = $opt_output;
         undef $opt_output;
     }
@@ -139,8 +139,9 @@ sub _boot {
     }
 
     if ($opt_title_format eq '?') {
-    # TODO
-        require cmt::
+    # TODO, GUI prompt...
+    #   require cmt::
+        die "not implemented. ";
     }
 
     _log2 "start file: $_" for @opt_files;
@@ -281,8 +282,8 @@ sub _main {
                     'h' => $head,
                     'f' => $base,
                     );
-                my $title = _sor();
-
+                my @title = map { $frags{$_} } split('', $opt_title_format);
+                my $title = _sor @title;
                 if (defined $title) {
                     $title =~ s/\s+/ /sg; # normalize-space, also remove newlines
                     _log2 "  title $title";

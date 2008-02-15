@@ -1,45 +1,61 @@
-
 package Net::Adapter;
 
+=head1 NAME
+
+Net::Adapter - DeScRiPtIoN
+
+=cut
 use 5.008;
 use strict;
-use warnings;
-use cmt::util;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    our $LOGNAME    = __PACKAGE__;
+    our $LOGLEVEL   = 1;
+use cmt::util();
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
+    our $VER    = "0.$RCSID{rev}";
 use Exporter;
 use Win32::Registry;
 
-our @ISA = qw(Exporter);
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(enum_adapters
+                 netcon_connect
+                 netcon_disconnect
+                 netcon_reset
+                 chmac
+                 );
 
-our %EXPORT_TAGS = ( 'all' => [ qw(
-
-) ] );
-
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
-our @EXPORT = qw(
-	enum_adapters
-	netcon_connect
-	netcon_disconnect
-	netcon_reset
-	chmac
-);
+# INITIALIZORS
 
 our $VERSION = '0.02';
 
 require XSLoader;
 XSLoader::load('Net::Adapter', $VERSION);
 
-sub info;
-sub info2;
+=head1 SYNOPSIS
 
-our $opt_verbtitle      = __PACKAGE__;
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
+    use Net::Adapter;
+    mysub(arguments...)
 
+=head1 DESCRIPTION
+
+B<Net::Adapter> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-Net::Adapter-RESOLVES.
+
+=head1 FUNCTIONS
+
+=cut
+=head2 mysub(arguments)
+
+=cut
 sub check_hr {
     my $hr = shift;
     if ($hr != 0) {
-        info2 "failed: $hr";
+        _log2 "failed: $hr";
     }
     return $hr == 0;
 }
@@ -94,17 +110,17 @@ sub chmac {
 
     my $mac0;
     $inst->QueryValueEx("NetworkAddress", REG_SZ, $mac0);
-    info2 "Old MAC-Override: $mac0" if defined $mac0;
+    _log2 "Old MAC-Override: $mac0" if defined $mac0;
 
     if (defined $mac) {
         if (!defined $mac0 or $mac ne $mac0) {
-            info2 "set $inst/\@NetworkAddress";
+            _log2 "set $inst/\@NetworkAddress";
             $inst->SetValueEx("NetworkAddress", undef, REG_SZ, $mac)
                 or die "can't set value of NetworkAddress: $!";
             $reset = 1;
         }
     } else {
-        info2 "delete $inst/\@NetworkAddress";
+        _log2 "delete $inst/\@NetworkAddress";
         if ($inst->DeleteValue("NetworkAddress")) {
             $reset = 1 if defined $mac0;
         }
@@ -113,77 +129,36 @@ sub chmac {
     $inst->Close;
 
     if ($reset) {
-        info2 "netcon_reset $id";
+        _log2 "netcon_reset $id";
         return netcon_reset($id);
     }
     return 1;
 }
 
-# utilities
+=head1 DIAGNOSTICS
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+(No Information)
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=cut
+# (HELPER FUNCTIONS)
 
-1;
-__END__
-# Below is stub documentation for your module. You'd better edit it!
+=head1 HISTORY
 
-=head1 NAME
+=over
 
-Net::Adapter - Perl extension for blah blah blah
+=item 0.x
 
-=head1 SYNOPSIS
+The initial version.
 
-  use Net::Adapter;
-  blah blah blah
-
-=head1 DESCRIPTION
-
-Stub documentation for Net::Adapter, created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
-
-Blah blah blah.
-
-=head2 EXPORT
-
-None by default.
-
-
+=back
 
 =head1 SEE ALSO
 
-Mention other useful documentation such as the documentation of
-related modules or operating system documentation (such as man pages
-in UNIX), or any relevant external documentation such as RFCs or
-standards.
-
-If you have a mailing list set up for your module, mention it here.
-
-If you have a web site set up for your module, mention it here.
+The L<cmt/"Perl_simple_module_template">
 
 =head1 AUTHOR
 
-A. U. Thor, E<lt>a.u.thor@a.galaxy.far.far.awayE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2007 by A. U. Thor
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.8 or,
-at your option, any later version of Perl 5 you may have available.
-
+Xima Lenik <name@mail.box>
 
 =cut
+1
