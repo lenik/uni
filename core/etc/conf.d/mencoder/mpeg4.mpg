@@ -1,0 +1,36 @@
+
+# default output filename
+o=encoded.mpg
+
+# autio encoding options
+oac=mp3lame=yes
+lameopts=preset=medium
+
+# video encoding options
+ovc=lavc=yes
+# lavcopts=acodec=mp2
+lavcopts=vcodec=mpeg4:mbd=1
+
+# doesn't work with -edl originalfile.edl
+#hr-edl-seek=yes
+
+[50]
+lavcopts=vbitrate=50
+
+[150]
+lavcopts=vbitrate=150
+
+[300]
+lavcopts=vbitrate=300
+
+[500]
+lavcopts=vbitrate=500
+
+[800]
+lavcopts=vbitrate=800
+
+[1200]
+lavcopts=vbitrate=1200
+
+[1800]
+lavcopts=vbitrate=1800
