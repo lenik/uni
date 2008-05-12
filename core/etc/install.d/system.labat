@@ -256,6 +256,10 @@
                     - ScreenBufferSize      0x03e80046
                     - WindowSize            0x00140046
                     - FontSize              0x0014000a
+                - CUser/Console/Big3/@->
+                    - ScreenBufferSize      0x03e80046
+                    - WindowSize            0x00030046
+                    - FontSize              0x0014000a
                 - CUser/Console/Cart/@->
                     - CodePage              437
                     - ScreenBufferSize      0x03e80010

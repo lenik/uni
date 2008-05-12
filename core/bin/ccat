@@ -1,24 +1,24 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+ccat - column-oriented cat utility
+
+=cut
 use strict;
+use vars qw($LOGNAME $LOGLEVEL);
 use cmt::atext;
-use cmt::pp;
-use cmt::util;
-use cmt::vcs;
+use cmt::log(2);
+    $LOGNAME    = 'ccat'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::pp('ppfmt_foobar');
+use cmt::util();
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
 
-sub _boot;
-sub info;
-sub info2;
-sub version;
-sub help;
-
-sub main;
+sub _main; sub _version; sub _help;
 sub resolv;
 
-our $opt_verbtitle      = 'ccat';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
 our $opt_eof_end;
 our $opt_range;
 our $opt_primary;
@@ -35,10 +35,10 @@ my %const = (
     );
 
 sub _boot {
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help|h'     => sub { help; exit },
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
                'range|r=s',
                'eof-end|e',
                'undef|u=s',
@@ -68,40 +68,76 @@ sub _boot {
         $opt_format = $fmt;
     }
 
-    info2 'file: '.$_ for @ARGV;
-    info2 'primary-file: '.$ARGV[$opt_primary]
+    _log2 'file: '.$_ for @ARGV;
+    _log2 'primary-file: '.$ARGV[$opt_primary]
         if defined $opt_primary;
 
-    info2 'format.src: '.$opt_format;
+    _log2 'format.src: '.$opt_format;
     $opt_format = ppfmt_foobar \&resolv, $opt_format;
-    info2 'format.dom: '.atext_dump($opt_format);
+    _log2 'format.dom: '.atext_dump($opt_format);
 
-    main;
+    _main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+B<ccat>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub version {
-    my %id = parse_id('$Id$');
-    print "[$opt_verbtitle] column-oriented cat utility \n";
-    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-}
+=head1 DESCRIPTION
 
-sub help {
-    version;
-    print "\nSyntax: \n    $0 [OPTION] [--] files...\n", <<'EOM';
+B<ccat> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-ccat-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] FILES\n", <<'EOM';
 
 Primary file:
     Filename with prefix 'p;' will be treated as primary-file, if a primary-
@@ -122,9 +158,9 @@ Common options:
     -u, --undef=STRING      replace non-existing columns
     -f, --format=FORMAT     output format
     -t, --trim-lines        trim input lines
-    -h, --help              show this help page
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
+    -h, --help              show this help page
         --version           print the version info
 
 Format:
@@ -136,22 +172,21 @@ Format:
 
 Examples:
     ccat -e -f "ren $Q$1$Q $Q$2$Q" old.lst new.lst | source
-
 EOM
 }
 
 exit (_boot or 0);
 
-sub main {
+sub _main {
     my @fd;
     my $hcount = 0;
     for (my $i = 0; $i <= $#ARGV; $i++) {
         $_ = $ARGV[$i];
         if (substr($_, 0, 2) eq 'v;') {
             my $exp = substr($_, 2);
-            info2 'exp<$i>.src: '.$exp;
+            _log2 'exp<$i>.src: '.$exp;
             $exp = ppfmt_foobar \&resolv, $exp;
-            info2 'exp<$i>.dom: '.atext_dump($exp);
+            _log2 'exp<$i>.dom: '.atext_dump($exp);
             push @fd, $exp;
         } else {
             open(my $h, '<', $_)
@@ -198,6 +233,12 @@ sub main {
     0
 }
 
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
 sub resolv {
     my $name = shift;
     if (exists $const{$name}) {
@@ -207,3 +248,36 @@ sub resolv {
     }
     return '?';
 }
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] column-oriented cat utility \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

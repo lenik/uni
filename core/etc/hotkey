@@ -249,6 +249,7 @@ appskey & numpadsub::send {volumn_down}
 #m::run metapad
 #n::run cmdw /c no
 #p::run cmdw /c paint
+#q::run cmdw /c start "Big" cmd /c settitle "Quick Logger" qlog
 #s::run cmdw /c scilab
 #t::run %SHELL% --login
 #x::run cmdw /c startx -notrayicon

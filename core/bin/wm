@@ -318,16 +318,15 @@ sub _main {
     if (@ARGV) {
         my $query = shift @ARGV;
         _log2 "query $query";
-        my $test_hwnd = 1 * $query;
-        if (get_text($test_hwnd) eq '') {
+        if ($query =~ /^\d+$/) {
+            _log2 "  hwnd: $query";
+            push @opt_hwnd, $query;
+        } else {
             my @matches = match($query);
             # remove console from @matches
             @matches = grep { not in_list($_, @consoles) } @matches;
-            _log2 "query matched: $_" for @matches;
+            _log2 "  hwnd-matched: $_" for @matches;
             push @opt_hwnd, @matches;
-        } else {
-            _log2 "query-hwnd: $test_hwnd";
-            push @opt_hwnd, $test_hwnd;
         }
     } else {
         $opt_use_active = 1;
@@ -345,7 +344,7 @@ sub _main {
         my $hwnd;
         while ($hwnd = $fun->Call(0, $last, $cls, 0)) {
             if (is_visible $hwnd) {
-                _log2 "Window-Of-Class: $hwnd - " . get_text($hwnd);
+                _log2 "  Window-Of-Class: $hwnd - " . get_text($hwnd);
                 push @opt_hwnd, $hwnd;
             }
             $last = $hwnd;
