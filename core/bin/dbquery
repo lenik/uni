@@ -1,0 +1,344 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+dbquery - Run sql query to odbc database
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'dbquery'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::path('path_splitext');
+use cmt::util();
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl 776 2007-12-24 12:11:36Z lenik $');
+use Getopt::Long;
+use Win32::ODBC;
+
+sub _main; sub _version; sub _help;
+sub declvar;
+
+sub csv_mode;
+sub csv_dump;
+sub csv_quote;
+sub eval_mode;
+sub eval_dump;
+sub text_mode;
+sub text_dump;
+sub xml_mode;
+sub xml_dump;
+
+our $opt_driver;
+our $opt_user;
+our $opt_password;
+our $opt_cstr;
+our $opt_sql;
+our $opt_mode           = 'text';
+our $opt_csv_delim      = ',';
+our $opt_eval_code;
+our $opt_eval_scope     = 'EvalScope';
+our $opt_text_width     = 80;
+our $opt_xml_roottag    = 'rows';
+our $opt_xml_rowtag     = 'row';
+our $opt_null           = '(null)';
+
+our $g_conn;
+
+sub _boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'user|u=s',
+               'password|p=s',
+               'sql|s=s',
+               'csv:s'          => sub { shift; &csv_mode },
+               'eval|e=s'         => sub { shift; &eval_mode },
+               'text:s'         => sub { shift; &text_mode },
+               'xml:s'          => sub { shift; &xml_mode } ,
+               'null=s',
+               );
+
+    die "no database (file or connection-string) specified. " unless @ARGV;
+    my $src = shift @ARGV;
+    if ($src =~ s/^\$//) {
+        $opt_cstr = $src;
+    } else {
+        my ($file, $ext) = path_splitext($src);
+        my %DRIVERS = (
+            '.mdb'  => 'Microsoft Access Driver (*.mdb)',
+            );
+        $opt_driver = $DRIVERS{lc($ext)}
+            or die "unknown file extension: $ext";
+        # src -> absolute path
+        $opt_cstr = "Driver={$opt_driver};DBQ=$src";
+    }
+    $opt_cstr .= ";UID=$opt_user" if defined $opt_user;
+    $opt_cstr .= ";PWD=$opt_password" if defined $opt_password;
+
+    if (@ARGV) {
+        $opt_sql = join(' ', @ARGV);
+    }
+
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<dbquery>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<dbquery> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-dbquery-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] [FILE|\$CONNSTR] [SQL|\@FILE]\n", <<'EOM';
+
+Common options:
+    -u, --user=USER         username used to open the database
+    -p, --password=PWD      password used to open the database
+    -s, --sql=SQL|@FILE     sql to execute, default to read from stdin
+        --csv[=DELIM]       output results in comma(DELIM) separated format
+    -e, --eval=CODE         eval each row in perl exp, field variable: <FIELD>
+        --text[=WIDTH]      output results in column-aligned plain text format
+        --xml[=ROOT/ROW]    output results in xml format
+        --null=NULLSTR      representation of null value
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    _log1 "open connection: [$opt_cstr]";
+    $g_conn = new Win32::ODBC($opt_cstr)
+        or die "failed to open connection: [$opt_cstr]";
+
+    unless (defined $opt_sql) {
+        _P1 "Please input SQL to execute: ";
+        $opt_sql = '';
+        while (<STDIN>) {
+            $opt_sql .= $_;
+        }
+    }
+    _log2 "execute sql: $opt_sql";
+    if ($LOGLEVEL > 2) {
+        $g_conn->Run($opt_sql);
+    } else {
+        my $err = $g_conn->Sql($opt_sql);
+        _log1 "error: ".$g_conn->Error() if defined $err;
+    }
+
+    if ($opt_mode eq 'csv') {
+        csv_dump;
+    } elsif ($opt_mode eq 'eval') {
+        eval_dump;
+    } elsif ($opt_mode eq 'text') {
+        text_dump;
+    } elsif ($opt_mode eq 'xml') {
+        xml_dump;
+    } else {
+        die "unexpected (mode=$opt_mode)";
+    }
+
+    _log1 "close connection";
+    $g_conn->Close();
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+# SEE ALSO: cmt::log::addmissing
+sub declvar {
+    my ($pkg, $nam, $val) = @_;
+    my $vnam = '$'.$pkg.'::'.$nam;
+    my $ref = eval '\\'.$vnam;
+    $$ref = $val unless defined $$ref;
+    $ref
+}
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+sub csv_mode {
+    my $arg = shift;
+    $opt_mode = 'csv';
+    $opt_csv_delim = $arg if defined $arg and $arg ne '';
+}
+sub csv_dump {
+    my @fields = $g_conn->FieldNames();
+    for (0..$#fields) {
+        my $f = $fields[$_];
+        print $opt_csv_delim if $_;
+        print csv_quote($f);
+    }
+    print "\n";
+    while ($g_conn->FetchRow()) {
+        my @row = $g_conn->Data();
+        for (0..$#row) {
+            my $cell = $row[$_];
+            print $opt_csv_delim if $_;
+            print csv_quote($cell);
+        }
+        print "\n";
+    }
+}
+sub csv_quote {
+    local $_ = shift;
+    return $opt_null unless defined $_;
+    my $dirty = 0;
+    $dirty = 1 if s/\\/\\\\/;
+    $dirty = 1 if s/"/\\"/;
+    $dirty = 1 if s/\n/\\n/;
+    $dirty = 1 if /\s/;
+    $_ = '"'.$_.'"' if $dirty;
+    return $_;
+}
+
+sub eval_mode {
+    my $arg = shift;
+    $opt_mode = 'eval';
+    $opt_eval_code = $arg;
+    unless (defined $opt_eval_code) {
+        _P1 "Please input code to evaluate: ";
+        $opt_eval_code = '';
+        while (<STDIN>) {
+            $opt_eval_code .= $_;
+        }
+    }
+    $opt_eval_code =~ s/<(.*?)>/\${${opt_eval_scope}::$1}/sg;
+    _log2 "eval code: $opt_eval_code";
+}
+sub eval_dump {
+    my @fields = $g_conn->FieldNames();
+    my @refv;
+    for (@fields) {
+        _log2 'declare $'.$_;
+        my $ref = declvar $opt_eval_scope, $_;
+        # _log2 "$ref = ".(ref $ref)."\n";
+        push @refv, $ref;
+    }
+
+    while ($g_conn->FetchRow()) {
+        my @row = $g_conn->Data();
+        for (0..$#row) {
+            my $cellref = $refv[$_];
+            my $cellval = $row[$_];
+            $$cellref = $cellval;
+        }
+        my $val = eval "$opt_eval_code";
+        die "eval error: $@" if $@;
+        print $val, "\n" if defined $val;
+    }
+}
+
+sub text_mode {
+    my $arg = shift;
+    $opt_mode = 'text';
+    $opt_text_width = 1*$arg if defined $arg;
+    die "invalid width: $arg" if $opt_text_width < 10;
+}
+sub text_dump {
+    my @fields = $g_conn->FieldNames();
+    $g_conn->FetchRow()
+}
+
+sub xml_mode {
+    my $arg = shift;
+    $opt_mode = 'xml';
+    if (defined $arg) {
+        my ($root, $row) = split('/', $arg);
+        $opt_xml_roottag = $root if defined $root;
+        $opt_xml_rowtag = $row   if defined $row;
+    }
+}
+sub xml_dump {
+    my @fields = $g_conn->FieldNames();
+    $g_conn->FetchRow()
+}
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Run sql query to odbc database \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

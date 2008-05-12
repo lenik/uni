@@ -2,13 +2,6 @@
 
     setlocal
 
-    set vchome=C:\Program Files\Video Converter
-    set path=%vchome%;%vchome%\codecs;%path%
-
-    if not exist "%vchome%\mc.exe" (
-        copy /y "%vchome%\mencoder.exe" "%vchome%\mc.exe" >nul
-    )
-
     set _debug=0
     set _prefix=m6-
     set _param=
@@ -97,10 +90,10 @@
     echo Convert %src% to %dst%...
     if "%_debug%"=="1" (
         echo mencoder -noodml "%src%" -o "%dst%" %menc_args%
-        "%vchome%\mc" -noodml "%src%" -o "%dst%" %menc_args%
+        call menc     -noodml "%src%" -o "%dst%" %menc_args%
     ) else (
-        echo "%vchome%\mc" -noodml "%src%" -o "%dst%" %menc_args% >_lastxvc.bat
-        "%vchome%\mc" -noodml "%src%" -o "%dst%" %menc_args% 2>&1 |grep %% |pc -e
+        echo mencoder -noodml "%src%" -o "%dst%" %menc_args% >_lastxvc.bat
+        call menc     -noodml "%src%" -o "%dst%" %menc_args% 2>&1 |grep %% |pc -e
     )
 
 :end

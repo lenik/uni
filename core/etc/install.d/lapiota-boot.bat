@@ -17,7 +17,7 @@
     rd %LAPIOTA% 2>nul
     md %LAPIOTA% 2>nul
 
-    set pgd=box.lapiota.pgd
+    set pgd=lam.root.pgd
     if exist \%pgd% \%pgd%
     if exist \.radiko\.miaj\image\%pgd% \.radiko\.miaj\image\%pgd%
 :endmount

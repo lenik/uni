@@ -15,6 +15,7 @@ csv2xml.bat
 cuelist.bat
 cvsapp.bat
 cvsco.bat
+dbquery.bat
 delaxar.bat
 dirdiff.bat
 dirs.bat

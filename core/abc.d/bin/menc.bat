@@ -28,18 +28,23 @@
 
 :prep1
     if "%~1"=="" (
-        echo mencoder MAJORTYPE [PROFILE [MORE-OPTIONS]]
+        echo mencoder [OPTIONS]
+        echo mencoder ~MAJORTYPE [PROFILE [MORE-OPTIONS]]
         exit /b 1
     )
 
+    set _major=%~1
+    if not "%_major:~0,1%"=="~" goto prep2
+    set _major=%_major:~1%
+
     call findabc -r /etc/conf.d mencoder
     set _conf=%_home%
-    for %%i in ("%_conf%\%~1.*") do (
+    for %%i in ("%_conf%\%_major%.*") do (
         set _majorinc=%%~nxi
         set _majorext=%%~xi
     )
     if "%_majorinc%"=="" (
-        echo major type "%~1%" isn't supported.
+        echo major type "%_major%" isn't supported.
         exit /b 1
     )
 
@@ -47,13 +52,16 @@
     shift
 
     if not "%~1"=="" (
+        set _profile=%~1
         set _args=%_args% -profile "%~1"
         shift
     )
 
     if exist "%~1" (
         set _origbase=%~dpn1
-        set _args=%_args% -o "%~dpn1%_majorext%"
+        set _prefix=[%_major%]
+        if not "%_profile%"=="" set _prefix=[%_major%.%_profile%]
+        set _args=%_args% -o "%~dp1!_prefix!%~n1%_majorext%"
     )
 
     if exist "%_origbase%.edl" (

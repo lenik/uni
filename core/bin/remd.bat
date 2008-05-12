@@ -15,13 +15,20 @@
         )
     )
 
-    for /d %%i in (*) do (
-	rd "%%i" 2>nul
-        if exist "%%i\*" (
+    set _shot=
+    for /d %%i in (*) do set _shot=!_shot! "%%i"
+
+    for /d %%i in (%_shot%) do (
+	rd "%%~i" 2>nul
+        if exist "%%~i\*" (
             if %_verbose% geq 1 echo [dir] %%~dpnxi
         ) else (
-            md "%%i"
-		if %_verbose% geq 0 echo [fix] %%~dpnxi
+            set _i=%%~i
+            set _xi=%%~dpnxi
+:mdloop
+            md "!_i!" 2>nul
+		if %_verbose% geq 0 echo [fix] !_xi!
+            if not exist "!_i!\*" goto mdloop
         )
     )
 

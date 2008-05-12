@@ -1,1 +1,49 @@
---
+
+# default output filename
+o=[m6]noname.avi
+
+priority=idle
+mc=0
+# font=c:\windows\fonts\simsun.ttc
+odml=no
+
+# autio encoding options
+oac=mp3lame=yes
+lameopts=vbr=0:br=128:vol=0:mode=0:aq=7:padding=3
+srate=44100
+af=volnorm
+
+# video encoding options
+ovc=xvid=yes
+xvidencopts=max_bframes=0:gmc=no:qpel=no
+xvidencopts=bitrate=384
+ofps=18.000
+
+vf-add=crop=0:0:-1:-1
+vf-add=scale=320:240
+vf-add=expand=320:240:-1:-1:1
+vf-add=rotate=1
+
+[50]
+xvidencopts=bitrate=50
+
+[150]
+xvidencopts=bitrate=150
+
+[300]
+xvidencopts=bitrate=300
+
+[384]
+xvidencopts=bitrate=384
+
+[500]
+xvidencopts=bitrate=500
+
+[800]
+xvidencopts=bitrate=800
+
+[1200]
+xvidencopts=bitrate=1200
+
+[1800]
+xvidencopts=bitrate=1800
