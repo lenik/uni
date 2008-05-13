@@ -9,9 +9,10 @@ use strict;
 use vars qw($LOGNAME $LOGLEVEL %ROOT);
 # use cmt::codec;
 use cmt::lang('_o', '_or');
-use cmt::log(2);
+use cmt::log(3);
     $LOGNAME    = __PACKAGE__;
     $LOGLEVEL   = $labat::LOGLEVEL;
+use cmt::path('$SLASH');
 use cmt::util('qsplit');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
@@ -19,6 +20,8 @@ use cmt::vcs('parse_id');
 use labat;
 use Data::Dumper;
 use Exporter;
+use Win32::OLE('in', 'with', 'EVENTS');
+use Win32::OLE::Const;
 use Win32::TieRegistry(':REG_', Delimiter => '/', TiedHash => \%ROOT);
 
 our @ISA    = qw(Exporter);
@@ -26,14 +29,17 @@ our @EXPORT = qw(set_env
                  set_ctxmenu
                  set_assoc
                  set_reg
+                 set_acl
                  );
 our %CTAB   = qw(set_env            STD
                  set_ctxmenu        NIDC
                  set_assoc          DLC
                  set_reg            STD
+                 set_acl            RP
                  );
 
 sub hi;     *hi     = *labat::hi;
+sub runcmd;
 
 our $CROOT          = $ROOT{'Classes'};
 our $USR_ENV        = $ROOT{'CUser/Environment'};
@@ -81,6 +87,17 @@ sub _cs_NIDC {
         for (split(/\s+/, $n)) {
             $code->($ctx, $_, $i, $d, $c)
         }
+    }
+}
+
+# Reparse arguments split by space
+sub _cs_RP {
+    my $code = shift;
+    sub { *__ANON__ = '<_cs_RP>';
+        my $ctx = shift;
+        my $cat = join('', @_);
+        my @args = labat::_resolv2($ctx, $cat);
+        $code->($ctx, @args);
     }
 }
 
@@ -172,8 +189,8 @@ sub set_env { &hi;
     if ($op =~ s/^[wum]//) {
         my $st = $&;                # slash-type
         my $IFS = $st eq 'w' ? ';' : ':';
-        my $SLASH = $st eq 'w' ? '\\' : '/';
-            $val =~ s/[\/\\]/$SLASH/g;
+        my $slash = $st eq 'w' ? '\\' : '/';
+            $val =~ s/[\/\\]/$slash/g;
         my $case = $st eq 'u' ? 1 : 0;
         my @old = qsplit qr/$IFS/, $old;
 
@@ -189,7 +206,7 @@ sub set_env { &hi;
             } else {                    # prefix-remove
                 $val = lc $val unless $case;
                 my $len = length $val;
-                @new = grep { my $t = substr($_, 0, $len); $t =~ s/[\/\\]/$SLASH/g;
+                @new = grep { my $t = substr($_, 0, $len); $t =~ s/[\/\\]/$slash/g;
                               $t = lc $t unless $case; $val ne $t } @old;
                 # _log2 "[$val] ", join(',',@old), " -> ", join(',', @new);
             }
@@ -302,6 +319,40 @@ sub set_reg { &hi;
        $vname = '/'.$1 if $key =~ s/\@(.*?)$//;
     my $h = _automk $key;
     $h->{$vname} = [ $val, $vt ];
+}
+
+my $SETACL;
+my %SETACL_PROFILES;
+
+BEGIN {
+    %SETACL_PROFILES = (
+        'nosafe'    => [
+            [qw(-actn setowner
+                -ownr "n:S-1-5-32-544;s:y")],
+            ],
+        'inherit'   => [
+            [qw(-actn setprot
+                -op   "dacl:np;sacl:nc")],
+            [qw(-actn setowner
+                -ownr "n:S-1-5-32-544;s:y")], # this owner should be got from the container.
+            ],
+        );
+}
+
+sub runcmd {
+    # _log3 join('|', @_);
+    _log2 join('|', @_);
+    my $method = 'backtick';
+    if ($method eq 'system') {
+        system @_;
+        if ($?) {
+            _log1 "failed($?) to run ", join(' ', @_);
+        }
+    } else {
+        my $cmdline = join(' ', map { /\s/ ? '"'.$_.'"' : $_ } @_);
+        my $output = `$cmdline 2>&1`;
+        _log1 "failed($?) to run $cmdline: $output" if $?;
+    }
 }
 
 =head1 HISTORY

@@ -23,16 +23,30 @@
         set /p line=%title% -
 
         if "%line%"=="" exit /b 0
+        if "%line%"=="." goto loop
 
         set db=%HOME%\.qlog\%yyyy%
         if not exist "%db%\*" md "%db%" 2>nul
         set db=%db%\%yyyy%-%mm%.log
 
-        echo %title%>>"%db%"
-        echo %line% >>"%db%"
-        echo.>>"%db%"
+        if "%line:~0,1%"=="&" (
+            call :mod %line:~1%
+        ) else (
+            echo %title%>>"%db%"
+            echo %line% >>"%db%"
+            echo.>>"%db%"
+        )
 
     goto loop
+
+:mod
+    goto _%~1
+    echo ERROR COMMAND!
+    exit /b
+
+    :_e
+        call no "%db%"
+        exit /b
 
 :init
     set  _verbose=0
