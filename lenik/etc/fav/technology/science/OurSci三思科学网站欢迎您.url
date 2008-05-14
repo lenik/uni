@@ -1,0 +1,7 @@
+[DEFAULT]
+BASEURL=http://www.oursci.org/
+[InternetShortcut]
+URL=http://www.oursci.org/
+Modified=30BFB1A47D36C301BB
+[MyIE2]
+VisitTimes=10

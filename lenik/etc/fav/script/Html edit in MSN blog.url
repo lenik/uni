@@ -1,0 +1,4 @@
+[InternetShortcut]
+URL=javascript:if%20(navigator.userAgent.indexOf("MSIE")>0%20&&%20document.all.rtebox!=null)%20{EditBox.setToolbar("tbmode",true);EditBox.setToolbar("tbfontstyle",true);EditBox.setToolbar("tbfontsize",true);EditBox.setToolbar("tbcut",true);EditBox.setToolbar("tbcopy",true);EditBox.setToolbar("tbpaste",true);EditBox.setToolbar("tbbar1",true);EditBox.setToolbar("tbbar2",true);void(document.all.rtebox.style.height="400");void(document.all.EditBox.style.height="400")}
+[MyIE2]
+VisitTimes=35

@@ -1,0 +1,10 @@
+[DEFAULT]
+BASEURL=http://www.math-atlas.org/
+[DOC#8#9]
+BASEURL=http://www.math.niu.edu/~rusin/known-math/
+ORIGURL=http://www.math.niu.edu/~rusin/known-math/
+[InternetShortcut]
+URL=http://www.math-atlas.org/
+Modified=D015DC81BB4AC3010B
+[MyIE2]
+VisitTimes=1

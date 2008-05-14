@@ -1,0 +1,10 @@
+[DEFAULT]
+BASEURL=http://218.92.13.70:81/web/index.htm
+[DOC#62]
+BASEURL=http://218.92.13.70:81/web/yylove.files/middle.htm
+ORIGURL=yylove.files/middle.htm
+[InternetShortcut]
+URL=http://218.92.13.70:81/web/index.htm
+Modified=908DE025E72FC301FC
+[MyIE2]
+VisitTimes=1
