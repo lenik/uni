@@ -249,9 +249,25 @@ appskey & numpadsub::send {volumn_down}
 #m::run metapad
 #n::run cmdw /c no
 #p::run cmdw /c paint
-#q::run cmdw /c start "Big" cmd /c settitle "Quick Logger" qlog
+#q::run cmdw /c start "Big3" cmd /c settitle "Quick Logger" qlog
 #s::run cmdw /c scilab
-#t::run %SHELL% --login
+#t::
+    rundlg_y = % a_screenheight - 160
+    inputbox, cmdline_f, Run, Enter command line[;;mode] to run:,
+        , 320, 120, 5, %rundlg_y%, , , %cmdline_f%
+    if errorlevel
+        return
+    modep := instr(cmdline_f, ";;")
+    if (modep > 0) {
+        mode := substr(cmdline_f, modep + 2)
+        cmdline := substr(cmdline_f, 1, modep - 1)
+        shell2 = cmdw /c start "%mode%" %SHELL%
+    } else {
+        cmdline = %cmdline_f%
+        shell2 = %SHELL%
+    }
+    run %shell2% --login -- %cmdline%
+    return
 #x::run cmdw /c startx -notrayicon
 #-::
     nfs1 = %perlw% /lapiota/bin/nfs --wait-close

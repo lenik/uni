@@ -29,7 +29,7 @@
         if not exist "%db%\*" md "%db%" 2>nul
         set db=%db%\%yyyy%-%mm%.log
 
-        if "%line:~0,1%"=="&" (
+        if "%line:~0,1%"=="\" (
             call :mod %line:~1%
         ) else (
             echo %title%>>"%db%"
@@ -40,12 +40,21 @@
     goto loop
 
 :mod
-    goto _%~1
+    setlocal
+    set cmd=%~1
+    shift
+    goto _%cmd%
     echo ERROR COMMAND!
     exit /b
 
     :_e
         call no "%db%"
+        exit /b
+
+    :_l
+        set n=3
+        if not "%~1"=="" set n=%~1
+        sed -n "2~3p" <"%db%" | tail -n%n%
         exit /b
 
 :init
