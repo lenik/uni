@@ -193,7 +193,7 @@ sub _resolvf    {
         if (/\s/) {
             my ($call, @args) = qsplit(qr/\s+/, _resolv($ctx, $_));
             my $code = __PACKAGE__->can($call);
-            return $code->(@args) if ref $code;
+            return $code->($ctx, @args) if ref $code;
         }
         undef
     }

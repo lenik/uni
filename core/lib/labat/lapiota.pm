@@ -21,6 +21,7 @@ use Getopt::Long;
 our @ISA    = qw(Exporter);
 our @EXPORT = qw(getopts
                  findabc
+                 findexist
                  );
 
 # INITIALIZORS
@@ -55,6 +56,7 @@ sub getopts(\@@) {
 }
 
 sub findabc {
+    my $ctx = shift;
     my ($root, $print, $style) = ($ENV{'LAPIOTA'}.'/abc.d', 0, 'm');
     getopts(@_,
         'root|r=s'  => \$root,
@@ -62,7 +64,7 @@ sub findabc {
         'unix|u'    => sub { $style = 'u' },
         'windows|w' => sub { $style = 'w' },
         'mix|m'     => sub { $style = 'm' },
-    );
+        );
     my ($name, @addpath) = @_;
     my $chdir = $name =~ s/\/$//;
     my $lev = 0;
@@ -88,6 +90,21 @@ sub findabc {
         $ENV{'PATH'} .= $IFS.$t;
     }
     return $home;
+}
+
+sub findexist {
+    my $ctx = shift;
+    my $f   = sub { -e shift };
+    getopts(@_,
+        'directory' => sub { $f = sub { -d shift } },
+        'file'      => sub { $f = sub { -f shift } },
+        );
+    my $last = '<empty-arg-list>';
+    my @args = map { labat::_resolv($ctx, $_) } @_;
+    for (@args) {
+        last if $f->($last = $_);
+    }
+    return $last;
 }
 
 =head1 DIAGNOSTICS

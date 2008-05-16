@@ -18,16 +18,16 @@
         - w=        PERLW       $CYGWIN_ROOT\bin\perlw
         - w=        PAGER       'less -Ceifr'
         - =         DISPLAY     127.0.0.1:0.0
-        - w=        HOME        $LAPIOTA\home\$USERNAME
+        - w=        HOME        ${findexist C:\Lam\home\$USERNAME $LAPIOTA\home\$USERNAME}
         - w-%       PATH        $LAPIOTA
         - w-%       PATH        %HOME%
         - w+.HDR    PATH        ->
             - %HOME%\bin
             - %HOME%\sbin
-            - $LAPIOTA\bin\xt\bin\overwrite
-            - $LAPIOTA\bin\xt\bin
-            - $LAPIOTA\bin\xt\sbin\overwrite
-            - $LAPIOTA\bin\xt\sbin
+            - $LAPIOTA\xt\bin\overwrite
+            - $LAPIOTA\xt\bin
+            - $LAPIOTA\xt\sbin\overwrite
+            - $LAPIOTA\xt\sbin
             - $LAPIOTA\abc.d\bin
             - $LAPIOTA\bin\w
             - $LAPIOTA\bin
