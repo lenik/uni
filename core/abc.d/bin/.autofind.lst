@@ -1,12 +1,14 @@
-# name          defext  defexec
+# name          sub         defext  defexec
 
 ethereal
 ettercap
 hugs
 mencoder
 nsis
+# scilab          bin/wscilex
+scite
 squeak
 stardict
 wireshark
 
-cvs2svn         *       python
+cvs2svn         cvs2svn     *       python

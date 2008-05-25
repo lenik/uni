@@ -1,18 +1,23 @@
 @echo off
 
+    setlocal
     set rfc_home=%LAPIOTA%\usr\ref\rfc
     set rfc_edit=metapad
-    set rfc_name=%~1
 
-    if "%rfc_name%"=="u" (
+    if "%~1"=="u" (
         set rfc_edit=ue
         shift
     )
 
+    set rfc_name=%~1
     if "%rfc_name%"=="" goto help
 
     set rfc_n=%rfc_name%
-    set rfc_m=%rfc_n:~-2%
+    :trim0
+    if "%rfc_n:~0,1%"=="0" (
+        set rfc_n=%rfc_n:~1%
+        goto trim0
+    )
     call libstr sn "%rfc_n%"
 
     if "%_ret%"=="2" set rfc_p=00xx
@@ -22,8 +27,8 @@
 :start
     pushd "%rfc_home%" >nul
 
-    if exist "%rfc_p%\%rfc_name%.*" (
-        for %%i in (%rfc_p%\%rfc_name%.*) do (
+    if exist "%rfc_p%\%rfc_n%.*" (
+        for %%i in (%rfc_p%\%rfc_n%.*) do (
             if "%%~xi"==".txt" (
                 start %rfc_edit% "%%i"
             ) else (
@@ -49,7 +54,6 @@
     popd >nul
     set rfc_home=
     set rfc_n=
-    set rfc_m=
     set rfc_p=
 
 :end

@@ -1,19 +1,18 @@
 @echo off
-
     setlocal
 
-    call findabc bin
-    set name=%~n0
-    call findabc %name%
-    if "%exec%"=="" (
-        REM if not "%cd%"=="%_home%" set exec=start "%_home%"
-        if "%cd%"=="%USERPROFILE%" set exec=start "%_home%"
-    )
+    set name=nsis
+    set defext=.exe
 
-    if exist "%_home%\%name%.exe" goto _implicit
+    call findabc %name%
+
+    set defexec=start "%_home%"
+    if "%exec%"=="" if "%cd%"=="%USERPROFILE%" set exec=%defexec%
+
+    if exist "%_home%\%name%%defext%" goto _implicit
     for /d %%i in (%_home%\*) do (
         set bindir=%%~nxi
-        if exist "%_home%\%%~nxi\%name%.exe" goto _bin
+        if exist "%_home%\%%~nxi\%name%%defext%" goto _bin
     )
     echo Can't find the target of %name% under %_home%.
     exit /b 1

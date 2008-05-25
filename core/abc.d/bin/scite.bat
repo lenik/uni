@@ -1,7 +1,7 @@
 @echo off
     setlocal
 
-    set name=hugs
+    set name=scite
     set defext=.exe
 
     call findabc %name%

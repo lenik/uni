@@ -1,12 +1,12 @@
 @echo off
-
     setlocal
 
-    set name=%~n0
-    set defext=.exe
+    set name=m4_ifelse(NAME, , %~n0, NAME)
+    set defext=m4_ifelse(DEFEXT, , .exe, DEFEXT)
 
     call findabc %name%
-    set defexec=start "%_home%"
+    m4_ifelse(EXEC, , , if "%exec%"=="" set exec=EXEC)
+    set defexec=start "%_home%" EXEC
     if "%exec%"=="" if "%cd%"=="%USERPROFILE%" set exec=%defexec%
 
     if exist "%_home%\%name%%defext%" goto _implicit

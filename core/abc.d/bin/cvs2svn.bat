@@ -1,13 +1,13 @@
 @echo off
-
     setlocal
 
-    set name=%~n0
-    set defext=.*
+    set name=cvs2svn
+    set defext=*
 
     call findabc %name%
-    set defexec=python
-    if "%exec%"=="" set exec=%defexec%
+    if "%exec%"=="" set exec=python
+    set defexec=start "%_home%" python
+    if "%exec%"=="" if "%cd%"=="%USERPROFILE%" set exec=%defexec%
 
     if exist "%_home%\%name%%defext%" goto _implicit
     for /d %%i in (%_home%\*) do (

@@ -250,7 +250,7 @@ appskey & numpadsub::send {volumn_down}
 #n::run cmdw /c no
 #p::run cmdw /c paint
 #q::run cmdw /c start "Big3" cmd /c settitle "Quick Logger" qlog
-#s::run cmdw /c scilab
+#s::run cmdw /c scite
 #t::
     rundlg_y = % a_screenheight - 160
     inputbox, cmdline_f, Run, Enter command line[;;mode] to run:,
@@ -283,6 +283,7 @@ appskey & numpadsub::send {volumn_down}
     calc1 = cmdw /c start "Cart" cmd /c settitle "1 + 1 = 2" bc -ilq
     funpack(1, "calc")
     return
+#+::run cmdw /c scilab
 #f2::run cmdw /c stardict
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
