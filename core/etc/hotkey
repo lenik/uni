@@ -251,7 +251,8 @@ appskey & numpadsub::send {volumn_down}
 #p::run cmdw /c paint
 #q::run cmdw /c start "Big3" cmd /c settitle "Quick Logger" qlog
 #s::run cmdw /c scite
-#t::
+#t::run cmdw /c start "Terminal" %SHELL% --login
+#+t::
     rundlg_y = % a_screenheight - 160
     inputbox, cmdline_f, Run, Enter command line[;;mode] to run:,
         , 320, 120, 5, %rundlg_y%, , , %cmdline_f%

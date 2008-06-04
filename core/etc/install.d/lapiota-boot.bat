@@ -18,8 +18,19 @@
     md %LAPIOTA% 2>nul
 
     set pgd=lam.root.pgd
-    if exist \%pgd% \%pgd%
-    if exist \.radiko\.miaj\image\%pgd% \.radiko\.miaj\image\%pgd%
+    set found=0
+    for %%d in ("%homedrive%" c:) do (
+        if "!found!"=="0" (
+            for %%f in (\%pgd% \.radiko\.miaj\image\%pgd%) do (
+                if exist %%f (
+                    set found=1
+                    %%f
+                )
+            )
+        )
+    )
+    rem if not found...
+
 :endmount
 
     cd /d %LAPIOTA%\etc\profile.d
