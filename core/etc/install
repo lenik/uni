@@ -31,3 +31,4 @@ if ! labat --version; then
 fi
 
 labat $* /lapiota/etc/install.d/system.labat
+labat $* /lapiota/etc/install.d/metapad.labat

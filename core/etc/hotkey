@@ -139,12 +139,51 @@
             winactivate ahk_id %mwin%
         }
     }
+
+    _include(path) {
+        local verf := 3, veri := 3
+        slash := instr(path, "\", false, 0)
+        if (slash != 0) {
+            base := substr(path, slash + 1)
+        } else {
+            base = %path%
+        }
+        filecreatedir %a_appdata%\.hotkey
+        inst = %a_appdata%\.hotkey\%base%
+        filegettime, verf, %path%
+        filegettime, veri, %inst%
+        if (verf != veri) {
+            ifexist, %path%
+            {
+                filecopy, %path%, %inst%, 1
+                if errorlevel {
+                    msgbox can't include %path%: failed to copy to %inst%.
+                } else {
+                    reload
+                }
+            } else {
+                filedelete, %inst%
+                if errorlevel {
+                    msgbox failed to clean %inst%.
+                } else {
+                    reload
+                }
+            }
+        }
+    }
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; initialize {
-setworkingdir %USERPROFILE%
-onexit onexit
+    setworkingdir %USERPROFILE%
+    onexit onexit
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; extras {
+    incfile = %HOME%\etc\hotkey
+    _include(incfile)
+    #include *i %a_appdata%\.hotkey\hotkey
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -252,7 +291,7 @@ appskey & numpadsub::send {volumn_down}
 #q::run cmdw /c start "Big3" cmd /c settitle "Quick Logger" qlog
 #s::run cmdw /c scite
 #t::run cmdw /c start "Terminal" %SHELL% --login
-#+t::
+#!t::
     rundlg_y = % a_screenheight - 160
     inputbox, cmdline_f, Run, Enter command line[;;mode] to run:,
         , 320, 120, 5, %rundlg_y%, , , %cmdline_f%
@@ -290,11 +329,7 @@ appskey & numpadsub::send {volumn_down}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; more applications {
-#,::run stairs
-#u::run ue
-
 #+e::run cmdw /c em
-
 #+j::run cmdw /c eclipse
 ^enter::
     settitlematchmode 2
@@ -306,15 +341,6 @@ appskey & numpadsub::send {volumn_down}
     } else {
         send ^{enter}
     }
-    return
-
-#+d::
-    ddk1 = cmd /c %HOME%\bin\ddk-chk
-    ddk2 = cmd /c %HOME%\bin\ddk-fre
-    ddk3 = cmd /c %HOME%\bin\ddk-chk
-    ddk4 = cmd /c %HOME%\bin\ddk-chk
-    ddk5 = cmd /c %HOME%\bin\ddk-hal
-    funpack(5, "ddk")
     return
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 

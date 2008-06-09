@@ -128,6 +128,17 @@ Display a short version information and exit(0).
 
 =back
 
+=head1 EXAMPLES
+
+=over 4
+
+=item Rename files to display names
+
+    dbquery -e """mv <FileName>.pdf \\""../Cat<TypeName>/<BookName>.pdf\\"""""
+        books.mdb "select * from bookinfo"
+
+=back
+
 =head1 ENVIRONMENT
 
 =over 8

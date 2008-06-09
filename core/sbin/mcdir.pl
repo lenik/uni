@@ -2,31 +2,47 @@
 
 =head1 NAME
 
-UnKnOwN - DeScRiPtIoN
+mcdir - make magic directories
 
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
-    $LOGNAME    = 'UnKnOwN'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+    $LOGNAME    = 'mcdir'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id$');
+    my %RCSID   = parse_id('$Id: .pl 776 2007-12-24 12:11:36Z lenik $');
 use Getopt::Long;
 
 sub _main; sub _version; sub _help;
+
+our $opt_alphabet   = '0123456789';
+our $opt_length     = 2;
+our $opt_pad_char;
+our $opt_depth      = 2;
 
 sub _boot {
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
                'help|h'         => sub { _help; exit 0 },
+               'alphabet|a=s',
+               'length|l=n',
+               'pad-char|p:s',
+               'depth|d=n',
                );
+    if (defined $opt_pad_char and $opt_pad_char eq '') {
+        $opt_pad_char = substr($opt_alphabet, 0, 1);
+    }
+
+    die "alphabet is empty" if $opt_alphabet eq '';
+    $opt_alphabet = [ split('', $opt_alphabet) ];
+
     _main;
 }
 
 =head1 SYNOPSIS
 
-B<UnKnOwN>
+B<mcdir>
     S<[ B<-q> | B<--quiet> ]>
     S<[ B<-v> | B<--verbose> ]>
     S<[ B<-h> | B<--help> ]>
@@ -36,11 +52,11 @@ B<UnKnOwN>
 
 =head1 DESCRIPTION
 
-B<UnKnOwN> is a WHAT used for WHAT. It HOW-WORKS.
+B<mcdir> is a WHAT used for WHAT. It HOW-WORKS.
 
 BACKGROUND-PROBLEM.
 
-HOW-UnKnOwN-RESOLVES.
+HOW-mcdir-RESOLVES.
 
 =head1 OPTIONS
 
@@ -68,16 +84,6 @@ Display a short version information and exit(0).
 
 =back
 
-=head1 EXAMPLES
-
-=over 4
-
-=item Show help
-
-    UnKnOwN --help
-
-=back
-
 =head1 ENVIRONMENT
 
 =over 8
@@ -95,6 +101,10 @@ sub _help {
     print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
 
 Common options:
+    -a, --alphabet=CHARS    characters in generated names
+    -l, --length=LENGTH     max length of name
+    -p, --pad-char[=CHAR]   default CHAR is the first char in alphabet
+    -d, --depth=DEPTH       max depth of directories
     -q, --quiet             repeat to get less info
     -v, --verbose           repeat to get more info
     -h, --help              show this help page
@@ -105,8 +115,7 @@ EOM
 exit (_boot or 0);
 
 sub _main {
-    _sig1 'ARG', $_ for @ARGV;
-    _log1 "TODO...";
+    iterate 0, '.', 0, '';
 }
 
 =head1 DIAGNOSTICS
@@ -115,6 +124,12 @@ sub _main {
 
 =cut
 # (HELPER FUNCTIONS)
+sub iterate {
+    my ($level, $dpre, $pos, $npre) = @_;
+    my $name = '';
+    if ($pos < $opt_length) {
+        for (@$opt_alphabet) {
+            my $$name . $_
 
 =head1 HACKING
 
@@ -135,7 +150,7 @@ The initial version.
 
 =cut
 sub _version {
-    print "[$LOGNAME] DeScRiPtIoN \n";
+    print "[$LOGNAME] make magic directories \n";
     print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 

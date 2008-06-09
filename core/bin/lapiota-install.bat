@@ -29,6 +29,15 @@
     rem Always using the cygwin/perl
     bash -c '/lapiota/etc/install %*'
 
+    cd /d "%~dp0..\etc\install.d"
+    call install-booter
+
+    cd windows.init
+    for %%f in (*.bat) do (
+        echo %%f
+        call %%f
+    )
+
 :end
     exit /b
 :end_of_batch

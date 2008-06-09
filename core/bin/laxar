@@ -67,7 +67,7 @@ sub _boot {
 
     unless (defined $opt_out) {
         if (@ARGV) {
-            my ($dir, $base) = path_split($ARGV[0]);
+            my ($dir, $base) = path_split(shift @ARGV);
             my ($name, $ext) = path_splitext($base);
             unless (defined $opt_ext) {
                 if ($opt_executable) {
