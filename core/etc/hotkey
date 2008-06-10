@@ -42,7 +42,7 @@
         else
             mkdef=
         if ph
-            t=%mkdef% "-s=%scheme%" "-c=%cat%" "-h=%ph%" -- "%text%"
+            t=%mkdef% "-s=%scheme%" "-g=%cat%" "-p=%ph%" -- "%text%"
         else
             t=-- "%text%"
         t=%perlw% /lapiota/bin/usecode %t%

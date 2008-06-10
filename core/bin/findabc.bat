@@ -2,13 +2,22 @@
 
     setlocal enabledelayedexpansion
     set _strict=1
-    set _root=/abc.d
+    set _root=abc.d
     goto init
 
 :start
     set _lev=0
     if not "%_root%"=="" set _root=%_root:/=\%
-    set _prefix=%LAPIOTA%%_root%
+    if "%_root:~0,1%"=="\" (
+        set _prefix=%_root%
+    ) else if not "%_root::=?%"=="%_root%" (
+        set _prefix=%_root%
+    ) else if "%_root%"=="" (
+        set _prefix=%LAPIOTA%
+    ) else (
+        set _prefix=%LAPIOTA%\%_root%
+    )
+
 :st_loop
     rem echo find with prefix: %_prefix%
     if exist %_prefix%\%_name%* goto found
