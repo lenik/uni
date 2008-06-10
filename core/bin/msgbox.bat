@@ -3,7 +3,7 @@
     setlocal
 
     set text=General MessageBox
-    set title=DIRT
+    set title=Lapiota-Message
     set mb=64
 
     if not "%~1"=="" set text=%~1
@@ -57,4 +57,4 @@
     set /a mb = mb + m2
 
 :begin
-    lc /nologo user32::MessageBoxA(0, '%text%', '%title%', %mb%)
+    lc user32::MessageBoxA(0, "%text%", "%title%", %mb%)
