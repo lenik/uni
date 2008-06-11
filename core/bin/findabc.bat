@@ -20,7 +20,7 @@
 
 :st_loop
     rem echo find with prefix: %_prefix%
-    if exist %_prefix%\%_name%* goto found
+    if exist "%_prefix%\%_name%*" goto found
 :st_next
     set /a _lev = _lev + 1
     set _st=!_name:~0,%_lev%!
@@ -32,7 +32,7 @@
     goto st_loop
 
 :found
-    for /d %%i in (%_prefix%\%_name%*) do (
+    for /d %%i in ("%_prefix%\%_name%*") do (
         set _home=%%i
         goto leave
     )
@@ -43,17 +43,12 @@
     if "%_slash%"=="1" set _=%_:\=/%
     if not "%_chdir%"=="" set _=%_%::%_chdir%
     if "%_print%"=="1" printf %%s %_%
-    call export _
+    call export - _
     %leave%
 
-    set _home=
-    set _chdir=
-    for %%i in (%_:::= %) do (
-        if "!_home!"=="" (
-            set _home=%%i
-        ) else (
-            set _chdir=%%i
-        )
+    for /f "delims=| tokens=1,2" %%i in ("%_:::=|%") do (
+        set _home=%%i
+        set _chdir=%%j
     )
     set _=
     if not "%_chdir%"=="" cd /d "%_home%/%_chdir%"
@@ -127,16 +122,9 @@
     set _=%~1
     if "%_:~0,1%"=="/" set _root=
     if "%_:~-1%"=="/" set _=%_%.
-    set _name=
-    set _chdir=
-    for %%i in (%_:/= %) do (
-        if "!_name!"=="" (
-            set _name=%%i
-        ) else if "!_chdir!"=="" (
-            set _chdir=%%i
-        ) else (
-            set _chdir=%_chdir%/%%i
-        )
+    for /f "delims=/ tokens=1*" %%i in ("%_%") do (
+        set _name=%%i
+        set _chdir=%%j
     )
     shift
 

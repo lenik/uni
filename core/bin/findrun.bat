@@ -6,11 +6,11 @@
 
 :start
 
-    call findabc %_findopts% %_pkgname%/
+    call findabc %_findopts% "%_pkgname%/"
     if errorlevel 1 (
         call msgbox err-find 2>nul
     ) else (
-        %_prgname%
+        "%_prgname%"
     )
     exit /b 0
 
