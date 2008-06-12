@@ -321,6 +321,7 @@ sub set_reg { &hi;
     $h->{$vname} = [ $val, $vt ];
 }
 
+=comment
 my $SETACL;
 my %SETACL_PROFILES;
 
@@ -338,6 +339,50 @@ BEGIN {
             ],
         );
 }
+
+
+sub setacl_err {
+    my ($code, $desc) = @_;
+    if ($code != $SETACL_CONST{RTN_OK}) {
+        my $str = $SETACL->GetResourceString($code);
+        my $msg = $SETACL->GetLastAPIErrorMessage();
+        die "failed to $desc: $str, OS error: $msg";
+    }
+}
+
+sub set_acl { &hi;
+    my $ctx = shift;
+    unless (defined $SETACL) {
+        require Win32::OLE;
+        $SETACL = Win32::OLE->CreateObject('SetACL.SetACLCtrl.1')
+            or die "SetACL.ocx is not registered";
+        $SETACL_CONST = Win32::OLE::Const->Load($SETACL)
+            or die "Constants could not be loaded from the SetACL type library.";
+        Win32::OLE->WithEvents($SETACL, sub { local *__ANON__ = '<SetACL>';
+            });
+
+    # ~PROFILE ...
+    # -on OBJECT -ot TYPE -actn ACT ...
+    # assert @_ > 1;
+    my ($profile) = @_;
+    my $rec;
+    if ($profile =~ /^~(\w+)([\*]*)$/) {
+        $profile = $1;
+        shift;
+        @_ = map { s|/|\\|g; s|\\|\\\\|g; $_ } @_;
+        push @_, qw(-rec cont_obj) if $2;
+        die "invalid profile name: $profile"
+            unless exists $SETACL_PROFILES{$profile};
+        my $ops = $SETACL_PROFILES{$profile};
+        for (@$ops) {
+            my @args = (@$_, qw(-ot file -on), @_);
+            runcmd $SETACL, @args;
+        }
+    } else {
+        runcmd $SETACL, @_;
+    }
+}
+=cut
 
 sub runcmd {
     # _log3 join('|', @_);
