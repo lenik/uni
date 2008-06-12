@@ -1,5 +1,21 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lenik hotkeys {
+;;  used:
+;;      #! cehprsu{bs}/
+
+#!m::run cmdw /c findrun -r c:\lam\nt.programs maxthon
+#!t::run cmdw /c findrun -r c:\lam\nt.programs tm bin\tm.exe
+#!w::run cmdw /c findrun -r "%a_programfiles%" "windows live" writer\windowslivewriter.exe
+#!$::run cmdw /c findrun -r "%a_programfiles%" alisoft wangwang\wangwang.exe
+#!?::run cmdw /c findrun -r c:\lam\nt.programs lingoes
+
+#+i::run cmdw /c findrun -r "%a_programfiles%" "source insight" insight3.exe
+#+k::run V:\.radiko\.miaj\image\mirror.KBP.pgd
+#+s::run Z:\.radiko\.miaj\image\lam.nt.sdk.pgd
+#+u::run ue
+#+x::run cmdw /c findrun -r Z:\.radiko\varoj\XML xmlspy
+
+#o::run cmdw /c findrun -r C:\Lam\nt.programs dopus
 #,::run stairs
 
 #+d::
@@ -10,8 +26,4 @@
     ddk5 = cmd /c %HOME%\bin\ddk-hal
     funpack(5, "ddk")
     return
-#+i::run cmdw /c si
-#+u::run ue
-#+w::run cmdw /c maxthon
-#+x::run cmdw /c xmlspy
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
