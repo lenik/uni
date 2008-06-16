@@ -10,7 +10,7 @@
     if errorlevel 1 (
         call msgbox err-find 2>nul
     ) else (
-        "%_prgname%"
+        %_start% "%_prgname%"
     )
     exit /b 0
 
@@ -21,6 +21,7 @@
     set _startdir=%~dp0
     set  _program=%~dpnx0
     set _findopts=
+    set    _start=start "findrun"
 
 :prep1
     if "%~1"==""            goto prep2

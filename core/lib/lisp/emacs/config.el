@@ -22,7 +22,7 @@
 
 (put 'upcase-region 'disabled nil)
 
-(setq make-backup-file nil)
+(setq make-backup-files nil)
 (setq auto-save-default t)
 
 ; (setq tab-stop-list '(16 32 48 64 80 96 112))
