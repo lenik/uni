@@ -36,6 +36,7 @@ our @EXPORT = qw(forx
                  bserchi
                  readfile
                  writefile
+                 changefile
                  select_input
                  seleci
                  fire_sub
@@ -368,6 +369,19 @@ sub writefile {
     binmode FH;
     print FH for @_;
     close FH;
+}
+
+sub changefile {
+    my $path = shift;
+    my $diff = 1;
+    if (-f $path) {
+        my @old = readfile $path;
+        # require Text::Diff;
+        # my $diff = Text::Diff::diff \@old, \@_;
+        $diff = join('', @old) cmp join('', @_);
+    }
+    writefile($path, @_) if $diff;
+    $diff;
 }
 
 sub select_input {

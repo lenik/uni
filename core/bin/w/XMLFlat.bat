@@ -60,7 +60,7 @@
     set _startdir=%~dp0
     set  _program=%~dpnx0
 
-    set      _nam=net.bodz.lapiota.programs.ManiCat
+    set      _nam=net.bodz.lapiota.programs.XMLFlat
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=-ea -DGenerateBatches=1
@@ -93,9 +93,15 @@
 
 
     if not "%_libver%"=="1" goto morecp_f
+    set _morecp=%_morecp%;%JAVA_LIB%\%libbodz_bas%
+    set _morecp=%_morecp%;%JAVA_LIB%\%libdom4j%
+    set _morecp=%_morecp%;%JAVA_LIB%\%libjaxen%
 
     goto initcp2
   :morecp_f
+    set _morecp=%_morecp%;%JAVA_LIB%\net.bodz.bas.jar
+    set _morecp=%_morecp%;%JAVA_LIB%\dom4j-1.6.1.jar
+    set _morecp=%_morecp%;%JAVA_LIB%\jaxen-1.1-beta-6.jar
 
 
 :initcp2

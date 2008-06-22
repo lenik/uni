@@ -11,7 +11,7 @@ use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
 use cmt::path;
 use cmt::pp('ppvar');
-use cmt::util('writefile');
+use cmt::util('changefile');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
@@ -42,7 +42,7 @@ sub _boot {
             s/\s*$//;
             if (/^!\s+([^=]+)=(.*)$/) {
                 my ($opt, $val) = ($1, $2);
-                _log1 "set $opt to $val";
+                _log2 "set $opt to $val";
                 my $ref = eval '\$opt_'.$opt;
                 die "invalid option $opt: $@" if $@;
                 $$ref = $2;
@@ -54,14 +54,15 @@ sub _boot {
                 $pl = $bat_name . '';
             }
             $opt_output = $opt_prefix.$bat;
-            _log1 "wrap $opt_output -> $pl";
+            _sig1 'make', "$opt_output";
             _main $pl;
         }
     } else {
         die "no perl-file specified" unless @ARGV;
-        _log1 "wrap $ARGV[0]";
+        _sig1 'file', $ARGV[0];
         _main $ARGV[0];
     }
+    _sig1 'done';
 }
 
 =head1 SYNOPSIS
@@ -167,7 +168,9 @@ sub _main {
     if ($opt_console) {
         print $cnt;
     } else {
-        writefile $bat_file, $cnt;
+        if (changefile($bat_file, $cnt)) {
+            _log1 "wrap $bat_file -> $perl_file";
+        }
     }
 }
 

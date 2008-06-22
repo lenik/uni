@@ -60,7 +60,7 @@
     set _startdir=%~dp0
     set  _program=%~dpnx0
 
-    set      _nam=net.bodz.lapiota.programs.ManiCat
+    set      _nam=net.bodz.lapiota.exttools.Ant
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=-ea -DGenerateBatches=1
@@ -90,6 +90,8 @@
     if not "%_dir%"=="" (
         set _morecp=%_morecp%;%_dir:\=/%
     )
+    set _morecp=%_morecp%;%JAVA_LIB%\ant.jar
+    set _morecp=%_morecp%;%JAVA_LIB%\ant-launcher.jar
 
 
     if not "%_libver%"=="1" goto morecp_f

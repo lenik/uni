@@ -7,6 +7,8 @@
         set _v=!_v: =!
         set !_k!=!_v!
     )
+    set _k=
+    set _v=
 
     if "%~1"=="-c"      set CLASSPATH=.
     if "%~1"=="--clear" set CLASSPATH=.
