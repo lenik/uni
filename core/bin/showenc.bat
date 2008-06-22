@@ -6,9 +6,40 @@
 
 :start
 
-    if %_verbose% geq 1 echo xcopy %_xcopyopts% %_rest%
-    xcopy %_xcopyopts% %_src% %_dst% %_rest%
+    REM _____________________________________________
 
+    cd %temp%
+
+    set _t=showenc.%random%
+
+    echo %_rest%>%_t%
+
+    rem trim the last 3 bytes
+    for %%f in (%_t%) do set _size=%%~zf
+    set /a _size = _size - 3
+    head -c%_size% %_t% >%_t%.b
+
+    call reencoding -f gb2312 -t %_charset% %_t%.b >nul
+    hexdump -C %_t%.b >%_t%
+    for /f "delims=|" %%i in (%_t%) do (
+        call :disp "%%i"
+    )
+
+    del %_t%
+    del %_t%.b
+    exit /b 0
+
+:disp
+    set _l=%~1
+    set _l=%_l:~9%
+    if "%_l%"=="" exit /b 0
+
+    set _l=%_l:  =%
+    if "%_l:~-1%"==" " set _l=%_l:~0,-1%
+    if not "%_fill%"=="" (
+        set _l=!_l: =%_fill%!
+    )
+    echo %_l%
     exit /b 0
 
 :init
@@ -17,23 +48,14 @@
     set     _rest=
     set _startdir=%~dp0
     set  _program=%~dpnx0
-    set      _out=
-    set     _jfix=
-
-    rem /c  error continue
-    rem /d  update only
-    rem /h  include hidden files
-    rem /r  overwrite readonly files
-    rem /y  don't prompt
-    rem /e  empty directories
-    set _xcopyopts=/d /h /r
+    set     _fill=
 
 :prep1
-    if "%~1"==""            goto init_ok
+    if "%~1"==""            goto prep2
     if "%~1"=="--version"   goto version
     if "%~1"=="-h"          goto help
     if "%~1"=="--help"      goto help
-    if "%~1"=="-" (
+    if "%~1"=="--" (
         shift
         goto prep2
     )
@@ -47,20 +69,8 @@
         set /a _verbose = _verbose + 1
     ) else if "%~1"=="--verbose" (
         set /a _verbose = _verbose + 1
-    ) else if "%~1"=="-f" (
-        set _xcopyopts=%_xcopyopts% /c /y
-        set _out=^>nul
-    ) else if "%~1"=="--force" (
-        set _xcopyopts=%_xcopyopts% /c /y
-        set _out=^>nul
-    ) else if "%~1"=="-r" (
-        set _xcopyopts=%_xcopyopts% /e
-    ) else if "%~1"=="--recursive" (
-        set _xcopyopts=%_xcopyopts% /e
-    ) else if "%~1"=="-J" (
-        set _jfix=1
-    ) else if "%~1"=="--jfix" (
-        set _jfix=1
+    ) else if "%~1"=="-u" (
+        set _fill=%%
     ) else if "%_arg:~0,1%"=="-" (
         if "%_strict%"=="1" (
             echo Invalid option: %1
@@ -78,13 +88,7 @@
 
 :prep2
     if "%~1"=="" goto help
-    set _src=%~1
-    if "%_jfix%"=="1" set _src=%_src%\*
-    shift
-
-    set _dst=%~1
-    if "%~1"=="" goto prep3
-    if "%_jfix%"=="1" set _dst=%_dst%\*
+    set _charset=%~1
     shift
 
 :prep3
@@ -102,14 +106,14 @@
     goto start
 
 :version
-    set _id=$Id$
+    set _id=$Id: .bat 784 2008-01-15 10:53:24Z lenik $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
         set      _time=%%k
         set    _author=%%l
     )
-    echo [cpnew] copy new/updated files only
+    echo [showenc] show the encoding of a given string
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
     exit /b 0
 
@@ -117,12 +121,10 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] SOURCE [DEST]
+    echo    %_program% [OPTION] CHARSET STRING
     echo.
     echo Options:
-    echo    -f, --force         overwrite existing files without prompt
-    echo    -r, --recursive     recurse into sub-directories
-    echo    -J, --jfix          a work-around for NTFS-Junction
+    echo    -u                  add ^%
     echo    -q, --quiet         repeat to get less info
     echo    -v, --verbose       repeat to get more info
     echo        --version       show version info

@@ -335,6 +335,10 @@ sub readfile {
     my $path = shift;
     my @lines;
     undef $!;
+    if (-x $path) {
+        # BUGFIX for cygwin
+        $path .= '.exe' if -x "$path.exe";
+    }
     if ($path =~ /\.gz$/i) {
         require Compress::Zlib
             or die("Can't load Compress::Zlib: $@");

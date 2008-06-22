@@ -18,7 +18,7 @@
     exit /b 0
 
 :svndir
-    if %_verbose% geq 0 echo [reset] %~1\.svn
+    if %_verbose% geq 0 echo [reset] "%~1\.svn"
     rem yes | cacls %1\.svn %_caclsopt% %_outf%
     setacl -on "%~1\.svn" -ot file -rec cont_obj %a_owner% %_outf%
     if errorlevel 1 echo   error reset owner
@@ -26,7 +26,7 @@
     if errorlevel 1 echo   error reset dacl/sacl
 
     for /d %%d in (%1\*) do (
-        if exist "%%d\.svn\*" call :svndir %%d
+        if exist "%%d\.svn\*" call :svndir "%%d"
     )
     exit /b
 

@@ -9,6 +9,7 @@ use strict;
 use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
     $LOGNAME    = 'hex'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::util('readfile');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
@@ -149,7 +150,7 @@ temporary files.
 =cut
 sub _help {
     &_version;
-    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+    print "\nSyntax: \n    $0 [OPTION] [--] <TEXT OR \@FILE>\n", <<'EOM';
 
 Common options:
     -f, --from=ORDIX
@@ -183,7 +184,7 @@ sub _main {
     if (defined $opt_dump) {
         die "Only hex-dump is supported, yet" if $opt_dump != 16;
         my $s = join(' ', @ARGV);
-        $s = readfile $s if -f $s;
+        $s = readfile $s if $s =~ s/^\@//;
         for (my $i = 0; $i < length($s); $i++) {
             my $c = substr($s, $i, 1);
             printf("%02x", ord $c);
