@@ -93,9 +93,11 @@
 
 
     if not "%_libver%"=="1" goto morecp_f
+    set _morecp=%_morecp%;%JAVA_LIB%\%libbodz_bas%
 
     goto initcp2
   :morecp_f
+    set _morecp=%_morecp%;%JAVA_LIB%\net.bodz.bas.jar
 
 
 :initcp2

@@ -95,11 +95,13 @@
     if not "%_libver%"=="1" goto morecp_f
     set _morecp=%_morecp%;%JAVA_LIB%\%libdom4j%
     set _morecp=%_morecp%;%JAVA_LIB%\%libjaxen%
+    set _morecp=%_morecp%;%JAVA_LIB%\%libbodz_bas%
 
     goto initcp2
   :morecp_f
     set _morecp=%_morecp%;%JAVA_LIB%\dom4j-1.6.1.jar
     set _morecp=%_morecp%;%JAVA_LIB%\jaxen-1.1-beta-6.jar
+    set _morecp=%_morecp%;%JAVA_LIB%\net.bodz.bas.jar
 
 
 :initcp2
