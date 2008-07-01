@@ -3,9 +3,13 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" output="test.bin" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="JAVA_LIB/ant.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/net.sf.freejava"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="var" path="JAVA_LIB/commons-collections-3.2.jar"/>
+	<classpathentry kind="var" path="JAVA_LIB/ant.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="var" path="JAVA_LIB/dom4j-1.6.1.jar" sourcepath="/JAVA_SRC/src-dom4j-1.6.1.zip"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/net.bodz.bas"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.jdt.core_3.4.0.v_874.jar" sourcepath="/ECLIPSE_HOME/plugins/org.eclipse.jdt.core.source_3.4.0.v_874.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.equinox.common_3.4.0.v20080421-2006.jar" sourcepath="/ECLIPSE_HOME/plugins/org.eclipse.equinox.common.source_3.4.0.v20080421-2006.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.text_3.4.0.v20080605-1800.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -8,17 +8,22 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import net.bodz.lapiota.util.Rcs;
-import net.bodz.lapiota.util.RcsKeywords;
+import net.bodz.bas.cli.RunInfo;
+import net.bodz.bas.cli._RunInfo;
+import net.bodz.bas.cli.util.Rcs;
+import net.bodz.bas.cli.util.RcsKeywords;
+import net.bodz.bas.cli.util.VersionInfo;
+import net.bodz.bas.io.Files;
+import net.bodz.bas.lang.Caller;
+import net.bodz.bas.lang.err.IdentifiedException;
+import net.bodz.bas.types.util.Annotations;
+import net.bodz.bas.types.util.Types;
 import net.bodz.lapiota.util.Template;
-import net.sf.freejava.err.IdentifiedException;
-import net.sf.freejava.util.Classes;
-import net.sf.freejava.util.Files;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
-@RcsKeywords(id = "$Id$")
+@RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
 public class GenerateBatches extends Task {
 
     private int                 loglevel = 1;
@@ -32,8 +37,8 @@ public class GenerateBatches extends Task {
 
     public GenerateBatches() {
         varmap = new HashMap<String, String>();
-        varmap.put("GENERATOR", "GenerateBatches 0." + id.get("rev")
-                + "  Last updated: " + id.get("date"));
+        varmap.put("GENERATOR", "GenerateBatches 0." + verinfo.getVersion()
+                + "  Last updated: " + verinfo.getDate());
         tmpl = new Template(template, varmap);
         generated = new HashSet<String>();
     }
@@ -95,16 +100,49 @@ public class GenerateBatches extends Task {
             System.out.println(msg);
     }
 
-    protected void generate(String fqcn, String base) throws IOException {
-        if (generated.contains(fqcn))
+    protected void generate(Class<?> clazz) throws IOException {
+        String name = clazz.getName();
+        if (generated.contains(name))
             return;
 
         File batdirf = new File(batdir);
         if (!batdirf.exists())
             if (!batdirf.mkdirs())
                 throw new IOException("failed to mkdir " + batdir);
-        File batf = new File(batdirf, base + ".bat");
-        varmap.put("NAME", fqcn);
+        String batName = Annotations.getAnnotation(clazz, ProgramName.class);
+        if (batName == null)
+            batName = clazz.getSimpleName();
+        File batf = new File(batdirf, batName + ".bat");
+
+        varmap.put("NAME", name);
+
+        StringBuffer morecp1 = new StringBuffer();
+        StringBuffer morecpR = new StringBuffer();
+        StringBuffer morecpF = new StringBuffer();
+
+        for (Class<?> c : Types.getTypeChain(clazz)) {
+            RunInfo runInfo = c.getAnnotation(RunInfo.class);
+            if (runInfo == null)
+                continue;
+            for (String lib : runInfo.lib()) {
+                String r = "%lib" + lib + "%";
+                String f = _RunInfo.libversions.getProperty("lib" + lib, lib
+                        + ".jar");
+                morecpR.append("set _morecp=%_morecp%;%JAVA_LIB%\\" + r
+                        + "\n    ");
+                morecpF.append("set _morecp=%_morecp%;%JAVA_LIB%\\" + f
+                        + "\n    ");
+            }
+            for (String jar : runInfo.jar()) {
+                String f = jar + ".jar";
+                morecp1.append("set _morecp=%_morecp%;%JAVA_LIB%\\" + f
+                        + "\n    ");
+            }
+        }
+        varmap.put("MORECP_1", morecp1.toString());
+        varmap.put("MORECP_R", morecpR.toString());
+        varmap.put("MORECP_F", morecpF.toString());
+
         String inst = tmpl.generate();
 
         log1("write " + batf);
@@ -112,7 +150,7 @@ public class GenerateBatches extends Task {
         out.println(inst);
         out.close();
 
-        generated.add(fqcn);
+        generated.add(name);
     }
 
     protected void findmains(File dirf, final String pkg) throws IOException {
@@ -122,31 +160,43 @@ public class GenerateBatches extends Task {
         String[] files = dirf.list();
 
         for (String name : files) {
-            int dot = name.indexOf('.');
+            int dot = name.lastIndexOf('.');
             if (dot <= 0)
                 continue;
             String ext = name.substring(dot + 1);
             if (!"java".equals(ext) && !"class".equals(ext))
                 continue;
             name = name.substring(0, dot);
+            if (name.contains("$")) // ignore inner classes
+                continue;
             String fqcn = pkg + name;
-            ClassLoader loader = Classes.getCallerClassLoader();
+            ClassLoader loader = Caller.getCallerClassLoader();
+
+            // skip if Boot class exists.
+            try {
+                Class.forName(fqcn + "Boot", false, loader);
+                continue;
+            } catch (Throwable t) {
+            }
+
             Class<?> clazz = null;
             try {
                 log2("try " + fqcn);
                 clazz = Class.forName(fqcn, false, loader);
-            } catch (ClassNotFoundException e) {
+            } catch (Throwable t) {
+                System.err.println("failed to load class " + name + ": " + t);
                 continue;
             }
             try {
                 clazz.getMethod("main", String[].class);
                 log2("    main-class: " + clazz);
-            } catch (SecurityException e) {
-                throw new IdentifiedException(e.getMessage(), e);
             } catch (NoSuchMethodException e) {
                 continue;
+            } catch (Throwable t) {
+                System.err.println("failed to get main of " + name + ": " + t);
+                continue;
             }
-            generate(fqcn, name);
+            generate(clazz);
         }
 
         for (String subdir : files) {
@@ -171,14 +221,14 @@ public class GenerateBatches extends Task {
         generated.clear();
     }
 
-    private static Map<String, Object> id;
-    private static String              template;
+    private static VersionInfo verinfo;
+    private static String      template;
 
     static {
-        id = Rcs.parseId(GenerateBatches.class);
+        verinfo = Rcs.parseId(GenerateBatches.class);
         try {
-            template = Files.readAll(GenerateBatches.class, //
-                    "bat.tmpl", "utf-8");
+            template = Files.readAll(Files.classData(GenerateBatches.class,
+                    "bat.tmpl"), "utf-8");
         } catch (IOException e) {
             throw new IdentifiedException(e.getMessage(), e);
         }

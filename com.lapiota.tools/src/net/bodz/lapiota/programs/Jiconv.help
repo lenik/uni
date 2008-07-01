@@ -4,8 +4,8 @@ Options:
     -i, --ignore-case
         --inclusive=PATTERN
         --exclusive=PATTERN
-        --source=SOURCE-ENCODING
-        --target=TARGET-ENCODING
+    -f, --from=SOURCE-ENCODING
+    -t, --to=TARGET-ENCODING
         --no-byte-order-detect
     -h, --help
         --version

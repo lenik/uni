@@ -2,7 +2,7 @@ package net.bodz.lapiota.util;
 
 import java.util.Map;
 
-import net.sf.freejava.util.PatternProcessor;
+import net.bodz.bas.types.util.PatternProcessor;
 
 public class Template extends PatternProcessor {
 

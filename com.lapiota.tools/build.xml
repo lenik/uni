@@ -9,15 +9,6 @@
 	<property name="distsrc" value="${env.JAVA_SRC}" />
 	<property name="batdir" value="${env.LAPIOTA}/bin/w" />
 
-	<taskdef name="mkbat" classname="net.bodz.lapiota.ant.tasks.GenerateBatches">
-		<classpath path="bin" />
-		<classpath>
-			<fileset dir="${JAVA_LIB}">
-				<include name="${libfreejava}" />
-			</fileset>
-		</classpath>
-	</taskdef>
-
 	<target name="default" depends="dist, :bat" />
 
 	<target name="dist" depends=":bin.jar, :src.jar">
@@ -46,6 +37,16 @@
 	</target>
 
 	<target name=":bat">
+		<taskdef name="mkbat" classname="net.bodz.lapiota.ant.tasks.GenerateBatches">
+			<classpath path="bin" />
+			<classpath>
+				<fileset dir="${JAVA_LIB}">
+					<include name="${libbodz_bas}" />
+					<include name="${libdom4j}" />
+				</fileset>
+			</classpath>
+		</taskdef>
+
 		<mkbat srcdir="bin" batdir="${batdir}" charset="utf-8" loglevel="1" />
 	</target>
 

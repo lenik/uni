@@ -1,6 +1,7 @@
 package net.bodz.lapiota.util;
 
-import java.util.Map;
+import net.bodz.bas.cli.util.Rcs;
+import net.bodz.bas.cli.util.VersionInfo;
 
 import org.junit.Test;
 
@@ -8,11 +9,12 @@ public class RcsTest {
 
     @Test
     public void test1() {
-        Map<String, Object> id = Rcs.parseId(Rcs.class);
-        for (String key : id.keySet()) {
-            Object val = id.get(key);
-            System.out.println(key + " = " + val);
-        }
+        VersionInfo ver = Rcs.parseId(Rcs.class);
+        System.out.println("version = " + ver.getVersion());
+        System.out.println("date = " + ver.getDate());
+        System.out.println("time = " + ver.getTime());
+        System.out.println("author = " + ver.author);
+        System.out.println("state = " + ver.state);
     }
 
 }
