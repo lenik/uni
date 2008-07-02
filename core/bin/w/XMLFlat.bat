@@ -17,7 +17,7 @@
     exit /b 1
 
 :check_more
-    set _strict=1
+    set _javabat=0
     goto init
 
 :start
@@ -107,6 +107,11 @@
 :initcp2
     if not "%_morecp%"=="" set _morecp=%_morecp:~1%
     if not "%_morecp%"=="" set CLASSPATH=%_morecp%;%CLASSPATH%
+
+    if "%_javabat%"=="0" (
+        set _rest=%*
+        goto start
+    )
 
 :prep1
     if "%~1"==""            goto prep2

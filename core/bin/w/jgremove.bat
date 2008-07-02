@@ -60,7 +60,7 @@
     set _startdir=%~dp0
     set  _program=%~dpnx0
 
-    set      _nam=net.bodz.lapiota.snmc.SnmCC
+    set      _nam=net.bodz.lapiota.eclipse.jdt.TPExpandBoot
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=-ea -DGenerateBatches=1
