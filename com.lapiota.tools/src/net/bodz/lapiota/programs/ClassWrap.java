@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.TypeVariable;
 import java.net.MalformedURLException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -121,7 +120,7 @@ public class ClassWrap extends BasicCLI {
             count++;
         }
         jar.close();
-        _log1("added " + count + " classes from " + jarfile);
+        L.i.P("added ", count, " classes from ", jarfile);
     }
 
     @Option(alias = "d", vnam = "DIR", doc = "add all public classes from the directory")
@@ -129,7 +128,7 @@ public class ClassWrap extends BasicCLI {
             IOException {
         Classpath.addURL(dir.toURI().toURL());
         int count = addDirectory(dir, "");
-        _log1("added " + count + " classes from " + dir);
+        L.i.P("added ", count, " classes from ", dir);
     }
 
     protected int addDirectory(File dir, String prefix) {
@@ -167,7 +166,7 @@ public class ClassWrap extends BasicCLI {
             String fqcn = l.trim();
             count += addClass(fqcn, false);
         }
-        _log1("added " + count + " classes from " + list);
+        L.i.P("added ", count, " classes from ", list);
     }
 
     @Option(alias = "w", vnam = "PACKAGE", check = Regex.class, checkinfo = "\\w+(\\.\\w+)*")
@@ -225,37 +224,13 @@ public class ClassWrap extends BasicCLI {
     @Override
     protected void _main(String[] args) throws Throwable {
         for (Class<?> clazz : classes) {
-            _sig1("type", clazz);
+            L.i.sig("type ", clazz);
             make(clazz);
         }
     }
 
-    static class CL<A extends Number, B, C extends Object> {
-        public A get(B val) {
-            return null;
-        }
-
-        public List<? super Integer> list;
-    }
-
-    static String jointv(TypeVariable<?>... variables) {
-        StringBuffer buffer = new StringBuffer(variables.length * 10);
-        buffer.append('<');
-        boolean first = true;
-        for (TypeVariable<?> v : variables) {
-            if (first)
-                first = false;
-            else
-                buffer.append(", ");
-            buffer.append(v.getName());
-        }
-        buffer.append('>');
-        return buffer.toString();
-    }
-
     public static void main(String[] args) throws Throwable {
-        // new ClassWrap().climain(args);
-        System.err.println(jointv(CL.class.getTypeParameters()));
-
+        new ClassWrap().climain(args);
     }
+
 }

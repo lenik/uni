@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 import net.bodz.bas.cli.BatchProcessCLI;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.Option;
+import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.TypeParsers.ClassInstanceParser;
 import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
@@ -61,10 +62,11 @@ public class Jrepl extends BatchProcessCLI {
     }
 
     @Override
-    protected int process(Iterable<String> lines, CharOut out) throws Throwable {
+    protected ProcessResult process(Iterable<String> lines, CharOut out)
+            throws Throwable {
         for (String line : lines)
             out.println(filter.filter(line));
-        return PROCESS_EDIT;
+        return ProcessResult.autodiff();
     }
 
     public static void main(String[] args) throws Throwable {

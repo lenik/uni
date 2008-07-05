@@ -11,5 +11,8 @@
 	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.jdt.core_3.4.0.v_874.jar" sourcepath="/ECLIPSE_HOME/plugins/org.eclipse.jdt.core.source_3.4.0.v_874.jar"/>
 	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.equinox.common_3.4.0.v20080421-2006.jar" sourcepath="/ECLIPSE_HOME/plugins/org.eclipse.equinox.common.source_3.4.0.v20080421-2006.jar"/>
 	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.text_3.4.0.v20080605-1800.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.core.resources_3.4.0.v20080604-1400.jar" sourcepath="/ECLIPSE_HOME/plugins/org.eclipse.core.resources.source_3.4.0.v20080604-1400.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.osgi_3.4.0.v20080605-1900.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

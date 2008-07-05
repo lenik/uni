@@ -1,6 +1,9 @@
 package net.bodz.lapiota.eclipse.jdt;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import net.bodz.bas.cli.BasicCLI;
@@ -16,6 +19,7 @@ import net.bodz.bas.types.util.Strings;
 import net.bodz.bas.types.util.Types;
 import net.bodz.lapiota.util.Lapiota;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -58,16 +62,33 @@ public class ASTDump extends BasicCLI {
         new ASTDump().climain(args);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void _main(File file) throws Throwable {
         if (file == null)
             _help();
 
-        _log1("load file", file);
+        L.i.P("load file ", file);
         char[] src = Files.readAll(file).toCharArray();
 
         ASTParser parser = ASTParser.newParser(parserLevel);
+        Map<String, Object> options = JavaCore.getOptions();
+//        options.put("org.eclipse.jdt.core.compiler.compliance", "1.6");
+//        options.put("org.eclipse.jdt.core.compiler.codegen.targetPlatform", "1.6");
+        options.put("org.eclipse.jdt.core.compiler.source", "1.6");
+        parser.setCompilerOptions(options);
+
+        if (L.showDetail()) {
+            List<String> keys = new ArrayList<String>(options.keySet());
+            Collections.sort(keys);
+            for (String key : keys) {
+                Object val = options.get(key);
+                System.out.printf("%20s=%s\n", key, val);
+            }
+        }
+
         parser.setSource(src);
+
         CompilationUnit root = (CompilationUnit) parser.createAST(null);
 
         // ASTVisitor av = new ASTDumpVisitor(this);
@@ -83,13 +104,13 @@ public class ASTDump extends BasicCLI {
         @Override
         public void preVisit(ASTNode node) {
             String type = node.getClass().getSimpleName();
-            _p(Strings.repeat(indent, ' '));
+            L.m.p(Strings.repeat(indent, ' '));
             Map<?, ?> props = node.properties();
-            _pf("%s(%d/%d %d+%d %s): ", //
+            L.m.pf("%s(%d/%d %d+%d %s): ", //
                     type, node.getNodeType(), node.getFlags(), //
                     node.getStartPosition(), node.getLength(), //
                     props.isEmpty() ? "" : props.toString());
-            _P(node);
+            L.m.P(node);
             indent += tabsize;
         }
 

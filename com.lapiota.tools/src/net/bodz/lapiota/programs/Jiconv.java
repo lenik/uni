@@ -9,6 +9,7 @@ import java.util.Set;
 
 import net.bodz.bas.cli.BatchProcessCLI;
 import net.bodz.bas.cli.Option;
+import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.cli.util.Version;
@@ -28,33 +29,32 @@ public class Jiconv extends BatchProcessCLI {
         Map<String, Charset> charsets = Charset.availableCharsets();
         for (Map.Entry<String, Charset> e : charsets.entrySet()) {
             Charset charset = e.getValue();
-            _stdout.printf("%s: ", e.getKey());
+            L.m.pf("%s: ", e.getKey());
             if (!charset.displayName().equals(e.getKey()))
-                _stdout.print(charset.displayName());
+                L.m.p(charset.displayName());
 
-            if (_verbose > 1) {
+            if (L.showDetail()) {
                 CharsetDecoder dec = charset.newDecoder();
                 float avgcpb = dec.averageCharsPerByte();
                 float maxcpb = dec.maxCharsPerByte();
-                _stdout.printf(" dec(%.2f/%.2f)", maxcpb, avgcpb);
+                L.d.pf(" dec(%.2f/%.2f)", maxcpb, avgcpb);
                 if (charset.canEncode()) {
                     CharsetEncoder enc = charset.newEncoder();
                     float avgbpc = enc.averageBytesPerChar();
                     float maxbpc = enc.maxBytesPerChar();
-                    _stdout.printf(" enc(%.2f/%.2f)", maxbpc, avgbpc);
+                    L.d.pf(" enc(%.2f/%.2f)", maxbpc, avgbpc);
                 }
             }
-
-            _stdout.println();
+            L.m.println();
 
             Set<String> aliases = charset.aliases();
             if (!aliases.isEmpty()) {
-                _stdout.print("   ");
+                L.m.p("   ");
                 for (String alias : charset.aliases()) {
-                    _stdout.print(' ');
-                    _stdout.print(alias);
+                    L.m.p(' ');
+                    L.m.p(alias);
                 }
-                _stdout.println();
+                L.m.println();
             }
         }
         throw new ControlBreak();
@@ -66,7 +66,7 @@ public class Jiconv extends BatchProcessCLI {
     private static Charset CHARSET_UTF16_BE = Charset.forName("UTF-16BE");
 
     @Override
-    protected int process(File in, File out) throws Throwable {
+    protected ProcessResult process(File in, File out) throws Throwable {
         byte[] src = Files.readBytes(in);
         Charset srcenc = inputEncoding;
         Charset dstenc = outputEncoding;
@@ -83,13 +83,13 @@ public class Jiconv extends BatchProcessCLI {
             }
         }
 
-        _sig1("iconv", in, "(", srcenc, ") -> ", out, "(", dstenc, ")");
+        L.m.sig("iconv ", in, " (", srcenc, ") -> ", out, "(", dstenc, ")");
 
         String decoded = new String(src, srcenc);
         byte[] dst = decoded.getBytes(dstenc);
         Files.write(out, dst);
 
-        return PROCESS_EDIT;
+        return ProcessResult.autodiff();
     }
 
     @Override

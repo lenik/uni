@@ -3,6 +3,7 @@ package net.bodz.lapiota.programs;
 import java.io.File;
 
 import net.bodz.bas.cli.BatchProcessCLI;
+import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.cli.util.Version;
@@ -18,9 +19,9 @@ public class Jdir extends BatchProcessCLI {
     }
 
     @Override
-    protected int process(File file) throws Throwable {
-        _P(file);
-        return PROCESS_UNCHANGED;
+    protected ProcessResult process(File file) throws Throwable {
+        System.out.println(file);
+        return null;
     }
 
     public static void main(String[] args) throws Throwable {

@@ -1,4 +1,4 @@
-package net.bodz.lapiota.eclipse.jdt;
+package net.bodz.lapiota.test;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -190,10 +190,10 @@ public class XMLFlat extends BasicCLI {
     protected void _main(String[] args) throws Throwable {
         SAXReader reader = new SAXReader();
         if (inputFile == null) {
-            _log1("enter the xml document: ");
+            L.u.P("enter the xml document: ");
             doc = reader.read(System.in);
         } else {
-            _log2("process " + inputFile);
+            L.i.P("process ", inputFile);
             doc = reader.read(inputFile);
         }
 

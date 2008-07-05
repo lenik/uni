@@ -2,7 +2,6 @@ package net.bodz.lapiota.ant.tasks;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -145,10 +144,8 @@ public class GenerateBatches extends Task {
 
         String inst = tmpl.generate();
 
-        log1("write " + batf);
-        PrintStream out = Files.writeTo(batf, charset);
-        out.println(inst);
-        out.close();
+        if (Files.copyDiff(inst.getBytes(), batf))
+            log1("write " + batf);
 
         generated.add(name);
     }
