@@ -11,8 +11,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.Option;
 import net.bodz.bas.cli.RunInfo;
 import net.bodz.bas.cli.TypeParser;
@@ -27,6 +27,7 @@ import net.bodz.bas.lang.err.UnexpectedException;
 import net.bodz.bas.types.Pair;
 import net.bodz.bas.types.util.Comparators;
 import net.bodz.lapiota.util.StringUtil;
+import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
 
 import org.dom4j.Attribute;
 import org.dom4j.Document;
@@ -45,12 +46,30 @@ import org.dom4j.io.XMLWriter;
 @RunInfo(lib = { "dom4j", "jaxen" })
 public class XMLEdit extends BasicCLI {
 
-    private TypeParser<XPath>        xpathParser;
-    private TypeParser<OutputFormat> outputFormatParser;
+    @Option(alias = "E", vnam = "FORMAT", doc = "set encoding of input")
+    protected Charset      inputEncoding  = Charset.defaultCharset();
 
-    private DocumentFactory          docfac;
-    private File                     docfile;
-    private Document                 document;
+    @Option(alias = "e", vnam = "ENCODING", doc = "set encoding of output")
+    protected Charset      outputEncoding = Charset.defaultCharset();
+
+    @Option(alias = "o", vnam = "FILE", doc = "output to this file (default stdout)")
+    protected File         outputFile;
+
+    @Option(alias = "O", vnam = "pretty|compact", parser = OutputFormatParser.class)
+    protected OutputFormat outputFormat   = new OutputFormat();
+
+    private boolean        escaping       = true;
+
+    @Option(alias = "x", doc = "switch escaping mode")
+    protected void switchEscaping() {
+        escaping = !escaping;
+    }
+
+    private TypeParser<XPath> xpathParser;
+
+    private DocumentFactory   docfac;
+    private File              docfile;
+    private Document          document;
 
     public XMLEdit() {
         docfac = DocumentFactory.getInstance();
@@ -65,38 +84,7 @@ public class XMLEdit extends BasicCLI {
             }
         };
 
-        outputFormatParser = new TypeParser<OutputFormat>() {
-            @Override
-            public OutputFormat parse(String fmt) throws ParseException {
-                if ("pretty".equalsIgnoreCase(fmt))
-                    return OutputFormat.createPrettyPrint();
-                if ("compact".equalsIgnoreCase(fmt))
-                    return OutputFormat.createCompactFormat();
-                throw new IllegalArgumentException("unknown format: " + fmt);
-            }
-        };
-
         TypeParsers.register(XPath.class, xpathParser);
-        TypeParsers.register(OutputFormat.class, outputFormatParser);
-    }
-
-    @Option(alias = "E", vnam = "FORMAT", doc = "set encoding of input")
-    protected Charset      inputEncoding  = Charset.defaultCharset();
-
-    @Option(alias = "e", vnam = "ENCODING", doc = "set encoding of output")
-    protected Charset      outputEncoding = Charset.defaultCharset();
-
-    @Option(alias = "o", vnam = "FILE", doc = "output to this file (default stdout)")
-    protected File         outputFile;
-
-    @Option(alias = "O", vnam = "pretty|compact")
-    protected OutputFormat outputFormat   = new OutputFormat();
-
-    private boolean        escaping       = true;
-
-    @Option(alias = "x", doc = "switch escaping mode")
-    protected void switchEscaping() {
-        escaping = !escaping;
     }
 
     protected Document getDocument() {

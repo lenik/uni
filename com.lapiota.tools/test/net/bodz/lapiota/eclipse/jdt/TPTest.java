@@ -1,4 +1,4 @@
-package net.bodz.lapiota.test;
+package net.bodz.lapiota.eclipse.jdt;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,6 +11,7 @@ public class TPTest<T extends Object & Serializable> {
     T test() {
         T var = null, tmp;
         tmp = var;
+        assert (T) var != (T) tmp : "unexpected...<" + (T) var + ">";
         Serializable out = var;
         var = (T) out;
         {
@@ -23,7 +24,11 @@ public class TPTest<T extends Object & Serializable> {
         G<?> gelm;
 
         class D<H extends G> {
+            H helm;
 
+            G<?> dfun() {
+                return gelm = helm;
+            }
         }
     }
 
@@ -36,6 +41,15 @@ public class TPTest<T extends Object & Serializable> {
     void f() {
         List<String> list = new ArrayList<String>();
         String s = list.get(0);
+    }
+
+    <E> void f(List<E> list, E... args) {
+        for (E e : (List<E>) list) {
+            E f = (E) e;
+        }
+        E g;
+        for (final E e : (List<E>) list)
+            g = (E) e;
     }
 
 }

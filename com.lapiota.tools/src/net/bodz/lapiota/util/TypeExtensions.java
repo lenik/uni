@@ -1,13 +1,16 @@
 package net.bodz.lapiota.util;
 
 import java.io.File;
+import java.text.NumberFormat;
 
 import net.bodz.bas.cli.TypeParser;
 import net.bodz.bas.cli.TypeParsers.FileParser;
 import net.bodz.bas.lang.err.ParseException;
+import net.bodz.bas.types.util.Strings;
 
 import org.dom4j.DocumentFactory;
 import org.dom4j.XPath;
+import org.dom4j.io.OutputFormat;
 
 public class TypeExtensions {
 
@@ -28,6 +31,27 @@ public class TypeExtensions {
         public XPath parse(String xpath) throws ParseException {
             DocumentFactory docfac = DocumentFactory.getInstance();
             return docfac.createXPath(xpath);
+        }
+
+    }
+
+    public static class OutputFormatParser implements TypeParser<OutputFormat> {
+
+        @Override
+        public OutputFormat parse(String fmt) throws ParseException {
+            if ("normal".equals(fmt))
+                return new OutputFormat();
+            try {
+                int indent = Integer.parseInt(fmt);
+                String tab = Strings.repeat(indent, ' ');
+                return new OutputFormat(tab);
+            } catch (NumberFormatException e) {
+            }
+            if ("pretty".equals(fmt))
+                return OutputFormat.createPrettyPrint();
+            if ("compact".equals(fmt))
+                return OutputFormat.createCompactFormat();
+            throw new IllegalArgumentException("unknown format: " + fmt);
         }
 
     }
