@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.ArrayAccess;
@@ -393,27 +394,30 @@ public class J4conv extends BatchProcessCLI {
         public boolean visit(SingleVariableDeclaration node) {
             SimpleName name = node.getName();
             Type type = node.getType();
-            node.isVarargs();
+            if (node.isVarargs())
+                type = ast.newArrayType(AU.copy(type));
             varns.put(name.getIdentifier(), type);
             return super.visit(node);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public boolean visit(VariableDeclarationStatement node) {
             Type type = node.getType();
-            for (Object _fragment : node.fragments()) {
-                VariableDeclarationFragment fragment = (VariableDeclarationFragment) _fragment;
+            List<VariableDeclarationFragment> fragments = node.fragments();
+            for (VariableDeclarationFragment fragment : fragments) {
                 SimpleName name = fragment.getName();
                 varns.put(name.getIdentifier(), type);
             }
             return super.visit(node);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public boolean visit(VariableDeclarationExpression node) {
             Type type = node.getType();
-            for (Object _fragment : node.fragments()) {
-                VariableDeclarationFragment fragment = (VariableDeclarationFragment) _fragment;
+            List<VariableDeclarationFragment> fragments = node.fragments();
+            for (VariableDeclarationFragment fragment : fragments) {
                 SimpleName name = fragment.getName();
                 varns.put(name.getIdentifier(), type);
             }
@@ -468,7 +472,7 @@ public class J4conv extends BatchProcessCLI {
             do {
                 if (parent instanceof Name)
                     return super.visit(node);
-                if (parent instanceof Expression)
+                if (parent instanceof FieldAccess)
                     break;
                 return super.visit(node);
             } while (false);
@@ -901,6 +905,12 @@ public class J4conv extends BatchProcessCLI {
             cDecls.add(cGetter);
             cDecls.add(cSetter);
             return cDecls;
+        }
+
+        @Override
+        protected boolean visitAnnotation(Annotation a) {
+            rewrite.remove(a, null);
+            return super.visitAnnotation(a);
         }
 
     }
