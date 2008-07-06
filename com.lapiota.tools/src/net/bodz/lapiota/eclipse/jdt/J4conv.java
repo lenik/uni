@@ -1,10 +1,14 @@
 package net.bodz.lapiota.eclipse.jdt;
 
+import static org.eclipse.jdt.core.dom.InfixExpression.Operator.LESS;
+import static org.eclipse.jdt.core.dom.PrefixExpression.Operator.INCREMENT;
+import static org.eclipse.jdt.core.dom.PrefixExpression.Operator.NOT;
+
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -33,6 +37,7 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.ArrayType;
@@ -47,10 +52,12 @@ import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -64,7 +71,6 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -73,7 +79,6 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
-import org.eclipse.jdt.core.dom.PrefixExpression.Operator;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jface.text.Document;
@@ -157,23 +162,76 @@ public class J4conv extends BatchProcessCLI {
 
     class ASTFrameVisitor extends ASTVisitor2 {
 
+        protected ASTRewrite           rewrite;
+        protected AST                  ast;
+        protected ASTUtils             AU;
+
+        protected CompilationUnit      unit;
+
         protected Set<String>          importPackages;
+        protected Map<String, String>  statics;
 
         /** TypeParameter, Class<?> */
         protected CMap<String, Object> typens;
-        /** Method, List<Method> */
-        protected CMap<String, Object> funns;
-        /** Type, Field */
-        protected CMap<String, Object> varns;
+        // /** Method, List<Method> */
+        // protected CMap<String, Object> funns;
+        /** Type */
+        protected CMap<String, Type>   varns;
 
         protected int                  indent;
         private int                    tabsize = 2;
 
-        public ASTFrameVisitor() {
+        public ASTFrameVisitor(ASTRewrite rewrite) {
+            this.rewrite = rewrite;
+            this.ast = rewrite.getAST();
+            this.AU = new ASTUtils(rewrite.getAST(), rewrite);
+        }
+
+        @Override
+        public boolean visit(CompilationUnit node) {
+            unit = node;
             importPackages = new HashSet<String>();
+            statics = new HashMap<String, String>();
             typens = new CMap<String, Object>();
-            funns = new CMap<String, Object>();
-            varns = new CMap<String, Object>();
+            // funns = new CMap<String, Object>();
+            varns = new CMap<String, Type>();
+            indent = 0;
+            return super.visit(node);
+        }
+
+        @Override
+        public boolean visit(ImportDeclaration node) {
+            Name name = node.getName();
+            String fqn = node.getName().getFullyQualifiedName();
+            if (node.isStatic()) {
+                int dot = fqn.lastIndexOf('.');
+                assert dot != -1;
+                String clazz = fqn.substring(0, dot);
+                AU.addImport(unit, clazz);
+
+                // NOT ACCURACY
+                String member = fqn.substring(dot + 1);
+                dot = clazz.lastIndexOf('.');
+                if (dot != -1)
+                    clazz = clazz.substring(dot + 1);
+                String access = clazz + "." + member;
+                statics.put(member, access);
+
+                rewrite.remove(node, null);
+                return super.visit(node);
+            }
+            Object imported = resolveImport2(fqn);
+            if (imported == null) {
+                Package _package = Package.getPackage(fqn);
+                if (_package == null)
+                    throw new RuntimeException("can't import " + fqn);
+                importPackages.add(fqn);
+            } else if (imported instanceof Class) {
+                SimpleName sname = name.isSimpleName() ? ((SimpleName) name)
+                        : ((QualifiedName) name).getName();
+                typens.put(sname.getIdentifier(), imported);
+            }
+            return super.visit(node);
         }
 
         public Object resolveImport2(String name) {
@@ -185,10 +243,10 @@ public class J4conv extends BatchProcessCLI {
             }
             if (imported instanceof Class || imported == null)
                 typens.put(name, imported);
-            else if (imported instanceof List)
-                funns.put(name, imported);
-            else if (imported instanceof Field)
-                varns.put(name, imported);
+            // else if (imported instanceof List)
+            // funns.put(name, imported);
+            // else if (imported instanceof Field)
+            // varns.put(name, imported);
             else
                 throw new UnexpectedException();
             return imported;
@@ -201,12 +259,12 @@ public class J4conv extends BatchProcessCLI {
         void enterScope() {
             L.d.P(indent(), "enter-t=", //
                     Strings.ellipse(typens.toString(), 100));
-            L.d.P(indent(), "enter-f=", //
-                    Strings.ellipse(funns.toString(), 100));
+            // L.d.P(indent(), "enter-f=", //
+            // Strings.ellipse(funns.toString(), 100));
             L.d.P(indent(), "enter-v=", //
                     Strings.ellipse(varns.toString(), 100));
             typens.enterNew();
-            funns.enterNew();
+            // funns.enterNew();
             varns.enterNew();
             if (!L.showDebug())
                 indent += tabsize;
@@ -215,12 +273,12 @@ public class J4conv extends BatchProcessCLI {
         void leaveScope() {
             L.d.P(indent(), "leave-t=", //
                     Strings.ellipse(typens.toString(), 100));
-            L.d.P(indent(), "leave-f=", //
-                    Strings.ellipse(funns.toString(), 100));
+            // L.d.P(indent(), "leave-f=", //
+            // Strings.ellipse(funns.toString(), 100));
             L.d.P(indent(), "leave-v=", //
                     Strings.ellipse(varns.toString(), 100));
             typens.leave();
-            funns.leave();
+            // funns.leave();
             varns.leave();
             if (!L.showDebug())
                 indent -= tabsize;
@@ -286,26 +344,6 @@ public class J4conv extends BatchProcessCLI {
                 return;
             indent -= tabsize;
             super.postVisit(node);
-        }
-
-        @Override
-        public boolean visit(ImportDeclaration node) {
-            if (node.isStatic())
-                return true;
-            Name name = node.getName();
-            String fqn = node.getName().getFullyQualifiedName();
-            Object imported = resolveImport2(fqn);
-            if (imported == null) {
-                Package _package = Package.getPackage(fqn);
-                if (_package == null)
-                    throw new RuntimeException("can't import " + fqn);
-                importPackages.add(fqn);
-            } else {
-                SimpleName sname = name.isSimpleName() ? ((SimpleName) name)
-                        : ((QualifiedName) name).getName();
-                typens.put(sname.getIdentifier(), imported);
-            }
-            return super.visit(node);
         }
 
         @Override
@@ -386,23 +424,16 @@ public class J4conv extends BatchProcessCLI {
 
     class Visitor extends ASTFrameVisitor {
 
-        protected ASTRewrite      rewrite;
-        protected ASTUtils        AU;
-
-        protected AST             ast;
-        protected CompilationUnit unit;
-
-        private int               forIterIndex = 0;
+        private int forIndex     = 0;
+        private int forIterIndex = 0;
 
         public Visitor(ASTRewrite rewrite) {
-            this.rewrite = rewrite;
-            this.ast = rewrite.getAST();
-            this.AU = new ASTUtils(rewrite.getAST(), rewrite);
+            super(rewrite);
         }
 
         @Override
         public boolean visit(CompilationUnit node) {
-            unit = node;
+            forIndex = 0;
             forIterIndex = 0;
             return super.visit(node);
         }
@@ -422,22 +453,38 @@ public class J4conv extends BatchProcessCLI {
             return super.visit(node);
         }
 
-        // /** T[] => Type[] */
-        // @Override
-        // public boolean visit(ArrayType node) {
-        // Type _type = node.getComponentType();
-        // Type type = expandMajor(_type);
-        // if (type != _type)
-        // rewrite.replace(_type, type, null);
-        // return super.visit(node);
-        // }
-
         /** T => Type */
         @Override
         public boolean visit(SimpleType node) {
             Type extype = expandMajor(node);
             if (extype != node)
                 rewrite.replace(node, extype, null);
+            return super.visit(node);
+        }
+
+        @Override
+        public boolean visit(SimpleName node) {
+            ASTNode parent = node.getParent();
+            do {
+                if (parent instanceof Name)
+                    return super.visit(node);
+                if (parent instanceof Expression)
+                    break;
+                return super.visit(node);
+            } while (false);
+            // matched
+            String access = statics.get(node.getIdentifier());
+            if (access != null) {
+                int dot = access.lastIndexOf('.');
+                String clazz = access.substring(0, dot);
+                String name = access.substring(dot + 1);
+                FieldAccess faccess = ast.newFieldAccess();
+                faccess.setExpression(ast.newSimpleName(clazz));
+                faccess.setName(ast.newSimpleName(name));
+                // faccess.accept(this);
+                rewrite.replace(node, faccess, null);
+                return false;
+            }
             return super.visit(node);
         }
 
@@ -483,6 +530,22 @@ public class J4conv extends BatchProcessCLI {
         @SuppressWarnings("unchecked")
         @Override
         public boolean visit(MethodInvocation node) {
+            if (node.getExpression() == null) {
+                // imported static method?
+                String name = node.getName().getIdentifier();
+                String access = statics.get(name);
+                if (access != null) {
+                    MethodInvocation destatic = AU.copyRef2(node);
+                    int dot = access.lastIndexOf('.');
+                    String clazz = access.substring(0, dot);
+                    name = access.substring(dot + 1);
+                    destatic.setExpression(ast.newSimpleName(clazz));
+                    destatic.setName(ast.newSimpleName(name));
+                    destatic.accept(this);
+                    rewrite.replace(node, destatic, null);
+                    return false;
+                }
+            }
             IMethodBinding binding = node.resolveMethodBinding();
             if (binding != null && binding.isVarargs()) {
                 ITypeBinding[] args = binding.getParameterTypes();
@@ -511,6 +574,13 @@ public class J4conv extends BatchProcessCLI {
          * for (itvar : iterable)
          *     BODY
          * =&gt;
+         * for (int index_ID = 0; index_ID &lt; iterable.length; index_ID++) {
+         *     itvar = (itvar_Type) iterable[index_ID];
+         *     BODY_rest
+         * }
+         *
+         * (or)
+         *
          * Iterator iter_ID = iterable.iterator();
          * while (iter_ID.hasNext()) {
          *     itvar = (itvar_Type) iter_ID.next();
@@ -522,74 +592,142 @@ public class J4conv extends BatchProcessCLI {
         @Override
         public boolean visit(EnhancedForStatement node) {
             SingleVariableDeclaration _itvar = node.getParameter();
-            Expression iterable = AU.moveRef(node.getExpression());
+            Type _type = _itvar.getType(); // expandMajor
+            Expression iterable = AU.copyRef2(node.getExpression());
             Statement _body = node.getBody();
 
-            VariableDeclarationStatement iterDecl;
-            SimpleName _iterName = ast
-                    .newSimpleName("_iter" + (++forIterIndex));
-            {
-                VariableDeclarationFragment iterDecl_f = ast
-                        .newVariableDeclarationFragment();
-                iterDecl_f.setName(AU.copy(_iterName));
-                MethodInvocation iterable_iterator = ast.newMethodInvocation();
-                iterable_iterator.setExpression(iterable);
-                iterable_iterator.setName(ast.newSimpleName("iterator"));
-                iterDecl_f.setInitializer(iterable_iterator);
-
-                iterDecl = ast.newVariableDeclarationStatement(iterDecl_f);
-                iterDecl.setType(AU.newImportedType(unit, Iterator.class));
+            boolean isArray = false;
+            if (iterable instanceof SimpleName) {
+                Type type = varns.get(((SimpleName) iterable).getIdentifier());
+                if (type != null) {
+                    isArray = type.isArrayType();
+                }
             }
 
-            WhileStatement while_ = ast.newWhileStatement();
-            {
-                MethodInvocation iter_hasNext = ast.newMethodInvocation();
-                iter_hasNext.setExpression(AU.copy(_iterName));
-                iter_hasNext.setName(ast.newSimpleName("hasNext"));
-
-                MethodInvocation next_ = ast.newMethodInvocation();
-                next_.setExpression(AU.copy(_iterName));
-                next_.setName(ast.newSimpleName("next"));
-
-                Type _type = _itvar.getType(); // expandMajor
-
-                VariableDeclarationFragment itvar_f = ast
-                        .newVariableDeclarationFragment();
-                itvar_f.setName(AU.copyRef(_itvar.getName()));
-                CastExpression casted = ast.newCastExpression();
-                casted.setExpression(next_);
-                casted.setType(AU.copy(_type));
-                itvar_f.setInitializer(casted);
-
-                VariableDeclarationStatement itvar_Next = ast
-                        .newVariableDeclarationStatement(itvar_f);
-                itvar_Next.setType(AU.copy(_type));
-                itvar_Next.modifiers().addAll(AU.copy(_itvar.modifiers()));
-
-                Block whileBody;
+            if (isArray) {
+                SimpleName _array = (SimpleName) iterable;
+                ForStatement _for = ast.newForStatement();
+                SimpleName _indexName = ast.newSimpleName("_index"
+                        + (++forIndex));
+                List<Expression> inits = _for.initializers();
+                {
+                    VariableDeclarationFragment forInit_f = ast
+                            .newVariableDeclarationFragment();
+                    forInit_f.setName(AU.copy(_indexName));
+                    forInit_f.setInitializer(ast.newNumberLiteral("0"));
+                    VariableDeclarationExpression forInit = ast
+                            .newVariableDeclarationExpression(forInit_f);
+                    inits.add(forInit);
+                }
+                List<Expression> updaters = _for.updaters();
+                {
+                    PrefixExpression forUpdate = ast.newPrefixExpression();
+                    forUpdate.setOperator(INCREMENT);
+                    forUpdate.setOperand(AU.copy(_indexName));
+                    updaters.add(forUpdate);
+                }
+                InfixExpression forTest = ast.newInfixExpression();
+                {
+                    forTest.setOperator(LESS);
+                    forTest.setLeftOperand(AU.copy(_indexName));
+                    FieldAccess arrayLength = ast.newFieldAccess();
+                    arrayLength.setExpression(AU.copy(_array));
+                    arrayLength.setName(ast.newSimpleName("length"));
+                    forTest.setRightOperand(arrayLength);
+                    _for.setExpression(forTest);
+                }
+                VariableDeclarationStatement itvar;
+                {
+                    VariableDeclarationFragment itvar_f = ast
+                            .newVariableDeclarationFragment();
+                    itvar_f.setName(AU.copy(_itvar.getName()));
+                    ArrayAccess arrayAccess = ast.newArrayAccess();
+                    arrayAccess.setArray(AU.copy(_array));
+                    arrayAccess.setIndex(AU.copy(_indexName));
+                    itvar_f.setInitializer(arrayAccess);
+                    itvar = ast.newVariableDeclarationStatement(itvar_f);
+                    itvar.setType(AU.copy(_type));
+                }
+                Block forBody;
                 if (_body instanceof Block) {
-                    whileBody = AU.moveRef((Block) _body);
+                    forBody = AU.moveRef((Block) _body);
                     ListRewrite statements = rewrite.getListRewrite(_body,
                             Block.STATEMENTS_PROPERTY);
-                    statements.insertFirst(itvar_Next, null);
+                    statements.insertFirst(itvar, null);
                 } else {
-                    whileBody = ast.newBlock();
-                    List<Statement> statements = whileBody.statements();
-                    statements.add(0, itvar_Next);
+                    forBody = ast.newBlock();
+                    List<Statement> statements = forBody.statements();
+                    statements.add(0, itvar);
                     statements.add(AU.moveRef(_body));
                 }
+                _for.setBody(forBody);
+                _for.accept(this);
+                rewrite.replace(node, _for, null);
+            } else {
+                VariableDeclarationStatement iterDecl;
+                SimpleName _iterName = ast.newSimpleName("_iter"
+                        + (++forIterIndex));
+                {
+                    VariableDeclarationFragment iterDecl_f = ast
+                            .newVariableDeclarationFragment();
+                    iterDecl_f.setName(AU.copy(_iterName));
+                    MethodInvocation iterable_iterator = ast
+                            .newMethodInvocation();
+                    iterable_iterator.setExpression(iterable);
+                    iterable_iterator.setName(ast.newSimpleName("iterator"));
+                    iterDecl_f.setInitializer(iterable_iterator);
 
-                while_.setExpression(iter_hasNext);
-                while_.setBody(whileBody);
+                    iterDecl = ast.newVariableDeclarationStatement(iterDecl_f);
+                    iterDecl.setType(AU.newImportedType(unit, Iterator.class));
+                }
+
+                WhileStatement while_ = ast.newWhileStatement();
+                {
+                    MethodInvocation iter_hasNext = ast.newMethodInvocation();
+                    iter_hasNext.setExpression(AU.copy(_iterName));
+                    iter_hasNext.setName(ast.newSimpleName("hasNext"));
+
+                    MethodInvocation next_ = ast.newMethodInvocation();
+                    next_.setExpression(AU.copy(_iterName));
+                    next_.setName(ast.newSimpleName("next"));
+
+                    VariableDeclarationFragment itvar_f = ast
+                            .newVariableDeclarationFragment();
+                    itvar_f.setName(AU.copyRef(_itvar.getName()));
+                    CastExpression casted = ast.newCastExpression();
+                    casted.setExpression(next_);
+                    casted.setType(AU.copy(_type));
+                    itvar_f.setInitializer(casted);
+
+                    VariableDeclarationStatement itvar_Next = ast
+                            .newVariableDeclarationStatement(itvar_f);
+                    itvar_Next.setType(AU.copy(_type));
+                    itvar_Next.modifiers().addAll(AU.copy(_itvar.modifiers()));
+
+                    Block whileBody;
+                    if (_body instanceof Block) {
+                        whileBody = AU.moveRef((Block) _body);
+                        ListRewrite statements = rewrite.getListRewrite(_body,
+                                Block.STATEMENTS_PROPERTY);
+                        statements.insertFirst(itvar_Next, null);
+                    } else {
+                        whileBody = ast.newBlock();
+                        List<Statement> statements = whileBody.statements();
+                        statements.add(0, itvar_Next);
+                        statements.add(AU.moveRef(_body));
+                    }
+
+                    while_.setExpression(iter_hasNext);
+                    while_.setBody(whileBody);
+                }
+
+                Block block2 = ast.newBlock();
+                List<Statement> statements = block2.statements();
+                statements.add(iterDecl);
+                statements.add(while_);
+                block2.accept(this);
+                rewrite.replace(node, block2, null);
             }
-
-            Block block2 = ast.newBlock();
-            List<Statement> statements = block2.statements();
-            statements.add(iterDecl);
-            statements.add(while_);
-            block2.accept(this);
-
-            rewrite.replace(node, block2, null);
             return super.visit(node);
         }
 
@@ -629,7 +767,7 @@ public class J4conv extends BatchProcessCLI {
             IfStatement if_ = ast.newIfStatement();
             {
                 PrefixExpression not = ast.newPrefixExpression();
-                not.setOperator(Operator.NOT);
+                not.setOperator(NOT);
                 not.setOperand(exp);
                 if_.setExpression(not);
 

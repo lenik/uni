@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 @SuppressWarnings( { "unchecked", "unused" })
-public class TPTest<T extends Object & Serializable> {
+public class GType<T extends Object & Serializable> {
 
     T test() {
         T var = null, tmp;
@@ -34,7 +34,7 @@ public class TPTest<T extends Object & Serializable> {
 
     class Inner {
         void test(String arg) {
-            TPTest.this.test();
+            GType.this.test();
         }
     }
 
