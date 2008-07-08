@@ -6,8 +6,6 @@
 
 :start
 
-    REM _____________________________________________
-
     pushd "%_reposvn%" >nul
         set _prefix=%_base:~0,1%
         if not exist "%_prefix%\*" (
@@ -128,7 +126,7 @@
         set      _time=%%k
         set    _author=%%l
     )
-    echo [TITLE] CMD_simple_cli_program_template
+    echo [dir2svn] Create an svn repository and initialize with the spec dir
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
     exit /b 0
 
@@ -136,7 +134,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] ...
+    echo    %_program% [OPTION] DIR
     echo.
     echo Options:
     echo    -q, --quiet         repeat to get less info
