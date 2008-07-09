@@ -6,6 +6,7 @@ import static org.eclipse.jdt.core.dom.PrefixExpression.Operator.NOT;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.cli.util.Version;
 import net.bodz.bas.dnb.JavaAnnotation;
+import net.bodz.bas.dnb.JavaEnum;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.err.UnexpectedException;
 import net.bodz.bas.lang.util.Classpath;
@@ -31,6 +33,7 @@ import net.bodz.bas.types.util.Strings;
 import net.bodz.lapiota.util.Lapiota;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -38,6 +41,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
@@ -50,6 +54,8 @@ import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
@@ -72,6 +78,8 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -82,6 +90,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
+import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
 
@@ -122,13 +132,20 @@ public class J4conv extends BatchProcessCLI {
         return super._cliflags() & ~CLI_AUTOSTDIN;
     }
 
+    // aliases
+    static class FMT extends DefaultCodeFormatterConstants {
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     protected ProcessResult process(File in, File out) throws Throwable {
+        if (!"java".equals(Files.getExtension(in)))
+            return null;
+
         String src = Files.readAll(in, inputEncoding);
         char[] srcChars = src.toCharArray();
 
-        Map<String, Object> options = JavaCore.getOptions();
+        Map options = JavaCore.getOptions();
         options.put(JavaCore.COMPILER_SOURCE, "1.6");
         options.remove(JavaCore.COMPILER_TASK_TAGS);
 
@@ -151,12 +168,33 @@ public class J4conv extends BatchProcessCLI {
         cu.accept(visitor);
 
         Document doc = new Document(src);
-        TextEdit edits = rewrite.rewriteAST(doc, null);
-        edits.apply(doc);
+        TextEdit edit = rewrite.rewriteAST(doc, null);
+        edit.apply(doc);
         String dst = doc.get();
 
-        // if (dst.equals(src))
-        // return PROCESS_IGNORE;
+        // format...
+        boolean format = true;
+        if (format) {
+            Map fopts = DefaultCodeFormatterConstants
+                    .getEclipseDefaultSettings();
+            fopts.put(FMT.FORMATTER_INDENTATION_SIZE, 4);
+            fopts.put(FMT.FORMATTER_TAB_CHAR, JavaCore.SPACE);
+            fopts.put(FMT.FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS, FMT.TRUE);
+
+            CodeFormatter formatter = ToolFactory.createCodeFormatter(fopts);
+            String lineSeparator = System.getProperty("line.separator");
+            doc = new Document(dst);
+            // dst = "class A {}";
+            edit = formatter.format(CodeFormatter.K_COMPILATION_UNIT, //
+                    dst, 0, dst.length(), 0, lineSeparator);
+            if (edit != null) {
+                edit.apply(doc);
+                dst = doc.get();
+            } else {
+                L.m.p("[FERR] ", in);
+            }
+        }
+
         Files.write(out, dst, outputEncoding);
         return ProcessResult.autodiff();
     }
@@ -310,9 +348,7 @@ public class J4conv extends BatchProcessCLI {
                 TypeParameter parameter = (TypeParameter) _parameter;
                 List<?> bounds = parameter.typeBounds();
                 if (bounds.isEmpty()) {
-                    SimpleName nmObject = name.getAST().newSimpleName("Object");
-                    SimpleType tyObject = name.getAST().newSimpleType(nmObject);
-                    return tyObject;
+                    return AU.newType(Object.class);
                 } else {
                     Type bmajor = (Type) bounds.get(0);
                     while (bmajor.isParameterizedType())
@@ -415,6 +451,18 @@ public class J4conv extends BatchProcessCLI {
         @SuppressWarnings("unchecked")
         @Override
         public boolean visit(VariableDeclarationExpression node) {
+            Type type = node.getType();
+            List<VariableDeclarationFragment> fragments = node.fragments();
+            for (VariableDeclarationFragment fragment : fragments) {
+                SimpleName name = fragment.getName();
+                varns.put(name.getIdentifier(), type);
+            }
+            return super.visit(node);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public boolean visit(FieldDeclaration node) {
             Type type = node.getType();
             List<VariableDeclarationFragment> fragments = node.fragments();
             for (VariableDeclarationFragment fragment : fragments) {
@@ -654,15 +702,17 @@ public class J4conv extends BatchProcessCLI {
                 }
                 Block forBody;
                 if (_body instanceof Block) {
-                    forBody = AU.moveRef((Block) _body);
-                    ListRewrite statements = rewrite.getListRewrite(_body,
-                            Block.STATEMENTS_PROPERTY);
-                    statements.insertFirst(itvar, null);
+                    forBody = AU.copyRef2((Block) _body);
+                    List<Statement> statements = forBody.statements();
+                    // ListRewrite statements = rewrite.getListRewrite(_body,
+                    // Block.STATEMENTS_PROPERTY);
+                    // statements.insertFirst(itvar, null);
+                    statements.add(0, itvar);
                 } else {
                     forBody = ast.newBlock();
                     List<Statement> statements = forBody.statements();
                     statements.add(0, itvar);
-                    statements.add(AU.moveRef(_body));
+                    statements.add(AU.copyRef2(_body));
                 }
                 _for.setBody(forBody);
                 _for.accept(this);
@@ -710,17 +760,19 @@ public class J4conv extends BatchProcessCLI {
 
                     Block whileBody;
                     if (_body instanceof Block) {
-                        whileBody = AU.moveRef((Block) _body);
-                        ListRewrite statements = rewrite.getListRewrite(_body,
-                                Block.STATEMENTS_PROPERTY);
-                        statements.insertFirst(itvar_Next, null);
+                        whileBody = AU.copyRef2((Block) _body);
+                        // ListRewrite statements =
+                        // rewrite.getListRewrite(_body,
+                        // Block.STATEMENTS_PROPERTY);
+                        // statements.insertFirst(itvar_Next, null);
+                        List<Statement> statements = whileBody.statements();
+                        statements.add(0, itvar_Next);
                     } else {
                         whileBody = ast.newBlock();
                         List<Statement> statements = whileBody.statements();
                         statements.add(0, itvar_Next);
-                        statements.add(AU.moveRef(_body));
+                        statements.add(AU.copyRef2(_body));
                     }
-
                     while_.setExpression(iter_hasNext);
                     while_.setBody(whileBody);
                 }
@@ -778,8 +830,7 @@ public class J4conv extends BatchProcessCLI {
                 ThrowStatement throw_ = ast.newThrowStatement();
                 ClassInstanceCreation new_Error = ast
                         .newClassInstanceCreation();
-                new_Error.setType(ast.newSimpleType(ast
-                        .newSimpleName("AssertionError")));
+                new_Error.setType(AU.newType(AssertionError.class));
                 if (_msg != null)
                     new_Error.arguments().add(AU.moveRef(_msg));
                 throw_.setExpression(new_Error);
@@ -856,18 +907,21 @@ public class J4conv extends BatchProcessCLI {
                 }
                 cField = ast.newFieldDeclaration(cFieldFrag);
                 cField.setType(AU.copyRef2(_type));
+                AU.addModifiers(cField, Modifier.PRIVATE);
             }
             String ucName = Strings.ucfirst(_name.getIdentifier());
             MethodDeclaration cGetter = ast.newMethodDeclaration();
             { /* return FIELD; */
                 cGetter.setReturnType2(AU.copyRef2(_type));
-                cGetter.setName(ast.newSimpleName("get" + ucName));
+                cGetter.setName(AU.copy(_name)); // ast.newSimpleName("get" +
+                // ucName));
                 Block block = ast.newBlock();
                 List<Statement> statements = block.statements();
                 ReturnStatement returnField = ast.newReturnStatement();
                 returnField.setExpression(AU.copyRef2(_name));
                 statements.add(returnField);
                 cGetter.setBody(block);
+                AU.addModifiers(cGetter, Modifier.PUBLIC | Modifier.FINAL);
             }
             MethodDeclaration cSetter = ast.newMethodDeclaration();
             { /* this.FIELD = newval; */
@@ -892,6 +946,7 @@ public class J4conv extends BatchProcessCLI {
                 assignment.setRightHandSide(AU.copy(newval));
                 statements.add(ast.newExpressionStatement(assignment));
                 cSetter.setBody(block);
+                AU.addModifiers(cSetter, Modifier.PUBLIC | Modifier.FINAL);
             }
 
             if (_javadoc != null) {
@@ -903,7 +958,7 @@ public class J4conv extends BatchProcessCLI {
             List<BodyDeclaration> cDecls = new ArrayList<BodyDeclaration>(3);
             cDecls.add(cField);
             cDecls.add(cGetter);
-            cDecls.add(cSetter);
+            // cDecls.add(cSetter);
             return cDecls;
         }
 
@@ -911,6 +966,206 @@ public class J4conv extends BatchProcessCLI {
         protected boolean visitAnnotation(Annotation a) {
             rewrite.remove(a, null);
             return super.visitAnnotation(a);
+        }
+
+        /**
+         * <pre>
+         * enum E {
+         *   Constants, ...;
+         *   // E(args) { ... }
+         *   // BODY
+         * }
+         * =&gt;
+         * class C extends JavaEnum {
+         *
+         *     // if no ctors defined, then implied one.
+         *     private C(String name, int ordinal) {
+         *         super(name, ordinal);
+         *     }
+         *
+         *     private C(String name, int ordinal, Object args) {
+         *         super(name, ordinal);
+         *         // CtorBody
+         *     }
+         *
+         *     // BODY
+         *
+         *     public static final C Constants;
+         *
+         *     protected static void valueOf(String name) {
+         *         return valueOf(ENUM.class, name);
+         *     }
+         *
+         *     public static ENUM[] values() {
+         *         return _values(ENUM.class);
+         *     }
+         *
+         * }
+         * </pre>
+         */
+        @SuppressWarnings("unchecked")
+        @Override
+        public boolean visit(EnumDeclaration eTypeDecl) {
+            String typeName = eTypeDecl.getName().getIdentifier(); // must be
+            Type superType = AU.newImportedType(unit, JavaEnum.class);
+            // simple
+            TypeDeclaration cTypeDecl = ast.newTypeDeclaration();
+            {
+                cTypeDecl.setName(ast.newSimpleName(typeName));
+                cTypeDecl.setSuperclassType(AU.copy(superType));
+                AU.addModifiers(cTypeDecl, Modifier.PUBLIC | Modifier.FINAL);
+            }
+
+            List<BodyDeclaration> eBody = eTypeDecl.bodyDeclarations();
+            List<BodyDeclaration> cBody = cTypeDecl.bodyDeclarations();
+            int ctors = 0;
+            for (BodyDeclaration eDecl : eBody) {
+                BodyDeclaration cDecl = null;
+                if (eDecl instanceof MethodDeclaration) {
+                    MethodDeclaration eDeclM = (MethodDeclaration) eDecl;
+                    if (eDeclM.isConstructor()) {
+                        ctors++;
+                        cDecl = AU.copy(eDecl);
+                        MethodDeclaration cDeclM = (MethodDeclaration) cDecl;
+                        prefixCtorChain(cDeclM, //
+                                AU.newType(String.class), "name", //
+                                AU.newType(int.class), "index");
+                    }
+                }
+                if (cDecl == null)
+                    cDecl = AU.copyRef2(eDecl);
+                cBody.add(cDecl);
+            }
+            if (ctors == 0) {
+                // implied ctor(name, oridnal): super(name, ordinal);
+                MethodDeclaration impliedCtor = ast.newMethodDeclaration();
+                impliedCtor.setName(ast.newSimpleName(typeName));
+                impliedCtor.setConstructor(true);
+                AU.addModifiers(impliedCtor, Modifier.PRIVATE);
+                prefixCtorChain(impliedCtor, //
+                        AU.newType(String.class), "name", //
+                        AU.newType(int.class), "index");
+                cBody.add(0, impliedCtor);
+            }
+
+            List<EnumConstantDeclaration> eConsts = eTypeDecl.enumConstants();
+            int ordinal = 0;
+            for (EnumConstantDeclaration eConst : eConsts) {
+                SimpleName _name = eConst.getName();
+                List<Expression> args = eConst.arguments();
+                AnonymousClassDeclaration anonDecl = eConst
+                        .getAnonymousClassDeclaration();
+
+                VariableDeclarationFragment cConst_f = ast
+                        .newVariableDeclarationFragment();
+                {
+                    cConst_f.setName(AU.copy(_name));
+                    ClassInstanceCreation _new = ast.newClassInstanceCreation();
+                    _new.setType(AU.newType(typeName));
+                    List<Expression> _newArgs = _new.arguments();
+                    StringLiteral nameQuoted = ast.newStringLiteral();
+                    nameQuoted.setLiteralValue(_name.getIdentifier());
+                    _newArgs.add(nameQuoted);
+                    _newArgs.add(ast.newNumberLiteral("" + (++ordinal)));
+                    for (Expression arg : args)
+                        _newArgs.add(AU.copy(arg));
+                    if (anonDecl != null)
+                        _new.setAnonymousClassDeclaration(AU.copy(anonDecl));
+                    cConst_f.setInitializer(_new);
+                }
+                FieldDeclaration cConst = ast.newFieldDeclaration(cConst_f);
+                {
+                    AU.addModifiers(cConst, //
+                            Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL);
+                    cConst.setType(AU.newType(typeName));
+                }
+                cBody.add(cConst);
+            }
+
+            MethodDeclaration valueOf_f = ast.newMethodDeclaration();
+            {
+                AU.addModifiers(valueOf_f, Modifier.PUBLIC | Modifier.STATIC);
+                valueOf_f.setReturnType2(AU.newType(typeName));
+                List<SingleVariableDeclaration> parameters = valueOf_f
+                        .parameters();
+                {
+                    SingleVariableDeclaration varName = ast
+                            .newSingleVariableDeclaration();
+                    varName.setType(AU.newType(String.class));
+                    varName.setName(ast.newSimpleName("name"));
+                    parameters.add(varName);
+                }
+                Block block = valueOf_f.getBody();
+                if (block == null)
+                    valueOf_f.setBody(block = ast.newBlock());
+                List<Statement> statements = block.statements();
+                {
+                    MethodInvocation super_valueOf = ast.newMethodInvocation();
+                    super_valueOf.setExpression(ast.newSimpleName( //
+                            JavaEnum.class.getSimpleName()));
+                    super_valueOf.setName(ast.newSimpleName("valueOf"));
+                    List<Expression> arguments = super_valueOf.arguments();
+                    arguments.add(AU.newTypeLiteral(AU.newType(typeName)));
+                    arguments.add(ast.newSimpleName("name"));
+                    statements.add(ast.newExpressionStatement(super_valueOf));
+                }
+                cBody.add(valueOf_f);
+            }
+            MethodDeclaration values_f = ast.newMethodDeclaration();
+            {
+                AU.addModifiers(values_f, Modifier.PUBLIC | Modifier.STATIC);
+                values_f.setReturnType2(ast.newArrayType(AU.newType(typeName)));
+                Block block = values_f.getBody();
+                if (block == null)
+                    values_f.setBody(block = ast.newBlock());
+                List<Statement> statements = block.statements();
+                {
+                    MethodInvocation super_values = ast.newMethodInvocation();
+                    super_values.setExpression(ast.newSimpleName( //
+                            JavaEnum.class.getSimpleName()));
+                    super_values.setName(ast.newSimpleName("_values"));
+                    List<Expression> arguments = super_values.arguments();
+                    arguments.add(AU.newTypeLiteral(AU.newType(typeName)));
+                    statements.add(ast.newExpressionStatement(super_values));
+                }
+                cBody.add(values_f);
+            }
+            cTypeDecl.accept(this);
+            rewrite.replace(eTypeDecl, cTypeDecl, null);
+            return false; // super.visit(eTypeDecl);
+        }
+
+        @SuppressWarnings("unchecked")
+        void prefixCtorChain(MethodDeclaration ctor, Object... prefixes) {
+            assert ctor.isConstructor();
+            List<SingleVariableDeclaration> parameters = ctor.parameters();
+            {
+                int insert = 0;
+                for (int i = 0; i < prefixes.length; i += 2) {
+                    Type type = (Type) prefixes[i];
+                    String name = (String) prefixes[i + 1];
+                    SingleVariableDeclaration var = ast
+                            .newSingleVariableDeclaration();
+                    var.setType(AU.copy(type));
+                    var.setName(ast.newSimpleName(name));
+                    parameters.add(insert++, var);
+                }
+            }
+            Block block = ctor.getBody();
+            if (block == null)
+                ctor.setBody(block = ast.newBlock());
+            List<Statement> body = block.statements();
+            {
+                SuperConstructorInvocation superCtorInvoke = ast
+                        .newSuperConstructorInvocation();
+                List<Expression> arguments = superCtorInvoke.arguments();
+                int insert = 0;
+                for (int i = 0; i < prefixes.length; i += 2) {
+                    String name = (String) prefixes[i + 1];
+                    arguments.add(insert++, ast.newSimpleName(name));
+                }
+                body.add(0, superCtorInvoke);
+            }
         }
 
     }

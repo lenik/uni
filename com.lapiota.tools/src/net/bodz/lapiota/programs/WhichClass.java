@@ -226,7 +226,7 @@ public class WhichClass extends BasicCLI {
 
     private static Pattern JAR_EXTENSIONS;
     static {
-        JAR_EXTENSIONS = Pattern.compile("\\.(.ar|zip)",
+        JAR_EXTENSIONS = Pattern.compile("(.ar|zip)",
                 Pattern.CASE_INSENSITIVE);
     }
 

@@ -1,15 +1,22 @@
 package net.bodz.lapiota.eclipse.jdt;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.IExtendedModifier;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeLiteral;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
+import org.eclipse.jdt.core.dom.PrimitiveType.Code;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
@@ -60,6 +67,20 @@ public class ASTUtils {
 
     public Name newName(String name) {
         return ast.newName(name.split("\\."));
+    }
+
+    public TypeLiteral newTypeLiteral(Type type) {
+        TypeLiteral literal = ast.newTypeLiteral();
+        literal.setType(type);
+        return literal;
+    }
+
+    public Type newType(Class<?> type) {
+        if (type.isPrimitive()) {
+            Code code = PrimitiveType.toCode(type.getSimpleName());
+            return ast.newPrimitiveType(code);
+        }
+        return ast.newSimpleType(ast.newSimpleName(type.getSimpleName()));
     }
 
     public Type newType(String name) {
@@ -117,6 +138,36 @@ public class ASTUtils {
         ImportDeclaration id = ast.newImportDeclaration();
         id.setName(newName(name));
         imports.insertLast(id, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void addModifiers(BodyDeclaration decl, int mod) {
+        addModifiers(decl.modifiers(), mod);
+    }
+
+    public void addModifiers(List<IExtendedModifier> mods, int mod) {
+        if (Modifier.isPublic(mod))
+            mods.add(ast.newModifier(ModifierKeyword.PUBLIC_KEYWORD));
+        if (Modifier.isProtected(mod))
+            mods.add(ast.newModifier(ModifierKeyword.PROTECTED_KEYWORD));
+        if (Modifier.isPrivate(mod))
+            mods.add(ast.newModifier(ModifierKeyword.PRIVATE_KEYWORD));
+        if (Modifier.isAbstract(mod))
+            mods.add(ast.newModifier(ModifierKeyword.ABSTRACT_KEYWORD));
+        if (Modifier.isStatic(mod))
+            mods.add(ast.newModifier(ModifierKeyword.STATIC_KEYWORD));
+        if (Modifier.isFinal(mod))
+            mods.add(ast.newModifier(ModifierKeyword.FINAL_KEYWORD));
+        if (Modifier.isNative(mod))
+            mods.add(ast.newModifier(ModifierKeyword.NATIVE_KEYWORD));
+        if (Modifier.isTransient(mod))
+            mods.add(ast.newModifier(ModifierKeyword.TRANSIENT_KEYWORD));
+        if (Modifier.isVolatile(mod))
+            mods.add(ast.newModifier(ModifierKeyword.VOLATILE_KEYWORD));
+        if (Modifier.isSynchronized(mod))
+            mods.add(ast.newModifier(ModifierKeyword.SYNCHRONIZED_KEYWORD));
+        if (Modifier.isStrict(mod))
+            mods.add(ast.newModifier(ModifierKeyword.STRICTFP_KEYWORD));
     }
 
 }
