@@ -260,6 +260,7 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
     class Grep extends _Handler {
 
         Pattern pattern;
+        boolean trim;
 
         @Override
         public void setParameters(String[] parameters) {
@@ -271,6 +272,7 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
             if (ignoreCase)
                 flags |= Pattern.CASE_INSENSITIVE;
             pattern = Pattern.compile(parameters[0], flags);
+            trim = vars.getBoolean("trim");
         }
 
         @Override
@@ -293,6 +295,8 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
                     if (matchedLines++ == 0) {
                         L.m.P(url, ": ");
                     }
+                    if (trim)
+                        line = line.trim();
                     _stdout.printf("%4d %s\n", lineNo, line);
                 }
             }

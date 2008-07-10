@@ -3,9 +3,9 @@ package net.bodz.lapiota.util;
 import java.io.File;
 import java.text.NumberFormat;
 
-import net.bodz.bas.cli.TypeParser;
-import net.bodz.bas.cli.TypeParsers.FileParser;
 import net.bodz.bas.lang.err.ParseException;
+import net.bodz.bas.types.TypeParser;
+import net.bodz.bas.types.TypeParsers.FileParser;
 import net.bodz.bas.types.util.Strings;
 
 import org.dom4j.DocumentFactory;

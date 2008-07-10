@@ -5,9 +5,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import net.bodz.bas.cli.TypeCheck;
-import net.bodz.bas.cli.TypeParser;
-import net.bodz.bas.cli.TypeParsers;
+import net.bodz.bas.types.TypeParser;
+import net.bodz.bas.types.TypeParsers;
+import net.bodz.bas.types.ValueCheck;
 
 /**
  * [OPTION] [--] FILES
@@ -45,7 +45,7 @@ public @interface AType {
 
     String parserinfo() default "";
 
-    Class<? extends TypeCheck> check() default TypeCheck.class;
+    Class<? extends ValueCheck> check() default ValueCheck.class;
 
     String checkinfo() default "";
 

@@ -16,8 +16,6 @@ import java.util.jar.JarFile;
 
 import net.bodz.bas.cli.BasicCLI;
 import net.bodz.bas.cli.Option;
-import net.bodz.bas.cli.TypeChecks.FileAccess;
-import net.bodz.bas.cli.TypeChecks.Regex;
 import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.cli.util.Version;
@@ -27,6 +25,8 @@ import net.bodz.bas.io.Files;
 import net.bodz.bas.io.CharOuts.Buffer;
 import net.bodz.bas.lang.Caller;
 import net.bodz.bas.lang.util.Classpath;
+import net.bodz.bas.types.ValueChecks.FileAccess;
+import net.bodz.bas.types.ValueChecks.Regex;
 import net.bodz.bas.types.util.Strings;
 
 @Doc("Generate class proxy/wrapper")

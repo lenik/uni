@@ -210,6 +210,7 @@ public class PartialCopy extends BasicCLI {
         try {
             super._help();
         } catch (ControlBreak b) {
+            System.err.println();
             System.err.println("Format of EXP: ");
             System.err.println("    INT             offset from the beginning");
             System.err.println("   -INT             offset from the end");

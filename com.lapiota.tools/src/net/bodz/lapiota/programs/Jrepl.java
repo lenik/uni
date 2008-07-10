@@ -6,28 +6,30 @@ import net.bodz.bas.cli.BatchProcessCLI;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.Option;
 import net.bodz.bas.cli.ProcessResult;
-import net.bodz.bas.cli.TypeParsers.ClassInstanceParser;
 import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.cli.util.Version;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.lang.Filter;
+import net.bodz.bas.types.TypeParsers.ClassInstanceParser;
 
 @Doc("A Unix diff program implemented in Java")
 @Version( { 0, 1 })
 @RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
 public class Jrepl extends BatchProcessCLI {
 
-    @Option(alias = "P", vnam = "REGEXP", doc = "replace by regexp")
+    @Option(alias = "p", vnam = "REGEXP", doc = "replace by regexp")
     protected Pattern                regexp;
 
     @Option(alias = "T", vnam = "TEXT", doc = "replace by literal text")
     protected String                 text;
 
-    @Option(alias = "t", vnam = "TEXT", doc = "may contains \\n (or $n) group reference for regexp replace")
+    @Option(alias = "t", vnam = "TEXT", //
+    doc = "may contains \\n (or $n) group reference for regexp replace")
     protected String                 replacement;
 
-    @Option(vnam = "CLASS(Filter)", parser = ClassInstanceParser.class, doc = "using custom filter, this will ignore -PTt options")
+    @Option(vnam = "CLASS(Filter)", parser = ClassInstanceParser.class, //
+    doc = "using custom filter, this will ignore -PTt options")
     protected Filter<String, String> filter;
 
     @Override
