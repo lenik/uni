@@ -1,10 +1,10 @@
 package net.bodz.lapiota.programs;
 
-import net.bodz.bas.cli.BasicCLI;
-import net.bodz.bas.cli.util.Doc;
+import net.bodz.bas.annotations.Doc;
+import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.bas.cli.util.Version;
 import net.bodz.lapiota.ant.tasks.ProgramName;
+import net.bodz.lapiota.util.BasicCLI;
 
 @Doc("Dump arguments for CLI program")
 @Version( { 0, 1 })

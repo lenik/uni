@@ -1,20 +1,21 @@
 package net.bodz.lapiota.programs;
 
 import java.io.File;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.Map;
 import java.util.Set;
 
-import net.bodz.bas.cli.BatchProcessCLI;
+import net.bodz.bas.annotations.Doc;
+import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.Option;
 import net.bodz.bas.cli.ProcessResult;
-import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.bas.cli.util.Version;
 import net.bodz.bas.functors.lang.ControlBreak;
 import net.bodz.bas.io.Files;
+import net.bodz.lapiota.util.BatchProcessCLI;
 
 @Doc("batch iconv written in java, JUN 2004")
 @Version( { 0, 1 })
@@ -89,15 +90,16 @@ public class Jiconv extends BatchProcessCLI {
         byte[] dst = decoded.getBytes(dstenc);
         Files.write(out, dst);
 
-        return ProcessResult.autodiff();
+        return ProcessResult.compareAndSave();
     }
 
     @Override
-    protected int _cliflags() {
-        return super._cliflags() & ~CLI_AUTOSTDIN;
+    protected InputStream _getDefaultIn() {
+        return null;
     }
 
     public static void main(String[] args) throws Throwable {
         new Jiconv().climain(args);
     }
+
 }

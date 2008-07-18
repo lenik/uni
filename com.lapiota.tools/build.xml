@@ -43,6 +43,7 @@
 				<fileset dir="${JAVA_LIB}">
 					<include name="${libbodz_bas}" />
 					<include name="${libdom4j}" />
+					<include name="${libgroovy}" />
 				</fileset>
 			</classpath>
 		</taskdef>

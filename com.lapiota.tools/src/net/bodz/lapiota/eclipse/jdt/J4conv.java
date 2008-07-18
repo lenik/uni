@@ -6,6 +6,7 @@ import static org.eclipse.jdt.core.dom.PrefixExpression.Operator.NOT;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
@@ -16,13 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.bodz.bas.cli.BatchProcessCLI;
+import net.bodz.bas.annotations.Doc;
+import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.Option;
 import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.RunInfo;
-import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.bas.cli.util.Version;
 import net.bodz.bas.dnb.JavaAnnotation;
 import net.bodz.bas.dnb.JavaEnum;
 import net.bodz.bas.io.Files;
@@ -30,7 +30,7 @@ import net.bodz.bas.lang.err.UnexpectedException;
 import net.bodz.bas.lang.util.Classpath;
 import net.bodz.bas.types.chained.CMap;
 import net.bodz.bas.types.util.Strings;
-import net.bodz.lapiota.util.Lapiota;
+import net.bodz.lapiota.util.BatchProcessCLI;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
@@ -98,7 +98,7 @@ import org.eclipse.text.edits.TextEdit;
 @Doc("Remove Java 5 Generics from the java source files")
 @Version( { 0, 1 })
 @RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
-@RunInfo(init = { Lapiota.class },
+@RunInfo(
 
 _load = { "findcp|eclipse*/plugins/org.eclipse.jdt.core_*",
         "findcp|eclipse*/plugins/org.eclipse.text_*", },
@@ -128,8 +128,8 @@ public class J4conv extends BatchProcessCLI {
     }
 
     @Override
-    protected int _cliflags() {
-        return super._cliflags() & ~CLI_AUTOSTDIN;
+    protected InputStream _getDefaultIn() {
+        return null;
     }
 
     // aliases
@@ -196,7 +196,7 @@ public class J4conv extends BatchProcessCLI {
         }
 
         Files.write(out, dst, outputEncoding);
-        return ProcessResult.autodiff();
+        return ProcessResult.compareAndSave();
     }
 
     class ASTFrameVisitor extends ASTVisitor2 {

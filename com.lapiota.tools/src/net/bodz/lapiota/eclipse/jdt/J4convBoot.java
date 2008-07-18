@@ -1,9 +1,9 @@
 package net.bodz.lapiota.eclipse.jdt;
 
-import net.bodz.bas.cli.BasicCLI;
 import net.bodz.bas.cli.RunInfo;
 import net.bodz.bas.cli._RunInfo;
 import net.bodz.lapiota.ant.tasks.ProgramName;
+import net.bodz.lapiota.util.BasicCLI;
 import net.bodz.lapiota.util.Lapiota;
 
 @ProgramName("j4conv")

@@ -14,11 +14,10 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.annotations.Doc;
+import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.Option;
-import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.bas.cli.util.Version;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.CharOuts;
 import net.bodz.bas.io.Files;
@@ -28,6 +27,7 @@ import net.bodz.bas.lang.util.Classpath;
 import net.bodz.bas.types.ValueChecks.FileAccess;
 import net.bodz.bas.types.ValueChecks.Regex;
 import net.bodz.bas.types.util.Strings;
+import net.bodz.lapiota.util.BasicCLI;
 
 @Doc("Generate class proxy/wrapper")
 @Version( { 0, 0 })

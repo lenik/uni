@@ -2,16 +2,16 @@ package net.bodz.lapiota.programs;
 
 import java.util.regex.Pattern;
 
-import net.bodz.bas.cli.BatchProcessCLI;
+import net.bodz.bas.annotations.Doc;
+import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.Option;
 import net.bodz.bas.cli.ProcessResult;
-import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.bas.cli.util.Version;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.lang.Filter;
 import net.bodz.bas.types.TypeParsers.ClassInstanceParser;
+import net.bodz.lapiota.util.BatchProcessCLI;
 
 @Doc("A Unix diff program implemented in Java")
 @Version( { 0, 1 })
@@ -68,7 +68,7 @@ public class Jrepl extends BatchProcessCLI {
             throws Throwable {
         for (String line : lines)
             out.println(filter.filter(line));
-        return ProcessResult.autodiff();
+        return ProcessResult.compareAndSave();
     }
 
     public static void main(String[] args) throws Throwable {

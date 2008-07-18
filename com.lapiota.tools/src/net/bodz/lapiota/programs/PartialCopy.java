@@ -6,16 +6,17 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
 
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.annotations.Doc;
+import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.Option;
-import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.bas.cli.util.Version;
 import net.bodz.bas.functors.lang.ControlBreak;
+import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.err.NotImplementedException;
 import net.bodz.lapiota.ant.tasks.ProgramName;
+import net.bodz.lapiota.util.BasicCLI;
 import net.bodz.lapiota.util.StringUtil;
 
 @Doc("Copy parts of file")
@@ -206,20 +207,19 @@ public class PartialCopy extends BasicCLI {
     }
 
     @Override
-    protected void _help() throws CLIException {
+    protected void _help(CharOut out) throws CLIException {
         try {
-            super._help();
+            super._help(out);
         } catch (ControlBreak b) {
-            System.err.println();
-            System.err.println("Format of EXP: ");
-            System.err.println("    INT             offset from the beginning");
-            System.err.println("   -INT             offset from the end");
-            System.err.println("   /REGEX[/FLAGS]   search regular expression");
-            System.err.println("  x/HEX/FLAGS       search binary");
-            System.err
-                    .println("       flag +/-NUM  extent to the start of match");
-            System.err.println("       flag i       case-insensitive");
-            System.err.println("    *               set to the default value");
+            out.println();
+            out.println("Format of EXP: ");
+            out.println("    INT             offset from the beginning");
+            out.println("   -INT             offset from the end");
+            out.println("   /REGEX[/FLAGS]   search regular expression");
+            out.println("  x/HEX/FLAGS       search binary");
+            out.println("       flag +/-NUM  extent to the start of match");
+            out.println("       flag i       case-insensitive");
+            out.println("    *               set to the default value");
             throw b;
         }
     }

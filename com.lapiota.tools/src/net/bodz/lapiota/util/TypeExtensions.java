@@ -1,10 +1,9 @@
 package net.bodz.lapiota.util;
 
 import java.io.File;
-import java.text.NumberFormat;
 
 import net.bodz.bas.lang.err.ParseException;
-import net.bodz.bas.types.TypeParser;
+import net.bodz.bas.types._TypeParser;
 import net.bodz.bas.types.TypeParsers.FileParser;
 import net.bodz.bas.types.util.Strings;
 
@@ -25,7 +24,7 @@ public class TypeExtensions {
 
     }
 
-    public static class XPathParser implements TypeParser<XPath> {
+    public static class XPathParser extends _TypeParser<XPath> {
 
         @Override
         public XPath parse(String xpath) throws ParseException {
@@ -35,7 +34,7 @@ public class TypeExtensions {
 
     }
 
-    public static class OutputFormatParser implements TypeParser<OutputFormat> {
+    public static class OutputFormatParser extends _TypeParser<OutputFormat> {
 
         @Override
         public OutputFormat parse(String fmt) throws ParseException {

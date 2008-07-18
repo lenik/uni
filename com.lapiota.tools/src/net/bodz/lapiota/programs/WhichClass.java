@@ -16,16 +16,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.annotations.Doc;
+import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.Option;
-import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.bas.cli.util.Version;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.io.FsWalk;
 import net.bodz.bas.lang.Caller;
 import net.bodz.bas.lang.util.Classpath;
 import net.bodz.bas.types.TypeParsers.ClassInstanceParser;
+import net.bodz.lapiota.util.BasicCLI;
 import net.bodz.lapiota.util.TypeExtensions.FileParser2;
 
 @Doc("Find the class file defined the specified class")

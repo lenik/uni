@@ -1,12 +1,13 @@
 package net.bodz.lapiota.programs;
 
 import java.io.File;
+import java.io.InputStream;
 
-import net.bodz.bas.cli.BatchProcessCLI;
+import net.bodz.bas.annotations.Doc;
+import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.ProcessResult;
-import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.bas.cli.util.Version;
+import net.bodz.lapiota.util.BatchProcessCLI;
 
 @Doc("A Unix diff program implemented in Java")
 @Version( { 0, 1 })
@@ -14,8 +15,8 @@ import net.bodz.bas.cli.util.Version;
 public class Jdir extends BatchProcessCLI {
 
     @Override
-    protected int _cliflags() {
-        return super._cliflags() & ~(CLI_AUTOSTDIN | CLI_BATCHEDIT);
+    protected InputStream _getDefaultIn() {
+        return null;
     }
 
     @Override

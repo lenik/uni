@@ -6,11 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
-import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
@@ -18,15 +16,19 @@ import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.bodz.bas.cli.BatchProcessCLI;
+import net.bodz.bas.annotations.Doc;
+import net.bodz.bas.annotations.Version;
+import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.Option;
 import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.RunInfo;
-import net.bodz.bas.cli.util.Doc;
+import net.bodz.bas.cli.ext.CLIPlugin;
+import net.bodz.bas.cli.ext._CLIPlugin;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.bas.cli.util.Version;
 import net.bodz.bas.io.Files;
+import net.bodz.bas.lang.err.ParseException;
 import net.bodz.lapiota.ant.tasks.ProgramName;
+import net.bodz.lapiota.util.BatchProcessCLI;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
 
 import org.dom4j.Document;
@@ -47,35 +49,32 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
     @Option(alias = "F", vnam = "pretty|compact", parser = OutputFormatParser.class)
     protected OutputFormat outputFormat = new OutputFormat();
 
-    @Option(alias = "a", vnam = "ACTION:PARAM[,...]", doc = "add an action")
-    protected void action(String actexp) {
-        int paramoff = actexp.indexOf('=');
-        String act = actexp;
-        String[] params = {};
-        if (paramoff != -1) {
-            act = actexp.substring(0, paramoff);
-            actexp = actexp.substring(paramoff + 1);
-            params = actexp.split(",");
-        }
-        Handler handler = newHandler(act, params);
-        L.x.P("handler of ", act, ": ", handler);
-        actions.add(handler);
+    private List<Action>   actions      = new ArrayList<Action>();
+
+    @Option(alias = "a", vnam = "ACTION=PARAM[,...]", doc = "add an action")
+    protected void action(Action action) throws CLIException {
+        L.x.P("action: ", action);
+        actions.add(action);
     }
 
-    private List<Handler> actions;
-
     public PackageFragmentsProcess() {
-        actions = new ArrayList<Handler>();
+        plugins.registerPluginType("action", Action.class);
+        plugins.register("test", TestHandler.class, this);
+        plugins.register("cat", Cat.class, this);
+        // actionPoint.register("mani", ManiCat.class, this);
+        plugins.register("pointref", PointRef.class, this);
+        plugins.register("grep", Grep.class, this);
     }
 
     @Override
     protected ProcessResult process(File in) throws Throwable {
         if (in.isDirectory()) { // dir
-            for (Handler act : actions) {
+            for (Action act : actions) {
                 act.handle(in);
             }
+            return ProcessResult.pass("dir");
         } else { // .jar
-            for (Handler act : actions) {
+            for (Action act : actions) {
                 JarFile jar;
                 try {
                     jar = new JarFile(in);
@@ -84,53 +83,20 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
                 }
                 act.handle(jar);
             }
+            return ProcessResult.pass("jar");
         }
-        return ProcessResult.unchanged();
     }
 
     @Override
-    protected int _cliflags() {
-        return super._cliflags() & ~CLI_AUTOSTDIN;
+    protected InputStream _getDefaultIn() {
+        return null;
     }
 
     public static void main(String[] args) throws Throwable {
         new PackageFragmentsProcess().climain(args);
     }
 
-    static Map<String, Class<? extends Handler>> handlerTypes;
-    static {
-        handlerTypes = new HashMap<String, Class<? extends Handler>>();
-    }
-
-    static void register(String name, Class<? extends Handler> clazz) {
-        handlerTypes.put(name, clazz);
-    }
-
-    Handler newHandler(String name, String[] parameters) {
-        Class<? extends Handler> clazz = handlerTypes.get(name);
-        Handler handler;
-        if (clazz == null)
-            throw new IllegalArgumentException("invalid handler: " + name);
-        try {
-            if (clazz.isMemberClass()) {
-                L.x.P("create member class: " + clazz);
-                Constructor<? extends Handler> ctor = clazz
-                        .getDeclaredConstructor(getClass());
-                handler = ctor.newInstance(this);
-            } else {
-                L.x.P("create class: " + clazz);
-                handler = clazz.newInstance();
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-        handler.setParameters(parameters);
-        return handler;
-    }
-
-    interface Handler {
-
-        void setParameters(String[] parameters);
+    static interface Action extends CLIPlugin {
 
         void handle(File dir) throws Throwable;
 
@@ -138,16 +104,15 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
 
     }
 
-    abstract class _Handler implements Handler {
-
-        protected String[] parameters;
-
-        @Override
-        public void setParameters(String[] parameters) {
-            this.parameters = parameters;
-        }
+    abstract class _Action extends _CLIPlugin implements Action {
 
         protected abstract String getPath();
+
+        @Override
+        public void setParameters(Map<String, String> parameters)
+                throws CLIException, ParseException {
+            super.setParameters(parameters);
+        }
 
         protected boolean handleNull() {
             return false;
@@ -210,13 +175,20 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
 
     }
 
-    class TestHandler extends _Handler {
+    class TestHandler extends _Action {
+
+        private String path;
+
+        public TestHandler(String[] args) {
+            if (args.length == 0)
+                path = ".";
+            else
+                path = args[0];
+        }
 
         @Override
         public String getPath() {
-            if (parameters.length == 0)
-                return ".";
-            return parameters[0];
+            return path;
         }
 
         @Override
@@ -240,12 +212,20 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
 
     static String MANIFEST = "META-INF/MANIFEST.MF";
 
-    class Cat extends _Handler {
+    class Cat extends _Action {
+
+        private String path;
+
+        public Cat(String[] args) {
+            if (args.length == 0)
+                path = MANIFEST;
+            else
+                path = args[0];
+        }
+
         @Override
         public String getPath() {
-            if (parameters.length > 0)
-                return parameters[0];
-            return MANIFEST;
+            return path;
         }
 
         @Override
@@ -257,29 +237,39 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
 
     }
 
-    class Grep extends _Handler {
+    class Grep extends _Action {
 
-        Pattern pattern;
-        boolean trim;
+        private String  path;
+        private Pattern pattern;
 
-        @Override
-        public void setParameters(String[] parameters) {
-            if (parameters.length < 1)
+        @Option(doc = "trim the output lines")
+        private boolean trim;
+
+        public Grep(String[] args) {
+            if (args.length < 1)
                 throw new IllegalArgumentException(
                         "Grep(REGEXP, [FILE=plugin.xml])");
-            super.setParameters(parameters);
+
             int flags = 0;
             if (ignoreCase)
                 flags |= Pattern.CASE_INSENSITIVE;
-            pattern = Pattern.compile(parameters[0], flags);
-            trim = vars.getBoolean("trim");
+            pattern = Pattern.compile(args[0], flags);
+
+            if (args.length == 1)
+                path = "plugin.xml";
+            else
+                path = args[1];
+        }
+
+        @Override
+        public void setParameters(Map<String, String> arg0)
+                throws CLIException, ParseException {
+            super.setParameters(arg0);
         }
 
         @Override
         protected String getPath() {
-            if (parameters.length >= 2)
-                return parameters[1];
-            return "plugin.xml";
+            return path;
         }
 
         @Override
@@ -305,10 +295,24 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
 
     }
 
-    abstract class XpathSearch<Ct> extends _Handler {
+    abstract class XpathSearch<Ct> extends _Action {
 
-        protected String critarg;
-        protected Ct     criteria;
+        private String path;
+        private String critarg;
+        private Ct     criteria;
+
+        public XpathSearch(String[] args) {
+            if (args.length < 1)
+                throw new IllegalArgumentException(getClass().getSimpleName()
+                        + "(" + getCriteriaVnam() + ", [XML="
+                        + getDefaultName() + "])");
+            criteria = parseCriteria(critarg = args[0]);
+
+            if (args.length == 1)
+                path = getDefaultName();
+            else
+                path = args[1];
+        }
 
         protected abstract Ct parseCriteria(String criteria);
 
@@ -325,20 +329,8 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
         protected abstract String getShortText(Node node);
 
         @Override
-        public void setParameters(String[] parameters) {
-            if (parameters.length < 1)
-                throw new IllegalArgumentException(getClass().getSimpleName()
-                        + "(" + getCriteriaVnam() + ", [XML="
-                        + getDefaultName() + "])");
-            super.setParameters(parameters);
-            criteria = parseCriteria(critarg = parameters[0]);
-        }
-
-        @Override
         public String getPath() {
-            if (parameters.length >= 2)
-                return parameters[1];
-            return getDefaultName();
+            return path;
         }
 
         @Override
@@ -373,6 +365,10 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
 
     class PointRef extends XpathSearch<String> {
 
+        public PointRef(String[] args) {
+            super(args);
+        }
+
         @Override
         protected String parseCriteria(String criteria) {
             return "//extension[@point=\"" + criteria + "\"]";
@@ -391,14 +387,6 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
             return elm.attribute("id").getText();
         }
 
-    }
-
-    static {
-        register("test", TestHandler.class);
-        register("cat", Cat.class);
-        // register("mani", ManiCat.class);
-        register("pointref", PointRef.class);
-        register("grep", Grep.class);
     }
 
 }

@@ -3,11 +3,10 @@ package net.bodz.lapiota.programs;
 import java.io.File;
 import java.util.List;
 
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.annotations.Doc;
+import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.Option;
-import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.bas.cli.util.Version;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.CharOuts;
 import net.bodz.bas.io.Files;
@@ -16,6 +15,7 @@ import net.bodz.bas.types.diff.DiffComparators;
 import net.bodz.bas.types.diff.DiffFormat;
 import net.bodz.bas.types.diff.DiffFormats;
 import net.bodz.bas.types.diff.DiffInfo;
+import net.bodz.lapiota.util.BasicCLI;
 
 @Doc("A Unix diff program implemented in Java")
 @Version( { 0, 1 })

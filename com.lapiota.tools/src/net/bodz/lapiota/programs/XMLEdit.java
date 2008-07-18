@@ -11,21 +11,22 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.annotations.Doc;
+import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.Option;
 import net.bodz.bas.cli.RunInfo;
-import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.bas.cli.util.Version;
 import net.bodz.bas.functors.lang.ControlBreak;
-import net.bodz.bas.io.CharOuts;
+import net.bodz.bas.io.CharOut;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.lang.err.UnexpectedException;
 import net.bodz.bas.types.Pair;
 import net.bodz.bas.types.TypeParser;
 import net.bodz.bas.types.TypeParsers;
+import net.bodz.bas.types._TypeParser;
 import net.bodz.bas.types.util.Comparators;
+import net.bodz.lapiota.util.BasicCLI;
 import net.bodz.lapiota.util.StringUtil;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
 
@@ -74,7 +75,7 @@ public class XMLEdit extends BasicCLI {
     public XMLEdit() {
         docfac = DocumentFactory.getInstance();
 
-        xpathParser = new TypeParser<XPath>() {
+        xpathParser = new _TypeParser<XPath>() {
             @Override
             public XPath parse(String xpath) throws ParseException {
                 xpath = StringUtil.unescape(escaping, xpath);
@@ -321,12 +322,12 @@ public class XMLEdit extends BasicCLI {
     }
 
     @Override
-    protected void _help() throws CLIException {
+    protected void _help(CharOut out) throws CLIException {
         try {
-            super._help();
+            super._help(out);
         } catch (ControlBreak b) {
-            System.err.println();
-            StringUtil.helpEscapes(CharOuts.stderr);
+            out.println();
+            StringUtil.helpEscapes(out);
             throw b;
         }
     }

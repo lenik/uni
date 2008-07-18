@@ -1,9 +1,9 @@
 package net.bodz.lapiota.snmc;
 
-import net.bodz.bas.cli.BasicCLI;
-import net.bodz.bas.cli.util.Doc;
+import net.bodz.bas.annotations.Doc;
+import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.bas.cli.util.Version;
+import net.bodz.lapiota.util.BasicCLI;
 
 /**
  * s.n.m. C-framework Console

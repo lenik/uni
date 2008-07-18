@@ -5,13 +5,13 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.annotations.Doc;
+import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.Option;
 import net.bodz.bas.cli.RunInfo;
-import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.bas.cli.util.Version;
 import net.bodz.lapiota.ant.tasks.ProgramName;
+import net.bodz.lapiota.util.BasicCLI;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
 import net.bodz.lapiota.util.TypeExtensions.XPathParser;
 

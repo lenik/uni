@@ -9,17 +9,17 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.bodz.bas.annotations.Doc;
+import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.CLIException;
-import net.bodz.bas.cli.BasicCLI;
 import net.bodz.bas.cli.Option;
 import net.bodz.bas.cli.RunInfo;
-import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.bas.cli.util.Version;
 import net.bodz.bas.functors.lang.ControlBreak;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.CharOuts;
 import net.bodz.bas.types.util.Comparators;
+import net.bodz.lapiota.util.BasicCLI;
 import net.bodz.lapiota.util.StringUtil;
 import net.bodz.lapiota.util.TypeExtensions.XPathParser;
 
@@ -171,12 +171,12 @@ public class XMLFlat extends BasicCLI {
     }
 
     @Override
-    protected void _help() throws CLIException {
+    protected void _help(CharOut out) throws CLIException {
         try {
-            super._help();
+            super._help(out);
         } catch (ControlBreak b) {
-            System.err.println();
-            StringUtil.helpEscapes(CharOuts.stderr);
+            out.println();
+            StringUtil.helpEscapes(out);
             throw b;
         }
     }

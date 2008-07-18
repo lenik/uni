@@ -6,18 +6,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.annotations.Doc;
+import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.Option;
 import net.bodz.bas.cli.RunInfo;
-import net.bodz.bas.cli.util.Doc;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.bas.cli.util.Version;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.CharOuts;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.types.util.Strings;
 import net.bodz.bas.types.util.Types;
-import net.bodz.lapiota.util.Lapiota;
+import net.bodz.lapiota.util.BasicCLI;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -29,7 +28,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 @Doc("ASTDump description")
 @Version( { 0, 0 })
 @RcsKeywords(id = "$Id: ASTDump.java 0 2008-6-27 下午08:01:10 lenik $")
-@RunInfo(init = { Lapiota.class },
+@RunInfo(
 
 _load = { "findcp|eclipse*/plugins/org.eclipse.jdt.core_*" },
 
