@@ -10,7 +10,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
@@ -26,7 +25,6 @@ import net.bodz.bas.cli.ext.CLIPlugin;
 import net.bodz.bas.cli.ext._CLIPlugin;
 import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.io.Files;
-import net.bodz.bas.lang.err.ParseException;
 import net.bodz.lapiota.ant.tasks.ProgramName;
 import net.bodz.lapiota.util.BatchProcessCLI;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
@@ -108,12 +106,6 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
 
         protected abstract String getPath();
 
-        @Override
-        public void setParameters(Map<String, String> parameters)
-                throws CLIException, ParseException {
-            super.setParameters(parameters);
-        }
-
         protected boolean handleNull() {
             return false;
         }
@@ -179,6 +171,9 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
 
         private String path;
 
+        public TestHandler() {
+        }
+
         public TestHandler(String[] args) {
             if (args.length == 0)
                 path = ".";
@@ -212,9 +207,13 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
 
     static String MANIFEST = "META-INF/MANIFEST.MF";
 
+    @Doc("=[FILE] dump specified file")
     class Cat extends _Action {
 
         private String path;
+
+        public Cat() {
+        }
 
         public Cat(String[] args) {
             if (args.length == 0)
@@ -234,9 +233,9 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
             System.out.println(content);
             System.out.println();
         }
-
     }
 
+    @Doc("=PATTERN[,FILE], search by regexp")
     class Grep extends _Action {
 
         private String  path;
@@ -244,6 +243,9 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
 
         @Option(doc = "trim the output lines")
         private boolean trim;
+
+        public Grep() {
+        }
 
         public Grep(String[] args) {
             if (args.length < 1)
@@ -259,12 +261,6 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
                 path = "plugin.xml";
             else
                 path = args[1];
-        }
-
-        @Override
-        public void setParameters(Map<String, String> arg0)
-                throws CLIException, ParseException {
-            super.setParameters(arg0);
         }
 
         @Override
@@ -292,7 +288,6 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
             }
             in.close();
         }
-
     }
 
     abstract class XpathSearch<Ct> extends _Action {
@@ -300,6 +295,9 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
         private String path;
         private String critarg;
         private Ct     criteria;
+
+        public XpathSearch() {
+        }
 
         public XpathSearch(String[] args) {
             if (args.length < 1)
@@ -360,10 +358,13 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
                 }
             }
         }
-
     }
 
+    @Doc("=extension-point[,XML], dump plugin extension of specified point")
     class PointRef extends XpathSearch<String> {
+
+        public PointRef() {
+        }
 
         public PointRef(String[] args) {
             super(args);
@@ -386,7 +387,6 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
             Element elm = (Element) node;
             return elm.attribute("id").getText();
         }
-
     }
 
 }
