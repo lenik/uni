@@ -25,8 +25,8 @@ import net.bodz.bas.cli.ext.CLIPlugin;
 import net.bodz.bas.cli.ext._CLIPlugin;
 import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.io.Files;
-import net.bodz.lapiota.ant.tasks.ProgramName;
 import net.bodz.lapiota.util.BatchProcessCLI;
+import net.bodz.lapiota.util.ProgramName;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
 
 import org.dom4j.Document;

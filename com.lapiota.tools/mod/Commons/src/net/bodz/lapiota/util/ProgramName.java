@@ -1,4 +1,4 @@
-package net.bodz.lapiota.ant.tasks;
+package net.bodz.lapiota.util;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -15,8 +15,8 @@ import net.bodz.bas.functors.lang.ControlBreak;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.err.NotImplementedException;
-import net.bodz.lapiota.ant.tasks.ProgramName;
 import net.bodz.lapiota.util.BasicCLI;
+import net.bodz.lapiota.util.ProgramName;
 import net.bodz.lapiota.util.StringUtil;
 
 @Doc("Copy parts of file")

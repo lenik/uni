@@ -17,6 +17,7 @@ import net.bodz.bas.lang.Caller;
 import net.bodz.bas.lang.err.IdentifiedException;
 import net.bodz.bas.types.util.Annotations;
 import net.bodz.bas.types.util.Types;
+import net.bodz.lapiota.util.ProgramName;
 import net.bodz.lapiota.util.Template;
 
 import org.apache.tools.ant.BuildException;

@@ -24,21 +24,35 @@
 		</copy>
 	</target>
 
+	<path id="bins">
+		<dirset dir="mod/Build Tools/bin" />
+		<dirset dir="mod/CLI Utilities/bin" />
+		<dirset dir="mod/Commons/bin" />
+		<dirset dir="mod/Java Tools/bin" />
+		<dirset dir="mod/SNM C Framework/bin" />
+	</path>
+
 	<target name=":bin.jar">
 		<jar destfile="build/net.bodz.lapiota.jar">
-			<fileset dir="bin" />
+			<fileset dir="mod/CLI Utilities/bin" />
+			<fileset dir="mod/Commons/bin" />
+			<fileset dir="mod/Java Tools/bin" />
+			<fileset dir="mod/SNM C Framework/bin" />
 		</jar>
 	</target>
 
 	<target name=":src.jar">
 		<jar destfile="build/net.bodz.lapiota-source.jar">
-			<fileset dir="src" />
+			<fileset dir="mod/CLI Utilities/src" />
+			<fileset dir="mod/Commons/src" />
+			<fileset dir="mod/Java Tools/src" />
+			<fileset dir="mod/SNM C Framework/src" />
 		</jar>
 	</target>
 
 	<target name=":bat">
 		<taskdef name="mkbat" classname="net.bodz.lapiota.ant.tasks.GenerateBatches">
-			<classpath path="bin" />
+			<classpath refid="bins" />
 			<classpath>
 				<fileset dir="${JAVA_LIB}">
 					<include name="${libbodz_bas}" />
@@ -48,7 +62,9 @@
 			</classpath>
 		</taskdef>
 
-		<mkbat srcdir="bin" batdir="${batdir}" charset="utf-8" loglevel="1" />
+		<mkbat srcdir="mod/CLI Utilities/bin" batdir="${batdir}" charset="utf-8" loglevel="1" />
+		<mkbat srcdir="mod/Java Tools/bin" batdir="${batdir}" charset="utf-8" loglevel="1" />
+		<mkbat srcdir="mod/SNM C Framework/bin" batdir="${batdir}" charset="utf-8" loglevel="1" />
 	</target>
 
 </project>

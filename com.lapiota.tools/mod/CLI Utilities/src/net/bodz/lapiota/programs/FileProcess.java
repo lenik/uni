@@ -27,8 +27,8 @@ import net.bodz.bas.lang.ref.SimpleRef;
 import net.bodz.bas.lang.script.ScriptException;
 import net.bodz.bas.text.interp.VariableExpand;
 import net.bodz.bas.types.util.PatternProcessor;
-import net.bodz.lapiota.ant.tasks.ProgramName;
 import net.bodz.lapiota.util.BatchProcessCLI;
+import net.bodz.lapiota.util.ProgramName;
 import net.bodz.lapiota.util.RefBinding;
 
 @Doc("An extensible file process program")
