@@ -2,6 +2,8 @@
 
 ethereal
 ettercap
+groovy          bin/groovy  .bat
+# groovy          bin/groovyConsole .bat
 hugs
 mencoder
 nlite

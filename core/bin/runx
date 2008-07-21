@@ -1,36 +1,25 @@
-@rem = '
-    @echo off
-
-        if not "%OS%"=="Windows_NT" goto err_os
-
-        perl %~dpnx0 %*
-        goto end
-
-    :err_os
-	echo You must run this program under Windows NT/2000 or above.
-	goto end
-    ';
-
 #!/usr/bin/perl
 
+=head1 NAME
+
+runx - Interpreter of .x file
+
+=cut
 use strict;
-use cmt::path;
-use cmt::util;
-use cmt::vcs;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'runx'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::path('path_split', 'path_splitext', 'path_join');
+use cmt::util('qsplit');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
 use IPC::Open2;
 
-sub _boot;
-sub main;
-sub info;
-sub info2;
-sub version;
-sub help;
+sub _main; sub _version; sub _help;
+
 sub mk_cmdline;
 
-our $opt_verbtitle      = 'runx';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
 our $opt_path_find      = 0;
 our $opt_kill_header    = 0;
 
@@ -51,21 +40,26 @@ sub _boot {
         "\t" => "\\t",
         "\"" => "\\\"",
         "\'" => "\\\'",
+        "|"  => "\\|",      # pipe
+        "<"  => "\\<",      # redirect
+        ">"  => "\\>",      # redirect
         );
     for my $i (0..31) {
         $opt_escapes{chr($i)} ||= '\x'.substr('00'.$i, -2);
     }
 
-    for my $i (0..$#ARGV) {
+    for (my $i = 0; $i <= $#ARGV; $i++) {
+        # next unless defined $ARGV[$i]; # ??
         if ($ARGV[$i] eq '--') {
             @opt_args = splice(@ARGV, $i + 1);
             pop @ARGV;
         }
     }
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help|h'     => sub { help; exit },
+
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
                'path-find',
                'kill-header',
                );
@@ -86,56 +80,97 @@ sub _boot {
         }
     }
 
-    info2 "program       = $opt_program";
-    info2 "arguments     = ".join(',', @opt_args);
+    _log2 "program       = $opt_program";
+    _log2 "arguments     = ".join(',', @opt_args);
 
-    main;
+    _main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+B<runx>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub version {
-    my %id = parse_id('$Id$');
-    print "[$opt_verbtitle] Run .x file \n";
-    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-}
+=head1 DESCRIPTION
 
-sub help {
-    version;
-    print <<"EOM";
+B<runx> is a WHAT used for WHAT. It HOW-WORKS.
 
-Syntax:
-        $0 <options> [--] command [arguments...]
+BACKGROUND-PROBLEM.
 
-Options:
-        --path-find (p, find command in PATH and PATHEXT)
-        --kill-header (k, remove #! headers, this will create a tmp file
-                          for GET method)
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
-        --version
-        --help (h)
+HOW-runx-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item Show help
+
+    runx --help
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] COMMAND [ARGUMENTS]\n", <<'EOM';
+
+Common options:
+    -p, --path-find         find command in PATH and PATHEXT
+    -k, --kill-header       remove #! headers
+                              this will create a tmp file for GET method
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
 EOM
 }
 
 exit (_boot or 0);
 
-sub main {
-
+sub _main {
   # Parse headers and guess method
-
     open PF, "<$opt_program"
         or die("Can't open program $opt_program: $!");
     my $header;
@@ -157,10 +192,9 @@ sub main {
         $appear = 1;
     }
 
-    info2 "method        = $opt_method";
+    _log2 "method        = $opt_method";
 
   # Prepare tmp file
-
     my $runtmp = $opt_kill_header && $opt_method eq 'GET';
     my $runpath= $opt_program;
     if ($runtmp) {
@@ -172,7 +206,7 @@ sub main {
         print TF while (<PF>);
         close TF;
         at_exit {
-            info2 "remove tmp file $runpath";
+            _log2 "remove tmp file $runpath";
             unlink $runpath;
         }
     }
@@ -183,7 +217,6 @@ sub main {
     close PF;
 
   # Preprocess shell arguments
-
     for my $i (0..$#sh_args) {
         $_ = $sh_args[$i];
         if (/\?$/) {
@@ -208,17 +241,17 @@ sub main {
         }
     }
 
-    info2 "sh-command    = $sh_cmd";
-    info2 "sh-arguments  = ".join(',', @sh_args);
+    _log2 "sh-command    = $sh_cmd";
+    _log2 "sh-arguments  = ".join(',', @sh_args);
 
   # Invoking shell
-
     my $ret;
     my @args = ($sh_cmd, @sh_args, @opt_args);
     my $cmdline = mk_cmdline @args;
+    _log2 "sh-commandline= $cmdline";
 
     if ($opt_method eq 'GET') {
-        info2 "system: $cmdline";
+        _log2 "system: $cmdline";
         $ret = system(@args);
     } elsif ($opt_method eq 'POST') {
         open PF, "<$runpath"
@@ -226,12 +259,12 @@ sub main {
 
         # my $pid = open2(\*RDOUT, \*WRIN, @args)
         #     or die("Can't open command for piping: $!");
-        info2 "Open command for piping: $cmdline";
+        _log2 "Open command for piping: $cmdline";
         open PROC, "|$cmdline"
             or die("Can't open command for piping: $!");
         while (<PF>) {
             next if $opt_kill_header && /^#!/;
-            info2 "POST: $_";
+            _log2 "POST: $_";
             print PROC;
         }
 
@@ -243,11 +276,17 @@ sub main {
     return $ret;
 }
 
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
 sub mk_cmdline {
     my $line;
     for (@_) {
-        if (/[\x01-\x20]|\s/) {
-            s/([\x01-\x1F"'\\])/$opt_escapes{$1}/g;
+        if (/[\x01-\x20|<>]|\s/) {
+            s/([\x01-\x1F"'|<>\\])/$opt_escapes{$1}/g;
         }
         $line .= $_ . ' ';
     }
@@ -255,5 +294,35 @@ sub mk_cmdline {
     return $line;
 }
 
-__END__
-:end
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Interpreter of .x file \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
