@@ -3,6 +3,7 @@ package net.bodz.lapiota.programs;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -11,6 +12,7 @@ import net.bodz.bas.annotations.Doc;
 import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.Option;
+import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.RunInfo;
 import net.bodz.bas.cli.ext.CLIPlugin;
 import net.bodz.bas.cli.ext._CLIPlugin;
@@ -23,22 +25,23 @@ import net.bodz.lapiota.annotations.ProgramName;
 import net.bodz.lapiota.util.GroovyExpand;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
+import org.codehaus.groovy.control.CompilationFailedException;
+
 @Doc("General template processing")
 @Version( { 0, 1 })
 @RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
 @RunInfo(lib = "groovy")
-@ProgramName("jtem")
+@ProgramName("jsub")
 public class TemplateProcess extends BatchProcessCLI {
 
     @Option(alias = "S", vnam = "MODEL=PARAM...", doc = "source parsing model")
-    protected SourceModel   sourceModel;
+    SourceModel   sourceModel;
 
     @Option(alias = "M", vnam = "MODEL=PARAM...", doc = "template processing model")
-    protected TemplateModel templateModel;
+    TemplateModel templateModel;
 
-    public static void main(String[] args) throws Throwable {
-        new TemplateProcess().climain(args);
-    }
+    @Option(alias = "x", vnam = "EXT", doc = "add extension to file names")
+    String        extension;
 
     public TemplateProcess() {
         plugins.registerPluginType("source model", SourceModel.class);
@@ -47,6 +50,40 @@ public class TemplateProcess extends BatchProcessCLI {
         plugins.registerPluginType("template model", TemplateModel.class);
         plugins.register("ve", VariableExpandTemplate.class, this);
         plugins.register("gsp", GroovyTemplate.class, this);
+    }
+
+    @Override
+    protected InputStream _getDefaultIn() {
+        return null;
+    }
+
+    @Override
+    protected ProcessResult doFile(File file, File editTmp) throws Throwable {
+        sourceModel.reset(file);
+        while (sourceModel.next()) {
+            Object context = sourceModel.getContext();
+            String destFile = sourceModel.getDestFile();
+            if (extension != null)
+                destFile += extension;
+
+            L.m.P("file ", destFile);
+            String contents = templateModel.expand(context);
+
+            File defaultStart = file.getAbsoluteFile().getParentFile();
+
+            File dst = getOutputFile(destFile, defaultStart);
+            Files.write(editTmp, contents, outputEncoding);
+
+            ProcessResult result = ProcessResult.compareAndSave();
+            result = applyResult(dst, dst, editTmp, result);
+
+            stat.add(result);
+        }
+        return null;
+    }
+
+    public static void main(String[] args) throws Throwable {
+        new TemplateProcess().climain(args);
     }
 
     // Plugin Interfaces
@@ -87,17 +124,19 @@ public class TemplateProcess extends BatchProcessCLI {
         BufferedReader      lineIn;
         String              lastFile;
         String              file;
-        Map<String, String> properties;
+        Map<String, String> variables;
 
         public VariableDefSource() {
-            properties = new HashMap<String, String>();
         }
 
         @Override
         public void reset(File sourceFile) throws IOException {
             lineIn = Files.getBufferedReader(sourceFile);
             // file = Files.getName(sourceFile); // out=file + tmplExt
-            properties.clear();
+            if (variables == null)
+                variables = new HashMap<String, String>();
+            else
+                variables.clear();
         }
 
         @Override
@@ -127,7 +166,7 @@ public class TemplateProcess extends BatchProcessCLI {
                         return true;
                     continue;
                 }
-                properties.put(name, value);
+                variables.put(name, value);
             }
             return setNextFile(null);
         }
@@ -140,7 +179,7 @@ public class TemplateProcess extends BatchProcessCLI {
 
         @Override
         public Object getContext() {
-            return properties;
+            return variables;
         }
 
         @Override
@@ -165,18 +204,22 @@ public class TemplateProcess extends BatchProcessCLI {
         @Option(doc = "the field names in CSV file when specified")
         String[]            names;
 
+        @Option(doc = "using this field as file name, default `file'")
+        String              fileField   = "file";
+
         @Option(doc = "trim field values, default true")
         boolean             trim        = true;
 
         BufferedReader      lineIn;
-        String              file;
-        Map<String, String> properties;
+        Map<String, String> variables;
 
         @Override
         public void reset(File sourceFile) throws Exception {
             lineIn = Files.getBufferedReader(sourceFile);
-            file = Files.getName(sourceFile); // out=file + tmplExt
-            properties.clear();
+            if (variables == null)
+                variables = new HashMap<String, String>();
+            else
+                variables.clear();
         }
 
         @Override
@@ -201,34 +244,38 @@ public class TemplateProcess extends BatchProcessCLI {
                 String[] parts = quot.split(_delim, line, limit);
                 if (names == null) {
                     names = parts;
+                    for (int i = 0; i < names.length; i++)
+                        names[i] = names[i].trim();
                     continue;
                 }
-                properties.clear();
+                variables.clear();
                 assert parts.length <= names.length;
                 for (int i = 0; i < parts.length; i++) {
-                    String name = names[i];
+                    String name = names[i].trim();
                     String value = parts[i];
                     if (trim)
                         value = value.trim();
-                    properties.put(name, value);
+                    variables.put(name, value);
                 }
-                break;
+                return true;
             }
             return false;
         }
 
         @Override
         public Object getContext() {
-            return properties;
+            return variables;
         }
 
         @Override
         public String getDestFile() {
-            return file;
+            if (variables == null)
+                return null;
+            return variables.get(fileField);
         }
     }
 
-    @Doc("Simple $variable expand")
+    @Doc("=template-file Simple $variable expand")
     class VariableExpandTemplate extends _TemplateModel {
 
         @Option(doc = "expand environment variable")
@@ -262,11 +309,14 @@ public class TemplateProcess extends BatchProcessCLI {
         }
     }
 
-    @Doc("Simple GSP (groovy server pages) expand")
+    @Doc("=template.gsp Simple GSP (groovy server pages) expand")
     class GroovyTemplate extends _TemplateModel {
 
         @Option(doc = "expand environment variable")
         boolean          env;
+
+        @Option(doc = "variables must be defined")
+        boolean          strict;
 
         // @Option(alias = "t", vnam = "FILE", doc =
         // "template filename, used by specific template models")
@@ -288,11 +338,25 @@ public class TemplateProcess extends BatchProcessCLI {
                     throw new CLIException("template file isn't specified");
                 template = Files.readAll(templateFile, inputEncoding);
             }
-            Map<String, Object> vars = (Map<String, Object>) context;
+            Map<String, Object> _vars = (Map<String, Object>) context;
             if (env)
-                vars.putAll(System.getenv());
-            GroovyExpand ve = new GroovyExpand(vars);
-            return ve.process(template);
+                _vars.putAll(System.getenv());
+            GroovyExpand ve = new GroovyExpand(_vars) {
+                @Override
+                protected Object get(String name) {
+                    if (strict)
+                        return super.get(name);
+                    // if variable doesn't exist, then implied a null variable.
+                    return vars.get(name);
+                }
+            };
+            try {
+                return ve.compileAndEvaluate(template);
+            } catch (CompilationFailedException e) {
+                String script = ve.getCompiledScript();
+                throw new Error(e.getMessage() + "\nCompiled Script: \n"
+                        + script, e);
+            }
         }
     }
 

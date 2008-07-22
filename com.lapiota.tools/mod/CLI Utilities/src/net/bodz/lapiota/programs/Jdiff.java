@@ -10,11 +10,11 @@ import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.CharOuts;
 import net.bodz.bas.io.Files;
-import net.bodz.bas.types.diff.DiffComparator;
-import net.bodz.bas.types.diff.DiffComparators;
-import net.bodz.bas.types.diff.DiffFormat;
-import net.bodz.bas.types.diff.DiffFormats;
-import net.bodz.bas.types.diff.DiffInfo;
+import net.bodz.bas.text.diff.DiffComparator;
+import net.bodz.bas.text.diff.DiffComparators;
+import net.bodz.bas.text.diff.DiffFormat;
+import net.bodz.bas.text.diff.DiffFormats;
+import net.bodz.bas.text.diff.DiffInfo;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("A Unix diff program implemented in Java")

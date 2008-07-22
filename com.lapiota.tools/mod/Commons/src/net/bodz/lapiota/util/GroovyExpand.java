@@ -2,6 +2,7 @@ package net.bodz.lapiota.util;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import groovy.lang.MissingPropertyException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,26 +12,58 @@ import net.bodz.bas.io.CharOuts;
 import net.bodz.bas.io.CharOuts.Buffer;
 import net.bodz.bas.lang.err.NotImplementedException;
 import net.bodz.bas.text.interp.PatternProcessor;
+import net.bodz.bas.types.util.Strings;
+
+import org.codehaus.groovy.control.CompilationFailedException;
 
 public class GroovyExpand extends PatternProcessor {
 
-    private static Pattern gspTag;
+    private static Pattern        gspTag;
     static {
-        gspTag = Pattern.compile("<%(//.*?\n | /\\*.*?\\*/ | .)*?%>",
+        gspTag = Pattern.compile("<%((?://.*?\n | /\\*.*?\\*/ | .)*?)%>",
                 Pattern.DOTALL | Pattern.COMMENTS);
     }
 
-    private GroovyShell    shell;
-    private Binding        binding;
+    private GroovyShell           shell;
+    private Binding               binding;
+    protected Map<String, Object> vars;
+    private String                script;
 
     public GroovyExpand() {
         super(gspTag);
     }
 
-    public GroovyExpand(Map<String, ?> map) {
+    public GroovyExpand(Map<String, ?> variables) {
         super(gspTag);
-        Map<String, Object> mapCopy = new HashMap<String, Object>(map);
-        this.binding = new Binding(mapCopy);
+        this.vars = new HashMap<String, Object>(variables);
+        this.binding = new Binding() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public Map getVariables() {
+                return vars;
+            }
+
+            @Override
+            public Object getVariable(String name) {
+                return get(name);
+            }
+
+            @Override
+            public void setVariable(String name, Object value) {
+                set(name, value);
+            }
+        };
+    }
+
+    protected Object get(String name) {
+        Object value = vars.get(name);
+        if (value == null && !vars.containsKey(name))
+            throw new MissingPropertyException(name, Binding.class);
+        return value;
+    }
+
+    public void set(String name, Object value) {
+        vars.put(name, value);
     }
 
     @Override
@@ -46,11 +79,11 @@ public class GroovyExpand extends PatternProcessor {
             println(decl);
             break;
         case '=':
-            String exp = t.substring(1);
-            println("out.print(" + exp + ")");
+            String exp = t.substring(1).trim();
+            println("out.print(" + exp + ");");
             break;
         default:
-            String code = t.substring(1);
+            String code = t;
             println(code);
         }
     }
@@ -70,27 +103,44 @@ public class GroovyExpand extends PatternProcessor {
     }
 
     void echo(String s, boolean newline) {
-        s = s.replaceAll("\\", "\\\\");
-        s = s.replaceAll("\"", "\\\"");
-        s = s.replaceAll("\'", "\\\'");
+        s = Strings.escape(s);
         if (newline)
-            println("out.println(\"" + s + "\")");
+            println("out.println(\"" + s + "\");");
         else
-            println("out.print(\"" + s + "\")");
+            println("out.print(\"" + s + "\");");
     }
 
+    /**
+     * Call {@link GroovyExpand#compileAndEvaluate(String)} instead.
+     */
     @Override
-    public synchronized String process(String source) {
+    @Deprecated
+    public final String process(String source) {
+        return compileAndEvaluate(source);
+    }
+
+    /**
+     * @exception CompilationFailedException
+     *                If any groovy code in source has syntax errors. To check
+     *                the compiled script, call
+     *                {@link GroovyExpand#getCompiledScript()}.
+     */
+    public synchronized String compileAndEvaluate(String source)
+            throws CompilationFailedException {
         shell = new GroovyShell(binding);
 
         StringBuffer contents = new StringBuffer(source.length());
         Buffer out = CharOuts.get(contents);
         shell.setVariable("out", out);
 
-        String script = super.process(source);
+        script = super.process(source);
         shell.evaluate(script);
 
         return contents.toString();
+    }
+
+    public String getCompiledScript() {
+        return script;
     }
 
 }
