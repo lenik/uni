@@ -1,14 +1,20 @@
 @echo off
-
+    <%
+        assert name != null;
+        if (sub == null) sub = name;
+        if (target == null) target = name;
+        if (ext == null) ext = ".exe";
+        if (exec == null) exec = "";
+    %>
     setlocal
 
-    set name=scilab
-    set target=wscilex
-    set defext=.exe
+    set name=<%= name %>
+    set target=<%= target %>
+    set defext=<%= ext %>
 
-    call findabc scilab/bin
-
-    set defexec=start "%_home%"
+    call findabc <%= sub %>
+    <% if (!exec.isEmpty()) { %>if "%exec%"=="" set exec=<%= exec %><% } %>
+    set defexec=start "%_home%" <%= exec %>
     if "%exec%"=="" if "%cd%"=="%USERPROFILE%" set exec=%defexec%
 
     if exist "%_home%\%target%%defext%" goto _implicit

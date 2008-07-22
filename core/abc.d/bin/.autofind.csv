@@ -1,0 +1,20 @@
+# run .mkauto to generate wrappers
+name            | sub                   | target        | ext       | exec
+
+autoit          | autoit                | autoit3
+cvs2svn         | cvs2svn               |               | *         | python
+ethereal
+ettercap
+groovy          | groovy/bin            | groovy        | .bat
+gcon            | groovy/bin            | groovyConsole | .bat
+hugs
+mencoder
+nlite
+nsis
+ollydbg
+reflector
+scilab          | scilab/bin            | wscilex
+scite
+squeak
+stardict
+wireshark
