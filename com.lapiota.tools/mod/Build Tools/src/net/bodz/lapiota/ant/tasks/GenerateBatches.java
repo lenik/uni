@@ -15,10 +15,12 @@ import net.bodz.bas.cli.util.VersionInfo;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.Caller;
 import net.bodz.bas.lang.err.IdentifiedException;
+import net.bodz.bas.text.interp.VariableExpand;
 import net.bodz.bas.types.util.Annotations;
 import net.bodz.bas.types.util.Types;
-import net.bodz.lapiota.util.ProgramName;
-import net.bodz.lapiota.util.Template;
+import net.bodz.lapiota.annotations.LoadBy;
+import net.bodz.lapiota.annotations.ProgramName;
+import net.bodz.lapiota.programs.Launcher;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -32,14 +34,14 @@ public class GenerateBatches extends Task {
     private String              prefix   = "";
     private String              charset  = "utf-8";
     private Map<String, String> varmap;
-    private Template            tmpl;
+    private VariableExpand      templateParser;
     private Set<String>         generated;
 
     public GenerateBatches() {
         varmap = new HashMap<String, String>();
         varmap.put("GENERATOR", "GenerateBatches 0." + verinfo.getVersion()
                 + "  Last updated: " + verinfo.getDate());
-        tmpl = new Template(template, varmap);
+        templateParser = new VariableExpand(varmap);
         generated = new HashSet<String>();
     }
 
@@ -116,6 +118,14 @@ public class GenerateBatches extends Task {
 
         varmap.put("NAME", name);
 
+        String launch = "";
+        Class<? extends ClassLoader> loaderClass = Annotations.getAnnotation(
+                clazz, LoadBy.class, true);
+        if (loaderClass != null) {
+            launch = Launcher.class.getName() + " " + loaderClass.getName();
+        }
+        varmap.put("LAUNCH", launch);
+
         StringBuffer morecp1 = new StringBuffer();
         StringBuffer morecpR = new StringBuffer();
         StringBuffer morecpF = new StringBuffer();
@@ -143,7 +153,7 @@ public class GenerateBatches extends Task {
         varmap.put("MORECP_R", morecpR.toString());
         varmap.put("MORECP_F", morecpF.toString());
 
-        String inst = tmpl.generate();
+        String inst = templateParser.process(template);
 
         if (Files.copyDiff(inst.getBytes(), batf))
             log1("write " + batf);

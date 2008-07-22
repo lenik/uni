@@ -1,6 +1,6 @@
 package net.bodz.lapiota.snmc;
 
-import net.bodz.bas.types.util.PatternProcessor;
+import net.bodz.bas.text.interp.PatternProcessor;
 
 public class Util {
 
@@ -29,7 +29,7 @@ public class Util {
             @Override
             protected void matched(String part) {
                 String var = matcher.group(1);
-                buffer.append(var);
+                print(var);
             }
         };
 

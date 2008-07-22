@@ -25,11 +25,11 @@ import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.ref.Ref;
 import net.bodz.bas.lang.ref.SimpleRef;
 import net.bodz.bas.lang.script.ScriptException;
+import net.bodz.bas.text.interp.PatternProcessor;
 import net.bodz.bas.text.interp.VariableExpand;
-import net.bodz.bas.types.util.PatternProcessor;
-import net.bodz.lapiota.util.BatchProcessCLI;
-import net.bodz.lapiota.util.ProgramName;
+import net.bodz.lapiota.annotations.ProgramName;
 import net.bodz.lapiota.util.RefBinding;
+import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("An extensible file process program")
 @Version( { 0, 1 })
@@ -123,17 +123,17 @@ public class FileProcess extends BatchProcessCLI {
     private Action currentAction;
 
     @Override
-    protected void _process(File file) throws IOException {
+    protected void _doFile(File file) {
         currentFile = file;
         for (Action action : actions) {
             currentAction = action;
             edit = action.isEditor();
-            super._process(file);
+            super._doFile(file);
         }
     }
 
     @Override
-    protected ProcessResult process(InputStream in, OutputStream out)
+    protected ProcessResult doFileEdit(InputStream in, OutputStream out)
             throws Throwable {
         return currentAction.run(currentFile, in, out);
     }
@@ -222,12 +222,16 @@ public class FileProcess extends BatchProcessCLI {
 
         @Option(doc = "replace all occurrences")
         private boolean replaceAll;
+
         @Option(doc = "matching pattern with name only (without extension)")
         private boolean nameOnly;
+
         @Option(doc = "java regexp pattern")
         private Pattern pattern;
+
         @Option(doc = "java regexp replacement string, $N is supported")
         private String  replacement;
+
         @Option(doc = "combination of i, x, s, m")
         private String  flags;
 
@@ -302,10 +306,13 @@ public class FileProcess extends BatchProcessCLI {
 
         @Option(doc = "replace file extension also")
         private boolean withExt;
+
         @Option(doc = "replace dot(.) in the filename with space")
         private boolean dotSpace;
+
         @Option(doc = "default value of non-existing component")
         private String  nonexist;
+
         @Option(doc = "punctuation characters, used as separator between components")
         private String  puncts = "\\p{Punct}";
 

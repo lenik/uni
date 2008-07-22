@@ -63,7 +63,7 @@
     set      _nam=$NAME
     set     _namf=%_nam:.=\%
     set      _ext=
-    set _javaopts=-ea -DGenerateBatches=1
+    set _javaopts=-ea -DGenerateBatches=1 $LAUNCH
 
     if not "%JAVA_HOME%"=="" set PATH=%JAVA_HOME%\bin;%PATH%
 

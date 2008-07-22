@@ -15,7 +15,7 @@ import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.functors.lang.ControlBreak;
 import net.bodz.bas.io.Files;
-import net.bodz.lapiota.util.BatchProcessCLI;
+import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("batch iconv written in java, JUN 2004")
 @Version( { 0, 1 })
@@ -67,7 +67,7 @@ public class Jiconv extends BatchProcessCLI {
     private static Charset CHARSET_UTF16_BE = Charset.forName("UTF-16BE");
 
     @Override
-    protected ProcessResult process(File in, File out) throws Throwable {
+    protected ProcessResult doFileEdit(File in, File out) throws Throwable {
         byte[] src = Files.readBytes(in);
         Charset srcenc = inputEncoding;
         Charset dstenc = outputEncoding;

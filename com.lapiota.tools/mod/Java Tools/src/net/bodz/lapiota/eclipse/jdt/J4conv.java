@@ -30,7 +30,7 @@ import net.bodz.bas.lang.err.UnexpectedException;
 import net.bodz.bas.lang.util.Classpath;
 import net.bodz.bas.types.chained.CMap;
 import net.bodz.bas.types.util.Strings;
-import net.bodz.lapiota.util.BatchProcessCLI;
+import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
@@ -138,7 +138,7 @@ public class J4conv extends BatchProcessCLI {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected ProcessResult process(File in, File out) throws Throwable {
+    protected ProcessResult doFileEdit(File in, File out) throws Throwable {
         if (!"java".equals(Files.getExtension(in)))
             return null;
 

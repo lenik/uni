@@ -27,7 +27,7 @@ import net.bodz.bas.lang.util.Classpath;
 import net.bodz.bas.types.ValueChecks.FileAccess;
 import net.bodz.bas.types.ValueChecks.Regex;
 import net.bodz.bas.types.util.Strings;
-import net.bodz.lapiota.util.BasicCLI;
+import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Generate class proxy/wrapper")
 @Version( { 0, 0 })

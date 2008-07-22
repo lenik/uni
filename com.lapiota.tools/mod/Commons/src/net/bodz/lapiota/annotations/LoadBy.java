@@ -1,4 +1,4 @@
-package net.bodz.lapiota.util;
+package net.bodz.lapiota.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,8 +7,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface ProgramName {
+public @interface LoadBy {
 
-    String value();
+    Class<? extends ClassLoader> value();
 
 }

@@ -27,7 +27,7 @@ public class Lapiota {
     public static List<File>        searchJavaSrc;
 
     // trigger classloader.
-    static void load() {
+    public static void load() {
     }
 
     static {

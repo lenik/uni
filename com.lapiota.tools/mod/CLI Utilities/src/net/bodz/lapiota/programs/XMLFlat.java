@@ -19,9 +19,9 @@ import net.bodz.bas.functors.lang.ControlBreak;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.CharOuts;
 import net.bodz.bas.types.util.Comparators;
-import net.bodz.lapiota.util.BasicCLI;
 import net.bodz.lapiota.util.StringUtil;
 import net.bodz.lapiota.util.TypeExtensions.XPathParser;
+import net.bodz.lapiota.wrappers.BasicCLI;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;

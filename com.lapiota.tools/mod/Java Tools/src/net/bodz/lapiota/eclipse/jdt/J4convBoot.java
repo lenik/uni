@@ -2,9 +2,9 @@ package net.bodz.lapiota.eclipse.jdt;
 
 import net.bodz.bas.cli.RunInfo;
 import net.bodz.bas.cli._RunInfo;
-import net.bodz.lapiota.util.BasicCLI;
+import net.bodz.lapiota.annotations.ProgramName;
 import net.bodz.lapiota.util.Lapiota;
-import net.bodz.lapiota.util.ProgramName;
+import net.bodz.lapiota.wrappers.BasicCLI;
 
 @ProgramName("j4conv")
 @RunInfo(init = { Lapiota.class },

@@ -11,7 +11,7 @@ import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.lang.Filter;
 import net.bodz.bas.types.TypeParsers.ClassInstanceParser;
-import net.bodz.lapiota.util.BatchProcessCLI;
+import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("A Unix diff program implemented in Java")
 @Version( { 0, 1 })
@@ -64,7 +64,7 @@ public class Jrepl extends BatchProcessCLI {
     }
 
     @Override
-    protected ProcessResult process(Iterable<String> lines, CharOut out)
+    protected ProcessResult doFileEdit(Iterable<String> lines, CharOut out)
             throws Throwable {
         for (String line : lines)
             out.println(filter.filter(line));

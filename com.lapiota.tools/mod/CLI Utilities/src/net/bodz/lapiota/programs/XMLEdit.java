@@ -26,9 +26,9 @@ import net.bodz.bas.types.TypeParser;
 import net.bodz.bas.types.TypeParsers;
 import net.bodz.bas.types._TypeParser;
 import net.bodz.bas.types.util.Comparators;
-import net.bodz.lapiota.util.BasicCLI;
 import net.bodz.lapiota.util.StringUtil;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
+import net.bodz.lapiota.wrappers.BasicCLI;
 
 import org.dom4j.Attribute;
 import org.dom4j.Document;

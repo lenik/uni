@@ -10,10 +10,10 @@ import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.Option;
 import net.bodz.bas.cli.RunInfo;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.lapiota.util.BasicCLI;
-import net.bodz.lapiota.util.ProgramName;
+import net.bodz.lapiota.annotations.ProgramName;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
 import net.bodz.lapiota.util.TypeExtensions.XPathParser;
+import net.bodz.lapiota.wrappers.BasicCLI;
 
 import org.dom4j.Node;
 import org.dom4j.XPath;
@@ -41,7 +41,7 @@ public class XmlfsSelector extends BasicCLI {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void _main(File root) throws Throwable {
+    protected void doFileArgument(File root) throws Throwable {
         XmlfsDocument doc = new XmlfsDocument(root);
         List list = select.selectNodes(doc);
         for (Object o : list) {

@@ -25,9 +25,9 @@ import net.bodz.bas.cli.ext.CLIPlugin;
 import net.bodz.bas.cli.ext._CLIPlugin;
 import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.io.Files;
-import net.bodz.lapiota.util.BatchProcessCLI;
-import net.bodz.lapiota.util.ProgramName;
+import net.bodz.lapiota.annotations.ProgramName;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
+import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -65,7 +65,7 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
     }
 
     @Override
-    protected ProcessResult process(File in) throws Throwable {
+    protected ProcessResult doFile(File in) throws Throwable {
         if (in.isDirectory()) { // dir
             for (Action act : actions) {
                 act.handle(in);
@@ -238,11 +238,11 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
     @Doc("=PATTERN[,FILE], search by regexp")
     class Grep extends _Action {
 
-        private String  path;
-        private Pattern pattern;
-
         @Option(doc = "trim the output lines")
         private boolean trim;
+
+        private String  path;
+        private Pattern pattern;
 
         public Grep() {
         }

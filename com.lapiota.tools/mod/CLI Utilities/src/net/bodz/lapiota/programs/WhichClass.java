@@ -25,8 +25,8 @@ import net.bodz.bas.io.FsWalk;
 import net.bodz.bas.lang.Caller;
 import net.bodz.bas.lang.util.Classpath;
 import net.bodz.bas.types.TypeParsers.ClassInstanceParser;
-import net.bodz.lapiota.util.BasicCLI;
 import net.bodz.lapiota.util.TypeExtensions.FileParser2;
+import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Find the class file defined the specified class")
 @Version( { 0, 1 })

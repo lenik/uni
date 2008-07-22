@@ -7,9 +7,9 @@ import net.bodz.bas.annotations.Doc;
 import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.lapiota.util.BatchProcessCLI;
+import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
-@Doc("A Unix diff program implemented in Java")
+@Doc("A simple BatchProcessCLI example: dir in java")
 @Version( { 0, 1 })
 @RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
 public class Jdir extends BatchProcessCLI {
@@ -20,7 +20,7 @@ public class Jdir extends BatchProcessCLI {
     }
 
     @Override
-    protected ProcessResult process(File file) throws Throwable {
+    protected ProcessResult doFile(File file) throws Throwable {
         System.out.println(file);
         return null;
     }

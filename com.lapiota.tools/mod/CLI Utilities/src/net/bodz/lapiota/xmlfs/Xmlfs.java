@@ -1,6 +1,6 @@
 package net.bodz.lapiota.xmlfs;
 
-import net.bodz.bas.types.util.PatternProcessor;
+import net.bodz.bas.text.interp.PatternProcessor;
 
 import org.dom4j.Namespace;
 
@@ -27,9 +27,9 @@ public class Xmlfs {
                 while (start < end) {
                     char c = source.charAt(start++);
                     if (c == '_')
-                        buffer.append(escapeName(c));
+                        print(escapeName(c));
                     else
-                        buffer.append(c);
+                        print(c);
                 }
             }
 
@@ -37,7 +37,7 @@ public class Xmlfs {
             protected void unmatched(int start, int end) {
                 while (start < end) {
                     char c = source.charAt(start++);
-                    buffer.append(escapeName(c));
+                    print(escapeName(c));
                 }
             }
         }.process(fName);

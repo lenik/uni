@@ -15,7 +15,7 @@ import net.bodz.bas.types.diff.DiffComparators;
 import net.bodz.bas.types.diff.DiffFormat;
 import net.bodz.bas.types.diff.DiffFormats;
 import net.bodz.bas.types.diff.DiffInfo;
-import net.bodz.lapiota.util.BasicCLI;
+import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("A Unix diff program implemented in Java")
 @Version( { 0, 1 })

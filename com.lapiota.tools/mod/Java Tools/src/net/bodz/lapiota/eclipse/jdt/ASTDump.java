@@ -16,7 +16,7 @@ import net.bodz.bas.io.CharOuts;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.types.util.Strings;
 import net.bodz.bas.types.util.Types;
-import net.bodz.lapiota.util.BasicCLI;
+import net.bodz.lapiota.wrappers.BasicCLI;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -63,7 +63,7 @@ public class ASTDump extends BasicCLI {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void _main(File file) throws Throwable {
+    protected void doFileArgument(File file) throws Throwable {
         if (file == null)
             _help();
 
@@ -72,8 +72,9 @@ public class ASTDump extends BasicCLI {
 
         ASTParser parser = ASTParser.newParser(parserLevel);
         Map<String, Object> options = JavaCore.getOptions();
-//        options.put("org.eclipse.jdt.core.compiler.compliance", "1.6");
-//        options.put("org.eclipse.jdt.core.compiler.codegen.targetPlatform", "1.6");
+        // options.put("org.eclipse.jdt.core.compiler.compliance", "1.6");
+        // options.put("org.eclipse.jdt.core.compiler.codegen.targetPlatform",
+        // "1.6");
         options.put("org.eclipse.jdt.core.compiler.source", "1.6");
         parser.setCompilerOptions(options);
 
