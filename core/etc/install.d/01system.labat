@@ -158,6 +158,9 @@
             -           | ${findabc -w autohotkey}\autohotkey \"%1\"
             - compl     Compile Script
             -           | ${findabc -w autohotkey}\Compiler\ahk2exe /in \"%1\"
+        - .bat ->
+            - open
+            -           | cmd /c "%1" %*
         - '".c .cpp .cxx .pas" ->'
             - compl     Compile
             -           | $LAPIOTA\bin\xcompl.bat --pause \"%1\"
@@ -169,7 +172,7 @@
         - .class ->
             - decompl   Decompile java class
             -           | $LAPIOTA\bin\pi.bat $LAPIOTA\usr\bin\jad -p \"%1\" \pi; $CYGWIN_ROOT\bin\less
-        - '".tlb .exe .dll .sys .ocx .cpl .ax" ->'
+        - '".ax .dll .exe .ocx .sys .tlb" ->'
             - comreg    Register com-service
             -           | regsvr32 \"%1\"
             - comunreg  Unregister com-service

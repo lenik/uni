@@ -330,6 +330,7 @@ appskey & numpadsub::send {volumn_down}
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; more applications {
 #+e::run cmdw /c em
+#+g::run cmd /c gcon
 #+j::run cmdw /c eclipse
 ^enter::
     settitlematchmode 2

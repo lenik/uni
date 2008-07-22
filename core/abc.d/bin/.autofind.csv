@@ -2,6 +2,8 @@
 name            | sub                   | target        | ext       | exec
 
 autoit          | autoit                | autoit3
+au3info         | autoit
+aut2exe         | autoit/aut2exe
 cvs2svn         | cvs2svn               |               | *         | python
 ethereal
 ettercap
