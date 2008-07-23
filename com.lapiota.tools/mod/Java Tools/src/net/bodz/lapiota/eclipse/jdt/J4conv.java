@@ -6,7 +6,6 @@ import static org.eclipse.jdt.core.dom.PrefixExpression.Operator.NOT;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
@@ -125,11 +124,6 @@ public class J4conv extends BatchProcessCLI {
         L.x.P("add classpath: ", url);
         // classpaths.add(url);
         Classpath.addURL(url);
-    }
-
-    @Override
-    protected InputStream _getDefaultIn() {
-        return null;
     }
 
     // aliases

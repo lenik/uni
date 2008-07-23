@@ -11,12 +11,14 @@ import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.lang.Filter;
 import net.bodz.bas.types.TypeParsers.ClassInstanceParser;
+import net.bodz.lapiota.annotations.ProgramName;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("A Unix diff program implemented in Java")
 @Version( { 0, 1 })
 @RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
-public class Jrepl extends BatchProcessCLI {
+@ProgramName("jrepl")
+public class FileReplace extends BatchProcessCLI {
 
     @Option(alias = "p", vnam = "REGEXP", doc = "replace by regexp")
     protected Pattern                regexp;
@@ -72,7 +74,7 @@ public class Jrepl extends BatchProcessCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new Jrepl().climain(args);
+        new FileReplace().climain(args);
     }
 
 }

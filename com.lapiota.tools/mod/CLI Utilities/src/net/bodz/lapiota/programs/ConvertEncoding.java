@@ -1,7 +1,6 @@
 package net.bodz.lapiota.programs;
 
 import java.io.File;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -15,12 +14,14 @@ import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.functors.lang.ControlBreak;
 import net.bodz.bas.io.Files;
+import net.bodz.lapiota.annotations.ProgramName;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("batch iconv written in java, JUN 2004")
 @Version( { 0, 1 })
 @RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
-public class Jiconv extends BatchProcessCLI {
+@ProgramName("jiconv")
+public class ConvertEncoding extends BatchProcessCLI {
 
     @Option(alias = "b", vnam = "value", doc = "BOM detect")
     protected boolean bomDetect = true;
@@ -93,13 +94,8 @@ public class Jiconv extends BatchProcessCLI {
         return ProcessResult.compareAndSave();
     }
 
-    @Override
-    protected InputStream _getDefaultIn() {
-        return null;
-    }
-
     public static void main(String[] args) throws Throwable {
-        new Jiconv().climain(args);
+        new ConvertEncoding().climain(args);
     }
 
 }

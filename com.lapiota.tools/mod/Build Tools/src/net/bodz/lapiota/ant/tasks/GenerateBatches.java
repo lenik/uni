@@ -20,7 +20,7 @@ import net.bodz.bas.types.util.Annotations;
 import net.bodz.bas.types.util.Types;
 import net.bodz.lapiota.annotations.LoadBy;
 import net.bodz.lapiota.annotations.ProgramName;
-import net.bodz.lapiota.programs.Launcher;
+import net.bodz.lapiota.programs.ClassLauncher;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -122,7 +122,7 @@ public class GenerateBatches extends Task {
         Class<? extends ClassLoader> loaderClass = Annotations.getAnnotation(
                 clazz, LoadBy.class, true);
         if (loaderClass != null) {
-            launch = Launcher.class.getName() + " " + loaderClass.getName();
+            launch = ClassLauncher.class.getName() + " " + loaderClass.getName();
         }
         varmap.put("LAUNCH", launch);
 

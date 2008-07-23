@@ -15,12 +15,14 @@ import net.bodz.bas.text.diff.DiffComparators;
 import net.bodz.bas.text.diff.DiffFormat;
 import net.bodz.bas.text.diff.DiffFormats;
 import net.bodz.bas.text.diff.DiffInfo;
+import net.bodz.lapiota.annotations.ProgramName;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("A Unix diff program implemented in Java")
 @Version( { 0, 1 })
 @RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
-public class Jdiff extends BasicCLI {
+@ProgramName("jdiff")
+public class FileCompare extends BasicCLI {
 
     @Option(alias = "F", vnam = "FORMAT", doc = "Simdiff, Context, ED, Unified")
     protected DiffFormat diffFormat = DiffFormats.Simdiff;
@@ -46,7 +48,7 @@ public class Jdiff extends BasicCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new Jdiff().climain(args);
+        new FileCompare().climain(args);
     }
 
 }

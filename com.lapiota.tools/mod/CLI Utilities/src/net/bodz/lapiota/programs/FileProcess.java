@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +23,7 @@ import net.bodz.bas.cli.ext.CLIPlugin;
 import net.bodz.bas.cli.ext._CLIPlugin;
 import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.io.Files;
+import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.lang.ref.Ref;
 import net.bodz.bas.lang.ref.SimpleRef;
 import net.bodz.bas.lang.script.ScriptException;
@@ -105,11 +107,6 @@ public class FileProcess extends BatchProcessCLI {
         plugins.register("g", GroovyScript.class, this);
         plugins.register("s", RenamePattern.class, this);
         plugins.register("sg", RenameComponents.class, this);
-    }
-
-    @Override
-    protected InputStream _getDefaultIn() {
-        return null;
     }
 
     @Override
@@ -314,7 +311,10 @@ public class FileProcess extends BatchProcessCLI {
         private String  nonexist;
 
         @Option(doc = "punctuation characters, used as separator between components")
-        private String  puncts = "\\p{Punct}";
+        private String  punctsPattern;
+
+        @Option(doc = "punctuation pattern, used as separator between components")
+        private String  puncts;
 
         private String  replacement;
 
@@ -323,6 +323,26 @@ public class FileProcess extends BatchProcessCLI {
 
         public RenameComponents(String replacement) {
             this.replacement = replacement;
+        }
+
+        @Override
+        public void setParameters(Map<String, Object> parameters)
+                throws CLIException, ParseException {
+            super.setParameters(parameters);
+            if (puncts != null) {
+                int n = puncts.length();
+                StringBuffer buf = new StringBuffer(n * 10);
+                for (int i = 0; i < n; i++) {
+                    String c = String.valueOf(puncts.charAt(i));
+                    String cp = Pattern.quote(c);
+                    buf.append(cp);
+                }
+                punctsPattern = buf.toString();
+            }
+            if (punctsPattern == null)
+                punctsPattern = "\\p{Punct}";
+
+            punctsPattern = "[^" + punctsPattern + "]+";
         }
 
         @Override
@@ -336,7 +356,7 @@ public class FileProcess extends BatchProcessCLI {
             name = name.trim();
 
             final List<String> components = new ArrayList<String>();
-            Pattern findComponents = Pattern.compile("[^" + puncts + "]+");
+            Pattern findComponents = Pattern.compile(punctsPattern);
             new PatternProcessor(findComponents) {
                 @Override
                 protected void matched(String part) {

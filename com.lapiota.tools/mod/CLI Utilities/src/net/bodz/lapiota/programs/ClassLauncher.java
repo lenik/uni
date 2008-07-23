@@ -13,7 +13,7 @@ import net.bodz.lapiota.annotations.ProgramName;
 @Version( { 0, 1 })
 @RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
 @ProgramName("jlaunch")
-public class Launcher {
+public class ClassLauncher {
 
     @SuppressWarnings("unchecked")
     public static void main(String[] args) throws Throwable {

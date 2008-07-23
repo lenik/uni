@@ -25,13 +25,15 @@ import net.bodz.bas.io.FsWalk;
 import net.bodz.bas.lang.Caller;
 import net.bodz.bas.lang.util.Classpath;
 import net.bodz.bas.types.TypeParsers.ClassInstanceParser;
+import net.bodz.lapiota.annotations.ProgramName;
 import net.bodz.lapiota.util.TypeExtensions.FileParser2;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Find the class file defined the specified class")
 @Version( { 0, 1 })
 @RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
-public class WhichClass extends BasicCLI {
+@ProgramName("jwhich")
+public class FindClassResource extends BasicCLI {
 
     @Option(alias = "r", vnam = "[DEPTH]", optional = "65536", doc = "max depth of directories recurse into")
     protected int        recursive  = 1;
@@ -226,8 +228,7 @@ public class WhichClass extends BasicCLI {
 
     private static Pattern JAR_EXTENSIONS;
     static {
-        JAR_EXTENSIONS = Pattern.compile("(.ar|zip)",
-                Pattern.CASE_INSENSITIVE);
+        JAR_EXTENSIONS = Pattern.compile("(.ar|zip)", Pattern.CASE_INSENSITIVE);
     }
 
     @Override
@@ -243,7 +244,7 @@ public class WhichClass extends BasicCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new WhichClass().climain(args);
+        new FindClassResource().climain(args);
     }
 
 }

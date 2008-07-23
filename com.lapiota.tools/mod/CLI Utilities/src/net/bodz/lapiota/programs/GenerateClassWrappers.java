@@ -27,12 +27,14 @@ import net.bodz.bas.lang.util.Classpath;
 import net.bodz.bas.types.ValueChecks.FileAccess;
 import net.bodz.bas.types.ValueChecks.Regex;
 import net.bodz.bas.types.util.Strings;
+import net.bodz.lapiota.annotations.ProgramName;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Generate class proxy/wrapper")
 @Version( { 0, 0 })
 @RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
-public class ClassWrap extends BasicCLI {
+@ProgramName("classwrap")
+public class GenerateClassWrappers extends BasicCLI {
 
     @Option(vnam = "WORD", check = Regex.class, checkinfo = "\\w+", doc = "prefix string to the generated class")
     protected String         prefix;
@@ -230,7 +232,7 @@ public class ClassWrap extends BasicCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new ClassWrap().climain(args);
+        new GenerateClassWrappers().climain(args);
     }
 
 }

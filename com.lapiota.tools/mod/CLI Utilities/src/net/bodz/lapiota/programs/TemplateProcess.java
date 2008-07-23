@@ -3,7 +3,6 @@ package net.bodz.lapiota.programs;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -53,11 +52,6 @@ public class TemplateProcess extends BatchProcessCLI {
     }
 
     @Override
-    protected InputStream _getDefaultIn() {
-        return null;
-    }
-
-    @Override
     protected ProcessResult doFile(File file, File editTmp) throws Throwable {
         sourceModel.reset(file);
         while (sourceModel.next()) {
@@ -75,9 +69,7 @@ public class TemplateProcess extends BatchProcessCLI {
             Files.write(editTmp, contents, outputEncoding);
 
             ProcessResult result = ProcessResult.compareAndSave();
-            result = applyResult(dst, dst, editTmp, result);
-
-            stat.add(result);
+            addResult(dst, dst, editTmp, result);
         }
         return null;
     }
