@@ -393,7 +393,7 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
                 JarEntry entry = entries.nextElement();
                 String ename = entry.getName();
                 if (match(ename)) {
-                    File start = jarFile.getParentFile();
+                    File start = jarFile.getAbsoluteFile().getParentFile();
                     assert start != null;
                     String destname = ename;
                     if (!flatExtract) {
