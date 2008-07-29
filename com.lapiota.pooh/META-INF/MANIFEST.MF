@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Pooh Eclipse Plug-ins
+Bundle-SymbolicName: net.bodz.pooh;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: net.bodz.pooh.Activator
+Bundle-Vendor: Lenik
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0",
+ org.eclipse.jdt.core;bundle-version="3.4.0",
+ org.eclipse.jdt.ui;bundle-version="3.4.0",
+ org.eclipse.ui;bundle-version="3.4.0",
+ net.bodz.lapiota.eclipse;bundle-version="1.0.0",
+ org.junit4
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: bin/,
+ mod/Eclipse Customization/bin/,
+ mod/Eclipse R&D/bin/,
+ mod/boDz Utilization/bin/,
+ .
