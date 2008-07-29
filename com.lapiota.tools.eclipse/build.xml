@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<project name="net.bodz.lapiota.eclipse" default="default">
+
+	<property environment="env" />
+	<property name="distdir" value="${env.JAVA_LIB}" />
+	<property name="distsrc" value="${env.JAVA_SRC}" />
+
+	<target name="default" depends="update">
+	</target>
+
+	<target name="update">
+		<copy todir="${basedir}/lib">
+			<fileset dir="${distdir}">
+				<include name="net.bodz.lapiota.jar" />
+			</fileset>
+		</copy>
+		<copy todir="${basedir}/lib">
+			<fileset dir="${distsrc}">
+				<include name="net.bodz.lapiota-source.jar" />
+			</fileset>
+		</copy>
+	</target>
+
+</project>
