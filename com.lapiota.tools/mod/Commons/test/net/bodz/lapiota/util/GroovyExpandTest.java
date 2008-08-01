@@ -26,7 +26,7 @@ public class GroovyExpandTest {
             public Object eval(String input) throws Throwable {
                 if (isBreakpoint())
                     System.err.println(input);
-                return ge.process(input);
+                return ge.compileAndEvaluate(input);
             }
         }, //
                 EQ("abc", "abc"), //

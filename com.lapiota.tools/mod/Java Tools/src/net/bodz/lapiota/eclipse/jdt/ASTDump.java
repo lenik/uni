@@ -27,12 +27,12 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 @Doc("ASTDump description")
 @Version( { 0, 0 })
-@RcsKeywords(id = "$Id: ASTDump.java 0 2008-6-27 下午08:01:10 lenik $")
+@RcsKeywords(id = "$Id$")
 @RunInfo(
 
-_load = { "findcp|eclipse*/plugins/org.eclipse.jdt.core_*" },
+load = { "findcp|eclipse*/plugins/org.eclipse.jdt.core_*" },
 
-load = { "findcp|eclipse*/plugins/org.eclipse.equinox.common_*",
+loadDelayed = { "findcp|eclipse*/plugins/org.eclipse.equinox.common_*",
         "findcp|eclipse*/plugins/org.eclipse.core.resources_*",
         "findcp|eclipse*/plugins/org.eclipse.core.jobs_*",
         "findcp|eclipse*/plugins/org.eclipse.core.runtime_*",

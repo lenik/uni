@@ -96,13 +96,13 @@ import org.eclipse.text.edits.TextEdit;
 
 @Doc("Remove Java 5 Generics from the java source files")
 @Version( { 0, 1 })
-@RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
+@RcsKeywords(id = "$Id$")
 @RunInfo(
 
-_load = { "findcp|eclipse*/plugins/org.eclipse.jdt.core_*",
+load = { "findcp|eclipse*/plugins/org.eclipse.jdt.core_*",
         "findcp|eclipse*/plugins/org.eclipse.text_*", },
 
-load = { "findcp|eclipse*/plugins/org.eclipse.equinox.common_*",
+loadDelayed = { "findcp|eclipse*/plugins/org.eclipse.equinox.common_*",
         "findcp|eclipse*/plugins/org.eclipse.core.resources_*",
         "findcp|eclipse*/plugins/org.eclipse.core.jobs_*",
         "findcp|eclipse*/plugins/org.eclipse.core.runtime_*",
@@ -596,7 +596,7 @@ public class J4conv extends BatchProcessCLI {
             if (binding != null && binding.isVarargs()) {
                 ITypeBinding[] args = binding.getParameterTypes();
                 int varoff = args.length - 1;
-                ITypeBinding vararg = args[varoff];
+                // TODO - ITypeBinding vararg = args[varoff];
                 ListRewrite vargs = rewrite.getListRewrite(node,
                         MethodInvocation.ARGUMENTS_PROPERTY);
                 ArrayCreation newArray = ast.newArrayCreation();

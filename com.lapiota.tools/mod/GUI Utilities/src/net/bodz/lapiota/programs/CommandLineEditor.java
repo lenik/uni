@@ -1,5 +1,7 @@
 package net.bodz.lapiota.programs;
 
+import java.io.IOException;
+
 import net.bodz.bas.annotations.Doc;
 import net.bodz.bas.annotations.Version;
 import net.bodz.bas.cli.util.RcsKeywords;
@@ -17,12 +19,13 @@ import org.eclipse.swt.widgets.Text;
 
 @Doc("Command line editor")
 @Version( { 0, 1 })
-@RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
+@RcsKeywords(id = "$Id$")
 @ProgramName("cliedit")
 public class CommandLineEditor extends BasicGUI {
 
     private Text text;
     private Text cmdlineText;
+
     @Override
     protected Composite createInitialView(Composite parent) {
         // TestComposite view = new TestComposite(parent, SWT.NONE);
@@ -44,7 +47,8 @@ public class CommandLineEditor extends BasicGUI {
         fd_cmdlineText.bottom = new FormAttachment(0, 80);
         fd_cmdlineText.right = new FormAttachment(100, -5);
         fd_cmdlineText.top = new FormAttachment(commandLineButton, 0, SWT.TOP);
-        fd_cmdlineText.left = new FormAttachment(commandLineButton, 5, SWT.RIGHT);
+        fd_cmdlineText.left = new FormAttachment(commandLineButton, 5,
+                SWT.RIGHT);
         cmdlineText.setLayoutData(fd_cmdlineText);
 
         final Composite composite = new Composite(view, SWT.NONE);
@@ -58,6 +62,11 @@ public class CommandLineEditor extends BasicGUI {
 
         text = new Text(composite, SWT.BORDER);
         return view;
+    }
+
+    void run() throws IOException {
+        String cmdline = text.getText();
+        Runtime.getRuntime().exec(cmdline);
     }
 
     public static void main(String[] args) throws Throwable {

@@ -6,6 +6,7 @@ import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.types._TypeParser;
 import net.bodz.bas.types.TypeParsers.FileParser;
 import net.bodz.bas.types.util.Strings;
+import net.bodz.lapiota.loader.Lapiota;
 
 import org.dom4j.DocumentFactory;
 import org.dom4j.XPath;

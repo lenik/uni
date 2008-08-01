@@ -4,6 +4,6 @@ import java.io.File;
 
 public class Module {
 
-    private File base;
+    File base;
 
 }

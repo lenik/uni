@@ -2,6 +2,8 @@ package net.bodz.lapiota.util;
 
 import java.io.File;
 
+import net.bodz.lapiota.loader.Lapiota;
+
 import org.junit.Test;
 
 public class LapiotaTest {

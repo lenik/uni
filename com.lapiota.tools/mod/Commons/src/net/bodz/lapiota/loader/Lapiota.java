@@ -1,11 +1,10 @@
-package net.bodz.lapiota.util;
+package net.bodz.lapiota.loader;
 
 import static net.bodz.bas.cli.util.CLIFunctions.global;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,7 @@ import java.util.Map;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.err.UnexpectedException;
 import net.bodz.bas.lang.util.Classpath;
+import net.bodz.bas.sys.SystemInfo;
 
 public class Lapiota {
 
@@ -23,8 +23,6 @@ public class Lapiota {
     public static File              userHome;
 
     public static Map<String, File> lapModules;
-    public static List<File>        searchJavaLib;
-    public static List<File>        searchJavaSrc;
 
     // trigger classloader.
     public static void load() {
@@ -43,11 +41,11 @@ public class Lapiota {
     public static void reconfig() {
         String s = System.getenv("LAPIOTA");
         if (s == null) {
-            if (!(lapRoot = new File("/lapiota")).isDirectory())
-                if (!(lapRoot = new File("C:/lapiota")).isDirectory())
+            if (!(lapRoot = Files.canoniOf("/lapiota")).isDirectory())
+                if (!(lapRoot = Files.canoniOf("C:/lapiota")).isDirectory())
                     throw new Error("Can't find lapiota");
         } else {
-            lapRoot = new File(s);
+            lapRoot = Files.canoniOf(s);
         }
         lapEtc = new File(lapRoot, "etc");
         lapAbcd = new File(lapRoot, "abc.d");
@@ -59,9 +57,9 @@ public class Lapiota {
                     s = "noname";
                 s = "/home/" + s;
             }
-        userHome = new File(s);
+        userHome = Files.canoniOf(s);
         if (userHome.isFile())
-            userHome = new File("/");
+            userHome = Files.canoniOf("/");
         else if (!userHome.exists())
             userHome.mkdirs();
 
@@ -76,15 +74,10 @@ public class Lapiota {
                 throw new Error("can't read " + lams);
             }
             for (String lampath : lamdef) {
-                File lam = new File(lampath);
+                File lam = Files.canoniOf(lampath);
                 lapModules.put(lam.getName(), lam);
             }
         }
-
-        searchJavaLib = new ArrayList<File>();
-        searchJavaLib.add(new File(lapRoot, "usr/lib/java"));
-        searchJavaSrc = new ArrayList<File>();
-        searchJavaSrc.add(new File(lapRoot, "usr/src/java"));
     }
 
     private static class MaxFixes implements FilenameFilter {
@@ -142,6 +135,10 @@ public class Lapiota {
      *          eclipse&#42;/plugins/org.eclipse.core&#42;<br>
      *          $ECLIPSE_HOME/plugins/org.eclipse.core&#42;<br>
      */
+    public static File find(String exp) {
+        return find(exp, null);
+    }
+
     public static File find(String exp, File parent) {
         // termination
         if (exp == null)
@@ -150,9 +147,12 @@ public class Lapiota {
         boolean first = parent == null;
         if (parent == null) {
             if (exp.startsWith("/"))
-                return find(exp.substring(1), new File("/"));
-            if (exp.length() > 2 && exp.charAt(1) == ':')
-                return find(exp.substring(2), new File(exp.substring(0, 2)));
+                return find(exp.substring(1), Files.canoniOf("/"));
+            if (SystemInfo.isWin32() && exp.length() > 2
+                    && exp.charAt(1) == ':') {
+                File driveRoot = Files.canoniOf(exp.substring(0, 2));
+                return find(exp.substring(2), driveRoot);
+            }
             parent = lapAbcd;
         }
         String component = null;
@@ -185,10 +185,6 @@ public class Lapiota {
         if (!parent.exists())
             throw null;
         return find(exp, parent);
-    }
-
-    public static File find(String exp) {
-        return find(exp, null);
     }
 
     public static Object findcp(String exp) throws IOException {

@@ -1,4 +1,4 @@
-package net.bodz.lapiota.ant.tasks;
+package net.bodz.lapiota.javatools;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,18 +15,17 @@ import net.bodz.bas.cli.util.VersionInfo;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.Caller;
 import net.bodz.bas.lang.err.IdentifiedException;
-import net.bodz.bas.text.interp.VariableExpand;
+import net.bodz.bas.text.interp.Interps;
 import net.bodz.bas.types.util.Annotations;
 import net.bodz.bas.types.util.Types;
 import net.bodz.lapiota.annotations.LoadBy;
 import net.bodz.lapiota.annotations.ProgramName;
-import net.bodz.lapiota.programs.ClassLauncher;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 @RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
-public class GenerateBatches extends Task {
+public class GenerateProgramLauncher extends Task {
 
     private int                 loglevel = 1;
     private String              srcdir;
@@ -34,14 +33,12 @@ public class GenerateBatches extends Task {
     private String              prefix   = "";
     private String              charset  = "utf-8";
     private Map<String, String> varmap;
-    private VariableExpand      templateParser;
     private Set<String>         generated;
 
-    public GenerateBatches() {
+    public GenerateProgramLauncher() {
         varmap = new HashMap<String, String>();
         varmap.put("GENERATOR", "GenerateBatches 0." + verinfo.getVersion()
                 + "  Last updated: " + verinfo.getDate());
-        templateParser = new VariableExpand(varmap);
         generated = new HashSet<String>();
     }
 
@@ -107,7 +104,7 @@ public class GenerateBatches extends Task {
         if (generated.contains(name))
             return;
 
-        File batdirf = new File(batdir);
+        File batdirf = Files.canoniOf(batdir);
         if (!batdirf.exists())
             if (!batdirf.mkdirs())
                 throw new IOException("failed to mkdir " + batdir);
@@ -122,7 +119,8 @@ public class GenerateBatches extends Task {
         Class<? extends ClassLoader> loaderClass = Annotations.getAnnotation(
                 clazz, LoadBy.class, true);
         if (loaderClass != null) {
-            launch = ClassLauncher.class.getName() + " " + loaderClass.getName();
+            launch = ClassLauncher.class.getName() + " "
+                    + loaderClass.getName();
         }
         varmap.put("LAUNCH", launch);
 
@@ -143,17 +141,17 @@ public class GenerateBatches extends Task {
                 morecpF.append("set _morecp=%_morecp%;%JAVA_LIB%\\" + f
                         + "\n    ");
             }
-            for (String jar : runInfo.jar()) {
-                String f = jar + ".jar";
-                morecp1.append("set _morecp=%_morecp%;%JAVA_LIB%\\" + f
-                        + "\n    ");
-            }
+//            for (String jar : runInfo.jar()) {
+//                String f = jar + ".jar";
+//                morecp1.append("set _morecp=%_morecp%;%JAVA_LIB%\\" + f
+//                        + "\n    ");
+//            }
         }
         varmap.put("MORECP_1", morecp1.toString());
         varmap.put("MORECP_R", morecpR.toString());
         varmap.put("MORECP_F", morecpF.toString());
 
-        String inst = templateParser.process(template);
+        String inst = Interps.dereference(template, varmap);
 
         if (Files.copyDiff(inst.getBytes(), batf))
             log1("write " + batf);
@@ -208,7 +206,7 @@ public class GenerateBatches extends Task {
         }
 
         for (String subdir : files) {
-            File subf = new File(dirf, subdir);
+            File subf = Files.canoniOf(dirf, subdir);
             if (!subf.isDirectory())
                 continue;
             log2("dir " + subf);
@@ -219,7 +217,7 @@ public class GenerateBatches extends Task {
     @Override
     public void execute() throws BuildException {
         try {
-            findmains(new File(srcdir), prefix);
+            findmains(Files.canoniOf(srcdir), prefix);
         } catch (IOException e) {
             throw new BuildException(e.getMessage(), e);
         }
@@ -233,9 +231,9 @@ public class GenerateBatches extends Task {
     private static String      template;
 
     static {
-        verinfo = Rcs.parseId(GenerateBatches.class);
+        verinfo = Rcs.parseId(GenerateProgramLauncher.class);
         try {
-            template = Files.readAll(Files.classData(GenerateBatches.class,
+            template = Files.readAll(Files.classData(GenerateProgramLauncher.class,
                     "bat.tmpl"), "utf-8");
         } catch (IOException e) {
             throw new IdentifiedException(e.getMessage(), e);

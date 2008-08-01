@@ -22,7 +22,7 @@ import org.dom4j.io.XMLWriter;
 
 @Doc("Xmlfs XPath Selector")
 @Version( { 0, 1 })
-@RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
+@RcsKeywords(id = "$Id$")
 @ProgramName("xfss")
 @RunInfo(lib = { "dom4j", "jaxen" })
 public class XmlfsSelector extends BasicCLI {

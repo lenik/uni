@@ -34,7 +34,7 @@
 	</path>
 
 	<target name=":bin.jar">
-		<jar destfile="build/net.bodz.lapiota.jar">
+		<jar destfile="build/net.bodz.lapiota.jar" update="true">
 			<fileset dir="mod/CLI Utilities/bin" />
 			<fileset dir="mod/Commons/bin" />
 			<fileset dir="mod/GUI Utilities/bin" />
@@ -44,7 +44,7 @@
 	</target>
 
 	<target name=":src.jar">
-		<jar destfile="build/net.bodz.lapiota-source.jar">
+		<jar destfile="build/net.bodz.lapiota-source.jar" update="true">
 			<fileset dir="mod/CLI Utilities/src" />
 			<fileset dir="mod/Commons/src" />
 			<fileset dir="mod/GUI Utilities/src" />
