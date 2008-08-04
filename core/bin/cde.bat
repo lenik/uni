@@ -5,37 +5,61 @@
     goto init
 
 :start
+    if "%_parents%"=="1" goto chdir_pp
 
-    if not "%LAPIOTA%"=="" goto located
-
-    for /d %%i in (t lapiota) do (
-        set LAPIOTA=%%~dpnxi
-        goto located
-    )
-
-:located
-    rd %LAPIOTA% 2>nul
-    md %LAPIOTA% 2>nul
-
-    set pgd=lam.root.pgd
-    for %%d in ("%homedrive%" c: d: e: f: g: u: v: w: x: y: z:) do (
-        if exist "%%d\." do (
-            for %%f in (%%d\%pgd% %%d\.radiko\.miaj\image\%pgd%) do (
-                if exist %%f (
-                    %%f
-                    goto found
-                )
-            )
+    call :find "*%~1"
+    if errorlevel 2 (
+        echo ambiguous names:
+        for /d %%d in ("*%~1") do (
+            echo     %%d
         )
+        exit /b 2
     )
-    rem if not found...
-    :found
+    if errorlevel 1 (
+        echo can't find %~1
+        exit /b 1
+    )
+    goto chdir
 
-:endmount
+:find
+    set _dir=
+    for /d %%d in ("%~1") do (
+        if not "!_dir!"=="" exit /b 2
+        set _dir=%%d
+    )
+    if "%_dir%"=="" exit /b 1
+    exit /b 0
 
-    cd /d %LAPIOTA%\etc\profile.d
-    call 10autohotkey
+:chdir_pp
+    set _chain=.
+:nextp
+    set _pre=%~1
+    :choploop
+        if "%_pre%"=="" goto chdir_ppfail
+        call :find "%_chain%\*%_pre%"
+        if errorlevel 1 (
+            set _pre=%_pre:~0,-1%
+            goto choploop
+        )
+    set _chain=%_dir%
+    if "%_pre%"=="%~1" (
+        set _dir=%_chain%
+        goto chdir
+    ) else (
+        goto nextp
+    )
+:chdir_ppfail
+    echo can't find %~1, stopped at %_chain%
+    exit /b 0
 
+:chdir
+    if "%_dir%"=="" (
+        echo can't find %1
+        exit /b 1
+    )
+    call export - _dir
+    %leave%
+    cd "%_dir%"
     exit /b 0
 
 :init
@@ -44,6 +68,7 @@
     set     _rest=
     set _startdir=%~dp0
     set  _program=%~dpnx0
+    set  _parents=1
 
 :prep1
     if "%~1"==""            goto prep2
@@ -64,6 +89,14 @@
         set /a _verbose = _verbose + 1
     ) else if "%~1"=="--verbose" (
         set /a _verbose = _verbose + 1
+    ) else if "%~1"=="-P" (
+        set _parents=
+    ) else if "%~1"=="--no-postfix-parents" (
+        set _parents=
+    ) else if "%~1"=="-p" (
+        set _parents=1
+    ) else if "%~1"=="--postfix-parents" (
+        set _parents=1
     ) else if "%_arg:~0,1%"=="-" (
         if "%_strict%"=="1" (
             echo Invalid option: %1
@@ -80,19 +113,9 @@
     goto prep1
 
 :prep2
-    if "%~1"=="" goto prep3
-    set LAPIOTA=%~1
-    shift
+    if "%~1"=="" goto help
 
 :prep3
-    if "%~1"=="" (
-        set _=%1.
-        set _=!_:"=?!
-        if !_!==. goto init_ok
-    )
-    set _rest=%_rest%%1
-    shift
-    goto prep3
 
 :init_ok
     if %_verbose% geq 1 (set _ | tabify -b -d==)
@@ -106,7 +129,7 @@
         set      _time=%%k
         set    _author=%%l
     )
-    echo [lapiota-boot] Lapiota Booter Program
+    echo [cde] "ends-with" version of chdir
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
     exit /b 0
 
@@ -114,9 +137,11 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] ...
+    echo    %_program% [OPTION] DIRNAME
     echo.
     echo Options:
+    echo    -p, --postfix-parents
+    echo    -P, --no-postfix-parents
     echo    -q, --quiet         repeat to get less info
     echo    -v, --verbose       repeat to get more info
     echo        --version       show version info

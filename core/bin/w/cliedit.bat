@@ -63,7 +63,7 @@
     set      _nam=net.bodz.lapiota.programs.CommandLineEditor
     set     _namf=%_nam:.=\%
     set      _ext=
-    set _javaopts=-ea -DGenerateBatches=1 net.bodz.lapiota.programs.Launcher net.bodz.lapiota.loader.SWTClassLoader
+    set _javaopts=-ea -DGenerateBatches=1 net.bodz.lapiota.programs.ClassLauncher net.bodz.lapiota.loader.SWTClassLoader
 
     if not "%JAVA_HOME%"=="" set PATH=%JAVA_HOME%\bin;%PATH%
 
@@ -94,11 +94,13 @@
 
     if not "%_libver%"=="1" goto morecp_f
     set _morecp=%_morecp%;%JAVA_LIB%\%libbodz_swt%
+    set _morecp=%_morecp%;%JAVA_LIB%\%libbodz_icons%
     set _morecp=%_morecp%;%JAVA_LIB%\%libbodz_bas%
 
     goto initcp2
   :morecp_f
     set _morecp=%_morecp%;%JAVA_LIB%\net.bodz.swt.jar
+    set _morecp=%_morecp%;%JAVA_LIB%\net.bodz.icons.jar
     set _morecp=%_morecp%;%JAVA_LIB%\net.bodz.bas.jar
 
 

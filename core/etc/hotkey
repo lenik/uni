@@ -332,7 +332,7 @@ appskey & numpadsub::send {volumn_down}
 #+e::run cmdw /c em
 #+g::run cmd /c gcon
 #+j::run cmdw /c eclipse
-^enter::
+^!enter::
     settitlematchmode 2
     ifwinactive, Eclipse SDK
     {
@@ -340,7 +340,7 @@ appskey & numpadsub::send {volumn_down}
         sleep 300
         send {end}{enter}{left 2}
     } else {
-        send ^{enter}
+        send ^!{enter}
     }
     return
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}

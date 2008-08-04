@@ -93,20 +93,22 @@
             - /lapiota/usr/lib/python2.4
 
     - set-assoc:
+        - groovy-program    .groovy .gj
+        -   | ${findabc -w groovy}\bin\groovy.bat \"%0\" %*
         - M4-script         .m4
         -   | $CYGWIN_ROOT\bin\m4 \"%0\" %*
-        - php-program       .php
-        -   | ${findabc -w php}\php.exe \"%0\" %*
+        - MIT-scheme        .scm
+        -   | ${findabc -w mit_scheme}\bin\scheme \"%0\" %*
         - perl-program      .pl .p .pc
         -   | cmd /c %%PERL%% \"%0\" %*
         - perl-daemon       .pld
         -   | cmdw /c %%PERLW%% \"%0\" %*
+        - php-program       .php
+        -   | ${findabc -w php}\php.exe \"%0\" %*
         - python-program    .py .pyc
         -   | $CYGWIN_ROOT\bin\python.exe \"%0\" %*
         - ruby-program      .rb
         -   | ${findabc -w ruby}\bin\ruby \"%0\" %*
-        - MIT-scheme        .scm
-        -   | ${findabc -w mit_scheme}\bin\scheme \"%0\" %*
         - shell-script      .sh
         -   | $LAPIOTA\bin\myexec /2 $SHELL -c \"%0\" %*
         - six-program       .six .6
@@ -153,6 +155,11 @@
             -           | $LAPIOTA\bin\xmake.bat --pause -C \"%1\"
             - makerun   Make and run
             -           | $LAPIOTA\bin\xmake.bat --pause -x -C \"%1\"
+        - '".au3" ->'
+            - open
+            -           | ${findabc -w autoit}\autoit3 \"%1\"
+            - compl     Compile Script
+            -           | ${findabc -w autoit}\aut2exe\aut2exe /in \"%1\"
         - '".ahk" ->'
             - open
             -           | ${findabc -w autohotkey}\autohotkey \"%1\"
@@ -160,7 +167,7 @@
             -           | ${findabc -w autohotkey}\Compiler\ahk2exe /in \"%1\"
         - .bat ->
             - open
-            -           | cmd /c "%1" %*
+            -           | cmd /c \"%1\" %*
         - '".c .cpp .cxx .pas" ->'
             - compl     Compile
             -           | $LAPIOTA\bin\xcompl.bat --pause \"%1\"
@@ -184,6 +191,10 @@
         - '".jar .war .ear" ->'
             - decompl   Decompile java archive
             -           | $LAPIOTA\bin\dejar.bat \"%1\"
+            - run       Run java application (Console)
+            -           | $LAPIOTA\bin\runjar.bat -p \"%1\"
+            - runw      Run java application (Windows)
+            -           | $LAPIOTA\bin\runjar.bat -w \"%1\"
         - .labat ->
             - install   Install
             -           | $LAPIOTA\bin\w\labat.bat \"%1\"

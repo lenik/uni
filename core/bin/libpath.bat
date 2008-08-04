@@ -31,7 +31,7 @@
 :version
 :h
 :help
-    echo [%_lib%] Path utility
+    echo [%_lib%] BAT Library Of Path Functions
     echo author: lenik,  version: 0.1,  last updated: ?
     echo.
     echo THE LIBRARY IS DISTRIBUTED UNDER LGPL LICENSE.
@@ -40,6 +40,7 @@
 
     echo.
     echo Syntax: call %~n0 -command (or /command) arguments...
+    echo.
     echo Command List:
     echo    -p, --prefix PATH N get the dirname N'times of PATH, def N=1
     echo    -v, --version       show version information

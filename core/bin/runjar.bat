@@ -6,36 +6,12 @@
 
 :start
 
-    if not "%LAPIOTA%"=="" goto located
+    set _java=java
+    if "%_winmode%"=="1" set _java=start javaw
 
-    for /d %%i in (t lapiota) do (
-        set LAPIOTA=%%~dpnxi
-        goto located
-    )
+    %_java% -jar "%_jar%" %_rest%
 
-:located
-    rd %LAPIOTA% 2>nul
-    md %LAPIOTA% 2>nul
-
-    set pgd=lam.root.pgd
-    for %%d in ("%homedrive%" c: d: e: f: g: u: v: w: x: y: z:) do (
-        if exist "%%d\." do (
-            for %%f in (%%d\%pgd% %%d\.radiko\.miaj\image\%pgd%) do (
-                if exist %%f (
-                    %%f
-                    goto found
-                )
-            )
-        )
-    )
-    rem if not found...
-    :found
-
-:endmount
-
-    cd /d %LAPIOTA%\etc\profile.d
-    call 10autohotkey
-
+    if "%_pause%"=="1" pause
     exit /b 0
 
 :init
@@ -64,6 +40,14 @@
         set /a _verbose = _verbose + 1
     ) else if "%~1"=="--verbose" (
         set /a _verbose = _verbose + 1
+    ) else if "%~1"=="-p" (
+        set _pause=1
+    ) else if "%~1"=="--pause" (
+        set _pause=1
+    ) else if "%~1"=="-w" (
+        set _winmode=1
+    ) else if "%~1"=="--winmode" (
+        set _winmode=1
     ) else if "%_arg:~0,1%"=="-" (
         if "%_strict%"=="1" (
             echo Invalid option: %1
@@ -80,8 +64,8 @@
     goto prep1
 
 :prep2
-    if "%~1"=="" goto prep3
-    set LAPIOTA=%~1
+    if "%~1"=="" goto help
+    set _jar=%~1
     shift
 
 :prep3
@@ -106,7 +90,7 @@
         set      _time=%%k
         set    _author=%%l
     )
-    echo [lapiota-boot] Lapiota Booter Program
+    echo [runjar] Run java application packaged in jar archive
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
     exit /b 0
 
@@ -117,6 +101,8 @@
     echo    %_program% [OPTION] ...
     echo.
     echo Options:
+    echo    -p, --pause         pause before exit, only used in console mode
+    echo    -w, --winmode       windows mode, launch using javaw.exe
     echo    -q, --quiet         repeat to get less info
     echo    -v, --verbose       repeat to get more info
     echo        --version       show version info

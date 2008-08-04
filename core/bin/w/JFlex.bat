@@ -60,7 +60,7 @@
     set _startdir=%~dp0
     set  _program=%~dpnx0
 
-    set      _nam=net.bodz.lapiota.programs.FileCompare
+    set      _nam=net.bodz.lapiota.exttools.JFlex
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=-ea -DGenerateBatches=1
@@ -93,10 +93,12 @@
 
 
     if not "%_libver%"=="1" goto morecp_f
+    set _morecp=%_morecp%;%JAVA_LIB%\%libjflex%
     set _morecp=%_morecp%;%JAVA_LIB%\%libbodz_bas%
 
     goto initcp2
   :morecp_f
+    set _morecp=%_morecp%;%JAVA_LIB%\jflex-1.4.1.jar
     set _morecp=%_morecp%;%JAVA_LIB%\net.bodz.bas.jar
 
 

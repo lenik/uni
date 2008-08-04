@@ -60,7 +60,7 @@
     set _startdir=%~dp0
     set  _program=%~dpnx0
 
-    set      _nam=net.bodz.lapiota.programs.ClassWrap
+    set      _nam=net.bodz.lapiota.programs.GenerateClassWrappers
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=-ea -DGenerateBatches=1

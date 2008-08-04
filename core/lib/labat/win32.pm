@@ -296,7 +296,8 @@ sub set_ctxmenu { &hi;
 sub set_assoc { &hi;
     my ($ctx, $progid, $exts, $cmd) = @_;
     for my $ext (@$exts) {
-        $CROOT->{$ext}->{'/'} = $progid;
+        my $eh = _automk $CROOT, "$ext/";
+        $eh->{'/'} = $progid;
     }
     my $h = _automk $CROOT, "$progid/Shell/Open/Command";
     $h->{'/'} = $cmd;

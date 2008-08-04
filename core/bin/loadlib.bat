@@ -1,42 +1,56 @@
 @echo off
 
+    set _export=%TEMP%\loadlib_%RANDOM%.bat
+
     setlocal
     set _strict=1
     goto init
 
 :start
 
-    if not "%LAPIOTA%"=="" goto located
+    REM _____________________________________________
 
-    for /d %%i in (t lapiota) do (
-        set LAPIOTA=%%~dpnxi
-        goto located
+:loop
+    if "%~1"=="" goto saveExit
+    if not exist "%~1\%_libini%" goto next
+
+    set _libid=%~1
+    set _libid=%_libid:\=_%
+    set _libid=%_libid::=_%
+    set _libid=%_libid:/=_%
+    if not "!_lib_%_libid%!"=="" goto next
+
+    call :loadini lib "%~1\%_libini%"
+    echo set _lib_%_libid%=1 >>%_export%
+
+:next
+    shift
+    goto loop
+
+:saveExit
+    rem call export
+    rem %leave%
+    endlocal
+    if exist "%_export%" (
+        call "%_export%"
+        del /f "%_export%" >nul 2>nul
     )
+    set _export=
+    exit /b
 
-:located
-    rd %LAPIOTA% 2>nul
-    md %LAPIOTA% 2>nul
+:loadini
+    set _prefix=%~1
+    shift
 
-    set pgd=lam.root.pgd
-    for %%d in ("%homedrive%" c: d: e: f: g: u: v: w: x: y: z:) do (
-        if exist "%%d\." do (
-            for %%f in (%%d\%pgd% %%d\.radiko\.miaj\image\%pgd%) do (
-                if exist %%f (
-                    %%f
-                    goto found
-                )
-            )
-        )
+    set _dir=%~dp1
+    for /f "delims== tokens=1,2 usebackq" %%i in ("%~1") do (
+        set _k=%%i
+        set _v=%%j
+        set _k=!_k: =!
+        set _v=!_v: =!
+        echo set %_prefix%_!_k!=%_dir%!_v!>>"%_export%"
     )
-    rem if not found...
-    :found
-
-:endmount
-
-    cd /d %LAPIOTA%\etc\profile.d
-    call 10autohotkey
-
-    exit /b 0
+    exit /b
 
 :init
     set  _verbose=0
@@ -44,6 +58,7 @@
     set     _rest=
     set _startdir=%~dp0
     set  _program=%~dpnx0
+    set   _libini=libraries.ini
 
 :prep1
     if "%~1"==""            goto prep2
@@ -64,6 +79,18 @@
         set /a _verbose = _verbose + 1
     ) else if "%~1"=="--verbose" (
         set /a _verbose = _verbose + 1
+    ) else if "%~1"=="-i" (
+        set _include=%~2
+        shift
+    ) else if "%~1"=="--include" (
+        set _include=%~2
+        shift
+    ) else if "%~1"=="-e" (
+        set _exclude=%~2
+        shift
+    ) else if "%~1"=="--exclude" (
+        set _exclude=%~2
+        shift
     ) else if "%_arg:~0,1%"=="-" (
         if "%_strict%"=="1" (
             echo Invalid option: %1
@@ -80,33 +107,23 @@
     goto prep1
 
 :prep2
-    if "%~1"=="" goto prep3
-    set LAPIOTA=%~1
-    shift
+    if "%~1"=="" goto help
 
 :prep3
-    if "%~1"=="" (
-        set _=%1.
-        set _=!_:"=?!
-        if !_!==. goto init_ok
-    )
-    set _rest=%_rest%%1
-    shift
-    goto prep3
 
 :init_ok
     if %_verbose% geq 1 (set _ | tabify -b -d==)
     goto start
 
 :version
-    set _id=$Id: .bat 784 2008-01-15 10:53:24Z lenik $
+    set _id=$Id$
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
         set      _time=%%k
         set    _author=%%l
     )
-    echo [lapiota-boot] Lapiota Booter Program
+    echo [loadlib] Load variables defined in libraries.ini under spec libdir.
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
     exit /b 0
 
@@ -114,9 +131,11 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] ...
+    echo    %_program% [OPTION] DIR...
     echo.
     echo Options:
+    echo    -i, --include=WILDCHAR
+    echo    -e, --exclude=WILDCHAR
     echo    -q, --quiet         repeat to get less info
     echo    -v, --verbose       repeat to get more info
     echo        --version       show version info
