@@ -259,18 +259,25 @@ sub ppdom(&;@) {
     return @stack ? $stack[0] : $curr;
 }
 
-sub ppvarf(&$) {
+sub ppvarf(&$;$) {
         no warnings('substr', 'uninitialized');
     my $resolv  = shift;
     my $text    = shift;
-    forx qr/\$(\w+|\{(\\.|[^\}])*\}|\S)/, sub {
-        if (substr($_, $-[0] - 1, 1) ne '\\') {
-            my $name = (substr($1, 0, 1) eq '{')
-                ? substr($1, 1, length($1) - 2) : $1;
-            my $value = $resolv->($name);
-            $_ = $value if defined $value;
-        }
-    }, $text;
+    my $recur   = shift;
+    $recur = 0 unless defined $recur;
+    my $last;
+    do {
+        $last = $text;
+        $text = forx qr/\$(\w+|\{(\\.|[^\{\}])*\}|\S)/, sub {
+            if (substr($_, $-[0] - 1, 1) ne '\\') {
+                my $name = (substr($1, 0, 1) eq '{')
+                    ? substr($1, 1, length($1) - 2) : $1;
+                my $value = $resolv->($name);
+                $_ = $value if defined $value;
+            }
+        }, $last;
+    } while ($recur and $text ne $last);
+    return $text;
 }
 
 sub ppvar(\%@) {

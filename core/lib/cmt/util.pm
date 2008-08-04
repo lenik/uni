@@ -5,7 +5,7 @@ use vars qw($LOGNAME $LOGLEVEL);
     $LOGNAME    = __PACKAGE__;
 use cmt::lang('_or');
 use cmt::log(2);
-use cmt::path();
+use cmt::path('temp_path');
 use cmt::proxy;
 use Data::Dumper;
 use Exporter;
@@ -39,6 +39,7 @@ our @EXPORT = qw(forx
                  changefile
                  select_input
                  seleci
+                 io_cap
                  fire_sub
                  fire_method
                  at_exit
@@ -404,6 +405,54 @@ sub seleci {
         open(STDIN, '<&', $oldin)
             or die "can't restore STDIN to the dup-backuped one: $!";
     }
+}
+
+sub io_cap(&;$$$) {
+    my ($code, $out, $err, $in) = @_;
+    my ($old_out, $old_err, $old_in);
+
+    my ($outbuf, $errbuf, $inbuf);
+    unless (defined $out) {
+        $outbuf = cmt::path::temp_path(); # FIX - temp_path isn't imported?
+        open $out, '>', $outbuf;
+        # the mixing isn't work, out is always after the whole err.
+        $err = $out unless wantarray or defined $err;
+    }
+    unless (defined $err) {
+        $errbuf = cmt::path::temp_path();
+        open $err, '>', $errbuf;
+    }
+    if (defined $in and ref $in eq '') { # in is string-buffer
+        $inbuf = cmt::path::temp_path();
+        open $in, '<', $inbuf;
+    }
+    open($old_out, '>&STDOUT') if defined $out;
+    open($old_err, '>&STDERR') if defined $err;
+    open($old_in,  '<&STDIN')  if defined $in;
+    open(STDOUT, '>&', $out) if defined $out;
+    open(STDERR, '>&', $err) if defined $err;
+    open(STDIN,  '<&', $in)  if defined $in;
+    $code->();
+    open(STDOUT, '>&', $old_out) if defined $out;
+    open(STDERR, '>&', $old_err) if defined $err;
+    open(STDIN,  '<&', $old_in)  if defined $in;
+
+    if (defined $outbuf) {
+        close $out;
+        $out = readfile($outbuf);
+        unlink $outbuf;
+    }
+    if (defined $errbuf) {
+        close $err;
+        $err = readfile($errbuf);
+        unlink $errbuf;
+    }
+    if (defined $inbuf) { # shall return unread data?
+        close $in;
+        unlink $in;
+        undef $in
+    }
+    wantarray ? ($out, $err, $in) : $out;
 }
 
 sub fire_sub {

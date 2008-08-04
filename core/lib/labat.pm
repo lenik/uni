@@ -20,7 +20,7 @@ use cmt::log(3);
 use cmt::path('path_join', 'path_split');
 use cmt::perlsys('which_sub');
 use cmt::pp('ppvarf');
-use cmt::util('qsplit', 'readfile');
+use cmt::util('qsplit', 'readfile', 'io_cap');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
     our $VER    = "0.$RCSID{rev}";
@@ -192,14 +192,25 @@ sub _resolvf    {
         }
         if (/\s/) {
             my ($call, @args) = qsplit(qr/\s+/, _resolv($ctx, $_));
-            my $code = __PACKAGE__->can($call);
-            return $code->($ctx, @args) if ref $code;
+            my $code = __PACKAGE__->can($call); # e.g. `findabc'
+            if (ref $code) {
+                return $code->($ctx, @args);
+            } else {
+                my ($out, $err) = io_cap { system($call, @args) };
+                $out =~ s/\s+$//s; # trim right
+                if ($err ne '') {
+                    for my $errline (split(/\n/, $err)) {
+                        _log2 "  err>> $errline";
+                    }
+                }
+                return $out;
+            }
         }
         undef
     }
 }
 sub _resolv     { my ($ctx, $s) = @_; my $f = _resolvf($ctx);
-                  ppvarf(\&$f, $s) }
+                  ppvarf(\&$f, $s, 1) } # 1=recursive
 sub _resolv2    { my ($ctx, $s) = @_; $s = _resolv($ctx, $s);
                   qsplit(qr/\s+/, $s, undef, undef, '\'"`') }
 
@@ -436,7 +447,7 @@ sub _compile2 {
                 ($code, $cs) = @$fun;
                 last
             } else {
-                $code = __PACKAGE__->can($cname);
+                $code = __PACKAGE__->can($cname); # e.g. `set_assoc'
                 unless (defined $code) {
                     $code = $ALIAS{$cname};
                 }

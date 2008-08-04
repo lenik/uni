@@ -220,12 +220,14 @@ sub temp_home {
 =head3      temp_path
 
 =cut
+our $_uid = 0;
 sub temp_path {
     my $name = shift;
+    my $uid = $$.'_'.$_uid++;
     if (defined $name) {
-        $name =~ s/\?/$$/g;
+        $name =~ s/\?/$uid/g;
     } else {
-        $name = "cmt_$$.tmp";
+        $name = "cmt_$uid.tmp";
     }
     return temp_home . $SLASH . $name;
 }

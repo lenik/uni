@@ -18,7 +18,7 @@
         - w=        PERLW       $CYGWIN_ROOT\bin\perlw
         - w=        PAGER       'less -Ceifr'
         - =         DISPLAY     127.0.0.1:0.0
-        - w=        HOME        ${findexist C:\Lam\home\$USERNAME $LAPIOTA\home\$USERNAME}
+        - w=        HOME        ${findexist ${cygpath -w $HOME} $LAPIOTA\home\$USERNAME}
         - w-%       PATH        $LAPIOTA
         - w-%       PATH        %HOME%
         - w+.HDR    PATH        ->
@@ -131,6 +131,8 @@
             -           | $LAPIOTA\bin\tgz.bat \"%1\"
             - ar-chm    Archive this directory into .chm file
             -           | $LAPIOTA\bin\w\mkchm.bat -v -r -cd -o .. \"%1\"
+            - ar-jar    Archive this directory into .jar file
+            -           | ${findabc -w jdk}\bin\jar.exe cvf \"%1.jar\" -C \"%1\" *
             - cmd       [1] Win32 Console
             -           | cmd /k $LAPIOTA\bin\lapiota-init.bat login \"%1\"
             - bigcmd    [1] Win32 Console (Big)

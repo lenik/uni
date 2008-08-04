@@ -205,6 +205,8 @@ sub batch_main {
     }
     _sig1 'done', "total $n_diff/$n_all files changed, $n_save files saved.";
     unlink $tmpf;
+
+    ($n_all, $n_diff, $n_save)
 }
 
 sub save_opts {
