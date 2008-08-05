@@ -95,7 +95,7 @@ public class ConvertEncoding extends BatchProcessCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new ConvertEncoding().climain(args);
+        new ConvertEncoding().run(args);
     }
 
 }

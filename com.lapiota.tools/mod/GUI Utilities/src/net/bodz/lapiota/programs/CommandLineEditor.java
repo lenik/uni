@@ -70,7 +70,7 @@ public class CommandLineEditor extends BasicGUI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new CommandLineEditor().climain(args);
+        new CommandLineEditor().run(args);
     }
 
 }

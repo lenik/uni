@@ -58,7 +58,7 @@ public class ASTDump extends BasicCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new ASTDump().climain(args);
+        new ASTDump().run(args);
     }
 
     @SuppressWarnings("unchecked")

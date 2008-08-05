@@ -22,7 +22,7 @@ public class FileLister extends BatchProcessCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new FileLister().climain(args);
+        new FileLister().run(args);
     }
 
 }

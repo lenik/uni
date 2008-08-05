@@ -244,7 +244,7 @@ public class FindClassResource extends BasicCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new FindClassResource().climain(args);
+        new FindClassResource().run(args);
     }
 
 }

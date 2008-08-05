@@ -3,7 +3,7 @@ package net.bodz.lapiota._extern;
 import net.bodz.bas.cli.RunInfo;
 import net.bodz.lapiota.wrappers.JavaLauncher;
 
-@RunInfo(lib = { "ant", "ant-launcher" })
+@RunInfo(lib = { "ant.jar", "ant-launcher.jar" })
 public class Ant extends JavaLauncher {
 
     @Override

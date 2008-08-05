@@ -18,7 +18,7 @@ public class SnmCC extends BasicCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new SnmCC().climain(args);
+        new SnmCC().run(args);
     }
 
 }

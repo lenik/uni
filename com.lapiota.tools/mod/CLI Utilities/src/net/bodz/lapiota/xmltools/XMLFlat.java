@@ -220,7 +220,7 @@ public class XMLFlat extends BasicCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new XMLFlat().climain(args);
+        new XMLFlat().run(args);
     }
 
 }

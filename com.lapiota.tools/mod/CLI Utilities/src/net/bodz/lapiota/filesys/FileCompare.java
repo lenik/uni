@@ -48,7 +48,7 @@ public class FileCompare extends BasicCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new FileCompare().climain(args);
+        new FileCompare().run(args);
     }
 
 }

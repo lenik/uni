@@ -338,7 +338,7 @@ public class XMLEdit extends BasicCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new XMLEdit().climain(args);
+        new XMLEdit().run(args);
     }
 
 }

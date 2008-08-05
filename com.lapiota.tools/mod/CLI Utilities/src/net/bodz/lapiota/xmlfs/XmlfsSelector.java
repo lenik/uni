@@ -57,7 +57,7 @@ public class XmlfsSelector extends BasicCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new XmlfsSelector().climain(args);
+        new XmlfsSelector().run(args);
     }
 
 }

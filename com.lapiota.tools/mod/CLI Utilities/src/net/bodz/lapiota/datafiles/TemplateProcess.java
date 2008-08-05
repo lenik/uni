@@ -19,7 +19,7 @@ import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.text.interp.Interps;
-import net.bodz.bas.text.interp.Quotable;
+import net.bodz.bas.types.util.Strings;
 import net.bodz.lapiota.annotations.ProgramName;
 import net.bodz.lapiota.util.GroovyExpand;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
@@ -75,7 +75,7 @@ public class TemplateProcess extends BatchProcessCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new TemplateProcess().climain(args);
+        new TemplateProcess().run(args);
     }
 
     // Plugin Interfaces
@@ -186,9 +186,8 @@ public class TemplateProcess extends BatchProcessCLI {
         @Option(doc = "comment char")
         String              commentChar = "#";
 
-        @Option(doc = "field delimiter")
-        String              delimiter   = ",";
-        private Quotable    quot;
+        @Option(doc = "field delimiter characters, default ','")
+        String              delim       = ",";
 
         @Option(doc = "max number of fields, see String#split(String, int)")
         int                 limit       = 0;
@@ -221,12 +220,11 @@ public class TemplateProcess extends BatchProcessCLI {
         public void setParameters(Map<String, Object> parameters)
                 throws CLIException, ParseException {
             super.setParameters(parameters);
-            quot = new Quotable('"');
         }
 
         @Override
         public boolean next() throws Exception {
-            String _delim = Pattern.quote(delimiter);
+            String _delim = Pattern.quote(delim);
             String line;
             while ((line = lineIn.readLine()) != null) {
                 line = line.trim();
@@ -236,7 +234,8 @@ public class TemplateProcess extends BatchProcessCLI {
                 if (names != null && names.length < limit)
                     limit = names.length;
 
-                String[] parts = quot.split(_delim, line, limit);
+                String[] parts = Strings.split(line, _delim.toCharArray(),
+                        limit);
                 if (names == null) {
                     names = parts;
                     for (int i = 0; i < names.length; i++)

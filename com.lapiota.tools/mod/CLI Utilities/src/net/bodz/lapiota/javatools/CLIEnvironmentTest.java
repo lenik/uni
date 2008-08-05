@@ -51,7 +51,7 @@ public class CLIEnvironmentTest extends BasicCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new CLIEnvironmentTest().climain(args);
+        new CLIEnvironmentTest().run(args);
     }
 
 }

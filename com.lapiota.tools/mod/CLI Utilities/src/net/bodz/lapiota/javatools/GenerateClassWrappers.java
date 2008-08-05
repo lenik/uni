@@ -232,7 +232,7 @@ public class GenerateClassWrappers extends BasicCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new GenerateClassWrappers().climain(args);
+        new GenerateClassWrappers().run(args);
     }
 
 }

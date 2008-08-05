@@ -74,7 +74,7 @@ public class FileReplace extends BatchProcessCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new FileReplace().climain(args);
+        new FileReplace().run(args);
     }
 
 }

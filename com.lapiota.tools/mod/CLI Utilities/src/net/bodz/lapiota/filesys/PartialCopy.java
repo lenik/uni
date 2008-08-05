@@ -231,6 +231,6 @@ public class PartialCopy extends BasicCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new PartialCopy().climain(args);
+        new PartialCopy().run(args);
     }
 }

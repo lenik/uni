@@ -89,7 +89,7 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new PackageFragmentsProcess().climain(args);
+        new PackageFragmentsProcess().run(args);
     }
 
     static interface Action extends CLIPlugin {

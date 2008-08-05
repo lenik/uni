@@ -15,7 +15,7 @@ public class J4convBoot extends BasicCLI {
 
     public static void main(String[] args) throws Throwable {
         _RunInfo.parse(J4convBoot.class).loadBoot();
-        new J4conv().climain(args);
+        new J4conv().run(args);
     }
 
 }

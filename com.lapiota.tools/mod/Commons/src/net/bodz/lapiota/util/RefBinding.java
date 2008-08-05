@@ -11,6 +11,9 @@ import net.bodz.bas.lang.script.ScriptException;
 import net.bodz.bas.lang.script.ScriptField;
 import net.bodz.bas.lang.script.Scripts;
 
+/**
+ * Groovy variable binding with reflect fields
+ */
 public class RefBinding extends Binding {
 
     private Map<?, ?>                orig;

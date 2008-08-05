@@ -259,7 +259,7 @@ public class MergeDirectories extends BatchProcessCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new MergeDirectories().climain(args);
+        new MergeDirectories().run(args);
     }
 
 }

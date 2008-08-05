@@ -1,118 +1,112 @@
 package net.bodz.lapiota.javatools;
 
+import static net.bodz.bas.types.util.Strings.qq;
+
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import net.bodz.bas.annotations.ClassInfo;
+import net.bodz.bas.annotations.Doc;
+import net.bodz.bas.annotations.Version;
+import net.bodz.bas.cli.CLIConfig;
+import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.RunInfo;
-import net.bodz.bas.cli._RunInfo;
-import net.bodz.bas.cli.util.Rcs;
 import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.bas.cli.util.VersionInfo;
 import net.bodz.bas.io.Files;
+import net.bodz.bas.io.CharOuts.Buffer;
 import net.bodz.bas.lang.Caller;
 import net.bodz.bas.lang.err.IdentifiedException;
+import net.bodz.bas.loader.JavaLibraryLoader;
 import net.bodz.bas.text.interp.Interps;
 import net.bodz.bas.types.util.Annotations;
 import net.bodz.bas.types.util.Types;
 import net.bodz.lapiota.annotations.LoadBy;
 import net.bodz.lapiota.annotations.ProgramName;
+import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Task;
-
+@Doc("Generate program launcher for java applications")
+@Version( { 0, 1 })
 @RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
-public class GenerateProgramLauncher extends Task {
+@ProgramName("mkbat")
+public class GenerateProgramLauncher extends BatchProcessCLI {
 
-    private int                 loglevel = 1;
-    private String              srcdir;
-    private String              batdir;
-    private String              prefix   = "";
-    private String              charset  = "utf-8";
+    // private String prefix = "";
     private Map<String, String> varmap;
     private Set<String>         generated;
 
     public GenerateProgramLauncher() {
-        varmap = new HashMap<String, String>();
-        varmap.put("GENERATOR", "GenerateBatches 0." + verinfo.getVersion()
-                + "  Last updated: " + verinfo.getDate());
         generated = new HashSet<String>();
+        varmap = new HashMap<String, String>();
+        varmap.put("PROPERTY_LIB_LOADED", CLIConfig.PROPERTY_LIB_LOADED);
+        ClassInfo classInfo = _loadClassInfo();
+        varmap.put("GENERATOR", GenerateProgramLauncher.class.getSimpleName()
+                + " " + classInfo.getVersionString() + ", "
+                + classInfo.getDateString());
     }
 
-    public int getLoglevel() {
-        return loglevel;
+    @Override
+    protected void _boot() throws Throwable {
+        // Classpath.dumpURLs(Caller.getCallerClassLoader(), CharOuts.stderr);
     }
 
-    public void setLoglevel(int loglevel) {
-        this.loglevel = loglevel;
-    }
+    @Override
+    protected ProcessResult doFile(File file) throws Throwable {
+        String ext = Files.getExtension(file, true);
+        if (!".java".equals(ext) && !".class".equals(ext))
+            return ProcessResult.pass();
+        String name = Files.getName(file);
+        if (name.contains("$")) // ignore inner classes
+            return ProcessResult.pass("inner");
 
-    public String getSrcdir() {
-        return srcdir;
-    }
+        File bootFile = new File(file.getParentFile(), name + "Boot." + ext);
+        if (bootFile.exists())
+            return ProcessResult.pass("boot");
 
-    public void setSrcdir(String srcdir) {
-        this.srcdir = srcdir;
-    }
+        String className = getRelativeName(file);
+        className = className.substring(0, className.length() - ext.length());
+        className = className.replace('\\', '/');
+        className = className.replace('/', '.');
+        if (generated.contains(className))
+            return ProcessResult.pass("repeat");
 
-    public String getBatdir() {
-        return batdir;
-    }
+        ClassLoader loader = Caller.getCallerClassLoader();
 
-    public void setBatdir(String batdir) {
-        this.batdir = batdir;
-    }
-
-    public String getPrefix() {
-        return prefix;
-    }
-
-    public void setPrefix(String prefix) {
-        if (prefix == null)
-            prefix = "";
-        else
-            prefix = prefix.trim();
-        if (prefix.length() > 0)
-            if (prefix.endsWith("."))
-                prefix += ".";
-        this.prefix = prefix;
-    }
-
-    public String getCharset() {
-        return charset;
-    }
-
-    public void setCharset(String charset) {
-        this.charset = charset;
-    }
-
-    protected void log1(String msg) {
-        if (loglevel >= 1)
-            System.out.println(msg);
-    }
-
-    protected void log2(String msg) {
-        if (loglevel >= 2)
-            System.out.println(msg);
+        Class<?> clazz = null;
+        try {
+            L.d.P("try ", className);
+            clazz = Class.forName(className, false, loader);
+        } catch (Throwable t) {
+            return ProcessResult.err(t, "loadc");
+        }
+        try {
+            clazz.getMethod("main", String[].class);
+            L.i.P("    main-class: ", clazz);
+        } catch (NoSuchMethodException e) {
+            return ProcessResult.pass("notapp");
+        } catch (Throwable t) {
+            return ProcessResult.err(t, "loadf");
+        }
+        generate(clazz);
+        return ProcessResult.pass("ok");
     }
 
     protected void generate(Class<?> clazz) throws IOException {
         String name = clazz.getName();
-        if (generated.contains(name))
-            return;
 
-        File batdirf = Files.canoniOf(batdir);
-        if (!batdirf.exists())
-            if (!batdirf.mkdirs())
-                throw new IOException("failed to mkdir " + batdir);
         String batName = Annotations.getAnnotation(clazz, ProgramName.class);
-        if (batName == null)
+        if (batName == null) {
             batName = clazz.getSimpleName();
-        File batf = new File(batdirf, batName + ".bat");
+        }
+        File batf = getOutputFile(batName + ".bat");
+        batf.getParentFile().mkdirs();
 
+        // varmap.clear();
+        varmap.put("TEMPLATE", new File(batTemplate.getPath()).getName());
         varmap.put("NAME", name);
 
         String launch = "";
@@ -124,120 +118,51 @@ public class GenerateProgramLauncher extends Task {
         }
         varmap.put("LAUNCH", launch);
 
-        StringBuffer morecp1 = new StringBuffer();
-        StringBuffer morecpR = new StringBuffer();
-        StringBuffer morecpF = new StringBuffer();
-
+        Buffer loadlibs = new Buffer();
+        JavaLibraryLoader libloader = JavaLibraryLoader.DEFAULT;
         for (Class<?> c : Types.getTypeChain(clazz)) {
             RunInfo runInfo = c.getAnnotation(RunInfo.class);
             if (runInfo == null)
                 continue;
             for (String lib : runInfo.lib()) {
-                String r = "%lib" + lib + "%";
-                String f = _RunInfo.libversions.getProperty("lib" + lib, lib
-                        + ".jar");
-                morecpR.append("set _morecp=%_morecp%;%JAVA_LIB%\\" + r
-                        + "\n    ");
-                morecpF.append("set _morecp=%_morecp%;%JAVA_LIB%\\" + f
-                        + "\n    ");
+                File f = libloader.findLibraryFile(lib);
+                String fname;
+                if (f == null) {
+                    fname = lib + ".jar";
+                    L.w.P("lib ", lib, " => ", fname);
+                } else
+                    fname = f.getName();
+                String loadlib = "call :load " + qq(lib) + " " + qq(fname);
+                loadlibs.println("    " + loadlib);
             }
-//            for (String jar : runInfo.jar()) {
-//                String f = jar + ".jar";
-//                morecp1.append("set _morecp=%_morecp%;%JAVA_LIB%\\" + f
-//                        + "\n    ");
-//            }
         }
-        varmap.put("MORECP_1", morecp1.toString());
-        varmap.put("MORECP_R", morecpR.toString());
-        varmap.put("MORECP_F", morecpF.toString());
+        varmap.put("LOADLIBS_0", "");
+        varmap.put("LOADLIBS", loadlibs.toString());
 
-        String inst = Interps.dereference(template, varmap);
+        String inst = Interps.dereference(batTemplateBody, varmap);
 
-        if (Files.copyDiff(inst.getBytes(), batf))
-            log1("write " + batf);
-
-        generated.add(name);
+        if (force) {
+            Files.write(batf, inst.getBytes(), batf);
+            L.m.P("write ", batf);
+        } else if (Files.copyDiff(inst.getBytes(), batf))
+            L.m.P("save ", batf);
     }
 
-    protected void findmains(File dirf, final String pkg) throws IOException {
-        if (!dirf.isDirectory())
-            throw new IllegalArgumentException("Not a directory: " + dirf);
-
-        String[] files = dirf.list();
-
-        for (String name : files) {
-            int dot = name.lastIndexOf('.');
-            if (dot <= 0)
-                continue;
-            String ext = name.substring(dot + 1);
-            if (!"java".equals(ext) && !"class".equals(ext))
-                continue;
-            name = name.substring(0, dot);
-            if (name.contains("$")) // ignore inner classes
-                continue;
-            String fqcn = pkg + name;
-            ClassLoader loader = Caller.getCallerClassLoader();
-
-            // skip if Boot class exists.
-            try {
-                Class.forName(fqcn + "Boot", false, loader);
-                continue;
-            } catch (Throwable t) {
-            }
-
-            Class<?> clazz = null;
-            try {
-                log2("try " + fqcn);
-                clazz = Class.forName(fqcn, false, loader);
-            } catch (Throwable t) {
-                System.err.println("failed to load class " + name + ": " + t);
-                continue;
-            }
-            try {
-                clazz.getMethod("main", String[].class);
-                log2("    main-class: " + clazz);
-            } catch (NoSuchMethodException e) {
-                continue;
-            } catch (Throwable t) {
-                System.err.println("failed to get main of " + name + ": " + t);
-                continue;
-            }
-            generate(clazz);
-        }
-
-        for (String subdir : files) {
-            File subf = Files.canoniOf(dirf, subdir);
-            if (!subf.isDirectory())
-                continue;
-            log2("dir " + subf);
-            findmains(subf, pkg + subdir + ".");
-        }
-    }
-
-    @Override
-    public void execute() throws BuildException {
-        try {
-            findmains(Files.canoniOf(srcdir), prefix);
-        } catch (IOException e) {
-            throw new BuildException(e.getMessage(), e);
-        }
-    }
-
-    public synchronized void reset() {
-        generated.clear();
-    }
-
-    private static VersionInfo verinfo;
-    private static String      template;
+    static URL    batTemplate;
+    static String batTemplateBody;
 
     static {
-        verinfo = Rcs.parseId(GenerateProgramLauncher.class);
         try {
-            template = Files.readAll(Files.classData(GenerateProgramLauncher.class,
-                    "bat.tmpl"), "utf-8");
+            batTemplate = Files.classData(GenerateProgramLauncher.class,
+                    "batTemplate");
+            batTemplateBody = Files.readAll(batTemplate, "utf-8");
         } catch (IOException e) {
             throw new IdentifiedException(e.getMessage(), e);
         }
+    }
+
+    public static void main(String[] args) throws Throwable {
+        new GenerateProgramLauncher().run(args);
     }
 
 }

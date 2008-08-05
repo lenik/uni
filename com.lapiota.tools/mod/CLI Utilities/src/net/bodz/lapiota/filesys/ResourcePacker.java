@@ -145,7 +145,7 @@ public class ResourcePacker extends BatchProcessCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new ResourcePacker().climain(args);
+        new ResourcePacker().run(args);
     }
 
 }

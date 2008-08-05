@@ -136,7 +136,7 @@ public class FileProcess extends BatchProcessCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new FileProcess().climain(args);
+        new FileProcess().run(args);
     }
 
     public interface Action extends CLIPlugin {
