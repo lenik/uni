@@ -58,7 +58,7 @@
     set _startdir=%~dp0
     set  _program=%~dpnx0
 
-    set      _nam=net.bodz.lapiota.javatools.FindClassResource
+    set      _nam=net.bodz.lapiota.javatools.GenerateProgramLauncher
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=%JAVA_OPTS% -Dcli.lib_loaded=1
@@ -161,7 +161,7 @@
     goto start
 
 :version
-    set _id=$Id$
+    set _id=$Id: .bat 784 2008-01-15 10:53:24Z lenik $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
