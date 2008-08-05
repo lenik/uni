@@ -58,7 +58,7 @@
     set _startdir=%~dp0
     set  _program=%~dpnx0
 
-    set      _nam=net.bodz.lapiota._extern.JFlex
+    set      _nam=net.bodz.lapiota.hacks.Fix_BatBB
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=%JAVA_OPTS% -Dcli.lib_loaded=1
@@ -81,13 +81,11 @@
 
     set _morecp=
 
-    call :load "jflex" "JFlex-1.4.1.jar"
     call :load "bodz_lapiota" "net.bodz.lapiota.jar"
     call :load "bodz_bas" "net.bodz.bas.jar"
 
     goto initcp2
 
-:: Fix_BatBB ::
 :loadlibs
     set _libs=%~1
     call loadlib %_libs%
