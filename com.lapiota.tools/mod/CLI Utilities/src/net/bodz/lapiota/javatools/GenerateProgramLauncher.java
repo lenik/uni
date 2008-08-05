@@ -1,5 +1,6 @@
 package net.bodz.lapiota.javatools;
 
+import static net.bodz.bas.types.util.ArrayOps.Bytes;
 import static net.bodz.bas.types.util.Strings.qq;
 
 import java.io.File;
@@ -27,6 +28,7 @@ import net.bodz.bas.types.util.Annotations;
 import net.bodz.bas.types.util.Types;
 import net.bodz.lapiota.annotations.LoadBy;
 import net.bodz.lapiota.annotations.ProgramName;
+import net.bodz.lapiota.hacks.Fix_BatBB;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("Generate program launcher for java applications")
@@ -140,16 +142,20 @@ public class GenerateProgramLauncher extends BatchProcessCLI {
         varmap.put("LOADLIBS", loadlibs.toString());
 
         String inst = Interps.dereference(batTemplateBody, varmap);
-
+        byte[] batData = inst.getBytes();
+        byte[] batFixed = fix_BatBB.doFileEdit(batData);
+        if (!Bytes.equals(batData, batFixed))
+            L.m.P("bat label boundary fixed: ", batf);
         if (force) {
-            Files.write(batf, inst.getBytes(), batf);
+            Files.write(batf, batFixed, batf);
             L.m.P("write ", batf);
-        } else if (Files.copyDiff(inst.getBytes(), batf))
+        } else if (Files.copyDiff(batFixed, batf))
             L.m.P("save ", batf);
     }
 
-    static URL    batTemplate;
-    static String batTemplateBody;
+    static URL       batTemplate;
+    static String    batTemplateBody;
+    static Fix_BatBB fix_BatBB;
 
     static {
         try {
@@ -159,6 +165,7 @@ public class GenerateProgramLauncher extends BatchProcessCLI {
         } catch (IOException e) {
             throw new IdentifiedException(e.getMessage(), e);
         }
+        fix_BatBB = new Fix_BatBB();
     }
 
     public static void main(String[] args) throws Throwable {
