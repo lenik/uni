@@ -26,6 +26,25 @@ void output(FILE *f, const char *msg) {
     Sleep(100); /* safe interval for thread-switch */
 }
 
+int parseDuration(char *s) {
+    char *end;
+    double n = strtod(s, &end);
+    switch (*end) {
+    case 'u': /* micro sec */
+        n /= 1000;
+        break;
+    case 'm': /* milli sec */
+        break;
+    case 's': /* sec */
+        n *= 1000;
+        break;
+    case 'M': /* minute */
+        n *= 1000 * 60;
+        break;
+    }
+    return (int) n;
+}
+
 int main(int argc, char **argv) {
     int retval = 0;
     char buf[1000];
@@ -36,22 +55,7 @@ int main(int argc, char **argv) {
     while (argc--) {
         char *arg = *argv++;
         if (*arg >= '0' && *arg <= '9') {
-            char *end;
-            double n = strtod(arg, &end);
-            switch (*end) {
-            case 'u': /* micro sec */
-                n /= 1000;
-                break;
-            case 'm': /* milli sec */
-                break;
-            case 's': /* sec */
-                n *= 1000;
-                break;
-            case 'M': /* minute */
-                n *= 1000 * 60;
-                break;
-            }
-            Sleep(n);
+            Sleep(parseDuration(arg));
             continue;
         }
         switch (*arg++) {
@@ -61,7 +65,8 @@ int main(int argc, char **argv) {
                 "\n"
                 "CONTROL: \n"
                 "   H show this help\n"
-                "   ?NUM set return value\n"
+                "   ?<integer> set return value\n"
+                "   I<duration> set interval\n"
                 "   N newline after each string\n"
                 "   C continue without newline\n"
                 "   X output to stderr\n"
@@ -72,6 +77,9 @@ int main(int argc, char **argv) {
             break;
         case '?':
             retval = atoi(arg);
+            break;
+        case 'I':
+            interval = parseDuration(arg);
             break;
         case 'N':
             newline = 1;
