@@ -9,15 +9,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 
- #include <windows.h>
+#include <windows.h>
 /* void Sleep(unsigned int dwMilliseconds); */
+
+FILE *in;
+FILE *out;
+int newline = 1;
+
+void output(FILE *f, const char *msg) {
+    if (newline) {
+        fprintf(f, "%s\n", msg);
+    } else {
+        fputs(msg, f);
+    }
+    fflush(f);
+    Sleep(100); /* safe interval for thread-switch */
+}
 
 int main(int argc, char **argv) {
     int retval = 0;
     char buf[1000];
-    int newline = 1;
-    FILE *in = stdin;
-    FILE *out = stdout;
+    in = stdin;
+    out = stdout;
     argc--;
     argv++;
     while (argc--) {
@@ -41,7 +54,7 @@ int main(int argc, char **argv) {
             Sleep(n);
             continue;
         }
-        switch (*arg) {
+        switch (*arg++) {
         case 'H':
             printf(
                 "mtpulse (CONTROL|STRING|SLEEP)*\n"
@@ -53,17 +66,12 @@ int main(int argc, char **argv) {
                 "   C continue without newline\n"
                 "   X output to stderr\n"
                 "   O output to stdout\n"
+                "   I read input\n"
                 "   E echo input\n"
                 );
             break;
         case '?':
-            retval = atoi(arg + 1);
-            break;
-        case 'X':
-            out = stderr;
-            break;
-        case 'O':
-            out = stdout;
+            retval = atoi(arg);
             break;
         case 'N':
             newline = 1;
@@ -71,19 +79,27 @@ int main(int argc, char **argv) {
         case 'C':
             newline = 0;
             break;
+        case 'X':
+            if (*arg)
+                output(stderr, arg);
+            else
+                out = stderr;
+            break;
+        case 'O':
+            if (*arg)
+                output(stdout, arg);
+            else
+                out = stdout;
+            break;
+        case 'I':
+            fgets(buf, sizeof(buf), in);
+            break;
         case 'E':
             fgets(buf, sizeof(buf), in);
-            fputs(buf, out);
-            if (newline)
-                fputs("\n", out);
-            break;
-        case 'R':
-            fgets(buf, sizeof(buf), in);
+            output(out, buf);
             break;
         default:
-            fputs(arg, out);
-            if (newline)
-                fputs("\n", out);
+            output(out, arg - 1);
             break;
         }
     }
