@@ -15,6 +15,7 @@
 FILE *in;
 FILE *out;
 int newline = 1;
+int interval = 10;
 
 void output(FILE *f, const char *msg) {
     if (newline) {
@@ -23,7 +24,7 @@ void output(FILE *f, const char *msg) {
         fputs(msg, f);
     }
     fflush(f);
-    Sleep(100); /* safe interval for thread-switch */
+    Sleep(interval); /* safe interval for thread-switch */
 }
 
 int parseDuration(char *s) {
@@ -71,7 +72,7 @@ int main(int argc, char **argv) {
                 "   C continue without newline\n"
                 "   X output to stderr\n"
                 "   O output to stdout\n"
-                "   I read input\n"
+                "   R read input\n"
                 "   E echo input\n"
                 );
             break;
@@ -99,7 +100,7 @@ int main(int argc, char **argv) {
             else
                 out = stdout;
             break;
-        case 'I':
+        case 'R':
             fgets(buf, sizeof(buf), in);
             break;
         case 'E':
