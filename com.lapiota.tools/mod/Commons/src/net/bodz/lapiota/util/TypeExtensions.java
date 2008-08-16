@@ -2,11 +2,12 @@ package net.bodz.lapiota.util;
 
 import java.io.File;
 
+import net.bodz.bas.cli.util.PathFunctions;
+import net.bodz.bas.lang.err.OutOfDomainException;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.types._TypeParser;
 import net.bodz.bas.types.TypeParsers.FileParser;
 import net.bodz.bas.types.util.Strings;
-import net.bodz.lapiota.loader.Lapiota;
 
 import org.dom4j.DocumentFactory;
 import org.dom4j.XPath;
@@ -19,7 +20,7 @@ public class TypeExtensions {
         @Override
         public File parse(String path) throws ParseException {
             if (path.startsWith("?"))
-                return Lapiota.find(path.substring(1));
+                return PathFunctions.find(path.substring(1));
             return super.parse(path);
         }
 
@@ -51,7 +52,7 @@ public class TypeExtensions {
                 return OutputFormat.createPrettyPrint();
             if ("compact".equals(fmt))
                 return OutputFormat.createCompactFormat();
-            throw new IllegalArgumentException("unknown format: " + fmt);
+            throw new OutOfDomainException(fmt);
         }
 
     }

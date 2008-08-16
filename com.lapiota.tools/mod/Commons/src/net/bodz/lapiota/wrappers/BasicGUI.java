@@ -1,6 +1,7 @@
 package net.bodz.lapiota.wrappers;
 
 import net.bodz.bas.cli.RunInfo;
+import net.bodz.bas.types.util.Types;
 import net.bodz.lapiota.annotations.LoadBy;
 import net.bodz.lapiota.loader.Lapiota;
 import net.bodz.lapiota.loader.SWTClassLoader;
@@ -10,7 +11,7 @@ import net.bodz.lapiota.loader.SWTClassLoader;
 public class BasicGUI extends net.bodz.swt.gui.BasicGUI {
 
     static {
-        Lapiota.load();
+        Types.load(Lapiota.class);
     }
 
 }

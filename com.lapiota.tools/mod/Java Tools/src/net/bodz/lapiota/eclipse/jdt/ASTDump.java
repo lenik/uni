@@ -14,8 +14,8 @@ import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.CharOuts;
 import net.bodz.bas.io.Files;
+import net.bodz.bas.types.util.CompatMethods;
 import net.bodz.bas.types.util.Strings;
-import net.bodz.bas.types.util.Types;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 import org.eclipse.jdt.core.JavaCore;
@@ -92,7 +92,7 @@ public class ASTDump extends BasicCLI {
         CompilationUnit root = (CompilationUnit) parser.createAST(null);
 
         // ASTVisitor av = new ASTDumpVisitor(this);
-        ASTVisitor visitor = Types.newInstance(Visitor.class, this);
+        ASTVisitor visitor = CompatMethods.newInstance(Visitor.class, this);
         root.accept(visitor);
     }
 
