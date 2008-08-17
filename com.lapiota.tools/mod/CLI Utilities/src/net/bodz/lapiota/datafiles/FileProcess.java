@@ -101,7 +101,7 @@ public class FileProcess extends BatchProcessCLI {
     protected boolean   edit  = false;
 
     public FileProcess() {
-        plugins.registerPluginType("action", Action.class);
+        plugins.registerCategory("action", Action.class);
         plugins.register("g", GroovyScript.class, this);
         plugins.register("s", RenamePattern.class, this);
         plugins.register("sg", RenameComponents.class, this);
@@ -372,7 +372,8 @@ public class FileProcess extends BatchProcessCLI {
             }.process(name);
 
             try {
-                name = Interps.dereference(replacement, components, nonexist);
+                name = Interps.dereference(replacement, //
+                        1, components, nonexist);
             } catch (IndexOutOfBoundsException e) {
                 assert nonexist == null;
                 return null;

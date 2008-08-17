@@ -6,7 +6,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import net.bodz.bas.types.TypeParser;
-import net.bodz.bas.types.TypeParsers;
 import net.bodz.bas.types.ValueCheck;
 
 /**
@@ -16,7 +15,7 @@ import net.bodz.bas.types.ValueCheck;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.TYPE, ElementType.FIELD, ElementType.METHOD })
-public @interface AType {
+public @interface TestAnnotation {
 
     boolean _final() default true;
 
@@ -40,8 +39,7 @@ public @interface AType {
      */
     Class<?> valtype() default void.class;
 
-    @SuppressWarnings("unchecked")
-    Class<? extends TypeParser> parser() default TypeParsers.Void.class;
+    Class<? extends TypeParser> parser() default TypeParser.class;
 
     String parserinfo() default "";
 
@@ -58,6 +56,6 @@ public @interface AType {
     /**
      * for method/callback only
      */
-    Class<? extends TypeParser<?>>[] want() default {};
+    Class<? extends TypeParser>[] want() default {};
 
 }

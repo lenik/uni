@@ -10,7 +10,7 @@ import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.lang.Filter;
-import net.bodz.bas.types.TypeParsers.ClassInstanceParser;
+import net.bodz.bas.types.TypeParsers.GetInstanceParser;
 import net.bodz.lapiota.annotations.ProgramName;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
@@ -30,7 +30,7 @@ public class FileReplace extends BatchProcessCLI {
     doc = "may contains \\n (or $n) group reference for regexp replace")
     protected String                 replacement;
 
-    @Option(vnam = "CLASS(Filter)", parser = ClassInstanceParser.class, //
+    @Option(vnam = "CLASS(Filter)", parser = GetInstanceParser.class, //
     doc = "using custom filter, this will ignore -PTt options")
     protected Filter<String, String> filter;
 

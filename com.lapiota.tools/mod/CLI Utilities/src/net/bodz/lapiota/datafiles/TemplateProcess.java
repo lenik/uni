@@ -43,10 +43,10 @@ public class TemplateProcess extends BatchProcessCLI {
     String        extension;
 
     public TemplateProcess() {
-        plugins.registerPluginType("source model", SourceModel.class);
+        plugins.registerCategory("source model", SourceModel.class);
         plugins.register("ini", VariableDefSource.class, this);
         plugins.register("csv", CSVDefSource.class, this);
-        plugins.registerPluginType("template model", TemplateModel.class);
+        plugins.registerCategory("template model", TemplateModel.class);
         plugins.register("ve", VariableExpandTemplate.class, this);
         plugins.register("gsp", GroovyTemplate.class, this);
     }

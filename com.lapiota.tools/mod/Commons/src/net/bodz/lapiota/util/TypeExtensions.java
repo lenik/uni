@@ -26,7 +26,7 @@ public class TypeExtensions {
 
     }
 
-    public static class XPathParser extends _TypeParser<XPath> {
+    public static class XPathParser extends _TypeParser {
 
         @Override
         public XPath parse(String xpath) throws ParseException {
@@ -36,7 +36,7 @@ public class TypeExtensions {
 
     }
 
-    public static class OutputFormatParser extends _TypeParser<OutputFormat> {
+    public static class OutputFormatParser extends _TypeParser {
 
         @Override
         public OutputFormat parse(String fmt) throws ParseException {

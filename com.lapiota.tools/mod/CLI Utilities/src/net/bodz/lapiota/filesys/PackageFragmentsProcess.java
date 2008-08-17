@@ -59,7 +59,7 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
     }
 
     public PackageFragmentsProcess() {
-        plugins.registerPluginType("action", Action.class);
+        plugins.registerCategory("action", Action.class);
         plugins.register("cat", Cat.class, this);
         // actionPoint.register("mani", ManiCat.class, this);
         plugins.register("pointref", PointRef.class, this);

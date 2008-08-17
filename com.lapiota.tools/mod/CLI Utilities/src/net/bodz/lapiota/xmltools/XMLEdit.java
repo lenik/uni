@@ -22,7 +22,6 @@ import net.bodz.bas.lang.ControlBreak;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.lang.err.UnexpectedException;
 import net.bodz.bas.types.Pair;
-import net.bodz.bas.types.TypeParser;
 import net.bodz.bas.types.TypeParsers;
 import net.bodz.bas.types._TypeParser;
 import net.bodz.bas.types.util.Comparators;
@@ -66,26 +65,31 @@ public class XMLEdit extends BasicCLI {
         escaping = !escaping;
     }
 
-    private TypeParser<XPath> xpathParser;
+    class XpathParser extends _TypeParser {
+        @Override
+        public XPath parse(String xpath) throws ParseException {
+            xpath = StringUtil.unescape(escaping, xpath);
+            if (document != null)
+                return document.createXPath(xpath);
+            return docfac.createXPath(xpath);
+        }
+    }
 
-    private DocumentFactory   docfac;
-    private File              docfile;
-    private Document          document;
+    private XpathParser     xpathParser = new XpathParser();
+
+    private DocumentFactory docfac;
+    private File            docfile;
+    private Document        document;
 
     public XMLEdit() {
         docfac = DocumentFactory.getInstance();
 
-        xpathParser = new _TypeParser<XPath>() {
+        TypeParsers.register(XPath.class, new _TypeParser() {
             @Override
-            public XPath parse(String xpath) throws ParseException {
-                xpath = StringUtil.unescape(escaping, xpath);
-                if (document != null)
-                    return document.createXPath(xpath);
-                return docfac.createXPath(xpath);
+            public Object parse(String text) throws ParseException {
+                return xpathParser.parse(text);
             }
-        };
-
-        TypeParsers.register(XPath.class, xpathParser);
+        });
     }
 
     protected Document getDocument() {
