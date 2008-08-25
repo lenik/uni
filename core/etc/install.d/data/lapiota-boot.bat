@@ -19,7 +19,7 @@
 
     set pgd=lam.root.pgd
     for %%d in ("%homedrive%" c: d: e: f: g: u: v: w: x: y: z:) do (
-        if exist "%%d\." do (
+        if exist "%%d\." (
             for %%f in (%%d\%pgd% %%d\.radiko\.miaj\image\%pgd%) do (
                 if exist %%f (
                     %%f

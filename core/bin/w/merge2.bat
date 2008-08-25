@@ -148,14 +148,14 @@
     goto start
 
 :version
-    set _id=$Id$
+    set _id=$Id: .bat 784 2008-01-15 10:53:24Z lenik $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
         set      _time=%%k
         set    _author=%%l
     )
-    echo [catvia] perl program launcher
+    echo [merge2] perl program launcher
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
     exit /b 0
 

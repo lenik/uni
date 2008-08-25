@@ -226,7 +226,9 @@
             - cat       Print in categories
             -           | $LAPIOTA\bin\pi.bat $LAPIOTA\bin\w\patchs.bat \"%1\" \pi; $CYGWIN_ROOT\bin\less -p \"Patch of .*"
             - merge     Merge the patch into current directory
-            -           | $CYGWIN_ROOT/bin/patch
+            -           | $CYGWIN_ROOT\bin\patch -i \"%1\"
+            - merge2    Merge the patch into current directory (Relocated)
+            -           | $LAPIOTA\bin\merge2.bat \"%1\"
 
 -
   :ntsys:
