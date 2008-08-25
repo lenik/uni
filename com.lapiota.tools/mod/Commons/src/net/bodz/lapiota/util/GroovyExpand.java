@@ -104,6 +104,7 @@ public class GroovyExpand extends PatternProcessor {
 
     void echo(String s, boolean newline) {
         s = Strings.escape(s);
+        s = s.replace("$", "\\$"); // suppress in-quote $var expansion.
         if (newline)
             println("out.println(\"" + s + "\");");
         else

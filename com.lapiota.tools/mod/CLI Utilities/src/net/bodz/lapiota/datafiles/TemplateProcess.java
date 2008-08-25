@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.annotations.Doc;
@@ -17,6 +18,7 @@ import net.bodz.bas.cli.ext.CLIPlugin;
 import net.bodz.bas.cli.ext._CLIPlugin;
 import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.io.Files;
+import net.bodz.bas.lang.EvalException;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.text.interp.Interps;
 import net.bodz.bas.types.util.Strings;
@@ -347,8 +349,18 @@ public class TemplateProcess extends BatchProcessCLI {
                 return ve.compileAndEvaluate(template);
             } catch (CompilationFailedException e) {
                 String script = ve.getCompiledScript();
-                throw new Error(e.getMessage() + "\nCompiled Script: \n"
-                        + script, e);
+                System.err.println("Compile: ");
+                System.err.println(script);
+                throw e;
+            } catch (Throwable e) {
+                String script = ve.getCompiledScript();
+                System.err.println("Evaluate: ");
+                System.err.println(script);
+                System.err.println("Variables: ");
+                // TODO - object dumper
+                for (Entry<String, Object> ent : _vars.entrySet())
+                    System.err.println(ent.getKey() + " = " + ent.getValue());
+                throw new EvalException(e);
             }
         }
     }

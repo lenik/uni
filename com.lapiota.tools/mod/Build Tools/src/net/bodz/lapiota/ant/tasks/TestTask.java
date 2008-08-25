@@ -7,6 +7,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.RuntimeConfigurable;
 import org.apache.tools.ant.Task;
 
+@SuppressWarnings("all")
 public class TestTask extends Task {
 
     // Expected:
