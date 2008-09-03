@@ -190,6 +190,11 @@
             -           | $LAPIOTA\bin\regtlb \"%1\"
             - tlbunreg  Unregister type library
             -           | $LAPIOTA\bin\regtlb /u \"%1\"
+            - depview   View Dependency
+            -           | $LAPITOA\local\bin\depends \"%1\"
+        - .exe ->
+            - addalias  Add to run program aliases
+            -           | $LAPIOTA\bin\w\alias.bat @=\"%1\"
         - '".jar .war .ear" ->'
             - decompl   Decompile java archive
             -           | $LAPIOTA\bin\dejar.bat \"%1\"

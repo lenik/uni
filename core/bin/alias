@@ -9,6 +9,7 @@ use strict;
 use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
     $LOGNAME    = 'alias'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::path('path_split');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
@@ -66,6 +67,10 @@ sub _boot {
         #    $opt_value = join(' ', @ARGV);
         #    @ARGV = ();
         #}
+        if ($opt_name eq '@') {
+            my ($dir, $base) = path_split($opt_value);
+            $opt_name = $base;
+        }
         _log2 "set alias $opt_name to \"$opt_value\"";
     }
 
@@ -130,7 +135,7 @@ temporary files.
 =cut
 sub _help {
     &_version;
-    print "\nSyntax: \n    $0 [OPTION] [--] NAME[=COMMAND]\n", <<'EOM';
+    print "\nSyntax: \n    $0 [OPTION] [--] <NAME|\@> [=COMMAND]\n", <<'EOM';
 
 Common options:
     -l, --list              list alias names in use
