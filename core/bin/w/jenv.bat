@@ -58,7 +58,7 @@
     set _startdir=%~dp0
     set  _program=%~dpnx0
 
-    set      _nam=net.bodz.lapiota.javatools.CLIEnvironmentTest
+    set      _nam=net.bodz.lapiota.javatools.CLIEnviron
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=%JAVA_OPTS% -Dcli.lib_loaded=1

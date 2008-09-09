@@ -90,10 +90,10 @@
     echo Convert %src% to %dst%...
     if "%_debug%"=="1" (
         echo mencoder -noodml "%src%" -o "%dst%" %menc_args%
-        call menc     -noodml "%src%" -o "%dst%" %menc_args%
+        call mencoder -noodml "%src%" -o "%dst%" %menc_args%
     ) else (
         echo mencoder -noodml "%src%" -o "%dst%" %menc_args% >_lastxvc.bat
-        call menc     -noodml "%src%" -o "%dst%" %menc_args% 2>&1 |grep %% |pc -e
+        call mencoder -noodml "%src%" -o "%dst%" %menc_args% 2>&1 |grep %% |pc -e
     )
 
 :end

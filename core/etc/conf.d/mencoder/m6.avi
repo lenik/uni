@@ -1,3 +1,4 @@
+#=BITRATE=xvidencopts bitrate
 
 # default output filename
 o=[m6]noname.avi
@@ -23,27 +24,3 @@ vf-add=crop=0:0:-1:-1
 vf-add=scale=320:240
 vf-add=expand=320:240:-1:-1:1
 vf-add=rotate=1
-
-[50]
-xvidencopts=bitrate=50
-
-[150]
-xvidencopts=bitrate=150
-
-[300]
-xvidencopts=bitrate=300
-
-[384]
-xvidencopts=bitrate=384
-
-[500]
-xvidencopts=bitrate=500
-
-[800]
-xvidencopts=bitrate=800
-
-[1200]
-xvidencopts=bitrate=1200
-
-[1800]
-xvidencopts=bitrate=1800
