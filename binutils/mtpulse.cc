@@ -24,7 +24,8 @@ void output(FILE *f, const char *msg) {
         fputs(msg, f);
     }
     fflush(f);
-    Sleep(interval); /* safe interval for thread-switch */
+    if (interval)
+        Sleep(interval); /* safe interval for thread-switch */
 }
 
 int parseDuration(char *s) {

@@ -1,12 +1,13 @@
 
-SOURCES = $(wildcard *.c)
-TARGETS = $(subst .c,.exe,$(SOURCES))
+SOURCES = $(wildcard *.cc)
+TARGETS = $(subst .cc,.exe,$(SOURCES))
 OUTDIR  = $(subst \,/,$(LAPIOTA))/bin
+CC      = gcc
 
 default: $(TARGETS)
 
-%.exe: %.c
-	gcc -o $@ $*.c
+%.exe: %.cc
+	$(CC) -o $@ $*.cc
 	cp -uf $@ $(OUTDIR)
 
 clean:
