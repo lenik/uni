@@ -171,12 +171,19 @@
             }
         }
     }
+
+    fastcall(cmdline) {
+        FileAppend, %cmdline%, %TMP%\fast0.bat
+        run winevent -s fast0
+    }
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; initialize {
     setworkingdir %USERPROFILE%
     onexit onexit
+
+    run cmdw /c fastcmd
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -281,9 +288,9 @@ appskey & numpadsub::send {volumn_down}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; application shortcuts {
-#a::run cmdw /c start "ANSI" %LAPIOTA%\bin\lapiota-init login
-#b::run cmdw /c start "Big" %LAPIOTA%\bin\lapiota-init login
-#c::run cmd /k %LAPIOTA%\bin\lapiota-init login
+#a::fastcall("start ""ANSI""")
+#b::fastcall("start ""Big""")
+#c::fastcall("start")
 #f::run firefox
 #m::run metapad
 #n::run cmdw /c no
