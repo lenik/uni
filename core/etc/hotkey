@@ -215,6 +215,7 @@ lwin & capslock::shiftalttab
     splitpath, a_ahkpath, name, dir
     run % dir . "/autohotkey.chm"
     return
+#!i::run cmdw /c au3info
 #!p::pause
 #!r::reload
 #!s::suspend

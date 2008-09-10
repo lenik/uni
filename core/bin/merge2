@@ -1,0 +1,265 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+merge2 - Merge .patch file with prefix relocated
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'merge2'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::util('readfile');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl 809 2008-06-09 11:32:41Z lenik $');
+use Getopt::Long;
+
+sub _main; sub _version; sub _help;
+sub lcp;
+sub reloc;
+sub cg_subs;
+
+our $opt_src_prefix;
+our $opt_dst_prefix;
+
+sub _boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'src-prefix|s=s',
+               'dst-prefix|d=s',
+               );
+    my $patchfile = shift @ARGV;
+    die "patch file isn't specified. " unless defined $patchfile;
+    die "file $patchfile isn't existed. " unless -f $patchfile;
+    _main $patchfile;
+}
+
+=head1 SYNOPSIS
+
+B<merge2>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<merge2> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-merge2-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item Show help
+
+    merge2 --help
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] PATCHFILE\n", <<'EOM';
+
+Common options:
+    (prefix is the longest common part of all input files)
+    -s, --src-prefix=PREFIX change src prefix to PREFIX.
+    -d, --dst-prefix=PREFIX change dst prefix to PREFIX.
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    my $patchfile = shift;
+    my @patch = readfile($patchfile);
+    my @patchReloc;
+    my ($src, $dst);
+    my $src_prefix;
+    my $dst_prefix;
+
+    for (my $stage = 0; $stage < 2; $stage++) {
+        for (@patch) {
+            if (/^---\s+(.+)$/) {
+                $src = $1;
+                if ($stage == 1) {
+                    $_ = cg_subs($_, reloc($src, $src_prefix, $opt_src_prefix));
+                }
+            } elsif (/^\+\+\+\s+(.+)$/) {
+                $dst = $1;
+                if ($stage == 1) {
+                    $_ = cg_subs($_, reloc($dst, $dst_prefix, $opt_dst_prefix));
+                }
+            } elsif (/^diff(?: |-\S+)*(\S+)\s+(\S+)/) {
+                $src = $1;
+                $dst = $2;
+                if ($stage == 1) {
+                    $_ = cg_subs($_, reloc($src, $src_prefix, $opt_src_prefix),
+                                     reloc($dst, $dst_prefix, $opt_dst_prefix));
+                }
+            } else {
+                if ($stage == 1) {
+                    push @patchReloc, $_;
+                }
+                next;
+            }
+            if ($stage == 1) {
+                print '>'.$_;
+                push @patchReloc, $_;
+                next;
+            }
+            if ($stage == 0) {
+                _log1 "src: $src" if defined $src;
+                _log1 "dst: $src" if defined $dst;
+                if (defined $src) {
+                    if (! defined $src_prefix) {
+                        $src_prefix = $src;
+                    } else {
+                        $src_prefix = lcp($src_prefix, $src);
+                    }
+                    undef $src;
+                }
+                if (defined $dst) {
+                    if (! defined $dst_prefix) {
+                        $dst_prefix = $dst;
+                    } else {
+                        $dst_prefix = lcp($dst_prefix, $dst);
+                    }
+                    undef $dst;
+                }
+            }
+        }
+        if ($stage == 0) {
+            _log1 "src_prefix = $src_prefix";
+            _log1 "dst_prefix = $dst_prefix";
+        }
+    }
+
+    #print join('', @patchReloc);
+    # system "patch -i \"$tmppatch\"";
+    # unlink $tmppatch;
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+# Longest Common Prefix
+sub lcp {
+    my ($a, $b) = @_;
+    my @a = split('', $a);
+    my @b = split('', $b);
+    my $nm = $#a < $#b ? $#a : $#b;
+    my $i = 0;
+    while ($i <= $nm) {
+        last if $a[$i] ne $b[$i];
+        $i++;
+    }
+    substr($a, 0, $i)
+}
+
+sub reloc {
+    my ($s, $from_p, $to_p) = @_;
+    $to_p . substr($s, 0, length($from_p))
+}
+
+sub cg_subs {
+    my ($s, @s) = @_;
+    my $t = substr($s, 0, $-[0]);
+    my $lastpos = $-[0];
+    for (my $i = 0; $i <= $#s; $i++) {
+        my $g = eval('$'.$i);
+        $g = '' unless defined $g;
+        $t .= substr($s, $lastpos, $-[$i + 1]);
+        if (defined $s[$i]) {
+            $t .= $s[$i];
+        } else {
+            $t .= $g;
+        }
+        $lastpos = $-[$i] + length($g);
+    }
+}
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Merge .patch file with prefix relocated \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

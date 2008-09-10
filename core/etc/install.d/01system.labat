@@ -47,8 +47,9 @@
             - $CYGWIN_ROOT\usr\sbin
             - $CYGWIN_ROOT\usr\local\bin
             - $CYGWIN_ROOT\usr\X11R6\bin
-        - w&        PATHEXT     .p .pc .pl .pld .pyc .py .php .rb .sh .ss .prj
-        - w&        PATHEXT     .6 .six .x
+        - w&        PATHEXT     .au3 .pc .pl .pld .pyc .py .php .sh .prj
+      # - w&        PATHEXT     .rb .ss
+      # - w&        PATHEXT     .6 .six .x
         - w-%       INCLUDE     $LAPIOTA
         - w+$       INCLUDE     ->
             - $LAPIOTA\lib
@@ -299,5 +300,9 @@
             :: Ultra Editor
     :dev:
         :: Development Tools
+        :autoIt3:
+            set-reg:
+                - CUser/SOFTWARE/"AutoIt v3"/AutoIt/@->
+                    - Include               sz:$LAPIOTA\lib\autoit3
 
 ---
