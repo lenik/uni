@@ -201,6 +201,10 @@
     return
 lwin & tab::alttab
 lwin & capslock::shiftalttab
+#^f1::
+    ; send {sleep}
+    ; SetSuspendState(bHibernate, bForce, bCold)
+    DllCall("PowrProf\SetSuspendState", "int", 0, "int", 0, "int", 0)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

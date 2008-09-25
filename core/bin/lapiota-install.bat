@@ -14,16 +14,9 @@
     if not exist "%HOME%\." md "%HOME%"
 
     rem Mounting...
-    umount /
-    umount /usr/bin
-    umount /usr/lib
-    umount /lapiota
-    umount /tmp
-    mount -c /mnt
-    mount %CYGWIN_ROOT% /
+    umount /lapiota 2>nul
+    umount /tmp     2>nul
     mount %LAPIOTA% /lapiota
-    mount %CYGWIN_ROOT%\bin /usr/bin
-    mount %CYGWIN_ROOT%\lib /usr/lib
     mount "%TEMP%" /tmp
 
     rem Always using the cygwin/perl
