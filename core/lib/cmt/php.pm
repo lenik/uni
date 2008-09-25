@@ -43,7 +43,11 @@ HOW-cmt::php-RESOLVES.
 =cut
 sub php_perl {
     local $_ = join('', @_);
-    s/<\? (?:php)? ( ( (\\.) | ([^\?]) | (\?[^>]) )* ) \?>/eval($1)/sgex;
+    no strict;
+    s{<\? (?:php_perl)?
+          (?<code>.*?) \?>
+          | (?<var>\$ (?:\w+|\{.*?\}) ) }
+    { eval($+{code} // $+{var}) }sgex;
     return $_;
 }
 
