@@ -1,0 +1,5 @@
+
+# this is different from install.d/data/fstab.plp
+# this fstab needs a new fs driver
+
+$LAPIOTA/../Lam/%   Z:/.radiko/.miaj/image/lam.*.pgd    pgd

@@ -13,11 +13,9 @@
 
     if not exist "%HOME%\." md "%HOME%"
 
-    rem Mounting...
-    umount /lapiota 2>nul
-    umount /tmp     2>nul
-    mount %LAPIOTA% /lapiota
-    mount "%TEMP%" /tmp
+    rem Mount relocations...
+    cd /d "%~dp0..\etc\install.d"
+    make -Bf 00Makefile
 
     rem Always using the cygwin/perl
     bash -c '/lapiota/etc/install %*'

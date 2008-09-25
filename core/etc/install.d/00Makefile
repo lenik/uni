@@ -1,0 +1,6 @@
+
+default: \
+	/etc/fstab
+
+/etc/fstab: data/fstab.plp
+	plp $^ >$@
