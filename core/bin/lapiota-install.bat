@@ -2,6 +2,7 @@
 @echo off
 
     setlocal
+    set CYGWIN=nodosfilewarning
 
 :lapiota_init
     call %~dp0lapiota-init init
@@ -30,5 +31,13 @@
     )
 
 :end
+    if exist "%LAPIOTA%\local\bin\cmdw.exe" (
+        call kopy "%LAPIOTA%\local\bin\cmdw.exe"
+    )
+    if exist "%LAPIOTA%\local\bin\cmd.exe" (
+        kopy %LAPIOTA%\local\bin\cmd.exe
+        rem unexpected
+    )
     exit /b
+
 :end_of_batch

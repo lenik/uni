@@ -82,9 +82,11 @@
 
     if exist "%~1" (
         set _origbase=%~dpn1
+        set _origtime=%~t1
         set _prefix=[%_major%]
         if not "%_profile%"=="" set _prefix=[%_major%.%_profile%]
-        set _args=%_args% -o "%~dp1!_prefix!%~n1%_majorext%"
+        set _out=%~dp1!_prefix!%~n1%_majorext%
+        set _args=%_args% -o "!_out!"
     )
 
     if exist "%_origbase%.edl" (
@@ -104,4 +106,17 @@
     ) else (
         %exec% "%_program%" %_args%
     )
+
+    if exist "%_out%" call :touch "%_out%" "%_origtime%"
+
+    exit /b
+
+:touch
+    rem %2: YYYY-MM-DD hh:mm
+    set _t=%~2
+    set _tYY=%_t:~2,2%
+    set _tMMDD=%_t:~5,2%%_t:~8,2%
+    set _thhmm=%_t:~11,2%%_t:~14,2%
+    rem [[CC]YY]MMDDhhmm[.ss]
+    touch -t "%_tYY%%_tMMDD%%_thhmm%" "%~1"
     exit /b

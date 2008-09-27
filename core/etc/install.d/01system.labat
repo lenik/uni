@@ -10,6 +10,7 @@
         - w=        LAPIOTA     $LAPIOTA
         - =         LAPIOTA_VER 0.0.1
         - w=        CYGWIN_ROOT $CYGWIN_ROOT
+        - =         CYGWIN      nodosfilewarning
         - w=        SHELL       $CYGWIN_ROOT\bin\bash
         - w=        SHELLW      $CYGWIN_ROOT\bin\bashw
         - w=        CMD         $LAPIOTA\local\bin\cmd
