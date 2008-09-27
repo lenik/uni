@@ -1,0 +1,12 @@
+
+Rxvt*loginShell: True
+
+Rxvt*font: -*-courier-medium-r-*-*-16-140-*-75-*-*-*-*
+Rxvt*boldfont: -*-courier-bold-r-*-*-16-140-*-75-*-*-*-*
+
+! Rxvt*font: -*-nsimsun-medium-r-*-*-16-140-*-75-*-*-*-*
+! Rxvt*boldfont: -*-nsimsun-bold-r-*-*-16-140-*-75-*-*-*-*
+
+Rxvt*SaveLines: 2000
+Rxvt*background: #000020
+Rxvt*foreground: #ffffbf
