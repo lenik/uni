@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# . /lapiota/lib/shell-functions/string
+# . /lapiota/lib/sh/string
 
 # BUG: the cygwin always translate " to \" when it pass arguments to cmd.exe
 #      so, this can't be fixed.

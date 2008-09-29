@@ -11,7 +11,7 @@ use cmt::fileproc('/[$%]/', 'batch_main');
 use cmt::log(3);
     $LOGNAME    = 'UnKnOwN'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: .pl 776 2007-12-24 12:11:36Z lenik $');
+    my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
 
 sub _main; sub _version; sub _help;

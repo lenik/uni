@@ -148,7 +148,7 @@
     goto start
 
 :version
-    set _id=$Id: .perlexec.gsp 830 2008-08-25 12:41:11Z lenik $
+    set _id=$Id$
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j

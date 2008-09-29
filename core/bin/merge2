@@ -11,7 +11,7 @@ use cmt::log(2);
     $LOGNAME    = 'merge2'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::util('readfile');
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: .pl 809 2008-06-09 11:32:41Z lenik $');
+    my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
 
 sub _main; sub _version; sub _help;

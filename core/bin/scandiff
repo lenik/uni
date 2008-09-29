@@ -14,7 +14,7 @@ use cmt::lang('_def');
 use cmt::log(2);
     $LOGNAME    = 'scandiff'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: .pl 776 2007-12-24 12:11:36Z lenik $');
+    my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
 
 sub _main; sub _version; sub _help;
