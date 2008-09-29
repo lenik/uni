@@ -1,0 +1,78 @@
+#!/bin/bash
+    RCSID='$Id: .pl 809 2008-06-09 11:32:41Z lenik $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+    . /lapiota/lib/sh/cliboot
+    # . /lapiota/lib/sh/findabc
+
+function version() {
+    parse_id "$RCSID"
+    echo [$BASENAME] Add Lapiota Module
+    echo Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] <LAM mount point>"
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+# APP_PATHS="/proc/registry/HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows/CurrentVersion/App Paths"
+APP_PATHS='HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths'
+
+function main() {
+    for lam in "$@"; do
+        lam_aw=`cygpath -aw "$lam"`
+        _log2 LAM: $lam_aw
+        _log2 pre-install $lam
+
+        catfile=$lam/abc.d/.cat
+        if [ -f "$catfile" ]; then
+            _log2 install $catfile
+            cat "$catfile" | while read name latest tags shortcuts; do
+                if [ -z $name -o ${name:0:1} = "#" ]; then continue; fi
+                # symbolic links for tags
+                # TODO ...
+
+                # add shortcuts
+                for c in ${shortcuts//:/ }; do
+                    shortcut=${c##*/}
+                    dst="$lam_aw/abc.d/$name-$latest/$c"
+                    for dstf in "$dst*"; do
+                        echo dst=$dstf
+                    done
+                    # dst=${dst//"\\"/"\/"}
+                    dst=${dst//\//\\}
+                    _log1 "alias $shortcut => $dst"
+                    #reg add "$APP_PATHS\\$shortcut" /v "" /d "$dst" /f >/dev/null
+                done
+            done
+        fi
+
+        _log2 lam $lam added.
+    done
+}
+
+boot "$@"

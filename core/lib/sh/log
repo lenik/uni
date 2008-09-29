@@ -1,0 +1,52 @@
+LOGLEVEL=1
+if [ -z "$BASENAME" ]; then
+    LOGPREFIX=
+else
+    LOGPREFIX="[$BASENAME] "
+fi
+
+_cr=
+if [ -z $_cr ]; then
+    echo "Warning: the ^M(\\r) character is removed in $BASH_SOURCE"
+    echo "This may be caused by some RCS program, you may set the binary mode on this file. "
+    _cr=$(echo -e "\r")
+    echo "CR reseted."
+fi
+
+function _log() {
+    if [ $LOGLEVEL -ge $1 ]; then
+        shift
+        echo $LOGPREFIX$@
+    fi
+}
+
+function _log0() {
+    if [ $LOGLEVEL -ge 0 ]; then echo $LOGPREFIX$@; fi
+}
+
+function _log1() {
+    if [ $LOGLEVEL -ge 1 ]; then echo $LOGPREFIX$@; fi
+}
+
+function _log2() {
+    if [ $LOGLEVEL -ge 2 ]; then echo $LOGPREFIX$@; fi
+}
+
+function _sig() {
+    if [ $LOGLEVEL -ge $1 ]; then
+        shift
+        echo -n $LOGPREFIX$@$_cr
+    fi
+}
+
+function _sig0() {
+    if [ $LOGLEVEL -ge 0 ]; then echo -n $LOGPREFIX$@$_cr; fi
+}
+
+function _sig1() {
+    if [ $LOGLEVEL -ge 1 ]; then echo -n $LOGPREFIX$@$_cr; fi
+}
+
+function _sig2() {
+    if [ $LOGLEVEL -ge 2 ]; then echo -n $LOGPREFIX$@$_cr; fi
+}

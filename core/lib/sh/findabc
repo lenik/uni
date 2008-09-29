@@ -1,0 +1,20 @@
+
+# findabc [-r ROOT] NAME[/] [dirs-addtopath...]
+function findabc() {
+    local root output
+    root=/lapiota/abc.d
+	while getopts r:p opt; do
+        case $opt in
+            -r)
+                root=$OPTARG;;
+            -p)
+                output=1;;
+            *)
+                echo error option: $opt
+                exit 1;;
+        esac
+    done
+    shift $((OPTIND-1))
+    echo ROOT=$root
+    echo REST=$@
+}
