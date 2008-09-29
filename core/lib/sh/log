@@ -20,6 +20,13 @@ function _log() {
     fi
 }
 
+function _sig() {
+    if [ $LOGLEVEL -ge $1 ]; then
+        shift
+        echo -n $LOGPREFIX$@$_cr
+    fi
+}
+
 function _log0() {
     if [ $LOGLEVEL -ge 0 ]; then echo $LOGPREFIX$@; fi
 }
@@ -30,13 +37,6 @@ function _log1() {
 
 function _log2() {
     if [ $LOGLEVEL -ge 2 ]; then echo $LOGPREFIX$@; fi
-}
-
-function _sig() {
-    if [ $LOGLEVEL -ge $1 ]; then
-        shift
-        echo -n $LOGPREFIX$@$_cr
-    fi
 }
 
 function _sig0() {

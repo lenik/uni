@@ -3,11 +3,13 @@
 function findabc() {
     local root output
     root=/lapiota/abc.d
-	while getopts r:p opt; do
+
+    local OPTIND
+    while getopts pr: opt; do
         case $opt in
-            -r)
+            r)
                 root=$OPTARG;;
-            -p)
+            p)
                 output=1;;
             *)
                 echo error option: $opt
@@ -15,6 +17,53 @@ function findabc() {
         esac
     done
     shift $((OPTIND-1))
-    echo ROOT=$root
-    echo REST=$@
+    if [ $# -lt 1 ]; then
+        echo findabc [-r ROOT] package [dirs-addtopath...]
+        exit 1
+    fi
+
+    local package=$1
+    local enter
+
+    # if package.contains '/'
+    if [ "${package/\/}" != "$package" ]; then
+        enter=/${package#*/}
+        package=${package%%/*}
+    fi
+    # assert no symbolic-link loop
+    unset _home
+    unset _expand
+    # local scope?
+
+    while [ -z "$_home" ]; do
+        local prefix="$package"
+        for f in "$root/$_expand$prefix"*; do
+            if [ "${f: -1}" != '*' ]; then
+                _expand="$_expand${f##*/}"
+                _home="$f"
+                break 2
+            fi
+        done
+        while [ ${#prefix} -gt 0 ]; do
+            # echo "  prefix=$prefix"
+            if [ -e "$root/$_expand$prefix" ]; then
+                _expand="$_expand$prefix/"
+                continue 2
+            fi
+            prefix="${prefix::${#prefix}-1}"
+        done
+        # not found
+        echo not found: $1
+        return 1
+    done
+
+    if [ "$output" = 1 ]; then echo $_home; fi
+    if [ -n "$enter" ]; then cd "$_home$enter"; fi
+
+    shift
+    local p
+    for p in "$@"; do
+        PATH="$PATH:$_home/$p"
+    done
+    return 0
 }

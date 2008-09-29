@@ -1,9 +1,11 @@
 #!/bin/bash
     RCSID='$Id: .pl 809 2008-06-09 11:32:41Z lenik $'
-    short_opts="hqv"
-    long_opts="help,quiet,verbose,version"
+    short_opts="hqstv"
+    long_opts="help,quiet,shortcuts,tags,verbose,version"
+    add_shortcuts=1
+    add_tags=1
     . /lapiota/lib/sh/cliboot
-    # . /lapiota/lib/sh/findabc
+    . /lapiota/lib/sh/findabc
 
 function version() {
     parse_id "$RCSID"
@@ -14,18 +16,24 @@ function version() {
 function help() {
     version
     echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] <LAM mount point>"
+    echo   "Syntax: "
+    echo   "    $0 [OPTION] [--] <LAM mount point>"
     echo
-    echo "Options: "
-    echo "    -q, --quiet             repeat to get less info"
-    echo "    -v, --verbose           repeat to get more info"
-    echo "    -h, --help              show this help page"
-    echo "        --version           print the version info"
+    echo   "Options: "
+    echo   "    -s, --shortcuts         only add shortcuts"
+    echo   "    -t, --tags              only add tags"
+    echo   "    -q, --quiet             repeat to get less info"
+    echo   "    -v, --verbose           repeat to get more info"
+    echo   "    -h, --help              show this help page"
+    echo   "        --version           print the version info"
 }
 
 function setopt() {
     case "$1" in
+        -s|--shortcuts)
+            unset add_tags;;
+        -t|--tags)
+            unset add_shortcuts;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -53,25 +61,43 @@ function main() {
             _log2 install $catfile
             cat "$catfile" | while read name latest tags shortcuts; do
                 if [ -z $name -o ${name:0:1} = "#" ]; then continue; fi
-                # symbolic links for tags
-                # TODO ...
 
-                # add shortcuts
-                for c in ${shortcuts//:/ }; do
-                    shortcut=${c##*/}
-                    dst="$lam_aw/abc.d/$name-$latest/$c"
-                    for dstf in "$dst*"; do
-                        echo dst=$dstf
+                # dst="$lam_aw/abc.d/$name-$latest/$c"
+                if ! findabc -r "$lam/abc.d" "$name"; then
+                    _log1 package not found: $name
+                    continue
+                fi
+
+                if [ -n "$add_tags" ]; then
+                    all="$lam/.all"
+                    mkdir -p "$all"
+                    for t in ${tags//,/ }; do
+                        _sig1 tag $t: $_home
+                        _catd="$t"
+                        while [ "${t/.}" != "$t" ]; do
+                            t=${t%.*}
+                            _catd="$t/$_catd"
+                        done
+                        catdir="$all/$_catd"
+                        if [ ! -d "$catdir" ]; then mkdir -p "$catdir"; fi
+                        ln -nsf "$_home" "$catdir/"
                     done
-                    # dst=${dst//"\\"/"\/"}
-                    dst=${dst//\//\\}
-                    _log1 "alias $shortcut => $dst"
-                    #reg add "$APP_PATHS\\$shortcut" /v "" /d "$dst" /f >/dev/null
-                done
+                fi
+
+                if [ -n "$add_shortcuts" ]; then
+                    for c in ${shortcuts//,/ }; do
+                        shortcut=${c##*/}
+                        dstw="$lam_aw/abc.d/$_expand/$c"
+                        # dstw=${dstw//"\\"/"\/"}
+                        dstw=${dstw//\//\\}
+                        _sig1 "alias $shortcut => $dstw"
+                        reg add "$APP_PATHS\\$shortcut" /v "" /d "$dstw" /f >/dev/null
+                    done
+                fi
             done
         fi
 
-        _log2 lam $lam added.
+        _log1 lam $lam added.
     done
 }
 

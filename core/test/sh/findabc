@@ -1,0 +1,5 @@
+#!/bin/bash
+
+. /lapiota/lib/sh/findabc
+
+findabc "$@"
