@@ -242,7 +242,7 @@ appskey::send {appskey}
 appskey & up::
     process, exist, foobar2000.exe
     if not errorlevel
-        run cmdw /c foobar
+        run cmdw /c start foobar
     send {media_stop}
     return
 appskey & down::send {media_play_pause}
@@ -299,9 +299,9 @@ appskey & numpadsub::send {volumn_down}
 #f::run firefox
 #m::run metapad
 #n::run cmdw /c no
-#p::run cmdw /c paint
+#p::run cmdw /c start paintdotnet
 #q::run cmdw /c start "Big3" cmd /c settitle "Quick Logger" qlog
-#s::run cmdw /c scite
+#s::run cmdw /c start scite
 #t::run cmdw /c start "Terminal" %SHELL% --login
 #+t::
     rundlg_y = % a_screenheight - 160
@@ -335,15 +335,15 @@ appskey & numpadsub::send {volumn_down}
     calc1 = cmdw /c start "Cart" cmd /c settitle "1 + 1 = 2" bc -ilq
     funpack(1, "calc")
     return
-#+::run cmdw /c scilab
-#f2::run cmdw /c stardict
+#+::run cmdw /c start scilab
+#f2::run cmdw /c start stardict
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; more applications {
 #+e::run cmdw /c em
 #+g::run cmd /c gcon
-#+j::run cmdw /c eclipse
+#+j::run cmdw /c start eclipse
 ^!enter::
     settitlematchmode 2
     ifwinactive, Eclipse SDK
