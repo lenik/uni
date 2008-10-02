@@ -86,7 +86,13 @@ function main() {
 
                 if [ -n "$add_shortcuts" ]; then
                     for c in ${shortcuts//,/ }; do
-                        shortcut=${c##*/}
+                        if [ "${c/=}" != "$c" ]; then
+                            # shortcut=c
+                            shortcut=${c%=*}
+                            c=${c#*=}
+                        else
+                            shortcut=${c##*/}
+                        fi
                         dstw="$lam_aw/abc.d/$_expand"
                         dstw=${dstw//\//\\}
                         _sig1 "alias $shortcut => $dstw\\$c"

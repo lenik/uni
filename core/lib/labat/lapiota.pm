@@ -58,11 +58,13 @@ sub getopts(\@@) {
 sub findabc {
     my $ctx = shift;
     my ($root, $print, $style) = ($ENV{'LAPIOTA'}.'/abc.d', 0, 'm');
+    my $escape = 0;
     getopts(@_,
         'root|r=s'  => \$root,
         'print|p'   => \$print,
         'unix|u'    => sub { $style = 'u' },
         'windows|w' => sub { $style = 'w' },
+        'escape|e'  => \$escape,                # using \\, \/ instead of \, /
         'mix|m'     => sub { $style = 'm' },
         );
     my ($name, @addpath) = @_;
@@ -80,6 +82,7 @@ sub findabc {
     }
     return undef unless defined $home;
     my $DFS = $style eq 'w' ? '\\' : '/';
+    $DFS = '\\'.$DFS if $escape;
     $home =~ s/\//$DFS/g;
     $ENV{'_HOME'} = $home;
     chdir $home if $chdir;

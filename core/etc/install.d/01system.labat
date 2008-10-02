@@ -291,6 +291,11 @@
                     - WindowSize            0x00070010
                     - FaceName              sz:"Lucida Console"
                     - FontSize              0x00480000
+        :ie:
+            :: Internet Explorer
+            set-reg:
+                - LMachine/SOFTWARE/Microsoft/"Internet Explorer"/->
+                    - View" Source Editor/Editor Name" sz:"${findabc -e -w npp}\\notepad++.exe"
         :sysmon:
             :: System Monitors
             # set-reg:

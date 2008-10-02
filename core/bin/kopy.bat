@@ -8,6 +8,19 @@
     if "%~1"==":chsh"   goto chsh
     goto init
 
+:copy
+    if exist "%~2" (
+        diff "%~1" "%~2" >nul
+        if errorlevel 2 (
+            echo Overwriting %2...
+            rem copy /y "%~1" "%~2" >nul
+            wfpreplace  "%~2" "%~1" >nul
+        )
+    ) else (
+        copy "%~1" "%~2" >nul
+    )
+    exit /b
+
 :start
 :normal
     set _src=%~1
@@ -57,22 +70,14 @@
         goto start
     )
     set _sh=%LAPIOTA%\local\bin\cmd.exe
+    diff "%_sh%" "%windir%\cmd.exe" >nul
+    if not errorlevel 2 (
+        echo already updated.
+        exit /b
+    )
     ppid
     start %_sh% /c %0 :chsh %errorlevel% %*
     exit
-
-:copy
-    if exist "%~2" (
-        diff "%~1" "%~2" >nul
-        if errorlevel 2 (
-            echo Overwriting %2...
-            rem copy /y "%~1" "%~2" >nul
-            wfpreplace  "%~2" "%~1" >nul
-        )
-    ) else (
-        copy "%~1" "%~2" >nul
-    )
-    exit /b
 
 :init
     set  _verbose=0
