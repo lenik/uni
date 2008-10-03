@@ -3,23 +3,26 @@
 function findabc() {
     local root output
     root=/lapiota/abc.d
+	last=
 
     local OPTIND
-    while getopts pr: opt; do
+    while getopts r:lp opt; do
         case $opt in
             r)
                 root=$OPTARG;;
+            l)
+                last=1;;
             p)
                 output=1;;
             *)
                 echo error option: $opt
-                exit 1;;
+                return 1;;
         esac
     done
     shift $((OPTIND-1))
     if [ $# -lt 1 ]; then
         echo findabc [-r ROOT] package [dirs-addtopath...]
-        exit 1
+        return 1
     fi
 
     local package=$1
@@ -37,13 +40,20 @@ function findabc() {
 
     while [ -z "$_home" ]; do
         local prefix="$package"
+        # if exist p/prefix* found.
+        match=
         for f in "$root/$_expand$prefix"*; do
             if [ "${f: -1}" != '*' ]; then
-                _expand="$_expand${f##*/}"
-                _home="$f"
-                break 2
+                match="$f"
+                if [ -z $last ]; then break; fi
             fi
         done
+        if [ -n "$match" ]; then
+            _expand="$_expand${match##*/}"
+            _home="$match"
+            break
+        fi
+        # while chop prefix { if exist p/prefix continue 2 }
         while [ ${#prefix} -gt 0 ]; do
             # echo "  prefix=$prefix"
             if [ -e "$root/$_expand$prefix" ]; then

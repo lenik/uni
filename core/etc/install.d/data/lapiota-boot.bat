@@ -33,7 +33,7 @@
 
 :endmount
 
-    cd /d %LAPIOTA%\etc\profile.d
+    cd /d %LAPIOTA%\etc\startup.d
     call 10autohotkey
 
     exit /b 0

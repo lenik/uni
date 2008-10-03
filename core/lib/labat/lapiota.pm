@@ -58,9 +58,11 @@ sub getopts(\@@) {
 sub findabc {
     my $ctx = shift;
     my ($root, $print, $style) = ($ENV{'LAPIOTA'}.'/abc.d', 0, 'm');
+    my $last = 0;
     my $escape = 0;
     getopts(@_,
         'root|r=s'  => \$root,
+        'last|l'    => \$last,
         'print|p'   => \$print,
         'unix|u'    => sub { $style = 'u' },
         'windows|w' => sub { $style = 'w' },
@@ -75,8 +77,12 @@ sub findabc {
     my $home;
     while ($lev <= length($name)) {
         if (my @glob = <$prefix/$name*>) {
-            $home = $glob[0];
-            last
+            if ($last) {
+                $home = pop @glob;
+            } else {
+                $home = shift @glob;
+            }
+            last;
         }
         $prefix .= '/'.substr($name, 0, ++$lev)
     }

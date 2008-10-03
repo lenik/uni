@@ -34,15 +34,15 @@
 :found
     for /d %%i in ("%_prefix%\%_name%*") do (
         set _home=%%i
-        goto leave
+        if not "%_last%"=="1" goto leave
     )
-    goto st_next
+    if "%_home%"=="" goto st_next
 
 :leave
     set _=%_home%
     if "%_slash%"=="1" set _=%_:\=/%
     if not "%_chdir%"=="" set _=%_%::%_chdir%
-    if "%_print%"=="1" printf %%s %_%
+    if "%_print%"=="1" printf %%s "%_%"
     call export - _
     %leave%
 
@@ -72,6 +72,7 @@
     set      _ret=
     set _startdir=%~dp0
     set  _program=%~dpnx0
+    set     _home=
 
 :prep1
     if "%~1"==""            goto prep2
@@ -94,6 +95,10 @@
     ) else if "%~1"=="--root" (
         set _root=%~2
         shift
+    ) else if "%~1"=="-l" (
+        set _last=1
+    ) else if "%~1"=="--last" (
+        set _last=1
     ) else if "%~1"=="-p" (
         set _print=1
     ) else if "%~1"=="--print" (
@@ -153,6 +158,7 @@
     echo.
     echo Options:
     echo    -r, --root DIR      start directory to find, default /abc.d
+    echo    -l, --last          get last/most-recent version
     echo    -p, --print         print home-directory to STDOUT
     echo    -s, --slash         use slash(/) instead of default back-slash(\)
     echo    -q                  repeat to get less info
