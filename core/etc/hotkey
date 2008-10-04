@@ -201,7 +201,8 @@
     return
 lwin & tab::alttab
 lwin & capslock::shiftalttab
-#^f1::
+^!del::shutdown, 6
+#^esc::
     ; send {sleep}
     ; SetSuspendState(bHibernate, bForce, bCold)
     DllCall("PowrProf\SetSuspendState", "int", 0, "int", 0, "int", 0)
@@ -248,8 +249,9 @@ appskey & up::
 appskey & down::send {media_play_pause}
 appskey & left::send {media_prev}
 appskey & right::send {media_next}
-appskey & numpadadd::send {volumn_up}
-appskey & numpadsub::send {volumn_down}
+appskey & numpaddiv::soundset +1, , mute
+appskey & numpadadd::soundset +5
+appskey & numpadsub::soundset -5
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

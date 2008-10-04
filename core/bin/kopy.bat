@@ -70,7 +70,7 @@
         goto start
     )
     set _sh=%LAPIOTA%\local\bin\cmd.exe
-    diff "%_sh%" "%windir%\cmd.exe" >nul
+    diff "%_sh%" "%ComSpec%" >nul
     if not errorlevel 2 (
         echo already updated.
         exit /b

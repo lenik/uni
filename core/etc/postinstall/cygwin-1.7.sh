@@ -10,4 +10,4 @@ fi
 ln -nsf /lapiota/usr/lib/perl5/site /usr/lib/perl5/site_perl/5.10
 
 ln -nsf /lapiota/etc/cygwin/etc/*       /etc
-ln -nsf /lapiota/etc/cygwin/profile.d   /etc/profile.d/cygwin
+ln -nsf /lapiota/etc/profile.d          /etc/profile.d/cygwin

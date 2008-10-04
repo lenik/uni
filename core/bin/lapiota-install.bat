@@ -14,13 +14,6 @@
 
     if not exist "%HOME%\." md "%HOME%"
 
-    rem for Cygwin-1.7
-    rem if this install program fails, the fstab may be cleared.
-    umount -U
-    mount "%CYGWIN_ROOT%\bin" /usr/bin
-    mount "%CYGWIN_ROOT%\lib" /usr/lib
-    mount "%LAPIOTA%" /lapiota
-
     rem Mount relocations...
     cd /d "%~dp0..\etc\install.d"
     make -Bf 00Makefile

@@ -20,33 +20,39 @@ function _log() {
     fi
 }
 
+LINEPAD="                                                                                "
 function _sig() {
+    local line
     if [ $LOGLEVEL -ge $1 ]; then
         shift
-        echo -n $LOGPREFIX$@$_cr
+        line="$LOGPREFIX$@"
+        if [ ${#line} -lt 80 ]; then
+	    line="$line${LINEPAD:0:$((80-${#line}))}"
+	fi
+        echo -n "$line$_cr"
     fi
 }
 
 function _log0() {
-    if [ $LOGLEVEL -ge 0 ]; then echo $LOGPREFIX$@; fi
+    _log 0 "$@"
 }
 
 function _log1() {
-    if [ $LOGLEVEL -ge 1 ]; then echo $LOGPREFIX$@; fi
+    _log 1 "$@"
 }
 
 function _log2() {
-    if [ $LOGLEVEL -ge 2 ]; then echo $LOGPREFIX$@; fi
+    _log 2 "$@"
 }
 
 function _sig0() {
-    if [ $LOGLEVEL -ge 0 ]; then echo -n $LOGPREFIX$@$_cr; fi
+    _sig 0 "$@"
 }
 
 function _sig1() {
-    if [ $LOGLEVEL -ge 1 ]; then echo -n $LOGPREFIX$@$_cr; fi
+    _sig 1 "$@"
 }
 
 function _sig2() {
-    if [ $LOGLEVEL -ge 2 ]; then echo -n $LOGPREFIX$@$_cr; fi
+    _sig 2 "$@"
 }

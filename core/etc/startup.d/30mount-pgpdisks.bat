@@ -1,5 +1,7 @@
 rem #Mount PGP disks
 
+    setlocal
+
     set _MIAJ=C:\.radiko\.miaj
 
     if exist "%_MIAJ%\reset-junctions.bat" (

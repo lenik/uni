@@ -2,5 +2,6 @@
 default: \
 	/etc/fstab
 
-/etc/fstab: data/fstab.plp
-	plp $^ >$@
+/etc/fstab: data/fstab.sht
+	mount $$LAPIOTA /lapiota; \
+	shtext $^ >$@

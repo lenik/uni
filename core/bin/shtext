@@ -1,0 +1,56 @@
+#!/bin/bash
+    RCSID='$Id: .pl 809 2008-06-09 11:32:41Z lenik $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+    . /lapiota/lib/sh/cliboot
+
+function version() {
+    parse_id "$RCSID"
+    echo [$BASENAME] Shell-Macro Text
+    echo Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] FILE"
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    while [ $# != 0 ]; do
+        cat "$1" | while read -r line; do
+            if [ "${line:0:2}" != "! " ]; then
+                line="${line//\"/\\\"}"
+                echo -E "$line"
+            else
+                line="${line:2}"
+                eval "echo \"$line\""
+            fi
+        done
+        shift
+    done
+}
+
+boot "$@"

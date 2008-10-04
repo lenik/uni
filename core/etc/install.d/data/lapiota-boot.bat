@@ -5,37 +5,52 @@
     goto init
 
 :start
-
     if not "%LAPIOTA%"=="" goto located
 
     for /d %%i in (t lapiota) do (
-        set LAPIOTA=%%~dpnxi
-        goto located
+        if exist "%%i\." (
+            set LAPIOTA=%%~dpnxi
+            goto located
+        )
     )
+    set LAPIOTA=C:\Lapiota
 
 :located
     rd %LAPIOTA% 2>nul
-    md %LAPIOTA% 2>nul
 
     set pgd=lam.root.pgd
     for %%d in ("%homedrive%" c: d: e: f: g: u: v: w: x: y: z:) do (
         if exist "%%d\." (
             for %%f in (%%d\%pgd% %%d\.radiko\.miaj\image\%pgd%) do (
                 if exist %%f (
-                    %%f
+                    set pgd=%%f
                     goto found
                 )
             )
         )
     )
     rem if not found...
-    :found
 
-:endmount
+  :found
+    md %LAPIOTA% 2>nul
+    if not exist "%LAPIOTA%\." (
+        echo Failed to reset the mount point, try again
+        goto found
+    )
+    %pgd%
 
+:boot
     cd /d %LAPIOTA%\etc\startup.d
-    call 10autohotkey
-
+    if "%BOOTLEVEL%"=="" set BOOTLEVEL=20
+    for %%f in (*) do (
+        set base=%%f
+        set level=!base:~0,2!
+        if "!level!" leq "!BOOTLEVEL!" (
+            echo boot %%~nf
+            call "%%f"
+        )
+    )
+    pause
     exit /b 0
 
 :init

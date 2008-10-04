@@ -1,5 +1,7 @@
 rem #Mounting home(~) directory on A:
 
+    setlocal
+
     if exist "A:" (
         subst | grep -q ^^A:
         rem 0 if A: is mapped, 1 if A: is floppy.
