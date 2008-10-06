@@ -46,7 +46,7 @@
 :startw
     if "%JAVAW%"=="" set JAVAW=javaw
     if %_verbose% geq 1 (
-        "%JAVAW%" %_javaopts% %_nam% %_rest%
+        echo "%JAVAW%" %_javaopts% %_nam% %_rest%
     )
     "%JAVAW%" %_javaopts% %_nam% %_rest%
     exit /b
