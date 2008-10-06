@@ -82,7 +82,7 @@
         set      _time=%%k
         set    _author=%%l
     )
-    echo [TITLE] Reset NT ACL Entries
+    echo [aclreset] Reset NT ACL Entries
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
     exit /b 0
 
