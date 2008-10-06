@@ -11,6 +11,8 @@
 
 #include <windows.h>
 
+#define CMDW
+
 void check(BOOL pred, const char *mesg);
 void help();
 
@@ -31,27 +33,28 @@ DWORD opt_timeout = INFINITE;
 
 HANDLE hEvent;
 
-#ifdef CONSOLE
+#ifndef CMDW
 
 int main(int argc, char **argv) {
 
 #else
 
 #include <shellapi.h>
-#include <atl.h>
+#include <atlconv.h>
 int _stdcall WinMain(HINSTANCE hInst,
                      HINSTANCE hPrevInst,
-                     int nCmdShow,
-                     LPCSTR cmdLine) {
+                     LPSTR cmdLine,
+                     int nCmdShow) {
     USES_CONVERSION;
-    int argc;
-    LPWSTR *argvW = CommandLineToArgvW(cmdLineW, &argc);
-    argc++;
+    int _argc;
+    LPWSTR cmdLineW = A2W(cmdLine);
+    LPWSTR *argvW = CommandLineToArgvW(cmdLineW, &_argc);
+    int argc = _argc + 1;
     char **argv = (char **) malloc(argc * sizeof(char *));
     argv[0] = "winevent";
-    for (int i = 1; i < argc; i++) {
-        argv[i] = W2A(argvW[i - 1]);
-        printf("%d. %s\n", i, argv[i]);
+    for (int i = 0; i < _argc; i++) {
+        argv[i + 1] = W2A(argvW[i]);
+        // printf("%d. %s\n", i, argv[i + 1]);
     }
 #endif
 
