@@ -11,4 +11,4 @@ default: $(TARGETS)
 	cp -uf $@ $(OUTDIR)
 
 clean:
-	rm *.exe
+	rm -f *.exe *.obj
