@@ -57,6 +57,9 @@ public class LibInstaller {
         }
     }
 
+    /**
+     * @return <code>null</code> if not found.
+     */
     public String findLibrary(ClassLoader loader, String libname) {
         String filename = System.mapLibraryName(libname);
 

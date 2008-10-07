@@ -1,4 +1,4 @@
-package net.bodz.lapiota.hacks;
+package net.bodz.lapiota.win32;
 
 import static org.junit.Assert.*;
 
@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import net.bodz.bas.types.util.Strings;
+import net.bodz.lapiota.win32.Fix_BatBB;
 
 import org.junit.Test;
 

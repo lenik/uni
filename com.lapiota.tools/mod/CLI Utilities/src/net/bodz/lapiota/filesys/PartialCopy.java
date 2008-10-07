@@ -6,16 +6,16 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
 
-import net.bodz.bas.annotations.Doc;
-import net.bodz.bas.annotations.Version;
+import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.RcsKeywords;
+import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
-import net.bodz.bas.cli.Option;
-import net.bodz.bas.cli.util.RcsKeywords;
+import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.ControlBreak;
 import net.bodz.bas.lang.err.NotImplementedException;
-import net.bodz.lapiota.annotations.ProgramName;
+import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.util.StringUtil;
 import net.bodz.lapiota.wrappers.BasicCLI;
 

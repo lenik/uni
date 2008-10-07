@@ -3,14 +3,14 @@ package net.bodz.lapiota.ant.tasks;
 import java.io.File;
 
 import net.bodz.bas.cli.CLIConfig;
-import net.bodz.lapiota.javatools.GenerateProgramLauncher;
+import net.bodz.lapiota.javatools.GenerateLauncher;
 
 import org.apache.tools.ant.BuildException;
 
-public class GenerateProgramLauncherTask extends CLITask {
+public class GenerateLauncherTask extends CLITask {
 
-    public GenerateProgramLauncherTask() {
-        super(new GenerateProgramLauncher());
+    public GenerateLauncherTask() {
+        super(new GenerateLauncher());
         addArguments("-rq", "--");
 
         /*

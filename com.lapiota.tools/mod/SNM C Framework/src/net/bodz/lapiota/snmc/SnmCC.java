@@ -1,8 +1,8 @@
 package net.bodz.lapiota.snmc;
 
-import net.bodz.bas.annotations.Doc;
-import net.bodz.bas.annotations.Version;
-import net.bodz.bas.cli.util.RcsKeywords;
+import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.RcsKeywords;
+import net.bodz.bas.a.Version;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 /**

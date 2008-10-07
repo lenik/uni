@@ -11,12 +11,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import net.bodz.bas.annotations.Doc;
-import net.bodz.bas.annotations.Version;
+import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.RcsKeywords;
+import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
-import net.bodz.bas.cli.Option;
-import net.bodz.bas.cli.RunInfo;
-import net.bodz.bas.cli.util.RcsKeywords;
+import net.bodz.bas.cli.a.Option;
+import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.lang.ControlBreak;
 import net.bodz.bas.lang.err.ParseException;

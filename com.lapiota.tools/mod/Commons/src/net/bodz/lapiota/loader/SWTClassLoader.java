@@ -4,6 +4,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLStreamHandlerFactory;
 
+import net.bodz.bas.types.util.Empty;
+
 public class SWTClassLoader extends URLClassLoader {
 
     private LibInstaller installer = new LibInstaller();
@@ -19,6 +21,10 @@ public class SWTClassLoader extends URLClassLoader {
 
     public SWTClassLoader(URL[] urls) {
         super(urls);
+    }
+
+    public SWTClassLoader() {
+        super(Empty.URLs);
     }
 
     @Override

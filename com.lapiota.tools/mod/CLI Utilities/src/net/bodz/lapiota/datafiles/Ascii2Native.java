@@ -2,10 +2,10 @@ package net.bodz.lapiota.datafiles;
 
 import java.nio.CharBuffer;
 
-import net.bodz.bas.annotations.Doc;
-import net.bodz.bas.annotations.Version;
+import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.RcsKeywords;
+import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.ProcessResult;
-import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.text.interp.Unescape;
 import net.bodz.bas.text.util.BufParsers;

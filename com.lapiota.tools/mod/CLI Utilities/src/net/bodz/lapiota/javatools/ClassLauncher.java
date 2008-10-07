@@ -4,16 +4,24 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import net.bodz.bas.annotations.Doc;
-import net.bodz.bas.annotations.Version;
-import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.lapiota.annotations.ProgramName;
+import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.RcsKeywords;
+import net.bodz.bas.a.Version;
+import net.bodz.bas.cli._RunInfo;
+import net.bodz.bas.lang.Control;
+import net.bodz.bas.types.util.Types;
+import net.bodz.lapiota.a.ProgramName;
+import net.bodz.lapiota.loader.Lapiota;
 
 @Doc("Lapiota Java Program Launcher")
 @Version( { 0, 1 })
 @RcsKeywords(id = "$Id$")
 @ProgramName("jlaunch")
 public class ClassLauncher {
+
+    static {
+        Types.load(Lapiota.class);
+    }
 
     @SuppressWarnings("unchecked")
     public static void main(String[] args) throws Throwable {
@@ -27,10 +35,17 @@ public class ClassLauncher {
         ClassLoader loader = loaderClass.newInstance();
 
         Class<?> mainClass = loader.loadClass(mainClassName);
+        // System.out.println("Class Loaded: " + mainClass);
+
+        _RunInfo runInfo = _RunInfo.parse(mainClass);
+        runInfo.loadBoot();
+        runInfo.loadLibraries();
+        runInfo.loadDelayed();
+
         Method mainf = mainClass.getMethod("main", String[].class);
         args = Arrays.copyOfRange(args, 2, args.length);
         try {
-            mainf.invoke(null, (Object) args);
+            Control.invoke(mainf, null, (Object) args);
         } catch (InvocationTargetException e) {
             throw e.getTargetException();
         }

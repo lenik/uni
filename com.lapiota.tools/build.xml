@@ -57,7 +57,7 @@
 
 	<target name=":bat">
 
-		<taskdef name="mkbat" classname="net.bodz.lapiota.ant.tasks.GenerateProgramLauncherTask">
+		<taskdef name="mkbat" classname="net.bodz.lapiota.ant.tasks.GenerateLauncherTask">
 			<classpath refid="bins" />
 			<classpath>
 				<fileset dir="${JAVA_LIB}">
@@ -76,7 +76,7 @@
 	</target>
 
 	<target name="clean">
-		<delete>
+		<delete verbose="true">
 			<fileset dir="${basedir}/build" includes="*.jar" />
 		</delete>
 	</target>

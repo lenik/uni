@@ -9,14 +9,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.bodz.bas.annotations.Doc;
-import net.bodz.bas.annotations.Version;
-import net.bodz.bas.cli.Option;
+import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.RcsKeywords;
+import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.ProcessResult;
+import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.util.ProtectedShell;
-import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.io.Files;
-import net.bodz.lapiota.annotations.ProgramName;
+import net.bodz.bas.log.LogOut;
+import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("Merge directories of same architecture")
@@ -51,63 +52,69 @@ public class MergeDirectories extends BatchProcessCLI {
             threshold = 1.0f;
     }
 
+    static class ClearPars_PSH extends ProtectedShell {
+
+        public ClearPars_PSH(boolean enabled, LogOut out) {
+            super(enabled, out);
+        }
+
+        void mkdirParents(File f) {
+            f = Files.canoniOf(f);
+            File parent = f.getParentFile();
+            if (parent != null)
+                parent.mkdirs();
+        }
+
+        void rmdirParents(File f) {
+            f = Files.canoniOf(f);
+            while ((f = f.getParentFile()) != null)
+                if (!f.delete())
+                    break;
+        }
+
+        @Override
+        public boolean delete(File f) {
+            try {
+                return super.delete(f);
+            } finally {
+                rmdirParents(f);
+            }
+        }
+
+        @Override
+        public boolean move(File f, File dst) throws IOException {
+            try {
+                mkdirParents(dst);
+                return super.move(f, dst);
+            } finally {
+                rmdirParents(f);
+            }
+        }
+
+        @Override
+        public boolean move(File f, File dst, boolean force) throws IOException {
+            try {
+                mkdirParents(dst);
+                return super.move(f, dst, force);
+            } finally {
+                rmdirParents(f);
+            }
+        }
+
+        @Override
+        public boolean renameTo(File f, File dst) {
+            try {
+                return super.renameTo(f, dst);
+            } finally {
+                rmdirParents(f);
+            }
+        }
+
+    }
+
     @Override
     protected ProtectedShell _getShell() {
-        return new ProtectedShell(!dryRun, L) {
-
-            void mkdirParents(File f) {
-                f = Files.canoniOf(f);
-                File parent = f.getParentFile();
-                if (parent != null)
-                    parent.mkdirs();
-            }
-
-            void rmdirParents(File f) {
-                f = Files.canoniOf(f);
-                while ((f = f.getParentFile()) != null)
-                    if (!f.delete())
-                        break;
-            }
-
-            @Override
-            public boolean delete(File f) {
-                try {
-                    return super.delete(f);
-                } finally {
-                    rmdirParents(f);
-                }
-            }
-
-            @Override
-            public boolean move(File f, File dst) throws IOException {
-                try {
-                    mkdirParents(dst);
-                    return super.move(f, dst);
-                } finally {
-                    rmdirParents(f);
-                }
-            }
-
-            @Override
-            public boolean move(File f, File dst, boolean force)
-                    throws IOException {
-                try {
-                    mkdirParents(dst);
-                    return super.move(f, dst, force);
-                } finally {
-                    rmdirParents(f);
-                }
-            }
-
-            @Override
-            public boolean renameTo(File f, File dst) {
-                try {
-                    return super.renameTo(f, dst);
-                } finally {
-                    rmdirParents(f);
-                }
-            }
-        };
+        return new ClearPars_PSH(!dryRun, L.m);
     }
 
     @Override
@@ -248,14 +255,12 @@ public class MergeDirectories extends BatchProcessCLI {
     private int      stage;
 
     @Override
-    protected boolean doMain(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Throwable {
         stage = CALC_DIGEST;
         super.doMain(args);
 
         stage = APPLY_MERGE;
         super.doMain(args);
-
-        return false;
     }
 
     public static void main(String[] args) throws Throwable {

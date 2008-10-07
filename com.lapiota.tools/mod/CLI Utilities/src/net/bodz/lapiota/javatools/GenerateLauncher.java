@@ -5,19 +5,22 @@ import static net.bodz.bas.types.util.Strings.qq;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import net.bodz.bas.annotations.ClassInfo;
-import net.bodz.bas.annotations.Doc;
-import net.bodz.bas.annotations.Version;
+import net.bodz.bas.a.ClassInfo;
+import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.RcsKeywords;
+import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIConfig;
 import net.bodz.bas.cli.ProcessResult;
-import net.bodz.bas.cli.RunInfo;
-import net.bodz.bas.cli.util.RcsKeywords;
+import net.bodz.bas.cli._RunInfo;
+import net.bodz.bas.cli.a.RunInfo;
+import net.bodz.bas.cli.util.Launcher;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.io.CharOuts.Buffer;
 import net.bodz.bas.lang.Caller;
@@ -25,29 +28,30 @@ import net.bodz.bas.lang.err.IdentifiedException;
 import net.bodz.bas.loader.JavaLibraryLoader;
 import net.bodz.bas.text.interp.Interps;
 import net.bodz.bas.types.util.Annotations;
+import net.bodz.bas.types.util.Ns;
 import net.bodz.bas.types.util.Types;
-import net.bodz.lapiota.annotations.LoadBy;
-import net.bodz.lapiota.annotations.ProgramName;
-import net.bodz.lapiota.hacks.Fix_BatBB;
+import net.bodz.lapiota.a.LoadBy;
+import net.bodz.lapiota.a.ProgramName;
+import net.bodz.lapiota.win32.Fix_BatBB;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("Generate program launcher for java applications")
 @Version( { 0, 1 })
 @RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
 @ProgramName("mkbat")
-public class GenerateProgramLauncher extends BatchProcessCLI {
+public class GenerateLauncher extends BatchProcessCLI {
 
     // private String prefix = "";
     private Map<String, String> varmap;
     private Set<String>         generated;
 
-    public GenerateProgramLauncher() {
+    public GenerateLauncher() {
         generated = new HashSet<String>();
         varmap = new HashMap<String, String>();
         varmap.put("PROPERTY_LIB_LOADED", CLIConfig.PROPERTY_LIB_LOADED);
         ClassInfo classInfo = _loadClassInfo();
-        varmap.put("GENERATOR", GenerateProgramLauncher.class.getSimpleName()
-                + " " + classInfo.getVersionString() + ", "
+        varmap.put("GENERATOR", GenerateLauncher.class.getSimpleName() + " "
+                + classInfo.getVersionString() + ", "
                 + classInfo.getDateString());
     }
 
@@ -85,6 +89,24 @@ public class GenerateProgramLauncher extends BatchProcessCLI {
         } catch (Throwable t) {
             return ProcessResult.err(t, "loadc");
         }
+
+        int modifiers = clazz.getModifiers();
+        if (!Modifier.isPublic(modifiers))
+            return ProcessResult.pass("local");
+
+        LoadBy loadBy = Ns.getN(clazz, LoadBy.class);
+        if (loadBy != null) {
+            int preload = loadBy.preload();
+            if (preload != 0) {
+                _RunInfo runInfo = _RunInfo.parse(clazz);
+                if ((LoadBy.BOOT & preload) != 0)
+                    runInfo.loadBoot();
+                if ((LoadBy.LIB & preload) != 0)
+                    runInfo.loadLibraries();
+                if ((LoadBy.DELAYED & preload) != 0)
+                    runInfo.loadDelayed();
+            }
+        }
         try {
             clazz.getMethod("main", String[].class);
             L.i.P("    main-class: ", clazz);
@@ -100,7 +122,8 @@ public class GenerateProgramLauncher extends BatchProcessCLI {
     protected void generate(Class<?> clazz) throws IOException {
         String name = clazz.getName();
 
-        String batName = Annotations.getAnnotation(clazz, ProgramName.class);
+        String batName = (String) Annotations
+                .getValue(clazz, ProgramName.class);
         if (batName == null) {
             batName = clazz.getSimpleName();
         }
@@ -112,11 +135,22 @@ public class GenerateProgramLauncher extends BatchProcessCLI {
         varmap.put("NAME", name);
 
         String launch = "";
-        Class<? extends ClassLoader> loaderClass = Annotations.getAnnotation(
-                clazz, LoadBy.class, true);
-        if (loaderClass != null) {
-            launch = ClassLauncher.class.getName() + " "
-                    + loaderClass.getName();
+
+        LoadBy loadBy = Ns.getN(clazz, LoadBy.class);
+        if (loadBy != null) {
+            Class<? extends ClassLoader> loaderClass = loadBy.value();
+            if (loaderClass == ClassLoader.class)
+                loaderClass = null;
+            Class<? extends Launcher> launcherClass = loadBy.launcher();
+            if (launcherClass == Launcher.class)
+                launcherClass = null;
+            if (launcherClass == null) {
+                if (loaderClass != null)
+                    launch = ClassLauncher.class.getName() + " "
+                            + loaderClass.getName();
+            } else {
+                launch = launcherClass.getName();
+            }
         }
         varmap.put("LAUNCH", launch);
 
@@ -159,8 +193,8 @@ public class GenerateProgramLauncher extends BatchProcessCLI {
 
     static {
         try {
-            batTemplate = Files.classData(GenerateProgramLauncher.class,
-                    "batTemplate");
+            batTemplate = Files
+                    .classData(GenerateLauncher.class, "batTemplate");
             batTemplateBody = Files.readAll(batTemplate, "utf-8");
         } catch (IOException e) {
             throw new IdentifiedException(e.getMessage(), e);
@@ -169,7 +203,7 @@ public class GenerateProgramLauncher extends BatchProcessCLI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new GenerateProgramLauncher().run(args);
+        new GenerateLauncher().run(args);
     }
 
 }

@@ -16,12 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.bodz.bas.annotations.Doc;
-import net.bodz.bas.annotations.Version;
-import net.bodz.bas.cli.Option;
+import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.RcsKeywords;
+import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.ProcessResult;
-import net.bodz.bas.cli.RunInfo;
-import net.bodz.bas.cli.util.RcsKeywords;
+import net.bodz.bas.cli.a.Option;
+import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.bas.dnb.JavaAnnotation;
 import net.bodz.bas.dnb.JavaEnum;
 import net.bodz.bas.io.Files;
@@ -29,7 +29,9 @@ import net.bodz.bas.lang.err.UnexpectedException;
 import net.bodz.bas.lang.util.Classpath;
 import net.bodz.bas.types.chained.CMap;
 import net.bodz.bas.types.util.Strings;
+import net.bodz.lapiota.a.LoadBy;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
+import net.bodz.lapiota.wrappers.JavaLauncher;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
@@ -109,6 +111,7 @@ loadDelayed = { "findcp|eclipse*/plugins/org.eclipse.equinox.common_*",
         "findcp|eclipse*/plugins/org.eclipse.osgi_*",
         "findcp|eclipse*/plugins/org.eclipse.core.contenttype_*",
         "findcp|eclipse*/plugins/org.eclipse.equinox.preferences_*", })
+@LoadBy(launcher = JavaLauncher.class)
 public class J4conv extends BatchProcessCLI {
 
     @Option(alias = "b", vnam = "FILE|DIR")
@@ -128,6 +131,10 @@ public class J4conv extends BatchProcessCLI {
 
     // aliases
     static class FMT extends DefaultCodeFormatterConstants {
+    }
+
+    public static void main(String[] args) throws Throwable {
+        new J4conv().run(args);
     }
 
     @SuppressWarnings("unchecked")

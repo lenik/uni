@@ -1,15 +1,15 @@
-package net.bodz.lapiota.hacks;
+package net.bodz.lapiota.win32;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import net.bodz.bas.annotations.Doc;
-import net.bodz.bas.annotations.Version;
-import net.bodz.bas.cli.Option;
+import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.RcsKeywords;
+import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.ProcessResult;
-import net.bodz.bas.cli.util.RcsKeywords;
+import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.Files;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
@@ -18,7 +18,7 @@ import net.bodz.lapiota.wrappers.BatchProcessCLI;
 @RcsKeywords(id = "$Id: Fix_Bat4K.java 0 2008-8-6 上午05:59:30 lenik $")
 public class Fix_BatBB extends BatchProcessCLI {
 
-    @Option(alias = "b", vnam = "SIZE", doc = "block size")
+    @Option(alias = "b", vnam = "SIZE", doc = "block size, default 1024")
     int  blockSize = 1024;
 
     @Option

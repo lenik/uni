@@ -2,16 +2,16 @@ package net.bodz.lapiota.datafiles;
 
 import java.util.regex.Pattern;
 
-import net.bodz.bas.annotations.Doc;
-import net.bodz.bas.annotations.Version;
+import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.RcsKeywords;
+import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
-import net.bodz.bas.cli.Option;
 import net.bodz.bas.cli.ProcessResult;
-import net.bodz.bas.cli.util.RcsKeywords;
+import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.lang.Filter;
 import net.bodz.bas.types.TypeParsers.GetInstanceParser;
-import net.bodz.lapiota.annotations.ProgramName;
+import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("A Unix diff program implemented in Java")

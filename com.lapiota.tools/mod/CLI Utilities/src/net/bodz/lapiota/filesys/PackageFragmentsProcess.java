@@ -17,18 +17,20 @@ import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.bodz.bas.annotations.Doc;
-import net.bodz.bas.annotations.Version;
+import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.RcsKeywords;
+import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
-import net.bodz.bas.cli.Option;
 import net.bodz.bas.cli.ProcessResult;
-import net.bodz.bas.cli.RunInfo;
+import net.bodz.bas.cli.a.Option;
+import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.bas.cli.ext.CLIPlugin;
 import net.bodz.bas.cli.ext._CLIPlugin;
-import net.bodz.bas.cli.util.RcsKeywords;
 import net.bodz.bas.io.Files;
+import net.bodz.bas.io.FsWalk;
 import net.bodz.bas.types.TypeParsers.WildcardsParser;
-import net.bodz.lapiota.annotations.ProgramName;
+import net.bodz.bas.types.util.Iterators;
+import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
@@ -60,6 +62,7 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
 
     public PackageFragmentsProcess() {
         plugins.registerCategory("action", Action.class);
+        plugins.register("list", Lister.class, this);
         plugins.register("cat", Cat.class, this);
         // actionPoint.register("mani", ManiCat.class, this);
         plugins.register("pointref", PointRef.class, this);
@@ -101,6 +104,39 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
     }
 
     static abstract class _Action extends _CLIPlugin implements Action {
+    }
+
+    @Doc("list all files in dirs and archives")
+    class Lister extends _Action {
+
+        public Lister() {
+        }
+
+        @Override
+        public void doDirectory(File dir) throws Throwable {
+            new FsWalk(dir, recursive) {
+                @Override
+                public void process(File file) throws IOException {
+                    String path = file.getPath();
+                    if (file.isDirectory())
+                        path += "/";
+                    list(path);
+                }
+            }.walk();
+        }
+
+        @Override
+        public void doJar(JarFile jar) throws Throwable {
+            for (JarEntry e : Iterators.iterate(jar.entries())) {
+                String ename = e.getName();
+                list(ename);
+            }
+        }
+
+        void list(String entry) {
+            System.out.println(entry);
+        }
+
     }
 
     abstract class _EntryAction extends _Action {
@@ -148,10 +184,8 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
                 return;
             }
             if (entry.isDirectory()) {
-                Enumeration<JarEntry> entries = jar.entries();
                 List<String> buf = new ArrayList<String>();
-                while (entries.hasMoreElements()) {
-                    JarEntry e = entries.nextElement();
+                for (JarEntry e : Iterators.iterate(jar.entries())) {
                     String ename = e.getName();
                     if (ename.startsWith(path))
                         buf.add(ename);

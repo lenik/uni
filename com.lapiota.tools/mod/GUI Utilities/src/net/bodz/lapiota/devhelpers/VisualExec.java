@@ -1,11 +1,11 @@
-package net.bodz.lapiota.programs;
+package net.bodz.lapiota.devhelpers;
 
 import java.io.IOException;
 
-import net.bodz.bas.annotations.Doc;
-import net.bodz.bas.annotations.Version;
-import net.bodz.bas.cli.util.RcsKeywords;
-import net.bodz.lapiota.annotations.ProgramName;
+import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.RcsKeywords;
+import net.bodz.bas.a.Version;
+import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.wrappers.BasicGUI;
 
 import org.eclipse.swt.SWT;
@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Text;
 @Version( { 0, 1 })
 @RcsKeywords(id = "$Id$")
 @ProgramName("cliedit")
-public class CommandLineEditor extends BasicGUI {
+public class VisualExec extends BasicGUI {
 
     private Text text;
     private Text cmdlineText;
@@ -70,7 +70,7 @@ public class CommandLineEditor extends BasicGUI {
     }
 
     public static void main(String[] args) throws Throwable {
-        new CommandLineEditor().run(args);
+        new VisualExec().run(args);
     }
 
 }

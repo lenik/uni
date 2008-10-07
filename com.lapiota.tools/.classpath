@@ -27,5 +27,6 @@
 	<classpathentry kind="var" path="JAVA_LIB/groovy-all-1.5.6.jar" sourcepath="/JAVA_SRC/groovy-src-1.5.6.zip"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/net.bodz.swt"/>
 	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.swt.win32.win32.x86_3.4.0.v3448f.jar" sourcepath="/ECLIPSE_HOME/plugins/org.eclipse.swt.win32.win32.x86.source_3.4.0.v3448f.jar"/>
+	<classpathentry kind="var" path="JAVA_LIB/net.bodz.icons.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

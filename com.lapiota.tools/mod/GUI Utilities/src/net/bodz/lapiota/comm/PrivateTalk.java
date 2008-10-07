@@ -1,6 +1,17 @@
-package net.bodz.lapiota.programs;
+package net.bodz.lapiota.comm;
 
-public class PrivateTalk {
+import net.bodz.lapiota.wrappers.BasicGUI;
+
+public class PrivateTalk extends BasicGUI {
+
+    @Override
+    protected void doMain(String[] args) throws Throwable {
+        L.m.P("Hello");
+    }
+
+    public static void main(String[] args) throws Throwable {
+        new PrivateTalk().run(args);
+    }
 
 }
 

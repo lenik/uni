@@ -1,6 +1,6 @@
 package net.bodz.lapiota.ant.tasks;
 
-import net.bodz.bas.cli.Option;
+import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.lang.script.ScriptClass;
 import net.bodz.bas.log.ALog;
 import net.bodz.lapiota.wrappers.BasicCLI;

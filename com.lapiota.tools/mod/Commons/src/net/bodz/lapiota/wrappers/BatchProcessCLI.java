@@ -1,6 +1,6 @@
 package net.bodz.lapiota.wrappers;
 
-import net.bodz.bas.cli.RunInfo;
+import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.bas.types.util.Types;
 import net.bodz.lapiota.loader.Lapiota;
 

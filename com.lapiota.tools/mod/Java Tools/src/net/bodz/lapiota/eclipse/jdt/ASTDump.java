@@ -6,17 +6,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import net.bodz.bas.annotations.Doc;
-import net.bodz.bas.annotations.Version;
-import net.bodz.bas.cli.Option;
-import net.bodz.bas.cli.RunInfo;
-import net.bodz.bas.cli.util.RcsKeywords;
+import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.RcsKeywords;
+import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.a.Option;
+import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.CharOuts;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.types.util.CompatMethods;
 import net.bodz.bas.types.util.Strings;
+import net.bodz.lapiota.a.LoadBy;
 import net.bodz.lapiota.wrappers.BasicCLI;
+import net.bodz.lapiota.wrappers.JavaLauncher;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -39,6 +41,7 @@ loadDelayed = { "findcp|eclipse*/plugins/org.eclipse.equinox.common_*",
         "findcp|eclipse*/plugins/org.eclipse.osgi_*",
         "findcp|eclipse*/plugins/org.eclipse.core.contenttype_*",
         "findcp|eclipse*/plugins/org.eclipse.equinox.preferences_*", })
+@LoadBy(launcher = JavaLauncher.class)
 public class ASTDump extends BasicCLI {
 
     @Option(alias = "o", vnam = "FILE", doc = "dump to the specified file")

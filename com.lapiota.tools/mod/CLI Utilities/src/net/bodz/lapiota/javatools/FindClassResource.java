@@ -16,16 +16,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import net.bodz.bas.annotations.Doc;
-import net.bodz.bas.annotations.Version;
-import net.bodz.bas.cli.Option;
-import net.bodz.bas.cli.util.RcsKeywords;
+import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.RcsKeywords;
+import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.io.FsWalk;
 import net.bodz.bas.lang.Caller;
+import net.bodz.bas.lang.Control;
 import net.bodz.bas.lang.util.Classpath;
 import net.bodz.bas.types.TypeParsers.GetInstanceParser;
-import net.bodz.lapiota.annotations.ProgramName;
+import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.util.TypeExtensions.FileParser2;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
@@ -144,7 +145,7 @@ public class FindClassResource extends BasicCLI {
                 try {
                     L.i.P("execute ", mainf.getDeclaringClass(), "::", mainf
                             .getName(), "/", testArguments.length);
-                    mainf.invoke(null, (Object) testArguments);
+                    Control.invoke(mainf, null, (Object) testArguments);
                 } catch (InvocationTargetException te) {
                     throw te.getTargetException();
                 } finally {

@@ -25,7 +25,7 @@ import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 
-public class ASTVisitor2 extends ASTVisitor {
+class ASTVisitor2 extends ASTVisitor {
 
     protected boolean visitExpression(Expression e) {
         return true;

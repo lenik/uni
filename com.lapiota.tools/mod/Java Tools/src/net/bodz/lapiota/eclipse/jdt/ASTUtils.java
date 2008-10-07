@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.dom.PrimitiveType.Code;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
-public class ASTUtils {
+class ASTUtils {
 
     protected AST        ast;
     protected ASTRewrite rewrite;
