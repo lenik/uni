@@ -142,6 +142,7 @@
         echo This program is distributed under GPL license.
     )
     set initlevel=
+    prompt $S       $+$P$_%USERNAME%$G$S
 
     rem BUGFIX to cmd: set errorlevel doesn't affect the exit code
     if "%_err%"=="" set _err=%ERRORLEVEL%

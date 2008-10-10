@@ -39,11 +39,11 @@
 
 :which0
 :which1
-    set _find=%~dp$PATH:1
-    if "%_find%"=="" exit /b 0
-    set _setdir=%_find%
-    set _find=%_find%%~1
-    set _detail=
+    set _target=%~dp$PATH:1
+    if "%_target%"=="" exit /b 0
+    set _setdir=%_target%
+    set _target=%_target%%~1
+    set _detail=%_target%
     goto found%_verbose%
 
 :::::::
@@ -51,8 +51,8 @@
     set _path="%PATH:;=" "%"
     set _c=0
     for %%p in (%_path%) do (
-        set _find=%%~p\%~1
-        if exist "!_find!" (
+        set _target=%%~p\%~1
+        if exist "!_target!" (
             set _setdir=%%~p
             call :found%_verbose%
             set /a _c = _c + 1
@@ -61,21 +61,24 @@
     exit /b %_c%
 
 :found2
-    for %%f in ("%_find%") do (
+    for %%f in ("%_target%") do (
         set _fshort=%%~sf
         set _fattr=%%~af
         set _ftime=%%~tf
         set _fsize=%%~zf
     )
-    rem set _find=%_find%:%_fsize%:%_ftime%:%_fattr%
+    rem set _detail=%_target%:%_fsize%:%_ftime%:%_fattr%
     set _fsize=          %_fsize%
     set _fsize=%_fsize:~-10%
-    set _find=%_fattr% %_fsize% %_ftime% %_find%
+    set _detail=%_fattr% %_fsize% %_ftime% %_target%
 
 :found1
-    echo %_find%
+    echo %_detail%
 
 :found0
+    if not "%_copyto%"=="" (
+        copy /y "%_target%" "%_copyto%"
+    )
     set /a _count = _count + 1
     exit /b 1
 
@@ -86,6 +89,7 @@
     set _startdir=%~dp0
     set  _program=%~dpnx0
     set    _chdir=0
+    set   _copyto=
     set  _exitdir=
 
 :prep1
@@ -111,6 +115,12 @@
         set _chdir=1
     ) else if "%~1"=="--chdir" (
         set _chdir=1
+    ) else if "%~1"=="-p" (
+        set _copyto=%~2
+        shift
+    ) else if "%~1"=="--copy-to" (
+        set _copyto=%~2
+        shift
     ) else if "%_arg:~0,1%"=="-" (
         if "%_strict%"=="1" (
             echo Invalid option: %1
@@ -157,6 +167,7 @@
     echo.
     echo Options:
     echo    -c, --chdir         chdir into the found path
+    echo    -p, --copy-to DEST  copy found path to dest
     echo    -q, --quiet         repeat to get less info
     echo    -v, --verbose       repeat to get more info
     echo        --version       show version info

@@ -2,6 +2,7 @@
 
     setlocal
     set _strict=1
+    call lapiota-init
     goto init
 
 :start

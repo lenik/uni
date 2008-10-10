@@ -8,7 +8,7 @@
 
     REM _____________________________________________
 
-    set _eval=partcp -f "%_pgdfile%" -s 0x60 -e x/00
+    set _eval=partcp -f "%_pgdfile%" -x0x60 -yx/00
     for /f "usebackq delims=|" %%i in (`%_eval%`) do set _pgdmount=%%i
 
     call export - _pgdmount
