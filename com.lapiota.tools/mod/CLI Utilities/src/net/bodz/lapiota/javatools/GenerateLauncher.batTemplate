@@ -18,7 +18,7 @@
     exit /b 1
 
 :check_more
-    set _javabat=0
+    if "%_javabat%"=="" set _javabat=0
     goto init
 
 :start

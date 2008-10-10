@@ -18,7 +18,6 @@ import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.bas.io.CharOut;
-import net.bodz.bas.lang.ControlBreak;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.lang.err.UnexpectedException;
 import net.bodz.bas.types.Pair;
@@ -327,13 +326,10 @@ public class XMLEdit extends BasicCLI {
 
     @Override
     protected void _help(CharOut out) throws CLIException {
-        try {
-            super._help(out);
-        } catch (ControlBreak b) {
-            out.println();
-            StringUtil.helpEscapes(out);
-            throw b;
-        }
+        super._help(out);
+        out.println();
+
+        StringUtil.helpEscapes(out);
     }
 
     @Override

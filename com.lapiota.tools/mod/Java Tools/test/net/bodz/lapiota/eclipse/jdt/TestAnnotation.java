@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import net.bodz.bas.types.TypeParser;
-import net.bodz.bas.types.ValueCheck;
+import net.bodz.bas.types.Checker;
 
 /**
  * [OPTION] [--] FILES
@@ -43,7 +43,7 @@ public @interface TestAnnotation {
 
     String parserinfo() default "";
 
-    Class<? extends ValueCheck> check() default ValueCheck.class;
+    Class<? extends Checker> check() default Checker.class;
 
     String checkinfo() default "";
 
