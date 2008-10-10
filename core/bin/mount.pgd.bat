@@ -5,15 +5,31 @@
     goto init
 
 :start
+    if not "%_mpoint%"=="" goto f_mount
 
-    REM _____________________________________________
-
+:f_info
     set _eval=partcp -f "%_pgdfile%" -x0x60 -yx/00
-    for /f "usebackq delims=|" %%i in (`%_eval%`) do set _pgdmount=%%i
+    for /f "usebackq delims=|" %%i in (`%_eval%`) do set _mpoint=%%i
 
-    call export - _pgdmount
+    call export - _mpoint
     %leave%
     exit /b 0
+
+:f_mount
+    REM pgdinfo - currentmpoint
+    REM for %d in (%currentmpoint%) do set attr=%~ad
+    REM 'd-------l'
+    REM if "%attr:~-1%"=="l" echo already mounted.
+
+    touch -r "%_pgdfile%" "%_pgdfile%" 2>nul
+    if errorlevel 1 (
+        call :f_info
+        echo %_pgdfile% is already mounted on !_mpoint!
+        exit /b 1
+    )
+    call partcp -a %_mpoint% -o "%_pgdfile%" -z0x60
+    start /wait "Mounting..." "%_pgdfile%"
+    exit /b
 
 :init
     set  _verbose=0
@@ -21,6 +37,8 @@
     set     _rest=
     set _startdir=%~dp0
     set  _program=%~dpnx0
+    set  _pgdfile=
+    set   _mpoint=
 
 :prep1
     if "%~1"==""            goto prep2
@@ -60,6 +78,10 @@
     if "%~1"=="" goto help
     set _pgdfile=%~1
     shift
+    if not "%~1"=="" (
+        set _mpoint=%~1
+        shift
+    )
 
 :prep3
     if "%~1"=="" (
@@ -76,14 +98,14 @@
     goto start
 
 :version
-    set _id=$Id$
+    set _id=$Id: pgdinfo.bat 857 2008-10-10 10:26:04Z lenik $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
         set      _time=%%k
         set    _author=%%l
     )
-    echo [pgdinfo] Get PGD Information
+    echo [mount.pgd] Mount PGP Disk
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
     exit /b 0
 
@@ -91,7 +113,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] PGDFILE
+    echo    %_program% [OPTION] PGDFILE [PATH]
     echo.
     echo Options:
     echo    -q, --quiet         repeat to get less info

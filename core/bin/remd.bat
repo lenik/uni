@@ -16,7 +16,10 @@
     )
 
     set _shot=
-    for /d %%i in (*) do set _shot=!_shot! "%%i"
+    for /d %%i in (*) do (
+        set _attr=%%~ai
+        if "!_attr:~-1!"=="l" set _shot=!_shot! "%%i"
+    )
 
     for /d %%i in (%_shot%) do (
 	rd "%%~i" 2>nul
