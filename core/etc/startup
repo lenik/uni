@@ -1,0 +1,13 @@
+#!/bin/bash
+
+echo Startup Lapiota $LAPIOTA_VER
+
+for f in /lapiota/etc/startup.d/*.sh; do
+    read _CC title <$f
+    echo -ne "[load] $title...\r"
+    if . $f; then
+        echo [done]
+    else
+        echo [fail]
+    fi
+done

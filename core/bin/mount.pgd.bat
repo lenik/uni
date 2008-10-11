@@ -25,9 +25,11 @@
     canwrite "%_pgdfile%"
 
     if errorlevel 1 (
-        echo Check failed:
-        call :f_info
-        echo   %_pgdfile% is already mounted on !_mpoint!
+        echo %_pgdfile% is already mounted
+        if %_verbose% geq 1 (
+            call :f_info
+            echo   on !_mpoint!
+        )
         exit /b 1
     )
 

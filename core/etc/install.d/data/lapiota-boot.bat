@@ -52,15 +52,11 @@
 
 :boot
     cd /d %LAPIOTA%\etc\startup.d
-    if "%BOOTLEVEL%"=="" set BOOTLEVEL=20
-    for %%f in (*) do (
-        set base=%%f
-        set level=!base:~0,2!
-        if "!level!" leq "!BOOTLEVEL!" (
-            echo boot %%~nf
-            call "%%f"
-        )
+    for %%f in (*.bat) do (
+        REM echo boot %%~nf
+        call "%%f"
     )
+    bash -c /lapiota/etc/startup
     exit /b 0
 
 :init
