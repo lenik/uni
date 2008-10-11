@@ -1,0 +1,1 @@
+findhash -x80476512 -x32a3e19b -xacdea3b9 -xf93e454a a.tarexit /b[FindHash] Match! .1024-4171 = 80 47 65 12[FindHash] Match! .5120-5512 = 32 a3 e1 9b[FindHash] Match! .6144-8617 = ac de a3 b9[FindHash] Match! .9216-9350 = f9 3e 45 4a[FindHash] Range: .20438-20462 = 20 ca c1 a3

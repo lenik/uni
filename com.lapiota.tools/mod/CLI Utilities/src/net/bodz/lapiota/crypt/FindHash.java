@@ -15,6 +15,7 @@ import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.Files;
+import net.bodz.bas.lang.err.IllegalUsageError;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.lang.err.UnexpectedException;
 import net.bodz.bas.types._TypeParser;
@@ -57,10 +58,10 @@ public class FindHash extends BasicCLI {
     @Option(name = "algorithm", alias = "a", vnam = "ALG", doc = "hash algorithm to use, default CRC32")
     MessageDigest digest = new Hashes.CRC32_LE();
 
-    @Option(alias = "x", vnam = "HASH", parser = HexParser.class, required = true, doc = "hash value to find")
-    byte[]        hash;
+    @Option(name = "hash", alias = "x", vnam = "HASH", valtype = byte[].class, parser = HexParser.class, required = true, doc = "hash value to find")
+    byte[][]      hashes;
 
-    @Option(alias = "r", vnam = "FROM,TO", valtype = Range.class, parser = RangeParser.class, doc = "default is full file")
+    @Option(name = "range", alias = "r", vnam = "FROM,TO", valtype = Range.class, parser = RangeParser.class, doc = "default is full file")
     Range[]       ranges;
 
     @Override
@@ -71,6 +72,8 @@ public class FindHash extends BasicCLI {
             throw new UnsupportedOperationException(
                     "The algorithm isn't clonable: " + digest + ", class of "
                             + digest.getClass().getName());
+        if (hashes == null || hashes.length == 0)
+            throw new IllegalUsageError("no hash specified");
     }
 
     class FindContext {
@@ -135,8 +138,13 @@ public class FindHash extends BasicCLI {
         }
 
         protected boolean match(byte[] digest) {
-            assert digest.length == hash.length;
-            return Arrays.equals(digest, hash);
+            for (int h = 0; h < hashes.length; h++) {
+                byte[] hash = hashes[h];
+                assert digest.length == hash.length;
+                if (Arrays.equals(digest, hash))
+                    return true;
+            }
+            return false;
         }
 
     }
@@ -155,6 +163,7 @@ public class FindHash extends BasicCLI {
         super._help(out);
         out.println();
 
+        out.println("Algorithms: ");
         for (String alg : Security.getAlgorithms("MessageDigest")) {
             try {
                 MessageDigest digest = MessageDigest.getInstance(alg);

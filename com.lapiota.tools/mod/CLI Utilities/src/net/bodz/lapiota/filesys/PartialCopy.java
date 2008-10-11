@@ -11,6 +11,8 @@ import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.a.Option;
+import net.bodz.bas.cli.ext.CLIPlugin;
+import net.bodz.bas.cli.ext._CLIPlugin;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.IntMath;
@@ -22,6 +24,9 @@ import net.bodz.bas.mem.Memory;
 import net.bodz.bas.mem.RandomAccessFileMemory;
 import net.bodz.bas.types.TypeParsers.HexParser;
 import net.bodz.lapiota.a.ProgramName;
+import net.bodz.lapiota.crypt.CRCSum.CRC32pgp;
+import net.bodz.lapiota.crypt.FindHash.Range;
+import net.bodz.lapiota.crypt.FindHash.RangeParser;
 import net.bodz.lapiota.util.StringUtil;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
@@ -45,14 +50,23 @@ public class PartialCopy extends BasicCLI {
 
     private Memory    src;
     private Memory    dst;
-    private long      srcl;
-    private long      dstl;
+    private long      srcSize;
+    private long      dstSize;
 
     private long      srcStart;
     private long      dstStart;
-    private long      copySize  = -1;
+    private long      srclcopy  = -1;
+    private long      dstlcopy  = -1;
+
+    @Option(alias = "P", vnam = "PROCESS=PARAM[,...]", doc = "process on src data")
+    protected Process process;
 
     private int       copies;
+
+    public PartialCopy() {
+        plugins.registerCategory("process", Process.class);
+        plugins.register("crc.pgp", PGPCRC32.class, this);
+    }
 
     @Option(name = "src-text", alias = "a", vnam = "TEXT", doc = "src by plain text")
     protected void setSrcText(String text) {
@@ -66,7 +80,7 @@ public class PartialCopy extends BasicCLI {
         if (src != null)
             throw new IllegalStateException("src is already set: " + src);
         src = new ArrayMemory(bytes);
-        srcl = bytes.length;
+        srcSize = bytes.length;
     }
 
     @Option(name = "src-file", alias = "f", vnam = "FILE")
@@ -75,7 +89,7 @@ public class PartialCopy extends BasicCLI {
             throw new IllegalStateException("src is already set: " + src);
         RandomAccessFile rf = new RandomAccessFile(file, "r");
         src = new RandomAccessFileMemory(rf, 0);
-        srcl = rf.length();
+        srcSize = rf.length();
     }
 
     @Option(name = "dst-file", alias = "o", vnam = "FILE", doc = "default output to stdout")
@@ -84,38 +98,38 @@ public class PartialCopy extends BasicCLI {
             throw new IllegalStateException("dst is already set: " + src);
         RandomAccessFile rf = new RandomAccessFile(file, "rw");
         dst = new RandomAccessFileMemory(rf, 0);
-        dstl = rf.length();
+        dstSize = rf.length();
     }
 
     @Option(name = "src-start", alias = "x", vnam = "EXP", doc = "start position of src file to copy")
     protected void setSrcStart(String exp) throws AccessException {
-        srcStart = parsePosition(src, 0, srcl, exp);
+        srcStart = parsePosition(src, 0, srcSize, exp);
     }
 
     @Option(name = "src-end", alias = "y", vnam = "EXP", doc = "select size by src range")
     protected void setSrcEnd(String exp) throws AccessException {
-        long srcEnd = parsePosition(src, srcStart, srcl, exp);
-        copySize = srcEnd - srcStart;
+        long srcEnd = parsePosition(src, srcStart, srcSize, exp);
+        srclcopy = srcEnd - srcStart;
     }
 
     @Option(name = "dst-start", alias = "z", vnam = "EXP", doc = "start position of dst file to copy to")
     protected void setDstStart(String exp) throws AccessException {
         if (dst == null)
             throw new IllegalStateException("dst isn't set");
-        dstStart = parsePosition(dst, 0, dstl, exp);
+        dstStart = parsePosition(dst, 0, dstSize, exp);
     }
 
     @Option(name = "dst-end", alias = "w", vnam = "EXP", doc = "select size by dst range")
     protected void setDstEnd(String exp) throws AccessException {
         if (dst == null)
             throw new IllegalStateException("dst isn't set");
-        long dstEnd = parsePosition(dst, dstStart, dstl, exp);
-        copySize = dstEnd - dstStart;
+        long dstEnd = parsePosition(dst, dstStart, dstSize, exp);
+        srclcopy = dstEnd - dstStart;
     }
 
     @Option(name = "length", alias = "l", vnam = "LEN", doc = "count of bytes to copy")
     protected void setLength(String exp) {
-        copySize = StringUtil.parseLong(exp);
+        srclcopy = StringUtil.parseLong(exp);
     }
 
     @Option(alias = "d", doc = "do the copy")
@@ -128,32 +142,44 @@ public class PartialCopy extends BasicCLI {
             setDstFile(tmp);
         }
 
-        long src0 = srcl - srcStart;
-        long dst0 = dstl - dstStart;
-        if (copySize == -1)
-            copySize = src0;
-        byte[] block = new byte[blockSize];
-        long cplen = copySize;
+        long srcRest = srcSize - srcStart;
+        long dstRest = dstSize - dstStart;
         long padlen = 0;
-        if (truncate) {
-            if (cplen > dst0)
-                cplen = dst0;
-        }
-        if (cplen > src0) {
-            padlen += src0 - cplen;
-            cplen = src0;
-        }
+        long srcl = srclcopy == -1 ? srcRest : srclcopy;
+        long dstl = dstlcopy == -1 ? dstRest : dstlcopy;
         Memory srcCopy = src.offset(srcStart);
+
+        if (process != null) {
+            byte[] gen = process.process(srcCopy, srcl);
+            srcCopy = new ArrayMemory(gen);
+            srcl = gen.length;
+            srcRest = gen.length;
+        }
+        if (truncate) {
+            if (srcl > dstRest)
+                srcl = dstRest;
+        }
+        if (srcl > srcRest) {
+            padlen += srcRest - srcl;
+            srcl = srcRest;
+        }
+        if (srcl > dstl) {
+            padlen += dstl - srcl;
+            dstl = srcl;
+        }
+
         Memory dstCopy = dst.offset(dstStart);
-        while (cplen > 0) {
-            int cb = (int) Math.min(cplen, block.length);
+        byte[] block = new byte[blockSize];
+        while (srcl > 0) {
+            int cb = (int) Math.min(srcl, block.length);
             srcCopy.read(0, block, 0, cb);
             dstCopy.write(0, block, 0, cb);
             srcCopy = srcCopy.offset(cb);
             dstCopy = dstCopy.offset(cb);
-            cplen -= cb;
+            srcl -= cb;
         }
-        assert cplen == 0 : "cplen=" + cplen;
+        assert srcl == 0 : "srcl=" + srcl;
+
         if (padlen > 0) {
             for (int i = 0; i < block.length; i++)
                 block[i] = (byte) padding[i % padding.length];
@@ -289,6 +315,61 @@ public class PartialCopy extends BasicCLI {
 
     public static void main(String[] args) throws Throwable {
         new PartialCopy().run(args);
+    }
+
+    static interface Process extends CLIPlugin {
+
+        byte[] process(Memory src, long len) throws AccessException;
+
+    }
+
+    static abstract class _Process extends _CLIPlugin implements Process {
+    }
+
+    @Doc("PGP CRC32")
+    class PGPCRC32 extends _Process {
+
+        @Option(vnam = "FROM,TO", parser = RangeParser.class, doc = "specify a relative range in the process region, to fill with the pad-bytes")
+        Range  fillRange;
+
+        @Option(vnam = "HEX", parser = HexParser.class, doc = "bytes to pad")
+        byte[] padBytes = { 0, 0, 0, 0 };
+
+        public PGPCRC32() {
+        }
+
+        @Override
+        public byte[] process(Memory src, long lenl) throws AccessException {
+            if (lenl >= Integer.MAX_VALUE)
+                throw new UnsupportedOperationException(
+                        "unsupport to get crc32 from >2G block");
+            int len = (int) lenl;
+            byte[] bigEndian = new byte[len];
+            src.read(0, bigEndian);
+            if (len % 4 != 0)
+                throw new IllegalArgumentException("PGP-CRC32 is DWORD aligned");
+            if (fillRange != null) { // fill before switch byte-order
+                int padIndex = 0;
+                for (int i = fillRange.from; i < fillRange.to; i++) {
+                    byte padByte = padBytes[padIndex];
+                    padIndex = (padIndex + 1) % padBytes.length;
+                    bigEndian[i] = padByte;
+                }
+            }
+            for (int i = 0; i < len; i += 4) {
+                byte x0 = bigEndian[i + 0];
+                byte x1 = bigEndian[i + 1];
+                bigEndian[i + 0] = bigEndian[i + 3];
+                bigEndian[i + 1] = bigEndian[i + 2];
+                bigEndian[i + 2] = x1;
+                bigEndian[i + 3] = x0;
+            }
+            CRC32pgp crc32 = new CRC32pgp();
+            crc32.update(bigEndian, 0, len);
+            byte[] v = crc32.getBytesLE();
+            return v;
+        }
+
     }
 
 }

@@ -126,6 +126,7 @@ public class GenerateLauncher extends BatchProcessCLI {
                 .getValue(clazz, ProgramName.class);
         if (batName == null) {
             batName = clazz.getSimpleName();
+            batName = batName.toLowerCase(); // option?
         }
         File batf = getOutputFile(batName + ".bat");
         batf.getParentFile().mkdirs();

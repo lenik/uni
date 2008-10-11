@@ -3,6 +3,7 @@ package net.bodz.lapiota.crypt;
 import java.lang.reflect.Field;
 import java.security.MessageDigest;
 import java.security.Provider;
+import java.util.zip.Checksum;
 
 import net.bodz.bas.lang.err.UnexpectedException;
 import net.bodz.bas.mem.types.Int32BE;
@@ -25,7 +26,7 @@ public class Hashes {
     }
 
     public static abstract class CRC32 extends MessageDigest implements
-            PeekDigest, Cloneable {
+            Checksum, PeekDigest, Cloneable {
 
         protected java.util.zip.CRC32 crc32;
 
@@ -87,6 +88,16 @@ public class Hashes {
         @Override
         protected void engineUpdate(byte[] input, int offset, int len) {
             crc32.update(input, offset, len);
+        }
+
+        @Override
+        public long getValue() {
+            return crc32.getValue();
+        }
+
+        @Override
+        public void update(int b) {
+            crc32.update(b);
         }
 
     }
