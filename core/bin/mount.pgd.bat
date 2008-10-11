@@ -38,7 +38,21 @@
             echo User canceled.
             exit /b 1
         )
-        mkdir "!_mpoint!"
+        mkdir "%_mpoint%"
+    ) else (
+        rd "%_mpoint%" 2>nul
+        if exist "%_mpoint%\." (
+            echo Failed to reset the mount point.
+            echo Try a force clean?
+            echo **DANGEROUS** THIS WILL REMOVE ALL FILES UNDER %_mpoint%.
+            set /p _force=^(y/n^)
+            if not "!_force!"=="y" (
+                echo User canceled.
+                exit /b 1
+            )
+            rd /s /q "%_mpoint%"
+        )
+        md "%_mpoint%" 2>nul
     )
 
     if %_verbose% geq 1 echo DANGEROUS OPERATION: write the mount point to pgdfile
