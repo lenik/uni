@@ -16,7 +16,21 @@
     set LAPIOTA=C:\Lapiota
 
 :located
+    if exist "%LAPIOTA%\.LAPIOTA" (
+        echo Already mounted.
+        goto boot
+    )
+
     rd %LAPIOTA% 2>nul
+    if exist "%LAPIOTA%\." (
+        echo Failed to reset the mount point.
+        echo Try a force clean?
+        echo **DANGEROUS** THIS WILL REMOVE ALL FILES UNDER %LAPIOTA%.
+        set /p _force=^(y/n^)
+        if not "!_force!"=="y" exit /b 1
+        rd /s /q "%LAPIOTA%"
+    )
+    md %LAPIOTA% 2>nul
 
     set pgd=lam.root.pgd
     for %%d in ("%homedrive%" c: d: e: f: g: u: v: w: x: y: z:) do (
@@ -32,11 +46,8 @@
     rem if not found...
 
   :found
-    md %LAPIOTA% 2>nul
-    if not exist "%LAPIOTA%\." (
-        echo Failed to reset the mount point, try again
-        goto found
-    )
+    REM call mount.pgd "%pgd%" "%LAPIOTA%"
+    echo Mount %pgd%...
     %pgd%
 
 :boot
@@ -50,7 +61,6 @@
             call "%%f"
         )
     )
-    pause
     exit /b 0
 
 :init

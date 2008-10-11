@@ -21,13 +21,32 @@
     REM 'd-------l'
     REM if "%attr:~-1%"=="l" echo already mounted.
 
-    touch -r "%_pgdfile%" "%_pgdfile%" 2>nul
+    REM touch -r "%_pgdfile%" "%_pgdfile%" 2>nul
+    canwrite "%_pgdfile%"
+
     if errorlevel 1 (
+        echo Check failed:
         call :f_info
-        echo %_pgdfile% is already mounted on !_mpoint!
+        echo   %_pgdfile% is already mounted on !_mpoint!
         exit /b 1
     )
-    call partcp -a %_mpoint% -o "%_pgdfile%" -z0x60
+
+    if not exist "%_mpoint%" (
+        echo Mount point isn't existed: %_mpoint%
+        set /p _mkdir=Create? ^(Y/N^)
+        if not "!_mkdir!"=="y" (
+            echo User canceled.
+            exit /b 1
+        )
+        mkdir "!_mpoint!"
+    )
+
+    if %_verbose% geq 1 echo DANGEROUS OPERATION: write the mount point to pgdfile
+    call partcp -a "%_mpoint%" -o "%_pgdfile%" -z0x60
+
+    if %_verbose% geq 1 echo DANGEROUS OPERATION: recalc the header crc.
+    call partcp -f "%_pgdfile%" -Dfill-range=12,16 -Pcrc.pgp -l0x160 -o "%_pgdfile%" -z12
+
     start /wait "Mounting..." "%_pgdfile%"
     exit /b
 
@@ -79,7 +98,7 @@
     set _pgdfile=%~1
     shift
     if not "%~1"=="" (
-        set _mpoint=%~1
+        set _mpoint=%~dpnx1
         shift
     )
 
