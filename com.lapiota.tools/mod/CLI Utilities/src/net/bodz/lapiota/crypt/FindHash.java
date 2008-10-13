@@ -13,6 +13,7 @@ import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.a.Option;
+import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.err.IllegalUsageError;
@@ -58,10 +59,12 @@ public class FindHash extends BasicCLI {
     @Option(name = "algorithm", alias = "a", vnam = "ALG", doc = "hash algorithm to use, default CRC32")
     MessageDigest digest = new Hashes.CRC32_LE();
 
-    @Option(name = "hash", alias = "x", vnam = "HASH", valtype = byte[].class, parser = HexParser.class, required = true, doc = "hash value to find")
+    @Option(name = "hash", alias = "x", vnam = "HASH", valtype = byte[].class, required = true, doc = "hash value to find")
+    @ParseBy(HexParser.class)
     byte[][]      hashes;
 
-    @Option(name = "range", alias = "r", vnam = "FROM,TO", valtype = Range.class, parser = RangeParser.class, doc = "default is full file")
+    @Option(name = "range", alias = "r", vnam = "FROM,TO", valtype = Range.class, doc = "default is full file")
+    @ParseBy(RangeParser.class)
     Range[]       ranges;
 
     @Override

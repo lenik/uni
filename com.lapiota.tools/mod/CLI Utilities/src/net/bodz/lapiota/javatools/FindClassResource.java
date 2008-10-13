@@ -19,7 +19,9 @@ import java.util.regex.Pattern;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.a.ArgsParseBy;
 import net.bodz.bas.cli.a.Option;
+import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.io.FsWalk;
 import net.bodz.bas.lang.Caller;
@@ -39,12 +41,14 @@ public class FindClassResource extends BasicCLI {
     @Option(alias = "r", vnam = "[DEPTH]", optional = "65536", doc = "max depth of directories recurse into")
     protected int        recursive  = 1;
 
-    @Option(alias = "Ic", vnam = "CLASS(FileFilter)", parser = GetInstanceParser.class, doc = "using custom file filter, default find jar/?ar/zip files")
+    @Option(alias = "Ic", vnam = "CLASS(FileFilter)", doc = "using custom file filter, default find jar/?ar/zip files")
+    @ParseBy(GetInstanceParser.class)
     protected FileFilter filter;
 
     protected List<URL>  classpaths = new ArrayList<URL>();
 
-    @Option(alias = "b", vnam = "FILE|DIR", parser = FileParser2.class)
+    @Option(alias = "b", vnam = "FILE|DIR")
+    @ParseBy(FileParser2.class)
     protected void bootClasspath(File file) throws IOException {
         FsWalk walker = new FsWalk(file, filter, recursive) {
             @Override
@@ -59,7 +63,8 @@ public class FindClassResource extends BasicCLI {
         walker.walk();
     }
 
-    @Option(alias = "c", vnam = "FILE|DIR", want = FileParser2.class)
+    @Option(alias = "c", vnam = "FILE|DIR")
+    @ArgsParseBy(FileParser2.class)
     protected void classpath(File file) throws IOException {
         FsWalk walker = new FsWalk(file, filter, recursive) {
             @Override

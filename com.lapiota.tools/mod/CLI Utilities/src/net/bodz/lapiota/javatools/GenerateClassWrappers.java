@@ -17,6 +17,7 @@ import java.util.jar.JarFile;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.a.CheckBy;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.CharOuts;
@@ -36,10 +37,12 @@ import net.bodz.lapiota.wrappers.BasicCLI;
 @ProgramName("classwrap")
 public class GenerateClassWrappers extends BasicCLI {
 
-    @Option(vnam = "WORD", check = Regex.class, checkinfo = "\\w+", doc = "prefix string to the generated class")
+    @Option(vnam = "WORD", doc = "prefix string to the generated class")
+    @CheckBy(value = Regex.class, param = "\\w+")
     protected String         prefix;
 
-    @Option(vnam = "WORD", check = Regex.class, checkinfo = "\\w+", doc = "suffix string to the generated class")
+    @Option(vnam = "WORD", doc = "suffix string to the generated class")
+    @CheckBy(value = Regex.class, param = "\\w+")
     protected String         suffix     = "W";
 
     @Option(doc = "wrap fields, do update before/after method calls")
@@ -171,10 +174,12 @@ public class GenerateClassWrappers extends BasicCLI {
         L.i.P("added ", count, " classes from ", list);
     }
 
-    @Option(alias = "w", vnam = "PACKAGE", check = Regex.class, checkinfo = "\\w+(\\.\\w+)*")
+    @Option(alias = "w", vnam = "PACKAGE")
+    @CheckBy(value = Regex.class, param = "\\w+(\\.\\w+)*")
     protected String  wrapPackage;
 
-    @Option(alias = "o", required = true, check = FileAccess.class, checkinfo = "d", doc = "dest directory to save the generated java files")
+    @Option(alias = "o", required = true, doc = "dest directory to save the generated java files")
+    @CheckBy(value = FileAccess.class, param = "d")
     protected File    out;
 
     @Option(alias = "e", doc = "output encoding")

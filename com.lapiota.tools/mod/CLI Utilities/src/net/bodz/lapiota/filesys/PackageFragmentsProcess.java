@@ -23,6 +23,7 @@ import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.a.Option;
+import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.bas.cli.ext.CLIPlugin;
 import net.bodz.bas.cli.ext._CLIPlugin;
@@ -49,7 +50,8 @@ import org.dom4j.io.XMLWriter;
 @ProgramName("jars")
 public class PackageFragmentsProcess extends BatchProcessCLI {
 
-    @Option(alias = "F", vnam = "pretty|compact", parser = OutputFormatParser.class)
+    @Option(alias = "F", vnam = "pretty|compact")
+    @ParseBy(OutputFormatParser.class)
     protected OutputFormat outputFormat = new OutputFormat();
 
     private List<Action>   actions      = new ArrayList<Action>();
@@ -398,9 +400,11 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
     @Doc("Extract partial file in the archive")
     class PartialExtract extends _JarAction {
 
-        @Option(vnam = "WILDCARDS", parser = WildcardsParser.class, doc = "include these filenames")
+        @Option(vnam = "WILDCARDS", doc = "include these filenames")
+        @ParseBy(WildcardsParser.class)
         Pattern includeFile;
-        @Option(vnam = "WILDCARDS", parser = WildcardsParser.class, doc = "exclude these filenames")
+        @Option(vnam = "WILDCARDS", doc = "exclude these filenames")
+        @ParseBy(WildcardsParser.class)
         Pattern excludeFile;
 
         @Option(vnam = "REGEXP", doc = "include these pathnames")

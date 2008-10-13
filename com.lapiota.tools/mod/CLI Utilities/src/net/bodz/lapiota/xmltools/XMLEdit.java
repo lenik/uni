@@ -16,6 +16,7 @@ import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.a.Option;
+import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.lang.err.ParseException;
@@ -54,7 +55,8 @@ public class XMLEdit extends BasicCLI {
     @Option(alias = "o", vnam = "FILE", doc = "output to this file (default stdout)")
     protected File         outputFile;
 
-    @Option(alias = "O", vnam = "pretty|compact", parser = OutputFormatParser.class)
+    @Option(alias = "O", vnam = "pretty|compact")
+    @ParseBy(OutputFormatParser.class)
     protected OutputFormat outputFormat   = new OutputFormat();
 
     private boolean        escaping       = true;

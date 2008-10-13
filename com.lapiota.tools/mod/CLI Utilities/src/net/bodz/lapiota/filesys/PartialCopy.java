@@ -11,6 +11,7 @@ import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.a.Option;
+import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.cli.ext.CLIPlugin;
 import net.bodz.bas.cli.ext._CLIPlugin;
 import net.bodz.bas.io.CharOut;
@@ -75,7 +76,8 @@ public class PartialCopy extends BasicCLI {
         setSrcBytes(text.getBytes(encoding));
     }
 
-    @Option(name = "src-bytes", alias = "b", vnam = "HEXSTR", parser = HexParser.class, doc = "src by hex bytes")
+    @Option(name = "src-bytes", alias = "b", vnam = "HEXSTR", doc = "src by hex bytes")
+    @ParseBy(HexParser.class)
     protected void setSrcBytes(byte[] bytes) {
         if (src != null)
             throw new IllegalStateException("src is already set: " + src);
@@ -329,10 +331,12 @@ public class PartialCopy extends BasicCLI {
     @Doc("PGP CRC32")
     class PGPCRC32 extends _Process {
 
-        @Option(vnam = "FROM,TO", parser = RangeParser.class, doc = "specify a relative range in the process region, to fill with the pad-bytes")
+        @Option(vnam = "FROM,TO", doc = "specify a relative range in the process region, to fill with the pad-bytes")
+        @ParseBy(RangeParser.class)
         Range  fillRange;
 
-        @Option(vnam = "HEX", parser = HexParser.class, doc = "bytes to pad")
+        @Option(vnam = "HEX", doc = "bytes to pad")
+        @ParseBy(HexParser.class)
         byte[] padBytes = { 0, 0, 0, 0 };
 
         public PGPCRC32() {

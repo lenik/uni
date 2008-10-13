@@ -8,6 +8,7 @@ import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.a.Option;
+import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.lang.Filter;
 import net.bodz.bas.types.TypeParsers.GetInstanceParser;
@@ -30,8 +31,8 @@ public class FileReplace extends BatchProcessCLI {
     doc = "may contains \\n (or $n) group reference for regexp replace")
     protected String                 replacement;
 
-    @Option(vnam = "CLASS(Filter)", parser = GetInstanceParser.class, //
-    doc = "using custom filter, this will ignore -PTt options")
+    @Option(vnam = "CLASS(Filter)", doc = "using custom filter, this will ignore -PTt options")
+    @ParseBy(GetInstanceParser.class)
     protected Filter<String, String> filter;
 
     @Override

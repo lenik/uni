@@ -23,15 +23,15 @@ public class FileProcessTest extends FileProcess {
             String[] args = input.split("\\|", 2);
             final String file = args[0].trim();
             final String repl = args[1].trim();
-            final Ref<ProcessResult> result = new SimpleRef<ProcessResult>();
+            final ProcessResult[] result = new ProcessResult[1];
             new FileProcess() {
                 @Override
                 protected void _main(String[] args) throws Throwable {
                     RenameComponents ren = (RenameComponents) actions.get(0);
-                    result.set(ren.run(new File(file), null, null));
+                    result[0] = ren.run(new File(file), null, null);
                 }
             }.run("-Dnonexist=X", "-asg=" + repl);
-            File dst = (File) result.get().dest;
+            File dst = (File) result[0].dest;
             return dst.getPath();
         }
 

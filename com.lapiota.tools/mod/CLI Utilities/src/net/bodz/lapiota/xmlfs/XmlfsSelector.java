@@ -9,6 +9,7 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
+import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
@@ -33,10 +34,12 @@ public class XmlfsSelector extends BasicCLI {
     @Option(alias = "e", vnam = "ENCODING", doc = "output encoding")
     protected Charset      outputEncoding = Charset.defaultCharset();
 
-    @Option(alias = "s", vnam = "XPATH", required = true, parser = XPathParser.class)
+    @Option(alias = "s", vnam = "XPATH", required = true)
+    @ParseBy(XPathParser.class)
     protected XPath        select;
 
-    @Option(alias = "O", vnam = "pretty|compact", parser = OutputFormatParser.class)
+    @Option(alias = "O", vnam = "pretty|compact")
+    @ParseBy(OutputFormatParser.class)
     protected OutputFormat outputFormat   = OutputFormat.createPrettyPrint();
 
     @SuppressWarnings("unchecked")

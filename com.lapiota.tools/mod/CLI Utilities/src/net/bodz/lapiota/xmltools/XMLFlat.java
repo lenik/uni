@@ -14,6 +14,7 @@ import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.a.Option;
+import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.CharOuts;
@@ -50,7 +51,8 @@ public class XMLFlat extends BasicCLI {
     @Option(alias = "o", vnam = "FILE", doc = "output to this file (default stdout)")
     protected File      outputFile;
 
-    @Option(alias = "s", vnam = "XPATH", parser = XPathParser.class, doc = "start from selected nodes (default root)")
+    @Option(alias = "s", vnam = "XPATH", doc = "start from selected nodes (default root)")
+    @ParseBy(XPathParser.class)
     protected XPath     select;
 
     @Option(alias = "c", doc = "include caption row")

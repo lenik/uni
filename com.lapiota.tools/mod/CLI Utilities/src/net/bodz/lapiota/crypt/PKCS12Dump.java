@@ -16,8 +16,9 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
+import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.sec.pki.util.ConsoleCallbackHandler;
-import net.bodz.bas.types.TypeParsers;
+import net.bodz.bas.types.TypeParsers.GetInstanceParser;
 import net.bodz.bas.types.util.Iterators;
 import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.wrappers.BasicCLI;
@@ -28,7 +29,8 @@ import net.bodz.lapiota.wrappers.BasicCLI;
 @ProgramName("p12dump")
 public class PKCS12Dump extends BasicCLI {
 
-    @Option(alias = "p", doc = "Provider Class", parser = TypeParsers.GetInstanceParser.class)
+    @Option(alias = "p", doc = "Provider Class")
+    @ParseBy(GetInstanceParser.class)
     Provider               provider = null;
 
     @Option(alias = "P", doc = "PKCS#12 protection passphrase")
