@@ -3,19 +3,19 @@
 ;;  used:
 ;;      #! cehprsu{bs}/
 
-#!m::run cmdw /c findrun -r c:\lam\nt.programs maxthon
-#!t::run cmdw /c findrun -r c:\lam\nt.programs tm bin\tm.exe
-#!w::run cmdw /c findrun -r "%a_programfiles%" "windows live" writer\windowslivewriter.exe
-#!$::run cmdw /c findrun -r "%a_programfiles%" alisoft wangwang\wangwang.exe
-#!?::run cmdw /c findrun -r c:\lam\nt.programs lingoes
+#!m::run maxthon
+#!t::run tm
+#!w::run cmdw /c findrun -r "%a_programfiles%" "windows live" writer\windowslivewriter
+#!$::run wangwang
+#!?::run lingoes
 
-#+i::run cmdw /c findrun -r "%a_programfiles%" "source insight" insight3.exe
+#+i::run insight3
 #+k::run V:\.radiko\.miaj\image\mirror.KBP.pgd
 #+s::run Z:\.radiko\.miaj\image\lam.nt.sdk.pgd
-#+u::run ue
-#+x::run cmdw /c findrun -r Z:\.radiko\varoj\XML xmlspy
+#+u::run uedit
+#+x::run xmlspy
 
-#o::run cmdw /c findrun -r C:\Lam\nt.programs dopus
+#o::run dopus
 #,::run stairs
 
 #+d::

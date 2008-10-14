@@ -1,0 +1,21 @@
+#!/bin/bash
+
+cat srcdirs | while read -r dir; do
+    if [ -d "$dir" ]; then
+        for file in $dir/*; do
+            base=${file##*/}
+            ext=${base##*.}
+            if [ "$ext" = "pgd" ]; then
+                name=${base%.*}
+                echo "$name=$file" >>names.1
+            fi
+        done
+    fi
+done
+
+if ! diff names names.1; then
+    mv -f names \~names
+    mv names.1 names
+else
+    rm -f names.1
+fi
