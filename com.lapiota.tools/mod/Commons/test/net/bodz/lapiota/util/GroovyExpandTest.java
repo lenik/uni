@@ -2,12 +2,10 @@ package net.bodz.lapiota.util;
 
 import static net.bodz.bas.test.TestDefs.END;
 import static net.bodz.bas.test.TestDefs.EQ;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import net.bodz.bas.test.TestDefs;
 import net.bodz.bas.test._TestEval;
+import net.bodz.bas.types.TextMap;
+import net.bodz.bas.types.TextMap.HashTextMap;
 
 import org.junit.Test;
 
@@ -15,7 +13,7 @@ public class GroovyExpandTest {
 
     @Test
     public void testProcess() {
-        final Map<String, Object> vars = new HashMap<String, Object>();
+        final TextMap<Object> vars = new HashTextMap<Object>();
         vars.put("name", "lenik");
         vars.put("age", 13);
         vars.put("where", "there");

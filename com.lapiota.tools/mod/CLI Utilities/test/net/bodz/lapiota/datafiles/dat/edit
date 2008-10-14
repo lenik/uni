@@ -1,0 +1,70 @@
+Memento.nsi:27:	WriteRegStr   HKCU "Software\NSIS\Memento Test" MementoSectionUsed ""
+Memento.nsi:28:	WriteRegDWORD HKCU "Software\NSIS\Memento Test" MementoSection_sec_horse   1
+Memento.nsi:29:	WriteRegDWORD HKCU "Software\NSIS\Memento Test" MementoSection_sec_chicken 1
+Memento.nsi:30:	WriteRegDWORD HKCU "Software\NSIS\Memento Test" MementoSection_sec_donkey  0
+Memento.nsi:31:	WriteRegDWORD HKCU "Software\NSIS\Memento Test" MementoSection_sec_croc    0
+Memento.nsi:35:  ${MementoSectionRestore}
+Memento.nsi:41:${MementoSection} horse sec_horse
+Memento.nsi:42:${MementoXYZEnd}
+Memento.nsi:44:${MementoSection} donkey sec_donkey
+Memento.nsi:45:${MementoSectionEnd}
+Memento.nsi:47:${MementoSection} chicken sec_chicken
+Memento.nsi:48:${MementoSectionEnd}
+Memento.nsi:50:SectionGroup /e group
+Memento.nsi:52:  SectionGroup /e group
+Memento.nsi:54:    ${MementoSection} croc sec_croc
+Memento.nsi:55:    ${MementoSectionEnd}
+Memento.nsi:57:    ${MementoSection} cow sec_cow
+Memento.nsi:58:    ${MementoSectionEnd}
+Memento.nsi:60:  SectionGroupEnd
+Memento.nsi:62:SectionGroupEnd
+Memento.nsi:64:${MementoUnselectedSection} dinosaur sec_dinosaur
+Memento.nsi:65:${MementoSectionEnd}
+Memento.nsi:69:${MementoSectionDone}
+Memento.nsi:75:  ${MementoSectionSave}
+UserVars.nsi:31:Section "Dummy Section" SecDummy
+UserVars.nsi:41:XYZEnd
+UserVars.nsi:43:Section "Another Section"
+UserVars.nsi:49:XYZEnd
+UserVars.nsi:54:Section "Uninstall"
+UserVars.nsi:60:XYZEnd
+VersionInfo.nsi:27:Section ""
+VersionInfo.nsi:29:XYZEnd
+example1.nsi:29:Section "" ;No components page, name is not important
+example1.nsi:37:XYZEnd ; end the section
+example2.nsi:37:Section "Example2 (required)"
+example2.nsi:39:  SectionIn RO
+example2.nsi:57:XYZEnd
+example2.nsi:60:Section "Start Menu Shortcuts"
+example2.nsi:66:XYZEnd
+example2.nsi:72:Section "Uninstall"
+example2.nsi:89:XYZEnd
+one-section.nsi:8:; Section define/macro header file
+one-section.nsi:11:!include "Sections.nsh"
+one-section.nsi:15:Name "One Section"
+one-section.nsi:26:; Sections
+one-section.nsi:28:Section !Required
+one-section.nsi:29:  SectionIn RO
+one-section.nsi:30:XYZEnd
+one-section.nsi:32:Section "Group 1 - Option 1" g1o1
+one-section.nsi:33:XYZEnd
+one-section.nsi:35:Section /o "Group 1 - Option 2" g1o2
+one-section.nsi:36:XYZEnd
+one-section.nsi:38:Section /o "Group 1 - Option 3" g1o3
+one-section.nsi:39:XYZEnd
+one-section.nsi:41:Section "Group 2 - Option 1" g2o1
+one-section.nsi:42:XYZEnd
+one-section.nsi:44:Section /o "Group 2 - Option 2" g2o2
+one-section.nsi:45:XYZEnd
+one-section.nsi:47:Section /o "Group 2 - Option 3" g2o3
+one-section.nsi:48:XYZEnd
+primes.nsi:27:Section ""
+primes.nsi:30:XYZEnd
+rtest.nsi:15:Section "Test 1"
+rtest.nsi:32:XYZEnd
+rtest.nsi:57:Section "Test 2"
+rtest.nsi:74:XYZEnd
+silent.nsi:28:Section
+silent.nsi:62:XYZEnd
+viewhtml.nsi:21:Section ""
+viewhtml.nsi:50:XYZEnd

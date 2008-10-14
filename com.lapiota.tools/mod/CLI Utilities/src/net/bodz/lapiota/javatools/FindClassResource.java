@@ -199,14 +199,14 @@ public class FindClassResource extends BasicCLI {
             }
 
             ClassLoader loader = Caller.getCallerClassLoader();
-            Iterable<String> iter;
+            Iterable<String> strings;
             if (args.length > 0)
-                iter = Arrays.asList(args);
+                strings = Arrays.asList(args);
             else {
                 L.u.P("Enter class names or resource paths: ");
-                iter = Files.readByLine(System.in);
+                strings = Files.readByLine(System.in);
             }
-            for (String name : iter) {
+            for (String name : strings) {
                 name = name.trim();
                 URL url = findResource(loader, name);
                 if (url == null)

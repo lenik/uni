@@ -2,7 +2,6 @@ package net.bodz.lapiota.util;
 
 import groovy.lang.Binding;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import net.bodz.bas.lang.ref.Ref;
@@ -10,14 +9,16 @@ import net.bodz.bas.lang.script.ScriptClass;
 import net.bodz.bas.lang.script.ScriptException;
 import net.bodz.bas.lang.script.ScriptField;
 import net.bodz.bas.lang.script.Scripts;
+import net.bodz.bas.types.TextMap;
+import net.bodz.bas.types.TextMap.HashTextMap;
 
 /**
  * Groovy variable binding with reflect fields
  */
 public class RefBinding extends Binding {
 
-    private Map<?, ?>                orig;
-    private Map<String, Ref<Object>> accessors;
+    private Map<?, ?>            orig;
+    private TextMap<Ref<Object>> accessors;
 
     public RefBinding() {
         super();
@@ -36,7 +37,7 @@ public class RefBinding extends Binding {
 
     private void init() {
         orig = getVariables();
-        accessors = new HashMap<String, Ref<Object>>();
+        accessors = new HashTextMap<Ref<Object>>();
     }
 
     public void addAccessor(String name, Ref<Object> accessor) {

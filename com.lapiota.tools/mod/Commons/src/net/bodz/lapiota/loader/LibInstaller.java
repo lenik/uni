@@ -5,10 +5,10 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 import net.bodz.bas.io.Files;
+import net.bodz.bas.types.TextMap;
+import net.bodz.bas.types.TextMap.HashTextMap;
 
 public class LibInstaller {
 
@@ -37,10 +37,10 @@ public class LibInstaller {
     }
 
     // libname -> libfile
-    private Map<String, File> installedLibraries;
+    private TextMap<File> installedLibraries;
 
     private void init() {
-        installedLibraries = new HashMap<String, File>();
+        installedLibraries = new HashTextMap<File>();
         File[] files = installDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {

@@ -4,7 +4,6 @@ import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import groovy.lang.MissingPropertyException;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -12,22 +11,24 @@ import net.bodz.bas.io.CharOuts;
 import net.bodz.bas.io.CharOuts.Buffer;
 import net.bodz.bas.lang.err.NotImplementedException;
 import net.bodz.bas.text.interp.PatternProcessor;
+import net.bodz.bas.types.TextMap;
+import net.bodz.bas.types.TextMap.HashTextMap;
 import net.bodz.bas.types.util.Strings;
 
 import org.codehaus.groovy.control.CompilationFailedException;
 
 public class GroovyExpand extends PatternProcessor {
 
-    private static Pattern        gspTag;
+    private static Pattern    gspTag;
     static {
         gspTag = Pattern.compile("<%((?://.*?\n | /\\*.*?\\*/ | .)*?)%>",
                 Pattern.DOTALL | Pattern.COMMENTS);
     }
 
-    private GroovyShell           shell;
-    private Binding               binding;
-    protected Map<String, Object> vars;
-    private String                script;
+    private GroovyShell       shell;
+    private Binding           binding;
+    protected TextMap<Object> vars;
+    private String            script;
 
     public GroovyExpand() {
         super(gspTag);
@@ -35,7 +36,7 @@ public class GroovyExpand extends PatternProcessor {
 
     public GroovyExpand(Map<String, ?> variables) {
         super(gspTag);
-        this.vars = new HashMap<String, Object>(variables);
+        this.vars = new HashTextMap<Object>(variables);
         this.binding = new Binding() {
             @SuppressWarnings("unchecked")
             @Override

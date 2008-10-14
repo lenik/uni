@@ -6,11 +6,8 @@ import static net.bodz.bas.test.TestDefs.EQ;
 import java.io.File;
 
 import net.bodz.bas.cli.ProcessResult;
-import net.bodz.bas.lang.ref.Ref;
-import net.bodz.bas.lang.ref.SimpleRef;
 import net.bodz.bas.test.TestDefs;
 import net.bodz.bas.test.TestEval;
-import net.bodz.lapiota.datafiles.FileProcess;
 
 import org.junit.Test;
 

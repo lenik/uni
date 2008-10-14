@@ -7,9 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import net.bodz.bas.a.ClassInfo;
@@ -27,6 +25,8 @@ import net.bodz.bas.lang.Caller;
 import net.bodz.bas.lang.err.IdentifiedException;
 import net.bodz.bas.loader.JavaLibraryLoader;
 import net.bodz.bas.text.interp.Interps;
+import net.bodz.bas.types.TextMap;
+import net.bodz.bas.types.TextMap.HashTextMap;
 import net.bodz.bas.types.util.Annotations;
 import net.bodz.bas.types.util.Ns;
 import net.bodz.bas.types.util.Types;
@@ -42,12 +42,12 @@ import net.bodz.lapiota.wrappers.BatchProcessCLI;
 public class GenerateLauncher extends BatchProcessCLI {
 
     // private String prefix = "";
-    private Map<String, String> varmap;
-    private Set<String>         generated;
+    private TextMap<String> varmap;
+    private Set<String>     generated;
 
     public GenerateLauncher() {
         generated = new HashSet<String>();
-        varmap = new HashMap<String, String>();
+        varmap = new HashTextMap<String>();
         varmap.put("PROPERTY_LIB_LOADED", CLIConfig.PROPERTY_LIB_LOADED);
         ClassInfo classInfo = _loadClassInfo();
         varmap.put("GENERATOR", GenerateLauncher.class.getSimpleName() + " "

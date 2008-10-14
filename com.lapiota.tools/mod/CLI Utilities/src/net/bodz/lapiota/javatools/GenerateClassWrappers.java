@@ -162,13 +162,13 @@ public class GenerateClassWrappers extends BasicCLI {
     @Option(alias = "l", vnam = "LIST-FILE", doc = "add classes defined in the list file")
     public void addList(File list) throws MalformedURLException, IOException {
         int count = 0;
-        for (String l : Files.readByLine(list)) {
-            if (l.startsWith(PI_CLASSPATH)) {
-                String path = l.substring(PI_CLASSPATH.length()).trim();
+        for (String line : Files.readByLine(list)) {
+            if (line.startsWith(PI_CLASSPATH)) {
+                String path = line.substring(PI_CLASSPATH.length()).trim();
                 Classpath.addURL(Files.canoniOf(path).toURI().toURL());
                 continue;
             }
-            String fqcn = l.trim();
+            String fqcn = line.trim();
             count += addClass(fqcn, false);
         }
         L.i.P("added ", count, " classes from ", list);

@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.TreeMap;
 
 import javax.crypto.Cipher;
 import javax.crypto.ExemptionMechanism;
@@ -32,6 +31,8 @@ import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.sec.pki.util.ConsoleCallbackHandler;
+import net.bodz.bas.types.TextMap;
+import net.bodz.bas.types.TextMap.TreeTextMap;
 import net.bodz.bas.types.util.Comparators;
 import net.bodz.bas.types.util.Iterators;
 import net.bodz.bas.types.util.Strings;
@@ -107,7 +108,7 @@ public class CLIEnviron extends BasicCLI {
             }
         };
         Collections.sort(services, cmp);
-        Map<String, Set<Service>> types = new TreeMap<String, Set<Service>>();
+        TextMap<Set<Service>> types = new TreeTextMap<Set<Service>>();
         for (Service service : services) {
             String type = service.getType();
             String alg = service.getAlgorithm();
