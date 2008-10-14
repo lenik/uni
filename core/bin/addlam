@@ -47,8 +47,34 @@ function setopt() {
     esac
 }
 
+function reg_add() {
+    local regf="$1"
+    local key="${2//\//\\}"
+    shift 2
+
+    if [ ! -e $regf ]; then
+        echo "Windows Registry Editor Version 5.00" >$regf
+        echo >>$regf
+    fi
+
+    echo "[$key]" >>$regf
+    for entry in $*; do
+        nam="${entry%%=*}"
+        val="${entry#*=}"
+        echo \"$nam\"=\"$val\" >>$regf
+    done
+    echo >>$regf
+}
+
+function reg_commit() {
+    local regf="$1"
+    regedit /s "`cygpath -w $regf`"
+    rm -f $regf
+}
+
 # APP_PATHS="/proc/registry/HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows/CurrentVersion/App Paths"
-APP_PATHS='HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths'
+# APP_PATHS=               'HKLM/SOFTWARE/Microsoft/Windows/CurrentVersion/App Paths'
+APP_PATHS='HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows/CurrentVersion/App Paths'
 
 function main() {
     for lam in "$@"; do
@@ -59,8 +85,10 @@ function main() {
         catfile=$lam/abc.d/.cat
         if [ -f "$catfile" ]; then
             _log2 install $catfile
+            regf="/tmp/addlam-$$.reg"
+
             cat "$catfile" | while read name latest tags shortcuts; do
-                if [ -z $name -o ${name:0:1} = "#" ]; then continue; fi
+                if [ -z "$name" -o "${name:0:1}" = "#" ]; then continue; fi
 
                 # dst="$lam_aw/abc.d/$name-$latest/$c"
                 if ! findabc -lr "$lam/abc.d" "$name"; then
@@ -88,20 +116,20 @@ function main() {
                     for c in ${shortcuts//,/ }; do
                         if [ "${c/=}" != "$c" ]; then
                             # shortcut=c
-                            shortcut=${c%=*}
-                            c=${c#*=}
+                            shortcut="${c%=*}"
+                            c="${c#*=}"
                         else
-                            shortcut=${c##*/}
+                            shortcut="${c##*/}"
                         fi
                         dstw="$lam_aw/abc.d/$_expand"
                         dstw=${dstw//\//\\}
                         _sig1 "alias $shortcut => $dstw\\$c"
-                        reg add "$APP_PATHS\\$shortcut" /v "" /d "$dstw\\$c" /f >/dev/null
-                        reg add "$APP_PATHS\\$shortcut" /v "Path" /d "$dstw" /f >/dev/null
+                        reg_add $regf "$APP_PATHS/$shortcut" "@=$dstw\\$c" "Path=$dstw"
                     done
                 fi
             done
         fi
+        reg_commit $regf
 
         _log1 lam $lam added.
     done
