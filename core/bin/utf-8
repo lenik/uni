@@ -1,0 +1,5 @@
+#!/bin/bash
+
+    ENC="${0##*/}"
+    BIN="`echo "$*"| iconv -t $ENC`"
+    eval "$BIN" | iconv -f $ENC

@@ -35,9 +35,9 @@
     md %LAPIOTA% 2>nul
 
     set pgd=lam.root.pgd
-    for %%d in ("%homedrive%" c: d: e: f: g: u: v: w: x: y: z:) do (
-        if exist "%%d\." (
-            for %%f in (%%d\%pgd% %%d\.radiko\.miaj\image\%pgd%) do (
+    for %%d in (c d e f g h i j k l m n o p q r s t u v w x y z) do (
+        if exist "%%d:\." (
+            for %%f in (%%d:\%pgd% %%d:\.radiko\.miaj\image\%pgd%) do (
                 if exist %%f (
                     set pgd=%%f
                     goto found

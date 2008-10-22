@@ -60,8 +60,13 @@ function reg_add() {
     echo "[$key]" >>$regf
     for entry in $*; do
         nam="${entry%%=*}"
+        if [ -z "$nam" ]; then
+            nam="@"
+        else
+            nam="\"$nam\""
+        fi
         val="${entry#*=}"
-        echo \"$nam\"=\"$val\" >>$regf
+        echo $nam=\"$val\" >>$regf
     done
     echo >>$regf
 }
@@ -122,9 +127,10 @@ function main() {
                             shortcut="${c##*/}"
                         fi
                         dstw="$lam_aw/abc.d/$_expand"
-                        dstw=${dstw//\//\\}
+                        dstw="${dstw//\//\\}"
                         _sig1 "alias $shortcut => $dstw\\$c"
-                        reg_add $regf "$APP_PATHS/$shortcut" "@=$dstw\\$c" "Path=$dstw"
+                        dstwe="${dstw//\\/\\\\}"
+                        reg_add $regf "$APP_PATHS/$shortcut" "=$dstwe\\\\$c" "Path=$dstwe"
                     done
                 fi
             done

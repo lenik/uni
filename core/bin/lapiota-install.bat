@@ -15,8 +15,10 @@
     if not exist "%HOME%\." md "%HOME%"
 
     rem Mount relocations...
-    cd /d "%~dp0..\etc\install.d"
-    make -Bf 00Makefile
+        cd /d "%~dp0..\etc\install.d"
+        rem reset cygwin /
+        del "%CYGWIN_ROOT%\etc\fstab" >nul
+        make -Bf 00Makefile
 
     rem Always using the cygwin/perl
     bash -c '/lapiota/etc/install %*'

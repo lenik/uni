@@ -14,6 +14,7 @@
             - v:\lapiota\local\bin
             - v:\lapiota\usr\bin
             - v:\lapiota\sbin
+            - v:\lapiota\bin\w
             - v:\lapiota\bin
         - u-        PERLLIB     .I_HDR
         - u-        PERLLIB     /mnt/v/lapiota
