@@ -10,12 +10,14 @@
 
     set _cp=
     set _xmlflat=xmlflat -f "%_prjdir%\.classpath" -s "//classpathentry[@kind='output']" @path
+    if %_verbose% geq 1 echo %_xmlflat%
     for /f "usebackq delims=|" %%i in (`%_xmlflat%`) do (
         set _path=%%i
         set _cp=!_cp!;%_prjdir%\!_path:/=\!
     )
 
     set _xmlflat=xmlflat -f "%_prjdir%\.classpath" -s //classpathentry[@output] @output
+    if %_verbose% geq 1 echo %_xmlflat%
     for /f "usebackq delims=|" %%i in (`%_xmlflat%`) do (
         set _path=%%i
         if not "!_path:~-8!"=="test.bin" (
@@ -91,7 +93,7 @@
         set      _time=%%k
         set    _author=%%l
     )
-    echo [gojmod] prepare environ for module testing for eclipse project
+    echo [cpjmod] prepare environ for module testing for eclipse project
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
     exit /b 0
 

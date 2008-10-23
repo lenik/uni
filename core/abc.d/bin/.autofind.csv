@@ -1,22 +1,19 @@
 # run .mkauto to generate wrappers
 name            | sub                   | target        | ext       | exec
 
-autoit3         | autoit                | autoit3
-au3info         | autoit
 aut2exe         | autoit/aut2exe
 cvs2svn         | cvs2svn               |               | *         | python
-ethereal
 ettercap
 groovy          | groovy/bin            | groovy        | .bat
 gcon            | groovy/bin            | groovyConsole | .bat
-hugs
 mencoder
 nlite
 nsis
-ollydbg
+pear            | php
+php             | php
+php-cgi         | php
+php-win         | php
 reflector
-scilab          | scilab/bin            | wscilex
 scite
-squeak
 stardict
 wireshark
