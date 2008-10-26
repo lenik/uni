@@ -293,7 +293,7 @@ public class XMLEdit extends BasicCLI {
             pairs.add(pair);
         }
 
-        Collections.sort(pairs, Comparators.PAIR1);
+        Collections.sort(pairs, Comparators.PAIRK);
 
         List<Node> siblings = parent.elements();
         for (Pair<String, Node> pair : pairs) {
@@ -335,7 +335,7 @@ public class XMLEdit extends BasicCLI {
     }
 
     @Override
-    protected void _main(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Throwable {
         save();
     }
 

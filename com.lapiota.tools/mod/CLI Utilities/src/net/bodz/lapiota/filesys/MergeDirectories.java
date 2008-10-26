@@ -255,12 +255,12 @@ public class MergeDirectories extends BatchProcessCLI {
     private int      stage;
 
     @Override
-    protected void doMain(String[] args) throws Throwable {
+    protected void doMainManaged(String[] args) throws Throwable {
         stage = CALC_DIGEST;
-        super.doMain(args);
+        super.doMainManaged(args);
 
         stage = APPLY_MERGE;
-        super.doMain(args);
+        super.doMainManaged(args);
     }
 
     public static void main(String[] args) throws Throwable {

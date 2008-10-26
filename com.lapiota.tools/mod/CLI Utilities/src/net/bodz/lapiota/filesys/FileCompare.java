@@ -36,7 +36,7 @@ public class FileCompare extends BasicCLI {
     protected CharOut    output     = CharOuts.stdout;
 
     @Override
-    protected void _main(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Throwable {
         if (args.length > 0)
             throw new IllegalArgumentException("unexpected argument: "
                     + args[0]);

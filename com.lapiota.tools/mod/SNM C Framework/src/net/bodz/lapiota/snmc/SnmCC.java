@@ -14,7 +14,7 @@ import net.bodz.lapiota.wrappers.BasicCLI;
 public class SnmCC extends BasicCLI {
 
     @Override
-    protected void _main(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Throwable {
     }
 
     public static void main(String[] args) throws Throwable {

@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import net.bodz.bas.cli.util.PathFunctions;
+import net.bodz.bas.cli.CLIConfig;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.types.TextMap;
 import net.bodz.bas.types.TextMap.HashTextMap;
@@ -65,8 +65,8 @@ public class Lapiota {
             }
         }
 
-        PathFunctions.defaultRoot = lapAbcd;
-        PathFunctions.namedRoots.putAll(lapModules);
+        CLIConfig.findPath.defaultRoot = lapAbcd;
+        CLIConfig.findPath.namedRoots.putAll(lapModules);
     }
 
 }

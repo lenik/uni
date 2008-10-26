@@ -90,7 +90,7 @@ public class Gather extends BasicCLI {
         String expand(String s) {
             if (prefixes == null)
                 return s;
-            String prefix = prefixes.getParentKey(s);
+            String prefix = prefixes.floorKey(s);
             if (prefix == null)
                 return s;
             String expanded = prefixes.get(prefix);

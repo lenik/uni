@@ -2,7 +2,7 @@ package net.bodz.lapiota.util;
 
 import java.io.File;
 
-import net.bodz.bas.cli.util.PathFunctions;
+import net.bodz.bas.cli.CLIConfig;
 import net.bodz.bas.lang.err.OutOfDomainException;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.types._TypeParser;
@@ -20,7 +20,7 @@ public class TypeExtensions {
         @Override
         public File parse(String path) throws ParseException {
             if (path.startsWith("?"))
-                return PathFunctions.find(path.substring(1));
+                return CLIConfig.findPath.find(path.substring(1));
             return super.parse(path);
         }
 

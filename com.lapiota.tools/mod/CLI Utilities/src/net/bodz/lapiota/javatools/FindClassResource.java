@@ -191,7 +191,7 @@ public class FindClassResource extends BasicCLI {
     }
 
     @Override
-    protected void _main(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Throwable {
         if (testClass == null) {
             for (URL url : classpaths) {
                 L.x.P("add classpath: ", url);

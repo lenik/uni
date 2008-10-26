@@ -229,7 +229,7 @@ public class GenerateClassWrappers extends BasicCLI {
     }
 
     @Override
-    protected void _main(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Throwable {
         for (Class<?> clazz : classes) {
             L.i.sig("type ", clazz);
             make(clazz);

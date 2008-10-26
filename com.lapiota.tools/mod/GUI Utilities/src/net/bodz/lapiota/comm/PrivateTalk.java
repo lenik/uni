@@ -10,7 +10,7 @@ import net.bodz.lapiota.wrappers.JavaLauncher;
 
 @RunInfo(lib = { "bodz_swt", "bodz_icons" },
 
-load = { "findcp|eclipse*/plugins/org.eclipse.swt_*", })
+load = { "findcp eclipse*/plugins/org.eclipse.swt_*", })
 @LoadBy(
 
 value = SWTClassLoader.class,
@@ -21,7 +21,7 @@ launcher = JavaLauncher.class
 public class PrivateTalk extends BasicCLI {
 
     @Override
-    protected void doMain(String[] args) throws Throwable {
+    protected void doMainManaged(String[] args) throws Throwable {
         System.out.println(Display.getCurrent());
         L.m.P("Hello");
     }

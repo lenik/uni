@@ -6,14 +6,10 @@ import net.bodz.lapiota.a.LoadBy;
 import net.bodz.lapiota.loader.Lapiota;
 import net.bodz.lapiota.loader.SWTClassLoader;
 
-@RunInfo(lib = "bodz_lapiota")
-@LoadBy(
+@LoadBy(value = SWTClassLoader.class, launcher = JavaLauncher.class)
+@RunInfo(lib = "bodz_lapiota",
 
-value = SWTClassLoader.class,
-
-launcher = JavaLauncher.class
-
-)
+load = { "findcp eclipse*/plugins/org.eclipse.swt_*", })
 public class BasicGUI extends net.bodz.swt.gui.BasicGUI {
 
     static {

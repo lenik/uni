@@ -23,7 +23,7 @@ public class FileProcessTest extends FileProcess {
             final ProcessResult[] result = new ProcessResult[1];
             new FileProcess() {
                 @Override
-                protected void _main(String[] args) throws Throwable {
+                protected void doMain(String[] args) throws Throwable {
                     RenameComponents ren = (RenameComponents) actions.get(0);
                     result[0] = ren.run(new File(file), null, null);
                 }

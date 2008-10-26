@@ -185,7 +185,7 @@ public class XMLFlat extends BasicCLI {
     }
 
     @Override
-    protected void _main(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Throwable {
         SAXReader reader = new SAXReader();
         if (inputFile == null) {
             L.u.P("enter the xml document: ");

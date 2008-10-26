@@ -23,7 +23,7 @@ public class HelloCLI extends BasicCLI {
     }
 
     @Override
-    protected void _main(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Throwable {
         L.m.P("good morning!");
         L.d.P("you are ", yourName);
         L.x.P("now in debug level");

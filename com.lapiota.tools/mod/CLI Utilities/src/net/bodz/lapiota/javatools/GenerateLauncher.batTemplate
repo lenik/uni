@@ -77,7 +77,11 @@
     set _shell=cmd
 
 :initcp
-    for %%f in (loadlib.bat) do set has_%%~nf=1
+    for %%f in (loadlib.bat) do (
+        if exist "%%~dp$PATH:f" (
+            set has_%%~nf=1
+        )
+    )
 
     set _morecp=
 $LOADLIBS_0

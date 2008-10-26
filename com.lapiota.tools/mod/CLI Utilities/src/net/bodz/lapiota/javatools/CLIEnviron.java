@@ -198,7 +198,7 @@ public class CLIEnviron extends BasicCLI {
     }
 
     @Override
-    protected void _main(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Throwable {
         dumpRest();
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];

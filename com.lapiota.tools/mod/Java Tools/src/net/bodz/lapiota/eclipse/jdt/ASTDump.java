@@ -10,15 +10,11 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
-import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.CharOuts;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.types.util.CompatMethods;
 import net.bodz.bas.types.util.Strings;
-import net.bodz.lapiota.a.LoadBy;
-import net.bodz.lapiota.wrappers.BasicCLI;
-import net.bodz.lapiota.wrappers.JavaLauncher;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -30,19 +26,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 @Doc("ASTDump description")
 @Version( { 0, 0 })
 @RcsKeywords(id = "$Id$")
-@RunInfo(
-
-load = { "findcp|eclipse*/plugins/org.eclipse.jdt.core_*" },
-
-loadDelayed = { "findcp|eclipse*/plugins/org.eclipse.equinox.common_*",
-        "findcp|eclipse*/plugins/org.eclipse.core.resources_*",
-        "findcp|eclipse*/plugins/org.eclipse.core.jobs_*",
-        "findcp|eclipse*/plugins/org.eclipse.core.runtime_*",
-        "findcp|eclipse*/plugins/org.eclipse.osgi_*",
-        "findcp|eclipse*/plugins/org.eclipse.core.contenttype_*",
-        "findcp|eclipse*/plugins/org.eclipse.equinox.preferences_*", })
-@LoadBy(launcher = JavaLauncher.class)
-public class ASTDump extends BasicCLI {
+public class ASTDump extends JdtBasicCLI {
 
     @Option(alias = "o", vnam = "FILE", doc = "dump to the specified file")
     protected CharOut out         = CharOuts.stdout;

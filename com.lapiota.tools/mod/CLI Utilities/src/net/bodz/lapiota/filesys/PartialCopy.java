@@ -24,6 +24,7 @@ import net.bodz.bas.mem.ArrayMemory;
 import net.bodz.bas.mem.Memory;
 import net.bodz.bas.mem.RandomAccessFileMemory;
 import net.bodz.bas.types.TypeParsers.HexParser;
+import static net.bodz.bas.types.util.ArrayOps.Bytes;
 import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.crypt.CRCSum.CRC32pgp;
 import net.bodz.lapiota.crypt.FindHash.Range;
@@ -69,11 +70,21 @@ public class PartialCopy extends BasicCLI {
         plugins.register("crc.pgp", PGPCRC32.class, this);
     }
 
-    @Option(name = "src-text", alias = "a", vnam = "TEXT", doc = "src by plain text")
-    protected void setSrcText(String text) {
+    @Option(name = "src-textsz", alias = "a", vnam = "TEXT", doc = "src by ASCIZ text")
+    protected void setSrcTextSZ(String text) {
         if (src != null)
             throw new IllegalStateException("src is already set: " + src);
-        setSrcBytes(text.getBytes(encoding));
+        byte[] bytes = text.getBytes(encoding);
+        bytes = Bytes.copyOf(bytes, bytes.length + 1);
+        setSrcBytes(bytes);
+    }
+
+    @Option(name = "src-textraw", alias = "A", vnam = "TEXT", doc = "src by raw text")
+    protected void setSrcTextRaw(String text) {
+        if (src != null)
+            throw new IllegalStateException("src is already set: " + src);
+        byte[] bytes = text.getBytes(encoding);
+        setSrcBytes(bytes);
     }
 
     @Option(name = "src-bytes", alias = "b", vnam = "HEXSTR", doc = "src by hex bytes")
@@ -310,7 +321,7 @@ public class PartialCopy extends BasicCLI {
     }
 
     @Override
-    protected void _main(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Throwable {
         if (copies == 0)
             doCopy();
     }

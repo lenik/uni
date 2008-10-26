@@ -21,7 +21,6 @@ import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.a.Option;
-import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.bas.dnb.JavaAnnotation;
 import net.bodz.bas.dnb.JavaEnum;
 import net.bodz.bas.io.Files;
@@ -29,9 +28,6 @@ import net.bodz.bas.lang.err.UnexpectedException;
 import net.bodz.bas.lang.util.Classpath;
 import net.bodz.bas.types.chained.CMap;
 import net.bodz.bas.types.util.Strings;
-import net.bodz.lapiota.a.LoadBy;
-import net.bodz.lapiota.wrappers.BatchProcessCLI;
-import net.bodz.lapiota.wrappers.JavaLauncher;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
@@ -99,20 +95,7 @@ import org.eclipse.text.edits.TextEdit;
 @Doc("Remove Java 5 Generics from the java source files")
 @Version( { 0, 1 })
 @RcsKeywords(id = "$Id$")
-@RunInfo(
-
-load = { "findcp|eclipse*/plugins/org.eclipse.jdt.core_*",
-        "findcp|eclipse*/plugins/org.eclipse.text_*", },
-
-loadDelayed = { "findcp|eclipse*/plugins/org.eclipse.equinox.common_*",
-        "findcp|eclipse*/plugins/org.eclipse.core.resources_*",
-        "findcp|eclipse*/plugins/org.eclipse.core.jobs_*",
-        "findcp|eclipse*/plugins/org.eclipse.core.runtime_*",
-        "findcp|eclipse*/plugins/org.eclipse.osgi_*",
-        "findcp|eclipse*/plugins/org.eclipse.core.contenttype_*",
-        "findcp|eclipse*/plugins/org.eclipse.equinox.preferences_*", })
-@LoadBy(launcher = JavaLauncher.class)
-public class J4conv extends BatchProcessCLI {
+public class J4conv extends JdtBatchCLI {
 
     @Option(alias = "b", vnam = "FILE|DIR")
     protected void bootClasspath(File file) throws IOException {
