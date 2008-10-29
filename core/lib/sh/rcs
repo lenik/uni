@@ -1,5 +1,5 @@
 
-# RCSID='$Id: .pl 809 2008-06-09 11:32:41Z lenik $'
+# RCSID='$Id$'
 
 function parse_id() {
     local id=$1

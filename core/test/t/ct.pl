@@ -49,7 +49,7 @@ sub info2 {
 }
 
 sub version {
-    my %id = parse_id('$Id: ct.pl,v 1.5 2007-07-27 13:47:08 lenik Exp $');
+    my %id = parse_id('$Id$');
     print "[$opt_verbtitle] Perl_simple_cli_program_template \n";
     print "Written by Lenik,  Version $id{rev},  Last updated at $id{date}\n";
 }

@@ -99,7 +99,7 @@
     goto start
 
 :version
-    set _id=$Id: .bat 845 2008-09-29 11:45:47Z lenik $
+    set _id=$Id$
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j

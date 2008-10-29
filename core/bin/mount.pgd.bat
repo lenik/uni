@@ -133,7 +133,7 @@
     goto start
 
 :version
-    set _id=$Id: pgdinfo.bat 857 2008-10-10 10:26:04Z lenik $
+    set _id=$Id$
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j

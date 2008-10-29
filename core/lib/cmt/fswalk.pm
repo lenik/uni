@@ -14,7 +14,7 @@ use cmt::log(2);
 use cmt::path('path_join', 'path_split', '_H', '_S');
 use cmt::util('get_named_args', 'listdir');
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: .pm 764 2007-12-04 14:20:23Z Lenik $');
+    my %RCSID   = parse_id('$Id$');
     our $VER    = "0.$RCSID{rev}";
 use Cwd('cwd');
 use Exporter;

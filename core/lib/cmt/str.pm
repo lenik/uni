@@ -12,7 +12,7 @@ use cmt::log(2);
     our $LOGLEVEL   = 1;
 use cmt::util();
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: .pm 776 2007-12-24 12:11:36Z lenik $');
+    my %RCSID   = parse_id('$Id$');
     our $VER    = "0.$RCSID{rev}";
 use Exporter;
 

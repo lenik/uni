@@ -36,19 +36,19 @@
     goto %_start%
 
 :startc
-    if "%PERL%"=="" set PERL=perl
+    if "%BASH%"=="" set BASH=bash
     if %_verbose% geq 1 (
-        echo "%PERL%" %_perlopts% "%_nam%" %_rest%
+        echo "%BASH%" %_bashopts% "%_nam%" %_rest%
     )
-    "%PERL%" %_perlopts% "%_nam%" %_rest%
+    "%BASH%" %_bashopts% "%_nam%" %_rest%
     exit /b
 
 :startw
-    if "%PERLW%"=="" set PERLW=perlw
+    if "%BASH%"=="" set BASH=bash
     if %_verbose% geq 1 (
-        "%PERLW%" %_perlopts% "%_nam%" %_rest%
+        "%BASH%" %_bashopts% "%_nam%" %_rest%
     )
-    "%PERLW%" %_perlopts% "%_nam%" %_rest%
+    "%BASH%" %_bashopts% "%_nam%" %_rest%
     exit /b
 
 :init
@@ -60,10 +60,10 @@
 
     set      _nam=%~n0
     set      _ext=
-    set _perlopts=-w -Mcmt::mess
+    set _bashopts=
 
 :find_target
-    for %%x in ("" .pl .p .pc .pld) do (
+    for %%x in ("" .au3) do (
         set _ext=%%~x
         if exist "%_nam%%%~x" (
             if not exist "%_nam%%%~x\*" (
@@ -155,7 +155,7 @@
         set      _time=%%k
         set    _author=%%l
     )
-    echo [nu] batInvoker for perl
+    echo [nu] batInvoker for bash
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
     exit /b 0
 
@@ -166,7 +166,7 @@
     echo    %_program% [PB-OPTION] ARGUMENTS...
     echo.
     echo Options:
-    echo    -Pw,--pb-win        start with perlw.exe
+    echo    -Pw,--pb-win        start with bash.exe
     echo    -Pq,--pb-quiet      repeat to get less info
     echo    -Pv,--pb-verbose    repeat to get more info
     echo        --pb-ver        show version info

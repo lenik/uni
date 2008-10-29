@@ -1,5 +1,5 @@
 #!/bin/bash
-    RCSID='$Id: .pl 809 2008-06-09 11:32:41Z lenik $'
+    RCSID='$Id$'
     short_opts="hqstv"
     long_opts="help,quiet,shortcuts,tags,verbose,version"
     add_shortcuts=1

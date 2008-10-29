@@ -1,5 +1,5 @@
 #!/bin/bash
-    RCSID='$Id: .pl 809 2008-06-09 11:32:41Z lenik $'
+    RCSID='$Id$'
     short_opts="hqv"
     long_opts="help,quiet,verbose,version"
     . /lapiota/lib/sh/cliboot

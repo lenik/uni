@@ -55,7 +55,7 @@ perl    | names
 perl    | newline
 perl    | nfs
 perl    | ntspi
-perl    | nu
+bash    | nu
 perl    | odx
 perl    | parse-ulog
 perl    | patchs
