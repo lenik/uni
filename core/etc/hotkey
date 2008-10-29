@@ -358,7 +358,7 @@ appskey & numpaddiv::soundset +1, , mute
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; more applications {
 #+e::run cmdw /c em
-#+j::run cmdw /c start eclipse
+#+j::run cmdw /c findrun eclipse
 ^!enter::
     settitlematchmode 2
     ifwinactive, Eclipse SDK

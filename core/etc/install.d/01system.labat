@@ -177,6 +177,9 @@
             -           | $LAPIOTA\bin\xcompl.bat --pause \"%1\"
             - complrun  Compile and run
             -           | $LAPIOTA\bin\xcompl.bat --pause -x \"%1\"
+        - .cat ->
+            - addlam    Add Lapiota Module
+            -           | $LAPIOTA\bin\w\addlam.bat \"%1\"
         - '".chm" ->'
             - unchm     Extract files in current directory
             -           | $LAPIOTA\bin\w\unchm.bat \"%1\"

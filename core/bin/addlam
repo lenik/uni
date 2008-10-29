@@ -82,12 +82,22 @@ function reg_commit() {
 APP_PATHS='HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows/CurrentVersion/App Paths'
 
 function main() {
-    for lam in "$@"; do
+    for arg in "$@"; do
+        if [ -d "$arg" ]; then
+            lam="$arg"
+            catfile="$arg/.cat"
+        elif [ -f "$arg" ]; then
+            catfile="$arg"
+            lam=`readlink -f "$arg"`
+            lam="${lam%/*}"
+        else
+            echo Invalid argument: $arg
+            continue
+        fi
         lam_aw=`cygpath -aw "$lam"`
         _log2 LAM: $lam_aw
         _log2 pre-install $lam
 
-        catfile=$lam/abc.d/.cat
         if [ -f "$catfile" ]; then
             _log2 install $catfile
             regf="/tmp/addlam-$$.reg"
