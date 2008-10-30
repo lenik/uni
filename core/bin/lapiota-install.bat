@@ -18,6 +18,9 @@
         cd /d "%~dp0..\etc\install.d"
         rem reset cygwin /
         del "%CYGWIN_ROOT%\etc\fstab" >nul
+        rem init msys, because it's in fstab.
+        call findabc msys
+        set MSYS_ROOT=%_home%
         make -Bf 00Makefile
 
     rem Always using the cygwin/perl
