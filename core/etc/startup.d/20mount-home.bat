@@ -14,8 +14,9 @@ rem #Mounting home(~) directory on A:
         set INITDIR=A:
     )
 
+    rem TODO - purpose??
     if not "%INITDIR%"=="" (
-        echo INITDIR = %INITDIR% >%LAPIOTA%\proc\.env.as
+        echo INITDIR = %INITDIR% >%LAPIOTA%\tmp\.env.as
     )
 
     exit /b 0

@@ -8,4 +8,5 @@ default: \
 	shtext $^ >$@
 
 /msys/etc/fstab: data/fstab_msys.sht
+	mount $$MSYS_ROOT /msys; \
 	shtext $^ >$@

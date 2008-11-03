@@ -4,16 +4,12 @@ name            | sub                   | target        | ext       | exec
 aut2exe         | autoit/aut2exe
 cvs2svn         | cvs2svn               |               | *         | python
 ettercap
+ffmpeg
+ffserver        | ffmpeg                | ffserver
 groovy          | groovy/bin            | groovy        | .bat
 gcon            | groovy/bin            | groovyConsole | .bat
 mencoder
-nlite
-nsis
 pear            | php
 php             | php
 php-cgi         | php
 php-win         | php
-reflector
-scite
-stardict
-wireshark

@@ -8,7 +8,7 @@
     if not "%_mpoint%"=="" goto f_mount
 
 :f_info
-    set _eval=partcp -f "%_pgdfile%" -x0x60 -yx/00
+    set _eval=partcp -f "%_pgdfile%" -x%_mpoff% -yx/00
     for /f "usebackq delims=|" %%i in (`%_eval%`) do set _mpoint=%%i
 
     call export - _mpoint
@@ -58,7 +58,7 @@
     )
 
     if %_verbose% geq 1 echo DANGEROUS OPERATION: write the mount point to pgdfile
-    call partcp -a "%_mpoint%" -o "%_pgdfile%" -z0x60
+    call partcp -a "%_mpoint%" -o "%_pgdfile%" -z%_mpoff%
 
     if %_verbose% geq 1 echo DANGEROUS OPERATION: recalc the header crc.
     call partcp -f "%_pgdfile%" -Dfill-range=12,16 -Pcrc.pgp -l0x160 -o "%_pgdfile%" -z12
@@ -74,6 +74,7 @@
     set  _program=%~dpnx0
     set  _pgdfile=
     set   _mpoint=
+    set    _mpoff=0x64
 
 :prep1
     if "%~1"==""            goto prep2
