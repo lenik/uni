@@ -247,7 +247,16 @@ appskey & left::send {media_prev}
 appskey & right::send {media_next}
 appskey & numpadadd::soundset +5
 appskey & numpadsub::soundset -5
-appskey & numpaddiv::soundset +1, , mute
+appskey & numpaddiv::
+    soundset +1, , mute
+    soundget mute, , mute
+    if (mute == "On") {
+        run scw stop beep
+    } else {
+        run scw start beep
+    }
+    return
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
