@@ -1,4 +1,4 @@
-﻿LAPIOTA INSTALL
+LAPIOTA INSTALL
     (version 0.0.1)
 
 _______________________________________________________________________________
@@ -7,13 +7,13 @@ _______________________________________________________________________________
 1.1     Mount lam.root -> ROOTDIR
 
 1.2     (optional) Pre-init env vars:
-1.2.1       set HOME to your home directory, default is ROOTDIR/home/USERNAME
-1.2.2       set CYGWIN_ROOT to your installed cygwin path, if exists.
+1.2.1       Set HOME to your home directory, default is ROOTDIR/home/USERNAME
+1.2.2       Set CYGWIN_ROOT to your installed cygwin path, if exists.
 
 1.3     Run ROOTDIR/bin/lapiota-install
 
 1.4     Refresh env vars:
-1.4.1       Right click on my computer, open properties page
+1.4.1       Right click on My Computer, open Properties page
 1.4.2       Select Advanced tab page, click Environment Variables
 
 1.5     Right click on ROOTDIR/.cat, run Add Lapiota Module
@@ -40,26 +40,26 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 3   Predefined hot keys
 
-3.1     system control
+3.1     System Control
 
         CTRL-ALT-DEL    force reboot
                         this overrides the default action: Open Task Manager,
                         which can also invoked by CTRL-SHIFT-ESC.
         CTRL-WIN-ESC    go to sleep (for keyboards without SLEEP key)
 
-3.2     hotkey daemon
+3.2     Hotkey Daemon
 
         ALT-WIN-E       edit system hotkeys
         ALT-WIN-R       reload hotkeys
         ALT-WIN-S       enable/disable hotkeys
 
-3.3     multimedia
+3.3     Multimedia
 
         APPS-<NUM +>    volumn up
         APPS-<NUM ->    volumn down
         APPS-<NUM />    mute
 
-3.4     windows
+3.4     Windows
 
         WIN-PGUP        scroll up
         WIN-PGDN        scroll down
@@ -69,7 +69,7 @@ _______________________________________________________________________________
         WIN-UP          restore last hidden window
         WIN-RIGHT       restore all hidden windows
 
-3.5     utilities
+3.5     Utilities
 
         WIN-A           ANSI console
         WIN-B           Big console
@@ -83,7 +83,7 @@ _______________________________________________________________________________
         WIN-=           bc desktop calculator
         WIN-F2          stardict
 
-3.6     development
+3.6     Programming
 
         WIN-SHIFT-E     Emacs
         WIN-SHIFT-J     Eclipse

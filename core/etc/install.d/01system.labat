@@ -58,13 +58,13 @@
             - $LAPIOTA\usr\include
             - $CYGWIN_ROOT\lib\perl5\5.8\cygwin\CORE
             - $CYGWIN_ROOT\lib\perl5\5.8\Encode
-            - ${findabc -w mingw}\include
+            - ${findabc -w msys}\include
         - w-%       LIB         $LAPIOTA
         - w+$       LIB         ->
             - $LAPIOTA\lib
             - $LAPIOTA\lib\cpf
             - $LAPIOTA\usr\lib
-            - ${findabc -w mingw}\lib
+            - ${findabc -w msys}\lib
         - w=        JAVA_HOME   ${findabc -w jdk}
         - =         JAVA_OPTS   -ea
         - w-%       JAVA_LIB    $LAPIOTA
@@ -100,8 +100,6 @@
         -   | ${findabc -w groovy}\bin\groovy.bat \"%0\" %*
         - M4-script         .m4
         -   | $CYGWIN_ROOT\bin\m4 \"%0\" %*
-        - MIT-scheme        .scm
-        -   | ${findabc -w mit_scheme}\bin\scheme \"%0\" %*
         - perl-program      .pl .p .pc
         -   | cmd /c %%PERL%% \"%0\" %*
         - perl-daemon       .pld
@@ -116,8 +114,6 @@
         -   | $LAPIOTA\bin\myexec /2 $SHELL -c \"%0\" %*
         - six-program       .six .6
         -   | reserved
-        - PLT-scheme        .ss
-        -   | ${findabc -w plt_scheme}\mzscheme \"%0\" %*
         - X-shell-script    .x
         -   | cmd /c %%PERL%% $LAPIOTA\bin\runx.pl -k -- \"%0\" %*
 

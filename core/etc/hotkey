@@ -140,6 +140,7 @@
         }
     }
 
+    ; This include() allows variable expression in the path parameter.
     _include(path) {
         local verf := 3, veri := 3
         slash := instr(path, "\", false, 0)
@@ -188,19 +189,13 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; extras {
-    incfile = %HOME%\etc\hotkey
-    _include(incfile)
+    userhotkey = %HOME%\etc\hotkey
+    _include(userhotkey)
     #include *i %a_appdata%\.hotkey\hotkey
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; system hack {
-!tab::
-    winhide ahk_class #32771 ; BUGFIX for ahk.
-    send {escape}{tab}
-    return
-lwin & tab::alttab
-lwin & capslock::shiftalttab
 ^!del::shutdown, 6
 #^esc::
     ; send {sleep}
@@ -216,6 +211,7 @@ lwin & capslock::shiftalttab
     msgbox 0, Class Info, Window: "%_atitle%"`nClass: "%_acls%"
     return
 #!e::run cmdw /c no %A_ScriptFullPath%
+#!+e::run cmdw /c no %userhotkey%
 #!h::
     splitpath, a_ahkpath, name, dir
     run % dir . "/autohotkey.chm"
@@ -300,7 +296,6 @@ appskey & numpaddiv::soundset +1, , mute
 #a::fastcall("start ""ANSI""")
 #b::fastcall("start ""Big""")
 #c::fastcall("start")
-#f::run firefox
 #g::run cmd /c msys
 #+g::run cmd /c msys bash --login
 #m::run metapad
@@ -351,7 +346,6 @@ appskey & numpaddiv::soundset +1, , mute
     calc1 = cmdw /c start "Cart" cmd /c settitle "1 + 1 = 2" bc -ilq
     funpack(1, "calc")
     return
-#+::run cmdw /c start scilab
 #f2::run cmdw /c start stardict
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 

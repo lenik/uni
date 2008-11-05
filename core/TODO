@@ -1,0 +1,10 @@
+
+TODO:
+    Image disk driver, to replace pgp disk.
+    A command line mount/umount utility.
+
+    Package in tarball format, in abc.d struct.
+
+    autoupdate -> update.d
+        add update cron task. (default option)
+
