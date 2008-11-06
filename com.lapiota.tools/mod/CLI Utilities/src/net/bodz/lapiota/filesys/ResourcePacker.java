@@ -11,12 +11,12 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 
 import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.Files;
-import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("Resource packer")

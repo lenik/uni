@@ -5,8 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import net.bodz.bas.types.TypeParser;
 import net.bodz.bas.types.Checker;
+import net.bodz.bas.types.TypeParser;
 
 /**
  * [OPTION] [--] FILES

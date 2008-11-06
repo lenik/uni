@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
@@ -27,7 +28,6 @@ import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.lang.script.ScriptException;
 import net.bodz.bas.text.interp.Interps;
 import net.bodz.bas.text.interp.PatternProcessor;
-import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.util.RefBinding;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 

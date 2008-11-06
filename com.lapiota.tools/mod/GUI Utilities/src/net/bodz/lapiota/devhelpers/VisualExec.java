@@ -3,9 +3,11 @@ package net.bodz.lapiota.devhelpers;
 import java.io.IOException;
 
 import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
-import net.bodz.lapiota.a.ProgramName;
+import net.bodz.bas.io.CharOuts;
+import net.bodz.bas.lang.util.Classpath;
 import net.bodz.lapiota.wrappers.BasicGUI;
 
 import org.eclipse.swt.SWT;

@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
@@ -22,7 +23,6 @@ import net.bodz.bas.lang.EvalException;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.text.interp.Interps;
 import net.bodz.bas.types.util.Strings;
-import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.util.GroovyExpand;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 

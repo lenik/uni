@@ -1,24 +1,12 @@
 package net.bodz.lapiota.comm;
 
+import net.bodz.bas.cli.a.RunInfo;
+import net.bodz.lapiota.wrappers.BasicGUI;
+
 import org.eclipse.swt.widgets.Display;
 
-import net.bodz.bas.cli.a.RunInfo;
-import net.bodz.lapiota.a.LoadBy;
-import net.bodz.lapiota.loader.SWTClassLoader;
-import net.bodz.lapiota.wrappers.BasicCLI;
-import net.bodz.lapiota.wrappers.JavaLauncher;
-
-@RunInfo(lib = { "bodz_swt", "bodz_icons" },
-
-load = { "findcp eclipse*/plugins/org.eclipse.swt_*", })
-@LoadBy(
-
-value = SWTClassLoader.class,
-
-launcher = JavaLauncher.class
-
-)
-public class PrivateTalk extends BasicCLI {
+@RunInfo(lib = { "bodz_swt", "bodz_icons" })
+public class PrivateTalk extends BasicGUI {
 
     @Override
     protected void doMainManaged(String[] args) throws Throwable {

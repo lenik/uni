@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.ProcessResult;
@@ -17,7 +18,6 @@ import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.util.ProtectedShell;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.log.LogOut;
-import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("Merge directories of same architecture")

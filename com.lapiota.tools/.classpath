@@ -15,18 +15,19 @@
 	<classpathentry kind="src" output="mod/Java Tools/test.bin" path="mod/Java Tools/test"/>
 	<classpathentry kind="src" output="mod/SNM C Framework/bin" path="mod/SNM C Framework/src"/>
 	<classpathentry kind="src" output="mod/SNM C Framework/test.bin" path="mod/SNM C Framework/test"/>
-	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.core.resources_3.4.0.v20080604-1400.jar" sourcepath="/ECLIPSE_HOME/plugins/org.eclipse.core.resources.source_3.4.0.v20080604-1400.jar"/>
-	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.core.resources_3.4.100.v20080908.jar" sourcepath="/ECLIPSE_HOME/plugins/org.eclipse.core.resources.source_3.4.0.v20080604-1400.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.core.runtime_3.4.100.v20080714.jar"/>
 	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.equinox.common_3.4.0.v20080421-2006.jar" sourcepath="/ECLIPSE_HOME/plugins/org.eclipse.equinox.common.source_3.4.0.v20080421-2006.jar"/>
-	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.jdt.core_3.4.0.v_874.jar" sourcepath="/ECLIPSE_HOME/plugins/org.eclipse.jdt.core.source_3.4.0.v_874.jar"/>
-	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.osgi_3.4.0.v20080605-1900.jar" sourcepath="/ECLIPSE_HOME/plugins/org.eclipse.osgi.source_3.4.0.v20080605-1900.jar"/>
-	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.text_3.4.0.v20080605-1800.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.jdt.core_3.5.0.v_913.jar" sourcepath="/ECLIPSE_HOME/plugins/org.eclipse.jdt.core.source_3.4.0.v_874.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.osgi_3.5.0.v20080916-2300.jar" sourcepath="/ECLIPSE_HOME/plugins/org.eclipse.osgi.source_3.4.0.v20080605-1900.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.text_3.4.100.v20080915-0800.jar"/>
 	<classpathentry kind="var" path="JAVA_LIB/ant.jar" sourcepath="/JAVA_SRC/src-ant-1.7.0.jar"/>
 	<classpathentry kind="var" path="JAVA_LIB/commons-collections-3.2.jar"/>
 	<classpathentry kind="var" path="JAVA_LIB/dom4j-1.6.1.jar" sourcepath="/JAVA_SRC/src-dom4j-1.6.1.zip"/>
 	<classpathentry kind="var" path="JAVA_LIB/groovy-all-1.5.6.jar" sourcepath="/JAVA_SRC/groovy-src-1.5.6.zip"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/net.bodz.swt"/>
-	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.swt.win32.win32.x86_3.4.0.v3448f.jar" sourcepath="/ECLIPSE_HOME/plugins/org.eclipse.swt.win32.win32.x86.source_3.4.0.v3448f.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.swt.win32.win32.x86_3.5.0.v3509c.jar" sourcepath="/ECLIPSE_HOME/plugins/org.eclipse.swt.win32.win32.x86.source_3.4.0.v3448f.jar"/>
 	<classpathentry kind="var" path="JAVA_LIB/net.bodz.icons.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="var" path="JAVA_LIB/jawin-2.0-alpha1.jar" sourcepath="/JAVA_SRC/jawin-2.0-alpha1-src.zip"/>
+	<classpathentry kind="output" path="mod/Commons/bin"/>
 </classpath>

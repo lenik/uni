@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.ArgsParseBy;
@@ -28,7 +29,6 @@ import net.bodz.bas.lang.Caller;
 import net.bodz.bas.lang.Control;
 import net.bodz.bas.lang.util.Classpath;
 import net.bodz.bas.types.TypeParsers.GetInstanceParser;
-import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.util.TypeExtensions.FileParser2;
 import net.bodz.lapiota.wrappers.BasicCLI;
 

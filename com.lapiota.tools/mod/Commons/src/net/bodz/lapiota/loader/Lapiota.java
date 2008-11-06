@@ -67,6 +67,8 @@ public class Lapiota {
 
         CLIConfig.findPath.defaultRoot = lapAbcd;
         CLIConfig.findPath.namedRoots.putAll(lapModules);
+
+        CLIConfig.conds.setAlias("bodz_lapiota", Lapiota.class.getName());
     }
 
 }

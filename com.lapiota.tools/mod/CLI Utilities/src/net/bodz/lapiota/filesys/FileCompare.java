@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
@@ -15,7 +16,6 @@ import net.bodz.bas.text.diff.DiffComparators;
 import net.bodz.bas.text.diff.DiffFormat;
 import net.bodz.bas.text.diff.DiffFormats;
 import net.bodz.bas.text.diff.DiffInfo;
-import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("A Unix diff program implemented in Java")

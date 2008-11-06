@@ -1,8 +1,8 @@
 package net.bodz.lapiota.eclipse.jdt;
 
+import net.bodz.bas.a.LoadBy;
 import net.bodz.bas.cli.CLIConfig;
 import net.bodz.bas.cli.a.RunInfo;
-import net.bodz.lapiota.a.LoadBy;
 import net.bodz.lapiota.wrappers.BasicCLI;
 import net.bodz.lapiota.wrappers.JavaLauncher;
 

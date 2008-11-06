@@ -7,7 +7,6 @@
 
 	<property name="distdir" value="${env.JAVA_LIB}" />
 	<property name="distsrc" value="${env.JAVA_SRC}" />
-	<property name="batdir" value="${env.LAPIOTA}/bin/w" />
 
 	<target name="default" depends="dist, :bat" />
 
@@ -33,6 +32,15 @@
 		<path path="mod/SNM C Framework/bin" />
 	</path>
 
+	<path id="testbins">
+		<path path="mod/Build Tools/test.bin" />
+		<path path="mod/CLI Utilities/test.bin" />
+		<path path="mod/Commons/test.bin" />
+		<path path="mod/GUI Utilities/test.bin" />
+		<path path="mod/Java Tools/test.bin" />
+		<path path="mod/SNM C Framework/test.bin" />
+	</path>
+
 	<target name=":bin.jar">
 		<mkdir dir="build" />
 		<jar destfile="build/net.bodz.lapiota.jar" update="true">
@@ -56,8 +64,9 @@
 	</target>
 
 	<target name=":bat">
-		<taskdef name="mkbat" classname="net.bodz.lapiota.ant.tasks.GenerateLauncherTask">
+		<taskdef name="mkbat" classname="net.bodz.lapiota.ant.tasks.MkbatTask">
 			<classpath refid="bins" />
+			<classpath refid="testbins" />
 			<classpath>
 				<fileset dir="${JAVA_LIB}">
 					<include name="${lib.bodz_bas}" />
@@ -68,10 +77,17 @@
 			</classpath>
 		</taskdef>
 
+		<property name="batdir" value="${env.LAPIOTA}/bin/w" />
 		<mkbat outdir="${batdir}" srcdir="mod/CLI Utilities/bin" />
 		<mkbat outdir="${batdir}" srcdir="mod/GUI Utilities/bin" />
 		<mkbat outdir="${batdir}" srcdir="mod/Java Tools/bin" />
 		<mkbat outdir="${batdir}" srcdir="mod/SNM C Framework/bin" />
+
+		<property name="testbats" value="${basedir}/test.bin" />
+		<mkbat outdir="${testbats}" srcdir="mod/CLI Utilities/test.bin" />
+		<mkbat outdir="${testbats}" srcdir="mod/GUI Utilities/test.bin" />
+		<mkbat outdir="${testbats}" srcdir="mod/Java Tools/test.bin" />
+		<mkbat outdir="${testbats}" srcdir="mod/SNM C Framework/test.bin" />
 	</target>
 
 	<target name="clean">

@@ -3,10 +3,10 @@ package net.bodz.lapiota.filesys;
 import java.io.File;
 
 import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.ProcessResult;
-import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("A simple BatchProcessCLI example: dir in java")

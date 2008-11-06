@@ -117,7 +117,7 @@ public class GroovyExpand extends PatternProcessor {
      */
     @Override
     @Deprecated
-    public final String process(String source) {
+    public final synchronized String process(String source) {
         return compileAndEvaluate(source);
     }
 

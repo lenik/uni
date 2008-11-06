@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
@@ -31,7 +32,6 @@ import net.bodz.bas.io.Files;
 import net.bodz.bas.io.FsWalk;
 import net.bodz.bas.types.TypeParsers.WildcardsParser;
 import net.bodz.bas.types.util.Iterators;
-import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 

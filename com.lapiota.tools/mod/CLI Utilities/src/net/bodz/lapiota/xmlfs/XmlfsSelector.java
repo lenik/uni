@@ -6,12 +6,12 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.cli.a.RunInfo;
-import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
 import net.bodz.lapiota.util.TypeExtensions.XPathParser;
 import net.bodz.lapiota.wrappers.BasicCLI;

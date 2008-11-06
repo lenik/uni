@@ -1,5 +1,7 @@
 package net.bodz.lapiota.filesys;
 
+import static net.bodz.bas.types.util.ArrayOps.Bytes;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -7,6 +9,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
@@ -24,8 +27,6 @@ import net.bodz.bas.mem.ArrayMemory;
 import net.bodz.bas.mem.Memory;
 import net.bodz.bas.mem.RandomAccessFileMemory;
 import net.bodz.bas.types.TypeParsers.HexParser;
-import static net.bodz.bas.types.util.ArrayOps.Bytes;
-import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.crypt.CRCSum.CRC32pgp;
 import net.bodz.lapiota.crypt.FindHash.Range;
 import net.bodz.lapiota.crypt.FindHash.RangeParser;

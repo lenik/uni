@@ -27,6 +27,7 @@ import javax.crypto.Cipher;
 import javax.crypto.ExemptionMechanism;
 
 import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
@@ -36,7 +37,6 @@ import net.bodz.bas.types.TextMap.TreeTextMap;
 import net.bodz.bas.types.util.Comparators;
 import net.bodz.bas.types.util.Iterators;
 import net.bodz.bas.types.util.Strings;
-import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Dump Java CLI Environment")

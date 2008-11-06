@@ -1,10 +1,10 @@
 package net.bodz.lapiota.javatools;
 
 import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.RunInfo;
-import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 import org.eclipse.swt.SWT;
@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Widget;
 @ProgramName("jhello")
 @RunInfo(
 
-load = { "findcp eclipse*/plugins/org.eclipse.swt_*", })
+load = { "findcp eclipse*/plugins/org.eclipse.swt.win32.win32.x86_*", })
 public class TestHello extends BasicCLI {
 
     @Override

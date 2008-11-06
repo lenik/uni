@@ -15,6 +15,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import net.bodz.bas.a.Doc;
+import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.CheckBy;
@@ -28,7 +29,6 @@ import net.bodz.bas.lang.util.Classpath;
 import net.bodz.bas.types.Checks.FileAccess;
 import net.bodz.bas.types.Checks.Regex;
 import net.bodz.bas.types.util.Strings;
-import net.bodz.lapiota.a.ProgramName;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Generate class proxy/wrapper")
