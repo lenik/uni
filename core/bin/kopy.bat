@@ -3,8 +3,7 @@
     setlocal
     set _strict=1
 
-    if "%~n1"=="cmd"    goto chsh
-    if "%~n1"=="CMD"    goto chsh
+    if /i "%~n1"=="cmd" goto chsh
     if "%~1"==":chsh"   goto chsh
     goto init
 

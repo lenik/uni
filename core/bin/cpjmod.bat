@@ -20,7 +20,11 @@
     if %_verbose% geq 1 echo %_xmlflat%
     for /f "usebackq delims=|" %%i in (`%_xmlflat%`) do (
         set _path=%%i
-        if not "!_path:~-8!"=="test.bin" (
+        if "!_path:~-8!"=="test.bin" (
+            if not "%_notest%"=="1" (
+                set _cp=!_cp!;%_prjdir%\!_path:/=\!
+            )
+        ) else (
             set _cp=!_cp!;%_prjdir%\!_path:/=\!
         )
     )

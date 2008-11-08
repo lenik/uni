@@ -305,8 +305,6 @@ appskey & numpaddiv::
 #a::fastcall("start ""ANSI""")
 #b::fastcall("start ""Big""")
 #c::fastcall("start")
-#g::run cmd /c msys
-#+g::run cmd /c msys bash --login
 #m::run metapad
 #n::run cmdw /c no
 #p::run cmdw /c start paintdotnet
@@ -341,6 +339,8 @@ appskey & numpaddiv::
 #x::
     run cmdw /c startx -notrayicon
     return
+#y::run cmd /c msys
+#+y::run cmd /c msys bash --login
 #-::
     nfs1 = %perlw% /lapiota/bin/nfs --wait-close
     nfs2 = %perlw% /lapiota/bin/nfs --wait-close ..

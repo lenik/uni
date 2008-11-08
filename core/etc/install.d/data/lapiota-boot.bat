@@ -59,7 +59,15 @@
         REM echo boot %%~nf
         call "%%f"
     )
-    bash -c /lapiota/etc/startup
+    bash -c /lapiota/etc/startup /lapiota/etc/startup.d
+    if exist %HOME%\etc\startup.d\* (
+        cd /d %HOME%\etc\startup.d
+        for %%f in (*.bat) do (
+            REM echo user boot %%~nf
+            call "%%f"
+        )
+        bash -c /lapiota/etc/startup ~/etc/startup.d
+    )
     exit /b 0
 
 :init
