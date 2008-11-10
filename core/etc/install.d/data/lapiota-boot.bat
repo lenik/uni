@@ -54,20 +54,22 @@
     echo Mounted
 
 :boot
+    REM the .bat version of startup scripts are treated especially.
     cd /d %LAPIOTA%\etc\startup.d
     for %%f in (*.bat) do (
         REM echo boot %%~nf
         call "%%f"
     )
-    bash -c /lapiota/etc/startup /lapiota/etc/startup.d
     if exist %HOME%\etc\startup.d\* (
         cd /d %HOME%\etc\startup.d
         for %%f in (*.bat) do (
             REM echo user boot %%~nf
             call "%%f"
         )
-        bash -c /lapiota/etc/startup ~/etc/startup.d
     )
+
+    bash -c /lapiota/etc/startup
+
     exit /b 0
 
 :init

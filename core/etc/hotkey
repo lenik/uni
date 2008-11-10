@@ -3,6 +3,21 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; functions {
+    filesop(title, pattern, cmdline) {
+        global
+        local n = 0
+        loop %pattern% {
+            n := n + 1
+            envset fop_%n%, %a_loopfilefullpath%
+        }
+        envset fop_count, %n%
+        runwait cmdw /c "%LAPIOTA%\bin\w\gchoice.bat -Tt`"%title%`" -efop & exit"
+        if not errorlevel
+            return
+        envget fop, fop_%errorlevel%
+        run %cmdline% `"%fop%`"
+    }
+
     funpack(count, prefix) {
         global
         local index = 0

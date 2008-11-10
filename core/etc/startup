@@ -2,12 +2,24 @@
 
 echo Startup Lapiota $LAPIOTA_VER
 
-for f in /lapiota/etc/startup.d/*.sh; do
-    read _CC title <$f
+for f in /lapiota/etc/startup.d/*.sh ~/etc/startup.d/*.sh; do
+    echo "${f##*/} $f"
+done | sort >/tmp/startup.lst
+
+while read _ file; do
+    read _CC title <$file
     echo -ne "[load] $title...\r"
-    if . $f; then
+    if . "$file"; then
         echo [done]
     else
         echo [fail]
     fi
+done </tmp/startup.lst
+
+cmd /c title Successful booted, you may press ENTER to quit.
+TIMEOUT=5
+while [ $TIMEOUT -gt 0 ]; do
+    printf "$TIMEOUT\r"
+    TIMEOUT=$((TIMEOUT - 1))
+    readkey -t 1
 done
