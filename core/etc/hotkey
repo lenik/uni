@@ -323,6 +323,7 @@ appskey & numpaddiv::
 #m::run metapad
 #n::run cmdw /c no
 #p::run cmdw /c start paintdotnet
+#+p::run cmdw /c findrun gimp gimp-2.6.exe bin
 #q::run cmdw /c start "Big3" cmd /c settitle "Quick Logger" qlog
 #s::run cmdw /c start scite
 #t::

@@ -12,6 +12,7 @@
         exit /b 1
     )
 
+:mounts
     if not exist "%HOME%\." md "%HOME%"
 
     rem Mount relocations...
@@ -23,6 +24,7 @@
         set MSYS_ROOT=%_home%
         make -Bf 00Makefile
 
+:main
     rem Always using the cygwin/perl
     bash -c '/lapiota/etc/install %*'
 
@@ -35,7 +37,11 @@
         call %%f
     )
 
-:end
+:end_refresh
+    echo Update system environment.
+    wbcast Environment
+
+:end_exec
     if exist "%LAPIOTA%\local\bin\cmdw.exe" (
         call kopy "%LAPIOTA%\local\bin\cmdw.exe"
     )
@@ -44,5 +50,3 @@
         rem unexpected
     )
     exit /b
-
-:end_of_batch

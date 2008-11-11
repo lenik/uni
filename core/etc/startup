@@ -16,10 +16,12 @@ while read _ file; do
     fi
 done </tmp/startup.lst
 
-cmd /c title Successful booted, you may press ENTER to quit.
-TIMEOUT=5
+TITLE="Successful booted, you may press ENTER to quit."
+echo $TITLE
+    cmd /c title $TITLE
+TIMEOUT=3
 while [ $TIMEOUT -gt 0 ]; do
-    printf "$TIMEOUT\r"
+    echo -ne "Auto quit... $TIMEOUT\\r"
     TIMEOUT=$((TIMEOUT - 1))
-    readkey -t 1
+    read -t 1 -n 1
 done

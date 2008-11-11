@@ -121,8 +121,6 @@
         - '* ->'
             - edittxt   Text Editor
             -           | ${findabc -w npp}\notepad++ \"%1\"
-            - editbin   Binary Editor
-            -           | $LAPIOTA\local\bin\ue.exe \"%1\"
             - touch     Touch (to invalidate the timestamp)
             -           | cmdw /c $CYGWIN_ROOT\bin\touch \"%1\"
         - '"Drive Folder" ->'

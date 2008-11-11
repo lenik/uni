@@ -6,7 +6,7 @@
 
 :start
 
-    call findabc %_findopts% "%_pkgname%/"
+    call findabc %_findopts% "%_pkgname%/" %_rest%
     if errorlevel 1 (
         call msgbox err-find 2>nul
     ) else (
@@ -73,6 +73,16 @@
     )
     shift
 
+:prep3
+    if "%~1"=="" (
+        set _=%1.
+        set _=!_:"=?!
+        if !_!==. goto init_ok
+    )
+    set _rest=%_rest%%1
+    shift
+    goto prep3
+
 :init_ok
     if %_verbose% geq 1 (set _ | tabify -b -d==)
     goto start
@@ -93,7 +103,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] PKGNAME [PRGNAME=PKGNAME]
+    echo    %_program% [OPTION] PKGNAME [PRGNAME=PKGNAME] [args passed to findabc...]
     echo.
     echo Options:
     echo    -r, --root DIR      start directory to find, default /abc.d
