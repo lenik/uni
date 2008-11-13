@@ -1,0 +1,12 @@
+
+default: \
+	/etc/fstab \
+	/msys/etc/fstab
+
+/etc/fstab: data/fstab.sht
+	mount $$LAPIOTA /lapiota; \
+	shtext $^ >$@
+
+/msys/etc/fstab: data/fstab_msys.sht
+	mount $$MSYS_ROOT /msys; \
+	shtext $^ >$@

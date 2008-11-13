@@ -23,5 +23,5 @@ TIMEOUT=3
 while [ $TIMEOUT -gt 0 ]; do
     echo -ne "Auto quit... $TIMEOUT\\r"
     TIMEOUT=$((TIMEOUT - 1))
-    read -t 1 -n 1
+    if read -t 1 -n 1; then break; fi
 done

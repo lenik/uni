@@ -30,7 +30,7 @@
         echo **DANGEROUS** THIS WILL REMOVE ALL FILES UNDER %LAPIOTA%.
         set /p _force=^(y/n^)
         if not "!_force!"=="y" exit /b 1
-        rd /s /q "%LAPIOTA%"
+        rd /s /q "%LAPIOTA%" 2>nul
     )
     md %LAPIOTA% 2>nul
 

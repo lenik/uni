@@ -3,6 +3,11 @@
     short_opts="hqv"
     long_opts="help,quiet,verbose,version"
     . /lapiota/lib/sh/cliboot
+    . /lapiota/lib/sh/findabc
+    . /lapiota/lib/sh/lam
+    . /lapiota/lib/sh/path
+    . /lapiota/lib/sh/rcs
+    . /lapiota/lib/sh/string
 
 function version() {
     parse_id "$RCSID"

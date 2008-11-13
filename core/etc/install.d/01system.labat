@@ -34,12 +34,13 @@
             - $LAPIOTA\bin\w
             - $LAPIOTA\bin
             - $LAPIOTA\sbin
+            - ${findabc -w php}
+            - ${findabc -w jdk}\bin
             - $LAPIOTA\lib
             - $LAPIOTA\usr\bin
             - $LAPIOTA\usr\lib
             - $CYGWIN_ROOT\bin
             - $CYGWIN_ROOT\sbin
-            - ${findabc -w jdk}\bin
         - w+$       PATH        ->
             - $LAPIOTA\local\bin
             - $LAPIOTA\local\lib
@@ -86,6 +87,7 @@
             # /usr/lib/perl5/vendor_perl/5.8
             # /lapiota/usr/lib/perl5/5.8/site
             # /lapiota/usr/lib/perl5/5.8/cpan
+        - w=        PHPRC       ${findabc -w php}
         - u-        PYTHONPATH  /lapiota
       # - u-        PYTHONPATH  /usr/lib
         - u+^       PYTHONPATH  ->

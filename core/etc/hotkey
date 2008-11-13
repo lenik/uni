@@ -265,10 +265,15 @@ appskey & numpadsub::soundset -5
 appskey & numpaddiv::
     soundset +1, , mute
     soundget mute, , mute
+    if errorlevel {
+        msgbox Error: %errorlevel%
+        return
+    }
     if (mute == "On") {
         run scw stop beep
     } else {
         run scw start beep
+        SoundPlay, %A_WinDir%\Media\ding.wav
     }
     return
 

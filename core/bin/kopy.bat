@@ -45,7 +45,7 @@
     rem call :copy "%_src%" "%windir%\ServicePackFiles\i386\%_base%"
         call :copy "%_src%" "%windir%\System32\dllcache\%_base%"
         call :copy "%_src%" "%windir%\System32\%_base%"
-        call :copy "%_src%" "%windir%\%_base%"
+        REM call :copy "%_src%" "%windir%\%_base%"
     ) else (
         call :copy "%_src%" "%~2"
     )
