@@ -38,6 +38,10 @@
     )
 
 :end_refresh
+    rem send quit to:
+    rem     autohotkey
+    rem     winevent
+    rem     fastcmd
     echo Update system environment.
     wbcast Environment
 

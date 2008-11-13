@@ -32,3 +32,9 @@ fi
 
 labat $* /lapiota/etc/install.d/01system.labat
 labat $* /lapiota/etc/install.d/30metapad.labat
+
+cd /lapiota/etc/install.d
+. /lapiota/lib/sh/findabc
+export GIMP=`findabc -p gimp`
+export MYSQL=`findabc -p mysql`
+make -ef 50Makefile

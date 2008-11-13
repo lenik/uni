@@ -1,12 +1,15 @@
 
+DATA=/lapiota/etc/install.d/data
+
+GIMP_ENV=$(GIMP)/lib/gimp/2.0/environ/default.env
+MY_INI=$(MYSQL)/my.ini
+
 default: \
-	/etc/fstab \
-	/msys/etc/fstab
+	$(GIMP_ENV) \
+	$(MY_INI)
 
-/etc/fstab: data/fstab.sht
-	mount $$LAPIOTA /lapiota; \
-	shtext $^ >$@
+$(GIMP_ENV): $(DATA)/gimpenv.sht
+	shtext $< >$@
 
-/msys/etc/fstab: data/fstab_msys.sht
-	mount $$MSYS_ROOT /msys; \
-	shtext $^ >$@
+$(MY_INI): ~/etc/my.sht
+	shtext $< >$@

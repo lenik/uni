@@ -34,8 +34,9 @@
             - $LAPIOTA\bin\w
             - $LAPIOTA\bin
             - $LAPIOTA\sbin
-            - ${findabc -w php}
             - ${findabc -w jdk}\bin
+            - ${findabc -w mysql}\bin
+            - ${findabc -w php}
             - $LAPIOTA\lib
             - $LAPIOTA\usr\bin
             - $LAPIOTA\usr\lib
