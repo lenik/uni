@@ -32,9 +32,9 @@ import net.bodz.bas.types.util.Strings;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Generate class proxy/wrapper")
-@Version( { 0, 0 })
-@RcsKeywords(id = "$Id$")
 @ProgramName("classwrap")
+@RcsKeywords(id = "$Id$")
+@Version( { 0, 0 })
 public class GenerateClassWrappers extends BasicCLI {
 
     @Option(vnam = "WORD", doc = "prefix string to the generated class")

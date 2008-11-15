@@ -17,6 +17,7 @@ import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.bodz.bas.a.BootInfo;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
@@ -25,7 +26,6 @@ import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
-import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.bas.cli.ext.CLIPlugin;
 import net.bodz.bas.cli.ext._CLIPlugin;
 import net.bodz.bas.io.Files;
@@ -43,11 +43,11 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 
+@BootInfo(syslibs = { "dom4j", "jaxen" })
 @Doc("Batch package-fragment (in *.jar or directory format) process")
-@Version( { 0, 0 })
-@RcsKeywords(id = "$Id$")
-@RunInfo(lib = { "dom4j", "jaxen" })
 @ProgramName("jars")
+@RcsKeywords(id = "$Id$")
+@Version( { 0, 0 })
 public class PackageFragmentsProcess extends BatchProcessCLI {
 
     @Option(alias = "F", vnam = "pretty|compact")

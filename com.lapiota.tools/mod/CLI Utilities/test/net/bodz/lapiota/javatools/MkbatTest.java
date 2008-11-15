@@ -4,8 +4,8 @@ import java.io.File;
 import java.net.URL;
 
 import net.bodz.bas.cli.util.Mkbat;
-import net.bodz.bas.cli.util.SNMJava;
 import net.bodz.bas.io.Files;
+import net.bodz.bas.snm.SJProject;
 import net.bodz.lapiota.eclipse.jdt.J4conv;
 
 public class MkbatTest {
@@ -16,7 +16,7 @@ public class MkbatTest {
         try {
             outdir.mkdirs();
 
-            URL srcurl = SNMJava.findSrc(J4conv.class);
+            URL srcurl = SJProject.findSrc(J4conv.class);
             String srcfile = srcurl.getFile();
             int reslen = J4conv.class.getName().length() + ".java".length();
             String srcdir = srcfile.substring(0, srcfile.length() - reslen);

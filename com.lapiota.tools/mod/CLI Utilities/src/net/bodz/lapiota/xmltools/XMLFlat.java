@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.bodz.bas.a.BootInfo;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
-import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.CharOuts;
 import net.bodz.bas.types.util.Comparators;
@@ -30,10 +30,10 @@ import org.dom4j.Node;
 import org.dom4j.XPath;
 import org.dom4j.io.SAXReader;
 
+@BootInfo(syslibs = { "dom4j", "jaxen" })
 @Doc("Convert XML document to plain table")
-@Version( { 0, 1 })
 @RcsKeywords(id = "$Id$")
-@RunInfo(lib = { "dom4j", "jaxen" })
+@Version( { 0, 1 })
 public class XMLFlat extends BasicCLI {
 
     @Option(alias = "d", vnam = "LIST", doc = "reuse characters from LIST instead of TABs")

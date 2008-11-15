@@ -33,9 +33,9 @@ import net.bodz.lapiota.util.TypeExtensions.FileParser2;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Find the class file defined the specified class")
-@Version( { 0, 1 })
-@RcsKeywords(id = "$Id$")
 @ProgramName("jwhich")
+@RcsKeywords(id = "$Id$")
+@Version( { 0, 1 })
 public class FindClassResource extends BasicCLI {
 
     @Option(alias = "r", vnam = "[DEPTH]", optional = "65536", doc = "max depth of directories recurse into")

@@ -21,9 +21,9 @@ import net.bodz.bas.log.LogOut;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("Merge directories of same architecture")
-@Version( { 0, 1 })
-@RcsKeywords(id = "$Id$")
 @ProgramName("dirmerge")
+@RcsKeywords(id = "$Id$")
+@Version( { 0, 1 })
 public class MergeDirectories extends BatchProcessCLI {
 
     @Option(alias = "M", vnam = "ALGORITHM", doc = "message digest algorithm to use, default SHA-1")

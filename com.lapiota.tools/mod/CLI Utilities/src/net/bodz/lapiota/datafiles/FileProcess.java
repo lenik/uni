@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.bodz.bas.a.BootInfo;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
@@ -20,7 +21,6 @@ import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.a.Option;
-import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.bas.cli.ext.CLIPlugin;
 import net.bodz.bas.cli.ext._CLIPlugin;
 import net.bodz.bas.io.Files;
@@ -31,11 +31,11 @@ import net.bodz.bas.text.interp.PatternProcessor;
 import net.bodz.lapiota.util.RefBinding;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
+@BootInfo(syslibs = "groovy")
 @Doc("An extensible file process program")
-@Version( { 0, 1 })
-@RcsKeywords(id = "$Id$")
-@RunInfo(lib = "groovy")
 @ProgramName("jfor")
+@RcsKeywords(id = "$Id$")
+@Version( { 0, 1 })
 public class FileProcess extends BatchProcessCLI {
 
     List<Action> actions = new ArrayList<Action>();

@@ -19,9 +19,9 @@ import net.bodz.bas.text.diff.DiffInfo;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("A Unix diff program implemented in Java")
-@Version( { 0, 1 })
-@RcsKeywords(id = "$Id$")
 @ProgramName("jdiff")
+@RcsKeywords(id = "$Id$")
+@Version( { 0, 1 })
 public class FileCompare extends BasicCLI {
 
     @Option(alias = "F", vnam = "FORMAT", doc = "Simdiff, Context, ED, Unified")

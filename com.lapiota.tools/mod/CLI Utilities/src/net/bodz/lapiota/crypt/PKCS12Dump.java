@@ -24,9 +24,9 @@ import net.bodz.bas.types.util.Iterators;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("PKCS#12 Certifaction Dump")
-@Version( { 0, 1 })
-@RcsKeywords(id = "$Id: ClassLauncher.java 21 2008-08-01 11:43:38Z lenik $")
 @ProgramName("p12dump")
+@RcsKeywords(id = "$Id: ClassLauncher.java 21 2008-08-01 11:43:38Z lenik $")
+@Version( { 0, 1 })
 public class PKCS12Dump extends BasicCLI {
 
     @Option(alias = "p", doc = "Provider Class")

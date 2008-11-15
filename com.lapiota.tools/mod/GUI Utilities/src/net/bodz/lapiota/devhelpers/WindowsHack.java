@@ -18,9 +18,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 @Doc("Win32 Windows Editor")
-@Version( { 0, 1 })
-@RcsKeywords(id = "$Id: CommandLineEditor.java 24 2008-08-05 14:25:23Z lenik $")
 @ProgramName("winedit")
+@RcsKeywords(id = "$Id: CommandLineEditor.java 24 2008-08-05 14:25:23Z lenik $")
+@Version( { 0, 1 })
 public class WindowsHack extends BasicGUI {
 
     @Option(alias = "i", vnam = "ms", doc = "capture interval, default 1000")
@@ -67,11 +67,10 @@ public class WindowsHack extends BasicGUI {
     }
 
     @Override
-    protected Composite createInitialView(Composite parent) {
-        final Composite view = new Composite(parent, SWT.BORDER);
-        view.setLayout(new FormLayout());
+    protected void createInitialView(Composite parent) {
+        parent.setLayout(new FormLayout());
 
-        cursorLabel = new Label(view, SWT.NONE);
+        cursorLabel = new Label(parent, SWT.NONE);
         final FormData fd_cursorLabel = new FormData();
         fd_cursorLabel.right = new FormAttachment(100, -17);
         fd_cursorLabel.left = new FormAttachment(0, 13);
@@ -79,7 +78,7 @@ public class WindowsHack extends BasicGUI {
         cursorLabel.setLayoutData(fd_cursorLabel);
         cursorLabel.setText("Cursor: ");
 
-        windowLabel = new Label(view, SWT.NONE);
+        windowLabel = new Label(parent, SWT.NONE);
         final FormData fd_windowLabel = new FormData();
         fd_windowLabel.right = new FormAttachment(cursorLabel, 0, SWT.RIGHT);
         fd_windowLabel.bottom = new FormAttachment(0, 45);
@@ -88,7 +87,7 @@ public class WindowsHack extends BasicGUI {
         windowLabel.setLayoutData(fd_windowLabel);
         windowLabel.setText("Window: ");
 
-        controlLabel = new Label(view, SWT.NONE);
+        controlLabel = new Label(parent, SWT.NONE);
         final FormData fd_controlLabel = new FormData();
         fd_controlLabel.bottom = new FormAttachment(0, 65);
         fd_controlLabel.right = new FormAttachment(windowLabel, 0, SWT.RIGHT);
@@ -97,8 +96,7 @@ public class WindowsHack extends BasicGUI {
         controlLabel.setLayoutData(fd_controlLabel);
         controlLabel.setText("Control: ");
 
-        view.setSize(200, 200);
-        return view;
+        parent.setSize(200, 200);
     }
 
     public static void main(String[] args) throws Throwable {

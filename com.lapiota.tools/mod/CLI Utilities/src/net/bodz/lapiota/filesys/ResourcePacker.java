@@ -20,9 +20,9 @@ import net.bodz.bas.io.Files;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("Resource packer")
-@Version( { 0, 1 })
-@RcsKeywords(id = "$Id$")
 @ProgramName("respack")
+@RcsKeywords(id = "$Id$")
+@Version( { 0, 1 })
 public class ResourcePacker extends BatchProcessCLI {
 
     @Option(alias = "o", doc = "output jar file name")

@@ -34,9 +34,9 @@ import net.bodz.lapiota.util.StringUtil;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Copy files by parts")
-@Version( { 0, 1 })
-@RcsKeywords(id = "$Id$")
 @ProgramName("partcp")
+@RcsKeywords(id = "$Id$")
+@Version( { 0, 1 })
 public class PartialCopy extends BasicCLI {
 
     @Option(vnam = "NUM", doc = "block size, default 4096")

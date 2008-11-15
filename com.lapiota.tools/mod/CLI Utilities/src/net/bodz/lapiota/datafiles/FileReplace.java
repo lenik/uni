@@ -16,9 +16,9 @@ import net.bodz.bas.types.TypeParsers.GetInstanceParser;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("A Unix diff program implemented in Java")
-@Version( { 0, 1 })
-@RcsKeywords(id = "$Id$")
 @ProgramName("jrepl")
+@RcsKeywords(id = "$Id$")
+@Version( { 0, 1 })
 public class FileReplace extends BatchProcessCLI {
 
     @Option(alias = "p", vnam = "REGEXP", doc = "replace by regexp")

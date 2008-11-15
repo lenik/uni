@@ -6,8 +6,6 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
-import net.bodz.bas.io.CharOuts;
-import net.bodz.bas.lang.util.Classpath;
 import net.bodz.lapiota.wrappers.BasicGUI;
 
 import org.eclipse.swt.SWT;
@@ -20,21 +18,19 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 @Doc("Command line editor")
-@Version( { 0, 1 })
-@RcsKeywords(id = "$Id$")
 @ProgramName("cliedit")
+@RcsKeywords(id = "$Id$")
+@Version( { 0, 1 })
 public class VisualExec extends BasicGUI {
 
     private Text text;
     private Text cmdlineText;
 
     @Override
-    protected Composite createInitialView(Composite parent) {
-        // TestComposite view = new TestComposite(parent, SWT.NONE);
-        Composite view = new Composite(parent, SWT.NONE);
-        view.setLayout(new FormLayout());
+    protected void createInitialView(Composite comp) {
+        comp.setLayout(new FormLayout());
 
-        final Button commandLineButton = new Button(view, SWT.NONE);
+        final Button commandLineButton = new Button(comp, SWT.NONE);
         final FormData fd_commandLineLabel = new FormData();
         fd_commandLineLabel.bottom = new FormAttachment(0, 30);
         fd_commandLineLabel.right = new FormAttachment(0, 45);
@@ -43,7 +39,7 @@ public class VisualExec extends BasicGUI {
         commandLineButton.setLayoutData(fd_commandLineLabel);
         commandLineButton.setText("&Run");
 
-        cmdlineText = new Text(view, SWT.WRAP | SWT.BORDER);
+        cmdlineText = new Text(comp, SWT.WRAP | SWT.BORDER);
         cmdlineText.setText("cmdline");
         final FormData fd_cmdlineText = new FormData();
         fd_cmdlineText.bottom = new FormAttachment(0, 80);
@@ -53,7 +49,7 @@ public class VisualExec extends BasicGUI {
                 SWT.RIGHT);
         cmdlineText.setLayoutData(fd_cmdlineText);
 
-        final Composite composite = new Composite(view, SWT.NONE);
+        final Composite composite = new Composite(comp, SWT.NONE);
         composite.setLayout(new FillLayout());
         final FormData fd_composite = new FormData();
         fd_composite.top = new FormAttachment(cmdlineText, 5, SWT.BOTTOM);
@@ -63,7 +59,6 @@ public class VisualExec extends BasicGUI {
         composite.setLayoutData(fd_composite);
 
         text = new Text(composite, SWT.BORDER);
-        return view;
     }
 
     void run() throws IOException {
@@ -72,6 +67,7 @@ public class VisualExec extends BasicGUI {
     }
 
     public static void main(String[] args) throws Throwable {
+        // Classpath.dumpURLs(CharOuts.stderr);
         new VisualExec().run(args);
     }
 

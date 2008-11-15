@@ -12,8 +12,8 @@ import net.bodz.bas.mem.RandomAccessFileMemory;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("PGP disk headers break up")
-@Version( { 0, 0 })
 @RcsKeywords(id = "$Id: PGDBreak.java 0 2008-10-11 下午04:34:55 Shecti $")
+@Version( { 0, 0 })
 public class PGDBreak extends BasicCLI {
 
     @Option(alias = "O", vnam = "DIR", doc = "where to put the splitted chunk files")

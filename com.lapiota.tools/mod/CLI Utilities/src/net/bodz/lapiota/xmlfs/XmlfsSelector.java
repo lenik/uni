@@ -5,13 +5,13 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import net.bodz.bas.a.BootInfo;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
-import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
 import net.bodz.lapiota.util.TypeExtensions.XPathParser;
 import net.bodz.lapiota.wrappers.BasicCLI;
@@ -21,11 +21,11 @@ import org.dom4j.XPath;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
+@BootInfo(syslibs = { "dom4j", "jaxen" })
 @Doc("Xmlfs XPath Selector")
-@Version( { 0, 1 })
-@RcsKeywords(id = "$Id$")
 @ProgramName("xfss")
-@RunInfo(lib = { "dom4j", "jaxen" })
+@RcsKeywords(id = "$Id$")
+@Version( { 0, 1 })
 public class XmlfsSelector extends BasicCLI {
 
     @Option(alias = "E", vnam = "FORMAT", doc = "input encoding")

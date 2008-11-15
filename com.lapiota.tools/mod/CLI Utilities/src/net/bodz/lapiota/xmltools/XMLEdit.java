@@ -11,13 +11,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import net.bodz.bas.a.BootInfo;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
-import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.lang.err.UnexpectedException;
@@ -40,10 +40,10 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 
+@BootInfo(syslibs = { "dom4j", "jaxen" })
 @Doc("Simple XML document batch editor")
-@Version( { 0, 0 })
 @RcsKeywords(id = "$Id$")
-@RunInfo(lib = { "dom4j", "jaxen" })
+@Version( { 0, 0 })
 public class XMLEdit extends BasicCLI {
 
     @Option(alias = "E", vnam = "FORMAT", doc = "set encoding of input")

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import net.bodz.bas.a.BootInfo;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
@@ -15,7 +16,6 @@ import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.a.Option;
-import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.bas.cli.ext.CLIPlugin;
 import net.bodz.bas.cli.ext._CLIPlugin;
 import net.bodz.bas.io.Files;
@@ -28,11 +28,11 @@ import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 import org.codehaus.groovy.control.CompilationFailedException;
 
+@BootInfo(syslibs = "groovy")
 @Doc("General template processing")
-@Version( { 0, 1 })
-@RcsKeywords(id = "$Id$")
-@RunInfo(lib = "groovy")
 @ProgramName("jsub")
+@RcsKeywords(id = "$Id$")
+@Version( { 0, 1 })
 public class TemplateProcess extends BatchProcessCLI {
 
     @Option(alias = "S", vnam = "MODEL=PARAM...", doc = "source parsing model")

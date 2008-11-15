@@ -40,9 +40,9 @@ import net.bodz.bas.types.util.Strings;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Dump Java CLI Environment")
-@Version( { 0, 1 })
-@RcsKeywords(id = "$Id$")
 @ProgramName("jenv")
+@RcsKeywords(id = "$Id$")
+@Version( { 0, 1 })
 public class CLIEnviron extends BasicCLI {
 
     @Option(alias = "e", doc = "Dump environ variables")

@@ -10,9 +10,9 @@ import net.bodz.bas.cli.ProcessResult;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("A simple BatchProcessCLI example: dir in java")
-@Version( { 0, 1 })
-@RcsKeywords(id = "$Id$")
 @ProgramName("jdir")
+@RcsKeywords(id = "$Id$")
+@Version( { 0, 1 })
 public class FileLister extends BatchProcessCLI {
 
     @Override

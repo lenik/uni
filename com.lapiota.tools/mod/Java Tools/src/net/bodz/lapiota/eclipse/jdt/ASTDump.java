@@ -24,8 +24,8 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 @Doc("ASTDump description")
-@Version( { 0, 0 })
 @RcsKeywords(id = "$Id$")
+@Version( { 0, 0 })
 public class ASTDump extends JdtBasicCLI {
 
     @Option(alias = "o", vnam = "FILE", doc = "dump to the specified file")

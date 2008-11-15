@@ -1,9 +1,9 @@
 package net.bodz.lapiota._extern;
 
-import net.bodz.bas.cli.a.RunInfo;
+import net.bodz.bas.a.BootInfo;
 import net.bodz.lapiota.wrappers.JavaLauncher;
 
-@RunInfo(lib = "jflex")
+@BootInfo(syslibs = "jflex")
 public class JFlex extends JavaLauncher {
 
     @Override

@@ -93,8 +93,8 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
 
 @Doc("Remove Java 5 Generics from the java source files")
-@Version( { 0, 1 })
 @RcsKeywords(id = "$Id$")
+@Version( { 0, 1 })
 public class J4conv extends JdtBatchCLI {
 
     @Option(alias = "b", vnam = "FILE|DIR")

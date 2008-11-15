@@ -1,11 +1,9 @@
 package net.bodz.lapiota.comm;
 
-import net.bodz.bas.cli.a.RunInfo;
 import net.bodz.lapiota.wrappers.BasicGUI;
 
 import org.eclipse.swt.widgets.Display;
 
-@RunInfo(lib = { "bodz_swt", "bodz_icons" })
 public class PrivateTalk extends BasicGUI {
 
     @Override

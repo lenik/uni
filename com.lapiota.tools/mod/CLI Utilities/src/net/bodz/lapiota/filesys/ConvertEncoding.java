@@ -18,9 +18,9 @@ import net.bodz.bas.lang.ControlBreak;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("batch iconv written in java, JUN 2004")
-@Version( { 0, 1 })
-@RcsKeywords(id = "$Id$")
 @ProgramName("jiconv")
+@RcsKeywords(id = "$Id$")
+@Version( { 0, 1 })
 public class ConvertEncoding extends BatchProcessCLI {
 
     @Option(alias = "b", vnam = "value", doc = "BOM detect")

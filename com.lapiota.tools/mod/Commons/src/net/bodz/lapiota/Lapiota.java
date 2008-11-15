@@ -1,29 +1,25 @@
-package net.bodz.lapiota.loader;
+package net.bodz.lapiota;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import net.bodz.bas.cli.CLIConfig;
+import net.bodz.bas.cli.util.FindFile;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.types.TextMap;
 import net.bodz.bas.types.TextMap.HashTextMap;
 
 public class Lapiota {
 
-    public static File          lapRoot;
-    public static File          lapEtc;
-    public static File          lapAbcd;
-    public static File          lapHome;
-    public static File          userHome;
+    public static File            lapRoot;
+    public static File            lapEtc;
+    public static File            lapAbcd;
+    public static File            lapHome;
+    public static File            userHome;
 
-    public static TextMap<File> lapModules;
+    public static TextMap<File>   lapModules;
 
     static {
-        reconfig();
-    }
-
-    public static void reconfig() {
         String s = System.getenv("LAPIOTA");
         if (s == null) {
             if (!(lapRoot = Files.canoniOf("/lapiota")).isDirectory())
@@ -64,11 +60,27 @@ public class Lapiota {
                 lapModules.put(lam.getName(), lam);
             }
         }
+    }
 
-        CLIConfig.findPath.defaultRoot = lapAbcd;
-        CLIConfig.findPath.namedRoots.putAll(lapModules);
+    private static final FindFile finder;
+    static {
+        finder = new FindFile(lapAbcd, lapModules);
+    }
 
-        CLIConfig.conds.setAlias("bodz_lapiota", Lapiota.class.getName());
+    public static File findabc(String name, File root) {
+        return finder.findabc(name, root);
+    }
+
+    public static File findabc(String name) {
+        return finder.findabc(name);
+    }
+
+    public static File findexp(String exp, File parent) {
+        return finder.findexp(exp, parent);
+    }
+
+    public static File findexp(String exp) {
+        return finder.findexp(exp);
     }
 
 }

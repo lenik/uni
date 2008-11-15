@@ -64,30 +64,42 @@
 	</target>
 
 	<target name=":bat">
-		<taskdef name="mkbat" classname="net.bodz.lapiota.ant.tasks.MkbatTask">
-			<classpath refid="bins" />
-			<classpath refid="testbins" />
+		<taskdef name="mkbat" classname="net.bodz.bas.cli.util.MkbatTask">
 			<classpath>
 				<fileset dir="${JAVA_LIB}">
 					<include name="${lib.bodz_bas}" />
-					<include name="${lib.bodz_swt}" />
 					<include name="${lib.dom4j}" />
 					<include name="${lib.groovy}" />
 				</fileset>
 			</classpath>
 		</taskdef>
 
+		<path id="userlibs">
+			<fileset dir="${JAVA_LIB}">
+				<include name="${lib.bodz_swt}" />
+			</fileset>
+		</path>
 		<property name="batdir" value="${env.LAPIOTA}/bin/w" />
-		<mkbat outdir="${batdir}" srcdir="mod/CLI Utilities/bin" />
-		<mkbat outdir="${batdir}" srcdir="mod/GUI Utilities/bin" />
-		<mkbat outdir="${batdir}" srcdir="mod/Java Tools/bin" />
-		<mkbat outdir="${batdir}" srcdir="mod/SNM C Framework/bin" />
-
 		<property name="testbats" value="${basedir}/test.bin" />
-		<mkbat outdir="${testbats}" srcdir="mod/CLI Utilities/test.bin" />
-		<mkbat outdir="${testbats}" srcdir="mod/GUI Utilities/test.bin" />
-		<mkbat outdir="${testbats}" srcdir="mod/Java Tools/test.bin" />
-		<mkbat outdir="${testbats}" srcdir="mod/SNM C Framework/test.bin" />
+
+		<mkbat outdir="${batdir}">
+			<userlibs refid="bins" />
+			<userlibs refid="userlibs" />
+			<srcdir path="mod/CLI Utilities/bin" />
+			<srcdir path="mod/GUI Utilities/bin" />
+			<srcdir path="mod/Java Tools/bin" />
+			<srcdir path="mod/SNM C Framework/bin" />
+		</mkbat>
+
+		<mkbat outdir="${testbats}">
+			<userlibs refid="bins" />
+			<userlibs refid="testbins" />
+			<userlibs refid="userlibs" />
+			<srcdir path="mod/CLI Utilities/test.bin" />
+			<srcdir path="mod/GUI Utilities/test.bin" />
+			<srcdir path="mod/Java Tools/test.bin" />
+			<srcdir path="mod/SNM C Framework/test.bin" />
+		</mkbat>
 	</target>
 
 	<target name="clean">
