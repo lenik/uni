@@ -16,7 +16,7 @@ import net.bodz.bas.types.util.Objects;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("Patch using the modified grep result (grep -Hn)")
-@RcsKeywords(id = "$Id: GrepPatch.java 0 2008-10-14 下午07:03:18 Shecti $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 0 })
 public class GrepPatch extends BatchProcessCLI {
 

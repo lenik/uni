@@ -15,7 +15,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.swtdesigner.SWTResourceManager;
 
 @Doc("[DEAP] X/10-Hours Timer")
-@RcsKeywords(id = "$Id: XHTimer.java 0 2008-10-22 上午07:45:06 Shecti $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 0 })
 public class XHTimer extends BasicGUI {
 

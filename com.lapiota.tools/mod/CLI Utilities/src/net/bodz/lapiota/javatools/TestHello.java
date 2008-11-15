@@ -15,7 +15,7 @@ import org.eclipse.swt.widgets.Widget;
 @BootInfo(configs = SWTConfig.class)
 @Doc("Hello World (Test Program)")
 @ProgramName("jhello")
-@RcsKeywords(id = "$Id: TestHello.java 0 2008-10-22 下午06:44:18 Shecti $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 0 })
 public class TestHello extends BasicCLI {
 

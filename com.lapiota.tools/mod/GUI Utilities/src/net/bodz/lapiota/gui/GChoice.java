@@ -17,7 +17,7 @@ import org.eclipse.swt.internal.win32.OS;
 import org.eclipse.swt.widgets.Shell;
 
 @Doc("GUI Choice Utility")
-@RcsKeywords(id = "$Id: VisualExec.java 29 2008-10-07 13:38:08Z lenik $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
 public class GChoice extends BasicGUI {
 

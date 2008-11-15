@@ -13,7 +13,7 @@ import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
 @Doc("convert ascii chars or \\uNNNN to native chars")
 @Version( { 0, 1 })
-@RcsKeywords(id = "$Id: FileReplace.java 27 2008-08-17 13:31:22Z lenik $")
+@RcsKeywords(id = "$Id$")
 public class Ascii2Native extends BatchProcessCLI {
 
     // default inputEncoding == native(includes ascii)

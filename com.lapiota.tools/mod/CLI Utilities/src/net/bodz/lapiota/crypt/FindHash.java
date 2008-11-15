@@ -25,7 +25,7 @@ import net.bodz.lapiota.crypt.Hashes.PeekDigest;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Find which part of file make a specific hash value")
-@RcsKeywords(id = "$Id: ClassLauncher.java 21 2008-08-01 11:43:38Z lenik $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
 public class FindHash extends BasicCLI {
 

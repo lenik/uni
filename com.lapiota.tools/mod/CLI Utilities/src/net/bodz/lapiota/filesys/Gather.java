@@ -21,7 +21,7 @@ import net.bodz.lapiota.wrappers.BasicCLI;
 
 @BootInfo(syslibs = { "dom4j", "jaxen" })
 @Doc("Gather/Centralize Files")
-@RcsKeywords(id = "$Id: PackageFragmentsProcess.java 27 2008-08-17 13:31:22Z lenik $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 0 })
 public class Gather extends BasicCLI {
 

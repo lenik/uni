@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.Label;
 
 @Doc("Win32 Windows Editor")
 @ProgramName("winedit")
-@RcsKeywords(id = "$Id: CommandLineEditor.java 24 2008-08-05 14:25:23Z lenik $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
 public class WindowsHack extends BasicGUI {
 

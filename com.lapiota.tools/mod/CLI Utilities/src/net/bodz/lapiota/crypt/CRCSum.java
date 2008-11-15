@@ -28,7 +28,7 @@ import net.bodz.lapiota.crypt.Hashes.CRC32_LE;
 import net.bodz.lapiota.wrappers.BatchCLI;
 
 @Doc("Print or check CRC (32-bit) checksums")
-@RcsKeywords(id = "$Id: FileLister.java 29 2008-10-07 13:38:08Z lenik $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
 public class CRCSum extends BatchCLI {
 
