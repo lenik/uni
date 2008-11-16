@@ -97,7 +97,7 @@
 
     if exist "%SHELL%" goto level_7
     rem The lapiota-init program must have mounted the root(/) filesystem.
-    set SHELL=%CYGWIN_ROOT%\bin\bash
+    set SHELL=/bin/bash
     if "%USERNAME%"=="" set USERNAME=someone
     for /f "delims=: tokens=1-7" %%i in (%CYGWIN_ROOT%\etc\passwd) do (
         rem i=name j=pwd k:uid l:gid m:fullname n:home o:shell
@@ -105,9 +105,8 @@
             set SHELL=%%o
         )
     )
-    for /f %%i in ('cygpath -w %SHELL%') do (
-        set SHELL=%%i
-    )
+    set SHELL=%CYGWIN_ROOT%%SHELL:/=\%
+    set SHELLW=%SHELL%w
 
 :level_7
     if %initlevel% lss 7 goto done

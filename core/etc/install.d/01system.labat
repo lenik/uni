@@ -279,12 +279,12 @@
                     - FaceName              sz:"Lucida Console"
                     - FontSize              0x000c0000
                 - CUser/Console/Big/@->
-                    - ScreenBufferSize      0x03e80046
-                    - WindowSize            0x00140046
+                    - ScreenBufferSize      0x03e80050
+                    - WindowSize            0x00140050
                     - FontSize              0x0014000a
                 - CUser/Console/Big3/@->
-                    - ScreenBufferSize      0x03e80046
-                    - WindowSize            0x00030046
+                    - ScreenBufferSize      0x03e80050
+                    - WindowSize            0x00030050
                     - FontSize              0x0014000a
                 - CUser/Console/Cart/@->
                     - CodePage              437

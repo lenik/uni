@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 rem how to add .php to IIS?
 rem     .php
