@@ -6,12 +6,14 @@
 
 :start
 
-    REM _____________________________________________
+    set _export=%TEMP%\skel-%RANDOM%
+    if exist "%_export%\*" rd /s /q %_export%
+    svn export "%LAPIOTA%\etc\skel" %_export%
 
     if not exist "%HOME%\*" (
         mkdir "%HOME%" >nul 2>nul
     )
-    call cpnew -r %_cpopts% "%LAPIOTA%\etc\skel" "%HOME%"
+    call cpnew -r %_cpopts% "%_export%" "%HOME%"
 
     exit /b 0
 

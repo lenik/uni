@@ -1,0 +1,54 @@
+
+OPENSSL = openssl
+CERT_OPTS = -days 3650
+SELF = _self
+
+.SECONDARY:
+
+%.all: %.pem %.crt %.p7 %.p8 %.p12
+	@#touch $@
+	@echo Certificates are created for \`$*\'.
+
+%.rand:
+	$(OPENSSL) rand -out $@ 4096
+
+%.pem_raw: %.rand
+	$(OPENSSL) genrsa -rand $< -out $@ 4096
+
+%.pem: .%.pem_raw
+	$(OPENSSL) rsa -aes256 -passout "file:$*.passwd" -in $< -out $@
+
+%.p8: .%.pem_raw
+	$(OPENSSL) pkcs8 -topk8 -nocrypt -in $< -out $@
+
+%.pvk: .%.pem_raw
+	$(PVK) -topvk -nocrypt -strong -in $< -out $@
+
+.%.csr: .%.pem_raw %.config
+	$(OPENSSL) req -new -key $< -config $*.config -out $@
+
+# -CA ca.crt -CAkey ca.pem -CAcreateserial
+%.crt: .%.csr .%.pem_raw
+	$(OPENSSL) x509 -req $(CERT_OPTS) -in $< -signkey .$*.pem_raw -out $@
+
+%.p7: %.crt
+	$(OPENSSL) crl2pkcs7 -nocrl -certfile $< -outform DER -out $@
+	cp -f $@ .$*.spc
+
+%.p12_raw: %.crt .%.pem_raw
+	$(OPENSSL) pkcs12 -export -name "PKCS#12 $*" -in $< -inkey .$*.pem_raw -out $@ -passout "pass:."
+
+%.p12: %.crt .%.pem_raw %.passwd
+	$(OPENSSL) pkcs12 -export -name "PKCS#12 $*" -in $< -inkey .$*.pem_raw -out $@ -passout "file:$*.passwd"
+	cp -f $@ .$*.pfx
+
+default:
+	@echo makecert TARGET.all
+
+clean:
+	-rm -f .* 2>/dev/null
+	rm -f *.rand
+	rm -f *.pem *.pem_raw
+	rm -f *.csr *.crt
+	rm -f *.p7 *.spc *.p8 *.p12 *.p12_raw
+	rm -f *.all

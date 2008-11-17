@@ -19,6 +19,7 @@
         - w=        PERL        $CYGWIN_ROOT\bin\perl
         - w=        PERLW       $CYGWIN_ROOT\bin\perlw
         - w=        PAGER       'less -Ceifr'
+        - w=        LESS        -Ceifr
         - =         DISPLAY     127.0.0.1:0.0
         - w=        HOME        ${findexist ${cygpath -w $HOME} $LAPIOTA\home\$USERNAME}
         - w-%       PATH        $LAPIOTA
