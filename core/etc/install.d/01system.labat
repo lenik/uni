@@ -7,21 +7,37 @@
   :system:
     - :: Initialize system base settings
     - set-env:
-        - w=        LAPIOTA     $LAPIOTA
-        - =         LAPIOTA_VER 0.0.1
-        - w=        CYGWIN_ROOT $CYGWIN_ROOT
-        - =         CYGWIN      nodosfilewarning
-        - w=        MSYS_ROOT   ${findabc -w msys}
-        - w=        SHELL       $CYGWIN_ROOT\bin\bash
-        - w=        SHELLW      $CYGWIN_ROOT\bin\bashw
         - w=        CMD         $LAPIOTA\local\bin\cmd
         - w=        CMDW        $LAPIOTA\local\bin\cmdw
-        - w=        PERL        $CYGWIN_ROOT\bin\perl
-        - w=        PERLW       $CYGWIN_ROOT\bin\perlw
-        - w=        PAGER       'less -Ceifr'
-        - w=        LESS        -Ceifr
+        - =         CYGWIN      nodosfilewarning
+        - w=        CYGWIN_ROOT $CYGWIN_ROOT
         - =         DISPLAY     127.0.0.1:0.0
         - w=        HOME        ${findexist ${cygpath -w $HOME} $LAPIOTA\home\$USERNAME}
+        - w-%       INCLUDE     $LAPIOTA
+        - w+$       INCLUDE     ->
+            - $LAPIOTA\lib
+            - $LAPIOTA\usr\include
+            - $CYGWIN_ROOT\lib\perl5\5.8\cygwin\CORE
+            - $CYGWIN_ROOT\lib\perl5\5.8\Encode
+            - ${findabc -w msys}\include
+        - w=        JAVA_HOME   ${findabc -w jdk}
+        - w-%       JAVA_LIB    $LAPIOTA
+        - w+        JAVA_LIB    $LAPIOTA\usr\lib\java
+        - =         JAVA_OPTS   -ea
+        - w-%       JAVA_SRC    $LAPIOTA
+        - w+        JAVA_SRC    $LAPIOTA\usr\src\java
+        - w=        LAPIOTA     $LAPIOTA
+        - =         LAPIOTA_VER 0.0.1
+        - w=        LESS        -Ceifr
+        - w-%       LIB         $LAPIOTA
+        - w+$       LIB         ->
+            - $LAPIOTA\lib
+            - $LAPIOTA\lib\cpf
+            - $LAPIOTA\usr\lib
+            - ${findabc -w msys}\lib
+        - w=        MSYS_ROOT   ${findabc -w msys}
+        - w=        OPENSSL_CONF ${findabc -w openssl}/bin/openssl.cfg
+        - w=        PAGER       'less -Ceifr'
         - w-%       PATH        $LAPIOTA
         - w-%       PATH        %HOME%
         - w+.HDR    PATH        ->
@@ -55,25 +71,8 @@
         - w&        PATHEXT     .au3 .pc .pl .pld .pyc .py .php .sh .prj
       # - w&        PATHEXT     .rb .ss
       # - w&        PATHEXT     .6 .six .x
-        - w-%       INCLUDE     $LAPIOTA
-        - w+$       INCLUDE     ->
-            - $LAPIOTA\lib
-            - $LAPIOTA\usr\include
-            - $CYGWIN_ROOT\lib\perl5\5.8\cygwin\CORE
-            - $CYGWIN_ROOT\lib\perl5\5.8\Encode
-            - ${findabc -w msys}\include
-        - w-%       LIB         $LAPIOTA
-        - w+$       LIB         ->
-            - $LAPIOTA\lib
-            - $LAPIOTA\lib\cpf
-            - $LAPIOTA\usr\lib
-            - ${findabc -w msys}\lib
-        - w=        JAVA_HOME   ${findabc -w jdk}
-        - =         JAVA_OPTS   -ea
-        - w-%       JAVA_LIB    $LAPIOTA
-        - w+        JAVA_LIB    $LAPIOTA\usr\lib\java
-        - w-%       JAVA_SRC    $LAPIOTA
-        - w+        JAVA_SRC    $LAPIOTA\usr\src\java
+        - w=        PERL        $CYGWIN_ROOT\bin\perl
+        - w=        PERLW       $CYGWIN_ROOT\bin\perlw
         - u-        PERLLIB     /lapiota
         - u-        PERLLIB     blib/
       # - u-        PERLLIB     /usr/lib
@@ -98,6 +97,8 @@
           # - /usr/lib/python2.5/site-packages
         - u+$       PYTHONPATH  ->
             - /lapiota/usr/lib/python2.4
+        - w=        SHELL       $CYGWIN_ROOT\bin\bash
+        - w=        SHELLW      $CYGWIN_ROOT\bin\bashw
 
     - set-assoc:
         - groovy-program    .groovy .gj

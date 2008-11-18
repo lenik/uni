@@ -5,9 +5,14 @@ SELF = _self
 
 .SECONDARY:
 
-%.all: %.pem %.crt %.p7 %.p8 %.p12
+%.all: %.pem %.crt %.p7 %.p8 %.p12 %.log
 	@#touch $@
-	@echo Certificates are created for \`$*\'.
+	@echo Certificates have been created for \`$*\'.
+
+%.log: %.post %.p7 %.p8 %.p12
+	if [ -f "$<" ]; then \
+		. $< 2>&1 >$@; \
+	fi
 
 %.rand:
 	$(OPENSSL) rand -out $@ 4096
@@ -16,7 +21,7 @@ SELF = _self
 	$(OPENSSL) genrsa -rand $< -out $@ 4096
 
 %.pem: .%.pem_raw
-	$(OPENSSL) rsa -aes256 -passout "file:$*.passwd" -in $< -out $@
+	$(OPENSSL) rsa -aes256 -passout "file:.$*.passwd" -in $< -out $@
 
 %.p8: .%.pem_raw
 	$(OPENSSL) pkcs8 -topk8 -nocrypt -in $< -out $@
@@ -38,17 +43,18 @@ SELF = _self
 %.p12_raw: %.crt .%.pem_raw
 	$(OPENSSL) pkcs12 -export -name "PKCS#12 $*" -in $< -inkey .$*.pem_raw -out $@ -passout "pass:."
 
-%.p12: %.crt .%.pem_raw %.passwd
-	$(OPENSSL) pkcs12 -export -name "PKCS#12 $*" -in $< -inkey .$*.pem_raw -out $@ -passout "file:$*.passwd"
+%.p12: %.crt .%.pem_raw .%.passwd
+	$(OPENSSL) pkcs12 -export -name "PKCS#12 $*" -in $< -inkey .$*.pem_raw -out $@ -passout "file:.$*.passwd"
 	cp -f $@ .$*.pfx
 
 default:
 	@echo makecert TARGET.all
 
 clean:
-	-rm -f .* 2>/dev/null
-	rm -f *.rand
-	rm -f *.pem *.pem_raw
-	rm -f *.csr *.crt
-	rm -f *.p7 *.spc *.p8 *.p12 *.p12_raw
-	rm -f *.all
+	shopt -s dotglob; \
+	rm -f \
+		*.rand \
+		*.pem *.pem_raw \
+		*.csr *.crt \
+		*.p7 *.spc *.p8 *.p12 *.p12_raw \
+		*.log *.all

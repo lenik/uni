@@ -325,6 +325,7 @@ appskey & numpaddiv::
 #a::fastcall("start ""ANSI""")
 #b::fastcall("start ""Big""")
 #c::fastcall("start")
+#i::run iexplore
 #m::run metapad
 #n::run cmdw /c no
 #p::run cmdw /c start paintdotnet

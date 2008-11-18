@@ -4,13 +4,26 @@ function loadpaths() {
     local pathfile
     shopt -s nullglob
     for pathfile in $*; do
-        name=PATH_${pathfile##*/}
+        base="${pathfile##*/}"
+        if [ "$base" != "${base/ }" ]; then
+            echo "invalid base: \"$base\""
+            exit 1
+        fi
+        name="PATH_$base"
+        # name=join(':', read($pathfile))
         unset $name
         while read p; do
-            eval $name="${!name}:$p"
+            # skip empty or comment lines
+            if [ -z "$p" -o "${p:0:1}" = "#" ]; then
+                continue;
+            fi
+            eval $name="\"${!name}:$p\""
         done <$pathfile
+        # chop first
+        if [ -n "$name" ]; then
+            eval $name="\"${!name:1}\""
+        fi
     done
-    eval $name="${!name:1}"
 }
 
 loadpaths /lapiota/etc/paths/* $HOME/etc/paths/*
