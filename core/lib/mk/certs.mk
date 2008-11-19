@@ -19,6 +19,7 @@ SELF = _self
 
 %.pem_raw: %.rand
 	$(OPENSSL) genrsa -rand $< -out $@ 4096
+	pvk -in $@ -out $*.pvk -nocrypt -topvk
 
 %.pem: .%.pem_raw
 	$(OPENSSL) rsa -aes256 -passout "file:.$*.passwd" -in $< -out $@
@@ -31,6 +32,7 @@ SELF = _self
 
 .%.csr: .%.pem_raw %.config
 	$(OPENSSL) req -new -key $< -config $*.config -out $@
+	cp -f $@ .$*.p10
 
 # -CA ca.crt -CAkey ca.pem -CAcreateserial
 %.crt: .%.csr .%.pem_raw
@@ -38,6 +40,7 @@ SELF = _self
 
 %.p7: %.crt
 	$(OPENSSL) crl2pkcs7 -nocrl -certfile $< -outform DER -out $@
+	cp -f $@ .$*.p7b
 	cp -f $@ .$*.spc
 
 %.p12_raw: %.crt .%.pem_raw
