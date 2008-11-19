@@ -1,2 +1,5 @@
-! ${LAPIOTA//\\//}     /lapiota
-! ${LAPIOTA//\\//}/xt  /xt
+<?
+    LAPI=${LAPIOTA//\\//}
+?>
+<?= $LAPI ?>        /lapiota
+<?= $LAPI/xt ?>     /xt

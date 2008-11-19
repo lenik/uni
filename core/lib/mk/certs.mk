@@ -60,4 +60,5 @@ clean:
 		*.pem *.pem_raw \
 		*.csr *.crt \
 		*.p7 *.spc *.p8 *.p12 *.p12_raw \
+		*.pvk \
 		*.log *.all

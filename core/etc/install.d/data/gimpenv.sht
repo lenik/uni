@@ -1,4 +1,5 @@
+<? . /lapiota/lib/sh/findabc ?>
+
 # Example entry in files like these
 # FOOPATH=/path/to/foo/stuff
-
-! Path=`cygpath -w "\`findabc -p gimp\`/bin"`
+Path=<? cygpath -w "`findabc -p gimp`/bin" ?>

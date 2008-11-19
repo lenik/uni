@@ -3,11 +3,6 @@
     short_opts="hqv"
     long_opts="help,quiet,verbose,version"
     . /lapiota/lib/sh/cliboot
-    . /lapiota/lib/sh/findabc
-    . /lapiota/lib/sh/lam
-    . /lapiota/lib/sh/path
-    . /lapiota/lib/sh/rcs
-    . /lapiota/lib/sh/string
 
 function version() {
     parse_id "$RCSID"
@@ -45,15 +40,7 @@ function setopt() {
 
 function main() {
     while [ $# != 0 ]; do
-        cat "$1" | while read -r line; do
-            if [ "${line:0:2}" != "! " ]; then
-                line="${line//\"/\\\"}"
-                echo -E "$line"
-            else
-                line="${line:2}"
-                eval "echo \"$line\""
-            fi
-        done
+        shtextc "$1" | bash -
         shift
     done
 }

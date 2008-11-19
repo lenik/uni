@@ -1,39 +1,48 @@
+<?
+shopt -s nullglob
 
-!include "FileFunc.nsh"
-!include "TextFunc.nsh"
-!include "WordFun<?
-?>c.nsh"
+echo '!'define LAPIOTA $LAPIOTA
+LAPIOTA="${LAPIOTA//\\//}"
 
-!execute lapienv
-!include "lapienv.nsh"
+# findabc for all modules, and modules in the lams
+function dumplam() {
+    dumpabcd $1/abc.d ""
+}
 
-XPStyle on
+# dumpabcd dir prefix
+function dumpabcd() {
+    local preflen="${#2}"
+    local base basepref name ver
+    for d in $1/*; do
+        if [ ! -d "$d" ]; then continue; fi
+        base="${d##*/}"
+        # ! base.contains(' ')
+        if [ "${base/ }" != "$base" ]; then continue; fi
+        # base.startsWith($2)
+        basepref="${base:0:preflen}"
+        if [ "$basepref" != "$2" ]; then continue; fi
+        if [ "${base/-}" = "$base" ]; then
+            dumpabcd $d $base
+        else
+            name="${base%%-*}"
+            ver="${base#*-}"
+            dname="def_$name"
+            if [ -z "${!dname}" ]; then
+                eval "$dname=1"
+                echo '!'define ${name}_home ${d//\//\\}
+            fi
+        fi
+    done
+}
 
-Page license
-Page components
-Page directory
-
-UninstPage uninstConfirm
-UninstPage instfiles
-
-; Languages
-; First is default
-LoadLanguageFile "${NSISDIR}\Contrib\Language files\English.nlf"            ; 1033
-LoadLanguageFile "${NSISDIR}\Contrib\Language files\Dutch.nlf"              ; 1043
-LoadLanguageFile "${NSISDIR}\Contrib\Language files\French.nlf"             ; 1036
-LoadLanguageFile "${NSISDIR}\Contrib\Language files\German.nlf"             ; 1031
-LoadLanguageFile "${NSISDIR}\Contrib\Language files\Korean.nlf"             ; 1042
-LoadLanguageFile "${NSISDIR}\Contrib\Language files\Russian.nlf"            ; 1049
-LoadLanguageFile "${NSISDIR}\Contrib\Language files\Spanish.nlf"            ; 1034
-LoadLanguageFile "${NSISDIR}\Contrib\Language files\Swedish.nlf"            ; 1053
-LoadLanguageFile "${NSISDIR}\Contrib\Language files\SimpChinese.nlf"        ; 2052
-LoadLanguageFile "${NSISDIR}\Contrib\Language files\TradChinese.nlf"        ; 1028
-LoadLanguageFile "${NSISDIR}\Contrib\Language files\Slovak.nlf"             ; 1052
-
-LicenseLangString LicData ${LANG_ENGLISH}     "${LAPIOTA}\etc\db\licenses\GPLv2"
-LicenseLangString LicData ${LANG_SIMPCHINESE} "${LAPIOTA}\etc\db\licenses\GPLv2"
-LicenseData $(LicData)
-
-Caption "Lapiota Package Installer"
-
-ShowInstDetails show
+dumplam $LAPIOTA
+for lams in $LAPIOTA/etc/lams ~/etc/lams; do
+    if [ ! -f $lams ]; then continue; fi
+    while read -r mountp _; do
+        mountp="${mountp//\\//}"
+        if [ -d $mountp/abc.d ]; then
+            dumplam $mountp
+        fi
+    done <$lams
+done
+?>
