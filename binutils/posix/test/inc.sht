@@ -1,0 +1,5 @@
+#!env shtext
+Today is <? date ?>.
+<? shtext ./hello.sht
+?>
+Welcome!

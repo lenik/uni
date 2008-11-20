@@ -1,0 +1,5 @@
+<^ ! ~~Welcome~~ ! ^><?
+    name=lenik
+    full="xima lenik"
+?>
+My name is <?= \'$name\' ?>, and the full name is <?= \"$full\" ?>.

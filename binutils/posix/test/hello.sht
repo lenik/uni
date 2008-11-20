@@ -1,0 +1,3 @@
+#!shtext
+
+hello, <? echo -n world ?>!
