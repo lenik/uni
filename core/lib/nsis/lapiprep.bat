@@ -1,4 +1,5 @@
 @echo off
 
-cd "%~dp0"
-call shtext lapienv.sht >%TEMP%\lapienv.nsh
+echo ^^!define __DIR__ "%CD%">%TEMP%\lapienv.nsh
+
+call shtext "%~dp0lapienv.sht" >>%TEMP%\lapienv.nsh

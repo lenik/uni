@@ -1,5 +1,7 @@
 #!/bin/bash
 
+shopt -s nullglob
+
 PERLLIB=/usr/lib/perl5/5.8
 PERLLIB=$PERLLIB:/usr/lib/perl5/site_perl/5.8
 PERLLIB=$PERLLIB:/usr/lib/perl5/vendor_perl/5.8

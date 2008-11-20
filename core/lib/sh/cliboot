@@ -1,5 +1,7 @@
 BASENAME=${0##*/}
-LONGOPTS=0
+if [ -z $LONGOPTS ]; then
+    LONGOPTS=0
+fi
 
 function cleanup() {
     true
@@ -70,9 +72,10 @@ function boot() {
         # faster built-in
         while getopts $short_opts opt; do
             setopt -$opt $OPTARG
-            for ((mid = 2; mid < $OPTIND; mid++)); do
-                do_arg "${!mid}"
-            done
+            ## all arguments between -opt1 <mid...> -opt2 are ignored
+            # for ((mid = 2; mid < $OPTIND; mid++)); do
+            #     do_arg "${!mid}"
+            # done
             shift $((OPTIND - 1))
         done
     fi

@@ -1,7 +1,9 @@
 #!/bin/bash
     RCSID='$Id$'
-    short_opts="hqv"
-    long_opts="help,quiet,verbose,version"
+    short_opts="a:hqv"
+    #LONGOPTS=1
+    long_opts="args:,help,quiet,verbose,version"
+    sht_args=
     . /lapiota/lib/sh/cliboot
 
 function version() {
@@ -14,9 +16,10 @@ function help() {
     version
     echo
     echo "Syntax: "
-    echo "    $0 [OPTION] [--] FILE"
+    echo "    $0 [OPTION] [--] FILE.sht ..."
     echo
     echo "Options: "
+    echo "    -a, --args=ARGS         arguments passed to sh-script"
     echo "    -q, --quiet             repeat to get less info"
     echo "    -v, --verbose           repeat to get more info"
     echo "    -h, --help              show this help page"
@@ -25,6 +28,9 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -a|--args)
+            shift
+            sht_args="$@";;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -39,10 +45,32 @@ function setopt() {
 }
 
 function main() {
+    # if [ ! -r /dev/stdin -a -n "$sht_args" ]; then
+    #     echo shtext arguments requires /dev/stdin.
+    #     return 1
+    # fi
+    local file dir base gensh
+    gensh=$TEMP/shtext_$$_$RANDOM
     while [ $# != 0 ]; do
-        shtextc "$1" | bash -
+        # doing fast for:
+        # shtextc "`cygpath -w \"$1\"`" >$gensh
+        file="$1"
+        if [ "${file/\/}" = "$file" ]; then
+            dir=.
+            base="$file"
+        else
+            dir="${file%/*}"
+            base="${file##*/}"
+        fi
+        # echo [$dir]-[$base]
+        pushd "$dir" >/dev/null
+        shtextc "$base" >$gensh
+        popd >/dev/null
+
+        bash $gensh $sht_args
         shift
     done
+    rm -f $gensh
 }
 
 boot "$@"

@@ -6,30 +6,36 @@ LAPIOTA="${LAPIOTA//\\//}"
 
 # findabc for all modules, and modules in the lams
 function dumplam() {
-    dumpabcd $1/abc.d ""
+    dumpabcd $1 abc.d ""
 }
 
-# dumpabcd dir prefix
+# dumpabcd root dir prefix
 function dumpabcd() {
-    local preflen="${#2}"
-    local base basepref name ver
-    for d in $1/*; do
+    local root="$1"
+    local dir="$2"
+    local prefix="$3"
+    local rootlen=${#root}
+    local preflen=${#prefix}
+    local d d_rel base name ver
+    for d in $root/$dir/*; do
         if [ ! -d "$d" ]; then continue; fi
         base="${d##*/}"
         # ! base.contains(' ')
         if [ "${base/ }" != "$base" ]; then continue; fi
-        # base.startsWith($2)
-        basepref="${base:0:preflen}"
-        if [ "$basepref" != "$2" ]; then continue; fi
+        # base.startsWith($prefix)
+        if [ "${base:0:preflen}" != "$prefix" ]; then continue; fi
+        d_rel="${d:rootlen+1}"
         if [ "${base/-}" = "$base" ]; then
-            dumpabcd $d $base
+            dumpabcd $root $d_rel $base
         else
             name="${base%%-*}"
+            name="${name//./_}"
             ver="${base#*-}"
             dname="def_$name"
             if [ -z "${!dname}" ]; then
                 eval "$dname=1"
                 echo '!'define ${name}_home ${d//\//\\}
+                echo '!'define ${name}_rel ${d_rel//\//\\}
             fi
         fi
     done
