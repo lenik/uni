@@ -106,7 +106,7 @@ public class GenerateClassWrappers extends BasicCLI {
 
     @Option(alias = "j", vnam = "JARFILE", doc = "add all public classes from the jar")
     public void addJar(File jarfile) throws MalformedURLException, IOException {
-        Classpath.addURL(jarfile.toURI().toURL());
+        Classpath.addURL(Files.getURL(jarfile));
         JarFile jar = new JarFile(jarfile);
         Enumeration<JarEntry> entries = jar.entries();
         int count = 0;
@@ -131,7 +131,7 @@ public class GenerateClassWrappers extends BasicCLI {
     @Option(alias = "d", vnam = "DIR", doc = "add all public classes from the directory")
     public void addDirectory(File dir) throws MalformedURLException,
             IOException {
-        Classpath.addURL(dir.toURI().toURL());
+        Classpath.addURL(Files.getURL(dir));
         int count = addDirectory(dir, "");
         L.i.P("added ", count, " classes from ", dir);
     }
@@ -165,7 +165,7 @@ public class GenerateClassWrappers extends BasicCLI {
         for (String line : Files.readByLine(list)) {
             if (line.startsWith(PI_CLASSPATH)) {
                 String path = line.substring(PI_CLASSPATH.length()).trim();
-                Classpath.addURL(Files.canoniOf(path).toURI().toURL());
+                Classpath.addURL(Files.getURL(path));
                 continue;
             }
             String fqcn = line.trim();

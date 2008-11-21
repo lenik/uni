@@ -6,7 +6,7 @@ import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.lapiota.wrappers.BasicGUI;
-import net.bodz.swt.gui.util.Timer;
+import net.bodz.swt.controls.Timer;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.internal.win32.OS;

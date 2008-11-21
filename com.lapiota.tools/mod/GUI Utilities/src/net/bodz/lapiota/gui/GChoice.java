@@ -10,10 +10,10 @@ import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.CharOut;
 import net.bodz.lapiota.wrappers.BasicGUI;
+import net.bodz.swt.controls.util.Shells;
 import net.bodz.swt.gui.SWTInteraction;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.internal.win32.OS;
 import org.eclipse.swt.widgets.Shell;
 
 @Doc("GUI Choice Utility")
@@ -43,10 +43,8 @@ public class GChoice extends BasicGUI {
         SWTInteraction act = new SWTInteraction(SWT.SYSTEM_MODAL) {
             @Override
             protected void addEffects(Shell shell) {
-                // Win32 Only
                 if (topMost)
-                    OS.SetWindowPos(shell.handle, OS.HWND_TOPMOST, 0, 0, 0, 0,
-                            OS.SWP_NOMOVE | OS.SWP_NOSIZE);
+                    Shells.setTopmost(shell);
             }
         };
         if (envKey != null) {

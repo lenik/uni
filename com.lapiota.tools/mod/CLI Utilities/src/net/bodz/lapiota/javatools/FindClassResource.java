@@ -55,7 +55,7 @@ public class FindClassResource extends BasicCLI {
             public void process(File file) throws IOException {
                 if (file.isDirectory())
                     return;
-                URL url = file.toURI().toURL();
+                URL url = Files.getURL(file);
                 L.x.P("add boot-classpath: ", url);
                 Classpath.addURL(url);
             }
@@ -71,7 +71,7 @@ public class FindClassResource extends BasicCLI {
             public void process(File file) throws IOException {
                 if (file.isDirectory())
                     return;
-                URL url = file.toURI().toURL();
+                URL url = Files.getURL(file);
                 L.x.P("queue classpath: ", url);
                 classpaths.add(url);
             }
@@ -167,7 +167,7 @@ public class FindClassResource extends BasicCLI {
                 if (tryAdd != null) {
                     String lib = libpath(tryAdd);
                     L.i.P("add required ", lib);
-                    URL liburl = Files.canoniOf(lib).toURI().toURL();
+                    URL liburl = Files.getURL(new File(lib));
                     if (tryAdds.contains(liburl)) {
                         L.e.P("loop fail");
                         break;

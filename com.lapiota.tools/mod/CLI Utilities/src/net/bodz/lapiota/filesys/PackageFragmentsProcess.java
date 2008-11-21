@@ -159,7 +159,7 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
         public void doDirectory(File dir) throws Throwable {
             String path = getPath();
             File file = Files.canoniOf(dir, path);
-            URL url = file.toURI().toURL();
+            URL url = Files.getURL(file);
             if (file.isDirectory()) {
                 handle(url, file.list());
                 return;

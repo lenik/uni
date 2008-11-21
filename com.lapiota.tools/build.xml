@@ -11,16 +11,8 @@
 	<target name="default" depends="dist, :bat" />
 
 	<target name="dist" depends=":bin.jar, :src.jar">
-		<copy todir="${distdir}">
-			<fileset dir="${basedir}/build">
-				<exclude name="*-src.jar" />
-			</fileset>
-		</copy>
-		<copy todir="${distsrc}">
-			<fileset dir="${basedir}/build">
-				<include name="*-src.jar" />
-			</fileset>
-		</copy>
+		<copy todir="${distdir}" file="${basedir}/build/net.bodz.lapiota.jar" />
+		<copy todir="${distsrc}" file="${basedir}/build/net.bodz.lapiota-src.jar" />
 	</target>
 
 	<path id="bins">
@@ -50,6 +42,15 @@
 			<fileset dir="mod/Java Tools/bin" />
 			<fileset dir="mod/SNM C Framework/bin" />
 		</jar>
+		<!--
+		<jar destfile="build/test.jar" update="true">
+			<fileset dir="mod/CLI Utilities/test.bin" />
+			<fileset dir="mod/Commons/test.bin" />
+			<fileset dir="mod/GUI Utilities/test.bin" />
+			<fileset dir="mod/Java Tools/test.bin" />
+			<fileset dir="mod/SNM C Framework/test.bin" />
+		</jar>
+		-->
 	</target>
 
 	<target name=":src.jar">
@@ -74,27 +75,27 @@
 			</classpath>
 		</taskdef>
 
-		<path id="userlibs">
-			<fileset dir="${JAVA_LIB}">
-				<include name="${lib.bodz_swt}" />
-			</fileset>
-		</path>
-		<property name="batdir" value="${env.LAPIOTA}/bin/w" />
-		<property name="testbats" value="${basedir}/test.bin" />
-
-		<mkbat outdir="${batdir}">
+		<mkbat outdir="${env.LAPIOTA}/bin/w">
 			<userlibs refid="bins" />
-			<userlibs refid="userlibs" />
+			<userlibs>
+				<fileset dir="${JAVA_LIB}">
+					<include name="${lib.bodz_swt}" />
+				</fileset>
+			</userlibs>
 			<srcdir path="mod/CLI Utilities/bin" />
 			<srcdir path="mod/GUI Utilities/bin" />
 			<srcdir path="mod/Java Tools/bin" />
 			<srcdir path="mod/SNM C Framework/bin" />
 		</mkbat>
 
-		<mkbat outdir="${testbats}">
+		<mkbat outdir="${basedir}/build/bin">
 			<userlibs refid="bins" />
 			<userlibs refid="testbins" />
-			<userlibs refid="userlibs" />
+			<userlibs>
+				<fileset dir="${JAVA_LIB}">
+					<include name="${lib.bodz_swt}" />
+				</fileset>
+			</userlibs>
 			<srcdir path="mod/CLI Utilities/test.bin" />
 			<srcdir path="mod/GUI Utilities/test.bin" />
 			<srcdir path="mod/Java Tools/test.bin" />

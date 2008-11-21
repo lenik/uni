@@ -29,11 +29,11 @@ import net.bodz.lapiota.wrappers.BasicCLI;
 @Version( { 0, 1 })
 public class PKCS12Dump extends BasicCLI {
 
-    @Option(alias = "p", doc = "Provider Class")
+    @Option(alias = "p", vnam = "PROV-CLASS", doc = "Provider Class")
     @ParseBy(GetInstanceParser.class)
     Provider               provider = null;
 
-    @Option(alias = "P", doc = "PKCS#12 protection passphrase")
+    @Option(alias = "P", vnam = "PASSWORD", doc = "PKCS#12 protection passphrase")
     String                 password;
 
     ConsoleCallbackHandler ch;
@@ -67,8 +67,8 @@ public class PKCS12Dump extends BasicCLI {
         for (String alias : Iterators.iterate(store.aliases())) {
             Certificate cert = store.getCertificate(alias);
             boolean keyEntry = store.isKeyEntry(alias);
-            @SuppressWarnings("unused") Certificate[] certChain = store
-                    .getCertificateChain(alias);
+            @SuppressWarnings("unused")
+            Certificate[] certChain = store.getCertificateChain(alias);
             Date creationDate = store.getCreationDate(alias);
             if (cert instanceof X509Certificate) {
                 X509Certificate x509 = (X509Certificate) cert;
