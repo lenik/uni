@@ -16,7 +16,7 @@ import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.Files;
-import net.bodz.bas.lang.err.IllegalUsageError;
+import net.bodz.bas.lang.err.IllegalUsageException;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.lang.err.UnexpectedException;
 import net.bodz.bas.types._TypeParser;
@@ -76,7 +76,7 @@ public class FindHash extends BasicCLI {
                     "The algorithm isn't clonable: " + digest + ", class of "
                             + digest.getClass().getName());
         if (hashes == null || hashes.length == 0)
-            throw new IllegalUsageError("no hash specified");
+            throw new IllegalUsageException("no hash specified");
     }
 
     class FindContext {

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -179,7 +180,8 @@ public class FileProcess extends BatchProcessCLI {
                 script = Files.readAll(System.in);
             } else {
                 String scriptFile = args[0];
-                script = Files.readAll(scriptFile, inputEncoding);
+                Charset enc = parameters().getInputEncoding();
+                script = Files.readAll(scriptFile, enc);
             }
         }
 
@@ -197,7 +199,9 @@ public class FileProcess extends BatchProcessCLI {
             binding.bindScriptFields(FileProcess.this, true);
             binding.setVariable("file", file);
             binding.setVariable("in", in);
-            PrintStream pout = new PrintStream(out, true, outputEncoding.name());
+
+            String enc = parameters().getOutputEncoding().name();
+            PrintStream pout = new PrintStream(out, true, enc);
             binding.setVariable("out", pout);
 
             GroovyShell shell = new GroovyShell(binding);

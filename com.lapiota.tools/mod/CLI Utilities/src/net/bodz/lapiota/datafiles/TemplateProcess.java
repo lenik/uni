@@ -3,6 +3,7 @@ package net.bodz.lapiota.datafiles;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,6 +36,9 @@ import org.codehaus.groovy.control.CompilationFailedException;
 @Version( { 0, 1 })
 public class TemplateProcess extends BatchProcessCLI {
 
+    Charset       inputEncoding;
+    Charset       outputEncoding;
+
     @Option(alias = "S", vnam = "MODEL=PARAM...", doc = "source parsing model")
     SourceModel   sourceModel;
 
@@ -51,6 +55,12 @@ public class TemplateProcess extends BatchProcessCLI {
         plugins.registerCategory("template model", TemplateModel.class);
         plugins.register("ve", VariableExpandTemplate.class, this);
         plugins.register("gsp", GroovyTemplate.class, this);
+    }
+
+    @Override
+    protected void _boot() throws Throwable {
+        inputEncoding = parameters().getInputEncoding();
+        outputEncoding = parameters().getOutputEncoding();
     }
 
     @Override

@@ -41,7 +41,7 @@ public class FileReplace extends BatchProcessCLI {
             throw new CLIException(
                     "one and only one of --regexp and --text option must be specified");
 
-        if (ignoreCase) {
+        if (parameters().isIgnoreCase()) {
             if (regexp != null)
                 regexp = Pattern.compile(regexp.pattern(),
                         Pattern.CASE_INSENSITIVE);

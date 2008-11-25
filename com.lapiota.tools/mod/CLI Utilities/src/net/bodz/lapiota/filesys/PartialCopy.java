@@ -20,7 +20,7 @@ import net.bodz.bas.cli.ext._CLIPlugin;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.IntMath;
-import net.bodz.bas.lang.err.IllegalUsageError;
+import net.bodz.bas.lang.err.IllegalUsageException;
 import net.bodz.bas.lang.err.NotImplementedException;
 import net.bodz.bas.mem.AccessException;
 import net.bodz.bas.mem.ArrayMemory;
@@ -150,7 +150,7 @@ public class PartialCopy extends BasicCLI {
     protected void doCopy() throws AccessException, IOException {
         File tmp = null;
         if (src == null)
-            throw new IllegalUsageError("src isn't specified");
+            throw new IllegalUsageException("src isn't specified");
         if (dst == null) {
             tmp = File.createTempFile("partcp", ".bin", Files.getTmpDir());
             setDstFile(tmp);

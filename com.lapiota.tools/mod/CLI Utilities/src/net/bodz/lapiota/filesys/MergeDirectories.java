@@ -114,7 +114,7 @@ public class MergeDirectories extends BatchProcessCLI {
 
     @Override
     protected ProtectedShell _getShell() {
-        return new ClearPars_PSH(!dryRun, L.m);
+        return new ClearPars_PSH(!parameters().isDryRun(), L.m);
     }
 
     @Override
@@ -228,7 +228,7 @@ public class MergeDirectories extends BatchProcessCLI {
                     if (dst.equals(file))
                         return ProcessResult.pass("same");
                     else
-                        return ProcessResult.rm("same-kill"); //psh.delete(file)
+                        return ProcessResult.rm("same-kill"); // psh.delete(file)
                     // ;
                 } else
                     return ProcessResult.mv(dst); // psh.move(file, dst);

@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -97,6 +98,9 @@ import org.eclipse.text.edits.TextEdit;
 @Version( { 0, 1 })
 public class J4conv extends JdtBatchCLI {
 
+    Charset inputEncoding;
+    Charset outputEncoding;
+
     @Option(alias = "b", vnam = "FILE|DIR")
     protected void bootClasspath(File file) throws IOException {
         URL url = file.toURI().toURL();
@@ -112,12 +116,14 @@ public class J4conv extends JdtBatchCLI {
         Classpath.addURL(url);
     }
 
-    // aliases
-    static class FMT extends DefaultCodeFormatterConstants {
+    @Override
+    protected void _boot() throws Throwable {
+        inputEncoding = parameters().getInputEncoding();
+        outputEncoding = parameters().getOutputEncoding();
     }
 
-    public static void main(String[] args) throws Throwable {
-        new J4conv().run(args);
+    // aliases
+    static class FMT extends DefaultCodeFormatterConstants {
     }
 
     @SuppressWarnings("unchecked")
@@ -181,6 +187,10 @@ public class J4conv extends JdtBatchCLI {
 
         Files.write(out, dst, outputEncoding);
         return ProcessResult.compareAndSave();
+    }
+
+    public static void main(String[] args) throws Throwable {
+        new J4conv().run(args);
     }
 
     class ASTFrameVisitor extends ASTVisitor2 {

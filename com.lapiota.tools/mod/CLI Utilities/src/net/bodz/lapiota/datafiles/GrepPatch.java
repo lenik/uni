@@ -3,6 +3,7 @@ package net.bodz.lapiota.datafiles;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import net.bodz.bas.a.Doc;
@@ -11,7 +12,7 @@ import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.Files;
-import net.bodz.bas.lang.err.IllegalUsageError;
+import net.bodz.bas.lang.err.IllegalUsageException;
 import net.bodz.bas.types.util.Objects;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
@@ -20,13 +21,18 @@ import net.bodz.lapiota.wrappers.BatchProcessCLI;
 @Version( { 0, 0 })
 public class GrepPatch extends BatchProcessCLI {
 
+    Charset inputEncoding;
+    Charset outputEncoding;
+
     @Option(doc = "enable #comment in grep file")
     boolean comment;
 
     @Override
     protected void _boot() throws Throwable {
+        inputEncoding = parameters().getInputEncoding();
+        outputEncoding = parameters().getOutputEncoding();
         if (!inputEncoding.equals(outputEncoding))
-            throw new IllegalUsageError(
+            throw new IllegalUsageException(
                     "input and output encoding should be same");
     }
 

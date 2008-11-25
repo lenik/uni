@@ -116,7 +116,7 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
 
         @Override
         public void doDirectory(File dir) throws Throwable {
-            new FsWalk(dir, recursive) {
+            new FsWalk(dir, parameters().getRecursive()) {
                 @Override
                 public void process(File file) throws IOException {
                     String path = file.getPath();
@@ -166,7 +166,7 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
             }
             String content = null;
             if (file.canRead())
-                content = Files.readAll(file, inputEncoding);
+                content = Files.readAll(file, parameters().getInputEncoding());
             else if (!handleNull())
                 return;
             handle(url, content);
@@ -197,7 +197,7 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
                 return;
             }
             InputStream in = jar.getInputStream(entry);
-            String content = Files.readAll(in, inputEncoding);
+            String content = Files.readAll(in, parameters().getInputEncoding());
             in.close();
             handle(url, content);
         }
@@ -252,7 +252,7 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
                         "Grep(REGEXP, [FILE=plugin.xml])");
 
             int flags = 0;
-            if (ignoreCase)
+            if (parameters().isIgnoreCase())
                 flags |= Pattern.CASE_INSENSITIVE;
             pattern = Pattern.compile(args[0], flags);
 

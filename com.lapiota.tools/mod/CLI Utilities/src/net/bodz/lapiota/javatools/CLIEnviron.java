@@ -5,15 +5,19 @@ import static net.bodz.bas.text.encodings.Encodings.HEX;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.security.Principal;
 import java.security.Provider;
 import java.security.Security;
 import java.security.KeyStore.Builder;
 import java.security.KeyStore.CallbackHandlerProtection;
 import java.security.Provider.Service;
+import java.security.cert.CertStore;
+import java.security.cert.CertStoreParameters;
 import java.security.cert.Certificate;
+import java.security.cert.CollectionCertStoreParameters;
+import java.security.cert.LDAPCertStoreParameters;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -25,19 +29,21 @@ import java.util.Set;
 
 import javax.crypto.Cipher;
 import javax.crypto.ExemptionMechanism;
+import javax.security.auth.callback.CallbackHandler;
 
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
-import net.bodz.bas.sec.pki.util.ConsoleCallbackHandler;
 import net.bodz.bas.types.TextMap;
 import net.bodz.bas.types.TextMap.TreeTextMap;
 import net.bodz.bas.types.util.Comparators;
 import net.bodz.bas.types.util.Iterators;
 import net.bodz.bas.types.util.Strings;
 import net.bodz.lapiota.wrappers.BasicCLI;
+
+import com.sun.security.auth.callback.TextCallbackHandler;
 
 @Doc("Dump Java CLI Environment")
 @ProgramName("jenv")
@@ -64,16 +70,16 @@ public class CLIEnviron extends BasicCLI {
     }
 
     @Option(alias = "s", doc = "Dump security providers")
-    boolean                dumpProviders;
+    boolean         dumpProviders;
 
     @Option(alias = "P", doc = "password for all keystores (default empty)")
-    String                 password = "";
+    String          password = "";
 
-    ConsoleCallbackHandler ch;
+    CallbackHandler ch;
 
     @Override
     protected void _boot() throws Throwable {
-        ch = new ConsoleCallbackHandler(L);
+        ch = new TextCallbackHandler();
     }
 
     void dumpRest() {
@@ -119,9 +125,39 @@ public class CLIEnviron extends BasicCLI {
             servsInType.add(service);
         }
 
-        Set<Service> stores = types.get("KeyStore");
-        if (stores != null)
-            for (Service storeServ : stores) {
+        Set<Service> certStores = types.get("CertStore");
+        if (certStores != null)
+            for (Service storeServ : certStores) {
+                assert provider == storeServ.getProvider();
+                String storeType = storeServ.getAlgorithm();
+                L.m.p("  CertStore ", storeType, ": ");
+                try {
+                    CertStore store;
+                    CertStoreParameters csparams = null;
+                    // if (password != null)
+                    if ("Collection".equals(storeType)) {
+                        csparams = new CollectionCertStoreParameters();
+                    } else if ("com.sun.security.IndexedCollection"
+                            .equals(storeType)) {
+                        csparams = new CollectionCertStoreParameters();
+                    } else if ("LDAP".equals(storeType)) {
+                        csparams = new LDAPCertStoreParameters();
+                    }
+                    store = CertStore
+                            .getInstance(storeType, csparams, provider);
+                    Collection<? extends Certificate> certs = store
+                            .getCertificates(null);
+                    L.m.P(certs.size(), " entries");
+                    for (Certificate cert : certs) {
+                        dumpCert("    ", cert, null);
+                    }
+                } catch (Exception e) {
+                    L.e.P(e);
+                }
+            }
+        Set<Service> keyStores = types.get("KeyStore");
+        if (keyStores != null)
+            for (Service storeServ : keyStores) {
                 assert provider == storeServ.getProvider();
                 String storeType = storeServ.getAlgorithm();
                 // String storeClass = storeServ.getClassName();
@@ -140,16 +176,11 @@ public class CLIEnviron extends BasicCLI {
                     L.m.P(store.size(), " entries");
                     for (String alias : Iterators.iterate(store.aliases())) {
                         Certificate cert = store.getCertificate(alias);
-                        @SuppressWarnings("unused") Certificate[] certChain = store
-                                .getCertificateChain(alias);
+                        // @SuppressWarnings("unused")
+                        // Certificate[] certChain = store
+                        // .getCertificateChain(alias);
                         Date creationDate = store.getCreationDate(alias);
-                        if (cert instanceof X509Certificate) {
-                            X509Certificate x509 = (X509Certificate) cert;
-                            Principal subjectDN = x509.getSubjectDN();
-                            L.i.P("    Cert ", subjectDN, //
-                                    " (", creationDate, ")");
-                        }
-                        L.d.P("        Data: ", cert);
+                        dumpCert("    ", cert, creationDate);
                     }
                 } catch (Exception e) {
                     L.e.P(e);
@@ -162,7 +193,7 @@ public class CLIEnviron extends BasicCLI {
                 assert provider == cipherServ.getProvider();
                 String cipherAlg = cipherServ.getAlgorithm();
                 // String cipherClass = cipherServ.getClassName();
-                L.i.p("  Cipher ", cipherAlg, ": ");
+                L.i.P("  Cipher ", cipherAlg, ": ");
                 Cipher cipher = null;
                 try {
                     cipher = Cipher.getInstance(cipherAlg, provider);
@@ -184,6 +215,19 @@ public class CLIEnviron extends BasicCLI {
             }
 
         L.m.P();
+    }
+
+    void dumpCert(String prefix, Certificate cert, Date creationDate) {
+        L.i.p(prefix, "Cert ", cert.getType(), ": ");
+        X509Certificate x509 = null;
+        if (cert instanceof X509Certificate)
+            x509 = (X509Certificate) cert;
+        if (x509 != null)
+            L.i.p(x509.getSubjectDN());
+        if (creationDate != null)
+            L.i.p(" <", creationDate, ">");
+        L.i.P();
+        L.d.P(prefix, "    Data: ", cert);
     }
 
     public void dump(String title, Properties properties, int indent) {

@@ -23,8 +23,11 @@ import net.bodz.lapiota.wrappers.BatchProcessCLI;
 @Version( { 0, 1 })
 public class ConvertEncoding extends BatchProcessCLI {
 
+    Charset inputEncoding;
+    Charset outputEncoding;
+
     @Option(alias = "b", vnam = "value", doc = "BOM detect")
-    protected boolean bomDetect = true;
+    boolean bomDetect = true;
 
     @Option(alias = "l", doc = "list available charsets")
     protected void listCharsets() {
@@ -60,6 +63,12 @@ public class ConvertEncoding extends BatchProcessCLI {
             }
         }
         throw new ControlBreak();
+    }
+
+    @Override
+    protected void _boot() throws Throwable {
+        inputEncoding = parameters().getInputEncoding();
+        outputEncoding = parameters().getOutputEncoding();
     }
 
     // private static Charset CHARSET_L1 = Charset.forName("ISO-8859-1");
