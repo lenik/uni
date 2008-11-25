@@ -56,6 +56,7 @@
     set     _rest=
     set _startdir=%~dp0
     set  _program=%~dpnx0
+    set    _start=
 
     set      _nam=net.bodz.lapiota.crypt.PGDBreak
     set     _namf=%_nam:.=\%
@@ -91,7 +92,6 @@
     call loadlib %_libs%
     exit /b
 
-:: Fix_BatBB ::
 :load
     set _libname=%~1
     set _libfile=!lib_%_libname%!

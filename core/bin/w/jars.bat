@@ -56,6 +56,7 @@
     set     _rest=
     set _startdir=%~dp0
     set  _program=%~dpnx0
+    set    _start=
 
     set      _nam=net.bodz.lapiota.filesys.PackageFragmentsProcess
     set     _namf=%_nam:.=\%

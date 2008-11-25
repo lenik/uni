@@ -23,10 +23,12 @@
         set _gopt=%_opt%
         for %%i in (*.jar) do (
             set _base=%%i
+            set _name=%%~ni
             if /i not "!_base:~0,4!"=="src-" (
+            if /i not "!_name:~-4!"=="-src" (
                 echo [batch] dejar !_base!
                 call dejar --jad "!_gopt!" "!_base!"
-            )
+            ))
         )
         set _gopt=
         echo [batch] end
@@ -34,6 +36,8 @@
     )
 
     set _base=%~nx1
+    set _name=%~n1
+    set _ext=%~x1
 
     pushd "%~dp1" >nul
 
@@ -68,9 +72,13 @@
     set _cap=[dejar] decompiling
     call jads _bin_ _src_ | grep Generating | pc -t=%_jar_classes% %_cap%
 
-    set _cap=[dejar] archiving src-%_base% ...
+    set _cap=[dejar] fix line numbers
+    call linefix -rk -- _src_  2>&1 | grep save | pc -t=%_jar_classes% %_cap%
+
+    set _basesrc=%_name%-src%_ext%
+    set _cap=[dejar] archiving %_basesrc% ...
     cd _src_
-    jar -cvf "../src-%_base%" . | grep .java | pc -t=%_jar_classes% %_cap%
+    jar -cvf "../%_basesrc%" . | grep .java | pc -t=%_jar_classes% %_cap%
 
     echo [dejar] cleaning...
     cd ..

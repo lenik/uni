@@ -44,10 +44,10 @@ SELF = _self
 	cp -f $@ .$*.spc
 
 %.p12_raw: %.crt .%.pem_raw
-	$(OPENSSL) pkcs12 -export -name "PKCS#12 $*" -in $< -inkey .$*.pem_raw -out $@ -passout "pass:."
+	$(OPENSSL) pkcs12 -export -name "$*" -in $< -inkey .$*.pem_raw -out $@ -passout "pass:."
 
 %.p12: %.crt .%.pem_raw .%.passwd
-	$(OPENSSL) pkcs12 -export -name "PKCS#12 $*" -in $< -inkey .$*.pem_raw -out $@ -passout "file:.$*.passwd"
+	$(OPENSSL) pkcs12 -export -name "$*" -in $< -inkey .$*.pem_raw -out $@ -passout "file:.$*.passwd"
 	cp -f $@ .$*.pfx
 
 default:

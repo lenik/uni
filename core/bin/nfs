@@ -865,6 +865,12 @@ sub cmdexec {
         } else {
             system "cmd /c start $cmdline";
         }
+        my $retval  = $? >> 8;
+        my $sig     = $? & 0x7f;
+        my $dump    = $? & 0x80;
+        print "cmdexec fail($retval): $!\n" if $retval;
+        print "child died with signal %sig\n" if $sig;
+        print "coredump\n" if $dump;
     }
 }
 

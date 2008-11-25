@@ -56,8 +56,9 @@
     set     _rest=
     set _startdir=%~dp0
     set  _program=%~dpnx0
+    set    _start=
 
-    set      _nam=net.bodz.lapiota.crypt.PKCS12Dump
+    set      _nam=net.bodz.lapiota.crypt.Dcerts
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=%JAVA_OPTS% net.bodz.bas.loader.DefaultBooter --
@@ -82,7 +83,7 @@
 
     set _morecp=
     call :load "bodz_bas" "net.bodz.bas.jar"
-    call :load "bodz_lapiota" "net.bodz.lapiota.jar"
+    call :load "deploy.jar" "deploy.jar"
 
     goto initcp2
 
@@ -161,7 +162,7 @@
     goto start
 
 :version
-    set _id=$Id$
+    set _id=$Id: Mkbat.batTempl 56 2008-11-15 15:25:37Z lenik $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j

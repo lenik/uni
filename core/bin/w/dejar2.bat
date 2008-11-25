@@ -36,7 +36,10 @@
     goto %_start%
 
 :startc
-    if "%AUTOIT3%"=="" set AUTOIT3=autoit3
+    if "%AUTOIT3%"=="" (
+        call findabc autoit-3
+        set AUTOIT3=!_home!\autoit3
+    )
     if %_verbose% geq 1 (
         echo "%AUTOIT3%" %_autoit3opts% "%_nam%" %_rest%
     )
