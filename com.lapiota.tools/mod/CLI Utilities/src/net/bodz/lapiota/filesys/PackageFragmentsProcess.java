@@ -31,7 +31,7 @@ import net.bodz.bas.cli.ext._CLIPlugin;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.io.FsWalk;
 import net.bodz.bas.types.TypeParsers.WildcardsParser;
-import net.bodz.bas.types.util.Iterators;
+import net.bodz.bas.types.util.Iterates;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
@@ -129,7 +129,7 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
 
         @Override
         public void doJar(JarFile jar) throws Throwable {
-            for (JarEntry e : Iterators.iterate(jar.entries())) {
+            for (JarEntry e : Iterates.iterate(jar.entries())) {
                 String ename = e.getName();
                 list(ename);
             }
@@ -187,7 +187,7 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
             }
             if (entry.isDirectory()) {
                 List<String> buf = new ArrayList<String>();
-                for (JarEntry e : Iterators.iterate(jar.entries())) {
+                for (JarEntry e : Iterates.iterate(jar.entries())) {
                     String ename = e.getName();
                     if (ename.startsWith(path))
                         buf.add(ename);

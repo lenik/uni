@@ -19,7 +19,7 @@ import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.err.IllegalUsageException;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.lang.err.UnexpectedException;
-import net.bodz.bas.types._TypeParser;
+import net.bodz.bas.types.TypeParser;
 import net.bodz.bas.types.TypeParsers.HexParser;
 import net.bodz.lapiota.crypt.Hashes.PeekDigest;
 import net.bodz.lapiota.wrappers.BasicCLI;
@@ -44,7 +44,7 @@ public class FindHash extends BasicCLI {
 
     }
 
-    public static class RangeParser extends _TypeParser {
+    public static class RangeParser implements TypeParser {
 
         @Override
         public Object parse(String text) throws ParseException {

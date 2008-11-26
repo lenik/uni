@@ -22,8 +22,8 @@ import net.bodz.bas.io.CharOut;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.lang.err.UnexpectedException;
 import net.bodz.bas.types.Pair;
+import net.bodz.bas.types.TypeParser;
 import net.bodz.bas.types.TypeParsers;
-import net.bodz.bas.types._TypeParser;
 import net.bodz.bas.types.util.Comparators;
 import net.bodz.lapiota.util.StringUtil;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
@@ -66,7 +66,7 @@ public class XMLEdit extends BasicCLI {
         escaping = !escaping;
     }
 
-    class XpathParser extends _TypeParser {
+    class XpathParser implements TypeParser {
         @Override
         public XPath parse(String xpath) throws ParseException {
             xpath = StringUtil.unescape(escaping, xpath);
@@ -85,7 +85,7 @@ public class XMLEdit extends BasicCLI {
     public XMLEdit() {
         docfac = DocumentFactory.getInstance();
 
-        TypeParsers.register(XPath.class, new _TypeParser() {
+        TypeParsers.register(XPath.class, new TypeParser() {
             @Override
             public Object parse(String text) throws ParseException {
                 return xpathParser.parse(text);

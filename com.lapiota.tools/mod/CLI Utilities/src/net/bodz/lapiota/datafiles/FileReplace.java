@@ -11,7 +11,7 @@ import net.bodz.bas.cli.ProcessResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.io.CharOut;
-import net.bodz.bas.lang.Filter;
+import net.bodz.bas.lang.Filt1;
 import net.bodz.bas.types.TypeParsers.GetInstanceParser;
 import net.bodz.lapiota.wrappers.BatchProcessCLI;
 
@@ -33,7 +33,7 @@ public class FileReplace extends BatchProcessCLI {
 
     @Option(vnam = "CLASS(Filter)", doc = "using custom filter, this will ignore -PTt options")
     @ParseBy(GetInstanceParser.class)
-    protected Filter<String, String> filter;
+    protected Filt1<String, String> filter;
 
     @Override
     protected void _boot() throws Throwable {
@@ -51,14 +51,14 @@ public class FileReplace extends BatchProcessCLI {
 
         if (filter == null)
             if (regexp != null)
-                filter = new Filter<String, String>() {
+                filter = new Filt1<String, String>() {
                     @Override
                     public String filter(String input) {
                         return regexp.matcher(input).replaceAll(replacement);
                     }
                 };
             else
-                filter = new Filter<String, String>() {
+                filter = new Filt1<String, String>() {
                     @Override
                     public String filter(String input) {
                         return input.replace(text, replacement);

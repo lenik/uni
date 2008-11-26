@@ -5,7 +5,7 @@ import java.io.File;
 import net.bodz.bas.cli.util.FindFile;
 import net.bodz.bas.lang.err.OutOfDomainException;
 import net.bodz.bas.lang.err.ParseException;
-import net.bodz.bas.types._TypeParser;
+import net.bodz.bas.types.TypeParser;
 import net.bodz.bas.types.TypeParsers.FileParser;
 import net.bodz.bas.types.util.Strings;
 
@@ -26,7 +26,7 @@ public class TypeExtensions {
 
     }
 
-    public static class XPathParser extends _TypeParser {
+    public static class XPathParser implements TypeParser {
 
         @Override
         public XPath parse(String xpath) throws ParseException {
@@ -36,7 +36,7 @@ public class TypeExtensions {
 
     }
 
-    public static class OutputFormatParser extends _TypeParser {
+    public static class OutputFormatParser implements TypeParser {
 
         @Override
         public OutputFormat parse(String fmt) throws ParseException {

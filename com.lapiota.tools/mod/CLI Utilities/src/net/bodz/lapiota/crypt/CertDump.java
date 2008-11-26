@@ -10,8 +10,7 @@ import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.io.CharOuts;
 import net.bodz.bas.log.ALog;
 import net.bodz.bas.sec.pki.util.CertDumper;
-import net.bodz.bas.sec.pki.util.CertURL;
-import net.bodz.bas.types.TypeParsers.GetInstanceParser;
+import net.bodz.bas.sec.pki.util.CertSelector;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("KeyStore/Certificate Dump")
@@ -20,10 +19,10 @@ import net.bodz.lapiota.wrappers.BasicCLI;
 public class CertDump extends BasicCLI {
 
     @Option(alias = "p", vnam = "PROV-CLASS", doc = "Provider Class")
-    @ParseBy(GetInstanceParser.class)
-    Provider        provider = null;
+    @ParseBy(Providers.Parser.class)
+    Provider provider = null;
 
-    int             detail   = CertDumper.SIMPLE;
+    int      detail   = CertDumper.SIMPLE;
 
     @Override
     protected void _boot() throws Throwable {
@@ -38,7 +37,7 @@ public class CertDump extends BasicCLI {
         if (args.length == 0)
             _help();
         for (String arg : args) {
-            CertURL curl = new CertURL(arg, provider);
+            CertSelector curl = new CertSelector(arg, provider);
             curl.dump(CharOuts.stdout, detail);
         }
     }

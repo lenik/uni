@@ -39,7 +39,7 @@ import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.types.TextMap;
 import net.bodz.bas.types.TextMap.TreeTextMap;
 import net.bodz.bas.types.util.Comparators;
-import net.bodz.bas.types.util.Iterators;
+import net.bodz.bas.types.util.Iterates;
 import net.bodz.bas.types.util.Strings;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
@@ -174,7 +174,7 @@ public class CLIEnviron extends BasicCLI {
                         store = builder.getKeyStore();
                     }
                     L.m.P(store.size(), " entries");
-                    for (String alias : Iterators.iterate(store.aliases())) {
+                    for (String alias : Iterates.iterate(store.aliases())) {
                         Certificate cert = store.getCertificate(alias);
                         // @SuppressWarnings("unused")
                         // Certificate[] certChain = store

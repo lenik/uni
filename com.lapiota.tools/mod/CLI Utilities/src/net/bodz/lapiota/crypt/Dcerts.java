@@ -5,6 +5,7 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.lang.err.NotImplementedException;
 
 import com.sun.deploy.security.CertStore;
 import com.sun.deploy.security.DeploySigningCertStore;
@@ -29,7 +30,7 @@ public class Dcerts extends BasicCLI {
         for (Object cert : certStore.getCertificates()) {
             System.out.println(cert);
         }
-        // certStore.
+        throw new NotImplementedException();
     }
 
     public static void main(String[] args) throws Throwable {

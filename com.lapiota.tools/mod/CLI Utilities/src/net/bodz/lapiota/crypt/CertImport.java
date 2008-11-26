@@ -12,7 +12,7 @@ import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.io.Files;
-import net.bodz.bas.sec.pki.util.CertURL;
+import net.bodz.bas.sec.pki.util.CertSelector;
 import net.bodz.bas.types.TypeParsers.GetInstanceParser;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
@@ -27,7 +27,7 @@ public class CertImport extends BasicCLI {
     Provider provider = null;
 
     @Option(alias = "t", vnam = "TARGET-CURL", required = true, doc = "target keystore where cert imports into")
-    CertURL  target;
+    CertSelector  target;
 
     @Override
     protected void _boot() throws Throwable {
@@ -40,7 +40,7 @@ public class CertImport extends BasicCLI {
 
         KeyStore keyStore = target.getKeyStore();
         for (String arg : args) {
-            CertURL curl = new CertURL(arg, provider);
+            CertSelector curl = new CertSelector(arg, provider);
             L.m.P("import ", curl);
             String alias = curl.getAlias();
             Certificate cert = curl.getCertificate();
