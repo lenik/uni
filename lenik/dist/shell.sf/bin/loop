@@ -1,0 +1,11 @@
+#!/bin/sh
+
+TIMEOUT=$1
+shift
+
+while true
+do
+	echo [LOOP] `date`
+	$*
+	sleep $TIMEOUT
+done
