@@ -34,8 +34,13 @@ lwin & capslock::shiftalttab
         run cmdw /c findrun -r "%a_programfiles%" "windows live" writer\windowslivewriter
         return
     apps_4:
-        run cmdw /c findrun -r "%a_programfiles%" "windows live" mail\windowslivemail
+        run cmdw /c findrun -r "%a_programfiles%" "windows live" mail\wlmail
         return
+
+#!g::
+    pattern = %HOME%\etc\remotes\*.rdp
+    filesop("Select profile to connect to", pattern, "mstsc /f")
+    return
 
 #!m::run maxthon
 #!?::run lingoes
@@ -44,6 +49,7 @@ lwin & capslock::shiftalttab
 #+k::run V:\.radiko\.miaj\image\mirror.KBP.pgd
 #+s::run Z:\.radiko\.miaj\image\lam.nt.sdk.pgd
 #+u::run uedit32
+#+v::run cmd /c v:\lapiota-dist.bat
 #+x::run xmlspy
 
 #+d::
