@@ -15,6 +15,7 @@ SELF = _self
 	fi
 
 %.rand:
+	which $(OPENSSL)
 	$(OPENSSL) rand -out $@ 4096
 
 %.pem_raw: %.rand
@@ -35,8 +36,28 @@ SELF = _self
 	cp -f $@ .$*.p10
 
 # -CA ca.crt -CAkey ca.pem -CAcreateserial
-%.crt: .%.csr .%.pem_raw
-	$(OPENSSL) x509 -req $(CERT_OPTS) -in $< -signkey .$*.pem_raw -out $@
+# how to set loose dependants for ./.pem_raw (self) or ..% and .ISSUER.pem_raw
+%.crt: .%.csr
+	if [ -f ..$* ]; then \
+		read ISSUER <..$*; \
+		if [ $$ISSUER = $${ISSUER/\/} ]; then \
+			ISSUER_DIR=.; \
+			ISSUER_NAME=$$ISSUER; \
+		else \
+			ISSUER_NAME=$${ISSUER##*/}; \
+			ISSUER_DIR=$${ISSUER%/*}; \
+		fi; \
+		CA=$$ISSUER_DIR/$$ISSUER_NAME.crt; \
+		CAKEY=$$ISSUER_DIR/.$$ISSUER_NAME.pem_raw; \
+		CAOPT=-CAcreateserial; \
+		if [ ! -f $$CAKEY ]; then \
+			echo bad issuer $$ISSUER, no private key $$CAKEY. ; \
+			exit 1; \
+		fi; \
+		$(OPENSSL) x509 -req $(CERT_OPTS) -in $< -CA $$CA -CAkey $$CAKEY $$CAOPT -out $@; \
+	else \
+		$(OPENSSL) x509 -req $(CERT_OPTS) -in $< -signkey .$*.pem_raw -out $@; \
+	fi
 
 %.p7: %.crt
 	$(OPENSSL) crl2pkcs7 -nocrl -certfile $< -outform DER -out $@

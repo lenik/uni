@@ -14,6 +14,7 @@ eclipse                 3.4         dev.ide             eclipse.exe
 emacs                   21.0.104    dev.edit            bin/emacs.exe
 ettercap                0.7.3       net.cap
 filezilla               3.0.3       net.tran            filezilla.exe
+firefox					3.0.4		net.brow			firefox.exe
 foobar2000              0.9.4.2     mm.aud              foobar.exe=foobar2000.exe
 gimp                    2.6         work.img            gimp.exe=bin/gimp-2.6.exe
 graphviz                2.14.1      dev.util
@@ -32,6 +33,7 @@ nsis                    2.33        dev.ins             nsis.exe=makensisw.exe
 ntfsundelete            0.92        sys.fs              ntfsundelete.exe
 paint.net               3.10        work.img            paintdotnet.exe
 php                     5.2.4       lang.php
+qgo						1.5.4		game.chess			qgo.exe
 reflector               5.1.2.0     hack.rev            reflector.exe
 resin                   3.1.3       dev.serv
 scite                   1.76        dev.edit            scite.exe
