@@ -20,7 +20,7 @@ import net.bodz.bas.lang.err.IllegalUsageException;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.lang.err.UnexpectedException;
 import net.bodz.bas.types.TypeParser;
-import net.bodz.bas.types.TypeParsers.HexParser;
+import net.bodz.bas.types.parsers.HexParser;
 import net.bodz.lapiota.crypt.Hashes.PeekDigest;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
@@ -178,6 +178,8 @@ public class FindHash extends BasicCLI {
                 out.println("    Err: " + alg);
             }
         }
+
+        out.flush();
     }
 
     public static void main(String[] args) throws Throwable {

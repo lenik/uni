@@ -20,7 +20,7 @@ import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
-import net.bodz.bas.cli.ProcessResult;
+import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.ext.CLIPlugin;
 import net.bodz.bas.cli.ext._CLIPlugin;
@@ -30,14 +30,14 @@ import net.bodz.bas.lang.script.ScriptException;
 import net.bodz.bas.text.interp.Interps;
 import net.bodz.bas.text.interp.PatternProcessor;
 import net.bodz.lapiota.util.RefBinding;
-import net.bodz.lapiota.wrappers.BatchProcessCLI;
+import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @BootInfo(syslibs = "groovy")
 @Doc("An extensible file process program")
 @ProgramName("jfor")
 @RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
-public class FileProcess extends BatchProcessCLI {
+public class FileProcess extends BatchEditCLI {
 
     List<Action> actions = new ArrayList<Action>();
 
@@ -121,17 +121,17 @@ public class FileProcess extends BatchProcessCLI {
     private Action currentAction;
 
     @Override
-    protected void _doFile(File file) {
+    protected void _processFile(File file) {
         currentFile = file;
         for (Action action : actions) {
             currentAction = action;
             edit = action.isEditor();
-            super._doFile(file);
+            super._processFile(file);
         }
     }
 
     @Override
-    protected ProcessResult doFileEdit(InputStream in, OutputStream out)
+    protected EditResult doEditByIO(InputStream in, OutputStream out)
             throws Throwable {
         return currentAction.run(currentFile, in, out);
     }
@@ -152,7 +152,7 @@ public class FileProcess extends BatchProcessCLI {
          * @param file
          *            canonical file
          */
-        ProcessResult run(File file, InputStream in, OutputStream out)
+        EditResult run(File file, InputStream in, OutputStream out)
                 throws Throwable;
     }
 
@@ -191,7 +191,7 @@ public class FileProcess extends BatchProcessCLI {
         }
 
         @Override
-        public ProcessResult run(File file, InputStream in, OutputStream out)
+        public EditResult run(File file, InputStream in, OutputStream out)
                 throws Throwable {
             RefBinding binding = new RefBinding();
             binding.bindScriptFields(scope, true);
@@ -209,19 +209,19 @@ public class FileProcess extends BatchProcessCLI {
             if (ret instanceof String) {
                 String code = (String) ret;
                 if ("save".equals(code))
-                    return ProcessResult.compareAndSave();
+                    return EditResult.compareAndSave();
                 if ("same".equals(code))
-                    return ProcessResult.saveSame();
+                    return EditResult.saveSame();
                 if ("diff".equals(code))
-                    return ProcessResult.saveDiff();
+                    return EditResult.saveDiff();
                 if ("rm".equals(code))
-                    return ProcessResult.rm();
+                    return EditResult.rm();
                 if ("ren".equals(code))
-                    return ProcessResult.ren(scope.dst);
+                    return EditResult.ren(scope.dst);
                 if ("mv".equals(code))
-                    return ProcessResult.mv(scope.dst);
+                    return EditResult.mv(scope.dst);
                 if ("cp".equals(code))
-                    return ProcessResult.cp(scope.dst);
+                    return EditResult.cp(scope.dst);
             }
             return null;
         }
@@ -296,7 +296,7 @@ public class FileProcess extends BatchProcessCLI {
         }
 
         @Override
-        public ProcessResult run(File file, InputStream in, OutputStream out)
+        public EditResult run(File file, InputStream in, OutputStream out)
                 throws Throwable {
             String name = nameOnly ? Files.getName(file) : file.getName();
             Matcher m = pattern.matcher(name);
@@ -307,7 +307,7 @@ public class FileProcess extends BatchProcessCLI {
             if (nameOnly)
                 name += Files.getExtension(file, true);
             File newFile = new File(file.getParentFile(), name);
-            return ProcessResult.ren(newFile);
+            return EditResult.ren(newFile);
         }
     }
 
@@ -359,7 +359,7 @@ public class FileProcess extends BatchProcessCLI {
         }
 
         @Override
-        public ProcessResult run(File file, InputStream in, OutputStream out)
+        public EditResult run(File file, InputStream in, OutputStream out)
                 throws Throwable {
             String _name = Files.getName(file);
             String _ext = Files.getExtension(file, true);
@@ -391,7 +391,7 @@ public class FileProcess extends BatchProcessCLI {
             if (!withExt)
                 name += Files.getExtension(file, true);
             File newFile = new File(file.getParentFile(), name);
-            return ProcessResult.ren(newFile);
+            return EditResult.ren(newFile);
         }
     }
 

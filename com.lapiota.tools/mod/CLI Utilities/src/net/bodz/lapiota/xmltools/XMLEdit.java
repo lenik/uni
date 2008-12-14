@@ -330,8 +330,8 @@ public class XMLEdit extends BasicCLI {
     protected void _help(CharOut out) throws CLIException {
         super._help(out);
         out.println();
-
         StringUtil.helpEscapes(out);
+        out.flush();
     }
 
     @Override

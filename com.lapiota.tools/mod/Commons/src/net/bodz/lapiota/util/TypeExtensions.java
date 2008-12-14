@@ -6,7 +6,7 @@ import net.bodz.bas.cli.util.FindFile;
 import net.bodz.bas.lang.err.OutOfDomainException;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.types.TypeParser;
-import net.bodz.bas.types.TypeParsers.FileParser;
+import net.bodz.bas.types.parsers.FileParser;
 import net.bodz.bas.types.util.Strings;
 
 import org.dom4j.DocumentFactory;

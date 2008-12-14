@@ -5,7 +5,7 @@ import static net.bodz.bas.test.TestDefs.EQ;
 
 import java.io.File;
 
-import net.bodz.bas.cli.ProcessResult;
+import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.test.TestDefs;
 import net.bodz.bas.test.TestEval;
 
@@ -20,7 +20,7 @@ public class FileProcessTest extends FileProcess {
             String[] args = input.split("\\|", 2);
             final String file = args[0].trim();
             final String repl = args[1].trim();
-            final ProcessResult[] result = new ProcessResult[1];
+            final EditResult[] result = new EditResult[1];
             new FileProcess() {
                 @Override
                 protected void doMain(String[] args) throws Throwable {

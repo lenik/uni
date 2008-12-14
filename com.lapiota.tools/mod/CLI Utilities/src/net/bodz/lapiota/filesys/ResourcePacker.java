@@ -14,16 +14,16 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
-import net.bodz.bas.cli.ProcessResult;
+import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.Files;
-import net.bodz.lapiota.wrappers.BatchProcessCLI;
+import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @Doc("Resource packer")
 @ProgramName("respack")
 @RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
-public class ResourcePacker extends BatchProcessCLI {
+public class ResourcePacker extends BatchEditCLI {
 
     @Option(alias = "o", doc = "output jar file name")
     protected File          outputFile;
@@ -117,7 +117,7 @@ public class ResourcePacker extends BatchProcessCLI {
     }
 
     @Override
-    protected ProcessResult doFile(File file) throws IOException {
+    protected EditResult doEdit(File file) throws IOException {
         JarOutputStream out = getJarOut();
         String name = getRelativeName(file);
         String ename = resNameOf(name);
@@ -128,7 +128,7 @@ public class ResourcePacker extends BatchProcessCLI {
         out.closeEntry();
         L.i.P("add ", ename, " [", ze.getCompressedSize(), "/", ze.getSize(),
                 "]");
-        return ProcessResult.pass();
+        return EditResult.pass();
     }
 
     @Override

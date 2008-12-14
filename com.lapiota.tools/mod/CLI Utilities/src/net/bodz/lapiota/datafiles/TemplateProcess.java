@@ -15,7 +15,7 @@ import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
-import net.bodz.bas.cli.ProcessResult;
+import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.ext.CLIPlugin;
 import net.bodz.bas.cli.ext._CLIPlugin;
@@ -25,7 +25,7 @@ import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.text.interp.Interps;
 import net.bodz.bas.types.util.Strings;
 import net.bodz.lapiota.util.GroovyExpand;
-import net.bodz.lapiota.wrappers.BatchProcessCLI;
+import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 import org.codehaus.groovy.control.CompilationFailedException;
 
@@ -34,7 +34,7 @@ import org.codehaus.groovy.control.CompilationFailedException;
 @ProgramName("jsub")
 @RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
-public class TemplateProcess extends BatchProcessCLI {
+public class TemplateProcess extends BatchEditCLI {
 
     Charset       inputEncoding;
     Charset       outputEncoding;
@@ -64,7 +64,7 @@ public class TemplateProcess extends BatchProcessCLI {
     }
 
     @Override
-    protected ProcessResult doFile(File file, File editTmp) throws Throwable {
+    protected EditResult doEdit(File file, File editTmp) throws Throwable {
         sourceModel.reset(file);
         while (sourceModel.next()) {
             Object context = sourceModel.getContext();
@@ -80,7 +80,7 @@ public class TemplateProcess extends BatchProcessCLI {
             File dst = getOutputFile(destFile, defaultStart);
             Files.write(editTmp, contents, outputEncoding);
 
-            ProcessResult result = ProcessResult.compareAndSave();
+            EditResult result = EditResult.compareAndSave();
             addResult(dst, dst, editTmp, result);
         }
         return null;

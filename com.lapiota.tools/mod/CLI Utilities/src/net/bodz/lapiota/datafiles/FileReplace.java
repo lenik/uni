@@ -7,29 +7,29 @@ import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
-import net.bodz.bas.cli.ProcessResult;
+import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.lang.Filt1;
 import net.bodz.bas.types.TypeParsers.GetInstanceParser;
-import net.bodz.lapiota.wrappers.BatchProcessCLI;
+import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @Doc("A Unix diff program implemented in Java")
 @ProgramName("jrepl")
 @RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
-public class FileReplace extends BatchProcessCLI {
+public class FileReplace extends BatchEditCLI {
 
     @Option(alias = "p", vnam = "REGEXP", doc = "replace by regexp")
-    protected Pattern                regexp;
+    protected Pattern               regexp;
 
     @Option(alias = "T", vnam = "TEXT", doc = "replace by literal text")
-    protected String                 text;
+    protected String                text;
 
     @Option(alias = "t", vnam = "TEXT", //
     doc = "may contains \\n (or $n) group reference for regexp replace")
-    protected String                 replacement;
+    protected String                replacement;
 
     @Option(vnam = "CLASS(Filter)", doc = "using custom filter, this will ignore -PTt options")
     @ParseBy(GetInstanceParser.class)
@@ -67,11 +67,11 @@ public class FileReplace extends BatchProcessCLI {
     }
 
     @Override
-    protected ProcessResult doFileEdit(Iterable<String> lines, CharOut out)
+    protected EditResult doEditByLine(Iterable<String> lines, CharOut out)
             throws Throwable {
         for (String line : lines)
             out.println(filter.filter(line));
-        return ProcessResult.compareAndSave();
+        return EditResult.compareAndSave();
     }
 
     public static void main(String[] args) throws Throwable {

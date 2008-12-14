@@ -175,8 +175,8 @@ public class XMLFlat extends BasicCLI {
     protected void _help(CharOut out) throws CLIException {
         super._help(out);
         out.println();
-
         StringUtil.helpEscapes(out);
+        out.flush();
     }
 
     private static final Pattern CAPNAME;

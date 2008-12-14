@@ -85,6 +85,7 @@ public class GChoice extends BasicGUI {
         out.println("Import from environ vars: ");
         out.println("    KEY_count  = count of list entries");
         out.println("    KEY_<n>    = text of entry");
+        out.flush();
     }
 
     public static void main(String[] args) throws Throwable {

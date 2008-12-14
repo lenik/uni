@@ -20,7 +20,7 @@ import java.util.Set;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
-import net.bodz.bas.cli.ProcessResult;
+import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.dnb.JavaAnnotation;
 import net.bodz.bas.dnb.JavaEnum;
@@ -128,7 +128,7 @@ public class J4conv extends JdtBatchCLI {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected ProcessResult doFileEdit(File in, File out) throws Throwable {
+    protected EditResult doEdit(File in, File out) throws Throwable {
         if (!"java".equals(Files.getExtension(in)))
             return null;
 
@@ -186,7 +186,7 @@ public class J4conv extends JdtBatchCLI {
         }
 
         Files.write(out, dst, outputEncoding);
-        return ProcessResult.compareAndSave();
+        return EditResult.compareAndSave();
     }
 
     public static void main(String[] args) throws Throwable {

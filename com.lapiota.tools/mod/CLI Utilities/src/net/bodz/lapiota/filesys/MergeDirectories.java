@@ -13,18 +13,18 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
-import net.bodz.bas.cli.ProcessResult;
+import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.util.ProtectedShell;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.log.LogOut;
-import net.bodz.lapiota.wrappers.BatchProcessCLI;
+import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @Doc("Merge directories of same architecture")
 @ProgramName("dirmerge")
 @RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
-public class MergeDirectories extends BatchProcessCLI {
+public class MergeDirectories extends BatchEditCLI {
 
     @Option(alias = "M", vnam = "ALGORITHM", doc = "message digest algorithm to use, default SHA-1")
     MessageDigest digest;
@@ -186,7 +186,7 @@ public class MergeDirectories extends BatchProcessCLI {
     }
 
     @Override
-    protected ProcessResult doFile(File file) throws Throwable {
+    protected EditResult doEdit(File file) throws Throwable {
         String rname = getRelativeName(file);
         Object rhash = relatives.get(rname);
 
@@ -226,17 +226,17 @@ public class MergeDirectories extends BatchProcessCLI {
                 File dst = getOutputFile(rname, start);
                 if (dst.exists()) {
                     if (dst.equals(file))
-                        return ProcessResult.pass("same");
+                        return EditResult.pass("same");
                     else
-                        return ProcessResult.rm("same-kill"); // psh.delete(file)
+                        return EditResult.rm("same-kill"); // psh.delete(file)
                     // ;
                 } else
-                    return ProcessResult.mv(dst); // psh.move(file, dst);
+                    return EditResult.mv(dst); // psh.move(file, dst);
             } else {
                 if (reduced && deleteIgnored)
-                    return ProcessResult.rm("ignore-kill");
+                    return EditResult.rm("ignore-kill");
             }
-            return ProcessResult.pass();
+            return EditResult.pass();
         } else {
             throw new IllegalStateException();
         }

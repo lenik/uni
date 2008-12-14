@@ -6,19 +6,17 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
-import net.bodz.bas.cli.ProcessResult;
-import net.bodz.lapiota.wrappers.BatchProcessCLI;
+import net.bodz.lapiota.wrappers.BatchCLI;
 
 @Doc("A simple BatchProcessCLI example: dir in java")
 @ProgramName("jdir")
 @RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
-public class FileLister extends BatchProcessCLI {
+public class FileLister extends BatchCLI {
 
     @Override
-    protected ProcessResult doFile(File file) throws Throwable {
+    protected void doFile(File file) throws Throwable {
         System.out.println(file);
-        return null;
     }
 
     public static void main(String[] args) throws Throwable {

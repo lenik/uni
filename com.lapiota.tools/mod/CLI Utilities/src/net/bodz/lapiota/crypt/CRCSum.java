@@ -21,7 +21,7 @@ import net.bodz.bas.mem.types.Int32BE;
 import net.bodz.bas.mem.types.Int32LE;
 import net.bodz.bas.text.encodings.HexEncoding;
 import net.bodz.bas.types.NamedTypes;
-import net.bodz.bas.types.TypeParsers.ClassParser;
+import net.bodz.bas.types.parsers.ClassParser;
 import net.bodz.bas.types.util.Types;
 import net.bodz.lapiota.crypt.Hashes.CRC32_BE;
 import net.bodz.lapiota.crypt.Hashes.CRC32_LE;
@@ -141,6 +141,8 @@ public class CRCSum extends BatchCLI {
         out.println("Named Algorithms: ");
         for (String name : types.keySet())
             out.printf("    %8s = %s\n", name, types.get(name));
+
+        out.flush();
     }
 
     public static void main(String[] args) throws Throwable {

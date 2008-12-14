@@ -9,18 +9,18 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
-import net.bodz.bas.cli.ProcessResult;
+import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.FileMask;
 import net.bodz.bas.types.util.Strings;
-import net.bodz.lapiota.wrappers.BatchProcessCLI;
+import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @Doc("Line-No Fix")
 @ProgramName("linefix")
 @RcsKeywords(id = "$Id: LineNoFix.java 0 2008-11-24 下午08:58:24 Shecti $")
 @Version( { 0, 0 })
-public class LineNoFix extends BatchProcessCLI {
+public class LineNoFix extends BatchEditCLI {
     {
         parameters().setInclusiveMask(new FileMask("fT/fHT"));
     }
@@ -87,7 +87,7 @@ public class LineNoFix extends BatchProcessCLI {
     }
 
     @Override
-    protected ProcessResult doFileEdit(Iterable<String> _lines, CharOut out)
+    protected EditResult doEditByLine(Iterable<String> _lines, CharOut out)
             throws Throwable {
         List<Line> lines = new ArrayList<Line>(10000);
         lines.add(null); // 1-based
@@ -148,7 +148,7 @@ public class LineNoFix extends BatchProcessCLI {
         }
         for (int i = 1; i < size; i++)
             out.print(lines.get(i).s);
-        return ProcessResult.compareAndSave();
+        return EditResult.compareAndSave();
     }
 
     public static void main(String[] args) throws Throwable {

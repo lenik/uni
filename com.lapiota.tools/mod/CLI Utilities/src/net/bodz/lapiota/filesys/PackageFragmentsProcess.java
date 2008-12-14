@@ -23,17 +23,17 @@ import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
-import net.bodz.bas.cli.ProcessResult;
+import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.cli.ext.CLIPlugin;
 import net.bodz.bas.cli.ext._CLIPlugin;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.io.FsWalk;
-import net.bodz.bas.types.TypeParsers.WildcardsParser;
+import net.bodz.bas.types.parsers.WildcardsParser;
 import net.bodz.bas.types.util.Iterates;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
-import net.bodz.lapiota.wrappers.BatchProcessCLI;
+import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -48,7 +48,7 @@ import org.dom4j.io.XMLWriter;
 @ProgramName("jars")
 @RcsKeywords(id = "$Id$")
 @Version( { 0, 0 })
-public class PackageFragmentsProcess extends BatchProcessCLI {
+public class PackageFragmentsProcess extends BatchEditCLI {
 
     @Option(alias = "F", vnam = "pretty|compact")
     @ParseBy(OutputFormatParser.class)
@@ -73,12 +73,12 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
     }
 
     @Override
-    protected ProcessResult doFile(File in) throws Throwable {
+    protected EditResult doEdit(File in) throws Throwable {
         if (in.isDirectory()) { // dir
             for (Action act : actions) {
                 act.doDirectory(in);
             }
-            return ProcessResult.pass("dir");
+            return EditResult.pass("dir");
         } else { // .jar
             for (Action act : actions) {
                 JarFile jar;
@@ -89,7 +89,7 @@ public class PackageFragmentsProcess extends BatchProcessCLI {
                 }
                 act.doJar(jar);
             }
-            return ProcessResult.pass("jar");
+            return EditResult.pass("jar");
         }
     }
 

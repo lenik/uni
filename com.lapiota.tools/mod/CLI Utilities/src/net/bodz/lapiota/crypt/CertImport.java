@@ -13,7 +13,7 @@ import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.sec.pki.util.CertSelector;
-import net.bodz.bas.types.TypeParsers.GetInstanceParser;
+import net.bodz.bas.sec.pki.util.Providers;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("KeyStore/Certificate Import")
@@ -23,11 +23,11 @@ import net.bodz.lapiota.wrappers.BasicCLI;
 public class CertImport extends BasicCLI {
 
     @Option(alias = "p", vnam = "PROV-CLASS", doc = "Provider Class")
-    @ParseBy(GetInstanceParser.class)
-    Provider provider = null;
+    @ParseBy(Providers.Parser.class)
+    Provider     provider = null;
 
     @Option(alias = "t", vnam = "TARGET-CURL", required = true, doc = "target keystore where cert imports into")
-    CertSelector  target;
+    CertSelector target;
 
     @Override
     protected void _boot() throws Throwable {
@@ -38,19 +38,20 @@ public class CertImport extends BasicCLI {
         if (args.length == 0)
             _help();
 
-        KeyStore keyStore = target.getKeyStore();
+        KeyStore targetStore = target.getKeyStore(provider);
+
         for (String arg : args) {
-            CertSelector curl = new CertSelector(arg, provider);
-            L.m.P("import ", curl);
-            String alias = curl.getAlias();
-            Certificate cert = curl.getCertificate();
-            keyStore.setCertificateEntry(alias, cert);
+            CertSelector srcCert = new CertSelector(arg);
+            L.m.P("import ", srcCert);
+            String alias = srcCert.getCertAlias();
+            Certificate cert = srcCert.getCertificate();
+            targetStore.setCertificateEntry(alias, cert);
         }
 
         L.m.P("save ", target);
         OutputStream out = Files.getOutputStream(target.getStoreURLFile());
         try {
-            keyStore.store(out, target.getStorePassword().toCharArray());
+            targetStore.store(out, target.getStorePassword().toCharArray());
         } finally {
             out.close();
         }

@@ -26,7 +26,7 @@ import net.bodz.bas.mem.AccessException;
 import net.bodz.bas.mem.ArrayMemory;
 import net.bodz.bas.mem.Memory;
 import net.bodz.bas.mem.RandomAccessFileMemory;
-import net.bodz.bas.types.TypeParsers.HexParser;
+import net.bodz.bas.types.parsers.HexParser;
 import net.bodz.lapiota.crypt.CRCSum.CRC32pgp;
 import net.bodz.lapiota.crypt.FindHash.Range;
 import net.bodz.lapiota.crypt.FindHash.RangeParser;
@@ -319,6 +319,7 @@ public class PartialCopy extends BasicCLI {
         out.println("       flag +/-NUM  extent to the start of match");
         out.println("       flag i       case-insensitive");
         out.println("    *               set to the default value");
+        out.flush();
     }
 
     @Override

@@ -11,17 +11,17 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
-import net.bodz.bas.cli.ProcessResult;
+import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.ControlBreak;
-import net.bodz.lapiota.wrappers.BatchProcessCLI;
+import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @Doc("batch iconv written in java, JUN 2004")
 @ProgramName("jiconv")
 @RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
-public class ConvertEncoding extends BatchProcessCLI {
+public class ConvertEncoding extends BatchEditCLI {
 
     Charset inputEncoding;
     Charset outputEncoding;
@@ -77,7 +77,7 @@ public class ConvertEncoding extends BatchProcessCLI {
     private static Charset CHARSET_UTF16_BE = Charset.forName("UTF-16BE");
 
     @Override
-    protected ProcessResult doFileEdit(File in, File out) throws Throwable {
+    protected EditResult doEdit(File in, File out) throws Throwable {
         byte[] src = Files.readBytes(in);
         Charset srcenc = inputEncoding;
         Charset dstenc = outputEncoding;
@@ -100,7 +100,7 @@ public class ConvertEncoding extends BatchProcessCLI {
         byte[] dst = decoded.getBytes(dstenc);
         Files.write(out, dst);
 
-        return ProcessResult.compareAndSave();
+        return EditResult.compareAndSave();
     }
 
     public static void main(String[] args) throws Throwable {
