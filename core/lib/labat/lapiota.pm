@@ -14,6 +14,7 @@ use cmt::util();
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
     our $VER    = "0.$RCSID{rev}";
+use Cwd('abs_path');
 use labat;
 use Exporter;
 use Getopt::Long;
@@ -61,7 +62,7 @@ sub findabc {
     my $last = 0;
     my $escape = 0;
     getopts(@_,
-        'root|r=s'  => \$root,
+        'root|r=s'  => sub { $root = abs_path($_[1]) },
         'last|l'    => \$last,
         'print|p'   => \$print,
         'unix|u'    => sub { $style = 'u' },
@@ -69,6 +70,7 @@ sub findabc {
         'escape|e'  => \$escape,                # using \\, \/ instead of \, /
         'mix|m'     => sub { $style = 'm' },
         );
+    $root =~ s|^/mnt/([a-z])/|$1:/| unless $style eq 'u';
     my ($name, @addpath) = @_;
     my $chdir = $name =~ s/\/$//;
     my $lev = 0;
@@ -90,8 +92,8 @@ sub findabc {
     my $DFS = $style eq 'w' ? '\\' : '/';
     $DFS = '\\'.$DFS if $escape;
     $home =~ s/\//$DFS/g;
-    $ENV{'_HOME'} = $home;
     chdir $home if $chdir;
+    $ENV{'_HOME'} = $home;
     print "$home\n" if $print;
     my $IFS = $style eq 'u' ? ':' : ';';
     for (@addpath) {

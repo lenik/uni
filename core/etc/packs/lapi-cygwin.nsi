@@ -13,6 +13,7 @@ Section "Cygwin Minimum"
     SetOutPath $INSTDIR\media
     SetOutPath $INSTDIR\mnt
     SetOutPath $INSTDIR\tmp
+    SetOutPath $INSTDIR\var\log
     SetOutPath $INSTDIR\var\tmp
 
     !insertmacro Files  $INSTDIR . .
@@ -37,6 +38,7 @@ Section "Cygwin Minimum"
     !insertmacro SubDir $INSTDIR . usr\libexec
     !insertmacro SubDir $INSTDIR . usr\local
     !insertmacro SubDir $INSTDIR . usr\sbin
+    !insertmacro SubDir $INSTDIR . usr\share\csih
     !insertmacro SubDir $INSTDIR . usr\share\man\man1
     !insertmacro SubDir $INSTDIR . usr\share\man\man2
     !insertmacro SubDir $INSTDIR . usr\share\man\man3

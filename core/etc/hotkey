@@ -189,7 +189,7 @@
     }
 
     fastcall(cmdline) {
-        FileAppend, %cmdline%, %TMP%\fast0.bat
+        FileAppend, %cmdline%`n, %TMP%\fast0.bat
         run winevent -s fast0
     }
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}

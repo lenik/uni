@@ -135,30 +135,14 @@
             -           | $LAPIOTA\bin\w\mkchm.bat -v -r -cd -o .. \"%1\"
             - ar-jar    Archive this directory into .jar file
             -           | ${findabc -w jdk}\bin\jar.exe cvf \"%1.jar\" -C \"%1\" *
-            - cmd       [1] Win32 &Console
+            - cmd       * Command &Console
             -           | cmd /k $LAPIOTA\bin\lapiota-init.bat login \"%1\"
-            - bigcmd    [1] Win32 Console (&Big)
+            - cmd-big   * Command Console (&Big)
             -           | cmdw /c start \"Big\" $LAPIOTA\bin\lapiota-init.bat login \"%1\"
-            - ushell    [1] Unix Shell
+            - term      * &Terminal
             -           | $CYGWIN_ROOT\bin\bash
-            - bigushell [1] Unix Shell (Big)
+            - term-x    * Terminal-&X
             -           | cmdw /c start \"Big\" $CYGWIN_ROOT\bin\bash
-            - medit     Edit files under this directory
-            -           | $LAPIOTA\bin\mani.bat -f
-            - renum     Renumbering files in this directory
-            -           | $LAPIOTA\usr\bin\renum -D -w 2 \"%1\*\"
-            - mp3ltrim  Format file names for media files (mp3, etc.)
-            -           | $LAPIOTA\bin\w\mp3ltrim.bat
-            # nfsmap    Add nfs mapping
-            #           | $LAPIOTA\bin\w\nfs.bat -i -m
-            - send2sf   Send to sourceforge (ftp/incoming)
-            -           | $LAPIOTA\bin\w\ftpsend.bat .
-            # gbin      Gather binaries
-            #           | $LAPIOTA\bin\mvup.bat -c "%1\..\..\bin\" -t "%1\..\..\bin\" *.exe *.dll *.ocx
-            - make      Make
-            -           | $LAPIOTA\bin\xmake.bat --pause -C \"%1\"
-            - makerun   Make and run
-            -           | $LAPIOTA\bin\xmake.bat --pause -x -C \"%1\"
         - '".au3" ->'
             - open
             -           | ${findabc -w autoit}\autoit3 \"%1\"
