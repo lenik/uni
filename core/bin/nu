@@ -2,7 +2,7 @@
     RCSID='$Id$'
     short_opts="dlhqv"
     long_opts="delete,list,help,quiet,verbose,version"
-    HOSTTAB=/etc/hosttab
+    HOSTTAB=~/etc/hosttab
     mode=use
     . /lapiota/lib/sh/cliboot
 

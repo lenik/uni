@@ -31,6 +31,7 @@ Section "Core Files"
     !insertmacro SubDir $INSTDIR . test
     !insertmacro SubDir $INSTDIR . usr\bin
     !insertmacro SubDir $INSTDIR . usr\include
+    !insertmacro SubDir $INSTDIR . usr\lib\perl5
     !insertmacro SubDir $INSTDIR . usr\src\mod
     !insertmacro SubDir $INSTDIR . xt
 SectionEnd
