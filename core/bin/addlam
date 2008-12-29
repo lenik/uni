@@ -6,6 +6,7 @@
     add_tags=1
     . /lapiota/lib/sh/cliboot
     . /lapiota/lib/sh/findabc
+    . /lapiota/lib/sh/cmds
 
 function version() {
     parse_id "$RCSID"
@@ -123,7 +124,7 @@ function main() {
                         done
                         catdir="$all/$_catd"
                         if [ ! -d "$catdir" ]; then mkdir -p "$catdir"; fi
-                        ln -nsf "$_home" "$catdir/"
+                        $LN_NSF "$_home" "$catdir/"
                     done
                 fi
 

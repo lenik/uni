@@ -1,0 +1,99 @@
+#!/bin/bash
+    RCSID='$Id: .sh 872 2008-10-29 11:51:30Z lenik $'
+    short_opts="nfshqv"
+    long_opts="force,symbolic,help,quiet,verbose,version"
+    force=0
+    nodef=0
+    sym=0
+    . /lapiota/lib/sh/cliboot
+
+function version() {
+    parse_id "$RCSID"
+    echo [$BASENAME] vista wrapper for \'ln -sf\'
+    echo Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] TARGET LINK_NAME"
+    echo
+    echo "Options: "
+    echo "    -n, --no-derefernce     (no use, always no-derefence)"
+    echo "    -f, --force             delete existing LINK_NAME"
+    echo "    -s, --symbolic          create symbolic link"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -n|--no-dereference)
+            nodef=1;;
+        -f|--force)
+            force=1;;
+        -s|--symbolic)
+            sym=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $# != 2 ]; then
+        echo both TARGET and LINK-NAME are required.
+        exit 1
+    fi
+    local target="$1"
+    local linkf="$2"
+
+    while [[ "$target" = */ ]]; do target="${target%/}"; done
+    local target_base="${target##*/}"
+    local isdir=0
+    if [ -d "$target" ]; then isdir=1; fi
+
+    while [[ "$linkf" = */ ]]; do linkf="${linkf%/}"; done
+    if [ -z "$linkf" ]; then linkf=.; fi
+    if [ -d "$linkf" ]; then
+        # no_deref...
+        linkf="$linkf/$target_base"
+    fi
+
+    target=`cygpath -w "$target"`
+    linkf=`cygpath -w "$linkf"`
+
+    if [ $force = 1 ]; then rm -f "$linkf"; fi
+
+    if [ $sym = 1 ]; then
+        if [ $isdir = 1 ]; then
+            mklink /j "$linkf" "$target"
+        else
+            mklink "$linkf" "$target"
+        fi
+    else
+        if [ $isdir = 1 ]; then
+            mklink "$linkf" "$target"
+        else
+            mklink /h "$linkf" "$target"
+        fi
+    fi
+}
+
+function mklink() {
+    MKLINK="cmd /c mklink"
+    # echo $MKLINK $*
+    $MKLINK $* >/dev/null
+}
+
+boot "$@"
