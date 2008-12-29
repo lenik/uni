@@ -125,7 +125,7 @@ sub _main {
             chomp;
             print;
         }
-        print percent($line_no / $opt_total) . ' '
+        print percent($line_no, $opt_total) . ' '
             if defined $opt_total;
         print " $line_no" if $opt_lines;
     }
@@ -146,7 +146,17 @@ sub _main {
 =cut
 # (MODULE FUNCTIONS)
 sub percent {
-    my $perc = 100 * shift;
+    my ($a, $b) = @_;
+    my $perc;
+    if (defined $b) {
+        if ($b == 0) {
+            $perc = 0;
+        } else {
+            $perc = $a / $b;
+        }
+    } else {
+        $perc = 100 * $a;
+    }
     return sprintf("%2.0f%%", $perc);
 }
 

@@ -5,14 +5,6 @@ else
     LOGPREFIX="[$BASENAME] "
 fi
 
-_cr=
-if [ -z $_cr ]; then
-    echo "Warning: the ^M(\\r) character is removed in $BASH_SOURCE"
-    echo "This may be caused by some RCS program, you may set the binary mode on this file. "
-    _cr=$(echo -e "\r")
-    echo "CR reseted."
-fi
-
 function _log() {
     if [ $LOGLEVEL -ge $1 ]; then
         shift
@@ -29,7 +21,7 @@ function _sig() {
         if [ ${#line} -lt 80 ]; then
 	    line="$line${LINEPAD:0:$((80-${#line}))}"
 	fi
-        echo -n "$line$_cr"
+        echo -n "$line"$'\r'
     fi
 }
 

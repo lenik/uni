@@ -17,6 +17,7 @@ perl    : cuelist
 perl    : cvsapp
 perl    : cvsco
 perl    : dbquery
+bash    : dejar
 autoit3 : dejar2
 perl    : delaxar
 perl    : dirdiff

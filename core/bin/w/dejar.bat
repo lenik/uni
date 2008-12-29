@@ -36,19 +36,19 @@
     goto %_start%
 
 :startc
-    if "%AUTOIT3%"=="" set AUTOIT3=autoit3
+    if "%BASH%"=="" set BASH=bash
     if %_verbose% geq 1 (
-        echo "%AUTOIT3%" %_autoit3opts% "%_nam%" %_rest%
+        echo "%BASH%" %_bashopts% "%_nam%" %_rest%
     )
-    "%AUTOIT3%" %_autoit3opts% "%_nam%" %_rest%
+    "%BASH%" %_bashopts% "%_nam%" %_rest%
     exit /b
 
 :startw
-    if "%AUTOIT3%"=="" set AUTOIT3=autoit3
+    if "%BASH%"=="" set BASH=bash
     if %_verbose% geq 1 (
-        "%AUTOIT3%" %_autoit3opts% "%_nam%" %_rest%
+        "%BASH%" %_bashopts% "%_nam%" %_rest%
     )
-    "%AUTOIT3%" %_autoit3opts% "%_nam%" %_rest%
+    "%BASH%" %_bashopts% "%_nam%" %_rest%
     exit /b
 
 :init
@@ -60,7 +60,7 @@
 
     set      _nam=%~n0
     set      _ext=
-    set _autoit3opts=
+    set _bashopts=
 
 :find_target
     for %%x in ("" .au3) do (
@@ -148,14 +148,14 @@
     goto start
 
 :version
-    set _id=$Id$
+    set _id=$Id: .batInvoker.gsp 845 2008-09-29 11:45:47Z lenik $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
         set      _time=%%k
         set    _author=%%l
     )
-    echo [dejar2] batInvoker for autoit3
+    echo [dejar] batInvoker for bash
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
     exit /b 0
 
@@ -166,7 +166,7 @@
     echo    %_program% [PB-OPTION] ARGUMENTS...
     echo.
     echo Options:
-    echo    -Pw,--pb-win        start with autoit3.exe
+    echo    -Pw,--pb-win        start with bash.exe
     echo    -Pq,--pb-quiet      repeat to get less info
     echo    -Pv,--pb-verbose    repeat to get more info
     echo        --pb-ver        show version info
