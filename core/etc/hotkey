@@ -277,6 +277,13 @@ appskey & numpaddiv::
     }
     return
 
+#!a::run aurora.scr /p65552
+#!b::run ssbranded.scr /p65552
+#!o::run bubbles.scr /p65552
+#!+a::run taskkill /im aurora.scr
+#!+b::run taskkill /im ssbranded.scr
+#!+o::run taskkill /im bubbles.scr
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -318,13 +325,14 @@ appskey & numpaddiv::
 #right::restore()
 
 #/::run cmdw /c start winedit
+#PrintScreen::run snippingtool
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; application shortcuts {
 #a::fastcall("start ""ANSI""")
 #b::fastcall("start ""Big""")
-#c::fastcall("start")
+#c::run cmd
 #i::run iexplore
 #m::run metapad
 #n::run cmdw /c no

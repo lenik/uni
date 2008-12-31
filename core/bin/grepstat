@@ -1,0 +1,65 @@
+#!/bin/bash
+    RCSID='$Id: .sh 872 2008-10-29 11:51:30Z lenik $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+    . /lapiota/lib/sh/cliboot
+
+function version() {
+    parse_id "$RCSID"
+    echo [$BASENAME] Stat count by grep patterns
+    echo Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] [statkey=]pattern ..."
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    local file=$TEMP/grepstat-$$.$RANDOM
+    local key pattern
+    local lines words chars
+    cat >$file
+    for k in "$@"; do
+        if [ "$k" = "${k/=}" ]; then
+            key="$k"
+            pattern="$k"
+        else
+            key="${k%%=*}"
+            pattern="${k#*=}"
+        fi
+        #echo "Key $key: [$pattern]"
+        #eval stat_$key=`grep -acP "$pattern" $file`
+        echo stat_$key=`grep -acE "$pattern" $file`
+            #grep -aP "$pattern" $file | wc >$file.1
+            #read lines words chars <$file.1
+            #eval $key=$lines
+            #echo $key=${!key}
+    done
+    rm -f "$file"
+}
+
+boot "$@"
