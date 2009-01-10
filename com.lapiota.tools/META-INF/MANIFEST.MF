@@ -1,0 +1,40 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Lapiota Eclipse Plug-in
+Bundle-SymbolicName: net.bodz.lapiota;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: net.bodz.lapiota.eclipse.Activator
+Bundle-Vendor: Lenik
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.jdt.core;bundle-version="3.4.0",
+ org.eclipse.jface.text;bundle-version="3.4.0",
+ org.eclipse.swt;bundle-version="3.5.0",
+ net.bodz.bas;bundle-version="1.0.0",
+ net.bodz.swt;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: mod/Build Tools/bin/,
+ mod/CLI Utilities/bin/,
+ mod/Commons/bin/,
+ mod/GUI Utilities/bin/,
+ mod/Java Tools/bin/,
+ mod/SNM C Framework/bin/,
+ .
+Export-Package: net.bodz.lapiota,
+ net.bodz.lapiota._extern,
+ net.bodz.lapiota.comm,
+ net.bodz.lapiota.crypt,
+ net.bodz.lapiota.datafiles,
+ net.bodz.lapiota.deap,
+ net.bodz.lapiota.devhelpers,
+ net.bodz.lapiota.eclipse,
+ net.bodz.lapiota.eclipse.jdt,
+ net.bodz.lapiota.filesys,
+ net.bodz.lapiota.gui,
+ net.bodz.lapiota.javashell,
+ net.bodz.lapiota.javatools,
+ net.bodz.lapiota.snmc,
+ net.bodz.lapiota.util,
+ net.bodz.lapiota.win32,
+ net.bodz.lapiota.wrappers,
+ net.bodz.lapiota.xmlfs,
+ net.bodz.lapiota.xmltools

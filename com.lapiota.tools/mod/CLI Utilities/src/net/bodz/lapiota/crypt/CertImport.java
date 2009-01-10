@@ -49,7 +49,7 @@ public class CertImport extends BasicCLI {
         }
 
         L.m.P("save ", target);
-        OutputStream out = Files.getOutputStream(target.getStoreURLFile());
+        OutputStream out = Files.getOutputStream(target.getStoreFile());
         try {
             targetStore.store(out, target.getStorePassword().toCharArray());
         } finally {

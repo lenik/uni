@@ -48,8 +48,10 @@ public class ZipMerge extends BatchCLI {
                 InputStream ein = zip.getInputStream(s);
                 ZipEntry t = new ZipEntry(s.getName());
                 t.setComment(s.getComment());
+                t.setCrc(s.getCrc());
                 t.setExtra(s.getExtra());
                 t.setMethod(s.getMethod());
+                t.setSize(s.getSize());
                 t.setTime((s.getTime()));
                 zout.putNextEntry(t);
 

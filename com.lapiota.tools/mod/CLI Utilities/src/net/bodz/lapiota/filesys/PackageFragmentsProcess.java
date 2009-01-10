@@ -35,6 +35,7 @@ import net.bodz.bas.types.util.Iterates;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
 import net.bodz.lapiota.wrappers.BatchEditCLI;
 
+import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -384,7 +385,10 @@ public class PackageFragmentsProcess extends BatchEditCLI {
             if (!(node instanceof Element))
                 return "Unexpected";
             Element elm = (Element) node;
-            return elm.attribute("id").getText();
+            Attribute id = elm.attribute("id");
+            if (id == null)
+                return null;
+            return id.getText();
         }
     }
 

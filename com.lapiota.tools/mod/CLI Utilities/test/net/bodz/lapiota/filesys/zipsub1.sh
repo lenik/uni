@@ -2,9 +2,9 @@
 
 rm -f *.zip
 cd zipsub
-zip -r ../all.zip .
-zip -r ../bc.zip b c
-zip -r ../dir.zip dir
+find .   -name .svn -prune -o -print | xargs zip ../all.zip
+zip ../bc.zip b c
+find dir -name .svn -prune -o -print | xargs zip ../dir.zip
 cd ..
 zipsub.bat all.zip bc.zip
 zipsub.bat all.zip dir.zip

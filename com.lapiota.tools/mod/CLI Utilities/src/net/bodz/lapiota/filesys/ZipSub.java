@@ -17,6 +17,7 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
+import net.bodz.bas.io.CWD;
 import net.bodz.bas.io.Files;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
@@ -49,7 +50,7 @@ public class ZipSub extends BasicCLI {
             L.i.P("subtract from: ", args[i], " (", n, " uniq entries)");
         }
 
-        File dest = Files.canoniOf(args[0]);
+        File dest = CWD.get(args[0]);
         String destName = Files.getName(dest);
         File destDir = dest.getParentFile();
 
@@ -135,6 +136,7 @@ public class ZipSub extends BasicCLI {
                 }
             }
             in.close();
+            // out.flush(); // ??
             out.closeEntry();
         }
         L.i.P(title, name, " ", entry.getCompressedSize(), "/", size + ". ");
