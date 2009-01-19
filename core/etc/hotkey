@@ -325,14 +325,14 @@ appskey & numpaddiv::
 #right::restore()
 
 #/::run cmdw /c start winedit
-#PrintScreen::run snippingtool
+^!p::run snippingtool
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; application shortcuts {
 #a::fastcall("start ""ANSI""")
 #b::fastcall("start ""Big""")
-#c::run cmd
+#c::fastcall("start ""Normal""")
 #i::run iexplore
 #m::run metapad
 #n::run cmdw /c no

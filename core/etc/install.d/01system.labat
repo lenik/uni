@@ -36,7 +36,6 @@
             - $LAPIOTA\usr\lib
             - ${findabc -w msys}\lib
         - w=        MSYS_ROOT   ${findabc -w msys}
-        - w=        OPENSSL_CONF ${findabc -w openssl}/bin/openssl.cfg
         - w=        PAGER       'less -Ceifr'
         - w-%       PATH        $LAPIOTA
         - w-%       PATH        %HOME%

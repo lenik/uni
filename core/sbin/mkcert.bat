@@ -2,7 +2,7 @@
 
     setlocal
 
-    call findabc openssl bin
+    REM call findabc openssl bin
 
     set makef=%LAPIOTA%\lib\mk\certs.mk
 

@@ -1,11 +1,12 @@
 
 OPENSSL = openssl
+KEYTOOL = keytool
 CERT_OPTS = -days 3650
 SELF = _self
 
 .SECONDARY:
 
-%.all: %.pem %.crt %.p7 %.p8 %.p12 %.log
+%.all: %.pem %.crt %.p7 %.p8 %.p12 %.jks %.jce %.log
 	@#touch $@
 	@echo Certificates have been created for \`$*\'.
 
@@ -70,6 +71,18 @@ SELF = _self
 %.p12: %.crt .%.pem_raw .%.passwd
 	$(OPENSSL) pkcs12 -export -name "$*" -in $< -inkey .$*.pem_raw -out $@ -passout "file:.$*.passwd"
 	cp -f $@ .$*.pfx
+
+%.jks: %.p12 .%.passwd
+	read PASSWD <".$*.passwd"; \
+	$(KEYTOOL) -importkeystore \
+		 -srcstoretype PKCS12 -srckeystore "$<"  -srcstorepass "$$PASSWD" \
+		-deststoretype JKS   -destkeystore "$@" -deststorepass "$$PASSWD"
+
+%.jce: %.p12 .%.passwd
+	read PASSWD <".$*.passwd"; \
+	$(KEYTOOL) -importkeystore \
+		 -srcstoretype PKCS12 -srckeystore "$<"  -srcstorepass "$$PASSWD" \
+		-deststoretype JCEKS -destkeystore "$@" -deststorepass "$$PASSWD"
 
 default:
 	@echo makecert TARGET.all
