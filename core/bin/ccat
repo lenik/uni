@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for file in "$@"; do
+    source-highlight --failsafe -fesc -i "$file"
+done

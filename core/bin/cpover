@@ -1,0 +1,159 @@
+#!/bin/bash
+    RCSID='$Id: .sh 872 2008-10-29 11:51:30Z lenik $'
+    short_opts="hqsv"
+    long_opts="help,quiet,symbolic,verbose,version"
+    ln="ln -sf"
+    . /lapiota/lib/sh/cliboot
+
+    shopt -s dotglob
+    shopt -s nullglob
+
+function assert() {
+    "$@" || echo "assert failure: $@"
+}
+
+function check() {
+    "$@" || echo "check failed: $@"
+}
+
+function version() {
+    parse_id "$RCSID"
+    echo [$BASENAME] Bash_simple_cli_program_template
+    echo Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] SRCDIR OVERRIDES DSTDIR"
+    echo
+    echo "Options: "
+    echo "    -s, --symbolic          using symbolic links"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -s|--symbolic)
+            ln="$ln -s";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $# -ne 3 ]; then help; exit; fi
+    local src=`readlink -f "$1"`
+    local ovr=`readlink -f "$2"`
+    local dst=`readlink -f "$3"`
+    if [ ! -d "$dst" ]; then
+        echo "not a directory: $dst"
+        exit 1
+    fi
+
+    src=`calcref "$dst" "$src"`
+    ovr=`calcref "$dst" "$ovr"`
+
+    cd "$dst"
+    cpover "$src" "$ovr"
+}
+
+function calcref() {
+    local from="$1"
+    local to="$2"
+    local f
+    local t
+    while true; do
+        f="${from%%/*}"
+        t="${to%%/*}"
+        if [ "$f" != "$t" ]; then break; fi
+        if [ "$from" = "${from/\/}" ]; then
+            from=
+        else
+            from="${from#*/}"
+        fi
+        if [ "$to" = "${to/\/}" ]; then
+            to=
+        else
+            to="${to#*/}"
+        fi
+        if [ -z "$from" ]; then break; fi
+    done
+    # to=../../../to
+    local updirs=
+    while [ -n "$from" ]; do
+        if [ "$from" = "${from/\/}" ]; then
+            from=
+        else
+            from="${from%/*}"
+        fi
+        updirs=$updirs../
+    done
+    local ref="$updirs$to"
+    if [ -z "$ref" ]; then ref=.; fi
+    echo "$ref"
+}
+
+function cpover() {
+    local src="$1"
+    local ovr="$2"
+    local indent="$3"
+
+    local pwdbase="${PWD##*/}"
+    echo "$indent$pwdbase"
+    _log2 "  src=$src ovr=$ovr"
+
+    if [ ! -d "$src" -a ! -d "$ovr" ]; then
+        return
+    fi
+
+    if [ -d "$src" ]; then
+        $ln "$src"/* . 2>/dev/null
+    fi
+    if [ -d "$ovr" ]; then
+        for ovrfile in "$ovr"/*; do
+            base="${ovrfile##*/}"
+            if [ -d "$ovrfile" ]; then
+                # file/sym? delete and mkdir
+                if [ -f "$base" -o -L "$base" ]; then
+                    _log2 "ovr-mix: $ovrfile"
+                    rm "$base"
+                    mkdir "$base"
+                # not exist? just symlink.
+                elif [ ! -e "$base" ]; then
+                    _log2 "ovr-only: $ovrfile"
+                    $ln "$ovrfile" .
+                fi
+            else
+                # dir? strange... skip!
+                # file/sym? or not exist? overwrite.
+                _log2 "ovr: $ovrfile"
+                $ln "$ovrfile" .
+            fi
+        done
+    fi
+
+    for sub in */; do
+        sub="${sub%/}"
+        if [ -L "$sub" ]; then continue; fi
+        if [ -d "$sub" ]; then
+            pushd "$sub" >/dev/null
+            cpover "../$src/$sub" "../$ovr/$sub" "$indent  "
+            popd >/dev/null
+        fi
+    done
+}
+
+boot "$@"
