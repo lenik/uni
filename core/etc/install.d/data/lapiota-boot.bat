@@ -7,20 +7,16 @@
 :start
     title Booting...
 
-    if not "%LAPIOTA%"=="" goto located
-
-    for /d %%i in (t lapiota) do (
-        if exist "%%i\." (
-            set LAPIOTA=%%~dpnxi
-            goto located
-        )
+    if "%LAPIOTA%"=="" (
+        echo Lapiota isn't installed correctly.
+        pause >nul
+        exit /b 1
     )
-    set LAPIOTA=C:\Lapiota
 
 :located
     if exist "%LAPIOTA%\.LAPIOTA" (
         echo Already mounted.
-        goto boot
+        goto mounted
     )
 
     rd %LAPIOTA% 2>nul
@@ -34,26 +30,18 @@
     )
     md %LAPIOTA% 2>nul
 
-    set pgd=lam.root.pgd
-    for %%d in (c d e f g h i j k l m n o p q r s t u v w x y z) do (
-        if exist "%%d:\." (
-            for %%f in (%%d:\%pgd% %%d:\.radiko\.miaj\image\%pgd%) do (
-                if exist %%f (
-                    set pgd=%%f
-                    goto found
-                )
-            )
-        )
+    if "%LAM_ROOT%"=="" set LAM_ROOT=%LAPIOTA:~0,-5%
+    for %%b in (%LAM_ROOT%\boot\*.bat) do (
+        call %%b
     )
-    rem if not found...
 
-  :found
-    REM call mount.pgd "%pgd%" "%LAPIOTA%"
-    echo Mount %pgd%...
-    %pgd%
-    echo Mounted
+    if not exist "%LAPIOTA%\.LAPIOTA" (
+        echo Lapiota isn't mounted.
+        pause >nul
+        exit /b 2
+    )
 
-:boot
+:mounted
     REM the .bat version of startup scripts are treated especially.
     cd /d %LAPIOTA%\etc\startup.d
     for %%f in (*.bat) do (

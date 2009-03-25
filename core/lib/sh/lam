@@ -26,7 +26,7 @@ function loadpaths() {
     done
 }
 
-loadpaths /lapiota/etc/paths/* $HOME/etc/paths/*
+loadpaths $LAPIOTA/etc/paths/* $HOME/etc/paths/*
 unset loadpaths
 
 # findonce VAR PATH WILDCARDS
@@ -55,7 +55,7 @@ function findonce() {
 # mountpgp
 function mountpgp() {
     local fstab ext
-    for fstab in /etc/fstab* /lapiota/etc/fstab* $HOME/etc/fstab*; do
+    for fstab in /etc/fstab* $LAPIOTA/etc/fstab* $HOME/etc/fstab*; do
         if [ "${fstab/.}" != "$fstab" ]; then
             ext="${fstab##*.}"
         else

@@ -1,4 +1,4 @@
-#!/lapiota/bin/labat
+#!/lam/kala/bin/labat
 
 - _use: labat::lapiota
 - _use: labat::win32
@@ -72,30 +72,30 @@
       # - w&        PATHEXT     .6 .six .x
         - w=        PERL        $CYGWIN_ROOT\bin\perl
         - w=        PERLW       $CYGWIN_ROOT\bin\perlw
-        - u-        PERLLIB     /lapiota
+        - u-        PERLLIB     /lam/kala
         - u-        PERLLIB     blib/
       # - u-        PERLLIB     /usr/lib
         - u+$       PERLLIB     ->
             - blib/lib
             - blib/arch
-            - /lapiota/lib
+            - /lam/kala/lib
             # /usr/lib/perl5/5.8/cygwin
             # /usr/lib/perl5/5.8
             # /usr/lib/perl5/site_perl/5.8/cygwin
             # /usr/lib/perl5/site_perl/5.8
             # /usr/lib/perl5/vendor_perl/5.8/cygwin
             # /usr/lib/perl5/vendor_perl/5.8
-            # /lapiota/usr/lib/perl5/5.8/site
-            # /lapiota/usr/lib/perl5/5.8/cpan
+            # /lam/kala/usr/lib/perl5/5.8/site
+            # /lam/kala/usr/lib/perl5/5.8/cpan
         - w=        PHPRC       ${findabc -w php}
-        - u-        PYTHONPATH  /lapiota
+        - u-        PYTHONPATH  /lam/kala
       # - u-        PYTHONPATH  /usr/lib
         - u+^       PYTHONPATH  ->
-            - /lapiota/lib
+            - /lam/kala/lib
           # - /usr/lib/python2.5
           # - /usr/lib/python2.5/site-packages
         - u+$       PYTHONPATH  ->
-            - /lapiota/usr/lib/python2.4
+            - /lam/kala/usr/lib/python2.4
         - w=        SHELL       $CYGWIN_ROOT\bin\bash
         - w=        SHELLW      $CYGWIN_ROOT\bin\bashw
 

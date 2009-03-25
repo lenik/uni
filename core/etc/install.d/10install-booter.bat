@@ -28,5 +28,11 @@
 
 :start
     set _startupd=%USERPROFILE%\%l_sm%\%l_programs%\%l_startup%
+
+    rem VISTA?
+    if "%APPDATA:~-7%"=="Roaming" (
+        set _startupd=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup
+    )
+
     echo copy data\lapiota-boot.bat "%_startupd%"
     copy /y data\lapiota-boot.bat "%_startupd%" >nul

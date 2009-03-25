@@ -3,7 +3,7 @@
     short_opts="hqsv"
     long_opts="help,quiet,symbolic,verbose,version"
     ln="ln -sf"
-    . /lapiota/lib/sh/cliboot
+    . /lam/lapiota/lib/sh/cliboot
 
     shopt -s dotglob
     shopt -s nullglob
@@ -18,7 +18,7 @@ function check() {
 
 function version() {
     parse_id "$RCSID"
-    echo [$BASENAME] Bash_simple_cli_program_template
+    echo [$BASENAME] Clone directories with override support
     echo Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date
 }
 

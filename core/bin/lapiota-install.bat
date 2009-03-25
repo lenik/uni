@@ -26,7 +26,7 @@
 
 :main
     rem Always using the cygwin/perl
-    bash -c '/lapiota/etc/install %*'
+    bash -c '/lam/kala/etc/install %*'
 
     cd /d "%~dp0..\etc\install.d"
     call 10install-booter

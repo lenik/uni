@@ -1,0 +1,111 @@
+#!/bin/bash
+
+shopt -s nullglob
+#set -x
+
+function ffind() {
+    local start="$1"
+    local fzpath="$2"
+    local stem rest prefix
+    local vg vgf
+    if [ -z "$fzpath" ]; then
+        echo "$start"
+        return 0
+    fi
+    shift 2
+
+    if [ "${fzpath/\/}" = "${fzpath}" ]; then
+        stem=$fzpath
+        rest=
+    else
+        stem="${fzpath%%/*}"
+        rest="${fzpath#*/}"
+    fi
+
+    # echo start=$start stem=$stem rest=$rest
+    if [ -n "$start" -a ! -d "$start" ]; then
+        echo '  'bad start: $start
+        return 1
+    fi
+
+    # exactly match
+    if [ -d "$start/$stem" ]; then
+        ffind "$start/$stem" "$rest"
+        return $?
+    fi
+
+    # stem*
+    for f in "$start/$stem"*; do
+        ffind "$f" "$rest"
+        return $?
+    done
+
+    # s*/stem, if stem.len > 1
+    prefix="$stem"
+    while [ ${#prefix} -gt 1 ]; do
+        prefix="${prefix:0:${#prefix}-1}"
+        if [ -d "$start/$prefix" ]; then
+            ffind "$start/$prefix" "$fzpath"
+            return $?
+        fi
+    done
+
+    # struct entries
+    if [ -f "$start/.fnd" ]; then
+        while read SENTRY; do
+            if vgf=`ffind "$vg" "$fzpath"`; then
+                echo "$vgf"
+                return 0
+            fi
+        done <"$start/.fnd"
+    fi
+
+    # no-match
+    echo "$start"
+    return 1
+}
+
+# boot
+    if [ $# -lt 1 ]; then
+        echo SYNTAX
+        echo '  'fnd PATH [EXECCMD]
+        echo EXECCMD
+        echo '  'when specified, the found name is appended and executed.
+        echo ENVIRONMENT
+        echo '  'LAM_ROOT is used when PATH is neither /ABSOLUTE nor ./RELATIVE,
+        exit 0
+    fi
+
+    if [ ${#1} = 0 ]; then
+        echo PATH is empty.
+        exit 1
+    fi
+    fzpath="$1"
+    shift
+
+    if [ "${fzpath:0:1}" = "/" ]; then
+        REL=ABS
+        TARGET=`ffind '' "${fzpath:1}"`
+    elif [ "${fzpath:0:2}" = "./" ]; then
+        REL=CUR
+        TARGET=`ffind . "${fzpath:2}"`
+    else
+        if [ -z "$LAM_ROOT" ]; then
+            LAM_ROOT=/lam
+        fi
+        REL=DEFAULT
+        TARGET=`ffind "$LAM_ROOT" "$fzpath"`
+    fi
+
+    if [ $? -eq 0 ]; then
+        if [ $# -gt 0 ]; then
+            "$@" "$TARGET"
+            exit
+        else
+            echo "$TARGET"
+            exit 0
+        fi
+    fi
+
+    echo not-found, stopped at $TARGET
+    exit $?

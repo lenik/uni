@@ -7,5 +7,5 @@ if [ -z $WINVER ]; then
 fi
 
 if [ $WINVER -ge 600 ]; then            # Vista
-    LN_NSF="/lapiota/bin/vista/ln -nsf"
+    LN_NSF="$LAPIOTA/bin/vista/ln -nsf"
 fi

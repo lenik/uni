@@ -59,7 +59,7 @@ function reg_add() {
     fi
 
     echo "[$key]" >>$regf
-    for entry in $*; do
+    for entry in "$@"; do
         nam="${entry%%=*}"
         if [ -z "$nam" ]; then
             nam="@"
@@ -106,10 +106,14 @@ function main() {
             cat "$catfile" | while read name latest tags shortcuts; do
                 if [ -z "$name" -o "${name:0:1}" = "#" ]; then continue; fi
 
-                # dst="$lam_aw/abc.d/$name-$latest/$c"
-                if ! findabc -lr "$lam/abc.d" "$name-"; then
-                    _log1 package not found: $name
-                    continue
+                abcd=/abc.d
+                # dst="$lam_aw$abcd/$name-$latest/$c"
+                if ! findabc -lr "$lam$abcd" "$name-"; then
+                    if ! findabc -lr "$lam" "$name"; then
+                        _log1 package not found: $name
+                        continue
+                    fi
+                    abcd=
                 fi
 
                 if [ -n "$add_tags" ]; then
@@ -137,11 +141,11 @@ function main() {
                         else
                             shortcut="${c##*/}"
                         fi
-                        dstw="$lam_aw/abc.d/$_expand"
+                        dstw="$lam_aw$abcd/$_expand/$c"
                         dstw="${dstw//\//\\}"
-                        _sig1 "alias $shortcut => $dstw\\$c"
+                        _sig1 "alias $shortcut => $dstw"
                         dstwe="${dstw//\\/\\\\}"
-                        reg_add $regf "$APP_PATHS/$shortcut" "=$dstwe\\\\$c" "Path=$dstwe"
+                        reg_add $regf "$APP_PATHS/$shortcut" "=$dstwe" "Path=$dstwe"
                     done
                 fi
             done

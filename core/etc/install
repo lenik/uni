@@ -5,9 +5,9 @@ shopt -s nullglob
 PERLLIB=/usr/lib/perl5/5.8
 PERLLIB=$PERLLIB:/usr/lib/perl5/site_perl/5.8
 PERLLIB=$PERLLIB:/usr/lib/perl5/vendor_perl/5.8
-PERLLIB=$PERLLIB:/lapiota/lib
-# PERLLIB=$PERLLIB:/lapiota/usr/lib/perl5/5.8/site
-# PERLLIB=$PERLLIB:/lapiota/usr/lib/perl5/5.8/cpan
+PERLLIB=$PERLLIB:/lam/kala/lib
+# PERLLIB=$PERLLIB:/lam/kala/usr/lib/perl5/5.8/site
+# PERLLIB=$PERLLIB:/lam/kala/usr/lib/perl5/5.8/cpan
 export PERLLIB
 
 function test_perl() {
@@ -32,14 +32,14 @@ if ! labat --version; then
     return 1
 fi
 
-labat $* /lapiota/etc/install.d/01system.labat
-labat $* /lapiota/etc/install.d/30metapad.labat
-for s in /lapiota/etc/install.d/*.sh; do
+labat $* /lam/kala/etc/install.d/01system.labat
+labat $* /lam/kala/etc/install.d/30metapad.labat
+for s in /lam/kala/etc/install.d/*.sh; do
     $s
 done
 
-cd /lapiota/etc/install.d
-. /lapiota/lib/sh/findabc
+cd /lam/kala/etc/install.d
+. /lam/kala/lib/sh/findabc
 export GIMP=`findabc -p gimp`
 export MYSQL=`findabc -p mysql`
 make -ef 50Makefile

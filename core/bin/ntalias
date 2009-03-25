@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# only using in cygwin.
+# vfat&ntfs-3g don't support the case-insensitive win32 filenames.
+shopt -s nullglob
+
+exts="${PATHEXT//;/ }"
+rest="$PATH"
+while [ -n "$rest" ]; do
+    dir="${rest%%:*}"
+    if [ "$rest" = "${rest/:}" ]; then
+        unset rest
+    else
+        rest="${rest#*:}"
+    fi
+    for ext in $exts; do
+        for name in "$dir"/*$ext; do
+            base="${name##*/}"
+            stem="${base%.*}"
+            echo "alias $stem='$name'"
+        done
+    done
+done

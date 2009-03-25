@@ -200,6 +200,7 @@
     onexit onexit
     run cmdw /c fastcmd
     cmdline_f=;;big
+    l_appdata=%USERPROFILE%\Local Settings\Application Data
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -333,7 +334,12 @@ appskey & numpaddiv::
 #a::fastcall("start ""ANSI""")
 #b::fastcall("start ""Big""")
 #c::fastcall("start ""Normal""")
-#i::run iexplore
+#i::
+    ifexist, %l_appdata%\Google\Chrome\
+        run %l_appdata%\Google\Chrome\Application\chrome
+    else
+        run iexplore
+    return
 #m::run metapad
 #n::run cmdw /c no
 #p::run cmdw /c start paintdotnet

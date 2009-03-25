@@ -2,7 +2,7 @@
 # findabc [-r ROOT] NAME[/] [dirs-addtopath...]
 function findabc() {
     local root output
-    root=/lapiota/abc.d
+    root=$LAPIOTA/abc.d
 	last=
 
     local OPTIND

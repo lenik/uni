@@ -91,5 +91,5 @@ function dump() {
 }
 
 for lib in log rcs; do
-    . /lapiota/lib/sh/$lib
+    . $LAPIOTA/lib/sh/$lib
 done
