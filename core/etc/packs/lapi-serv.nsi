@@ -9,10 +9,10 @@ InstallDir ${LAPIOTA}
 Page instfiles
 
 Section "Services Program Files"
-   ;!insertmacro SubDir $INSTDIR . ${mysql_rel}
+   ;!insertmacro DirRec $INSTDIR . ${mysql_rel}
         SetOutPath $INSTDIR\${mysql_rel}
         File /a /r /x *.pdb .\${mysql_rel}\*
-    !insertmacro SubDir $INSTDIR . ${openssl_rel}
-    !insertmacro SubDir $INSTDIR . ${php_rel}
-    !insertmacro SubDir $INSTDIR . etc\service
+    !insertmacro DirRec $INSTDIR . ${openssl_rel}
+    !insertmacro DirRec $INSTDIR . ${php_rel}
+    !insertmacro DirRec $INSTDIR . etc\service
 SectionEnd

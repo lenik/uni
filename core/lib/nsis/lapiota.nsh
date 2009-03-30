@@ -7,14 +7,19 @@
 !addincludedir $%LAPIOTA%\lib\nsis
 !define PACKOUT ${LAPIOTA}\opt
 
-!macro Files outbase localbase subdir
+!macro DirRec outbase localbase subdir
+    SetOutPath ${outbase}\${subdir}
+    File /nonfatal /a /r /x .svn ${localbase}\${subdir}\*
+!macroend
+
+!macro DirSub outbase localbase subdir
     SetOutPath ${outbase}\${subdir}
     File /nonfatal /a ${localbase}\${subdir}\*
 !macroend
 
-!macro SubDir outbase localbase subdir
-    SetOutPath ${outbase}\${subdir}
-    File /nonfatal /a /r /x .svn ${localbase}\${subdir}\*
+!macro Files  outbase localbase pattern
+    SetOutPath ${outbase}
+    File /nonfatal /a ${localbase}\${pattern}
 !macroend
 
 !macro CpDir outbase localbase subdir
@@ -39,6 +44,7 @@ LicenseLangString LicData ${LANG_ENGLISH}     "${LAPIOTA}\etc\db\licenses\GPLv2"
 LicenseLangString LicData ${LANG_SIMPCHINESE} "${LAPIOTA}\etc\db\licenses\GPLv2"
 LicenseData $(LicData)
 
-Caption "Lapiota Package Installer"
+; Caption set default to title.
+; Caption "Lapiota Package Installer"
 
 ShowInstDetails show

@@ -9,32 +9,32 @@ InstallDir ${LAPIOTA}
 Page instfiles
 
 Section "Java Development Kit"
-    !insertmacro SubDir $INSTDIR . ${jdk_rel}\bin
-    !insertmacro SubDir $INSTDIR . ${jdk_rel}\jre
-    !insertmacro SubDir $INSTDIR . ${jdk_rel}\lib
+    !insertmacro DirRec $INSTDIR . ${jdk_rel}\bin
+    !insertmacro DirRec $INSTDIR . ${jdk_rel}\jre
+    !insertmacro DirRec $INSTDIR . ${jdk_rel}\lib
 SectionEnd
 
 Section "Java Extra Libraries"
-    !insertmacro SubDir $INSTDIR . usr\lib\java
-    !insertmacro SubDir $INSTDIR . usr\src\java
+    !insertmacro DirRec $INSTDIR . usr\lib\java
+    !insertmacro DirRec $INSTDIR . usr\src\java
 SectionEnd
 
 Section "Jawin"
-    !insertmacro SubDir $INSTDIR . ${jawin_rel}
+    !insertmacro DirRec $INSTDIR . ${jawin_rel}
 SectionEnd
 
 Section "Eclipse SDK"
-   ;!insertmacro SubDir $INSTDIR . ${eclipse_rel}
-    !insertmacro Files  $INSTDIR . ${eclipse_rel}\*
-    !insertmacro SubDir $INSTDIR . ${eclipse_rel}\dropins
-    !insertmacro SubDir $INSTDIR . ${eclipse_rel}\features
-    !insertmacro SubDir $INSTDIR . ${eclipse_rel}\links
-    !insertmacro SubDir $INSTDIR . ${eclipse_rel}\links.disabled
-    !insertmacro SubDir $INSTDIR . ${eclipse_rel}\p2
-    !insertmacro SubDir $INSTDIR . ${eclipse_rel}\plugins
-    !insertmacro SubDir $INSTDIR . ${eclipse_rel}\readme
+   ;!insertmacro DirRec $INSTDIR . ${eclipse_rel}
+    !insertmacro DirSub $INSTDIR . ${eclipse_rel}\*
+    !insertmacro DirRec $INSTDIR . ${eclipse_rel}\dropins
+    !insertmacro DirRec $INSTDIR . ${eclipse_rel}\features
+    !insertmacro DirRec $INSTDIR . ${eclipse_rel}\links
+    !insertmacro DirRec $INSTDIR . ${eclipse_rel}\links.disabled
+    !insertmacro DirRec $INSTDIR . ${eclipse_rel}\p2
+    !insertmacro DirRec $INSTDIR . ${eclipse_rel}\plugins
+    !insertmacro DirRec $INSTDIR . ${eclipse_rel}\readme
 SectionEnd
 
 Section "Eclipse Extensions"
-    !insertmacro SubDir $INSTDIR . usr\lib\eclipse
+    !insertmacro DirRec $INSTDIR . usr\lib\eclipse
 SectionEnd

@@ -13,16 +13,16 @@ Section "Msys Minimum"
     SetOutPath $INSTDIR/var
     SetOutPath $INSTDIR/xt
 
-    !insertmacro Files  $INSTDIR . .
-    !insertmacro SubDir $INSTDIR . bin
-    !insertmacro SubDir $INSTDIR . etc
-    !insertmacro SubDir $INSTDIR . libexec
-    !insertmacro SubDir $INSTDIR . man
-    !insertmacro SubDir $INSTDIR . mingw32
-    !insertmacro SubDir $INSTDIR . postinstall
-    !insertmacro SubDir $INSTDIR . sbin
-    !insertmacro SubDir $INSTDIR . share\man
-    !insertmacro SubDir $INSTDIR . ssl
-    !insertmacro SubDir $INSTDIR . usr\local\bin
-    !insertmacro SubDir $INSTDIR . usr\share\man
+    !insertmacro DirSub $INSTDIR . .
+    !insertmacro DirRec $INSTDIR . bin
+    !insertmacro DirRec $INSTDIR . etc
+    !insertmacro DirRec $INSTDIR . libexec
+    !insertmacro DirRec $INSTDIR . man
+    !insertmacro DirRec $INSTDIR . mingw32
+    !insertmacro DirRec $INSTDIR . postinstall
+    !insertmacro DirRec $INSTDIR . sbin
+    !insertmacro DirRec $INSTDIR . share\man
+    !insertmacro DirRec $INSTDIR . ssl
+    !insertmacro DirRec $INSTDIR . usr\local\bin
+    !insertmacro DirRec $INSTDIR . usr\share\man
 SectionEnd

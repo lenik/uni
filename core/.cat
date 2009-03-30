@@ -31,6 +31,7 @@ nmap                    4.20        net.scan
 npp                     4.2.2       dev.edit            npp.exe=notepad++.exe
 nsis                    2.33        dev.ins             nsis.exe=makensisw.exe
 ntfsundelete            0.92        sys.fs              ntfsundelete.exe
+ooo                     3.1         work.doc            programs/s*.exe
 paint.net               3.10        work.img            paintdotnet.exe
 php                     5.2.4       lang.php
 qgo						1.5.4		game.chess			qgo.exe

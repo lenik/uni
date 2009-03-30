@@ -1,32 +1,31 @@
 <?
+#!/bin/bash
 shopt -s nullglob
 
 echo '!'define LAPIOTA $LAPIOTA
 LAPIOTA="${LAPIOTA//\\//}"
 
-# findabc for all modules, and modules in the lams
-function dumplam() {
-    dumpabcd $1 abc.d ""
-}
-
-# dumpabcd root dir prefix
-function dumpabcd() {
+# findLVDirs(root, [level-dir/], [prefix])
+# find directories which is organized in levels, and have version numbers.
+function findLVDirs() {
     local root="$1"
-    local dir="$2"
+    local ldir="$2"
     local prefix="$3"
-    local rootlen=${#root}
-    local preflen=${#prefix}
-    local d d_rel base name ver
-    for d in $root/$dir/*; do
-        if [ ! -d "$d" ]; then continue; fi
-        base="${d##*/}"
-        # ! base.contains(' ')
+    local nroot=${#root}
+    local nprefix=${#prefix}
+    local dir base name ver
+
+    for dir in $root/$ldir$prefix*; do
+        if [ ! -d "$dir" ]; then continue; fi
+        ldir="${dir:nroot+1}"
+        base="${dir##*/}"
+
+        # skip if base contains space
         if [ "${base/ }" != "$base" ]; then continue; fi
-        # base.startsWith($prefix)
-        if [ "${base:0:preflen}" != "$prefix" ]; then continue; fi
-        d_rel="${d:rootlen+1}"
+
+        # has version number?
         if [ "${base/-}" = "$base" ]; then
-            dumpabcd $root $d_rel $base
+            findLVDirs $root $ldir/ $base
         else
             name="${base%%-*}"
             name="${name//./_}"
@@ -34,21 +33,23 @@ function dumpabcd() {
             dname="def_$name"
             if [ -z "${!dname}" ]; then
                 eval "$dname=1"
-                echo '!'define ${name}_home ${d//\//\\}
-                echo '!'define ${name}_rel ${d_rel//\//\\}
+                echo '!'define ${name}_home "${dir//\//\\}"
+                echo '!'define ${name}_rel "${ldir//\//\\}"
             fi
         fi
     done
 }
 
-dumplam $LAPIOTA
-for lams in $LAPIOTA/etc/lams ~/etc/lams; do
-    if [ ! -f $lams ]; then continue; fi
-    while read -r mountp _; do
-        mountp="${mountp//\\//}"
-        if [ -d $mountp/abc.d ]; then
-            dumplam $mountp
-        fi
-    done <$lams
-done
+function fnd_scan() {
+    local dir="$1"
+    if [ ! -d "$dir" ]; then return; fi
+    findLVDirs "$dir"
+    if [ -f "$dir/.fnd" ]; then
+        while read -r fndEntry; do
+            fnd_scan "$dir/$fndEntry"
+        done <"$dir/.fnd"
+    fi
+}
+
+fnd_scan C:/lam
 ?>

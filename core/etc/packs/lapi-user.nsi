@@ -11,7 +11,7 @@ InstallDir ${HOME}
 Page instfiles
 
 Section "User Files"
-    !insertmacro Files  $INSTDIR . .
-    !insertmacro SubDir $INSTDIR . bin
-    !insertmacro SubDir $INSTDIR . etc
+    !insertmacro DirSub $INSTDIR . .
+    !insertmacro DirRec $INSTDIR . bin
+    !insertmacro DirRec $INSTDIR . etc
 SectionEnd

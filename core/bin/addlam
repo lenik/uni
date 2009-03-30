@@ -95,8 +95,10 @@ function main() {
             echo Invalid argument: $arg
             continue
         fi
-        lam_aw=`cygpath -aw "$lam"`
         _log2 LAM: $lam_aw
+        lam_aw=`cygpath -aw "$lam"`
+        nlam=${#lam}
+        nlam_aw=${#lam_aw}
         _log2 pre-install $lam
 
         if [ -f "$catfile" ]; then
@@ -139,13 +141,29 @@ function main() {
                             shortcut="${c%=*}"
                             c="${c#*=}"
                         else
+                            # shortcut=
                             shortcut="${c##*/}"
                         fi
-                        dstw="$lam_aw$abcd/$_expand/$c"
-                        dstw="${dstw//\//\\}"
-                        _sig1 "alias $shortcut => $dstw"
-                        dstwe="${dstw//\\/\\\\}"
-                        reg_add $regf "$APP_PATHS/$shortcut" "=$dstwe" "Path=$dstwe"
+                        modew="$lam_aw$abcd/$_expand/$c"
+                        if [ "$modew" != "${modew/\*}" ]; then
+                            # check $modes !~ /\s/
+                            mode="$lam$abcd/$_expand/$c"
+                            for dst in $mode; do
+                                shortcut="${dst##*/}"
+                                echo "--- alias $shortcut => $dstw"
+                                dstw="$lam_aw${dst:nlam}"
+                                dstw="${dstw//\//\\}"
+                                _sig1 "alias $shortcut => $dstw"
+                                dstwe="${dstw//\\/\\\\}"
+                                reg_add $regf "$APP_PATHS/$shortcut" "=$dstwe" "Path=$dstwe"
+                            done
+                        else
+                            dst="$modew"
+                            dstw="${dst//\//\\}"
+                            _sig1 "alias $shortcut => $dstw"
+                            dstwe="${dstw//\\/\\\\}"
+                            reg_add $regf "$APP_PATHS/$shortcut" "=$dstwe" "Path=$dstwe"
+                        fi
                     done
                 fi
             done
