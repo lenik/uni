@@ -4,20 +4,20 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import net.bodz.bas.cli.util.FindFile;
+import net.bodz.bas.cli.util.ModulesRoot;
 import net.bodz.bas.io.Files;
+import net.bodz.bas.types.HashTextMap;
 import net.bodz.bas.types.TextMap;
-import net.bodz.bas.types.TextMap.HashTextMap;
 
 public class Lapiota {
 
-    public static File            lapRoot;
-    public static File            lapEtc;
-    public static File            lapAbcd;
-    public static File            lapHome;
-    public static File            userHome;
+    public static File               lapRoot;
+    public static File               lapEtc;
+    public static File               lapAbcd;
+    public static File               lapHome;
+    public static File               userHome;
 
-    public static TextMap<File>   lapModules;
+    public static TextMap<File>      lapModules;
 
     static {
         String s = System.getenv("LAPIOTA");
@@ -62,25 +62,25 @@ public class Lapiota {
         }
     }
 
-    private static final FindFile finder;
+    private static final ModulesRoot abcdRoot;
     static {
-        finder = new FindFile(lapAbcd, lapModules);
+        abcdRoot = new ModulesRoot(lapAbcd, lapModules);
     }
 
     public static File findabc(String name, File root) {
-        return finder.findabc(name, root);
+        return abcdRoot.findabc(name, root);
     }
 
     public static File findabc(String name) {
-        return finder.findabc(name);
+        return abcdRoot.findabc(name);
     }
 
     public static File findexp(String exp, File parent) {
-        return finder.findexp(exp, parent);
+        return abcdRoot.findexp(exp, parent);
     }
 
     public static File findexp(String exp) {
-        return finder.findexp(exp);
+        return abcdRoot.findexp(exp);
     }
 
 }

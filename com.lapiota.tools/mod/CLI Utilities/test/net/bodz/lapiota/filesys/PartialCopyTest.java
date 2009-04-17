@@ -6,7 +6,7 @@ import net.bodz.bas.text.encodings.Encodings;
 public class PartialCopyTest {
 
     public static void main(String[] args) {
-        byte[] bytes = "123".getBytes();
+        byte[] bytes = "123".getBytes(); //$NON-NLS-1$
         bytes = Bytes.copyOf(bytes, bytes.length + 1);
         System.out.println(bytes.length);
         System.out.println(Encodings.HEX.encode(bytes));

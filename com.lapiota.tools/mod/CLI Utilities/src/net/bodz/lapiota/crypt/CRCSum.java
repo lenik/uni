@@ -16,7 +16,7 @@ import net.bodz.bas.io.util.Checksums.IKey;
 import net.bodz.bas.io.util.Checksums._Checksum;
 import net.bodz.bas.lang.err.NotImplementedException;
 import net.bodz.bas.lang.err.ParseException;
-import net.bodz.bas.log.ALog;
+import net.bodz.bas.log.LogTerm;
 import net.bodz.bas.mem.types.Int32BE;
 import net.bodz.bas.mem.types.Int32LE;
 import net.bodz.bas.text.encodings.HexEncoding;
@@ -25,6 +25,7 @@ import net.bodz.bas.types.parsers.ClassParser;
 import net.bodz.bas.types.util.Types;
 import net.bodz.lapiota.crypt.Hashes.CRC32_BE;
 import net.bodz.lapiota.crypt.Hashes.CRC32_LE;
+import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.wrappers.BatchCLI;
 
 @Doc("Print or check CRC (32-bit) checksums")
@@ -59,15 +60,15 @@ public class CRCSum extends BatchCLI {
     @Option(name = "status", alias = "S", doc = "don't output anything, status code shows success")
     void errStatus() {
         if (mode != CHECK)
-            L.w.P("err mode is meaningful only when verifying checksums");
-        L.setLevel(ALog.ERROR);
+            L.warn(CLINLS.getString("CRCSum.errModeOnlyVerify")); //$NON-NLS-1$
+        L.setLevel(LogTerm.ERROR);
     }
 
     @Option(name = "warn", alias = "w", doc = "warn about improperly formatted checksum lines")
     void errWarn() {
         if (mode != CHECK)
-            L.w.P("err mode is meaningful only when verifying checksums");
-        L.setLevel(ALog.WARN);
+            L.warn(CLINLS.getString("CRCSum.errModeOnlyVerify")); //$NON-NLS-1$
+        L.setLevel(LogTerm.WARN);
     }
 
     Class<? extends Checksum>   _class = CRC32_LE.class;
@@ -75,9 +76,9 @@ public class CRCSum extends BatchCLI {
     static NamedTypes<Checksum> types;
     static {
         types = new NamedTypes<Checksum>();
-        types.put("le", CRC32_LE.class);
-        types.put("be", CRC32_BE.class);
-        types.put("pgp", CRC32pgp.class);
+        types.put("le", CRC32_LE.class); //$NON-NLS-1$
+        types.put("be", CRC32_BE.class); //$NON-NLS-1$
+        types.put("pgp", CRC32pgp.class); //$NON-NLS-1$
     }
 
     @SuppressWarnings("unchecked")
@@ -95,22 +96,23 @@ public class CRCSum extends BatchCLI {
             if (inst instanceof IKey)
                 ((IKey) inst).setKey((int) key);
             else
-                throw new UnsupportedOperationException("algorithm "
-                        + _class.getName() + " doesn't support key");
+                throw new UnsupportedOperationException(CLINLS
+                        .getString("CRCSum.5") //$NON-NLS-1$
+                        + _class.getName() + CLINLS.getString("CRCSum.6")); //$NON-NLS-1$
         return inst;
     }
 
     @Override
     protected void _boot() throws Throwable {
         if (mode == CHECK)
-            throw new NotImplementedException("Check is not implemented");
+            throw new NotImplementedException("Check is not implemented"); //$NON-NLS-1$
     }
 
-    static HexEncoding HEX = new HexEncoding("");
+    static HexEncoding HEX = new HexEncoding(""); //$NON-NLS-1$
 
     @Override
     protected void doFile(File file, InputStream in) throws Throwable {
-        String name = file == null ? "-" : file.getName();
+        String name = file == null ? "-" : file.getName(); //$NON-NLS-1$
         byte[] data = Files.readBytes(in);
         // algorithmClass.newInstance();
         Checksum csum;
@@ -125,7 +127,7 @@ public class CRCSum extends BatchCLI {
             Int32LE.write(buf, val);
         }
         String hex = HEX.encode(buf);
-        System.out.println(hex + " *" + name);
+        System.out.println(hex + " *" + name); //$NON-NLS-1$
     }
 
     @Override
@@ -138,9 +140,11 @@ public class CRCSum extends BatchCLI {
         super._help(out);
         out.println();
 
-        out.println("Named Algorithms: ");
+        out.println(CLINLS.getString("CRCSum.namedAlgs")); //$NON-NLS-1$
         for (String name : types.keySet())
-            out.printf("    %8s = %s\n", name, types.get(name));
+            out
+                    .printf(
+                            CLINLS.getString("CRCSum.algInfo_ss"), name, types.get(name)); //$NON-NLS-1$
 
         out.flush();
     }

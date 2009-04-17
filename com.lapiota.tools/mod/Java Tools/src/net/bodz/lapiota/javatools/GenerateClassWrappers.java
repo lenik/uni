@@ -23,7 +23,7 @@ import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.CharOuts;
 import net.bodz.bas.io.Files;
-import net.bodz.bas.io.CharOuts.Buffer;
+import net.bodz.bas.io.CharOuts.BCharOut;
 import net.bodz.bas.lang.Caller;
 import net.bodz.bas.lang.util.Classpath;
 import net.bodz.bas.types.Checks.FileAccess;
@@ -125,7 +125,7 @@ public class GenerateClassWrappers extends BasicCLI {
             count++;
         }
         jar.close();
-        L.i.P("added ", count, " classes from ", jarfile);
+        L.info("added ", count, " classes from ", jarfile);
     }
 
     @Option(alias = "d", vnam = "DIR", doc = "add all public classes from the directory")
@@ -133,7 +133,7 @@ public class GenerateClassWrappers extends BasicCLI {
             IOException {
         Classpath.addURL(Files.getURL(dir));
         int count = addDirectory(dir, "");
-        L.i.P("added ", count, " classes from ", dir);
+        L.info("added ", count, " classes from ", dir);
     }
 
     protected int addDirectory(File dir, String prefix) {
@@ -171,7 +171,7 @@ public class GenerateClassWrappers extends BasicCLI {
             String fqcn = line.trim();
             count += addClass(fqcn, false);
         }
-        L.i.P("added ", count, " classes from ", list);
+        L.info("added ", count, " classes from ", list);
     }
 
     @Option(alias = "w", vnam = "PACKAGE")
@@ -212,7 +212,7 @@ public class GenerateClassWrappers extends BasicCLI {
 
         // TypeVariable<?>[] ctv = clazz.getTypeParameters();
 
-        Buffer body = new CharOuts.Buffer();
+        BCharOut body = new CharOuts.BCharOut();
         body.print("public class " + wname);
         if (clazz.isInterface())
             body.println(" implements " + clazz.getName() + " {");
@@ -231,7 +231,7 @@ public class GenerateClassWrappers extends BasicCLI {
     @Override
     protected void doMain(String[] args) throws Throwable {
         for (Class<?> clazz : classes) {
-            L.i.sig("type ", clazz);
+            L.tinfo("type ", clazz);
             make(clazz);
         }
     }

@@ -23,7 +23,7 @@ public class Ascii2Native extends BatchEditCLI {
     class Udecode extends Unescape {
 
         public Udecode() {
-            super("\\");
+            super("\\"); //$NON-NLS-1$
         }
 
         @Override

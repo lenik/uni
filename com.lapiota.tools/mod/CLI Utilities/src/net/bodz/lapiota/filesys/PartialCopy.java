@@ -30,6 +30,7 @@ import net.bodz.bas.types.parsers.HexParser;
 import net.bodz.lapiota.crypt.CRCSum.CRC32pgp;
 import net.bodz.lapiota.crypt.FindHash.Range;
 import net.bodz.lapiota.crypt.FindHash.RangeParser;
+import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.util.StringUtil;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
@@ -46,7 +47,7 @@ public class PartialCopy extends BasicCLI {
     protected Charset encoding  = Charset.defaultCharset();
 
     @Option(alias = "p", vnam = "reused padding chars")
-    protected char[]  padding   = "\0".toCharArray();
+    protected char[]  padding   = CLINLS.getString("PartialCopy.0").toCharArray(); //$NON-NLS-1$
 
     @Option(alias = "k", doc = "don't expand the dst file")
     protected boolean truncate;
@@ -67,14 +68,14 @@ public class PartialCopy extends BasicCLI {
     private int       copies;
 
     public PartialCopy() {
-        plugins.registerCategory("process", Process.class);
-        plugins.register("crc.pgp", PGPCRC32.class, this);
+        plugins.registerCategory(CLINLS.getString("PartialCopy.1"), Process.class); //$NON-NLS-1$
+        plugins.register(CLINLS.getString("PartialCopy.2"), PGPCRC32.class, this); //$NON-NLS-1$
     }
 
     @Option(name = "src-textsz", alias = "a", vnam = "TEXT", doc = "src by ASCIZ text")
     protected void setSrcTextSZ(String text) {
         if (src != null)
-            throw new IllegalStateException("src is already set: " + src);
+            throw new IllegalStateException(CLINLS.getString("PartialCopy.srcIsSet") + src); //$NON-NLS-1$
         byte[] bytes = text.getBytes(encoding);
         bytes = Bytes.copyOf(bytes, bytes.length + 1);
         setSrcBytes(bytes);
@@ -83,7 +84,7 @@ public class PartialCopy extends BasicCLI {
     @Option(name = "src-textraw", alias = "A", vnam = "TEXT", doc = "src by raw text")
     protected void setSrcTextRaw(String text) {
         if (src != null)
-            throw new IllegalStateException("src is already set: " + src);
+            throw new IllegalStateException(CLINLS.getString("PartialCopy.srcIsSet") + src); //$NON-NLS-1$
         byte[] bytes = text.getBytes(encoding);
         setSrcBytes(bytes);
     }
@@ -92,7 +93,7 @@ public class PartialCopy extends BasicCLI {
     @ParseBy(HexParser.class)
     protected void setSrcBytes(byte[] bytes) {
         if (src != null)
-            throw new IllegalStateException("src is already set: " + src);
+            throw new IllegalStateException(CLINLS.getString("PartialCopy.srcIsSet") + src); //$NON-NLS-1$
         src = new ArrayMemory(bytes);
         srcSize = bytes.length;
     }
@@ -100,8 +101,8 @@ public class PartialCopy extends BasicCLI {
     @Option(name = "src-file", alias = "f", vnam = "FILE")
     protected void setSrcFile(File file) throws IOException {
         if (src != null)
-            throw new IllegalStateException("src is already set: " + src);
-        RandomAccessFile rf = new RandomAccessFile(file, "r");
+            throw new IllegalStateException(CLINLS.getString("PartialCopy.srcIsSet") + src); //$NON-NLS-1$
+        RandomAccessFile rf = new RandomAccessFile(file, "r"); //$NON-NLS-1$
         src = new RandomAccessFileMemory(rf, 0);
         srcSize = rf.length();
     }
@@ -109,8 +110,8 @@ public class PartialCopy extends BasicCLI {
     @Option(name = "dst-file", alias = "o", vnam = "FILE", doc = "default output to stdout")
     protected void setDstFile(File file) throws IOException {
         if (dst != null)
-            throw new IllegalStateException("dst is already set: " + src);
-        RandomAccessFile rf = new RandomAccessFile(file, "rw");
+            throw new IllegalStateException(CLINLS.getString("PartialCopy.dstIsSet") + src); //$NON-NLS-1$
+        RandomAccessFile rf = new RandomAccessFile(file, "rw"); //$NON-NLS-1$
         dst = new RandomAccessFileMemory(rf, 0);
         dstSize = rf.length();
     }
@@ -129,14 +130,14 @@ public class PartialCopy extends BasicCLI {
     @Option(name = "dst-start", alias = "z", vnam = "EXP", doc = "start position of dst file to copy to")
     protected void setDstStart(String exp) throws AccessException {
         if (dst == null)
-            throw new IllegalStateException("dst isn't set");
+            throw new IllegalStateException(CLINLS.getString("PartialCopy.dstIsntSet")); //$NON-NLS-1$
         dstStart = parsePosition(dst, 0, dstSize, exp);
     }
 
     @Option(name = "dst-end", alias = "w", vnam = "EXP", doc = "select size by dst range")
     protected void setDstEnd(String exp) throws AccessException {
         if (dst == null)
-            throw new IllegalStateException("dst isn't set");
+            throw new IllegalStateException(CLINLS.getString("PartialCopy.dstIsntSet")); //$NON-NLS-1$
         long dstEnd = parsePosition(dst, dstStart, dstSize, exp);
         srclcopy = dstEnd - dstStart;
     }
@@ -150,9 +151,9 @@ public class PartialCopy extends BasicCLI {
     protected void doCopy() throws AccessException, IOException {
         File tmp = null;
         if (src == null)
-            throw new IllegalUsageException("src isn't specified");
+            throw new IllegalUsageException(CLINLS.getString("PartialCopy.srcIsntSpecified")); //$NON-NLS-1$
         if (dst == null) {
-            tmp = File.createTempFile("partcp", ".bin", Files.getTmpDir());
+            tmp = File.createTempFile("partcp", ".bin", Files.getTmpDir()); //$NON-NLS-1$ //$NON-NLS-2$
             setDstFile(tmp);
         }
 
@@ -192,7 +193,7 @@ public class PartialCopy extends BasicCLI {
             dstCopy = dstCopy.offset(cb);
             srcl -= cb;
         }
-        assert srcl == 0 : "srcl=" + srcl;
+        assert srcl == 0 : "srcl=" + srcl; //$NON-NLS-1$
 
         if (padlen > 0) {
             for (int i = 0; i < block.length; i++)
@@ -232,16 +233,16 @@ public class PartialCopy extends BasicCLI {
                     flags = flags.substring(1);
                     extent = StringUtil.parseInt(flags);
                     fromEnd = false;
-                    flags = "";
+                    flags = ""; //$NON-NLS-1$
                     break;
                 case '-':
                     flags = flags.substring(1);
                     extent = StringUtil.parseInt(flags);
                     fromEnd = true;
-                    flags = "";
+                    flags = ""; //$NON-NLS-1$
                     break;
                 default:
-                    throw new IllegalArgumentException("unknown flag: " + flags);
+                    throw new IllegalArgumentException(CLINLS.getString("PartialCopy.unknownFlag") + flags); //$NON-NLS-1$
                 }
             }
         }
@@ -255,19 +256,19 @@ public class PartialCopy extends BasicCLI {
 
     protected long parsePosition(Memory mem, long start, long end, String exp)
             throws AccessException {
-        if ("*".equals(exp)) // till-end
+        if ("*".equals(exp)) // till-end //$NON-NLS-1$
             return -1;
 
-        if (exp.startsWith("/")) { // /REGEX
+        if (exp.startsWith("/")) { // /REGEX //$NON-NLS-1$
             Flags flags = new Flags();
             int slash = exp.lastIndexOf('/');
             if (slash != -1) {
                 flags.parse(exp.substring(slash + 1));
                 exp = exp.substring(0, slash);
             }
-            throw new NotImplementedException("REGEX");
+            throw new NotImplementedException(CLINLS.getString("PartialCopy.REGEX")); //$NON-NLS-1$
 
-        } else if (exp.startsWith("x/")) { // x/HEX
+        } else if (exp.startsWith("x/")) { // x/HEX //$NON-NLS-1$
             Flags flags = new Flags();
             exp = exp.substring(2);
             int slash = exp.lastIndexOf('/');
@@ -277,7 +278,7 @@ public class PartialCopy extends BasicCLI {
             }
             byte[] pattern = StringUtil.parseHex(exp);
             if (pattern.length == 0)
-                throw new IllegalArgumentException("pattern is empty");
+                throw new IllegalArgumentException(CLINLS.getString("PartialCopy.patternIsEmpty")); //$NON-NLS-1$
             byte[] buf = new byte[pattern.length];
             Memory fMem = mem.offset(start);
             int fSize = IntMath.min(Integer.MAX_VALUE, end - pattern.length);
@@ -286,7 +287,7 @@ public class PartialCopy extends BasicCLI {
                 if (Arrays.equals(pattern, buf))
                     return start + off + flags.extend(pattern.length);
             }
-            throw new RuntimeException("no match of hex");
+            throw new RuntimeException(CLINLS.getString("PartialCopy.noMatchHex")); //$NON-NLS-1$
         }
 
         else { // [+-]INT
@@ -310,15 +311,15 @@ public class PartialCopy extends BasicCLI {
         super._help(out);
         out.println();
 
-        out.println("Format of EXP: ");
-        out.println("    INT             absolute position");
-        out.println("   +INT             length");
-        out.println("   -INT             offset to the end");
-        out.println("   /REGEX[/FLAGS]   search regular expression");
-        out.println("  x/HEX/FLAGS       search binary");
-        out.println("       flag +/-NUM  extent to the start of match");
-        out.println("       flag i       case-insensitive");
-        out.println("    *               set to the default value");
+        out.println(CLINLS.getString("PartialCopy.exprFormat")); //$NON-NLS-1$
+        out.println(CLINLS.getString("PartialCopy.expr.absolute")); //$NON-NLS-1$
+        out.println(CLINLS.getString("PartialCopy.expr.addlen")); //$NON-NLS-1$
+        out.println(CLINLS.getString("PartialCopy.expr.sublen")); //$NON-NLS-1$
+        out.println(CLINLS.getString("PartialCopy.expr.regex")); //$NON-NLS-1$
+        out.println(CLINLS.getString("PartialCopy.expr.regex.bin")); //$NON-NLS-1$
+        out.println(CLINLS.getString("PartialCopy.expr.xregex.flagExt")); //$NON-NLS-1$
+        out.println(CLINLS.getString("PartialCopy.expr.xregex.flagI")); //$NON-NLS-1$
+        out.println(CLINLS.getString("PartialCopy.expr.setToDef")); //$NON-NLS-1$
         out.flush();
     }
 
@@ -359,12 +360,12 @@ public class PartialCopy extends BasicCLI {
         public byte[] process(Memory src, long lenl) throws AccessException {
             if (lenl >= Integer.MAX_VALUE)
                 throw new UnsupportedOperationException(
-                        "unsupport to get crc32 from >2G block");
+                        CLINLS.getString("PartialCopy.tooLong")); //$NON-NLS-1$
             int len = (int) lenl;
             byte[] bigEndian = new byte[len];
             src.read(0, bigEndian);
             if (len % 4 != 0)
-                throw new IllegalArgumentException("PGP-CRC32 is DWORD aligned");
+                throw new IllegalArgumentException(CLINLS.getString("PartialCopy.pgpCrc32ShouldAligned")); //$NON-NLS-1$
             if (fillRange != null) { // fill before switch byte-order
                 int padIndex = 0;
                 for (int i = fillRange.from; i < fillRange.to; i++) {

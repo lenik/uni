@@ -23,8 +23,8 @@ import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.ArgsParseBy;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
+import net.bodz.bas.io.FileFinder;
 import net.bodz.bas.io.Files;
-import net.bodz.bas.io.FsWalk;
 import net.bodz.bas.lang.Caller;
 import net.bodz.bas.lang.Control;
 import net.bodz.bas.lang.util.Classpath;
@@ -50,33 +50,27 @@ public class FindClassResource extends BasicCLI {
     @Option(alias = "b", vnam = "FILE|DIR")
     @ParseBy(FileParser2.class)
     protected void bootClasspath(File file) throws IOException {
-        FsWalk walker = new FsWalk(file, filter, recursive) {
-            @Override
-            public void process(File file) throws IOException {
-                if (file.isDirectory())
-                    return;
-                URL url = Files.getURL(file);
-                L.x.P("add boot-classpath: ", url);
-                Classpath.addURL(url);
-            }
-        };
-        walker.walk();
+        FileFinder finder = new FileFinder(filter, recursive, file);
+        for (File f : finder.listFiles()) {
+            if (f.isDirectory())
+                return;
+            URL url = Files.getURL(f);
+            L.debug("add boot-classpath: ", url);
+            Classpath.addURL(url);
+        }
     }
 
     @Option(alias = "c", vnam = "FILE|DIR")
     @ArgsParseBy(FileParser2.class)
     protected void classpath(File file) throws IOException {
-        FsWalk walker = new FsWalk(file, filter, recursive) {
-            @Override
-            public void process(File file) throws IOException {
-                if (file.isDirectory())
-                    return;
-                URL url = Files.getURL(file);
-                L.x.P("queue classpath: ", url);
-                classpaths.add(url);
-            }
-        };
-        walker.walk();
+        FileFinder finder = new FileFinder(filter, recursive, file);
+        for (File f : finder.listFiles()) {
+            if (f.isDirectory())
+                return;
+            URL url = Files.getURL(f);
+            L.debug("queue classpath: ", url);
+            classpaths.add(url);
+        }
     }
 
     static String libpath(URL url) throws IOException {
@@ -148,7 +142,7 @@ public class FindClassResource extends BasicCLI {
             Method mainf = clazz.getMethod("main", String[].class);
             try {
                 try {
-                    L.i.P("execute ", mainf.getDeclaringClass(), "::", mainf
+                    L.info("execute ", mainf.getDeclaringClass(), "::", mainf
                             .getName(), "/", testArguments.length);
                     Control.invoke(mainf, null, (Object) testArguments);
                 } catch (InvocationTargetException te) {
@@ -162,14 +156,14 @@ public class FindClassResource extends BasicCLI {
             } catch (NoClassDefFoundError e) {
                 String respath = e.getMessage();
                 String failClass = respath.replace('/', '.');
-                L.w.P("try(", itry, ") ", failClass);
+                L.warn("try(", itry, ") ", failClass);
                 tryAdd = tryFind(failClass);
                 if (tryAdd != null) {
                     String lib = libpath(tryAdd);
-                    L.i.P("add required ", lib);
+                    L.info("add required ", lib);
                     URL liburl = Files.getURL(new File(lib));
                     if (tryAdds.contains(liburl)) {
-                        L.e.P("loop fail");
+                        L.error("loop fail");
                         break;
                     }
                     tryAdds.add(liburl);
@@ -177,15 +171,15 @@ public class FindClassResource extends BasicCLI {
                     Classpath.addURL(craftLoader, liburl);
                     continue;
                 } else {
-                    L.e.P("failed to find: ", failClass);
+                    L.error("failed to find: ", failClass);
                     throw e;
                 }
             }
             break;
         }
-        L.m.P("test succeeded, the required libraries: ");
+        L.nmesg("test succeeded, the required libraries: ");
         for (URL url : tryAdds)
-            L.m.P(libpath(url));
+            L.nmesg(libpath(url));
 
         testClass = null;
     }
@@ -194,7 +188,7 @@ public class FindClassResource extends BasicCLI {
     protected void doMain(String[] args) throws Throwable {
         if (testClass == null) {
             for (URL url : classpaths) {
-                L.x.P("add classpath: ", url);
+                L.debug("add classpath: ", url);
                 Classpath.addURL(url);
             }
 
@@ -203,16 +197,16 @@ public class FindClassResource extends BasicCLI {
             if (args.length > 0)
                 strings = Arrays.asList(args);
             else {
-                L.u.P("Enter class names or resource paths: ");
+                L.nuser("Enter class names or resource paths: ");
                 strings = Files.readByLine(System.in);
             }
             for (String name : strings) {
                 name = name.trim();
                 URL url = findResource(loader, name);
                 if (url == null)
-                    L.m.P("No-Class: ", name);
+                    L.nmesg("No-Class: ", name);
                 else
-                    L.m.P("Found: ", libpath(url));
+                    L.nmesg("Found: ", libpath(url));
             }
         } else {
             if (args.length > 0) {

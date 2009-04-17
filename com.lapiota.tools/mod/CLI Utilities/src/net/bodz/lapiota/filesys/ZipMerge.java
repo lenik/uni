@@ -15,6 +15,7 @@ import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.types.util.Iterates;
+import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.wrappers.BatchCLI;
 
 @Doc("Merge Zip Archieves")
@@ -41,7 +42,7 @@ public class ZipMerge extends BatchCLI {
 
     @Override
     protected void doFile(File file) throws IOException {
-        L.m.P("add ", file);
+        L.mesg(CLINLS.getString("ZipMerge.add"), file); //$NON-NLS-1$
         ZipFile zip = new ZipFile(file);
         try {
             for (ZipEntry s : Iterates.iterate(zip.entries())) {
@@ -55,8 +56,8 @@ public class ZipMerge extends BatchCLI {
                 t.setTime((s.getTime()));
                 zout.putNextEntry(t);
 
-                String title = "  add " + t.getName() + //
-                        " (" + s.getSize() + " bytes, ";
+                String title = CLINLS.getString("ZipMerge.__add") + t.getName() + // //$NON-NLS-1$
+                        " (" + s.getSize() + CLINLS.getString("ZipMerge.bytes"); //$NON-NLS-1$ //$NON-NLS-2$
                 int lastPercent = 0;
                 long written = 0;
                 for (byte[] block : Files.readByBlock(ein)) {
@@ -64,11 +65,11 @@ public class ZipMerge extends BatchCLI {
                     written += block.length;
                     int percent = (int) (100 * written / s.getSize());
                     if (percent != lastPercent) {
-                        L.i.sig(title, percent, "%)");
+                        L.tinfo(title, percent, "%)"); //$NON-NLS-1$
                         lastPercent = percent;
                     }
                 }
-                L.d.P();
+                L.detail().p();
             }
         } finally {
             zip.close();

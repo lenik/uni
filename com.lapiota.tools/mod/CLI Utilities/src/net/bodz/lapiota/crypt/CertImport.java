@@ -42,13 +42,13 @@ public class CertImport extends BasicCLI {
 
         for (String arg : args) {
             CertSelector srcCert = new CertSelector(arg);
-            L.m.P("import ", srcCert);
+            L.mesg("import ", srcCert);
             String alias = srcCert.getCertAlias();
             Certificate cert = srcCert.getCertificate();
             targetStore.setCertificateEntry(alias, cert);
         }
 
-        L.m.P("save ", target);
+        L.mesg("save ", target);
         OutputStream out = Files.getOutputStream(target.getStoreFile());
         try {
             targetStore.store(out, target.getStorePassword().toCharArray());

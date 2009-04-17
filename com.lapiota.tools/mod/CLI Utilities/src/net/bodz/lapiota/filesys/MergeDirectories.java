@@ -17,7 +17,8 @@ import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.util.ProtectedShell;
 import net.bodz.bas.io.Files;
-import net.bodz.bas.log.LogOut;
+import net.bodz.bas.io.term.Terminal;
+import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @Doc("Merge directories of same architecture")
@@ -42,9 +43,9 @@ public class MergeDirectories extends BatchEditCLI {
     @Override
     protected void _boot() throws Throwable {
         if (digest == null)
-            digest = MessageDigest.getInstance("SHA-1");
+            digest = MessageDigest.getInstance("SHA-1"); //$NON-NLS-1$
         if (thresholdAndDeleteIgnored != null) {
-            assert threshold == null : "both -t and -T are specified";
+            assert threshold == null : "both -t and -T are specified"; //$NON-NLS-1$
             threshold = thresholdAndDeleteIgnored;
             deleteIgnored = true;
         }
@@ -54,7 +55,7 @@ public class MergeDirectories extends BatchEditCLI {
 
     static class ClearPars_PSH extends ProtectedShell {
 
-        public ClearPars_PSH(boolean enabled, LogOut out) {
+        public ClearPars_PSH(boolean enabled, Terminal out) {
             super(enabled, out);
         }
 
@@ -114,13 +115,15 @@ public class MergeDirectories extends BatchEditCLI {
 
     @Override
     protected ProtectedShell _getShell() {
-        return new ClearPars_PSH(!parameters().isDryRun(), L.m);
+        return new ClearPars_PSH(!parameters().isDryRun(), L.info());
     }
 
     @Override
     protected void doFileArgument(File startFile) throws Throwable {
         if (!startFile.isDirectory()) {
-            L.i.P("skipped file ", startFile);
+            L
+                    .info(
+                            CLINLS.getString("MergeDirectories.skippedFile"), startFile); //$NON-NLS-1$
             return;
         }
         // throw new IllegalArgumentException("not a directory: " + startFile);
@@ -220,21 +223,27 @@ public class MergeDirectories extends BatchEditCLI {
 
             if (rhash.equals(hash)) {
                 File start = currentStartFile.getParentFile();
-                if (start == null)
-                    L.w.P("start file ", currentStartFile,
-                            " is a rootdir, which may cause problems");
+                if (start == null) {
+                    L
+                            .fwarn(
+                                    CLINLS
+                                            .getString("MergeDirectories.rootWarn_s"), currentStartFile); //$NON-NLS-1$
+                }
                 File dst = getOutputFile(rname, start);
                 if (dst.exists()) {
                     if (dst.equals(file))
-                        return EditResult.pass("same");
+                        return EditResult.pass(CLINLS
+                                .getString("MergeDirectories.same")); //$NON-NLS-1$
                     else
-                        return EditResult.rm("same-kill"); // psh.delete(file)
+                        return EditResult.rm(CLINLS
+                                .getString("MergeDirectories.sameKill")); // psh.delete(file) //$NON-NLS-1$
                     // ;
                 } else
                     return EditResult.mv(dst); // psh.move(file, dst);
             } else {
                 if (reduced && deleteIgnored)
-                    return EditResult.rm("ignore-kill");
+                    return EditResult.rm(CLINLS
+                            .getString("MergeDirectories.ignoreKill")); //$NON-NLS-1$
             }
             return EditResult.pass();
         } else {

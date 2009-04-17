@@ -10,11 +10,12 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.gui.GUIException;
-import net.bodz.bas.gui.Interaction;
 import net.bodz.bas.gui.a.PreferredSize;
 import net.bodz.bas.lang.err.ParseException;
+import net.bodz.bas.rt.Interaction;
 import net.bodz.lapiota.wrappers.BasicGUI;
 import net.bodz.swt.gui.SWTInteraction;
+import net.bodz.swt.util.SWTResources;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -33,8 +34,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
-
-import com.swtdesigner.SWTResourceManager;
 
 @Doc("GUI iconv utility")
 @PreferredSize(width = 640, height = 480)
@@ -101,8 +100,7 @@ public class GIconv extends BasicGUI {
         encode1Button.setText("&Encode↘");
 
         E1Hold = new Button(comp, SWT.TOGGLE);
-        E1Hold.setImage(SWTResourceManager.getImage(GIconv.class,
-                "/icons/obj16/link_obj.gif"));
+        E1Hold.setImage(SWTResources.getImageRes("/icons/obj16/link_obj.gif"));
         final FormData fd_e1Hold = new FormData();
         fd_e1Hold.right = new FormAttachment(encode1Button, -5, SWT.LEFT);
         fd_e1Hold.top = new FormAttachment(text1Text, 5, SWT.BOTTOM);
@@ -115,8 +113,7 @@ public class GIconv extends BasicGUI {
         encode2Button.setLayoutData(fd_encode2Button);
         encode2Button.setText("&Encode↗");
         E2Hold = new Button(comp, SWT.TOGGLE);
-        E2Hold.setImage(SWTResourceManager.getImage(GIconv.class,
-                "/icons/obj16/link_obj.gif"));
+        E2Hold.setImage(SWTResources.getImageRes("/icons/obj16/link_obj.gif"));
         final FormData fd_e2Hold = new FormData();
         fd_e2Hold.right = new FormAttachment(encode2Button, -5, SWT.LEFT);
         fd_e2Hold.bottom = new FormAttachment(text2Text, -5, SWT.TOP);
@@ -145,8 +142,7 @@ public class GIconv extends BasicGUI {
         fd_d1Hold.top = new FormAttachment(text1Text, 5, SWT.BOTTOM);
         fd_d1Hold.left = new FormAttachment(decode1Button, 5, SWT.RIGHT);
         D1Hold.setLayoutData(fd_d1Hold);
-        D1Hold.setImage(SWTResourceManager.getImage(GIconv.class,
-                "/icons/obj16/link_obj.gif"));
+        D1Hold.setImage(SWTResources.getImageRes("/icons/obj16/link_obj.gif"));
         decode2Button = new Button(comp, SWT.NONE);
         fd_charset2.bottom = new FormAttachment(decode2Button, -5, SWT.TOP);
         final FormData fd_decode2Button = new FormData();
@@ -160,8 +156,7 @@ public class GIconv extends BasicGUI {
         fd_d2Hold.bottom = new FormAttachment(text2Text, -5, SWT.TOP);
         fd_d2Hold.left = new FormAttachment(decode2Button, 5, SWT.RIGHT);
         D2Hold.setLayoutData(fd_d2Hold);
-        D2Hold.setImage(SWTResourceManager.getImage(GIconv.class,
-                "/icons/obj16/link_obj.gif"));
+        D2Hold.setImage(SWTResources.getImageRes("/icons/obj16/link_obj.gif"));
 
         binText = new Text(comp, SWT.WRAP | SWT.V_SCROLL | SWT.MULTI
                 | SWT.BORDER);

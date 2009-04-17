@@ -37,7 +37,7 @@ import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.types.TextMap;
-import net.bodz.bas.types.TextMap.TreeTextMap;
+import net.bodz.bas.types.TreeTextMap;
 import net.bodz.bas.types.util.Comparators;
 import net.bodz.bas.types.util.Iterates;
 import net.bodz.bas.types.util.Strings;
@@ -58,15 +58,15 @@ public class CLIEnviron extends BasicCLI {
         Collections.sort(keys);
         for (Object key : keys) {
             String value = env.get(key);
-            L.m.P(key, " = ", value);
+            L.mesg(key, " = ", value);
         }
-        L.m.P();
+        L.mesg().p();
     }
 
     @Option(alias = "p", doc = "Dump system properties")
     void dumpProperties() {
         dump("System", System.getProperties(), 1);
-        L.m.P();
+        L.mesg().p();
     }
 
     @Option(alias = "s", doc = "Dump security providers")
@@ -96,7 +96,7 @@ public class CLIEnviron extends BasicCLI {
     }
 
     void dumpProvider(Provider provider) {
-        L.m.PF("Provider %s (%.2f): %s", provider.getName(), provider
+        L.fmesg("Provider %s (%.2f): %s\n", provider.getName(), provider
                 .getVersion(), provider.getInfo());
         dump(provider.getName(), provider, 1);
         List<Service> services = new ArrayList<Service>(provider.getServices());
@@ -118,7 +118,9 @@ public class CLIEnviron extends BasicCLI {
         for (Service service : services) {
             String type = service.getType();
             String alg = service.getAlgorithm();
-            L.m.PF("  Service %s(%s): %s", type, alg, service.getClassName());
+            L
+                    .fmesg("  Service %s(%s): %s\n", type, alg, service
+                            .getClassName());
             Set<Service> servsInType = types.get(type);
             if (servsInType == null)
                 types.put(type, servsInType = new HashSet<Service>());
@@ -130,7 +132,7 @@ public class CLIEnviron extends BasicCLI {
             for (Service storeServ : certStores) {
                 assert provider == storeServ.getProvider();
                 String storeType = storeServ.getAlgorithm();
-                L.m.p("  CertStore ", storeType, ": ");
+                L.nmesg("  CertStore ", storeType, ": ");
                 try {
                     CertStore store;
                     CertStoreParameters csparams = null;
@@ -147,12 +149,12 @@ public class CLIEnviron extends BasicCLI {
                             .getInstance(storeType, csparams, provider);
                     Collection<? extends Certificate> certs = store
                             .getCertificates(null);
-                    L.m.P(certs.size(), " entries");
+                    L.mesg(certs.size(), " entries");
                     for (Certificate cert : certs) {
                         dumpCert("    ", cert, null);
                     }
                 } catch (Exception e) {
-                    L.e.P(e);
+                    L.error(e);
                 }
             }
         Set<Service> keyStores = types.get("KeyStore");
@@ -161,7 +163,7 @@ public class CLIEnviron extends BasicCLI {
                 assert provider == storeServ.getProvider();
                 String storeType = storeServ.getAlgorithm();
                 // String storeClass = storeServ.getClassName();
-                L.m.p("  KeyStore ", storeType, ": ");
+                L.nmesg("  KeyStore ", storeType, ": ");
                 try {
                     KeyStore store;
                     if (password != null) {
@@ -173,7 +175,7 @@ public class CLIEnviron extends BasicCLI {
                         // will ask password here.
                         store = builder.getKeyStore();
                     }
-                    L.m.P(store.size(), " entries");
+                    L.info(store.size(), " entries");
                     for (String alias : Iterates.iterate(store.aliases())) {
                         Certificate cert = store.getCertificate(alias);
                         // @SuppressWarnings("unused")
@@ -183,7 +185,7 @@ public class CLIEnviron extends BasicCLI {
                         dumpCert("    ", cert, creationDate);
                     }
                 } catch (Exception e) {
-                    L.e.P(e);
+                    L.error(e);
                 }
             }
 
@@ -193,51 +195,51 @@ public class CLIEnviron extends BasicCLI {
                 assert provider == cipherServ.getProvider();
                 String cipherAlg = cipherServ.getAlgorithm();
                 // String cipherClass = cipherServ.getClassName();
-                L.i.P("  Cipher ", cipherAlg, ": ");
+                L.detail("  Cipher ", cipherAlg, ": ");
                 Cipher cipher = null;
                 try {
                     cipher = Cipher.getInstance(cipherAlg, provider);
                 } catch (GeneralSecurityException e) {
-                    L.e.P(e);
+                    L.error(e);
                 }
-                L.d.P(cipher.toString());
+                L.detail(cipher.toString());
                 int blockSize = cipher.getBlockSize();
                 byte[] iv = cipher.getIV();
                 AlgorithmParameters params = cipher.getParameters();
                 ExemptionMechanism mech = cipher.getExemptionMechanism();
-                L.d.P("    block-size = ", blockSize);
+                L.detail("    block-size = ", blockSize);
                 if (iv != null)
-                    L.d.P("    IV = ", HEX.encode(iv));
+                    L.detail("    IV = ", HEX.encode(iv));
                 if (params != null)
-                    L.d.P("    parameters = ", params);
+                    L.detail("    parameters = ", params);
                 if (mech != null)
-                    L.d.P("    exemption = ", mech.getName());
+                    L.detail("    exemption = ", mech.getName());
             }
 
-        L.m.P();
+        L.mesg();
     }
 
     void dumpCert(String prefix, Certificate cert, Date creationDate) {
-        L.i.p(prefix, "Cert ", cert.getType(), ": ");
+        L.info(prefix, "Cert ", cert.getType(), ": ");
         X509Certificate x509 = null;
         if (cert instanceof X509Certificate)
             x509 = (X509Certificate) cert;
         if (x509 != null)
-            L.i.p(x509.getSubjectDN());
+            L.info(x509.getSubjectDN());
         if (creationDate != null)
-            L.i.p(" <", creationDate, ">");
-        L.i.P();
-        L.d.P(prefix, "    Data: ", cert);
+            L.info(" <", creationDate, ">");
+        L.info().p();
+        L.detail(prefix, "    Data: ", cert);
     }
 
     public void dump(String title, Properties properties, int indent) {
         String prefix = Strings.repeat(4 * indent, ' ');
-        L.m.P(prefix, title, " properties");
+        L.mesg(prefix, title, " properties");
         List<Object> keys = new ArrayList<Object>(properties.keySet());
         Collections.sort(keys, Comparators.STD);
         for (Object key : keys) {
             Object value = properties.get(key);
-            L.m.P(prefix, "    ", key, " = ", value);
+            L.mesg(prefix, "    ", key, " = ", value);
         }
     }
 
@@ -246,7 +248,7 @@ public class CLIEnviron extends BasicCLI {
         dumpRest();
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
-            L.m.PF("%4d. %s;", i, arg);
+            L.fmesg("%4d. %s;\n", i, arg);
         }
     }
 

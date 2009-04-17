@@ -10,11 +10,9 @@ import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.CharOut;
 import net.bodz.lapiota.wrappers.BasicGUI;
-import net.bodz.swt.controls.util.Shells;
 import net.bodz.swt.gui.SWTInteraction;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Shell;
 
 @Doc("GUI Choice Utility")
 @RcsKeywords(id = "$Id$")
@@ -40,13 +38,10 @@ public class GChoice extends BasicGUI {
      */
     @Override
     protected void doMain(String[] args) throws Throwable {
-        SWTInteraction act = new SWTInteraction(SWT.SYSTEM_MODAL) {
-            @Override
-            protected void addEffects(Shell shell) {
-                if (topMost)
-                    Shells.setTopmost(shell);
-            }
-        };
+        int style = SWT.SYSTEM_MODAL;
+        if (topMost)
+            style |= SWT.ON_TOP;
+        SWTInteraction act = new SWTInteraction(style);
         if (envKey != null) {
             String _count = System.getenv(envKey + "_count");
             if (_count == null) {

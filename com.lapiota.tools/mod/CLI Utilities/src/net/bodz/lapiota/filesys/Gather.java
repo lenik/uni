@@ -52,7 +52,7 @@ public class Gather extends BasicCLI {
             long srcv = src.lastModified();
             long dstv = dst.lastModified();
             if (dstv >= srcv) {
-                L.d.P("[skip] ", dst);
+                L.detail("[skip] ", dst);
                 return;
             }
         }
@@ -116,7 +116,7 @@ public class Gather extends BasicCLI {
             for (Entry<File, File> e : src2dst.entrySet()) {
                 File src = e.getKey();
                 File dst = e.getValue();
-                L.m.P("[get] ", src);
+                L.mesg("[get] ", src);
                 copy(src, dst);
             }
         }
@@ -125,7 +125,7 @@ public class Gather extends BasicCLI {
             for (Entry<File, File> e : src2dst.entrySet()) {
                 File src = e.getKey();
                 File dst = e.getValue();
-                L.m.P("[put] ", src);
+                L.mesg("[put] ", src);
                 copy(dst, src);
             }
         }

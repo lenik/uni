@@ -24,6 +24,7 @@ import net.bodz.bas.lang.EvalException;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.text.interp.Interps;
 import net.bodz.bas.types.util.Strings;
+import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.util.GroovyExpand;
 import net.bodz.lapiota.wrappers.BatchEditCLI;
 
@@ -49,12 +50,15 @@ public class TemplateProcess extends BatchEditCLI {
     String        extension;
 
     public TemplateProcess() {
-        plugins.registerCategory("source model", SourceModel.class);
-        plugins.register("ini", VariableDefSource.class, this);
-        plugins.register("csv", CSVDefSource.class, this);
-        plugins.registerCategory("template model", TemplateModel.class);
-        plugins.register("ve", VariableExpandTemplate.class, this);
-        plugins.register("gsp", GroovyTemplate.class, this);
+        plugins.registerCategory(CLINLS
+                .getString("TemplateProcess.sourceModel"), SourceModel.class); //$NON-NLS-1$
+        plugins.register("ini", VariableDefSource.class, this); //$NON-NLS-1$
+        plugins.register("csv", CSVDefSource.class, this); //$NON-NLS-1$
+        plugins
+                .registerCategory(
+                        CLINLS.getString("TemplateProcess.templateModel"), TemplateModel.class); //$NON-NLS-1$
+        plugins.register("ve", VariableExpandTemplate.class, this); //$NON-NLS-1$
+        plugins.register("gsp", GroovyTemplate.class, this); //$NON-NLS-1$
     }
 
     @Override
@@ -72,7 +76,7 @@ public class TemplateProcess extends BatchEditCLI {
             if (extension != null)
                 destFile += extension;
 
-            L.m.P("file ", destFile);
+            L.mesg("file ", destFile); //$NON-NLS-1$
             String contents = templateModel.expand(context);
 
             File defaultStart = file.getParentFile();
@@ -120,7 +124,7 @@ public class TemplateProcess extends BatchEditCLI {
     class VariableDefSource extends _SourceModel {
 
         @Option(doc = "comment char")
-        String              commentChar = ";";
+        String              commentChar = ";"; //$NON-NLS-1$
 
         @Option(doc = "enable using `file=key' line as separator")
         String              fileKey     = null;
@@ -150,9 +154,9 @@ public class TemplateProcess extends BatchEditCLI {
                 line = line.trim();
                 if (line.isEmpty() || line.startsWith(commentChar))
                     continue;
-                if (line.startsWith("[")) {
+                if (line.startsWith("[")) { //$NON-NLS-1$
                     line = line.substring(1);
-                    if (line.endsWith("]"))
+                    if (line.endsWith("]")) //$NON-NLS-1$
                         line = line.substring(0, line.length() - 1);
                     if (setNextFile(line))
                         return true;
@@ -160,7 +164,7 @@ public class TemplateProcess extends BatchEditCLI {
                 }
                 int eq = line.indexOf('=');
                 String name = line;
-                String value = "1";
+                String value = "1"; //$NON-NLS-1$
                 if (eq != -1) {
                     name = line.substring(0, eq).trim();
                     value = line.substring(eq + 1).trim();
@@ -196,10 +200,10 @@ public class TemplateProcess extends BatchEditCLI {
     class CSVDefSource extends _SourceModel {
 
         @Option(doc = "comment char")
-        String              commentChar = "#";
+        String              commentChar = "#";   //$NON-NLS-1$
 
         @Option(doc = "field delimiter characters, default ','")
-        String              delim       = ",";
+        String              delim       = ",";   //$NON-NLS-1$
 
         @Option(doc = "max number of fields, see String#split(String, int)")
         int                 limit       = 0;
@@ -208,7 +212,7 @@ public class TemplateProcess extends BatchEditCLI {
         String[]            names;
 
         @Option(doc = "using this field as file name, default `file'")
-        String              fileField   = "file";
+        String              fileField   = "file"; //$NON-NLS-1$
 
         @Option(doc = "trim field values, default true")
         boolean             trim        = true;
@@ -304,7 +308,8 @@ public class TemplateProcess extends BatchEditCLI {
         public String expand(Object context) throws Exception {
             if (template == null) {
                 if (templateFile == null)
-                    throw new CLIException("template file isn't specified");
+                    throw new CLIException(CLINLS
+                            .getString("TemplateProcess.templateIsntSpecified")); //$NON-NLS-1$
                 template = Files.readAll(templateFile, inputEncoding);
             }
             Map<String, Object> vars = (Map<String, Object>) context;
@@ -340,7 +345,8 @@ public class TemplateProcess extends BatchEditCLI {
         public String expand(Object context) throws Exception {
             if (template == null) {
                 if (templateFile == null)
-                    throw new CLIException("template file isn't specified");
+                    throw new CLIException(CLINLS
+                            .getString("TemplateProcess.templateIsntSpecified")); //$NON-NLS-1$
                 template = Files.readAll(templateFile, inputEncoding);
             }
             Map<String, Object> _vars = (Map<String, Object>) context;
@@ -359,17 +365,18 @@ public class TemplateProcess extends BatchEditCLI {
                 return ve.compileAndEvaluate(template);
             } catch (CompilationFailedException e) {
                 String script = ve.getCompiledScript();
-                System.err.println("Compile: ");
+                System.err.println(CLINLS.getString("TemplateProcess.compile")); //$NON-NLS-1$
                 System.err.println(script);
                 throw e;
             } catch (Throwable e) {
                 String script = ve.getCompiledScript();
-                System.err.println("Evaluate: ");
+                System.err
+                        .println(CLINLS.getString("TemplateProcess.evaluate")); //$NON-NLS-1$
                 System.err.println(script);
-                System.err.println("Variables: ");
+                System.err.println(CLINLS.getString("TemplateProcess.vars")); //$NON-NLS-1$
                 // TODO - object dumper
                 for (Entry<String, Object> ent : _vars.entrySet())
-                    System.err.println(ent.getKey() + " = " + ent.getValue());
+                    System.err.println(ent.getKey() + " = " + ent.getValue()); //$NON-NLS-1$
                 throw new EvalException(e);
             }
         }

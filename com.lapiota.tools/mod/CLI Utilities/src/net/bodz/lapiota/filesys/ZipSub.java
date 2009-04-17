@@ -19,6 +19,7 @@ import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.CWD;
 import net.bodz.bas.io.Files;
+import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Remove entries in zip file, which appears in another zips")
@@ -39,7 +40,7 @@ public class ZipSub extends BasicCLI {
 
         Set<String> removeSet = new HashSet<String>();
         for (int i = 1; i < args.length; i++) {
-            L.i.sig("subtract from: ", args[i]);
+            L.tinfo(CLINLS.getString("ZipSub.subtractFrom"), args[i]); //$NON-NLS-1$
             ZipFile sub = new ZipFile(args[i]);
             int n = 0;
             for (ZipEntry entry : iterate(sub.entries())) {
@@ -47,7 +48,9 @@ public class ZipSub extends BasicCLI {
                 if (removeSet.add(name))
                     n++;
             }
-            L.i.P("subtract from: ", args[i], " (", n, " uniq entries)");
+            L
+                    .info(
+                            CLINLS.getString("ZipSub.subtractFrom"), args[i], " (", n, CLINLS.getString("ZipSub.uniqEntries")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         }
 
         File dest = CWD.get(args[0]);
@@ -55,7 +58,7 @@ public class ZipSub extends BasicCLI {
         File destDir = dest.getParentFile();
 
         ZipFile destZip = new ZipFile(dest);
-        File temp = File.createTempFile(destName + "_", ".tmp", destDir);
+        File temp = File.createTempFile(destName + "_", ".tmp", destDir); //$NON-NLS-1$ //$NON-NLS-2$
 
         ZipOutputStream tempOut = null;
         int pending = 0;
@@ -63,7 +66,7 @@ public class ZipSub extends BasicCLI {
         for (ZipEntry entry : iterate(destZip.entries())) {
             String name = entry.getName();
             if (removeSet.contains(name)) {
-                L.m.P("removed ", name);
+                L.mesg(CLINLS.getString("ZipSub.removed"), name); //$NON-NLS-1$
                 removed++;
             } else {
                 if (removed == 0) {
@@ -72,29 +75,34 @@ public class ZipSub extends BasicCLI {
                 }
                 if (tempOut == null)
                     tempOut = dumpHead(temp, destZip, pending);
-                writeEntry("write ", tempOut, destZip, entry);
+                writeEntry(
+                        CLINLS.getString("ZipSub.write"), tempOut, destZip, entry); //$NON-NLS-1$
             }
         }
         if (removed != 0 && tempOut == null)
             tempOut = dumpHead(temp, destZip, pending);
 
-        L.m.sig("Total " + removed + " entries have been removed.");
+        L
+                .tmesg(CLINLS.getString("ZipSub.total") + removed + CLINLS.getString("ZipSub.entriesRemoved")); //$NON-NLS-1$ //$NON-NLS-2$
 
         destZip.close();
         if (tempOut != null) {
             tempOut.close();
-            L.m.P("backup ", dest);
-            File destBak = new File(destDir, dest.getName() + ".bak");
+            L.mesg(CLINLS.getString("ZipSub.backup"), dest); //$NON-NLS-1$
+            File destBak = new File(destDir, dest.getName() + ".bak"); //$NON-NLS-1$
             if (destBak.exists()) {
                 if (!destBak.delete())
-                    throw new IOException("Can't delete " + destBak);
+                    throw new IOException(
+                            CLINLS.getString("ZipSub.cantDelete") + destBak); //$NON-NLS-1$
             }
             if (!dest.renameTo(destBak))
-                throw new IOException("Can't rename " + dest + " to " + destBak);
+                throw new IOException(
+                        CLINLS.getString("ZipSub.cantRename") + dest + CLINLS.getString("ZipSub._to_") + destBak); //$NON-NLS-1$ //$NON-NLS-2$
             if (!temp.renameTo(dest))
-                throw new IOException("Can't rename " + temp + " to " + dest);
+                throw new IOException(
+                        CLINLS.getString("ZipSub.cantRename") + temp + CLINLS.getString("ZipSub._to_") + dest); //$NON-NLS-1$ //$NON-NLS-2$
         } else {
-            L.m.P("Nothing has been removed. ");
+            L.mesg(CLINLS.getString("ZipSub.noneRemoved")); //$NON-NLS-1$
         }
     }
 
@@ -107,7 +115,7 @@ public class ZipSub extends BasicCLI {
         Enumeration<? extends ZipEntry> head = zip.entries();
         for (int hi = 0; hi < n; hi++) {
             ZipEntry headEntry = head.nextElement();
-            writeEntry("copy ", out, zip, headEntry);
+            writeEntry(CLINLS.getString("ZipSub.copy"), out, zip, headEntry); //$NON-NLS-1$
         }
         return out;
     }
@@ -130,8 +138,8 @@ public class ZipSub extends BasicCLI {
                 written += block.length;
                 int percent = (int) (100 * written / size);
                 if (percent != lastPercent) {
-                    L.i.sig(title, name, " ", written, "/", size, //
-                            " (", percent, "%)");
+                    L.tinfo(title, name, " ", written, "/", size, // //$NON-NLS-1$ //$NON-NLS-2$
+                            " (", percent, "%)"); //$NON-NLS-1$ //$NON-NLS-2$
                     lastPercent = percent;
                 }
             }
@@ -139,12 +147,13 @@ public class ZipSub extends BasicCLI {
             // out.flush(); // ??
             out.closeEntry();
         }
-        L.i.P(title, name, " ", entry.getCompressedSize(), "/", size + ". ");
+        L.info(title, name,
+                " ", entry.getCompressedSize(), "/", size + ". "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     @Override
     protected String _helpRestSyntax() {
-        return "DEST-ZIP MINUS-ZIP-LIST";
+        return CLINLS.getString("ZipSub.restSyntax"); //$NON-NLS-1$
     }
 
     public static void main(String[] args) throws Throwable {

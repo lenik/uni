@@ -14,6 +14,7 @@ import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.err.IllegalUsageException;
 import net.bodz.bas.types.util.Objects;
+import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @Doc("Patch using the modified grep result (grep -Hn)")
@@ -32,13 +33,13 @@ public class GrepPatch extends BatchEditCLI {
         inputEncoding = parameters().getInputEncoding();
         outputEncoding = parameters().getOutputEncoding();
         if (!inputEncoding.equals(outputEncoding))
-            throw new IllegalUsageException(
-                    "input and output encoding should be same");
+            throw new IllegalUsageException(CLINLS
+                    .getString("GrepPatch.diffInOut")); //$NON-NLS-1$
     }
 
     @Override
     protected void doFileArgument(File file) throws Throwable {
-        L.i.sig("[patch] ", file);
+        L.tinfo(CLINLS.getString("GrepPatch._patch"), file); //$NON-NLS-1$
         int grepl = 0;
 
         String currentFileName = null;
@@ -47,17 +48,18 @@ public class GrepPatch extends BatchEditCLI {
 
         for (String line : Files.readByLine2(inputEncoding, file)) {
             grepl++;
-            String filepos = file + ":" + grepl;
+            String filepos = file + ":" + grepl; //$NON-NLS-1$
 
             if (comment) {
-                if (line.startsWith("#"))
+                if (line.startsWith("#")) //$NON-NLS-1$
                     continue;
             }
             if (line.isEmpty())
                 continue;
             int col = line.indexOf(':');
             if (col == -1) {
-                L.e.P("invalid grep format: no filename at ", filepos);
+                L.error(
+                        CLINLS.getString("GrepPatch.grepNoFilename"), filepos); //$NON-NLS-1$
                 continue;
             }
             String fileName = line.substring(0, col);
@@ -65,7 +67,8 @@ public class GrepPatch extends BatchEditCLI {
 
             col = line.indexOf(':');
             if (col == -1) {
-                L.e.P("invalid grep format: no line number at ", filepos);
+                L.error(
+                        CLINLS.getString("GrepPatch.grepNoLineNum"), filepos); //$NON-NLS-1$
                 continue;
             }
             String lineno = line.substring(0, col);
@@ -74,11 +77,13 @@ public class GrepPatch extends BatchEditCLI {
             try {
                 lno = Integer.parseInt(lineno);
             } catch (NumberFormatException e) {
-                L.e.P("illegal line number '", lineno, "' at ", filepos);
+                L
+                        .error(
+                                CLINLS.getString("GrepPatch.badlLineNum"), lineno, "' at ", filepos); //$NON-NLS-1$ //$NON-NLS-2$
                 continue;
             }
             if (lno < 1) {
-                L.e.P("line number < 0 at ", filepos);
+                L.error("line number < 0 at ", filepos); //$NON-NLS-1$
                 continue;
             }
 
@@ -91,7 +96,8 @@ public class GrepPatch extends BatchEditCLI {
             }
 
             if (lno > loaded.size()) {
-                L.e.P("line number ", lno, " out of bounds, at ", filepos);
+                L.error(
+                        "line number ", lno, " out of bounds, at ", filepos); //$NON-NLS-1$ //$NON-NLS-2$
                 continue;
             }
 

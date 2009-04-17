@@ -29,6 +29,7 @@ import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.lang.script.ScriptException;
 import net.bodz.bas.text.interp.Interps;
 import net.bodz.bas.text.interp.PatternProcessor;
+import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.util.RefBinding;
 import net.bodz.lapiota.wrappers.BatchEditCLI;
 
@@ -43,7 +44,7 @@ public class FileProcess extends BatchEditCLI {
 
     @Option(alias = "a", vnam = "ACTION=PARAM[,...]", doc = "add an action")
     protected void action(Action action) throws CLIException {
-        L.x.P("action: ", action);
+        L.debug(CLINLS.getString("FileProcess.action"), action); //$NON-NLS-1$
         actions.add(action);
     }
 
@@ -89,9 +90,9 @@ public class FileProcess extends BatchEditCLI {
 
         public void setExt(String newExt) {
             if (newExt == null)
-                newExt = "";
+                newExt = ""; //$NON-NLS-1$
             else if (!newExt.isEmpty())
-                newExt = "." + newExt;
+                newExt = "." + newExt; //$NON-NLS-1$
             dst = Files.canoniOf(dst.getParentFile(), getName() + newExt);
         }
 
@@ -102,10 +103,10 @@ public class FileProcess extends BatchEditCLI {
     protected boolean   edit  = false;
 
     public FileProcess() {
-        plugins.registerCategory("action", Action.class);
-        plugins.register("g", GroovyScript.class, this);
-        plugins.register("s", RenamePattern.class, this);
-        plugins.register("sg", RenameComponents.class, this);
+        plugins.registerCategory("action", Action.class); //$NON-NLS-1$
+        plugins.register("g", GroovyScript.class, this); //$NON-NLS-1$
+        plugins.register("s", RenamePattern.class, this); //$NON-NLS-1$
+        plugins.register("sg", RenameComponents.class, this); //$NON-NLS-1$
     }
 
     @Override
@@ -176,7 +177,7 @@ public class FileProcess extends BatchEditCLI {
 
         public GroovyScript(String[] args) throws IOException, ScriptException {
             if (args.length == 0) {
-                System.out.println("enter the processing groovy script: ");
+                System.out.println(CLINLS.getString("FileProcess.enterScript")); //$NON-NLS-1$
                 script = Files.readAll(System.in);
             } else {
                 String scriptFile = args[0];
@@ -195,32 +196,32 @@ public class FileProcess extends BatchEditCLI {
                 throws Throwable {
             RefBinding binding = new RefBinding();
             binding.bindScriptFields(scope, true);
-            binding.setVariable("program", this);
+            binding.setVariable("program", this); //$NON-NLS-1$
             binding.bindScriptFields(FileProcess.this, true);
-            binding.setVariable("file", file);
-            binding.setVariable("in", in);
+            binding.setVariable("file", file); //$NON-NLS-1$
+            binding.setVariable("in", in); //$NON-NLS-1$
 
             String enc = parameters().getOutputEncoding().name();
             PrintStream pout = new PrintStream(out, true, enc);
-            binding.setVariable("out", pout);
+            binding.setVariable("out", pout); //$NON-NLS-1$
 
             GroovyShell shell = new GroovyShell(binding);
             Object ret = shell.evaluate(script);
             if (ret instanceof String) {
                 String code = (String) ret;
-                if ("save".equals(code))
+                if ("save".equals(code)) //$NON-NLS-1$
                     return EditResult.compareAndSave();
-                if ("same".equals(code))
+                if ("same".equals(code)) //$NON-NLS-1$
                     return EditResult.saveSame();
-                if ("diff".equals(code))
+                if ("diff".equals(code)) //$NON-NLS-1$
                     return EditResult.saveDiff();
-                if ("rm".equals(code))
+                if ("rm".equals(code)) //$NON-NLS-1$
                     return EditResult.rm();
-                if ("ren".equals(code))
+                if ("ren".equals(code)) //$NON-NLS-1$
                     return EditResult.ren(scope.dst);
-                if ("mv".equals(code))
+                if ("mv".equals(code)) //$NON-NLS-1$
                     return EditResult.mv(scope.dst);
-                if ("cp".equals(code))
+                if ("cp".equals(code)) //$NON-NLS-1$
                     return EditResult.cp(scope.dst);
             }
             return null;
@@ -250,8 +251,9 @@ public class FileProcess extends BatchEditCLI {
 
         /** [/]/PATTERN/REPLACEMENT[/FLAGS] */
         public RenamePattern(String exp) {
-            if (!exp.startsWith("/"))
-                throw new IllegalArgumentException("not a subs-regexp: " + exp);
+            if (!exp.startsWith("/")) //$NON-NLS-1$
+                throw new IllegalArgumentException(CLINLS
+                        .getString("FileProcess.notSubsRegexp") + exp); //$NON-NLS-1$
             char sep = exp.charAt(0);
             exp = exp.substring(1);
             if (exp.charAt(0) == sep) {
@@ -264,10 +266,10 @@ public class FileProcess extends BatchEditCLI {
             String[] segs = exp.split(sepEscaped);
             if (L.showDebug())
                 for (int i = 0; i < segs.length; i++)
-                    L.x.P("seg[", i, "] = ", segs[i]);
+                    L.debug("seg[", i, "] = ", segs[i]); //$NON-NLS-1$ //$NON-NLS-2$
             if (segs.length > 3)
-                throw new IllegalArgumentException(
-                        "invalid subs-regexp format: " + exp);
+                throw new IllegalArgumentException(CLINLS
+                        .getString("FileProcess.invalidSubsRegexp") + exp); //$NON-NLS-1$
             int flags = 0;
             String _flags = segs.length == 3 ? segs[2] : this.flags;
             if (_flags != null) {
@@ -286,13 +288,13 @@ public class FileProcess extends BatchEditCLI {
                         flags |= Pattern.MULTILINE;
                         break;
                     default:
-                        throw new IllegalArgumentException(
-                                "invalid regexp flag: " + c);
+                        throw new IllegalArgumentException(CLINLS
+                                .getString("FileProcess.invalidRegexpFlag") + c); //$NON-NLS-1$
                     }
                 }
             }
             pattern = Pattern.compile(segs[0], flags);
-            replacement = segs.length >= 2 ? segs[1] : "";
+            replacement = segs.length >= 2 ? segs[1] : ""; //$NON-NLS-1$
         }
 
         @Override
@@ -353,9 +355,9 @@ public class FileProcess extends BatchEditCLI {
                 punctsPattern = buf.toString();
             }
             if (punctsPattern == null)
-                punctsPattern = "\\p{Punct}";
+                punctsPattern = "\\p{Punct}"; //$NON-NLS-1$
 
-            punctsPattern = "[^" + punctsPattern + "]+";
+            punctsPattern = "[^" + punctsPattern + "]+"; //$NON-NLS-1$ //$NON-NLS-2$
         }
 
         @Override

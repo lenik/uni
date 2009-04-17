@@ -9,7 +9,7 @@ public class PrivateTalk extends BasicGUI {
     @Override
     protected void doMainManaged(String[] args) throws Throwable {
         System.out.println(Display.getCurrent());
-        L.m.P("Hello");
+        L.mesg("Hello");
     }
 
     public static void main(String[] args) throws Throwable {

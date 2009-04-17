@@ -18,9 +18,10 @@ import org.jawin.win32.Ole32;
 @BootInfo(userlibs = "%project", configs = JawinConfig.class)
 public class Hello extends BasicCLI {
 
+    static boolean HELLO_DUMP = false;
     @Override
     protected void doMain(String[] args) throws Throwable {
-        if (false)
+        if (HELLO_DUMP)
             Classpath.dumpURLs(CharOuts.stderr);
         f3();
     }
@@ -28,8 +29,8 @@ public class Hello extends BasicCLI {
     void errIconv(COMException e) {
         try {
             String s = e.getMessage();
-            byte[] b = s.getBytes("l1");
-            s = new String(b, "gb2312");
+            byte[] b = s.getBytes("l1"); //$NON-NLS-1$
+            s = new String(b, "gb2312"); //$NON-NLS-1$
             System.err.println(s);
         } catch (UnsupportedEncodingException e1) {
             throw new RuntimeException(e1);
@@ -38,9 +39,9 @@ public class Hello extends BasicCLI {
     }
 
     void f1() throws Exception {
-        FuncPtr msgbox = new FuncPtr("user32", "MessageBoxW");
+        FuncPtr msgbox = new FuncPtr("user32", "MessageBoxW"); //$NON-NLS-1$ //$NON-NLS-2$
         try {
-            msgbox.invoke_I(0, "hello", "world", 0, ReturnFlags.CHECK_FALSE);
+            msgbox.invoke_I(0, "hello", "world", 0, ReturnFlags.CHECK_FALSE); //$NON-NLS-1$ //$NON-NLS-2$
         } catch (COMException e) {
             errIconv(e);
         }
@@ -49,8 +50,8 @@ public class Hello extends BasicCLI {
     void f2() throws Exception {
         FuncPtr msgBox = null;
         try {
-            msgBox = new FuncPtr("USER32.DLL", "MessageBoxW");
-            msgBox.invoke_I(0, "Hello From a DLL", "From Jawin", 0,
+            msgBox = new FuncPtr("USER32.DLL", "MessageBoxW"); //$NON-NLS-1$ //$NON-NLS-2$
+            msgBox.invoke_I(0, "Hello From a DLL", "From Jawin", 0, //$NON-NLS-1$ //$NON-NLS-2$
                     ReturnFlags.CHECK_FALSE);
         } catch (COMException e) {
             errIconv(e);
@@ -68,7 +69,7 @@ public class Hello extends BasicCLI {
     void f3() throws Exception {
         FuncPtr msgBox = null;
         try {
-            msgBox = new FuncPtr("USER32.DLL", "MessageBoxW");
+            msgBox = new FuncPtr("USER32.DLL", "MessageBoxW"); //$NON-NLS-1$ //$NON-NLS-2$
 
             // create a NakedByteStream for the serialization of Java variables
             NakedByteStream nbs = new NakedByteStream();
@@ -78,14 +79,14 @@ public class Hello extends BasicCLI {
 
             // and then write the Java arguments
             leos.writeInt(0);
-            leos.writeStringUnicode("Generic Hello From a DLL");
-            leos.writeStringUnicode("From Jawin");
+            leos.writeStringUnicode("Generic Hello From a DLL"); //$NON-NLS-1$
+            leos.writeStringUnicode("From Jawin"); //$NON-NLS-1$
             leos.writeInt(0);
 
             // call the generic invoke, with the NakedByteStream
             // and parameters describing how to deserialize the
             // NakedByteStream byte-array on the native side
-            msgBox.invoke("IGGI:I:", 16, nbs, null, ReturnFlags.CHECK_FALSE);
+            msgBox.invoke("IGGI:I:", 16, nbs, null, ReturnFlags.CHECK_FALSE); //$NON-NLS-1$
         } catch (COMException e) {
             errIconv(e);
         } finally {

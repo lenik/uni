@@ -7,10 +7,9 @@ import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.lapiota.wrappers.BasicGUI;
 import net.bodz.swt.controls.Timer;
+import net.bodz.swt.os_ann.Win32;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.internal.win32.OS;
-import org.eclipse.swt.internal.win32.POINT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -21,6 +20,7 @@ import org.eclipse.swt.widgets.Label;
 @ProgramName("winedit")
 @RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
+@Win32
 public class WindowsHack extends BasicGUI {
 
     @Option(alias = "i", vnam = "ms", doc = "capture interval, default 1000")
@@ -48,22 +48,22 @@ public class WindowsHack extends BasicGUI {
     }
 
     synchronized void updater() {
-        POINT cursor = new POINT();
-        OS.GetCursorPos(cursor);
-        cursorLabel.setText(cursor.x + ", " + cursor.y);
-        int hWnd = OS.WindowFromPoint(cursor);
-        String text = "NULL";
-        if (hWnd != 0) {
-            char buf[] = new char[200];
-            int cc = OS.GetWindowTextW(hWnd, buf, buf.length);
-            text = new String(buf, 0, cc);
-            windowLabel.setText("HWND[" + hWnd + "] - " + text);
-        }
-        // boolean scroll = (OS.GetKeyState(OS.VK_SCROLL) & 0x1) != 0;
-        boolean ctrlDown = (OS.GetKeyState(OS.VK_CONTROL) & 0x8000) != 0;
-        if (follow ^ ctrlDown) {
-            shell.setLocation(10 + cursor.x, 10 + cursor.y);
-        }
+//        POINT cursor = new POINT();
+//        OS.GetCursorPos(cursor);
+//        cursorLabel.setText(cursor.x + ", " + cursor.y);
+//        int hWnd = OS.WindowFromPoint(cursor);
+//        String text = "NULL";
+//        if (hWnd != 0) {
+//            char buf[] = new char[200];
+//            int cc = OS.GetWindowTextW(hWnd, buf, buf.length);
+//            text = new String(buf, 0, cc);
+//            windowLabel.setText("HWND[" + hWnd + "] - " + text);
+//        }
+//        // boolean scroll = (OS.GetKeyState(OS.VK_SCROLL) & 0x1) != 0;
+//        boolean ctrlDown = (OS.GetKeyState(OS.VK_CONTROL) & 0x8000) != 0;
+//        if (follow ^ ctrlDown) {
+//            shell.setLocation(10 + cursor.x, 10 + cursor.y);
+//        }
     }
 
     @Override

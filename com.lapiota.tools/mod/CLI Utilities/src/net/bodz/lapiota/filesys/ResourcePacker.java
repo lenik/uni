@@ -121,13 +121,13 @@ public class ResourcePacker extends BatchEditCLI {
         JarOutputStream out = getJarOut();
         String name = getRelativeName(file);
         String ename = resNameOf(name);
-        L.m.sig("add ", ename);
+        L.tmesg("add ", ename);
         ZipEntry ze = new ZipEntry(ename);
         out.putNextEntry(ze);
         Files.copy(file, out);
         out.closeEntry();
-        L.i.P("add ", ename, " [", ze.getCompressedSize(), "/", ze.getSize(),
-                "]");
+        L.info("add ", ename, " [", ze.getCompressedSize(), "/", ze
+                .getSize(), "]");
         return EditResult.pass();
     }
 

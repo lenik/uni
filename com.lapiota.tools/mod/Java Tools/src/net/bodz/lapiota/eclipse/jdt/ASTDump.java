@@ -54,7 +54,7 @@ public class ASTDump extends JdtBasicCLI {
         if (file == null)
             _help();
 
-        L.i.P("load file ", file);
+        L.info("load file ", file);
         char[] src = Files.readAll(file).toCharArray();
 
         ASTParser parser = ASTParser.newParser(parserLevel);
@@ -91,13 +91,13 @@ public class ASTDump extends JdtBasicCLI {
         @Override
         public void preVisit(ASTNode node) {
             String type = node.getClass().getSimpleName();
-            L.m.p(Strings.repeat(indent, ' '));
+            L.nmesg(Strings.repeat(indent, ' '));
             Map<?, ?> props = node.properties();
-            L.m.pf("%s(%d/%d %d+%d %s): ", //
+            L.fmesg("%s(%d/%d %d+%d %s): ", //
                     type, node.getNodeType(), node.getFlags(), //
                     node.getStartPosition(), node.getLength(), //
                     props.isEmpty() ? "" : props.toString());
-            L.m.P(node);
+            L.mesg(node);
             indent += tabsize;
         }
 

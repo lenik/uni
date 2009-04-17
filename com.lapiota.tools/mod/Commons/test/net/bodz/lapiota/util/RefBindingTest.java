@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class RefBindingTest {
 
-    String      name = "tom";
+    String      name = "tom"; //$NON-NLS-1$
 
     @SuppressWarnings("unused")
     private int age  = 13;
@@ -26,13 +26,13 @@ public class RefBindingTest {
         RefBinding b = new RefBinding();
         b.bindScriptFields(this, true);
         GroovyShell shell = new GroovyShell(b);
-        shell.evaluate("println('hello')");
-        shell.evaluate("println('name = ' + name)");
-        shell.evaluate("name = 'jimmy'");
-        System.out.println("name' = " + name);
-        shell.evaluate("println('prop = ' + prop)");
-        shell.evaluate("prop = 'changed by script'");
-        System.out.println("prop' = " + getProp());
+        shell.evaluate("println('hello')"); //$NON-NLS-1$
+        shell.evaluate("println('name = ' + name)"); //$NON-NLS-1$
+        shell.evaluate("name = 'jimmy'"); //$NON-NLS-1$
+        System.out.println("name' = " + name); //$NON-NLS-1$
+        shell.evaluate("println('prop = ' + prop)"); //$NON-NLS-1$
+        shell.evaluate("prop = 'changed by script'"); //$NON-NLS-1$
+        System.out.println("prop' = " + getProp()); //$NON-NLS-1$
         // shell.evaluate("println('hello')");
         // shell.evaluate("println('hello')");
         // shell.evaluate("println('hello')");

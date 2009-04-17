@@ -9,6 +9,7 @@ import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.mem.Memory;
 import net.bodz.bas.mem.RandomAccessFileMemory;
+import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("PGP disk headers break up")
@@ -17,7 +18,7 @@ import net.bodz.lapiota.wrappers.BasicCLI;
 public class PGDBreak extends BasicCLI {
 
     @Option(alias = "O", vnam = "DIR", doc = "where to put the splitted chunk files")
-    File outputDirectory = new File(".");
+    File outputDirectory = new File("."); //$NON-NLS-1$
 
     /**
      * <pre>
@@ -44,17 +45,19 @@ public class PGDBreak extends BasicCLI {
             String type = new String(header, 4, 4);
             int size = chunk.readInt32(8);
             int crc = chunk.readInt32(12);
-            L.m.P(magic, //
-                    " addr=", addr, //
-                    " type=", type, //
-                    " size=", size, //
-                    " crc=", Integer.toHexString(crc));
+            L.mesg(magic, //
+                    " addr=", addr, // //$NON-NLS-1$
+                    " type=", type, // //$NON-NLS-1$
+                    " size=", size, // //$NON-NLS-1$
+                    " crc=", Integer.toHexString(crc)); //$NON-NLS-1$
 
             header = new byte[size];
             chunk.read(0, header);
             File chunkFile = new File(outputDirectory, file.getName() //
-                    + "." + type + "." + chunkIndex++);
-            L.m.P("write to ", chunkFile, " (", size, " bytes)");
+                    + "." + type + "." + chunkIndex++); //$NON-NLS-1$ //$NON-NLS-2$
+            L
+                    .mesg(
+                            CLINLS.getString("PGDBreak.writeTo"), chunkFile, " (", size, " bytes)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             Files.write(chunkFile, header);
 
             addr = chunk.readInt64(16);

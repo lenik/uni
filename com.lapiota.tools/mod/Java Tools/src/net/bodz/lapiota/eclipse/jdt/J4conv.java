@@ -104,14 +104,14 @@ public class J4conv extends JdtBatchCLI {
     @Option(alias = "b", vnam = "FILE|DIR")
     protected void bootClasspath(File file) throws IOException {
         URL url = file.toURI().toURL();
-        L.x.P("add boot-classpath: ", url);
+        L.debug("add boot-classpath: ", url);
         Classpath.addURL(url);
     }
 
     @Option(alias = "c", vnam = "FILE|DIR")
     protected void classpath(File file) throws IOException {
         URL url = file.toURI().toURL();
-        L.x.P("add classpath: ", url);
+        L.debug("add classpath: ", url);
         // classpaths.add(url);
         Classpath.addURL(url);
     }
@@ -181,7 +181,7 @@ public class J4conv extends JdtBatchCLI {
                 edit.apply(doc);
                 dst = doc.get();
             } else {
-                L.m.p("[FERR] ", in);
+                L.nmesg("[FERR] ", in);
             }
         }
 
@@ -259,7 +259,7 @@ public class J4conv extends JdtBatchCLI {
                 if (_package == null)
                     throw new RuntimeException("can't import " + fqn);
                 importPackages.add(fqn);
-            } else if (imported instanceof Class) {
+            } else if (imported instanceof Class<?>) {
                 SimpleName sname = name.isSimpleName() ? ((SimpleName) name)
                         : ((QualifiedName) name).getName();
                 typens.put(sname.getIdentifier(), imported);
@@ -274,7 +274,7 @@ public class J4conv extends JdtBatchCLI {
                     if ((imported = JavaUtil.resolveType(p + "." + name, false)) != null)
                         break;
             }
-            if (imported instanceof Class || imported == null)
+            if (imported instanceof Class<?> || imported == null)
                 typens.put(name, imported);
             // else if (imported instanceof List)
             // funns.put(name, imported);
@@ -290,11 +290,11 @@ public class J4conv extends JdtBatchCLI {
         }
 
         void enterScope() {
-            L.d.P(indent(), "enter-t=", //
+            L.detail(indent(), "enter-t=", //
                     Strings.ellipse(typens.toString(), 100));
-            // L.d.P(indent(), "enter-f=", //
+            // _t.detail(indent(), "enter-f=", //
             // Strings.ellipse(funns.toString(), 100));
-            L.d.P(indent(), "enter-v=", //
+            L.detail(indent(), "enter-v=", //
                     Strings.ellipse(varns.toString(), 100));
             typens.enterNew();
             // funns.enterNew();
@@ -304,11 +304,11 @@ public class J4conv extends JdtBatchCLI {
         }
 
         void leaveScope() {
-            L.d.P(indent(), "leave-t=", //
+            L.detail(indent(), "leave-t=", //
                     Strings.ellipse(typens.toString(), 100));
-            // L.d.P(indent(), "leave-f=", //
+            // _t.detail(indent(), "leave-f=", //
             // Strings.ellipse(funns.toString(), 100));
-            L.d.P(indent(), "leave-v=", //
+            L.detail(indent(), "leave-v=", //
                     Strings.ellipse(varns.toString(), 100));
             typens.leave();
             // funns.leave();
@@ -332,7 +332,7 @@ public class J4conv extends JdtBatchCLI {
             Type expanded = expandMajor(name);
             if (expanded == null)
                 return type;
-            L.d.P(indent(), "expand ", type, " => ", expanded);
+            L.detail(indent(), "expand ", type, " => ", expanded);
             return expanded;
         }
 
@@ -358,13 +358,13 @@ public class J4conv extends JdtBatchCLI {
             if (!L.showDebug())
                 return;
             String type = node.getClass().getSimpleName();
-            L.x.p(Strings.repeat(indent, ' '));
+            L.ndebug(Strings.repeat(indent, ' '));
             Map<?, ?> props = node.properties();
-            L.x.pf("%s(%d/%d %d+%d %s): ", //
+            L.fdebug("%s(%d/%d %d+%d %s): ", //
                     type, node.getNodeType(), node.getFlags(), //
                     node.getStartPosition(), node.getLength(), //
                     props.isEmpty() ? "" : props.toString());
-            L.x.P(node);
+            L.debug(node);
             indent += tabsize;
             super.preVisit(node);
         }
@@ -542,7 +542,7 @@ public class J4conv extends JdtBatchCLI {
                 if (_exTypeName instanceof SimpleName) {
                     SimpleName exTypeName = (SimpleName) _exTypeName;
                     Type extype = expandMajor(exTypeName);
-                    L.d.P(indent(), "resolved ", node, " => ", extype);
+                    L.detail(indent(), "resolved ", node, " => ", extype);
                     if (extype instanceof SimpleType) {
                         SimpleType sim = (SimpleType) extype;
                         rewrite.replace(exTypeName, sim.getName(), null);
@@ -785,14 +785,14 @@ public class J4conv extends JdtBatchCLI {
         protected boolean visitExpression(Expression e) {
             ITypeBinding b = e.resolveTypeBinding();
             if (b == null) {
-                L.d.P(indent(), "no bind");
+                L.detail(indent(), "no bind");
                 return true;
             }
-            L.d.P(indent(), "bind-fqn", b.getQualifiedName());
-            L.d.P(indent(), "bind-bin", b.getBinaryName());
-            L.d.P(indent(), "bind-bounds", b.getBound());
-            L.d.P(indent(), "bind-erasure", b.getErasure());
-            L.d.P(indent(), "bind-key", b.getKey());
+            L.detail(indent(), "bind-fqn", b.getQualifiedName());
+            L.detail(indent(), "bind-bin", b.getBinaryName());
+            L.detail(indent(), "bind-bounds", b.getBound());
+            L.detail(indent(), "bind-erasure", b.getErasure());
+            L.detail(indent(), "bind-key", b.getKey());
             return true;
         }
 

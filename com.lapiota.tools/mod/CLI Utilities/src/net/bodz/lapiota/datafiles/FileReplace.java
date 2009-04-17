@@ -13,6 +13,7 @@ import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.lang.Filt1;
 import net.bodz.bas.types.TypeParsers.GetInstanceParser;
+import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @Doc("A Unix diff program implemented in Java")
@@ -39,7 +40,7 @@ public class FileReplace extends BatchEditCLI {
     protected void _boot() throws Throwable {
         if ((regexp == null) == (text == null))
             throw new CLIException(
-                    "one and only one of --regexp and --text option must be specified");
+                    CLINLS.getString("FileReplace.regexpOrText")); //$NON-NLS-1$
 
         if (parameters().isIgnoreCase()) {
             if (regexp != null)

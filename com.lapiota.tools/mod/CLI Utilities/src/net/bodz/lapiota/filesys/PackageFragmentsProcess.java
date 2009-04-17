@@ -28,10 +28,11 @@ import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.cli.ext.CLIPlugin;
 import net.bodz.bas.cli.ext._CLIPlugin;
+import net.bodz.bas.io.FileFinder;
 import net.bodz.bas.io.Files;
-import net.bodz.bas.io.FsWalk;
 import net.bodz.bas.types.parsers.WildcardsParser;
 import net.bodz.bas.types.util.Iterates;
+import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
 import net.bodz.lapiota.wrappers.BatchEditCLI;
 
@@ -59,18 +60,20 @@ public class PackageFragmentsProcess extends BatchEditCLI {
 
     @Option(alias = "a", vnam = "ACTION=PARAM[,...]", doc = "add an action")
     protected void action(Action action) throws CLIException {
-        L.x.P("action: ", action);
+        L.debug(
+                CLINLS.getString("PackageFragmentsProcess.action_"), action); //$NON-NLS-1$
         actions.add(action);
     }
 
     public PackageFragmentsProcess() {
-        plugins.registerCategory("action", Action.class);
-        plugins.register("list", Lister.class, this);
-        plugins.register("cat", Cat.class, this);
+        plugins.registerCategory(CLINLS
+                .getString("PackageFragmentsProcess.action"), Action.class); //$NON-NLS-1$
+        plugins.register("list", Lister.class, this); //$NON-NLS-1$
+        plugins.register("cat", Cat.class, this); //$NON-NLS-1$
         // actionPoint.register("mani", ManiCat.class, this);
-        plugins.register("pointref", PointRef.class, this);
-        plugins.register("grep", Grep.class, this);
-        plugins.register("px", PartialExtract.class, this);
+        plugins.register("pointref", PointRef.class, this); //$NON-NLS-1$
+        plugins.register("grep", Grep.class, this); //$NON-NLS-1$
+        plugins.register("px", PartialExtract.class, this); //$NON-NLS-1$
     }
 
     @Override
@@ -79,7 +82,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
             for (Action act : actions) {
                 act.doDirectory(in);
             }
-            return EditResult.pass("dir");
+            return EditResult.pass("dir"); //$NON-NLS-1$
         } else { // .jar
             for (Action act : actions) {
                 JarFile jar;
@@ -90,7 +93,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
                 }
                 act.doJar(jar);
             }
-            return EditResult.pass("jar");
+            return EditResult.pass("jar"); //$NON-NLS-1$
         }
     }
 
@@ -117,15 +120,14 @@ public class PackageFragmentsProcess extends BatchEditCLI {
 
         @Override
         public void doDirectory(File dir) throws Throwable {
-            new FsWalk(dir, parameters().getRecursive()) {
-                @Override
-                public void process(File file) throws IOException {
-                    String path = file.getPath();
-                    if (file.isDirectory())
-                        path += "/";
-                    list(path);
-                }
-            }.walk();
+            int maxDepth = parameters().getRecursive();
+            FileFinder finder = new FileFinder(maxDepth, dir);
+            for (File f : finder.listFiles()) {
+                String path = f.getPath();
+                if (f.isDirectory())
+                    path += "/"; //$NON-NLS-1$
+                list(path);
+            }
         }
 
         @Override
@@ -178,7 +180,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
             String path = getPath();
             JarEntry entry = jar.getJarEntry(path);
             File _file = Files.canoniOf(jar.getName());
-            String uri = "jar:" + _file.toURI() + "!/" + path;
+            String uri = "jar:" + _file.toURI() + "!/" + path; //$NON-NLS-1$ //$NON-NLS-2$
             URL url = new URL(uri);
 
             if (entry == null) {
@@ -205,7 +207,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
 
     }
 
-    static String MANIFEST = "META-INF/MANIFEST.MF";
+    static String MANIFEST = "META-INF/MANIFEST.MF"; //$NON-NLS-1$
 
     @Doc("=[FILE] dump specified file")
     class Cat extends _EntryAction {
@@ -229,7 +231,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
 
         @Override
         public void handle(URL url, String content) throws Throwable {
-            System.out.println(url + ":");
+            System.out.println(url + ":"); //$NON-NLS-1$
             System.out.println(content);
             System.out.println();
         }
@@ -249,8 +251,8 @@ public class PackageFragmentsProcess extends BatchEditCLI {
 
         public Grep(String[] args) {
             if (args.length < 1)
-                throw new IllegalArgumentException(
-                        "Grep(REGEXP, [FILE=plugin.xml])");
+                throw new IllegalArgumentException(CLINLS
+                        .getString("PackageFragmentsProcess.grepShortHelp")); //$NON-NLS-1$
 
             int flags = 0;
             if (parameters().isIgnoreCase())
@@ -258,7 +260,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
             pattern = Pattern.compile(args[0], flags);
 
             if (args.length == 1)
-                path = "plugin.xml";
+                path = "plugin.xml"; //$NON-NLS-1$
             else
                 path = args[1];
         }
@@ -279,11 +281,11 @@ public class PackageFragmentsProcess extends BatchEditCLI {
                 Matcher m = pattern.matcher(line);
                 if (m.find()) {
                     if (matchedLines++ == 0) {
-                        L.m.P(url, ": ");
+                        L.mesg(url, ": "); //$NON-NLS-1$
                     }
                     if (trim)
                         line = line.trim();
-                    _stdout.printf("%4d %s\n", lineNo, line);
+                    _stdout.printf("%4d %s\n", lineNo, line); //$NON-NLS-1$
                 }
             }
             in.close();
@@ -302,8 +304,8 @@ public class PackageFragmentsProcess extends BatchEditCLI {
         public XpathSearch(String[] args) {
             if (args.length < 1)
                 throw new IllegalArgumentException(getClass().getSimpleName()
-                        + "(" + getCriteriaVnam() + ", [XML="
-                        + getDefaultName() + "])");
+                        + "(" + getCriteriaVnam() + ", [XML=" //$NON-NLS-2$
+                        + getDefaultName() + "])"); //$NON-NLS-1$
             criteria = parseCriteria(critarg = args[0]);
 
             if (args.length == 1)
@@ -321,7 +323,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
         }
 
         protected String getDefaultName() {
-            return "plugin.xml";
+            return "plugin.xml"; //$NON-NLS-1$
         }
 
         protected abstract String getShortText(Node node);
@@ -341,13 +343,17 @@ public class PackageFragmentsProcess extends BatchEditCLI {
             XPath extensionOfPoint = doc.createXPath(_xpath);
             for (Object node : extensionOfPoint.selectNodes(doc)) {
                 if (!(node instanceof Node)) {
-                    L.x.P("skip node: ", node);
+                    L
+                            .debug(
+                                    CLINLS
+                                            .getString("PackageFragmentsProcess.skipNode"), node); //$NON-NLS-1$
                     continue;
                 }
                 Element ext = (Element) node;
-                L.i.P("extension: ", url);
+                L.info(CLINLS
+                        .getString("PackageFragmentsProcess.extension"), url); //$NON-NLS-1$
                 String shortText = getShortText(ext);
-                _stdout.println(critarg + ": " + shortText);
+                _stdout.println(critarg + ": " + shortText); //$NON-NLS-1$
                 if (L.showDetail()) {
                     String xmlenc = doc.getXMLEncoding();
                     if (xmlenc != null)
@@ -372,20 +378,21 @@ public class PackageFragmentsProcess extends BatchEditCLI {
 
         @Override
         protected String parseCriteria(String criteria) {
-            return "//extension[@point=\"" + criteria + "\"]";
+            return CLINLS
+                    .getString("PackageFragmentsProcess.extensionCriteria") + criteria + "\"]"; //$NON-NLS-1$ //$NON-NLS-2$
         }
 
         @Override
         protected String getCriteriaVnam() {
-            return "pointId";
+            return "pointId"; //$NON-NLS-1$
         }
 
         @Override
         protected String getShortText(Node node) {
             if (!(node instanceof Element))
-                return "Unexpected";
+                return CLINLS.getString("PackageFragmentsProcess.unexpected"); //$NON-NLS-1$
             Element elm = (Element) node;
-            Attribute id = elm.attribute("id");
+            Attribute id = elm.attribute("id"); //$NON-NLS-1$
             if (id == null)
                 return null;
             return id.getText();
@@ -396,7 +403,8 @@ public class PackageFragmentsProcess extends BatchEditCLI {
 
         @Override
         public void doDirectory(File dir) throws Throwable {
-            L.d.P("skipped directory ", dir);
+            L.detail(CLINLS
+                    .getString("PackageFragmentsProcess.skippedDir"), dir); //$NON-NLS-1$
         }
 
     }
@@ -439,14 +447,17 @@ public class PackageFragmentsProcess extends BatchEditCLI {
                     assert start != null;
                     String destname = ename;
                     if (!flatExtract) {
-                        if (!destname.startsWith("/"))
-                            destname = "/" + destname;
+                        if (!destname.startsWith("/")) //$NON-NLS-1$
+                            destname = "/" + destname; //$NON-NLS-1$
                         destname = Files.getName(jarFile) + destname;
                     }
                     File dest = getOutputFile(destname, start);
                     File destdir = dest.getParentFile();
                     destdir.mkdirs(); // return false if already exists.
-                    L.i.P("extract ", dest);
+                    L
+                            .detail(
+                                    CLINLS
+                                            .getString("PackageFragmentsProcess.extract"), dest); //$NON-NLS-1$
                     InputStream in = jar.getInputStream(entry);
                     try {
                         Files.copy(in, dest);
@@ -484,7 +495,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
     static Set<String> imageExtensions;
     static {
         imageExtensions = new HashSet<String>();
-        String[] exts = { "bmp", "ico", "gif", "jpg", "jpeg", "png" };
+        String[] exts = { "bmp", "ico", "gif", "jpg", "jpeg", "png" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
         for (String ext : exts)
             imageExtensions.add(ext);
     }

@@ -15,6 +15,7 @@ import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.ControlBreak;
+import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @Doc("batch iconv written in java, JUN 2004")
@@ -34,32 +35,37 @@ public class ConvertEncoding extends BatchEditCLI {
         Map<String, Charset> charsets = Charset.availableCharsets();
         for (Map.Entry<String, Charset> e : charsets.entrySet()) {
             Charset charset = e.getValue();
-            L.m.pf("%s: ", e.getKey());
+            L.fmesg("%s: ", e.getKey()); //$NON-NLS-1$
             if (!charset.displayName().equals(e.getKey()))
-                L.m.p(charset.displayName());
+                L.nmesg(charset.displayName());
 
             if (L.showDetail()) {
                 CharsetDecoder dec = charset.newDecoder();
                 float avgcpb = dec.averageCharsPerByte();
                 float maxcpb = dec.maxCharsPerByte();
-                L.d.pf(" dec(%.2f/%.2f)", maxcpb, avgcpb);
+                L
+                        .fdetail(
+                                CLINLS.getString("ConvertEncoding.decode_ff"), maxcpb, avgcpb); //$NON-NLS-1$
                 if (charset.canEncode()) {
                     CharsetEncoder enc = charset.newEncoder();
                     float avgbpc = enc.averageBytesPerChar();
                     float maxbpc = enc.maxBytesPerChar();
-                    L.d.pf(" enc(%.2f/%.2f)", maxbpc, avgbpc);
+                    L
+                            .fdetail(
+                                    CLINLS
+                                            .getString("ConvertEncoding.encode_ff"), maxbpc, avgbpc); //$NON-NLS-1$
                 }
             }
-            L.m.println();
+            L.mesg().p();
 
             Set<String> aliases = charset.aliases();
             if (!aliases.isEmpty()) {
-                L.m.p("   ");
+                L.nmesg("   "); //$NON-NLS-1$
                 for (String alias : charset.aliases()) {
-                    L.m.p(' ');
-                    L.m.p(alias);
+                    L.nmesg(' ');
+                    L.nmesg(alias);
                 }
-                L.m.println();
+                L.mesg().p();
             }
         }
         throw new ControlBreak();
@@ -72,9 +78,9 @@ public class ConvertEncoding extends BatchEditCLI {
     }
 
     // private static Charset CHARSET_L1 = Charset.forName("ISO-8859-1");
-    private static Charset CHARSET_UTF8     = Charset.forName("UTF-8");
-    private static Charset CHARSET_UTF16_LE = Charset.forName("UTF-16LE");
-    private static Charset CHARSET_UTF16_BE = Charset.forName("UTF-16BE");
+    private static Charset CHARSET_UTF8     = Charset.forName("UTF-8");   //$NON-NLS-1$
+    private static Charset CHARSET_UTF16_LE = Charset.forName("UTF-16LE"); //$NON-NLS-1$
+    private static Charset CHARSET_UTF16_BE = Charset.forName("UTF-16BE"); //$NON-NLS-1$
 
     @Override
     protected EditResult doEdit(File in, File out) throws Throwable {
@@ -94,7 +100,9 @@ public class ConvertEncoding extends BatchEditCLI {
             }
         }
 
-        L.m.sig("iconv ", in, " (", srcenc, ") -> ", out, "(", dstenc, ")");
+        L
+                .tmesg(
+                        CLINLS.getString("ConvertEncoding.iconv"), in, " (", srcenc, ") -> ", out, "(", dstenc, ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
         String decoded = new String(src, srcenc);
         byte[] dst = decoded.getBytes(dstenc);

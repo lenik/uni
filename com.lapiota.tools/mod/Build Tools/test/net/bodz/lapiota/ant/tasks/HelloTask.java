@@ -13,7 +13,7 @@ public class HelloTask extends CLITask {
     @Override
     public void execute() throws BuildException {
         super.execute();
-        log("oh, task finished!");
+        log("oh, task finished!"); //$NON-NLS-1$
     }
 
 }

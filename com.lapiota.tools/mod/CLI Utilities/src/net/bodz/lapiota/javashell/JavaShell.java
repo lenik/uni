@@ -29,9 +29,9 @@ import net.bodz.bas.lang.RunnableThrows;
 import net.bodz.bas.lang.err.IllegalUsageException;
 import net.bodz.bas.lang.err.NotImplementedException;
 import net.bodz.bas.sec.CatchExit;
+import net.bodz.bas.types.HashTextMap;
 import net.bodz.bas.types.TextMap;
-import net.bodz.bas.types.TextMap.HashTextMap;
-import net.bodz.bas.types.TextMap.TreeTextMap;
+import net.bodz.bas.types.TreeTextMap;
 import net.bodz.bas.types.util.ArrayOps;
 import net.bodz.bas.types.util.Strings;
 import net.bodz.lapiota.wrappers.BasicCLI;
@@ -181,7 +181,7 @@ public class JavaShell extends BasicCLI {
                 });
             } catch (ControlExit exit) {
                 int status = exit.getStatus();
-                L.d.P("exit ", status);
+                L.detail("exit ", status);
                 if (L.showDebug())
                     exit.printStackTrace();
             } catch (Throwable t) {

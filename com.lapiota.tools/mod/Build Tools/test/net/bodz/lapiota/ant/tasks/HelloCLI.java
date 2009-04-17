@@ -2,7 +2,7 @@ package net.bodz.lapiota.ant.tasks;
 
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.lang.script.ScriptClass;
-import net.bodz.bas.log.ALog;
+import net.bodz.bas.log.LogTerm;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 public class HelloCLI extends BasicCLI {
@@ -11,7 +11,7 @@ public class HelloCLI extends BasicCLI {
     private String[] welcomes;
 
     @Option
-    private String   yourName = "Lucy";
+    private String   yourName = "Lucy"; //$NON-NLS-1$
 
     @Option
     private boolean  hot;
@@ -19,16 +19,16 @@ public class HelloCLI extends BasicCLI {
     @Override
     protected void _boot() throws Throwable {
         if (welcomes == null)
-            welcomes = new String[] { "Hello" };
+            welcomes = new String[] { "Hello" }; //$NON-NLS-1$
     }
 
     @Override
     protected void doMain(String[] args) throws Throwable {
-        L.m.P("good morning!");
-        L.d.P("you are ", yourName);
-        L.x.P("now in debug level");
+        L.mesg("good morning!");
+        L.detail("you are ", yourName);
+        L.debug("now in debug level");
         for (String welcome : welcomes) {
-            String s = welcome + ", " + yourName + "!";
+            String s = welcome + ", " + yourName + "!"; //$NON-NLS-1$ //$NON-NLS-2$
             if (hot)
                 s = s.toUpperCase();
             System.out.println(s);
@@ -39,10 +39,9 @@ public class HelloCLI extends BasicCLI {
     public static void main(String[] args) throws Throwable {
         HelloCLI app = new HelloCLI();
         ScriptClass<?> sclass = app.getScriptClass();
-        ALog L = (ALog) sclass.get(app, "logout");
-        System.out.println("Level=" + L.getLevel());
+        LogTerm logger = (LogTerm) sclass.get(app, "logger"); //$NON-NLS-1$
+        System.out.println("Level=" + logger.getLevel()); //$NON-NLS-1$
         app.run();
-
     }
 
 }

@@ -7,11 +7,11 @@ import groovy.lang.MissingPropertyException;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import net.bodz.bas.io.CharOuts.Buffer;
+import net.bodz.bas.io.CharOuts.BCharOut;
 import net.bodz.bas.lang.err.NotImplementedException;
 import net.bodz.bas.text.interp.PatternProcessor;
+import net.bodz.bas.types.HashTextMap;
 import net.bodz.bas.types.TextMap;
-import net.bodz.bas.types.TextMap.HashTextMap;
 import net.bodz.bas.types.util.Strings;
 
 import org.codehaus.groovy.control.CompilationFailedException;
@@ -130,7 +130,7 @@ public class GroovyExpand extends PatternProcessor {
             throws CompilationFailedException {
         shell = new GroovyShell(binding);
 
-        Buffer out = new Buffer(source.length());
+        BCharOut out = new BCharOut(source.length());
         shell.setVariable("out", out);
 
         script = super.process(source);

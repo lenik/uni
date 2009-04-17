@@ -7,7 +7,7 @@ public class ImpStatic {
 
     @SuppressWarnings("unchecked")
     public <T> T function() {
-        EQ("H", (T) "Hello");
+        EQ("H", (T) "Hello"); //$NON-NLS-1$ //$NON-NLS-2$
         out.println();
         return (T) null;
     }

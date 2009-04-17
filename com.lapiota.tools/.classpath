@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry exported="true" kind="lib" path="lib/dom4j-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jaxen-1.1-beta-6.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" output="mod/Build Tools/bin" path="mod/Build Tools/src"/>
@@ -15,13 +16,9 @@
 	<classpathentry kind="src" output="mod/Java Tools/test.bin" path="mod/Java Tools/test"/>
 	<classpathentry kind="src" output="mod/SNM C Framework/bin" path="mod/SNM C Framework/src"/>
 	<classpathentry kind="src" output="mod/SNM C Framework/test.bin" path="mod/SNM C Framework/test"/>
-	<classpathentry kind="var" path="JAVA_LIB/ant.jar" sourcepath="/JAVA_SRC/src-ant-1.7.0.jar"/>
-	<classpathentry kind="var" path="JAVA_LIB/commons-collections-3.2.jar"/>
-	<classpathentry kind="var" path="JAVA_LIB/dom4j-1.6.1.jar" sourcepath="/JAVA_SRC/src-dom4j-1.6.1.zip"/>
-	<classpathentry kind="var" path="JAVA_LIB/groovy-all-1.5.6.jar" sourcepath="/JAVA_SRC/groovy-src-1.5.6.zip"/>
-	<classpathentry kind="var" path="JAVA_LIB/net.bodz.icons.jar"/>
-	<classpathentry kind="var" path="JAVA_LIB/jawin-2.0-alpha1.jar" sourcepath="/JAVA_SRC/jawin-2.0-alpha1-src.zip"/>
 	<classpathentry kind="var" path="JAVA_HOME/jre/lib/deploy.jar" sourcepath="/JAVA_SRC/deploy-src.jar"/>
-	<classpathentry kind="var" path="JAVA_LIB/jaxen-1.1-beta-6.jar"/>
+	<classpathentry kind="var" path="JAVA_LIB/groovy-all-1.5.6.jar"/>
+	<classpathentry kind="var" path="JAVA_LIB/jawin-2.0-alpha1.jar" sourcepath="/JAVA_SRC/jawin-2.0-alpha1-src.zip"/>
+	<classpathentry kind="var" path="JAVA_LIB/commons-collections-3.2.jar"/>
 	<classpathentry kind="output" path="mod/Commons/bin"/>
 </classpath>
