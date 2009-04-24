@@ -4,7 +4,7 @@
     #LONGOPTS=1
     long_opts="args:,help,quiet,verbose,version"
     sht_args=
-    . /lapiota/lib/sh/cliboot
+    . $LAM_KALA/lib/sh/cliboot
 
 function version() {
     parse_id "$RCSID"

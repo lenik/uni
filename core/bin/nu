@@ -4,7 +4,7 @@
     long_opts="delete,list,help,quiet,verbose,version"
     HOSTTAB=~/etc/hosttab
     mode=use
-    . /lapiota/lib/sh/cliboot
+    . $LAM_KALA/lib/sh/cliboot
 
 function version() {
     parse_id "$RCSID"

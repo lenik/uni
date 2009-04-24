@@ -3,7 +3,7 @@
 echo Startup Lapiota $LAPIOTA_VER
 
 shopt -s nullglob
-for f in /lapiota/etc/startup.d/*.sh ~/etc/startup.d/*.sh; do
+for f in $LAM_KALA/etc/startup.d/*.sh ~/etc/startup.d/*.sh; do
     echo "${f##*/} $f"
 done | sort >/tmp/startup.lst
 

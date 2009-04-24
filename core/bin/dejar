@@ -2,7 +2,7 @@
     RCSID='$Id: .sh 872 2008-10-29 11:51:30Z lenik $'
     short_opts="ho:qv"
     long_opts="help,option,quiet,verbose,version"
-    . /lapiota/lib/sh/cliboot
+    . $LAM_KALA/lib/sh/cliboot
 
     # -d DIR   - directory for output files
     # -ff      - output fields before methods (fieldsfirst)

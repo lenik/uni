@@ -1,4 +1,4 @@
-#!/lam/kala/bin/labat
+#!env labat
 
 - _use: labat::lapiota
 - _use: labat::win32
@@ -26,6 +26,7 @@
         - =         JAVA_OPTS   -ea
         - w-%       JAVA_SRC    $LAPIOTA
         - w+        JAVA_SRC    $LAPIOTA\usr\src\java
+        - u=        LAM_KALA    /lam/kala
         - w=        LAPIOTA     $LAPIOTA
         - =         LAPIOTA_VER 0.0.1
         - w=        LESS        -Ceifr

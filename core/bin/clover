@@ -3,7 +3,7 @@
     short_opts="hqsv"
     long_opts="help,quiet,symbolic,verbose,version"
     ln="ln -sf"
-    . /lam/lapiota/lib/sh/cliboot
+    . $LAM_KALA/lib/sh/cliboot
 
     shopt -s dotglob
     shopt -s nullglob

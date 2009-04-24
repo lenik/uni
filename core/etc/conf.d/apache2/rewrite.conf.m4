@@ -236,7 +236,7 @@ DocumentRoot "/srv/www/htdocs"
 # logged here.  If you *do* define an error logfile for a <VirtualHost>
 # container, that host's errors will be logged there and not here.
 #
-ErrorLog /lapiota/var/log/apache2/error_log
+ErrorLog LAM_KALA/var/log/apache2/error_log
 
 #
 # LogLevel: Control the number of messages logged to the error_log.

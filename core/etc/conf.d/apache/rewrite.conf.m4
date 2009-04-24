@@ -529,7 +529,7 @@ HostnameLookups Off
 # logged here.  If you *do* define an error logfile for a <VirtualHost>
 # container, that host's errors will be logged there and not here.
 #
-ErrorLog /lapiota/var/log/apache/error_log
+ErrorLog LAM_KALA/var/log/apache/error_log
 
 #
 # LogLevel: Control the number of messages logged to the error_log.
@@ -554,7 +554,7 @@ LogFormat "%{User-agent}i" agent
 # define per-<VirtualHost> access logfiles, transactions will be
 # logged therein and *not* in this file.
 #
-CustomLog /lapiota/var/log/apache/access_log common
+CustomLog LAM_KALA/var/log/apache/access_log common
 
 #
 # If you would like to have agent and referer logfiles, uncomment the

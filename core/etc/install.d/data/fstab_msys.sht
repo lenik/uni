@@ -1,5 +1,5 @@
 <?
     LAPI=${LAPIOTA//\\//}
 ?>
-<?= $LAPI ?>        /lapiota
+<?= $LAPI ?>        <?= $LAM_KALA ?>
 <?= $LAPI/xt ?>     /xt

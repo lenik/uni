@@ -1,5 +1,5 @@
 
-. /lapiota/lib/sh/findabc
+. $LAM_KALA/lib/sh/findabc
 
 findabc -p cyg
 findabc -p au

@@ -4,9 +4,9 @@
     long_opts="help,quiet,shortcuts,tags,verbose,version"
     add_shortcuts=1
     add_tags=1
-    . /lapiota/lib/sh/cliboot
-    . /lapiota/lib/sh/findabc
-    . /lapiota/lib/sh/cmds
+    . $LAM_KALA/lib/sh/cliboot
+    . $LAM_KALA/lib/sh/findabc
+    . $LAM_KALA/lib/sh/cmds
 
     shopt -s nocaseglob
 

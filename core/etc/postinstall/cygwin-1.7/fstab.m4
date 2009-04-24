@@ -75,7 +75,7 @@ $CYGWIN_ROOT/bin    /usr/bin        some_fs binary 0 0
 $CYGWIN_ROOT/lib    /usr/lib        some_fs binary 0 0
 $HOME               /home           some_fs binary 0 0
 $TEMP               /tmp            some_fs binary 0 0
-$LAPIOTA            /lapiota        some_fs binary 0 0
+$LAPIOTA            $LAM_KALA       some_fs binary 0 0
 
 # This is default anyway:
 none                /mnt            cygdrive binary,posix=0,user 0 0

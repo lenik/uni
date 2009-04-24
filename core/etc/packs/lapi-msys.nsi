@@ -9,7 +9,7 @@ InstallDir ${msys_home}
 Page instfiles
 
 Section "Msys Minimum"
-    SetOutPath $INSTDIR/lapiota
+    SetOutPath $INSTDIR$LAM_KALA
     SetOutPath $INSTDIR/var
     SetOutPath $INSTDIR/xt
 

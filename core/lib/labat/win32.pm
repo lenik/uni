@@ -163,7 +163,7 @@ add each component to ENV only if that component isn't existed before.
 
 =back
 
-See also L</lapiota/lib/sh/path>
+See also L<$LAM_KALA/lib/sh/path>
 
 =back
 

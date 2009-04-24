@@ -1,5 +1,5 @@
 
-DATA=/lapiota/etc/install.d/data
+DATA=$(LAM_KALA)/etc/install.d/data
 
 GIMP_ENV=$(GIMP)/lib/gimp/2.0/environ/default.env
 MY_INI=$(MYSQL)/my.ini

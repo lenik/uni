@@ -56,7 +56,7 @@
         )
     )
 
-    bash -c /lapiota/etc/startup
+    bash -c $LAM_KALA/etc/startup
 
     exit /b 0
 

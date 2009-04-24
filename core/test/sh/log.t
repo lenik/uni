@@ -1,4 +1,4 @@
-. /lapiota/lib/sh/log
+. $LAM_KALA/lib/sh/log
 
 LOGLEVEL=0
 _log0 L0-0

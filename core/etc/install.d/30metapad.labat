@@ -1,4 +1,4 @@
-#!/lapiota/bin/labat
+#!env labat
 
 - _use: labat::lapiota
 - _use: labat::win32

@@ -4,7 +4,7 @@ default: \
 	/msys/etc/fstab
 
 /etc/fstab: data/fstab.sht
-	mount $$LAPIOTA /lapiota; \
+	mount $$LAPIOTA $(LAM_KALA); \
 	shtext $^ >$@
 
 /msys/etc/fstab: data/fstab_msys.sht

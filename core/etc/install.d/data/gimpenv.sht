@@ -1,4 +1,4 @@
-<? . /lapiota/lib/sh/findabc ?>
+<? . $LAM_KALA/lib/sh/findabc ?>
 
 # Example entry in files like these
 # FOOPATH=/path/to/foo/stuff

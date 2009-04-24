@@ -1,5 +1,5 @@
 
-. /lapiota/lib/sh/rcs
+. $LAM_KALA/lib/sh/rcs
 
 RCSID='$Id$'
 echo start
