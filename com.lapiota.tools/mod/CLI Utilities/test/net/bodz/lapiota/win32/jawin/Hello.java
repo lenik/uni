@@ -19,6 +19,7 @@ import org.jawin.win32.Ole32;
 public class Hello extends BasicCLI {
 
     static boolean HELLO_DUMP = false;
+
     @Override
     protected void doMain(String[] args) throws Throwable {
         if (HELLO_DUMP)

@@ -48,8 +48,7 @@ public class ResourcePacker extends BatchEditCLI {
 
     static Pattern invalidChars;
     static {
-        invalidChars = Pattern.compile("[^\\p{Alnum}_]",
-                Pattern.CASE_INSENSITIVE);
+        invalidChars = Pattern.compile("[^\\p{Alnum}_]", Pattern.CASE_INSENSITIVE);
     }
 
     static interface NameConverter {
@@ -106,8 +105,7 @@ public class ResourcePacker extends BatchEditCLI {
                     return part.toLowerCase();
                 } else {// base name
                     String ext = Files.getExtension(part, true);
-                    String name = part.substring(0, part.length()
-                            - ext.length());
+                    String name = part.substring(0, part.length() - ext.length());
                     name = convertNamePart(name);
                     return name + ext;
                 }
@@ -126,8 +124,7 @@ public class ResourcePacker extends BatchEditCLI {
         out.putNextEntry(ze);
         Files.copy(file, out);
         out.closeEntry();
-        L.info("add ", ename, " [", ze.getCompressedSize(), "/", ze
-                .getSize(), "]");
+        L.info("add ", ename, " [", ze.getCompressedSize(), "/", ze.getSize(), "]");
         return EditResult.pass();
     }
 

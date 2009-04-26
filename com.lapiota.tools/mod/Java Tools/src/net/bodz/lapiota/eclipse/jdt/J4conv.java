@@ -165,8 +165,7 @@ public class J4conv extends JdtBatchCLI {
         // format...
         boolean format = true;
         if (format) {
-            Map fopts = DefaultCodeFormatterConstants
-                    .getEclipseDefaultSettings();
+            Map fopts = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
             fopts.put(FMT.FORMATTER_INDENTATION_SIZE, 4);
             fopts.put(FMT.FORMATTER_TAB_CHAR, JavaCore.SPACE);
             fopts.put(FMT.FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS, FMT.TRUE);
@@ -551,10 +550,9 @@ public class J4conv extends JdtBatchCLI {
             }
             if (node.isVarargs()) {
                 List params = node.parameters();
-                SingleVariableDeclaration last = (SingleVariableDeclaration) params
-                        .get(params.size() - 1);
-                SingleVariableDeclaration last2 = ast
-                        .newSingleVariableDeclaration();
+                SingleVariableDeclaration last = (SingleVariableDeclaration) params.get(params
+                        .size() - 1);
+                SingleVariableDeclaration last2 = ast.newSingleVariableDeclaration();
                 Type _type = expandMajor(last.getType());
                 ArrayType type = ast.newArrayType(AU.copy(_type));
                 last2.setType(type);
@@ -653,12 +651,10 @@ public class J4conv extends JdtBatchCLI {
             if (isArray) {
                 SimpleName _array = (SimpleName) iterable;
                 ForStatement _for = ast.newForStatement();
-                SimpleName _indexName = ast.newSimpleName("_index"
-                        + (++forIndex));
+                SimpleName _indexName = ast.newSimpleName("_index" + (++forIndex));
                 List<Expression> inits = _for.initializers();
                 {
-                    VariableDeclarationFragment forInit_f = ast
-                            .newVariableDeclarationFragment();
+                    VariableDeclarationFragment forInit_f = ast.newVariableDeclarationFragment();
                     forInit_f.setName(AU.copy(_indexName));
                     forInit_f.setInitializer(ast.newNumberLiteral("0"));
                     VariableDeclarationExpression forInit = ast
@@ -684,8 +680,7 @@ public class J4conv extends JdtBatchCLI {
                 }
                 VariableDeclarationStatement itvar;
                 {
-                    VariableDeclarationFragment itvar_f = ast
-                            .newVariableDeclarationFragment();
+                    VariableDeclarationFragment itvar_f = ast.newVariableDeclarationFragment();
                     itvar_f.setName(AU.copy(_itvar.getName()));
                     ArrayAccess arrayAccess = ast.newArrayAccess();
                     arrayAccess.setArray(AU.copy(_array));
@@ -713,14 +708,11 @@ public class J4conv extends JdtBatchCLI {
                 rewrite.replace(node, _for, null);
             } else {
                 VariableDeclarationStatement iterDecl;
-                SimpleName _iterName = ast.newSimpleName("_iter"
-                        + (++forIterIndex));
+                SimpleName _iterName = ast.newSimpleName("_iter" + (++forIterIndex));
                 {
-                    VariableDeclarationFragment iterDecl_f = ast
-                            .newVariableDeclarationFragment();
+                    VariableDeclarationFragment iterDecl_f = ast.newVariableDeclarationFragment();
                     iterDecl_f.setName(AU.copy(_iterName));
-                    MethodInvocation iterable_iterator = ast
-                            .newMethodInvocation();
+                    MethodInvocation iterable_iterator = ast.newMethodInvocation();
                     iterable_iterator.setExpression(iterable);
                     iterable_iterator.setName(ast.newSimpleName("iterator"));
                     iterDecl_f.setInitializer(iterable_iterator);
@@ -739,8 +731,7 @@ public class J4conv extends JdtBatchCLI {
                     next_.setExpression(AU.copy(_iterName));
                     next_.setName(ast.newSimpleName("next"));
 
-                    VariableDeclarationFragment itvar_f = ast
-                            .newVariableDeclarationFragment();
+                    VariableDeclarationFragment itvar_f = ast.newVariableDeclarationFragment();
                     itvar_f.setName(AU.copyRef(_itvar.getName()));
                     CastExpression casted = ast.newCastExpression();
                     casted.setExpression(next_);
@@ -822,8 +813,7 @@ public class J4conv extends JdtBatchCLI {
                 if_.setExpression(not);
 
                 ThrowStatement throw_ = ast.newThrowStatement();
-                ClassInstanceCreation new_Error = ast
-                        .newClassInstanceCreation();
+                ClassInstanceCreation new_Error = ast.newClassInstanceCreation();
                 new_Error.setType(AU.newType(AssertionError.class));
                 if (_msg != null)
                     new_Error.arguments().add(AU.moveRef(_msg));
@@ -850,8 +840,7 @@ public class J4conv extends JdtBatchCLI {
             cTypeDecl.setInterface(false);
             cTypeDecl.setName(AU.copyRef2(aTypeDecl.getName()));
             cTypeDecl.modifiers().addAll(AU.copy(aTypeDecl.modifiers()));
-            cTypeDecl.setSuperclassType(AU.newImportedType(unit,
-                    JavaAnnotation.class));
+            cTypeDecl.setSuperclassType(AU.newImportedType(unit, JavaAnnotation.class));
 
             List<BodyDeclaration> aBody = aTypeDecl.bodyDeclarations();
             List<BodyDeclaration> cBody = cTypeDecl.bodyDeclarations();
@@ -884,8 +873,7 @@ public class J4conv extends JdtBatchCLI {
         }
 
         @SuppressWarnings("unchecked")
-        public List<BodyDeclaration> wrapAMember(
-                AnnotationTypeMemberDeclaration aDecl) {
+        public List<BodyDeclaration> wrapAMember(AnnotationTypeMemberDeclaration aDecl) {
             Type _type = expandMajor(aDecl.getType());
             SimpleName _name = aDecl.getName();
             Expression _default = aDecl.getDefault();
@@ -893,8 +881,7 @@ public class J4conv extends JdtBatchCLI {
 
             FieldDeclaration cField;
             {
-                VariableDeclarationFragment cFieldFrag = ast
-                        .newVariableDeclarationFragment();
+                VariableDeclarationFragment cFieldFrag = ast.newVariableDeclarationFragment();
                 cFieldFrag.setName(AU.copyRef2(_name));
                 if (_default != null) {
                     cFieldFrag.setInitializer(AU.copyRef2(_default));
@@ -921,10 +908,8 @@ public class J4conv extends JdtBatchCLI {
             { /* this.FIELD = newval; */
                 cSetter.setName(ast.newSimpleName("set" + ucName));
 
-                List<SingleVariableDeclaration> cSetterArgs = cSetter
-                        .parameters();
-                SingleVariableDeclaration setArgDecl = ast
-                        .newSingleVariableDeclaration();
+                List<SingleVariableDeclaration> cSetterArgs = cSetter.parameters();
+                SingleVariableDeclaration setArgDecl = ast.newSingleVariableDeclaration();
                 setArgDecl.setType(AU.copyRef2(_type));
                 SimpleName newval = ast.newSimpleName("newval");
                 setArgDecl.setName(AU.copy(newval));
@@ -1047,11 +1032,9 @@ public class J4conv extends JdtBatchCLI {
             for (EnumConstantDeclaration eConst : eConsts) {
                 SimpleName _name = eConst.getName();
                 List<Expression> args = eConst.arguments();
-                AnonymousClassDeclaration anonDecl = eConst
-                        .getAnonymousClassDeclaration();
+                AnonymousClassDeclaration anonDecl = eConst.getAnonymousClassDeclaration();
 
-                VariableDeclarationFragment cConst_f = ast
-                        .newVariableDeclarationFragment();
+                VariableDeclarationFragment cConst_f = ast.newVariableDeclarationFragment();
                 {
                     cConst_f.setName(AU.copy(_name));
                     ClassInstanceCreation _new = ast.newClassInstanceCreation();
@@ -1080,11 +1063,9 @@ public class J4conv extends JdtBatchCLI {
             {
                 AU.addModifiers(valueOf_f, Modifier.PUBLIC | Modifier.STATIC);
                 valueOf_f.setReturnType2(AU.newType(typeName));
-                List<SingleVariableDeclaration> parameters = valueOf_f
-                        .parameters();
+                List<SingleVariableDeclaration> parameters = valueOf_f.parameters();
                 {
-                    SingleVariableDeclaration varName = ast
-                            .newSingleVariableDeclaration();
+                    SingleVariableDeclaration varName = ast.newSingleVariableDeclaration();
                     varName.setType(AU.newType(String.class));
                     varName.setName(ast.newSimpleName("name"));
                     parameters.add(varName);
@@ -1138,8 +1119,7 @@ public class J4conv extends JdtBatchCLI {
                 for (int i = 0; i < prefixes.length; i += 2) {
                     Type type = (Type) prefixes[i];
                     String name = (String) prefixes[i + 1];
-                    SingleVariableDeclaration var = ast
-                            .newSingleVariableDeclaration();
+                    SingleVariableDeclaration var = ast.newSingleVariableDeclaration();
                     var.setType(AU.copy(type));
                     var.setName(ast.newSimpleName(name));
                     parameters.add(insert++, var);
@@ -1150,8 +1130,7 @@ public class J4conv extends JdtBatchCLI {
                 ctor.setBody(block = ast.newBlock());
             List<Statement> body = block.statements();
             {
-                SuperConstructorInvocation superCtorInvoke = ast
-                        .newSuperConstructorInvocation();
+                SuperConstructorInvocation superCtorInvoke = ast.newSuperConstructorInvocation();
                 List<Expression> arguments = superCtorInvoke.arguments();
                 int insert = 0;
                 for (int i = 0; i < prefixes.length; i += 2) {

@@ -108,8 +108,7 @@ public class XMLEdit extends BasicCLI {
     }
 
     @Option(name = "xml", alias = "F", vnam = "XMLDOC")
-    protected void setDocument(String xmldoc) throws DocumentException,
-            IOException {
+    protected void setDocument(String xmldoc) throws DocumentException, IOException {
         save();
         docfile = null;
         SAXReader reader = new SAXReader();
@@ -278,8 +277,7 @@ public class XMLEdit extends BasicCLI {
                 throw new UnexpectedException(e.getMessage(), e);
             }
 
-        List<Pair<String, Node>> pairs = new ArrayList<Pair<String, Node>>(
-                nodes.size());
+        List<Pair<String, Node>> pairs = new ArrayList<Pair<String, Node>>(nodes.size());
         StringBuffer ordval = new StringBuffer();
         for (Node node : nodes) {
             ordval.setLength(0);

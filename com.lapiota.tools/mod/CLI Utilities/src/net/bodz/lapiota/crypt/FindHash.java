@@ -132,8 +132,7 @@ public class FindHash extends BasicCLI {
                                     .tmesg(
                                             CLINLS.getString("FindHash.range"), rt, " = ", HEX.encode(digest)); //$NON-NLS-1$ //$NON-NLS-2$
                             if (matched)
-                                L.mesg(CLINLS
-                                        .getString("FindHash.matched")); //$NON-NLS-1$
+                                L.mesg(CLINLS.getString("FindHash.matched")); //$NON-NLS-1$
                         }
                     }
                     if (to != range.to) {
@@ -176,10 +175,8 @@ public class FindHash extends BasicCLI {
                 MessageDigest digest = MessageDigest.getInstance(alg);
                 int len = digest.getDigestLength();
                 // Provider provider = digest.getProvider();
-                out
-                        .printf(
-                                CLINLS.getString("FindHash.digestInfo_sds"), alg, len, digest //$NON-NLS-1$
-                                        .getClass());
+                out.printf(CLINLS.getString("FindHash.digestInfo_sds"), alg, len, digest //$NON-NLS-1$
+                        .getClass());
             } catch (NoSuchAlgorithmException e) {
                 out.println(CLINLS.getString("FindHash.noAlg") + alg); //$NON-NLS-1$
             }

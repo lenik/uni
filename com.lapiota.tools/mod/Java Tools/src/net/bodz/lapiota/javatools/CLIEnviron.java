@@ -96,8 +96,8 @@ public class CLIEnviron extends BasicCLI {
     }
 
     void dumpProvider(Provider provider) {
-        L.fmesg("Provider %s (%.2f): %s\n", provider.getName(), provider
-                .getVersion(), provider.getInfo());
+        L.fmesg("Provider %s (%.2f): %s\n", provider.getName(), provider.getVersion(), provider
+                .getInfo());
         dump(provider.getName(), provider, 1);
         List<Service> services = new ArrayList<Service>(provider.getServices());
         Comparator<Service> cmp = new Comparator<Service>() {
@@ -118,9 +118,7 @@ public class CLIEnviron extends BasicCLI {
         for (Service service : services) {
             String type = service.getType();
             String alg = service.getAlgorithm();
-            L
-                    .fmesg("  Service %s(%s): %s\n", type, alg, service
-                            .getClassName());
+            L.fmesg("  Service %s(%s): %s\n", type, alg, service.getClassName());
             Set<Service> servsInType = types.get(type);
             if (servsInType == null)
                 types.put(type, servsInType = new HashSet<Service>());
@@ -139,16 +137,13 @@ public class CLIEnviron extends BasicCLI {
                     // if (password != null)
                     if ("Collection".equals(storeType)) {
                         csparams = new CollectionCertStoreParameters();
-                    } else if ("com.sun.security.IndexedCollection"
-                            .equals(storeType)) {
+                    } else if ("com.sun.security.IndexedCollection".equals(storeType)) {
                         csparams = new CollectionCertStoreParameters();
                     } else if ("LDAP".equals(storeType)) {
                         csparams = new LDAPCertStoreParameters();
                     }
-                    store = CertStore
-                            .getInstance(storeType, csparams, provider);
-                    Collection<? extends Certificate> certs = store
-                            .getCertificates(null);
+                    store = CertStore.getInstance(storeType, csparams, provider);
+                    Collection<? extends Certificate> certs = store.getCertificates(null);
                     L.mesg(certs.size(), " entries");
                     for (Certificate cert : certs) {
                         dumpCert("    ", cert, null);
@@ -170,8 +165,8 @@ public class CLIEnviron extends BasicCLI {
                         store = KeyStore.getInstance(storeType, provider);
                         store.load(null, password.toCharArray());
                     } else {
-                        Builder builder = Builder.newInstance(storeType,
-                                provider, new CallbackHandlerProtection(ch));
+                        Builder builder = Builder.newInstance(storeType, provider,
+                                new CallbackHandlerProtection(ch));
                         // will ask password here.
                         store = builder.getKeyStore();
                     }

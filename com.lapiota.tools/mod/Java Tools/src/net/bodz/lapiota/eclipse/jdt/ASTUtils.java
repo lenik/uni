@@ -119,8 +119,7 @@ class ASTUtils {
         if ("java.lang".equals(_package))
             return;
 
-        ListRewrite imports = rewrite.getListRewrite(cu,
-                CompilationUnit.IMPORTS_PROPERTY);
+        ListRewrite imports = rewrite.getListRewrite(cu, CompilationUnit.IMPORTS_PROPERTY);
         for (Object o : imports.getOriginalList()) {
             ImportDeclaration id = (ImportDeclaration) o;
             String fqn = id.getName().getFullyQualifiedName();

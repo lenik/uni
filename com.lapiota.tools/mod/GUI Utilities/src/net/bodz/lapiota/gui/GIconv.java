@@ -39,31 +39,29 @@ import org.eclipse.swt.widgets.Text;
 @Version( { 1, 0 })
 public class GIconv extends BasicGUI {
 
-    private Button      encode1Button;
-    private Button      decode2Button;
-    private Button      decode1Button;
-    private Button      encode2Button;
-    private Button      E1Hold;
-    private Button      D2Hold;
-    private Button      D1Hold;
-    private Button      E2Hold;
-    private List        charset1;
-    private List        charset2;
-    private Text        text1Text;
-    private Text        text2Text;
-    private Text        binText;
+    private Button encode1Button;
+    private Button decode2Button;
+    private Button decode1Button;
+    private Button encode2Button;
+    private Button E1Hold;
+    private Button D2Hold;
+    private Button D1Hold;
+    private Button E2Hold;
+    private List   charset1;
+    private List   charset2;
+    private Text   text1Text;
+    private Text   text2Text;
+    private Text   binText;
 
-    private byte[]      binary;
+    private byte[] binary;
 
     @Override
-    protected void createInitialView(Composite comp) throws UIException,
-            SWTException {
+    protected void createInitialView(Composite comp) throws UIException, SWTException {
         comp.setLayout(new FillLayout());
         comp = new Composite(comp, SWT.NONE);
         comp.setLayout(new FormLayout());
 
-        text1Text = new Text(comp, SWT.WRAP | SWT.V_SCROLL | SWT.MULTI
-                | SWT.BORDER);
+        text1Text = new Text(comp, SWT.WRAP | SWT.V_SCROLL | SWT.MULTI | SWT.BORDER);
         text1Text.setText("text1");
         final FormData fd_text1Text = new FormData();
         fd_text1Text.bottom = new FormAttachment(30, 0);
@@ -72,8 +70,7 @@ public class GIconv extends BasicGUI {
         fd_text1Text.left = new FormAttachment(0, 5);
         text1Text.setLayoutData(fd_text1Text);
 
-        text2Text = new Text(comp, SWT.WRAP | SWT.V_SCROLL | SWT.MULTI
-                | SWT.H_SCROLL | SWT.BORDER);
+        text2Text = new Text(comp, SWT.WRAP | SWT.V_SCROLL | SWT.MULTI | SWT.H_SCROLL | SWT.BORDER);
         text2Text.setText("text2");
         final FormData fd_text2Text = new FormData();
         fd_text2Text.top = new FormAttachment(70, 0);
@@ -154,8 +151,7 @@ public class GIconv extends BasicGUI {
         D2Hold.setLayoutData(fd_d2Hold);
         D2Hold.setImage(SWTResources.getImageRes("/icons/obj16/link_obj.gif"));
 
-        binText = new Text(comp, SWT.WRAP | SWT.V_SCROLL | SWT.MULTI
-                | SWT.BORDER);
+        binText = new Text(comp, SWT.WRAP | SWT.V_SCROLL | SWT.MULTI | SWT.BORDER);
         binText.addModifyListener(new ModifyListener() {
             public void modifyText(final ModifyEvent e) {
                 binary = null;

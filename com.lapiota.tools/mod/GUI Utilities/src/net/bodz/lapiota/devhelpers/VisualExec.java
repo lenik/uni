@@ -45,8 +45,7 @@ public class VisualExec extends BasicGUI {
         fd_cmdlineText.bottom = new FormAttachment(0, 80);
         fd_cmdlineText.right = new FormAttachment(100, -5);
         fd_cmdlineText.top = new FormAttachment(commandLineButton, 0, SWT.TOP);
-        fd_cmdlineText.left = new FormAttachment(commandLineButton, 5,
-                SWT.RIGHT);
+        fd_cmdlineText.left = new FormAttachment(commandLineButton, 5, SWT.RIGHT);
         cmdlineText.setLayoutData(fd_cmdlineText);
 
         final Composite composite = new Composite(comp, SWT.NONE);

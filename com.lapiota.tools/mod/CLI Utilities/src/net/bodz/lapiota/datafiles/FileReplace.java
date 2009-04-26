@@ -39,13 +39,11 @@ public class FileReplace extends BatchEditCLI {
     @Override
     protected void _boot() throws Throwable {
         if ((regexp == null) == (text == null))
-            throw new CLIException(
-                    CLINLS.getString("FileReplace.regexpOrText")); //$NON-NLS-1$
+            throw new CLIException(CLINLS.getString("FileReplace.regexpOrText")); //$NON-NLS-1$
 
         if (parameters().isIgnoreCase()) {
             if (regexp != null)
-                regexp = Pattern.compile(regexp.pattern(),
-                        Pattern.CASE_INSENSITIVE);
+                regexp = Pattern.compile(regexp.pattern(), Pattern.CASE_INSENSITIVE);
             if (text != null)
                 text = text.toLowerCase();
         }
@@ -68,8 +66,7 @@ public class FileReplace extends BatchEditCLI {
     }
 
     @Override
-    protected EditResult doEditByLine(Iterable<String> lines, CharOut out)
-            throws Throwable {
+    protected EditResult doEditByLine(Iterable<String> lines, CharOut out) throws Throwable {
         for (String line : lines)
             out.println(filter.filter(line));
         return EditResult.compareAndSave();

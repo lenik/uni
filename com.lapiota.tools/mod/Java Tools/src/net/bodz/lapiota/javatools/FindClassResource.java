@@ -142,8 +142,8 @@ public class FindClassResource extends BasicCLI {
             Method mainf = clazz.getMethod("main", String[].class);
             try {
                 try {
-                    L.info("execute ", mainf.getDeclaringClass(), "::", mainf
-                            .getName(), "/", testArguments.length);
+                    L.info("execute ", mainf.getDeclaringClass(), "::", mainf.getName(), "/",
+                            testArguments.length);
                     Control.invoke(mainf, null, (Object) testArguments);
                 } catch (InvocationTargetException te) {
                     throw te.getTargetException();
@@ -213,12 +213,9 @@ public class FindClassResource extends BasicCLI {
                 if (testArguments == null)
                     testArguments = args;
                 else {
-                    String[] concat = new String[testArguments.length
-                            + args.length];
-                    System.arraycopy(testArguments, 0, concat, 0,
-                            testArguments.length);
-                    System.arraycopy(args, 0, concat, testArguments.length,
-                            args.length);
+                    String[] concat = new String[testArguments.length + args.length];
+                    System.arraycopy(testArguments, 0, concat, 0, testArguments.length);
+                    System.arraycopy(args, 0, concat, testArguments.length, args.length);
                     testArguments = concat;
                 }
             }

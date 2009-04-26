@@ -121,9 +121,7 @@ public class MergeDirectories extends BatchEditCLI {
     @Override
     protected void doFileArgument(File startFile) throws Throwable {
         if (!startFile.isDirectory()) {
-            L
-                    .info(
-                            CLINLS.getString("MergeDirectories.skippedFile"), startFile); //$NON-NLS-1$
+            L.info(CLINLS.getString("MergeDirectories.skippedFile"), startFile); //$NON-NLS-1$
             return;
         }
         // throw new IllegalArgumentException("not a directory: " + startFile);
@@ -224,26 +222,20 @@ public class MergeDirectories extends BatchEditCLI {
             if (rhash.equals(hash)) {
                 File start = currentStartFile.getParentFile();
                 if (start == null) {
-                    L
-                            .fwarn(
-                                    CLINLS
-                                            .getString("MergeDirectories.rootWarn_s"), currentStartFile); //$NON-NLS-1$
+                    L.fwarn(CLINLS.getString("MergeDirectories.rootWarn_s"), currentStartFile); //$NON-NLS-1$
                 }
                 File dst = getOutputFile(rname, start);
                 if (dst.exists()) {
                     if (dst.equals(file))
-                        return EditResult.pass(CLINLS
-                                .getString("MergeDirectories.same")); //$NON-NLS-1$
+                        return EditResult.pass(CLINLS.getString("MergeDirectories.same")); //$NON-NLS-1$
                     else
-                        return EditResult.rm(CLINLS
-                                .getString("MergeDirectories.sameKill")); // psh.delete(file) //$NON-NLS-1$
+                        return EditResult.rm(CLINLS.getString("MergeDirectories.sameKill")); // psh.delete(file) //$NON-NLS-1$
                     // ;
                 } else
                     return EditResult.mv(dst); // psh.move(file, dst);
             } else {
                 if (reduced && deleteIgnored)
-                    return EditResult.rm(CLINLS
-                            .getString("MergeDirectories.ignoreKill")); //$NON-NLS-1$
+                    return EditResult.rm(CLINLS.getString("MergeDirectories.ignoreKill")); //$NON-NLS-1$
             }
             return EditResult.pass();
         } else {

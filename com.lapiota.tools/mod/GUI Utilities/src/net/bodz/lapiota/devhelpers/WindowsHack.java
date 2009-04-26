@@ -48,22 +48,22 @@ public class WindowsHack extends BasicGUI {
     }
 
     synchronized void updater() {
-//        POINT cursor = new POINT();
-//        OS.GetCursorPos(cursor);
-//        cursorLabel.setText(cursor.x + ", " + cursor.y);
-//        int hWnd = OS.WindowFromPoint(cursor);
-//        String text = "NULL";
-//        if (hWnd != 0) {
-//            char buf[] = new char[200];
-//            int cc = OS.GetWindowTextW(hWnd, buf, buf.length);
-//            text = new String(buf, 0, cc);
-//            windowLabel.setText("HWND[" + hWnd + "] - " + text);
-//        }
-//        // boolean scroll = (OS.GetKeyState(OS.VK_SCROLL) & 0x1) != 0;
-//        boolean ctrlDown = (OS.GetKeyState(OS.VK_CONTROL) & 0x8000) != 0;
-//        if (follow ^ ctrlDown) {
-//            shell.setLocation(10 + cursor.x, 10 + cursor.y);
-//        }
+        // POINT cursor = new POINT();
+        // OS.GetCursorPos(cursor);
+        // cursorLabel.setText(cursor.x + ", " + cursor.y);
+        // int hWnd = OS.WindowFromPoint(cursor);
+        // String text = "NULL";
+        // if (hWnd != 0) {
+        // char buf[] = new char[200];
+        // int cc = OS.GetWindowTextW(hWnd, buf, buf.length);
+        // text = new String(buf, 0, cc);
+        // windowLabel.setText("HWND[" + hWnd + "] - " + text);
+        // }
+        // // boolean scroll = (OS.GetKeyState(OS.VK_SCROLL) & 0x1) != 0;
+        // boolean ctrlDown = (OS.GetKeyState(OS.VK_CONTROL) & 0x8000) != 0;
+        // if (follow ^ ctrlDown) {
+        // shell.setLocation(10 + cursor.x, 10 + cursor.y);
+        // }
     }
 
     @Override

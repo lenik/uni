@@ -62,8 +62,7 @@ public class GenerateClassWrappers extends BasicCLI {
     protected int addClass(String fqcn, boolean error) {
         if (fqcn.indexOf('$') != -1)
             if (error)
-                throw new IllegalArgumentException(
-                        "inner class isn't supported");
+                throw new IllegalArgumentException("inner class isn't supported");
             else
                 return 0;
 
@@ -129,8 +128,7 @@ public class GenerateClassWrappers extends BasicCLI {
     }
 
     @Option(alias = "d", vnam = "DIR", doc = "add all public classes from the directory")
-    public void addDirectory(File dir) throws MalformedURLException,
-            IOException {
+    public void addDirectory(File dir) throws MalformedURLException, IOException {
         Classpath.addURL(Files.getURL(dir));
         int count = addDirectory(dir, "");
         L.info("added ", count, " classes from ", dir);

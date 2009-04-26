@@ -60,14 +60,12 @@ public class PackageFragmentsProcess extends BatchEditCLI {
 
     @Option(alias = "a", vnam = "ACTION=PARAM[,...]", doc = "add an action")
     protected void action(Action action) throws CLIException {
-        L.debug(
-                CLINLS.getString("PackageFragmentsProcess.action_"), action); //$NON-NLS-1$
+        L.debug(CLINLS.getString("PackageFragmentsProcess.action_"), action); //$NON-NLS-1$
         actions.add(action);
     }
 
     public PackageFragmentsProcess() {
-        plugins.registerCategory(CLINLS
-                .getString("PackageFragmentsProcess.action"), Action.class); //$NON-NLS-1$
+        plugins.registerCategory(CLINLS.getString("PackageFragmentsProcess.action"), Action.class); //$NON-NLS-1$
         plugins.register("list", Lister.class, this); //$NON-NLS-1$
         plugins.register("cat", Cat.class, this); //$NON-NLS-1$
         // actionPoint.register("mani", ManiCat.class, this);
@@ -343,15 +341,11 @@ public class PackageFragmentsProcess extends BatchEditCLI {
             XPath extensionOfPoint = doc.createXPath(_xpath);
             for (Object node : extensionOfPoint.selectNodes(doc)) {
                 if (!(node instanceof Node)) {
-                    L
-                            .debug(
-                                    CLINLS
-                                            .getString("PackageFragmentsProcess.skipNode"), node); //$NON-NLS-1$
+                    L.debug(CLINLS.getString("PackageFragmentsProcess.skipNode"), node); //$NON-NLS-1$
                     continue;
                 }
                 Element ext = (Element) node;
-                L.info(CLINLS
-                        .getString("PackageFragmentsProcess.extension"), url); //$NON-NLS-1$
+                L.info(CLINLS.getString("PackageFragmentsProcess.extension"), url); //$NON-NLS-1$
                 String shortText = getShortText(ext);
                 _stdout.println(critarg + ": " + shortText); //$NON-NLS-1$
                 if (L.showDetail()) {
@@ -378,8 +372,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
 
         @Override
         protected String parseCriteria(String criteria) {
-            return CLINLS
-                    .getString("PackageFragmentsProcess.extensionCriteria") + criteria + "\"]"; //$NON-NLS-1$ //$NON-NLS-2$
+            return CLINLS.getString("PackageFragmentsProcess.extensionCriteria") + criteria + "\"]"; //$NON-NLS-1$ //$NON-NLS-2$
         }
 
         @Override
@@ -403,8 +396,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
 
         @Override
         public void doDirectory(File dir) throws Throwable {
-            L.detail(CLINLS
-                    .getString("PackageFragmentsProcess.skippedDir"), dir); //$NON-NLS-1$
+            L.detail(CLINLS.getString("PackageFragmentsProcess.skippedDir"), dir); //$NON-NLS-1$
         }
 
     }
@@ -454,10 +446,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
                     File dest = getOutputFile(destname, start);
                     File destdir = dest.getParentFile();
                     destdir.mkdirs(); // return false if already exists.
-                    L
-                            .detail(
-                                    CLINLS
-                                            .getString("PackageFragmentsProcess.extract"), dest); //$NON-NLS-1$
+                    L.detail(CLINLS.getString("PackageFragmentsProcess.extract"), dest); //$NON-NLS-1$
                     InputStream in = jar.getInputStream(entry);
                     try {
                         Files.copy(in, dest);

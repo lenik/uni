@@ -43,17 +43,12 @@ public class ConvertEncoding extends BatchEditCLI {
                 CharsetDecoder dec = charset.newDecoder();
                 float avgcpb = dec.averageCharsPerByte();
                 float maxcpb = dec.maxCharsPerByte();
-                L
-                        .fdetail(
-                                CLINLS.getString("ConvertEncoding.decode_ff"), maxcpb, avgcpb); //$NON-NLS-1$
+                L.fdetail(CLINLS.getString("ConvertEncoding.decode_ff"), maxcpb, avgcpb); //$NON-NLS-1$
                 if (charset.canEncode()) {
                     CharsetEncoder enc = charset.newEncoder();
                     float avgbpc = enc.averageBytesPerChar();
                     float maxbpc = enc.maxBytesPerChar();
-                    L
-                            .fdetail(
-                                    CLINLS
-                                            .getString("ConvertEncoding.encode_ff"), maxbpc, avgbpc); //$NON-NLS-1$
+                    L.fdetail(CLINLS.getString("ConvertEncoding.encode_ff"), maxbpc, avgbpc); //$NON-NLS-1$
                 }
             }
             L.mesg().p();

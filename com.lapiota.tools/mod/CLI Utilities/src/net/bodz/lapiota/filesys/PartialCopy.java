@@ -242,7 +242,8 @@ public class PartialCopy extends BasicCLI {
                     flags = ""; //$NON-NLS-1$
                     break;
                 default:
-                    throw new IllegalArgumentException(CLINLS.getString("PartialCopy.unknownFlag") + flags); //$NON-NLS-1$
+                    throw new IllegalArgumentException(
+                            CLINLS.getString("PartialCopy.unknownFlag") + flags); //$NON-NLS-1$
                 }
             }
         }
@@ -359,13 +360,13 @@ public class PartialCopy extends BasicCLI {
         @Override
         public byte[] process(Memory src, long lenl) throws AccessException {
             if (lenl >= Integer.MAX_VALUE)
-                throw new UnsupportedOperationException(
-                        CLINLS.getString("PartialCopy.tooLong")); //$NON-NLS-1$
+                throw new UnsupportedOperationException(CLINLS.getString("PartialCopy.tooLong")); //$NON-NLS-1$
             int len = (int) lenl;
             byte[] bigEndian = new byte[len];
             src.read(0, bigEndian);
             if (len % 4 != 0)
-                throw new IllegalArgumentException(CLINLS.getString("PartialCopy.pgpCrc32ShouldAligned")); //$NON-NLS-1$
+                throw new IllegalArgumentException(CLINLS
+                        .getString("PartialCopy.pgpCrc32ShouldAligned")); //$NON-NLS-1$
             if (fillRange != null) { // fill before switch byte-order
                 int padIndex = 0;
                 for (int i = fillRange.from; i < fillRange.to; i++) {

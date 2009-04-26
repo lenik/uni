@@ -50,13 +50,13 @@ public class TemplateProcess extends BatchEditCLI {
     String        extension;
 
     public TemplateProcess() {
-        plugins.registerCategory(CLINLS
-                .getString("TemplateProcess.sourceModel"), SourceModel.class); //$NON-NLS-1$
-        plugins.register("ini", VariableDefSource.class, this); //$NON-NLS-1$
-        plugins.register("csv", CSVDefSource.class, this); //$NON-NLS-1$
         plugins
                 .registerCategory(
-                        CLINLS.getString("TemplateProcess.templateModel"), TemplateModel.class); //$NON-NLS-1$
+                        CLINLS.getString("TemplateProcess.sourceModel"), SourceModel.class); //$NON-NLS-1$
+        plugins.register("ini", VariableDefSource.class, this); //$NON-NLS-1$
+        plugins.register("csv", CSVDefSource.class, this); //$NON-NLS-1$
+        plugins.registerCategory(
+                CLINLS.getString("TemplateProcess.templateModel"), TemplateModel.class); //$NON-NLS-1$
         plugins.register("ve", VariableExpandTemplate.class, this); //$NON-NLS-1$
         plugins.register("gsp", GroovyTemplate.class, this); //$NON-NLS-1$
     }
@@ -106,16 +106,14 @@ public class TemplateProcess extends BatchEditCLI {
         Object getContext();
     }
 
-    abstract static class _SourceModel extends _CLIPlugin implements
-            SourceModel {
+    abstract static class _SourceModel extends _CLIPlugin implements SourceModel {
     }
 
     static interface TemplateModel extends CLIPlugin {
         String expand(Object context) throws Exception;
     }
 
-    abstract static class _TemplateModel extends _CLIPlugin implements
-            TemplateModel {
+    abstract static class _TemplateModel extends _CLIPlugin implements TemplateModel {
     }
 
     // Plugin Implementations
@@ -233,8 +231,8 @@ public class TemplateProcess extends BatchEditCLI {
         }
 
         @Override
-        public void setParameters(Map<String, Object> parameters)
-                throws CLIException, ParseException {
+        public void setParameters(Map<String, Object> parameters) throws CLIException,
+                ParseException {
             super.setParameters(parameters);
         }
 
@@ -250,8 +248,7 @@ public class TemplateProcess extends BatchEditCLI {
                 if (names != null && names.length < limit)
                     limit = names.length;
 
-                String[] parts = Strings.split(line, _delim.toCharArray(),
-                        limit);
+                String[] parts = Strings.split(line, _delim.toCharArray(), limit);
                 if (names == null) {
                     names = parts;
                     for (int i = 0; i < names.length; i++)
@@ -370,8 +367,7 @@ public class TemplateProcess extends BatchEditCLI {
                 throw e;
             } catch (Throwable e) {
                 String script = ve.getCompiledScript();
-                System.err
-                        .println(CLINLS.getString("TemplateProcess.evaluate")); //$NON-NLS-1$
+                System.err.println(CLINLS.getString("TemplateProcess.evaluate")); //$NON-NLS-1$
                 System.err.println(script);
                 System.err.println(CLINLS.getString("TemplateProcess.vars")); //$NON-NLS-1$
                 // TODO - object dumper

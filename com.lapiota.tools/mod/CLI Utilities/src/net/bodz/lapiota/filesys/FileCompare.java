@@ -38,8 +38,7 @@ public class FileCompare extends BasicCLI {
     @Override
     protected void doMain(String[] args) throws Throwable {
         if (args.length > 0)
-            throw new IllegalArgumentException("unexpected argument: "
-                    + args[0]);
+            throw new IllegalArgumentException("unexpected argument: " + args[0]);
         DiffComparator gnudiff = DiffComparators.gnudiff;
         List<String> srcl = Files.readLines(src);
         List<String> dstl = Files.readLines(dst);

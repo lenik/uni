@@ -87,8 +87,7 @@ public class LineNoFix extends BatchEditCLI {
     }
 
     @Override
-    protected EditResult doEditByLine(Iterable<String> _lines, CharOut out)
-            throws Throwable {
+    protected EditResult doEditByLine(Iterable<String> _lines, CharOut out) throws Throwable {
         List<Line> lines = new ArrayList<Line>(10000);
         lines.add(null); // 1-based
         int last = -1;

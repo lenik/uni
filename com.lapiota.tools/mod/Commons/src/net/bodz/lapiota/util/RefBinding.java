@@ -74,13 +74,11 @@ public class RefBinding extends Binding {
     }
 
     @SuppressWarnings("unchecked")
-    public void bindScriptFields(final Object o, boolean forceAccess)
-            throws ScriptException {
+    public void bindScriptFields(final Object o, boolean forceAccess) throws ScriptException {
         assert o != null;
         Class<?> clazz = o.getClass();
         ScriptClass<Object> sclass = Scripts.convertClass(clazz, forceAccess);
-        ScriptField<Object>[] fields = (ScriptField<Object>[]) sclass
-                .getFields();
+        ScriptField<Object>[] fields = (ScriptField<Object>[]) sclass.getFields();
         for (final ScriptField<Object> field : fields) {
             Ref<Object> accessor = new Ref<Object>() {
                 @Override

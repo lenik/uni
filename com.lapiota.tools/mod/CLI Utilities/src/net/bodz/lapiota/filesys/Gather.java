@@ -102,8 +102,7 @@ public class Gather extends BasicCLI {
             String srcwild = srcdir + "/" + srcfile;
             List<File> srcs = Files.find(srcwild);
             if (srcs == null)
-                throw new IllegalArgumentException("src isn't existed: "
-                        + srcwild);
+                throw new IllegalArgumentException("src isn't existed: " + srcwild);
             if (srcs.size() > 1)
                 throw new IllegalArgumentException("too many matched src: \n"
                         + Strings.join("\n", srcs));
@@ -138,8 +137,7 @@ public class Gather extends BasicCLI {
 
         File gatherd = new File(dstdir, gatherDir);
         if (!gatherd.isDirectory())
-            throw new IllegalArgumentException("not a gathered target: "
-                    + dstdir);
+            throw new IllegalArgumentException("not a gathered target: " + dstdir);
 
         GMap gmap = new GMap(dstdir);
         File prefixf = new File(gatherd, ".prefix");
@@ -173,8 +171,7 @@ public class Gather extends BasicCLI {
                     continue;
                 }
                 if (srcdir == null)
-                    throw new IllegalStateException("srcdir isn't set, in "
-                            + gfile + ": \n" + line);
+                    throw new IllegalStateException("srcdir isn't set, in " + gfile + ": \n" + line);
                 String srcfile = line;
                 String dst = srcfile;
                 int eq = line.indexOf('=');

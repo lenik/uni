@@ -99,8 +99,7 @@ public class JavaShell extends BasicCLI {
 
         Reader reader = new InputStreamReader(scriptIn, scriptEncoding);
         if (script != null && keepRun) {
-            final Reader sysReader = new InputStreamReader(System.in,
-                    scriptEncoding);
+            final Reader sysReader = new InputStreamReader(System.in, scriptEncoding);
             Queue<Reader> trigQueue = new LinkedList<Reader>() {
 
                 private static final long serialVersionUID = 1645685150623267559L;
@@ -160,8 +159,7 @@ public class JavaShell extends BasicCLI {
                 n = _args.length - 1 + expansion.length - 1;
                 String[] join = new String[n];
                 System.arraycopy(expansion, 1, join, 0, expansion.length - 1);
-                System.arraycopy(_args, 1, join, expansion.length - 1,
-                        _args.length - 1);
+                System.arraycopy(_args, 1, join, expansion.length - 1, _args.length - 1);
                 _args = join;
             } catch (IllegalUsageException e) {
                 System.err.println(e.getMessage());
@@ -392,8 +390,7 @@ public class JavaShell extends BasicCLI {
             }
             int dot = spec.lastIndexOf('.');
             if (dot == -1)
-                throw new IllegalArgumentException(
-                        "static import without member name");
+                throw new IllegalArgumentException("static import without member name");
             String className = spec.substring(0, dot);
             String member = spec.substring(dot + 1);
             Class<?> declType = Class.forName(className);

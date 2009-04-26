@@ -25,8 +25,8 @@ public class Hashes {
 
     }
 
-    public static abstract class CRC32 extends MessageDigest implements
-            Checksum, PeekDigest, Cloneable {
+    public static abstract class CRC32 extends MessageDigest implements Checksum, PeekDigest,
+            Cloneable {
 
         protected java.util.zip.CRC32 crc32;
 

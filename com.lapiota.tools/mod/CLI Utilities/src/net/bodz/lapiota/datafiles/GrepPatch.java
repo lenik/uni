@@ -33,8 +33,7 @@ public class GrepPatch extends BatchEditCLI {
         inputEncoding = parameters().getInputEncoding();
         outputEncoding = parameters().getOutputEncoding();
         if (!inputEncoding.equals(outputEncoding))
-            throw new IllegalUsageException(CLINLS
-                    .getString("GrepPatch.diffInOut")); //$NON-NLS-1$
+            throw new IllegalUsageException(CLINLS.getString("GrepPatch.diffInOut")); //$NON-NLS-1$
     }
 
     @Override
@@ -58,8 +57,7 @@ public class GrepPatch extends BatchEditCLI {
                 continue;
             int col = line.indexOf(':');
             if (col == -1) {
-                L.error(
-                        CLINLS.getString("GrepPatch.grepNoFilename"), filepos); //$NON-NLS-1$
+                L.error(CLINLS.getString("GrepPatch.grepNoFilename"), filepos); //$NON-NLS-1$
                 continue;
             }
             String fileName = line.substring(0, col);
@@ -67,8 +65,7 @@ public class GrepPatch extends BatchEditCLI {
 
             col = line.indexOf(':');
             if (col == -1) {
-                L.error(
-                        CLINLS.getString("GrepPatch.grepNoLineNum"), filepos); //$NON-NLS-1$
+                L.error(CLINLS.getString("GrepPatch.grepNoLineNum"), filepos); //$NON-NLS-1$
                 continue;
             }
             String lineno = line.substring(0, col);
@@ -77,9 +74,7 @@ public class GrepPatch extends BatchEditCLI {
             try {
                 lno = Integer.parseInt(lineno);
             } catch (NumberFormatException e) {
-                L
-                        .error(
-                                CLINLS.getString("GrepPatch.badlLineNum"), lineno, "' at ", filepos); //$NON-NLS-1$ //$NON-NLS-2$
+                L.error(CLINLS.getString("GrepPatch.badlLineNum"), lineno, "' at ", filepos); //$NON-NLS-1$ //$NON-NLS-2$
                 continue;
             }
             if (lno < 1) {
@@ -96,8 +91,7 @@ public class GrepPatch extends BatchEditCLI {
             }
 
             if (lno > loaded.size()) {
-                L.error(
-                        "line number ", lno, " out of bounds, at ", filepos); //$NON-NLS-1$ //$NON-NLS-2$
+                L.error("line number ", lno, " out of bounds, at ", filepos); //$NON-NLS-1$ //$NON-NLS-2$
                 continue;
             }
 

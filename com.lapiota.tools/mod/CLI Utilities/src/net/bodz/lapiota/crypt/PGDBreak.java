@@ -55,9 +55,7 @@ public class PGDBreak extends BasicCLI {
             chunk.read(0, header);
             File chunkFile = new File(outputDirectory, file.getName() //
                     + "." + type + "." + chunkIndex++); //$NON-NLS-1$ //$NON-NLS-2$
-            L
-                    .mesg(
-                            CLINLS.getString("PGDBreak.writeTo"), chunkFile, " (", size, " bytes)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            L.mesg(CLINLS.getString("PGDBreak.writeTo"), chunkFile, " (", size, " bytes)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             Files.write(chunkFile, header);
 
             addr = chunk.readInt64(16);

@@ -20,8 +20,8 @@ public class GroovyExpand extends PatternProcessor {
 
     private static Pattern    gspTag;
     static {
-        gspTag = Pattern.compile("<%((?://.*?\n | /\\*.*?\\*/ | .)*?)%>",
-                Pattern.DOTALL | Pattern.COMMENTS);
+        gspTag = Pattern.compile("<%((?://.*?\n | /\\*.*?\\*/ | .)*?)%>", Pattern.DOTALL
+                | Pattern.COMMENTS);
     }
 
     private GroovyShell       shell;
@@ -126,8 +126,7 @@ public class GroovyExpand extends PatternProcessor {
      *                the compiled script, call
      *                {@link GroovyExpand#getCompiledScript()}.
      */
-    public synchronized String compileAndEvaluate(String source)
-            throws CompilationFailedException {
+    public synchronized String compileAndEvaluate(String source) throws CompilationFailedException {
         shell = new GroovyShell(binding);
 
         BCharOut out = new BCharOut(source.length());

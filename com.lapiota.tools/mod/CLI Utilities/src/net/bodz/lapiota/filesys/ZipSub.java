@@ -75,8 +75,7 @@ public class ZipSub extends BasicCLI {
                 }
                 if (tempOut == null)
                     tempOut = dumpHead(temp, destZip, pending);
-                writeEntry(
-                        CLINLS.getString("ZipSub.write"), tempOut, destZip, entry); //$NON-NLS-1$
+                writeEntry(CLINLS.getString("ZipSub.write"), tempOut, destZip, entry); //$NON-NLS-1$
             }
         }
         if (removed != 0 && tempOut == null)
@@ -92,8 +91,7 @@ public class ZipSub extends BasicCLI {
             File destBak = new File(destDir, dest.getName() + ".bak"); //$NON-NLS-1$
             if (destBak.exists()) {
                 if (!destBak.delete())
-                    throw new IOException(
-                            CLINLS.getString("ZipSub.cantDelete") + destBak); //$NON-NLS-1$
+                    throw new IOException(CLINLS.getString("ZipSub.cantDelete") + destBak); //$NON-NLS-1$
             }
             if (!dest.renameTo(destBak))
                 throw new IOException(
@@ -106,8 +104,7 @@ public class ZipSub extends BasicCLI {
         }
     }
 
-    ZipOutputStream dumpHead(File outFile, ZipFile zip, int n)
-            throws IOException {
+    ZipOutputStream dumpHead(File outFile, ZipFile zip, int n) throws IOException {
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(outFile));
         // tempOut.setLevel(level);
         // tempOut.setMethod(method);
@@ -120,8 +117,8 @@ public class ZipSub extends BasicCLI {
         return out;
     }
 
-    void writeEntry(String title, ZipOutputStream out, ZipFile zip,
-            ZipEntry entry) throws IOException {
+    void writeEntry(String title, ZipOutputStream out, ZipFile zip, ZipEntry entry)
+            throws IOException {
         String name = entry.getName();
         long size = entry.getSize();
         // out.setLevel(level);
@@ -147,8 +144,7 @@ public class ZipSub extends BasicCLI {
             // out.flush(); // ??
             out.closeEntry();
         }
-        L.info(title, name,
-                " ", entry.getCompressedSize(), "/", size + ". "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        L.info(title, name, " ", entry.getCompressedSize(), "/", size + ". "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     @Override

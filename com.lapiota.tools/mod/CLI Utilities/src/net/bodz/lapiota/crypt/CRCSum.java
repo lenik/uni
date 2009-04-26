@@ -96,8 +96,7 @@ public class CRCSum extends BatchCLI {
             if (inst instanceof IKey)
                 ((IKey) inst).setKey((int) key);
             else
-                throw new UnsupportedOperationException(CLINLS
-                        .getString("CRCSum.5") //$NON-NLS-1$
+                throw new UnsupportedOperationException(CLINLS.getString("CRCSum.5") //$NON-NLS-1$
                         + _class.getName() + CLINLS.getString("CRCSum.6")); //$NON-NLS-1$
         return inst;
     }
@@ -142,9 +141,7 @@ public class CRCSum extends BatchCLI {
 
         out.println(CLINLS.getString("CRCSum.namedAlgs")); //$NON-NLS-1$
         for (String name : types.keySet())
-            out
-                    .printf(
-                            CLINLS.getString("CRCSum.algInfo_ss"), name, types.get(name)); //$NON-NLS-1$
+            out.printf(CLINLS.getString("CRCSum.algInfo_ss"), name, types.get(name)); //$NON-NLS-1$
 
         out.flush();
     }

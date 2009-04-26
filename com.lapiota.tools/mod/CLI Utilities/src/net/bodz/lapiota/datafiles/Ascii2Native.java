@@ -44,8 +44,7 @@ public class Ascii2Native extends BatchEditCLI {
     }
 
     @Override
-    protected EditResult doEditByLine(Iterable<String> lines, CharOut out)
-            throws Throwable {
+    protected EditResult doEditByLine(Iterable<String> lines, CharOut out) throws Throwable {
         Udecode decoder = new Udecode();
         for (String line : lines) {
             line = decoder.process(line);

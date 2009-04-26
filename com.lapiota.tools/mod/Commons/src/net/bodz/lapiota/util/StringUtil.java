@@ -84,8 +84,7 @@ public class StringUtil {
             else if (c >= 'A' && c <= 'F')
                 by |= c - 'A' + 10;
             else
-                throw new IllegalArgumentException("illegal char '" + c
-                        + "' in hex");
+                throw new IllegalArgumentException("illegal char '" + c + "' in hex");
             if (++digits == 2) {
                 buf.write(by);
                 digits = 0;

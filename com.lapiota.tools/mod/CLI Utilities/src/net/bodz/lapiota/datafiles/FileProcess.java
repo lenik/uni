@@ -132,8 +132,7 @@ public class FileProcess extends BatchEditCLI {
     }
 
     @Override
-    protected EditResult doEditByIO(InputStream in, OutputStream out)
-            throws Throwable {
+    protected EditResult doEditByIO(InputStream in, OutputStream out) throws Throwable {
         return currentAction.run(currentFile, in, out);
     }
 
@@ -153,8 +152,7 @@ public class FileProcess extends BatchEditCLI {
          * @param file
          *            canonical file
          */
-        EditResult run(File file, InputStream in, OutputStream out)
-                throws Throwable;
+        EditResult run(File file, InputStream in, OutputStream out) throws Throwable;
     }
 
     abstract class _Action extends _CLIPlugin implements Action {
@@ -192,8 +190,7 @@ public class FileProcess extends BatchEditCLI {
         }
 
         @Override
-        public EditResult run(File file, InputStream in, OutputStream out)
-                throws Throwable {
+        public EditResult run(File file, InputStream in, OutputStream out) throws Throwable {
             RefBinding binding = new RefBinding();
             binding.bindScriptFields(scope, true);
             binding.setVariable("program", this); //$NON-NLS-1$
@@ -252,8 +249,8 @@ public class FileProcess extends BatchEditCLI {
         /** [/]/PATTERN/REPLACEMENT[/FLAGS] */
         public RenamePattern(String exp) {
             if (!exp.startsWith("/")) //$NON-NLS-1$
-                throw new IllegalArgumentException(CLINLS
-                        .getString("FileProcess.notSubsRegexp") + exp); //$NON-NLS-1$
+                throw new IllegalArgumentException(
+                        CLINLS.getString("FileProcess.notSubsRegexp") + exp); //$NON-NLS-1$
             char sep = exp.charAt(0);
             exp = exp.substring(1);
             if (exp.charAt(0) == sep) {
@@ -298,8 +295,7 @@ public class FileProcess extends BatchEditCLI {
         }
 
         @Override
-        public EditResult run(File file, InputStream in, OutputStream out)
-                throws Throwable {
+        public EditResult run(File file, InputStream in, OutputStream out) throws Throwable {
             String name = nameOnly ? Files.getName(file) : file.getName();
             Matcher m = pattern.matcher(name);
             if (replaceAll)
@@ -341,8 +337,8 @@ public class FileProcess extends BatchEditCLI {
         }
 
         @Override
-        public void setParameters(Map<String, Object> parameters)
-                throws CLIException, ParseException {
+        public void setParameters(Map<String, Object> parameters) throws CLIException,
+                ParseException {
             super.setParameters(parameters);
             if (puncts != null) {
                 int n = puncts.length();
@@ -361,8 +357,7 @@ public class FileProcess extends BatchEditCLI {
         }
 
         @Override
-        public EditResult run(File file, InputStream in, OutputStream out)
-                throws Throwable {
+        public EditResult run(File file, InputStream in, OutputStream out) throws Throwable {
             String _name = Files.getName(file);
             String _ext = Files.getExtension(file, true);
             if (dotSpace)
