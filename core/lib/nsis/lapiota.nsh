@@ -26,6 +26,20 @@
     # TODO...
 !macroend
 
+!macro EnvSet name value
+    DetailPrint "Set system variable ${name}=${value}"
+    WriteRegStr HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" \
+        "${name}" "${value}"
+    SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+!macroend
+
+!macro EnvSetLocal name value
+    DetailPrint "Set user variable ${name}=${value}"
+    WriteRegStr HKCU "Environment" \
+        "$name" "$value"
+    SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+!macroend
+
 XPStyle on
 
 Page license

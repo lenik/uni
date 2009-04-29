@@ -2,12 +2,12 @@
     RCSID='$Id$'
     short_opts="hqv"
     long_opts="help,quiet,verbose,version"
-    . /lapiota/lib/sh/cliboot
+    . $LAM_KALA/lib/sh/cliboot
 
 function version() {
     parse_id "$RCSID"
-    echo [$BASENAME] Bash_simple_cli_program_template
-    echo Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date
+    echo "[$BASENAME] Bash_simple_cli_program_template"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
 }
 
 function help() {

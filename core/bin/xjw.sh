@@ -1,3 +1,5 @@
 #!/bin/bash
 
-_JAVA=javaw "${BASH_SOURCE%/*}/xj.sh" "$@"
+__DIR__="${BASH_SOURCE%/*}"
+_JAVA=javaw
+. "$__DIR__/xj.sh" "$@"

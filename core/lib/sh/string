@@ -28,7 +28,7 @@ function tolower() {
     v=${v//X/x}
     v=${v//Y/y}
     v=${v//Z/z}
-    eval $1=\"$v\"
+    eval "$1=\"$v\""
 }
 
 # toupper VAR
@@ -60,7 +60,7 @@ function toupper() {
     v=${v//x/X}
     v=${v//y/Y}
     v=${v//z/Z}
-    eval $1=\"$v\"
+    eval "$1=\"$v\""
 }
 
 # c_escape VAR
