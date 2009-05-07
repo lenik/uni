@@ -11,6 +11,10 @@ public class CLINLS extends NLSAccessor {
         bundle = ResourceBundle.getBundle(CLINLS.class.getName());
     }
 
+    public static String format(String format, Object... args) {
+        return format(bundle, format, args);
+    }
+
     public static String getString(String key) {
         return getString(bundle, key);
     }

@@ -19,6 +19,7 @@ import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.CharOuts;
 import net.bodz.bas.types.util.Comparators;
+import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.util.StringUtil;
 import net.bodz.lapiota.util.TypeExtensions.XPathParser;
 import net.bodz.lapiota.wrappers.BasicCLI;
@@ -37,7 +38,7 @@ import org.dom4j.io.SAXReader;
 public class XMLFlat extends BasicCLI {
 
     @Option(alias = "d", vnam = "LIST", doc = "reuse characters from LIST instead of TABs")
-    protected char[]    delimiters     = ":".toCharArray();
+    protected char[]    delimiters     = ":".toCharArray(); //$NON-NLS-1$
 
     @Option(alias = "E", vnam = "FORMAT", doc = "input encoding")
     protected Charset   inputEncoding  = Charset.defaultCharset();
@@ -87,13 +88,13 @@ public class XMLFlat extends BasicCLI {
     @Override
     protected void _boot() throws Throwable {
         if (delimiters == null)
-            delimiters = ",".toCharArray();
+            delimiters = ",".toCharArray(); //$NON-NLS-1$
         if (widths != null)
             align = true;
 
         docfac = DocumentFactory.getInstance();
         if (select == null)
-            select = docfac.createXPath("//*");
+            select = docfac.createXPath("//*"); //$NON-NLS-1$
     }
 
     public void convert(Document doc) throws DocumentException {
@@ -115,7 +116,7 @@ public class XMLFlat extends BasicCLI {
             for (int i = 0; i < fields.length; i++) {
                 List<?> cell = fields[i].selectNodes(row);
                 if (cell.isEmpty()) {
-                    vals[i] = "";
+                    vals[i] = ""; //$NON-NLS-1$
                 } else {
                     buf.setLength(0);
                     for (Object _picoNode : cell) {
@@ -181,17 +182,17 @@ public class XMLFlat extends BasicCLI {
 
     private static final Pattern CAPNAME;
     static {
-        CAPNAME = Pattern.compile("([^\\[]+)=.*");
+        CAPNAME = Pattern.compile("([^\\[]+)=.*"); //$NON-NLS-1$
     }
 
     @Override
     protected void doMain(String[] args) throws Throwable {
         SAXReader reader = new SAXReader();
         if (inputFile == null) {
-            L.user("enter the xml document: ");
+            L.user(CLINLS.getString("XMLFlat.enterXml")); //$NON-NLS-1$
             doc = reader.read(System.in);
         } else {
-            L.info("process ", inputFile);
+            L.info(CLINLS.getString("XMLFlat.process"), inputFile); //$NON-NLS-1$
             doc = reader.read(inputFile);
         }
 
@@ -204,7 +205,7 @@ public class XMLFlat extends BasicCLI {
                 captions[i] = matcher.group(1);
                 arg = arg.substring(matcher.end(1) + 1);
             } else
-                captions[i] = arg.replaceAll("\\W", "_");
+                captions[i] = arg.replaceAll("\\W", "_"); //$NON-NLS-1$ //$NON-NLS-2$
             fields[i] = doc.createXPath(arg);
         }
 

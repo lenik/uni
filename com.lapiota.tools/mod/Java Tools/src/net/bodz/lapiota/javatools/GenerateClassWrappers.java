@@ -68,7 +68,7 @@ public class GenerateClassWrappers extends BasicCLI {
 
         Class<?> clazz;
         try {
-            clazz = Class.forName(fqcn, false, Caller.getCallerClassLoader());
+            clazz = Class.forName(fqcn, false, Caller.getCallerClassLoader(0));
         } catch (Error e) {
             if (error)
                 throw e;

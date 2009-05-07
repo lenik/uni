@@ -62,7 +62,7 @@ public class XmlfsElement extends AbstractElement {
     protected List attributeList() {
         if (attributes == null) {
             attributes = new ArrayList<Attribute>();
-            attributes.add(new _Attribute(this, "name") {
+            attributes.add(new _Attribute(this, "name") { //$NON-NLS-1$
                 private static final long serialVersionUID = 4612157511767199075L;
 
                 @Override
@@ -70,7 +70,7 @@ public class XmlfsElement extends AbstractElement {
                     return String.valueOf(file.getName());
                 }
             });
-            attributes.add(new _Attribute(this, "size") {
+            attributes.add(new _Attribute(this, "size") { //$NON-NLS-1$
                 private static final long serialVersionUID = 4612157511767199075L;
 
                 @Override
@@ -78,7 +78,7 @@ public class XmlfsElement extends AbstractElement {
                     return String.valueOf(file.length());
                 }
             });
-            attributes.add(new _Attribute(this, "lastModified") {
+            attributes.add(new _Attribute(this, "lastModified") { //$NON-NLS-1$
                 private static final long serialVersionUID = 4612157511767199075L;
 
                 @Override
@@ -86,7 +86,7 @@ public class XmlfsElement extends AbstractElement {
                     return String.valueOf(file.lastModified());
                 }
             });
-            attributes.add(new _Attribute(this, "flags") {
+            attributes.add(new _Attribute(this, "flags") { //$NON-NLS-1$
                 private static final long serialVersionUID = 4612157511767199075L;
 
                 @Override

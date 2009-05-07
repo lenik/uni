@@ -192,7 +192,7 @@ public class FindClassResource extends BasicCLI {
                 Classpath.addURL(url);
             }
 
-            ClassLoader loader = Caller.getCallerClassLoader();
+            ClassLoader loader = Caller.getCallerClassLoader(0);
             Iterable<String> strings;
             if (args.length > 0)
                 strings = Arrays.asList(args);

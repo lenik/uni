@@ -17,6 +17,7 @@ import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.types.PrefixMap;
 import net.bodz.bas.types.util.Strings;
+import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @BootInfo(syslibs = { "dom4j", "jaxen" })
@@ -39,7 +40,7 @@ public class Gather extends BasicCLI {
     @Option(alias = "c", vnam = "MAIN-CLASS", doc = "using specified copy program")
     void copyBy(Class<?> copyType) {
         try {
-            copyMain = copyType.getMethod("main", String[].class);
+            copyMain = copyType.getMethod("main", String[].class); //$NON-NLS-1$
         } catch (SecurityException e) {
             throw new IllegalArgumentException(e);
         } catch (NoSuchMethodException e) {
@@ -52,7 +53,7 @@ public class Gather extends BasicCLI {
             long srcv = src.lastModified();
             long dstv = dst.lastModified();
             if (dstv >= srcv) {
-                L.detail("[skip] ", dst);
+                L.detail(CLINLS.getString("Gather.skip"), dst); //$NON-NLS-1$
                 return;
             }
         }
@@ -61,7 +62,7 @@ public class Gather extends BasicCLI {
     }
 
     @Option
-    String gatherDir = ".gather";
+    String gatherDir = ".gather"; //$NON-NLS-1$
 
     @Override
     protected void _boot() throws Throwable {
@@ -75,7 +76,7 @@ public class Gather extends BasicCLI {
         private Map<File, File>   src2dst;
 
         public GMap(File dstdir) {
-            assert dstdir != null : "null dstdir";
+            assert dstdir != null : "null dstdir"; //$NON-NLS-1$
             this.dstdir = Files.canoniOf(dstdir);
             this.src2dst = new HashMap<File, File>();
         }
@@ -99,13 +100,13 @@ public class Gather extends BasicCLI {
 
         void add(String srcdir, String srcfile, String dstfile) {
             srcdir = expand(srcdir);
-            String srcwild = srcdir + "/" + srcfile;
+            String srcwild = srcdir + "/" + srcfile; //$NON-NLS-1$
             List<File> srcs = Files.find(srcwild);
             if (srcs == null)
-                throw new IllegalArgumentException("src isn't existed: " + srcwild);
+                throw new IllegalArgumentException(CLINLS.getString("Gather.srcIsntExisted") + srcwild); //$NON-NLS-1$
             if (srcs.size() > 1)
-                throw new IllegalArgumentException("too many matched src: \n"
-                        + Strings.join("\n", srcs));
+                throw new IllegalArgumentException(CLINLS.getString("Gather.tooManyMatchedSrc") //$NON-NLS-1$
+                        + Strings.join("\n", srcs)); //$NON-NLS-1$
             File src = Files.canoniOf(srcs.get(0));
             File dst = Files.canoniOf(dstdir, dstfile);
             src2dst.put(src, dst);
@@ -115,7 +116,7 @@ public class Gather extends BasicCLI {
             for (Entry<File, File> e : src2dst.entrySet()) {
                 File src = e.getKey();
                 File dst = e.getValue();
-                L.mesg("[get] ", src);
+                L.mesg(CLINLS.getString("Gather.get"), src); //$NON-NLS-1$
                 copy(src, dst);
             }
         }
@@ -124,7 +125,7 @@ public class Gather extends BasicCLI {
             for (Entry<File, File> e : src2dst.entrySet()) {
                 File src = e.getKey();
                 File dst = e.getValue();
-                L.mesg("[put] ", src);
+                L.mesg(CLINLS.getString("Gather.put"), src); //$NON-NLS-1$
                 copy(dst, src);
             }
         }
@@ -133,22 +134,22 @@ public class Gather extends BasicCLI {
     @Override
     protected void doFileArgument(File dstdir) throws Throwable {
         if (!dstdir.isDirectory())
-            throw new IllegalArgumentException("not a directory: " + dstdir);
+            throw new IllegalArgumentException(CLINLS.getString("Gather.notDirectory") + dstdir); //$NON-NLS-1$
 
         File gatherd = new File(dstdir, gatherDir);
         if (!gatherd.isDirectory())
-            throw new IllegalArgumentException("not a gathered target: " + dstdir);
+            throw new IllegalArgumentException(CLINLS.getString("Gather.notGatheredTarget") + dstdir); //$NON-NLS-1$
 
         GMap gmap = new GMap(dstdir);
-        File prefixf = new File(gatherd, ".prefix");
+        File prefixf = new File(gatherd, ".prefix"); //$NON-NLS-1$
         if (prefixf.exists()) {
             for (String line : Files.readByLine(prefixf)) {
                 line = line.trim();
-                if (line.isEmpty() || line.startsWith("#"))
+                if (line.isEmpty() || line.startsWith("#")) //$NON-NLS-1$
                     continue;
                 int eq = line.indexOf('=');
                 if (eq == -1)
-                    throw new ParseException("invalid prefix line: " + line);
+                    throw new ParseException(CLINLS.getString("Gather.invalidPrefix") + line); //$NON-NLS-1$
                 String prefix = line.substring(0, eq).trim();
                 String expanded = line.substring(eq + 1).trim();
                 gmap.setPrefix(prefix, expanded);
@@ -159,19 +160,19 @@ public class Gather extends BasicCLI {
             if (gfile.isDirectory())
                 continue;
             String base = gfile.getName();
-            if (base.startsWith("."))
+            if (base.startsWith(".")) //$NON-NLS-1$
                 continue;
             String srcdir = null;
             for (String line : Files.readByLine(gfile)) {
                 line = line.trim();
-                if (line.isEmpty() || line.startsWith("#"))
+                if (line.isEmpty() || line.startsWith("#")) //$NON-NLS-1$
                     continue;
-                if (line.endsWith(":")) {
+                if (line.endsWith(":")) { //$NON-NLS-1$
                     srcdir = line.substring(0, line.length() - 1);
                     continue;
                 }
                 if (srcdir == null)
-                    throw new IllegalStateException("srcdir isn't set, in " + gfile + ": \n" + line);
+                    throw new IllegalStateException(CLINLS.getString("Gather.srcdirIsntSet") + gfile + ": \n" + line); //$NON-NLS-1$ //$NON-NLS-2$
                 String srcfile = line;
                 String dst = srcfile;
                 int eq = line.indexOf('=');

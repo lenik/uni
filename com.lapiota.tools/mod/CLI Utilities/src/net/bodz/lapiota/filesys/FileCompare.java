@@ -16,6 +16,7 @@ import net.bodz.bas.text.diff.DiffComparators;
 import net.bodz.bas.text.diff.DiffFormat;
 import net.bodz.bas.text.diff.DiffFormats;
 import net.bodz.bas.text.diff.DiffInfo;
+import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("A Unix diff program implemented in Java")
@@ -38,7 +39,7 @@ public class FileCompare extends BasicCLI {
     @Override
     protected void doMain(String[] args) throws Throwable {
         if (args.length > 0)
-            throw new IllegalArgumentException("unexpected argument: " + args[0]);
+            throw new IllegalArgumentException(CLINLS.getString("FileCompare.unexpectedArgument") + args[0]); //$NON-NLS-1$
         DiffComparator gnudiff = DiffComparators.gnudiff;
         List<String> srcl = Files.readLines(src);
         List<String> dstl = Files.readLines(dst);

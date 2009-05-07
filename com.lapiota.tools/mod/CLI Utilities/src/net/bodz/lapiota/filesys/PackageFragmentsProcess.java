@@ -302,7 +302,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
         public XpathSearch(String[] args) {
             if (args.length < 1)
                 throw new IllegalArgumentException(getClass().getSimpleName()
-                        + "(" + getCriteriaVnam() + ", [XML=" //$NON-NLS-2$
+                        + "(" + getCriteriaVnam() + ", [XML="  //$NON-NLS-1$//$NON-NLS-2$
                         + getDefaultName() + "])"); //$NON-NLS-1$
             criteria = parseCriteria(critarg = args[0]);
 

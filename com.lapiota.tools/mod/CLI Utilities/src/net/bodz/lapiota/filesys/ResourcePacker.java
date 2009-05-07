@@ -17,6 +17,7 @@ import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.Files;
+import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @Doc("Resource packer")
@@ -34,7 +35,7 @@ public class ResourcePacker extends BatchEditCLI {
         if (jarOut == null) {
             if (outputFile == null) {
                 assert currentStartFile != null;
-                outputFile = new File(currentStartFile.getPath() + ".jar");
+                outputFile = new File(currentStartFile.getPath() + ".jar"); //$NON-NLS-1$
             }
             try {
                 OutputStream out = new FileOutputStream(outputFile);
@@ -48,7 +49,7 @@ public class ResourcePacker extends BatchEditCLI {
 
     static Pattern invalidChars;
     static {
-        invalidChars = Pattern.compile("[^\\p{Alnum}_]", Pattern.CASE_INSENSITIVE);
+        invalidChars = Pattern.compile("[^\\p{Alnum}_]", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$
     }
 
     static interface NameConverter {
@@ -83,11 +84,11 @@ public class ResourcePacker extends BatchEditCLI {
     int emptyIndex = 0;
 
     String convertNamePart(String part) {
-        part = invalidChars.matcher(part).replaceAll("");
+        part = invalidChars.matcher(part).replaceAll(""); //$NON-NLS-1$
         if (part.isEmpty())
-            part = "_" + ++emptyIndex;
+            part = "_" + ++emptyIndex; //$NON-NLS-1$
         if (Character.isDigit(part.charAt(0)))
-            part = "_" + part;
+            part = "_" + part; //$NON-NLS-1$
         return part;
     }
 
@@ -119,12 +120,12 @@ public class ResourcePacker extends BatchEditCLI {
         JarOutputStream out = getJarOut();
         String name = getRelativeName(file);
         String ename = resNameOf(name);
-        L.tmesg("add ", ename);
+        L.tmesg(CLINLS.getString("ResourcePacker.add"), ename); //$NON-NLS-1$
         ZipEntry ze = new ZipEntry(ename);
         out.putNextEntry(ze);
         Files.copy(file, out);
         out.closeEntry();
-        L.info("add ", ename, " [", ze.getCompressedSize(), "/", ze.getSize(), "]");
+        L.info(CLINLS.getString("ResourcePacker.add"), ename, " [", ze.getCompressedSize(), "/", ze.getSize(), "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         return EditResult.pass();
     }
 

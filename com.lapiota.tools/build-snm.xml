@@ -12,8 +12,7 @@
 
     <target name="dist" depends=":bin.jar, :src.jar">
         <copy todir="${distdir}" file="${basedir}/lib/net.bodz.lapiota.jar" />
-        <copy todir="${distsrc}"
-              file="${basedir}/lib/net.bodz.lapiota-src.jar" />
+        <copy todir="${distsrc}" file="${basedir}/lib/net.bodz.lapiota-src.jar" />
     </target>
 
     <path id="bins">
@@ -69,6 +68,7 @@
         <classpath>
             <fileset dir="${JAVA_LIB}">
                 <include name="${lib.bodz_bas}" />
+                <include name="${lib.bodz_dist}" />
                 <include name="${lib.dom4j}" />
                 <include name="${lib.groovy}" />
             </fileset>

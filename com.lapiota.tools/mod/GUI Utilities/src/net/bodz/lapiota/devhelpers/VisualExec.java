@@ -60,7 +60,7 @@ public class VisualExec extends BasicGUI {
         text = new Text(composite, SWT.BORDER);
     }
 
-    void run() throws IOException {
+    void exec() throws IOException {
         String cmdline = text.getText();
         Runtime.getRuntime().exec(cmdline);
     }

@@ -24,9 +24,9 @@ public class HelloCLI extends BasicCLI {
 
     @Override
     protected void doMain(String[] args) throws Throwable {
-        L.mesg("good morning!");
-        L.detail("you are ", yourName);
-        L.debug("now in debug level");
+        L.mesg("good morning!"); //$NON-NLS-1$
+        L.detail("you are ", yourName); //$NON-NLS-1$
+        L.debug("now in debug level"); //$NON-NLS-1$
         for (String welcome : welcomes) {
             String s = welcome + ", " + yourName + "!"; //$NON-NLS-1$ //$NON-NLS-2$
             if (hot)

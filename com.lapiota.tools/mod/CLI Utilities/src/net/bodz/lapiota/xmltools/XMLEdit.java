@@ -25,6 +25,7 @@ import net.bodz.bas.types.Pair;
 import net.bodz.bas.types.TypeParser;
 import net.bodz.bas.types.TypeParsers;
 import net.bodz.bas.types.util.Comparators;
+import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.util.StringUtil;
 import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
 import net.bodz.lapiota.wrappers.BasicCLI;
@@ -95,7 +96,7 @@ public class XMLEdit extends BasicCLI {
 
     protected Document getDocument() {
         if (document == null)
-            throw new IllegalStateException("no document specified");
+            throw new IllegalStateException(CLINLS.getString("XMLEdit.noDocument")); //$NON-NLS-1$
         return document;
     }
 
@@ -127,16 +128,16 @@ public class XMLEdit extends BasicCLI {
     @Option(alias = "S", vnam = "XMLFRAG")
     protected void selectXML(String xmldoc) throws DocumentException {
         xmldoc = StringUtil.unescape(escaping, xmldoc);
-        xmldoc = "<root>" + xmldoc + "</root>";
+        xmldoc = "<root>" + xmldoc + "</root>"; //$NON-NLS-1$ //$NON-NLS-2$
         SAXReader reader = new SAXReader();
         Document argdoc = reader.read(new StringReader(xmldoc));
-        selection = argdoc.selectNodes("/root/*");
+        selection = argdoc.selectNodes("/root/*"); //$NON-NLS-1$
     }
 
     protected List<Node> getSelection() {
         if (selection == null)
             try {
-                selectXpath(xpathParser.parse("//*"));
+                selectXpath(xpathParser.parse("//*")); //$NON-NLS-1$
             } catch (ParseException e) {
                 throw new UnexpectedException(e.getMessage(), e);
             }
@@ -146,7 +147,7 @@ public class XMLEdit extends BasicCLI {
     @Option(alias = "a", vnam = "NAME=VALUE", doc = "add/remove attribute")
     protected void setAttribute(String keyval) {
         String name = keyval;
-        String value = "1";
+        String value = "1"; //$NON-NLS-1$
         int eq = name.indexOf('=');
         if (eq >= 0) {
             value = StringUtil.unescape(escaping, name.substring(eq + 1));
@@ -175,7 +176,7 @@ public class XMLEdit extends BasicCLI {
         for (Node arg : argnodes) {
             Element sibling = (Element) arg;
             if (sibling.isRootElement())
-                throw new DocumentException("out of the root");
+                throw new DocumentException(CLINLS.getString("XMLEdit.outOfRoot")); //$NON-NLS-1$
             Element parent = sibling.getParent();
             List siblings = parent.elements();
             int index = siblings.indexOf(sibling);
@@ -193,7 +194,7 @@ public class XMLEdit extends BasicCLI {
         for (Node arg : argnodes) {
             Element sibling = (Element) arg;
             if (sibling.isRootElement())
-                throw new DocumentException("out of the root");
+                throw new DocumentException(CLINLS.getString("XMLEdit.outOfRoot")); //$NON-NLS-1$
             Element parent = sibling.getParent();
             List siblings = parent.elements();
             int index = siblings.indexOf(sibling);
@@ -272,7 +273,7 @@ public class XMLEdit extends BasicCLI {
     protected void sortNodes(Element parent, List<Node> nodes) {
         if (orderBy == null)
             try {
-                orderBy = xpathParser.parse("text()");
+                orderBy = xpathParser.parse("text()"); //$NON-NLS-1$
             } catch (ParseException e) {
                 throw new UnexpectedException(e.getMessage(), e);
             }

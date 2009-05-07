@@ -9,7 +9,7 @@ import net.bodz.bas.lang.Caller;
 public class JavaUtil {
 
     public static Class<?> resolveType(String name, boolean guessInner) {
-        ClassLoader loader = Caller.getCallerClassLoader();
+        ClassLoader loader = Caller.getCallerClassLoader(0);
         while (true) {
             try {
                 return Class.forName(name, false, loader);
