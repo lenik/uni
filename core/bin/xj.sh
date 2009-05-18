@@ -81,6 +81,7 @@ function loadMF() { # var_prefix NAME.MF (PI-FILE | jar | dir)
     local mffile
     local src="$3"
     local tmp
+    _log2 "Load manifest of $src"
     if [ -f "$mfname" ]; then
         mffile="$mfname"
     elif [ -d "$src" ]; then
@@ -97,8 +98,8 @@ function loadMF() { # var_prefix NAME.MF (PI-FILE | jar | dir)
         else
             _log2 "Archive $src doesn't contain $mfname"
             rm "$tmp"
-            return
         fi
+        if [ -z "$mffile" ]; then return; fi
     else
         echo "Error: src isn't existed: $src"
         return
@@ -155,7 +156,7 @@ function loadLibraries() { #
 function addJarPath() { # PATH ...
     local path
     for path in "$@"; do
-        path="$(cygpath -w $path)"
+        path="$(_u2w $path)"
         _log2 "Add JAR Path: $path"
         if [ -z "$JARPATH" ]; then
             JARPATH="$path"
@@ -170,7 +171,7 @@ function addLibrary() { # (libfile | libname)
     for lib in "$@"; do
         ext="${lib##*.}"
         if [ -f "$lib" ]; then
-            path="$(cygpath -w $lib)"
+            path="$(_u2w $lib)"
         elif [ $ext = "jar" ]; then
             for libdir in ${JARPATH//$_ps/ }; do
                 if [ -f "$libdir/$lib" ]; then
@@ -278,6 +279,21 @@ function main() {
         echo "Press any key to continue..."
         read -n 1
     fi
+}
+
+function _u2w() {
+    local p="$(cygpath -au $1)"
+    if [ "${p:0:5}" = "/mnt/" -o "${p:0:10}" = "/cygdrive/" ]; then
+        p="${p:1}"
+        p="${p#*/}"
+        p="${p/\//:/}"
+    else
+        if [ "${p:0:9}" = /usr/bin/ ]; then p="${p:4}"; fi
+        if [ "${p:0:9}" = /usr/lib/ ]; then p="${p:4}"; fi
+        p="$(cygpath -am /)$p"
+    fi
+    p="${p//\//\\}"
+    echo "$p"
 }
 
 boot "$@"

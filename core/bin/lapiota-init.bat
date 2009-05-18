@@ -61,7 +61,7 @@
     which lapiota-init.bat >nul 2>nul
     if not errorlevel 1 goto level_2
 
-    set PATH=%LAPIOTA%\bin;%PATH%
+    set PATH=%LAPIOTA%\bin;%LAPIOTA%\bin\w;%PATH%
 
 :level_2
 :find_cygwin_root
