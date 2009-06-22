@@ -156,7 +156,7 @@ function loadLibraries() { #
 function addJarPath() { # PATH ...
     local path
     for path in "$@"; do
-        path="$(_u2w $path)"
+        path="$(cygpath -aw $path)"
         _log2 "Add JAR Path: $path"
         if [ -z "$JARPATH" ]; then
             JARPATH="$path"
@@ -171,7 +171,7 @@ function addLibrary() { # (libfile | libname)
     for lib in "$@"; do
         ext="${lib##*.}"
         if [ -f "$lib" ]; then
-            path="$(_u2w $lib)"
+            path="$(cygpath -aw $lib)"
         elif [ $ext = "jar" ]; then
             for libdir in ${JARPATH//$_ps/ }; do
                 if [ -f "$libdir/$lib" ]; then
@@ -279,21 +279,6 @@ function main() {
         echo "Press any key to continue..."
         read -n 1
     fi
-}
-
-function _u2w() {
-    local p="$(cygpath -au $1)"
-    if [ "${p:0:5}" = "/mnt/" -o "${p:0:10}" = "/cygdrive/" ]; then
-        p="${p:1}"
-        p="${p#*/}"
-        p="${p/\//:/}"
-    else
-        if [ "${p:0:9}" = /usr/bin/ ]; then p="${p:4}"; fi
-        if [ "${p:0:9}" = /usr/lib/ ]; then p="${p:4}"; fi
-        p="$(cygpath -am /)$p"
-    fi
-    p="${p//\//\\}"
-    echo "$p"
 }
 
 boot "$@"

@@ -1,4 +1,7 @@
-LOGLEVEL=1
+if [ -z "$LOGLEVEL" ]; then
+    LOGLEVEL=1
+fi
+
 if [ -z "$BASENAME" ]; then
     LOGPREFIX=
 else

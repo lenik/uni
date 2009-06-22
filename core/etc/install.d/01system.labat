@@ -14,6 +14,7 @@
         - =         DISPLAY     127.0.0.1:0.0
         - w=        HOME        ${findexist ${cygpath -w $HOME} $LAPIOTA\home\$USERNAME}
         - w-%       INCLUDE     $LAPIOTA
+        - w-%       INCLUDE     $CYGWIN_ROOT
         - w+$       INCLUDE     ->
             - $LAPIOTA\lib
             - $LAPIOTA\usr\include
@@ -26,7 +27,7 @@
         - =         JAVA_OPTS   -ea
         - w-%       JAVA_SRC    $LAPIOTA
         - w+        JAVA_SRC    $LAPIOTA\usr\src\java
-        - u=        LAM_KALA    /lam/kala
+        - u=        LAM_KALA    $LAM_KALA
         - w=        LAPIOTA     $LAPIOTA
         - =         LAPIOTA_VER 0.0.1
         - w=        LESS        -Ceifr
@@ -39,6 +40,7 @@
         - w=        MSYS_ROOT   ${findabc -w msys}
         - w=        PAGER       'less -Ceifr'
         - w-%       PATH        $LAPIOTA
+        - w-%       PATH        $CYGWIN_ROOT
         - w-%       PATH        %HOME%
         - w+.HDR    PATH        ->
             - %HOME%\bin
@@ -73,30 +75,30 @@
       # - w&        PATHEXT     .6 .six .x
         - w=        PERL        $CYGWIN_ROOT\bin\perl
         - w=        PERLW       $CYGWIN_ROOT\bin\perlw
-        - u-        PERLLIB     /lam/kala
+        - u-        PERLLIB     $LAM_KALA
         - u-        PERLLIB     blib/
       # - u-        PERLLIB     /usr/lib
         - u+$       PERLLIB     ->
             - blib/lib
             - blib/arch
-            - /lam/kala/lib
+            - $LAM_KALA/lib
             # /usr/lib/perl5/5.8/cygwin
             # /usr/lib/perl5/5.8
             # /usr/lib/perl5/site_perl/5.8/cygwin
             # /usr/lib/perl5/site_perl/5.8
             # /usr/lib/perl5/vendor_perl/5.8/cygwin
             # /usr/lib/perl5/vendor_perl/5.8
-            # /lam/kala/usr/lib/perl5/5.8/site
-            # /lam/kala/usr/lib/perl5/5.8/cpan
+            # $LAM_KALA/usr/lib/perl5/5.8/site
+            # $LAM_KALA/usr/lib/perl5/5.8/cpan
         - w=        PHPRC       ${findabc -w php}
-        - u-        PYTHONPATH  /lam/kala
+        - u-        PYTHONPATH  $LAM_KALA
       # - u-        PYTHONPATH  /usr/lib
         - u+^       PYTHONPATH  ->
-            - /lam/kala/lib
+            - $LAM_KALA/lib
           # - /usr/lib/python2.5
           # - /usr/lib/python2.5/site-packages
         - u+$       PYTHONPATH  ->
-            - /lam/kala/usr/lib/python2.4
+            - $LAM_KALA/usr/lib/python2.4
         - w=        SHELL       $CYGWIN_ROOT\bin\bash
         - w=        SHELLW      $CYGWIN_ROOT\bin\bashw
 
@@ -116,7 +118,7 @@
         - ruby-program      .rb
         -   | ${findabc -w ruby}\bin\ruby \"%0\" %*
         - shell-script      .sh
-        -   | $LAPIOTA\bin\myexec /2 $SHELL -c \"%0\" %*
+        -   | $SHELL -c \"$(cygpath -u \'%0\') %*\"
         - six-program       .six .6
         -   | reserved
         - X-shell-script    .x

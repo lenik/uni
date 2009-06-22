@@ -7,8 +7,11 @@
 :start
 
     set _java=java
-    if "%_winmode%"=="1" set _java=start javaw
-
+    if "%_winmode%"=="1" (
+        set _java=start javaw
+    ) else (
+        echo %_java% -jar "%_jar%" %_rest%
+    )
     %_java% -jar "%_jar%" %_rest%
 
     if "%_pause%"=="1" pause

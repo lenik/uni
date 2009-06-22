@@ -331,6 +331,7 @@ appskey & numpaddiv::
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; application shortcuts {
+#+2::run thunderbird
 #a::fastcall("start ""ANSI""")
 #b::fastcall("start ""Big""")
 #c::fastcall("start ""Normal""")
