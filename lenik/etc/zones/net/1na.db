@@ -1,4 +1,4 @@
-$INCLUDE inc/google.db
+$INCLUDE zones/inc/google.db
 
 a                       A       121.12.118.188
 m                       A       121.12.118.188

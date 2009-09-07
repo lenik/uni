@@ -1,4 +1,4 @@
-$INCLUDE inc/google.db
+$INCLUDE zones/inc/google.db
 
 ae                      A       121.12.118.188
 photo                   A       121.12.118.188

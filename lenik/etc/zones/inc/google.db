@@ -1,4 +1,4 @@
-$INCLUDE inc/default.db
+$INCLUDE zones/inc/default.db
 
 @               IN      MX      10  ASPMX.L.GOOGLE.COM.
                         MX      20  ALT1.ASPMX.L.GOOGLE.COM.

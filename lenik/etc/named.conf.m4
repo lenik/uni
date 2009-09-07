@@ -1,5 +1,4 @@
 m4_include(`m4x/util.m4')
-m4_include(`dnsutil.m4')
 
 acl Lan1 {
     127.0.0.0/24;
