@@ -1,0 +1,6 @@
+$INCLUDE inc/google.db
+
+a                       A       121.12.118.188
+m                       A       121.12.118.188
+
+svn                     CNAME   kelingpc.vicp.net.

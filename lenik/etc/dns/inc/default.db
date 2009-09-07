@@ -1,0 +1,27 @@
+$TTL            12H
+
+; The SOA resource record indicates that this DNS name server is the best
+; source of information for the data within this DNS domain.
+
+@               IN      SOA     (
+                                    lenik.vicp.net.     ; db creator host
+                                    len1.bodz.net.      ; contact e-mail
+                                    2       ; serial
+                                    1H      ; sync refresh interval
+                                    10M     ; sync retry interval
+                                    12H     ; sync expire
+                                    1H      ; minimum TTL
+                                )
+                        NS      @
+                        ;NS      ns1.afraid.com.
+                        ;NS      ns2.afraid.com.
+                        ;NS      ns3.afraid.com.
+                        ;NS      ns4.afraid.com.
+                        NS      lenik.vicp.net.
+
+                        TXT     "t=zoo owner=lenik"
+
+; testing purpose
+volatile        3       A       1.2.3.4
+volatile2       30      CNAME   volatile
+volatile3       3000    CNAME   volatile2

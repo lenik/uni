@@ -1,0 +1,10 @@
+$INCLUDE inc/default.db
+
+@               IN      MX      10  ASPMX.L.GOOGLE.COM.
+                        MX      20  ALT1.ASPMX.L.GOOGLE.COM.
+                        MX      20  ALT2.ASPMX.L.GOOGLE.COM.
+                        MX      30  ASPMX2.GOOGLEMAIL.COM.
+                        TXT     "t=spf1 A MX ~all"      ; SPF Framework
+
+googlee249034e54ac4afb  CNAME   google.com.
+*                       CNAME   ghs.hloli.net.
