@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.ant;bundle-version="1.7.1",
  net.bodz.bas;bundle-version="1.0.0",
  net.bodz.swt;bundle-version="1.0.0",
- net.bodz.dist;bundle-version="1.0.0"
+ net.bodz.dist;bundle-version="1.0.0",
+ net.bodz.jna;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: lib/dom4j-1.6.1.jar,
  lib/jaxen-1.1-beta-6.jar,

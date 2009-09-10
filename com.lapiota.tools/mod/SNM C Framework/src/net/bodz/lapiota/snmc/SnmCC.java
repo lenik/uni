@@ -8,7 +8,7 @@ import net.bodz.lapiota.wrappers.BasicCLI;
 /**
  * s.n.m. C-framework Console
  */
-@Doc("Convert XML document to plain table")
+@Doc("s.n.m. C-framework Console")
 @RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
 public class SnmCC extends BasicCLI {

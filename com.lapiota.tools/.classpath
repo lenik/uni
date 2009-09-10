@@ -20,5 +20,7 @@
 	<classpathentry kind="var" path="JAVA_LIB/groovy-all-1.5.6.jar"/>
 	<classpathentry kind="var" path="JAVA_LIB/jawin-2.0-alpha1.jar" sourcepath="/JAVA_SRC/jawin-2.0-alpha1-src.zip"/>
 	<classpathentry kind="var" path="JAVA_LIB/commons-collections-3.2.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/net.bodz.bas"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/net.bodz.swt"/>
 	<classpathentry kind="output" path="mod/Commons/bin"/>
 </classpath>

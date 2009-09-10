@@ -1,18 +1,20 @@
 package net.bodz.lapiota._extern;
 
 import net.bodz.bas.a.BootInfo;
+import net.bodz.bas.a.ProgramName;
 import net.bodz.lapiota.wrappers.JavaLauncher;
 
-@BootInfo(syslibs = { "ant", "ant-launcher.jar", "tools.jar", "dt.jar" })
-public class Ant extends JavaLauncher {
+@ProgramName("aworks")
+@BootInfo(syslibs = { "antlrworks" })
+public class AntLRWorks extends JavaLauncher {
 
     @Override
     protected String getMainClassName() {
-        return "org.apache.tools.ant.launch.Launcher"; //$NON-NLS-1$
+        return "org.antlr.works.IDE"; //$NON-NLS-1$
     }
 
     public static void main(String[] args) throws Exception {
-        new Ant().launch(args);
+        new AntLRWorks().launch(args);
     }
 
 }
