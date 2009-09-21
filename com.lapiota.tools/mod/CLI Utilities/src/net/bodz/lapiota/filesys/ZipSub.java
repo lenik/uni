@@ -19,6 +19,7 @@ import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.CWD;
 import net.bodz.bas.io.Files;
+import net.bodz.bas.types.util.Iterates;
 import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
@@ -34,7 +35,7 @@ public class ZipSub extends BasicCLI {
     boolean suffixMatch;
 
     @Override
-    protected void doMain(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Exception {
         if (args.length < 2)
             _help();
 
@@ -43,7 +44,7 @@ public class ZipSub extends BasicCLI {
             L.tinfo(CLINLS.getString("ZipSub.subtractFrom"), args[i]); //$NON-NLS-1$
             ZipFile sub = new ZipFile(args[i]);
             int n = 0;
-            for (ZipEntry entry : iterate(sub.entries())) {
+            for (ZipEntry entry : Iterates.once(sub.entries())) {
                 String name = entry.getName();
                 if (removeSet.add(name))
                     n++;
@@ -63,7 +64,7 @@ public class ZipSub extends BasicCLI {
         ZipOutputStream tempOut = null;
         int pending = 0;
         int removed = 0;
-        for (ZipEntry entry : iterate(destZip.entries())) {
+        for (ZipEntry entry : Iterates.once(destZip.entries())) {
             String name = entry.getName();
             if (removeSet.contains(name)) {
                 L.mesg(CLINLS.getString("ZipSub.removed"), name); //$NON-NLS-1$
@@ -152,7 +153,7 @@ public class ZipSub extends BasicCLI {
         return CLINLS.getString("ZipSub.restSyntax"); //$NON-NLS-1$
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new ZipSub().run(args);
     }
 

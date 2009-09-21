@@ -20,13 +20,13 @@ import org.eclipse.swt.widgets.Widget;
 public class TestHello extends BasicCLI {
 
     @Override
-    protected void doMain(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Exception {
         System.out.println(SWT.class);
         System.out.println(Widget.class);
         System.out.println(Layout.class);
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new TestHello().run(args);
     }
 

@@ -1,6 +1,6 @@
 package net.bodz.lapiota.xmlfs;
 
-import net.bodz.bas.text.interp.PatternProcessor;
+import net.bodz.bas.text.util.PatternProcessor;
 
 import org.dom4j.Namespace;
 

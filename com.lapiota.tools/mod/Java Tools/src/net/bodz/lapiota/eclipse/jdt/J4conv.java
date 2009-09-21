@@ -117,7 +117,7 @@ public class J4conv extends JdtBatchCLI {
     }
 
     @Override
-    protected void _boot() throws Throwable {
+    protected void _boot() throws Exception {
         inputEncoding = parameters().getInputEncoding();
         outputEncoding = parameters().getOutputEncoding();
     }
@@ -128,7 +128,7 @@ public class J4conv extends JdtBatchCLI {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected EditResult doEdit(File in, File out) throws Throwable {
+    protected EditResult doEdit(File in, File out) throws Exception {
         if (!"java".equals(Files.getExtension(in)))
             return null;
 
@@ -188,7 +188,7 @@ public class J4conv extends JdtBatchCLI {
         return EditResult.compareAndSave();
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new J4conv().run(args);
     }
 

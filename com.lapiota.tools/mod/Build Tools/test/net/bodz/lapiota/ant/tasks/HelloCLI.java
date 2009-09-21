@@ -17,13 +17,13 @@ public class HelloCLI extends BasicCLI {
     private boolean  hot;
 
     @Override
-    protected void _boot() throws Throwable {
+    protected void _boot() throws Exception {
         if (welcomes == null)
             welcomes = new String[] { "Hello" }; //$NON-NLS-1$
     }
 
     @Override
-    protected void doMain(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Exception {
         L.mesg("good morning!"); //$NON-NLS-1$
         L.detail("you are ", yourName); //$NON-NLS-1$
         L.debug("now in debug level"); //$NON-NLS-1$
@@ -36,7 +36,7 @@ public class HelloCLI extends BasicCLI {
         // System.err.println("go to hell!");
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         HelloCLI app = new HelloCLI();
         ScriptClass<?> sclass = app.getScriptClass();
         LogTerm logger = (LogTerm) sclass.get(app, "logger"); //$NON-NLS-1$

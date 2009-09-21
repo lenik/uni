@@ -51,6 +51,8 @@
 			<fileset dir="mod/SNM C Framework/test.bin" />
 		</jar>
 		-->
+        <length property="size.bin" file="lib/net.bodz.lapiota.jar" />
+        <echo>Size: ${size.bin}</echo>
     </target>
 
     <target name=":src.jar">
@@ -62,6 +64,8 @@
             <fileset dir="mod/Java Tools/src" />
             <fileset dir="mod/SNM C Framework/src" />
         </jar>
+        <length property="size.src" file="lib/net.bodz.lapiota-src.jar" />
+        <echo>Size: ${size.src}</echo>
     </target>
 
     <taskdef resource="net/bodz/bas/ant/task.properties">

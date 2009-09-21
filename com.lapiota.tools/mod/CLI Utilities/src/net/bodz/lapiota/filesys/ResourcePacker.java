@@ -135,14 +135,14 @@ public class ResourcePacker extends BatchEditCLI {
     }
 
     @Override
-    protected void _exit() throws Throwable {
+    protected void _exit() throws Exception {
         if (jarOut != null) {
             jarOut.finish();
             jarOut.close();
         }
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new ResourcePacker().run(args);
     }
 

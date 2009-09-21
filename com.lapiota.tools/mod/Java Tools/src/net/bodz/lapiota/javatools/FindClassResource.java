@@ -6,7 +6,6 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -113,7 +112,7 @@ public class FindClassResource extends BasicCLI {
     }
 
     @Option(alias = "T", doc = "do test")
-    protected void test() throws Throwable {
+    protected void test() throws Exception {
         if (testArguments == null)
             testArguments = new String[0];
 
@@ -145,8 +144,6 @@ public class FindClassResource extends BasicCLI {
                     L.info("execute ", mainf.getDeclaringClass(), "::", mainf.getName(), "/",
                             testArguments.length);
                     Control.invoke(mainf, null, (Object) testArguments);
-                } catch (InvocationTargetException te) {
-                    throw te.getTargetException();
                 } finally {
                     if (testQuiet) {
                         System.setOut(_out);
@@ -185,7 +182,7 @@ public class FindClassResource extends BasicCLI {
     }
 
     @Override
-    protected void doMain(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Exception {
         if (testClass == null) {
             for (URL url : classpaths) {
                 L.debug("add classpath: ", url);
@@ -229,7 +226,7 @@ public class FindClassResource extends BasicCLI {
     }
 
     @Override
-    protected void _boot() throws Throwable {
+    protected void _boot() throws Exception {
         if (filter == null)
             filter = new FileFilter() {
                 @Override
@@ -240,7 +237,7 @@ public class FindClassResource extends BasicCLI {
             };
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new FindClassResource().run(args);
     }
 

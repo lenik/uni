@@ -102,7 +102,7 @@ public class CRCSum extends BatchCLI {
     }
 
     @Override
-    protected void _boot() throws Throwable {
+    protected void _boot() throws Exception {
         if (mode == CHECK)
             throw new NotImplementedException("Check is not implemented"); //$NON-NLS-1$
     }
@@ -110,7 +110,7 @@ public class CRCSum extends BatchCLI {
     static HexEncoding HEX = new HexEncoding(""); //$NON-NLS-1$
 
     @Override
-    protected void doFile(File file, InputStream in) throws Throwable {
+    protected void doFile(File file, InputStream in) throws Exception {
         String name = file == null ? "-" : file.getName(); //$NON-NLS-1$
         byte[] data = Files.readBytes(in);
         // algorithmClass.newInstance();
@@ -146,7 +146,7 @@ public class CRCSum extends BatchCLI {
         out.flush();
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new CRCSum().run(args);
     }
 

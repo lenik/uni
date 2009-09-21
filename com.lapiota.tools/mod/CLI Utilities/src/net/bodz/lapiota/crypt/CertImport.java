@@ -30,11 +30,11 @@ public class CertImport extends BasicCLI {
     CertSelector target;
 
     @Override
-    protected void _boot() throws Throwable {
+    protected void _boot() throws Exception {
     }
 
     @Override
-    protected void doMain(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Exception {
         if (args.length == 0)
             _help();
 
@@ -57,7 +57,7 @@ public class CertImport extends BasicCLI {
         }
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new CertImport().run(args);
     }
 

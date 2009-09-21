@@ -334,11 +334,11 @@ public class XMLEdit extends BasicCLI {
     }
 
     @Override
-    protected void doMain(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Exception {
         save();
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new XMLEdit().run(args);
     }
 

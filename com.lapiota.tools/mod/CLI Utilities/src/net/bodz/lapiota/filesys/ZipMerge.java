@@ -45,7 +45,7 @@ public class ZipMerge extends BatchCLI {
         L.mesg(CLINLS.getString("ZipMerge.add"), file); //$NON-NLS-1$
         ZipFile zip = new ZipFile(file);
         try {
-            for (ZipEntry s : Iterates.iterate(zip.entries())) {
+            for (ZipEntry s : Iterates.once(zip.entries())) {
                 InputStream ein = zip.getInputStream(s);
                 ZipEntry t = new ZipEntry(s.getName());
                 t.setComment(s.getComment());
@@ -76,7 +76,7 @@ public class ZipMerge extends BatchCLI {
         }
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new ZipMerge().run(args);
     }
 

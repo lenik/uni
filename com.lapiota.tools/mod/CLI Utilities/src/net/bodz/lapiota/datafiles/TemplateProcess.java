@@ -22,7 +22,7 @@ import net.bodz.bas.cli.ext._CLIPlugin;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.EvalException;
 import net.bodz.bas.lang.err.ParseException;
-import net.bodz.bas.text.interp.Interps;
+import net.bodz.bas.text.util.Interps;
 import net.bodz.bas.types.util.Strings;
 import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.util.GroovyExpand;
@@ -62,13 +62,13 @@ public class TemplateProcess extends BatchEditCLI {
     }
 
     @Override
-    protected void _boot() throws Throwable {
+    protected void _boot() throws Exception {
         inputEncoding = parameters().getInputEncoding();
         outputEncoding = parameters().getOutputEncoding();
     }
 
     @Override
-    protected EditResult doEdit(File file, File editTmp) throws Throwable {
+    protected EditResult doEdit(File file, File editTmp) throws Exception {
         sourceModel.reset(file);
         while (sourceModel.next()) {
             Object context = sourceModel.getContext();
@@ -90,7 +90,7 @@ public class TemplateProcess extends BatchEditCLI {
         return null;
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new TemplateProcess().run(args);
     }
 

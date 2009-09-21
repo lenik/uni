@@ -65,7 +65,7 @@ public class Gather extends BasicCLI {
     String gatherDir = ".gather"; //$NON-NLS-1$
 
     @Override
-    protected void _boot() throws Throwable {
+    protected void _boot() throws Exception {
         if (copyMain == null)
             copyBy(GatherCopy.class);
     }
@@ -103,7 +103,8 @@ public class Gather extends BasicCLI {
             String srcwild = srcdir + "/" + srcfile; //$NON-NLS-1$
             List<File> srcs = Files.find(srcwild);
             if (srcs == null)
-                throw new IllegalArgumentException(CLINLS.getString("Gather.srcIsntExisted") + srcwild); //$NON-NLS-1$
+                throw new IllegalArgumentException(
+                        CLINLS.getString("Gather.srcIsntExisted") + srcwild); //$NON-NLS-1$
             if (srcs.size() > 1)
                 throw new IllegalArgumentException(CLINLS.getString("Gather.tooManyMatchedSrc") //$NON-NLS-1$
                         + Strings.join("\n", srcs)); //$NON-NLS-1$
@@ -132,13 +133,14 @@ public class Gather extends BasicCLI {
     }
 
     @Override
-    protected void doFileArgument(File dstdir) throws Throwable {
+    protected void doFileArgument(File dstdir) throws Exception {
         if (!dstdir.isDirectory())
             throw new IllegalArgumentException(CLINLS.getString("Gather.notDirectory") + dstdir); //$NON-NLS-1$
 
         File gatherd = new File(dstdir, gatherDir);
         if (!gatherd.isDirectory())
-            throw new IllegalArgumentException(CLINLS.getString("Gather.notGatheredTarget") + dstdir); //$NON-NLS-1$
+            throw new IllegalArgumentException(
+                    CLINLS.getString("Gather.notGatheredTarget") + dstdir); //$NON-NLS-1$
 
         GMap gmap = new GMap(dstdir);
         File prefixf = new File(gatherd, ".prefix"); //$NON-NLS-1$
@@ -172,7 +174,8 @@ public class Gather extends BasicCLI {
                     continue;
                 }
                 if (srcdir == null)
-                    throw new IllegalStateException(CLINLS.getString("Gather.srcdirIsntSet") + gfile + ": \n" + line); //$NON-NLS-1$ //$NON-NLS-2$
+                    throw new IllegalStateException(
+                            CLINLS.getString("Gather.srcdirIsntSet") + gfile + ": \n" + line); //$NON-NLS-1$ //$NON-NLS-2$
                 String srcfile = line;
                 String dst = srcfile;
                 int eq = line.indexOf('=');
@@ -189,7 +192,7 @@ public class Gather extends BasicCLI {
             gmap.gather();
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new Gather().run(args);
     }
 

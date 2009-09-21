@@ -41,7 +41,7 @@ public class MergeDirectories extends BatchEditCLI {
     boolean       deleteIgnored;
 
     @Override
-    protected void _boot() throws Throwable {
+    protected void _boot() throws Exception {
         if (digest == null)
             digest = MessageDigest.getInstance("SHA-1"); //$NON-NLS-1$
         if (thresholdAndDeleteIgnored != null) {
@@ -119,7 +119,7 @@ public class MergeDirectories extends BatchEditCLI {
     }
 
     @Override
-    protected void doFileArgument(File startFile) throws Throwable {
+    protected void doFileArgument(File startFile) throws Exception {
         if (!startFile.isDirectory()) {
             L.info(CLINLS.getString("MergeDirectories.skippedFile"), startFile); //$NON-NLS-1$
             return;
@@ -187,7 +187,7 @@ public class MergeDirectories extends BatchEditCLI {
     }
 
     @Override
-    protected EditResult doEdit(File file) throws Throwable {
+    protected EditResult doEdit(File file) throws Exception {
         String rname = getRelativeName(file);
         Object rhash = relatives.get(rname);
 
@@ -256,7 +256,7 @@ public class MergeDirectories extends BatchEditCLI {
     private int      stage;
 
     @Override
-    protected void doMainManaged(String[] args) throws Throwable {
+    protected void doMainManaged(String[] args) throws Exception {
         stage = CALC_DIGEST;
         super.doMainManaged(args);
 
@@ -264,7 +264,7 @@ public class MergeDirectories extends BatchEditCLI {
         super.doMainManaged(args);
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new MergeDirectories().run(args);
     }
 

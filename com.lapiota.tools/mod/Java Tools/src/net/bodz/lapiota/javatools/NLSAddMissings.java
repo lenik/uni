@@ -57,7 +57,7 @@ public class NLSAddMissings extends BasicCLI {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void doFileArgument(File file) throws Throwable {
+    protected void doFileArgument(File file) throws Exception {
         if (file.isDirectory()) {
             FileFinder finder = new FileFinder(new MasterPropertiesFilter(), file);
             for (File f : finder) {

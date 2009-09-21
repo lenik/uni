@@ -21,7 +21,7 @@ public class Hello extends BasicCLI {
     static boolean HELLO_DUMP = false;
 
     @Override
-    protected void doMain(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Exception {
         if (HELLO_DUMP)
             Classpath.dumpURLs(CharOuts.stderr);
         f3();
@@ -101,7 +101,7 @@ public class Hello extends BasicCLI {
         }
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         Ole32.CoInitialize();
         new Hello().run(args);
         Ole32.CoUninitialize();

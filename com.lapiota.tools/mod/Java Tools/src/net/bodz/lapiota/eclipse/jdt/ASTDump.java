@@ -44,13 +44,13 @@ public class ASTDump extends JdtBasicCLI {
             throw new IllegalArgumentException("invalid version: " + ver);
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new ASTDump().run(args);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void doFileArgument(File file) throws Throwable {
+    protected void doFileArgument(File file) throws Exception {
         if (file == null)
             _help();
 

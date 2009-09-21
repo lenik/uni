@@ -15,11 +15,11 @@ import net.bodz.lapiota.wrappers.BatchCLI;
 public class FileLister extends BatchCLI {
 
     @Override
-    protected void doFile(File file) throws Throwable {
+    protected void doFile(File file) throws Exception {
         System.out.println(file);
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new FileLister().run(args);
     }
 

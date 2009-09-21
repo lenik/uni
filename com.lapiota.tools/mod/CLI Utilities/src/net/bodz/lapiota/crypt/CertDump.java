@@ -25,7 +25,7 @@ public class CertDump extends BasicCLI {
     int      detailLevel = 0;
 
     @Override
-    protected void _boot() throws Throwable {
+    protected void _boot() throws Exception {
         // INFO -> 0
         // DETAIL -> 1
         // DEBUG -> 2
@@ -33,7 +33,7 @@ public class CertDump extends BasicCLI {
     }
 
     @Override
-    protected void doMain(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Exception {
         if (args.length == 0)
             _help();
         for (String arg : args) {
@@ -42,7 +42,7 @@ public class CertDump extends BasicCLI {
         }
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new CertDump().run(args);
     }
 

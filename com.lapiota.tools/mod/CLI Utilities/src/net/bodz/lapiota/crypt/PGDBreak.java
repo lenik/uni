@@ -33,7 +33,7 @@ public class PGDBreak extends BasicCLI {
      * </pre>
      */
     @Override
-    protected void doFileArgument(File file) throws Throwable {
+    protected void doFileArgument(File file) throws Exception {
         Memory mem = new RandomAccessFileMemory(file, 0);
         Memory chunk = mem;
         long addr = 0;
@@ -65,7 +65,7 @@ public class PGDBreak extends BasicCLI {
         }
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new PGDBreak().run(args);
     }
 

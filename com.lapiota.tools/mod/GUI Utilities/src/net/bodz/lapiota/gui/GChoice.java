@@ -37,7 +37,7 @@ public class GChoice extends BasicGUI {
      * Exit with 0 if user canceled, or the selection index number from 1.
      */
     @Override
-    protected void doMain(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Exception {
         int style = SWT.SYSTEM_MODAL;
         if (topMost)
             style |= SWT.ON_TOP;
@@ -83,7 +83,7 @@ public class GChoice extends BasicGUI {
         out.flush();
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new GChoice().run(args);
     }
 

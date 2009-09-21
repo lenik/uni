@@ -37,7 +37,7 @@ public class FileReplace extends BatchEditCLI {
     protected Filt1<String, String> filter;
 
     @Override
-    protected void _boot() throws Throwable {
+    protected void _boot() throws Exception {
         if ((regexp == null) == (text == null))
             throw new CLIException(CLINLS.getString("FileReplace.regexpOrText")); //$NON-NLS-1$
 
@@ -66,13 +66,13 @@ public class FileReplace extends BatchEditCLI {
     }
 
     @Override
-    protected EditResult doEditByLine(Iterable<String> lines, CharOut out) throws Throwable {
+    protected EditResult doEditByLine(Iterable<String> lines, CharOut out) throws Exception {
         for (String line : lines)
             out.println(filter.filter(line));
         return EditResult.compareAndSave();
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new FileReplace().run(args);
     }
 

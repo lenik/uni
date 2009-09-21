@@ -85,7 +85,7 @@ public class JavaShell extends BasicCLI {
     }
 
     @Override
-    protected void _boot() throws Throwable {
+    protected void _boot() throws Exception {
         InputStream scriptIn;
         if (script == null) {
             scriptIn = System.in;
@@ -198,7 +198,8 @@ public class JavaShell extends BasicCLI {
         while ((exp = aliases.get(alias)) != null) {
             nest++;
             if (nest > MAX_NEST)
-                throw new IllegalUsageException(CLINLS.getString("JavaShell.aliasNestTooMuch") + alias); //$NON-NLS-1$
+                throw new IllegalUsageException(
+                        CLINLS.getString("JavaShell.aliasNestTooMuch") + alias); //$NON-NLS-1$
             assert exp.length != 0;
             alias = exp[0];
             if (exp.length == 1)
@@ -219,7 +220,7 @@ public class JavaShell extends BasicCLI {
         return exp;
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new JavaShell().run(args);
     }
 
@@ -391,7 +392,8 @@ public class JavaShell extends BasicCLI {
             }
             int dot = spec.lastIndexOf('.');
             if (dot == -1)
-                throw new IllegalArgumentException(CLINLS.getString("JavaShell.staticImportWithoutMember")); //$NON-NLS-1$
+                throw new IllegalArgumentException(CLINLS
+                        .getString("JavaShell.staticImportWithoutMember")); //$NON-NLS-1$
             String className = spec.substring(0, dot);
             String member = spec.substring(dot + 1);
             Class<?> declType = Class.forName(className);

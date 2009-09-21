@@ -78,7 +78,7 @@ public class CLIEnviron extends BasicCLI {
     CallbackHandler ch;
 
     @Override
-    protected void _boot() throws Throwable {
+    protected void _boot() throws Exception {
         ch = new TextCallbackHandler();
     }
 
@@ -171,7 +171,7 @@ public class CLIEnviron extends BasicCLI {
                         store = builder.getKeyStore();
                     }
                     L.info(store.size(), " entries");
-                    for (String alias : Iterates.iterate(store.aliases())) {
+                    for (String alias : Iterates.once(store.aliases())) {
                         Certificate cert = store.getCertificate(alias);
                         // @SuppressWarnings("unused")
                         // Certificate[] certChain = store
@@ -239,7 +239,7 @@ public class CLIEnviron extends BasicCLI {
     }
 
     @Override
-    protected void doMain(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Exception {
         dumpRest();
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
@@ -247,7 +247,7 @@ public class CLIEnviron extends BasicCLI {
         }
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new CLIEnviron().run(args);
     }
 

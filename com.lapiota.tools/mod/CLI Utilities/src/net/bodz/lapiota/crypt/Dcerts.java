@@ -19,21 +19,21 @@ public class Dcerts extends BasicCLI {
     CertStore certStore;
 
     @Override
-    protected void _boot() throws Throwable {
+    protected void _boot() throws Exception {
         if (certStore == null)
             certStore = DeploySigningCertStore.getUserCertStore();
         certStore.load();
     }
 
     @Override
-    protected void doMain(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Exception {
         for (Object cert : certStore.getCertificates()) {
             System.out.println(cert);
         }
         throw new NotImplementedException();
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new Dcerts().run(args);
     }
 

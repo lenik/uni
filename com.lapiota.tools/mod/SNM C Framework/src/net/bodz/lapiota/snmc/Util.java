@@ -1,6 +1,6 @@
 package net.bodz.lapiota.snmc;
 
-import net.bodz.bas.text.interp.PatternProcessor;
+import net.bodz.bas.text.util.PatternProcessor;
 
 public class Util {
 

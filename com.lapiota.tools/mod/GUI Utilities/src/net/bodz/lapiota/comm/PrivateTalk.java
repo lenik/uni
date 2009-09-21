@@ -7,12 +7,12 @@ import org.eclipse.swt.widgets.Display;
 public class PrivateTalk extends BasicGUI {
 
     @Override
-    protected void doMainManaged(String[] args) throws Throwable {
+    protected void doMainManaged(String[] args) throws Exception {
         System.out.println(Display.getCurrent());
         L.mesg("Hello");
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new PrivateTalk().run(args);
     }
 

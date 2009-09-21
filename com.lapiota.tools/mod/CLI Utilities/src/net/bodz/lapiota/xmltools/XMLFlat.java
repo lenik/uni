@@ -38,7 +38,7 @@ import org.dom4j.io.SAXReader;
 public class XMLFlat extends BasicCLI {
 
     @Option(alias = "d", vnam = "LIST", doc = "reuse characters from LIST instead of TABs")
-    protected char[]    delimiters     = ":".toCharArray(); //$NON-NLS-1$
+    protected char[]    delimiters     = ":".toCharArray();       //$NON-NLS-1$
 
     @Option(alias = "E", vnam = "FORMAT", doc = "input encoding")
     protected Charset   inputEncoding  = Charset.defaultCharset();
@@ -86,7 +86,7 @@ public class XMLFlat extends BasicCLI {
     protected XPath[]         fields;
 
     @Override
-    protected void _boot() throws Throwable {
+    protected void _boot() throws Exception {
         if (delimiters == null)
             delimiters = ",".toCharArray(); //$NON-NLS-1$
         if (widths != null)
@@ -186,7 +186,7 @@ public class XMLFlat extends BasicCLI {
     }
 
     @Override
-    protected void doMain(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Exception {
         SAXReader reader = new SAXReader();
         if (inputFile == null) {
             L.user(CLINLS.getString("XMLFlat.enterXml")); //$NON-NLS-1$
@@ -218,7 +218,7 @@ public class XMLFlat extends BasicCLI {
         convert(doc);
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new XMLFlat().run(args);
     }
 

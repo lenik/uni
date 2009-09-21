@@ -75,7 +75,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
     }
 
     @Override
-    protected EditResult doEdit(File in) throws Throwable {
+    protected EditResult doEdit(File in) throws Exception {
         if (in.isDirectory()) { // dir
             for (Action act : actions) {
                 act.doDirectory(in);
@@ -95,15 +95,15 @@ public class PackageFragmentsProcess extends BatchEditCLI {
         }
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new PackageFragmentsProcess().run(args);
     }
 
     static interface Action extends CLIPlugin {
 
-        void doDirectory(File dir) throws Throwable;
+        void doDirectory(File dir) throws Exception;
 
-        void doJar(JarFile jar) throws Throwable;
+        void doJar(JarFile jar) throws Exception;
 
     }
 
@@ -117,7 +117,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
         }
 
         @Override
-        public void doDirectory(File dir) throws Throwable {
+        public void doDirectory(File dir) throws Exception {
             int maxDepth = parameters().getRecursive();
             FileFinder finder = new FileFinder(maxDepth, dir);
             for (File f : finder.listFiles()) {
@@ -129,8 +129,8 @@ public class PackageFragmentsProcess extends BatchEditCLI {
         }
 
         @Override
-        public void doJar(JarFile jar) throws Throwable {
-            for (JarEntry e : Iterates.iterate(jar.entries())) {
+        public void doJar(JarFile jar) throws Exception {
+            for (JarEntry e : Iterates.once(jar.entries())) {
                 String ename = e.getName();
                 list(ename);
             }
@@ -150,14 +150,14 @@ public class PackageFragmentsProcess extends BatchEditCLI {
             return false;
         }
 
-        public abstract void handle(URL url, String content) throws Throwable;
+        public abstract void handle(URL url, String content) throws Exception;
 
-        public void handle(URL url, String[] list) throws Throwable {
+        public void handle(URL url, String[] list) throws Exception {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public void doDirectory(File dir) throws Throwable {
+        public void doDirectory(File dir) throws Exception {
             String path = getPath();
             File file = Files.canoniOf(dir, path);
             URL url = Files.getURL(file);
@@ -174,7 +174,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
         }
 
         @Override
-        public void doJar(JarFile jar) throws Throwable {
+        public void doJar(JarFile jar) throws Exception {
             String path = getPath();
             JarEntry entry = jar.getJarEntry(path);
             File _file = Files.canoniOf(jar.getName());
@@ -188,7 +188,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
             }
             if (entry.isDirectory()) {
                 List<String> buf = new ArrayList<String>();
-                for (JarEntry e : Iterates.iterate(jar.entries())) {
+                for (JarEntry e : Iterates.once(jar.entries())) {
                     String ename = e.getName();
                     if (ename.startsWith(path))
                         buf.add(ename);
@@ -228,7 +228,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
         }
 
         @Override
-        public void handle(URL url, String content) throws Throwable {
+        public void handle(URL url, String content) throws Exception {
             System.out.println(url + ":"); //$NON-NLS-1$
             System.out.println(content);
             System.out.println();
@@ -269,7 +269,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
         }
 
         @Override
-        public void handle(URL url, String content) throws Throwable {
+        public void handle(URL url, String content) throws Exception {
             BufferedReader in = new BufferedReader(new StringReader(content));
             String line;
             int lineNo = 0;
@@ -302,7 +302,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
         public XpathSearch(String[] args) {
             if (args.length < 1)
                 throw new IllegalArgumentException(getClass().getSimpleName()
-                        + "(" + getCriteriaVnam() + ", [XML="  //$NON-NLS-1$//$NON-NLS-2$
+                        + "(" + getCriteriaVnam() + ", [XML=" //$NON-NLS-1$//$NON-NLS-2$
                         + getDefaultName() + "])"); //$NON-NLS-1$
             criteria = parseCriteria(critarg = args[0]);
 
@@ -332,7 +332,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
         }
 
         @Override
-        public void handle(URL url, String content) throws Throwable {
+        public void handle(URL url, String content) throws Exception {
             // DocumentFactory factory = DocumentFactory.getInstance();
             SAXReader reader = new SAXReader();
             Document doc = reader.read(new StringReader(content));
@@ -395,7 +395,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
     abstract class _JarAction extends _Action {
 
         @Override
-        public void doDirectory(File dir) throws Throwable {
+        public void doDirectory(File dir) throws Exception {
             L.detail(CLINLS.getString("PackageFragmentsProcess.skippedDir"), dir); //$NON-NLS-1$
         }
 
@@ -428,7 +428,7 @@ public class PackageFragmentsProcess extends BatchEditCLI {
         }
 
         @Override
-        public void doJar(JarFile jar) throws Throwable {
+        public void doJar(JarFile jar) throws Exception {
             File jarFile = Files.canoniOf(jar.getName());
             Enumeration<JarEntry> entries = jar.entries();
             while (entries.hasMoreElements()) {

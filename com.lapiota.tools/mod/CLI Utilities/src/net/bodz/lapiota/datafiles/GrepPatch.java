@@ -29,7 +29,7 @@ public class GrepPatch extends BatchEditCLI {
     boolean comment;
 
     @Override
-    protected void _boot() throws Throwable {
+    protected void _boot() throws Exception {
         inputEncoding = parameters().getInputEncoding();
         outputEncoding = parameters().getOutputEncoding();
         if (!inputEncoding.equals(outputEncoding))
@@ -37,7 +37,7 @@ public class GrepPatch extends BatchEditCLI {
     }
 
     @Override
-    protected void doFileArgument(File file) throws Throwable {
+    protected void doFileArgument(File file) throws Exception {
         L.tinfo(CLINLS.getString("GrepPatch._patch"), file); //$NON-NLS-1$
         int grepl = 0;
 
@@ -118,7 +118,7 @@ public class GrepPatch extends BatchEditCLI {
         }
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new GrepPatch().run(args);
     }
 

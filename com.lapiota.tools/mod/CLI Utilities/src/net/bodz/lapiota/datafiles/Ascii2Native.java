@@ -7,8 +7,8 @@ import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.io.CharOut;
-import net.bodz.bas.text.interp.Unescape;
 import net.bodz.bas.text.util.BufParsers;
+import net.bodz.bas.text.util.Unescape;
 import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @Doc("convert ascii chars or \\uNNNN to native chars")
@@ -44,7 +44,7 @@ public class Ascii2Native extends BatchEditCLI {
     }
 
     @Override
-    protected EditResult doEditByLine(Iterable<String> lines, CharOut out) throws Throwable {
+    protected EditResult doEditByLine(Iterable<String> lines, CharOut out) throws Exception {
         Udecode decoder = new Udecode();
         for (String line : lines) {
             line = decoder.process(line);
@@ -53,7 +53,7 @@ public class Ascii2Native extends BatchEditCLI {
         return EditResult.compareAndSave();
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new Ascii2Native().run(args);
     }
 

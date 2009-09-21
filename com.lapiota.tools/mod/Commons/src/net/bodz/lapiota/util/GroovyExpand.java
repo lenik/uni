@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import net.bodz.bas.io.CharOuts.BCharOut;
 import net.bodz.bas.lang.err.NotImplementedException;
-import net.bodz.bas.text.interp.PatternProcessor;
+import net.bodz.bas.text.util.PatternProcessor;
 import net.bodz.bas.types.HashTextMap;
 import net.bodz.bas.types.TextMap;
 import net.bodz.bas.types.util.Strings;

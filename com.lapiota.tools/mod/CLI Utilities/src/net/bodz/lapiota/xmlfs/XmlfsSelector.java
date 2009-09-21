@@ -44,7 +44,7 @@ public class XmlfsSelector extends BasicCLI {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void doFileArgument(File root) throws Throwable {
+    protected void doFileArgument(File root) throws Exception {
         XmlfsDocument doc = new XmlfsDocument(root);
         List list = select.selectNodes(doc);
         for (Object o : list) {
@@ -59,7 +59,7 @@ public class XmlfsSelector extends BasicCLI {
         }
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new XmlfsSelector().run(args);
     }
 

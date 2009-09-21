@@ -67,7 +67,7 @@ public class ConvertEncoding extends BatchEditCLI {
     }
 
     @Override
-    protected void _boot() throws Throwable {
+    protected void _boot() throws Exception {
         inputEncoding = parameters().getInputEncoding();
         outputEncoding = parameters().getOutputEncoding();
     }
@@ -78,7 +78,7 @@ public class ConvertEncoding extends BatchEditCLI {
     private static Charset CHARSET_UTF16_BE = Charset.forName("UTF-16BE"); //$NON-NLS-1$
 
     @Override
-    protected EditResult doEdit(File in, File out) throws Throwable {
+    protected EditResult doEdit(File in, File out) throws Exception {
         byte[] src = Files.readBytes(in);
         Charset srcenc = inputEncoding;
         Charset dstenc = outputEncoding;
@@ -95,9 +95,7 @@ public class ConvertEncoding extends BatchEditCLI {
             }
         }
 
-        L
-                .tmesg(
-                        CLINLS.getString("ConvertEncoding.iconv"), in, " (", srcenc, ") -> ", out, "(", dstenc, ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+        L.tmesg(CLINLS.format("ConvertEncoding.iconv_ssss", in, srcenc, out, dstenc)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
         String decoded = new String(src, srcenc);
         byte[] dst = decoded.getBytes(dstenc);
@@ -106,7 +104,7 @@ public class ConvertEncoding extends BatchEditCLI {
         return EditResult.compareAndSave();
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new ConvertEncoding().run(args);
     }
 

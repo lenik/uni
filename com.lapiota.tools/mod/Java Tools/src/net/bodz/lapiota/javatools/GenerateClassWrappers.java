@@ -227,14 +227,14 @@ public class GenerateClassWrappers extends BasicCLI {
     }
 
     @Override
-    protected void doMain(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Exception {
         for (Class<?> clazz : classes) {
             L.tinfo("type ", clazz);
             make(clazz);
         }
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new GenerateClassWrappers().run(args);
     }
 

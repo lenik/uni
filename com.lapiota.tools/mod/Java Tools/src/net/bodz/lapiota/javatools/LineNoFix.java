@@ -42,7 +42,7 @@ public class LineNoFix extends BatchEditCLI {
     boolean join     = true;
 
     @Override
-    protected void _boot() throws Throwable {
+    protected void _boot() throws Exception {
         if (linePattern == null)
             linePattern = Pattern.compile("^\\s*/\\*\\s*(\\d+)\\s*\\*/");
     }
@@ -87,7 +87,7 @@ public class LineNoFix extends BatchEditCLI {
     }
 
     @Override
-    protected EditResult doEditByLine(Iterable<String> _lines, CharOut out) throws Throwable {
+    protected EditResult doEditByLine(Iterable<String> _lines, CharOut out) throws Exception {
         List<Line> lines = new ArrayList<Line>(10000);
         lines.add(null); // 1-based
         int last = -1;
@@ -150,7 +150,7 @@ public class LineNoFix extends BatchEditCLI {
         return EditResult.compareAndSave();
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new LineNoFix().run(args);
     }
 

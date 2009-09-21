@@ -27,8 +27,8 @@ import net.bodz.bas.cli.ext._CLIPlugin;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.lang.script.ScriptException;
-import net.bodz.bas.text.interp.Interps;
-import net.bodz.bas.text.interp.PatternProcessor;
+import net.bodz.bas.text.util.Interps;
+import net.bodz.bas.text.util.PatternProcessor;
 import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.util.RefBinding;
 import net.bodz.lapiota.wrappers.BatchEditCLI;
@@ -132,7 +132,7 @@ public class FileProcess extends BatchEditCLI {
     }
 
     @Override
-    protected EditResult doEditByIO(InputStream in, OutputStream out) throws Throwable {
+    protected EditResult doEditByIO(InputStream in, OutputStream out) throws Exception {
         return currentAction.run(currentFile, in, out);
     }
 
@@ -141,7 +141,7 @@ public class FileProcess extends BatchEditCLI {
     // return new ProtectedShell(!dryRun, L.m);
     // }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new FileProcess().run(args);
     }
 
@@ -152,7 +152,7 @@ public class FileProcess extends BatchEditCLI {
          * @param file
          *            canonical file
          */
-        EditResult run(File file, InputStream in, OutputStream out) throws Throwable;
+        EditResult run(File file, InputStream in, OutputStream out) throws Exception;
     }
 
     abstract class _Action extends _CLIPlugin implements Action {
@@ -190,7 +190,7 @@ public class FileProcess extends BatchEditCLI {
         }
 
         @Override
-        public EditResult run(File file, InputStream in, OutputStream out) throws Throwable {
+        public EditResult run(File file, InputStream in, OutputStream out) throws Exception {
             RefBinding binding = new RefBinding();
             binding.bindScriptFields(scope, true);
             binding.setVariable("program", this); //$NON-NLS-1$
@@ -295,7 +295,7 @@ public class FileProcess extends BatchEditCLI {
         }
 
         @Override
-        public EditResult run(File file, InputStream in, OutputStream out) throws Throwable {
+        public EditResult run(File file, InputStream in, OutputStream out) throws Exception {
             String name = nameOnly ? Files.getName(file) : file.getName();
             Matcher m = pattern.matcher(name);
             if (replaceAll)
@@ -357,7 +357,7 @@ public class FileProcess extends BatchEditCLI {
         }
 
         @Override
-        public EditResult run(File file, InputStream in, OutputStream out) throws Throwable {
+        public EditResult run(File file, InputStream in, OutputStream out) throws Exception {
             String _name = Files.getName(file);
             String _ext = Files.getExtension(file, true);
             if (dotSpace)

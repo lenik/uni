@@ -16,16 +16,16 @@ public class FileProcessTest extends FileProcess {
     static class RenCompEval implements TestEval<String> {
 
         @Override
-        public Object eval(String input) throws Throwable {
+        public Object eval(String input) throws Exception {
             String[] args = input.split("\\|", 2); //$NON-NLS-1$
             final String file = args[0].trim();
             final String repl = args[1].trim();
             final EditResult[] result = new EditResult[1];
             new FileProcess() {
                 @Override
-                protected void doMain(String[] args) throws Throwable {
-                    RenameComponents ren = (RenameComponents) actions.get(0);
-                    result[0] = ren.run(new File(file), null, null);
+                protected void doMain(String[] args) throws Exception {
+                    RenameComponents renAction = (RenameComponents) actions.get(0);
+                    result[0] = renAction.run(new File(file), null, null);
                 }
             }.run("-Dnonexist=X", "-asg=" + repl); //$NON-NLS-1$ //$NON-NLS-2$
             File dst = (File) result[0].dest;
@@ -45,10 +45,6 @@ public class FileProcessTest extends FileProcess {
                 EQ(" - a - b - c - -- d | $1-$2-$3-$4-$5-$6-$7", // //$NON-NLS-1$
                         "a-b-c-d-X-X-X"), // //$NON-NLS-1$
                 END);
-    }
-
-    public static void main(String[] args) throws Throwable {
-        new FileProcessTest().testRenameComponents();
     }
 
 }

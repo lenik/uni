@@ -37,9 +37,10 @@ public class FileCompare extends BasicCLI {
     protected CharOut    output     = CharOuts.stdout;
 
     @Override
-    protected void doMain(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Exception {
         if (args.length > 0)
-            throw new IllegalArgumentException(CLINLS.getString("FileCompare.unexpectedArgument") + args[0]); //$NON-NLS-1$
+            throw new IllegalArgumentException(
+                    CLINLS.getString("FileCompare.unexpectedArgument") + args[0]); //$NON-NLS-1$
         DiffComparator gnudiff = DiffComparators.gnudiff;
         List<String> srcl = Files.readLines(src);
         List<String> dstl = Files.readLines(dst);
@@ -47,7 +48,7 @@ public class FileCompare extends BasicCLI {
         diffFormat.format(srcl, dstl, diffs, output);
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new FileCompare().run(args);
     }
 

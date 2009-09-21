@@ -325,12 +325,12 @@ public class PartialCopy extends BasicCLI {
     }
 
     @Override
-    protected void doMain(String[] args) throws Throwable {
+    protected void doMain(String[] args) throws Exception {
         if (copies == 0)
             doCopy();
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         new PartialCopy().run(args);
     }
 
