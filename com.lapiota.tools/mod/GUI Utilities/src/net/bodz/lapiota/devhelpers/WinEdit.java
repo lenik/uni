@@ -167,18 +167,17 @@ public class WinEdit extends BasicGUI {
     }
 
     @Override
-    protected void createInitialView(Composite parent) {
-        Composite composite = new Composite(parent, SWT.NONE);
+    protected void createInitialView(Composite holder) {
         final GridLayout gridLayout = new GridLayout();
         gridLayout.horizontalSpacing = 2;
         gridLayout.verticalSpacing = 2;
         gridLayout.numColumns = 1;
-        composite.setLayout(gridLayout);
+        holder.setLayout(gridLayout);
 
-        text = new Text(composite, SWT.READ_ONLY | SWT.BORDER);
+        text = new Text(holder, SWT.READ_ONLY | SWT.BORDER);
         text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
 
-        SashForm sash = new SashForm(composite, SWT.NONE);
+        SashForm sash = new SashForm(holder, SWT.NONE);
         sash.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
         tree = new Tree(sash, SWT.BORDER);
@@ -409,7 +408,7 @@ public class WinEdit extends BasicGUI {
         readOnlyButton.setText("Read Only");
         new Label(properties, SWT.NONE);
 
-        final Composite buttons = new Composite(composite, SWT.NONE);
+        final Composite buttons = new Composite(holder, SWT.NONE);
         final RowLayout rowLayout = new RowLayout();
         rowLayout.marginTop = 0;
         rowLayout.marginRight = 0;

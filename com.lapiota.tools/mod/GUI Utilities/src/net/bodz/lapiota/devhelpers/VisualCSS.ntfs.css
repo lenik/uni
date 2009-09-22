@@ -1,0 +1,155 @@
+P{font-size:80%;font-family:Verdana;margin-left:6;margin-right:6;color:#000066}
+
+h1{font-size:95%;font-family:Verdana;color:#000066;margin-left:6;margin-right:6;margin-top:15px;margin-bottom:2em}
+h2{font-size:90%;font-family:Verdana;margin-left:6;margin-right:6;color:#000066;margin-top:15px;margin-bottom:2em}
+h3{font-size:80%;font-family:Verdana;margin-left:6;margin-right:6;color:#000066;margin-top:20px;margin-bottom:6px}
+#.orunderline {padding-bottom:0; display:block;border-bottom:1px solid #ff9933; letter-spacing:1px}
+.econ {font-size:70%}
+.small {font-size:11px; padding:0; margin:0;}
+
+hr {display:none}
+.hr1 {display:block; clear:both; height:1px; margin:.3em 0;background:url('images/bluedots.gif') repeat; }
+
+ul{font-family:Verdana;color:#000066;list-style-image: url('images/li3.gif'); line-height:20px}
+ol{font-family:Verdana;font-size:80%;color:#000066}
+li {margin-left:6;margin-right:6;color:#000066;}
+a:link {font-family:Verdana;color:#164FD0; text-decoration:none}
+a:visited {font-family:Verdana;color:#663300; text-decoration:none}
+a:active, a:hover {font-family:Verdana;color:#008000; text-decoration:underline}
+
+.left {font-family:Verdana;margin-left:6;margin-right:6;color:#000066}
+.menu {font-family:Verdana;color:#FFFFFF;font-size:60%;font-weight:bold;text-decoration:"none";text-align:"center"}
+.menu2 {font-family:Verdana;color:#FFFFFF; font-size:7pt; font-weight:bold;text-decoration:"none";text-align:"center"}
+span{font-size:80%}
+pre {color:#000066;}
+
+a.faq:link { color: blue; FONT-FAMILY: Verdana; FONT-SIZE: 10pt; FONT-WEIGHT: regular; TEXT-DECORATION: none; }
+a.faq:visited{color: #000066; font-weight:regular; Font-family:Verdana;font-size:10pt; text-decoration:"none"; }
+a.faq:active{color: #000066; font-weight:regular; Font-family:Verdana;font-size:10pt; text-decoration:"none"; }
+a.faq:hover{color:red; font-weight: regular; Font-family:Verdana;font-size:10pt; text-decoration:"underline";  }
+
+div.frame {float:left;width:250px;font-size:70%; border:solid; border-color:#CCCCCC; border-width:1px; padding:10px; margin:10px}
+div.concepts {line-height: 1}
+h2.concepts{font-size:90%;font-family:Verdana;margin-left:15;margin-right:15;color:#000066;margin-top:1;margin-bottom:1}
+h2.concepts1{font-size:90%;font-family:Verdana;margin-left:15;margin-right:15;color:#000066;margin-top:5;margin-bottom:1}
+h2.contents {font-size:80%;font-family:Verdana;margin-left:15;margin-right:15;color:#000066;margin-top:5;margin-bottom:1}
+h3.concepts{font-size:80%;font-family:Verdana;margin-left:6;margin-right:6;color:#000066;margin-top:2;margin-bottom:2}
+
+a.softtools:link {font-family:Verdana;color:#164FD0; text-decoration:none; font-weight:normal;}
+a.softtols:visited {font-family:Verdana;color:#004080; text-decoration:none; font-weight:normal;}
+a.softtools:active{font-family:Verdana;color:#008000; text-decoration:none; font-weight:normal;}
+a.softtools:hover {font-family:Verdana;color:#008000; text-decoration:underline; font-weight:normal;}
+
+#wrap {width:96%; padding-bottom:30px; margin-left:20px; margin-right:20px}
+#floatleft {width:48%; float:left}
+#floatright {width:48%; float:right}
+
+
+ul.permiss {font-size:80%; line-height:21px; list-style-image:url('images/li3.gif') }
+ul.sm_font {font-size:80%;}
+.ul_pad {padding-bottom:5px; margin-top:5px;margin-left:40px; line-height:18px}
+.li_pad {margin-bottom:10px}
+.paddingleft {margin-left:280px}
+.nopadding{padding-left:0; margin-left:10px}
+table.silver {border-collapse:collapse;border:none; border-right: solid silver 1pt; border-top:solid silver 1.5pt; border-bottom:solid silver 1.5pt;padding: 0in 5.4pt 0in 5.4pt;}
+.center {
+	text-align: center;
+}
+.pad-image {margin:10px; margin-left:60px}
+.style3 {
+	font-size:85%;
+	font-family: Tahoma;
+	margin-left: 20px;
+	margin-right: 0in;
+	margin-top: 12.0pt;
+	margin-bottom:5px;
+	font-weight: bold;
+}
+.style8 {
+	text-align: center;
+	font-size:80%;
+    font-family: Tahoma;
+	font-weight: bold;
+	margin-left: 0in;
+	margin-right: 0in;
+	margin-top: 6.0pt;
+	margin-bottom: 5.0pt;
+}
+.style9 {
+    text-align: left;
+	font-size: 80%;
+	font-family: Tahoma;
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-top: 6.0pt;
+	margin-bottom: 5.0pt;
+}
+
+.style6 {
+	font-size: 9.0pt;
+	font-family: "Courier New";
+	margin-left: .2in;
+	margin-right: -.4in;
+	margin-top: 0in;
+	margin-bottom: 3.0pt;
+}
+.style3 {
+	font-size: 9.0pt;
+	font-family: Tahoma;
+	margin-left: .85in;
+	margin-right: 0in;
+	margin-top: 12.0pt;
+	margin-bottom: .0001pt;
+}
+h4
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:28.35pt;
+	page-break-after:avoid;
+	font-size:11.0pt;
+	font-family:Tahoma;
+	}
+.style6 {
+	font-size: 9.0pt;
+	font-family: "Courier New";
+	margin-left: .2in;
+	margin-right: -.4in;
+	margin-top: 0in;
+	margin-bottom: 3.0pt;
+}
+.style7 {
+	font-size: 11.0pt;
+	font-family: "Courier New";
+	margin-left: 1.4in;
+	margin-right: -.4in;
+	margin-top: 0in;
+	margin-bottom: 12.0pt;
+}
+.style10 {
+	text-indent: -.4in;
+	font-size: 11.0pt;
+	font-family: Tahoma;
+	margin-left: .4in;
+	margin-right: 0in;
+	margin-top: 6.0pt;
+	margin-bottom: 5.0pt;
+}
+.style4 {
+	text-indent: -12.75pt;
+	font-size: 80%;
+	font-family: Tahoma;
+	margin-left: 72.3pt;
+	margin-right: 0in;
+	margin-top: 6.0pt;
+	margin-bottom: 6.0pt;
+}
+
+.blueborder {border-top:1px #AABFD7 solid}
+.blueborder2 {border-top:1px #AABFD7 solid;border-bottom:1px #AABFD7 solid }
+.bootstyle3 {font-family: verdana; font-size:70%; color:#333; font-weight:bold}
+.bootstyle1 {color: #999; font-size:8pt; font-family:tahoma; margin-left:10px; margin-top:3px}
+.bootstyle2 {color: #999; font-size:8pt; font-family:tahoma; margin-top:3px}
+
+.box{padding:12px;border:1px solid silver; background:#f5f5f5; text-align:left; margin-top:20px}
+.box1 {padding:12px;margin-top:0px;border:1px solid silver; background:#FDF4D9; text-align:left}

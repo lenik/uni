@@ -17,7 +17,6 @@ import net.bodz.lapiota.wrappers.BasicGUI;
 import net.bodz.swt.adapters.TextAdapters;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.SWTException;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
@@ -48,10 +47,9 @@ public class ActivateCodeGenerator extends BasicGUI {
     private Text  codeText;
 
     @Override
-    protected void createInitialView(final Composite parent)
-            throws UIException, SWTException {
+    protected void createInitialView(final Composite holder)
+            throws UIException {
 
-        Composite holder = new Composite(parent, SWT.NONE);
         final GridLayout gridLayout = new GridLayout();
         gridLayout.numColumns = 3;
         holder.setLayout(gridLayout);
@@ -59,7 +57,7 @@ public class ActivateCodeGenerator extends BasicGUI {
         SelectionListener regenerate = new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                parent.getDisplay().asyncExec(new Runnable() {
+                holder.getDisplay().asyncExec(new Runnable() {
                     @Override
                     public void run() {
                         generate();
@@ -168,7 +166,7 @@ public class ActivateCodeGenerator extends BasicGUI {
                 String s = codeText.getText();
                 Object[] data = { s };
                 Transfer[] dataTypes = { TextTransfer.getInstance() };
-                new Clipboard(parent.getDisplay()).setContents(data, dataTypes);
+                new Clipboard(holder.getDisplay()).setContents(data, dataTypes);
             }
         });
     }

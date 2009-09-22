@@ -27,10 +27,10 @@ public class VisualExec extends BasicGUI {
     private Text cmdlineText;
 
     @Override
-    protected void createInitialView(Composite comp) {
-        comp.setLayout(new FormLayout());
+    protected void createInitialView(Composite holder) {
+        holder.setLayout(new FormLayout());
 
-        final Button commandLineButton = new Button(comp, SWT.NONE);
+        final Button commandLineButton = new Button(holder, SWT.NONE);
         final FormData fd_commandLineLabel = new FormData();
         fd_commandLineLabel.bottom = new FormAttachment(0, 30);
         fd_commandLineLabel.right = new FormAttachment(0, 45);
@@ -39,7 +39,7 @@ public class VisualExec extends BasicGUI {
         commandLineButton.setLayoutData(fd_commandLineLabel);
         commandLineButton.setText("&Run");
 
-        cmdlineText = new Text(comp, SWT.WRAP | SWT.BORDER);
+        cmdlineText = new Text(holder, SWT.WRAP | SWT.BORDER);
         cmdlineText.setText("cmdline");
         final FormData fd_cmdlineText = new FormData();
         fd_cmdlineText.bottom = new FormAttachment(0, 80);
@@ -48,7 +48,7 @@ public class VisualExec extends BasicGUI {
         fd_cmdlineText.left = new FormAttachment(commandLineButton, 5, SWT.RIGHT);
         cmdlineText.setLayoutData(fd_cmdlineText);
 
-        final Composite composite = new Composite(comp, SWT.NONE);
+        final Composite composite = new Composite(holder, SWT.NONE);
         composite.setLayout(new FillLayout());
         final FormData fd_composite = new FormData();
         fd_composite.top = new FormAttachment(cmdlineText, 5, SWT.BOTTOM);
