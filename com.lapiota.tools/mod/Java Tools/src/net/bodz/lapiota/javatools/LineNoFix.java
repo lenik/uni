@@ -18,7 +18,7 @@ import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @Doc("Line-No Fix")
 @ProgramName("linefix")
-@RcsKeywords(id = "$Id: LineNoFix.java 0 2008-11-24 下午08:58:24 Shecti $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 0 })
 public class LineNoFix extends BatchEditCLI {
     {

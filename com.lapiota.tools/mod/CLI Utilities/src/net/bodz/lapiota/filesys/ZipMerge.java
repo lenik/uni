@@ -19,7 +19,7 @@ import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.wrappers.BatchCLI;
 
 @Doc("Merge Zip Archieves")
-@RcsKeywords(id = "$Id: ZipMerge.java 0 2008-12-12 下午04:13:33 Shecti $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 0 })
 public class ZipMerge extends BatchCLI {
 

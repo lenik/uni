@@ -51,7 +51,7 @@ public class URLListEditor extends _ListEditor<URL> {
         String protocol = url.getProtocol();
         String s = url.getPath();
         if ("jar".equals(protocol))
-            s = Strings.before(s, '/');
+            s = Strings.afterLast(s, '/');
         else if ("file".equals(protocol))
             try {
                 s = new File(url.toURI()).getPath();

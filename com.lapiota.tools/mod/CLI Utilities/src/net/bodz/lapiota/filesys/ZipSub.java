@@ -24,7 +24,7 @@ import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Remove entries in zip file, which appears in another zips")
-@RcsKeywords(id = "$Id: ZipSubtract.java 0 2008-12-11 上午11:02:54 Shecti $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 0 })
 public class ZipSub extends BasicCLI {
 

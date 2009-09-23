@@ -18,7 +18,7 @@ import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("KeyStore/Certificate Import")
 @ProgramName("certimp")
-@RcsKeywords(id = "$Id: PKCS12Dump.java 39 2008-11-15 01:48:44Z lenik $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
 public class CertImport extends BasicCLI {
 

@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Text;
 
 @Doc("GUI iconv utility")
 @PreferredSize(width = 640, height = 480)
-@RcsKeywords(id = "$Id: GIconv.java 0 2008-11-17 下午11:59:23 Shecti $")
+@RcsKeywords(id = "$Id$")
 @Version( { 1, 0 })
 public class GIconv extends BasicGUI {
 

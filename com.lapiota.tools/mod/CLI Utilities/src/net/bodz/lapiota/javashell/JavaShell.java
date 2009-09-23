@@ -39,7 +39,7 @@ import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Lapiota Java Shell")
 @ProgramName("jl")
-@RcsKeywords(id = "$Id: JavaShell.java 0 2008-12-14 下午10:45:22 Shecti $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 0 })
 public class JavaShell extends BasicCLI {
 

@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.Text;
 @Doc("ABTS Activate Code Generator")
 @ProgramName("Abtsacg")
 @PreferredSize(width = 400, height = 200)
-@RcsKeywords(id = "$Id: QuickTone.java 15 2009-04-23 11:09:10Z Shecti $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
 @WebSite("http://www.bodz.net/products/distins")
 public class ActivateCodeGenerator extends BasicGUI {

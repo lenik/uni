@@ -24,7 +24,7 @@ import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Add missed entries for NLS property files")
 @ProgramName("nlsadd")
-@RcsKeywords(id = "$Id: CLIEnviron.java 50 2009-04-26 09:28:24Z lenik $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
 public class NLSAddMissings extends BasicCLI {
 

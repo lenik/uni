@@ -12,7 +12,7 @@ import com.sun.deploy.security.DeploySigningCertStore;
 
 @BootInfo(syslibs = "deploy.jar")
 @Doc("Java Deploy Certificates Manager")
-@RcsKeywords(id = "$Id: Dcerts.java 0 2008-11-24 下午10:49:56 Shecti $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 0 })
 public class Dcerts extends BasicCLI {
 

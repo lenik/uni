@@ -29,7 +29,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 @BootInfo(userlibs = { "bodz_swt" }, configs = SWTConfig.class)
 @Doc("Icon files batch converter")
-@RcsKeywords(id = "$Id: IconConv.java 53 2009-09-21 15:09:07Z lenik $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
 public class IconConv extends BatchCLI {
 

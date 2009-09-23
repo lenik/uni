@@ -30,7 +30,7 @@ import org.eclipse.swt.widgets.Text;
 
 @Doc("CSS Look&Feel")
 @PreferredSize(width = 800, height = 600)
-@RcsKeywords(id = "$Id: VisualCSS.java 51 2009-05-07 05:36:21Z lenik $")
+@RcsKeywords(id = "$Id$")
 @Version( { 0, 1 })
 public class VisualCSS extends BasicGUI {
 
