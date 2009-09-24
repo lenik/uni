@@ -84,6 +84,18 @@ function reg_commit() {
 # APP_PATHS=               'HKLM/SOFTWARE/Microsoft/Windows/CurrentVersion/App Paths'
 APP_PATHS='HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows/CurrentVersion/App Paths'
 
+# set_alias NAME DEST
+function set_alias() {
+    local shortcut="$1"
+    local dest="$2"
+    local dest_w="${dest//\//\\}"
+    local dest_ww="${dest_w//\\/\\\\}"
+    local dir_w="${dest_w%\\*}"
+    local dir_ww="${dir_w//\\/\\\\}"
+    _sig1 "alias $shortcut => $dest_w"
+    reg_add $regf "$APP_PATHS/$shortcut" "=$dest_ww" "Path=$dir_ww"
+}
+
 function main() {
     for arg in "$@"; do
         if [ -d "$arg" ]; then
@@ -113,7 +125,7 @@ function main() {
                 abcd=/abc.d
                 # dst="$lam_aw$abcd/$name-$latest/$c"
                 if ! findabc -lr "$lam$abcd" "$name-"; then
-                    if ! findabc -lr "$lam" "$name"; then
+                    if ! findabc -lr "$lam" "$name-"; then
                         _log1 package not found: $name
                         continue
                     fi
@@ -153,18 +165,12 @@ function main() {
                             for dst in $mode; do
                                 shortcut="${dst##*/}"
                                 dstw="$lam_aw${dst:nlam}"
-                                dstw="${dstw//\//\\}"
-                                # echo "--- alias $shortcut => $dstw"
-                                _sig1 "alias $shortcut => $dstw"
-                                dstwe="${dstw//\\/\\\\}"
-                                reg_add $regf "$APP_PATHS/$shortcut" "=$dstwe" "Path=$dstwe"
+                                set_alias "$shortcut" "$dstw"
                             done
                         else
                             dst="$modew"
                             dstw="${dst//\//\\}"
-                            _sig1 "alias $shortcut => $dstw"
-                            dstwe="${dstw//\\/\\\\}"
-                            reg_add $regf "$APP_PATHS/$shortcut" "=$dstwe" "Path=$dstwe"
+                            set_alias "$shortcut" "$dstw"
                         fi
                     done
                 fi

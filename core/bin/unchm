@@ -7,6 +7,10 @@ unchm - decompress chm file
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
+    # The Archive::Chm, Text::CHM etc. not works well in win32,
+    # so I wrote a new cmt::libchm, you must install it before using this program.
+    # See: LAM_KALA/usr/src/mod/cmt-libchm
+    # Run `make install' under that directory.
 use cmt::libchm;
 use cmt::log(2);
     $LOGNAME    = 'unchm'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;

@@ -1,24 +1,24 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+sev - Self Evolution, self-editing scripts
+
+=cut
 use strict;
-use cmt::util;
-use cmt::vcs;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'sev'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
 
-sub _boot;
-sub main;
-sub info;
-sub info2;
-sub version;
-sub help;
+sub _main; sub _version; sub _help;
 sub escape_regex;
 sub add_decl;
 sub add_braced_text;
 sub process;
 
-our $opt_verbtitle      = 'sev';
-our $opt_verbtime       = 0;
-our $opt_verbose        = 1;
 our $opt_sev_tag        = 'self-evolution';
 our $opt_mark           = '*';
 our $opt_decl           = '%';
@@ -29,68 +29,110 @@ my %marks;                              # $name => $line_no
 my %decls;                              # $name => $decl_body
 
 sub _boot {
-    GetOptions('quiet|q'    => sub { $opt_verbose-- },
-               'verbose|v'  => sub { $opt_verbose++ },
-               'version'    => sub { version; exit },
-               'help|h'     => sub { help; exit },
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
                'mark=s',
                'decl=s',
-               'preload' => sub { $opt_preload++ },
+               'preload'        => sub { $opt_preload++ },
                'save!',
                );
     $opt_mark = escape_regex $opt_mark;
     $opt_decl = escape_regex $opt_decl;
-    info2 "mark symbol in regex: $opt_mark";
-    info2 "decl symbol in regex: $opt_decl";
-
-    main;
+    _log2 "mark symbol in regex: $opt_mark";
+    _log2 "decl symbol in regex: $opt_decl";
+    _main;
 }
 
-sub info {
-    return if $opt_verbose < 1;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+=head1 SYNOPSIS
 
-sub info2 {
-    return if $opt_verbose < 2;
-    my $text = shift;
-    print cdatetime.' ' if $opt_verbtime;
-    print "[$opt_verbtitle] $text\n";
-}
+B<sev>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
 
-sub version {
-    my %id = parse_id('$Id$');
-    print "[$opt_verbtitle] Self Evolution, self-editing scripts \n";
-    print "Written by Lenik,  Version 0.$id{rev},  Last updated at $id{date}\n";
-}
+=head1 DESCRIPTION
 
-sub help {
-    version;
-    print <<"EOM";
+B<sev> is a WHAT used for WHAT. It HOW-WORKS.
 
-Syntax:
-        $0 <options> files...
+BACKGROUND-PROBLEM.
 
-Options:
-        --mark=<mark-symbol> (the symbol used to mark line of name)
-        --decl=<decl-symbol> (the symbol used to declare function of name)
-        --preload (load all content before process (2 steps) )
-        --save, --no-save (save itself or just print out)
-        --quiet (q)
-        --verbose (v, repeat twice give you more verbose info)
-        --version
-        --help (h)
+HOW-sev-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item Show help
+
+    sev --help
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+        --mark=MARK_SYM     the symbol used to mark line of name
+        --decl=DECL_SYM     the symbol used to declare function of name
+        --preload           load all content before process (2 steps)
+        --save, --no-save   save itself or just print out
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
 EOM
 }
 
 exit (_boot or 0);
 
-sub main {
+sub _main {
     if (@ARGV) {
         for my $file (@ARGV) {
-            info "load file $file";
+            _log1 "load file $file";
             open(FH, "<$file")
                 or die "Cannot open file $file to read";
             my @lines = <FH>;
@@ -98,12 +140,12 @@ sub main {
             close FH;
 
             if ($ok ne 'ok') {
-                info "load fails: $ok";
+                _log1 "load fails: $ok";
                 next;
             }
 
             if ($opt_save == 1) {
-                info "save file $file";
+                _log1 "save file $file";
                 open(FH, ">$file")
                     or die "Cannot open file $file to write";
                 print FH for @lines;
@@ -117,12 +159,26 @@ sub main {
         print @lines;
         my $ok = process \@lines;
         if ($ok ne 'ok') {
-            info "load fails: $ok";
+            _log1 "load fails: $ok";
             return;
         }
         print for @lines;
     }
 }
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
 
 sub escape_regex {
     my $t = shift;
@@ -164,7 +220,7 @@ sub process {
     my $brace = 0;                      # level of open-brace '{'
 
     # preloading
-    info2 'preloading...';
+    _log2 'preloading...';
     my $srclines = scalar(@$src);
     for (my $i = 0; $i < $srclines; $i++) {
         $_ = $src->[$i];
@@ -202,8 +258,8 @@ sub process {
         }
     }
 
-    info2 "mark $_: line " . join(', ', @{$marks{$_}}) for (keys %marks);
-    info2 "decl $_ = " . $decls{$_} for (keys %decls);
+    _log2 "mark $_: line " . join(', ', @{$marks{$_}}) for (keys %marks);
+    _log2 "decl $_ = " . $decls{$_} for (keys %decls);
 
     for (keys %marks) {
         my $linenums = $marks{$_};
@@ -220,3 +276,29 @@ sub process {
 
     return 'ok';
 }
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Self Evolution, self-editing scripts \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

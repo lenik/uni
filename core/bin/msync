@@ -62,15 +62,15 @@ function main() {
     fi
 
     m_dir="$1"
-    if [ "${m_dir: -1}" = / ]; then
-        m_dir="${m_dir%/}"
-    fi
+        # chop the ending '/'
+        if [ "${m_dir: -1}" = / ]; then m_dir="${m_dir%/}"; fi
+
     m_mod="${m_dir%%/*}"
-    if [ "$m_mod" = "$m_dir" ]; then
-        m_dir=
-    else
-        m_dir="${m_dir#*/}"
-    fi
+        if [ "$m_mod" = "$m_dir" ]; then
+            m_dir=
+        else
+            m_dir="${m_dir#*/}"
+        fi
 
     s_index=$RANDOM
     if [ "$server" = $((server+0)) ]; then
@@ -162,10 +162,25 @@ function main() {
     esac
 
     localdir="$m_mod"
-    if [ -n "$m_dir" ]; then localdir="$localdir/$m_dir"; fi
+    if [ -n "$m_dir" ]; then
+        _base="${m_dir##*/}"
+        if [ "$_base" == "$m_dir" ]; then
+            _dir=""
+        else
+            _dir="${m_dir%/*}"
+        fi
+        if [ "${_base/[\*\?]/}" != "$_base" ]; then
+            # basename contains *, ? wildcards, using the parent of m_dir
+            localdir="$localdir/$_dir"
+        else
+            localdir="$localdir/$m_dir"
+            remotedir="$remotedir/"
+        fi
+    fi
     mkdir -p "$localdir"
 
     logf="$localdir"
+    logf="${logf//[\*\?]/_}"
     logf="${logf//[\/\\]/_}"
     logf="/var/log/rsync/$logf"
     ropts="$ropts --log-file=$logf.log"
@@ -175,30 +190,26 @@ function main() {
         r_host="rsync://$r_host"
     fi
 
-    rcmd=(rsync $ropts $r_host/$remotedir/ $localdir)
+    #echo "options:  $ropts"
+    #echo "remote:   $r_host/$remotedir"
+    #echo "local:    $localdir"
 
     while true; do
-        _log1 "${rcmd[@]}"
-        ${rcmd[@]}
-
-        test=1
-        if [ $test != 1 ]; then
-            ${rcmd[]}
-                #| while read L; do
-                #    echo "$L"
-                #    echo "$L">>$logf.log
-                #done
-        fi
+        _log1 "rsync $ropts $r_host/$remotedir ($PWD/) $localdir"
+        rsync $ropts "$r_host/$remotedir" "$localdir"
+        rsync_err=$?
 
         if [ -z "$repeat" ]; then break; fi
         echo Press CTRL-C to exit, or repeat this task after $repeat seconds...
         read -n 1 -t $repeat KEY
     done
 
-    echo Done: $*
+    echo "Done: $@"
     if [ -f "$logf.log" ]; then
         mv -f "$logf.log" "$logf.done"
     fi
+
+    return $rsync_err
 }
 
 boot "$@"

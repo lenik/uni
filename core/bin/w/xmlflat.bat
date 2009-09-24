@@ -99,8 +99,8 @@
     set _libname=%~1
     set _libfile=!lib_%_libname%!
     if "%_libfile%"=="" (
-        for %%d in (. .. ..\lib %JAVA_LIB%) do (
-            if exist "%%d\%~2" (
+        for %%d in (. .. ..\lib "%JAVA_LIB%" "%JAVA_HOME%\lib") do (
+            if exist "%%~d\%~2" (
                 set _libfile=%%~dpnxd\%~2
                 goto got
             )
@@ -176,7 +176,6 @@
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
     exit /b 0
 
-:: Fix_BatBB ::
 :help
     call :version
     echo.

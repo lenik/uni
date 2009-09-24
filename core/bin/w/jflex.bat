@@ -84,7 +84,7 @@
 
     set _morecp=
     call :load "bodz_bas" "net.bodz.bas.jar"
-    call :load "jflex" "JFlex-1.4.1.jar"
+    call :load "jflex" "jflex-1.4.3.jar"
     call :load "bodz_lapiota" "net.bodz.lapiota.jar"
 
     goto initcp2
@@ -99,8 +99,8 @@
     set _libname=%~1
     set _libfile=!lib_%_libname%!
     if "%_libfile%"=="" (
-        for %%d in (. .. ..\lib %JAVA_LIB%) do (
-            if exist "%%d\%~2" (
+        for %%d in (. .. ..\lib "%JAVA_LIB%" "%JAVA_HOME%\lib") do (
+            if exist "%%~d\%~2" (
                 set _libfile=%%~dpnxd\%~2
                 goto got
             )

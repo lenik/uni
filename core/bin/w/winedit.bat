@@ -59,10 +59,10 @@
     set  _program=%~dpnx0
     set    _start=
 
-    set      _nam=net.bodz.lapiota.devhelpers.WindowsHack
+    set      _nam=net.bodz.lapiota.devhelpers.WinEdit
     set     _namf=%_nam:.=\%
     set      _ext=
-    set _javaopts=%JAVA_OPTS% net.bodz.bas.loader.DefaultBooter -l bodz_swt -l bodz_icons -l bodz_lapiota --
+    set _javaopts=%JAVA_OPTS% net.bodz.bas.loader.DefaultBooter -l bodz_swt -l bodz_icons -l bodz_lapiota -l bodz_jna -l jna --
 
     if not "%JAVA_HOME%"=="" set PATH=%JAVA_HOME%\bin;%PATH%
 
@@ -96,8 +96,8 @@
     set _libname=%~1
     set _libfile=!lib_%_libname%!
     if "%_libfile%"=="" (
-        for %%d in (. .. ..\lib %JAVA_LIB%) do (
-            if exist "%%d\%~2" (
+        for %%d in (. .. ..\lib "%JAVA_LIB%" "%JAVA_HOME%\lib") do (
+            if exist "%%~d\%~2" (
                 set _libfile=%%~dpnxd\%~2
                 goto got
             )

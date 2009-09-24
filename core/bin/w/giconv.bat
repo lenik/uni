@@ -96,8 +96,8 @@
     set _libname=%~1
     set _libfile=!lib_%_libname%!
     if "%_libfile%"=="" (
-        for %%d in (. .. ..\lib %JAVA_LIB%) do (
-            if exist "%%d\%~2" (
+        for %%d in (. .. ..\lib "%JAVA_LIB%" "%JAVA_HOME%\lib") do (
+            if exist "%%~d\%~2" (
                 set _libfile=%%~dpnxd\%~2
                 goto got
             )
@@ -162,7 +162,7 @@
     goto start
 
 :version
-    set _id=$Id: Mkbat.batTempl 62 2009-01-10 11:31:25Z lenik $
+    set _id=$Id: Mkbat.batTempl 91 2009-09-04 15:47:48Z lenik $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j

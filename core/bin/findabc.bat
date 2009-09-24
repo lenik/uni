@@ -2,41 +2,43 @@
 
     setlocal enabledelayedexpansion
     set _strict=1
-    set _root=abc.d
     goto init
 
 :start
-    set _lev=0
-    if not "%_root%"=="" set _root=%_root:/=\%
-    if "%_root:~0,1%"=="\" (
-        set _prefix=%_root%
-    ) else if not "%_root::=?%"=="%_root%" (
-        set _prefix=%_root%
-    ) else if "%_root%"=="" (
-        set _prefix=%LAPIOTA%
-    ) else (
-        set _prefix=%LAPIOTA%\%_root%
+
+:nextroot
+    if "%ABCPATH%"=="" goto fail
+    for /f "delims=; tokens=1*" %%i in ("%ABCPATH%") do (
+        set _xdir=%%i
+        set ABCPATH=%%j
     )
 
-:st_loop
-    rem echo find with prefix: %_prefix%
-    if exist "%_prefix%\%_name%*" goto found
-:st_next
-    set /a _lev = _lev + 1
-    set _st=!_name:~0,%_lev%!
-    if "%_st%"=="%_name%" (
-        echo failed to find %_name%
-        exit /b 1
+    rem recursive add virtual-groups
+    for /d %%g in ("%_xdir%\*.d" "%_xdir%\[*]") do (
+        if "!ABCPATH!"=="" (
+            set ABCPATH=%%g
+        ) else (
+            set ABCPATH=%%g;!ABCPATH!
+        )
     )
-    set _prefix=%_prefix%\%_st%
-    goto st_loop
 
-:found
-    for /d %%i in ("%_prefix%\%_name%*") do (
-        set _home=%%i
-        if not "%_last%"=="1" goto leave
-    )
-    if "%_home%"=="" goto st_next
+        set _plen=0
+    :st_dirs
+        rem echo find with prefix: %_xdir%
+        if exist "%_xdir%\%_name%*" (
+            for /d %%i in ("%_xdir%\%_name%*") do (
+                set _home=%%i
+                if not "%_last%"=="1" goto leave
+            )
+            if not "!_home!"=="" goto leave
+        )
+      :st_extend
+        set /a _plen = _plen + 1
+        set _prefix=!_name:~0,%_plen%!
+        if "%_prefix%"=="%_name%" goto nextroot
+        if not exist "%_xdir%\%_prefix%\*" goto st_extend
+        set _xdir=%_xdir%\%_prefix%
+        goto st_dirs
 
 :leave
     set _=%_home%
@@ -52,26 +54,18 @@
     )
     set _=
     if not "%_chdir%"=="" cd /d "%_home%/%_chdir%"
-
-:add_path
-    if "%~1"=="" goto end
-    if "%~1"=="." (
-        set PATH=%_home%;%PATH%
-    ) else (
-        rem %_slash% is ignored here.
-        set PATH=%_home%\%~1;%PATH%
-    )
-    shift
-    goto add_path
-
 :end
     exit /b 0
 
+:fail
+    echo failed to find %_name%
+    exit /b 1
+
 :init
+    set   __DIR__=%~dp0
+    set  __FILE__=%~nx0
     set  _verbose=0
     set      _ret=
-    set _startdir=%~dp0
-    set  _program=%~dpnx0
     set     _home=
 
 :prep1
@@ -89,12 +83,6 @@
         set /a _verbose = _verbose - 1
     ) else if "%~1"=="-v" (
         set /a _verbose = _verbose + 1
-    ) else if "%~1"=="-r" (
-        set _root=%~2
-        shift
-    ) else if "%~1"=="--root" (
-        set _root=%~2
-        shift
     ) else if "%~1"=="-l" (
         set _last=1
     ) else if "%~1"=="--last" (
@@ -103,9 +91,13 @@
         set _print=1
     ) else if "%~1"=="--print" (
         set _print=1
-    ) else if "%~1"=="-s" (
+    ) else if "%~1"=="-w" (
+        set _slash=0
+    ) else if "%~1"=="--win32" (
+        set _slash=0
+    ) else if "%~1"=="-u" (
         set _slash=1
-    ) else if "%~1"=="--slash" (
+    ) else if "%~1"=="--unix" (
         set _slash=1
     ) else if "%_arg:~0,1%"=="-" (
         if "%_strict%"=="1" (
@@ -125,13 +117,36 @@
 :prep2
     if "%~1"=="" goto help
     set _=%~1
-    if "%_:~0,1%"=="/" set _root=
     if "%_:~-1%"=="/" set _=%_%.
-    for /f "delims=/ tokens=1*" %%i in ("%_%") do (
+    for /f "delims=/\ tokens=1*" %%i in ("%_%") do (
         set _name=%%i
         set _chdir=%%j
     )
     shift
+    if "%~1"=="" goto findlams
+
+:prep3
+    if "%~1"=="" goto init_ok
+    if "%ABCPATH%"=="" (
+        set ABCPATH=%~1
+    ) else (
+        set ABCPATH=%ABCPATH%;%~1
+    )
+    goto prep3
+
+:findlams
+    rem LAPIOTA[\bin\]
+    if "%LAM_ROOT%"=="" (
+        set ABCPATH=!__DIR__:~,-5!
+        goto init_ok
+    )
+    for /d %%d in ("%LAM_ROOT%\*") do (
+        if "!ABCPATH!"=="" (
+            set ABCPATH=%%d
+        ) else (
+            set ABCPATH=!ABCPATH!;%%d
+        )
+    )
 
 :init_ok
     if %_verbose% geq 2 (set _ | tabify -b -d==)
@@ -153,14 +168,14 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] abc-package  [DIR... add to PATH]
-    echo    %_program% [OPTION] abc-package/ [DIR... add to PATH]
+    echo    %__FILE__% [OPTION] abc-package  SEARCHPATH
+    echo    %__FILE__% [OPTION] abc-package/ SEARCHPATH
     echo.
     echo Options:
-    echo    -r, --root DIR      start directory to find, default /abc.d
     echo    -l, --last          get last/most-recent version
     echo    -p, --print         print home-directory to STDOUT
-    echo    -s, --slash         use slash(/) instead of default back-slash(\)
+    echo    -u, --unix          return unix/ path
+    echo    -w, --win32         return win32\ path
     echo    -q                  repeat to get less info
     echo    -v                  repeat to get more info
     echo        --version       show version info
