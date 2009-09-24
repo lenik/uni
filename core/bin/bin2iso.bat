@@ -29,8 +29,8 @@
     set  _verbose=0
     set      _ret=
     set     _rest=
-    set _startdir=%~dp0
-    set  _program=%~dpnx0
+    set   __DIR__=%~dp0
+    set  __FILE__=%~dpnx0
     set      _out=
     set     _move=
     set   _delete=
@@ -149,7 +149,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] BINFILE [CUEFILE] [ISOFILE]
+    echo    %__FILE__% [OPTION] BINFILE [CUEFILE] [ISOFILE]
     echo.
     echo Options:
     echo    -o, --output=ISOFILE

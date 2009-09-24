@@ -21,8 +21,8 @@
     set  _verbose=0
     set      _ret=
     set     _rest=
-    set _startdir=%~dp0
-    set  _program=%~dpnx0
+    set   __DIR__=%~dp0
+    set  __FILE__=%~dpnx0
 
 :prep1
     if "%~1"==""            goto prep2
@@ -101,7 +101,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] ...
+    echo    %__FILE__% [OPTION] ...
     echo.
     echo Options:
     echo    -p, --pause         pause before exit, only used in console mode

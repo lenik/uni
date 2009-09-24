@@ -66,8 +66,8 @@
     set  _verbose=0
     set      _ret=
     set     _rest=
-    set _startdir=%~dp0
-    set  _program=%~dpnx0
+    set   __DIR__=%~dp0
+    set  __FILE__=%~dpnx0
     set  _parents=1
 
 :prep1
@@ -137,7 +137,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] DIRNAME
+    echo    %__FILE__% [OPTION] DIRNAME
     echo.
     echo Options:
     echo    -p, --postfix-parents

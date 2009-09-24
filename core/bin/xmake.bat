@@ -28,8 +28,8 @@
     set  _verbose=0
     set      _ret=
     set     _rest=
-    set _startdir=%~dp0
-    set  _program=%~dpnx0
+    set   __DIR__=%~dp0
+    set  __FILE__=%~dpnx0
     set    _chdir=
     set     _exec=
     set    _pause=
@@ -107,7 +107,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] ...
+    echo    %__FILE__% [OPTION] ...
     echo.
     echo Options:
     echo    -C=DIR              chdir to DIR before make

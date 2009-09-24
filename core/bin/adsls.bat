@@ -41,8 +41,8 @@
     set     _verbose=0
     set         _ret=
     set        _rest=
-    set    _startdir=%~dp0
-    set     _program=%~dpnx0
+    set      __DIR__=%~dp0
+    set     __FILE__=%~dpnx0
     set       format=short
     set    p_unnamed=1
 
@@ -120,7 +120,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] FILES
+    echo    %__FILE__% [OPTION] FILES
     echo.
     echo Options:
     echo    -l, --long          list in long format

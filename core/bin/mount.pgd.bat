@@ -70,8 +70,8 @@
     set  _verbose=0
     set      _ret=
     set     _rest=
-    set _startdir=%~dp0
-    set  _program=%~dpnx0
+    set   __DIR__=%~dp0
+    set  __FILE__=%~dpnx0
     set  _pgdfile=
     set   _mpoint=
     set    _mpoff=0x64
@@ -149,7 +149,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] PGDFILE [PATH]
+    echo    %__FILE__% [OPTION] PGDFILE [PATH]
     echo.
     echo Options:
     echo    -q, --quiet         repeat to get less info

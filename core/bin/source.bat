@@ -28,11 +28,11 @@
     goto cleanup
 
 :init
+    set   __DIR__=%~dp0
+    set  __FILE__=%~dpnx0
     set  _verbose=0
     set      _ret=
     set     _rest=
-    set _startdir=%~dp0
-    set  _program=%~dpnx0
 
 :prep1
     if "%~1"==""            goto prep2
@@ -99,7 +99,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] ...
+    echo    %__FILE__% [OPTION] ...
     echo.
     echo Options:
     echo    -q, --quiet         repeat to get less info
@@ -114,10 +114,10 @@
     )
 
 :end
+    set   __DIR__=
+    set  __FILE__=
     set  _verbose=
     set      _ret=
     set     _rest=
-    set _startdir=
-    set  _program=
     set     _file=
     set    _istmp=

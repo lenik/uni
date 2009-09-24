@@ -20,7 +20,7 @@
     if not "%_package%"=="" (
         echo %_package%
         if "%_all%"=="1" (
-            call %_program% "%_package%"
+            call %__FILE__% "%_package%"
         )
         goto cleanup
     )
@@ -32,8 +32,8 @@
     set  _verbose=0
     set      _ret=
     set     _rest=
-    set _startdir=%~dp0
-    set  _program=%~dpnx0
+    set   __DIR__=%~dp0
+    set  __FILE__=%~dpnx0
 
 :prep1
     if "%~1"==""            goto prep2
@@ -104,8 +104,8 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] full-qualified-package-name
-    echo    %_program% [OPTION] exported-sub-name
+    echo    %__FILE__% [OPTION] full-qualified-package-name
+    echo    %__FILE__% [OPTION] exported-sub-name
     echo.
     echo Options:
     echo    -q, --quiet         repeat to get less info

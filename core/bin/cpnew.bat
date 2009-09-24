@@ -15,8 +15,8 @@
     set  _verbose=0
     set      _ret=
     set     _rest=
-    set _startdir=%~dp0
-    set  _program=%~dpnx0
+    set   __DIR__=%~dp0
+    set  __FILE__=%~dpnx0
     set      _out=
     set     _jfix=
 
@@ -117,7 +117,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] SOURCE [DEST]
+    echo    %__FILE__% [OPTION] SOURCE [DEST]
     echo.
     echo Options:
     echo    -f, --force         overwrite existing files without prompt

@@ -51,8 +51,8 @@
     set  _verbose=0
     set      _ret=
     set     _rest=
-    set _startdir=%~dp0
-    set  _program=%~dpnx0
+    set   __DIR__=%~dp0
+    set  __FILE__=%~dpnx0
 
     set   _capout=%TMP%\.sum-%RANDOM%
     set   _errlog=%TMP%\.sumlog-%RANDOM%
@@ -117,7 +117,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] DIRS
+    echo    %__FILE__% [OPTION] DIRS
     echo.
     echo Options:
     echo    -q, --quiet         repeat to get less info

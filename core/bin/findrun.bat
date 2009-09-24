@@ -18,8 +18,8 @@
     set  _verbose=0
     set      _ret=
     set     _rest=
-    set _startdir=%~dp0
-    set  _program=%~dpnx0
+    set   __DIR__=%~dp0
+    set  __FILE__=%~dpnx0
     set _findopts=
     set    _start=start "findrun"
 
@@ -103,7 +103,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] PKGNAME [PRGNAME=PKGNAME] [args passed to findabc...]
+    echo    %__FILE__% [OPTION] PKGNAME [PRGNAME=PKGNAME] [args passed to findabc...]
     echo.
     echo Options:
     echo    -r, --root DIR      start directory to find, default /abc.d

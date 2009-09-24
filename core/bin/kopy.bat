@@ -82,8 +82,8 @@
     set  _verbose=0
     set      _ret=
     set     _rest=
-    set _startdir=%~dp0
-    set  _program=%~dpnx0
+    set   __DIR__=%~dp0
+    set  __FILE__=%~dpnx0
 
 :prep1
     if "%~1"==""            goto prep2
@@ -142,9 +142,9 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] SOURCE
+    echo    %__FILE__% [OPTION] SOURCE
     echo        replace the system file of same name with SOURCE.
-    echo    %_program% [OPTION] SOURCE DEST
+    echo    %__FILE__% [OPTION] SOURCE DEST
     echo        replace the system file DEST with SOURCE
     echo.
     echo Options:

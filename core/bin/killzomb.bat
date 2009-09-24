@@ -26,8 +26,8 @@
     set  _verbose=0
     set      _ret=
     set     _rest=
-    set _startdir=%~dp0
-    set  _program=%~dpnx0
+    set   __DIR__=%~dp0
+    set  __FILE__=%~dpnx0
     set    _sleep=60
     set     _hide=0
     set     _user=%USERNAME%
@@ -134,7 +134,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] PROGRAM [ARGUMENTS]
+    echo    %__FILE__% [OPTION] PROGRAM [ARGUMENTS]
     echo.
     echo Options:
     echo    -s, --sleep=SEC     time to check if a process is dead
