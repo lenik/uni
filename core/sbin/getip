@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if L=`wget -q http://www.myipaddress.com -O - |
+        grep -A1 "Your computer's IP address is" |
+        grep -E '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'`; then
+    L="${L:6}"
+    L="${L%%<*}"
+    echo "$L"
+else
+    echo "error: $?"
+fi

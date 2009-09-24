@@ -11,7 +11,7 @@ fi
 function _log() {
     if [ $LOGLEVEL -ge $1 ]; then
         shift
-        echo $LOGPREFIX$@
+        echo "$LOGPREFIX$@"
     fi
 }
 

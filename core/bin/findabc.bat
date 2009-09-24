@@ -137,6 +137,9 @@
 :findlams
     rem LAPIOTA[\bin\]
     if "%LAM_ROOT%"=="" (
+        if exist c:\lam\* set LAM_ROOT=c:\lam
+    )
+    if "%LAM_ROOT%"=="" (
         set ABCPATH=!__DIR__:~,-5!
         goto init_ok
     )

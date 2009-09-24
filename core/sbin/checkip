@@ -1,0 +1,24 @@
+#!/bin/bash
+
+shopt -s nullglob
+LASTFILE=$TEMP/WAN_IP
+LOGFILE=/var/log/checkip.log
+
+read LAST <$TEMP/WAN_IP
+GETIP=`getip`
+if [ "$GETIP" != "$LAST" ]; then
+    DATE=`date '+%Y-%m-%d %H:%M:%S'`
+    echo "[$DATE] IP Change: $GETIP" >>$LOGFILE
+    echo "$GETIP" >$LASTFILE
+
+    # trigger updates
+    for listener in ~/etc/listeners/ipchange/*; do
+        if [ -x $listener ]; then
+            echo "Trigger $listener: " >>$LOGFILE
+            $listener $GETIP $LAST >>$LOGFILE
+            echo >>$LOGFILE
+        fi
+    done
+
+    echo >>$LOGFILE
+fi

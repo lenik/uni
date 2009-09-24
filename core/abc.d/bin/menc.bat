@@ -47,7 +47,7 @@
     )
     if not "%_profile%"=="" set _profile=%_profile:~1%
 
-    call findabc -r etc/conf.d mencoder
+    call findabc mencoder %LAPIOTA%\etc\conf.d
     set _conf=%_home%
     for %%i in ("%_conf%\%_major%.*") do (
         set _majorinc=%%~nxi

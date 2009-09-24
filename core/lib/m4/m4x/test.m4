@@ -1,4 +1,4 @@
-m4_include(`base.m4')
+m4_include(`m4x/base.m4')
 M4X_BEGIN()
 
 # M4 Unit Test

@@ -122,15 +122,12 @@ function main() {
             cat "$catfile" | while read name latest tags shortcuts; do
                 if [ -z "$name" -o "${name:0:1}" = "#" ]; then continue; fi
 
-                abcd=/abc.d
                 # dst="$lam_aw$abcd/$name-$latest/$c"
-                if ! findabc -lr "$lam$abcd" "$name-"; then
-                    if ! findabc -lr "$lam" "$name-"; then
-                        _log1 package not found: $name
-                        continue
-                    fi
-                    abcd=
+                if ! findabc -l "$name-" "$lam"; then
+                    _log1 package not found: $name
+                    continue
                 fi
+                _xdir="${_home:$nlam}"
 
                 if [ -n "$add_tags" ]; then
                     all="$lam/.all"
@@ -158,10 +155,10 @@ function main() {
                             # shortcut=
                             shortcut="${c##*/}"
                         fi
-                        modew="$lam_aw$abcd/$_expand/$c"
+                        modew="$lam_aw$_xdir/$c"
                         if [ "$modew" != "${modew/\*}" ]; then
                             # check $modes !~ /\s/
-                            mode="$lam$abcd/$_expand/$c"
+                            mode="$lam$_xdir/$c"
                             for dst in $mode; do
                                 shortcut="${dst##*/}"
                                 dstw="$lam_aw${dst:nlam}"

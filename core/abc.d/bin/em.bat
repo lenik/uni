@@ -3,7 +3,7 @@
     setlocal
 
 :GUI
-    call findabc emacs bin
+    call findabc emacs
     "%_HOME%\bin\runemacs" %*
     exit /b
 

@@ -10,7 +10,9 @@
     exit /b
 
 :fix_method_2
-    call findabc mplayer codecs
+    call findabc mplayer
+    set PATH=%PATH%;%_home%\codecs
+
     for %%i in (%_home%\codecs\*) do (
         if not exist %_home%\%%~nxi (
             echo BUGFIX: mplayer can't find the codec %%~nxi, so copy it.

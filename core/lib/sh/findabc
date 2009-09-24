@@ -1,19 +1,20 @@
 
-# findabc [-r ROOT] NAME[/] [dirs-addtopath...]
+# findabc NAME[/] DIRLIST
+# WARNING: should avoid symbolic link loop
 function findabc() {
-    local root output
-    root=$LAPIOTA/abc.d
-	last=
-
-    local OPTIND
-    while getopts r:lp opt; do
+    shopt -s nullglob
+    local show last
+    local OPTIND opt arg d
+    while getopts lpuw opt; do
         case $opt in
-            r)
-                root=$OPTARG;;
             l)
                 last=1;;
             p)
-                output=1;;
+                show=1;;
+            u)  # not used
+                style=unix;;
+            w)  # not used
+                style=win32;;
             *)
                 echo error option: $opt
                 return 1;;
@@ -21,59 +22,94 @@ function findabc() {
     done
     shift $((OPTIND-1))
     if [ $# -lt 1 ]; then
-        echo findabc [-r ROOT] package [dirs-addtopath...]
+        echo findabc package DIRLIST
         return 1
     fi
 
-    local package=$1
-    local enter
-
-    # if package.contains '/'
-    if [ "${package/\/}" != "$package" ]; then
-        enter=/${package#*/}
-        package=${package%%/*}
-    fi
-    # assert no symbolic-link loop
-    unset _home
-    unset _expand
-    # local scope?
-
-    while [ -z "$_home" ]; do
-        local prefix="$package"
-        # if exist p/prefix* found.
-        match=
-        for f in "$root/$_expand$prefix"*; do
-            if [ "${f: -1}" != '*' ]; then
-                match="$f"
-                if [ -z $last ]; then break; fi
-            fi
-        done
-        if [ -n "$match" ]; then
-            _expand="$_expand${match##*/}"
-            _home="$match"
-            break
+    local package="$1" chdir
+        shift
+        # if package.contains '/'
+        if [ "${package/\/}" != "$package" ]; then
+            chdir="/${package#*/}"
+            package="${package%%/*}"
         fi
-        # while chop prefix { if exist p/prefix continue 2 }
-        while [ ${#prefix} -gt 0 ]; do
-            # echo "  prefix=$prefix"
-            if [ -e "$root/$_expand$prefix" ]; then
-                _expand="$_expand$prefix/"
-                continue 2
-            fi
-            prefix="${prefix::${#prefix}-1}"
+
+    local roots root groups
+    if [ $# -lt 1 ]; then
+        for d in /lam/*; do
+            roots="$roots|$d"
         done
-        # not found
-        echo not found: $1
+    else
+        for arg in $@; do
+            if [ "${arg: -1}" = '/' ]; then
+                if [ "$arg" != '/' ]; then
+                    arg="${arg::${#arg}-1}"
+                 fi
+            fi
+            roots="$roots|$arg"
+        done
+    fi
+    roots="${roots:1}"
+
+    # root-loop
+    _home=
+    while [ -n "$roots" ]; do
+        if  [ "${roots/|}" = "$roots" ]; then
+            root="$roots"
+            roots=
+        else
+            root="${roots%%|*}"
+            roots="${roots#*|}"
+        fi
+        if [ "$root" = '/' ]; then root=; fi
+        # echo "root: $root"
+
+        groups=
+        for d in "$root/"*.d "$root/"\[*\]; do
+            groups="$groups$d|"
+        done
+
+        if [ -n "$groups" ]; then
+            if [ -z "$roots" ]; then groups="${groups::${#groups}-1}"; fi
+            roots="$groups$roots"
+        fi
+
+        # xdir-loop
+        _xdir=
+        while [ -z "$_home" ]; do
+            local prefix="$package"
+            # if exist p/prefix* found.
+            for f in "$root/$_xdir$prefix"*; do
+                if [ "${f: -1}" != '*' ]; then
+                    _home="$f"
+                    if [ -z $last ]; then break; fi
+                fi
+            done
+            if [ -n "$_home" ]; then break 2; fi #root-loop
+
+            # do { if exist p/prefix -> xdir-loop } while chop(prefix)
+            while [ ${#prefix} -gt 0 ]; do
+                # echo "  prefix=$prefix"
+                if [ -d "$root/$_xdir$prefix" ]; then
+                    _xdir="$_xdir$prefix/"
+                    continue 2 #xdir-loop
+                fi
+                prefix="${prefix::${#prefix}-1}"
+            done
+
+            # can't go deeper, try next root
+            break #xdir-loop
+        done
+    done
+    # _xdir="$_xdir${_home##*/}"
+
+    if [ -z "$_home" ]; then
+        echo not found: "$package"
         return 1
-    done
+    fi
 
-    if [ "$output" = 1 ]; then echo $_home; fi
-    if [ -n "$enter" ]; then cd "$_home$enter"; fi
+    if [ "$show" = 1 ]; then echo $_home; fi
+    if [ -n "$chdir" ]; then cd "$_home$chdir"; fi
 
-    shift
-    local p
-    for p in "$@"; do
-        PATH="$PATH:$_home/$p"
-    done
     return 0
 }

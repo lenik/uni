@@ -1,7 +1,12 @@
 @echo off
 
     setlocal
-    call findabc npp .
+    call findabc npp
+    if errorlevel 1 (
+        echo Can't find notepad++.
+        exit /b 1
+    )
+    set PATH=%PATH%;%_home%
 
     if "%~1"=="--help" goto help
     if "%~1"=="-h" goto help

@@ -2,6 +2,6 @@
 
     setlocal
 
-    call findabc bochs .
+    call findabc bochs
 
     %_home%\dlxlinux\run %*

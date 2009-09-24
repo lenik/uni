@@ -2,7 +2,7 @@
 #SingleInstance ignore
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; functions {
+;; Functions {
     filesop(title, pattern, cmdline) {
         global
         local n = 0
@@ -195,7 +195,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; initialize {
+;; Initialize {
     setworkingdir %USERPROFILE%
     onexit onexit
     run cmdw /c fastcmd
@@ -204,23 +204,28 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; extras {
+;; User Extension {
     userhotkey = %HOME%\etc\hotkey
     _include(userhotkey)
     #include *i %a_appdata%\.hotkey\hotkey
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; system hack {
+;; System Hack {
 ^!del::shutdown, 6
+#esc::run procexp
 #^esc::
     ; send {sleep}
     ; SetSuspendState(bHibernate, bForce, bCold)
     DllCall("PowrProf\SetSuspendState", "int", 0, "int", 0, "int", 0)
+    return
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; autohotkey management {
+;; Autohotkey Management {
+#f11::
+    msgbox 0, About, Lapiota Version 0.0.1`n`nBy Lenik 2009
+    return
 #!c::
     wingetactivetitle _atitle
     wingetclass _acls, A
@@ -250,7 +255,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; multimedia functions {
+;; Multimedia Functions {
 appskey::send {appskey}
 appskey & up::
     process, exist, foobar2000.exe
@@ -261,6 +266,8 @@ appskey & up::
 appskey & down::send {media_play_pause}
 appskey & left::send {media_prev}
 appskey & right::send {media_next}
+#wheelup::soundset +2
+#wheeldown::soundset -2
 appskey & numpadadd::soundset +5
 appskey & numpadsub::soundset -5
 appskey & numpaddiv::
@@ -288,13 +295,13 @@ appskey & numpaddiv::
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; console enhancement {
+;; Console Enhancement {
 #pgup::wheelup
 #pgdn::wheeldown
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; windows management {
+;; Windows Management {
 #up::
     stackpop("mwin")
     if (mwin == "") {
@@ -330,7 +337,7 @@ appskey & numpaddiv::
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; application shortcuts {
+;; Application Shortcuts {
 #+2::run thunderbird
 #a::fastcall("start ""ANSI""")
 #b::fastcall("start ""Big""")
@@ -396,7 +403,7 @@ appskey & numpaddiv::
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; more applications {
+;; More Applications {
 #+e::run cmdw /c em
 #+j::run cmdw /c findrun eclipse
 ^!enter::
@@ -413,7 +420,7 @@ appskey & numpaddiv::
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; handlers {
+;; Handlers {
     return
 onexit:
     restore()

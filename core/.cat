@@ -37,5 +37,6 @@ reflector               5.1.2.0     hack.rev            reflector.exe
 resin                   3.1.3       dev.serv
 scite                   1.76        dev.edit            scite.exe
 stardict                2.4.8       util.dict           bin/stardict.exe
+thunderbird             3.b2        net.mail            thunderbird.exe
 vptk                    2.38        lang.perl
 wireshark               0.99.6a     net.cap             wireshark.exe
