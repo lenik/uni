@@ -1,5 +1,5 @@
 #!/bin/bash
-    RCSID='$Id: .sh 872 2008-10-29 11:51:30Z lenik $'
+    RCSID='$Id$'
     short_opts="dhp:qr:s:v"
     long_opts="delete,help,page,repeat,quiet,server,verbose,version"
     . /lam/kala/lib/sh/cliboot

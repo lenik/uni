@@ -55,8 +55,8 @@
     set  _verbose=0
     set      _ret=
     set     _rest=
-    set   __DIR__=%~dp0
-    set  __FILE__=%~dpnx0
+    set _startdir=%~dp0
+    set  _program=%~dpnx0
     set    _start=
 
     set      _nam=net.bodz.lapiota.datafiles.IconConv
@@ -162,7 +162,7 @@
     goto start
 
 :version
-    set _id=$Id: Mkbat.batTempl 91 2009-09-04 15:47:48Z lenik $
+    set _id=$Id$
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
@@ -177,7 +177,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %__FILE__% [JB-OPTION] ARGUMENTS...
+    echo    %_program% [JB-OPTION] ARGUMENTS...
     echo.
     echo Options:
     echo    -Jw,--jb-win        start with javaw.exe

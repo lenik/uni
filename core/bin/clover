@@ -1,5 +1,5 @@
 #!/bin/bash
-    RCSID='$Id: .sh 872 2008-10-29 11:51:30Z lenik $'
+    RCSID='$Id$'
     short_opts="hqsv"
     long_opts="help,quiet,symbolic,verbose,version"
     ln="ln -sf"
