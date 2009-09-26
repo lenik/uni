@@ -16,16 +16,30 @@ import net.bodz.bas.ui.UIException;
 import net.bodz.bas.ui.a.PreferredSize;
 import net.bodz.bas.xml.XMLs;
 import net.bodz.lapiota.wrappers.BasicGUI;
+import net.bodz.swt.adapters.TextAdapters;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.browser.AuthenticationEvent;
+import org.eclipse.swt.browser.AuthenticationListener;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.LocationEvent;
+import org.eclipse.swt.browser.LocationListener;
+import org.eclipse.swt.browser.ProgressEvent;
+import org.eclipse.swt.browser.ProgressListener;
+import org.eclipse.swt.browser.StatusTextEvent;
+import org.eclipse.swt.browser.StatusTextListener;
+import org.eclipse.swt.browser.TitleEvent;
+import org.eclipse.swt.browser.TitleListener;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 
 @Doc("CSS Look&Feel")
@@ -38,7 +52,11 @@ public class VisualCSS extends BasicGUI {
     private URLListEditor cssList;
     private Browser       browser;
 
-    private String        demoHtml;
+    private Label         browserTitle;
+    private ProgressBar   progressBar;
+    private Label         statusLabel;
+
+    private String        templateHtml;
     private int           cssInsertion;
     private String        cssFragment;
 
@@ -89,6 +107,8 @@ public class VisualCSS extends BasicGUI {
 
     @Override
     protected void createInitialView(Composite holder) throws UIException {
+        final Display display = holder.getDisplay();
+
         GridLayout gridLayout = new GridLayout();
         gridLayout.marginWidth = gridLayout.marginHeight = 0;
         holder.setLayout(gridLayout);
@@ -104,14 +124,17 @@ public class VisualCSS extends BasicGUI {
             @Override
             public void widgetDefaultSelected(SelectionEvent e) {
                 String location = locationText.getText();
-                go(location);
+                browser.setUrl(location);
             }
         });
+        TextAdapters.autoSelect(locationText);
 
         final SashForm mainSash = new SashForm(holder, SWT.HORIZONTAL | SWT.BORDER);
         mainSash.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        mainSash.setSashWidth(1);
 
         final SashForm leftPane = new SashForm(mainSash, SWT.VERTICAL | SWT.BORDER);
+        leftPane.setSashWidth(1);
 
         pageList = new URLListEditor(leftPane, SWT.NONE);
         pageList.setText("Demo &Page");
@@ -122,13 +145,8 @@ public class VisualCSS extends BasicGUI {
             public void widgetSelected(SelectionEvent e) {
                 URL url = pageList.getSelection();
                 try {
-                    demoHtml = Files.readAll(url, "utf-8"); // xml auto decode??
-                    Matcher m = headPattern.matcher(demoHtml);
-                    if (m.find()) {
-                        cssInsertion = m.end();
-                    } else {
-                        cssInsertion = 0;
-                    }
+                    String html = Files.readAll(url, "utf-8"); // xml auto decode??
+                    parseTemplate(html);
                     render();
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -155,22 +173,91 @@ public class VisualCSS extends BasicGUI {
 
         leftPane.setWeights(new int[] { 1, 1 });
 
-        browser = new Browser(mainSash, SWT.NONE);
+        final Composite browserPane = new Composite(mainSash, SWT.NONE);
+        GridLayout browserLayout = new GridLayout(2, false);
+        browserPane.setLayout(browserLayout);
+        browserLayout.marginWidth = browserLayout.marginHeight = 0;
+
+        browserTitle = new Label(browserPane, SWT.NONE);
+        browserTitle.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+        browserTitle.setFont(new Font(holder.getDisplay(), "Tahoma", 12, SWT.BOLD));
+
+        browser = new Browser(browserPane, SWT.NONE);
+        browser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+
+        statusLabel = new Label(browserPane, SWT.BORDER);
+        statusLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+        statusLabel.setForeground(display.getSystemColor(SWT.COLOR_GRAY));
+
+        progressBar = new ProgressBar(browserPane, SWT.NONE);
+        GridData progressData = new GridData();
+        progressData.widthHint = 30;
+        progressBar.setLayoutData(progressData);
+        progressBar.setMinimum(0);
+
+        browser.setJavascriptEnabled(true);
+        browser.addAuthenticationListener(new AuthenticationListener() {
+            @Override
+            public void authenticate(AuthenticationEvent event) {
+                // fill event.user, event.password
+            }
+        });
+        browser.addLocationListener(new LocationListener() {
+            @Override
+            public void changing(LocationEvent event) {
+            }
+
+            @Override
+            public void changed(LocationEvent event) {
+                if ("about:blank".equals(event.location))
+                    return;
+                templateHtml = null;
+            }
+        });
+        browser.addProgressListener(new ProgressListener() {
+            @Override
+            public void changed(ProgressEvent event) {
+                progressBar.setMaximum(event.total);
+                progressBar.setSelection(event.current);
+            }
+
+            @Override
+            public void completed(ProgressEvent event) {
+            }
+        });
+        browser.addStatusTextListener(new StatusTextListener() {
+            @Override
+            public void changed(StatusTextEvent event) {
+                statusLabel.setText(event.text);
+            }
+        });
+        browser.addTitleListener(new TitleListener() {
+            @Override
+            public void changed(TitleEvent event) {
+                browserTitle.setText(event.title);
+            }
+        });
 
         mainSash.setWeights(new int[] { 3, 7 });
     }
 
-    public void go(String href) {
-        browser.setUrl(href);
+    void parseTemplate(String templateHtml) {
+        this.templateHtml = templateHtml;
+        Matcher m = headPattern.matcher(templateHtml);
+        if (m.find()) {
+            cssInsertion = m.end();
+        } else {
+            cssInsertion = 0;
+        }
     }
 
     void render() {
-        if (demoHtml == null)
-            return;
-        String html = demoHtml.substring(0, cssInsertion) //
+        if (templateHtml == null)
+            parseTemplate(browser.getText());
+        String mixedHtml = templateHtml.substring(0, cssInsertion) //
                 + cssFragment//
-                + demoHtml.substring(cssInsertion);
-        browser.setText(html);
+                + templateHtml.substring(cssInsertion);
+        browser.setText(mixedHtml);
     }
 
     public static void main(String[] args) throws Exception {
