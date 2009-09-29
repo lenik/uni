@@ -6,6 +6,7 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BatchEditCLI;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.cli.a.Option;
@@ -14,7 +15,6 @@ import net.bodz.bas.io.CharOut;
 import net.bodz.bas.lang.Filt1;
 import net.bodz.bas.types.TypeParsers.GetInstanceParser;
 import net.bodz.lapiota.nls.CLINLS;
-import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @Doc("A Unix diff program implemented in Java")
 @ProgramName("jrepl")

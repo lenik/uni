@@ -1,7 +1,5 @@
 package net.bodz.lapiota.filesys;
 
-import static net.bodz.bas.types.util.Iterates.iterate;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -16,12 +14,12 @@ import java.util.zip.ZipOutputStream;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BasicCLI;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.CWD;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.types.util.Iterates;
 import net.bodz.lapiota.nls.CLINLS;
-import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Remove entries in zip file, which appears in another zips")
 @RcsKeywords(id = "$Id$")

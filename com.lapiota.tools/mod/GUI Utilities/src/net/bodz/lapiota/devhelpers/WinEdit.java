@@ -18,7 +18,7 @@ import net.bodz.jna.win32.User32.POINT;
 import net.bodz.jna.win32.User32.POINTByValue;
 import net.bodz.jna.win32.User32.WNDENUMPROC;
 import net.bodz.jna.win32.W32API.HWND;
-import net.bodz.lapiota.wrappers.BasicGUI;
+import net.bodz.swt.gui.BasicGUI;
 import net.bodz.swt.os_ann.Win32;
 import net.bodz.swt.widgets.Timer;
 

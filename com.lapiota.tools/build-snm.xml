@@ -2,118 +2,11 @@
 <project name="net.bodz.lapiota" default="default">
 
     <property environment="env" />
-    <property name="JAVA_LIB" value="${env.JAVA_LIB}" />
-    <property file="${JAVA_LIB}/libraries.ini" prefix="lib" />
+    <import file="${env.LAPIOTA}/lib/ant/basic.xml" />
 
-    <property name="distdir" value="${env.JAVA_LIB}" />
-    <property name="distsrc" value="${env.JAVA_SRC}" />
+    <target name="default" depends="10bin.jar, 10src.jar, 20mkbat, .kala.dist" />
 
-    <target name="default" depends="dist, :bat" />
-
-    <target name="dist" depends=":bin.jar, :src.jar">
-        <copy todir="${distdir}" file="${basedir}/lib/net.bodz.lapiota.jar" />
-        <copy todir="${distsrc}" file="${basedir}/lib/net.bodz.lapiota-src.jar" />
-    </target>
-
-    <path id="bins">
-        <path path="mod/Build Tools/bin" />
-        <path path="mod/CLI Utilities/bin" />
-        <path path="mod/Commons/bin" />
-        <path path="mod/GUI Utilities/bin" />
-        <path path="mod/Java Tools/bin" />
-        <path path="mod/SNM C Framework/bin" />
-    </path>
-
-    <path id="testbins">
-        <path path="mod/Build Tools/test.bin" />
-        <path path="mod/CLI Utilities/test.bin" />
-        <path path="mod/Commons/test.bin" />
-        <path path="mod/GUI Utilities/test.bin" />
-        <path path="mod/Java Tools/test.bin" />
-        <path path="mod/SNM C Framework/test.bin" />
-    </path>
-
-    <target name=":bin.jar">
-        <mkdir dir="lib" />
-        <jar destfile="lib/net.bodz.lapiota.jar" update="true">
-            <fileset dir="mod/CLI Utilities/bin" />
-            <fileset dir="mod/Commons/bin" />
-            <fileset dir="mod/GUI Utilities/bin" />
-            <fileset dir="mod/Java Tools/bin" />
-            <fileset dir="mod/SNM C Framework/bin" />
-        </jar>
-        <!--
-		<jar destfile="lib/test.jar" update="true">
-			<fileset dir="mod/CLI Utilities/test.bin" />
-			<fileset dir="mod/Commons/test.bin" />
-			<fileset dir="mod/GUI Utilities/test.bin" />
-			<fileset dir="mod/Java Tools/test.bin" />
-			<fileset dir="mod/SNM C Framework/test.bin" />
-		</jar>
-		-->
-        <length property="size.bin" file="lib/net.bodz.lapiota.jar" />
-        <echo>Size: ${size.bin}</echo>
-    </target>
-
-    <target name=":src.jar">
-        <mkdir dir="lib" />
-        <jar destfile="lib/net.bodz.lapiota-src.jar" update="true">
-            <fileset dir="mod/CLI Utilities/src" />
-            <fileset dir="mod/Commons/src" />
-            <fileset dir="mod/GUI Utilities/src" />
-            <fileset dir="mod/Java Tools/src" />
-            <fileset dir="mod/SNM C Framework/src" />
-        </jar>
-        <length property="size.src" file="lib/net.bodz.lapiota-src.jar" />
-        <echo>Size: ${size.src}</echo>
-    </target>
-
-    <taskdef resource="net/bodz/bas/ant/task.properties">
-        <classpath>
-            <fileset dir="${JAVA_LIB}">
-                <include name="${lib.bodz_bas}" />
-                <include name="${lib.bodz_dist}" />
-                <include name="${lib.bodz_jna}" />
-                <include name="${lib.dom4j}" />
-                <include name="${lib.groovy}" />
-                <include name="${lib.jna}" />
-            </fileset>
-            <fileset dir="${ant.home}/..">
-                <include name="org.eclipse.swt.win32.win32.x86_*.jar" />
-            </fileset>
-        </classpath>
-    </taskdef>
-
-    <target name=":bat">
-        <mkbat outdir="${env.LAPIOTA}/bin/w">
-            <userlibs refid="bins" />
-            <userlibs>
-                <fileset dir="${JAVA_LIB}">
-                    <include name="${lib.bodz_swt}" />
-                </fileset>
-            </userlibs>
-            <srcdir path="mod/CLI Utilities/bin" />
-            <srcdir path="mod/GUI Utilities/bin" />
-            <srcdir path="mod/Java Tools/bin" />
-            <srcdir path="mod/SNM C Framework/bin" />
-        </mkbat>
-
-        <mkbat outdir="${basedir}/bin">
-            <userlibs refid="bins" />
-            <userlibs refid="testbins" />
-            <userlibs>
-                <fileset dir="${JAVA_LIB}">
-                    <include name="${lib.bodz_swt}" />
-                </fileset>
-            </userlibs>
-            <srcdir path="mod/CLI Utilities/test.bin" />
-            <srcdir path="mod/GUI Utilities/test.bin" />
-            <srcdir path="mod/Java Tools/test.bin" />
-            <srcdir path="mod/SNM C Framework/test.bin" />
-        </mkbat>
-    </target>
-
-    <target name="update-lib">
+    <target name="00update-lib">
         <copy todir="${basedir}/lib">
             <fileset dir="${JAVA_LIB}">
                 <include name="${lib.apc_collections}" />
@@ -128,10 +21,69 @@
         </copy>
     </target>
 
-    <target name="clean">
-        <delete verbose="true">
-            <fileset dir="${basedir}/lib" includes="net.bodz.lapiota*.jar" />
-        </delete>
+    <target name="10bin.jar">
+        <mkdir dir="build" />
+        <jar destfile="build/net.bodz.lapiota.jar" update="true">
+            <fileset dir="mod/CLI Utilities/bin" />
+            <fileset dir="mod/Commons/bin" />
+            <fileset dir="mod/GUI Utilities/bin" />
+            <fileset dir="mod/Java Tools/bin" />
+            <fileset dir="mod/SNM C Framework/bin" />
+        </jar>
+        <!--
+		<jar destfile="build/test.jar" update="true">
+			<fileset dir="mod/CLI Utilities/test.bin" />
+			<fileset dir="mod/Commons/test.bin" />
+			<fileset dir="mod/GUI Utilities/test.bin" />
+			<fileset dir="mod/Java Tools/test.bin" />
+			<fileset dir="mod/SNM C Framework/test.bin" />
+		</jar>
+		-->
+        <length property="size.bin" file="lib/net.bodz.lapiota.jar" />
+        <echo>Size: ${size.bin}</echo>
+    </target>
+
+    <target name="10src.jar">
+        <mkdir dir="build" />
+        <jar destfile="build/net.bodz.lapiota-src.jar" update="true">
+            <fileset dir="mod/CLI Utilities/src" />
+            <fileset dir="mod/Commons/src" />
+            <fileset dir="mod/GUI Utilities/src" />
+            <fileset dir="mod/Java Tools/src" />
+            <fileset dir="mod/SNM C Framework/src" />
+        </jar>
+        <length property="size.src" file="lib/net.bodz.lapiota-src.jar" />
+        <echo>Size: ${size.src}</echo>
+    </target>
+
+    <target name="20mkbat">
+        <mkbat outdir="${basedir}/bin">
+            <library>bodz_lapiota</library>
+            <classpath refid="project.classpath" />
+            <classpath>
+                <fileset dir="${JAVA_LIB}">
+                    <include name="${lib.bodz_swt}" />
+                </fileset>
+            </classpath>
+            <findmain path="mod/CLI Utilities/bin" />
+            <findmain path="mod/GUI Utilities/bin" />
+            <findmain path="mod/Java Tools/bin" />
+            <findmain path="mod/SNM C Framework/bin" />
+        </mkbat>
+
+        <mkbat outdir="${basedir}/test.bin">
+            <library>bodz_lapiota</library>
+            <classpath refid="project.classpathWithTest" />
+            <classpath>
+                <fileset dir="${JAVA_LIB}">
+                    <include name="${lib.bodz_swt}" />
+                </fileset>
+            </classpath>
+            <findmain path="mod/CLI Utilities/test.bin" />
+            <findmain path="mod/GUI Utilities/test.bin" />
+            <findmain path="mod/Java Tools/test.bin" />
+            <findmain path="mod/SNM C Framework/test.bin" />
+        </mkbat>
     </target>
 
 </project>

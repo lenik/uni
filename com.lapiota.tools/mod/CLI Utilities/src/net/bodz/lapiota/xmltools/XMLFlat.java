@@ -13,6 +13,7 @@ import net.bodz.bas.a.BootInfo;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BasicCLI;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
@@ -22,7 +23,6 @@ import net.bodz.bas.types.util.Comparators;
 import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.util.StringUtil;
 import net.bodz.lapiota.util.TypeExtensions.XPathParser;
-import net.bodz.lapiota.wrappers.BasicCLI;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;

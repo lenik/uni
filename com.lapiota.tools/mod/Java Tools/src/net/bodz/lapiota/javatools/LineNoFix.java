@@ -9,12 +9,12 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BatchEditCLI;
 import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.FileMask;
 import net.bodz.bas.types.util.Strings;
-import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @Doc("Line-No Fix")
 @ProgramName("linefix")

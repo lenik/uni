@@ -7,6 +7,7 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BasicCLI;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.io.CharOuts;
@@ -17,7 +18,6 @@ import net.bodz.bas.text.diff.DiffFormat;
 import net.bodz.bas.text.diff.DiffFormats;
 import net.bodz.bas.text.diff.DiffInfo;
 import net.bodz.lapiota.nls.CLINLS;
-import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("A Unix diff program implemented in Java")
 @ProgramName("jdiff")

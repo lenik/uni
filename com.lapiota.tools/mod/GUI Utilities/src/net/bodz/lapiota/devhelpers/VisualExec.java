@@ -6,7 +6,7 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
-import net.bodz.lapiota.wrappers.BasicGUI;
+import net.bodz.swt.gui.BasicGUI;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;

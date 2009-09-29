@@ -3,7 +3,7 @@ package net.bodz.lapiota.snmc;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
-import net.bodz.lapiota.wrappers.BasicCLI;
+import net.bodz.bas.cli.BasicCLI;
 
 /**
  * s.n.m. C-framework Console

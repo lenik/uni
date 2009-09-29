@@ -35,13 +35,13 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BasicCLI;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.types.TextMap;
 import net.bodz.bas.types.TreeTextMap;
 import net.bodz.bas.types.util.Comparators;
 import net.bodz.bas.types.util.Iterates;
 import net.bodz.bas.types.util.Strings;
-import net.bodz.lapiota.wrappers.BasicCLI;
 
 import com.sun.security.auth.callback.TextCallbackHandler;
 

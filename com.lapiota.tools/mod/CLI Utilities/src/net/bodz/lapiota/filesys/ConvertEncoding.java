@@ -11,12 +11,12 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BatchEditCLI;
 import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.ControlBreak;
 import net.bodz.lapiota.nls.CLINLS;
-import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @Doc("batch iconv written in java, JUN 2004")
 @ProgramName("jiconv")

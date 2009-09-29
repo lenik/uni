@@ -11,6 +11,7 @@ import java.util.Arrays;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BasicCLI;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
@@ -23,7 +24,6 @@ import net.bodz.bas.types.TypeParser;
 import net.bodz.bas.types.parsers.HexParser;
 import net.bodz.lapiota.crypt.Hashes.PeekDigest;
 import net.bodz.lapiota.nls.CLINLS;
-import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Find which part of file make a specific hash value")
 @RcsKeywords(id = "$Id$")

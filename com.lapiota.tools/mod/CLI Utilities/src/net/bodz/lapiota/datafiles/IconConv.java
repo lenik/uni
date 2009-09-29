@@ -11,13 +11,13 @@ import net.bodz.bas.a.BootInfo;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BatchCLI;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.types.HashTextMap;
 import net.bodz.bas.types.TextMap;
 import net.bodz.bas.types.util.Strings;
 import net.bodz.bas.xml.XMLs;
-import net.bodz.lapiota.wrappers.BatchCLI;
 import net.bodz.swt.gui.SWTConfig;
 
 import org.eclipse.swt.SWT;

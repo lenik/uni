@@ -34,6 +34,5 @@ Export-Package: net.bodz.lapiota,
  net.bodz.lapiota.snmc,
  net.bodz.lapiota.util,
  net.bodz.lapiota.win32,
- net.bodz.lapiota.wrappers,
  net.bodz.lapiota.xmlfs,
  net.bodz.lapiota.xmltools

@@ -12,11 +12,11 @@ import java.util.zip.ZipOutputStream;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BatchCLI;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.types.util.Iterates;
 import net.bodz.lapiota.nls.CLINLS;
-import net.bodz.lapiota.wrappers.BatchCLI;
 
 @Doc("Merge Zip Archieves")
 @RcsKeywords(id = "$Id$")

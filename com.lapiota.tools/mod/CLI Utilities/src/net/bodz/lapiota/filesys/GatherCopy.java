@@ -1,6 +1,6 @@
 package net.bodz.lapiota.filesys;
 
-import net.bodz.lapiota.wrappers.BatchEditCLI;
+import net.bodz.bas.cli.BatchEditCLI;
 
 // Not Used.
 public class GatherCopy extends BatchEditCLI {

@@ -9,13 +9,13 @@ import java.util.List;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BatchEditCLI;
 import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.lang.err.IllegalUsageException;
 import net.bodz.bas.types.util.Objects;
 import net.bodz.lapiota.nls.CLINLS;
-import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @Doc("Patch using the modified grep result (grep -Hn)")
 @RcsKeywords(id = "$Id$")

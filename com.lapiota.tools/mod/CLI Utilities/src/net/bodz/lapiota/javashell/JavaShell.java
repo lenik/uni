@@ -20,6 +20,7 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BasicCLI;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.CWD;
 import net.bodz.bas.io.ConcatReader;
@@ -35,7 +36,6 @@ import net.bodz.bas.types.TreeTextMap;
 import net.bodz.bas.types.util.ArrayOps;
 import net.bodz.bas.types.util.Strings;
 import net.bodz.lapiota.nls.CLINLS;
-import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Lapiota Java Shell")
 @ProgramName("jl")

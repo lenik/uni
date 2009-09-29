@@ -1,6 +1,6 @@
 package net.bodz.lapiota.win32;
 
-import net.bodz.lapiota.wrappers.BasicCLI;
+import net.bodz.bas.cli.BasicCLI;
 
 public class Fix_BatBB extends BasicCLI {
 

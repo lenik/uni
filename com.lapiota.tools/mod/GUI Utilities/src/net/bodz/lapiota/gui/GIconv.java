@@ -12,7 +12,7 @@ import net.bodz.bas.a.Version;
 import net.bodz.bas.lang.err.ParseException;
 import net.bodz.bas.ui.UIException;
 import net.bodz.bas.ui.a.PreferredSize;
-import net.bodz.lapiota.wrappers.BasicGUI;
+import net.bodz.swt.gui.BasicGUI;
 import net.bodz.swt.util.SWTResources;
 
 import org.eclipse.swt.SWT;

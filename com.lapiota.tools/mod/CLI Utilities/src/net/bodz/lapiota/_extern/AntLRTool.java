@@ -2,7 +2,7 @@ package net.bodz.lapiota._extern;
 
 import net.bodz.bas.a.BootInfo;
 import net.bodz.bas.a.ProgramName;
-import net.bodz.lapiota.wrappers.JavaLauncher;
+import net.bodz.bas.cli.util.JavaLauncher;
 
 @ProgramName("atool")
 @BootInfo(syslibs = { "antlr" })

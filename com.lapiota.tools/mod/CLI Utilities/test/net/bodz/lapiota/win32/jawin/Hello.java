@@ -3,10 +3,10 @@ package net.bodz.lapiota.win32.jawin;
 import java.io.UnsupportedEncodingException;
 
 import net.bodz.bas.a.BootInfo;
+import net.bodz.bas.cli.BasicCLI;
 import net.bodz.bas.io.CharOuts;
 import net.bodz.bas.lang.util.Classpath;
 import net.bodz.lapiota.win32.JawinConfig;
-import net.bodz.lapiota.wrappers.BasicCLI;
 
 import org.jawin.COMException;
 import org.jawin.FuncPtr;

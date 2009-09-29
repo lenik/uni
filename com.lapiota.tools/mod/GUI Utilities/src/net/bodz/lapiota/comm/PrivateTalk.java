@@ -1,6 +1,6 @@
 package net.bodz.lapiota.comm;
 
-import net.bodz.lapiota.wrappers.BasicGUI;
+import net.bodz.swt.gui.BasicGUI;
 
 import org.eclipse.swt.widgets.Display;
 

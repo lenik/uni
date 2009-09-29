@@ -19,6 +19,7 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BatchEditCLI;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.cli.a.Option;
@@ -31,7 +32,6 @@ import net.bodz.bas.text.util.Interps;
 import net.bodz.bas.text.util.PatternProcessor;
 import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.util.RefBinding;
-import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @BootInfo(syslibs = "groovy")
 @Doc("An extensible file process program")

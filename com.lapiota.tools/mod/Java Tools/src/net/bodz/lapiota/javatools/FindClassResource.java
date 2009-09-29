@@ -19,6 +19,7 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BasicCLI;
 import net.bodz.bas.cli.a.ArgsParseBy;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
@@ -29,7 +30,6 @@ import net.bodz.bas.lang.Control;
 import net.bodz.bas.lang.util.Classpath;
 import net.bodz.bas.types.TypeParsers.GetInstanceParser;
 import net.bodz.lapiota.util.TypeExtensions.FileParser2;
-import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Find the class file defined the specified class")
 @ProgramName("jwhich")

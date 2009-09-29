@@ -5,11 +5,11 @@ import java.nio.CharBuffer;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BatchEditCLI;
 import net.bodz.bas.cli.EditResult;
 import net.bodz.bas.io.CharOut;
 import net.bodz.bas.text.util.BufParsers;
 import net.bodz.bas.text.util.Unescape;
-import net.bodz.lapiota.wrappers.BatchEditCLI;
 
 @Doc("convert ascii chars or \\uNNNN to native chars")
 @Version( { 0, 1 })

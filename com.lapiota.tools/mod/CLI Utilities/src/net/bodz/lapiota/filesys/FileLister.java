@@ -6,7 +6,7 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
-import net.bodz.lapiota.wrappers.BatchCLI;
+import net.bodz.bas.cli.BatchCLI;
 
 @Doc("A simple BatchProcessCLI example: dir in java")
 @ProgramName("jdir")

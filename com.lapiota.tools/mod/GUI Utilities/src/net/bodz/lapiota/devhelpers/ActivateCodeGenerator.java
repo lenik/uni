@@ -13,8 +13,8 @@ import net.bodz.dist.pro.nls.ProtectNLS;
 import net.bodz.dist.pro.pm.ProtectException;
 import net.bodz.dist.pro.util.ActivationByTargetString;
 import net.bodz.dist.pro.util.Registrant;
-import net.bodz.lapiota.wrappers.BasicGUI;
 import net.bodz.swt.adapters.TextAdapters;
+import net.bodz.swt.gui.BasicGUI;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;

@@ -1,7 +1,7 @@
 package net.bodz.lapiota.eclipse.jdt;
 
 import net.bodz.bas.a.BootInfo;
-import net.bodz.lapiota.wrappers.BasicCLI;
+import net.bodz.bas.cli.BasicCLI;
 
 @BootInfo(configs = JdtConfig.class)
 public class JdtBasicCLI extends BasicCLI {

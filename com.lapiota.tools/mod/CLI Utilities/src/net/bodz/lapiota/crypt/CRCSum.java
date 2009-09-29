@@ -8,6 +8,7 @@ import java.util.zip.Checksum;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BatchCLI;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.CharOut;
@@ -26,7 +27,6 @@ import net.bodz.bas.util.LogTerm;
 import net.bodz.lapiota.crypt.Hashes.CRC32_BE;
 import net.bodz.lapiota.crypt.Hashes.CRC32_LE;
 import net.bodz.lapiota.nls.CLINLS;
-import net.bodz.lapiota.wrappers.BatchCLI;
 
 @Doc("Print or check CRC (32-bit) checksums")
 @RcsKeywords(id = "$Id$")

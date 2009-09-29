@@ -15,8 +15,8 @@ import net.bodz.bas.io.Files;
 import net.bodz.bas.ui.UIException;
 import net.bodz.bas.ui.a.PreferredSize;
 import net.bodz.bas.xml.XMLs;
-import net.bodz.lapiota.wrappers.BasicGUI;
 import net.bodz.swt.adapters.TextAdapters;
+import net.bodz.swt.gui.BasicGUI;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.AuthenticationEvent;

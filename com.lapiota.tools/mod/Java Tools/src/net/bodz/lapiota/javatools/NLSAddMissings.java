@@ -15,12 +15,12 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BasicCLI;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.FileFinder;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.types.util.Collections2;
 import net.bodz.bas.types.util.Strings;
-import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Add missed entries for NLS property files")
 @ProgramName("nlsadd")

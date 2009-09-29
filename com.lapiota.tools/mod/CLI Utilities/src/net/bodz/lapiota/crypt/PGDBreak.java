@@ -5,12 +5,12 @@ import java.io.File;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BasicCLI;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.Files;
 import net.bodz.bas.mem.Memory;
 import net.bodz.bas.mem.RandomAccessFileMemory;
 import net.bodz.lapiota.nls.CLINLS;
-import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("PGP disk headers break up")
 @RcsKeywords(id = "$Id$")

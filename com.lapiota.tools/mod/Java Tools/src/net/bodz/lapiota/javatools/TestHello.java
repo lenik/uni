@@ -5,7 +5,7 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
-import net.bodz.lapiota.wrappers.BasicCLI;
+import net.bodz.bas.cli.BasicCLI;
 import net.bodz.swt.gui.SWTConfig;
 
 import org.eclipse.swt.SWT;

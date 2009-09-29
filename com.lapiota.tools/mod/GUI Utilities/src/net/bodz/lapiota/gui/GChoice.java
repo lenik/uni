@@ -9,7 +9,7 @@ import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.CharOut;
-import net.bodz.lapiota.wrappers.BasicGUI;
+import net.bodz.swt.gui.BasicGUI;
 import net.bodz.swt.gui.DialogUI;
 
 import org.eclipse.swt.SWT;

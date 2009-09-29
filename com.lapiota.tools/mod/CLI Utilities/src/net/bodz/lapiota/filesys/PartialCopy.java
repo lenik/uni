@@ -12,6 +12,7 @@ import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.ProgramName;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
+import net.bodz.bas.cli.BasicCLI;
 import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
@@ -32,7 +33,6 @@ import net.bodz.lapiota.crypt.FindHash.Range;
 import net.bodz.lapiota.crypt.FindHash.RangeParser;
 import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.util.StringUtil;
-import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("Copy files by parts")
 @ProgramName("partcp")
