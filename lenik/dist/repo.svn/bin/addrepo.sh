@@ -46,7 +46,7 @@ function setopt() {
         --version)
             version; exit;;
         *)
-            quit "invalid option: $1";;
+            die "invalid option: $1";;
     esac
 }
 
