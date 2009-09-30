@@ -5,14 +5,14 @@
     set             PATH=C:\lam\nt.util\lib;%PATH%
 
 
-    call findabc -r C:\lam\nt.util\abc.d mssdk
+    call findabc mssdk
 
     rem Platform SDK
     set             PATH=%_home%\bin;%PATH%
     set          INCLUDE=%_home%\include;%INCLUDE%
     set              LIB=%_home%\lib;%LIB%
 
-    call findabc -r C:\lam\nt.util\abc.d msvs-9
+    call findabc msvs-9
 
     rem Installs
     set        DevEnvDir=%_home%\Common7\IDE

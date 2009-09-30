@@ -1,5 +1,7 @@
 m4_include(`m4x/util.m4')
 M4X_BEGIN()
+    m4_define(`NAMED_CONF', `C:\lam\home\lenik\etc')
+    m4_define(`NAMED_VAR',  `C:\lam\home\lenik\var\named')
     m4_define(`MASTER_ZONE', `
     zone "$1" {
         type master;
@@ -7,22 +9,38 @@ M4X_BEGIN()
     }; ')
 M4X_END()
 
-options {
-    directory           "C:\lam\home\lenik\etc";
-    dump-file           "C:\lam\home\lenik\var\named\cache_dump.db";
-    statistics-file     "C:\lam\home\lenik\var\named\stats.txt";
-    memstatistics-file  "C:\lam\home\lenik\var\named\mem_stats.txt";
+include "NAMED_CONF\rndc.key";
 
-    ; forward all unresolvable request to these addresses
+options {
+    directory           "NAMED_CONF";
+    dump-file           "NAMED_VAR\cache_dump.db";
+    statistics-file     "NAMED_VAR\stats.txt";
+    memstatistics-file  "NAMED_VAR\mem_stats.txt";
+
+    // forward all unresolvable request to these addresses
     forwarders          { 202.98.0.68;202.98.5.68; };
 };
-include "C:\lam\home\lenik\etc\rndc.key";
 
 acl Lan1 {
     127.0.0.0/24;
     192.168.0.0/16;
 };
 
+logging {
+    channel ch_stat {
+        file "NAMED_VAR\stat.log";
+        severity info;
+    };
+    channel ch_access {
+        file "NAMED_VAR\access.log";
+        severity info;
+    };
+
+    // category statistics { ch_stat; };
+    category queries { ch_access; };
+};
+
+MASTER_ZONE(test,           zones/var/test.db)
 MASTER_ZONE(zoo,            zones/var/zoo.db)
 MASTER_ZONE(zoo.bodz.net,   zones/var/zoo.db)
 

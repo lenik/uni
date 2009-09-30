@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; system hack {
+;; System Hack {
 !tab::
     winhide ahk_class #32771 ; BUGFIX for ahk.
     send {escape}{tab}
@@ -9,7 +9,7 @@ lwin & capslock::shiftalttab
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; application shortcuts {
+;; Application Shortcuts {
 #f::run firefox
 #o::run dopus
 #+::run cmdw /c start wscilex
@@ -47,9 +47,11 @@ lwin & capslock::shiftalttab
 
 #+i::run insight3
 #+u::run uedit32
-#+v::run cmd /c "cpnew -v -r -f -J v:\lam\kala %LAPIOTA% & pause"
 #+x::run xmlspy
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Development Tools {
 #+d::
     ddk1 = cmd /c %HOME%\bin\ddk-chk
     ddk2 = cmd /c %HOME%\bin\ddk-fre
@@ -57,5 +59,46 @@ lwin & capslock::shiftalttab
     ddk4 = cmd /c %HOME%\bin\ddk-chk
     ddk5 = cmd /c %HOME%\bin\ddk-hal
     funpack(5, "ddk")
+    return
+#+v::run cmd /c "cpnew -v -r -f -J v:\lam\kala %LAPIOTA% & pause"
+
+:c*:Rnd1::
+    random, b, 0, 255
+    sendinput %b%
+    return
+
+:c*:Rnd2::
+    random, w, 0, 65535
+    sendinput %w%
+    return
+
+:c*:Rnd4::
+    random, w0, 0, 65535
+    random, w1, 0, 65535
+    SetFormat, integer, h
+    w0 += 0x10000
+    w1 += 0x10000
+    SetFormat, integer, d
+    StringMid, w0, w0, 4
+    StringMid, w1, w1, 4
+    sendinput 0x%w0%%w1%
+    return
+
+:c*:Rnd8::
+    random, w0, 0, 65535
+    random, w1, 0, 65535
+    random, w2, 0, 65535
+    random, w3, 0, 65535
+    SetFormat, integer, h
+    w0 += 0x10000
+    w1 += 0x10000
+    w2 += 0x10000
+    w3 += 0x10000
+    SetFormat, integer, d
+    StringMid, w0, w0, 4
+    StringMid, w1, w1, 4
+    StringMid, w2, w2, 4
+    StringMid, w3, w3, 4
+    sendinput 0x%w0%%w1%%w2%%w3%L
     return
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}

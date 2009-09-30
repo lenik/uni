@@ -7,4 +7,3 @@ export EMACSLOADPATH=/usr/share/emacs/21.2/lisp:$EMACSD/lisp:$EMACSD/site-lisp
 
 #. /lapiota/lib/sh/initdir
 #initdir /lapiota
-echo .bashrc
