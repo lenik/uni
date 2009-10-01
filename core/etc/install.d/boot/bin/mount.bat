@@ -2,4 +2,4 @@
 
 cd /d "%~dp0"
 
-bash -c mount.sh
+bin\bash -c ./mount.sh
