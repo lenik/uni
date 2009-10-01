@@ -12,8 +12,8 @@ for d in "$__DIR__/truecrypt"*; do
     fi
 done
 if [ ! -x "$TRUECRYPT" ]; then
-	echo "No truecrypt found. "
-	exit 1
+    echo "No truecrypt found. "
+    exit 1
 fi
 
 function mkdir_p() {
@@ -59,7 +59,7 @@ function getpasswd() {
 cat "$FSTAB" | while read -r LETTER DEVICE PASSWORD MOUNTPOINTS; do
     # ignore comment lines
     if [ -z "$LETTER" -o "${LETTER:0:1}" = '#' ]; then continue; fi
-	echo -n "mount $DEVICE to $LETTER: "
+    echo -n "mount $DEVICE to $LETTER: "
 
     # parse password options
     TRUECRYPTOPTS="/a /s /q"
@@ -78,7 +78,7 @@ cat "$FSTAB" | while read -r LETTER DEVICE PASSWORD MOUNTPOINTS; do
 
     # do mount
     if "$TRUECRYPT" $TRUECRYPTOPTS /l "$LETTER" /v "$DEVICE" /p "$PASSWORD"; then
-		read -r VOL < <(mountvol $LETTER: /l)
+        read -r VOL < <(mountvol $LETTER: /l)
         if [ -z "$VOL" ]; then
             echo "unknown win32 volume path, skip"
             continue
@@ -108,10 +108,12 @@ cat "$FSTAB" | while read -r LETTER DEVICE PASSWORD MOUNTPOINTS; do
             echo
             echo "  link to $m_norm"
             _try=3
-			while true; do
-				# rmdir "$m"; mkdir_p "$m"
+            while true; do
+                # rmdir "$m"; mkdir_p "$m"
                 cmd /c rmdir "$m_norm" \& mkdir "$m_norm"
-                if ! err=`mountvol "$m_norm" "$VOL"`; then
+                if err=`mountvol "$m_norm" "$VOL"`; then
+                    break
+                else
                     echo "    mountvol: $err"
                     if [ $((_try--)) -le 0 ]; then
                         echo "    failed. "
@@ -120,7 +122,7 @@ cat "$FSTAB" | while read -r LETTER DEVICE PASSWORD MOUNTPOINTS; do
                         echo "    clean and retry $_try"
                     fi
                 fi
-			done
-		done
-	fi
+            done
+        done
+    fi
 done
