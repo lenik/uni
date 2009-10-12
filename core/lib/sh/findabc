@@ -3,14 +3,16 @@
 # WARNING: should avoid symbolic link loop
 function findabc() {
     shopt -s nullglob
-    local show last
+    local show list last
     local OPTIND opt arg d
-    while getopts lpuw opt; do
+    while getopts plzuw opt; do
         case $opt in
-            l)
-                last=1;;
             p)
                 show=1;;
+            l)
+                list=1;;
+            z)
+                last=1;;
             u)  # not used
                 style=unix;;
             w)  # not used
@@ -76,16 +78,28 @@ function findabc() {
 
         # xdir-loop
         _xdir=
-        while [ -z "$_home" ]; do
+        while [ -z "$_home" -o "$list" = 1 ]; do
             local prefix="$package"
             # if exist p/prefix* found.
             for f in "$root/$_xdir$prefix"*; do
                 if [ "${f: -1}" != '*' ]; then
-                    _home="$f"
-                    if [ -z $last ]; then break; fi
+                    if [ -z "$_home" -o "$last" = 1 ]; then
+                        _home="$f"
+                    fi
+                    if [ "$list" = 1 ]; then
+                        echo "$f"
+                    elif [ -z $last ]; then
+                        break
+                    fi
                 fi
             done
-            if [ -n "$_home" ]; then break 2; fi #root-loop
+            if [ -n "$_home" ]; then
+                if [ "$list" = 1 ]; then
+                    break #xdir-loop
+                else
+                    break 2 #root-loop
+                fi
+            fi
 
             # do { if exist p/prefix -> xdir-loop } while chop(prefix)
             while [ ${#prefix} -gt 0 ]; do
@@ -99,8 +113,8 @@ function findabc() {
 
             # can't go deeper, try next root
             break #xdir-loop
-        done
-    done
+        done #xdir-loop
+    done #root-loop
     # _xdir="$_xdir${_home##*/}"
 
     if [ -z "$_home" ]; then

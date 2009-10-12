@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<project>
+
+    <property name="eclipse.home" location="${ant.home}/../.." />
+    <property name="eclipse.plugins" location="${eclipse.home}/plugins" />
+
+    <property environment="env" />
+    <property name="JAVA_LIB" value="${env.JAVA_LIB}" />
+    <property file="${JAVA_LIB}/libraries.ini" prefix="lib" />
+
+    <target name=".ant-dump">
+        <echo>Properties: </echo>
+        <echoproperties />
+        <echo>References: </echo>
+        <echoreferences />
+    </target>
+
+    <property name="kala.bindist" value="${env.JAVA_LIB}" />
+    <property name="kala.srcdist" value="${env.JAVA_SRC}" />
+    <property name="kala.batdist" value="${env.LAPIOTA}/bin/w" />
+
+    <target name=".kala.dist">
+        <copy todir="${kala.bindist}">
+            <fileset dir="${basedir}/build" excludes="*-src.jar">
+                <include name="*.jar" />
+            </fileset>
+        </copy>
+        <copy todir="${kala.srcdist}">
+            <fileset dir="${basedir}/build">
+                <include name="*-src.jar" />
+            </fileset>
+        </copy>
+        <copy todir="${kala.batdist}">
+            <fileset dir="${basedir}/bin">
+                <include name="*.bat" />
+            </fileset>
+        </copy>
+    </target>
+
+    <target name=".clean-build">
+        <delete verbose="true">
+            <fileset dir="${basedir}/build" />
+        </delete>
+    </target>
+
+    <taskdef resource="net/bodz/bas/ant/task.properties">
+        <classpath>
+            <fileset dir="${JAVA_LIB}">
+                <include name="${lib.bodz_bas}" />
+                <include name="${lib.bodz_dist}" />
+                <include name="${lib.bodz_jna}" />
+                <include name="${lib.dom4j}" />
+                <include name="${lib.groovy}" />
+                <include name="${lib.jna}" />
+            </fileset>
+            <fileset dir="${ant.home}/..">
+                <include name="org.eclipse.swt.win32.win32.x86_*.jar" />
+            </fileset>
+        </classpath>
+    </taskdef>
+
+    <propertybean name="project" classname="net.bodz.bas.ant.ProjectInfo" expandproperties="true" />
+
+    <taskdef resource="proguard/ant/task.properties">
+        <classpath path="${env.JAVA_LIB}/${lib.proguard}" />
+        <classpath path="${env.JAVA_LIB}/${lib.bodz_dist}" />
+    </taskdef>
+
+    <property name="proguard.conf" value="${env.LAPIOTA}/etc/conf.d/proguard" />
+
+</project>
