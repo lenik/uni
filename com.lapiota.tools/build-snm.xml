@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="net.bodz.lapiota" default="default">
+<project name="com.lapiota.tools" default="default">
 
     <property environment="env" />
     <import file="${env.LAPIOTA}/lib/ant/basic.xml" />
@@ -23,7 +23,7 @@
 
     <target name="10bin.jar">
         <mkdir dir="build" />
-        <jar destfile="build/net.bodz.lapiota.jar" update="true">
+        <jar destfile="build/com.lapiota.tools.jar" update="true">
             <fileset dir="mod/CLI Utilities/bin" />
             <fileset dir="mod/Commons/bin" />
             <fileset dir="mod/GUI Utilities/bin" />
@@ -39,26 +39,26 @@
 			<fileset dir="mod/SNM C Framework/test.bin" />
 		</jar>
 		-->
-        <length property="size.bin" file="lib/net.bodz.lapiota.jar" />
+        <length property="size.bin" file="lib/com.lapiota.tools.jar" />
         <echo>Size: ${size.bin}</echo>
     </target>
 
     <target name="10src.jar">
         <mkdir dir="build" />
-        <jar destfile="build/net.bodz.lapiota-src.jar" update="true">
+        <jar destfile="build/com.lapiota.tools-src.jar" update="true">
             <fileset dir="mod/CLI Utilities/src" />
             <fileset dir="mod/Commons/src" />
             <fileset dir="mod/GUI Utilities/src" />
             <fileset dir="mod/Java Tools/src" />
             <fileset dir="mod/SNM C Framework/src" />
         </jar>
-        <length property="size.src" file="lib/net.bodz.lapiota-src.jar" />
+        <length property="size.src" file="lib/com.lapiota.tools-src.jar" />
         <echo>Size: ${size.src}</echo>
     </target>
 
     <target name="20mkbat">
         <mkbat outdir="${basedir}/bin">
-            <library>bodz_lapiota</library>
+            <library>lapiota_tools</library>
             <classpath refid="project.classpath" />
             <classpath>
                 <fileset dir="${JAVA_LIB}">
@@ -72,7 +72,7 @@
         </mkbat>
 
         <mkbat outdir="${basedir}/test.bin">
-            <library>bodz_lapiota</library>
+            <library>lapiota_tools</library>
             <classpath refid="project.classpathWithTest" />
             <classpath>
                 <fileset dir="${JAVA_LIB}">
