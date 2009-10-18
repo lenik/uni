@@ -22,6 +22,9 @@
     goto init
 
 :start
+    call findabc autoit-3
+    if not errorlevel 1 set AUTOIT3=%_home%\autoit3
+
     if %_verbose% geq 1 set CLASSPATH
 
     if "%_start%"=="" (

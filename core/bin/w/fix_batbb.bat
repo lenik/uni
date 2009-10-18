@@ -60,7 +60,7 @@
     set     _rest=
     set    _start=
 
-    set      _nam=net.bodz.bas.cli.util.Fix_BatBB
+    set      _nam=com.lapiota.win32.Fix_BatBB
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=%JAVA_OPTS% net.bodz.bas.loader.DefaultBooter --
@@ -93,6 +93,7 @@
     )
 
     call :load "bodz_bas" "net.bodz.bas.jar"
+    call :load "lapiota_tools" "com.lapiota.tools.jar"
 
     goto initcp2
 

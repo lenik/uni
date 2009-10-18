@@ -52,14 +52,15 @@
     exit /b
 
 :init
+    set   __DIR__=%~dp0
+    set   __DIR__=%__DIR__:~0,-1%
+    set  __FILE__=%~dpnx0
     set  _verbose=0
     set      _ret=
     set     _rest=
-    set _startdir=%~dp0
-    set  _program=%~dpnx0
     set    _start=
 
-    set      _nam=net.bodz.lapiota._extern.ASMifier
+    set      _nam=com.lapiota._extern.ASMifier
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=%JAVA_OPTS% net.bodz.bas.loader.DefaultBooter --
@@ -83,10 +84,18 @@
     )
 
     set _morecp=
+    if exist "%__DIR__%\..\.project" (
+        for /d %%m in ("%__DIR__%\..\mod\*") do (
+            for /d %%b in ("%%m\*bin") do (
+                set _morecp=!_morecp!;%%~dpnxb
+            )
+        )
+    )
+
     call :load "bodz_bas" "net.bodz.bas.jar"
     call :load "asm" "asm-all-3.1.jar"
     call :load "asm_util" "asm_util.jar"
-    call :load "bodz_lapiota" "net.bodz.lapiota.jar"
+    call :load "lapiota_tools" "com.lapiota.tools.jar"
 
     goto initcp2
 
@@ -180,7 +189,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [JB-OPTION] ARGUMENTS...
+    echo    %__FILE__% [JB-OPTION] ARGUMENTS...
     echo.
     echo Options:
     echo    -Jw,--jb-win        start with javaw.exe
