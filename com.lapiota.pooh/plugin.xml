@@ -9,14 +9,14 @@
             thread="main"
             visible="true">
          <run
-               class="net.bodz.pooh.ui.QuickPoohApplication">
+               class="com.lapiota.pooh.ui.QuickPoohApplication">
          </run>
       </application>
    </extension>
    <extension
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
-            base-type="org.eclipse.jdt.core.javaSource"
+            base-type="org.eclipse.core.runtime.text"
             default-charset="utf-8"
             file-extensions="xjl,l,y"
             id="javaSourceEmbedded"
@@ -28,7 +28,7 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="net.bodz.pooh.ui.QuickPoohPerspective"
+            class="com.lapiota.pooh.ui.QuickPoohPerspective"
             id="net.bodz.pooh.ui.QuickPoohPerspective"
             name="Quick Pooh">
       </perspective>
@@ -44,7 +44,7 @@
             name="Debug Console"
             icon="icons/sample.gif"
             category="net.bodz.pooh.views.QuickPoohCategory"
-            class="net.bodz.pooh.views.DebugConsole"
+            class="com.lapiota.pooh.views.DebugConsole"
             id="net.bodz.pooh.views.DebugConsole">
       </view>
    </extension>
@@ -55,17 +55,115 @@
       </contexts>
    </extension>
    <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="net.bodz.pooh.actions"
+            label="Pooh Tools"
+            visible="true">
+         <menu
+               id="pooh"
+               label="Pooh Tools"
+               path="window/additions">
+            <separator
+                  name="util">
+            </separator>
+         </menu>
+         <action
+               class="com.lapiota.pooh.popup.actions.DumpPerspectiveAction"
+               icon="icons/sample.gif"
+               id="net.bodz.pooh.dumpPerspective"
+               label="Dump Perspective Page Layout"
+               menubarPath="pooh/util"
+               toolbarPath="pooh/util">
+         </action>
+      </actionSet>
+   </extension>
+   <extension
          point="org.eclipse.ui.editors">
       <editor
             default="false"
             extensions="txt"
             id="npp"
-            launcher="net.bodz.pooh.editors.NppLauncher"
+            launcher="com.lapiota.pooh.editors.NppLauncher"
             name="Notepad++">
          <contentTypeBinding
                contentTypeId="net.bodz.pooh.javaSourceEmbedded">
          </contentTypeBinding>
       </editor>
+      <editor
+            default="false"
+            id="emacs"
+            launcher="com.lapiota.pooh.editors.EmacsLauncher"
+            name="Emacs">
+         <contentTypeBinding
+               contentTypeId="org.eclipse.core.runtime.text">
+         </contentTypeBinding>
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            id="pooh.popups.objects"
+            objectClass="java.lang.Object">
+         <menu
+               id="pooh"
+               label="Pooh Tools"
+               path="additions">
+            <separator
+                  name="dump">
+            </separator>
+         </menu>
+         <action
+               class="com.lapiota.pooh.popup.actions.ResourceProbeAction"
+               id="net.bodz.pooh.resourceProbe"
+               label="Resource Probe"
+               menubarPath="pooh/dump"
+               tooltip="Show reflected properties of selected resource.">
+         </action>
+      </objectContribution>
+      <objectContribution
+            adaptable="true"
+            id="pooh.popups.resources"
+            objectClass="org.eclipse.core.resources.IResource">
+         <menu
+               id="pooh"
+               label="Pooh Tools"
+               path="additions">
+            <separator
+                  name="terminals">
+            </separator>
+         </menu>
+         <action
+               class="com.lapiota.pooh.popup.actions.SystemTerminalAction"
+               id="pooh.popups.resources.openTerminal"
+               label="System Terminal Here"
+               menubarPath="pooh/terminals">
+         </action>
+      </objectContribution>
+      <objectContribution
+            id="pooh.popups.javaElements"
+            objectClass="org.eclipse.jdt.core.IJavaElement">
+         <menu
+               id="pooh"
+               label="Pooh Tools"
+               path="additions">
+            <separator
+                  name="terminals">
+            </separator>
+         </menu>
+         <action
+               class="com.lapiota.pooh.popup.actions.BashWithContextAction"
+               id="pooh.popups.javaElements.openTerminal"
+               label="Bash with main-class aliases"
+               menubarPath="pooh/terminals">
+         </action>
+         <action
+               class="com.lapiota.pooh.popup.actions.ResetClasspathsAction"
+               id="pooh.popups.javaElements.clearCache"
+               label="Refresh main-class list"
+               menubarPath="pooh/terminals">
+         </action>
+      </objectContribution>
    </extension>
 
 </plugin>

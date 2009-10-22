@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="lib" path="baseline.jar"/>
 	<classpathentry kind="lib" path="swt-grouplayout.jar"/>
-	<classpathentry kind="src" output="mod/Eclipse Customization/bin" path="mod/Eclipse Customization/src"/>
-	<classpathentry kind="src" output="mod/Eclipse Customization/test.bin" path="mod/Eclipse Customization/test"/>
-	<classpathentry kind="src" output="mod/Eclipse R&amp;D/bin" path="mod/Eclipse R&amp;D/src"/>
-	<classpathentry kind="src" output="mod/Eclipse R&amp;D/test.bin" path="mod/Eclipse R&amp;D/test"/>
-	<classpathentry kind="src" output="mod/boDz Utilization/bin" path="mod/boDz Utilization/src"/>
-	<classpathentry kind="src" output="mod/boDz Utilization/test.bin" path="mod/boDz Utilization/test"/>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="src" output="target/mod/Eclipse Customization/main" path="mod/Eclipse Customization/main"/>
+	<classpathentry kind="src" output="target/mod/Eclipse Customization/test" path="mod/Eclipse Customization/test"/>
+	<classpathentry kind="src" output="target/mod/Eclipse R&amp;D/main" path="mod/Eclipse R&amp;D/main"/>
+	<classpathentry kind="src" output="target/mod/Eclipse R&amp;D/test" path="mod/Eclipse R&amp;D/test"/>
+	<classpathentry kind="src" output="target/mod/boDz Utilization/main" path="mod/boDz Utilization/main"/>
+	<classpathentry kind="src" output="target/mod/boDz Utilization/test" path="mod/boDz Utilization/test"/>
+	<classpathentry kind="src" path="main"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>
