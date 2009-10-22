@@ -60,7 +60,7 @@
     set     _rest=
     set    _start=
 
-    set      _nam=net.bodz.lapiota.gui.GChoiceTest
+    set      _nam=com.lapiota.gui.GChoiceTest
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=%JAVA_OPTS%

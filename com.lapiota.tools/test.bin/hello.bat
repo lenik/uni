@@ -60,7 +60,7 @@
     set     _rest=
     set    _start=
 
-    set      _nam=net.bodz.lapiota.win32.jawin.Hello
+    set      _nam=com.lapiota.win32.jawin.Hello
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=%JAVA_OPTS% net.bodz.bas.loader.DefaultBooter -l %%project --

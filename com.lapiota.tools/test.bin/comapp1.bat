@@ -60,7 +60,7 @@
     set     _rest=
     set    _start=
 
-    set      _nam=net.bodz.lapiota.win32.jawin.ComApp1
+    set      _nam=com.lapiota.win32.jawin.ComApp1
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=%JAVA_OPTS%

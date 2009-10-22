@@ -60,7 +60,7 @@
     set     _rest=
     set    _start=
 
-    set      _nam=net.bodz.lapiota.eclipse.jdt.J4convTest
+    set      _nam=com.lapiota.eclipse.jdt.J4convTest
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=%JAVA_OPTS%

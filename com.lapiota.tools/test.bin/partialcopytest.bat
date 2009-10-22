@@ -60,7 +60,7 @@
     set     _rest=
     set    _start=
 
-    set      _nam=net.bodz.lapiota.filesys.PartialCopyTest
+    set      _nam=com.lapiota.filesys.PartialCopyTest
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=%JAVA_OPTS%

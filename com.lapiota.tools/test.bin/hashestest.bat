@@ -60,7 +60,7 @@
     set     _rest=
     set    _start=
 
-    set      _nam=net.bodz.lapiota.crypt.HashesTest
+    set      _nam=com.lapiota.crypt.HashesTest
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=%JAVA_OPTS%
