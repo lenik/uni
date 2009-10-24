@@ -44,7 +44,7 @@
             name="Debug Console"
             icon="icons/sample.gif"
             category="net.bodz.pooh.views.QuickPoohCategory"
-            class="com.lapiota.pooh.views.DebugConsole"
+            class="com.lapiota.pooh.spy.DebugConsole"
             id="net.bodz.pooh.views.DebugConsole">
       </view>
    </extension>
@@ -69,7 +69,7 @@
             </separator>
          </menu>
          <action
-               class="com.lapiota.pooh.popup.actions.DumpPerspectiveAction"
+               class="com.lapiota.pooh.spy.DumpPerspectiveAction"
                icon="icons/sample.gif"
                id="net.bodz.pooh.dumpPerspective"
                label="Dump Perspective Page Layout"
@@ -84,7 +84,7 @@
             default="false"
             extensions="txt"
             id="npp"
-            launcher="com.lapiota.pooh.editors.NppLauncher"
+            launcher="com.lapiota.pooh.shortcuts.editors.NppLauncher"
             name="Notepad++">
          <contentTypeBinding
                contentTypeId="net.bodz.pooh.javaSourceEmbedded">
@@ -93,7 +93,7 @@
       <editor
             default="false"
             id="emacs"
-            launcher="com.lapiota.pooh.editors.EmacsLauncher"
+            launcher="com.lapiota.pooh.shortcuts.editors.EmacsLauncher"
             name="Emacs">
          <contentTypeBinding
                contentTypeId="org.eclipse.core.runtime.text">
@@ -114,7 +114,7 @@
             </separator>
          </menu>
          <action
-               class="com.lapiota.pooh.popup.actions.ResourceProbeAction"
+               class="com.lapiota.pooh.spy.ResourceProbeAction"
                id="net.bodz.pooh.resourceProbe"
                label="Resource Probe"
                menubarPath="pooh/dump"
@@ -134,7 +134,7 @@
             </separator>
          </menu>
          <action
-               class="com.lapiota.pooh.popup.actions.SystemTerminalAction"
+               class="com.lapiota.pooh.shortcuts.terms.SystemTerminalAction"
                id="pooh.popups.resources.openTerminal"
                label="System Terminal Here"
                menubarPath="pooh/terminals">
@@ -152,13 +152,13 @@
             </separator>
          </menu>
          <action
-               class="com.lapiota.pooh.popup.actions.BashWithContextAction"
+               class="com.lapiota.pooh.shortcuts.terms.BashWithContextAction"
                id="pooh.popups.javaElements.openTerminal"
                label="Bash with main-class aliases"
                menubarPath="pooh/terminals">
          </action>
          <action
-               class="com.lapiota.pooh.popup.actions.ResetClasspathsAction"
+               class="com.lapiota.pooh.shortcuts.terms.ResetClasspathsAction"
                id="pooh.popups.javaElements.clearCache"
                label="Refresh main-class list"
                menubarPath="pooh/terminals">
