@@ -3,10 +3,6 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="lib" path="baseline.jar"/>
 	<classpathentry kind="lib" path="swt-grouplayout.jar"/>
-	<classpathentry kind="src" output="target/mod/Eclipse Customization/main" path="mod/Eclipse Customization/main"/>
-	<classpathentry kind="src" output="target/mod/Eclipse Customization/test" path="mod/Eclipse Customization/test"/>
-	<classpathentry kind="src" output="target/mod/Eclipse R&amp;D/main" path="mod/Eclipse R&amp;D/main"/>
-	<classpathentry kind="src" output="target/mod/Eclipse R&amp;D/test" path="mod/Eclipse R&amp;D/test"/>
 	<classpathentry kind="src" output="target/classes" path="src/main/java"/>
 	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
