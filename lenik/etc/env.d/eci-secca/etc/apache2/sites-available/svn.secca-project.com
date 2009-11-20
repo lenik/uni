@@ -15,9 +15,24 @@
 
 	CustomLog /var/log/apache2/access.log combined
 
-    <Location / >
+    <Location /artifacts>
         DAV svn
-        SVNPath /repos/svn
+        SVNPath /repos/svn/artifacts
+    </Location>
+
+    <Location /sandbox>
+        DAV svn
+        SVNPath /repos/svn/sandbox
+    </Location>
+
+    <Location /ssp>
+        DAV svn
+        SVNPath /repos/svn/ssp
+    </Location>
+
+    <Location /test>
+        DAV svn
+        SVNPath /repos/svn/test
     </Location>
 
 </VirtualHost>
