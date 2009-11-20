@@ -41,6 +41,10 @@ function merge() {
             echo >>"$listfile"
         fi
 
+        if [ -d "$destdir$suffix/.svn" ]; then
+            echo "  [INFO] Target is already svn-enabled, skipped"
+            exit 0
+        fi
 
         if [ -n "$_chown" ]; then
             echo "    Setup user permission info"
