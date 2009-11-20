@@ -12,8 +12,11 @@
     set prefix=%name:~0,1%
 
     echo create repository %prefix%\%name%
+
     rem set svnopts=--config-dir %~dp0..\etc
-    "%svnadmin%" create "%prefix%\%name%"
+
+    echo %svnadmin% create "%prefix%\%name%"
+    %svnadmin% create "%prefix%\%name%"
 
     echo configure
     copy /y "%~dp0..\etc\svnserve.conf" "%prefix%\%name%\conf" >nul
@@ -29,13 +32,18 @@
     set _startdir=%~dp0
     set  _program=%~dpnx0
 
-    set svnd=
+    set      svnd=
+    set       svn=svn
+    set  svnadmin=svnadmin
     set _svn1=%SystemDrive%\Program Files\CollabNet Subversion Server
     for %%i in (9 8 7 6 5 4 3 2 1) do (
         if exist "!_svn%%i!\svn.exe" set svnd=!_svn%%i!
     )
-    set svn=%svnd%\svn.exe
-    set svnadmin=%svnd%\svnadmin.exe
+    if not "%svnd%"=="" (
+        echo Warning: no svn executable, use default in PATH.
+        set svn="%svnd%\svn.exe"
+        set svnadmin="%svnd%\svnadmin.exe"
+    )
 
 :prep1
     if "%~1"==""            goto prep2
