@@ -1,5 +1,7 @@
 #!/bin/bash
 
+_chown=1
+
 # applysvn.sh TARGET URL-LIST
 if [ $# -lt 2 ]; then
     echo applysvn TARGET URL-LIST
@@ -39,7 +41,27 @@ function merge() {
             echo >>"$listfile"
         fi
 
-        cp -R "$srcsvn$suffix"/* "$destdir$suffix"
+
+        if [ -n "$_chown" ]; then
+            echo "    Setup user permission info"
+            for f in "$srcsvn$suffix"/*; do
+                #echo "      $f"
+                name="${f##*/}"
+                if [ -f "$destdir$suffix/$name" ]; then
+                    if ! chown -vR --reference="$destdir$suffix/$name" "$f"; then
+                        echo "      [WARN] Can't set owner of $f"
+                    fi
+                    if ! chgrp -vR --reference="$destdir$suffix/$name" "$f"; then
+                        echo "      [WARN] Can't set group of $f"
+                    fi
+                    if ! chmod -vR --reference="$destdir$suffix/$name" "$f"; then
+                        echo "      [WARN] Can't set file-mode of $f"
+                    fi
+                fi
+            done
+        fi
+
+        mv -f "$srcsvn$suffix"/* "$destdir$suffix"
 
     else
 
