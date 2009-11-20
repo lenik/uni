@@ -14,6 +14,7 @@
         )
         cd "%_prefix%"
 
+        echo mksvn "%_base%"
         call mksvn "%_base%"
     popd >nul
 
@@ -32,25 +33,38 @@
         )
 
         if "%_server%"=="" (
-            set _url=file:///%_reposvn:\=/%/%_prefix%/%_base%/trunk
+            set _url=file:///%_reposvn:\=/%/%_prefix%/%_base%
             set _opts=
-            goto svn_import
+            goto svn_init
         )
-        set _url=svn://%_server%/%_prefix%/%_base%/trunk
+        set _url=svn://%_server%/%_prefix%/%_base%
         if "%_user%"=="" set /p _user=enter username, default %USERNAME%:
         if "%_user%"=="" set _user=%USERNAME%
         if "%_pass%"=="_NOTSET_" set /p _pass=enter password:
         set _opts=%_svnopts% --username "%_user%" --password "%_pass%"
 
+      :svn_init
+        echo create trunk/branches/tags
+        svn checkout "%_url%" "%~nx1.init"
+        svn mkdir "%~nx1.init/trunk"
+        svn mkdir "%~nx1.init/branches"
+        svn mkdir "%~nx1.init/tags"
+        svn commit "%~nx1.init" -m "[dir2svn] Initialize the scm repository"
+        rd /s /q "%~nx1.init"
+
       :svn_import
         echo import to the repository
-        svn import %_opts% -m "" "%~nx1" "%_url%" >>%_logfile%
+        svn import %_opts% "%~nx1" "%_url%/trunk" -m "[dir2svn] Import the unversioned trunk"
 
         echo rename original to %~nx1.dir2svn
         ren "%~nx1" "%~nx1.dir2svn"
 
-        echo checkout the new imported dir
-        svn checkout "%_url%" "%~nx1" >>%_logfile%
+        echo checkout the layout/immediates
+        svn checkout --depth=immediates "%_url%" "%~nx1"
+        svn update --set-depth immediates "%~nx1/branches"
+        svn update --set-depth immediates "%~nx1/tags"
+        svn update --set-depth infinity "%~nx1/branches"
+
     popd >nul
 
     echo done.
