@@ -34,7 +34,9 @@ function merge() {
         fi
 
         if [ -n "$listfile" ]; then
-            echo "$destdir$suffix" >>"$listfile"
+            echo "[$suffix]" >>"$listfile"
+            echo "src=$suffix" >>"$listfile"
+            echo >>"$listfile"
         fi
 
         cp -R "$srcsvn$suffix"/* "$destdir$suffix"
@@ -49,7 +51,7 @@ function merge() {
                 continue
             fi
 
-            merge "$destdir" "$srcsvn" "$suffix/$subname"
+            merge "$destdir" "$srcsvn" "$suffix/$subname" "$listfile"
         done
 
     fi
@@ -63,7 +65,7 @@ TARGET="$1"
     fi
     shift
 
-    SVNLIST=$TARGET/.applysvn
+    SVNLIST="$TARGET/.applysvn"
     if [ -f "$SVNLIST" ]; then
         mv -f "$SVNLIST" "$SVNLIST.bak"
     fi
@@ -76,7 +78,7 @@ for URL in "$@"; do
     svn co "$URL" "$TRANSDIR"
 
     # find non-empty dir and merge into target dir
-    merge "$TARGET" "$TRANSDIR"
+    merge "$TARGET" "$TRANSDIR" "" "$SVNLIST"
 
     echo "Cleanup"
     rm -fR "$TRANSDIR"
