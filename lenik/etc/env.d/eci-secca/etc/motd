@@ -1,0 +1,19 @@
+Welcome SECCA Project Development Node (174.129.60.23)
+
+2048 4e:19:a5:b5:dc:1c:c0:e9:12:c6:66:55:dc:76:d1:63 1.dev.secca-project.com (RSA)
++--[ RSA 2048]----+
+|       . o==o. .o|
+|        *=o+..oEo|
+|       +ooo o....|
+|        .o.      |
+|        S.       |
+|       o         |
+|        .        |
+|                 |
+|                 |
++-----------------+
+
+Please remember the randomart and check the fingerprint occasionally by:
+ssh-keygen -vlF 1.dev.secca-project.com
+
+Linux domU-12-31-39-02-25-D7 2.6.21.7-2.fc8xen-ec2-v1.0 #2 SMP Tue Sep 1 10:04:29 EDT 2009 i686
