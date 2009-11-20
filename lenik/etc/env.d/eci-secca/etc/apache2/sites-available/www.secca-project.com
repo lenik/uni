@@ -1,4 +1,5 @@
-<VirtualHost www.secca-project.com:80>
+<VirtualHost *:80>
+    ServerName www.secca-project.com
 	ServerAdmin admin@secca-project.com
 
 	DocumentRoot /mnt/secca/public/www

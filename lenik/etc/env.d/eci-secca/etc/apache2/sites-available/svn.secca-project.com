@@ -1,11 +1,6 @@
-<VirtualHost svn.secca-project.com:80>
+<VirtualHost *:80>
+    ServerName svn.secca-project.com
 	ServerAdmin admin@secca-project.com
-
-	DocumentRoot /var/www
-	<Directory />
-		Options FollowSymLinks
-		AllowOverride None
-	</Directory>
 
 	ErrorLog /var/log/apache2/error.log
 
