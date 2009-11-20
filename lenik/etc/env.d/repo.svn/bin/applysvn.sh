@@ -43,7 +43,7 @@ function merge() {
 
         if [ -d "$destdir$suffix/.svn" ]; then
             echo "  [INFO] Target is already svn-enabled, skipped"
-            exit 0
+            return 1
         fi
 
         if [ -n "$_chown" ]; then
@@ -65,22 +65,29 @@ function merge() {
             done
         fi
 
+        # for some directories already existed in destdir,
+        # they'll be future recursed into.
         mv -f "$srcsvn$suffix"/* "$destdir$suffix"
 
-    else
-
-        # Recurse into...
-        local subdir subname
-        for subdir in "$srcsvn$suffix"/*; do
-            subname="${subdir##*/}"
-            if [ "$subname" == ".svn" ]; then
-                continue
-            fi
-
-            merge "$destdir" "$srcsvn" "$suffix/$subname" "$listfile"
-        done
-
     fi
+
+    # Recurse into the rest
+    local subdir subname
+    for subdir in "$srcsvn$suffix"/*; do
+        subname="${subdir##*/}"
+
+        # because there maybe empty-dir with #FILE marks, so ignore them all
+        if [ ! -d "$subdir" ]; then
+            continue
+        fi
+
+        # and ignore scm directories, too
+        if [ "$subname" == ".svn" ]; then
+            continue
+        fi
+
+        merge "$destdir" "$srcsvn" "$suffix/$subname" "$listfile"
+    done
 
 }
 
