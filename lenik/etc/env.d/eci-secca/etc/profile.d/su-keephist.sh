@@ -1,0 +1,1 @@
+alias su='sudo su -'
