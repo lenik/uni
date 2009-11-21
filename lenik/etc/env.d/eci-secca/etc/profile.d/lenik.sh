@@ -1,10 +1,10 @@
 #!/bin/bash
 
-alias d='ls -FANo --color'
+alias d='ls -FANl --color=auto'
 
 function hello() {
 	echo Hello, this is Lenik.
 }
 
 export EDITOR=vi
-export PATH=~/bin:$PATH
+export PATH=$PATH:~/bin:~/sbin

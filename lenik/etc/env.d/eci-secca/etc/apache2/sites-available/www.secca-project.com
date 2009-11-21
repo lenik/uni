@@ -2,8 +2,8 @@
     ServerName www.secca-project.com
 	ServerAdmin admin@secca-project.com
 
-	DocumentRoot /mnt/secca/public/www
-	<Directory /mnt/secca/public/www/>
+	DocumentRoot /node/www
+	<Directory /node/www>
 		Options Indexes FollowSymLinks MultiViews
 		AllowOverride None
 		Order allow,deny

@@ -10,24 +10,13 @@
 
 	CustomLog /var/log/apache2/access.log combined
 
-    <Location /artifacts>
+    <Location />
         DAV svn
-        SVNPath /repos/svn/artifacts
-    </Location>
-
-    <Location /sandbox>
-        DAV svn
-        SVNPath /repos/svn/sandbox
-    </Location>
-
-    <Location /ssp>
-        DAV svn
-        SVNPath /repos/svn/ssp
-    </Location>
-
-    <Location /test>
-        DAV svn
-        SVNPath /repos/svn/test
+        SVNParentPath /repos/svn
+        AuthType Basic
+        AuthName "SECCA SVN REPOSITORY"
+        AuthUserFile /repos/svn/conf/auth-file
+        Require valid-user
     </Location>
 
 </VirtualHost>

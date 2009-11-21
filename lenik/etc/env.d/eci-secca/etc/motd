@@ -1,17 +1,22 @@
 Welcome SECCA Project Development Node (174.129.60.23)
 
-2048 4e:19:a5:b5:dc:1c:c0:e9:12:c6:66:55:dc:76:d1:63 1.dev.secca-project.com (RSA)
-+--[ RSA 2048]----+
-|       . o==o. .o|
-|        *=o+..oEo|
-|       +ooo o....|
-|        .o.      |
-|        S.       |
-|       o         |
-|        .        |
-|                 |
-|                 |
-+-----------------+
+Fingerprint (4e:19:a5:b5:dc:1c:c0:e9:12:c6:66:55:dc:76:d1:63):
+
+	+--[ RSA 2048]----+
+	|       . o==o. .o|
+	|        *=o+..oEo|
+	|       +ooo o....|
+	|        .o.      |
+	|        S.       |
+	|       o         |
+	|        .        |
+	|                 |
+	|                 |
+	+-----------------+
 
 Please remember the randomart and check the fingerprint occasionally by:
-ssh-keygen -vlF 1.dev.secca-project.com
+    ssh-keygen -vlF 1.dev.secca-project.com
+  -or-
+    alias ssh='ssh -o "VisualHostKey yes" -i YOUR_IDENTITY_FILE'
+    ssh YOUR_NAME@1.dev.secca-project.com
+
