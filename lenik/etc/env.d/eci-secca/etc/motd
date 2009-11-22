@@ -1,18 +1,18 @@
 Welcome SECCA Project Development Node (174.129.60.23)
 
-Fingerprint (4e:19:a5:b5:dc:1c:c0:e9:12:c6:66:55:dc:76:d1:63):
+Fingerprint 26:6a:7f:22:e4:31:48:a6:27:b7:25:62:30:98:49:a3
 
-	+--[ RSA 2048]----+
-	|       . o==o. .o|
-	|        *=o+..oEo|
-	|       +ooo o....|
-	|        .o.      |
-	|        S.       |
-	|       o         |
-	|        .        |
-	|                 |
-	|                 |
-	+-----------------+
+    +--[ RSA 2048]----+
+    |                 |
+    | o               |
+    |+o.              |
+    |E o              |
+    |.= .  . S        |
+    |+.= =. o         |
+    |.= *oo           |
+    |  ..o.. .        |
+    |     ..o         |
+    +-----------------+
 
 Please remember the randomart and check the fingerprint occasionally by:
     ssh-keygen -vlF 1.dev.secca-project.com

@@ -1,1 +1,1 @@
-alias su='sudo su -'
+alias su='sudo su --login --preserve-environment'
