@@ -124,8 +124,10 @@ function main() {
 
                 # dst="$lam_aw$abcd/$name-$latest/$c"
                 if ! findabc -l "$name-" "$lam"; then
-                    _log1 package not found: $name
-                    continue
+                    if ! findabc "$name" "$lam"; then
+                        _log1 package not found: $name
+                        continue
+                    fi
                 fi
                 _xdir="${_home:$nlam}"
 
@@ -175,7 +177,7 @@ function main() {
         fi
         reg_commit $regf
 
-        _log1 lam $lam added.
+        _log1 "lam($lam) added. "
     done
 }
 

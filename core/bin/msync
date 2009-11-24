@@ -81,7 +81,7 @@ function main() {
     # server isn't specified, guess one by mod-name
     if [ -z "$server" ]; then
         # find servers contain $m_mod. /dev/null if no files under servers/
-        svr_list=(`grep -l ^$m_mod= /dev/null {.,~}/.msync/srv/* 2>/dev/null`)
+        svr_list=(`grep -l \\\\\\[$m_mod\\\\\\] /dev/null {.,~}/.msync/srv/* 2>/dev/null`)
         svr_count=${#svr_list[@]}
         if [ $svr_count = 0 ]; then
             echo no available server.
@@ -106,12 +106,48 @@ function main() {
 
     # load server config, example:
     #   cpan.server.com 122100 21220
-    #   CPAN=pub/CPAN
-    #   ubuntu=pub/ubuntu
+    #
+    #   [CPAN]
+    #   path=pub/CPAN
+    #   username=USER
+    #   password=PASSWORD
+    #
+    #   [ubuntu]
+    #   path=pub/ubuntu
     if [ -f "$svr_conf" ]; then
         read r_host r_down r_up <$svr_conf
-        mdef=`grep ^$m_mod= $svr_conf`
-        r_path="${mdef#*=}"
+        parse_attr=0
+        line=0
+        while read LINE; do
+            ((line++))
+            if [ -z "$LINE" ]; then continue; fi
+            if [ "${LINE:0:1}" = '#' ]; then continue; fi
+            if [ "${LINE:0:1}" = '[' -a "${LINE: -1}" = ']' ]; then
+                mdef="${LINE:1:${#LINE}-2}"
+                if [ "$m_mod" = "$mdef" ]; then
+                    parse_attr=1
+                else
+                    parse_attr=0
+                fi
+                continue
+            fi
+            if [ "$parse_attr" != 1 ]; then continue; fi
+
+            # Parse Attributes
+            if [ "${LINE//=}" = "$LINE" ]; then
+                echo "Illegal usage in $svr_conf:$line: $LINE"
+                exit 1
+            fi
+            m_key="${LINE%%=*}"
+            m_value="${LINE#*=}"
+            echo "Module-Attribute: $m_key = $m_value"
+            eval "r_${m_key}=\"$m_value\""
+        done <$svr_conf
+
+        if [ -z "$r_path" ]; then
+            # [MODULE] without path= attribute, default path=MODULE
+            r_path="$m_mod"
+        fi
     else
         r_host=$server
         r_path=$m_mod
@@ -185,9 +221,19 @@ function main() {
     logf="/var/log/rsync/$logf"
     ropts="$ropts --log-file=$logf.log"
 
-    # if r_host contains '/', it is absolute name.
+    # if r_host contains '/', it is absolute name, otherwise add rsync:// to it.
     if [ "${r_host/\/}" = "$r_host" ]; then
-        r_host="rsync://$r_host"
+        r_hostconn="$r_host"
+
+        if [ -n "$r_username" ]; then
+            r_hostconn="$r_username@$r_host"
+        fi
+
+        if [ -n "$r_password" ]; then
+            export RSYNC_PASSWORD="$r_password"
+        fi
+
+        r_host="rsync://$r_hostconn"
     fi
 
     #echo "options:  $ropts"
