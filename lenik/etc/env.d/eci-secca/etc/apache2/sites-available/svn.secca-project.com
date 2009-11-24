@@ -15,7 +15,7 @@
         SVNParentPath /repos/svn
         AuthType Basic
         AuthName "SECCA SVN REPOSITORY"
-        AuthUserFile /repos/svn/conf/auth-file
+        AuthUserFile /node/type/etc/authdb/svndav.htpasswd
         Require valid-user
     </Location>
 

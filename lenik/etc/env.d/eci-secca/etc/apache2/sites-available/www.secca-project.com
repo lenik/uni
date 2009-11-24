@@ -4,10 +4,22 @@
 
     DocumentRoot /node/www
     <Directory /node/www>
-            Options Indexes FollowSymLinks MultiViews
-            AllowOverride None
-            Order allow,deny
-            allow from all
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Order allow,deny
+        allow from all
+    </Directory>
+
+    Alias /doc/ /usr/share/doc/
+    <Directory "/usr/share/doc/">
+        Options Indexes MultiViews FollowSymLinks
+        AllowOverride None
+        Order allow,deny
+        Allow from all
+        AuthType Basic
+        AuthName "User Documents"
+        AuthUserFile /node/type/etc/authdb/developer.htpasswd
+        Require valid-user
     </Directory>
 
     ErrorLog /var/log/apache2/error.log
@@ -17,22 +29,5 @@
     LogLevel warn
 
     CustomLog /var/log/apache2/access.log combined
-
-    <Location /trac>
-        SetHandler mod_python
-        PythonInterpreter main_interpreter
-        PythonHandler trac.web.modpython_frontend
-        PythonOption TracEnv /node/repos/trac
-        # PythonOption TracUriRoot /trac
-    </Location>
-
-    <LocationMatch /trac/login>
-        LoadModule auth_digest_module /usr/lib/apache2/modules/mod_auth_digest.so
-        AuthType Digest
-        AuthName "trac"
-        AuthDigestDomain /trac
-        AuthUserFile /node/repos/trac/conf/trac.passwd
-        Require valid-user
-    </LocationMatch>
 
 </VirtualHost>
