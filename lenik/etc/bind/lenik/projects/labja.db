@@ -1,3 +1,7 @@
+$INCLUDE lenik/inc/default.db
 $INCLUDE lenik/inc/google.db
 
-d                       A       121.12.118.188
+1                       CNAME   1.dev.secca-project.com.
+www                     CNAME   1
+
+svn                     CNAME   svn.bodz.net.

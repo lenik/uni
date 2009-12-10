@@ -1,3 +1,4 @@
+$INCLUDE lenik/inc/default.db
 $INCLUDE lenik/inc/google.db
 
 a                       A       121.12.118.188
