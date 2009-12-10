@@ -7,4 +7,3 @@ $INCLUDE lenik/inc/default.db
                         TXT     "t=spf1 A MX ~all"      ; SPF Framework
 
 googlee249034e54ac4afb  CNAME   google.com.
-*                       CNAME   ghs.hloli.net.
