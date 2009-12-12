@@ -22,4 +22,5 @@ volatile        3       A       1.2.3.4
 volatile2       30      CNAME   volatile
 volatile3       3000    CNAME   volatile2
 
-lenik-pc                CNAME   lenik.3322.org.
+; lenik-pc                CNAME   lenik.3322.org.
+lenik-pc                CNAME   lenik.dyndns.org.
