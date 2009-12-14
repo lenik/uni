@@ -1,5 +1,11 @@
 #!/bin/bash
 
-REPOURL=http://repository.sonatype.org/content/repositories/central/
+# The short form only works if plugin-registry is setup correctly.
+# GOAL=dependency:get
+GOAL=org.apache.maven.plugins:maven-dependency-plugin:2.1:get
 
-mvn dependency:get -DrepoUrl="$REPOURL" "$@"
+# REPOURL=http://repository.sonatype.org/content/repositories/central/
+REPOURL=http://repo1.maven.org/maven2/
+
+mvn $GOAL -DrepoUrl="$REPOURL" "$@"
+
