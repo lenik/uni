@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# boot
+    if [ ! -d "$1" ]; then
+        echo "get-serial DIRNAME [DATE(YYYYMMDD)]"
+        exit 1
+    fi
+    DIRNAME="$1"
+    shift
+
+    if [ ${#DIRNAME} -gt 1 ]; then
+        DIRNAME="${DIRNAME%/}"
+    fi
+
+    if [ -n "$1" ]; then
+        now=`date +%s -d"$1"`
+    else
+        now=`date +%s`
+    fi
+
+    if [ -f "$DIRNAME/.birthday" ]; then
+        read birthday <$DIRNAME/.birthday
+    fi
+
+    age=$((now - birthday))
+    serial=$((age / 28800))
+    dash=
+
+    #BASENAME="${DIRNAME##*/}"
+    #if [ "$BASENAME" = '.' ]; then
+        DIRNAME=`readlink -f "$DIRNAME"`
+        BASENAME="${DIRNAME##*/}"
+        BASENAME="${BASENAME//[^a-zA-Z0-9]/_}"
+    #fi
+
+# check if any collision
+    shopt -s nullglob
+
+    NAME="$BASENAME$dash$serial"
+    FIND=($NAME.*)
+    while [ -f "$NAME" -o ${#FIND[@]} != 0 ]; do
+        ((serial++))
+        NAME="$BASENAME$dash$serial"
+        FIND=($NAME.*)
+    done
+
+# output
+
+    echo "$NAME"

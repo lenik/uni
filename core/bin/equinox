@@ -1,0 +1,16 @@
+#!/bin/bash
+    RCSID='$Id: .sh 921 2009-04-29 23:50:10Z Shecti $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+    . $LAM_KALA/lib/sh/findabc
+
+if ! findabc eclipse; then
+    echo "Can't find eclipse"
+    exit 1
+fi
+
+for j in "$_home/plugins/org.eclipse.equinox.launcher_"*.jar; do
+    LAUNCHER=`cygpath -aw "$j"`
+done
+
+java -jar "$LAUNCHER" "$@"

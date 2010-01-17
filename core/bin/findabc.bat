@@ -27,12 +27,14 @@
         rem echo find with prefix: %_xdir%
         if exist "%_xdir%\%_name%*" (
             for /d %%i in ("%_xdir%\%_name%*") do (
+                set _found=%%i
+                if "%_absolute%"=="1" set _found=%%~fi
                 if "%_list%"=="1" (
                     echo %%i
-                    if "!_home!"=="" set _home=%%i
-                    if "%_last%"=="1" set _home=%%i
+                    if "!_home!"=="" set _home=!_found!
+                    if "%_last%"=="1" set _home=!_found!
                 ) else (
-                    set _home=%%i
+                    set _home=!_found!
                     if not "%_last%"=="1" goto leave
                 )
             )
@@ -78,6 +80,7 @@
     set  _verbose=0
     set      _ret=
     set     _home=
+    set _absolute=
     set     _list=
     set     _last=
     set    _print=
@@ -98,6 +101,10 @@
         set /a _verbose = _verbose - 1
     ) else if "%~1"=="-v" (
         set /a _verbose = _verbose + 1
+    ) else if "%~1"=="-a" (
+        set _absolute=1
+    ) else if "%~1"=="--absolute" (
+        set _absolute=1
     ) else if "%~1"=="-l" (
         set _list=1
     ) else if "%~1"=="--list" (
@@ -151,6 +158,7 @@
     ) else (
         set ABCPATH=%ABCPATH%;%~1
     )
+    shift
     goto prep3
 
 :findlams
@@ -194,6 +202,7 @@
     echo    %__FILE__% [OPTION] abc-package/ SEARCHPATH
     echo.
     echo Options:
+    echo    -a, --absolute      return absolute path
     echo    -l, --last          get last/most-recent version
     echo    -p, --print         print home-directory to STDOUT
     echo    -u, --unix          return unix/ path
