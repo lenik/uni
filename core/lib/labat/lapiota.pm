@@ -7,9 +7,9 @@ labat::lapiota - Lapiota System Functions
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
-use cmt::log(2);
+use cmt::log(3);
     $LOGNAME    = __PACKAGE__;
-    $LOGLEVEL   = $labat::LOGLEVEL;
+    $LOGLEVEL   = $labat::LOGLEVEL - 1;
 use cmt::util();
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
@@ -57,50 +57,100 @@ sub getopts(\@@) {
 }
 
 sub findabc {
-    my $ctx = shift;
-    my ($root, $print, $style) = ($ENV{'LAPIOTA'}.'/abc.d', 0, 'm');
+    my $ctx = shift if ref $_[0];
+    my $show = 0;
     my $last = 0;
+    my $style = 'm';
     my $escape = 0;
     getopts(@_,
-        'root|r=s'  => sub { $root = abs_path($_[1]) },
-        'last|l'    => \$last,
-        'print|p'   => \$print,
+        'last|z'    => \$last,
+        'show|p'    => \$show,
         'unix|u'    => sub { $style = 'u' },
         'windows|w' => sub { $style = 'w' },
+        'mixed|m'   => sub { $style = 'm' },
         'escape|e'  => \$escape,                # using \\, \/ instead of \, /
-        'mix|m'     => sub { $style = 'm' },
         );
-    $root =~ s|^/mnt/([a-z])/|$1:/| unless $style eq 'u';
-    my ($name, @addpath) = @_;
-    my $chdir = $name =~ s/\/$//;
-    my $lev = 0;
-    my $prefix = $root;
-        $prefix =~ s/\\/\//g;
-    my $home;
-    while ($lev <= length($name)) {
-        if (my @glob = <$prefix/$name*>) {
-            if ($last) {
-                $home = pop @glob;
-            } else {
-                $home = shift @glob;
+
+    _log2 'context: $ctx' if defined $ctx;
+    _log2 'option: show' if $show;
+    _log2 'option: last' if $last;
+    _log2 'option: list' if wantarray;
+    _log2 'option: escape' if $escape;
+
+    die "no package name specified" unless @_;
+    my $package = shift;
+    my $chdir = $package =~ s/\/$//;
+
+    my @root = @_;
+    unless (@root) {
+        my $lam_root = $ENV{'LAM_ROOT'} || 'c:/lam';
+            $lam_root =~ s/\\/\//g;  # can't glob with `\', like C:\*
+        _log2 "start from default lam-root: $lam_root";
+        @root = <$lam_root/*>;
+        _log3 "default roots: @root";
+    }
+
+    my $_home;
+    my @home;
+ R: while (@root) {
+        my $root = shift @root;
+        _log2 "root: $root";
+        $root =~ s{^/(cygdrive|mnt)/([a-z])/}{$2:/} unless $style eq 'u';
+
+        unshift @root, grep {-d} (<$root/*.d>, <$root/\\\[*\\\]>);
+
+        my $_xdir = '';
+     X: while (wantarray or !defined $_home) {
+            _log2 "  xdir: $_xdir";
+            my $prefix = $package;
+            for my $f (<$root/$_xdir$prefix*>) {
+                next if ! -d $f;
+                $_home = $f if (!defined $_home) or $last;
+                if (wantarray) {
+                    push @home, $_home;
+                } elsif (!$last) {
+                    last;
+                }
+            }
+            if (defined $_home) {
+                if (wantarray) {
+                    last;
+                } else {
+                    last R;
+                }
+            }
+
+            # do { if exist p/prefix -> xdir-loop } while chop(prefix)
+            while (length($prefix) > 0) {
+                if (-d "$root/$_xdir$prefix") {
+                    $_xdir .= $prefix . '/';
+                    next X;
+                }
+                chop $prefix;
             }
             last;
         }
-        $prefix .= '/'.substr($name, 0, ++$lev)
     }
-    return undef unless defined $home;
+
+    return undef unless defined $_home;
+
     my $DFS = $style eq 'w' ? '\\' : '/';
-    $DFS = '\\'.$DFS if $escape;
-    $home =~ s/\//$DFS/g;
-    chdir $home if $chdir;
-    $ENV{'_HOME'} = $home;
-    print "$home\n" if $print;
-    my $IFS = $style eq 'u' ? ':' : ';';
-    for (@addpath) {
-        my $t = $_ eq '.' ? $home : $home.$DFS.$_;
-        $ENV{'PATH'} .= $IFS.$t;
+       $DFS = '\\'.$DFS if $escape;
+    $_home =~ s/\//$DFS/g;
+    @home = map { s/\//$DFS/g; $_ } @home;
+
+    chdir $_home if $chdir;
+
+    $ENV{'_HOME'} = $_home;
+    if ($show) {
+        if (wantarray) {
+            print "$_\n" for @home;
+        } else {
+            print "$_home\n";
+        }
     }
-    return $home;
+
+    return wantarray ? @home : $_home;
 }
 
 sub findexist {

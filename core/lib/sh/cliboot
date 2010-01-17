@@ -19,8 +19,12 @@ function do_arg() {
 }
 
 function quit() {
+    local EXITSTATUS=$?
     cleanup
-    exit ${1:-0}
+    if [ $# != 0 ]; then
+        echo "$*"
+    fi
+    exit $EXITSTATUS
 }
 
 function die() {
@@ -36,8 +40,9 @@ function die() {
 }
 
 function bootvoid() {
-    help
-    exit
+    # help
+    # exit
+    main
 }
 
 function boot() {

@@ -3,10 +3,12 @@
 # WARNING: should avoid symbolic link loop
 function findabc() {
     shopt -s nullglob
-    local show list last
+    local fileonly show list last style
     local OPTIND opt arg d
-    while getopts plzuw opt; do
+    while getopts fplzuw opt; do
         case $opt in
+            f)
+                fileonly=1;;
             p)
                 show=1;;
             l)
@@ -42,7 +44,7 @@ function findabc() {
             roots="$roots|$d"
         done
     else
-        for arg in $@; do
+        for arg in "$@"; do
             if [ "${arg: -1}" = '/' ]; then
                 if [ "$arg" != '/' ]; then
                     arg="${arg::${#arg}-1}"
@@ -82,15 +84,22 @@ function findabc() {
             local prefix="$package"
             # if exist p/prefix* found.
             for f in "$root/$_xdir$prefix"*; do
-                if [ "${f: -1}" != '*' ]; then
-                    if [ -z "$_home" -o "$last" = 1 ]; then
-                        _home="$f"
-                    fi
-                    if [ "$list" = 1 ]; then
-                        echo "$f"
-                    elif [ -z $last ]; then
-                        break
-                    fi
+                if [ "${f: -1}" = '*' ]; then continue; fi
+
+                if [ "$fileonly" = 1 ]; then
+                    if [ ! -f "$f" ]; then continue; fi
+                else
+                    if [ ! -d "$f" ]; then continue; fi
+                fi
+
+                # FOUND
+                if [ -z "$_home" -o "$last" = 1 ]; then
+                    _home="$f"
+                fi
+                if [ "$list" = 1 ]; then
+                    echo "$f"
+                elif [ -z $last ]; then
+                    break
                 fi
             done
             if [ -n "$_home" ]; then
