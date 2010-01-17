@@ -9,7 +9,7 @@
     - set-env:
         - w=        CMD         $LAPIOTA\local\bin\cmd
         - w=        CMDW        $LAPIOTA\local\bin\cmdw
-        - =         CYGWIN      'nodosfilewarning noenvcache title'
+        - =         CYGWIN      'nodosfilewarning noenvcache server title'
         - w=        CYGWIN_ROOT $CYGWIN_ROOT
         - =         DISPLAY     127.0.0.1:0.0
         - w=        HOME        ${findexist ${cygpath -w $HOME} $LAPIOTA\home\$USERNAME}

@@ -2,3 +2,11 @@
 body {
 	background-color: #f3faf5;
 }
+
+textarea {
+    font-size: 1em;
+}
+
+input  {
+    font-size: 1em;
+}

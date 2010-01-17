@@ -194,7 +194,7 @@
     }
 
     startx() {
-        run %SHELLW% -c startxwin.sh -notrayicon
+        run %SHELLW% -c "startxwin.sh -notrayicon -clipboard"
     }
 
     ; See http://www.autohotkey.com/forum/topic7328.html
@@ -267,7 +267,10 @@
     ; SetSuspendState(bHibernate, bForce, bCold)
     DllCall("PowrProf\SetSuspendState", "int", 0, "int", 0, "int", 0)
     return
-#+h::run cmdw /c no %windir%\System32\drivers\etc\hosts
+#+h::
+    run cmdw /c no %windir%\System32\drivers\etc\hosts %windir%\System32\drivers\etc\services
+    run cmdw /c no %CYGWIN_ROOT%\etc\resolv.conf %CYGWIN_ROOT%\etc\xinetd.conf
+    return
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -402,8 +405,9 @@ appskey & numpaddiv::
 #t::
     process, exist, xwin.exe
     if errorlevel {
-        ; cygwin rxvt needs GUI-subsys patch. (PE hdr +5Ch)
-        run bashw -c "rxvt -e $SHELL --login"
+        ;// cygwin rxvt needs GUI-subsys patch. (PE hdr +5Ch)
+        ;// [bashw will cause cpu full] run bashw -c "urxvt -e $SHELL --login"
+        run urxvt-X -e %SHELL% --login
     } else {
         run cmdw /c start "Terminal" %SHELL% --login
     }

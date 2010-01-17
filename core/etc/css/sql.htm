@@ -1,0 +1,58 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0040)http://www.hnny.gov.cn/_admin/sql_in.htm -->
+<HTML><HEAD><TITLE>SQL Web</TITLE>
+
+<link rel="stylesheet" type="text/css" href="grass.css">
+<BODY>
+<FORM method=post name=frmSQL action=../servlet/Exporter#Part1 target=wResult>
+<TABLE border=0>
+  <TBODY>
+  <TR>
+    <TD vAlign=top>
+      <H3 id=A007>SQL<BR>Web</H3><INPUT value=执行 type=submit name=cmdSubmit>
+      <INPUT value=1 type=hidden name=usePS> </TD>
+    <TD><INPUT value="select 'You have not type any SQL!'" type=hidden name=Q>
+<!--input type=hidden name=delete value="0"--><INPUT value=0 type=hidden
+      name=update> <TEXTAREA id=txtQ rows=10 cols=100 name=txtQ>INSERT INTO StringTable(charset,text) VALUES('hello', N'中华人民共和国')
+SELECT * FROM StringTable</TEXTAREA>
+      <SCRIPT language=vbscript>
+			sub cmdSubmit_onClick()
+				dim tr
+				set tr = document.selection.createrange
+				if len(tr.text)>1 then
+					frmSQL.Q.value=tr.text
+				else
+					frmSQL.Q.value=frmSQL.txtQ.value
+				end if
+
+				if Left(frmSQL.Q.value, 1) = "?" then
+					frmSQL.delete.value="1"
+					frmSQL.update.value="0"
+				end if
+			end sub
+		</SCRIPT>
+       </TD></TR></TBODY></TABLE><INPUT value=auto name=viewAs> </FORM>
+<TABLE>
+  <TBODY>
+  <TR>
+    <TD colSpan=2>
+      <FORM name=frmBrowser target=wBrowser><INPUT value=转到 type=submit name=btnGo> <INPUT size=80
+      name=address>
+      <SCRIPT language=vbScript>
+			function frmBrowser_onSubmit()
+				dim addr
+				addr =  frmBrowser.address.value
+				if UBound(split(addr, ".") ) >=2 then
+					if instr(addr , "//") > 0 then addr = "http://" & addr
+				end if
+				frmBrowser.action = addr
+				frmBrowser_onSubmit = true
+			end function
+		</SCRIPT>
+       </FORM></TD></TR></TBODY></TABLE>
+<SCRIPT language=JScript>
+		et = new EventTricks("et", "cA007-kq-ctxtQ",
+			function() { frmSQL.reset(); }
+		);
+	</SCRIPT>
+</BODY></HTML>
