@@ -194,7 +194,7 @@
     }
 
     startx() {
-        run %SHELLW% -c "startxwin.sh -notrayicon -clipboard"
+        run %SHELLW% -c "startxwin.sh -notrayicon -noclipboard"
     }
 
     ; See http://www.autohotkey.com/forum/topic7328.html
@@ -261,7 +261,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; System Hack {
 ^!del::shutdown, 6
-#esc::run procexp
+#esc:: run procexp
+#+esc::run sc start procexp-root
 #^esc::
     ; send {sleep}
     ; SetSuspendState(bHibernate, bForce, bCold)
@@ -283,19 +284,17 @@
     wingetclass _acls, A
     msgbox 0, Class Info, Window: "%_atitle%"`nClass: "%_acls%"
     return
-#!e::run cmdw /c no %A_ScriptFullPath%
+#!e:: run cmdw /c no %A_ScriptFullPath%
 #!+e::run cmdw /c no %userhotkey%
 #!h::
     splitpath, a_ahkpath, name, dir
     run % dir . "/autohotkey.chm"
     return
-#!i::run au3info
-#!p::pause
-#!r::reload
-#!s::suspend
-#!u::
-    usecode_dlg()
-    return
+#!i:: run au3info
+#!p:: pause
+#!r:: reload
+#!s:: suspend
+#!u:: usecode_dlg()
 #!bs::exitapp
 #!/::
     if A_IconHidden {
@@ -315,11 +314,18 @@ appskey & up::
         run cmdw /c start foobar
     send {media_stop}
     return
-appskey & down::send {media_play_pause}
-appskey & left::send {media_prev}
-appskey & right::send {media_next}
-#wheelup::soundset +2
-#wheeldown::soundset -2
+appskey & down::    send {media_play_pause}
+appskey & left::    send {media_prev}
+appskey & right::   send {media_next}
+
+appskey & v::       run sndvol32
+appskey & c::       run mmsys.cpl
+appskey & a::       run audacity
+
+#wheelup::          soundset +2
+#wheeldown::        soundset -2
+#+wheelup::         soundset +1
+#+wheeldown::       soundset -1
 appskey & numpadadd::soundset +5
 appskey & numpadsub::soundset -5
 appskey & numpaddiv::
@@ -337,9 +343,10 @@ appskey & numpaddiv::
     }
     return
 
-#!a::run aurora.scr /p65552
-#!b::run ssbranded.scr /p65552
-#!o::run bubbles.scr /p65552
+;; Vista screen savers
+#!a:: run aurora.scr    /p65552
+#!b:: run ssbranded.scr /p65552
+#!o:: run bubbles.scr   /p65552
 #!+a::run taskkill /im aurora.scr
 #!+b::run taskkill /im ssbranded.scr
 #!+o::run taskkill /im bubbles.scr
@@ -391,11 +398,24 @@ appskey & numpaddiv::
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Application Shortcuts {
 #+2::run thunderbird
-#a::fastcall("start ""ANSI""")
+#a::
+    ; fastcall("start ""ANSI""")
+
+    random, xsid, 0, 9999
+    x_serv=x_serv_%xsid%
+    run sc create %x_serv% binpath= "cmd /k start" type= own type= interact
+    run sc start %x_serv%
+    return
+
 #b::fastcall("start ""Big""")
 #c::fastcall("start ""Normal""")
-#i::run chrome.exe --enable-extensions
+#i::
+    CHROME=%USERPROFILE%\Local Settings\Application Data\Google\Chrome\Application\chrome.exe
+    ifnotexist, %CHROME%
+        CHROME=chrome.exe
+    run %CHROME% --enable-extensions
         ; --user-data-dir="%TEMP%/../Chrome"
+    return
 #m::run metapad
 #n::run cmdw /c no
 #p::run cmdw /c start paintdotnet
