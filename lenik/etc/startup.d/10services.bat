@@ -1,8 +1,9 @@
 rem #Start Services
 
-net start cygserver
 :: net start named
-net start httpd
+
+httpd2
+
 net start mysql.lapi
 :: net start sshd
 
