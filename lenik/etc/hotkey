@@ -101,4 +101,6 @@ lwin & capslock::shiftalttab
     StringMid, w3, w3, 4
     sendinput 0x%w0%%w1%%w2%%w3%L
     return
+
+:c*:``pc'::c:\downloads\mx\images
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}

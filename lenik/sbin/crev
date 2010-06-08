@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for DIR in "$@"; do
+    read rev _wc _cc < <(svn log -q "$DIR" | grep '^r' | wc)
+    printf "%4d %s\n" $rev "$DIR"
+done

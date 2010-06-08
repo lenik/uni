@@ -7,6 +7,7 @@
 	ErrorLog  /var/log/apache2/mirror_error.log
 
     Alias /ubuntu /mirror/ubuntu/
+
     <Directory /mirror/ubuntu/>
         Options +FollowSymLinks
         AllowOverride None
@@ -19,4 +20,5 @@
         #AuthUserFile /node/type/etc/authdb/developer.htpasswd
         #Require valid-user
     </Directory>
+
 </VirtualHost>

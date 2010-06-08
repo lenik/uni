@@ -1,0 +1,93 @@
+#!/bin/bash
+
+stage=0
+
+if [ "${1:0:1}" = : ]; then
+    stage=${1#:}
+    shift
+fi
+
+if [ -z "$1" ]; then
+    echo svn-dump [STAGE] REPO-DIR
+    exit 1
+fi
+
+if [ $stage -le 1 ]; then
+  echo 1. Dump
+
+    rm -fR .dump; mkdir -p .dump
+
+    for d in "$@"; do
+        ROOT=`readlink -f $d`
+        echo "    $ROOT"
+        pkg=`basename $d`
+
+        svn log file://$ROOT -q | grep '^r' | while IFS='|' read rev author date; do
+            rev=${rev#r}
+            date="${date%+*}"
+            date=${date//[^0-9]}
+            svnadmin dump -r $rev --incremental $ROOT >.dump/$date.$pkg.$rev 2>/dev/null
+        done
+    done
+fi
+
+if [ $stage -le 2 ]; then
+  echo 2. Reindex
+    rm -fR .reindex; mkdir -p .reindex
+    cd .dump
+    i=1
+    for f in *; do
+        id=00000000$i
+        id=${id: -8}
+        dstr="${f:0:4}-${f:4:2}-${f:6:2} ${f:8:2}:${f:10:2}:${f:12:2}"
+        touch -d"$dstr" $f
+        mv $f ../.reindex/$id.${f#*.}
+        ((i++))
+        echo -n .
+    done
+    cd ..
+    rmdir .dump
+fi
+
+if [ $stage -le 3 ]; then
+  echo 3. Reindex - fix revision
+
+fi
+
+if [ $stage -le 4 ]; then
+  echo 4. Create merge repository
+
+    # echo "  Init merged modules structure"
+    rm -fR .merged
+    svnadmin create .merged
+    ROOT=`readlink -f .merged`
+    initdirs=
+    for d in "$@"; do
+        initdirs="$initdirs file://$ROOT/$d"
+    done
+    svn mkdir -m "[Merge SVN Repositories] Create parent dirs" $initdirs >/dev/null
+fi
+
+if [ $stage -le 5 ]; then
+  echo 5. Load
+    for f in .rebuild/*; do
+        s=${f##*/}
+        newrev=${s%%.*}
+        newrev=$((1$newrev-100000000+1))
+        s=${s#*.}
+        module=${s%.*}
+        oldrev=${s#*.}
+        if svnadmin load --parent-dir $module .merged <$f >/dev/null; then
+            echo -n .
+        else
+            echo Error loading $f
+            echo "Command: svnadmin load --parent-dir $module .merged <$f"
+            exit 1
+        fi
+        read current <.merged/db/current
+        if [ $newrev != $current ]; then
+            echo "Expect revision $newrev, but current is $current"
+            #exit 2
+        fi
+    done
+fi

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+index=1
+
+cat /dev/clipboard <(echo) | while read -r src; do
+    src="${src//\\//}"
+    title="${src##*/}"
+    echo "[$index] $src"
+    cp "$src" "$index - $title"
+    ((index++))
+done
