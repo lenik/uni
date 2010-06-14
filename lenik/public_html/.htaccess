@@ -1,0 +1,16 @@
+RewriteEngine on
+
+RewriteBase /~lenik
+
+RewriteRule ^test/(.+) a/$1
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^a/(.+) b/$1
+
+ErrorDocument 404 /testerror.html
+
+#RewriteCond /test/%(REQUEST_FILENAME) -f
+#RewriteRule ^test/(.+) http://www.99jsj.com/1 [L]
+
+#RewriteCond /test/%(REQUEST_FILENAME) -f
+#RewriteRule ^(.+) /b/$1 [L]
