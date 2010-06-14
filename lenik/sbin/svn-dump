@@ -23,12 +23,25 @@ if [ $stage -le 1 ]; then
         echo "    $ROOT"
         pkg=`basename $d`
 
-        svn log file://$ROOT -q | grep '^r' | while IFS='|' read rev author date; do
-            rev=${rev#r}
+        while IFS='|' read rev author date; do
+            rev="${rev#r}"
+            rev="${rev% }"
             date="${date%+*}"
             date=${date//[^0-9]}
-            svnadmin dump -r $rev --incremental $ROOT >.dump/$date.$pkg.$rev 2>/dev/null
-        done
+            fn=".dump/$date.$pkg.$rev"
+            if ! msg=`svnadmin dump -r $rev --incremental $ROOT 2>&1 >$fn`; then
+                echo "Error at package $pkg, rev $rev, date $date: "
+                echo "    $msg"
+                exit 1
+            fi
+            if [ ! -f "$fn" ]; then
+		echo "dump not created: \"$fn\""
+		echo "last message: $msg"
+		exit 1
+            fi
+            echo -n .
+        done < <(svn log file://$ROOT -q | grep '^r')
+        echo
     done
 fi
 
@@ -43,12 +56,13 @@ if [ $stage -le 2 ]; then
         id=${id: -8}
         dstr="${f:0:4}-${f:4:2}-${f:6:2} ${f:8:2}:${f:10:2}:${f:12:2}"
         touch -d"$dstr" $f
-        mv $f ../.reindex/$id.${f#*.}
+        cp $f ../.reindex/$id.${f#*.}
         ((i++))
         echo -n .
     done
+    echo
     cd ..
-    rmdir .dump
+    #rmdir .dump
 fi
 
 # fix revision if any... (not used)
@@ -94,4 +108,5 @@ if [ $stage -le 5 ]; then
             #exit 2
         fi
     done
+    echo
 fi
