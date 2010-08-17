@@ -4,8 +4,8 @@ $INCLUDE lenik/inc/google.db
 ns1                     A       67.202.62.90
 ns2                     A       67.202.62.90
 
-1                       CNAME   67.202.62.90
+1                       A       67.202.62.90
 www                     CNAME   1
 xml                     CNAME   1
 
-svn                     CNAME   67.202.62.90
+svn                     CNAME   1
