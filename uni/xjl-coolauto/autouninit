@@ -1,0 +1,44 @@
+#!/bin/sh
+
+if [ -f Makefile ]; then
+    echo make distclean
+    make distclean
+fi
+
+AC=configure.ac
+
+for f in COPYING INSTALL install-sh missing; do
+    if [ -h $f ]; then
+        echo "Remove file by --add-missing: $f"
+        rm $f
+    fi
+done
+
+for f in aclocal.m4 configure; do
+    if [ -f $f ]; then
+        echo "Remove auto-tools generated file: $f"
+        rm $f
+    fi
+done
+
+for f in autom4te.cache config.status config.log; do
+    if [ -e $f ]; then
+        echo "Remove auto-tools cache files: $f"
+        rm -fR $f
+    fi
+done
+
+if [ -f Makefile.am ] && [ -f Makefile.in ]; then
+    echo "Remove automake output: Makefile.in"
+    rm Makefile.in
+fi
+
+for i in *.in; do
+    base="${i%.in}";
+    if grep AC_CONFIG_FILES $AC | grep -q "$base"; then
+        if [ -f $base ]; then
+            echo "Remove config output file: $base"
+            rm $base
+        fi
+    fi
+done
