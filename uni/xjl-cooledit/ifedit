@@ -1,0 +1,40 @@
+#!/bin/bash
+
+if [ -z "$EDITOR" ]; then
+    EDITOR=vi
+fi
+
+if [ $# = 0 ]; then
+    echo ifedit [--sudo] FILE [command line if modified]
+    exit 0
+fi
+
+SUDO=
+if [ "$1" = "--sudo" ]; then
+    SUDO=1
+    shift
+fi
+
+FILE="$1"
+shift
+ver=`date +%s -r "$FILE"`
+
+if [ "$SUDO" = 1 ]; then
+    sudo "$EDITOR" "$FILE"
+else
+    "$EDITOR" "$FILE"
+fi
+
+new=`date +%s -r "$FILE"`
+
+if [ $# = 0 ]; then
+    test "$ver" != "$new"
+else
+    if [ "$ver" != "$new" ]; then
+        if [ "$SUDO" = 1 ]; then
+            sudo "$@"
+        else
+            "$@"
+        fi
+    fi
+fi

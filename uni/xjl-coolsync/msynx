@@ -1,0 +1,205 @@
+#!/bin/bash
+    RCSID='$Id: .sh 921 2009-04-29 23:50:10Z Shecti $'
+    short_opts="a:dlumc:srC:X:pnhqv"
+    long_opts="alphabet,digits,lower-case,upper-case,mixed-case,concount,shuffle,remote-eval,chdir,distrib,purge,dry-run,help,quiet,verbose,version"
+    . $LAM_KALA/lib/sh/cliboot
+
+    shopt -s nullglob
+
+    CHDIR=
+    CONCOUNT=10
+    PREFIX=
+    REMOTE_EVAL=
+    PURGE=
+    LOGDIR=/var/log/ram/rsync
+    DRYRUN=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Distributed msync utility"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] PREFIX"
+    echo
+    echo "Options: "
+    echo "    -a, --alphabet=CHARS    alphabet to use, 0..9a..z by default"
+    echo "    -d, --digits            alphabet contains digits"
+    echo "    -l, --lower-case        alphabet contains lower case"
+    echo "    -u, --upper-case        alphabet contains upper case"
+    echo "    -m, --mixed-case        alphabet contains both cases, override -d, -l, -u"
+    echo "    -p, --purge             exclude items have been done, find in log dir"
+    echo "    -s, --shuffle           shuffle the alphabet"
+    echo "    -r, --remote-eval       do wild expansion in server-side"
+    echo "    -c, --concount=NUM      max concurrent connections"
+    echo "    -C, --chdir=DIR         chdir before execute"
+    echo "    -X, --distrib=DIR       distributed sync-mode"
+    echo "    -n, --dry-run           perform a trial run"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -a|--alphabet)
+            ALPHABET="$2";;
+        -d|--digits)
+            ALPHABET=${ALPHABET}0123456789;;
+        -l|--lower-case)
+            ALPHABET=${ALPHABET}abcdefghijklmnopqrstuvwxyz;;
+        -u|--upper-case)
+            ALPHABET=${ALPHABET}ABCDEFGHIJKLMNOPQRSTUVWXYZ;;
+        -m|--mixed-case)
+            ALPHABET=${ALPHABET}abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ;;
+        -s|--shuffle)
+            SHUFFLE=1;;
+        -r|--remote-eval)
+            REMOTE_EVAL=1;;
+        -c|--concount)
+            CONCOUNT=$2;;
+        -C|--chdir)
+            CHDIR="$2";;
+        -X|--distrib)
+            CHDIR="$2"
+            if [ ! -d "$2" ]; then
+                echo "Dir is not existed: $2"
+                exit 1
+            fi
+            dir="$CHDIR"            # vol/vol/_a_b_c/
+                dir="${dir%/}"      # vol/vol/_a_b_c
+                dir="${dir##*/}"    # _a_b_c
+                dir="${dir//_//}"   # /a/b/c
+                dir="${dir#/}"      # a/b/c
+                if [ -d "$CHDIR/$dir" ]; then
+                    dir="$dir/"     # a/b/c/
+                fi
+            PREFIX="$dir"
+            echo "PREFIX: $PREFIX"
+            ;;
+        -p|--purge)
+            PURGE=1;;
+        -n|--dry-run)
+            DRYRUN=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function __() {
+    if [ "$DRYRUN" = 1 ]; then return 0; fi
+    "$@"
+}
+
+function main() {
+    if [ -z "$PREFIX" ]; then
+        PREFIX="$1"
+        if [ -z "$PREFIX" ]; then
+            echo "Prefix isn't specified"
+            exit 1
+        fi
+    else
+        if [ ! -z "$1" ]; then
+            echo "Prefix is already set to $PREFIX"
+            exit 1
+        fi
+    fi
+
+    ARGS=(-D)
+    if [ -n "$CHDIR" ]; then
+        cd "$CHDIR"
+    fi
+
+    if [ -z "$ALPHABET" ]; then
+        ALPHABET="0123456789abcdefghijklmnopqrstuvwxyz"
+    fi
+
+    logprefix="$PREFIX"
+    logprefix="${logprefix//[\*\?]/_}"
+    logprefix="${logprefix//[\/\\]/_}"
+    logprefix="$LOGDIR/$logprefix"
+    nprefix=${#PREFIX}
+
+    if [ "$PURGE" = 1 ]; then
+        purged=
+
+        for ((i = ${#ALPHABET}-1; i >= 0; i--)); do
+            c=${ALPHABET:i:1}
+            fulldone=1
+            for reqf in $PREFIX$c*; do
+                reqitem="${reqf:nprefix}"
+                if [ ! -f $logprefix$reqitem.done ]; then
+                    fulldone=0
+                    break
+                fi
+            done
+            if [ $fulldone = 1 ]; then
+                purged="$c$purged"
+                # ALPHABET="${ALPHABET:0:i-1}${ALPHABET:i+1}"
+                ALPHABET=${ALPHABET/$c/}
+            fi
+        done
+        echo "Purged alphabet: $purged"
+    fi
+
+    l=${#ALPHABET}
+    if [ "$SHUFFLE" = 1 ]; then
+        t=
+        for ((i = l; i > 0; i--)); do
+            x=$((RANDOM % i))
+            t="$t${ALPHABET:x:1}"
+            ALPHABET="${ALPHABET:0:x}${ALPHABET:x+1}"
+        done
+        ALPHABET="$t"
+        echo "Shuffled alphabet: $ALPHABET"
+    fi
+
+    x=0
+    d=0
+    for ((i = 0; i < CONCOUNT; i++)); do
+        ((d += l))
+        ((w = d / CONCOUNT))
+        ((d -= w * CONCOUNT))
+        tab="${ALPHABET:x:w}"
+        if [ -z "$tab" ]; then continue; fi
+
+        tabn=${#tab} # assert tabn == w
+        ((x += w))
+
+        if [ "$REMOTE_EVAL" = 1 ]; then
+            echo "msync ${ARGS[@]} $PREFIX[$tab]*"
+         __ msync "${ARGS[@]}" "$PREFIX[$tab]*"&
+        else
+            for ((j = 0; j < tabn; j++)); do
+                c=${tab:j:1}
+                for sect in $PREFIX$c*; do
+
+                    # Try to ignore again, if a tab-char group has too many items.
+                    if [ "$PURGE" = 1 ]; then
+                        reqitem="${sect:nprefix}"
+                        if [ -f $logprefix$reqitem.done ]; then continue; fi
+                    fi
+
+                    echo "[Thread $i] msync ${ARGS[@]} $sect"
+                 __ msync "${ARGS[@]}" $sect
+                done
+            done&
+            echo
+        fi
+    done
+}
+
+boot "$@"

@@ -1,0 +1,318 @@
+#!/bin/bash
+    RCSID='$Id$'
+    short_opts="C:dDhp:qr:s:v"
+    long_opts="chdir,delete,help,page,repeat,quiet,server,verbose,version"
+    . /lam/kala/lib/sh/cliboot
+    shopt -s nullglob
+
+    CHDIR=.
+    DELETE_ARGS=--delete
+    LOGDIR=/var/log/ram/rsync
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Rsync for site mirroring"
+    echo Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] module[/path]"
+    echo
+    echo "Options: "
+    echo "    -C, --chdir=DIR         chdir to specified DIR"
+    echo "    -d, --delete            do rsync delete"
+    echo "    -D, --delete-all        also delete excluded files"
+    echo "    -p, --page=SIZE         split to pages by size [2^SIZE..2^SIZE+3)"
+    echo "    -r, --repeat=TIMEOUT    repeat rsync after TIMEOUT"
+    echo "    -s, --server=SERVER     specify the server to use"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -C|--chdir)
+            CHDIR="$2";;
+        -d|--delete)
+            DELETE=1;;
+        -D|--delete-all)
+            DELETE=1
+            DELETE_ARGS="--delete --delete-excluded";;
+        -r|--repeat)
+            RTIMEOUT=$2;;
+        -s|--server)
+            SERVER="$2";;
+        -p|--page)
+            PAGESIZE="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function pathflat() {
+    flat="$*"
+    flat="${flat//[\*\?\[\]]/_}"
+    flat="${flat//[\/\\]/_}"
+    echo "$flat"
+}
+
+function main() {
+    if [ -n "$PAGESIZE" -a "$DELETE" = 1 ]; then
+        echo "WARNING: "
+        echo "When size-filter is specified, delete option will remove all files"
+        echo "out of the specified size range. "
+        echo "Are you really want to do that? (y/N)"
+        read confirm
+        if [ "$confirm" != y -a "$confirm" != yes ]; then exit 1; fi
+    fi
+
+    if [ -n "$CHDIR" ]; then
+        if ! cd "$CHDIR"; then
+            echo "Can't chdir to $CHDIR. "
+            exit 1
+        fi
+    fi
+
+    if [ -z "$m_dir" ]; then
+        m_dir="$1"
+        if [ -z "$m_dir" ]; then
+            echo "module isn't specified. "
+            exit 1
+        fi
+    elif [ ! -z "$1" ]; then
+        echo "module is already set to $m_dir"
+        exit 1
+    fi
+
+    # chop the ending '/'
+    if [ "${m_dir: -1}" = / ]; then m_dir="${m_dir%/}"; fi
+
+    m_parent="${m_dir%%/*}"
+        if [ "$m_parent" = "$m_dir" ]; then
+            m_dir=
+        else
+            m_dir="${m_dir#*/}"
+        fi
+
+    s_index=$RANDOM
+    if [ "$SERVER" = $((SERVER+0)) ]; then
+        s_index=$SERVER
+        SERVER=
+    fi
+
+    # server isn't specified, guess one by mod-name
+    if [ -z "$SERVER" ]; then
+        # find servers contain $m_parent. /dev/null if no files under servers/
+        svr_list=(`grep -l \\\\\\[$m_parent\\\\\\] /dev/null {.,~}/.msync/srv/* 2>/dev/null`)
+        svr_count=${#svr_list[@]}
+        if [ $svr_count = 0 ]; then
+            echo no available server.
+            exit 1
+        fi
+        svr_conf=${svr_list[s_index % svr_count]}
+        SERVER=${svr_conf##*/}
+    else
+        # server name is specified, search svr_conf file
+        for f in {.,~}/.msync/srv/$SERVER; do
+            if [ -f $f ]; then
+                svr_conf=$f
+                break
+            fi
+        done
+        ## empty path '' will fail the -f test.
+        # if [ -z "$svr_conf" ]; then
+        #     echo "server $SERVER isn't defined."
+        #     exit 1
+        # fi
+    fi
+
+    # load server config, example:
+    #   cpan.server.com 122100 21220
+    #
+    #   [CPAN]
+    #   path=pub/CPAN
+    #   username=USER
+    #   password=PASSWORD
+    #
+    #   [ubuntu]
+    #   path=pub/ubuntu
+    if [ -f "$svr_conf" ]; then
+        read r_host r_down r_up <$svr_conf
+        parse_attr=0
+        line=0
+        while read LINE; do
+            ((line++))
+            if [ -z "$LINE" ]; then continue; fi
+            if [ "${LINE:0:1}" = '#' ]; then continue; fi
+            if [ "${LINE:0:1}" = '[' -a "${LINE: -1}" = ']' ]; then
+                mdef="${LINE:1:${#LINE}-2}"
+                if [ "$m_parent" = "$mdef" ]; then
+                    parse_attr=1
+                else
+                    parse_attr=0
+                fi
+                continue
+            fi
+            if [ "$parse_attr" != 1 ]; then continue; fi
+
+            # Parse Attributes
+            if [ "${LINE//=}" = "$LINE" ]; then
+                echo "Illegal usage in $svr_conf:$line: $LINE"
+                exit 1
+            fi
+            m_key="${LINE%%=*}"
+            m_value="${LINE#*=}"
+            echo "Module-Attribute: $m_key = $m_value"
+            eval "r_${m_key}=\"$m_value\""
+        done <$svr_conf
+
+        if [ -z "$r_path" ]; then
+            # [MODULE] without path= attribute, default path=MODULE
+            r_path="$m_parent"
+        fi
+    else
+        r_host=$SERVER
+        r_path=$m_parent
+    fi
+    remotedir=$r_path
+    if [ -n "$m_dir" ]; then remotedir="$remotedir/$m_dir"; fi
+
+    # -a = -rlptgoD
+    #   --recursive
+    #   --links     copy symlinks as symlinks
+    #   --perms     preserve permissions
+    #   --times     preserve modification times
+    #   --group, -owner
+    #   --devices, --specials (-D)
+    #   --prune-empty-dirs (-m)
+    ropts=-amv
+    if [ "$DELETE" = 1 ]; then ropts="$ropts $DELETE_ARGS"; fi
+
+    # load alias config, example:
+    # ubuntu
+    for conf in {.,~}/.msync; do
+        if [ -f $conf/mod/$m_parent ]; then
+            while read a_opt a_val; do
+                case "$a_opt" in
+                    *)
+                        echo bad option: $a_opt
+                        exit 2;;
+                esac
+            done <$conf/mod/$m_parent
+        fi
+
+        # First include, then exclude. The order is very important.
+        if [ -f $conf/mod/$m_parent.in ]; then
+            ropts="$ropts --include-from $conf/mod/$m_parent.in"
+        fi
+
+        if [ -f $conf/mod/$m_parent.ex ]; then
+            ropts="$ropts --exclude-from $conf/mod/$m_parent.ex"
+        fi
+    done
+
+    case "$PAGESIZE" in
+    '') ;;
+    1)  ropts="$ropts --max-size=2m-1";;
+    4)  ropts="$ropts --max-size=16m-1";;
+    7)  ropts="$ropts --min-size=16m --max-size=1g-1";;
+    10) ropts="$ropts --min-size=1g";;
+    *)  echo illegal page: $PAGESIZE; exit 3;;
+    esac
+
+    localdir="$m_parent"
+    if [ -n "$m_dir" ]; then
+        # m_dir => [ _dir, _base ]
+        _base="${m_dir##*/}"
+        if [ "$_base" == "$m_dir" ]; then
+            _dir=""
+        else
+            _dir="${m_dir%/*}"
+        fi
+        if [ "${_base/[\*\?]/}" != "$_base" ]; then
+            # basename contains *, ? wildcards, using the parent of m_dir
+            localdir="$localdir/$_dir"
+            wildlog=1
+            logprefix=$LOGDIR/`pathflat $localdir`
+            logf=$LOGDIR/`pathflat "$localdir/$_base"`
+        else
+            localdir="$localdir/$m_dir"
+            remotedir="$remotedir/"
+            logf=$LOGDIR/`pathflat $localdir`
+        fi
+    fi
+    mkdir -p "$localdir"
+
+    mkdir -p "$LOGDIR"
+    ropts="$ropts --log-file=$logf.log"
+
+    # if r_host contains '/', it is absolute name, otherwise add rsync:// to it.
+    if [ "${r_host/\/}" = "$r_host" ]; then
+        r_hostconn="$r_host"
+
+        if [ -n "$r_username" ]; then
+            r_hostconn="$r_username@$r_host"
+        fi
+
+        if [ -n "$r_password" ]; then
+            export RSYNC_PASSWORD="$r_password"
+        fi
+
+        r_host="rsync://$r_hostconn"
+    fi
+
+    #echo "options:  $ropts"
+    #echo "remote:   $r_host/$remotedir"
+    #echo "local:    $localdir"
+
+    real_done=
+
+    while true; do
+        _log1 "rsync $ropts $r_host/$remotedir ($PWD/) $localdir"
+        rsync $ropts "$r_host/$remotedir" "$localdir"
+        rsync_err=$?
+        if [ $rsync_err = 0 ]; then
+            if tail -n1 "$logf.log" | grep -q 'total size is'; then
+                real_done=1
+            fi
+            break
+        fi
+
+        if [ -z "$RTIMEOUT" ]; then break; fi
+        echo Press CTRL-C to exit, or repeat this task after $RTIMEOUT seconds...
+        read -n 1 -t $RTIMEOUT KEY
+    done
+
+    if [ "$real_done" = 1 ]; then
+        echo "Done: $@"
+        if [ -f "$logf.log" ]; then
+            mv -f "$logf.log" "$logf.done"
+        fi
+
+        if [ "$wildlog" = 1 ]; then
+            nlocaldir=${#localdir}
+            for itemf in $localdir/$_base; do
+                echo "Done: $itemf"
+                item="${itemf:nlocaldir+1}"
+                touch "${logprefix}_$item.done"
+            done
+        fi
+    fi
+
+    return $rsync_err
+}
+
+boot "$@"
