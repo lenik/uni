@@ -1,0 +1,44 @@
+#!/bin/bash
+
+startid=0
+
+if [ "${1:0:1}" = "-" ]; then
+    startid="${1:1}"
+    shift
+fi
+
+if [ $# = 0 ]; then
+    echo "nextdevid [-START] PREFIX (e.g. /dev/sda)"
+    exit 1
+fi
+
+args=$#
+
+for prefix in "$@"; do
+
+    nprefix=${#prefix}
+    maxsuffix=
+
+    for item in "$prefix"*; do
+	suffix="${item:nprefix}"
+
+	# suffix must be digits only.
+	if [ -n "${suffix//[0-9]}" ]; then continue; fi
+
+	if [ -z "$maxsuffix" ]; then
+	    maxsuffix="$suffix"
+	elif [ "$maxsuffix" -lt "$suffix" ]; then
+	    maxsuffix="$suffix"
+	fi
+    done
+
+    if [ -n "$maxsuffix" ]; then
+        nextid=$((maxsuffix + 1))
+    else
+	nextid=$startid
+    fi
+    echo "$prefix$nextid"
+
+done
+
+exit 0

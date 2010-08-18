@@ -1,0 +1,23 @@
+#!/bin/bash
+
+PREFIX=/usr
+_sbindir=$PREFIX/sbin
+_confdir=/etc
+
+MOUNT_TC=$_sbindir/mount.tc
+err=0
+
+while read dev _; do
+
+    if [ -z "$dev" ]; then continue; fi
+    if [ "${dev:0:1}" = "#" ]; then continue; fi
+
+    # echo "Mount $dev"
+
+    if ! $MOUNT_TC $dev; then
+        ((err++))
+    fi
+
+done < $_confdir/fstab.tc
+
+exit $err

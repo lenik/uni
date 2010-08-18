@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# cuz this program will process the output messages from gpg.
+export LANG=C
+
+dryrun=0
+force=0
+
+while [ "${1:0:1}" = '-' ]; do
+    if [ "$1" = "-n" ]; then
+        dryrun=1
+        shift
+    fi
+
+    if [ "$1" = "-f" ]; then
+        force=1
+        shift
+    fi
+done
+
+if [ -z "$1" ]; then
+    echo "Delete all public and secret keys matched with key-id"
+    echo "Syntax: $0 [-n] [-f] key-id"
+    echo
+    echo "Options"
+    echo "  -n: just print what will do"
+    echo "  -f: don't prompt for deletion"
+    exit 1
+fi
+
+GPG_OPTS=
+GPG_OPTS_XXX=
+if [ "$force" = 1 ]; then
+    GPG_OPTS="$GPG_OPTS --batch --yes"
+
+    # if gpg supports --batch --yes <KEYID>, then...
+    # GPG_OPTS_XXX="$GPG_OPTS --batch --yes"
+    GPG_OPTS_XXX="$GPG_OPTS"
+fi
+
+for keyid in "$@"; do
+
+    # fpr:::::::::910B9712D9DFC8F5F9FE152D73686F78:
+    gpg --list-keys --fingerprint --with-colons "$keyid" | grep ^fpr:: | while read line; do
+        fpr=${line#fpr:::::::::}
+        fpr=${fpr%:}
+        cmd="gpg $GPG_OPTS --delete-secret-and-public-keys $fpr"
+        if [ "$dryrun" = 1 ]; then
+            echo "$cmd"
+        else
+            $cmd
+        fi
+    done
+
+    # -K == --list-secret-keys. if there's no corresponding public key
+    gpg -K "$keyid" 2>&1 | grep "secret key without public key" |
+            while read _gpg_ _key keyid_ _mesg; do
+        id=${keyid_%:}
+        cmd="gpg $GPG_OPTS_XXX --delete-secret-keys $id"
+        if [ "$dryrun" = 1 ]; then
+            echo "$cmd"
+        else
+            $cmd
+        fi
+    done
+
+done

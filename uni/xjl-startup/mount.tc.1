@@ -1,0 +1,49 @@
+.\"
+.\"
+.\" mount.tc.man - mount.tc manpage
+.\" Copyright (C) 2010 Xie Jilei (Lenik)
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; if not, write to the Free Software
+.\" Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+.\"
+.TH MOUNT.TC 1
+.SH NAME
+mount.tc \- TrueCrypt mount wrapper
+.SH SYNOPSIS
+.B mount.tc
+[-v] (TrueCrypt-Volume.tc | MOUNT-POINT)*
+.SH DESCRIPTION
+Mount TrueCrypt volumes with passwords and mount-point location specified in fstab.tc(5).
+
+.SH EXAMPLES
+.PP
+I hate man pages without examples!
+
+.B
+mount.tc ~/myvolume.tc
+
+.B
+mount.tc /mnt/myvolume
+
+.PP
+Both commands mount myvolume.tc if the volume file ~/myvolume.tc or the mount-point location /mnt/myvolume is defined in /etc/fstab.tc.
+
+.SH ENVIRONMENT
+USING_MAPPER
+
+.SH REPORTING BUGS
+Please report any bugs, problems, queries, experiences, etc. directly to the author.
+
+.SH AUTHORS
+Xie Jilei <xjl@99jsj.com>
+.br

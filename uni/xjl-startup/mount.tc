@@ -1,0 +1,106 @@
+#!/bin/bash
+
+PREFIX=/usr
+_confdir=/etc
+_bindir=$PREFIX/bin
+
+TRUECRYPT='truecrypt -t --protect-hidden=no'
+
+USING_MAPPER=1
+TRUECRYPT_MAPDEV=/dev/mapper/truecrypt
+MOUNT_OPTS="defaults,nls=utf8,umask=007,gid=46"
+NEXTID=$_bindir/nextdevid
+
+verbose=0
+while [ "$1" = "-v" ]; do
+    ((verbose++))
+    shift
+done
+
+PASSWD_LIST=/dev/null
+for f in $_confdir/passwd.tc ~/.passwd.tc; do
+    if [ -r "$f" ]; then
+        # XXX: space should be quoted
+        PASSWD_LIST="$PASSWD_LIST $f"
+    fi
+done
+
+function _log() {
+    if [ $verbose -gt 0 ]; then
+        echo "$*"
+    fi
+}
+
+for a in "$@"; do
+    _log "Search $a in fstab.tc"
+
+    while read dev pw fstype dir; do
+
+        if [ -z "$dev" ]; then continue; fi
+        if [ "${dev:0:1}" = '#' ]; then continue; fi
+
+        if [ "$a" -ef "$dev" -o "$a" -ef "$dir" ]; then
+            _log "Matched Entry: $dev ($fstype) $dir"
+        else
+            continue
+        fi
+
+        if [ "${pw:0:1}" = '~' ]; then
+            profile="${pw:1}"
+            _log "Search password for profile $profile in $PASSWD_LIST"
+            # -h: suppress filename prefix
+            if pw1=`grep -h "^$profile:" $PASSWD_LIST | cut -d: -f2`; then
+                _log "Password for profile $profile is expanded to $pw1"
+                pw="$pw1"
+            else
+                _log "Password for profile $profile doesn't exist"
+                exit 1
+            fi
+        fi
+
+        if [ ! -d "$dir" ]; then
+            echo "Mount-Point $dir doesn't exist"
+            exit 1
+        fi
+
+        if [ -z "$USING_MAPPER" ]; then
+
+            _log "Mount TrueCrypt volume $dev directly to $dir"
+            # echo "$TRUECRYPT -p $pw $dev $dir"
+            if ! $TRUECRYPT -k "" -p "$pw" "$dev" "$dir"; then
+                echo Truecrypt fail.
+                exit 1
+            fi
+
+        else
+
+            if mapdev=`$NEXTID -1 $TRUECRYPT_MAPDEV`; then
+                _log "Will use truecrypt mapper device: $mapdev"
+            else
+                _log "Cannot know the truecrypt mapper device.$mapdev"
+                exit 1
+            fi
+
+            _log "Mount TrueCrypt volume $dev"
+            if ! $TRUECRYPT -k "" -p "$pw" "$dev" ""; then
+                echo Truecrypt fail.
+                exit 1
+            fi
+
+            if [ -b "$mapdev" ]; then
+                _log "Found the mounted mapper device $mapdev"
+                _log "Mount the mapper device to $dir"
+                if ! mount -t $fstype -o "$MOUNT_OPTS" "$mapdev" "$dir"; then
+                    echo Failed to mount mapper device.
+                    exit 2
+                fi
+            else
+                _log "TrueCrypt mount success, but no mapper device appeared."
+                exit 3
+            fi
+        fi
+
+    done < $_confdir/fstab.tc
+    _log ""
+
+done

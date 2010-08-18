@@ -1,0 +1,56 @@
+.\"
+.\"
+.\" gennk.man - gennk manpage
+.\" Copyright (C) 2010 Xie Jilei (Lenik)
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; if not, write to the Free Software
+.\" Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+.\"
+.TH GENNK 1
+.SH NAME
+gennk \- Generate GPG Key Pairs With Numeric Key-Id
+.SH SYNOPSIS
+.B gennk
+BATCH-CONFIG[.bat]
+.SH DESCRIPTION
+Gennk tries to generate many GPG key pairs and only save the one with numeric key id.
+
+.SH EXAMPLES
+
+.B
+gennk Lucy.bat
+.PP
+This will generate a numeric key pair, the example config file:
+
+.nf
+    Key-Type: DSA
+    Key-Length: 2048
+    Name-Real: Lucy
+    Name-Email: lucy@example.com
+    Expire-Date: 0
+    Passphrase: s3cret
+    %pubring shecti.pub
+    %secring shecti.sec
+    %commit
+.fi
+
+The key-ring file specified in %pubring and %secring must be the same name as the config file.
+
+.SH ENVIRONMENT
+
+.SH REPORTING BUGS
+Please report any bugs, problems, queries, experiences, etc. directly to the author.
+
+.SH AUTHORS
+Xie Jilei <xjl@99jsj.com>
+.br
