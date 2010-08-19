@@ -1,0 +1,3 @@
+#!/bin/bash
+
+# svnps -b -k -v|-f|-e FILES

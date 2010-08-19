@@ -1,0 +1,2 @@
+
+libmiscdir = ${libdir}/misc

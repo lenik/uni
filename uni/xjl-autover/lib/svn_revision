@@ -1,0 +1,13 @@
+#!/bin/sh
+
+arg="$1"
+
+if xmlattr=`svn info --xml $arg 2>/dev/null | xpath -q -e /info/entry/@revision 2>/dev/null`; then
+    if [ -z "$xmlattr" ]; then
+        exit 1
+    fi
+    eval $xmlattr
+    echo $revision
+else
+    exit 2
+fi

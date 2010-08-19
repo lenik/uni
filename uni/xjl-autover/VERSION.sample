@@ -1,0 +1,15 @@
+
+format = %d.%d-%d_r%d
+format_args = major minor revision release
+
+major = 3
+
+minor = 4
+
+revision-base = 110
+revision = &svn_revision .
+
+release-base= 12000
+release = 12163
+
+more-ver = 7.1

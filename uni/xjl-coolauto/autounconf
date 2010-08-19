@@ -21,7 +21,7 @@ for f in aclocal.m4 configure; do
     fi
 done
 
-for f in autom4te.cache config.status config.log; do
+for f in autoscan.log autom4te.cache config.status config.log; do
     if [ -e $f ]; then
         echo "Remove auto-tools cache files: $f"
         rm -fR $f

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+# For generate version field in configure.ac automaticlly.
