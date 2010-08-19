@@ -1,0 +1,11 @@
+ftp.kaist.ac.kr
+
+[apache]
+[cygwin]
+[eclipse]
+[FreeBSD]
+[rfc]
+[ubuntu]
+
+[lapiota]
+path=lam.root

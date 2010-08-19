@@ -1,0 +1,11 @@
+#!/bin/bash
+
+LN_NSF="ln -nsf"
+
+if [ -z $WINVER ]; then
+    WINVER=500                          # NT, 2k, XP
+fi
+
+if [ $WINVER -ge 600 ]; then            # Vista
+    LN_NSF="$LAPIOTA/bin/vista/ln -nsf"
+fi

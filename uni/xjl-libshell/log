@@ -1,0 +1,53 @@
+if [ -z "$LOGLEVEL" ]; then
+    LOGLEVEL=1
+fi
+
+if [ -z "$BASENAME" ]; then
+    LOGPREFIX=
+else
+    LOGPREFIX="[$BASENAME] "
+fi
+
+function _log() {
+    if [ $LOGLEVEL -ge $1 ]; then
+        shift
+        echo "$LOGPREFIX$@"
+    fi
+}
+
+LINEPAD="                                                                                "
+function _sig() {
+    local line
+    if [ $LOGLEVEL -ge $1 ]; then
+        shift
+        line="$LOGPREFIX$@"
+        if [ ${#line} -lt 80 ]; then
+	    line="$line${LINEPAD:0:$((80-${#line}))}"
+	fi
+        echo -n "$line"$'\r'
+    fi
+}
+
+function _log0() {
+    _log 0 "$@"
+}
+
+function _log1() {
+    _log 1 "$@"
+}
+
+function _log2() {
+    _log 2 "$@"
+}
+
+function _sig0() {
+    _sig 0 "$@"
+}
+
+function _sig1() {
+    _sig 1 "$@"
+}
+
+function _sig2() {
+    _sig 2 "$@"
+}

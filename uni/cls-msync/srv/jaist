@@ -1,0 +1,9 @@
+ftp.jaist.ac.jp
+
+# For directory/ structure problem, jaist modules is incompat.
+# please using kaist.
+#   apache=pub/apache
+#   cygwin=pub/cygwin
+
+[openoffice]
+path=pub/openoffice

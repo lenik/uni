@@ -1,0 +1,71 @@
+
+# loadpaths PATHFILES
+function loadpaths() {
+    local pathfile
+    shopt -s nullglob
+    for pathfile in $*; do
+        base="${pathfile##*/}"
+        if [ "$base" != "${base/ }" ]; then
+            echo "invalid base: \"$base\""
+            exit 1
+        fi
+        name="PATH_$base"
+        # name=join(':', read($pathfile))
+        unset $name
+        while read p; do
+            # skip empty or comment lines
+            if [ -z "$p" -o "${p:0:1}" = "#" ]; then
+                continue;
+            fi
+            eval $name="\"${!name}:$p\""
+        done <$pathfile
+        # chop first
+        if [ -n "$name" ]; then
+            eval $name="\"${!name:1}\""
+        fi
+    done
+}
+
+loadpaths $LAPIOTA/etc/paths/* $HOME/etc/paths/*
+unset loadpaths
+
+# findonce VAR PATH WILDCARDS
+function findonce() {
+    local var="$1"
+    local pathv="$2"
+    shift 2
+
+    unset $var
+    while [ $# -gt 0 ]; do
+        for p in ${pathv//:/ }; do
+            for wilds in "$1"; do
+                for f in $p/$wilds; do
+                    if [ -f "$f" ]; then
+                        eval $var="\"$f\""
+                        return 0
+                    fi
+                done
+            done
+        done
+        shift
+    done
+    return 1
+}
+
+# mountpgp
+function mountpgp() {
+    local fstab ext
+    for fstab in /etc/fstab* $LAPIOTA/etc/fstab* $HOME/etc/fstab*; do
+        if [ "${fstab/.}" != "$fstab" ]; then
+            ext="${fstab##*.}"
+        else
+            ext=
+        fi
+        mount.pgp.bat "`cygpath -w $pgpimage`" "$mpoint"
+        if [ -d "$mpoint/etc/startup.d" ]; then
+            for f in $mpoint/etc/startup.d/*; do
+                . "$f"
+            done
+        fi
+    done
+}

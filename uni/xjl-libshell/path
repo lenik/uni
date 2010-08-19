@@ -1,0 +1,117 @@
+
+# getbase PATH
+function getbase() {
+	local base=${!1##*/}
+	eval $1_base=\"$base\"
+}
+
+# getext PATH
+function getext() {
+	local base=${!1##*/}
+	local ext=${base##*.}
+	if [ ${#base} -eq ${#ext} ]; then
+		ext=
+	else
+		ext=.$ext
+	fi
+	eval $1_ext=$ext
+}
+
+# getext2 PATH
+function getext2() {
+	local base=${!1##*/}
+	local file1=${base%.*}			# (file1).ext
+	local ext2
+	if [ ${#base} -eq ${#file1} ]; then
+		ext2=
+	else
+		ext2=${file1##*.}		# file2(.ext2).ext
+		if [ ${#file1} -eq ${#ext2} ]; then
+			ext2=
+		else
+			ext2=.$ext2
+		fi
+	fi
+	eval $1_ext2=$ext2
+}
+
+# findpath PATH DIR OFFSET: return INDEX (1-based, 0 if not found)
+function findpath() {
+    local IFS=:
+    local dirs=($1)
+    local offset=0
+    local i
+    for ((i = 0; i < ${#dirs[*]}; i++)); do
+        local dir="${dirs[$i]}"
+        if [ "$dir" = "$2" ]; then
+            eval $3=$offset
+            return $((i + 1))
+        fi
+        offset=$((offset + ${#dir} + 1))
+    done
+    return 0
+}
+
+# editpath VAR POSITION DIR
+# POSITION:
+#   -[^]    remove /^DIR*/
+#   ^+      prepend DIR to VAR
+#   +[$]    append DIR to VAR
+#   +MARK   insert DIR before MARK, prepend MARK to VAR if not existed
+#   MARK+   insert DIR after MARK, append MARK to VAR if not existed
+function editpath() {
+    local var="${!1}"
+    local IFS=:
+    local mark off
+    local dir
+    case $2 in
+    -|-^)
+        local t
+        local len=${#3}
+        for dir in $var; do
+            if [ "${dir:0:$len}" != "$3" ]; then
+                t="$t$IFS$dir"
+            fi
+        done
+        var="${t:1}"
+        ;;
+    ^+)
+        if [ -n "$var" ]; then var="$IFS$var"; fi
+        var="$3$var"
+        ;;
+    +|+\$)
+        if [ -n "$var" ]; then var="$var$IFS"; fi
+        var="$var$3"
+        ;;
+    +*)
+        mark=${2:1}
+        findpath "$var" "$mark" off
+        if [ $? -eq 0 ]; then
+            # DIR:MARK:VAR
+            var="$3$IFS$mark$IFS$var"
+        else
+            # assert $off >= 0
+            # ... DIR: MARK:...
+            var="${var:0:$off}$3$IFS${var:$off}"
+        fi
+        ;;
+    *+)
+        mark=${2:0:${#2}-1}
+        findpath "$var" "$mark" off
+        if [ $? -eq 0 ]; then
+            # VAR:MARK:DIR
+            var="$var$IFS$mark$IFS$3"
+        else
+            # assert $off >= 0
+            # ...MARK :DIR :...
+            off=$((off + ${#mark}))
+            var="${var:0:$off}$IFS$3${var:$off}"
+        fi
+        ;;
+    *)
+        echo Invalid position \`$2\' 1>&2
+        return 2
+        ;;
+    esac
+    eval "$1=\"$var\""
+}

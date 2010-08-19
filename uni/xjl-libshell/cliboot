@@ -1,0 +1,104 @@
+BASENAME=${0##*/}
+if [ -z $LONGOPTS ]; then
+    LONGOPTS=0
+fi
+
+function cleanup() {
+    true
+}
+
+function setopt() {
+    local nam=${1:1}
+    if [ "${nam:0:1}" = "0" ]; then nam=${nam:1}; fi
+    eval $nam=$2
+}
+
+function do_arg() {
+    local n=${#_arg[@]}
+    _arg[n + 1]="$1"
+}
+
+function quit() {
+    local EXITSTATUS=$?
+    cleanup
+    if [ $# != 0 ]; then
+        echo "$*"
+    fi
+    exit $EXITSTATUS
+}
+
+function die() {
+    local err
+    err=${2:-1}
+    if [ $err -ne 0 ]; then
+        _log1 "failed: $1"
+    else
+        _log2 "$1"
+    fi
+    cleanup
+    exit $err
+}
+
+function bootvoid() {
+    # help
+    # exit
+    main
+}
+
+function boot() {
+    local args opt mid arg
+    if [ -z "$*" ]; then bootvoid; exit; fi
+    if [ "$LONGOPTS" = 1 ]; then
+        # slower extension
+        getopt -T >/dev/null
+        if [ $? -ne 4 ]; then
+            die "enhanced getopt(1) required"
+        fi
+        args=$(getopt -o $short_opts -l $long_opts -n $BASENAME -- "$@")
+        if [ $? -ne 0 ]; then
+            die "syntax error"
+        fi
+        eval set -- "$args"
+        while [ $# -ne 0 ]; do
+            if [ "$1" = "--" ]; then shift; break; fi
+            if [ "${1:0:1}" = "-" ]; then
+                if [ "${2:0:1}" = "-" ]; then
+                    setopt "$1"
+                else
+                    setopt "$1" "$2"
+                    shift
+                fi
+            else
+                do_arg "$1"
+            fi
+            shift
+        done
+    else
+        # faster built-in
+        while getopts $short_opts opt; do
+            setopt -$opt "$OPTARG"
+            ## all arguments between -opt1 <mid...> -opt2 are ignored
+            # for ((mid = 2; mid < $OPTIND; mid++)); do
+            #     do_arg "${!mid}"
+            # done
+
+            # OPTIND: the next argument to be processed. initially 1
+            #shift $((OPTIND - 1))
+        done
+        shift $((OPTIND - 1))
+    fi
+
+    for arg in "$@"; do do_arg "$arg"; done
+    main "${_arg[@]}"
+}
+
+function dump() {
+    echo count=$#
+    for ((i=0; i<=$#; i++)); do
+        echo arg[$i] = ${!i}
+    done
+}
+
+for lib in log rcs; do
+    . $LAPIOTA/lib/sh/$lib
+done

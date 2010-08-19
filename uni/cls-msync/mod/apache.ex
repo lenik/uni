@@ -1,0 +1,12 @@
+/ia64/
+/amd64/
+/powerpc/
+/sparc/
+/os2/
+/solaris/
+/netware/
+-snapshot.*
+*.asc
+*.sig
+*.tar.bz2
+*.zip

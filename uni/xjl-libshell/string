@@ -1,0 +1,71 @@
+
+# tolower VAR
+function tolower() {
+    local v=${!1}
+    v=${v//A/a}
+    v=${v//B/b}
+    v=${v//C/c}
+    v=${v//D/d}
+    v=${v//E/e}
+    v=${v//F/f}
+    v=${v//G/g}
+    v=${v//H/h}
+    v=${v//I/i}
+    v=${v//J/j}
+    v=${v//K/k}
+    v=${v//L/l}
+    v=${v//M/m}
+    v=${v//N/n}
+    v=${v//O/o}
+    v=${v//P/p}
+    v=${v//Q/q}
+    v=${v//R/r}
+    v=${v//S/s}
+    v=${v//T/t}
+    v=${v//U/u}
+    v=${v//V/v}
+    v=${v//W/w}
+    v=${v//X/x}
+    v=${v//Y/y}
+    v=${v//Z/z}
+    eval "$1=\"$v\""
+}
+
+# toupper VAR
+function toupper() {
+    local v=${!1}
+    v=${v//a/A}
+    v=${v//b/B}
+    v=${v//c/C}
+    v=${v//d/D}
+    v=${v//e/E}
+    v=${v//f/F}
+    v=${v//g/G}
+    v=${v//h/H}
+    v=${v//i/I}
+    v=${v//j/J}
+    v=${v//k/K}
+    v=${v//l/L}
+    v=${v//m/M}
+    v=${v//n/N}
+    v=${v//o/O}
+    v=${v//p/P}
+    v=${v//q/Q}
+    v=${v//r/R}
+    v=${v//s/S}
+    v=${v//t/T}
+    v=${v//u/U}
+    v=${v//v/V}
+    v=${v//w/W}
+    v=${v//x/X}
+    v=${v//y/Y}
+    v=${v//z/Z}
+    eval "$1=\"$v\""
+}
+
+# c_escape VAR
+function c_escape() {
+    local v=${!1}
+    v=${v//\"/\\\\\\\"}
+    eval $1=\"$v\"
+}
