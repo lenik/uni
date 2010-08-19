@@ -1,0 +1,19 @@
+#!/bin/bash
+
+    XXDOPTS=
+    while [ "${1:0:1}" = "-" ]; do
+        if [ -n "$XXDOPTS" ]; then
+            XXDOPTS="$XXDOPTS "
+        fi
+        XXDOPTS="$XXDOPTS$1"
+        shift
+    done
+
+    if [ $# -ne 2 ]; then
+        echo xdiff [XXDOPTS] ORIG DEST
+        exit 1
+    fi
+
+    ORIG="$1"
+    DEST="$2"
+    diff <(xxd $XXDOPTS -ps "$ORIG") <(xxd $XXDOPTS -ps "$DEST")

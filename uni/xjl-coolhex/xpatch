@@ -1,0 +1,47 @@
+#!/bin/bash
+
+    XXDOPTS=
+    while [ "${1:0:1}" = "-" ]; do
+        if [ -n "$XXDOPTS" ]; then
+            XXDOPTS="$XXDOPTS "
+        fi
+        XXDOPTS="$XXDOPTS$1"
+        shift
+    done
+
+    if [ $# -lt 2 ]; then
+        echo xpatch [XXDOPTS] ORIG PATCH [DEST]
+        exit 1
+    fi
+
+    ORIG="$1"
+    PATCH="$2"
+    DEST=-
+    if [ -n "$3" ]; then DEST="$3"; fi
+
+    TMPNAM="$TEMP/xpatch-$RANDOM"
+    ORIGX="$TMPNAM.orig"
+    DESTX="$TMPNAM.dest"
+    _PATCH="$PATCH"
+    if [ -p "$_PATCH" ]; then
+        _PATCH="$TMPNAM.patch"
+        cp -f "$PATCH" "$_PATCH"
+    fi
+
+    # dump
+    xxd $XXDOPTS -ps "$ORIG" >"$ORIGX"
+
+    # patch silent.
+    if ! patch -s "$ORIGX" "$_PATCH" -o "$DESTX"; then
+        echo Patch failed, see $TMPNAM.*
+        exit 1
+    fi
+
+    # reverse dump
+    xxd -r $XXDOPTS -ps "$DESTX" "$DEST"
+
+    if [ "$DEST" != "-" ]; then
+        chmod --reference "$ORIG" "$DEST"
+    fi
+
+    rm "$TMPNAM"* >/dev/null

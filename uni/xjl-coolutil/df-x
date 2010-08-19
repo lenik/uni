@@ -1,0 +1,51 @@
+#!/bin/sh
+
+if [ $# -eq 0 ]; then
+	echo fst device [-[command]]
+	exit
+fi
+
+if [ $# -gt 1 ]; then
+	if [ "${2:0:1}" != '-' ]; then
+		echo '-' must be prefix to command
+		exit
+	fi
+	if [ $2 = '-' ]; then
+		CMD=$SHELL
+	else
+		CMD=$SHELL -c "${2:1}"
+	fi
+fi
+
+if [ ! -d /tmp/fst ]; then mkdir -p /tmp/fst; fi
+umount /tmp/fst 2>/dev/null
+
+if [ -z "$CMD" ]; then
+	MOUNTOPTS="-o ro"
+fi
+if ! mount $1 /tmp/fst $MOUNTOPTS; then
+	exit
+fi
+
+ls /tmp/fst| grep __
+mount  2>/dev/null | grep /tmp/fst
+df -ah 2>/dev/null | grep /tmp/fst
+
+if [ -n "$CMD" ]; then
+	PWD_BAK=$PWD
+	cd /tmp/fst
+	echo executing $CMD...
+	$CMD
+	cd "$PWD_BAK"
+fi
+
+if [ -f /tmp/fst/.VEX/auto.fst.sh ]; then
+	cp /tmp/fst/.VEX/auto.fst.sh /tmp/fst-post
+fi
+
+umount /tmp/fst 2>/dev/null
+
+if [ -f /tmp/fst-post ]; then
+	. /tmp/fst-post
+	rm -f /tmp/fst-post
+fi

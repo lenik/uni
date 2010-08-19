@@ -1,0 +1,12 @@
+#!/bin/sh
+
+function _cat() {
+	for file in $*; do
+		echo file: $file 1>&2
+		echo $file
+		gunzip -c $file
+		echo
+	done
+}
+
+_cat $* | gzip

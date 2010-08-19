@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# ls-Z=`dirname `readlink -f $0``/ls-Z
+/bin/find $* | ls-Z

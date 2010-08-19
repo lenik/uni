@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# Exit codes:
+#	1 - syntax err
+#	2 - index out of bounds
+
+if [ $# -lt 1 ]; then
+	echo "$0 [-n] program"
+	echo "$0 program skipped-list..."
+	exit
+fi
+
+program=$1
+n=0
+if [ $# -gt 1 ]; then
+	if [ ${1:0:1} == '-' ]; then
+		n=${1:1}
+		shift
+		program=$1
+	else
+		# FIX - can't do array-copy correctly,
+		#       when argv contains space, they'll be splited into
+		#	multiple elements.
+		skips=(${BASH_ARGV[*]})
+		nskips=${#skips[*]}
+		# ignore the syntax parts: which2 <program> ...
+		nskips=$((nskips - 1))
+	fi
+fi
+
+# Impl.1: by which -a
+	#all=(`which -a $program | sed "s/^/\'/; s/\$/\'/"`)
+	IFS='
+'
+	all=(`which -a $program`)
+	count=${#all[*]}
+	if [ $n -ge $count ]; then
+		echo Index out of bounds. \(Range: 0..$((count-1))\)
+		exit 2
+	fi
+
+	c=0
+	i=0
+	while [ $c -lt $count ]; do
+		current=${all[$c]}
+		c=$((c + 1))
+		skip=0
+		for ((j = 0; j < nskips; j++)); do
+			if [ $current == ${skips[j]} ]; then
+				skip=1
+			fi
+		done
+		if [ $skip -eq 0 ]; then
+			i=$((i + 1))
+		fi
+		if [ $i -gt $n ]; then
+			echo $current
+			exit 0
+		fi
+	done
+	echo Cannot find.
+	exit 1
+
+# Impl.2: by PATH finding
+# ...
