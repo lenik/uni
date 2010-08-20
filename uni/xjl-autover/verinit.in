@@ -7,4 +7,4 @@ if [ -f "$av" ]; then
     exit 1
 fi
 
-cp @datadir@/VERSION.template "$av"
+cp @pkgdatadir@/VERSION.template "$av"

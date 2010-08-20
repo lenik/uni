@@ -6,7 +6,9 @@ bin_SCRIPTS = \
 	vercomp
 
 dist_doc_DATA = \
-	VERSION.sample \
+	VERSION.sample
+
+dist_pkgdata_DATA = \
 	VERSION.template
 
 man_MANS = \
@@ -16,7 +18,7 @@ CLEANFILES = verinit
 EXTRA_DIST = verinit.in
 
 do_subst = sed \
-	-e 's,[@]datadir[@],$(datadir),g'
+	-e 's,[@]pkgdatadir[@],$(pkgdatadir),g'
 
 verinit: verinit.in Makefile
 	$(do_subst) <$(srcdir)/verinit.in >verinit
