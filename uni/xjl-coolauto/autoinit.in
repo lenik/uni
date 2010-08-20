@@ -1,0 +1,20 @@
+#!/bin/bash
+
+function do_subst() {
+    local template="$1"
+    local output="$2"
+
+    if [ -f "$output" ]; then
+        echo "File $output is already existed, skipped. "
+        return
+    fi
+
+    sed \
+        -e "s,[@]NAME[@],$PACKAGE_NAME,g" \
+        -e "s,[@]EMAIL[@],$EMAIL,g" \
+        -e "s,[@]VERSION[@],0.1,g" \
+        <$template >$output
+}
+
+do_subst "@pkgdatadir@/autoconf.template" configure.ac
+do_subst "@pkgdatadir@/automake.template" Makefile.am
