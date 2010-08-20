@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# master-file
+
+PACKAGE_NAME=${PWD##*/}
+if [ -z "$EMAIL" ]; then
+    # for future replacement.
+    EMAIL=xjl-bug@99jsj.com
+fi
+
 function do_subst() {
     local template="$1"
     local output="$2"
@@ -18,3 +26,5 @@ function do_subst() {
 
 do_subst "@pkgdatadir@/autoconf.template" configure.ac
 do_subst "@pkgdatadir@/automake.template" Makefile.am
+
+touch NEWS README AUTHORS ChangeLog
