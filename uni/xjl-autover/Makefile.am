@@ -1,24 +1,29 @@
 
+do_subst = sed \
+    -e 's/master-file/generated-file, please do not edit/' \
+    -e 's,[@]prefix[@],$(prefix),g' \
+    -e 's,[@]bindir[@],$(bindir),g' \
+    -e 's,[@]docdir[@],$(docdir),g' \
+    -e 's,[@]datadir[@],$(datadir),g' \
+    -e 's,[@]pkgdatadir[@],$(pkgdatadir),g'
+
 SUBDIRS = lib
 
 bin_SCRIPTS = \
-	verinit \
-	vercomp
+    verinit \
+    vercomp
 
 dist_doc_DATA = \
-	VERSION.sample
+    VERSION.sample
 
 dist_pkgdata_DATA = \
-	VERSION.template
+    VERSION.template
 
 man_MANS = \
-	vercomp.5
+    vercomp.5
 
 CLEANFILES = verinit
 EXTRA_DIST = verinit.in
-
-do_subst = sed \
-	-e 's,[@]pkgdatadir[@],$(pkgdatadir),g'
 
 verinit: verinit.in Makefile
 	$(do_subst) <$(srcdir)/verinit.in >verinit

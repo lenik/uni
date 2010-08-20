@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# master-file
+
 av=VERSION.av
 
 if [ -f "$av" ]; then
