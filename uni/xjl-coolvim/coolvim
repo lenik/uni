@@ -1,0 +1,30 @@
+#!/bin/sh
+
+VIM=vim
+
+if [ -z "$1" ]; then
+    $VIM
+    exit $?
+fi
+
+for f in "$@"; do
+
+    SUDO=
+
+    if [ ! -f "$f" ]; then
+        if which=`which "$f"`; then
+            f="$which"
+        else
+            # create a new file, maybe
+            $SUDO $VIM "$f"
+            continue
+        fi
+    fi
+
+    tabrc=`guesstab "$f"`
+    if [ ! -w "$f" ]; then
+        SUDO=sudo
+    fi
+    $SUDO $VIM -c "$tabrc" "$f"
+
+done

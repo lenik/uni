@@ -1,0 +1,56 @@
+#!/bin/sh
+
+if [ -z "$1" ]; then
+    in=/dev/stdin
+else
+    in="$1"
+fi
+
+if [ ! -r "$in" ]; then
+    echo "Could not read from $in"
+fi
+
+hastab=0
+mixed=0
+
+if egrep -q '^	+  ' $in; then
+    hastab=1
+    mixed=1
+elif egrep -q '^	+' $in; then
+    hastab=1
+fi
+
+if [ $hastab = 1 ]; then
+    expandtab=0
+    if [ $mixed = 1 ]; then
+        tabsize=8
+        indent=4
+    else
+        tabsize=4
+        indent=4
+    fi
+else
+    expandtab=1
+    tabsize=4
+    indent=4
+fi
+
+mode=vi
+case "$mode" in
+vi)
+    echo -n ":set"
+    if [ $expandtab = 1 ]; then
+        echo -n " expandtab"
+    else
+        echo -n " noexpandtab"
+    fi
+    echo -n " tabstop=$tabsize"
+    echo -n " shiftwidth=$indent"
+    echo
+    ;;
+*)
+    echo "expandtab=$expandtab"
+    echo "tabsize=$tabsize"
+    echo "indent=$indent"
+    ;;
+esac
