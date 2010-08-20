@@ -1,6 +1,13 @@
-#!/bin/sh
+#!/bin/bash
+
+# bash for: pushd, popd
+
+AUTOUNCONF=`readlink -f $0`
+subdirs=
 
 if [ -f Makefile ]; then
+    subdirs=`maketest '@echo $(SUBDIRS)'`
+
     echo make distclean
     make distclean
 fi
@@ -33,12 +40,24 @@ if [ -f Makefile.am ] && [ -f Makefile.in ]; then
     rm Makefile.in
 fi
 
-for i in *.in; do
-    base="${i%.in}";
-    if grep AC_CONFIG_FILES $AC | grep -q "$base"; then
-        if [ -f $base ]; then
-            echo "Remove config output file: $base"
-            rm $base
+if [ -f $AC ]; then
+    for i in *.in; do
+        base="${i%.in}";
+        if grep AC_CONFIG_FILES $AC | grep -q "$base"; then
+            if [ -f $base ]; then
+                echo "Remove config output file: $base"
+                rm $base
+            fi
         fi
-    fi
-done
+    done
+fi
+
+if [ -n "$subdirs" ]; then
+    # echo "Subdirs: $subdirs"
+    for dir in $subdirs; do
+        echo "Recurse into $dir"
+        pushd $dir >/dev/null
+        $AUTOUNCONF
+        popd >/dev/null
+    done
+fi

@@ -1,6 +1,8 @@
 
-profiledir=/etc/profile.d
+sysconfdir = /etc
+aliasesdir = ${sysconfdir}/bash_aliases.d
 
-bin_SCRIPTS=autounconf
+dist_bin_SCRIPTS = autounconf
 
-dist_profile_DATA=profile.d/autotools.sh
+dist_aliases_DATA = aliases.d/autotools.sh
+
