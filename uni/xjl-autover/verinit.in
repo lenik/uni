@@ -1,0 +1,10 @@
+#!/bin/sh
+
+av=VERSION.av
+
+if [ -f "$av" ]; then
+    echo $av is already existed.
+    exit 1
+fi
+
+cp @datadir@/VERSION.template "$av"

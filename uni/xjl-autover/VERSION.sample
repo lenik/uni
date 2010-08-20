@@ -1,15 +1,17 @@
 
+# see vercomp(5)
+
+order = major minor revision release
 format = %d.%d-%d_r%d
-format_args = major minor revision release
 
 major = 3
 
 minor = 4
 
-revision-base = 110
 revision = &svn_revision .
+revision-base = 110
 
-release-base= 12000
 release = 12163
+release-base= 12000
 
 more-ver = 7.1

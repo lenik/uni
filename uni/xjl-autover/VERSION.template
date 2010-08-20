@@ -1,0 +1,11 @@
+
+# See vercomp(5)
+
+order = major minor revision
+
+major = 0
+
+minor = 0
+
+revision = &svn_revision .
+revision-base = 0
