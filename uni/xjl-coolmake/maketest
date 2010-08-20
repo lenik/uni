@@ -1,0 +1,35 @@
+#!/bin/sh
+
+if [ -z "$MAKE" ]; then
+    MAKE=make
+fi
+
+if [ -z "$1" ]; then
+    echo "make-test [test-rule-body] ... (make args)"
+    exit 1
+fi
+
+test_target="_test_target_1f7u_$RANDOM"
+test_rule="$1"
+shift
+
+mkorig=
+for f in Makefile makefile; do
+    if [ -f $f ]; then
+        mkorig=$f
+        break
+    fi
+done
+if [ -z "$mkorig" ]; then
+    echo "No makefile found."
+    exit 1
+fi
+
+mktmp="Makefile.$$.$RANDOM"
+cp -f $mkorig $mktmp
+echo "$test_target: ">>$mktmp
+echo "	$test_rule">>$mktmp
+
+$MAKE -f "$mktmp" "$@" $test_target
+
+rm -f $mktmp
