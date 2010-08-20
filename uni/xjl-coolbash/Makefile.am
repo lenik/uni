@@ -1,6 +1,8 @@
 
-profiledir = /etc/profile.d
+SUBDIRS = lib aliases.d
 
-SUBDIRS = lib
+sysconfdir = /etc
 
-dist_profile_DATA = xjl-aliases.sh
+dist_sysconf_DATA = \
+    bash_aliases
+

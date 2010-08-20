@@ -1,0 +1,6 @@
+
+for f in /etc/bash_aliases.d/*.sh; do
+    if [ -f $f ]; then
+        . $f
+    fi
+done
