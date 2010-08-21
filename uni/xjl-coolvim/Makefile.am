@@ -8,3 +8,6 @@ dist_bin_SCRIPTS = \
 
 dist_aliases_DATA = \
     aliases.d/coolvim.sh
+
+install-exec-hook:
+	cd $(DESTDIR)$(bindir); ln -snf coolvim coolvims

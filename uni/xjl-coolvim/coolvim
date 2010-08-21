@@ -1,4 +1,12 @@
-#!/bin/sh
+#!/bin/bash
+
+# (the default dash also support ## substitution).
+THIS=${0##*/}
+if [ "$THIS" = "coolvims" ]; then
+    SUDO=sudo
+else
+    SUDO=
+fi
 
 VIM=vim
 
@@ -9,22 +17,21 @@ fi
 
 for f in "$@"; do
 
-    SUDO=
-
+    launcher=
     if [ ! -f "$f" ]; then
         if which=`which "$f"`; then
             f="$which"
         else
             # create a new file, maybe
-            $SUDO $VIM "$f"
+            $launcher $VIM "$f"
             continue
         fi
     fi
 
     tabrc=`guesstab "$f"`
     if [ ! -w "$f" ]; then
-        SUDO=sudo
+        launcher=$SUDO
     fi
-    $SUDO $VIM -c "$tabrc" "$f"
+    $launcher $VIM -c "$tabrc" "$f"
 
 done

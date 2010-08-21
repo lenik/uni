@@ -6,6 +6,7 @@ AC_INIT([xjl-coolvim], [0.1], [xjl@99jsj.com])
 AM_INIT_AUTOMAKE([-Wall])
 
 # Checks for programs.
+AC_PROG_LN_S
 
 # Checks for libraries.
 
