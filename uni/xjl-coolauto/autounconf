@@ -4,10 +4,11 @@
 
 AUTOUNCONF=`readlink -f $0`
 subdirs=
+distfiles=
 
 if [ -f Makefile ]; then
-    subdirs=`maketest '@echo $(SUBDIRS)'`
-
+    subdirs=`maketestvar SUBDIRS`
+    distfiles=`maketestvar DIST_ARCHIVES`
     echo make distclean
     make distclean
 fi
@@ -17,14 +18,14 @@ AC=configure.ac
 for f in COPYING INSTALL install-sh missing; do
     if [ -h $f ]; then
         echo "Remove file by --add-missing: $f"
-        rm $f
+        rm -f $f
     fi
 done
 
 for f in aclocal.m4 configure; do
     if [ -f $f ]; then
         echo "Remove auto-tools generated file: $f"
-        rm $f
+        rm -f $f
     fi
 done
 
@@ -37,7 +38,7 @@ done
 
 if [ -f Makefile.am ] && [ -f Makefile.in ]; then
     echo "Remove automake output: Makefile.in"
-    rm Makefile.in
+    rm -f Makefile.in
 fi
 
 if [ -f $AC ]; then
@@ -46,9 +47,16 @@ if [ -f $AC ]; then
         if grep AC_CONFIG_FILES $AC | grep -q "$base"; then
             if [ -f $base ]; then
                 echo "Remove config output file: $base"
-                rm $base
+                rm -f $base
             fi
         fi
+    done
+fi
+
+if [ -n "$distfiles" ]; then
+    for f in $distfiles; do
+        echo "Remove dist file: $f"
+        rm -f $f
     done
 fi
 
