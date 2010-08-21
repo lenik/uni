@@ -3,6 +3,7 @@ samplesdir = ${docdir}/samples
 
 dist_bin_SCRIPTS = \
     maketest \
+    maketestvar \
     makelook \
     subdirs
 

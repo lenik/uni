@@ -1,0 +1,15 @@
+#!/bin/sh
+
+if [ $# = 0 ]; then
+    echo "Syntax: "
+    echo "    maketestvar SINGLE-VAR|VAR-LIST"
+    exit 1
+fi
+
+if [ $# = 1 ]; then
+    maketest "@echo \$($1)"
+else
+    for v in "$@"; do
+        maketest "@echo $v=\$($v)"
+    done
+fi
