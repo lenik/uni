@@ -4,14 +4,13 @@
 (custom-set-variables
   ;; custom-set-variables was added by Custom -- don't edit or cut/paste it!
   ;; Your init file should contain only one such instance.
- '(c-macro-preprocessor "C:/progra~1/vs98/vc98/bin/cl -C")
  '(case-fold-search t)
  '(current-language-environment "Chinese-GB")
  '(default-input-method "chinese-py-punct")
  '(dired-dwim-target nil)
  '(dired-listing-switches "-aBGl")
  '(global-font-lock-mode t nil (font-lock))
- '(keyboard-coding-system (quote gb2312))
+ '(keyboard-coding-system (quote utf8))
  '(list-directory-verbose-switches "-l")
  '(fill-column 80)
  '(comment-column 40)
@@ -98,8 +97,8 @@
     (find-file (cdr (assoc-ignore-representation fname tocpl)))))
 (global-set-key "\C-x\C-r" 'recentf-open-files-compl)
 
-(require 'php-mode)
-(require 'emacs-wiki)
+;; (require 'php-mode)
+;; (require 'emacs-wiki)
 ;; (global-set-key [?\C-\M-\?] 'emacs-wiki-follow-name-at-point)
 
 ;; .section. lenik key bindings
@@ -131,9 +130,9 @@
 (define-key Lenik-Prefix "\C-n" 'goto-next-section)
 
 
-;; initial screen layout
-(set-screen-width 120)
-(set-screen-height 45)
+;; initial frame (previously screen) layout
+(set-frame-width  (selected-frame) 120)
+(set-frame-height (selected-frame) 45)
 
 ;; (defun seq (&rest args) args)
 (if recentf-list
