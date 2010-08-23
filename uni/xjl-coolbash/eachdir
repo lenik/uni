@@ -1,0 +1,17 @@
+#!/bin/bash
+
+for d in */; do
+    cd $d
+
+    args=()
+    i=0
+    for arg in "$@"; do
+        arg="${arg//'{}'/$d}"
+        args[i]="$arg"
+        ((i++))
+    done
+
+    bash -c "${args[*]}"
+
+    cd ..
+done
