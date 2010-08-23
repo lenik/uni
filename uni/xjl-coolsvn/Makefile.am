@@ -4,4 +4,6 @@ bin_SCRIPTS=\
 	syncbacks.sh \
 	svn-dump \
 	svn-ps \
-    vercomp
+	svn-start-rev \
+	svn-update-keywords \
+	svn-show-usedkeywords

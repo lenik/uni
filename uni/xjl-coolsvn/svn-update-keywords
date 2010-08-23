@@ -1,0 +1,47 @@
+#!/bin/bash
+
+if [ $# = 0 ]; then
+    find -name .svn -prune \
+        -o -type f -exec $0 {} \;
+    exit $?
+fi
+
+errcount=0
+
+for f in "$@"; do
+
+    if [ -d "$f" ]; then
+        find "$f" -name .svn -prune \
+            -o -type f -exec $0 {} \;
+        exit $?
+    fi
+
+    # if f isn't versioned, print error message and exit 1
+    # if f doesn't set the property, just return empty string.
+    if oldval=`svn pg svn:keywords "$f" 2>/dev/null`; then
+
+        # if f don't have any keywords, empty string is returned.
+        keywords=`svn-show-usedkeywords "$f"`
+
+        if [ "$oldval" != "$keywords" ]; then
+
+            if [ -z "$keywords" ]; then
+                echo "$f: Remove unused keywords $oldval"
+                svn pd -q svn:keywords "$f"
+            elif [ -z "$oldval" ]; then
+                echo "$f: Add keywords $keywords"
+                svn ps -q svn:keywords "$keywords" "$f"
+            else
+                echo "$f: Replace keywords '$oldval' -> '$keywords'"
+                svn ps -q svn:keywords "$keywords" "$f"
+            fi
+
+        fi # diff
+
+    else
+        ((errcount++))
+    fi # versioned
+
+done
+
+exit $errcount

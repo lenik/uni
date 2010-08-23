@@ -1,0 +1,31 @@
+#!/bin/bash
+
+function getstartrev() {
+    if [ ! -e "$d" ]; then
+        # Not existed.
+        return 1
+    fi
+
+    rev=`svn log -q --stop-on-copy "$d" | grep ^r | tail -1 | cut -d\| -f1`
+    rev=${rev#r}
+    if [ -n "$rev" ]; then
+        echo "$rev"
+        return 0
+    else
+        return 1
+    fi
+}
+
+error=0
+
+if [ $# = 0 ]; then
+    getstartrev .
+    error=$?
+else
+    for d in "$@"; do
+        getstartrev "$d"
+        ((error += $?))
+    done
+fi
+
+exit $error
