@@ -16,5 +16,5 @@ AM_INIT_AUTOMAKE([-Wall])
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile])
-
+AC_CONFIG_FILES([test/Makefile])
 AC_OUTPUT

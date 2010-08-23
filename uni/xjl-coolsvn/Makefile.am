@@ -1,7 +1,9 @@
 
+SUBDIRS = test
+
 bin_SCRIPTS=\
-	applysvn.sh \
-	syncbacks.sh \
+	svn-apply \
+	svn-backup-sync \
 	svn-dump \
 	svn-ps \
 	svn-start-rev \
