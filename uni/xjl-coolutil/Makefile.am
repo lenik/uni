@@ -15,7 +15,9 @@ dist_bin_SCRIPTS = \
     mountall-alt \
     umount-alt-a \
     df-x \
-    sedit
+    sedit \
+    headrm \
+    grepl
 
 dist_man_MANS = \
     sedit.1

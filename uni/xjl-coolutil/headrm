@@ -1,0 +1,40 @@
+#!/bin/bash
+
+opts=()
+files=()
+i=0
+fsect=0
+
+for a in "$@"; do
+    if [ $fsect = 0 ]; then
+        if [ "${a:0:1}" = - ]; then
+            if [ "$a" == -- ]; then
+                fsect=1
+                i=0
+            else
+                opts[$i]="$a"
+                ((i++))
+            fi
+            continue
+        else
+            fsect=1
+        fi
+    fi
+    files[$i]="$a"
+    ((i++))
+done
+
+# for a in "${opts[@]}"; do echo "arg: [$a]"; done
+# for f in "${files[@]}"; do echo "file: [$f]"; done
+
+if [ ${#files[@]} = 0 ]; then
+    # FIX: process pipe doesn't support well, so buffer the whole input.
+    tmp=/tmp/headrm-buffer.$$.$RANDOM
+    cat >$tmp
+    ( head "${opts[@]}" >/dev/null; cat ) <$tmp
+    rm -f $tmp
+else
+    for f in "${files[@]}"; do
+        ( head "${opts[@]}" >/dev/null; cat ) <"$f"
+    done
+fi

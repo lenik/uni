@@ -1,0 +1,22 @@
+#!/bin/bash
+
+index=1
+
+if [ "${1:0:1}" = "-" ]; then
+    numtest="${1:1}"
+    if [ -n "$numtest" ]; then
+        if [ -z "${numtest//[0-9]}" ]; then
+            index=$numtest
+            shift
+        fi
+    fi
+fi
+
+line=`grep -bnm$index "$@" | headrm -$((index-1)) | cut -d: -f1`
+
+if [ -n "$line" ]; then
+    echo $line
+    exit 0
+else
+    exit 1
+fi

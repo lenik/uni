@@ -33,9 +33,14 @@ Insert something before the file header:
 sedit FILE cat header -
 
 .PP
-Insert something before line NN:
+Insert something after line NN:
 .B
 sedit FILE sh -c "head -NN; echo something; cat"
+
+.PP
+Try to insert a text after pattern MaGiC and print diff, but don't save:
+.B
+sedit -nd FILE sh -c "head -\`grepl MaGiC {}\`; echo some text; cat"
 
 .SH ENVIRONMENT
 
