@@ -5,7 +5,10 @@ sysconfdir = /etc
 
 dist_bin_SCRIPTS = \
 	eachdir \
-	tourl
+	tourl \
+	textp \
+	binaryp \
+	wich
 
 dist_sysconf_DATA = \
     bash_aliases
