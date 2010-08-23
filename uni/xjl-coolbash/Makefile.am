@@ -7,8 +7,7 @@ dist_bin_SCRIPTS = \
 	eachdir \
 	tourl \
 	textp \
-	binaryp \
-	wich
+	binaryp
 
 dist_sysconf_DATA = \
     bash_aliases

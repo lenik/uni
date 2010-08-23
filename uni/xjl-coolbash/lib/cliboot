@@ -99,6 +99,5 @@ function dump() {
     done
 }
 
-for lib in log rcs; do
-    . $LAPIOTA/lib/sh/$lib
-done
+. /usr/lib/bash/log
+. /usr/lib/bash/rcs

@@ -13,4 +13,6 @@ if ! cmp -s $sysconfdir/bash.bashrc $tmpout; then
     cp -f $tmpout $sysconfdir/bash.bashrc
 fi
 
+rm -f $tmpout
+
 exit 0

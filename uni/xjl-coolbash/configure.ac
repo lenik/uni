@@ -5,6 +5,8 @@ AC_PREREQ([2.65])
 AC_INIT([xjl-coolbash], [0.1], [xjl@99jsj.com])
 AM_INIT_AUTOMAKE([-Wall])
 
+AC_SUBST([prefix], [/usr])
+
 # Checks for programs.
 
 # Checks for libraries.
