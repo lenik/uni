@@ -1,0 +1,81 @@
+#!/bin/bash
+
+testsrcdir=`dirname \`readlink -f $0\``
+echo "testsrcdir: $testsrcdir"
+
+if [ -z "$1" ]; then
+    echo "$0 REPO-PATH"
+    exit 1
+fi
+
+repo=`readlink -f $1`
+url=`tourl $1`
+root=/tmp/testroot
+
+echo "Repo-Loc: $repo"
+echo "Repo-URL: $url"
+echo "Work-dir: $root"
+echo
+
+mkdir -p $repo
+svnadmin create $repo
+
+rm -fR $root
+mkdir -p $root
+cd $root
+svn co $url .
+
+svn mkdir trunk branches tags
+for x in a b c; do echo $x-init >trunk/$x; done
+for x in a b c; do echo Sample line >>trunk/$x; done
+for x in a b c; do echo Another sample >>trunk/$x; done
+svn add trunk/*
+svn ci -m "Initialize"
+#1
+
+for i in 1 2 3; do echo edit $i >>trunk/a; svn ci -m "edit $i"; done
+svn up
+#4
+
+svn cp trunk branches/b1
+svn ci -m "Create branch b1"
+#5
+
+for i in 1 2 3; do
+    sedit branches/b1/a sh -c \
+        "head -1; echo edit b1 - $i; cat"; svn ci -m "edit b1 - $i"
+done
+svn up
+#8
+
+for i in 4 5 6; do echo edit $i >>trunk/a; svn ci -m "edit $i"; done
+svn up
+#11
+
+svn cp trunk branches/b2
+svn ci -m "Create branch b2"
+#12
+
+for i in 1 2 3; do echo edit b2 - $i >>branches/b2/b; svn ci -m "edit b2 - $i"; done
+svn up
+#15
+
+svn cp branches/b2 branches/b2mod
+svn ci -m "Create branch b2'"
+#16
+
+for i in 1 2 3; do echo edit b2mod - $i >>branches/b2mod/a; svn ci -m "edit b2mod - $i"; done
+svn up
+#19
+
+for i in 4 5 6; do echo edit b2 - $i >>branches/b2/b; svn ci -m "edit b2 - $i"; done
+svn up
+#22
+
+for i in 7 8 9; do echo edit $i >>trunk/a; svn ci -m "edit $i"; done
+svn up
+#25
+
+export SVN_MERGE=$testsrcdir/force_join
+
+svn merge --accept launch branches/b1@5 branches/b1@HEAD trunk
