@@ -14,4 +14,8 @@ dist_bin_SCRIPTS = \
     umount-vex \
     mountall-alt \
     umount-alt-a \
-    df-x
+    df-x \
+    sedit
+
+dist_man_MANS = \
+    sedit.1

@@ -1,46 +1,19 @@
 #!/bin/bash
+    RCSID='$Id$'
+    short_opts="ci:dtmognhqv"
+    long_opts="stdout,replace,diff,keep-mode,keep-time,keep-owner,keep-group,dry-run,help,quiet,verbose,version"
+    . /usr/lib/bash/cliboot
 
-# bash for $RANDOM
-
-if [ $# -lt 2 ]; then
-    echo "$0 FILE COMMAND [ARGS...]"
-    exit 1
-fi
-
-file="$1"
-shift
-
-# keep file extension, maybe some program need it.
-buff="/tmp/sedit-$file.$$"
-
-"$@" <"$file" >"$buff"
-err=$?
-
-if ! cmp -s "$file" "$buff"; then
-    # contents changed
-
-    # TODO: option to keep the last-mod-time not changed.
-    # touch -r "$file" "$buff"
-
-    chmod --reference "$file" "$buff"
-
-    # overwrite self
-    mv -f "$buff" "$file"
-fi
-
-rm -f "$buff"
-
-exit $err
-
-#!/bin/bash
-    RCSID='$Id: .sh 1023 2009-04-29 23:50:10Z Shecti $'
-    short_opts="hqv"
-    long_opts="help,quiet,verbose,version"
-    . $LAM_KALA/lib/sh/cliboot
+    tee_output=
+    replace="{}"
+    diff=
+    keep_mode=
+    keep_time=
+    dry_run=
 
 function version() {
     parse_id "$RCSID"
-    echo "[$BASENAME] Bash_simple_cli_program_template"
+    echo "[$BASENAME] In-place edit in stream manner"
     echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
 }
 
@@ -51,6 +24,14 @@ function help() {
     echo "    $0 [OPTION] [--] ..."
     echo
     echo "Options: "
+    echo "    -c, --stdout            tee to stdout also"
+    echo "    -i, --replace=str       replace occurences of str in ARGS to FILE"
+    echo "    -d, --diff              output the diff"
+    echo "    -t, --keep-time         keep last-mod-time unchanged"
+    echo "    -m, --keep-mode         keep file permission mode unchanged"
+    echo "    -o, --keep-owner        keep file owner unchanged"
+    echo "    -g, --keep-group        keep file group unchanged"
+    echo "    -n, --dry-run           just for test, don't save the result"
     echo "    -q, --quiet             repeat to get less info"
     echo "    -v, --verbose           repeat to get more info"
     echo "    -h, --help              show this help page"
@@ -59,6 +40,27 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -c|--stdout)
+            tee_stdout=1;;
+        -i|--replace)
+            if [ -z "$2" ]; then
+                replace="{}"
+            else
+                replace="$2"
+            fi
+            ;;
+        -d|--diff)
+            diff="diff -u";;
+        -t|--keep-time)
+            keep_time=1;;
+        -m|--keep-mode)
+            keep_mode=1;;
+        -o|--keep-owner)
+            keep_owner=1;;
+        -g|--keep-group)
+            keep_group=1;;
+        -n|--dry-run)
+            dry_run=1;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -73,8 +75,68 @@ function setopt() {
 }
 
 function main() {
-    dump "$@"
-    echo Done.
+    if [ $# -lt 2 ]; then
+        echo "$0 [OPTIONS] FILE COMMAND [ARGS...]"
+        return 1
+    fi
+
+    file="$1"
+    shift
+
+    # keep file extension, maybe some program need it.
+    buff="/tmp/sedit-`basename $file`.$$"
+
+    if [ -z "$replace" ]; then
+        cmdl=("$@")
+    else
+        cmdl=()
+        i=0
+        for arg in "$@"; do
+            cmdl[$i]="${arg/$replace/$file}"
+            ((i++))
+        done
+    fi
+
+    if [ "$tee_stdout" = 1 ]; then
+        "${cmdl[@]}" <"$file" | tee "$buff"
+    else
+        "${cmdl[@]}" <"$file" >"$buff"
+    fi
+
+    err=$?
+
+    if ! cmp -s "$file" "$buff"; then
+        # contents changed
+        if [ -n "$diff" ]; then
+            $diff "$file" "$buff"
+        fi
+
+        if [ -z "$dry_run" ]; then
+
+            if [ "$keep_time" = 1 ]; then
+                touch --reference "$file" "$buff"
+            fi
+
+            if [ "$keep_mode" = 1 ]; then
+                chmod --reference "$file" "$buff"
+            fi
+
+            if [ "$keep_owner" = 1 ]; then
+                chown --reference "$file" "$buff"
+            fi
+
+            if [ "$keep_group" = 1 ]; then
+                chgrp --reference "$file" "$buff"
+            fi
+
+            # overwrite self
+            mv -f "$buff" "$file"
+        fi
+    fi
+
+    rm -f "$buff"
+
+    return $err
 }
 
 boot "$@"
