@@ -22,6 +22,10 @@ for f in "$@"; do
         if which=`which "$f"`; then
             f="$which"
         else
+            fdir=`dirname "$f"`
+            if [ ! -w "$fdir" ]; then
+                launcher=$SUDO
+            fi
             # create a new file, maybe
             $launcher $VIM "$f"
             continue
