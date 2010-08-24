@@ -7,16 +7,13 @@ do_subst = sed \
     -e 's,[@]pkgdatadir[@],$(pkgdatadir),g'
 
 bin_PROGRAMS = \
-    uc
+    uc \
+	gcd
 
 dist_bin_SCRIPTS = \
     swap \
     which2 \
     whichother \
-    mount-vex \
-    umount-vex \
-    mountall-alt \
-    umount-alt-a \
     df-x \
     sedit \
     headrm \

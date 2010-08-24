@@ -14,7 +14,7 @@ AC_PROG_CC
 # Checks for libraries.
 
 # Checks for header files.
-AC_CHECK_STDC
+AC_HEADER_STDC
 AC_CHECK_HEADERS([string.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
