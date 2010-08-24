@@ -1,0 +1,3 @@
+Defaults env_keep += HISTFILESIZE
+Defaults env_keep += HISTSIZE
+Defaults env_keep += HISTTIMEFORMAT

@@ -6,13 +6,16 @@ if [ -z "$sysconfdir" ]; then
     exit 1
 fi
 
-tmpout=/tmp/tmp.bashrc.$$.$RANDOM
-grep -v "\. $sysconfdir/bash_aliases\b" $sysconfdir/bash.bashrc >$tmpout
-if ! cmp -s $sysconfdir/bash.bashrc $tmpout; then
-    echo Uninstall bash_aliases feature from bashrc.
-    cp -f $tmpout $sysconfdir/bash.bashrc
-fi
+if [ -f $sysconfdir/bash.bashrc ]; then
+    tmpout=/tmp/tmp.bashrc.$$.$RANDOM
 
-rm -f $tmpout
+    grep -v "\. $sysconfdir/bash_aliases\b" $sysconfdir/bash.bashrc >$tmpout
+    if ! cmp -s $sysconfdir/bash.bashrc $tmpout; then
+        echo Uninstall bash_aliases feature from bashrc.
+        cp -f $tmpout $sysconfdir/bash.bashrc
+    fi
+
+    rm -f $tmpout
+fi
 
 exit 0

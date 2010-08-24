@@ -6,7 +6,7 @@ if [ -z "$sysconfdir" ]; then
     exit 1
 fi
 
-if ! grep -q "\. $sysconfdir/bash_aliases\b" $sysconfdir/bash.bashrc; then
+if ! grep -q "\. $sysconfdir/bash_aliases\b" $sysconfdir/bash.bashrc 2>/dev/null; then
     echo "\
 if [ -f $sysconfdir/bash_aliases ]; then \
     . $sysconfdir/bash_aliases; \

@@ -1,1 +1,3 @@
-export EDITOR=vi
+
+# See -coolvim.
+# export EDITOR=vi
