@@ -23,7 +23,7 @@ dist_man_MANS = \
     sedit.1 \
 	uc.1
 
-install-exec-hook:
+install-data-hook:
 	cd $(DESTDIR)$(bindir); \
 		$(LN_S) -f uc lc; \
 		$(LN_S) -f uc to-caption; \
