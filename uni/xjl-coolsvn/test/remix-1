@@ -1,0 +1,30 @@
+#!/bin/bash
+
+if [ ! -d repo1 ]; then
+    echo ---------------- repo1 ------------------
+    ./create-test-tree repo1
+fi
+
+rm -fR mixed1 mixed2 mixed3 workdir
+
+echo "mixed1 = { repo1 }"
+echo "------------------------------"
+../svn-remix repo1
+mv .allmixed mixed1
+echo
+
+echo "mixed2 = { repo1, mixed1 }"
+echo "------------------------------"
+../svn-remix repo1 mixed1
+mv .allmixed mixed2
+echo
+
+echo "mixed3 = { repo1, mixed1, mixed2 }"
+echo "------------------------------"
+../svn-remix repo1 mixed1 mixed2
+mv .allmixed mixed3
+echo
+
+echo ---------------- checkout ------------------
+svn co `tourl mixed3` workdir
+rm -fR workdir

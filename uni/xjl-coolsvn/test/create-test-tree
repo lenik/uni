@@ -4,13 +4,18 @@ testsrcdir=`dirname \`readlink -f $0\``
 echo "testsrcdir: $testsrcdir"
 
 if [ -z "$1" ]; then
-    echo "$0 REPO-PATH"
+    echo "$0 REPO-PATH [WORKING-DIR]"
     exit 1
 fi
 
 repo=`readlink -f $1`
 url=`tourl $1`
-root=/tmp/testroot
+
+if [ -z "$2" ]; then
+    root=/tmp/testroot
+else
+    root="$2"
+fi
 
 echo "Repo-Loc: $repo"
 echo "Repo-URL: $url"
@@ -76,6 +81,7 @@ for i in 7 8 9; do echo edit $i >>trunk/a; svn ci -m "edit $i"; done
 svn up
 #25
 
-export SVN_MERGE=$testsrcdir/force_join
+svn merge branches/b1@5 branches/b1@HEAD trunk
+svn ci -m "merge b1[5..] to trunk"
+svn up
 
-svn merge --accept launch branches/b1@5 branches/b1@HEAD trunk

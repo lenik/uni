@@ -1,97 +1,214 @@
 #!/bin/bash
+    RCSID='$Id: .sh 1023 2009-04-29 23:50:10Z Shecti $'
+    short_opts="s:hqv"
+    long_opts="stage,help,quiet,verbose,version"
+    . /usr/lib/bash/cliboot
 
-stage=0
+    stage=0
 
-if [ "${1//[0-9]}" = : ]; then
-    echo is num
-    stage=${1#:}
-    shift
-fi
+    allrepo_name=.allmixed
 
-exit
-if [ -z "$1" ]; then
-    echo svn-merge [STAGE] REPO-DIR
-    exit 1
-fi
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] SVN Remix (Merge with re-indexing)"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
 
-# dump each packages to .dump/YYYYMMDD.PACKAGE.REV
-if [ $stage -le 1 ]; then
-  echo 1. Dump
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] REPO-LIST"
+    echo
+    echo "Options: "
+    echo "    -s, --stage=STAGE       resume from stage"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
 
+function setopt() {
+    case "$1" in
+        -s|--stage)
+            stage="$2"
+            if [ "${stage//[0-9]/}" != "" ]; then
+                die "Stage $stage isn't a number"
+            fi
+            ;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+# dump each repo to .dump/DATE.REPO.REV
+function dump() {
     rm -fR .dump; mkdir -p .dump
 
     for d in "$@"; do
-        ROOT=`readlink -f $d`
+        repo_dir=`readlink -f $d`
+        repo_url=`tourl $d`
+        repo_name="${repo_dir##*/}"
+        repo_name="${repo_name//[^a-zA-Z_0-9]/_}"
 
-        svn log file://$ROOT -q | grep '^r' | while IFS='|' read rev author date; do
-            rev=${rev#r}
-            date="${date%+*}"
-            date=${date//[^0-9]}
-            svnadmin dump -r $rev --incremental $ROOT >.dump/$date.$pkg.$rev 2>/dev/null
+        # svn log always print revs in reversed order, the latest at first.
+        # So we can fix it inline.
+        nextrev_date=
+
+        svn log $repo_url -q | grep '^r' | \
+                while IFS='|' read rev author date; do
+            rev=${rev#r}                # rNNN -> NNN
+            date="${date# }"            # rev | author | date +...
+            date="${date% +*}"
+
+            # Fix commit date inline.
+            if [ -n "$nextrev_date" ] && [ "$date" \> "$nextrev_date" ]; then
+                echo -n '<'
+                date="$nextrev_date"
+            else
+                nextrev_date="$date"
+            fi
+
+            # yyyy-mm-dd HH:MM:SS[.xx] +... => yyyy-mm-dd_HH-MM-SS.xx
+            date="${date//:/-}"
+            date="${date// /_}"
+
+            svnadmin dump -r $rev --incremental $repo_dir >.dump/$date.$repo_name.$rev 2>/dev/null
+
+            echo -n .
         done
     done
-fi
+}
 
-# touch/set the date on the dump file, and move to .reindex/REORDER-ID.PACKAGE
-if [ $stage -le 2 ]; then
-  echo 2. Reindex
+# fix the dump timestamp to reflect the revision order.
+function fix_dump() {
+    # Fixed inline. see dump().
+    :
+}
+
+# touch/set the date on the dump file, and move to .reindex/SEQ.REPO.REV
+function reindex() {
     rm -fR .reindex; mkdir -p .reindex
+
     cd .dump
-    i=1
-    for f in *; do
-        id=00000000$i
-        id=${id: -8}
-        dstr="${f:0:4}-${f:4:2}-${f:6:2} ${f:8:2}:${f:10:2}:${f:12:2}"
+    seq=0
+
+    # Using version-sort (maybe GNU only?) to avoid dict-revision-order when
+    # same date happens.
+    SORT_V="sort -V"
+
+    find . -maxdepth 1 -type f | $SORT_V | \
+            while read f; do
+        ((seq++))
+        seqf=00000000$seq
+        seqf=${seqf: -8}
+
+        # ./file => file
+        s=$f
+        s=${s#./}
+
+        rev=${s##*.}
+        s=${s%.*}
+
+        repo_name=${s##*.}
+        s=${s%.*}
+
+        date=${s%_*}
+        time=${s##*_}
+        dstr="$date ${time//-/:}"
+
         touch -d"$dstr" $f
-        mv $f ../.reindex/$id.${f#*.}
-        ((i++))
+        mv $f ../.reindex/$seqf.$repo_name.$rev
         echo -n .
     done
+
     cd ..
     rmdir .dump
-fi
+}
 
-# fix revision if any... (not used)
-if [ $stage -le 3 ]; then
-  echo 3. Reindex - fix revision
+function create_all() {
+    # Remove if any existed.
+    rm -fR $allrepo_name
 
-fi
+    svnadmin create $allrepo_name
 
-# prepare for merge, create empty dir-struct
-if [ $stage -le 4 ]; then
-  echo 4. Create merge repository
-
-    # echo "  Init merged modules structure"
-    rm -fR .merged
-    svnadmin create .merged
-    ROOT=`readlink -f .merged`
-    initdirs=
+    topdirs=
     for d in "$@"; do
-        initdirs="$initdirs file://$ROOT/$d"
+        topdirs="$topdirs $allrepo_url/$d"
     done
-    svn mkdir -m "[Merge SVN Repositories] Create parent dirs" $initdirs >/dev/null
-fi
+    svn mkdir -m "[svn-remix] Initialize top directories" $topdirs >/dev/null
+}
 
-if [ $stage -le 5 ]; then
-  echo 5. Load
-    for f in .reindex/*; do
+function reload_all() {
+    find .reindex -maxdepth 1 -type f | sort -V |
+    while read f; do
         s=${f##*/}
-        newrev=${s%%.*}
-        newrev=$((1$newrev-100000000+1))
+
+        # SEQ.REPO.REV
+        seq=${s%%.*}
+        seq=$((1$seq-100000000+1))
         s=${s#*.}
-        module=${s%.*}
-        oldrev=${s#*.}
-        if svnadmin load --parent-dir $module .merged <$f >/dev/null; then
+
+        repo=${s%.*}
+        rev=${s#*.}
+
+        if svnadmin load --parent-dir $repo $allrepo_dir <$f >/dev/null; then
             echo -n .
         else
             echo Error loading $f
-            echo "Command: svnadmin load --parent-dir $module .merged <$f"
+            echo "Command: svnadmin load --parent-dir $repo $allrepo_dir <$f"
             exit 1
         fi
-        read current <.merged/db/current
-        if [ $newrev != $current ]; then
-            echo "Expect revision $newrev, but current is $current"
+
+        read current <$allrepo_dir/db/current
+        if [ $seq != $current ]; then
+            echo "Expect revision $seq, but current is $current"
             #exit 2
         fi
     done
-fi
+}
+
+function main() {
+    if [ $stage -le 1 ]; then
+        echo "1. Dump all repos: date.repo.rev (with fix)"
+        dump "$@"
+        echo
+    fi
+
+    if [ $stage -le 2 ]; then
+        echo "2. Fix dump timestamp to reflect the revision order. (obsoleted)"
+        fix_dump
+        echo
+    fi
+
+    if [ $stage -le 3 ]; then
+        echo "3. Re-Index: seq.repo.rev"
+        reindex
+        echo
+    fi
+
+    allrepo_dir=`readlink -f $allrepo_name`
+    allrepo_url=`tourl       $allrepo_name`
+
+    if [ $stage -le 4 ]; then
+        echo "4. Create all repo: $allrepo_dir"
+        create_all "$@"
+        echo
+    fi
+
+    if [ $stage -le 5 ]; then
+        echo "5. Reload dumps"
+        reload_all
+        echo
+    fi
+}
+
+boot "$@"
