@@ -1,0 +1,2 @@
+
+alias @='gnome-open'
