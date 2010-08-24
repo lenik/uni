@@ -1,7 +1,7 @@
 
 SUBDIRS = test
 
-bin_SCRIPTS=\
+bin_SCRIPTS = \
 	svn-apply \
 	svn-backup-sync \
 	svn-dump \

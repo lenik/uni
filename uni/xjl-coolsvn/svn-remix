@@ -2,13 +2,15 @@
 
 stage=0
 
-if [ "${1:0:1}" = : ]; then
+if [ "${1//[0-9]}" = : ]; then
+    echo is num
     stage=${1#:}
     shift
 fi
 
+exit
 if [ -z "$1" ]; then
-    echo svn-dump [:STAGE] REPO-DIR
+    echo svn-merge [STAGE] REPO-DIR
     exit 1
 fi
 
@@ -20,8 +22,6 @@ if [ $stage -le 1 ]; then
 
     for d in "$@"; do
         ROOT=`readlink -f $d`
-        echo "    $ROOT"
-        pkg=`basename $d`
 
         svn log file://$ROOT -q | grep '^r' | while IFS='|' read rev author date; do
             rev=${rev#r}
