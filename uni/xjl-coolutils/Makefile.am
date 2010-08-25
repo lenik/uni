@@ -17,11 +17,13 @@ dist_bin_SCRIPTS = \
     df-x \
     sedit \
     headrm \
-    grepl
+    grepl \
+	hm
 
 dist_man_MANS = \
     sedit.1 \
-	uc.1
+	uc.1 \
+	hm.1
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); \
