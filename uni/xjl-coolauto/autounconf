@@ -15,10 +15,17 @@ fi
 
 AC=configure.ac
 
-for f in COPYING INSTALL install-sh missing; do
+for f in *; do
     if [ -h $f ]; then
-        echo "Remove file by --add-missing: $f"
-        rm -f $f
+        src=`readlink -f $f`
+        if [ "$src" != "${src/\/automake-}" ]; then
+            echo "Remove file by --add-missing: $f"
+            rm -f $f
+        fi
+        if [ "$src" != "${src/\/libauto}" ]; then
+            echo "Remove file by xjl-coolauto: $f"
+            rm -f $f
+        fi
     fi
 done
 
@@ -29,7 +36,7 @@ for f in aclocal.m4 configure; do
     fi
 done
 
-for f in autoscan.log autom4te.cache config.status config.log; do
+for f in autoscan.log autom4te.cache config.status config.log stamp-h1; do
     if [ -e $f ]; then
         echo "Remove auto-tools cache files: $f"
         rm -fR $f
@@ -44,7 +51,8 @@ fi
 if [ -f $AC ]; then
     for i in *.in; do
         base="${i%.in}";
-        if grep AC_CONFIG_FILES $AC | grep -q "$base"; then
+        if grep "AC_CONFIG_FILES\|AC_CONFIG_HEADERS" \
+            $AC | grep -q "$base"; then
             if [ -f $base ]; then
                 echo "Remove config output file: $base"
                 rm -f $base

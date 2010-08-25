@@ -1,2 +1,2 @@
-alias reconf='autoreconf -is'
+alias reconf='autoreconf2 -is'
 alias unconf='autounconf'

@@ -1,0 +1,2 @@
+
+include libauto/subst.am

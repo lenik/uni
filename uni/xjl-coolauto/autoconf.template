@@ -6,6 +6,7 @@ AC_INIT([@NAME@], [@VERSION@], [@EMAIL@])
 AM_INIT_AUTOMAKE([-Wall])
 
 # Checks for programs.
+AC_PROG_LN_S
 
 # Checks for libraries.
 

@@ -6,6 +6,7 @@ AC_INIT([xjl-coolauto], [0.1], [xjl@99jsj.com])
 AM_INIT_AUTOMAKE
 
 # Checks for programs.
+AC_PROG_LN_S
 
 # Checks for libraries.
 
@@ -16,4 +17,5 @@ AM_INIT_AUTOMAKE
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([libauto/Makefile])
 AC_OUTPUT

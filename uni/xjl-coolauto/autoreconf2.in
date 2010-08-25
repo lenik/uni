@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+# handle of -i, -s, etc.
+
+autoreconf "$@"
+
+if [ ! -d libauto ]; then
+    ln -s @pkgdatadir@/libauto libauto
+fi
