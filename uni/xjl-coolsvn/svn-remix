@@ -168,7 +168,7 @@ function reload_all() {
             exit 1
         fi
 
-        read current <$allrepo_dir/db/current
+        current=`svnlook youngest $allrepo_dir`
         if [ $seq != $current ]; then
             echo "Expect revision $seq, but current is $current"
             #exit 2
