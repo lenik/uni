@@ -15,11 +15,14 @@ AC_PROG_CC
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([string.h unistd.h])
+AC_CHECK_HEADERS([unistd.h])
+AC_CHECK_HEADERS([string.h])
+AC_CHECK_HEADERS([time.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
+AC_CHECK_FUNCS([strrchr strtol])
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_HEADERS([config.h])
