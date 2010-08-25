@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# NOTICE:
+#
+# When umount the xt-partition self, using:
+#	/bin/umount ...
+
+# Find the true umount program in PATH
+umount=`whichother umount`
+
+# readlink -f $1
+# echo Last umounted to: $1
+if [ -r $1/.VEX/auto.umount.sh ]; then
+	. $1/.VEX/auto.umount.sh
+fi
+
+$umount $*
