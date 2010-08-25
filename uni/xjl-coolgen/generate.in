@@ -1,0 +1,5 @@
+#!/bin/bash
+
+if [ "${0:0:4}" = "gen-" ]; then
+    template=${0:4}
+fi
