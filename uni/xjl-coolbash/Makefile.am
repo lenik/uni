@@ -1,5 +1,5 @@
 
-SUBDIRS = lib aliases.d profile.d
+SUBDIRS = lib aliases.d profile.d sudoers.d
 
 sysconfdir = /etc
 
