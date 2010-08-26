@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <glib.h>
 
 #define LOG1 if (verbose >= 1)
@@ -12,6 +13,14 @@ typedef int val_t;
 
 void version();
 void help();
+
+void errlog(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
+    va_end(args);
+    fflush(stderr);
+}
 
 typedef GSList GStack;
 GStack *stack_push(GStack *stack, gpointer data) {
@@ -95,6 +104,7 @@ const char *ctab_lc = "0123456789abcdefghijklmnopqrstuvwxyz";
 const char *ctab_uc = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 int out_width = 0;
+int out_fill = ' ';
 int out_radix = 10;
 const char *out_ctab;
 void out_numeric(val_t);
@@ -102,7 +112,7 @@ void out_numeric(val_t);
 OUTFUNC output = out_copy_le;
 
 gboolean    stop_eof = FALSE;         /* continue when reached EOF */
-int         verbose = 1;
+int         verbose  = 0;
 
 int main(int argc, char **argv) {
 
@@ -188,7 +198,7 @@ int main(int argc, char **argv) {
         return 1;
     }
     pc = program->str;
-    LOG1 fprintf(stderr, "program: %s\n", pc);
+    LOG1 errlog("program: %s\n", pc);
 
     if (! strcmp(filename, "-"))
         in = stdin;
@@ -200,21 +210,21 @@ int main(int argc, char **argv) {
             return 1;
         }
     }
-    LOG1 fprintf(stderr, "filename: %s\n", filename);
+    LOG1 errlog("filename: %s\n", filename);
 
     vartab = g_hash_table_new(vartab_hash, vartab_equals);
 
     while ((c = *pc++) && !stop) {
-        LOG2 fprintf(stderr, "PC: %c\n", c);
 
         if (c >= '0' && c <= '9') {     /* numeric argument */
-            int num = 0;
+            int off = 0;
             int radix = 10;
             int digit = c - '0';
-            int off = 0;
+            int num = digit;
             if (digit == 0)
                 radix = 8;
             while (c = *pc++) {
+                off++;
                 if (c >= '0' && c <= '9')
                     digit = c - '0';
                 else {
@@ -233,15 +243,36 @@ int main(int argc, char **argv) {
                     break;              /* invalid digit, reject. */
                 num = num * radix + digit;
             }
+            arg_val = num;
             arg_present = TRUE;
-        } /* c is 0..9 */
+        } /* [0-9]+ */
+        else if (c == '\'') {
+            c = *pc++;
+            if (! c) {
+                fprintf(stderr, "Expect '<char>. \n");
+                return 1;
+            }
+            arg_val = c;
+            arg_present = TRUE;
+
+            c = *pc++;
+        } /* '. */
+
+        if (c == 0)                     /* program end. */
+            break;
+
+        LOG2 {
+            errlog("PC: %c\n", c);
+            if (arg_present)
+                errlog("  with-arg: %d\n", arg_val);
+        }
 
         // assert(c < '0' && c > '9');
         switch (c) {
         case ' ':                       /* comments */
         case '\t':
         case '\n':
-            break;
+            continue;
 
         case '[':
             if (arg_present) {
@@ -251,7 +282,7 @@ int main(int argc, char **argv) {
             break;
         case ']':
             if (pcstack == NULL) {
-                fprintf(stderr, "Unmatched []\n");
+                errlog("Unmatched []\n");
                 stop = TRUE;
                 break;
             }
@@ -261,15 +292,25 @@ int main(int argc, char **argv) {
             break;
 
         case '<':                       /* in -= # */
-        case '>':                       /* in += # */
             if (! arg_present)
                 arg_val = 1;
-            if (c == '<')
-                arg_val = -arg_val;
-            if (fseek(in, SEEK_CUR, arg_val * val_size) != 0) {
+            /* XXX - fseek doesn't work well... */
+            if (fseek(in, SEEK_CUR, -arg_val * val_size) != 0) {
                 perror("Seek failed: ");
                 stop = 1;
             }
+            invalidate();
+            break;
+
+        case '>':                       /* in += # */
+            if (! arg_present)
+                arg_val = 1;
+            if (arg_val != 0) {
+                arg_val *= val_size;
+                while (arg_val--)
+                    read();
+            }
+            val_looked = FALSE;
             break;
 
         case '.':                       /* out(val = *in++) */
@@ -285,18 +326,30 @@ int main(int argc, char **argv) {
             }
             break;
 
-        case ',':                       /* out(val = #) */
-        case ';':                       /* out(val = #), in++ */
-            if (c == ';') {
-                val = readval();
-                if (arg_present)
-                    val = arg_val;
-            } else {
-                if (arg_present)
-                    val = forcelook(arg_val);
-                else
-                    val = lookval();
+        case ':':                       /* out(val = *in) */
+            if (arg_present)
+                val = arg_val;
+            else {
+                val = lookval();
+                if (underflow) {
+                    stop = stop_eof;
+                    break;
+                }
             }
+            output(val);
+            break;
+
+        case ',':                       /* out(val = #) */
+            val = lookval();
+            if (arg_present)
+                val = forcelook(arg_val);
+            /* ignore underflow */
+            break;
+
+        case ';':                       /* out(val = #), in++ */
+            val = readval();
+            if (arg_present)
+                val = arg_val;
             if (underflow) {
                 stop = stop_eof;
                 break;
@@ -307,10 +360,12 @@ int main(int argc, char **argv) {
         case '?':                       /* check if (val == #) */
             /* Not implmented. */
             break;
+        case '=':
         case '!':                       /* assert(val == #) */
             if (! arg_present)
                 arg_val = 0;
             val = lookval();
+            LOG2 errlog("check %d against %d\n", arg_val, val);
             if (val != arg_val)
                 stop = TRUE;
             break;
@@ -337,13 +392,13 @@ int main(int argc, char **argv) {
                                                    (gpointer *) &val /* value */
                                                    )) {
                     /* +option for default 0? */
-                    fprintf(stderr, "Error: variable isn't set: %d\n", arg_val);
+                    LOG2 errlog("Warning: variable isn't set: %d\n", arg_val);
                     stop = TRUE;
                     break;
                 }
             } else {                    /* val = pop */
                 if (valstack == NULL) {
-                    fprintf(stderr, "Error: stack underflow. \n");
+                    errlog("Error: stack underflow. \n");
                     stop = TRUE;
                     break;
                 }
@@ -362,7 +417,7 @@ int main(int argc, char **argv) {
         case '&':
         case '|':
         case '^':
-            fprintf(stderr, "stack algorithms is not implemented. \n");
+            errlog("stack algorithms is not implemented. \n");
             stop = TRUE;
             break;
 
@@ -379,7 +434,7 @@ int main(int argc, char **argv) {
 
         case 's':                       /* 1s 2s 4s */
             if (arg_val > MAX_WORD) {
-                fprintf(stderr, "Invalid word size: %d\n", arg_val);
+                errlog("Invalid word size: %d\n", arg_val);
                 stop = TRUE;
             } else {
                 val_size = arg_val;
@@ -402,15 +457,21 @@ int main(int argc, char **argv) {
             output = out_numeric;
             break;
 
+        case 'f':
+            if (! arg_present)
+                arg_val = ' ';
+            out_fill = arg_val;
+            break;
+
         case 'x':
             if (arg_present) {
                 if (arg_val < 2) {
-                    fprintf(stderr, "Bad radix value: %d\n", arg_val);
+                    errlog("Bad radix value: %d\n", arg_val);
                     stop = TRUE;
                     break;
                 }
                 if (arg_val > MAX_RADIX) {
-                    fprintf(stderr, "Radix is too big: %d\n", arg_val);
+                    errlog("Radix is too big: %d\n", arg_val);
                     stop = TRUE;
                     break;
                 }
@@ -420,7 +481,6 @@ int main(int argc, char **argv) {
             break;
 
         case '"':                       /* verbatim output */
-        case '\'':
             {
                 char q = c;
                 gboolean escaped = FALSE;
@@ -450,9 +510,12 @@ int main(int argc, char **argv) {
             in_truncate = TRUE;
             break;
         default:
-            fprintf(stderr, "Invalid code: %c\n", c);
+            errlog("Invalid code: %c\n", c);
             return 2;
         }
+
+        arg_present = FALSE;
+
     } /* while pc  */
 
     if (! in_truncate) {
@@ -517,6 +580,7 @@ gboolean lookahead(int size) {
             return FALSE;
         lookbuf[look_end++] = c;
         look_end %= sizeof(lookbuf);
+        nlook++;
     }
     return TRUE;
 }
@@ -528,7 +592,7 @@ void invalidate() {
 
 int error_underflow() {
     underflow = TRUE;
-    fprintf(stderr, "Error: input underflow. \n");
+    errlog("Error: input underflow. \n");
     return -1;
 }
 
@@ -547,7 +611,7 @@ val_t lookval() {
         look_off = (look_start + size) % sizeof(lookbuf);
         while (size--) {
             val <<= 8;
-            val += lookbuf[look_off--];
+            val += lookbuf[--look_off];
             if (look_off < 0)
                 look_off += sizeof(lookbuf);
         }
@@ -565,12 +629,15 @@ val_t lookval() {
 }
 
 val_t readval() {
-    val_t val;
+    val_t val = 0;
     int size = val_size;
     int c;
 
+    /* Optimized. */
     if (val_looked) {
         val_looked = FALSE;
+        look_start += val_size;
+        look_start %= sizeof(lookbuf);
         return val_look;
     }
 
@@ -644,7 +711,7 @@ void out_numeric(val_t val) {
 
     width = (p - buf);                  /* width / sizeof(char) ? */
     for (i = width; i < out_width; i++)
-        putchar('0');
+        putchar(out_fill);
 
     p = buf + width;
     while (width--)

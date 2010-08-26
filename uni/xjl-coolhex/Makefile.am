@@ -2,6 +2,7 @@
 include libauto/subst.am
 
 AM_CPPFLAGS = $(GLIB_CFLAGS)
+CFLAGS = -O0 -g
 
 bin_PROGRAMS = \
     sedx
