@@ -1,0 +1,70 @@
+ASCIIART (5)                                                        Aug 27 2010
+SPC File Format (experimental, unstable)                               AA-SPCFF
+                                                                     Jilei, Xie
+File Format Specification                                              Personal
+
+Ar-Policy:  None
+Classifier: E-01
+RCS-Id:     $Id$
+RCS-Date:   $Date$
+Version:    0.1
+
+
+SPC File Format
+===============
+
+    [General]
+
+    REC-H1. File Info (stable)
+
+    REC-A1. Header Properties (optional, unstable)
+
+    REC-S1. Top Sections
+
+
+File Info
+=========
+
+    REC-L1. project-date
+    REC-L2. subject-id
+    REC-L3. -author
+    REC-L4. type-organization
+
+
+    project-date
+    ------------
+
+        " project date is a ...
+        "
+
+    subject-id
+    ----------
+
+        "
+        "
+
+    -author
+    -------
+
+        "
+        "
+
+    type-organization
+    -----------------
+
+        "
+        "
+
+Header Properties
+=================
+
+    REC-1.  attribute-def (multiple)
+
+
+    attribute-def
+    -------------
+
+
+
+Top Sections
+============
