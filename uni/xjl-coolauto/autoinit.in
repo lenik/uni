@@ -3,6 +3,11 @@
 # master-file
 
 PACKAGE_NAME=${PWD##*/}
+
+if [ -f .env ]; then
+    . .env
+fi
+
 if [ -z "$EMAIL" ]; then
     # for future replacement.
     EMAIL=xjl-bug@99jsj.com
