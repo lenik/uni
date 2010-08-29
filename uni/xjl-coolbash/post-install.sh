@@ -19,5 +19,7 @@ if [ -f $skel_rc ]; then
     egrep -v "\bHIST(\w+)\b" $skel_rc >$tmp
     if ! cmp -s $skel_rc $tmp; then
         mv -f $tmp $skel_rc
+    else
+        rm -f $tmp
     fi
 fi
