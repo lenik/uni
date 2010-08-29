@@ -2,12 +2,17 @@
 SUBDIRS = lib aliases.d profile.d sudoers.d
 
 sysconfdir = /etc
+shsrcdir = ${bindir}
 
 dist_bin_SCRIPTS = \
 	eachdir \
 	tourl \
 	textp \
 	binaryp
+
+dist_shsrc_DATA = \
+	cd-ls \
+	ls-which
 
 dist_sysconf_DATA = \
     bash_aliases

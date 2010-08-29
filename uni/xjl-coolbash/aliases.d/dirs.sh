@@ -4,6 +4,7 @@ alias rd='rmdir'
 alias d='ls  -oF  -N --color'
 alias dd='d -d'
 alias dt='d -t | tail'
+alias dw='. ls-which'
 alias l='ls  -aoF -N --color'
 alias ll='ls -alF -N --color'
 
