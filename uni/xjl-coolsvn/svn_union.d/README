@@ -1,0 +1,5 @@
+# svn-union config file
+# File Format
+
+# JOIN-POINT SVN-URL CO-OPTS UP-INTV UP-OPTS CI-INTV CI-OPTS
+# /etc/profile.d svn://example.com/prof/trunk "--depth immediates" 0 "--ignore-externals" 0 "-C"

@@ -1,0 +1,138 @@
+#!/bin/bash
+
+# master-file
+
+    RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
+    short_opts="fhqv"
+    long_opts="force,help,quiet,verbose,version"
+    . /usr/lib/bash/cliboot
+
+    if [ -z "$SVN" -o ! -f "$SVN" ]; then
+        SVN=svn
+    fi
+    force=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] SVN-Union: Integrate local-fs with SVN"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] [SVN-CMD] [SVN-CMD-OPTS]"
+    echo
+    echo "Options: "
+    echo "    -f, --force             run in fail-continue mode"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+    echo
+    echo "Supported SVN Commands: "
+    echo "    cleanup                 clean up all join-points"
+    echo "    update (up)             update or checkout all join-points"
+    echo "    commit (ci)             commit all join-points"
+    echo "    diff (di)               show difference of all join-points"
+}
+
+function setopt() {
+    case "$1" in
+        -f|--force)
+            force=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$1" ]; then
+        echo "No SVN command is specified. "
+        exit 1
+    fi
+
+    svn_cmd="$1"
+    shift
+
+    if [ ! -d "@svnuniondir@" ]; then
+        echo "@svnuniondir@ isn't existed. "
+        exit 1
+    fi
+
+    shopt -s nullglob
+    cat "@svnuniondir@"/* | while read line; do
+        if [ -z "$line" ]; then continue; fi
+        if [ "${line:0:1}" = "#" ]; then continue; fi
+
+        args=($line)
+         join_point="${args[0]}"
+                url="${args[1]}"
+            co_opts="${args[2]}"
+        up_interval="${args[3]}"
+            up_opts="${args[4]}"
+        ci_interval="${args[5]}"
+            ci_opts="${args[6]}"
+
+        echo "$join_point: $url"
+        if [ -z "$url" ]; then
+            echo "$join_point: url unknown"
+            return 1
+        fi
+
+        case "$svn_cmd" in
+            cleanup)
+                $SVN cleanup "$@" "$join_point"
+                err=$?
+                ;;
+            update|up)
+                if [ -d "$join_point" ]; then
+                    $SVN up $up_opts "$@" "$join_point"
+                else
+                    $SVN co $co_opts "$@" "$url" "$join_point"
+                fi
+                err=$?
+                ;;
+            commit|ci)
+                if [ ! -d "$join_point" ]; then
+                    echo "Join point $join_point (for $url) isn't existed. "
+                    err=1
+                else
+                    ci_msg=(-m "[SVN-Union]")
+                    if [ -f "$join_point/.svn-commit" ]; then
+                        ci_msg=(-F "$join_point/.svn-commit")
+                    fi
+                    $SVN ci $ci_opts "${ci_msg[@]}" "$@" "$join_point"
+                    err=$?
+                fi
+                ;;
+            diff|di)
+                $SVN di "$@" "$join_point"
+                err=$?
+                ;;
+            *)
+                echo "Warning: unsupported svn command: $svn_cmd"
+                $SVN $svn_cmd "$@" "$join_point"
+                err=$?
+                ;;
+        esac
+
+        if [ $err != 0 ]; then
+            if [ "$force" != 1 ]; then
+                echo "Last SVN operation failed: $err"
+                exit $err
+            fi
+        fi
+    done
+}
+
+boot "$@"
