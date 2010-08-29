@@ -4,9 +4,11 @@
 
 PACKAGE_NAME=${PWD##*/}
 
-if [ -f .env ]; then
-    . .env
-fi
+for envf in .env ../.env ../../.env; do
+    if [ -f $envf ]; then
+        . $envf
+    fi
+done
 
 if [ -z "$EMAIL" ]; then
     # for future replacement.
