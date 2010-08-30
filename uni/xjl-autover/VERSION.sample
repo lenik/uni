@@ -1,17 +1,19 @@
 
 # see vercomp(5)
 
-order = major minor revision release
-format = %d.%d-%d_r%d
+format          = $major.$minor.$revision[_r$release][_r$build]
 
-major = 3
+major           = 3 minor
+minor           = 4 revision
 
-minor = 4
+revision        = 117
+revision-offset = 110
+revision-exec   = &svn_revision .
+                # &svnrevnum file.c file2.c
 
-revision = &svn_revision .
-revision-base = 110
+release         = 12163 build
+release-offset  = 12000
 
-release = 12163
-release-base= 12000
+build           = 23221
+build-offset    = 22041
 
-more-ver = 7.1

@@ -1,17 +1,16 @@
 
-do_subst = sed \
-    -e 's/master-file/generated-file, please do not edit/' \
-    -e 's,[@]prefix[@],$(prefix),g' \
-    -e 's,[@]bindir[@],$(bindir),g' \
-    -e 's,[@]docdir[@],$(docdir),g' \
-    -e 's,[@]datadir[@],$(datadir),g' \
-    -e 's,[@]pkgdatadir[@],$(pkgdatadir),g'
+include libauto/subst.am
 
 SUBDIRS = lib
 
-bin_SCRIPTS = \
-    verinit \
-    vercomp
+AM_CPPFLAGS = ${GLIB_CFLAGS}
+vercomp_LDADD = $(GLIB_LIBS)
+
+bin_PROGRAMS = \
+	vercomp
+
+dist_bin_SCRIPTS = \
+    verinit
 
 dist_doc_DATA = \
     VERSION.sample
@@ -19,7 +18,7 @@ dist_doc_DATA = \
 dist_pkgdata_DATA = \
     VERSION.template
 
-man_MANS = \
+dist_man_MANS = \
     vercomp.5
 
 CLEANFILES = verinit
