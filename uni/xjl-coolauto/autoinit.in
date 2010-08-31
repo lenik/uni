@@ -37,3 +37,6 @@ do_subst "@pkgdatadir@/automake.template" Makefile.am
 # ln -snf @pkgdatadir@/inc/...
 
 touch NEWS README AUTHORS ChangeLog
+
+# initialize VERSION.av
+verinit
