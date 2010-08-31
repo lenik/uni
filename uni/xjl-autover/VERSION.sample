@@ -1,19 +1,19 @@
 
 # see vercomp(5)
 
-format          = $major.$minor.$revision[_r$release][_r$build]
+format        = $major.$minor.$revision_r$release_r$build
 
-major           = 3 minor
-minor           = 4 revision
+major         = 3 minor
+minor         = 4 revision
 
-revision        = 117
-revision-offset = 110
-revision-exec   = &svn_revision .
+revision      = 7
+revision.base = 110
+revision.exec = svn_revision .
                 # &svnrevnum file.c file2.c
 
-release         = 12163 build
-release-offset  = 12000
+release       = 13 build
+release.base  = 12000
 
-build           = 23221
-build-offset    = 22041
+build         = 112
+build.base    = 22041
 

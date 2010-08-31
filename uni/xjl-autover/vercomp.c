@@ -143,7 +143,7 @@ int do_main() {
 
     fclose(in);
 
-    /* 2, do increment, and update related fields */
+    /* 2, do increment, and refresh related fields */
 
     if (opt_incrfield) {
 
@@ -308,13 +308,13 @@ gboolean field_incr(const char *field, int delta) {
     while (next) {
         char *next_field;
         next = str_next_tok(next, &next_field);
-        if (! field_update(next_field, 0))
+        if (! field_refresh(next_field, 0))
             return FALSE;
     }
     return TRUE;
 }
 
-gboolean field_update(const char *field, int index) {
+gboolean field_refresh(const char *field, int index) {
     char *      val_text;
     long        val  = 0l;
     const char *next = NULL;
@@ -383,6 +383,8 @@ gboolean field_update(const char *field, int index) {
         g_hash_table_insert(vartab,
                             g_strdup(field),
                             g_strdup_printf("%ld", val));
+    } else {
+        val = 0L;
     }
 
     g_string_free(buf, TRUE);
@@ -395,7 +397,7 @@ gboolean field_update(const char *field, int index) {
     while (next) {
         char *next_field;
         next = str_next_tok(next, &next_field);
-        if (! field_update(next_field, index + 1))
+        if (! field_refresh(next_field, index + 1))
             return FALSE;
     }
     return TRUE;

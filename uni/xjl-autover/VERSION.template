@@ -1,11 +1,11 @@
 
 # See vercomp(5)
 
-order = major minor revision
+format   = $major.$minor.$rev
 
-major = 0
+major    = 0 minor
+minor    = 0 rev
 
-minor = 0
+rev      = svn_revision .
+rev.base = 0
 
-revision = &svn_revision .
-revision-base = 0
