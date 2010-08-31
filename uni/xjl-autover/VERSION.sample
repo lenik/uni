@@ -1,7 +1,7 @@
 
 # see vercomp(5)
 
-format        = $major.$minor.$revision_r$release_r$build
+format        = $major.$minor.$revision_r$release_b$build_t$touch
 
 major         = 3 minor
 minor         = 4 revision
@@ -14,6 +14,9 @@ revision.exec = svn_revision .
 release       = 13 build
 release.base  = 12000
 
-build         = 112
+build         = 112 touch
 build.base    = 22041
 
+touch         = 11
+touch.base    = 0
+touch.incr    = 1

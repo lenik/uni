@@ -21,6 +21,7 @@ char *      opt_incrfield = NULL;
 int         opt_verbose   = 0;
 char **     opt_files;
 gboolean    opt_stdout    = FALSE;      /* write to stdout instead of save */
+gboolean    opt_update      = FALSE;    /* always save? */
 
 char *      filename;
 int         line = 0;
@@ -68,6 +69,9 @@ static GOptionEntry entries[] = {
     { "stdout",    'c', 0, G_OPTION_ARG_NONE, &opt_stdout,
       "write to stdout instead of save", },
 
+    { "update",    'u', 0, G_OPTION_ARG_NONE, &opt_update,
+      "always update the file", },
+
     { "quiet",     'q', G_OPTION_FLAG_NO_ARG,
       G_OPTION_ARG_CALLBACK, set_verbose_arg,
       "output less verbose info", },
@@ -100,6 +104,9 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Couldn't parse options: %s\n", gerr->message);
         return 1;
     }
+
+    if (opt_incrfield && ! opt_stdout)
+        opt_update = TRUE;
 
     if (opt_files) {
         if (opt_files[0])
@@ -223,13 +230,13 @@ int do_main() {
     if (! field_refresh_all())
         return 2;
 
-    if (opt_incrfield) {
+    if (opt_incrfield)
+        if (! field_incr(opt_incrfield, 1))
+            return 2;                   /* field_incr fails */
 
+    if (opt_stdout || opt_update) {
         FILE *   out;
         GString *outbuf;
-
-        if (! field_incr(opt_incrfield, 1))
-            return 2;                       /* field_incr fails */
 
         /* 3, scan 2, out to buffer */
         in = fopen(filename, "r");
@@ -249,6 +256,8 @@ int do_main() {
         if (opt_stdout)
             out = stderr;
         else {
+            LOG1 printf("update file %s\n", filename);
+
             out = fopen(filename, "w");
             if (out == NULL) {
                 fprintf(stderr, "Can't write to %s: ", filename);
@@ -264,7 +273,7 @@ int do_main() {
 
         g_string_free(outbuf, TRUE);
 
-    } // opt_incrfield
+    } // update
 
     LOG2 {
         GHashTableIter it;
@@ -579,6 +588,7 @@ gboolean field_refresh_all() {
             const char *nexts = NULL;
 
             LOG2 printf("save field %s (%s)\n", field, val_text);
+
             if (! parse_component(field, val_text, &val, &nexts)) {
                 retval = FALSE;             /* invalid stem val_text */
                 break;
@@ -600,8 +610,10 @@ gboolean field_refresh_all() {
 
     /* write back. */
     g_hash_table_iter_init(&it, tmp);
-    while (g_hash_table_iter_next(&it, (gpointer *) &key, (gpointer *) &value))
-        g_hash_table_insert(tmp, key, value);
+    while (g_hash_table_iter_next(&it, (gpointer *) &key, (gpointer *) &value)) {
+        LOG2 printf("commit field %s := %s\n", key, value);
+        g_hash_table_insert(vartab, key, value);
+    }
 
     g_hash_table_unref(tmp);
 
@@ -656,7 +668,7 @@ gboolean field_cascade(const char *field, int index) {
 
     g_free(base_field);
 
-    val_text = g_strdup_printf("%ld %s", val, next ? next : "");
+    val_text = g_strdup_printf("%ld %s", val, nexts ? nexts : "");
     g_hash_table_insert(vartab,
                         g_strdup(field),
                         val_text);
