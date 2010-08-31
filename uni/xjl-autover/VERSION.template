@@ -6,6 +6,7 @@ format   = $major.$minor.$rev
 major    = 0 minor
 minor    = 0 rev
 
-rev      = svn_revision .
+rev      = 0
 rev.base = 0
+rev.exec = svn_revision .
 

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+cp -f ../VERSION.sample a
+../vercomp -i major a
+../vercomp -i minor a
+../vercomp -i major a
+
+cat a
