@@ -3,7 +3,7 @@
 # (bash for $RANDOM)
 
 if [ -z "$MAKE" ]; then
-    MAKE=make
+    MAKE=@bindir@/make-color
 fi
 
 if [ ! -f ./configure ]; then

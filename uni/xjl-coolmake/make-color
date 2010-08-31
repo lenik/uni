@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ -z "$MAKE" ]; then
+    MAKE=make
+fi
+
+swapox $MAKE "$@" > >(swapox sed \
+        -e 's/^\(.*: warning:.*\)$/[01;35m\1[0m/' \
+        -e 's/^\(.*: error:.*\)$/[01;41m\1[0m/' \
+    )

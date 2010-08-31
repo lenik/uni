@@ -1,9 +1,12 @@
 
+include libauto/subst.am
+
 samplesdir = ${docdir}/samples
 sysconfdir = /etc
 aliasesdir = ${sysconfdir}/bash_aliases.d
 
 dist_bin_SCRIPTS = \
+	make-color \
     maketest \
     maketestvar \
     makelook \
@@ -14,3 +17,9 @@ dist_samples_DATA = \
 
 dist_aliases_DATA = \
     coolmake.sh
+
+EXTRA_DIST = makelook.in
+CLEANFILES = makelook
+
+makelook: makelook.in Makefile
+	$(do_subst) <$(srcdir)/makelook.in >$@
