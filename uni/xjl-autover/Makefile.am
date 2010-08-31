@@ -6,6 +6,8 @@ SUBDIRS = lib
 AM_CPPFLAGS = ${GLIB_CFLAGS}
 vercomp_LDADD = $(GLIB_LIBS)
 
+CFLAGS = -g -O0
+
 bin_PROGRAMS = \
 	vercomp
 

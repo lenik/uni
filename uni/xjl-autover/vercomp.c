@@ -127,7 +127,7 @@ int main(int argc, char **argv) {
 gboolean error(const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
-    fprintf(stderr, fmt, ap);
+    vfprintf(stderr, fmt, ap);
     va_end(ap);
     return FALSE;
 }
@@ -476,54 +476,45 @@ gboolean field_incr(const char *field, int delta) {
 }
 
 gboolean field_refresh_all() {
+    GHashTable *tmp;                    /* so as no to modify orig table within
+                                           iteration. */
+
     GHashTableIter it;
     char *key;
     char *value;
-
-    char *field    = NULL;              /* "field */
-    char *val_text = NULL;
-    long  val      = 0;
-    const char *nexts = NULL;
-
-    char *base_field;                   /* "field.base" */
-    char *base_text;
-    long  base     = 0;
-
-    char *incr_field;                   /* field.incr */
-    char *incr_text;
-    int   incr     = 0;
-
-    char *exec_field;                   /* field.exec */
-    char *exec_text;
-
+    char *field = NULL;                 /* "field */
     gboolean retval = TRUE;
+
+    /* tmp hash table don't destory any value. */
+    tmp = g_hash_table_new(g_str_hash, g_str_equal);
 
     g_hash_table_iter_init(&it, vartab);
     while (g_hash_table_iter_next(&it,
                                   (gpointer *) &key,
                                   (gpointer *) &value)) {
+        long base = 0;
+        long val_set  = -1;             /* -1 if n/a */
+        int  val_incr = 0;
+        int  val_dirty = FALSE;
 
         if (strchr(key, '.') != NULL)
             continue;
 
+        LOG2 printf("Refresh: %s = %s\n", key, value);
+
         field = key;
-        val_text = value;
-        if (! parse_component(field, val_text, &val, &nexts)) {
-            retval = FALSE;             /* invalid stem val_text */
-            break;
-        }
 
         /* .base section */
-        base_field = g_strdup_printf("%s.base", field);
-        base_text = g_hash_table_lookup(vartab, base_field);
+        char *base_field = g_strdup_printf("%s.base", field);
+        char *base_text = g_hash_table_lookup(vartab, base_field);
         g_free(base_field);
 
         if (base_text != NULL)
             base = strtol(base_text, NULL, 0);
 
         /* .exec section */
-        exec_field = g_strdup_printf("%s.exec", field);
-        exec_text = g_hash_table_lookup(vartab, exec_field);
+        char *exec_field = g_strdup_printf("%s.exec", field);
+        char *exec_text = g_hash_table_lookup(vartab, exec_field);
         g_free(exec_field);
 
         if (exec_text) {
@@ -561,7 +552,8 @@ gboolean field_refresh_all() {
                     retval = FALSE;
                 }
 
-                val = result_val - base;
+                val_set = result_val - base;
+                val_dirty = TRUE;
 
                 g_string_free(cap, TRUE);
 
@@ -572,23 +564,46 @@ gboolean field_refresh_all() {
         }
 
         /* .incr section */
-        incr_field = g_strdup_printf("%s.incr", field);
-        incr_text = g_hash_table_lookup(vartab, incr_field);
+        char *incr_field = g_strdup_printf("%s.incr", field);
+        char *incr_text = g_hash_table_lookup(vartab, incr_field);
         g_free(incr_field);
 
         if (incr_text) {
-            long incr = strtol(incr_text, NULL, 0);
-            if (incr != 0)
-                val += incr;
+            val_incr = (int) strtol(incr_text, NULL, 0);
+            val_dirty = TRUE;
         }
 
-        val_text = g_strdup_printf("%ld %s", val,
-                                   nexts ? nexts : "");
-        g_hash_table_replace(vartab,
-                             g_strdup(field),
-                             val_text);
+        if (val_dirty) {
+            char *      val_text = value;
+            long        val;
+            const char *nexts = NULL;
+
+            LOG2 printf("save field %s (%s)\n", field, val_text);
+            if (! parse_component(field, val_text, &val, &nexts)) {
+                retval = FALSE;             /* invalid stem val_text */
+                break;
+            }
+
+            if (val_set != -1)
+                val = val_set;
+            val += val_incr;
+
+            val_text = g_strdup_printf("%ld %s", val,
+                                       nexts ? nexts : "");
+
+            g_hash_table_insert(tmp,
+                                g_strdup(field),
+                                val_text);
+        }
 
     } // while iter(.exec)
+
+    /* write back. */
+    g_hash_table_iter_init(&it, tmp);
+    while (g_hash_table_iter_next(&it, (gpointer *) &key, (gpointer *) &value))
+        g_hash_table_insert(tmp, key, value);
+
+    g_hash_table_unref(tmp);
 
     return retval;
 }
