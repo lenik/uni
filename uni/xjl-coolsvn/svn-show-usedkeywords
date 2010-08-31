@@ -7,7 +7,7 @@ my $count = 0;
 my %used;
 
 while (<>) {
-    while (/\$(Id|Revision|Date|Author)\b(|(: .*?))\$/g) {
+    while (/\$(Id|Revision|Date|Author):(|( .*?))\$/g) {
         $used{$1} = 1;
     }
 }
