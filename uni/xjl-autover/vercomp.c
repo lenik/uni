@@ -478,10 +478,7 @@ gboolean field_incr(const char *field, int delta) {
 gboolean field_refresh_all() {
     GHashTableIter it;
     char *key;
-    int   key_len;
     char *value;
-    char *exec_text;
-    long  result_val;
 
     char *field    = NULL;              /* "field */
     char *val_text = NULL;
@@ -492,10 +489,12 @@ gboolean field_refresh_all() {
     char *base_text;
     long  base     = 0;
 
-    FILE *   proc_out;
-    GString *cap   = NULL;
-    char *   end;
-    char     c;
+    char *incr_field;                   /* field.incr */
+    char *incr_text;
+    int   incr     = 0;
+
+    char *exec_field;                   /* field.exec */
+    char *exec_text;
 
     gboolean retval = TRUE;
 
@@ -503,75 +502,93 @@ gboolean field_refresh_all() {
     while (g_hash_table_iter_next(&it,
                                   (gpointer *) &key,
                                   (gpointer *) &value)) {
-        exec_text = value;
-        if (exec_text == NULL || ! strlen(exec_text))
+
+        if (strchr(key, '.') != NULL)
             continue;
 
-        key_len = strlen(key);
-        if (key_len > 5 && ! strcmp(key + key_len - 5, ".exec")) {
-            exec_text = value;
-            field = g_strndup(key, key_len - 5);
-            val_text = g_hash_table_lookup(vartab, field);
-            if (val_text == NULL) {     /* stem field not exist */
-                g_free(field);
-                continue;
-            }
-            if (! parse_component(field, val_text, &val, &nexts))
-                continue;               /* invalid stem val_text */
-        } else                          /* not a xxx.exec field */
-            continue;
-
-        /* stem-field exists */
-        base_field = g_strdup_printf("%s.base", field);
-        base_text = g_hash_table_lookup(vartab, base_field);
-        if (base_text != NULL)
-            base = strtol(base_text, NULL, 0);
-        g_free(base_field);
-
-        LOG1 {
-            printf("Execute %s: ", exec_text);
-            fflush(stdout);
-         }
-
-        proc_out = popen(exec_text, "r");
-        if (proc_out == NULL) {
-            fprintf(stderr, "Failed to execute: %s: ", exec_text);
-            perror("");
-            retval = FALSE;
+        field = key;
+        val_text = value;
+        if (! parse_component(field, val_text, &val, &nexts)) {
+            retval = FALSE;             /* invalid stem val_text */
             break;
-        } else {
-            cap = g_string_sized_new(100);
-            while ((c = fgetc(proc_out)) != EOF) {
-                LOG1 { putchar(c); fflush(stdout); }
-                g_string_append_c(cap, c);
-            }
-            LOG1 putchar('\n');
-
-            pclose(proc_out);
-
-            result_val = strtol(cap->str, &end, 0);
-            if (end == cap->str) {
-                fprintf(stderr, "%s: Expect an integer: %s\n",
-                        key, cap->str);
-                retval = FALSE;
-            }
-            g_string_free(cap, TRUE);
-
-            if (! retval)
-                break;
         }
 
-        val_text = g_strdup_printf("%ld %s", result_val - base,
+        /* .base section */
+        base_field = g_strdup_printf("%s.base", field);
+        base_text = g_hash_table_lookup(vartab, base_field);
+        g_free(base_field);
+
+        if (base_text != NULL)
+            base = strtol(base_text, NULL, 0);
+
+        /* .exec section */
+        exec_field = g_strdup_printf("%s.exec", field);
+        exec_text = g_hash_table_lookup(vartab, exec_field);
+        g_free(exec_field);
+
+        if (exec_text) {
+            FILE *   proc_out;
+            GString *cap   = NULL;
+            char *   end;
+            char     c;
+            long     result_val;
+
+            LOG1 {
+                printf("Execute %s: ", exec_text);
+                fflush(stdout);
+            }
+
+            proc_out = popen(exec_text, "r");
+            if (proc_out == NULL) {
+                fprintf(stderr, "Failed to execute: %s: ", exec_text);
+                perror("");
+                retval = FALSE;
+                break;
+            } else {
+                cap = g_string_sized_new(100);
+                while ((c = fgetc(proc_out)) != EOF) {
+                    LOG1 { putchar(c); fflush(stdout); }
+                    g_string_append_c(cap, c);
+                }
+                LOG1 putchar('\n');
+
+                pclose(proc_out);
+
+                result_val = strtol(cap->str, &end, 0);
+                if (end == cap->str) {
+                    fprintf(stderr, "%s: Expect an integer: %s\n",
+                            key, cap->str);
+                    retval = FALSE;
+                }
+
+                val = result_val - base;
+
+                g_string_free(cap, TRUE);
+
+                if (! retval)
+                    break;
+            }
+
+        }
+
+        /* .incr section */
+        incr_field = g_strdup_printf("%s.incr", field);
+        incr_text = g_hash_table_lookup(vartab, incr_field);
+        g_free(incr_field);
+
+        if (incr_text) {
+            long incr = strtol(incr_text, NULL, 0);
+            if (incr != 0)
+                val += incr;
+        }
+
+        val_text = g_strdup_printf("%ld %s", val,
                                    nexts ? nexts : "");
         g_hash_table_replace(vartab,
                              g_strdup(field),
                              val_text);
 
-        g_free(field);
-        field = NULL;
     } // while iter(.exec)
-
-    if (field) g_free(field);
 
     return retval;
 }

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+cd `dirname $0`
+
 cp -f ../VERSION.sample a
 ../vercomp -i major a
 ../vercomp -i minor a
