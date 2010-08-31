@@ -6,6 +6,11 @@ if [ -z "$MAKE" ]; then
     MAKE=make
 fi
 
+if [ ! -f ./configure ]; then
+    echo Autoreconf2...
+    autoreconf2 -is
+fi
+
 if [ ! -f Makefile ] && [ -x ./configure ]; then
     echo Generate Makefile by autotools...
     if ./configure; then
