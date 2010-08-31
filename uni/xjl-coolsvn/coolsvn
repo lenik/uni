@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# 1, do vercomp before commit
+# 2, do update after commit on dir
+
+if [ -z "$SVN" ]; then
+    SVN=svn
+fi
+
+case "$1" in
+    commit|ci)
+        if ! svn st -q >/dev/null; then
+            echo Collisions
+            exit 1
+        fi
+        if svn st -q | grep -q ^M; then
+            echo -n Increase commit count:
+            vercomp -i commit $av
+        fi
+        ;;
+esac
+
+$SVN "$@"
