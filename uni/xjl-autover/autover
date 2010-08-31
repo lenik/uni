@@ -25,7 +25,7 @@ tmp=/tmp/autover-ac.$$.$RANDOM
 sed -e 's/\(AC_INIT(\[[^]]*\], \[\)[^]]*\(\].*\)$/\1'"$version"'\2/' \
     <$acfile >$tmp
 
-if ! cmp $acfile $tmp; then
+if ! cmp -s $acfile $tmp; then
     echo set version to $version
     mv -f $tmp $acfile
 fi
