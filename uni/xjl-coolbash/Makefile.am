@@ -8,7 +8,9 @@ dist_bin_SCRIPTS = \
 	eachdir \
 	tourl \
 	textp \
-	binaryp
+	binaryp \
+	swapox \
+	testox
 
 dist_shsrc_DATA = \
 	cd-ls \
