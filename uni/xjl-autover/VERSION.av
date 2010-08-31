@@ -1,0 +1,11 @@
+
+# See vercomp(5)
+
+format   = $major.$minor.$rev
+
+major    = 0 minor
+minor    = 0 rev
+
+rev      = 0
+rev.base = 0
+rev.exec = svn_revision .

@@ -1,3 +1,33 @@
 #!/bin/bash
 
 # For generate version field in configure.ac automaticlly.
+
+acfile=
+for c in configure.ac configure.in; do
+    if [ -f $c ]; then
+        acfile="$c"
+        break
+    fi
+done
+
+if [ -z "$acfile" ]; then
+    echo "configure.ac file doesn't exist"
+    exit 1
+fi
+
+if ! version=`vercomp`; then
+    echo Error execute vercomp.
+    exit 2
+fi
+
+tmp=/tmp/autover-ac.$$.$RANDOM
+
+sed -e 's/\(AC_INIT(\[[^]]*\], \[\)[^]]*\(\].*\)$/\1'"$version"'\2/' \
+    <$acfile >$tmp
+
+if ! cmp $acfile $tmp; then
+    echo set version to $version
+    mv -f $tmp $acfile
+fi
+
+rm -f $tmp
