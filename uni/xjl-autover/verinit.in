@@ -10,3 +10,10 @@ if [ -f "$av" ]; then
 fi
 
 cp @pkgdatadir@/VERSION.template "$av"
+
+# update the automatic fields.
+vercomp -u "$av"
+
+# Because we don't know whether there's a minor field in the template,
+# so don't use:
+# vercomp -i minor "$av"
