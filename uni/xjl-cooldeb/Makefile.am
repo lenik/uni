@@ -10,7 +10,7 @@ dist_bin_SCRIPTS = \
 dist_aliases_DATA = \
     cooldeb.sh
 
-vcmdlist = dh_make
+vcmdlist = dh_make pwd
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); \

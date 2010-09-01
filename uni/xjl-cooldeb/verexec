@@ -11,6 +11,9 @@ if [ "$VCMD" = "$0" ]; then
     echo "The calling program must end with _ver"
     exit 1
 fi
+if [ ! -x "$VCMD" ]; then
+    VCMD="${VCMD##*/}"
+fi
 
 dir=`readlink -f .`
 dirbase="${dir##*/}"
@@ -30,5 +33,9 @@ cd $basever
 $VCMD "$@"
 err=$?
 
+# cd $tmpdir
+# rm -f $basever
+cd "$dir"
 rm -fR $tmpdir
+
 exit $err
