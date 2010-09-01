@@ -12,8 +12,17 @@ vercomp_LDADD = $(GLIB_LIBS)
 bin_PROGRAMS = \
 	vercomp
 
-dist_bin_SCRIPTS = \
+bin_SCRIPTS = \
     verinit
+
+dist_bin_SCRIPTS = \
+	autover
+
+dist_man_MANS = \
+	autover.1 \
+	verinit.1 \
+	vercomp.1 \
+    vercomp.5
 
 dist_doc_DATA = \
     VERSION.sample
@@ -21,14 +30,11 @@ dist_doc_DATA = \
 dist_pkgdata_DATA = \
     VERSION.template
 
-dist_man_MANS = \
-    vercomp.5
-
 dist_aliases_DATA = \
 	aliases.d/ver-aliases.sh
 
-CLEANFILES = verinit
 EXTRA_DIST = verinit.in
+CLEANFILES = verinit
 
 verinit: verinit.in Makefile
 	$(do_subst) <$(srcdir)/verinit.in >verinit
