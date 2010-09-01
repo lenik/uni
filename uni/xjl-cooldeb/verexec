@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# VCMD is a program need the version number in the working dir name.
+# VCMD is constructed by calling program with suffix _ver stripped.
+
+# vexec rename current dir to DIR_VERSION, then run VCMD,
+# at last restore the dir name before exit.
+
+VCMD="${0%_ver}"
+if [ "$VCMD" = "$0" ]; then
+    echo "The calling program must end with _ver"
+    exit 1
+fi
+
+dir=`readlink -f .`
+dirbase="${dir##*/}"
+
+ver=`vercomp`
+
+basever="$dirbase-$ver"
+
+tmpdir=/tmp/dh_make_ver.$$.$RANDOM
+rm -fR $tmpdir
+mkdir -p $tmpdir
+
+cd $tmpdir
+ln -s "$dir" $basever
+cd $basever
+
+$VCMD "$@"
+err=$?
+
+rm -fR $tmpdir
+exit $err

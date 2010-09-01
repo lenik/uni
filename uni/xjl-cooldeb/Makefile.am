@@ -1,15 +1,25 @@
 
-do_subst = sed \
-    -e 's,[@]prefix[@],$(prefix),g' \
-    -e 's,[@]bindir[@],$(bindir),g' \
-    -e 's,[@]docdir[@],$(docdir),g' \
-    -e 's,[@]datadir[@],$(datadir),g' \
-    -e 's,[@]pkgdatadir[@],$(pkgdatadir),g'
+include libauto/subst.am
+
+sysconfdir = /etc
+aliasesdir = ${sysconfdir}/bash_aliases.d
 
 dist_bin_SCRIPTS = \
-    dh_make_ver
-
-aliasesdir = /etc/bash_aliases.d
+    verexec
 
 dist_aliases_DATA = \
     cooldeb.sh
+
+vcmdlist = dh_make
+
+install-data-hook:
+	cd $(DESTDIR)$(bindir); \
+        for f in $(vcmdlist); do \
+            ln -sf verexec $${f}_ver; \
+        done
+
+uninstall-hook:
+	cd $(DESTDIR)$(bindir); \
+        for f in $(vcmdlist); do \
+            rm -f \$${f}_ver; \
+        done
