@@ -6,7 +6,7 @@
 
     outdir=
     separator=_
-    suffix=-orig
+    suffix=.orig
 
     zipper=bzip2
 
@@ -19,7 +19,7 @@
 
 function version() {
     parse_id "$RCSID"
-    echo "[$BASENAME] Create -orig archive"
+    echo "[$BASENAME] Create .orig archive"
     echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
 }
 
@@ -33,7 +33,7 @@ function help() {
     echo "    -d, --outdir=DIR        where to put the tarball"
     echo "    -z, --zipper=NAME       using alternate zip program"
     echo "    -s, --separator=CHAR    specify a separator other then '_'"
-    echo "    -x, --suffix=SUFFIX     specify a suffix, default is -orig"
+    echo "    -x, --suffix=SUFFIX     specify a suffix, default is .orig"
     echo "    -j, --joinext           using .tgz instead of .tar.gz, and so on"
     echo "    -q, --quiet             repeat to get less info"
     echo "    -v, --verbose           repeat to get more info"
