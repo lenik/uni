@@ -31,7 +31,7 @@ dist_pkgdata_DATA = \
     VERSION.template
 
 dist_aliases_DATA = \
-	aliases.d/ver-aliases.sh
+	aliases.d/autover.sh
 
 EXTRA_DIST = verinit.in
 CLEANFILES = verinit
