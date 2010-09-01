@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# master-file
+
 # (bash for $RANDOM)
 
 if [ -z "$MAKE" ]; then
@@ -27,30 +29,18 @@ if [ ! -f Makefile ] && [ -x ./configure ]; then
     fi
 fi
 
-if dist_tgz=`maketest '@echo $(PACKAGE_NAME)-$(PACKAGE_VERSION).tar.gz'`; then
-    echo Guess the generated dist file is $dist_tgz
+if ! distz=`maketestvar DIST_ARCHIVES`; then
+    echo Failed to get DIST_ARCHIVES make variable.
+    exit 1
 fi
+echo Distribution file: $distz
+TARZ="tar -a"
 
 $MAKE -s dist
 
-if [ -z "$dist_tgz" ]; then
-    echo Dist file is unknown, find the first .tar.gz archive:
-    for tgz in *.tar.gz; do
-        if [ -f "$tgz" ]; then
-            echo Found: $tgz
-            dist_tgz="$tgz"
-            break
-        fi
-    done
-    if [ -z "$dist_tgz" ]; then
-        echo Not found anything.
-        exit 1
-    fi
-fi
-
 echo
 echo "Distribution contents (Re-sorted): "
-tar tzf $dist_tgz | LC_COLLATE=C sort
+$TARZ -tf $distz | LC_COLLATE=C sort
 
 tmpdestdir=/tmp/destdir.$$.$RANDOM
 rm -fR $tmpdestdir
@@ -64,8 +54,8 @@ fi
 for f in "$@"; do
     echo "Check file $f: "
     find $tmpdestdir -name $f -exec sh -c "echo In install: {}; cat {} | sed 's/^/> /'; echo" \;
-    tar tzf $dist_tgz | grep "/$f\$" | xargs -l -I {} \
-        sh -c "echo In tarball: {}; tar xzf $dist_tgz -O {} | sed 's/^/> /'; echo"
+    $TARZ -tf $distz | grep "/$f\$" | xargs -l -I {} \
+        sh -c "echo In tarball: {}; $TARZ -xf $distz -O {} | sed 's/^/> /'; echo"
     echo
 done
 

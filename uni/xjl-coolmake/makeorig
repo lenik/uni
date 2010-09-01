@@ -19,7 +19,7 @@
 
 function version() {
     parse_id "$RCSID"
-    echo "[$BASENAME] Create -orig tarball"
+    echo "[$BASENAME] Create -orig archive"
     echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
 }
 
@@ -50,8 +50,16 @@ function setopt() {
     case "$1" in
         -d|--outdir)
             outdir="$2";;
-        -z|--zip)
-            zipper="$2";;
+        -z|--zipper)
+            case "$2" in
+                gz|gzip)
+                    zipper=gzip;;
+                bz2|bzip2)
+                    zipper=bzip2;;
+                *)
+                    zipper="$2";;
+            esac
+            ;;
         -s|--separator)
             separator="$2";;
         -x|--suffix)
@@ -93,19 +101,37 @@ function main() {
         fi
     fi
 
-    if [ -f "$dir/VERSION.av" ]; then
-        version=`vercomp $dir/VERSION.av`
-    else
-        echo "No version file in $dir"
+    using=ac
+    case "$using" in
+    ac)
+        base=`maketestvar PACKAGE_NAME`
+        version=`maketestvar PACKAGE_VERSION`
+        if [ -z "$base" -o -z "$version" ]; then
+            echo "Failed to get PACKAGE_xxx make variables"
+            exit 1
+        fi
+        ;;
+    av)
+        base="${dir##*/}"
+        if [ -f "$dir/VERSION.av" ]; then
+            version=`vercomp $dir/VERSION.av`
+        else
+            echo "No version file in $dir"
+            exit 1
+        fi
+        ;;
+    esac
+
+    tarball="$outdir/$base$separator$version$suffix$tarpart$zipext"
+
+    tmpinst=/tmp/makeorig-tmpinst-$$-$RANDOM
+    if ! make -s install DESTDIR=$tmpinst prefix=/usr; then
+        echo "Failed to install to $tmpinst"
         exit 1
     fi
 
-    base="${dir##*/}"
-    tarball="$outdir/$base$separator$version$suffix$tarpart$zipext"
+    tar -vcaf "$tarball" -C $tmpinst .
 
-    echo "Create $tarball"
-
-    tar -C "$dir" -c . | $zipper -c >$tarball
 }
 
 boot "$@"

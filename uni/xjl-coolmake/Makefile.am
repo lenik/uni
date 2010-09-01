@@ -10,6 +10,7 @@ dist_bin_SCRIPTS = \
     maketest \
     maketestvar \
     makelook \
+	makeorig \
     subdirs
 
 dist_samples_DATA = \
