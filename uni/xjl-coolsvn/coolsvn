@@ -9,13 +9,18 @@ fi
 
 case "$1" in
     commit|ci)
-        if ! svn st -q >/dev/null; then
-            echo Collisions
-            exit 1
-        fi
-        if svn st -q | grep -q ^M; then
-            echo -n Increase commit count:
-            vercomp -i commit $av
+        av=
+        for d in . .. ../..; do
+            if [ -f "$d/VERSION.av" ]; then
+                av="$d/VERSION.av"
+                break
+            fi
+        done
+        if [ -n "$av" ]; then
+            vercomp -i commit "$av"
+            if AUTOVER=`which autover`; then
+                $AUTOVER
+            fi
         fi
         ;;
 esac
