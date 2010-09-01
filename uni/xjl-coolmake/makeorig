@@ -101,6 +101,16 @@ function main() {
         fi
     fi
 
+    cleanconf=0
+    if [ ! -f configure ]; then
+        autoreconf2 -is
+        cleanconf=1
+    fi
+
+    if [ ! -f Makefile ]; then
+        ./configure
+    fi
+
     using=ac
     case "$using" in
     ac)
@@ -132,6 +142,9 @@ function main() {
 
     tar -vcaf "$tarball" -C $tmpinst .
 
+    if [ "$cleanconf" ]; then
+        autounconf
+    fi
 }
 
 boot "$@"
