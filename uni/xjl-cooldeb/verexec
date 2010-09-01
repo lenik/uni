@@ -22,7 +22,7 @@ ver=`vercomp`
 
 basever="$dirbase-$ver"
 
-tmpdir=/tmp/dh_make_ver.$$.$RANDOM
+tmpdir=/tmp/verexec$$.$RANDOM
 rm -fR $tmpdir
 mkdir -p $tmpdir
 
