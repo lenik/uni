@@ -5,7 +5,8 @@ sysconfdir = /etc
 aliasesdir = ${sysconfdir}/bash_aliases.d
 
 dist_bin_SCRIPTS = \
-    verexec
+    verexec \
+	dir-ver
 
 dist_aliases_DATA = \
     cooldeb.sh
@@ -16,10 +17,12 @@ install-data-hook:
 	cd $(DESTDIR)$(bindir); \
         for f in $(vcmdlist); do \
             ln -sf verexec $${f}_ver; \
-        done
+        done; \
+		ln -sf dir-ver dir-nover
 
 uninstall-hook:
 	cd $(DESTDIR)$(bindir); \
         for f in $(vcmdlist); do \
             rm -f \$${f}_ver; \
-        done
+        done; \
+		rm -f dir-nover

@@ -1,0 +1,77 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    echo "$0 dir [<separator-char>]"
+    exit 1
+fi
+
+dir="${1%/}"
+if [ ! -d "$dir" ]; then
+    echo "Dir $dir doesn't exist"
+    exit 1
+fi
+
+if [ ! -f "$dir/VERSION.av" ]; then
+    echo "Dir $dir doesn't have a version file"
+    exit 1
+fi
+
+ver=`vercomp $dir/VERSION.av`
+
+sep="-"
+if [ $# -ge 2 ]; then
+    sep="$2"
+fi
+
+function is_ver() {
+    local s="$1"
+    while [ -n "$s" ]; do
+        c="${s##*.}"
+        if [ "$s" = "$c" ]; then
+            s=
+        else
+            s="${s%.*}"
+        fi
+        if [ -n "${c//[0-9]}" ]; then
+            return 1
+        fi
+    done
+    return 0
+}
+
+ver_test="${dir##*-}"
+if is_ver "$ver_test"; then
+    dir_nover="${dir%-*}"
+    dir_ver="$dir"
+else
+    dir_nover="$dir"
+    dir_ver="$dir$sep$ver"
+fi
+
+function _mv() {
+    # assert $# = 2
+    local src="$1"
+    local dst="$2"
+    if [ "$src" = "$dst" ]; then
+        return 0
+    fi
+
+    if [ -d "$dst" ]; then
+        echo "Dir $dst/ is already existed. "
+        return 1
+    fi
+
+    mv "$src" "$dst"
+}
+
+if [ "${0##*-}" = nover ]; then
+    _mv "$dir" "$dir_nover"
+    err=$?
+    echo "$dir_nover"
+else
+    _mv "$dir" "$dir_ver"
+    err=$?
+    echo "$dir_ver"
+fi
+
+exit $err
