@@ -5,10 +5,10 @@
     . /usr/lib/bash/cliboot
 
     outdir=
-    separator=-
+    separator=_
     suffix=.orig
 
-    zipper=gzip
+    zipper=bzip2
 
     tarpart=.tar.
 
@@ -142,7 +142,7 @@ function main() {
 
     tar -vcaf "$tarball" -C $tmpinst .
 
-    if [ "$cleanconf" ]; then
+    if [ "$cleanconf" = 1 ]; then
         autounconf
     fi
 }
