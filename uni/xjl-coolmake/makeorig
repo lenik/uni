@@ -5,10 +5,10 @@
     . /usr/lib/bash/cliboot
 
     outdir=
-    separator=_
+    separator=-
     suffix=.orig
 
-    zipper=bzip2
+    zipper=gzip
 
     tarpart=.tar.
 
