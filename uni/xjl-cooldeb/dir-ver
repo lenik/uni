@@ -1,18 +1,21 @@
 #!/bin/bash
 
 if [ -z "$1" ]; then
-    echo "$0 dir [<separator-char>]"
+    echo "$0 dir [<separator-char>]" >&2
     exit 1
 fi
 
 dir="${1%/}"
 if [ ! -d "$dir" ]; then
-    echo "Dir $dir doesn't exist"
+    echo "Dir $dir doesn't exist" >&2
     exit 1
 fi
 
 if [ ! -f "$dir/VERSION.av" ]; then
-    echo "Dir $dir doesn't have a version file"
+    # restore the dir.
+    echo "$dir"
+
+    echo "Dir $dir doesn't have a version file" >&2
     exit 1
 fi
 
