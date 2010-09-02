@@ -1,0 +1,41 @@
+#!/bin/bash
+
+if [ -z "$1" ] || [ -n "${1//[0-9]}" ]; then
+    echo setminuid MIN
+    exit 1
+fi
+min=$1
+
+bindir=`dirname $0`
+usrdir1="${prefix%/bin}"
+usrdir2="${prefix%/local}"
+rootdir="${prefix%/usr}"
+
+logindef=
+for d in "$usrdir1" "$usrdir2" "$rootdir" /; do
+    f="$d/etc/login.defs"
+    if [ -f "$f" ]; then
+        logindef="$f"
+        break
+    fi
+done
+
+if [ -z "$logindef" ]; then
+    echo "No login.defs found. "
+    exit 1
+fi
+
+tmp=/tmp/setuidmin-ldeftmp.$$.$RANDOM
+
+sed -e 's/\bUID_MIN[ 	]\+[0-9]\+/UID_MIN '$min'/' $logindef >$tmp
+if ! cmp -s $logindef $tmp; then
+    echo Change UID_MIN to $min.
+    mv -f $tmp $logindef
+else
+    if ! grep -q '\bUID_MIN\b' $logindef; then
+        echo Add UID_MIN = $min
+        echo "UID_MIN $min" >>$logindef
+    fi
+fi
+
+rm -f $tmp

@@ -1,14 +1,19 @@
 #!/bin/bash
 
-force=
+etcdir="$1"
+if [ ! -f "$etcdir/passwd" ]; then
+    exit 0
+fi
+shift
 
+force=
 if [ "$1" = '-f' ]; then
     force=1
 fi
 
 
 function getgid() {
-    if l=`grep -m1 "^$gname:" /etc/group`; then
+    if l=`grep -m1 "^$gname:" $etcdir/group`; then
         l="${l#*:}"
         l="${l#*:}"
         echo ${l%%:*}
@@ -32,7 +37,7 @@ function add_user() {
     if [ -z "$ucmd" ]; then ucmd=/bin/bash; fi
 
     if [ "$force" = 1 ]; then
-        if grep -q "^$uname" /etc/passwd; then
+        if grep -q "^$uname" $etcdir/passwd; then
             echo "  Delete existing user $uname"
             userdel "$uname"            # may delete the group also.
         fi
@@ -69,26 +74,18 @@ function add_user() {
 
 # user 700-799
 
-add_user 700 dev   dev  "Developer"
-add_user 701 dev1  dev  "Developer 1"
-add_user 702 dev2  dev  "Developer 1"
+add_user 700 bind       - "Name daemon"         /var/cache/bind /bin/false
+add_user 701 postfix    - "Postfix daemon"      /var/spool/postfix /bin/false
 
-# user 800-899
+add_user 710 postgres   - "PostgreSQL admin"    /var/lib/postgresql
+add_user 711 mysql      - "MySQL daemon"        /var/lib/mysql /bin/balse
 
-add_user 800 play  play "Player"
-add_user 801 play1 play "Player 1"
-add_user 802 play2 play "Player 2"
+add_user 720 appserv    - "App Server"          /home/appserv
 
-add_user 810 demo  demo "Demo User"
-add_user 811 demo1 demo "Demo User 1"
-add_user 812 demo2 demo "Demo User 2"
+# user 800-999
 
-# user 900-999
+add_user 900 play  play "Player"
+add_user 910 demo  demo "Demo User"
 
-add_user 900 bind       - "Name daemon"         /var/cache/bind /bin/false
-add_user 901 postfix    - "Postfix daemon"      /var/spool/postfix /bin/false
+add_user 999 dev   dev  "Developer"
 
-add_user 910 postgres   - "PostgreSQL admin"    /var/lib/postgresql
-add_user 911 mysql      - "MySQL daemon"        /var/lib/mysql /bin/balse
-
-add_user 920 appserv    - "App Server"          /home/appserv
