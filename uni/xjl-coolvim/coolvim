@@ -17,25 +17,34 @@ fi
 
 for f in "$@"; do
 
-    launcher=
+    sudo_r=
+    sudo_w=
+    new_file=
+
     if [ ! -f "$f" ]; then
+
+        # find exec-PATH if file isn't exist.
         if which=`which "$f"`; then
             f="$which"
+
+        # or create a new file, when necessary
         else
-            fdir=`dirname "$f"`
-            if [ ! -w "$fdir" ]; then
-                launcher=$SUDO
-            fi
-            # create a new file, maybe
-            $launcher $VIM "$f"
-            continue
+            new_file=1
         fi
     fi
 
-    tabrc=`guesstab "$f"`
-    if [ ! -w "$f" ]; then
-        launcher=$SUDO
+    tabrc=
+    if [ "$new_file" = 1 ]; then
+        fdir=`dirname "$f"`
+        if [ ! -w "$fdir" ]; then
+            sudo_w=$SUDO
+        fi
+    else
+        if [ ! -r "$f" ]; then sudo_r=$SUDO; fi
+        if [ ! -w "$f" ]; then sudo_w=$SUDO; fi
+        tabrc=`$sudo_r guesstab "$f"`
     fi
-    $launcher $VIM -c "$tabrc" "$f"
+
+    $sudo_w $VIM -c "$tabrc" "$f"
 
 done
