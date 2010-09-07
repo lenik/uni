@@ -25,6 +25,7 @@ char **     opt_files;
 gboolean    opt_stdout    = FALSE;      /* write to stdout instead of save */
 gboolean    opt_update    = FALSE;      /* always save? */
 
+char *      start_dir;                  /* startup working dir */
 char *      filename;
 int         line = 0;
 
@@ -37,7 +38,8 @@ const char *str_next_tok(const char *start, char **tok);
 gboolean parse_component(const char *field, const char *s,
                          long *pval, const char **pnext);
 
-int do_main();
+int pass_1();
+int pass_rest();
 gboolean scan(FILE *in, gboolean save, GString *out);
 
 gboolean field_incr(const char *field, int delta);
@@ -125,12 +127,17 @@ int main(int argc, char **argv) {
     if (filename == NULL)
         filename = g_strdup("VERSION.av");
 
+    start_dir = get_current_dir_name();
+
     vartab = g_hash_table_new_full(g_str_hash, g_str_equal,
                                    g_free, g_free);
 
-    err = do_main();
+    err = pass_1();
+
+    free(start_dir);
 
     g_free(filename);
+
     g_hash_table_unref(vartab);
 
     g_option_context_free(opts);
@@ -203,8 +210,11 @@ gboolean parse_component(const char *field, const char *s,
     return TRUE;
 }
 
-int do_main() {
+int pass_1() {
     FILE *in;
+    char *basename;
+    char *dirname;
+    int   retval;
 
     /* 1, pass 1, scan all fields */
     in = fopen(filename, "r");
@@ -214,12 +224,12 @@ int do_main() {
         return 1;
     }
 
-    if (! scan(in, FALSE, NULL)) {
+    retval = scan(in, FALSE, NULL);
+    fclose(in);
+    if (! retval) {
         fprintf(stderr, "Parse failure\n");
         return 1;
     }
-
-    fclose(in);
 
     LOG2 {
         GHashTableIter it;
@@ -232,6 +242,37 @@ int do_main() {
                     (const char *)key, (const char *) value);
         }
     }
+
+    basename = strrchr(filename, '/');
+    if (basename == NULL) {
+        basename = filename;
+        dirname = g_strdup(".");
+    } else {
+        dirname = g_strndup(filename, basename - filename);
+        basename++;
+    }
+
+    if (chdir(dirname) != 0) {
+        fprintf(stderr, "Failed to enter %s: ", dirname);
+        perror("");
+        return 1;
+    }
+
+    retval = pass_rest();
+
+    if (chdir(start_dir) != 0) {
+        fprintf(stderr, "Failed to leave %s: ", dirname);
+        perror("");
+        return 1;
+    }
+
+    g_free(dirname);
+
+    return retval;
+}
+
+int pass_rest() {
+    FILE *in;
 
     /* 2, do refresh and increment, and refresh related fields */
 
