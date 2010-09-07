@@ -2,79 +2,120 @@
 
 # strip (PREFIX)FILE(SUFFIX) prefix/suffix
 
-prefix="__DISABLED_"
-suffix=""
+    RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
+    short_opts="edhqv"
+    long_opts="enable,disable,help,quiet,verbose,version"
+    . /usr/lib/bash/cliboot
 
-if [ "${0##*/}" = "disfile" ]; then
-    mode=decorate
-fi
+    mode=strip
+    prefix="__DISABLED_"
+    suffix=""
 
-if [ "$1" = "--" ]; then
-    shift
-else
-    if [ "$1" = "-d" ]; then
+    if [ "${0##*/}" = "disfile" ]; then
         mode=decorate
-        shift
-    else
-        mode=strip
-    fi
-fi
-
-dirty=0
-
-for file in "$@"; do
-
-    dirname="${file%/*}"
-    if [ "$dirname" = "$file" ]; then
-        dirname=.
-        basename="$file"
-    else
-        basename="${file##*/}"
     fi
 
-    stripped="${basename#$prefix}"
-    stripped="${stripped%$suffix}"
-    decorated="$prefix$stripped$suffix"
+    dirty=
 
-    stripped_file="$dirname/$stripped"
-    decorated_file="$dirname/$decorated"
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Enable/Disable a file by rename"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
 
-    if [ $mode = strip ]; then
-        if [ -f "$stripped_file" ]; then
-            echo "Skipped already stripped file: $stripped_file"
-            continue
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] FILES"
+    echo
+    echo "Options: "
+    echo "    -e, --enable            enable files"
+    echo "    -d, --disable           disable files"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -e|--enable)
+            mode=strip;;
+        -d|--disable)
+            mode=decorate;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+
+    for file in "$@"; do
+
+        dirname="${file%/*}"
+        if [ "$dirname" = "$file" ]; then
+            dirname=.
+            basename="$file"
+        else
+            basename="${file##*/}"
         fi
 
-        if [ ! -f "$decorated_file" ]; then
-            echo "File doesn't exist: $decorated_file"
-            exit 1
+        stripped="${basename#$prefix}"
+        stripped="${stripped%$suffix}"
+        decorated="$prefix$stripped$suffix"
+
+        stripped_file="$dirname/$stripped"
+        decorated_file="$dirname/$decorated"
+
+        if [ $mode = strip ]; then
+            if [ -f "$stripped_file" ]; then
+                _log1 "Skipped already stripped file: $stripped_file"
+                continue
+            fi
+
+            if [ ! -f "$decorated_file" ]; then
+                _log1 "File doesn't exist: $decorated_file"
+                exit 1
+            fi
+
+            if mv "$decorated_file" "$stripped_file"; then
+                dirty=1
+            fi
+
+        else
+
+            if [ -f "$decorated_file" ]; then
+                _log1 "Skipped already decorated file: $decorated_file"
+                continue
+            fi
+
+            if [ ! -f "$stripped_file" ]; then
+                _log1 "File doesn't exist: $stripped_file"
+                exit 1
+            fi
+
+            if mv "$stripped_file" "$decorated_file"; then
+                dirty=1
+            fi
         fi
 
-        if mv "$decorated_file" "$stripped_file"; then
-            dirty=1
-        fi
+    done
 
+    if [ "$dirty" = 1 ]; then
+        return 0
     else
-
-        if [ -f "$decorated_file" ]; then
-            echo "Skipped already decorated file: $decorated_file"
-            continue
-        fi
-
-        if [ ! -f "$stripped_file" ]; then
-            echo "File doesn't exist: $stripped_file"
-            exit 1
-        fi
-
-        if mv "$stripped_file" "$decorated_file"; then
-            dirty=1
-        fi
+        return 1
     fi
+}
 
-done
+boot "$@"
 
-if [ $dirty = 1 ]; then
-    exit 0
-else
-    exit 1
-fi
