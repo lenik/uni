@@ -8,8 +8,9 @@
     . /usr/lib/bash/cliboot
 
     mode=strip
-    prefix=".__DISABLED_"
+    prefix="__DISABLED_"
     suffix="_INVALID"
+    secdir=".disabled"
 
     if [ "${0##*/}" = "disfile" ]; then
         mode=decorate
@@ -73,8 +74,15 @@ function main() {
         stripped="${stripped%$suffix}"
         decorated="$prefix$stripped$suffix"
 
+        if [ -d "$dirname/$secdir" ]; then
+            decdir="$dirname/$secdir"
+        else
+            decdir="$dirname"
+            decorated=".$decorated"
+        fi
+
         stripped_file="$dirname/$stripped"
-        decorated_file="$dirname/$decorated"
+        decorated_file="$decdir/$decorated"
 
         if [ $mode = strip ]; then
             if [ -f "$stripped_file" ]; then
