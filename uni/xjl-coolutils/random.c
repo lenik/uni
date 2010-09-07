@@ -14,11 +14,12 @@ const char *tab = "0123456789abcdefghijklmnopqrstuvwxyz";
 
 #define BITS (sizeof(int) * 8)
 
-unsigned hash(const char *mem, size_t size) {
+unsigned hash(const void *mem, size_t size) {
+    const unsigned char *p = (const unsigned char *) mem;
     unsigned h = 0;
     while (size--) {
         h = (h << 8) | (h >> (BITS - 8));
-        h ^= *mem++;
+        h ^= *p++;
     }
     return h;
 }

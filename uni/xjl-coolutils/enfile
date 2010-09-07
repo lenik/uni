@@ -8,8 +8,8 @@
     . /usr/lib/bash/cliboot
 
     mode=strip
-    prefix="__DISABLED_"
-    suffix=""
+    prefix=".__DISABLED_"
+    suffix="_INVALID"
 
     if [ "${0##*/}" = "disfile" ]; then
         mode=decorate
