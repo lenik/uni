@@ -82,7 +82,7 @@ function main() {
 
     for ch in "$debver"_*.changes; do
         echo "Commit $ch"
-        dput -f local "$ch"
+        dput -f local "$ch" | grep -v "override entry"
     done
 
     if [ "$reconf" = 1 ]; then
