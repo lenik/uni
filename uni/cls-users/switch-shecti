@@ -1,0 +1,10 @@
+#!/bin/bash
+
+usermod \
+    -l shecti \
+    -a -G admin \
+    -d /home/shecti \
+    -c "Shecti" \
+    dev
+
+passwd shecti

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+rdesktop-pm -f -r sound:remote -ushecti cls

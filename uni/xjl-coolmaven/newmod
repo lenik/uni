@@ -9,6 +9,7 @@ while read g; do
     g="${g##*<groupId>}"
     g="${g%%</groupId>*}"
     GROUP_ID="$g"
+	break
 done < <(grep -C4 "$PARENT_ID" pom.xml | grep "<groupId>")
 
 if _ver=`grep -A3 "$PARENT_ID" pom.xml | grep "<version>"`; then
@@ -60,7 +61,7 @@ cat <<EOM >$ID/pom.xml
 </project>
 EOM
 
-PDIR="${PACKAGE//./\/}"
+PDIR="${PACKAGE//.//}"
 mkdir -p $ID/src/main/java/$PDIR
 mkdir -p $ID/src/main/resources/$PDIR
 mkdir -p $ID/src/test/java/$PDIR

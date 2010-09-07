@@ -1,0 +1,10 @@
+#!/bin/bash
+
+usermod \
+    -l lenik \
+    -a -G admin \
+    -d /home/lenik \
+    -c "Lenik" \
+    dev
+
+passwd lenik

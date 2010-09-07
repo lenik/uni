@@ -17,7 +17,7 @@ case "$1" in
             fi
         done
         if [ -n "$av" ]; then
-            vercomp -i commit "$av"
+            vercomp -i commit "$av" >/dev/null
             if AUTOVER=`which autover`; then
                 $AUTOVER
             fi
