@@ -124,7 +124,15 @@ function process() {
         lines=1
     fi
 
-    if off=`$GREPL "$pattern" "$file"`; then
+    if [ ! -f "$file" ]; then
+        if [ "$kill" = 1 ]; then
+            _log1 "Remove from non-exist file, skipped"
+            true
+        else
+            _log1 "Add new entry to new file"
+            cat $inserttmp >"$file"
+        fi
+    elif off=`$GREPL "$pattern" "$file"`; then
         # replace or remove
         ((off--))
         if [ "$kill" = 1 ]; then
