@@ -62,14 +62,18 @@ function main() {
 
     base="${PWD##*/}"
     src="$PWD"
-    pushd /tmp >/dev/null
-    ln -s "$src" $base
+
+    # symlink doesn't work for dch, which use abs path always.
+    # pushd /tmp >/dev/null
+    # ln -s "$src" $base
+    # popd >/dev/null
+    pushd .. >/dev/null
     dir_ver=`dir-ver $base`
     cd "$dir_ver"
     dch -d "Upstream updates, automatic package by deb-redist"
     cd ..
-    rm "$dir_ver"
-    popd >/dev/null
+    dir-nover "$dir_ver"
+    popd
 
     if ! debuild --no-tgz-check; then
         exit 3
@@ -82,7 +86,7 @@ function main() {
 
     for ch in "$debver"_*.changes; do
         echo "Commit $ch"
-        dput -f local "$ch" | grep -v "override entry"
+        swapox dput -f local "$ch" | swapox grep -v "override entry"
     done
 
     if [ "$reconf" = 1 ]; then
