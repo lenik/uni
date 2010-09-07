@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([cls-remotes], [0.1], [xjl-bug@99jsj.com])
+AC_INIT([cls-remotes], [0.1.2], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wall])
 
 # Checks for programs.
