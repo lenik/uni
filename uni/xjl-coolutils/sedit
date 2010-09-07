@@ -1,7 +1,7 @@
 #!/bin/bash
     RCSID='$Id$'
     short_opts="ci:dtmognehqv"
-    long_opts="stdout,replace,diff,keep-mode,keep-time,keep-owner,keep-group,dry-run,error-edit,help,quiet,verbose,version"
+    long_opts="stdout,replace,diff,keep-mode,keep-time,keep-owner,keep-group,dry-run,edit-status,help,quiet,verbose,version"
     . /usr/lib/bash/cliboot
 
     tee_output=
@@ -10,7 +10,7 @@
     keep_mode=
     keep_time=
     dry_run=
-    error_edit=
+    edit_status=
 
 function version() {
     parse_id "$RCSID"
@@ -33,7 +33,7 @@ function help() {
     echo "    -o, --keep-owner        keep file owner unchanged"
     echo "    -g, --keep-group        keep file group unchanged"
     echo "    -n, --dry-run           just for test, don't save the result"
-    echo "    -e, --error-edit        exit 1 if anything changed"
+    echo "    -e, --edit-status       exit true(0) if anything changed"
     echo "    -q, --quiet             repeat to get less info"
     echo "    -v, --verbose           repeat to get more info"
     echo "    -h, --help              show this help page"
@@ -63,8 +63,8 @@ function setopt() {
             keep_group=1;;
         -n|--dry-run)
             dry_run=1;;
-        -e|--error-edit)
-            error_edit=1;;
+        -e|--edit-status)
+            edit_status=1;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -110,6 +110,7 @@ function main() {
     err=$?
 
     cmp -s "$file" "$buff"
+    # 0 if same, 1 if diff
     dirty=$?
 
     if [ $dirty != 0 ]; then
@@ -143,11 +144,11 @@ function main() {
 
     rm -f "$buff"
 
-    if [ "$error_edit" = 1 ] && [ "$dirty" = 1 ]; then
-        err=1
+    if [ "$edit_status" = 1 ]; then
+        return "$((! dirty))"
+    else
+        return $err
     fi
-
-    return $err
 }
 
 boot "$@"

@@ -1,7 +1,7 @@
 #!/bin/bash
     RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
-    short_opts="EFGPktp:hqv"
-    long_opts="extended-regexp,fixed-strings,basic-regexp,perl-regexp,kill,twoline,prefix,help,quiet,verbose,version"
+    short_opts="EFGPktp:ehqv"
+    long_opts="extended-regexp,fixed-strings,basic-regexp,perl-regexp,kill,twoline,prefix,edit-status,help,quiet,verbose,version"
     . /usr/lib/bash/cliboot
 
     LOGLEVEL=0
@@ -10,6 +10,8 @@
     twoline=
     pattern_prefix="# "
     kill=
+    edit_status=
+    dirty=
 
 function version() {
     parse_id "$RCSID"
@@ -32,6 +34,7 @@ function help() {
     echo "    -P, --perl-regexp       PATTERN is a Perl regexp"
     echo "    -t, --twoline           set PATTERN and TEXT in two lines"
     echo "    -p, --prefix=PREFIX     change the PREFIX prepend to PATTERN"
+    echo "    -e, --edit-status       exit true(0) if anything changed"
     echo "    -k, --kill              remove the pattern/text line"
     echo "    -q, --quiet             repeat to get less info"
     echo "    -v, --verbose           repeat to get more info"
@@ -58,6 +61,8 @@ function setopt() {
         -p|--prefix)
             twoline=1
             pattern_prefix="$2";;
+        -e|--edit-status)
+            edit_status=1;;
         -k|--kill)
             kill=1;;
         -h|--help)
@@ -105,9 +110,15 @@ function main() {
     for f in "$@"; do
         _log1 "Process file $f"
         if ! process "$f"; then
-            return $?
+            return $err
         fi
     done
+
+    if [ "$edit_status" = 1 ]; then
+        return "$((! dirty))"
+    else
+        return 0
+    fi
 }
 
 function process() {
@@ -128,10 +139,11 @@ function process() {
     if [ ! -f "$file" ]; then
         if [ "$kill" = 1 ]; then
             _log1 "Remove from non-exist file, skipped"
-            true
+            false
         else
             _log1 "Add new entry to new file"
             cat $inserttmp >"$file"
+            true
         fi
     elif off=`$GREPL "$pattern" "$file"`; then
         # replace or remove
@@ -149,24 +161,22 @@ function process() {
         # append
         if [ "$kill" = 1 ]; then
             _log1 "Remove nothing. "
-            true
+            false
         else
             _log1 "Add new entry"
-            sedit -e "$file" sh -c "cat; cat $inserttmp"
+            cat $inserttmp >>$file
+            true
         fi
     fi
 
-    _log2 "sedit-exit: $?"
     sedit_err=$?
+    _log2 "sedit-error: $sedit_err"
+
+    if [ $sedit_err = 0 ]; then
+        dirty=1
+    fi
 
     rm -f $inserttmp
-
-    # return true if something changed.
-    if [ $sedit_err = 1 ]; then
-        return 0
-    else
-        return 1
-    fi
 }
 
 boot "$@"
