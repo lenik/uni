@@ -1,0 +1,3 @@
+#!/usr/bin/env perl
+
+exit -T $ARGV[0]

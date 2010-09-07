@@ -7,6 +7,8 @@ bin_PROGRAMS = \
 	random
 
 dist_bin_SCRIPTS = \
+	binaryp \
+	textp \
     swap \
     which2 \
     whichother \
@@ -14,7 +16,8 @@ dist_bin_SCRIPTS = \
     sedit \
     headrm \
     grepl \
-	hm
+	hm \
+	lineconf
 
 dist_man_MANS = \
     sedit.1 \

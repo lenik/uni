@@ -1,0 +1,158 @@
+#!/bin/bash
+    RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
+    short_opts="EFGPktp:hqv"
+    long_opts="extended-regexp,fixed-strings,basic-regexp,perl-regexp,kill,twoline,prefix,help,quiet,verbose,version"
+    . /usr/lib/bash/cliboot
+
+    GREP=grep
+    GREPL=grepl
+    twoline=
+    pattern_prefix="# "
+    kill=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Modify a line of config file by pattern"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] PATTERN TEXT [FILES]"
+    echo "    $0 [OPTION] -k [--] PATTERN [FILES]"
+    echo "    (If no file is specified, then stdin/out is used)"
+    echo
+    echo "Options: "
+    echo "    -E, --extended-regexp   PATTERN is an extended regexp"
+    echo "    -F, --fixed-strings     PATTERN is a set of strings each a line"
+    echo "    -G, --basic-regexp      PATTERN is a basic regexp (BRE)"
+    echo "    -P, --perl-regexp       PATTERN is a Perl regexp"
+    echo "    -t, --twoline           set PATTERN and TEXT in two lines"
+    echo "    -p, --prefix=PREFIX     change the PREFIX prepend to PATTERN"
+    echo "    -k, --kill              remove the pattern/text line"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -E|--extended-regexp)
+            GREP="grep -E"
+            GREPL="grepl -E";;
+        -F|--fixed-strings)
+            GREP="grep -F"
+            GREPL="grepl -F";;
+        -G|--basic-regexp)
+            GREP="grep -G"
+            GREPL="grepl -G";;
+        -P|--perl-regexp)
+            GREP="grep -P"
+            GREPL="grepl -P";;
+        -t|--twoline)
+            twoline=1;;
+        -p|--prefix)
+            twoline=1
+            pattern_prefix="$2";;
+        -k|--kill)
+            kill=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $# -lt 1 ]; then
+        echo "Pattern isn't specified"
+        help
+        return 1
+    fi
+    pattern="$1"
+    shift
+
+    if [ "$kill" != 1 ]; then
+        if [ $# = 0 ]; then
+            echo "Text isn't specified"
+            help
+            return 1
+        fi
+        text="$1"
+        shift
+    fi
+
+    if [ $# = 0 ]; then
+        tmpf=/tmp/lineconf-buf-$$-$RANDOM
+        cat >$tmpf
+        process $tmpf
+        err=$?
+        cat $tmpf
+        rm -f $tmpf
+        return $err
+    fi
+
+    for f in "$@"; do
+        _log1 "Process file $f"
+        if ! process "$f"; then
+            return $?
+        fi
+    done
+}
+
+function process() {
+    local file="$1"
+
+    inserttmp=/tmp/addonce-insert-$$-$RANDOM
+    echo -n>$inserttmp
+
+    if [ "$twoline" = 1 ]; then
+        echo "$pattern_prefix$pattern" >>$inserttmp
+        echo "$text" >>$inserttmp
+        lines=2
+    else
+        echo "$text" >>$inserttmp
+        lines=1
+    fi
+
+    if off=`$GREPL "$pattern" "$file"`; then
+        # replace or remove
+        ((off--))
+        if [ "$kill" = 1 ]; then
+            _log1 "Remove existing entry"
+            sedit -e "$file" sh -c \
+                "head -$off; head -$lines >/dev/null; cat"
+        else
+            _log1 "Replace existing entry"
+            sedit -e "$file" sh -c \
+                "head -$off; head -$lines >/dev/null; cat $inserttmp; cat"
+        fi
+    else
+        # append
+        if [ "$kill" = 1 ]; then
+            _log1 "Remove nothing. "
+            true
+        else
+            _log1 "Add new entry"
+            sedit -e "$file" sh -c "cat; cat $inserttmp"
+        fi
+    fi
+
+    _log2 "sedit-exit: $?"
+    sedit_err=$?
+
+    rm -f $inserttmp
+
+    return $sedit_err
+}
+
+boot "$@"
