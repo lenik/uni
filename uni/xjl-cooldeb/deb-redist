@@ -42,7 +42,7 @@ function main() {
 
     if [ ! -f configure ]; then
         reconf=1
-        if ! autoreconf2; then
+        if ! autoreconf2 -is; then
             exit 1
         fi
     fi
