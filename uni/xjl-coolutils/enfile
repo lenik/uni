@@ -63,23 +63,30 @@ function main() {
     for file in "$@"; do
 
         dirname="${file%/*}"
+        basename="${file##*/}"
+
         if [ "$dirname" = "$file" ]; then
             dirname=.
             basename="$file"
-        else
-            basename="${file##*/}"
+        elif [ "${dirname##*/}" = "$secdir" ]; then
+            parent="${dirname%/*}"
+            if [ "$parent" = "$dirname" ]; then
+                parent=.
+            fi
+            dirname="$parent"
         fi
-
-        stripped="${basename#$prefix}"
-        stripped="${stripped%$suffix}"
-        decorated="$prefix$stripped$suffix"
 
         if [ -d "$dirname/$secdir" ]; then
             decdir="$dirname/$secdir"
+            vprefix="$prefix"
         else
             decdir="$dirname"
-            decorated=".$decorated"
+            vprefix=".$prefix"
         fi
+
+        stripped="${basename#$vprefix}"
+        stripped="${stripped%$suffix}"
+        decorated="$vprefix$stripped$suffix"
 
         stripped_file="$dirname/$stripped"
         decorated_file="$decdir/$decorated"
