@@ -19,7 +19,8 @@ dist_sysconf_DATA = \
 EXTRA_DIST = post-install.sh pre-remove.sh
 
 install-data-hook:
-	$(srcdir)/post-install.sh $(DESTDIR)$(sysconfdir)
+	@echo "Please run: $(srcdir)/post-install.sh $(DESTDIR)$(sysconfdir)"
 
 uninstall-hook:
-	$(srcdir)/pre-remove.sh $(DESTDIR)$(sysconfdir)
+	@echo "Please run: $(srcdir)/pre-remove.sh $(DESTDIR)$(sysconfdir)"
+

@@ -6,16 +6,12 @@ if [ -z "$sysconfdir" ]; then
     exit 1
 fi
 
-if [ -f $sysconfdir/bash.bashrc ]; then
-    tmpout=/tmp/tmp.bashrc.$$.$RANDOM
-
-    grep -v "\. $sysconfdir/bash_aliases\b" $sysconfdir/bash.bashrc >$tmpout
-    if ! cmp -s $sysconfdir/bash.bashrc $tmpout; then
-        echo Uninstall bash_aliases feature from bashrc.
-        cp -f $tmpout $sysconfdir/bash.bashrc
+a_init=$sysconfdir/bash_aliases
+echo -n "Remove $a_init from start up... "
+    if lineconf -ekt COOLBASH::a_init $sysconfdir/bash.bashrc; then
+        echo Done
+    else
+        echo Skipped
     fi
-
-    rm -f $tmpout
-fi
 
 exit 0
