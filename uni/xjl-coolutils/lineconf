@@ -161,7 +161,12 @@ function process() {
 
     rm -f $inserttmp
 
-    return $sedit_err
+    # return true if something changed.
+    if [ $sedit_err = 1 ]; then
+        return 0
+    else
+        return 1
+    fi
 }
 
 boot "$@"

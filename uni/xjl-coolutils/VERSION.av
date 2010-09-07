@@ -1,0 +1,14 @@
+
+# See vercomp(5)
+
+format      = $major.$minor.$commit
+
+major       = 0 minor
+minor       = 2 rev
+
+rev         = 0
+rev.base    = 1485
+rev.exec    = svn_revision .
+
+commit      = 4
+commit.base = 0
