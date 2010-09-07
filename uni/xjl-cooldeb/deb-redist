@@ -54,13 +54,25 @@ function main() {
         fi
     fi
 
+    # edit the changelog
+    # if ! ver=`maketestvar PACKAGE_VERSION`; then
+    #     echo "Don't know the version, no Makefile variable. " >&2
+    #     exit 4
+    # fi
+
+    base="${PWD##*/}"
+    src="$PWD"
+    pushd /tmp >/dev/null
+    ln -s "$src" $base
+    dir_ver=`dir-ver $base`
+    cd "$dir_ver"
+    dch -d "Upstream updates, automatic package by deb-redist"
+    cd ..
+    rm "$dir_ver"
+    popd >/dev/null
+
     if ! debuild --no-tgz-check; then
         exit 3
-    fi
-
-    if ! ver=`maketestvar PACKAGE_VERSION`; then
-        echo "Don't know the version, no Makefile variable. " >&2
-        exit 4
     fi
 
     # xjl-cooldeb_0.1.5-1_all.deb
