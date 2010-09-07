@@ -4,6 +4,7 @@
     long_opts="extended-regexp,fixed-strings,basic-regexp,perl-regexp,kill,twoline,prefix,help,quiet,verbose,version"
     . /usr/lib/bash/cliboot
 
+    LOGLEVEL=0
     GREP=grep
     GREPL=grepl
     twoline=
