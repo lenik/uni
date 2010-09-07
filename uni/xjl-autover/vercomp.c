@@ -18,10 +18,12 @@
 #define LOG2 if (opt_verbose >= 2)
 
 char *      opt_incrfield = NULL;
+gboolean    opt_odd       = 0;
+gboolean    opt_even      = 0;
 int         opt_verbose   = 0;
 char **     opt_files;
 gboolean    opt_stdout    = FALSE;      /* write to stdout instead of save */
-gboolean    opt_update      = FALSE;    /* always save? */
+gboolean    opt_update    = FALSE;      /* always save? */
 
 char *      filename;
 int         line = 0;
@@ -65,6 +67,12 @@ void show_version(const char *opt, const char *val,
 static GOptionEntry entries[] = {
     { "incr-field",'i', 0, G_OPTION_ARG_STRING, &opt_incrfield,
       "increase the specified field and reset minor versions", },
+
+    { "odd",       'o', 0, G_OPTION_ARG_NONE, &opt_odd,
+      "increase to odd number (unstable)", },
+
+    { "even",      'e', 0, G_OPTION_ARG_NONE, &opt_even,
+      "increase to even number (stable)", },
 
     { "stdout",    'c', 0, G_OPTION_ARG_NONE, &opt_stdout,
       "write to stdout instead of save", },
@@ -460,6 +468,17 @@ gboolean field_incr(const char *field, int delta) {
     }
 
     val += delta;
+    if (opt_odd)
+        if ((val & 1) == 0) {
+            LOG1 printf("fix odd by +1\n");
+            val++;
+        }
+
+    if (opt_even)
+        if ((val & 1) == 1) {
+            LOG1 printf("fix even by +1\n");
+            val++;
+        }
 
     val_text = g_strdup_printf("%ld %s", val, nexts ? nexts : "");
 
