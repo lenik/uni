@@ -6,7 +6,10 @@ aliasesdir = ${sysconfdir}/bash_aliases.d
 
 dist_bin_SCRIPTS = \
     verexec \
-	dir-ver
+	dir-ver \
+	dh_make-autover \
+	dh_debname \
+	deb-redist
 
 dist_aliases_DATA = \
     cooldeb.sh

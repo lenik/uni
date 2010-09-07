@@ -1,0 +1,7 @@
+# shell source
+
+ver-on
+
+dh_make $*
+
+ver-off
