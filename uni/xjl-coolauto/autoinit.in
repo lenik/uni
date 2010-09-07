@@ -39,4 +39,6 @@ do_subst "@pkgdatadir@/automake.template" Makefile.am
 touch NEWS README AUTHORS ChangeLog
 
 # initialize VERSION.av
-verinit
+if VERINIT=`which verinit`; then
+    $VERINIT
+fi
