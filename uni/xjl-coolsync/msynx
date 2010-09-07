@@ -2,7 +2,7 @@
     RCSID='$Id: .sh 921 2009-04-29 23:50:10Z Shecti $'
     short_opts="a:dlumc:srC:X:pnhqv"
     long_opts="alphabet,digits,lower-case,upper-case,mixed-case,concount,shuffle,remote-eval,chdir,distrib,purge,dry-run,help,quiet,verbose,version"
-    . $LAM_KALA/lib/sh/cliboot
+    . /usr/lib/bash/cliboot
 
     shopt -s nullglob
 
