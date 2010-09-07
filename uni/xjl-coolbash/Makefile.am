@@ -6,9 +6,6 @@ shsrcdir = ${bindir}
 
 dist_bin_SCRIPTS = \
 	eachdir \
-	tourl \
-	textp \
-	binaryp \
 	swapox \
 	testox
 
