@@ -7,14 +7,15 @@ sudoersdir = ${sysconfdir}/sudoers.d
 dist_bin_SCRIPTS = \
 	setminuid
 
+EXTRA_DIST = \
+	70.sh 700.sh \
+	check-uid.sh  check-gid.sh \
+	remove-uid.sh remove-gid.sh \
+	post-install.sh \
+	pre-remove.sh
+
 install-data-hook:
-	install -m 440 $(srcdir)/sudoers.d/dev $(DESTDIR)$(sudoersdir)/
-	setminuid 800
-	$(srcdir)/check-uid.sh $(DESTDIR)$(sysconfdir) 70 99 700 999
-	$(srcdir)/check-gid.sh $(DESTDIR)$(sysconfdir) 70 99 700 999
-	$(srcdir)/70.sh  $(DESTDIR)$(sysconfdir)
-	$(srcdir)/700.sh $(DESTDIR)$(sysconfdir)
+	@echo "Please run $(srcdir)/post-install.sh $(srcdir) $(DESTDIR)$(sysconfdir) $(DESTDIR)$(sudoersdir)"
 
 uninstall-hook:
-	$(srcdir)/remove-uid.sh $(DESTDIR)$(sysconfdir) 70 99 700 999
-	$(srcdir)/remove-gid.sh $(DESTDIR)$(sysconfdir) 70 99 700 999
+	@echo "Please run $(srcdir)/pre-remove.sh   $(srcdir) $(DESTDIR)$(sysconfdir) $(DESTDIR)$(sudoersdir)"
