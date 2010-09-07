@@ -17,7 +17,8 @@ dist_bin_SCRIPTS = \
     headrm \
     grepl \
 	hm \
-	lineconf
+	lineconf \
+	enfile
 
 dist_man_MANS = \
     sedit.1 \
@@ -30,7 +31,8 @@ install-data-hook:
 		$(LN_S) -f uc to-caption; \
 		$(LN_S) -f uc to-dash; \
 		$(LN_S) -f uc to-camel; \
-		$(LN_S) -f uc to-mech
+		$(LN_S) -f uc to-mech; \
+		$(LN_S) -f enfile disfile
 	cd $(DESTDIR)$(man1dir); \
 		$(LN_S) -f uc.1 lc.1; \
 		$(LN_S) -f uc.1 to-caption.1; \
@@ -40,6 +42,6 @@ install-data-hook:
 
 uninstall-hook:
 	cd $(DESTDIR)$(bindir); \
-		rm -f lc to-caption to-dash to-camel to-mech
+		rm -f lc to-caption to-dash to-camel to-mech disfile
 	cd $(DESTDIR)$(man1dir); \
 		rm -f lc.1 to-caption.1 to-dash.1 to-camel.1 to-mech.1
