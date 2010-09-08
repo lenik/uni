@@ -93,7 +93,7 @@ function main() {
                 echo "wget failed. " >&2
                 exit 1
             fi
-            lineconf -t $md5 "$url" "$CACHEDB"
+            lineconf $md5 "$md5 $url" "$CACHEDB"
         fi
 
         echo "$hashfile"
