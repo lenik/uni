@@ -11,7 +11,7 @@ fi
 function _log() {
     if [ $LOGLEVEL -ge $1 ]; then
         shift
-        echo "$LOGPREFIX$@"
+        echo "$LOGPREFIX$@" >&2
     fi
 }
 
@@ -24,7 +24,7 @@ function _sig() {
         if [ ${#line} -lt 80 ]; then
 	    line="$line${LINEPAD:0:$((80-${#line}))}"
 	fi
-        echo -n "$line"$'\r'
+        echo -n "$line"$'\r' >&2
     fi
 }
 

@@ -16,11 +16,13 @@ dist_shsrc_DATA = \
 dist_sysconf_DATA = \
     bash_aliases
 
-EXTRA_DIST = post-install.sh pre-remove.sh
+dist_pkgdata_SCRIPTS = \
+	post-install.sh \
+	pre-remove.sh
 
 install-data-hook:
-	@echo "Please run: $(srcdir)/post-install.sh $(DESTDIR)$(sysconfdir)"
+	@echo "Please run: $(DESTDIR)$(pkgdatadir)/post-install.sh $(DESTDIR)$(sysconfdir)"
 
 uninstall-hook:
-	@echo "Please run: $(srcdir)/pre-remove.sh $(DESTDIR)$(sysconfdir)"
+	@echo "Please run: $(DESTDIR)$(pkgdatadir)/pre-remove.sh $(DESTDIR)$(sysconfdir)"
 
