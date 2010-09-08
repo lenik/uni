@@ -48,6 +48,10 @@ function main() {
                 continue
             fi
         fi
+        if [ -h "$f" ]; then
+            f=`readlink -f "$f"`
+            echo "$f"
+        fi
         dpkg -S "$f"
     done
 }
