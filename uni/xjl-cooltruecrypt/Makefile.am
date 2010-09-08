@@ -1,11 +1,4 @@
-
-do_subst = sed \
-    -e 's/master-file/generated-file, please do not edit/' \
-    -e 's,[@]prefix[@],$(prefix),g' \
-    -e 's,[@]bindir[@],$(bindir),g' \
-    -e 's,[@]docdir[@],$(docdir),g' \
-    -e 's,[@]datadir[@],$(datadir),g' \
-    -e 's,[@]pkgdatadir[@],$(pkgdatadir),g'
+include libauto/subst.am
 
 dist_bin_SCRIPTS = \
     mount.tc \
@@ -19,12 +12,12 @@ man_MANS = \
     nextdevid.1
 
 sysconfdir = /etc
-upstartconfdir = ${sysconfdir}/init
+initdir = ${sysconfdir}/init
 
 # permission??
 sysconf_DATA = \
     fstab.tc \
     passwd.tc
 
-upstartconf_DATA = \
+init_DATA = \
     mount-tc.conf
