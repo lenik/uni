@@ -26,8 +26,13 @@ sed -e 's/\(AC_INIT(\[[^]]*\], \[\)[^]]*\(\].*\)$/\1'"$version"'\2/' \
     <$acfile >$tmp
 
 if ! cmp -s $acfile $tmp; then
-    echo set version to $version
+    echo set $acfile version to $version
     mv -f $tmp $acfile
+
+    # if already configured, try reconf.
+    if [ -f configure ]; then
+        autoreconf
+    fi
 fi
 
 rm -f $tmp
