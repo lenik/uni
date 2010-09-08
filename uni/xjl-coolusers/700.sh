@@ -82,19 +82,19 @@ function add_user() {
 
 # user 700-799
 
-add_user 700 bind       - "Name daemon"         /var/cache/bind /bin/false
-add_user 701 postfix    - "Postfix daemon"      /var/spool/postfix /bin/false
+add_user 700 bind     -    "Name daemon"         /var/cache/bind /bin/false
+add_user 701 postfix  -    "Postfix daemon"      /var/spool/postfix /bin/false
 
-add_user 710 postgres   - "PostgreSQL admin"    /var/lib/postgresql
-add_user 711 mysql      - "MySQL daemon"        /var/lib/mysql /bin/balse
+add_user 710 postgres dev  "PostgreSQL admin"    /var/lib/postgresql
+add_user 711 mysql    dev  "MySQL daemon"        /var/lib/mysql /bin/balse
 
-add_user 720 appserv    - "App Server"          /home/appserv
+add_user 720 appserv  dev  "App Server"          /home/appserv
 
 # user 800-999
 
-add_user 900 play  play "Player"
-add_user 910 demo  demo "Demo User"
+add_user 900 play     play "Player"
+add_user 910 demo     demo "Demo User"
 
-add_user 999 dev   dev  "Developer"
+add_user 999 dev      dev  "Developer"
 
 exit 0
