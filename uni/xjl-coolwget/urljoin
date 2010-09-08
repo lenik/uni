@@ -1,0 +1,51 @@
+#!/bin/bash
+
+protocol=http
+server=
+path=
+query=
+
+for a in "$@"; do
+    if [ "${a/:\/\/}" != "$a" ]; then
+        protocol="${a%%:*}"
+        a="${a#*://}"
+
+        if [ "${a/\/}" != "$a" ]; then
+            server="${a%%/*}"
+            a=/"${a#*/}"
+        else
+            server="$a"
+            a=/
+        fi
+        path=
+        query=
+    fi
+
+    apath="${a%\?*}"
+    aquery="${a#*\?}"
+    if [ "$apath" = "$a" ]; then
+        aquery=
+    fi
+
+    if [ "${apath:0:1}" = / ]; then
+        path="$apath"
+    else
+        if [ "${path: -1}" != / ]; then
+            # a/b + c = a/c
+            parent="${path%/*}"
+            if [ "$parent" = "$path" ]; then
+                parent=
+            fi
+            path="$parent/$apath"
+        else
+            path="$path$apath"
+        fi
+    fi
+
+    query="$aquery"
+done
+
+if [ -n "$query" ]; then
+    query="?$query"
+fi
+echo "$protocol://$server$path$query"
