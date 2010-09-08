@@ -1,6 +1,8 @@
 
 include libauto/subst.am
 
+colldir = /var/lib
+
 bin_PROGRAMS = \
     uc \
 	gcd \
@@ -20,13 +22,15 @@ dist_bin_SCRIPTS = \
 	lineconf \
 	enfile \
 	symflatten \
-	symfl
+	symfl \
+	collect-copy
 
 dist_man_MANS = \
     sedit.1 \
 	uc.1 \
 	hm.1 \
-	symfl.1
+	symfl.1 \
+	collect-copy.1
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); \
@@ -42,6 +46,7 @@ install-data-hook:
 		$(LN_S) -f uc.1 to-dash.1; \
 		$(LN_S) -f uc.1 to-camel.1; \
 		$(LN_S) -f uc.1 to-mech.1
+	chmod go+ws $(DESTDIR)$(colldir)
 
 uninstall-hook:
 	cd $(DESTDIR)$(bindir); \
