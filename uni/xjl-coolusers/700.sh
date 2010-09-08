@@ -27,6 +27,7 @@ function getgid() {
 
 function add_user() {
     local uid=$1
+    local gid=
     local uname=$2
     local ugrp="$3"
     local ucmt="$4"
@@ -59,8 +60,12 @@ function add_user() {
         create_home=--create-home
     fi
 
+    opt_gid=
+    if [ -n "$gid" ]; then opt_gid="--gid $gid"; fi
+
     if ! useradd \
         --uid     $uid \
+        $opt_gid \
         --groups  "$ugrp" --no-user-group \
         --home    "$uhome" $create_home \
         --comment "$ucmt" \

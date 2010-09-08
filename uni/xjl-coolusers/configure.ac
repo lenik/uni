@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([xjl-coolusers], [0.2.7], [xjl-bug@99jsj.com])
+AC_INIT([xjl-coolusers], [0.2.8], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wall])
 
 AC_SUBST([prefix], [])
