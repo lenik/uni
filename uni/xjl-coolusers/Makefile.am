@@ -1,7 +1,7 @@
 
 include libauto/subst.am
 
-sysconfdir = ${prefix}/etc
+sysconfdir = /etc
 sudoersdir = ${sysconfdir}/sudoers.d
 
 dist_bin_SCRIPTS = \
