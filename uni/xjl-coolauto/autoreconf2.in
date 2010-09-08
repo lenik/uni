@@ -1,11 +1,34 @@
 #!/bin/sh
 
+# master-file
+
 set -e
 
 # handle of -i, -s, etc.
+opt_addmissing=
+opt_addsym=
 
-if [ ! -d libauto ]; then
-    ln -s @pkgdatadir@/libauto libauto
+for a in "$@"; do
+    if [ "${a:0:1}" = '-' ]; then
+        a="${a#-}"
+        while [ -n "$a" ]; do
+            case "${a:0:1}" in
+                i) opt_addmissing=1;;
+                s) opt_addsym=1;;
+            esac
+            a="${a:1}"
+        done
+    fi
+done
+
+if [ "$opt_addmising" = 1 ]; then
+    if [ ! -d libauto ]; then
+        if [ "$opt_addsym" = 1 ]; then
+            ln -s @pkgdatadir@/libauto libauto
+        else
+            cp -R @pkgdatadir@/libauto libauto
+        fi
+    fi
 fi
 
 autoreconf "$@"
