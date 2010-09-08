@@ -15,7 +15,7 @@ dist_bin_SCRIPTS = \
 dist_aliases_DATA = \
     cooldeb.sh
 
-dist_man_MAN = \
+dist_man_MANS = \
 	dwhich.1
 
 vcmdlist = dh_make pwd
