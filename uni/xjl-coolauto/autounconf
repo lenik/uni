@@ -2,6 +2,24 @@
 
 # bash for: pushd, popd
 
+RM=sudo_rm
+
+function sudo_rm() {
+    local a
+    local sudo=0
+    for a in "$@"; do
+        if [ -e "$a" ] && [ ! -w "$a" ]; then
+            sudo=1
+        fi
+    done
+
+    if [ $sudo = 1 ]; then
+        sudo rm -f "$@"
+    else
+        rm -f "$@"
+    fi
+}
+
 AUTOUNCONF=`readlink -f $0`
 subdirs=
 distfiles=
@@ -20,11 +38,11 @@ for f in *; do
         src=`readlink -f $f`
         if [ "$src" != "${src/\/automake-}" ]; then
             echo "Remove file by --add-missing: $f"
-            rm -f $f
+            $RM $f
         fi
         if [ "$src" != "${src/\/libauto}" ]; then
             echo "Remove file by xjl-coolauto: $f"
-            rm -f $f
+            $RM $f
         fi
     fi
 done
@@ -32,20 +50,20 @@ done
 for f in aclocal.m4 configure; do
     if [ -f $f ]; then
         echo "Remove auto-tools generated file: $f"
-        rm -f $f
+        $RM $f
     fi
 done
 
 for f in autoscan.log autom4te.cache config.status config.log stamp-h1; do
     if [ -e $f ]; then
         echo "Remove auto-tools cache files: $f"
-        rm -fR $f
+        $RM -R $f
     fi
 done
 
 if [ -f Makefile.am ] && [ -f Makefile.in ]; then
     echo "Remove automake output: Makefile.in"
-    rm -f Makefile.in
+    $RM Makefile.in
 fi
 
 if [ -f $AC ]; then
@@ -55,7 +73,7 @@ if [ -f $AC ]; then
             $AC | grep -q "$base"; then
             if [ -f $base ]; then
                 echo "Remove config output file: $base"
-                rm -f $base
+                $RM $base
             fi
         fi
     done
@@ -64,7 +82,7 @@ fi
 if [ -n "$distfiles" ]; then
     for f in $distfiles; do
         echo "Remove dist file: $f"
-        rm -f $f
+        $RM $f
     done
 fi
 
