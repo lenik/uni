@@ -18,12 +18,15 @@ dist_bin_SCRIPTS = \
     grepl \
 	hm \
 	lineconf \
-	enfile
+	enfile \
+	symflatten \
+	symfl
 
 dist_man_MANS = \
     sedit.1 \
 	uc.1 \
-	hm.1
+	hm.1 \
+	symfl.1
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); \

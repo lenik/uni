@@ -1,0 +1,44 @@
+.\"
+.\"
+.\" symfl.man - symfl manpage
+.\" Copyright (C) 2010 Lenik (谢继雷)
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; if not, write to the Free Software
+.\" Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+.\"
+.TH SYMFL 1
+.SH NAME
+symfl \- Flatten symlinks by batch
+.SH SYNOPSIS
+.B symfl
+[FIND-ARGS]
+.SH DESCRIPTION
+Find symlinks using find utility, with FIND-ARGS if user specified.
+
+Then, call symflatten on each found symlink to flatten.
+
+.SH EXAMPLES
+
+.B
+symfl -name 'a*'
+.PP
+symflatten all symlinks starts with 'a'
+
+.SH ENVIRONMENT
+
+.SH REPORTING BUGS
+Please report any bugs, problems, queries, experiences, etc. directly to the author.
+
+.SH AUTHORS
+Lenik <lenik at bodz.net>
+.br
