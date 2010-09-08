@@ -21,7 +21,7 @@ for a in "$@"; do
     fi
 done
 
-if [ "$opt_addmising" = 1 ]; then
+if [ "$opt_addmissing" = 1 ]; then
     if [ ! -d libauto ]; then
         if [ "$opt_addsym" = 1 ]; then
             ln -s @pkgdatadir@/libauto libauto
