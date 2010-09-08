@@ -14,6 +14,9 @@ dist_pkgdata_SCRIPTS = \
 	post-install.sh \
 	pre-remove.sh
 
+dist_sudoers_DATA = \
+	sudoers.d/dev
+
 install-data-hook:
 	@echo "Please run $(DESTDIR)$(pkgdatadir)/post-install.sh $(DESTDIR)$(pkgdatadir) $(DESTDIR)$(sysconfdir) $(DESTDIR)$(sudoersdir)"
 

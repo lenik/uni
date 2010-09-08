@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Add 700-series users&groups.
+
 etcdir="$1"
 if [ ! -f "$etcdir/passwd" ]; then
     exit 0
@@ -89,3 +91,4 @@ add_user 910 demo  demo "Demo User"
 
 add_user 999 dev   dev  "Developer"
 
+exit 0
