@@ -15,6 +15,7 @@ fi
 
 
 function getgid() {
+    local gname="$1"
     if l=`grep -m1 "^$gname:" $etcdir/group`; then
         l="${l#*:}"
         l="${l#*:}"
@@ -53,6 +54,9 @@ function add_user() {
         # ignore whether group is existed.
         echo "  Add user group $ugrp ($gid)"
         groupadd -g$gid $ugrp
+    else
+        firstgrp=${ugrp%%,*}
+        gid=`getgid $firstgrp`
     fi
 
     create_home=
@@ -60,12 +64,9 @@ function add_user() {
         create_home=--create-home
     fi
 
-    opt_gid=
-    if [ -n "$gid" ]; then opt_gid="--gid $gid"; fi
-
     if ! useradd \
         --uid     $uid \
-        $opt_gid \
+        --gid     $gid \
         --groups  "$ugrp" --no-user-group \
         --home    "$uhome" $create_home \
         --comment "$ucmt" \
