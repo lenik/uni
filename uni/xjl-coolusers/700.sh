@@ -68,7 +68,7 @@ function add_user() {
         $uname; then
 
         echo "  Failed to add user $uname ($uid)"
-        exit 1
+        return 1
     fi
 
     return 0
