@@ -9,10 +9,14 @@ dist_bin_SCRIPTS = \
 	dir-ver \
 	dh_make-autover \
 	dh_debname \
-	deb-redist
+	deb-redist \
+	dwhich
 
 dist_aliases_DATA = \
     cooldeb.sh
+
+dist_man_MAN = \
+	dwhich.1
 
 vcmdlist = dh_make pwd
 

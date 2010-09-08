@@ -1,7 +1,7 @@
 
 alias sagi='sudo apt-get install'
 alias sagu='sudo apt-get remove'
-alias sau='sudo apt-get update'
+alias sau='sudo apt-get update; sudo apt-get upgrade'
 
 alias ver-on='_base=${PWD##*/}; cd ..; cd `dir-ver "$_base"`'
 alias ver-off='_base=${PWD##*/}; cd ..; cd `dir-nover "$_base"`'
