@@ -1,7 +1,10 @@
 # shell source
 
-ver-on
+# ver-on
+_base=${PWD##*/}; cd ..; cd `dir-ver "$_base"`
 
-dh_make $*
+    dh_make $*
 
-ver-off
+# ver-off
+_base=${PWD##*/}; cd ..; cd `dir-nover "$_base"`
+
