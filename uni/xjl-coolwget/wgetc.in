@@ -85,7 +85,9 @@ function main() {
             rm -f "$hashfile"
         fi
 
-        if [ ! -f "$hashfile" ]; then
+        if [ -f "$hashfile" ]; then
+            _log1 "Cache hit."
+        else
             if ! $WGET -O "$hashfile" "$url" ; then
                 echo "wget failed. " >&2
                 exit 1
