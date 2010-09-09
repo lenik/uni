@@ -95,6 +95,6 @@ add_user 720 appserv  dev  "App Server"          /home/appserv
 add_user 900 play     play "Player"
 add_user 910 demo     demo "Demo User"
 
-add_user 999 dev      dev  "Developer"
+add_user 999 dev      dev,admin,postgres "Developer"
 
 exit 0
