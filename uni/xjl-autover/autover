@@ -29,10 +29,15 @@ if ! cmp -s $acfile $tmp; then
     echo set $acfile version to $version
     mv -f $tmp $acfile
 
-    # if already configured, try reconf.
-    if [ -f configure ]; then
-        autoreconf
+    # if configure is versioned, reconf also.
+    read conf_st _ < <(svn st configure)
+    if [ "$conf_st" != '?' ]; then
+        echo "  -- auto reconf when configure is versioned ($conf_st). "
+
+        # -is to add missing symlinks when necessary.
+        autoreconf -is
     fi
+
 fi
 
 rm -f $tmp
