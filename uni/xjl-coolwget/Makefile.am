@@ -4,7 +4,8 @@ include libauto/subst.am
 cachedir = /var/cache/downloads
 
 dist_bin_SCRIPTS = \
-    urljoin
+    urljoin \
+	grepurl
 
 bin_SCRIPTS = \
     wgetc \
@@ -12,6 +13,7 @@ bin_SCRIPTS = \
 
 dist_man_MANS = \
 	urljoin.1 \
+	grepurl.1 \
 	wgetc.1 \
 	wgetc-url.1
 

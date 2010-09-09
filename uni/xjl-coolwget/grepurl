@@ -1,0 +1,81 @@
+#!/bin/bash
+    RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
+    short_opts="EFGPm:hqv"
+    long_opts="extended-regexp,fixed-strings,basic-regexp,perl-regexp,max-count,help,quiet,verbose,version"
+    . /usr/lib/bash/cliboot
+
+    GREP="grep"
+    max_count=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Find urls and join with the start url"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] PATTERN START-URL"
+    echo
+    echo "Options: "
+    echo "    -E, --extended-regexp   PATTERN in extended regexp (ERE)"
+    echo "    -F, --fixed-strings     PATTERN in strings separated by newline"
+    echo "    -G, --basic-regexp      PATTERN in basic regexp (BRE)"
+    echo "    -P, --perl-regexp       PATTERN in perl regexp (PRE)"
+    echo "    -m, --max-count=NUM     max urls to get"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -E|--extended-regexp)
+            GREP="grep -E";;
+        -F|--fixed-strings)
+            GREP="grep -f";;
+        -G|--basic-regexp)
+            GREP="grep -G";;
+        -P|--perl-regxp)
+            GREP="grep -P";;
+        -m|--max-count)
+            max_count="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -n "$max_count" ]; then
+        GREP="$GREP -m $max_count"
+    fi
+
+    if [ $# -lt 2 ]; then
+        echo "PATTERN and START-URL are required. "
+        help
+        exit 1
+    fi
+
+    pattern="$1"
+    url="$2"
+    shift 2
+
+    while read match; do
+        match="${match#\"}"
+        match="${match%\"}"
+        urljoin "$url" "$match"
+    done < <(wget -qO- "$url" | $GREP -o "\"$pattern\"")
+}
+
+boot "$@"
