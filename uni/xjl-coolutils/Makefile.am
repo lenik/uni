@@ -46,7 +46,7 @@ install-data-hook:
 		$(LN_S) -f uc.1 to-dash.1; \
 		$(LN_S) -f uc.1 to-camel.1; \
 		$(LN_S) -f uc.1 to-mech.1
-	chmod go+ws $(DESTDIR)$(colldir)
+	install -d -m 2775 $(DESTDIR)$(colldir)
 
 uninstall-hook:
 	cd $(DESTDIR)$(bindir); \

@@ -7,7 +7,9 @@
     tee_output=
     replace="{}"
     diff=
-    keep_mode=
+    keep_mode=1
+    keep_owner=
+    keep_group=
     keep_time=
     dry_run=
     edit_status=
