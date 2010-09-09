@@ -85,7 +85,7 @@ function add_user() {
 add_user 700 bind     -    "Name daemon"         /var/cache/bind /bin/false
 add_user 701 postfix  -    "Postfix daemon"      /var/spool/postfix /bin/false
 
-add_user 710 postgres dev  "PostgreSQL admin"    /var/lib/postgresql
+add_user 710 postgres -    "PostgreSQL admin"    /var/lib/postgresql
 add_user 711 mysql    dev  "MySQL daemon"        /var/lib/mysql /bin/balse
 
 add_user 720 appserv  dev  "App Server"          /home/appserv
