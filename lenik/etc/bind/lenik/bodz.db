@@ -1,10 +1,10 @@
 $INCLUDE lenik/inc/default.db
 $INCLUDE lenik/inc/google.db
 
-ns1                     A       67.202.62.90
-ns2                     A       67.202.62.90
+ns1                     A       174.129.65.45
+ns2                     A       174.129.65.45
 
-1                       A       67.202.62.90
+1                       CNAME   1.dev.secca-project.com.
 www                     CNAME   1
 xml                     CNAME   1
 
