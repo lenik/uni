@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# master-file
+
+bindconfdir=@bindconfdir@
+named_conf=$bindconfdir/named.conf
+
+echo "Config named.conf to use cooldns.options"
+    lineconf -k $named_conf named.conf.options
+    lineconf -t $named_conf @cooldns::options \
+        "include \"$bindconfdir/cooldns.options\";"
+
+# restart may be necessary to listen on rndc port.
+/etc/init.d/bind9 restart

@@ -1,0 +1,48 @@
+options {
+
+    directory           "/etc/bind";
+
+    auth-nxdomain       no; # conform to RFC1035
+    listen-on-v6        { any; };
+
+    dump-file           "/var/log/named/cache_dump.db";
+    statistics-file     "/var/log/named/stats.txt";
+    memstatistics-file  "/var/log/named/mem_stats.txt";
+
+    // forward all unresolvable request to these addresses
+    // forwarders          { 8.8.8.8; 8.8.4.4; };
+};
+
+acl lan1 {
+    127.0.0.0/24;
+    192.168.0.0/16;
+};
+
+logging {
+    channel ch_default {
+        file "/var/log/named/named.log";
+        severity info;
+    };
+    channel ch_stat {
+        file "/var/log/named/stat.log";
+        severity info;
+    };
+    channel ch_access {
+        file "/var/log/named/access.log";
+        severity info;
+    };
+
+    // categories: client config database default delegation-only dispatch
+    // categories: dnssec general lame-servers network notify queries resolver
+    // categories: security unmatched update update-security xfer-in xfer-out
+    category default { ch_default; };
+    // category statistics { ch_stat; };
+    category queries { ch_access; };
+};
+
+// the rndc.key file defines "rndc-key".
+include "/etc/bind/rndc.key";
+controls {
+    inet 127.0.0.1 port 953
+        allow { 127.0.0.1; } keys { "rndc-key"; };
+};
