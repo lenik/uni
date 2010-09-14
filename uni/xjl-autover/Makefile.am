@@ -1,5 +1,5 @@
 
-include libauto/subst.am
+include libauto/coolauto.am
 
 SUBDIRS = lib
 
@@ -36,5 +36,5 @@ dist_aliases_DATA = \
 EXTRA_DIST = verinit.in
 CLEANFILES = verinit
 
-verinit: verinit.in Makefile
-	$(do_subst) <$(srcdir)/verinit.in >verinit
+%: %.in Makefile
+	$(do_subst) <$< >$@

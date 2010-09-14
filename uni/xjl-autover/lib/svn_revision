@@ -9,5 +9,6 @@ if xmlattr=`svn info --xml $arg 2>/dev/null | xpath -q -e /info/entry/@revision 
     eval $xmlattr
     echo $revision
 else
+    echo 0
     exit 2
 fi
