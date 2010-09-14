@@ -1,0 +1,26 @@
+$TTL            12H
+
+; The SOA resource record indicates that this DNS name server is the best
+; source of information for the data within this DNS domain.
+
+@               IN      SOA     (
+                                    lenik-pc.bodz.net.  ; db creator host
+                                    dnsmaster.bodz.net. ; contact e-mail
+                                    5       ; serial
+                                    1H      ; sync refresh interval
+                                    10M     ; sync retry interval
+                                    240H    ; sync expire
+                                    1H      ; minimum TTL
+                                )
+                        NS      ns1.bodz.net.
+                        NS      ns2.bodz.net.
+
+                        TXT     "t=zoo owner=lenik"
+
+; testing purpose
+volatile        3       A       1.2.3.4
+volatile2       30      CNAME   volatile
+volatile3       3000    CNAME   volatile2
+
+; lenik-pc                CNAME   lenik.3322.org.
+lenik-pc                CNAME   lenik.dyndns.org.

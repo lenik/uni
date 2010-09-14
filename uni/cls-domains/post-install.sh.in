@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# master-file
+
+bindconfdir=@bindconfdir@
+named_conf=$bindconfdir/named.conf
+
+# The domain conf files are included in the dist.
+#
+# bodz_url=http://svn.bodz.net/profiles/dns/trunk
+# if [ ! -d $bindconfdir/bodz ]; then
+#     echo "Link $bindconfdir/bodz to $bodz_url"
+#     svn-union-install $bodz_url $bindconfdir/bodz
+# fi
+
+echo "Config bind9"
+    if lineconf -et $named_conf @section::lenik \
+            "include \"$bindconfdir/lenik/named.conf\";"; then
+        echo "    done"
+    else
+        echo "    skipped"
+    fi
+
+echo "Reload bind9"
+    /etc/init.d/bind9 reload

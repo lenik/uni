@@ -1,0 +1,29 @@
+$TTL            1H
+
+@               IN      SOA     (
+                                    ns1.bodz.net.       ; db creator host
+                                    dnsmaster.bodz.net. ; contact e-mail
+                                    2       ; serial
+                                    1H      ; sync refresh interval
+                                    10M     ; sync retry interval
+                                    240H    ; sync expire
+                                    1H      ; minimum TTL
+                                )
+
+                        NS      ns1.bodz.net.
+                        NS      ns2.bodz.net.
+
+vmail                   CNAME   lion
+
+panda                   A       192.168.2.1
+lion                    A       192.168.2.2
+                        A       192.168.0.100   ; <view office>
+amoi                    A       192.168.6.1
+phoenix                 A       192.168.9.1
+tiger                   A       192.168.5.1
+
+; Glues for Hamachi Network
+panda                   A       5.0.0.1         ; <view hamachi>
+lion                    A       5.69.77.113     ; <view hamachi>
+amoi                    A       5.0.0.1         ; <view hamachi>
+tiger                   A       5.62.239.91     ; <view hamachi>

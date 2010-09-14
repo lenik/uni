@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# master-file
+
+bindconfdir=@bindconfdir@
+named_conf=$bindconfdir/named.conf
+
+# svn-union-uninstall $bodz_url $bindconfdir/bodz
+
+echo "Unconfig bind9"
+    if lineconf -ekt $named_conf @section::lenik; then
+        echo "    done"
+    else
+        echo "    skipped"
+    fi
+
+echo "Reload bind9"
+    /etc/init.d/bind9 reload

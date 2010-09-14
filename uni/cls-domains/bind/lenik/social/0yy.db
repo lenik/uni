@@ -1,0 +1,4 @@
+$INCLUDE lenik/inc/default.db
+$INCLUDE lenik/inc/google.db
+
+www                     CNAME       kelingpc.vicp.net.
