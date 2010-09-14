@@ -90,6 +90,8 @@ add_user 711 mysql    dev  "MySQL daemon"        /var/lib/mysql /bin/balse
 
 add_user 720 appserv  dev  "App Server"          /home/appserv
 
+add_user 730 scm      dev  "VCS daemon"          /none /bin/false
+
 # user 800-999
 
 add_user 900 play     play "Player"
