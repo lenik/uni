@@ -1,0 +1,68 @@
+#!/bin/bash
+    RCSID='$Id: .sh 1023 2009-04-29 23:50:10Z Shecti $'
+    short_opts="f:t:chqv"
+    long_opts="from,to,continue,help,quiet,verbose,version"
+    . /usr/lib/bash/cliboot
+
+    FROM=
+    TO=
+    CONT=
+
+function version() {
+    iconv --version
+}
+
+function help() {
+    iconv --help
+}
+
+function setopt() {
+    case "$1" in
+        -f|--from)
+	    FROM="$2";;
+	-t|--to)
+	    TO="$2";;
+	-c|--continue)
+	    CONT=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    ICONVFLAGS=
+    if [ -n "$FROM" ]; then
+	ICONVFLAGS="$ICONVFLAGS -f $FROM"
+    fi
+    if [ -n "$TO" ]; then
+	ICONVFLAGS="$ICONVFLAGS -t $TO"
+    fi
+    if [ "$CONT" = "1" ]; then
+	ICONVFLAGS="$ICONVFLAGS -c"
+    fi
+
+    TMPSRC=/tmp/$$.$RANDOM.src
+    echo "TMPSRC: <$TMPSRC>"
+    for f in "$@"; do
+	cp -f "$f" "$TMPSRC"
+	if [ ! -f "$TMPSRC" ]; then
+	    echo Not copied
+	    exit 1
+	fi
+	echo "iconv $ICONVFLAGS $f"
+	iconv $ICONVFLAGS "$TMPSRC" >$f
+    done
+
+    rm -f "$TMPSRC"
+    echo Done.
+}
+
+boot "$@"
