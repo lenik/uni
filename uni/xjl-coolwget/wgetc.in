@@ -7,8 +7,11 @@
     long_opts="force,help,quiet,verbose,version"
     . /usr/lib/bash/cliboot
 
-    WGET=wget
-    CACHEDB=@cachedir@/cache.db
+    if ! WGET=`which wget-sid`; then
+        WGET=wget
+    fi
+    CACHEDIR=@cachedir@
+    CACHEDB=$CACHEDIR/cache.db
     force=
 
 function version() {
@@ -49,6 +52,11 @@ function setopt() {
 }
 
 function main() {
+
+    if [ ! -d $CACHEDIR ]; then
+        _log1 "Create cache dir $CACHEDIR"
+        install -d -m 2777 $CACHEDIR
+    fi
 
     if [ $LOGLEVEL -ge 2 ]; then
         WGET="$WGET -v"
@@ -92,8 +100,10 @@ function main() {
             if ! $WGET -O "$hashfile" "$url" ; then
                 echo "wget failed. " >&2
                 exit 1
+            else
+                chmod a+rX "$hashfile"
             fi
-            lineconf $md5 "$md5 $url" "$CACHEDB"
+            lineconf "$CACHEDB" $md5 "$md5 $url"
         fi
 
         echo "$hashfile"

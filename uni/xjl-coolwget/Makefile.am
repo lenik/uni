@@ -1,5 +1,5 @@
 
-include libauto/subst.am
+include libauto/coolauto.am
 
 cachedir = /var/cache/downloads
 
@@ -29,4 +29,5 @@ wgetc-url: wgetc-url.in Makefile
 	$(do_subst) -e 's,[@]cachedir[@],$(cachedir),g' <$(srcdir)/wgetc-url.in >$@
 
 install-data-hook:
+	@echo "You should chmod 2777 $(DESTDIR)$(cachedir)"
 	chmod 2777 $(DESTDIR)$(cachedir)
