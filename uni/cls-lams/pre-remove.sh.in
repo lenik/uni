@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# master-file
+
+fstab-install  -vfu @setupdir@/fstab.tc
+passwd-install -vfu @setupdir@/passwd.tc
