@@ -1,0 +1,400 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+wcc - Count words for source code
+
+=cut
+use strict;
+# no  warnings('uninitialized');
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::lang('_def');
+    $LOGNAME    = 'wcc'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::log(2);
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
+use Data::Dumper;
+use DirHandle;
+use Getopt::Long;
+
+sub _main; sub _version; sub _help;
+sub process;
+sub count_text;
+sub count_c;
+sub count_vb;
+sub count_unix;
+sub count_xml;
+
+our $opt_recursive  = 0;
+our @opt_matches;                # only matches if defined.
+our $opt_summary    = 1;
+our %opt_ext        = qw(
+        asp     text
+        bas     text
+        bat     text
+        c       c
+        cls     vb
+        cpp     c
+        cs      c
+        css     text
+        ctl     vb
+        cxx     c
+        dtd     xml
+        frm     vb
+        h       c
+        hpp     c
+        htm     text
+        html    text
+        hxx     c
+        java    c
+        js      c
+        jsp     text
+        p       unix
+        php     text
+        pl      unix
+        pm      unix
+        python  unix
+        sh      unix
+        tcl     unix
+        txt     text
+        xml     xml
+        xq      xml
+        xsd     xml
+        xsl     xml
+        xslt    xml
+        );
+
+my %summary = ();               # summary of all.
+my %summary_x = ();             # summary by different extensions.
+
+sub _boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+                'extension|e=s' =>
+                        sub {
+                            my ($key, $val) = split('=', $_[1]);
+                            $val ||= "text";
+                            $opt_ext{$key} = $val;
+                        },
+                'exclude|x=s'   =>
+                        sub {
+                            my $key = $_[1];
+                            delete $opt_ext{$key};
+                        },
+                'recursive|r',
+                'summary!',
+               );
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<wcc>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<wcc> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-wcc-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] FILES\n", <<'EOM';
+
+Common options:
+    -e, --extension=EXT[=TYPE] add type mapping
+    -x, --exclude=EXT       don't count files with EXT
+    -r, --recursive         recurse into sub-directories
+        --[no]summary       print summaries
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    my @list;
+    my $k;
+
+    for (@ARGV) {
+        if (m/\?/ or m/\*/) {
+            s/\./\\./g;
+            s/\?/./g;
+            s/\*/.*/g;
+            push @opt_matches, $_;
+        } else {
+            push @list, $_;
+        }
+    }
+
+    if (scalar(@list) == 0) {
+        if ($opt_recursive or @opt_matches) {
+            # all files under current directory if patterns specified
+            @list = ('.');
+        } else {
+            # otherwise, use stdin if no arguments
+            @list = ('con');
+        }
+    }
+
+    while (my $fn = shift @list) {
+        my %c = process($fn);
+        for $k (keys %c) {
+            $summary{$k} += 1 * $c{$k};
+        }
+    }
+
+    if ($opt_summary) {
+        for $k (keys %summary_x) {
+            my $c_x = $summary_x{$k};
+            _PF1 "%10d <.$k>", $c_x->{'body'};
+        }
+        _PF1 "%10d <<total>>", $summary{'body'};
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+sub process {
+    my ($fn) = @_;
+    my %counts = ();
+    my ($fext, $fmodel);
+    if (-d $fn) {
+        _sig2 'DIR', $fn;
+
+        my $dh = new DirHandle($fn);
+        my @files = $dh->read();
+        $dh->close();
+        for (@files) {
+            my %c = ();
+
+            if (-d "$fn/$_") {
+                # recursive into sub-directories
+                next if (m/^\.{1,2}$/);
+                next if (! $opt_recursive);
+                %c = process("$fn/$_");
+            } else {
+                # file-item in a directory
+
+                # only matches if @opt_matches is defined.
+                if (@opt_matches) {
+                    my $matches = 0;
+                    for my $pat (@opt_matches) {
+                        if (m/^$pat$/i) {
+                            $matches = 1;
+                            last;
+                        }
+                    }
+                    next if not $matches;
+                }
+
+                ($fext) = m/\.([^.\/]+)$/; _def $fext, '';
+                if (defined $opt_ext{$fext}) {
+                    %c = process("$fn/$_");
+                }
+            }
+            for my $k (keys %c) {
+                $counts{$k} += 1 * $c{$k};
+            }
+        }
+        $fn = "$fn/";
+    } else {
+        _sig2 'FILE', $fn;
+
+        ($fext) = $fn =~ m/\.([^.\/]+)$/;   _def $fext, '';
+        $fmodel = $opt_ext{$fext};          _def $fmodel, 'text';
+        my $fun = 'count_'.$fmodel;
+        my $cb = main->can($fun);
+        die "count for $fmodel isn't supported" unless defined $cb;
+        %counts = $cb->($fn);
+        $summary_x{$fext}->{$_} += 1 * $counts{$_}
+            for keys %counts;
+    }
+    _PF1 "%10d $fn", $counts{'body'} if $counts{'body'};
+    return %counts;
+}
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+sub count_text {
+    my ($filename) = @_;
+    my $lines = 0;
+    my $words = 0;
+    open FH, $filename or die "can't open file $filename";
+    while (<FH>) {
+        $words++ while (m/\w+/g);
+        $lines++;
+    }
+    close FH;
+    return (
+            'body' => $lines,
+            'words' => $words,
+            );
+}
+
+sub count_c {
+    my ($filename) = @_;
+    my $lines = 0;
+    my $words = 0;
+    my $cmtlines = 0;
+    open FH, $filename or die "can't open file $filename";
+    while (<FH>) {
+        $words++ while (m/\w+/g);
+        $lines++;
+        $cmtlines++ if (m/^\s*(\/\/.*)?$/);
+    }
+    close FH;
+    return (
+            'body' => $lines,
+            'words' => $words,
+            'comments' => $cmtlines,
+            );
+}
+
+sub count_vb {
+    my ($filename) = @_;
+    my $hdrlevel = -100;
+    my ($lines, $words) = (0, 0);
+    my ($hdrlines, $cmtlines) = (0, 0);
+    my $attr = 1;
+
+    open FH, $filename or die "can't open file $filename";
+    while (<FH>) {
+        $hdrlines++;
+        if (m/^\s*VERSION\b/i)  { $hdrlevel = 0; next; }
+        if (m/^\s*OBJECT\b/i)   { next; }
+        if (m/^\s*BEGIN\s+=/i)  { next; }
+        if (m/^\s*BEGIN\b/i)    { $hdrlevel++; }
+        if (m/^\s*END\b/i)      { $hdrlevel--; }
+        if ($hdrlevel == 0)     { last; }
+    }
+    while (<FH>) {
+        if ($attr) {
+            if (m/^\s*ATTRIBUTE\b/i) {
+                $hdrlines++;
+                next;
+            }
+        }
+        $attr = 0;
+
+        $lines++;
+        $words++ while (m/\w+/g);
+        $cmtlines++ if (m/^\s*(\'.*)?$/);
+    }
+
+    close FH;
+    return (
+            'body' => $lines,
+            'words' => $words,
+            'header' => $hdrlines,
+            'comments' => $cmtlines,
+            );
+}
+
+sub count_unix {
+    my ($filename) = @_;
+    my $lines = 0;
+    my $words = 0;
+    my $cmtlines = 0;
+    open FH, $filename or die "can't open file $filename";
+    while (<FH>) {
+        $words++ while (m/\w+/g);
+        $lines++;
+        $cmtlines++ if (m/^\s*(#.*)?$/);
+    }
+    close FH;
+    return (
+            'body' => $lines,
+            'words' => $words,
+            'comments' => $cmtlines,
+            );
+}
+
+sub count_xml {
+    return count_text(@_);
+}
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Count words for source code \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Count words for source code">
+
+=head1 AUTHOR
+
+Xima Lenik <lenik@bodz.net>
+
+=cut

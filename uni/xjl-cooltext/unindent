@@ -1,0 +1,182 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+unindent - Remove the extra indents while keeping the structure
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'unindent'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
+use Getopt::Long;
+
+sub _main; sub _version; sub _help;
+sub unindent_paragraph;
+
+our $opt_lines      = 2;
+
+sub _boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'lines|l=n',
+               );
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<unindent>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 Remove the extra indents while keeping the structure
+
+B<unindent> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-unindent-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -l, --lines=NUMBER      min lines of a paragraph to unindent
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    my @p;
+    while (<>) {
+        if (s/^\s+$//) {
+            unindent_paragraph \@p;
+            print for @p;
+            print "\n";
+            @p = ();
+            next;
+        }
+        push @p, $_;
+    }
+    if (@p) {
+        unindent_paragraph \@p;
+        print for @p;
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+sub unindent_paragraph {
+    my $lines = shift;
+    my $n = scalar(@$lines);
+    return if ($n < $opt_lines);
+
+    my $minspace = 10000;
+    for (@$lines) {
+        # if (m/^(\s+)$/) { # ignore...
+        if (m/^(\s+)/) {
+            my $spc = length($1);
+            $minspace = $spc if ($spc < $minspace);
+        } else {
+            # minspace == 0, donothing
+            return;
+        }
+    }
+
+    # assert $minspace > 0
+    for (my $i = 0; $i < $n; $i++) {
+        my $line = $lines->[$i];
+        $line = substr($line, $minspace);
+        $lines->[$i] = $line;
+    }
+}
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Remove the extra indents while keeping the structure \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
