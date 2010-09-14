@@ -45,6 +45,7 @@ EXTRA_DIST = \
 	mount.tc.in \
 	mountall.tc.in \
 	fstab-install.tc.in \
+	passwd-install.tc.in \
 	post-install.sh.in \
 	pre-remove.sh.in
 
@@ -52,6 +53,7 @@ CLEANFILES = \
 	mount.tc \
 	mountall.tc \
 	fstab-install.tc \
+	passwd-install.tc \
 	post-install.sh \
 	pre-remove.sh \
 	truecrypt-setup-x86
