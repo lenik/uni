@@ -23,6 +23,7 @@ function sudo_rm() {
 AUTOUNCONF=`readlink -f $0`
 subdirs=
 distfiles=
+AC=configure.ac
 
 if [ -f Makefile ]; then
     subdirs=`maketestvar SUBDIRS`
@@ -31,7 +32,10 @@ if [ -f Makefile ]; then
     make distclean
 fi
 
-AC=configure.ac
+compact=0
+if [ -h install-sh ] || [ -h missing ]; then
+    compact=1
+fi
 
 for f in *; do
     if [ -h $f ]; then
@@ -47,12 +51,14 @@ for f in *; do
     fi
 done
 
-for f in aclocal.m4 configure; do
-    if [ -f $f ]; then
-        echo "Remove auto-tools generated file: $f"
-        $RM $f
-    fi
-done
+if [ $compact = 1 ]; then
+    for f in aclocal.m4 configure; do
+        if [ -f $f ]; then
+            echo "Remove auto-tools generated file: $f"
+            $RM $f
+        fi
+    done
+fi
 
 for f in autoscan.log autom4te.cache config.status config.log stamp-h1; do
     if [ -e $f ]; then
@@ -74,9 +80,11 @@ if [ -f $AC ]; then
     done
 fi
 
-if [ -f Makefile.am ] && [ -f Makefile.in ]; then
-    echo "Remove automake output: Makefile.in"
-    $RM Makefile.in
+if [ $compact = 1 ]; then
+    if [ -f Makefile.am ] && [ -f Makefile.in ]; then
+        echo "Remove automake output: Makefile.in"
+        $RM Makefile.in
+    fi
 fi
 
 if [ -n "$distfiles" ]; then

@@ -22,12 +22,13 @@ for a in "$@"; do
 done
 
 if [ "$opt_addmissing" = 1 ]; then
-    if [ ! -d libauto ]; then
-        if [ "$opt_addsym" = 1 ]; then
+    if [ "$opt_addsym" = 1 ]; then
+        if [ ! -d libauto ]; then
             ln -s @pkgdatadir@/libauto libauto
-        else
-            cp -R @pkgdatadir@/libauto libauto
         fi
+    else
+        # always update libauto, if it's not symlink
+        cp -R @pkgdatadir@/libauto libauto
     fi
 fi
 
