@@ -1,0 +1,45 @@
+#!/bin/bash
+
+    INTERVAL=0.1
+    if [ "$1" = "-r" ]; then
+	INTERVAL="$2"
+	shift 2
+    fi
+
+    if [ -z "$1" ]; then
+	echo "pdfmon [-r REFRESH_INTERVAL (ms)] FILE.PDF"
+	exit 1
+    fi
+    if [ ! -f "$1" ]; then
+	echo "File $1 isn't existed"
+	exit 1
+    fi
+    pdf="$1"
+
+    S='pdfmon-$$'
+
+    if ! xpdf -remote $S & then
+	echo "Can't start xpdf server $S"
+	exit 1
+    fi
+
+function main() {
+    mlast=0
+    while true; do
+	if ! mtime=`stat -c %Y "$pdf" 2>/dev/null`; then
+	    echo "Error stat on file $pdf"
+	    return 1
+	fi
+	if [ $mlast != $mtime ]; then
+	    echo `date` "File $pdf modified:" `stat -c %y "$pdf"`
+	    mlast=$mtime
+	    xpdf -remote $S -reload
+	fi
+	sleepenh $INTERVAL
+    done
+    return 0
+}
+
+    main
+    ERROR=$?
+    xpdf -remote $S -quit
