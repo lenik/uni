@@ -1,0 +1,7 @@
+#!/bin/bash
+
+i=0
+for a in "$@"; do
+    ((i++))
+    echo "$i) $a."
+done

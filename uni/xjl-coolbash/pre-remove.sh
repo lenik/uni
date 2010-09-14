@@ -8,7 +8,7 @@ fi
 
 a_init=$sysconfdir/bash_aliases
 echo -n "Remove $a_init from start up... "
-    if lineconf -ekt COOLBASH::a_init $sysconfdir/bash.bashrc; then
+    if lineconf -ekt $sysconfdir/bash.bashrc COOLBASH::a_init; then
         echo Done
     else
         echo Skipped

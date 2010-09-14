@@ -8,9 +8,9 @@ fi
 
 a_init=$sysconfdir/bash_aliases
 echo -n "Add $a_init to start up... "
-    if lineconf -et COOLBASH::a_init \
-            "if [ -f $a_init ]; then . $a_init; fi" \
-            $sysconfdir/bash.bashrc; then
+    if lineconf -et $sysconfdir/bash.bashrc \
+            COOLBASH::a_init "if [ -f $a_init ]; then . $a_init; fi"
+    then
         echo Done
     else
         echo Skipped
