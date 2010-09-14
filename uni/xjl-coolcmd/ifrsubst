@@ -1,0 +1,16 @@
+#!/bin/sh
+
+if [ -z "$1" ]; then
+    echo "Text doesn't specified. "
+    exit 1
+fi
+
+text="$1"
+key=`rsubstecho "$text"`
+if [ "$key" != "$text" ]; then
+    echo "$key"
+    exit 0
+else
+    echo "$2"
+    exit 1
+fi
