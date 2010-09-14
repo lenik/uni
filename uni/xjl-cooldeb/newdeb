@@ -1,0 +1,163 @@
+#!/bin/bash
+    RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
+    short_opts="apshqv"
+    long_opts="autotools,prepost,svn,help,quiet,verbose,version"
+    . /usr/lib/bash/cliboot
+
+    autotools=
+    prepost=
+    versioned=
+
+	for envf in ../../.env ../.env .env; do
+		if [ -f $envf ]; then
+			. $envf
+		fi
+	done
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Create new (original) Debian package"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] PACKAGE-NAME"
+    echo
+    echo "Options: "
+    echo "    -a, --autotools         by means of autotools"
+    echo "    -p, --prepost           with post-install/pre-remove support"
+    echo "    -s, --svn               do initial commit with svn"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -a|--autotools)
+            autotools=1;;
+        -p|--prepost)
+            prepost=1;;
+        -s|--svn)
+            versioned=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$1" ]; then
+        echo "PACKAGE-NAME isn't specified. "
+        exit 1
+    fi
+
+    if [ -n "${1//[0-9a-zA-Z\-_]}" ]; then
+        echo "Invalid package name: $1"
+        exit 1
+    fi
+    name=$1
+
+    if [ -d "$name" ]; then
+        echo "Directory $name/ is already existed. "
+        exit 1
+    fi
+    mkdir $name
+
+    if [ "$versioned" = 1 ]; then
+        if ! svn info >/dev/null 2>&1; then
+            echo "Current directory isn't versioned. "
+            exit 1
+        fi
+
+        svn add $name
+    fi
+
+    cd $name
+    if [ "$autotools" = 1 ]; then
+        autoinit
+        vercomp -i minor
+    fi
+
+    if [ "$prepost" = 1 ]; then
+
+        if [ "$autotools" = 1 ]; then
+            cat <<EOT | tee post-install.sh.in pre-remove.sh.in >/dev/null
+#!/bin/sh
+
+# master-file
+EOT
+            chmod a+x *.sh.in
+
+            cat <<EOT >>Makefile.am
+
+setupdir = \${datadir}/setup/\${PACKAGE_NAME}
+
+setup_SCRIPTS = \\
+    post-install.sh \\
+    pre-remove.sh
+
+EXTRA_DIST = \\
+	post-install.sh.in \\
+	pre-remove.sh.in
+
+CLEANFILES = \\
+	post-install.sh \\
+	pre-remove.sh
+
+%: %.in Makefile
+	\$(do_subst) <\$< >\$@
+EOT
+
+        fi #autotools
+    fi #prepost
+
+    if [ "$versioned" = 1 ]; then
+        svn add *
+    fi
+
+    . dh_make-autover --createorig
+
+    cd debian
+        if [ "$prepost" = 1 ]; then
+            mv postinst.ex postinst
+            mv prerm.ex    prerm
+
+            line=`grepl "configure)" postinst`
+            sedit postinst sh -c "head -$line; \
+                echo \"        /usr/share/setup/$name/post-install.sh\"; \
+                cat"
+
+            line=`grepl "deconfigure)" prerm`
+            sedit prerm sh -c "head -$line; \
+                echo \"        /usr/share/setup/$name/pre-remove.sh\"; \
+                cat"
+
+            chmod a+x postinst prerm
+        fi
+
+        vi control
+        cd ..
+
+    if [ "$versioned" = 1 ]; then
+        svn ci -m "Initial by newdeb"
+    fi
+
+    if [ "$autotools" = 1 ]; then
+        autoreconf2 -is
+        makelook
+    fi
+}
+
+boot "$@"

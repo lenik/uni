@@ -1,5 +1,5 @@
 
-include libauto/subst.am
+include libauto/coolauto.am
 
 sysconfdir = /etc
 aliasesdir = ${sysconfdir}/bash_aliases.d
@@ -10,13 +10,15 @@ dist_bin_SCRIPTS = \
 	dh_make-autover \
 	dh_debname \
 	deb-redist \
-	dwhich
+	dwhich \
+	newdeb
 
 dist_aliases_DATA = \
     cooldeb.sh
 
 dist_man_MANS = \
-	dwhich.1
+	dwhich.1 \
+	newdeb.1
 
 vcmdlist = dh_make pwd
 
