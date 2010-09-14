@@ -1,0 +1,5 @@
+/lam/.image/mirror.cpan.tc ~mirror ntfs /lam/mirror.cpan
+/lam/.image/mirror.c.tc    ~mirror ntfs /mnt/k
+
+# comment...
+/abc/my-new-vol.tc  ~mirror  ntfs  /my-mount

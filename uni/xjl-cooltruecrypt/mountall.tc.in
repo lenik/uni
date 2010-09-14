@@ -1,10 +1,8 @@
 #!/bin/bash
 
-PREFIX=/usr
-_sbindir=$PREFIX/sbin
-_confdir=/etc
+# master-file
 
-MOUNT_TC=$_sbindir/mount.tc
+MOUNT_TC=@DESTDIR@@sbindir@/mount.tc
 err=0
 
 while read dev _; do
@@ -18,6 +16,6 @@ while read dev _; do
         ((err++))
     fi
 
-done < $_confdir/fstab.tc
+done < @DESTDIR@@sysconfdir@/fstab.tc
 
 exit $err

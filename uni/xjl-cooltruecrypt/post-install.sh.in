@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# master-file
+
+if ! @setupdir@/truecrypt-setup-x86; then
+    echo "TrueCrypt setup failed: $?"
+    exit 1
+fi
+
+fstab_tc=@DESTDIR@@sysconfdir@/fstab.tc
+passwd_tc=@DESTDIR@@sysconfdir@/passwd.tc
+
+if [ ! -f "$fstab_tc" ]; then
+    echo "Create $fstab_tc"
+    install -m 644 @pkgdatadir@/fstab.tc $fstab_tc
+fi
+
+if [ ! -f "$passwd_tc" ]; then
+    echo "Create $passwd_tc"
+    install -m 600 @pkgdatadir@/passwd.tc $passwd_tc
+fi

@@ -1,0 +1,9 @@
+/lam/.image/lam.etools.tc          FXFUAY1j    ntfs /lam/etools
+/lam/.image/lam.sw.java.tc         FXFUAY1j    ntfs /lam/sw.java
+/lam/.image/lam.lang.tc            FXFUAY1j    ntfs /lam/lang
+/lam/.image/lam.nt.util.tc         FXFUAY1j    ntfs /lam/nt.util
+/lam/.image/mirror.cpan.tc         ~mirror     ntfs /lam/mirror.cpan
+/lam/.image/lam.kala.tc            FXFUAY1j    ntfs /lam/kala
+/lam/.image/lam.sys.tc             FXFUAY1j    ntfs /lam/sys
+
+/lam/.image/mirror.c.tc            ~mirror     ntfs /mnt/k

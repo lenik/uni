@@ -1,15 +1,13 @@
 #!/bin/bash
 
-PREFIX=/usr
-_confdir=/etc
-_bindir=$PREFIX/bin
+# master-file
 
 TRUECRYPT='truecrypt -t --protect-hidden=no'
 
 USING_MAPPER=1
 TRUECRYPT_MAPDEV=/dev/mapper/truecrypt
-MOUNT_OPTS="defaults,nls=utf8,umask=007,gid=46"
-NEXTID=$_bindir/nextdevid
+MOUNT_OPTS="defaults,nls=utf8,umask=002,gid=70"
+NEXTID=@DESTDIR@@bindir@/nextdevid
 
 verbose=0
 while [ "$1" = "-v" ]; do
@@ -18,7 +16,7 @@ while [ "$1" = "-v" ]; do
 done
 
 PASSWD_LIST=/dev/null
-for f in $_confdir/passwd.tc ~/.passwd.tc; do
+for f in @DESTDIR@@sysconfdir@/passwd.tc ~/.passwd.tc; do
     if [ -r "$f" ]; then
         # XXX: space should be quoted
         PASSWD_LIST="$PASSWD_LIST $f"
@@ -100,7 +98,7 @@ for a in "$@"; do
             fi
         fi
 
-    done < $_confdir/fstab.tc
+    done < @DESTDIR@@sysconfdir@/fstab.tc
     _log ""
 
 done

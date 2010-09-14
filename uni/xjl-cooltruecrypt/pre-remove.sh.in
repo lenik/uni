@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# master-file
+
+/usr/bin/truecrypt-uninstall.sh
+
+fstab_tc=@DESTDIR@@sysconfdir@/fstab.tc
+passwd_tc=@DESTDIR@@sysconfdir@/passwd.tc
+
+# Just keep the two conf file.

@@ -1,0 +1,121 @@
+#!/bin/bash
+
+# master-file
+
+    RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
+    short_opts="iufhqv"
+    long_opts="install,uninstall,force,help,quiet,verbose,version"
+    . /usr/lib/bash/cliboot
+
+    install=1
+    force=
+    fstab_tc=@DESTDIR@@sysconfdir@/fstab.tc
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Add/remove fstab.tc entries"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] source-fstab.tc"
+    echo
+    echo "Options: "
+    echo "    -i, --install           add entries"
+    echo "    -u, --uninstall         remove entries"
+    echo "    -f, --force             force overwrite"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -i|--install)
+            install=1;;
+        -u|--uninstall)
+            install=0;;
+        -f|--force)
+            force=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for src in "$@"; do
+        if [ ! -f "$src" ]; then
+            echo "File not exists: $src"
+            exit 1
+        fi
+
+        _log1 "Scan $src"
+        dirty=0
+        while read _line; do
+            if [ "$_line" = "" ] || [ "${_line:0:1}" = '#' ]; then
+                continue
+            fi
+
+            read volfile passwd fs mpoint < <(echo "$_line")
+
+            if [ $install = 0 ]; then
+                if sedit -ae $fstab_tc grep -v "^$volfile"; then
+                    _log2 "    Removed: tc-volume=$volfile"
+                    ((dirty++))
+                fi
+                if sedit -ae $fstab_tc grep -v "$mpoint\$"; then
+                    _log2 "    Removed: mount-proint=$mpoint"
+                    ((dirty++))
+                fi
+            else
+                if grep -q "^$volfile" $fstab_tc; then
+                    if [ "$force" = 1 ]; then
+                        _log2 "    Match-Overwrite: tc-volume=$volfile"
+                    else
+                        _log2 "    Match-Skip: tc-volume=$volfile"
+                        continue
+                    fi
+                fi
+                if grep -q "$mpoint\$" $fstab_tc; then
+                    if [ "$force" = 1 ]; then
+                        _log2 "    Match-Overwrite: mount-point=$mpoint"
+                    else
+                        _log2 "    Match-Skip: mount-point=$mpoint"
+                        continue
+                    fi
+                fi
+                if lineconf -e $fstab_tc "^$volfile" "$_line"; then
+                    _log2 "    Added: $volfile -> $mpoint"
+                    ((dirty++))
+                else
+                    _log2 "    lineconf error: $?"
+                fi
+            fi
+        done <$src
+
+        if [ $dirty = 0 ]; then
+            _log1 "    No change"
+        else
+            if [ $install = 0 ]; then
+                _log1 "    $dirty entries (or more) are removed"
+            else
+                _log1 "    $dirty entries are added"
+            fi
+        fi
+    done
+
+}
+
+boot "$@"
