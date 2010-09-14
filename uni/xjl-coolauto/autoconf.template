@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([@NAME@], [@VERSION@], [@EMAIL@])
+AC_INIT([@NAME@], [@VERSION@], [@BUG_EMAIL@])
 AM_INIT_AUTOMAKE([-Wall])
 
 # Checks for programs.

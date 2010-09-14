@@ -61,11 +61,6 @@ for f in autoscan.log autom4te.cache config.status config.log stamp-h1; do
     fi
 done
 
-if [ -f Makefile.am ] && [ -f Makefile.in ]; then
-    echo "Remove automake output: Makefile.in"
-    $RM Makefile.in
-fi
-
 if [ -f $AC ]; then
     for i in *.in; do
         base="${i%.in}";
@@ -77,6 +72,11 @@ if [ -f $AC ]; then
             fi
         fi
     done
+fi
+
+if [ -f Makefile.am ] && [ -f Makefile.in ]; then
+    echo "Remove automake output: Makefile.in"
+    $RM Makefile.in
 fi
 
 if [ -n "$distfiles" ]; then

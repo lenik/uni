@@ -1,2 +1,2 @@
 
-include libauto/subst.am
+include libauto/coolauto.am

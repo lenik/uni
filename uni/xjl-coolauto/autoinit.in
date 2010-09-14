@@ -4,15 +4,15 @@
 
 PACKAGE_NAME=${PWD##*/}
 
-for envf in .env ../.env ../../.env; do
+for envf in ../../.env ../.env .env; do
     if [ -f $envf ]; then
         . $envf
     fi
 done
 
-if [ -z "$EMAIL" ]; then
+if [ -z "$BUG_EMAIL" ]; then
     # for future replacement.
-    EMAIL=xjl-bug@99jsj.com
+    BUG_EMAIL=xjl-bug@99jsj.com
 fi
 
 function do_subst() {
@@ -26,7 +26,7 @@ function do_subst() {
 
     sed \
         -e "s,[@]NAME[@],$PACKAGE_NAME,g" \
-        -e "s,[@]EMAIL[@],$EMAIL,g" \
+        -e "s,[@]BUG_EMAIL[@],$BUG_EMAIL,g" \
         -e "s,[@]VERSION[@],0.1,g" \
         <$template >$output
 }
