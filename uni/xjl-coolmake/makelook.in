@@ -47,7 +47,7 @@ rm -fR $tmpdestdir
 
 echo Install to temporary destdir $tmpdestdir:
 if $MAKE -s install DESTDIR=$tmpdestdir; then
-    tree $tmpdestdir
+    tree -a $tmpdestdir
 else
     echo Failed to install.
 fi

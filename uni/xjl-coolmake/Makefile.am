@@ -1,5 +1,5 @@
 
-include libauto/subst.am
+include libauto/coolauto.am
 
 samplesdir = ${docdir}/samples
 sysconfdir = /etc
