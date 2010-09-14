@@ -1,5 +1,5 @@
 
-include libauto/subst.am
+include libauto/coolauto.am
 
 SUBDIRS = test
 
@@ -17,12 +17,17 @@ dist_bin_SCRIPTS = \
 	svn-show-usedkeywords \
 	svn-update-keywords \
 	svn-update-executable \
-	svn-union
+	svn-union \
+	svn-union-install \
+	svn-swf \
+	svnserve-002 \
+	svn-002
 
 dist_man_MANS = \
 	coolsvn.1 \
 	svn-union.1 \
-	svn_union.d.5
+	svn_union.d.5 \
+	svn-swf.1
 
 dist_svnunion_DATA = \
 	svn_union.d/README
@@ -30,9 +35,11 @@ dist_svnunion_DATA = \
 dist_aliases_DATA = \
 	aliases.d/coolsvn.sh
 
-EXTRA_DIST = svn-union.in
-CLEANFILES = svn-union
+EXTRA_DIST = svn-union.in svn-union-install.in
+CLEANFILES = svn-union    svn-union-install
 
-svn-union: svn-union.in Makefile
-	$(do_subst) -e 's,[@]svnuniondir[@],$(svnuniondir),g' \
-		<$(srcdir)/svn-union.in >$@
+%: %.in Makefile
+	$(do_subst) \
+		-e 's,[@]svnuniondir[@],$(svnuniondir),g' \
+		<$< >$@
+

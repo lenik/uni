@@ -1,0 +1,125 @@
+#!/bin/bash
+    RCSID='$Id: bash.sh 1432 2010-08-25 10:23:46Z lenik $'
+    short_opts="s:c:u:U:i:I:dhqv"
+    long_opts="section,co-opts,up-opts,up-intv,ci-opts,ci-intv,delayed,help,quiet,verbose,version"
+    . /usr/lib/bash/cliboot
+
+    svnuniondir=@svnuniondir@
+
+    section=default
+    co_opts=
+    up_opts=
+    up_intv=
+    ci_opts=
+    ci_intv=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Install new checkout point with svn-union"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] URL JOIN-POINT"
+    echo
+    echo "Options: "
+    echo "    -s, --section=NAME      Rpecify section name rather than default"
+    echo "    -c, --co-opts=OPTS      Checkout options"
+    echo "    -u, --up-opts=OPTS      Update options"
+    echo "    -U, --up-intv=NUM       Update interval in seconds"
+    echo "    -i, --ci-opts=OPTS      Commit options"
+    echo "    -I, --ci-intv=NUM       Commit interval in seconds"
+    echo "    -d, --delayed           Do checkout later"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -s|--section)
+            section="$2";;
+        -c|--co-opts)
+            co_opts="$2";;
+        -u|--up-opts)
+            up_opts="$2";;
+        -U|--up-intv)
+            up_intv="$2";;
+        -i|--ci-opts)
+            ci_opts="$2";;
+        -I|--ci-intv)
+            ci_intv="$2";;
+        -d|--delayed)
+            delayed=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $# != 2 ]; then
+        help
+        exit 0
+    fi
+
+    url="$1"
+    join_point="$2"
+
+    mapfile=$svnuniondir/$section
+
+    _join_point=`escape "$join_point"`
+    _url=`escape "$url"`
+    _log1 "Config $mapfile"
+    if lineconf -et $mapfile "$join_point" \
+        "$_join_point $_url \"$co_opts\" $up_intv \"$up_opts\" $ci_intv \"$ci_opts\""; then
+        _log1 "    done"
+    else
+        _log1 "    skipped"
+    fi
+
+    if [ "$delay" != 1 ]; then
+        if [ -d "$join_point" ]; then
+            read _ url0 < <(LANG=C svn info "$join_point" | grep URL:)
+            if [ "$url0" = "$url" ]; then
+                _log1 "Existing join point matches the specified url. "
+                _log1 "Do update immediately, instead. "
+                svn up "$join_point"
+            else
+                _log1 "Existing join point don't matches the specified url. "
+                _log1 "Rename the existing join point to .bak"
+                if ! mv "$join_point" "$join_point.bak"; then
+                    _log1 "    Failed to rename"
+                    exit 1
+                fi
+            fi
+        fi
+
+        if [ ! -d "$join_point" ]; then
+            _log1 "Checkout $url: "
+            svn co $co_opts "$url" "$join_point"
+        fi
+    fi
+}
+
+function escape() {
+    local s="$1"
+    if [ "${s/[^a-zA-Z0-9/_-]}" = "$s" ]; then
+        echo $s
+    else
+        echo "\"$s\""
+    fi
+}
+
+boot "$@"

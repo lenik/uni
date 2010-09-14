@@ -1,0 +1,84 @@
+#!/bin/bash
+    RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+    . /usr/lib/bash/cliboot
+
+    SVN=svn
+
+    self_dir="$PWD"
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] SVN switch by force"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+
+    if [ $LOGLEVEL -le 1 ]; then
+        SVN="$SVN -q"
+    fi
+
+    if [ -z "$1" ]; then
+        echo "new-url isn't specified. "
+        exit 1
+    fi
+    new_url="$1"
+
+    newtmp=/tmp/svn-swf-$$-$RANDOM
+
+    _log1 "Checkout new"
+    if ! $SVN co "$new_url" $newtmp; then
+        echo "  checkout failed. "
+        exit 1
+    fi
+
+    _log1 "Export to overwrite"
+    if ! $SVN export --force . $newtmp; then
+        echo "  export failed. "
+        exit 1
+    fi
+
+    _log1 "Backup $self_dir"
+    if ! mv "$self_dir" "$self_dir.bak"; then
+        echo "Can't rename $self_dir to .bak"
+        exit 1
+    fi
+
+    _log1 "Move the merged dir back"
+    if ! mv "$newtmp" "$self_dir"; then
+        echo "Can't move back the tmp merged dir"
+        exit 1
+    fi
+}
+
+boot "$@"
