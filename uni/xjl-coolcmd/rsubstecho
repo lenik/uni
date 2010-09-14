@@ -1,0 +1,104 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Getopt::Long;
+
+sub add_subst($$);
+sub load_substs($$);
+sub build_re($$);
+
+our $opt_color = 0;
+GetOptions('color|c!' => \$opt_color);
+
+our %subst;
+our %subst_re;
+our %index;
+our %index_re;
+
+sub add_subst($$) {
+    my $key = shift;
+    my $val = shift;
+    #$subst{$key} = $val;
+    if ($key =~ /\]$/) {
+        $index{$val} = [] unless defined($index{$val});
+        my $rkeys = $index{$val};
+        push(@{$rkeys}, $key);
+    }
+}
+
+sub load_substs($$) {
+    my $prefix = shift;
+    my $dir = shift;
+
+    for my $f (<$dir/*>) {
+        my ($dirname, $basename) = $f =~ m{^(.*?)([^/]+)$};
+        my $fqn = ($prefix eq '') ? $basename : "$prefix:$basename";
+
+        if (-d $f) {
+            load_substs($fqn, $f);
+        } else {
+            open(IN, "<$f") or die "Can't open $f: ";
+            my $line = 0;
+            while (<IN>) {
+                s/^\s+//;
+                next if $_ eq '';
+                next if /^#/;
+                $line++;
+                my ($key, $val) = /^(.*?)\s*=\s*(.*)$/;
+                $key = $fqn.'['.$key.']';
+                add_subst($fqn, $val) if $line == 1;
+                add_subst($key, $val);
+            }
+            close IN;
+        }
+    }
+}
+
+sub build_re($$) {
+    my $map = shift;
+    my $map_re = shift;
+    for my $k (keys %{$map}) {
+        my $re = $k;
+        $re =~ s/([\\\[\]\/\"\'.?*+\(\)^\$])/\\$1/g;
+        if ($k =~ /\]$/) {
+            $map_re->{$k} = qr/\b$re/;
+        } else {
+            $map_re->{$k} = qr/\b$re\b(?!\[)/;
+        }
+    }
+}
+
+load_substs('', "/etc/coolcmd/subst");
+load_substs('', "~/.coolcmd/subst");
+
+#build_re(\%subst, \%subst_re);
+build_re(\%index, \%index_re);
+
+#use Data::Dumper;
+#print Dumper(\%index);
+#print Dumper(\%index_re);
+
+my @substed;
+for (@ARGV) {
+    for my $val (keys %index) {
+        my $keys = $index{$val};
+
+        my $key_text = $keys->[0];
+        if (scalar(@{$keys}) > 1) {
+            # $key_text = '{ '.join(', ', @{$keys}).' }';
+            # $key_text = '{'.$keys->[0].', ...}';
+        }
+
+        my $val_re = $index_re{$val};
+
+        if ($opt_color) {
+            s/$val_re/[01;36m$key_text[0m/g;
+        } else {
+            s/$val_re/$key_text/g;
+        }
+    }
+    push @substed, $_;
+}
+
+print join('   ', @substed)."\n";
