@@ -1,0 +1,11 @@
+description	"Cool SOCKS5 thru *.socks.bodz.net"
+author		"谢继雷 (Lenik) <lenik@bodz.net>"
+
+start on (net-device-up IFACE!=lo)
+stop on runlevel[!2345]
+
+script
+
+	sudo -usshproxy ssh -D 7878 sshproxy.bodz.net
+
+end script
