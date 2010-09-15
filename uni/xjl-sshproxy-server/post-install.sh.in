@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# master-file
+
+echo "Create user sshproxy"
+
+    useradd \
+        -md @homedir@ \
+        -s /bin/sh \
+        -rc "SSH forwarder" \
+        sshproxy
+
+authkeys=@homedir@/.ssh/authorized_keys
+addkeys=@pkgdatadir@/sshproxy.pub
+
+echo "Configure authorized-keys"
+    if [ ! -e $ak ]; then
+        echo "    created new"
+        cp $addkeys $authkeys
+    else
+        while read type key alias; do
+            if lineconf -e $authkeys "$alias\$" "$type $key $alias"; then
+                echo "    add entry $alias"
+            fi
+        done < $addkeys
+    fi
+
+    chmod 600 $authkeys
+    chown sshproxy:sshproxy $authkeys
