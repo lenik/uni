@@ -1,10 +1,12 @@
 
 include libauto/coolauto.am
 
-setupdir = ${datadir}/setup/${PACKAGE_NAME}
+setupdir   = ${datadir}/setup/${PACKAGE_NAME}
+homedir    = /home/sshproxy
+sshconfdir = ${homedir}/.ssh
 
-pkgdatadir = \
-	sshproxy.pub
+dist_sshconf_DATA = \
+	authorized_keys
 
 setup_SCRIPTS = \
     post-install.sh \
@@ -12,14 +14,11 @@ setup_SCRIPTS = \
 
 EXTRA_DIST = \
 	post-install.sh.in \
-	pre-remove.sh.in \
-	coolsocks.conf.in
+	pre-remove.sh.in
 
 CLEANFILES = \
 	post-install.sh \
-	pre-remove.sh \
-	coolsocks.conf
+	pre-remove.sh
 
 %: %.in Makefile
-	$(do_subst) \
-		-e 's,[@]<$< >$@
+	$(do_subst) <$< >$@
