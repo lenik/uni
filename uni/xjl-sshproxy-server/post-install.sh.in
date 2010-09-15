@@ -4,6 +4,9 @@
 
 echo "Create user sshproxy"
 
+    # clean if empty dir already created.
+    rmdir @sshconfdir@ @homedir@ 2>/dev/null
+
     useradd \
         -md @homedir@ \
         -s /bin/sh \
@@ -11,7 +14,6 @@ echo "Create user sshproxy"
         sshproxy
 
 echo "Config authorized_keys permission"
-    authkeys=@homedir@/.ssh/authorized_keys
 
-    chmod 600 $authkeys
-    chown sshproxy:sshproxy $authkeys
+    install -m 600 -o sshproxy -g sshproxy \
+        @setupdir@/authorized_keys @sshconfdir@/

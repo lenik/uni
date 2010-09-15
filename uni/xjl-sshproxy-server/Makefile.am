@@ -5,12 +5,12 @@ setupdir   = ${datadir}/setup/${PACKAGE_NAME}
 homedir    = /home/sshproxy
 sshconfdir = ${homedir}/.ssh
 
-dist_sshconf_DATA = \
-	authorized_keys
-
 setup_SCRIPTS = \
     post-install.sh \
     pre-remove.sh
+
+setup_DATA = \
+	authorized_keys
 
 EXTRA_DIST = \
 	post-install.sh.in \
@@ -21,4 +21,7 @@ CLEANFILES = \
 	pre-remove.sh
 
 %: %.in Makefile
-	$(do_subst) <$< >$@
+	$(do_subst) \
+		-e 's,[@]homedir[@],$(homedir),g' \
+		-e 's,[@]sshconfdir[@],$(sshconfdir),g' \
+		<$< >$@
