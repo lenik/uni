@@ -1,8 +1,6 @@
 
 include libauto/coolauto.am
 
-setupdir = ${datadir}/setup/${PACKAGE_NAME}
-
 sysconfdir = /etc
 bindconfdir = ${sysconfdir}/bind
 
@@ -29,4 +27,4 @@ dist-hook:
 
 install-data-hook:
 	mkdir -p $(DESTDIR)$(bindconfdir)
-	cp -R $(srcdir)/bind/* $(DESTDIR)$(bindconfdir)
+	cp -RT $(srcdir)/bind $(DESTDIR)$(bindconfdir)

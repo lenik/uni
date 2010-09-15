@@ -6,6 +6,7 @@ ns2                     A       67.202.17.183
 
 1                       A       67.202.17.183
 
+sshproxy                CNAME   1
 svn                     CNAME   1
 www                     CNAME   1
 xml                     CNAME   1
