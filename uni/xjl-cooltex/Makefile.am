@@ -1,8 +1,10 @@
 
 include libauto/coolauto.am
 
-
 setupdir = ${datadir}/setup/${PACKAGE_NAME}
+
+dist_bin_SCRIPTS = \
+	pdfmon
 
 setup_SCRIPTS = \
     post-install.sh \
