@@ -21,6 +21,17 @@ for a in "$@"; do
     fi
 done
 
+# The possibility of symlinks we will have
+    symlike=0
+    for f in missing install-sh; do
+        if [ ! -e $f ] || [ -h $f ]; then
+            symlike=$((symlike + 1))
+        fi
+    done
+    if [ $symlike = 0 ]; then
+        opt_addsym=
+    fi
+
 if [ "$opt_addmissing" = 1 ]; then
     if [ "$opt_addsym" = 1 ]; then
         if [ ! -d libauto ]; then
@@ -28,7 +39,7 @@ if [ "$opt_addmissing" = 1 ]; then
         fi
     else
         # always update libauto, if it's not symlink
-        cp -R @pkgdatadir@/libauto libauto
+        cp -RT @pkgdatadir@/libauto libauto
     fi
 fi
 
