@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# master-file
+
+echo "Add user sshproxy"
+
+    # homedir should be created.
+    useradd \
+        -d @homedir@ \
+        -s  /bin/sh \
+        -rc "SSH SOCKS Proxy" \
+        sshproxy
+
+echo "Config key permission"
+
+    chmod 600 @sshconfdir@/id_dsa
+    chown -R sshproxy:sshproxy @sshconfdir@
+
+exit 0

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# master-file
+
+echo "Remove user sshproxy"
+userdel sshproxy
+
+exit 0
