@@ -29,4 +29,7 @@ CLEANFILES = \
 	sshproxy.conf
 
 %: %.in Makefile
-	$(do_subst) <$< >$@
+	$(do_subst) \
+		-e 's,[@]homedir[@],$(homedir),g' \
+		-e 's,[@]sshconfdir[@],$(sshconfdir),g' \
+		<$< >$@

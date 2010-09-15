@@ -13,7 +13,8 @@ echo "Add user sshproxy"
 
 echo "Config key permission"
 
-    chmod 600 @sshconfdir@/id_dsa
     chown -R sshproxy:sshproxy @sshconfdir@
+    chmod 700 @sshconfdir@
+    chmod 600 @sshconfdir@/id_rsa
 
 exit 0
