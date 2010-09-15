@@ -10,7 +10,8 @@ dist_bin_SCRIPTS = \
 	rsexec \
 	rsexec-c \
 	ifrsubst \
-	substtree
+	substtree \
+	echox
 
 setup_SCRIPTS = \
     post-install.sh \
