@@ -8,15 +8,12 @@ initdir    = ${sysconfdir}/init
 homedir    = /home/sshproxy
 sshconfdir = ${homedir}/.ssh
 
-init_DATA = \
-	sshproxy.conf
-
-dist_sshconf_DATA = \
-	id_rsa
-
 setup_SCRIPTS = \
     post-install.sh \
     pre-remove.sh
+
+setup_DATA = \
+	id_rsa
 
 EXTRA_DIST = \
 	post-install.sh.in \

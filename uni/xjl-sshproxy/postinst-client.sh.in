@@ -13,8 +13,7 @@ echo "Add user sshproxy"
 
 echo "Config key permission"
 
-    chown -R sshproxy:sshproxy @sshconfdir@
-    chmod 700 @sshconfdir@
-    chmod 600 @sshconfdir@/id_rsa
+    install -m 0600 -o sshproxy -g sshproxy \
+        @setupdir@/id_rsa @sshconfdir@/
 
 exit 0
