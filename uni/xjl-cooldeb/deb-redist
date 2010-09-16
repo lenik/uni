@@ -86,13 +86,22 @@ function main() {
     fi
 
     # xjl-cooldeb_0.1.5-1_all.deb
-    debfile=../`dh_debname`
-    debfullname="${debfile%.deb}"
-    debver="${debfullname%_*}"
+    dh_debname | while read debname; do
+        echo "Dput $debname..."
 
-    for ch in "$debver"_*.changes; do
-        echo "Commit $ch"
-        swapox dput -f local "$ch" | swapox grep -v "override entry"
+        debfile=../$debname
+        debfullname="${debfile%.deb}"
+        debnover="${debfullname%_*}"
+
+        for ch in "$debnover"_*.changes; do
+            echo "Commit $ch"
+
+            # swapox: remove "override entry" in stderr.
+            swapox dput -f local "$ch" |
+                swapox grep -v "override entry"
+        done
+
+        echo
     done
 
     if [ "$reconf" = 1 ]; then
