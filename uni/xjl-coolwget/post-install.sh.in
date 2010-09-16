@@ -18,7 +18,7 @@ echo "Prepare sid tools for wget"
         exit 1
     fi
     CHMOD=`which chmod`
-    RM=`which RM`
+    RM=`which rm`
 
      WGET_SID=${WGET%/*}/wget-${WGET##*/}
     CHMOD_SID=${CHMOD%/*}/wget-${CHMOD##*/}
