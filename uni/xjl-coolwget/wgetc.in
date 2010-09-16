@@ -11,9 +11,10 @@
     SUDO=
     umask 002
 
-    if ! WGET=`which wget-sid`; then
-        WGET=wget
-    fi
+    if !  WGET=`which wget-wget`;  then WGET=wget;   fi
+    if ! CHMOD=`which wget-chmod`; then CHMOD=chmod; fi
+    if !    RM=`which wget-rm`;    then RM=rm;       fi
+
     cachedir=@cachedir@
     cachedb=$cachedir/cache.db
     force=
@@ -99,7 +100,7 @@ function main() {
         hashfile="$cachedir/$hashname"
 
         if [ "$force" = 1 ]; then
-            rm -f "$hashfile"
+            $SUDO $RM -f "$hashfile"
         fi
 
         if [ -f "$hashfile" ]; then
@@ -114,7 +115,7 @@ function main() {
 
         # always chmod, whether cache hit or not.
         if [ -n "$mode" ]; then
-            $SUDO chmod $mode "$hashfile"
+            $SUDO $CHMOD $mode "$hashfile"
         fi
 
         echo "$hashfile"

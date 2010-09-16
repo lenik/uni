@@ -2,14 +2,29 @@
 
 echo "Add user wget"
 
-# recreate if empty dir.
-rmdir @cachedir@ 2>/dev/null
+    # recreate if empty dir.
+    rmdir @cachedir@ 2>/dev/null
 
-useradd \
-    -m -d @cachedir@ \
-    -s /bin/false \
-    -r -U -c "wgetc daemon" \
-    wget
+    useradd \
+        -m -d @cachedir@ \
+        -s /bin/false \
+        -r -U -c "wgetc daemon" \
+        wget
+
+echo "Prepare sid tools for wget"
+
+    if ! WGET=`which wget`; then
+        echo "You haven't installed wget. "
+        exit 1
+    fi
+    CHMOD=`which chmod`
+    RM=`which RM`
+
+     WGET_SID=wget-$WGET
+    CHMOD_SID=wget-$CHMOD
+       RM_SID=wget-$RM
+    chown wget:wget $WGET_SID $CHMOD_SID $RM_SID
+    chmod 6775      $WGET_SID $CHMOD_SID $RM_SID
 
 # no sudoers...
 # chmod 400 @DESTDIR@@sudoersdir@/wget

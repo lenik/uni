@@ -1,4 +1,10 @@
 #!/bin/bash
 
+echo "Remove sid tools for wget"
+
+     WGET_SID=`which wget-wget`  && rm -v $WGET_SID
+    CHMOD_SID=`which wget-chmod` && rm -v $CHMOD_SID
+       RM_SID=`which wget-rm`    && rm -v $RM_SID
+
 echo "Remove user wget"
-userdel wget
+    userdel wget
