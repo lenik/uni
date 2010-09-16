@@ -1,0 +1,4 @@
+
+# TODO: How to configure???
+
+ALL ALL = NOPASSWD: (wget) /usr/bin/wget

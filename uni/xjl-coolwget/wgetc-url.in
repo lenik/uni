@@ -3,5 +3,5 @@
 # master-file
 
 for md5 in "$@"; do
-    grep $md5 @cachedir@/cache.db
+    sudo -uwget grep $md5 @cachedir@/cache.db
 done

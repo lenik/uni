@@ -1,0 +1,17 @@
+#!/bin/bash
+
+echo "Add user wget"
+
+# recreate if empty dir.
+rmdir @cachedir@ 2>/dev/null
+
+useradd \
+    -m -d @cachedir@ \
+    -s /bin/false \
+    -r -U -c "wgetc daemon" \
+    wget
+
+# no sudoers...
+# chmod 400 @DESTDIR@@sudoersdir@/wget
+
+exit 0

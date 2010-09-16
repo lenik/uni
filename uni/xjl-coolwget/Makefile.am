@@ -1,7 +1,13 @@
-
 include libauto/coolauto.am
 
 cachedir = /var/cache/downloads
+sudoersdir = /etc/sudoers.d
+
+cache_DATA =
+
+# TODO: Don't know how to configure sudoers.
+#sudoers_DATA =
+#	sudoers.d/wget
 
 dist_bin_SCRIPTS = \
     urljoin \
@@ -17,17 +23,25 @@ dist_man_MANS = \
 	wgetc.1 \
 	wgetc-url.1
 
-cache_DATA =
+setup_SCRIPTS = \
+	post-install.sh \
+	pre-remove.sh
 
-EXTRA_DIST = wgetc.in wgetc-url.in
-CLEANFILES = wgetc    wgetc-url
+EXTRA_DIST = \
+	post-install.sh.in \
+	pre-remove.sh.in \
+	wgetc.in \
+	wgetc-url.in
 
-wgetc: wgetc.in Makefile
-	$(do_subst) -e 's,[@]cachedir[@],$(cachedir),g' <$(srcdir)/wgetc.in >$@
+CLEANFILES = \
+	post-install.sh \
+	pre-remove.sh \
+	wgetc \
+	wgetc-url
 
-wgetc-url: wgetc-url.in Makefile
-	$(do_subst) -e 's,[@]cachedir[@],$(cachedir),g' <$(srcdir)/wgetc-url.in >$@
+%: %.in Makefile
+	$(do_subst) \
+		-e 's,[@]cachedir[@],$(cachedir),g' \
+		-e 's,[@]sudoersdir[@],$(sudoersdir),g' \
+		<$< >$@
 
-install-data-hook:
-	@echo "You should chmod 2777 $(DESTDIR)$(cachedir)"
-	chmod 2777 $(DESTDIR)$(cachedir)

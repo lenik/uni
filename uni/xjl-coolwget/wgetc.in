@@ -3,16 +3,21 @@
 # master-file
 
     RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
-    short_opts="fhqv"
-    long_opts="force,help,quiet,verbose,version"
+    short_opts="m:fhqv"
+    long_opts="mode,force,help,quiet,verbose,version"
     . /usr/lib/bash/cliboot
+
+    #SUDO="sudo -uwget"
+    SUDO=
+    umask 002
 
     if ! WGET=`which wget-sid`; then
         WGET=wget
     fi
-    CACHEDIR=@cachedir@
-    CACHEDB=$CACHEDIR/cache.db
+    cachedir=@cachedir@
+    cachedb=$cachedir/cache.db
     force=
+    mode=
 
 function version() {
     parse_id "$RCSID"
@@ -27,6 +32,7 @@ function help() {
     echo "    $0 [OPTION] [--] URL(s)"
     echo
     echo "Options: "
+    echo "    -m, --mode=MODE         chmod to downloaded file"
     echo "    -f, --force             invalidate the correspond cache"
     echo "    -q, --quiet             repeat to get less info"
     echo "    -v, --verbose           repeat to get more info"
@@ -36,6 +42,8 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -m|--mode)
+            mode=$2;;
         -f|--force)
             force=1;;
         -h|--help)
@@ -53,9 +61,9 @@ function setopt() {
 
 function main() {
 
-    if [ ! -d $CACHEDIR ]; then
-        _log1 "Create cache dir $CACHEDIR"
-        install -d -m 2777 $CACHEDIR
+    if [ ! -d $cachedir ]; then
+        _log1 "Create cache dir $cachedir"
+        $SUDO install -d -o wget -g wget $cachedir
     fi
 
     if [ $LOGLEVEL -ge 2 ]; then
@@ -88,7 +96,7 @@ function main() {
         fi
 
         hashname="$md5$ext"
-        hashfile="@cachedir@/$hashname"
+        hashfile="$cachedir/$hashname"
 
         if [ "$force" = 1 ]; then
             rm -f "$hashfile"
@@ -97,13 +105,16 @@ function main() {
         if [ -f "$hashfile" ]; then
             _log1 "Cache hit."
         else
-            if ! $WGET -O "$hashfile" "$url" ; then
+            if ! $SUDO $WGET -O "$hashfile" "$url" ; then
                 echo "wget failed. " >&2
                 exit 1
-            else
-                chmod a+rX "$hashfile"
             fi
-            lineconf "$CACHEDB" $md5 "$md5 $url"
+            $SUDO lineconf "$cachedb" $md5 "$md5 $url"
+        fi
+
+        # always chmod, whether cache hit or not.
+        if [ -n "$mode" ]; then
+            $SUDO chmod $mode "$hashfile"
         fi
 
         echo "$hashfile"
