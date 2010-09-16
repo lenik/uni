@@ -11,6 +11,9 @@ sshconf_DATA = \
 	authorized_keys \
 	id_rsa
 
+init_DATA = \
+	sshproxy.conf
+
 setup_SCRIPTS = \
 	postinst-base.sh \
 	postinst-server.sh \
@@ -20,6 +23,7 @@ setup_SCRIPTS = \
 	prerm-client.sh
 
 EXTRA_DIST = \
+	sshproxy.conf.in \
 	postinst-base.sh.in \
 	postinst-server.sh.in \
 	postinst-client.sh.in \
@@ -28,6 +32,7 @@ EXTRA_DIST = \
 	prerm-client.sh.in
 
 CLEANFILES = \
+	sshproxy.conf \
 	postinst-base.sh \
 	postinst-server.sh \
 	postinst-client.sh \
