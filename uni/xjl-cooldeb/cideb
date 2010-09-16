@@ -1,0 +1,24 @@
+#!/bin/sh
+
+if svn-isclean; then
+    echo "already updated"
+    exit 0
+fi
+
+if ! svn ci; then
+    echo "commit failed. "
+    exit 1
+fi
+
+if ! svn-isclean; then
+    echo "commit canceled. "
+    exit 1
+fi
+
+if ! deb-redist; then
+    echo debuild/redist failed.
+    exit 1
+fi
+
+sudo apt-get update
+sudo apt-get dist-upgrade --allow-unauthenticated

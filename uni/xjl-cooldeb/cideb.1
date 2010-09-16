@@ -1,0 +1,47 @@
+.\"
+.\"
+.\" cideb.man - cideb manpage
+.\" Copyright (C) 2010 Lenik (谢继雷)
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; if not, write to the Free Software
+.\" Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+.\"
+.TH CIDEB 1
+.SH NAME
+cideb \- Commit and Debuild and Dput and Update
+.SH SYNOPSIS
+.B cideb
+
+.SH DESCRIPTION
+Commit to SVN (with commit-count field increased, if autover is used).
+Then run debuild to build .deb archive.
+
+If everything succeeds, dput the built .deb archive to local repository,
+and do apt update to update the system.
+(If the package is previously installed)
+
+.SH EXAMPLES
+
+.B
+cideb
+.PP
+Run the commit/debuild/dput/update process.
+
+.SH ENVIRONMENT
+
+.SH REPORTING BUGS
+Please report any bugs, problems, queries, experiences, etc. directly to the author.
+
+.SH AUTHORS
+Lenik <lenik at bodz.net>
+.br
