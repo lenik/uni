@@ -20,9 +20,9 @@ echo "Prepare sid tools for wget"
     CHMOD=`which chmod`
     RM=`which RM`
 
-     WGET_SID=wget-$WGET
-    CHMOD_SID=wget-$CHMOD
-       RM_SID=wget-$RM
+     WGET_SID=${WGET%/*}/wget-${WGET##*/}
+    CHMOD_SID=${CHMOD%/*}/wget-${CHMOD##*/}
+       RM_SID=${RM%/*}/wget-${RM##*/}
     chown wget:wget $WGET_SID $CHMOD_SID $RM_SID
     chmod 6775      $WGET_SID $CHMOD_SID $RM_SID
 
