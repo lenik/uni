@@ -9,19 +9,20 @@ aliasesdir = ${sysconfdir}/bash_aliases.d
 
 dist_bin_SCRIPTS = \
 	coolsvn \
+	svnserve-002 \
+	svn-002
 	svn-apply \
 	svn-backup-sync \
+	svn-dirty \
 	svn-remix \
 	svn-ps \
 	svn-start-rev \
 	svn-show-usedkeywords \
+	svn-swf \
 	svn-update-keywords \
 	svn-update-executable \
 	svn-union \
 	svn-union-install \
-	svn-swf \
-	svnserve-002 \
-	svn-002
 
 dist_man_MANS = \
 	coolsvn.1 \
