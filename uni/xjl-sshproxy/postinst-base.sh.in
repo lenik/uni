@@ -9,7 +9,7 @@ echo "Create user sshproxy"
 
     useradd \
         -md @homedir@ \
-        -s /bin/sh \
+        -s /bin/bash \
         -rc "SSH forwarder" \
         sshproxy
 
