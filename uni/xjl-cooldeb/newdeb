@@ -154,11 +154,16 @@ EOT
         vi control
         cd ..
 
-	svn add --depth empty debian
-	svn add debian/control
-	svn add debian/postinst
-	svn add debian/prerm
-	svn add debian/docs
+	_log2 "Add special files under debian/ to svn"
+		svn add --depth empty debian
+
+		# ignore debian/* by default.
+		svn ps svn:ignore '*' debian
+
+		svn add debian/control
+		svn add debian/postinst
+		svn add debian/prerm
+		svn add debian/docs
 
     if [ "$versioned" = 1 ]; then
         svn ci -m "Initial by newdeb"
