@@ -9,11 +9,14 @@
 
     #SUDO="sudo -uwget"
     SUDO=
-    umask 002
+    umask 000
 
-    if !  WGET=`which wget-wget`;  then WGET=wget;   fi
-    if ! CHMOD=`which wget-chmod`; then CHMOD=chmod; fi
-    if !    RM=`which wget-rm`;    then RM=rm;       fi
+    WGET=wget
+    CHMOD=chmod
+    RM=rm
+    #if !  WGET=`which wget-wget`;  then WGET=wget;   fi
+    #if ! CHMOD=`which wget-chmod`; then CHMOD=chmod; fi
+    #if !    RM=`which wget-rm`;    then RM=rm;       fi
 
     cachedir=@cachedir@
     cachedb=$cachedir/cache.db

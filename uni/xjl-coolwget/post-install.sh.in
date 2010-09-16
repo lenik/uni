@@ -11,22 +11,31 @@ echo "Add user wget"
         -r -U -c "wgetc daemon" \
         wget
 
-echo "Prepare sid tools for wget"
+sid=0
+if [ $sid = 1 ]; then
+    echo "Prepare sid tools for wget"
 
-    if ! WGET=`which wget`; then
-        echo "You haven't installed wget. "
-        exit 1
-    fi
-    CHMOD=`which chmod`
-    RM=`which rm`
+        if ! WGET=`which wget`; then
+            echo "You haven't installed wget. "
+            exit 1
+        fi
+        CHMOD=`which chmod`
+        RM=`which rm`
 
-     WGET_SID=${WGET%/*}/wget-${WGET##*/}
-    CHMOD_SID=${CHMOD%/*}/wget-${CHMOD##*/}
-       RM_SID=${RM%/*}/wget-${RM##*/}
+         WGET_SID=${WGET%/*}/wget-${WGET##*/}
+        CHMOD_SID=${CHMOD%/*}/wget-${CHMOD##*/}
+           RM_SID=${RM%/*}/wget-${RM##*/}
 
-    install -m 6775 -o wget -g wget $WGET  $WGET_SID
-    install -m 6775 -o wget -g wget $CHMOD $CHMOD_SID
-    install -m 6775 -o wget -g wget $RM    $RM_SID
+        install -m 6775 -o wget -g wget $WGET  $WGET_SID
+        install -m 6775 -o wget -g wget $CHMOD $CHMOD_SID
+        install -m 6775 -o wget -g wget $RM    $RM_SID
+
+else
+
+    # FIX: bash couldn't setuid, so just 2777 is okay...
+    install -d -m 2777 -o wget -g wget @cachedir@
+
+fi
 
 # no sudoers...
 # chmod 400 @DESTDIR@@sudoersdir@/wget
