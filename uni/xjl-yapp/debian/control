@@ -1,0 +1,13 @@
+Source: xjl-yapp
+Section: devel
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/xjl-yapp
+
+Package: xjl-yapp
+Architecture: all
+Depends: ${misc:Depends}, perl
+Description: Yet another Perl Parser.
+    (Sorry, the DIRT/0/yapp is lost. )

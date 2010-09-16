@@ -1,0 +1,12 @@
+Source: cls-remotes
+Section: devel
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/cls-remotes
+
+Package: cls-remotes
+Architecture: all
+Depends: ${misc:Depends}, rdesktop, xjl-coolbash
+Description: CLS remote desktops

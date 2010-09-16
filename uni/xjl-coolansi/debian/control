@@ -1,0 +1,12 @@
+Source: xjl-coolansi
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/xjl-coolansi
+
+Package: xjl-coolansi
+Architecture: all
+Depends: ${misc:Depends}, xjl-coolbash
+Description: Lenik's terminal (device) utilities.

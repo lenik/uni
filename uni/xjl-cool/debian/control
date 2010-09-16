@@ -1,0 +1,36 @@
+Source: xjl-cool
+Section: devel
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/xjl-cool
+
+Package: xjl-cool
+Architecture: all
+Depends: ${misc:Depends}, xjl-coolusers,
+    xjl-coolauto,
+    xjl-coolbash,
+    xjl-coolcmd,
+    xjl-cooldeb,
+    xjl-cooldns,
+    xjl-coolemacs,
+    xjl-coolfsutils,
+    xjl-coolgpg,
+    xjl-coolhex,
+    xjl-coolmake,
+    xjl-coolman,
+    xjl-coolmaven,
+    xjl-coolspec,
+    xjl-coolsvn,
+    xjl-coolsync,
+    xjl-coolterm,
+    xjl-cooltruecrypt,
+    xjl-coolutils,
+    xjl-coolwget,
+    xjl-coolvim,
+    xjl-coolz,
+    xjl-libm4,
+    xjl-libmisc,
+    xjl-security
+Description: Lenik's Cool Metapackage.

@@ -1,0 +1,12 @@
+Source: xjl-coolman
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/xjl-coolman
+
+Package: xjl-coolman
+Architecture: all
+Depends: ${misc:Depends}, xjl-coolutils, xjl-coolbash
+Description: Man pages utilities

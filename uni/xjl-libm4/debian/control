@@ -1,0 +1,12 @@
+Source: xjl-libm4
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/xjl-libm4
+
+Package: xjl-libm4
+Architecture: all
+Depends: ${misc:Depends}, m4
+Description: M4X libraries.

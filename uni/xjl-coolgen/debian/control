@@ -1,0 +1,12 @@
+Source: xjl-coolgen
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/xjl-coolgen
+
+Package: xjl-coolgen
+Architecture: all
+Depends: ${misc:Depends}, sed, xjl-coolutils, xjl-coolbash
+Description: A simple cool script generator

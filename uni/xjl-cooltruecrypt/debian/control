@@ -1,0 +1,14 @@
+Source: xjl-cooltruecrypt
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7), xjl-coolwget
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/xjl-cooltruecrypt
+
+Package: xjl-cooltruecrypt
+Architecture: all
+Depends: ${misc:Depends}, upstart, xjl-coolbash
+Description: TrueCrypt integration utilities.
+  This package requires TrueCrypt.
+  Install it from:

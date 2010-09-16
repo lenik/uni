@@ -1,0 +1,12 @@
+Source: xjl-libmisc
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/xjl-libmisc
+
+Package: xjl-libmisc
+Architecture: all
+Depends: ${misc:Depends}
+Description: Misc. libraries.
