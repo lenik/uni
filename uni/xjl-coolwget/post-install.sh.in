@@ -23,8 +23,10 @@ echo "Prepare sid tools for wget"
      WGET_SID=${WGET%/*}/wget-${WGET##*/}
     CHMOD_SID=${CHMOD%/*}/wget-${CHMOD##*/}
        RM_SID=${RM%/*}/wget-${RM##*/}
-    chown wget:wget $WGET_SID $CHMOD_SID $RM_SID
-    chmod 6775      $WGET_SID $CHMOD_SID $RM_SID
+
+    install -m 6775 -o wget -g wget $WGET  $WGET_SID
+    install -m 6775 -o wget -g wget $CHMOD $CHMOD_SID
+    install -m 6775 -o wget -g wget $RM    $RM_SID
 
 # no sudoers...
 # chmod 400 @DESTDIR@@sudoersdir@/wget
