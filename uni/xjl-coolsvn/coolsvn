@@ -27,8 +27,12 @@ case "$cmd" in
         done
         if [ -n "$av" ]; then
             vercomp -i commit "$av" >/dev/null
-            if AUTOVER=`which autover`; then
-                $AUTOVER
+
+            # do autover only if on top of srcdir.
+            if [ -f configure.ac ]; then
+                if AUTOVER=`which autover`; then
+                    $AUTOVER
+                fi
             fi
         fi
         ;;
