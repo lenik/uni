@@ -1,3 +1,9 @@
 #!/bin/sh
 
 # master-file
+
+echo "Stop sshproxy job"
+
+    initctl stop sshproxy
+
+exit 0
