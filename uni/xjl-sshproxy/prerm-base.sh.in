@@ -3,6 +3,6 @@
 # master-file
 
 echo "Remove user sshproxy"
-userdel sshproxy
+    userdel sshproxy
 
 exit 0

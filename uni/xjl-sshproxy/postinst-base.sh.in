@@ -13,7 +13,6 @@ echo "Create user sshproxy"
         -rc "SSH forwarder" \
         sshproxy
 
-echo "Config authorized_keys permission"
+echo "Prepare .ssh dir"
+    install -d -m 0600 -o sshproxy -g sshproxy @sshconfdir@
 
-    install -m 600 -o sshproxy -g sshproxy \
-        @setupdir@/authorized_keys @sshconfdir@/

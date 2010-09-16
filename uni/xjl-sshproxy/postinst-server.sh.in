@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# master-file
+
+echo "Config authorized_keys permission"
+
+    chmod 600               @sshconfdir@/authorized_keys
+    chown sshproxy:sshproxy @sshconfdir@/authorized_keys

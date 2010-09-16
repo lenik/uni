@@ -2,23 +2,38 @@
 include libauto/coolauto.am
 
 setupdir   = ${datadir}/setup/${PACKAGE_NAME}
+sysconfdir = /etc
+initdir    = ${sysconfdir}/init
 homedir    = /home/sshproxy
 sshconfdir = ${homedir}/.ssh
 
-setup_SCRIPTS = \
-    post-install.sh \
-    pre-remove.sh
+sshconf_DATA = \
+	authorized_keys \
+	id_rsa
 
-setup_DATA = \
-	authorized_keys
+setup_SCRIPTS = \
+	postinst-base.sh \
+	postinst-server.sh \
+	postinst-client.sh \
+	prerm-base.sh \
+	prerm-server.sh \
+	prerm-client.sh
 
 EXTRA_DIST = \
-	post-install.sh.in \
-	pre-remove.sh.in
+	postinst-base.sh.in \
+	postinst-server.sh.in \
+	postinst-client.sh.in \
+	prerm-base.sh.in \
+	prerm-server.sh.in \
+	prerm-client.sh.in
 
 CLEANFILES = \
-	post-install.sh \
-	pre-remove.sh
+	postinst-base.sh \
+	postinst-server.sh \
+	postinst-client.sh \
+	prerm-base.sh \
+	prerm-server.sh \
+	prerm-client.sh
 
 %: %.in Makefile
 	$(do_subst) \
