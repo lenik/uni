@@ -22,13 +22,15 @@ dist_bin_SCRIPTS = \
 	svn-update-executable \
 	svn-union \
 	svn-union-install \
+	svnpsl \
 	svnserve-002
 
 dist_man_MANS = \
 	coolsvn.1 \
 	svn-union.1 \
 	svn_union.d.5 \
-	svn-swf.1
+	svn-swf.1 \
+	svnpsl.1
 
 dist_svnunion_DATA = \
 	svn_union.d/README

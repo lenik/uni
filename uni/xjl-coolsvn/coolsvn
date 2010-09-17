@@ -12,11 +12,7 @@ if [ $# = 0 ]; then
     exit
 fi
 
-cmd="$1"
-cmd_opts_0=
-shift
-
-case "$cmd" in
+case "$1" in
     commit|ci)
         av=
         for d in . .. ../..; do
@@ -36,10 +32,11 @@ case "$cmd" in
             fi
         fi
         ;;
+
     unadd)
-        cmd=revert
-        cmd_opts_0="--depth infinity"
+        shift
+        set revert --depth infinity "$@"
         ;;
 esac
 
-$SVN $cmd $cmd_opts_0 "$@"
+$SVN "$@"
