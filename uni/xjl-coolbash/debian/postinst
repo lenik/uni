@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-        /usr/share/xjl-coolbash/postinst /etc
+        /usr/share/setup/xjl-coolbash/postinst
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

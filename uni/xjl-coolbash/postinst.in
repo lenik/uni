@@ -1,14 +1,15 @@
 #!/bin/sh
 
-sysconfdir=$1
-if [ -z "$sysconfdir" ]; then
-    echo sysconfdir is not specified.
-    exit 1
-fi
+ bashrc=@sysconfdir@/bash.bashrc
+ a_init=@sysconfdir@/bash_aliases
+skel_rc=@sysconfdir@/skel/.bashrc
 
-a_init=$sysconfdir/bash_aliases
+echo "Set permission of sudoer files"
+
+    chmod 440 @DESTDIR@@sudoersdir@/keep-hist
+
 echo -n "Add $a_init to start up... "
-    if lineconf -et $sysconfdir/bash.bashrc \
+    if lineconf -et $bashrc \
             COOLBASH::a_init "if [ -f $a_init ]; then . $a_init; fi"
     then
         echo Done
@@ -16,7 +17,6 @@ echo -n "Add $a_init to start up... "
         echo Skipped
     fi
 
-skel_rc=/etc/skel/.bashrc
 echo -n "Remove HIST-overrides from $skel_rc... "
     if [ -f $skel_rc ]; then
         tmp=/tmp/bashrc-repl-$$.$RANDOM

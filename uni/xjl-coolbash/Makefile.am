@@ -1,8 +1,10 @@
+include libauto/coolauto.am
 
-SUBDIRS = lib aliases.d profile.d sudoers.d
+SUBDIRS = lib aliases.d profile.d
 
 sysconfdir = /etc
-shsrcdir = ${bindir}
+sudoersdir = ${sysconfdir}/sudoers.d
+shsrcdir   = ${bindir}
 
 dist_bin_SCRIPTS = \
 	eachdir \
@@ -16,13 +18,19 @@ dist_shsrc_DATA = \
 dist_sysconf_DATA = \
     bash_aliases
 
-dist_pkgdata_SCRIPTS = \
+dist_sudoers_DATA = \
+	sudoers.d/keep-hist
+
+setup_SCRIPTS = \
 	postinst \
 	prerm
 
-install-data-hook:
-	@echo "Please run: $(DESTDIR)$(pkgdatadir)/postinst $(DESTDIR)$(sysconfdir)"
+EXTRA_DIST = \
+	postinst.in \
+	prerm.in
 
-uninstall-hook:
-	@echo "Please run: $(DESTDIR)$(pkgdatadir)/prerm $(DESTDIR)$(sysconfdir)"
+CLEANFILES = ${setup_SCRIPTS}
+
+%: %.in Makefile
+	$(do_subst) <$< >$@
 
