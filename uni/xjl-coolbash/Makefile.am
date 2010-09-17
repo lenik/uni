@@ -2,8 +2,6 @@ include libauto/coolauto.am
 
 SUBDIRS = lib aliases.d profile.d
 
-sysconfdir = /etc
-sudoersdir = ${sysconfdir}/sudoers.d
 shsrcdir   = ${bindir}
 
 dist_bin_SCRIPTS = \
@@ -32,8 +30,5 @@ EXTRA_DIST = \
 CLEANFILES = ${setup_SCRIPTS}
 
 %: %.in Makefile
-	$(do_subst) \
-		-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
-		-e 's,[@]sudoersdir[@],$(sudoersdir),g' \
-		<$< >$@
+	$(do_subst) <$< >$@
 

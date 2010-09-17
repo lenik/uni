@@ -1,9 +1,5 @@
 include libauto/coolauto.am
 
-aliasesdir  = /etc/bash_aliases.d
-profilesdir = /etc/profile.d
-sudoersdir  = /etc/sudoers.d
-
 dist_bin_SCRIPTS = \
     coolvim \
     guesstab \
@@ -12,7 +8,7 @@ dist_bin_SCRIPTS = \
 dist_aliases_DATA = \
     aliases.d/coolvim.sh
 
-dist_profiles_DATA = \
+dist_profile_DATA = \
 	profile.d/coolvim.sh
 
 dist_sudoers_DATA = \
@@ -32,7 +28,4 @@ install-data-hook:
 	cd $(DESTDIR)$(bindir); ln -snf coolvim coolvims
 
 %: %.in Makefile
-	$(do_subst) \
-		-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
-		-e 's,[@]sudoersdir[@],$(sudoersdir),g' \
-		<$< >$@
+	$(do_subst) <$< >$@
