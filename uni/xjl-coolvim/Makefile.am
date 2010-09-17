@@ -1,7 +1,8 @@
+include libauto/coolauto.am
 
-aliasesdir = /etc/bash_aliases.d
+aliasesdir  = /etc/bash_aliases.d
 profilesdir = /etc/profile.d
-sudoersdir = /etc/sudoers.d
+sudoersdir  = /etc/sudoers.d
 
 dist_bin_SCRIPTS = \
     coolvim \
@@ -17,7 +18,16 @@ dist_profiles_DATA = \
 dist_sudoers_DATA = \
 	sudoers.d/env_editor
 
+EXTRA_DATA = \
+	postinst.in \
+	prerm.in
+
+CLEANFILES = \
+	postinst \
+	prerm
+
 install-data-hook:
 	cd $(DESTDIR)$(bindir); ln -snf coolvim coolvims
-	cd $(DESTDIR)$(sudoersdir); \
-		chmod 440 env_editor
+
+%: %.in Makefile
+	$(do_subst) <$< >$@
