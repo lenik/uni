@@ -92,33 +92,37 @@ function main() {
     if [ "$autotools" = 1 ]; then
         autoinit
         vercomp -i minor
+	else
+		verinit
     fi
 
     if [ "$prepost" = 1 ]; then
 
         if [ "$autotools" = 1 ]; then
-            cat <<EOT | tee post-install.sh.in pre-remove.sh.in >/dev/null
+            cat <<EOT | tee preinst.in postinst.in prerm.in postrm.in >/dev/null
 #!/bin/sh
 
 # master-file
 EOT
-            chmod a+x *.sh.in
+            chmod a+x p*.in
 
             cat <<EOT >>Makefile.am
 
 setupdir = \${datadir}/setup/\${PACKAGE_NAME}
 
 setup_SCRIPTS = \\
-    post-install.sh \\
-    pre-remove.sh
+	preinst \\
+    postinst \\
+    prerm \\
+	postrm
 
 EXTRA_DIST = \\
-	post-install.sh.in \\
-	pre-remove.sh.in
+	preinst.in \\
+	postinst.in \\
+	prerm.in \\
+	postrm.in
 
-CLEANFILES = \\
-	post-install.sh \\
-	pre-remove.sh
+CLEANFILES = \${setup_SCRIPTS}
 
 %: %.in Makefile
 	\$(do_subst) <\$< >\$@
@@ -135,37 +139,53 @@ EOT
 
     cd debian
         if [ "$prepost" = 1 ]; then
+            mv preinst.ex  preinst
             mv postinst.ex postinst
             mv prerm.ex    prerm
+            mv postrm.ex   postrm
+
+            line=`grepl "install|.*)" preinst`
+            sedit preinst sh -c "head -$line; \
+                echo \"        /usr/share/setup/$name/preinst\"; \
+                cat"
 
             line=`grepl "configure)" postinst`
             sedit postinst sh -c "head -$line; \
-                echo \"        /usr/share/setup/$name/post-install.sh\"; \
+                echo \"        /usr/share/setup/$name/postinst\"; \
                 cat"
 
-            line=`grepl "deconfigure)" prerm`
+            line=`grepl "remove|.*)" prerm`
             sedit prerm sh -c "head -$line; \
-                echo \"        /usr/share/setup/$name/pre-remove.sh\"; \
+                echo \"        /usr/share/setup/$name/prerm\"; \
                 cat"
 
-            chmod a+x postinst prerm
+            line=`grepl "purge|.*)" postrm`
+            sedit postrm sh -c "head -$line; \
+                echo \"        /usr/share/setup/$name/postrm\"; \
+                cat"
+
+            chmod a+x preinst postinst prerm postrm
         fi
 
         vi control
         cd ..
 
-	_log2 "Add special files under debian/ to svn"
+
+    if [ "$versioned" = 1 ]; then
+		_log2 "Add special files under debian/ to svn"
 		svn add --depth empty debian
 
 		# ignore debian/* by default.
 		svn ps svn:ignore '*' debian
 
 		svn add debian/control
+		svn add debian/preinst
 		svn add debian/postinst
 		svn add debian/prerm
+		svn add debian/postrm
 		svn add debian/docs
 
-    if [ "$versioned" = 1 ]; then
+		_log2 "Commit the initial version"
         svn ci -m "Initial by newdeb"
     fi
 
