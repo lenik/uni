@@ -1,3 +1,4 @@
+include ../libauto/coolauto.am
 
 libbashdir=${libdir}/bash
 

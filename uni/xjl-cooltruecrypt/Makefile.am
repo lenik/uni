@@ -2,16 +2,6 @@ include libauto/coolauto.am
 
 SUBDIRS = test
 
-sbindir = ${prefix}/sbin
-sysconfdir = /etc
-initdir = ${sysconfdir}/init
-setupdir = ${datadir}/setup/${PACKAGE_NAME}
-
-do_subst2 = ${do_subst} \
-		-e 's,[@]sbindir[@],$(sbindir),g' \
-        -e 's,[@]sysconfdir[@],$(sysconfdir),g' \
-        -e 's,[@]initdir[@],$(initdir),g'
-
 dist_bin_SCRIPTS = \
     nextdevid
 
@@ -62,4 +52,4 @@ truecrypt-setup-x86:
 	$(srcdir)/install-truecrypt.sh $@
 
 %: %.in
-	$(do_subst2) <$< >$@
+	$(do_subst) <$< >$@

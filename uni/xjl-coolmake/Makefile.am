@@ -2,8 +2,6 @@
 include libauto/coolauto.am
 
 samplesdir = ${docdir}/samples
-sysconfdir = /etc
-aliasesdir = ${sysconfdir}/bash_aliases.d
 
 dist_bin_SCRIPTS = \
 	make-color \

@@ -1,9 +1,6 @@
 
 include libauto/coolauto.am
 
-sysconfdir = /etc
-aliasesdir = ${sysconfdir}/bash_aliases.d
-
 dist_bin_SCRIPTS = \
     verexec \
 	dir-ver \

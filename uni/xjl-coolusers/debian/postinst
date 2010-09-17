@@ -20,8 +20,7 @@ set -e
 
 case "$1" in
     configure)
-        /usr/share/xjl-coolusers/postinst \
-            /usr/share/xjl-coolusers /etc /etc/sudoers.d
+        /usr/share/setup/xjl-coolusers/postinst
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

@@ -3,9 +3,6 @@ include libauto/coolauto.am
 
 SUBDIRS = lib
 
-sysconfdir = /etc
-aliasesdir = ${sysconfdir}/bash_aliases.d
-
 AM_CPPFLAGS = ${GLIB_CFLAGS}
 vercomp_LDADD = $(GLIB_LIBS)
 

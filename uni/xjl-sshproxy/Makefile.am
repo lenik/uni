@@ -1,9 +1,6 @@
 
 include libauto/coolauto.am
 
-setupdir   = ${datadir}/setup/${PACKAGE_NAME}
-sysconfdir = /etc
-initdir    = ${sysconfdir}/init
 homedir    = /home/sshproxy
 sshconfdir = ${homedir}/.ssh
 

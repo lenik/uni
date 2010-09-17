@@ -1,11 +1,8 @@
-
 include libauto/coolauto.am
 
 SUBDIRS = test
 
-sysconfdir = /etc
 svnuniondir = ${sysconfdir}/svn_union.d
-aliasesdir = ${sysconfdir}/bash_aliases.d
 
 dist_bin_SCRIPTS = \
 	coolsvn \

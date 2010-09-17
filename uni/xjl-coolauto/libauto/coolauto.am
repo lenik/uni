@@ -36,6 +36,7 @@ aliasesdir  = ${sysconfdir}/bash_aliases.d
 bashcompdir = ${sysconfdir}/bash_completion.d
 profiledir  = ${sysconfdir}/profile.d
 sudoersdir  = ${sysconfdir}/sudoers.d
+initdir     = ${sysconfdir}/init
 setupdir    = ${datadir}/setup/${PACKAGE_NAME}
 
 do_subst = sed \
@@ -52,4 +53,5 @@ do_subst = sed \
     -e 's,[@]bashcompdir[@],$(bashcompdir),g' \
     -e 's,[@]profiledir[@],$(profiledir),g' \
     -e 's,[@]sudoersdir[@],$(sudoersdir),g' \
+    -e 's,[@]initdir[@],$(initdir),g'
     -e 's,[@]setupdir[@],$(setupdir),g'

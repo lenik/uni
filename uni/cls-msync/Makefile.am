@@ -1,8 +1,6 @@
 
 include libauto/coolauto.am
 
-setupdir   = ${datadir}/setup/${PACKAGE_NAME}
-sysconfdir = /etc
 msyncdir   = ${sysconfdir}/msync
 
 msync_DATA =

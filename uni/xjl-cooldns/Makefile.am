@@ -1,9 +1,6 @@
 
 include libauto/coolauto.am
 
-setupdir = ${datadir}/setup/${PACKAGE_NAME}
-
-sysconfdir = /etc
 bindconfdir = ${sysconfdir}/bind
 
 bindconf_DATA = \

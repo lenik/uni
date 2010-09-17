@@ -19,8 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/xjl-coolusers/prerm \
-            /usr/share/xjl-coolusers /etc /etc/sudoers.d
+        /usr/share/xjl-coolusers/prerm
     ;;
 
     failed-upgrade)

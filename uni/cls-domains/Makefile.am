@@ -1,7 +1,5 @@
-
 include libauto/coolauto.am
 
-sysconfdir = /etc
 bindconfdir = ${sysconfdir}/bind
 
 setup_SCRIPTS = \

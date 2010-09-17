@@ -1,13 +1,10 @@
 
 include libauto/coolauto.am
 
-sysconfdir = /etc
-sudoersdir = ${sysconfdir}/sudoers.d
-
 dist_bin_SCRIPTS = \
 	setminuid
 
-dist_pkgdata_SCRIPTS = \
+dist_setup_SCRIPTS = \
 	70.sh 700.sh \
 	check-uid.sh  check-gid.sh \
 	remove-uid.sh remove-gid.sh \

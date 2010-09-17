@@ -1,9 +1,6 @@
 
 include libauto/coolauto.am
 
-sysconfdir = /etc
-aliasesdir = $(sysconfdir)/bash_aliases.d
-
 AM_CPPFLAGS = $(GLIB_CFLAGS)
 # CFLAGS = -O0 -g
 
