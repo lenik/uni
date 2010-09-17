@@ -99,8 +99,6 @@ function main() {
                 if lineconf -e $fstab_tc "^$volfile" "$_line"; then
                     _log2 "    Added: $volfile -> $mpoint"
                     ((dirty++))
-                else
-                    _log2 "    lineconf error: $?"
                 fi
             fi
         done <$src

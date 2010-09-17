@@ -87,8 +87,6 @@ function main() {
                 if lineconf -e $passwd_tc "^$profile:" "$_line"; then
                     _log2 "    Added: $profile"
                     ((dirty++))
-                else
-                    _log2 "    lineconf error: $?"
                 fi
             fi
         done <$src
