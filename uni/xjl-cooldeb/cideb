@@ -5,7 +5,7 @@ if svn-isclean; then
     exit 0
 fi
 
-if ! svn ci; then
+if ! coolsvn ci; then
     echo "commit failed. "
     exit 1
 fi
