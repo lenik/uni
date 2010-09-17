@@ -30,8 +30,13 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-sbindir = ${prefix}/sbin
-setupdir = ${datadir}/setup/${PACKAGE_NAME}
+sbindir     = ${prefix}/sbin
+sysconfdir  = /etc
+aliasesdir  = ${sysconfdir}/bash_aliases.d
+bashcompdir = ${sysconfdir}/bash_completion.d
+profiledir  = ${sysconfdir}/profile.d
+sudoersdir  = ${sysconfdir}/sudoers.d
+setupdir    = ${datadir}/setup/${PACKAGE_NAME}
 
 do_subst = sed \
     -e 's/master-file/generated-file, please do not edit/' \
@@ -42,4 +47,9 @@ do_subst = sed \
     -e 's,[@]docdir[@],$(docdir),g' \
     -e 's,[@]datadir[@],$(datadir),g' \
     -e 's,[@]pkgdatadir[@],$(pkgdatadir),g' \
+    -e 's,[@]sysconfdir[@],$(sysconfdir),g' \
+    -e 's,[@]aliasesdir[@],$(aliasesdir),g' \
+    -e 's,[@]bashcompdir[@],$(bashcompdir),g' \
+    -e 's,[@]profiledir[@],$(profiledir),g' \
+    -e 's,[@]sudoersdir[@],$(sudoersdir),g' \
     -e 's,[@]setupdir[@],$(setupdir),g'
