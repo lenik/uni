@@ -14,6 +14,7 @@ dist_bin_SCRIPTS = \
 	svn-backup-sync \
 	svn-isclean \
 	svn-remix \
+	svn-rename \
 	svn-ps \
 	svn-start-rev \
 	svn-show-usedkeywords \
@@ -27,6 +28,7 @@ dist_bin_SCRIPTS = \
 
 dist_man_MANS = \
 	coolsvn.1 \
+	svn-rename.1 \
 	svn-union.1 \
 	svn_union.d.5 \
 	svn-swf.1 \
