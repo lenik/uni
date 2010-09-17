@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-coolcaps
 
 Package: xjl-coolcaps
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libpcap
+Depends: ${shlibs:Depends}, ${misc:Depends}, libpcap0.8
 Description: Specialized packets capture and analyse.
