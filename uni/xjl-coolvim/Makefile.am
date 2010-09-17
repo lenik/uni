@@ -18,13 +18,15 @@ dist_profiles_DATA = \
 dist_sudoers_DATA = \
 	sudoers.d/env_editor
 
+setup_SCRIPTS = \
+	postinst \
+	prerm
+
 EXTRA_DATA = \
 	postinst.in \
 	prerm.in
 
-CLEANFILES = \
-	postinst \
-	prerm
+CLEANFILES = ${setup_SCRIPTS}
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); ln -snf coolvim coolvims

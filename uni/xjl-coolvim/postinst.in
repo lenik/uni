@@ -1,3 +1,5 @@
 #!/bin/sh
 
+# master-file
+
 chmod 440 @DESTDIR@@sudoersdir@/env_editor
