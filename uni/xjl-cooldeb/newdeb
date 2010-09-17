@@ -99,28 +99,22 @@ function main() {
     if [ "$prepost" = 1 ]; then
 
         if [ "$autotools" = 1 ]; then
-            cat <<EOT | tee preinst.in postinst.in prerm.in postrm.in >/dev/null
-#!/bin/sh
-
-# master-file
-EOT
+			for pf in postinst.in prerm.in; do
+				echo "#!/bin/sh" >$pf
+				echo "# master-file" >>$pf
+				echo "" >>$pf
+				echo "echo \"$name - $pf ...\"" >>$pf
+			done
             chmod a+x p*.in
 
             cat <<EOT >>Makefile.am
-
-setupdir = \${datadir}/setup/\${PACKAGE_NAME}
-
 setup_SCRIPTS = \\
-	preinst \\
     postinst \\
-    prerm \\
-	postrm
+    prerm
 
 EXTRA_DIST = \\
-	preinst.in \\
 	postinst.in \\
-	prerm.in \\
-	postrm.in
+	prerm.in
 
 CLEANFILES = \${setup_SCRIPTS}
 
@@ -139,15 +133,8 @@ EOT
 
     cd debian
         if [ "$prepost" = 1 ]; then
-            mv preinst.ex  preinst
             mv postinst.ex postinst
             mv prerm.ex    prerm
-            mv postrm.ex   postrm
-
-            line=`grepl "install|.*)" preinst`
-            sedit preinst sh -c "head -$line; \
-                echo \"        /usr/share/setup/$name/preinst\"; \
-                cat"
 
             line=`grepl "configure)" postinst`
             sedit postinst sh -c "head -$line; \
@@ -159,12 +146,7 @@ EOT
                 echo \"        /usr/share/setup/$name/prerm\"; \
                 cat"
 
-            line=`grepl "purge|.*)" postrm`
-            sedit postrm sh -c "head -$line; \
-                echo \"        /usr/share/setup/$name/postrm\"; \
-                cat"
-
-            chmod a+x preinst postinst prerm postrm
+            chmod a+x postinst prerm
         fi
 
         vi control
@@ -179,10 +161,8 @@ EOT
 		svn ps svn:ignore '*' debian
 
 		svn add debian/control
-		svn add debian/preinst
 		svn add debian/postinst
 		svn add debian/prerm
-		svn add debian/postrm
 		svn add debian/docs
 
 		_log2 "Commit the initial version"
