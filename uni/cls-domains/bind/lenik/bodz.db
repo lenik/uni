@@ -6,7 +6,11 @@ ns2                     A       67.202.17.183
 
 1                       A       67.202.17.183
 
+@                       CNAME   www
+deb                     CNAME   lenik.dyndns.org.
+lenik                   CNAME   1
 sshproxy                CNAME   1
 svn                     CNAME   1
+uni                     CNAME   1
 www                     CNAME   1
 xml                     CNAME   1
