@@ -5,16 +5,16 @@ include libauto/coolauto.am
 setupdir = ${datadir}/setup/${PACKAGE_NAME}
 
 setup_SCRIPTS = \
-    post-install.sh \
-    pre-remove.sh
+    postinst \
+    prerm
 
 EXTRA_DIST = \
-	post-install.sh.in \
-	pre-remove.sh.in
+	postinst.in \
+	prerm.in
 
 CLEANFILES = \
-	post-install.sh \
-	pre-remove.sh
+	postinst \
+	prerm
 
 %: %.in Makefile
 	$(do_subst) <$< >$@

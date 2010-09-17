@@ -37,8 +37,8 @@ init_DATA = \
 
 setup_SCRIPTS = \
 	truecrypt-setup-x86 \
-	post-install.sh \
-	pre-remove.sh
+	postinst \
+	prerm
 
 EXTRA_DIST = \
 	test.sh \
@@ -46,16 +46,16 @@ EXTRA_DIST = \
 	mountall.tc.in \
 	fstab-install.tc.in \
 	passwd-install.tc.in \
-	post-install.sh.in \
-	pre-remove.sh.in
+	postinst.in \
+	prerm.in
 
 CLEANFILES = \
 	mount.tc \
 	mountall.tc \
 	fstab-install.tc \
 	passwd-install.tc \
-	post-install.sh \
-	pre-remove.sh \
+	postinst \
+	prerm \
 	truecrypt-setup-x86
 
 truecrypt-setup-x86:

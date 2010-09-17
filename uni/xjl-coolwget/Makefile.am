@@ -24,18 +24,18 @@ dist_man_MANS = \
 	wgetc-url.1
 
 setup_SCRIPTS = \
-	post-install.sh \
-	pre-remove.sh
+	postinst \
+	prerm
 
 EXTRA_DIST = \
-	post-install.sh.in \
-	pre-remove.sh.in \
+	postinst.in \
+	prerm.in \
 	wgetc.in \
 	wgetc-url.in
 
 CLEANFILES = \
-	post-install.sh \
-	pre-remove.sh \
+	postinst \
+	prerm \
 	wgetc \
 	wgetc-url
 

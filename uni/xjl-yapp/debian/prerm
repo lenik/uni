@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-yapp/pre-remove.sh
+        /usr/share/setup/xjl-yapp/prerm
     ;;
 
     failed-upgrade)

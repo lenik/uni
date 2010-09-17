@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/xjl-coolusers/pre-remove.sh \
+        /usr/share/xjl-coolusers/prerm \
             /usr/share/xjl-coolusers /etc /etc/sudoers.d
     ;;
 

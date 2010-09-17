@@ -2,8 +2,8 @@
 include libauto/coolauto.am
 
 setup_SCRIPTS = \
-    post-install.sh \
-    pre-remove.sh
+    postinst \
+    prerm
 
 setup_DATA = \
 	fstab.tc \
@@ -12,12 +12,12 @@ setup_DATA = \
 EXTRA_DIST = \
     fstab.tc \
     passwd.tc \
-    post-install.sh.in \
-    pre-remove.sh.in
+    postinst.in \
+    prerm.in
 
 CLEANFILES = \
-    post-install.sh \
-    pre-remove.sh
+    postinst \
+    prerm
 
 %: %.in Makefile
 	$(do_subst) <$< >$@

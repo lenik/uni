@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-        /usr/share/setup/cls-lams/post-install.sh
+        /usr/share/setup/cls-lams/postinst
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

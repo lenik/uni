@@ -5,17 +5,17 @@ sysconfdir = /etc
 bindconfdir = ${sysconfdir}/bind
 
 setup_SCRIPTS = \
-    post-install.sh \
-    pre-remove.sh
+    postinst \
+    prerm
 
 EXTRA_DIST = \
 	bind \
-	post-install.sh.in \
-	pre-remove.sh.in
+	postinst.in \
+	prerm.in
 
 CLEANFILES = \
-	post-install.sh \
-	pre-remove.sh
+	postinst \
+	prerm
 
 %: %.in Makefile
 	$(do_subst) \

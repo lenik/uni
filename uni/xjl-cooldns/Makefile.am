@@ -10,16 +10,16 @@ bindconf_DATA = \
 	bind/cooldns.options
 
 setup_SCRIPTS = \
-    post-install.sh \
-    pre-remove.sh
+    postinst \
+    prerm
 
 EXTRA_DIST = \
-	post-install.sh.in \
-	pre-remove.sh.in
+	postinst.in \
+	prerm.in
 
 CLEANFILES = \
-	post-install.sh \
-	pre-remove.sh
+	postinst \
+	prerm
 
 %: %.in Makefile
 	$(do_subst) \

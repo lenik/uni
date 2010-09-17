@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-coolansi/pre-remove.sh
+        /usr/share/setup/xjl-coolansi/prerm
     ;;
 
     failed-upgrade)

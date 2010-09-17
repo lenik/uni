@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-        /usr/share/setup/xjl-startup/post-install.sh
+        /usr/share/setup/xjl-startup/postinst
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

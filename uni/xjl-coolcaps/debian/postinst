@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-        /usr/share/setup/xjl-coolcaps/post-install.sh
+        /usr/share/setup/xjl-coolcaps/postinst
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

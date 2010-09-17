@@ -11,17 +11,17 @@ man_MANS = \
 	ansifilter.1
 
 setup_SCRIPTS = \
-    post-install.sh \
-    pre-remove.sh
+    postinst \
+    prerm
 
 EXTRA_DIST = \
-	post-install.sh.in \
-	pre-remove.sh.in \
+	postinst.in \
+	prerm.in \
 	get-ansifilter
 
 CLEANFILES = \
-	post-install.sh \
-	pre-remove.sh \
+	postinst \
+	prerm \
 	ansifilter \
 	ansifilter.1
 

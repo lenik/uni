@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-        /usr/share/setup/xjl-coolcmd/post-install.sh
+        /usr/share/setup/xjl-coolcmd/postinst
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
