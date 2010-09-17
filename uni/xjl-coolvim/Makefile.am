@@ -32,4 +32,7 @@ install-data-hook:
 	cd $(DESTDIR)$(bindir); ln -snf coolvim coolvims
 
 %: %.in Makefile
-	$(do_subst) <$< >$@
+	$(do_subst) \
+		-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
+		-e 's,[@]sudoersdir[@],$(sudoersdir),g' \
+		<$< >$@
