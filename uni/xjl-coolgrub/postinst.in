@@ -5,8 +5,9 @@
 grub_def=/etc/default/grub
 
 echo "Config $grub_def"
-lineconf $grub_def GRUB_INIT_TUNE \
-    "GRUB_INIT_TUNE=\"2000 400 4 0 1 500 4 0 1 600 4 0 1 800 6\""
+
+    lineconf $grub_def GRUB_INIT_TUNE \
+        "GRUB_INIT_TUNE=\"2000 400 4 0 1 500 4 0 1 600 4 0 1 800 6\""
 
 echo "You should apply grub config by: "
 echo "    grub-setup /sda"

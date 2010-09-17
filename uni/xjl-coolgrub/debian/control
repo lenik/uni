@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-coolgrub
 
 Package: xjl-coolgrub
 Architecture: all
-Depends: ${misc:Depends}
+Depends: ${misc:Depends}, grub2, xjl-coolutils
 Description: Lenik's grub preferences.
