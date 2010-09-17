@@ -1,8 +1,11 @@
 
 include libauto/coolauto.am
 
+setupdir   = ${datadir}/setup/${PACKAGE_NAME}
+sysconfdir = /etc
+msyncdir   = ${sysconfdir}/msync
 
-setupdir = ${datadir}/setup/${PACKAGE_NAME}
+msync_DATA =
 
 setup_SCRIPTS = \
 	preinst \
@@ -14,9 +17,17 @@ EXTRA_DIST = \
 	preinst.in \
 	postinst.in \
 	prerm.in \
-	postrm.in
+	postrm.in \
+	msync
 
 CLEANFILES = ${setup_SCRIPTS}
+
+dist-hook:
+	find ${distdir}/msync -type d -name .svn -exec rm -fR {} \; -prune
+
+install-data-hook:
+	cp -RT ${srcdir}/msync ${DESTDIR}${msyncdir}
+	find ${DESTDIR}${msyncdir} -type d -name .svn -exec rm -fR {} \; -prune
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
