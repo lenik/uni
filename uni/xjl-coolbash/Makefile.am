@@ -32,5 +32,8 @@ EXTRA_DIST = \
 CLEANFILES = ${setup_SCRIPTS}
 
 %: %.in Makefile
-	$(do_subst) <$< >$@
+	$(do_subst) \
+		-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
+		-e 's,[@]sudoersdir[@],$(sudoersdir),g' \
+		<$< >$@
 
