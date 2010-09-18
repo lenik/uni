@@ -1,9 +1,12 @@
 #!/bin/bash
 # master-file
+    . shlib
+
     RCSID='$Id: bash.sh -1   $'
     short_opts="D:t:fhqv"
     long_opts="define,template,force,help,quiet,verbose,version"
-    . /usr/lib/bash/cliboot
+
+    import cliboot
 
     force=
     template=
