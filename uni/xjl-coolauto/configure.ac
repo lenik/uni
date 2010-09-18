@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([xjl-coolauto], [0.1.18], [xjl@99jsj.com])
+AC_INIT([xjl-coolauto], [0.1.19], [xjl@99jsj.com])
 AM_INIT_AUTOMAKE
 
 # Checks for programs.

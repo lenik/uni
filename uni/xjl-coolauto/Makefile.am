@@ -13,6 +13,7 @@ dist_aliases_DATA = \
     aliases.d/autotools.sh
 
 pkgdata_DATA = \
+    autoconf.template \
     automake.template
 
 CLEANFILES = autoinit    autoreconf2    automake.template
