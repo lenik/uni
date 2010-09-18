@@ -1,0 +1,6 @@
+
+for envf in ../../.env ../.env .env; do
+    if [ -f $envf ]; then
+        . $envf
+    fi
+done
