@@ -1,0 +1,12 @@
+Source: xjl-configutils
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/xjl-configutils
+
+Package: xjl-configutils
+Architecture: all
+Depends: xjl-coolbash
+Description: Config helper utilities for installers
