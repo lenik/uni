@@ -5,11 +5,14 @@ SUBDIRS = aliases.d profile.d
 shsrcdir   = ${bindir}
 libbashdir = ${libdir}/bash
 
+bin_PROGRAMS = \
+	echoln \
+	echoli
+
 dist_bin_SCRIPTS = \
 	eachdir \
 	swapox \
 	testox \
-	echo-args \
 	orig
 
 dist_shsrc_DATA = \

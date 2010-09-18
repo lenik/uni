@@ -1,13 +1,14 @@
 #!/bin/bash
     RCSID='$Id: bash.sh 1432 2010-08-25 10:23:46Z lenik $'
-    short_opts="C:g:x:hqv"
-    long_opts="chdir,glob,exclude,help,quiet,verbose,version"
+    short_opts="f:C:g:x:hqv"
+    long_opts="list-file,chdir,glob,exclude,help,quiet,verbose,version"
     . /usr/lib/bash/cliboot
 
     LOGLEVEL=0
 
     chdir=
     glob='*'
+    listfile=
     exclude=
 
 function version() {
@@ -23,6 +24,8 @@ function help() {
     echo "    $0 [OPTION] [--] COMMAND ARGS"
     echo
     echo "Options: "
+    echo "    -f, --list-file=FILE    read dirs from given file, instead of *"
+    echo "                            if FILE is '-', then read from stdin."
     echo "    -C, --chdir=DIR         chdir to DIR before enum dirs"
     echo "    -g, --glob=GLOB         glob pattern to list dirs (default *)"
     echo "    -x, --exclude=PATTERN   simple regex to exclude"
@@ -34,6 +37,8 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -f|--list-file)
+            listfile="$2";;
         -C|--chdir)
             chdir="$2";;
         -g|--glob)
@@ -61,8 +66,14 @@ function main() {
         fi
     fi
 
-    listfile=/tmp/eachdir-$$-$RANDOM
-    ls -d1 $glob/ >$listfile
+    if [ -z "$listfile" ]; then
+        doclean=1
+        listfile=/tmp/eachdir-$$-$RANDOM
+        ls -d1 $glob/ >$listfile
+    elif [ "$listfile" = '-' ]; then
+        listfile=/dev/stdin
+    fi
+
     while read dir; do
         _log1 "$dir: "
         if ! cd $dir; then
@@ -83,7 +94,9 @@ function main() {
         cd ..
     done <$listfile
 
-    rm -f $listfile
+    if [ "$doclean" = 1 ]; then
+        rm -f $listfile
+    fi
 }
 
 boot "$@"
