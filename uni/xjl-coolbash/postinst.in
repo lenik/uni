@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export SHLIB=@libbashdir@
+
  bashrc=@sysconfdir@/bash.bashrc
  a_init=@sysconfdir@/bash_aliases
 skel_rc=@sysconfdir@/skel/.bashrc

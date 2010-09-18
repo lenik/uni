@@ -10,7 +10,8 @@ dist_bin_SCRIPTS = \
 	swapox \
 	testox \
 	echo-args \
-	orig
+	orig \
+	lineconf
 
 dist_shsrc_DATA = \
 	cd-ls \
@@ -43,5 +44,7 @@ install-data-hook:
 	find ${DESTDIR}${libbashdir} -type d -name .svn -exec rm -fR {} \; -prune
 
 %: %.in Makefile
-	$(do_subst) <$< >$@
+	$(do_subst) \
+		-e 's,[@]libbashdir[@],$(libbashdir),g' \
+		<$< >$@
 

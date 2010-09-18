@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-coolbash
 
 Package: xjl-coolbash
 Architecture: all
-Depends: ${misc:Depends}, bash, xjl-coolutils
+Depends: ${misc:Depends}, bash
 Description: Cool bash utilities by Lenik.
