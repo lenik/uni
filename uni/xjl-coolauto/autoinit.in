@@ -2,18 +2,53 @@
 
 # master-file
 
-PACKAGE_NAME=${PWD##*/}
+    RCSID='$Id: bash.sh 1432 2010-08-25 10:23:46Z lenik $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+    . /usr/lib/bash/cliboot
 
-for envf in ../../.env ../.env .env; do
-    if [ -f $envf ]; then
-        . $envf
+    PACKAGE_NAME=${PWD##*/}
+
+    if [ -z "$BUG_EMAIL" ]; then
+        # for future replacement.
+        BUG_EMAIL=xjl-bug@99jsj.com
     fi
-done
 
-if [ -z "$BUG_EMAIL" ]; then
-    # for future replacement.
-    BUG_EMAIL=xjl-bug@99jsj.com
-fi
+    import overrides
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Bash_simple_cli_program_template"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
 
 function do_subst() {
     local template="$1"
@@ -31,14 +66,19 @@ function do_subst() {
         <$template >$output
 }
 
-do_subst "@pkgdatadir@/autoconf.template" configure.ac
-do_subst "@pkgdatadir@/automake.template" Makefile.am
+function main() {
+    do_subst "@pkgdatadir@/autoconf.template" configure.ac
+    do_subst "@pkgdatadir@/automake.template" Makefile.am
 
-# ln -snf @pkgdatadir@/inc/...
+    # ln -snf @pkgdatadir@/inc/...
 
-touch NEWS README AUTHORS ChangeLog
+    touch NEWS README AUTHORS ChangeLog
 
-# initialize VERSION.av
-if VERINIT=`which verinit`; then
-    $VERINIT
-fi
+    # initialize VERSION.av
+    if VERINIT=`which verinit`; then
+        $VERINIT
+    fi
+}
+
+boot "$@"
+

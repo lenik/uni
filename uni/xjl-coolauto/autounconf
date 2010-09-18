@@ -104,8 +104,3 @@ if [ -n "$subdirs" ]; then
     done
 fi
 
-basename="${PWD##*/}"
-if [ -d "debian/$basename" ]; then
-    echo "Remove debuild tmp dir: debian/$basename"
-    $RM -R "debian/$basename"
-fi

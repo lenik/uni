@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-coolauto
 
 Package: xjl-coolauto
 Architecture: all
-Depends: ${misc:Depends} xjl-autover
+Depends: xjl-autover, xjl-coolbash
 Description: Auto-tools helper and templates
