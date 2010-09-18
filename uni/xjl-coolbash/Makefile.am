@@ -1,13 +1,16 @@
 include libauto/coolauto.am
 
-SUBDIRS = lib aliases.d profile.d
+SUBDIRS = aliases.d profile.d
 
 shsrcdir   = ${bindir}
+libbashdir = ${libdir}/bash
 
 dist_bin_SCRIPTS = \
 	eachdir \
 	swapox \
-	testox
+	testox \
+	echo-args \
+	orig
 
 dist_shsrc_DATA = \
 	cd-ls \
@@ -19,15 +22,25 @@ dist_sysconf_DATA = \
 dist_sudoers_DATA = \
 	sudoers.d/keep-hist
 
+libbash_DATA =
+
 setup_SCRIPTS = \
 	postinst \
 	prerm
 
 EXTRA_DIST = \
 	postinst.in \
-	prerm.in
+	prerm.in \
+	lib
 
 CLEANFILES = ${setup_SCRIPTS}
+
+dist-hook:
+	find ${distdir} -type d -name .svn -exec rm -fR {} \; -prune
+
+install-data-hook:
+	cp -RT ${srcdir}/lib ${DESTDIR}${libbashdir}
+	find ${DESTDIR}${libbashdir} -type d -name .svn -exec rm -fR {} \; -prune
 
 %: %.in Makefile
 	$(do_subst) <$< >$@

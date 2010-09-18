@@ -99,5 +99,8 @@ function dump() {
     done
 }
 
-. /usr/lib/bash/log
-. /usr/lib/bash/rcs
+. /usr/lib/bash/import
+
+import load
+import log
+import rcs

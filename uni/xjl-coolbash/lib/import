@@ -1,0 +1,33 @@
+function import() {
+    local name="${1//:://}"
+    shift
+    if [ -z "$name" ]; then
+        echo "module name expected to import. " >&2
+        exit 127
+    fi
+
+    local shlib="$SHLIB:$PATH"
+    while [ -n "$shlib" ]; do
+        local _sl="${shlib%%:*}"
+        if [ "$_sl" = "$shlib" ]; then
+            shlib=
+        else
+            shlib="${shlib#*:}"
+        fi
+
+        _sl="${_sl%/}"
+        if [ -z "$_sl" ]; then continue; fi
+
+        # echo "search: $_sl/$name"
+        if [ -f "$_sl/$name" ]; then
+            if ! . "$_sl/$name" "$@"; then
+                echo "failed to import ($_sl/) $name, exit = $?" >&2
+                exit 127
+            fi
+            return 0
+        fi
+    done
+
+    echo "module isn't existed: $name" >&2
+    exit 127
+}
