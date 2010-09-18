@@ -4,12 +4,12 @@
     long_opts="autotools,prepost,svn,help,quiet,verbose,version"
     . /usr/lib/bash/cliboot
 
-	import overrides
+    import overrides
 
     autotools=
     prepost=
     versioned=
-	force=
+    force=
 
 function version() {
     parse_id "$RCSID"
@@ -27,7 +27,7 @@ function help() {
     echo "    -a, --autotools         by means of autotools"
     echo "    -p, --prepost           with post-install/pre-remove support"
     echo "    -s, --svn               do initial commit with svn"
-	echo "    -f, --force			  force to overwrite existing dir"
+    echo "    -f, --force             force to overwrite existing dir"
     echo "    -q, --quiet             repeat to get less info"
     echo "    -v, --verbose           repeat to get more info"
     echo "    -h, --help              show this help page"
@@ -42,8 +42,8 @@ function setopt() {
             prepost=1;;
         -s|--svn)
             versioned=1;;
-		-f|--force)
-			force=1;;
+        -f|--force)
+            force=1;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -88,19 +88,19 @@ function main() {
     if [ "$autotools" = 1 ]; then
         autoinit
         vercomp -i minor
-	else
-		verinit
+    else
+        verinit
     fi
 
     if [ "$prepost" = 1 ]; then
 
         if [ "$autotools" = 1 ]; then
-			for pf in postinst.in prerm.in; do
-				echo "#!/bin/sh" >$pf
-				echo "# master-file" >>$pf
-				echo "" >>$pf
-				echo "echo \"$name - $pf ...\"" >>$pf
-			done
+            for pf in postinst.in prerm.in; do
+                echo "#!/bin/sh" >$pf
+                echo "# master-file" >>$pf
+                echo "" >>$pf
+                echo "echo \"$name - $pf ...\"" >>$pf
+            done
             chmod a+x p*.in
 
             cat <<EOT >>Makefile.am
@@ -109,13 +109,13 @@ setup_SCRIPTS = \\
     prerm
 
 EXTRA_DIST = \\
-	postinst.in \\
-	prerm.in
+    postinst.in \\
+    prerm.in
 
 CLEANFILES = \${setup_SCRIPTS}
 
 %: %.in Makefile
-	\$(do_subst) <\$< >\$@
+    \$(do_subst) <\$< >\$@
 EOT
 
         fi #autotools
@@ -150,18 +150,18 @@ EOT
 
 
     if [ "$versioned" = 1 ]; then
-		_log2 "Add special files under debian/ to svn"
-		svn add --depth empty debian
+        _log2 "Add special files under debian/ to svn"
+        svn add --depth empty debian
 
-		# ignore debian/* by default.
-		svn ps svn:ignore '*' debian
+        # ignore debian/* by default.
+        svn ps svn:ignore '*' debian
 
-		svn add debian/control
-		svn add debian/postinst
-		svn add debian/prerm
-		svn add debian/docs
+        svn add debian/control
+        svn add debian/postinst
+        svn add debian/prerm
+        svn add debian/docs
 
-		_log2 "Commit the initial version"
+        _log2 "Commit the initial version"
         svn ci -m "Initial by newdeb"
     fi
 
