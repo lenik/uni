@@ -9,6 +9,7 @@ dist_bin_SCRIPTS = \
 	dwhich \
 	newdeb \
 	deb-redist \
+	deb-clean \
 	cideb \
 	apt-get-reinstall2
 

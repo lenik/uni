@@ -4,11 +4,7 @@
     long_opts="help,quiet,verbose,version"
     . /usr/lib/bash/cliboot
 
-    for envf in ../../.env ../.env .env; do
-        if [ -f $envf ]; then
-            . $envf
-        fi
-    done
+    import overrides
 
 function version() {
     parse_id "$RCSID"
@@ -89,11 +85,8 @@ function main() {
     dh_debname | while read debname; do
         echo "Dput $debname..."
 
-        debfile=../$debname
-        debfullname="${debfile%.deb}"
-        debnover="${debfullname%_*}"
-
-        for ch in "$debnover"_*.changes; do
+        chprefix="../${debname%_*}"
+        for ch in "$chprefix"_*.changes; do
             echo "Commit $ch"
 
             # swapox: remove "override entry" in stderr.

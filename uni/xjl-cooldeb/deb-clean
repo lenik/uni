@@ -1,0 +1,65 @@
+#!/bin/bash
+    RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+    . /usr/lib/bash/cliboot
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Clean unnecessary debian/ files"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] PACKAGE-DIR"
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+
+    for f in debian/tmp debian/*.log debian/*.substvars; do
+        if [ -e "$f" ]; then
+            echo "Remove debuild generated: $f"
+            rm -fR "$f"
+        fi
+    done
+
+    # xjl-cooldeb_0.1.5-1_all.deb
+    dh_debname | while read debname; do
+        stem_ver="${debname%_*}"
+        stem="${stem_ver%_*}"
+        if [ -z "$stem" ]; then
+            continue # unexpected.
+        fi
+        if [ -d "debian/$stem" ]; then
+            echo "Remove debuild tmp dir: debian/$stem"
+            rm -f -R "debian/$stem"
+        fi
+    done
+
+}
+
+boot "$@"
