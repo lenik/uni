@@ -11,14 +11,10 @@ bin_PROGRAMS = \
 dist_bin_SCRIPTS = \
     which2 \
     whichother \
-    sedit \
-    headrm \
-    grepl \
 	hm \
 	collect-copy
 
 dist_man_MANS = \
-    sedit.1 \
 	uc.1 \
 	hm.1 \
 	collect-copy.1

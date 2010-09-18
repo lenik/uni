@@ -1,0 +1,52 @@
+#!/bin/bash
+
+index=1
+GREP=grep
+
+self_base="${0##*/}"
+self_nol="${self_base%l}"
+case "$self_nol" in
+    grep)
+        GREP=grep;;
+    egrep)
+        GREP=egrep;;
+    fgrep)
+        GREP=fgrep;;
+esac
+
+while getopts "i:EFGPh" opt; do
+    case -$opt in
+        -E|--extended-regexp)
+            GREP="grep -E";;
+        -F|--fixed-strings)
+            GREP="grep -F";;
+        -G|--basic-regexp)
+            GREP="grep -G";;
+        -P|--perl-regexp)
+            GREP="grep -P";;
+        -i|--index)
+            index="$OPTARG";;
+        -h|--help)
+            echo "grepl [-EFGP] [-i index] [--] PATTERN FILE"
+            exit 0;;
+        *)
+            echo "invalid option: $opt" >&2
+            exit 1
+            ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+if [ $# = 0 ]; then
+    echo "No pattern specified. "
+    exit 1
+fi
+
+line=`$GREP -bnm$index "$@" | headrm -$((index-1)) | cut -d: -f1`
+
+if [ -n "$line" ]; then
+    echo $line
+    exit 0
+else
+    exit 1
+fi
