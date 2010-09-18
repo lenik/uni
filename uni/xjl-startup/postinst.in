@@ -4,7 +4,6 @@
 
 bodz_list=/etc/apt/sources.list.d/bodz.list
 
-lineconf
-    http://deb.bodz.net $bodz_list \
+lineconf $bodz_list http://deb.bodz.net \
     "deb     http://deb.bodz.net:1080 lucid/" \
     "deb-src http://deb.bodz.net:1080 lucid/"
