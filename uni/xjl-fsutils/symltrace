@@ -1,0 +1,69 @@
+#!/bin/bash
+    RCSID='$Id: bash.sh 1432 2010-08-25 10:23:46Z lenik $'
+    short_opts="shqv"
+    long_opts="self,help,quiet,verbose,version"
+    . /usr/lib/bash/cliboot
+
+    self=0
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Trace symlinks"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -s, --self              list self, too"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -s|--self)
+            self=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    index=0
+    for f in "$@"; do
+        if [ $index != 0 ]; then
+            echo
+        fi
+        ((index++))
+
+        if [ "$self" = 1 ]; then
+            echo "$f"
+        fi
+        while t=`readlink $f`; do
+            if [ "$t" = "$f" ]; then
+                # non-symlink, or DEAD-LOOP detected.
+                break
+            fi
+
+            echo "$t"
+            f="$t"
+        done
+    done
+}
+
+boot "$@"

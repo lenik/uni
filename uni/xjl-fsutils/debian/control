@@ -1,12 +1,12 @@
-Source: xjl-coolfsutils
+Source: xjl-fsutils
 Section: devel
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolfsutils
+Homepage: http://uni.bodz.net/xjl-fsutils
 
-Package: xjl-coolfsutils
+Package: xjl-fsutils
 Architecture: all
 Depends: ${misc:Depends}, xjl-coolutils, mount
 Description: VEX/alt mounts, etc.

@@ -19,7 +19,6 @@ dist_bin_SCRIPTS = \
     headrm \
     grepl \
 	hm \
-	lineconf \
 	enfile \
 	symflatten \
 	symfl \

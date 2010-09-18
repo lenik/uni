@@ -1,6 +1,6 @@
 .\"
 .\"
-.\" symfl.man - symfl manpage
+.\" symltrace.man - symltrace manpage
 .\" Copyright (C) 2010 Lenik (谢继雷)
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -16,23 +16,21 @@
 .\" along with this program; if not, write to the Free Software
 .\" Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 .\"
-.TH SYMFL 1
+.TH SYMLTRACE 1
 .SH NAME
-symfl \- Flatten symlinks by batch
+symltrace \- Trace followings of symbolic links
 .SH SYNOPSIS
-.B symfl
-[FIND-ARGS]
+.B symltrace
+[OPTIONS] FILE
 .SH DESCRIPTION
-Find symlinks using find utility, with FIND-ARGS if user specified.
-
-Then, call symflatten on each found symlink to flatten.
+Trace followings of symbolic links.
 
 .SH EXAMPLES
 
 .B
-symfl -name 'a*'
+symltrace -s /usr/bin/vi
 .PP
-symflatten all symlinks starts with 'a'
+Print the trace of followings of /usr/bin/vi.
 
 .SH ENVIRONMENT
 
