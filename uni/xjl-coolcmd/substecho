@@ -74,16 +74,23 @@ build_re(\%subst, \%subst_re);
 #print Dumper(\%subst_re);
 
 my $index = 0;
+my $ch = 0;
 
 for (@ARGV) {
     print ' ' if $index++;
 
+    my $orig = $_;
     for my $key (keys %subst) {
         my $val = $subst{$key};
         my $re = $subst_re{$key};
         s/$re/$val/g;
     }
     print;
+
+    $ch++ if $orig ne $_;
 }
 
 print "\n";
+
+# return 1 if no change.
+return $ch == 0;
