@@ -105,7 +105,7 @@ function main() {
         _DefVar___FILE__="$out"
         if [ -e "$out" ] && [ "$force" != 1 ]; then
             echo "File already existed: $out"
-            continue
+            exit 1
         fi
     fi
 
@@ -142,7 +142,7 @@ function main() {
                 findname="${findname:0:${#findname}-1}"
             done
             if [ "$found" != 1 ]; then
-                read -p "Enter a value for attribute $qname: " val
+                read -p "Enter a value for attribute $qname: " val </dev/tty
             fi
         fi
 
@@ -154,11 +154,15 @@ function main() {
 
         sed_args[$sed_i]="s/@$qname@/$esc/g"
         ((sed_i++))
-    done < <(egrep '@[a-zA-Z0-9_-]+@' "$tmplf" | sort -u)
+    done < <(egrep -o '@[a-zA-Z0-9_-]+@' "$tmplf" | sort -u)
 
     echo "Write $f..."
     sed "${sed_args[@]}" <"$tmplf" >"$out"
-    chmod --reference "$tmplf" "$f"
+
+    if [ "$out" != /dev/stdout ]; then
+        chmod --reference "$tmplf" "$out"
+    fi
+
     return 0
 }
 

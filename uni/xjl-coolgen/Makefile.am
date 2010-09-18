@@ -6,9 +6,11 @@ bin_SCRIPTS = \
 dist_man_MANS = \
     new.1
 
+newtmpl_DATA =
+
 EXTRA_DIST = \
 	new.in \
-	newtempl.d
+	newtmpl.d
 
 CLEANFILES = \
 	new
