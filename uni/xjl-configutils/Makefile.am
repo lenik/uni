@@ -1,5 +1,12 @@
 include libauto/coolauto.am
 
+dist_bin_SCRIPTS = \
+	sedit \
+	lineconf
+
+dist_man_MANS = \
+	sedit.1
+
 setup_SCRIPTS = \
     postinst \
     prerm

@@ -10,8 +10,7 @@ dist_bin_SCRIPTS = \
 	swapox \
 	testox \
 	echo-args \
-	orig \
-	lineconf
+	orig
 
 dist_shsrc_DATA = \
 	cd-ls \
