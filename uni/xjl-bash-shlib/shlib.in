@@ -1,0 +1,6 @@
+if ! . @shlibdir@/import; then
+    echo "Failed to initialized shlib import feature. " >&2
+    exit 127
+fi
+
+import load

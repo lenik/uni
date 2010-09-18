@@ -1,15 +1,9 @@
 include libauto/coolauto.am
 
-libbashdir = ${libdir}/bash
+bin_SCRIPTS = \
+	shlib
 
-libbash_DATA =
-
-dist-hook:
-	find ${distdir} -type d -name .svn -exec rm -fR {} \; -prune
-
-install-data-hook:
-	cp -RT ${srcdir}/lib ${DESTDIR}${libbashdir}
-	find ${DESTDIR}${libbashdir} -type d -name .svn -exec rm -fR {} \; -prune
+shlib_DATA =
 
 setup_SCRIPTS = \
     postinst \
@@ -18,9 +12,19 @@ setup_SCRIPTS = \
 EXTRA_DIST = \
 	postinst.in \
 	prerm.in \
-	lib
+	shlib.in \
+	shlib.d
 
-CLEANFILES = ${setup_SCRIPTS}
+CLEANFILES = \
+	${setup_SCRIPTS} \
+	shlib
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
+
+dist-hook:
+	find ${distdir}/shlib.d -type d -name .svn -exec rm -fR {} \; -prune
+
+install-data-hook:
+	cp -RT ${srcdir}/shlib.d ${DESTDIR}${shlibdir}
+	find ${DESTDIR}${shlibdir} -type d -name .svn -exec rm -fR {} \; -prune
