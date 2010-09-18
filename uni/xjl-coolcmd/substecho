@@ -93,4 +93,4 @@ for (@ARGV) {
 print "\n";
 
 # return 1 if no change.
-return $ch == 0;
+exit($ch == 0);
