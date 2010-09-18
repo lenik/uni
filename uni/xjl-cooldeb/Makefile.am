@@ -9,7 +9,8 @@ dist_bin_SCRIPTS = \
 	dwhich \
 	newdeb \
 	deb-redist \
-	cideb
+	cideb \
+	apt-get-reinstall2
 
 dist_aliases_DATA = \
     cooldeb.sh
