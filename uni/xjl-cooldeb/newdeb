@@ -4,16 +4,12 @@
     long_opts="autotools,prepost,svn,help,quiet,verbose,version"
     . /usr/lib/bash/cliboot
 
+	import overrides
+
     autotools=
     prepost=
     versioned=
 	force=
-
-	for envf in ../../.env ../.env .env; do
-		if [ -f $envf ]; then
-			. $envf
-		fi
-	done
 
 function version() {
     parse_id "$RCSID"
