@@ -1,37 +1,24 @@
-
 include libauto/coolauto.am
 
-templatesdir = ${pkgdatadir}/templates
-
-SUBDIRS = templates
-
 bin_SCRIPTS = \
-    generate
+    new
 
 dist_man_MANS = \
-    generate.1
+    new.1
 
-EXTRA_DIST = generate.in
-CLEANFILES = generate
+EXTRA_DIST = \
+	new.in \
+	newtempl.d
 
-generate: generate.in
-	$(do_subst) -e 's,[@]templatesdir[@],${templatesdir},g' \
-		<$(srcdir)/generate.in >$@
+CLEANFILES = \
+	new
+
+%: %.in Makefile
+	$(do_subst) <$< >$@
+
+dist-hook:
+	find $(distdir)/newtmpl.d -type d -name .svn -exec rm -fR {} \; -prune
 
 install-data-hook:
-	for t in $(srcdir)/templates/*; do \
-        tnam=$${t##*/}; \
-        tnam=$${tnam%.*}; \
-		if [ "$$tnam" = "Makefile" ]; then continue; fi; \
-        cd $(DESTDIR)$(bindir);  ln -sf generate gen-$$tnam; \
-        cd $(DESTDIR)$(man1dir); ln -sf generate.1 gen-$$tnam.1; \
-    done
-
-uninstall-hook:
-	for t in $(srcdir)/templates/*; do \
-        tnam=$${t##*/}; \
-        tnam=$${tnam%%.*}; \
-		if [ "$$tnam" = "Makefile" ]; then continue; fi; \
-        cd $(DESTDIR)$(bindir);  rm -f gen-$$tnam; \
-        cd $(DESTDIR)$(man1dir); rm -f gen-$$tnam.1; \
-    done
+	cp -RT $(srcdir)/newtmpl.d $(DESTDIR)$(newtmpldir)
+	find $(DESTDIR)$(newtmpldir) -type d -name .svn -exec rm -fR {} \; -prune
