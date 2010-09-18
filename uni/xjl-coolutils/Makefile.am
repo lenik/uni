@@ -9,26 +9,18 @@ bin_PROGRAMS = \
 	random
 
 dist_bin_SCRIPTS = \
-	binaryp \
-	textp \
-    swap \
     which2 \
     whichother \
-    df-x \
     sedit \
     headrm \
     grepl \
 	hm \
-	enfile \
-	symflatten \
-	symfl \
 	collect-copy
 
 dist_man_MANS = \
     sedit.1 \
 	uc.1 \
 	hm.1 \
-	symfl.1 \
 	collect-copy.1
 
 install-data-hook:
@@ -37,8 +29,7 @@ install-data-hook:
 		$(LN_S) -f uc to-caption; \
 		$(LN_S) -f uc to-dash; \
 		$(LN_S) -f uc to-camel; \
-		$(LN_S) -f uc to-mech; \
-		$(LN_S) -f enfile disfile
+		$(LN_S) -f uc to-mech
 	cd $(DESTDIR)$(man1dir); \
 		$(LN_S) -f uc.1 lc.1; \
 		$(LN_S) -f uc.1 to-caption.1; \
