@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-fsutils
 
 Package: xjl-fsutils
 Architecture: all
-Depends: ${misc:Depends}, xjl-coolutils, mount
+Depends: mount, xjl-bash-shlib
 Description: VEX/alt mounts, etc.

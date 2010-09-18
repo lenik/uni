@@ -5,7 +5,7 @@
     RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
     short_opts="fhqv"
     long_opts="force,help,quiet,verbose,version"
-    . /usr/lib/bash/cliboot
+    . shlib import cliboot
 
     if [ -z "$SVN" -o ! -f "$SVN" ]; then
         SVN=svn

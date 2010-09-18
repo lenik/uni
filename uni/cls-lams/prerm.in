@@ -4,3 +4,5 @@
 
 fstab-install  -vfu @setupdir@/fstab.tc
 passwd-install -vfu @setupdir@/passwd.tc
+
+exit 0

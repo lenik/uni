@@ -8,3 +8,5 @@ echo "Remove sid tools for wget"
 
 echo "Remove user wget"
     userdel wget
+
+exit 0

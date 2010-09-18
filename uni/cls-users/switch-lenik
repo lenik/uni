@@ -7,4 +7,5 @@ usermod \
     -c "Lenik" \
     dev
 
+echo "Please enter the login password: "
 passwd lenik

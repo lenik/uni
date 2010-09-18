@@ -8,5 +8,6 @@ Homepage: http://uni.bodz.net/xjl-coolutils
 
 Package: xjl-coolutils
 Architecture: any
-Depends: xjl-coolbash
-Description: Cool utils by Lenik.
+Depends: xjl-bash-shlib
+Recommends: xjl-configutils, xjl-fsutils
+Description: Bundles of cool utils by Lenik.

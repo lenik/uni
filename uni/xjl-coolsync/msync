@@ -2,7 +2,7 @@
     RCSID='$Id$'
     short_opts="C:dDhp:qr:s:v"
     long_opts="chdir,delete,help,page,repeat,quiet,server,verbose,version"
-    . /usr/lib/bash/cliboot
+    . shlib import cliboot
     shopt -s nullglob
 
     CHDIR=.

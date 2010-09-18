@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-coolmake
 
 Package: xjl-coolmake
 Architecture: all
-Depends: ${misc:Depends} xjl-coolauto
+Depends: xjl-coolauto
 Description: Make shortcut & helpers

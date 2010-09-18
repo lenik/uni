@@ -2,7 +2,7 @@
     RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
     short_opts="lakfhqv"
     long_opts="list,add,kill,force,help,quiet,verbose,version"
-    . /usr/lib/bash/cliboot
+    . shlib import cliboot
 
     list=
     mode=

@@ -2,7 +2,7 @@
     RCSID='$Id$'
     short_opts="hqv"
     long_opts="help,quiet,verbose,version"
-    . /usr/lib/bash/cliboot
+    . shlib import cliboot
 
 function version() {
     parse_id "$RCSID"

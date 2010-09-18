@@ -8,5 +8,6 @@ Homepage: http://uni.bodz.net/xjl-coolgen
 
 Package: xjl-coolgen
 Architecture: all
-Depends: ${misc:Depends}, sed, xjl-coolutils, xjl-coolbash
+Depends: ${misc:Depends}, sed, xjl-bash-shlib
+Recommends: xjl-coolutils
 Description: A simple cool script generator

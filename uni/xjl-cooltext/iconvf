@@ -2,7 +2,7 @@
     RCSID='$Id: .sh 1023 2009-04-29 23:50:10Z Shecti $'
     short_opts="f:t:chqv"
     long_opts="from,to,continue,help,quiet,verbose,version"
-    . /usr/lib/bash/cliboot
+    . shlib import cliboot
 
     FROM=
     TO=

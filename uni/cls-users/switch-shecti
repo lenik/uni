@@ -7,4 +7,5 @@ usermod \
     -c "Shecti" \
     dev
 
+echo "Please enter the login password: "
 passwd shecti

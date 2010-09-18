@@ -8,5 +8,7 @@ Homepage: http://uni.bodz.net/xjl-cooldeb
 
 Package: xjl-cooldeb
 Architecture: all
-Depends: ${misc:Depends}, debhelper, xjl-coolmake, xjl-coolbash, xjl-coolsvn
+Depends: ${misc:Depends}, debhelper,
+    xjl-bash-shlib, xjl-coolmake, xjl-coolsvn
+Recommends: xjl-bash-aliases
 Description: Debian package by very clean manner.

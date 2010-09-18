@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-coolman
 
 Package: xjl-coolman
 Architecture: all
-Depends: ${misc:Depends}, xjl-coolutils, xjl-coolbash
+Depends: xjl-coolutils, xjl-bash-shlib
 Description: Man pages utilities

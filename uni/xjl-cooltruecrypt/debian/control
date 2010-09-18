@@ -7,8 +7,9 @@ Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/xjl-cooltruecrypt
 
 Package: xjl-cooltruecrypt
+Provides: truecrypt
 Architecture: all
-Depends: ${misc:Depends}, upstart, xjl-coolbash
+Depends: upstart, xjl-bash-shlib, xjl-configutils
 Description: TrueCrypt integration utilities.
   This package requires TrueCrypt.
   Install it from:

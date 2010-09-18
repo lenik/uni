@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-configutils
 
 Package: xjl-configutils
 Architecture: all
-Depends: xjl-coolbash
+Depends: xjl-bash-shlib, xjl-coretext
 Description: Config helper utilities for installers

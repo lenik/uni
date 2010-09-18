@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-coolsync
 
 Package: xjl-coolsync
 Architecture: all
-Depends: ${misc:Depends}, rsync, xjl-coolbash
+Depends: rsync, xjl-bash-shlib
 Description: Sync utils for rsync, etc.

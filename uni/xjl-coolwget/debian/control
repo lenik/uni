@@ -8,5 +8,6 @@ Homepage: http://uni.bodz.net/xjl-coolwget
 
 Package: xjl-coolwget
 Architecture: all
-Depends: ${misc:Depends}, xjl-coolbash, wget, grep, coreutils
+Depends: wget, grep, coreutils,
+    xjl-bash-shlib
 Description: Wget with cache support, and other url-related utilities

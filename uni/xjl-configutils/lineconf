@@ -2,7 +2,7 @@
     RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
     short_opts="EFGPkl:tp:ehqv"
     long_opts="extended-regexp,fixed-strings,basic-regexp,perl-regexp,kill,magic-text,magic-prefix,edit-status,help,quiet,verbose,version"
-    . /usr/lib/bash/cliboot
+    . shlib import cliboot
 
     LOGLEVEL=0
 

@@ -2,7 +2,7 @@
     RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
     short_opts="I:d:silx:hqv"
     long_opts="include,maxdepth,strict,ignore-case,list,exec,help,quiet,verbose,version"
-    . /usr/lib/bash/cliboot
+    . shlib import cliboot
 
     includes=(/usr/share/doc /usr/local/share/doc)
     maxdepth=3
