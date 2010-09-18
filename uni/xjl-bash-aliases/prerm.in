@@ -1,4 +1,13 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-bash-aliases - prerm.in ..."
+bashrc=@sysconfdir@/bash.bashrc
+a_init=@sysconfdir@/bash_aliases
+echo -n "Remove $a_init from start up... "
+    if lineconf -ekt $bashrc COOLBASH::a_init; then
+        echo Done
+    else
+        echo Skipped
+    fi
+
+exit 0

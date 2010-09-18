@@ -8,5 +8,6 @@ Homepage: http://uni.bodz.net/xjl-coolbash
 
 Package: xjl-coolbash
 Architecture: all
-Depends: ${misc:Depends}, bash
+Depends: ${misc:Depends}, bash, xjl-bash-lib
+Recommends: xjl-bash-aliases
 Description: Cool bash utilities by Lenik.

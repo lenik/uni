@@ -1,6 +1,4 @@
-
-sysconfdir = /etc
-aliasesdir = ${sysconfdir}/bash_aliases.d
+include ../libauto/coolauto.am
 
 dist_aliases_DATA = \
 	dirs.sh \

@@ -1,4 +1,14 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-bash-aliases - postinst.in ..."
+bashrc=@sysconfdir@/bash.bashrc
+a_init=@sysconfdir@/bash_aliases
+
+echo -n "Add $a_init to start up... "
+    if lineconf -et $bashrc \
+            COOLBASH::a_init "if [ -f $a_init ]; then . $a_init; fi"
+    then
+        echo Done
+    else
+        echo Skipped
+    fi

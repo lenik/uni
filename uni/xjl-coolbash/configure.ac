@@ -18,6 +18,5 @@ AC_PROG_CC
 
 # Checks for library functions.
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([aliases.d/Makefile])
 AC_CONFIG_FILES([profile.d/Makefile])
 AC_OUTPUT

@@ -1,24 +1,11 @@
 #!/bin/sh
 
-export SHLIB=@libbashdir@
-
- bashrc=@sysconfdir@/bash.bashrc
- a_init=@sysconfdir@/bash_aliases
-skel_rc=@sysconfdir@/skel/.bashrc
-
 echo "Set permission of sudoer files"
 
     chmod 440 @DESTDIR@@sudoersdir@/keep-hist
 
-echo -n "Add $a_init to start up... "
-    if lineconf -et $bashrc \
-            COOLBASH::a_init "if [ -f $a_init ]; then . $a_init; fi"
-    then
-        echo Done
-    else
-        echo Skipped
-    fi
 
+skel_rc=@sysconfdir@/skel/.bashrc
 echo -n "Remove HIST-overrides from $skel_rc... "
     if [ -f $skel_rc ]; then
         tmp=/tmp/bashrc-repl-$$.$RANDOM

@@ -17,4 +17,5 @@ AC_PROG_LN_S
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([aliases.d/Makefile])
 AC_OUTPUT
