@@ -1,11 +1,14 @@
-#!/bin/sh
+#!/bin/bash
 
 # master-file
 
-for ((i = 1; i < 255; i++)); do
-    lineconf -tm "Add host entry for p$i" \
-        /etc/hosts @host::p$i \
-        "192.168.1.$i $p"
-done
+if ! grep -s @host::plist /etc/hosts; then
+	echo "Add p-hosts to hosts file"
+
+	echo "@host::plist" >>/etc/hosts
+    for ((i = 1; i < 255; i++)); do
+        echo "192.168.1.$i p$i" >>/etc/hosts
+    done
+fi
 
 exit 0
