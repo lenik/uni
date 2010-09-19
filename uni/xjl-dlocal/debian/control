@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-dlocal
 
 Package: xjl-dlocal
 Architecture: all
-Depends: dput, mini-dinstall, apache2
+Depends: dput, mini-dinstall, apache2, gnupg, gnupg-agent
 Description: Local debian development support.

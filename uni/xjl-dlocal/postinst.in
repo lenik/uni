@@ -1,7 +1,10 @@
 #!/bin/sh
 # master-file
 
+echo "Set permission of /var/lib/dlocal/mini-dinstall/incoming"
 install -d -m 2775 -o root -g dev /var/lib/dlocal
+install -d -m 2775 -o root -g dev /var/lib/dlocal/mini-dinstall
+install -d -m 2775 -o root -g dev /var/lib/dlocal/mini-dinstall/incoming
 
 if ! grep -q '\[dlocal\]' /etc/dput.cf; then
 	echo "Create new [dlocal] section"
@@ -11,7 +14,7 @@ if ! grep -q '\[dlocal\]' /etc/dput.cf; then
 # @dlocal::method
 method          = local
 # @dlocal::incoming
-incoming        = /var/lib/dlocal/incoming
+incoming        = /var/lib/dlocal/mini-dinstall/incoming
 # @dlocal::run
 run_dinstall    = 0
 # @dlocal::post
@@ -21,7 +24,7 @@ fi
 
 lineconf -tm "Config [dlocal] incoming location" \
     /etc/dput.cf @dlocal::incoming \
-    "incoming        = /var/lib/dlocal/incoming"
+    "incoming        = /var/lib/dlocal/mini-dinstall/incoming"
 
 lineconf -tm "Config [dlocal] post_upload_command" \
     /etc/dput.cf @dlocal::post \
