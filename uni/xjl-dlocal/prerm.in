@@ -1,4 +1,18 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-dlocal - prerm.in ..."
+lineconf -tkm "Remove dlocal from /etc/hosts" \
+    /etc/hosts @host::dlocal
+
+echo "Turn off dlocal site"
+    a2dissite dlocal.site
+    /etc/init.d/apache2 reload
+
+local_list=/etc/apt/sources.list.d/local.list
+	lineconf -tm "Remove deb dlocal from local.list" \
+		$local_list @deb::dlocal
+
+	lineconf -tm "Remove deb-src dlocal from local.list" \
+		$local_list @deb-src::dlocal
+
+exit 0

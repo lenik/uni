@@ -3,15 +3,46 @@
 
 install -d -m 2775 -o root -g dev /var/lib/dlocal
 
-lineconf -m "Config [local] incoming location" \
-    /etc/dput.cf ~/public_html/debian/mini-dinstall/incoming \
-    "incoming = /var/lib/dlocal/incoming"
+if ! grep -q '\[dlocal\]' /etc/dput.cf; then
+	echo "Create new [dlocal] section"
+	cat <<EOM >>/etc/dput.cf
 
-lineconf -m "Config [local] post command" \
-    /etc/dput.cf /usr/bin/mini-dinstall \
+[dlocal]
+# @dlocal::method
+method          = local
+# @dlocal::incoming
+incoming        = /var/lib/dlocal/incoming
+# @dlocal::run
+run_dinstall    = 0
+# @dlocal::post
+post_upload_command =
+EOM
+fi
+
+lineconf -tm "Config [dlocal] incoming location" \
+    /etc/dput.cf @dlocal::incoming \
+    "incoming        = /var/lib/dlocal/incoming"
+
+lineconf -tm "Config [dlocal] post_upload_command" \
+    /etc/dput.cf @dlocal::post \
     "post_upload_command = /usr/bin/mini-dinstall --batch /var/lib/dlocal"
 
-echo "Reload apache2"
+lineconf -tm "Add dlocal to /etc/hosts" \
+    /etc/hosts @host::dlocal \
+    "127.0.0.1 dlocal"
+
+echo "Turn on dlocal site"
+    a2ensite dlocal.site
     /etc/init.d/apache2 reload
+
+local_list=/etc/apt/sources.list.d/local.list
+codename=`lsb_release -cs`
+	lineconf -tm "Add to local.list: deb dlocal $codename/" \
+		$local_list @deb::dlocal \
+		"deb     http://dlocal/ $codename/"
+
+	lineconf -tm "Add to local.list: deb-src dlocal $codename/" \
+		$local_list @deb-src::dlocal \
+		"deb-src http://dlocal/ $codename/"
 
 exit 0
