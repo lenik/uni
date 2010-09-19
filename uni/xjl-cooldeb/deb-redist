@@ -70,7 +70,7 @@ function main() {
     #     exit 4
     # fi
 
-    dh_add_missing
+    dh_add_missing debian/
 
     # increase debian version by debian/changelog
     if [ "$incr" = 1 ]; then

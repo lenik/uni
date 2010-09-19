@@ -53,6 +53,7 @@ function main() {
 	else
         debiandir="$1"
     fi
+	debiandir="${debiandir%/}"
 
     if ! cd "$debiandir"; then
 	echo "Failed to enter $debiandir"
