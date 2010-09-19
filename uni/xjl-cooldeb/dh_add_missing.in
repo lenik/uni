@@ -1,0 +1,86 @@
+#!/bin/bash
+    . shlib import cliboot
+
+    RCSID='$Id: bash.sh 1710 2010-09-18 16:36:30Z lenik $'
+    short_opts="shqv"
+    long_opts="symlink,help,quiet,verbose,version"
+
+    symlink=0
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Add missing debian files"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -s, --symlink           add symlinks instead of copy"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+	-s|--symlink)
+		symlink=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+	if [ -z "$1" ]; then
+		if [ ! -d debian/ ]; then
+			echo "No debian/ directory. "
+			exit 1
+		fi
+	else
+        debiandir="$1"
+    fi
+
+    if ! cd "$debiandir"; then
+	echo "Failed to enter $debiandir"
+	exit 1
+    fi
+
+    for defl in @DESTDIR@@debdefldir@/*; do
+
+        basename=${defl##*/}
+
+        if [ ! -f "$basename" ]; then
+            _log1 "Generate $basename"
+
+            if [ $symlink = 1 ]; then
+		if ! ln -snf $defl $basename; then
+			echo "  failed to create symlink $basename -> $defl"
+			exit 1
+		fi
+            else
+		if ! cp $defl $basename; then
+			echo "  failed to copy $defl"
+		    exit 1
+		fi
+            fi
+        fi
+
+    done
+    return 0
+}
+
+boot "$@"

@@ -1,24 +1,25 @@
-#!/bin/sh
+#!/bin/bash
+
+if [ ! -f VERSION.av ]; then
+    echo "Not an autover dir. "
+    exit 1
+fi
 
 if svn-isclean; then
     echo "already updated"
     exit 0
 fi
 
-if ! coolsvn ci; then
-    echo "commit failed. "
-    exit 1
-fi
+vercomp -i commit >/dev/null
+[ -f configure.ac ] && autover
 
-if ! svn-isclean; then
-    echo "commit canceled. "
-    exit 1
-fi
-
-if ! deb-redist; then
+if ! deb-redist -i; then
     echo debuild/redist failed.
     exit 1
 fi
+
+SVN=`which svn`
+$SVN ci
 
 sudo apt-get update
 sudo apt-get dist-upgrade --allow-unauthenticated

@@ -1,0 +1,53 @@
+#!/bin/bash
+
+    # increase the debian version in debian/changelog,
+    # or refresh the debian version if VERSION.av changed.
+
+    if [ ! -f VERSION.av ]; then
+	echo "Not an autover-versioned dir. "
+	exit 1
+    fi
+
+    base="${PWD##*/}"
+
+    if [ ! -f debian/changelog ]; then
+	echo "Generate a new changelog"
+	now=`date -R`
+	cat <<EOM >debian/changelog
+$base (0.0.1-1) lucid; urgency=low
+
+  * Initial
+
+ -- CoolDeb <cooldeb@uni.bodz.net>  $now
+EOM
+        truncate=1
+    fi
+
+    # symlink doesn't work for dch, which use abs path always.
+    # pushd /tmp >/dev/null
+    # ln -s "$src" $base
+    # popd >/dev/null
+
+    pushd .. >/dev/null
+
+        dir_ver=`dir-ver $base`
+        cd "$dir_ver"
+
+            if dch -d "Upstream updates, automatic package by deb-redist"; then
+                if [ "$truncate" = 1 ]; then
+                    echo "Truncate the temporary created changelog"
+                    tmp=`tempfile`
+                    head -5 debian/changelog >$tmp
+                    mv -f $tmp debian/changelog
+                fi
+            else
+		if [ "$truncate" = 1 ]; then
+                    echo "Remove generated changelog"
+			#rm debian/changelog
+		fi
+            fi
+
+            cd ..
+            dir-nover "$dir_ver"
+
+        popd
