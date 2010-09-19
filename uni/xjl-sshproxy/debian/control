@@ -8,18 +8,18 @@ Homepage: http://uni.bodz.net/xjl-sshproxy
 
 Package: xjl-sshproxy-base
 Architecture: all
-Depends: xjl-coolusers, ssh-server
+Depends: xjl-coolusers
 Description: SSH Proxy base environment.
 
 Package: xjl-sshproxy-server
 Architecture: all
-Depends: xjl-sshproxy-base
+Depends: xjl-sshproxy-base, openssh-server
 Description: Lenik's sshproxy server-side components.
  Allow the sshproxy account be ssh-login-able.
 
 Package: xjl-sshproxy-client
 Architecture: all
-Depends: xjl-sshproxy-base, upstart
+Depends: xjl-sshproxy-base, openssh-client, upstart
 Description: Lenik's sshproxy client-side components.
  Contain the (public area) private key and startup configuration
  to create the ssh SOCK5 tunnel.
