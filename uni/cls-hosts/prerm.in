@@ -1,3 +1,10 @@
 #!/bin/sh
 
 # master-file
+
+for ((i = 1; i < 255; i++)); do
+    lineconf -tkm "Remove host entry for p$i" \
+        /etc/hosts @host::p$i
+done
+
+exit 0
