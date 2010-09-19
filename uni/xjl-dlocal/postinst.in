@@ -1,4 +1,17 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-dlocal - postinst.in ..."
+install -d -m 2775 -o root -g dev /var/lib/dlocal
+
+lineconf -m "Config [local] incoming location" \
+    /etc/dput.cf ~/public_html/debian/mini-dinstall/incoming \
+    "incoming = /var/lib/dlocal/incoming"
+
+lineconf -m "Config [local] post command" \
+    /etc/dput.cf /usr/bin/mini-dinstall \
+    "post_upload_command = /usr/bin/mini-dinstall --batch /var/lib/dlocal"
+
+echo "Reload apache2"
+    /etc/init.d/apache2 reload
+
+exit 0

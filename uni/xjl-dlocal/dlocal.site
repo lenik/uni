@@ -1,0 +1,13 @@
+<VirtualHost *:80>
+    ServerName  dlocal
+    ServerAlias *.dlocal
+
+    DocumentRoot /var/lib/dlocal
+    <Directory /var/lib/dlocal>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Order allow,deny
+        allow from all
+    </Directory>
+
+</VirtualHost>
