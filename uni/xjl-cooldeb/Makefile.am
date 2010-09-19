@@ -21,6 +21,17 @@ dist_man_MANS = \
 	newdeb.1 \
 	cideb.1
 
+setup_SCRIPTS = \
+	postinst \
+	prerm
+
+EXTRA_DIST = \
+	postinst.in \
+	prerm.in
+
+CLEANFILES = \
+	${setup_SCRIPTS}
+
 vcmdlist = dh_make pwd
 
 install-data-hook:
@@ -36,3 +47,6 @@ uninstall-hook:
             rm -f \$${f}_ver; \
         done; \
 		rm -f dir-nover
+
+%: %.in Makefile
+	$(do_subst) <$< >$@
