@@ -1,12 +1,13 @@
 #!/bin/bash
+    . shlib import cliboot
+
     RCSID='$Id$'
     short_opts="hqv"
     long_opts="help,quiet,verbose,version"
-    . shlib import cliboot
 
 function version() {
     parse_id "$RCSID"
-    echo "[$BASENAME] @description@"
+    echo "[$BASENAME] Bash_simple_cli_program_template"
     echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
 }
 
