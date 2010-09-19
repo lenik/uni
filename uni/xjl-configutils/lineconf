@@ -1,14 +1,18 @@
 #!/bin/bash
-    RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
-    short_opts="EFGPkl:tp:ehqv"
-    long_opts="extended-regexp,fixed-strings,basic-regexp,perl-regexp,kill,magic-text,magic-prefix,edit-status,help,quiet,verbose,version"
     . shlib import cliboot
+
+    RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
+    short_opts="m:w:EFGPkl:tp:ehqv"
+    long_opts="message,width,extended-regexp,fixed-strings,basic-regexp,perl-regexp,kill,magic-text,magic-prefix,edit-status,help,quiet,verbose,version"
 
     LOGLEVEL=0
 
     GREP=grep
     GREPL=grepl
     SEDIT="sedit -a"
+
+    message=
+    width=60
 
     lines=
     magic_en=
@@ -32,6 +36,8 @@ function help() {
     echo "    (If no file is specified, then stdin/out is used)"
     echo
     echo "Options: "
+    echo "    -m, --message=STR       Show message and edit status"
+    echo "    -w, --width=WIDTH       Minimum width of the message to display"
     echo "    -E, --extended-regexp   PATTERN is an extended regexp"
     echo "    -F, --fixed-strings     PATTERN is a set of strings each a line"
     echo "    -G, --basic-regexp      PATTERN is a basic regexp (BRE)"
@@ -49,6 +55,10 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -m|--message)
+            message="$2";;
+        -w|--width)
+            width="$2";;
         -E|--extended-regexp)
             GREP="grep -E"
             GREPL="grepl -E";;
@@ -111,6 +121,14 @@ function main() {
         fi
     fi
 
+    if [ -n "$message" ]; then
+        space='                                                                                                                                                                                                                                                     '
+        echo -n "$message"
+        if [ ${#message} -lt $width ]; then
+		echo -n "${space:0:width-${#message}}"
+        fi
+    fi
+
     if [ "$file" = '-' ]; then
         stdio=1
         file=/tmp/lineconf-buf-$$-$RANDOM
@@ -123,6 +141,14 @@ function main() {
     if [ "$stdio" = 1 ]; then
         cat $file
         rm -f $file
+    fi
+
+    if [ -n "$message" ]; then
+	if [ "$dirty" = 1 ]; then
+		echo Done
+	else
+		echo Skip
+	fi
     fi
 
     if [ "$edit_status" = 1 ]; then
