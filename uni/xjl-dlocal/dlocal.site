@@ -1,6 +1,7 @@
 <VirtualHost *:80>
     ServerName  dlocal
     ServerAlias *.dlocal
+    ServerAlias dlocal.*
 
     DocumentRoot /var/lib/dlocal
     <Directory /var/lib/dlocal>
