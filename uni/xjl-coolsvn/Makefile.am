@@ -9,6 +9,7 @@ dist_bin_SCRIPTS = \
 	svn-002 \
 	svn-apply \
 	svn-backup-sync \
+	svn-dirty-dirs  \
 	svn-isclean \
 	svn-remix \
 	svn-rename \
