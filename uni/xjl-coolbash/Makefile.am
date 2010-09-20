@@ -10,8 +10,6 @@ bin_PROGRAMS = \
 
 dist_bin_SCRIPTS = \
 	eachdir \
-	swapox \
-	testox \
 	orig
 
 dist_shsrc_DATA = \

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# TODO buffer/flush??
+"$@" 2> >(sed -e 's/^/[01;41m/' -e 's/$/[0m/' >&2)

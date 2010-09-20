@@ -1,0 +1,10 @@
+#!/bin/sh
+
+echo stdout apple
+echo stderr banana >&2
+
+echo stdout linux
+echo stderr windows >&2
+
+echo stdout lenik
+echo stderr bill gates >&2

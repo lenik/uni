@@ -12,7 +12,10 @@ dist_bin_SCRIPTS = \
 	rsexec-c \
 	ifrsubst \
 	substtree \
-	echox
+	echox \
+	swapox \
+	testox \
+	colorox
 
 setup_SCRIPTS = \
     postinst \
