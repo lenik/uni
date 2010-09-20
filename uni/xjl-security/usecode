@@ -6,6 +6,7 @@ usecode - dynamic codes
 
 =cut
 use strict;
+use cmt::clip('setclip');
 use cmt::codec;
 use vars qw($LOGNAME $LOGLEVEL);
     $LOGNAME    = 'usecode';
@@ -17,16 +18,15 @@ use Getopt::Long;
 sub _main; sub _version; sub _help;
 sub load_pref;
 sub save_pref;
-sub output_clipboard;
 sub output_stdout;
 sub system_encode;
 sub system_decode;
 
-our $CFG;
+our $CFG                = load_pref();
 our $opt_scheme         = system_decode $CFG->{'/scheme'} if $CFG->{'/scheme'};
 our $opt_phrase         = system_decode $CFG->{'/phrase'} if $CFG->{'/phrase'};
 our $opt_group          = system_decode $CFG->{'/category'} if $CFG->{'/category'};
-our $opt_out            = \&output_clipboard;
+our $opt_out            = \&setclip;
 our $opt_text;
 our $opt_make_default;
 
@@ -143,6 +143,8 @@ sub _main {
 
     _log2 "Out=$opt_out Length=", length($result);
     $opt_out->($result);
+
+    save_pref $CFG;
 }
 
 =head1 DIAGNOSTICS
@@ -158,16 +160,16 @@ sub _main {
 
 =cut
 sub load_pref {
+	my $pref = {
+	    '/scheme' => system_encode('dm'),
+	    '/phrase' => system_encode('lenik'),
+	    '/category' => system_encode('8'),
+	};
+    return $pref;
 }
 
 sub save_pref {
-}
-
-sub output_clipboard {
-    # cygwin: >/dev/clipboard
-    # X11: xsel -ip (primary for terminal), -ib (clipboard for x apps)
-    my $text = shift;
-    system "echo \"$text\" | xsel -ipb";
+    # ...
 }
 
 sub output_stdout {
