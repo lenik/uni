@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ $# -lt 2 ]; then
+	echo "$0 KnownHostsFile HostName..."
+	exit 1
+fi
+
+khfile="$1"
+shift
+
+tmp=`tempfile`
+ssh-keyscan -t rsa,dsa "$@" | sort -u - $khfile >$tmp
+cat $tmp >$khfile
+rm -f $tmp

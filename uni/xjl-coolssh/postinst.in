@@ -1,3 +1,9 @@
 #!/bin/sh
-
 # master-file
+
+# Disable hash of known-host, as a side-effect option
+    lineconf -m "Disable HashKnownHosts" \
+        /etc/ssh/ssh_config "HashKnownHosts" \
+        "HashKnownHosts no"
+
+exit 0

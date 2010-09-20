@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-coolssh
 
 Package: xjl-coolssh
 Architecture: all
-Depends: ${misc:Depends}, xjl-coolbash, xjl-coolgen
-Description: Create for ssh shortcuts
+Depends: xjl-bash-shlib, xjl-coolgen
+Description: SSH Client side utilities

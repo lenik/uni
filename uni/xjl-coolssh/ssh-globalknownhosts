@@ -1,0 +1,10 @@
+#!/bin/bash
+
+cfg=/etc/ssh/ssh_config
+val=/etc/ssh/ssh_known_hosts
+
+if l=`grep GlobalKnownHostsFile $cfg`; then
+    val="${l#*GlobalKnownHostsFile}"
+fi
+
+echo $val
