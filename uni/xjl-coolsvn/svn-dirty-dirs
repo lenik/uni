@@ -1,0 +1,3 @@
+#!/bin/bash
+
+svn st */ | grep '^.\?M' | cut -b9- | cut -d/ -f1 | sort -u
