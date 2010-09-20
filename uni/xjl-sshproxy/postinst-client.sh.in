@@ -7,12 +7,8 @@ echo "Config key permission"
     chmod 600               @sshconfdir@/id_rsa
     chown sshproxy:sshproxy @sshconfdir@/id_rsa
 
-# Disable hash of known-host, as a side-effect option
-    lineconf -m "Disable HashKnownHosts" \
-        /etc/ssh/ssh_config "HashKnownHosts" \
-        "HashKnownHosts no"
-
-# TODO Add pubkey(sshproxy.bodz.net) to GLOBAL? known_host
+echo "Config to accept sshproxy.bodz.net"
+    ssh-acceptkeys sshproxy.bodz.net
 
 echo "Start sshproxy"
 

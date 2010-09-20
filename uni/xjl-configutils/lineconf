@@ -1,5 +1,5 @@
 #!/bin/bash
-    . shlib import cliboot
+    . shlib-import cliboot
 
     RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
     short_opts="m:w:EFGPkl:tp:ehqv"

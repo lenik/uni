@@ -2,7 +2,7 @@
     RCSID='$Id$'
     short_opts="ci:datmognehqv"
     long_opts="stdout,replace,diff,keep-all,keep-mode,keep-time,keep-owner,keep-group,dry-run,edit-status,help,quiet,verbose,version"
-    . shlib import cliboot
+    . shlib-import cliboot
 
     tee_output=
     replace="{}"

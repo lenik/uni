@@ -18,8 +18,17 @@ if ! deb-redist -i; then
     exit 1
 fi
 
-SVN=`which svn`
-$SVN ci
+# don't update/commit in batch-mode.
+if [ "$1" != "-b" ]; then
+    sudo aptitude update
+    # sudo apt-get update
 
-sudo apt-get update
-sudo apt-get dist-upgrade --allow-unauthenticated
+    if ! sudo apt-get dist-upgrade --allow-unauthenticated; then
+        echo "dist-upgrade failed, canceled. "
+        exit 1
+    fi
+
+    SVN=`which svn`
+    $SVN ci
+fi
+

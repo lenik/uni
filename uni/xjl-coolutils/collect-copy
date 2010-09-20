@@ -2,7 +2,7 @@
     RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
     short_opts="r:c:n:x:f:shqv"
     long_opts="root,category,norm,norm-exec,find,stdin,help,quiet,verbose,version"
-    . shlib import cliboot
+    . shlib-import cliboot
 
     root=/var/lib/coll
     category=

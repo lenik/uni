@@ -4,19 +4,15 @@
 
 echo "Create user sshproxy"
 
-    # clean if empty dir already created.
-    if [ -d @homedir@ ]; then
-        # rmdir @sshconfdir@ @homedir@ 2>/dev/null
-        echo "Warning: Remove everything under @homedir@"
-        rm -fR @homedir@
-    fi
-
     useradd \
         -md @homedir@ \
         -s /bin/false \
         -rc "SSH forwarder" \
         sshproxy
 
-echo "Set permission of @sshconfdir@"
+echo "Reset owner of @homedir@"
+    chown -R sshproxy:sshproxy @homedir@
+
+echo "Reset permission of @sshconfdir@"
     install -d -m 0700 -o sshproxy -g sshproxy @sshconfdir@
 

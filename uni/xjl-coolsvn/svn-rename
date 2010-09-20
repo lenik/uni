@@ -2,7 +2,7 @@
     RCSID='$Id: bash.sh 1432 2010-08-25 10:23:46Z lenik $'
     short_opts="dhqv"
     long_opts="dryrun,help,quiet,verbose,version"
-    . shlib import cliboot
+    . shlib-import cliboot
 
     svnopts=
     dryrun=

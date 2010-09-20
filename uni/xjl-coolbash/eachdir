@@ -2,7 +2,7 @@
     RCSID='$Id: bash.sh 1432 2010-08-25 10:23:46Z lenik $'
     short_opts="f:C:g:x:hqv"
     long_opts="list-file,chdir,glob,exclude,help,quiet,verbose,version"
-    . shlib import cliboot
+    . shlib-import cliboot
 
     LOGLEVEL=0
 

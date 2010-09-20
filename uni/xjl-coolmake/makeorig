@@ -2,7 +2,7 @@
     RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
     short_opts="d:z:s:x:jhqv"
     long_opts="outdir,zipper,separator,suffix,joinext,help,quiet,verbose,version"
-    . shlib import cliboot
+    . shlib-import cliboot
 
     outdir=
     separator=_

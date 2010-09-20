@@ -3,7 +3,7 @@
 # $Revision$
     short_opts="hqv"
     long_opts="help,quiet,verbose,version"
-    . shlib import cliboot
+    . shlib-import cliboot
 
 function version() {
     parse_id "$RCSID"
