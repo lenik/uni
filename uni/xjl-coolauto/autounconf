@@ -1,8 +1,16 @@
 #!/bin/bash
+    . shlib-import cliboot
 
-# bash for: pushd, popd
+    RCSID='$Id: bash.sh 1731 2010-09-19 20:34:56Z lenik $'
+    short_opts="chqv"
+    long_opts="compact,help,quiet,verbose,version"
 
-RM=sudo_rm
+    __FILE__=`readlink -f $0`
+
+    AC=configure.ac
+    RM=sudo_rm
+
+    compact=
 
 function sudo_rm() {
     local a
@@ -20,87 +28,128 @@ function sudo_rm() {
     fi
 }
 
-AUTOUNCONF=`readlink -f $0`
-subdirs=
-distfiles=
-AC=configure.ac
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Remove autotools generated stuff"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
 
-if [ -f Makefile ]; then
-    subdirs=`maketestvar SUBDIRS`
-    distfiles=`maketestvar DIST_ARCHIVES`
-    echo make distclean
-    make distclean
-fi
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -c, --compact           in compact mode"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
 
-compact=0
-if [ -h install-sh ] || [ -h missing ]; then
-    compact=1
-fi
+function setopt() {
+    case "$1" in
+        -c|--compact)
+            compact=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
 
-for f in *; do
-    if [ -h $f ]; then
-        src=`readlink -f $f`
-        if [ "$src" != "${src/\/automake-}" ]; then
-            echo "Remove file by --add-missing: $f"
-            $RM $f
-        fi
-        if [ "$src" != "${src/\/libauto}" ]; then
-            echo "Remove file by xjl-coolauto: $f"
-            $RM $f
+function main() {
+    if [ -z "$compact" ]; then
+        if [ -h install-sh ] || [ -h missing ]; then
+            compact=1
         fi
     fi
-done
 
-if [ $compact = 1 ]; then
-    for f in aclocal.m4 configure; do
-        if [ -f $f ]; then
-            echo "Remove auto-tools generated file: $f"
-            $RM $f
-        fi
-    done
-fi
-
-for f in autoscan.log autom4te.cache config.status config.log stamp-h1; do
-    if [ -e $f ]; then
-        echo "Remove auto-tools cache files: $f"
-        $RM -R $f
+    subdirs=
+    distfiles=
+    if [ -f Makefile ]; then
+        subdirs=`maketestvar SUBDIRS`
+        distfiles=`maketestvar DIST_ARCHIVES`
+        echo make distclean
+        make distclean
     fi
-done
 
-if [ -f $AC ]; then
-    for i in *.in; do
-        base="${i%.in}";
-        if grep "AC_CONFIG_FILES\|AC_CONFIG_HEADERS" \
-            $AC | grep -q "$base"; then
-            if [ -f $base ]; then
-                echo "Remove config output file: $base"
-                $RM $base
+    for f in *; do
+        if [ -h $f ]; then
+            src=`readlink -f $f`
+            if [ "$src" != "${src/\/automake-}" ]; then
+                echo "Remove file by --add-missing: $f"
+                $RM $f
+            fi
+            if [ "$src" != "${src/\/libauto}" ]; then
+                echo "Remove file by xjl-coolauto: $f"
+                $RM $f
             fi
         fi
     done
-fi
 
-if [ $compact = 1 ]; then
-    if [ -f Makefile.am ] && [ -f Makefile.in ]; then
-        echo "Remove automake output: Makefile.in"
-        $RM Makefile.in
+    if [ "$compact" = 1 ]; then
+        for f in aclocal.m4 configure; do
+            if [ -f $f ]; then
+                echo "Remove auto-tools generated file: $f"
+                $RM $f
+            fi
+        done
     fi
-fi
 
-if [ -n "$distfiles" ]; then
-    for f in $distfiles; do
-        echo "Remove dist file: $f"
-        $RM $f
+    for f in autoscan.log autom4te.cache config.status config.log stamp-h1; do
+        if [ -e $f ]; then
+            echo "Remove auto-tools cache files: $f"
+            $RM -R $f
+        fi
     done
-fi
 
-if [ -n "$subdirs" ]; then
-    # echo "Subdirs: $subdirs"
-    for dir in $subdirs; do
-        echo "Recurse into $dir"
-        pushd $dir >/dev/null
-        $AUTOUNCONF
-        popd >/dev/null
-    done
-fi
+    if [ -f $AC ]; then
+        for i in *.in; do
+            base="${i%.in}";
+            if grep "AC_CONFIG_FILES\|AC_CONFIG_HEADERS" \
+                $AC | grep -q "$base"; then
+                if [ -f $base ]; then
+                    echo "Remove config output file: $base"
+                    $RM $base
+                fi
+            fi
+        done
+    fi
 
+    if [ "$compact" = 1 ]; then
+        if [ -f Makefile.am ] && [ -f Makefile.in ]; then
+            echo "Remove automake output: Makefile.in"
+            $RM Makefile.in
+        fi
+    fi
+
+    if [ -n "$distfiles" ]; then
+        for f in $distfiles; do
+            echo "Remove dist file: $f"
+            $RM $f
+        done
+    fi
+
+    if [ -n "$subdirs" ]; then
+        # echo "Subdirs: $subdirs"
+        opts=
+        if [ "$compact" = 1 ]; then opts="$opts -c"; fi
+
+        for dir in $subdirs; do
+            echo "Recurse into $dir"
+            pushd $dir >/dev/null
+            $__FILE__ $opts
+            popd >/dev/null
+        done
+    fi
+}
+
+boot "$@"
