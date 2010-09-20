@@ -4,5 +4,3 @@ if ! . @shlibdir@/import; then
 fi
 
 import load
-
-"$@"

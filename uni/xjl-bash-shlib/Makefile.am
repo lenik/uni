@@ -3,6 +3,9 @@ include libauto/coolauto.am
 bin_SCRIPTS = \
 	shlib
 
+dist_bin_SCRIPTS = \
+	shlib-import
+
 shlib_DATA =
 
 setup_SCRIPTS = \
