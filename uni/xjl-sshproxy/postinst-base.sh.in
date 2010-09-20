@@ -5,7 +5,11 @@
 echo "Create user sshproxy"
 
     # clean if empty dir already created.
-    rmdir @sshconfdir@ @homedir@ 2>/dev/null
+    if [ -d @homedir@ ]; then
+        # rmdir @sshconfdir@ @homedir@ 2>/dev/null
+        echo "Warning: Remove everything under @homedir@"
+        rm -fR @homedir@
+    fi
 
     useradd \
         -md @homedir@ \
