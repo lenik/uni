@@ -2,7 +2,8 @@ include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
 	headrm \
-	grepl
+	grepl \
+	err_demux
 
 setup_SCRIPTS = \
     postinst \
