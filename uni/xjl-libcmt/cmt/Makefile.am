@@ -17,6 +17,7 @@ libcmtdir = ${datadir}/perl5/cmt
 libcmt_DATA = \
     atext.pm \
     chm.pm \
+    clip.pm \
     codec.pm \
     cstr.pm \
     db_ora.pm \

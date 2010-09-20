@@ -1,8 +1,8 @@
-package UnKnOwN;
+package cmt::clip;
 
 =head1 NAME
 
-UnKnOwN - DeScRiPtIoN
+cmt::clip - Clipboard function for varies systems
 
 =cut
 use strict;
@@ -12,28 +12,29 @@ use cmt::log(2);
     our $LOGLEVEL   = 1;
 use cmt::util();
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id$');
+    my %RCSID   = parse_id('$Id: .pm 1022 2008-10-29 11:51:30Z lenik $');
     our $VER    = "0.$RCSID{rev}";
 use Exporter;
 
 our @ISA    = qw(Exporter);
-our @EXPORT = qw(mysub
+our @EXPORT = qw(getclip
+                 setclip
                  );
 
 # INITIALIZORS
 
 =head1 SYNOPSIS
 
-    use UnKnOwN;
+    use cmt::clip;
     mysub(arguments...)
 
 =head1 DESCRIPTION
 
-B<UnKnOwN> is a WHAT used for WHAT. It HOW-WORKS.
+B<cmt::clip> is a WHAT used for WHAT. It HOW-WORKS.
 
 BACKGROUND-PROBLEM.
 
-HOW-UnKnOwN-RESOLVES.
+HOW-cmt::clip-RESOLVES.
 
 =head1 FUNCTIONS
 
@@ -41,8 +42,33 @@ HOW-UnKnOwN-RESOLVES.
 =head2 mysub(arguments)
 
 =cut
-sub mysub {
-    # TODO
+sub getclip_x {
+    open(X, 'xsel -p |') or die "Can't read from xsel -p";
+    my @lines;
+    while (<X>) {
+        push @lines, $_;
+    }
+    close X;
+    join('', @lines);
+}
+
+sub getclip_win32 {
+}
+
+sub setclip_x {
+    open(X, '| xsel -ipb') or die "Can't write to xsel -ipb";
+	for (@_) {
+	    print X $_;
+	}
+	close X;
+}
+
+sub getclip {
+    getclip_x;
+}
+
+sub setclip {
+    &setclip_x;
 }
 
 =head1 DIAGNOSTICS
