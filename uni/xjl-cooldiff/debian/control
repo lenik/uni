@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-cooldiff
 
 Package: xjl-cooldiff
 Architecture: all
-Depends: diff, perl
+Depends: diff | diffutils, perl
 Description: Diff utilities
