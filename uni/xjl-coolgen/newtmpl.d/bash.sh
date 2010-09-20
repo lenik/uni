@@ -1,5 +1,5 @@
 #!/bin/bash
-    . shlib import cliboot
+    . shlib-import cliboot
 
     RCSID='$Id$'
     short_opts="hqv"

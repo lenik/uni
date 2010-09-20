@@ -1,12 +1,10 @@
 #!/bin/bash
 # master-file
-    . shlib
+    . shlib-import cliboot
 
     RCSID='$Id: bash.sh -1   $'
     short_opts="D:t:fhqv"
     long_opts="define,template,force,help,quiet,verbose,version"
-
-    import cliboot
 
     force=
     template=
@@ -160,7 +158,11 @@ function main() {
     done < <(egrep -o '@[a-zA-Z0-9_-]+@' "$tmplf" | sort -u)
 
     echo "Write $f..."
-    sed "${sed_args[@]}" <"$tmplf" >"$out"
+    if [ $sed_i = 0 ]; then
+        cat "$tmplf" >"$out"
+    else
+        sed "${sed_args[@]}" <"$tmplf" >"$out"
+    fi
 
     if [ "$out" != /dev/stdout ]; then
         chmod --reference "$tmplf" "$out"
