@@ -18,24 +18,37 @@
 .\"
 .TH CIDEB 1
 .SH NAME
-cideb \- Commit and Debuild and Dput and Update
+cideb \- Build Debian package for distribute and commit.
 .SH SYNOPSIS
 .B cideb
 
 .SH DESCRIPTION
-Commit to SVN (with commit-count field increased, if autover is used).
-Then run debuild to build .deb archive.
+cideb rebuild the Debian package by debuild, with version increased when
+apropriate.  The version management is done through autover and autotools,
+reconfiguration to the Makefiles is automaticlly done by autover.
 
-If everything succeeds, dput the built .deb archive to local repository,
-and do apt update to update the system.
-(If the package is previously installed)
+The commit field of the version is increased by 1, so the Debian build
+number is reset to 1 each time cideb is invoked.  The Debian changelog
+is automaticlly updated by dh_incr utility, which in turns call into
+autover to get the current version string.
+The environment variable DEBFULLNAME and DEBEMAIL is used to fill in
+the new changelog entry, and the corresponding GnuPG key is used to sign
+the result files.
+
+The built .deb archives are uploaded to dlocal host section defined in
+/etc/dput.cf, by default it's located at /var/lib/dlocal which is initialized
+by -dlocal package.  An apt update and dist-upgrade process is launched after
+dput is done.
+
+If everything goes well, a final SVN Commit is invoked, the clean build should
+always be checked in because the changelog isn't mandatory in -cooldeb policy.
 
 .SH EXAMPLES
 
 .B
 cideb
 .PP
-Run the commit/debuild/dput/update process.
+Run the BDUC (build/distrib/upgrade/commit) process.
 
 .SH ENVIRONMENT
 
