@@ -1,0 +1,59 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh 1731 2010-09-19 20:34:56Z lenik $'
+    short_opts="i:hqv"
+    long_opts="interval,help,quiet,verbose,version"
+
+    interval=1
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Repeat to run command"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] COMMAND ARGS"
+    echo
+    echo "Options: "
+    echo "    -i, --interval=SECS     sleep interval between each run"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -i|--interval)
+            interval=$2;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+	index=0
+    while true; do
+        ((index++))
+		xxxxx=${index//[0-9]/-}
+        _log1 "-------- Begin: $index --------"
+        "$@"
+        _log1 "----------------$xxxxx---------"
+	sleep $interval
+    done
+}
+
+boot "$@"

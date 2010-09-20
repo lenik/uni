@@ -15,7 +15,8 @@ dist_bin_SCRIPTS = \
 	echox \
 	swapox \
 	testox \
-	colorox
+	colorox \
+	loop
 
 setup_SCRIPTS = \
     postinst \
