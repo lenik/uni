@@ -57,10 +57,10 @@ sub getclip_win32 {
 
 sub setclip_x {
     open(X, '| xsel -ipb') or die "Can't write to xsel -ipb";
-	for (@_) {
-	    print X $_;
-	}
-	close X;
+    for (@_) {
+        print X $_;
+    }
+    close X;
 }
 
 sub getclip {

@@ -125,7 +125,7 @@ function main() {
         space='                                                                                                                                                                                                                                                     '
         echo -n "$message"
         if [ ${#message} -lt $width ]; then
-		echo -n "${space:0:width-${#message}}"
+            echo -n "${space:0:width-${#message}}"
         fi
     fi
 
@@ -144,11 +144,11 @@ function main() {
     fi
 
     if [ -n "$message" ]; then
-	if [ "$dirty" = 1 ]; then
-		echo Done
-	else
-		echo Skip
-	fi
+        if [ "$dirty" = 1 ]; then
+            echo Done
+        else
+            echo Skip
+        fi
     fi
 
     if [ "$edit_status" = 1 ]; then

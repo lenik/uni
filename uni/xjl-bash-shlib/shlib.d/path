@@ -1,38 +1,38 @@
 
 # getbase PATH
 function getbase() {
-	local base=${!1##*/}
-	eval $1_base=\"$base\"
+    local base=${!1##*/}
+    eval $1_base=\"$base\"
 }
 
 # getext PATH
 function getext() {
-	local base=${!1##*/}
-	local ext=${base##*.}
-	if [ ${#base} -eq ${#ext} ]; then
-		ext=
-	else
-		ext=.$ext
-	fi
-	eval $1_ext=$ext
+    local base=${!1##*/}
+    local ext=${base##*.}
+    if [ ${#base} -eq ${#ext} ]; then
+        ext=
+    else
+        ext=.$ext
+    fi
+    eval $1_ext=$ext
 }
 
 # getext2 PATH
 function getext2() {
-	local base=${!1##*/}
-	local file1=${base%.*}			# (file1).ext
-	local ext2
-	if [ ${#base} -eq ${#file1} ]; then
-		ext2=
-	else
-		ext2=${file1##*.}		# file2(.ext2).ext
-		if [ ${#file1} -eq ${#ext2} ]; then
-			ext2=
-		else
-			ext2=.$ext2
-		fi
-	fi
-	eval $1_ext2=$ext2
+    local base=${!1##*/}
+    local file1=${base%.*}            # (file1).ext
+    local ext2
+    if [ ${#base} -eq ${#file1} ]; then
+        ext2=
+    else
+        ext2=${file1##*.}        # file2(.ext2).ext
+        if [ ${#file1} -eq ${#ext2} ]; then
+            ext2=
+        else
+            ext2=.$ext2
+        fi
+    fi
+    eval $1_ext2=$ext2
 }
 
 # findpath PATH DIR OFFSET: return INDEX (1-based, 0 if not found)

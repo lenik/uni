@@ -77,7 +77,7 @@ HOW-UnKnOwN-RESOLVES.
 
 use-scheme ::=
     sy  system codec (phrase=[sys-id], group=[e,d], text=[text])
-    dq	digest for question (phrase=[], group=[a1..c4], text=[number])
+    dq    digest for question (phrase=[], group=[a1..c4], text=[number])
     dm  digest for site-key (phrase=[user], group=[len], text=[site])
 
 
@@ -160,11 +160,11 @@ sub _main {
 
 =cut
 sub load_pref {
-	my $pref = {
-	    '/scheme' => system_encode('dm'),
-	    '/phrase' => system_encode('lenik'),
-	    '/category' => system_encode('8'),
-	};
+    my $pref = {
+        '/scheme' => system_encode('dm'),
+        '/phrase' => system_encode('lenik'),
+        '/category' => system_encode('8'),
+    };
     return $pref;
 }
 

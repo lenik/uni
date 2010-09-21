@@ -23,7 +23,7 @@ sub new {
     my $attr = { data => $data, _tr => 0 };
     my $this;
        $this = sub { @_ ? range($this, @_) : $attr };
-	bless $this, $class;
+    bless $this, $class;
 }
 
 sub _lock       { shift->__lock(2) }

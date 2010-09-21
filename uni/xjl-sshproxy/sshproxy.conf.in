@@ -1,11 +1,11 @@
-description	"Cool SOCKS5 thru *.sshproxy.bodz.net"
-author		"谢继雷 (Lenik) <lenik@bodz.net>"
+description    "Cool SOCKS5 thru *.sshproxy.bodz.net"
+author        "谢继雷 (Lenik) <lenik@bodz.net>"
 
 start on (net-device-up IFACE!=lo)
 stop on runlevel[!2345]
 
 script
 
-	sudo -usshproxy ssh -ND 7878 sshproxy.bodz.net
+    sudo -usshproxy ssh -ND 7878 sshproxy.bodz.net
 
 end script

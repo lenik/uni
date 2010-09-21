@@ -4,16 +4,16 @@
     # or refresh the debian version if VERSION.av changed.
 
     if [ ! -f VERSION.av ]; then
-	echo "Not an autover-versioned dir. "
-	exit 1
+        echo "Not an autover-versioned dir. "
+        exit 1
     fi
 
     base="${PWD##*/}"
 
     if [ ! -f debian/changelog ]; then
-	echo "Generate a new changelog"
-	now=`date -R`
-	cat <<EOM >debian/changelog
+        echo "Generate a new changelog"
+        now=`date -R`
+        cat <<EOM >debian/changelog
 $base (0.0.1-1) lucid; urgency=low
 
   * Initial
@@ -41,10 +41,10 @@ EOM
                     mv -f $tmp debian/changelog
                 fi
             else
-		if [ "$truncate" = 1 ]; then
+                if [ "$truncate" = 1 ]; then
                     echo "Remove generated changelog"
-			#rm debian/changelog
-		fi
+                    #rm debian/changelog
+                fi
             fi
 
             cd ..

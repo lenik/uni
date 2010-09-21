@@ -13,34 +13,34 @@ if [ ! -f "$base.bat" ]; then
 fi
 
 while true; do
-	gpg -q --batch --gen-key $base.bat 2>/dev/null
+    gpg -q --batch --gen-key $base.bat 2>/dev/null
 
-	# pub  2048R/78025873 2010-06-10 谢继雷 (99计算机) <xjl@99jsj.com>
-	read PUB SZ_ID DATE NAME OTHER < <(gpg --list-options show-keyring $base.pub)
-	SZ=${SZ_ID%/*}
-	ID=${SZ_ID#*/}
-	echo "$NAME $ID ($SZ)"
+    # pub  2048R/78025873 2010-06-10 谢继雷 (99计算机) <xjl@99jsj.com>
+    read PUB SZ_ID DATE NAME OTHER < <(gpg --list-options show-keyring $base.pub)
+    SZ=${SZ_ID%/*}
+    ID=${SZ_ID#*/}
+    echo "$NAME $ID ($SZ)"
 
     # convert to ascii file
 
-	gpg -q --import $base.pub $base.sec>/dev/null
+    gpg -q --import $base.pub $base.sec>/dev/null
 
-	gpg -q --export             -a $ID >$base.pub
-	gpg -q --export-secret-keys -a $ID >$base.sec
+    gpg -q --export             -a $ID >$base.pub
+    gpg -q --export-secret-keys -a $ID >$base.sec
 
     FP=`gpg --fingerprint $ID | grep =`
     FP="${FP##*= }"
     FP=${FP// }
     gpg --batch --delete-secret-and-public-keys $FP
 
-	if [ ${ID/[A-Za-z]} == $ID ]; then
-		echo "Got!"
-		mkdir -p $base
-		mv -f $base.pub $base/$base-$SZ-$ID.pub
-		mv -f $base.sec $base/$base-$SZ-$ID.sec
-		break
-	else
-	    mv -f $base.pub last.pub
-	    mv -f $base.sec last.sec
-	fi
+    if [ ${ID/[A-Za-z]} == $ID ]; then
+        echo "Got!"
+        mkdir -p $base
+        mv -f $base.pub $base/$base-$SZ-$ID.pub
+        mv -f $base.sec $base/$base-$SZ-$ID.sec
+        break
+    else
+        mv -f $base.pub last.pub
+        mv -f $base.sec last.sec
+    fi
 done

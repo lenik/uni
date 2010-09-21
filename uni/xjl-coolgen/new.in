@@ -30,7 +30,7 @@ our @opt_tmpl_dirs = qw(@newtmpldir@);
 sub _boot {
     my $self = path_split($0);
     if ($self =~ /^new-(.*)/) {
-	$opt_template_name = $1;
+        $opt_template_name = $1;
     }
 
     GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
@@ -44,22 +44,22 @@ sub _boot {
                );
 
     unless (defined $opt_template_name) {
-	die "Template is unknown" unless @ARGV;
-	$opt_template_name = shift @ARGV;
+        die "Template is unknown" unless @ARGV;
+        $opt_template_name = shift @ARGV;
     }
 
     if (-f $opt_template_name) {
-	$opt_template_file = $opt_template_name;
+        $opt_template_file = $opt_template_name;
     } else {
-	for my $dir (@opt_tmpl_dirs) {
-		my $prefix = path_join($dir, $opt_template_name);
-		if (-f $prefix) {
-			$opt_template_file = $prefix;
+        for my $dir (@opt_tmpl_dirs) {
+            my $prefix = path_join($dir, $opt_template_name);
+            if (-f $prefix) {
+                $opt_template_file = $prefix;
             } else {
-		my @glob = <$prefix.*>;
-		if (@glob) {
-			$opt_template_file = shift @glob;
-			last;
+                my @glob = <$prefix.*>;
+                if (@glob) {
+                    $opt_template_file = shift @glob;
+                    last;
                 }
             }
         }
@@ -69,7 +69,7 @@ sub _boot {
 
     $opt_outfile = shift @ARGV;
     if (defined($opt_outfile) and $opt_outfile eq '-') {
-	undef $opt_outfile;
+        undef $opt_outfile;
     }
 
     for (@ARGV) {
@@ -77,20 +77,20 @@ sub _boot {
         my $key = $_;
         my $val = '';
         if ($eq != -1) {
-		$key = substr($_, 0, $eq);
-		$val = substr($_, $eq + 1);
+            $key = substr($_, 0, $eq);
+            $val = substr($_, $eq + 1);
         }
         $opt_vars{$key} = $val;
     }
 
     if ($opt_env) {
-	%opt_vars = (%ENV, %opt_vars);
+        %opt_vars = (%ENV, %opt_vars);
     }
 
 
     _log2 "template: $opt_template_file";
     for my $k (keys %opt_vars) {
-	_log2 "  preference $k = $opt_vars{$k}"
+        _log2 "  preference $k = $opt_vars{$k}"
     }
 
     _main;
@@ -190,33 +190,33 @@ sub _main {
         or die("Can't open template file $opt_template_file: $!");
 
     if (defined $opt_outfile) {
-	if (-f $opt_outfile) {
-		if ($opt_force) {
-			_log1 "Overwrite $opt_outfile";
+        if (-f $opt_outfile) {
+            if ($opt_force) {
+                _log1 "Overwrite $opt_outfile";
             } else {
-		die "File $opt_outfile is already existed. ";
+                die "File $opt_outfile is already existed. ";
             }
         }
         open(OUT, ">$opt_outfile")
             or die("Can't write to file $opt_outfile: $!");
     } else {
-	*OUT = *STDOUT;
+        *OUT = *STDOUT;
     }
 
     while (<TMPL>) {
-	while (/@(\w+)(?:=(.*?))?@/) {
-		my $key = $1;
-		my $val = $opt_vars{$key};
-		my $defl = $2;
-		unless (defined $val) {
-			print "Please enter a value for $key: ";
-			$val = <STDIN>;
-			chomp $val;
-			if ($val eq '' and defined $defl) {
-				$val = $defl;
-			}
-			$opt_vars{$key} = $val;
-		}
+        while (/@(\w+)(?:=(.*?))?@/) {
+            my $key = $1;
+            my $val = $opt_vars{$key};
+            my $defl = $2;
+            unless (defined $val) {
+                print "Please enter a value for $key: ";
+                $val = <STDIN>;
+                chomp $val;
+                if ($val eq '' and defined $defl) {
+                    $val = $defl;
+                }
+                $opt_vars{$key} = $val;
+            }
             $_ = substr($_, 0, $-[0]) . $val . substr($_, $+[0]);
         }
         print OUT $_;
@@ -227,8 +227,8 @@ sub _main {
 
     if (defined $opt_outfile) {
         _log2 "Set permission to the same as template file. ";
-	my $perm = (stat $opt_template_file)[2] & 07777;
-	chmod $perm, $opt_outfile;
+        my $perm = (stat $opt_template_file)[2] & 07777;
+        chmod $perm, $opt_outfile;
     }
 }
 

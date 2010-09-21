@@ -9,15 +9,15 @@ while read g; do
     g="${g##*<groupId>}"
     g="${g%%</groupId>*}"
     GROUP_ID="$g"
-	break
+    break
 done < <(grep -C4 "$PARENT_ID" pom.xml | grep "<groupId>")
 
 if _ver=`grep -A3 "$PARENT_ID" pom.xml | grep "<version>"`; then
-	_ver="${_ver##*<version>}"
-	_ver="${_ver%%</version>*}"
-	PARENT_VERSION="$_ver"
+    _ver="${_ver##*<version>}"
+    _ver="${_ver%%</version>*}"
+    PARENT_VERSION="$_ver"
 else
-	echo "Can't find parent version from pom.xml"
+    echo "Can't find parent version from pom.xml"
 fi
 
 echo "Parent: $GROUP_ID:$PARENT_ID:$PARENT_VERSION"

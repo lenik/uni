@@ -28,7 +28,7 @@ fi
 mktmp="Makefile.$$.$RANDOM"
 cp -f $mkorig $mktmp
 echo "$test_target: ">>$mktmp
-echo "	$test_rule">>$mktmp
+echo "    $test_rule">>$mktmp
 
 $MAKE -f "$mktmp" "$@" $test_target
 

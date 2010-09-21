@@ -46,12 +46,12 @@ sub END {
 
 @ISA = qw(Exporter);
 @EXPORT = qw(
-	vbs_eval
-	vbs_exec
-	vbs_reset
-	js_eval
-	js_exec
-	js_reset
+    vbs_eval
+    vbs_exec
+    vbs_reset
+    js_eval
+    js_exec
+    js_reset
 );
 
 1;

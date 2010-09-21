@@ -3,4 +3,4 @@
 libverdir = ${bindir}
 
 libver_SCRIPTS = \
-	svn_revision
+    svn_revision

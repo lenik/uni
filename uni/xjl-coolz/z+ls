@@ -1,53 +1,53 @@
 #!/bin/bash
 
 function prefix() {
-	while read -r line; do
-		echo $1$line
-	done
+    while read -r line; do
+        echo $1$line
+    done
 }
 
 function getext2() {
-	base1=${1%.*}
-	if [ ${#1} -eq ${#base1} ]; then	# base(.noext)
-		ext2=
-	else
-		ext2=${base1##*.}
-		if [ ${#1} -eq ${#ext2} ]; then	# base(.noext2).ext
-			ext2=
-		fi
-	fi
+    base1=${1%.*}
+    if [ ${#1} -eq ${#base1} ]; then    # base(.noext)
+        ext2=
+    else
+        ext2=${base1##*.}
+        if [ ${#1} -eq ${#ext2} ]; then    # base(.noext2).ext
+            ext2=
+        fi
+    fi
 }
 
 while read -r file; do
-	base=${file##*/}
-	ext=${base##*.}
-	if [ ${#base} -eq ${#ext} ]; then ext=; fi
-	case .$ext in
-	.zip)
-		unzip -qql $file | cut -c29- | prefix $file::;;
-	.7z)
-		un7zip -l $file | prefix $file::;;
-	.jar|.war|.ear)
-		jar -tf  $file| prefix $file::;;
-	.tgz)
-		tar -tzf $file | prefix $file::;;
-	.gz)
-		getext2 $base
-		case .$ext2 in
-		.tar)
-			tar -tzf $file | prefix $file::;;
-		*)
-			echo $file
-		esac;;
-	.bz2|.bzip2 | .bz|.bzip)
-		getext2 $base
-		case .$ext2 in
-		.tar)
-			bunzip2 -c $file | tar -t | prefix $file::;;
-		*)
-			echo $file
-		esac;;
-	*)
-		echo $file
-	esac
+    base=${file##*/}
+    ext=${base##*.}
+    if [ ${#base} -eq ${#ext} ]; then ext=; fi
+    case .$ext in
+    .zip)
+        unzip -qql $file | cut -c29- | prefix $file::;;
+    .7z)
+        un7zip -l $file | prefix $file::;;
+    .jar|.war|.ear)
+        jar -tf  $file| prefix $file::;;
+    .tgz)
+        tar -tzf $file | prefix $file::;;
+    .gz)
+        getext2 $base
+        case .$ext2 in
+        .tar)
+            tar -tzf $file | prefix $file::;;
+        *)
+            echo $file
+        esac;;
+    .bz2|.bzip2 | .bz|.bzip)
+        getext2 $base
+        case .$ext2 in
+        .tar)
+            bunzip2 -c $file | tar -t | prefix $file::;;
+        *)
+            echo $file
+        esac;;
+    *)
+        echo $file
+    esac
 done

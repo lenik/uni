@@ -1,8 +1,8 @@
 #!/bin/sh
 
 if [ -z "$2" ]; then
-	echo $0 file1 file2
-	exit 1
+    echo $0 file1 file2
+    exit 1
 fi
 
 mv "$1" "$1.swp.tmp"

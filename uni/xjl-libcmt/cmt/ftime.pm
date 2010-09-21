@@ -7,7 +7,7 @@ use Time::HiRes('time', 'usleep');
 
 our @ISA    = qw(Exporter);
 our @EXPORT = qw(ftime
-		 fsleep
+                 fsleep
                  cftime
                  localftime
                  );

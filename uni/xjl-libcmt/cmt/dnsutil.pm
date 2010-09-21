@@ -37,8 +37,8 @@ sub conf_replace_ip {
 
 @ISA = qw(Exporter);
 @EXPORT = qw(
-	resolv
-	conf_replace_ip
-	);
+    resolv
+    conf_replace_ip
+    );
 
 1;

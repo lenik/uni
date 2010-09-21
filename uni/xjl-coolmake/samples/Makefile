@@ -2,4 +2,4 @@
 hello = world
 
 all:
-	echo $(hello)
+    echo $(hello)

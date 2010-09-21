@@ -48,7 +48,7 @@ function main() {
 
     if [ -z "$1" ]; then
         echo "Pattern isn't specified. " >&2
-	exit 1
+        exit 1
     fi
     pattern="$1"
 

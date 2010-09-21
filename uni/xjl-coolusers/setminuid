@@ -27,7 +27,7 @@ fi
 
 tmp=/tmp/setuidmin-ldeftmp.$$.$RANDOM
 
-sed -e 's/\bUID_MIN[ 	]\+[0-9]\+/UID_MIN '$min'/' $logindef >$tmp
+sed -e 's/\bUID_MIN[     ]\+[0-9]\+/UID_MIN '$min'/' $logindef >$tmp
 if ! cmp -s $logindef $tmp; then
     echo Change UID_MIN to $min.
     mv -f $tmp $logindef

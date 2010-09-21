@@ -40,58 +40,58 @@ function setopt() {
 }
 
 function check() {
-	local f=$1
-	shift
+    local f=$1
+    shift
 
-	for n in "$@"; do
-		_log2 "  check $n"
-		if ! grep -q "^$n\$" $f; then
-			echo "  Bad-Ref: $n ($package)"
-		fi
-	done
+    for n in "$@"; do
+        _log2 "  check $n"
+        if ! grep -q "^$n\$" $f; then
+            echo "  Bad-Ref: $n ($package)"
+        fi
+    done
 }
 
 function main() {
 
-	listf=`tempfile`
-	sortf=`tempfile`
+    listf=`tempfile`
+    sortf=`tempfile`
 
-	_log1 "Collect package names"
-	apt-cache pkgnames >$listf
+    _log1 "Collect package names"
+    apt-cache pkgnames >$listf
     for p in "$@"; do
-	p=${p%/}
-	if [ ! -d "$p" ]; then
-		echo "Package directory doesn't exist: $p"
-		exit 1
-	fi
-	base=${p##*/}
-	echo "$base" >>$listf
+        p=${p%/}
+        if [ ! -d "$p" ]; then
+            echo "Package directory doesn't exist: $p"
+            exit 1
+        fi
+        base=${p##*/}
+        echo "$base" >>$listf
     done
 
     for p in "$@"; do
-	p=${p%/}
-	_log2 "  Collect provides of $p"
-		pushd "$p" >/dev/null
-			dh_package_field -l >>$listf
-			dh_package_field -l | while read p; do
-				dh_package_field -p $p -s Provides >>$listf
-			done
-		popd >/dev/null
-	done
+        p=${p%/}
+        _log2 "  Collect provides of $p"
+        pushd "$p" >/dev/null
+            dh_package_field -l >>$listf
+            dh_package_field -l | while read p; do
+                dh_package_field -p $p -s Provides >>$listf
+            done
+        popd >/dev/null
+    done
     sort -u $listf >$sortf
 
     _log1 "Packages in all: " `wc -l $sortf | cut -d\  -f1`
 
     for package in "$@"; do
-	package=${package%/}
-	_log1 "Package $package"
+        package=${package%/}
+        _log1 "Package $package"
 
-	pushd "$package" >/dev/null
+        pushd "$package" >/dev/null
 
-	check $sortf `dh_package_field -s Depends`
-	check $sortf `dh_package_field -s Recommends`
+        check $sortf `dh_package_field -s Depends`
+        check $sortf `dh_package_field -s Recommends`
 
-	popd >/dev/null
+        popd >/dev/null
     done
 
     rm -f $listf

@@ -9,7 +9,7 @@
 
     incr=0
     if [ ! -f debian/changelog ]; then
-	incr=1
+        incr=1
     fi
 
 function version() {

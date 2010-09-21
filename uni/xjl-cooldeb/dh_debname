@@ -5,24 +5,24 @@ use Debian::Debhelper::Dh_Lib;
 # use Data::Dumper;
 
 init(options => {
-	"filename=s" => \$dh{FILENAME},
-	"destdir=s" => \$dh{DESTDIR},
+    "filename=s" => \$dh{FILENAME},
+    "destdir=s" => \$dh{DESTDIR},
 });
 
 # print Dumper(\%dh);
 
 # Set the default destination directory.
 if (! defined $dh{DESTDIR}) {
-	$dh{DESTDIR}='..';
+    $dh{DESTDIR}='..';
 }
 
 if (! defined $dh{FILENAME}) {
-	$dh{FILENAME}='';
+    $dh{FILENAME}='';
 }
 else {
-	$dh{FILENAME}="/$dh{FILENAME}";
+    $dh{FILENAME}="/$dh{FILENAME}";
 }
 
 foreach my $package (@{$dh{DOPACKAGES}}) {
-	print udeb_filename($package) . "\n";
+    print udeb_filename($package) . "\n";
 }

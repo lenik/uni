@@ -9,10 +9,10 @@ echo "Turn off dlocal site"
     /etc/init.d/apache2 reload
 
 local_list=/etc/apt/sources.list.d/local.list
-	lineconf -tm "Remove deb dlocal from local.list" \
-		$local_list @deb::dlocal
+    lineconf -tm "Remove deb dlocal from local.list" \
+        $local_list @deb::dlocal
 
-	lineconf -tm "Remove deb-src dlocal from local.list" \
-		$local_list @deb-src::dlocal
+    lineconf -tm "Remove deb-src dlocal from local.list" \
+        $local_list @deb-src::dlocal
 
 exit 0

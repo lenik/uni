@@ -1,7 +1,11 @@
 #!/bin/sh
 
+istmp=0
+
 if [ -z "$1" ]; then
-    in=/dev/stdin
+    in=`tempfile`
+    cat >"$in"
+    istmp=1
 else
     in="$1"
 fi
@@ -11,21 +15,23 @@ if [ ! -r "$in" ]; then
 fi
 
 hastab=0
-mixed=0
+hasspace=0
 
-if egrep -q '^	+  ' $in; then
-    hastab=1
-    mixed=1
-elif egrep -q '^	+' $in; then
-    hastab=1
-fi
+____='    '
+__=' '
+
+if egrep -q "^$__*$____" $in; then hastab=1; fi
+if egrep -q "^$____*$__" $in; then hasspace=1; fi
+
+if [ $istmp = 1 ]; then rm -f "$in"; fi
 
 if [ $hastab = 1 ]; then
-    expandtab=0
-    if [ $mixed = 1 ]; then
+    if [ $hasspace = 1 ]; then
+        expandtab=1
         tabsize=8
         indent=4
     else
+        expandtab=0
         tabsize=4
         indent=4
     fi

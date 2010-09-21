@@ -1,51 +1,51 @@
 
 # get_perm [-u] NAME
 function get_perm() {
-	local scope regpath
-	local arg
-	local dest src value
-	# set -- `getopt -aluser,system,help,version -- $*`
-	scope=machine
-	for arg; do
-		case $arg in
-		-u|--user)
-			shift; scope=user;;
-		-s|--system)
-			shift; scope=system;;
-		-h|--help)
-			echo $0 [OPTION] DEST[=SRC] [[DEST[=SRC]...]
-			echo OPTION:
-			echo     -u, --user     affect current-user only
-			echo     -s, --system   affect all users
-			echo     -h, --help     show this help page
-			echo     -v, --version  show version info
-			exit 0;;
-		-v|--version)
-			echo get_perm version 0.0.1
-			echo written by Lenik, distributed under GPL license.
-			exit 0;;
-		--) shift; break;;
-		-*) echo invalid option: $arg; exit 2;;
-		*) break;
-		esac
-	done
+    local scope regpath
+    local arg
+    local dest src value
+    # set -- `getopt -aluser,system,help,version -- $*`
+    scope=machine
+    for arg; do
+        case $arg in
+        -u|--user)
+            shift; scope=user;;
+        -s|--system)
+            shift; scope=system;;
+        -h|--help)
+            echo $0 [OPTION] DEST[=SRC] [[DEST[=SRC]...]
+            echo OPTION:
+            echo     -u, --user     affect current-user only
+            echo     -s, --system   affect all users
+            echo     -h, --help     show this help page
+            echo     -v, --version  show version info
+            exit 0;;
+        -v|--version)
+            echo get_perm version 0.0.1
+            echo written by Lenik, distributed under GPL license.
+            exit 0;;
+        --) shift; break;;
+        -*) echo invalid option: $arg; exit 2;;
+        *) break;
+        esac
+    done
 
-	case $scope in
-	user)		regpath="/user/Environment";;
-	machine)	regpath="/machine/SYSTEM/CurrentControlSet/Control/Session Manager/Environment";;
-	esac
+    case $scope in
+    user)        regpath="/user/Environment";;
+    machine)    regpath="/machine/SYSTEM/CurrentControlSet/Control/Session Manager/Environment";;
+    esac
 
-	for arg; do
-		dest=${arg%%=*}
-		if [ ${#dest} -eq ${#arg} ]; then
-			src=$dest
-		else
-			src=${arg#*=}
-		fi
-		value=`regtool get "$regpath/$src" 2>/dev/null` ||
-			(echo can\'t get $src.; exit 10)
-		eval "$dest=\"$value\""
-	done
+    for arg; do
+        dest=${arg%%=*}
+        if [ ${#dest} -eq ${#arg} ]; then
+            src=$dest
+        else
+            src=${arg#*=}
+        fi
+        value=`regtool get "$regpath/$src" 2>/dev/null` ||
+            (echo can\'t get $src.; exit 10)
+        eval "$dest=\"$value\""
+    done
 }
 
 get_perm $*

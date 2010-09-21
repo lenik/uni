@@ -62,10 +62,10 @@ sub ora_tab {
 @ISA = qw(Exporter);
 @EXPORT = qw(
         ora_home
-	ora_tnsnames
-	ora_connect
-	ora_disconnect
-	ora_tab
-	);
+    ora_tnsnames
+    ora_connect
+    ora_disconnect
+    ora_tab
+    );
 
 1;

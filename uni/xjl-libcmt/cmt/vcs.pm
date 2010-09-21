@@ -29,6 +29,6 @@ sub parse_id {
 
 @ISA = qw(Exporter);
 @EXPORT = qw(
-	parse_id
-	);
+    parse_id
+    );
 1;

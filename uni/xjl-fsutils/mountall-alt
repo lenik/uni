@@ -1,29 +1,29 @@
 #!/bin/bash
 
 if [ $# -gt 0 ]; then
-	while [ $# -gt 0 ]; do
-		$0 <$1
-		last=$?
-		shift
-	done
-	exit $last
+    while [ $# -gt 0 ]; do
+        $0 <$1
+        last=$?
+        shift
+    done
+    exit $last
 fi
 
 while read spec file vfstype mntops freq passno _; do
-	if [ -z $file ]; then
-		:
-	elif [ "${spec:0:1}" == "#" ]; then
-		:
-	elif [ ! -b "$spec" ]; then
-		:
-	elif [ $vfstype == 'swap' ]; then
-		swapon $spec 2>/dev/null
-	elif ! mountpoint -q $file; then
-		echo -n Mounting $spec...
-		if mount -t $vfstype -o $mntops $spec $file; then
-			echo OK!
-		else
-			echo Failed "($?)".
-		fi
-	fi
+    if [ -z $file ]; then
+        :
+    elif [ "${spec:0:1}" == "#" ]; then
+        :
+    elif [ ! -b "$spec" ]; then
+        :
+    elif [ $vfstype == 'swap' ]; then
+        swapon $spec 2>/dev/null
+    elif ! mountpoint -q $file; then
+        echo -n Mounting $spec...
+        if mount -t $vfstype -o $mntops $spec $file; then
+            echo OK!
+        else
+            echo Failed "($?)".
+        fi
+    fi
 done

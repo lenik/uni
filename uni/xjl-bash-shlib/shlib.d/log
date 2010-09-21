@@ -22,8 +22,8 @@ function _sig() {
         shift
         line="$LOGPREFIX$@"
         if [ ${#line} -lt 80 ]; then
-	    line="$line${LINEPAD:0:$((80-${#line}))}"
-	fi
+            line="$line${LINEPAD:0:$((80-${#line}))}"
+        fi
         echo -n "$line"$'\r' >&2
     fi
 }

@@ -45,14 +45,14 @@ function setopt() {
 }
 
 function main() {
-	index=0
+    index=0
     while true; do
         ((index++))
-		xxxxx=${index//[0-9]/-}
+        xxxxx=${index//[0-9]/-}
         _log1 "-------- Begin: $index --------"
         "$@"
         _log1 "----------------$xxxxx---------"
-	sleep $interval
+        sleep $interval
     done
 }
 

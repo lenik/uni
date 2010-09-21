@@ -128,8 +128,8 @@ sub simpled {
     discard
     timed
     qotd
-	chargend
-	simpled
-	);
+    chargend
+    simpled
+    );
 
 1;

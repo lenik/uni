@@ -427,6 +427,6 @@ our %_VK = (
 @EXPORT = qw(
     msgbox
     %_ID %_WM %_VK
-	);
+    );
 
 1;

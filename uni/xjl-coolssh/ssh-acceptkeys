@@ -1,15 +1,15 @@
 #!/bin/bash
 
 if [ "$1" = "-f" ]; then
-	khfile="$2"
-	shift 2
+    khfile="$2"
+    shift 2
 else
-	khfile=`ssh-globalknownhosts`
+    khfile=`ssh-globalknownhosts`
 fi
 
 if [ $# -lt 1 ]; then
-	echo "$0 [-f KnownHostsFile] HostName..."
-	exit 1
+    echo "$0 [-f KnownHostsFile] HostName..."
+    exit 1
 fi
 
 echo -n >>$khfile

@@ -168,10 +168,10 @@ sub _main {
 
     my $package;
     if (defined $opt_package_name) {
-	$package = $package_map{$opt_package_name};
+        $package = $package_map{$opt_package_name};
     } else {
-	$opt_package_index ||= 0;
-	$package = $package_list[$opt_package_index];
+        $opt_package_index ||= 0;
+        $package = $package_list[$opt_package_index];
     }
 
     die "No package selected. " unless defined $package;

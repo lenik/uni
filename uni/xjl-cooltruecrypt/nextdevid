@@ -20,22 +20,22 @@ for prefix in "$@"; do
     maxsuffix=
 
     for item in "$prefix"*; do
-	suffix="${item:nprefix}"
+    suffix="${item:nprefix}"
 
-	# suffix must be digits only.
-	if [ -n "${suffix//[0-9]}" ]; then continue; fi
+    # suffix must be digits only.
+        if [ -n "${suffix//[0-9]}" ]; then continue; fi
 
-	if [ -z "$maxsuffix" ]; then
-	    maxsuffix="$suffix"
-	elif [ "$maxsuffix" -lt "$suffix" ]; then
-	    maxsuffix="$suffix"
-	fi
+        if [ -z "$maxsuffix" ]; then
+            maxsuffix="$suffix"
+        elif [ "$maxsuffix" -lt "$suffix" ]; then
+            maxsuffix="$suffix"
+        fi
     done
 
     if [ -n "$maxsuffix" ]; then
         nextid=$((maxsuffix + 1))
     else
-	nextid=$startid
+        nextid=$startid
     fi
     echo "$prefix$nextid"
 

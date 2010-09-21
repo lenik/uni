@@ -1,9 +1,9 @@
 
 # initdir DIR
 function initdir() {
-	if [ -f "$1/.initdir" ]; then
-		pushd "$1" >/dev/null
-		. .initdir
-		popd >/dev/null
-	fi
+    if [ -f "$1/.initdir" ]; then
+        pushd "$1" >/dev/null
+        . .initdir
+        popd >/dev/null
+    fi
 }

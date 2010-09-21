@@ -7,8 +7,8 @@ install -d -m 2775 -o root -g dev /var/lib/dlocal/mini-dinstall
 install -d -m 2775 -o root -g dev /var/lib/dlocal/mini-dinstall/incoming
 
 if ! grep -q '\[dlocal\]' /etc/dput.cf; then
-	echo "Create new [dlocal] section"
-	cat <<EOM >>/etc/dput.cf
+    echo "Create new [dlocal] section"
+    cat <<EOM >>/etc/dput.cf
 
 [dlocal]
 # @dlocal::method
@@ -40,12 +40,12 @@ echo "Turn on dlocal site"
 
 local_list=/etc/apt/sources.list.d/local.list
 codename=`lsb_release -cs`
-	lineconf -tm "Add to local.list: deb dlocal $codename/" \
-		$local_list @deb::dlocal \
-		"deb     http://dlocal/ $codename/"
+    lineconf -tm "Add to local.list: deb dlocal $codename/" \
+        $local_list @deb::dlocal \
+        "deb     http://dlocal/ $codename/"
 
-	lineconf -tm "Add to local.list: deb-src dlocal $codename/" \
-		$local_list @deb-src::dlocal \
-		"deb-src http://dlocal/ $codename/"
+    lineconf -tm "Add to local.list: deb-src dlocal $codename/" \
+        $local_list @deb-src::dlocal \
+        "deb-src http://dlocal/ $codename/"
 
 exit 0

@@ -3,9 +3,9 @@
 # master-file
 
 if ! grep -s @host::plist /etc/hosts; then
-	echo "Add p-hosts to hosts file"
+    echo "Add p-hosts to hosts file"
 
-	echo "@host::plist" >>/etc/hosts
+    echo "@host::plist" >>/etc/hosts
     for ((i = 1; i < 255; i++)); do
         echo "192.168.1.$i p$i" >>/etc/hosts
     done
