@@ -24,3 +24,9 @@ dist-hook:
 install-data-hook:
 	cp -RT $(srcdir)/newtmpl.d $(DESTDIR)$(newtmpldir)
 	find $(DESTDIR)$(newtmpldir) -type d -name .svn -exec rm -fR {} \; -prune
+	cd $(DESTDIR)$(bindir); \
+		for tmpl in $(newtmpldir)/*; do \
+			base="$${tmpl##*/}"; \
+			base="$${base%.*}"; \
+			ln -snf new new-$$base; \
+		done
