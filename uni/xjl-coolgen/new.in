@@ -1,0 +1,272 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+new - Generate new file from template
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'new'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::path('path_split', 'path_join');
+# use cmt::util('readfile', 'writefile', 'listdir');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl 974 2008-09-29 11:45:47Z lenik $');
+use Getopt::Long;
+
+sub _main; sub _version; sub _help;
+
+our $opt_force;
+our $opt_template_name;
+our $opt_template_file;
+our %opt_vars;
+our $opt_env;
+
+our $opt_outfile;
+our @opt_tmpl_dirs = qw(newtmpl.d);
+
+sub _boot {
+    my $self = path_split($0);
+    if ($self =~ /^new-(.*)/) {
+	$opt_template_name = $1;
+    }
+
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'force|f'        => \$opt_force,
+               'template|t=s'   => \$opt_template_name,
+               'define|D=s'     => \%opt_vars,
+               'env|e'          => \$opt_env,
+               );
+
+    unless (defined $opt_template_name) {
+	die "Template is unknown" unless @ARGV;
+	$opt_template_name = shift @ARGV;
+    }
+
+    if (-f $opt_template_name) {
+	$opt_template_file = $opt_template_name;
+    } else {
+	for my $dir (@opt_tmpl_dirs) {
+		my $prefix = path_join($dir, $opt_template_name);
+		if (-f $prefix) {
+			$opt_template_file = $prefix;
+            } else {
+		my @glob = <$prefix.*>;
+		if (@glob) {
+			$opt_template_file = shift @glob;
+			last;
+                }
+            }
+        }
+        die "Template $opt_template_name hasn't been defined. "
+            unless defined $opt_template_file;
+    }
+
+    $opt_outfile = shift @ARGV;
+    if (defined($opt_outfile) and $opt_outfile eq '-') {
+	undef $opt_outfile;
+    }
+
+    for (@ARGV) {
+        my $eq = index($_, '=');
+        my $key = $_;
+        my $val = '';
+        if ($eq != -1) {
+		$key = substr($_, 0, $eq);
+		$val = substr($_, $eq + 1);
+        }
+        $opt_vars{$key} = $val;
+    }
+
+    if ($opt_env) {
+	%opt_vars = (%ENV, %opt_vars);
+    }
+
+
+    _log2 "template: $opt_template_file";
+    for my $k (keys %opt_vars) {
+	_log2 "  preference $k = $opt_vars{$k}"
+    }
+
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<new>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<new> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-new-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item Show help
+
+    new --help
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print <<"EOM";
+
+Syntax:
+    new [OPTIONS] [--] TemplateName File [KEY=VALUE...]"
+    new-TemplateName [OPTIONS] [--] File [KEY=VALUE...]"
+    new* [OPTIONS] -t TemplateName [--] File [KEY=VALUE...]"
+
+Common options:
+    -D, --define=KEY=VALUE  redefine variables
+    -t, --template=NAME     specifiy the template to use
+    -f, --force             overwrite existing files
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+
+    open(TMPL, "<$opt_template_file")
+        or die("Can't open template file $opt_template_file: $!");
+
+    if (defined $opt_outfile) {
+	if (-f $opt_outfile) {
+		if ($opt_force) {
+			_log1 "Overwrite $opt_outfile";
+            } else {
+		die "File $opt_outfile is already existed. ";
+            }
+        }
+        open(OUT, ">$opt_outfile")
+            or die("Can't write to file $opt_outfile: $!");
+    } else {
+	*OUT = *STDOUT;
+    }
+
+    while (<TMPL>) {
+	while (/@(\w+)(?:=(.*?))?@/) {
+		my $key = $1;
+		my $val = $opt_vars{$key};
+		my $defl = $2;
+		unless (defined $val) {
+			print "Please enter a value for $key: ";
+			$val = <STDIN>;
+			chomp $val;
+			if ($val eq '' and defined $defl) {
+				$val = $defl;
+			}
+			$opt_vars{$key} = $val;
+		}
+            $_ = substr($_, 0, $-[0]) . $val . substr($_, $+[0]);
+        }
+        print OUT $_;
+    }
+
+    close OUT;
+    close TMPL;
+
+    if (defined $opt_outfile) {
+        _log2 "Set permission to the same as template file. ";
+	my $perm = (stat $opt_template_file)[2] & 07777;
+	chmod $perm, $opt_outfile;
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Generate new file from template\n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
