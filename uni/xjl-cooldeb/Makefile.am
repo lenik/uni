@@ -14,7 +14,8 @@ dist_bin_SCRIPTS = \
 	deb-clean \
 	cideb \
 	apt-get-reinstall2 \
-	dh_package_field
+	dh_package_field \
+	dh_check_depends
 
 bin_SCRIPTS = \
 	dh_add_missing

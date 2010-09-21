@@ -17,6 +17,7 @@ use Data::Dumper;
 sub _main; sub _version; sub _help;
 sub commit($);
 
+our $opt_list;
 our $opt_package_name;
 our $opt_package_index;
 our $opt_simple_list;
@@ -29,6 +30,7 @@ sub _boot {
                'verbose|v'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
                'help|h'         => sub { _help; exit 0 },
+               'list|l'         => \$opt_list,
                'package|p=s'    => \$opt_package_name,
                'index|i=n'      => \$opt_package_index,
                'slist|s'        => \$opt_simple_list,
@@ -107,6 +109,7 @@ sub _help {
     print "\nSyntax: \n    $0 [OPTION] [--] FIELD-NAME\n", <<'EOM';
 
 Common options:
+    -l, --list              list the package names
     -p, --package=NAME      select the specific package by name
     -i, --index=INDEX       select the specific package by index
     -s, --slist             simplify the value-list (used for Depends stuff)
@@ -156,7 +159,12 @@ sub _main {
         commit(\%vars);
     }
 
-    _log2 Dumper(\%package_map);
+    if ($opt_list) {
+        _log2 Dumper(\%package_map);
+        for my $name (keys %package_map) {
+            print "$name\n";
+        }
+    }
 
     my $package;
     if (defined $opt_package_name) {
