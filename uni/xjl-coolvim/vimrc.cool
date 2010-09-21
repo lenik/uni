@@ -1,0 +1,10 @@
+
+" Lenik's cool VIM defaults
+
+set expandtab
+set tabstop=8
+set shiftwidth=4
+set smartindent
+set smarttab
+
+colorscheme murphy

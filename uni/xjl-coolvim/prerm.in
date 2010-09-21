@@ -1,3 +1,8 @@
 #!/bin/sh
 
 # master-file
+
+lineconf -k -p\" -tm "Unconfig vimrc.cool" @vimconfdir@/vimrc \
+    @source::cool
+
+exit 0

@@ -1,9 +1,14 @@
 include libauto/coolauto.am
 
+vimconfdir = ${sysconfdir}/vim
+
 dist_bin_SCRIPTS = \
     coolvim \
     guesstab \
     ifedit
+
+dist_vimconf_DATA = \
+	vimrc.cool
 
 dist_aliases_DATA = \
     aliases.d/coolvim.sh
@@ -28,4 +33,6 @@ install-data-hook:
 	cd $(DESTDIR)$(bindir); ln -snf coolvim coolvims
 
 %: %.in Makefile
-	$(do_subst) <$< >$@
+	$(do_subst) \
+		-e 's,[@]vimconfdir[@],$(vimconfdir),g' \
+		<$< >$@

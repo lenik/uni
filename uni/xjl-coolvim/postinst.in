@@ -2,4 +2,12 @@
 
 # master-file
 
-chmod 440 @DESTDIR@@sudoersdir@/env_editor
+cd @DESTDIR@
+
+echo "Reset permission on sudoers.d/env_editor"
+    chmod 440 @sudoersdir@/env_editor
+
+lineconf -p\" -tm "Config vimrc to source vimrc.cool" @vimconfdir@/vimrc \
+    @source::cool "source @vimconfdir@/vimrc.cool"
+
+exit 0
