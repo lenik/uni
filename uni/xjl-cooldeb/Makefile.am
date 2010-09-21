@@ -13,7 +13,8 @@ dist_bin_SCRIPTS = \
 	deb-redist \
 	deb-clean \
 	cideb \
-	apt-get-reinstall2
+	apt-get-reinstall2 \
+	dh_package_field
 
 bin_SCRIPTS = \
 	dh_add_missing

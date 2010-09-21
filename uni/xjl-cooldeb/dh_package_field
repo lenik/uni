@@ -1,0 +1,244 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+dh_package_field - Get package meta data from debian/control file
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'dh_package_field'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: perl.pl 1770 2010-09-21 07:34:48Z lenik $');
+use Getopt::Long;
+use Data::Dumper;
+
+sub _main; sub _version; sub _help;
+sub commit($);
+
+our $opt_package_name;
+our $opt_package_index;
+our $opt_simple_list;
+
+our @package_list;
+our %package_map;
+
+sub _boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'package|p=s'    => \$opt_package_name,
+               'index|i=n'      => \$opt_package_index,
+               'slist|s'        => \$opt_simple_list,
+               );
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<dh_package_field>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<dh_package_field> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-dh_package_field-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item Show help
+
+    dh_package_field --help
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] FIELD-NAME\n", <<'EOM';
+
+Common options:
+    -p, --package=NAME      select the specific package by name
+    -i, --index=INDEX       select the specific package by index
+    -s, --slist             simplify the value-list (used for Depends stuff)
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+
+sub _main {
+    open(IN, '<debian/control')
+        or die("Can't read from debian/control: $!");
+
+    my %vars;
+    my $key;
+    my $val;
+    while (<IN>) {
+        chomp;
+        if ($_ =~ /^ +/) {
+            $_ =~ s/^ +/ /;
+            $val .= $_;
+            next;
+        }
+        if (defined $key) {
+            $vars{$key} = $val;
+            undef $key;
+        }
+
+        if ($_ eq '') {
+        commit(\%vars);
+            next;
+        }
+
+        my $colon = index($_, ':');
+        if ($colon != -1) { # assert != -1
+            $key = substr($_, 0, $colon);
+            $val = substr($_, $colon + 1);
+            $val =~ s/^ +//;
+        }
+    }
+
+    if ($_ eq '') {
+        commit(\%vars);
+    }
+
+    _log2 Dumper(\%package_map);
+
+    my $package;
+    if (defined $opt_package_name) {
+	$package = $package_map{$opt_package_name};
+    } else {
+	$opt_package_index ||= 0;
+	$package = $package_list[$opt_package_index];
+    }
+
+    die "No package selected. " unless defined $package;
+
+    for (@ARGV) {
+        my $val = $package->{$_};
+        if ($opt_simple_list) {
+            my @list = split(/[,|]/, $val);
+            my @sim;
+            for (@list) {
+                s/\(.*?\)//;
+                s/^\s+//;
+                next if (/^\$/);
+                s/\s+$//;
+                next if $_ eq '';
+                push @sim, $_;
+            }
+            $val = join(' ', @sim);
+        }
+        print $val."\n";
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+sub commit($) {
+    my $map = shift;
+    my %copy = %$map;
+    %$map = ();
+    if (defined $copy{'Source'}) {
+        # this is a source decl. skipped.
+    } else {
+        my $pname = $copy{'Package'};
+        if (! defined $pname) {
+            # no package name? skip.
+            return;
+        }
+        push @package_list, \%copy;
+        $package_map{$pname} = \%copy;
+    }
+}
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Get package meta data from debian/control file \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+lenik <lenik (at) bodz.net>
+
+=cut
