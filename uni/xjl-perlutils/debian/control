@@ -1,0 +1,12 @@
+Source: xjl-perlutils
+Section: devel
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/xjl-perlutils
+
+Package: xjl-perlutils
+Architecture: all
+Depends: perl, xjl-libcmt
+Description: Perl utilities.
