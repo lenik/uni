@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/cls-msync
 
 Package: cls-msync
 Architecture: all
-Depends: ${misc:Depends}, rsync, xjl-coolrsync
+Depends: ${misc:Depends}, rsync, xjl-coolsync
 Description: Msync configuration on CLS.
