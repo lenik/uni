@@ -30,11 +30,15 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-setupdir    = ${datadir}/setup/${PACKAGE_NAME}
 sbindir     = ${prefix}/sbin
 sysconfdir  = /etc
+varlibdir   = /var/lib
+cachedir    = /var/cache
+pkgvarlibdir= ${varlibdir}/${PACKAGE_NAME}
+pkgcachedir = ${cachedir}/${PACKAGE_NAME}
+setupdir    = ${datadir}/setup/${PACKAGE_NAME}
 aliasesdir  = ${sysconfdir}/bash_aliases.d
-bashcompdir = ${sysconfdir}/bash_completion.d
+bashcmpldir = ${sysconfdir}/bash_completion.d
 profiledir  = ${sysconfdir}/profile.d
 sudoersdir  = ${sysconfdir}/sudoers.d
 initdir     = ${sysconfdir}/init
@@ -51,10 +55,14 @@ do_subst = sed \
     -e 's,[@]sbindir[@],$(sbindir),g' \
     -e 's,[@]docdir[@],$(docdir),g' \
     -e 's,[@]datadir[@],$(datadir),g' \
+    -e 's,[@]varlibdir[@],$(varlibdir),g' \
+    -e 's,[@]cachedir[@],$(cachedir),g' \
     -e 's,[@]pkgdatadir[@],$(pkgdatadir),g' \
+    -e 's,[@]pkgvarlibdir[@],$(pkgvarlibdir),g' \
+    -e 's,[@]pkgcachedir[@],$(pkgcachedir),g' \
     -e 's,[@]sysconfdir[@],$(sysconfdir),g' \
     -e 's,[@]aliasesdir[@],$(aliasesdir),g' \
-    -e 's,[@]bashcompdir[@],$(bashcompdir),g' \
+    -e 's,[@]bashcmpldir[@],$(bashcmpldir),g' \
     -e 's,[@]profiledir[@],$(profiledir),g' \
     -e 's,[@]sudoersdir[@],$(sudoersdir),g' \
     -e 's,[@]initdir[@],$(initdir),g' \
