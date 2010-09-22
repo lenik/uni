@@ -11,4 +11,4 @@ EXTRA_DIST = \
 CLEANFILES = ${setup_SCRIPTS}
 
 %: %.in Makefile
-    $(do_subst) <$< >$@
+	$(do_subst) <$< >$@
