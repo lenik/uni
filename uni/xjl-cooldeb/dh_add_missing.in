@@ -86,11 +86,7 @@ function main() {
                 if [ -f $dfile ]; then continue; fi
 
                 # Ignore if pre/post isn't implemented.
-                if [ -f $cfile ]; then
-                    outfile=$cfile
-                elif [ -f $cfile.in ]; then
-                    outfile=$cfile.in
-                else
+                if [ ! -f $cfile ] && [ ! -f $cfile.in ]; then
                     continue
                 fi
 
