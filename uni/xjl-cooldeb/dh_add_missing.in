@@ -90,9 +90,9 @@ function main() {
                     continue
                 fi
 
-                _log1 "Generate pre/post script debian/$outfile"
+                _log1 "Generate pre/post script debian/$dfile"
                 sed \
-                    -e 's,[@]PACKAGE_NAME[@],$PACKAGE_NAME,g' \
+                    -e "s,[@]PACKAGE_NAME[@],$PACKAGE_NAME,g" \
                     <$tmplfile >$dfile
                 chmod --reference=$tmplfile $dfile
             done
