@@ -1,9 +1,10 @@
 #!/bin/bash
     RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
-    short_opts="lakfhqv"
-    long_opts="list,add,kill,force,help,quiet,verbose,version"
+    short_opts="glakfhqv"
+    long_opts="global,list,add,kill,force,help,quiet,verbose,version"
     . shlib-import cliboot
 
+    global=
     list=
     mode=
     force=
@@ -21,6 +22,7 @@ function help() {
     echo "    $0 [OPTION] [--] [PACKAGE:]KEYWORD CONTENT"
     echo
     echo "Options: "
+    echo "    -g, --global            global only"
     echo "    -l, --list              list keywords"
     echo "    -a, --add               add a keyword (default)"
     echo "    -k, --kill              remove a keyword"
@@ -33,6 +35,8 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -g|--global)
+            global=1;;
         -l|--list)
             list=1;;
         -a|--add)
@@ -75,7 +79,10 @@ function list() {
 
 function main() {
     if [ "$list" = 1 ]; then
-        list ~/.coolcmd/subst
+        list /etc/coolcmd/subst
+        if [ -z "$global" ]; then
+            list ~/.coolcmd/subst
+        fi
         return
     fi
 
@@ -114,7 +121,10 @@ function main() {
 
     res="${keyword//://}"
 
-    altfiles=(/etc/coolcmd/subst/$res ~/.coolcmd/subst/$res)
+    altfiles=(/etc/coolcmd/subst/$res)
+    if [ -z "$global" ]; then
+        altfiles[1]=~/.coolcmd/subst/$res
+    fi
     nalt=${#altfiles[@]}
     altindex=0
     last=0
