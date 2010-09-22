@@ -93,8 +93,8 @@ function main() {
                 _log1 "Generate pre/post script debian/$outfile"
                 sed \
                     -e 's,[@]PACKAGE_NAME[@],$PACKAGE_NAME,g' \
-                    <$tmplfile >$outfile
-                chmod --reference=$tmplfile $outfile
+                    <$tmplfile >$dfile
+                chmod --reference=$tmplfile $dfile
             done
         fi
     done < <(grep -E '^Source:|Package:' control)
