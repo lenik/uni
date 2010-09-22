@@ -46,19 +46,62 @@ function setopt() {
 
 function main() {
     if [ -z "$1" ]; then
-        if [ ! -d debian/ ]; then
-            echo "No debian/ directory. "
-            exit 1
-        fi
+        debiandir=debian
     else
         debiandir="$1"
     fi
     debiandir="${debiandir%/}"
-
     if ! cd "$debiandir"; then
         echo "Failed to enter $debiandir"
         exit 1
     fi
+
+    if [ ! -f control ]; then
+        echo "No control found. "
+        exit 1
+    fi
+
+    SOURCE_NAME=
+    while read s_p name; do
+        if [ "$s_p" = 'Source:' ]; then
+            SOURCE_NAME=$name
+            continue
+        else
+            PACKAGE_NAME=$name
+            if [ "$PACKAGE_NAME" = "$SOURCE_NAME" ]; then
+                dprefix=
+                csuffix=
+            else
+                dprefix=$PACKAGE_NAME.
+                csuffix=-$PACKAGE_NAME
+            fi
+
+            for st in postinst prerm; do
+                tmplfile=@DESTDIR@@pkgdatadir@/$st.def
+                dfile=$dprefix$st
+                cfile=../$st$csuffix
+                outfile=
+
+                # Ignore if pre/post script exists
+                if [ -f $dfile ]; then continue; fi
+
+                # Ignore if pre/post isn't implemented.
+                if [ -f $cfile ]; then
+                    outfile=$cfile
+                elif [ -f $cfile.in ]; then
+                    outfile=$cfile.in
+                else
+                    continue
+                fi
+
+                _log1 "Generate pre/post script debian/$outfile"
+                sed \
+                    -e 's,[@]PACKAGE_NAME[@],$PACKAGE_NAME,g' \
+                    <$tmplfile >$outfile
+                chmod --reference=$tmplfile $outfile
+            done
+        fi
+    done < <(grep -E '^Source:|Package:' control)
 
     for defl in @DESTDIR@@debdefldir@/*; do
 
@@ -81,6 +124,7 @@ function main() {
         fi
 
     done
+
     return 0
 }
 
