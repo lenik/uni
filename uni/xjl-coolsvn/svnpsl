@@ -8,6 +8,8 @@
     diff=0
     key=
 
+    SVN_VOPTS=
+
 function version() {
     parse_id "$RCSID"
     echo "[$BASENAME] Modify SVN multi-line property"
@@ -65,6 +67,12 @@ function setopt() {
 }
 
 function main() {
+
+    if [ $LOGLEVEL -le 1 ]; then
+        SVN_VOPTS=-q
+    elif [ $LOGLEVEL -ge 3 ]; then
+        SVN_VOPTS=-v
+    fi
 
     if [ -z "$key" ]; then
         if [ -z "$1" ]; then
@@ -129,7 +137,7 @@ function main() {
             fi
         fi
 
-        if ! svn ps -F $tmp_vals "$key" "$f"; then
+        if ! svn ps $SVN_VOPTS -F $tmp_vals "$key" "$f"; then
             echo "    Error set property $key on $f" >&2
             exit 1
         fi
