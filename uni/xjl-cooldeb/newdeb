@@ -82,6 +82,7 @@ function main() {
         fi
 
         svn add $name
+        svn ps svn:ignore '*.gz' $name
     fi
 
     cd $name
