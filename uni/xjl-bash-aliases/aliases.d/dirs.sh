@@ -1,4 +1,4 @@
-alias cd.='cd `readfile -f .`'
+alias cd.='cd `readlink -f .`'
 alias cd..='cd ..'
 alias cd...='cd ../..'
 alias cd....='cd ../../..'
