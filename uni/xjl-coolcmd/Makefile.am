@@ -16,7 +16,8 @@ dist_bin_SCRIPTS = \
 	swapox \
 	testox \
 	colorox \
-	loop
+	loop \
+        localhost
 
 setup_SCRIPTS = \
     postinst \
