@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([xjl-coolsvn], [0.2.23], [xjl@99jsj.com])
+AC_INIT([xjl-coolsvn], [0.2.25], [xjl@99jsj.com])
 AM_INIT_AUTOMAKE([-Wall])
 
 # Checks for programs.

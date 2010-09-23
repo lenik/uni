@@ -7,6 +7,7 @@
 
     force=
     listfile=
+    SVNPSL_OPTS=
 
 function version() {
     parse_id "$RCSID"
@@ -59,7 +60,7 @@ function add_ignore() {
     fi
 
     _log1 "$parent: ignore $name"
-    if ! svnpsl -aI "$name" \; "$parent"; then
+    if ! svnpsl $SVNPSL_OPTS -aI "$name" \; "$parent"; then
         if [ "$force" != 1 ]; then
             echo "operation canceled. "
             exit 1
@@ -68,6 +69,12 @@ function add_ignore() {
 }
 
 function main() {
+    if [ $LOGLEVEL -le 1 ]; then
+        SVNPSL_OPTS=-q
+    elif [ $LOGLEVEL -ge 3 ]; then
+        SVNPSL_OPTS=-v
+    fi
+
     if [ -n "$listfile" ]; then
         while read f; do
             add_ignore "$f"
