@@ -1,0 +1,81 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh 1769 2010-09-21 07:32:29Z lenik $'
+    short_opts="F:fhqv"
+    long_opts="listfile,help,quiet,verbose,version"
+
+    force=
+    listfile=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Add given files to the corresponding ignore list"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] FILES"
+    echo
+    echo "Options: "
+    echo "    -F, --listfile=FILE     get FILES from the list, - if stdin"
+    echo "    -f, --force             error continue"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -F|--listfile)
+            listfile="$2";;
+        -f|--force)
+            force=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function add_ignore() {
+    local path="$1"
+    path="${path%/}"
+
+    parent="${path%/*}"
+    name="${path##*/}"
+    if [ "$parent" = "$path" ]; then
+        parent=.
+    fi
+
+    _log1 "$parent: ignore $name"
+    if ! svnpsl -aI "$name" \; "$parent"; then
+        if [ "$force" != 1 ]; then
+            echo "operation canceled. "
+            exit 1
+        fi
+    fi
+}
+
+function main() {
+    if [ -n "$listfile" ]; then
+        while read f; do
+            add_ignore "$f"
+        done
+    fi
+    for f in "$@"; do
+        add_ignore "$f"
+    done
+}
+
+boot "$@"

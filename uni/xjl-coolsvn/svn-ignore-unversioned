@@ -1,0 +1,3 @@
+#!/bin/bash
+
+svn-ignore -F- < <(svn st | grep '^?' | cut -b9-)

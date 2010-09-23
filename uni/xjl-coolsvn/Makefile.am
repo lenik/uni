@@ -11,6 +11,8 @@ dist_bin_SCRIPTS = \
 	svn-backup-sync \
 	svn-dirty-dirs  \
 	svn-isclean \
+	svn-ignore \
+	svn-ignore-unversioned \
 	svn-remix \
 	svn-rename \
 	svn-ps \
