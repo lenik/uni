@@ -1,3 +1,10 @@
+alias cd.='cd `readfile -f .`'
+alias cd..='cd ..'
+alias cd...='cd ../..'
+alias cd....='cd ../../..'
+alias cdd='. cd-ls'
+alias ccd='. cd-ls'
+
 alias md='mkdir'
 alias rd='rmdir'
 
