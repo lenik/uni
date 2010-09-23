@@ -1,4 +1,5 @@
 
+alias as='aptitude search'
 alias sagi='sudo apt-get install --allow-unauthenticated'
 alias sagu='sudo apt-get remove'
 alias sagp='sudo apt-get purge'
