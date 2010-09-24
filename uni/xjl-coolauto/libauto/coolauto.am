@@ -44,6 +44,7 @@ sudoersdir  = ${sysconfdir}/sudoers.d
 initdir     = ${sysconfdir}/init
 sysvinitdir = ${sysconfdir}/init.d
 apparmordir = ${sysconfdir}/apparmor.d
+substdir    = ${sysconfdir}/coolcmd/subst
 shlibdir    = ${libdir}/shlib.d
 newtmpldir  = ${libdir}/newtmpl.d
 
@@ -67,6 +68,7 @@ do_subst = sed \
     -e 's,[@]sudoersdir[@],$(sudoersdir),g' \
     -e 's,[@]initdir[@],$(initdir),g' \
     -e 's,[@]apparmordir[@],$(apparmordir),g' \
+    -e 's,[@]substdir[@],$(substdir),g' \
     -e 's,[@]shlibdir[@],$(shlibdir),g' \
     -e 's,[@]newtmpldir[@],$(newtmpldir),g' \
     -e 's,[@]setupdir[@],$(setupdir),g'
