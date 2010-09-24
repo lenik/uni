@@ -2,6 +2,8 @@ include libauto/coolauto.am
 
 SUBDIRS = lenik
 
+bindconfdir = ${sysconfdir}/bind
+
 setup_SCRIPTS = \
     postinst \
     prerm

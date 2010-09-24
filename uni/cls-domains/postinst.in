@@ -13,13 +13,9 @@ named_conf=$bindconfdir/named.conf
 #     svn-union-install $bodz_url $bindconfdir/bodz
 # fi
 
-echo "Config bind9"
-    if lineconf -et $named_conf @section::lenik \
-            "include \"$bindconfdir/lenik/named.conf\";"; then
-        echo "    done"
-    else
-        echo "    skipped"
-    fi
+lineconf -tm "Add lenik domains" \
+    $named_conf @section::lenik \
+    "include \"$bindconfdir/lenik/named.conf\";"
 
 echo "Reload bind9"
     /etc/init.d/bind9 reload
