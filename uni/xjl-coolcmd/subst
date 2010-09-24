@@ -155,8 +155,13 @@ function main() {
                     echo "File is not writable: $file" >&2
                     return 1
                 fi
-            else
-                if [ ! -w "$dir" ]; then
+            elif [ $mode = add ]; then
+                if [ ! -d "$dir" ]; then
+                    _log1 "Create new package dir $dir"
+                    if ! mkdir -p "$dir"; then
+                        return 1
+                    fi
+                elif [ ! -w "$dir" ]; then
                     echo "Can't create new file in $dir" >&2
                     return 1
                 fi
@@ -177,11 +182,6 @@ function main() {
             ;;
 
         add)
-            if [ ! -d "$dir" ]; then
-                _log1 "Create new package dir $dir"
-                mkdir -p "$dir"
-            fi
-
             if lineconf -e $file "^$attr=" "$attr=$2"; then
                 _log1 "Add entry in $file: $attr=$2"
             else
