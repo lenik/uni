@@ -1,0 +1,12 @@
+Source: cdu-bodz-vol-dev
+Section: devel
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/cdu-bodz-vol-dev
+
+Package: cdu-bodz-vol-dev
+Architecture: all
+Depends: cdu-bodz-base
+Description: Mount of vol:bodzdev
