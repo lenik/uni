@@ -1,4 +1,13 @@
 #!/bin/sh
 # master-file
 
-echo "cdu-bodz-vol-dev - postinst.in ..."
+echo "Config vol:bodzdev"
+
+install -d -m 2775 -g dev /mnt/bodzdev
+
+if ! mount-ebs bodzdev /mnt/bodzdev; then
+    echo "Failed to mount vol:bodzdev"
+    exit 1
+fi
+
+exit 0
