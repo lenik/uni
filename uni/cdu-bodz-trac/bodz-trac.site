@@ -1,5 +1,5 @@
 <VirtualHost *:80 *:443>
-    ServerName  track.bodz.net
+    ServerName  trac.bodz.net
     ServerAdmin admin@bodz.net
 
     SSLEngine on
