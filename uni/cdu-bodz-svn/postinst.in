@@ -1,4 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 # master-file
 
-echo "cdu-bodz-svn - postinst.in ..."
+echo "Config apache"
+
+    a2enmod  dav
+    a2enmod  dav_svn
+    a2enmod  ssl
+    a2ensite bodz-svn.site
+    a2reload
