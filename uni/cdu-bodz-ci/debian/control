@@ -1,0 +1,12 @@
+Source: cdu-bodz-ci
+Section: devel
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/cdu-bodz-ci
+
+Package: cdu-bodz-ci
+Architecture: all
+Depends: cdu-bodz-base
+Description: boDz CI support
