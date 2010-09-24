@@ -12,6 +12,7 @@ xml                     CNAME   1
 uni                     CNAME   1
 
 svn                     CNAME   1
+trac                    CNAME   1
 m2                      CNAME   1
 ci                      CNAME   1
 

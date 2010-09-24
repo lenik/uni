@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([cls-domains], [1.0.4], [xjl-bug@99jsj.com])
+AC_INIT([cls-domains], [1.0.5], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wall])
 
 # Checks for programs.
