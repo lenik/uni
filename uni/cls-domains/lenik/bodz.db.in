@@ -1,0 +1,22 @@
+$INCLUDE @datadir@/inc/default.db
+$INCLUDE @datadir@/inc/google.db
+
+ns1                     A       @z-1@
+ns2                     A       @z-1@
+
+1                       A       @z-1@
+@                       A       @z-1@
+
+www                     CNAME   1
+xml                     CNAME   1
+uni                     CNAME   1
+
+svn                     CNAME   1
+m2                      CNAME   1
+ci                      CNAME   1
+
+lenik                   CNAME   1
+shecti                  CNAME   1
+
+dlocal                  CNAME   lenik.dyndns.org.
+sshproxy                CNAME   1

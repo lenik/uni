@@ -1,0 +1,4 @@
+$INCLUDE @datadir@/inc/default.db
+$INCLUDE @datadir@/inc/google.db
+
+svn.secca               CNAME       lenik.vicp.net.

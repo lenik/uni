@@ -1,5 +1,5 @@
-$INCLUDE lenik/inc/default.db
-$INCLUDE lenik/inc/google.db
+$INCLUDE @datadir@/inc/default.db
+$INCLUDE @datadir@/inc/google.db
 
 1                       CNAME   1.dev.secca-project.com.
 www                     CNAME   1
