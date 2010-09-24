@@ -196,6 +196,10 @@ function main() {
             else
                 _log1 "No change"
             fi
+            if [ ! -s $file ]; then
+                _log1 "Remove empty file $file"
+                rm -f $file
+            fi
             ;;
         esac
     done
