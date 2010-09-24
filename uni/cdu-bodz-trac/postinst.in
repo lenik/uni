@@ -1,4 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 # master-file
 
-echo "cdu-bodz-trac - postinst.in ..."
+echo "Config apache"
+
+    a2enmod  auth_digest
+    a2enmod  python
+    a2enmod  rewrite
+    a2enmod  ssl
+    a2ensite bodz-trac.site
+    a2reload

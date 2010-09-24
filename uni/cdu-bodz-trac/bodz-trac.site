@@ -1,0 +1,35 @@
+<VirtualHost *:80 *:443>
+    ServerName  track.bodz.net
+    ServerAdmin admin@bodz.net
+
+    SSLEngine on
+    SSLCertificateFile    /etc/ssl/certs/ssl-cert-snakeoil.pem
+    SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+
+    LogLevel warn
+    CustomLog /var/log/apache2/track_access.log combined
+    ErrorLog  /var/log/apache2/track_error.log
+
+    DocumentRoot /none
+
+    Alias /trac/ /mnt/bodzdev/trac/chrome/htdocs/common/
+
+    #AliasMatch ^/projects/[^/]*/chrome/(.*)$ /mnt/bodzdev/trac/chrome/htdocs/common/$1
+    <Location /projects>
+        SetHandler mod_python
+        PythonInterpreter main_interpreter
+        PythonHandler trac.web.modpython_frontend
+        PythonOption TracUriRoot          /projects
+        PythonOption TracEnvParentDir     /mnt/bodzdev/trac
+      # PythonOption TracEnvIndexTemplate /mnt/bodzdev/trac/index.html
+    </Location>
+
+    <LocationMatch /projects/[^/]+/login>
+        AuthType Digest
+        AuthName "trac"
+        AuthDigestDomain /trac
+        AuthUserFile /etc/authdb/trac.dev.htpasswd
+        Require valid-user
+    </LocationMatch>
+
+</VirtualHost>
