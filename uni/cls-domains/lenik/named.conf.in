@@ -15,7 +15,7 @@ zone "lapiota.com"  { type master; file "@datadir@/projects/lapiota.db"; };
 zone "ooojjj.com"   { type master; file "@datadir@/social/ooojjj.db"; };
 
 zone "0yy.net"      { type master; file "@datadir@/social/0yy.db"; };
-zone "1na.net"      { type master; file "@datadir@/util/1na.db"; };
+zone "1na.net"      { type master; file "@datadir@/utils/1na.db"; };
 zone "6sn.net"      { type master; file "@datadir@/org/6sn.db"; };
 zone "bodz.net"     { type master; file "@datadir@/bodz.db"; };
 zone "pfpf.net"     { type master; file "@datadir@/hack/pfpf.db"; };
@@ -23,5 +23,5 @@ zone "sixor.net"    { type master; file "@datadir@/projects/sixor.db"; };
 
 zone "kie.cn"       { type master; file "@datadir@/inc/default.db"; };
 zone "kiu.cn"       { type master; file "@datadir@/inc/default.db"; };
-zone "mia.cn"       { type master; file "@datadir@/util/mia.db"; };
+zone "mia.cn"       { type master; file "@datadir@/utils/mia.db"; };
 zone "xor.cn"       { type master; file "@datadir@/hack/xor.db"; };
