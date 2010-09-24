@@ -1,11 +1,12 @@
 include libauto/coolauto.am
 
-dist_subst_DATA = \
+volsdir = ${substdir}/vol
+
+dist_vols_DATA = \
     vol/bodzdev
 
-vol/bodzdev: Makefile
-	sudo ec2-update-subst
-	cp /etc/coolcmd/subst/vol/bodzdev $@
+vol/bodzdev: /etc/coolcmd/subst/vol/bodzdev
+	cp -f $< $@
 
 setup_SCRIPTS = \
     postinst \
