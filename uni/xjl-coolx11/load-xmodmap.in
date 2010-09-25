@@ -1,0 +1,8 @@
+
+if [ -f @x11confdir@/Xmodmap ]; then
+    xmodmap @x11confdir@/Xmodmap
+fi
+
+if [ -f ~/.Xmodmap ]; then
+    xmodmap ~/.Xmodmap
+fi
