@@ -1,7 +1,7 @@
 #!/bin/bash
     RCSID='$Id$'
-    short_opts="ci:datmognehqv"
-    long_opts="stdout,replace,diff,keep-all,keep-mode,keep-time,keep-owner,keep-group,dry-run,edit-status,help,quiet,verbose,version"
+    short_opts="ci:dKktognm:w:ehqv"
+    long_opts="stdout,replace,diff,keep-all,keep-mode,keep-time,keep-owner,keep-group,dry-run,message,width,edit-status,help,quiet,verbose,version"
     . shlib-import cliboot
 
     tee_output=
@@ -11,6 +11,8 @@
     keep_owner=
     keep_group=
     keep_time=
+    message=
+    width=60
     dry_run=
     edit_status=
 
@@ -30,12 +32,14 @@ function help() {
     echo "    -c, --stdout            tee to stdout also"
     echo "    -i, --replace=str       replace occurences of str in ARGS to FILE"
     echo "    -d, --diff              output the diff"
-    echo "    -a, --keep-all          try to keep all attributes"
-    echo "    -t, --keep-time         keep last-mod-time unchanged"
-    echo "    -m, --keep-mode         keep file permission mode unchanged"
+    echo "    -K, --keep-all          try to keep all attributes"
+    echo "    -k, --keep-mode         keep file permission mode unchanged"
+    echo "    -t, --keep-time         keep file last-mod-time unchanged"
     echo "    -o, --keep-owner        keep file owner unchanged"
     echo "    -g, --keep-group        keep file group unchanged"
     echo "    -n, --dry-run           just for test, don't save the result"
+    echo "    -m, --message=TEXT      show edit result message"
+    echo "    -w, --width=WIDTH       width of message"
     echo "    -e, --edit-status       exit true(0) if anything changed"
     echo "    -q, --quiet             repeat to get less info"
     echo "    -v, --verbose           repeat to get more info"
@@ -56,22 +60,26 @@ function setopt() {
             ;;
         -d|--diff)
             diff="diff -u";;
-        -a|--keep-all)
+        -K|--keep-all)
             keep_time=1
             keep_mode=1
             keep_owner=1
             keep_group=1
             ;;
+        -k|--keep-mode)
+            keep_mode=1;;
         -t|--keep-time)
             keep_time=1;;
-        -m|--keep-mode)
-            keep_mode=1;;
         -o|--keep-owner)
             keep_owner=1;;
         -g|--keep-group)
             keep_group=1;;
         -n|--dry-run)
             dry_run=1;;
+        -m|--message)
+            message="$2";;
+        -w|--width)
+            width="$2";;
         -e|--edit-status)
             edit_status=1;;
         -h|--help)
@@ -108,6 +116,14 @@ function main() {
             cmdl[$i]="${arg/$replace/$file}"
             ((i++))
         done
+    fi
+
+    if [ -n "$message" ]; then
+        space='                                                                                                                                                                                                                                                     '
+        echo -n "$message"
+        if [ ${#message} -lt $width ]; then
+            echo -n "${space:0:width-${#message}}"
+        fi
     fi
 
     if [ "$tee_stdout" = 1 ]; then
@@ -152,6 +168,14 @@ function main() {
     fi
 
     rm -f "$buff"
+
+    if [ -n "$message" ]; then
+        if [ "$dirty" = 1 ]; then
+            echo Done
+        else
+            echo Skip
+        fi
+    fi
 
     if [ "$edit_status" = 1 ]; then
         return "$((! dirty))"
