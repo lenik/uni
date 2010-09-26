@@ -8,5 +8,7 @@ Homepage: http://uni.bodz.net/cdu-bodz
 
 Package: cdu-bodz
 Architecture: all
-Depends: sdc-seccadev
+Depends: xjl-coolusers, cdu-bodz-base,
+    cdu-bodz-svn, cdu-bodz-trac,
+    cdu-bodz-m2, cdu-bodz-ci
 Description: boDz develop sites

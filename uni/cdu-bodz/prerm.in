@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "cdu-bodz - prerm.in ..."
+exit 0

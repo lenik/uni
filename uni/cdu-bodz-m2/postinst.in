@@ -1,4 +1,23 @@
-#!/bin/sh
+#!/bin/bash
 # master-file
 
-echo "cdu-bodz-m2 - postinst.in ..."
+echo "Config boDz M2 service"
+    echo "  Prepare boDz m2 releases repository"
+
+    mkdir -p /mnt/bodzdev/m2rel
+    mkdir -p /var/lib/m2
+    cd /var/lib/m2
+    install -d -m 2775 -o appserv -g dev bodz.snapshots
+    ln -snf /mnt/bodzdev/m2rel bodz.releases
+
+echo "Config Apache2"
+
+    a2enmod proxy
+    a2enmod proxy_http
+    a2enmod rewrite
+    a2ensite bodz-m2.site
+    a2reload
+
+echo "Config Archiva"
+
+    # xmlrpc..
