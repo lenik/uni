@@ -1,0 +1,20 @@
+<VirtualHost *:80>
+    ServerName  m2.bodz.net
+    ServerAdmin admin@bodz.net
+
+    LogLevel warn
+    CustomLog /var/log/apache2/farm_access.log combined
+    ErrorLog  /var/log/apache2/farm_error.log
+
+    DocumentRoot /none
+
+    RewriteEngine On
+    RewriteRule ^/releases/(.*)  /archiva/repository/bodz.releases/$1 [PT]
+    RewriteRule ^/snapshots/(.*) /archiva/repository/bodz.snapshots/$1 [PT]
+
+    ProxyPass           /archiva http://localhost:8080/archiva
+    ProxyPassReverse    /archiva http://localhost:8080/archiva
+    <Proxy *>
+        allow from all
+    </Proxy>
+</VirtualHost>

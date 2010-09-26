@@ -71,11 +71,11 @@ function main() {
             read volfile passwd fs mpoint < <(echo "$_line")
 
             if [ $install = 0 ]; then
-                if sedit -ae $fstab_tc grep -v "^$volfile"; then
+                if sedit -Ae $fstab_tc grep -v "^$volfile"; then
                     _log2 "    Removed: tc-volume=$volfile"
                     ((dirty++))
                 fi
-                if sedit -ae $fstab_tc grep -v "$mpoint\$"; then
+                if sedit -Ae $fstab_tc grep -v "$mpoint\$"; then
                     _log2 "    Removed: mount-proint=$mpoint"
                     ((dirty++))
                 fi

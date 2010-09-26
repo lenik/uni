@@ -9,7 +9,7 @@
 
     GREP=grep
     GREPL=grepl
-    SEDIT="sedit -a"
+    SEDIT="sedit -A"
 
     message=
     width=60
