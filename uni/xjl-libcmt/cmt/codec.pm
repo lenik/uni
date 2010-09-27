@@ -90,7 +90,7 @@ sub codec_dm {
     my ($ph, $cat, $text) = @_;
     my $digest = md5_base64("$ph (at) $text");
     $digest =~ s/\+/o/g;
-    $digest =~ s/\\/i/g;
+    $digest =~ s/\//i/g;
     my $result = substr($digest, 0, $cat);
     $result;
 }
