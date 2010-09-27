@@ -10,8 +10,11 @@ echo "Config key permission"
 echo "Config to accept sshproxy.bodz.net"
     ssh-acceptkeys sshproxy.bodz.net
 
-lineconf -m "Config proxychains default socks5" \
-    /etc/proxychains.conf socks5 \
+lineconf -Ekm "Remove default tor proxy from proxychains" \
+    /etc/proxychains.conf '^socks4[ 	]+127.0.0.1[ 	]+9050'
+
+lineconf -tm "Add sshproxy to proxychains" \
+    /etc/proxychains.conf @sshproxy::socks5
     "socks5 127.0.0.1 7878"
 
 echo "Start sshproxy"
