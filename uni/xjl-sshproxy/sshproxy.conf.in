@@ -6,6 +6,11 @@ stop on runlevel[!2345]
 
 script
 
-    sudo -usshproxy ssh -ND 7878 sshproxy.bodz.net
+    # -T disable pseudo-tty allocation
+    # -f go to background after login but before command exec
+    # -n stdin from /dev/null, must be used when ssh is run in bg.
+    # -N no command
+    # -D "dynamic" app-level port forwarding.
+    sudo -usshproxy ssh -qTfn -ND 7878 sshproxy.bodz.net
 
 end script

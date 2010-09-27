@@ -11,7 +11,7 @@ echo "Config to accept sshproxy.bodz.net"
     ssh-acceptkeys sshproxy.bodz.net
 
 lineconf -m "Config proxychains default socks5" \
-    /etc/proxychains socks5 \
+    /etc/proxychains.conf socks5 \
     "socks5 127.0.0.1 7878"
 
 echo "Start sshproxy"
