@@ -71,7 +71,7 @@ function main() {
             IFS=: read profile password < <(echo "$_line")
 
             if [ $install = 0 ]; then
-                if sedit -Ae $passwd_tc grep -v "^$profile:"; then
+                if sedit -ke $passwd_tc grep -v "^$profile:"; then
                     _log2 "    Removed: profile=$profile"
                     ((dirty++))
                 fi
