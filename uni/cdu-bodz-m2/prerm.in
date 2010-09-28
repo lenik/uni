@@ -1,4 +1,9 @@
 #!/bin/sh
 # master-file
 
-echo "cdu-bodz-m2 - prerm.in ..."
+echo "Unconfig Apache2"
+
+    a2dissite bodz-m2.site
+    a2reload
+
+exit 0
