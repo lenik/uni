@@ -1,2 +1,9 @@
 #!/bin/bash
 
+bashrc=@DESTDIR@@sysconfdir@/bash.bashrc
+    lineconf -ktm "Remove shlib findabc" \
+        $bashrc @shlib::findabc
+    lineconf -ktm "Disable shlib feature" \
+        $bashrc @shlib::enable
+
+exit 0

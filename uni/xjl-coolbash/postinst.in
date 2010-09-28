@@ -1,9 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "Set permission of sudoer files"
 
     chmod 440 @DESTDIR@@sudoersdir@/keep-hist
-
 
 skel_rc=@sysconfdir@/skel/.bashrc
 echo -n "Remove HIST-overrides from $skel_rc... "
@@ -20,3 +19,11 @@ echo -n "Remove HIST-overrides from $skel_rc... "
     else
         echo Skipped
     fi
+
+bashrc=@DESTDIR@@sysconfdir@/bash.bashrc
+    lineconf -tm "Enable shlib functions" \
+        $bashrc @shlib::enable  ". shlib"
+    lineconf -tm "shlib import findabc" \
+        $bashrc @shlib::findabc "import findabc"
+
+exit 0
