@@ -20,7 +20,8 @@ sub _boot {
                'v|verbose'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
                'h|help'         => sub { _help; exit 0 },
-               );
+               )
+        or exit(1);
     _main;
 }
 
