@@ -25,7 +25,8 @@ bashrc=@DESTDIR@@sysconfdir@/bash.bashrc
     lineconf -tm "shlib import findabc" \
         $bashrc @shlib::findabc "import findabc"
 
-lineconf -km "Override PS1 if any, in $bashrc" \
-    $bashrc '^PS1='
+lineconf -tm "Set colorful PS1" \
+    $bashrc @color::PS1 \
+    'PS1="\[\e]0;\u@\h: \w\a\]\${debian_chroot:+(\$debian_chroot)}\[\e[1;42m\]\u@\h:\[\e[0;47m\]\w\[\e[42m\]\$ \[\e[m\]"'
 
 exit 0
