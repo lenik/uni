@@ -1,7 +1,6 @@
 #!/bin/bash
 
 echo "Set permission of sudoer files"
-
     chmod 440 @DESTDIR@@sudoersdir@/keep-hist
 
 skel_rc=@sysconfdir@/skel/.bashrc
@@ -25,5 +24,8 @@ bashrc=@DESTDIR@@sysconfdir@/bash.bashrc
         $bashrc @shlib::enable  ". shlib"
     lineconf -tm "shlib import findabc" \
         $bashrc @shlib::findabc "import findabc"
+
+lineconf -km "Override PS1 if any, in $bashrc" \
+    $bashrc '^PS1='
 
 exit 0
