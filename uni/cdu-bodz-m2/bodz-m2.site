@@ -11,6 +11,8 @@
     RewriteEngine On
     RewriteRule ^/releases/(.*)  /archiva/repository/bodz.releases/$1 [PT]
     RewriteRule ^/snapshots/(.*) /archiva/repository/bodz.snapshots/$1 [PT]
+    RewriteRule ^/mirror/(.*)    /archiva/repository/internal/$1 [PT]
+    RewriteRule ^/_mirror/(.*)   /archiva/repository/snapshots/$1 [PT]
 
     ProxyPass           /archiva http://localhost:8080/archiva
     ProxyPassReverse    /archiva http://localhost:8080/archiva
