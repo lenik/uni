@@ -1,15 +1,17 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-	textp \
-	binaryp \
-	swap \
-	enfile \
-	symfl \
-	symflatten
+    textp \
+    binaryp \
+    swap \
+    enfile \
+    symfl \
+    symflatten \
+    rename-p
 
 dist_man_MANS = \
-	symfl.1
+    symfl.1 \
+    rename-p.1
 
 setup_SCRIPTS = \
     postinst \
