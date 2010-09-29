@@ -7,11 +7,11 @@ dist_bin_SCRIPTS = \
     enfile \
     symfl \
     symflatten \
-    rename-p
+    mv-p
 
 dist_man_MANS = \
     symfl.1 \
-    rename-p.1
+    mv-p.1
 
 setup_SCRIPTS = \
     postinst \
