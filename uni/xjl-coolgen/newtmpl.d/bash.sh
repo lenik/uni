@@ -18,10 +18,10 @@ function help() {
     echo "    $0 [OPTION] [--] ..."
     echo
     echo "Options: "
-    echo "    -q, --quiet             repeat to get less info"
-    echo "    -v, --verbose           repeat to get more info"
-    echo "    -h, --help              show this help page"
-    echo "        --version           print the version info"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
 }
 
 function setopt() {

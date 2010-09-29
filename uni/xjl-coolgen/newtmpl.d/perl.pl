@@ -16,10 +16,10 @@ use Getopt::Long;
 sub _main; sub _version; sub _help;
 
 sub _boot {
-    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
-               'verbose|v'      => sub { $LOGLEVEL++ },
+    GetOptions('q|quiet'        => sub { $LOGLEVEL-- },
+               'v|verbose'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
-               'help|h'         => sub { _help; exit 0 },
+               'h|help'         => sub { _help; exit 0 },
                );
     _main;
 }
@@ -95,10 +95,10 @@ sub _help {
     print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
 
 Common options:
-    -q, --quiet             repeat to get less info
-    -v, --verbose           repeat to get more info
-    -h, --help              show this help page
-        --version           print the version info
+    -q, --quiet             Repeat to get less info
+    -v, --verbose           Repeat to get more info
+    -h, --help              Show this help page
+        --version           Print the version info
 EOM
 }
 
