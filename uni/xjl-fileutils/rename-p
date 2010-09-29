@@ -2,8 +2,12 @@
     . shlib-import cliboot
 
     RCSID='$Id: bash.sh 1769 2010-09-21 07:32:29Z lenik $'
-    short_opts="gcfhqv"
-    long_opts="global,clean-parents,force,help,quiet,verbose,version"
+    short_opts="a:o:gcfhqv"
+    long_opts="and,or,global,clean-parents,force,help,quiet,verbose,version"
+
+    rules=()
+    orders=()
+    index=0
 
     global=0
     force=0
@@ -23,6 +27,8 @@ function help() {
     echo "  (FROM, TO is specified in bash pattern)"
     echo
     echo "Options: "
+    echo "    -a, --and=FROM=TO       add and rule, only applied if last rule matched"
+    echo "    -o, --or=FROM=TO        add or rule, only applied if last rule unmatched"
     echo "    -g, --global            Replace all occurence of FROM"
     echo "    -k, --keep-parents      Don't remove empty parents"
     echo "    -c, --clean-parents     Remove empty parents"
@@ -35,6 +41,14 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -a|--and)
+            orders[index]=and
+            rules[++index]="$2"
+            ;;
+        -o|--or)
+            orders[index]=or
+            rules[++index]="$2"
+            ;;
         -g|--globel)
             global=1;;
         -c|--clean-parents)
@@ -65,17 +79,39 @@ function main() {
         exit 1
     fi
 
-    from="$1"
-    to="$2"
+    rules[0]="$1=$2"
     shift 2
+    count=$((index + 1))
 
     for old in "$@"; do
         old="${old%/}"
-        if [ "$global" = 1 ]; then
-            new="${old//$from/$to}"
-        else
-            new="${old/$from/$to}"
-        fi
+
+        last="$old"
+        for ((i = 0; i < count; i++)); do
+            rule="${rules[i]}"
+            order="${orders[i]}"
+
+            from="${rule%%=*}"
+            to="${rule#*=}"
+            if [ "$global" = 1 ]; then
+                new="${last//$from/$to}"
+            else
+                new="${last/$from/$to}"
+            fi
+
+echo "order=$order, last=$last, new=$new"
+            if [ "$order" = and ]; then
+                if [ "$new" = "$last" ]; then
+                    break
+                fi
+            elif [ "$order" = or ]; then
+                if [ "$new" != "$last" ]; then
+                    break
+                fi
+            fi
+echo "  -- again"
+            last="$new"
+        done
 
         newdir="${new%/*}"
         if [ "$newdir" = "$new" ]; then
