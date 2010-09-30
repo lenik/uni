@@ -3,10 +3,10 @@
 	<xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
 	<xsl:template match="/">
 		<xsl:choose>
-			<xsl:when test="/searchNGResponse/data/artifact">
+			<xsl:when test="/searchNGResponse">
 				<xsl:apply-templates select="/searchNGResponse/data/artifact"/>
 			</xsl:when>
-			<xsl:when test="/search-results/data/artifact">
+			<xsl:when test="/search-results">
 				<xsl:apply-templates select="/search-results/data/artifact"/>
 			</xsl:when>
 			<xsl:otherwise>Unsupported search-result xml.</xsl:otherwise>

@@ -3,7 +3,9 @@ include libauto/coolauto.am
 dist_bin_SCRIPTS = \
     newmod \
     jetty \
-    m2search
+    plugin-help \
+    m2search \
+    m2graph
 
 bin_SCRIPTS = \
     m2search-nexus
