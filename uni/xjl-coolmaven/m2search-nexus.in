@@ -2,11 +2,15 @@
     . shlib-import cliboot
 
     RCSID='$Id: bash.sh 1853 2010-09-29 01:35:59Z lenik $'
-    short_opts="s:hqv"
-    long_opts="server,help,quiet,verbose,version"
+    short_opts="s:a:hqv"
+    long_opts="server,api,help,quiet,verbose,version"
 
-    server=https://repository.sonatype.org
+    API_1_7="/service/local/data_index?q=%s&collapseresults=true"
+    API_1_8="/service/local/lucene/search?q=%s&collapseresults=true"
     XSL_NG2TXT=@pkgdatadir@/ng2txt.xsl
+
+    server=
+    api=1.8
 
 function version() {
     parse_id "$RCSID"
@@ -22,6 +26,7 @@ function help() {
     echo
     echo "Options: "
     echo "    -s, --server=SERVER     Nexus http server URL to use"
+    echo "    -a, --api=VERSION       Specify nexus api version, default 1.8"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
@@ -32,6 +37,8 @@ function setopt() {
     case "$1" in
         -s|--server)
             server=$2;;
+        -a|--api)
+            api=$2;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -46,12 +53,22 @@ function setopt() {
 }
 
 function main() {
+    if [ -z "$server" ]; then
+        echo "Server isn't specified. "
+        exit 1
+    fi
+
+    api=${api//[^a-z0-9]/_}
+    api_var=API_$api
+    api="${!api_var}"
+
     err=0
     tmp=`tempfile`
     for query in "$@"; do
-        _log2 "Query $server"
-        if wget -qO$tmp "$server/service/local/lucene/search?q=$query"; then
-            xalan -in $tmp -xsl $XSL_NG2TXT
+        url=`printf "$server$api" "$query"`
+        _log2 "Query $url"
+        if wget -qO$tmp "$url"; then
+            xalan -in $tmp -xsl "$XSL_NG2TXT"
         else
             echo "Fetch from $server failed. "
             err=1

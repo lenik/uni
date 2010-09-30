@@ -41,14 +41,14 @@ function setopt() {
 
 function main() {
 
-    echo "[1,46mSonatype: [m"
+    echo "[1;46mSonatype: [m"
         m2search-nexus -s https://repository.sonatype.org "$@"
 
-    echo "[1,46mCodehaus: [m"
+    echo "[1;46mCodehaus: [m"
         m2search-nexus -s https://nexus.codehaus.org "$@"
 
-    echo "[1,46mJBoss: [m"
-        m2search-nexus -s https://repository.jboss.org/nexus "$@"
+    echo "[1;46mJBoss: [m"
+        m2search-nexus -s https://repository.jboss.org/nexus -a 1.7 "$@"
 
 }
 
