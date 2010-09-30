@@ -5,6 +5,8 @@
     short_opts="p:hqv"
     long_opts="port,help,quiet,verbose,version"
 
+    JETTY_PLUGIN=org.mortbay.jetty:maven-jetty-plugin
+
     port=666
 
 function version() {
@@ -45,7 +47,7 @@ function setopt() {
 }
 
 function main() {
-    mvn -Djetty.port=$port jetty:run
+    mvn -Djetty.port=$port $JETTY_PLUGIN:run
 }
 
 boot "$@"

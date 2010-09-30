@@ -3,7 +3,7 @@ include libauto/coolauto.am
 dist_bin_SCRIPTS = \
     newmod \
     jetty \
-    plugin-help \
+    m2help \
     m2search \
     m2graph
 
