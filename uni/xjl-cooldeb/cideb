@@ -10,7 +10,13 @@ if svn-isclean; then
     exit 0
 fi
 
-vercomp -i commit >/dev/null
+if svn st | grep -q '^[AD]'; then
+    echo "Detected minor-level changes"
+    vercomp -i minor >/dev/null
+else
+    vercomp -i commit >/dev/null
+fi
+
 [ -f configure.ac ] && autover
 
 if ! deb-redist -i; then
