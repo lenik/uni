@@ -2,14 +2,14 @@
     . shlib-import cliboot
 
     RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
-    short_opts="m:w:EFGPkl:tp:ehqv"
-    long_opts="message,width,extended-regexp,fixed-strings,basic-regexp,perl-regexp,kill,magic-text,magic-prefix,edit-status,help,quiet,verbose,version"
+    short_opts="m:w:EFGPkl:tp:s:ehqv"
+    long_opts="message,width,extended-regexp,fixed-strings,basic-regexp,perl-regexp,kill,magic-text,magic-prefix,magic-suffix,edit-status,help,quiet,verbose,version"
 
     LOGLEVEL=0
 
     GREP=grep
     GREPL=grepl
-    SEDIT="sedit -A"
+    SEDIT="sedit -k"
 
     message=
     width=60
@@ -17,6 +17,7 @@
     lines=
     magic_en=
     magic_prefix="# "
+    magic_suffix=
     kill=
     edit_status=
     dirty=
@@ -45,6 +46,7 @@ function help() {
     echo "    -l, --lines=NUM         Force to NUM lines in text to add/kill"
     echo "    -t, --magic-text        Use PATTERN as magic text"
     echo "    -p, --magic-prefix=STR  Prepend STR to the magic text"
+    echo "    -s, --magic-suffix=STR  Append STR to the magic text"
     echo "    -e, --edit-status       Exit true(0) if anything changed"
     echo "    -k, --kill              Remove the pattern/text line"
     echo "    -q, --quiet             Repeat to get less info"
@@ -78,6 +80,9 @@ function setopt() {
         -p|--magic-prefix)
             magic_en=1
             magic_prefix="$2";;
+        -s|--magic-suffix)
+            magic_en=1
+            magic_suffix="$2";;
         -e|--edit-status)
             edit_status=1;;
         -k|--kill)
@@ -167,7 +172,7 @@ function process() {
     echo -n>$inserttmp
 
     if [ "$magic_en" = 1 ]; then
-        echo "$magic_prefix$pattern" >>$inserttmp
+        echo "$magic_prefix$pattern$magic_suffix" >>$inserttmp
     fi
 
     for ((i = 0; i < lines; i++)); do
