@@ -1,11 +1,5 @@
-
-do_subst = sed \
-    -e 's/master-file/generated-file, please do not edit/' \
-    -e 's,[@]prefix[@],$(prefix),g' \
-    -e 's,[@]bindir[@],$(bindir),g' \
-    -e 's,[@]docdir[@],$(docdir),g' \
-    -e 's,[@]datadir[@],$(datadir),g' \
-    -e 's,[@]pkgdatadir[@],$(pkgdatadir),g'
+include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-    newmod
+    newmod \
+    jetty
