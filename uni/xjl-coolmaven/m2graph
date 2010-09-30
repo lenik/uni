@@ -51,25 +51,25 @@ function setopt() {
             opts[nopt++]="-Dcascade=false";;
         -D|--direction)
             # one of: TB LR BT RL
-            opts[nopt++]="-Ddirection=$2";;
+            opts[nopt++]="-Dgraph.direction=$2";;
         -E|--no-external)
-            opts[nopt++]="-DhideExternal=true";;
+            opts[nopt++]="-Dhide-external=true";;
         -G|--no-groupid)
-            opts[nopt++]="-DhideGroupId=true";;
+            opts[nopt++]="-Dhide-group-id=true";;
         -o|--omitted)
-            opts[nopt++]="-DhideOmitted=false";;
+            opts[nopt++]="-Dhide-omitted=false";;
         -r|--no-optional)
-            opts[nopt++]="-DhideOptional=true";;
+            opts[nopt++]="-Dhide-optional=true";;
         -p|--pom)
-            opts[nopt++]="-DhidePoms=false";;
-        -S|--hide-scope)
-            opts[nopt++]="-DhideScopes=%2";;
+            opts[nopt++]="-Dhide-poms=false";;
+        -S|--hide-scopes)
+            opts[nopt++]="-Dhide-scope=$2";;
         -T|--no-transitive)
-            opts[nopt++]="-DhideTransitive=true";;
+            opts[nopt++]="-Dhide-transitive=true";;
         -l|--label)
-            opts[nopt++]="-Dlabel=$2";;
+            opts[nopt++]="-Dgraph.label=$2";;
         -O|--output)
-            opts[nopt++]="-Dtarget=$2"
+            opts[nopt++]="-Dgraph.target=$2"
             outfile="$2"
             ;;
         -d|--display)
@@ -88,15 +88,15 @@ function setopt() {
 }
 
 function main() {
-
+    MVN=mvn
     if [ $LOGLEVEL -le 1 ]; then
-        opts[nopt++]=-q
+        MVN="mvn -q"
     else
-        opts[nopt++]=-e
+        MVN="mvn -e"
     fi
 
-    _log2 mvn "${opts[@]}" $GRAPH_PLUGIN:project
-    mvn "${opts[@]}" $GRAPH_PLUGIN:project
+    _log2 $MVN $GRAPH_PLUGIN:project "${opts[@]}"
+    $MVN $GRAPH_PLUGIN:project "${opts[@]}"
 
     if [ -z "$outfile" ]; then
         display $DEFAULT_OUT
