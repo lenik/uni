@@ -1,5 +1,8 @@
 include libauto/coolauto.am
 
+dist_aliases_DATA = \
+    fileutils.sh
+
 dist_bin_SCRIPTS = \
     textp \
     binaryp \
@@ -7,7 +10,9 @@ dist_bin_SCRIPTS = \
     enfile \
     symfl \
     symflatten \
-    mv-p
+    mv-p \
+    rename-p \
+    coolmore
 
 dist_man_MANS = \
     symfl.1 \

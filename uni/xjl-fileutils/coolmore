@@ -1,0 +1,60 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh 1853 2010-09-29 01:35:59Z lenik $'
+    short_opts="lhqv"
+    long_opts="less,help,quiet,verbose,version"
+
+    if [ -z "$PAGER" ]; then
+        PAGER='more'
+    fi
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] More with colorful title"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] FILES"
+    echo
+    echo "Options: "
+    echo "    -l, --less              Using less pager"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -l|--less)
+            PAGER="less -eifr";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $# = 0 ]; then
+        $PAGER
+    else
+        for f in "$@"; do
+            echo "[1;46mFile $f: [m"
+            more "$f"
+        done | $PAGER
+    fi
+}
+
+boot "$@"
