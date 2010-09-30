@@ -1,0 +1,64 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh 1853 2010-09-29 01:35:59Z lenik $'
+    short_opts="s:hqv"
+    long_opts="server,help,quiet,verbose,version"
+
+    server=https://repository.sonatype.org
+    XSL_NG2TXT=@pkgdatadir@/ng2txt.xsl
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] M2search Nexus driver"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -s, --server=SERVER     Nexus http server URL to use"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -s|--server)
+            server=$2;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    err=0
+    tmp=`tempfile`
+    for query in "$@"; do
+        _log2 "Query $server"
+        if wget -qO$tmp "$server/service/local/lucene/search?q=$query"; then
+            xalan -in $tmp -xsl $XSL_NG2TXT
+        else
+            echo "Fetch from $server failed. "
+            err=1
+        fi
+    done
+    rm -f $tmp
+    return $err
+}
+
+boot "$@"

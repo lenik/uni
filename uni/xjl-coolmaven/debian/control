@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-coolmaven
 
 Package: xjl-coolmaven
 Architecture: all
-Depends: ${misc:Depends}, xjl-coolsvn, maven2, grep
+Depends: xjl-coolsvn, maven2, grep, wget, xalan
 Description: Lenik's Maven utils
