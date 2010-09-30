@@ -7,7 +7,7 @@
 
     JETTY_PLUGIN=org.mortbay.jetty:maven-jetty-plugin
 
-    port=666
+    port=3108
 
 function version() {
     parse_id "$RCSID"
