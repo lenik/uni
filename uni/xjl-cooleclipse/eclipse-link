@@ -63,7 +63,7 @@ function main() {
     target=`readlink -f "$target"`
     #fi
 
-    echo "path=$target" >$link_file
+    echo "path=$target" >"$link_file"
 }
 
 boot "$@"
