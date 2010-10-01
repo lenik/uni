@@ -1,0 +1,4 @@
+#!/bin/sh
+# master-file
+
+echo "xjl-cooleclipse - postinst.in ..."
