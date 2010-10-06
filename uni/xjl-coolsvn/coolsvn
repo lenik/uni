@@ -22,12 +22,14 @@ case "$1" in
             fi
         done
         if [ -n "$av" ]; then
-            vercomp -i commit "$av" >/dev/null
+            if svn st "$av" | grep -q '^M'; then
+                vercomp -i commit "$av" >/dev/null
 
-            # do autover only if on top of srcdir.
-            if [ -f configure.ac ]; then
-                if AUTOVER=`which autover`; then
-                    $AUTOVER
+                # do autover only if on top of srcdir.
+                if [ -f configure.ac ]; then
+                    if AUTOVER=`which autover`; then
+                        $AUTOVER
+                    fi
                 fi
             fi
         fi
