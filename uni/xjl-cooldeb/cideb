@@ -10,11 +10,15 @@ if svn-isclean; then
     exit 0
 fi
 
-if svn st | grep -q '^[AD]'; then
-    echo "Detected minor-level changes"
-    vercomp -i minor >/dev/null
+if svn st VERSION.av | grep -q '^M'; then
+    echo "Version is already increased. "
 else
-    vercomp -i commit >/dev/null
+    if svn st | grep -q '^[AD]'; then
+        echo "Detected minor-level changes"
+        vercomp -i minor >/dev/null
+    else
+        vercomp -i commit >/dev/null
+    fi
 fi
 
 [ -f configure.ac ] && autover
