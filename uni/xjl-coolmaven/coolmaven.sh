@@ -1,0 +1,5 @@
+alias mpk='mvn package'
+alias mte='mvn test'
+alias mdp='mvn deploy'
+alias 'mr-'='mvn release:prepare'
+alias mr+='mvn release:perform'

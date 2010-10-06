@@ -1,5 +1,8 @@
 include libauto/coolauto.am
 
+dist_aliases_DATA = \
+    coolmaven.sh
+
 dist_bin_SCRIPTS = \
     newmod \
     jetty \
