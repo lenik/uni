@@ -23,6 +23,9 @@ bin_SCRIPTS = \
 dist_aliases_DATA = \
     cooldeb.sh
 
+dist_bashcmpl_DATA = \
+    cooldeb_compl.sh
+
 dist_man_MANS = \
     dwhich.1 \
     newdeb.1 \
