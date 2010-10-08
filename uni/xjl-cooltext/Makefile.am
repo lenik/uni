@@ -1,25 +1,21 @@
-
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-	repl \
-	wcc \
-	unindent \
-	iconvf
-
-setupdir = ${datadir}/setup/${PACKAGE_NAME}
+    repl \
+    wcc \
+    unindent \
+    iconvf \
+    grepstat
 
 setup_SCRIPTS = \
     postinst \
     prerm
 
 EXTRA_DIST = \
-	postinst.in \
-	prerm.in
+    postinst.in \
+    prerm.in
 
-CLEANFILES = \
-	postinst \
-	prerm
+CLEANFILES = ${setup_SCRITPS}
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
