@@ -1,5 +1,6 @@
 alias mpk='mvn package'
 alias mte='mvn test'
 alias mdp='mvn deploy'
-alias 'mr-'='mvn release:prepare'
-alias mr+='mvn release:perform'
+alias 'mr-'='cd.x mvn release:prepare'
+alias mr+='cd.x mvn release:perform'
+alias mr0='cd.x mvn release:rollback'
