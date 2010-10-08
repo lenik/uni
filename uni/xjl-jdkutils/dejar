@@ -1,0 +1,143 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id$'
+    short_opts="ho:qv"
+    long_opts="help,option,quiet,verbose,version"
+
+    # -d DIR   - directory for output files
+    # -ff      - output fields before methods (fieldsfirst)
+    # -lnc     - output original line numbers as comments (lnc)
+    # -nl      - split strings on newline characters (splitstr)
+    # -o       - overwrite output files without confirmation
+    # -r       - restore package directory structure
+    # -s EXT   - output file extension (default: .jad)
+    JADOPTS="-ff -lnc -nl -o -r -s .java"
+    if [ -z "$COLUMNS" ]; then COLUMNS=80; fi
+
+function version() {
+    parse_id "$RCSID"
+    echo [$BASENAME] Decompile java classes in jar archive.
+    echo "        (A frontend for jad program)"
+    echo Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] JARLIST"
+    echo
+    echo "Options: "
+    echo "    -o, --option JADOPTS    options send to jad.exe program"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -o|--option)
+            JADOPTS="$2";;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    local jar abspath
+    local dir base name ext
+    for jar in "$@"; do
+        if [ ! -f "$jar" ]; then
+            echo "$jar isn't exist, ignored. "
+            continue
+        fi
+        # abspath=`readlink -f "$jar"`
+        abspath=`cygpath -am "$jar"`
+        dir="${abspath%/*}"
+        base="${abspath##*/}"
+        if [ "$base" = "${base/.}" ]; then
+            name="$base"
+            ext=
+        else
+            name="${base%.*}"
+            ext=."${base##*.}"
+        fi
+        echo "Dejar $dir/$name$ext"
+
+        local statenv=`jar -tf "$jar" | dos2unix |
+            grepstat \
+                all='' \
+                java='\.java' \
+                class='\.class' \
+                gclass='^[^\$]*\.class$'`
+        eval $statenv
+        stat_iclass=$((stat_class - stat_gclass))
+        echo "    $stat_class classes, global $stat_gclass, inner $stat_iclass"
+
+        # set | grep stat
+        mkdir -p _bin_ _src_
+
+        cd _bin_
+        jar -xvf "$abspath" |
+            progress $stat_all "    extract"
+        cd ..
+
+        find _bin_ -type d -exec jad $JADOPTS -d _src_ '{}/*' \; 2>&1 |
+            grep Generating | progress $stat_gclass "    decompile"
+
+        cmd /c linefix.bat -rk -- _src_ 2>&1 |
+            grep save | progress $stat_gclass "    fix line numbers"
+
+        srcjar="$dir/$name-src$ext"
+        cd _src_
+        jar -cvf "$srcjar" . |
+            grep .java | progress $stat_gclass "    package sources"
+        cd ..
+
+        echo "    clean"
+        rm -fR _bin_ _src_
+    done
+    echo Done.
+}
+
+function progress() {
+    local total="$1"
+    local title="$2"
+    # cmd /c pc -t "$total" "$title"
+    local current percent lastperc
+    local PAD="                                                                                                    "
+    local msg len
+    local lastlen=$((COLUMNS-1))
+    if [ $total == 0 ]; then total=1; fi
+    while read -r L; do
+        #L="${L:0:${#L}-1}" #chop
+        ((current++))
+        percent=$((current * 100 / total))
+        # if [ "$percent" == "$lastperc" ]; then continue; fi
+        msg="$title $percent - $L"
+        len=${#msg}
+        if [ $len -gt $COLUMNS ]; then
+            len=$COLUMNS
+            msg="${msg:0:len}"
+        fi
+        echo -n $'\r'"$msg"
+        if [ $len -lt $lastlen ]; then
+            echo -n ${PAD:0:$((lastlen - len))}
+        fi
+        lastlen=$len
+        lastperc=$percent
+    done
+    echo ""
+}
+
+boot "$@"
