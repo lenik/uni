@@ -61,8 +61,7 @@ function main() {
             echo "$jar isn't exist, ignored. "
             continue
         fi
-        # abspath=`readlink -f "$jar"`
-        abspath=`cygpath -am "$jar"`
+        abspath=`readlink -f "$jar"`
         dir="${abspath%/*}"
         base="${abspath##*/}"
         if [ "$base" = "${base/.}" ]; then
@@ -74,8 +73,8 @@ function main() {
         fi
         echo "Dejar $dir/$name$ext"
 
-        local statenv=`jar -tf "$jar" | dos2unix |
-            grepstat \
+        local statenv=`jar -tf "$jar" \
+            | grepstat \
                 all='' \
                 java='\.java' \
                 class='\.class' \
@@ -88,20 +87,25 @@ function main() {
         mkdir -p _bin_ _src_
 
         cd _bin_
-        jar -xvf "$abspath" |
-            progress $stat_all "    extract"
+        jar -xvf "$abspath" \
+            | progress $stat_all "    extract"
         cd ..
 
-        find _bin_ -type d -exec jad $JADOPTS -d _src_ '{}/*' \; 2>&1 |
-            grep Generating | progress $stat_gclass "    decompile"
+        find _bin_ -type d -exec jad $JADOPTS -d _src_ '{}/*' \; 2>&1 \
+            | grep Generating \
+            | progress $stat_gclass "    decompile"
 
-        cmd /c linefix.bat -rk -- _src_ 2>&1 |
-            grep save | progress $stat_gclass "    fix line numbers"
+        if which linefix; then
+            linefix -rk -- _src_ 2>&1 \
+                | grep save \
+                | progress $stat_gclass "    fix line numbers"
+        fi
 
         srcjar="$dir/$name-src$ext"
         cd _src_
-        jar -cvf "$srcjar" . |
-            grep .java | progress $stat_gclass "    package sources"
+        jar -cvf "$srcjar" . \
+            | grep .java \
+            | progress $stat_gclass "    package sources"
         cd ..
 
         echo "    clean"
@@ -118,7 +122,7 @@ function progress() {
     local PAD="                                                                                                    "
     local msg len
     local lastlen=$((COLUMNS-1))
-    if [ $total == 0 ]; then total=1; fi
+    if [ $total = 0 ]; then total=1; fi
     while read -r L; do
         #L="${L:0:${#L}-1}" #chop
         ((current++))
