@@ -19,7 +19,7 @@ if [ ! -f "$dir/VERSION.av" ]; then
     exit 1
 fi
 
-ver=`vercomp $dir/VERSION.av`
+ver_av=`vercomp $dir/VERSION.av`
 
 sep="-"
 if [ $# -ge 2 ]; then
@@ -28,6 +28,10 @@ fi
 
 function is_ver() {
     local s="$1"
+    if [ "$s" = "$ver_av" ]; then
+        return 0
+    fi
+
     while [ -n "$s" ]; do
         c="${s##*.}"
         if [ "$s" = "$c" ]; then
@@ -48,7 +52,7 @@ if is_ver "$ver_test"; then
     dir_ver="$dir"
 else
     dir_nover="$dir"
-    dir_ver="$dir$sep$ver"
+    dir_ver="$dir$sep$ver_av"
 fi
 
 function _mv() {
