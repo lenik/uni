@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Called with --upstream-version VERSION filename
+
+version=$2
+zipfile="$3"
+
+echo "format = $version" >VERSION.av
+
+unzip -o "$zipfile" jad
