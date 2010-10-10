@@ -2,10 +2,12 @@
     . shlib-import cliboot
 
     RCSID='$Id: bash.sh 1853 2010-09-29 01:35:59Z lenik $'
-    short_opts="m:f:hqv"
-    long_opts="method,for,help,quiet,verbose,version"
+    short_opts="n:m:f:hqv"
+    long_opts="xmlns:method,for,help,quiet,verbose,version"
 
     method=text
+    nsmap=()
+    nns=0
     trans=()
     ntran=0
 
@@ -22,6 +24,7 @@ function help() {
     echo "    $0 [OPTION] [--] XMLFILES"
     echo
     echo "Options: "
+    echo "    -n, --xmlns=ALIAS=URI   Add namespace aliases"
     echo "    -f, --for=XPATH:=EXPR   Add XSLT transform"
     echo "    -m, --method=METHOD     Default method is text"
     echo "    -q, --quiet             Repeat to get less info"
@@ -32,6 +35,8 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -n|--xmlns)
+            nsmap[nns++]="$2";;
         -m|--method)
             method="$2";;
         -f|--for)
@@ -56,7 +61,13 @@ function setopt() {
 function main() {
     xsltmp=`tempfile`
     echo '<?xml version="1.0" encoding="UTF-8"?>' >$xsltmp
-    echo '<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">' >>$xsltmp
+    echo -n '<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"' >>$xsltmp
+        for map in "${nsmap[@]}"; do
+            prefix="${map%%=*}"
+            uri="${map#*=}"
+            echo -n " xmlns:$prefix=\"$uri\"" >>$xsltmp
+        done
+        echo '>' >>$xsltmp
     echo "<xsl:output method=\"$method\"/>" >>$xsltmp
     for t in "${trans[@]}"; do
         xpath="${t%%:=*}"
