@@ -45,8 +45,8 @@ SELF = _self
 			ISSUER_DIR=.; \
 			ISSUER_NAME=$$ISSUER; \
 		else \
-			ISSUER_NAME=$${ISSUER##*/}; \
-			ISSUER_DIR=$${ISSUER%/*}; \
+			ISSUER_NAME="$${ISSUER##*/}"; \
+			ISSUER_DIR="$${ISSUER%/*}"; \
 		fi; \
 		CA=$$ISSUER_DIR/$$ISSUER_NAME.crt; \
 		CAKEY=$$ISSUER_DIR/.$$ISSUER_NAME.pem_raw; \

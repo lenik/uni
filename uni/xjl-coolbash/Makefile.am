@@ -2,8 +2,6 @@ include libauto/coolauto.am
 
 SUBDIRS = profile.d
 
-shsrcdir   = ${bindir}
-
 bin_PROGRAMS = \
     echoln \
     echoli
@@ -11,10 +9,6 @@ bin_PROGRAMS = \
 dist_bin_SCRIPTS = \
     eachdir \
     orig
-
-dist_shsrc_DATA = \
-    cd-ls \
-    ls-which
 
 dist_sudoers_DATA = \
     sudoers.d/keep-hist

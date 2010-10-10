@@ -1,5 +1,5 @@
 #!/bin/bash
-    RCSID='$Id: bash.sh 1432 2010-08-25 10:23:46Z lenik $'
+    RCSID='$Id$'
     short_opts="sakdIKXhqv"
     long_opts="set,add,kill,diff,svn-ignore,svn-keywords,svn-externals,help,quiet,verbose,version"
     . shlib-import cliboot

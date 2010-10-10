@@ -10,7 +10,7 @@ use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
     $LOGNAME    = 'getaddrbyname'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: perl.pl 1770 2010-09-21 07:34:48Z lenik $');
+    my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
 
 sub _main; sub _version; sub _help;

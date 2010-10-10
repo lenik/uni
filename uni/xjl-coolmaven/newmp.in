@@ -2,7 +2,7 @@
 # master-file, please do not edit
     . shlib-import cliboot
 
-    RCSID='$Id: bash.sh 1853 2010-09-29 01:35:59Z lenik $'
+    RCSID='$Id$'
     short_opts="G:A:V:g:a:w:hqv"
     long_opts="arch-group,arch-artifact,arch-version,target-group,target-artifact,target-version,help,quiet,verbose,version"
 

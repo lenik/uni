@@ -2,7 +2,7 @@
 
 # strip (PREFIX)FILE(SUFFIX) prefix/suffix
 
-    RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
+    RCSID='$Id$'
     short_opts="edhqv"
     long_opts="enable,disable,help,quiet,verbose,version"
     . shlib-import cliboot

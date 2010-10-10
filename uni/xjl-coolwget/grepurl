@@ -1,5 +1,5 @@
 #!/bin/bash
-    RCSID='$Id: bash.sh 1427 2010-08-25 04:39:31Z lenik $'
+    RCSID='$Id$'
     short_opts="EFGPm:hqv"
     long_opts="extended-regexp,fixed-strings,basic-regexp,perl-regexp,max-count,help,quiet,verbose,version"
     . shlib-import cliboot

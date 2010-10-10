@@ -1,7 +1,7 @@
 #!/bin/bash
     . shlib-import cliboot
 
-    RCSID='$Id: bash.sh 1853 2010-09-29 01:35:59Z lenik $'
+    RCSID='$Id$'
     short_opts="p:hqv"
     long_opts="port,help,quiet,verbose,version"
 

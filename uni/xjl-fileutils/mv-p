@@ -11,7 +11,7 @@ use cmt::log(2);
     $LOGNAME    = 'mv-p'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::path('path_split');
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: perl.pl 1770 2010-09-21 07:34:48Z lenik $');
+    my %RCSID   = parse_id('$Id$');
 use File::Path('mkpath');
 use Getopt::Long;
 

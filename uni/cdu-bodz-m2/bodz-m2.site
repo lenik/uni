@@ -17,6 +17,10 @@
     RewriteRule ^/repository/releases/(.*)  /archiva/repository/bodz.releases/$1 [PT]
     RewriteRule ^/repository/snapshots/(.*) /archiva/repository/bodz.snapshots/$1 [PT]
 
+    # Keep compatible with bas-parent:1
+    RewriteRule ^/archiva/repository/releases/(.*)  /archiva/repository/bodz.releases/$1 [PT]
+    RewriteRule ^/archiva/repository/snapshots/(.*) /archiva/repository/bodz.snapshots/$1 [PT]
+
     RewriteRule ^/mirror/(.*)    /archiva/repository/internal/$1 [PT]
     RewriteRule ^/_mirror/(.*)   /archiva/repository/snapshots/$1 [PT]
 
