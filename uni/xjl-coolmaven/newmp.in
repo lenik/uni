@@ -182,15 +182,20 @@ function main() {
     fi
     target_artifactid="$1"
 
-    mvn archetype:generate \
+    mvn -q archetype:generate \
         -DinteractiveMode=false \
         -DarchetypeGroupId=$arch_groupid \
         -DarchetypeArtifactId=$arch_artifactid \
         -DarchetypeVersion=$arch_version \
-        -Dbasedir=$unix_name \
         -DgroupId=$target_groupid \
         -DartifactId=$target_artifactid \
         -Dversion=$target_version
+
+    pomfile="$target_artifactid/pom.xml"
+    if [ -f "$pomfile" ]; then
+        _log2 "Reformat $pomfile"
+        xmlindent -w "$pomfile"
+    fi
 }
 
 boot "$@"
