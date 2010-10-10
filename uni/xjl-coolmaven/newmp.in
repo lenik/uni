@@ -1,0 +1,167 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh 1853 2010-09-29 01:35:59Z lenik $'
+    short_opts="G:A:V:g:a:w:hqv"
+    long_opts="arch-group,arch-artifact,arch-version,target-group,target-artifact,target-version,help,quiet,verbose,version"
+
+    ARCHS=@DESTDIR@@pkgdatadir@/archetypes
+    DEFAULT_VERSION=0.0.0-SNAPSHOT
+
+    arch_groupid=
+    arch_artifactid=
+    arch_version=
+    target_groupid=
+    target_artifactid=
+    target_version=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Create new Maven Project by archetype:generate"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] [ARCH-NAME] UNIX-NAME POM-NAME"
+    echo "        (Use ARCH-NAME unless -A is specified)"
+    echo
+    echo "Options: "
+    echo "    -G, --arch-group=STR    GroupId of the archetype"
+    echo "    -A, --arch-artifact=STR ArtifactId of the archetype"
+    echo "    -V, --arch-version=STR  Version of the archetype, default LATEST"
+    echo "    -g, --target-group=STR  GroupId of the generated project, default as parent"
+    echo "    -a, --target-artifact=STR ArtifactId of the generated project, default as parent"
+    echo "    -w, --target-version=STR Version of the generated project, default as parent or 0.0.0-SNAPSHOT"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -G|--arch-group)
+            arch_groupid=$2;;
+        -A|--arch-artifact)
+            arch_artifactid=$2;;
+        -V|--arch-version)
+            arch_version=$2;;
+        -g|--target-group)
+            target_groupid=$2;;
+        -a|--target-artifact)
+            target_artifactid=$2;;
+        -w|--target-version)
+            target_version=$2;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function inherit_parent() {
+    if [ -f pom.xml ]; then
+        _log2 "Found parent pom.xml"
+        ns=`xmltran -f "/*:=namespace-uri()" pom.xml`
+        read gid aid ver pack < <(xmltran -n "p=$ns" \
+            -f "/p:project:=concat(p:groupId, ':', p:artifactId, ':', p:version, ':', p:packaging)")
+        if [ -z "$target_groupid" ]; then target_groupid=$gid; fi
+        if [ -z "$target_version" ]; then target_version=$ver; fi
+    else
+        _log2 "No parent pom found. "
+        exit 1
+    fi
+}
+
+function search_arch() {
+    local keyw=$1
+    matched=0
+    match_gid=
+    match_aid=
+    match_ver=
+    ambig=0
+    sort_ver=/tmp/sort_ver.$$.$RANDOM
+    while IFS=: read gid aid ver xxx; do
+        if [ "${aid/$keyw}" != "$aid" ]; then
+            _log2 "Matching archetype: $gid:$aid:$ver:$xxx"
+            if [ $matched = 0 ]; then
+                match_gid=$gid
+                match_aid=$aid
+                match_ver=$ver
+            else
+                if [ $gid != $match_gid ] || [ $aid != $match_aid ]; then
+                    if [ $ambig = 0 ]; then
+                        echo Archetype keyword $keyw is ambiguous:
+                        echo $match_gid:$match_aid:$match_ver
+                    else
+                        echo $gid:$aid:$ver
+                    fi
+                    ambig=1
+                else
+                    if [ ! -f $sort_ver ]; then
+                        echo $match_ver >$sort_ver
+                    fi
+                    echo $ver >>$sort_ver
+                fi
+            fi
+        fi
+    done <$ARCHS
+
+    if [ $ambig = 0 ]; then
+        arch_groupid=$match_gid
+        arch_artifactid=$match_aid
+        if [ -z $arch_version ]; then
+            if [ ! -f $sort_ver ]; then
+                latest_ver=$match_ver
+            else
+                latest_ver=`sort --version-sort --reverse $sort_ver | head -1`
+            fi
+            arch_version=$latest_ver
+        fi
+    fi
+
+    rm -f $sort_ver
+    if [ $ambig = 1 ]; then
+        exit 1
+    fi
+}
+
+function main() {
+    if [ -z "$groupId" ] || [ -z "$version" ]; then
+        _log2 "Try to inherit groupId and version from parent pom"
+        inherit_parent
+    fi
+
+    if [ -z "$arch_artifactid" ]; then
+        _log2 "Search archetype using keyword $1"
+        search_arch "$1"
+        shift
+    fi
+
+    if [ $# -lt 2 ]; then
+        echo "unix-name or pom-name isn't specified"
+        exit 1
+    fi
+    unix_name="$1"
+    pom_name="$2"
+
+    mvn archetype:generate \
+        -DarchetypeGroupId=$arch_groupid \
+        -DarchetypeArtifactId=$arch_artifactid \
+        -DarchetypeVersion=$arch_version \
+        -Dbasedir=$unix_name \
+        -DgroupId=$target_groupId \
+        -DartifactId=$target_artifactId \
+        -Dversion=$target_version
+}
+
+boot "$@"
