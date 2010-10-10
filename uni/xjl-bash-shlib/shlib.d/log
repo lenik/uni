@@ -28,26 +28,14 @@ function _sig() {
     fi
 }
 
-function _log0() {
-    _log 0 "$@"
-}
+function _log0() { _log 0 "$@"; }
+function _log1() { _log 1 "$@"; }
+function _log2() { _log 2 "$@"; }
+function _log3() { _log 3 "$@"; }
+function _log4() { _log 4 "$@"; }
 
-function _log1() {
-    _log 1 "$@"
-}
-
-function _log2() {
-    _log 2 "$@"
-}
-
-function _sig0() {
-    _sig 0 "$@"
-}
-
-function _sig1() {
-    _sig 1 "$@"
-}
-
-function _sig2() {
-    _sig 2 "$@"
-}
+function _sig0() { _sig 0 "$@"; }
+function _sig1() { _sig 1 "$@"; }
+function _sig2() { _sig 2 "$@"; }
+function _sig3() { _sig 3 "$@"; }
+function _sig4() { _sig 4 "$@"; }
