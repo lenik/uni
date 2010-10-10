@@ -197,6 +197,12 @@ function main() {
         xmlindent -w "$pomfile"
         rm -f "$pomfile~"
     fi
+
+    if [ $# -gt 0 ]; then
+        pomname="$1"
+        _log2 "Set POM name to $pomname"
+        lineconf "$pomfile" "<name>.*</name>" "    <name>$pomname</name>"
+    fi
 }
 
 boot "$@"
