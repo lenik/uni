@@ -11,6 +11,7 @@ dist_shsrc_DATA = \
     cd-ls \
     cd-first \
     cd.x \
+    cd-alias \
     ls-which
 
 setup_SCRIPTS = \
