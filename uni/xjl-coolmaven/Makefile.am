@@ -8,7 +8,8 @@ dist_bin_SCRIPTS = \
     jetty \
     m2help \
     m2search \
-    m2graph
+    m2graph \
+    pomid
 
 bin_SCRIPTS = \
     m2search-nexus \

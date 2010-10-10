@@ -1,4 +1,5 @@
 #!/bin/bash
+# master-file, please do not edit
     . shlib-import cliboot
 
     RCSID='$Id: bash.sh 1853 2010-09-29 01:35:59Z lenik $'
@@ -6,14 +7,13 @@
     long_opts="arch-group,arch-artifact,arch-version,target-group,target-artifact,target-version,help,quiet,verbose,version"
 
     ARCHS=@DESTDIR@@pkgdatadir@/archetypes
-    DEFAULT_VERSION=0.0.0-SNAPSHOT
 
     arch_groupid=
     arch_artifactid=
     arch_version=
     target_groupid=
     target_artifactid=
-    target_version=
+    target_version=0.0.0-SNAPSHOT
 
 function version() {
     parse_id "$RCSID"
@@ -25,16 +25,15 @@ function help() {
     version
     echo
     echo "Syntax: "
-    echo "    $0 [OPTION] [--] [ARCH-NAME] UNIX-NAME POM-NAME"
-    echo "        (Use ARCH-NAME unless -A is specified)"
+    echo "    $0 [OPTION] [--] [ARCHETYPE-NAME] ARTIFACT-ID POM-NAME"
+    echo "        (Use ARCHETYPE-NAME unless -A is specified)"
     echo
     echo "Options: "
     echo "    -G, --arch-group=STR    GroupId of the archetype"
     echo "    -A, --arch-artifact=STR ArtifactId of the archetype"
     echo "    -V, --arch-version=STR  Version of the archetype, default LATEST"
     echo "    -g, --target-group=STR  GroupId of the generated project, default as parent"
-    echo "    -a, --target-artifact=STR ArtifactId of the generated project, default as parent"
-    echo "    -w, --target-version=STR Version of the generated project, default as parent or 0.0.0-SNAPSHOT"
+    echo "    -w, --target-version=STR Version of the generated project"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
@@ -71,9 +70,8 @@ function setopt() {
 function inherit_parent() {
     if [ -f pom.xml ]; then
         _log2 "Found parent pom.xml"
-        ns=`xmltran -f "/*:=namespace-uri()" pom.xml`
-        read gid aid ver pack < <(xmltran -n "p=$ns" \
-            -f "/p:project:=concat(p:groupId, ':', p:artifactId, ':', p:version, ':', p:packaging)")
+        IFS=: read gid aid ver pack < <(pomid pom.xml)
+        _log2 "Parent id: $gid:$aid:$ver:$pack"
         if [ -z "$target_groupid" ]; then target_groupid=$gid; fi
         if [ -z "$target_version" ]; then target_version=$ver; fi
     else
@@ -91,8 +89,11 @@ function search_arch() {
     ambig=0
     sort_ver=/tmp/sort_ver.$$.$RANDOM
     while IFS=: read gid aid ver xxx; do
+        if [ -n "$arch_groupid" ] && [ "$gid" != "$arch_groupid" ]; then
+            continue
+        fi
         if [ "${aid/$keyw}" != "$aid" ]; then
-            _log2 "Matching archetype: $gid:$aid:$ver:$xxx"
+            _log3 "Matching archetype: $gid:$aid:$ver:$xxx"
             if [ $matched = 0 ]; then
                 match_gid=$gid
                 match_aid=$aid
@@ -136,31 +137,40 @@ function search_arch() {
 }
 
 function main() {
-    if [ -z "$groupId" ] || [ -z "$version" ]; then
-        _log2 "Try to inherit groupId and version from parent pom"
+    if [ -z "$target_groupid" ]; then
+        _log2 "Try to inherit group-id from parent pom"
         inherit_parent
     fi
 
     if [ -z "$arch_artifactid" ]; then
+        if [ $# -lt 1 ]; then
+            echo "Archetype is not specified"
+            exit 1
+        fi
         _log2 "Search archetype using keyword $1"
         search_arch "$1"
         shift
+    else
+        if [ "$arch_groupid" ]; then
+            echo "Archetype groupid must be specified along with arch-artifact"
+            exit 1
+        fi
     fi
 
-    if [ $# -lt 2 ]; then
-        echo "unix-name or pom-name isn't specified"
+    if [ $# -lt 1 ]; then
+        echo "artifact-id or pom-name isn't specified"
         exit 1
     fi
-    unix_name="$1"
-    pom_name="$2"
+    target_artifactid="$1"
 
     mvn archetype:generate \
+        -DinteractiveMode=false \
         -DarchetypeGroupId=$arch_groupid \
         -DarchetypeArtifactId=$arch_artifactid \
         -DarchetypeVersion=$arch_version \
         -Dbasedir=$unix_name \
-        -DgroupId=$target_groupId \
-        -DartifactId=$target_artifactId \
+        -DgroupId=$target_groupid \
+        -DartifactId=$target_artifactid \
         -Dversion=$target_version
 }
 
