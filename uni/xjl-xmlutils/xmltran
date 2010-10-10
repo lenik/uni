@@ -1,0 +1,76 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh 1853 2010-09-29 01:35:59Z lenik $'
+    short_opts="m:f:hqv"
+    long_opts="method,for,help,quiet,verbose,version"
+
+    method=text
+    trans=()
+    ntran=0
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Translate XML to text by simplified XSLT"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] XMLFILES"
+    echo
+    echo "Options: "
+    echo "    -f, --for=XPATH:=EXPR   Add XSLT transform"
+    echo "    -m, --method=METHOD     Default method is text"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -m|--method)
+            method="$2";;
+        -f|--for)
+            if [ "$2" = "${2/:=}" ]; then
+                echo "Expect ':=' in the for option"
+                exit 1
+            fi
+            trans[ntran++]="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    xsltmp=`tempfile`
+    echo '<?xml version="1.0" encoding="UTF-8"?>' >$xsltmp
+    echo '<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">' >>$xsltmp
+    echo "<xsl:output method=\"$method\"/>" >>$xsltmp
+    for t in "${trans[@]}"; do
+        xpath="${t%%:=*}"
+        xexpr="${t#*:=}"
+        echo -n "<xsl:template match=\"$xpath\">" >>$xsltmp
+        echo -n "<xsl:value-of select=\"$xexpr\" />" >>$xsltmp
+        echo "</xsl:template>" >>$xsltmp
+        shift 2
+    done
+    echo '<xsl:template match="text()|@*" />' >>$xsltmp
+    echo '</xsl:stylesheet>' >>$xsltmp
+
+    xsltproc $xsltmp "$@"
+    rm -f $xsltmp
+}
+
+boot "$@"

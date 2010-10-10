@@ -1,5 +1,8 @@
 include libauto/coolauto.am
 
+dist_bin_SCRIPTS = \
+    xmltran
+
 setup_SCRIPTS = \
     postinst \
     prerm
