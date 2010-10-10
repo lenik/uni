@@ -1,9 +1,17 @@
 include libauto/coolauto.am
 
+shsrcdir   = ${bindir}
+
 aliases_DATA =
 
 dist_sysconf_DATA = \
     bash_aliases
+
+dist_shsrc_DATA = \
+    cd-ls \
+    cd-first \
+    cd.x \
+    ls-which
 
 setup_SCRIPTS = \
     postinst \
