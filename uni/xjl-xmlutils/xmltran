@@ -24,7 +24,7 @@ function help() {
     echo "    $0 [OPTION] [--] XMLFILES"
     echo
     echo "Options: "
-    echo "    -n, --xmlns=ALIAS=URI   Add namespace aliases"
+    echo "    -n, --xmlns=[NAME=]URI  Add namespace aliases"
     echo "    -f, --for=XPATH:=EXPR   Add XSLT transform"
     echo "    -m, --method=METHOD     Default method is text"
     echo "    -q, --quiet             Repeat to get less info"
@@ -63,9 +63,13 @@ function main() {
     echo '<?xml version="1.0" encoding="UTF-8"?>' >$xsltmp
     echo -n '<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"' >>$xsltmp
         for map in "${nsmap[@]}"; do
-            prefix="${map%%=*}"
             uri="${map#*=}"
-            echo -n " xmlns:$prefix=\"$uri\"" >>$xsltmp
+            if [ "$uri" = "$map" ]; then
+                echo -n " xmlns=\"$uri\"" >>$xsltmp
+            else
+                prefix="${map%%=*}"
+                echo -n " xmlns:$prefix=\"$uri\"" >>$xsltmp
+            fi
         done
         echo '>' >>$xsltmp
     echo "<xsl:output method=\"$method\"/>" >>$xsltmp
