@@ -1,0 +1,50 @@
+_newmp()
+{
+    local ARCHS=@DESTDIR@@pkgdatadir@/archetypes
+    local cur prev i decrypt
+
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    local gid aid i
+    local optoff=0
+    for ((i = 1; i < COMP_CWORD; i++)); do
+        case "${COMP_WORDS[i]}" in
+            -G|--arch-group)
+                gid="${COMP_WORDS[++i]}"
+                optoff=0
+                ;;
+            -*)
+                optoff=0
+                ;;
+            *)
+                ((optoff++))
+                ;;
+        esac
+    done
+
+    case "$prev" in
+        -G|--arch-group)
+            COMPREPLY=($( cut -d: -f1 $ARCHS | sort -u | grep "^$cur"))
+            return 0
+            ;;
+        -*)
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-G -A -V -g -a -w \
+            -v --verbose -q --quiet -h --help -- "$cur"' ) )
+    elif [ $optoff = 0 ]; then
+        if [ -n "$gid" ]; then
+            COMPREPLY=($( grep "^$gid:$cur" $ARCHS | cut -d: -f2 | sort -u ))
+            return 0
+        else
+            COMPREPLY=($( cut -d: -f2 $ARCHS | sort -u | grep "^$cur" ))
+            return 0
+        fi
+    fi
+} &&
+complete -F _newmp newmp

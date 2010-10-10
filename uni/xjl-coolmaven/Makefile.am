@@ -1,5 +1,7 @@
 include libauto/coolauto.am
 
+SUBDIRS = bash_completion.d
+
 dist_aliases_DATA = \
     coolmaven.sh
 
