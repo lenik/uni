@@ -5,19 +5,20 @@ colldir = /var/lib
 
 bin_PROGRAMS = \
     uc \
-	gcd \
-	random
+    gcd \
+    random
 
 dist_bin_SCRIPTS = \
     which2 \
     whichother \
-	hm \
-	collect-copy
+    hm \
+    collect-copy \
+    kill-all
 
 dist_man_MANS = \
-	uc.1 \
-	hm.1 \
-	collect-copy.1
+    uc.1 \
+    hm.1 \
+    collect-copy.1
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); \
