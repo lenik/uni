@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # master-file
 
@@ -19,3 +19,16 @@ if [ ! -f "$passwd_tc" ]; then
     echo "Create $passwd_tc"
     install -m 600 @pkgdatadir@/passwd.tc $passwd_tc
 fi
+
+read loop_major loop_minor < <(stat -c "%t %T" /dev/loop0)
+
+for ((i = 1; i < 128; i++)); do
+    loopdev=/dev/loop$i
+    if [ ! -e $loopdev ]; then
+        echo "Add loop device $loopdev"
+        minor=$((loop_minor + i))
+        mknod $loopdev b $loop_major $minor
+    fi
+done
+
+exit 0
