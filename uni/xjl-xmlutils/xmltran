@@ -2,14 +2,15 @@
     . shlib-import cliboot
 
     RCSID='$Id: bash.sh 1853 2010-09-29 01:35:59Z lenik $'
-    short_opts="n:m:f:hqv"
-    long_opts="xmlns:method,for,help,quiet,verbose,version"
+    short_opts="sn:m:f:hqv"
+    long_opts="show-xsl,xmlns:method,for,help,quiet,verbose,version"
 
     method=text
     nsmap=()
     nns=0
     trans=()
     ntran=0
+    show_xsl=0
 
 function version() {
     parse_id "$RCSID"
@@ -24,6 +25,7 @@ function help() {
     echo "    $0 [OPTION] [--] XMLFILES"
     echo
     echo "Options: "
+    echo "    -s, --show-xsl          Show the compiled XSL only"
     echo "    -n, --xmlns=[NAME=]URI  Add namespace aliases"
     echo "    -f, --for=XPATH:=EXPR   Add XSLT transform"
     echo "    -m, --method=METHOD     Default method is text"
@@ -35,6 +37,8 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -s|--show-xsl)
+            show_xsl=1;;
         -n|--xmlns)
             nsmap[nns++]="$2";;
         -m|--method)
@@ -84,7 +88,11 @@ function main() {
     echo '<xsl:template match="text()|@*" />' >>$xsltmp
     echo '</xsl:stylesheet>' >>$xsltmp
 
-    xsltproc $xsltmp "$@"
+    if [ $show_xsl = 1 ]; then
+        cat $xsltmp
+    else
+        xsltproc $xsltmp "$@"
+    fi
     rm -f $xsltmp
 }
 
