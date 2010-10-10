@@ -195,6 +195,7 @@ function main() {
     if [ -f "$pomfile" ]; then
         _log2 "Reformat $pomfile"
         xmlindent -w "$pomfile"
+        rm -f "$pomfile~"
     fi
 }
 
