@@ -1,15 +1,15 @@
-
 include libauto/coolauto.am
 
 samplesdir = ${docdir}/samples
 
 dist_bin_SCRIPTS = \
-	make-color \
+    make-color \
     maketest \
     maketestvar \
     makelook \
-	makeorig \
-    subdirs
+    makeorig \
+    subdirs \
+    autobuild
 
 dist_samples_DATA = \
     samples/Makefile
