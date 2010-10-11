@@ -1,0 +1,12 @@
+Source: googleearth
+Section: web
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://earth.google.com
+
+Package: googleearth
+Architecture: all
+Depends:
+Description: Google Earth for Linux
