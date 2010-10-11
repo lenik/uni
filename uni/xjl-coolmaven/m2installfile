@@ -82,6 +82,17 @@ function setopt() {
 
 function main() {
     if [ "$deploy" = 1 ]; then
+        for f in /etc/m2deploy.cfg $HOME/.m2deploy.cfg; do
+            if [ -f "$f" ]; then
+                while read key val; do
+                    if [ -z "$key" ]; then continue; fi
+                    if [ "${key:0:1}" = '#' ]; then continue; fi
+                    _log2 "Config $key := $val. "
+                    eval "$key=\"$val\""
+                done <"$f"
+            fi
+        done
+
         if [ -z "$repo_id" ] && [ -z "$repo_url" ]; then
             echo "Which repository to deploy?"
             exit 1
@@ -111,7 +122,8 @@ function main() {
     fi
     if [ -z "$packaging" ]; then packaging=$extension; fi
 
-    base="${file%.*}"
+    base="${file##*/}"
+    base="${base%.*}"
 
     ver="${base##*-}"
     if [ "$ver" = "$base" ]; then
