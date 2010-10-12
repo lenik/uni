@@ -1,0 +1,1 @@
+alias wget='axel -a'

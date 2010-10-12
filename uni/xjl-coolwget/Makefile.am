@@ -11,33 +11,36 @@ cache_DATA =
 
 dist_bin_SCRIPTS = \
     urljoin \
-	grepurl
+    grepurl
 
 bin_SCRIPTS = \
     wgetc \
-	wgetc-url
+    wgetc-url
+
+dist_aliases_DATA = \
+    coolwget.sh
 
 dist_man_MANS = \
-	urljoin.1 \
-	grepurl.1 \
-	wgetc.1 \
-	wgetc-url.1
+    urljoin.1 \
+    grepurl.1 \
+    wgetc.1 \
+    wgetc-url.1
 
 setup_SCRIPTS = \
-	postinst \
-	prerm
+    postinst \
+    prerm
 
 EXTRA_DIST = \
-	postinst.in \
-	prerm.in \
-	wgetc.in \
-	wgetc-url.in
+    postinst.in \
+    prerm.in \
+    wgetc.in \
+    wgetc-url.in
 
 CLEANFILES = \
-	postinst \
-	prerm \
-	wgetc \
-	wgetc-url
+    postinst \
+    prerm \
+    wgetc \
+    wgetc-url
 
 %: %.in Makefile
 	$(do_subst) \
