@@ -116,7 +116,7 @@ function main() {
     # server isn't specified, guess one by mod-name
     if [ -z "$SERVER" ]; then
         # find servers contain $m_parent. /dev/null if no files under servers/
-        svr_list=( $( grep -l \\\\\\[$m_parent\\\\\\] /dev/null \
+        svr_list=( $( grep -l "[$m_parent]" /dev/null \
             ./.msync/srv/* \
             ~/.msync/srv/* \
             /etc/msync/srv/* 2>/dev/null) )

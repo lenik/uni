@@ -17,11 +17,10 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
-impl=/usr/share/setup/xjl-coolsync/postinst.sh
 
 case "$1" in
     configure)
-        if [ -f $impl ]; then $impl; fi
+        /usr/share/setup/xjl-coolsync/postinst.sh
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
