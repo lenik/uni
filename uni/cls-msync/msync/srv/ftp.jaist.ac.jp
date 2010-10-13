@@ -7,3 +7,6 @@ ftp.jaist.ac.jp
 
 [openoffice]
 path=pub/openoffice
+
+[CTAN]
+path=pub/CTAN
