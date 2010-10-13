@@ -7,7 +7,7 @@
 
     CHDIR=.
     DELETE_ARGS=--delete
-    LOGDIR=/var/log/ram/rsync
+    LOGDIR=/var/log/msync
 
 function version() {
     parse_id "$RCSID"
@@ -116,7 +116,10 @@ function main() {
     # server isn't specified, guess one by mod-name
     if [ -z "$SERVER" ]; then
         # find servers contain $m_parent. /dev/null if no files under servers/
-        svr_list=(`grep -l \\\\\\[$m_parent\\\\\\] /dev/null {.,~}/.msync/srv/* 2>/dev/null`)
+        svr_list=( $( grep -l \\\\\\[$m_parent\\\\\\] /dev/null \
+            ./.msync/srv/* \
+            ~/.msync/srv/* \
+            /etc/msync/srv/* 2>/dev/null) )
         svr_count=${#svr_list[@]}
         if [ $svr_count = 0 ]; then
             echo no available server.
@@ -126,7 +129,9 @@ function main() {
         SERVER=${svr_conf##*/}
     else
         # server name is specified, search svr_conf file
-        for f in {.,~}/.msync/srv/$SERVER; do
+        for f in ./.msync/srv/$SERVER \
+                 ~/.msync/srv/$SERVER \
+                 /etc/msync/srv/$SERVER; do
             if [ -f $f ]; then
                 svr_conf=$f
                 break
@@ -203,7 +208,9 @@ function main() {
 
     # load alias config, example:
     # ubuntu
-    for conf in {.,~}/.msync; do
+    for conf in ./.msync \
+                ~/.msync \
+                /etc/msync; do
         if [ -f $conf/mod/$m_parent ]; then
             while read a_opt a_val; do
                 case "$a_opt" in

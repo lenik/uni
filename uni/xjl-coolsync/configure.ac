@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([], [0.1.3], [])
+AC_INIT([], [0.2.0], [])
 AM_INIT_AUTOMAKE([-Wall])
 
 # Checks for programs.

@@ -11,7 +11,7 @@
     PREFIX=
     REMOTE_EVAL=
     PURGE=
-    LOGDIR=/var/log/ram/rsync
+    LOGDIR=/var/log/msync
     DRYRUN=
 
 function version() {
