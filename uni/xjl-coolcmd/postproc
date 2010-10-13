@@ -1,0 +1,31 @@
+#!/bin/bash
+
+if [ $# = 0 ]; then
+    echo "Post process"
+    echo "Syntax: $0 FILTER-CMD-ARGS \\; CMD-ARGS"
+    exit 1
+fi
+
+proccmd=()
+n=0
+term=0
+for a in "$@"; do
+    shift
+    if [ "$a" = ';' ]; then
+        term=1
+        break
+    fi
+    proccmd[n++]="$a"
+done
+
+if [ "$term" = 0 ]; then
+    echo "Syntax error: filter cmdline doesn't terminated with ';'"
+    exit 1
+fi
+
+if [ $# = 0 ]; then
+    echo "No command to execute"
+    exit 1
+fi
+
+"${proccmd[@]}" < <("$@")
