@@ -79,7 +79,8 @@ function main() {
 
         # repo_url=file://`readlink -f "$repo"`
         while read zf; do
-            dir="${zf%/.authz}"
+            dir="${zf%.authz}"
+            dir="${dir%/}"
             _log2 "    + $dir"
 
             if [ -n "$g_authz" ]; then
