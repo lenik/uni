@@ -7,7 +7,7 @@ for url in "$@"; do
             url="${line#URL=}"
             gnome-open "$url"
             break
-        done <"$url"
+        done < <(grep '^URL=' "$url")
     elif [ "${url/:\/\/}" != "$url" ]; then
         gnome-open "$url"
     else
