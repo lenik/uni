@@ -12,7 +12,8 @@ dist_bin_SCRIPTS = \
     symflatten \
     mv-p \
     rename-p \
-    coolmore
+    coolmore \
+    tourl
 
 dist_man_MANS = \
     symfl.1 \
