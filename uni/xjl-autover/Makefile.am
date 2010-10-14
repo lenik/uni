@@ -1,4 +1,3 @@
-
 include libauto/coolauto.am
 
 SUBDIRS = lib
@@ -7,18 +6,18 @@ AM_CPPFLAGS = ${GLIB_CFLAGS}
 vercomp_LDADD = $(GLIB_LIBS)
 
 bin_PROGRAMS = \
-	vercomp
+    vercomp
 
 bin_SCRIPTS = \
     verinit
 
 dist_bin_SCRIPTS = \
-	autover
+    autover
 
 dist_man_MANS = \
-	autover.1 \
-	verinit.1 \
-	vercomp.1 \
+    autover.1 \
+    verinit.1 \
+    vercomp.1 \
     vercomp.5
 
 dist_doc_DATA = \
@@ -28,7 +27,7 @@ dist_pkgdata_DATA = \
     VERSION.template
 
 dist_aliases_DATA = \
-	aliases.d/autover.sh
+    aliases.d/autover.sh
 
 EXTRA_DIST = verinit.in
 CLEANFILES = verinit
