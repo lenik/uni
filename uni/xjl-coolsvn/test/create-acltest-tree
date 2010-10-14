@@ -1,0 +1,50 @@
+#!/bin/bash -x
+
+testsrcdir=`dirname \`readlink -f $0\``
+echo "testsrcdir: $testsrcdir"
+
+if [ -z "$1" ]; then
+    echo "$0 REPO-PATH [WORKING-DIR]"
+    exit 1
+fi
+
+repo=`readlink -f $1`
+url=`tourl $1`
+
+if [ -z "$2" ]; then
+    root=/tmp/testroot
+else
+    root="$2"
+fi
+
+echo "Repo-Loc: $repo"
+echo "Repo-URL: $url"
+echo "Work-dir: $root"
+echo
+
+mkdir -p $repo
+svnadmin create $repo
+
+rm -fR $root
+mkdir -p $root
+cd $root
+svn co $url .
+
+mkdir trunk branches tags
+mkdir -p trunk/a/b/c
+mkdir -p trunk/a/d/e
+echo hello >trunk/a/dog
+echo hello >trunk/a/b/cat
+echo hello >trunk/a/b/c/monkey
+echo hello >trunk/a/d/apple
+echo hello >trunk/a/d/e/computer
+
+echo "@dev = rw"    >branches/.authz
+echo "* = r"        >tags/.authz
+echo "@dev = rw"    >trunk/a/b/.authz
+echo "@dev = r"     >trunk/a/b/c/.authz
+echo "* = r"        >trunk/a/d/.authz
+echo "lenik=rw"     >trunk/a/d/e/.authz
+
+svn add *
+svn ci -m "Initialize"

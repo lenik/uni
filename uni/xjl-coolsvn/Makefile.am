@@ -24,7 +24,8 @@ dist_bin_SCRIPTS = \
 	svn-union \
 	svn-union-install \
 	svnpsl \
-	svnserve-002
+	svnserve-002 \
+	svnadmin-authz-update
 
 dist_man_MANS = \
 	coolsvn.1 \
