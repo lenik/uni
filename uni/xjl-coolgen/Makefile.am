@@ -1,5 +1,7 @@
 include libauto/coolauto.am
 
+SUBDIRS = newtmpl.d
+
 bin_SCRIPTS = \
     new
 
@@ -9,8 +11,7 @@ dist_man_MANS = \
 newtmpl_DATA =
 
 EXTRA_DIST = \
-	new.in \
-	newtmpl.d
+	new.in
 
 CLEANFILES = \
 	new
@@ -18,14 +19,9 @@ CLEANFILES = \
 %: %.in Makefile
 	$(do_subst) <$< >$@
 
-dist-hook:
-	find $(distdir)/newtmpl.d -type d -name .svn -exec rm -fR {} \; -prune
-
 install-data-hook:
-	cp -RT $(srcdir)/newtmpl.d $(DESTDIR)$(newtmpldir)
-	find $(DESTDIR)$(newtmpldir) -type d -name .svn -exec rm -fR {} \; -prune
 	cd $(DESTDIR)$(bindir); \
-		for tmpl in $(newtmpldir)/*; do \
+		for tmpl in $(DESTDIR)$(newtmpldir)/*; do \
 			base="$${tmpl##*/}"; \
 			base="$${base%.*}"; \
 			ln -snf new new-$$base; \

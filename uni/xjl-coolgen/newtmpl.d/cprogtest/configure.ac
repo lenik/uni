@@ -20,8 +20,7 @@ AC_CHECK_HEADERS([stdlib.h])
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
-AC_CHECK_FUNCS([strchr])
-AC_CHECK_FUNCS([strtol])
+AC_CHECK_FUNCS([strchr strtol])
 AC_FUNC_ERROR_AT_LINE
 
 AC_CONFIG_FILES([Makefile])
