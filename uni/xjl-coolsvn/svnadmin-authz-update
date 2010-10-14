@@ -91,7 +91,7 @@ function main() {
             svnlook cat "$repo" "$zf" >>"$authz"
 
             echo >>"$authz"
-        done < <(svnlook --full-paths tree "$repo" | grep '/\.authz$')
+        done < <(svnlook --full-paths tree "$repo" | grep '\.authz$')
     done
 }
 
