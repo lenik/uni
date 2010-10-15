@@ -1,3 +1,4 @@
+alias mvn='mvn-002'
 alias mpk='mvn package'
 alias mte='mvn test'
 alias mdp='mvn deploy'
