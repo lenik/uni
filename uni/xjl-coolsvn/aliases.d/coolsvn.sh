@@ -5,7 +5,8 @@ alias grep-svn='grep --exclude-dir .svn'
 
 alias st='svn st'
 alias ci='svn ci'
-alias di='svn di'
+alias di='svn di --diff-cmd meld'
+
 alias sraw='svn resolve --accept working'
 alias upraw='svn update; svn resolve --accept working'
 
