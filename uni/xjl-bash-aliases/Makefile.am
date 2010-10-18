@@ -10,6 +10,7 @@ dist_sysconf_DATA = \
 dist_shsrc_DATA = \
     cd-ls \
     cd-first \
+    cd..n \
     cd.x \
     cd-alias \
     ls-which
