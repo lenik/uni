@@ -8,6 +8,7 @@ Homepage: http://uni.bodz.net/xjl-coolsvn
 
 Package: xjl-coolsvn
 Architecture: all
-Depends: xjl-bash-shlib, subversion, meld, tkdiff, kdiff3
-Recommends: xjl-bash-aliases
+Depends: subversion,
+    xjl-bash-shlib, xjl-bash-aliases
+Recommends: xjl-svnguis
 Description: Lenik's SVN utilities.
