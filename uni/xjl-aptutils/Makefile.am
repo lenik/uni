@@ -1,7 +1,10 @@
 include libauto/coolauto.am
 
-dist_sbin_SCRIPTS = \
+dist_bin_SCRIPTS = \
     dwhich
+
+dist_sbin_SCRIPTS = \
+    apt-get-reinstall2
 
 dist_man_MANS = \
     dwhich.1
