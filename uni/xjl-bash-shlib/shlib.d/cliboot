@@ -1,3 +1,8 @@
+. shlib
+import load
+import log
+import rcs
+
 BASENAME=${0##*/}
 if [ -z $LONGOPTS ]; then
     LONGOPTS=0
@@ -99,8 +104,4 @@ function dump() {
     done
 }
 
-. /usr/lib/bash/import
 
-import load
-import log
-import rcs
