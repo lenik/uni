@@ -99,7 +99,7 @@ sub fswalk(&;@) {
         } else {
             my $fpat;
             ($dir, $fpat) = path_split($start);
-            $dir = '.' unless defined $dir;
+            $dir = '.' if $dir eq '';
             my $cwd = cwd();
             chdir($dir) or die "can't chdir to $dir: $!";
             @files = grep { -e "$dir/$_" } glob $fpat;
