@@ -1,9 +1,0 @@
-#!/bin/sh
-
-if [ "$1" = "" ]; then
-    echo "Package name isn't specified. "
-fi
-
-apt-get purge "$1"
-
-apt-get install "$1"
