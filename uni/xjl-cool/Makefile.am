@@ -1,2 +1,0 @@
-
-include libauto/coolauto.am
