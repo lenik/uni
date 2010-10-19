@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-aptutils
 
 Package: xjl-aptutils
 Architecture: all
-Depends: apt, aptitude, dpkg
+Depends: apt, aptitude, dpkg, xjl-bash-aliases, xjl-bash-shlib
 Description: Aptitude packages utilities

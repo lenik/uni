@@ -1,0 +1,59 @@
+#!/bin/bash
+    RCSID='$Id$'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+    . shlib-import cliboot
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Find which debian package contains the file"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] COMMAND|FILE"
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for f in "$@"; do
+        if [ "${f:0:1}" != / ] && [ ! -e "$f" ]; then
+            if whichf=`which "$f"`; then
+                f="$whichf"
+                echo "$f"
+            else
+                continue
+            fi
+        fi
+        if [ -h "$f" ]; then
+            f=`readlink -f "$f"`
+            echo "$f"
+        fi
+        dpkg -S "$f"
+    done
+}
+
+boot "$@"
