@@ -15,6 +15,7 @@ else
     if [ -z "$path" ]; then
         echo "Index out of range"
     else
-        echo cd $path
+        path="${path%% -> *}"
+        cd "$path"
     fi
 fi
