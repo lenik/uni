@@ -2,13 +2,14 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-    colors
+    colors \
+    meter
 
 bin_SCRIPTS = \
-	ansifilter
+    ansifilter
 
 man_MANS = \
-	ansifilter.1
+    ansifilter.1
 
 setup_SCRIPTS = \
     postinst \

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+cols=`tput cols`
+x=0
+if [ -n "$1" ]; then
+    x="$1"
+fi
+((x %= 10))
+
+for ((i = 0; i < cols; i++)); do
+    echo -n $((x++))
+    if [ $x = 10 ]; then x=0; fi
+done
