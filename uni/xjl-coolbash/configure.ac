@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([xjl-coolbash], [0.2.24], [xjl@99jsj.com])
+AC_INIT([xjl-coolbash], [1.0.0], [xjl@99jsj.com])
 AM_INIT_AUTOMAKE([-Wall])
 
 AC_SUBST([prefix], [/usr])
@@ -18,5 +18,6 @@ AC_PROG_CC
 
 # Checks for library functions.
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([aliases.d/Makefile])
 AC_CONFIG_FILES([profile.d/Makefile])
 AC_OUTPUT

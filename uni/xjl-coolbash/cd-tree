@@ -1,0 +1,21 @@
+# Please source this file using Bash shell.
+
+cachef=/tmp/lasttree.$$
+echo $cachef
+
+if [ $# = 0 ]; then
+    tree-index -d
+elif [ ${1:0:1} = '-' ] || [ $(($1 + 0)) != "$1" ]; then
+    tree-index "$@"
+elif [ ! -f "$cachef" ]; then
+    echo "You should run cdt or tree-index before using the index number"
+else
+    lineno=$(($1 + 1))
+    path=`sed -n ${lineno}p $cachef`
+    # echo "Line: $line."
+    if [ -z "$path" ]; then
+        echo "Index out of range"
+    else
+        echo cd $path
+    fi
+fi

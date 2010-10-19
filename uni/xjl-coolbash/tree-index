@@ -1,0 +1,36 @@
+#!/bin/bash
+
+if [ -z "$cachef" ]; then
+    cachef=/tmp/lasttree.$PPID
+fi
+
+for mode in view model; do
+    index=0
+    if [ $mode = view ]; then
+        # XXX tree doesn't return error for illegal syntax.
+        if ! tree -FC "$@" > >(
+                while read line; do
+                    if [ -z "$line" ]; then
+                        echo
+                        break
+                    fi
+                    prefix="        $((index++))"
+                    prefix="${prefix: -5} "
+                    echo "$prefix$line"
+                done
+                while read rest; do
+                    echo "$rest"
+                done
+            )
+        then
+            exit $?
+        fi
+    else
+        rm -f $cachef
+        # TODO: remove tree opts: -p -ug -shDF -ASC -H:T:o:
+        tree -fi "$@" | while read line; do
+            if [ -z "$line" ]; then break; fi
+            echo "$line" >>$cachef
+        done
+    fi
+done
