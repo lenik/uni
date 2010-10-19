@@ -1,5 +1,8 @@
 include libauto/coolauto.am
 
+dist_aliases_DATA = \
+    svnguis.sh
+
 setup_SCRIPTS = \
     postinst \
     prerm
