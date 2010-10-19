@@ -1,0 +1,41 @@
+Source: xjl-cools-term
+Section: devel
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/xjl-cool
+
+Package: xjl-cools-term
+Architecture: all
+Depends:
+    xjl-aptutils,
+    xjl-coolusers,
+    xjl-coolansi,
+    xjl-coolauto,
+    xjl-coolbash,
+    xjl-coolcmd,
+    xjl-cooldiff,
+    xjl-cooldns,
+    xjl-coolgpg,
+    xjl-coolhex,
+    xjl-coolmake,
+    xjl-coolman,
+    xjl-coolspec,
+    xjl-coolssh,
+    xjl-coolsvn,
+    xjl-coolsync,
+    xjl-cooltext,
+    xjl-coolutils,
+    xjl-coolwget,
+    xjl-coolvim,
+    xjl-coolz,
+    xjl-coretext,
+    xjl-fileutils,
+    xjl-fsutils,
+    xjl-libcmt,
+    xjl-libm4,
+    xjl-libmisc,
+    xjl-security,
+    xjl-sshproxy
+Description: Lenik's cool terminal tools set.
