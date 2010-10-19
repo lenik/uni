@@ -4,18 +4,25 @@ cachef=/tmp/lasttree.$$
 
 if [ $# = 0 ]; then
     tree-index -d
-elif [ ${1:0:1} = '-' ] || [ $(($1 + 0)) != "$1" ]; then
+elif [ -d "$1" ]; then
+    cd "$1"
+elif [ ${1:0:1} = '-' ]; then
     tree-index "$@"
-elif [ ! -f "$cachef" ]; then
-    echo "You should run cdt or tree-index before using the index number"
 else
-    lineno=$(($1 + 1))
-    path=`sed -n ${lineno}p $cachef`
-    # echo "Line: $line."
-    if [ -z "$path" ]; then
-        echo "Index out of range"
+    index="${1%%::*}"
+    if [ $(($index + 0)) != "$index" ]; then
+        tree-index "$@"
+    elif [ ! -f "$cachef" ]; then
+        echo "You should run cdt or tree-index before using the index number"
     else
-        path="${path%% -> *}"
-        cd "$path"
+        lineno=$(($index + 1))
+        path=`sed -n ${lineno}p $cachef`
+        # echo "Line: $line."
+        if [ -z "$path" ]; then
+            echo "Index out of range"
+        else
+            path="${path%% -> *}"
+            cd "$path"
+        fi
     fi
 fi

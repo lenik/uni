@@ -1,0 +1,18 @@
+function _cd_tree() {
+    local i f
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+    local prev=()
+        #for ((i = 1; i < COMP_CWORD - 1; i++)); do
+        #    prev=("${prev[@]}" "${COMP_WORDS[i]}")
+        #done
+        i=0
+
+    export cachef=/tmp/lasttree.$PPID
+    echo tree-index "${prev[@]}"
+    tree-index "${prev[@]}"
+
+    COMPREPLY=( $( while read f; do echo "$((i++))::${f%% ->*}"; done <$cachef | grep ^$cur) )
+    return 0
+}
+
+complete -F _cd_tree cdt cd-tree
