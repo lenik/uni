@@ -1,8 +1,0 @@
-if [ -z "$1" ]; then
-    cd..
-else
-    for ((i = 0; i < $1; i++)); do
-        cd ..
-    done
-    unset i
-fi

@@ -1,4 +1,0 @@
-while read p; do
-    cd "$p"
-    break
-done < <(find -path ./debian -prune -o -type d -path "*$1*" -print)
