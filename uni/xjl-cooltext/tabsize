@@ -1,0 +1,204 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+tabsize - change tab size for text files
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::fileproc('/[$%]/', 'batch_main');
+    $LOGNAME    = 'tabsize'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+    $LOGLEVEL   = 2;
+use cmt::log(3, '_sigx');
+use cmt::util('safeslash', 'ssub');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
+use Getopt::Long;
+
+sub _main; sub _version; sub _help;
+sub process;
+
+our $opt_old_tabsize    = 8;
+our $opt_new_tabsize    = 4;
+our $opt_min_tabsize    = 2;
+our $opt_tabify         = 0;    # 0: using space instead.
+
+sub _boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               %COMOPT,         # bcdfikrtw
+               'old-tabsize|o=i',
+               'new-tabsize|n=i',
+               'min-tabsize|m=i',
+               'tabify',
+               );
+    $opt_ignore_case = $cmt::fileproc::opt_ignore_case;
+    $cmt::fileproc::LOGLEVEL = $LOGLEVEL - 1;
+
+    die 'tab-size must be positive number'
+        if $opt_old_tabsize < 1
+        or $opt_new_tabsize < 1
+        or $opt_min_tabsize < 1;
+
+    die "No file specified" unless @ARGV;
+
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<tabsize>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 change tab size for text files
+
+B<tabsize> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-tabsize-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<"EOM";
+
+Common options:
+$COMOPT    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+
+$WALKOPT
+Tabify options:
+    -o, --old-tabsize=SIZE  default 8
+    -n, --new-tabsize=SIZE  default 4
+    -m, --min-tabsize=SIZE  default 2
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    batch_main \&process, @ARGV;
+}
+
+sub process {
+    my ($path, $tmph) = @_;
+    my $diffs = 0;
+    my $S = $opt_old_tabsize;
+    my $T = $opt_new_tabsize;
+    open(FH, '<', $path) or die "can't open $path to read: $!";
+    while (<FH>) {
+        my $last = 0;
+        my $p = 0;
+        my $t = $_;
+        $t =~ s{(\t)|( {$opt_min_tabsize,})}{
+            my $d = $-[0] - $last;
+            $last = $-[0];
+            $p += $d;
+            my $n = defined $1 ? $S - $p % $S : length($2); # 0~7 => 8~1
+            my $pad = ' ' x $n;
+            if ($opt_tabify) {
+                my $tailchars = $p % $T;
+                my $leadspace = ($T - $tailchars) % $T;
+                if ($n >= $leadspace) {
+                    $pad = $leadspace ? "\t" : '';
+                    my $m = $n - $leadspace;
+                    $pad .= "\t" x ($m / $T);
+                    $pad .= ' ' x ($m % $T);
+                }
+            }
+            $p += $n - length($&); # add the expand-delta
+            $pad
+        }eg;
+        print $tmph $t;
+        $diffs++ if $t ne $_;
+    }
+    return $diffs;
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] change tab size for text files \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <lenik@bodz.net>
+
+=cut

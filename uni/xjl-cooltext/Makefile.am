@@ -4,6 +4,8 @@ dist_bin_SCRIPTS = \
     repl \
     wcc \
     unindent \
+    tabify \
+    tabsize \
     iconvf \
     grepstat
 
