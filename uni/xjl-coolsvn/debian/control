@@ -10,5 +10,5 @@ Package: xjl-coolsvn
 Architecture: all
 Depends: subversion,
     xjl-bash-shlib, xjl-bash-aliases
-Recommends: xjl-svnguis
+Suggests: xjl-svnguis
 Description: Lenik's SVN utilities.

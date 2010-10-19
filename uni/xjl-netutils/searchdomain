@@ -1,0 +1,97 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh 1769 2010-09-21 07:32:29Z lenik $'
+    short_opts="a:d:Archqv"
+    long_opts="add,delete,all,resolv-conf,system-conns,help,quiet,verbose,version"
+
+    add=()
+    delete=()
+
+    auto=1
+    resolv_conf=
+    system_conns=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Config search domain names"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -a, --add=DOMAIN        add DOMAIN to search list"
+    echo "    -d, --delete=DOMAIN     remove DOMAIN from search list"
+    echo "    -A, --all               config as much as possible"
+    echo "    -r, --resolv-conf       config resolv-conf only"
+    echo "    -c, --system-conns      config NetworkManager system-conns"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -a|--all)
+            auto=
+            resolv_conf=1
+            system_conns=1
+            ;;
+        -r|--resolv-conf)
+            auto=
+            resolv_conf=1;;
+        -c|--system-conns)
+            auto=
+            system_conns=1;;
+        -a|--add)
+            add[${#add[@]}]="$2";;
+        -d|--delete)
+            delete[${#delete[@]}]="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ "$auto" = 1 ]; then
+        resolv_conf=1
+    fi
+
+    TAB=`echo -e '\t'`
+    SPC="[ $TAB]+"
+
+    del_re=
+    for d in "${delete[@]}"; do
+        if [ -n "$del_re" ]; then
+            del_re="$del_re|${d//./\.}"
+        fi
+    done
+
+    if [ "$resolv_conf" = 1 ]; then
+        if [ -n "$del_re" ]; then
+            sedit -m "resolv.conf -$del_re" /etc/resolv.conf \
+                grep -v "^${SPC}search$SPC($del_re)\$"
+        fi
+        for a in "${add[@]}"; do
+            echo "resolv.conf +search $a"
+            echo "search $a" >>/etc/resolv.conf
+        done
+    fi
+
+}
+
+boot "$@"

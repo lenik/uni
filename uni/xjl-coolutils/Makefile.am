@@ -1,12 +1,15 @@
-
 include libauto/coolauto.am
 
 colldir = /var/lib
 
+AM_CPPFLAGS  = $(GLIB_CFLAGS)
+valsum_LDADD = $(GLIB_LIBS)
+
 bin_PROGRAMS = \
     uc \
     gcd \
-    random
+    random \
+    valsum
 
 dist_bin_SCRIPTS = \
     which2 \

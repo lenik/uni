@@ -8,14 +8,15 @@ AC_CONFIG_SRCDIR([uc.c])
 
 # Checks for programs.
 AC_PROG_LN_S
-
 AC_PROG_CC
 
 # Checks for libraries.
+PKG_CHECK_MODULES([GLIB], [glib-2.0])
 
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([unistd.h])
+AC_CHECK_HEADERS([stdlib.h])
 AC_CHECK_HEADERS([string.h])
 AC_CHECK_HEADERS([time.h])
 
