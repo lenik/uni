@@ -7,7 +7,7 @@ function _cd_tree() {
         #done
         i=0
 
-    export cachef=/tmp/lasttree.$PPID
+    export cachef=/tmp/lasttree.$$
     echo tree-index "${prev[@]}"
     tree-index "${prev[@]}"
 
