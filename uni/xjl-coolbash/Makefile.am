@@ -26,7 +26,8 @@ dist_sudoers_DATA = \
     sudoers.d/keep-hist
 
 dist_bashcmpl_DATA = \
-    bash_completion.d/nosvn
+    bash_completion.d/nosvn \
+    bash_completion.d/cd-tree
 
 setup_SCRIPTS = \
     postinst \
