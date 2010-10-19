@@ -86,20 +86,12 @@ function main() {
         fi
     fi
 
-    if [ -z "$m_dir" ]; then
-        m_dir="$1"
-        if [ -z "$m_dir" ]; then
-            echo "module isn't specified. "
-            exit 1
-        fi
-    elif [ ! -z "$1" ]; then
-        echo "module is already set to $m_dir"
+    if [ -z "$1" ]; then
+        echo "module isn't specified. "
         exit 1
     fi
-
-    # chop the ending '/'
-    if [ "${m_dir: -1}" = / ]; then m_dir="${m_dir%/}"; fi
-
+    m_dir="$1"
+    m_dir="${m_dir%/}"
     m_parent="${m_dir%%/*}"
         if [ "$m_parent" = "$m_dir" ]; then
             m_dir=
@@ -188,12 +180,12 @@ function main() {
             # [MODULE] without path= attribute, default path=MODULE
             r_path="$m_parent"
         fi
+        r_path="${r_path%/}"
     else
         r_host=$SERVER
         r_path=$m_parent
     fi
-    remotedir=$r_path
-    if [ -n "$m_dir" ]; then remotedir="$remotedir/$m_dir"; fi
+    remotedir="$r_path"
 
     # -a = -rlptgoD
     #   --recursive
@@ -249,17 +241,20 @@ function main() {
         else
             _dir="${m_dir%/*}"
         fi
-        if [ "${_base/[\*\?]/}" != "$_base" ]; then
-            # basename contains *, ? wildcards, using the parent of m_dir
+        if [ "${_base/[\*\?]}" != "$_base" ]; then
+            # m_dir contains *, ? wildcards, using the parent of m_dir
+            remotedir="$remotedir/$m_dir"
             localdir="$localdir/$_dir"
             wildlog=1
             logprefix=$LOGDIR/`pathflat $localdir`
             logf=$LOGDIR/`pathflat "$localdir/$_base"`
         else
+            remotedir="$remotedir/$m_dir/"
             localdir="$localdir/$m_dir"
-            remotedir="$remotedir/"
             logf=$LOGDIR/`pathflat $localdir`
         fi
+    else
+        remotedir="$remotedir/"
     fi
     mkdir -p "$localdir"
 
