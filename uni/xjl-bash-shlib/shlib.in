@@ -1,5 +1,5 @@
 if ! . @shlibdir@/import; then
-    echo "Failed to initialized shlib import feature. " >&2
+    echo "Failed to initialize shlib import feature. " >&2
     exit 127
 fi
 

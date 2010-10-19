@@ -1,20 +1,12 @@
-function load() {
+function import() {
     local name="${1//:://}"
     shift
     if [ -z "$name" ]; then
-        echo "module name expected to load. " >&2
+        echo "module name expected to import. " >&2
         exit 127
     fi
 
-    # alias=module-name
-    local alias="${name%%=*}"
-    if [ "$alias" = "$name" ]; then
-        alias="$name"
-    else
-        name="${name#*=}"
-    fi
-
-    local shlib="/usr/lib/bash:$SHLIB:$PATH"
+    local shlib="@shlibdir@:$PATH"
     while [ -n "$shlib" ]; do
         local _sl="${shlib%%:*}"
         if [ "$_sl" = "$shlib" ]; then
@@ -28,7 +20,10 @@ function load() {
 
         # echo "search: $_sl/$name"
         if [ -f "$_sl/$name" ]; then
-            eval "function $alias() { . \"$_sl/$name\" \"\$@\"; }"
+            if ! . "$_sl/$name" "$@"; then
+                echo "failed to import ($_sl/) $name, exit = $?" >&2
+                exit 127
+            fi
             return 0
         fi
     done
