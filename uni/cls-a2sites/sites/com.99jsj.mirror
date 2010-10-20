@@ -9,7 +9,10 @@
     DocumentRoot /mirror
 
     <Directory /mirror>
-        Options MultiViews Indexes SymLinks
+        Options MultiViews Indexes FollowSymLinks
+        AllowOverride None
+        Order allow,deny
+        Allow from all
     </Directory>
 
 </VirtualHost>
