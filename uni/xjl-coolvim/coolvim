@@ -8,10 +8,16 @@ else
     SUDO=
 fi
 
-VIM=vim
+vim=vim
+vimopts=()
+nvimopts=0
 
 if [ -z "$1" ]; then
-    $VIM
+    if [ -f .vimrc ]; then
+        vimopts[nvimopts++]=-S
+        vimopts[nvimopts++]=.vimrc
+    fi
+    $vim "${vimopts[@]}"
     exit $?
 fi
 
@@ -33,9 +39,14 @@ for f in "$@"; do
         fi
     fi
 
+    fdir=`dirname "$f"`
+    if [ -f "$fdir/.vimrc" ]; then
+        vimopts[nvimopts++]=-S
+        vimopts[nvimopts++]="$fdir/.vimrc"
+    fi
+
     tabrc=
     if [ "$new_file" = 1 ]; then
-        fdir=`dirname "$f"`
         if [ ! -w "$fdir" ]; then
             sudo_w=$SUDO
         fi
@@ -45,6 +56,6 @@ for f in "$@"; do
         tabrc=`$sudo_r guesstab "$f"`
     fi
 
-    $sudo_w $VIM -c "$tabrc" "$f"
+    $sudo_w $vim "${vimopts[@]}" -c "$tabrc" "$f"
 
 done
