@@ -1,3 +1,4 @@
+include ../libauto/coolauto.am
 
 # PERL        = $(shell realpath $$PERL)
 # YAPP        = $(PERL) $(shell rpath.bat '$(DIRT_HOME)/0/yapp.pl')
@@ -11,8 +12,7 @@
 #    rm -f oop_y.output
 #    rm -f oop_y.pm
 
-# /usr/share/perl5/cmt
-libcmtdir = ${datadir}/perl5/cmt
+libcmtdir = ${perllibdir}/cmt
 
 libcmt_DATA = \
     atext.pm \
