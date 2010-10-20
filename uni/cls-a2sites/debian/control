@@ -1,0 +1,12 @@
+Source: cls-a2sites
+Section: web
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: http://uni.bodz.net/cls-a2sites
+
+Package: cls-a2sites
+Architecture: all
+Depends: apache2, xjl-configutils
+Description: Lenik's default apache2 websites

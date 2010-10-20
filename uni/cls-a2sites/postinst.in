@@ -1,0 +1,4 @@
+#!/bin/sh
+# master-file
+
+echo "cls-a2sites - postinst.in ..."
