@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # master-file
 
 echo "Configure apache2"
@@ -8,5 +8,15 @@ echo "Configure apache2"
     a2ensite com.99jsj.mirror
 
     a2reload
+
+function mklocal() {
+    local host="$1"
+    lineconf -tm "Set as localhost: $host" \
+        /etc/hosts @local::$host \
+        "127.0.0.1 $host"
+}
+
+mklocal com.99jsj.lenik-pc
+mklocal com.99jsj.mirror
 
 exit 0

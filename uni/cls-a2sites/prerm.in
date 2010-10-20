@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # master-file
 
 echo "Unconfig apache2"
@@ -9,5 +9,14 @@ echo "Unconfig apache2"
     a2dismod userdir
 
     a2reload
+
+function nolocal() {
+    local host="$1"
+    lineconf -ktm "Remove $host as localhost" \
+        /etc/hosts @local::$host
+}
+
+nolocal com.99jsj.lenik-pc
+nolocal com.99jsj.mirror
 
 exit 0
