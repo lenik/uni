@@ -16,7 +16,7 @@ function mklocal() {
         "127.0.0.1 $host"
 }
 
-mklocal com.99jsj.lenik-pc
-mklocal com.99jsj.mirror
+mklocal lenik-pc.99jsj.com
+mklocal   mirror.99jsj.com
 
 exit 0

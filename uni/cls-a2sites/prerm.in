@@ -16,7 +16,7 @@ function nolocal() {
         /etc/hosts @local::$host
 }
 
-nolocal com.99jsj.lenik-pc
-nolocal com.99jsj.mirror
+nolocal lenik-pc.99jsj.com
+nolocal   mirror.99jsj.com
 
 exit 0
