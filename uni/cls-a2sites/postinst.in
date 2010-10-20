@@ -1,4 +1,8 @@
 #!/bin/sh
 # master-file
 
-echo "cls-a2sites - postinst.in ..."
+echo "Enable userdir module"
+    a2enmod userdir
+    a2reload
+
+exit 0

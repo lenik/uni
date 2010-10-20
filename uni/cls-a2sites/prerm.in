@@ -1,4 +1,8 @@
 #!/bin/sh
 # master-file
 
-echo "cls-a2sites - prerm.in ..."
+echo "Disable userdir module"
+    a2dismod userdir
+    a2reload
+
+exit 0
