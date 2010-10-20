@@ -31,7 +31,7 @@ sub subst_keyof($);
 sub subst($);
 sub rsubst($);
 
-sub add_subst($$);
+sub add_subst($$$);
 sub qrkeys($$);
 sub load_substs($$);
 
@@ -114,16 +114,18 @@ sub rsubst($) {
 
 =cut
 # (HELPER FUNCTIONS)
-sub add_subst($$) {
-    my $key = shift;
-    my $val = shift;
-    $subst_map{$key} = $val;
-    if ($key =~ /\]$/) {
+sub add_subst($$$) {
+    my ($fqn, $key, $val) = @_;
+    fkey = $fqn.'['.$key.']';
+    $subst_map{$fkey} = $val;
+    $subst_map{$fqn}  = $val unless defined $subst_map{$fqn};
+
+    if (substr($key, 0, 1) ne '.') {
         my $rkeys = $rindex_map{$val};
         if (! defined $rkeys) {
             $rkeys = $rindex_map{$val} = [];
         }
-        push(@{$rkeys}, $key);
+        push(@{$rkeys}, $fkey);
     }
 }
 
@@ -153,16 +155,12 @@ sub load_substdir($$) {
             load_substdir($fqn, $f);
         } elsif (-f $f) {
             open(IN, "<$f") or die "Can't open $f: ";
-            my $line = 0;
             while (<IN>) {
                 s/^\s+//;
                 next if $_ eq '';
                 next if /^#/;
-                $line++;
                 my ($key, $val) = /^(.*?)\s*=\s*(.*)$/;
-                $key = $fqn.'['.$key.']';
-                add_subst($fqn, $val) if $line == 1;
-                add_subst($key, $val);
+                add_subst($fqn, $key, $val);
             }
             close IN;
         }
