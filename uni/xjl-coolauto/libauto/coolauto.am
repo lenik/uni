@@ -36,6 +36,7 @@ varlibdir   = /var/lib
 cachedir    = /var/cache
 pkgvarlibdir= ${varlibdir}/${PACKAGE_NAME}
 pkgcachedir = ${cachedir}/${PACKAGE_NAME}
+perllibdir  = ${datadir}/perl5
 setupdir    = ${datadir}/setup/${PACKAGE_NAME}
 aliasesdir  = ${sysconfdir}/bash_aliases.d
 bashcmpldir = ${sysconfdir}/bash_completion.d
@@ -61,6 +62,7 @@ do_subst = sed \
     -e 's,[@]pkgdatadir[@],$(pkgdatadir),g' \
     -e 's,[@]pkgvarlibdir[@],$(pkgvarlibdir),g' \
     -e 's,[@]pkgcachedir[@],$(pkgcachedir),g' \
+    -e 's,[@]perllibdir[@],$(perllibdir),g' \
     -e 's,[@]sysconfdir[@],$(sysconfdir),g' \
     -e 's,[@]aliasesdir[@],$(aliasesdir),g' \
     -e 's,[@]bashcmpldir[@],$(bashcmpldir),g' \
