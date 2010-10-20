@@ -1,8 +1,9 @@
-#!/usr/bin/env perl -w
+#!/usr/bin/env perl
 
 # subst: value -> keyword
 
 use strict;
+use warnings;
 use cmt::subst;
 use Getopt::Long;
 

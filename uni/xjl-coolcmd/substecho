@@ -1,8 +1,9 @@
-#!/usr/bin/env perl -w
+#!/usr/bin/env perl
 
 # subst: keyword -> value
 
 use strict;
+use warnings;
 use cmt::subst;
 
 subst_init();
