@@ -1,5 +1,10 @@
 include libauto/coolauto.am
 
+cmtlibdir = ${perllibdir}/cmt
+
+dist_cmtlib_DATA = \
+    cmt/subst.pm
+
 dist_bin_SCRIPTS = \
     subst \
     substecho \
