@@ -81,8 +81,9 @@ sub subst($) {
     for my $key (keys %subst_map) {
         my $val = $subst_map{$key};
         my $qrkey = $subst_qrkeys{$key};
-        s/$qrkey/$val/g;
+        $text =~ s/$qrkey/$val/g;
     }
+    return $text;
 }
 
 sub rsubst($) {
@@ -118,7 +119,7 @@ sub add_subst($$) {
     my $val = shift;
     $subst_map{$key} = $val;
     if ($key =~ /\]$/) {
-        my $rkeys = $index{$val};
+        my $rkeys = $rindex_map{$val};
         if (! defined $rkeys) {
             $rkeys = $rindex_map{$val} = [];
         }
