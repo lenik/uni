@@ -116,7 +116,7 @@ sub rsubst($) {
 # (HELPER FUNCTIONS)
 sub add_subst($$$) {
     my ($fqn, $key, $val) = @_;
-    fkey = $fqn.'['.$key.']';
+    my $fkey = $fqn.'['.$key.']';
     $subst_map{$fkey} = $val;
     $subst_map{$fqn}  = $val unless defined $subst_map{$fqn};
 
