@@ -1,8 +1,13 @@
 #!/bin/sh
 # master-file
 
-echo "Disable userdir module"
+echo "Unconfig apache2"
+
+    a2dissite com.99jsj.lenik-pc
+    a2dissite com.99jsj.mirror
+
     a2dismod userdir
+
     a2reload
 
 exit 0

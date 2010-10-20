@@ -1,8 +1,12 @@
 #!/bin/sh
 # master-file
 
-echo "Enable userdir module"
+echo "Configure apache2"
     a2enmod userdir
+
+    a2ensite com.99jsj.lenik-pc
+    a2ensite com.99jsj.mirror
+
     a2reload
 
 exit 0
