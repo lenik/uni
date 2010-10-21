@@ -2,9 +2,12 @@ include ../libauto/coolauto.am
 
 do_subst2 = $(do_subst) \
     -e 's,[@]datadir[@],$(datadir),g' \
-    -e 's,[@]z-1[@],$(z_1),g'
+    -e 's,[@]xjl-1[@],$(xjl_1),g' \
+    -e 's,[@]xjl-2[@],$(xjl_2),g' \
+    -e 's,[@]xjl-3[@],$(xjl_3),g' \
+    -e 's,[@]xjl-4[@],$(xjl_4),g'
 
-z_1         = $(shell substecho inst:main-dev[ipw])
+xjl_1       = $(shell substecho inst:xjl-1[ipw])
 
 bindconfdir = ${sysconfdir}/bind
 datadir     = ${bindconfdir}/lenik
