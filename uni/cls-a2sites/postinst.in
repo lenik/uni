@@ -6,6 +6,7 @@ echo "Configure apache2"
 
     a2ensite com.99jsj.lenik-pc
     a2ensite com.99jsj.mirror
+    a2ensite net.bodz.deb
 
     a2reload
 
@@ -17,6 +18,7 @@ function mklocal() {
 }
 
 mklocal lenik-pc.99jsj.com
-mklocal   mirror.99jsj.com
+mklocal mirror.99jsj.com
+mklocal deb.bodz.net
 
 exit 0

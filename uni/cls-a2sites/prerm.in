@@ -5,6 +5,7 @@ echo "Unconfig apache2"
 
     a2dissite com.99jsj.lenik-pc
     a2dissite com.99jsj.mirror
+    a2dissite net.bodz.deb
 
     a2dismod userdir
 
@@ -17,6 +18,7 @@ function nolocal() {
 }
 
 nolocal lenik-pc.99jsj.com
-nolocal   mirror.99jsj.com
+nolocal mirror.99jsj.com
+nolocal deb.bodz.net
 
 exit 0
