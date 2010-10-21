@@ -4,7 +4,14 @@
 
 /usr/bin/truecrypt-uninstall.sh
 
-fstab_tc=@DESTDIR@@sysconfdir@/fstab.tc
-passwd_tc=@DESTDIR@@sysconfdir@/passwd.tc
-
 # Just keep the two conf file.
+    fstab_tc=@DESTDIR@@sysconfdir@/fstab.tc
+    passwd_tc=@DESTDIR@@sysconfdir@/passwd.tc
+
+lineconf -tm "Unconfig max_loop in grub defaults" \
+    /etc/default/grub @max_loop
+
+update-grub
+
+exit 0
+

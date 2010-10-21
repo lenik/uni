@@ -20,15 +20,10 @@ if [ ! -f "$passwd_tc" ]; then
     install -m 600 @pkgdatadir@/passwd.tc $passwd_tc
 fi
 
-read loop_major loop_minor < <(stat -c "%t %T" /dev/loop0)
+lineconf -tm "Config max_loop in grub defaults" \
+    /etc/default/grub @max_loop \
+    'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash max_loop=64"'
 
-for ((i = 1; i < 128; i++)); do
-    loopdev=/dev/loop$i
-    if [ ! -e $loopdev ]; then
-        echo "Add loop device $loopdev"
-        minor=$((loop_minor + i))
-        mknod $loopdev b $loop_major $minor
-    fi
-done
+update-grub
 
 exit 0
