@@ -7,6 +7,7 @@ Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/xjl-coolmaven
 
 Package: xjl-coolmaven
+Provides: coolmaven
 Architecture: all
 Depends: xjl-bash-aliases, xjl-coolsvn, maven2, grep, wget,
     xjl-xmlutils, xmlindent, xjl-configutils

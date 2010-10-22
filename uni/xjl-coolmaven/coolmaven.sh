@@ -1,6 +1,7 @@
 alias mvn='mvn-002'
 alias mpk='mvn package'
 alias mte='mvn test'
+alias min='mvn install'
 alias mdp='mvn deploy'
 alias 'mr-'='cd.x mvn release:prepare'
 alias mr+='cd.x mvn release:perform'
