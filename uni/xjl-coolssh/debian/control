@@ -7,6 +7,7 @@ Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/xjl-coolssh
 
 Package: xjl-coolssh
+Provides: coolssh
 Architecture: all
 Depends: xjl-bash-shlib, xjl-coolgen
 Description: SSH Client side utilities

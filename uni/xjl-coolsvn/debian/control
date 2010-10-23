@@ -7,6 +7,7 @@ Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/xjl-coolsvn
 
 Package: xjl-coolsvn
+Provides: coolsvn
 Architecture: all
 Depends: subversion,
     xjl-bash-shlib, xjl-bash-aliases

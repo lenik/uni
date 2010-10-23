@@ -7,6 +7,7 @@ Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/xjl-coolgrub
 
 Package: xjl-coolgrub
+Provides: coolgrub
 Architecture: all
 Depends: ${misc:Depends}, grub2, xjl-coolutils
 Description: Lenik's grub preferences.

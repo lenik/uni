@@ -7,6 +7,7 @@ Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/xjl-coolwget
 
 Package: xjl-coolwget
+Provides: coolwget
 Architecture: all
 Depends: wget, axel, grep, coreutils,
     xjl-bash-shlib

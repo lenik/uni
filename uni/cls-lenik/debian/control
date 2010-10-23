@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/cls-lenik
 
 Package: cls-lenik
 Architecture: all
-Depends: ${misc:Depends}
+Depends:
 Description: CLS-Lenik profile.

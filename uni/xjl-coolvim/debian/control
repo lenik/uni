@@ -7,6 +7,7 @@ Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/xjl-coolvim
 
 Package: xjl-coolvim
+Provides: coolvim
 Architecture: all
 Depends: ${misc:Depends}, vim, grep, sudo
     , xjl-coolbash

@@ -7,6 +7,7 @@ Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/xjl-autover
 
 Package: xjl-autover
+Provides: autover
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, sed, diff | diffutils, autoconf
 Description: Automatic version manager (core)

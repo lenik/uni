@@ -7,6 +7,7 @@ Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/xjl-coolz
 
 Package: xjl-coolz
+Provides: coolz
 Architecture: all
 Depends: ${misc:Depends}, gzip, bzip2, p7zip-full, findutils
 Description: Recurse into zipped file.

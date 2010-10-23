@@ -7,6 +7,7 @@ Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/xjl-cooldns
 
 Package: xjl-cooldns
+Provides: cooldns
 Architecture: all
 Depends: ${misc:Depends}, bind9, bind9utils, xjl-coolutils
 Description: BIND utils and distrib conf management.
