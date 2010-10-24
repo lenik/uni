@@ -5,6 +5,17 @@ if [ $# -lt 2 ]; then
     false
 elif pushd "$1" >/dev/null; then
     shift
-    "$@"
+
+    cmd=$1
+
+    if a=`alias $cmd 2>/dev/null`; then
+        a="${a#*=\'}"
+        a="${a%\'}"
+        cmd="$a"
+    fi
+
+    shift
+    $cmd "$@"
+
     popd >/dev/null
 fi
