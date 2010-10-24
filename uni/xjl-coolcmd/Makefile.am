@@ -2,6 +2,12 @@ include libauto/coolauto.am
 
 cmtlibdir = ${perllibdir}/cmt
 
+dist_bin_SCRIPTS = \
+    cd-exec
+
+dist_aliases_SCRIPTS = \
+    coolcmd.sh
+
 dist_cmtlib_DATA = \
     cmt/subst.pm
 

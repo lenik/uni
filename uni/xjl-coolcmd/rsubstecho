@@ -17,4 +17,4 @@ for (@ARGV) {
     push @substed, $a;
 }
 
-print join('   ', @substed)."\n";
+print join(' ', @substed)."\n";

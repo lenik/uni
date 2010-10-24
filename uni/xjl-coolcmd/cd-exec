@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ $# -lt 2 ]; then
+    echo "cd-exec <dir> <cmd-line>..."
+    false
+elif pushd "$1" >/dev/null; then
+    shift
+    "$@"
+    popd >/dev/null
+fi
