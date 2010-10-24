@@ -61,6 +61,11 @@ function main() {
 digraph m2localgraph {
 
     label = "$title";
+    fontname = "Sans Serif";
+    fontsize = 20;
+    labeljust = l;
+    labelloc = t;
+
     rankdir = BT;
     concentrate = true;
 
@@ -79,8 +84,14 @@ HEAD
         echo "    $thisid [ label = \"$this\" $attrs ]; "
     done
 
-    echo "subgraph cluster_ext {"
-    echo "    label = \"External Reference\"; "
+    cat <<SUBG
+    subgraph cluster_ext {
+        label = "Ext. Reference";
+        fontname = "Serif";
+        fontsize = 16;
+        labeljust = c;
+        labelloc = b;
+SUBG
         grep -vFf <(cut -d: -f1 $tmpf | sort -u | sed -e 's/^/:/') $tmpf \
         | cut --complement -d: -f1 | sort -u \
         | while IFS=: read dep ver pack scope; do
@@ -93,7 +104,7 @@ HEAD
             fi
             attrs="$attrs, style=\"$style\""
 
-            echo "    $depid [ label = \"$dep\" $attrs ]; "
+            echo "        $depid [ label = \"$dep\" $attrs ]; "
         done
     echo "}"
 

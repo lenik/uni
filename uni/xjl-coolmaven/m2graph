@@ -2,14 +2,17 @@
     . shlib-import cliboot
 
     RCSID='$Id$'
-    short_opts="CD:EGorpS:Tl:O:dhqv"
-    long_opts="no-cascade,direction,no-external,no-groupid,omitted,no-optional,pom,hide-scopes,no-transitive,label,output,display,help,quiet,verbose,version"
+    short_opts="lLCD:EGorpS:Tt:O:dhqv"
+    long_opts="local,local-all,no-cascade,direction,no-external,no-groupid,omitted,no-optional,pom,hide-scopes,no-transitive,title,output,display,help,quiet,verbose,version"
 
     GRAPH_PLUGIN=org.fusesource.mvnplugins:maven-graph-plugin
     DEFAULT_OUT=target/project-graph.png
 
     opts=()
     nopt=0
+
+    localgraph=0
+    localopts=
 
     display=
     outfile=
@@ -27,6 +30,8 @@ function help() {
     echo "    $0 [OPTION] [--] ..."
     echo
     echo "Options: "
+    echo "    -l, --local             Draw local dependency"
+    echo "    -L, --local-all         Draw local dependency and immediate deps"
     echo "    -C, --no-cascade        Don't cascade test-scope and optionals"
     echo "    -D, --direction=DIR     One of TB LR BT RL"
     echo "    -E, --no-external       Hide external dependencies"
@@ -47,6 +52,13 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -l|--local)
+            DEFAULT_OUT=target/local-graph.png
+            localgraph=1
+            localopts=-g;;
+        -L|--local-all)
+            DEFAULT_OUT=target/local-graph.png
+            localgraph=1;;
         -C|--no-cascade)
             opts[nopt++]="-Dcascade=false";;
         -D|--direction)
@@ -66,7 +78,7 @@ function setopt() {
             opts[nopt++]="-Dhide-scope=$2";;
         -T|--no-transitive)
             opts[nopt++]="-Dhide-transitive=true";;
-        -l|--label)
+        -t|--title)
             opts[nopt++]="-Dgraph.label=$2";;
         -O|--output)
             opts[nopt++]="-Dgraph.target=$2"
@@ -95,15 +107,32 @@ function main() {
         MVN="mvn -e"
     fi
 
-    _log2 $MVN $GRAPH_PLUGIN:project "${opts[@]}"
-    $MVN $GRAPH_PLUGIN:project "${opts[@]}"
+    if [ "$localgraph" = 1 ]; then
+        if [ -n "$outfile" ]; then
+            out="$outfile"
+        else
+            out="$DEFAULT_OUT"
+        fi
+        outdir="${out%/*}"
+        if [ "$outdir" = "$out" ]; then
+            ourdir=.
+        else
+            mkdir -p "$outdir"
+        fi
+
+        format="${out##*.}"
+        if [ "$format" = "$out" ]; then format=dot; fi
+
+        m2localdeps $localopts . | m2localgraph | dot -T$format >$out
+    else
+        _log2 $MVN $GRAPH_PLUGIN:project "${opts[@]}"
+        $MVN $GRAPH_PLUGIN:project "${opts[@]}"
+    fi
 
     if [ -z "$outfile" ]; then
         display $DEFAULT_OUT
     else
-        if [ -n "$display" ]; then
-            $display "$outfile"
-        fi
+        if [ -n "$display" ]; then $display "$outfile"; fi
     fi
 }
 
