@@ -24,7 +24,7 @@ function help() {
     version
     echo
     echo "Syntax: "
-    echo "    $0 [OPTION]"
+    echo "    $0 [OPTION] <project-dir>"
     echo
     echo "Options: "
     echo "    -p, --port=PORT         HTTP port, default 3108"
@@ -58,6 +58,10 @@ function setopt() {
 }
 
 function main() {
+    if [ -n "$1" ]; then
+        cd "$1" || exit
+    fi
+
     if [ "$debug" = 1 ]; then
         agent=1
         if [ "$agent" = 1 ]; then
@@ -72,6 +76,7 @@ function main() {
     fi
 
     export MAVEN_OPTS="${mvnopts[*]}"
+
     mvn -Djetty.port=$port $JETTY_PLUGIN:run
 }
 

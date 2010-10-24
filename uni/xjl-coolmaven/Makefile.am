@@ -16,7 +16,9 @@ dist_bin_SCRIPTS = \
     m2graph \
     pomid \
     m2installfile \
-    mvn-002
+    mvn-002 \
+    m2localdeps \
+    m2localgraph
 
 bin_SCRIPTS = \
     m2search-nexus \

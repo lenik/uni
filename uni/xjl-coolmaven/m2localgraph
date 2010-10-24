@@ -1,0 +1,127 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh 1853 2010-09-29 01:35:59Z lenik $'
+    short_opts="t:hqv"
+    long_opts="title,help,quiet,verbose,version"
+
+    title=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Generate M2 dependency graph of local project"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] [dependency-list-file]"
+    echo
+    echo "Options: "
+    echo "    -t, --title=TITLE       Title of the graph, default ./pom.xml/name"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -t|--title)
+            title="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+
+    if [ -z "$title" ]; then
+        if [ -f pom.xml ]; then
+            read title < <(grep '<name>' pom.xml)
+            title="${title#*<name>}"
+            title="${title%</name>*}"
+            title="Dependencies of $title"
+        else
+            title="Dependency Graph"
+        fi
+    fi
+
+    cat <<HEAD
+digraph m2localgraph {
+
+    label = "$title";
+    rankdir = BT;
+    concentrate = true;
+
+    node [ shape = box ];
+    /* edge [ arrowhead = o ]; */
+
+HEAD
+
+    tmpf=`tempfile`
+    cat >$tmpf
+
+    cut -d: -f1 $tmpf | sort -u \
+    | while read this; do
+        thisid="${this//[^a-zA-Z0-9]/_}"
+        attrs=
+        echo "    $thisid [ label = \"$this\" $attrs ]; "
+    done
+
+    echo "subgraph cluster_ext {"
+    echo "    label = \"External Reference\"; "
+        grep -vFf <(cut -d: -f1 $tmpf | sort -u | sed -e 's/^/:/') $tmpf \
+        | cut --complement -d: -f1 | sort -u \
+        | while IFS=: read dep ver pack scope; do
+            depid="${dep//[^a-zA-Z0-9]/_}"
+
+            attrs=
+            style="filled"
+            if [ "$scope" = "test" ]; then
+                style="$style, dashed"
+            fi
+            attrs="$attrs, style=\"$style\""
+
+            echo "    $depid [ label = \"$dep\" $attrs ]; "
+        done
+    echo "}"
+
+    while IFS=: read this dep ver pack scope; do
+        this="${this//[^a-zA-Z0-9]/_}"
+        dep="${dep//[^a-zA-Z0-9]/_}"
+
+        attrs=
+        style=
+        if [ "$pack" = war ]; then
+            # attrs="$attrs, color = red"
+            style="$style, bold"
+        else
+            attrs="$attrs, arrowhead = o"
+        fi
+        if [ "$scope" = test ]; then
+            style="$style, dashed"
+        fi
+        style="${style#, }"
+
+        if [ -n "$style" ]; then
+            attrs="$attrs, style = \"$style\""
+        fi
+        attrs="${attrs#, }"
+        echo "    $this -> $dep [ $attrs ]; "
+    done <$tmpf
+
+    echo '}'
+}
+
+boot "$@"
