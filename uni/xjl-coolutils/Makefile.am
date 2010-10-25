@@ -8,8 +8,8 @@ valsum_LDADD = $(GLIB_LIBS)
 bin_PROGRAMS = \
     uc \
     gcd \
-    random \
-    valsum
+    random
+#    valsum
 
 dist_bin_SCRIPTS = \
     which2 \
