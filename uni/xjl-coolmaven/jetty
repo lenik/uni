@@ -2,10 +2,14 @@
     . shlib-import cliboot
 
     RCSID='$Id$'
-    short_opts="p:dP:hqv"
-    long_opts="port,debug,debug-port,help,quiet,verbose,version"
+    short_opts="67p:dP:hqv"
+    long_opts="jetty6,jetty7,port,debug,debug-port,help,quiet,verbose,version"
 
-    JETTY_PLUGIN=org.mortbay.jetty:maven-jetty-plugin
+    JETTY_PLUGIN_6=org.mortbay.jetty:maven-jetty-plugin
+    JETTY_PLUGIN_7=org.mortbay.jetty:jetty-maven-plugin:7.2.0.v20101020
+    JETTY_PLUGIN=org.mortbay.jetty:jetty-maven-plugin
+
+    jetty=$JETTY_PLUGIN
 
     mvnopts=()
     nmvnopt=0
@@ -27,6 +31,8 @@ function help() {
     echo "    $0 [OPTION] <project-dir>"
     echo
     echo "Options: "
+    echo "    -6, --jetty6            Run with Jetty 6 compatible"
+    echo "    -7, --jetty7            Run with Jetty 7 compatible"
     echo "    -p, --port=PORT         HTTP port, default 3108"
     echo "    -d, --debug             Enable remote debugging"
     echo "    -P, --debug-port=PORT   Debug port, default 3104"
@@ -38,6 +44,10 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -6|--jetty6)
+            jetty=$JETTY_PLUGIN_6;;
+        -7|--jetty7)
+            jetty=$JETTY_PLUGIN_7;;
         -p|--port)
             port=$2;;
         -d|--debug)
@@ -77,7 +87,7 @@ function main() {
 
     export MAVEN_OPTS="${mvnopts[*]}"
 
-    mvn -Djetty.port=$port $JETTY_PLUGIN:run
+    mvn -Djetty.port=$port $jetty:run
 }
 
 boot "$@"
