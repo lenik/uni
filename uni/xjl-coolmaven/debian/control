@@ -10,5 +10,5 @@ Package: xjl-coolmaven
 Provides: coolmaven
 Architecture: all
 Depends: xjl-bash-aliases, xjl-coolsvn, maven2, grep, wget,
-    xjl-xmlutils, xmlindent, xjl-configutils
+    xjl-xmlutils, xmlindent, xjl-configutils, graphviz
 Description: Lenik's Maven utils
