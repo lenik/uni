@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-security
 
 Package: xjl-security
 Architecture: all
-Depends: ${misc:Depends}, perl
+Depends: perl, xsel, xjl-libcmt
 Description: Lenik's security utilities
