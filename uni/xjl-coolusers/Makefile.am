@@ -14,6 +14,9 @@ dist_setup_SCRIPTS = \
 dist_sudoers_DATA = \
 	sudoers.d/dev
 
+%: %.in Makefile
+	$(do_subst) <$< >$@
+
 install-data-hook:
 	@echo "Please run $(DESTDIR)$(pkgdatadir)/postinst $(DESTDIR)$(pkgdatadir) $(DESTDIR)$(sysconfdir) $(DESTDIR)$(sudoersdir)"
 
