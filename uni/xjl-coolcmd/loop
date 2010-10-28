@@ -1,59 +1,38 @@
 #!/bin/bash
-    . shlib-import cliboot
 
-    RCSID='$Id$'
-    short_opts="i:hqv"
-    long_opts="interval,help,quiet,verbose,version"
+if [ $# -lt 2 ]; then
+    echo "loop <interval> <cmd-line>..."
+    false
+else
+    _interval="$1"
+    shift
 
-    interval=1
+    _cmd=$1
 
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Repeat to run command"
-    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
-}
+    if _a=`alias $_cmd 2>/dev/null`; then
+        _a="${_a#*=\'}"
+        _a="${_a%\'}"
+        _cmd="$_a"
+    fi
 
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] COMMAND ARGS"
-    echo
-    echo "Options: "
-    echo "    -i, --interval=SECS     sleep interval between each run"
-    echo "    -q, --quiet             repeat to get less info"
-    echo "    -v, --verbose           repeat to get more info"
-    echo "    -h, --help              show this help page"
-    echo "        --version           print the version info"
-}
+    shift
+    _index=0
+    _pad='------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------'
 
-function setopt() {
-    case "$1" in
-        -i|--interval)
-            interval=$2;;
-        -h|--help)
-            help; exit;;
-        -q|--quiet)
-            LOGLEVEL=$((LOGLEVEL - 1));;
-        -v|--verbose)
-            LOGLEVEL=$((LOGLEVEL + 1));;
-        --version)
-            version; exit;;
-        *)
-            quit "invalid option: $1";;
-    esac
-}
-
-function main() {
-    index=0
     while true; do
-        ((index++))
-        xxxxx=${index//[0-9]/-}
-        _log1 "-------- Begin: $index --------"
-        "$@"
-        _log1 "----------------$xxxxx---------"
-        sleep $interval
-    done
-}
+        ((_index++))
 
-boot "$@"
+        _cols=`tput cols`
+        _title="[42mLoop Iteration[47m $_index[m"
+        _ntitle=$(( ${#_title} + 2 - 13 ))
+        _halfpad=$(( (_cols - _ntitle) / 2 ))
+        _line="${_pad:0:_halfpad} $_title ${_pad:0:_cols - _ntitle - _halfpad}"
+        echo "$_line"
+
+        $_cmd "$@"
+
+        echo "${_pad:0:_cols}"
+        sleep $_interval
+    done
+fi
+
