@@ -7,3 +7,5 @@ bodz_list=/etc/apt/sources.list.d/bodz.list
 while lineconf -ek $bodz_list http://deb.bodz.net; do
     echo "   Removed deb.bodz.net entry from bodz.list"
 done
+
+exit 0
