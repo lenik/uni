@@ -9,6 +9,6 @@ Homepage: http://uni.bodz.net/xjl-coolauto
 Package: xjl-coolauto
 Provides: coolauto
 Architecture: all
-Depends: make, xjl-autover, xjl-bash-shlib
+Depends: make, automake, autoconf, libtool, xjl-autover, xjl-bash-shlib
 Recommends: xjl-bash-aliases
 Description: Auto-tools helper and templates
