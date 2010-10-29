@@ -1,0 +1,17 @@
+#!/bin/sh
+
+if [ $# = 0 ]; then
+    base=.
+else
+    base="$1"
+fi
+
+for d in $base $base/debian $base/../debian $base/../../debian; do
+    if [ -f $d/control ]; then
+        vi $d/control
+        exit 0
+    fi
+done
+
+echo "No <*>/debian/control found. "
+exit 1

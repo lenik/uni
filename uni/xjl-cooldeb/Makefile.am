@@ -13,7 +13,8 @@ dist_bin_SCRIPTS = \
     deb-clean \
     cideb \
     dh_package_field \
-    dh_check_depends
+    dh_check_depends \
+    vicontrol
 
 bin_SCRIPTS = \
     dh_add_missing
