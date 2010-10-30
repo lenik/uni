@@ -9,7 +9,7 @@ Homepage: http://uni.bodz.net/xjl-cool
 Package: xjl-cools-term
 Provides: cools-term
 Architecture: all
-Depends:
+Recommends:
     xjl-aptutils,
     xjl-coolusers,
     xjl-coolansi,

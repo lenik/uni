@@ -1,0 +1,230 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+treetex - Print directory tree in TeX
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'treetex'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: perl.pl 1908 2010-10-10 11:33:54Z lenik $');
+use DirHandle;
+use Getopt::Long;
+
+sub _main; sub _version; sub _help;
+sub treetex;
+
+my $opt_all             = 0;
+my $opt_dir_only        = 0;
+my $opt_follow_syms     = 0;
+my $opt_show_user       = 0;
+my $opt_show_group      = 0;
+my $opt_show_size       = 0;
+my $opt_human           = 0;
+my $opt_show_date       = 0;
+my $opt_classify        = 0;
+my $opt_color           = 0;
+
+sub _boot {
+    GetOptions('q|quiet'        => sub { $LOGLEVEL-- },
+               'v|verbose'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help'           => sub { _help; exit 0 },
+               'a|all'          => \$opt_all,
+               'd|dir'          => \$opt_dir_only,
+               'l|follow-syms'  => \$opt_follow_syms,
+               'u|show-user'    => \$opt_show_user,
+               'g|show-group'   => \$opt_show_group,
+               's|size'         => \$opt_show_size,
+               'h|human-size'   => \$opt_human,
+               'D|date'         => \$opt_show_date,
+               'F|classify'     => \$opt_classify,
+               'C|color'        => \$opt_color,
+                )
+        or exit(1);
+
+    $opt_show_size = 1 if $opt_human;
+
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<treetex>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<treetex> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-treetex-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item Show help
+
+    treetex --help
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -a, --all               All files are included
+    -d, --dir               List directories only
+    -l, --follow-syms       Follow symlinks
+    -u, --show-user         Show owner user
+    -g, --show-group        Show owner group
+    -s, --size              Show size
+    -h, --human-size        Show size in human readable way
+    -D, --date              Show last modified date
+    -F, --classify          Append indicator (*/=>@|) to entries
+    -C, --color             Turn on colorization
+    -q, --quiet             Repeat to get less info
+    -v, --verbose           Repeat to get more info
+    -h, --help              Show this help page
+        --version           Print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    for (@ARGV) {
+        treetex(undef, $_);
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+sub treetex {
+    my ($dir, $base, $prefix) = @_;
+    my $path = (defined $dir) ? "$dir/$base" : $base;
+    my $slash = rindex($path, '/');
+    if ($slash == -1) {
+        $dir = '.';
+        $base = $path;
+    } else {
+        $dir = substr($path, 0, $slash);
+        $base = substr($path, $slash + 1);
+    }
+
+    my $entry = $base;
+    if (-d $path) {      # dir
+        $entry .= '/' if $opt_classify;
+
+    } elsif (-x $path) { # executable
+        $entry .= '*' if $opt_classify;
+
+    } elsif (-l $path) { # symlink
+        $entry .= ' -> ';
+
+    } elsif (-p $path) { # pipe
+        $entry .= '|' if $opt_classify;
+
+    } elsif (-S $path) { # socket
+        $entry .= '=' if $opt_classify;
+    }
+    print "$prefix$entry\n";
+
+    if (-d $path) {
+        $prefix .= '  ';
+        my $dh = new DirHandle($path);
+        my @files = $dh->read();
+        $dh->close();
+        for (@files) {
+            next if substr($_, 0, 1) eq '.' and ! $opt_all;
+            next if $_ eq '.' or $_ eq '..';
+            treetex $path, $_, $prefix;
+        }
+    }
+}
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Print directory tree in TeX \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+lenik <lenik (at) bodz.net>
+
+=cut

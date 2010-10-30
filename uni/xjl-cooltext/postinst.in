@@ -1,3 +1,6 @@
 #!/bin/sh
 
 # master-file
+cpan Text::Diff
+
+exit 0

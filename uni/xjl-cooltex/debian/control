@@ -9,5 +9,7 @@ Homepage: http://uni.bodz.net/xjl-cooltex
 Package: xjl-cooltex
 Provides: cooltex
 Architecture: all
-Depends: ${misc:Depends}
+Depends: perl, xjl-libcmt
+    xjl-bash-shlib, xjl-bash-aliases
+Suggests: texlive
 Description: Lenik's TeX utilities.

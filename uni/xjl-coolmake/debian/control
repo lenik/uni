@@ -9,5 +9,5 @@ Homepage: http://uni.bodz.net/xjl-coolmake
 Package: xjl-coolmake
 Provides: coolmake
 Architecture: all
-Depends: xjl-coolauto
+Depends: make, xjl-coolauto
 Description: Make shortcut & helpers
