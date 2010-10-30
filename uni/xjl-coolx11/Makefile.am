@@ -40,8 +40,8 @@ CLEANFILES = ${setup_SCRIPTS} \
         -e 's,[@]cooldefdir[@],$(cooldefdir),g' \
         <$< >$@
 
-path.diff: path
-	-diff -u ${gconf2dir}/path $< >$@
+path.diff: ${gconf2dir}/path path
+	-diff -u ${gconf2dir}/path ${srcdir}/path >$@
 
 gconf-cleanbase/%gconf-tree.xml:
 	gconf-merge-tree $(srcdir)/gconf-cleanbase
