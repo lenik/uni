@@ -4,10 +4,10 @@
 		<stringvalue>&lt;Shift&gt;&lt;Mod4&gt;asterisk</stringvalue>
 	</entry>
 	<entry name="toggle_shaded" mtime="1288233468" type="string">
-		<stringvalue>&lt;Alt&gt;F11</stringvalue>
+		<stringvalue>&lt;Alt&gt;F12</stringvalue>
 	</entry>
 	<entry name="toggle_fullscreen" mtime="1288233471" type="string">
-		<stringvalue>&lt;Alt&gt;F12</stringvalue>
+		<stringvalue>&lt;Alt&gt;F11</stringvalue>
 	</entry>
 	<entry name="maximize" mtime="1288233418" type="string">
 		<stringvalue></stringvalue>
