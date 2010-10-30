@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="next_engine_in_menu" mtime="1288252042" type="list" ltype="string">
+	</entry>
+	<entry name="trigger" mtime="1288252033" type="list" ltype="string">
+		<li type="string">
+			<stringvalue>Alt+Shift+at</stringvalue>
+		</li>
+		<li type="string">
+			<stringvalue>Zenkaku_Hankaku</stringvalue>
+		</li>
+		<li type="string">
+			<stringvalue>Alt+Zenkaku_Hankaku</stringvalue>
+		</li>
+		<li type="string">
+			<stringvalue>Alt+grave</stringvalue>
+		</li>
+		<li type="string">
+			<stringvalue>Hangul</stringvalue>
+		</li>
+	</entry>
+</gconf>

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="search" mtime="1288233171" type="string">
+		<stringvalue>&lt;Mod4&gt;f</stringvalue>
+	</entry>
+	<entry name="home" mtime="1288233169" type="string">
+		<stringvalue>&lt;Mod4&gt;Home</stringvalue>
+	</entry>
+	<entry name="www" mtime="1288233164" type="string">
+		<stringvalue>&lt;Mod4&gt;i</stringvalue>
+	</entry>
+	<entry name="email" mtime="1288233160" type="string">
+		<stringvalue>&lt;Mod4&gt;m</stringvalue>
+	</entry>
+	<entry name="calculator" mtime="1288233158" type="string">
+		<stringvalue>&lt;Mod4&gt;equal</stringvalue>
+	</entry>
+</gconf>

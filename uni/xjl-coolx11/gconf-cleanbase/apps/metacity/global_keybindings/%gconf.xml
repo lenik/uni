@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="panel_main_menu" mtime="1288252293" type="string">
+		<stringvalue>&lt;Mod4&gt;grave</stringvalue>
+	</entry>
+	<entry name="panel_run_dialog" mtime="1288252276" type="string">
+		<stringvalue>&lt;Mod4&gt;r</stringvalue>
+	</entry>
+	<entry name="switch_windows" mtime="1288233368" type="string">
+		<stringvalue></stringvalue>
+	</entry>
+	<entry name="run_command_terminal" mtime="1288233304" type="string">
+		<stringvalue>&lt;Mod4&gt;t</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_down" mtime="1288233242" type="string">
+		<stringvalue>&lt;Mod4&gt;j</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_up" mtime="1288233240" type="string">
+		<stringvalue>&lt;Mod4&gt;k</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_right" mtime="1288233238" type="string">
+		<stringvalue>&lt;Mod4&gt;l</stringvalue>
+	</entry>
+	<entry name="switch_to_workspace_left" mtime="1288233232" type="string">
+		<stringvalue>&lt;Mod4&gt;h</stringvalue>
+	</entry>
+</gconf>

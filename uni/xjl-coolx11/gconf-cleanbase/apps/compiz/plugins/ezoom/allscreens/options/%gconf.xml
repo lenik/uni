@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="lock_zoom_key" mtime="1288232700" type="string">
+		<stringvalue>&lt;Super&gt;equal</stringvalue>
+	</entry>
+	<entry name="zoom_out_key" mtime="1288232630" type="string">
+		<stringvalue>&lt;Super&gt;minus</stringvalue>
+	</entry>
+	<entry name="zoom_in_key" mtime="1288232644" type="string">
+		<stringvalue>&lt;Shift&gt;&lt;Super&gt;plus</stringvalue>
+	</entry>
+</gconf>
