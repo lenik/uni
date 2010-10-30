@@ -1,8 +1,8 @@
 #!/bin/sh
 # master-file
 
-lineconf -tm "Add xjl-coolx11.defaults" \
-    @gconf2dir@/path @xjl-coolx11.defaults \
-    "xml:readonly:/var/lib/gconf/xjl-coolx11.defaults
+echo "Setup xjl-coolx11.defaults"
+
+patch -u "@gconf2dir@/path" "@setupdir@/path.diff"
 
 exit 0

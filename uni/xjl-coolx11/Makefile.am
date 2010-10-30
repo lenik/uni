@@ -20,6 +20,9 @@ setup_SCRIPTS = \
     postinst \
     prerm
 
+setup_DATA = \
+    path.diff
+
 EXTRA_DIST = \
     postinst.in \
     prerm.in \
@@ -36,6 +39,9 @@ CLEANFILES = ${setup_SCRIPTS} \
         -e 's,[@]gconf2dir[@],$(gconf2dir),g' \
         -e 's,[@]cooldefdir[@],$(cooldefdir),g' \
         <$< >$@
+
+path.diff: path
+	diff -u ${gconf2dir}/path $< >$@
 
 gconf-cleanbase/%gconf-tree.xml:
 	gconf-merge-tree $(srcdir)/gconf-cleanbase
