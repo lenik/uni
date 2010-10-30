@@ -1,8 +1,11 @@
 if [ -z "$1" ]; then
     cd..
 else
+    _cc=
     for ((i = 0; i < $1; i++)); do
-        cd ..
+        _cc=$_cc/..
     done
-    unset i
+    _cc=${_cc#/}
+    cd $_cc
+    unset i _cc
 fi
