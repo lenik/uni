@@ -9,6 +9,6 @@ Homepage: http://uni.bodz.net/xjl-cooldeb
 Package: xjl-cooldeb
 Provides: cooldeb
 Architecture: all
-Depends: debhelper, devscripts, xjl-aptutils,
+Depends: debhelper, devscripts, dh-make, xjl-aptutils,
     xjl-bash-shlib, xjl-coolmake, xjl-coolsvn, xjl-dlocal
 Description: Debian package by very clean manner.
