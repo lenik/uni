@@ -1,4 +1,11 @@
 #!/bin/sh
 # master-file
 
-echo "texlive-local - prerm.in ..."
+profile=@profilesdir@/texlive-local.sh
+
+if [ -f $profile ]; then
+    echo "Remove profile $profile"
+    rm -f $profile
+fi
+
+exit 0
