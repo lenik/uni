@@ -19,7 +19,7 @@ if [ -n "$instdir" ]; then
 
     profile=@profilesdir@/texlive-local.sh
     cat <<EOM >$profile
-PATH=$instdir/bin:\$PATH
+PATH=$archbindir:\$PATH
 
 if [ -z "\$MANPATH" ]; then
     MANPATH=$instdir/texmf/doc/man
