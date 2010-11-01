@@ -21,17 +21,19 @@ if [ -n "$instdir" ]; then
     cat <<EOM >$profile
 PATH=$instdir/bin:\$PATH
 
-if [ -n "\$MANPATH" ]; then
+if [ -z "\$MANPATH" ]; then
     MANPATH=$instdir/texmf/doc/man
 else
     MANPATH=$instdir/texmf/doc/man:\$MANPATH
 fi
 
-if [ -n "\$INFOPATH" ]; then
+if [ -z "\$INFOPATH" ]; then
     INFOPATH=$instdir/texmf/doc/info
 else
     INFOPATH=$instdir/texmf/doc/info:\$INFOPATH
 fi
+
+export PATH MANPATH INFOPATH
 EOM
 
 else
