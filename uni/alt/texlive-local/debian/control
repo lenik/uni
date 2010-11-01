@@ -1,0 +1,12 @@
+Source: texlive-local
+Section: tex
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: http://uni.bodz.net/alt/texlive-local
+
+Package: texlive-local
+Architecture: all
+Depends: xjl-configutils
+Description: Add /usr/local/texlive to environment.
