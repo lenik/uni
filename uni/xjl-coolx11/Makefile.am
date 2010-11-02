@@ -7,11 +7,17 @@ gconf2dir   = ${sysconfdir}/gconf/2
 gconflibdir = /var/lib/gconf
 cooldefdir  = ${gconflibdir}/xjl-coolx11.defaults
 
+bgdir       = ${datadir}/backgrounds
+
 x11conf_DATA = \
     Xmodmap
 
 dist_cooldef_DATA = \
     gconf-cleanbase/%gconf-tree.xml
+
+dist_bg_DATA = \
+    wallpapers/Boheme.jpg \
+    wallpapers/Pointy.jpg
 
 dist_xsession_DATA = \
     load-xmodmap
@@ -43,5 +49,6 @@ CLEANFILES = ${setup_SCRIPTS} \
 path.diff: ${gconf2dir}/path path
 	-diff -u ${gconf2dir}/path ${srcdir}/path >$@
 
-gconf-cleanbase/%gconf-tree.xml:
+gconf-cleanbase/%gconf-tree.xml: Makefile
+	rm -f $@
 	gconf-merge-tree $(srcdir)/gconf-cleanbase
