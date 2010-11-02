@@ -10,5 +10,5 @@ Package: xjl-coolutils
 Provides: coolutils
 Architecture: any
 Depends: xjl-bash-shlib
-Recommends: xjl-configutils, xjl-fsutils, libglib2.0
+Recommends: libglib2.0-0, xjl-configutils, xjl-fsutils
 Description: Bundles of cool utils by Lenik.

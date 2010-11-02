@@ -9,5 +9,5 @@ Homepage: http://uni.bodz.net/xjl-autover
 Package: xjl-autover
 Provides: autover
 Architecture: any
-Depends: libglib2.0, sed, diff | diffutils, autoconf
+Depends: libglib2.0-0, sed, diff | diffutils, autoconf
 Description: Automatic version manager (core)
