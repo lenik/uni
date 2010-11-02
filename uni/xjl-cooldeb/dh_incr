@@ -33,7 +33,9 @@ EOM
         dir_ver=`dir-ver $base`
         cd "$dir_ver"
 
-            if dch -d "Upstream updates, automatic package by deb-redist"; then
+            if dch \
+                    -D unstable --force-distribution \
+                    -d "Upstream updates, automatic package by deb-redist"; then
                 if [ "$truncate" = 1 ]; then
                     echo "Truncate the temporary created changelog"
                     tmp=`tempfile`
