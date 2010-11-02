@@ -2,12 +2,12 @@ Source: xjl-autover
 Section: devel
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 7)
+Build-Depends: debhelper (>= 7), libglib2.0-dev
 Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/xjl-autover
 
 Package: xjl-autover
 Provides: autover
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, sed, diff | diffutils, autoconf
+Depends: libglib2.0, sed, diff | diffutils, autoconf
 Description: Automatic version manager (core)
