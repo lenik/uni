@@ -1,0 +1,5 @@
+#!/bin/bash
+
+base="${1%.tex}"
+
+fnotify "$base.tex" sh -c "pslatex '\nonstopmode \input $base' && dvips '$base.dvi' && ps2pdf '$base.ps'"
