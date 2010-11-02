@@ -5,7 +5,9 @@
 bodz_list=/etc/apt/sources.list.d/bodz.list
 
 lineconf $bodz_list http://deb.bodz.net \
-    "deb     http://deb.bodz.net/ maverick/" \
-    "deb-src http://deb.bodz.net/ maverick/"
+    "deb     http://deb.bodz.net/ stable/" \
+    "deb-src http://deb.bodz.net/ stable/" \
+    "deb     http://deb.bodz.net/ unstable/" \
+    "deb-src http://deb.bodz.net/ unstable/"
 
 exit 0
