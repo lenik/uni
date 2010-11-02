@@ -15,6 +15,7 @@ use cmt::path('path_split', 'path_join');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
+    Getopt::Long::Configure('gnu_getopt');
 
 sub _main; sub _version; sub _help;
 

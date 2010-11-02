@@ -12,6 +12,7 @@ use cmt::log(2);
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
+    Getopt::Long::Configure('gnu_getopt');
 
 sub _main; sub _version; sub _help;
 

@@ -12,7 +12,9 @@ use cmt::log(2);
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id: perl.pl 1908 2010-10-10 11:33:54Z lenik $');
 use DirHandle;
+use File::Spec::Link;
 use Getopt::Long;
+    Getopt::Long::Configure('gnu_getopt');
 
 sub _main; sub _version; sub _help;
 sub treetex;
@@ -24,6 +26,7 @@ my $opt_show_user       = 0;
 my $opt_show_group      = 0;
 my $opt_show_size       = 0;
 my $opt_human           = 0;
+my $opt_si1000          = 0;
 my $opt_show_date       = 0;
 my $opt_classify        = 0;
 my $opt_color           = 0;
@@ -40,12 +43,14 @@ sub _boot {
                'g|show-group'   => \$opt_show_group,
                's|size'         => \$opt_show_size,
                'h|human-size'   => \$opt_human,
+               'H|si'           => \$opt_si1000,
                'D|date'         => \$opt_show_date,
                'F|classify'     => \$opt_classify,
                'C|color'        => \$opt_color,
                 )
         or exit(1);
 
+    $opt_human = 1 if $opt_si1000;
     $opt_show_size = 1 if $opt_human;
 
     _main;
@@ -129,12 +134,13 @@ Common options:
     -g, --show-group        Show owner group
     -s, --size              Show size
     -h, --human-size        Show size in human readable way
+    -H, --si                Like --human, but use powers of 1000 not 1024
     -D, --date              Show last modified date
     -F, --classify          Append indicator (*/=>@|) to entries
     -C, --color             Turn on colorization
     -q, --quiet             Repeat to get less info
     -v, --verbose           Repeat to get more info
-    -h, --help              Show this help page
+        --help              Show this help page
         --version           Print the version info
 EOM
 }
@@ -173,31 +179,65 @@ sub treetex {
     }
 
     my $entry = $base;
-    if (-d $path) {      # dir
+    if (-l $path) { # symlink
+        my $linked = File::Spec::Link->linked($path);
+        $entry .= ' -> ' . $linked;
+    }
+
+    if (-d $path) { # dir
         $entry .= '/' if $opt_classify;
+    }
 
-    } elsif (-x $path) { # executable
+    if (-x $path) { # executable
         $entry .= '*' if $opt_classify;
+    }
 
-    } elsif (-l $path) { # symlink
-        $entry .= ' -> ';
-
-    } elsif (-p $path) { # pipe
+    if (-p $path) { # pipe
         $entry .= '|' if $opt_classify;
+    }
 
-    } elsif (-S $path) { # socket
+    if (-S $path) { # socket
         $entry .= '=' if $opt_classify;
     }
+
+    if (-f $path) { # file
+        $entry .= ' (';
+        my @stat = stat($path);
+        my $size = $stat[7];
+        if ($opt_human) {
+            my $unit = $opt_si1000 ? 1000 : 1024;
+            my $level = 0;
+            while ($size >= $unit) {
+                $size = int($size / $unit);
+                $level++;
+            }
+            my @units = qw(bytes kB MB GB TB PB);
+            $unit = $units[$level];
+            $size = "$size $unit";
+        }
+        $entry .= $size;
+        $entry .= ')';
+    }
+
     print "$prefix$entry\n";
 
     if (-d $path) {
         $prefix .= '  ';
         my $dh = new DirHandle($path);
         my @files = $dh->read();
+        @files = sort @files;
         $dh->close();
         for (@files) {
-            next if substr($_, 0, 1) eq '.' and ! $opt_all;
             next if $_ eq '.' or $_ eq '..';
+
+            # hidden files
+            next if substr($_, 0, 1) eq '.' and ! $opt_all;
+
+            if ($opt_dir_only) {
+                my $_path = $path . '/' . $_;
+                next unless -d $_path;
+            }
+
             treetex $path, $_, $prefix;
         }
     }

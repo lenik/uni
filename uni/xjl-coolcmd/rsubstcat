@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use cmt::subst;
 use Getopt::Long;
+    Getopt::Long::Configure('gnu_getopt');
 
 GetOptions('color|c!' => \$opt_color);
 

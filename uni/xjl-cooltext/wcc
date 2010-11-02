@@ -16,6 +16,7 @@ use cmt::vcs('parse_id');
 use Data::Dumper;
 use DirHandle;
 use Getopt::Long;
+    Getopt::Long::Configure('gnu_getopt');
 
 sub _main; sub _version; sub _help;
 sub process;
