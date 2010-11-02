@@ -22,13 +22,13 @@ if [ -n "$instdir" ]; then
 PATH=$archbindir:\$PATH
 
 if [ -z "\$MANPATH" ]; then
-    MANPATH=$instdir/texmf/doc/man
+    MANPATH=$instdir/texmf/doc/man:/usr/share/man
 else
     MANPATH=$instdir/texmf/doc/man:\$MANPATH
 fi
 
 if [ -z "\$INFOPATH" ]; then
-    INFOPATH=$instdir/texmf/doc/info
+    INFOPATH=$instdir/texmf/doc/info:/usr/share/info
 else
     INFOPATH=$instdir/texmf/doc/info:\$INFOPATH
 fi
