@@ -26,7 +26,9 @@ dist_bin_SCRIPTS = \
     colorox \
     loop \
     localhost \
-    postproc
+    postproc \
+    fnotify \
+    onmodify
 
 setup_SCRIPTS = \
     postinst \
