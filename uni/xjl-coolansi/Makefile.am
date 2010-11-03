@@ -3,7 +3,8 @@ include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
     colors \
-    meter
+    meter \
+    settermtitle
 
 bin_SCRIPTS = \
     ansifilter
@@ -16,15 +17,15 @@ setup_SCRIPTS = \
     prerm
 
 EXTRA_DIST = \
-	postinst.in \
-	prerm.in \
-	get-ansifilter
+    postinst.in \
+    prerm.in \
+    get-ansifilter
 
 CLEANFILES = \
-	postinst \
-	prerm \
-	ansifilter \
-	ansifilter.1
+    postinst \
+    prerm \
+    ansifilter \
+    ansifilter.1
 
 ansifilter ansifilter.1: get-ansifilter Makefile
 	$(srcdir)/$< $@

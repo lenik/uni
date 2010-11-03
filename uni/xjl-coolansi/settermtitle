@@ -1,0 +1,23 @@
+# Please source this file.
+
+case "$TERM" in
+xterm*)
+    ansiNrTab=0
+    ;;
+rxvt)
+    ansiNrTab=61
+    ;;
+konsole)
+    ansiNrTab=30
+    ansiNrWindow=0
+    ;;
+esac
+
+# Change tab title
+    if [ $ansiNrTab ]; then
+        echo -n "]$ansiNrTab;$1"
+    fi
+# If terminal support separate window title, change window title as well
+    if [ $ansiNrWindow -a "$2" ]; then
+        echo -n "]$ansiNrWindow;$2"
+    fi

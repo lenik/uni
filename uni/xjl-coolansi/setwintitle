@@ -1,0 +1,4 @@
+#!/bin/bash
+
+hwnd=`xprop -root | grep "_NET_ACTIVE_WINDOW(WINDOW)" | awk '{ print $5}'`
+xdotool set_window --name "$*" $hwnd
