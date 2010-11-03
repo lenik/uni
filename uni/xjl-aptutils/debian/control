@@ -7,7 +7,7 @@ Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/xjl-aptutils
 
 Package: xjl-aptutils
-Package: aptutils
+Provides: aptutils
 Architecture: all
 Depends: apt, aptitude, dpkg, xjl-bash-aliases, xjl-bash-shlib
 Description: Aptitude packages utilities
