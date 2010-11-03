@@ -18,6 +18,7 @@ if [ "$dir" = "$file" ] ; then
     dir=.
 fi
 
+. settermtitle "$file => $*"
 
 # Force the first iteration.
 ver=0

@@ -28,6 +28,7 @@ else
         _halfpad=$(( (_cols - _ntitle) / 2 ))
         _line="${_pad:0:_halfpad} $_title ${_pad:0:_cols - _ntitle - _halfpad}"
         echo "$_line"
+        . settermtitle "L($_interval:$_index) $_cmd"
 
         $_cmd "$@"
 

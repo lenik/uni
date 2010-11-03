@@ -4,7 +4,7 @@
 #       Temporary file remove/create fix
 #       Temporary file rename/restore fix
 #       Shell interpretor: Text file busy fix
-sleepenh 0.01
+sleepenh 0.01 >/dev/null
 
 _file="$1"
 if [ ! -e "$_file" ]; then
