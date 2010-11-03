@@ -9,5 +9,5 @@ Homepage: http://uni.bodz.net/xjl-coolcmd
 Package: xjl-coolcmd
 Provides: coolcmd
 Architecture: all
-Depends: ${misc:Depends}, perl, xjl-coolbash, xjl-coolutils
-Description: Translated Command Invoker
+Depends: perl, xjl-coolbash, xjl-coolutils, dnotify
+Description: Quick command invokes
