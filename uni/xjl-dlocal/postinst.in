@@ -39,13 +39,14 @@ echo "Turn on dlocal site"
     /etc/init.d/apache2 reload
 
 local_list=/etc/apt/sources.list.d/local.list
-codename=`lsb_release -cs`
-    lineconf -tm "Add to local.list: deb dlocal $codename/" \
+# release=`lsb_release -cs`
+release=unstable
+    lineconf -tm "Add to local.list: deb dlocal $release/" \
         $local_list @deb::dlocal \
-        "deb     http://dlocal/ $codename/"
+        "deb     http://dlocal/ $release/"
 
-    lineconf -tm "Add to local.list: deb-src dlocal $codename/" \
+    lineconf -tm "Add to local.list: deb-src dlocal $release/" \
         $local_list @deb-src::dlocal \
-        "deb-src http://dlocal/ $codename/"
+        "deb-src http://dlocal/ $release/"
 
 exit 0
