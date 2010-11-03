@@ -10,4 +10,5 @@ Package: xjl-coolmake
 Provides: coolmake
 Architecture: all
 Depends: make, xjl-coolauto
+Recommends: xjl-cooltex
 Description: Make shortcut & helpers

@@ -1,8 +1,7 @@
 #!/bin/bash
-
 # master-file
 
-# (bash for $RANDOM)
+TREETEX=`which treetex`
 
 if [ -z "$MAKE" ]; then
     MAKE=@bindir@/make-color
@@ -48,6 +47,9 @@ rm -fR $tmpdestdir
 echo Install to temporary destdir $tmpdestdir:
 if $MAKE -s install DESTDIR=$tmpdestdir; then
     tree -a $tmpdestdir
+    if [ -x "$TREETEX" ]; then
+        $TREETEX -a -r '\emph{<setupdir>}' $tmpdestdir >itree.tex
+    fi
 else
     echo Failed to install.
 fi
