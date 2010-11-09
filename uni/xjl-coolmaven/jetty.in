@@ -109,7 +109,7 @@ function main() {
 
         modlist="$pomroot/.m2modlist"
         pushd "$pomroot" >/dev/null
-            makeoutdated "$modlist" 1w sh -c "\
+            makeoutdated ".m2modlist" 1w sh -c "\
                 echo 'Scan modules under $pomroot_c'; \
                 m2modlist . >.m2modlist; \
                 echo"
