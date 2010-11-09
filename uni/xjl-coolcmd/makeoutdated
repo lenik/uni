@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -lt 3 ]; then
-    echo "$0 FILE TIMEOUT[s|min|h|d|mo|yr] CMDLINE..."
+    echo "$0 FILE TIMEOUT[s|min|h|d|w|mo|yr] CMDLINE..."
     exit 1
 fi
 
@@ -22,6 +22,7 @@ case "$timeout" in
     *min) timeout=$(( ${timeout%min} * 60 ));;
     *h)   timeout=$(( ${timeout%h} * 3600 ));;
     *d)   timeout=$(( ${timeout%d} * 86400 ));;
+    *w)   timeout=$(( ${timeout%w} * 86400 * 7 ));;
     *mo)  timeout=$(( ${timeout%mo} * 86400 * 30 ));;
     *yr)  timeout=$(( ${timeout%yr} * 86400 * 365 ));;
 esac
