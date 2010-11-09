@@ -9,7 +9,7 @@ subst_init();
 my @substed;
 for (@ARGV) {
     my $a = subst($_);
-    push @substed, $_;
+    push @substed, $a;
 }
 
 # print join('   ', @substed)."\n";
