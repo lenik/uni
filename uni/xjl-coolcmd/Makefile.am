@@ -28,7 +28,8 @@ dist_bin_SCRIPTS = \
     localhost \
     postproc \
     fnotify \
-    onmodify
+    onmodify \
+    makeoutdated
 
 setup_SCRIPTS = \
     postinst \

@@ -1,0 +1,37 @@
+#!/bin/bash
+
+if [ $# -lt 3 ]; then
+    echo "$0 FILE TIMEOUT[s|min|h|d|mo|yr] CMDLINE..."
+    exit 1
+fi
+
+file="$1"
+timeout="$2"
+shift 2
+
+if [ ! -e "$file" ]; then
+    ftime=0
+else
+    ftime=`stat -c%Y "$file"`
+fi
+
+systime=`date +%s`
+
+case "$timeout" in
+    *s)   timeout=${timeout%s};;
+    *min) timeout=$(( ${timeout%min} * 60 ));;
+    *h)   timeout=$(( ${timeout%h} * 3600 ));;
+    *d)   timeout=$(( ${timeout%d} * 86400 ));;
+    *mo)  timeout=$(( ${timeout%mo} * 86400 * 30 ));;
+    *yr)  timeout=$(( ${timeout%yr} * 86400 * 365 ));;
+esac
+# echo "Timeout: $timeout seconds"
+
+diff=$(( systime - ftime ))
+# echo "systime=$systime, ftime=$ftime, diff=$diff"
+
+if [ $diff -ge $timeout ]; then
+    "$@"
+else
+    true
+fi
