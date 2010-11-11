@@ -1,6 +1,6 @@
 .\"
 .\"
-.\" svn_union.d.man - svn_union.d manpage
+.\" svn-export.man - svn-export manpage
 .\" Copyright (C) 2010 Lenik (谢继雷)
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -16,14 +16,19 @@
 .\" along with this program; if not, write to the Free Software
 .\" Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 .\"
-.TH SVN_UNION.D 5
+.TH SVN-EXPORT 1
 .SH NAME
-svn_union.d \- SVN Union Config Files Directory
-
+svn-export \- SVN Export allowing relative path
+.SH SYNOPSIS
+.B svn-export
+PATH[@rev] ...
 .SH DESCRIPTION
-Config files for svn-union utility.
+When the origiinal svn command line doesn't allow relative path in working copy which isn't existed in current revision, using this svn-export to get it works.
 
 .SH EXAMPLES
+
+.B
+svn-export some/file@123 /more/file@456 svn://a.com/and/more/file@789
 
 .SH REPORTING BUGS
 Please report any bugs, problems, queries, experiences, etc. directly to the author.

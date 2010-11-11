@@ -23,6 +23,7 @@ dist_bin_SCRIPTS = \
 	svn-update-executable \
 	svn-union \
 	svn-union-install \
+    svn-export \
 	svnpsl \
 	svnserve-002 \
 	svnadmin-authz-update
@@ -32,6 +33,7 @@ dist_man_MANS = \
 	svn-rename.1 \
 	svn-union.1 \
 	svn_union.d.5 \
+        svn-export.1 \
 	svn-swf.1 \
 	svnpsl.1
 
