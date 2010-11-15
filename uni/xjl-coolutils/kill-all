@@ -79,7 +79,7 @@ function main() {
             if [ "$xxx" != "${xxx/kill-all}" ]; then continue; fi
             if [ "$xxx" != "${xxx/grep }"    ]; then continue; fi
 
-            log2 "Matched process: [$pid] $xxx"
+            _log2 "Matched process: [$pid] $xxx"
             _kill $pid
 
         done
