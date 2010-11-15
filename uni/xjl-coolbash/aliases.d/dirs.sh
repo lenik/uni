@@ -22,3 +22,5 @@ alias df='postproc sort \; df -hP'
 
 alias du1='du --max-depth=1'
 alias du2='du --max-depth=2'
+
+alias tree='tree-less'

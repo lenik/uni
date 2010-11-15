@@ -4,11 +4,11 @@
 format      = $major.$minor.$commit
 
 major       = 1 minor
-minor       = 1 rev commit
+minor       = 2 rev commit
 
-rev         = 123
-rev.base    = 1908
+rev         = 0
+rev.base    = 2032
 rev.exec    = svn_revision .
 
-commit      = 6
-commit.base = 26
+commit      = 0
+commit.base = 32

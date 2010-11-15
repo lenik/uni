@@ -1,0 +1,3 @@
+#!/bin/bash
+
+tree -CN "$@" | less -eifr

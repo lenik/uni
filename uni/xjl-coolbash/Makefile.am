@@ -11,7 +11,8 @@ bin_PROGRAMS = \
 dist_bin_SCRIPTS = \
     eachdir \
     orig \
-    tree-index
+    tree-index \
+    tree-less
 
 dist_shsrc_SCRIPTS = \
     cd-ls \
