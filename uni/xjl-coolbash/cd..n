@@ -1,5 +1,5 @@
 if [ -z "$1" ]; then
-    cd..
+    cd ..
 else
     _cc=
     for ((i = 0; i < $1; i++)); do
