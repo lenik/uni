@@ -2,10 +2,12 @@
     . shlib-import cliboot
 
     RCSID='$Id$'
-    short_opts="s:hqv"
-    long_opts="signal,help,quiet,verbose,version"
+    short_opts="f:s:hqv"
+    long_opts="list-file,signal,help,quiet,verbose,version"
 
     SIGNAL=TERM
+    LISTFILE=
+    PS='ps fax'
 
 function version() {
     parse_id "$RCSID"
@@ -17,9 +19,10 @@ function help() {
     version
     echo
     echo "Syntax: "
-    echo "    $0 [OPTION] LIST-FILE"
+    echo "    $0 [OPTION] [PROCESS-GREP-PATTERN]"
     echo
     echo "Options: "
+    echo "    -f, --list-file=FILE    Read process names from FILE"
     echo "    -s, --signal=SIGNAL     Send specific signal to process"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
@@ -29,8 +32,10 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -f|--list-file)
+            LISTFILE="$2";;
         -s|--signal)
-            SIGNAL="2";;
+            SIGNAL="$2";;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -44,23 +49,33 @@ function setopt() {
     esac
 }
 
+function _kill() {
+    local pid="$1"
+    if [ ! -d /proc/$pid ]; then # The process is no more existed
+        continue
+    fi
+    read cmdline <"/proc/$pid/cmdline"
+    _log1 "Kill pid=$pid"
+    _log2 "    -> $cmdline"
+    kill -s $SIGNAL $pid
+}
+
 function main() {
-    if [ "$#" = 0 ]; then
-        set -- -
+    if [ "$#" = 0 ] && [ -z "$LISTFILE" ]; then
+        while read pid xxx; do
+            _kill $pid
+        done
     fi
 
-    for f in "$@"; do
-        if [ "$f" = - ]; then
-            f=/dev/stdin
-        fi
+    if [ -n "$LISTFILE" ]; then
         while read pid xxx; do
-            if [ ! -d /proc/$pid ]; then # The process is no more existed
-                continue
-            fi
-            read cmdline <"/proc/$pid/cmdline"
-            _log1 "Kill pid=$pid"
-            _log2 "    -> $cmdline"
-            kill -s $SIGNAL $pid
+            _kill $pid
+        done <"$LISTFILE"
+    fi
+
+    for pattern in "$@"; do
+        $PS | grep "$pattern" | while read pid xxx; do
+            _kill $pid
         done
     done
 }
