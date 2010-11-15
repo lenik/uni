@@ -11,6 +11,6 @@ script
     # -n stdin from /dev/null, must be used when ssh is run in bg.
     # -N no command
     # -D "dynamic" app-level port forwarding.
-    sudo -usshproxy ssh -qTfn -ND 7878 sshproxy.bodz.net
+    sudo -usshproxy ssh -qTfn -ND *:7878 sshproxy.bodz.net
 
 end script
