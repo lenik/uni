@@ -17,9 +17,9 @@
     mvnopts=()
     nmvnopt=0
 
-    port=3108
+    http_port=3108
     debug=0
-    debug_port=3104
+    debug_port=
 
     refresh=
 
@@ -43,7 +43,7 @@ function help() {
     echo "    -7, --jetty7            Run with Jetty 7 compatible"
     echo "    -p, --port=PORT         HTTP port, default 3108"
     echo "    -d, --debug             Enable remote debugging"
-    echo "    -P, --debug-port=PORT   Debug port, default 3104"
+    echo "    -P, --debug-port=PORT   Debug port, default (http_port - 4)"
     echo "    -R, --refresh-depends   Force reinstall project dependencies"
     echo "    -f, --tcpflow           Run tcpflow on lo interface"
     echo "    -F, --tcpflow-new       Run tcpflow in a new gnome-terminal"
@@ -61,7 +61,7 @@ function setopt() {
         -7|--jetty7)
             jetty=$JETTY_PLUGIN_7;;
         -p|--port)
-            port=$2;;
+            http_port=$2;;
         -d|--debug)
             debug=1;;
         -P|--debug-port)
@@ -146,6 +146,9 @@ function main() {
     fi
 
     if [ "$debug" = 1 ]; then
+        if [ -z "$debug_port" ]; then
+            debug_port=$((http_port - 4))
+        fi
         agent=1
         if [ "$agent" = 1 ]; then
             mvnopts[nmvnopt++]=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$debug_port
@@ -173,7 +176,7 @@ function main() {
             fcmd[nfcmd++]=--window-with-profile
             fcmd[nfcmd++]=Tcpflow
             fcmd[nfcmd++]=--title
-            fcmd[nfcmd++]="TCP: Jetty[$port]"
+            fcmd[nfcmd++]="TCP: Jetty[$http_port]"
             fcmd[nfcmd++]=-x
         fi
         fcmd[nfcmd++]=tcpflow
@@ -186,7 +189,7 @@ function main() {
     fi
 
     mvn \
-        -Djetty.port=$port \
+        -Djetty.port=$http_port \
         -D$webdef_key=@sysconfdir@/jettydefaults.xml \
         $jetty:run
 }
