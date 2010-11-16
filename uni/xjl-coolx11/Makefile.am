@@ -1,19 +1,16 @@
 include libauto/coolauto.am
 
+SUBDIRS = gconf
+
 x11confdir  = ${sysconfdir}/X11
 xsessiondir = ${x11confdir}/Xsession.d
 
 gconf2dir   = ${sysconfdir}/gconf/2
-gconflibdir = /var/lib/gconf
-cooldefdir  = ${gconflibdir}/xjl-coolx11.defaults
 
 bgdir       = ${datadir}/backgrounds
 
 x11conf_DATA = \
     Xmodmap
-
-dist_cooldef_DATA = \
-    gconf-cleanbase/%gconf-tree.xml
 
 dist_bg_DATA = \
     wallpapers/Boheme.jpg \
@@ -35,7 +32,7 @@ EXTRA_DIST = \
     load-xmodmap.in
 
 CLEANFILES = ${setup_SCRIPTS} \
-    load-xmodmap
+    load-xmodmap \
     gconf-cleanbase/%gconf-tree.xml
 
 %: %.in Makefile
@@ -43,12 +40,11 @@ CLEANFILES = ${setup_SCRIPTS} \
         -e 's,[@]x11confdir[@],$(x11confdir),g' \
         -e 's,[@]xsessiondir[@],$(xsessiondir),g' \
         -e 's,[@]gconf2dir[@],$(gconf2dir),g' \
-        -e 's,[@]cooldefdir[@],$(cooldefdir),g' \
         <$< >$@
 
-path.diff: ${gconf2dir}/path path
-	-diff -u ${gconf2dir}/path ${srcdir}/path >$@
+path.diff: path.orig path
+	-diff -u ${srcdir}/path.orig ${srcdir}/path >$@
 
-gconf-cleanbase/%gconf-tree.xml: Makefile
-	rm -f $@
-	gconf-merge-tree $(srcdir)/gconf-cleanbase
+path.orig: ${gconf2dir}/path
+	cp -f "$<" "$@"
+

@@ -19,8 +19,8 @@
 	<entry name="exit_action" mtime="1288230763" type="string">
 		<stringvalue>close</stringvalue>
 	</entry>
-	<entry name="palette" mtime="1288394385" type="string">
-		<stringvalue>#000000000000:#AAAA00000000:#0000AAAA0000:#AAAA55550000:#00000000AAAA:#AAAA0000AAAA:#0000AAAAAAAA:#AAAAAAAAAAAA:#555555555555:#FFFF55555555:#5555FFFF5555:#FFFFFFFF5555:#55555555FFFF:#FFFF5555FFFF:#5555FFFFFFFF:#FFFFFFFFFFFF</stringvalue>
+	<entry name="palette" mtime="1289910883" type="string">
+		<stringvalue>#000000000000:#FFFF91ED91ED:#31C7AB7831C7:#C653BA035AC2:#96B596B5FFFF:#FB417684FB41:#0000AAAAAAAA:#96B596B596B5:#555555555555:#FFFFC8EDC8ED:#C760FFFFC760:#FFFFFFFF5555:#C420C420FFFF:#FFFFB032F984:#5555FFFFFFFF:#FFFFFFFFFFFF</stringvalue>
 	</entry>
 	<entry name="scroll_background" mtime="1288230763" type="bool" value="true"/>
 	<entry name="custom_command" mtime="1288230763" type="string">
