@@ -4,9 +4,9 @@
 
     RCSID='$Id$'
     short_opts="G:A:V:g:a:w:hqv"
-    long_opts="arch-group,arch-artifact,arch-version,target-group,target-artifact,target-version,help,quiet,verbose,version"
+    long_opts="arch-group:,arch-artifact:,arch-version:,target-group:,target-artifact:,target-version:,help,quiet,verbose,version"
 
-    ARCHS=@DESTDIR@@pkgdatadir@/archetypes
+    ARCHS="@DESTDIR@@pkgdatadir@/archetypes"
 
     arch_groupid=
     arch_artifactid=
@@ -29,15 +29,16 @@ function help() {
     echo "        (Use ARCHETYPE-NAME unless -A is specified)"
     echo
     echo "Options: "
-    echo "    -G, --arch-group=STR    GroupId of the archetype"
-    echo "    -A, --arch-artifact=STR ArtifactId of the archetype"
-    echo "    -V, --arch-version=STR  Version of the archetype, default LATEST"
-    echo "    -g, --target-group=STR  GroupId of the generated project, default as parent"
-    echo "    -w, --target-version=STR Version of the generated project"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
+    echo "    -G, --arch-group=STR      GroupId of the archetype"
+    echo "    -A, --arch-artifact=STR   ArtifactId of the archetype"
+    echo "    -V, --arch-version=STR    Version of the archetype, default LATEST"
+    echo "    -g, --target-group=STR    GroupId of the generated project, default as parent"
+    echo "    -a, --target-artifact=STD ArtifactId of the generated project"
+    echo "    -w, --target-version=STR  Version of the generated project"
+    echo "    -q, --quiet               Repeat to get less info"
+    echo "    -v, --verbose             Repeat to get more info"
+    echo "    -h, --help                Show this help page"
+    echo "        --version             Print the version info"
 }
 
 function setopt() {

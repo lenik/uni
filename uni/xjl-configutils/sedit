@@ -1,8 +1,9 @@
-#!/bin/bash
+#!/bin/bash -x
+    . shlib-import cliboot
+
     RCSID='$Id$'
     short_opts="ci:dKktognm:w:ehqv"
-    long_opts="stdout,replace,diff,keep-all,keep-mode,keep-time,keep-owner,keep-group,dry-run,message,width,edit-status,help,quiet,verbose,version"
-    . shlib-import cliboot
+    long_opts="stdout,replace:,diff,keep-all,keep-mode,keep-time,keep-owner,keep-group,dry-run,message:,width:,edit-status,help,quiet,verbose,version"
 
     tee_output=
     replace="{}"

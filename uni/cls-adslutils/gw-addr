@@ -3,7 +3,7 @@
 
     RCSID='$Id$'
     short_opts="i:hqv"
-    long_opts="interface,help,quiet,verbose,version"
+    long_opts="iface:,help,quiet,verbose,version"
 
     iface=
 

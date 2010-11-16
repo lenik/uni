@@ -3,7 +3,7 @@
 
     RCSID='$Id$'
     short_opts="f:s:hqv"
-    long_opts="list-file,signal,help,quiet,verbose,version"
+    long_opts="list-file:,signal:,help,quiet,verbose,version"
 
     SIGNAL=TERM
     LISTFILE=

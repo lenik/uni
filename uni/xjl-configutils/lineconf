@@ -3,7 +3,7 @@
 
     RCSID='$Id$'
     short_opts="m:w:EFGPkl:tp:s:ehqv"
-    long_opts="message,width,extended-regexp,fixed-strings,basic-regexp,perl-regexp,kill,magic-text,magic-prefix,magic-suffix,edit-status,help,quiet,verbose,version"
+    long_opts="message:,width:,extended-regexp,fixed-strings,basic-regexp,perl-regexp,kill,line:,magic-text,magic-prefix:,magic-suffix:,edit-status,help,quiet,verbose,version"
 
     LOGLEVEL=0
 

@@ -3,7 +3,7 @@
 
     RCSID='$Id: bash.sh 1769 2010-09-21 07:32:29Z lenik $'
     short_opts="a:d:Archqv"
-    long_opts="add,delete,all,resolv-conf,system-conns,help,quiet,verbose,version"
+    long_opts="add:,delete:,all,resolv-conf,system-conns,help,quiet,verbose,version"
 
     add=()
     delete=()

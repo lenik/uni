@@ -2,8 +2,8 @@
     . shlib-import cliboot
 
     RCSID='$Id$'
-    short_opts="a:o:gcfhqv"
-    long_opts="and,or,global,clean-parents,force,help,quiet,verbose,version"
+    short_opts="a:o:gkcfhqv"
+    long_opts="and:,or:,global,keep-parents,clean-parents,force,help,quiet,verbose,version"
 
     rules=()
     orders=()

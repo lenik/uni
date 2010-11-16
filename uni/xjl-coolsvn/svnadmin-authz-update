@@ -3,7 +3,7 @@
 
     RCSID='$Id$'
     short_opts="a:p:hqv"
-    long_opts="all-authz,prefix,help,quiet,verbose,version"
+    long_opts="all-authz:,prefix:,help,quiet,verbose,version"
 
     g_authz=
     prefixes=("")

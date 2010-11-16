@@ -1,8 +1,9 @@
 #!/bin/bash
+    . shlib-import cliboot
+
     RCSID='$Id$'
     short_opts="apsfhqv"
-    long_opts="autotools,prepost,svn,help,quiet,verbose,version"
-    . shlib-import cliboot
+    long_opts="autotools,prepost,svn,force,help,quiet,verbose,version"
 
     import overrides
 

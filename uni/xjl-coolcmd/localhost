@@ -3,7 +3,7 @@
 
     RCSID='$Id$'
     short_opts="s:whqv"
-    long_opts="host,wait,help,quiet,verbose,version"
+    long_opts="host:,wait,help,quiet,verbose,version"
 
     hosts=()
     wait=

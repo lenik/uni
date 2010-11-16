@@ -1,11 +1,19 @@
 . shlib
+
 import load
 import log
 import rcs
 
 BASENAME=${0##*/}
-if [ -z $LONGOPTS ]; then
-    LONGOPTS=0
+LONGOPTS=1
+
+if [ "$OS" = Cygwin ]; then
+    LONGOPTS=0 # It's too slow in cygwin
+else
+    getopt -T >/dev/null
+    if [ $? != 4 ]; then # incompatible getopt version
+        LONGOPTS=0
+    fi
 fi
 
 function cleanup() {
@@ -54,30 +62,47 @@ function boot() {
     local args opt mid arg
     if [ -z "$*" ]; then bootvoid; exit; fi
     if [ "$LONGOPTS" = 1 ]; then
-        # slower extension
-        getopt -T >/dev/null
-        if [ $? -ne 4 ]; then
-            die "enhanced getopt(1) required"
+
+        if ! args=`POSIXLY_CORRECT=1 getopt \
+                        -o "$short_opts" \
+                        -l "$long_opts" \
+                        -n "$BASENAME" -- "$@"`; then
+            # echo "Syntax error."
+            exit 1
         fi
-        args=$(getopt -o $short_opts -l $long_opts -n $BASENAME -- "$@")
-        if [ $? -ne 0 ]; then
-            die "syntax error"
-        fi
+
         eval set -- "$args"
+
+        long_opts=",$long_opts"
         while [ $# -ne 0 ]; do
-            if [ "$1" = "--" ]; then shift; break; fi
-            if [ "${1:0:1}" = "-" ]; then
-                if [ "${2:0:1}" = "-" ]; then
-                    setopt "$1"
-                else
+            case "$1" in
+            --)
+                shift 1
+                break
+                ;;
+            --*)
+                opt="${1#--}"
+                if [ "${long_opts/,$opt:}" != "$long_opts" ]; then
                     setopt "$1" "$2"
-                    shift
+                    shift 2
+                else
+                    setopt "$1"
+                    shift 1
                 fi
-            else
-                do_arg "$1"
-            fi
-            shift
+                ;;
+            -*)
+                opt="${1#-}"
+                if [ "${short_opts/$opt:}" != "$short_opts" ]; then
+                    setopt "$1" "$2"
+                    shift 2
+                else
+                    setopt "$1"
+                    shift 1
+                fi
+                ;;
+            esac
         done
+
     else
         # faster built-in
         while getopts $short_opts opt; do

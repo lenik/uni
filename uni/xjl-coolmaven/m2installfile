@@ -3,7 +3,7 @@
 
     RCSID='$Id$'
     short_opts="dg:a:w:p:s:r:u:hqv"
-    long_opts="deploy,group-id,artifact-id,ver,packaging,sources-jar,javadoc-jar,repo-id,url,help,quiet,verbose,version"
+    long_opts="deploy,group-id:,artifact-id:,ver:,packaging,sources-jar:,javadoc-jar:,repo-id:,url,help,quiet,verbose,version"
 
     __FILE__="$BASH_SOURCE"
     if [ "${__FILE__##*/}" = m2deployfile ]; then

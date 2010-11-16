@@ -3,7 +3,7 @@
 
     RCSID='$Id$'
     short_opts="s:a:hqv"
-    long_opts="server,api,help,quiet,verbose,version"
+    long_opts="server:,api:,help,quiet,verbose,version"
 
     API_1_7="/service/local/data_index?q=%s&collapseresults=true"
     API_1_8="/service/local/lucene/search?q=%s&collapseresults=true"

@@ -2,8 +2,8 @@
     . shlib-import cliboot
 
     RCSID='$Id$'
-    short_opts="nho:qv"
-    long_opts="lineno,help,option,quiet,verbose,version"
+    short_opts="no:hqv"
+    long_opts="lineno,option:,help,quiet,verbose,version"
 
     # -d DIR   - directory for output files
     # -ff      - output fields before methods (fieldsfirst)

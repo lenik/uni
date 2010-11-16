@@ -3,7 +3,7 @@
 
     RCSID='$Id$'
     short_opts="lLCD:EGorpS:Tt:O:dhqv"
-    long_opts="local,local-all,no-cascade,direction,no-external,no-groupid,omitted,no-optional,pom,hide-scopes,no-transitive,title,output,display,help,quiet,verbose,version"
+    long_opts="local,local-all,no-cascade,direction:,no-external,no-groupid,omitted,no-optional,pom,hide-scope:,no-transitive,title:,output:,display,help,quiet,verbose,version"
 
     GRAPH_PLUGIN=org.fusesource.mvnplugins:maven-graph-plugin
     DEFAULT_OUT=target/project-graph.png
@@ -41,7 +41,7 @@ function help() {
     echo "    -p, --pom               Show pom dependencies"
     echo "    -S, --hide-scope=SCOPES Hide specific scopes, separate scope by comma"
     echo "    -T, --no-transitive     Hide non-explicitly defined dependencies"
-    echo "    -l, --label=LABEL       Set the graph label"
+    echo "    -t, --title=TITLE       Set the graph title"
     echo "    -O, --output=FILE       Output to the file, in extension format"
     echo "    -d, --display           Open the result graph file"
     echo "    -q, --quiet             Repeat to get less info"
@@ -74,7 +74,7 @@ function setopt() {
             opts[nopt++]="-Dhide-optional=true";;
         -p|--pom)
             opts[nopt++]="-Dhide-poms=false";;
-        -S|--hide-scopes)
+        -S|--hide-scope)
             opts[nopt++]="-Dhide-scope=$2";;
         -T|--no-transitive)
             opts[nopt++]="-Dhide-transitive=true";;

@@ -2,8 +2,8 @@
     . shlib-import cliboot
 
     RCSID='$Id: bash.sh 1853 2010-09-29 01:35:59Z lenik $'
-    short_opts="drhqv"
-    long_opts="daemon,recursive,help,quiet,verbose,version"
+    short_opts="t:rdhqv"
+    long_opts="target:,recursive,daemon,help,quiet,verbose,version"
 
     target=autobuild
     daemon=0

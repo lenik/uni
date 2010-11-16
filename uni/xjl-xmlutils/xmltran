@@ -3,7 +3,7 @@
 
     RCSID='$Id$'
     short_opts="sn:m:f:hqv"
-    long_opts="show-xsl,xmlns:method,for,help,quiet,verbose,version"
+    long_opts="show-xsl,xmlns:,method:,for:,help,quiet,verbose,version"
 
     method=text
     nsmap=()

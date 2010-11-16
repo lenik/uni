@@ -2,14 +2,15 @@
 
 # master-file
 
+    . shlib-import cliboot
+
     RCSID='$Id$'
     short_opts="iufhqv"
     long_opts="install,uninstall,force,help,quiet,verbose,version"
-    . shlib-import cliboot
 
     install=1
     force=
-    fstab_tc=@DESTDIR@@sysconfdir@/fstab.tc
+    fstab_tc="@DESTDIR@@sysconfdir@/fstab.tc"
 
 function version() {
     parse_id "$RCSID"

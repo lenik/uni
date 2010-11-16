@@ -2,10 +2,11 @@
 
 # master-file
 
+    . shlib-import cliboot
+
     RCSID='$Id$'
     short_opts="m:fhqv"
-    long_opts="mode,force,help,quiet,verbose,version"
-    . shlib-import cliboot
+    long_opts="mode:,force,help,quiet,verbose,version"
 
     #SUDO="sudo -uwget"
     SUDO=

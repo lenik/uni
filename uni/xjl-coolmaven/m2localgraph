@@ -3,7 +3,7 @@
 
     RCSID='$Id$'
     short_opts="t:hqv"
-    long_opts="title,help,quiet,verbose,version"
+    long_opts="title:,help,quiet,verbose,version"
 
     title=
 

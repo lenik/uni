@@ -1,9 +1,10 @@
 #!/bin/bash
-    RCSID='$Id$'
-    short_opts="C:dDhp:qr:s:v"
-    long_opts="chdir,delete,help,page,repeat,quiet,server,verbose,version"
     . shlib-import cliboot
     shopt -s nullglob
+
+    RCSID='$Id$'
+    short_opts="C:dDhp:qr:s:v"
+    long_opts="chdir:,delete,delete-all,help,page:,quiet,repeat:,server:,verbose,version"
 
     CHDIR=.
     DELETE_ARGS=--delete

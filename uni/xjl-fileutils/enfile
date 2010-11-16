@@ -1,11 +1,11 @@
 #!/bin/bash
-
 # strip (PREFIX)FILE(SUFFIX) prefix/suffix
+
+    . shlib-import cliboot
 
     RCSID='$Id$'
     short_opts="edhqv"
     long_opts="enable,disable,help,quiet,verbose,version"
-    . shlib-import cliboot
 
     mode=strip
     prefix="__DISABLED_"

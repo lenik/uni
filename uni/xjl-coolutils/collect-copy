@@ -1,8 +1,9 @@
 #!/bin/bash
+    . shlib-import cliboot
+
     RCSID='$Id$'
     short_opts="r:c:n:x:f:shqv"
-    long_opts="root,category,norm,norm-exec,find,stdin,help,quiet,verbose,version"
-    . shlib-import cliboot
+    long_opts="root:,category:,norm:,norm-exec:,find:,stdin,help,quiet,verbose,version"
 
     root=/var/lib/coll
     category=

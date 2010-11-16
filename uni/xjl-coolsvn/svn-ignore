@@ -3,7 +3,7 @@
 
     RCSID='$Id$'
     short_opts="F:fhqv"
-    long_opts="listfile,help,quiet,verbose,version"
+    long_opts="listfile:,force,help,quiet,verbose,version"
 
     force=
     listfile=

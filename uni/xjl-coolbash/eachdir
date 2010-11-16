@@ -1,8 +1,9 @@
 #!/bin/bash
+    . shlib-import cliboot
+
     RCSID='$Id$'
     short_opts="f:C:g:x:hqv"
-    long_opts="list-file,chdir,glob,exclude,help,quiet,verbose,version"
-    . shlib-import cliboot
+    long_opts="list-file:,chdir:,glob:,exclude:,help,quiet,verbose,version"
 
     LOGLEVEL=0
 

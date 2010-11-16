@@ -17,8 +17,11 @@ use Getopt::Long;
     Getopt::Long::Configure('gnu_getopt');
 
 sub _main; sub _version; sub _help;
+sub qtex($);
 sub treetex;
 
+my $opt_framedoc        = 0;
+my $opt_roottex         = undef;
 my $opt_all             = 0;
 my $opt_dir_only        = 0;
 my $opt_follow_syms     = 0;
@@ -37,16 +40,18 @@ sub _boot {
                'version'        => sub { _version; exit 0 },
                'help'           => sub { _help; exit 0 },
                'a|all'          => \$opt_all,
+               'C|color'        => \$opt_color,
                'd|dir'          => \$opt_dir_only,
-               'l|follow-syms'  => \$opt_follow_syms,
-               'u|show-user'    => \$opt_show_user,
+               'D|date'         => \$opt_show_date,
+               'f|framedoc'     => \$opt_framedoc,
+               'F|classify'     => \$opt_classify,
                'g|show-group'   => \$opt_show_group,
-               's|size'         => \$opt_show_size,
                'h|human-size'   => \$opt_human,
                'H|si'           => \$opt_si1000,
-               'D|date'         => \$opt_show_date,
-               'F|classify'     => \$opt_classify,
-               'C|color'        => \$opt_color,
+               'l|follow-syms'  => \$opt_follow_syms,
+               'r|root=s'       => \$opt_roottex,
+               's|size'         => \$opt_show_size,
+               'u|show-user'    => \$opt_show_user,
                 )
         or exit(1);
 
@@ -127,6 +132,7 @@ sub _help {
     print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
 
 Common options:
+    -f, --framedoc          Generate document skeleton
     -a, --all               All files are included
     -d, --dir               List directories only
     -l, --follow-syms       Follow symlinks
@@ -148,8 +154,23 @@ EOM
 exit (_boot or 0);
 
 sub _main {
+    if ($opt_framedoc) {
+        print "\\documentclass{article}\n";
+        print "\\usepackage{pst-tree}\n";
+        print "\\begin{document}\n";
+        print "Directory Tree\n";
+        print "\n";
+    }
+
+    print "\\psset{ treemode=R, levelsep=3 }\n";
+    print "\\def\\psedge{\\ncangles[armA=.5, angleB=180, armB=.5, linearc=.2]}\n";
+
     for (@ARGV) {
-        treetex(undef, $_);
+        treetex(undef, $_, '', 0);
+    }
+
+    if ($opt_framedoc) {
+        print "\\end{document}\n";
     }
 }
 
@@ -159,6 +180,21 @@ sub _main {
 
 =cut
 # (HELPER FUNCTIONS)
+sub qtex($) {
+    my $s = shift;
+    $s =~ s/([\\_^\$])/\\\1/g;
+    return $s;
+}
+
+sub it($) {
+    my $s = shift;
+    return '\emph {' . $s . '}';
+}
+
+sub bold($) {
+    my $s = shift;
+    return '\textbf {' . $s . '}';
+}
 
 =head1 HACKING
 
@@ -167,7 +203,7 @@ sub _main {
 =cut
 # (MODULE FUNCTIONS)
 sub treetex {
-    my ($dir, $base, $prefix) = @_;
+    my ($dir, $base, $prefix, $level) = @_;
     my $path = (defined $dir) ? "$dir/$base" : $base;
     my $slash = rindex($path, '/');
     if ($slash == -1) {
@@ -178,10 +214,15 @@ sub treetex {
         $base = substr($path, $slash + 1);
     }
 
-    my $entry = $base;
+    my $entry = qtex($base);
+    if (defined $opt_roottex and $level == 0) {
+        $entry = $opt_roottex;
+    }
+
     if (-l $path) { # symlink
         my $linked = File::Spec::Link->linked($path);
-        $entry .= ' -> ' . $linked;
+        $linked = qtex($linked);
+        # $entry = it($entry . ' $\rightarrow$ \\' . qtex($linked));
     }
 
     if (-d $path) { # dir
@@ -189,7 +230,7 @@ sub treetex {
     }
 
     if (-x $path) { # executable
-        $entry .= '*' if $opt_classify;
+        $entry = bold($entry . '*') if $opt_classify;
     }
 
     if (-p $path) { # pipe
@@ -200,7 +241,7 @@ sub treetex {
         $entry .= '=' if $opt_classify;
     }
 
-    if (-f $path) { # file
+    if (-f $path and $opt_show_size) { # file
         $entry .= ' (';
         my @stat = stat($path);
         my $size = $stat[7];
@@ -219,14 +260,23 @@ sub treetex {
         $entry .= ')';
     }
 
-    print "$prefix$entry\n";
+    my $subtree = -d $path;
+    $subtree = 0 if (-l $path and ! $opt_follow_syms);
 
-    if (-d $path) {
-        $prefix .= '  ';
+    # print "$prefix$entry\n";
+    print "$prefix";
+    print "\\pstree{" if $subtree;
+    print "\\Toval{ $entry }";
+
+    if ($subtree) {
+        print "} {\n";
+
+        my $_prefix = $prefix . '  ';
         my $dh = new DirHandle($path);
         my @files = $dh->read();
         @files = sort @files;
         $dh->close();
+
         for (@files) {
             next if $_ eq '.' or $_ eq '..';
 
@@ -238,9 +288,12 @@ sub treetex {
                 next unless -d $_path;
             }
 
-            treetex $path, $_, $prefix;
+            treetex $path, $_, $_prefix, $level + 1;
         }
+        print "$prefix}";
     }
+
+    print "\n";
 }
 
 =head1 HISTORY

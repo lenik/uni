@@ -3,7 +3,7 @@
 
     RCSID='$Id$'
     short_opts="I:hqv"
-    long_opts="include,help,quiet,verbose,version"
+    long_opts="include:,help,quiet,verbose,version"
 
     INC=(`perl -V | grep -A100 '@INC:' | headrm -1`)
 

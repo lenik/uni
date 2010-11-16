@@ -5,7 +5,7 @@
 
     RCSID='$Id$'
     short_opts="67p:dP:RfFhqv"
-    long_opts="jetty6,jetty7,port,debug,debug-port,help,quiet,verbose,version"
+    long_opts="jetty6,jetty7,port:,debug,debug-port:,refresh-depends,tcpflow,tcpflow-new,help,quiet,verbose,version"
 
     JETTY_PLUGIN_6=org.mortbay.jetty:maven-jetty-plugin
     JETTY_PLUGIN_7=org.mortbay.jetty:jetty-maven-plugin:7.2.0.v20101020

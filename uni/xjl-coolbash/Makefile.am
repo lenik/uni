@@ -12,7 +12,8 @@ dist_bin_SCRIPTS = \
     eachdir \
     orig \
     tree-index \
-    tree-less
+    tree-less \
+    history-sort
 
 dist_shsrc_SCRIPTS = \
     cd-ls \

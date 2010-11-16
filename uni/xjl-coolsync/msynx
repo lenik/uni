@@ -1,8 +1,9 @@
 #!/bin/bash
+    . shlib-import cliboot
+
     RCSID='$Id$'
     short_opts="a:dlumc:srC:X:pnhqv"
-    long_opts="alphabet,digits,lower-case,upper-case,mixed-case,concount,shuffle,remote-eval,chdir,distrib,purge,dry-run,help,quiet,verbose,version"
-    . shlib-import cliboot
+    long_opts="alphabet:,digits,lower-case,upper-case,mixed-case,concount:,shuffle,remote-eval,chdir:,distrib:,purge,dry-run,help,quiet,verbose,version"
 
     shopt -s nullglob
 
