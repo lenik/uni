@@ -17,7 +17,7 @@ fi
 hastab=0
 hasspace=0
 
-TAB=$'\T'
+TAB=$'\t'
 SPACE=' '
 
 if egrep -q "^$SPACE*$TAB" $in; then hastab=1; fi
