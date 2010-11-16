@@ -58,14 +58,13 @@ function main() {
         exit 1
     fi
 
-    set -x
     case "$size" in
         *k) size=${size%k}; block=1000;;
-        *K) size=${size%k}; block=1024;;
+        *K) size=${size%K}; block=1024;;
         *m) size=${size%m}; block=1000000;;
-        *M) size=${size%m}; block=1048576;;
+        *M) size=${size%M}; block=1048576;;
         *g) size=${size%g}; block=1000000000;;
-        *G) size=${size%g}; block=1073741824;;
+        *G) size=${size%G}; block=1073741824;;
         *[0-9]) block=1;;
         *)
             echo "Invalid size: $size"
