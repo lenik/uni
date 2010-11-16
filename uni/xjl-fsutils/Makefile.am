@@ -6,7 +6,8 @@ dist_bin_SCRIPTS = \
     umount-vex \
     mountall-alt \
     umount-alt-a \
-    symltrace
+    symltrace \
+    fillfile
 
 dist_man_MANS = \
     symltrace.1
