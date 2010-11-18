@@ -5,35 +5,37 @@ SUBDIRS = test
 svnuniondir = ${sysconfdir}/svn_union.d
 
 dist_bin_SCRIPTS = \
-	coolsvn \
 	svn-002 \
 	svn-apply \
 	svn-backup-sync \
+        svn-commit-autover \
 	svn-dirty-dirs  \
-	svn-isclean \
+        svn-export \
 	svn-ignore \
 	svn-ignore-unversioned \
+	svn-isclean \
+        svn-log \
+	svn-ps \
 	svn-remix \
 	svn-rename \
-	svn-ps \
-	svn-start-rev \
 	svn-show-usedkeywords \
+	svn-start-rev \
 	svn-swf \
-	svn-update-keywords \
-	svn-update-executable \
+        svn-unadd \
 	svn-union \
 	svn-union-install \
-    svn-export \
+	svn-update-executable \
+	svn-update-keywords \
 	svnpsl \
 	svnserve-002 \
 	svnadmin-authz-update
 
 dist_man_MANS = \
 	coolsvn.1 \
+        svn-export.1 \
 	svn-rename.1 \
 	svn-union.1 \
 	svn_union.d.5 \
-        svn-export.1 \
 	svn-swf.1 \
 	svnpsl.1
 

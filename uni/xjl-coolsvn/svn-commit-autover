@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Find if there is VERSION.av?
+    av=
+    for d in . .. ../..; do
+        if [ -f "$d/VERSION.av" ]; then
+            av="$d/VERSION.av"
+            break
+        fi
+    done
+
+# Increase it and reconf using autover, if VERSION.av exists.
+    if [ -n "$av" ]; then
+        if svn st "$av" | grep -q '^M'; then
+            echo 'Version has already been increased.'
+        else
+            vercomp -i commit "$av" >/dev/null
+
+            # do autover only if on top of srcdir.
+            if [ -f configure.ac ]; then
+                if AUTOVER=`which autover`; then
+                    $AUTOVER
+                fi
+            fi
+        fi
+    fi
+
+# Continue to commit
+svn commit "$@"
