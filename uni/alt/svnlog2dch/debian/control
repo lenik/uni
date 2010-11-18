@@ -1,0 +1,14 @@
+Source: svnlog2dch
+Section: vcs
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: http://www.mail-archive.com/linux-fai-devel@uni-koeln.de/msg00586.html
+#Vcs-Git: git://git.debian.org/collab-maint/svnlog2dch.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/svnlog2dch.git;a=summary
+
+Package: svnlog2dch
+Architecture: all
+Depends: perl
+Description: Generate debian changelog from svn log
