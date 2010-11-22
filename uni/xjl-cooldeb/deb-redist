@@ -1,5 +1,6 @@
 #!/bin/bash
     . shlib-import cliboot
+      shopt -s nullglob
 
     RCSID='$Id$'
     short_opts="ihqv"
