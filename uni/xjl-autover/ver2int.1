@@ -1,0 +1,48 @@
+.\"
+.\"
+.\" ver2int.man - ver2int manpage
+.\" Copyright (C) 2010 Lenik (谢继雷)
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; if not, write to the Free Software
+.\" Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+.\"
+.TH VER2INT 1
+.SH NAME
+ver2int \- Convert version string to comparable integer
+.SH SYNOPSIS
+.B ver2int
+ARGUMENTS
+.SH DESCRIPTION
+Convert version string to comparable integer
+
+The scale value used to multiply on the major part is determined by the segments in the version.  If there is less segments, then the scale value will be larger.  The minimal scale value is 8.
+
+Some version contains alpha/beta modifier, such modifier will make each segment a 4 times wider to leave space for the modifier.
+For example, version 1.2alpha.3 is first converted to 1.2+1.3, here '+1' is an adjustment for 'alpha' modifier.
+Then, each segment is multiplied by 4, as 1*4.2*4+1.3*4 => 4.8+1.12, which resulted in 4.9.12, and then finalized to 4009012.
+
+.SH EXAMPLES
+
+.B
+ver2int 1.2.3
+.PP
+Convert version 1.2.3 to integer, this will give the result 1002003.
+
+.SH ENVIRONMENT
+
+.SH REPORTING BUGS
+Please report any bugs, problems, queries, experiences, etc. directly to the author.
+
+.SH AUTHORS
+Lenik <lenik at bodz.net>
+.br

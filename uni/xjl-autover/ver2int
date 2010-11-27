@@ -1,0 +1,88 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh 1853 2010-09-29 01:35:59Z lenik $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Convert version string to comparable integer"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for ver in "$@"; do
+        ver="${ver//[-~]/.}"
+
+        span=1
+        if [ "$ver" != "${ver/[a-zA-Z]}" ]; then
+            span=4
+            ver="${ver//alpha/+1.}"
+            ver="${ver//beta/+2.}"
+            ver="${ver//.+/+}"
+        fi
+
+        ver="${ver//../.}"
+        ver="${ver//../.}"
+        ver="${ver//../.}"
+
+        _ver="${ver//.}"
+        nseg=$(( 1 + ${#ver} - ${#_ver} ))
+        case $nseg in
+            0|1|2) scale=10000;;
+            3) scale=1000;;
+            4) scale=256;;
+            5) scale=64;;
+            6) scale=32;;
+            7) scale=16;;
+            *) scale=8;;
+        esac
+
+        int=0
+
+        _log1 "segments=$nseg ver-norm=$ver ver-span=$span"
+        for seg in ${ver//./ }; do
+            segadd="${seg#*+}"
+            if [ "$seg" != "$segadd" ]; then
+                seg="${seg%+*}"
+            else
+                segadd=0
+            fi
+            segint=$((seg * span + segadd))
+            int=$((int * scale + segint))
+        done
+
+        echo $int
+    done
+}
+
+boot "$@"

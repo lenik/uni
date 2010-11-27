@@ -12,13 +12,15 @@ bin_SCRIPTS = \
     verinit
 
 dist_bin_SCRIPTS = \
-    autover
+    autover \
+    ver2int
 
 dist_man_MANS = \
     autover.1 \
     verinit.1 \
     vercomp.1 \
-    vercomp.5
+    vercomp.5 \
+    ver2int.1
 
 dist_doc_DATA = \
     VERSION.sample
