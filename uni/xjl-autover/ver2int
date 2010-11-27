@@ -69,7 +69,7 @@ function main() {
 
         int=0
 
-        _log1 "segments=$nseg ver-norm=$ver ver-span=$span"
+        _log2 "segments=$nseg ver-norm=$ver ver-span=$span"
         for seg in ${ver//./ }; do
             segadd="${seg#*+}"
             if [ "$seg" != "$segadd" ]; then
