@@ -1,4 +1,19 @@
-#!/bin/sh
+#!/bin/bash
 # master-file
 
-echo "xjl-optalts - postinst.in ..."
+shopt -s nullglob
+
+echo "update-alternatives for /opt/..."
+
+for eclipsedir in /opt/java/eclipse-*; do
+    if [ -x "$eclipsedir/eclipse" ]; then
+        basename="${eclipsedir##*/}"
+        ver="${basename#eclipse-}"
+        priority=`ver2int "$ver"`
+        update-alternatives --install /usr/bin/eclipse eclipse \
+            "$eclipsedir/eclipse" $priority
+    fi
+
+    update-alternatives --auto eclipse
+    update-alternatives --display eclipse
+done

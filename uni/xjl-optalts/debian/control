@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-optalts
 
 Package: xjl-optalts
 Architecture: all
-Depends:
+Depends: dpkg, xjl-autover
 Description: Lenik's optional alternatives
