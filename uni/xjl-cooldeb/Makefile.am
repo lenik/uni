@@ -14,7 +14,8 @@ dist_bin_SCRIPTS = \
     cideb \
     dh_package_field \
     dh_check_depends \
-    vicontrol
+    vicontrol \
+    svn-update-and-deb-redist
 
 bin_SCRIPTS = \
     dh_add_missing

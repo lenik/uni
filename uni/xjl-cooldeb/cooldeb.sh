@@ -7,3 +7,5 @@ alias dh_makever='. dh_make-autover --createorig'
 alias newdeb='newdeb -aps'
 
 alias dcon='vicontrol'
+
+alias updist='svn-update-and-deb-redist'

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+svn up \
+    | grep "^[A-Z ]\{4\}" \
+    | cut -c6- \
+    | cut -d/ -f1 \
+    | sort -u \
+    | eachdir -f- deb-redist -i
