@@ -12,7 +12,7 @@ Package: lingoes
 Architecture: all
 Depends: wine,
     winetricks-comctl32,
-    winetricks-coctl32.ocx,
+    winetricks-comctl32-ocx,
     winetricks-gdiplus,
     winetricks-gecko,
     winetricks-hosts,
@@ -21,10 +21,7 @@ Depends: wine,
     winetricks-riched30,
     winetricks-vcrun6,
     winetricks-vcrun2005,
-    winetricks-vcrun2005sp1,
-    winetricks-ie6,
-    winetricks-fakeit6,
     winetricks-vcrun2008,
-    winetricks-vcrun2008sp1
+    winetricks-ie6
 Description: Lingoes dict and translator
     See also: http://www.docin.com/p-44620337.html
