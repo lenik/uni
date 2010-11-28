@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
 Homepage: http://www.kegel.com/wine/winetricks
 
-m4_include(packages.control)
+# m4_include(packages.control)
 
 Package: winetricks
 Architecture: all
