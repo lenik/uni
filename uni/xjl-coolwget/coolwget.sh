@@ -1,1 +1,1 @@
-alias wget='axel -a'
+alias axel='axel -a'

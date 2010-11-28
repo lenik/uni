@@ -53,6 +53,8 @@ xml:readonly:/etc/gconf/gconf.xml.defaults
 # for the system wide gconf settings (via org.gnome.GConf.Defaults)
 xml:readonly:/etc/gconf/gconf.xml.system
 
+# @xjl-coolx11.defaults
+xml:readonly:/var/lib/gconf/xjl-coolx11.defaults
 
 # Debian branding, including CDD or packaged branding
 xml:readonly:/var/lib/gconf/debian.defaults
