@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([winetricks], [0.2.0], [xjl-bug@99jsj.com])
+AC_INIT([winetricks], [0.3.0], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wall])
 
 # Checks for programs.

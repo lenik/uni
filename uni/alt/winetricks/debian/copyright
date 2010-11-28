@@ -1,0 +1,17 @@
+This work was packaged for Debian by:
+
+    Lenik (谢继雷) <lenik@bodz.net> on Sun, 28 Nov 2010 11:48:21 +0800
+
+Upstream Author(s):
+
+    DanKegel
+
+License:
+
+    <Put the license of the package here indented by 4 spaces>
+
+The package is licensed under the GPL version 3,
+see "/usr/share/common-licenses/GPL-3".
+
+# Please also look if there are files or directories which have a
+# different copyright/license attached and list them here.
