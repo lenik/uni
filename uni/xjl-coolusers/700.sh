@@ -92,7 +92,7 @@ add_user 720 appserv  dev  "App Server"          /home/appserv
 
 add_user 730 scm      dev  "VCS daemon"          /none /bin/false
 
-add_user 740 wine     dev  "WINE player"         /home/wine /bin/bash
+# add_user 740 wine     dev  "WINE player"         /home/wine /bin/bash
 
 # user 800-999
 
