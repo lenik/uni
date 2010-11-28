@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-coolwine
 
 Package: xjl-coolwine
 Architecture: all
-Depends: wine
+Depends: wine, winetricks
 Description: Lenik's WINE supplements.
