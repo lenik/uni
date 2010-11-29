@@ -1,0 +1,7 @@
+#!/bin/bash
+
+while read -r t cmd; do
+    t="${t#\#}"
+    date=`date -d@$t`
+    echo "[$date] $cmd"
+done < <(cat "$@" | paste -s -d ' \n')

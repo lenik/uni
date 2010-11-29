@@ -29,7 +29,8 @@ dist_sudoers_DATA = \
 
 dist_bashcmpl_DATA = \
     bash_completion.d/nosvn \
-    bash_completion.d/cd-tree
+    bash_completion.d/cd-tree \
+    bash_completion.d/paths
 
 setup_SCRIPTS = \
     postinst \
