@@ -8,8 +8,8 @@ else
     SUDO=
 fi
 
-if [ -z "$VIM" ]; then
-    VIM=vim
+if [ -z "$vim" ]; then
+    vim=vim
 fi
 
 vimopts=()
@@ -20,7 +20,7 @@ if [ -z "$1" ]; then
         vimopts[nvimopts++]=-S
         vimopts[nvimopts++]=.vimrc
     fi
-    $VIM "${vimopts[@]}"
+    $vim "${vimopts[@]}"
     exit $?
 fi
 
@@ -59,6 +59,6 @@ for f in "$@"; do
         tabrc=`$sudo_r guesstab "$f"`
     fi
 
-    $sudo_w $VIM "${vimopts[@]}" -c "$tabrc" "$f"
+    $sudo_w $vim "${vimopts[@]}" -c "$tabrc" "$f"
 
 done
