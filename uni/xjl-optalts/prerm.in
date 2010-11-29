@@ -1,4 +1,7 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-optalts - prerm.in ..."
+lineconf -ktm "Remove /opt/.../bin from PATH" \
+    /etc/environment @optbins
+
+exit 0

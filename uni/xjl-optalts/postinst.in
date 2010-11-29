@@ -3,17 +3,24 @@
 
 shopt -s nullglob
 
-echo "update-alternatives for /opt/..."
+lineconf -tm "Add /opt/.../bin to PATH" \
+    /etc/environment @optbins \
+    'PATH="$PATH:/opt/bin:/opt/wine/bin"'
 
-for eclipsedir in /opt/java/eclipse-*; do
-    if [ -x "$eclipsedir/eclipse" ]; then
-        basename="${eclipsedir##*/}"
-        ver="${basename#eclipse-}"
-        priority=`ver2int "$ver"`
-        update-alternatives --install /usr/bin/eclipse eclipse \
-            "$eclipsedir/eclipse" $priority
-    fi
+echo "Update eclipse alternative"
 
-    update-alternatives --auto eclipse
-    update-alternatives --display eclipse
-done
+    for eclipsedir in /opt/java/eclipse-*; do
+        if [ -x "$eclipsedir/eclipse" ]; then
+            basename="${eclipsedir##*/}"
+            ver="${basename#eclipse-}"
+            priority=`ver2int "$ver"`
+            update-alternatives --install /usr/bin/eclipse eclipse \
+                "$eclipsedir/eclipse" $priority
+        fi
+
+        update-alternatives --auto eclipse
+        update-alternatives --display eclipse
+    done
+
+exit 0
+
