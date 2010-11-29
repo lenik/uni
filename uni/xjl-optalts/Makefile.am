@@ -1,5 +1,8 @@
 include libauto/coolauto.am
 
+dist_profile_SCRIPTS = \
+    profile.d/optenv.sh
+
 setup_SCRIPTS = \
     postinst \
     prerm

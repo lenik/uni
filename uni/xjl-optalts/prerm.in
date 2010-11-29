@@ -1,7 +1,4 @@
 #!/bin/sh
 # master-file
 
-lineconf -ktm "Remove /opt/.../bin from PATH" \
-    /etc/environment @optbins
-
 exit 0

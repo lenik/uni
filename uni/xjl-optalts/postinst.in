@@ -3,10 +3,6 @@
 
 shopt -s nullglob
 
-lineconf -tm "Add /opt/.../bin to PATH" \
-    /etc/environment @optbins \
-    'PATH="$PATH:/opt/bin:/opt/wine/bin"'
-
 echo "Update eclipse alternative"
 
     for eclipsedir in /opt/java/eclipse-*; do
