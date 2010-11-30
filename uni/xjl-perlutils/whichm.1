@@ -1,0 +1,48 @@
+.\"
+.\"
+.\" whichm.man - whichm manpage
+.\" Copyright (C) 2010 Lenik (谢继雷)
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; if not, write to the Free Software
+.\" Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+.\"
+.TH WHICHM 1
+.SH NAME
+whichm \- Locate Perl Module
+.SH SYNOPSIS
+.B whichm
+ARGUMENTS
+.SH DESCRIPTION
+whichm returns the pathnames of perl .pm files which would be included for the s
+pecified perl module names.
+
+.SH EXAMPLES
+
+.B
+whichm Text::Diff
+.PP
+Find the perl module source file for Text::Diff.
+
+.SH ENVIRONMENT
+PERLLIB
+PERL5LIB
+
+.SH SEE ALSO
+perl -V
+
+.SH REPORTING BUGS
+Please report any bugs, problems, queries, experiences, etc. directly to the author.
+
+.SH AUTHORS
+Lenik <lenik at bodz.net>
+.br

@@ -1,7 +1,10 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-	whichm
+    whichm
+
+dist_man_MANS = \
+    whichm.1
 
 setup_SCRIPTS = \
     postinst \
