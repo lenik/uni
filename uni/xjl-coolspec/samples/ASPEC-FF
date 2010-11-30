@@ -1,4 +1,4 @@
-ASPEC (5)                                                           Aug 27 2010
+ASPEC (5)                                                           Aug 27 2008
 SPC File Format (experimental, unstable)                               ASPEC-FF
                                                                      Jilei, Xie
 File Format Specification                                              Personal
@@ -13,28 +13,43 @@ Version:    0.1
 SPC File Format
 ===============
 
-    [General]
+    " α-Spec is a specification language used to describe something like file
+    " format, command line synopsis, user guide, etc. It's a wiki-style WYSIWYG
+    " language, but more strict syntax within.
 
-    REC-H1. File Info (stable)
+    " α-Spec defines a series of lexicographic instances for specific
+    " application domains, currently instances for file format, command usage,
+    " protocol usage are included, and more will be added in future.
 
-    REC-A1. Header Properties (optional, unstable)
+    " The α-Spec project is a tool set for supporting the use of α-Spec in
+    " practical development.
 
-    REC-S1. Top Sections
+    " α-Spec file contains three parts as below:
 
+    [ layout ]
 
-File Info
-=========
+    REC-L. Leading Screen (stable)
 
+    REC-H. Leading Headers (optional, unstable)
+
+    REC-S. Sections
+
+    " The indentation is important,
+
+Leading Screen
+==============
+
+    " File
     REC-L1. project-date
     REC-L2. subject-id
-    REC-L3. -author
+    REC-L3. -authors
     REC-L4. type-organization
 
 
     project-date
     ------------
 
-        " project date is a ...
+        "
         "
 
     subject-id
@@ -55,8 +70,8 @@ File Info
         "
         "
 
-Header Properties
-=================
+Leading Headers
+===============
 
     REC-1.  attribute-def (multiple)
 
