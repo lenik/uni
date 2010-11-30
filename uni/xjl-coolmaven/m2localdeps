@@ -1,5 +1,6 @@
 #!/bin/bash
     . shlib-import cliboot
+    import loadpom
 
     RCSID='$Id$'
     short_opts="ghqv"
@@ -51,32 +52,47 @@ function process() {
     pomfile="$dir/pom.xml"
 
     _log2 "$dir/"
-    IFS=: read this_gid this_aid this_ver this_pack < <(pomid "$pomfile")
-    _log2 "  This pom: $this_aid"
 
-    ns=`xmltran -f "/*:=namespace-uri()" "$pomfile"`
+    loadpom "$pomfile" 1
+    _log2 "  This pom: $project_group_id:$project_artifact_id"
 
-    while IFS=: read gid aid ver pack scope; do
-        # echo "--    $gid:$aid:$ver:$pack"
-        if [ "$group_local" = 1 ]; then
-            if [ "$this_gid" != "$gid" ]; then continue; fi
-        fi
-        echo "$this_aid:$aid:$ver:$pack:$scope"
-    done < <(\
-        xmltran -n "p=$ns" \
-            -f "/p:project/p:dependencies/p:dependency:=concat( \
-                p:groupId, \
-                ':', p:artifactId, \
-                ':', p:version, \
-                ':', p:type, \
-                ':', p:scope, \
-                '&#10;')" \
-            $pomfile)
+    while read l; do
+        k="${l%%=*}"
+        v="${l#*=}"
+        case "$k" in
+            /project/dependencies/dependency/groupId)       d_gid="$v";;
+            /project/dependencies/dependency/artifactId)    d_aid="$v";;
+            /project/dependencies/dependency/version)       d_ver="$v";;
+            /project/dependencies/dependency/type)          d_type="$v";;
+            /project/dependencies/dependency/scope)         d_scope="$v";;
+            /project/dependencies/dependency)               flush_dep;;
+        esac
+    done < <(xml2 <"$pomfile")
+
+    if [ -n "$d_aid" ]; then flush_dep; fi
 
     for subpom in "$dir"/*/pom.xml; do
         subdir="${subpom%/pom.xml}"
         process "$subdir"
     done
+}
+
+function flush_dep() {
+    if [ -n "$d_aid" ]; then
+        _log2 "--    $gid:$aid:$ver:$pack"
+
+        if [ "$group_local" = 1 ]; then
+            if [ "$d_gid" != "$project_group_id" ]; then continue; fi
+        fi
+
+        echo "$project_artifact_id:$d_aid:$d_ver:$d_type:$d_scope"
+    fi
+
+    d_gid=
+    d_aid=
+    d_ver=
+    d_type=
+    d_scope=
 }
 
 function main() {

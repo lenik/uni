@@ -24,6 +24,9 @@ bin_SCRIPTS = \
     m2search-nexus \
     newmp
 
+dist_shlib_SCRIPTS = \
+    loadpom
+
 dist_sysconf_DATA = \
     m2deploy.cfg \
     jettydefaults.xml

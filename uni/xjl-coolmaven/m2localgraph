@@ -1,5 +1,6 @@
 #!/bin/bash
     . shlib-import cliboot
+    import loadpom
 
     RCSID='$Id$'
     short_opts="t:hqv"
@@ -46,12 +47,11 @@ function setopt() {
 
 function main() {
 
+    [ -f pom.xml ] && loadpom pom.xml
+
     if [ -z "$title" ]; then
-        if [ -f pom.xml ]; then
-            read title < <(grep '<name>' pom.xml)
-            title="${title#*<name>}"
-            title="${title%</name>*}"
-            title="Dependencies of $title"
+        if [ -n "$project_name" ]; then
+            title="Dependencies of $project_name"
         else
             title="Dependency Graph"
         fi

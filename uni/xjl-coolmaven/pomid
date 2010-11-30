@@ -55,38 +55,31 @@ function setopt() {
 
 function main() {
     for pomfile in "$@"; do
-        ns=`xmltran -f "/*:=namespace-uri()" "$pomfile"`
-        _log2 "POM namespace: $ns"
 
-        IFS=: read gid aid ver pack \
-                < <(xmltran -n "p=$ns" \
-                    -f "/p:project:=concat( \
-                            p:groupId, ':', \
-                            p:artifactId, ':', \
-                            p:version, ':', \
-                            p:packaging)" \
-                    $pomfile)
-        if [ -z "$gid" ] || [ -z "$ver" ]; then
-            IFS=: read p_gid p_aid p_ver \
-                    < <(xmltran -n "p=$ns" \
-                        -f "/p:project/p:parent:=concat( \
-                            p:groupId, ':', \
-                            p:artifactId, ':', \
-                            p:version)" \
-                        $pomfile)
-            _log2 "Parent: $p_gid:$p_aid:$p_ver"
+        while read l; do
+            k="${l%%=*}"
+            v="${l#*=}"
+            case "$k" in
+                /project/groupId)           gid="$v";;
+                /project/artifactId)        aid="$v";;
+                /project/version)           ver="$v";;
+                /project/packaging)         pack="$v";;
+                /project/parent/groupId)    p_gid="$v";;
+                /project/parent/artifactId) p_aid="$v";;
+                /project/parent/version)    p_ver="$v";;
+            esac
+        done < <(xml2 <"$pomfile")
 
-            if [ -z "$gid" ]; then gid=$p_gid; fi
-            if [ -z "$ver" ]; then ver=$p_ver; fi
-        fi
-
-        if [ -z "$pack" ]; then pack=jar; fi
+        if [ -z "$gid" ];   then gid=$p_gid; fi
+        if [ -z "$ver" ];   then ver=$p_ver; fi
+        if [ -z "$pack" ];  then pack=jar; fi
 
         if [ -n "$show_only" ]; then
             echo ${!show_only}
         else
             echo "$gid:$aid:$ver:$pack"
         fi
+
     done
 }
 
