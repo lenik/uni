@@ -160,10 +160,9 @@ sub _main {
         print "\\begin{document}\n";
         print "Directory Tree\n";
         print "\n";
+        print "\\psset{ treemode=R, levelsep=3 }\n";
+        print "\\def\\psedge{\\ncangles[armA=.5, angleB=180, armB=.5, linearc=.2]}\n";
     }
-
-    print "\\psset{ treemode=R, levelsep=3 }\n";
-    print "\\def\\psedge{\\ncangles[armA=.5, angleB=180, armB=.5, linearc=.2]}\n";
 
     for (@ARGV) {
         treetex(undef, $_, '', 0);
@@ -184,16 +183,6 @@ sub qtex($) {
     my $s = shift;
     $s =~ s/([\\_^\$])/\\\1/g;
     return $s;
-}
-
-sub it($) {
-    my $s = shift;
-    return '\emph {' . $s . '}';
-}
-
-sub bold($) {
-    my $s = shift;
-    return '\textbf {' . $s . '}';
 }
 
 =head1 HACKING
@@ -222,23 +211,23 @@ sub treetex {
     if (-l $path) { # symlink
         my $linked = File::Spec::Link->linked($path);
         $linked = qtex($linked);
-        # $entry = it($entry . ' $\rightarrow$ \\' . qtex($linked));
+        $entry = '\treetex_link{'.$entry.'}{'.$linked.'}';
     }
 
     if (-d $path) { # dir
-        $entry .= '/' if $opt_classify;
+        $entry = '\treetex_dir{'.$entry.'}/' if $opt_classify;
     }
 
     if (-x $path) { # executable
-        $entry = bold($entry . '*') if $opt_classify;
+        $entry = '\treetex_exec{'.$entry.'}*' if $opt_classify;
     }
 
     if (-p $path) { # pipe
-        $entry .= '|' if $opt_classify;
+        $entry = '\treetex_pipe{'.$entry.'}|' if $opt_classify;
     }
 
     if (-S $path) { # socket
-        $entry .= '=' if $opt_classify;
+        $entry = '\treetex_socket{'.$entry.'}=' if $opt_classify;
     }
 
     if (-f $path and $opt_show_size) { # file
@@ -265,8 +254,8 @@ sub treetex {
 
     # print "$prefix$entry\n";
     print "$prefix";
-    print "\\pstree{" if $subtree;
-    print "\\Toval{ $entry }";
+    print '\treetex_tree{' if $subtree;
+    print '\treetex_entry{'.$entry.'}';
 
     if ($subtree) {
         print "} {\n";
