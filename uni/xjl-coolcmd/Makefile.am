@@ -10,26 +10,29 @@ dist_cmtlib_DATA = \
 
 dist_bin_SCRIPTS = \
     cd-exec \
-    subst \
-    substecho \
-    substexec \
-    substcat \
-    rsubstcat \
-    rsubstecho \
+    colorox \
+    echo-v \
+    fnotify \
+    ifrsubst \
+    localhost \
+    loop \
+    makeoutdated \
+    onmodify \
+    postproc \
     rsexec \
     rsexec-c \
-    ifrsubst \
+    rsubstcat \
+    rsubstecho \
+    subst \
+    substcat \
+    substecho \
+    substexec \
     substtree \
-    echox \
     swapox \
-    testox \
-    colorox \
-    loop \
-    localhost \
-    postproc \
-    fnotify \
-    onmodify \
-    makeoutdated
+    testox
+
+dist_shlib_SCRIPTS = \
+    run-bg
 
 setup_SCRIPTS = \
     postinst \

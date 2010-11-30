@@ -1,4 +1,5 @@
 alias @='gnome-open'
+alias B='. run-bg'
 alias C='LANG=C'
 alias D='. cd-exec'
 alias L='. loop 1'
