@@ -1,4 +1,38 @@
-#!/bin/sh
+#!/bin/bash
 # master-file
 
-echo "xjl-coolldap - postinst.in ..."
+base=
+if [ -f /etc/ldap/ldap.conf ]; then
+    base=`grep ^BASE /etc/ldap/ldap.conf`
+    base="${base#BASE}"
+elif [ -f /etc/ldap.conf ]; then
+    base=`grep ^base /etc/ldap.conf`
+    base="${base#base}"
+fi
+
+while [ "${base:0:1}" = ' ' ]; do
+    base="${base:1}"
+done
+
+basedn="$base"
+if [ -z "$base_o" ]; then base_o="${base//dc=}"; base_o="${basedns//,/.}"; fi
+if [ -z "$base_dc" ]; then base_dc="${base_o%%.*}"; fi
+
+echo "basedn: $basedn"
+
+do_subst=(sed \
+    -e 's/[@]basedn[@]/$basedn/g' \
+    -e 's/[@]base_o[@]/$base_o/g' \
+    -e 's/[@]base_dc[@]/$base_dc/g' \
+    -e 's/[@]base_desc[@]/$base_desc/g' \
+    -e 's/[@]admin_cn[@]/$admin_cn/g' \
+    -e 's/[@]admin_passwd[@]/$admin_passwd/g' \
+    -e 's/[@]admin_passwd_plain[@]/$admin_passwd_plain/g' \
+    )
+
+for ldif in "@setupdir@/init-ldif/*.ldif"; do
+    "${do_subst[@]}" <"$ldif" \
+    | ldapadd -Y EXTERNAL -H ldapi:///
+done
+
+exit 0

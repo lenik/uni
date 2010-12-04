@@ -1,0 +1,13 @@
+dn: @basedn@
+objectClass: dcObject
+objectClass: organization
+o: @base_o@
+dc: @base_dc@
+description: @base_desc@
+
+dn: cn=@admin_cn@,@basedn@
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+cn: @admin_cn@
+userPassword: @admin_passwd@
+description: LDAP Administrator for @base_o@ (@base_desc@)
