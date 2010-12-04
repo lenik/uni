@@ -1,0 +1,65 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh 1853 2010-09-29 01:35:59Z lenik $'
+    short_opts="o:hqv"
+    long_opts="output:,help,quiet,verbose,version"
+
+    out=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Convert VirtualBox VDI image to Raw image"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] file.vdi [file.img]"
+    echo
+    echo "Options: "
+    echo "    -o, --output=imgfile    Output to filename different than file.img"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -o|--output)
+            out="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    vdi="$1"
+    if [ -z "$vdi" ]; then
+        echo ".vdi file must be specified. "
+        exit 1
+    fi
+
+    if [ -n "$2" ]; then
+        out="$2"
+    elif [ -z "$out" ]; then
+        out="${vdi%.vdi}"
+        out="${out%.VDI}"
+        out="$out.img"
+    fi
+
+    VBoxManage internalcommands converttoraw "$vdi" "$out"
+}
+
+boot "$@"
