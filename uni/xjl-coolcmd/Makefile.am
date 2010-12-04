@@ -19,6 +19,7 @@ dist_bin_SCRIPTS = \
     makeoutdated \
     onmodify \
     postproc \
+    run-bg \
     rsexec \
     rsexec-c \
     rsubstcat \
@@ -30,9 +31,6 @@ dist_bin_SCRIPTS = \
     substtree \
     swapox \
     testox
-
-dist_shlib_SCRIPTS = \
-    run-bg
 
 setup_SCRIPTS = \
     postinst \

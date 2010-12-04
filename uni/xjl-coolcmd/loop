@@ -1,12 +1,55 @@
 #!/bin/bash
+    . shlib-import cliboot
 
-if [ $# -lt 2 ]; then
-    echo "loop <interval> <cmd-line>..."
-    false
-else
-    _interval="$1"
-    shift
+    RCSID='$Id$'
+    short_opts="idchqv"
+    long_opts="interval:,diff,colorox,help,quiet,verbose,version"
 
+    HLINE='------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------'
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Repeat execute command and monitor the output"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -i, --interval=SECONDS  How many seconds to wait between runs"
+    echo "    -d, --diff              Show difference instead of full output"
+    echo "    -c, --colorox           Colorize the stderr"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    dump "$@"
+    echo Done.
+}
+
+boot "$@"
     _cmd=$1
 
     if _a=`alias $_cmd 2>/dev/null`; then
@@ -17,7 +60,6 @@ else
 
     shift
     _index=0
-    _pad='------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------'
 
     while true; do
         ((_index++))
