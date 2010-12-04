@@ -72,7 +72,7 @@ boot "$@"
         echo "$_line"
         . settermtitle "L($_interval:$_index) $_cmd"
 
-        $_cmd "$@"
+        eval $_cmd "$@"
 
         echo "${_pad:0:_cols}"
         sleep $_interval
