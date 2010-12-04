@@ -21,8 +21,8 @@ lineconf -tm "Add bind mount /vbox -> /mnt/istore/virtualbox" \
     fi
 
 install -d /vbox/mnt/clsvm
-lineconf -tm "Add loop mount loop20 -> clsvm.img" \
+lineconf -tm "Add loop mount clsvm.img -> /vbox/mnt/clsvm" \
     /etc/fstab @vbox::clsvm \
-    '/vbox/dev/clsvm.img     /vbox/mnt/clsvm ntfs    loop=/dev/loop20,offset=32256 0 0'
+    '/vbox/dev/clsvm.img     /vbox/mnt/clsvm ntfs    loop,offset=32256 0 0'
 
 exit 0

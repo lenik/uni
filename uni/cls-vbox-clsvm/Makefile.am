@@ -1,5 +1,8 @@
 include libauto/coolauto.am
 
+dist_init_DATA = \
+    losetup-vbox-clsvm.conf
+
 setup_SCRIPTS = \
     postinst \
     prerm
