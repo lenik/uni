@@ -60,7 +60,7 @@ for f in "$@"; do
     fi
 
     if $sudo_w $vim "${vimopts[@]}" -c "$tabrc" "$f"; then
-        read head < <(head -1 "$f")
+        read $sudo_r head < <(head -1 "$f")
         if [ "${head:0:2}" = '#!' ]; then
             if [ ! -x "$f" ]; then
                 echo "Set executable bit on $f"
