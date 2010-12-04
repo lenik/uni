@@ -64,7 +64,7 @@ for f in "$@"; do
         if [ "${head:0:2}" = '#!' ]; then
             if [ ! -x "$f" ]; then
                 echo "Set executable bit on $f"
-                chmod +x "$f"
+                $sudo_w chmod +x "$f"
             fi
         fi
     fi
