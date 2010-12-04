@@ -1,4 +1,28 @@
-#!/bin/sh
+#!/bin/bash
 # master-file
 
-echo "cls-vbox-clsvm - postinst.in ..."
+if [ ! -d /mnt/istore/virtualbox/dev ]; then
+    echo "The virtualbox-dev maybe not prepared correctly." >&2
+    exit 1
+fi
+
+install -d /vbox
+lineconf -tm "Add bind mount /vbox -> /mnt/istore/virtualbox" \
+    /etc/fstab @vbox::bind \
+    '/mnt/istore/virtualbox  /vbox           auto    bind 0 0'
+
+    if ! mount /vbox; then
+        echo "Warning: Can't mount /vbox, maybe it's already mounted? "
+    fi
+
+    if [ ! -d /vbox/dev ]; then
+        echo "Invalid mounted /vbox"
+        exit 1
+    fi
+
+install -d /vbox/mnt/clsvm
+lineconf -tm "Add loop mount loop20 -> clsvm.img" \
+    /etc/fstab @vbox::clsvm \
+    '/vbox/dev/clsvm.img     /vbox/mnt/clsvm ntfs    loop=/dev/loop20,offset=32256 0 0'
+
+exit 0
