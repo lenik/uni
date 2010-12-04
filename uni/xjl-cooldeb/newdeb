@@ -164,7 +164,7 @@ EOT
         svn add debian/docs
 
         _log2 "Commit the initial version"
-        svn ci -m "Initial by newdeb"
+        svn ci -m "New $name package initialized by newdeb"
     fi
 
     if [ "$autotools" = 1 ]; then

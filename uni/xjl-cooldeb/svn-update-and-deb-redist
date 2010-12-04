@@ -1,6 +1,7 @@
 #!/bin/bash
 
 svn up \
+    | grep -v changelog \
     | grep "^[A-Z ]\{4\}" \
     | cut -c6- \
     | cut -d/ -f1 \
