@@ -2,10 +2,6 @@
 # master-file
 
 umount /vbox/mnt/clsvm
-umount /vbox
-
-lineconf -ktm "Remove bind mount /vbox -> /mnt/istore/virtualbox" \
-    /etc/fstab @vbox::bind
 
 lineconf -ktm "Remove loop mount loop20 -> clsvm.img" \
     /etc/fstab @vbox::clsvm
