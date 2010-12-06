@@ -129,6 +129,9 @@ EOT
 
     . dh_make-autover --createorig
 
+    # if [ "$keep_orig" != 1 ]; then
+    rm -fR ../$name-0.*.orig
+
     cd debian
         if [ "$prepost" = 1 ]; then
             mv postinst.ex postinst
@@ -148,6 +151,10 @@ EOT
         fi
 
         vi control
+
+        # source/quilt is not used.
+        rm -fr source/
+
         cd ..
 
 
