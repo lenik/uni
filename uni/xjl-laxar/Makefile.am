@@ -1,5 +1,9 @@
 include libauto/coolauto.am
 
+dist_bin_SCRIPTS = \
+    laxar \
+    delaxar
+
 setup_SCRIPTS = \
     postinst \
     prerm

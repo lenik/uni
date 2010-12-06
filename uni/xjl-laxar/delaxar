@@ -1,0 +1,353 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+delaxar - Lapiota import/export archive extractor
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::fileproc('/[$%]/');
+use cmt::lang('_def');
+use cmt::log(3);
+    $LOGNAME    = 'delaxar'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::path('path_join', 'path_split', 'path_splitext', 'mkdir_p');
+use cmt::util('qsplit', 'readfile', 'writefile');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
+use cmt::zio('zargs_iter');
+use Getopt::Long;
+    Getopt::Long::Configure('gnu_getopt');
+
+sub _main; sub _version; sub _help;
+sub err_cont;
+
+our %DIGEST = (
+    'md5'   => 'Digest::MD5',
+    'sha1'  => 'Digest::SHA1',
+    );
+
+our %opt_COMOPT_tmpl;
+our $opt_cont           = undef;
+our $opt_force          = undef;
+our $opt_preference     = undef;
+our $opt_savepref       = undef;
+our $opt_rootdir        = undef;
+our $opt_translate      = undef;
+our $opt_encoding       = undef;
+our $opt_zipped         = undef;
+our $opt_self_extract   = undef;
+
+our %basedef;
+our $v_basenam;
+our $v_baseval;
+our $v_algorithm;
+our $v_sum;
+our $v_sumd;
+our $v_file;
+our $v_path;
+our $v_size;
+our $v_offset;
+our $v_lastperc         = 0;
+our $v_fh;
+
+sub _boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'continue-on-error|c' => \$opt_cont,
+               'force|f',
+               'preference|p=s',
+               'rootdir|r=s',
+               'translate|t:s',
+               'encoding=s',
+               'zipped|z',
+               'self-extract|x',
+               );
+
+    %opt_COMOPT_tmpl = cmt::fileproc::save_opts;
+
+    if (defined $opt_preference and -f $opt_preference) {
+        require YAML;
+        _log2 "load preference from $opt_preference";
+        my $pref = readfile($opt_preference);
+        $pref = YAML::Load($pref);
+        my $basedef = $pref->{'basedef'};
+        %basedef = %$basedef if ref $basedef;
+    }
+
+    _main;
+
+    if (defined $opt_preference and $opt_savepref) {
+        require YAML;
+        my $pref = {
+            'basedef'   => \%basedef,
+            };
+        _log2 "save preference to $opt_preference";
+        writefile($opt_preference, YAML::Dump($pref));
+    }
+}
+
+=head1 SYNOPSIS
+
+B<delaxar>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<delaxar> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-delaxar-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -r, --rootdir=DIR       set root dir to DIR. default /
+    -t, --translate[=CHARS] translate specified characters to '_'
+    -p, --preference=FILE   load preference file, which contains default
+                            values to variant parameters
+    -c, --continue-on-error so don't verify checksum, etc.
+    -f, --force             force to overwrite existing files
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    my $paramidx = 0;
+    my $v_section = 0;
+    my $input = zargs_iter($opt_zipped, $opt_self_extract ? \*DATA : \*STDIN);
+    while ($input = $input->()) {
+        if ($paramidx < 3) {
+            s/^\s+//;
+            if (/^#\?\s*laxar-(\w+)\s*=\s*(.*?)\s*$/) {
+                #? laxar-encoding = utf-8
+                my ($key, $val) = ($1, $2);
+                _log2 "$key = $val";
+                if ($key eq 'encoding') {
+                    $opt_encoding = $2;
+                } else {
+                    err_cont "unknown control parameter: $key. ";
+                }
+                next;
+            }
+            next if /^#/;
+            s/\s+$//s;
+            if ($_ eq '') {
+                $paramidx = 0;
+                next;
+            }
+
+            if ($paramidx == 0) {       # basedef
+                my ($key, $val) = split(/\s*=\s*/, $_, 2);
+                if ($key eq '') { err_cont "invalid param: base is empty"; next }
+                $v_basenam = $key;
+                $v_baseval = $basedef{$v_basenam};
+                unless (defined $v_baseval) {
+                    _def($val, '.');
+                    _P1 "please specify a value for $v_basenam: "
+                        . " (default $val)";
+                    my $newval = <STDIN>;
+                    chop $newval;
+                    $newval = $val if $newval eq '';
+                    $v_baseval = $newval;
+                    $basedef{$v_basenam} = $newval;
+                    $opt_savepref = 1;
+                }
+            } elsif ($paramidx == 1) {  # lxas-section
+                my @ARGV_bak = @ARGV;
+                @ARGV = qsplit(qr/\s+/, $_);
+                cmt::fileproc::load_opts %opt_COMOPT_tmpl;
+                $v_algorithm = 'md5';
+                $v_sum       = undef;
+                GetOptions(%COMOPT,
+                           'algorithm|a=s'  => \$v_algorithm,
+                           'sum|s=s'        => \$v_sum,
+                           );
+                my $digest_class = $DIGEST{$v_algorithm}
+                    or die "unsupported algorithm: $v_algorithm";
+                eval "require $digest_class; 1"
+                    or die "failed to load library $digest_class: $!";
+                $v_sumd = $digest_class->new();
+
+                $v_file = join(' ', @ARGV);
+                $v_path = path_join($v_baseval, $v_file);
+                @ARGV = @ARGV_bak;
+
+                if (-f $v_path and !$opt_force) {
+                    _P1 "file $v_path is already existed, please specify a"
+                      . " new path, or press enter to overwrite it";
+                    my $newval = <STDIN>;
+                    chop $newval;
+                    if ($newval ne '') {
+                        $v_path = $newval;
+                    }
+                }
+                if (defined $v_path) {
+                    my ($dir, $name) = path_split($v_path);
+                    unless (-d $dir) {
+                        _log2 "mkdir $dir/";
+                        mkdir_p($dir)
+                            or err_cont "can't mkdir $dir: $!";
+                    }
+                    open($v_fh, '>', $v_path)
+                        or err_cont "can't write to $v_path: $!";
+                    binmode $v_fh;
+                    # $v_fh->autoflush(1);
+                }
+            } elsif ($paramidx == 2) {  # size
+                $v_size = 0;
+                $v_offset = 0;
+                if (/^(\d+)$/) {
+                    $v_size = $_;
+                } else {
+                    err_cont "invalid size: $_";
+                }
+            }
+            $paramidx++;
+            next;
+        }
+        # paramidx >= 3
+
+        if ($v_offset + length($_) > $v_size) { # truncate
+            $_ = substr($_, 0, $v_size - $v_offset);
+        }
+        my $bsize = length $_;
+        my $end = $v_offset + $bsize;
+        # _log2 "extract $v_section.$. | $v_offset - $end / $v_size";
+        print $v_fh $_;
+        $v_sumd->add($_) if defined $v_sumd;
+
+        $v_offset += length $_;
+        if ($LOGLEVEL > 0) {
+            my $perc = int($v_offset / $v_size * 1000) / 10;
+            if ($perc != $v_lastperc) {
+                $v_lastperc = $perc;
+                _sig1 $v_section, "$v_path ($perc%)";
+            }
+        }
+        if ($v_offset >= $v_size) {
+            close $v_fh;
+            undef $v_fh;
+            ++$v_section;
+            $paramidx = 0;
+
+            my $dpath = $v_basenam.'::'.$v_file;
+
+            if (defined $v_sumd) {
+                my $sum = $v_sumd->hexdigest;
+                if ($sum ne $v_sum) {
+                    err_cont "$dpath: invalid checksum $sum (expected $v_sum)";
+                }
+            }
+
+            if ($LOGLEVEL > 1) {
+                _log2 "extracted $v_path";
+            } elsif ($LOGLEVEL > 0) {
+                _sig1 $v_section, "$dpath ($v_size bytes)";
+            }
+        }
+    }
+
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+sub err_cont {
+    if ($opt_cont) {
+        _log1 'error: ', @_;
+    } else {
+        die join('', @_);
+    }
+}
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Lapiota import/export archive extractor \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
+
+__DATA__

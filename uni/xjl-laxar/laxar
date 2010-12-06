@@ -1,0 +1,332 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+laxar - Lapiota import/export archive packager
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::fileproc('/[$%]/', 'batch_main');
+use cmt::lang();
+use cmt::log(3);
+    $LOGNAME    = 'laxar'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::path('path_join', 'path_split', 'path_splitext');
+use cmt::util('qsplit', 'readfile');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
+use Digest::MD5('md5_hex');
+use Digest::SHA1('sha1_hex');
+use Getopt::Long;
+    Getopt::Long::Configure('gnu_getopt');
+
+sub _main; sub _version; sub _help;
+sub parse_err;
+sub do_archive;
+sub output;
+sub set_var(\$$$);
+
+our %opt_COMOPT_tmpl;
+our $opt_ignore_case;
+our $opt_algorithm      = 'md5';
+our $opt_sum;
+our $opt_out;
+our $opt_ext;
+our $opt_stdout;
+our $opt_encoding;
+our $opt_zip;
+our $opt_executable;
+
+our $v_basenam;
+our $v_baseval;
+our @v_filelist;
+our $v_algorithm;
+our $v_sum;
+
+our $outf               = sub { print };
+
+sub _boot {
+    $cmt::fileproc::opt_binary  = 1;
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               %COMOPT,         # bcdfikrtw
+               'algorithm|a=s',
+               'sum|s=s',
+               'encoding|e=s',
+               'out|o=s',
+               'ext=s',
+               'zip|z',
+               'executable|x',
+               );
+    $opt_ignore_case            = $cmt::fileproc::opt_ignore_case;
+    $opt_stdout                 = $cmt::fileproc::opt_stdout;
+    $cmt::fileproc::LOGLEVEL    = $LOGLEVEL - 2;
+
+    %opt_COMOPT_tmpl = cmt::fileproc::save_opts;
+
+    unless (defined $opt_out) {
+        if (@ARGV) {
+            my ($dir, $base) = path_split(shift @ARGV);
+            my ($name, $ext) = path_splitext($base);
+            unless (defined $opt_ext) {
+                if ($opt_executable) {
+                    $opt_ext = '-installer.pl';
+                } else {
+                    $opt_ext = $opt_zip ? '.lxar.gz' : '.lxar';
+                }
+            }
+            $opt_out = path_join($dir, $name.$opt_ext);
+        }
+    }
+
+    my $fh = \*STDOUT;
+    if (defined $opt_out) {
+        undef $fh;
+        open($fh, '>', $opt_out)
+            or die "can't write to $opt_out: $!";
+    }
+
+    if ($opt_executable) {
+        my ($pdir, $pbase) = path_split($0);
+        my $exprog = path_join($pdir, 'de'.$pbase);
+        my $header = readfile($exprog);
+        set_var($header, 'opt_zipped', $opt_zip) if defined $opt_zip;
+        set_var($header, 'opt_self_extract', 1);
+        print $fh $header;
+    }
+
+    if ($opt_zip) {
+        require Compress::Zlib;
+        my $zh = Compress::Zlib::gzopen($fh, 'wt');
+        $outf = sub {
+            if (@_) {
+                $zh->gzwrite($_) for @_;
+            } else {
+                $zh->gzclose();
+                close $fh;
+            }
+        };
+    } else {
+        $outf = sub {
+            if (@_) {
+                print $fh $_ for @_;
+            } else {
+                close $fh;
+            }
+        };
+    }
+
+    _main;
+
+    if (defined $opt_out) {
+        chmod(0755, $opt_out) if $opt_executable;
+    }
+}
+
+=head1 SYNOPSIS
+
+B<laxar>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<laxar> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-laxar-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] [FILE.lxas]\n", <<"EOM";
+
+Common options:
+$COMOPT    -a, --algorithm=ALG     digest algorithm, default md5
+    -e, --executable        make self-extractable archive
+        --encoding=ENC      encoding of the .lxas file, default utf-8
+    -o, --out=FILE          output to FILE, default FILE.lxar
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+
+lxas-section options (override to the common options):
+$COMOPT    -a, --algorithm=ALG     digest algorithm, default md5
+    -s, --sum=CHECKSUM      specify or calculate from the given files
+
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    output "#? laxar-encoding = $opt_encoding\n" if defined $opt_encoding;
+
+    my $paramidx = 0;
+    my $v_section = 0;
+    while (<>) {
+        s/^\s+//;
+        next if /^#/;
+        s/\s+$//s;
+        if ($_ eq '') {
+            $paramidx = 0;
+            next;
+        }
+        if ($paramidx == 0) {
+            my ($key, $val) = split(/\s*=\s*/, $_, 2);
+            if ($key eq '') { parse_err "invalid param: base is empty" }
+            $v_basenam = $key;
+            $v_baseval = $val;
+            $paramidx++;
+            next;
+        }
+        my @ARGV_bak = @ARGV;
+        @ARGV = qsplit(qr/\s+/, $_);
+        cmt::fileproc::load_opts %opt_COMOPT_tmpl;
+        $v_algorithm = $opt_algorithm;
+        $v_sum       = undef;
+        GetOptions(%COMOPT,
+                   'algorithm|a=s'  => \$v_algorithm,
+                   'sum|s=s'        => \$v_sum,
+                   );
+        my $v_file = join(' ', @ARGV);
+        my $start = path_join($v_baseval, $v_file);
+        ++$v_section;
+        _log2 "prep $start";
+        @v_filelist = ();
+        batch_main sub { local *__ANON__ = "<lxas-section-$v_section>";
+            my $path = shift;
+            my $based = substr($path, length($v_baseval));
+               $based =~ s/^[\\\/]//;
+            my $dpath = $v_basenam.'::'.$based;
+            _sig2 'scan', $dpath;
+            push @v_filelist, $based;
+            0
+        }, $start;
+        _sig2 'prepdone';
+        do_archive;
+        @ARGV = @ARGV_bak;
+    }
+
+    output();
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+sub do_archive {
+    _log1 $v_basenam.'::';
+    for (@v_filelist) {
+        my $path = path_join($v_baseval, $_);
+        my $size = -s $path;
+        my $sum  = $v_sum;
+           $sum = sum($path, $v_algorithm) unless defined $sum;
+        output "$v_basenam = $v_baseval\n";
+        output "-a $v_algorithm -s $sum -- $_\n";
+        output "$size\n";
+        _log1 '  '.$_ . " ($size bytes)";
+        open(FH, '<', $path)
+            or die "can't read from $path: $!";
+        binmode FH;
+        output $_ while <FH>;
+        close FH;
+        output "\n";
+    }
+}
+
+sub sum {
+    my ($path, $alg) = @_;
+    my $algf = main->can($alg.'_hex') or die "unsupported algorithm: $alg";
+    my $dat = readfile($path);
+    $algf->($dat)
+}
+
+sub output {
+    $outf->(@_);
+}
+
+sub set_var(\$$$) {
+    my ($datref, $nam, $val) = @_;
+    $$datref =~ s/(\$$nam\s*=\s*).*?(\s*;)/$1$val$2/;
+}
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Lapiota import/export archive packager \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

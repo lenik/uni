@@ -8,5 +8,7 @@ Homepage: http://uni.bodz.net/xjl-laxar
 
 Package: xjl-laxar
 Architecture: all
-Depends: perl, xjl-bash-shlib
+Depends: perl, libcmt, xjl-bash-shlib,
+    libdigest-md5-perl,
+    libdigest-sha1-perl
 Description: Archivar used in Lapiota.
