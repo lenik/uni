@@ -4,7 +4,7 @@ alias ver-refresh='ver-off; ver-on'
 
 alias dh_makever='. dh_make-autover --createorig'
 
-alias newdeb='newdeb -aps'
+alias newaps='newdeb -aps'
 
 alias dcon='vicontrol'
 

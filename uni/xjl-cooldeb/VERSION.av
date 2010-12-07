@@ -10,5 +10,5 @@ rev         = 39
 rev.base    = 2065
 rev.exec    = svn_revision .
 
-commit      = 2
+commit      = 3
 commit.base = 69
