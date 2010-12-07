@@ -1,0 +1,31 @@
+# Please source this file.
+
+function loadpom() {
+    local pomfile="$1"
+    local inherits="$2"
+
+    while read l; do
+        k="${l%%=*}"
+        v="${l#*=}"
+        case "$k" in
+            /project/groupId)           project_group_id="$v";;
+            /project/artifactId)        project_artifact_id="$v";;
+            /project/version)           project_version="$v";;
+            /project/packaging)         project_packaging="$v";;
+            /project/parent/groupId)    parent_group_id="$v";;
+            /project/parent/artifactId) parent_artifact_id="$v";;
+            /project/parent/version)    parent_version="$v";;
+            /project/parent/version)    parent_version="$v";;
+            /project/name)              project_name="$v";;
+        esac
+    done < <(xml2 <"$pomfile")
+
+    if [ "$inherits" = 1 ]; then
+        if [ -z "$project_group_id" ]; then
+            project_group_id="$parent_group_id"
+        fi
+        if [ -z "$project_version" ]; then
+            project_version="$parent_version"
+        fi
+    fi
+}
