@@ -42,9 +42,9 @@ CLEANFILES = ${setup_SCRIPTS} \
         -e 's,[@]gconf2dir[@],$(gconf2dir),g' \
         <$< >$@
 
-path.diff: path.orig path
-	-diff -u ${srcdir}/path.orig ${srcdir}/path >$@
+path.diff: path.0 path
+	-diff -u ${srcdir}/path.0 ${srcdir}/path >$@
 
-path.orig: ${gconf2dir}/path
-	cp -f "$<" "$@"
+#path.0: ${gconf2dir}/path
+#	cp -f "$<" "$@"
 
