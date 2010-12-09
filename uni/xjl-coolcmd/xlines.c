@@ -23,11 +23,31 @@
 #define MAX_MODES 10
 GString *modes[MAX_MODES];
 int n_modes = 0;
+int opt_index = -1;
+gboolean opt_bar = FALSE;
+
+gboolean add_mode(const gchar *optname,
+                  const gchar *value,
+                  gpointer data,
+                  GError **error) {
+    if (n_modes == MAX_MODES) {
+        fprintf(stderr, "Too many modes\n");
+        exit(1);
+    }
+
+    modes[n_modes++] = g_string_new(value);
+    return TRUE;
+}
 
 static GOptionEntry options[] = {
-    { "mode",      'm', G_OPTION_STRING,
-      G_OPTION_AG_CALLBACK, add_mode,
+    { "bar",       'b', 0, G_OPTION_ARG_NONE, &opt_bar,
+      "Display in full-length bar mode", },
+
+    { "mode",      'm', 0, G_OPTION_ARG_CALLBACK, add_mode,
       "Add a line mode", },
+
+    { "index",     'i', 0, G_OPTION_ARG_INT, &opt_index,
+      "Start mode index", },
 
     { "force",     'f', 0, G_OPTION_ARG_NONE, &opt_force,
       "Force to continue", },
@@ -51,17 +71,51 @@ static GOptionEntry options[] = {
 };
 
 int main(int argc, char **argv) {
+    int i;
+
     if (! boot(&argc, &argv, "FILES"))
         return 1;
 
-    for (int i = 0; i < n_modes; i++) {
+    if (n_modes == 0) {
+        modes[n_modes++] = g_string_new("1");
+    }
+
+    if (opt_index < 0)
+        opt_index = n_modes;
+    else
+        opt_index %= (n_modes + 1);
+
+    LOG3 for (i = 0; i < n_modes; i++) {
         printf("mode %d: %s\n", i, modes[i]->str);
     }
+    LOG2 printf("start mode index: %d\n", opt_index);
 
     return process_files(opt_files);
 }
 
 int process_file(char *filename, FILE *file) {
-    LOG1 printf("Processing file %s\n", filename);
-    return 0;
+    int mode = opt_index % (n_modes + 1);
+    int c;
+
+    LOG2 printf("Processing file %s\n", filename);
+
+    if (mode != n_modes)
+        printf("[%sm", modes[mode]->str);
+
+    while ((c = fgetc(file)) != EOF) {
+        if (c == '\n') {
+            if (!opt_bar && mode != n_modes)
+                printf("[0m");
+            if (++mode > n_modes)
+                mode = 0;
+        }
+        putchar(c);
+        if (c == '\n') {
+            if (mode != n_modes)
+                printf("[%sm", modes[mode]->str);
+            else if (opt_bar)
+                printf("[0m");
+        }
+    }
+    printf("[0m");
 }

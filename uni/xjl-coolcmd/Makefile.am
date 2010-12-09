@@ -9,8 +9,8 @@ dist_cmtlib_DATA = \
     cmt/subst.pm
 
 bin_PROGRAMS = \
-    echo-x
-#    xlines
+    echo-x \
+    xlines
 
 AM_CPPFLAGS = $(GLIB_CFLAGS)
 xlines_LDADD = $(GLIB_LIBS)
