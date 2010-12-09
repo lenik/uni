@@ -4,7 +4,8 @@ include libauto/coolauto.am
 dist_bin_SCRIPTS = \
     ansifx \
     meter \
-    settermtitle
+    settermtitle \
+    colorlog
 
 bin_SCRIPTS = \
     ansifilter

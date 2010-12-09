@@ -9,5 +9,5 @@ Homepage: http://uni.bodz.net/xjl-coolansi
 Package: xjl-coolansi
 Provides: coolansi
 Architecture: all
-Depends: xjl-coolbash, ncurses-bin
+Depends: xjl-coolbash, ncurses-bin, sed
 Description: Lenik's terminal (device) utilities.
