@@ -15,8 +15,12 @@ dist_bin_SCRIPTS = \
     which2 \
     whichother \
     hm \
+    hm-subhist \
     collect-copy \
     kill-all
+
+dist_bashcmpl_DATA = \
+    bash_completion.d/hm
 
 dist_man_MANS = \
     uc.1 \

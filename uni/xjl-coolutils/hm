@@ -2,11 +2,13 @@
     . shlib-import cliboot
 
     RCSID='$Id$'
-    short_opts="I:d:silx:hqv"
-    long_opts="include:,maxdepth:,strict,ignore-case,list,exec:,help,quiet,verbose,version"
+    short_opts="pI:d:asilx:hqv"
+    long_opts="packages,include:,maxdepth:,all,strict,ignore-case,list,exec:,help,quiet,verbose,version"
 
     includes=(/usr/share/doc /usr/local/share/doc)
+    list_packages=
     maxdepth=3
+    word_boundary="\b"
     strict=
     ignore_case=
     list_only=
@@ -27,9 +29,11 @@ function help() {
     echo "    $0 [OPTION] [--] [nnn] PACKAGE-SPEC KEYWORDS..."
     echo
     echo "Options: "
+    echo "    -p, --packages          list packages which contains html docs"
     echo "    -I, --include=dir       add dir to search path"
     echo "    -d, --maxdepth=DEPTH    max recursion depth to search into"
-    echo "    -S, --strict            search explicit keywords"
+    echo "    -a, --all               search all keywords with the prefix"
+    echo "    -s, --strict            search explicit keywords"
     echo "    -i, --ignore-case       ignore case"
     echo "    -l, --list              only list the candidates, don't open"
     echo "    -x, --exec=COMMAND      open with specified command"
@@ -41,10 +45,14 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -p|--packages)
+            list_packages=1;;
         -I|--include)
             includes[${#includes[@]}]="$2";;
         -d|--maxdepth)
             maxdepth="$2";;
+        -a|--all)
+            word_boundary=;;
         -s|--strict)
             strict=1;;
         -i|--ignore-case)
@@ -67,6 +75,17 @@ function setopt() {
 }
 
 function main() {
+
+    if [ "$list_packages" = 1 ]; then
+        for d in "${includes[@]}"; do
+            d=${d%/}/
+            if [ ! -d $d ]; then continue; fi
+            find $d -maxdepth 3 -name '*.html' | sed -e "s|^$d||"
+        done | sed -e 's,/.*$,,' | uniq \
+             | sed 's/^lib\(.*\)$/lib\1\n\1/' | sort -u
+        exit 0
+    fi
+
     list_cands=0
     if [ $LOGLEVEL -gt 0 ]; then list_cands=1; fi
 
@@ -109,7 +128,7 @@ function main() {
         keyword="${keyword//\\/\\\\}"
         if [ -z "$strict" ]; then
             grep_keyword="${keyword//[-_.]/[-_.]}"
-            grep_keyword="['\"]\($grep_keyword\b[^'\"]*\)['\"]"
+            grep_keyword="['\"]\($grep_keyword$word_boundary[^'\"]*\)['\"]"
              sed_keyword="$grep_keyword"
         else
             grep_keyword="['\"]\($keyword\)['\"]"
