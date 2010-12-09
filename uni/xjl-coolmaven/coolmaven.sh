@@ -1,4 +1,4 @@
-alias mvn='mvn-002'
+alias mvn='coolmvn'
 alias mpk='mvn package'
 alias mte='mvn test'
 alias min='mvn install'

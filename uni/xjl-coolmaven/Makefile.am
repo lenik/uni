@@ -9,15 +9,15 @@ dist_aliases_DATA = \
     coolmaven.sh
 
 dist_bin_SCRIPTS = \
+    coolmvn \
     newmod \
-    m2help \
-    m2search \
     m2graph \
-    pomid \
+    m2help \
     m2installfile \
-    mvn-002 \
     m2localdeps \
-    m2localgraph
+    m2localgraph \
+    m2search \
+    pomid
 
 bin_SCRIPTS = \
     jetty \
