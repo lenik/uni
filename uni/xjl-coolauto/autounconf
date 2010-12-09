@@ -96,10 +96,27 @@ function main() {
     done
 
     if [ "$compact" = 1 ]; then
-        for f in aclocal.m4 configure; do
-            if [ -f $f ]; then
+        for f in \
+                aclocal.m4 \
+                depcomp \
+                configure \
+                install-sh \
+                libauto \
+                missing \
+                ; do
+            if [ -e $f ]; then
                 echo "Remove auto-tools generated file: $f"
-                $RM $f
+                $RM -fR $f
+            fi
+        done
+
+        for f in \
+                COPYING \
+                INSTALL \
+                ; do
+            if [ -e $f ]; then
+                echo "Remove auto-tools generated template file: $f"
+                $RM -f $f
             fi
         done
     fi
