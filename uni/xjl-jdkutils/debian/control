@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-jdkutils
 
 Package: xjl-jdkutils
 Architecture: all
-Depends: default-jdk, xjl-bash-shlib, jad, xjl-coolutils
+Depends: java2-jdk, xjl-bash-shlib, jad, xjl-coolutils
 Description: Lenik's JDK utilities
