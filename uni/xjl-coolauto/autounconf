@@ -101,7 +101,6 @@ function main() {
                 depcomp \
                 configure \
                 install-sh \
-                libauto \
                 missing \
                 ; do
             if [ -e $f ]; then
