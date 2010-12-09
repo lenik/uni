@@ -27,7 +27,7 @@ function help() {
     version
     echo
     echo "Syntax: "
-    echo "    $0 [OPTION] [--] ..."
+    echo "    $0 [OPTION] [--] FILE CMD [ARGS...]"
     echo
     echo "Options: "
     echo "    -c, --stdout            tee to stdout also"
