@@ -188,7 +188,7 @@ function main() {
         "${fcmd[@]}" &
     fi
 
-    mvn \
+    coolmvn \
         -Djetty.port=$http_port \
         -D$webdef_key=@sysconfdir@/jettydefaults.xml \
         $jetty:run
