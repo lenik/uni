@@ -21,7 +21,7 @@
 #include <cprog.h>
 
 #define MAX_MODES 10
-gstring modes[MAX_MODES];
+GString *modes[MAX_MODES];
 int n_modes = 0;
 
 static GOptionEntry options[] = {
@@ -53,6 +53,11 @@ static GOptionEntry options[] = {
 int main(int argc, char **argv) {
     if (! boot(&argc, &argv, "FILES"))
         return 1;
+
+    for (int i = 0; i < n_modes; i++) {
+        printf("mode %d: %s\n", i, modes[i]->str);
+    }
+
     return process_files(opt_files);
 }
 
