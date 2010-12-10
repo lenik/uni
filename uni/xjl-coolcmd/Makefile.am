@@ -10,10 +10,10 @@ dist_cmtlib_DATA = \
 
 bin_PROGRAMS = \
     echo-x \
-    xlines
+    xcat
 
 AM_CPPFLAGS = $(GLIB_CFLAGS)
-xlines_LDADD = $(GLIB_LIBS)
+xcat_LDADD = $(GLIB_LIBS)
 
 dist_bin_SCRIPTS = \
     cd-exec \
