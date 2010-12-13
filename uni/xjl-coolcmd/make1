@@ -141,22 +141,22 @@ function main() {
                 _log1 "File $target is timeout. "
                 make=1
             fi
+        else
+            if [ "$n_prereq" = 0 ]; then
+                make=1
+            fi
         fi
 
         if [ -z "$make" ]; then
-            if [ "$n_prereq" = 0 ]; then
-                make=1
-            else
-                for pre in "${prereq[@]}"; do
-                    if [ -e "$pre" ]; then
-                        pre_time=`stat -c%Y "$pre"`
-                        if [ $pre_time -gt $target_time ]; then
-                            make=1
-                            break
-                        fi
+            for pre in "${prereq[@]}"; do
+                if [ -e "$pre" ]; then
+                    pre_time=`stat -c%Y "$pre"`
+                    if [ $pre_time -gt $target_time ]; then
+                        make=1
+                        break
                     fi
-                done
-            fi
+                fi
+            done
         fi
     fi
 
@@ -172,6 +172,7 @@ function main() {
         esac
 
         # TODO: quote/escape/specialchars...
+        _log2 "bash -c ${cmd[*]} ${X[*]}"
         bash -c "${cmd[*]} ${X[*]}"
     else
         _log1 "Target is already updated"
