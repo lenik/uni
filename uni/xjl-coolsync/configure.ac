@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.65])
 AC_INIT([xjl-coolsync], [0.2.2], [])
-AM_INIT_AUTOMAKE([-Wall])
+AM_INIT_AUTOMAKE([-Wno-portability])
 
 # Checks for programs.
 

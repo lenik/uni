@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.65])
 AC_INIT([xjl-libmisc], [0.1], [xjl@99jsj.com])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([-Wno-portability])
 
 # Checks for programs.
 

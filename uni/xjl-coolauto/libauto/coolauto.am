@@ -50,27 +50,67 @@ shlibdir    = ${libdir}/shlib.d
 newtmpldir  = ${libdir}/newtmpl.d
 
 do_subst = sed \
-    -e 's/master-file/generated-file, please do not edit/' \
-    -e 's,[@]DESTDIR[@],$(DESTDIR),g' \
-    -e 's,[@]prefix[@],$(prefix),g' \
-    -e 's,[@]bindir[@],$(bindir),g' \
-    -e 's,[@]sbindir[@],$(sbindir),g' \
-    -e 's,[@]docdir[@],$(docdir),g' \
-    -e 's,[@]datadir[@],$(datadir),g' \
-    -e 's,[@]varlibdir[@],$(varlibdir),g' \
-    -e 's,[@]cachedir[@],$(cachedir),g' \
-    -e 's,[@]pkgdatadir[@],$(pkgdatadir),g' \
-    -e 's,[@]pkgvarlibdir[@],$(pkgvarlibdir),g' \
-    -e 's,[@]pkgcachedir[@],$(pkgcachedir),g' \
-    -e 's,[@]perllibdir[@],$(perllibdir),g' \
-    -e 's,[@]sysconfdir[@],$(sysconfdir),g' \
-    -e 's,[@]aliasesdir[@],$(aliasesdir),g' \
-    -e 's,[@]bashcmpldir[@],$(bashcmpldir),g' \
-    -e 's,[@]profiledir[@],$(profiledir),g' \
-    -e 's,[@]sudoersdir[@],$(sudoersdir),g' \
-    -e 's,[@]initdir[@],$(initdir),g' \
-    -e 's,[@]apparmordir[@],$(apparmordir),g' \
-    -e 's,[@]substdir[@],$(substdir),g' \
-    -e 's,[@]shlibdir[@],$(shlibdir),g' \
-    -e 's,[@]newtmpldir[@],$(newtmpldir),g' \
-    -e 's,[@]setupdir[@],$(setupdir),g'
+	-e 's/master-file/generated-file, please do not edit/' \
+	-e 's,[@]DESTDIR[@],$(DESTDIR),g' \
+	-e 's,[@]prefix[@],$(prefix),g' \
+	-e 's,[@]bindir[@],$(bindir),g' \
+	-e 's,[@]sbindir[@],$(sbindir),g' \
+	-e 's,[@]docdir[@],$(docdir),g' \
+	-e 's,[@]datadir[@],$(datadir),g' \
+	-e 's,[@]varlibdir[@],$(varlibdir),g' \
+	-e 's,[@]cachedir[@],$(cachedir),g' \
+	-e 's,[@]pkgdatadir[@],$(pkgdatadir),g' \
+	-e 's,[@]pkgvarlibdir[@],$(pkgvarlibdir),g' \
+	-e 's,[@]pkgcachedir[@],$(pkgcachedir),g' \
+	-e 's,[@]perllibdir[@],$(perllibdir),g' \
+	-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
+	-e 's,[@]aliasesdir[@],$(aliasesdir),g' \
+	-e 's,[@]bashcmpldir[@],$(bashcmpldir),g' \
+	-e 's,[@]profiledir[@],$(profiledir),g' \
+	-e 's,[@]sudoersdir[@],$(sudoersdir),g' \
+	-e 's,[@]initdir[@],$(initdir),g' \
+	-e 's,[@]apparmordir[@],$(apparmordir),g' \
+	-e 's,[@]substdir[@],$(substdir),g' \
+	-e 's,[@]shlibdir[@],$(shlibdir),g' \
+	-e 's,[@]newtmpldir[@],$(newtmpldir),g' \
+	-e 's,[@]setupdir[@],$(setupdir),g'
+
+RST2HTML = rst2html
+RST2MAN = rst2man
+RST2PDF = rst2pdf
+
+%.1: %.1.rst
+	$(RST2MAN) "$<" >$@
+
+%.2: %.2.rst
+	$(RST2MAN) "$<" >$@
+
+%.3: %.3.rst
+	$(RST2MAN) "$<" >$@
+
+%.4: %.4.rst
+	$(RST2MAN) "$<" >$@
+
+%.5: %.5.rst
+	$(RST2MAN) "$<" >$@
+
+%.6: %.6.rst
+	$(RST2MAN) "$<" >$@
+
+%.7: %.7.rst
+	$(RST2MAN) "$<" >$@
+
+%.8: %.8.rst
+	$(RST2MAN) "$<" >$@
+
+%.9: %.9.rst
+	$(RST2MAN) "$<" >$@
+
+%.htm: %.rst
+	$(RST2HTML) "$<" >$@
+
+%.html: %.rst
+	$(RST2HTML) "$<" >$@
+
+%.pdf: %.rst
+	$(RST2PDF) "$<" >$@

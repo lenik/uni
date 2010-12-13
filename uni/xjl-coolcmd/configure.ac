@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.65])
 AC_INIT([xjl-coolcmd], [0.9.1], [xjl-bug@99jsj.com])
-AM_INIT_AUTOMAKE([-Wall])
+AM_INIT_AUTOMAKE([-Wno-portability])
 AC_CONFIG_SRCDIR([echo-x.c])
 
 # Checks for programs.

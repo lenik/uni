@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.65])
 AC_INIT([xjl-coolauto], [0.1.34], [xjl@99jsj.com])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([-Wno-portability])
 
 # Checks for programs.
 AC_PROG_LN_S
