@@ -1,5 +1,7 @@
-
 include libauto/coolauto.am
+include libauto/allin.am
+
+do_subst += -e 's,[@]bindconfdir[@],$(bindconfdir),g'
 
 bindconfdir = ${sysconfdir}/bind
 
@@ -18,8 +20,3 @@ CLEANFILES = \
     postinst \
     prerm
 
-do_subst2 = $(do_subst) -e 's,[@]bindconfdir[@],$(bindconfdir),g'
-
-%: %.in Makefile
-	$(do_subst2) <$< >$@
-	chmod -w "$@"

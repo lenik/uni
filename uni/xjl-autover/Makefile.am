@@ -1,4 +1,5 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 SUBDIRS = lib
 
@@ -34,6 +35,3 @@ dist_aliases_DATA = \
 EXTRA_DIST = verinit.in
 CLEANFILES = verinit
 
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"

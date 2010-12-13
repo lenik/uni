@@ -1,4 +1,5 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 dist_aliases_DATA = \
     fileutils.sh
@@ -28,10 +29,6 @@ EXTRA_DIST = \
     prerm.in
 
 CLEANFILES = ${setup_SCRIPTS}
-
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); \

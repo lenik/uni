@@ -1,12 +1,9 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 dist_bin_SCRIPTS = \
     winetricks \
     winetricks-packages
-
-winetricks:
-	wget -O "$@" http://www.kegel.com/wine/winetricks
-	chmod +x "$@"
 
 setup_SCRIPTS = \
     postinst \
@@ -18,5 +15,7 @@ EXTRA_DIST = \
 
 CLEANFILES = ${setup_SCRIPTS}
 
-%: %.in Makefile
-	$(do_subst) <$< >$@
+winetricks:
+	wget -O "$@" http://www.kegel.com/wine/winetricks
+	chmod +x "$@"
+

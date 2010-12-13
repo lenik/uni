@@ -1,4 +1,5 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 setup_SCRIPTS = \
     postinst \
@@ -18,6 +19,3 @@ CLEANFILES = \
     postinst \
     prerm
 
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"

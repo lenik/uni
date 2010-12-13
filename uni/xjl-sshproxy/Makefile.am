@@ -1,6 +1,7 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
-do_subst2 = $(do_subst) \
+do_subst += \
     -e 's,[@]homedir[@],$(homedir),g' \
     -e 's,[@]sshconfdir[@],$(sshconfdir),g'
 
@@ -40,6 +41,3 @@ CLEANFILES = \
     prerm-server.sh \
     prerm-client.sh
 
-%: %.in Makefile
-	$(do_subst2) <$< >$@
-	chmod -w "$@"

@@ -1,4 +1,5 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 svnrootdir = /repos/svn
 sitesdir   = ${sysconfdir}/apache2/sites-available
@@ -24,6 +25,3 @@ EXTRA_DIST = \
 
 CLEANFILES = ${setup_SCRIPTS}
 
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"

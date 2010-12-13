@@ -1,4 +1,7 @@
 include libauto/coolauto.am
+include libauto/allin.am
+
+do_subst += -e 's,[@]debdefldir[@],$(debdefldir),g'
 
 debdefldir = ${pkgdatadir}/debian-defaults
 
@@ -69,8 +72,3 @@ uninstall-hook:
             done; \
             rm -f dir-nover
 
-do_subst2 = $(do_subst) -e 's,[@]debdefldir[@],$(debdefldir),g'
-
-%: %.in Makefile
-	$(do_subst2) <$< >$@
-	chmod -w "$@"

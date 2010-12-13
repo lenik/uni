@@ -1,4 +1,5 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 samplesdir = ${docdir}/samples
 
@@ -20,6 +21,3 @@ dist_aliases_DATA = \
 EXTRA_DIST = makelook.in
 CLEANFILES = makelook
 
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"

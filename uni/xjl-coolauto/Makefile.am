@@ -1,4 +1,5 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 SUBDIRS = libauto
 
@@ -19,6 +20,3 @@ pkgdata_DATA = \
 CLEANFILES = autoinit    autoreconf2    automake.template
 EXTRA_DIST = autoinit.in autoreconf2.in automake.template.in
 
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"

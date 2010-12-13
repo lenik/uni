@@ -1,4 +1,7 @@
 include libauto/coolauto.am
+include libauto/allin.am
+
+do_subst += -e 's,[@]vimconfdir[@],$(vimconfdir),g'
 
 vimconfdir = ${sysconfdir}/vim
 
@@ -32,8 +35,3 @@ CLEANFILES = ${setup_SCRIPTS}
 install-data-hook:
 	cd $(DESTDIR)$(bindir); ln -snf coolvim coolvims
 
-do_subst2 = $(do_subst) -e 's,[@]vimconfdir[@],$(vimconfdir),g'
-
-%: %.in Makefile
-	$(do_subst2) <$< >$@
-	chmod -w "$@"

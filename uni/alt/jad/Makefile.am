@@ -1,4 +1,5 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 bin_SCRIPTS = \
     jad
@@ -13,5 +14,3 @@ EXTRA_DIST = \
 
 CLEANFILES = ${setup_SCRIPTS}
 
-%: %.in Makefile
-	$(do_subst) <$< >$@

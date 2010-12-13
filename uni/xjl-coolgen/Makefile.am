@@ -1,4 +1,5 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 SUBDIRS = newtmpl.d
 
@@ -24,6 +25,3 @@ install-data-hook:
 			ln -snf new new-$$base; \
 		done
 
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"

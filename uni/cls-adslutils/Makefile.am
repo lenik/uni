@@ -1,4 +1,5 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 dist_sbin_SCRIPTS = \
     gw-addr \
@@ -14,6 +15,3 @@ EXTRA_DIST = \
 
 CLEANFILES = ${setup_SCRIPTS}
 
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"

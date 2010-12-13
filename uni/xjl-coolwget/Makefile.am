@@ -1,6 +1,7 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
-do_subst2 = $(do_subst) \
+do_subst += \
     -e 's,[@]cachedir[@],$(cachedir),g' \
     -e 's,[@]sudoersdir[@],$(sudoersdir),g'
 
@@ -46,6 +47,3 @@ CLEANFILES = \
     wgetc \
     wgetc-url
 
-%: %.in Makefile
-	$(do_subst2) <$< >$@
-	chmod -w "$@"

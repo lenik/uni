@@ -1,8 +1,9 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 SUBDIRS = gconf
 
-do_subst2 = $(do_subst) \
+do_subst += \
     -e 's,[@]x11confdir[@],$(x11confdir),g' \
     -e 's,[@]xsessiondir[@],$(xsessiondir),g' \
     -e 's,[@]gconf2dir[@],$(gconf2dir),g'
@@ -45,8 +46,4 @@ EXTRA_DIST = \
 CLEANFILES = ${setup_SCRIPTS} \
     load-xmodmap \
     gconf-cleanbase/%gconf-tree.xml
-
-%: %.in Makefile
-	$(do_subst2) <$< >$@
-	chmod -w "$@"
 

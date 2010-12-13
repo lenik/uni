@@ -1,4 +1,5 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 dist_bin_SCRIPTS= \
     img2vdi \
@@ -22,6 +23,3 @@ EXTRA_DIST = \
 
 CLEANFILES = ${setup_SCRIPTS}
 
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"

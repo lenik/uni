@@ -1,6 +1,9 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 SUBDIRS = aliases.d profile.d
+
+do_subst += -e 's,[@]libbashdir[@],$(libbashdir),g'
 
 shsrcdir = ${bindir}
 
@@ -42,8 +45,3 @@ EXTRA_DIST = \
 
 CLEANFILES = ${setup_SCRIPTS}
 
-do_subst2 = $(do_subst) -e 's,[@]libbashdir[@],$(libbashdir),g'
-
-%: %.in Makefile
-	$(do_subst2) <$< >$@
-	chmod -w "$@"

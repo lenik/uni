@@ -1,5 +1,5 @@
-
 include libauto/coolauto.am
+include libauto/allin.am
 
 dist_bin_SCRIPTS = \
     ansifx \
@@ -31,6 +31,3 @@ CLEANFILES = \
 ansifilter ansifilter.1: get-ansifilter Makefile
 	$(srcdir)/$< $@
 
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"

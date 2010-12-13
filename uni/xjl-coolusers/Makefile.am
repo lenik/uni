@@ -1,4 +1,5 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 dist_bin_SCRIPTS = \
 	setminuid
@@ -12,10 +13,6 @@ dist_setup_SCRIPTS = \
 
 dist_sudoers_DATA = \
 	sudoers.d/dev
-
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"
 
 install-data-hook:
 	@echo "Please run $(DESTDIR)$(pkgdatadir)/postinst $(DESTDIR)$(pkgdatadir) $(DESTDIR)$(sysconfdir) $(DESTDIR)$(sudoersdir)"

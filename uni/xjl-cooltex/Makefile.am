@@ -1,4 +1,5 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 dist_bin_SCRIPTS = \
     pdfmon \
@@ -17,6 +18,3 @@ CLEANFILES = \
     postinst \
     prerm
 
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"

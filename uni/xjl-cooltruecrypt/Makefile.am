@@ -1,4 +1,5 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 SUBDIRS = test
 
@@ -51,6 +52,3 @@ CLEANFILES = \
 truecrypt-setup-x86:
 	$(srcdir)/install-truecrypt.sh $@
 
-%: %.in
-	$(do_subst) <$< >$@
-	chmod -w "$@"

@@ -1,6 +1,9 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 SUBDIRS = test
+
+do_subst += -e 's,[@]svnuniondir[@],$(svnuniondir),g'
 
 svnuniondir = ${sysconfdir}/svn_union.d
 
@@ -48,8 +51,3 @@ dist_aliases_DATA = \
 EXTRA_DIST = svn-union.in svn-union-install.in
 CLEANFILES = svn-union    svn-union-install
 
-do_subst2 = $(do_subst) -e 's,[@]svnuniondir[@],$(svnuniondir),g'
-
-%: %.in Makefile
-	$(do_subst2) <$< >$@
-	chmod -w "$@"

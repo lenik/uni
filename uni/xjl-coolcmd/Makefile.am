@@ -1,4 +1,5 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 cmtlibdir = ${perllibdir}/cmt
 
@@ -50,6 +51,3 @@ CLEANFILES = \
     postinst \
     prerm
 
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"

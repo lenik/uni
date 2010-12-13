@@ -1,4 +1,7 @@
 include libauto/coolauto.am
+include libauto/allin.am
+
+do_subst += -e 's,[@]profilesdir[@],$(profilesdir),g'
 
 profilesdir = ${sysconfdir}/profile.d
 
@@ -11,8 +14,3 @@ EXTRA_DIST = \
     prerm.in
 
 CLEANFILES = ${setup_SCRIPTS}
-
-%: %.in Makefile
-	$(do_subst) \
-            -e 's,[@]profilesdir[@],$(profilesdir),g' \
-            <$< >$@

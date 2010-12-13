@@ -1,4 +1,5 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 SUBDIRS = bash_completion.d
 
@@ -53,10 +54,6 @@ CLEANFILES = \
     jetty \
     m2search-nexus
 #    archetypes
-
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); \

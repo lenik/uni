@@ -1,4 +1,5 @@
 include libauto/coolauto.am
+include libauto/allin.am
 
 SUBDIRS = shlib.d
 
@@ -22,6 +23,3 @@ CLEANFILES = \
     ${setup_SCRIPTS} \
     shlib
 
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"
