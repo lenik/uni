@@ -24,6 +24,7 @@ dist_bin_SCRIPTS = \
     localhost \
     loop \
     makeoutdated \
+    make1 \
     onmodify \
     postproc \
     run-bg \
