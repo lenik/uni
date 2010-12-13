@@ -1,8 +1,10 @@
 function _hm() {
     local cur="${COMP_WORDS[COMP_CWORD]}"
+    local cachef=/var/tmp/hm.packages
 
     if [ $COMP_CWORD = 1 ]; then
-        COMPREPLY=( $( hm -p | grep "^$cur" ) )
+        make1 -qoT 1wk $cachef \; hm -p
+        COMPREPLY=( $( grep "^$cur" $cachef ) )
     else
         local package="${COMP_WORDS[1]}"
         COMPREPLY=( $( hm -al "$package" "$cur" | cut -f1 ) )
