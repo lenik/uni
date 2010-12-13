@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-@name@ - @description@
+@_file_name@ - @TEXT@
 
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
-    $LOGNAME    = '@name@'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+    $LOGNAME    = '@_file_name@'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
 use Getopt::Long;
@@ -28,7 +28,7 @@ sub _boot {
 
 =head1 SYNOPSIS
 
-B<@name@>
+B<@_file_name@>
     S<[ B<-q> | B<--quiet> ]>
     S<[ B<-v> | B<--verbose> ]>
     S<[ B<-h> | B<--help> ]>
@@ -38,11 +38,11 @@ B<@name@>
 
 =head1 DESCRIPTION
 
-B<@name@> is a WHAT used for WHAT. It HOW-WORKS.
+B<@_file_name@> is a WHAT used for WHAT. It HOW-WORKS.
 
 BACKGROUND-PROBLEM.
 
-HOW-@name@-RESOLVES.
+HOW-@_file_name@-RESOLVES.
 
 =head1 OPTIONS
 
@@ -76,7 +76,7 @@ Display a short version information and exit(0).
 
 =item Show help
 
-    @name@ --help
+    @_file_name@ --help
 
 =back
 
@@ -137,7 +137,7 @@ The initial version.
 
 =cut
 sub _version {
-    print "[$LOGNAME] @description@ \n";
+    print "[$LOGNAME] @TEXT@ \n";
     print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 
@@ -147,6 +147,6 @@ The L<cmt/"Perl_simple_cli_program_template">
 
 =head1 AUTHOR
 
-@USERNAME=lenik@ <@EMAIL=lenik (at) bodz.net@>
+@_user@ <@_email_x@>
 
 =cut

@@ -15,8 +15,8 @@
  */
 #include "config.h"
 
-#define RCS_ID      "$Id$"
-#define DESCRIPTION "@description@"
+#define RCS_ID      "$Id:$"
+#define DESCRIPTION "@TEXT@"
 
 #include <cprog.h>
 

@@ -1,8 +1,8 @@
-package @name@;
+package @_file_name@;
 
 =head1 NAME
 
-@name@ - @description@
+@_file_name@ - @TEXT@
 
 =cut
 use strict;
@@ -24,16 +24,16 @@ our @EXPORT = qw(mysub
 
 =head1 SYNOPSIS
 
-    use @name@;
+    use @_file_name@;
     mysub(arguments...)
 
 =head1 DESCRIPTION
 
-B<@name@> is a WHAT used for WHAT. It HOW-WORKS.
+B<@_file_name@> is a WHAT used for WHAT. It HOW-WORKS.
 
 BACKGROUND-PROBLEM.
 
-HOW-@name@-RESOLVES.
+HOW-@_file_name@-RESOLVES.
 
 =head1 FUNCTIONS
 
@@ -68,7 +68,7 @@ The L<cmt/"Perl_simple_module_template">
 
 =head1 AUTHOR
 
-@USERNAME=lenik@ <@EMAIL=lenik (at) bodz.net@>
+@_user@ <@_email_x@>
 
 =cut
 1

@@ -14,16 +14,18 @@ use cmt::path('path_split', 'path_join');
 # use cmt::util('readfile', 'writefile', 'listdir');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
+use Data::Dumper;
 use Getopt::Long;
     Getopt::Long::Configure('gnu_getopt');
+use POSIX('strftime');
 
 sub _main; sub _version; sub _help;
 
 our $opt_force;
 our $opt_template_name;
 our $opt_template_file;
+our %opt_env = %ENV;
 our %opt_vars;
-our $opt_env;
 
 our $opt_outfile;
 our @opt_tmpl_dirs = qw(@newtmpldir@);
@@ -41,7 +43,6 @@ sub _boot {
                'force|f'        => \$opt_force,
                'template|t=s'   => \$opt_template_name,
                'define|D=s'     => \%opt_vars,
-               'env|e'          => \$opt_env,
                );
 
     unless (defined $opt_template_name) {
@@ -84,15 +85,7 @@ sub _boot {
         $opt_vars{$key} = $val;
     }
 
-    if ($opt_env) {
-        %opt_vars = (%ENV, %opt_vars);
-    }
-
-
     _log2 "template: $opt_template_file";
-    for my $k (keys %opt_vars) {
-        _log2 "  preference $k = $opt_vars{$k}"
-    }
 
     _main;
 }
@@ -187,6 +180,37 @@ exit (_boot or 0);
 
 sub _main {
 
+    my ($_file_dir, $_file_base) = path_split($opt_outfile);
+    my ($_file_name, $_file_ext) = ($_file_base, undef);
+        my $last_dot = rindex($_file_base, '.');
+        if ($last_dot != -1) {
+            $_file_name = substr($_file_base, 0, $last_dot);
+            $_file_ext = substr($_file_base, $last_dot + 1);
+        }
+
+    my @tm = localtime();
+    my $_user = $ENV{'DEBFULLNAME'} || $ENV{'USERNAME'};
+    my $_email = $ENV{'DEBEMAIL'} || $ENV{'EMAIL'};
+    my $_email_x = $_email;
+       $_email_x =~ s/@/ (at) /;
+
+    %opt_env = (
+        _template   => $opt_template_file,
+        _file       => $opt_outfile,
+        _file_dir   => $_file_dir,
+        _file_base  => $_file_base,
+        _file_name  => $_file_name,
+        _file_ext   => $_file_ext,
+        _date       => strftime("%F", @tm),
+        _year       => strftime("%Y", @tm),
+        _month      => strftime("%b", @tm),
+        _week       => strftime("%a", @tm),
+        _user       => $_user,
+        _email      => $_email,
+        %opt_env);
+
+    _log2 Dumper(\%opt_env);
+
     open(TMPL, "<$opt_template_file")
         or die("Can't open template file $opt_template_file: $!");
 
@@ -208,8 +232,9 @@ sub _main {
         while (/@(\w+)(?:=(.*?))?@/) {
             my $key = $1;
             my $val = $opt_vars{$key};
-            my $defl = $2;
+            $val = $opt_env{$key} unless defined $val;
             unless (defined $val) {
+                my $defl = $2;
                 print "Please enter a value for $key: ";
                 $val = <STDIN>;
                 chomp $val;
