@@ -1,5 +1,5 @@
-.. @_file_name@ - manual
-.. Copyright (C) @_year@ @author@
+.. @_man_name@ - manual
+.. Copyright (C) @_year@ @_user@
 ..
 .. This program is free software; you can redistribute it and/or modify
 .. it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 ..
 
 ===============================================================================
-@_file_name@
+@_man_name@
 ===============================================================================
 
 -------------------------------------------------------------------------------
@@ -27,15 +27,15 @@
 :Copyright: GNU GPLv3
 :Date: @_month@ @_year@
 :Id: $Id:$
-:Manual group: text processing
-:Manual section: @_file_ext@
+:Manual group: @_man_group@
+:Manual section: @_man_sect@
 :Version: (dev)
 
 
 SYNOPSIS
 ========
 
-    @_file_name@ [ARGUMENTS]
+    @_man_name@ [ARGUMENTS]
 
 
 
@@ -64,7 +64,7 @@ ENVIRONMENT
 EXAMPLES
 ========
 
-    * @_file_name@ example-arguments
+    * @_man_name@ example-arguments
 
         example-description
 
@@ -73,7 +73,6 @@ EXAMPLES
 SEE ALSO
 ========
 
-    *
 
 
 BUGS

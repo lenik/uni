@@ -19,6 +19,18 @@ use Getopt::Long;
     Getopt::Long::Configure('gnu_getopt');
 use POSIX('strftime');
 
+our %MAN_SECTIONS = (
+    '1' => 'Command Usage',
+    '2' => 'System Call',
+    '3' => 'Library Function',
+    '4' => 'special files',
+    '5' => 'File Format',
+    '6' => 'Games',
+    '7' => 'Miscellaneous',
+    '8' => 'System Administration',
+    '9' => 'Kernel Routines',
+);
+
 sub _main; sub _version; sub _help;
 
 our $opt_force;
@@ -26,6 +38,7 @@ our $opt_template_name;
 our $opt_template_file;
 our %opt_env = %ENV;
 our %opt_vars;
+our $opt_notext = 0;
 
 our $opt_outfile;
 our @opt_tmpl_dirs = qw(@newtmpldir@);
@@ -43,6 +56,7 @@ sub _boot {
                'force|f'        => \$opt_force,
                'template|t=s'   => \$opt_template_name,
                'define|D=s'     => \%opt_vars,
+               'notext|n'       => \$opt_notext,
                );
 
     unless (defined $opt_template_name) {
@@ -74,15 +88,19 @@ sub _boot {
         undef $opt_outfile;
     }
 
-    for (@ARGV) {
-        my $eq = index($_, '=');
-        my $key = $_;
-        my $val = '';
-        if ($eq != -1) {
-            $key = substr($_, 0, $eq);
-            $val = substr($_, $eq + 1);
+    if ($opt_notext) {
+        for (@ARGV) {
+            my $eq = index($_, '=');
+            my $key = $_;
+            my $val = '';
+            if ($eq != -1) {
+                $key = substr($_, 0, $eq);
+                $val = substr($_, $eq + 1);
+            }
+            $opt_vars{$key} = $val;
         }
-        $opt_vars{$key} = $val;
+    } else {
+        $opt_env{'TEXT'} = join(' ', @ARGV);
     }
 
     _log2 "template: $opt_template_file";
@@ -188,7 +206,11 @@ sub _main {
             $_file_ext = substr($_file_base, $last_dot + 1);
         }
 
+    my ($_man_name, $_man_sect) = $_file_base =~ /^(.*)\.([1-9])(?:\..*?)?$/;
+    my $_man_group = $MAN_SECTIONS{$_man_sect};
+
     my @tm = localtime();
+
     my $_user = $ENV{'DEBFULLNAME'} || $ENV{'USERNAME'};
     my $_email = $ENV{'DEBEMAIL'} || $ENV{'EMAIL'};
     my $_email_x = $_email;
@@ -201,6 +223,8 @@ sub _main {
         _file_base  => $_file_base,
         _file_name  => $_file_name,
         _file_ext   => $_file_ext,
+        _man_name   => $_man_name,
+        _man_sect   => $_man_sect,
         _date       => strftime("%F", @tm),
         _year       => strftime("%Y", @tm),
         _month      => strftime("%b", @tm),
@@ -296,3 +320,4 @@ The L<cmt/"Perl_simple_cli_program_template">
 
 Xima Lenik <name@mail.box>
 
+=cut

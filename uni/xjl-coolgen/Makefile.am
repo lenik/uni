@@ -12,10 +12,10 @@ dist_man_MANS = \
 newtmpl_DATA =
 
 EXTRA_DIST = \
-	new.in
+    new.in
 
 CLEANFILES = \
-	new
+    new
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); \
