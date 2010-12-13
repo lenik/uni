@@ -103,7 +103,7 @@ function main() {
     shift
 
     if [ "$#" = 0 ]; then
-        echo "No keyword specified. "
+        set ''
     fi
 
     regex_flags=
@@ -125,6 +125,7 @@ function main() {
     # for f in "${filelist[@]}"; do echo fl: $f; done
 
     for keyword in "$@"; do
+        sleep 1
         keyword="${keyword//\\/\\\\}"
         if [ -z "$strict" ]; then
             grep_keyword="${keyword//[-_.]/[-_.]}"
@@ -153,7 +154,11 @@ function main() {
                 sort -u | \
             while IFS=\| read file anchor; do
                 if [ "$list_only" = 1 ]; then
-                    echo "$anchor (${file##*/})"
+                    if [ $LOGLEVEL -gt 2 ]; then
+                        echo "$anchor (${file##*/})"
+                    else
+                        echo "$anchor"
+                    fi
                 else
                     ((index++))
                     if [ "$index" = "$selection" ]; then
