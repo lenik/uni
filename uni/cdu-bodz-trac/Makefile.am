@@ -1,5 +1,4 @@
 include libauto/coolauto.am
-include libauto/allin.am
 
 sitesdir = ${sysconfdir}/apache2/sites-available
 

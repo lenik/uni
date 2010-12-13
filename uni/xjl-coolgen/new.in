@@ -225,6 +225,7 @@ sub _main {
         _file_ext   => $_file_ext,
         _man_name   => $_man_name,
         _man_sect   => $_man_sect,
+        _man_group  => $_man_group,
         _date       => strftime("%F", @tm),
         _year       => strftime("%Y", @tm),
         _month      => strftime("%b", @tm),

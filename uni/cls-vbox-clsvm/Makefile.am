@@ -1,5 +1,4 @@
 include libauto/coolauto.am
-include libauto/allin.am
 
 dist_init_DATA = \
     losetup-vbox-clsvm.conf

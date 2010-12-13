@@ -1,6 +1,5 @@
 
 include libauto/coolauto.am
-include libauto/allin.am
 
 setup_SCRIPTS = \
     postinst \

@@ -1,5 +1,4 @@
 include libauto/coolauto.am
-include libauto/allin.am
 
 aliases_DATA =
 

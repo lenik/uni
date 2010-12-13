@@ -1,5 +1,4 @@
 include libauto/coolauto.am
-include libauto/allin.am
 
 do_subst += -e 's,[@]debdefldir[@],$(debdefldir),g'
 
