@@ -2,4 +2,6 @@
 libautodir = ${pkgdatadir}/libauto
 
 dist_libauto_DATA = \
-    coolauto.am
+    allin.am \
+    coolauto.am \
+    rst.am
