@@ -1,4 +1,3 @@
-
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
@@ -16,6 +15,7 @@ dist_sudoers_DATA = \
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
+	chmod -w "$@"
 
 install-data-hook:
 	@echo "Please run $(DESTDIR)$(pkgdatadir)/postinst $(DESTDIR)$(pkgdatadir) $(DESTDIR)$(sysconfdir) $(DESTDIR)$(sudoersdir)"

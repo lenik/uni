@@ -42,8 +42,8 @@ EXTRA_DIST = \
 
 CLEANFILES = ${setup_SCRIPTS}
 
-%: %.in Makefile
-	$(do_subst) \
-		-e 's,[@]libbashdir[@],$(libbashdir),g' \
-	<$< >$@
+do_subst2 = $(do_subst) -e 's,[@]libbashdir[@],$(libbashdir),g'
 
+%: %.in Makefile
+	$(do_subst2) <$< >$@
+	chmod -w "$@"

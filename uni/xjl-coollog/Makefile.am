@@ -12,3 +12,4 @@ CLEANFILES = ${setup_SCRIPTS}
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
+	chmod -w "$@"

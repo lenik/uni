@@ -69,7 +69,8 @@ uninstall-hook:
             done; \
             rm -f dir-nover
 
+do_subst2 = $(do_subst) -e 's,[@]debdefldir[@],$(debdefldir),g'
+
 %: %.in Makefile
-	$(do_subst) \
-            -e 's,[@]debdefldir[@],$(debdefldir),g' \
-            <$< >$@
+	$(do_subst2) <$< >$@
+	chmod -w "$@"

@@ -52,3 +52,4 @@ CLEANFILES = \
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
+	chmod -w "$@"

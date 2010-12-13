@@ -1,19 +1,20 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-	headrm \
-	grepl \
-	err_demux
+    headrm \
+    grepl \
+    err_demux
 
 setup_SCRIPTS = \
     postinst \
     prerm
 
 EXTRA_DIST = \
-	postinst.in \
-	prerm.in
+    postinst.in \
+    prerm.in
 
 CLEANFILES = ${setup_SCRIPTS}
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
+	chmod -w "$@"

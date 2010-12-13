@@ -1,5 +1,9 @@
 include libauto/coolauto.am
 
+do_subst2 = $(do_subst) \
+    -e 's,[@]cachedir[@],$(cachedir),g' \
+    -e 's,[@]sudoersdir[@],$(sudoersdir),g'
+
 cachedir = /var/cache/downloads
 sudoersdir = /etc/sudoers.d
 
@@ -43,8 +47,5 @@ CLEANFILES = \
     wgetc-url
 
 %: %.in Makefile
-	$(do_subst) \
-		-e 's,[@]cachedir[@],$(cachedir),g' \
-		-e 's,[@]sudoersdir[@],$(sudoersdir),g' \
-		<$< >$@
-
+	$(do_subst2) <$< >$@
+	chmod -w "$@"

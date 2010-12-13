@@ -1,4 +1,3 @@
-
 include libauto/coolauto.am
 
 setup_SCRIPTS = \
@@ -6,8 +5,8 @@ setup_SCRIPTS = \
     prerm
 
 setup_DATA = \
-	fstab.tc \
-	passwd.tc
+    fstab.tc \
+    passwd.tc
 
 EXTRA_DIST = \
     fstab.tc \
@@ -21,3 +20,4 @@ CLEANFILES = \
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
+	chmod -w "$@"

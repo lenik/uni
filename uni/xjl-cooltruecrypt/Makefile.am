@@ -6,10 +6,10 @@ dist_bin_SCRIPTS = \
     nextdevid
 
 sbin_SCRIPTS = \
-	mount.tc \
+    mount.tc \
     mountall.tc \
-	fstab-install.tc \
-	passwd-install.tc
+    fstab-install.tc \
+    passwd-install.tc
 
 dist_man_MANS = \
     mount.tc.1 \
@@ -26,30 +26,31 @@ init_DATA = \
     mount-tc.conf
 
 setup_SCRIPTS = \
-	truecrypt-setup-x86 \
-	postinst \
-	prerm
+    truecrypt-setup-x86 \
+    postinst \
+    prerm
 
 EXTRA_DIST = \
-	test.sh \
-	mount.tc.in \
-	mountall.tc.in \
-	fstab-install.tc.in \
-	passwd-install.tc.in \
-	postinst.in \
-	prerm.in
+    test.sh \
+    mount.tc.in \
+    mountall.tc.in \
+    fstab-install.tc.in \
+    passwd-install.tc.in \
+    postinst.in \
+    prerm.in
 
 CLEANFILES = \
-	mount.tc \
-	mountall.tc \
-	fstab-install.tc \
-	passwd-install.tc \
-	postinst \
-	prerm \
-	truecrypt-setup-x86
+    mount.tc \
+    mountall.tc \
+    fstab-install.tc \
+    passwd-install.tc \
+    postinst \
+    prerm \
+    truecrypt-setup-x86
 
 truecrypt-setup-x86:
 	$(srcdir)/install-truecrypt.sh $@
 
 %: %.in
 	$(do_subst) <$< >$@
+	chmod -w "$@"

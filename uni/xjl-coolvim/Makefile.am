@@ -32,7 +32,8 @@ CLEANFILES = ${setup_SCRIPTS}
 install-data-hook:
 	cd $(DESTDIR)$(bindir); ln -snf coolvim coolvims
 
+do_subst2 = $(do_subst) -e 's,[@]vimconfdir[@],$(vimconfdir),g'
+
 %: %.in Makefile
-	$(do_subst) \
-		-e 's,[@]vimconfdir[@],$(vimconfdir),g' \
-		<$< >$@
+	$(do_subst2) <$< >$@
+	chmod -w "$@"

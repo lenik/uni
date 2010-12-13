@@ -36,3 +36,4 @@ CLEANFILES = verinit
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
+	chmod -w "$@"

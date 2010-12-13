@@ -56,6 +56,7 @@ CLEANFILES = \
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
+	chmod -w "$@"
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); \

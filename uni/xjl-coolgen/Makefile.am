@@ -16,9 +16,6 @@ EXTRA_DIST = \
 CLEANFILES = \
 	new
 
-%: %.in Makefile
-	$(do_subst) <$< >$@
-
 install-data-hook:
 	cd $(DESTDIR)$(bindir); \
 		for tmpl in $(DESTDIR)$(newtmpldir)/*; do \
@@ -26,3 +23,7 @@ install-data-hook:
 			base="$${base%.*}"; \
 			ln -snf new new-$$base; \
 		done
+
+%: %.in Makefile
+	$(do_subst) <$< >$@
+	chmod -w "$@"

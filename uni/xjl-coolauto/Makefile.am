@@ -4,7 +4,7 @@ SUBDIRS = libauto
 
 bin_SCRIPTS = \
     autoinit \
-	autoreconf2
+    autoreconf2
 
 dist_bin_SCRIPTS = \
     autounconf
@@ -21,4 +21,4 @@ EXTRA_DIST = autoinit.in autoreconf2.in automake.template.in
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
-
+	chmod -w "$@"

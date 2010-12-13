@@ -16,8 +16,8 @@ CLEANFILES = \
     postinst \
     prerm
 
-%: %.in Makefile
-	$(do_subst) \
-        -e 's,[@]bindconfdir[@],$(bindconfdir),g' \
-        <$< >$@
+do_subst2 = $(do_subst2) -e 's,[@]bindconfdir[@],$(bindconfdir),g'
 
+%: %.in Makefile
+	$(do_subst2) <$< >$@
+	chmod -w "$@"

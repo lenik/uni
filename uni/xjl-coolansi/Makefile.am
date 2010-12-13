@@ -33,3 +33,4 @@ ansifilter ansifilter.1: get-ansifilter Makefile
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
+	chmod -w "$@"

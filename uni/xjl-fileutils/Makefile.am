@@ -24,13 +24,14 @@ setup_SCRIPTS = \
     prerm
 
 EXTRA_DIST = \
-	postinst.in \
-	prerm.in
+    postinst.in \
+    prerm.in
 
 CLEANFILES = ${setup_SCRIPTS}
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
+	chmod -w "$@"
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); \

@@ -2,6 +2,11 @@ include libauto/coolauto.am
 
 SUBDIRS = gconf
 
+do_subst2 = $(do_subst) \
+    -e 's,[@]x11confdir[@],$(x11confdir),g' \
+    -e 's,[@]xsessiondir[@],$(xsessiondir),g' \
+    -e 's,[@]gconf2dir[@],$(gconf2dir),g'
+
 x11confdir  = ${sysconfdir}/X11
 xsessiondir = ${x11confdir}/Xsession.d
 
@@ -26,6 +31,12 @@ setup_SCRIPTS = \
 setup_DATA = \
     path.diff
 
+path.diff: path.0 path
+	-diff -u ${srcdir}/path.0 ${srcdir}/path >$@
+
+#path.0: ${gconf2dir}/path
+#	cp -f "$<" "$@"
+
 EXTRA_DIST = \
     postinst.in \
     prerm.in \
@@ -36,15 +47,6 @@ CLEANFILES = ${setup_SCRIPTS} \
     gconf-cleanbase/%gconf-tree.xml
 
 %: %.in Makefile
-	$(do_subst) \
-        -e 's,[@]x11confdir[@],$(x11confdir),g' \
-        -e 's,[@]xsessiondir[@],$(xsessiondir),g' \
-        -e 's,[@]gconf2dir[@],$(gconf2dir),g' \
-        <$< >$@
-
-path.diff: path.0 path
-	-diff -u ${srcdir}/path.0 ${srcdir}/path >$@
-
-#path.0: ${gconf2dir}/path
-#	cp -f "$<" "$@"
+	$(do_subst2) <$< >$@
+	chmod -w "$@"
 

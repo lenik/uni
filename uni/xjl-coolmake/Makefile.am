@@ -20,5 +20,6 @@ dist_aliases_DATA = \
 EXTRA_DIST = makelook.in
 CLEANFILES = makelook
 
-makelook: makelook.in Makefile
-	$(do_subst) <$(srcdir)/makelook.in >$@
+%: %.in Makefile
+	$(do_subst) <$< >$@
+	chmod -w "$@"

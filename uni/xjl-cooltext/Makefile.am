@@ -17,7 +17,8 @@ EXTRA_DIST = \
     postinst.in \
     prerm.in
 
-CLEANFILES = ${setup_SCRITPS}
+CLEANFILES = ${setup_SCRIPTS}
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
+	chmod -w "$@"
