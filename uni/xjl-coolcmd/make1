@@ -2,11 +2,14 @@
     . shlib-import cliboot
 
     RCSID='$Id: bash.sh 2141 2010-12-13 06:15:26Z lenik $'
-    short_opts="BT:hqv"
-    long_opts="always-make,timeout:,help,quiet,verbose,version"
+    short_opts="BT:oeahqv"
+    long_opts="always-make,timeout:,stdout,stderr,append,help,quiet,verbose,version"
 
     always_make=
     timeout=
+    stdout=
+    stderr=
+    append=
 
 function version() {
     parse_id "$RCSID"
@@ -27,6 +30,9 @@ function help() {
     echo "Options: "
     echo "    -B, --always-make       Unconditionally make"
     echo "    -T, --timeout=#[unit]   Timeout and force make, unit like min,hr,etc."
+    echo "    -o, --stdout            Redirect stdout to target"
+    echo "    -e, --stderr            Redirect stderr to target"
+    echo "    -a, --append            Redirect in append mode"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
@@ -54,6 +60,12 @@ function setopt() {
                 *W)     timeout=$(( ${timeout%W}   * 10080 ));;
             esac
             ;;
+        -o|--stdout)
+            stdout=1;;
+        -e|--stderr)
+            stderr=1;;
+        -a|--append)
+            append=1;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -78,9 +90,9 @@ function main() {
     if [ "$1" = ':' ]; then shift; fi
 
     prereq=()
-    n=0
+    n_prereq=0
     while [ $# != 0 ] && [ "$1" != ';' ]; do
-        prereq[n++]="$1"
+        prereq[n_prereq++]="$1"
         shift
     done
 
@@ -132,20 +144,35 @@ function main() {
         fi
 
         if [ -z "$make" ]; then
-            for pre in "${prereq[@]}"; do
-                if [ -e "$pre" ]; then
-                    pre_time=`stat -c%Y "$pre"`
-                    if [ $pre_time -gt $target_time ]; then
-                        make=1
-                        break
+            if [ "$n_prereq" = 0 ]; then
+                make=1
+            else
+                for pre in "${prereq[@]}"; do
+                    if [ -e "$pre" ]; then
+                        pre_time=`stat -c%Y "$pre"`
+                        if [ $pre_time -gt $target_time ]; then
+                            make=1
+                            break
+                        fi
                     fi
-                fi
-            done
+                done
+            fi
         fi
     fi
 
     if [ "$make" = 1 ]; then
-        "${cmd[@]}"
+        A='>'
+        if [ "$append" = 1 ]; then A='>>'; fi
+
+        X=()
+        case "$stderr.$stdout" in
+            .1) X=("$A" "$target");;
+            1.) X=("2$A" "$target");;
+            1.1) X=("2>&1" "$A" "$target");;
+        esac
+
+        # TODO: quote/escape/specialchars...
+        bash -c "${cmd[*]} ${X[*]}"
     else
         _log1 "Target is already updated"
     fi
