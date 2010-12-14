@@ -46,7 +46,8 @@ function setopt() {
 
 function main() {
     for f in "$@"; do
-        if cmdline=`find-prefix "$f" "@reload_cfg@"`; then
+        f=`readlink -f "$f"`
+        if cmdline=`find-prefix -q "$f" "@vimconfdir@/reload.cfg"`; then
             _log1 "Reload $f using $cmdline"
             if bash -c "$cmdline"; then
                 _log2 "Reloaded"
@@ -57,7 +58,7 @@ function main() {
                 fi
             fi
         else
-            echo "Don't know how to reload $f" >&2
+            _log1 "Don't know how to reload $f"
             exit 1
         fi
     done

@@ -59,12 +59,23 @@ for f in "$@"; do
         tabrc=`$sudo_r guesstab "$f"`
     fi
 
+    before=0
+    if [ -f "$f" ]; then before=`stat -c%Y "$f"`; fi
+
     if $sudo_w $vim "${vimopts[@]}" -c "$tabrc" "$f"; then
         read $sudo_r head < <(head -1 "$f")
         if [ "${head:0:2}" = '#!' ]; then
             if [ ! -x "$f" ]; then
                 echo "Set executable bit on $f"
                 $sudo_w chmod +x "$f"
+            fi
+        fi
+
+        after=0
+        if [ -f "$f" ]; then after=`stat -c%Y "$f"`; fi
+        if [ "$before" != "$after" ]; then
+            if $sudo_w reload-file -q "$f"; then
+                echo "Reloaded $f"
             fi
         fi
     fi

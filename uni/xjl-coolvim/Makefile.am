@@ -7,10 +7,15 @@ vimconfdir = ${sysconfdir}/vim
 bin_PROGRAMS = \
     find-prefix
 
+AM_CPPFLAGS = $(GLIB_CFLAGS)
+find_prefix_LDADD = $(GLIB_LIBS)
+
 dist_bin_SCRIPTS = \
     coolvim \
     guesstab \
-    ifedit \
+    ifedit
+
+bin_SCRIPTS = \
     reload-file
 
 dist_vimconf_DATA = \
@@ -32,9 +37,11 @@ setup_SCRIPTS = \
 
 EXTRA_DATA = \
     postinst.in \
-    prerm.in
+    prerm.in \
+    reload-file.in
 
-CLEANFILES = ${setup_SCRIPTS}
+CLEANFILES = ${setup_SCRIPTS} \
+    reload-file
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); ln -snf coolvim coolvims

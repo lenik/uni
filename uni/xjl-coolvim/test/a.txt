@@ -1,0 +1,5 @@
+/abc            ABC
+/abc/def        DEF
+/abc/xyz        XYZ
+/abcd           ABCD
+/fghi           FGHI
