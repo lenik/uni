@@ -3,6 +3,7 @@ include libauto/coolauto.am
 dist_bin_SCRIPTS = \
     pdfmon \
     treetex \
+    list2tree \
     Fpst
 
 setup_SCRIPTS = \
