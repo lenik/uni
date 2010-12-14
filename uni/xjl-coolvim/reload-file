@@ -1,0 +1,66 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh 1853 2010-09-29 01:35:59Z lenik $'
+    short_opts="ehqv"
+    long_opts="error-exit,help,quiet,verbose,version"
+
+    error_exit=0
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Reload a specific file"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] FILES"
+    echo
+    echo "Options: "
+    echo "    -e, --error-exit        Error exit immediately"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -e|--error-exit)
+            error_exit=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for f in "$@"; do
+        if cmdline=`find-prefix "$f" "@reload_cfg@"`; then
+            _log1 "Reload $f using $cmdline"
+            if bash -c "$cmdline"; then
+                _log2 "Reloaded"
+            else
+                _log2 "Reload failed"
+                if [ "$error_exit" = 1 ]; then
+                    exit 2
+                fi
+            fi
+        else
+            echo "Don't know how to reload $f" >&2
+            exit 1
+        fi
+    done
+}
+
+boot "$@"
