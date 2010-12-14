@@ -6,6 +6,7 @@ alias    ci='svn-commit-autover'
 alias    di='svn di'
 alias    st='svn st'
 alias   log='svn-log'
+alias    si='svn pe svn:ignore'
 alias   siu='svn-ignore-unversioned'
 
 alias    up='svn update'
