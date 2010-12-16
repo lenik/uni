@@ -3,7 +3,8 @@ include libauto/coolauto.am
 shsrcdir = ${bindir}
 
 dist_bin_SCRIPTS = \
-    tree-index
+    tree-index \
+    xf-tree
 
 dist_shsrc_SCRIPTS = \
     cd-tree

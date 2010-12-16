@@ -1,1 +1,5 @@
 alias cdt='. cd-tree'
+alias xft='xf-tree echo'
+alias vit='xf-tree vi'
+alias catt='xf-tree cat'
+alias xcatt='xf-tree xcat'

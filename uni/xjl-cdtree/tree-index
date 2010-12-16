@@ -21,14 +21,14 @@ for mode in view model; do
                 while read rest; do
                     echo "$rest"
                 done
-            ) | xcat -m 1 -m 2 -m 4
+            ) > >( xcat -m 1 -m 2 -m 4 )
         then
             exit $?
         fi
     else
         rm -f $cachef
         # TODO: remove tree opts: -p -ug -shDF -ASC -H:T:o:
-        tree -fi "$@" | while read line; do
+        tree -f -i "$@" | while read line; do
             if [ -z "$line" ]; then break; fi
             echo "$line" >>$cachef
         done

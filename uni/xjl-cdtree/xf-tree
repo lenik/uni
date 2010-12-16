@@ -1,0 +1,36 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    echo "Program name isn't specified!"
+    exit 1
+fi
+prog="$1"
+shift
+
+cachef=/tmp/lasttree.$PPID
+
+if [ -z "$1" ]; then
+    echo "Tree index isn't specified!"
+    exit 1
+fi
+
+index="${1%%::*}"
+if [ $(($index + 0)) != "$index" ]; then
+    echo "Not an index: $index ($1)"
+    exit 1
+fi
+shift
+
+if [ ! -f "$cachef" ]; then
+    echo "You should run tree-index before using the index number"
+else
+    lineno=$(($index + 1))
+    path=`sed -n ${lineno}p $cachef`
+    # echo "Line: $line."
+    if [ -z "$path" ]; then
+        echo "Index out of range"
+    else
+        path="${path%% -> *}"
+        "$prog" "$path" "$@"
+    fi
+fi
