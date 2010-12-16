@@ -30,7 +30,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-include libauto/subst.am
-include libauto/allin.am
-include libauto/rst.am
+include $(top_srcdir)/libauto/subst.am
+include $(top_srcdir)/libauto/allin.am
+include $(top_srcdir)/libauto/rst.am
 
