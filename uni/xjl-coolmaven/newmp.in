@@ -4,8 +4,8 @@
     import loadpom
 
     RCSID='$Id$'
-    short_opts="G:A:V:g:a:w:hqv"
-    long_opts="arch-group:,arch-artifact:,arch-version:,target-group:,target-artifact:,target-version:,help,quiet,verbose,version"
+    short_opts="G:A:V:g:a:w:p:hqv"
+    long_opts="arch-group:,arch-artifact:,arch-version:,target-group:,target-artifact:,target-version:,target-package:,help,quiet,verbose,version"
 
     ARCHS="@DESTDIR@@pkgdatadir@/archetypes"
 
@@ -15,6 +15,7 @@
     target_groupid=
     target_artifactid=
     target_version=0.0.0-SNAPSHOT
+    target_package=
 
 function version() {
     parse_id "$RCSID"
@@ -36,6 +37,7 @@ function help() {
     echo "    -g, --target-group=STR    GroupId of the generated project, default as parent"
     echo "    -a, --target-artifact=STD ArtifactId of the generated project"
     echo "    -w, --target-version=STR  Version of the generated project"
+    echo "    -p, --target-package=STR  The preferred package name of the generated project"
     echo "    -q, --quiet               Repeat to get less info"
     echo "    -v, --verbose             Repeat to get more info"
     echo "    -h, --help                Show this help page"
@@ -56,6 +58,8 @@ function setopt() {
             target_artifactid=$2;;
         -w|--target-version)
             target_version=$2;;
+        -p|--target-package)
+            target_package=$2;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -186,13 +190,26 @@ function main() {
     mvnopts[n++]=-DarchetypeArtifactId=$arch_artifactid
     mvnopts[n++]=-DarchetypeVersion=$arch_version
 
+    if [ -z "$target_groupid" ]; then
+        if [ -n "$parent_group_id" ]; then
+            target_groupid=$parent_group_id
+        else
+            target_groupid=com.example
+        fi
+    fi
+
+    if [ -z "$target_version" ]; then
+        target_version=0.0.1-SNAPSHOT
+    fi
+
+    if [ -z "$target_package" ]; then
+        target_package=${target_groupid//[^a-zA-Z0-9_]/.}
+    fi
+
     mvnopts[n++]=-DartifactId=$target_artifactid
-    if [ -n "$target_groupid" ]; then
-        mvnopts[n++]=-DgroupId=$target_groupid
-    fi
-    if [ -n "$target_version" ]; then
-        mvnopts[n++]=-Dversion=$target_version
-    fi
+    mvnopts[n++]=-DgroupId=$target_groupid
+    mvnopts[n++]=-Dversion=$target_version
+    mvnopts[n++]=-Dpackage=$target_package
 
     mvn "${mvnopts[@]}"
 
@@ -205,8 +222,13 @@ function main() {
 
     if [ $# -gt 0 ]; then
         pomname="$1"
+        tmpfile=`tempfile`
         _log2 "Set POM name to $pomname"
-        lineconf "$pomfile" "<name>.*</name>" "    <name>$pomname</name>"
+        xml2 <"$pomfile" \
+            | sed -e "s|/project/name=.*|/project/name=$pomname|" \
+            | 2xml \
+            | xmlindent -f -nbe >$tmpfile # suppress nl before end-tag
+        mv -f $tmpfile "$pomfile"
     fi
 }
 
