@@ -13,7 +13,6 @@ bin_PROGRAMS = \
 dist_bin_SCRIPTS = \
     eachdir \
     orig \
-    tree-index \
     tree-less \
     history-sort
 
@@ -23,7 +22,6 @@ dist_shsrc_SCRIPTS = \
     cd..n \
     cd.x \
     cd-alias \
-    cd-tree \
     d-which
 
 dist_sudoers_DATA = \
@@ -31,7 +29,6 @@ dist_sudoers_DATA = \
 
 dist_bashcmpl_DATA = \
     bash_completion.d/nosvn \
-    bash_completion.d/cd-tree \
     bash_completion.d/paths
 
 setup_SCRIPTS = \

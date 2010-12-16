@@ -9,6 +9,6 @@ Homepage: http://uni.bodz.net/xjl-coolbash
 Package: xjl-coolbash
 Provides: coolbash
 Architecture: all
-Depends: bash, xjl-bash-shlib, tree
-Recommends: xjl-bash-aliases
+Depends: bash, xjl-bash-shlib
+Recommends: xjl-bash-aliases, xjl-cdtree
 Description: Cool bash utilities by Lenik.

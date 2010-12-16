@@ -5,7 +5,6 @@ alias cd....='cd ../../..'
 alias cdd='. cd-ls'
 alias ccd='. cd-ls'
 alias cdf='. cd-first'
-alias cdt='. cd-tree'
 alias cd-alias='. cd-alias'
 
 alias md='mkdir'
