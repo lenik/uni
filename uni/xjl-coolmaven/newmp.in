@@ -172,10 +172,11 @@ function main() {
     fi
 
     if [ $# -lt 1 ]; then
-        echo "artifact-id or pom-name isn't specified"
+        echo "artifact-id isn't specified"
         exit 1
     fi
     target_artifactid="$1"
+    shift
 
     mvnopts=()
     n=0
