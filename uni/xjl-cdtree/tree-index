@@ -9,6 +9,7 @@ for mode in view model; do
     if [ $mode = view ]; then
         # XXX tree doesn't return error for illegal syntax.
         if ! tree -FC "$@" > >(
+            (
                 while read line; do
                     if [ -z "$line" ]; then
                         echo
@@ -21,8 +22,8 @@ for mode in view model; do
                 while read rest; do
                     echo "$rest"
                 done
-            ) > >( xcat -m 1 -m 2 -m 4 )
-        then
+            ) | xcat -m 1 -m 2 -m 4
+        ); then
             exit $?
         fi
     else
