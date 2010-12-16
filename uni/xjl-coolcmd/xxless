@@ -1,0 +1,2 @@
+#!/bin/bash
+xcat -m 1 -m 2 "$@" | less -Ceifr

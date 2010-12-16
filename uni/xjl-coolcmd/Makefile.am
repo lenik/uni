@@ -37,7 +37,17 @@ dist_bin_SCRIPTS = \
     substexec \
     substtree \
     swapox \
-    testox
+    testox \
+    xxcat \
+    xxxcat \
+    xxxxcat \
+    xless \
+    xxless \
+    xxxless \
+    xxxxless \
+    xxmore \
+    xxxmore \
+    xxxxmore
 
 setup_SCRIPTS = \
     postinst \
