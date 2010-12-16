@@ -1,6 +1,7 @@
 #!/bin/bash
 # master-file, please do not edit
     . shlib-import cliboot
+    import loadpom
 
     RCSID='$Id$'
     short_opts="G:A:V:g:a:w:hqv"
@@ -66,19 +67,6 @@ function setopt() {
         *)
             quit "invalid option: $1";;
     esac
-}
-
-function inherit_parent() {
-    if [ -f pom.xml ]; then
-        _log2 "Found parent pom.xml"
-        IFS=: read gid aid ver pack < <(pomid pom.xml)
-        _log2 "Parent id: $gid:$aid:$ver:$pack"
-        if [ -z "$target_groupid" ]; then target_groupid=$gid; fi
-        if [ -z "$target_version" ]; then target_version=$ver; fi
-    else
-        _log2 "No parent pom found. "
-        exit 1
-    fi
 }
 
 function search_arch() {
@@ -157,9 +145,11 @@ function search_arch() {
 }
 
 function main() {
-    if [ -z "$target_groupid" ]; then
-        _log2 "Try to inherit group-id from parent pom"
-        inherit_parent
+    if [ -f pom.xml ]; then
+        _log2 "Load parent"
+        loadpom pom.xml 1
+        set | grep '^parent_'
+        exit 1
     fi
 
     if [ -z "$arch_artifactid" ]; then
@@ -183,14 +173,28 @@ function main() {
     fi
     target_artifactid="$1"
 
-    mvn -q archetype:generate \
-        -DinteractiveMode=false \
-        -DarchetypeGroupId=$arch_groupid \
-        -DarchetypeArtifactId=$arch_artifactid \
-        -DarchetypeVersion=$arch_version \
-        -DgroupId=$target_groupid \
-        -DartifactId=$target_artifactid \
-        -Dversion=$target_version
+    mvnopts=()
+    n=0
+    if [ $LOGLEVEL -lt 1 ]; then
+        mvnopts[n++]=-q
+    fi
+
+    mvnopts[n++]=archetype:generate
+    mvnopts[n++]=-DinteractiveMode=false
+
+    mvnopts[n++]=-DarchetypeGroupId=$arch_groupid
+    mvnopts[n++]=-DarchetypeArtifactId=$arch_artifactid
+    mvnopts[n++]=-DarchetypeVersion=$arch_version
+
+    mvnopts[n++]=-DartifactId=$target_artifactid
+    if [ -n "$target_groupid" ]; then
+        mvnopts[n++]=-DgroupId=$target_groupid
+    fi
+    if [ -n "$target_version" ]; then
+        mvnopts[n++]=-Dversion=$target_version
+    fi
+
+    mvn "${mvnopts[@]}"
 
     pomfile="$target_artifactid/pom.xml"
     if [ -f "$pomfile" ]; then
