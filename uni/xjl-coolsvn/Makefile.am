@@ -45,8 +45,18 @@ dist_svnunion_DATA = \
     svn_union.d/README
 
 dist_aliases_DATA = \
-    aliases.d/coolsvn.sh
+    coolsvn.sh
 
-EXTRA_DIST = svn-union.in svn-union-install.in
-CLEANFILES = svn-union    svn-union-install
+aliases_DATA = \
+    sw-svn.sh
+
+EXTRA_DIST = \
+    svn-union.in \
+    svn-union-install.in \
+    sw-svn.sh.in
+
+CLEANFILES = \
+    svn-union \
+    svn-union-install \
+    sw-svn.sh
 
