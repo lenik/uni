@@ -1,10 +1,10 @@
 #!/bin/sh
 # master-file
 
-echo "Patch on svn2cl"
+echo "Unpatch on svn2cl"
     patch -Ru "@bindir@/svn2cl" "@setupdir@/svn2cl.diff"
 
-echo "Patch on svn2cl.xsl"
+echo "Unpatch on svn2cl.xsl"
     patch -Ru "@sysconfdir@/svn2cl/svn2cl.xsl" "@setupdir@/svn2cl.xsl.diff"
 
 exit 0

@@ -215,6 +215,7 @@ do
       echo "Usage: $prog [OPTION]... [PATH]..."
       echo "Generate a ChangeLog from a subversion repository."
       echo ""
+      echo "  --hide-files         hide changed file names in log"
       echo "  --strip-prefix=NAME  prefix to strip from all entries, defaults"
       echo "                       path inside the repository"
       echo "  --linelen=NUM        maximum length of an output line"
