@@ -1,5 +1,7 @@
 include libauto/coolauto.am
 
+SUBDIRS = php
+
 setup_SCRIPTS = \
     postinst \
     prerm
