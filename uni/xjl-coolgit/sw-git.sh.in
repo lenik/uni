@@ -1,1 +1,1 @@
-alias -- -git='. @aliasesdir@/lazy/coolgit.sh'
+alias -- -git='. @aliasesdir@/coolgit.sh-noauto'
