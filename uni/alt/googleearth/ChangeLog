@@ -1,0 +1,19 @@
+2010-12-13  lenik
+
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-10-19  lenik
+
+	* .: set ignores
+
+2010-10-11  lenik
+
+	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
+	  configure.ac, debian, debian/control, debian/docs,
+	  debian/postinst, debian/prerm, postinst.in, prerm.in: Initial by
+	  newdeb
