@@ -1,4 +1,10 @@
 #!/bin/sh
 # master-file
 
-echo "svn2cl-enh - postinst.in ..."
+echo "Patch on svn2cl"
+    patch -u "@bindir@/svn2cl" "@setupdir@/svn2cl.diff"
+
+echo "Patch on svn2cl.xsl"
+    patch -u "@sysconfdir@/svn2cl/svn2cl.xsl" "@setupdir@/svn2cl.xsl.diff"
+
+exit 0

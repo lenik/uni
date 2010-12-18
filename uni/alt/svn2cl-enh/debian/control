@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/alt/svn2cl-enh
 
 Package: svn2cl-enh
 Architecture: all
-Depends: subversion-tools
+Depends: subversion-tools, patch
 Description: Enhancement for svn2cl utility.
