@@ -1,5 +1,8 @@
 include libauto/coolauto.am
 
+dist_bin_SCRIPTS = \
+    whoare
+
 setup_SCRIPTS = \
     postinst \
     prerm

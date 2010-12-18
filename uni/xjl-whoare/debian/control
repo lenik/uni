@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-whoare
 
 Package: xjl-whoare
 Architecture: all
-Depends: perl
+Depends: perl, libcmt-perl
 Description: Whois for batch query
