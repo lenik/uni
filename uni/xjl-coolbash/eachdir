@@ -2,11 +2,12 @@
     . shlib-import cliboot
 
     RCSID='$Id$'
-    short_opts="f:C:g:x:hqv"
-    long_opts="list-file:,chdir:,glob:,exclude:,help,quiet,verbose,version"
+    short_opts="bf:C:g:x:hqv"
+    long_opts="background,list-file:,chdir:,glob:,exclude:,help,quiet,verbose,version"
 
     LOGLEVEL=0
 
+    background=
     chdir=
     glob='*'
     listfile=
@@ -30,6 +31,7 @@ function help() {
     echo "    -C, --chdir=DIR         chdir to DIR before enum dirs"
     echo "    -g, --glob=GLOB         glob pattern to list dirs (default *)"
     echo "    -x, --exclude=PATTERN   simple regex to exclude"
+    echo "    -b, --background        run each cmd in background"
     echo "    -q, --quiet             repeat to get less info"
     echo "    -v, --verbose           repeat to get more info"
     echo "    -h, --help              show this help page"
@@ -38,6 +40,8 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -b|--background)
+            background=1;;
         -f|--list-file)
             listfile="$2";;
         -C|--chdir)
@@ -90,7 +94,11 @@ function main() {
             ((i++))
         done
 
-        bash -c "${args[*]}"
+        if [ "$background" = 1 ]; then
+            bash -c "${args[*]}" &
+        else
+            bash -c "${args[*]}"
+        fi
 
         cd ..
     done <$listfile
