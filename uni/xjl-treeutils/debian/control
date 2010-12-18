@@ -1,0 +1,12 @@
+Source: xjl-treeutils
+Section: text
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: http://uni.bodz.net/xjl-treeutils
+
+Package: xjl-treeutils
+Architecture: all
+Depends: perl, libcmt-perl
+Description: Tree/filesystem visualization
