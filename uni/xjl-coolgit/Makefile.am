@@ -1,14 +1,22 @@
 include libauto/coolauto.am
 
+dist_aliases_DATA = \
+    coolgit.sh-noauto
+
+aliases_DATA = \
+    sw-git.sh
+
 setup_SCRIPTS = \
     postinst \
     prerm
 
 EXTRA_DIST = \
     postinst.in \
-    prerm.in
+    prerm.in \
+    sw-git.sh.in
 
-CLEANFILES = ${setup_SCRIPTS}
+CLEANFILES = ${setup_SCRIPTS} \
+    sw-git.sh
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
