@@ -1,0 +1,26 @@
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-12-04  lenik
+
+	* VERSION.av, configure.ac, raw-vmdk: new raw-vmdk option
+	  --register, so you can choose not to register.
+	* Makefile.am, VERSION.av, configure.ac, loop2vmdk, loop2vmdk.1,
+	  raw-vmdk, raw-vmdk.1: add raw-vmdk to generate vmdk wrapper for
+	  raw device.
+	* ., Makefile.am, VERSION.av, configure.ac, img2vdi, img2vdi.1,
+	  vdi2img, vdi2img.1: new vdi2img/img2vdi.
+	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
+	  configure.ac, debian, debian/control, debian/docs,
+	  debian/postinst, debian/prerm, postinst.in, prerm.in: Initial by
+	  newdeb

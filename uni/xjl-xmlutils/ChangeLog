@@ -1,0 +1,40 @@
+2010-12-16  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, xml2vi, xmlutils.sh: vi
+	  for xml2/2xml
+
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-11-30  lenik
+
+	* .: add ignores
+
+2010-11-16  lenik
+
+	* xmltran: Enable the getopt long options.
+	  Using POSIXLY_CORRECT to restrict the options at the beginning of
+	  cmdline.
+
+2010-10-10  lenik
+
+	* xmltran: keyword subst updates.
+	* VERSION.av, configure.ac, xmltran: add show-xsl option
+	* ., VERSION.av, configure.ac, xmltran: add default ns support
+	* VERSION.av, configure.ac, xmltran: missing quote in xmlns=".."
+	* Makefile.am, VERSION.av, configure.ac, debian/control, xmltran:
+	  initial
+	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
+	  configure.ac, debian, debian/control, debian/docs,
+	  debian/postinst, debian/prerm, postinst.in, prerm.in: Initial by
+	  newdeb

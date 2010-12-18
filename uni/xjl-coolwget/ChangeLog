@@ -1,0 +1,105 @@
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-11-30  lenik
+
+	* .: add ignores
+
+2010-11-28  lenik
+
+	* VERSION.av, configure.ac, coolwget.sh: don't use axel as default
+	  wget.
+
+2010-11-16  lenik
+
+	* grepurl, wgetc.in: Enable the getopt long options.
+	  Using POSIXLY_CORRECT to restrict the options at the beginning of
+	  cmdline.
+
+2010-10-23  lenik
+
+	* debian/control: provides short package names to hidden xjl-
+	  prefix.
+
+2010-10-12  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, coolwget.sh,
+	  debian/control: using axel as default wget
+
+2010-10-10  lenik
+
+	* grepurl, wgetc.in: keyword subst updates.
+
+2010-09-23  lenik
+
+	* .: set ignore list.
+	* .: ignore *.gz.
+
+2010-09-22  lenik
+
+	* debian/postinst, debian/prerm: pre/post now turns to auto
+	  generated.
+
+2010-09-20  lenik
+
+	* VERSION.av, configure.ac, grepurl, wgetc.in: shlib-import
+	  updates.
+
+2010-09-18  lenik
+
+	* debian/control, grepurl, prerm.in, wgetc.in: shlib updates.
+
+2010-09-17  lenik
+
+	* Makefile.am, debian/postinst, debian/prerm, post-install.sh.in,
+	  postinst.in, pre-remove.sh.in, prerm.in: rename
+	  pre-remove/post-install to short postinst. etc.
+
+2010-09-16  lenik
+
+	* debian: ignore files under debian by default.
+	* debian, debian/control, debian/docs, debian/postinst,
+	  debian/prerm: add debian control files.
+	* post-install.sh.in, wgetc.in: just using 2777 for the cachedir.
+	  the only resolution is to rewrite wgetc in C.
+	* post-install.sh.in: typo RM should be rm.
+	* post-install.sh.in: using install to copy with mode/owner set.
+	* post-install.sh.in: insert wget- into the basename.
+	* post-install.sh.in, pre-remove.sh.in, wgetc.in: using sid tools
+	  instead of sudo, while keep all files owned by wget user.
+	* Makefile.am, VERSION.av, configure.ac, post-install.sh.in,
+	  pre-remove.sh.in, sudoers.d, sudoers.d/wget, wgetc-url.in,
+	  wgetc.in: [TL-354] use umask instead of sudoers, temporarily.
+	  (Maybe wgetc should rewrite in C)
+
+	  chmod always, whether cache hit or not.
+
+2010-09-14  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, grepurl.1, wgetc-url.1,
+	  wgetc.in: add grepurl/wgetc-url for search urls.
+
+2010-09-09  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, grepurl: dd grepurl
+
+2010-09-08  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, wgetc-url.in, wgetc.in:
+	  change cachedir to /var/cache/downloads.
+	  add wgetc-url to print urls.
+	* VERSION.av, configure.ac, wgetc.in: save md5/urls to cachedb.
+	* VERSION.av, configure.ac, wgetc.in: show cache hit message.
+	* VERSION.av, configure.ac, wgetc.in: getopts fix.
+	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
+	  configure.ac, urljoin, urljoin.1, wgetc.1, wgetc.in: initial.

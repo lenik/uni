@@ -1,0 +1,41 @@
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-09-23  lenik
+
+	* .: set ignore list.
+	* .: ignore *.gz.
+
+2010-09-22  lenik
+
+	* debian/postinst, debian/prerm: pre/post now turns to auto
+	  generated.
+
+2010-09-21  lenik
+
+	* postinst.in: tab/space review.
+
+2010-09-19  lenik
+
+	* VERSION.av, configure.ac, postinst.in, prerm.in: add/remove
+	  p-hosts by chunk, instead of lineconf(s).
+	* Makefile.am, VERSION.av, configure.ac: am file typo.
+	* VERSION.av, configure.ac, debian/postrm, debian/preinst,
+	  postinst.in, postrm.in, preinst.in, prerm.in: p# = 192.168.1.#
+
+2010-09-17  lenik
+
+	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
+	  configure.ac, debian, debian/control, debian/docs,
+	  debian/postinst, debian/postrm, debian/preinst, debian/prerm,
+	  postinst.in, postrm.in, preinst.in, prerm.in: Initial by newdeb

@@ -1,0 +1,190 @@
+2010-12-16  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, xless, xxcat, xxless,
+	  xxmore, xxxcat, xxxless, xxxmore, xxxxcat, xxxxless, xxxxmore:
+	  add x*(cat|more|less) shortcuts
+
+2010-12-13  lenik
+
+	* VERSION.av, configure.ac, make1: if timeout isn't specified and
+	  no pre-req specified, then make always
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* VERSION.av, configure.ac, make1: make1 support to redirect
+	  stdout/err to target.
+
+	  though it's not support quote/space well.
+	* Makefile.am, VERSION.av, configure.ac, make1: new make1 to make
+	  single target.
+	  This obsoletes the old `makeoutdated` too.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-12-10  lenik
+
+	* VERSION.av, configure.ac, coolcmd.sh: set alias `X=xcat`
+	* ., Makefile.am, VERSION.av, configure.ac, xcat.c, xlines.c:
+	  rename `xlines` to `xcat`.
+	* VERSION.av, configure.ac, loop: don't use bash-templ for `loop `
+
+2010-12-09  lenik
+
+	* ., Makefile.am, VERSION.av, configure.ac, xlines.c: implemented
+	  xlines
+	* ., Makefile.am, VERSION.av, config.h.in, configure.ac, echo-v,
+	  echo-x.c, xlines.c: rewrite echo-x (orig. echo-v) in C.
+
+2010-12-04  lenik
+
+	* VERSION.av, loop: execute "aliased" commands by `eval`, instead
+	  of `sh -c`.
+	* Makefile.am, VERSION.av, configure.ac, loop: apply new-bash templ
+	  to `loop`
+
+2010-11-30  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, coolcmd.sh, echo-v, echox,
+	  run-bg: add B=run in background.
+	* ., xlines.c: add ignores
+
+2010-11-16  lenik
+
+	* localhost, subst: Enable the getopt long options.
+	  Using POSIXLY_CORRECT to restrict the options at the beginning of
+	  cmdline.
+
+2010-11-09  lenik
+
+	* VERSION.av, configure.ac, substexec: substexec typo fix
+	* VERSION.av, configure.ac, makeoutdated: add week (w) unit.
+	* Makefile.am, VERSION.av, configure.ac, makeoutdated: new
+	  makeoutdated to make something if it's outdated.
+
+2010-11-03  lenik
+
+	* VERSION.av, configure.ac, fnotify, loop, onmodify: display cmd in
+	  term title.
+	* VERSION.av, configure.ac, debian/control, onmodify: sleepenh
+	  workarounds.
+	* VERSION.av, configure.ac, debian/control: add depends on dnotify.
+
+2010-11-02  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, coolcmd.sh, fnotify,
+	  onmodify: add F=fnotify
+	* rsubstcat, rsubstecho: enable gnu_getopt for those Getopts::Long.
+
+2010-10-28  lenik
+
+	* VERSION.av, configure.ac, coolcmd.sh, loop: loop now supports
+	  aliases.
+
+2010-10-24  lenik
+
+	* VERSION.av, cd-exec, configure.ac: support alias in cd-exec
+	* Makefile.am, VERSION.av, configure.ac: AM dist_bin_SCRITPS
+	  duplicated.
+	* Makefile.am, VERSION.av, cd-exec, configure.ac, coolcmd.sh,
+	  rsubstecho: add D=cd-exec
+
+2010-10-23  lenik
+
+	* debian/control: provides short package names to hidden xjl-
+	  prefix.
+
+2010-10-20  lenik
+
+	* VERSION.av, cmt/subst.pm, configure.ac: typo fix
+	* VERSION.av, cmt/subst.pm, configure.ac: support to
+	  .hidden(no-rindex) property name.
+	* VERSION.av, cmt/subst.pm, configure.ac: pass the test.
+	* VERSION.av, configure.ac, rsubstcat, rsubstecho, substecho,
+	  substexec: 'env perl -w' not work, cuz 'perl -w' isn't parsed.
+	* Makefile.am, VERSION.av, cmt, cmt/subst.pm, configure.ac,
+	  rsubstcat, rsubstecho, substcat, substecho, substexec: get common
+	  subst functions into cmt::subst.
+
+2010-10-13  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, postproc: new postproc
+	  launcher, which take the output filter cmd before the actual
+	  command.
+	  This is writtern to help write alias easier.
+
+2010-10-10  lenik
+
+	* localhost, loop, subst: keyword subst updates.
+
+2010-09-24  lenik
+
+	* VERSION.av, configure.ac, subst: FIXED: test fails if dir isn't
+	  existed.
+	* VERSION.av, configure.ac, subst: remove empty file
+	* VERSION.av, configure.ac, subst: search for alt-file: check if
+	  createable in the dir
+
+2010-09-23  lenik
+
+	* VERSION.av, configure.ac, localhost: forgot to add..
+
+	  add --wait option.
+	* Makefile.am, VERSION.av, configure.ac: add localhost to locally
+	  resolve a host to localhost
+	* .: set ignore list.
+	* .: ignore *.gz.
+
+2010-09-22  lenik
+
+	* debian/postinst, debian/prerm: pre/post now turns to auto
+	  generated.
+	* VERSION.av, configure.ac, subst: add -g global option
+
+2010-09-21  lenik
+
+	* loop: tab/space review.
+
+2010-09-20  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, loop: add loop command.
+	* VERSION.av, configure.ac, subst: shlib-import updates.
+	* Makefile.am, VERSION.av, colorox, configure.ac, swapox, testox:
+	  move swapox, testox to -coolcmd. also add colorox, but not work
+	  well.
+
+2010-09-18  lenik
+
+	* subst: shlib updates.
+	* VERSION.av, configure.ac, substecho: exit instead of return.
+	* VERSION.av, configure.ac, substecho: return 1 if no change.
+	* Makefile.am, VERSION.av, configure.ac, substecho: add substecho.
+
+2010-09-17  lenik
+
+	* Makefile.am, debian/postinst, debian/prerm, post-install.sh.in,
+	  postinst.in, pre-remove.sh.in, prerm.in: rename
+	  pre-remove/post-install to short postinst. etc.
+
+2010-09-16  lenik
+
+	* debian: ignore files under debian by default.
+	* debian, debian/control, debian/docs, debian/postinst,
+	  debian/prerm: add debian control files.
+
+2010-09-15  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, echox: add echox.
+
+2010-09-14  lenik
+
+	* VERSION.av, configure.ac, ifrsubst: add ifrsubst to test if subst
+	  happens/defined.
+	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
+	  configure.ac, post-install.sh.in, pre-remove.sh.in, rsexec,
+	  rsexec-c, rsubstcat, rsubstecho, subst, substcat, substexec,
+	  substtree: -coolcmd do subst/rsubst in commandline.

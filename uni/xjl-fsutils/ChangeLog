@@ -1,0 +1,75 @@
+2010-12-13  lenik
+
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-12-04  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, mount-vpart,
+	  mount-vpart.1: new mount-vpart to mount partition with-in a disk
+	  image.
+	* Makefile.am, VERSION.av, configure.ac, zerof: add zerof to
+	  generate zero-filled file.
+
+2010-11-28  lenik
+
+	* .: don't use axel as default wget.
+
+2010-11-16  lenik
+
+	* VERSION.av, configure.ac, fillfile: fix size[unit]
+	* VERSION.av, configure.ac, fillfile: switch case wrong order.
+	* Makefile.am, VERSION.av, configure.ac, fillfile: add fillfile to
+	  generate an empty ext3 file volume.
+	* symltrace: Enable the getopt long options.
+	  Using POSIXLY_CORRECT to restrict the options at the beginning of
+	  cmdline.
+
+2010-10-10  lenik
+
+	* symltrace: keyword subst updates.
+
+2010-09-23  lenik
+
+	* .: set ignore list.
+	* .: ignore *.gz.
+
+2010-09-21  lenik
+
+	* df-x, mount-vex, mountall-alt, umount-alt-a, umount-vex:
+	  tab/space review.
+
+2010-09-20  lenik
+
+	* VERSION.av, configure.ac, symltrace: shlib-import updates.
+
+2010-09-18  lenik
+
+	* debian/control, symltrace: shlib updates.
+	* ., Makefile.am, VERSION.av, configure.ac, debian/control, df-x,
+	  symltrace, symltrace.1: rename -coolfsutils to -fsutils.
+
+	  move df-x to -fsutils.
+
+	  move lineconf to -coolbash.
+
+	  create new -fileutils, and move sym* to fileutils.
+
+2010-09-16  lenik
+
+	* ignore files under debian by default.
+	* add debian control files.
+	* subst.am -> coolauto.am
+
+2010-09-07  lenik
+
+	* 0.1
+	* autoverifiscated
+
+2010-08-25  lenik
+
+	* Transferred from -coolutils.
+
+2010-08-24  lenik
+
+	*

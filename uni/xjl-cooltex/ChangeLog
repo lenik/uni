@@ -1,0 +1,99 @@
+2010-12-18  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, list2tree: move list2tree
+	  to -treeutils.
+
+2010-12-14  lenik
+
+	* ., Makefile.am, VERSION.av, configure.ac, list2tree: add
+	  list2tree
+
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-11-30  lenik
+
+	* treetex: using virtual treetex_* tags.
+
+2010-11-16  lenik
+
+	* ., VERSION.av, configure.ac, treetex: Enable the getopt long
+	  options.
+	  Using POSIXLY_CORRECT to restrict the options at the beginning of
+	  cmdline.
+
+2010-11-02  lenik
+
+	* Fpst, Makefile.am, VERSION.av, configure.ac: add Fpst.
+	* treetex: enable gnu_getopt for those Getopts::Long.
+
+2010-11-01  lenik
+
+	* VERSION.av, configure.ac, debian/control: Implies
+	  alt/texlive-local.
+
+2010-10-30  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, debian/control, treetex:
+	  newmpl bash.sh, perl.pl should be executable, dist them in
+	  _SCRIPTS.
+
+	  -coolmake depends on make.
+
+	  -cools-term by Recommends rather then Depends.
+
+	  new treetex (still under PLAN.)
+
+	  -cooltex: cpan Text::Diff in postinst.
+
+2010-10-23  lenik
+
+	* debian/control: provides short package names to hidden xjl-
+	  prefix.
+
+2010-09-23  lenik
+
+	* .: set ignore list.
+	* .: ignore *.gz.
+
+2010-09-22  lenik
+
+	* debian/postinst, debian/prerm: pre/post now turns to auto
+	  generated.
+
+2010-09-21  lenik
+
+	* pdfmon: tab/space review.
+
+2010-09-17  lenik
+
+	* Makefile.am, debian/postinst, debian/prerm, post-install.sh.in,
+	  postinst.in, pre-remove.sh.in, prerm.in: rename
+	  pre-remove/post-install to short postinst. etc.
+
+2010-09-16  lenik
+
+	* debian: ignore files under debian by default.
+	* debian, debian/control, debian/docs, debian/postinst,
+	  debian/prerm: add debian control files.
+
+2010-09-15  lenik
+
+	* Makefile.am, VERSION.av, configure.ac: add pdfmon.
+
+2010-09-14  lenik
+
+	* pdfmon: move (t61)bin/pdfmon to -cooltex.
+	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
+	  configure.ac, post-install.sh.in, pre-remove.sh.in: Initial by
+	  newdeb

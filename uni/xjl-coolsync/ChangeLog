@@ -1,0 +1,72 @@
+2010-12-13  lenik
+
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-11-30  lenik
+
+	* .: add ignores
+
+2010-11-16  lenik
+
+	* msync, msynx: Enable the getopt long options.
+	  Using POSIXLY_CORRECT to restrict the options at the beginning of
+	  cmdline.
+
+2010-10-23  lenik
+
+	* debian/control: provides short package names to hidden xjl-
+	  prefix.
+
+2010-10-19  lenik
+
+	* VERSION.av, configure.ac, msync: fix: msync don't create 2-level
+	  subdir
+
+2010-10-13  lenik
+
+	* VERSION.av, configure.ac, debian/postinst, msync: fix grep regex.
+	* configure.ac: restore archive name
+	* Makefile.am, VERSION.av, configure.ac, debian/postinst, msync,
+	  msynx, postinst.sh: also look into /etc/msync.
+
+2010-10-10  lenik
+
+	* msync, msynx: keyword subst updates.
+
+2010-09-23  lenik
+
+	* .: set ignore list.
+	* .: ignore *.gz.
+
+2010-09-20  lenik
+
+	* VERSION.av, configure.ac, msync, msynx: shlib-import updates.
+
+2010-09-18  lenik
+
+	* debian/control, msync, msynx: shlib updates.
+
+2010-09-16  lenik
+
+	* debian: ignore files under debian by default.
+	* debian, debian/control, debian/docs: add debian control files.
+	* Makefile.am: subst.am -> coolauto.am
+
+2010-09-07  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, msync, msynx: set
+	  executable on msync/x
+
+	  depends on -coolbash, rather than LAM_KALA.
+	* VERSION.av: autoverifiscated
+
+2010-08-20  lenik
+
+	* AUTHORS, ChangeLog, Makefile.am, NEWS, README, configure.ac: init
+
+2010-08-18  lenik
+
+	* ., msync, msynx: add xjl-cooledit, -coolsync (from msync utils)
+
+	  refine xjl-startup to xjl-cooltruecrypt

@@ -1,0 +1,136 @@
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-12-09  lenik
+
+	* .: more ignores.
+
+2010-11-27  lenik
+
+	* ., VERSION.av, configure.ac, ver2int: don't output debug msg.
+	* Makefile.am, VERSION.av, configure.ac, ver2int, ver2int.1: new
+	  ver2int which convert version string to integer.
+
+2010-11-02  lenik
+
+	* VERSION.av, configure.ac, debian/control: depends libglib-2.0-0
+	* ., lib: deb.bodz.net/stable+unstable by default.
+	* VERSION.av, configure.ac, debian/control: add depends:
+	  libglib2.0-dev and libglib2.0
+
+2010-10-23  lenik
+
+	* debian/control: provides short package names to hidden xjl-
+	  prefix.
+
+2010-10-14  lenik
+
+	* Makefile.am: fix indent.
+
+2010-09-23  lenik
+
+	* ., lib: set ignore list.
+	* .: ignore *.gz.
+
+2010-09-21  lenik
+
+	* lib/Makefile.am: tab/space review.
+
+2010-09-17  lenik
+
+	* Makefile.am: coolauto: add sysconfdir etc. more substs.
+
+2010-09-16  lenik
+
+	* debian: ignore files under debian by default.
+	* debian, debian/control, debian/docs: add debian control files.
+
+2010-09-14  lenik
+
+	* Makefile.am, VERSION.av, autover, configure.ac, lib/svn_revision:
+	  autover don't reconf if configure file isn't existed.
+
+	  svn_revision print 0 if unversioned, never error.
+
+2010-09-09  lenik
+
+	* VERSION.av, autover, configure.ac: autoreconf when ver changes
+	  and configure is versioned.
+
+2010-09-08  lenik
+
+	* VERSION.av, autover, configure.ac: trigger reconf when acfile
+	  updated.
+
+2010-09-07  lenik
+
+	* VERSION.av, configure.ac, vercomp.c: chdir to dirname.
+	  fix: vercomp DIRNAME/version-file-contains-exec
+	* VERSION.av, configure.ac, vercomp.c: add --opt-odd, --opt-even
+	  for stable/unstable hint.
+
+2010-09-02  lenik
+
+	* VERSION.av, VERSION.template, configure.ac: minor->commit
+	  cascade.
+
+2010-09-01  lenik
+
+	* VERSION.av, VERSION.template, configure.ac: make 3rd component =
+	  commit count.
+	* Makefile.am, VERSION.av, aliases.d/autover.sh,
+	  aliases.d/ver-aliases.sh: rename ver-aliases.sh to autover.sh
+	* VERSION.av, VERSION.template: add commit field in the template.
+	* Makefile.am, autover.1, vercomp.1, verinit.1: add more mans
+	  pages. (prepare)
+
+2010-08-31  lenik
+
+	* Makefile.am, aliases.d, aliases.d/ver-aliases.sh: add version
+	  operation aliases.
+	* verinit.in: vercomp -u when init.
+	* VERSION.av, autover, configure.ac: autover fix.
+	* VERSION.av, autover: implemented autover.
+
+	  autoveriscated
+	* VERSION.sample, vercomp.c: add --update to force update the file
+	  after refresh.
+	* Makefile.am, vercomp.c: fixed bugs. refactor _refresh_all, so
+	  .exec & .incr seems more clean, and allow more extension be added
+	  in future.
+	* test/test-incr, vercomp.c: add .incr section.
+	* VERSION.template, test, test/test-incr, vercomp.c, verinit.in:
+	  vercomp lot of bugs fixed. test passed.
+	* VERSION.sample, VERSION.template, config.h.in, lib/Makefile.am,
+	  vercomp.c: rename -offset, -exec to .base, .exec. (in templates)
+
+2010-08-30  lenik
+
+	* Makefile.am, VERSION.sample, config.h.in, configure.ac, vercomp,
+	  vercomp.c: implemented vercomp in C. initial.
+
+2010-08-20  lenik
+
+	* Makefile.am, verinit.in: master/generated hints
+	* Makefile.am, verinit.in: using pkgdatadir instead of datadir to
+	  hold template files
+	* AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.sample,
+	  VERSION.template, configure.ac, vercomp.5, verinit.in: substitute
+	  install dirs by d_subst sed substitution, see Automake#Scripts
+
+2010-08-19  lenik
+
+	* ., Makefile.am, VERSION.sample, autover, lib, lib/Makefile.am,
+	  lib/svn_revision, vercomp: xjl-* refactor
+
+	  autover stuff init.

@@ -1,0 +1,270 @@
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am, newdeb: include `allin.am` instead of setup rules
+	  for each makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-12-09  lenik
+
+	* deb-rebuild: more ignores.
+
+2010-12-07  lenik
+
+	* VERSION.av, configure.ac, cooldeb.sh: change alias newdeb ->
+	  newaps.
+
+2010-12-06  lenik
+
+	* VERSION.av, configure.ac, newdeb: remove the backed up
+	  ../xxx-a.b.c-orig
+	  remove the generated debian/source
+
+2010-12-04  lenik
+
+	* VERSION.av, configure.ac, newdeb, svn-update-and-deb-redist:
+	  newdeb: initial commit message contains the package name.
+
+	  svn-update-and-deb-redist: ignore changelog updates.
+
+2010-11-30  lenik
+
+	* ., debian-defaults/control: add default debian/control
+
+2010-11-27  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, cooldeb.sh,
+	  svn-update-and-deb-redist: add svn-update-and-deb-redist
+
+2010-11-22  lenik
+
+	* VERSION.av, configure.ac, deb-redist: nullglob to search *changes
+
+2010-11-16  lenik
+
+	* deb-clean, newdeb: Enable the getopt long options.
+	  Using POSIXLY_CORRECT to restrict the options at the beginning of
+	  cmdline.
+
+2010-11-02  lenik
+
+	* VERSION.av, configure.ac, dh_incr, dh_package_field: set default
+	  distribution 'unstable'
+
+2010-11-01  lenik
+
+	* VERSION.av, configure.ac, debian/control: depends on dh-make.
+
+2010-10-29  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, cooldeb.sh,
+	  debian/control, vicontrol: add vicontrol
+	  add devscripts depends.
+
+2010-10-23  lenik
+
+	* debian/control: provides short package names to hidden xjl-
+	  prefix.
+
+2010-10-19  lenik
+
+	* Makefile.am, VERSION.av, apt-get-reinstall2, configure.ac,
+	  cooldeb.sh, cooldeb_compl.sh, debian/control, dwhich, dwhich.1:
+	  move dwhich and apt* aliaes to -aptutils.
+
+2010-10-10  lenik
+
+	* deb-clean, deb-redist, dh_add_missing.in, dh_check_depends,
+	  dh_package_field, dwhich, newdeb: keyword subst updates.
+
+2010-10-08  lenik
+
+	* VERSION.av, configure.ac, dir-ver: version string can contain
+	  alpha letters
+
+2010-10-07  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, cooldeb_compl.sh: add
+	  completion
+
+2010-10-06  lenik
+
+	* VERSION.av, cideb, configure.ac: cideb increase version only once
+
+2010-09-30  lenik
+
+	* VERSION.av, cideb, configure.ac: detect minor-level changes
+	  (add/delete source files)
+
+2010-09-24  lenik
+
+	* VERSION.av, configure.ac, newdeb: FIXED: \t doesn't expanded in
+	  Heredoc.
+
+2010-09-23  lenik
+
+	* .: set ignore list.
+	* .: ignore *.gz.
+	* VERSION.av, configure.ac, newdeb: svn ignore *.gz on new package.
+	* VERSION.av, configure.ac, cooldeb.sh: as=aptitude search
+
+2010-09-22  lenik
+
+	* VERSION.av, configure.ac, dh_add_missing.in: quote(""/'')
+	  mistake.
+	* VERSION.av, configure.ac, dh_add_missing.in: outfile -> dfile
+	* VERSION.av, configure.ac, dh_add_missing.in: file location fix.
+	* Makefile.am, VERSION.av, configure.ac, dh_add_missing.in,
+	  postinst.def, prerm.def: generate pre/post scripts as well.
+	* VERSION.av, configure.ac, newdeb: tab/space fix
+	* VERSION.av, configure.ac, debian-defaults/rules: tab typo
+
+2010-09-21  lenik
+
+	* deb-redist, debian-defaults/rules, dh_add_missing.in,
+	  dh_check_depends, dh_debname, dh_incr, dh_package_field, newdeb:
+	  tab/space review.
+	* Makefile.am, VERSION.av, configure.ac, dh_check_depends,
+	  dh_package_field: add dh_check_depends to check if any Depends or
+	  Recommends broken.
+	* Makefile.am, VERSION.av, configure.ac, cooldeb.sh,
+	  dh_package_field: add dh_package_field for analyse depends
+	  fields.
+
+2010-09-20  lenik
+
+	* VERSION.av, cideb.1, configure.ac: update man page.
+	* VERSION.av, configure.ac, newdeb: Makefile tab/space typo
+	* VERSION.av, cideb, configure.ac, deb-clean, deb-redist,
+	  dh_add_missing.in, dwhich, newdeb: shlib-import updates.
+
+2010-09-19  lenik
+
+	* VERSION.av, configure.ac, deb-redist, dh_add_missing.in:
+	  dh_add_missing needs debian/ as param.
+	* Makefile.am, VERSION.av, configure.ac: am: subst debdefldir.
+	* VERSION.av, configure.ac: 1.0 release.
+	* Makefile.am, VERSION.av, cideb, configure.ac, deb-redist,
+	  debian-defaults, debian-defaults/compat,
+	  debian-defaults/copyright, debian-defaults/docs,
+	  debian-defaults/rules, dh_add_missing.in, dh_incr: split
+	  incr-version out from deb-redist.
+
+	  add dh_add_missing to init debian/ for those compacted packages.
+
+	  add debian-defaults.
+	* VERSION.av, configure.ac, deb-redist: dput to dlocal.
+	* Makefile.am, VERSION.av, configure.ac, debian/control,
+	  postinst.in, prerm.in: local support is transferred into -dlocal.
+
+2010-09-18  lenik
+
+	* deb-clean, deb-redist, debian/control, dwhich, newdeb: shlib
+	  updates.
+	* newdeb: tab/space.
+	* VERSION.av, configure.ac, newdeb: import overrides.
+	* Makefile.am, VERSION.av, configure.ac, deb-clean, deb-redist: add
+	  deb-clean.
+	* Makefile.am, VERSION.av, apt-get-reinstall2, configure.ac,
+	  cooldeb.sh: sagr = purged-reinstall (-reinstall2)
+	* VERSION.av, configure.ac, cooldeb.sh: add sagp alias=purge, which
+	  will remove /etc/* also.
+
+	  (sagr doesn't remove /etc/*)
+
+2010-09-17  lenik
+
+	* Makefile.am: coolauto: add sysconfdir etc. more substs.
+	* VERSION.av, configure.ac, newdeb: remove preinst/postrm from
+	  source.
+
+	  NOTICE: postrm the script is deleted before post-remove happens.
+	* VERSION.av, configure.ac, newdeb: add full pre/post inst/rm
+	  support. and using short name like postinst instead of
+	  post-install.sh
+	* VERSION.av, cideb, configure.ac: using coolsvn ci.
+	* debian/control: depends changes
+
+2010-09-16  lenik
+
+	* newdeb: add special files under debian/
+	* debian, newdeb: ignore files under debian by default.
+	* debian, debian/control, debian/docs: add debian control files.
+	* VERSION.av, configure.ac, deb-redist: Add support to dist source
+	  with multiple packages.
+	  (dh_debname returns multiple debs. )
+	* Makefile.am, VERSION.av, cideb, cideb.1, configure.ac: new cideb
+	  shortcut to do svn-commit, debuild, dput, update.
+
+2010-09-14  lenik
+
+	* VERSION.av, configure.ac, newdeb: add force option
+	* Makefile.am, VERSION.av, configure.ac, cooldeb.sh, deb-redist,
+	  newdeb, newdeb.1: cooldeb.sh: sagi/sau allow unauth.
+
+	  add newdeb to quickstart.
+
+	  deb-redist supports .env file.
+
+2010-09-08  lenik
+
+	* VERSION.av, configure.ac: version touch
+	* VERSION.av, configure.ac, dh_make-autover: alias should be the
+	  concrete commands.
+	* VERSION.av, configure.ac, dwhich: follow symlink.
+	* Makefile.am, VERSION.av, configure.ac: _MANS typo.
+	* Makefile.am, VERSION.av, configure.ac, cooldeb.sh, dwhich,
+	  dwhich.1: add dwhich shortcut for dpkg -S.
+
+2010-09-07  lenik
+
+	* VERSION.av, configure.ac, cooldeb.sh: add sau, sagu alias.
+	* VERSION.av, configure.ac, cooldeb.sh: default with --createorig
+	* VERSION.av, configure.ac: version cascade fix.
+	* VERSION.av, configure.ac, deb-redist: don't rename by symlink,
+	  which doesn't supported by dch.
+	  rename the dir self, directly.
+
+	  also filter mini-dinstall "...override entry" by swapox/grep.
+	* VERSION.av, configure.ac, deb-redist: suppress "no ... override
+	  entry" warnings.
+	* VERSION.av, configure.ac, deb-redist: using dir-ver to guess
+	  version and rename dir, then automatic insert changelog entry.
+	* VERSION.av, configure.ac, deb-redist: reconf2 -is.
+	* Makefile.am, VERSION.av, configure.ac, cooldeb.sh, deb-redist,
+	  dh_debname, dh_make-autover: initial deb-redist.
+
+2010-09-02  lenik
+
+	* VERSION.av, configure.ac, dir-ver: restore dir if no version
+	  file.
+
+2010-09-01  lenik
+
+	* VERSION.av, configure.ac, cooldeb.sh: add ver-refresh alias.
+	* Makefile.am, VERSION.av, configure.ac, cooldeb.sh, dir-ver: added
+	  ver-on/off aliases.
+	* VERSION.av, configure.ac, verexec: change tmp dir name.
+	* Makefile.am, VERSION.av, configure.ac, verexec: find VCMD in path
+	  if it's not in the same dir as _ver wrapper.
+
+	  add pwd_ver for test purpose.
+	* Makefile.am, VERSION.av, dh_make_ver, verexec: implement general
+	  verexec, and symlink to dh_make_ver, etc.
+
+2010-08-20  lenik
+
+	* AUTHORS, ChangeLog, Makefile.am, NEWS, README, configure.ac,
+	  cooldeb.sh: init
+
+2010-08-19  lenik
+
+	* ., dh_make_ver: xjl-* refactor
+
+	  autover stuff init.

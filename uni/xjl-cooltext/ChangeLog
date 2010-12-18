@@ -1,0 +1,101 @@
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-11-28  lenik
+
+	* .: don't use axel as default wget.
+
+2010-11-16  lenik
+
+	* iconvf: Enable the getopt long options.
+	  Using POSIXLY_CORRECT to restrict the options at the beginning of
+	  cmdline.
+
+2010-11-02  lenik
+
+	* repl, tabify, tabsize, unindent, wcc: enable gnu_getopt for those
+	  Getopts::Long.
+
+2010-10-30  lenik
+
+	* postinst.in: newmpl bash.sh, perl.pl should be executable, dist
+	  them in _SCRIPTS.
+
+	  -coolmake depends on make.
+
+	  -cools-term by Recommends rather then Depends.
+
+	  new treetex (still under PLAN.)
+
+	  -cooltex: cpan Text::Diff in postinst.
+
+2010-10-23  lenik
+
+	* debian/control: provides short package names to hidden xjl-
+	  prefix.
+
+2010-10-19  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, debian/control, tabify,
+	  tabsize: add tabify/tabsize from lapiota
+
+2010-10-10  lenik
+
+	* grepstat, iconvf, repl, unindent, wcc: keyword subst updates.
+
+2010-10-08  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, grepstat: transfer
+	  core/grepstat to -cooltext
+
+2010-09-23  lenik
+
+	* .: set ignore list.
+	* .: ignore *.gz.
+
+2010-09-22  lenik
+
+	* debian/postinst, debian/prerm: pre/post now turns to auto
+	  generated.
+
+2010-09-21  lenik
+
+	* iconvf: tab/space review.
+
+2010-09-20  lenik
+
+	* VERSION.av, configure.ac, iconvf: shlib-import updates.
+
+2010-09-18  lenik
+
+	* iconvf: shlib updates.
+
+2010-09-17  lenik
+
+	* Makefile.am, debian/postinst, debian/prerm, post-install.sh.in,
+	  postinst.in, pre-remove.sh.in, prerm.in: rename
+	  pre-remove/post-install to short postinst. etc.
+
+2010-09-16  lenik
+
+	* debian: ignore files under debian by default.
+	* debian, debian/control, debian/docs, debian/postinst,
+	  debian/prerm: add debian control files.
+
+2010-09-14  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, iconvf: add iconvf.
+	* repl, unindent, wcc: transfer wcc, unindent, repl to -cooltext.
+	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
+	  configure.ac, post-install.sh.in, pre-remove.sh.in: Initial by
+	  newdeb

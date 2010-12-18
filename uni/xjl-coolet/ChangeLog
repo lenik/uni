@@ -1,0 +1,8 @@
+2010-12-18  lenik
+
+	* ., VERSION.av, configure.ac, dict, dict/et2zh: transferred from
+	  kala/etc/esperanto-dict
+	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
+	  configure.ac, debian, debian/control, debian/docs,
+	  debian/postinst, debian/prerm, postinst.in, prerm.in: New
+	  xjl-coolet package initialized by newdeb

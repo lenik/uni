@@ -1,0 +1,36 @@
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-11-29  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, postinst.in, prerm.in,
+	  profile.d, profile.d/optenv.sh: add path in profile.d/, rather
+	  then /etc/environment, which doesn't expand variables.
+	  --This line, and those below, will be ignored--
+
+	  A xjl-optalts/profile.d
+	  A xjl-optalts/profile.d/optenv.sh
+	  M xjl-optalts/configure.ac
+	  M xjl-optalts/Makefile.am
+	  M xjl-optalts/prerm.in
+	  M xjl-optalts/VERSION.av
+	* VERSION.av, configure.ac, postinst.in, prerm.in: add /opt/.../bin
+	  to PATH
+
+2010-11-27  lenik
+
+	* VERSION.av, configure.ac, debian/control, postinst.in: install
+	  eclipse alt.
+	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
+	  configure.ac, debian, debian/control, debian/docs,
+	  debian/postinst, debian/prerm, postinst.in, prerm.in: initial

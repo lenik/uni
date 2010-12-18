@@ -1,0 +1,80 @@
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-11-30  lenik
+
+	* .: add ignores
+
+2010-11-16  lenik
+
+	* VERSION.av, configure.ac, shlib.d/cliboot: Enable the getopt long
+	  options.
+	  Using POSIXLY_CORRECT to restrict the options at the beginning of
+	  cmdline.
+
+2010-10-19  lenik
+
+	* VERSION.av, configure.ac, shlib.d, shlib.d/cliboot: cliboot path
+	  fix.
+	* Makefile.am, VERSION.av, configure.ac, shlib.d,
+	  shlib.d/Makefile.am, shlib.d/import, shlib.d/import.in,
+	  shlib.d/load, shlib.d/load.in, shlib.in: Using /usr/lib/shlib.d
+	  instead of /usr/lib/bash.
+
+2010-10-10  lenik
+
+	* shlib.d/cliboot, shlib.d/cmds, shlib.d/export-p, shlib.d/findabc,
+	  shlib.d/get_perm, shlib.d/initdir, shlib.d/lam, shlib.d/log,
+	  shlib.d/path, shlib.d/rcs, shlib.d/string: keyword subst updates.
+	* VERSION.av, configure.ac, shlib.d/log: add log/sig 3,4
+
+2010-09-23  lenik
+
+	* .: set ignore list.
+	* .: ignore *.gz.
+
+2010-09-22  lenik
+
+	* debian/postinst, debian/prerm: pre/post now turns to auto
+	  generated.
+
+2010-09-21  lenik
+
+	* shlib.d/export-p, shlib.d/get_perm, shlib.d/initdir, shlib.d/log,
+	  shlib.d/path: tab/space review.
+
+2010-09-20  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, shlib-import, shlib.in:
+	  `source shlib' will receive the arguments passed to the script.
+	  This is unwanted.
+
+	  . shlib won't accept any argument more, it's only load
+	  import-feature.
+
+	  So, a new shlib-import should be used for one-line import.
+
+2010-09-18  lenik
+
+	* VERSION.av, configure.ac, shlib.in: . shlib <cmds>
+	* Makefile.am, VERSION.av, configure.ac, lib, shlib.d, shlib.in:
+	  move lib/ to shlib.d/.
+	  add shlib initializor (. shlib).
+	* ., Makefile.am, configure.ac, debian/control, debian/postinst,
+	  debian/prerm, lib, lib/import, lib/load, postinst.in, prerm.in:
+	  move coolbash/lib to bash-shlib.
+
+	  rename bash-lib to bash-shlib.
+
+	  add some Provides: in debian/control.
+	* Initial by newdeb

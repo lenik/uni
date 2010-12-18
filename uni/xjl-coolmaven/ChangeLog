@@ -1,0 +1,165 @@
+2010-12-16  lenik
+
+	* VERSION.av, configure.ac, newmp.in: fix: Get POM name from
+	  cmdline.
+	* VERSION.av, configure.ac, newmp.in: set default groupid, package
+	  stuff.
+
+	  modify <name> in pom.xml by xml2/2xml/xmlindent
+	* VERSION.av, configure.ac, newmp.in: don't rely on parent pom.xml
+
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-12-09  lenik
+
+	* VERSION.av, configure.ac, jetty.in: using coolmvn in jetty.
+	* Makefile.am, VERSION.av, configure.ac, coolmaven.sh, coolmvn,
+	  debian/control: add coolmvn with colorlog output.
+
+2010-12-07  lenik
+
+	* VERSION.av, configure.ac, loadpom: add loadpom to shlib.d
+
+2010-11-30  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, debian/control,
+	  m2localdeps, m2localgraph, newmod, pomid: parse xml using `xml2`
+	  instead of `xmltran`
+
+2010-11-16  lenik
+
+	* ., jetty.in, m2graph, m2installfile, m2localgraph,
+	  m2search-nexus.in, newmp.in: Enable the getopt long options.
+	  Using POSIXLY_CORRECT to restrict the options at the beginning of
+	  cmdline.
+
+2010-11-15  lenik
+
+	* VERSION.av, configure.ac, jetty.in: set default debug port =
+	  http_port - 4
+
+2010-11-09  lenik
+
+	* VERSION.av, configure.ac, jetty.in: fix path of .m2modlist
+	* ., Makefile.am, VERSION.av, configure.ac, jetty, jetty.in,
+	  jettydefaults.xml, m2installfile, m2localdeps, m2localgraph,
+	  m2modlist, use-last-archetypes: add refresh option to force
+	  reinstall the local dependencies for jetty.
+
+2010-10-26  lenik
+
+	* VERSION.av, configure.ac, debian/control: depends on graphviz
+
+2010-10-25  lenik
+
+	* VERSION.av, configure.ac, jetty: add -6, -7 options.
+
+2010-10-24  lenik
+
+	* VERSION.av, configure.ac, m2graph, m2localgraph: font style
+	  changes.
+	* Makefile.am, VERSION.av, configure.ac, jetty, m2localdeps,
+	  m2localgraph: draw local dependency graphs
+
+2010-10-22  lenik
+
+	* VERSION.av, configure.ac, coolmaven.sh, debian/control, jetty:
+	  add min=mvn install
+
+2010-10-15  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, coolmaven.sh, mvn-002:
+	  alias mvn so as to umask 002.
+
+2010-10-11  lenik
+
+	* VERSION.av, configure.ac, m2deploy.cfg, m2installfile: FIX: base
+	  includes the dirname.
+
+	  add m2deploy.cfg in user dir.
+	* ., Makefile.am, VERSION.av, configure.ac, get-common-prefix.c,
+	  m2deploy.cfg, m2deploy.cfg.5, m2installfile: add m2installfile
+	  (also m2deployfile)
+
+2010-10-10  lenik
+
+	* jetty, m2graph, m2help, m2search, m2search-nexus.in, newmp.in,
+	  pomid: keyword subst updates.
+	* VERSION.av, configure.ac, debian/control, newmp.in: Set pom-name
+	  by lineconf.
+	* VERSION.av, configure.ac, newmp.in: remove backup~ file saved by
+	  xmlindent.
+	* VERSION.av, configure.ac, debian/control, newmp.in: xmlindent the
+	  result pom.
+	* ., Makefile.am, VERSION.av, bash_completion.d,
+	  bash_completion.d/Makefile.am, bash_completion.d/newmp.in,
+	  configure.ac, newmp.in, pomid: add newmp completion.
+	* Makefile.am, VERSION.av, configure.ac, newmp.in: using pomid to
+	  get parent ids.
+	* ., Makefile.am, VERSION.av, configure.ac, debian/control,
+	  newmp.in: initial newmp
+
+2010-10-08  lenik
+
+	* ., VERSION.av, configure.ac, coolmaven.sh, debian/control:
+	  rollback 'mr=' -> 'mr0'
+
+2010-10-06  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, coolmaven.sh: add aliases:
+	  mr+/- mte, mdp
+
+2010-09-30  lenik
+
+	* VERSION.av, configure.ac, jetty: change port to 3108
+	* Makefile.am, VERSION.av, configure.ac, jetty, m2help,
+	  plugin-help: rename plugin-help to m2help
+	  fix jetty plugin-id.
+	* VERSION.av, configure.ac, m2graph: mvn PLUGIN:GOAL
+	  [-Dexpression=... passed to the GOAL.]
+	* Makefile.am, VERSION.av, configure.ac, m2graph, ng2txt.xsl: add
+	  m2graph.
+	* VERSION.av, configure.ac, m2search, m2search-nexus.in,
+	  ng2txt.xsl: add support to nexus 1.7
+	* Makefile.am, VERSION.av, configure.ac, debian/control, m2search,
+	  m2search-nexus.in, ng2txt.xsl, plugin-help: add m2search,
+	  plugin-help.
+	* Makefile.am, VERSION.av, configure.ac, jetty: add jetty launcher.
+
+2010-09-23  lenik
+
+	* .: set ignore list.
+	* .: ignore *.gz.
+
+2010-09-21  lenik
+
+	* newmod: tab/space review.
+
+2010-09-16  lenik
+
+	* debian: ignore files under debian by default.
+	* debian, debian/control, debian/docs: add debian control files.
+
+2010-09-07  lenik
+
+	* VERSION.av, configure.ac: 0.1
+	* VERSION.av, newmod: autoverifiscated
+
+2010-08-20  lenik
+
+	* AUTHORS, ChangeLog, Makefile.am, NEWS, README, configure.ac: init
+
+2010-08-19  lenik
+
+	* ., newmod: xjl-* refactor.

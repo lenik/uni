@@ -1,0 +1,37 @@
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-10-21  lenik
+
+	* VERSION.av, configure.ac, postinst.in, prerm.in: a2ensite
+	  deb.bodz.net
+	* VERSION.av, configure.ac, sites/Makefile.am, sites/net.bodz.deb:
+	  add deb.bodz.net site.
+
+2010-10-20  lenik
+
+	* sites/.vimrc: add .vimrc helper.
+	* VERSION.av, configure.ac, postinst.in, prerm.in: hostname fix.
+	* VERSION.av, configure.ac, postinst.in, prerm.in: set as localhost
+	  for vserver domains
+	* VERSION.av, configure.ac, sites/com.99jsj.lenik-pc,
+	  sites/com.99jsj.mirror: dir access config.
+	* Makefile.am, VERSION.av, configure.ac, postinst.in, prerm.in,
+	  sites, sites/Makefile.am, sites/com.99jsj.lenik-pc,
+	  sites/com.99jsj.mirror: add com.99jsj. (lenik-pc, mirror)
+	* ., VERSION.av, configure.ac, postinst.in, prerm.in: enable
+	  userdir
+	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
+	  configure.ac, debian, debian/control, debian/docs,
+	  debian/postinst, debian/prerm, postinst.in, prerm.in: Initial by
+	  newdeb

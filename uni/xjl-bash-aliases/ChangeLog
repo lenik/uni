@@ -1,0 +1,71 @@
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-12-09  lenik
+
+	* .: more ignores.
+
+2010-10-19  lenik
+
+	* Makefile.am, VERSION.av, aliases.d, cd-alias, cd-first, cd-ls,
+	  cd..n, cd.x, configure.ac, ls-which: moved aliases.d/* to
+	  -coolbash,
+	  -bash-aliases do only bash_aliases.d preparation
+
+2010-10-18  lenik
+
+	* Makefile.am, VERSION.av, aliases.d/dirs.sh, cd..n, configure.ac:
+	  new cd..n to support multi-level cd..
+
+2010-10-10  lenik
+
+	* Makefile.am, VERSION.av, aliases.d/dirs.sh, cd-alias,
+	  configure.ac: add cd-alias, to short the long cwd.
+	* Makefile.am, VERSION.av, aliases.d/dirs.sh, aliases.d/invokes.sh,
+	  aliases.d/shorts.sh, cd-first, cd-ls, cd.x, configure.ac,
+	  ls-which: add cd-first to chdir to the first matching child-dir.
+	  add cd.x, which execute command in absolute path of cwd.
+
+2010-09-23  lenik
+
+	* .: set ignore list.
+	* .: ignore *.gz.
+	* VERSION.av, aliases.d/dirs.sh, configure.ac: readlink/readfile
+	  typo
+	* Makefile.am, VERSION.av, aliases.d/Makefile.am,
+	  aliases.d/dirs.sh, aliases.d/stats.sh, aliases.d/typos.sh,
+	  configure.ac: add hist, hist1, hist2 in stats.sh
+	  cd. = cd `readlink -f .`
+
+2010-09-22  lenik
+
+	* debian/postinst, debian/prerm: pre/post now turns to auto
+	  generated.
+
+2010-09-21  lenik
+
+	* aliases.d/Makefile.am: tab/space review.
+
+2010-09-18  lenik
+
+	* Makefile.am, aliases.d, aliases.d/Makefile.am, bash_aliases,
+	  configure.ac, debian/control, postinst.in, prerm.in: move
+	  coolbash/lib to bash-shlib.
+
+	  rename bash-lib to bash-shlib.
+
+	  add some Provides: in debian/control.
+	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
+	  configure.ac, debian, debian/control, debian/docs,
+	  debian/postinst, debian/prerm, postinst.in, prerm.in: Initial by
+	  newdeb

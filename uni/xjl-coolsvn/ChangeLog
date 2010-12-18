@@ -1,0 +1,243 @@
+2010-12-14  lenik
+
+	* VERSION.av, aliases.d/coolsvn.sh, configure.ac: alias `si` for
+	  `svn pe svn:ignore`
+
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-11-29  lenik
+
+	* ., VERSION.av, aliases.d/coolsvn.sh, configure.ac: set default
+	  grep as grep-svn.
+
+2010-11-18  lenik
+
+	* Makefile.am, VERSION.av, aliases.d/coolsvn.sh, configure.ac,
+	  coolsvn, svn-commit-autover, svn-log, svn-unadd: split coolsvn ->
+	  svn-commit-autover and svn-unadd.
+	  new svn-log to show log with highlight and pager.
+
+2010-11-16  lenik
+
+	* svn-ignore, svn-remix, svn-union-install.in,
+	  svnadmin-authz-update: Enable the getopt long options.
+	  Using POSIXLY_CORRECT to restrict the options at the beginning of
+	  cmdline.
+
+2010-11-11  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, svn-export, svn-export.1,
+	  svn_union.d.5: new svn-export to allow path relateive to working
+	  copy but not existed in current revision.
+
+2010-10-30  lenik
+
+	* seerev: newmpl bash.sh, perl.pl should be executable, dist them
+	  in _SCRIPTS.
+
+	  -coolmake depends on make.
+
+	  -cools-term by Recommends rather then Depends.
+
+	  new treetex (still under PLAN.)
+
+	  -cooltex: cpan Text::Diff in postinst.
+
+2010-10-23  lenik
+
+	* debian/control: provides short package names to hidden xjl-
+	  prefix.
+
+2010-10-19  lenik
+
+	* debian/control: set ignores
+	* VERSION.av, aliases.d/coolsvn.sh, configure.ac, debian/control:
+	  move x11-related tools to -svnguis
+
+2010-10-18  lenik
+
+	* VERSION.av, aliases.d/coolsvn.sh, configure.ac, debian/control:
+	  using meld as diff gui, for di cmd.
+
+2010-10-15  lenik
+
+	* VERSION.av, configure.ac, svnadmin-authz-update: add -p option to
+	  support multiple prefixes.
+	  (xinetd/svn without prefix, while svn+ssh needs.)
+
+2010-10-14  lenik
+
+	* VERSION.av, configure.ac, svnadmin-authz-update: fix root authz
+	* VERSION.av, configure.ac, svnadmin-authz-update: FIX: root .authz
+	  is missing
+	* VERSION.av, configure.ac: cideb again
+	* Makefile.am, VERSION.av, configure.ac, svnadmin-authz-update,
+	  test/create-acltest-tree: new svnadmin-authz-update for generate
+	  simple ACLs.
+
+2010-10-10  lenik
+
+	* svn-ignore, svn-isclean, svn-push, svn-remix, svn-rename,
+	  svn-swf, svn-union-install.in, svn-union.in, svnpsl: keyword
+	  subst updates.
+
+2010-10-08  lenik
+
+	* VERSION.av, aliases.d/coolsvn.sh, configure.ac: add update
+	  releated aliases
+
+2010-10-06  lenik
+
+	* VERSION.av, configure.ac, coolsvn: fix test.
+	* VERSION.av, configure.ac, coolsvn: increase version only once,
+	  when commit
+
+2010-09-26  lenik
+
+	* VERSION.av, aliases.d/coolsvn.sh, configure.ac: add alias sraw.
+
+2010-09-23  lenik
+
+	* VERSION.av, configure.ac, svnpsl: bcast loglevel to svn
+	* ., VERSION.av, configure.ac, svn-ignore, test: bcast to svnpsl
+	  verbose-level
+	  set ignores
+	* Makefile.am, VERSION.av, configure.ac, svn-ignore,
+	  svn-ignore-unversioned: add svn-ignore
+	* VERSION.av, aliases.d/coolsvn.sh, configure.ac: add st,ci,di,
+	  according to hist.
+
+2010-09-20  lenik
+
+	* VERSION.av, aliases.d/coolsvn.sh, configure.ac: add grep-svn
+	  which skip .svn dirs.
+	* VERSION.av, configure.ac, svn-isclean, svn-push, svn-remix,
+	  svn-rename, svn-swf, svn-union-install.in, svn-union.in, svnpsl:
+	  shlib-import updates.
+	* Makefile.am: + dirty-dirs
+	* svn-dirty-dirs: list dirty dirs (directly listed under current
+	  dir)
+
+2010-09-18  lenik
+
+	* debian/control, svn-isclean, svn-push, svn-remix, svn-rename,
+	  svn-swf, svn-union-install.in, svn-union.in, svnpsl: shlib
+	  updates.
+
+2010-09-17  lenik
+
+	* Makefile.am: coolauto: add sysconfdir etc. more substs.
+	* svn-rename.1: add man help
+	* Makefile.am, VERSION.av, configure.ac, svn-rename: add
+	  svn-rename.
+	* VERSION.av, configure.ac, svnpsl: add shortcut -IKX for
+	  svn:ignore stuff.
+	* Makefile.am, VERSION.av, configure.ac, coolsvn, svnpsl, svnpsl.1:
+	  new svnpsl to manipulate svn multi-line properties, such as
+	  svn:ignore, svn:externals, etc.
+
+2010-09-16  lenik
+
+	* debian: ignore files under debian by default.
+	* debian, debian/control, debian/docs: add debian control files.
+	* Makefile.am, VERSION.av, configure.ac, svn-dirty, svn-isclean:
+	  rename svn-dirty to svn-isclean
+	* Makefile.am, VERSION.av, configure.ac: typo
+	* Makefile.am, VERSION.av, configure.ac: typo
+	* Makefile.am, VERSION.av, configure.ac, svn-dirty: add svn-dirty
+	  to check if a working directory isn't full commited.
+	* VERSION.av, configure.ac, coolsvn: do autover only if on top of
+	  srcdir.
+
+2010-09-14  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, svn-002, svn-swf,
+	  svn-swf.1, svn-union-install.in, svnserve-002: add
+	  svn/svnserve-002 (umask 002)
+	  add svn-swf to switch-by-force
+	  add svn-union-install for install helper.
+
+2010-09-09  lenik
+
+	* VERSION.av, configure.ac, coolsvn: add 'unadd' cmd, which equals
+	  to `revert --depth infinity'.
+
+2010-09-07  lenik
+
+	* VERSION.av, configure.ac: version cacade fix.
+	* VERSION.av, configure.ac: incr minor.
+	* VERSION.av, configure.ac, coolsvn.1: add man.
+	* coolsvn: autoverifiscated
+
+2010-09-01  lenik
+
+	* Makefile.am, VERSION.av, aliases.d, aliases.d/coolsvn.sh,
+	  configure.ac, coolsvn: add alias svn=coolsvn, and find VERSION.av
+	  in several parent dirs also.
+
+2010-08-31  lenik
+
+	* coolsvn: initial
+	* svn-show-usedkeywords: recognize keywords with colon: $XXX:$
+
+2010-08-29  lenik
+
+	* Makefile.am, svn-union.1, svn-union.in, svn_union.d,
+	  svn_union.d.5, svn_union.d/README: svn-union initial release.
+
+2010-08-25  lenik
+
+	* svn-remix: using 'svnlook youngest' instead of hack into
+	  db/current.
+
+2010-08-24  lenik
+
+	* Makefile.am, svn-remix, test/create-test-tree, test/remix-1:
+	  svn-remix +cliboot. fix the timestamp inline, which is more
+	  simple.
+
+	  svn-remix test passed. (see test/remix-1)
+	* Makefile.am, svn-dump, svn-remix, svn-update-executable: rename
+	  svn-dump to svn-remix
+	  new svn-update-executable to update the svn property to reflect
+	  the permission state.
+
+2010-08-23  lenik
+
+	* Makefile.am, applysvn.sh, configure.ac, svn-apply,
+	  svn-backup-sync, syncbacks.sh, test/Makefile.am: rename applysvn
+	  to svn-apply
+	  rename syncbacks to svn-backup-sync
+	  add test repo scripts.
+	* test, test/create-test-tree: Refine the test tree, using sedit to
+	  insert patches inside the file.
+	* Makefile.am, applysvn.sh, svn-push, svn-show-usedkeywords,
+	  svn-start-rev, svn-update-keywords, svnlist.sh, syncbacks.sh:
+	  svn-show-usedkeywords only selects well defined keywords such as
+	  Id, Revision, etc. (no more wildcards). And output sort-unique of
+	  the names.
+
+	  svn-update-keywords recurse into subdirs and update the svn
+	  property to reflect the keywords used in the source files.
+
+2010-08-19  lenik
+
+	* AUTHORS, ChangeLog, Makefile.am, NEWS, README, configure.ac,
+	  svn-ps: xjl-* refactor
+
+	  autover stuff init.
+	* syncbacks-pause.sh: Should add option to syncbacks.sh
+	* svn-dump: xjl-* refactor.
+	* ., applysvn.sh, svnlist.sh, syncbacks-pause.sh, syncbacks.sh:
+	  xjl-* refactor.

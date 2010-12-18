@@ -1,0 +1,41 @@
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-10-30  lenik
+
+	* vol/bodzdev: newmpl bash.sh, perl.pl should be executable, dist
+	  them in _SCRIPTS.
+
+	  -coolmake depends on make.
+
+	  -cools-term by Recommends rather then Depends.
+
+	  new treetex (still under PLAN.)
+
+	  -cooltex: cpan Text::Diff in postinst.
+
+2010-09-26  lenik
+
+	* .: svn ignores
+	* vol/bodzdev: add vol/bodzdev
+
+2010-09-24  lenik
+
+	* Makefile.am, VERSION.av, configure.ac: subst/ should be
+	  subst/vol/.
+	* Makefile.am, VERSION.av, configure.ac, postinst.in, vol: initial
+	  release.
+	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
+	  configure.ac, debian, debian/control, debian/docs,
+	  debian/postinst, debian/prerm, postinst.in, prerm.in: Initial by
+	  newdeb

@@ -1,0 +1,59 @@
+2010-12-13  lenik
+
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-10-30  lenik
+
+	* .: newmpl bash.sh, perl.pl should be executable, dist them in
+	  _SCRIPTS.
+
+	  -coolmake depends on make.
+
+	  -cools-term by Recommends rather then Depends.
+
+	  new treetex (still under PLAN.)
+
+	  -cooltex: cpan Text::Diff in postinst.
+
+2010-10-10  lenik
+
+	* Makefile.inc, mkcerts.bat: keyword subst updates.
+
+2010-09-27  lenik
+
+	* ., Makefile.inc, certs.mk: rename -keychain to -x509utils
+
+2010-09-23  lenik
+
+	* set ignore list.
+	* ignore *.gz.
+
+2010-09-22  lenik
+
+	* pre/post now turns to auto generated.
+
+2010-09-21  lenik
+
+	* tab/space review.
+
+2010-09-17  lenik
+
+	* deb-iscated.
+
+2010-09-14  lenik
+
+	* initial
+
+2010-09-07  lenik
+
+	* autoverifiscated
+
+2010-08-19  lenik
+
+	* transfer mkcerts stuff to xjl-keychain.
+
+	  (maybe merged with xjl-coolgpg in future.)

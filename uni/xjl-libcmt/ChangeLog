@@ -1,0 +1,93 @@
+2010-12-18  lenik
+
+	* VERSION.av, configure.ac, debian/control: provides libcmt-perl
+	  depends on more lib*-perl.
+
+2010-12-13  lenik
+
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-12-09  lenik
+
+	* .: more ignores.
+
+2010-10-23  lenik
+
+	* debian/control: provides short package names to hidden xjl-
+	  prefix.
+
+2010-10-20  lenik
+
+	* VERSION.av, cmt/Makefile.am, configure.ac: apply perllibdir
+	  variable.
+
+2010-10-19  lenik
+
+	* VERSION.av, cmt/fswalk.pm, configure.ac: fswalk doesn't glob
+	  ./<file>, the default dirname = . doesn't work.
+
+2010-10-10  lenik
+
+	* cmt/.class.pm, cmt/.cvsignore, cmt/.pm, cmt/Makefile.am,
+	  cmt/atext.pm, cmt/chm.pm, cmt/clip.pm, cmt/codec.pm, cmt/cstr.pm,
+	  cmt/db_ora.pm, cmt/dirdiff.pm, cmt/dlgbox.pm, cmt/dnsutil.pm,
+	  cmt/echohh.pm, cmt/english.pm, cmt/fileproc.pm, cmt/fswalk.pm,
+	  cmt/ftime.pm, cmt/g.pm, cmt/guiutil.pm, cmt/i18n.pm, cmt/inet.pm,
+	  cmt/ios.pm, cmt/lang.pm, cmt/lexutil.pm, cmt/log.pm, cmt/low.pm,
+	  cmt/mat.pm, cmt/mess.pm, cmt/moduse.pm, cmt/msc.pm,
+	  cmt/netutil.pm, cmt/oop.pm, cmt/oop_mod.pm, cmt/oop_y.pm,
+	  cmt/oop_y.y, cmt/path.pm, cmt/perlsys.pm, cmt/php.pm, cmt/pp.pm,
+	  cmt/proxy.pm, cmt/serv.pm, cmt/service.pm, cmt/simpled.pm,
+	  cmt/str.pm, cmt/stream.pm, cmt/table.pm, cmt/test.pm,
+	  cmt/time.pm, cmt/util.pm, cmt/utree.pm, cmt/vcs.pm, cmt/whois.pm,
+	  cmt/win32.pm, cmt/winuser.pm, cmt/zio.pm: keyword subst updates.
+
+2010-09-27  lenik
+
+	* VERSION.av, cmt/codec.pm, configure.ac: not \=>i, but /=>i
+
+2010-09-23  lenik
+
+	* ., cmt: set ignore list.
+	* .: ignore *.gz.
+
+2010-09-21  lenik
+
+	* cmt/Makefile.am, cmt/clip.pm, cmt/db_ora.pm, cmt/dnsutil.pm,
+	  cmt/echohh.pm, cmt/ftime.pm, cmt/i18n.pm, cmt/low.pm, cmt/msc.pm,
+	  cmt/oop_y.pm, cmt/service.pm, cmt/simpled.pm, cmt/table.pm,
+	  cmt/vcs.pm, cmt/winuser.pm: tab/space review.
+
+2010-09-20  lenik
+
+	* VERSION.av, cmt/.pm, cmt/Makefile.am, cmt/clip.pm, configure.ac:
+	  add cmt::clip, to overcome the win32 dependency.
+
+2010-09-16  lenik
+
+	* debian: ignore files under debian by default.
+	* debian, debian/control, debian/docs: add debian control files.
+	* Makefile.am, VERSION.av, cmt/Makefile, cmt/Makefile.am,
+	  cmt/atext.pm, cmt/chm.pm, cmt/codec.pm, cmt/cstr.pm,
+	  cmt/db_ora.pm, cmt/dirdiff.pm, cmt/dnsutil.pm, cmt/echohh.pm,
+	  cmt/english.pm, cmt/ftime.pm, cmt/g.pm, cmt/guiutil.pm,
+	  cmt/i18n.pm, cmt/inet.pm, cmt/ios.pm, cmt/lang.pm,
+	  cmt/lexutil.pm, cmt/log.pm, cmt/low.pm, cmt/mat.pm,
+	  cmt/moduse.pm, cmt/msc.pm, cmt/netutil.pm, cmt/oop.pm,
+	  cmt/oop_mod.pm, cmt/oop_y.pm, cmt/oop_y.y, cmt/path.pm,
+	  cmt/perlsys.pm, cmt/pp.pm, cmt/proxy.pm, cmt/serv.pm,
+	  cmt/service.pm, cmt/simpled.pm, cmt/stream.pm, cmt/table.pm,
+	  cmt/test.pm, cmt/time.pm, cmt/util.pm, cmt/utree.pm, cmt/vcs.pm,
+	  cmt/whois.pm, cmt/win32.pm, cmt/winuser.pm, configure.ac,
+	  post-install.sh.in, pre-remove.sh.in: move core/lib/cmt to
+	  -libcmt.
+
+2010-09-14  lenik
+
+	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
+	  cmt, configure.ac, post-install.sh.in, pre-remove.sh.in: move
+	  core/lib/cmt to -libcmt.

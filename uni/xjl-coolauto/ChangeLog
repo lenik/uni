@@ -1,0 +1,191 @@
+2010-12-16  lenik
+
+	* VERSION.av, configure.ac, libauto/coolauto.am: Include from
+	  `$(top_srcdir)`
+
+2010-12-13  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, libauto/Makefile.am,
+	  libauto/coolauto.am, libauto/subst.am: include subst/rst/allin
+	  stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* VERSION.av, configure.ac, libauto/Makefile.am, libauto/allin.am,
+	  libauto/rst.am: split rst, allin (*. -> *.in) to separate include
+	  files
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* VERSION.av, autoconf.template, configure.ac: set default automake
+	  -Wno-portability
+	* configure.ac, libauto/coolauto.am, libauto/gen-rst2man-cmds: Add
+	  .rst implicit rules and set default `-Wno-portability` in
+	  `configure.ac`
+
+2010-12-09  lenik
+
+	* .: more ignores.
+	* VERSION.av, autounconf, configure.ac: don't remove libauto/ in
+	  compact mode. cuz libauto maybe svn managed.
+	* VERSION.av, autounconf, configure.ac: remove more generated files
+	  (but not symlinks) if --compact is specified.
+
+2010-10-29  lenik
+
+	* VERSION.av, configure.ac, debian/control: + libtool depends.
+
+2010-10-23  lenik
+
+	* debian/control: provides short package names to hidden xjl-
+	  prefix.
+
+2010-10-20  lenik
+
+	* VERSION.av, configure.ac, libauto/coolauto.am: add perllibdir.
+
+2010-10-10  lenik
+
+	* autoinit.in, autounconf: keyword subst updates.
+
+2010-09-24  lenik
+
+	* VERSION.av, configure.ac, libauto/coolauto.am: add substdir.
+
+2010-09-23  lenik
+
+	* ., libauto: set ignore list.
+	* .: ignore *.gz.
+
+2010-09-22  lenik
+
+	* VERSION.av, configure.ac, libauto/coolauto.am: add cachedir,
+	  varlibdir and pkg*.
+
+2010-09-20  lenik
+
+	* VERSION.av, autounconf, configure.ac: Recurse with compact-mode
+	  inherited. shlib-update also.
+	* VERSION.av, autoinit.in, configure.ac: shlib-import updates.
+
+2010-09-18  lenik
+
+	* autoinit.in, debian/control: shlib updates.
+	* VERSION.av, configure.ac, libauto/coolauto.am: add newtmpldir,
+	  and shlibdir.
+	* Makefile.am, VERSION.av, configure.ac: (autoconf.template is
+	  missed from AM)
+	* VERSION.av, autoinit.in, autounconf, configure.ac,
+	  debian/control: import overrides instead of hard coded .env
+	  files.
+	* VERSION.av, configure.ac, libauto/coolauto.am: add sysvinitdir.
+	* VERSION.av, autounconf, configure.ac: autounconf remove tmp build
+	  dir debian/PACKAGE.
+
+2010-09-17  lenik
+
+	* Makefile.am, automake.template.in, libauto/coolauto.am: coolauto:
+	  add sysconfdir etc. more substs.
+	* VERSION.av, configure.ac, libauto/coolauto.am: add sysconfdir
+	  etc., cuz it's too common!
+
+2010-09-16  lenik
+
+	* debian: ignore files under debian by default.
+	* debian, debian/control, debian/docs: add debian control files.
+
+2010-09-15  lenik
+
+	* VERSION.av, autoreconf2.in, configure.ac: guess whether to
+	  symlink libauto, or full-copy update libauto/,
+	  even if -s is specified.
+
+	  cp -RT to copy dirs.
+
+2010-09-14  lenik
+
+	* VERSION.av, autoreconf2.in, autounconf, configure.ac: autounconf
+	  don't remove configure, Makefile.in stuff, if it's not
+	  compact-mode.
+
+	  autoreconf2 always update libauto if non compact-mode.
+	* Makefile.am, VERSION.av, autoconf.template, autoinit.in,
+	  automake.template.in, autounconf, configure.ac,
+	  libauto/Makefile.am, libauto/coolauto.am, libauto/subst.am:
+	  change subst.am to coolauto.am, add setupdir stuff. add license
+	  header.
+
+	  autoinit EMAIL->BUG_EMAIL
+
+	  change search order of .env files
+
+2010-09-08  lenik
+
+	* VERSION.av, autounconf, configure.ac: sudo rm when something
+	  owner permission changed. (e.g. debuild)
+	* VERSION.av, configure.ac, libauto/subst.am: Add subst for DESTDIR
+	* VERSION.av, autoreconf2.in, configure.ac: typo fix
+	* VERSION.av, autoreconf2.in, configure.ac: bash used.
+	* VERSION.av, aliases.d/autotools.sh, autoreconf2.in, configure.ac:
+	  parse options to check if -is is given.
+
+2010-09-07  lenik
+
+	* VERSION.av, configure.ac: use commit version instead of rcs rev.
+	* Makefile.am, VERSION.av, autoinit.in, configure.ac: init
+	  VERSION.av if verinit is available.
+	* VERSION.av: autoverifiscated
+
+2010-08-31  lenik
+
+	* autoinit.in: autoinit VERSION.av.
+
+2010-08-29  lenik
+
+	* autoinit.in: find .env in several parents.
+	* autoinit.in: eval .env if exists.
+
+2010-08-28  lenik
+
+	* autoreconf2.in: add missing libauto/ before autoreconf.
+	* aliases.d/autotools.sh: add reinst shortcut.
+
+2010-08-25  lenik
+
+	* Makefile.am, aliases.d/autotools.sh, autoconf.template,
+	  autoinit.in, automake.template, automake.template.in,
+	  autoreconf2.in, autounconf, configure.ac, libauto,
+	  libauto/Makefile.am, libauto/subst.am: rename coolauto.am to
+	  subst.am, and put these include files in libauto/.
+
+	  using reconf2 to "add-missing" of this custom libauto/.
+
+	  also unconf the libauto/ symlink.
+
+2010-08-21  lenik
+
+	* autounconf: Remove dist files by var DIST_ARCHIVES
+
+2010-08-20  lenik
+
+	* Makefile.am, autoinit.in, automake.template: add generate-file
+	  hint notice
+	* Makefile.am, autoconf.template, autoinit.in, automake.template:
+	  new autoinit
+	* Makefile.am, aliases.d, autounconf, profile.d: Using aliases.d
+	  instead of profile.d to install bash aliases. Recurse into
+	  SUBDIRS.
+
+2010-08-19  lenik
+
+	* Makefile.am, abc.in, autoinit, autounconf, autouninit,
+	  configure.ac, profile.d, profile.d/autotools.sh: xjl-* refactor
+
+	  autover stuff init.
+
+2010-08-18  lenik
+
+	* AUTHORS, ChangeLog, Makefile.am, NEWS, README, abc.in,
+	  autouninit, configure.ac: initial released
+	* ., autoinit: init

@@ -1,0 +1,68 @@
+2010-12-13  lenik
+
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-12-09  lenik
+
+	* .: more ignores.
+	* VERSION.av, configure.ac, debian/control: add more cools utils.
+
+2010-10-30  lenik
+
+	* debian/control: newmpl bash.sh, perl.pl should be executable,
+	  dist them in _SCRIPTS.
+
+	  -coolmake depends on make.
+
+	  -cools-term by Recommends rather then Depends.
+
+	  new treetex (still under PLAN.)
+
+	  -cooltex: cpan Text::Diff in postinst.
+
+2010-10-27  lenik
+
+	* VERSION.av, configure.ac, debian/control: no libmisc depends.
+
+2010-10-23  lenik
+
+	* debian/control: provides short package names to hidden xjl-
+	  prefix.
+
+2010-10-19  lenik
+
+	* ., Makefile.am, VERSION.av, configure.ac, debian/control:
+	  rearrange xjl-cool to cools-term
+
+2010-09-23  lenik
+
+	* set ignore list.
+	* ignore *.gz.
+
+2010-09-20  lenik
+
+	* update.
+
+2010-09-19  lenik
+
+	* updates
+
+2010-09-18  lenik
+
+	* -coolterm is renamed to -coolansi.
+
+2010-09-16  lenik
+
+	* ignore files under debian by default.
+	* add debian control files.
+	* subst.am -> coolauto.am
+
+2010-09-07  lenik
+
+	* autoconfiscated
+	* autoverifiscated
+
+2010-08-18  lenik
+
+	* init xjl- packages

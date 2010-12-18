@@ -1,0 +1,280 @@
+2010-12-18  lenik
+
+	* VERSION.av, configure.ac, eachdir: add -b (background) option.
+
+2010-12-16  lenik
+
+	* Makefile.am, VERSION.av, aliases.d/dirs.sh,
+	  bash_completion.d/cd-tree, cd-tree, configure.ac, debian/control,
+	  tree-index: move cd-tree to -cdtree. (Ref-Loop: cd-tree ->
+	  coolansi -> coolbash)
+
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-12-04  lenik
+
+	* VERSION.av, aliases.d/shorts.sh, configure.ac: add `rp=rsync...`,
+	  show the progress bar, which `cp` doesn't.
+
+2010-11-30  lenik
+
+	* VERSION.av, aliases.d/Makefile.am, configure.ac: missing
+	  envchk.sh in Makefile.am
+
+2010-11-29  lenik
+
+	* ., Makefile.am, VERSION.av, aliases.d/envchk.sh,
+	  bash_completion.d/paths, configure.ac, history-join.c, test,
+	  test/history, test/historycat: add paths to show PATH entries in
+	  list.
+
+2010-11-16  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, eachdir, history-sort:
+	  Enable the getopt long options.
+	  Using POSIXLY_CORRECT to restrict the options at the beginning of
+	  cmdline.
+
+2010-11-15  lenik
+
+	* VERSION.av, cd..n, configure.ac: fixed cd.. deadloop.
+	* Makefile.am, VERSION.av, aliases.d/dirs.sh, configure.ac,
+	  tree-less: add tree-less as default tree.
+
+2010-11-04  lenik
+
+	* VERSION.av, configure.ac, ls-which: restore ls-which from @1443.
+
+2010-10-30  lenik
+
+	* VERSION.av, aliases.d/Makefile.am, aliases.d/invokes.sh, cd..n,
+	  configure.ac: cd..n: concat the parents before chdir, so one can
+	  `cd -' to chdir back.
+
+	  move invokes.sh to -coolcmd.
+
+2010-10-23  lenik
+
+	* debian/control: provides short package names to hidden xjl-
+	  prefix.
+
+2010-10-19  lenik
+
+	* VERSION.av, configure.ac, postinst.in: set color PS1 also in
+	  skel/.bashrc
+	* VERSION.av, bash_completion.d/cd-tree, configure.ac: show
+	  directory only
+	* VERSION.av, bash_completion.d/cd-tree, configure.ac: fix PPID ->
+	  $$
+	* Makefile.am, VERSION.av, configure.ac: missing add
+	  cd-tree/completion to AM.
+	* VERSION.av, bash_completion.d/cd-tree, cd-tree, configure.ac:
+	  cd-tree cmdline completion with preview tree graph.
+	* VERSION.av, cd-tree, configure.ac: fix symlink text format.
+	* VERSION.av, aliases.d, cd-tree, configure.ac: cdt debug info
+	  removed.
+	* Makefile.am, VERSION.av, aliases.d, aliases.d/Makefile.am,
+	  aliases.d/dirs.sh, cd-alias, cd-first, cd-ls, cd-tree, cd..n,
+	  cd.x, configure.ac, d-which, debian/control, tree-index: move
+	  aliases back to -coolbash.
+	  set version to 1.0
+
+2010-10-10  lenik
+
+	* Makefile.am, VERSION.av, cd-ls, configure.ac, eachdir, ls-which,
+	  profile.d/alt-default.sh, profile.d/large-history.sh,
+	  profile.d/paths.sh: keyword subst updates.
+
+2010-09-29  lenik
+
+	* VERSION.av, configure.ac, postinst.in, profile.d/Makefile.am,
+	  profile.d/color-ps.sh: set PS1 in bashrc, instead of profile.d/
+	* VERSION.av, configure.ac, postinst.in: override bashrc PS1.
+	* VERSION.av, configure.ac, profile.d/color-ps.sh: fix line
+	  wrapping by enclosing with \[...\].
+	* VERSION.av, configure.ac, profile.d/Makefile.am,
+	  profile.d/color-ps.sh: add color ps.
+
+2010-09-28  lenik
+
+	* VERSION.av, configure.ac, postinst.in, prerm.in: import findabc
+	  in bashrc.
+	  M xjl-coolbash/postinst.in
+	  M xjl-coolbash/prerm.in
+	  M xjl-coolbash/VERSION.av
+	  M xjl-coolbash/configure.ac
+
+2010-09-23  lenik
+
+	* ., profile.d: set ignore list.
+	* .: ignore *.gz.
+
+2010-09-22  lenik
+
+	* debian/postinst, debian/prerm: pre/post now turns to auto
+	  generated.
+	* Makefile.am, VERSION.av, bash_completion.d,
+	  bash_completion.d/nosvn, configure.ac: don't list .svn/ in bash
+	  filedir completion.
+
+2010-09-21  lenik
+
+	* profile.d/Makefile.am: tab/space review.
+
+2010-09-20  lenik
+
+	* VERSION.av, configure.ac, eachdir: shlib-import updates.
+	* Makefile.am, swapox, testox: move swapox, testox to -coolcmd.
+	  also add colorox, but not work well.
+
+2010-09-18  lenik
+
+	* debian/control, eachdir: shlib updates.
+	* Makefile.am, aliases.d, bash_aliases, configure.ac,
+	  debian/control, lib, postinst.in, prerm.in, profile.d/paths.sh:
+	  move coolbash/lib to bash-shlib.
+
+	  rename bash-lib to bash-shlib.
+
+	  add some Provides: in debian/control.
+	* Makefile.am, VERSION.av, configure.ac, eachdir, echo-args,
+	  echoli.c, echoln.c: new echoln to append newline to each arg.
+	  rewrite echo-args as echoli.
+	* Makefile.am, lineconf: move lineconf to -configutils.
+	* VERSION.av, configure.ac, lib/import, lib/load: set /usr/lib/bash
+	  as default SHLIB, when necessary.
+	* VERSION.av, configure.ac, lib/overrides: add overrides, to
+	  support .env files.
+	* Makefile.am, VERSION.av, configure.ac, debian/control, lineconf,
+	  postinst.in: move lineconf to -coolbash, for get rid of
+	  loop-depends.
+	* Makefile.am, VERSION.av, configure.ac, lib/Makefile.am,
+	  lib/cliboot, lib/export-p, lib/findabc, lib/get_perm, lib/import,
+	  lib/initdir, lib/load, lib/path, lib/string, profile.d/paths.sh:
+	  add import/load features.
+	  dist lib/ entirely.
+
+2010-09-17  lenik
+
+	* lib/Makefile.am: coolauto: add sysconfdir etc. more substs.
+	* Makefile.am: libauto updates.
+	* Makefile.am, VERSION.av, configure.ac: subst dirs.
+	* Makefile.am, VERSION.av, configure.ac, debian/postinst,
+	  debian/prerm, postinst, postinst.in, prerm, prerm.in,
+	  sudoers.d/Makefile.am: chmod sudoers in postinst.in, rather then
+	  run in the am-file.
+	* Makefile.am, debian/postinst, post-install.sh, postinst,
+	  pre-remove.sh, prerm: rename pre-remove/post-install to short
+	  postinst. etc.
+
+2010-09-16  lenik
+
+	* debian: ignore files under debian by default.
+	* debian, debian/control, debian/docs, debian/postinst,
+	  debian/prerm: add debian control files.
+
+2010-09-14  lenik
+
+	* VERSION.av, configure.ac, eachdir, echo-args, post-install.sh,
+	  pre-remove.sh: add echo-args for debug purpose.
+
+	  rewrite eachdir by gen-bash.
+
+2010-09-08  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, lib/log: log to stderr.
+
+2010-09-07  lenik
+
+	* Makefile.am, VERSION.av, configure.ac, post-install.sh,
+	  pre-remove.sh: lineconf with edit-status support, show Done if
+	  changed, or Skipped if nothing changed.
+
+	  For packaging purpose, don't do config munging in -hook scripts.
+	* Makefile.am, VERSION.av, binaryp, configure.ac, textp, tourl:
+	  move textp, binaryp, tourl to -coolutils.
+
+2010-09-02  lenik
+
+	* VERSION.av, configure.ac: autoveriscated.
+
+2010-08-31  lenik
+
+	* Makefile.am, swapox, testox: add swapox, testox for doing with
+	  stdout/stderr swaps.
+
+2010-08-29  lenik
+
+	* post-install.sh: delete tmp file if unchanged
+	* Makefile.am, aliases.d/dirs.sh, aliases.d/invokes.sh,
+	  aliases.d/typos.sh, cd-ls, ls-which, orig, post-install.sh,
+	  profile.d/large-history.sh, sudoers.d/keep-hist: replace
+	  function() by alias, using shell source (.) feature.
+
+2010-08-25  lenik
+
+	* Makefile.am, aliases.d/invokes.sh: config sudoers to keep HIST*
+	  env vars.
+
+	  add orig() to suppress alias.
+
+2010-08-24  lenik
+
+	* configure.ac, post-install.sh, pre-remove.sh,
+	  profile.d/alt-default.sh, sudoers.d, sudoers.d/Makefile.am,
+	  sudoers.d/keep-hist: keep HIST* env when sudo.
+	* Makefile.am, aliases.d/Makefile.am, aliases.d/dirs.sh,
+	  aliases.d/invokes.sh, aliases.d/shellbasic.sh,
+	  aliases.d/shorts.sh, aliases.d/typos.sh, configure.ac, profile.d,
+	  profile.d/Makefile.am, profile.d/alt-default.sh,
+	  profile.d/large-history.sh, profile.d/paths.sh: add more aliases
+	  & profiles.
+
+2010-08-23  lenik
+
+	* Makefile.am, configure.ac, lib/cliboot, pre-remove.sh, wich: move
+	  wich to -coolutil.
+	  set default prefix to /usr.
+	  fix cliboot include path.
+	* Makefile.am, binaryp, textp, wich: add text/binary predicate, and
+	  wich to print more summary info
+	* Makefile.am, eachdir, pre-remove.sh, tourl: add eachdir, tourl.
+	  and clean .bashrc when uninstall
+
+2010-08-21  lenik
+
+	* Makefile.am, post-install.sh: post-install by install-data-hook
+	  target
+
+2010-08-20  lenik
+
+	* Makefile.am, aliases.d, aliases.d/Makefile.am,
+	  aliases.d/shellbasic.sh, bash_aliases, configure.ac,
+	  xjl-aliases.sh: Using aliases.d, add more aliases.
+
+2010-08-19  lenik
+
+	* AUTHORS, ChangeLog, Makefile.am, NEWS, README, configure.ac,
+	  lib/Makefile.am: xjl-* refactor
+
+	  autover stuff init.
+	* lib, lib/cliboot, lib/cmds, lib/export-p, lib/findabc,
+	  lib/get_perm, lib/initdir, lib/lam, lib/log, lib/path, lib/rcs,
+	  lib/string: merged xjl-libshell into xjl-coolbash
+	* xjl-aliases.sh: Transferred XT-utils to xjl-coolz, -coolutil,
+	  -coolhex.
+
+2010-08-18  lenik
+
+	* .: init xjl- packages

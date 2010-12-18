@@ -1,0 +1,82 @@
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-12-09  lenik
+
+	* VERSION.av, configure.ac, sedit: fix cmdline help text
+
+2010-11-28  lenik
+
+	* .: don't use axel as default wget.
+
+2010-11-16  lenik
+
+	* VERSION.av, configure.ac, sedit: sedit getopt fixed by using
+	  POSIXLY_CORRECT in cliboot shlib.
+	* VERSION.av, configure.ac, lineconf, sedit: Enable the getopt long
+	  options.
+	  Using POSIXLY_CORRECT to restrict the options at the beginning of
+	  cmdline.
+
+2010-10-23  lenik
+
+	* debian/control: provides short package names to hidden xjl-
+	  prefix.
+
+2010-10-10  lenik
+
+	* lineconf: keyword subst updates.
+
+2010-09-30  lenik
+
+	* VERSION.av, configure.ac, lineconf: lineconf add -s (suffix)
+	  option to support <!-- ... -->
+
+2010-09-26  lenik
+
+	* VERSION.av, configure.ac, lineconf: sedit -a -> -A
+	* VERSION.av, configure.ac, sedit: sedit: add -m/-w options.
+
+2010-09-23  lenik
+
+	* .: set ignore list.
+	* .: ignore *.gz.
+
+2010-09-22  lenik
+
+	* debian/postinst, debian/prerm: pre/post now turns to auto
+	  generated.
+
+2010-09-21  lenik
+
+	* lineconf: tab/space review.
+
+2010-09-20  lenik
+
+	* VERSION.av, configure.ac, lineconf, sedit: shlib-import updates.
+
+2010-09-19  lenik
+
+	* VERSION.av, configure.ac, lineconf: add message/width options.
+
+2010-09-18  lenik
+
+	* debian/control, lineconf, sedit: shlib updates.
+	* Makefile.am, lineconf: move lineconf to -configutils.
+	* sedit, sedit.1: move headrm, grepl to -coretext.
+	  move tourl to -fileutils.
+	  move sedit to -configutils.
+	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
+	  configure.ac, debian, debian/control, debian/docs,
+	  debian/postinst, debian/prerm, postinst.in, prerm.in: Initial by
+	  newdeb

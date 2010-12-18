@@ -1,0 +1,41 @@
+2010-12-13  lenik
+
+	* Makefile.am: include subst/rst/allin stuff in `coolauto.am`.
+	* Makefile.am: include `allin.am` instead of setup rules for each
+	  makefile.
+
+	  using `do_subst += ...` to append more params.
+	* Makefile.am: lock the generated file by `chmod -w`.
+
+	  fix bad tab/space mixings
+	* configure.ac: Add .rst implicit rules and set default
+	  `-Wno-portability` in `configure.ac`
+
+2010-12-09  lenik
+
+	* VERSION.av, configure.ac, debian/control: depends on `java2-jdk`,
+	  not `default-jdk`
+
+2010-11-30  lenik
+
+	* .: add ignores
+
+2010-11-16  lenik
+
+	* dejar: Enable the getopt long options.
+	  Using POSIXLY_CORRECT to restrict the options at the beginning of
+	  cmdline.
+
+2010-10-10  lenik
+
+	* dejar: keyword subst updates.
+
+2010-10-08  lenik
+
+	* VERSION.av, configure.ac, dejar: make --lineno optional
+	* ., VERSION.av, configure.ac, debian/control, dejar: dejar test
+	  passed
+	* ., Makefile.am, VERSION.av, configure.ac, debian/control,
+	  debian/postinst, debian/prerm, dejar, postinst.in, prerm.in:
+	  initial
+	* Initial by newdeb

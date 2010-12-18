@@ -1,0 +1,13 @@
+2010-12-18  lenik
+
+	* ., Makefile.am, VERSION.av, atree, configure.ac, debian/control,
+	  list2tree, test, test/Makefile.am, test/root, test/root/apple,
+	  test/root/apple/sub, test/root/apple/sub/tree,
+	  test/root/apple/tree, test/root/cat, test/root/dot,
+	  test/root/fish baby, test/root/pear, test/root/pear/sub,
+	  test/root/pear/奇异果, test/root/入 口: new atree show tree of the
+	  archive contents, based on list2tree.
+	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
+	  configure.ac, debian, debian/control, debian/docs,
+	  debian/postinst, debian/prerm, postinst.in, prerm.in: New
+	  xjl-treeutils package initialized by newdeb
