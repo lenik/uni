@@ -4,10 +4,25 @@ Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-libcmt
+Homepage: http://uni.bodz.net/xjl-libcmt-perl
 
 Package: xjl-libcmt
-Provides: libcmt
+Provides: libcmt-perl, libcmt
 Architecture: all
-Depends: ${misc:Depends}, perl
+Depends: perl,
+    libcrypt-blowfish-perl,
+    libcrypt-cbc-perl,
+    libcrypt-des-perl,
+    libdbi-perl,
+    libfile-path-perl,
+    libfile-temp-perl,
+    libhtml-treebuilder-xpath-perl,
+    libhttp-response-encoding-perl,
+    libmime-base64-perl,
+    libyaml-perl,
+    libterm-readkey-perl,
+    libtext-diff-perl,
+    libtime-hires-perl,
+    libtk-perl,
+    libxml-simple-perl
 Description: cmt library in Perl.
