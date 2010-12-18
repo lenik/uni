@@ -81,7 +81,7 @@ function main() {
 
     while read dir; do
         _log1 "$dir: "
-        if ! cd $dir; then
+        if ! pushd $dir >/dev/null; then
             _log2 "    Failed to enter $dir, skipped"
             continue
         fi
@@ -100,7 +100,7 @@ function main() {
             bash -c "${args[*]}"
         fi
 
-        cd ..
+        popd >/dev/null
     done <$listfile
 
     if [ "$doclean" = 1 ]; then
