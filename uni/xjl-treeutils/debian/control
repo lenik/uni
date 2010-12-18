@@ -8,5 +8,7 @@ Homepage: http://uni.bodz.net/xjl-treeutils
 
 Package: xjl-treeutils
 Architecture: all
-Depends: perl, libcmt-perl
+Depends: perl, xjl-libcmt, xjl-coolcmd, xjl-bash-shlib
+Recommends: 7z, bzip2, sharutils, tar, unrar, unzip
+Suggests: p7zip-full, rar
 Description: Tree/filesystem visualization

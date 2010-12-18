@@ -1,0 +1,263 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+list2tree - Convert a file list to tree
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'list2tree'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::path('path_split');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: perl.pl 2141 2010-12-13 06:15:26Z lenik $');
+#use Data::Dumper;
+use Getopt::Long;
+    Getopt::Long::Configure('gnu_getopt');
+
+our $SKIP   = '|   ';
+our $SKIPZ  = '    ';
+our $ENTRY  = '|-- ';
+our $ENTRYZ = '`-- ';
+
+my $opt_color = 0;
+
+sub _main; sub _version; sub _help;
+
+sub format_entry;
+sub shift_lead;
+sub treevis;
+
+sub _boot {
+    GetOptions('q|quiet'        => sub { $LOGLEVEL-- },
+               'v|verbose'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'h|help'         => sub { _help; exit 0 },
+               'c|color'        => \$opt_color,
+               )
+        or exit(1);
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<list2tree>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<list2tree> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-list2tree-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item Show help
+
+    list2tree --help
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -c, --color             Render with color
+    -q, --quiet             Repeat to get less info
+    -v, --verbose           Repeat to get more info
+    -h, --help              Show this help page
+        --version           Print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+sub format_entry($) {
+    my $node = shift;
+    my $entry = $node->{name};
+    return undef if ! defined $entry;
+
+    my $type = $node->{type};
+    my $href = $node->{href};
+    if (defined $href) {
+        $href = "[01;34m$href[0m/" if $type eq 'd';
+        $entry = "[01;36m$entry[0m -> $href";
+    }
+    elsif ($type eq 'd') {
+        $entry = "[1;34m$entry[0m" if $opt_color;
+        $entry .= '/';
+    }
+    return $entry;
+}
+
+sub shift_lead($) {
+    my $tree = shift;
+    my $lead = '';
+
+    my $entry = format_entry($tree);
+    my $children = $tree->{children};
+
+    if (defined $children) {
+        my @children = keys %$children;
+        if (scalar(@children) == 1) {
+            my $first = $children[0];
+            my ($sub_entry, $descendant) = shift_lead($children->{$first});
+                $sub_entry = $entry.'/'.$sub_entry if defined $entry;
+            return ($sub_entry, $descendant);
+        }
+    }
+    return ($entry, $tree);
+}
+
+sub treevis {
+    my ($tree, $prefix) = @_;
+
+    my $children = $tree->{children};
+    my @children_keys = sort keys %$children;
+    for (my $i = 0; $i <= $#children_keys; $i++) {
+        my $key = $children_keys[$i];
+        my $child = $children->{$key};
+        my $entry = format_entry($child);
+        my $islast = $i == $#children_keys;
+
+        print $prefix . ($islast ? $ENTRYZ : $ENTRY) . $entry . "\n";
+
+        if (defined $child->{children}) {
+            treevis($child, $prefix . ($islast ? $SKIPZ : $SKIP));
+        }
+    }
+}
+
+sub _main {
+
+    my $tree = {};
+
+    while (<>) {
+        chomp;
+
+        my $type = undef;
+        my $href = undef;
+
+        my $arrow = index($_, ' -> ');
+        if ($arrow != -1) {
+            $href = substr($_, $arrow + length(' -> '));
+            $_ = substr($_, 0, $arrow);
+            $type = 'd' if substr($href, -1) eq '/';
+        }
+
+        if (substr($_, -1) eq '/') {
+            $type = 'd';
+            chop;
+        }
+
+        my @segs = split('/', $_);
+        my $base = pop @segs;
+        my $node = $tree;
+        for (@segs) {
+            $node->{children}->{$_}->{type} = 'd';
+            $node = $node->{children}->{$_};
+        }
+
+        my %item = (
+            'name' => $base,
+            'type' => $type,
+            'href' => $href,
+        );
+        my ($k, $v);
+        $node->{children}->{$_}->{$k} = $v while ($k, $v) = each(%item);
+    }
+
+    my ($root_entry, $root_tree) = shift_lead($tree);
+        $root_entry = '.' unless defined $root_entry;
+    print $root_entry."\n";
+    treevis $root_tree, '';
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Convert a file list to tree \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Lenik (谢继雷) <lenik (at) bodz.net>
+
+=cut
