@@ -1,0 +1,12 @@
+Source: xjl-amisupport
+Section: utils
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: http://uni.bodz.net/xjl-amisupport
+
+Package: xjl-amisupport
+Architecture: all
+Depends: ec2-api-tools, ec2-ami-tools
+Description: Amazon EC2 AMI support utilities & docs
