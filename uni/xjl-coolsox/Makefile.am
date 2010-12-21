@@ -1,5 +1,8 @@
 include libauto/coolauto.am
 
+dist_bin_SCRIPTS = \
+    recmp3
+
 setup_SCRIPTS = \
     postinst \
     prerm
