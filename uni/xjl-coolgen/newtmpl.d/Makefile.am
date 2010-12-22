@@ -7,7 +7,10 @@ dist_newtmpl_SCRIPTS = \
 dist_newtmpl_DATA = \
     cprog.c \
     man.rst \
-    perllib.pm
+    perllib.pm \
+    ps.tex \
+    xe.tex \
+    xy.tex
 
 dist_include_HEADERS = \
     cprog.h
