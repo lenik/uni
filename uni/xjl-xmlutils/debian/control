@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-xmlutils
 
 Package: xjl-xmlutils
 Architecture: all
-Depends: xalan, xsltproc, xjl-bash-shlib
+Depends: xalan, xsltproc, xjl-bash-shlib, xmlindent, xjl-configutils
 Description: Simple XML utilities
