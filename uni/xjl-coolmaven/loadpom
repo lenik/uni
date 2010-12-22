@@ -4,9 +4,7 @@ function loadpom() {
     local pomfile="$1"
     local inherits="$2"
 
-    while read l; do
-        k="${l%%=*}"
-        v="${l#*=}"
+    while IFS== read k v; do
         case "$k" in
             /project/groupId)           project_group_id="$v";;
             /project/artifactId)        project_artifact_id="$v";;
@@ -14,7 +12,6 @@ function loadpom() {
             /project/packaging)         project_packaging="$v";;
             /project/parent/groupId)    parent_group_id="$v";;
             /project/parent/artifactId) parent_artifact_id="$v";;
-            /project/parent/version)    parent_version="$v";;
             /project/parent/version)    parent_version="$v";;
             /project/name)              project_name="$v";;
         esac
@@ -28,4 +25,8 @@ function loadpom() {
             project_version="$parent_version"
         fi
     fi
+
+    project_id="$project_group_id:$project_artifact_id:$project_version"
+    project_packid="$project_id:$project_packaging"
+    parent_id="$parent_group_id:$parent_artifact_id:$parent_version"
 }

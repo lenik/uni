@@ -1,0 +1,134 @@
+#!/bin/bash
+    . shlib-import cliboot
+    import loadpom
+    shopt -s nullglob
+
+    RCSID='$Id: bash.sh 2141 2010-12-13 06:15:26Z lenik $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+
+    color=0
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Traverse the m2 project and list pom info in the tree"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] PROJECT-DIR..."
+    echo
+    echo "Options: "
+    echo "    -C, --color             Render with color"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function dump() {
+    local parent="$1"
+    local pomdir="$2"
+    local prefix="$3"
+    local tag="$4"
+
+    if [ ! -f "$pomdir/pom.xml" ]; then
+        echo "$prefix$tag ERROR: No pom.xml"
+        return 1
+    fi
+
+    loadpom "$pomdir/pom.xml" 1
+    local _id="$project_id"
+    if [ "$parent" != "$parent_id" ]; then
+        parent_id=" (parent = $parent_id)"
+    else
+        parent_id=
+    fi
+
+    if [ "${project_packid%%:*}" = "${parent%%:*}" ]; then
+        project_packid="*:${project_packid#*:}"
+    fi
+
+    echo "$prefix$tag$project_packid$parent_id"
+
+    local subdirs=
+    for d in "$pomdir"/*/; do
+        if [ ! -f "$d/pom.xml" ]; then continue; fi
+        base="${d%/}"
+        base="${base##*/}"
+        subdirs="$subdirs|$base"
+    done
+    subdirs="$subdirs|"
+
+    local modcount=`xml2 <"$pomdir/pom.xml" | grep /project/modules/module= | wc -l`
+    local modindex=0
+    while IFS== read k mod; do
+        if [ "$k" = "/project/modules/module" ] && [ -n "$mod" ]; then
+            ((modindex++))
+
+            tag="<$mod+> "
+            t="${subdirs/|$mod|/|}"
+            if [ "$subdirs" != "$t" ]; then
+                subdirs="$t"
+                tag="<$mod> "
+            fi
+
+            graph=" |- "
+            if [ $modindex == $modcount ]; then
+                if [ "$subdirs" = '|' ]; then
+                    graph=' `- '
+                fi
+            fi
+
+            dump "$_id" "$pomdir/$mod" "$prefix$graph" "$tag"
+        fi
+    done < <(xml2 <"$pomdir/pom.xml")
+
+    subdirs="${subdirs#|}"
+    subdirs="${subdirs%|}"
+    if [ -n "$subdirs" ]; then
+        subdirs=(${subdirs//|/ })
+        local i
+        local n=${#subdirs[@]}
+        for ((i = 0; i < $n; i++)); do
+            subdir="${subdirs[i]}"
+            graph=" |- "
+            if [ $i == $((n - 1)) ]; then
+                graph=' `- '
+            fi
+            tag="[$subdir/] "
+            dump "$_id" "$pomdir/$subdir" "$prefix$graph" "$tag"
+        done
+    fi
+}
+
+function main() {
+    if [ $# = 0 ]; then
+        help
+        exit 1
+    fi
+
+    for dir in "$@"; do
+        dump "(n/a)" "$dir" "" "<ROOT> "
+    done
+}
+
+boot "$@"

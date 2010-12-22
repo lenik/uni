@@ -17,7 +17,8 @@ dist_bin_SCRIPTS = \
     m2localdeps \
     m2localgraph \
     m2search \
-    pomid
+    pomid \
+    pomtree
 
 bin_SCRIPTS = \
     jetty \
