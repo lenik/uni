@@ -1,5 +1,9 @@
 include libauto/coolauto.am
 
+dist_bin_SCRIPTS = \
+    mkchm \
+    unchm
+
 setup_SCRIPTS = \
     postinst \
     prerm

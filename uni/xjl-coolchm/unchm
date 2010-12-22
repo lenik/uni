@@ -1,0 +1,204 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+unchm - decompress chm file
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+    # The Archive::Chm, Text::CHM etc. not works well in win32,
+    # so I wrote a new cmt::libchm, you must install it before using this program.
+    # See: LAM_KALA/usr/src/mod/cmt-libchm
+    # Run `make install' under that directory.
+use cmt::libchm;
+use cmt::log(2);
+    $LOGNAME    = 'unchm'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::path('mkdir_p', 'path_split', 'path_splitext');
+use cmt::util('writefile');
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id$');
+use Getopt::Long;
+    Getopt::Long::Configure('gnu_getopt');
+
+sub _main; sub _version; sub _help;
+sub enum_proc;
+
+our $opt_meta_files;
+our $opt_system_files;
+our $opt_outdir;
+
+sub _boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               'meta-files|m',
+               'system-files|s',
+               'outdir|o=s',
+               );
+    $opt_outdir =~ s/[\\\/]+$// if defined $opt_outdir;
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<unchm>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 decompress chm file
+
+B<unchm> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-unchm-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -o, --outdir=PATH       output to the specified directory
+    -m, --meta-files        meta files included
+    -s, --system-files      system files included
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    my $what = CHM_ENUMERATE_NORMAL;
+       $what|= CHM_ENUMERATE_META    if $opt_meta_files;
+       $what|= CHM_ENUMERATE_SPECIAL if $opt_system_files;
+    for (@ARGV) {
+        _log1 "decompress $_";
+        die "file $_ isn't existed" unless -f $_;
+        my ($name, $ext) = path_splitext($_);
+        my $prefix = $name;
+           $prefix = $opt_outdir if defined $opt_outdir;
+
+        mkdir_p($prefix) or die "can't mkdir $prefix";
+
+        my $h = chm_open($_) or die "chm_open $_";
+        chm_enumerate($h, $what, \&enum_proc, $prefix);
+        chm_close($h);
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+sub enum_proc {
+    my ($h, $ui, $prefix) = @_;
+    my ($path, $fl, $start, $len) = getUnitInfo($ui);
+    my $phy = $path;
+       $phy =~ s/[:]/_/g;
+       $phy = '/'.$phy unless substr($phy, 0, 1) eq '/';
+       $phy = $prefix.$phy;
+    if ($fl & CHM_ENUMERATE_DIRS) {
+        _log1 "dir $phy";
+        mkdir_p($phy) or die "can't mkdir $phy";
+    } else {
+        if ($LOGLEVEL <= 1) {
+            _log1 "file $phy ($len bytes)";
+        } else {
+            _log2 "file $phy ($len/$start bytes)";
+        }
+
+        # FIX: some system-files without create-directory entries.
+        my ($dir, $base) = path_split $phy;
+        unless (-d $dir) {
+            _log1 "!mkdir $dir";
+            mkdir_p($dir) or die "can't mkdir $dir";
+        }
+
+        my $buf = chm_retrieve_object($h, $ui, 0, $len);
+        writefile $phy, $buf;
+    }
+    return CHM_ENUMERATOR_CONTINUE;
+}
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] decompress chm file \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut
