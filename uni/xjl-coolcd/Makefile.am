@@ -1,5 +1,8 @@
 include libauto/coolauto.am
 
+dist_bin_SCRIPTS = \
+    make-live
+
 setup_SCRIPTS = \
     postinst \
     prerm

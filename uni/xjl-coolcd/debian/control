@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-coolcd
 
 Package: xjl-coolcd
 Architecture: all
-Depends: squashfs-tools
+Depends: xjl-bash-shlib, squashfs-tools, genisoimage, lzma
 Description: Tools for create Ubuntu Live CD, etc.
