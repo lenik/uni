@@ -1,7 +1,5 @@
 #!/bin/sh
 
 # master-file
-cpan Crypt::CBC
-cpan Crypt::DES
 
 exit 0
