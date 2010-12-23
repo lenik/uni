@@ -9,5 +9,5 @@ Homepage: http://uni.bodz.net/xjl-cooltext
 Package: xjl-cooltext
 Provides: cooltext
 Architecture: all
-Depends: xjl-coolutils, perl, xjl-libcmt
+Depends: xjl-coolutils, perl, xjl-libcmt, libtext-diff-perl
 Description: Text process utilities
