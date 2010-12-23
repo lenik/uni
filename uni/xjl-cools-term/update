@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cat control.in >debian/control
+
+grep -l terminal ../*/debian/categories \
+	| cut -d/ -f2 \
+	| sed -e 's/^/    /' -e '$q;s/$/, /' \
+	>>debian/control
