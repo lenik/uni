@@ -2,7 +2,7 @@
 
 cat control.in >debian/control
 
-grep -l terminal ../*/debian/categories \
+grep -l terminal ../*/debian/tags \
 	| cut -d/ -f2 \
 	| sed -e 's/^/    /' -e '$q;s/$/, /' \
 	>>debian/control
