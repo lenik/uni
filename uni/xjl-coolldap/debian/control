@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-coolldap
 
 Package: xjl-coolldap
 Architecture: all
-Depends: slapd, xjl-bash-shlib
+Depends: xjl-bash-shlib, ldap-utils
 Description: OpenLDAP configs and utilities.
