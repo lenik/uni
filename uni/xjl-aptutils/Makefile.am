@@ -1,7 +1,8 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-    dwhich
+    dwhich \
+    lsdeb
 
 dist_sbin_SCRIPTS = \
     apt-get-reinstall2
