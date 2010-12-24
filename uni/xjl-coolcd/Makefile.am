@@ -1,7 +1,8 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-    make-live
+    make-live \
+    preparefs
 
 setup_SCRIPTS = \
     postinst \

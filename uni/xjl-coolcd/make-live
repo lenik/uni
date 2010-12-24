@@ -82,6 +82,7 @@ function main() {
 
     if [ -z "$cdrom" ]; then
         echo "CDROM dir isn't specified. "
+        exit 1
     fi
     if [ ! -d "$cdrom" ]; then
         echo "CDROM dir isn't existed: $cdrom"
@@ -126,10 +127,9 @@ function main() {
                     sudo mv -f "$x" "$dst"
                     ;;
                 initrd.*)
-                    dst="$cdrom/casper/initrd"
-                    sudo mv -f "$x" "$dst"
-                    sudo lzma "$dst"
-                    sudo mv "$dst.lzma" "$dst.lz"
+                    dst="$cdrom/casper/initrd.lz"
+                    sudo sh -c "gunzip -c '$x' | lzma >'$dst'"
+                    sudo rm "$x"
                     ;;
             esac
         done
