@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <gconf>
 	<entry name="attached_toplevel_id" mtime="1288209472" schema="/schemas/apps/panel/objects/attached_toplevel_id"/>
-	<entry name="position" mtime="1288230279" schema="/schemas/apps/panel/objects/position" type="int" value="281"/>
+	<entry name="position" mtime="1288230279" schema="/schemas/apps/panel/objects/position" type="int" value="40"/>
 	<entry name="use_menu_path" mtime="1288209472" schema="/schemas/apps/panel/objects/use_menu_path"/>
 	<entry name="action_type" mtime="1288209472" schema="/schemas/apps/panel/objects/action_type"/>
 	<entry name="toplevel_id" mtime="1288209474" schema="/schemas/apps/panel/objects/toplevel_id" type="string">

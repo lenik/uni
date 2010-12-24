@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="action" mtime="1288401605" type="string">
+		<stringvalue>bash -c 'eval "gnome-open ~/.private"'</stringvalue>
+	</entry>
+	<entry name="name" mtime="1288401605" type="string">
+		<stringvalue>Browse Private Folder</stringvalue>
+	</entry>
+	<entry name="binding" mtime="1288401607" type="string">
+		<stringvalue>&lt;Mod4&gt;period</stringvalue>
+	</entry>
+</gconf>

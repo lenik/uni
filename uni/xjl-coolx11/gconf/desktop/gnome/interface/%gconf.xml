@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <gconf>
-	<entry name="icon_theme" mtime="1288232247" type="string">
-		<stringvalue>Humanity-Dark</stringvalue>
+	<entry name="icon_theme" mtime="1293176799" type="string">
+		<stringvalue>HighContrastInverse</stringvalue>
 	</entry>
-	<entry name="gtk_theme" mtime="1288232264" type="string">
-		<stringvalue>New Wave</stringvalue>
+	<entry name="gtk_theme" mtime="1293176781" type="string">
+		<stringvalue>Clearlooks</stringvalue>
 	</entry>
 </gconf>
