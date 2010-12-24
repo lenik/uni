@@ -1,0 +1,12 @@
+Source: xjl-mountfile
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: http://uni.bodz.net/xjl-mountfile
+
+Package: xjl-mountfile
+Architecture: all
+Depends: mount
+Description: Mount file by loop device, using default directory naming.
