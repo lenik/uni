@@ -2,8 +2,11 @@
     . shlib-import cliboot
 
     RCSID='$Id: bash.sh 2141 2010-12-13 06:15:26Z lenik $'
-    short_opts="hqv"
-    long_opts="help,quiet,verbose,version"
+    short_opts="rthqv"
+    long_opts="readonly,tracking,help,quiet,verbose,version"
+
+    readonly=
+    tracking=
 
 function version() {
     parse_id "$RCSID"
@@ -18,6 +21,8 @@ function help() {
     echo "    $0 [OPTION] [--] FILES"
     echo
     echo "Options: "
+    echo "    -r, --readonly          Mount as read-only"
+    echo "    -t, --tracking          Mount as read-only with tracking fs"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
@@ -26,6 +31,12 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -r|--readonly)
+            readonly=1;;
+        -t|--tracking)
+            readonly=1
+            tracking=1
+            ;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -42,6 +53,11 @@ function setopt() {
 function main() {
     err=0
     fs=auto
+    mount_opts=loop
+
+    if [ "$readonly" = 1 ]; then
+        mount_opts="$mount_opts,ro"
+    fi
 
     for file in "$@"; do
         if [ ! -r "$file" ]; then
@@ -51,6 +67,11 @@ function main() {
         autodir="${file%.*}"
         if [ "$autodir" = "$file" ]; then
             autodir="$file..mnt"
+        fi
+
+        mountpoint="$autodir"
+        if [ "$tracking" = 1 ]; then
+            mountpoint=".$mountpoint.orig"
         fi
 
         case "${file##*.}" in
@@ -63,17 +84,35 @@ function main() {
             vfat) fs=vfat;;
         esac
 
-        _log1 "Mount $fs:${file##*/} at $autodir"
+        _log1 "Mount $fs:${file##*/} at $mountpoint"
 
-        if [ ! -d "$autodir" ]; then
-            if ! mkdir -p "$autodir"; then
-                echo "Can't create mount point $autodir" >&2
+        if [ ! -d "$mountpoint" ]; then
+            if ! mkdir -p "$mountpoint"; then
+                echo "Can't create mount point $mountpoint" >&2
                 exit 1
             fi
         fi
-        if ! mount -o loop -t $fs "$file" "$autodir/"; then
+        if ! mount -o "$mount_opts" -t $fs "$file" "$mountpoint"; then
             echo "Failed to mount $file" >&2
             err=1
+        fi
+
+        if [ "$tracking" = 1 ]; then
+            trackdir="$autodir.track"
+            mkdir -p "$trackdir"
+
+            aufsdir="$autodir"
+            _log1 "Mount aufs at $aufsdir"
+            if [ ! -d "$aufsdir" ]; then
+                if ! mkdir -p "$aufsdir"; then
+                    echo "Can't create aufs dir $aufsdir" >&2
+                    exit 1
+                fi
+            fi
+            if ! mount -t aufs -o "dirs=$trackdir:$mountpoint" none "$aufsdir"; then
+                echo "Failed to mount aufs" >&2
+                err=1
+            fi
         fi
     done
 

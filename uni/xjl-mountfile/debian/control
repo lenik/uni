@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-mountfile
 
 Package: xjl-mountfile
 Architecture: all
-Depends: mount
+Depends: mount, xjl-bash-shlib
 Description: Mount file by loop device, using default directory naming.
