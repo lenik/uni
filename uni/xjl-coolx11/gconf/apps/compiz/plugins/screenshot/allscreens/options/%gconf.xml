@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="initiate_button" mtime="1291601479" type="string">
+		<stringvalue>&lt;Control&gt;&lt;Super&gt;Button1</stringvalue>
+	</entry>
+</gconf>

@@ -1,16 +1,19 @@
 <?xml version="1.0"?>
 <gconf>
-	<entry name="panel_main_menu" mtime="1288252293" type="string">
-		<stringvalue>&lt;Mod4&gt;grave</stringvalue>
+	<entry name="panel_main_menu" mtime="1291542681" type="string">
+		<stringvalue>&lt;Mod4&gt;F1</stringvalue>
 	</entry>
 	<entry name="panel_run_dialog" mtime="1288252276" type="string">
 		<stringvalue>&lt;Mod4&gt;r</stringvalue>
 	</entry>
-	<entry name="switch_windows" mtime="1288233368" type="string">
-		<stringvalue></stringvalue>
+	<entry name="switch_windows" mtime="1288601672" type="string">
+		<stringvalue>&lt;Alt&gt;Tab</stringvalue>
 	</entry>
 	<entry name="run_command_terminal" mtime="1288233304" type="string">
 		<stringvalue>&lt;Mod4&gt;t</stringvalue>
+	</entry>
+	<entry name="run_command_window_screenshot" mtime="1292808610" type="string">
+		<stringvalue>&lt;Mod4&gt;Print</stringvalue>
 	</entry>
 	<entry name="switch_to_workspace_down" mtime="1288233242" type="string">
 		<stringvalue>&lt;Mod4&gt;j</stringvalue>

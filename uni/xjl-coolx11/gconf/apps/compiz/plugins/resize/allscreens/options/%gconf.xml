@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="mode" mtime="1291547518" type="int" value="0"/>
+	<entry name="initiate_stretch_key" mtime="1291547518" type="string">
+		<stringvalue>&lt;Alt&gt;F8</stringvalue>
+	</entry>
+</gconf>
