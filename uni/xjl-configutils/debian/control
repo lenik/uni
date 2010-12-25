@@ -7,7 +7,7 @@ Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/xjl-configutils
 
 Package: xjl-configutils
-Provides: configutils
+Provides: configutils, sedit, lineconf
 Architecture: all
 Depends: xjl-bash-shlib, xjl-coretext
 Description: Config helper utilities for installers

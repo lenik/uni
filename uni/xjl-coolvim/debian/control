@@ -9,6 +9,5 @@ Homepage: http://uni.bodz.net/xjl-coolvim
 Package: xjl-coolvim
 Provides: coolvim
 Architecture: all
-Depends: ${misc:Depends}, vim, grep, sudo
-    , xjl-coolbash
+Depends: xjl-bash-shlib, xjl-bash-aliases, vim-tiny, grep, sudo
 Description: Lenik's vim enhancement.

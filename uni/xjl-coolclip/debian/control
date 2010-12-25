@@ -9,5 +9,5 @@ Homepage: http://uni.bodz.net/xjl-coolclip
 Package: xjl-coolclip
 Provides: coolclip
 Architecture: all
-Depends: imagemagick
+Depends: libc6, libx11-6, imagemagick
 Description: Clipboard releated enhancement and utilities.
