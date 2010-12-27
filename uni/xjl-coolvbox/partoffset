@@ -70,7 +70,7 @@ function main() {
             fi
 
             line="${line#*start=}"
-            line="${line%,*}"
+            line="${line%%,*}"
             start="${line// }"
             if [ -z "$start" ]; then continue; fi
 
