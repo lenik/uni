@@ -8,7 +8,7 @@ dist_bin_SCRIPTS = \
     umount-alt-a \
     symltrace \
     fillfile \
-    zerof \
+    mksize \
     mount-vpart
 
 dist_man_MANS = \

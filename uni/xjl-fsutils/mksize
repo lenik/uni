@@ -2,12 +2,13 @@
     . shlib-import cliboot
 
     RCSID='$Id: bash.sh 1853 2010-09-29 01:35:59Z lenik $'
-    short_opts="s:fhqv"
-    long_opts="size:,force,help,quiet,verbose,version"
+    short_opts="zs:fhqv"
+    long_opts="zero,size:,force,help,quiet,verbose,version"
 
     block_size=4096
     block_count=1
     force=0
+    fill=
 
 function version() {
     parse_id "$RCSID"
@@ -22,6 +23,7 @@ function help() {
     echo "    $0 [OPTION] [--] FILE..."
     echo
     echo "Options: "
+    echo "    -z, --fill-zero         Fill zero"
     echo "    -s, --size=SIZE[kmgKMG] Specify file size, default 4K"
     echo "                            (k=1000, K=1024)"
     echo "    -f, --force             Force to overwrite existing file"
@@ -33,6 +35,8 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -z|--zero)
+            fill=0;;
         -s|--size)
             case $2 in
             *k) block_count=${2%k}; block_size=1000;;
@@ -67,8 +71,16 @@ function main() {
             echo "File already existed: $f"
             exit 1
         fi
-        echo dd if=/dev/zero of="$f" bs=$block_size count=$block_count
-        dd if=/dev/zero of="$f" bs=$block_size count=$block_count
+
+        case "$fill" in
+        '')
+            echo-x dd of="$f" bs=$block_size count=0 seek=$block_count;;
+        0)
+            echo-x dd if=/dev/zero of="$f" bs=$block_size count=$block_count;;
+        *)
+            echo "Unsupported fill char: $fill"
+            exit 1;;
+        esac
     done
 }
 
