@@ -4,7 +4,8 @@ dist_bin_SCRIPTS= \
     img2vdi \
     vdi2img \
     loop2vmdk \
-    raw-vmdk
+    raw-vmdk \
+    partoffset
 
 dist_man_MANS = \
     img2vdi.1 \
