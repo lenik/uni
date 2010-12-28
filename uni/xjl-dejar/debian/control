@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-dejar
 
 Package: xjl-dejar
 Architecture: all
-Depends: java2-jdk, xjl-bash-shlib, jad, xjl-coolutils
+Depends: fastjar | java2-jdk, xjl-bash-shlib, jad, xjl-coolutils
 Description: Lenik's JDK utilities
