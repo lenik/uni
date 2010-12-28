@@ -213,13 +213,15 @@ sub _main {
             'href' => $href,
         );
         my ($k, $v);
-        $node->{children}->{$_}->{$k} = $v while ($k, $v) = each(%item);
+        $node->{children}->{$base}->{$k} = $v while ($k, $v) = each(%item);
     }
 
     my ($root_entry, $root_tree) = shift_lead($tree);
         $root_entry = '.' unless defined $root_entry;
     print $root_entry."\n";
     treevis $root_tree, '';
+
+    # for (split(/\n/, Dumper($root_tree))) { s/^( *)/ /g; print ' ' x (length($1) / 8) . "$_\n" }
 }
 
 =head1 DIAGNOSTICS
