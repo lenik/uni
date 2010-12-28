@@ -1,0 +1,56 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 31_wiki_noencode.dpatch by Lenik (谢继雷) <lenik@bodz.net>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Disable urlencode for wiki dump page filenames.
+
+@DPATCH@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' trac-0.11.7~/trac/admin/console.py trac-0.11.7/trac/admin/console.py
+--- trac-0.11.7~/trac/admin/console.py	2010-03-10 06:49:38.000000000 +0800
++++ trac-0.11.7/trac/admin/console.py	2010-12-28 23:30:05.020260001 +0800
+@@ -36,7 +36,8 @@
+ from trac.util.datefmt import parse_date, format_date, format_datetime, utc
+ from trac.util.html import html
+ from trac.util.text import to_unicode, wrap, unicode_quote, unicode_unquote, \
+-                           print_table, console_print, raw_input
++                           print_table, console_print, raw_input, \
++                           pathname_quote, pathname_unquote
+ from trac.util.translation import _, ngettext
+ from trac.wiki import WikiPage
+ from trac.wiki.api import WikiSystem
+@@ -816,7 +817,7 @@
+             else:
+                 raise TracError("%s is not a directory" % dir)
+         for p in pages:
+-            dst = os.path.join(dir, unicode_quote(p, ''))
++            dst = os.path.join(dir, pathname_quote(p, ''))
+             printout(_(" %(src)s => %(dst)s", src=p, dst=dst))
+             self._do_wiki_export(p, dst)
+
+@@ -826,7 +827,7 @@
+             if page in ignore:
+                 continue
+             filename = os.path.join(dir, page)
+-            page = unicode_unquote(page.encode('utf-8'))
++            page = pathname_unquote(page.encode('utf-8'))
+             if os.path.isfile(filename):
+                 if self._do_wiki_import(filename, page, cursor, create_only):
+                     printout(_(" %(page)s imported from %(filename)s",
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' trac-0.11.7~/trac/util/text.py trac-0.11.7/trac/util/text.py
+--- trac-0.11.7~/trac/util/text.py	2010-03-10 06:49:39.000000000 +0800
++++ trac-0.11.7/trac/util/text.py	2010-12-28 23:28:04.140259999 +0800
+@@ -80,6 +80,14 @@
+                .replace('\n', '\\n').replace('"', '\\"') \
+                .replace("'", "\\'")
+
++def pathname_quote(value):
++	"""Quote special path characters"""
++	return value
++
++def pathname_unquote(value):
++	"""Unquote special path characters"""
++	return value
++
+ def unicode_quote(value, safe='/'):
+     """A unicode aware version of urllib.quote"""
+     return quote(value.encode('utf-8'), safe)
