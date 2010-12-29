@@ -1,0 +1,276 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 100_autoindex_iconpreview.dpatch by Lenik (谢继雷) <lenik@bodz.net>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Preview icon image if it's very small.
+## DP: The new options are: Preview IconMinSize IconMaxSize IconMaxWidth IconMaxHeight
+
+@DPATCH@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' apache2-2.2.16~/modules/generators/mod_autoindex.c apache2-2.2.16/modules/generators/mod_autoindex.c
+--- apache2-2.2.16~/modules/generators/mod_autoindex.c	2009-08-28 22:37:37.000000000 +0800
++++ apache2-2.2.16/modules/generators/mod_autoindex.c	2010-12-29 09:58:24.508794744 +0800
+@@ -71,6 +71,8 @@
+ #define IGNORE_CASE         (1 << 16)
+ #define EMIT_XHTML          (1 << 17)
+ #define SHOW_FORBIDDEN      (1 << 18)
++#define PREVIEW_SMALL_IMAGE (1 << 19)   /* Show the image file as the icon
++                                           itself */
+
+ #define K_NOADJUST 0
+ #define K_ADJUST 1
+@@ -95,6 +97,11 @@
+ #define DEFAULT_ICON_WIDTH 20
+ #define DEFAULT_ICON_HEIGHT 22
+
++#define DEFAULT_ICON_MINSIZE 128
++#define DEFAULT_ICON_MAXSIZE 65536
++#define DEFAULT_ICON_MAXWIDTH DEFAULT_ICON_WIDTH
++#define DEFAULT_ICON_MAXHEIGHT DEFAULT_ICON_HEIGHT
++
+ /*
+  * Other default dimensions.
+  */
+@@ -129,6 +136,10 @@
+     int desc_adjust;
+     int icon_width;
+     int icon_height;
++    apr_off_t icon_minsize;             /* min image size to preview  */
++    apr_off_t icon_maxsize;             /* max image size to preview */
++    int icon_maxwidth;
++    int icon_maxheight;
+     char default_keyid;
+     char default_direction;
+
+@@ -173,6 +184,18 @@
+                   "</title>\n", NULL);
+     }
+
++    if (d->opts & PREVIEW_SMALL_IMAGE) {
++        ap_rvputs(r, "  <style type=\"text/css\">\n"
++                  "    .icon { ", NULL);
++        if (d->icon_maxwidth) {
++            ap_rprintf(r, "max-width: %dpx; ", d->icon_maxwidth);
++        }
++        if (d->icon_maxheight) {
++            ap_rprintf(r, "max-height: %dpx; ", d->icon_maxheight);
++        }
++        ap_rvputs(r, "  </style>\n", NULL);
++    }
++
+     if (d->style_sheet != NULL) {
+         ap_rvputs(r, "  <link rel=\"stylesheet\" href=\"", d->style_sheet,
+                 "\" type=\"text/css\"", xhtml ? " />\n" : ">\n", NULL);
+@@ -405,6 +428,9 @@
+         else if (!strcasecmp(w, "ShowForbidden")) {
+             option = SHOW_FORBIDDEN;
+         }
++        else if (!strcasecmp(w, "Preview")) {
++            option = PREVIEW_SMALL_IMAGE;
++        }
+         else if (!strcasecmp(w, "None")) {
+             if (action != '\0') {
+                 return "Cannot combine '+' or '-' with 'None' keyword";
+@@ -441,6 +467,58 @@
+             }
+             d_cfg->icon_height = atoi(&w[11]);
+         }
++        else if (!strcasecmp(w, "IconMinSize")) {
++            if (action != '-') {
++                d_cfg->icon_minsize = DEFAULT_ICON_MINSIZE;
++            } else {
++                d_cfg->icon_minsize = 0;
++            }
++        }
++        else if (!strncasecmp(w, "IconMinSize=", 12)) {
++            if (action == '-') {
++                return "Cannot combine '-' with IconMinSize=n";
++            }
++            d_cfg->icon_minsize = atoi(&w[12]);
++        }
++        else if (!strcasecmp(w, "IconMaxSize")) {
++            if (action != '-') {
++                d_cfg->icon_maxsize = DEFAULT_ICON_MAXSIZE;
++            } else {
++                d_cfg->icon_maxsize = 0;
++            }
++        }
++        else if (!strncasecmp(w, "IconMaxSize=", 12)) {
++            if (action == '-') {
++                return "Cannot combine '-' with IconMaxSize=n";
++            }
++            d_cfg->icon_maxsize = atoi(&w[12]);
++        }
++        else if (!strcasecmp(w, "IconMaxWidth")) {
++            if (action != '-') {
++                d_cfg->icon_maxwidth = DEFAULT_ICON_MAXWIDTH;
++            } else {
++                d_cfg->icon_maxwidth = 0;
++            }
++        }
++        else if (!strncasecmp(w, "IconMaxWidth=", 13)) {
++            if (action == '-') {
++                return "Cannot combine '-' with IconMaxWidth=n";
++            }
++            d_cfg->icon_maxwidth = atoi(&w[13]);
++        }
++        else if (!strcasecmp(w, "IconMaxHeight")) {
++            if (action != '-') {
++                d_cfg->icon_maxheight = DEFAULT_ICON_MAXHEIGHT;
++            } else {
++                d_cfg->icon_maxheight = 0;
++            }
++        }
++        else if (!strncasecmp(w, "IconMaxHeight=", 14)) {
++            if (action == '-') {
++                return "Cannot combine '-' with IconMaxHeight=n";
++            }
++            d_cfg->icon_maxheight = atoi(&w[14]);
++        }
+         else if (!strcasecmp(w, "NameWidth")) {
+             if (action != '-') {
+                 return "NameWidth with no value may only appear as "
+@@ -611,6 +689,10 @@
+
+     new->icon_width = 0;
+     new->icon_height = 0;
++    new->icon_minsize = DEFAULT_ICON_MINSIZE;
++    new->icon_maxsize = DEFAULT_ICON_MAXSIZE;
++    new->icon_maxwidth = DEFAULT_ICON_MAXWIDTH;
++    new->icon_maxheight = DEFAULT_ICON_MAXHEIGHT;
+     new->name_width = DEFAULT_NAME_WIDTH;
+     new->name_adjust = K_UNSET;
+     new->desc_width = DEFAULT_DESC_WIDTH;
+@@ -643,8 +725,12 @@
+                                           : base->style_sheet;
+     new->head_insert = add->head_insert ? add->head_insert
+                                           : base->head_insert;
+-    new->icon_height = add->icon_height ? add->icon_height : base->icon_height;
+     new->icon_width = add->icon_width ? add->icon_width : base->icon_width;
++    new->icon_height = add->icon_height ? add->icon_height : base->icon_height;
++    new->icon_maxwidth =
++        add->icon_maxwidth ? add->icon_maxwidth : base->icon_maxwidth;
++    new->icon_maxheight =
++        add->icon_maxheight ? add->icon_maxheight : base->icon_maxheight;
+
+     new->ctype = add->ctype ? add->ctype : base->ctype;
+     new->charset = add->charset ? add->charset : base->charset;
+@@ -740,6 +826,7 @@
+ struct ent {
+     char *name;
+     char *icon;
++    int preview;                        /* is the icon for preview purpose? */
+     char *alt;
+     char *desc;
+     apr_off_t size;
+@@ -1304,6 +1391,7 @@
+     request_rec *rr;
+     struct ent *p;
+     int show_forbidden = 0;
++    char *full_path;
+
+     /* Dot is ignored, Parent is handled by make_parent_entry() */
+     if ((dirent->name[0] == '.') && (!dirent->name[1]
+@@ -1325,8 +1413,8 @@
+         return (NULL);
+     }
+
+-    if (ignore_entry(d, ap_make_full_path(r->pool,
+-                                          r->filename, dirent->name))) {
++    full_path = ap_make_full_path(r->pool, r->filename, dirent->name);
++    if (ignore_entry(d, full_path)) {
+         return (NULL);
+     }
+
+@@ -1356,6 +1444,7 @@
+     }
+     p->size = -1;
+     p->icon = NULL;
++    p->preview = 0;
+     p->alt = NULL;
+     p->desc = NULL;
+     p->lm = -1;
+@@ -1389,6 +1478,16 @@
+             p->icon = find_icon(d, rr, 0);
+             p->alt = find_alt(d, rr, 0);
+             p->size = rr->finfo.size;
++
++            if (autoindex_opts & PREVIEW_SMALL_IMAGE) {
++                const char *content_type = ap_field_noparam(rr->pool, rr->content_type);
++                if (content_type && !strncmp(content_type, "image/", 6)) {
++                    if (rr->finfo.size >= d->icon_minsize && rr->finfo.size <= d->icon_maxsize) {
++                        p->icon = apr_pstrdup(r->pool, dirent->name);
++                        p->preview = 1;
++                    }
++                }
++            }
+         }
+
+         p->desc = find_desc(d, rr->filename);
+@@ -1397,8 +1496,7 @@
+             p->desc = apr_pstrdup(r->pool, find_title(rr));
+         }
+     }
+-    ap_destroy_sub_req(rr);
+-    /*
++    ap_destroy_sub_req(rr);    /*
+      * We don't need to take any special action for the file size key.
+      * If we did, it would go here.
+      */
+@@ -1684,19 +1782,21 @@
+                     ap_rvputs(r, "<a href=\"", anchor, "\">", NULL);
+                 }
+                 if ((ar[x]->icon) || d->default_icon) {
+-                    ap_rvputs(r, "<img src=\"",
++                    ap_rvputs(r, "<img class=\"icon\" src=\"",
+                               ap_escape_html(scratch,
+                                              ar[x]->icon ? ar[x]->icon
+                                                          : d->default_icon),
+                               "\" alt=\"[", (ar[x]->alt ? ar[x]->alt : "   "),
+                               "]\"", NULL);
+-                    if (d->icon_width) {
+-                        ap_rprintf(r, " width=\"%d\"", d->icon_width);
+-                    }
+-                    if (d->icon_height) {
+-                        ap_rprintf(r, " height=\"%d\"", d->icon_height);
++                    if (! ar[x]->preview) {
++                        if (d->icon_width) {
++                            ap_rprintf(r, " width=\"%d\"", d->icon_width);
++                        }
++                        if (d->icon_height) {
++                            ap_rprintf(r, " height=\"%d\"", d->icon_height);
++                        }
+                     }
+-
++
+                     if (autoindex_opts & EMIT_XHTML) {
+                         ap_rputs(" /", r);
+                     }
+@@ -1774,19 +1874,21 @@
+                     ap_rvputs(r, "<a href=\"", anchor, "\">", NULL);
+                 }
+                 if ((ar[x]->icon) || d->default_icon) {
+-                    ap_rvputs(r, "<img src=\"",
++                    ap_rvputs(r, "<img class=\"icon\" src=\"",
+                               ap_escape_html(scratch,
+                                              ar[x]->icon ? ar[x]->icon
+                                                          : d->default_icon),
+                               "\" alt=\"[", (ar[x]->alt ? ar[x]->alt : "   "),
+                               "]\"", NULL);
+-                    if (d->icon_width) {
+-                        ap_rprintf(r, " width=\"%d\"", d->icon_width);
+-                    }
+-                    if (d->icon_height) {
+-                        ap_rprintf(r, " height=\"%d\"", d->icon_height);
++                    if (! ar[x]->preview) {
++                        if (d->icon_width) {
++                            ap_rprintf(r, " width=\"%d\"", d->icon_width);
++                        }
++                        if (d->icon_height) {
++                            ap_rprintf(r, " height=\"%d\"", d->icon_height);
++                        }
+                     }
+-
++
+                     if (autoindex_opts & EMIT_XHTML) {
+                         ap_rputs(" /", r);
+                     }
