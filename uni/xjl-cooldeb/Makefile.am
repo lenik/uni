@@ -25,6 +25,9 @@ bin_SCRIPTS = \
 dist_aliases_DATA = \
     cooldeb.sh
 
+dist_bashcmpl_DATA = \
+    cooldeb
+
 dist_man_MANS = \
     newdeb.1 \
     cideb.1

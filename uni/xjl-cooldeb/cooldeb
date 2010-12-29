@@ -1,0 +1,2 @@
+complete -F _dpatch_edit_patch depc
+complete -F _dpatch_edit_patch epc
