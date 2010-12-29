@@ -4,12 +4,12 @@
 
     RCSID='$Id: bash.sh 2141 2010-12-13 06:15:26Z lenik $'
     short_opts="clp:fhqv"
-    long_opts="continue,local,dput-host:,full,help,quiet,verbose,version"
+    long_opts="continue,local,dput-host:,fast,help,quiet,verbose,version"
 
     cont=
     local_install=0
     dput_host=dlocal
-    full_build=
+    fast_build=
 
 function version() {
     parse_id "$RCSID"
@@ -27,7 +27,7 @@ function help() {
     echo "    -c, --continue          Build again after edit-patch"
     echo "    -l, --local             Install by dpkg -i, instead of apt-get"
     echo "    -p, --dput-host=HOST    Host config name used to dput"
-    echo "    -f, --full-build        Clean & Reconfig everything before build"
+    echo "    -f, --fast-build        Don't clean & re-configure before build"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
@@ -43,8 +43,8 @@ function setopt() {
         -p|--dput-host)
             local_install=0
             dput_host="$2";;
-        -f|--full-build)
-            full_build=1;;
+        -f|--fast-build)
+            fast_build=1;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -59,23 +59,32 @@ function setopt() {
 }
 
 function main() {
-    [ -n "$1" ] || die "No package name specified"
-    package="$1"
+    if [ -z "$1" ]; then
+        [ -z "$cont" ] && die "No package name specified"
 
-    vers=("$package-"*/)
-    if [ ${#vers[@]}  = 0 ]; then
-        _log1 "Get source of $package"
-        apt-get source "$package" || die "Failed to get source"
+        latest="${PWD##*/}"
+        package="${latest%-*}"
+
+        _warn "Assume current working package is $package"
+
+    else
+        package="$1"
+
         vers=("$package-"*/)
-        [ ${#vers[@]} = 0 ] && die "Unexpected: no source code directory found for $package"
+        if [ ${#vers[@]}  = 0 ]; then
+            _log1 "Get source of $package"
+            apt-get source "$package" || die "Failed to get source"
+            vers=("$package-"*/)
+            [ ${#vers[@]} = 0 ] && die "Unexpected: no source code directory found for $package"
+        fi
+
+        nvers=${#vers[@]}
+        latest="${vers[nvers-1]}"
+        latest="${latest%/}"
+        _log1 "Working on $latest"
+
+        cd "$latest" || die "Can't chdir into $latest. "
     fi
-
-    nvers=${#vers[@]}
-    latest="${vers[nvers-1]}"
-    latest="${latest%/}"
-    _log1 "Working on $latest"
-
-    cd "$latest" || die "Can't chdir into $latest. "
 
     if [ -z "$cont" ]; then
         # Start of prepare & patch
@@ -151,7 +160,7 @@ function main() {
 
     _log1 "Build the debian package"
     DPKGOPTS=()
-        if [ -z "$full_build" ]; then
+        if [ "$fast_build" = 1 ]; then
             _warn "  Fast Mode: You should clean everything yourself. "
             DPKGOPTS=(-nc)
         fi
