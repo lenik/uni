@@ -3,8 +3,11 @@
     shopt -s nullglob
 
     RCSID='$Id: bash.sh 2141 2010-12-13 06:15:26Z lenik $'
-    short_opts="hqv"
-    long_opts="help,quiet,verbose,version"
+    short_opts="lp:hqv"
+    long_opts="local,dput-host:,help,quiet,verbose,version"
+
+    local_install=0
+    dput_host=dlocal
 
 function version() {
     parse_id "$RCSID"
@@ -19,6 +22,8 @@ function help() {
     echo "    $0 [OPTION] [--] ..."
     echo
     echo "Options: "
+    echo "    -l, --local             Install by dpkg -i, instead of apt-get"
+    echo "    -p, --dput-host=HOST    Host config name used to dput"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
@@ -27,6 +32,11 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -l|--local)
+            local_install=1;;
+        -p|--dput-host)
+            local_install=0
+            dput_host="$2";;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -116,8 +126,8 @@ function main() {
         if [ "${pbase:0:1}" = . ]; then continue; fi
 
         pname="${pbase%.*}"
-        _log1 "    Add Patch $pname"
-        cp -f "$p" debian/patches/
+        _log1 "    Link Patch $pname"
+        ln -snf `readlink -f "$p"` debian/patches/
         echo "$pbase" >>$tmplist
     done
     sort -u $tmplist >"$listfile"
@@ -129,14 +139,42 @@ function main() {
     _log1 "Build the debian package"
     dpkg-buildpackage || die "Failed to build the package"
 
-    _log1 "Dput to dlocal"
-    dput -f dlocal "$package"_*.changes
+    changes=(../"$package"_*.changes)
+    nchanges=${#changes[@]}
+    [ $nchanges = 0 ] && die "No $package*.changes created. "
 
-    _log1 "Refresh package status"
-    sudo aptitude update
+    changes="${changes[nchanges-1]}"
+    _log1 "Install Debian packages listed in $changes"
 
-    _log1 "Upgrade system"
-    sudo apt-get dist-upgrade
+    if [ "$local_install" = 1 ]; then
+        debs=()
+        ndeb=0
+        files_section=0
+        while read -r hash size section priority file; do
+            if [ "$hash" = "Files:" ]; then
+                files_section=1
+                continue
+            fi
+            if [ "$files_section" = 0 ]; then continue; fi
+            if [ -z "$hash" ]; then break; fi
+            if [ "${file: -4}" = '.deb' ]; then
+                _log1 "    Add to install: $file"
+                debs[ndeb++]="../$file"
+            fi
+        done <"$changes"
+
+        sudo dpkg -i "${debs[@]}" || die "Failed to install ${debs[@]}"
+
+    else
+        _log1 "Dput to $dput_host: $changes"
+        dput -f $dput_host "$changes"
+
+        _log1 "Refresh package status"
+        sudo aptitude update
+
+        _log1 "Upgrade system"
+        sudo apt-get dist-upgrade
+    fi
 }
 
 boot "$@"
