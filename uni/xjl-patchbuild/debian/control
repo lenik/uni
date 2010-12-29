@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/xjl-patchbuild
 
 Package: xjl-patchbuild
 Architecture: all
-Depends: dpkg-dev
+Depends: xjl-cooldeb, dpkg-dev, apt, aptitude, dput
 Description: Rebuild debian package with automatic personal patch management.
