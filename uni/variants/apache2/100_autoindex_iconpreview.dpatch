@@ -7,18 +7,19 @@
 
 @DPATCH@
 diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' apache2-2.2.16~/modules/generators/mod_autoindex.c apache2-2.2.16/modules/generators/mod_autoindex.c
---- apache2-2.2.16~/modules/generators/mod_autoindex.c	2009-08-28 22:37:37.000000000 +0800
-+++ apache2-2.2.16/modules/generators/mod_autoindex.c	2010-12-29 09:58:24.508794744 +0800
-@@ -71,6 +71,8 @@
+--- apache2-2.2.16~/modules/generators/mod_autoindex.c	2010-12-29 23:09:26.993920001 +0800
++++ apache2-2.2.16/modules/generators/mod_autoindex.c	2010-12-29 23:18:05.161920000 +0800
+@@ -71,6 +71,9 @@
  #define IGNORE_CASE         (1 << 16)
  #define EMIT_XHTML          (1 << 17)
  #define SHOW_FORBIDDEN      (1 << 18)
-+#define PREVIEW_SMALL_IMAGE (1 << 19)   /* Show the image file as the icon
++#define PREVIEW_SMALL_IMAGE (1 << 30)   /* Show the image file as the icon
 +                                           itself */
++#define ALT_CONTENT_TYPE    (1 << 31)   /* Show content-type as image alt */
 
  #define K_NOADJUST 0
  #define K_ADJUST 1
-@@ -95,6 +97,11 @@
+@@ -95,6 +98,11 @@
  #define DEFAULT_ICON_WIDTH 20
  #define DEFAULT_ICON_HEIGHT 22
 
@@ -30,7 +31,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  /*
   * Other default dimensions.
   */
-@@ -129,6 +136,10 @@
+@@ -129,6 +137,10 @@
      int desc_adjust;
      int icon_width;
      int icon_height;
@@ -41,7 +42,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
      char default_keyid;
      char default_direction;
 
-@@ -173,6 +184,18 @@
+@@ -173,6 +185,18 @@
                    "</title>\n", NULL);
      }
 
@@ -60,26 +61,59 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
      if (d->style_sheet != NULL) {
          ap_rvputs(r, "  <link rel=\"stylesheet\" href=\"", d->style_sheet,
                  "\" type=\"text/css\"", xhtml ? " />\n" : ">\n", NULL);
-@@ -405,6 +428,9 @@
+@@ -405,6 +429,12 @@
          else if (!strcasecmp(w, "ShowForbidden")) {
              option = SHOW_FORBIDDEN;
          }
 +        else if (!strcasecmp(w, "Preview")) {
 +            option = PREVIEW_SMALL_IMAGE;
 +        }
++        else if (!strcasecmp(w, "AltContentType"))  {
++            option = ALT_CONTENT_TYPE;
++        }
          else if (!strcasecmp(w, "None")) {
              if (action != '\0') {
                  return "Cannot combine '+' or '-' with 'None' keyword";
-@@ -441,6 +467,58 @@
+@@ -415,11 +445,10 @@
+         }
+         else if (!strcasecmp(w, "IconWidth")) {
+             if (action != '-') {
+-                d_cfg->icon_width = DEFAULT_ICON_WIDTH;
+-            }
+-            else {
+-                d_cfg->icon_width = 0;
++                return "IconWidth with no value may only appear as "
++                       "-IconWidth";
+             }
++            d_cfg->icon_width = DEFAULT_ICON_WIDTH;
+         }
+         else if (!strncasecmp(w, "IconWidth=", 10)) {
+             if (action == '-') {
+@@ -429,11 +458,10 @@
+         }
+         else if (!strcasecmp(w, "IconHeight")) {
+             if (action != '-') {
+-                d_cfg->icon_height = DEFAULT_ICON_HEIGHT;
+-            }
+-            else {
+-                d_cfg->icon_height = 0;
++                return "IconHeight with no value may only appear as "
++                       "-IconHeight";
+             }
++            d_cfg->icon_height = DEFAULT_ICON_HEIGHT;
+         }
+         else if (!strncasecmp(w, "IconHeight=", 11)) {
+             if (action == '-') {
+@@ -441,6 +469,58 @@
              }
              d_cfg->icon_height = atoi(&w[11]);
          }
 +        else if (!strcasecmp(w, "IconMinSize")) {
 +            if (action != '-') {
-+                d_cfg->icon_minsize = DEFAULT_ICON_MINSIZE;
-+            } else {
-+                d_cfg->icon_minsize = 0;
++                return "IconMinSize with no value may only appear as "
++                       "-IconMinSize";
 +            }
++            d_cfg->icon_minsize = DEFAULT_ICON_MINSIZE;
 +        }
 +        else if (!strncasecmp(w, "IconMinSize=", 12)) {
 +            if (action == '-') {
@@ -89,10 +123,10 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
 +        }
 +        else if (!strcasecmp(w, "IconMaxSize")) {
 +            if (action != '-') {
-+                d_cfg->icon_maxsize = DEFAULT_ICON_MAXSIZE;
-+            } else {
-+                d_cfg->icon_maxsize = 0;
++                return "IconMaxSize with no value may only appear as "
++                       "-IconMaxSize";
 +            }
++            d_cfg->icon_maxsize = DEFAULT_ICON_MAXSIZE;
 +        }
 +        else if (!strncasecmp(w, "IconMaxSize=", 12)) {
 +            if (action == '-') {
@@ -102,10 +136,10 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
 +        }
 +        else if (!strcasecmp(w, "IconMaxWidth")) {
 +            if (action != '-') {
-+                d_cfg->icon_maxwidth = DEFAULT_ICON_MAXWIDTH;
-+            } else {
-+                d_cfg->icon_maxwidth = 0;
++                return "IconMaxWidth with no value may only appear as "
++                       "-IconMaxWidth";
 +            }
++            d_cfg->icon_maxwidth = DEFAULT_ICON_MAXWIDTH;
 +        }
 +        else if (!strncasecmp(w, "IconMaxWidth=", 13)) {
 +            if (action == '-') {
@@ -115,10 +149,10 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
 +        }
 +        else if (!strcasecmp(w, "IconMaxHeight")) {
 +            if (action != '-') {
-+                d_cfg->icon_maxheight = DEFAULT_ICON_MAXHEIGHT;
-+            } else {
-+                d_cfg->icon_maxheight = 0;
++                return "IconMaxHeight with no value may only appear as "
++                       "-IconMaxHeight";
 +            }
++            d_cfg->icon_maxheight = DEFAULT_ICON_MAXHEIGHT;
 +        }
 +        else if (!strncasecmp(w, "IconMaxHeight=", 14)) {
 +            if (action == '-') {
@@ -129,7 +163,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
          else if (!strcasecmp(w, "NameWidth")) {
              if (action != '-') {
                  return "NameWidth with no value may only appear as "
-@@ -611,6 +689,10 @@
+@@ -611,6 +691,10 @@
 
      new->icon_width = 0;
      new->icon_height = 0;
@@ -140,13 +174,15 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
      new->name_width = DEFAULT_NAME_WIDTH;
      new->name_adjust = K_UNSET;
      new->desc_width = DEFAULT_DESC_WIDTH;
-@@ -643,8 +725,12 @@
+@@ -643,8 +727,14 @@
                                            : base->style_sheet;
      new->head_insert = add->head_insert ? add->head_insert
                                            : base->head_insert;
 -    new->icon_height = add->icon_height ? add->icon_height : base->icon_height;
      new->icon_width = add->icon_width ? add->icon_width : base->icon_width;
 +    new->icon_height = add->icon_height ? add->icon_height : base->icon_height;
++    new->icon_minsize = add->icon_minsize ? add->icon_minsize : base->icon_minsize;
++    new->icon_maxsize = add->icon_maxsize ? add->icon_maxsize : base->icon_maxsize;
 +    new->icon_maxwidth =
 +        add->icon_maxwidth ? add->icon_maxwidth : base->icon_maxwidth;
 +    new->icon_maxheight =
@@ -154,7 +190,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
 
      new->ctype = add->ctype ? add->ctype : base->ctype;
      new->charset = add->charset ? add->charset : base->charset;
-@@ -740,6 +826,7 @@
+@@ -740,6 +830,7 @@
  struct ent {
      char *name;
      char *icon;
@@ -162,7 +198,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
      char *alt;
      char *desc;
      apr_off_t size;
-@@ -1304,6 +1391,7 @@
+@@ -1304,6 +1395,7 @@
      request_rec *rr;
      struct ent *p;
      int show_forbidden = 0;
@@ -170,7 +206,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
 
      /* Dot is ignored, Parent is handled by make_parent_entry() */
      if ((dirent->name[0] == '.') && (!dirent->name[1]
-@@ -1325,8 +1413,8 @@
+@@ -1325,8 +1417,8 @@
          return (NULL);
      }
 
@@ -181,7 +217,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
          return (NULL);
      }
 
-@@ -1356,6 +1444,7 @@
+@@ -1356,6 +1448,7 @@
      }
      p->size = -1;
      p->icon = NULL;
@@ -189,13 +225,25 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
      p->alt = NULL;
      p->desc = NULL;
      p->lm = -1;
-@@ -1389,6 +1478,16 @@
+@@ -1386,9 +1479,27 @@
+             }
+         }
+         else {
++            const char *content_type = NULL;
++
              p->icon = find_icon(d, rr, 0);
-             p->alt = find_alt(d, rr, 0);
+-            p->alt = find_alt(d, rr, 0);
++            p->alt = find_alt(d, rr, 0); /* This is the *default* alt text. */
              p->size = rr->finfo.size;
 +
++            if (autoindex_opts & (PREVIEW_SMALL_IMAGE | ALT_CONTENT_TYPE)) {
++                content_type = ap_field_noparam(rr->pool, rr->content_type);
++                if (autoindex_opts & ALT_CONTENT_TYPE) {
++                    p->alt = apr_pstrdup(r->pool, content_type);
++                }
++            }
++
 +            if (autoindex_opts & PREVIEW_SMALL_IMAGE) {
-+                const char *content_type = ap_field_noparam(rr->pool, rr->content_type);
 +                if (content_type && !strncmp(content_type, "image/", 6)) {
 +                    if (rr->finfo.size >= d->icon_minsize && rr->finfo.size <= d->icon_maxsize) {
 +                        p->icon = apr_pstrdup(r->pool, dirent->name);
@@ -206,7 +254,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
          }
 
          p->desc = find_desc(d, rr->filename);
-@@ -1397,8 +1496,7 @@
+@@ -1397,8 +1508,7 @@
              p->desc = apr_pstrdup(r->pool, find_title(rr));
          }
      }
@@ -216,7 +264,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
       * We don't need to take any special action for the file size key.
       * If we did, it would go here.
       */
-@@ -1684,19 +1782,21 @@
+@@ -1684,19 +1794,21 @@
                      ap_rvputs(r, "<a href=\"", anchor, "\">", NULL);
                  }
                  if ((ar[x]->icon) || d->default_icon) {
@@ -245,7 +293,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
                      if (autoindex_opts & EMIT_XHTML) {
                          ap_rputs(" /", r);
                      }
-@@ -1774,19 +1874,21 @@
+@@ -1774,19 +1886,21 @@
                      ap_rvputs(r, "<a href=\"", anchor, "\">", NULL);
                  }
                  if ((ar[x]->icon) || d->default_icon) {
