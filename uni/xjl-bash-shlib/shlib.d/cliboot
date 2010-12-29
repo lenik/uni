@@ -32,24 +32,22 @@ function do_arg() {
 }
 
 function quit() {
-    local EXITSTATUS=$?
+    local err=$?
     cleanup
     if [ $# != 0 ]; then
-        echo "$*"
+        if [ $err = 0 ]; then
+            _warn "$@"
+        else
+            _error "$@"
+        fi
     fi
-    exit $EXITSTATUS
+    exit $err
 }
 
 function die() {
-    local err
-    err=${2:-1}
-    if [ $err -ne 0 ]; then
-        _log1 "failed: $1"
-    else
-        _log2 "$1"
-    fi
+    _error "$@"
     cleanup
-    exit $err
+    exit 1
 }
 
 function bootvoid() {
@@ -67,7 +65,7 @@ function boot() {
                         -o "$short_opts" \
                         -l "$long_opts" \
                         -n "$BASENAME" -- "$@"`; then
-            # echo "Syntax error."
+            die "Syntax error."
             exit 1
         fi
 
