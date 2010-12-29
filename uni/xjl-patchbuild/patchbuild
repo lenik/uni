@@ -162,7 +162,7 @@ function main() {
     DPKGOPTS=()
         if [ "$fast_build" = 1 ]; then
             _warn "  Fast Mode: You should clean everything yourself. "
-            DPKGOPTS=(-nc)
+            DPKGOPTS=(-F -nc)
         fi
     dpkg-buildpackage ${DPKGOPTS[@]} || die "Failed to build the package"
 
