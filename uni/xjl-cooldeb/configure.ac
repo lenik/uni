@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([xjl-cooldeb], [1.5.3], [xjl-bug@99jsj.com])
+AC_INIT([xjl-cooldeb], [1.5.4], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 
 # Checks for programs.
