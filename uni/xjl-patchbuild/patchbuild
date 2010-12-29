@@ -3,11 +3,13 @@
     shopt -s nullglob
 
     RCSID='$Id: bash.sh 2141 2010-12-13 06:15:26Z lenik $'
-    short_opts="lp:hqv"
-    long_opts="local,dput-host:,help,quiet,verbose,version"
+    short_opts="clp:fhqv"
+    long_opts="continue,local,dput-host:,full,help,quiet,verbose,version"
 
+    cont=
     local_install=0
     dput_host=dlocal
+    full_build=
 
 function version() {
     parse_id "$RCSID"
@@ -22,8 +24,10 @@ function help() {
     echo "    $0 [OPTION] [--] ..."
     echo
     echo "Options: "
+    echo "    -c, --continue          Build again after edit-patch"
     echo "    -l, --local             Install by dpkg -i, instead of apt-get"
     echo "    -p, --dput-host=HOST    Host config name used to dput"
+    echo "    -f, --full-build        Clean & Reconfig everything before build"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
@@ -32,11 +36,15 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -c|--continue)
+            cont=1;;
         -l|--local)
             local_install=1;;
         -p|--dput-host)
             local_install=0
             dput_host="$2";;
+        -f|--full-build)
+            full_build=1;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -69,75 +77,85 @@ function main() {
 
     cd "$latest" || die "Can't chdir into $latest. "
 
-    sudo apt-get build-dep "$package" \
-        || die "Can't get build dependencies for $package. "
+    if [ -z "$cont" ]; then
+        # Start of prepare & patch
 
-    # Get the root dir of personal patch repo
-    ppconf="$HOME/.personal_patch_conf"
-    if [ ! -f "$ppconf" ]; then
-        echo "You need to config personal patch repository settings"
-        echo "A new empty config file is created for you. "
-        echo "See $ppconf (5)"
-        echo "PPCONF_HOME=~/.patches/" >"$ppconf"
-        exit 1
+        sudo apt-get build-dep "$package" \
+            || die "Can't get build dependencies for $package. "
+
+        # Get the root dir of personal patch repo
+        ppconf="$HOME/.personal_patch_conf"
+        if [ ! -f "$ppconf" ]; then
+            echo "You need to config personal patch repository settings"
+            echo "A new empty config file is created for you. "
+            echo "See $ppconf (5)"
+            echo "PPCONF_HOME=~/.patches/" >"$ppconf"
+            exit 1
+        fi
+
+        # Environ settings
+        _log2 "Sourcing $ppconf..."
+        source "$ppconf"
+
+        PPCONF_HOME="${PPCONF_HOME%/}"
+            [ -z "$PPCONF_HOME" ] && die "Variable PPCONF_HOME isn't initialized"
+            [ -d "$PPCONF_HOME" ] || die "Personal patch repository home isn't existed: $PPCONF_HOME"
+
+        PPDIR="$PPCONF_HOME/$package"
+        _log1 "Using Personal patch directory: $PPDIR"
+
+        PPSYS=$PPCONF_SYSTEM
+            [ -z "$PPSYS" ] && PPSYS=quilt
+            grep -q "dpatch" debian/rules && PPSYS=dpatch
+            _log1 "Set patch system to $PPSYS"
+
+            PPLIST=
+            case "$PPSYS" in
+                dpatch)
+                    PPLIST=00list;;
+                quilt)
+                    PPLIST=series;;
+                *)
+                    die "Unsupported patch system: $PPSYS"
+                    ;;
+            esac
+            listfile="debian/patches/$PPLIST"
+
+        if [ ! -d debian/patches ]; then
+            echo "No patch system defined for $package, create a default one"
+            mkdir debian/patches
+        fi
+
+        # Search & copy to debian/patches
+        _log1 "Search personal patches for $package"
+        tmplist=`tempfile`
+        [ -f "$listfile" ] && cat "$listfile" >$tmplist
+
+        for p in "$PPDIR/"*; do
+            pbase="${p##*/}"
+            if [ "$pbase" = "version" ]; then continue; fi
+            if [ "${pbase:0:1}" = . ]; then continue; fi
+
+            pname="${pbase%.*}"
+            _log1 "    Link Patch $pname"
+            ln -snf `readlink -f "$p"` debian/patches/
+            echo "$pbase" >>$tmplist
+        done
+        sort -u $tmplist >"$listfile"
+        # End of prepare & patch
     fi
-
-    # Environ settings
-    _log2 "Sourcing $ppconf..."
-    source "$ppconf"
-
-    PPCONF_HOME="${PPCONF_HOME%/}"
-        [ -z "$PPCONF_HOME" ] && die "Variable PPCONF_HOME isn't initialized"
-        [ -d "$PPCONF_HOME" ] || die "Personal patch repository home isn't existed: $PPCONF_HOME"
-
-    PPDIR="$PPCONF_HOME/$package"
-    _log1 "Using Personal patch directory: $PPDIR"
-
-    PPSYS=$PPCONF_SYSTEM
-        [ -z "$PPSYS" ] && PPSYS=quilt
-        grep -q "dpatch" debian/rules && PPSYS=dpatch
-        _log1 "Set patch system to $PPSYS"
-
-        PPLIST=
-        case "$PPSYS" in
-            dpatch)
-                PPLIST=00list;;
-            quilt)
-                PPLIST=series;;
-            *)
-                die "Unsupported patch system: $PPSYS"
-                ;;
-        esac
-        listfile="debian/patches/$PPLIST"
-
-    if [ ! -d debian/patches ]; then
-        echo "No patch system defined for $package, create a default one"
-        mkdir debian/patches
-    fi
-
-    # Search & copy to debian/patches
-    _log1 "Search personal patches for $package"
-    tmplist=`tempfile`
-    [ -f "$listfile" ] && cat "$listfile" >$tmplist
-
-    for p in "$PPDIR/"*; do
-        pbase="${p##*/}"
-        if [ "$pbase" = "version" ]; then continue; fi
-        if [ "${pbase:0:1}" = . ]; then continue; fi
-
-        pname="${pbase%.*}"
-        _log1 "    Link Patch $pname"
-        ln -snf `readlink -f "$p"` debian/patches/
-        echo "$pbase" >>$tmplist
-    done
-    sort -u $tmplist >"$listfile"
 
     # Build the package
     _log1 "Increase version number"
     dh_incr || die "Failed to increase version number"
 
     _log1 "Build the debian package"
-    dpkg-buildpackage || die "Failed to build the package"
+    DPKGOPTS=()
+        if [ -z "$full_build" ]; then
+            _warn "  Fast Mode: You should clean everything yourself. "
+            DPKGOPTS=(-nc)
+        fi
+    dpkg-buildpackage ${DPKGOPTS[@]} || die "Failed to build the package"
 
     changes=(../"$package"_*.changes)
     nchanges=${#changes[@]}
