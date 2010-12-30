@@ -1,0 +1,16 @@
+## Description: add some description
+## Origin/Author: add some origin or author
+## Bug: bug URL
+Index: amule-2.2.6+debian0/src/libs/common/StringFunctions.cpp
+===================================================================
+--- amule-2.2.6+debian0.orig/src/libs/common/StringFunctions.cpp	2010-12-30 22:51:40.935720000 +0800
++++ amule-2.2.6+debian0/src/libs/common/StringFunctions.cpp	2010-12-30 22:51:34.647720001 +0800
+@@ -181,7 +181,8 @@
+			result += str.at(i);
+		}
+	}
+-
++
++	result = wxString(result.To8BitData(), wxConvUTF8);
+	return result;
+ }
