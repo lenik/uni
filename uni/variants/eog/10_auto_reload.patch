@@ -2,8 +2,8 @@
 ## Origin/Author: Lenik (谢继雷) <xjl@99jsj.com>
 Index: eog-2.32.0/data/eog-preferences-dialog.ui
 ===================================================================
---- eog-2.32.0.orig/data/eog-preferences-dialog.ui	2010-12-30 21:13:46.259719999 +0800
-+++ eog-2.32.0/data/eog-preferences-dialog.ui	2010-12-30 21:13:46.719719999 +0800
+--- eog-2.32.0.orig/data/eog-preferences-dialog.ui	2010-12-30 21:25:37.803719999 +0800
++++ eog-2.32.0/data/eog-preferences-dialog.ui	2010-12-30 21:25:38.267719999 +0800
 @@ -351,6 +351,63 @@
                      <property name="position">2</property>
                    </packing>
@@ -70,8 +70,8 @@ Index: eog-2.32.0/data/eog-preferences-dialog.ui
              <child type="tab">
 Index: eog-2.32.0/data/eog.schemas.in
 ===================================================================
---- eog-2.32.0.orig/data/eog.schemas.in	2010-12-30 21:13:46.703719999 +0800
-+++ eog-2.32.0/data/eog.schemas.in	2010-12-30 21:13:46.719719999 +0800
+--- eog-2.32.0.orig/data/eog.schemas.in	2010-12-30 21:25:38.251719999 +0800
++++ eog-2.32.0/data/eog.schemas.in	2010-12-30 21:25:38.271719999 +0800
 @@ -83,6 +83,25 @@
      </schema>
 
@@ -100,8 +100,8 @@ Index: eog-2.32.0/data/eog.schemas.in
        <owner>eog</owner>
 Index: eog-2.32.0/src/eog-config-keys.h
 ===================================================================
---- eog-2.32.0.orig/src/eog-config-keys.h	2010-12-30 21:13:46.703719999 +0800
-+++ eog-2.32.0/src/eog-config-keys.h	2010-12-30 21:13:46.719719999 +0800
+--- eog-2.32.0.orig/src/eog-config-keys.h	2010-12-30 21:25:38.251719999 +0800
++++ eog-2.32.0/src/eog-config-keys.h	2010-12-30 21:25:38.271719999 +0800
 @@ -42,6 +42,7 @@
  #define EOG_CONF_VIEW_TRANSPARENCY		"/apps/eog/view/transparency"
  #define EOG_CONF_VIEW_TRANS_COLOR		"/apps/eog/view/trans_color"
@@ -112,8 +112,8 @@ Index: eog-2.32.0/src/eog-config-keys.h
  #define EOG_CONF_FULLSCREEN_UPSCALE		"/apps/eog/full_screen/upscale"
 Index: eog-2.32.0/src/eog-preferences-dialog.c
 ===================================================================
---- eog-2.32.0.orig/src/eog-preferences-dialog.c	2010-12-30 21:13:46.279719999 +0800
-+++ eog-2.32.0/src/eog-preferences-dialog.c	2010-12-30 21:13:46.719719999 +0800
+--- eog-2.32.0.orig/src/eog-preferences-dialog.c	2010-12-30 21:25:37.827719999 +0800
++++ eog-2.32.0/src/eog-preferences-dialog.c	2010-12-30 21:25:38.271719999 +0800
 @@ -195,6 +195,7 @@
 	GtkWidget *autorotate_check;
 	GtkWidget *bg_color_check;
@@ -152,8 +152,8 @@ Index: eog-2.32.0/src/eog-preferences-dialog.c
 							     EOG_CONF_FULLSCREEN_UPSCALE,
 Index: eog-2.32.0/src/eog-window.c
 ===================================================================
---- eog-2.32.0.orig/src/eog-window.c	2010-12-30 21:13:46.703719999 +0800
-+++ eog-2.32.0/src/eog-window.c	2010-12-30 21:18:12.647720001 +0800
+--- eog-2.32.0.orig/src/eog-window.c	2010-12-30 21:25:38.255719999 +0800
++++ eog-2.32.0/src/eog-window.c	2010-12-30 21:28:58.319720001 +0800
 @@ -128,6 +128,7 @@
 	EOG_WINDOW_NOTIFY_USE_BG_COLOR,
 	EOG_WINDOW_NOTIFY_TRANSPARENCY,
@@ -170,7 +170,7 @@ Index: eog-2.32.0/src/eog-window.c
 	gboolean             needs_reload_confirmation;
 
  #ifdef HAVE_LCMS
-@@ -472,6 +474,31 @@
+@@ -472,6 +474,35 @@
  }
 
  static void
@@ -179,6 +179,7 @@ Index: eog-2.32.0/src/eog-window.c
 +				   GConfEntry  *entry,
 +				   gpointer    user_data)
 +{
++        EogWindow *window;
 +	EogWindowPrivate *priv;
 +	gboolean auto_reload = FALSE;
 +
@@ -186,7 +187,8 @@ Index: eog-2.32.0/src/eog-window.c
 +
 +	g_return_if_fail (EOG_IS_WINDOW (user_data));
 +
-+	priv = EOG_WINDOW (user_data)->priv;
++	window = EOG_WINDOW (user_data);
++	priv = window->priv;
 +
 +	if (entry->value != NULL && entry->value->type == GCONF_VALUE_BOOL) {
 +		auto_reload = gconf_value_get_bool (entry->value);
@@ -195,14 +197,16 @@ Index: eog-2.32.0/src/eog-window.c
 +	priv->auto_reload = auto_reload;
 +
 +	if (auto_reload) {
-+
++	        eog_window_reload_image (window);
++	        eog_window_set_message_area (window, NULL);
++        }
 +}
 +
 +static void
  eog_window_scroll_buttons_changed_cb (GConfClient *client,
 				      guint       cnxn_id,
 				      GConfEntry  *entry,
-@@ -1133,9 +1160,15 @@
+@@ -1133,9 +1164,15 @@
 	GtkWidget *label;
 	GtkWidget *hbox;
 
@@ -218,7 +222,7 @@ Index: eog-2.32.0/src/eog-window.c
 	window->priv->needs_reload_confirmation = FALSE;
 
 	info_bar = gtk_info_bar_new_with_buttons (_("_Reload"),
-@@ -4824,6 +4857,15 @@
+@@ -4824,6 +4861,15 @@
 		entry = NULL;
 	}
 
@@ -234,7 +238,7 @@ Index: eog-2.32.0/src/eog-window.c
 	entry = gconf_client_get_entry (priv->client,
 					EOG_CONF_UI_IMAGE_COLLECTION_POSITION,
 					NULL, TRUE, NULL);
-@@ -4922,6 +4964,12 @@
+@@ -4922,6 +4968,12 @@
 					 eog_window_trans_color_changed_cb,
 					 window, NULL, NULL);
 
