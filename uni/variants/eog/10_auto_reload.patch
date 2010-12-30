@@ -1,0 +1,249 @@
+## Description: Add auto-reload option, to suppress the annoying popup confirmation bar.
+## Origin/Author: Lenik (谢继雷) <xjl@99jsj.com>
+Index: eog-2.32.0/data/eog-preferences-dialog.ui
+===================================================================
+--- eog-2.32.0.orig/data/eog-preferences-dialog.ui	2010-12-30 21:13:46.259719999 +0800
++++ eog-2.32.0/data/eog-preferences-dialog.ui	2010-12-30 21:13:46.719719999 +0800
+@@ -351,6 +351,63 @@
+                     <property name="position">2</property>
+                   </packing>
+                 </child>
++                <child>
++                  <object class="GtkVBox" id="vboxPeripheral">
++                    <property name="visible">True</property>
++                    <property name="spacing">6</property>
++                    <child>
++                      <object class="GtkLabel" id="labelPeripheral">
++                        <property name="visible">True</property>
++                        <property name="xalign">0</property>
++                        <property name="label" translatable="yes">Peripheral</property>
++                        <attributes>
++                          <attribute name="weight" value="bold"/>
++                        </attributes>
++                      </object>
++                      <packing>
++                        <property name="expand">False</property>
++                        <property name="fill">False</property>
++                        <property name="position">0</property>
++                      </packing>
++                    </child>
++                    <child>
++                      <object class="GtkAlignment" id="alignment100">
++                        <property name="visible">True</property>
++                        <property name="left_padding">16</property>
++                        <child>
++                          <object class="GtkHBox" id="hbox100">
++                            <property name="visible">True</property>
++                            <property name="spacing">12</property>
++                            <child>
++                              <object class="GtkCheckButton" id="auto_reload_check">
++                                <property name="label" translatable="yes">Auto Reload</property>
++                                <property name="visible">True</property>
++                                <property name="can_focus">True</property>
++                                <property name="receives_default">False</property>
++                                <property name="use_action_appearance">False</property>
++                                <property name="xalign">0</property>
++                                <property name="draw_indicator">True</property>
++                              </object>
++                              <packing>
++                                <property name="expand">False</property>
++                                <property name="fill">False</property>
++                                <property name="position">0</property>
++                              </packing>
++                            </child>
++                          </object>
++                        </child>
++                      </object>
++                      <packing>
++                        <property name="position">1</property>
++                      </packing>
++                    </child>
++                  </object>
++                  <packing>
++                    <property name="expand">False</property>
++                    <property name="fill">False</property>
++                    <property name="position">1</property>
++                  </packing>
++                </child>
+               </object>
+             </child>
+             <child type="tab">
+Index: eog-2.32.0/data/eog.schemas.in
+===================================================================
+--- eog-2.32.0.orig/data/eog.schemas.in	2010-12-30 21:13:46.703719999 +0800
++++ eog-2.32.0/data/eog.schemas.in	2010-12-30 21:13:46.719719999 +0800
+@@ -83,6 +83,25 @@
+     </schema>
+
+     <schema>
++      <key>/schemas/apps/eog/view/auto-reload</key>
++      <applyto>/apps/eog/view/auto-reload</applyto>
++      <owner>eog</owner>
++      <type>bool</type>
++      <default>0</default>
++      <locale name="C">
++        <short>Auto reload the image file when it's changed</short>
++        <long>Eog by default will popup a bar confirmation when it detects file changes.
++        Check this if you want to suppress the confirmation, force to reload the file
++        always. </long>
++      </locale>
++      <locale name="zh_CN">
++        <short>自动刷新</short>
++        <long>当发现文件时间戳变化时，EOG 默认会弹出一个提示条来请求用户是否重新加载。
++        设置本选项以免除提示条，强制自动刷新。</long>
++      </locale>
++    </schema>
++
++    <schema>
+       <key>/schemas/apps/eog/view/scroll_wheel_zoom</key>
+       <applyto>/apps/eog/view/scroll_wheel_zoom</applyto>
+       <owner>eog</owner>
+Index: eog-2.32.0/src/eog-config-keys.h
+===================================================================
+--- eog-2.32.0.orig/src/eog-config-keys.h	2010-12-30 21:13:46.703719999 +0800
++++ eog-2.32.0/src/eog-config-keys.h	2010-12-30 21:13:46.719719999 +0800
+@@ -42,6 +42,7 @@
+ #define EOG_CONF_VIEW_TRANSPARENCY		"/apps/eog/view/transparency"
+ #define EOG_CONF_VIEW_TRANS_COLOR		"/apps/eog/view/trans_color"
+ #define EOG_CONF_VIEW_USE_BG_COLOR		"/apps/eog/view/use-background-color"
++#define EOG_CONF_VIEW_AUTO_RELOAD               "/apps/eog/view/auto-reload"
+
+ #define EOG_CONF_FULLSCREEN_LOOP		"/apps/eog/full_screen/loop"
+ #define EOG_CONF_FULLSCREEN_UPSCALE		"/apps/eog/full_screen/upscale"
+Index: eog-2.32.0/src/eog-preferences-dialog.c
+===================================================================
+--- eog-2.32.0.orig/src/eog-preferences-dialog.c	2010-12-30 21:13:46.279719999 +0800
++++ eog-2.32.0/src/eog-preferences-dialog.c	2010-12-30 21:13:46.719719999 +0800
+@@ -195,6 +195,7 @@
+	GtkWidget *autorotate_check;
+	GtkWidget *bg_color_check;
+	GtkWidget *bg_color_button;
++	GtkWidget *auto_reload_check;
+	GtkWidget *color_radio;
+	GtkWidget *checkpattern_radio;
+	GtkWidget *background_radio;
+@@ -224,6 +225,7 @@
+			         "autorotate_check", &autorotate_check,
+				 "bg_color_check", &bg_color_check,
+				 "bg_color_button", &bg_color_button,
++			         "auto_reload_check", &auto_reload_check,
+			         "color_radio", &color_radio,
+			         "checkpattern_radio", &checkpattern_radio,
+			         "background_radio", &background_radio,
+@@ -386,6 +388,19 @@
+
+	g_free (value);
+
++
++        /** Auto Reload */
++	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (auto_reload_check),
++	                              gconf_client_get_bool (priv->client,
++	                                                     EOG_CONF_VIEW_AUTO_RELOAD, NULL));
++        g_object_set_data (G_OBJECT (auto_reload_check),
++                           GCONF_OBJECT_KEY,
++                           EOG_CONF_VIEW_AUTO_RELOAD);
++        g_signal_connect (G_OBJECT(auto_reload_check),
++                          "toggled", G_CALLBACK (pd_check_toggle_cb),
++                          priv->client);
++
++
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (upscale_check),
+				      gconf_client_get_bool (priv->client,
+							     EOG_CONF_FULLSCREEN_UPSCALE,
+Index: eog-2.32.0/src/eog-window.c
+===================================================================
+--- eog-2.32.0.orig/src/eog-window.c	2010-12-30 21:13:46.703719999 +0800
++++ eog-2.32.0/src/eog-window.c	2010-12-30 21:18:12.647720001 +0800
+@@ -128,6 +128,7 @@
+	EOG_WINDOW_NOTIFY_USE_BG_COLOR,
+	EOG_WINDOW_NOTIFY_TRANSPARENCY,
+	EOG_WINDOW_NOTIFY_TRANS_COLOR,
++	EOG_WINDOW_NOTIFY_AUTO_RELOAD,
+	EOG_WINDOW_NOTIFY_SCROLL_BUTTONS,
+	EOG_WINDOW_NOTIFY_COLLECTION_POS,
+	EOG_WINDOW_NOTIFY_COLLECTION_RESIZABLE,
+@@ -192,6 +193,7 @@
+	guint                open_with_menu_id;
+
+	gboolean	     save_disabled;
++	gboolean             auto_reload;
+	gboolean             needs_reload_confirmation;
+
+ #ifdef HAVE_LCMS
+@@ -472,6 +474,31 @@
+ }
+
+ static void
++eog_window_auto_reload_changed_cb (GConfClient *client,
++				   guint       cnxn_id,
++				   GConfEntry  *entry,
++				   gpointer    user_data)
++{
++	EogWindowPrivate *priv;
++	gboolean auto_reload = FALSE;
++
++	eog_debug (DEBUG_PREFERENCES);
++
++	g_return_if_fail (EOG_IS_WINDOW (user_data));
++
++	priv = EOG_WINDOW (user_data)->priv;
++
++	if (entry->value != NULL && entry->value->type == GCONF_VALUE_BOOL) {
++		auto_reload = gconf_value_get_bool (entry->value);
++	}
++
++	priv->auto_reload = auto_reload;
++
++	if (auto_reload) {
++
++}
++
++static void
+ eog_window_scroll_buttons_changed_cb (GConfClient *client,
+				      guint       cnxn_id,
+				      GConfEntry  *entry,
+@@ -1133,9 +1160,15 @@
+	GtkWidget *label;
+	GtkWidget *hbox;
+
++	/** Is the confirmation bar already there? */
+	if (window->priv->needs_reload_confirmation == FALSE)
+		return;
+
++        if (window->priv->auto_reload) {
++                eog_window_reload_image (window);
++                return;
++        }
++
+	window->priv->needs_reload_confirmation = FALSE;
+
+	info_bar = gtk_info_bar_new_with_buttons (_("_Reload"),
+@@ -4824,6 +4857,15 @@
+		entry = NULL;
+	}
+
++        entry = gconf_client_get_entry (priv->client,
++                                        EOG_CONF_VIEW_AUTO_RELOAD,
++                                        NULL, TRUE, NULL);
++        if (entry != NULL) {
++                eog_window_auto_reload_changed_cb (priv->client, 0, entry, window);
++                gconf_entry_unref (entry);
++                entry = NULL;
++        }
++
+	entry = gconf_client_get_entry (priv->client,
+					EOG_CONF_UI_IMAGE_COLLECTION_POSITION,
+					NULL, TRUE, NULL);
+@@ -4922,6 +4964,12 @@
+					 eog_window_trans_color_changed_cb,
+					 window, NULL, NULL);
+
++	priv->client_notifications[EOG_WINDOW_NOTIFY_AUTO_RELOAD] =
++		gconf_client_notify_add (window->priv->client,
++					 EOG_CONF_VIEW_AUTO_RELOAD,
++					 eog_window_auto_reload_changed_cb,
++					 window, NULL, NULL);
++
+	priv->client_notifications[EOG_WINDOW_NOTIFY_SCROLL_BUTTONS] =
+		gconf_client_notify_add (window->priv->client,
+					 EOG_CONF_UI_SCROLL_BUTTONS,
