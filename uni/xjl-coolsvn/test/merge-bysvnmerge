@@ -1,0 +1,94 @@
+#!/bin/bash
+
+    rm -fr repo1
+    if [ -d repo0 ]; then
+        cp -aT repo0 repo1
+    else
+        ./create-test-tree repo1
+    fi
+
+    rm -fr wd1
+    svn co file://`readlink -f repo1` wd1
+    cd wd1
+
+# + trunk/file
+    echo line 1 >trunk/file
+    echo line 2 >>trunk/file
+    echo line 3 >>trunk/file
+    svn add trunk/file
+    svn ci -m "new" trunk/file
+    svn up
+
+# branch: br1
+    svn cp trunk branches/br1
+    svn ci -m "new branch1"
+    svn up
+    (cd branches/br1
+        svnmerge init
+        svn ci -F svnmerge-commit-message.txt
+        rm -f svnmerge-commit-message.txt
+        )
+    svn up
+
+# edit trunk
+    echo line 4 >>trunk/file
+    svn ci -m "line 4" trunk
+
+    sed -i -e 's/2/two/' trunk/file
+    svn ci -m "line 2 -> two" trunk
+
+    svn up
+
+# merge to br1
+    (
+        cd branches/br1
+        svnmerge merge
+        svn ci -F svnmerge-commit-message.txt
+        rm -f svnmerge-commit-message.txt
+    )
+    svn up
+
+# edit trunk [2]
+    echo line 5 >>trunk/file
+    svn ci -m "line 5" trunk
+
+    sed -i -e 's/two/second/' trunk/file
+    svn ci -m "line 2 -> two -> second" trunk
+
+    svn up
+
+# merge to br1 [2]
+
+    (
+        cd branches/br1
+        svnmerge merge
+        svn ci -F svnmerge-commit-message.txt
+        rm -f svnmerge-commit-message.txt
+    )
+    svn up
+
+# edit br1
+
+    sed -i -e 's/3/minor/' branches/br1/file
+    svn ci -m "br1-minor" branches/br1
+
+    svn up
+
+# merge back to trunk
+
+    (
+        read _k url < <(LANC=C svn info branches/br1 | grep URL)
+        echo url=$url
+
+        cd trunk
+        svnmerge init "$url"
+        svn ci -F svnmerge-commit-message.txt
+        rm -f svnmerge-commit-message.txt
+
+        svnmerge merge
+        svn ci -F svnmerge-commit-message.txt
+        rm -f svnmerge-commit-message.txt
+    )
+
+    svn up
+    # JUST OK.

@@ -30,7 +30,8 @@ dist_bin_SCRIPTS = \
     svn-update-keywords \
     svnpsl \
     svnserve-002 \
-    svnadmin-authz-update
+    svnadmin-authz-update \
+    svnm
 
 dist_man_MANS = \
     coolsvn.1 \

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+msgf=svnmerge-commit-message.txt
+
+err=0
+
+if svnmerge "$@"; then
+    svn ci -F $msgf
+    err=$?
+
+    rm -fv $msgf
+else
+    err=$?
+fi
+
+exit $err

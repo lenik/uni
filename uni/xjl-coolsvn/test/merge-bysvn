@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# + trunk/file
+    echo line 1 >trunk/file
+    echo line 2 >>trunk/file
+    echo line 3 >>trunk/file
+    svn add trunk/file
+    svn ci -m "new" trunk/file
+    svn up
+
+# branch: br1
+    svn cp trunk branches/br1
+    svn ci -m "new branch1"
+    svn up
+
+# edit trunk
+    echo line 4 >>trunk/file
+    svn ci -m "line 4" trunk
+
+    sed -i -e 's/2/two/' trunk/file
+    svn ci -m "line 2 -> two" trunk
+
+    svn up
+
+# merge to br1
+    (
+        cd branches/br1
+        svn merge ../../trunk
+        svn ci -m "merge 1"
+    )
+    svn up
+
+# edit trunk [2]
+    echo line 5 >>trunk/file
+    svn ci -m "line 5" trunk
+
+    sed -i -e 's/two/second/' trunk/file
+    svn ci -m "line 2 -> two -> second" trunk
+
+    svn up
+
+# merge to br1 [2]
+
+    (
+        cd branches/br1
+        svn merge ../../trunk
+        svn ci -m "merge 2"
+    )
+    svn up
+
+# edit br1
+
+    sed -i -e 's/3/minor/' branches/br1/file
+    svn ci -m "br1-minor" branches/br1
+
+    svn up
+
+# merge back to trunk
+
+    (
+        cd trunk
+        svn merge ../branches/br1
+    )
+    # COLLISION.
