@@ -1,0 +1,12 @@
+Source: xjl-coolberkeley
+Section: database
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: http://uni.bodz.net/xjl-coolberkeley
+
+Package: xjl-coolberkeley
+Architecture: all
+Depends: db4.8-utils
+Description: Utilities for Berkeley DB
