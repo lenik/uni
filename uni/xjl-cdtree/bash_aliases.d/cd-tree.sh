@@ -1,5 +1,21 @@
 alias cdt='. cd-tree'
 alias xft='xf-tree echo'
 alias vit='xf-tree vi'
+
 alias catt='xf-tree cat'
 alias xcatt='xf-tree xcat'
+alias xxcatt='xf-tree xxcat'
+alias xxxcatt='xf-tree xxxcat'
+alias xxxxcatt='xf-tree xxxxcat'
+
+alias moret='xf-tree more'
+alias xmoret='xf-tree xmore_'
+alias xxmoret='xf-tree xxmore'
+alias xxxmoret='xf-tree xxxmore'
+alias xxxxmoret='xf-tree xxxxmore'
+
+alias lesst='xf-tree less'
+alias xlesst='xf-tree xless'
+alias xxlesst='xf-tree xxless'
+alias xxxlesst='xf-tree xxxless'
+alias xxxxlesst='xf-tree xxxxless'

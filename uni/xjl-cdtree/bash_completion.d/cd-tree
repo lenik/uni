@@ -31,4 +31,7 @@ function _f_tree() {
 }
 
 complete -F _cd_tree cdt cd-tree
-complete -F _f_tree  xft vit catt xcatt
+complete -F _f_tree  xft vit
+complete -F _f_tree  catt xcatt xxcatt xxxcatt xxxxcatt
+complete -F _f_tree  moret xmoret xxmoret xxxmoret xxxxmoret
+complete -F _f_tree  lesst xlesst xxlesst xxxlesst xxxxlesst

@@ -45,6 +45,7 @@ dist_bin_SCRIPTS = \
     xxless \
     xxxless \
     xxxxless \
+    xmore_ \
     xxmore \
     xxxmore \
     xxxxmore

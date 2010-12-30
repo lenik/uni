@@ -7,7 +7,9 @@ dist_bin_SCRIPTS = \
     tabify \
     tabsize \
     iconvf \
-    grepstat
+    grepstat \
+    ljoin \
+    rjoin
 
 setup_SCRIPTS = \
     postinst \
