@@ -23,7 +23,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  #define DEFAULT_ICON_WIDTH 20
  #define DEFAULT_ICON_HEIGHT 22
 
-+#define DEFAULT_ICON_MINSIZE 128
++#define DEFAULT_ICON_MINSIZE 32
 +#define DEFAULT_ICON_MAXSIZE 65536
 +#define DEFAULT_ICON_MAXWIDTH DEFAULT_ICON_WIDTH
 +#define DEFAULT_ICON_MAXHEIGHT DEFAULT_ICON_HEIGHT
