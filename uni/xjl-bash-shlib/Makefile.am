@@ -3,7 +3,8 @@ include libauto/coolauto.am
 SUBDIRS = shlib.d
 
 bin_SCRIPTS = \
-    shlib
+    shlib \
+    findabc1
 
 dist_bin_SCRIPTS = \
     shlib-import
