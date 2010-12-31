@@ -1,0 +1,21 @@
+# -*- bash -*-
+# vim: filetype=sh
+
+function histx() {
+    local level=$1
+    [ -z "$level" ] && level=1
+
+    local exp=
+    local index=2
+    while [ $level != 0 ]; do
+        exp="$exp, \$$index"
+        ((index++, level--))
+    done
+    exp="{ print ${exp:2} }"
+
+    HISTTIMEFORMAT= history \
+        | awk "$exp" \
+        | sort | uniq -c | sort -n | grep -v '^ *[1-9] '
+}
+
+histx "$@"

@@ -22,7 +22,8 @@ dist_shsrc_SCRIPTS = \
     cd..n \
     cd.x \
     cd-alias \
-    d-which
+    d-which \
+    history-histgram
 
 dist_sudoers_DATA = \
     sudoers.d/keep-hist
