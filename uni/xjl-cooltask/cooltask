@@ -1,0 +1,21 @@
+# -*- bash -*-
+# vim: filetype=sh
+#
+_cooltask()
+{
+    local args=()
+    local narg=0
+    local arg
+    local i
+
+    for ((i = 1; i <= COMP_CWORD; i++)); do
+        arg="${COMP_WORDS[i]}"
+        if [ $narg = 0 ]; then
+            if [ "${arg:0:1}" = '-' ]; then continue; fi
+        fi
+        args[narg++]="$arg"
+    done
+
+    COMPREPLY=($( cooltask_list "${args[@]}" ))
+} &&
+complete -F _cooltask T TO

@@ -1,0 +1,12 @@
+Source: xjl-cooltask
+Section: utils
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: http://uni.bodz.net/xjl-cooltask
+
+Package: xjl-cooltask
+Architecture: all
+Depends: xjl-bash-shlib, xjl-bash-aliases
+Description: Helper utitilities for task switching and logs
