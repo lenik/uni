@@ -57,4 +57,4 @@ dist-hook:
 	cp ${srcdir}/*.in ${distdir}
 
 %: %.in Makefile
-	$(do_subst) <$< | substcat | >$@
+	$(do_subst) <$< | substcat >$@
