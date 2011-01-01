@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# master-file
+
+echo "Create user sshproxy"
+
+    useradd \
+        -md @homedir@ \
+        -s /bin/false \
+        -rc "SSH forwarder" \
+        sshproxy
+
+echo "Reset owner of @homedir@"
+    chown -R sshproxy:sshproxy @homedir@
+
+echo "Reset permission of @sshconfdir@"
+    install -d -m 0700 -o sshproxy -g sshproxy @sshconfdir@
