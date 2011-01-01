@@ -5,8 +5,8 @@ volsdir = ${substdir}/vol
 dist_vols_DATA = \
     vol/bodzdev
 
-vol/bodzdev: /etc/coolcmd/subst/vol/bodzdev
-	cp -f $< $@
+vol/bodzdev: Makefile
+	cp -f /etc/coolcmd/subst/vol/bodzdev $@
 
 setup_SCRIPTS = \
     postinst \

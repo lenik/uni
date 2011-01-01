@@ -10,11 +10,9 @@
     ErrorLog  /var/log/apache2/svn_error.log
     CustomLog /var/log/apache2/svn_access.log combined
 
-    DocumentRoot /none
-
     <Location />
         DAV svn
-        SVNParentPath /repos/svn
+        SVNPath /repos/svn/bodz
 
         AuthType Basic
         AuthName "boDz SVN"
