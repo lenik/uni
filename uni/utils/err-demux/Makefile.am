@@ -1,5 +1,8 @@
 include libauto/coolauto.am
 
+dist_bin_SCRIPTS = \
+    err_demux
+
 setup_SCRIPTS = \
     postinst \
     prerm
