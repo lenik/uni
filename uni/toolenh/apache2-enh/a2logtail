@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ $# = 0 ]; then
+    logs=(/var/log/apache2/*.log)
+else
+    logs=("$@")
+fi
+
+for f in "${logs[@]}"; do
+    echo "Log tail of $f"
+    logtail -f "$f"
+done
