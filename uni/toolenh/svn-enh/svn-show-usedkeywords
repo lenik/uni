@@ -17,3 +17,4 @@ sort @used;
 
 print join(' ', @used);
 exit (scalar(@used) ? 0 : 1);
+
