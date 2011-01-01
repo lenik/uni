@@ -1,0 +1,14 @@
+Source: repl
+Section: text
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: http://uni.bodz.net/text/repl
+Vcs-SVN: http://svn.bodz.net/uni/trunk/text/repl
+Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/text/repl
+
+Package: repl
+Architecture: all
+Depends: perl, libcmt-perl, bash-shlib, awk, sed
+Description: File batch replace utilities.
