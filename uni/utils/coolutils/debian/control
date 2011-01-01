@@ -1,14 +1,14 @@
-Source: xjl-coolutils
+Source: coolutils
 Section: utils
 Priority: required
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7), libglib2.0-dev
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolutils
+Homepage: http://uni.bodz.net/coolutils
 
-Package: xjl-coolutils
+Package: coolutils
 Provides: coolutils
 Architecture: any
-Depends: xjl-bash-shlib
-Recommends: libglib2.0-0, xjl-configutils, xjl-fsutils
+Depends: bash-shlib
+Recommends: libglib2.0-0, configutils, vexmount
 Description: Bundles of cool utils by Lenik.

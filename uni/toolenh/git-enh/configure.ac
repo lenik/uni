@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([xjl-coolgit], [0.2.1], [xjl-bug@99jsj.com])
+AC_INIT([git-enh], [0.2.1], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 
 # Checks for programs.

@@ -1,12 +1,12 @@
-Source: xjl-coolgit
+Source: git-enh
 Section: vcs
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/xjl-coolgit
+Homepage: http://uni.bodz.net/git-enh
 
-Package: xjl-coolgit
+Package: git-enh
 Architecture: all
 Depends: git
 Description: Git shortcuts & Switcher

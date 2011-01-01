@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-aptutils - postinst.in ..."
+echo "coolapt - postinst.in ..."

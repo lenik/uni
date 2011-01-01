@@ -1,14 +1,14 @@
-Source: xjl-coolmaven
+Source: coolmaven
 Section: devel
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 7), xjl-xmlutils
+Build-Depends: debhelper (>= 7), xmlutils
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolmaven
+Homepage: http://uni.bodz.net/coolmaven
 
-Package: xjl-coolmaven
+Package: coolmaven
 Provides: coolmaven
 Architecture: all
-Depends: xjl-bash-aliases, xjl-coolansi, xjl-coolsvn, maven2, xml2, grep, wget,
-    xjl-xmlutils, xmlindent, xjl-configutils, graphviz
+Depends: bash-aliases, coolansi, svn-enh, maven2, xml2, grep, wget,
+    xmlutils, xmlindent, configutils, graphviz
 Description: Lenik's Maven utils

@@ -1,12 +1,12 @@
-Source: xjl-netutils
+Source: nameutils
 Section: net
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-netutils
+Homepage: http://uni.bodz.net/nameutils
 
-Package: xjl-netutils
+Package: nameutils
 Architecture: all
 Depends: perl
 Description: Network utilities

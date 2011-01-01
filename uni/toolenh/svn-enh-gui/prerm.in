@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-svnguis - prerm.in ..."
+echo "svn-enh-gui - prerm.in ..."

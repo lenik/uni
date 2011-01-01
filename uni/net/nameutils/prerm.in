@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-netutils - prerm.in ..."
+echo "nameutils - prerm.in ..."

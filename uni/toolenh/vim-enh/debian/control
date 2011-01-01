@@ -1,13 +1,13 @@
-Source: xjl-coolvim
+Source: vim-enh
 Section: text
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolvim
+Homepage: http://uni.bodz.net/vim-enh
 
-Package: xjl-coolvim
+Package: vim-enh
 Provides: coolvim
 Architecture: all
-Depends: xjl-bash-shlib, xjl-bash-aliases, vim-tiny, grep, sudo
+Depends: bash-shlib, bash-aliases, vim-tiny, grep, sudo
 Description: Lenik's vim enhancement.

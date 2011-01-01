@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coolchm - postinst.in ..."
+echo "mkchm - postinst.in ..."

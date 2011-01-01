@@ -1,15 +1,15 @@
-Source: xjl-coolsvn
+Source: svn-enh
 Section: devel
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolsvn
+Homepage: http://uni.bodz.net/svn-enh
 
-Package: xjl-coolsvn
+Package: svn-enh
 Provides: coolsvn
 Architecture: all
 Depends: subversion,
-    xjl-bash-shlib, xjl-bash-aliases
-Suggests: xjl-svnguis
+    bash-shlib, bash-aliases
+Suggests: svn-enh-gui
 Description: Lenik's SVN utilities.

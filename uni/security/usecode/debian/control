@@ -1,14 +1,14 @@
-Source: xjl-security
+Source: usecode
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-security
+Homepage: http://uni.bodz.net/usecode
 
-Package: xjl-security
+Package: usecode
 Architecture: all
-Depends: perl, xsel, xjl-libcmt,
+Depends: perl, xsel, libcmt-perl,
     libcrypt-cbc-perl,
     libcrypt-des-perl
 Description: Lenik's security utilities

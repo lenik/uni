@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coolberkeley - prerm.in ..."
+echo "db-utils-xjl - prerm.in ..."

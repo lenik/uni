@@ -1,14 +1,14 @@
-Source: xjl-coolbash
+Source: bash-enh
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolbash
+Homepage: http://uni.bodz.net/bash-enh
 
-Package: xjl-coolbash
+Package: bash-enh
 Provides: coolbash
 Architecture: all
-Depends: bash, xjl-bash-shlib
-Recommends: xjl-bash-aliases, xjl-cdtree
+Depends: bash, bash-shlib
+Recommends: bash-aliases, cdtree
 Description: Cool bash utilities by Lenik.

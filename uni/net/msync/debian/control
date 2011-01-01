@@ -1,13 +1,13 @@
-Source: xjl-coolsync
+Source: msync
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolsync
+Homepage: http://uni.bodz.net/msync
 
-Package: xjl-coolsync
+Package: msync
 Provides: coolsync
 Architecture: all
-Depends: rsync, xjl-bash-shlib
+Depends: rsync, bash-shlib
 Description: Sync utils for rsync, etc.

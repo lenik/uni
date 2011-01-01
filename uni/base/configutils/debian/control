@@ -1,13 +1,13 @@
-Source: xjl-configutils
+Source: configutils
 Section: devel
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-configutils
+Homepage: http://uni.bodz.net/configutils
 
-Package: xjl-configutils
+Package: configutils
 Provides: configutils, sedit, lineconf
 Architecture: all
-Depends: xjl-bash-shlib, xjl-coretext
+Depends: bash-shlib, grepl
 Description: Config helper utilities for installers

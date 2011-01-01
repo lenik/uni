@@ -1,12 +1,12 @@
-Source: xjl-coolldap
+Source: coolldap
 Section: net
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/xjl-coolldap
+Homepage: http://uni.bodz.net/coolldap
 
-Package: xjl-coolldap
+Package: coolldap
 Architecture: all
-Depends: xjl-bash-shlib, ldap-utils
+Depends: bash-shlib, ldap-utils
 Description: OpenLDAP configs and utilities.

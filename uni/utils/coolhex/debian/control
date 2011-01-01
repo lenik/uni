@@ -1,15 +1,15 @@
-Source: xjl-coolhex
+Source: coolhex
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolhex
+Homepage: http://uni.bodz.net/coolhex
 
-Package: xjl-coolhex
+Package: coolhex
 Provides: coolhex
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
     , coreutils, diff | diffutils, patch
-    , xjl-coolbash
+    , bash-enh
 Description: Hex utilities by Lenik.

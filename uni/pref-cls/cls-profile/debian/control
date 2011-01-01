@@ -9,7 +9,7 @@ Homepage: http://uni.bodz.net/cls-profile
 Package: cls-profile
 Architecture: all
 Depends:
-    xjl-cools-term,
+    cools-term,
     cls-domains,
     cls-users
 Description: CLS Profile.

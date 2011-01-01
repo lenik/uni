@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([xjl-autover], [0.5.1], [xjl@99jsj.com])
+AC_INIT([autover], [0.5.1], [xjl@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 AC_CONFIG_SRCDIR([vercomp.c])
 

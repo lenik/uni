@@ -1,12 +1,12 @@
-Source: xjl-libcmt
+Source: libcmt-perl
 Section: devel
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-libcmt
+Homepage: http://uni.bodz.net/libcmt-perl
 
-Package: xjl-libcmt
+Package: libcmt-perl
 Provides: libcmt-perl, libcmt
 Architecture: all
 Depends: perl,

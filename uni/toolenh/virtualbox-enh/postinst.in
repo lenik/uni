@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coolvbox - postinst.in ..."
+echo "virtualbox-enh - postinst.in ..."

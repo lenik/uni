@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coolvbox - prerm.in ..."
+echo "virtualbox-enh - prerm.in ..."

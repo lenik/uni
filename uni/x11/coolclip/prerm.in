@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coolclip - prerm.in ..."
+echo "coolclip - prerm.in ..."

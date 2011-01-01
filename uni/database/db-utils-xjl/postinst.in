@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coolberkeley - postinst.in ..."
+echo "db-utils-xjl - postinst.in ..."

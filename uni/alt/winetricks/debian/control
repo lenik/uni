@@ -10,7 +10,7 @@ Homepage: http://www.kegel.com/wine/winetricks
 
 Package: winetricks
 Architecture: all
-Depends: wine, cabextract, xjl-coolutils
+Depends: wine, cabextract, coolutils
 Description: winetricks is a quick and dirty script to download and
     install various redistributable runtime libraries sometimes needed
     to run programs in Wine.

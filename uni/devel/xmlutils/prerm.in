@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-xmlutils - prerm.in ..."
+echo "xmlutils - prerm.in ..."

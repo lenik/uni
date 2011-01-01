@@ -1,16 +1,16 @@
-Source: xjl-cooltex
+Source: cooltex
 Section: text
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-cooltex
+Homepage: http://uni.bodz.net/cooltex
 
-Package: xjl-cooltex
+Package: cooltex
 Provides: cooltex
 Architecture: all
-Depends: perl, xjl-libcmt,
-    xjl-bash-shlib, xjl-bash-aliases
+Depends: perl, libcmt-perl,
+    bash-shlib, bash-aliases
 Recommends: texlive-local
 Suggests: texlive
 Description: Lenik's TeX utilities.

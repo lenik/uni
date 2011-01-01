@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/cls-a2sites
 
 Package: cls-a2sites
 Architecture: all
-Depends: apache2, xjl-configutils
+Depends: apache2, configutils
 Description: Lenik's default apache2 websites

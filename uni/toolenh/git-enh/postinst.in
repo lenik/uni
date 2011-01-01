@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coolgit - postinst.in ..."
+echo "git-enh - postinst.in ..."

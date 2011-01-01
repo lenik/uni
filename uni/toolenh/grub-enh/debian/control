@@ -1,13 +1,13 @@
-Source: xjl-coolgrub
+Source: grub-enh
 Section: kernel
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolgrub
+Homepage: http://uni.bodz.net/grub-enh
 
-Package: xjl-coolgrub
+Package: grub-enh
 Provides: coolgrub
 Architecture: all
-Depends: ${misc:Depends}, grub2, xjl-coolutils
+Depends: ${misc:Depends}, grub2, coolutils
 Description: Lenik's grub preferences.

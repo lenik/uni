@@ -1,12 +1,12 @@
-Source: xjl-coollog
+Source: coollog
 Section: python
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/xjl-coollog
+Homepage: http://uni.bodz.net/coollog
 
-Package: xjl-coollog
+Package: coollog
 Architecture: all
 Depends: python
 Description: Lenik's Cool CLI Log

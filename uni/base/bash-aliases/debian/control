@@ -1,13 +1,13 @@
-Source: xjl-bash-aliases
+Source: bash-aliases
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-bash-aliases
+Homepage: http://uni.bodz.net/bash-aliases
 
-Package: xjl-bash-aliases
+Package: bash-aliases
 Provides: bash-aliases
 Architecture: all
-Depends: bash, xjl-configutils
+Depends: bash, configutils
 Description: Add bash_aliases.d support to bash.

@@ -1,13 +1,13 @@
-Source: xjl-coolgpg
+Source: gpg-enh
 Section: devel
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolgpg
+Homepage: http://uni.bodz.net/gpg-enh
 
-Package: xjl-coolgpg
+Package: gpg-enh
 Provides: coolgpg
 Architecture: all
-Depends: ${misc:Depends}, xjl-coolbash, xjl-coolutils, gnupg
+Depends: ${misc:Depends}, bash-enh, coolutils, gnupg
 Description: Cool GnuPG utilities and shortcuts.

@@ -1,12 +1,12 @@
-Source: xjl-coolcd
+Source: debiancd-utils
 Section: utils
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/xjl-coolcd
+Homepage: http://uni.bodz.net/debiancd-utils
 
-Package: xjl-coolcd
+Package: debiancd-utils
 Architecture: all
-Depends: xjl-bash-shlib, squashfs-tools, genisoimage, lzma, xjl-mountfile
+Depends: bash-shlib, squashfs-tools, genisoimage, lzma, mountfile
 Description: Tools for create Ubuntu Live CD, etc.

@@ -1,12 +1,12 @@
-Source: xjl-fileutils
+Source: fileutils-xjl
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-fileutils
+Homepage: http://uni.bodz.net/fileutils-xjl
 
-Package: xjl-fileutils
+Package: fileutils-xjl
 Architecture: all
-Depends: xjl-bash-shlib
+Depends: bash-shlib
 Description: File utilities.

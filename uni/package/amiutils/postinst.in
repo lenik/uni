@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-amisupport - postinst.in ..."
+echo "amiutils - postinst.in ..."

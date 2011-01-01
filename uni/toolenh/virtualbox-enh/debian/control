@@ -1,12 +1,12 @@
-Source: xjl-coolvbox
+Source: virtualbox-enh
 Section: misc
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/xjl-coolvbox
+Homepage: http://uni.bodz.net/virtualbox-enh
 
-Package: xjl-coolvbox
+Package: virtualbox-enh
 Architecture: all
-Depends: virtualbox, xjl-bash-shlib
+Depends: virtualbox, bash-shlib
 Description: Virtual Box utilities

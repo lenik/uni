@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/cls-remotes
 
 Package: cls-remotes
 Architecture: all
-Depends: ${misc:Depends}, rdesktop, xjl-coolbash
+Depends: ${misc:Depends}, rdesktop, bash-enh
 Description: CLS remote desktops

@@ -1,13 +1,13 @@
-Source: xjl-coolchm
+Source: mkchm
 Section: doc
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/xjl-coolchm
+Homepage: http://uni.bodz.net/mkchm
 
-Package: xjl-coolchm
+Package: mkchm
 Architecture: all
-Depends: xjl-libcmt, libchm-bin, libchm1
+Depends: libcmt-perl, libchm-bin, libchm1
 # libarchive-chm-perl, libtext-chm-perl
 Description: CHM utilities based on libchm for Debian

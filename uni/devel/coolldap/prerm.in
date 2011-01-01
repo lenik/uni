@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coolldap - prerm.in ..."
+echo "coolldap - prerm.in ..."

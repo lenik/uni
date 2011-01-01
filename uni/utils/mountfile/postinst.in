@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-mountfile - postinst.in ..."
+echo "mountfile - postinst.in ..."

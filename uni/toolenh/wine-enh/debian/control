@@ -1,12 +1,12 @@
-Source: xjl-coolwine
+Source: wine-enh
 Section: misc
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/xjl-coolwine
+Homepage: http://uni.bodz.net/wine-enh
 
-Package: xjl-coolwine
+Package: wine-enh
 Architecture: all
 Depends: wine, winetricks
 Description: Lenik's WINE supplements.

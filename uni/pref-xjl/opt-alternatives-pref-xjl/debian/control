@@ -1,12 +1,12 @@
-Source: xjl-optalts
+Source: opt-alternatives-pref-xjl
 Section: misc
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/xjl-optalts
+Homepage: http://uni.bodz.net/opt-alternatives-pref-xjl
 
-Package: xjl-optalts
+Package: opt-alternatives-pref-xjl
 Architecture: all
-Depends: dpkg, xjl-autover
+Depends: dpkg, autover
 Description: Lenik's optional alternatives

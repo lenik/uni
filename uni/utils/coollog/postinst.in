@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coollog - postinst.in ..."
+echo "coollog - postinst.in ..."

@@ -1,14 +1,14 @@
-Source: xjl-laxar
+Source: laxar
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/xjl-laxar
+Homepage: http://uni.bodz.net/laxar
 
-Package: xjl-laxar
+Package: laxar
 Architecture: all
-Depends: perl, libcmt-perl, xjl-bash-shlib,
+Depends: perl, libcmt-perl, bash-shlib,
     libdigest-md5-perl,
     libdigest-sha1-perl
 Description: Archivar used in Lapiota.

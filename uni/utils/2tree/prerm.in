@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-treeutils - prerm.in ..."
+echo "2tree - prerm.in ..."

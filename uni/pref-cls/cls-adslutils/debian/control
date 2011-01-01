@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/cls-adslutils
 
 Package: cls-adslutils
 Architecture: all
-Depends: xjl-security, net-tools
+Depends: usecode, net-tools
 Description: Utilities for Home LAN ADSL.

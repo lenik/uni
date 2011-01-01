@@ -1,15 +1,15 @@
-Source: xjl-cooltruecrypt
+Source: truecrypt-enh
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 7), xjl-coolwget
+Build-Depends: debhelper (>= 7), wget-enh
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-cooltruecrypt
+Homepage: http://uni.bodz.net/truecrypt-enh
 
-Package: xjl-cooltruecrypt
+Package: truecrypt-enh
 Provides: cooltruecrypt, truecrypt
 Architecture: all
-Depends: upstart, xjl-bash-shlib, xjl-configutils
+Depends: upstart, bash-shlib, configutils
 Description: TrueCrypt integration utilities.
   This package requires TrueCrypt.
   Install it from:

@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-fileutils - prerm.in ..."
+echo "fileutils-xjl - prerm.in ..."

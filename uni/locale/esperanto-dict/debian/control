@@ -1,12 +1,12 @@
-Source: xjl-coolet
+Source: esperanto-dict
 Section: misc
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.netn/xjl-coolet
+Homepage: http://uni.bodz.netn/esperanto-dict
 
-Package: xjl-coolet
+Package: esperanto-dict
 Architecture: all
 Depends:
 Description: Esperanto language accessories

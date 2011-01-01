@@ -1,12 +1,12 @@
-Source: xjl-file-ini
+Source: ini-utils
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-file-ini
+Homepage: http://uni.bodz.net/ini-utils
 
-Package: xjl-file-ini
+Package: ini-utils
 Architecture: all
 Depends: ${misc:Depends}
 Description: INI file manipulate utilities.

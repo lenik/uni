@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-svnguis - postinst.in ..."
+echo "svn-enh-gui - postinst.in ..."

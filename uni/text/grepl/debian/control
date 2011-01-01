@@ -1,4 +1,4 @@
-Source: xjl-coretext
+Source: grepl
 Section: utils
 Priority: required
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/xjl-coretxt
 
-Package: xjl-coretext
+Package: grepl
 Architecture: all
 Depends:
 Description: Minimal core text utilities.

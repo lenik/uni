@@ -1,13 +1,13 @@
-Source: xjl-cooldns
+Source: bind-pref-xjl
 Section: net
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-cooldns
+Homepage: http://uni.bodz.net/bind-pref-xjl
 
-Package: xjl-cooldns
+Package: bind-pref-xjl
 Provides: cooldns
 Architecture: all
-Depends: ${misc:Depends}, bind9, bind9utils, xjl-coolutils
+Depends: ${misc:Depends}, bind9, bind9utils, coolutils
 Description: BIND utils and distrib conf management.

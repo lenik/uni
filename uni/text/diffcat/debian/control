@@ -1,12 +1,12 @@
-Source: xjl-cooldiff
+Source: diffcat
 Section: utils
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-cooldiff
+Homepage: http://uni.bodz.net/diffcat
 
-Package: xjl-cooldiff
+Package: diffcat
 Provides: cooldiff
 Architecture: all
 Depends: diff | diffutils, perl

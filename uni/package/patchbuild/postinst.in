@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-patchbuild - postinst.in ..."
+echo "patchbuild - postinst.in ..."

@@ -1,14 +1,14 @@
-Source: xjl-cooldeb
+Source: cooldeb
 Section: devel
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7), autotools-dev
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-cooldeb
+Homepage: http://uni.bodz.net/cooldeb
 
-Package: xjl-cooldeb
+Package: cooldeb
 Provides: cooldeb
 Architecture: all
-Depends: debhelper, devscripts, dh-make, xjl-aptutils,
-    xjl-bash-shlib, xjl-coolmake, xjl-coolsvn, xjl-dlocal
+Depends: debhelper, devscripts, dh-make, coolapt,
+    bash-shlib, coolmake, svn-enh, dlocal
 Description: Debian package by very clean manner.

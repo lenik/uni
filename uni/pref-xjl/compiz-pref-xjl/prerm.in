@@ -1,7 +1,7 @@
 #!/bin/sh
 # master-file
 
-lineconf -ktm "Remove xjl-coolx11.defaults" \
-    @gconf2dir@/path @xjl-coolx11.defaults
+lineconf -ktm "Remove compiz-pref-xjl.defaults" \
+    @gconf2dir@/path @compiz-pref-xjl.defaults
 
 exit 0

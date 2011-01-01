@@ -1,12 +1,12 @@
-Source: xjl-patchbuild
+Source: patchbuild
 Section: devel
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/xjl-patchbuild
+Homepage: http://uni.bodz.net/patchbuild
 
-Package: xjl-patchbuild
+Package: patchbuild
 Architecture: all
-Depends: xjl-cooldeb, dpkg-dev, apt, aptitude, dput
+Depends: cooldeb, dpkg-dev, apt, aptitude, dput
 Description: Rebuild debian package with automatic personal patch management.

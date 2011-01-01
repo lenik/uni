@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-cooltask - postinst.in ..."
+echo "cooltask - postinst.in ..."

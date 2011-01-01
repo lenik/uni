@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-cooldiff - postinst.in ..."
+echo "diffcat - postinst.in ..."

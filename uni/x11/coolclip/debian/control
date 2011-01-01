@@ -1,12 +1,12 @@
-Source: xjl-coolclip
+Source: coolclip
 Section: gnome
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolclip
+Homepage: http://uni.bodz.net/coolclip
 
-Package: xjl-coolclip
+Package: coolclip
 Provides: coolclip
 Architecture: all
 Depends: libc6, libx11-6, imagemagick

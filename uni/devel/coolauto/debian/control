@@ -1,14 +1,14 @@
-Source: xjl-coolauto
+Source: coolauto
 Section: devel
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolauto
+Homepage: http://uni.bodz.net/coolauto
 
-Package: xjl-coolauto
+Package: coolauto
 Provides: coolauto
 Architecture: all
-Depends: make, automake, autoconf, libtool, xjl-autover, xjl-bash-shlib
-Recommends: xjl-bash-aliases
+Depends: make, automake, autoconf, libtool, autover, bash-shlib
+Recommends: bash-aliases
 Description: Auto-tools helper and templates

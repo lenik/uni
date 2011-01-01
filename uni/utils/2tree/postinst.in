@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-treeutils - postinst.in ..."
+echo "2tree - postinst.in ..."

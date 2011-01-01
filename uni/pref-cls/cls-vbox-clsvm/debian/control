@@ -9,6 +9,6 @@ Homepage: http://uni.bodz.net/cls-vbox-clsvm
 Package: cls-vbox-clsvm
 Architecture: all
 Depends: virtualbox,
-    xjl-bash-shlib,
-    xjl-coolvbox
+    bash-shlib,
+    virtualbox-enh
 Description: [Virtual Box] Windows SP3 with CLS Profile

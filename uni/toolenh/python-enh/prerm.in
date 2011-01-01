@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coolpython - prerm.in ..."
+echo "python-enh - prerm.in ..."

@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coolcd - postinst.in ..."
+echo "debiancd-utils - postinst.in ..."

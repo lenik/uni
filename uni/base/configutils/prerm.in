@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-configutils - prerm.in ..."
+echo "configutils - prerm.in ..."

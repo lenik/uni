@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-patchbuild - prerm.in ..."
+echo "patchbuild - prerm.in ..."

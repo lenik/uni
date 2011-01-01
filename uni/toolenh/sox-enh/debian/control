@@ -1,12 +1,12 @@
-Source: xjl-coolsox
+Source: sox-enh
 Section: sound
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/xjl-coolsox
+Homepage: http://uni.bodz.net/sox-enh
 
-Package: xjl-coolsox
+Package: sox-enh
 Architecture: all
 Depends: sox, libsox-fmt-all, lame
 Description: Sox-based audio utilities

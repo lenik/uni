@@ -8,7 +8,7 @@ Homepage: http://uni.bodz.net/alt/texlive-local
 
 Package: texlive-local
 Architecture: all
-Depends: xjl-configutils
+Depends: configutils
 Description: Add /usr/local/texlive to environment.
 Provides:
     texlive,

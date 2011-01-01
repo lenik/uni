@@ -1,13 +1,13 @@
-Source: xjl-coolspec
+Source: coolspec
 Section: devel
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolspec
+Homepage: http://uni.bodz.net/coolspec
 
-Package: xjl-coolspec
+Package: coolspec
 Provides: coolspec
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, xjl-coolbash, xjl-coolutils
+Depends: ${shlibs:Depends}, ${misc:Depends}, bash-enh, coolutils
 Description: alpha-Spec tool chain.

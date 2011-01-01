@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/cls-domains
 
 Package: cls-domains
 Architecture: all
-Depends: ${misc:Depends}, xjl-cooldns, xjl-coolutils
+Depends: ${misc:Depends}, bind-pref-xjl, coolutils
 Description: Lenik's DNS configuration.

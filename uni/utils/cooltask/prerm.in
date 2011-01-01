@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-cooltask - prerm.in ..."
+echo "cooltask - prerm.in ..."

@@ -1,12 +1,12 @@
-Source: xjl-bash-shlib
+Source: bash-shlib
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-bash-shlib
+Homepage: http://uni.bodz.net/bash-shlib
 
-Package: xjl-bash-shlib
+Package: bash-shlib
 Provides: bash-shlib
 Architecture: all
 Depends: bash

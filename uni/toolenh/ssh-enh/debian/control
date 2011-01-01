@@ -1,13 +1,13 @@
-Source: xjl-coolssh
+Source: ssh-enh
 Section: utils
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolssh
+Homepage: http://uni.bodz.net/ssh-enh
 
-Package: xjl-coolssh
+Package: ssh-enh
 Provides: coolssh
 Architecture: all
-Depends: xjl-bash-shlib, xjl-coolgen
+Depends: bash-shlib, coolgen
 Description: SSH Client side utilities

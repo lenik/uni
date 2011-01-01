@@ -1,12 +1,12 @@
-Source: xjl-cooleclipse
+Source: eclipse-enh
 Section: devel
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-cooleclipse
+Homepage: http://uni.bodz.net/eclipse-enh
 
-Package: xjl-cooleclipse
+Package: eclipse-enh
 Provides: cooleclipse
 Architecture: all
 Depends:

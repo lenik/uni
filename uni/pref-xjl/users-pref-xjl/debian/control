@@ -1,12 +1,12 @@
-Source: xjl-coolusers
+Source: users-pref-xjl
 Section: admin
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolusers
+Homepage: http://uni.bodz.net/users-pref-xjl
 
-Package: xjl-coolusers
+Package: users-pref-xjl
 Provides: coolusers
 Architecture: all
 Depends: ${misc:Depends}, passwd, sed

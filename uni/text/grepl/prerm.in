@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coretext - prerm.in ..."
+echo "grepl - prerm.in ..."

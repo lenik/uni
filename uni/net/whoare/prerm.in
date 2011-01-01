@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-whoare - prerm.in ..."
+echo "whoare - prerm.in ..."

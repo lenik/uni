@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-configutils - postinst.in ..."
+echo "configutils - postinst.in ..."

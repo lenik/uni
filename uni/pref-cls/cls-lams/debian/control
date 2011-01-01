@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/cls-lams
 
 Package: cls-lams
 Architecture: all
-Depends: ${misc:Depends}, xjl-cooltruecrypt
+Depends: ${misc:Depends}, truecrypt-enh
 Description: CLS-LAMs definition

@@ -1,13 +1,13 @@
-Source: xjl-cooltext
+Source: cooltext
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-cooltext
+Homepage: http://uni.bodz.net/cooltext
 
-Package: xjl-cooltext
+Package: cooltext
 Provides: cooltext
 Architecture: all
-Depends: xjl-coolutils, perl, xjl-libcmt, libtext-diff-perl
+Depends: coolutils, perl, libcmt-perl, libtext-diff-perl
 Description: Text process utilities

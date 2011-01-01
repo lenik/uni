@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([xjl-coolsync], [0.2.2], [])
+AC_INIT([msync], [0.2.2], [])
 AM_INIT_AUTOMAKE([-Wno-portability])
 
 # Checks for programs.

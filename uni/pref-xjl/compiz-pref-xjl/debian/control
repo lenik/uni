@@ -1,12 +1,12 @@
-Source: xjl-coolx11
+Source: compiz-pref-xjl
 Section: x11
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolx11
+Homepage: http://uni.bodz.net/compiz-pref-xjl
 
-Package: xjl-coolx11
+Package: compiz-pref-xjl
 Provides: coolx11
 Architecture: all
 Depends: x11-xserver-utils

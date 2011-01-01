@@ -1,14 +1,14 @@
-Source: xjl-coolwget
+Source: wget-enh
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7), autotools-dev
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolwget
+Homepage: http://uni.bodz.net/wget-enh
 
-Package: xjl-coolwget
+Package: wget-enh
 Provides: coolwget
 Architecture: all
 Depends: wget, axel, grep, coreutils,
-    xjl-bash-shlib
+    bash-shlib
 Description: Wget with cache support, and other url-related utilities

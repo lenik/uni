@@ -1,14 +1,14 @@
-Source: xjl-coolgen
+Source: coolgen
 Section: devel
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolgen
+Homepage: http://uni.bodz.net/coolgen
 
-Package: xjl-coolgen
+Package: coolgen
 Provides: coolgen
 Architecture: all
-Depends: perl, xjl-libcmt
-Recommends: xjl-coolutils
+Depends: perl, libcmt-perl
+Recommends: coolutils
 Description: A simple cool script generator

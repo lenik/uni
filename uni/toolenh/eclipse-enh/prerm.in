@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-cooleclipse - prerm.in ..."
+echo "eclipse-enh - prerm.in ..."

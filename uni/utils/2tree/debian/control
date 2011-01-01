@@ -1,14 +1,14 @@
-Source: xjl-treeutils
+Source: 2tree
 Section: text
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~),
     bzip2, p7zip-full, tar, rar
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/xjl-treeutils
+Homepage: http://uni.bodz.net/2tree
 
-Package: xjl-treeutils
+Package: 2tree
 Architecture: all
-Depends: perl, xjl-libcmt, xjl-coolcmd, xjl-bash-shlib
+Depends: perl, libcmt-perl, coolcmd, bash-shlib
 Recommends: bzip2, p7zip, tar, unrar, unzip
 Description: Tree/filesystem visualization

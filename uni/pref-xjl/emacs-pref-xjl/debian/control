@@ -1,12 +1,12 @@
-Source: xjl-coolemacs
+Source: emacs-pref-xjl
 Section: devel
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-coolemacs
+Homepage: http://uni.bodz.net/emacs-pref-xjl
 
-Package: xjl-coolemacs
+Package: emacs-pref-xjl
 Provides: coolemacs
 Architecture: all
 Depends: ${misc:Depends}, emacs

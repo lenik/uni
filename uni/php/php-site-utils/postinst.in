@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coolphp - postinst.in ..."
+echo "php-site-utils - postinst.in ..."

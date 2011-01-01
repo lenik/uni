@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coolsox - prerm.in ..."
+echo "sox-enh - prerm.in ..."

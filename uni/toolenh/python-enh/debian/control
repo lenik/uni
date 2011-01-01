@@ -1,12 +1,12 @@
-Source: xjl-coolpython
+Source: python-enh
 Section: python
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/xjl-coolpython
+Homepage: http://uni.bodz.net/python-enh
 
-Package: xjl-coolpython
+Package: python-enh
 Architecture: all
 Depends: python
 Description: Lenik's Python utilities.

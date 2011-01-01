@@ -1,13 +1,13 @@
-Source: xjl-cdtree
+Source: cdtree
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/xjl-cdtree
+Homepage: http://uni.bodz.net/cdtree
 
-Package: xjl-cdtree
+Package: cdtree
 Provides: cdtree
 Architecture: all
-Depends: tree, xjl-bash-aliases, xjl-bash-shlib, xjl-coolansi, sed
+Depends: tree, bash-aliases, bash-shlib, coolansi, sed
 Description: Chdir into complex directory tree

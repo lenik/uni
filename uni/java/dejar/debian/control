@@ -1,12 +1,12 @@
-Source: xjl-dejar
+Source: dejar
 Section: devel
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-dejar
+Homepage: http://uni.bodz.net/dejar
 
-Package: xjl-dejar
+Package: dejar
 Architecture: all
-Depends: fastjar | java2-jdk, xjl-bash-shlib, jad, xjl-coolutils
+Depends: fastjar | java2-jdk, bash-shlib, jad, coolutils
 Description: Lenik's JDK utilities

@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coollog - prerm.in ..."
+echo "coollog - prerm.in ..."

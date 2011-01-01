@@ -1,12 +1,12 @@
-Source: xjl-coolphp
+Source: php-site-utils
 Section: php
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/xjl-coolphp
+Homepage: http://uni.bodz.net/php-site-utils
 
-Package: xjl-coolphp
+Package: php-site-utils
 Architecture: all
 Depends: php5
 Description: PHP utilities for development.

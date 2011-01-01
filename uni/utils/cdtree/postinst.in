@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-cdtree - postinst.in ..."
+echo "cdtree - postinst.in ..."

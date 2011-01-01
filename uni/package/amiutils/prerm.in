@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-amisupport - prerm.in ..."
+echo "amiutils - prerm.in ..."

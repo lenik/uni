@@ -8,5 +8,5 @@ Homepage: http://uni.bodz.net/cls-users
 
 Package: cls-users
 Architecture: all
-Depends: ${misc:Depends}, xjl-coolbash, xjl-coolusers
+Depends: ${misc:Depends}, bash-enh, users-pref-xjl
 Description: CLS predefined user switcher

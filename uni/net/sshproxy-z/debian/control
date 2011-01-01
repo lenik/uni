@@ -1,31 +1,31 @@
-Source: xjl-sshproxy
+Source: sshproxy-z
 Section: net
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/xjl-sshproxy
+Homepage: http://uni.bodz.net/sshproxy-z
 
-Package: xjl-sshproxy-base
+Package: sshproxy-z-base
 Architecture: all
-Depends: xjl-coolusers
+Depends: users-pref-xjl
 Description: SSH Proxy base environment.
 
-Package: xjl-sshproxy-server
+Package: sshproxy-z-server
 Architecture: all
-Depends: xjl-sshproxy-base, openssh-server
+Depends: sshproxy-z-base, openssh-server
 Description: Lenik's sshproxy server-side components.
  Allow the sshproxy account be ssh-login-able.
 
-Package: xjl-sshproxy-client
+Package: sshproxy-z-client
 Architecture: all
-Depends: xjl-sshproxy-base, openssh-client, upstart, xjl-coolssh,
+Depends: sshproxy-z-base, openssh-client, upstart, ssh-enh,
     proxychains
 Description: Lenik's sshproxy client-side components.
  Contain the (public area) private key and startup configuration
  to create the ssh SOCK5 tunnel.
 
-Package: xjl-sshproxy
+Package: sshproxy-z
 Architecture: all
-Depends: xjl-sshproxy-client, xjl-sshproxy-server
+Depends: sshproxy-z-client, sshproxy-z-server
 Description: sshproxy both server/client side.

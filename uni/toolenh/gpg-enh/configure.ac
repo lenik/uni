@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([xjl-coolgpg], [0.1.2], [xjl@99jsj.com])
+AC_INIT([gpg-enh], [0.1.2], [xjl@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 
 # Checks for programs.

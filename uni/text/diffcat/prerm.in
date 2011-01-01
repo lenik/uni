@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-cooldiff - prerm.in ..."
+echo "diffcat - prerm.in ..."

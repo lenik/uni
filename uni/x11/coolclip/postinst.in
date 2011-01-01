@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coolclip - postinst.in ..."
+echo "coolclip - postinst.in ..."
