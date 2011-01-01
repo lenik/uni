@@ -10,5 +10,5 @@ Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/database/db-ut
 
 Package: db-utils-xjl
 Architecture: all
-Depends: db4.8-utils
+Depends: db4.8-util
 Description: Utilities for Berkeley DB

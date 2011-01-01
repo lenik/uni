@@ -9,7 +9,6 @@ Vcs-SVN: http://svn.bodz.net/uni/trunk/pref-xjl/emacs-pref-xjl
 Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/pref-xjl/emacs-pref-xjl
 
 Package: emacs-pref-xjl
-Provides: coolemacs
 Architecture: all
-Depends: ${misc:Depends}, emacs
+Depends: emacs
 Description: Cool emacs helpers

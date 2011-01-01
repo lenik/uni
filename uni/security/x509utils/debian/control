@@ -1,4 +1,4 @@
-Source: xjl-keychain
+Source: x509utils
 Section: admin
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
@@ -8,8 +8,8 @@ Homepage: http://uni.bodz.net/security/x509utils
 Vcs-SVN: http://svn.bodz.net/uni/trunk/security/x509utils
 Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/security/x509utils
 
-Package: xjl-keychain
+Package: x509utils
 Architecture: all
-Depends: ${misc:Depends}
+Depends:
 Description: Lenik's key chain and utilities
     This is obsolete.
