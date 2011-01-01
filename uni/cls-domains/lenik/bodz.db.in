@@ -1,12 +1,12 @@
 $INCLUDE @datadir@/inc/default.db
 $INCLUDE @datadir@/inc/google.db
 
-ns1                     A       @xjl-1@
-ns2                     A       @xjl-1@
+ns1                     A       inst:xjl-1[ipw]
+ns2                     A       inst:main-dev[ipw]
 
-@                       A       @xjl-1@
-1                       A       @xjl-1@
-sp                      CNAME   main-dev.secca-project.com.
+@                       A       inst:xjl-1[ipw]
+1                       A       inst:xjl-1[ipw]
+us1                     A       inst:main-dev[ipw]
 
 www                     CNAME   1
 xml                     CNAME   1
@@ -14,8 +14,8 @@ uni                     CNAME   1
 
 svn                     CNAME   1
 trac                    CNAME   1
-m2                      CNAME   sp
-ci                      CNAME   sp
+m2                      CNAME   us1
+ci                      CNAME   us1
 
 lenik                   CNAME   1
 shecti                  CNAME   1

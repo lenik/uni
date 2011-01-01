@@ -1,13 +1,6 @@
 include ../libauto/coolauto.am
 
-do_subst2 = $(do_subst) \
-    -e 's,[@]datadir[@],$(datadir),g' \
-    -e 's,[@]xjl-1[@],$(xjl_1),g' \
-    -e 's,[@]xjl-2[@],$(xjl_2),g' \
-    -e 's,[@]xjl-3[@],$(xjl_3),g' \
-    -e 's,[@]xjl-4[@],$(xjl_4),g'
-
-xjl_1       = $(shell substecho inst:xjl-1[ipw])
+do_subst += -e 's,[@]datadir[@],$(datadir),g'
 
 bindconfdir = ${sysconfdir}/bind
 datadir     = ${bindconfdir}/lenik
@@ -64,4 +57,4 @@ dist-hook:
 	cp ${srcdir}/*.in ${distdir}
 
 %: %.in Makefile
-	$(do_subst2) <$< >$@
+	$(do_subst) <$< | substcat | >$@
