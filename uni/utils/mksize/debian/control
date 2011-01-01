@@ -1,0 +1,12 @@
+Source: mksize
+Section: utils
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage:
+
+Package: mksize
+Architecture: all
+Depends: bash-shlib
+Description: Create arbitrary size empty file.
