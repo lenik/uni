@@ -1,17 +1,23 @@
 #!/bin/bash
     . shlib-import cliboot
+    shopt -s nullglob
 
     RCSID='$Id$'
-    short_opts="bf:C:g:x:hqv"
-    long_opts="background,list-file:,chdir:,glob:,exclude:,help,quiet,verbose,version"
+    short_opts="arf:F:bL:C:x:hqv"
+    long_opts="all,recursive,ifexist:,ifnotexist:,background,list-file:,chdir:,exclude:,help,quiet,verbose,version"
 
     LOGLEVEL=0
 
+    maxdepth=1
     background=
     chdir=
-    glob='*'
     listfile=
     exclude=
+
+    incl=()
+    excl=()
+    nincl=0
+    nexcl=0
 
 function version() {
     parse_id "$RCSID"
@@ -26,11 +32,14 @@ function help() {
     echo "    $0 [OPTION] [--] COMMAND ARGS"
     echo
     echo "Options: "
-    echo "    -f, --list-file=FILE    read dirs from given file, instead of *"
+    echo "    -a, --all               include hidden files"
+    echo "    -r, --recursive         find recursive"
+    echo "    -f, --ifexist=FILE      only dirs with FILE inside, can be multiple"
+    echo "    -F, --ifnotexist=FILE   only dirs without FILE inside, can be multiple"
+    echo "    -L, --list-file=FILE    read dirs from given file, instead of *"
     echo "                            if FILE is '-', then read from stdin."
     echo "    -C, --chdir=DIR         chdir to DIR before enum dirs"
-    echo "    -g, --glob=GLOB         glob pattern to list dirs (default *)"
-    echo "    -x, --exclude=PATTERN   simple regex to exclude"
+    echo "    -x, --exclude=PATTERN   simple regex to exclude (NOT IMPL)"
     echo "    -b, --background        run each cmd in background"
     echo "    -q, --quiet             repeat to get less info"
     echo "    -v, --verbose           repeat to get more info"
@@ -40,14 +49,20 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -a|--all)
+            shopt -s dotglob;;
+        -r|--recursive)
+            maxdepth=256;;
+        -f|--ifexist)
+            incl[nincl++]="$2";;
+        -F|--ifnotexist)
+            excl[nexcl++]="$2";;
         -b|--background)
             background=1;;
         -f|--list-file)
             listfile="$2";;
         -C|--chdir)
             chdir="$2";;
-        -g|--glob)
-            glob="$2";;
         -x|--exclude)
             exclude="$2";;
         -h|--help)
@@ -63,6 +78,42 @@ function setopt() {
     esac
 }
 
+function search() {
+    local start="${1%/}/"
+          start="${start#./}"
+    local depth="$2"
+    local d
+    local f
+    local fail
+
+    [ $((depth++)) -lt $maxdepth ] || return
+
+    for d in "$start"*/; do
+        fail=
+        for f in "${incl[@]}"; do
+            if [ ! -e "$d$f" ]; then
+                fail=1
+                break
+            fi
+        done
+        if [ -z "$fail" ]; then
+            for f in "${excl[@]}"; do
+                if [ -e "$d$f" ]; then
+                    fail=1
+                    break
+                fi
+            done
+        fi
+
+        if [ -z "$fail" ]; then
+            echo "$d"
+            continue    # -prune
+        fi
+
+        search "$d" $depth
+    done
+}
+
 function main() {
     if [ -n "$chdir" ]; then
         if ! cd $chdir; then
@@ -74,7 +125,7 @@ function main() {
     if [ -z "$listfile" ]; then
         doclean=1
         listfile=/tmp/eachdir-$$-$RANDOM
-        ls -d1 $glob/ >$listfile
+        search . 0 >$listfile
     elif [ "$listfile" = '-' ]; then
         listfile=/dev/stdin
     fi

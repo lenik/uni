@@ -18,6 +18,7 @@ xcat_LDADD = $(GLIB_LIBS)
 dist_bin_SCRIPTS = \
     cd-exec \
     colorox \
+    eachdir \
     fnotify \
     ifrsubst \
     localhost \

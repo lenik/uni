@@ -11,7 +11,6 @@ bin_PROGRAMS = \
     echoli
 
 dist_bin_SCRIPTS = \
-    eachdir \
     orig \
     tree-less \
     history-sort
