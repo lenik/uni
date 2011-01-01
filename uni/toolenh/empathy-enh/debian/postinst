@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for empathy-autostart
+# postinst script for empathy-enh
 #
 # see: dh_installdeb(1)
 
@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-        /usr/share/setup/empathy-autostart/postinst
+        /usr/share/setup/empathy-enh/postinst
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

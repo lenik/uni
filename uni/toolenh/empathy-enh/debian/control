@@ -1,4 +1,4 @@
-Source: empathy-autostart
+Source: empathy-enh
 Section: net
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
@@ -8,7 +8,7 @@ Homepage: http://uni.bodz.net/toolenh/empathy-enh
 Vcs-SVN: http://svn.bodz.net/uni/trunk/toolenh/empathy-enh
 Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/toolenh/empathy-enh
 
-Package: empathy-autostart
+Package: empathy-enh
 Architecture: all
 Depends: empathy
 Description: Auto start Empathy.
