@@ -4,7 +4,9 @@ Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/eclipse-enh
+Homepage: http://uni.bodz.net/toolenh/eclipse-enh
+Vcs-SVN: http://svn.bodz.net/uni/trunk/toolenh/eclipse-enh
+Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/toolenh/eclipse-enh
 
 Package: eclipse-enh
 Provides: cooleclipse

@@ -4,7 +4,9 @@ Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/libcmt-perl
+Homepage: http://uni.bodz.net/perl/libcmt-perl
+Vcs-SVN: http://svn.bodz.net/uni/trunk/perl/libcmt-perl
+Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/perl/libcmt-perl
 
 Package: libcmt-perl
 Provides: libcmt-perl, libcmt

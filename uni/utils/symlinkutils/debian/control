@@ -4,7 +4,9 @@ Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage:
+Homepage: http://uni.bodz.net/utils/symlinkutils
+Vcs-SVN: http://svn.bodz.net/uni/trunk/utils/symlinkutils
+Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/utils/symlinkutils
 
 Package: symlinkutils
 Architecture: all

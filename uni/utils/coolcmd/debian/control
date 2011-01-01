@@ -4,7 +4,9 @@ Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/coolcmd
+Homepage: http://uni.bodz.net/utils/coolcmd
+Vcs-SVN: http://svn.bodz.net/uni/trunk/utils/coolcmd
+Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/utils/coolcmd
 
 Package: coolcmd
 Provides: coolcmd

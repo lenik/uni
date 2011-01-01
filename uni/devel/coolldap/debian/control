@@ -4,7 +4,9 @@ Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/coolldap
+Homepage: http://uni.bodz.net/devel/coolldap
+Vcs-SVN: http://svn.bodz.net/uni/trunk/devel/coolldap
+Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/devel/coolldap
 
 Package: coolldap
 Architecture: all

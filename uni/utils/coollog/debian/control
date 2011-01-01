@@ -4,7 +4,9 @@ Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/coollog
+Homepage: http://uni.bodz.net/utils/coollog
+Vcs-SVN: http://svn.bodz.net/uni/trunk/utils/coollog
+Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/utils/coollog
 
 Package: coollog
 Architecture: all

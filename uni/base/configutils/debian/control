@@ -4,7 +4,9 @@ Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/configutils
+Homepage: http://uni.bodz.net/base/configutils
+Vcs-SVN: http://svn.bodz.net/uni/trunk/base/configutils
+Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/base/configutils
 
 Package: configutils
 Provides: configutils, sedit, lineconf

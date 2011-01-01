@@ -4,7 +4,9 @@ Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7), autotools-dev
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/wget-enh
+Homepage: http://uni.bodz.net/toolenh/wget-enh
+Vcs-SVN: http://svn.bodz.net/uni/trunk/toolenh/wget-enh
+Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/toolenh/wget-enh
 
 Package: wget-enh
 Provides: coolwget

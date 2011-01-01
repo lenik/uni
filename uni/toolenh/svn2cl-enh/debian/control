@@ -4,7 +4,9 @@ Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net/alt/svn2cl-enh
+Homepage: http://uni.bodz.net/toolenh/svn2cl-enh
+Vcs-SVN: http://svn.bodz.net/uni/trunk/toolenh/svn2cl-enh
+Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/toolenh/svn2cl-enh
 
 Package: svn2cl-enh
 Architecture: all

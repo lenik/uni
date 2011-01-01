@@ -4,7 +4,9 @@ Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/gpg-enh
+Homepage: http://uni.bodz.net/toolenh/gpg-enh
+Vcs-SVN: http://svn.bodz.net/uni/trunk/toolenh/gpg-enh
+Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/toolenh/gpg-enh
 
 Package: gpg-enh
 Provides: coolgpg

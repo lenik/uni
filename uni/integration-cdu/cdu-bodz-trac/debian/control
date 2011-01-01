@@ -4,7 +4,9 @@ Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/cdu-bodz-trac
+Homepage: http://uni.bodz.net/integration-cdu/cdu-bodz-trac
+Vcs-SVN: http://svn.bodz.net/uni/trunk/integration-cdu/cdu-bodz-trac
+Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/integration-cdu/cdu-bodz-trac
 
 Package: cdu-bodz-trac
 Architecture: all

@@ -4,7 +4,9 @@ Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7), xmlutils
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/coolmaven
+Homepage: http://uni.bodz.net/java/coolmaven
+Vcs-SVN: http://svn.bodz.net/uni/trunk/java/coolmaven
+Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/java/coolmaven
 
 Package: coolmaven
 Provides: coolmaven

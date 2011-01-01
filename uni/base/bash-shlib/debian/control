@@ -4,7 +4,9 @@ Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/bash-shlib
+Homepage: http://uni.bodz.net/base/bash-shlib
+Vcs-SVN: http://svn.bodz.net/uni/trunk/base/bash-shlib
+Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/base/bash-shlib
 
 Package: bash-shlib
 Provides: bash-shlib
