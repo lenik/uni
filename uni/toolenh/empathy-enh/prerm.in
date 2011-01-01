@@ -1,0 +1,7 @@
+#!/bin/sh
+# master-file
+
+echo "Remove Empathy from autostart"
+rm -f @sysconfdir@/xdg/autostart/empathy.desktop
+
+exit 0

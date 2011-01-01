@@ -1,0 +1,7 @@
+#!/bin/sh
+# master-file
+
+echo "Add Empathy to autostart"
+ln -snf @datadir@/applications/empathy.desktop @sysconfdir@/xdg/autostart
+
+exit 0
