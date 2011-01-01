@@ -1,0 +1,87 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh 1853 2010-09-29 01:35:59Z lenik $'
+    short_opts="zs:fhqv"
+    long_opts="zero,size:,force,help,quiet,verbose,version"
+
+    block_size=4096
+    block_count=1
+    force=0
+    fill=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Create a file filled with zero"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] FILE..."
+    echo
+    echo "Options: "
+    echo "    -z, --fill-zero         Fill zero"
+    echo "    -s, --size=SIZE[kmgKMG] Specify file size, default 4K"
+    echo "                            (k=1000, K=1024)"
+    echo "    -f, --force             Force to overwrite existing file"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -z|--zero)
+            fill=0;;
+        -s|--size)
+            case $2 in
+            *k) block_count=${2%k}; block_size=1000;;
+            *K) block_count=${2%K}; block_size=1024;;
+            *m) block_count=${2%m}; block_size=1000000;;
+            *M) block_count=${2%M}; block_size=1048576;;
+            *g) block_count=$(( ${2%g} * 1000 )); block_size=1000000;;
+            *G) block_count=$(( ${2%G} * 1024 )); block_size=1048576;;
+            *t) block_count=$(( ${2%t} * 1000000 )); block_size=1000000;;
+            *T) block_count=$(( ${2%T} * 1048576 )); block_size=1048576;;
+            esac
+            ;;
+        -f|--force)
+            force=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for f in "$@"; do
+        _log1 "Create file $f"
+        if [ -f "$f" ] && [ "$force" != 1 ]; then
+            echo "File already existed: $f"
+            exit 1
+        fi
+
+        case "$fill" in
+        '')
+            echo-x dd of="$f" bs=$block_size count=0 seek=$block_count;;
+        0)
+            echo-x dd if=/dev/zero of="$f" bs=$block_size count=$block_count;;
+        *)
+            echo "Unsupported fill char: $fill"
+            exit 1;;
+        esac
+    done
+}
+
+boot "$@"
