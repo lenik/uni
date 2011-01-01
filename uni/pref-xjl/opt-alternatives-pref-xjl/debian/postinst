@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for xjl-optalts
+# postinst script for opt-alternatives-pref-xjl
 #
 # see: dh_installdeb(1)
 
@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-        /usr/share/setup/xjl-optalts/postinst
+        /usr/share/setup/opt-alternatives-pref-xjl/postinst
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

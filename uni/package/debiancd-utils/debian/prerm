@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for xjl-coolcd
+# prerm script for debiancd-utils
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-coolcd/prerm
+        /usr/share/setup/debiancd-utils/prerm
     ;;
 
     failed-upgrade)

@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for xjl-coolpython
+# prerm script for python-enh
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-coolpython/prerm
+        /usr/share/setup/python-enh/prerm
     ;;
 
     failed-upgrade)

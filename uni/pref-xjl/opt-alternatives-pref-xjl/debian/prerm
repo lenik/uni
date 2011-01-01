@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for xjl-optalts
+# prerm script for opt-alternatives-pref-xjl
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-optalts/prerm
+        /usr/share/setup/opt-alternatives-pref-xjl/prerm
     ;;
 
     failed-upgrade)

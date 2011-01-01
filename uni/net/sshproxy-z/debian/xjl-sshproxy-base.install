@@ -1,2 +1,2 @@
-/usr/share/setup/xjl-sshproxy/postinst-base.sh
-/usr/share/setup/xjl-sshproxy/prerm-base.sh
+/usr/share/setup/sshproxy-z/postinst-base.sh
+/usr/share/setup/sshproxy-z/prerm-base.sh

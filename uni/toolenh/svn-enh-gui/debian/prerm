@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for xjl-svnguis
+# prerm script for svn-enh-gui
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-svnguis/prerm
+        /usr/share/setup/svn-enh-gui/prerm
     ;;
 
     failed-upgrade)

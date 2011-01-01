@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for xjl-whoare
+# prerm script for whoare
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-whoare/prerm
+        /usr/share/setup/whoare/prerm
     ;;
 
     failed-upgrade)

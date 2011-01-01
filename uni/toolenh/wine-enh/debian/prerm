@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for xjl-coolwine
+# prerm script for wine-enh
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-coolwine/prerm
+        /usr/share/setup/wine-enh/prerm
     ;;
 
     failed-upgrade)

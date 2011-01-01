@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for xjl-coollog
+# prerm script for coollog
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-coollog/prerm
+        /usr/share/setup/coollog/prerm
     ;;
 
     failed-upgrade)

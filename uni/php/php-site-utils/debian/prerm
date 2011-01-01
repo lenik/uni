@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for xjl-coolphp
+# prerm script for php-site-utils
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-coolphp/prerm
+        /usr/share/setup/php-site-utils/prerm
     ;;
 
     failed-upgrade)

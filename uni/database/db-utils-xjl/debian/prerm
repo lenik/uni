@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for xjl-coolberkeley
+# prerm script for db-utils-xjl
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-coolberkeley/prerm
+        /usr/share/setup/db-utils-xjl/prerm
     ;;
 
     failed-upgrade)

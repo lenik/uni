@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for xjl-dejar
+# prerm script for dejar
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-dejar/prerm
+        /usr/share/setup/dejar/prerm
     ;;
 
     failed-upgrade)

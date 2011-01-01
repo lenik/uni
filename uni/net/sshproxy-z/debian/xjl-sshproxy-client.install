@@ -1,4 +1,4 @@
 /etc/init/sshproxy.conf
 /home/sshproxy/.ssh/id_rsa
-/usr/share/setup/xjl-sshproxy/postinst-client.sh
-/usr/share/setup/xjl-sshproxy/prerm-client.sh
+/usr/share/setup/sshproxy-z/postinst-client.sh
+/usr/share/setup/sshproxy-z/prerm-client.sh

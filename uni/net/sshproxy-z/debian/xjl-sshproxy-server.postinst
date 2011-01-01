@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for xjl-sshproxy
+# postinst script for sshproxy-z
 #
 # see: dh_installdeb(1)
 
@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-        /usr/share/setup/xjl-sshproxy/postinst-server.sh
+        /usr/share/setup/sshproxy-z/postinst-server.sh
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

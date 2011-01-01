@@ -9,5 +9,4 @@ dist_bin_SCRIPTS = \
     mount-vpart
 
 dist_man_MANS = \
-    symltrace.1 \
     mount-vpart.1

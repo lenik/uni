@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for xjl-treeutils
+# prerm script for 2tree
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-treeutils/prerm
+        /usr/share/setup/2tree/prerm
     ;;
 
     failed-upgrade)

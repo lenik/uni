@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for xjl-desktoputils
+# prerm script for desktoputils
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-desktoputils/prerm
+        /usr/share/setup/desktoputils/prerm
     ;;
 
     failed-upgrade)

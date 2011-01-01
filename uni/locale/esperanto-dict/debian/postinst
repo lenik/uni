@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for xjl-coolet
+# postinst script for esperanto-dict
 #
 # see: dh_installdeb(1)
 
@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-        /usr/share/setup/xjl-coolet/postinst
+        /usr/share/setup/esperanto-dict/postinst
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

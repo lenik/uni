@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for xjl-cooleclipse
+# prerm script for eclipse-enh
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-cooleclipse/prerm
+        /usr/share/setup/eclipse-enh/prerm
     ;;
 
     failed-upgrade)

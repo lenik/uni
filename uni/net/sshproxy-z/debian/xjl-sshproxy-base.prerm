@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for xjl-sshproxy
+# prerm script for sshproxy-z
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-sshproxy/prerm-base.sh
+        /usr/share/setup/sshproxy-z/prerm-base.sh
     ;;
 
     failed-upgrade)

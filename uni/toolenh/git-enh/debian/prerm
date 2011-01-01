@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for xjl-coolgit
+# prerm script for git-enh
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-coolgit/prerm
+        /usr/share/setup/git-enh/prerm
     ;;
 
     failed-upgrade)

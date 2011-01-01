@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for xjl-coolvbox
+# prerm script for virtualbox-enh
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-coolvbox/prerm
+        /usr/share/setup/virtualbox-enh/prerm
     ;;
 
     failed-upgrade)

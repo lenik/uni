@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for xjl-amisupport
+# postinst script for amiutils
 #
 # see: dh_installdeb(1)
 
@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-        /usr/share/setup/xjl-amisupport/postinst
+        /usr/share/setup/amiutils/postinst
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

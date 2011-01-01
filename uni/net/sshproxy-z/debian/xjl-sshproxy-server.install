@@ -1,3 +1,3 @@
 /home/sshproxy/.ssh/authorized_keys
-/usr/share/setup/xjl-sshproxy/postinst-server.sh
-/usr/share/setup/xjl-sshproxy/prerm-server.sh
+/usr/share/setup/sshproxy-z/postinst-server.sh
+/usr/share/setup/sshproxy-z/prerm-server.sh

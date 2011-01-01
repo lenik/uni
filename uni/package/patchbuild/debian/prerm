@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for xjl-patchbuild
+# prerm script for patchbuild
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/xjl-patchbuild/prerm
+        /usr/share/setup/patchbuild/prerm
     ;;
 
     failed-upgrade)
