@@ -1,0 +1,40 @@
+<VirtualHost *:80>
+    ServerName  svn.bodz.net
+    ServerAdmin admin@bodz.net
+
+    LogLevel  warn
+    ErrorLog  /var/log/apache2/svn_error.log
+    CustomLog /var/log/apache2/svn_access.log combined
+
+    Alias /repos-plugins/   /usr/share/repos-styles/repos-plugins/
+    Alias /repos-web/       /usr/share/repos-styles/repos-web/
+
+    <Directory "/usr/share/repos-styles/">
+        Options Indexes MultiViews FollowSymLinks
+        AllowOverride None
+    </Directory>
+
+    # SVN-Request won't work for rewrite rules.
+    # You must checkout from URL /svn/*.
+    RewriteEngine On
+
+    RewriteRule ^/binutils/(.*)     /svn/bodz/binutils/$1 [PT]
+    RewriteRule ^/com.lapiota/(.*)  /svn/bodz/com.lapiota/$1 [PT]
+    RewriteRule ^/core/(.*)         /svn/bodz/core/$1 [PT]
+    RewriteRule ^/freeutil/(.*)     /svn/bodz/freeutil/$1 [PT]
+    RewriteRule ^/jslib/(.*)        /svn/bodz/jslib/$1 [PT]
+    RewriteRule ^/profiles/(.*)     /svn/bodz/profiles/$1 [PT]
+    RewriteRule ^/uni/(.*)          /svn/bodz/uni/$1 [PT]
+
+    RewriteRule ^/jazz/(.*)         /svn/jazz/$1 [PT]
+    RewriteRule ^/sites/(.*)        /svn/sites/$1 [PT]
+    RewriteRule ^/times/(.*)        /svn/times/$1 [PT]
+    RewriteRule ^/usnap/(.*)        /svn/usnap/$1 [PT]
+
+    <Location /svn>
+        DAV svn
+        SVNParentPath /repos/svn
+        SVNIndexXSLT "/repos-web/view/z-repos.xsl"
+    </Location>
+
+</VirtualHost>

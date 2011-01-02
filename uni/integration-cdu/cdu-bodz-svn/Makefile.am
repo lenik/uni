@@ -2,11 +2,15 @@ include libauto/coolauto.am
 
 svnrootdir = /repos/svn
 sitesdir   = ${sysconfdir}/apache2/sites-available
+viewdir    = ${datadir}/repos-styles/repos-web/view
 
 svnroot_DATA =
 
-dist_sites_DATA = \
+sites_DATA = \
     bodz-svn.site
+
+dist_view_DATA = \
+    z-repos.xsl
 
 install-data-hook:
 	cd $(DESTDIR)$(svnrootdir); \
@@ -20,7 +24,9 @@ setup_SCRIPTS = \
 
 EXTRA_DIST = \
     postinst.in \
-    prerm.in
+    prerm.in \
+    bodz-svn.site.in
 
-CLEANFILES = ${setup_SCRIPTS}
+CLEANFILES = ${setup_SCRIPTS} \
+    bodz-svn.site
 
