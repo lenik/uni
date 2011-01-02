@@ -9,23 +9,22 @@
     DocumentRoot /none
 
     Alias /trac/ /mnt/bodzdev/trac/chrome/htdocs/common/
-
     #AliasMatch ^/projects/[^/]*/chrome/(.*)$ /mnt/bodzdev/trac/chrome/htdocs/common/$1
 
     RewriteEngine On
 
-    RewriteRule ^/binutils/(.*)     /projects/bodz/browser/binutils/$1 [PT]
-    RewriteRule ^/com.lapiota/(.*)  /projects/bodz/browser/com.lapiota/$1 [PT]
-    RewriteRule ^/core/(.*)         /projects/bodz/browser/core/$1 [PT]
-    RewriteRule ^/freeutil/(.*)     /projects/bodz/browser/freeutil/$1 [PT]
-    RewriteRule ^/jslib/(.*)        /projects/bodz/browser/jslib/$1 [PT]
-    RewriteRule ^/profiles/(.*)     /projects/bodz/browser/profiles/$1 [PT]
-    RewriteRule ^/uni/(.*)          /projects/bodz/browser/uni/$1 [PT]
+    RewriteRule ^/binutils/(.*)     /projects/bodz/browser/binutils/$1 [R]
+    RewriteRule ^/com.lapiota/(.*)  /projects/bodz/browser/com.lapiota/$1 [R]
+    RewriteRule ^/core/(.*)         /projects/bodz/browser/core/$1 [R]
+    RewriteRule ^/freeutil/(.*)     /projects/bodz/browser/freeutil/$1 [R]
+    RewriteRule ^/jslib/(.*)        /projects/bodz/browser/jslib/$1 [R]
+    RewriteRule ^/profiles/(.*)     /projects/bodz/browser/profiles/$1 [R]
+    RewriteRule ^/uni/(.*)          /projects/bodz/browser/uni/$1 [R]
 
-    RewriteRule ^/jazz/(.*)         /projects/jazz/browser/$1 [PT]
-    RewriteRule ^/sites/(.*)        /projects/sites/browser/$1 [PT]
-    RewriteRule ^/times/(.*)        /projects/times/browser/$1 [PT]
-    RewriteRule ^/usnap/(.*)        /projects/usnap/browser/$1 [PT]
+    RewriteRule ^/jazz/(.*)         /projects/jazz/browser/$1 [R]
+    RewriteRule ^/sites/(.*)        /projects/sites/browser/$1 [R]
+    RewriteRule ^/times/(.*)        /projects/times/browser/$1 [R]
+    RewriteRule ^/usnap/(.*)        /projects/usnap/browser/$1 [R]
 
     <Location /projects>
         SetHandler mod_python
