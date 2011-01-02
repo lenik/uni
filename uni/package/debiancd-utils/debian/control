@@ -5,8 +5,8 @@ Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
 Homepage: http://uni.bodz.net/package/debiancd-utils
-Vcs-SVN: http://svn.bodz.net/uni/trunk/package/debiancd-utils
-Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/package/debiancd-utils
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk/package/debiancd-utils
+Vcs-Browser: http://svn.bodz.net/uni/trunk/package/debiancd-utils
 
 Package: debiancd-utils
 Architecture: all
