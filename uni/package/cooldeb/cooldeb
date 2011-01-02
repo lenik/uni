@@ -1,2 +1,21 @@
+# vim: set filetype=sh:
+
 complete -F _dpatch_edit_patch depc
-complete -F _dpatch_edit_patch epc
+
+function _cd_debian_package() {
+
+    local cur
+    cur=`_get_cword`
+
+    if [ "$COMP_CWORD" = 1 ]; then
+        COMPREPLY=( $( eachdir -rlf debian/control \
+            | sed -e 's/\/$//' -e 's/.*\///' \
+            | grep "^$cur" \
+            ) )
+    else
+        COMPREPLY=()
+    fi
+
+    return 0
+}
+complete -F _cd_debian_package cd-debian-package TP
