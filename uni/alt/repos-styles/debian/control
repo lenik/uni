@@ -1,0 +1,20 @@
+Source: repos-styles
+Section: web
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: http://uni.bodz.net/alt/repos-styles
+Vcs-SVN: http://svn.bodz.net/uni/trunk/alt/repos-styles
+Vcs-Browser: http://trac.bodz.net/uni/trunk/alt/repos-styles
+
+Package: repos-styles
+Architecture: all
+Depends:
+Recommends: apache2, libapache2-svn
+Description: Open source stylesheet for Subversion's repository browser.
+    Fully customizable XSLT and CSS, with icons for different file types.
+    Install Repos Style as it is or use is as a sample xsl to design your own.
+    A simple log viewer is also included.
+    -
+    See http://reposstyle.com/
