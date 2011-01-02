@@ -11,4 +11,5 @@ Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/integration-cd
 Package: cdu-bodz-m2
 Architecture: all
 Depends: cdu-bodz-base
+Suggests: cdu-bodz-vol-dev
 Description: boDz M2 repository

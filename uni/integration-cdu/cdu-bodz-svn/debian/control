@@ -10,5 +10,6 @@ Vcs-Browser: http://trac.bodz.net/projects/bodz/browser/uni/trunk/integration-cd
 
 Package: cdu-bodz-svn
 Architecture: all
-Depends: apache2-enh, cdu-bodz-vol-dev
+Depends: apache2-enh
+Suggests: cdu-bodz-vol-dev
 Description: boDz SVN Service
