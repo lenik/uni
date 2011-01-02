@@ -17,6 +17,7 @@ dist_bin_SCRIPTS = \
     dh_package_field \
     dh_check_depends \
     vicontrol \
+    autofill-control \
     svn-update-and-deb-redist
 
 bin_SCRIPTS = \
