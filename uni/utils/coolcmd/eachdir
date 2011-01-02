@@ -3,8 +3,8 @@
     shopt -s nullglob
 
     RCSID='$Id$'
-    short_opts="arf:F:bI:lL:C:x:hqv"
-    long_opts="all,recursive,ifexist:,ifnotexist:,background,replace:,list,list-file:,chdir:,exclude:,help,quiet,verbose,version"
+    short_opts="arf:F:bI:ls:LC:x:hqv"
+    long_opts="all,recursive,ifexist:,ifnotexist:,background,replace:,list,follow-symlinks,srcfile:,chdir:,exclude:,help,quiet,verbose,version"
 
     LOGLEVEL=1
 
@@ -12,7 +12,8 @@
     background=
     chdir=
     list=
-    listfile=
+    followsym=
+    srcfile=
     exclude=
     replace="{}"
 
@@ -35,12 +36,13 @@ function help() {
     echo
     echo "Options: "
     echo "    -a, --all               Include hidden files"
+    echo "    -s, --srcfile=FILE      Read dirs from given file, instead of *"
+    echo "                              (If FILE is '-', then read from stdin.)"
     echo "    -r, --recursive         Find recursive"
     echo "    -f, --ifexist=FILE      Only dirs with FILE inside, can be multiple"
     echo "    -F, --ifnotexist=FILE   Only dirs without FILE inside, can be multiple"
     echo "    -l, --list              List only, don't execute command"
-    echo "    -L, --list-file=FILE    Read dirs from given file, instead of *"
-    echo "                              (If FILE is '-', then read from stdin.)"
+    echo "    -L, --follow-symlinks   Follow symbolic links"
     echo "    -C, --chdir=DIR         Chdir to DIR before enum dirs"
     echo "    -I, --replace=STR       Replace the occurence of STR to the dir path"
     echo "    -x, --exclude=PATTERN   Simple regex to exclude (NOT IMPL)"
@@ -65,8 +67,10 @@ function setopt() {
             background=1;;
         -l|--list)
             list=1;;
-        -L|--list-file)
-            listfile="$2";;
+        -L|--follow-symlinks)
+            followsym=1;;
+        -s|--srcfile)
+            srcfile="$2";;
         -C|--chdir)
             chdir="$2";;
         -I|--replace)
@@ -97,6 +101,7 @@ function search() {
     [ $((depth++)) -lt $maxdepth ] || return
 
     for d in "$start"*/; do
+        if [ -z "$followsym" ] && [ -L "$d" ]; then continue; fi
         fail=
         for f in "${incl[@]}"; do
             if [ ! -e "$d$f" ]; then
@@ -130,12 +135,12 @@ function main() {
         fi
     fi
 
-    if [ -z "$listfile" ]; then
-        doclean=1
-        listfile=/tmp/eachdir-$$-$RANDOM
-        search . 0 >$listfile
-    elif [ "$listfile" = '-' ]; then
-        listfile=/dev/stdin
+    if [ -z "$srcfile" ]; then
+        quit_clean=1
+        srcfile=/tmp/eachdir-$$-$RANDOM
+        search . 0 >$srcfile
+    elif [ "$srcfile" = '-' ]; then
+        srcfile=/dev/stdin
     fi
 
     while read dir; do
@@ -170,10 +175,10 @@ function main() {
         fi
 
         popd >/dev/null
-    done <$listfile
+    done <$srcfile
 
-    if [ "$doclean" = 1 ]; then
-        rm -f $listfile
+    if [ "$quit_clean" = 1 ]; then
+        rm -f $srcfile
     fi
 }
 
