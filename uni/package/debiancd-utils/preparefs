@@ -46,15 +46,19 @@ function setopt() {
 
 function main() {
     for image in "$@"; do
-        mnt="${image%.*}"
-        if [ "$mnt" = "$image" ]; then
-            mnt="$image..mnt"
-        fi
+        if [ -f "$image" ]; then
+            mnt="${image%.*}"
+            if [ "$mnt" = "$image" ]; then
+                mnt="$image..mnt"
+            fi
 
-        _log1 "Mount $image"
-        if ! mountfile $track "$image"; then
-            echo "Failed to mount. " >&2
-            exit 1
+            _log1 "Mount $image"
+            if ! mountfile $track "$image"; then
+                echo "Failed to mount. " >&2
+                exit 1
+            fi
+        else
+            mnt="$image"
         fi
 
         _log1 "Copy network config files"
