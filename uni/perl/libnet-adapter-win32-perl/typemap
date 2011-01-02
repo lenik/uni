@@ -1,0 +1,61 @@
+
+#############################################################################
+TYPEMAP
+
+DWORD                   T_UV
+UINT                    T_UV
+BOOL                    T_BOOL
+
+PIP_ADAPTER_INFO        T_ADAPTER
+PIP_ADDR_STRING         T_PIP_ADDR_STRING
+IP_ADDR_STRING          T_IP_ADDR_STRING
+
+char_MAX_ADAPTER_NAME_LENGTH_4          T_char_MAX_ADAPTER_NAME_LENGTH_4
+char_MAX_ADAPTER_DESCRIPTION_LENGTH_4   T_char_MAX_ADAPTER_DESCRIPTION_LENGTH_4
+BYTE_MAX_ADAPTER_ADDRESS_LENGTH         T_BYTE_MAX_ADAPTER_ADDRESS_LENGTH
+
+#############################################################################
+INPUT
+
+T_ADAPTER
+    if (sv_derived_from($arg, \"Net::Adapter\")) {
+        IV tmp = SvIV(SvRV($arg));
+        $var = INT2PTR($type, tmp);
+    } else
+        Perl_croak(aTHX_ \"$var is not of type Net::Adapter\")
+
+T_PIP_ADDR_STRING
+    $var = (PIP_ADDR_STRING) SVuv($arg)
+
+T_IP_ADDR_STRING
+    memcpy(&$var, SvPV_nolen($arg), sizeof(IP_ADDR_STRING))
+
+T_char_MAX_ADAPTER_NAME_LENGTH_4
+    $var = SvPV_nolen($arg)
+
+T_char_MAX_ADAPTER_DESCRIPTION_LENGTH_4
+    $var = SvPV_nolen($arg)
+
+T_BYTE_MAX_ADAPTER_ADDRESS_LENGTH
+    $var = SvPV_nolen($arg)
+
+#############################################################################
+OUTPUT
+
+T_ADAPTER
+    sv_setref_pv($arg, "Net::Adapter", (void *)$var);
+
+T_PIP_ADDR_STRING
+    $arg = newSVuv((UV) $var);
+
+T_IP_ADDR_STRING
+    $arg = newSVpv((const char *)&$var, sizeof(IP_ADDR_STRING));
+
+T_char_MAX_ADAPTER_NAME_LENGTH_4
+    $arg = newSVpv((const char *)$var, 0);
+
+T_char_MAX_ADAPTER_DESCRIPTION_LENGTH_4
+    $arg = newSVpv((const char *)$var, 0);
+
+T_BYTE_MAX_ADAPTER_ADDRESS_LENGTH
+    $arg = newSVpv((const char *)$var, MAX_ADAPTER_ADDRESS_LENGTH);
