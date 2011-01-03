@@ -1,7 +1,7 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-    vcs
+    vcscmd
 
 dist_aliases_DATA = \
     vcscmds.sh
@@ -19,3 +19,6 @@ CLEANFILES = ${setup_SCRIPTS}
 %: %.in Makefile
 	$(do_subst) <$< >$@
 	chmod -w "$@"
+
+install-data-hook:
+	ln -snf vcscmd $(DESTDIR)$(bindir)/vcs
