@@ -1,0 +1,12 @@
+#!/bin/bash
+
+d=`readlink -f .`
+rel="${d##*/bodz/uni/trunk/}"
+
+vcslines=`grep Vcs- debian/control | wc -l`
+lines=$((1 + vcslines))
+
+lineconf -l$lines debian/control Homepage: \
+    "Homepage: http://uni.bodz.net/$rel" \
+    "Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk/$rel" \
+    "Vcs-Browser: http://svn.bodz.net/uni/trunk/$rel"
