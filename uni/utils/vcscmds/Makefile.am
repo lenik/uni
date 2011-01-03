@@ -1,7 +1,7 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-    vcscmd
+    vcs
 
 dist_aliases_DATA = \
     vcscmds.sh
