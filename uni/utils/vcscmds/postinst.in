@@ -1,0 +1,4 @@
+#!/bin/sh
+# master-file
+
+echo "vcscmds - postinst.in ..."
