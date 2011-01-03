@@ -1,0 +1,146 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh 2255 2011-01-01 06:58:58Z lenik $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+
+    VCS_DEFAULT=git
+
+    VCS_bazaar=(bzr)
+       VCS_cvs=(cvs)
+       VCS_git=(git)
+ VCS_mercurial=(hg)
+       VCS_rcs=(rcs)
+       VCS_svn=(svn)
+
+    cmdline=("$@")
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Common VCS commands dispatcher"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION|VCS-OPTION] [--] CMD|VCS-CMD ARGS|VCS-ARGS"
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+    echo
+    echo "VCS-Command: "
+    echo "  system (sys)        Print the VCS system to use"
+    echo "  url [-r]            Print the URL (-r for root) which can be checked out"
+    echo "  commit+ (ci+)       Commit with minor version increased (autover)"
+    echo "  grep (egrep, fgrep, pgrep) GREP but excludes VCS dir"
+    echo "  ignore (ig)         Add files to ignore list"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for p in \
+            svn=.svn \
+            svn=_svn \
+            git=.git \
+            mercurial=.hg \
+            rcs=.rcs \
+            cvs=CVS \
+            ; do
+        sys=${p%%=*}
+        pred="${p#*=}"
+        if [ -d "$pred" ]; then
+            _log2 "Detected VCS system $sys"
+            VCS=$sys
+            break
+        fi
+    done
+
+    if [ -z "$VCS" ]; then
+        if [ -f ~/.vcs ]; then
+            VCS=`cat ~/.vcs`
+        else
+            VCS=$VCS_DEFAULT
+        fi
+    fi
+
+    _log2 "Using VCS: $VCS"
+
+    delegate=
+
+    cmd="$1"
+    shift
+
+    case "$cmd" in
+        sys|system)
+            echo "$VCS";;
+
+        url)
+            [ -z `type -t ${VCS}_url` ] && die "$VCS url isn't implemented. "
+            ${VCS}_url "$@"
+            ;;
+
+        ci+|commit+)
+            die "Not implemented. "
+            ;;
+
+        grep|egrep|fgrep|pgrep)
+            GREP=`uc -e ${1:0:1}`grep
+            _log2 "GREP program: $GREP"
+            die "Not implemented. "
+            ;;
+
+        ig|ignore)
+            [ -z `type -t ${VCS}_ignore` ] && die "$VCS ignore isn't implemented. "
+            ${VCS}_ignore "$@"
+            ;;
+        *)
+            delegate=1;;
+    esac
+    [ -z "$delegate" ] && return
+
+    VCScmd="VCS_${VCS}[0]"
+    VCS_CMD=${!VCScmd}
+
+    _log2 "Delegate to $VCS_CMD"
+    $VCS_CMD "${cmdline[@]}"
+}
+
+function svn_url() {
+    local m=URL k v
+    if [ "$1" = '-r' ]; then
+        m="Repository Root"
+        shift
+    fi
+    LANG=C svn info "$@" | while IFS=: read k v; do
+        while [ "${v:0:1}" = ' ' ]; do
+            v="${v# }"
+        done
+        if [ "$k" = "$m" ]; then
+            echo "$v"
+            return
+        fi
+    done
+    false
+}
+
+boot "$@"

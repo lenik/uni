@@ -1,5 +1,11 @@
 include libauto/coolauto.am
 
+dist_bin_SCRIPTS = \
+    vcscmd
+
+dist_aliases_DATA = \
+    vcscmds.sh
+
 setup_SCRIPTS = \
     postinst \
     prerm
