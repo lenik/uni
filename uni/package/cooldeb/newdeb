@@ -187,14 +187,14 @@ EOT
         _log2 "    Add special files under debian/ to VCS"
         vcscmd add-dir debian
 
-        _log2 "    Ignore debian/* by default. "
-        vcscmd ignore add debian '*'
-
         _log2 "    Add fundamental debian/ control files"
         vcscmd add debian/control
         vcscmd add debian/postinst
         vcscmd add debian/prerm
         vcscmd add debian/docs
+
+        _log2 "    Ignore debian/* by default. "
+        vcscmd ignore -l add debian '*'
 
         _log2 "    Commit the initial version"
         read -p "Commit now? "
