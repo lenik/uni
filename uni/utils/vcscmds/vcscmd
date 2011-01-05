@@ -146,8 +146,14 @@ function main() {
             ;;
 
         ig|ignore)
-            export -f $VCS-il $VCS-setil
-            vcscmd-ignore --read $VCS-il --write $VCS-setil "$@"
+            export -f $VCS-il       $VCS-setil
+            export -f $VCS-il-local $VCS-setil-local
+            vcscmd-ignore \
+                --read          $VCS-il \
+                --write         $VCS-setil \
+                --read-local    $VCS-il-local \
+                --write-local   $VCS-setil-local \
+                "$@"
             ;;
 
         rst)    delegate=1; cmd=restore;;
@@ -189,13 +195,24 @@ function main() {
         _log2 "git add-dir do nothing. "
     }
 
+    git_stage_il=1
+
+    function git-il-local() {
+        local d="$1"
+        [ -z "$d" ] && die "Dirname is an empty string. "
+        [ -f "$d/.gitignore" ] && cat "$d/.gitignore"
+    }
+
+    function git-setil-local() {
+        local d="$1"
+        cat >"$d/.gitignore"
+        [ -n "$git_stage_il" ] && git add "$d/.gitignore"
+    }
+
     function git-il() {
         local d="$1"
         [ -z "$d" ] && die "Not a Git checkout. "
-
-        if [ -f "$d/.gitignore" ]; then
-            cat "$d/.gitignore"
-        fi
+        [ -f "$d/.gitignore" ] && cat "$d/.gitignore"
 
         if [ ! -d "$d/.git" ]; then
             [ "${d:0:1}" = '/' ] || d=`readlink -f "$d"`
@@ -203,7 +220,6 @@ function main() {
         fi
     }
 
-    git_stage_il=
     function git-setil() {
         local d="$1"
         local start="$2"
@@ -225,6 +241,12 @@ function main() {
             [ "${d:0:1}" = '/' ] || d=`readlink -f "$d"`
             git-setil "${d%/*}" "$start"
         fi
+    }
+
+    function git-setil-local() {
+        local d="$1"
+        cat >"$d/.gitignore"
+        [ -n "$git_stage_il" ] && git add "$d/.gitignore"
     }
 
     function git-cobr() {
@@ -297,10 +319,12 @@ function main() {
         grep -r --exclude-dir .svn --color=auto "$@" .
     }
 
+    function svn-il-local() { svn-il "$@"; }
     function svn-il() {
         svn propget svn:ignore "$1"
     }
 
+    function svn-setil-local() { svn-setil "$@"; }
     function svn-setil() {
         grep -v '^$' | svn propset svn:ignore -F - "$1"
     }

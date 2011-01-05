@@ -3,10 +3,12 @@
 
     RCSID='$Id: bash.sh 2255 2011-01-01 06:58:58Z lenik $'
     short_opts="lhqv"
-    long_opts="local,read:,write:,help,quiet,verbose,version"
+    long_opts="local,read:,write:,read-local:,write-local:,help,quiet,verbose,version"
 
     READ=vcscmd-il
     WRITE=vcscmd-setil
+    READ_LOCAL=
+    WRITE_LOCAL=
 
     cmd=
     dirpath=
@@ -65,8 +67,10 @@ function help() {
     echo "    set-grep      Filter the ignore list by grep"
     echo
     echo "Options: "
-    echo "    --read=CMD        Command to read the ignore list, default vcscmd-il"
+    echo "    --read=CMD        Command to read ignore list, default vcscmd-il"
+    echo "    --read-local=CMD  Command to read local ignore list, default vcscmd-il"
     echo "    --write=CMD       Command to write ignore list, default vcscmd-setil"
+    echo "    --write-local=CMD Command to write local ignore list, default vcscmd-setil"
     echo "    -l, --local       Modify at local directory only, never touch the inherited ones"
     echo "    -q, --quiet       Repeat to get less info"
     echo "    -v, --verbose     Repeat to get more info"
@@ -82,8 +86,12 @@ function setopt() {
             il_local=1;;
         --read)
             READ="$2";;
+        --read-local)
+            READ_LOCAL="$2";;
         --write)
             WRITE="$2";;
+        --write-local)
+            WRITE_LOCAL="$2";;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -101,6 +109,13 @@ function main() {
     [ $# = 0 ] && die "No command specified. "
     cmd="$1"
     shift
+
+    [ -z "$READ_LOCAL" ] && READ_LOCAL="$READ"
+    [ -z "$WRITE_LOCAL" ] && WRITE_LOCAL="$WRITE"
+    if [ "$il_local" = 1 ]; then
+        READ="$READ_LOCAL"
+        WRITE="$WRITE_LOCAL"
+    fi
 
     if [ $# = 0 ]; then
         dirpath=.
