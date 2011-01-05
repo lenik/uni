@@ -42,6 +42,8 @@ function help() {
     echo "  grep (egrep, fgrep, pgrep) GREP but excludes VCS dir"
     echo "  ignore (ig)             Manipulate ignore list"
     echo "  restore (rst)           Revert any change in working copy"
+    echo "  slist                   List file status in a canonical way"
+    echo "  slupdate                Update and list the file status along"
     echo "  system (sys)            Print the VCS system to use"
     echo "  unadd                   Remove files from the commit-index"
     echo "  url [-r]                Print the URL (-r for root) which can be checked out"
@@ -240,6 +242,31 @@ function main() {
         git reset HEAD "$@"
     }
 
+    function git-slist() {
+        git status -s | while IFS='|' read line; do
+            index_st="${line:0:1}"
+            wcopy_st="${line:1:1}"
+            path="${line:3}"
+            index_st="${index_st/ }"
+            wcopy_st="${wcopy_st/ }"
+            echo "$index_st$wcopy_st $path"
+        done
+    }
+
+    function git-update() {
+        git pull
+    }
+
+    function git-slupdate() {
+        git-update 2>&1 \
+            | grep '|' \
+            | while IFS='|' read a b; do
+                a="${a% }"
+                a="${a# }"
+                echo "M $a"
+            done
+    }
+
 
 # SVN Implementation
 # ------------------
@@ -293,6 +320,26 @@ function main() {
                 svn revert --depth infinity "$f"
             fi
         done
+    }
+
+    function svn-slnorm() {
+        while IFS='|' read line; do
+            file_st="${line:0:1}"
+            prop_st="${line:1:1}"
+            path="${line:8}"
+            file_st="${file_st/ }"
+            prop_st="${prop_st/ }"
+            echo "$file_st$prop_st $path"
+        done
+    }
+
+    function svn-slist() {
+        # ACDIMRX?!~  Property:CM L HistoryCopy:+ Switch/Ext:SX Lock:KOTB Conflict:C
+        svn status | svn-slnorm
+    }
+
+    function svn-slupdate() {
+        svn update | svn-slnorm
     }
 
 
