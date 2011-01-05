@@ -10,7 +10,7 @@ alias newaps='newdeb -aps'
 
 alias dcon='vicontrol'
 
-alias updist='svn-update-and-deb-redist'
+alias updist='update-and-deb-redist'
 
 alias depc='dpatch-edit-patch -c'
 
