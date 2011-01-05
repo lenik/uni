@@ -1,0 +1,203 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh 2255 2011-01-01 06:58:58Z lenik $'
+    short_opts="lhqv"
+    long_opts="local,read:,write:,help,quiet,verbose,version"
+
+    READ=vcscmd-il
+    WRITE=vcscmd-setil
+
+    cmd=
+    dirpath=
+    il_local=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Manipulate ignore list"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    case "$1" in
+    add)
+        echo "Add to items to ignore list"
+        ;;
+
+    remove)
+        echo "Remove items from ignore list"
+        ;;
+
+    edit)
+        echo "Edit the ignore list by user preferred EDITOR"
+        ;;
+
+    list)
+        echo "Show the ignore list"
+        ;;
+
+    grep)
+        echo "Select from ignore list by grep"
+        ;;
+
+    set)
+        echo "Set the ignore list to the given items"
+        ;;
+
+    set-grep)
+        echo "Filter the ignore list by grep"
+        ;;
+    *)
+
+    version
+    echo
+    echo "Syntax: "
+    echo "    ${0##*/} [OPTION] [--] CMD DIR IGNORE-ITEMS"
+    echo "    ${0##*/} [OPTION] [--] grep DIR <GREP-OPTIONS>"
+    echo
+    echo "Commands: "
+    echo "    add           Add to items to ignore list"
+    echo "    remove        Remove items from ignore list"
+    echo "    edit          Edit the ignore list by user preferred EDITOR"
+    echo "    list          Show the ignore list"
+    echo "    grep          Select from ignore list by grep"
+    echo "    set           Set the ignore list to the given items"
+    echo "    set-grep      Filter the ignore list by grep"
+    echo
+    echo "Options: "
+    echo "    --read=CMD        Command to read the ignore list, default vcscmd-il"
+    echo "    --write=CMD       Command to write ignore list, default vcscmd-setil"
+    echo "    -l, --local       Modify at local directory only, never touch the inherited ones"
+    echo "    -q, --quiet       Repeat to get less info"
+    echo "    -v, --verbose     Repeat to get more info"
+    echo "    -h, --help        Show this help page"
+    echo "        --version     Print the version info"
+
+    esac
+}
+
+function setopt() {
+    case "$1" in
+        -l|--local)
+            il_local=1;;
+        --read)
+            READ="$2";;
+        --write)
+            WRITE="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    [ $# = 0 ] && die "No command specified. "
+    cmd="$1"
+    shift
+
+    if [ $# = 0 ]; then
+        dirpath=.
+    else
+        dirpath="$1"
+        shift
+    fi
+
+    il-$cmd "$@"
+}
+
+function commit() {
+    local tmpf="$1"
+    local tmpedit="$2"
+    if cmp -s $tmpf $tmpedit; then
+        _log1 "No changes to the ignore list"
+    else
+        _log1 "Update the ignore list"
+        $WRITE "$dirpath" <$tmpedit
+    fi
+    rm -f $tmpf $tmpedit
+}
+
+function il-help() {
+    help
+}
+
+function il-version() {
+    version
+}
+
+function il-add() {
+    tmpf=`tempfile`
+    tmpedit=`tempfile`
+    $READ "$dirpath" >$tmpf
+    cat $tmpf >$tmpedit
+    for a in "$@"; do
+        exist=
+        while IFS='|' read line; do
+            if [ "$line" = "$a" ]; then
+                exist=1
+                break
+            fi
+        done <$tmpf
+        [ -z "$exist" ] && echo "$a"
+    done >>$tmpedit
+    commit $tmpf $tmpedit
+}
+
+function il-remove() {
+    tmpf=`tempfile`
+    tmpedit=`tempfile`
+    $READ "$dirpath" >$tmpf
+    while IFS='|' read line; do
+        remove=
+        for a in "$@"; do
+            if [ "$line" = "$a" ]; then
+                remove=1
+                break
+            fi
+        done
+        [ -z "$remove" ] && echo "$line" >>$tmpedit
+    done <$tmpf
+    commit $tmpf $tmpedit
+}
+
+function il-edit() {
+    if [ -z "$EDITOR" ]; then
+        EDITOR=vim
+        [ -x /usr/bin/editor ] && EDITOR=/usr/bin/editor
+    fi
+
+    tmpf=`tempfile`
+    tmpedit=`tempfile`
+    $READ "$dirpath" >$tmpf
+    cp $tmpf $tmpedit
+    $EDITOR $tmpedit
+    commit $tmpf $tmpedit
+}
+
+function il-list() {
+    $READ "$dirpath" "$@"
+}
+
+function il-grep() {
+    $READ "$dirpath" | grep "$@"
+}
+
+function il-set() {
+    echoln "$@" | $WRITE "$dirpath"
+}
+
+function il-set-grep() {
+    tmpf=`tempfile`
+    $READ "$dirpath" | grep "$@" >$tmpf
+    $WRITE "$dirpath" <$tmpf
+    rm -f $tmpf
+}
+
+boot "$@"

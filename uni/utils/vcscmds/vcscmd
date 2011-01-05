@@ -6,6 +6,7 @@
     long_opts="help,quiet,verbose,version"
 
     VCS_DEFAULT=git
+      VCS_PROBE=
 
     VCS_bazaar=(bzr)
        VCS_cvs=(cvs)
@@ -35,11 +36,13 @@ function help() {
     echo "        --version           Print the version info"
     echo
     echo "VCS-Command: "
-    echo "  system (sys)        Print the VCS system to use"
-    echo "  url [-r]            Print the URL (-r for root) which can be checked out"
-    echo "  commit+ (ci+)       Commit with minor version increased (autover)"
+    echo "  add-dir                 Add a directory without its contents"
+    echo "  checkout-branch(cobr)   Create a branch if it's not existed, and switch to it"
+    echo "  commit+ (ci+)           Commit with minor version increased (autover)"
     echo "  grep (egrep, fgrep, pgrep) GREP but excludes VCS dir"
-    echo "  ignore (ig)         Add files to ignore list"
+    echo "  ignore (ig)             Manipulate ignore list"
+    echo "  system (sys)            Print the VCS system to use"
+    echo "  url [-r]                Print the URL (-r for root) which can be checked out"
 }
 
 function setopt() {
@@ -70,12 +73,16 @@ function main() {
         pred="${p#*=}"
         if [ -d "$pred" ]; then
             _log2 "Detected VCS system $sys"
-            VCS=$sys
+            VCS_PROBE=$sys
             break
         fi
     done
 
-    if [ -z "$VCS" ]; then
+    [ -z "$VCS_PROBE" ] && git-probe `readlink -f .`
+
+    if [ -n "$VCS_PROBE" ]; then
+        VCS=$VCS_PROBE
+    else
         if [ -f ~/.vcs ]; then
             VCS=`cat ~/.vcs`
         else
@@ -92,11 +99,28 @@ function main() {
 
     case "$cmd" in
         sys|system)
-            echo "$VCS";;
+            if [ -n "$VCS_PROBE" ]; then
+                echo "$VCS_PROBE"
+            else
+                if [ "$1" = "-f" ]; then
+                    if [ -n "$2" ]; then
+                        echo "$2"
+                    else
+                        echo "$VCS"
+                    fi
+                else
+                    exit 1
+                fi
+            fi
+            ;;
 
         url)
-            [ -z `type -t ${VCS}_url` ] && die "$VCS url isn't implemented. "
-            ${VCS}_url "$@"
+            [ -z `type -t ${VCS}-url` ] && die "$VCS url isn't implemented. "
+            ${VCS}-url "$@"
+            ;;
+
+        cobr|checkout-branch)
+            ${VCS}-cobr "$@"
             ;;
 
         ci+|commit+)
@@ -104,15 +128,29 @@ function main() {
             ;;
 
         grep|egrep|fgrep|pgrep)
-            GREP=`uc -e ${1:0:1}`grep
-            _log2 "GREP program: $GREP"
-            die "Not implemented. "
+            GREPOPTS=(-`uc -e ${cmd:0:1}`)
+            if [ -z `type -t ${VCS}-grep` ]; then
+                cmdline=(grep "${GREPOPTS[@]}" "$@")
+                delegate=1
+            else
+                ${VCS}-grep "${GREPOPTS[@]}" "$@"
+            fi
+            ;;
+
+        add-dir)
+            if [ -z `type -t ${VCS}-add-dir` ]; then
+                cmdline=(add "$@")
+                delegate=1
+            else
+                ${VCS}-add-dir "$@"
+            fi
             ;;
 
         ig|ignore)
-            [ -z `type -t ${VCS}_ignore` ] && die "$VCS ignore isn't implemented. "
-            ${VCS}_ignore "$@"
+            export -f ${VCS}-il ${VCS}-setil
+            vcscmd-ignore --read ${VCS}-il --write ${VCS}-setil "$@"
             ;;
+
         *)
             delegate=1;;
     esac
@@ -121,26 +159,114 @@ function main() {
     VCScmd="VCS_${VCS}[0]"
     VCS_CMD=${!VCScmd}
 
-    _log2 "Delegate to $VCS_CMD"
+    _log2 "Delegate to $VCS_CMD ${cmdline[@]}"
     $VCS_CMD "${cmdline[@]}"
 }
 
-function svn_url() {
-    local m=URL k v
-    if [ "$1" = '-r' ]; then
-        m="Repository Root"
-        shift
-    fi
-    LANG=C svn info "$@" | while IFS=: read k v; do
-        while [ "${v:0:1}" = ' ' ]; do
-            v="${v# }"
-        done
-        if [ "$k" = "$m" ]; then
-            echo "$v"
+
+# Git Implementation
+# ------------------
+
+    function git-probe() {
+        local d="$1"
+        [ -z "$d" ] && return 1
+        if [ -d "$d/.git" ]; then
+            VCS_PROBE=git
+            git_root="$d"
+            return 0
+        fi
+        git-probe "${d%/*}"
+    }
+
+    function git-add-dir() {
+        _log2 "git add-dir do nothing. "
+    }
+
+    function git-il() {
+        local d="$1"
+        [ -z "$d" ] && die "Not a Git checkout. "
+
+        if [ -f "$d/.gitignore" ]; then
+            cat "$d/.gitignore"
+        fi
+
+        if [ ! -d "$d/.git" ]; then
+            [ "${d:0:1}" = '/' ] || d=`readlink -f "$d"`
+            git-il "${d%/*}"
+        fi
+    }
+
+    git_stage_il=
+    function git-setil() {
+        local d="$1"
+        local start="$2"
+        [ -z "$d" ] && die "Not a Git checkout. "
+        [ -z "$start" ] && start="$d"
+
+        if [ -f "$d/.gitignore" ]; then
+            cat >"$d/.gitignore"
+            [ -n "$git_stage_il" ] && git add "$d/.gitignore"
             return
         fi
-    done
-    false
-}
+
+        if [ -d "$d/.git" ]; then
+            _log2 "No .gitignore found in the path ancestors. "
+            _log2 "Create a new one in the start point"
+            cat >"$start/.gitignore"
+            [ -n "$git_stage_il" ] && git add "$start/.gitignore"
+        else
+            [ "${d:0:1}" = '/' ] || d=`readlink -f "$d"`
+            git-setil "${d%/*}" "$start"
+        fi
+    }
+
+    function git-cobr() {
+        local name="$1"
+        shift
+        git branch "$name"
+        git checkout "$name" "$@"
+    }
+
+
+# SVN Implementation
+# ------------------
+
+    function svn-url() {
+        local m=URL k v
+        if [ "$1" = '-r' ]; then
+            m="Repository Root"
+            shift
+        fi
+        LANG=C svn info "$@" | while IFS=: read k v; do
+            while [ "${v:0:1}" = ' ' ]; do
+                v="${v# }"
+            done
+            if [ "$k" = "$m" ]; then
+                echo "$v"
+                return
+            fi
+        done
+        false
+    }
+
+    function svn-add-dir() {
+        svn add --depth empty "$@"
+    }
+
+    function svn-grep() {
+        grep -r --exclude-dir .svn --color=auto "$@" .
+    }
+
+    function svn-il() {
+        svn propget svn:ignore "$1"
+    }
+
+    function svn-setil() {
+        grep -v '^$' | svn propset svn:ignore -F - "$1"
+    }
+
+    function svn-cobr() {
+        die "SVN-cobr isn't implemented, yet. "
+    }
 
 boot "$@"
