@@ -34,6 +34,10 @@ function help() {
         echo "Edit the ignore list by user preferred EDITOR"
         ;;
 
+    contains)
+        echo "Test if all the given items are existed in ignore list"
+        ;;
+
     list)
         echo "Show the ignore list"
         ;;
@@ -61,6 +65,7 @@ function help() {
     echo "    add           Add to items to ignore list"
     echo "    remove        Remove items from ignore list"
     echo "    edit          Edit the ignore list by user preferred EDITOR"
+    echo "    contains      Test if all the given items are existed in ignore list"
     echo "    list          Show the ignore list"
     echo "    grep          Select from ignore list by grep"
     echo "    set           Set the ignore list to the given items"
@@ -194,6 +199,23 @@ function il-edit() {
     cp $tmpf $tmpedit
     $EDITOR $tmpedit
     commit $tmpf $tmpedit
+}
+
+function il-contains() {
+    tmpf=`tempfile`
+    $READ "$dirpath" >$tmpf
+    while IFS='|' read line; do
+        exists=
+        for a in "$@"; do
+            if [ "$line" = "$a" ]; then
+                exists=1
+                break
+            fi
+        done
+        [ -z "$exists" ] && return 1
+    done <$tmpf
+    rm -f $tmpf
+    return 0
 }
 
 function il-list() {
