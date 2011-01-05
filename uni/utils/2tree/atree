@@ -101,31 +101,31 @@ function main() {
                     fi
                     echo "${line:$align}"
                 done
-                ) | list2tree "${treeopts[@]}"
+                ) | 2tree "${treeopts[@]}"
             ;;
 
         Debian)
             dpkg --contents "$ar" \
                 | awk '{ $1=$2=$3=$4=$5=""; $0=substr($0, 6)}1' \
-                | list2tree "${treeopts[@]}"
+                | 2tree "${treeopts[@]}"
             ;;
 
         RAR)
             rar vb "$ar" \
-                | list2tree "${treeopts[@]}"
+                | 2tree "${treeopts[@]}"
             ;;
 
         Tar)
             tar atvf "$ar" \
                 | awk '{ $1=$2=$3=$4=$5=""; $0=substr($0, 6)}1' \
-                | list2tree "${treeopts[@]}"
+                | 2tree "${treeopts[@]}"
             ;;
 
         Zip)
             # There is encoding problem... hmm.. unzip -l -UU?
             unzip -l "$ar" \
                 | awk '{ $1=$2=$3=""; $0=substr($0, 4) }1' \
-                | list2tree "${treeopts[@]}"
+                | 2tree "${treeopts[@]}"
             ;;
         *)
             echo "Unknown type: $_type"

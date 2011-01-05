@@ -4,7 +4,7 @@ SUBDIRS = test
 
 dist_bin_SCRIPTS = \
     atree \
-    list2tree
+    2tree
 
 setup_SCRIPTS = \
     postinst \

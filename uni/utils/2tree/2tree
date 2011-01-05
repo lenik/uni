@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-list2tree - Convert a file list to tree
+2tree - Convert a file list to tree
 
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
-    $LOGNAME    = 'list2tree'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+    $LOGNAME    = '2tree'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::path('path_split');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id: perl.pl 2141 2010-12-13 06:15:26Z lenik $');
@@ -42,7 +42,7 @@ sub _boot {
 
 =head1 SYNOPSIS
 
-B<list2tree>
+B<2tree>
     S<[ B<-q> | B<--quiet> ]>
     S<[ B<-v> | B<--verbose> ]>
     S<[ B<-h> | B<--help> ]>
@@ -52,11 +52,11 @@ B<list2tree>
 
 =head1 DESCRIPTION
 
-B<list2tree> is a WHAT used for WHAT. It HOW-WORKS.
+B<2tree> is a WHAT used for WHAT. It HOW-WORKS.
 
 BACKGROUND-PROBLEM.
 
-HOW-list2tree-RESOLVES.
+HOW-2tree-RESOLVES.
 
 =head1 OPTIONS
 
@@ -90,7 +90,7 @@ Display a short version information and exit(0).
 
 =item Show help
 
-    list2tree --help
+    2tree --help
 
 =back
 
