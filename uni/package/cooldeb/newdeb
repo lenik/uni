@@ -12,6 +12,8 @@
     versioned=
     force=
 
+    stashed=
+
 function version() {
     parse_id "$RCSID"
     echo "[$BASENAME] Create new (original) Debian package"
@@ -59,6 +61,9 @@ function setopt() {
 }
 
 function main() {
+
+    trap exit_clean EXIT
+
     [ -z "$1" ] && die "PACKAGE-NAME isn't specified. "
     [ -n "${1//[0-9a-zA-Z\-_]}" ] && die "Invalid package name: $1"
 
@@ -75,6 +80,11 @@ function main() {
         if ! vcscmd sys; then
             echo "Current directory isn't versioned. "
             exit 1
+        fi
+
+        if vcscmd stash 2>/dev/null; then
+            _log2 "Stashed away current changes"
+            stashed=1
         fi
 
         vcscmd add $name
@@ -197,6 +207,13 @@ EOT
         _log1 "Initial build with autotools"
         autoreconf2 -is
         makelook
+    fi
+}
+
+function exit_clean() {
+    if [ "$stashed" = 1 ]; then
+        _log2 "Restore stash"
+        vcscmd stash pop
     fi
 }
 
