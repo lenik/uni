@@ -71,13 +71,14 @@ function main() {
     mkdir $name || die "Failed to create $name/"
 
     if [ "$versioned" = 1 ]; then
-        if ! svn info >/dev/null 2>&1; then
+        _log1 "Checking version system used..."
+        if ! vcscmd sys; then
             echo "Current directory isn't versioned. "
             exit 1
         fi
 
-        svn add $name
-        svn ps svn:ignore '*.gz' $name
+        vcscmd add $name
+        vcscmd ignore add $name '*.gz'
     fi
 
     _log2 "Enter $name/"
@@ -177,7 +178,7 @@ EOT
         svn add --depth empty debian
 
         _log2 "    Ignore debian/* by default. "
-        svn ps svn:ignore '*' debian
+        vcscmd ignore add debian '*'
 
         _log2 "    Add fundamental debian/ control files"
         svn add debian/control
