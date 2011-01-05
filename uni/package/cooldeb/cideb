@@ -5,20 +5,21 @@ if [ ! -f VERSION.av ]; then
     exit 1
 fi
 
-if svn-isclean; then
+if [ `vcscmd slist | wc -l` = 0 ]; then
     echo "already updated"
     exit 0
 fi
 
-if svn st VERSION.av | grep -q '^M'; then
+if vcscmd slist VERSION.av | grep -q '^M'; then
     echo "Version is already increased. "
 else
-    if svn st | grep -q '^[AD]'; then
+    if vcscmd slist | grep -q '^[AD]'; then
         echo "Detected minor-level changes"
         vercomp -i minor >/dev/null
     else
         vercomp -i commit >/dev/null
     fi
+    vcscmd add VERSION.av 2>/dev/null
 fi
 
 [ -f configure.ac ] && autover
@@ -38,7 +39,6 @@ if [ "$1" != "-b" ]; then
         exit 1
     fi
 
-    SVN=`which svn`
-    $SVN ci
+    vcscmd commit
 fi
 
