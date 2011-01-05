@@ -41,7 +41,9 @@ function help() {
     echo "  commit+ (ci+)           Commit with minor version increased (autover)"
     echo "  grep (egrep, fgrep, pgrep) GREP but excludes VCS dir"
     echo "  ignore (ig)             Manipulate ignore list"
+    echo "  restore (rst)           Revert any change in working copy"
     echo "  system (sys)            Print the VCS system to use"
+    echo "  unadd                   Remove files from the commit-index"
     echo "  url [-r]                Print the URL (-r for root) which can be checked out"
 }
 
@@ -114,13 +116,8 @@ function main() {
             fi
             ;;
 
-        url)
-            [ -z `type -t ${VCS}-url` ] && die "$VCS url isn't implemented. "
-            ${VCS}-url "$@"
-            ;;
-
         cobr|checkout-branch)
-            ${VCS}-cobr "$@"
+            $VCS-cobr "$@"
             ;;
 
         ci+|commit+)
@@ -129,38 +126,46 @@ function main() {
 
         grep|egrep|fgrep|pgrep)
             GREPOPTS=(-`uc -e ${cmd:0:1}`)
-            if [ -z `type -t ${VCS}-grep` ]; then
+            if [ -z `type -t $VCS-grep` ]; then
                 cmdline=(grep "${GREPOPTS[@]}" "$@")
                 delegate=1
             else
-                ${VCS}-grep "${GREPOPTS[@]}" "$@"
+                $VCS-grep "${GREPOPTS[@]}" "$@"
             fi
             ;;
 
         add-dir)
-            if [ -z `type -t ${VCS}-add-dir` ]; then
+            if [ -z `type -t $VCS-add-dir` ]; then
                 cmdline=(add "$@")
                 delegate=1
             else
-                ${VCS}-add-dir "$@"
+                $VCS-add-dir "$@"
             fi
             ;;
 
         ig|ignore)
-            export -f ${VCS}-il ${VCS}-setil
-            vcscmd-ignore --read ${VCS}-il --write ${VCS}-setil "$@"
+            export -f $VCS-il $VCS-setil
+            vcscmd-ignore --read $VCS-il --write $VCS-setil "$@"
             ;;
+
+        rst)    delegate=1; cmd=restore;;
 
         *)
             delegate=1;;
     esac
     [ -z "$delegate" ] && return
 
-    VCScmd="VCS_${VCS}[0]"
-    VCS_CMD=${!VCScmd}
+    if [ "`type -t $VCS-$cmd`" = 'function' ]; then
 
-    _log2 "Delegate to $VCS_CMD ${cmdline[@]}"
-    $VCS_CMD "${cmdline[@]}"
+        $VCS-$cmd "$@"
+
+    else
+        VCScmd="VCS_${VCS}[0]"
+        VCS_CMD=${!VCScmd}
+
+        _log2 "Delegate to $VCS_CMD ${cmdline[@]}"
+        $VCS_CMD "${cmdline[@]}"
+    fi
 }
 
 
@@ -227,6 +232,14 @@ function main() {
         git checkout "$name" "$@"
     }
 
+    function git-restore() {
+        git checkout "$@"
+    }
+
+    function git-unadd() {
+        git reset HEAD "$@"
+    }
+
 
 # SVN Implementation
 # ------------------
@@ -268,5 +281,19 @@ function main() {
     function svn-cobr() {
         die "SVN-cobr isn't implemented, yet. "
     }
+
+    function svn-restore() {
+        svn revert "$@"
+    }
+
+    function svn-unadd() {
+        for f in "$@"; do
+            read icon path <  <(svn st "$f")
+            if [ "$icon" = 'A' ]; then
+                svn revert --depth infinity "$f"
+            fi
+        done
+    }
+
 
 boot "$@"
