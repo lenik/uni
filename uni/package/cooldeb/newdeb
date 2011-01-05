@@ -3,7 +3,7 @@
 
     RCSID='$Id$'
     short_opts="apsfhqv"
-    long_opts="autotools,prepost,svn,force,help,quiet,verbose,version"
+    long_opts="autotools,prepost,scm,force,help,quiet,verbose,version"
 
     import overrides
 
@@ -27,7 +27,7 @@ function help() {
     echo "Options: "
     echo "    -a, --autotools         by means of autotools"
     echo "    -p, --prepost           with post-install/pre-remove support"
-    echo "    -s, --svn               do initial commit with svn"
+    echo "    -s, --scm               do initial commit with SCM/VCS"
     echo "    -f, --force             force to overwrite existing dir"
     echo "    -q, --quiet             repeat to get less info"
     echo "    -v, --verbose           repeat to get more info"
@@ -41,7 +41,7 @@ function setopt() {
             autotools=1;;
         -p|--prepost)
             prepost=1;;
-        -s|--svn)
+        -s|--scm)
             versioned=1;;
         -f|--force)
             force=1;;
@@ -125,7 +125,7 @@ EOT
 
     if [ "$versioned" = 1 ]; then
         _log1 "Add the fundamental files to VCS"
-        svn add *
+        vcscmd add *
     fi
 
     _log1 "Invoke dh_make with dirname renamed to -ver (temporary)"
@@ -175,19 +175,22 @@ EOT
         _log1 "Prepare to commit debian/"
 
         _log2 "    Add special files under debian/ to VCS"
-        svn add --depth empty debian
+        vcscmd add-dir debian
 
         _log2 "    Ignore debian/* by default. "
         vcscmd ignore add debian '*'
 
         _log2 "    Add fundamental debian/ control files"
-        svn add debian/control
-        svn add debian/postinst
-        svn add debian/prerm
-        svn add debian/docs
+        vcscmd add debian/control
+        vcscmd add debian/postinst
+        vcscmd add debian/prerm
+        vcscmd add debian/docs
 
         _log2 "    Commit the initial version"
-        svn ci -m "$name package created by newdeb"
+        read -p "Commit now? "
+        if [ "$REPLY" = y ]; then
+            vcscmd commit -m "$name package created by newdeb"
+        fi
     fi
 
     if [ "$autotools" = 1 ]; then
