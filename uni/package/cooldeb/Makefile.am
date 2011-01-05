@@ -18,7 +18,7 @@ dist_bin_SCRIPTS = \
     dh_check_depends \
     vicontrol \
     autofill-control \
-    svn-update-and-deb-redist
+    update-and-deb-redist
 
 bin_SCRIPTS = \
     dh_add_missing
