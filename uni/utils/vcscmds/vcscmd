@@ -41,7 +41,9 @@ function help() {
     echo "  commit+ (ci+)           Commit with minor version increased (autover)"
     echo "  grep (egrep, fgrep, pgrep) GREP but excludes VCS dir"
     echo "  ignore (ig)             Manipulate ignore list"
+    echo "  localname               Show the relative pathname to the repository"
     echo "  restore (rst)           Revert any change in working copy"
+    echo "  rootpath                Show the root path of the checked out working copy"
     echo "  slist                   List file status in a canonical way"
     echo "  slupdate                Update and list the file status along"
     echo "  system (sys)            Print the VCS system to use"
@@ -180,6 +182,37 @@ function main() {
 # Git Implementation
 # ------------------
 
+    function git-url() {
+        read _fetch _url url \
+            < <(LANG=C git remote show origin | grep "Fetch URL:")
+        echo "$url"
+    }
+
+    function git-rootpath() {
+        local d="$1"
+        [ -z "$d" ] && d=.
+        d=`readlink -f "$d"`
+        while [ -n "$d" ]; do
+            if [ -d "$d/.git" ]; then
+                echo "$d"
+                return 0
+            fi
+            d="${d%/*}"
+        done
+        die "Not a Git checkout: $d"
+    }
+
+    function git-localname() {
+        local f=`readlink -f "$1"`
+        local root;
+        root=`git-rootpath "$f"` || exit 1
+        if [ "$f" = "$root" ]; then
+            echo
+        else
+            echo "${f#$root/}"
+        fi
+    }
+
     function git-probe() {
         local d="$1"
         [ -z "$d" ] && return 1
@@ -280,13 +313,22 @@ function main() {
     }
 
     function git-slupdate() {
-        git-update 2>&1 \
-            | grep '|' \
-            | while IFS='|' read a b; do
-                a="${a% }"
-                a="${a# }"
-                echo "M $a"
-            done
+        local d="$d"
+        local prefix
+        prefix=`git-localname "${d:=.}"` || exit 1
+        [ -n "$prefix" ] && prefix="$prefix/"
+        _log2 "prefix: $prefix"
+        prefix=$(( ${#prefix} + 1 ))
+
+        PREV=`git show --format=format:%H --summary | head -1`
+        git pull
+        NEXT=`git show --format=format:%H --summary | head -1`
+
+        # [AMCD] \t PATH
+        _log3 "git diff --name-status $PREV $NEXT"
+        git diff --name-status $PREV $NEXT \
+            | cut -c3- \
+            | cut -c$prefix-
     }
 
 
@@ -309,6 +351,31 @@ function main() {
             fi
         done
         false
+    }
+
+    function svn-rootpath() {
+        local fullpath="$1"
+        [ -z "$fullpath" ] && fullpath=.
+        fullpath=`readlink -f "$fullpath"`
+
+        local localname=`svn-localname "$fullpath"`
+        local rootpath=${fullpath%$localname}
+        rootpath="${rootpath%/}"
+        echo "$rootpath"
+    }
+
+    function svn-localname() {
+        local d="$1"
+        [ -z "$d" ] && d=.
+
+        read _url url \
+            < <(LANG=C svn info "$d" | grep '^URL: ')
+        read _repo _root root \
+            < <(LANG=C svn info "$d" | grep '^Repository Root: ')
+
+        name="${url#$root}"
+        name="${name#/}"
+        echo "$name"
     }
 
     function svn-add-dir() {
@@ -346,20 +413,9 @@ function main() {
         done
     }
 
-    function svn-slnorm() {
-        while IFS='|' read line; do
-            file_st="${line:0:1}"
-            prop_st="${line:1:1}"
-            path="${line:8}"
-            file_st="${file_st/ }"
-            prop_st="${prop_st/ }"
-            echo "$file_st$prop_st $path"
-        done
-    }
-
     function svn-slist() {
         # ACDIMRX?!~  Property:CM L HistoryCopy:+ Switch/Ext:SX Lock:KOTB Conflict:C
-        svn status | svn-slnorm
+        svn status | cut -c9-
     }
 
     function svn-slupdate() {
