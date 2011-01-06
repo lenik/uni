@@ -39,6 +39,7 @@ function help() {
     echo "  add-dir                 Add a directory without its contents"
     echo "  checkout-branch(cobr)   Create a branch if it's not existed, and switch to it"
     echo "  commit+ (ci+)           Commit with minor version increased (autover)"
+    echo "  commit-gui (cig)        Commit in GUI mode"
     echo "  grep (egrep, fgrep, pgrep) GREP but excludes VCS dir"
     echo "  ignore (ig)             Manipulate ignore list"
     echo "  localname               Show the relative pathname to the repository"
@@ -124,10 +125,6 @@ function main() {
             $VCS-cobr "$@"
             ;;
 
-        ci+|commit+)
-            die "Not implemented. "
-            ;;
-
         grep|egrep|fgrep|pgrep)
             GREPOPTS=(-`uc -e ${cmd:0:1}`)
             if [ -z `type -t $VCS-grep` ]; then
@@ -158,8 +155,11 @@ function main() {
                 "$@"
             ;;
 
-        rst)    delegate=1; cmd=restore;;
+        ci+|commit+)
+            delegate=1; cmd=commit-inr;;
 
+        cig)    delegate=1; cmd=commit-gui;;
+        rst)    delegate=1; cmd=restore;;
         *)
             delegate=1;;
     esac
@@ -329,6 +329,14 @@ function main() {
         git diff --name-status $PREV $NEXT \
             | cut -c3- \
             | cut -c$prefix-
+    }
+
+    function git-commit-inr() {
+        die "Not impl"
+    }
+
+    function git-commit-gui() {
+        gitg
     }
 
 
