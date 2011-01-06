@@ -1,0 +1,17 @@
+#!/bin/bash
+#! master-file
+
+. shlib-import cliboot
+
+LOGLEVEL=2
+
+_log1 "Unconfigure Jetty"
+
+    lineconf -ktm "  Unload continuum-jetty-config.xml" \
+        @jettyconfdir@/jetty.conf load::continuum
+
+_log1 "Unconfig apache from forward continuum"
+
+    a2reload
+
+exit 0
