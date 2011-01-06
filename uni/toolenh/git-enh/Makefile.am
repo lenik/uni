@@ -1,5 +1,8 @@
 include libauto/coolauto.am
 
+dist_bin_SCRIPTS = \
+    keepdirs
+
 dist_aliases_DATA = \
     git-enh.alt
 
