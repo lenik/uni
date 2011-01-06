@@ -1,0 +1,14 @@
+Source: wgetc
+Section: net
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: http://uni.bodz.net//mnt/istore/projects/bodz/uni/net/wgetc
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/bodz/uni/net/wgetc
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/bodz/uni/net/wgetc
+
+Package: wgetc
+Architecture: all
+Depends: wget, axel
+Description: Download with caching.
