@@ -1,7 +1,7 @@
 include libauto/coolauto.am
 
 dist_aliases_DATA = \
-    coolgit.sh-noauto
+    git-enh.alt
 
 aliases_DATA = \
     sw-git.sh
