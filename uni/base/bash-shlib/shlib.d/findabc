@@ -2,5 +2,5 @@
 # findabc NAME[/] DIRLIST
 # WARNING: should avoid symbolic link loop
 function findabc() {
-    . <(findabc1 "$@")
+    . <(findabc1 -e "$@")
 }
