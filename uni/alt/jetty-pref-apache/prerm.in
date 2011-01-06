@@ -1,4 +1,29 @@
-#!/bin/sh
+#!/bin/bash
 # master-file
 
-echo "jetty-pref-apache - prerm.in ..."
+. shlib-import cliboot
+
+_log1 "Unconfigure Jetty"
+
+lineconf -ktm "  Unset default port from 3008" \
+    @sysconfdir@/default/jetty jetty::port
+
+lineconf -ktm "  Unload jetty-plus.xml" \
+    @jettyconfdir@/jetty.conf load::jetty-plus
+
+lineconf -ktm "  Unload env-derby.xml" \
+    @jettyconfdir@/jetty.conf load::env-derby
+
+lineconf -ktm "  Unload env-appserver.xml" \
+    @jettyconfdir@/jetty.conf load::env-appserver
+
+lineconf -ktm "  Unload env-users.xml" \
+    @jettyconfdir@/jetty.conf load::env-users
+
+lineconf -ktm "  Unload env-shutdown.xml" \
+    @jettyconfdir@/jetty.conf load::env-shutdown
+
+lineconf -ktm "  Unload env-mail.xml" \
+    @jettyconfdir@/jetty.conf load::env-mail
+
+exit 0
