@@ -37,6 +37,7 @@ cachedir    = /var/cache
 pkgvarlibdir= ${varlibdir}/${PACKAGE_NAME}
 pkgcachedir = ${cachedir}/${PACKAGE_NAME}
 perllibdir  = ${datadir}/perl5
+javalibdir  = ${datadir}/java
 setupdir    = ${datadir}/setup/${PACKAGE_NAME}
 aliasesdir  = ${sysconfdir}/bash_aliases.d
 bashcmpldir = ${sysconfdir}/bash_completion.d
