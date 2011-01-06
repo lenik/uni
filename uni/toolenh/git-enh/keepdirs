@@ -5,10 +5,13 @@
     shopt -s dotglob
 
     RCSID='$Id: bash.sh 2255 2011-01-01 06:58:58Z lenik $'
-    short_opts="Lhqv"
-    long_opts="follow,help,quiet,verbose,version"
+    short_opts="Lfhqv"
+    long_opts="follow,force,help,quiet,verbose,version"
 
     symlinks=
+    force=
+
+    keep_name=.keep
 
 function version() {
     parse_id "$RCSID"
@@ -25,6 +28,7 @@ function help() {
     echo "Options: "
     echo "    -L, --follow            Follow symlinks"
     echo "    -H, --follow-args       Follow symlinks for arguments only"
+    echo "    -f, --force             Force update all $keep_name files"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
@@ -37,6 +41,8 @@ function setopt() {
             symlinks=follow;;
         -H|--follow-args)
             symlinks=follow-args;;
+        -f|--force)
+            force=1;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -73,10 +79,19 @@ function scan() {
     local d="$1"
 
     child=("$d"/*)
-    if [ ${#child} = 0 ]; then
-        _log1 "  Found empty directory: $d"
-        hold "$d"
-    fi
+    case ${#child} in
+        0)
+            _log1 "  Found empty directory: $d"
+            hold "$d"
+            ;;
+        1)
+            if [ "$child" = "$keep_name" ]; then
+                if [ "$force" = 1 ]; then
+                    hold "$d"
+                fi
+            fi
+            ;;
+    esac
 
     for subdir in "$d"/*/; do
         subdir="${subdir%/}"
@@ -85,6 +100,12 @@ function scan() {
         _log3 "    Scan recursive into $subdir"
         scan "$subdir"
     done
+}
+
+function hold() {
+    local kf="$1/$keep_name"
+    echo "This file is used to keep the directory from be ignored, or be pruned. " >"$kf"
+    echo "Please don't this file. " >>"$kf"
 }
 
 boot "$@"
