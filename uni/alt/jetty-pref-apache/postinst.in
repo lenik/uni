@@ -8,6 +8,9 @@ install -d -o jetty -g jetty -m 4775 @databasedir@
 
 _log1 "Configure Jetty"
 
+_log2 "  Add derby.jar to Jetty lib"
+    ln -snf @javalibdir@/derby.jar @jettylibdir@
+
 lineconf -tm "  Set default port to 3008" \
     @sysconfdir@/default/jetty jetty::port \
     "JETTY_PORT=3008"
