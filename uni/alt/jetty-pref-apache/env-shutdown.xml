@@ -7,7 +7,7 @@
     <Arg>jdbc/shutdown</Arg>
     <Arg>
       <New class="org.apache.derby.jdbc.EmbeddedDataSource">
-        <Set name="DatabaseName">archiva-db</Set>
+        <Set name="DatabaseName">users-db</Set>
         <Set name="user">sa</Set>
         <Set name="shutdownDatabase">shutdown</Set>
       </New>

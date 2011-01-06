@@ -4,65 +4,13 @@
 
 <Configure id="Server" class="org.mortbay.jetty.Server">
 
-  <Call class="java.lang.System" name="setProperty">
-    <Arg>derby.system.home</Arg>
-    <Arg>@databasedir@</Arg>
-  </Call>
-
-  <Call class="java.lang.System" name="setProperty">
-    <Arg>appserver.base</Arg>
-    <Arg>@userdir@</Arg>
-  </Call>
-
-  <Call class="java.lang.System" name="setProperty">
-    <Arg>appserver.home</Arg>
-    <Arg>@userdir@</Arg>
-  </Call>
-
-  <New class="org.mortbay.jetty.plus.naming.Resource">
-    <Arg>jdbc/users</Arg>
-    <Arg>
-      <New class="org.apache.derby.jdbc.EmbeddedDataSource">
-        <Set name="DatabaseName">users-db</Set>
-        <Set name="user">sa</Set>
-        <Set name="createDatabase">create</Set>
-      </New>
-    </Arg>
-  </New>
-
   <New class="org.mortbay.jetty.plus.naming.Resource">
     <Arg>jdbc/continuum</Arg>
     <Arg>
       <New class="org.apache.derby.jdbc.EmbeddedDataSource">
         <Set name="DatabaseName">continuum-db</Set>
         <Set name="user">sa</Set>
-      </New>
-    </Arg>
-  </New>
-
-  <New class="org.mortbay.jetty.plus.naming.Resource">
-    <Arg>jdbc/shutdown</Arg>
-    <Arg>
-      <New class="org.apache.derby.jdbc.EmbeddedDataSource">
-        <Set name="DatabaseName">continuum-db</Set>
-        <Set name="user">sa</Set>
-        <Set name="shutdownDatabase">shutdown</Set>
-      </New>
-    </Arg>
-  </New>
-
-  <New id="mail" class="org.mortbay.jetty.plus.naming.Resource">
-    <Arg>mail/Session</Arg>
-    <Arg>
-      <New class="org.mortbay.naming.factories.MailSessionReference">
-        <Set name="user">user@example.com</Set>
-        <Set name="password">nothing</Set>
-        <Set name="properties">
-          <New class="java.util.Properties">
-            <Put name="mail.smtp.host">smtp.gmail.com</Put>
-            <Put name="mail.debug">true</Put>
-          </New>
-        </Set>
+        <Set name="createDatabase">create</Set>
       </New>
     </Arg>
   </New>
