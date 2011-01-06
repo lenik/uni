@@ -1,4 +1,18 @@
-#!/bin/sh
-# master-file
+#!/bin/bash
+#! master-file
 
-echo "archiva - prerm.in ..."
+. shlib-import cliboot
+
+LOGLEVEL=2
+
+_log1 "Unconfigure Jetty"
+
+    lineconf -ktm "  Unload archiva-jetty-config.xml" \
+        @jettyconfdir@/jetty.conf load::archiva
+
+_log1 "Unconfig apache from forward archiva"
+
+    a2reload
+
+exit 0
+

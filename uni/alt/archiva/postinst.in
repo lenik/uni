@@ -1,73 +1,12 @@
 #!/bin/bash
-    . shlib-import cliboot
+#! master-file
 
-    RCSID='$Id: bash.sh 2255 2011-01-01 06:58:58Z lenik $'
-    short_opts="hqv"
-    long_opts="help,quiet,verbose,version"
+. shlib-import cliboot
 
-    LOGLEVEL=2
+LOGLEVEL=2
 
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Install archiva on jetty"
-    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
-}
+_log1 "Search and download Archiva WAR"
 
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] ..."
-    echo
-    echo "Options: "
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
-
-function setopt() {
-    case "$1" in
-        -h|--help)
-            help; exit;;
-        -q|--quiet)
-            LOGLEVEL=$((LOGLEVEL - 1));;
-        -v|--verbose)
-            LOGLEVEL=$((LOGLEVEL + 1));;
-        --version)
-            version; exit;;
-        *)
-            quit "invalid option: $1";;
-    esac
-}
-
-function main() {
-
-    install -d -o jetty -g jetty -m 4775 @userdir@
-    install -d -o jetty -g jetty -m 4775 @databasedir@
-
-    download_archiva
-
-    _log1 "Configure Jetty"
-
-    lineconf -tm "  Load jetty-plus.xml" \
-        @jettyconfdir@/jetty.conf load::plus \
-        "@jettyconfdir@/jetty-plus.xml"
-
-    lineconf -tm "  Load archiva-jetty-config.xml" \
-        @jettyconfdir@/jetty.conf load::archiva \
-        "@jettyconfdir@/archiva-jetty-config.xml"
-
-    _log1 "Config apache to forward archiva"
-
-        a2enmod proxy
-        a2enmod proxy_http
-        a2enmod rewrite
-        a2reload
-}
-
-function download_archiva() {
-    _log1 "Search and download Archiva WAR"
     index=http://archiva.apache.org/download.html
 
     _log2 "Parse index-1: $index"
@@ -82,7 +21,19 @@ function download_archiva() {
     _log2 "Copy $war_file to @wardir@/archiva.war"
     mkdir -p "@wardir@" || die "Couldn't create the directory @wardir@"
     cp -f "$war_file" "@wardir@/archiva.war" || die "Failed to copy"
-}
 
-boot "$@"
+_log1 "Configure Jetty"
+
+    lineconf -tm "  Load archiva-jetty-config.xml" \
+        @jettyconfdir@/jetty.conf load::archiva \
+        "@jettyconfdir@/archiva-jetty-config.xml"
+
+_log1 "Config apache to forward archiva"
+
+    a2enmod proxy
+    a2enmod proxy_http
+    a2enmod rewrite
+    a2reload
+
+exit 0
 
