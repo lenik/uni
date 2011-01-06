@@ -4,9 +4,10 @@
     shopt -s nullglob
 
     RCSID='$Id: bash.sh 2141 2010-12-13 06:15:26Z lenik $'
-    short_opts="fplzuwhqv"
-    long_opts="fileonly,print,list,last,unix,windows,help,quiet,verbose,version"
+    short_opts="efplzuwhqv"
+    long_opts="eval,fileonly,print,list,last,unix,windows,help,quiet,verbose,version"
 
+    eval=
     fileonly=
     show=
     list=
@@ -26,6 +27,13 @@ function help() {
     echo "    $0 [OPTION] [--] package DIRLIST"
     echo
     echo "Options: "
+    echo "    -e, --eval              Print shell commands to be evaluated"
+    echo "    -f, --file-only         Find file only"
+    echo "    -p, --print             Print the result"
+    echo "    -l, --list              List all matched paths"
+    echo "    -z, --last              Get the last match"
+    echo "    -u, --unix              Path format in Unix style"
+    echo "    -w, --windows           Path format in Windows style"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
@@ -34,7 +42,9 @@ function help() {
 
 function setopt() {
     case "$1" in
-        -f|--fileonly)
+        -e|--eval)
+            eval=1;;
+        -f|--file-only)
             fileonly=1;;
         -p|--print)
             show=1;;
@@ -57,6 +67,24 @@ function setopt() {
         *)
             quit "invalid option: $1";;
     esac
+}
+
+function show() {
+    if [ -z "$eval" ]; then
+        echo "$@"
+    else
+        echo "echo \"$*\""
+    fi
+}
+
+function show_error() {
+    if [ -z "$eval" ]; then
+        echo "$@" >&2
+        return 0
+    else
+        echo "echo \"$*\" >&2; false"
+        return 1
+    fi
 }
 
 function main() {
@@ -164,15 +192,19 @@ function main() {
     # _xdir="$_xdir${_home##*/}"
 
     if [ -z "$_home" ]; then
-        echo not found: "$package"
+        show_error "Not found: $package"
         return 1
     fi
 
     if [ "$show" = 1 ]; then
-        echo "echo \"$_home\""
+        show "$_home"
     fi
     if [ -n "$inner" ]; then
-        echo "cd \"$_home$inner\""
+        if [ -z "$eval" ]; then
+            die "Can't chdir the parent process"
+        else
+            echo "cd \"$_home$inner\""
+        fi
     fi
 
     return 0
