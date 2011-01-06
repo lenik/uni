@@ -1,5 +1,8 @@
 include libauto/coolauto.am
 
+javalib_DATA = \
+    lib/derby-*.jar
+
 setup_SCRIPTS = \
     postinst \
     prerm
@@ -13,3 +16,6 @@ CLEANFILES = ${setup_SCRIPTS}
 %: %.in Makefile
 	$(do_subst) <$< >$@
 	chmod -w "$@"
+
+install-data-hook:
+	cd $(DESTDIR)$(javalibdir) && ln -snf derby-*.jar derby.jar
