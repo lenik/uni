@@ -298,14 +298,21 @@ function main() {
     }
 
     function git-slist() {
-        git status -s | while IFS='|' read line; do
-            index_st="${line:0:1}"
-            wcopy_st="${line:1:1}"
-            path="${line:3}"
-            index_st="${index_st/ }"
-            wcopy_st="${wcopy_st/ }"
-            echo "$index_st$wcopy_st $path"
-        done
+        filterf=`tempfile`
+        if [ $# = 0 ]; then
+            echo >$filterf
+        else
+            for f in "$@"; do
+                git-localname "$f" >>$filterf
+            done
+        fi
+
+        (
+            git diff --name-status
+            git diff --name-status --cached
+        ) | sort -u | sed -e 's/\t/       /' | grep -F -f $filterf
+
+        rm -f $filterf
     }
 
     function git-update() {
@@ -423,11 +430,16 @@ function main() {
 
     function svn-slist() {
         # ACDIMRX?!~  Property:CM L HistoryCopy:+ Switch/Ext:SX Lock:KOTB Conflict:C
-        svn status | cut -c9-
+        svn status "$@"
+        # | cut -c9-
     }
 
     function svn-slupdate() {
-        svn update | svn-slnorm
+        svn update "$@" | svn-slnorm
+    }
+
+    function svn-commit-gui() {
+        svn commit "$@"
     }
 
 
