@@ -5,20 +5,20 @@ do_subst += -e 's,[@]debdefldir[@],$(debdefldir),g'
 debdefldir = ${pkgdatadir}/debian-defaults
 
 dist_bin_SCRIPTS = \
-    verexec \
-    dir-ver \
-    dh_make-autover \
+    autofill-control \
+    cideb \
+    deb-clean \
+    dh_check_depends \
     dh_debname \
     dh_incr \
-    newdeb \
-    deb-redist \
-    deb-clean \
-    cideb \
+    dh_make-autover \
     dh_package_field \
-    dh_check_depends \
-    vicontrol \
-    autofill-control \
-    update-and-deb-redist
+    dir-ver \
+    newdeb \
+    rebuild \
+    rebuilds \
+    verexec \
+    vicontrol
 
 bin_SCRIPTS = \
     dh_add_missing

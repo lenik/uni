@@ -1,7 +1,0 @@
-#!/bin/bash
-
-vcscmd slupdate \
-    | grep -v changelog \
-    | cut -d/ -f1 \
-    | sort -u \
-    | eachdir -f- deb-redist -i

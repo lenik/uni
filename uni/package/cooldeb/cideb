@@ -24,8 +24,8 @@ fi
 
 [ -f configure.ac ] && autover
 
-if ! deb-redist -i; then
-    echo debuild/redist failed.
+if ! rebuild -i; then
+    echo Redist/build failed.
     exit 1
 fi
 
