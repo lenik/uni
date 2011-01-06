@@ -11,12 +11,12 @@
 
   <Call class="java.lang.System" name="setProperty">
     <Arg>appserver.base</Arg>
-    <Arg>@deploydir@</Arg>
+    <Arg>@userdir@</Arg>
   </Call>
 
   <Call class="java.lang.System" name="setProperty">
     <Arg>appserver.home</Arg>
-    <Arg>@deploydir@</Arg>
+    <Arg>@userdir@</Arg>
   </Call>
 
   <New class="org.mortbay.jetty.plus.naming.Resource">

@@ -43,14 +43,27 @@ function setopt() {
 
 function main() {
 
+    install -d -o jetty -g jetty -m 4775 @userdir@
+    install -d -o jetty -g jetty -m 4775 @databasedir@
+
+    download_archiva
+
+    _log1 "Configure Jetty"
+
+    lineconf -tm "  Load jetty-plus.xml" \
+        @jettyconfdir@/jetty.conf load::plus \
+        "@jettyconfdir@/jetty-plus.xml"
+
+    lineconf -tm "  Load archiva-jetty-config.xml" \
+        @jettyconfdir@/jetty.conf load::archiva \
+        "@jettyconfdir@/archiva-jetty-config.xml"
+
     _log1 "Config apache to forward archiva"
 
         a2enmod proxy
         a2enmod proxy_http
         a2enmod rewrite
         a2reload
-
-    download_archiva
 }
 
 function download_archiva() {

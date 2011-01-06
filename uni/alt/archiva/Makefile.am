@@ -5,19 +5,13 @@ do_subst += \
     -e 's,[@]jettylibdir[@],$(jettylibdir),g' \
     -e 's,[@]jettyconfdir[@],$(jettyconfdir),g' \
     -e 's,[@]databasedir[@],$(databasedir),g' \
-    -e 's,[@]deploydir[@],$(deploydir),g'
+    -e 's,[@]userdir[@],$(userdir),g'
 
 jettydir        = ${datadir}/jetty
 jettylibdir     = $(jettydir)/lib
 jettyconfdir    = $(sysconfdir)/jetty
-databasedir     = /var/lib/derby
-deploydir       = /var/lib/jetty
-
-database_DATA = \
-    .keep
-
-deploy_DATA = \
-    .keep
+userdir         = /var/lib/jetty
+databasedir     = $(userdir)/derby
 
 dist_jettyconf_DATA = \
     archiva-jetty-config.xml \
@@ -41,4 +35,4 @@ CLEANFILES = ${setup_SCRIPTS} \
 
 install-data-hook:
 	mkdir -p $(DESTDIR)$(jettylibdir); \
-        ln -vsnf $(DESTDIR)$(javalibdir)/derby.jar $(DESTDIR)$(jettylibdir)
+        ln -vsnf $(javalibdir)/derby.jar $(DESTDIR)$(jettylibdir)
