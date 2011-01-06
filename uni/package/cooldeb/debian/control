@@ -12,5 +12,5 @@ Package: cooldeb
 Provides: cooldeb
 Architecture: all
 Depends: debhelper, devscripts, dh-make, coolapt,
-    bash-shlib, coolmake, svn-enh, dlocal
+    bash-shlib, coolmake, vcscmds, dlocal
 Description: Debian package by very clean manner.
