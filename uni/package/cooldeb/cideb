@@ -10,7 +10,7 @@ if [ `vcscmd slist | wc -l` = 0 ]; then
     exit 0
 fi
 
-if vcscmd slist VERSION.av | grep -q '^M'; then
+if vcscmd slist VERSION.av | grep VERSION.av | grep -q '^M'; then
     echo "Version is already increased. "
 else
     if vcscmd slist | grep -q '^[AD]'; then
