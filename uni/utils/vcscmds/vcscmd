@@ -328,7 +328,7 @@ function main() {
         prefix=$(( ${#prefix} + 1 ))
 
         PREV=`git show --format=format:%H --summary | head -1`
-        git pull
+        git pull >&2
         NEXT=`git show --format=format:%H --summary | head -1`
 
         # [AMCD] \t PATH
