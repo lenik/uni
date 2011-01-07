@@ -2,12 +2,13 @@
     . shlib-import cliboot
 
     shopt -s nullglob
-    shopt -s dotglob
+    # shopt -s dotglob
 
     RCSID='$Id: bash.sh 2255 2011-01-01 06:58:58Z lenik $'
-    short_opts="Lfhqv"
-    long_opts="follow,force,help,quiet,verbose,version"
+    short_opts="ln:Lfhqv"
+    long_opts="list,name:,follow,force,help,quiet,verbose,version"
 
+    list=
     symlinks=
     force=
 
@@ -26,6 +27,8 @@ function help() {
     echo "    $0 [OPTION] [--] ..."
     echo
     echo "Options: "
+    echo "    -l, --list              List only, don't change anything"
+    echo "    -n, --name=NAME         Specify a name other then $keep_name"
     echo "    -L, --follow            Follow symlinks"
     echo "    -H, --follow-args       Follow symlinks for arguments only"
     echo "    -f, --force             Force update all $keep_name files"
@@ -37,6 +40,10 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -l|--list)
+            list=1;;
+        -n|--name)
+            keep_name="$2";;
         -L|--follow)
             symlinks=follow;;
         -H|--follow-args)
@@ -103,6 +110,7 @@ function scan() {
 }
 
 function hold() {
+    [ "$list" = 1 ] && return 0
     local kf="$1/$keep_name"
     echo "This file is used to keep the directory from be ignored, or be pruned. " >"$kf"
     echo "Please don't this file. " >>"$kf"
