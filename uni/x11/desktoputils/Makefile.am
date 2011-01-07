@@ -1,7 +1,8 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-    open-url
+    open-url \
+    wsswitch
 
 setup_SCRIPTS = \
     postinst \
