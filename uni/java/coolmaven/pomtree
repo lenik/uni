@@ -4,8 +4,8 @@
     shopt -s nullglob
 
     RCSID='$Id: bash.sh 2141 2010-12-13 06:15:26Z lenik $'
-    short_opts="hqv"
-    long_opts="help,quiet,verbose,version"
+    short_opts="Chqv"
+    long_opts="color,help,quiet,verbose,version"
 
     color=0
 
@@ -31,6 +31,8 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -C|--color)
+            color=1;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -122,13 +124,12 @@ function dump() {
 
 function main() {
     if [ $# = 0 ]; then
-        help
-        exit 1
+        dump "(n/a)" . "" "<ROOT>"
+    else
+        for dir in "$@"; do
+            dump "(n/a)" "$dir" "" "<ROOT> "
+        done
     fi
-
-    for dir in "$@"; do
-        dump "(n/a)" "$dir" "" "<ROOT> "
-    done
 }
 
 boot "$@"
