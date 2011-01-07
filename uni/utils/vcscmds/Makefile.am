@@ -7,6 +7,9 @@ dist_bin_SCRIPTS = \
 dist_aliases_DATA = \
     vcscmds.sh
 
+dist_bashcmpl_DATA = \
+    vcscmds
+
 setup_SCRIPTS = \
     postinst \
     prerm

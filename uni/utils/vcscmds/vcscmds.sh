@@ -29,3 +29,10 @@ alias bisect='vcscmd bisect'
 alias rebase='vcscmd rebase'
 alias remote='vcscmd remote'
 alias  stash='vcscmd stash'
+
+function vcscd() {
+    local vcsroot=`vcscmd rootpath .`
+    cd "$vcsroot/$1"
+}
+
+alias vcd='vcscd'

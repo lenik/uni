@@ -1,0 +1,20 @@
+# vim: set filetype=sh :
+
+function _vcscd() {
+    local cur=
+    local root=`vcscmd rootpath .`
+    local d
+    local i=0
+
+    [ $COMP_CWORD = 1 ] && cur="${COMP_WORDS[1]}"
+
+    COMPREPLY=()
+    for d in "$root/$cur"*/; do
+        [ "${d: -2}" = '*/' ] && return 1
+        d="${d#$root}"
+        d="${d#/}"
+        COMPREPLY[i++]="$d"
+    done
+
+    return 1
+} && complete -o nospace -F _vcscd vcscd vcd
