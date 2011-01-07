@@ -9,13 +9,15 @@
       VCS_PROBE=
 
     VCS_bazaar=(bzr)
-       VCS_cvs=(cvs)
-       VCS_git=(git)
- VCS_mercurial=(hg)
-       VCS_rcs=(rcs)
-       VCS_svn=(svn)
+    VCS_cvs=(cvs)
+    VCS_git=(git)
+    VCS_mercurial=(hg)
+    VCS_rcs=(rcs)
+    VCS_svn=(svn)
 
-    cmdline=("$@")
+    FLAGS_git_add=(-f)
+    FLAGS_git_rm=(-f)
+    FLAGS_git_mv=(-f)
 
 function version() {
     parse_id "$RCSID"
@@ -103,6 +105,7 @@ function main() {
 
     cmd="$1"
     shift
+    cmdopts=("$@")
 
     case "$cmd" in
         sys|system)
@@ -128,7 +131,8 @@ function main() {
         grep|egrep|fgrep|pgrep)
             GREPOPTS=(-`uc -e ${cmd:0:1}`)
             if [ -z `type -t $VCS-grep` ]; then
-                cmdline=(grep "${GREPOPTS[@]}" "$@")
+                cmd=grep
+                cmdopts=("${GREPOPTS[@]}" "$@")
                 delegate=1
             else
                 $VCS-grep "${GREPOPTS[@]}" "$@"
@@ -137,7 +141,7 @@ function main() {
 
         add-dir)
             if [ -z `type -t $VCS-add-dir` ]; then
-                cmdline=(add "$@")
+                cmd=add
                 delegate=1
             else
                 $VCS-add-dir "$@"
@@ -170,11 +174,21 @@ function main() {
         $VCS-$cmd "$@"
 
     else
-        VCScmd="VCS_${VCS}[0]"
-        VCS_CMD=${!VCScmd}
+        VCSref="VCS_${VCS}[0]"
+        VCS_CMD=${!VCSref}
 
-        _log2 "Delegate to $VCS_CMD ${cmdline[@]}"
-        $VCS_CMD "${cmdline[@]}"
+        FLAGSref="FLAGS_${VCS}_$cmd[@]"
+        CMD_FLAGS=("${!FLAGSref}")
+        if [ -n "$CMD_FLAGS" ]; then
+            cmdopts=("${CMD_FLAGS[@]}" "${cmdopts[@]}")
+        fi
+
+        _log2 "Delegate to $VCS_CMD $cmd ${cmdopts[@]}"
+        if [ -z "$cmd" ]; then
+            $VCS_CMD
+        else
+            $VCS_CMD "$cmd" "${cmdopts[@]}"
+        fi
     fi
 }
 
