@@ -6,7 +6,7 @@ $TTL            12H
 @               IN      SOA     (
                                     lenik-pc.bodz.net.  ; db creator host
                                     dnsmaster.bodz.net. ; contact e-mail
-                                    5       ; serial
+                                    10      ; serial
                                     1H      ; sync refresh interval
                                     10M     ; sync retry interval
                                     240H    ; sync expire

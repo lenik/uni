@@ -14,8 +14,8 @@ uni                     CNAME   1
 
 svn                     CNAME   1
 trac                    CNAME   1
-m2                      CNAME   us1
-ci                      CNAME   us1
+m2                      CNAME   1
+ci                      CNAME   1
 
 lenik                   CNAME   1
 shecti                  CNAME   1
