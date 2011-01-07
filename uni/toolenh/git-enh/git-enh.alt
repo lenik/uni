@@ -1,6 +1,7 @@
 # vim: set filetype=sh :
 
 alias    add='git add'
+alias  amend='git ci -a --amend'
 alias     br='git branch'
 alias     ci='git commit'
 alias  clone='git clone'
