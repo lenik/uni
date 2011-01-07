@@ -19,3 +19,17 @@ function paths() {
         echo -e "${var//:/\\n}"
     fi
 }
+
+function env() {
+    local var
+    for var in "$@"; do
+        if [ "${var:0:1}" = '@' ]; then
+            var="${var#@}"
+            echo "$var=(array)"
+            var="$var[@]"
+            echoli "${!var}" | sed -e 's/^/    /'
+        else
+            echo "$var=${!var}"
+        fi
+    done
+}
