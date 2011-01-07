@@ -10,23 +10,13 @@
 
     RewriteEngine On
 
-    RewriteRule ^/releases/(.*)  /archiva/repository/bodz.releases/$1 [PT]
-    RewriteRule ^/snapshots/(.*) /archiva/repository/bodz.snapshots/$1 [PT]
+    RewriteRule ^/release/(.*)  /archiva/repository/internal/$1 [PT]
+    RewriteRule ^/snapshot/(.*) /archiva/repository/snapshots/$1 [PT]
 
-    # Keep compatible with bas-parent:1
-    RewriteRule ^/repository/releases/(.*)  /archiva/repository/bodz.releases/$1 [PT]
-    RewriteRule ^/repository/snapshots/(.*) /archiva/repository/bodz.snapshots/$1 [PT]
-
-    # Keep compatible with bas-parent:1
-    RewriteRule ^/archiva/repository/releases/(.*)  /archiva/repository/bodz.releases/$1 [PT]
-    RewriteRule ^/archiva/repository/snapshots/(.*) /archiva/repository/bodz.snapshots/$1 [PT]
-
-    RewriteRule ^/mirror/(.*)    /archiva/repository/internal/$1 [PT]
-    RewriteRule ^/_mirror/(.*)   /archiva/repository/snapshots/$1 [PT]
-
-    ProxyPass           /archiva http://localhost:8080/archiva
-    ProxyPassReverse    /archiva http://localhost:8080/archiva
+    ProxyPass           /archiva http://localhost:3008/archiva
+    ProxyPassReverse    /archiva http://localhost:3008/archiva
     <Proxy *>
         allow from all
     </Proxy>
+
 </VirtualHost>
