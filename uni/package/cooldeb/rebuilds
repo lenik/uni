@@ -69,7 +69,7 @@ function main() {
     _log1 "Prepare all package names to be rebuild in $list"
 
     [ "$vcs_update" = 1 ] && vcscmd slupdate >>$list
-    [ "$vcs_diff"   = 1 ] && vcscmd slist    >>$list
+    [ "$vcs_diff"   = 1 ] && vcscmd slist | cut -c9- >>$list
     echoln "$@" >>$list
 
     packages=`tempfile`
