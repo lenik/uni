@@ -1,11 +1,17 @@
-$TTL 1H
+$TTL            1H
 
-@               IN      SOA     vns1.zoo.bodz.net. domain.bodz.net. (
-                                        1       ; serial
-                                        1M      ; refresh
-                                        15M     ; retry
-                                        12H     ; expiry
-                                        3 )     ; minimum
+@               IN      SOA     (
+                                    ns1.bodz.net.       ; db creator host
+                                    dnsmaster.bodz.net. ; contact e-mail
+                                    2       ; serial
+                                    1H      ; sync refresh interval
+                                    10M     ; sync retry interval
+                                    240H    ; sync expire
+                                    1H      ; minimum TTL
+                                )
+
+                        NS      ns1.bodz.net.
+                        NS      ns2.bodz.net.
 
 vmail                   CNAME   lion
 
