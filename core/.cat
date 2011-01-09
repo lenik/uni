@@ -1,6 +1,7 @@
 # name                  latest      tags                shortcuts
 # -----------------------------------------------------------------------------
 7zip                    4.58        sys.arc             7z.exe
+abiword                 2.8.1       work.doc            bin/abiword.exe
 amaya                   11.3        work.web            windowswx/bin/amaya.exe
 audacity                1.3-beta    mm.aud              audacity.exe
 autohotkey              1.0.47      sys.util            autohotkey.exe
@@ -18,6 +19,7 @@ filezilla               3.0.3       net.tran            filezilla.exe
 firefox					3.0.4		net.brow			firefox.exe
 foobar2000              0.9.4.2     mm.aud              foobar.exe=foobar2000.exe
 gimp                    2.6         work.img            gimp.exe=bin/gimp-2.6.exe
+gkrellm                 2.3.2       net.monitor         bin/gkrellm.exe
 graphviz                2.14.1      dev.util
 groovy                  1.6-beta-1  lang.java
 gsketchpad              4.0         lab.geom            gsketchp.exe
@@ -32,6 +34,7 @@ npp                     4.2.2       dev.edit            npp.exe=notepad++.exe
 nsis                    2.33        dev.ins             nsis.exe=makensisw.exe
 ntfsundelete            0.92        sys.fs              ntfsundelete.exe
 nvu                     1.0         work.web            nvu.exe
+nxclient                3.4.0.5     net.term            nxclient.exe
 ooo                     3.1         work.doc            program/s*.exe
 paint.net               3.10        work.img            paintdotnet.exe
 php                     5.2.4       lang.php

@@ -1,0 +1,6 @@
+#!/bin/ash
+
+rebaseall
+
+find /usr/lib/perl5 -iname *.dll >>$TEMP/FILES.LST
+rebase -vdb 0x70000000 -o 0x20000 -T $TEMP/FILES.LST
