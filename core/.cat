@@ -1,11 +1,13 @@
 # name                  latest      tags                shortcuts
 # -----------------------------------------------------------------------------
 7zip                    4.58        sys.arc             7z.exe
+amaya                   11.3        work.web            windowswx/bin/amaya.exe
 audacity                1.3-beta    mm.aud              audacity.exe
 autohotkey              1.0.47      sys.util            autohotkey.exe
 autoit                  3.2.12      sys.util            autoit3.exe,au3info.exe
 bitcomet                0.70        net.p2p             bitcomet.exe
 bochs                   2.2.6       sys.emu             bochs.exe
+chrome                  4.0         net.brow            chrome.exe
 ctex_cs                 1.5.4       work.doc
 cvs                     2.5.02      net.vcs
 cvs2svn                 2.0.1       net.vcs
@@ -29,6 +31,7 @@ nmap                    4.20        net.scan
 npp                     4.2.2       dev.edit            npp.exe=notepad++.exe
 nsis                    2.33        dev.ins             nsis.exe=makensisw.exe
 ntfsundelete            0.92        sys.fs              ntfsundelete.exe
+nvu                     1.0         work.web            nvu.exe
 ooo                     3.1         work.doc            program/s*.exe
 paint.net               3.10        work.img            paintdotnet.exe
 php                     5.2.4       lang.php
@@ -39,4 +42,5 @@ scite                   1.76        dev.edit            scite.exe
 stardict                2.4.8       util.dict           bin/stardict.exe
 thunderbird             3.b2        net.mail            thunderbird.exe
 vptk                    2.38        lang.perl
+wine                    2.0         mm.vid.util         wink.exe
 wireshark               0.99.6a     net.cap             wireshark.exe

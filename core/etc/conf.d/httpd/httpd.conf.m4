@@ -1,8 +1,8 @@
 m4_include(hconf.m4)
 M4X_BEGIN()
 
-    m4_define(`APACHE_HOME', `C:\lam\kala\abc.d\h\httpd-2.2')
-    m4_define(`__DIR__', `')
+    m4_define(`APACHE_HOME', `C:/lam/kala/abc.d/h/httpd-2.2')
+    m4_define(`APACHE_CONF', `C:/lam/kala/etc/conf.d/httpd')
 
 M4X_END()
 
@@ -448,37 +448,37 @@ DefaultType text/plain
 # necessary.
 
 # Server-pool management (MPM specific)
-#m4_include(__DIR__/extra/httpd-mpm.conf)
+#m4_include(extra/httpd-mpm.conf)
 
 # Multi-language error messages
-#m4_include(__DIR__/extra/httpd-multilang-errordoc.conf)
+#m4_include(extra/httpd-multilang-errordoc.conf)
 
 # Fancy directory listings
-#m4_include(__DIR__/extra/httpd-autoindex.conf)
+#m4_include(extra/httpd-autoindex.conf)
 
 # Language settings
-#m4_include(__DIR__/extra/httpd-languages.conf)
+#m4_include(extra/httpd-languages.conf)
 
 # User home directories
-#m4_include(__DIR__/extra/httpd-userdir.conf)
+#m4_include(extra/httpd-userdir.conf)
 
 # Real-time info on requests and configuration
-#m4_include(__DIR__/extra/httpd-info.conf)
+#m4_include(extra/httpd-info.conf)
 
 # Virtual hosts
-#m4_include(__DIR__/extra/httpd-vhosts.conf)
+#m4_include(extra/httpd-vhosts.conf)
 
 # Local access to the Apache HTTP Server Manual
-m4_include(__DIR__/extra/httpd-manual.conf)
+m4_include(extra/httpd-manual.conf)
 
 # Distributed authoring and versioning (WebDAV)
-#m4_include(__DIR__/extra/httpd-dav.conf)
+#m4_include(extra/httpd-dav.conf)
 
 # Various default settings
-#m4_include(__DIR__/extra/httpd-default.conf)
+#m4_include(extra/httpd-default.conf)
 
 # Secure (SSL/TLS) connections
-#m4_include(__DIR__/extra/httpd-ssl.conf)
+#m4_include(extra/httpd-ssl.conf)
 #
 # Note: The following must must be present to support
 #       starting without SSL on platforms with no /dev/random equivalent
@@ -489,4 +489,4 @@ SSLRandomSeed startup builtin
 SSLRandomSeed connect builtin
 </IfModule>
 
-m4_sinclude(A:/etc/httpd.conf.m4)
+m4_sinclude(~/etc/httpd.conf)

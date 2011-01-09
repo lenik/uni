@@ -1,15 +1,15 @@
 # run .mkauto to generate wrappers
-name            | sub                   | target        | ext       | exec
-
-aut2exe         | autoit/aut2exe
-cvs2svn         | cvs2svn               |               | *         | python
+name            : sub                   : target        : ext       : exec
+aut2exe         : autoit/aut2exe
+cvs2svn         : cvs2svn               :               : *         : python
 ettercap
 ffmpeg
-ffserver        | ffmpeg                | ffserver
-groovy          | groovy/bin            | groovy        | .bat
-gcon            | groovy/bin            | groovyConsole | .bat
+ffserver        : ffmpeg                : ffserver
+forrest         : forrest/bin           : forrest       : .bat
+groovy          : groovy/bin            : groovy        : .bat
+gcon            : groovy/bin            : groovyConsole : .bat
 mencoder
-pear            | php
-php             | php
-php-cgi         | php
-php-win         | php
+pear            : php
+php             : php
+php-cgi         : php
+php-win         : php

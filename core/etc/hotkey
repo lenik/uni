@@ -391,12 +391,8 @@ appskey & numpaddiv::
 #a::fastcall("start ""ANSI""")
 #b::fastcall("start ""Big""")
 #c::fastcall("start ""Normal""")
-#i::
-    ifexist, %l_appdata%\Google\Chrome\
-        run %l_appdata%\Google\Chrome\Application\chrome
-    else
-        run iexplore
-    return
+#i::run chrome.exe --enable-extensions
+        ; --user-data-dir="%TEMP%/../Chrome"
 #m::run metapad
 #n::run cmdw /c no
 #p::run cmdw /c start paintdotnet

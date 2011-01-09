@@ -2,4 +2,4 @@
 
     setlocal
 
-    %SHELLW% -c "/usr/X11R6/bin/startxwin.sh %*"
+    %SHELLW% -c "startxwin.sh %*"
