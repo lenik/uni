@@ -5,6 +5,8 @@
     goto init
 
 :start
+    title Booting...
+
     if not "%LAPIOTA%"=="" goto located
 
     for /d %%i in (t lapiota) do (
@@ -49,6 +51,7 @@
     REM call mount.pgd "%pgd%" "%LAPIOTA%"
     echo Mount %pgd%...
     %pgd%
+    echo Mounted
 
 :boot
     cd /d %LAPIOTA%\etc\startup.d
