@@ -312,21 +312,25 @@ function main() {
     }
 
     function git-slist() {
-        filterf=`tempfile`
-        if [ $# = 0 ]; then
-            echo >$filterf
-        else
-            for f in "$@"; do
-                git-localname "$f" >>$filterf
+        [ $# = 0 ] && set .
+        for f in "$@"; do
+            prefix=`git-localname "$f"`
+            nprefix=${#prefix}
+            (
+                git diff --name-status
+                git diff --name-status --cached
+            ) | sort -u | while IFS='|' read line; do
+                char="${line:0:1}"
+                path="${line:2}"
+                path_prefix="${path:0:nprefix}"
+                if [ "$prefix" != "$path_prefix" ]; then
+                    continue
+                fi
+                path_local="${path:nprefix}"
+                path_local="${path_local#/}"
+                echo "$char       $path_local"
             done
-        fi
-
-        (
-            git diff --name-status
-            git diff --name-status --cached
-        ) | sort -u | sed -e 's/\t/       /' | grep -F -f $filterf
-
-        rm -f $filterf
+        done
     }
 
     function git-update() {
