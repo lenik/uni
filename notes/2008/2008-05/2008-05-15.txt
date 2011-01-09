@@ -1,0 +1,57 @@
+== sixor::nfs Normal.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2008-05-15 21:53:00
+Serial:     NFS08135-33420
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+Title:      __________________________________________________________________
+Keywords:   __________________________________________________________________
+
+
+  * ns-2.29 协议扩展小结
+
+    （参考 ns Manual, Chapter 12 包格式，Chapter 13 差错模型）
+
+    在 ns-allinone-2.29/ns-2.29 下建立 udplite 目录，
+    复制 myext/udplite.* 到 ns-2.29/udplite 中。
+
+    修改 common/ 下packet.h：
+        enum packet_t {
+            ...
+            PT_UDPLITE,
+            PT_NTYPE,
+        };
+        ...
+        name_[PT_UDPLITE] = "UDPLITE";
+        name_[PT_NTYPE] = "undefined";
+
+    修改 tcl/lib/ns-default.tcl，按词典顺序插入：
+        （参考Agent/UDP默认值）
+        Agent/UDPLite set packetSize_ 1000
+        Agent/UDPLite instproc done {} { }
+        Agent/UDPLite instproc process_data {from data} { }
+
+    修改 tcl/lib/ns-packet.tcl，添加UDPLite到报文头列表中：
+        foreach prot {
+            ...
+            UDPLite
+        } {
+            add-packet-header prot
+        }
+
+    修改 Makefile.in，在OBJ_CC变量中插入新模块：
+        ...
+        common/messpass.o common/tp.o common/tpm.o apps/worm.o \
+        udplite/udplite.o \
+        ...
+
+    依次运行：
+        ./configure
+        make
+
+    make成功后运行测试程序：
+        ns udplite.tcl

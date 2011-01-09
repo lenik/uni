@@ -1,0 +1,25 @@
+== sixor::nfs Normal.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2008-02-29 22:03:05
+Serial:     NFS08059-31865
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+Title:      __________________________________________________________________
+Keywords:   __________________________________________________________________
+
+
+  * Optitex 9,6 Psw
+
+    Please keep it shared and you will get a RAR password until 01.02.2007
+
+  * task
+
+    sql server 2005
+    diff between:
+        2005 developer
+        2005 enterprise
+

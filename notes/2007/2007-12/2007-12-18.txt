@@ -1,0 +1,75 @@
+== sixor::nfs Normal.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2008-01-30 22:43:25
+Serial:     NFS08029-34285
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+Title:      __________________________________________________________________
+Keywords:   __________________________________________________________________
+
+
+  * TODO
+
+- lapiota installer
+    cmt::table
+        - !perl/cmt::table
+            [ alias? ]
+
+-- tex support, learn, docs
+	tex dialect
+
+
+cmt::table
+    lapiota-install
+
+deploy
+    qmake
+        mv-creation
+            oracle-opt
+        ckt/thread-local
+
+cmt::oop
+    qmake/lisp
+        lisp/scheme review
+            lisp practice prog
+            scheme practice prog
+    simlang
+        apache
+        nsis
+        autohotkey
+
+-- Canceled
+crack EXE
+
+-- dirtix arch
+	cygwin packing.
+		nsis re-compile
+		zlib/bzip streaming
+		new opcode
+
+-- Delayed
+
+asknet/reset (asknet/purge)
+	cache::cache
+
+asknet/where
+	=> signature IP = (traceroute FAST-TARGET=www.baidu.com)[2]
+	=> po. = 314400
+asknet/whether
+	=> (local 314400) -> whether info
+
+    .plnet
+        -> keeplink
+        -> whoare
+        -> sockonce
+
+头前 后坤 奇手边 顺手边
+末脚下 落坦
+
+-- Done
+pcs/pct socket
+    .plnet
