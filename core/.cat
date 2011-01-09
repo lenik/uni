@@ -9,7 +9,6 @@ bochs                   2.2.6       sys.emu             bochs.exe
 ctex_cs                 1.5.4       work.doc
 cvs                     2.5.02      net.vcs
 cvs2svn                 2.0.1       net.vcs
-cygwin                  1.7.0-30    sys.os              cygwin.bat
 eclipse                 3.4         dev.ide             eclipse.exe
 emacs                   21.0.104    dev.edit            bin/emacs.exe
 ettercap                0.7.3       net.cap
@@ -23,7 +22,6 @@ gsketchpad              4.0         lab.geom            gsketchp.exe
 gtk                     2.4-rc16    dev.lib
 jdk                     1.6.0_10    lang.java
 mencoder                4.1.0       mm.vid.util
-msys                    1.0.11      dev.util
 mplayer                 0.19.1      mm.vid
 mysql                   5.0         db.rdbms            bin/mysql.exe
 nlite                   1.4.5.3     sys.util            nlite.exe
@@ -31,7 +29,7 @@ nmap                    4.20        net.scan
 npp                     4.2.2       dev.edit            npp.exe=notepad++.exe
 nsis                    2.33        dev.ins             nsis.exe=makensisw.exe
 ntfsundelete            0.92        sys.fs              ntfsundelete.exe
-ooo                     3.1         work.doc            programs/s*.exe
+ooo                     3.1         work.doc            program/s*.exe
 paint.net               3.10        work.img            paintdotnet.exe
 php                     5.2.4       lang.php
 qgo						1.5.4		game.chess			qgo.exe

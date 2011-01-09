@@ -8,6 +8,8 @@
     . /lapiota/lib/sh/findabc
     . /lapiota/lib/sh/cmds
 
+    shopt -s nocaseglob
+
 function version() {
     parse_id "$RCSID"
     echo [$BASENAME] Add Lapiota Module
@@ -150,9 +152,9 @@ function main() {
                             mode="$lam$abcd/$_expand/$c"
                             for dst in $mode; do
                                 shortcut="${dst##*/}"
-                                echo "--- alias $shortcut => $dstw"
                                 dstw="$lam_aw${dst:nlam}"
                                 dstw="${dstw//\//\\}"
+                                # echo "--- alias $shortcut => $dstw"
                                 _sig1 "alias $shortcut => $dstw"
                                 dstwe="${dstw//\\/\\\\}"
                                 reg_add $regf "$APP_PATHS/$shortcut" "=$dstwe" "Path=$dstwe"
