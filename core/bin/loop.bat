@@ -110,11 +110,10 @@
 :skip_waitch
 
     if not "%_delay%"=="" (
-        readkey -t %_delay%
+        call readkey -t %_delay%
         if errorlevel 1 set _keygot=1
         if "!errorlevel!"=="113" goto quit
     )
-
     goto loop
 
 :quit

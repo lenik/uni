@@ -25,6 +25,7 @@
     if %_verbose% geq 1 set CLASSPATH
 
     if "%_start%"=="" (
+        set _start=startw
         if %_verbose% geq 1 set _start=startc
     )
 
@@ -56,7 +57,7 @@
     set     _rest=
     set _startdir=%~dp0
     set  _program=%~dpnx0
-    set    _start=startw
+    set    _start=
 
     set      _nam=net.bodz.lapiota.devhelpers.VisualExec
     set     _namf=%_nam:.=\%

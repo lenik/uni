@@ -25,6 +25,7 @@
     if %_verbose% geq 1 set CLASSPATH
 
     if "%_start%"=="" (
+        set _start=
         if %_verbose% geq 1 set _start=startc
     )
 
@@ -91,6 +92,7 @@
     call loadlib %_libs%
     exit /b
 
+:: Fix_BatBB ::
 :load
     set _libname=%~1
     set _libfile=!lib_%_libname%!

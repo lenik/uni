@@ -169,6 +169,10 @@
         - .class ->
             - decompl   Decompile java class
             -           | $LAPIOTA\bin\pi.bat $LAPIOTA\usr\bin\jad -p \"%1\" \pi; $CYGWIN_ROOT\bin\less
+            - asmifier  ASM dump
+            -           | $LAPIOTA\bin\pi.bat $LAPIOTA\bin\w\asmifier.bat \"%1\" \pi; $CYGWIN_ROOT\bin\less
+            - asmiclip  ASM dump to clipboard
+            -           | $LAPIOTA\bin\pi.bat $LAPIOTA\bin\w\asmifier.bat \"%1\" \pi; $LAPIOTA\bin\w\clip.bat -w
         - '".ax .dll .exe .ocx .sys .tlb" ->'
             - comreg    Register com-service
             -           | regsvr32 \"%1\"
