@@ -1,8 +1,11 @@
 @echo off
 
+    setlocal
+
     if "%~1"=="clean" goto clean
 
-    if "%CERT_DAYS%"=="" set CERT_DAYS=365
+    REM 10 years
+    set CERT_OPTS=-days 3650
 
 rem CA Root (/)
 
@@ -76,9 +79,6 @@ rem CA Root (/)
 
 			rem do certificate (depends on whether this is a root-cert or a sub-certs)
 				if not exist "!C_NAME!.crt" (
-					rem More opts:  -days %CERT_DAYS%
-					set CERT_OPTS=-days %CERT_DAYS%
-
 					if "%1"=="" (
 						rem certificate by [self], expired after [DEF_EXPIRE days]
 						echo [CERT.SELF] !C_NAME!
