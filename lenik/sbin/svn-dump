@@ -8,10 +8,11 @@ if [ "${1:0:1}" = : ]; then
 fi
 
 if [ -z "$1" ]; then
-    echo svn-dump [STAGE] REPO-DIR
+    echo svn-dump [:STAGE] REPO-DIR
     exit 1
 fi
 
+# dump each packages to .dump/YYYYMMDD.PACKAGE.REV
 if [ $stage -le 1 ]; then
   echo 1. Dump
 
@@ -31,6 +32,7 @@ if [ $stage -le 1 ]; then
     done
 fi
 
+# touch/set the date on the dump file, and move to .reindex/REORDER-ID.PACKAGE
 if [ $stage -le 2 ]; then
   echo 2. Reindex
     rm -fR .reindex; mkdir -p .reindex
@@ -49,11 +51,13 @@ if [ $stage -le 2 ]; then
     rmdir .dump
 fi
 
+# fix revision if any... (not used)
 if [ $stage -le 3 ]; then
   echo 3. Reindex - fix revision
 
 fi
 
+# prepare for merge, create empty dir-struct
 if [ $stage -le 4 ]; then
   echo 4. Create merge repository
 
@@ -70,7 +74,7 @@ fi
 
 if [ $stage -le 5 ]; then
   echo 5. Load
-    for f in .rebuild/*; do
+    for f in .reindex/*; do
         s=${f##*/}
         newrev=${s%%.*}
         newrev=$((1$newrev-100000000+1))
