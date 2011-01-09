@@ -11,15 +11,23 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bodz.bas.eclipse;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: bin/,
- lib/net.bodz.lapiota.jar
-Export-Package: net.bodz.lapiota.annotations,
+Bundle-ClassPath: mod/Eclipse Utilities/bin/,
+ lib/net.bodz.lapiota.jar,
+ bin/
+Export-Package: net.bodz.lapiota._extern,
+ net.bodz.lapiota.a,
+ net.bodz.lapiota.comm,
+ net.bodz.lapiota.crypt,
+ net.bodz.lapiota.datafiles,
+ net.bodz.lapiota.devhelpers,
  net.bodz.lapiota.eclipse,
  net.bodz.lapiota.eclipse.jdt,
- net.bodz.lapiota.exttools,
+ net.bodz.lapiota.filesys,
+ net.bodz.lapiota.javatools,
  net.bodz.lapiota.loader,
- net.bodz.lapiota.programs,
  net.bodz.lapiota.snmc,
  net.bodz.lapiota.util,
+ net.bodz.lapiota.win32,
  net.bodz.lapiota.wrappers,
- net.bodz.lapiota.xmlfs
+ net.bodz.lapiota.xmlfs,
+ net.bodz.lapiota.xmltools

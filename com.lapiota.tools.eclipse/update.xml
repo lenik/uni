@@ -16,7 +16,7 @@
 		</copy>
 		<copy todir="${basedir}/lib">
 			<fileset dir="${distsrc}">
-				<include name="net.bodz.lapiota-source.jar" />
+				<include name="net.bodz.lapiota-src.jar" />
 			</fileset>
 		</copy>
 	</target>
