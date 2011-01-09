@@ -32,6 +32,9 @@ fi
 
 labat $* /lapiota/etc/install.d/01system.labat
 labat $* /lapiota/etc/install.d/30metapad.labat
+for s in /lapiota/etc/install.d/*.sh; do
+    $s
+done
 
 cd /lapiota/etc/install.d
 . /lapiota/lib/sh/findabc
