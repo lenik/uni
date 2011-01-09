@@ -10,7 +10,7 @@
 ### ('').
 
 [groups]
-developers = lenik
+developers = lenik, jack
 
 [/]
 * = r
