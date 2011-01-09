@@ -25,6 +25,7 @@
     if %_verbose% geq 1 set CLASSPATH
 
     if "%_start%"=="" (
+        set _start=
         if %_verbose% geq 1 set _start=startc
     )
 
@@ -88,7 +89,6 @@
 
     goto initcp2
 
-:: Fix_BatBB ::
 :loadlibs
     set _libs=%~1
     call loadlib %_libs%

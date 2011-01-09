@@ -25,6 +25,7 @@
     if %_verbose% geq 1 set CLASSPATH
 
     if "%_start%"=="" (
+        set _start=
         if %_verbose% geq 1 set _start=startc
     )
 
@@ -162,7 +163,7 @@
     goto start
 
 :version
-    set _id=$Id: Mkbat.batTempl 57 2008-11-25 14:39:40Z lenik $
+    set _id=$Id: Mkbat.batTempl 62 2009-01-10 11:31:25Z lenik $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j

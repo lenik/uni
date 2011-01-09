@@ -25,6 +25,7 @@
     if %_verbose% geq 1 set CLASSPATH
 
     if "%_start%"=="" (
+        set _start=
         if %_verbose% geq 1 set _start=startc
     )
 
@@ -175,6 +176,7 @@
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
     exit /b 0
 
+:: Fix_BatBB ::
 :help
     call :version
     echo.

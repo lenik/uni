@@ -25,6 +25,7 @@
     if %_verbose% geq 1 set CLASSPATH
 
     if "%_start%"=="" (
+        set _start=
         if %_verbose% geq 1 set _start=startc
     )
 
