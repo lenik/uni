@@ -1,0 +1,17 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; lenik hotkeys {
+#,::run stairs
+
+#+d::
+    ddk1 = cmd /c %HOME%\bin\ddk-chk
+    ddk2 = cmd /c %HOME%\bin\ddk-fre
+    ddk3 = cmd /c %HOME%\bin\ddk-chk
+    ddk4 = cmd /c %HOME%\bin\ddk-chk
+    ddk5 = cmd /c %HOME%\bin\ddk-hal
+    funpack(5, "ddk")
+    return
+#+i::run cmdw /c si
+#+u::run ue
+#+w::run cmdw /c maxthon
+#+x::run cmdw /c xmlspy
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
