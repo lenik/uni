@@ -1,0 +1,6 @@
+#!lamcat 1.0
+
+# name                  latest      tags                shortcuts
+# -----------------------------------------------------------------------------
+ramdisk_4g              1.3         sys.emu             ramdisk.exe
+truecrypt               6.2a        sys.crypt           truecrypt.exe
