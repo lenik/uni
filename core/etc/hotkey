@@ -301,12 +301,22 @@ appskey & numpaddiv::soundset +1, , mute
 #b::fastcall("start ""Big""")
 #c::fastcall("start")
 #f::run firefox
+#g::run cmd /c msys
+#+g::run cmd /c msys bash --login
 #m::run metapad
 #n::run cmdw /c no
 #p::run cmdw /c start paintdotnet
 #q::run cmdw /c start "Big3" cmd /c settitle "Quick Logger" qlog
 #s::run cmdw /c start scite
-#t::run cmdw /c start "Terminal" %SHELL% --login
+#t::
+    process, exist, xwin.exe
+    if errorlevel {
+        ; cygwin rxvt needs GUI-subsys patch. (PE hdr +5Ch)
+        run rxvt -e %SHELL% --login
+    } else {
+        run cmdw /c start "Terminal" %SHELL% --login
+    }
+    return
 #+t::
     rundlg_y = % a_screenheight - 160
     inputbox, cmdline_f, Run, Enter command line[;;mode] to run:,
@@ -324,7 +334,9 @@ appskey & numpaddiv::soundset +1, , mute
     }
     run %shell2% --login -- %cmdline%
     return
-#x::run cmdw /c startx -notrayicon
+#x::
+    run cmdw /c startx -notrayicon
+    return
 #-::
     nfs1 = %perlw% /lapiota/bin/nfs --wait-close
     nfs2 = %perlw% /lapiota/bin/nfs --wait-close ..
@@ -346,7 +358,6 @@ appskey & numpaddiv::soundset +1, , mute
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; more applications {
 #+e::run cmdw /c em
-#+g::run cmd /c gcon
 #+j::run cmdw /c start eclipse
 ^!enter::
     settitlematchmode 2
