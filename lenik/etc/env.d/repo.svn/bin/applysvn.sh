@@ -52,13 +52,13 @@ function merge() {
                 #echo "      $f"
                 name="${f##*/}"
                 if [ -f "$destdir$suffix/$name" ]; then
-                    if ! chown -vR --reference="$destdir$suffix/$name" "$f"; then
+                    if ! chown -R --reference="$destdir$suffix/$name" "$f"; then
                         echo "      [WARN] Can't set owner of $f"
                     fi
-                    if ! chgrp -vR --reference="$destdir$suffix/$name" "$f"; then
+                    if ! chgrp -R --reference="$destdir$suffix/$name" "$f"; then
                         echo "      [WARN] Can't set group of $f"
                     fi
-                    if ! chmod -vR --reference="$destdir$suffix/$name" "$f"; then
+                    if ! chmod -R --reference="$destdir$suffix/$name" "$f"; then
                         echo "      [WARN] Can't set file-mode of $f"
                     fi
                 fi
