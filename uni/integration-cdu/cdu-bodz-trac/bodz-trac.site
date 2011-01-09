@@ -1,5 +1,6 @@
 <VirtualHost *:80>
     ServerName  trac.bodz.net
+    ServerAlias trac.local
     ServerAdmin admin@bodz.net
 
     LogLevel warn

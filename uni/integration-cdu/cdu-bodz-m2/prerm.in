@@ -4,6 +4,10 @@
 echo "Unconfig Apache2"
 
     a2dissite bodz-m2.site
+    a2dissite local-m2.site
     a2reload
+
+    lineconf -tm "    Remove m2.local from /etc/hosts" \
+        /etc/hosts @local::m2
 
 exit 0

@@ -16,8 +16,12 @@ echo "Config Apache2"
     a2enmod proxy_http
     a2enmod rewrite
     a2ensite bodz-m2.site
+    a2ensite local-m2.site
     a2reload
 
-echo "Config Archiva"
+    lineconf -tm "    Add m2.local to /etc/hosts" \
+        /etc/hosts @local::m2 \
+        "127.0.0.1 m2.local"
 
+echo "Config Archiva"
     # xmlrpc..

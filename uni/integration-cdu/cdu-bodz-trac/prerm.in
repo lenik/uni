@@ -1,4 +1,11 @@
 #!/bin/sh
 # master-file
 
+echo "Unconfig Apache"
+    a2dissite bodz-trac.site
+    a2reload
+
+lineconf -tm "Remove trac.local from /etc/hosts" \
+    /etc/hosts @local::trac
+
 exit 0

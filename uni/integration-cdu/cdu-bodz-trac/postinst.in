@@ -9,3 +9,9 @@ echo "Config apache"
     a2enmod  ssl
     a2ensite bodz-trac.site
     a2reload
+
+lineconf -tm "Add trac.local to /etc/hosts" \
+    /etc/hosts @local::trac \
+    "127.0.0.1 trac.local"
+
+exit 0
