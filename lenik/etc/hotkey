@@ -1,7 +1,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; lenik hotkeys {
-;;  used:
-;;      #! cehprsu{bs}/
+;; system hack {
+!tab::
+    winhide ahk_class #32771 ; BUGFIX for ahk.
+    send {escape}{tab}
+    return
+lwin & tab::alttab
+lwin & capslock::shiftalttab
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; application shortcuts {
+#f::run firefox
+#o::run dopus
+#+::run cmdw /c start scilab
 
 #!m::run maxthon
 #!t::run tm
@@ -14,9 +25,6 @@
 #+s::run Z:\.radiko\.miaj\image\lam.nt.sdk.pgd
 #+u::run uedit32
 #+x::run xmlspy
-
-#o::run dopus
-#,::run stairs
 
 #+d::
     ddk1 = cmd /c %HOME%\bin\ddk-chk
