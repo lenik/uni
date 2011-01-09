@@ -28,5 +28,5 @@
 
 :start
     set _startupd=%USERPROFILE%\%l_sm%\%l_programs%\%l_startup%
-    echo copy lapiota-boot.bat "%_startupd%"
-    copy lapiota-boot.bat "%_startupd%" >nul
+    echo copy data\lapiota-boot.bat "%_startupd%"
+    copy /y data\lapiota-boot.bat "%_startupd%" >nul

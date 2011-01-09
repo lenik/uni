@@ -30,5 +30,5 @@ if ! labat --version; then
     return 1
 fi
 
-labat $* /lapiota/etc/install.d/system.labat
-labat $* /lapiota/etc/install.d/metapad.labat
+labat $* /lapiota/etc/install.d/01system.labat
+labat $* /lapiota/etc/install.d/30metapad.labat

@@ -30,9 +30,9 @@
     bash -c '/lapiota/etc/install %*'
 
     cd /d "%~dp0..\etc\install.d"
-    call install-booter
+    call 10install-booter
 
-    cd windows.init
+    cd win32
     for %%f in (*.bat) do (
         echo %%f
         call %%f
