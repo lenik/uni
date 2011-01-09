@@ -1,4 +1,7 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coolx11 - prerm.in ..."
+lineconf -ktm "Remove xjl-coolx11.defaults" \
+    @gconf2dir@/path @xjl-coolx11.defaults
+
+exit 0

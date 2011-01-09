@@ -1,4 +1,8 @@
 #!/bin/sh
 # master-file
 
-echo "xjl-coolx11 - postinst.in ..."
+lineconf -tm "Add xjl-coolx11.defaults" \
+    @gconf2dir@/path @xjl-coolx11.defaults \
+    "xml:readonly:/var/lib/gconf/xjl-coolx11.defaults
+
+exit 0
