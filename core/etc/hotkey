@@ -267,6 +267,7 @@
     ; SetSuspendState(bHibernate, bForce, bCold)
     DllCall("PowrProf\SetSuspendState", "int", 0, "int", 0, "int", 0)
     return
+#+h::run cmdw /c no %windir%\System32\drivers\etc\hosts
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
