@@ -1,0 +1,23 @@
+== sixor::nfs Task.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2008-10-21 19:47:45
+Serial:     NFS08294-30225
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+
+        [ ] key down, event bubble.
+
+        [ ] swt region clip, background-window
+
+        [ ] channel/unit-io, socket sender
+
+        [ ] task execute / DEAP.
+
+        [ ] __________________________________________________________________
+
+REVIEW:
+    __________________________________________________________________________

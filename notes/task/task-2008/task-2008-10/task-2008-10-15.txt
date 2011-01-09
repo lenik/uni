@@ -1,0 +1,37 @@
+== sixor::nfs Task.1 ==
+
+Class:      ?
+Status:     ?
+Date:       datetime
+Serial:     NFS
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+
+        [ ] mountlam
+            nt.util -> lapiota/lams
+
+        [ ] usbeventmonitor
+
+        [ ] swt booter
+            -> swt command monitor
+            -> boot in logo
+
+        [ ] lapiota-installer.nsi
+            -> exe besides lapiota.pgd
+            -> bundle pgp.
+                pgp install? test
+
+        [ ] __________________________________________________________________
+
+        [ ] __________________________________________________________________
+
+REVIEW:
+
+
+lam
+    lam-home
+    lam-imagedisks
+
+lam/root

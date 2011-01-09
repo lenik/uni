@@ -1,0 +1,54 @@
+== sixor::nfs Task.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2008-12-10 21:57:44
+Serial:     NFS08344-33704
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+
+        [ ] xml task
+                sax xml handler processer
+                    jibx -> new xml2java arch
+                    dom mapper
+                    xml-dumper?
+                        stategreph
+                            geom-shape
+                    xml-nodes?
+                        xml, html, jsp models
+                        dtd, xsd -> model javas.
+
+        [ ] units i/o
+                unit-meta
+                port-meta
+                channel-unit
+                    hub-protocol
+                    payload encodings
+                    service provide point
+
+        [ ] image layers
+                sprites
+                    gif animation
+
+        [ ] secrets-provider
+                find(cert'): ?
+
+                verify(cert)
+
+        [ ] pkiutils:
+                newcert(p12, password, alias, pass2,
+                        p12, password, name, serial, days, password);
+                javashell
+                    catch-exit
+                    prompt
+                    exec
+                    CWD
+
+        [-] p11
+                list if no password?    FAILED
+                certdump PKCS11://.lib#*
+
+REVIEW:
+    __________________________________________________________________________

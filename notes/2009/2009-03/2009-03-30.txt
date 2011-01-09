@@ -1,0 +1,32 @@
+== sixor::nfs Normal.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2009-04-04 19:24:00
+Serial:     NFS09093-28800
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+Title:      __________________________________________________________________
+Keywords:   __________________________________________________________________
+
+
+  * 有趣的 bash 管道
+
+    先请看一个例子：
+
+    while read k v; do eval set "${k%:}=\"$v\""; done < <(unzip -p a.jar META-INF/MANIFEST.MF)
+
+    看起来有点复杂？不要紧，后面会告诉你它是怎么回事。
+
+    有点DOS经验的朋友都知道I/O管道是个好东西，对付日常应用，让数据流从这个程序跑到那个程序上，或者用文件代替键盘输入等等，非常有用。但有时管道这个东西用来写复杂的批处理却经常令人恼火，其中一个原因是进程空间的问题，当你用管道将一个进程A的输出发送到另一个进程B的输入时，往往会产生一个错觉，好像两个进程被联合了，并以为它们都能够影响执行它们的批处理（即它们的共同父进程Shell）。比如说，ls | wc 包含两个命令：用来列目录的 ls 和用来统计字数的 wc，看它的输出：
+
+    $ ls
+    bin  dist       etc             lib      omf.make  xmldocs.make
+    db   documents  history.scilab  mplayer  tmp
+
+    $ ls | wc
+         11      11      79
+
+<() 管道占位符

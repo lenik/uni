@@ -1,0 +1,40 @@
+== sixor::nfs Task.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2009-01-31 07:35:02
+Serial:     NFS09030-12182
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+
+        [ ] test db:
+                usersecret(sid, name, public-key)
+                message(id, title, body)
+                signs(hash, sid, sign)
+
+        [ ] ntalias >.bashrc
+                PATH, PATHEXT, cygpath
+
+        [ ] sign interface demo
+                SecretUserProvider
+                MessageDAO
+
+        [ ] applet security
+            hidden applet
+
+        [ ] applet runtime checker
+            sample html block
+
+        [ ] URL encoder?
+
+        [ ] user secret generator
+                SignConfig.pfxSaveDir   (house reconfigurable)
+                DemoDBInit:
+                    sample users
+
+        [ ] derby documents
+
+REVIEW:
+    __________________________________________________________________________

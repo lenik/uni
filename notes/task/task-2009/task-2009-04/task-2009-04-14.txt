@@ -1,0 +1,25 @@
+== sixor::nfs Task.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2009-04-14 18:36:27
+Serial:     NFS09103-28107
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+
+        [ ] pack test
+            entry duplicated
+
+        [ ] log4j: Logger.info(vararg?)
+
+        [ ] javadoc wrapper
+
+        [ ] bas.log.Logger
+
+        [ ] SWTLogger
+
+
+REVIEW:
+    __________________________________________________________________________

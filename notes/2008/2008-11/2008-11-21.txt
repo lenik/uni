@@ -1,0 +1,39 @@
+== sixor::nfs Normal.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2008-11-21 23:00:58
+Serial:     NFS08325-33178
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+Title:      __________________________________________________________________
+Keywords:   __________________________________________________________________
+
+
+  * 512 bytes of shit
+
+static void
+cse_pad(EXTENSION_CONTROL_BLOCK *r)
+{
+  cse_printf(r, "\n\n\n\n");
+  cse_printf(r, "<!--\n");
+  cse_printf(r, "   - Unfortunately, Microsoft has added a clever new\n");
+  cse_printf(r, "   - \"feature\" to Internet Explorer.  If the text in\n");
+  cse_printf(r, "   - an error's message is \"too small\", specifically\n");
+  cse_printf(r, "   - less than 512 bytes, Internet Explorer returns\n");
+  cse_printf(r, "   - its own error message.  Yes, you can turn that\n");
+  cse_printf(r, "   - off, but *surprise* it's pretty tricky to find\n");
+  cse_printf(r, "   - buried as a switch called \"smart error\n");
+  cse_printf(r, "   - messages\"  That means, of course, that many of\n");
+  cse_printf(r, "   - Resin's error messages are censored by default.\n");
+  cse_printf(r, "   - And, of course, you'll be shocked to learn that\n");
+  cse_printf(r, "   - IIS always returns error messages that are long\n");
+  cse_printf(r, "   - enough to make Internet Explorer happy.  The\n");
+  cse_printf(r, "   - workaround is pretty simple: pad the error\n");
+  cse_printf(r, "   - message with a big comment to push it over the\n");
+  cse_printf(r, "   - five hundred and twelve byte minimum.  Of course,\n");
+  cse_printf(r, "   - that's exactly what you're reading right now.\n");
+  cse_printf(r, "   -->\n");
+}

@@ -1,0 +1,49 @@
+﻿== sixor::nfs Normal.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2009-04-27 23:10:30
+Serial:     NFS09116-33750
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+Title:      打样快客（中文版）安装说明
+Keywords:   Quick Tone, Installation Guide
+
+
+  * 打样快客（中文版）基于 Lenix 运行时环境，适用于 Windows 2000/XP/Vista/Linux/Ubuntu/Solaris 等操作系统。
+
+    对于 Windows 用户，请先安装 Lenix Runtime For Win32，运行光盘下的 lenix-base.exe 选择全部安装。
+
+    注意：Lenix Runtime 不支持含有空格的目录名称。如果您将 Lenix Runtime 安装到含有空格的目录中可能会导致程序无法正常运行。
+
+    Lenix Runtime 安装成功后，可以看到 .xj 和 .xjw 文件的图标显示为程序文件。
+
+  * 运行 Installer.xjw 安装本产品。
+
+  * 双击桌面上的打样快客图标运行本产品。
+
+    如果您在安装或运行时出现了错误，请发送错误报告。如果不能发送错误报告或者看不到错误信息，请将程序的扩展名改成 .xj 并以控制台模式运行，当错误再次呈现时，请将控制台上的错误文本复制下来（鼠标右键/选择复制）并发送给技术人员。
+
+    （程序默认安装路径：C:\Lenix\lib\com.labja.quicktone.xjw）
+
+  * 错误处理邮箱：
+    quicktone@labja.com
+
+    技术支持：
+    lenik@labja.com     （谢先生）
+
+    销售代理：
+    13819317372         （倪先生）
+
+  * 光盘内含以下组件：
+
+    Lenix Runtime _1.33                             #!s/_\S+/_${V_DIST}
+    打样快客 _1.3.16                                #!s/_\S+/_${V_QT}
+    示范图片
+
+    共 3 件，如有缺失、坏道导致数据无法读取，请联系经销商以更新媒介。
+
+------------------------------------------------------------------------------
+（版权保留，桃壳软件 1993-2009）

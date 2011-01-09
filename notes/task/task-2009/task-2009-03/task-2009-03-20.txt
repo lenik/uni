@@ -1,0 +1,44 @@
+== sixor::nfs Task.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2009-03-20 13:38:33
+Serial:     NFS09078-21033
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+
+        [ ] geom...:
+            init=null ....
+            model changable
+
+        [ ] cube test:
+            color sets:
+                web safe colors, web really safe colors
+                vga colors
+                css2 colors
+
+            test-colorset 4x4
+
+        [ ] google apps, db?
+            serial
+
+        [ ] installer: \labja
+            obfuscator
+            exe4j, no ver check.
+            nsis: select dir Must no space
+	        bash based invokes.
+            jdkdist.exe
+            quicktone.exe
+
+        [ ] __________________________________________________________________
+
+        [ ] __________________________________________________________________
+
+        [ ] __________________________________________________________________
+
+        [ ] __________________________________________________________________
+
+REVIEW:
+    __________________________________________________________________________

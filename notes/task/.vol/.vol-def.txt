@@ -1,8 +1,8 @@
-== sixor::nfs Task.1 ==
+<? use cmt::time; '' ?>== sixor::nfs Task.1 ==
 
 Class:      ?
 Status:     ?
-Date:       <? datetime ?>
+Date:       <? cdatetime ?>
 Serial:     NFS<? timestamp10(undef, '-') ?>
 
 Author:     Xima J.Lenik

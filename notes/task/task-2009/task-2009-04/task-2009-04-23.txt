@@ -1,0 +1,34 @@
+== sixor::nfs Task.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2009-04-23 14:40:53
+Serial:     NFS09112-22613
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+
+        [V] job progress
+                file copy progress
+
+        [V] job status
+                file copy status
+
+        [V] job cancel
+                file copy cancel
+
+        [-] zip output stream, append?
+            not supported
+
+        [x] installer proguard
+
+        [-] swt-sleak, Display..?
+
+        [x] getresbase, -> default resfolder
+
+        [x] xj launcher
+            icons
+
+REVIEW:
+    __________________________________________________________________________

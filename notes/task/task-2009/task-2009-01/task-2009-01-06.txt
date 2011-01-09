@@ -1,0 +1,31 @@
+== sixor::nfs Task.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2009-01-06 10:06:04
+Serial:     NFS09005-14764
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+
+        [ ] find workspace
+                cpjmod -> pooh.openterminal
+                    open terminal dialog
+                        swt keygen
+                            exe4j bug report
+                    open terminal action
+
+        [ ] general eclipse project debug console
+                sign servlet, mod-servlet
+
+        [ ] mkcert: export to
+                jks
+                jcek??
+
+        [ ] __________________________________________________________________
+
+        [ ] __________________________________________________________________
+
+REVIEW:
+    __________________________________________________________________________

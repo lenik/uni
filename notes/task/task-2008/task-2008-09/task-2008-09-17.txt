@@ -12,6 +12,7 @@ Reply-To:   lenik@bodz.net
         [ ] Config
                 env overrides
                 settings convertion
+                DBConfig.db.path()...
 
         [ ] Applet test for dll loading
 
@@ -20,6 +21,8 @@ Reply-To:   lenik@bodz.net
         [ ] Login and crypto/ft11, by hand
 
         [ ] Download files
+
+        [x] fj.Files -> ckt.Store
 
 REVIEW:
     __________________________________________________________________________

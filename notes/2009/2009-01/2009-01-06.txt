@@ -1,0 +1,24 @@
+== sixor::nfs Normal.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2009-01-06 19:37:23
+Serial:     NFS09005-29603
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+Title:      __________________________________________________________________
+Keywords:   __________________________________________________________________
+
+
+  * To: exe4j.
+
+    Thank you, there is a way to launch the exe4j compiled java application, using java beta versions, you must tell people when the EXE4J_JAVA_HOME dialog pops up, don't click the OK button and find the temporaryly generated .jar files in the temp/ folder, and open a command console window under that directory and type `java -jar ' stuff at the prompt.
+
+    But there still problem, that is the exe4j program itself, can't run in beta versions. I don't know why this is designed, it's really unnecessary to check if you run a beta version or not, if exe4j want to give people somewhat imagine very stable, then we know the beta version would cause some unstable problems, but that's why we install them, it's not the responsibility of exe4j, it's no good but just making annoys.
+
+    If exe4j will remove this limit in future releases, I'll be very happy to hear that.
+
+    Sincerely,
+    Lenik
