@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.widgets.Shell;
-
-import com.lapiota.pooh.spy.SelectionDetailDialog;
+import org.junit.Test;
 
 public class SelectionDetailDialogTest {
 
-    public static void main(String[] args) {
+    @Test
+    public void test() throws Exception {
         List<Object> list = new ArrayList<Object>();
         list.add("One");
         list.add(2.002002002002);
@@ -22,8 +22,7 @@ public class SelectionDetailDialogTest {
         list.add(fourv);
         list.add(null);
         list.add("Six");
-        SelectionDetailDialog dialog = new SelectionDetailDialog(new Shell(),
-                list.iterator());
+        SelectionDetailDialog dialog = new SelectionDetailDialog(new Shell(), list.iterator());
         dialog.open();
     }
 

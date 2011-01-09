@@ -2,12 +2,12 @@ package com.lapiota.pooh.spy;
 
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Shell;
-
-import com.lapiota.pooh.spy.TypeHierarchyDialog;
+import org.junit.Test;
 
 public class TypeHierarchyDialogTest {
 
-    public static void main(String[] args) {
+    @Test
+    public void test() {
         TypeHierarchyDialog dialog = new TypeHierarchyDialog(new Shell(),
                 Button.class);
         dialog.open();
