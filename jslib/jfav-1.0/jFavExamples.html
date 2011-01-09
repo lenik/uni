@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Example File for jFav a jQuery Plugin</title>
+
+<script type="text/javascript" src="jq126.js"></script>
+<script type="text/javascript" src="jFav_v1.0.js"></script>
+<style type="text/css" media="screen">
+	.example {background-color:#ccc;border:#aaa solid 1px;padding:5px;}
+	.exampleA {float:left;width:200px;height:50px;margin:5px;text-align:center;border:#aaa solid 1px;background-color:#bbb;}
+	.exampleB {float:left;width:200px;height:50px;margin:5px;text-align:center;border:#f00 solid 1px;background-color:#900;color:#fff;}
+	.exampleC {float:left;width:200px;height:50px;margin:5px;text-align:center;border:#0f0 solid 1px;background-color:#090;color:#fff;}
+	.exampleD {float:left;width:20%;height:50px;margin:2%;text-align:center;border:#00f solid 1px;background-color:#009;color:#fff;}
+	hr {clear:both;}
+</style>
+
+</head>
+
+<body>
+<h1>Example File for jFav &quot;add to favourites/bookmarks&quot; for jQuery!</h1>
+<p>This file contains examples of<strong> jFav</strong>, plugin created by Nikos "DuMmWiam" Kontis for use with the jQuery library version 1.2+. Currently supported browsers are: FireFox, Internet Explorer and Opera. Safari and Chrome are not supported yet due to browser limitations. For more information visit the official website: <a href="http://www.dummwiam.com/EffectChain" title="visit the official website of jTypeWriter">http://www.dummwiam.com/jFav</a>.</p>
+   <h5>Example A : Simple Usage AKA Bookmaring The Current Page</h5>
+    <p>
+The first and most important thing you have to understand is that <strong>jFav</strong>, doesn't have any parameters. In order to have maximum usability and implementation the &quot;bookmarking&quot; parameters are set per link, in the attributes <strong>href</strong> and <strong>title</strong>! Now that you've got tha let's go the most simple and common usage of jFav, make a link (or more, but I believe you need only one), to Add to Bookmarks/Favourites the current url. In order to do that you have to do two things: 1) create the link(s) in HTML and then 2) assign the <strong>jFav </strong>function on those links. The following examples goes like this...</p>
+<p>
+<em>HTML CODE:</em><br />
+<code><strong>&lt;a id=&quot;buttonOne&quot;&gt;</strong>Click here to Add this Page to Favourites<strong>&lt;/a&gt;</strong></code> <br />
+<br />
+<em>jQuery CODE:<br />
+</em><code><strong>$('#buttonOne').jFav();</strong></code></p>
+</p>
+<div class="example">
+	  <a id="buttonOne">Click here to Add this Page to Favourites</a>
+</div>
+<script language="javascript" type="text/javascript">
+	$('#buttonOne').jFav();
+</script>
+<p>
+	By click the link above in the example, you will see that the add to bookmarks/favourites dialogue box opens. The name of the link is taken from the <code>&lt;title&gt;</code> element of you page (inside <code>&lt;head&gt;...&lt;/head&gt;</code>) and the link (URL, HREF whatever you call it) is the current url of the page. This is the (smart) <strong>jFav</strong>, it sees that you have not set the <code>title</code> &amp; <code>href</code> attributes on the <code>&lt;a&gt;</code> tag and it assumes that you want this bookmark to point to the current page.</p>
+<hr />
+<h5>Example B : Advanced Usage AKA Bookmark Any Number of Internal or External Links!</h5>
+<p> The second more &quot;complicated&quot; usage of <strong>jFav</strong> is handy when you want to create bookmarks that point to any url/href/link you want and with any title you want. Declare a <code>title</code> and <code>href</code> attributes in your links and you are set. A very important think to note, is the correct declartion of external links. This is wrong: <s>www.google.com</s> this is correct: http://www.google.com! See the following examples and you will understand.</p>
+<p>
+    <em>HTML CODE: </em><br />
+    1) <strong>&lt;a class=&quot;buttonsTwo&quot; href=&quot;http://www.google.com/&quot; title=&quot;Google T H E search engine&quot;&gt;</strong>Bookmark Google<strong>&lt;/a&gt;</strong><br />
+    2) <strong>&lt;a class=&quot;buttonsTwo&quot; href=&quot;http://www.drupal.org/&quot; title=&quot;Drupal RULEZ&quot;&gt;</strong>Add Drupal to favourites!<strong>&lt;/a&gt;</strong><br />
+    3) <strong>&lt;a class=&quot;buttonsTwo&quot; href=&quot;#&quot; title=&quot;My Page Name Here&quot;&gt;</strong>Bookmark Current Page, with custom title<strong>&lt;/a&gt;</strong><br />
+    <br />
+    <em>jQuery CODE: </em><code><strong><br />
+    $('.buttonsTwo').jFav();</strong></code>
+</p>
+<div class="example">
+	1) <a class="buttonsTwo" href="http://www.google.com/" title="Google T H E search engine">Bookmark Google</a><br />
+  2) <a class="buttonsTwo" href="http://www.drupal.org/" title="Drupal RULEZ">Add Drupal to favourites!</a><br />
+    3) <a class="buttonsTwo" href="#" title="My Page Name Here">Bookmark Current Page, with custom title</a><br />
+</div>
+<script language="javascript" type="text/javascript">
+	$('.buttonsTwo').jFav();
+</script>
+<p>The first and second links have a custom declaration in both <code>title</code> and <code>href</code>, thus instead of links these two work as add bookmarks/favourites for Google and Drupal respectively. The third link has a declaration only in the <code>title</code> attribute, so <strong>jFav</strong> uses the current URL/address for the favourite/bookmark destination and the bookmark/favourite name is take by the <code>title</code> attribute.</p>
+</body>
+</html>
