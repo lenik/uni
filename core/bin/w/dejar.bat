@@ -52,11 +52,11 @@
     exit /b
 
 :init
+    set   __DIR__=%~dp0
+    set  __FILE__=%~dpnx0
     set  _verbose=0
     set      _ret=
     set     _rest=
-    set   __DIR__=%~dp0
-    set  __FILE__=%~dpnx0
 
     set      _nam=%~n0
     set      _ext=
@@ -163,7 +163,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %__FILE__% [PB-OPTION] ARGUMENTS...
+    echo    %_program% [PB-OPTION] ARGUMENTS...
     echo.
     echo Options:
     echo    -Pw,--pb-win        start with bash.exe
