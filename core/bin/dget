@@ -1,0 +1,5 @@
+#!/bin/bash
+
+REPOURL=http://repository.sonatype.org/content/repositories/central/
+
+mvn dependency:get -DrepoUrl="$REPOURL" "$@"
