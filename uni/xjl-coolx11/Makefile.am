@@ -41,7 +41,7 @@ CLEANFILES = ${setup_SCRIPTS} \
         <$< >$@
 
 path.diff: path
-	diff -u ${gconf2dir}/path $< >$@
+	-diff -u ${gconf2dir}/path $< >$@
 
 gconf-cleanbase/%gconf-tree.xml:
 	gconf-merge-tree $(srcdir)/gconf-cleanbase
