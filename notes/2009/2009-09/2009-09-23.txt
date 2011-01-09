@@ -1,0 +1,45 @@
+== sixor::nfs Normal.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2009-09-23 16:30:02
+Serial:     NFS09265-24842
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+Title:      www.secca-project.com 若干配置
+Keywords:   __________________________________________________________________
+
+
+  * www.secca-project.com 若干配置
+
+    名称：项目开发网站
+
+    www.secca-project.com 用于发布SECCA项目开发的相关信息、进展、汇报等事项。
+
+    public/www 目录下是网站的源码。
+    网站使用 GAE 技术，部署的 App Id 为 SECCAW。
+
+
+  * 上传、更新
+
+    请使用 appcfg.py，以及 @secca-project.com 邮箱帐号操作，
+    或者提交代码，由我定期上传更新。
+
+
+  * .upload.sh 简易上传工具
+
+    要求环境：
+        1，cygwin 环境
+        2，python .py 扩展名关联
+        3，appcfg.py 工具在 PATH 路径中
+
+    使用方法：
+        在 .upload.sh 同一目录中建立 .passwd 文本文件，
+        内容是 GAE 登陆帐号和密码，写在一行中用空格隔开。
+
+
+  * 其它有关存储等配置有待添加，
+
+    请关注本文档。

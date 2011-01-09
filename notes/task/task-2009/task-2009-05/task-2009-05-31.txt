@@ -1,0 +1,25 @@
+== sixor::nfs Task.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2009-05-31 18:50:27
+Serial:     NFS09150-28947
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+
+        [ ] new pageflow
+
+        [ ] demo/trial registration
+
+        [ ] ext-js tutorials
+
+        [ ] tabular/menu?
+
+        [ ] 99jsj upgrade
+
+        [ ] dist.lic-sales
+
+REVIEW:
+    __________________________________________________________________________

@@ -1,0 +1,31 @@
+== sixor::nfs Task.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2009-08-31 09:31:14
+Serial:     NFS09242-14834
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+
+        [ ] pfl page redirection
+                1, temporary/permanent
+                    by:
+                        return value        Nonpage instance
+                        response.reloc      Nonpage instance
+                        reloc-exception     Nonpage instance
+                    or:
+                        Book'.resolv()
+                        TreePath'.resolv()
+
+        [ ] __________________________________________________________________
+
+        [ ] __________________________________________________________________
+
+        [ ] __________________________________________________________________
+
+        [ ] __________________________________________________________________
+
+REVIEW:
+    __________________________________________________________________________
