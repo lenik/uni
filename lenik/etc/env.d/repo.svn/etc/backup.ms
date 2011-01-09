@@ -10,4 +10,5 @@
 /lam/backups.7/mirror
 /lam/backups.8/mirror
 /lam/backups.9/mirror
+/mnt/f/mirror
 /mnt/v/mirror

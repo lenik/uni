@@ -10,10 +10,18 @@
 ### ('').
 
 [groups]
-developers = lenik, jack
+developers = auto, lenik
 
 [/]
-* = r
+* = rw
+
+[/trunk]
+@developers = rw
+
+[/branches]
+@developers = rw
+
+[/tags]
 @developers = rw
 
 # [repository:/baz/fuz]
