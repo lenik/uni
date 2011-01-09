@@ -1,6 +1,5 @@
 #!/bin/bash
 
-#set -x
 __DIR__="${BASH_SOURCE%/*}"
 FSTAB="$__DIR__/fstab.tc"
 PASSWD="$__DIR__/passwd.tc"
@@ -111,7 +110,7 @@ cat "$FSTAB" | while read -r LETTER DEVICE PASSWORD MOUNTPOINTS; do
             _try=3
 			while true; do
 				# rmdir "$m"; mkdir_p "$m"
-                #cmd /c rmdir "$m_norm" \& mkdir "$m_norm"
+                cmd /c rmdir "$m_norm" \& mkdir "$m_norm"
                 if ! err=`mountvol "$m_norm" "$VOL"`; then
                     echo "    mountvol: $err"
                     if [ $((_try--)) -le 0 ]; then
