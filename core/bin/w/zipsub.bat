@@ -58,7 +58,7 @@
     set  _program=%~dpnx0
     set    _start=
 
-    set      _nam=net.bodz.lapiota.javatools.GenerateClassWrappers
+    set      _nam=net.bodz.lapiota.filesys.ZipSub
     set     _namf=%_nam:.=\%
     set      _ext=
     set _javaopts=%JAVA_OPTS% net.bodz.bas.loader.DefaultBooter --
@@ -162,7 +162,7 @@
     goto start
 
 :version
-    set _id=$Id$
+    set _id=$Id: Mkbat.batTempl 57 2008-11-25 14:39:40Z lenik $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
