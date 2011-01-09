@@ -191,7 +191,7 @@
             - tlbunreg  Unregister type library
             -           | $LAPIOTA\bin\regtlb /u \"%1\"
             - depview   View Dependency
-            -           | $LAPITOA\local\bin\depends \"%1\"
+            -           | $LAPIOTA\local\bin\depends \"%1\"
         - .exe ->
             - addalias  Add to run program aliases
             -           | $LAPIOTA\bin\w\alias.bat @=\"%1\"
