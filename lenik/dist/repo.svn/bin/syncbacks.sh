@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -l
 
 function mkdir_p() {
     for dir in "$@"; do
@@ -94,9 +94,15 @@ while read backup_device; do
                     --sync-password "syncpass" \
                     "$slave_root/$repo_name" "$master_root/$repo_name"
             fi
-            "$SVNSYNC" sync "$slave_root/$repo_name"
+            "$SVNSYNC" sync \
+                --non-interactive --trust-server-cert \
+                --sync-username "syncuser" \
+                --sync-password "syncpass" \
+                "$slave_root/$repo_name"
         done
     done
 
     echo
 done <"$master/etc/backup.ms"
+
+read -p "press Enter to quit..."
