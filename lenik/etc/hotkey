@@ -14,10 +14,30 @@ lwin & capslock::shiftalttab
 #o::run dopus
 #+::run cmdw /c start scilab
 
+#g::
+    envset apps_1, Tencent Messenger
+    envset apps_2, Ã‘±¶ÕÙÕÙ
+    envset apps_3, Windows Live Writer
+    envset apps_4, Windows Live Mail
+    runwait cmdw /c "%LAPIOTA%\bin\w\gchoice.bat -Tt`"Select Programs To Run`" -eapps &exit"
+    if errorlevel
+        goto apps_%errorlevel%
+    return
+
+    apps_1:
+        run tm
+        return
+    apps_2:
+        run wangwang
+        return
+    apps_3:
+        run cmdw /c findrun -r "%a_programfiles%" "windows live" writer\windowslivewriter
+        return
+    apps_4:
+        run cmdw /c findrun -r "%a_programfiles%" "windows live" mail\windowslivemail
+        return
+
 #!m::run maxthon
-#!t::run tm
-#!w::run cmdw /c findrun -r "%a_programfiles%" "windows live" writer\windowslivewriter
-#!$::run wangwang
 #!?::run lingoes
 
 #+i::run insight3
