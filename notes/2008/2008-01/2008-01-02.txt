@@ -1,0 +1,26 @@
+== sixor::nfs Normal.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2008-01-02 20:20:59
+Serial:     NFS08001-30059
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+Title:      __________________________________________________________________
+Keywords:   __________________________________________________________________
+
+
+  * six实现
+
+    组织成图：
+        stategraph  (graph)
+        logtarget   (layers, override)
+        inputsource (layers, override)
+
+    refactor如何实现？
+        相关元素：
+            six程序，仅在某一层（在parser作用域，可能包含到下层）
+            文件系统（six-based fs则另当别论）
+
