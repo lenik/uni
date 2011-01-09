@@ -6,8 +6,26 @@
 
 :start
 
-    set CLASSPATH=%_cp%
-    call WhichClass %_names%
+    set _dname=
+    set _dname=%_dname%, cn=Lapiota General Purpose Unsafe Key
+    set _dname=%_dname%, ou=Lapiota
+    set _dname=%_dname%, o=boDz
+    set _dname=%_dname:~2%
+
+    set _opts=-genkey
+    set _opts=%_opts% -dname "%_dname%"
+    set _opts=%_opts% -alias LGPUK
+    set _opts=%_opts% -keypass Lapiota
+    set _opts=%_opts% -validity 365
+
+    call keytool2 %_opts%
+
+:file
+    echo [resign] %~1
+    call jarsigner2 -keypass Lapiota "%~1" LGPUK
+    shift
+    if not "%~1"=="" goto file
+
     exit /b 0
 
 :init
@@ -16,9 +34,6 @@
     set     _rest=
     set _startdir=%~dp0
     set  _program=%~dpnx0
-    set    _recur=
-    set       _cp=.
-    set    _names=
 
 :prep1
     if "%~1"==""            goto prep2
@@ -39,10 +54,6 @@
         set /a _verbose = _verbose + 1
     ) else if "%~1"=="--verbose" (
         set /a _verbose = _verbose + 1
-    ) else if "%~1"=="-r" (
-        set _recur=1
-    ) else if "%~1"=="--recursive" (
-        set _recur=1
     ) else if "%_arg:~0,1%"=="-" (
         if "%_strict%"=="1" (
             echo Invalid option: %1
@@ -60,53 +71,22 @@
 
 :prep2
     if "%~1"=="" goto help
-    if "%~1"=="--" goto prepcp
-    if "%~1"=="*" goto prepcp
-    if exist "%~1\*" goto prepcp
-    if "%~x1"==".jar" goto prepcp
-    set _names=%_names% %~1
-    shift
-    goto prep2
-
-:prepcp
-    if "%~1"=="" goto prep3
-    if "%_recur%"=="1" (
-        for /r %%i in ("%~1") do (
-            if %_verbose% geq 1 echo classpath - %%~dpnxi
-            set _cp=!_cp!;%%~dpnxi
-        )
-    ) else (
-        for %%i in ("%~1") do (
-            if %_verbose% geq 1 echo classpath - %%~dpnxi
-            set _cp=!_cp!;%%~dpnxi
-        )
-    )
-    shift
-    goto prepcp
 
 :prep3
-    if "%~1"=="" (
-        set _=%1.
-        set _=!_:"=?!
-        if !_!==. goto init_ok
-    )
-    set _rest=%_rest%%1
-    shift
-    goto prep3
 
 :init_ok
-    if %_verbose% geq 2 (set _ | tabify -b -d==)
+    if %_verbose% geq 1 (set _ | tabify -b -d==)
     goto start
 
 :version
-    set _id=$Id$
+    set _id=$Id: .bat 784 2008-01-15 10:53:24Z lenik $
     for /f "tokens=3-6" %%i in ("%_id%") do (
         set   _version=%%i
         set      _date=%%j
         set      _time=%%k
         set    _author=%%l
     )
-    echo [whichclass] Find path of given class names
+    echo [resign] jar re-sign with lapiota default key
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
     exit /b 0
 
@@ -114,10 +94,9 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] CLASSES [--] CLASSPATHS
+    echo    %_program% [OPTION] JARS
     echo.
     echo Options:
-    echo    -r, --recursive     recursive into subdirectories when necessary
     echo    -q, --quiet         repeat to get less info
     echo    -v, --verbose       repeat to get more info
     echo        --version       show version info

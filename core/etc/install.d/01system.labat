@@ -133,9 +133,9 @@
             -           | $LAPIOTA\bin\w\mkchm.bat -v -r -cd -o .. \"%1\"
             - ar-jar    Archive this directory into .jar file
             -           | ${findabc -w jdk}\bin\jar.exe cvf \"%1.jar\" -C \"%1\" *
-            - cmd       [1] Win32 Console
+            - cmd       [1] Win32 &Console
             -           | cmd /k $LAPIOTA\bin\lapiota-init.bat login \"%1\"
-            - bigcmd    [1] Win32 Console (Big)
+            - bigcmd    [1] Win32 Console (&Big)
             -           | cmdw /c start \"Big\" $LAPIOTA\bin\lapiota-init.bat login \"%1\"
             - ushell    [1] Unix Shell
             -           | $CYGWIN_ROOT\bin\bash
