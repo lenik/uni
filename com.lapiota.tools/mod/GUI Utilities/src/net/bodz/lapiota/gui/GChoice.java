@@ -10,7 +10,7 @@ import net.bodz.bas.cli.CLIException;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.io.CharOut;
 import net.bodz.lapiota.wrappers.BasicGUI;
-import net.bodz.swt.gui.SWTInteraction;
+import net.bodz.swt.gui.DialogUI;
 
 import org.eclipse.swt.SWT;
 
@@ -41,7 +41,7 @@ public class GChoice extends BasicGUI {
         int style = SWT.SYSTEM_MODAL;
         if (topMost)
             style |= SWT.ON_TOP;
-        SWTInteraction act = new SWTInteraction(style);
+        DialogUI act = new DialogUI(style);
         if (envKey != null) {
             String _count = System.getenv(envKey + "_count");
             if (_count == null) {

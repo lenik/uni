@@ -2,7 +2,7 @@ package net.bodz.lapiota.ant.tasks;
 
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.lang.script.ScriptClass;
-import net.bodz.bas.log.LogTerm;
+import net.bodz.bas.util.LogTerm;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 public class HelloCLI extends BasicCLI {

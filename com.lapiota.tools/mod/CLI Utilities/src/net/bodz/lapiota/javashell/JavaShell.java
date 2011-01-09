@@ -268,7 +268,7 @@ public class JavaShell extends BasicCLI {
         @Override
         public int main(String... args) throws Exception {
             if (args.length == 0)
-                System.out.println(CWD.current());
+                System.out.println(CWD.getcwd());
             else {
                 try {
                     File dir = CWD.get(args[0]);

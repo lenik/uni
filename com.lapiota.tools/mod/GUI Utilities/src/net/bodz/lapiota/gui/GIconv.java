@@ -9,12 +9,10 @@ import java.util.SortedMap;
 import net.bodz.bas.a.Doc;
 import net.bodz.bas.a.RcsKeywords;
 import net.bodz.bas.a.Version;
-import net.bodz.bas.gui.GUIException;
-import net.bodz.bas.gui.a.PreferredSize;
 import net.bodz.bas.lang.err.ParseException;
-import net.bodz.bas.rt.Interaction;
+import net.bodz.bas.ui.UIException;
+import net.bodz.bas.ui.a.PreferredSize;
 import net.bodz.lapiota.wrappers.BasicGUI;
-import net.bodz.swt.gui.SWTInteraction;
 import net.bodz.swt.util.SWTResources;
 
 import org.eclipse.swt.SWT;
@@ -57,10 +55,8 @@ public class GIconv extends BasicGUI {
 
     private byte[]      binary;
 
-    private Interaction iact = new SWTInteraction();
-
     @Override
-    protected void createInitialView(Composite comp) throws GUIException,
+    protected void createInitialView(Composite comp) throws UIException,
             SWTException {
         comp.setLayout(new FillLayout());
         comp = new Composite(comp, SWT.NONE);
@@ -314,7 +310,7 @@ public class GIconv extends BasicGUI {
         try {
             bytes = HEX.decode(hex);
         } catch (ParseException e) {
-            iact.alert(e.getMessage(), e);
+            UI.alert(e.getMessage(), e);
             return null;
         }
         return bytes;
@@ -335,7 +331,7 @@ public class GIconv extends BasicGUI {
         try {
             setBinary(s.getBytes(charset));
         } catch (UnsupportedEncodingException e) {
-            iact.alert(e.getMessage(), e);
+            UI.alert(e.getMessage(), e);
         }
     }
 
@@ -345,7 +341,7 @@ public class GIconv extends BasicGUI {
         try {
             setBinary(s.getBytes(charset));
         } catch (UnsupportedEncodingException e) {
-            iact.alert(e.getMessage(), e);
+            UI.alert(e.getMessage(), e);
         }
     }
 
@@ -360,7 +356,7 @@ public class GIconv extends BasicGUI {
         try {
             s = new String(binary, charset);
         } catch (UnsupportedEncodingException e) {
-            iact.alert(e.getMessage(), e);
+            UI.alert(e.getMessage(), e);
             return;
         }
         text1Text.setText(s);
@@ -377,7 +373,7 @@ public class GIconv extends BasicGUI {
         try {
             s = new String(binary, charset);
         } catch (UnsupportedEncodingException e) {
-            iact.alert(e.getMessage(), e);
+            UI.alert(e.getMessage(), e);
             return;
         }
         text2Text.setText(s);

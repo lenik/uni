@@ -8,9 +8,9 @@ import net.bodz.bas.a.Version;
 import net.bodz.bas.cli.a.Option;
 import net.bodz.bas.cli.a.ParseBy;
 import net.bodz.bas.io.CharOuts;
-import net.bodz.bas.log.LogTerm;
 import net.bodz.bas.sec.pki.util.CertSelector;
 import net.bodz.bas.sec.pki.util.Providers;
+import net.bodz.bas.util.LogTerm;
 import net.bodz.lapiota.wrappers.BasicCLI;
 
 @Doc("KeyStore/Certificate Dump")
