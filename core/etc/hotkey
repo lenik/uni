@@ -192,6 +192,53 @@
         FileAppend, %cmdline%`n, %TMP%\fast0.bat
         run winevent -s fast0
     }
+
+    startx() {
+        run %SHELLW% -c startxwin.sh -notrayicon
+    }
+
+    ; See http://www.autohotkey.com/forum/topic7328.html
+    EncodeInteger( p_value, p_size, p_address, p_offset ) {
+       loop, %p_size%
+          DllCall( "RtlFillMemory"
+             , "uint", p_address+p_offset+A_Index-1
+             , "uint", 1
+             , "uchar", ( p_value >> ( 8*( A_Index-1 ) ) ) & 0xFF )
+    }
+
+    SendInputU( p_text ) {
+       StringLen, len, p_text
+
+       INPUT_size = 28
+
+       event_count := ( len//4 )*2
+       VarSetCapacity( events, INPUT_size*event_count, 0 )
+
+       loop, % event_count//2
+       {
+          StringMid, code, p_text, ( A_Index-1 )*4+1, 4
+
+          base := ( ( A_Index-1 )*2 )*INPUT_size+4
+             EncodeInteger( 1, 4, &events, base-4 )
+             EncodeInteger( "0x" code, 2, &events, base+2 )
+             EncodeInteger( 4, 4, &events, base+4 ) ; KEYEVENTF_UNICODE
+
+          base += INPUT_size
+             EncodeInteger( 1, 4, &events, base-4 )
+             EncodeInteger( "0x" code, 2, &events, base+2 )
+             EncodeInteger( 2|4, 4, &events, base+4 ) ; KEYEVENTF_KEYUP|KEYEVENTF_UNICODE
+       }
+
+       result := DllCall( "SendInput", "uint", event_count, "uint", &events, "int", INPUT_size )
+       if ( ErrorLevel or result < event_count )
+       {
+          MsgBox, [SendInput] failed: EL = %ErrorLevel% ~ %result% of %event_count%
+          return, false
+       }
+
+       return, true
+    }
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -201,6 +248,7 @@
     run cmdw /c fastcmd
     cmdline_f=;;big
     l_appdata=%USERPROFILE%\Local Settings\Application Data
+    startx()
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -358,7 +406,7 @@ appskey & numpaddiv::
     process, exist, xwin.exe
     if errorlevel {
         ; cygwin rxvt needs GUI-subsys patch. (PE hdr +5Ch)
-        run rxvt -e %SHELL% --login
+        run bashw -c "rxvt -e $SHELL --login"
     } else {
         run cmdw /c start "Terminal" %SHELL% --login
     }
@@ -381,7 +429,7 @@ appskey & numpaddiv::
     run %shell2% --login -- %cmdline%
     return
 #x::
-    run cmdw /c startx -notrayicon
+    startx()
     return
 #y::run cmd /c msys
 #+y::run cmd /c msys bash --login
@@ -416,6 +464,42 @@ appskey & numpaddiv::
     } else {
         send ^!{enter}
     }
+    return
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Auto Correct {
+;; ⇒=21D2 ↗=2197 →=2192 «=00AB »=00BB ¬=00AC
+;;
+:?*:=>::
+    SendInputU("21D2")
+    return
+:*:-> ::
+    SendInputU("21920020")
+    return
+:?*:_>::
+    SendInputU("2197")
+    return
+:*:<< ::
+    SendInputU("00AB0020")
+    return
+:*:>> ::
+    SendInputU("00BB0020")
+    return
+:?*:-|::
+    SendInputU("00AC")
+    return
+:?*:^0::
+    SendInputU("00B0")
+    return
+:?*:^2::
+    SendInputU("00B2")
+    return
+:?*:^3::
+    SendInputU("00B3")
+    return
+:?*:+_::
+    SendInputU("00B1")
     return
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;}
 
