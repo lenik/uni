@@ -6,7 +6,6 @@ linux-source-*
 *-snapshot/
 
 universe/g/gcc-*/
-glassfish*/
 
 alien-arena/
 alien-arena-data/
@@ -41,6 +40,7 @@ vegastrike-music/
 warzone2100/
 warzone2100-music/
 wesnoth/
+wesnoth-*/
 wormux/
 
 scorched3d/
