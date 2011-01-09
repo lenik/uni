@@ -11,11 +11,12 @@
     exit /b 0
 
 :init
+    set   __DIR__=%~dp0
+    set   __DIR__=%__DIR__:~0,-1%
+    set  __FILE__=%~dpnx0
     set  _verbose=0
     set      _ret=
     set     _rest=
-    set _startdir=%~dp0
-    set  _program=%~dpnx0
 
 :prep1
     if "%~1"==""            goto prep2
@@ -78,7 +79,7 @@
         set      _time=%%k
         set    _author=%%l
     )
-    echo [TITLE] CMD_simple_cli_program_template
+    echo [TITLE] CMD_simple_cli__FILE___template
     echo Written by %_author%,  Version %_version%,  Last updated at %_date%
     exit /b 0
 
@@ -86,7 +87,7 @@
     call :version
     echo.
     echo Syntax:
-    echo    %_program% [OPTION] ...
+    echo    %__FILE__% [OPTION] ...
     echo.
     echo Options:
     echo    -q, --quiet         repeat to get less info

@@ -62,7 +62,7 @@
     set      _nam=net.bodz.lapiota.eclipse.jdt.ASTDump
     set     _namf=%_nam:.=\%
     set      _ext=
-    set _javaopts=%JAVA_OPTS% net.bodz.bas.loader.DefaultBooter -l bodz_lapiota --
+    set _javaopts=%JAVA_OPTS% net.bodz.bas.loader.DefaultBooter --
 
     if not "%JAVA_HOME%"=="" set PATH=%JAVA_HOME%\bin;%PATH%
 
@@ -84,6 +84,7 @@
 
     set _morecp=
     call :load "bodz_bas" "net.bodz.bas.jar"
+    call :load "bodz_lapiota" "net.bodz.lapiota.jar"
 
     goto initcp2
 
@@ -92,7 +93,6 @@
     call loadlib %_libs%
     exit /b
 
-:: Fix_BatBB ::
 :load
     set _libname=%~1
     set _libfile=!lib_%_libname%!

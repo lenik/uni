@@ -7,7 +7,7 @@
 :start
 
 :nextroot
-    if "%ABCPATH%"=="" goto fail
+    if "%ABCPATH%"=="" goto endroot
     for /f "delims=; tokens=1*" %%i in ("%ABCPATH%") do (
         set _xdir=%%i
         set ABCPATH=%%j
@@ -27,10 +27,19 @@
         rem echo find with prefix: %_xdir%
         if exist "%_xdir%\%_name%*" (
             for /d %%i in ("%_xdir%\%_name%*") do (
-                set _home=%%i
-                if not "%_last%"=="1" goto leave
+                if "%_list%"=="1" (
+                    echo %%i
+                    if "!_home!"=="" set _home=%%i
+                    if "%_last%"=="1" set _home=%%i
+                ) else (
+                    set _home=%%i
+                    if not "%_last%"=="1" goto leave
+                )
             )
-            if not "!_home!"=="" goto leave
+            if not "!_home!"=="" (
+                if "%_list%"=="1" goto nextroot
+                goto leave
+            )
         )
       :st_extend
         set /a _plen = _plen + 1
@@ -57,6 +66,8 @@
 :end
     exit /b 0
 
+:endroot
+    if not "%_home%"=="" goto leave
 :fail
     echo failed to find %_name%
     exit /b 1
@@ -67,6 +78,10 @@
     set  _verbose=0
     set      _ret=
     set     _home=
+    set     _list=
+    set     _last=
+    set    _print=
+    set    _slash=
 
 :prep1
     if "%~1"==""            goto prep2
@@ -84,6 +99,10 @@
     ) else if "%~1"=="-v" (
         set /a _verbose = _verbose + 1
     ) else if "%~1"=="-l" (
+        set _list=1
+    ) else if "%~1"=="--list" (
+        set _list=1
+    ) else if "%~1"=="-z" (
         set _last=1
     ) else if "%~1"=="--last" (
         set _last=1

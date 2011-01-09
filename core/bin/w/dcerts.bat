@@ -85,9 +85,11 @@
     set _morecp=
     call :load "bodz_bas" "net.bodz.bas.jar"
     call :load "deploy.jar" "deploy.jar"
+    call :load "bodz_lapiota" "net.bodz.lapiota.jar"
 
     goto initcp2
 
+:: Fix_BatBB ::
 :loadlibs
     set _libs=%~1
     call loadlib %_libs%
