@@ -2,7 +2,7 @@
 
     setlocal
 
-    call vc6
+    call vc9
 
     rem  /DCMDW
     set CC=CL /nologo /W4 atls.lib ole32.lib uuid.lib shell32.lib
