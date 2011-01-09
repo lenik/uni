@@ -1,0 +1,10 @@
+$INCLUDE        zones/zoo.inc
+
+; <self-evolution mark='*' decl='%'>
+; %EVAL { use cmt::dnsutil }
+
+@                       A       192.168.2.1
+                        ;A       192.168.20.1    ; VMnet1
+                        ;A       192.168.221.1   ; VMnet8
+
+; </self-evolution>

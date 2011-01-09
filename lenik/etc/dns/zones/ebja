@@ -1,0 +1,8 @@
+$INCLUDE        zones/public_default.inc
+
+; <self-evolution mark='*' decl='%'>
+; %EVAL { use cmt::dnsutil }
+
+; ebja
+
+; </self-evolution>

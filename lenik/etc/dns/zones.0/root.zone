@@ -1,0 +1,43 @@
+$TTL            3
+
+@               IN      SOA     localhost. root. (
+                                        1       ; serial
+                                        3H      ; refresh
+                                        15M     ; retry
+                                        1W      ; expiry
+                                        3 )     ; minimum
+                        NS      localhost.
+localhost.              A       127.0.0.1
+
+localdomain.            NS      localhost.
+
+zoo.                    NS      vns1.zoo.bodz.net.
+                        NS      vns2.zoo.bodz.net.
+                        NS      vns3.zoo.bodz.net.
+                        NS      vns1.zoo.
+                        NS      vns2.zoo.
+                        NS      vns3.zoo.
+                        NS      panda.zoo.      ; secondary
+                        NS      lion.zoo.       ; secondary
+                        NS      amoi.zoo.       ; secondary
+                        NS      phoenix.zoo.    ; secondary
+
+; Glues
+vns1.zoo.               A       192.168.2.1
+vns2.zoo.               A       192.168.2.2
+                        A       192.168.0.100   ; <view office>
+vns3.zoo.               A       192.168.2.3
+                        A       192.168.0.253   ; <view office>
+
+panda.zoo.              A       192.168.2.1
+                        A       192.168.20.1    ; VMnet1
+                        A       192.168.221.1   ; VMnet8
+lion.zoo.               A       192.168.2.2
+                        A       192.168.0.100   ; <view office>
+                        A       60.163.13.93    ; <dynamic lenik.vicp.net>
+                        A       5.69.77.113     ; <view hamachi>
+amoi.zoo.               A       192.168.6.1
+phoenix.zoo.            A       192.168.9.1
+vns1.zoo.bodz.net.      A       60.163.13.93    ; <dynamic lenik.vicp.net>
+vns2.zoo.bodz.net.      A       60.163.13.93    ; <dynamic lenik2.vicp.net>
+vns3.zoo.bodz.net.      A       60.163.13.93    ; <dynamic lenik3.vicp.net>

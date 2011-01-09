@@ -1,0 +1,53 @@
+$TTL            3
+
+; <self-evolution mark='*' decl='%'>
+; %EVAL { use cmt::dnsutil }
+
+; %vicp_lenik   { $_ = conf_replace_ip($_, resolv('lenik.vicp.net'))  }
+; %vicp_lenik2  { $_ = conf_replace_ip($_, resolv('lenik2.vicp.net')) }
+; %vicp_lenik3  { $_ = conf_replace_ip($_, resolv('lenik3.vicp.net')) }
+
+@               IN      SOA     ns1.pfpf.net. domain.pfpf.net. (
+                                        2       ; serial <<\d+ inc>>
+                                        1M      ; refresh
+                                        15M     ; retry
+                                        12H     ; expiry
+                                        3 )     ; minimum
+                        NS      ns1
+                        NS      ns2
+                        NS      ns3
+                        NS      ns4
+                        NS      ns5
+                        NS      ns6
+                        NS      @
+
+@                       A       220.250.64.20     ; *vicp_lenik
+                        A       220.250.64.20     ; *vicp_lenik2
+                        A       220.250.64.20       ; *vicp_lenik3
+                        A       5.69.77.113     ; <view hamachi>
+
+                        TXT     "t=zoo owner=lenik"
+                        TXT     "t=zoo mode=test"
+
+                        MX      10      @
+                        MX      5       vmail.zoo.bodz.net.
+                        MX      5       vmail.zoo.
+                        TXT     "t=spf1 A MX ~all"      ; SPF Framework
+
+ns1                     CNAME   @
+ns2                     CNAME   @
+ns3                     CNAME   @
+ns4                     CNAME   @
+ns5                     CNAME   @
+ns6                     CNAME   @
+
+mail                    CNAME   @
+www                     CNAME   @
+ftp                     CNAME   @
+
+; testing purpose
+volatile        3       A       1.2.3.4
+volatile2       30      CNAME   volatile
+volatile3       3000    CNAME   volatile2
+
+; </self-evolution>

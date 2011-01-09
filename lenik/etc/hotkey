@@ -46,8 +46,6 @@ lwin & capslock::shiftalttab
 #!?::run lingoes
 
 #+i::run insight3
-#+k::run V:\.radiko\.miaj\image\mirror.KBP.pgd
-#+s::run Z:\.radiko\.miaj\image\lam.nt.sdk.pgd
 #+u::run uedit32
 #+v::run cmd /c v:\lapiota-dist.bat
 #+x::run xmlspy

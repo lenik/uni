@@ -1,8 +1,8 @@
-#!/lapiota/bin/labat
+#!$LAM_KALA/bin/labat
 
 - _use: labat::lapiota
 - _use: labat::win32
-# - _include: inc/lapiota-commons.labat
+# - _include: inc$LAM_KALA-commons.labat
 -
   :system:
     - set-ctxmenu:
