@@ -1,0 +1,10 @@
+
+Completions :---
+  ¯     Left
+  ¯     Right
+  ¯     Up
+  ¯     Down
+Or
+  û     Space
+
+Enter:

@@ -27,6 +27,10 @@ acl Lan1 {
 };
 
 logging {
+    channel ch_default {
+	file "NAMED_VAR\named.log";
+	severity info;
+    };
     channel ch_stat {
         file "NAMED_VAR\stat.log";
         severity info;
@@ -36,6 +40,10 @@ logging {
         severity info;
     };
 
+    // categories: client config database default delegation-only dispatch
+    // categories: dnssec general lame-servers network notify queries resolver
+    // categories: security unmatched update update-security xfer-in xfer-out
+    category default { ch_default; };
     // category statistics { ch_stat; };
     category queries { ch_access; };
 };
