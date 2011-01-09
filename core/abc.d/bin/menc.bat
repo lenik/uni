@@ -3,7 +3,7 @@
     setlocal
 
     call findabc bin
-    set name=%~n0
+    set name=mencoder
     call findabc %name%
     if "%exec%"=="" (
         REM if not "%cd%"=="%_home%" set exec=start "%_home%"
