@@ -1,6 +1,0 @@
-
-<Location /test/mod_python>
-   SetHandler mod_python
-   PythonInterpreter main_interpreter
-   PythonHandler mod_python.testhandler
-</Location>
