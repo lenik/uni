@@ -11,6 +11,8 @@
         exit /b 1
     )
 
+    if not exist "%HOME%\." md "%HOME%"
+
     rem Mounting...
     umount /
     umount /usr/bin
