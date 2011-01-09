@@ -1,0 +1,40 @@
+[STDBAR ITEMS]
+ComLogoff=0
+ComEditPass=0
+ComClearFields=0
+ComEditNote=0
+ComPasswordGenerator=0
+ComOptions=0
+ComSetFields=0
+ComTaskBarIcon=0
+ComSavePass=1
+ComShowToolbar=1
+ComCustomizeIEMenu=0
+ComEditIdent=0
+ComResetFields=0
+ComFillForms=1
+[CONTEXT MENU ITEMS]
+ComLogoff=0
+ComEditPass=0
+ComClearFields=0
+ComEditNote=0
+ComPasswordGenerator=0
+ComOptions=0
+ComSetFields=0
+ComTaskBarIcon=0
+ComSavePass=1
+ComShowToolbar=1
+ComCustomizeIEMenu=1
+ComEditIdent=0
+ComResetFields=0
+ComFillForms=1
+[HELP MESSAGES]
+SetupId_HelpMsg=3
+[OPTIONS]
+AutoSaveWidthL=263
+AutoSaveListItems=2
+AutoSaveWinDialogsEnable=0
+AutoSaveEnable=0
+[CHECKED RUN MESSAGES]
+MsgBoxAutoSaveFewFieldsWarn=1
+MsgBoxBlockingPasscardAutoSave=1

@@ -1,0 +1,256 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+TeXPrep - Preprocess TeX, to convert to Matlab code
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'TeXPrep'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: .pl 776 2007-12-24 12:11:36Z lenik $');
+use Getopt::Long;
+
+sub _main; sub _version; sub _help;
+sub process;
+sub la_unit;
+sub la_unitsize;
+
+our $buf    = '';
+
+our %IGNORE = (
+    'left'  => 1,
+    'right' => 1,
+    'begin' => 2,
+    'end'   => 2,
+    );
+
+our %REPL = (
+    'pi'    => 'pi',
+    );
+
+sub _boot {
+    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
+               'verbose|v'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'help|h'         => sub { _help; exit 0 },
+               );
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<TeXPrep>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<TeXPrep> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-TeXPrep-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -q, --quiet             repeat to get less info
+    -v, --verbose           repeat to get more info
+    -h, --help              show this help page
+        --version           print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    while (<>) {
+        chop;
+        next if /^%/;
+        if ($_ eq '') {
+            process if $buf ne '';
+            $buf = '';
+            next;
+        } else {
+            $buf .= $_;
+        }
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+sub process {
+    local $_ = $buf;
+    s/('+)/length($1)/eg;
+
+    while (/(\\(\w+)|[_])/) {
+        my $lead = $1;
+        my $cmd = $2;
+        my $startp = $-[0];
+        my $len1 = length($&);
+        my ($size, $unit) = la_unit($startp + $len1);
+        my $len2 = $len1 + $size;
+        if ($lead eq '_') {
+            substr($_, $startp, $len2, $unit);
+        } elsif (defined $cmd) {
+            my $ignore = $IGNORE{$cmd};
+            my $repl = $REPL{$cmd};
+            if (defined $ignore) {
+                if ($ignore == 1) {
+                    substr($_, $startp, $len1) = '';
+                } elsif ($ignore == 2) {
+                    substr($_, $startp, $len2) = '';
+                }
+            } elsif ($cmd eq 'frac') {
+                my ($sized, $unitd) = la_unit($startp + $len2);
+                my $len3 = $len2 + $sized;
+                $unit  = '('.$unit.')'  unless $unit  =~ /^\w+$/;
+                $unitd = '('.$unitd.')' unless $unitd =~ /^\w+$/;
+                substr($_, $startp, $len3, $unit.'/'.$unitd);
+            } elsif (defined $repl) {
+                substr($_, $startp, $len1) = $repl;
+            } else {
+                substr($_, $startp, $len1) = "<$cmd>";
+            }
+        }
+        # print "$. $_\n";
+    }
+
+    s/(\d)([a-z])/$1*$2/g;
+    s/\{/(/g;
+    s/\}/)/g;
+    s/\\[\[\]]//g;
+    s/\s*[.,;]\s*$//;
+    s/\s//g;
+    s/\(\(([^\(\)]*)\)\)/($1)/g;
+    s/([+\-*\/])/ $1 /g;
+    s/$/;/;
+
+    s/(\w+)\(\w\)\s*=/$1=/;
+    s/(\w+)\((.*?)\)/subs($1, 'x', $2)/g;
+    s/e\^x/exp(x)/g;
+
+    print;
+    print "\n";
+}
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+sub la_unit {
+    my ($start) = @_;
+    my $size = la_unitsize($start);
+    my $unit = substr($_, $start, $size);
+    $unit =~ s/^\s*\{\s*(.*?)\s*\}\s*$/$1/;
+    ($size, $unit)
+}
+
+sub la_unitsize {
+    my ($start) = @_;
+    local $_ = substr($_, $start);
+    my $off = s/^\s+// ? length($&) : 0;
+    my $len = 0;
+    if (/^\{/) {
+        my $bal = 0;
+        my $last = -1;
+        while (/([\{\}])/g) {
+            my $c = $1;
+            if ($c eq '{') {
+                $bal--;
+            } else {
+                $bal++;
+            }
+            if ($bal == 0) {
+                $last = $-[1];
+                last;
+            }
+        }
+        if ($last != -1) {
+            $len = $last + 1;
+        }
+    } else {
+        /^\S/;
+        $len += length($&);
+    }
+    $off + $len
+}
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Preprocess TeX, to convert to Matlab code \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Xima Lenik <name@mail.box>
+
+=cut

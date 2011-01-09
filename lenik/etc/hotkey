@@ -12,7 +12,7 @@
 #+i::run insight3
 #+k::run V:\.radiko\.miaj\image\mirror.KBP.pgd
 #+s::run Z:\.radiko\.miaj\image\lam.nt.sdk.pgd
-#+u::run uedit
+#+u::run uedit32
 #+x::run xmlspy
 
 #o::run dopus
