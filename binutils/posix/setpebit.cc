@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#if 0
 typedef struct MZ_Header {
     u16_t magic;
 };
@@ -16,9 +17,10 @@ struct Opt_Header {
     u32_t data_size;
     u32_t udata_size;
 };
+#endif
 
 int main(int argc, char **argv) {
-	getopt(argc, argv, "f");
+	// getopt(argc, argv, "f");
 
 }
 
