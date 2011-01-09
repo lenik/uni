@@ -1,0 +1,18 @@
+== sixor::nfs Normal.1 ==
+
+Class:      ?
+Status:     ?
+Date:
+Serial:     NFS
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+Title:      __________________________________________________________________
+Keywords:   __________________________________________________________________
+
+
+  * Notes
+
+    结构化自勉
+

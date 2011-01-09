@@ -1,0 +1,29 @@
+== sixor::nfs Task.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2007-07-03 18:39:17
+Serial:     NFS07183-28277
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+
+        [x] article:
+                说说陈安之
+                    我要长高、我一定要长高
+                    建立自我，追求忘我
+
+        [ ] xs globs
+
+        [x] flac, ape -> mp3    [ cue sheet ]
+
+        [ ] Roco: router controller
+                binded perl-5.8.8, Tk
+                (and wpcap?)
+
+        [ ] perl projects
+                ppj
+
+REVIEW:
+    serv-u - UNC path problem. (FAIL)

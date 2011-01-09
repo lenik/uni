@@ -1,0 +1,27 @@
+== sixor::nfs Normal.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2007-06-30 12:28:12
+Serial:     NFS07180-18972
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+Title:      __________________________________________________________________
+Keywords:   __________________________________________________________________
+
+
+  * Notes
+
+
+-- generic-type
+
+
+
+type node {
+    iterator<noderef<name, target>>
+
+type list_node {
+
+    node prev, next

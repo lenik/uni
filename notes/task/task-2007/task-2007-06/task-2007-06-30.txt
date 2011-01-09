@@ -1,0 +1,24 @@
+== sixor::nfs Task.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2007-06-30 12:27:51
+Serial:     NFS07180-18951
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+
+        [x] readcode
+
+        [ ] pdb review
+
+        [x] run
+            testpl [options] [--] test.pl [args...]
+            -> loop2
+
+        [ ] runx
+            #! foreach -s
+            #! |foreach
+
+        [x] readkey

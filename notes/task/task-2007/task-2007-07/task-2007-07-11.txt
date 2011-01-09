@@ -1,0 +1,29 @@
+== sixor::nfs Task.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2007-07-11 23:33:35
+Serial:     NFS07191-35135
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+
+REVIEW:
+    apue header
+    Net::Adapter compile
+        -> ~stwrap for simple structs
+            -> test: dirent.h
+                -> psh for debugging
+    win32::api call by ordinal,
+        ./Makefile.PL PREFIX=/...
+        -> kopy.bat
+        -> WFP/SFC hacking
+            -> cmd /c, ctrl-break don't prompt
+                -> psh, perl-shell for internal debugging purpose
+    hngs: deploy mims on notebook
+    hngs: radmin 3.0, kelingpc.vicp.net
+        -> "nash" daemon: nc -e 'prog'
+            -> nash ==> tlogin ==> tsh
+                -> cmt::win32, ntspawn, ntkill, ntwaitpid/nttestpid
+            -> tin

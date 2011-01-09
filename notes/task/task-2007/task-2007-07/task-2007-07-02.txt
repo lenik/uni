@@ -1,0 +1,16 @@
+== sixor::nfs Task.1 ==
+
+Class:      ?
+Status:     ?
+Date:       2007-07-03 07:09:40
+Serial:     NFS07183-10660
+
+Author:     Xima J.Lenik
+Reply-To:   lenik@bodz.net
+
+
+REVIEW:
+    太阳之歌
+    XS study, callbacks, return list using arg-stack
+    UF-Tools/UF3
+    新东方演讲
