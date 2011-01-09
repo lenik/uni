@@ -1,0 +1,8 @@
+Arguments Test
+============================
+<?
+for arg in $*; do
+    echo arg: $arg
+done
+?>
+============================
