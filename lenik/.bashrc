@@ -1,0 +1,1 @@
+export LAPIOTA=/lam/kala

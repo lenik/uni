@@ -1,5 +1,10 @@
-[mysqld]
+<?
+    . /lapiota/lib/sh/findabc
+    MYSQL_HOME="`findabc -p mysql`"
+    WHOME=`cygpath -m "$MYSQL_HOME"`
+    VARDIR=${LAPIOTA//\\//}/var
+?>[mysqld]
 # set basedir to your installation path
-! basedir=`cygpath -m \`findabc -p mysql\``
+basedir=<?=$WHOME?>
 # set datadir to the location of your data directory
-! datadir=${LAPIOTA//\\//}/var/mydata
+datadir=<?=$VARDIR/mydata?>

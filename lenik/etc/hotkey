@@ -12,7 +12,7 @@ lwin & capslock::shiftalttab
 ;; application shortcuts {
 #f::run firefox
 #o::run dopus
-#+::run cmdw /c start scilab
+#+::run cmdw /c start wscilex
 
 #g::
     envset apps_1, Tencent Messenger
@@ -47,7 +47,7 @@ lwin & capslock::shiftalttab
 
 #+i::run insight3
 #+u::run uedit32
-#+v::run cmd /c v:\lapiota-dist.bat
+#+v::run cmd /c "cpnew -v -r -f -J v:\lam\kala %LAPIOTA% & pause"
 #+x::run xmlspy
 
 #+d::
