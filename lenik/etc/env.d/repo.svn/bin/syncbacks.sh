@@ -4,6 +4,9 @@
 #   always use cygwin's svn tools.  but, --login will set CWD to HOME.
 #   so just force to set to cygwin's
 
+# fix: it seems not work when locale set to zh_CN.
+export LANG=C
+
 SVNADMIN=/usr/bin/svnadmin
 SVNSYNC=/usr/bin/svnsync
 
