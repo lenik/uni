@@ -6,18 +6,39 @@ $TTL            12H
 @               IN      SOA     (
                                     lenik.vicp.net.     ; db creator host
                                     len1.bodz.net.      ; contact e-mail
-                                    2       ; serial
+                                    4       ; serial
                                     1H      ; sync refresh interval
                                     10M     ; sync retry interval
                                     12H     ; sync expire
                                     1H      ; minimum TTL
                                 )
                         NS      @
-                        ;NS      ns1.afraid.com.
-                        ;NS      ns2.afraid.com.
-                        ;NS      ns3.afraid.com.
-                        ;NS      ns4.afraid.com.
-                        NS      lenik.vicp.net.
+
+                        ; lenik hYDlXwZo
+                        NS      ns2.afraid.org.
+
+                        ; lenik Rjq878VF
+                        NS      ns1.twisted4life.com.
+
+                        ; lenik u05TcdUY
+                        NS      ns0.xname.org.
+                        NS      ns1.xname.org.
+
+                        ; len1@bodz.net X1eRqqBB
+                        NS      ns4.us.editdns.net.
+                        NS      ns5.us.editdns.net.
+                        NS      ns6.us.editdns.net.
+                        NS      ns3.eu.editdns.net.
+                        NS      ns4.eu.editdns.net.
+
+                        ; lenik sNBKN7za
+                        NS      ns1.everydns.net.
+                        NS      ns2.everydns.net.
+                        NS      ns3.everydns.net.
+                        NS      ns4.everydns.net.
+
+                        ; shecti RxkqB+dB
+                        ; NS      ns?.opendns.com.
 
                         TXT     "t=zoo owner=lenik"
 
@@ -26,4 +47,6 @@ volatile        3       A       1.2.3.4
 volatile2       30      CNAME   volatile
 volatile3       3000    CNAME   volatile2
 
-lenik           10M     CNAME   lenik.vicp.net.
+lenik                   CNAME   lenik.vicp.net.
+
+; opendns                 A       220.250.64.20
