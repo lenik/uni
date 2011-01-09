@@ -87,11 +87,11 @@ function main() {
                 if [ -n "$add_shortcuts" ]; then
                     for c in ${shortcuts//,/ }; do
                         shortcut=${c##*/}
-                        dstw="$lam_aw/abc.d/$_expand/$c"
-                        # dstw=${dstw//"\\"/"\/"}
+                        dstw="$lam_aw/abc.d/$_expand"
                         dstw=${dstw//\//\\}
-                        _sig1 "alias $shortcut => $dstw"
-                        reg add "$APP_PATHS\\$shortcut" /v "" /d "$dstw" /f >/dev/null
+                        _sig1 "alias $shortcut => $dstw\\$c"
+                        reg add "$APP_PATHS\\$shortcut" /v "" /d "$dstw\\$c" /f >/dev/null
+                        reg add "$APP_PATHS\\$shortcut" /v "Path" /d "$dstw" /f >/dev/null
                     done
                 fi
             done
