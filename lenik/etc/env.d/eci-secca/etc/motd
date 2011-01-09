@@ -15,5 +15,3 @@ Welcome SECCA Project Development Node (174.129.60.23)
 
 Please remember the randomart and check the fingerprint occasionally by:
 ssh-keygen -vlF 1.dev.secca-project.com
-
-Linux domU-12-31-39-02-25-D7 2.6.21.7-2.fc8xen-ec2-v1.0 #2 SMP Tue Sep 1 10:04:29 EDT 2009 i686
