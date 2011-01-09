@@ -1,0 +1,14 @@
+Source: cdu-bodz-git
+Section: vcs
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: http://uni.bodz.net/integration-cdu/cdu-bodz-git
+Vcs-SVN: http://svn.bodz.net/uni/integration-cdu/cdu-bodz-git
+Vcs-Browser: http://svn.bodz.net/uni/integration-cdu/cdu-bodz-git
+
+Package: cdu-bodz-git
+Architecture: all
+Depends: apache2-enh, gitweb
+Description: boDz Git service.
