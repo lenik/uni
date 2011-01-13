@@ -1,0 +1,39 @@
+function duration2sec() {
+    local duration="$1"
+    case "$duration" in
+        *sec)   duration=$(( ${duration%sec} * 1 ));;
+        *min)   duration=$(( ${duration%min} * 60 ));;
+        *hr)    duration=$(( ${duration%hr}  * 3600 ));;
+        *day)   duration=$(( ${duration%day} * 86400 ));;
+        *wk)    duration=$(( ${duration%wk}  * 604800 ));;
+        *mo)    duration=$(( ${duration%mo}  * 2592000 ));;
+        *yr)    duration=$(( ${duration%yr}  * 31536000 ));;
+        *S)     duration=$(( ${duration%S}   * 1 ));;
+        *M)     duration=$(( ${duration%M}   * 60 ));;
+        *H)     duration=$(( ${duration%H}   * 3600 ));;
+        *D)     duration=$(( ${duration%D}   * 86400 ));;
+        *W)     duration=$(( ${duration%W}   * 604800 ));;
+        *)      duration=$(( $duration ));
+    esac
+    echo "$duration"
+}
+
+function duration2min() {
+    local duration="$1"
+    case "$duration" in
+        *sec)   duration=$(( ${duration%sec} / 60 ));;
+        *min)   duration=$(( ${duration%min} * 1 ));;
+        *hr)    duration=$(( ${duration%hr}  * 60 ));;
+        *day)   duration=$(( ${duration%day} * 1440 ));;
+        *wk)    duration=$(( ${duration%wk}  * 10080 ));;
+        *mo)    duration=$(( ${duration%mo}  * 43200 ));;
+        *yr)    duration=$(( ${duration%yr}  * 525600 ));;
+        *S)     duration=$(( ${duration%S}   / 60 ));;
+        *M)     duration=$(( ${duration%M}   * 1 ));;
+        *H)     duration=$(( ${duration%H}   * 60 ));;
+        *D)     duration=$(( ${duration%D}   * 1440 ));;
+        *W)     duration=$(( ${duration%W}   * 10080 ));;
+        *)      duration=$(( $duration / 60 ));
+    esac
+    echo "$duration"
+}

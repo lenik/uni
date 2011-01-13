@@ -15,7 +15,8 @@ dist_shlib_DATA = \
     overrides \
     path \
     rcs \
-    string
+    string \
+    time
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
