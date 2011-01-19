@@ -53,6 +53,13 @@ varlibdir   = /var/lib
 wardir		= ${javalibdir}/war
 
 do_subst = sed \
+	-e 's,[@]PACKAGE_BUGREPORT[@],$(PACKAGE_BUGREPORT),g' \
+	-e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g' \
+	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
+	-e 's,[@]PACKAGE_URL[@],$(PACKAGE_URL),g' \
+	-e 's,[@]VERSION[@],$(VERSION),g'
+
+do_subst += \
 	-e 's,[@]aliasesdir[@],$(aliasesdir),g' \
 	-e 's,[@]apparmordir[@],$(apparmordir),g' \
 	-e 's,[@]bashcmpldir[@],$(bashcmpldir),g' \
