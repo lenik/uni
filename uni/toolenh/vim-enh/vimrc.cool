@@ -1,3 +1,4 @@
+" vim: set filetype=vim :
 
 " Lenik's cool VIM defaults
 
@@ -13,3 +14,30 @@ set modelines=10
 filetype plugin on
 
 colorscheme koehler
+
+:set mousefocus
+
+:map <F4>       :q<CR>
+:map <F6>       <C-W>w
+:nmap <Tab>     <C-W>w
+
+:nmap <F2>      :set invpaste paste?<CR>
+:imap <F2> <C-O>:set invpaste paste?<CR>
+:set pastetoggle=<F2>
+
+:nmap -         <C-W>-
+:nmap +         <C-W>+
+:map -        <C-W>-
+:map +        <C-W>+
+:map <        <C-W><
+:map >        <C-W>>
+
+:nmap <silent> <A-Left>     :wincmd h<CR>
+:nmap <silent> <A-Down>     :wincmd j<CR>
+:nmap <silent> <A-Up>       :wincmd k<CR>
+:nmap <silent> <A-Right>    :wincmd l<CR>
+
+:nmap <silent> h          :wincmd h<CR>
+:nmap <silent> j          :wincmd j<CR>
+:nmap <silent> k          :wincmd k<CR>
+:nmap <silent> l          :wincmd l<CR>
