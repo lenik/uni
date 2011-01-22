@@ -1,0 +1,179 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh @VERSION@ 2011-01-01 06:58:58Z lenik $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+
+    qlog_dir=$HOME/.qlog
+    color=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Quick Logger"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] CMD [OPTIONS] [--] MESSAGE"
+    echo
+    echo "Options: "
+    echo "    -d, --dir=~/.qlog     The home directory for qlog database"
+    echo "    -C, --color           Turn on highlight colors"
+    echo "    -q, --quiet           Repeat to get less info"
+    echo "    -v, --verbose         Repeat to get more info"
+    echo "    -h, --help            Show this help page"
+    echo "        --version         Print the version info"
+    echo
+    echo "Task Schedule: "
+    echo "    push <child-spec>     Add to the child list and jump to the task"
+    echo "    pop                   Back to the parent task"
+    echo "    st|stack              Stack trace"
+    echo "    tree <task>           Show the task tree"
+    echo "    grep [-EFPG] <regex>  Search matching tasks"
+    echo
+    echo "Task Operations: "
+    echo "      (command-name [task-spec] [--] message)"
+    echo "    P|pause [-<timeout>]  Pause the task, timeout alert if specified"
+    echo "    r|resume              Resume the task"
+    echo "    V|done                The task has been completed"
+    echo "    C|cancel              The task has been canceled"
+    echo "    F|fail                The task has been failed"
+    echo "    R|renice <priority>   Change the priority of the task"
+    echo "    T|title <title>       Change the task title"
+    echo "    (empty)|log           Simple add log message"
+    echo "    G|graph [-format]     Plot the graph, to stdout or display"
+    echo "    :<attrib>[=<value>]   Print or change the attribute"
+    echo
+    echo "Task-specifier: "
+    echo "    %id                   Specify the task by explicit id"
+    echo "    <title>               Specify the task by the normalized name of the full title."
+    echo "    <norm>=<task-spec>    Specify the task and change its normalization form"
+    echo
+    echo "Other commands: "
+    echo "    category [add/rm/show/list ...]"
+    echo "    priority [add/rm/show/list ...]"
+}
+
+function setopt() {
+    case "$1" in
+        -d|--dir)
+            [ -f "$2" ] || die "File existed: $2"
+            qlog_dir="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    [ -d "$qlog_dir" ] || mkdir -p "$qlog_dir" \
+        || die "Failed to create directory $qlog_dir"
+
+    if [ "$1" == '--' ]; then
+        cmd=
+    else
+        cmd="$1"
+        shift
+    fi
+
+    [ -z "$cmd" ] && cmd=log
+
+    case "$cmd" in
+        st) cmd=stack;;
+        P) cmd=pause;;
+        r) cmd=resume;;
+        V) cmd=done;;
+        C) cmd=cancel;;
+        F) cmd=fail;;
+        R) cmd=renice;;
+        T) cmd=title;;
+        G) cmd=graph;;
+        :*) cmd=attrib;;
+    esac
+
+
+    case "$cmd" in
+    push)
+        task_action push
+        task_action resume parent
+        ;;
+
+    pop)
+        parent=task_revlog | task_last_resume
+        task_action break parent
+        ;;
+
+    stack)
+        task_stack ''
+        ;;
+
+    tree)
+        task_tree ''
+        ;;
+
+    grep)
+        task_grep
+        ;;
+
+    pause)
+        task_action pause "$@"
+        ;;
+
+    resume)
+        if [ -n "$current_task" ]; then
+            task_action break "$current_task"
+        fi
+        task_action resume "$@"
+        task_chdir queue
+        ;;
+
+    done)
+        task_action done "$@"
+        task_chdir done
+        ;;
+
+    cancel)
+        task_action cancel "$@"
+        task_chdir stopped
+        ;;
+
+    fail)
+        task_action fail "$@"
+        task_chdir stopped
+        ;;
+
+    log)
+        task_action log
+        ;;
+
+    renice)
+        task_action log "Adjust the priority from to"
+        ;;
+
+    title)
+        task_action log "Change the title from to"
+        ;;
+
+    graph)
+        task_action log "Plotted the graph"
+        task_graph
+        ;;
+
+    attrib)
+        task_action log "Set attribute X to Y"
+        ;;
+    esac
+}
+
+boot "$@"

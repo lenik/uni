@@ -1,7 +1,8 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-    cooltask_list
+    cooltask_list \
+    qlog
 
 dist_aliases_DATA = \
     cooltask.sh

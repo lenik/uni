@@ -37,3 +37,5 @@ function cooltask() {
 
 alias T='cooltask'
 alias TO='cooltask -C'
+
+alias Q='qlog'

@@ -1,0 +1,149 @@
+# vim: set filetype=sh :
+
+function textmap() {
+    if [ $# = 0 ] || [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
+        echo "Commands: "
+        echo "    list FILE            List entries"
+        echo "    load FILE PREFIX     Load all entries to variables with PREFIX"
+        echo "    show FILE KEY        Get entry value"
+        echo "    set  FILE KEY VALUE  Add entry"
+        echo "    rm   FILE KEY...     Remove entries"
+        return 0
+    fi
+
+    [ -z "$1" ] && die "No command specified"
+    local cmd="$1"
+    shift
+
+    [ -f "$1" ] || die "Not a file: $1"
+    local file="$1"
+    shift
+
+    case "$cmd" in
+    list)
+        cat "$file";;
+
+    load)
+        local prefix="$1"
+        local key _eq val
+        while read key _eq val; do
+            [ -z "$key" ] && continue
+            [ "${key:0:1}" = '#' ] && continue
+            [ "$_eq" = '=' ] || die "Expected '=', but got: $_eq"
+
+            local var="$prefix$key"
+            eval "$var=\"$val\""
+        done <"$file"
+        ;;
+
+    show)
+        [ $# = 0 ] && die "No key specified. "
+
+        local query="$1"
+        local glob=0
+        if [ "${query: -1}" = '*' ]; then
+            query="${query%\*}"
+            glob=1
+        fi
+
+        local key _eq val
+        while read key _eq val; do
+            [ -z "$key" ] && continue
+            [ "${key:0:1}" = '#' ] && continue
+            [ "$_eq" = '=' ] || die "Expected '=', but got: $_eq"
+
+
+            if [ "$glob" = 1 ]; then
+                if [ "${key:0:${#query}}" = "$query" ]; then
+                    echo "$key = $val"
+                fi
+            else
+                if [ "$key" = "$query" ]; then
+                    echo "$val"
+                    return 0 # Return immediately.
+                fi
+            fi
+        done <"$file"
+        ;;
+
+
+    set)
+        local newkey="$1"
+        local newval="$2"
+        local got=
+        local dirty=
+        local buf=()
+        local nbuf=0
+
+        local key _eq val
+        while read key _eq val; do
+            [ -z "$key" ] && continue
+            [ "${key:0:1}" = '#' ] && continue
+            [ "$_eq" = '=' ] || die "Expected '=', but got: $_eq"
+
+            if [ "$key" = "$newkey" ]; then
+                got=1
+                if [ "$val" != "$newval" ]; then
+                    buf[nbuf++]="$newkey = $newval"
+                    dirty=1
+                fi
+            else
+                buf[nbuf++]="$key $_eq $val"
+            fi
+        done <"$file"
+
+        if [ -z "$got" ]; then
+            buf[nbuf++]="$newkey = $newval"
+            dirty=1
+        fi
+
+        if [ "$dirty" = 1 ]; then # Write the changes.
+            local s
+            echo -n >"$file"
+            for s in "${buf[@]}"; do
+                echo "$s" >>"$file"
+            done
+        fi
+
+        [ -n "$dirty" ]
+        ;;
+
+    rm)
+        local removed=0
+        local buf=()
+        local nbuf=0
+
+        local key _eq val k
+        while read key _eq val; do
+            [ -z "$key" ] && continue
+            [ "${key:0:1}" = '#' ] && continue
+            [ "$_eq" = '=' ] || die "Expected '=', but got: $_eq"
+
+            local matched=
+            for k in "$@"; do
+                if [ "$key" = "$k" ]; then
+                    matched=1
+                    ((removed++))
+                    break
+                fi
+            done
+
+            [ -z "$matched" ] && buf[nbuf++]="$key $_eq $val"
+        done <"$file"
+
+        if [ "$removed" != 0 ]; then
+            local s
+            echo -n >"$file"
+            for s in "${buf[@]}"; do
+                echo "$s" >>"$file"
+            done
+        fi
+
+        ((removed != 0))
+        ;;
+
+    *)
+        die "Unknown command: $cmd" >&2;;
+    esac
+
+}
