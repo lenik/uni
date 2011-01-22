@@ -4,3 +4,12 @@ get-common-prefix
 jetty
 m2search-nexus
 newmp
+m2graph
+m2help
+m2installfile
+m2localdeps
+m2localgraph
+m2search
+newmod
+pomid
+pomtree

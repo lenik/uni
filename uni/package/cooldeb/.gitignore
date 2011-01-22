@@ -1,1 +1,7 @@
 dh_add_missing
+deb-clean
+dh_check_depends
+dh_incr
+newdeb
+rebuild
+rebuilds
