@@ -2,7 +2,7 @@
 
 # master-file
 
-    RCSID='$Id$'
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
     short_opts="hqv"
     long_opts="help,quiet,verbose,version"
     . shlib-import cliboot
