@@ -1,0 +1,75 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="I:hqv"
+    long_opts="include:,help,quiet,verbose,version"
+
+    INC=(`perl -V | grep -A100 '@INC:' | headrm -1`)
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Locate a perl module"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] LIB-NAMES"
+    echo
+    echo "Options: "
+    echo "    -I, --include=DIR       add include dir"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -I|--include)
+            INC[${#INC[@]}]="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function search() {
+    local pkgname="$1"
+    local count=0
+    resf="${pkgname//:://}"
+    for dir in "${INC[@]}"; do
+        if [ -e "$dir/$resf.pm" ]; then
+            echo "$dir/$resf.pm"
+            ((count++))
+        elif [ -e "$dir/$resf/" ]; then
+            echo "$dir/$resf/"
+            ((count++))
+        fi
+    done
+    return $((count == 0))
+}
+
+function main() {
+    if [ $# = 0 ]; then
+        while read -p "Enter the package name: " pkgname; do
+            search "$pkgname"
+        done
+    else
+        for pkgname in "$@"; do
+               search "$pkgname"
+        done
+    fi
+}
+
+boot "$@"

@@ -1,0 +1,99 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="aclmhqv"
+    long_opts="all,csv,long,maintainer,help,quiet,verbose,version"
+
+    csv=
+    long=
+
+    fields=(Package)
+    n=1
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] List installed Debian packages"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -a, --all               Show all fields"
+    echo "    -c, --csv               List in machine parsable CSV format"
+    echo "    -l, --long              Show most common used fields"
+    echo "    -m, --maintainer        Show maintainer"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -a|--all)
+            fields=(Package Version Installed-Size Architecture Bugs Conffiles Config-Version Conflicts Breaks Depends Enhances Essential Filename Homepage MD5sum MSDOS-Filename Maintainer Origin Pre-Depends Priority Provides Recommends Replaces Revision Section Size Source Status Suggests Tag Triggers-Awaited Triggers-Pending)
+            n=${#fields[@]}
+            ;;
+        -c|--csv)
+            csv=1;;
+        -l|--long)
+            fields=(Installed-Size Version:15 Package)
+            n=${#fields[@]}
+            ;;
+        -m|--maintainer)
+            fields[n++]=Maintainer;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+
+    caption=
+    format=
+    for ((i = 0; i < ${#fields[@]}; i++)); do
+        field="${fields[i]}"
+        caption="$caption,${field%:*}"
+        if [ "$field" != "${field/:}" ]; then
+            len="${field#*:}"
+            field="${field%:*}"
+            format="$format,\"\${$field;$len}\""
+        else
+            case "$field" in
+            Installed-Size)
+                format="$format,\${$field}";;
+            *)
+                format="$format,\"\${$field}\"";;
+            esac
+        fi
+    done
+    caption="${caption#,}"
+    format="${format#,}"
+
+    if [ "$csv" = 1 ]; then
+        echo "$caption"
+        dpkg-query -Wf "$format\n" "$@"
+    else
+        (
+            echo "$caption"
+            dpkg-query -Wf "$format\n" "$@"
+        ) | sed -e 's/" \+/"/g' | csvtool readable -
+    fi
+
+}
+
+boot "$@"

@@ -1,0 +1,150 @@
+#!/bin/bash
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="sakdIKXhqv"
+    long_opts="set,add,kill,diff,svn-ignore,svn-keywords,svn-externals,help,quiet,verbose,version"
+    . shlib-import cliboot
+
+    mode=set
+    diff=0
+    key=
+
+    SVN_VOPTS=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Modify SVN multi-line property"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    svnpsl [OPTION] [--] PROPNAME PROPVAL... ; FILES"
+    echo "    svnpsl [OPTION] -I|-K|-X [--] PROPVAL... ; FILES"
+    echo
+    echo "Options: "
+    echo "    -s, --set               set values (default)"
+    echo "    -a, --add               add values"
+    echo "    -k, --kill              delete values"
+    echo "    -d, --diff              show diff of changes"
+    echo "    -I, --svn-ignore        operate on svn:ignore property"
+    echo "    -K, --svn-keywords      operate on svn:keywords property"
+    echo "    -X, --svn-externals     operate on svn:externals property"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -s|--set)
+            mode=set;;
+        -a|--add)
+            mode=add;;
+        -k|--kill)
+            mode=delete;;
+        -d|--diff)
+            diff=1;;
+        -I|--svn-ignore)
+            key=svn:ignore;;
+        -K|--svn-keywords)
+            key=svn:keywords;;
+        -X|--svn-externals)
+            key=svn:externals;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+
+    if [ $LOGLEVEL -le 1 ]; then
+        SVN_VOPTS=-q
+    elif [ $LOGLEVEL -ge 3 ]; then
+        SVN_VOPTS=-v
+    fi
+
+    if [ -z "$key" ]; then
+        if [ -z "$1" ]; then
+            echo "Property name isn't specified. "
+            exit 1
+        fi
+        key="$1"
+        shift
+    fi
+
+    tmp_prefix=/tmp/svnprop-$$-$RANDOM
+    tmp_vals=$tmp_prefix.vals
+    tmp_orig=$tmp_prefix.orig
+
+    term=0
+    _log2 "Create vals tmp file"
+        echo -n >$tmp_vals
+        for v in "$@"; do
+            shift
+            if [ "$v" = ';' ]; then
+                term=1
+                break
+            fi
+            echo "$v" >>$tmp_vals
+        done
+
+    if [ $term != 1 ]; then
+        echo "Property values list isn't ended by ';'. "
+        exit 1
+    fi
+
+    for f in "$@"; do
+        _log1 "Process file $f"
+
+        case $mode in
+        set)
+            ;;
+
+        add)
+            svn pg "$key" "$f" >$tmp_orig
+            cat $tmp_vals >>$tmp_orig
+            sort -u $tmp_orig >$tmp_vals
+            ;;
+
+        delete)
+            svn pg "$key" "$f" | grep -vFf $tmp_vals >$tmp_orig
+            mv -f $tmp_orig $tmp_vals
+            ;;
+        esac
+
+        # remove empty lines
+        cp $tmp_vals $tmp_orig
+        grep -v '^$' $tmp_orig >$tmp_vals
+
+        # echo '--- vals ---'; cat $tmp_vals; echo '------------'
+
+        if [ "$diff" = 1 ]; then
+            svn pg "$key" "$f" | grep -v '^$' >$tmp_orig
+            if diff -u $tmp_orig $tmp_vals; then
+                _log2 "    No changes, skipped"
+                continue
+            fi
+        fi
+
+        if ! svn ps $SVN_VOPTS -F $tmp_vals "$key" "$f"; then
+            echo "    Error set property $key on $f" >&2
+            exit 1
+        fi
+    done
+
+    rm -f $tmp_orig
+    rm -f $tmp_vals
+}
+
+boot "$@"

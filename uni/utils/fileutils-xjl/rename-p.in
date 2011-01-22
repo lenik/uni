@@ -1,0 +1,146 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="a:o:gkcfhqv"
+    long_opts="and:,or:,global,keep-parents,clean-parents,force,help,quiet,verbose,version"
+
+    rules=()
+    orders=()
+    index=0
+
+    global=0
+    force=0
+    clean_parents=1
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Rename and create parent directories when necessary"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] FROM TO FILES"
+    echo "  (FROM, TO is specified in bash pattern)"
+    echo
+    echo "Options: "
+    echo "    -a, --and=FROM=TO       add and rule, only applied if last rule matched"
+    echo "    -o, --or=FROM=TO        add or rule, only applied if last rule unmatched"
+    echo "    -g, --global            Replace all occurence of FROM"
+    echo "    -k, --keep-parents      Don't remove empty parents"
+    echo "    -c, --clean-parents     Remove empty parents"
+    echo "    -f, --force             Overwrite existing files"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -a|--and)
+            orders[index]=and
+            rules[++index]="$2"
+            ;;
+        -o|--or)
+            orders[index]=or
+            rules[++index]="$2"
+            ;;
+        -g|--globel)
+            global=1;;
+        -c|--clean-parents)
+            clean_parents=1;;
+        -f|--force)
+            force=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    MV=mv
+    RMDIR_V=rmdir
+    if [ "$force" = 1 ]; then MV="mv -f"; fi
+    if [ "$LOGLEVEL" -gt 1 ]; then RMDIR_V="rmdir -v"; fi
+
+    if [ $# -lt 2 ]; then
+        help
+        exit 1
+    fi
+
+    rules[0]="$1=$2"
+    shift 2
+    count=$((index + 1))
+
+    for old in "$@"; do
+        old="${old%/}"
+
+        last="$old"
+        for ((i = 0; i < count; i++)); do
+            rule="${rules[i]}"
+            order="${orders[i]}"
+
+            from="${rule%%=*}"
+            to="${rule#*=}"
+            if [ "$global" = 1 ]; then
+                new="${last//$from/$to}"
+            else
+                new="${last/$from/$to}"
+            fi
+
+            if [ "$order" = and ]; then
+                if [ "$new" = "$last" ]; then
+                    break
+                fi
+            elif [ "$order" = or ]; then
+                if [ "$new" != "$last" ]; then
+                    break
+                fi
+            fi
+            last="$new"
+        done
+
+        newdir="${new%/*}"
+        if [ "$newdir" = "$new" ]; then
+            newdir=.
+        else
+            if [ ! -d "$newdir" ]; then
+                _log1 "Create directory $newdir"
+                mkdir -p "$newdir"
+            fi
+        fi
+
+        if [ $LOGLEVEL -gt 0 ]; then
+            echo -n "Rename $old to $new"
+        fi
+
+        if $MV "$old" "$new"; then
+            if [ $LOGLEVEL -gt 0 ]; then echo; fi
+            if [ "$clean_parents" = 1 ]; then
+                parent="${old%/*}"
+                if [ "$parent" = "$old" ]; then
+                    parent=.
+                fi
+                if [ "$parent" != . ]; then
+                    $RMDIR_V -p "$parent" 2>/dev/null
+                fi
+            fi
+        else
+            if [ $LOGLEVEL -gt 0 ]; then echo ": Failed"; fi
+        fi
+
+    done
+}
+
+boot "$@"

@@ -3,7 +3,7 @@
 
     . shlib-import cliboot
 
-    RCSID='$Id$'
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
     short_opts="67p:dP:RfFhqv"
     long_opts="jetty6,jetty7,port:,debug,debug-port:,refresh-depends,tcpflow,tcpflow-new,help,quiet,verbose,version"
 
@@ -29,7 +29,7 @@
 function version() {
     parse_id "$RCSID"
     echo "[$BASENAME] Start jetty by maven-plugins"
-    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
 }
 
 function help() {

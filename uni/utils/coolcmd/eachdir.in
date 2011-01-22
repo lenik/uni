@@ -1,0 +1,187 @@
+#!/bin/bash
+    . shlib-import cliboot
+    shopt -s nullglob
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="arf:F:bI:ls:LC:x:hqv"
+    long_opts="all,recursive,ifexist:,ifnotexist:,background,replace:,list,follow-symlinks,srcfile:,chdir:,exclude:,help,quiet,verbose,version"
+
+    LOGLEVEL=1
+
+    maxdepth=1
+    background=
+    chdir=
+    list=
+    followsym=
+    srcfile=
+    exclude=
+    replace="{}"
+
+    incl=()
+    excl=()
+    nincl=0
+    nexcl=0
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Execute commands in each dir"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] COMMAND ARGS"
+    echo
+    echo "Options: "
+    echo "    -a, --all               Include hidden files"
+    echo "    -s, --srcfile=FILE      Read dirs from given file, instead of *"
+    echo "                              (If FILE is '-', then read from stdin.)"
+    echo "    -r, --recursive         Find recursive"
+    echo "    -f, --ifexist=FILE      Only dirs with FILE inside, can be multiple"
+    echo "    -F, --ifnotexist=FILE   Only dirs without FILE inside, can be multiple"
+    echo "    -l, --list              List only, don't execute command"
+    echo "    -L, --follow-symlinks   Follow symbolic links"
+    echo "    -C, --chdir=DIR         Chdir to DIR before enum dirs"
+    echo "    -I, --replace=STR       Replace the occurence of STR to the dir path"
+    echo "    -x, --exclude=PATTERN   Simple regex to exclude (NOT IMPL)"
+    echo "    -b, --background        Run each cmd in background"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -a|--all)
+            shopt -s dotglob;;
+        -r|--recursive)
+            maxdepth=256;;
+        -f|--ifexist)
+            incl[nincl++]="$2";;
+        -F|--ifnotexist)
+            excl[nexcl++]="$2";;
+        -b|--background)
+            background=1;;
+        -l|--list)
+            list=1;;
+        -L|--follow-symlinks)
+            followsym=1;;
+        -s|--srcfile)
+            srcfile="$2";;
+        -C|--chdir)
+            chdir="$2";;
+        -I|--replace)
+            replace="$2";;
+        -x|--exclude)
+            exclude="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function search() {
+    local start="${1%/}/"
+          start="${start#./}"
+    local depth="$2"
+    local d
+    local f
+    local fail
+
+    [ $((depth++)) -lt $maxdepth ] || return
+
+    for d in "$start"*/; do
+        d="${d%/}"
+        if [ -z "$followsym" ] && [ -L "$d" ]; then continue; fi
+
+        fail=
+        for f in "${incl[@]}"; do
+            if [ ! -e "$d/$f" ]; then
+                fail=1
+                break
+            fi
+        done
+        if [ -z "$fail" ]; then
+            for f in "${excl[@]}"; do
+                if [ -e "$d/$f" ]; then
+                    fail=1
+                    break
+                fi
+            done
+        fi
+
+        if [ -z "$fail" ]; then
+            echo "$d"
+            continue    # -prune
+        fi
+
+        search "$d" $depth
+    done
+}
+
+function main() {
+    if [ -n "$chdir" ]; then
+        if ! cd $chdir; then
+            echo "Can't chdir to $chdir" >&2
+            exit 1
+        fi
+    fi
+
+    if [ -z "$srcfile" ]; then
+        quit_clean=1
+        srcfile=/tmp/eachdir-$$-$RANDOM
+        search . 0 >$srcfile
+    elif [ "$srcfile" = '-' ]; then
+        srcfile=/dev/stdin
+    fi
+
+    while read dir; do
+        _log2 "$dir: "
+
+        cmdline=()
+        i=0
+        for arg in "$@"; do
+            arg="${arg//$replace/$dir}"
+            cmdline[i]="$arg"
+            ((i++))
+        done
+
+        if [ "$list" = 1 ]; then
+            if [ $# = 0 ]; then
+                echo "$dir"
+            else
+                echo "${cmdline[@]}"
+            fi
+            continue
+        fi
+
+        if ! pushd $dir >/dev/null; then
+            _error "    Failed to enter $dir, skipped"
+            continue
+        fi
+
+        if [ "$background" = 1 ]; then
+            bash -c "${cmdline[*]}" &
+        else
+            bash -c "${cmdline[*]}"
+        fi
+
+        popd >/dev/null
+    done <$srcfile
+
+    if [ "$quit_clean" = 1 ]; then
+        rm -f $srcfile
+    fi
+}
+
+boot "$@"

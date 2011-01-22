@@ -1,0 +1,172 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    shopt -s nullglob
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="c:r:o:Cfhqv"
+    long_opts="cdrom:,root:,out:,iso-only,force,help,quiet,verbose,version"
+
+    force=
+    cleanup=1
+    cdrom=
+    root=
+    out=
+    label="Ubuntu Live CD"
+    iso_only=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Make up Live CD"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+    echo
+    echo "This tool is following the tutorial: "
+    echo "    http://www.debuntu.org/how-to-customize-your-ubuntu-live-cd"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] [CDROM] [ROOT]"
+    echo
+    echo "Options: "
+    echo "    -c, --cdrom=DIR         CD image contents"
+    echo "    -r, --root=DIR          Root dir to be packed into squashfs"
+    echo "    -o, --out=FILE.iso      The .iso output path"
+    echo "    -C, --iso-only          Just create the .iso file"
+    echo "    -c, --force             Force to overwrite existing output file"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -c|--cdrom)
+            cdrom="$2";;
+        -r|--root)
+            root="$2";;
+        -o|--out)
+            out="$2";;
+        -C|--iso-only)
+            iso_only=1;;
+        -f|--force)
+            force=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+
+    if [ -n "$1" ]; then
+        cdrom="$1"
+        shift
+    fi
+    if [ -n "$1" ]; then
+        root="$1"
+        shift
+    fi
+    cdrom="${cdrom%/}"
+    root="${root%/}"
+
+    if [ -z "$cdrom" ]; then
+        echo "CDROM dir isn't specified. "
+        exit 1
+    fi
+    if [ ! -d "$cdrom" ]; then
+        echo "CDROM dir isn't existed: $cdrom"
+        exit 1
+    fi
+
+    if [ -z "$root" ]; then
+        echo "Root dir isn't specified. "
+        exit 1
+    fi
+    if [ ! -d "$root" ]; then
+        echo "Root dir isn't existed: $root"
+        exit 1
+    fi
+
+    if [ -f "$out" ] && [ "$force" != 1 ]; then
+        echo  "Output file is already existed, specify f to overwrite. "
+        exit 1
+    fi
+
+    if [ "$iso_only" != 1 ]; then
+
+        _log1 "chmod +w for $cdrom/"
+        sudo chmod -R +w "$cdrom"
+
+        if [ "$cleanup" = 1 ]; then
+            _log1 Clean up...
+            sudo rm -fr "$root/tmp/"*
+            sudo rm -vf "$root/etc/hosts"
+            sudo rm -vf "$root/etc/resolv.conf"
+
+            sudo umount "$root/proc/"
+            sudo umount "$root/sys/"
+        fi
+
+        for x in "$root/boot/vmlinuz-"* "$root/boot/initrd.img-"*; do
+            base="${x##*/}"
+            case "$base" in
+                vmlinuz-*)
+                    dst="$cdrom/casper/vmlinuz"
+                    _log1 "Move out $base to $dst"
+                    sudo mv -f "$x" "$dst"
+                    ;;
+                initrd.*)
+                    dst="$cdrom/casper/initrd.lz"
+                    sudo sh -c "gunzip -c '$x' | lzma >'$dst'"
+                    sudo rm "$x"
+                    ;;
+            esac
+        done
+
+        manifest="$cdrom/casper/filesystem.manifest"
+        _log1 "Update $manifest"
+            sudo chroot "$root" dpkg-query -Wf '${Package} ${Version}\n' >"$manifest"
+            sudo cp -v "$manifest" "$manifest-desktop"
+
+        _log1 "Recreate squashfs image..."
+        sudo mksquashfs "$root" "$cdrom/casper/filesystem.squashfs" -noappend
+
+    fi
+
+    _log1 "Recalculate checksum..."
+    (cd "$cdrom" && sudo find . -type f -print0 \
+        | sudo xargs -0 md5sum >md5sum.txt)
+
+    if [ -z "$out" ]; then
+        out="$cdrom"
+        out="${out%/}"
+        out="$out.iso"
+    fi
+    _log1 "Create the ISO image: $out"
+    sudo genisoimage \
+        -rational-rock \
+        -volid "$label" \
+        -b "isolinux/isolinux.bin" \
+        -c "isolinux/boot.cat" \
+        -cache-inodes \
+        -joliet \
+        -full-iso9660-filenames \
+        -no-emul-boot \
+        -boot-load-size 4 \
+        -boot-info-table \
+        -o "$out" \
+        "$cdrom"
+}
+
+boot "$@"

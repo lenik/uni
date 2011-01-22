@@ -1,5 +1,5 @@
 #!/bin/bash
-    RCSID='$Id$'
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
     short_opts="s:c:u:U:i:I:dhqv"
     long_opts="section:,co-opts:,up-opts:,up-intv:,ci-opts:,ci-intv:,delayed,help,quiet,verbose,version"
     . shlib-import cliboot
@@ -16,7 +16,7 @@
 function version() {
     parse_id "$RCSID"
     echo "[$BASENAME] Install new checkout point with svn-union"
-    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
 }
 
 function help() {

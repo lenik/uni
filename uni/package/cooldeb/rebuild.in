@@ -1,0 +1,109 @@
+#!/bin/bash
+    . shlib-import cliboot
+      shopt -s nullglob
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="ihqv"
+    long_opts="incr,help,quiet,verbose,version"
+
+    import overrides
+
+    incr=0
+    if [ ! -f debian/changelog ]; then
+        incr=1
+    fi
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Rebuild the .deb archive and dput if succeed"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] PACKAGE-DIR"
+    echo
+    echo "Options: "
+    echo "    -i, --incr              increase debian/changelog version"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -i|--incr)
+            incr=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+
+    if [ ! -f configure ]; then
+        reconf=1
+        if ! autoreconf2 -is; then
+            exit 1
+        fi
+    fi
+
+    if [ ! -f Makefile ]; then
+        makelook=1
+        if ! makelook; then
+            exit 2
+        fi
+    fi
+
+    # edit the changelog
+    # if ! ver=`maketestvar PACKAGE_VERSION`; then
+    #     echo "Don't know the version, no Makefile variable. " >&2
+    #     exit 4
+    # fi
+
+    dh_add_missing debian/
+
+    # increase debian version by debian/changelog
+    if [ "$incr" = 1 ]; then
+        dh_incr
+    fi
+
+    if ! debuild --no-tgz-check; then
+        exit 3
+    fi
+
+    # xjl-cooldeb_0.1.5-1_all.deb
+    dh_debname | while read debname; do
+        echo "Dput $debname..."
+
+        chprefix="../${debname%_*}"
+        for ch in "$chprefix"_*.changes; do
+            echo "Commit $ch"
+
+            # swapox: remove "override entry" in stderr.
+            swapox dput -f dlocal "$ch" |
+                swapox grep -v "override entry"
+        done
+
+        echo
+    done
+
+    if [ "$reconf" = 1 ]; then
+        autounconf
+    fi
+
+    echo Done.
+}
+
+boot "$@"

@@ -1,0 +1,78 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="i:u:p:hqv"
+    long_opts="interface,username,password,help,quiet,verbose,version"
+
+    iface=
+    gw_addr=
+    username=admin
+    password=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Reboot the gateway (ADSL Router)"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -i, --iface=INTERFACE   specify interface to use"
+    echo "    -u, --user=USERNAME     auth user name"
+    echo "    -p, --password=PASSWORD auth password"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -i|--iface)
+            iface="$2";;
+        -u|--user)
+            username="$2";;
+        -p|--password)
+            password="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$iface" ]; then
+        read iface xxx < <(ifconfig)
+    fi
+
+    if [ -z "$gw_addr" ]; then
+        if ! gw_addr=`gw-addr -i $iface`; then
+            echo "Gateway is unknown" >&2
+            exit 1
+        fi
+    fi
+
+    if [ -z "$password" ]; then
+        password=`usecode -c $username`
+        # XXX - save password to a temporary file...
+    fi
+
+    wget -qO- --http-user="$username" --http-password="$password" \
+        "http://$gw_addr/setup.cgi?todo=reboot&message="
+
+}
+
+boot "$@"

@@ -1,0 +1,137 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="t:chqv"
+    long_opts="type:,color,help,quiet,verbose,version"
+
+    type=
+
+    treeopts=()
+    ntreeopt=0
+
+    aopts=()
+    naopt=0
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] List contents tree in archive"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] FILE.ZIP..."
+    echo
+    echo "Options: "
+    echo "    -t, --type=AR-TYPE      Default determined by file extension"
+    echo "    -c, --color             Render with color"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -t|--type)
+            type="$2";;
+        -c|--color)
+            treeopts[ntreeopt++]=-c;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for ar in "$@"; do
+        _type="$type"
+        if [ -z "$_type" ]; then
+            case "$ar" in
+                *.7z)
+                    _type=7zip;;
+                *.deb)
+                    _type=Debian;;
+                *.rar)
+                    _type=RAR;;
+                *.tar|*.tar.*)
+                    _type=Tar;;
+                *.zip)
+                    _type=Zip;;
+                *.Z)
+                    _type=Z;;
+                *)
+                    echo "Unsupported archive: ${a#*.}";;
+            esac
+        fi
+
+        _log1 "$_type archive: $ar"
+        case "$_type" in
+        7zip)
+            7z l "$ar" | (
+                align=
+                state=LEADING
+                while IFS= read -r line; do
+                    if [ -z "$align" ]; then
+                        if [ "$line" = "${line/Date}" ]; then continue; fi
+                        if [ "$line" = "${line/Time}" ]; then continue; fi
+                        if [ "$line" = "${line/Attr}" ]; then continue; fi
+                        if [ "$line" = "${line/Size}" ]; then continue; fi
+                        if [ "$line" = "${line/Compressed}" ]; then continue; fi
+                        if [ "$line" = "${line/Name}" ]; then continue; fi
+                        line="${line%Name*}"
+                        align=${#line}
+                        continue
+                    fi
+                    if [ "${line:0:10}" = '----------' ]; then
+                        case $state in
+                        LEADING) state=START; continue;;
+                        START) state=STOPPED; break;;
+                        esac
+                    fi
+                    echo "${line:$align}"
+                done
+                ) | 2tree "${treeopts[@]}"
+            ;;
+
+        Debian)
+            dpkg --contents "$ar" \
+                | awk '{ $1=$2=$3=$4=$5=""; $0=substr($0, 6)}1' \
+                | 2tree "${treeopts[@]}"
+            ;;
+
+        RAR)
+            rar vb "$ar" \
+                | 2tree "${treeopts[@]}"
+            ;;
+
+        Tar)
+            tar atvf "$ar" \
+                | awk '{ $1=$2=$3=$4=$5=""; $0=substr($0, 6)}1' \
+                | 2tree "${treeopts[@]}"
+            ;;
+
+        Zip)
+            # There is encoding problem... hmm.. unzip -l -UU?
+            unzip -l "$ar" \
+                | awk '{ $1=$2=$3=""; $0=substr($0, 4) }1' \
+                | 2tree "${treeopts[@]}"
+            ;;
+        *)
+            echo "Unknown type: $_type"
+            exit 1
+        esac
+    done
+}
+
+boot "$@"

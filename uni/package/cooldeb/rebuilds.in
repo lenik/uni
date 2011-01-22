@@ -1,0 +1,101 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="duUhqv"
+    long_opts="vcs-diff,vcs-update,unconf,help,quiet,verbose,version"
+
+    vcs_diff=
+    vcs_update=
+    unconf=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Refresh/Build local Debian packages, which are changed"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] PACKAGE-DIR..."
+    echo
+    echo "Options: "
+    echo "    -d, --vcs-diff          Refresh changed packages in working checkout"
+    echo "    -u, --vcs-update        Refresh packages will be updated by VCS"
+    echo "    -U, --unconf            Do autounconf before builds"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -d|--vcs-diff)
+            vcs_diff=1;;
+        -u|--vcs-update)
+            vcs_update=1;;
+        -U|--unconf)
+            unconf=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function debof() {
+    local d="$1"
+    while [ -n "$d" ]; do
+        if [ -f "$d/debian/control" ]; then
+            echo "$d"
+            return 0
+        fi
+        [ "$d" = "${d/\/}" ] && break
+        d="${d%/*}"
+    done
+}
+
+function main() {
+    list=`tempfile`
+    _log1 "Prepare all package names to be rebuild in $list"
+
+    [ "$vcs_update" = 1 ] && vcscmd slupdate >>$list
+    [ "$vcs_diff"   = 1 ] && vcscmd slist | cut -c9- >>$list
+    echoln "$@" >>$list
+
+    packages=`tempfile`
+    grep -v changelog "$list" \
+        | while read f; do
+            echo `debof "$f$"`
+            done \
+        | sort -u \
+        >$packages
+    rm -f $list
+
+    _log1 "Refresh packages: "
+    while IFS='|' read p; do
+        _log2 "    $p"
+    done <$packages
+
+    if [ "$unconf" = 1 ]; then
+        _log1 "Cleanup autoconf files before build"
+        eachdir -s "$packages" autounconf
+    fi
+
+    _log1 "Start build of each package"
+    eachdir -vs "$packages" rebuild -i
+
+    _log1 "End of all builds"
+    rm -f $packages
+}
+
+boot "$@"

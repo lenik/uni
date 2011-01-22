@@ -1,7 +1,7 @@
 #!/bin/bash
     . shlib-import cliboot
 
-    RCSID='$Id$'
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
     short_opts="s:a:hqv"
     long_opts="server:,api:,help,quiet,verbose,version"
 
@@ -15,7 +15,7 @@
 function version() {
     parse_id "$RCSID"
     echo "[$BASENAME] M2search Nexus driver"
-    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
 }
 
 function help() {

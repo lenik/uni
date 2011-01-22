@@ -2,7 +2,7 @@
 
 # master-file
 
-    RCSID='$Id$'
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
     short_opts="fhqv"
     long_opts="force,help,quiet,verbose,version"
     . shlib-import cliboot
@@ -15,7 +15,7 @@
 function version() {
     parse_id "$RCSID"
     echo "[$BASENAME] SVN-Union: Integrate local-fs with SVN"
-    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
 }
 
 function help() {

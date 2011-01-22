@@ -1,0 +1,71 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Create .vmdk wrappers for /dev/loop devices"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] [output-prefix]"
+    echo "    (default output-prefix is ./loop)"
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+
+    outprefix="$1"
+    if [ -z "$outprefix" ]; then
+        outprefix=./loop
+    fi
+
+    outprefix="${outprefix%/}"
+    if [ -d "$outprefix" ]; then
+        outprefix="$outprefix/"
+    fi
+
+    for loopdev in /dev/loop*; do
+        num=${loopdev#/dev/loop}
+        if [ -z "$num" ]; then continue; fi
+        if [ -n "${num//[0-9]}" ]; then
+            # !~ '/dev/loop[0-9]+'
+            continue
+        fi
+
+        vmdk="$outprefix$num"
+
+        _log1 "Create $vmdk -> $loopdev"
+        VBoxManage internalcommands createrawvmdk \
+            -filename "$vmdk" -rawdisk "$loopdev" -register
+    done
+}
+
+boot "$@"

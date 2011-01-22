@@ -1,0 +1,209 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="glakfhqv"
+    long_opts="global,list,add,kill,force,help,quiet,verbose,version"
+
+    global=
+    list=
+    mode=
+    force=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] subst-keywords manager"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] [PACKAGE:]KEYWORD CONTENT"
+    echo
+    echo "Options: "
+    echo "    -g, --global            global only"
+    echo "    -l, --list              list keywords"
+    echo "    -a, --add               add a keyword (default)"
+    echo "    -k, --kill              remove a keyword"
+    echo "    -f, --force             force to add bare keyword"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -g|--global)
+            global=1;;
+        -l|--list)
+            list=1;;
+        -a|--add)
+            mode=add;;
+        -k|--kill)
+            mode=kill;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function list() {
+    local dir="$1"
+    local prefix="$2"
+
+    for f in "$dir"/*; do
+        basename="${f##*/}"
+        if [ -z "$prefix" ]; then
+            fqn="$basename"
+        else
+            fqn="$prefix:$basename"
+        fi
+        if [ -d "$f" ]; then
+            list "$f" "$fqn"
+        else
+            while IFS== read attr val; do
+                echo "$fqn[$attr] = $val"
+            done <$f
+        fi
+    done
+}
+
+function main() {
+    if [ "$list" = 1 ]; then
+        list /etc/coolcmd/subst
+        if [ -z "$global" ]; then
+            list ~/.coolcmd/subst
+        fi
+        return
+    fi
+
+    if [ -z "$1" ]; then
+        echo "Keyword isn't specified. " >&2
+        return 1
+    fi
+
+    if [ -z "$mode" ]; then
+        if [ $# = 1 ]; then
+            mode=list
+        else
+            mode=add
+        fi
+    fi
+
+    keyword="$1"
+    if [ "${keyword/:}" = "$keyword" ]; then
+        if [ "$force" != 1 ]; then
+            echo "Warning: bare keyword without package name, use -f to override." >&2
+            return 1
+        fi
+    fi
+
+    if [ "${keyword#*[}" != "$keyword" ]; then
+        if [ "${keyword%]}" = "$keyword" ]; then
+            echo "Invalid keyword: '$keyword'" >&2
+            return 1
+        fi
+        attr="${keyword#*[}"
+        attr="${attr%]}"
+        keyword="${keyword%[*}"
+    else
+        attr=
+    fi
+
+    res="${keyword//://}"
+
+    altfiles=(/etc/coolcmd/subst/$res)
+    if [ -z "$global" ]; then
+        altfiles[1]=~/.coolcmd/subst/$res
+    fi
+    nalt=${#altfiles[@]}
+    altindex=0
+
+    for file in "${altfiles[@]}"; do
+        dir=${file%/*}
+        final=$((++altindex == nalt))
+
+        if [ $mode != list ]; then
+            if [ -z "$attr" ]; then attr=text; fi
+
+            if [ $final = 0 ]; then
+                if [ -f $file ]; then
+                    if ! grep -q "^$attr=" $file; then # unmatched
+                        continue
+                    fi
+                    if [ ! -w "$file" ]; then # can't change file
+                        continue
+                    fi
+                else
+                    if [ ! -w "$dir" ]; then # can't create new file
+                        continue
+                    fi
+                fi
+            fi
+
+            if [ -f "$file" ]; then
+                if [ ! -w "$file" ]; then
+                    echo "File is not writable: $file" >&2
+                    return 1
+                fi
+            elif [ $mode = add ]; then
+                if [ ! -d "$dir" ]; then
+                    _log1 "Create new package dir $dir"
+                    if ! mkdir -p "$dir"; then
+                        return 1
+                    fi
+                elif [ ! -w "$dir" ]; then
+                    echo "Can't create new file in $dir" >&2
+                    return 1
+                fi
+            fi
+        fi
+
+        case $mode in
+        list)
+            if [ ! -f $file ]; then continue; fi
+            if [ -z "$attr" ]; then
+                cat $file
+            else
+                if grep "^$attr=" $file > >(cut -d= -f2-); then
+                    # exists, just show the first alt.
+                    break
+                fi
+            fi
+            ;;
+
+        add)
+            if lineconf -e $file "^$attr=" "$attr=$2"; then
+                _log1 "Add entry in $file: $attr=$2"
+            else
+                _log1 "No change"
+            fi
+            ;;
+
+        kill)
+            if [ ! -f $file ]; then continue; fi
+            if lineconf -ek $file "^$attr="; then
+                _log1 "Remove entry in $file: $attr"
+            else
+                _log1 "No change"
+            fi
+            if [ ! -s $file ]; then
+                _log1 "Remove empty file $file"
+                rm -f $file
+            fi
+            ;;
+        esac
+    done
+}
+
+boot "$@"

@@ -1,0 +1,180 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="r:c:n:x:f:shqv"
+    long_opts="root:,category:,norm:,norm-exec:,find:,stdin,help,quiet,verbose,version"
+
+    root=/var/lib/coll
+    category=
+    outdir=
+
+    norm_type=c
+    norm_removals=
+    norm_exec=
+
+    find=
+    stdin=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Collect files into categories"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -r, --root=DIR          root dir of coll-repo, default /var/lib/coll"
+    echo "    -c, --category=NAME     specify category name"
+    echo "    -n, --norm=NORM-TYPE    how to normalize path"
+    echo "    -x, --norm-exec=CMD     using 'exec' norm type, and specify the cmd"
+    echo "    -f, --find=PATTERN      get file list by find PATTERN from curdir"
+    echo "    -s, --stdin             read file list from stdin"
+    echo "      (when stream from find, it should be find -printf '%p\n\c')"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+    echo
+    echo "Normalization Types: "
+    echo "(Example path: ./any/libsepol-2.0.40/debian/postinst)"
+    echo "    c (default)       __any_libsepol-2.0.40_debian_postinst"
+    echo "    dash (or -)       any-libsepol-2.0.40-debian-postinst"
+    echo "    dash-any-debian   libsepol-2.0.40-postinst"
+}
+
+function setopt() {
+    case "$1" in
+        -r|--root)
+            root="$2";;
+        -c|--category)
+            category="$2";;
+        -n|--norm)
+            arg="$2"
+            if [ "${arg:0:1}" = '-' ]; then
+                if [ "${#arg}" = 1 ]; then
+                    arg=dash
+                else
+                    arg=dash$arg
+                fi
+            fi
+            norm_type="${arg%%-*}"
+            if [ "$norm_type" != "$arg" ]; then
+                norm_removals="${arg#*-}"
+            fi
+            case "$norm_type" in
+                c|dash|exec)
+                    : ;;
+                *)
+                    quit "invalid norm-type: $norm_type"
+            esac;;
+        -x|--norm-exec)
+            norm_type=exec
+            norm_exec="$2";;
+        -f|--find)
+            if [ -n "$stdin" ]; then
+                quit "stdin is used. "
+            fi
+            find_pattern="$2";;
+        -s|--stdin)
+            if [ -n "$find_pattern" ]; then
+                quit "find-pattern is specified: $find_pattern"
+            fi
+            stdin=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+
+    if [ -z "$root" ]; then
+        echo "Root dir isn't specified. " >&2
+        exit 1
+    fi
+    root="${root%/}"
+
+    if [ -z "$category" ]; then
+        echo "Category isn't specified. " >&2
+        exit 1
+    fi
+
+    outdir="$root/$category"
+    mkdir -p "$outdir" || quit "can't create dir $outdir"
+
+    if [ "$stdin" = 1 ]; then
+        while read f; do
+            # skip empty and comment lines.
+            if [ -z "$f" ] || [ "${f:0:1}" = "#" ]; then
+                continue
+            fi
+            collect "$f"
+        done
+    elif [ -n "$find_pattern" ]; then
+        while read f; do
+            collect "$f"
+        done < <(find -name "$find_pattern" -printf '%p\n\c')
+    else
+        for f in "$@"; do
+            collect "$f"
+        done
+    fi
+}
+
+function collect() {
+    local file="$1"
+    local disp="${1#./}"
+
+    if [ -n "$norm_removals" ]; then
+        disp="<</$disp/>>"
+        rems="$norm_removals"
+        while [ -n "$rems" ]; do
+            rem_item="${rems%%-*}"
+            if [ "$rem_item" = "$rems" ]; then
+                rems=
+            else
+                rems="${rems#*-}"
+            fi
+            disp="${disp//\/$rem_item\///}"
+        done
+        disp="${disp#<</}"
+        disp="${disp%/>>}"
+    fi
+
+    disp=`norm_$norm_type "$disp"`
+    _log1 "$file => $outdir/$disp"
+
+    cfile="$outdir/$disp"
+    cp -fR "$file" "$cfile"
+}
+
+function norm_c() {
+    local s="$1"
+    s="${s//\//_}"
+    echo "$s"
+}
+
+function norm_dash() {
+    local s="$1"
+    s="${s//[^0-9a-zA-Z_.]/-}"
+    echo "$s"
+}
+
+function norm_exec() {
+    $norm_exec "$1"
+}
+
+boot "$@"

@@ -1,0 +1,82 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="t:rdhqv"
+    long_opts="target:,recursive,daemon,help,quiet,verbose,version"
+
+    target=autobuild
+    daemon=0
+    recursive=0
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Run autobuild rule on changing to a directory"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] MAIN-DIR MORE-DIRS..."
+    echo
+    echo "Options: "
+    echo "    -t, --target=TARGET     Make target instead of 'autobuild'"
+    echo "    -r, --recursive         Monitor the directory recursive"
+    echo "    -d, --daemon            Run in background"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -t|--target)
+            target="$2";;
+        -d|--daemon)
+            daemon=1;;
+        -r|--recursive)
+            recursive=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $# = 0 ]; then
+        echo "At least MAIN-DIR should be specified. "
+        exit 1
+    fi
+
+    dirs=()
+    ndir=0
+    for d in "$@"; do
+        dirs[ndir++]="$d"
+    done
+    main_dir="${dirs[0]}"
+
+    dnotify_opts=()
+    dnotify_nopt=0
+    if [ "$daemon" = 1 ];    then dnotify_opts[dnotify_nopt++]='-b'; fi
+    if [ "$recursive" = 1 ]; then dnotify_opts[dnotify_nopt++]='-r'; fi
+
+    cmds=()
+    if [ $LOGLEVEL -gt 1 ]; then
+        cmds=("${cmds[@]}" echo "[autobuild] Detect changes on: {}" \;)
+    fi
+    cmds=("${cmds[@]}" make -C "$main_dir" $target)
+
+    dnotify -MCDR "${dnotify_opts[@]}" "${dirs[@]}" -e sh -c "${cmds[*]}"
+}
+
+boot "$@"

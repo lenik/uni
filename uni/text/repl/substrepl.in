@@ -1,0 +1,72 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] A simple subst-based refactor program"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] MAP-FILE [TARGET-FILES]"
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    map="$1"
+    shift
+    [ -z "$map" ] && map=/dev/stdin
+
+    # Generate the sed subst script
+    sedf=`tempfile`
+    echo "#!/bin/bash" >$sedf
+    echo "for f in \"\$@\"; do" >>$sedf
+    echo "    sed -i \\" >>$sedf
+        awk '{ print "        -e \"s/"$1"/"$2"/g\" \\" }' "$map" >>$sedf
+    echo "        \"\$f\"" >>$sedf
+    echo "done" >>$sedf
+
+    chmod +x $sedf
+
+    if [ $# = 0 ]; then
+        # Run the script on control files
+        for f in debian/*; do
+            [ ! -f "$f" ] && continue
+            $sedf "$f"
+        done
+    else
+        for f in "$@"; do
+            [ ! -f "$f" ] && continue
+            $sedf "$f"
+        done
+    fi
+}
+
+boot "$@"
