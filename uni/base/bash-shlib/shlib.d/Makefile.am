@@ -1,6 +1,7 @@
 include ../libauto/coolauto.am
 
 dist_shlib_DATA = \
+    bashunit \
     cliboot \
     cmds \
     export-p \

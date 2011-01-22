@@ -1,0 +1,60 @@
+# vim: set filetype=sh :
+
+function main() {
+    local setup=
+    local teardown=
+    local fname=
+    local count=0
+    local failures=0
+    local width=70
+    local dotfill='.........................................................................................................................................................................................................................................'
+    local dashfill="${dotfill//./-}"
+    local sdotfill="${dotfill//../. }"
+    local spacefill="${dotfill//./ }"
+
+    [ "`type -t setup`" = 'function' ]    && setup=setup
+    [ "`type -t teardown`" = 'function' ] && teardown=teardown
+
+    [ -z "$COLUMNS" ] && COLUMNS=`tput cols`
+    [ -n "$COLUMNS" ] && width=$((COLUMNS - 10))
+    [ "$width" -lt 10 ] && width=10
+
+    while read _declare _f fname; do
+        case "$fname" in
+        test_*) ((count++));;
+        *:test) ((count++));;
+        esac
+    done < <(declare -F)
+
+    local index=0
+    while read _declare _f fname; do
+        local name
+        case "$fname" in
+        test_*) name="${fname:5}";;
+        *:test) name="${fname%:test}";;
+        esac
+
+        if [ -n "$name" ]; then
+            local title="Test $((++index))/$count: $name"
+            local fill=$((width - ${#title} - 30))
+            [ "$fill" -gt 0 ] && title="$title ${sdotfill:0:fill}"
+
+            echo -n "$title  "
+
+            [ -n "$setup" ] && setup "$@"
+
+            if "$fname" "$@"; then
+                echo "Done" >&2
+            else
+                echo "Fail" >&2
+                ((failures++))
+            fi
+
+            [ -n "$teardown" ] && teardown "$@"
+        fi
+    done < <(declare -F)
+
+    echo "${dashfill:0:width}" >&2
+    echo "Test Report: $count Total, $((count-failures)) Success, $failures Failure" >&2
+    return $failures
+}
