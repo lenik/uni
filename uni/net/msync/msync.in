@@ -2,7 +2,7 @@
     . shlib-import cliboot
     shopt -s nullglob
 
-    RCSID='$Id$'
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
     short_opts="C:dDhp:qr:s:v"
     long_opts="chdir:,delete,delete-all,help,page:,quiet,repeat:,server:,verbose,version"
 
@@ -13,7 +13,7 @@
 function version() {
     parse_id "$RCSID"
     echo "[$BASENAME] Rsync for site mirroring"
-    echo Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date
+    echo Written by Lenik, Version $rcs_rev, Last updated at $rcs_date
 }
 
 function help() {

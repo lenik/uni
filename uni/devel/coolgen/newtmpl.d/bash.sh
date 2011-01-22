@@ -1,14 +1,14 @@
 #!/bin/bash
     . shlib-import cliboot
 
-    RCSID='$Id$'
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
     short_opts="hqv"
     long_opts="help,quiet,verbose,version"
 
 function version() {
     parse_id "$RCSID"
     echo "[$BASENAME] @TEXT@"
-    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
 }
 
 function help() {

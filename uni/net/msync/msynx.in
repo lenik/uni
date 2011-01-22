@@ -1,7 +1,7 @@
 #!/bin/bash
     . shlib-import cliboot
 
-    RCSID='$Id$'
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
     short_opts="a:dlumc:srC:X:pnhqv"
     long_opts="alphabet:,digits,lower-case,upper-case,mixed-case,concount:,shuffle,remote-eval,chdir:,distrib:,purge,dry-run,help,quiet,verbose,version"
 
@@ -18,7 +18,7 @@
 function version() {
     parse_id "$RCSID"
     echo "[$BASENAME] Distributed msync utility"
-    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
 }
 
 function help() {

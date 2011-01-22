@@ -1,7 +1,7 @@
 #!/bin/bash
     . shlib-import cliboot
 
-    RCSID='$Id$'
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
     short_opts="sn:m:f:hqv"
     long_opts="show-xsl,xmlns:,method:,for:,help,quiet,verbose,version"
 
@@ -15,7 +15,7 @@
 function version() {
     parse_id "$RCSID"
     echo "[$BASENAME] Translate XML to text by simplified XSLT"
-    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
 }
 
 function help() {

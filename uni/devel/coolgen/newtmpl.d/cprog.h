@@ -1,6 +1,6 @@
 #ifndef __CPROG_H
 #define __CPROG_H
-#define __CPROG_ID "$Id$"
+#define __CPROG_ID "$Id: - @VERSION@ @DATE@ @TIME@ - $"
 
 #include <stdio.h>
 #include <stdlib.h>
