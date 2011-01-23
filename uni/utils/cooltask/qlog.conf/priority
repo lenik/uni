@@ -1,0 +1,7 @@
+crucial     = -30
+high        = -20
+required    = -10
+normal      = 0
+optional    = 10
+low         = 20
+trivial     = 30

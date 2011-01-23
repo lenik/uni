@@ -39,13 +39,15 @@ function help() {
     echo "      (command-name [task-spec] [--] message)"
     echo "    P|pause [-<timeout>]  Pause the task, timeout alert if specified"
     echo "    r|resume              Resume the task"
-    echo "    V|done                The task has been completed"
-    echo "    C|cancel              The task has been canceled"
-    echo "    F|fail                The task has been failed"
-    echo "    R|renice <priority>   Change the priority of the task"
+    echo "    e|end                 Transit the task to the end state"
+    echo "    c|cancel              Transit the task to the canceled state"
+    echo "    V|done                End the task and put the Victory icon"
+    echo "    X|fail                Cancel the task and put the failure icon"
+    echo "    R|renice [<priority>] Change the priority of the task, default high"
+    echo "    F|focus [<distance>]  Synchronize the task state with your attention, default on"
     echo "    T|title <title>       Change the task title"
     echo "    (empty)|log           Simple add log message"
-    echo "    G|graph [-format]     Plot the graph, to stdout or display"
+    echo "    G|graph [-<format>]   Plot the graph to stdout or display, default png"
     echo "    :<attrib>[=<value>]   Print or change the attribute"
     echo
     echo "Task-specifier: "
@@ -56,6 +58,7 @@ function help() {
     echo "Other commands: "
     echo "    category [add/rm/show/list ...]"
     echo "    priority [add/rm/show/list ...]"
+    echo "    distance [add/rm/show/list ...]"
 }
 
 function setopt() {
@@ -93,15 +96,16 @@ function main() {
         st) cmd=stack;;
         P) cmd=pause;;
         r) cmd=resume;;
+        e) cmd=end;;
+        c) cmd=cancel;;
         V) cmd=done;;
-        C) cmd=cancel;;
-        F) cmd=fail;;
+        X) cmd=fail;;
         R) cmd=renice;;
+        F) cmd=focus;;
         T) cmd=title;;
         G) cmd=graph;;
         :*) cmd=attrib;;
     esac
-
 
     case "$cmd" in
     push)
@@ -138,14 +142,19 @@ function main() {
         task_chdir queue
         ;;
 
-    done)
-        task_action done "$@"
-        task_chdir done
+    end)
+        task_action end "$@"
+        task_chdir stopped
         ;;
 
     cancel)
         task_action cancel "$@"
         task_chdir stopped
+        ;;
+
+    done)
+        task_action done "$@"
+        task_chdir done
         ;;
 
     fail)
@@ -159,6 +168,10 @@ function main() {
 
     renice)
         task_action log "Adjust the priority from to"
+        ;;
+
+    focus)
+        task_action focus
         ;;
 
     title)

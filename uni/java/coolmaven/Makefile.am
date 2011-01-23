@@ -9,14 +9,15 @@ dist_aliases_DATA = \
     coolmaven.sh
 
 dist_bin_SCRIPTS = \
-    coolmvn \
     newmod \
     m2graph \
     m2help \
     m2installfile \
+    m2layout \
     m2localdeps \
     m2localgraph \
     m2search \
+    pom-cascade \
     pomid \
     pomtree
 
@@ -52,7 +53,19 @@ EXTRA_DIST = \
 
 CLEANFILES = \
     jetty \
-    m2search-nexus
+    m2graph \
+    m2help \
+    m2installfile \
+    m2layout \
+    m2localdeps \
+    m2localgraph \
+    m2search \
+    m2search-nexus \
+    newmod \
+    newmp \
+    pom-cascade \
+    pomid \
+    pomtree
 #    archetypes
 
 install-data-hook:

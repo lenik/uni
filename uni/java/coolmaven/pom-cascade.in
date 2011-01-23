@@ -1,0 +1,163 @@
+#!/bin/bash
+    . shlib
+    import cliboot
+    import loadpom
+
+    shopt -s nullglob
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Fix pom.xml in all layers"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    loadpom pom.xml 1
+
+    top_gid=$project_group_id
+    top_aid=$project_artifact_id
+    top_ver=$project_version
+    supername="$project_name"
+    _log1 "Top Project: $top_gid:$top_aid:$top_ver"
+    _log1 "The project name is $supername"
+
+    tmp=`tempfile`
+
+    for moduledir in */; do
+        module="${moduledir%/}"
+        modulename=`dash2words "$module"`
+        layer="${module#layer-}"
+        layerX="${layer//x/X}"
+        if [ "$layer" = "$module" ]; then
+            layer=
+            layerX=
+        fi
+
+        (cd "$moduledir"
+
+        if [ -n "$layer" ]; then
+            _log1 "Layer $layer"
+        else
+            _log1 "Module $module"
+        fi
+
+        echo '<?xml version="1.0" encoding="UTF-8"?>'                           >pom.xml
+        echo '<project xmlns="http://maven.apache.org/POM/4.0.0"'               >>pom.xml
+        echo '         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'   >>pom.xml
+        echo '         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">' >>pom.xml
+        echo "    <modelVersion>4.0.0</modelVersion>"     >>pom.xml
+        echo "    <parent>"                               >>pom.xml
+        echo "        <groupId>$top_gid</groupId>"        >>pom.xml
+        echo "        <artifactId>$top_aid</artifactId>"  >>pom.xml
+        echo "        <version>$top_ver</version>"        >>pom.xml
+        echo "    </parent>"                              >>pom.xml
+        echo "    <artifactId>$module</artifactId>"       >>pom.xml
+        echo "    <version>$top_ver</version>"            >>pom.xml
+        echo "    <packaging>pom</packaging>"             >>pom.xml
+        echo "    <modules>"                              >>pom.xml
+
+        mods=()
+        nmod=0
+        for mod in */; do
+            mod="${mod%/}"
+            mods[nmod++]="$mod"
+            echo "        <module>$mod</module>"          >>pom.xml
+
+            if [ ! -f "$mod/pom.xml" ]; then
+                _warn "No file: $layerdir/$mod/pom.xml"
+                continue
+            fi
+
+            pom-cascade "$supername :: $modulename" "$module" "$top_ver" "$mod"
+        done
+
+        echo "    </modules>"                             >>pom.xml
+
+        echo "    <name>$supername :: $modulename</name>" >>pom.xml
+        echo "</project>"                                 >>pom.xml
+        )
+    done
+
+    rm -f $tmp
+}
+
+function pom-cascade() {
+    local prefix_name="$1"
+    local parent_artifact_id="$2"
+    local parent_version="$3"
+    local dir="$4"
+          dir="${dir%/}"
+    local mod="${dir##*/}"
+    local name="$prefix_name :: "`dash2words "$mod"`
+
+    _log1 "Refresh $dir/pom.xml -> $parent_artifact_id:$parent_version"
+
+    xml2 <$dir/pom.xml | sed \
+        -e "s|/project/parent/artifactId=.*|/project/parent/artifactId=$parent_artifact_id|" \
+        -e "s|/project/parent/version=.*|/project/parent/version=$parent_version|" \
+        -e "s|/project/name=.*|/project/name=$name|" \
+        | 2xml | tr -d '\n' | xmlindent -fnbe >$tmp
+    cp -f $tmp $dir/pom.xml
+
+    local project_artifact_id
+    local project_version
+    loadpom "$dir/pom.xml" 1
+
+    for subpom in "$dir"/*/pom.xml; do
+        pom-cascade "$name" "$project_artifact_id" "$project_version" "${subpom%/pom.xml}"
+    done
+}
+
+function dash2words() {
+    local str="$1"
+    local buf=
+
+    while [ -n "$str" ]; do
+        local word="${str%%-*}"
+        if [ "$word" = "$str" ]; then
+            str=
+        else
+            str="${str#*-}"
+        fi
+
+        word=`uc -e "${word:0:1}"`"${word:1}"
+
+        [ -n "$buf" ] && buf="$buf "
+        buf="$buf$word"
+    done
+    echo "$buf"
+}
+
+boot "$@"

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([coolmaven], [0.14.0], [xjl-bug@99jsj.com])
+AC_INIT([coolmaven], [0.17.2], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 AC_CONFIG_SRCDIR([get-common-prefix.c])
 AC_CONFIG_HEADERS([config.h])

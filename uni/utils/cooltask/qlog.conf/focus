@@ -1,0 +1,4 @@
+on      = 0
+near    = 1
+blurred = 2
+far     = 5
