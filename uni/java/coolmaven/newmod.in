@@ -3,8 +3,11 @@
     import loadpom
 
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="hqv"
-    long_opts="help,quiet,verbose,version"
+    short_opts="echqv"
+    long_opts="eclipse,commit,help,quiet,verbose,version"
+
+    eclipse=
+    commit=
 
 function version() {
     parse_id "$RCSID"
@@ -19,6 +22,8 @@ function help() {
     echo "    $0 [OPTION] [--] <artifactId> <display-name> [<default-package>]"
     echo
     echo "Options: "
+    echo "    -e, --eclipse           Generate eclipse project"
+    echo "    -c, --commit            Commit to VCS"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
@@ -27,6 +32,10 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -e|--eclipse)
+            eclipse=1;;
+        -c|--commit)
+            commit=1;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -104,22 +113,19 @@ EOM
     mkdir -p $module_dir/src/test/java/$pkgdir
     mkdir -p $module_dir/src/test/resources/$pkgdir
 
-    cd $module_dir
-    mvn eclipse:m2eclipse
-    cd ..
-    svn add -N $module_dir $module_dir/pom.xml
-    svn add $module_dir/src
+    if [ "$eclipse" = 1 ]; then
+        (cd $module_dir
+        mvn eclipse:m2eclipse
+        )
+    fi
 
-    tmp_ignore=/tmp/svnignore-$RANDOM.tmp
-    cat <<EOM >$tmp_ignore
-.classpath
-.project
-.settings
-target
-EOM
-
-    svn ps svn:ignore -F $tmp_ignore $module_dir
-    rm -f $tmp_ignore
+    if [ "$commit" = 1 ]; then
+        vcs ignore add .project
+        vcs ignore add .classpath
+        vcs ignore add .settings
+        vcs ignore add target
+        vcs add $module_dir
+    fi
 }
 
 boot "$@"
