@@ -9,6 +9,7 @@ dist_aliases_DATA = \
     coolmaven.sh
 
 dist_bin_SCRIPTS = \
+    coolmvn \
     newmod \
     m2graph \
     m2help \
