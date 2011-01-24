@@ -23,5 +23,9 @@ echo "Config Apache2"
         /etc/hosts @local::m2 \
         "127.0.0.1 m2.local"
 
+    lineconf -tm "    Add m2s.local to /etc/hosts" \
+        /etc/hosts @local::m2s \
+        "127.0.0.1 m2s.local"
+
 echo "Config Archiva"
     # xmlrpc..

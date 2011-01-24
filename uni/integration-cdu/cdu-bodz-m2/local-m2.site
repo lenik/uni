@@ -15,3 +15,21 @@
         allow from all
     </Proxy>
 </VirtualHost>
+
+<VirtualHost *:80>
+    ServerName  m2s.local
+    ServerAlias m2s
+    ServerAdmin admin@localhost
+
+    LogLevel  warn
+    CustomLog /var/log/apache2/m2_access.log combined
+    ErrorLog  /var/log/apache2/m2_error.log
+
+    DocumentRoot /none
+
+    ProxyPass        / http://localhost:3008/archiva/repository/snapshots/
+    ProxyPassReverse / http://localhost:3008/archiva/repository/snapshots/
+    <Proxy *>
+        allow from all
+    </Proxy>
+</VirtualHost>
