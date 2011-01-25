@@ -151,32 +151,36 @@ function main() {
     [ -d "$srcroot" ] || die "Source dir isn't existed: $srcroot"
     [ -d "$dstroot" ] || die "Dest dir isn't existed: $dstroot"
 
-    cd "$srcroot" || die "Failed to enter $srcroot"
+    ( cd "$srcroot" || die "Failed to enter $srcroot"
 
-    while IFS='|' read srcpath; do
-        dstpath=`path_refactor "$srcpath"`
-        _log1 "$srcpath"
-        _log2 "$dstpath"
-        _log2
+        while IFS='|' read srcpath; do
+            dstpath=`path_refactor "$srcpath"`
+            _log1 "$srcpath"
+            _log2 "$dstpath"
+            _log2
 
-        srcfile="$srcpath"
-        dstfile="$dstroot/$dstpath"
-        dstdir="${dstfile%/*}"
-        [ -d "$dstdir" ] || mkdir -p "$dstdir" || die "Failed to create dir $dstdir/"
+            srcfile="$srcpath"
+            dstfile="$dstroot/$dstpath"
+            dstdir="${dstfile%/*}"
+            [ -d "$dstdir" ] || mkdir -p "$dstdir" || die "Failed to create dir $dstdir/"
 
-        cat "$srcfile" | sed "${sedopts[@]}" >"$dstfile" || die "Failed to process file $srcfile"
-    done < <(find \
-                   -name target -type d -prune \
-                -o -name .project   -prune \
-                -o -name .classpath -prune \
-                -o -name .settings  -prune \
-                -o -type f -print)
+            cat "$srcfile" | sed "${sedopts[@]}" >"$dstfile" || die "Failed to process file $srcfile"
+        done < <(find \
+                       -name target -type d -prune \
+                    -o -name .project   -prune \
+                    -o -name .classpath -prune \
+                    -o -name .settings  -prune \
+                    -o -type f -print)
+    )
 
     if [ -n "$ver" ] && [ -z "$ver_delta" ]; then
-        echo "Press enter to prepare and deploy a release: $ver" >&2
-        read
-        mvn release:prepare -DautoVersionSubmodules=true -DreleaseVersion=$ver -Dmaven.test.skip=true -fn
-        mvn deploy -fn
+        ( cd "$dstroot" || die "Failed to enter $dstroot"
+
+            echo "Press enter to prepare and deploy a release: $ver" >&2
+            read
+            mvn release:prepare -DautoVersionSubmodules=true -DreleaseVersion=$ver -Dmaven.test.skip=true -fn
+            mvn deploy -fn
+        )
     fi
 }
 
@@ -220,7 +224,7 @@ function sedinit() {
 }
 
 function path_refactor() {
-    local p dir base
+    local p
     local i src dst
     for p in "$@"; do
         for ((i = 0; i < nkeyword; )); do
@@ -237,14 +241,15 @@ function path_refactor() {
             if [ -z "$flatten" ]; then
                 p="${p//$src/$dst}"
             else
-                base="${p##*/}"
-                dir="${p%/*}"
+                local base="${p##*/}"
+                local dir="${p%/*}"
                     [ "$dir" = "$base" ] && continue
                 dir="/$dir/"
-                dir="${dir%/$src/*}"
-                dir="${dir#/}"
-                dir="${dir%/}"
-                p="$dir/$dst/$base"
+                local x="${dir%/$src/*}"
+                    [ "$x" = "$dir" ] && continue
+                x="${x#/}"
+                x="${x%/}"
+                p="$x/$dst/$base"
             fi
         done
         echo "$p"
