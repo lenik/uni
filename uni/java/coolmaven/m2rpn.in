@@ -178,8 +178,16 @@ function main() {
 
             echo "Press enter to prepare and deploy a release: $ver" >&2
             read
-            mvn release:prepare -DautoVersionSubmodules=true -DreleaseVersion=$ver -Dmaven.test.skip=true -fn
-            mvn deploy -fn
+            # mvn versions:set -DnewVersion=$ver
+            if ! mvn -fn release:prepare \
+                    -DautoVersionSubmodules=true \
+                    -DreleaseVersion=$ver \
+                    -Dmaven.test.skip=true; then
+                _error "release:prepare failed."
+                _warn "You may check the pom versions and manually commit the tag"
+            fi
+
+            mvn -fn deploy -Dmaven.test.skip=true
         )
     fi
 }
