@@ -1,0 +1,226 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh 2255 2011-01-01 06:58:58Z lenik $'
+    short_opts="w:p:fi:LbjJm:M:a:hqv"
+    long_opts="keyword:,package:,flatten,incr-ver,license:,build,install,deploy,message:,push:,all:,help,quiet,verbose,version"
+
+    keywords=()
+    nkeyword=0
+    packages=()
+    npackage=0
+    flatten=
+
+    sedopts=()
+    nsedopt=0
+
+    ver_delta=0
+    license=
+
+    build=package
+
+    commit_message=
+    commit=
+    push=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Refactor package names for Maven2-based java project"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] SRCDIR DSTDIR"
+    echo
+    echo "Options: "
+    echo "    -w, --keyword=OLD=NEW   Refactor a keyword, like bas=freejava"
+    echo "                             This will also rename BAS=FREEJAVA, etc."
+    echo "    -p, --package=OLD=NEW   Refactor a package, like net.a=com.b"
+    echo "                             This will also rename all the descendent"
+    echo "    -f, --flatten           Flatten package names"
+    echo "    -i, --incr-ver=p.q.r    Refactor the version, add a p.q.r delta"
+    echo "    -L, --license=FILE      Add license to source header"
+    echo "    -b, --build             Do a full build"
+    echo "    -j, --install           Build and install"
+    echo "    -J, --deploy            Build and install and deploy"
+    echo "    -m, --message=TEXT      Commit with the message"
+    echo "    -M, --push=TEXT         Commit and push"
+    echo "    -a, --all=TEXT          Do build, deploy, commit, push, and all"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -w|--keyword)
+            keyword="$2"
+            kw_src="${keyword%%=*}"
+            kw_dst="${keyword#*=}"
+            [ "$kw_src" = "$keyword" ] && die "Bad keyword subst: $2"
+            keywords[nkeyword++]="$kw_src"
+            keywords[nkeyword++]="$kw_dst"
+            ;;
+        -p|--package)
+            package="$2"
+            pkg_src="${package%%=*}"
+            pkg_dst="${package#*=}"
+            [ "$pkg_src" = "$package" ] && die "Bad package subst: $2"
+            packages[npackage++]="$pkg_src"
+            packages[npackage++]="$pkg_dst"
+            ;;
+        -f|--flatten)
+            flatten=1;;
+        -i|--incr-ver)
+            ver_delta="$2";;
+        -L|--license)
+            license="$2"
+            [ -r "$license" ] || die "Can't read from file $license"
+            ;;
+        -b|--build)
+            build=package;;
+        -j|--install)
+            build=install;;
+        -J|--deploy)
+            build=deploy;;
+        -m|--message)
+            commit_message="$2"
+            commit=1
+            ;;
+        -M|--push)
+            commit_message="$2"
+            commit=1
+            push=1
+            ;;
+        -a|--all)
+            build=deploy
+            commit_message="$2"
+            commit=1
+            push=1
+            ;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $# != 2 ]; then
+        help
+        exit 1
+    fi
+
+    sedinit
+
+    srcroot=`readlink -f "$1"` || die "Failed to canonicalize $1."
+    dstroot=`readlink -f "$2"` || die "Failed to canonicalize $2."
+    srcroot="${srcroot%/}"
+    dstroot="${dstroot%/}"
+    [ -d "$srcroot" ] || die "Source dir isn't existed: $srcroot"
+    [ -d "$dstroot" ] || die "Dest dir isn't existed: $dstroot"
+
+    cd "$srcroot" || die "Failed to enter $srcroot"
+
+    while IFS='|' read srcpath; do
+        dstpath=`path_refactor "$srcpath"`
+        _log1 "$srcpath"
+        _log2 "$dstpath"
+        _log2
+
+        srcfile="$srcpath"
+        dstfile="$dstroot/$dstpath"
+        dstdir="${dstfile%/*}"
+        [ -d "$dstdir" ] || mkdir -p "$dstdir" || die "Failed to create dir $dstdir/"
+
+        cat "$srcfile" | sed "${sedopts[@]}" >"$dstfile" || die "Failed to process file $srcfile"
+    done < <(find \
+                   -name target -type d -prune \
+                -o -name .project   -prune \
+                -o -name .classpath -prune \
+                -o -name .settings  -prune \
+                -o -type f -print)
+}
+
+function sedinit() {
+    local src dst
+    for ((i = 0; i < npackage; )); do
+        src="${packages[i++]}"
+        dst="${packages[i++]}"
+        sedopts[nsedopt++]='-e'
+        if [ -z "$flatten" ]; then
+            sedopts[nsedopt++]="s|\b${src//./\.}|$dst|g"
+        else
+            sedopts[nsedopt++]="s|\b${src//./\.}\(\.[a-z_][a-zA-Z_0-9]*\)*|$dst|g"
+        fi
+        src="${src//./\/}"
+        dst="${dst//./\/}"
+        sedopts[nsedopt++]='-e'
+        if [ -z "$flatten" ]; then
+            sedopts[nsedopt++]="s|\b$src|$dst|g"
+        else
+            sedopts[nsedopt++]="s|\b$src\(/[a-z_0-9]\)*|$dst|g"
+        fi
+    done
+    for ((i = 0; i < nkeyword; )); do
+        src="${keywords[i++]}"
+        dst="${keywords[i++]}"
+        sedopts[nsedopt++]='-e'
+        # sedopts[nsedopt++]="s|\b$src-|$dst-|g"
+        sedopts[nsedopt++]="s|\b$src\b|$dst|g"
+        src=`uc -e "$src"`
+        dst=`uc -e "$dst"`
+        sedopts[nsedopt++]='-e'
+        sedopts[nsedopt++]="s|\b$src\b|$dst|g"
+    done
+
+    if [ $nsedopt = 0 ]; then
+        _warn "Nothing to subst. "
+        sedopts[nsedopt++]='-e'
+        sedopts[nsedopt++]="s/-/-/"
+    fi
+}
+
+function path_refactor() {
+    local p dir base
+    local i src dst
+    for p in "$@"; do
+        for ((i = 0; i < nkeyword; )); do
+            src="${keywords[i++]}"
+            dst="${keywords[i++]}"
+            p="${p//#$src-/$dst-}"
+            p="${p//\/$src-//$dst-}"
+        done
+        for ((i = 0; i < npackage; )); do
+            src="${packages[i++]}"
+            dst="${packages[i++]}"
+            src="${src//.//}"
+            dst="${dst//.//}"
+            if [ -z "$flatten" ]; then
+                p="${p//$src/$dst}"
+            else
+                base="${p##*/}"
+                dir="${p%/*}"
+                    [ "$dir" = "$base" ] && continue
+                dir="/$dir/"
+                dir="${dir%/$src/*}"
+                dir="${dir#/}"
+                dir="${dir%/}"
+                p="$dir/$dst/$base"
+            fi
+        done
+        echo "$p"
+    done
+}
+
+boot "$@"
