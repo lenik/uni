@@ -1,0 +1,3 @@
+[submodule "uni/devel/sfcc"]
+	path = uni/devel/sfcc
+	url = ssh://sfcc.git.sourceforge.net/gitroot/sfcc/sfcc
