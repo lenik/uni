@@ -1,6 +1,7 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
+    gitmod \
     keepdirs
 
 dist_aliases_DATA = \
