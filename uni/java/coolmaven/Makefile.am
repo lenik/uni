@@ -1,6 +1,6 @@
 include libauto/coolauto.am
 
-SUBDIRS = bash_completion.d
+SUBDIRS = bash_completion.d assembly
 
 bin_PROGRAMS = \
     get-common-prefix
