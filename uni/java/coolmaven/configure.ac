@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([coolmaven], [0.18.0], [xjl-bug@99jsj.com])
+AC_INIT([coolmaven], [0.18.5], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 AC_CONFIG_SRCDIR([get-common-prefix.c])
 AC_CONFIG_HEADERS([config.h])
@@ -19,5 +19,6 @@ AC_PROG_CC
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([assembly/Makefile])
 AC_CONFIG_FILES([bash_completion.d/Makefile])
 AC_OUTPUT

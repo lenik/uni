@@ -49,28 +49,37 @@ function main() {
     top_gid=$project_group_id
     top_aid=$project_artifact_id
     top_ver=$project_version
-    supername="$project_name"
     _log1 "Top Project: $top_gid:$top_aid:$top_ver"
-    _log1 "The project name is $supername"
+
+    top_name="$project_name"
+    _log1 "Top Project Name: $top_name"
+    top_name="${top_name%% *}"
 
     tmp=`tempfile`
 
-    for moduledir in */; do
-        module="${moduledir%/}"
-        modulename=`dash2words "$module"`
-        layer="${module#layer-}"
+    for top_mod in */; do
+        top_mod="${top_mod%/}"
+        [ -f "$top_mod/pom.xml" ] || continue
+
+        [ "$top_mod" = "parent" ] && continue
+        [ "$top_mod" = "$top_aid-parent" ] && continue
+
+        top_modname="${top_mod#$top_aid-}"
+        top_modname=`dash2words "$top_modname"`
+
+        layer="${top_mod#layer-}"
         layerX="${layer//x/X}"
-        if [ "$layer" = "$module" ]; then
+        if [ "$layer" = "$top_mod" ]; then
             layer=
             layerX=
         fi
 
-        (cd "$moduledir"
+        (cd "$top_mod"
 
         if [ -n "$layer" ]; then
             _log1 "Layer $layer"
         else
-            _log1 "Module $module"
+            _log1 "Top Module $top_mod"
         fi
 
         echo '<?xml version="1.0" encoding="UTF-8"?>'                           >pom.xml
@@ -83,7 +92,7 @@ function main() {
         echo "        <artifactId>$top_aid</artifactId>"  >>pom.xml
         echo "        <version>$top_ver</version>"        >>pom.xml
         echo "    </parent>"                              >>pom.xml
-        echo "    <artifactId>$module</artifactId>"       >>pom.xml
+        echo "    <artifactId>$top_mod</artifactId>"      >>pom.xml
         echo "    <version>$top_ver</version>"            >>pom.xml
         echo "    <packaging>pom</packaging>"             >>pom.xml
         echo "    <modules>"                              >>pom.xml
@@ -92,20 +101,17 @@ function main() {
         nmod=0
         for mod in */; do
             mod="${mod%/}"
+            [ -f "$mod/pom.xml" ] || continue
+
             mods[nmod++]="$mod"
             echo "        <module>$mod</module>"          >>pom.xml
 
-            if [ ! -f "$mod/pom.xml" ]; then
-                _warn "No file: $layerdir/$mod/pom.xml"
-                continue
-            fi
-
-            pom-cascade "$supername :: $modulename" "$module" "$top_ver" "$mod"
+            pom-cascade "$top_name :: $top_modname" "$top_mod" "$top_ver" "$mod"
         done
 
         echo "    </modules>"                             >>pom.xml
 
-        echo "    <name>$supername :: $modulename</name>" >>pom.xml
+        echo "    <name>$top_name :: $top_modname</name>" >>pom.xml
         echo "</project>"                                 >>pom.xml
         )
     done
@@ -120,14 +126,15 @@ function pom-cascade() {
     local dir="$4"
           dir="${dir%/}"
     local mod="${dir##*/}"
-    local name="$prefix_name :: "`dash2words "$mod"`
+    local modname="${mod#$top_aid-}"
+    local fullname="$prefix_name :: "`dash2words "$modname"`
 
     _log1 "Refresh $dir/pom.xml -> $parent_artifact_id:$parent_version"
 
     xml2 <$dir/pom.xml | sed \
         -e "s|/project/parent/artifactId=.*|/project/parent/artifactId=$parent_artifact_id|" \
         -e "s|/project/parent/version=.*|/project/parent/version=$parent_version|" \
-        -e "s|/project/name=.*|/project/name=$name|" \
+        -e "s|/project/name=.*|/project/name=$fullname|" \
         | 2xml | tr -d '\n' | xmlindent -fnbe >$tmp
     cp -f $tmp $dir/pom.xml
 
@@ -136,7 +143,7 @@ function pom-cascade() {
     loadpom "$dir/pom.xml" 1
 
     for subpom in "$dir"/*/pom.xml; do
-        pom-cascade "$name" "$project_artifact_id" "$project_version" "${subpom%/pom.xml}"
+        pom-cascade "$fullname" "$project_artifact_id" "$project_version" "${subpom%/pom.xml}"
     done
 }
 
