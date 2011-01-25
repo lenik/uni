@@ -3,6 +3,9 @@
 
     shopt -s nullglob
 
+    # Fix utf-8 collation.
+    LANG=C
+
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
     short_opts="efplzuwhqv"
     long_opts="eval,fileonly,print,list,last,unix,windows,help,quiet,verbose,version"
