@@ -10,7 +10,7 @@ use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
     $LOGNAME    = '@_file_name@'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id$');
+    my %RCSID   = parse_id('$Id: - \@VERSION\@ \@DATE\@ \@TIME\@ - $');
 use Getopt::Long;
     Getopt::Long::Configure('gnu_getopt');
 

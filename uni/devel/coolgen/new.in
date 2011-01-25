@@ -13,7 +13,7 @@ use cmt::log(2);
 use cmt::path('path_split', 'path_join');
 # use cmt::util('readfile', 'writefile', 'listdir');
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id$');
+    my %RCSID   = parse_id('$Id: - \@VERSION\@ \@DATE\@ \@TIME\@ - $');
 use Data::Dumper;
 use Getopt::Long;
     Getopt::Long::Configure('gnu_getopt');
@@ -270,6 +270,7 @@ sub _main {
             }
             $_ = substr($_, 0, $-[0]) . $val . substr($_, $+[0]);
         }
+        s/\\@/@/g;
         print OUT $_;
     }
 

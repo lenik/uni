@@ -1,7 +1,7 @@
 #!/bin/bash
     . shlib-import cliboot
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    RCSID='$Id: - \@VERSION\@ \@DATE\@ \@TIME\@ - $'
     short_opts="hqv"
     long_opts="help,quiet,verbose,version"
 
