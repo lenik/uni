@@ -8,6 +8,7 @@ m2installfile
 m2layout
 m2localdeps
 m2localgraph
+m2rpn
 m2search
 m2search-nexus
 newmod
