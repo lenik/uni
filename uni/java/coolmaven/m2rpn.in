@@ -170,6 +170,7 @@ function main() {
                     -o -name .project   -prune \
                     -o -name .classpath -prune \
                     -o -name .settings  -prune \
+                    -o -name .keep      -prune \
                     -o -type f -print)
     )
 
