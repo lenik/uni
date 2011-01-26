@@ -245,6 +245,22 @@ function path_refactor() {
         for ((i = 0; i < npackage; )); do
             src="${packages[i++]}"
             dst="${packages[i++]}"
+            if [ -z "$flatten" ]; then
+                p="${p//$src/$dst}"
+            else
+                local base="${p##*/}"
+                local dir="${p%/*}"
+                    [ "$dir" = "$p" ] && dir=.
+                local simname="${base##*.}"
+                local pkgname="${base%.*}"
+                    [ "$pkgname" = "$base" ] && continue
+
+                pkgname="${pkgname/%$src.*/$dst}"
+                pkgname="${pkgname/%$src/$dst}"
+                base="$pkgname.$simname"
+                p="$dir/$base"
+            fi
+
             src="${src//.//}"
             dst="${dst//.//}"
             if [ -z "$flatten" ]; then
@@ -252,13 +268,9 @@ function path_refactor() {
             else
                 local base="${p##*/}"
                 local dir="${p%/*}"
-                    [ "$dir" = "$base" ] && continue
-                dir="/$dir/"
-                local x="${dir%/$src/*}"
-                    [ "$x" = "$dir" ] && continue
-                x="${x#/}"
-                x="${x%/}"
-                p="$x/$dst/$base"
+                    [ "$dir" = "$p" ] && continue
+                dir="${dir/%\/$src\/*//$dst}"
+                p="$dir/$base"
             fi
         done
         echo "$p"
