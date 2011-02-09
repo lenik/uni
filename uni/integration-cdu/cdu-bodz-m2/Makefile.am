@@ -1,6 +1,6 @@
 include libauto/coolauto.am
 
-sitesdir = ${sysconfdir}/apache2/sites-available
+sitesdir     = ${sysconfdir}/apache2/sites-available
 
 dist_sites_DATA = \
     bodz-m2.site \

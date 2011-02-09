@@ -1,4 +1,9 @@
 #!/bin/sh
 # master-file
 
-echo "cdu-bodz-m2-settings - postinst.in ..."
+echo "Override maven2 settings.xml"
+
+mkdir -p @mavenconfdir@
+cp -f @setupdir@/settings.xml @mavenconfdir@
+
+exit 0

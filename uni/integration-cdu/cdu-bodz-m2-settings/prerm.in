@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "cdu-bodz-m2-settings - prerm.in ..."
+exit 0
