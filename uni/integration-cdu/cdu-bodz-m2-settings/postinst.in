@@ -1,0 +1,4 @@
+#!/bin/sh
+# master-file
+
+echo "cdu-bodz-m2-settings - postinst.in ..."

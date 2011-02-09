@@ -1,0 +1,14 @@
+Source: cdu-bodz-m2-settings
+Section: devel
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: http://uni.bodz.net//mnt/istore/projects/bodz/uni/integration-cdu/cdu-bodz-m2-settings
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/bodz/uni/integration-cdu/cdu-bodz-m2-settings
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/bodz/uni/integration-cdu/cdu-bodz-m2-settings
+
+Package: cdu-bodz-m2-settings
+Architecture: all
+Depends: maven2 | maven3
+Description: M2 settings.xml for m2.local.
