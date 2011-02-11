@@ -10,5 +10,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/bodz/uni/toolenh
 
 Package: xpad-enh
 Architecture: all
-Depends: xpad
+Depends: xpad, bash-aliases
 Description: Xpad launcher
