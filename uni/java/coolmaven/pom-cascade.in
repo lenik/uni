@@ -134,6 +134,7 @@ function pom-cascade() {
     xml2 <$dir/pom.xml | sed \
         -e "s|/project/parent/artifactId=.*|/project/parent/artifactId=$parent_artifact_id|" \
         -e "s|/project/parent/version=.*|/project/parent/version=$parent_version|" \
+        -e "s|/project/artifactId=.*|/project/artifactId=$mod|" \
         -e "s|/project/name=.*|/project/name=$fullname|" \
         | 2xml | tr -d '\n' | xmlindent -fnbe >$tmp
     cp -f $tmp $dir/pom.xml
