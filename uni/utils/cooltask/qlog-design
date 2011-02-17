@@ -1,0 +1,103 @@
+
+Q -- mesg
+Q mesg
+
+Q task T = mesg
+Q task [-l]
+Q alias
+
+task time
+cancel
+
+qlog/
+    queue/
+    stopped/
+    done/
+        TaskId.task     "1-Refactor-shapes.task"
+            creation-time: DATE
+            title: TEXT
+            priority: PRIORITY
+
+            2001-11-21 12:43:01 resume
+
+            2001-11-21 12:43:01 pause
+
+            2001-11-22 12:43:01 resume <parent>
+
+            2001-11-12 12:43:01 comment
+
+            2001-11-12 12:43:01 break <switch-target>
+
+            2001-11-12 12:43:01 done
+
+            2001-11-12 12:43:01 push <index> [target-title]
+
+            2001-11-12 12:43:01 push <index> [target-title]
+
+            2001-11-12 12:43:01 focus far
+
+            focus far near on
+
+    current
+
+    index
+        16
+
+    aliases
+        rs=1
+        mlt=2
+
+    priority
+        H = 0
+        L = 5
+
+    category
+        src = Source Code
+        r = Refactor
+
+Q category r Refactor ....
+Q priority -l -k -m H high
+
+task
+
+    child
+        parent
+            parent
+
+    task
+        push1
+            push..(parent-taskid)
+        push2
+        push3
+
+
+Q-Console
+
+    fjdkj
+    prod > fksdljlkfk sdj
+    ssdd > Jfksd > JKJKk > r
+
+    ssdd:16 > sdfk:1213 > jfkd:43982 > pop
+    ssdd:16 > sdfk:1213 > push log analysis
+    ssdd:16 > sdfk:1213 > loga:1214 > -i
+    ssdd > sdfk > loga >      sub task (tab-indented)
+    ssdd > sdfk > loga > subt > ..
+    ssdd > sdfk > loga > r task2
+    asd > jvk > xkj > task2 > -- message
+    asd > jvk > xkj > task2 > tree
+        asd (3min 12s) something comments
+          `- jvk (1hr 2min)
+               `- xkj (11hr 32min)
+                    `- task2 (2d 21hr)
+
+    asd > jvk > xkj > task2 > tree -r
+        task2 (2d 21hr)
+          `- xkj (11hr 32min)
+               `- jvk (1hr 2min)
+                    `- asd (3min 12s) something comments
+
+    asd > jvk > xkj > task2 > PS %L::
+    task2:: plot -png My schedule status
+
+    task2:: grep task2
+    task2:: _

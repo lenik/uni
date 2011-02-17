@@ -108,33 +108,33 @@ function main() {
     esac
 
     case "$cmd" in
-    push)
+    'push')
         task_action push
         task_action resume parent
         ;;
 
-    pop)
+    'pop')
         parent=task_revlog | task_last_resume
         task_action break parent
         ;;
 
-    stack)
+    'stack')
         task_stack ''
         ;;
 
-    tree)
+    'tree')
         task_tree ''
         ;;
 
-    grep)
+    'grep')
         task_grep
         ;;
 
-    pause)
+    'pause')
         task_action pause "$@"
         ;;
 
-    resume)
+    'resume')
         if [ -n "$current_task" ]; then
             task_action break "$current_task"
         fi
@@ -142,51 +142,55 @@ function main() {
         task_chdir queue
         ;;
 
-    end)
+    'end')
         task_action end "$@"
         task_chdir stopped
         ;;
 
-    cancel)
+    'cancel')
         task_action cancel "$@"
         task_chdir stopped
         ;;
 
-    done)
+    'done')
         task_action done "$@"
         task_chdir done
         ;;
 
-    fail)
+    'fail')
         task_action fail "$@"
         task_chdir stopped
         ;;
 
-    log)
+    'log')
         task_action log
         ;;
 
-    renice)
+    'renice')
         task_action log "Adjust the priority from to"
         ;;
 
-    focus)
+    'focus')
         task_action focus
         ;;
 
-    title)
+    'title')
         task_action log "Change the title from to"
         ;;
 
-    graph)
+    'graph')
         task_action log "Plotted the graph"
         task_graph
         ;;
 
-    attrib)
+    'attrib')
         task_action log "Set attribute X to Y"
         ;;
     esac
 }
+
+function task_action() {
+    local cmd="$1"
+    local mesg="$2"
 
 boot "$@"
