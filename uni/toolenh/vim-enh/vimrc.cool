@@ -1,13 +1,9 @@
 " vim: set filetype=vim :
-
+"
 " Lenik's cool VIM defaults
 
-set expandtab
-set tabstop=8
-set shiftwidth=4
-set smartindent
-set smarttab
-
+" Misc
+"
 set modeline
 set modelines=10
 
@@ -15,15 +11,21 @@ filetype plugin on
 
 colorscheme koehler
 
+" Tab/Space
+"
+set expandtab
+set tabstop=8
+set shiftwidth=4
+set smartindent
+set smarttab
+
+" Windows Management
+"
 :set mousefocus
 
 :map <F4>       :q<CR>
 :map <F6>       <C-W>w
 :nmap <Tab>     <C-W>w
-
-:nmap <F2>      :set invpaste paste?<CR>
-:imap <F2> <C-O>:set invpaste paste?<CR>
-:set pastetoggle=<F2>
 
 :nmap -         <C-W>-
 :nmap +         <C-W>+
@@ -41,3 +43,16 @@ colorscheme koehler
 :nmap <silent> j          :wincmd j<CR>
 :nmap <silent> k          :wincmd k<CR>
 :nmap <silent> l          :wincmd l<CR>
+
+" Paste Raw Texts
+"
+:nmap <F2>      :set invpaste paste?<CR>
+:imap <F2> <C-O>:set invpaste paste?<CR>
+:set pastetoggle=<F2>
+
+" Insert
+"
+:nnoremap <F5>       "=strftime("%y-%m-%d %H:%M:%S ")<CR>P
+:inoremap <F5>   <C-R>=strftime("%y-%m-%d %H:%M:%S ")<CR>
+:nnoremap <S-F5>     "=strftime("%c ")<CR>P
+:inoremap <S-F5> <C-R>=strftime("%c ")<CR>

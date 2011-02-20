@@ -2,9 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([vim-enh], [0.3.3], [xjl@99jsj.com])
+AC_INIT([vim-enh], [0.4.7], [xjl@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
-AC_CONFIG_SRCDIR([find-prefix.c])
+AC_CONFIG_SRCDIR([find-prefix.c.in])
 
 # Checks for programs.
 AC_PROG_CC

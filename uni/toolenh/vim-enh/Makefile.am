@@ -10,6 +10,9 @@ bin_PROGRAMS = \
 AM_CPPFLAGS = $(GLIB_CFLAGS)
 find_prefix_LDADD = $(GLIB_LIBS)
 
+find-prefix.c: find-prefix.c.in
+	$(do_subst) <"$<" >"$@"
+
 dist_bin_SCRIPTS = \
     coolvim \
     guesstab \
