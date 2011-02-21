@@ -177,6 +177,9 @@ function main() {
     if [ -n "$ver" ] && [ -z "$ver_delta" ]; then
         ( cd "$dstroot" || die "Failed to enter $dstroot"
 
+            echo "Please remove fatal modules and commit the workcopy." >&2
+            echo "You can cancel the post-prepare and do deploy yourself: " >&2
+            echo "    mvn -fn deploy -Dmaven.test.skip=true" >&2
             echo "Press enter to prepare and deploy a release: $ver" >&2
             read
             # mvn versions:set -DnewVersion=$ver
