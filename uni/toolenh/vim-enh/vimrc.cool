@@ -19,6 +19,11 @@ set shiftwidth=4
 set smartindent
 set smarttab
 
+" Buffer Management
+"
+:nmap <C-S>      :w<CR>
+:imap <C-S> <C-O>:w<CR>
+
 " Windows Management
 "
 :set mousefocus
