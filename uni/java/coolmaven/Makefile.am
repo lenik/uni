@@ -18,6 +18,7 @@ dist_bin_SCRIPTS = \
     m2layout \
     m2localdeps \
     m2localgraph \
+    m2modlist \
     m2rpn \
     m2search \
     pom-cascade \
