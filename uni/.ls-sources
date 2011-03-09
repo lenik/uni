@@ -1,0 +1,6 @@
+#!/bin/bash
+
+tree -fF \
+    | egrep -v 'debian|README|NEWS|AUTHORS|ChangeLog|postinst|prerm|VERSION|configure|Makefile' \
+    | grep -v 'gconf' \
+    | grep -v '/$'
