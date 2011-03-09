@@ -18,3 +18,35 @@ function _vcscd() {
 
     return 1
 } && complete -o nospace -F _vcscd vcscd vcd
+
+function _vcscmd() {
+    local cur=
+
+    local cmds=(
+        add-dir
+        cobr checkout-branch
+        ci+  commit+
+        cig  commit-gui
+        grep egrep fgrep pgrep
+        ig   ignore
+        localname
+        rst  restore
+        rootpath
+        slist
+        slupdate
+        sys  system
+        unadd
+        url
+
+        commit
+        update
+        pull
+        push
+        merge
+    )
+
+    if [ $COMP_CWORD = 1 ]; then
+        cur="${COMP_WORDS[1]}"
+        COMPREPLY=($(compgen -W "${cmds[*]}" $cur))
+    fi
+} && complete -F _vcscmd vcscmd vcsdirs

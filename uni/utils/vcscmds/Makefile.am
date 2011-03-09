@@ -2,7 +2,8 @@ include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
     vcscmd \
-    vcscmd-ignore
+    vcscmd-ignore \
+    vcsdirs
 
 dist_aliases_DATA = \
     vcscmds.sh
@@ -18,7 +19,11 @@ EXTRA_DIST = \
     postinst.in \
     prerm.in
 
-CLEANFILES = ${setup_SCRIPTS}
+CLEANFILES = \
+    ${setup_SCRIPTS} \
+    vcscmd \
+    vcscmd-ignore \
+    vcsdirs
 
 %: %.in Makefile
 	$(do_subst) <$< >$@

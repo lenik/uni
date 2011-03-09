@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# master-file
+
     . shlib-import cliboot
 
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'

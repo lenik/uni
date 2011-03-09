@@ -1,0 +1,77 @@
+#!/bin/bash
+# master-file
+
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+
+    list=~/.vcsdirs
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Pull all vcs-managed projects"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] VCS-ARGS"
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    [ -r "$list" ] || die "Can't read from $list"
+
+    pids=()
+    n=0
+
+    while read dir; do
+
+        [ -z "$dir" ] && continue
+        [ "${dir:0:1}" = '#' ] && continue
+
+        if [ "${dir:0:1}" != '/' ]; then
+            dir="$HOME/$dir"
+        fi
+
+        _log2 "Update $dir"
+        pushd "$dir" >/dev/null || die "Failed to enter $dir"
+
+        if vcscmd "$@"; then
+            _log1  "[DONE] <$1> $dir"
+        else
+            _error "[FAIL] <$1> $dir"
+        fi &
+
+        pids[n++]=$!
+    done <"$list"
+
+    _log2 "Wait for: ${pids[@]}"
+    wait "${pids[@]}"
+}
+
+boot "$@"
