@@ -45,6 +45,7 @@ itree.tex
 *.build
 *.changes
 *.upload
+.deps
 
 # --- Regexp not works here ---
 */*/debian/changelog
