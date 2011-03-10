@@ -204,6 +204,7 @@ sub _main {
         my $node = $tree;
         for (@segs) {
             $node->{children}->{$_}->{type} = 'd';
+            $node->{children}->{$_}->{name} = $_;
             $node = $node->{children}->{$_};
         }
 
