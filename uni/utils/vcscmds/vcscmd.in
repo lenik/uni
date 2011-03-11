@@ -48,6 +48,7 @@ function help() {
     echo "  grep (egrep, fgrep, pgrep) GREP but excludes VCS dir"
     echo "  ignore (ig)             Manipulate ignore list"
     echo "  localname               Show the relative pathname to the repository"
+    echo "  log-graph (lg)          Show log in ascii arts"
     echo "  restore (rst)           Revert any change in working copy"
     echo "  rootpath                Show the root path of the checked out working copy"
     echo "  slist                   List file status in a canonical way"
@@ -167,6 +168,7 @@ function main() {
 
         cig)    delegate=1; cmd=commit-gui;;
         rst)    delegate=1; cmd=restore;;
+        lg)     delegate=1; cmd=log-graph;;
         *)
             delegate=1;;
     esac
@@ -365,6 +367,10 @@ function main() {
 
     function git-commit-gui() {
         gitg
+    }
+
+    function git-log-graph() {
+        git log --graph --format=$'\e[47m%h\e[0m\e[1;45m%d\e[0m \e[1;31m[%an]\e[0m %s \e[1;34m%cr\e[0m' "$@"
     }
 
 
