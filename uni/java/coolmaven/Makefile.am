@@ -21,6 +21,7 @@ dist_bin_SCRIPTS = \
     m2modlist \
     m2rpn \
     m2search \
+    m2which \
     pom-cascade \
     pomid \
     pomtree
@@ -65,6 +66,7 @@ CLEANFILES = \
     m2localgraph \
     m2search \
     m2search-nexus \
+    m2which \
     newmod \
     newmp \
     pom-cascade \

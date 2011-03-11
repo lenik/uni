@@ -1,11 +1,17 @@
 #!/bin/bash
-    . shlib-import cliboot
+    . shlib
+    import cliboot
+    import time
 
+    __THIS__="$0" #`readlink -f "$0"`
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="hqv"
-    long_opts="help,quiet,verbose,version"
+    short_opts="o:c:hqv"
+    long_opts="out:,cache:,help,quiet,verbose,version"
 
     shopt -s nullglob
+
+    out=/dev/stdout
+    cache=
 
 function version() {
     parse_id "$RCSID"
@@ -20,6 +26,8 @@ function help() {
     echo "    $0 [OPTION] [--] START-DIR"
     echo
     echo "Options: "
+    echo "    -o, --out=FILE          Write output to file instead of stdout"
+    echo "    -c, --cache=TIMEOUT     Read from cache"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
@@ -28,6 +36,15 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -o|--out)
+            out="$2"
+            rm -f "$out"
+            ;;
+        -c|--cache)
+            # cache="$2"
+            cache=`duration2sec $2`
+            _log2 "Cache timeout: $cache seconds"
+            ;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -49,7 +66,7 @@ function process() {
     IFS=: read this_gid this_aid this_ver this_pack < <(pomid "$pomfile")
 
     dir_trim="${dir:$ltrim}"
-    echo "$this_aid:$dir_trim"
+    echo "$this_aid:$dir_trim" >>$out
 
     for subpom in "$dir"/*/pom.xml; do
         subdir="${subpom%/pom.xml}"
@@ -59,11 +76,24 @@ function process() {
 
 function main() {
     for dir in "$@"; do
+        _log2 "Modules in $dir: "
+
         if [ ! -f "$dir/pom.xml" ]; then
             echo "No pom.xml file in $dir"
             exit 1
         fi
-        process "$dir" "$(( ${#dir} + 1 ))"
+
+        if [ -n "$cache" ]; then
+            cachef="$dir/.m2modlist"
+            if makeoutdated "$cachef" $cache \
+                    $__THIS__ -o "$cachef" -- "$dir"; then
+                cat "$cachef" >"$out"
+            else
+                _error "Failed to make $cachef"
+            fi
+        else
+            process "$dir" "$(( ${#dir} + 1 ))"
+        fi
     done
 }
 

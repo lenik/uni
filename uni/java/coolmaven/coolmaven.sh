@@ -11,3 +11,14 @@ alias MDP='mvn deploy -fn -Dmaven.test.skip=true'
 alias 'mr-'='cd.x mvn release:prepare'
 alias mr+='cd.x mvn release:perform'
 alias mr0='cd.x mvn release:rollback'
+
+alias M='m2chdir'
+
+function m2chdir() {
+    local path
+    while read path; do
+        cd "$path"
+        return
+    done < <(m2which "$@")
+    echo "Not found: $@"
+}

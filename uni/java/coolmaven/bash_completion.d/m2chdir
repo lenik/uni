@@ -1,0 +1,13 @@
+# vim: set filetype=sh :
+
+_m2chdir()
+{
+    local mod
+
+    if [ $COMP_CWORD = 1 ]; then
+        mod=${COMP_WORDS[1]}
+        COMPREPLY=( $( m2which -n "$mod" ) )
+    fi
+
+} &&
+complete -F _m2chdir m2which m2chdir M
