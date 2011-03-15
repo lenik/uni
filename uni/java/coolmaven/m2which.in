@@ -8,7 +8,7 @@
     short_opts="nhqv"
     long_opts="name-only,help,quiet,verbose,version"
 
-    TIMEOUT=10min
+    TIMEOUT=1day
     name_only=
 
 function version() {

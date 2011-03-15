@@ -93,14 +93,14 @@ function dump() {
                 tag="<$mod> "
             fi
 
-            graph=" |- "
+            graph=" |"
             if [ $modindex == $modcount ]; then
                 if [ "$subdirs" = '|' ]; then
-                    graph=' `- '
+                    graph=' `'
                 fi
             fi
 
-            dump "$_id" "$pomdir/$mod" "$prefix$graph" "$tag"
+            dump "$_id" "$pomdir/$mod" "$prefix  $graph" "$tag"
         fi
     done < <(xml2 <"$pomdir/pom.xml")
 
@@ -112,12 +112,12 @@ function dump() {
         local n=${#subdirs[@]}
         for ((i = 0; i < $n; i++)); do
             subdir="${subdirs[i]}"
-            graph=" |- "
+            graph=" |"
             if [ $i == $((n - 1)) ]; then
-                graph=' `- '
+                graph=' `'
             fi
             tag="[$subdir/] "
-            dump "$_id" "$pomdir/$subdir" "$prefix$graph" "$tag"
+            dump "$_id" "$pomdir/$subdir" "$prefix  $graph" "$tag"
         done
     fi
 }
