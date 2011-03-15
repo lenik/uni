@@ -69,7 +69,7 @@ function dump() {
         project_packid="*:${project_packid#*:}"
     fi
 
-    echo "$prefix$tag$project_packid$parent_id"
+    echo "$prefix- $tag$project_packid$parent_id"
 
     local subdirs=
     for d in "$pomdir"/*/; do
