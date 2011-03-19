@@ -19,6 +19,7 @@ dist_bin_SCRIPTS = \
     m2localdeps \
     m2localgraph \
     m2modlist \
+    m2release \
     m2rpn \
     m2search \
     m2which \
@@ -64,6 +65,8 @@ CLEANFILES = \
     m2layout \
     m2localdeps \
     m2localgraph \
+    m2release \
+    m2rpn \
     m2search \
     m2search-nexus \
     m2which \

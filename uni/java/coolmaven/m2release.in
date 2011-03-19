@@ -1,0 +1,202 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+
+    shopt -s nullglob
+
+    CONFDIR="$HOME/.m2"
+    PROJECT_LIST="$CONFDIR/PROJECT-LIST"
+    MODULES="$CONFDIR/MODULES"
+    DEPENDS="$CONFDIR/DEPENDS"
+    RDEPENDS="$CONFDIR/RDEPENDS"
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] "
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] [<new-version>]"
+    echo
+    echo "Options: "
+    echo "    -r, --refresh           Force to refresh the project dependencies"
+    echo "    -i"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+    echo
+    echo "Configurations (in ~/.m2/):"
+    echo
+    echo "   PROJECT-LIST    List of paths of all concerned projects"
+    echo "   MODULES         Generated list of all modules"
+    echo "                       GID:AID:PATH"
+    echo "   DEPENDS         Generated list of dependencies of by each module in all projects"
+    echo "                       GID:AID:DEP_GID:DEP_AID"
+    echo "   RDEPENDS        Reversed dependencies"
+    echo "                       DEP_GID:DEP_AID:GID:AID"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+
+    [ -f "$PROJECT_LIST" ] || die "You haven't set up $PROJECT_LIST yet."
+
+    # Do refresh when necessary.
+
+        if [ "$refresh" = 1 ] \
+                || [ ! -f "$MODULES" ] \
+                || [ ! -f "$DEPENDS" ] \
+                || [ ! -f "$RDEPENDS" ]; then
+
+            _log1 "Refresh project dependencies"
+
+            rm -f "$MODULES"
+            rm -f "$DEPENDS"
+            rm -f "$RDEPENDS"
+
+            RDEPENDS_TMP=`tempfile`
+
+            while read path; do
+                project_analyze "$path"
+            done <"$PROJECT_LIST"
+
+            sort -u "$RDEPENDS_TMP" >"$RDEPENDS"
+            rm -f "$RDEPENDS_TMP"
+        fi
+
+    # Where is me?
+
+    NOTES=RELEASE-NOTES
+    vi $NOTES
+
+}
+
+function project_analyze() {
+    local project_dir="$1"
+    local project_pom="$project_dir/pom.xml"
+
+    _log2 "Analyze $project_pom"
+
+    loadpom "$project_pom" 1
+    _log2 "    Module: $project_group_id:$project_artifact_id"
+
+    echo "$project_group_id:$project_artifact_id:$project_dir" >>"$MODULES"
+
+    while read l; do
+        k="${l%%=*}"
+        v="${l#*=}"
+        case "$k" in
+            /project/dependencies/dependency/groupId)       d_gid="$v";;
+            /project/dependencies/dependency/artifactId)    d_aid="$v";;
+            /project/dependencies/dependency/version)       d_ver="$v";;
+            /project/dependencies/dependency/type)          d_type="$v";;
+            /project/dependencies/dependency/scope)         d_scope="$v";;
+            /project/dependencies/dependency)               flush_dep;;
+        esac
+    done < <(xml2 <"$project_pom")
+
+    if [ -n "$d_aid" ]; then flush_dep; fi
+
+    for pom in "$project_dir"/*/pom.xml; do
+        project_analyze "${pom%/pom.xml}"
+    done
+}
+
+# DEPENDS         Generated list of dependencies of by each module in all projects"
+#                       GID:AID:DEP_GID:DEP_AID"
+# RDEPENDS        Reversed dependencies"
+#                       DEP_GID:DEP_AID:GID:AID"
+function flush_dep() {
+    local _this="$project_group_id:$project_artifact_id"
+    local _dep="$d_gid:$d_aid"
+
+    if [ -z "$_this" ] || [ -z "$_dep" ]; then
+        die "Invalid dependency: $this -> $_dep"
+    fi
+
+    echo "$_this:$_dep:$d_ver:$d_type:$d_scope" >>$DEPENDS
+    echo "$_dep:$_this" >>$RDEPENDS_TMP
+
+    d_gid=
+    d_aid=
+    d_ver=
+    d_type=
+    d_scope=
+}
+
+function version_cascade() {
+    local element
+    for element in "$@"; do
+
+        local name="${release%=*}"
+        local version="${release#*=}"
+
+        set_release $this
+        for dep in "${deps[@]}"; do
+            set_dep_version "$dep" "$group_id" "$artifact_id" "$version"
+        done
+
+    done
+}
+
+mvn "${MVNOPTS[@]}" deploy
+
+commit_file=`tempfile`
+    echo -n "Release " >$commit_file
+    for release in "${releases[@]}"; do
+        echo -n "$release" >>$commit_file
+    done
+    echo >>$commit_file
+    echo >>$commit_file
+    cat $NOTES >>$commit_file
+
+    vcscmd add all-dirties || die "Failed to add"
+    vcscmd commit -F $commit_file || die "Failed to commit"
+
+    rm $NOTES
+
+for release in "${releases[@]}"; do
+
+    module="${release%=*}"
+    version="${release#*=}"
+
+    set_next_snapshot $this
+    for dep in "${deps[@]}"; do
+        set_dep_version "$dep" "$group_id" "$artifact_id" "$version"
+    done
+
+done
+
+commit_file=`tempfile`
+    echo "Prepare snapshots for " >$commit_file
+    for release in "${releases[@]}"; do
+        echo -n "$release" >>$commit_file
+    done
+
+vcscmd
+commit
+
+boot "$@"
+exit 0
