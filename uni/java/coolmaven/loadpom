@@ -4,6 +4,15 @@ function loadpom() {
     local pomfile="$1"
     local inherits="$2"
 
+    project_group_id=
+    project_artifact_id=
+    project_version=
+    project_packaging=jar
+    parent_group_id=
+    parent_artifact_id=
+    parent_version=
+    project_name=
+
     while IFS== read k v; do
         case "$k" in
             /project/groupId)           project_group_id="$v";;
