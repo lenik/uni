@@ -12,13 +12,15 @@
     DEPENDS="$CONFDIR/DEPENDS"
     RDEPENDS="$CONFDIR/RDEPENDS"
 
-    short_opts="rI:i:j:fhqv"
-    long_opts="refresh,setver:,incr:,incr-auto:,fast,help,quiet,verbose,version"
+    short_opts="abI:i:j:frhqv"
+    long_opts="all-modules,refresh,setver:,incr:,incr-auto:,fast,recursive,help,quiet,verbose,version"
 
+    all_modules=
     refresh=
     version_spec=1
     version_incr=1
     vcs_auto=
+    recursive=
     deploy=1
 
 function version() {
@@ -34,10 +36,12 @@ function help() {
     echo "    $0 [OPTION] [--] [<new-version>]"
     echo
     echo "Options: "
-    echo "    -r, --refresh           Force to refresh the project dependencies"
+    echo "    -b, --refresh           Force to refresh the project dependencies"
     echo "    -I, --setver=X.Y-Z      Set the explicit version"
     echo "    -i, --incr=X.Y-Z        Increase the version, and set the modifier to Z"
     echo "    -j, --incr-auto=X.Y-Z   Increase the version only if vcs dirty"
+    echo "    -a, --all-modules       Reset all modules' version"
+    echo "    -r, --recursive         Recursive increase all modules"
     echo "    -f, --fast              Skip maven deploy"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
@@ -57,7 +61,9 @@ function help() {
 
 function setopt() {
     case "$1" in
-        -r|--refresh)
+        -a|--all-modules)
+            all_modules=1;;
+        -b|--refresh)
             refresh=1;;
         -I|--setver)
             version_spec="$2"
@@ -71,6 +77,8 @@ function setopt() {
             version_incr=1;;
         -f|--fast)
             deploy=;;
+        -r|--recursive)
+            recursive=1;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -146,7 +154,6 @@ function main() {
         else
             new_version="$version_spec"
         fi
-        _log1 "Set $module's next version to $new_version"
 
     # Always increase the version at first.
     set_version "$module" "$new_version"
@@ -342,25 +349,35 @@ function module_path() {
 function set_version() {
     local mod="$1"
     local version="$2"
+    local indent="$3"
     local mod_path=`module_path "$mod"`
 
     [ -n "$mod_path" ] || die "Unknown module $mod"
 
-    tmp=`tempfile`
+    # The delta version is also supported here.
+    if [ "${version:0:1}" = '+' ]; then
+        local spec="${version#+}"
+        loadpom "$mod_path/pom.xml"
+        local tag="${project_version##*-}"
+        if [ "$tag" = "SNAPSHOT" ]; then
+            # Skip tags
+            return
+        fi
+        version=`version_add "$project_version" "$spec"`
+    fi
 
-    _log1 "Set project version to $version: $mod_path"
+    set_project_ver "$mod_path" "$version"
 
-    xml2 <"$mod_path/pom.xml" | sed \
-        -e "s|/project/version=.*|/project/version=$version|" \
-        | 2xml | tr -d '\n' | xmlindent -fnbe >$tmp
-    cp -f $tmp "$mod_path/pom.xml"
+    local tmp=`tempfile`
 
     local dep_path
+    local r_deps r_dep ndirty
     local key val
     while IFS=: read gid aid r_gid r_aid; do
         r_path=`module_path "$r_gid:$r_aid"`
-        _log1 "  Cascade-To: $r_path"
+        _log1 "$indent  Update: $r_path"
 
+        local dirty=0
         local ctx_gid=
         local ctx_aid=
         while read line; do
@@ -380,7 +397,10 @@ function set_version() {
 
             /project/dependencies/dependency/version)
                 if [ "$ctx_gid:$ctx_aid" = "$mod" ]; then
-                    val="$version"
+                    if [ "$val" != "$version" ]; then
+                        val="$version"
+                        dirty=1
+                    fi
                 fi;;
 
             /project/dependencies/dependency)
@@ -394,11 +414,42 @@ function set_version() {
             else
                 echo "$key"
             fi
-        done < <(xml2 <"$r_path/pom.xml") \
-            | 2xml | tr -d '\n' | xmlindent -fnbe >$tmp
-        cp -f $tmp "$r_path/pom.xml"
+        done < <(xml2 <"$r_path/pom.xml") >$tmp
+
+        2xml < $tmp | tr -d '\n' | xmlindent -fnbe >"$r_path/pom.xml"
+
+        if [ "$dirty" = 1 ]; then
+            r_deps[ndirty++]="$r_gid:$r_aid"
+        fi
 
     done < <(grep "^$mod:" "$RDEPENDS")
+
+    if [ "$recursive" = 1 ]; then
+        for r_dep in "${r_deps[@]}"; do
+            set_version "$r_dep" +1 "$indent  "
+        done
+    fi
+}
+
+function set_project_ver() {
+    local path="$1"
+    local ver="$2"
+    local tmp=`tempfile`
+
+    _log1 "Set project version to $ver: $path"
+
+    xml2 <"$path/pom.xml" | sed \
+        -e "s|/project/version=.*|/project/version=$version|" \
+        | 2xml | tr -d '\n' | xmlindent -fnbe >$tmp
+    mv -f $tmp "$path/pom.xml"
+
+    if [ "$all_modules" = 1 ]; then
+        local sub_pom
+        for sub_pom in "$path"/*/pom.xml; do
+            local sub_dir="${sub_pom%/pom.xml}"
+            set_project_ver "$sub_dir" "$ver"
+        done
+    fi
 }
 
 boot "$@"
