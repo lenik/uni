@@ -20,6 +20,6 @@ function m2chdir() {
     while read path; do
         cd "$path"
         return
-    done < <(m2which "$@")
+    done < <(m2which -l "$@")
     echo "Not found: $@"
 }
