@@ -71,12 +71,6 @@ function main() {
         $SUDO install -d -o wget -g wget $cachedir
     fi
 
-    if [ $LOGLEVEL -ge 2 ]; then
-        WGET="$WGET -v"
-    elif [ $LOGLEVEL -le 0 ]; then
-        WGET="$WGET -q"
-    fi
-
     for url in "$@"; do
 
         read md5 _ < <(echo "$url" | md5sum)
@@ -110,7 +104,7 @@ function main() {
         if [ -f "$hashfile" ]; then
             _log1 "Cache hit."
         else
-            if ! $SUDO $WGET -O "$hashfile" "$url" ; then
+            if ! http-get "$hashfile" "$url" ; then
                 echo "wget failed. " >&2
                 exit 1
             fi
@@ -124,6 +118,15 @@ function main() {
 
         echo "$hashfile"
     done
+}
+
+function http-get() {
+    local out="$1"
+    local url="$2"
+
+    # wget -O $out $url.
+
+    axel -o "$out" "$url"
 }
 
 boot "$@"
