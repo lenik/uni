@@ -18,7 +18,6 @@
     VCS_rcs=(rcs)
     VCS_svn=(svn)
 
-    FLAGS_git_add=(-f)
     FLAGS_git_rm=(-f)
     FLAGS_git_mv=(-f)
 
@@ -247,6 +246,27 @@ function main() {
         _log2 "git add-dir do nothing. "
     }
 
+    function git-add() {
+        local dirs=()
+        local ndir
+        local f
+        for f in "$@"; do
+            if [ -f "$f" ]; then
+                git add -f "$f"
+            else
+                dirs[ndir++]="$f"
+            fi
+        done
+
+        if [ "${#dirs[@]}" != 0 ]; then
+            git add "${dirs[@]}"
+        fi
+    }
+
+    function git-unadd() {
+        git reset HEAD "$@"
+    }
+
     git_stage_il=1
 
     function git-il-local() {
@@ -310,10 +330,6 @@ function main() {
 
     function git-restore() {
         git checkout "$@"
-    }
-
-    function git-unadd() {
-        git reset HEAD "$@"
     }
 
     function git-slist() {
