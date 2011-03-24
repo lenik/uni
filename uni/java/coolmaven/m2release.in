@@ -20,12 +20,15 @@
     version_spec=1
     version_incr=1
     vcs_auto=
-    recursive=
+    recursive=1
     deploy=1
+    tmp=
+
+    declare -A update_once
 
 function version() {
     parse_id "$RCSID"
-    echo "[$BASENAME] "
+    echo "[$BASENAME] Maven2 incredible fast release utility"
     echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
 }
 
@@ -37,12 +40,12 @@ function help() {
     echo
     echo "Options: "
     echo "    -b, --refresh           Force to refresh the project dependencies"
-    echo "    -I, --setver=X.Y-Z      Set the explicit version"
-    echo "    -i, --incr=X.Y-Z        Increase the version, and set the modifier to Z"
+    echo "    -I, --setver=X.Y-Z      Explicitly set the version"
+    echo "    -i, --incr=X.Y-Z        Increase the version, and reset the modifier to Z"
     echo "    -j, --incr-auto=X.Y-Z   Increase the version only if vcs dirty"
     echo "    -a, --all-modules       Reset all modules' version"
-    echo "    -r, --recursive         Recursive increase all modules"
-    echo "    -f, --fast              Skip maven deploy"
+    echo "    -r, --recursive         Recursive increase the versions of dependent projects"
+    echo "    -f, --fast              Don't deploy, just change the version"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
@@ -154,6 +157,9 @@ function main() {
         else
             new_version="$version_spec"
         fi
+
+    # Prepare the environment
+        tmp=`tempfile`
 
     # Always increase the version at first.
     set_version "$module" "$new_version"
@@ -359,74 +365,36 @@ function set_version() {
         local spec="${version#+}"
         loadpom "$mod_path/pom.xml"
         local tag="${project_version##*-}"
+
+        # Don't increase the SNAPSHOT user.
         if [ "$tag" = "SNAPSHOT" ]; then
-            # Skip tags
+            _log2 "${indent}Never update SNAPSHOT dependent's project version"
             return
         fi
+
         version=`version_add "$project_version" "$spec"`
     fi
 
     set_project_ver "$mod_path" "$version"
 
-    local tmp=`tempfile`
-
-    local dep_path
     local r_deps r_dep ndirty
-    local key val
     while IFS=: read gid aid r_gid r_aid; do
-        r_path=`module_path "$r_gid:$r_aid"`
+        local r_path=`module_path "$r_gid:$r_aid"`
+
         _log1 "$indent  Update: $r_path"
-
-        local dirty=0
-        local ctx_gid=
-        local ctx_aid=
-        while read line; do
-            local key="${line%%=*}"
-            if [ "$key" = "$line" ]; then
-                val=
-            else
-                val="${line#*=}"
-            fi
-
-            case "$key" in
-            /project/dependencies/dependency/groupId)
-                ctx_gid="$val";;
-
-            /project/dependencies/dependency/artifactId)
-                ctx_aid="$val";;
-
-            /project/dependencies/dependency/version)
-                if [ "$ctx_gid:$ctx_aid" = "$mod" ]; then
-                    if [ "$val" != "$version" ]; then
-                        val="$version"
-                        dirty=1
-                    fi
-                fi;;
-
-            /project/dependencies/dependency)
-                ctx_gid=
-                ctx_aid=
-                ;;
-            esac
-
-            if [ -n "$val" ]; then
-                echo "$key=$val"
-            else
-                echo "$key"
-            fi
-        done < <(xml2 <"$r_path/pom.xml") >$tmp
-
-        2xml < $tmp | tr -d '\n' | xmlindent -fnbe >"$r_path/pom.xml"
-
-        if [ "$dirty" = 1 ]; then
+        if update_user_pom "$r_path/pom.xml" "$mod" "$version" "$indent    "; then
             r_deps[ndirty++]="$r_gid:$r_aid"
         fi
-
     done < <(grep "^$mod:" "$RDEPENDS")
 
     if [ "$recursive" = 1 ]; then
         for r_dep in "${r_deps[@]}"; do
-            set_version "$r_dep" +1 "$indent  "
+            # Should increase the dependent only once.
+                [ "${update_once[$r_dep]}" = 1 ] && continue
+                update_once[$r_dep]=1
+            # Recursive set the dependent project version.
+                _log1 "$indent  Cascade-To: $r_dep"
+                set_version "$r_dep" +1 "$indent    "
         done
     fi
 }
@@ -434,7 +402,6 @@ function set_version() {
 function set_project_ver() {
     local path="$1"
     local ver="$2"
-    local tmp=`tempfile`
 
     _log1 "Set project version to $ver: $path"
 
@@ -449,6 +416,63 @@ function set_project_ver() {
             local sub_dir="${sub_pom%/pom.xml}"
             set_project_ver "$sub_dir" "$ver"
         done
+    fi
+}
+
+function update_user_pom() {
+    local user_pom="$1"
+    local mod="$2"
+    local version="$3"
+    local indent="$4"
+
+    local dirty=0
+    local ctx_gid=
+    local ctx_aid=
+    local line
+    local key val
+    while read line; do
+        key="${line%%=*}"
+        if [ "$key" = "$line" ]; then
+            val=
+        else
+            val="${line#*=}"
+        fi
+
+        case "$key" in
+        /project/dependencies/dependency/groupId)
+            ctx_gid="$val";;
+
+        /project/dependencies/dependency/artifactId)
+            ctx_aid="$val";;
+
+        /project/dependencies/dependency/version)
+            if [ "$ctx_gid:$ctx_aid" = "$mod" ]; then
+                if [ "$val" != "$version" ]; then
+                    _log2 "${indent}Change dependency version of $mod: $val -> $version"
+                    val="$version"
+                    dirty=1
+                fi
+            fi;;
+
+        /project/dependencies/dependency)
+            ctx_gid=
+            ctx_aid=
+            ;;
+        esac
+
+        if [ -n "$val" ]; then
+            echo "$key=$val"
+        else
+            echo "$key"
+        fi
+    done < <(xml2 <"$user_pom") >$tmp
+
+    2xml < $tmp | tr -d '\n' | xmlindent -fnbe >"$user_pom"
+
+    if [ "$dirty" = 1 ]; then
+        return 0
+    else
+        return 1
     fi
 }
 
