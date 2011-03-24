@@ -6,7 +6,7 @@ _m2chdir()
 
     if [ $COMP_CWORD = 1 ]; then
         mod=${COMP_WORDS[1]}
-        COMPREPLY=( $( m2which -n "$mod" ) )
+        COMPREPLY=( $( m2which -ln "$mod" ) )
     fi
 
 } &&
