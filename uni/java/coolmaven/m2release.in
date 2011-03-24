@@ -1,17 +1,25 @@
 #!/bin/bash
-    . shlib-import cliboot
-
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="hqv"
-    long_opts="help,quiet,verbose,version"
+    . shlib
+    import cliboot
+    import loadpom
 
     shopt -s nullglob
 
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
     CONFDIR="$HOME/.m2"
     PROJECT_LIST="$CONFDIR/PROJECT-LIST"
     MODULES="$CONFDIR/MODULES"
     DEPENDS="$CONFDIR/DEPENDS"
     RDEPENDS="$CONFDIR/RDEPENDS"
+
+    short_opts="rI:i:j:fhqv"
+    long_opts="refresh,setver:,incr:,incr-auto:,fast,help,quiet,verbose,version"
+
+    refresh=
+    version_spec=1
+    version_incr=1
+    vcs_auto=
+    deploy=1
 
 function version() {
     parse_id "$RCSID"
@@ -27,7 +35,10 @@ function help() {
     echo
     echo "Options: "
     echo "    -r, --refresh           Force to refresh the project dependencies"
-    echo "    -i"
+    echo "    -I, --setver=X.Y-Z      Set the explicit version"
+    echo "    -i, --incr=X.Y-Z        Increase the version, and set the modifier to Z"
+    echo "    -j, --incr-auto=X.Y-Z   Increase the version only if vcs dirty"
+    echo "    -f, --fast              Skip maven deploy"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
@@ -46,6 +57,20 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -r|--refresh)
+            refresh=1;;
+        -I|--setver)
+            version_spec="$2"
+            version_incr=0;;
+        -i|--incr)
+            version_spec="$2"
+            version_incr=1;;
+        -j|--incr-auto)
+            vcs_auto=1
+            version_spec="$2"
+            version_incr=1;;
+        -f|--fast)
+            deploy=;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -60,6 +85,11 @@ function setopt() {
 }
 
 function main() {
+
+    if [ -n "$1" ]; then
+        version_spec="$1"
+        shift
+    fi
 
     [ -f "$PROJECT_LIST" ] || die "You haven't set up $PROJECT_LIST yet."
 
@@ -79,6 +109,8 @@ function main() {
             RDEPENDS_TMP=`tempfile`
 
             while read path; do
+                [ -z "$path" ] && continue
+                [ "${path:0:1}" = '#' ] && continue
                 project_analyze "$path"
             done <"$PROJECT_LIST"
 
@@ -86,11 +118,79 @@ function main() {
             rm -f "$RDEPENDS_TMP"
         fi
 
-    # Where is me?
+    # Where to be start?
 
-    NOTES=RELEASE-NOTES
-    vi $NOTES
+        module_path=`m2which "$PWD"`  || die "Failed to get current module"
+        root_path=`m2which -r "$PWD"` || die "Failed to get root module"
 
+        _log2 "Current Module-Path: $module_path"
+        _log2 "Current Root-Path:   $root_path"
+
+        loadpom "$module_path/pom.xml" 1
+        module="$project_group_id:$project_artifact_id"
+
+        if [ "$vcs_auto" ]; then
+            dirty=
+            while read st_entry; do
+                dirty=1
+            done < <(vcscmd slist "$module_path" | grep '^[ADM]')
+
+            if [ -z "$dirty" ]; then
+                _log1 "VCS clean, release canceled"
+                exit 0
+            fi
+        fi
+
+        if [ "$version_incr" = 1 ]; then
+            new_version=`version_add "$project_version" "$version_spec"`
+        else
+            new_version="$version_spec"
+        fi
+        _log1 "Set $module's next version to $new_version"
+
+    # Always increase the version at first.
+    set_version "$module" "$new_version"
+
+    # Deploy the new version
+    if [ "$deploy" = 1 ]; then
+        (cd "$module_path"
+            mvn "${MVNOPTS[@]}" deploy
+        ) || die "Failed to deploy"
+    fi
+
+    # Do the final commit.
+        # Prepare release notes.
+        NOTES="$root_path/RELEASE-NOTES"
+            rm -f "$NOTES"
+            touch $NOTES
+            if ! ifedit $NOTES; then
+                _warn "No change on $NOTES, canceled"
+                exit 0
+            fi
+
+        commit_file=`tempfile`
+            echo -n "Released $module-$new_version" >$commit_file
+            for release in "${releases[@]}"; do
+                echo -n "$release" >>$commit_file
+            done
+            echo >>$commit_file
+            echo >>$commit_file
+            cat $NOTES >>$commit_file
+
+        pushd "$module_path" >/dev/null
+
+            _log2 "Add $module_path to commit"
+            # vcscmd add "$NOTES"
+            vcscmd add . || die "Failed to add"
+
+            _log2 "Commit $module_path"
+            vcscmd commit -F $commit_file || die "Failed to commit"
+
+        popd >/dev/null
+
+    # Clean and exit.
+        rm $NOTES
+        echo Done.
 }
 
 function project_analyze() {
@@ -99,7 +199,16 @@ function project_analyze() {
 
     _log2 "Analyze $project_pom"
 
+    if [ ! -f "$project_pom" ]; then
+        die "File isn't existed: $project_pom"
+    fi
+
     loadpom "$project_pom" 1
+    if [ "$project_group_id:$project_artifact_id" = ":" ]; then
+        _log2 "    Skipped virtual project"
+        return 0
+    fi
+
     _log2 "    Module: $project_group_id:$project_artifact_id"
 
     echo "$project_group_id:$project_artifact_id:$project_dir" >>"$MODULES"
@@ -113,7 +222,14 @@ function project_analyze() {
             /project/dependencies/dependency/version)       d_ver="$v";;
             /project/dependencies/dependency/type)          d_type="$v";;
             /project/dependencies/dependency/scope)         d_scope="$v";;
-            /project/dependencies/dependency)               flush_dep;;
+            /project/dependencies/dependency)
+                flush_dep
+                d_gid=
+                d_aid=
+                d_ver=
+                d_type=jar
+                d_scope=compile
+               ;;
         esac
     done < <(xml2 <"$project_pom")
 
@@ -124,10 +240,10 @@ function project_analyze() {
     done
 }
 
-# DEPENDS         Generated list of dependencies of by each module in all projects"
-#                       GID:AID:DEP_GID:DEP_AID"
-# RDEPENDS        Reversed dependencies"
-#                       DEP_GID:DEP_AID:GID:AID"
+# DEPENDS         Generated list of dependencies of by each module in all projects
+#                       GID:AID:DEP_GID:DEP_AID [:DEP_VER:DEP_PACK:DEP_SCOPE Not used.]
+# RDEPENDS        Reversed dependencies
+#                       DEP_GID:DEP_AID:GID:AID
 function flush_dep() {
     local _this="$project_group_id:$project_artifact_id"
     local _dep="$d_gid:$d_aid"
@@ -138,65 +254,152 @@ function flush_dep() {
 
     echo "$_this:$_dep:$d_ver:$d_type:$d_scope" >>$DEPENDS
     echo "$_dep:$_this" >>$RDEPENDS_TMP
-
-    d_gid=
-    d_aid=
-    d_ver=
-    d_type=
-    d_scope=
 }
 
-function version_cascade() {
-    local element
-    for element in "$@"; do
+function version_add() {
+    local base="$1"
+    local delta="$2"
+    local result=
 
-        local name="${release%=*}"
-        local version="${release#*=}"
+    local base_tag="${base#*-}"
+    if [ "$base_tag" = "$base" ]; then
+        base_tag=
+    else
+        base="${base%%-*}"
+    fi
 
-        set_release $this
-        for dep in "${deps[@]}"; do
-            set_dep_version "$dep" "$group_id" "$artifact_id" "$version"
-        done
+    local delta_tag="${delta#*-}"
+    if [ "$delta_tag" = "$delta" ]; then
+        delta_tag=
+    else
+        delta="${delta%%-*}"
+        if [ -z "$delta_tag" ]; then
+            delta_tag='SNAPSHOT'
+        fi
+    fi
 
+    while [ -n "$delta" ]; do
+        if [ -z "$base" ]; then
+            die "Base version underflow: remaind delta: $delta"
+        fi
+
+        local b1="${base##*.}"
+        if [ "$b1" = "$base" ]; then
+            base=
+        else
+            base="${base%.*}"
+        fi
+
+        local d1="${delta##*.}"
+        if [ "$d1" = "$delta" ]; then
+            delta=
+        else
+            delta="${delta%.*}"
+        fi
+
+        local r1=$((b1 + d1))
+
+        if [ -z "$result" ]; then
+            result="$r1"
+        else
+            result="$r1.$result"
+        fi
     done
+
+    if [ -n "$base" ]; then
+        if [ -z "$result" ]; then
+            result="$base"
+        else
+            result="$base.$result"
+        fi
+    fi
+
+    local suffix=
+    if [ "$keep_tag" = 1 ]; then
+        suffix="$base_tag"
+    else
+        suffix="$delta_tag"
+    fi
+
+    [ -n "$suffix" ] && result="$result-$suffix"
+    echo "$result"
 }
 
-mvn "${MVNOPTS[@]}" deploy
+function module_path() {
+    local mod="$1"
+    local mod_path=
 
-commit_file=`tempfile`
-    echo -n "Release " >$commit_file
-    for release in "${releases[@]}"; do
-        echo -n "$release" >>$commit_file
-    done
-    echo >>$commit_file
-    echo >>$commit_file
-    cat $NOTES >>$commit_file
+    while IFS=: read gid aid path; do
+        if [ -n "$mod_path" ]; then
+            die "Duplicated occurrence of $mod in $MODULES"
+        fi
+        mod_path="$path"
+    done < <(grep "^$mod:" "$MODULES")
 
-    vcscmd add all-dirties || die "Failed to add"
-    vcscmd commit -F $commit_file || die "Failed to commit"
+    echo "$mod_path"
+}
 
-    rm $NOTES
+function set_version() {
+    local mod="$1"
+    local version="$2"
+    local mod_path=`module_path "$mod"`
 
-for release in "${releases[@]}"; do
+    [ -n "$mod_path" ] || die "Unknown module $mod"
 
-    module="${release%=*}"
-    version="${release#*=}"
+    tmp=`tempfile`
 
-    set_next_snapshot $this
-    for dep in "${deps[@]}"; do
-        set_dep_version "$dep" "$group_id" "$artifact_id" "$version"
-    done
+    _log1 "Set project version to $version: $mod_path"
 
-done
+    xml2 <"$mod_path/pom.xml" | sed \
+        -e "s|/project/version=.*|/project/version=$version|" \
+        | 2xml | tr -d '\n' | xmlindent -fnbe >$tmp
+    cp -f $tmp "$mod_path/pom.xml"
 
-commit_file=`tempfile`
-    echo "Prepare snapshots for " >$commit_file
-    for release in "${releases[@]}"; do
-        echo -n "$release" >>$commit_file
-    done
+    local dep_path
+    local key val
+    while IFS=: read gid aid r_gid r_aid; do
+        r_path=`module_path "$r_gid:$r_aid"`
+        _log1 "  Cascade-To: $r_path"
 
-vcscmd
-commit
+        local ctx_gid=
+        local ctx_aid=
+        while read line; do
+            local key="${line%%=*}"
+            if [ "$key" = "$line" ]; then
+                val=
+            else
+                val="${line#*=}"
+            fi
+
+            case "$key" in
+            /project/dependencies/dependency/groupId)
+                ctx_gid="$val";;
+
+            /project/dependencies/dependency/artifactId)
+                ctx_aid="$val";;
+
+            /project/dependencies/dependency/version)
+                if [ "$ctx_gid:$ctx_aid" = "$mod" ]; then
+                    val="$version"
+                fi;;
+
+            /project/dependencies/dependency)
+                ctx_gid=
+                ctx_aid=
+                ;;
+            esac
+
+            if [ -n "$val" ]; then
+                echo "$key=$val"
+            else
+                echo "$key"
+            fi
+        done < <(xml2 <"$r_path/pom.xml") \
+            | 2xml | tr -d '\n' | xmlindent -fnbe >$tmp
+        cp -f $tmp "$r_path/pom.xml"
+
+    done < <(grep "^$mod:" "$RDEPENDS")
+}
 
 boot "$@"
 exit 0
