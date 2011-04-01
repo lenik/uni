@@ -1,4 +1,8 @@
 #!/bin/sh
 # master-file
 
-echo "eclipse-enh - postinst.in ..."
+update-alternatives --install @bindir@/eclipse eclipse /opt/java/eclipse/eclipse 30
+update-alternatives --auto eclipse
+update-alternatives --display eclipse
+
+exit 0

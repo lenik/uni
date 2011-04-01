@@ -1,4 +1,6 @@
 #!/bin/sh
 # master-file
 
-echo "eclipse-enh - prerm.in ..."
+update-alternatives --remove eclipse /opt/java/eclipse/eclipse
+
+exit 0

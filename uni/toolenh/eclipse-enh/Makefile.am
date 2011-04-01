@@ -1,7 +1,10 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-    eclipse-link
+    eclipse-link \
+    econf-save \
+    econf-reset \
+    econf-addlinks
 
 setup_SCRIPTS = \
     postinst \
@@ -11,5 +14,6 @@ EXTRA_DIST = \
     postinst.in \
     prerm.in
 
-CLEANFILES = ${setup_SCRIPTS}
+CLEANFILES = ${setup_SCRIPTS} \
+    ${dist_bin_SCRIPTS}
 
