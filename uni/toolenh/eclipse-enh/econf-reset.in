@@ -42,11 +42,11 @@ function setopt() {
 function main() {
     [ -f conf.rar ] || die "conf.rar isn't existed, canceled"
 
-    sudo rm -fR configuration p2
-    sudo rar x -y conf.rar
+    rm -fR configuration p2
+    rar x -y conf.rar
 
-    sudo rm -fR ~/.eclipse
-    ./eclipse -clean &
+    rm -fR ~/.eclipse
+    ./eclipse -clean
 }
 
 boot "$@"
