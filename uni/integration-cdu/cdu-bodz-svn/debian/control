@@ -10,6 +10,6 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/integration-cdu/cdu-bodz-svn
 
 Package: cdu-bodz-svn
 Architecture: all
-Depends: apache2-enh, libapache2-svn, repos-styles
+Depends: subversion, xinetd, apache2-enh, libapache2-svn, repos-styles
 Suggests: cdu-bodz-vol-dev
 Description: boDz SVN Service

@@ -1,6 +1,10 @@
 #!/bin/bash
 # master-file
 
+echo "Reload xinetd"
+
+    /etc/init.d/xinetd reload
+
 echo "Config apache"
 
     a2enmod  dav
@@ -8,3 +12,5 @@ echo "Config apache"
     a2enmod  ssl
     a2ensite bodz-svn.site
     a2reload
+
+exit 0

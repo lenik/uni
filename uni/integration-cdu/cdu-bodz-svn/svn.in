@@ -1,0 +1,12 @@
+# vim: set filetype=xinetd :
+
+service svn
+{
+    socket_type = stream
+    protocol    = tcp
+  # port        = 3690
+    user        = scm
+    wait        = no
+    server      = /usr/bin/svnserve
+    server_args = --inetd --root @svnrootdir@ --config-file @svnconfdir@/svnserve.conf
+}
