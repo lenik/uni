@@ -20,8 +20,8 @@ hasspace=0
 TAB=$'\t'
 SPACE=' '
 
-if egrep -q "^$SPACE*$TAB" $in; then hastab=1; fi
-if egrep -q "^$TAB*$SPACE" $in; then hasspace=1; fi
+if egrep -q "^$SPACE*$TAB" "$in"; then hastab=1; fi
+if egrep -q "^$TAB*$SPACE" "$in"; then hasspace=1; fi
 
 if [ $istmp = 1 ]; then rm -f "$in"; fi
 
