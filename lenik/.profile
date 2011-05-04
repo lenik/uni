@@ -1,3 +1,0 @@
-echo .profile
-
-#. `which pathext`

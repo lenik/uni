@@ -1,5 +1,0 @@
-export NSDIR=/mnt/c/Lam/nt.util/abc.d/n/ns-allinone-2.29
-cd $NSDIR
-. setenv
-cd ~/workspace/ns2
-bash

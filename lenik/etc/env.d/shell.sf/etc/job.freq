@@ -1,8 +1,0 @@
-#!/bin/bash
-
-HDR=FREQ
-
-# fix some files' attributes
-	cd /home/groups/x/xj/xjl/www/dataset
-	chmod a+w *.xml
-	chmod a+w CVS/Entries

@@ -1,2 +1,0 @@
-DEVELOP_MODE=1
-DIST_HOME=C:\lam\dist

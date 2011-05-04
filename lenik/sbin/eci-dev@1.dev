@@ -1,8 +1,0 @@
-#!/bin/bash
-
-#export ECI_HOST=ec2-174-129-60-23.compute-1.amazonaws.com
-export ECI_HOST=1.dev.secca-project.com
-export ECI_USER=dev
-export ECI_ID=~/db/keys/amazon/lenik-dev.pem
-
-. `which eci`

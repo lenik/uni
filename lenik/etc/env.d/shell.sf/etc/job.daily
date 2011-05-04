@@ -1,7 +1,0 @@
-#!/bin/bash
-
-echo DAILY start at `date`
-
-# do WHAT?
-
-echo DAILY end at `date`

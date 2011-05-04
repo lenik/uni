@@ -1,7 +1,0 @@
-$INCLUDE lenik/inc/default.db
-$INCLUDE lenik/inc/google.db
-
-1                       CNAME   1.bodz.net.
-www                     CNAME   1
-
-svn                     CNAME   svn.bodz.net.
