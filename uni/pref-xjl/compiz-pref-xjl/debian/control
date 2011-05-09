@@ -12,4 +12,6 @@ Package: compiz-pref-xjl
 Provides: coolx11
 Architecture: all
 Depends: x11-xserver-utils
+Recommends: compizconfig-settings-manager
+Suggests: compiz-plugins-extra
 Description: Lenik's PC/X11 environment
