@@ -1,0 +1,27 @@
+This repository contains my projects for Debian Linux.
+
+It may divide into following categories:
+
+    * Utilities
+
+    * Libraries
+
+    * Preferences or personal configurations
+        (pref-*/*)
+        There are pre-configured preferences.
+
+        Because I hate to configure the same settings everytime when I re-installed the system,
+        so I make these as preference packages.
+
+    * Enhancement for existing tools
+        (toolenh/*)
+        These are mostly bash-aliases and bash-completion.d/* for easing purpose.
+
+    * Lapiota win32/cygwin/linux misc tools
+        Lapiota is a very old toolset (orig. named Diret) I worked on from 1997 maybe.
+        It contains tools for DOS, Win32, Win95, etc.
+
+        Most of them are now converted to Linux-compatible tools and splited into separated
+        packages.
+
+    * And other stuff.
