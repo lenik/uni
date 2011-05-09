@@ -21,7 +21,7 @@ Description: Lenik's sshproxy server-side components.
 
 Package: sshproxy-z-client
 Architecture: all
-Depends: sshproxy-z-base, openssh-client, upstart, ssh-enh,
+Depends: sshproxy-z-base, openssh-client, autossh, upstart, ssh-enh,
     proxychains
 Description: Lenik's sshproxy client-side components.
  Contain the (public area) private key and startup configuration
