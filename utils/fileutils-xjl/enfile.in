@@ -1,0 +1,135 @@
+#!/bin/bash
+# strip (PREFIX)FILE(SUFFIX) prefix/suffix
+
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="edhqv"
+    long_opts="enable,disable,help,quiet,verbose,version"
+
+    mode=strip
+    prefix="__DISABLED_"
+    suffix="_INVALID"
+    secdir=".disabled"
+
+    if [ "${0##*/}" = "disfile" ]; then
+        mode=decorate
+    fi
+
+    dirty=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Enable/Disable a file by rename"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] FILES"
+    echo
+    echo "Options: "
+    echo "    -e, --enable            enable files"
+    echo "    -d, --disable           disable files"
+    echo "    -q, --quiet             repeat to get less info"
+    echo "    -v, --verbose           repeat to get more info"
+    echo "    -h, --help              show this help page"
+    echo "        --version           print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -e|--enable)
+            mode=strip;;
+        -d|--disable)
+            mode=decorate;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+
+    for file in "$@"; do
+
+        dirname="${file%/*}"
+        basename="${file##*/}"
+
+        if [ "$dirname" = "$file" ]; then
+            dirname=.
+            basename="$file"
+        elif [ "${dirname##*/}" = "$secdir" ]; then
+            parent="${dirname%/*}"
+            if [ "$parent" = "$dirname" ]; then
+                parent=.
+            fi
+            dirname="$parent"
+        fi
+
+        if [ -d "$dirname/$secdir" ]; then
+            decdir="$dirname/$secdir"
+            vprefix="$prefix"
+        else
+            decdir="$dirname"
+            vprefix=".$prefix"
+        fi
+
+        stripped="${basename#$vprefix}"
+        stripped="${stripped%$suffix}"
+        decorated="$vprefix$stripped$suffix"
+
+        stripped_file="$dirname/$stripped"
+        decorated_file="$decdir/$decorated"
+
+        if [ $mode = strip ]; then
+            if [ -f "$stripped_file" ]; then
+                _log1 "Skipped already stripped file: $stripped_file"
+                continue
+            fi
+
+            if [ ! -f "$decorated_file" ]; then
+                _log1 "File doesn't exist: $decorated_file"
+                exit 1
+            fi
+
+            if mv "$decorated_file" "$stripped_file"; then
+                dirty=1
+            fi
+
+        else
+
+            if [ -f "$decorated_file" ]; then
+                _log1 "Skipped already decorated file: $decorated_file"
+                continue
+            fi
+
+            if [ ! -f "$stripped_file" ]; then
+                _log1 "File doesn't exist: $stripped_file"
+                exit 1
+            fi
+
+            if mv "$stripped_file" "$decorated_file"; then
+                dirty=1
+            fi
+        fi
+
+    done
+
+    if [ "$dirty" = 1 ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+boot "$@"

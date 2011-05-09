@@ -1,0 +1,20 @@
+
+use strict;
+use cmt::simpled;
+
+print "starting simple tcp servers\n";
+
+my @servs = (
+    echod,
+    discard,
+    qotd,
+    timed,
+    chargend,
+    );
+
+for my $serv (@servs) {
+    $serv->verbose(1);
+    print "started server " . $serv->name . " at port " . $serv->port . "\n";
+};
+
+my $pids = simpled(@servs);

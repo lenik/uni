@@ -1,0 +1,241 @@
+#!/usr/bin/perl
+
+use strict;
+use FileHandle;
+use DirHandle;
+use Getopt::Long;
+use cmt::path;
+
+sub main();
+sub process($$);
+sub process_file($);
+sub simple_diff($$);
+sub copy_back($$);
+sub summary_apply();
+sub help();
+
+my $mode_readonly = 0;
+my $recursive = 0;
+my ($fn_include, $fn_exclude);
+my $fn_script;
+my $ext_script;
+my $detail = 2;
+
+my ($total, $changed, $failed);
+my ($total_d, $failed_d);
+
+my $SLASH_CHR = "\\";
+my $SLASH_SET = "\\/";
+my $SLASH_PAT = "[$SLASH_SET]";
+
+my %script_host = (
+    '.p'    => 'perl',
+    '.pl'   => 'perl',
+    '.py'   => 'python',
+    '.re'   => 'sed -f',
+    '.sed'  => 'sed -f',
+    );
+
+my $getopt = GetOptions(
+    'readonly|o'    => \$mode_readonly,
+    'recursive|r'   => \$recursive,
+    'pattern|p=s'   => \$fn_include,
+    'exclude|x=s'   => \$fn_exclude,
+    'script|s=s'    => \$fn_script,
+    'help|h'        => sub { &help },
+    'quiet|q'       => sub { $detail = 1 },
+    'veryquiet|vq'  => sub { $detail = 0 },
+    );
+
+help() if (!@ARGV);
+
+if (!$fn_script) {
+    print "You must specify the script file, by --script option\n";
+    exit -1;
+}
+$ext_script = lc(path_getext($fn_script));
+
+main();
+
+
+#
+# Main subroutines
+# -----------------------------------------------------------
+#
+sub main() {
+    foreach (@ARGV) {
+        process($_, 1);
+    }
+}
+
+sub process($$) {
+    my ($name, $procdir) = @_;
+
+    if (-f $name) {
+        process_file($name);
+    } elsif (-d $name) {
+        return if (!$procdir);
+        $total_d++;
+
+        my $dh = new DirHandle $name;
+        if (!$dh) {
+            print STDERR "Can't list directory $_: $!";
+            $failed_d++;
+            return -1;
+        }
+        my @files = $dh->read();
+        $dh->close();
+        foreach (@files) {
+            next if ($_ eq '.' or $_ eq '..');
+            process($name, $recursive);
+        }
+    }
+}
+
+sub process_file($) {
+    my ($path) = @_;
+    my ($dir, $fn) = path_split($path);
+
+    if ($fn_include) {
+        return if ($fn !~ m/$fn_include/);
+    }
+    if ($fn_exclude) {
+        return if ($fn =~ m/$fn_exclude/);
+    }
+
+    my $tmp_out = $fn.'.tmp';
+    my ($ext) = $fn =~ m/(\.[^.]+)$/;
+    my $program = $script_host{$ext_script};
+
+    $total++;
+
+    if (my $tmppath = $ENV{'tmp'} || $ENV{'TMP'}) {
+        $tmp_out = path_join($tmppath, $tmp_out);
+    } else {
+        $tmp_out = path_join($dir, $tmp_out);
+    }
+
+    if ($program) {
+        $program .= " $fn_script";
+    } else {
+        $program = $fn_script;
+    }
+
+    my $cmdline = "$program \"$path\" >\"$tmp_out\"";
+    my $succ = system($cmdline);
+    print ">>> $cmdline\n";
+
+    my ($exit_val, $sig_num, $errmsg) =
+        ($? >> 8, $? & 127, $!);
+
+    if ($succ) {
+        my $diff = simple_diff($path, $tmp_out);
+        if ($diff == -1) {
+            $failed++;
+            print "[FAIL] $path\n";
+        } elsif ($diff) {
+            if (copy_back($path, $tmp_out)) {
+                print "[WRIT] $path\n";
+                $changed++;
+            } else {
+                print "[FAIL] $path\n";
+                $failed++;
+            }
+        } else {
+            if ($detail >= 2) {
+                print "[SKIP] $path\n";
+            }
+        }
+    } else {
+        print "[FAIL] $path\n";
+        $failed++;
+    }
+
+    unlink $tmp_out if -f $tmp_out;
+}
+
+# returns:
+#       0   equal
+#       1   different
+#       -1  error
+sub simple_diff($$) {
+    my ($f1, $f2) = @_;
+    my ($t1, $t2);
+    my $diff = 0;
+    if (open H1, "<$f1") {
+        if (open H2, "<$f2") {
+            while ($t1 = <H1>) {
+                $t2 = <H2>;
+                $diff = 1 if (!$t2);
+                $diff = 1 if ($t1 ne $t2);
+                last if $diff;
+            }
+            $diff = 1 if (<H2>);
+            close H2;
+        } else {
+            $diff = -1;
+        }
+        close H1;
+    } else {
+        $diff = -1;
+    }
+    $diff;
+}
+
+sub copy_back($$) {
+    my ($dest, $src) = @_;
+    my $ret = 1;
+    if (open HSRC, "<$src") {
+        if (open HDEST, ">$dest") {
+            while (<HSRC>) {
+                print HDEST;
+            }
+            close HDEST;
+        } else {
+            $ret = 0;
+        }
+        close HSRC;
+    } else {
+        $ret = 0;
+    }
+    $ret;
+}
+
+sub summary_apply() {
+    my $skipped = $total - $changed - $failed;
+    my $skipped_d = $total_d - $failed_d;
+    print <<"EOM";
+======================================================
+Total $total files,
+    $changed files have been changed,
+    $skipped files have been skipped,
+    $failed files have been failed.
+EOM
+}
+
+sub help() {
+    print <<"EOM";
+[APPLY] Apply script about text process on text files
+
+Usage:
+    $0 [options] [--] <file-list>
+        --script=<script-file> (s)
+        --pattern=<name-pattern> (p)
+        --exclude=<name-pattern> (x)
+        --recursive (r)
+        --readonly (o)
+        --help (h)
+        --quiet (q)
+        --veryquiet (vq)
+
+    Here if filename in file-list is a directory, then the files in
+    the directory will be processed.
+    if --recursive option is specified, the sub-directories will be
+    processed, too.
+
+Version 1
+Author: Danci.Z (jljljjl\@yahoo.com, +86 13819471680)  Apr 11 2004
+WARRANTY: THIS PROGRAM IS DISTRIBUTED UNDER GPL LICENSE
+EOM
+    exit 0;
+}
