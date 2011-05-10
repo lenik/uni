@@ -1,3 +1,31 @@
+关于
+----
+
+本仓库主要是我的一些 Debian Linux 上的项目。
+
+其中包括：
+
+    * 一些编程相关的小工具，分散在各个包中，内容比较杂。
+
+    * 一些库程序，主要是 c/c++、bash、perl 的一些辅助库。
+
+    * 一些风格预设，可能比较个性化。主要是我不想每次重装 Linux 都重复设置这些东西，所以才把这些设置打成 deb 包。
+
+    * 一些原有工具的增强，主要存放在 toolenh/ 目录下。
+        主要是增加了一些快捷命令，或者对原有的命令行进行了二次封装以便简化调用。
+
+    * 一些针对现有工具的补丁，主要是方便自己使用，并没有提交给原作者的，暂时就存放在 personal-patch/ 下。
+
+    * Lapiota 工具集。这个是我很久以前的断断续续开发、收集的一些东西，大概从 DOS 到 Windows XP，MinGW，Cygwin 都有涉及。自从重构到 uni/ 仓库后，其中的大部分组件已经拆分或重写为单独的 Deb 包了（否则必须要安装整个 Lapiota，非常麻烦）。
+
+    * 以及其它乱七八糟的东西。
+
+因为现在事情太多，没空整理出一个像样的目录来。过一段时间我打算用 TeX 重新整理所有相关的文档，到时候可能会搞一个比较像样的 uni-book.pdf 之类的东西出来。
+
+谢继雷 xjl (at) 99jsj.com
+2011年5月，浙江海宁
+
+
 This repository contains my projects for Debian Linux.
 
 It may divide into following categories:
@@ -25,3 +53,11 @@ It may divide into following categories:
         packages.
 
     * And other stuff.
+
+
+Lenik (at 99jsj.com)
+May, 2011
+
+314400
+6F-3, 297 Changdai Rd.
+Haining, Z.J., CHINA
