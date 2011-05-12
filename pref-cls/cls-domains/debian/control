@@ -10,5 +10,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-cls/cls-domains
 
 Package: cls-domains
 Architecture: all
-Depends: ${misc:Depends}, bind-pref-xjl, coolutils
+Depends: bind-pref-xjl, coolutils
 Description: Lenik's DNS configuration.

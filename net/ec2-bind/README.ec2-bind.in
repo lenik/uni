@@ -1,0 +1,13 @@
+
+ec2-bind forward setup:
+
+    This is a part of ec2-bind utility.
+
+    Please don't edit ec2-forward.conf file, cuz it's generated from
+    @pkgdatadir@/ec2-forward.conf.in.
+
+    The generation is invoked by @dhcphookdir@ (or @dhcp3hookdir@)/ec2-forward-hook script.
+
+
+Lenik,
+May 2011

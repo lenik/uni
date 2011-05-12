@@ -1,4 +1,12 @@
 #!/bin/sh
 # generated-file, please do not edit
 
-echo "ec2-bind - postinst.in ..."
+bindconfdir=@bindconfdir@
+named_conf=$bindconfdir/named.conf
+
+lineconf -tm "Add ec2-forward domains" \
+    $named_conf @section::ec2forward \
+    "include \"$bindconfdir/ec2-forward.conf\";"
+
+echo "Reload bind9"
+    /etc/init.d/bind9 reload

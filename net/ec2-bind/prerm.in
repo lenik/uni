@@ -1,4 +1,11 @@
 #!/bin/sh
 # generated-file, please do not edit
 
-echo "ec2-bind - prerm.in ..."
+bindconfdir=@bindconfdir@
+named_conf=$bindconfdir/named.conf
+
+lineconf -ktm "Remove ec2-forward domains" \
+    $named_conf @section::ec2forward
+
+echo "Reload bind9"
+    /etc/init.d/bind9 reload

@@ -1,0 +1,22 @@
+#!/bin/bash
+# master-file
+
+EC2_ZONES_TEMPLATE="@pkgdatadir@/ec2-forward.conf.in"
+EC2_ZONES_CONF="@bindconfdir@/ec2-forward.conf"
+
+case "$reason" in
+    BOUND|RENEW|REBIND|REBOOT)
+        if [ -n "$new_domain_name_servers" ]; then
+            bind_forwarders=""
+            for ns in $new_domain_name_servers; do
+                [ "$ns" = 127.0.0.1 ] && continue
+                bind_forwarders="$bind_forwarders $ns;"
+            done
+
+            sed -e "s/__EC2_DNS_SERVERS__/$bind_forwarders/" \
+                "$EC2_ZONES_TEMPLATE" >"$EC2_ZONES_CONF"
+
+            /etc/init.d/bind9 reload
+        fi
+        ;;
+esac

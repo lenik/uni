@@ -1,0 +1,17 @@
+zone "amazonaws.com" IN {
+    type forward;
+    forward only;
+    forwarders { __EC2_DNS_SERVERS__ };
+};
+
+zone "internal" IN {
+    type forward;
+    forward only;
+    forwarders { __EC2_DNS_SERVERS__ };
+};
+
+zone "10.in-addr.arpa" IN {
+    type forward;
+    forward only;
+    forwarders { __EC2_DNS_SERVERS__ };
+};
