@@ -3,6 +3,8 @@ $INCLUDE @datadir@/inc/google.db
 
 ns1                     A       inst:xjl-1[ipw]
 ns2                     A       inst:main-dev[ipw]
+ns3                     A       inst:xjl-1[ipw]
+ns4                     A       inst:main-dev[ipw]
 
 @                       A       inst:xjl-1[ipw]
 1                       A       inst:xjl-1[ipw]

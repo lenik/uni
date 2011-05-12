@@ -27,3 +27,7 @@ panda                   A       5.0.0.1         ; <view hamachi>
 lion                    A       5.69.77.113     ; <view hamachi>
 amoi                    A       5.0.0.1         ; <view hamachi>
 tiger                   A       5.62.239.91     ; <view hamachi>
+
+x                       CNAME   git.bodz.net.
+j                       CNAME   ja.bodz.net.
+b                       CNAME   git.bee32.com.

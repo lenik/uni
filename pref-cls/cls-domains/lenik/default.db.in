@@ -12,8 +12,8 @@ $TTL            12H
                                     240H    ; sync expire
                                     1H      ; minimum TTL
                                 )
-                        NS      ns1.bodz.net.
-                        NS      ns2.bodz.net.
+                        NS      ns3.bodz.net.
+                        NS      ns4.bodz.net.
 
                         TXT     "t=zoo owner=lenik"
 

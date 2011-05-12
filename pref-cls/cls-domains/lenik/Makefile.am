@@ -14,7 +14,8 @@ c_utilsdir  = ${datadir}/utils
 data_DATA = \
     named.conf \
     bodz.db \
-    zoo.db
+    zoo.db \
+    p.db
 
 c_inc_DATA = \
     default.db \
