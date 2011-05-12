@@ -1,0 +1,14 @@
+Source: ec2-bind
+Section: net
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.9.1
+Homepage: http://uni.bodz.net//mnt/clsdata/projects/uni/net/ec2-bind
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/clsdata/projects/uni/net/ec2-bind
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/clsdata/projects/uni/net/ec2-bind
+
+Package: ec2-bind
+Architecture: all
+Depends: bind9
+Description: BIND name server for EC2.
