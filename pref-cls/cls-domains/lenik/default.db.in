@@ -1,12 +1,12 @@
-$TTL            12H
+$TTL            60000
 
 ; The SOA resource record indicates that this DNS name server is the best
 ; source of information for the data within this DNS domain.
 
 @               IN      SOA     (
-                                    lenik-pc.bodz.net.  ; db creator host
-                                    dnsmaster.bodz.net. ; contact e-mail
-                                    10      ; serial
+                                    orig.bodz.net.  ; db creator host
+                                    admin.bodz.net. ; contact e-mail
+                                    11      ; serial
                                     1H      ; sync refresh interval
                                     10M     ; sync retry interval
                                     240H    ; sync expire
