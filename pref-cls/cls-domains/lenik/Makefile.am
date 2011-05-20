@@ -19,7 +19,8 @@ data_DATA = \
 
 c_inc_DATA = \
     default.db \
-    google.db
+    google.db \
+    hotmail.db
 
 c_hack_DATA = \
     pfpf.db \

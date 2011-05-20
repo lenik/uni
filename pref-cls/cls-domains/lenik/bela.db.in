@@ -1,2 +1,4 @@
 $INCLUDE @datadir@/inc/default.db
-$INCLUDE @datadir@/inc/google.db
+$INCLUDE @datadir@/inc/hotmail.db
+
+@           IN      3600    MX  10  938477070141483920.pamx1.hotmail.com.
