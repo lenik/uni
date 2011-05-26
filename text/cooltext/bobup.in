@@ -1,0 +1,160 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="e:s:hqv"
+    long_opts="editor:,suffix:,help,quiet,verbose,version"
+
+    editor=$EDITOR
+    suffix=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Batch edit"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] DIR"
+    echo
+    echo "Options: "
+    echo "    -e, --editor=EDITOR     Use specific editor"
+    echo "    -s, --suffix=SUFFIX     Save each file with this suffix"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -e|--editor)
+            editor="$2";;
+        -s|--suffix)
+            suffix="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $# != 1 ]; then
+        die "One and only one DIR must be specified."
+    fi
+
+    if [ -z "$editor" ]; then
+        editor="$EDITOR"
+    fi
+
+    DIR="$1"
+    DIR="${DIR%/}"/
+
+    tmpf=`tempfile` || die "Failed to create temporary file"
+
+    echo .DIR $DIR >>$tmpf
+    echo DATE `date` >>$tmpf
+    echo "-" >>$tmpf
+
+    for f in "$DIR"*; do
+        name="${f##*/}"
+
+        if [ -n "$suffix" ]; then
+            if [ "${name: -${#suffix}}" = "$suffix" ]; then
+                _log2 "Skip file with suffix: $f"
+                continue
+            fi
+        fi
+
+        echo "---------------------------------------------------------------------" >>$tmpf
+        echo NAME "$name" >>$tmpf
+        echo DATE `stat -c %y "$f"` >>$tmpf
+        echo - >>$tmpf
+        while IFS=$'\x1' read l; do
+            echo "    $l" >>$tmpf
+        done < "$f"
+        echo - >>$tmpf
+    done
+
+    if ! "${editor[@]}" $tmpf; then
+        echo "Edit failed, see the temporary file $tmpf for recovery."
+        exit 1
+    fi
+
+    _log1 "Batch update..."
+
+    cname=
+    cfile=
+    cfile_s=
+    ctmp=`tempfile`
+    cdate=
+
+    while IFS=$'\x1' read l; do
+        c4="${l:0:4}"
+
+        if [ "$c4" = '    ' ]; then
+            if [ -z "$cfile" ]; then
+                _warn "Skipped content: $content"
+                continue
+            fi
+
+            echo "$l" >>$ctmp
+            continue
+        fi
+
+        param="${l:4}"
+        while [ "${param:0:1}" == ' ' ]; do
+            param="${param:1}"
+        done
+
+        case "$c4" in
+        '')
+            _warn "pure empty line occurred, skipped";;
+        -*)
+            continue;;
+        .*)
+            continue;;
+        NAME)
+            commit
+            cfile="$DIR$param"
+            cfile_s="$cfile$suffix"
+            ;;
+        DATE)
+            cdate="$param";;
+        *)
+            _warn "Invalid C4 class: $c4"
+            ;;
+        esac
+
+    done <"$tmpf"
+
+    commit
+
+    rm -f $tmpf
+}
+
+function commit() {
+    if [ -n "$cfile" ]; then
+        _log2 "Check if modified: $cfile"
+        cut -c5- $ctmp >$ctmp.2
+        if ! diff -q "$cfile" $ctmp.2 >/dev/null; then
+            _log1 "Update $cfile"
+            cat $ctmp.2 >"$cfile_s"
+        fi
+        echo -n >$ctmp
+        unset cfile
+        unset cfile_s
+    fi
+}
+
+boot "$@"
