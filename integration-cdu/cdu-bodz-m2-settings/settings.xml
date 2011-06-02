@@ -2,25 +2,35 @@
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
     <mirrors>
         <mirror>
-            <id>mirror</id>
-            <name>Local Mirror</name>
+            <id>mirror-releases</id>
+            <name>Local Release Mirror</name>
             <mirrorOf>central</mirrorOf>
             <url>http://m2.local</url>
         </mirror>
         <mirror>
-            <id>s-mirror</id>
+            <id>mirror-snapshots</id>
             <name>Local Snapshot Mirror</name>
-            <mirrorOf>fake-snapshot</mirrorOf>
+            <mirrorOf>snapshots</mirrorOf>
             <url>http://m2s.local</url>
         </mirror>
     </mirrors>
     <profiles>
         <profile>
-            <id>fake-snapshot</id>
+            <id>m2-local</id>
             <repositories>
                 <repository>
-                    <id>fake-snapshot</id>
-                    <url>http://snapshot.fake</url>
+                    <id>m2.local</id>
+                    <url>http://m2.local</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
+                    <id>m2s.local</id>
+                    <url>http://m2s.local</url>
                     <releases>
                         <enabled>false</enabled>
                     </releases>
@@ -32,6 +42,6 @@
         </profile>
     </profiles>
     <activeProfiles>
-        <activeProfile>fake-snapshot</activeProfile>
+        <activeProfile>m2-local</activeProfile>
     </activeProfiles>
 </settings>
