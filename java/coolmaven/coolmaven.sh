@@ -4,7 +4,7 @@ alias mte='mvn test'
 alias min='mvn install'
 alias mdp='mvn deploy'
 
-alias MPK='mvn package -fn -Dmavne.test.skip=true'
+alias MPK='mvn package -fn -Dmaven.test.skip=true'
 alias MIN='mvn install -fn -Dmaven.test.skip=true'
 alias MDP='mvn deploy -fn -Dmaven.test.skip=true'
 
