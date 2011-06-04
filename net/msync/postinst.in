@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# master-file
+
 install -d -m 777 /var/log/msync
 
 exit 0
