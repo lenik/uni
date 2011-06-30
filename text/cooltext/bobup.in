@@ -18,7 +18,7 @@ function help() {
     version
     echo
     echo "Syntax: "
-    echo "    $0 [OPTION] [--] DIR"
+    echo "    $0 [OPTION] [--] < FILELIST"
     echo
     echo "Options: "
     echo "    -e, --editor=EDITOR     Use specific editor"
@@ -66,24 +66,20 @@ function main() {
     echo DATE `date` >>$tmpf
     echo "-" >>$tmpf
 
-    for f in "$DIR"*; do
-        name="${f##*/}"
+    while IFS= read file; do
+        base="${file##*/}"
 
         if [ -n "$suffix" ]; then
-            if [ "${name: -${#suffix}}" = "$suffix" ]; then
+            if [ "${base: -${#suffix}}" = "$suffix" ]; then
                 _log2 "Skip file with suffix: $f"
                 continue
             fi
         fi
 
-        echo "---------------------------------------------------------------------" >>$tmpf
-        echo NAME "$name" >>$tmpf
+        echo FILE "$file" >>$tmpf
         echo DATE `stat -c %y "$f"` >>$tmpf
-        echo - >>$tmpf
-        while IFS=$'\x1' read l; do
-            echo "    $l" >>$tmpf
-        done < "$f"
-        echo - >>$tmpf
+        sed -e 's/^/  | /' "$f" >>$tmpf
+        echo "---------------------------------------------------------------------" >>$tmpf
     done
 
     if ! "${editor[@]}" $tmpf; then
@@ -102,7 +98,7 @@ function main() {
     while IFS=$'\x1' read l; do
         c4="${l:0:4}"
 
-        if [ "$c4" = '    ' ]; then
+        if [ "$c4" = '  | ' ]; then
             if [ -z "$cfile" ]; then
                 _warn "Skipped content: $content"
                 continue
