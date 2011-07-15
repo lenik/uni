@@ -386,7 +386,8 @@ function main() {
     }
 
     function git-log-graph() {
-        logopts=(--graph --format=$'\e[47m%h\e[0m\e[1;45m%d\e[0m \e[1;31m[%an]\e[0m %s \e[1;34m%cr\e[0m')
+        # %h%d [%an] %s %ar
+        logopts=(--graph --format=$'\e[47m%h\e[0m\e[1;45m%d\e[0m \e[1;31m[%an]\e[0m %s \e[1;34m%ar\e[0m')
         nlogopt=2
 
         if [ "$1" = '-' ]; then
