@@ -11,6 +11,9 @@ dist_bin_SCRIPTS = \
 dist_init_DATA = \
     confbot.conf
 
+dist_bots_DATA = \
+    sampleconf.ini.1
+
 setup_SCRIPTS = \
     postinst \
     prerm
