@@ -1,0 +1,14 @@
+Source: confbot
+Section: net
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.9.1
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/alt/confbot
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/alt/confbot
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/alt/confbot
+
+Package: confbot
+Architecture: all
+Depends: python
+Description: Conference Bot for Jabber IM (Google talk)
