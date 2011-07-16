@@ -28,4 +28,4 @@ CLEANFILES = ${setup_SCRIPTS} \
 
 install-data-hook:
 	cp -a ${srcdir}/bot ${DESTDIR}${pkgdatadir}
-	ln -snf ${DESTDIR}${pkgdatadir}/confbot.py ${DESTDIR}${bindir}/confbot
+	ln -snf ${pkgdatadir}/confbot.py ${DESTDIR}${bindir}/confbot
