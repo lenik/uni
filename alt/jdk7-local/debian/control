@@ -10,5 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/alt/jdk7-loc
 
 Package: jdk7-local
 Architecture: any
-Depends: Local jdk7 provider
-Description:
+Provides: java-compiler, java-sdk, java2-compiler, java2-sdk, java5-sdk,
+          java6-sdk, java7-sdk
+Depends:
+Description: Virtual package for local installed Java 7 SDK.

@@ -1,4 +1,29 @@
-#!/bin/sh
-# generated-file, please do not edit
+#!/bin/bash
+# master-file
 
-echo "jdk7-local - postinst.in ..."
+shopt -s nullglob
+
+jdk_latest=
+for jdkdir in /opt/java/jdk-*; do
+    if [ ! -x "$jdkdir/bin/javac" ]; then
+        continue
+    fi
+    jdk_latest="$jdkdir"
+done
+
+if [ -z "$jdk_latest" ]; then
+    echo "No JDK installation found in /opt/java/jdk-*" >&2
+    exit 1
+fi
+
+for bin in "$jdk_latest"/bin/*; do
+    [ -x "$bin" ] || continue
+
+    base="${bin##*/}"
+    #echo "Make as default: $base -> $bin"
+    update-alternatives --install /usr/bin/$base $base \
+        "$bin" 10000
+done
+
+exit 0
+

@@ -1,4 +1,4 @@
 #!/bin/sh
-# generated-file, please do not edit
+# master-file
 
 echo "jdk7-local - prerm.in ..."
