@@ -1,0 +1,14 @@
+Source: jdk7-local
+Section: java
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.9.1
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/alt/jdk7-local
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/alt/jdk7-local
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/alt/jdk7-local
+
+Package: jdk7-local
+Architecture: any
+Depends: Local jdk7 provider
+Description:

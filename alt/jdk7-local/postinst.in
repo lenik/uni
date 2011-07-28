@@ -1,0 +1,4 @@
+#!/bin/sh
+# generated-file, please do not edit
+
+echo "jdk7-local - postinst.in ..."
