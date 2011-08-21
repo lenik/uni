@@ -2,7 +2,7 @@ Source: coolcmd
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 7)
+Build-Depends: debhelper (>= 7), libglib2.0-dev
 Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/utils/coolcmd
 Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk/utils/coolcmd
@@ -11,5 +11,6 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/utils/coolcmd
 Package: coolcmd
 Provides: coolcmd
 Architecture: all
-Depends: perl, bash-enh, coolutils, dnotify, sleepenh
+Depends: perl, bash-enh, coolutils, sleepenh
+Recommends: dnotify
 Description: Quick command invokes
