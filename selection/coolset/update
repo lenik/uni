@@ -1,0 +1,28 @@
+#!/bin/bash
+
+cat control.in >debian/control
+
+for tag in terminal java debian; do
+
+	echo "Scan $tag packages"
+
+	cat <<EOM >>debian/control
+Package: xjl-cools-$tag
+Provides: cools-$tag
+Architecture: all
+Description: Lenik's cool $tag tools set.
+Recommends:
+EOM
+
+	grep --include=tags -l $tag -r ../.. \
+		| grep /debian/tags \
+		| grep -v /all/ \
+		| cut -d/ --complement -f -3 \
+		| cut -d/ -f1 \
+		| sort \
+		| sed -e 's/^/    /' -e '$q;s/$/, /' \
+		>>debian/control
+
+	echo >>debian/control
+
+done

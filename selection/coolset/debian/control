@@ -1,0 +1,109 @@
+Source: coolset
+Section: devel
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/xjl-cool
+
+Package: xjl-cools-terminal
+Provides: cools-terminal
+Architecture: all
+Description: Lenik's cool terminal tools set.
+    This package contains Lenik's cool terminal commands for Debian.
+Recommends:
+    2tree,
+    apache2-enh,
+    autover,
+    bash-aliases,
+    bash-enh,
+    bash-shlib,
+    bind-pref-xjl,
+    cdtree,
+    confbot,
+    configutils,
+    coolansi,
+    coolapt,
+    coolauto,
+    coolcmd,
+    coolgen,
+    coolhex,
+    coolldap,
+    coollog,
+    coolmake,
+    coolspec,
+    cooltask,
+    cooltext,
+    coolutils,
+    coolz,
+    db-utils-xjl,
+    diffcat,
+    err-demux,
+    esperanto-dict,
+    extundelete,
+    fileutils-xjl,
+    git-enh,
+    gpg-enh,
+    grepl,
+    grub-enh,
+    ini-utils,
+    laxar,
+    libcmt-perl,
+    libm4-xjl,
+    mkchm,
+    mksize,
+    mountfile,
+    msync,
+    nameutils,
+    php-site-utils,
+    python-enh,
+    repl,
+    repos-styles,
+    sfcc,
+    sox-enh,
+    ssh-enh,
+    sshproxy-z,
+    svn-enh,
+    svn2cl-enh,
+    symlinkutils,
+    usecode,
+    users-pref-xjl,
+    vcscmds,
+    vexmount,
+    vim-enh,
+    virtualbox-enh,
+    wget-enh,
+    wgetc,
+    whichm,
+    whoare,
+    wine-enh,
+    x509utils,
+    xmlutils,
+    yapp-enh
+
+Package: xjl-cools-java
+Provides: cools-java
+Architecture: all
+Description: Lenik's cool java tools set.
+    This package contains Lenik's cool java commands for Debian.
+Recommends:
+    archiva,
+    continuum,
+    coolmaven,
+    dejar,
+    eclipse-enh,
+    jad,
+    jdk7-local,
+    jetty-pref-apache,
+    libderby-java
+
+Package: xjl-cools-debian
+Provides: cools-debian
+Architecture: all
+Description: Lenik's cool debian tools set.
+    This package contains Lenik's cool debian commands for Debian.
+Recommends:
+    cooldeb,
+    debiancd-utils,
+    dlocal,
+    patchbuild
