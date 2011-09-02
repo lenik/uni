@@ -1,0 +1,18 @@
+
+Config files related to Archiva:
+
+    1, JEE container related: Jetty pool configs
+
+        ~jetty/etc -> /etc/jetty
+          |-- archiva-jetty-config.xml  Pool resources, archiva.war path
+          `-- archiva-override-web.xml  WebApp/Resource-Refs
+
+        (postinst) jetty.conf: include archiva-jetty-config.xml
+
+    2, (lenik) overlay:
+
+        /usr/share/jetty/.m2
+            `-- archiva.xml             Repositories
+
+        /var/lib/jetty/conf
+            `-- security.properties     Security overrides
