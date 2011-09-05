@@ -6,12 +6,19 @@ do_subst += \
 
 jettydir        = ${datadir}/jetty
 jettyconfdir    = $(sysconfdir)/jetty
+appconfdir      = /var/lib/jetty/conf
 
 jettyconf_DATA = \
     archiva-jetty-config.xml
 
 dist_jettyconf_DATA = \
     archiva-override-web.xml
+
+dist_jetty_DATA = \
+    archiva.xml
+
+dist_appconf_DATA = \
+    security.properties
 
 setup_SCRIPTS = \
     postinst \
