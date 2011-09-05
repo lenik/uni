@@ -11,5 +11,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/toolenh/eclipse-enh
 Package: eclipse-enh
 Provides: cooleclipse
 Architecture: all
-Depends:
+Depends: rar
 Description: Provide eclipse intergration with links
