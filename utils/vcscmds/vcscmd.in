@@ -221,14 +221,17 @@ function main() {
     }
 
     function git-localname() {
-        local f=`readlink -f "$1"`
-        local root;
-        root=`git-rootpath "$f"` || exit 1
-        if [ "$f" = "$root" ]; then
-            echo
-        else
-            echo "${f#$root/}"
-        fi
+        [ $# = 0 ] && set .
+        for f in "$@"; do
+            f=`readlink -f "$f"`
+            local root;
+            root=`git-rootpath "$f"` || exit 1
+            if [ "$f" = "$root" ]; then
+                echo
+            else
+                echo "${f#$root/}"
+            fi
+        done
     }
 
     function git-probe() {
@@ -334,8 +337,8 @@ function main() {
 
     function git-slist() {
         [ $# = 0 ] && set .
-        for f in "$@"; do
-            prefix=`git-localname "$f"`
+        for dir in "$@"; do
+            prefix=`git-localname "$dir"`
             nprefix=${#prefix}
             (
                 git diff --name-status
@@ -349,6 +352,8 @@ function main() {
                 fi
                 path_local="${path:nprefix}"
                 path_local="${path_local#/}"
+                # SVN does really use space instead of TAB.
+                # echo "$char"$'\t'"$path_local"
                 echo "$char       $path_local"
             done
         done
@@ -358,23 +363,44 @@ function main() {
         git pull
     }
 
-    function git-slupdate() {
+    function git-sl() {
+        local method="$1"
+        shift
+
         local d="$d"
-        local prefix
-        prefix=`git-localname "${d:=.}"` || exit 1
-        [ -n "$prefix" ] && prefix="$prefix/"
-        _log2 "prefix: $prefix"
-        prefix=$(( ${#prefix} + 1 ))
+        local prefix=`git-localname "${d:=.}"` || exit 1
+            [ -n "$prefix" ] && prefix="$prefix/"
+            _log2 "prefix: $prefix"
+        local nprefix=$(( ${#prefix} + 1 ))
 
         PREV=`git show --format=format:%H --summary | head -1`
-        git pull >&2
+        case "$method" in
+            pull) git pull >&2;;
+            pure) git pull --rebase >&2;;
+        esac
         NEXT=`git show --format=format:%H --summary | head -1`
+
+        vers=()
+        case "$method" in
+            pull|pure)
+                vers=($PREV $NEXT);;
+        esac
 
         # [AMCD] \t PATH
         _log3 "git diff --name-status $PREV $NEXT"
-        git diff --name-status $PREV $NEXT \
-            | cut -c3- \
-            | cut -c$prefix-
+
+        git diff --name-status "${vers[@]}" \
+            | cut -d$'\t' -f2- \
+            | grep "^$prefix" \
+            | cut -c$nprefix-
+    }
+
+    function git-slupdate() {
+        git-sl pure "$@"
+    }
+
+    function git-sldiff() {
+        git-sl diff "$@"
     }
 
     function git-commit-inr() {
