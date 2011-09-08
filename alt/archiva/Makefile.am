@@ -1,18 +1,19 @@
 include libauto/coolauto.am
 
 do_subst += \
-    -e 's,[@]jettydir[@],$(jettydir),g' \
+    -e 's,[@]jettyhomedir[@],$(jettyhomedir),g' \
     -e 's,[@]jettyconfdir[@],$(jettyconfdir),g'
 
-jettydir        = ${datadir}/jetty
+jettyhomedir    = ${datadir}/jetty
 jettyconfdir    = $(sysconfdir)/jetty
 appconfdir      = /var/lib/jetty/conf
 
-jettyconf_DATA = \
-    archiva-jetty-config.xml
+dist_jettyhome_DATA = \
+    archiva.xml
 
 dist_jettyconf_DATA = \
-    archiva-override-web.xml
+    archiva-override-web.xml \
+    archiva-jetty-config.xml
 
 dist_jetty_DATA = \
     archiva.xml
