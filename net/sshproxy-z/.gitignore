@@ -1,0 +1,7 @@
+postinst-base.sh
+postinst-client.sh
+postinst-server.sh
+prerm-base.sh
+prerm-client.sh
+prerm-server.sh
+sshproxy.conf
