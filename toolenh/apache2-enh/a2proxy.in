@@ -4,8 +4,8 @@
     . shlib-import cliboot
 
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="n:f:t:rhqv"
-    long_opts="name:,from:,to:,refresh,help,quiet,verbose,version"
+    short_opts="n:f:t:rRhqv"
+    long_opts="name:,from:,to:,reload,no-reload,help,quiet,verbose,version"
 
     sitesdir="@sitesdir@"
 
@@ -16,7 +16,7 @@
     to_host=
     to_port=
     to_prefix=
-    reload=
+    reload=1
 
 function version() {
     parse_id "$RCSID"
@@ -35,6 +35,7 @@ function help() {
     echo "    -f, --from=HOST:PORT    From this site"
     echo "    -t, --to=HOST:PORT      Proxy target site"
     echo "    -r, --reload            Reload immediately"
+    echo "    -R, --no-reload         Don't reload"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
@@ -60,6 +61,8 @@ function setopt() {
             ;;
         -r|--reload)
             reload=1;;
+        -R|--no-reload)
+            reload=0;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -105,9 +108,8 @@ function main() {
 EOM
 
     if [ "$reload" = 1 ]; then
-        _log1 "Reload apache2"
         a2enmod proxy_http
-        a2ensite proxy-$name
+        a2ensite "proxy-$name.site"
         a2reload
     fi
 }
