@@ -109,6 +109,7 @@ EOM
 
     if [ "$reload" = 1 ]; then
         a2enmod proxy_http
+        a2enmod rewrite
         a2ensite "proxy-$name.site"
         a2reload
     fi
