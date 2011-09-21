@@ -10,8 +10,7 @@ $TTL            30D
                                     1H      ; minimum TTL
                                 )
 
-                        NS      ns3.bodz.net.
-                        NS      ns4.bodz.net.
+$INCLUDE @datadir@/inc/dns-usage.db
 
 1       A       192.168.1.1
 2       A       192.168.1.2

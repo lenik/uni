@@ -10,8 +10,7 @@ $TTL            1H
                                     1H      ; minimum TTL
                                 )
 
-                        NS      ns3.bodz.net.
-                        NS      ns4.bodz.net.
+$INCLUDE @datadir@/inc/dns-usage.db
 
 vmail                   CNAME   lion
 

@@ -19,6 +19,7 @@ data_DATA = \
 
 c_inc_DATA = \
     default.db \
+    dns-usage.db \
     google.db \
     hotmail.db
 

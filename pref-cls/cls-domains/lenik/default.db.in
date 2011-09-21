@@ -12,8 +12,8 @@ $TTL            60000
                                     240H    ; sync expire
                                     1H      ; minimum TTL
                                 )
-                        NS      ns3.bodz.net.
-                        NS      ns4.bodz.net.
+
+$INCLUDE @datadir@/inc/dns-usage.db
 
                         TXT     "t=zoo owner=lenik"
 
