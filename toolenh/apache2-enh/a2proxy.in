@@ -1,0 +1,135 @@
+#!/bin/bash
+# master-file
+
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="n:f:t:rhqv"
+    long_opts="name:,from:,to:,refresh,help,quiet,verbose,version"
+
+    sitesdir="@sitesdir@"
+
+    name=
+    from_host=
+    from_port=
+    from_prefix=
+    to_host=
+    to_port=
+    to_prefix=
+    reload=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Apache2 http proxy site creator"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -n, --name=NAME         Specify the site name"
+    echo "    -f, --from=HOST:PORT    From this site"
+    echo "    -t, --to=HOST:PORT      Proxy target site"
+    echo "    -r, --reload            Reload immediately"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -n|--name)
+            name="$2"
+            ;;
+        -f|--from)
+            parse "$2" || die "Bad argument: $2"
+            from_host=$_host
+            from_port=$_port
+            from_prefix="$_prefix"
+            ;;
+        -t|--to)
+            parse "$2" || die "Bad argument: $2"
+            to_host=$_host
+            to_port=$_port
+            to_prefix="$_prefix"
+            ;;
+        -r|--reload)
+            reload=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$name" ]; then
+        name="$from_host-$from_port-$to_host-$to_port"
+    fi
+
+    _log1 "Create proxy site $name"
+    _log2 "    From host=$from_host port=$from_port prefix=$from_prefix"
+    _log2 "    To host=$to_host port=$to_port prefix=$to_prefix"
+
+    mkdir -p "$sitesdir"
+    cat <<EOM >"$sitesdir/proxy-$name.site"
+<VirtualHost *:$from_port>
+    ServerName  $from_host
+    ServerAdmin admin@localhost
+
+    LogLevel warn
+    CustomLog /var/log/apache2/proxy_access.log combined
+    ErrorLog  /var/log/apache2/proxy_error.log
+
+    #DocumentRoot /none
+
+    RewriteEngine On
+
+    ProxyPass           $from_prefix http://$to_host:$to_port$to_prefix
+    ProxyPassReverse    $from_prefix http://$to_host:$to_port$to_prefix
+    <Proxy *>
+        allow from all
+    </Proxy>
+</VirtualHost>
+EOM
+
+    if [ "$reload" = 1 ]; then
+        _log1 "Reload apache2"
+        a2enmod proxy_http
+        a2ensite proxy-$name
+        a2reload
+    fi
+}
+
+# HOST:PORT/...
+function parse() {
+    local s="$1"
+    _host="${s%%/*}"
+    _port="${_host##*:}"
+    _prefix="${s##*/}"
+
+    if [ "$s" = "$_host" ]; then
+        _prefix=/
+    else
+        _prefix=/"${s#*/}"
+    fi
+
+    if [ "$_host" = "$_port" ]; then
+        _port=80
+    else
+        _host="${_host%:*}"
+    fi
+}
+
+boot "$@"
