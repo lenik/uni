@@ -192,7 +192,7 @@
 <name>Bee32 internal</name>
 </remoteRepository>
 <remoteRepository>
-<url>http://repository.prime.com.tr</url>
+<url>http://repository.primefaces.org</url>
 <username>lenik</username>
 <password>sErp39wT</password>
 <id>primefaces</id>
