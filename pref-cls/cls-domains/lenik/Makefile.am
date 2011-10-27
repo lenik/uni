@@ -15,7 +15,8 @@ data_DATA = \
     named.conf \
     bodz.db \
     zoo.db \
-    p.db
+    p.db \
+    lo.db
 
 c_inc_DATA = \
     default.db \

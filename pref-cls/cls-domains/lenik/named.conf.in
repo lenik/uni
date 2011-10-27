@@ -1,4 +1,5 @@
 
+zone "lo"           { type master; file "@datadir@/lo.db"; };
 zone "p"            { type master; file "@datadir@/p.db"; };
 
 zone "j"            { type master; file "@datadir@/zoo.db"; };
