@@ -1,0 +1,21 @@
+Source: b43-tools
+Section: net
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~), flex, bison, gcc
+Standards-Version: 3.9.1
+Homepage: http://uni.bodz.net//mnt/clsdata/projects/uni/alt/b43-tools
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/clsdata/projects/uni/alt/b43-tools
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/clsdata/projects/uni/alt/b43-tools
+
+Package: b43-tools
+Provides: b43-fwcutter
+Architecture: any
+Depends:
+Description: BCM43xx build tools
+ Includes:
+    b43-asm
+    b43-beautifier
+    b43-fwdump
+    b43-ivaldump
+    b43-ssb_sprom
