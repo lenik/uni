@@ -9,4 +9,4 @@ version=3
 # Uncomment to examine a Webpage
 # <Webpage URL> <string match>
 #http://www.example.com/downloads.php b43-openfwwf-(.*)\.tar\.gz
-http://www.ing.unibs.it/~openfwwf/ openfwwf-(.*)\.tar\.gz
+http://www.ing.unibs.it/~openfwwf/ firmware/openfwwf-(.*)\.tar\.gz
