@@ -12,8 +12,8 @@
     DEPENDS="$CONFDIR/DEPENDS"
     RDEPENDS="$CONFDIR/RDEPENDS"
 
-    short_opts="abI:i:j:frhqv"
-    long_opts="all-modules,refresh,setver:,incr:,incr-auto:,fast,recursive,help,quiet,verbose,version"
+    short_opts="abI:i:j:frnhqv"
+    long_opts="all-modules,refresh,setver:,incr:,incr-auto:,fast,recursive,dry-run,help,quiet,verbose,version"
 
     all_modules=
     refresh=
@@ -23,8 +23,11 @@
     recursive=1
     deploy=1
     tmp=
+    dry_run=
 
     declare -A update_once
+
+    MVN=`which coolmvn` || MVN=mvn
 
 function version() {
     parse_id "$RCSID"
@@ -45,6 +48,7 @@ function help() {
     echo "    -j, --incr-auto=X.Y-Z   Increase the version only if vcs dirty"
     echo "    -a, --all-modules       Reset all modules' version"
     echo "    -r, --recursive         Recursive increase the versions of dependent projects"
+    echo "    -n, --dry-run           See what to do but don't execute"
     echo "    -f, --fast              Don't deploy, just change the version"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
@@ -82,6 +86,8 @@ function setopt() {
             deploy=;;
         -r|--recursive)
             recursive=1;;
+        -n|--dry-run)
+            dry_run=1;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -95,8 +101,15 @@ function setopt() {
     esac
 }
 
-function main() {
+function _mvn() {
+    if [ "$dry_run" = 1 ]; then
+        echo mvn "$@"
+    else
+        mvn "$@"
+    fi
+}
 
+function main() {
     if [ -n "$1" ]; then
         version_spec="$1"
         shift
@@ -167,7 +180,7 @@ function main() {
     # Deploy the new version
     if [ "$deploy" = 1 ]; then
         (cd "$module_path"
-            mvn "${MVNOPTS[@]}" deploy
+            _mvn "${MVNOPTS[@]}" deploy
         ) || die "Failed to deploy"
     fi
 
