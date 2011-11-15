@@ -1,4 +1,18 @@
 #!/bin/sh
 # generated-file, please do not edit
 
-echo "phddns - postinst.in ..."
+conf=@sysconfdir@/phlinux.conf
+host=`hostname`
+
+echo "Configure phddns for $host. (See $conf)"
+
+cat <<EOT >$conf
+[settings]
+szHost = PhLinux3.Oray.Net
+szUserID = uid-$host-z
+szUserPWD = KHxmUlFw
+nicName = eth0
+szLog = /var/log/phddns.log
+EOT
+
+exit 0
