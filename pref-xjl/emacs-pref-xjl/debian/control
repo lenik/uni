@@ -10,5 +10,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-xjl/emacs-pref-xjl
 
 Package: emacs-pref-xjl
 Architecture: all
-Depends: emacs
+Depends: emacs, emacs-goodies-el
 Description: Cool emacs helpers

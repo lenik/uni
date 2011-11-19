@@ -26,7 +26,7 @@
 
 ; (setq tab-stop-list '(16 32 48 64 80 96 112))
 (setq-default indent-tabs-mode nil)
-(setq default-tab-width 4)
+(setq tab-width 4)
 (setq c-basic-offset 4)
 
 (define-prefix-command 'keybinds)
@@ -94,7 +94,7 @@
                          (lambda (x) (cons (file-name-nondirectory x) x))) all-files))
          (prompt (append '("File name: ") tocpl))
          (fname (completing-read (car prompt) (cdr prompt) nil nil)))
-    (find-file (cdr (assoc-ignore-representation fname tocpl)))))
+    (find-file (cdr (assoc-string fname tocpl)))))
 (global-set-key "\C-x\C-r" 'recentf-open-files-compl)
 
 ;; (require 'php-mode)
