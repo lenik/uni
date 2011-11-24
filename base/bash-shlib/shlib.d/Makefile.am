@@ -6,6 +6,7 @@ dist_shlib_DATA = \
     cmds \
     export-p \
     findabc \
+    float \
     get_perm \
     import \
     initdir \
