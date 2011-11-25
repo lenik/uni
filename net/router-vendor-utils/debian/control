@@ -1,0 +1,15 @@
+Source: router-vendor-utils
+Section: net
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/net/router-vendor-utils
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/net/router-vendor-utils
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/net/router-vendor-utils
+
+Package: router-vendor-utils
+Architecture: all
+Depends: bash-shlib, wget
+Description: Router vendor-dependent utils
+ This package contains utilities to manipulate network router devices.
