@@ -1,0 +1,95 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="o:m:rcghqv"
+    long_opts="output:,mode-name:,remove,cvt,gtf,help,quiet,verbose,version"
+
+    VESA=cvt
+
+    output=
+    mode_name=
+    refresh=
+    remove=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] "
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] <width> <height> [<refresh>]"
+    echo
+    echo "Options: "
+    echo "    -o, --output=OUTPUT     See xrandr for the output list"
+    echo "    -m, --mode-name=NAME    Specify a mode name"
+    echo "    -r, --remove            Reset existing mode with the same name"
+    echo "    -c, --cvt               Using VESA CVT mode lines (default)"
+    echo "    -g, --gtf               Using VESA GTF mode lines"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -o|--output)
+            output="$2";;
+        -m|--mode-name)
+            mode_name="$2";;
+        -r|--remove)
+            remove=1;;
+        -c|--cvt)
+            VESA=cvt;;
+        -g|--gtf)
+            VESA=gtf;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    width=$1
+    height=$2
+    refresh=$3
+
+    [ -n "$output" ]  || quit "Output device isn't specified. "
+    [ -n "$width" ]   || quit "Width isn't specified. "
+    [ -n "$height" ]  || quit "Height isn't specified. "
+    [ -n "$refresh" ] || refresh=60
+
+    read -a spec < <($VESA $width $height $refresh | grep Modeline)
+
+    [ -n "$mode_name" ] || mode_name="${spec[1]}"
+    # shift ("Modeline", mode-name)
+    spec=("${spec[@]:2}")
+
+    if [ "$remove" = 1 ]; then
+        _log1 "Delete mode $mode_name from $output"
+        xrandr --delmode "$output" "$mode_name"
+
+        _log1 "Remove mode $mode_name"
+        xrandr --rmmode "$mode_name"
+    fi
+
+    _log1 "Create new mode $mode_name: ${spec[@]}"
+    xrandr --output "$output"  --newmode "$mode_name" "${spec[@]}"
+
+    _log1 "Add mode $mode_name to $output"
+    xrandr --addmode "$output" "$mode_name"
+}
+
+boot "$@"
