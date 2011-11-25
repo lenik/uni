@@ -1,0 +1,82 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="d:a:u:p:hqv"
+    long_opts="device:,address:,username:,password:,help,quiet,verbose,version"
+
+    DEVICE=
+    ADDRESS=192.168.1.1
+    USERNAME=admin
+    PASSWORD=admin
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Network gate bandwidth stat util"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -d, --device=NAME       Router device name"
+    echo "    -a, --address=IP        Router IP address, default 192.168.1.1"
+    echo "    -u, --username=USERNAME HTTP-Auth user name, default admin"
+    echo "    -p, --password=PASSWORD HTTP-Auth password, default admin"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -d|--device)
+            DEVICE="$2";;
+        -a|--address)
+            ADDRESS="$2";;
+        -u|--username)
+            USERNAME="$2";;
+        -p|--password)
+            PASSWORD="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$DEVICE" ]; then
+        quit "Device isn't specified."
+    fi
+
+    driver_main="driver_$DEVICE"
+    $driver_main "$@"
+}
+
+function driver_r406() {
+    # var statistList = new Array(
+    # 1458365161, 1827048105, 1924498, 2547276,
+    # 0,0 );
+    while IFS=', ' read a b c d _; do
+        if [ -n "$a" -a -z "${a//[0-9]}" ]; then
+            echo recvBytes=$a
+            echo sentBytes=$b
+            echo recvPackets=$c
+            echo sentPackets=$d
+        fi
+    done < <(wget -qO- --user="$USERNAME" --password="$PASSWORD" "http://$ADDRESS/userRpm/StatusRpm.htm" | grep -A1 "var statistList")
+}
+
+boot "$@"
