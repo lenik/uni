@@ -5,7 +5,9 @@ do_subst += -e 's,[@]bindconfdir[@],$(bindconfdir),g'
 bindconfdir = ${sysconfdir}/bind
 
 bindconf_DATA = \
-    bind/cooldns.options
+    cooldns.options \
+    lenik.key \
+    alt.key
 
 setup_SCRIPTS = \
     postinst \

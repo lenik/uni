@@ -1,6 +1,9 @@
-options {
+include "@bindconfdir@/rndc.key";
+include "@bindconfdir@/lenik.key";
+include "@bindconfdir@/alt.key";
 
-    directory           "/etc/bind";
+options {
+    directory           "@bindconfdir@";
 
     auth-nxdomain       no; # conform to RFC1035
     listen-on-v6        { any; };
@@ -11,6 +14,11 @@ options {
 
     // forward all unresolvable request to these addresses
     // forwarders          { 8.8.8.8; 8.8.4.4; };
+
+    allow-update {
+        key rndc-key;
+        key lenik-key;
+    };
 };
 
 acl lan1 {
@@ -40,8 +48,6 @@ logging {
     category queries { ch_access; };
 };
 
-// the rndc.key file defines "rndc-key".
-include "/etc/bind/rndc.key";
 controls {
     inet 127.0.0.1 port 953
         allow { 127.0.0.1; } keys { "rndc-key"; };
