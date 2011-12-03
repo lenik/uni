@@ -2,13 +2,20 @@
 
 # master-file
 
+sysconfdir=@sysconfdir@
 bindconfdir=@bindconfdir@
 named_conf=$bindconfdir/named.conf
+apparmordir=$sysconfdir/apparmor.d
 
 echo "Config named.conf to use cooldns.options"
     lineconf -k $named_conf named.conf.options
     lineconf -t $named_conf @cooldns::options \
         "include \"$bindconfdir/cooldns.options\";"
+
+echo "Allow bind operator to update /etc/bind/*"
+    lineconf $apparmordir/usr.sbin.named \
+        "  /etc/bind/\*\*" \
+        "  /etc/bind/** rw,"
 
 # restart may be necessary to listen on rndc port.
 /etc/init.d/bind9 restart
