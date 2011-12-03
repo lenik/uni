@@ -17,5 +17,8 @@ lineconf -tm "Add lenik domains" \
     $named_conf @section::lenik \
     "include \"$bindconfdir/lenik/named.conf\";"
 
+# Need write access to journal files. (for nsupdate)
+chown -R bind:bind "$bindconfdir/lenik"
+
 echo "Reload bind9"
     /etc/init.d/bind9 reload
