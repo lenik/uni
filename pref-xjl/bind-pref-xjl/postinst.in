@@ -17,5 +17,7 @@ echo "Allow bind operator to update /etc/bind/*"
         "  /etc/bind/\*\*" \
         "  /etc/bind/** rw,"
 
+install -d -o bind -g bind /var/log/named
+
 # restart may be necessary to listen on rndc port.
 /etc/init.d/bind9 restart
