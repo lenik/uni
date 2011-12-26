@@ -1,0 +1,36 @@
+WARNING:
+    Instead of install this openfwwf, you should install the broadcom provided
+    firmwares using firmware-b43-installer.
+
+pcm5.fw
+ucode15.fw
+ucode14.fw
+ucode13.fw
+ucode11.fw
+ucode9.fw
+ucode5.fw
+lp0bsinitvals15.fw
+lp0initvals15.fw
+lp0bsinitvals14.fw
+lp0initvals14.fw
+a0g1bsinitvals13.fw
+a0g1initvals13.fw
+b0g0bsinitvals13.fw
+b0g0initvals13.fw
+lp0bsinitvals13.fw
+lp0initvals13.fw
+n0absinitvals11.fw
+n0bsinitvals11.fw
+n0initvals11.fw
+a0g1bsinitvals9.fw
+a0g0bsinitvals9.fw
+a0g1initvals9.fw
+a0g0initvals9.fw
+b0g0bsinitvals9.fw
+b0g0initvals9.fw
+a0g1bsinitvals5.fw
+a0g0bsinitvals5.fw
+a0g1initvals5.fw
+a0g0initvals5.fw
+b0g0bsinitvals5.fw
+b0g0initvals5.fw
