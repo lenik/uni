@@ -1,0 +1,61 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="m:hqv"
+    long_opts="impl:help,quiet,verbose,version"
+    impl=ip138
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Get my ip address"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -m, --impl=NAME         Implementation to use, default ip138"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    fn=m_$impl
+    [ -z `type -t $fn` ] && quit "invalid implementation: $impl"
+
+    $fn "$@"
+}
+
+function m_ip138() {
+    if result=$( grep -o '\[.*\]' < <(wget -qO- http://www.ip138.com/ip2city.asp) ); then
+        result="${result#[}"
+        result="${result%]}"
+        echo "$result"
+        return 0
+    fi
+    return 1
+}
+
+boot "$@"
