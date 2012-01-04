@@ -12,6 +12,9 @@
     resolv_conf=
     system_conns=
 
+    sysconfdir="@sysconfdir@"
+    sysconfdir="${sysconfdir:-/etc}"
+
 function version() {
     parse_id "$RCSID"
     echo "[$BASENAME] Config search domain names"
@@ -83,12 +86,12 @@ function main() {
 
     if [ "$resolv_conf" = 1 ]; then
         if [ -n "$del_re" ]; then
-            sedit -m "resolv.conf -$del_re" /etc/resolv.conf \
+            sedit -m "resolv.conf -$del_re" $sysconfdir/resolv.conf \
                 grep -v "^${SPC}search$SPC($del_re)\$"
         fi
         for a in "${add[@]}"; do
             echo "resolv.conf +search $a"
-            echo "search $a" >>/etc/resolv.conf
+            echo "search $a" >>$sysconfdir/resolv.conf
         done
     fi
 
