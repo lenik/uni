@@ -10,5 +10,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/net/nameutils
 
 Package: nameutils
 Architecture: all
-Depends: perl
+Depends: perl, dnsutils
 Description: Network utilities

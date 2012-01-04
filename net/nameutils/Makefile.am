@@ -2,7 +2,8 @@ include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
     getaddrbyname \
-    echoip
+    echoip \
+    nscmd
 
 setup_SCRIPTS = \
     postinst \
@@ -13,4 +14,5 @@ EXTRA_DIST = \
     prerm.in
 
 CLEANFILES = ${setup_SCRIPTS} \
-    echoip
+    echoip \
+    nscmd
