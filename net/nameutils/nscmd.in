@@ -2,8 +2,8 @@
     . shlib-import cliboot
 
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="k:R:s:p:z:c:t:D:hqv"
-    long_opts="keyfile:,random:,server:,port:,zone:,class:,ttl:,ddns:,help,quiet,verbose,version"
+    short_opts="k:R:s:p:z:c:t:C:D:hqv"
+    long_opts="keyfile:,random:,server:,port:,zone:,class:,ttl:,cname:,ddns:,help,quiet,verbose,version"
 
     NSUPDATE=nsupdate
 
@@ -14,8 +14,8 @@
     zone=
     class=
     ttl=
+    ttl_default=
     ddns=
-    ddns_ttl=600
     extras=()
     nextra=0
 
@@ -35,13 +35,15 @@ function help() {
     echo "    -k, --keyfile=FILE      The shared secret to generate TSIG record"
     echo "    -R, --random=DEV        A source of randomness."
     echo "    -s, --server=HOSTNAME   Send all requests to this server, default localhost"
-    echo "          (You can set to __master__ to use the master NS of the specific zone"
+    echo "                            (Set to '__master__'  to use the master NS)"
     echo "    -p, --port=PORT         The UDP port to use, default 53 (DNS)"
     echo "    -z, --zone=ZONE         All updates are to be made to this zone (optional)"
     echo "    -c, --class=CLASS       Specify the defautl class, default IN"
-    echo "    -t, --ttl=TTL           Specify the default time to live. Default $ddns_ttl for ddns"
-    echo "          (You can set to 'none' to clear the default ttl)"
-    echo "    -D, --ddns=HOST=IP      This is a shortcut for update delete & add ..."
+    echo "    -t, --ttl=TTL           Specify the default time to live"
+    echo "                            (Default: ddns=600, cname=3600)"
+    echo "                            (You can set to 'none' to clear the default ttl)"
+    echo "    -C, --cname=NAME=DEST   Same to delete-add A RRs"
+    echo "    -D, --ddns=NAME=IP      Same to delete-add CNAME RRs"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
@@ -69,15 +71,27 @@ function setopt() {
             class="$2";;
         -t|--ttl)
             ttl="$2";;
+        -C|--cname)
+            cname="$2"
+            cname_name="${cname%%=*}"
+            cname_dest="${cname#*=}"
+            if [ "$cname_name" = "$cname" ]; then
+                quit "Bad cname spec: it must be HOST=DEST"
+            fi
+            extras[nextra++]="update delete $cname_name"
+            extras[nextra++]="update add    $cname_name CNAME $cname_dest"
+            ttl_default=3600
+            ;;
         -D|--ddns)
             ddns="$2"
-            ddns_host="${ddns%%=*}"
+            ddns_name="${ddns%%=*}"
             ddns_ip="${ddns#*=}"
-            if [ "$ddns_host" = "$ddns" ]; then
+            if [ "$ddns_name" = "$ddns" ]; then
                 quit "Bad ddns spec: it must be HOST=IP"
             fi
-            extras[nextra++]="update delete $ddns_host"
-            extras[nextra++]="update add    $ddns_host A $ddns_ip"
+            extras[nextra++]="update delete $ddns_name"
+            extras[nextra++]="update add    $ddns_name A $ddns_ip"
+            ttl_default=600
             ;;
         -h|--help)
             help; exit;;
@@ -103,14 +117,12 @@ function file_header() {
     [ -n "$server" ] && echo "server $server" >>"$file"
     [ -n "$zone" ]   && echo "zone   $zone"   >>"$file"
     [ -n "$class" ]  && echo "class  $class"  >>"$file"
-
-    [ -z "$ttl" -a -n "$ddns" ] && ttl=$ddns_ttl
     [ -n "$ttl" ]    && echo "ttl    $ttl"  >>"$file"
 }
 
 function main() {
-
     [ -n "$keyfile" ] || quit "Keyfile isn't specified."
+    ttl=${ttl:-$ttl_default}
 
     tmp=`tempfile`
     _log2 "Create nsupdate script: $tmp"
