@@ -7,6 +7,7 @@ do_subst += -e 's,[@]libbashdir[@],$(libbashdir),g'
 shsrcdir = ${bindir}
 
 bin_PROGRAMS = \
+    echo-n \
     echoln \
     echoli
 
