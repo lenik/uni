@@ -2,8 +2,11 @@ include ../libauto/coolauto.am
 
 dist_shlib_DATA = \
     bashunit \
+    char \
     cliboot \
     cmds \
+    echo-fill \
+    echo-raw \
     export-p \
     findabc \
     float \
@@ -16,8 +19,5 @@ dist_shlib_DATA = \
     overrides \
     path \
     rcs \
-    string \
     time
 
-%: %.in Makefile
-	$(do_subst) <$< >$@

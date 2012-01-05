@@ -1,0 +1,64 @@
+# vim: set filetype=sh :
+
+# This script needs echo-n to work.
+#   You may import echo-n, or install bash-enh (echo-n).
+
+type -t echo-n  >/dev/null || quit "echo-n isn't available."
+type -t echo-ln >/dev/null || quit "echo-ln isn't available."
+
+# echo-fill <string> <length> <align=LMRlmr> <fill-char>
+function echo-fill() {
+    local str="$1"
+    local nstr=${#str}
+    local len="$2"
+    local align="${3:-l}"
+    local fill="${4:- }"
+
+    if [ -z "$len" ]; then
+        echo "length isn't specified." >&2
+        return 1
+    fi
+
+    if [ "${len:0:1}" = '+' ] ; then
+        len=$(( `tput cols` + ${len:1} ))
+    elif [ "${len:0:1}" = '-' ]; then
+        len=$(( `tput cols` - ${len:1} ))
+    fi
+
+    local fill_len=$((len - nstr))
+    if [ $fill_len -lt 0 ]; then
+        fill_len=0
+    fi
+
+    local pool="$fill"
+    local npool=${#pool}
+    while [ ${#pool} -lt $len ]; do
+        pool="$pool$pool"
+    done
+
+    ECHO=echo-n
+    case "$align" in
+    l|m|r)
+        ECHO=echo-n;;
+    L|M|R)
+        ECHO=echo-ln;;
+    esac
+
+    case "$align" in
+    l|L)
+        $ECHO "$str${pool:nstr:fill_len}"
+        ;;
+    m|M)
+        local pad_left=$((fill_len / 2))
+        local pad_right=$((fill_len - pad_left))
+        $ECHO "${pool:0:pad_left}$str${pool:pad_left+nstr:pad_right}"
+        ;;
+    r|R)
+        $ECHO "${pool:0:fill_len}$str"
+        ;;
+    *)
+        echo "Bad alignment: $align" >&2
+        return 1
+    esac
+    return 0
+}

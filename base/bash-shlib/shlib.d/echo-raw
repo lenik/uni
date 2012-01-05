@@ -1,0 +1,16 @@
+# vim: set filetype=sh :
+
+# See also: bash-enh (echo-n)
+function echo-n() {
+    local str="$1"
+    while [ "${str:0:1}" = '-' ]; do
+        echo -n '-'
+        str="${str:1}"
+    done
+    echo -n "$str"
+}
+
+function echo-ln() {
+    echo-n "$@"
+    echo
+}
