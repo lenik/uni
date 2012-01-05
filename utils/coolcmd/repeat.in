@@ -1,0 +1,126 @@
+#!/bin/bash
+    . shlib
+    import cliboot
+    import echo-raw
+    import echo-fill
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="i:c:hqv"
+    long_opts="interval:,check-cmd:,help,quiet,verbose,version"
+
+    session=$$
+    counter=0
+    interval=1
+    cc_cmd=
+    temp_dir="${TMP:-/tmp}"
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Repeat commands"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] COMMAND..."
+    echo
+    echo "Options: "
+    echo "    -s, --session=NAME      The name of the repeat session"
+    echo "    -i, --interval=NUM      How many seconds to wait each time"
+    echo "    -c, --check-cmd=CMDLINE Check changes from the command's output"
+    echo "    -T, --temp-dir=DIR      Specify another temporary dir instead of $TMP"
+    echo "    -q, --quiet             No box. Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -i|--interval)
+            interval="$2";;
+        -c|--check-cmd)
+            cc_cmd="$2";;
+        -T|--temp-dir)
+            temp_dir="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function mktemp() {
+    tempfile -d "$temp_dir" -p 'session-'
+}
+
+function main() {
+    cc_out="$temp_dir/session-$session.chk"
+
+    [ $LOGLEVEL -ge 1 ] && echo-fill "Session-Start: $session" +0 M '---'
+
+    while true; do
+        ((counter++))
+
+        if [ "$term_fx" = 1 ]; then
+            . settermtitle "L($session:$counter) $_cmd"
+        fi
+
+        [ $LOGLEVEL -ge 1 ] && echo-fill "[42mLoop Iteration[47m $counter[m" +13 M '- '
+
+        "$@"
+
+        [ $LOGLEVEL -ge 1 ] && echo-fill '' +0 L '_'
+
+        if [ -n "$interval" ]; then
+            sleep $interval
+        fi
+
+        if [ -n "$cc_cmd" ]; then
+            cc_tmp=`mktemp`
+            while true; do
+                if ! sh -c "$cc_cmd" >$cc_tmp 2>&1; then
+                    cat $cc_tmp >&2
+                    rm -f $cc_tmp
+                    quit "Check command failed"
+                fi
+
+                if [ ! -f "$cc_out" ]; then
+                    cp -f "$cc_tmp" "$cc_out"
+                    diff_status=0
+                else
+                    if [ $LOGLEVEL -ge 2 ]; then
+                        diff -Nu $cc_out $cc_tmp
+                    else
+                        diff -Nq $cc_out $cc_tmp >/dev/null
+                    fi
+                    diff_status=$?
+                fi
+
+                if [ $diff_status != 0 ]; then
+                    _log2 "Change detected from check-cmd."
+                    mv -f $cc_tmp $cc_out
+                    break
+                else
+                    rm -f $cc_tmp
+                    if [ -n "$interval" ]; then
+                        sleep $interval
+                    fi
+                fi
+            done
+        fi # check-cmd.
+
+    done
+
+    [ $LOGLEVEL -ge 1 ] && echo-fill "Session-End: $session" +0 M '+++'
+}
+
+boot "$@"

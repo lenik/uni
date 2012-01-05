@@ -1,7 +1,7 @@
 #!/bin/bash
     . shlib
     import cliboot
-    import echo-n
+    import echo-raw
     import echo-fill
 
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
@@ -74,9 +74,9 @@ function main() {
         _log2 "File date $file_date is different to $test_time"
     fi
 
-    [ -n "$banner" ] && echo-fill "[42mFile Version[47m $banner[m" -13 m '-'
+    [ -n "$banner" ] && echo-fill "[42mFile Version[47m $banner[m" +13 M '-'
     "$@"
-    [ -n "$banner" ] && echo-fill '' +0 l '- '
+    [ -n "$banner" ] && echo-fill '' +0 L '- '
 }
 
 boot "$@"

@@ -15,6 +15,9 @@ bin_PROGRAMS = \
 AM_CPPFLAGS = $(GLIB_CFLAGS)
 xcat_LDADD = $(GLIB_LIBS)
 
+#xcat.c: xcat.c.in
+#	$(do_subst) <$< >$@
+
 dist_bin_SCRIPTS = \
     cd-exec \
     colorox \
@@ -25,8 +28,9 @@ dist_bin_SCRIPTS = \
     loop \
     makeoutdated \
     make1 \
-    onmodify \
+    if-modified \
     postproc \
+    repeat \
     run-bg \
     rsexec \
     rsexec-c \
