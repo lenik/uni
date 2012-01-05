@@ -1,3 +1,4 @@
+# vim: set filetype=sh :
 
 # loadpaths PATHFILES
 function loadpaths() {

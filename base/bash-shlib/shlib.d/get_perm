@@ -1,3 +1,4 @@
+# vim: set filetype=sh :
 
 # get_perm [-u] NAME
 function get_perm() {

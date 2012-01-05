@@ -1,3 +1,5 @@
+# vim: set filetype=sh :
+
 function load() {
     local name="${1//:://}"
     shift

@@ -1,3 +1,5 @@
+# vim: set filetype=sh :
+
 function import() {
     local name="${1//:://}"
     shift
