@@ -1,0 +1,82 @@
+#!/bin/bash
+    . shlib
+    import cliboot
+    import echo-n
+    import echo-fill
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="b:t:hqv"
+    long_opts="banner:,test-time:,help,quiet,verbose,version"
+
+    banner=
+    test_time=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Trigger command on file changes"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] FILE COMMAND..."
+    echo
+    echo "Options: "
+    echo "    -b, --banner=STRING     Display banner and user provided string"
+    echo "    -t, --test-time=TIME    File's last-modified time to test"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -b|--banner)
+            banner="$2";;
+        -t|--test-time)
+            test_time="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    # Workarounds for:
+    #       Temporary file remove/create fix
+    #       Temporary file rename/restore fix
+    #       Shell interpretor: Text file busy fix
+    sleepenh 0.01 >/dev/null
+
+    file="$1"
+    # caused by temporary removing maybe.
+    if [ ! -e "$file" ]; then
+        _warn "File isn't existed: $file"
+        exit 1
+    fi
+    shift
+
+    file_date=`stat -c%Y "$file"`
+    if [ "$file_date" = "$test_time" ]; then
+        _log2 "Not modified, quit"
+        exit 1
+    else
+        _log2 "File date $file_date is different to $test_time"
+    fi
+
+    [ -n "$banner" ] && echo-fill "[42mFile Version[47m $banner[m" -13 m '-'
+    "$@"
+    [ -n "$banner" ] && echo-fill '' +0 l '- '
+}
+
+boot "$@"
