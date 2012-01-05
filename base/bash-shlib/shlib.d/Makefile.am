@@ -5,6 +5,7 @@ dist_shlib_DATA = \
     char \
     cliboot \
     cmds \
+    de_alias \
     echo-fill \
     echo-raw \
     export-p \

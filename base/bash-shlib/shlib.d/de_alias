@@ -1,0 +1,15 @@
+# vim: set filetype=sh :
+
+function de_alias() {
+    local cmd="$1"
+    local expansion
+
+    if expansion=`alias $cmd 2>/dev/null`; then
+        expansion="${expansion#*=}"
+        expansion=`sh -c "echo $expansion"`
+    else
+        expansion="$cmd"
+    fi
+
+    echo "$expansion"
+}
