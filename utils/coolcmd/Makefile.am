@@ -15,8 +15,8 @@ bin_PROGRAMS = \
 AM_CPPFLAGS = $(GLIB_CFLAGS)
 xcat_LDADD = $(GLIB_LIBS)
 
-#xcat.c: xcat.c.in
-#	$(do_subst) <$< >$@
+%.c: %.c.in
+	$(do_subst) <$< >$@
 
 dist_bin_SCRIPTS = \
     cd-exec \
