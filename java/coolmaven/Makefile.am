@@ -23,6 +23,7 @@ dist_bin_SCRIPTS = \
     m2rpn \
     m2search \
     m2which \
+    mjava \
     pom-cascade \
     pomid \
     pomtree
