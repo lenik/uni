@@ -1,0 +1,247 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] "
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    dump "$@"
+    echo Done.
+}
+
+boot "$@"
+
+    CERT_OPTS="-days 3650"
+
+function mk_root() {
+    for about_file in *.about; do
+        # cat "$about_file"
+
+        base="${about_file%.*}"
+        [ -x "$base.pre" ] && . "$base.pre"
+
+        # 1) PRIVATE KEY
+        # ------------------------------------------------------------------
+            # generate 4k rand file
+                if [ ! -f "$base.rand" ]; then
+                    _log1 "[RAND] $base"
+                    openssl rand -out "$base.rand" 4096
+                    rm -f "$base.private.pem"
+                fi
+
+            # generate private key, use [RSA 4096 bits]
+                if [ ! -f "$base.private.pem" ]; then
+                    _log1 "[PRIV] $base"
+                    openssl genrsa -rand "$base.rand" -out "$base.private.pem" 4096
+                    rm -f "$base.private.prot.pem"
+                    rm -f "$base.private.pvk"
+                    rm -f "$base.private.pk8"
+                    rm -f "$base.csr"
+                fi
+
+            # protect the private key, use [aes256] and [.phrase file]
+                if [ ! -f "$base.private.prot.pem" ]; then
+                    _log1 "[PRIV.PWD] $base"
+                    openssl rsa -in "$base.private.pem" -out "$base.private.prot.pem" -aes256 -passout "file:$base.phrase"
+                fi
+
+            # convert to PVK format
+                if [ ! -f "$base.private.pvk" ]; then
+                    echo [PRIV.PVK] $base
+                    pvk -in "$base.private.pem" -strong -out "$base.private.pvk" -topvk -nocrypt
+                fi
+
+            # convert to PKCS#8
+                if [ ! -f "$base.private.pk8" ]; then
+                    echo [PKCS#8] $base
+                    openssl pkcs8 -nocrypt -in "$base.private.pem" -topk8 -out "$base.private.pk8"
+                fi
+
+
+        # 2) CERTIFICATE
+        # ------------------------------------------------------------------
+            # request to be certificated, [self]
+                if not exist "$base.csr" (
+                    echo [REQ] $base
+                    openssl req -new -out "$base.csr" -key "$base.private.pem" -config "$base.config"
+
+                    # re-build following:
+                    if exist "$base.crt" del "$base.crt"
+                    if exist "$base.spc" del "$base.spc"
+                    if exist "$base.p12" del "$base.p12"
+                    for %%q in (*.req) do (
+                        if exist "%%~nq.crt" del "%%~nq.crt"
+                    )
+                    if exist "$base" (
+                        pushd "$base"
+                            for %%e in (*.about) do (
+                                if exist "%%~ne.csr" del "%%~ne.csr"
+                            )
+                        popd
+                    )
+                )
+
+            # do certificate (depends on whether this is a root-cert or a sub-certs)
+                if not exist "$base.crt" (
+                    if "%1"=="" (
+                        # certificate by [self], expired after [DEF_EXPIRE days]
+                        echo [CERT.SELF] $base
+                        openssl x509 -req -in "$base.csr" -out "$base.crt" -signkey "$base.private.pem" %CERT_OPTS%
+                        copy /y "$base.crt" "$base.cert[self].pem" >nul
+                    ) else (
+                        # certificate by [..\%1], expired after [DEF_EXPIRE days]
+                        echo [CERT.BY] $base /By %1
+                        openssl x509 -req -in "$base.csr" -out "$base.crt" -signkey "$base.private.pem" -CA "..\%1.crt" -CAkey "..\%1.private.pem" -CAcreateserial %CERT_OPTS%
+                        copy /y "$base.crt" "$base.cert[%1].pem" >nul
+                    )
+                )
+
+            # convert to PKCS#7
+                if not exist "$base.spc" (
+                    echo [PKCS#7] $base
+                    openssl crl2pkcs7 -nocrl -certfile "$base.crt" -outform DER -out "$base.spc"
+                )
+
+            # convert to PKCS#12, protect by .(dot) and private passphrase
+                if not exist "$base.p12" (
+                    echo [PKCS#12] $base
+                    openssl pkcs12 -export -in "$base.crt" -inkey "$base.private.pem" -out "$base.p12" -name "PKCS#12 $base" -passout "pass:."
+                    openssl pkcs12 -export -in "$base.crt" -inkey "$base.private.pem" -out "$base.prot.p12" -name "PKCS#12 $base" -passout "file:$base.phrase"
+                )
+
+            # create shell utility scripts
+                echo pvkimprt -import "$base.spc" "$base.private.pvk" >"$base.pvkimprt.bat"
+
+        # 3) ISSUING
+        # ------------------------------------------------------------------
+            # scan requests to this
+                echo [SCAN-REQ] $base
+                for %%q in (*.req) do (
+                    # certificate by [this], expired after [365 days]
+                    if not exist "%%~nq.crt" (
+                        echo [CERT.TO] %%q
+                        openssl x509 -req -in "%%q" -out "%%~nq.crt" -CA "$base.crt" -CAkey "$base.private.pem" -CAcreateserial -days 365
+                        copy /y "%%~nq.crt" "%%~nq.cert[$base].pem" >nul
+                    )
+                )
+
+
+            # scan sub-certs
+                if exist "$base" (
+                    echo [SUB-CERT] For $base
+
+                    # for non-reentrant .cmd script, re-init the var before call self.
+                    set C_NAME=%%~ni
+
+                    # if not exist "%%d\%~nx0"
+                    copy "%~dpnx0" "$base" >nul
+
+                    pushd "$base"
+                    call "%~nx0" $base
+                    del "%~nx0"
+                    popd
+
+                )
+
+        # run .more script at last
+            if exist "$base.post.bat" call "$base.post.bat"
+
+    )
+
+
+# collect all certificates, for root call.
+    if "%1"=="" (
+        echo [COLLECT]
+        if not exist all-certs (
+            md all-certs
+            type nul >all-certs\all-certs.id
+        )
+
+        set _CERT_COUNT=0
+        for /r %%c in (*.crt) do (
+            if not exist "%%~dpcall-certs.id" (
+                echo [RESULT] %%c
+                copy "%%c" "all-certs" >nul
+                set /a _CERT_COUNT=!_CERT_COUNT!+1
+            )
+        )
+
+        echo total !_CERT_COUNT! certificates created.
+    )
+
+
+# clean after build, for root call
+    # if "%1"=="" goto clean
+    exit /b
+
+
+:clean
+    for %%i in (*.about) do (
+        set C_NAME=%%~ni
+
+        for %%j in ("$base.*") do (
+            set _SKIP=0
+            if "%%~xj"==".about" set _SKIP=1
+            if "%%~xj"==".config" set _SKIP=1
+            if "%%~xj"==".phrase" set _SKIP=1
+            if "%%~xj"==".rand" set _SKIP=1
+            if "%%j"=="$base.private.pem" set _SKIP=1
+            if !_SKIP!==0 (
+                echo [REMOVE] %%j
+                del %%j
+            )
+        )
+
+        # scan sub-directories
+            for /d %%d in (*) do (
+                if not "%%d"=="all-certs" (
+                    echo [SCAN-SUB] %%d
+
+                    # for non-reentrant .cmd script, re-init the var before call self.
+                    set C_NAME=%%~ni
+
+                    # if not exist "%%d\%~nx0"
+                    copy "%~dpnx0" "%%d" >nul
+
+                    pushd "%%d"
+                    call "%~nx0" clean $base
+                    del "%~nx0"
+                    popd
+                )
+            )
+    )
