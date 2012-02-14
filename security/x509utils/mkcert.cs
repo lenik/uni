@@ -3,7 +3,7 @@
 DN_C=CN
 DN_ST=Zhejiang
 DN_O="www.example.com"
-DN_OU="Your Organization"
+# DN_OU="Your Organization"
 DN_CN="Your Name"
 DN_emailAddress="your-name@example.com"
 DAYS=3650
@@ -24,7 +24,7 @@ function passphrase() {
     echo .
 }
 
-function csr-config() {
+function config() {
     local private_key="$1"
     echo "[ca]"
     echo "default_ca              = CA_default"

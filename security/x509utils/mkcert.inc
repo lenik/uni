@@ -12,23 +12,22 @@ SHELL=bash
 %.pk8: %.pem
 	openssl pkcs8 -nocrypt -in "$*.pem" -topk8 -out "$*.pk8"
 
-%.csr-config: %.cs
-	get-config "$*.cs" csr-config >"$*.csr-config"
+%.cfg: %.cs
+	get-config "$*.cs" config >"$*.cfg"
 
-%.csr: %.pem %.csr-config
-	openssl req -utf8 -new -out "$*.csr" -key "$*.pem" -config "$*.csr-config"
-	rm -f "$*.csr-config"
+%.csr: %.pem %.cfg
+	openssl req -utf8 -new -out "$*.csr" -key "$*.pem" -config "$*.cfg"
 
-%.crt: %.csr %.pem
+%.crt: %.csr %.pem %.cfg
 	@dirname="$${PWD##*/}"; echo "[$$dirname]"; \
 	    if [ -f "../$$dirname.crt" ]; then \
 	        echo "Generate child x509 certificate signed by $$dirname"; \
-	        openssl x509 -req -in "$*.csr" -out "$*.crt" -signkey "$*.pem" \
+	        openssl x509 -req -in "$*.csr" -extfile "$*.cfg" -extensions v3_req -out "$*.crt" -signkey "$*.pem" \
 	            -CA "../$$dirname.crt" -CAkey "../$$dirname.pem" -CAcreateserial \
 	            `get-config "$*.cs" x509-opts`; \
 	    else \
 	        echo "Generate self-signed x509 certificate"; \
-	        openssl x509 -req -in "$*.csr" -out "$*.crt" -signkey "$*.pem" \
+	        openssl x509 -req -in "$*.csr" -extfile "$*.cfg" -extensions v3_req -out "$*.crt" -signkey "$*.pem" \
 	            `get-config "$*.cs" x509-opts`; \
 	    fi
 

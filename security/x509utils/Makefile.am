@@ -22,6 +22,5 @@ CLEANFILES = \
     postinst \
     prerm \
     mkcert \
-    mkcert.mf \
-    mkcert.inc
+    mkcert.mf
 

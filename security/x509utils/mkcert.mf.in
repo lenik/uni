@@ -9,7 +9,7 @@ all:
 	@echo "No key file or certificate file is specified."
 
 clean:
-	rm -f *.csr-config *.csr *-x.pem
+	rm -f *.cfg *.csr *-x.pem
 	rm -f *.spc *.pk8 *.p12
 	rm -f *.pvkimprt.bat
 	rm -f *.all *.w32
