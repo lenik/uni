@@ -54,6 +54,6 @@
 
 2010-08-19  lenik
 
-	* transfer mkcerts stuff to xjl-keychain.
+	* transfer mkcerts stuff to x509utils.
 
 	  (maybe merged with xjl-coolgpg in future.)
