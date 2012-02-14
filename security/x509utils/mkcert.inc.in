@@ -16,7 +16,7 @@ SHELL=bash
 	get-config "$*.cs" csr-config >"$*.csr-config"
 
 %.csr: %.pem %.csr-config
-	openssl req -new -out "$*.csr" -key "$*.pem" -config "$*.csr-config"
+	openssl req -utf8 -new -out "$*.csr" -key "$*.pem" -config "$*.csr-config"
 	rm -f "$*.csr-config"
 
 %.crt: %.csr %.pem
