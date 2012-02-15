@@ -7,8 +7,10 @@
 
 function version() {
     parse_id "$RCSID"
-    echo "[$BASENAME] "
+    echo "[$BASENAME] Make certificate chains"
     echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+    echo
+    echo "(This is a get-config utility)"
 }
 
 function help() {
