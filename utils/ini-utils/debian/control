@@ -10,5 +10,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/utils/ini-utils
 
 Package: ini-utils
 Architecture: all
-Depends: ${misc:Depends}
+Depends:
 Description: INI file manipulate utilities.

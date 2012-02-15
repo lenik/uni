@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    echo "No cs-file specified." >&2
+    exit 1
+fi
+
+cs_file="$1"
+if [ "${cs_file/\/}" = "$cs_file" ]; then
+    cs_file="./$cs_file"
+fi
+shift
+
+"$cs_file" "$@"
