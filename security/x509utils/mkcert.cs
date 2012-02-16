@@ -11,9 +11,11 @@ DAYS=3650
 function main() {
     if ! type -t "$1" >/dev/null; then echo "Bad config parameter: $1" >&2
         return 1
-    else
-        "$@"
     fi
+
+    n_domain="${#domains[@]}"
+
+    "$@"
 }
 
 function rand-size() {
@@ -38,8 +40,9 @@ function config() {
     echo "distinguished_name      = req_distinguished_name"
     echo "attributes              = req_attributes"
     echo "prompt                  = no"
-    echo "req_extensions          = v3_req"
     echo "x509_extensions         = v3_ca"
+    [ "$n_domain" != 0 ] &&
+        echo "req_extensions          = v3_req"
     echo
     echo "[req_distinguished_name]"
     [ -n "$DN_C" ] && echo "C     = $DN_C"
@@ -57,20 +60,43 @@ function config() {
     echo
     echo "[v3_ca]"
     echo "basicConstraints        = CA:true"
-    echo
-    echo "[v3_req]"
-    echo "basicConstraints        = CA:false"
-    echo "keyUsage                = nonRepudiation, digitalSignature, keyEncipherment"
-    echo "subjectAltName          = @alt_names"
-    echo
-    echo "[alt_names]"
-    index=1
-    for domain in "${domains[@]}"; do
-        echo "DNS.$index = $domain"
-        (( index++ ))
-    done
+
+    if [ "$n_domain" != 0 ]; then
+        echo
+        echo "[v3_req]"
+        echo "basicConstraints        = CA:false"
+        echo "keyUsage                = nonRepudiation, digitalSignature, keyEncipherment"
+        echo "subjectAltName          = @alt_names"
+        echo
+        echo "[alt_names]"
+        index=1
+        for domain in "${domains[@]}"; do
+            echo "DNS.$index = $domain"
+            (( index++ ))
+        done
+    fi
 }
 
 function x509-opts() {
-    echo -days $DAYS
+    config_file="$1"
+    if [ -z "$config_file" ]; then
+        quit "syntax: x509-opts <config-file>"
+    fi
+
+    opts=()
+    nopt=0
+
+    if [ "$n_domain" != 0 ]; then
+        opts[nopt++]=-extfile
+        opts[nopt++]="$1"
+        opts[nopt++]=-extensions
+        opts[nopt++]=v3_req
+    fi
+
+    if [ -n "$DAYS" ]; then
+        opts[nopt++]=-days
+        opts[nopt++]=$DAYS
+    fi
+
+    echo "${opts[@]}"
 }

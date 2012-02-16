@@ -22,13 +22,13 @@ SHELL=bash
 	@dirname="$${PWD##*/}"; echo "[$$dirname]"; \
 	    if [ -f "../$$dirname.crt" ]; then \
 	        echo "Generate child x509 certificate signed by $$dirname"; \
-	        openssl x509 -req -in "$*.csr" -extfile "$*.cfg" -extensions v3_req -out "$*.crt" -signkey "$*.pem" \
+	        openssl x509 -req -in "$*.csr" -out "$*.crt" -signkey "$*.pem" \
 	            -CA "../$$dirname.crt" -CAkey "../$$dirname.pem" -CAcreateserial \
-	            `get-config "$*.cs" x509-opts`; \
+	            `get-config "$*.cs" x509-opts $*.cfg`; \
 	    else \
 	        echo "Generate self-signed x509 certificate"; \
-	        openssl x509 -req -in "$*.csr" -extfile "$*.cfg" -extensions v3_req -out "$*.crt" -signkey "$*.pem" \
-	            `get-config "$*.cs" x509-opts`; \
+	        openssl x509 -req -in "$*.csr" -out "$*.crt" -signkey "$*.pem" \
+	            `get-config "$*.cs" x509-opts $*.cfg`; \
 	    fi
 
 %.spc: %.crt
