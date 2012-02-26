@@ -6,6 +6,7 @@ dist_bin_SCRIPTS = \
     tabify \
     tabsize \
     iconvf \
+    getrandomlines \
     grepstat \
     ljoin \
     bobup

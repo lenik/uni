@@ -1,0 +1,82 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="l:n:hqv"
+    long_opts="list:,num:,help,quiet,verbose,version"
+    list_file=
+    num=1
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Pick random lines from a file (or file list)"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] [FILE]"
+    echo
+    echo "Options: "
+    echo "    -l, --list=FILE         Get random file from listfile"
+    echo "    -n, --num=N             Pick this many lines"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -l|--list)
+            list_file="$2";;
+        -n|--num)
+            num="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    file_name="$1"
+    if [ -z "$list_file" ]; then
+        if [ -z "$file_name" ]; then
+            quit "Neither filename nor file-list is specified."
+        fi
+    else
+        if ! read file_count _ < <(wc "$list_file"); then
+            quit "Faild to read file count from $list_file"
+        fi
+    fi
+
+    index=1
+    while [ $index -le $num ]; do
+        if [ -n "$list_file" ]; then
+            file=`head -$((RANDOM % file_count + 1)) "$list_file" | tail -n1`
+        else
+            file="$file_name"
+        fi
+        if ! read line_count _ < <(wc "$file"); then
+            _warn "Can't read from file $file"
+            continue
+        fi
+        if [ "$line_count" = "0" ]; then
+            continue
+        fi
+        echo -n "$index. ${file##*/}: "
+        head -$((RANDOM % line_count + 1)) "$file" | tail -n1
+        ((index++))
+    done
+}
+
+boot "$@"
