@@ -110,7 +110,7 @@ function main() {
 
         for pf in postinst.in prerm.in; do
             echo "#!/bin/sh" >$pf
-            echo "# master-file" >>$pf
+            echo "# master""-file" >>$pf
             echo "" >>$pf
             echo "echo \"$name - $pf ...\"" >>$pf
         done
