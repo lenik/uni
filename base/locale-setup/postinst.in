@@ -1,0 +1,4 @@
+#!/bin/sh
+# master-file
+
+localedef -f GBK -i zh_CN zh_CN.GBK

@@ -1,0 +1,15 @@
+Source: locale-setup
+Section: text
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.9.1
+Homepage: http://uni.bodz.net//mnt/clsdata/projects/uni/base/locale-setup
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/clsdata/projects/uni/base/locale-setup
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/clsdata/projects/uni/base/locale-setup
+
+Package: locale-setup
+Architecture: all
+Depends: libc-bin
+Description: Locale setups
+ Locale init scripts
