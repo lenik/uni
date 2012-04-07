@@ -1,9 +1,11 @@
+autobuild
 eachdir
 echo-x
 localhost
 make1
+onchange
+repeat
 subst
+until-changed
 xcat.c
 xcat
-if-modified
-repeat

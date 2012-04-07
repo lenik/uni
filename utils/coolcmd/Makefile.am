@@ -22,13 +22,12 @@ dist_bin_SCRIPTS = \
     cd-exec \
     colorox \
     eachdir \
-    fnotify \
     ifrsubst \
     localhost \
     loop \
     makeoutdated \
     make1 \
-    if-modified \
+    onchange \
     postproc \
     repeat \
     run-bg \
@@ -43,6 +42,7 @@ dist_bin_SCRIPTS = \
     substtree \
     swapox \
     testox \
+    until-changed \
     xxcat \
     xxxcat \
     xxxxcat \

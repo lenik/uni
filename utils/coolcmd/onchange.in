@@ -1,0 +1,74 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="f:hqv"
+    long_opts="file:,help,quiet,verbose,version"
+
+    files=()
+    nfile=0
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Run command on file change"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] FILE COMMAND..."
+    echo "    $0 [OPTION] -f FILE [--] COMMAND..."
+    echo
+    echo "Options: "
+    echo "    -f, --file=FILE         Add a file to monitor list"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -f|--file)
+            files[nfile++]="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ "$nfile" = 0 ]; then
+        if [ $# = 0 ]; then
+            echo "You didn't specify a file"
+            exit 1
+        fi
+        files[nfile++]="$1"
+        shift
+    fi
+
+    if [ $# = 0 ]; then
+        echo "You didn't specify what to do when file changed"
+        exit 1
+    fi
+
+
+    . settermtitle "${files[*]} => $*"
+
+    while true; do
+        until-changed "${files[@]}"
+        _log2 "Execute: $@"
+        "$@"
+    done
+}
+
+boot "$@"
