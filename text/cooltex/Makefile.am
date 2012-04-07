@@ -1,9 +1,9 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
+    abc-pslatex \
     pdfmon \
-    treetex \
-    Fpst
+    treetex
 
 setup_SCRIPTS = \
     postinst \

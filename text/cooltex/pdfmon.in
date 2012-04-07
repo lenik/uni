@@ -1,0 +1,77 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="t:,hqv"
+    long_opts="interval:,help,quiet,verbose,version"
+
+    interval=0.1
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Refresh PDF on change"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -t, --interval          Refresh interval in ms"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -t|--interval)
+            interval="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$1" ]; then
+        help
+        exit 1
+    fi
+
+    if [ ! -f "$1" ]; then
+        echo "File $1 isn't existed"
+        exit 1
+    fi
+
+    pdf="$1"
+    sid='pdfmon-$$'
+
+    if ! xpdf -remote $sid & then
+        echo "Can't start xpdf server $sid"
+        exit 1
+    fi
+
+    mlast=0
+    while [ -r "$pdf" ]; do
+        xpdf -remote $sid -reload
+        until-changed "$pdf"
+        # until-changed --timeout $interval "$pdf"
+    done
+
+    xpdf -remote $sid -quit
+    return 0
+}
+
+boot "$@"
