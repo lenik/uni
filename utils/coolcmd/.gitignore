@@ -1,6 +1,7 @@
 autobuild
 eachdir
 echo-x
+if-modified
 localhost
 make1
 onchange
