@@ -106,7 +106,8 @@ function main() {
     shift
 
     # keep file extension, maybe some program need it.
-    buff="/tmp/sedit-`basename $file`.$$"
+    base="${file##*/}"
+    buff="/tmp/sedit-$base.$$"
 
     if [ -z "$replace" ]; then
         cmdl=("$@")
