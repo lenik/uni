@@ -49,7 +49,8 @@ function main() {
 }
 
 function m_ip138() {
-    if result=$( grep -o '\[.*\]' < <(wget -qO- http://www.ip138.com/ip2city.asp) ); then
+    if result=$(wget -qO- "http://city.ip138.com/ip2city.asp" \
+            | grep -o '\[.*\]'); then
         result="${result#[}"
         result="${result%]}"
         echo "$result"
