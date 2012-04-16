@@ -10,6 +10,7 @@ dist_aliases_DATA = \
 
 dist_bin_SCRIPTS = \
     coolmvn \
+    edit2 \
     epom \
     newmod \
     m2graph \
