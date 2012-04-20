@@ -143,5 +143,6 @@
 
 ;; .section. theme
 (require 'color-theme)
+(color-theme-initialize)
 ; (color-theme-parus)
 (color-theme-robin-hood)
