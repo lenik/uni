@@ -131,8 +131,8 @@
 
 
 ;; initial frame (previously screen) layout
-(set-frame-width  (selected-frame) 120)
-(set-frame-height (selected-frame) 45)
+(set-frame-width  (selected-frame) 100)
+(set-frame-height (selected-frame) 32)
 
 ;; (defun seq (&rest args) args)
 (if recentf-list
@@ -144,5 +144,9 @@
 ;; .section. theme
 (require 'color-theme)
 (color-theme-initialize)
-; (color-theme-parus)
-(color-theme-robin-hood)
+; (color-theme-parus)      Classic Blue
+; (color-theme-robin-hood) Wood green
+(color-theme-aliceblue)
+
+(require 'hl-line)
+(global-hl-line-mode)
