@@ -2,7 +2,7 @@ Source: emacs-pref-xjl
 Section: devel
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 7), emacs-goodies-el
+Build-Depends: debhelper (>= 7), emacs-goodies-el, ibus-el
 Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/pref-xjl/emacs-pref-xjl
 Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk/pref-xjl/emacs-pref-xjl
@@ -10,5 +10,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-xjl/emacs-pref-xjl
 
 Package: emacs-pref-xjl
 Architecture: all
-Depends: emacs, emacs-goodies-el
+Depends: emacs, emacs-goodies-el, ibus-el
 Description: Cool emacs helpers
