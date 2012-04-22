@@ -11,6 +11,7 @@
  '(dired-listing-switches "-aBGl")
  '(global-font-lock-mode t nil (font-lock))
  '(keyboard-coding-system (quote utf8))
+ '(file-name-coding-system (quote utf8))
  '(list-directory-verbose-switches "-l")
  '(fill-column 80)
  '(comment-column 40)
