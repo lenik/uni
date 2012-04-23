@@ -1,6 +1,6 @@
 include libauto/coolauto.am
 
-sbin_SCRIPTS = \
+bin_SCRIPTS = \
     usecode
 
 setup_SCRIPTS = \
@@ -15,3 +15,5 @@ CLEANFILES = \
     postinst \
     prerm
 
+install-data-hook:
+	$(LN_S) -f usecode $(DESTDIR)$(bindir)/u

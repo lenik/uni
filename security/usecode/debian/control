@@ -10,7 +10,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/security/usecode
 
 Package: usecode
 Architecture: all
-Depends: perl, xsel, libcmt-perl,
-    libcrypt-cbc-perl,
-    libcrypt-des-perl
+Depends: perl, xsel, libcmt-perl
 Description: Lenik's security utilities
