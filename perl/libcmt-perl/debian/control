@@ -16,15 +16,16 @@ Depends: perl,
     libcrypt-cbc-perl,
     libcrypt-des-perl,
     libdbi-perl,
+    libdigest-sha-perl,
     libfile-path-perl,
     libfile-temp-perl,
     libhtml-treebuilder-xpath-perl,
     libhttp-response-encoding-perl,
     libmime-base64-perl,
-    libyaml-perl,
     libterm-readkey-perl,
     libtext-diff-perl,
     libtime-hires-perl,
     libtk-perl,
-    libxml-simple-perl
+    libxml-simple-perl,
+    libyaml-perl
 Description: cmt library in Perl.

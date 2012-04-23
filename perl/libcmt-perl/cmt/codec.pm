@@ -4,7 +4,7 @@ use strict;
 use Crypt::CBC;
 use Crypt::DES;
 use Digest::MD5 qw/md5 md5_hex md5_base64/;
-use Digest::SHA1 qw/sha1 sha1_hex sha1_base64/;
+use Digest::SHA qw/sha1 sha1_hex sha1_base64/;
 use Encode;
 use Encode::Alias;
 use MIME::Base64;
