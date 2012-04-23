@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<project name="CLITaskTest" default="default" basedir="../../..">
+	<property environment="env" />
+	<property name="JAVA_LIB" value="${env.JAVA_LIB}" />
+	<property file="${JAVA_LIB}/libraries.ini" prefix="lib" />
+	<target name="default" depends="test">
+	</target>
+	<path id="bins">
+		<dirset dir="mod/Build Tools/bin" />
+		<dirset dir="mod/Build Tools/test.bin" />
+		<dirset dir="mod/Commons/bin" />
+	</path>
+	<target name="test">
+		<taskdef name="hello" classname="net.bodz.uni.ant.tasks.HelloTask">
+			<classpath refid="bins" />
+			<classpath path="${JAVA_LIB}/${lib.bodz_bas}" />
+		</taskdef>
+		<hello />
+		<hello loglevel="0" />
+		<hello your-name="jasmine" welcomes="bye bye" />
+	</target>
+</project>

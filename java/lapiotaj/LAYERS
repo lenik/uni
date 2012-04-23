@@ -1,0 +1,9 @@
+base/
+    lapiota-api
+
+misc/
+    lapiota-build
+    lapiota-cli
+    lapiota-gui
+    lapiota-jdt
+    lapiota-snmcc

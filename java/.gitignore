@@ -1,0 +1,33 @@
+# Common
+*.tmp
+*.swp
+*.log
+*.log.[0-9]*
+*.bak
+*.orig
+*.lock
+*~
+nohup.out
+
+# Maven
+target
+*.versionsBackup
+*.releaseBackup
+.m2*
+
+# Eclipse
+.project
+.classpath
+.settings
+
+# Idea
+.idea
+*.iml
+*.ipr
+*.iws
+
+# Misc
+stats
+
+/.pomdirs
+RELEASE-NOTES
