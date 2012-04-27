@@ -1,0 +1,16 @@
+Source: more-loops
+Section: base
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: http://uni.bodz.net//mnt/clsdata/projects/uni/base/more-loops
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/clsdata/projects/uni/base/more-loops
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/clsdata/projects/uni/base/more-loops
+
+Package: more-loops
+Architecture: all
+Depends:
+Description: Create more /dev/loop* devices
+ This is a pseudo-package to configure the default kernel module options
+ to make more /dev/loop* devices at boot time.
