@@ -11,4 +11,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/devel/coolldap
 Package: coolldap
 Architecture: all
 Depends: bash-shlib, ldap-utils
+Recommends: slapd
 Description: OpenLDAP configs and utilities.
