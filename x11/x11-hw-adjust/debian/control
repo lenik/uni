@@ -1,0 +1,15 @@
+Source: x11-hw-adjust
+Section: x11
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/x11/x11-hw-adjust
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk/x11/x11-hw-adjust
+Vcs-Browser: http://svn.bodz.net/uni/trunk/x11/x11-hw-adjust
+
+Package: x11-hw-adjust
+Architecture: all
+Depends:
+Description: X11 hardware adjust tools
+    Many tools.

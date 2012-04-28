@@ -1,7 +1,8 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-    xrandr-add-mode
+    xrandr-add-mode \
+    xrandr-add-scales
 
 setup_SCRIPTS = \
     postinst \
