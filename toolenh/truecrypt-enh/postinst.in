@@ -20,10 +20,4 @@ if [ ! -f "$passwd_tc" ]; then
     install -m 600 @pkgdatadir@/passwd.tc $passwd_tc
 fi
 
-lineconf -tm "Config max_loop in grub defaults" \
-    /etc/default/grub @max_loop \
-    'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash max_loop=64"'
-
-update-grub
-
 exit 0

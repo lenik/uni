@@ -1,5 +1,10 @@
 include libauto/coolauto.am
 
+modconfdir = ${sysconfdir}/modprobe.d
+
+dist_modconf_DATA = \
+    loop.conf
+
 setup_SCRIPTS = \
     postinst \
     prerm

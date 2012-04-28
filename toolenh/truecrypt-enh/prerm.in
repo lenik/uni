@@ -8,9 +8,4 @@
     fstab_tc=@DESTDIR@@sysconfdir@/fstab.tc
     passwd_tc=@DESTDIR@@sysconfdir@/passwd.tc
 
-lineconf -tm "Unconfig max_loop in grub defaults" \
-    /etc/default/grub @max_loop
-
-update-grub
-
 exit 0

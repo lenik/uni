@@ -11,7 +11,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/toolenh/truecrypt-enh
 Package: truecrypt-enh
 Provides: cooltruecrypt, truecrypt
 Architecture: all
-Depends: upstart, bash-shlib, configutils
+Depends: bash-shlib, configutils, more-loops
 Description: TrueCrypt integration utilities.
   This package requires TrueCrypt.
   Install it from:
