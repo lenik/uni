@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <gconf>
 	<entry name="default_profile" mtime="1288230835" type="string">
-		<stringvalue>Chocolate</stringvalue>
+		<stringvalue>Ice-Green</stringvalue>
 	</entry>
 	<entry name="profile_list" mtime="1288230763" type="list" ltype="string">
 		<li type="string">
@@ -9,6 +9,12 @@
 		</li>
 		<li type="string">
 			<stringvalue>Chocolate</stringvalue>
+		</li>
+		<li type="string">
+			<stringvalue>Ice-Green</stringvalue>
+		</li>
+		<li type="string">
+			<stringvalue>Japan-Grid</stringvalue>
 		</li>
 	</entry>
 </gconf>

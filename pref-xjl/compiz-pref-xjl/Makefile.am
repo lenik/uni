@@ -22,7 +22,7 @@ dist_bg_DATA = \
     wallpapers/Pointy.jpg
 
 dist_xsession_DATA = \
-    load-xmodmap
+    40load-xmodmap
 
 setup_SCRIPTS = \
     postinst \
