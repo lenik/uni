@@ -9,7 +9,7 @@ Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/alt/jdk
 Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/alt/jdk7-local
 
 Package: jdk7-local
-Architecture: any
+Architecture: all
 Provides: java-compiler, java-sdk, java2-compiler, java2-sdk, java5-sdk,
         java6-sdk, java7-sdk,
         java-virtual-machine,
