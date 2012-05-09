@@ -8,6 +8,7 @@
 		<stringvalue>&lt;Super&gt;</stringvalue>
 	</entry>
 	<entry name="theme" mtime="1292843165" type="string">
-		<stringvalue>Clearlooks</stringvalue>
+		<stringvalue>Mist</stringvalue>
 	</entry>
+	<entry name="num_workspaces" mtime="1336569600" type="int" value="9"/>
 </gconf>

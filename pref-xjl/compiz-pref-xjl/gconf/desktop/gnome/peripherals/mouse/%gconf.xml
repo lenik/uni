@@ -2,6 +2,6 @@
 <gconf>
 	<entry name="cursor_size" mtime="1293179241" type="int" value="48"/>
 	<entry name="cursor_theme" mtime="1293179239" type="string">
-		<stringvalue>whiteglass</stringvalue>
+		<stringvalue>DMZ-White</stringvalue>
 	</entry>
 </gconf>

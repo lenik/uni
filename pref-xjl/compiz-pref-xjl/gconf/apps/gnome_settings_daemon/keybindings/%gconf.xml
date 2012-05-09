@@ -15,4 +15,13 @@
 	<entry name="calculator" mtime="1288233158" type="string">
 		<stringvalue>&lt;Mod4&gt;equal</stringvalue>
 	</entry>
+	<entry name="power" mtime="1336572315" type="string">
+		<stringvalue>&lt;Mod4&gt;Pause</stringvalue>
+	</entry>
+	<entry name="volume_up" mtime="1336572302" type="string">
+		<stringvalue>&lt;Mod4&gt;Up</stringvalue>
+	</entry>
+	<entry name="volume_down" mtime="1336572300" type="string">
+		<stringvalue>&lt;Mod4&gt;Down</stringvalue>
+	</entry>
 </gconf>

@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <gconf>
-	<entry name="icon_theme" mtime="1293176799" type="string">
-		<stringvalue>HighContrastInverse</stringvalue>
+	<entry name="icon_theme" mtime="1336569649" type="string">
+		<stringvalue>Nuvola</stringvalue>
 	</entry>
-	<entry name="gtk_theme" mtime="1293176781" type="string">
-		<stringvalue>Clearlooks</stringvalue>
+	<entry name="gtk_theme" mtime="1336569638" type="string">
+		<stringvalue>Dogmastik</stringvalue>
 	</entry>
 </gconf>
