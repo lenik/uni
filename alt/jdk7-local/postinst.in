@@ -3,16 +3,23 @@
 
 shopt -s nullglob
 
+suffix=
+case `arch` in
+    x86_64) suffix=-64;;
+esac
+nsuffix="${#suffix}"
+
 jdk_latest=
 for jdkdir in /opt/java/jdk-*; do
-    if [ ! -x "$jdkdir/bin/javac" ]; then
-        continue
+    [ -x "$jdkdir/bin/javac" ] || continue
+    base="${jdkdir##*/}"
+    if [ "${base: -nsuffix}" = "$suffix" ]; then
+        jdk_latest="$jdkdir"
     fi
-    jdk_latest="$jdkdir"
 done
 
 if [ -z "$jdk_latest" ]; then
-    echo "No JDK installation found in /opt/java/jdk-*" >&2
+    echo "No JDK installation found in /opt/java/jdk-*$suffix" >&2
     exit 1
 fi
 
