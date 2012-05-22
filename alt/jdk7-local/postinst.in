@@ -13,9 +13,10 @@ jdk_latest=
 for jdkdir in /opt/java/jdk-*; do
     [ -x "$jdkdir/bin/javac" ] || continue
     base="${jdkdir##*/}"
-    if [ "${base: -nsuffix}" = "$suffix" ]; then
-        jdk_latest="$jdkdir"
+    if [ -n "$suffix"  ] && [ "${base: -nsuffix}" != "$suffix" ]; then
+        continue
     fi
+    jdk_latest="$jdkdir"
 done
 
 if [ -z "$jdk_latest" ]; then
