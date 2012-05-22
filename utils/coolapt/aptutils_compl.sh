@@ -10,5 +10,5 @@ function _apt_packages_installed() {
     COMPREPLY=( $( _comp_dpkg_installed_packages "$cur" ) )
 }
 
-complete -F _apt_packages_all       as sagi
-complete -F _apt_packages_installed sagu sagp sagr
+complete -F _apt_packages_all       as sagi safi
+complete -F _apt_packages_installed sagu sagp sagr dtree

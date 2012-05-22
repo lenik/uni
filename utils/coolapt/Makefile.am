@@ -1,6 +1,7 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
+    apt-fast \
     dwhich \
     lsdeb \
     debsize
