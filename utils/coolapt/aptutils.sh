@@ -9,3 +9,5 @@ alias sagr='sudo apt-get-reinstall2'
 alias sagc='sudo apt-get autoclean'
 alias sau='sudo apt-get update; sudo apt-get dist-upgrade --allow-unauthenticated'
 alias dtree='LANG=C postproc 2tree -c \; postproc grep -v "^diverted by" \; dpkg -L'
+
+alias acp='apt-cache policy'
