@@ -24,5 +24,7 @@ volatile3       3000    CNAME   volatile2
 
 ; lenik-pc                CNAME   lenik.3322.org.
 lenik-pc                CNAME   lenik.dyndns.org.
+; lenik-v                 CNAME   c617.dyndns.org.
+lenik-v                 CNAME   bee32.8866.org.
 
 mirror                  CNAME   mirrors.163.com
