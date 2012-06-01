@@ -11,6 +11,6 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/pref-xjl/x11
 Package: x11-pref-xjl
 Architecture: all
 Depends:
-Recommends: mate-pref-xjl, gnome-pref-xjl
+Recommends:
 Description: X11 preferences for Lenik.
  Cool x11 preferences used by Lenik.

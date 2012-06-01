@@ -3,26 +3,9 @@ include libauto/coolauto.am
 SUBDIRS = gconf
 
 do_subst += \
-    -e 's,[@]x11confdir[@],$(x11confdir),g' \
-    -e 's,[@]xsessiondir[@],$(xsessiondir),g' \
     -e 's,[@]gconf2dir[@],$(gconf2dir),g'
 
-x11confdir  = ${sysconfdir}/X11
-xsessiondir = ${x11confdir}/Xsession.d
-
 gconf2dir   = ${sysconfdir}/gconf/2
-
-bgdir       = ${datadir}/backgrounds
-
-x11conf_DATA = \
-    Xmodmap
-
-dist_bg_DATA = \
-    wallpapers/Boheme.jpg \
-    wallpapers/Pointy.jpg
-
-dist_xsession_DATA = \
-    40load-xmodmap
 
 setup_SCRIPTS = \
     postinst \
@@ -39,10 +22,8 @@ path.diff: path.0 path
 
 EXTRA_DIST = \
     postinst.in \
-    prerm.in \
-    load-xmodmap.in
+    prerm.in
 
 CLEANFILES = ${setup_SCRIPTS} \
-    load-xmodmap \
     gconf-cleanbase/%gconf-tree.xml
 
