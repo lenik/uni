@@ -7,7 +7,7 @@ function _apt_packages_all() {
 
 function _apt_packages_installed() {
     local cur="${COMP_WORDS[COMP_CWORD]}"
-    COMPREPLY=( $( _comp_dpkg_installed_packages "$cur" ) )
+    COMPREPLY=( $( apt-cache pkgnames -- "$cur" ) )
 }
 
 complete -F _apt_packages_all       as sagi safi acp
