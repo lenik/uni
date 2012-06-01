@@ -11,3 +11,4 @@ alias sau='sudo apt-get update; sudo apt-get dist-upgrade --allow-unauthenticate
 alias dtree='LANG=C postproc 2tree -c \; postproc grep -v "^diverted by" \; dpkg -L'
 
 alias acp='apt-cache policy'
+alias sdr='sudo dpkg-reconfigure'
