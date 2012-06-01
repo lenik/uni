@@ -12,7 +12,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/alt/winetricks
 
 Package: winetricks
 Architecture: all
-Depends: wine, cabextract, coolutils
+Depends: wine|wine-unstable, cabextract, coolutils
 Description: winetricks is a quick and dirty script to download and
     install various redistributable runtime libraries sometimes needed
     to run programs in Wine.
