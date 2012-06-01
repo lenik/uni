@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<mateconf>
+	<entry name="toggle_on_all_workspaces" mtime="1288233503" type="string">
+		<stringvalue>&lt;Shift&gt;&lt;Mod4&gt;asterisk</stringvalue>
+	</entry>
+	<entry name="toggle_shaded" mtime="1288233468" type="string">
+		<stringvalue>&lt;Alt&gt;F12</stringvalue>
+	</entry>
+	<entry name="toggle_fullscreen" mtime="1288233471" type="string">
+		<stringvalue>&lt;Alt&gt;F11</stringvalue>
+	</entry>
+	<entry name="maximize" mtime="1288233418" type="string">
+		<stringvalue></stringvalue>
+	</entry>
+	<entry name="close" mtime="1288233398" type="string">
+		<stringvalue>&lt;Alt&gt;F4</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_down" mtime="1288255710" type="string">
+		<stringvalue>&lt;Shift&gt;&lt;Mod4&gt;j</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_up" mtime="1288255708" type="string">
+		<stringvalue>&lt;Shift&gt;&lt;Mod4&gt;k</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_right" mtime="1288255706" type="string">
+		<stringvalue>&lt;Shift&gt;&lt;Mod4&gt;l</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_left" mtime="1288255704" type="string">
+		<stringvalue>&lt;Shift&gt;&lt;Mod4&gt;h</stringvalue>
+	</entry>
+</mateconf>

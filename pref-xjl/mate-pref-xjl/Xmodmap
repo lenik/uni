@@ -1,0 +1,7 @@
+
+keycode 135 = Menu
+keysym Menu = Hyper_R
+
+remove mod4 = Hyper_L
+add mod2 = Hyper_L
+add mod2 = Hyper_R

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<mateconf>
+	<entry name="CorrectPinyin" mtime="1288252066" type="bool" value="false"/>
+	<entry name="AutoCommit" mtime="1288252066" type="bool" value="false"/>
+	<entry name="CommaPeriodPage" mtime="1288252066" type="bool" value="false"/>
+	<entry name="MinusEqualPage" mtime="1288252066" type="bool" value="true"/>
+	<entry name="ShiftSelectCandidate" mtime="1288252066" type="bool" value="false"/>
+	<entry name="SpecialPhrases" mtime="1288252066" type="bool" value="true"/>
+	<entry name="InitSimplifiedChinese" mtime="1288252066" type="bool" value="true"/>
+	<entry name="InitFullPunct" mtime="1288252066" type="bool" value="true"/>
+	<entry name="InitFull" mtime="1288252066" type="bool" value="false"/>
+	<entry name="InitChinese" mtime="1288252066" type="bool" value="true"/>
+	<entry name="DoublePinyinShowRaw" mtime="1288252066" type="bool" value="false"/>
+	<entry name="DoublePinyinSchema" mtime="1288252066" type="int" value="0"/>
+	<entry name="DoublePinyin" mtime="1288252066" type="bool" value="true"/>
+	<entry name="FuzzyPinyin" mtime="1288252066" type="bool" value="false"/>
+</mateconf>

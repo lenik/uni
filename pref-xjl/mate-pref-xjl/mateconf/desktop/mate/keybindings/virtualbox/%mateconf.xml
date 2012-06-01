@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<mateconf>
+	<entry name="action" mtime="1336572582" type="string">
+		<stringvalue>virtualbox</stringvalue>
+	</entry>
+	<entry name="name" mtime="1336572582" type="string">
+		<stringvalue>VirtualBox</stringvalue>
+	</entry>
+	<entry name="binding" mtime="1336572585" type="string">
+		<stringvalue>&lt;Mod4&gt;v</stringvalue>
+	</entry>
+</mateconf>

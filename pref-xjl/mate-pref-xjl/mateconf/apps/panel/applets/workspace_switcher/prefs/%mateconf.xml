@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<mateconf>
+	<entry name="display_workspace_names" mtime="1288209476" schema="/schemas/apps/workspace_switcher_applet/prefs/display_workspace_names"/>
+	<entry name="num_rows" mtime="1288230119" schema="/schemas/apps/workspace_switcher_applet/prefs/num_rows" type="int" value="1"/>
+	<entry name="display_all_workspaces" mtime="1288230119" schema="/schemas/apps/workspace_switcher_applet/prefs/display_all_workspaces" type="bool" value="true"/>
+</mateconf>

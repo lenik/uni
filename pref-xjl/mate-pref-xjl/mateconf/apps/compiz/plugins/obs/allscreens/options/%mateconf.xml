@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<mateconf>
+	<entry name="brightness_decrease_button" mtime="1292339039" type="string">
+		<stringvalue>&lt;Control&gt;&lt;Super&gt;Button5</stringvalue>
+	</entry>
+	<entry name="brightness_increase_button" mtime="1292339034" type="string">
+		<stringvalue>&lt;Control&gt;&lt;Super&gt;Button4</stringvalue>
+	</entry>
+	<entry name="saturation_decrease_button" mtime="1292339023" type="string">
+		<stringvalue>&lt;Control&gt;&lt;Alt&gt;&lt;Super&gt;Button5</stringvalue>
+	</entry>
+	<entry name="saturation_increase_button" mtime="1292339020" type="string">
+		<stringvalue>&lt;Control&gt;&lt;Alt&gt;&lt;Super&gt;Button4</stringvalue>
+	</entry>
+	<entry name="opacity_decrease_button" mtime="1292338906" type="string">
+		<stringvalue>&lt;Shift&gt;&lt;Super&gt;Button5</stringvalue>
+	</entry>
+	<entry name="opacity_increase_button" mtime="1292338903" type="string">
+		<stringvalue>&lt;Shift&gt;&lt;Super&gt;Button4</stringvalue>
+	</entry>
+</mateconf>

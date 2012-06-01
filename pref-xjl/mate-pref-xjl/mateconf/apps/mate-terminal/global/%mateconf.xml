@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<mateconf>
+	<entry name="default_profile" mtime="1288230835" type="string">
+		<stringvalue>IceGreen</stringvalue>
+	</entry>
+	<entry name="profile_list" mtime="1288230763" type="list" ltype="string">
+		<li type="string">
+			<stringvalue>Default</stringvalue>
+		</li>
+		<li type="string">
+			<stringvalue>Chocolate</stringvalue>
+		</li>
+		<li type="string">
+			<stringvalue>IceGreen</stringvalue>
+		</li>
+		<li type="string">
+			<stringvalue>JapanGrid</stringvalue>
+		</li>
+	</entry>
+</mateconf>
