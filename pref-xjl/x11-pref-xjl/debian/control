@@ -1,0 +1,16 @@
+Source: x11-pref-xjl
+Section: x11
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.2
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/pref-xjl/x11-pref-xjl
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/pref-xjl/x11-pref-xjl
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/pref-xjl/x11-pref-xjl
+
+Package: x11-pref-xjl
+Architecture: all
+Depends:
+Recommends: mate-pref-xjl, gnome-pref-xjl
+Description: X11 preferences for Lenik.
+ Cool x11 preferences used by Lenik.
