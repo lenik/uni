@@ -10,5 +10,5 @@ function _apt_packages_installed() {
     COMPREPLY=( $( apt-cache pkgnames -- "$cur" ) )
 }
 
-complete -F _apt_packages_all       as sagi safi acp
+complete -F _apt_packages_all       as sagb sagi safi acp
 complete -F _apt_packages_installed sagu sagp sagr dtree sdr
