@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<gconf>
+<mateconf>
 	<entry name="action" mtime="1336572582" type="string">
-		<stringvalue>gedit</stringvalue>
+		<stringvalue>alt-exec -s x-editor</stringvalue>
 	</entry>
 	<entry name="name" mtime="1336572582" type="string">
 		<stringvalue>Editor</stringvalue>
@@ -9,4 +9,4 @@
 	<entry name="binding" mtime="1336572585" type="string">
 		<stringvalue>&lt;Mod4&gt;g</stringvalue>
 	</entry>
-</gconf>
+</mateconf>

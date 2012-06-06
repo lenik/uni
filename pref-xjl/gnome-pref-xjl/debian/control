@@ -11,7 +11,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-xjl/gnome-pref-xjl
 Package: gnome-pref-xjl
 Provides: coolx11
 Architecture: all
-Depends: x11-xserver-utils
+Depends: x11-xserver-utils, desktoputils
 Recommends: compizconfig-settings-manager
 Suggests: compiz-plugins-extra
 Description: Lenik's PC/X11 environment

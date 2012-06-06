@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <gconf>
 	<entry name="action" mtime="1288401605" type="string">
-		<stringvalue>gnome-keybinding-properties</stringvalue>
+		<stringvalue>alt-exec -s x-keys</stringvalue>
 	</entry>
 	<entry name="name" mtime="1288401605" type="string">
 		<stringvalue>Edit Keyboard Shortcuts</stringvalue>

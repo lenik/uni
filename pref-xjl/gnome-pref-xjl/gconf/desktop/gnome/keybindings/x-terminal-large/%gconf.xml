@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <gconf>
 	<entry name="action" mtime="1288401605" type="string">
-		<stringvalue>gnome-terminal --zoom=2 --full-screen --working-directory=$HOME</stringvalue>
+		<stringvalue>alt-exec -su x-terminal --zoom=2 --full-screen</stringvalue>
 	</entry>
 	<entry name="name" mtime="1288401605" type="string">
 		<stringvalue>Open Terminal (zoom 2x)</stringvalue>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <mateconf>
 	<entry name="action" mtime="1288401605" type="string">
-		<stringvalue>bash -c 'eval "mate-open ~/.private"'</stringvalue>
+		<stringvalue>alt-exec -su x-open .private</stringvalue>
 	</entry>
 	<entry name="name" mtime="1288401605" type="string">
 		<stringvalue>Browse Private Folder</stringvalue>
