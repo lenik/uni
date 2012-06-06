@@ -23,6 +23,7 @@ dist_bin_SCRIPTS = \
     colorox \
     eachdir \
     ifrsubst \
+    ldd-which \
     localhost \
     loop \
     makeoutdated \

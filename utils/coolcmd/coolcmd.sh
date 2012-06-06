@@ -8,3 +8,5 @@ alias L='. loop 1'
 alias X='xcat'
 
 alias h='man'
+
+alias lddw='ldd-which'

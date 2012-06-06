@@ -1,0 +1,69 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="druhqv"
+    long_opts="data-relocs,function-relocs,unused,help,quiet,verbose,version"
+
+    xargv=()
+    xargc=0
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] "
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -d, --data-relocs       process data relocations"
+    echo "    -r, --function-relocs   process data and function relocations"
+    echo "    -u, --unused            print unused direct dependencies"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -d|--data-relocs)
+            xargv[xargc++]=--data-relocs;;
+        -r|--function-relocs)
+            xargv[xargc++]=--function-relocs;;
+        -u|--unused)
+            xargv[xargc++]=--unused;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    files=()
+    filec=0
+    for f in "$@"; do
+        if [ ! -f "$f" ]; then
+            if bin=`which "$f"`; then
+                f="$bin"
+            fi
+        fi
+        files[filec++]="$f"
+    done
+    _log2 "Execute: ldd ${xargv[@]}" -- "${files[@]}"
+    ldd "${xargv[@]}" "${files[@]}"
+}
+
+boot "$@"

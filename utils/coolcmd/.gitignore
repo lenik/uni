@@ -2,6 +2,7 @@ autobuild
 eachdir
 echo-x
 if-modified
+ldd-which
 localhost
 make1
 onchange
