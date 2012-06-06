@@ -1,0 +1,14 @@
+x-editor:gnome:gedit
+x-editor:mate:pluma
+
+x-filemanager:gnome:nautilus
+x-filemanager:mate:caja
+
+x-keys:gnome:gnome-control-center
+x-keys:mate:mate-keybinding-properties
+
+x-open:gnome:gnome-open
+x-open:mate:mate-open
+
+x-terminal:gnome:gnome-terminal
+x-terminal:mate:mate-terminal
