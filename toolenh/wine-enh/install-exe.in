@@ -1,0 +1,76 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+
+    PREFIX=/usr
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] "
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() { # {{{
+    version
+    echo
+    echo "Syntax: "
+    echo "    [PREFIX=$PREFIX] $0 [OPTION] [--] <file.exe>..."
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+} # }}}
+
+function setopt() { # {{{
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+} # }}}
+
+function main() {
+    bindir="${PREFIX}/bin"
+    if [ ! -d "$bindir" ]; then
+        quit "No such dir: $bindir"
+    fi
+
+    for f in "$@"; do
+        if [ ! -x "$f" ]; then
+            _warn "Skipped non-executable file: $f"
+            continue
+        fi
+
+        Base="${f##*/}"
+        base=`lc -e $Base`
+        name="${base%.*}"
+        ext="${base##*.}"
+        if [ "$ext" != "exe" ]; then
+            _warn "Skipped non-exe file: $f"
+            continue
+        fi
+
+        target="$bindir/$name"
+        if ! abs=`readlink -f "$f"`; then
+            _error "Failed to resolve file $f"
+            continue
+        fi
+
+        _log2 Execute: ln -snf "$abs" "$target"
+        ln -snf "$abs" "$target"
+    done
+}
+
+boot "$@"
