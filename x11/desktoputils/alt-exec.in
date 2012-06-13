@@ -64,7 +64,7 @@ function setopt() {
 }
 
 function main() {
-    _log2 "Category: $category"
+    _log2 "Active-Category: $category"
     program="$1"
     shift
 
@@ -82,8 +82,13 @@ function main() {
         quit "Don't know how to run program $program for category $category"
     done
 
-    _log2 "Found $cmdline for program $program for category $category"
-    $cmdline "$@"
+    if [ -z "$cmdline" ]; then
+        _log1 "Program $program for category $category is disabled"
+    else
+        _log1 "Found $cmdline for program $program for category $category"
+        _log2 "Execute $cmdline $*"
+        $cmdline "$@"
+    fi
 }
 
 function search() {

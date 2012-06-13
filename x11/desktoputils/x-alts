@@ -1,3 +1,6 @@
+x-coolfx:gnome:
+x-coolfx:mate:fusion-icon
+
 x-editor:gnome:gedit
 x-editor:mate:pluma
 
