@@ -1,8 +1,12 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
+    git-stitch-fix \
+    git2svn \
+    gitcl \
     gitmod \
-    keepdirs
+    keepdirs \
+    svn2gits
 
 dist_aliases_DATA = \
     git-enh.alt

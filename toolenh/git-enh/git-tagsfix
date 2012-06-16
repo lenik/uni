@@ -1,0 +1,7 @@
+#!/bin/bash
+
+git branch -rv | grep tags/ | while read bname sha mesg; do
+    tname="${bname#tags/}"
+    git tag "$tname" "$bname^"
+    git branch -rd "$bname"
+done

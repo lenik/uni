@@ -1,0 +1,119 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Port Git repository to SVN"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function tempdir() {
+    local f=`tempfile`
+    rm -f $f && mkdir $f || die "Failed to mkdir $f"
+    echo $f
+}
+
+function git-conv() {
+    local gitdir="$gitconv"
+    [ -d "$gitdir/.git" ] && gitdir="$gitdir/.git"
+    git --git-dir="$gitdir" "$@"
+}
+
+function main() {
+    gitrepo="$1"
+    gitrepo="${gitrepo%/}"
+    gitrepo_sys=`cd "$gitrepo" && vcscmd system` || die "Failed to probe the VCS system used by $gitrepo"
+    [ "$gitrepo_sys" = 'git' ] || die "Not a Git repository: $gitrepo"
+
+    svnrepo="${gitrepo%/.git}"
+    svnrepo="${svnrepo%.git}.svn"
+    _log1 "Create SVN repo: $svnrepo"
+    svnadmin create "$svnrepo" || die "Failed to svnadmin create"
+
+    svnurl=file://`readlink -f "$svnrepo"`
+    workdir=`tempdir`
+    _log1 "Checkout $svnurl at $workdir"
+    svn co "$svnurl" $workdir || die "Failed to checkout"
+
+    _log1 "Create standard SVN layout"
+    svn mkdir $workdir/branches
+    svn mkdir $workdir/tags
+    svn mkdir $workdir/trunk
+    svn ci -m "Create standard SVN layout" $workdir \
+        || die "Failed to commit the initial layout"
+
+    _log1 "Copy Git repository for convert"
+    gitconv="${svnrepo%.svn}.svngit"
+    [ -d "$gitconv" ] && die "Already existed: $gitconv"
+    cp -a "$gitrepo" "$gitconv" || die "Failed to copy: $gitrepo -> $gitconv"
+
+    _log1 "Git-svn clone the initial SVN repo -> $gitconv"
+    git-conv svn clone --prefix=g2s/ --stdlayout "$svnurl" "$gitconv"
+    TRUNK=g2s/trunk
+
+    cd "$gitconv" || die "Failed to enter $gitconv"
+
+    # clean staged index
+    git reset HEAD
+
+    TRUNK_HEAD=`git rev-parse $TRUNK` \
+        || die "Failed to get the commit id of trunk head"
+    _log2 "Commit id of trunk head: $TRUNK_HEAD"
+
+    MASTER_INIT=`git rev-list --reverse master | head -n 1` \
+        || die "Failed to get the commit id of master initial"
+    _log2 "Commit id of master initial: $MASTER_INIT"
+
+    _log1 "Create svn-git grafts"
+    echo "$MASTER_INIT $TRUNK_HEAD" >".git/info/grafts"
+
+    _log1 "Rebase $TRUNK -> master"
+    git checkout $TRUNK || die "Failed to checkout $TRUNK"
+    git rebase master  || die "Failed to rebase"
+
+    _log1 "Prune empty commits"
+    git filter-branch --prune-empty \
+        || die "Failed to prune"
+
+    _log1 "Dcommit to svn"
+    git svn dcommit \
+        || die "Failed to dcommit"
+
+    _log1 "Succeeded to convert Git repository $gitrepo To"
+    _log1 "     SVN-Git: $gitconv"
+    _log1 "         SVN: $svnrepo"
+}
+
+boot "$@"

@@ -1,3 +1,7 @@
-sw-git.sh
-keepdirs
+git-stitch-fix
+git2svn
+gitcl
 gitmod
+keepdirs
+svn2gits
+sw-git.sh

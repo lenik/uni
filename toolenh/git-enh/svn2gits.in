@@ -1,0 +1,72 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] "
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] SVNREPO"
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    svnrepo="$1"
+    svnrepo="${svnrepo%/}"
+    [ -d "$svnrepo/db" ] || die "Not an SVN repository: $svnrepo"
+
+    gitroot="$svnrepo.svn2gits"
+    [ -d "$gitroot" ] && die "Git split root already existed: $gitroot"
+
+    svnurl=file://`readlink -f "$svnrepo"`
+    workcopy=`tempfile`
+    rm -f $workcopy
+    _log1 "Checkout $svnrepo -> $workcopy/"
+    svn co "$svnurl" "$workcopy" >/dev/null \
+        || die "Failed to check out"
+
+    while IFS='|' read trunkdir; do
+        rel="${trunkdir#$workcopy/}"
+        rel="${rel%/trunk}"
+        module="${rel##*/}"
+
+        _log1 "Convert svn module $rel to git: $gitroot/$module"
+        git svn clone --no-metadata --stdlayout \
+            "$svnurl/$rel" "$gitroot/$module" >/dev/null \
+            || die "Failed to git svn clone"
+    done < <( find $workcopy -type d -name trunk )
+
+    _log1 "Delete SVN work copy $workcopy"
+    rm -fr "$workcopy"
+}
+
+boot "$@"
