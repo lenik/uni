@@ -12,7 +12,7 @@ script
     # -N no command
     # -D "dynamic" app-level port forwarding.
 
-   #sudo -usshproxy ssh     -f -qTn -ND *:7878 sshproxy.bodz.net
-    sudo -usshproxy autossh -f -qTn -ND *:7878 sshproxy.bodz.net
+   #           sudo -usshproxy ssh     -vTn -ND *:7878 sshproxy.bodz.net
+    screen -dm sudo -usshproxy autossh -vTn -ND *:7878 sshproxy.bodz.net
 
 end script
