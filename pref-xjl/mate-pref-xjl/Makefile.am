@@ -7,6 +7,9 @@ do_subst += \
 
 mateconf2dir   = ${sysconfdir}/mateconf/2
 
+dist_bin_SCRIPTS = \
+    mate-switcher
+
 setup_SCRIPTS = \
     postinst \
     prerm
