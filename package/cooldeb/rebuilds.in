@@ -91,6 +91,11 @@ function main() {
         eachdir -s "$packages" autounconf
     fi
 
+    _log1 "Updated packages:"
+    while read pkg; do
+        _log1 "    $pkg"
+    done <"$packages"
+
     _log1 "Start build of each package"
     eachdir -vs "$packages" rebuild -i
 
