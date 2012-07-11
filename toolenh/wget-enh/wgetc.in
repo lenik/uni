@@ -116,7 +116,11 @@ function main() {
             $SUDO $CHMOD $mode "$hashfile"
         fi
 
-        echo "$hashfile"
+        if [ $LOGLEVEL -le 0 ]; then
+            echo "$hashfile"
+        else
+            echo Cached-File: "$hashfile"
+        fi
     done
 }
 
@@ -126,7 +130,13 @@ function http-get() {
 
     # wget -O $out $url.
 
-    axel -o "$out" "$url"
+    axelopts=()
+    axeloptn=0
+    if [ $LOGLEVEL -le 0 ]; then
+        axelopts[axeloptn++]=-q
+    fi
+
+    axel "${axelopts[@]}" -o "$out" "$url"
 }
 
 boot "$@"

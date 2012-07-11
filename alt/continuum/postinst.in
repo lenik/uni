@@ -16,7 +16,7 @@ _log1 "Search and download Archiva WAR"
     war_url=`grepurl -Em1 '[^"]+\.war' $index2` || die "Index-2 parse error"
 
     _log2 "Download $war_url..."
-    war_file=`wgetc $war_url` || die "Failed to download $war_url"
+    war_file=`wgetc -q $war_url` || die "Failed to download $war_url"
 
     _log2 "Copy $war_file to @wardir@/continuum.war"
     mkdir -p "@wardir@" || die "Couldn't create the directory @wardir@"

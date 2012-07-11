@@ -1,0 +1,5 @@
+fstab-install.tc
+mountall.tc
+mount.tc
+passwd-install.tc
+truecrypt-setup-x86
