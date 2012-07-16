@@ -11,4 +11,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/utils/vcscmds
 Package: vcscmds
 Architecture: all
 Depends: bash-aliases
+Suggests: gource
 Description: Common commands for various VCS.

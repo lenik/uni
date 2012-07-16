@@ -55,6 +55,7 @@ function help() {
     echo "  system (sys)            Print the VCS system to use"
     echo "  unadd                   Remove files from the commit-index"
     echo "  url [-r]                Print the URL (-r for root) which can be checked out"
+    echo "  visualize (viz)         Show history animation"
 }
 
 function setopt() {
@@ -163,11 +164,12 @@ function main() {
             ;;
 
         ci+|commit+)
-            delegate=1; cmd=commit-inr;;
+            delegate=1; cmd=commit-incr;;
 
         cig)    delegate=1; cmd=commit-gui;;
         rst)    delegate=1; cmd=restore;;
         lg)     delegate=1; cmd=log-graph;;
+        viz)    delegate=1; cmd=visualize;;
         *)
             delegate=1;;
     esac
@@ -403,7 +405,7 @@ function main() {
         git-sl diff "$@"
     }
 
-    function git-commit-inr() {
+    function git-commit-incr() {
         die "Not impl"
     }
 
@@ -422,6 +424,25 @@ function main() {
         fi
 
         git log "${logopts[@]}" "$@"
+    }
+
+    function git-visualize() {
+        file="$1"
+        if [ $# = 0 ]; then
+            file=.
+        else
+            shift
+        fi
+
+        gource=`which gource` || quit "gource isn't installed."
+
+        gitcmd=`gource --log-command git`
+        tmplog=`tempfile`
+
+        $gitcmd "$file" "$@" >$tmplog
+        gource $tmplog
+
+        rm -f "$tmplog"
     }
 
 
