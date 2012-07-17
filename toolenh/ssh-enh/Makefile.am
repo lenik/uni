@@ -1,5 +1,8 @@
 include libauto/coolauto.am
 
+dist_bin_SCRIPTS = \
+    mount.ssh
+
 dist_sbin_SCRIPTS = \
     ssh-acceptkeys \
     ssh-globalknownhosts \

@@ -12,4 +12,5 @@ Package: ssh-enh
 Provides: coolssh
 Architecture: all
 Depends: bash-shlib, coolgen
+Recommends: sshfs
 Description: SSH Client side utilities
