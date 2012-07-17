@@ -6,7 +6,7 @@
 
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
     short_opts="hqv"
-    long_opts="help,quiet,verbose,version"
+    long_opts="help,quiet,verbose,version,no-refname,iso-8601,timestamp,relative-date"
 
     VCS_DEFAULT=git
       VCS_PROBE=
@@ -20,6 +20,9 @@
 
     FLAGS_git_rm=(-f)
     FLAGS_git_mv=(-f)
+
+    refname=1
+    git_log_date='%ar'
 
 function version() {
     parse_id "$RCSID"
@@ -38,6 +41,11 @@ function help() {
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
     echo "        --version           Print the version info"
+    echo
+    echo "        --no-refname        Hide ref-name in the log"
+    echo "        --iso-8601          Show date in ISO 8601 format"
+    echo "        --timestamp         Show date in UNIX timestamp format"
+    echo "        --relative-date     Show date in relative format"
     echo
     echo "VCS-Command: "
     echo "  add-dir                 Add a directory without its contents"
@@ -68,6 +76,20 @@ function setopt() {
             LOGLEVEL=$((LOGLEVEL + 1));;
         --version)
             version; exit;;
+        --no-refname)
+            refname=0;;
+        --iso-8601)
+            date_format=iso-8601
+            git_log_date='%ai'
+            ;;
+        --timestamp)
+            date_format=timestamp
+            git_log_date='%at'
+            ;;
+        --relative-date)
+            date_format=relative
+            git_log_date='%ar'
+            ;;
         *)
             quit "invalid option: $1";;
     esac
@@ -414,8 +436,22 @@ function main() {
     }
 
     function git-log-graph() {
-        # %h%d [%an] %s %ar
-        logopts=(--graph --format=$'\e[47m%h\e[0m\e[1;45m%d\e[0m \e[1;31m[%an]\e[0m %s \e[1;34m%ar\e[0m')
+        _hash_color=$'\e[47m'
+        _ref_color=$'\e[1;45m'
+        _author_color=$'\e[1;31m'
+        _date_color=$'\e[1;34m'
+        _reset=$'\e[0m'
+
+        # %h%d [%an] %s %ar: <hash-abbr><ref-name> <author-name> <subject> <author-date-relative>
+            logformat=
+            logformat="$logformat$_hash_color%h$_reset"
+        [ "$refname" = 1 ] &&
+            logformat="$logformat$_ref_color%d$_reset"
+            logformat="$logformat $_author_color[%an]$_reset"
+            logformat="$logformat %s"
+            logformat="$logformat $_date_color$git_log_date$_reset"
+
+        logopts=(--graph --format="$logformat")
         nlogopt=2
 
         if [ "$1" = '-' ]; then
