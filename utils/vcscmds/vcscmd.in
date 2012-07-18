@@ -22,6 +22,7 @@
     FLAGS_git_mv=(-f)
 
     refname=1
+    date_format=relative
     git_log_date='%ar'
 
 function version() {
@@ -444,11 +445,14 @@ function main() {
 
         # %h%d [%an] %s %ar: <hash-abbr><ref-name> <author-name> <subject> <author-date-relative>
             logformat=
+        [ "$date_format" = iso-8601 ] &&
+            logformat="$logformat$_date_color$git_log_date$_reset "
             logformat="$logformat$_hash_color%h$_reset"
         [ "$refname" = 1 ] &&
             logformat="$logformat$_ref_color%d$_reset"
             logformat="$logformat $_author_color[%an]$_reset"
             logformat="$logformat %s"
+        [ "$date_format" = iso-8601 ] ||
             logformat="$logformat $_date_color$git_log_date$_reset"
 
         logopts=(--graph --format="$logformat")
