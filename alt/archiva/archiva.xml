@@ -191,6 +191,27 @@
       <id>jboss</id>
       <name>JBoss maven repository (Nexus)</name>
     </remoteRepository>
+    <remoteRepository>
+      <url>http://maven.eclipse.org/nexus/content/repositories/testing</url>
+      <username>lenik</username>
+      <password>sErp39wT</password>
+      <id>eclipse-testing</id>
+      <name>Eclipse testing repo</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>https://swt-repo.googlecode.com/svn/repo/</url>
+      <username>lenik</username>
+      <password>sErp39wT</password>
+      <id>swt-googlecode</id>
+      <name>Google Code SWT repo</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>http://maven.geotoolkit.org/</url>
+      <username>lenik</username>
+      <password>sErp39wT</password>
+      <id>geotoolkit</id>
+      <name>geotoolkit.org maven repo</name>
+    </remoteRepository>
   </remoteRepositories>
   <proxyConnectors>
     <proxyConnector>
@@ -323,6 +344,7 @@
       </policies>
     </proxyConnector>
     <proxyConnector>
+      <order>8</order>
       <sourceRepoId>internal</sourceRepoId>
       <targetRepoId>scala-tools</targetRepoId>
       <proxyId>(direct connection)</proxyId>
@@ -331,45 +353,42 @@
         <whiteListPattern>org/scala-lang/**</whiteListPattern>
       </whiteListPatterns>
       <policies>
-        <propagate-errors-on-update>always</propagate-errors-on-update>
-        <cache-failures>no</cache-failures>
         <releases>always</releases>
-        <propagate-errors>stop</propagate-errors>
-        <snapshots>always</snapshots>
         <checksum>fail</checksum>
+        <snapshots>always</snapshots>
+        <cache-failures>no</cache-failures>
       </policies>
     </proxyConnector>
     <proxyConnector>
+      <order>9</order>
       <sourceRepoId>internal</sourceRepoId>
       <targetRepoId>openfaces</targetRepoId>
       <whiteListPatterns>
         <whiteListPattern>org/openfaces/**</whiteListPattern>
       </whiteListPatterns>
       <policies>
-        <propagate-errors-on-update>always</propagate-errors-on-update>
-        <cache-failures>no</cache-failures>
         <releases>always</releases>
-        <propagate-errors>stop</propagate-errors>
-        <snapshots>always</snapshots>
         <checksum>fail</checksum>
+        <snapshots>always</snapshots>
+        <cache-failures>no</cache-failures>
       </policies>
     </proxyConnector>
     <proxyConnector>
+      <order>10</order>
       <sourceRepoId>internal</sourceRepoId>
       <targetRepoId>jfree</targetRepoId>
       <whiteListPatterns>
         <whiteListPattern>jfree/**</whiteListPattern>
       </whiteListPatterns>
       <policies>
-        <propagate-errors-on-update>always</propagate-errors-on-update>
-        <cache-failures>no</cache-failures>
         <releases>always</releases>
-        <propagate-errors>stop</propagate-errors>
-        <snapshots>always</snapshots>
         <checksum>fail</checksum>
+        <snapshots>always</snapshots>
+        <cache-failures>no</cache-failures>
       </policies>
     </proxyConnector>
     <proxyConnector>
+      <order>11</order>
       <sourceRepoId>internal</sourceRepoId>
       <targetRepoId>jboss</targetRepoId>
       <proxyId>(direct connection)</proxyId>
@@ -378,11 +397,38 @@
         <whiteListPattern>commons-logging/**</whiteListPattern>
       </whiteListPatterns>
       <policies>
+        <releases>always</releases>
+        <checksum>fail</checksum>
+        <snapshots>always</snapshots>
+        <cache-failures>no</cache-failures>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <order>12</order>
+      <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>swt-googlecode</targetRepoId>
+      <whiteListPatterns>
+        <whiteListPattern>org/eclipse/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <releases>always</releases>
+        <checksum>fail</checksum>
+        <snapshots>never</snapshots>
+        <cache-failures>no</cache-failures>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>geotoolkit</targetRepoId>
+      <whiteListPatterns>
+        <whiteListPattern>java3d/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
         <propagate-errors-on-update>always</propagate-errors-on-update>
         <cache-failures>no</cache-failures>
         <releases>always</releases>
         <propagate-errors>stop</propagate-errors>
-        <snapshots>always</snapshots>
+        <snapshots>never</snapshots>
         <checksum>fail</checksum>
       </policies>
     </proxyConnector>
