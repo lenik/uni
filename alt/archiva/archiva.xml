@@ -1,432 +1,396 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <configuration>
-    <version>2</version>
-    <repositoryScanning>
-
-
-
-
-
-
-
-
-
-
-
-
-<fileTypes>
-<fileType>
-<id>artifacts</id>
-<patterns>
-<pattern>**/*.pom</pattern>
-<pattern>**/*.jar</pattern>
-<pattern>**/*.ear</pattern>
-<pattern>**/*.war</pattern>
-<pattern>**/*.car</pattern>
-<pattern>**/*.sar</pattern>
-<pattern>**/*.mar</pattern>
-<pattern>**/*.rar</pattern>
-<pattern>**/*.dtd</pattern>
-<pattern>**/*.tld</pattern>
-<pattern>**/*.tar.gz</pattern>
-<pattern>**/*.tar.bz2</pattern>
-<pattern>**/*.zip</pattern>
-</patterns>
-</fileType>
-<fileType>
-<id>indexable-content</id>
-<patterns>
-<pattern>**/*.txt</pattern>
-<pattern>**/*.TXT</pattern>
-<pattern>**/*.block</pattern>
-<pattern>**/*.config</pattern>
-<pattern>**/*.pom</pattern>
-<pattern>**/*.xml</pattern>
-<pattern>**/*.xsd</pattern>
-<pattern>**/*.dtd</pattern>
-<pattern>**/*.tld</pattern>
-</patterns>
-</fileType>
-<fileType>
-<id>auto-remove</id>
-<patterns>
-<pattern>**/*.bak</pattern>
-<pattern>**/*~</pattern>
-<pattern>**/*-</pattern>
-</patterns>
-</fileType>
-<fileType>
-<id>ignored</id>
-<patterns>
-<pattern>**/.htaccess</pattern>
-<pattern>**/KEYS</pattern>
-<pattern>**/*.rb</pattern>
-<pattern>**/*.sh</pattern>
-<pattern>**/.svn/**</pattern>
-<pattern>**/.DAV/**</pattern>
-</patterns>
-</fileType>
-</fileTypes>
-<knownContentConsumers>
-<knownContentConsumer>update-db-artifact</knownContentConsumer>
-<knownContentConsumer>create-missing-checksums</knownContentConsumer>
-<knownContentConsumer>update-db-repository-metadata</knownContentConsumer>
-<knownContentConsumer>validate-checksum</knownContentConsumer>
-<knownContentConsumer>validate-signature</knownContentConsumer>
-<knownContentConsumer>index-content</knownContentConsumer>
-<knownContentConsumer>auto-remove</knownContentConsumer>
-<knownContentConsumer>auto-rename</knownContentConsumer>
-<knownContentConsumer>metadata-updater</knownContentConsumer>
-</knownContentConsumers>
-<invalidContentConsumers>
-<invalidContentConsumer>update-db-bad-content</invalidContentConsumer>
-</invalidContentConsumers>
-</repositoryScanning>
-    <databaseScanning>
-        <cronExpression>0 0 * * * ?</cronExpression>
-
-
-
-
-
-
-
-
-<unprocessedConsumers>
-<unprocessedConsumer>index-artifact</unprocessedConsumer>
-<unprocessedConsumer>update-db-project</unprocessedConsumer>
-<unprocessedConsumer>validate-repository-metadata</unprocessedConsumer>
-<unprocessedConsumer>index-archive-toc</unprocessedConsumer>
-<unprocessedConsumer>update-db-bytecode-stats</unprocessedConsumer>
-<unprocessedConsumer>index-public-methods</unprocessedConsumer>
-</unprocessedConsumers>
-<cleanupConsumers>
-<cleanupConsumer>not-present-remove-db-artifact</cleanupConsumer>
-<cleanupConsumer>not-present-remove-db-project</cleanupConsumer>
-<cleanupConsumer>not-present-remove-indexed</cleanupConsumer>
-</cleanupConsumers>
-</databaseScanning>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<managedRepositories>
-<managedRepository>
-<location>/mnt/istore/m2/release</location>
-<indexDir>/mnt/istore/m2/release.index</indexDir>
-<id>internal</id>
-<name>Archiva Managed Internal Repository</name>
-</managedRepository>
-<managedRepository>
-<location>/mnt/istore/m2/snapshot</location>
-<releases>false</releases>
-<snapshots>true</snapshots>
-<indexDir>/mnt/istore/m2/snapshot.index</indexDir>
-<retentionCount>3</retentionCount>
-<daysOlder>0</daysOlder>
-<deleteReleasedSnapshots>true</deleteReleasedSnapshots>
-<id>snapshots</id>
-<name>Local snapshots</name>
-</managedRepository>
-</managedRepositories>
-<remoteRepositories>
-<remoteRepository>
-<url>http://download.java.net/maven/2/</url>
-<id>maven2-repository.dev.java.net</id>
-<name>Java.net Repository for Maven 2</name>
-</remoteRepository>
-<remoteRepository>
-<url>http://repository.apache.org/content/groups/public</url>
-<id>apache.public</id>
-<name>Apache Public</name>
-</remoteRepository>
-<remoteRepository>
-<url>http://repository.sonatype.org/content/repositories/central</url>
-<id>sonatype</id>
-<name>Sonatype Central</name>
-</remoteRepository>
-<remoteRepository>
-<url>http:/repository.apache.org/content/groups/snapshots</url>
-<id>apache.snapshots</id>
-<name>Apache Snapshots</name>
-</remoteRepository>
-<remoteRepository>
-<url>http://repository.codehaus.org</url>
-<id>codehaus</id>
-<name>Codehaus</name>
-</remoteRepository>
-<remoteRepository>
-<url>http://repo2.maven.org/maven2</url>
-<id>central</id>
-<name>Central Repository</name>
-</remoteRepository>
-<remoteRepository>
-<url>http://m2.bodz.net/release</url>
-<username>lenik</username>
-<password>sErp39wT</password>
-<id>z-r</id>
-<name>boDz Releases</name>
-</remoteRepository>
-<remoteRepository>
-<url>http://mavensync.zkoss.org/maven2/</url>
-<id>zk-ce</id>
-<name>ZK community</name>
-</remoteRepository>
-<remoteRepository>
-<url>http://m2.bee32.com/releases</url>
-<username>lenik</username>
-<password>sErp39wT</password>
-<id>bee32</id>
-<name>Bee32 internal</name>
-</remoteRepository>
-<remoteRepository>
-<url>http://repository.primefaces.org</url>
-<username>lenik</username>
-<password>sErp39wT</password>
-<id>primefaces</id>
-<name>Primefaces m2 repo</name>
-</remoteRepository>
-<remoteRepository>
-<url>http://scala-tools.org/repo-releases</url>
-<username>lenik</username>
-<password>sErp39wT</password>
-<id>scala-tools</id>
-<name>Scala tools releases</name>
-</remoteRepository>
-<remoteRepository>
-<url>http://repository.openfaces.org/repository</url>
-<username>lenik</username>
-<password>sErp39wT</password>
-<id>openfaces</id>
-<name>OpenFaces m2 repo</name>
-</remoteRepository>
-<remoteRepository>
-<url>http://www.ibiblio.org/maven/jfree/</url>
-<username>lenik</username>
-<password>sErp39wT</password>
-<id>jfree</id>
-<name>JFree</name>
-<layout>legacy</layout>
-</remoteRepository>
-<remoteRepository>
-<url>https://repository.jboss.org/nexus/content/groups/public/</url>
-<username>lenik</username>
-<password>sErp39wT</password>
-<id>jboss</id>
-<name>JBoss maven repository (Nexus)</name>
-</remoteRepository>
-</remoteRepositories>
-<proxyConnectors>
-<proxyConnector>
-<order>3</order>
-<sourceRepoId>internal</sourceRepoId>
-<targetRepoId>apache.public</targetRepoId>
-<whiteListPatterns>
-<whiteListPattern>org/apache/**</whiteListPattern>
-</whiteListPatterns>
-<policies>
-<releases>always</releases>
-<checksum>fail</checksum>
-<snapshots>never</snapshots>
-<cache-failures>no</cache-failures>
-</policies>
-</proxyConnector>
-<proxyConnector>
-<order>1</order>
-<sourceRepoId>snapshots</sourceRepoId>
-<targetRepoId>apache.snapshots</targetRepoId>
-<proxyId>(direct connection)</proxyId>
-<whiteListPatterns>
-<whiteListPattern>org/apache/**</whiteListPattern>
-</whiteListPatterns>
-<policies>
-<releases>never</releases>
-<checksum>fail</checksum>
-<snapshots>always</snapshots>
-<cache-failures>no</cache-failures>
-</policies>
-</proxyConnector>
-<proxyConnector>
-<order>4</order>
-<sourceRepoId>internal</sourceRepoId>
-<targetRepoId>codehaus</targetRepoId>
-<whiteListPatterns>
-<whiteListPattern>org/codehaus/**</whiteListPattern>
-</whiteListPatterns>
-<policies>
-<releases>always</releases>
-<checksum>fail</checksum>
-<snapshots>never</snapshots>
-<cache-failures>no</cache-failures>
-</policies>
-</proxyConnector>
-<proxyConnector>
-<order>2</order>
-<sourceRepoId>internal</sourceRepoId>
-<targetRepoId>central</targetRepoId>
-<policies>
-<releases>always</releases>
-<checksum>fail</checksum>
-<snapshots>never</snapshots>
-<cache-failures>no</cache-failures>
-</policies>
-</proxyConnector>
-<proxyConnector>
-<order>5</order>
-<sourceRepoId>internal</sourceRepoId>
-<targetRepoId>maven2-repository.dev.java.net</targetRepoId>
-<proxyId>(direct connection)</proxyId>
-<whiteListPatterns>
-<whiteListPattern>javax/**</whiteListPattern>
-<whiteListPattern>com/sun/**</whiteListPattern>
-<whiteListPattern>org/kohsuke/**</whiteListPattern>
-</whiteListPatterns>
-<policies>
-<releases>always</releases>
-<checksum>fail</checksum>
-<snapshots>never</snapshots>
-<cache-failures>no</cache-failures>
-</policies>
-</proxyConnector>
-<proxyConnector>
-<order>6</order>
-<sourceRepoId>internal</sourceRepoId>
-<targetRepoId>zk-ce</targetRepoId>
-<whiteListPatterns>
-<whiteListPattern>org/zkoss/**</whiteListPattern>
-</whiteListPatterns>
-<policies>
-<releases>always</releases>
-<checksum>fail</checksum>
-<snapshots>always</snapshots>
-<cache-failures>no</cache-failures>
-</policies>
-</proxyConnector>
-<proxyConnector>
-<order>1</order>
-<sourceRepoId>internal</sourceRepoId>
-<targetRepoId>z-r</targetRepoId>
-<proxyId>(direct connection)</proxyId>
-<whiteListPatterns>
-<whiteListPattern>net/bodz/**</whiteListPattern>
-<whiteListPattern>javax/free/**</whiteListPattern>
-</whiteListPatterns>
-<policies>
-<releases>always</releases>
-<checksum>fail</checksum>
-<snapshots>always</snapshots>
-<cache-failures>no</cache-failures>
-</policies>
-</proxyConnector>
-<proxyConnector>
-<order>2</order>
-<sourceRepoId>snapshots</sourceRepoId>
-<targetRepoId>primefaces</targetRepoId>
-<whiteListPatterns>
-<whiteListPattern>org/primefaces/**</whiteListPattern>
-</whiteListPatterns>
-<policies>
-<releases>never</releases>
-<checksum>fail</checksum>
-<snapshots>always</snapshots>
-<cache-failures>no</cache-failures>
-</policies>
-</proxyConnector>
-<proxyConnector>
-<order>7</order>
-<sourceRepoId>internal</sourceRepoId>
-<targetRepoId>primefaces</targetRepoId>
-<whiteListPatterns>
-<whiteListPattern>org/primefaces/**</whiteListPattern>
-</whiteListPatterns>
-<policies>
-<releases>always</releases>
-<checksum>fail</checksum>
-<snapshots>never</snapshots>
-<cache-failures>no</cache-failures>
-</policies>
-</proxyConnector>
-<proxyConnector>
-<sourceRepoId>internal</sourceRepoId>
-<targetRepoId>scala-tools</targetRepoId>
-<proxyId>(direct connection)</proxyId>
-<whiteListPatterns>
-<whiteListPattern>org/scala-tools/**</whiteListPattern>
-<whiteListPattern>org/scala-lang/**</whiteListPattern>
-</whiteListPatterns>
-<policies>
-<propagate-errors-on-update>always</propagate-errors-on-update>
-<cache-failures>no</cache-failures>
-<releases>always</releases>
-<propagate-errors>stop</propagate-errors>
-<snapshots>always</snapshots>
-<checksum>fail</checksum>
-</policies>
-</proxyConnector>
-<proxyConnector>
-<sourceRepoId>internal</sourceRepoId>
-<targetRepoId>openfaces</targetRepoId>
-<whiteListPatterns>
-<whiteListPattern>org/openfaces/**</whiteListPattern>
-</whiteListPatterns>
-<policies>
-<propagate-errors-on-update>always</propagate-errors-on-update>
-<cache-failures>no</cache-failures>
-<releases>always</releases>
-<propagate-errors>stop</propagate-errors>
-<snapshots>always</snapshots>
-<checksum>fail</checksum>
-</policies>
-</proxyConnector>
-<proxyConnector>
-<sourceRepoId>internal</sourceRepoId>
-<targetRepoId>jfree</targetRepoId>
-<whiteListPatterns>
-<whiteListPattern>jfree/**</whiteListPattern>
-</whiteListPatterns>
-<policies>
-<propagate-errors-on-update>always</propagate-errors-on-update>
-<cache-failures>no</cache-failures>
-<releases>always</releases>
-<propagate-errors>stop</propagate-errors>
-<snapshots>always</snapshots>
-<checksum>fail</checksum>
-</policies>
-</proxyConnector>
-<proxyConnector>
-<sourceRepoId>internal</sourceRepoId>
-<targetRepoId>jboss</targetRepoId>
-<proxyId>(direct connection)</proxyId>
-<whiteListPatterns>
-<whiteListPattern>org/jboss/**</whiteListPattern>
-<whiteListPattern>commons-logging/**</whiteListPattern>
-</whiteListPatterns>
-<policies>
-<propagate-errors-on-update>always</propagate-errors-on-update>
-<cache-failures>no</cache-failures>
-<releases>always</releases>
-<propagate-errors>stop</propagate-errors>
-<snapshots>always</snapshots>
-<checksum>fail</checksum>
-</policies>
-</proxyConnector>
-</proxyConnectors>
-<legacyArtifactPaths>
-<legacyArtifactPath>
-<path>jaxen/jars/jaxen-1.0-FCS-full.jar</path>
-<artifact>jaxen:jaxen:1.0-FCS:full:jar</artifact>
-</legacyArtifactPath>
-</legacyArtifactPaths>
+  <version>2</version>
+  <repositoryScanning>
+    <fileTypes>
+      <fileType>
+        <id>artifacts</id>
+        <patterns>
+          <pattern>**/*.pom</pattern>
+          <pattern>**/*.jar</pattern>
+          <pattern>**/*.ear</pattern>
+          <pattern>**/*.war</pattern>
+          <pattern>**/*.car</pattern>
+          <pattern>**/*.sar</pattern>
+          <pattern>**/*.mar</pattern>
+          <pattern>**/*.rar</pattern>
+          <pattern>**/*.dtd</pattern>
+          <pattern>**/*.tld</pattern>
+          <pattern>**/*.tar.gz</pattern>
+          <pattern>**/*.tar.bz2</pattern>
+          <pattern>**/*.zip</pattern>
+        </patterns>
+      </fileType>
+      <fileType>
+        <id>indexable-content</id>
+        <patterns>
+          <pattern>**/*.txt</pattern>
+          <pattern>**/*.TXT</pattern>
+          <pattern>**/*.block</pattern>
+          <pattern>**/*.config</pattern>
+          <pattern>**/*.pom</pattern>
+          <pattern>**/*.xml</pattern>
+          <pattern>**/*.xsd</pattern>
+          <pattern>**/*.dtd</pattern>
+          <pattern>**/*.tld</pattern>
+        </patterns>
+      </fileType>
+      <fileType>
+        <id>auto-remove</id>
+        <patterns>
+          <pattern>**/*.bak</pattern>
+          <pattern>**/*~</pattern>
+          <pattern>**/*-</pattern>
+        </patterns>
+      </fileType>
+      <fileType>
+        <id>ignored</id>
+        <patterns>
+          <pattern>**/.htaccess</pattern>
+          <pattern>**/KEYS</pattern>
+          <pattern>**/*.rb</pattern>
+          <pattern>**/*.sh</pattern>
+          <pattern>**/.svn/**</pattern>
+          <pattern>**/.DAV/**</pattern>
+        </patterns>
+      </fileType>
+    </fileTypes>
+    <knownContentConsumers>
+      <knownContentConsumer>update-db-artifact</knownContentConsumer>
+      <knownContentConsumer>create-missing-checksums</knownContentConsumer>
+      <knownContentConsumer>update-db-repository-metadata</knownContentConsumer>
+      <knownContentConsumer>validate-checksum</knownContentConsumer>
+      <knownContentConsumer>validate-signature</knownContentConsumer>
+      <knownContentConsumer>index-content</knownContentConsumer>
+      <knownContentConsumer>auto-remove</knownContentConsumer>
+      <knownContentConsumer>auto-rename</knownContentConsumer>
+      <knownContentConsumer>metadata-updater</knownContentConsumer>
+    </knownContentConsumers>
+    <invalidContentConsumers>
+      <invalidContentConsumer>update-db-bad-content</invalidContentConsumer>
+    </invalidContentConsumers>
+  </repositoryScanning>
+  <databaseScanning>
+    <cronExpression>0 0 * * * ?</cronExpression>
+    <unprocessedConsumers>
+      <unprocessedConsumer>index-artifact</unprocessedConsumer>
+      <unprocessedConsumer>update-db-project</unprocessedConsumer>
+      <unprocessedConsumer>validate-repository-metadata</unprocessedConsumer>
+      <unprocessedConsumer>index-archive-toc</unprocessedConsumer>
+      <unprocessedConsumer>update-db-bytecode-stats</unprocessedConsumer>
+      <unprocessedConsumer>index-public-methods</unprocessedConsumer>
+    </unprocessedConsumers>
+    <cleanupConsumers>
+      <cleanupConsumer>not-present-remove-db-artifact</cleanupConsumer>
+      <cleanupConsumer>not-present-remove-db-project</cleanupConsumer>
+      <cleanupConsumer>not-present-remove-indexed</cleanupConsumer>
+    </cleanupConsumers>
+  </databaseScanning>
+  <managedRepositories>
+    <managedRepository>
+      <location>/mnt/istore/m2/release</location>
+      <indexDir>/mnt/istore/m2/release.index</indexDir>
+      <id>internal</id>
+      <name>Archiva Managed Internal Repository</name>
+    </managedRepository>
+    <managedRepository>
+      <location>/mnt/istore/m2/snapshot</location>
+      <releases>false</releases>
+      <snapshots>true</snapshots>
+      <indexDir>/mnt/istore/m2/snapshot.index</indexDir>
+      <retentionCount>3</retentionCount>
+      <daysOlder>0</daysOlder>
+      <deleteReleasedSnapshots>true</deleteReleasedSnapshots>
+      <id>snapshots</id>
+      <name>Local snapshots</name>
+    </managedRepository>
+  </managedRepositories>
+  <remoteRepositories>
+    <remoteRepository>
+      <url>http://download.java.net/maven/2/</url>
+      <id>maven2-repository.dev.java.net</id>
+      <name>Java.net Repository for Maven 2</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>http://repository.apache.org/content/groups/public</url>
+      <id>apache.public</id>
+      <name>Apache Public</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>http://repository.sonatype.org/content/repositories/central</url>
+      <id>sonatype</id>
+      <name>Sonatype Central</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>http:/repository.apache.org/content/groups/snapshots</url>
+      <id>apache.snapshots</id>
+      <name>Apache Snapshots</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>http://repository.codehaus.org</url>
+      <id>codehaus</id>
+      <name>Codehaus</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>http://repo2.maven.org/maven2</url>
+      <id>central</id>
+      <name>Central Repository</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>http://m2.bodz.net/release</url>
+      <username>lenik</username>
+      <password>sErp39wT</password>
+      <id>z-r</id>
+      <name>boDz Releases</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>http://mavensync.zkoss.org/maven2/</url>
+      <id>zk-ce</id>
+      <name>ZK community</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>http://m2.bee32.com/releases</url>
+      <username>lenik</username>
+      <password>sErp39wT</password>
+      <id>bee32</id>
+      <name>Bee32 internal</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>http://repository.primefaces.org</url>
+      <username>lenik</username>
+      <password>sErp39wT</password>
+      <id>primefaces</id>
+      <name>Primefaces m2 repo</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>http://scala-tools.org/repo-releases</url>
+      <username>lenik</username>
+      <password>sErp39wT</password>
+      <id>scala-tools</id>
+      <name>Scala tools releases</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>http://repository.openfaces.org/repository</url>
+      <username>lenik</username>
+      <password>sErp39wT</password>
+      <id>openfaces</id>
+      <name>OpenFaces m2 repo</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>http://www.ibiblio.org/maven/jfree/</url>
+      <username>lenik</username>
+      <password>sErp39wT</password>
+      <id>jfree</id>
+      <name>JFree</name>
+      <layout>legacy</layout>
+    </remoteRepository>
+    <remoteRepository>
+      <url>https://repository.jboss.org/nexus/content/groups/public/</url>
+      <username>lenik</username>
+      <password>sErp39wT</password>
+      <id>jboss</id>
+      <name>JBoss maven repository (Nexus)</name>
+    </remoteRepository>
+  </remoteRepositories>
+  <proxyConnectors>
+    <proxyConnector>
+      <order>3</order>
+      <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>apache.public</targetRepoId>
+      <whiteListPatterns>
+        <whiteListPattern>org/apache/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <releases>always</releases>
+        <checksum>fail</checksum>
+        <snapshots>never</snapshots>
+        <cache-failures>no</cache-failures>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <order>1</order>
+      <sourceRepoId>snapshots</sourceRepoId>
+      <targetRepoId>apache.snapshots</targetRepoId>
+      <proxyId>(direct connection)</proxyId>
+      <whiteListPatterns>
+        <whiteListPattern>org/apache/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <releases>never</releases>
+        <checksum>fail</checksum>
+        <snapshots>always</snapshots>
+        <cache-failures>no</cache-failures>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <order>4</order>
+      <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>codehaus</targetRepoId>
+      <whiteListPatterns>
+        <whiteListPattern>org/codehaus/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <releases>always</releases>
+        <checksum>fail</checksum>
+        <snapshots>never</snapshots>
+        <cache-failures>no</cache-failures>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <order>2</order>
+      <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>central</targetRepoId>
+      <policies>
+        <releases>always</releases>
+        <checksum>fail</checksum>
+        <snapshots>never</snapshots>
+        <cache-failures>no</cache-failures>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <order>5</order>
+      <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>maven2-repository.dev.java.net</targetRepoId>
+      <proxyId>(direct connection)</proxyId>
+      <whiteListPatterns>
+        <whiteListPattern>javax/**</whiteListPattern>
+        <whiteListPattern>com/sun/**</whiteListPattern>
+        <whiteListPattern>org/kohsuke/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <releases>always</releases>
+        <checksum>fail</checksum>
+        <snapshots>never</snapshots>
+        <cache-failures>no</cache-failures>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <order>6</order>
+      <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>zk-ce</targetRepoId>
+      <whiteListPatterns>
+        <whiteListPattern>org/zkoss/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <releases>always</releases>
+        <checksum>fail</checksum>
+        <snapshots>always</snapshots>
+        <cache-failures>no</cache-failures>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <order>1</order>
+      <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>z-r</targetRepoId>
+      <proxyId>(direct connection)</proxyId>
+      <whiteListPatterns>
+        <whiteListPattern>net/bodz/**</whiteListPattern>
+        <whiteListPattern>javax/free/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <releases>always</releases>
+        <checksum>fail</checksum>
+        <snapshots>always</snapshots>
+        <cache-failures>no</cache-failures>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <order>2</order>
+      <sourceRepoId>snapshots</sourceRepoId>
+      <targetRepoId>primefaces</targetRepoId>
+      <whiteListPatterns>
+        <whiteListPattern>org/primefaces/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <releases>never</releases>
+        <checksum>fail</checksum>
+        <snapshots>always</snapshots>
+        <cache-failures>no</cache-failures>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <order>7</order>
+      <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>primefaces</targetRepoId>
+      <whiteListPatterns>
+        <whiteListPattern>org/primefaces/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <releases>always</releases>
+        <checksum>fail</checksum>
+        <snapshots>never</snapshots>
+        <cache-failures>no</cache-failures>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>scala-tools</targetRepoId>
+      <proxyId>(direct connection)</proxyId>
+      <whiteListPatterns>
+        <whiteListPattern>org/scala-tools/**</whiteListPattern>
+        <whiteListPattern>org/scala-lang/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <propagate-errors-on-update>always</propagate-errors-on-update>
+        <cache-failures>no</cache-failures>
+        <releases>always</releases>
+        <propagate-errors>stop</propagate-errors>
+        <snapshots>always</snapshots>
+        <checksum>fail</checksum>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>openfaces</targetRepoId>
+      <whiteListPatterns>
+        <whiteListPattern>org/openfaces/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <propagate-errors-on-update>always</propagate-errors-on-update>
+        <cache-failures>no</cache-failures>
+        <releases>always</releases>
+        <propagate-errors>stop</propagate-errors>
+        <snapshots>always</snapshots>
+        <checksum>fail</checksum>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>jfree</targetRepoId>
+      <whiteListPatterns>
+        <whiteListPattern>jfree/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <propagate-errors-on-update>always</propagate-errors-on-update>
+        <cache-failures>no</cache-failures>
+        <releases>always</releases>
+        <propagate-errors>stop</propagate-errors>
+        <snapshots>always</snapshots>
+        <checksum>fail</checksum>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>jboss</targetRepoId>
+      <proxyId>(direct connection)</proxyId>
+      <whiteListPatterns>
+        <whiteListPattern>org/jboss/**</whiteListPattern>
+        <whiteListPattern>commons-logging/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <propagate-errors-on-update>always</propagate-errors-on-update>
+        <cache-failures>no</cache-failures>
+        <releases>always</releases>
+        <propagate-errors>stop</propagate-errors>
+        <snapshots>always</snapshots>
+        <checksum>fail</checksum>
+      </policies>
+    </proxyConnector>
+  </proxyConnectors>
+  <legacyArtifactPaths>
+    <legacyArtifactPath>
+      <path>jaxen/jars/jaxen-1.0-FCS-full.jar</path>
+      <artifact>jaxen:jaxen:1.0-FCS:full:jar</artifact>
+    </legacyArtifactPath>
+  </legacyArtifactPaths>
 </configuration>
