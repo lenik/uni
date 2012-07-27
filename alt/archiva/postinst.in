@@ -5,10 +5,12 @@
 
 LOGLEVEL=2
 
-_log1 "Search and download Archiva WAR"
+if [ -f "@wardir@/archiva.war" ]; then
+    echo "Archiva.war is already installed, please remove it for full-upgrade"
+else
+    _log1 "Search and download Archiva WAR"
 
     index=http://archiva.apache.org/download.html
-
     _log2 "Parse index-1: $index"
     index2=`grepurl -Em1 '[^"]+\.war' $index` || die "Index-1 parse error"
 
@@ -21,14 +23,15 @@ _log1 "Search and download Archiva WAR"
     _log2 "Copy $war_file to @wardir@/archiva.war"
     mkdir -p "@wardir@" || die "Couldn't create the directory @wardir@"
     cp -f "$war_file" "@wardir@/archiva.war" || die "Failed to copy"
+fi
 
-_log1 "Configure Jetty"
+_log1 "Install Archiva configs to Jetty Server"
 
     lineconf -tm "  Load archiva-jetty-config.xml" \
         @jettyconfdir@/jetty.conf load::archiva \
         "@jettyconfdir@/archiva-jetty-config.xml"
 
-_log1 "Config apache to forward archiva"
+_log1 "Configure apache proxy to forward to archiva"
 
     a2enmod proxy
     a2enmod proxy_http
