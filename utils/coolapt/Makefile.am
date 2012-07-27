@@ -1,5 +1,7 @@
 include libauto/coolauto.am
 
+aptconfdir=${sysconfdir}/apt/apt.conf.d
+
 dist_bin_SCRIPTS = \
     apt-fast \
     dwhich \
@@ -17,6 +19,9 @@ dist_aliases_DATA = \
 
 dist_bashcmpl_DATA = \
     aptutils_compl.sh
+
+dist_aptconf_DATA = \
+    10allowunauth
 
 setup_SCRIPTS = \
     postinst \
