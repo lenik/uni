@@ -1,6 +1,7 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
+    git-author \
     git-stitch-fix \
     git2svn \
     gitcl \

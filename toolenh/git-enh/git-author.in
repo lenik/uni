@@ -1,0 +1,83 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="achqv"
+    long_opts="authors,committers,help,quiet,verbose,version"
+
+    authors=0
+    committers=0
+
+    author_name=
+    author_email=
+    committer_name=
+    committer_email=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Change git repository author"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] AUTHOR EMAIL"
+    echo
+    echo "Options: "
+    echo "    -a, --authors           Change the author names"
+    echo "    -c, --committers        Change the committer names"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -a|--authors)
+            authors=1;;
+        -c|--committers)
+            committers=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ "$authors" != 1 ] && [ "$committers" != 1 ]; then
+        quit "Neither --authors nor --commiiters is specified."
+    fi
+
+    if [ -z "$1" ]; then
+        quit "You didn't specify the author/committer name"
+    else
+        [ "$authors"    = 1 ] && author_name="$1"
+        [ "$committers" = 1 ] && committer_name="$1"
+    fi
+
+    if [ -n "$2" ]; then
+        [ "$authors"    = 1 ] && author_email="$2"
+        [ "$committers" = 1 ] && committer_email="$2"
+    fi
+
+    env=''
+    [ -n "$author_name" ]     && env="$env GIT_AUTHOR_NAME='$author_name'"
+    [ -n "$author_email" ]    && env="$env GIT_AUTHOR_EMAIL='$author_email'"
+    [ -n "$committer_name" ]  && env="$env GIT_COMMITTER_NAME='$committer_name'"
+    [ -n "$committer_email" ] && env="$env GIT_COMMITTER_EMAIL='$committer_email'"
+
+    _log2 git filter-branch -f --env-filter "$env" HEAD
+    git filter-branch -f --env-filter "$env" HEAD
+}
+
+boot "$@"
