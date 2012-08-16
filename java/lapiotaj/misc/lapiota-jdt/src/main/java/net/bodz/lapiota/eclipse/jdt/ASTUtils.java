@@ -4,7 +4,13 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.lang.model.type.PrimitiveType;
+import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
+import org.eclipse.jdt.core.dom.PrimitiveType.Code;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
+
+import net.bodz.bas.err.IllegalUsageException;
 
 class ASTUtils {
 
@@ -20,23 +26,22 @@ class ASTUtils {
         this(rewrite.getAST(), rewrite);
     }
 
-    @SuppressWarnings("unchecked")
     public <T extends ASTNode> T copy(T node) {
         return (T) ASTNode.copySubtree(ast, node);
     }
 
-    @SuppressWarnings("unchecked")
-    public List copy(List list) {
-        List copy = new ArrayList(list.size());
+    public List<ASTNode> copy(List<?> list) {
+        List<ASTNode> copy = new ArrayList<ASTNode>(list.size());
         for (Object o : list) {
-            if (o instanceof ASTNode)
-                o = copy((ASTNode) o);
-            copy.add(o);
+            if (o instanceof ASTNode) {
+                ASTNode nodeCopy = copy((ASTNode) o);
+                copy.add(nodeCopy);
+            } else
+                throw new IllegalUsageException();
         }
         return copy;
     }
 
-    @SuppressWarnings("unchecked")
     public <T extends ASTNode> T copyRef(T node) {
         return (T) rewrite.createCopyTarget(node);
     }
@@ -46,7 +51,6 @@ class ASTUtils {
         return copy(node);
     }
 
-    @SuppressWarnings("unchecked")
     public <T extends ASTNode> T moveRef(T node) {
         return (T) rewrite.createMoveTarget(node);
     }
@@ -125,7 +129,6 @@ class ASTUtils {
         imports.insertLast(id, null);
     }
 
-    @SuppressWarnings("unchecked")
     public void addModifiers(BodyDeclaration decl, int mod) {
         addModifiers(decl.modifiers(), mod);
     }

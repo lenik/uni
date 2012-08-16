@@ -6,22 +6,22 @@ import org.dom4j.Namespace;
 
 public class Xmlfs {
 
-    public static String NS_URI = "net.bodz.uni.xmlfs"; //$NON-NLS-1$
+    public static String NS_URI = "net.bodz.uni.xmlfs";
 
-    public static Namespace NS = Namespace.get("", NS_URI); //$NON-NLS-1$
+    public static Namespace NS = Namespace.get("", NS_URI);
 
     static String escapeName(char c) {
         if (c == '_')
-            return "__"; //$NON-NLS-1$
+            return "__";
         if (c == '.')
-            return "."; //$NON-NLS-1$
+            return ".";
         if (Character.isLetterOrDigit(c))
             return String.valueOf(c);
-        return String.format("_%04x", (int) c); //$NON-NLS-1$
+        return String.format("_%04x", (int) c);
     }
 
     public static String getXName(String fName) {
-        return new PatternProcessor("\\w|[.]") { //$NON-NLS-1$
+        return new PatternProcessor("\\w|[.]") {
             @Override
             protected void matched(int start, int end) {
                 while (start < end) {

@@ -1,5 +1,7 @@
 package net.bodz.lapiota.datafiles;
 
+import static net.bodz.lapiota.nls.CLINLS.CLINLS;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
@@ -7,21 +9,18 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.List;
 
-import net.bodz.bas.cli.BatchEditCLI;
-import net.bodz.bas.cli.EditResult;
+import net.bodz.bas.cli.skel.BatchEditCLI;
+import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.err.IllegalUsageException;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.info.Doc;
 import net.bodz.bas.util.Nullables;
-import net.bodz.lapiota.nls.CLINLS;
 
 /**
  * Patch using the modified grep result (grep -Hn)
  */
-@Doc("")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 0 })
+@MainVersion({ 0, 0 })
 public class GrepPatch
         extends BatchEditCLI {
 
@@ -41,13 +40,13 @@ public class GrepPatch
         inputEncoding = parameters().getInputEncoding();
         outputEncoding = parameters().getOutputEncoding();
         if (!inputEncoding.equals(outputEncoding))
-            throw new IllegalUsageException(CLINLS.getString("GrepPatch.diffInOut")); //$NON-NLS-1$
+            throw new IllegalUsageException(CLINLS.getString("GrepPatch.diffInOut"));
     }
 
     @Override
     protected void doFileArgument(File file)
             throws Exception {
-        L.tinfo(CLINLS.getString("GrepPatch._patch"), file); //$NON-NLS-1$
+        L.status(CLINLS.getString("GrepPatch._patch"), file);
         int grepl = 0;
 
         String currentFileName = null;
@@ -56,17 +55,17 @@ public class GrepPatch
 
         for (String line : Files.readByLine2(inputEncoding, file)) {
             grepl++;
-            String filepos = file + ":" + grepl; //$NON-NLS-1$
+            String filepos = file + ":" + grepl;
 
             if (comment) {
-                if (line.startsWith("#")) //$NON-NLS-1$
+                if (line.startsWith("#"))
                     continue;
             }
             if (line.isEmpty())
                 continue;
             int col = line.indexOf(':');
             if (col == -1) {
-                L.error(CLINLS.getString("GrepPatch.grepNoFilename"), filepos); //$NON-NLS-1$
+                L.error(CLINLS.getString("GrepPatch.grepNoFilename"), filepos);
                 continue;
             }
             String fileName = line.substring(0, col);
@@ -74,7 +73,7 @@ public class GrepPatch
 
             col = line.indexOf(':');
             if (col == -1) {
-                L.error(CLINLS.getString("GrepPatch.grepNoLineNum"), filepos); //$NON-NLS-1$
+                L.error(CLINLS.getString("GrepPatch.grepNoLineNum"), filepos);
                 continue;
             }
             String lineno = line.substring(0, col);
@@ -83,11 +82,11 @@ public class GrepPatch
             try {
                 lno = Integer.parseInt(lineno);
             } catch (NumberFormatException e) {
-                L.error(CLINLS.getString("GrepPatch.badlLineNum"), lineno, "' at ", filepos); //$NON-NLS-1$ //$NON-NLS-2$
+                L.error(CLINLS.getString("GrepPatch.badlLineNum"), lineno, "' at ", filepos);
                 continue;
             }
             if (lno < 1) {
-                L.error("line number < 0 at ", filepos); //$NON-NLS-1$
+                L.error("line number < 0 at ", filepos);
                 continue;
             }
 
@@ -100,7 +99,7 @@ public class GrepPatch
             }
 
             if (lno > loaded.size()) {
-                L.error("line number ", lno, " out of bounds, at ", filepos); //$NON-NLS-1$ //$NON-NLS-2$
+                L.error("line number ", lno, " out of bounds, at ", filepos);
                 continue;
             }
 
@@ -130,7 +129,7 @@ public class GrepPatch
 
     public static void main(String[] args)
             throws Exception {
-        new GrepPatch().run(args);
+        new GrepPatch().execute(args);
     }
 
 }

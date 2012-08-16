@@ -1,5 +1,7 @@
 package net.bodz.lapiota.javashell;
 
+import static net.bodz.lapiota.nls.CLINLS.CLINLS;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -20,7 +22,7 @@ import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
 import net.bodz.bas.c.java.util.TreeTextMap;
 import net.bodz.bas.c.string.StringArray;
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.io.ConcatReader;
@@ -28,18 +30,18 @@ import net.bodz.bas.io.LineReader;
 import net.bodz.bas.jvm.exit.CatchExit;
 import net.bodz.bas.jvm.exit.ExitableProgram;
 import net.bodz.bas.lang.ControlExit;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.info.Doc;
 import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.bas.meta.util.ValueType;
+import net.bodz.bas.util.array.ArrayWrapper;
 import net.bodz.bas.vfs.CurrentDirectoryColo;
-import net.bodz.lapiota.nls.CLINLS;
 
-@Doc("Lapiota Java Shell")
+/**
+ * Lapiota Java Shell
+ */
 @ProgramName("jl")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 0 })
+@MainVersion({ 0, 0 })
 public class JavaShell
         extends BasicCLI {
 
@@ -63,7 +65,7 @@ public class JavaShell
     LineReader lineInput;
     boolean exit;
     int exitStatus;
-    Object prompt = "# "; //$NON-NLS-1$
+    Object prompt = "# ";
 
     /**
      * Run script and don't quit
@@ -89,16 +91,16 @@ public class JavaShell
     public JavaShell() {
         aliases = new TreeTextMap<String[]>();
         commands = new HashTextMap<Command>();
-        commands.put("alias", new Alias()); //$NON-NLS-1$
-        commands.put("cwd", new Cwd()); //$NON-NLS-1$
-        commands.put("echo", new Echo()); //$NON-NLS-1$
-        commands.put("exit", new Exit()); //$NON-NLS-1$
-        commands.put("help", new Help()); //$NON-NLS-1$
-        commands.put("import", new Import()); //$NON-NLS-1$
-        commands.put("set", new Set()); //$NON-NLS-1$
+        commands.put("alias", new Alias());
+        commands.put("cwd", new Cwd());
+        commands.put("echo", new Echo());
+        commands.put("exit", new Exit());
+        commands.put("help", new Help());
+        commands.put("import", new Import());
+        commands.put("set", new Set());
         env = new TreeTextMap<Object>(System.getenv());
-        env.put("PROMPT", "# "); //$NON-NLS-1$ //$NON-NLS-2$
-        env.put("SHELL", getClass().getName()); //$NON-NLS-1$
+        env.put("PROMPT", "# ");
+        env.put("SHELL", getClass().getName());
     }
 
     @Override
@@ -111,7 +113,7 @@ public class JavaShell
         } else {
             scriptIn = new FileInputStream(script);
             interactive = false;
-            env.put("SCRIPT_FILE", script.getPath()); //$NON-NLS-1$
+            env.put("SCRIPT_FILE", script.getPath());
         }
         if (scriptEncoding == null)
             scriptEncoding = Charset.defaultCharset();
@@ -159,7 +161,7 @@ public class JavaShell
             line = line.trim();
             if (line.isEmpty())
                 continue;
-            if (line.startsWith("#")) //$NON-NLS-1$
+            if (line.startsWith("#"))
                 continue;
             String[] _args = StringArray.split(line);
             assert _args.length != 0;
@@ -172,7 +174,7 @@ public class JavaShell
                 name = expansion[0];
                 _command = commands.get(name);
                 if (_command == null) {
-                    System.err.println(CLINLS.getString("JavaShell.commandIsntDefined") + name); //$NON-NLS-1$
+                    System.err.println(CLINLS.getString("JavaShell.commandIsntDefined") + name);
                     continue;
                 }
 
@@ -186,7 +188,7 @@ public class JavaShell
                 continue;
             }
 
-            if (n >= 2 && ">>>".equals(_args[n - 2])) { //$NON-NLS-1$
+            if (n >= 2 && ">>>".equals(_args[n - 2])) {
                 // heredoc...
             }
             final String[] args = _args;
@@ -200,8 +202,8 @@ public class JavaShell
                 });
             } catch (ControlExit exit) {
                 int status = exit.getStatus();
-                L.detail(CLINLS.getString("JavaShell.exit"), status); //$NON-NLS-1$
-                if (L.showDebug())
+                L.info(CLINLS.getString("JavaShell.exit"), status);
+                if (L.isDebugEnabled())
                     exit.printStackTrace();
             } catch (Throwable t) {
                 t.printStackTrace();
@@ -218,7 +220,7 @@ public class JavaShell
         while ((exp = aliases.get(alias)) != null) {
             nest++;
             if (nest > MAX_NEST)
-                throw new IllegalUsageException(CLINLS.getString("JavaShell.aliasNestTooMuch") + alias); //$NON-NLS-1$
+                throw new IllegalUsageException(CLINLS.getString("JavaShell.aliasNestTooMuch") + alias);
             assert exp.length != 0;
             alias = exp[0];
             if (exp.length == 1)
@@ -241,7 +243,7 @@ public class JavaShell
 
     public static void main(String[] args)
             throws Exception {
-        new JavaShell().run(args);
+        new JavaShell().execute(args);
     }
 
     abstract class BuiltIn
@@ -266,7 +268,7 @@ public class JavaShell
                 if (args.length == 1)
                     dump(name);
                 else {
-                    String[] expansion = ArrayOps.Strings.shift(args);
+                    String[] expansion = ArrayWrapper.wrap(args).shift();
                     aliases.put(name, expansion);
                 }
             }
@@ -280,8 +282,8 @@ public class JavaShell
 
         void dump(String name) {
             String[] expansion = aliases.get(name);
-            String s = StringArray.join(" ", expansion); // quotes //$NON-NLS-1$
-            System.out.println(CLINLS.getString("JavaShell.alias") + name + " = " + s); //$NON-NLS-1$ //$NON-NLS-2$
+            String s = StringArray.join(" ", expansion); // quotes
+            System.out.println(CLINLS.getString("JavaShell.alias") + name + " = " + s);
         }
 
     }
@@ -296,12 +298,12 @@ public class JavaShell
                 System.out.println(CurrentDirectoryColo.getInstance().get());
             else {
                 try {
-                    File dir = CWD.get(args[0]);
+                    File dir = CurrentDirectoryColo.getInstance().join(args[0]);
                     if (!dir.isDirectory()) {
-                        System.err.println(CLINLS.getString("JavaShell.notDirectory") + dir); //$NON-NLS-1$
+                        System.err.println(CLINLS.getString("JavaShell.notDirectory") + dir);
                         return 1;
                     }
-                    CWD.chdir(dir);
+                    CurrentDirectoryColo.getInstance().set(dir);
                 } catch (RuntimeException e) {
                     e.printStackTrace();
                     return 2;
@@ -318,7 +320,7 @@ public class JavaShell
         @Override
         public int main(String... args)
                 throws Exception {
-            String line = StringArray.join(" ", args); //$NON-NLS-1$
+            String line = StringArray.join(" ", args);
             System.out.println(line);
             return 0;
         }
@@ -370,8 +372,8 @@ public class JavaShell
                 throws Exception {
             int i = 0;
             if (args.length == 0)
-                throw new IllegalArgumentException(CLINLS.getString("JavaShell.noSpec")); //$NON-NLS-1$
-            boolean isStatic = "static".equals(args[0]); //$NON-NLS-1$
+                throw new IllegalArgumentException(CLINLS.getString("JavaShell.noSpec"));
+            boolean isStatic = "static".equals(args[0]);
             if (isStatic)
                 i++;
             for (; i < args.length; i++)
@@ -391,14 +393,14 @@ public class JavaShell
         String path2name(String path) {
             String name = path.replace('/', '.');
             name = name.replace('$', '.');
-            while (name.startsWith(".")) //$NON-NLS-1$
+            while (name.startsWith("."))
                 name = name.substring(1);
             return name;
         }
 
         void doImport(String spec)
                 throws Exception {
-            if (spec.endsWith(".*")) { //$NON-NLS-1$
+            if (spec.endsWith(".*")) {
                 // String path = name2path(spec);
                 throw new NotImplementedException();
             }
@@ -406,7 +408,7 @@ public class JavaShell
             String name = dot == -1 ? spec : spec.substring(dot + 1);
             Class<?> clazz = Class.forName(spec);
             if (!Command.class.isAssignableFrom(clazz))
-                throw new IllegalArgumentException(CLINLS.getString("JavaShell.notCommand") + spec); //$NON-NLS-1$
+                throw new IllegalArgumentException(CLINLS.getString("JavaShell.notCommand") + spec);
             Command command;
             try {
                 Constructor<?> ctor1 = clazz.getConstructor(JavaShell.class);
@@ -421,23 +423,23 @@ public class JavaShell
 
         void doImportStatic(String spec)
                 throws Exception {
-            if (spec.endsWith(".*")) { //$NON-NLS-1$
+            if (spec.endsWith(".*")) {
                 // String path = name2path(spec);
                 throw new NotImplementedException();
             }
             int dot = spec.lastIndexOf('.');
             if (dot == -1)
-                throw new IllegalArgumentException(CLINLS.getString("JavaShell.staticImportWithoutMember")); //$NON-NLS-1$
+                throw new IllegalArgumentException(CLINLS.getString("JavaShell.staticImportWithoutMember"));
             String className = spec.substring(0, dot);
             String member = spec.substring(dot + 1);
             Class<?> declType = Class.forName(className);
             Field field = declType.getField(member);
             Class<?> clazz = field.getType();
             if (!Command.class.isAssignableFrom(clazz))
-                throw new IllegalArgumentException(CLINLS.getString("JavaShell.notCommand") + clazz); //$NON-NLS-1$
+                throw new IllegalArgumentException(CLINLS.getString("JavaShell.notCommand") + clazz);
             int mod = field.getModifiers();
             if (!Modifier.isStatic(mod))
-                throw new IllegalArgumentException(CLINLS.getString("JavaShell.notStatic") + field); //$NON-NLS-1$
+                throw new IllegalArgumentException(CLINLS.getString("JavaShell.notStatic") + field);
             Command command = (Command) field.get(null);
             commands.put(member, command);
         }
@@ -456,8 +458,8 @@ public class JavaShell
                 if (args.length == 1)
                     dumpEnv(name);
                 else
-                    args = ArrayOps.Strings.shift(args);
-                env.put(name, StringArray.join(" ", args)); //$NON-NLS-1$
+                    args = ArrayWrapper.wrap(args).shift();
+                env.put(name, StringArray.join(" ", args));
             }
             return 0;
         }
@@ -469,7 +471,7 @@ public class JavaShell
 
         void dumpEnv(String name) {
             Object value = env.get(name);
-            System.out.println(name + " = " + value); //$NON-NLS-1$
+            System.out.println(name + " = " + value);
         }
 
     }

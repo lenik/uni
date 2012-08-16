@@ -1,27 +1,27 @@
 package net.bodz.lapiota.filesys;
 
+import static net.bodz.lapiota.nls.CLINLS.CLINLS;
+
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.bodz.bas.cli.BatchEditCLI;
-import net.bodz.bas.cli.EditResult;
-import net.bodz.bas.cli.util.ProtectedShell;
+import net.bodz.bas.cli.skel.BatchEditCLI;
+import net.bodz.bas.cli.skel.EditResult;
+import net.bodz.bas.io.resource.tools.StreamReading;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
 import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.lapiota.nls.CLINLS;
+import net.bodz.bas.vfs.IFile;
 
 /**
  * Merge directories of same architecture
  */
 @ProgramName("dirmerge")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class MergeDirectories
         extends BatchEditCLI {
 
@@ -58,9 +58,9 @@ public class MergeDirectories
     protected void _boot()
             throws Exception {
         if (digest == null)
-            digest = MessageDigest.getInstance("SHA-1"); //$NON-NLS-1$
+            digest = MessageDigest.getInstance("SHA-1");
         if (thresholdAndDeleteIgnored != null) {
-            assert threshold == null : "both -t and -T are specified"; //$NON-NLS-1$
+            assert threshold == null : "both -t and -T are specified";
             threshold = thresholdAndDeleteIgnored;
             deleteIgnored = true;
         }
@@ -68,79 +68,15 @@ public class MergeDirectories
             threshold = 1.0f;
     }
 
-    static class ClearPars_PSH
-            extends ProtectedShell {
-
-        public ClearPars_PSH(boolean enabled, Terminal out) {
-            super(enabled, out);
-        }
-
-        void mkdirParents(File f) {
-            f = Files.canoniOf(f);
-            File parent = f.getParentFile();
-            if (parent != null)
-                parent.mkdirs();
-        }
-
-        void rmdirParents(File f) {
-            f = Files.canoniOf(f);
-            while ((f = f.getParentFile()) != null)
-                if (!f.delete())
-                    break;
-        }
-
-        @Override
-        public boolean delete(File f) {
-            try {
-                return super.delete(f);
-            } finally {
-                rmdirParents(f);
-            }
-        }
-
-        @Override
-        public boolean move(File f, File dst)
-                throws IOException {
-            try {
-                mkdirParents(dst);
-                return super.move(f, dst);
-            } finally {
-                rmdirParents(f);
-            }
-        }
-
-        @Override
-        public boolean move(File f, File dst, boolean force)
-                throws IOException {
-            try {
-                mkdirParents(dst);
-                return super.move(f, dst, force);
-            } finally {
-                rmdirParents(f);
-            }
-        }
-
-        @Override
-        public boolean renameTo(File f, File dst) {
-            try {
-                return super.renameTo(f, dst);
-            } finally {
-                rmdirParents(f);
-            }
-        }
-
+    // TODO Remove empty parents after rm/mv/.. operations.
+    static class ClearParents_PSH {
     }
 
     @Override
-    protected ProtectedShell _getShell() {
-        return new ClearPars_PSH(!parameters().isDryRun(), L.info());
-    }
-
-    @Override
-    protected void doFileArgument(File startFile)
+    protected void doFileArgument(IFile startFile)
             throws Exception {
-        if (!startFile.isDirectory()) {
-            L.info(CLINLS.getString("MergeDirectories.skippedFile"), startFile); //$NON-NLS-1$
+        if (!startFile.isTree()) {
+            L.info(CLINLS.getString("MergeDirectories.skippedFile"), startFile);
             return;
         }
         // throw new IllegalArgumentException("not a directory: " + startFile);
@@ -243,20 +179,20 @@ public class MergeDirectories
             if (rhash.equals(hash)) {
                 File start = currentStartFile.getParentFile();
                 if (start == null) {
-                    L.fwarn(CLINLS.getString("MergeDirectories.rootWarn_s"), currentStartFile); //$NON-NLS-1$
+                    L.warnf(CLINLS.getString("MergeDirectories.rootWarn_s"), currentStartFile);
                 }
                 File dst = getOutputFile(rname, start);
                 if (dst.exists()) {
                     if (dst.equals(file))
-                        return EditResult.pass(CLINLS.getString("MergeDirectories.same")); //$NON-NLS-1$
+                        return EditResult.pass(CLINLS.getString("MergeDirectories.same"));
                     else
-                        return EditResult.rm(CLINLS.getString("MergeDirectories.sameKill")); // psh.delete(file) //$NON-NLS-1$
+                        return EditResult.rm(CLINLS.getString("MergeDirectories.sameKill")); // psh.delete(file)
                     // ;
                 } else
                     return EditResult.mv(dst); // psh.move(file, dst);
             } else {
                 if (reduced && deleteIgnored)
-                    return EditResult.rm(CLINLS.getString("MergeDirectories.ignoreKill")); //$NON-NLS-1$
+                    return EditResult.rm(CLINLS.getString("MergeDirectories.ignoreKill"));
             }
             return EditResult.pass();
         } else {
@@ -264,9 +200,9 @@ public class MergeDirectories
         }
     }
 
-    Object getHash(File file) {
+    Object getHash(IFile file) {
         digest.reset();
-        for (byte[] block : Files.readByBlock(file))
+        for (byte[] block : file.tooling()._for(StreamReading.class).byteBlocks())
             digest.update(block);
         byte[] d = digest.digest();
         return Bytes.contents(d);
@@ -288,7 +224,7 @@ public class MergeDirectories
 
     public static void main(String[] args)
             throws Exception {
-        new MergeDirectories().run(args);
+        new MergeDirectories().execute(args);
     }
 
 }

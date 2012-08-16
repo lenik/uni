@@ -2,18 +2,6 @@ package net.bodz.lapiota.devhelpers;
 
 import java.util.ArrayList;
 
-import net.bodz.bas.loader.boot.BootInfo;
-import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.info.Doc;
-import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.bas.ui.a.PreferredSize;
-import net.bodz.jna.win32.User32;
-import net.bodz.jna.win32.User32Util;
-import net.bodz.swt.os_ann.Win32;
-import net.bodz.swt.reflect.BasicGUI;
-import net.bodz.swt.widgets.Timer;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -25,29 +13,37 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Slider;
-import org.eclipse.swt.widgets.TabFolder;
-import org.eclipse.swt.widgets.TabItem;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.*;
+
+import net.bodz.bas.loader.boot.BootInfo;
+import net.bodz.bas.meta.build.MainVersion;
+import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.meta.misc.Win32Only;
+import net.bodz.bas.meta.program.ProgramName;
+import net.bodz.bas.ui.a.PreferredSize;
+import net.bodz.jna.win32.GDI32.RECT;
+import net.bodz.jna.win32.*;
+import net.bodz.jna.win32.User32.POINT;
+import net.bodz.jna.win32.User32.POINTByValue;
+import net.bodz.jna.win32.User32.WNDENUMPROC;
+import net.bodz.jna.win32.W32API.HWND;
+import net.bodz.swt.c3.misc.Timer;
+import net.bodz.swt.program.BasicGUI;
 
 import com.sun.jna.Pointer;
 
+/**
+ * Win32 Windows Editor
+ */
 @BootInfo(userlibs = { "bodz_jna", "jna" })
-@Doc("Win32 Windows Editor")
 @PreferredSize(width = 456, height = 375)
 @ProgramName("winedit")
 @RcsKeywords(id = "$Id$")
-/* Win32 */@SuppressWarnings("restriction")
-@Version({ 0, 1 })
-@Win32
+@MainVersion({ 0, 1 })
+@Win32Only
 public class WinEdit
-        extends BasicGUI {
+        extends BasicGUI
+        implements IWin32 {
 
     /**
      * Capture interval, default 1000
@@ -433,7 +429,7 @@ public class WinEdit
 
     public static void main(String[] args)
             throws Throwable {
-        new WinEdit().run(args);
+        new WinEdit().execute(args);
     }
 
 }

@@ -1,5 +1,7 @@
 package net.bodz.lapiota.xmltools;
 
+import static net.bodz.lapiota.nls.CLINLS.CLINLS;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,37 +13,29 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import net.bodz.bas.cli.BasicCLI;
-import net.bodz.bas.cli.CLIException;
-import net.bodz.bas.err.ParseException;
-import net.bodz.bas.err.UnexpectedException;
-import net.bodz.bas.loader.boot.BootInfo;
-import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.sio.IPrintOut;
-import net.bodz.bas.traits.IParser;
-import net.bodz.bas.util.Pair;
-import net.bodz.lapiota.nls.CLINLS;
-import net.bodz.lapiota.util.StringUtil;
-import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
-
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.DocumentFactory;
-import org.dom4j.Element;
-import org.dom4j.Node;
-import org.dom4j.XPath;
+import org.dom4j.*;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
-import org.objectweb.asm.Attribute;
+
+import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.cli.skel.CLIException;
+import net.bodz.bas.err.ParseException;
+import net.bodz.bas.err.UnexpectedException;
+import net.bodz.bas.loader.boot.BootInfo;
+import net.bodz.bas.meta.build.MainVersion;
+import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.sio.IPrintOut;
+import net.bodz.bas.traits.IParser;
+import net.bodz.bas.util.Pair;
+import net.bodz.lapiota.util.StringUtil;
 
 /**
  * Simple XML document batch editor
  */
 @BootInfo(syslibs = { "dom4j", "jaxen" })
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 0 })
+@MainVersion({ 0, 0 })
 public class XMLEdit
         extends BasicCLI {
 
@@ -70,7 +64,6 @@ public class XMLEdit
      *
      * @option -O =pretty|compact
      */
-    @ParseBy(OutputFormatParser.class)
     protected OutputFormat outputFormat = new OutputFormat();
 
     private boolean escaping = true;
@@ -116,7 +109,7 @@ public class XMLEdit
 
     protected Document getDocument() {
         if (document == null)
-            throw new IllegalStateException(CLINLS.getString("XMLEdit.noDocument")); //$NON-NLS-1$
+            throw new IllegalStateException(CLINLS.getString("XMLEdit.noDocument"));
         return document;
     }
 
@@ -159,16 +152,16 @@ public class XMLEdit
     protected void selectXML(String xmldoc)
             throws DocumentException {
         xmldoc = StringUtil.unescape(escaping, xmldoc);
-        xmldoc = "<root>" + xmldoc + "</root>"; //$NON-NLS-1$ //$NON-NLS-2$
+        xmldoc = "<root>" + xmldoc + "</root>";
         SAXReader reader = new SAXReader();
         Document argdoc = reader.read(new StringReader(xmldoc));
-        selection = argdoc.selectNodes("/root/*"); //$NON-NLS-1$
+        selection = argdoc.selectNodes("/root/*");
     }
 
     protected List<Node> getSelection() {
         if (selection == null)
             try {
-                selectXpath(xpathParser.parse("//*")); //$NON-NLS-1$
+                selectXpath(xpathParser.parse("//*"));
             } catch (ParseException e) {
                 throw new UnexpectedException(e.getMessage(), e);
             }
@@ -182,7 +175,7 @@ public class XMLEdit
      */
     protected void setAttribute(String keyval) {
         String name = keyval;
-        String value = "1"; //$NON-NLS-1$
+        String value = "1";
         int eq = name.indexOf('=');
         if (eq >= 0) {
             value = StringUtil.unescape(escaping, name.substring(eq + 1));
@@ -220,7 +213,7 @@ public class XMLEdit
         for (Node arg : argnodes) {
             Element sibling = (Element) arg;
             if (sibling.isRootElement())
-                throw new DocumentException(CLINLS.getString("XMLEdit.outOfRoot")); //$NON-NLS-1$
+                throw new DocumentException(CLINLS.getString("XMLEdit.outOfRoot"));
             Element parent = sibling.getParent();
             List siblings = parent.elements();
             int index = siblings.indexOf(sibling);
@@ -243,7 +236,7 @@ public class XMLEdit
         for (Node arg : argnodes) {
             Element sibling = (Element) arg;
             if (sibling.isRootElement())
-                throw new DocumentException(CLINLS.getString("XMLEdit.outOfRoot")); //$NON-NLS-1$
+                throw new DocumentException(CLINLS.getString("XMLEdit.outOfRoot"));
             Element parent = sibling.getParent();
             List siblings = parent.elements();
             int index = siblings.indexOf(sibling);
@@ -338,7 +331,7 @@ public class XMLEdit
     protected void sortNodes(Element parent, List<Node> nodes) {
         if (orderBy == null)
             try {
-                orderBy = xpathParser.parse("text()"); //$NON-NLS-1$
+                orderBy = xpathParser.parse("text()");
             } catch (ParseException e) {
                 throw new UnexpectedException(e.getMessage(), e);
             }
@@ -410,7 +403,7 @@ public class XMLEdit
 
     public static void main(String[] args)
             throws Exception {
-        new XMLEdit().run(args);
+        new XMLEdit().execute(args);
     }
 
 }

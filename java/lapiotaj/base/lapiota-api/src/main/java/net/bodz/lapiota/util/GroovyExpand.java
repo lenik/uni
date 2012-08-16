@@ -1,13 +1,20 @@
 package net.bodz.lapiota.util;
 
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
+import groovy.lang.MissingPropertyException;
+
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
 import net.bodz.bas.c.java.util.regex.PatternProcessor;
-import net.bodz.bas.c.string.Strings;
+import net.bodz.bas.c.string.StringEscape;
+import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.sio.BCharOut;
+
+import org.codehaus.groovy.control.CompilationFailedException;
 
 public class GroovyExpand
         extends PatternProcessor {
@@ -30,7 +37,6 @@ public class GroovyExpand
         super(gspTag);
         this.vars = new HashTextMap<Object>(variables);
         this.binding = new Binding() {
-            @SuppressWarnings("unchecked")
             @Override
             public Map getVariables() {
                 return vars;
@@ -69,16 +75,17 @@ public class GroovyExpand
             throw new NotImplementedException("<%@ ... %> isn't supported");
         case '!':
             String decl = t.substring(1);
-            println(decl);
+            append(decl);
             break;
         case '=':
             String exp = t.substring(1).trim();
-            println("out.print(" + exp + ");");
+            append("out.print(" + exp + ");");
             break;
         default:
             String code = t;
-            println(code);
+            append(code);
         }
+        append('\n');
     }
 
     @Override
@@ -96,12 +103,12 @@ public class GroovyExpand
     }
 
     void echo(String s, boolean newline) {
-        s = Strings.escape(s);
+        s = StringEscape.java(s);
         s = s.replace("$", "\\$"); // suppress in-quote $var expansion.
         if (newline)
-            println("out.println(\"" + s + "\");");
+            append("out.println(\"" + s + "\");\n");
         else
-            println("out.print(\"" + s + "\");");
+            append("out.print(\"" + s + "\");\n");
     }
 
     /**

@@ -3,20 +3,20 @@ package net.bodz.lapiota.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.bodz.bas.cli.CLIException;
-import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.sio.IPrintOut;
-import net.bodz.swt.reflect.BasicGUI;
-import net.bodz.swt.reflect.util.DialogUI;
-
 import org.eclipse.swt.SWT;
+
+import net.bodz.bas.cli.skel.CLIException;
+import net.bodz.bas.meta.build.MainVersion;
+import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.sio.IPrintOut;
+import net.bodz.swt.program.BasicGUI;
+import net.bodz.swt.reflect.util.DialogUI;
 
 /**
  * GUI Choice Utility
  */
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class GChoice
         extends BasicGUI {
 
@@ -104,7 +104,7 @@ public class GChoice
 
     public static void main(String[] args)
             throws Exception {
-        new GChoice().run(args);
+        new GChoice().execute(args);
     }
 
 }

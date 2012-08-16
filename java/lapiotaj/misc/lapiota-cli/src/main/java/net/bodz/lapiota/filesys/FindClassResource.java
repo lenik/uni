@@ -17,19 +17,20 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.c.java.io.FilePath;
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.io.resource.builtin.InputStreamSource;
+import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.jvm.stack.Caller;
 import net.bodz.bas.loader.Classpath;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
 import net.bodz.bas.meta.program.ProgramName;
 import net.bodz.lapiota.util.TypeExtensions.FileParser2;
 
 /**
  * Find the class file defined the specified class
  */
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 @RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
 @ProgramName("jwhich")
 public class FindClassResource
@@ -65,7 +66,7 @@ public class FindClassResource
                 if (file.isDirectory())
                     return;
                 URL url = file.toURI().toURL();
-                L.x.P("add boot-classpath: ", url);
+                L.debug("add boot-classpath: ", url);
                 Classpath.addURL(url);
             }
         };
@@ -84,7 +85,7 @@ public class FindClassResource
                 if (file.isDirectory())
                     return;
                 URL url = file.toURI().toURL();
-                L.x.P("queue classpath: ", url);
+                L.debug("queue classpath: ", url);
                 classpaths.add(url);
             }
         };
@@ -178,7 +179,7 @@ public class FindClassResource
             Method mainf = clazz.getMethod("main", String[].class);
             try {
                 try {
-                    L.i.P("execute ", mainf.getDeclaringClass(), "::", mainf.getName(), "/", testArguments.length);
+                    L.info("execute ", mainf.getDeclaringClass(), "::", mainf.getName(), "/", testArguments.length);
                     mainf.invoke(null, (Object) testArguments);
                 } catch (InvocationTargetException te) {
                     throw te.getTargetException();
@@ -191,7 +192,7 @@ public class FindClassResource
             } catch (NoClassDefFoundError e) {
                 String respath = e.getMessage();
                 String failClass = respath.replace('/', '.');
-                L.w.P("try(", itry, ") ", failClass);
+                L.warn("try(", itry, ") ", failClass);
                 tryAdd = tryFind(failClass);
                 if (tryAdd != null) {
                     String lib = libpath(tryAdd);
@@ -212,9 +213,9 @@ public class FindClassResource
             }
             break;
         }
-        L.m.P("test succeeded, the required libraries: ");
+        L.mesg("test succeeded, the required libraries: ");
         for (URL url : tryAdds)
-            L.m.P(libpath(url));
+            L.mesg(libpath(url));
 
         testClass = null;
     }
@@ -224,7 +225,7 @@ public class FindClassResource
             throws Throwable {
         if (testClass == null) {
             for (URL url : classpaths) {
-                L.x.P("add classpath: ", url);
+                L.debug("add classpath: ", url);
                 Classpath.addURL(url);
             }
 
@@ -233,16 +234,16 @@ public class FindClassResource
             if (args.length > 0)
                 iter = Arrays.asList(args);
             else {
-                L.u.P("Enter class names or resource paths: ");
-                iter = new InputStreamSource(System.in).forRead().listLines();
+                L.stdout("Enter class names or resource paths: ");
+                iter = new InputStreamSource(System.in).tooling()._for(StreamReading.class).listLines();
             }
             for (String name : iter) {
                 name = name.trim();
                 URL url = findResource(loader, name);
                 if (url == null)
-                    L.m.P("No-Class: ", name);
+                    L.mesg("No-Class: ", name);
                 else
-                    L.m.P("Found: ", libpath(url));
+                    L.mesg("Found: ", libpath(url));
             }
         } else {
             if (args.length > 0) {

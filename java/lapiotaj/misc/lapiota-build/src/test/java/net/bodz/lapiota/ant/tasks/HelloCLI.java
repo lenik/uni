@@ -1,34 +1,36 @@
 package net.bodz.lapiota.ant.tasks;
 
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.potato.traits.IType;
 
 public class HelloCLI
         extends BasicCLI {
 
-    @Option
+    /** @option */
     private String[] welcomes;
 
-    @Option
-    private String yourName = "Lucy"; //$NON-NLS-1$
+    /** @option */
+    private String yourName = "Lucy";
 
-    @Option
+    /** @option */
     private boolean hot;
 
     @Override
     protected void _boot()
             throws Exception {
         if (welcomes == null)
-            welcomes = new String[] { "Hello" }; //$NON-NLS-1$
+            welcomes = new String[] { "Hello" };
     }
 
     @Override
     protected void doMain(String[] args)
             throws Exception {
-        L.mesg("good morning!"); //$NON-NLS-1$
-        L.detail("you are ", yourName); //$NON-NLS-1$
-        L.debug("now in debug level"); //$NON-NLS-1$
+        L.mesg("good morning!");
+        L.info("you are ", yourName);
+        L.debug("now in debug level");
         for (String welcome : welcomes) {
-            String s = welcome + ", " + yourName + "!"; //$NON-NLS-1$ //$NON-NLS-2$
+            String s = welcome + ", " + yourName + "!";
             if (hot)
                 s = s.toUpperCase();
             System.out.println(s);
@@ -39,9 +41,9 @@ public class HelloCLI
     public static void main(String[] args)
             throws Exception {
         HelloCLI app = new HelloCLI();
-        ScriptClass<?> sclass = app.getScriptClass();
-        LogTerm logger = (LogTerm) sclass.get(app, "logger"); //$NON-NLS-1$
-        System.out.println("Level=" + logger.getLevel()); //$NON-NLS-1$
+        IType type = app.getScriptClass();
+        Logger logger = app.L;
+        System.out.println("Max Priority = " + logger.getMaxPriority());
         app.run();
     }
 

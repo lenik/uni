@@ -5,17 +5,26 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+
 import net.bodz.bas.c.string.Strings;
+import net.bodz.bas.io.resource.tools.StreamReading;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.info.Doc;
 import net.bodz.bas.sio.ICharOut;
 import net.bodz.bas.sio.Stdio;
 import net.bodz.bas.vfs.IFile;
 
-@Doc("ASTDump description")
+/**
+ * ASTDump description
+ */
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 0 })
+@MainVersion({ 0, 0 })
 public class ASTDump
         extends JdtBasicCLI {
 
@@ -45,7 +54,7 @@ public class ASTDump
 
     public static void main(String[] args)
             throws Exception {
-        new ASTDump().run(args);
+        new ASTDump().execute(args);
     }
 
     @SuppressWarnings("unchecked")
@@ -56,7 +65,7 @@ public class ASTDump
             _help();
 
         L.info("load file ", file);
-        char[] src = file.forRead().readTextContents().toCharArray();
+        char[] src = file.tooling()._for(StreamReading.class).readTextContents().toCharArray();
 
         ASTParser parser = ASTParser.newParser(parserLevel);
         Map<String, Object> options = JavaCore.getOptions();
@@ -66,7 +75,7 @@ public class ASTDump
         options.put("org.eclipse.jdt.core.compiler.source", "1.6");
         parser.setCompilerOptions(options);
 
-        if (L.showDetail()) {
+        if (L.isInfoEnabled(/* 1 */)) {
             List<String> keys = new ArrayList<String>(options.keySet());
             Collections.sort(keys);
             for (String key : keys) {
@@ -93,9 +102,9 @@ public class ASTDump
         @Override
         public void preVisit(ASTNode node) {
             String type = node.getClass().getSimpleName();
-            L.nmesg(Strings.repeat(indent, ' '));
+            L.mesg(Strings.repeat(indent, ' '));
             Map<?, ?> props = node.properties();
-            L.fmesg("%s(%d/%d %d+%d %s): ", //
+            L.mesgf("%s(%d/%d %d+%d %s): ", //
                     type, node.getNodeType(), node.getFlags(), //
                     node.getStartPosition(), node.getLength(), //
                     props.isEmpty() ? "" : props.toString());

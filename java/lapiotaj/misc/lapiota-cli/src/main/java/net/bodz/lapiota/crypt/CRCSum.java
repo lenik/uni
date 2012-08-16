@@ -1,30 +1,36 @@
 package net.bodz.lapiota.crypt;
 
-import java.io.File;
+import static net.bodz.lapiota.nls.CLINLS.CLINLS;
+
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.zip.Checksum;
 
+import net.bodz.bas.c.java.lang.ClassTraits;
 import net.bodz.bas.c.type.Types;
-import net.bodz.bas.cli.BatchCLI;
-import net.bodz.bas.cli.CLIException;
+import net.bodz.bas.cli.skel.BatchCLI;
+import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.err.ParseException;
+import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.io.util.Checksums.IKey;
 import net.bodz.bas.io.util.Checksums._Checksum;
+import net.bodz.bas.log.LogLevel;
+import net.bodz.bas.mem.types.Int32BE;
+import net.bodz.bas.mem.types.Int32LE;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
+import net.bodz.bas.sio.IPrintOut;
 import net.bodz.bas.text.codec.builtin.HexCodec;
+import net.bodz.bas.vfs.IFile;
 import net.bodz.lapiota.crypt.Hashes.CRC32_BE;
 import net.bodz.lapiota.crypt.Hashes.CRC32_LE;
-import net.bodz.lapiota.nls.CLINLS;
 
 /**
  * Print or check CRC (32-bit) checksums
  */
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class CRCSum
         extends BatchCLI {
 
@@ -44,7 +50,6 @@ public class CRCSum
      *
      * @option -b --binary
      */
-    @Option(name = "binary", alias = "b", doc = "")
     void setBinaryMode() {
         mode = BINARY;
     }
@@ -74,8 +79,8 @@ public class CRCSum
      */
     void errStatus() {
         if (mode != CHECK)
-            L.warn(CLINLS.getString("CRCSum.errModeOnlyVerify")); //$NON-NLS-1$
-        L.setLevel(LogTerm.ERROR);
+            L.warn(CLINLS.getString("CRCSum.errModeOnlyVerify"));
+        L.setLevel(LogLevel.ERROR);
     }
 
     /**
@@ -85,8 +90,8 @@ public class CRCSum
      */
     void errWarn() {
         if (mode != CHECK)
-            L.warn(CLINLS.getString("CRCSum.errModeOnlyVerify")); //$NON-NLS-1$
-        L.setLevel(LogTerm.WARN);
+            L.warn(CLINLS.getString("CRCSum.errModeOnlyVerify"));
+        L.setMaxPriority(LogLevel.ERROR);
     }
 
     Class<? extends Checksum> _class = CRC32_LE.class;
@@ -94,9 +99,9 @@ public class CRCSum
     static NamedTypes<Checksum> types;
     static {
         types = new NamedTypes<Checksum>();
-        types.put("le", CRC32_LE.class); //$NON-NLS-1$
-        types.put("be", CRC32_BE.class); //$NON-NLS-1$
-        types.put("pgp", CRC32pgp.class); //$NON-NLS-1$
+        types.put("le", CRC32_LE.class);
+        types.put("be", CRC32_BE.class);
+        types.put("pgp", CRC32pgp.class);
     }
 
     /**
@@ -107,7 +112,7 @@ public class CRCSum
             throws ParseException {
         Class<? extends Checksum> clazz = types.get(name);
         if (clazz == null)
-            clazz = (Class<? extends Checksum>) new ClassParser().parse(name);
+            clazz = (Class<? extends Checksum>) new ClassTraits().parse(name);
         _class = clazz;
     }
 
@@ -117,8 +122,8 @@ public class CRCSum
             if (inst instanceof IKey)
                 ((IKey) inst).setKey((int) key);
             else
-                throw new UnsupportedOperationException(CLINLS.getString("CRCSum.5") //$NON-NLS-1$
-                        + _class.getName() + CLINLS.getString("CRCSum.6")); //$NON-NLS-1$
+                throw new UnsupportedOperationException(CLINLS.getString("CRCSum.5") + _class.getName()
+                        + CLINLS.getString("CRCSum.6"));
         return inst;
     }
 
@@ -126,16 +131,16 @@ public class CRCSum
     protected void _boot()
             throws Exception {
         if (mode == CHECK)
-            throw new NotImplementedException("Check is not implemented"); //$NON-NLS-1$
+            throw new NotImplementedException("Check is not implemented");
     }
 
-    static HexCodec HEX = new HexCodec(""); //$NON-NLS-1$
+    static HexCodec HEX = new HexCodec("");
 
     @Override
-    protected void doFile(File file, InputStream in)
+    protected void doFile(IFile file, InputStream in)
             throws Exception {
-        String name = file == null ? "-" : file.getName(); //$NON-NLS-1$
-        byte[] data = Files.readBytes(in);
+        String name = file == null ? "-" : file.getName();
+        byte[] data = file.tooling()._for(StreamReading.class).readBinaryContents();
         // algorithmClass.newInstance();
         Checksum csum;
         csum = create();
@@ -149,7 +154,7 @@ public class CRCSum
             Int32LE.write(buf, val);
         }
         String hex = HEX.encode(buf);
-        System.out.println(hex + " *" + name); //$NON-NLS-1$
+        System.out.println(hex + " *" + name);
     }
 
     @Override
@@ -158,21 +163,21 @@ public class CRCSum
     }
 
     @Override
-    protected void _help(CharOut out)
+    protected void _help(IPrintOut out)
             throws CLIException {
         super._help(out);
         out.println();
 
-        out.println(CLINLS.getString("CRCSum.namedAlgs")); //$NON-NLS-1$
+        out.println(CLINLS.getString("CRCSum.namedAlgs"));
         for (String name : types.keySet())
-            out.printf(CLINLS.getString("CRCSum.algInfo_ss"), name, types.get(name)); //$NON-NLS-1$
+            out.printf(CLINLS.getString("CRCSum.algInfo_ss"), name, types.get(name));
 
         out.flush();
     }
 
     public static void main(String[] args)
             throws Exception {
-        new CRCSum().run(args);
+        new CRCSum().execute(args);
     }
 
     public static class CRC32pgp

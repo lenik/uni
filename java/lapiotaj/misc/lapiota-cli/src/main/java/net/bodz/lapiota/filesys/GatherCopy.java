@@ -1,6 +1,6 @@
 package net.bodz.lapiota.filesys;
 
-import net.bodz.bas.cli.BatchEditCLI;
+import net.bodz.bas.cli.skel.BatchEditCLI;
 
 // Not Used.
 public class GatherCopy

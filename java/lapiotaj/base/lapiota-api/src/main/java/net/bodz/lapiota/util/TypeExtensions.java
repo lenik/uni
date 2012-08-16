@@ -2,41 +2,45 @@ package net.bodz.lapiota.util;
 
 import java.io.File;
 
-import javax.xml.xpath.XPath;
-
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.err.OutOfDomainException;
+import net.bodz.bas.err.ParseException;
 import net.bodz.bas.snm.abc.ModulesRoot;
+import net.bodz.bas.traits.AbstractParser;
+
+import org.dom4j.DocumentFactory;
+import org.dom4j.XPath;
+import org.dom4j.io.OutputFormat;
 
 public class TypeExtensions {
 
     public static class FileParser2
-            extends FileParser {
+            extends AbstractParser<File> {
 
         @Override
         public File parse(String path)
                 throws ParseException {
             if (path.startsWith("?"))
                 return ModulesRoot.DEFAULT.findexp(path.substring(1));
-            return super.parse(path);
+            return new File(path);
         }
 
     }
 
     public static class XPathParser
-            implements TypeParser {
+            extends AbstractParser<XPath> {
 
         @Override
         public XPath parse(String xpath)
                 throws ParseException {
-            DocumentFactory docfac = DocumentFactory.getInstance();
-            return docfac.createXPath(xpath);
+            DocumentFactory factory = DocumentFactory.getInstance();
+            return factory.createXPath(xpath);
         }
 
     }
 
     public static class OutputFormatParser
-            implements TypeParser {
+            extends AbstractParser<OutputFormat> {
 
         @Override
         public OutputFormat parse(String fmt)

@@ -1,8 +1,8 @@
 package net.bodz.lapiota.comm;
 
-import net.bodz.swt.reflect.BasicGUI;
-
 import org.eclipse.swt.widgets.Display;
+
+import net.bodz.swt.program.BasicGUI;
 
 public class PrivateTalk
         extends BasicGUI {
@@ -16,7 +16,7 @@ public class PrivateTalk
 
     public static void main(String[] args)
             throws Exception {
-        new PrivateTalk().run(args);
+        new PrivateTalk().execute(args);
     }
 
 }

@@ -17,36 +17,45 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.c.java.io.FileFinder;
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.c.java.io.FilePath;
+import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.jvm.stack.Caller;
 import net.bodz.bas.lang.Control;
 import net.bodz.bas.loader.Classpath;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.info.Doc;
 import net.bodz.bas.meta.program.ArgsParseBy;
 import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.bas.trait.spi.extra.GetInstanceParser;
 import net.bodz.lapiota.util.TypeExtensions.FileParser2;
 
-
-@Doc("Find the class file defined the specified class")
+/**
+ * Find the class file defined the specified class
+ */
 @ProgramName("jwhich")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class FindClassResource
         extends BasicCLI {
 
-    @Option(alias = "r", vnam = "[DEPTH]", optional = "65536", doc = "max depth of directories recurse into")
+    /**
+     * max depth of directories recurse into
+     *
+     * @option -r =[DEPTH] default-value=65536
+     */
     protected int recursive = 1;
 
-    @Option(alias = "Ic", vnam = "CLASS(FileFilter)", doc = "using custom file filter, default find jar/?ar/zip files")
-    @ParseBy(GetInstanceParser.class)
+    /**
+     * using custom file filter, default find jar/?ar/zip files
+     *
+     * @option -Ic =CLASS(FileFilter)
+     */
     protected FileFilter filter;
 
     protected List<URL> classpaths = new ArrayList<URL>();
 
-    @Option(alias = "b", vnam = "FILE|DIR")
+    /**
+     * @option -b =FILE|DIR
+     */
     @ParseBy(FileParser2.class)
     protected void bootClasspath(File file)
             throws IOException {
@@ -60,7 +69,9 @@ public class FindClassResource
         }
     }
 
-    @Option(alias = "c", vnam = "FILE|DIR")
+    /**
+     * @option -c =FILE|DIR
+     */
     @ArgsParseBy(FileParser2.class)
     protected void classpath(File file)
             throws IOException {
@@ -99,13 +110,25 @@ public class FindClassResource
         return url;
     }
 
-    @Option(alias = "t", vnam = "MAINCLASS", doc = "find all libraries required by the specified class")
+    /**
+     * find all libraries required by the specified class
+     *
+     * @option -t =MAINCLASS
+     */
     protected String testClass;
 
-    @Option(alias = "a", vnam = "ARG", doc = "add one argument to the test arguments")
+    /**
+     * add one argument to the test arguments
+     *
+     * @option -a =ARG
+     */
     protected String[] testArguments;
 
-    @Option(alias = "Q", doc = "suppress the output of test program")
+    /**
+     * suppress the output of test program
+     *
+     * @option -Q
+     */
     protected boolean testQuiet = false;
 
     protected URL tryFind(String name) {
@@ -114,7 +137,11 @@ public class FindClassResource
         return findResource(tryLoader, name);
     }
 
-    @Option(alias = "T", doc = "do test")
+    /**
+     * do test
+     *
+     * @option -T
+     */
     protected void test()
             throws Exception {
         if (testArguments == null)
@@ -177,9 +204,9 @@ public class FindClassResource
             }
             break;
         }
-        L.nmesg("test succeeded, the required libraries: ");
+        L.mesg("test succeeded, the required libraries: ");
         for (URL url : tryAdds)
-            L.nmesg(libpath(url));
+            L.mesg(libpath(url));
 
         testClass = null;
     }
@@ -198,16 +225,16 @@ public class FindClassResource
             if (args.length > 0)
                 strings = Arrays.asList(args);
             else {
-                L.nuser("Enter class names or resource paths: ");
+                L.stdout("Enter class names or resource paths: ");
                 strings = Files.readByLine(System.in);
             }
             for (String name : strings) {
                 name = name.trim();
                 URL url = findResource(loader, name);
                 if (url == null)
-                    L.nmesg("No-Class: ", name);
+                    L.mesg("No-Class: ", name);
                 else
-                    L.nmesg("Found: ", libpath(url));
+                    L.mesg("Found: ", libpath(url));
             }
         } else {
             if (args.length > 0) {
@@ -236,7 +263,7 @@ public class FindClassResource
             filter = new FileFilter() {
                 @Override
                 public boolean accept(File file) {
-                    String ext = Files.getExtension(file).toLowerCase();
+                    String ext = FilePath.getExtension(file).toLowerCase();
                     return JAR_EXTENSIONS.matcher(ext).matches();
                 }
             };
@@ -244,7 +271,7 @@ public class FindClassResource
 
     public static void main(String[] args)
             throws Exception {
-        new FindClassResource().run(args);
+        new FindClassResource().execute(args);
     }
 
 }

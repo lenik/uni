@@ -1,22 +1,20 @@
 package net.bodz.lapiota.xmlfs;
 
-import java.io.File;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.List;
-
-import net.bodz.bas.cli.BasicCLI;
-import net.bodz.bas.loader.boot.BootInfo;
-import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
-import net.bodz.lapiota.util.TypeExtensions.XPathParser;
 
 import org.dom4j.Node;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.jaxen.XPath;
+
+import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.loader.boot.BootInfo;
+import net.bodz.bas.meta.build.MainVersion;
+import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.meta.program.ProgramName;
+import net.bodz.bas.vfs.IFile;
 
 /**
  * Xmlfs XPath Selector
@@ -24,7 +22,7 @@ import org.jaxen.XPath;
 @BootInfo(syslibs = { "dom4j", "jaxen" })
 @ProgramName("xfss")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class XmlfsSelector
         extends BasicCLI {
 
@@ -45,18 +43,16 @@ public class XmlfsSelector
     /**
      * @option -s =XPATH required
      */
-    @ParseBy(XPathParser.class)
     protected XPath select;
 
     /**
      * @option -O =pretty|compact
      */
-    @ParseBy(OutputFormatParser.class)
     protected OutputFormat outputFormat = OutputFormat.createPrettyPrint();
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void doFileArgument(File root)
+    protected void doFileArgument(IFile root)
             throws Exception {
         XmlfsDocument doc = new XmlfsDocument(root);
         List list = select.selectNodes(doc);
@@ -74,7 +70,7 @@ public class XmlfsSelector
 
     public static void main(String[] args)
             throws Exception {
-        new XmlfsSelector().run(args);
+        new XmlfsSelector().execute(args);
     }
 
 }

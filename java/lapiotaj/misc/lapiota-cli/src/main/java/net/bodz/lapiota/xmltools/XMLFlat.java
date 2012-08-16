@@ -1,5 +1,7 @@
 package net.bodz.lapiota.xmltools;
 
+import static net.bodz.lapiota.nls.CLINLS.CLINLS;
+
 import java.io.File;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
@@ -9,19 +11,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.bodz.bas.cli.BasicCLI;
-import net.bodz.bas.cli.CLIException;
-import net.bodz.bas.loader.boot.BootInfo;
-import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.info.Doc;
-import net.bodz.bas.sio.IPrintOut;
-import net.bodz.bas.sio.PrintStreamPrintOut;
-import net.bodz.bas.sio.Stdio;
-import net.bodz.lapiota.nls.CLINLS;
-import net.bodz.lapiota.util.StringUtil;
-import net.bodz.lapiota.util.TypeExtensions.XPathParser;
-
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentFactory;
@@ -29,10 +18,22 @@ import org.dom4j.Node;
 import org.dom4j.XPath;
 import org.dom4j.io.SAXReader;
 
+import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.cli.skel.CLIException;
+import net.bodz.bas.loader.boot.BootInfo;
+import net.bodz.bas.meta.build.MainVersion;
+import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.sio.IPrintOut;
+import net.bodz.bas.sio.PrintStreamPrintOut;
+import net.bodz.bas.sio.Stdio;
+import net.bodz.lapiota.util.StringUtil;
+
+/**
+ * Convert XML document to plain table
+ */
 @BootInfo(syslibs = { "dom4j", "jaxen" })
-@Doc("Convert XML document to plain table")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class XMLFlat
         extends BasicCLI {
 
@@ -41,7 +42,7 @@ public class XMLFlat
      *
      * @option -d =LIST
      */
-    protected char[] delimiters = ":".toCharArray(); //$NON-NLS-1$
+    protected char[] delimiters = ":".toCharArray();
 
     /**
      * Input encoding
@@ -76,7 +77,6 @@ public class XMLFlat
      *
      * @option -s =XPATH
      */
-    @ParseBy(XPathParser.class)
     protected XPath select;
 
     /**
@@ -136,13 +136,13 @@ public class XMLFlat
     protected void _boot()
             throws Exception {
         if (delimiters == null)
-            delimiters = ",".toCharArray(); //$NON-NLS-1$
+            delimiters = ",".toCharArray();
         if (widths != null)
             align = true;
 
         docfac = DocumentFactory.getInstance();
         if (select == null)
-            select = docfac.createXPath("//*"); //$NON-NLS-1$
+            select = docfac.createXPath("//*");
     }
 
     public void convert(Document doc)
@@ -165,7 +165,7 @@ public class XMLFlat
             for (int i = 0; i < fields.length; i++) {
                 List<?> cell = fields[i].selectNodes(row);
                 if (cell.isEmpty()) {
-                    vals[i] = ""; //$NON-NLS-1$
+                    vals[i] = "";
                 } else {
                     buf.setLength(0);
                     for (Object _picoNode : cell) {
@@ -232,7 +232,7 @@ public class XMLFlat
 
     private static final Pattern CAPNAME;
     static {
-        CAPNAME = Pattern.compile("([^\\[]+)=.*"); //$NON-NLS-1$
+        CAPNAME = Pattern.compile("([^\\[]+)=.*");
     }
 
     @Override
@@ -240,10 +240,10 @@ public class XMLFlat
             throws Exception {
         SAXReader reader = new SAXReader();
         if (inputFile == null) {
-            L.user(CLINLS.getString("XMLFlat.enterXml")); //$NON-NLS-1$
+            L.stdout(CLINLS.getString("XMLFlat.enterXml"));
             doc = reader.read(System.in);
         } else {
-            L.info(CLINLS.getString("XMLFlat.process"), inputFile); //$NON-NLS-1$
+            L.info(CLINLS.getString("XMLFlat.process"), inputFile);
             doc = reader.read(inputFile);
         }
 
@@ -256,7 +256,7 @@ public class XMLFlat
                 captions[i] = matcher.group(1);
                 arg = arg.substring(matcher.end(1) + 1);
             } else
-                captions[i] = arg.replaceAll("\\W", "_"); //$NON-NLS-1$ //$NON-NLS-2$
+                captions[i] = arg.replaceAll("\\W", "_");
             fields[i] = doc.createXPath(arg);
         }
 
@@ -270,7 +270,7 @@ public class XMLFlat
 
     public static void main(String[] args)
             throws Exception {
-        new XMLFlat().run(args);
+        new XMLFlat().execute(args);
     }
 
 }

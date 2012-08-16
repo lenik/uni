@@ -7,9 +7,9 @@ import java.security.Provider;
 import java.security.cert.CertSelector;
 import java.security.cert.Certificate;
 
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
 import net.bodz.bas.meta.program.ProgramName;
 
 /**
@@ -17,7 +17,7 @@ import net.bodz.bas.meta.program.ProgramName;
  */
 @ProgramName("certimp")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class CertImport
         extends BasicCLI {
 
@@ -26,7 +26,6 @@ public class CertImport
      *
      * @option -p =PROV-CLASS
      */
-    @ParseBy(Providers.Parser.class)
     Provider provider = null;
 
     /**
@@ -68,7 +67,7 @@ public class CertImport
 
     public static void main(String[] args)
             throws Exception {
-        new CertImport().run(args);
+        new CertImport().execute(args);
     }
 
 }

@@ -4,16 +4,16 @@ import java.nio.CharBuffer;
 
 import net.bodz.bas.c.java.util.regex.BufParsers;
 import net.bodz.bas.c.java.util.regex.Unescape;
-import net.bodz.bas.cli.BatchEditCLI;
-import net.bodz.bas.cli.EditResult;
+import net.bodz.bas.cli.skel.BatchEditCLI;
+import net.bodz.bas.cli.skel.EditResult;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
 import net.bodz.bas.sio.IPrintOut;
 
 /**
  * Convert ascii chars or \\uNNNN to native chars
  */
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 @RcsKeywords(id = "$Id$")
 public class Ascii2Native
         extends BatchEditCLI {
@@ -26,7 +26,7 @@ public class Ascii2Native
             extends Unescape {
 
         public Udecode() {
-            super("\\"); //$NON-NLS-1$
+            super("\\");
         }
 
         @Override
@@ -59,7 +59,7 @@ public class Ascii2Native
 
     public static void main(String[] args)
             throws Exception {
-        new Ascii2Native().run(args);
+        new Ascii2Native().execute(args);
     }
 
 }

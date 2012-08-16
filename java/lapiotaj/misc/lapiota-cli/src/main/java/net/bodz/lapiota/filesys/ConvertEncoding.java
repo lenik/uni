@@ -1,5 +1,7 @@
 package net.bodz.lapiota.filesys;
 
+import static net.bodz.lapiota.nls.CLINLS.CLINLS;
+
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
@@ -8,20 +10,19 @@ import java.nio.file.Files;
 import java.util.Map;
 import java.util.Set;
 
-import net.bodz.bas.cli.BatchEditCLI;
-import net.bodz.bas.cli.EditResult;
+import net.bodz.bas.cli.skel.BatchEditCLI;
+import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.lang.ControlBreak;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
 import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.lapiota.nls.CLINLS;
 
 /**
  * Batch iconv written in java, JUN 2004
  */
 @ProgramName("jiconv")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class ConvertEncoding
         extends BatchEditCLI {
 
@@ -44,32 +45,32 @@ public class ConvertEncoding
         Map<String, Charset> charsets = Charset.availableCharsets();
         for (Map.Entry<String, Charset> e : charsets.entrySet()) {
             Charset charset = e.getValue();
-            L.fmesg("%s: ", e.getKey()); //$NON-NLS-1$
+            L.mesgf("%s: ", e.getKey());
             if (!charset.displayName().equals(e.getKey()))
-                L.nmesg(charset.displayName());
+                L.mesg(charset.displayName());
 
-            if (L.showDetail()) {
+            if (L.isInfoEnabled()) {
                 CharsetDecoder dec = charset.newDecoder();
                 float avgcpb = dec.averageCharsPerByte();
                 float maxcpb = dec.maxCharsPerByte();
-                L.fdetail(CLINLS.getString("ConvertEncoding.decode_ff"), maxcpb, avgcpb); //$NON-NLS-1$
+                L.infof(CLINLS.getString("ConvertEncoding.decode_ff"), maxcpb, avgcpb);
                 if (charset.canEncode()) {
                     CharsetEncoder enc = charset.newEncoder();
                     float avgbpc = enc.averageBytesPerChar();
                     float maxbpc = enc.maxBytesPerChar();
-                    L.fdetail(CLINLS.getString("ConvertEncoding.encode_ff"), maxbpc, avgbpc); //$NON-NLS-1$
+                    L.infof(CLINLS.getString("ConvertEncoding.encode_ff"), maxbpc, avgbpc);
                 }
             }
-            L.mesg().p();
+            L.mesg("");
 
             Set<String> aliases = charset.aliases();
             if (!aliases.isEmpty()) {
-                L.nmesg("   "); //$NON-NLS-1$
+                L.mesg("   ");
                 for (String alias : charset.aliases()) {
-                    L.nmesg(' ');
-                    L.nmesg(alias);
+                    L.mesg(' ');
+                    L.mesg(alias);
                 }
-                L.mesg().p();
+                L.mesg("");
             }
         }
         throw new ControlBreak();
@@ -83,9 +84,9 @@ public class ConvertEncoding
     }
 
     // private static Charset CHARSET_L1 = Charset.forName("ISO-8859-1");
-    private static Charset CHARSET_UTF8 = Charset.forName("UTF-8"); //$NON-NLS-1$
-    private static Charset CHARSET_UTF16_LE = Charset.forName("UTF-16LE"); //$NON-NLS-1$
-    private static Charset CHARSET_UTF16_BE = Charset.forName("UTF-16BE"); //$NON-NLS-1$
+    private static Charset CHARSET_UTF8 = Charset.forName("UTF-8");
+    private static Charset CHARSET_UTF16_LE = Charset.forName("UTF-16LE");
+    private static Charset CHARSET_UTF16_BE = Charset.forName("UTF-16BE");
 
     @Override
     protected EditResult doEdit(File in, File out)
@@ -106,7 +107,7 @@ public class ConvertEncoding
             }
         }
 
-        L.tmesg(CLINLS.format("ConvertEncoding.iconv_ssss", in, srcenc, out, dstenc)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+        L.status(CLINLS.format("ConvertEncoding.iconv_ssss", in, srcenc, out, dstenc));
 
         String decoded = new String(src, srcenc);
         byte[] dst = decoded.getBytes(dstenc);
@@ -117,7 +118,7 @@ public class ConvertEncoding
 
     public static void main(String[] args)
             throws Exception {
-        new ConvertEncoding().run(args);
+        new ConvertEncoding().execute(args);
     }
 
 }

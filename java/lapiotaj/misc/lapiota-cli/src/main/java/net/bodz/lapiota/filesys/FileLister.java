@@ -1,8 +1,8 @@
 package net.bodz.lapiota.filesys;
 
-import net.bodz.bas.cli.BatchCLI;
+import net.bodz.bas.cli.skel.BatchCLI;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
 import net.bodz.bas.meta.program.ProgramName;
 import net.bodz.bas.vfs.IFile;
 
@@ -11,7 +11,7 @@ import net.bodz.bas.vfs.IFile;
  */
 @ProgramName("jdir")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class FileLister
         extends BatchCLI {
 
@@ -23,7 +23,7 @@ public class FileLister
 
     public static void main(String[] args)
             throws Exception {
-        new FileLister().run(args);
+        new FileLister().execute(args);
     }
 
 }

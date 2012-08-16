@@ -13,7 +13,7 @@ public class LapiotaTest {
     public void testFindabc() {
         System.out.println(Lapiota.lapAbcd);
 
-        File eclipse = Lapiota.findabc("ec"); //$NON-NLS-1$
+        File eclipse = Lapiota.findabc("ec");
         System.out.println(eclipse);
     }
 

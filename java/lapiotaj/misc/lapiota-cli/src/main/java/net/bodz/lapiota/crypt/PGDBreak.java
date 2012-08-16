@@ -1,18 +1,22 @@
 package net.bodz.lapiota.crypt;
 
+import static net.bodz.lapiota.nls.CLINLS.CLINLS;
+
 import java.io.File;
 import java.nio.file.Files;
 
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.mem.Memory;
+import net.bodz.bas.mem.RandomAccessFileMemory;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.lapiota.nls.CLINLS;
+import net.bodz.bas.vfs.IFile;
 
 /**
  * PGP disk headers break up
  */
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 0 })
+@MainVersion({ 0, 0 })
 public class PGDBreak
         extends BasicCLI {
 
@@ -21,7 +25,7 @@ public class PGDBreak
      *
      * @option -O =DIR
      */
-    File outputDirectory = new File("."); //$NON-NLS-1$
+    File outputDirectory = new File(".");
 
     /**
      * <pre>
@@ -36,7 +40,7 @@ public class PGDBreak
      * </pre>
      */
     @Override
-    protected void doFileArgument(File file)
+    protected void doFileArgument(IFile file)
             throws Exception {
         Memory mem = new RandomAccessFileMemory(file, 0);
         Memory chunk = mem;
@@ -50,16 +54,16 @@ public class PGDBreak
             int size = chunk.readInt32(8);
             int crc = chunk.readInt32(12);
             L.mesg(magic, //
-                    " addr=", addr, // //$NON-NLS-1$
-                    " type=", type, // //$NON-NLS-1$
-                    " size=", size, // //$NON-NLS-1$
-                    " crc=", Integer.toHexString(crc)); //$NON-NLS-1$
+                    " addr=", addr, //
+                    " type=", type, //
+                    " size=", size, //
+                    " crc=", Integer.toHexString(crc));
 
             header = new byte[size];
             chunk.read(0, header);
             File chunkFile = new File(outputDirectory, file.getName() //
-                    + "." + type + "." + chunkIndex++); //$NON-NLS-1$ //$NON-NLS-2$
-            L.mesg(CLINLS.getString("PGDBreak.writeTo"), chunkFile, " (", size, " bytes)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    + "." + type + "." + chunkIndex++);
+            L.mesg(CLINLS.getString("PGDBreak.writeTo"), chunkFile, " (", size, " bytes)");
             Files.write(chunkFile, header);
 
             addr = chunk.readInt64(16);
@@ -71,7 +75,7 @@ public class PGDBreak
 
     public static void main(String[] args)
             throws Exception {
-        new PGDBreak().run(args);
+        new PGDBreak().execute(args);
     }
 
 }

@@ -1,9 +1,8 @@
 package net.bodz.lapiota.javatools;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
@@ -16,40 +15,65 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import net.bodz.bas.c.string.Strings;
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.jvm.stack.Caller;
 import net.bodz.bas.loader.Classpath;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.info.Doc;
 import net.bodz.bas.meta.program.ProgramName;
 import net.bodz.bas.sio.BCharOut;
+import net.bodz.bas.sio.IPrintOut;
+import net.bodz.bas.sio.PrintStreamPrintOut;
 
-@Doc("Generate class proxy/wrapper")
+/**
+ * Generate class proxy/wrapper
+ */
 @ProgramName("classwrap")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 0 })
+@MainVersion({ 0, 0 })
 public class GenerateClassWrappers
         extends BasicCLI {
 
-    @Option(vnam = "WORD", doc = "prefix string to the generated class")
-    @CheckBy(value = Regex.class, param = "\\w+")
+    /**
+     * prefix string to the generated class
+     *
+     * @option =WORD
+     * @CheckBy(value = Regex.class, param = "\\w+")
+     */
     protected String prefix;
 
-    @Option(vnam = "WORD", doc = "suffix string to the generated class")
-    @CheckBy(value = Regex.class, param = "\\w+")
+    /**
+     * suffix string to the generated class
+     *
+     * @option =WORD
+     * @CheckBy(value = Regex.class, param = "\\w+")
+     */
     protected String suffix = "W";
 
-    @Option(doc = "wrap fields, do update before/after method calls")
+    /**
+     * wrap fields, do update before/after method calls
+     *
+     * @option
+     */
     protected boolean withFields = false;
 
-    @Option(name = "skip-class", alias = "x", vnam = "FQCN", valtype = Class.class, doc = "don't wrap classes derived any of these")
+    /**
+     * don't wrap classes derived any of these
+     *
+     * @option -x --skip-class =FQCN
+     */
     protected List<Class<?>> skipClasses;
 
-    @Option(hidden = true, valtype = Class.class)
+    /**
+     * @option hidden
+     */
     private List<Class<?>> classes = new ArrayList<Class<?>>();
 
-    @Option(name = "class", alias = "c", vnam = "FQCN", doc = "classes to wrap")
+    /**
+     * classes to wrap
+     *
+     * @option --class -c =FQCN
+     */
     public void addClass(String fqcn)
             throws ClassNotFoundException {
         addClass(fqcn, true);
@@ -99,7 +123,11 @@ public class GenerateClassWrappers
         return 1;
     }
 
-    @Option(alias = "j", vnam = "JARFILE", doc = "add all public classes from the jar")
+    /**
+     * add all public classes from the jar
+     *
+     * @option -j =JARFILE
+     */
     public void addJar(File jarfile)
             throws MalformedURLException, IOException {
         Classpath.addURL(Files.getURL(jarfile));
@@ -124,7 +152,11 @@ public class GenerateClassWrappers
         L.info("added ", count, " classes from ", jarfile);
     }
 
-    @Option(alias = "d", vnam = "DIR", doc = "add all public classes from the directory")
+    /**
+     * add all public classes from the directory
+     *
+     * @option -d =DIR
+     */
     public void addDirectory(File dir)
             throws MalformedURLException, IOException {
         Classpath.addURL(Files.getURL(dir));
@@ -155,7 +187,11 @@ public class GenerateClassWrappers
 
     private static final String PI_CLASSPATH = "%";
 
-    @Option(alias = "l", vnam = "LIST-FILE", doc = "add classes defined in the list file")
+    /**
+     * add classes defined in the list file
+     *
+     * @option -l =LIST-FILE
+     */
     public void addList(File list)
             throws MalformedURLException, IOException {
         int count = 0;
@@ -171,15 +207,25 @@ public class GenerateClassWrappers
         L.info("added ", count, " classes from ", list);
     }
 
-    @Option(alias = "w", vnam = "PACKAGE")
-    @CheckBy(value = Regex.class, param = "\\w+(\\.\\w+)*")
+    /**
+     * @option -w =PACKAGE
+     * @CheckBy(value = Regex.class, param = "\\w+(\\.\\w+)*")
+     */
     protected String wrapPackage;
 
-    @Option(alias = "o", required = true, doc = "dest directory to save the generated java files")
-    @CheckBy(value = FileAccess.class, param = "d")
+    /**
+     * dest directory to save the generated java files
+     *
+     * @option required -o
+     * @CheckBy(value = FileAccess.class, param = "d")
+     */
     protected File out;
 
-    @Option(alias = "e", doc = "output encoding")
+    /**
+     * output encoding
+     *
+     * @option -e
+     */
     protected Charset encoding = Charset.defaultCharset();
 
     public void make(Class<?> clazz)
@@ -198,8 +244,9 @@ public class GenerateClassWrappers
             wname += suffix;
         File dir = new File(out, subdir);
         File file = new File(dir, wname);
-        OutputStream fileout = new FileOutputStream(file);
-        CharOut out = CharOuts.get(fileout, encoding.name());
+        PrintStream fileout = new PrintStream(file, encoding.name());
+
+        IPrintOut out = new PrintStreamPrintOut(fileout);
 
         out.println("package " + wpkg + ";");
         out.println();
@@ -210,7 +257,7 @@ public class GenerateClassWrappers
 
         // TypeVariable<?>[] ctv = clazz.getTypeParameters();
 
-        BCharOut body = new CharOuts.BCharOut();
+        BCharOut body = new BCharOut();
         body.print("public class " + wname);
         if (clazz.isInterface())
             body.println(" implements " + clazz.getName() + " {");
@@ -230,14 +277,14 @@ public class GenerateClassWrappers
     protected void doMain(String[] args)
             throws Exception {
         for (Class<?> clazz : classes) {
-            L.tinfo("type ", clazz);
+            L.status("type ", clazz);
             make(clazz);
         }
     }
 
     public static void main(String[] args)
             throws Exception {
-        new GenerateClassWrappers().run(args);
+        new GenerateClassWrappers().execute(args);
     }
 
 }

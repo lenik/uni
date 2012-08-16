@@ -1,22 +1,28 @@
 package net.bodz.lapiota.xmlfs;
 
-import net.bodz.lapiota.xmlfs.Xmlfs;
-
+import org.junit.Assert;
 import org.junit.Test;
 
-public class XmlfsTest {
+public class XmlfsTest
+        extends Assert {
 
     @Test
     public void testGetXName() {
-        TestDefs.tests("getXName", new TestEval<String>() { //$NON-NLS-1$
-                    public Object eval(String input)
-                            throws Throwable {
-                        return Xmlfs.getXName(input);
-                    }
-                }, //
-                EQ("hello", "hello"), // //$NON-NLS-1$ //$NON-NLS-2$
-                EQ("a_b", "a__b"), // //$NON-NLS-1$ //$NON-NLS-2$
-                EQ("hi space", "hi_0020space") // //$NON-NLS-1$ //$NON-NLS-2$
-        );
+        class D {
+            void o(String actual, String expected) {
+                assertEquals(expected, actual);
+            }
+        }
+        D d = new D();
+        d.o("hello", "hello");
+        d.o("a_b", "a__b");
+        d.o("hi space", "hi_0020space");
+    }
+}
+
+class XmlfsTag {
+    public Object eval(String input)
+            throws Throwable {
+        return Xmlfs.getXName(input);
     }
 }

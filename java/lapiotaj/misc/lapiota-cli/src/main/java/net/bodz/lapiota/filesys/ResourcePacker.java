@@ -1,5 +1,7 @@
 package net.bodz.lapiota.filesys;
 
+import static net.bodz.lapiota.nls.CLINLS.CLINLS;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,19 +14,19 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 
 import net.bodz.bas.c.java.io.FilePath;
-import net.bodz.bas.cli.BatchEditCLI;
-import net.bodz.bas.cli.EditResult;
+import net.bodz.bas.cli.skel.BatchEditCLI;
+import net.bodz.bas.cli.skel.EditResult;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
 import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.lapiota.nls.CLINLS;
+import net.bodz.bas.vfs.IFile;
 
 /**
  * Resource packer
  */
 @ProgramName("respack")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class ResourcePacker
         extends BatchEditCLI {
 
@@ -41,7 +43,7 @@ public class ResourcePacker
         if (jarOut == null) {
             if (outputFile == null) {
                 assert currentStartFile != null;
-                outputFile = new File(currentStartFile.getPath() + ".jar"); //$NON-NLS-1$
+                outputFile = new File(currentStartFile.getPath() + ".jar");
             }
             try {
                 OutputStream out = new FileOutputStream(outputFile);
@@ -55,7 +57,7 @@ public class ResourcePacker
 
     static Pattern invalidChars;
     static {
-        invalidChars = Pattern.compile("[^\\p{Alnum}_]", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$
+        invalidChars = Pattern.compile("[^\\p{Alnum}_]", Pattern.CASE_INSENSITIVE);
     }
 
     static interface NameConverter {
@@ -88,11 +90,11 @@ public class ResourcePacker
     int emptyIndex = 0;
 
     String convertNamePart(String part) {
-        part = invalidChars.matcher(part).replaceAll(""); //$NON-NLS-1$
+        part = invalidChars.matcher(part).replaceAll("");
         if (part.isEmpty())
-            part = "_" + ++emptyIndex; //$NON-NLS-1$
+            part = "_" + ++emptyIndex;
         if (Character.isDigit(part.charAt(0)))
-            part = "_" + part; //$NON-NLS-1$
+            part = "_" + part;
         return part;
     }
 
@@ -120,22 +122,22 @@ public class ResourcePacker
     }
 
     @Override
-    protected EditResult doEdit(File file)
+    protected EditResult doEdit(IFile file)
             throws IOException {
         JarOutputStream out = getJarOut();
         String name = getRelativeName(file);
         String ename = resNameOf(name);
-        L.tmesg(CLINLS.getString("ResourcePacker.add"), ename); //$NON-NLS-1$
+        L.status(CLINLS.getString("ResourcePacker.add"), ename);
         ZipEntry ze = new ZipEntry(ename);
         out.putNextEntry(ze);
         Files.copy(file, out);
         out.closeEntry();
-        L.info(CLINLS.getString("ResourcePacker.add"), ename, " [", ze.getCompressedSize(), "/", ze.getSize(), "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        L.info(CLINLS.getString("ResourcePacker.add"), ename, " [", ze.getCompressedSize(), "/", ze.getSize(), "]");
         return EditResult.pass();
     }
 
     @Override
-    protected File _getEditTmp(File file)
+    protected IFile _getEditTmp(IFile file)
             throws IOException {
         return null;
     }
@@ -151,7 +153,7 @@ public class ResourcePacker
 
     public static void main(String[] args)
             throws Exception {
-        new ResourcePacker().run(args);
+        new ResourcePacker().execute(args);
     }
 
 }

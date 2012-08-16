@@ -7,7 +7,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -15,21 +14,22 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import net.bodz.bas.c.string.Strings;
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.jvm.stack.Caller;
 import net.bodz.bas.loader.Classpath;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
 import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.bas.meta.util.ValueType;
 import net.bodz.bas.sio.BCharOut;
 import net.bodz.bas.sio.IPrintOut;
 import net.bodz.bas.sio.PrintStreamPrintOut;
+import net.bodz.bas.vfs.IFile;
 
 /**
  * Generate class proxy/wrapper
  */
-@Version({ 0, 0 })
+@MainVersion({ 0, 0 })
 @RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
 @ProgramName("classwrap")
 public class GenerateClassWrappers
@@ -152,7 +152,7 @@ public class GenerateClassWrappers
             count++;
         }
         jar.close();
-        L.i.P("added ", count, " classes from ", jarfile);
+        L.info("added ", count, " classes from ", jarfile);
     }
 
     /**
@@ -164,7 +164,7 @@ public class GenerateClassWrappers
             throws MalformedURLException, IOException {
         Classpath.addURL(dir.toURI().toURL());
         int count = addDirectory(dir, "");
-        L.i.P("added ", count, " classes from ", dir);
+        L.info("added ", count, " classes from ", dir);
     }
 
     protected int addDirectory(File dir, String prefix) {
@@ -195,10 +195,10 @@ public class GenerateClassWrappers
      *
      * @option -l =LIST-FILE
      */
-    public void addList(File list)
+    public void addList(IFile listFile)
             throws MalformedURLException, IOException {
         int count = 0;
-        for (String l : Files.readByLine(list)) {
+        for (String l : listFile.tooling()._for(StreamReading.class).lines()) {
             if (l.startsWith(PI_CLASSPATH)) {
                 String path = l.substring(PI_CLASSPATH.length()).trim();
                 Classpath.addURL(new File(path).toURI().toURL());
@@ -207,7 +207,7 @@ public class GenerateClassWrappers
             String fqcn = l.trim();
             count += addClass(fqcn, false);
         }
-        L.i.P("added ", count, " classes from ", list);
+        L.info("added ", count, " classes from ", listFile);
     }
 
     /**

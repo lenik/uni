@@ -1,31 +1,31 @@
 package net.bodz.lapiota.crypt;
 
-import java.io.File;
-import java.nio.file.Files;
+import static net.bodz.lapiota.nls.CLINLS.CLINLS;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.util.Arrays;
 
-import net.bodz.bas.cli.BasicCLI;
-import net.bodz.bas.cli.CLIException;
+import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.err.UnexpectedException;
+import net.bodz.bas.io.resource.tools.StreamReading;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.util.ValueType;
 import net.bodz.bas.sio.IPrintOut;
-import net.bodz.bas.text.typeparsers.HexParser;
+import net.bodz.bas.text.codec.builtin.HexCodec;
 import net.bodz.bas.traits.AbstractParser;
+import net.bodz.bas.vfs.IFile;
 import net.bodz.lapiota.crypt.Hashes.PeekDigest;
-import net.bodz.lapiota.nls.CLINLS;
 
 /**
  * Find which part of file make a specific hash value
  */
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class FindHash
         extends BasicCLI {
 
@@ -37,7 +37,7 @@ public class FindHash
         public Range(int from, int to) {
             if (from >= to)
                 throw new IllegalArgumentException(//
-                        CLINLS.getString("FindHash.0") + from + " > to " + to); //$NON-NLS-1$ //$NON-NLS-2$
+                        CLINLS.getString("FindHash.0") + from + " > to " + to);
             this.from = from;
             this.to = to;
         }
@@ -70,8 +70,6 @@ public class FindHash
      *
      * @option -x --hash =HASH required
      */
-    @ValueType(byte[].class)
-    @ParseBy(HexParser.class)
     byte[][] hashes;
 
     /**
@@ -79,21 +77,18 @@ public class FindHash
      *
      * @option -r --range =FROM,TO
      */
-    @ValueType(Range.class)
-    @ParseBy(RangeParser.class)
     Range[] ranges;
 
     @Override
     protected void _boot()
             throws Exception {
         if (digest == null)
-            digest = MessageDigest.getInstance("CRC32"); //$NON-NLS-1$
+            digest = MessageDigest.getInstance("CRC32");
         if (!(digest instanceof Cloneable))
-            throw new UnsupportedOperationException(
-                    CLINLS.getString("FindHash.algIsntClonable") + digest + ", class of " //$NON-NLS-1$ //$NON-NLS-2$
-                            + digest.getClass().getName());
+            throw new UnsupportedOperationException(CLINLS.getString("FindHash.algIsntClonable") + digest
+                    + ", class of " + digest.getClass().getName());
         if (hashes == null || hashes.length == 0)
-            throw new IllegalUsageException(CLINLS.getString("FindHash.noHash")); //$NON-NLS-1$
+            throw new IllegalUsageException(CLINLS.getString("FindHash.noHash"));
     }
 
     class FindContext {
@@ -112,7 +107,7 @@ public class FindHash
 
         public void find() {
             try {
-                find("", 0, (MessageDigest) cont.clone()); //$NON-NLS-1$
+                find("", 0, (MessageDigest) cont.clone());
             } catch (CloneNotSupportedException e) {
                 throw new UnexpectedException(e);
             }
@@ -131,8 +126,7 @@ public class FindHash
 
                 for (int to = from; to <= range.to; to++) {
                     if (rangeIndex != ranges.length - 1) {
-                        find(rangesPrefix + "." + from + "-" + to, nextRange, //$NON-NLS-1$ //$NON-NLS-2$
-                                (MessageDigest) cont2.clone());
+                        find(rangesPrefix + "." + from + "-" + to, nextRange, (MessageDigest) cont2.clone());
                     } else {
                         byte[] digest;
                         if (peekable != null)
@@ -143,10 +137,11 @@ public class FindHash
 
                         boolean matched = match(digest);
                         if ((++count % 1000) == 0 || matched) {
-                            String rt = rangesPrefix + "." + from + "-" + to; //$NON-NLS-1$ //$NON-NLS-2$
-                            L.tmesg(CLINLS.getString("FindHash.range"), rt, " = ", HEX.encode(digest)); //$NON-NLS-1$ //$NON-NLS-2$
+                            String rt = rangesPrefix + "." + from + "-" + to;
+                            L.status(CLINLS.getString("FindHash.range"), rt, " = ",
+                                    HexCodec.getInstance().encode(digest));
                             if (matched)
-                                L.mesg(CLINLS.getString("FindHash.matched")); //$NON-NLS-1$
+                                L.mesg(CLINLS.getString("FindHash.matched"));
                         }
                     }
                     if (to != range.to) {
@@ -170,9 +165,9 @@ public class FindHash
     }
 
     @Override
-    protected void doFileArgument(File file)
+    protected void doFileArgument(IFile file)
             throws Exception {
-        byte[] data = Files.readBytes(file);
+        byte[] data = file.tooling()._for(StreamReading.class).readBinaryContents();
         Range[] ranges = this.ranges;
         if (ranges == null)
             ranges = new Range[] { new Range(0, data.length), };
@@ -185,16 +180,15 @@ public class FindHash
         super._help(out);
         out.println();
 
-        out.println(CLINLS.getString("FindHash.algorithms")); //$NON-NLS-1$
-        for (String alg : Security.getAlgorithms("MessageDigest")) { //$NON-NLS-1$
+        out.println(CLINLS.getString("FindHash.algorithms"));
+        for (String alg : Security.getAlgorithms("MessageDigest")) {
             try {
                 MessageDigest digest = MessageDigest.getInstance(alg);
                 int len = digest.getDigestLength();
                 // Provider provider = digest.getProvider();
-                out.printf(CLINLS.getString("FindHash.digestInfo_sds"), alg, len, digest //$NON-NLS-1$
-                        .getClass());
+                out.printf(CLINLS.getString("FindHash.digestInfo_sds"), alg, len, digest.getClass());
             } catch (NoSuchAlgorithmException e) {
-                out.println(CLINLS.getString("FindHash.noAlg") + alg); //$NON-NLS-1$
+                out.println(CLINLS.getString("FindHash.noAlg") + alg);
             }
         }
 
@@ -203,7 +197,7 @@ public class FindHash
 
     public static void main(String[] args)
             throws Exception {
-        new FindHash().run(args);
+        new FindHash().execute(args);
     }
 
 }

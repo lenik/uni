@@ -1,6 +1,6 @@
 package net.bodz.lapiota._extern;
 
-import net.bodz.bas.cli.util.JavaLauncher;
+import net.bodz.bas.cli.boot.JavaLauncher;
 import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.program.ProgramName;
 
@@ -11,7 +11,7 @@ public class AntLRTool
 
     @Override
     protected String getMainClassName() {
-        return "org.antlr.Tool"; //$NON-NLS-1$
+        return "org.antlr.Tool";
     }
 
     public static void main(String[] args)

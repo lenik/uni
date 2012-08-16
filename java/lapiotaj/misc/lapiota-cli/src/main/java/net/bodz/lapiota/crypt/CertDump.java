@@ -3,15 +3,17 @@ package net.bodz.lapiota.crypt;
 import java.security.Provider;
 import java.security.cert.CertSelector;
 
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.log.LogLevel;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
+import net.bodz.bas.sio.Stdio;
 
 /**
  * KeyStore/Certificate Dump
  */
 @RcsKeywords(id = "$Id$")
-@Version({ 1, 0 })
+@MainVersion({ 1, 0 })
 public class CertDump
         extends BasicCLI {
 
@@ -20,7 +22,6 @@ public class CertDump
      *
      * @option -p =PROV-CLASS
      */
-    @ParseBy(Providers.Parser.class)
     Provider provider = null;
 
     int detailLevel = 0;
@@ -31,7 +32,7 @@ public class CertDump
         // INFO -> 0
         // DETAIL -> 1
         // DEBUG -> 2
-        detailLevel = L.getLevel() - LogTerm.INFO;
+        detailLevel = L.getMaxPriority() - LogLevel.INFO.getPriority();
     }
 
     @Override
@@ -41,13 +42,13 @@ public class CertDump
             _help();
         for (String arg : args) {
             CertSelector cs = new CertSelector(arg, provider);
-            cs.dump(CharOuts.stdout, detailLevel);
+            cs.dump(Stdio.cout, detailLevel);
         }
     }
 
     public static void main(String[] args)
             throws Exception {
-        new CertDump().run(args);
+        new CertDump().execute(args);
     }
 
 }

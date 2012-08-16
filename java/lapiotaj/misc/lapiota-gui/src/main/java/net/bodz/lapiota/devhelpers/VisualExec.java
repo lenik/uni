@@ -2,12 +2,6 @@ package net.bodz.lapiota.devhelpers;
 
 import java.io.IOException;
 
-import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.info.Doc;
-import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.swt.reflect.BasicGUI;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
@@ -17,10 +11,17 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-@Doc("Command line editor")
+import net.bodz.bas.meta.build.MainVersion;
+import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.meta.program.ProgramName;
+import net.bodz.swt.program.BasicGUI;
+
+/**
+ * Command line editor
+ */
 @ProgramName("cliedit")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class VisualExec
         extends BasicGUI {
 
@@ -69,8 +70,8 @@ public class VisualExec
 
     public static void main(String[] args)
             throws Throwable {
-        // Classpath.dumpURLs(CharOuts.stderr);
-        new VisualExec().run(args);
+        // Classpath.dumpURLs(Stdio.cerr);
+        new VisualExec().execute(args);
     }
 
 }

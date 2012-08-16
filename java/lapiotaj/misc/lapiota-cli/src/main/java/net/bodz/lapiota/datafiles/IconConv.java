@@ -8,16 +8,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.bodz.bas.c.java.util.HashTextMap;
-import net.bodz.bas.c.java.util.TextMap;
-import net.bodz.bas.c.string.StringPart;
-import net.bodz.bas.cli.BatchCLI;
-import net.bodz.bas.loader.boot.BootInfo;
-import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.xml.XMLs;
-import net.bodz.swt.program.SWTConfig;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
@@ -25,12 +15,22 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import net.bodz.bas.c.java.util.HashTextMap;
+import net.bodz.bas.c.java.util.TextMap;
+import net.bodz.bas.c.string.StringPart;
+import net.bodz.bas.cli.skel.BatchCLI;
+import net.bodz.bas.loader.boot.BootInfo;
+import net.bodz.bas.meta.build.MainVersion;
+import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.xml.XMLs;
+import net.bodz.swt.program.SWTConfig;
+
 /**
  * Icon files batch converter
  */
 @BootInfo(userlibs = { "bodz_swt" }, configs = SWTConfig.class)
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class IconConv
         extends BatchCLI {
 
@@ -92,18 +92,18 @@ public class IconConv
             throws Exception {
         srcDirs = new ArrayList<File>();
 
-        File classpathFile = new File(projectDir, ".classpath"); //$NON-NLS-1$
+        File classpathFile = new File(projectDir, ".classpath");
         if (!classpathFile.isFile())
             throw new FileNotFoundException(classpathFile.getPath());
         XMLs.parse(classpathFile, new DefaultHandler() {
             @Override
             public void startElement(String uri, String localName, String name, Attributes attributes)
                     throws SAXException {
-                if (!"classpathentry".equals(name)) //$NON-NLS-1$
+                if (!"classpathentry".equals(name))
                     return;
-                String kind = attributes.getValue("kind"); //$NON-NLS-1$
-                if ("src".equals(kind)) {//$NON-NLS-1$
-                    String srcPath = attributes.getValue("path"); //$NON-NLS-1$
+                String kind = attributes.getValue("kind");
+                if ("src".equals(kind)) {
+                    String srcPath = attributes.getValue("path");
                     if (srcPath != null)
                         srcDirs.add(new File(projectDir, srcPath));
                 }
@@ -196,7 +196,7 @@ public class IconConv
 
     public static void main(String[] args)
             throws Exception {
-        new IconConv().run(args);
+        new IconConv().execute(args);
     }
 
 }

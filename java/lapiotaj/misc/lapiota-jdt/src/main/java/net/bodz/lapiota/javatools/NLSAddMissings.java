@@ -13,24 +13,36 @@ import java.util.Properties;
 import java.util.Set;
 
 import net.bodz.bas.c.java.io.FileFinder;
-import net.bodz.bas.c.string.Strings;
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.c.java.io.FilePath;
+import net.bodz.bas.c.string.StringArray;
+import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.io.resource.tools.StreamLoading;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.info.Doc;
 import net.bodz.bas.meta.program.ProgramName;
+import net.bodz.bas.vfs.IFile;
 
-@Doc("Add missed entries for NLS property files")
+/**
+ * Add missed entries for NLS property files
+ */
 @ProgramName("nlsadd")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class NLSAddMissings
         extends BasicCLI {
 
-    @Option(alias = "k", vnam = "BAKEXT", doc = "backup file extension, include the dot(.) if necessary")
+    /**
+     * backup file extension, include the dot(.) if necessary
+     *
+     * @option -k =BAKEXT
+     */
     String backupExtension;
 
-    @Option(alias = "f", vnam = "value", doc = "force to overwrite existing files")
+    /**
+     * force to overwrite existing files
+     *
+     * @option -f =value
+     */
     boolean force;
 
     String encoding = "utf-8";
@@ -47,7 +59,7 @@ public class NLSAddMissings
                 return false;
             if (file.getName().contains("_"))
                 return false;
-            String ext = Files.getExtension(file);
+            String ext = FilePath.getExtension(file);
             if (!"properties".equals(ext))
                 return false;
             return true;
@@ -57,9 +69,9 @@ public class NLSAddMissings
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void doFileArgument(File file)
+    protected void doFileArgument(IFile file)
             throws Exception {
-        if (file.isDirectory()) {
+        if (file.isTree()) {
             FileFinder finder = new FileFinder(new MasterPropertiesFilter(), file);
             for (File f : finder) {
                 doFileArgument(f);
@@ -67,25 +79,25 @@ public class NLSAddMissings
             return;
         }
 
-        final String base = Files.getName(file);
-        final String ext = Files.getExtension(file);
+        final String base = FilePath.stripExtension(file.getName());
+        final String ext = FilePath.getExtension(file.getName());
         if (!"properties".equals(ext)) {
             L.warn("Skipped non-properties file: ", file);
             return;
         }
-        Properties master = Files.loadProperties(file, encoding);
+        Properties master = file.tooling()._for(StreamLoading.class).loadProperties();
         Enumeration<String> _enum = (Enumeration<String>) master.propertyNames();
         Set<String> masterNames = Collections2.toSet(_enum);
-        L.finfo("Master file: %s (%d entries)\n", file, masterNames.size());
+        L.infof("Master file: %s (%d entries)\n", file, masterNames.size());
 
-        File dir = file.getParentFile();
+        IFile dir = file.getParentFile();
         if (dir == null)
             throw new NullPointerException("dir");
         File[] localeFiles = dir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String filename) {
-                String fbase = Files.getName(filename);
-                String fext = Files.getExtension(filename);
+                String fbase = FilePath.stripExtension(filename);
+                String fext = FilePath.getExtension(filename);
                 if (!fext.equals(ext)) // extension must be same
                     return false;
                 if (fbase.equals(base)) // self, ignore
@@ -124,7 +136,7 @@ public class NLSAddMissings
             }
 
             if (dirty) {
-                L.finfo("    +%d -%d /%d entries. \n", add, remove, props.size());
+                L.infof("    +%d -%d /%d entries. \n", add, remove, props.size());
                 if (backupExtension != null) {
                     File bakfile = new File(localeFile.getPath() + backupExtension);
                     if (bakfile.exists() && !force) {
@@ -144,7 +156,7 @@ public class NLSAddMissings
                 if (sort) {
                     String[] lines = contents.split("\n");
                     Arrays.sort(lines);
-                    contents = Strings.join("\n", lines);
+                    contents = StringArray.join("\n", lines);
                 }
                 FileOutputStream out = new FileOutputStream(localeFile);
                 OutputStreamWriter writer = new OutputStreamWriter(out, encoding);
@@ -157,12 +169,12 @@ public class NLSAddMissings
             addSum += add;
             removeSum += remove;
         }
-        L.finfo("  Total %d entries added, %d entries removed. \n\n", addSum, removeSum);
+        L.infof("  Total %d entries added, %d entries removed. \n\n", addSum, removeSum);
     }
 
     public static void main(String[] args)
             throws Throwable {
-        new NLSAddMissings().run(args);
+        new NLSAddMissings().execute(args);
     }
 
 }

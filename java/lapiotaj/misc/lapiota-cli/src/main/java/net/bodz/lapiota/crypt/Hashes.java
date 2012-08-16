@@ -6,6 +6,8 @@ import java.security.Provider;
 import java.util.zip.Checksum;
 
 import net.bodz.bas.err.UnexpectedException;
+import net.bodz.bas.mem.types.Int32BE;
+import net.bodz.bas.mem.types.Int32LE;
 
 public class Hashes {
 
@@ -19,7 +21,7 @@ public class Hashes {
         private static final long serialVersionUID = -1577821675944126223L;
 
         public HashProvider() {
-            super("Lapiota Hashes", 0.1, "For crypt.Hashes"); //$NON-NLS-1$ //$NON-NLS-2$
+            super("Lapiota Hashes", 0.1, "For crypt.Hashes");
         }
 
     }
@@ -33,7 +35,7 @@ public class Hashes {
         static final Field CRC32_crc;
         static {
             try {
-                CRC32_crc = java.util.zip.CRC32.class.getDeclaredField("crc"); //$NON-NLS-1$
+                CRC32_crc = java.util.zip.CRC32.class.getDeclaredField("crc");
             } catch (SecurityException e) {
                 throw new Error(e);
             } catch (NoSuchFieldException e) {
@@ -110,7 +112,7 @@ public class Hashes {
         }
 
         public CRC32_LE(int state) {
-            super("CRC32-LE", state); //$NON-NLS-1$
+            super("CRC32-LE", state);
         }
 
         @Override
@@ -136,7 +138,7 @@ public class Hashes {
         }
 
         public CRC32_BE(int state) {
-            super("CRC32-BE", state); //$NON-NLS-1$
+            super("CRC32-BE", state);
         }
 
         @Override

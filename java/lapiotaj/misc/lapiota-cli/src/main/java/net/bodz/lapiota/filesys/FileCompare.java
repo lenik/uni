@@ -1,12 +1,14 @@
 package net.bodz.lapiota.filesys;
 
+import static net.bodz.lapiota.nls.CLINLS.CLINLS;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
 
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
 import net.bodz.bas.meta.program.ProgramName;
 import net.bodz.bas.sio.ICharOut;
 import net.bodz.bas.sio.Stdio;
@@ -15,14 +17,13 @@ import net.bodz.bas.text.diff.DiffComparators;
 import net.bodz.bas.text.diff.DiffFormat;
 import net.bodz.bas.text.diff.DiffFormats;
 import net.bodz.bas.text.diff.DiffInfo;
-import net.bodz.lapiota.nls.CLINLS;
 
 /**
  * A Unix diff program implemented in Java
  */
 @ProgramName("jdiff")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class FileCompare
         extends BasicCLI {
 
@@ -58,7 +59,7 @@ public class FileCompare
     protected void doMain(String[] args)
             throws Exception {
         if (args.length > 0)
-            throw new IllegalArgumentException(CLINLS.getString("FileCompare.unexpectedArgument") + args[0]); //$NON-NLS-1$
+            throw new IllegalArgumentException(CLINLS.getString("FileCompare.unexpectedArgument") + args[0]);
         DiffComparator gnudiff = DiffComparators.gnudiff;
         List<String> srcl = Files.readLines(src);
         List<String> dstl = Files.readLines(dst);
@@ -68,7 +69,7 @@ public class FileCompare
 
     public static void main(String[] args)
             throws Exception {
-        new FileCompare().run(args);
+        new FileCompare().execute(args);
     }
 
 }

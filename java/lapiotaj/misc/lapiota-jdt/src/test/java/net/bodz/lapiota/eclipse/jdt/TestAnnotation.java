@@ -39,11 +39,11 @@ public @interface TestAnnotation {
      */
     Class<?> valtype() default void.class;
 
-    Class<? extends IParser<?>> parser() default IParser.class;
+    Class<? extends IParser> parser() default IParser.class;
 
     String parserinfo() default "";
 
-    Class<? extends IValidator<?>> check() default IValidator.class;
+    Class<? extends IValidator> check() default IValidator.class;
 
     String checkinfo() default "";
 

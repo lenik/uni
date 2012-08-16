@@ -1,38 +1,40 @@
 package net.bodz.lapiota.eclipse.jdt;
 
-import java.beans.Expression;
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.jar.Attributes.Name;
+import java.util.*;
 
-import javax.management.openmbean.SimpleType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
+import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jface.text.Document;
+import org.eclipse.text.edits.TextEdit;
 
+import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.string.Strings;
-import net.bodz.bas.cli.EditResult;
+import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.collection.scope.CMap;
+import net.bodz.bas.dotnet.synthetics.JavaAnnotation;
+import net.bodz.bas.dotnet.synthetics.JavaEnum;
 import net.bodz.bas.err.UnexpectedException;
+import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.loader.Classpath;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.info.Doc;
-import net.bodz.bas.util.array.ArrayType;
+import net.bodz.bas.vfs.IFile;
 
-@Doc("Remove Java 5 Generics from the java source files")
+/**
+ * Remove Java 5 Generics from the java source files
+ */
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class J4conv
         extends JdtBatchCLI {
 
@@ -72,14 +74,13 @@ public class J4conv
             extends DefaultCodeFormatterConstants {
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    protected EditResult doEdit(File in, File out)
+    protected EditResult doEdit(IFile in, IFile out)
             throws Exception {
-        if (!"java".equals(Files.getExtension(in)))
+        if (!"java".equals(FilePath.getExtension(in.getName())))
             return null;
 
-        String src = Files.readAll(in, inputEncoding);
+        String src = in.tooling()._for(StreamReading.class).readTextContents();
         char[] srcChars = src.toCharArray();
 
         Map options = JavaCore.getOptions();
@@ -127,7 +128,7 @@ public class J4conv
                 edit.apply(doc);
                 dst = doc.get();
             } else {
-                L.nmesg("[FERR] ", in);
+                L.mesg("[FERR] ", in);
             }
         }
 
@@ -137,7 +138,7 @@ public class J4conv
 
     public static void main(String[] args)
             throws Exception {
-        new J4conv().run(args);
+        new J4conv().execute(args);
     }
 
     class ASTFrameVisitor
@@ -237,30 +238,30 @@ public class J4conv
         }
 
         void enterScope() {
-            L.detail(indent(), "enter-t=", //
+            L.info(indent(), "enter-t=", //
                     Strings.ellipse(typens.toString(), 100));
             // _t.detail(indent(), "enter-f=", //
             // Strings.ellipse(funns.toString(), 100));
-            L.detail(indent(), "enter-v=", //
+            L.info(indent(), "enter-v=", //
                     Strings.ellipse(varns.toString(), 100));
             typens.enterNew();
             // funns.enterNew();
             varns.enterNew();
-            if (!L.showDebug())
+            if (!L.isDebugEnabled())
                 indent += tabsize;
         }
 
         void leaveScope() {
-            L.detail(indent(), "leave-t=", //
+            L.info(indent(), "leave-t=", //
                     Strings.ellipse(typens.toString(), 100));
             // _t.detail(indent(), "leave-f=", //
             // Strings.ellipse(funns.toString(), 100));
-            L.detail(indent(), "leave-v=", //
+            L.info(indent(), "leave-v=", //
                     Strings.ellipse(varns.toString(), 100));
             typens.leave();
             // funns.leave();
             varns.leave();
-            if (!L.showDebug())
+            if (!L.isDebugEnabled())
                 indent -= tabsize;
         }
 
@@ -279,7 +280,7 @@ public class J4conv
             Type expanded = expandMajor(name);
             if (expanded == null)
                 return type;
-            L.detail(indent(), "expand ", type, " => ", expanded);
+            L.info(indent(), "expand ", type, " => ", expanded);
             return expanded;
         }
 
@@ -302,12 +303,12 @@ public class J4conv
 
         @Override
         public void preVisit(ASTNode node) {
-            if (!L.showDebug())
+            if (!L.isDebugEnabled())
                 return;
             String type = node.getClass().getSimpleName();
-            L.ndebug(Strings.repeat(indent, ' '));
+            L.debug(Strings.repeat(indent, ' '));
             Map<?, ?> props = node.properties();
-            L.fdebug("%s(%d/%d %d+%d %s): ", //
+            L.debugf("%s(%d/%d %d+%d %s): ", //
                     type, node.getNodeType(), node.getFlags(), //
                     node.getStartPosition(), node.getLength(), //
                     props.isEmpty() ? "" : props.toString());
@@ -318,7 +319,7 @@ public class J4conv
 
         @Override
         public void postVisit(ASTNode node) {
-            if (!L.showDebug())
+            if (!L.isDebugEnabled())
                 return;
             indent -= tabsize;
             super.postVisit(node);
@@ -490,7 +491,7 @@ public class J4conv
                 if (_exTypeName instanceof SimpleName) {
                     SimpleName exTypeName = (SimpleName) _exTypeName;
                     Type extype = expandMajor(exTypeName);
-                    L.detail(indent(), "resolved ", node, " => ", extype);
+                    L.info(indent(), "resolved ", node, " => ", extype);
                     if (extype instanceof SimpleType) {
                         SimpleType sim = (SimpleType) extype;
                         rewrite.replace(exTypeName, sim.getName(), null);
@@ -610,13 +611,13 @@ public class J4conv
                 List<Expression> updaters = _for.updaters();
                 {
                     PrefixExpression forUpdate = ast.newPrefixExpression();
-                    forUpdate.setOperator(INCREMENT);
+                    forUpdate.setOperator(PrefixExpression.Operator.INCREMENT);
                     forUpdate.setOperand(AU.copy(_indexName));
                     updaters.add(forUpdate);
                 }
                 InfixExpression forTest = ast.newInfixExpression();
                 {
-                    forTest.setOperator(LESS);
+                    forTest.setOperator(InfixExpression.Operator.LESS);
                     forTest.setLeftOperand(AU.copy(_indexName));
                     FieldAccess arrayLength = ast.newFieldAccess();
                     arrayLength.setExpression(AU.copy(_array));
@@ -721,14 +722,14 @@ public class J4conv
         protected boolean visitExpression(Expression e) {
             ITypeBinding b = e.resolveTypeBinding();
             if (b == null) {
-                L.detail(indent(), "no bind");
+                L.info(indent(), "no bind");
                 return true;
             }
-            L.detail(indent(), "bind-fqn", b.getQualifiedName());
-            L.detail(indent(), "bind-bin", b.getBinaryName());
-            L.detail(indent(), "bind-bounds", b.getBound());
-            L.detail(indent(), "bind-erasure", b.getErasure());
-            L.detail(indent(), "bind-key", b.getKey());
+            L.info(indent(), "bind-fqn", b.getQualifiedName());
+            L.info(indent(), "bind-bin", b.getBinaryName());
+            L.info(indent(), "bind-bounds", b.getBound());
+            L.info(indent(), "bind-erasure", b.getErasure());
+            L.info(indent(), "bind-key", b.getKey());
             return true;
         }
 
@@ -753,7 +754,7 @@ public class J4conv
             IfStatement if_ = ast.newIfStatement();
             {
                 PrefixExpression not = ast.newPrefixExpression();
-                not.setOperator(NOT);
+                not.setOperator(PrefixExpression.Operator.NOT);
                 not.setOperand(exp);
                 if_.setExpression(not);
 

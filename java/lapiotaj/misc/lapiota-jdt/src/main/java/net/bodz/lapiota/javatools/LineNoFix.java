@@ -6,38 +6,53 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.c.string.Strings;
-import net.bodz.bas.cli.BatchEditCLI;
-import net.bodz.bas.cli.EditResult;
+import net.bodz.bas.cli.skel.BatchEditCLI;
+import net.bodz.bas.cli.skel.EditResult;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.info.Doc;
 import net.bodz.bas.meta.program.ProgramName;
+import net.bodz.bas.sio.IPrintOut;
+import net.bodz.bas.vfs.FileMaskedModifiers;
 
-@Doc("Line-No Fix")
+/**
+ * Line-No Fix
+ */
 @ProgramName("linefix")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 0 })
+@MainVersion({ 0, 0 })
 public class LineNoFix
         extends BatchEditCLI {
-    {
-        parameters().setInclusiveMask(new FileMask("fT/fHT"));
-    }
 
-    @Option(alias = "l", vnam = "REGEX", doc = "line-no pattern")
+    /**
+     * @Option(alias = "l", vnam = "REGEX", doc = "line-no pattern")
+     */
     Pattern linePattern;
 
     /**
+     * max jump lines
+     *
      * for b=n[i], c=n[i+1]: if c - b > maxDelta, then ignore c.
+     *
+     * @option -J =LINES
      */
-    @Option(alias = "J", vnam = "LINES", doc = "max jump lines")
     int maxDelta = 100;
 
-    @Option(alias = "k", doc = "remove line numbers from src file")
+    /**
+     * remove line numbers from src file
+     *
+     * @option -k
+     */
     boolean killLineNo;
 
     // not used
-    @Option
+    /**
+     * @option
+     */
     boolean join = true;
+
+    public LineNoFix() {
+        parameters().setInclusiveMask(new FileMaskedModifiers("fT/fHT"));
+    }
 
     @Override
     protected void _boot()
@@ -86,7 +101,7 @@ public class LineNoFix
     }
 
     @Override
-    protected EditResult doEditByLine(Iterable<String> _lines, CharOut out)
+    protected EditResult doEditByLine(Iterable<String> _lines, IPrintOut out)
             throws Exception {
         List<Line> lines = new ArrayList<Line>(10000);
         lines.add(null); // 1-based
@@ -152,7 +167,7 @@ public class LineNoFix
 
     public static void main(String[] args)
             throws Exception {
-        new LineNoFix().run(args);
+        new LineNoFix().execute(args);
     }
 
 }

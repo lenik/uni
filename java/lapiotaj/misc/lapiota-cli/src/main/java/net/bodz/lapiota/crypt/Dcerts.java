@@ -2,18 +2,18 @@ package net.bodz.lapiota.crypt;
 
 import java.security.cert.CertStore;
 
-import net.bodz.bas.cli.BasicCLI;
+import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.loader.boot.BootInfo;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
 
 /**
  * "Java Deploy Certificates Manager"
  */
 @BootInfo(syslibs = "deploy.jar")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 0 })
+@MainVersion({ 0, 0 })
 public class Dcerts
         extends BasicCLI {
 
@@ -38,7 +38,7 @@ public class Dcerts
 
     public static void main(String[] args)
             throws Exception {
-        new Dcerts().run(args);
+        new Dcerts().execute(args);
     }
 
 }

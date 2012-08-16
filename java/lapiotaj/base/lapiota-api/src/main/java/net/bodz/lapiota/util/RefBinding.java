@@ -1,5 +1,7 @@
 package net.bodz.lapiota.util;
 
+import groovy.lang.Binding;
+
 import java.util.Map;
 
 import javax.script.ScriptException;
@@ -7,6 +9,9 @@ import javax.script.ScriptException;
 import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
 import net.bodz.bas.lang.ref.Ref;
+import net.bodz.bas.potato.Potatoes;
+import net.bodz.bas.potato.traits.IProperty;
+import net.bodz.bas.potato.traits.IType;
 
 /**
  * Groovy variable binding with reflect fields
@@ -69,20 +74,20 @@ public class RefBinding
         super.setVariable(name, value);
     }
 
-    @SuppressWarnings("unchecked")
     public void bindScriptFields(final Object o, boolean forceAccess)
             throws ScriptException {
         assert o != null;
         Class<?> clazz = o.getClass();
-        ScriptClass<Object> sclass = Scripts.convertClass(clazz, forceAccess);
-        ScriptField<Object>[] fields = (ScriptField<Object>[]) sclass.getFields();
-        for (final ScriptField<Object> field : fields) {
+
+        IType type = Potatoes.getType(clazz);
+
+        for (final IProperty property : type.getProperties()) {
             Ref<Object> accessor = new Ref<Object>() {
                 @Override
                 public Object get() {
                     try {
-                        return field.get(o);
-                    } catch (ScriptException e) {
+                        return property.get(o);
+                    } catch (ReflectiveOperationException e) {
                         throw new RuntimeException(e.getMessage(), e);
                     }
                 }
@@ -90,13 +95,13 @@ public class RefBinding
                 @Override
                 public void set(Object val) {
                     try {
-                        field.set(o, val);
-                    } catch (ScriptException e) {
+                        property.set(o, val);
+                    } catch (ReflectiveOperationException e) {
                         throw new RuntimeException(e.getMessage(), e);
                     }
                 }
             };
-            addAccessor(field.getName(), accessor);
+            addAccessor(property.getName(), accessor);
         }
     }
 

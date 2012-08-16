@@ -1,0 +1,91 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh 2255 2011-01-01 06:58:58Z lenik $'
+    short_opts="hqv"
+    long_opts="dry-run,help,quiet,verbose,version"
+
+    dry_run=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Adjust the dir layout as the specified"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "        --dry-run           Only show what to do"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        --dry-run)
+            dry_run=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $# = 0 ]; then set LAYERS; fi
+
+    layer=
+    while read name comments; do
+        [ -z "$name" ] && continue
+        [ "${name:0:1}" = '#' ] && continue
+
+        if [ "${name:0:6}" = 'layer-' ]; then
+            layer="$name"
+            continue
+        fi
+
+        from=(*/$name)
+        case "${#from[@]}" in
+        0)
+            die "Not existed: $name";;
+        1)
+            from="${from%/*}"
+            _log1 "Move $name from $from to $layer"
+            ;;
+        *)
+            _log1 "$name is ambiguous: "
+            for f in "${from[@]}"; do
+                _log2 "    $f"
+            done
+            exit 1
+            ;;
+        esac
+
+        [ "$from" = "$layer" ] && continue
+
+        [ "$dry_run" = 1 ] && continue
+        if [ ! -d "$layer" ]; then
+            _log1 "Create directory $layer/"
+            mkdir "$layer" || die "Failed to create"
+        fi
+        vcs mv $from/$name $layer/$name
+    done <"$1"
+
+    _log1 "Fix the poms."
+    ./fix-layer-poms
+}
+
+boot "$@"

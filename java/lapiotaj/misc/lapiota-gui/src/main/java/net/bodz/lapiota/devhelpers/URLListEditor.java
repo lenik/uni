@@ -5,14 +5,14 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import net.bodz.bas.c.string.StringPart;
-import net.bodz.swt.widgets._ListEditor;
-import net.bodz.swt.widgets.util.FileSelector;
-
 import org.eclipse.swt.widgets.Composite;
 
+import net.bodz.bas.c.string.StringPart;
+import net.bodz.swt.c3.file.FileSelector;
+import net.bodz.swt.c3.list.AbstractListEditor;
+
 public class URLListEditor
-        extends _ListEditor<URL> {
+        extends AbstractListEditor<URL> {
 
     private FileSelector fileSelector;
 

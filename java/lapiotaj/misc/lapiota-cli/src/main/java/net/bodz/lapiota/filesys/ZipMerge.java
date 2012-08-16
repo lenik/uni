@@ -1,5 +1,7 @@
 package net.bodz.lapiota.filesys;
 
+import static net.bodz.lapiota.nls.CLINLS.CLINLS;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,16 +12,17 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-import net.bodz.bas.cli.BatchCLI;
+import net.bodz.bas.cli.skel.BatchCLI;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.lapiota.nls.CLINLS;
+import net.bodz.bas.util.iter.Iterables;
+import net.bodz.bas.vfs.IFile;
 
 /**
  * Merge Zip Archieves
  */
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 0 })
+@MainVersion({ 0, 0 })
 public class ZipMerge
         extends BatchCLI {
 
@@ -44,12 +47,12 @@ public class ZipMerge
     }
 
     @Override
-    protected void doFile(File file)
+    protected void doFile(IFile file)
             throws IOException {
-        L.mesg(CLINLS.getString("ZipMerge.add"), file); //$NON-NLS-1$
+        L.mesg(CLINLS.getString("ZipMerge.add"), file);
         ZipFile zip = new ZipFile(file);
         try {
-            for (ZipEntry s : Iterates.once(zip.entries())) {
+            for (ZipEntry s : Iterables.otp(zip.entries())) {
                 InputStream ein = zip.getInputStream(s);
                 ZipEntry t = new ZipEntry(s.getName());
                 t.setComment(s.getComment());
@@ -60,8 +63,8 @@ public class ZipMerge
                 t.setTime((s.getTime()));
                 zout.putNextEntry(t);
 
-                String title = CLINLS.getString("ZipMerge.__add") + t.getName() + // //$NON-NLS-1$
-                        " (" + s.getSize() + CLINLS.getString("ZipMerge.bytes"); //$NON-NLS-1$ //$NON-NLS-2$
+                String title = CLINLS.getString("ZipMerge.__add") + t.getName() + //
+                        " (" + s.getSize() + CLINLS.getString("ZipMerge.bytes");
                 int lastPercent = 0;
                 long written = 0;
                 for (byte[] block : Files.readByBlock(ein)) {
@@ -69,11 +72,11 @@ public class ZipMerge
                     written += block.length;
                     int percent = (int) (100 * written / s.getSize());
                     if (percent != lastPercent) {
-                        L.tinfo(title, percent, "%)"); //$NON-NLS-1$
+                        L.status(title, percent, "%)");
                         lastPercent = percent;
                     }
                 }
-                L.detail().p();
+                L.info();
             }
         } finally {
             zip.close();
@@ -82,7 +85,7 @@ public class ZipMerge
 
     public static void main(String[] args)
             throws Exception {
-        new ZipMerge().run(args);
+        new ZipMerge().execute(args);
     }
 
 }

@@ -1,5 +1,7 @@
 package net.bodz.lapiota.datafiles;
 
+import static net.bodz.lapiota.nls.CLINLS.CLINLS;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -10,20 +12,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
-import net.bodz.bas.c.string.Strings;
-import net.bodz.bas.cli.BatchEditCLI;
-import net.bodz.bas.cli.CLIException;
-import net.bodz.bas.cli.EditResult;
-import net.bodz.bas.cli.ext.CLIPlugin;
-import net.bodz.bas.cli.ext._CLIPlugin;
+import org.codehaus.groovy.control.CompilationFailedException;
+
+import net.bodz.bas.c.string.StringArray;
+import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
+import net.bodz.bas.cli.plugin.CLIPlugin;
+import net.bodz.bas.cli.skel.BatchEditCLI;
+import net.bodz.bas.cli.skel.CLIException;
+import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.err.ParseException;
+import net.bodz.bas.lang.fn.EvalException;
 import net.bodz.bas.loader.boot.BootInfo;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.info.Doc;
 import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.bas.mode.fn.EvalException;
-import net.bodz.lapiota.nls.CLINLS;
+import net.bodz.bas.vfs.IFile;
 import net.bodz.lapiota.util.GroovyExpand;
 
 /**
@@ -32,7 +35,7 @@ import net.bodz.lapiota.util.GroovyExpand;
 @BootInfo(syslibs = "groovy")
 @ProgramName("jsub")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class TemplateProcess
         extends BatchEditCLI {
 
@@ -61,12 +64,12 @@ public class TemplateProcess
     String extension;
 
     public TemplateProcess() {
-        plugins.registerCategory(CLINLS.getString("TemplateProcess.sourceModel"), SourceModel.class); //$NON-NLS-1$
-        plugins.register("ini", VariableDefSource.class, this); //$NON-NLS-1$
-        plugins.register("csv", CSVDefSource.class, this); //$NON-NLS-1$
-        plugins.registerCategory(CLINLS.getString("TemplateProcess.templateModel"), TemplateModel.class); //$NON-NLS-1$
-        plugins.register("ve", VariableExpandTemplate.class, this); //$NON-NLS-1$
-        plugins.register("gsp", GroovyTemplate.class, this); //$NON-NLS-1$
+        plugins.registerCategory(CLINLS.getString("TemplateProcess.sourceModel"), SourceModel.class);
+        plugins.register("ini", VariableDefSource.class, this);
+        plugins.register("csv", CSVDefSource.class, this);
+        plugins.registerCategory(CLINLS.getString("TemplateProcess.templateModel"), TemplateModel.class);
+        plugins.register("ve", VariableExpandTemplate.class, this);
+        plugins.register("gsp", GroovyTemplate.class, this);
     }
 
     @Override
@@ -77,7 +80,7 @@ public class TemplateProcess
     }
 
     @Override
-    protected EditResult doEdit(File file, File editTmp)
+    protected EditResult doEdit(IFile file, IFile editTmp)
             throws Exception {
         sourceModel.reset(file);
         while (sourceModel.next()) {
@@ -86,10 +89,10 @@ public class TemplateProcess
             if (extension != null)
                 destFile += extension;
 
-            L.mesg("file ", destFile); //$NON-NLS-1$
+            L.mesg("file ", destFile);
             String contents = templateModel.expand(context);
 
-            File defaultStart = file.getParentFile();
+            IFile defaultStart = file.getParentFile();
 
             File dst = getOutputFile(destFile, defaultStart);
             Files.write(editTmp, contents, outputEncoding);
@@ -102,7 +105,7 @@ public class TemplateProcess
 
     public static void main(String[] args)
             throws Exception {
-        new TemplateProcess().run(args);
+        new TemplateProcess().execute(args);
     }
 
     // Plugin Interfaces
@@ -121,7 +124,7 @@ public class TemplateProcess
     }
 
     abstract static class _SourceModel
-            extends _CLIPlugin
+            extends AbstractCLIPlugin
             implements SourceModel {
     }
 
@@ -132,13 +135,15 @@ public class TemplateProcess
     }
 
     abstract static class _TemplateModel
-            extends _CLIPlugin
+            extends AbstractCLIPlugin
             implements TemplateModel {
     }
 
     // Plugin Implementations
 
-    @Doc("INI style [file] sections")
+    /**
+     * INI style [file] sections
+     */
     class VariableDefSource
             extends _SourceModel {
 
@@ -147,7 +152,7 @@ public class TemplateProcess
          *
          * @option
          */
-        String commentChar = ";"; //$NON-NLS-1$
+        String commentChar = ";";
 
         /**
          * Enable using `file=key' line as separator
@@ -183,9 +188,9 @@ public class TemplateProcess
                 line = line.trim();
                 if (line.isEmpty() || line.startsWith(commentChar))
                     continue;
-                if (line.startsWith("[")) { //$NON-NLS-1$
+                if (line.startsWith("[")) {
                     line = line.substring(1);
-                    if (line.endsWith("]")) //$NON-NLS-1$
+                    if (line.endsWith("]"))
                         line = line.substring(0, line.length() - 1);
                     if (setNextFile(line))
                         return true;
@@ -193,7 +198,7 @@ public class TemplateProcess
                 }
                 int eq = line.indexOf('=');
                 String name = line;
-                String value = "1"; //$NON-NLS-1$
+                String value = "1";
                 if (eq != -1) {
                     name = line.substring(0, eq).trim();
                     value = line.substring(eq + 1).trim();
@@ -225,7 +230,9 @@ public class TemplateProcess
         }
     }
 
-    @Doc("CSV source (the first row defines field names)")
+    /**
+     * CSV source (the first row defines field names)
+     */
     class CSVDefSource
             extends _SourceModel {
 
@@ -234,14 +241,14 @@ public class TemplateProcess
          *
          * @option
          */
-        String commentChar = "#"; //$NON-NLS-1$
+        String commentChar = "#";
 
         /**
          * field delimiter characters, default ','
          *
          * @option
          */
-        String delim = ","; //$NON-NLS-1$
+        String delim = ",";
 
         /**
          * max number of fields, see String#split(String, int)
@@ -262,7 +269,7 @@ public class TemplateProcess
          *
          * @option
          */
-        String fileField = "file"; //$NON-NLS-1$
+        String fileField = "file";
 
         /**
          * trim field values, default true
@@ -306,7 +313,7 @@ public class TemplateProcess
                 if (names != null && names.length < limit)
                     limit = names.length;
 
-                String[] parts = Strings.split(line, _delim.toCharArray(), limit);
+                String[] parts = StringArray.split(line, _delim.toCharArray(), limit);
                 if (names == null) {
                     names = parts;
                     for (int i = 0; i < names.length; i++)
@@ -343,7 +350,6 @@ public class TemplateProcess
     /**
      * =template-file Simple $variable expand
      */
-    @Doc("")
     class VariableExpandTemplate
             extends _TemplateModel {
 
@@ -370,7 +376,7 @@ public class TemplateProcess
                 throws Exception {
             if (template == null) {
                 if (templateFile == null)
-                    throw new CLIException(CLINLS.getString("TemplateProcess.templateIsntSpecified")); //$NON-NLS-1$
+                    throw new CLIException(CLINLS.getString("TemplateProcess.templateIsntSpecified"));
                 template = Files.readAll(templateFile, inputEncoding);
             }
             Map<String, Object> vars = (Map<String, Object>) context;
@@ -380,7 +386,9 @@ public class TemplateProcess
         }
     }
 
-    @Doc("=template.gsp Simple GSP (groovy server pages) expand")
+    /**
+     * =template.gsp Simple GSP (groovy server pages) expand
+     */
     class GroovyTemplate
             extends _TemplateModel {
 
@@ -416,7 +424,7 @@ public class TemplateProcess
                 throws Exception {
             if (template == null) {
                 if (templateFile == null)
-                    throw new CLIException(CLINLS.getString("TemplateProcess.templateIsntSpecified")); //$NON-NLS-1$
+                    throw new CLIException(CLINLS.getString("TemplateProcess.templateIsntSpecified"));
                 template = Files.readAll(templateFile, inputEncoding);
             }
             Map<String, Object> _vars = (Map<String, Object>) context;
@@ -435,17 +443,17 @@ public class TemplateProcess
                 return ve.compileAndEvaluate(template);
             } catch (CompilationFailedException e) {
                 String script = ve.getCompiledScript();
-                System.err.println(CLINLS.getString("TemplateProcess.compile")); //$NON-NLS-1$
+                System.err.println(CLINLS.getString("TemplateProcess.compile"));
                 System.err.println(script);
                 throw e;
             } catch (Throwable e) {
                 String script = ve.getCompiledScript();
-                System.err.println(CLINLS.getString("TemplateProcess.evaluate")); //$NON-NLS-1$
+                System.err.println(CLINLS.getString("TemplateProcess.evaluate"));
                 System.err.println(script);
-                System.err.println(CLINLS.getString("TemplateProcess.vars")); //$NON-NLS-1$
+                System.err.println(CLINLS.getString("TemplateProcess.vars"));
                 // TODO - object dumper
                 for (Entry<String, Object> ent : _vars.entrySet())
-                    System.err.println(ent.getKey() + " = " + ent.getValue()); //$NON-NLS-1$
+                    System.err.println(ent.getKey() + " = " + ent.getValue());
                 throw new EvalException(e);
             }
         }

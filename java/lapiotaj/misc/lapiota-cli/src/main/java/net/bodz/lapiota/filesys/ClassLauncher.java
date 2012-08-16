@@ -4,18 +4,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.info.Doc;
 import net.bodz.bas.meta.program.ProgramName;
 
-@Doc("Lapiota Java Program Launcher")
-@Version({ 0, 1 })
+/**
+ * Lapiota Java Program Launcher
+ */
+@MainVersion({ 0, 1 })
 @RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
 @ProgramName("jlaunch")
 public class ClassLauncher {
 
-    @SuppressWarnings("unchecked")
     public static void main(String[] args)
             throws Throwable {
         if (args.length < 2)

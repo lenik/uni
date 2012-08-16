@@ -4,16 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.SortedMap;
 
-import net.bodz.bas.err.DecodeException;
-import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.info.Doc;
-import net.bodz.bas.text.codec.builtin.HexCodec;
-import net.bodz.bas.ui.UIException;
-import net.bodz.bas.ui.a.PreferredSize;
-import net.bodz.swt.reflect.BasicGUI;
-import net.bodz.swt.util.SWTResources;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.events.KeyAdapter;
@@ -32,10 +22,21 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 
-@Doc("GUI iconv utility")
+import net.bodz.bas.err.DecodeException;
+import net.bodz.bas.meta.build.MainVersion;
+import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.text.codec.builtin.HexCodec;
+import net.bodz.bas.ui.UIException;
+import net.bodz.bas.ui.a.PreferredSize;
+import net.bodz.swt.c.resources.SWTResources;
+import net.bodz.swt.program.BasicGUI;
+
+/**
+ * GUI iconv utility
+ */
 @PreferredSize(width = 640, height = 480)
 @RcsKeywords(id = "$Id$")
-@Version({ 1, 0 })
+@MainVersion({ 1, 0 })
 public class GIconv
         extends BasicGUI {
 
@@ -378,7 +379,7 @@ public class GIconv
 
     public static void main(String[] args)
             throws Throwable {
-        new GIconv().run(args);
+        new GIconv().execute(args);
     }
 
 }

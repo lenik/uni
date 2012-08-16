@@ -1,5 +1,8 @@
 package net.bodz.lapiota.datafiles;
 
+import static net.bodz.lapiota.nls.CLINLS.CLINLS;
+import groovy.lang.GroovyShell;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,25 +20,25 @@ import javax.script.ScriptException;
 
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.java.util.regex.PatternProcessor;
-import net.bodz.bas.cli.BatchEditCLI;
-import net.bodz.bas.cli.CLIException;
-import net.bodz.bas.cli.EditResult;
-import net.bodz.bas.cli.ext.CLIPlugin;
-import net.bodz.bas.cli.ext._CLIPlugin;
+import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
+import net.bodz.bas.cli.plugin.CLIPlugin;
+import net.bodz.bas.cli.skel.BatchEditCLI;
+import net.bodz.bas.cli.skel.CLIException;
+import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.loader.boot.BootInfo;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.info.Doc;
 import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.lapiota.nls.CLINLS;
 import net.bodz.lapiota.util.RefBinding;
 
+/**
+ * An extensible file process program
+ */
 @BootInfo(syslibs = "groovy")
-@Doc("An extensible file process program")
 @ProgramName("jfor")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class FileProcess
         extends BatchEditCLI {
 
@@ -48,7 +51,7 @@ public class FileProcess
      */
     protected void action(Action action)
             throws CLIException {
-        L.debug(CLINLS.getString("FileProcess.action"), action); //$NON-NLS-1$
+        L.debug(CLINLS.getString("FileProcess.action"), action);
         actions.add(action);
     }
 
@@ -84,19 +87,19 @@ public class FileProcess
         }
 
         public void setName(String newName) {
-            String ext = Files.getExtension(dst, true);
+            String ext = FilePath.getExtension(dst, true);
             dst = Files.canoniOf(dst.getParentFile(), newName + ext);
         }
 
         public String getExt() {
-            return Files.getExtension(dst);
+            return FilePath.getExtension(dst);
         }
 
         public void setExt(String newExt) {
             if (newExt == null)
-                newExt = ""; //$NON-NLS-1$
+                newExt = "";
             else if (!newExt.isEmpty())
-                newExt = "." + newExt; //$NON-NLS-1$
+                newExt = "." + newExt;
             dst = Files.canoniOf(dst.getParentFile(), getName() + newExt);
         }
 
@@ -107,10 +110,10 @@ public class FileProcess
     protected boolean edit = false;
 
     public FileProcess() {
-        plugins.registerCategory("action", Action.class); //$NON-NLS-1$
-        plugins.register("g", GroovyScript.class, this); //$NON-NLS-1$
-        plugins.register("s", RenamePattern.class, this); //$NON-NLS-1$
-        plugins.register("sg", RenameComponents.class, this); //$NON-NLS-1$
+        plugins.registerCategory("action", Action.class);
+        plugins.register("g", GroovyScript.class, this);
+        plugins.register("s", RenamePattern.class, this);
+        plugins.register("sg", RenameComponents.class, this);
     }
 
     @Override
@@ -149,7 +152,7 @@ public class FileProcess
 
     public static void main(String[] args)
             throws Exception {
-        new FileProcess().run(args);
+        new FileProcess().execute(args);
     }
 
     public interface Action
@@ -165,7 +168,7 @@ public class FileProcess
     }
 
     abstract class _Action
-            extends _CLIPlugin
+            extends AbstractCLIPlugin
             implements Action {
         @Override
         public boolean isEditor() {
@@ -176,7 +179,6 @@ public class FileProcess
     /**
      * Evaluate groovy script
      */
-    @Doc("")
     class GroovyScript
             extends _Action {
 
@@ -195,7 +197,7 @@ public class FileProcess
         public GroovyScript(String[] args)
                 throws IOException, ScriptException {
             if (args.length == 0) {
-                System.out.println(CLINLS.getString("FileProcess.enterScript")); //$NON-NLS-1$
+                System.out.println(CLINLS.getString("FileProcess.enterScript"));
                 script = Files.readAll(System.in);
             } else {
                 String scriptFile = args[0];
@@ -214,39 +216,41 @@ public class FileProcess
                 throws Exception {
             RefBinding binding = new RefBinding();
             binding.bindScriptFields(scope, true);
-            binding.setVariable("program", this); //$NON-NLS-1$
+            binding.setVariable("program", this);
             binding.bindScriptFields(FileProcess.this, true);
-            binding.setVariable("file", file); //$NON-NLS-1$
-            binding.setVariable("in", in); //$NON-NLS-1$
+            binding.setVariable("file", file);
+            binding.setVariable("in", in);
 
             String enc = parameters().getOutputEncoding().name();
             PrintStream pout = new PrintStream(out, true, enc);
-            binding.setVariable("out", pout); //$NON-NLS-1$
+            binding.setVariable("out", pout);
 
             GroovyShell shell = new GroovyShell(binding);
             Object ret = shell.evaluate(script);
             if (ret instanceof String) {
                 String code = (String) ret;
-                if ("save".equals(code)) //$NON-NLS-1$
+                if ("save".equals(code))
                     return EditResult.compareAndSave();
-                if ("same".equals(code)) //$NON-NLS-1$
+                if ("same".equals(code))
                     return EditResult.saveSame();
-                if ("diff".equals(code)) //$NON-NLS-1$
+                if ("diff".equals(code))
                     return EditResult.saveDiff();
-                if ("rm".equals(code)) //$NON-NLS-1$
+                if ("rm".equals(code))
                     return EditResult.rm();
-                if ("ren".equals(code)) //$NON-NLS-1$
+                if ("ren".equals(code))
                     return EditResult.ren(scope.dst);
-                if ("mv".equals(code)) //$NON-NLS-1$
+                if ("mv".equals(code))
                     return EditResult.mv(scope.dst);
-                if ("cp".equals(code)) //$NON-NLS-1$
+                if ("cp".equals(code))
                     return EditResult.cp(scope.dst);
             }
             return null;
         }
     }
 
-    @Doc("rename by regexp: //pattern/replacement/flags")
+    /**
+     * Rename by regexp: //pattern/replacement/flags
+     */
     class RenamePattern
             extends _Action {
 
@@ -290,8 +294,8 @@ public class FileProcess
 
         /** [/]/PATTERN/REPLACEMENT[/FLAGS] */
         public RenamePattern(String exp) {
-            if (!exp.startsWith("/")) //$NON-NLS-1$
-                throw new IllegalArgumentException(CLINLS.getString("FileProcess.notSubsRegexp") + exp); //$NON-NLS-1$
+            if (!exp.startsWith("/"))
+                throw new IllegalArgumentException(CLINLS.getString("FileProcess.notSubsRegexp") + exp);
             char sep = exp.charAt(0);
             exp = exp.substring(1);
             if (exp.charAt(0) == sep) {
@@ -302,11 +306,11 @@ public class FileProcess
             // Pattern segp = ("(\\.|[^" + sepEscaped + "])*");
             // Matcher m = segp.matcher(exp);
             String[] segs = exp.split(sepEscaped);
-            if (L.showDebug())
+            if (L.isDebugEnabled())
                 for (int i = 0; i < segs.length; i++)
-                    L.debug("seg[", i, "] = ", segs[i]); //$NON-NLS-1$ //$NON-NLS-2$
+                    L.debug("seg[", i, "] = ", segs[i]);
             if (segs.length > 3)
-                throw new IllegalArgumentException(CLINLS.getString("FileProcess.invalidSubsRegexp") + exp); //$NON-NLS-1$
+                throw new IllegalArgumentException(CLINLS.getString("FileProcess.invalidSubsRegexp") + exp);
             int flags = 0;
             String _flags = segs.length == 3 ? segs[2] : this.flags;
             if (_flags != null) {
@@ -325,18 +329,20 @@ public class FileProcess
                         flags |= Pattern.MULTILINE;
                         break;
                     default:
-                        throw new IllegalArgumentException(CLINLS.getString("FileProcess.invalidRegexpFlag") + c); //$NON-NLS-1$
+                        throw new IllegalArgumentException(CLINLS.getString("FileProcess.invalidRegexpFlag") + c);
                     }
                 }
             }
             pattern = Pattern.compile(segs[0], flags);
-            replacement = segs.length >= 2 ? segs[1] : ""; //$NON-NLS-1$
+            replacement = segs.length >= 2 ? segs[1] : "";
         }
 
         @Override
         public EditResult run(File file, InputStream in, OutputStream out)
                 throws Exception {
-            String name = nameOnly ? Files.getName(file) : file.getName();
+            String name = file.getName();
+            if (nameOnly)
+                name = FilePath.stripExtension(name);
             Matcher m = pattern.matcher(name);
             if (replaceAll)
                 name = m.replaceAll(replacement);
@@ -349,7 +355,9 @@ public class FileProcess
         }
     }
 
-    @Doc("rename by reorganize filename components")
+    /**
+     * rename by reorganize filename components
+     */
     class RenameComponents
             extends _Action {
 
@@ -412,15 +420,15 @@ public class FileProcess
                 punctsPattern = buf.toString();
             }
             if (punctsPattern == null)
-                punctsPattern = "\\p{Punct}"; //$NON-NLS-1$
+                punctsPattern = "\\p{Punct}";
 
-            punctsPattern = "[^" + punctsPattern + "]+"; //$NON-NLS-1$ //$NON-NLS-2$
+            punctsPattern = "[^" + punctsPattern + "]+";
         }
 
         @Override
         public EditResult run(File file, InputStream in, OutputStream out)
                 throws Exception {
-            String _name = Files.getName(file);
+            String _name = FilePath.stripExtension(file);
             String _ext = FilePath.getExtension(file, true);
             if (dotSpace)
                 _name = _name.replace('.', ' ');

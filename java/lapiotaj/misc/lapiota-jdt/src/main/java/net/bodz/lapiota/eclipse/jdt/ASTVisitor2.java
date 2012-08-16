@@ -1,6 +1,6 @@
 package net.bodz.lapiota.eclipse.jdt;
 
-import java.beans.Expression;
+import org.eclipse.jdt.core.dom.*;
 
 class ASTVisitor2
         extends ASTVisitor {

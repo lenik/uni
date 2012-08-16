@@ -9,29 +9,8 @@ import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.bodz.bas.c.loader.ClassResource;
-import net.bodz.bas.io.resource.builtin.URLResource;
-import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.info.Doc;
-import net.bodz.bas.ui.UIException;
-import net.bodz.bas.ui.a.PreferredSize;
-import net.bodz.bas.xml.XMLs;
-import net.bodz.swt.adapters.TextAdapters;
-import net.bodz.swt.reflect.BasicGUI;
-
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.AuthenticationEvent;
-import org.eclipse.swt.browser.AuthenticationListener;
-import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.browser.LocationEvent;
-import org.eclipse.swt.browser.LocationListener;
-import org.eclipse.swt.browser.ProgressEvent;
-import org.eclipse.swt.browser.ProgressListener;
-import org.eclipse.swt.browser.StatusTextEvent;
-import org.eclipse.swt.browser.StatusTextListener;
-import org.eclipse.swt.browser.TitleEvent;
-import org.eclipse.swt.browser.TitleListener;
+import org.eclipse.swt.browser.*;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -44,10 +23,22 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 
-@Doc("CSS Look&Feel")
+import net.bodz.bas.c.loader.ClassResource;
+import net.bodz.bas.io.resource.builtin.URLResource;
+import net.bodz.bas.meta.build.MainVersion;
+import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.ui.UIException;
+import net.bodz.bas.ui.a.PreferredSize;
+import net.bodz.bas.xml.XMLs;
+import net.bodz.swt.c.text.TextAdapters;
+import net.bodz.swt.program.BasicGUI;
+
+/**
+ * CSS Look&Feel
+ */
 @PreferredSize(width = 800, height = 600)
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class VisualCSS
         extends BasicGUI {
 
@@ -268,7 +259,7 @@ public class VisualCSS
 
     public static void main(String[] args)
             throws Exception {
-        new VisualCSS().run(args);
+        new VisualCSS().execute(args);
     }
 
 }

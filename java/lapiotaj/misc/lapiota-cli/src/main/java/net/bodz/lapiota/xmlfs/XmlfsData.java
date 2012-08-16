@@ -73,7 +73,7 @@ public class XmlfsData
             try {
                 bytes = Files.readBytes(file, readSize);
             } catch (IOException e) {
-                String s = "<read-error>" + e.getMessage() + "</read-error>"; //$NON-NLS-1$ //$NON-NLS-2$
+                String s = "<read-error>" + e.getMessage() + "</read-error>";
                 bytes = s.getBytes();
             }
             data = new WeakReference<byte[]>(bytes);

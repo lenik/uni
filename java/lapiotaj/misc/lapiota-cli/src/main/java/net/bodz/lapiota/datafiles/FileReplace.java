@@ -1,26 +1,24 @@
 package net.bodz.lapiota.datafiles;
 
+import static net.bodz.lapiota.nls.CLINLS.CLINLS;
+
 import java.util.regex.Pattern;
 
-import net.bodz.bas.cli.BatchEditCLI;
-import net.bodz.bas.cli.CLIException;
-import net.bodz.bas.cli.EditResult;
+import net.bodz.bas.cli.skel.BatchEditCLI;
+import net.bodz.bas.cli.skel.CLIException;
+import net.bodz.bas.cli.skel.EditResult;
+import net.bodz.bas.lang.fn.Filt1;
+import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.build.Version;
-import net.bodz.bas.meta.info.Doc;
 import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.bas.mode._fn.Filt1;
 import net.bodz.bas.sio.IPrintOut;
-import net.bodz.bas.trait.spi.extra.GetInstanceParser;
-import net.bodz.lapiota.nls.CLINLS;
 
 /**
  * A Unix diff program implemented in Java
  */
-@Doc("")
 @ProgramName("jrepl")
 @RcsKeywords(id = "$Id$")
-@Version({ 0, 1 })
+@MainVersion({ 0, 1 })
 public class FileReplace
         extends BatchEditCLI {
 
@@ -50,14 +48,13 @@ public class FileReplace
      *
      * @option =CLASS(Filter)
      */
-    @ParseBy(GetInstanceParser.class)
     protected Filt1<String, String> filter;
 
     @Override
     protected void _boot()
             throws Exception {
         if ((regexp == null) == (text == null))
-            throw new CLIException(CLINLS.getString("FileReplace.regexpOrText")); //$NON-NLS-1$
+            throw new CLIException(CLINLS.getString("FileReplace.regexpOrText"));
 
         if (parameters().isIgnoreCase()) {
             if (regexp != null)
@@ -93,7 +90,7 @@ public class FileReplace
 
     public static void main(String[] args)
             throws Exception {
-        new FileReplace().run(args);
+        new FileReplace().execute(args);
     }
 
 }
