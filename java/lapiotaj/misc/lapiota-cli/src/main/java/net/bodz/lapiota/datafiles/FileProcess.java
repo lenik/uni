@@ -3,13 +3,10 @@ package net.bodz.lapiota.datafiles;
 import static net.bodz.lapiota.nls.CLINLS.CLINLS;
 import groovy.lang.GroovyShell;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,16 +17,21 @@ import javax.script.ScriptException;
 
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.java.util.regex.PatternProcessor;
+import net.bodz.bas.c.string.IndexVarSubst;
 import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
 import net.bodz.bas.cli.plugin.CLIPlugin;
 import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.err.ParseException;
+import net.bodz.bas.io.resource.builtin.InputStreamSource;
+import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.meta.program.ProgramName;
+import net.bodz.bas.vfs.IFile;
+import net.bodz.bas.vfs.impl.javaio.JavaioFile;
 import net.bodz.lapiota.util.RefBinding;
 
 /**
@@ -56,18 +58,18 @@ public class FileProcess
     }
 
     class ScriptScope {
-        public File getDst0() {
+        public IFile getDst0() {
             return getOutputFile(currentFile);
         }
 
-        public File dst;
+        public IFile dst;
 
-        public String getDir() {
-            return dst.getParent();
+        public IFile getDir() {
+            return dst.getParentFile();
         }
 
-        public void setDir(String newDir) {
-            dst = Files.canoniOf(newDir, dst.getName());
+        public void setDir(IFile newDir) {
+            dst = newDir;
         }
 
         public String getBase() {
@@ -75,7 +77,7 @@ public class FileProcess
         }
 
         public void setBase(String newBase) {
-            dst = Files.canoniOf(dst.getParentFile(), newBase);
+            dst = dst.getParentFile().getChild(newBase);
         }
 
         public String getName() {
@@ -87,12 +89,12 @@ public class FileProcess
         }
 
         public void setName(String newName) {
-            String ext = FilePath.getExtension(dst, true);
-            dst = Files.canoniOf(dst.getParentFile(), newName + ext);
+            String ext = FilePath.getExtension(dst.getName(), true);
+            dst = dst.getParentFile().getChild(newName + ext);
         }
 
         public String getExt() {
-            return FilePath.getExtension(dst);
+            return FilePath.getExtension(dst.getName());
         }
 
         public void setExt(String newExt) {
@@ -100,7 +102,7 @@ public class FileProcess
                 newExt = "";
             else if (!newExt.isEmpty())
                 newExt = "." + newExt;
-            dst = Files.canoniOf(dst.getParentFile(), getName() + newExt);
+            dst = dst.getParentFile().getChild(getName() + newExt);
         }
 
     }
@@ -117,7 +119,7 @@ public class FileProcess
     }
 
     @Override
-    protected File _getEditTmp(File file)
+    protected IFile _getEditTmp(IFile file)
             throws IOException {
         if (edit)
             return super._getEditTmp(file);
@@ -125,12 +127,12 @@ public class FileProcess
     }
 
     /** canonical file */
-    private File currentFile;
+    private IFile currentFile;
 
     private Action currentAction;
 
     @Override
-    protected void _processFile(File file) {
+    protected void _processFile(IFile file) {
         currentFile = file;
         for (Action action : actions) {
             currentAction = action;
@@ -163,7 +165,7 @@ public class FileProcess
          * @param file
          *            canonical file
          */
-        EditResult run(File file, InputStream in, OutputStream out)
+        EditResult run(IFile file, InputStream in, OutputStream out)
                 throws Exception;
     }
 
@@ -198,11 +200,12 @@ public class FileProcess
                 throws IOException, ScriptException {
             if (args.length == 0) {
                 System.out.println(CLINLS.getString("FileProcess.enterScript"));
-                script = Files.readAll(System.in);
+                script = new InputStreamSource(System.in).tooling()._for(StreamReading.class).readTextContents();
             } else {
-                String scriptFile = args[0];
-                Charset enc = parameters().getInputEncoding();
-                script = Files.readAll(scriptFile, enc);
+                String scriptPath = args[0];
+                IFile scriptFile = new JavaioFile(scriptPath);
+                scriptFile.setPreferredCharset(parameters().getInputEncoding());
+                script = scriptFile.tooling()._for(StreamReading.class).readTextContents();
             }
         }
 
@@ -212,7 +215,7 @@ public class FileProcess
         }
 
         @Override
-        public EditResult run(File file, InputStream in, OutputStream out)
+        public EditResult run(IFile file, InputStream in, OutputStream out)
                 throws Exception {
             RefBinding binding = new RefBinding();
             binding.bindScriptFields(scope, true);
@@ -338,7 +341,7 @@ public class FileProcess
         }
 
         @Override
-        public EditResult run(File file, InputStream in, OutputStream out)
+        public EditResult run(IFile file, InputStream in, OutputStream out)
                 throws Exception {
             String name = file.getName();
             if (nameOnly)
@@ -349,8 +352,8 @@ public class FileProcess
             else
                 name = m.replaceFirst(replacement);
             if (nameOnly)
-                name += FilePath.getExtension(file, true);
-            File newFile = new File(file.getParentFile(), name);
+                name += FilePath.getExtension(file.getName(), true);
+            IFile newFile = file.getParentFile().getChild(name);
             return EditResult.ren(newFile);
         }
     }
@@ -426,10 +429,10 @@ public class FileProcess
         }
 
         @Override
-        public EditResult run(File file, InputStream in, OutputStream out)
+        public EditResult run(IFile file, InputStream in, OutputStream out)
                 throws Exception {
-            String _name = FilePath.stripExtension(file);
-            String _ext = FilePath.getExtension(file, true);
+            String _name = FilePath.stripExtension(file.getName());
+            String _ext = FilePath.getExtension(file.getName(), true);
             if (dotSpace)
                 _name = _name.replace('.', ' ');
             String name = withExt ? _name + _ext : _name;
@@ -448,7 +451,7 @@ public class FileProcess
             }.process(name);
 
             try {
-                name = Interps.dereference(replacement, //
+                name = IndexVarSubst.subst(replacement, //
                         1, components, nonexist);
             } catch (IndexOutOfBoundsException e) {
                 assert nonexist == null;
@@ -456,8 +459,8 @@ public class FileProcess
             }
 
             if (!withExt)
-                name += FilePath.getExtension(file, true);
-            File newFile = new File(file.getParentFile(), name);
+                name += FilePath.getExtension(file.getName(), true);
+            IFile newFile = file.getParentFile().getChild(name);
             return EditResult.ren(newFile);
         }
     }

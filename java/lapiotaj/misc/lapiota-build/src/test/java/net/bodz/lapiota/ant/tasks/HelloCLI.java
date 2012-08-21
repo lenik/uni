@@ -43,7 +43,8 @@ public class HelloCLI
         HelloCLI app = new HelloCLI();
         IType type = app.getScriptClass();
         Logger logger = app.L;
-        System.out.println("Max Priority = " + logger.getMaxPriority());
+        System.out.println("Log Error Level = " + logger.getLevel());
+        System.out.println("Log Verbose Level = " + logger.getDelta());
         app.run();
     }
 

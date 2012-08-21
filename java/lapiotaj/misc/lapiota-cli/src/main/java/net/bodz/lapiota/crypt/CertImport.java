@@ -1,12 +1,12 @@
 package net.bodz.lapiota.crypt;
 
+import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
 import java.security.KeyStore;
 import java.security.Provider;
-import java.security.cert.CertSelector;
 import java.security.cert.Certificate;
 
+import net.bodz.bas.c.javax.security.auth.CertSelector;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
@@ -57,7 +57,7 @@ public class CertImport
         }
 
         L.mesg("save ", target);
-        OutputStream out = Files.getOutputStream(target.getStoreFile());
+        OutputStream out = new FileOutputStream(target.getStoreFile());
         try {
             targetStore.store(out, target.getStorePassword().toCharArray());
         } finally {

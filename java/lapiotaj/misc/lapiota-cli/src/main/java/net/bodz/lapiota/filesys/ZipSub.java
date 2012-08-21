@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,6 +15,8 @@ import java.util.zip.ZipOutputStream;
 
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.io.resource.builtin.InputStreamSource;
+import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.util.iter.Iterables;
@@ -138,9 +139,11 @@ public class ZipSub
         out.setComment(entry.getComment());
         if (size != 0) {
             InputStream in = zip.getInputStream(entry);
+            InputStreamSource source = new InputStreamSource(in);
+
             long written = 0;
             int lastPercent = 0;
-            for (byte[] block : Files.readByBlock(in)) {
+            for (byte[] block : source.tooling()._for(StreamReading.class).byteBlocks()) {
                 out.write(block);
                 written += block.length;
                 int percent = (int) (100 * written / size);

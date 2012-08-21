@@ -3,10 +3,8 @@ package net.bodz.lapiota.datafiles;
 import static net.bodz.lapiota.nls.CLINLS.CLINLS;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,6 +12,7 @@ import java.util.regex.Pattern;
 
 import org.codehaus.groovy.control.CompilationFailedException;
 
+import net.bodz.bas.c.java.util.regex.UnixStyleVarProcessor;
 import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
 import net.bodz.bas.cli.plugin.CLIPlugin;
@@ -21,6 +20,8 @@ import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.err.ParseException;
+import net.bodz.bas.io.resource.tools.StreamReading;
+import net.bodz.bas.io.resource.tools.StreamWriting;
 import net.bodz.bas.lang.fn.EvalException;
 import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
@@ -94,8 +95,10 @@ public class TemplateProcess
 
             IFile defaultStart = file.getParentFile();
 
-            File dst = getOutputFile(destFile, defaultStart);
-            Files.write(editTmp, contents, outputEncoding);
+            IFile dst = getOutputFile(destFile, defaultStart);
+
+            editTmp.setPreferredCharset(outputEncoding);
+            editTmp.tooling()._for(StreamWriting.class).write(contents);
 
             EditResult result = EditResult.compareAndSave();
             addResult(dst, dst, editTmp, result);
@@ -112,7 +115,7 @@ public class TemplateProcess
 
     static interface SourceModel
             extends CLIPlugin {
-        void reset(File sourceFile)
+        void reset(IFile sourceFile)
                 throws Exception;
 
         boolean next()
@@ -170,9 +173,9 @@ public class TemplateProcess
         }
 
         @Override
-        public void reset(File sourceFile)
+        public void reset(IFile sourceFile)
                 throws IOException {
-            lineIn = Files.getBufferedReader(sourceFile);
+            lineIn = sourceFile.getInputSource().newBufferedReader();
             // file = Files.getName(sourceFile); // out=file + tmplExt
             if (variables == null)
                 variables = new HashMap<String, String>();
@@ -285,9 +288,9 @@ public class TemplateProcess
         }
 
         @Override
-        public void reset(File sourceFile)
+        public void reset(IFile sourceFile)
                 throws Exception {
-            lineIn = Files.getBufferedReader(sourceFile);
+            lineIn = sourceFile.getInputSource().newBufferedReader();
             if (variables == null)
                 variables = new HashMap<String, String>();
             else
@@ -360,13 +363,13 @@ public class TemplateProcess
 
         // @Option(alias = "t", vnam = "FILE", doc =
         // "template filename, used by specific template models")
-        protected File templateFile;
+        protected IFile templateFile;
         protected String template;
 
         public VariableExpandTemplate() {
         }
 
-        public VariableExpandTemplate(File templateFile) {
+        public VariableExpandTemplate(IFile templateFile) {
             this.templateFile = templateFile;
         }
 
@@ -377,12 +380,14 @@ public class TemplateProcess
             if (template == null) {
                 if (templateFile == null)
                     throw new CLIException(CLINLS.getString("TemplateProcess.templateIsntSpecified"));
-                template = Files.readAll(templateFile, inputEncoding);
+                template = templateFile.tooling()._for(StreamReading.class).readTextContents();
             }
             Map<String, Object> vars = (Map<String, Object>) context;
             if (env)
                 vars.putAll(System.getenv());
-            return Interps.dereference(template, vars);
+
+            UnixStyleVarProcessor processor = new UnixStyleVarProcessor(vars);
+            return processor.process(template);
         }
     }
 
@@ -408,13 +413,13 @@ public class TemplateProcess
 
         // @Option(alias = "t", vnam = "FILE", doc =
         // "template filename, used by specific template models")
-        protected File templateFile;
+        protected IFile templateFile;
         protected String template;
 
         public GroovyTemplate() {
         }
 
-        public GroovyTemplate(File templateFile) {
+        public GroovyTemplate(IFile templateFile) {
             this.templateFile = templateFile;
         }
 
@@ -425,7 +430,8 @@ public class TemplateProcess
             if (template == null) {
                 if (templateFile == null)
                     throw new CLIException(CLINLS.getString("TemplateProcess.templateIsntSpecified"));
-                template = Files.readAll(templateFile, inputEncoding);
+                templateFile.setPreferredCharset(inputEncoding);
+                template = templateFile.tooling()._for(StreamReading.class).readTextContents();
             }
             Map<String, Object> _vars = (Map<String, Object>) context;
             if (env)

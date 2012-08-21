@@ -10,23 +10,24 @@ import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import net.bodz.bas.c.java.io.FileFinder;
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.io.resource.builtin.InputStreamSource;
+import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.jvm.stack.Caller;
 import net.bodz.bas.lang.Control;
 import net.bodz.bas.loader.Classpath;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.program.ArgsParseBy;
 import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.lapiota.util.TypeExtensions.FileParser2;
+import net.bodz.bas.vfs.IFile;
+import net.bodz.bas.vfs.util.FileFinder;
+import net.bodz.bas.vfs.util.IFileFilter;
 
 /**
  * Find the class file defined the specified class
@@ -49,21 +50,20 @@ public class FindClassResource
      *
      * @option -Ic =CLASS(FileFilter)
      */
-    protected FileFilter filter;
+    protected IFileFilter filter;
 
     protected List<URL> classpaths = new ArrayList<URL>();
 
     /**
      * @option -b =FILE|DIR
      */
-    @ParseBy(FileParser2.class)
-    protected void bootClasspath(File file)
+    protected void bootClasspath(IFile file)
             throws IOException {
         FileFinder finder = new FileFinder(filter, recursive, file);
-        for (File f : finder.listFiles()) {
-            if (f.isDirectory())
+        for (IFile f : finder.listFiles()) {
+            if (f.isTree())
                 return;
-            URL url = Files.getURL(f);
+            URL url = f.getPath().toURL();
             L.debug("add boot-classpath: ", url);
             Classpath.addURL(url);
         }
@@ -72,14 +72,13 @@ public class FindClassResource
     /**
      * @option -c =FILE|DIR
      */
-    @ArgsParseBy(FileParser2.class)
-    protected void classpath(File file)
+    protected void classpath(IFile file)
             throws IOException {
         FileFinder finder = new FileFinder(filter, recursive, file);
-        for (File f : finder.listFiles()) {
-            if (f.isDirectory())
+        for (IFile f : finder.listFiles()) {
+            if (f.isTree())
                 return;
-            URL url = Files.getURL(f);
+            URL url = f.getPath().toURL();
             L.debug("queue classpath: ", url);
             classpaths.add(url);
         }
@@ -188,7 +187,7 @@ public class FindClassResource
                 if (tryAdd != null) {
                     String lib = libpath(tryAdd);
                     L.info("add required ", lib);
-                    URL liburl = Files.getURL(new File(lib));
+                    URL liburl = new File(lib).toURL();
                     if (tryAdds.contains(liburl)) {
                         L.error("loop fail");
                         break;
@@ -226,7 +225,7 @@ public class FindClassResource
                 strings = Arrays.asList(args);
             else {
                 L.stdout("Enter class names or resource paths: ");
-                strings = Files.readByLine(System.in);
+                strings = new InputStreamSource(System.in).tooling()._for(StreamReading.class).lines();
             }
             for (String name : strings) {
                 name = name.trim();
@@ -263,7 +262,7 @@ public class FindClassResource
             filter = new FileFilter() {
                 @Override
                 public boolean accept(File file) {
-                    String ext = FilePath.getExtension(file).toLowerCase();
+                    String ext = FilePath.getExtension(file.getName()).toLowerCase();
                     return JAR_EXTENSIONS.matcher(ext).matches();
                 }
             };

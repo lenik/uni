@@ -11,10 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.collection.preorder.PrefixMap;
 import net.bodz.bas.err.ParseException;
+import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
@@ -94,13 +96,13 @@ public class Gather
     }
 
     class GMap {
-        private File dstdir;
+        private IFile dstdir;
         private PrefixMap<String> prefixes;
         private Map<File, File> src2dst;
 
-        public GMap(File dstdir) {
+        public GMap(IFile dstdir) {
             assert dstdir != null : "null dstdir";
-            this.dstdir = Files.canoniOf(dstdir);
+            this.dstdir = dstdir;
             this.src2dst = new HashMap<File, File>();
         }
 
@@ -130,8 +132,8 @@ public class Gather
             if (srcs.size() > 1)
                 throw new IllegalArgumentException(CLINLS.getString("Gather.tooManyMatchedSrc")
                         + StringArray.join("\n", srcs));
-            File src = Files.canoniOf(srcs.get(0));
-            File dst = Files.canoniOf(dstdir, dstfile);
+            File src = FilePath.canoniOf(srcs.get(0));
+            IFile dst = dstdir.getChild(dstfile);
             src2dst.put(src, dst);
         }
 
@@ -162,14 +164,14 @@ public class Gather
         if (!dstdir.isTree())
             throw new IllegalArgumentException(CLINLS.getString("Gather.notDirectory") + dstdir);
 
-        File gatherd = new File(dstdir, gatherDir);
-        if (!gatherd.isDirectory())
+        IFile gatherd = dstdir.getChild(gatherDir);
+        if (!gatherd.isTree())
             throw new IllegalArgumentException(CLINLS.getString("Gather.notGatheredTarget") + dstdir);
 
         GMap gmap = new GMap(dstdir);
-        File prefixf = new File(gatherd, ".prefix");
+        IFile prefixf = gatherd.getChild(".prefix");
         if (prefixf.exists()) {
-            for (String line : Files.readByLine(prefixf)) {
+            for (String line : prefixf.tooling()._for(StreamReading.class).lines()) {
                 line = line.trim();
                 if (line.isEmpty() || line.startsWith("#"))
                     continue;
@@ -182,14 +184,14 @@ public class Gather
             }
         }
 
-        for (File gfile : gatherd.listFiles()) {
-            if (gfile.isDirectory())
+        for (IFile gfile : gatherd.listChildren()) {
+            if (gfile.isTree())
                 continue;
             String base = gfile.getName();
             if (base.startsWith("."))
                 continue;
             String srcdir = null;
-            for (String line : Files.readByLine(gfile)) {
+            for (String line : gfile.tooling()._for(StreamReading.class).lines()) {
                 line = line.trim();
                 if (line.isEmpty() || line.startsWith("#"))
                     continue;

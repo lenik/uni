@@ -2,7 +2,6 @@ package net.bodz.lapiota.devhelpers;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -25,6 +24,7 @@ import org.eclipse.swt.widgets.Text;
 
 import net.bodz.bas.c.loader.ClassResource;
 import net.bodz.bas.io.resource.builtin.URLResource;
+import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.ui.UIException;
@@ -141,8 +141,10 @@ public class VisualCSS
             @Override
             public void widgetSelected(SelectionEvent e) {
                 URL url = pageList.getSelection();
+                URLResource res = new URLResource(url);
+                res.setCharset("utf-8"); // xml auto decode??
                 try {
-                    String html = Files.readAll(url, "utf-8"); // xml auto decode??
+                    String html = res.tooling()._for(StreamReading.class).readTextContents();
                     parseTemplate(html);
                     render();
                 } catch (IOException ex) {
@@ -158,8 +160,11 @@ public class VisualCSS
             @Override
             public void widgetSelected(SelectionEvent e) {
                 URL url = cssList.getSelection();
+                URLResource res = new URLResource(url);
+                res.setCharset("utf-8"); // css auto decode??
+
                 try {
-                    String css = Files.readAll(url, "utf-8"); //
+                    String css = res.tooling()._for(StreamReading.class).readTextContents();
                     cssFragment = "<style><!--\n" + css + "\n--></style>\n";
                     render();
                 } catch (IOException ex) {

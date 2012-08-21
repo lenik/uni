@@ -2,10 +2,8 @@ package net.bodz.lapiota.crypt;
 
 import static net.bodz.lapiota.nls.CLINLS.CLINLS;
 
-import java.io.File;
-import java.nio.file.Files;
-
 import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.io.resource.tools.StreamWriting;
 import net.bodz.bas.mem.Memory;
 import net.bodz.bas.mem.RandomAccessFileMemory;
 import net.bodz.bas.meta.build.MainVersion;
@@ -25,7 +23,7 @@ public class PGDBreak
      *
      * @option -O =DIR
      */
-    File outputDirectory = new File(".");
+    IFile outputDirectory; // = CurrentDirectoryColo.getInstance().get();
 
     /**
      * <pre>
@@ -61,10 +59,12 @@ public class PGDBreak
 
             header = new byte[size];
             chunk.read(0, header);
-            File chunkFile = new File(outputDirectory, file.getName() //
-                    + "." + type + "." + chunkIndex++);
+
+            String childName = file.getName() + "." + type + "." + chunkIndex++;
+            IFile chunkFile = outputDirectory.getChild(childName);
+
             L.mesg(CLINLS.getString("PGDBreak.writeTo"), chunkFile, " (", size, " bytes)");
-            Files.write(chunkFile, header);
+            chunkFile.tooling()._for(StreamWriting.class).writeBytes(header);
 
             addr = chunk.readInt64(16);
             if (addr == 0)

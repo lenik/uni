@@ -16,6 +16,7 @@ import java.util.jar.JarFile;
 
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.jvm.stack.Caller;
 import net.bodz.bas.loader.Classpath;
 import net.bodz.bas.meta.build.MainVersion;
@@ -24,6 +25,7 @@ import net.bodz.bas.meta.program.ProgramName;
 import net.bodz.bas.sio.BCharOut;
 import net.bodz.bas.sio.IPrintOut;
 import net.bodz.bas.sio.PrintStreamPrintOut;
+import net.bodz.bas.vfs.IFile;
 
 /**
  * Generate class proxy/wrapper
@@ -159,7 +161,7 @@ public class GenerateClassWrappers
      */
     public void addDirectory(File dir)
             throws MalformedURLException, IOException {
-        Classpath.addURL(Files.getURL(dir));
+        Classpath.addURL(dir.toURL());
         int count = addDirectory(dir, "");
         L.info("added ", count, " classes from ", dir);
     }
@@ -192,10 +194,10 @@ public class GenerateClassWrappers
      *
      * @option -l =LIST-FILE
      */
-    public void addList(File list)
+    public void addList(IFile list)
             throws MalformedURLException, IOException {
         int count = 0;
-        for (String line : Files.readByLine(list)) {
+        for (String line : list.tooling()._for(StreamReading.class).lines()) {
             if (line.startsWith(PI_CLASSPATH)) {
                 String path = line.substring(PI_CLASSPATH.length()).trim();
                 Classpath.addURL(Files.getURL(path));

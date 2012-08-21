@@ -7,12 +7,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import net.bodz.bas.cli.skel.BatchCLI;
+import net.bodz.bas.io.resource.builtin.InputStreamSource;
+import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.util.iter.Iterables;
@@ -50,27 +51,29 @@ public class ZipMerge
     protected void doFile(IFile file)
             throws IOException {
         L.mesg(CLINLS.getString("ZipMerge.add"), file);
-        ZipFile zip = new ZipFile(file);
+        ZipFile zipFile = new ZipFile(file);
         try {
-            for (ZipEntry s : Iterables.otp(zip.entries())) {
-                InputStream ein = zip.getInputStream(s);
-                ZipEntry t = new ZipEntry(s.getName());
-                t.setComment(s.getComment());
-                t.setCrc(s.getCrc());
-                t.setExtra(s.getExtra());
-                t.setMethod(s.getMethod());
-                t.setSize(s.getSize());
-                t.setTime((s.getTime()));
-                zout.putNextEntry(t);
+            for (ZipEntry entry : Iterables.otp(zipFile.entries())) {
+                ZipEntry outEntry = new ZipEntry(entry.getName());
+                outEntry.setComment(entry.getComment());
+                outEntry.setCrc(entry.getCrc());
+                outEntry.setExtra(entry.getExtra());
+                outEntry.setMethod(entry.getMethod());
+                outEntry.setSize(entry.getSize());
+                outEntry.setTime((entry.getTime()));
+                zout.putNextEntry(outEntry);
 
-                String title = CLINLS.getString("ZipMerge.__add") + t.getName() + //
-                        " (" + s.getSize() + CLINLS.getString("ZipMerge.bytes");
+                InputStream entryIn = zipFile.getInputStream(entry);
+                InputStreamSource entrySource = new InputStreamSource(entryIn);
+
+                String title = CLINLS.getString("ZipMerge.__add") + outEntry.getName() + //
+                        " (" + entry.getSize() + CLINLS.getString("ZipMerge.bytes");
                 int lastPercent = 0;
                 long written = 0;
-                for (byte[] block : Files.readByBlock(ein)) {
+                for (byte[] block : entrySource.tooling()._for(StreamReading.class).byteBlocks()) {
                     zout.write(block);
                     written += block.length;
-                    int percent = (int) (100 * written / s.getSize());
+                    int percent = (int) (100 * written / entry.getSize());
                     if (percent != lastPercent) {
                         L.status(title, percent, "%)");
                         lastPercent = percent;
@@ -79,7 +82,7 @@ public class ZipMerge
                 L.info();
             }
         } finally {
-            zip.close();
+            zipFile.close();
         }
     }
 

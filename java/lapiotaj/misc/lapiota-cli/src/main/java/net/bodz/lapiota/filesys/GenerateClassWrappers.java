@@ -63,13 +63,11 @@ public class GenerateClassWrappers
      *
      * @option -x --skip-class =FQCN
      */
-    @ValueType(Class.class)
     protected List<Class<?>> skipClasses;
 
     /**
      * @option hidden
      */
-    @ValueType(Class.class)
     private List<Class<?>> classes = new ArrayList<Class<?>>();
 
     /**
@@ -275,17 +273,17 @@ public class GenerateClassWrappers
     }
 
     @Override
-    protected void _main(String[] args)
-            throws Throwable {
+    protected void doMain(String[] args)
+            throws Exception {
         for (Class<?> clazz : classes) {
-            L.i.sig("type ", clazz);
+            L.mesg("type ", clazz);
             make(clazz);
         }
     }
 
     public static void main(String[] args)
             throws Throwable {
-        new GenerateClassWrappers().climain(args);
+        new GenerateClassWrappers().execute(args);
     }
 
 }

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.*;
 
 import org.eclipse.jdt.core.JavaCore;
@@ -25,6 +24,7 @@ import net.bodz.bas.dotnet.synthetics.JavaAnnotation;
 import net.bodz.bas.dotnet.synthetics.JavaEnum;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.io.resource.tools.StreamReading;
+import net.bodz.bas.io.resource.tools.StreamWriting;
 import net.bodz.bas.loader.Classpath;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
@@ -83,7 +83,7 @@ public class J4conv
         String src = in.tooling()._for(StreamReading.class).readTextContents();
         char[] srcChars = src.toCharArray();
 
-        Map options = JavaCore.getOptions();
+        Map<String, String> options = JavaCore.getOptions();
         options.put(JavaCore.COMPILER_SOURCE, "1.6");
         options.remove(JavaCore.COMPILER_TASK_TAGS);
 
@@ -113,7 +113,7 @@ public class J4conv
         // format...
         boolean format = true;
         if (format) {
-            Map fopts = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+            Map<String, Object> fopts = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
             fopts.put(FMT.FORMATTER_INDENTATION_SIZE, 4);
             fopts.put(FMT.FORMATTER_TAB_CHAR, JavaCore.SPACE);
             fopts.put(FMT.FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS, FMT.TRUE);
@@ -132,7 +132,8 @@ public class J4conv
             }
         }
 
-        Files.write(out, dst, outputEncoding);
+        out.tooling()._for(StreamWriting.class).write(dst);
+
         return EditResult.compareAndSave();
     }
 
@@ -146,7 +147,7 @@ public class J4conv
 
         protected ASTRewrite rewrite;
         protected AST ast;
-        protected ASTUtils AU;
+        protected ASTUtils astUtils;
 
         protected CompilationUnit unit;
 
@@ -166,7 +167,7 @@ public class J4conv
         public ASTFrameVisitor(ASTRewrite rewrite) {
             this.rewrite = rewrite;
             this.ast = rewrite.getAST();
-            this.AU = new ASTUtils(rewrite.getAST(), rewrite);
+            this.astUtils = new ASTUtils(rewrite.getAST(), rewrite);
         }
 
         @Override
@@ -189,7 +190,7 @@ public class J4conv
                 int dot = fqn.lastIndexOf('.');
                 assert dot != -1;
                 String clazz = fqn.substring(0, dot);
-                AU.addImport(unit, clazz);
+                astUtils.addImport(unit, clazz);
 
                 // NOT ACCURACY
                 String member = fqn.substring(dot + 1);
@@ -290,7 +291,7 @@ public class J4conv
                 TypeParameter parameter = (TypeParameter) _parameter;
                 List<?> bounds = parameter.typeBounds();
                 if (bounds.isEmpty()) {
-                    return AU.newType(Object.class);
+                    return astUtils.newType(Object.class);
                 } else {
                     Type bmajor = (Type) bounds.get(0);
                     while (bmajor.isParameterizedType())
@@ -373,7 +374,7 @@ public class J4conv
             SimpleName name = node.getName();
             Type type = node.getType();
             if (node.isVarargs())
-                type = ast.newArrayType(AU.copy(type));
+                type = ast.newArrayType(astUtils.copy(type));
             varns.put(name.getIdentifier(), type);
             return super.visit(node);
         }
@@ -499,15 +500,15 @@ public class J4conv
                 }
             }
             if (node.isVarargs()) {
-                List params = node.parameters();
+                List<ASTNode> params = node.parameters();
                 SingleVariableDeclaration last = (SingleVariableDeclaration) params.get(params.size() - 1);
                 SingleVariableDeclaration last2 = ast.newSingleVariableDeclaration();
                 Type _type = expandMajor(last.getType());
-                ArrayType type = ast.newArrayType(AU.copy(_type));
+                ArrayType type = ast.newArrayType(astUtils.copy(_type));
                 last2.setType(type);
                 last2.setVarargs(false);
-                last2.setName(AU.moveRef(last.getName()));
-                last2.modifiers().addAll(AU.copy(last.modifiers()));
+                last2.setName(astUtils.moveRef(last.getName()));
+                last2.modifiers().addAll(astUtils.copy(last.modifiers()));
                 rewrite.replace(last, last2, null);
             }
             return super.visit(node);
@@ -528,7 +529,7 @@ public class J4conv
                 String name = node.getName().getIdentifier();
                 String access = statics.get(name);
                 if (access != null) {
-                    MethodInvocation destatic = AU.copyRef2(node);
+                    MethodInvocation destatic = astUtils.copyRef2(node);
                     int dot = access.lastIndexOf('.');
                     String clazz = access.substring(0, dot);
                     name = access.substring(dot + 1);
@@ -548,11 +549,11 @@ public class J4conv
                 ArrayCreation newArray = ast.newArrayCreation();
                 // new_Array.setType(vararg.getTypeBounds())
                 ArrayInitializer initArray = ast.newArrayInitializer();
-                List initList = initArray.expressions();
-                List callList = node.arguments();
+                List<ASTNode> initList = initArray.expressions(); // XXX Should be <Expression>?
+                List<Expression> callList = node.arguments();
                 for (int i = varoff; i < callList.size(); i++) {
-                    ASTNode callArg = (ASTNode) callList.get(i);
-                    initList.add(AU.moveRef(callArg));
+                    ASTNode callArg = callList.get(i);
+                    initList.add(astUtils.moveRef(callArg));
                     vargs.remove(callArg, null);
                 }
                 newArray.setInitializer(initArray);
@@ -585,7 +586,7 @@ public class J4conv
         public boolean visit(EnhancedForStatement node) {
             SingleVariableDeclaration _itvar = node.getParameter();
             Type _type = _itvar.getType(); // expandMajor
-            Expression iterable = AU.copyRef2(node.getExpression());
+            Expression iterable = astUtils.copyRef2(node.getExpression());
             Statement _body = node.getBody();
 
             boolean isArray = false;
@@ -603,7 +604,7 @@ public class J4conv
                 List<Expression> inits = _for.initializers();
                 {
                     VariableDeclarationFragment forInit_f = ast.newVariableDeclarationFragment();
-                    forInit_f.setName(AU.copy(_indexName));
+                    forInit_f.setName(astUtils.copy(_indexName));
                     forInit_f.setInitializer(ast.newNumberLiteral("0"));
                     VariableDeclarationExpression forInit = ast.newVariableDeclarationExpression(forInit_f);
                     inits.add(forInit);
@@ -612,15 +613,15 @@ public class J4conv
                 {
                     PrefixExpression forUpdate = ast.newPrefixExpression();
                     forUpdate.setOperator(PrefixExpression.Operator.INCREMENT);
-                    forUpdate.setOperand(AU.copy(_indexName));
+                    forUpdate.setOperand(astUtils.copy(_indexName));
                     updaters.add(forUpdate);
                 }
                 InfixExpression forTest = ast.newInfixExpression();
                 {
                     forTest.setOperator(InfixExpression.Operator.LESS);
-                    forTest.setLeftOperand(AU.copy(_indexName));
+                    forTest.setLeftOperand(astUtils.copy(_indexName));
                     FieldAccess arrayLength = ast.newFieldAccess();
-                    arrayLength.setExpression(AU.copy(_array));
+                    arrayLength.setExpression(astUtils.copy(_array));
                     arrayLength.setName(ast.newSimpleName("length"));
                     forTest.setRightOperand(arrayLength);
                     _for.setExpression(forTest);
@@ -628,17 +629,17 @@ public class J4conv
                 VariableDeclarationStatement itvar;
                 {
                     VariableDeclarationFragment itvar_f = ast.newVariableDeclarationFragment();
-                    itvar_f.setName(AU.copy(_itvar.getName()));
+                    itvar_f.setName(astUtils.copy(_itvar.getName()));
                     ArrayAccess arrayAccess = ast.newArrayAccess();
-                    arrayAccess.setArray(AU.copy(_array));
-                    arrayAccess.setIndex(AU.copy(_indexName));
+                    arrayAccess.setArray(astUtils.copy(_array));
+                    arrayAccess.setIndex(astUtils.copy(_indexName));
                     itvar_f.setInitializer(arrayAccess);
                     itvar = ast.newVariableDeclarationStatement(itvar_f);
-                    itvar.setType(AU.copy(_type));
+                    itvar.setType(astUtils.copy(_type));
                 }
                 Block forBody;
                 if (_body instanceof Block) {
-                    forBody = AU.copyRef2((Block) _body);
+                    forBody = astUtils.copyRef2((Block) _body);
                     List<Statement> statements = forBody.statements();
                     // ListRewrite statements = rewrite.getListRewrite(_body,
                     // Block.STATEMENTS_PROPERTY);
@@ -648,7 +649,7 @@ public class J4conv
                     forBody = ast.newBlock();
                     List<Statement> statements = forBody.statements();
                     statements.add(0, itvar);
-                    statements.add(AU.copyRef2(_body));
+                    statements.add(astUtils.copyRef2(_body));
                 }
                 _for.setBody(forBody);
                 _for.accept(this);
@@ -658,40 +659,40 @@ public class J4conv
                 SimpleName _iterName = ast.newSimpleName("_iter" + (++forIterIndex));
                 {
                     VariableDeclarationFragment iterDecl_f = ast.newVariableDeclarationFragment();
-                    iterDecl_f.setName(AU.copy(_iterName));
+                    iterDecl_f.setName(astUtils.copy(_iterName));
                     MethodInvocation iterable_iterator = ast.newMethodInvocation();
                     iterable_iterator.setExpression(iterable);
                     iterable_iterator.setName(ast.newSimpleName("iterator"));
                     iterDecl_f.setInitializer(iterable_iterator);
 
                     iterDecl = ast.newVariableDeclarationStatement(iterDecl_f);
-                    iterDecl.setType(AU.newImportedType(unit, Iterator.class));
+                    iterDecl.setType(astUtils.newImportedType(unit, Iterator.class));
                 }
 
                 WhileStatement while_ = ast.newWhileStatement();
                 {
                     MethodInvocation iter_hasNext = ast.newMethodInvocation();
-                    iter_hasNext.setExpression(AU.copy(_iterName));
+                    iter_hasNext.setExpression(astUtils.copy(_iterName));
                     iter_hasNext.setName(ast.newSimpleName("hasNext"));
 
                     MethodInvocation next_ = ast.newMethodInvocation();
-                    next_.setExpression(AU.copy(_iterName));
+                    next_.setExpression(astUtils.copy(_iterName));
                     next_.setName(ast.newSimpleName("next"));
 
                     VariableDeclarationFragment itvar_f = ast.newVariableDeclarationFragment();
-                    itvar_f.setName(AU.copyRef(_itvar.getName()));
+                    itvar_f.setName(astUtils.copyRef(_itvar.getName()));
                     CastExpression casted = ast.newCastExpression();
                     casted.setExpression(next_);
-                    casted.setType(AU.copy(_type));
+                    casted.setType(astUtils.copy(_type));
                     itvar_f.setInitializer(casted);
 
                     VariableDeclarationStatement itvar_Next = ast.newVariableDeclarationStatement(itvar_f);
-                    itvar_Next.setType(AU.copy(_type));
-                    itvar_Next.modifiers().addAll(AU.copy(_itvar.modifiers()));
+                    itvar_Next.setType(astUtils.copy(_type));
+                    itvar_Next.modifiers().addAll(astUtils.copy(_itvar.modifiers()));
 
                     Block whileBody;
                     if (_body instanceof Block) {
-                        whileBody = AU.copyRef2((Block) _body);
+                        whileBody = astUtils.copyRef2((Block) _body);
                         // ListRewrite statements =
                         // rewrite.getListRewrite(_body,
                         // Block.STATEMENTS_PROPERTY);
@@ -702,7 +703,7 @@ public class J4conv
                         whileBody = ast.newBlock();
                         List<Statement> statements = whileBody.statements();
                         statements.add(0, itvar_Next);
-                        statements.add(AU.copyRef2(_body));
+                        statements.add(astUtils.copyRef2(_body));
                     }
                     while_.setExpression(iter_hasNext);
                     while_.setBody(whileBody);
@@ -743,7 +744,7 @@ public class J4conv
         @SuppressWarnings("unchecked")
         @Override
         public boolean visit(AssertStatement node) {
-            Expression exp = AU.moveRef(node.getExpression());
+            Expression exp = astUtils.moveRef(node.getExpression());
             if (!(exp instanceof ParenthesizedExpression)) {
                 ParenthesizedExpression _exp = ast.newParenthesizedExpression();
                 _exp.setExpression(exp);
@@ -760,9 +761,9 @@ public class J4conv
 
                 ThrowStatement throw_ = ast.newThrowStatement();
                 ClassInstanceCreation new_Error = ast.newClassInstanceCreation();
-                new_Error.setType(AU.newType(AssertionError.class));
+                new_Error.setType(astUtils.newType(AssertionError.class));
                 if (_msg != null)
-                    new_Error.arguments().add(AU.moveRef(_msg));
+                    new_Error.arguments().add(astUtils.moveRef(_msg));
                 throw_.setExpression(new_Error);
                 if_.setThenStatement(throw_);
             }
@@ -784,9 +785,9 @@ public class J4conv
         public boolean visit(AnnotationTypeDeclaration aTypeDecl) {
             TypeDeclaration cTypeDecl = ast.newTypeDeclaration();
             cTypeDecl.setInterface(false);
-            cTypeDecl.setName(AU.copyRef2(aTypeDecl.getName()));
-            cTypeDecl.modifiers().addAll(AU.copy(aTypeDecl.modifiers()));
-            cTypeDecl.setSuperclassType(AU.newImportedType(unit, JavaAnnotation.class));
+            cTypeDecl.setName(astUtils.copyRef2(aTypeDecl.getName()));
+            cTypeDecl.modifiers().addAll(astUtils.copy(aTypeDecl.modifiers()));
+            cTypeDecl.setSuperclassType(astUtils.newImportedType(unit, JavaAnnotation.class));
 
             List<BodyDeclaration> aBody = aTypeDecl.bodyDeclarations();
             List<BodyDeclaration> cBody = cTypeDecl.bodyDeclarations();
@@ -802,7 +803,7 @@ public class J4conv
                             cMethods.add((MethodDeclaration) cDecl);
                     }
                 } else
-                    cBody.add(AU.copyRef2(a));
+                    cBody.add(astUtils.copyRef2(a));
             }
             for (FieldDeclaration decl : cFields)
                 cBody.add(decl);
@@ -811,7 +812,7 @@ public class J4conv
 
             Javadoc javadoc = aTypeDecl.getJavadoc();
             if (javadoc != null)
-                cTypeDecl.setJavadoc(AU.moveRef(javadoc));
+                cTypeDecl.setJavadoc(astUtils.moveRef(javadoc));
 
             cTypeDecl.accept(this);
             rewrite.replace(aTypeDecl, cTypeDecl, null);
@@ -828,27 +829,27 @@ public class J4conv
             FieldDeclaration cField;
             {
                 VariableDeclarationFragment cFieldFrag = ast.newVariableDeclarationFragment();
-                cFieldFrag.setName(AU.copyRef2(_name));
+                cFieldFrag.setName(astUtils.copyRef2(_name));
                 if (_default != null) {
-                    cFieldFrag.setInitializer(AU.copyRef2(_default));
+                    cFieldFrag.setInitializer(astUtils.copyRef2(_default));
                 }
                 cField = ast.newFieldDeclaration(cFieldFrag);
-                cField.setType(AU.copyRef2(_type));
-                AU.addModifiers(cField, Modifier.PRIVATE);
+                cField.setType(astUtils.copyRef2(_type));
+                astUtils.addModifiers(cField, Modifier.PRIVATE);
             }
             String ucName = Strings.ucfirst(_name.getIdentifier());
             MethodDeclaration cGetter = ast.newMethodDeclaration();
             { /* return FIELD; */
-                cGetter.setReturnType2(AU.copyRef2(_type));
-                cGetter.setName(AU.copy(_name)); // ast.newSimpleName("get" +
+                cGetter.setReturnType2(astUtils.copyRef2(_type));
+                cGetter.setName(astUtils.copy(_name)); // ast.newSimpleName("get" +
                 // ucName));
                 Block block = ast.newBlock();
                 List<Statement> statements = block.statements();
                 ReturnStatement returnField = ast.newReturnStatement();
-                returnField.setExpression(AU.copyRef2(_name));
+                returnField.setExpression(astUtils.copyRef2(_name));
                 statements.add(returnField);
                 cGetter.setBody(block);
-                AU.addModifiers(cGetter, Modifier.PUBLIC | Modifier.FINAL);
+                astUtils.addModifiers(cGetter, Modifier.PUBLIC | Modifier.FINAL);
             }
             MethodDeclaration cSetter = ast.newMethodDeclaration();
             { /* this.FIELD = newval; */
@@ -856,9 +857,9 @@ public class J4conv
 
                 List<SingleVariableDeclaration> cSetterArgs = cSetter.parameters();
                 SingleVariableDeclaration setArgDecl = ast.newSingleVariableDeclaration();
-                setArgDecl.setType(AU.copyRef2(_type));
+                setArgDecl.setType(astUtils.copyRef2(_type));
                 SimpleName newval = ast.newSimpleName("newval");
-                setArgDecl.setName(AU.copy(newval));
+                setArgDecl.setName(astUtils.copy(newval));
                 cSetterArgs.add(setArgDecl);
 
                 Block block = ast.newBlock();
@@ -866,18 +867,18 @@ public class J4conv
                 Assignment assignment = ast.newAssignment();
                 FieldAccess thisField = ast.newFieldAccess();
                 thisField.setExpression(ast.newThisExpression());
-                thisField.setName(AU.copyRef2(_name));
+                thisField.setName(astUtils.copyRef2(_name));
                 assignment.setLeftHandSide(thisField);
-                assignment.setRightHandSide(AU.copy(newval));
+                assignment.setRightHandSide(astUtils.copy(newval));
                 statements.add(ast.newExpressionStatement(assignment));
                 cSetter.setBody(block);
-                AU.addModifiers(cSetter, Modifier.PUBLIC | Modifier.FINAL);
+                astUtils.addModifiers(cSetter, Modifier.PUBLIC | Modifier.FINAL);
             }
 
             if (_javadoc != null) {
                 // cField.setJavadoc(AU.copyRef(_javadoc));
-                cGetter.setJavadoc(AU.copyRef(_javadoc));
-                cSetter.setJavadoc(AU.copyRef(_javadoc));
+                cGetter.setJavadoc(astUtils.copyRef(_javadoc));
+                cSetter.setJavadoc(astUtils.copyRef(_javadoc));
             }
 
             List<BodyDeclaration> cDecls = new ArrayList<BodyDeclaration>(3);
@@ -932,13 +933,13 @@ public class J4conv
         @Override
         public boolean visit(EnumDeclaration eTypeDecl) {
             String typeName = eTypeDecl.getName().getIdentifier(); // must be
-            Type superType = AU.newImportedType(unit, JavaEnum.class);
+            Type superType = astUtils.newImportedType(unit, JavaEnum.class);
             // simple
             TypeDeclaration cTypeDecl = ast.newTypeDeclaration();
             {
                 cTypeDecl.setName(ast.newSimpleName(typeName));
-                cTypeDecl.setSuperclassType(AU.copy(superType));
-                AU.addModifiers(cTypeDecl, Modifier.PUBLIC | Modifier.FINAL);
+                cTypeDecl.setSuperclassType(astUtils.copy(superType));
+                astUtils.addModifiers(cTypeDecl, Modifier.PUBLIC | Modifier.FINAL);
             }
 
             List<BodyDeclaration> eBody = eTypeDecl.bodyDeclarations();
@@ -950,15 +951,15 @@ public class J4conv
                     MethodDeclaration eDeclM = (MethodDeclaration) eDecl;
                     if (eDeclM.isConstructor()) {
                         ctors++;
-                        cDecl = AU.copy(eDecl);
+                        cDecl = astUtils.copy(eDecl);
                         MethodDeclaration cDeclM = (MethodDeclaration) cDecl;
                         prefixCtorChain(cDeclM, //
-                                AU.newType(String.class), "name", //
-                                AU.newType(int.class), "index");
+                                astUtils.newType(String.class), "name", //
+                                astUtils.newType(int.class), "index");
                     }
                 }
                 if (cDecl == null)
-                    cDecl = AU.copyRef2(eDecl);
+                    cDecl = astUtils.copyRef2(eDecl);
                 cBody.add(cDecl);
             }
             if (ctors == 0) {
@@ -966,10 +967,10 @@ public class J4conv
                 MethodDeclaration impliedCtor = ast.newMethodDeclaration();
                 impliedCtor.setName(ast.newSimpleName(typeName));
                 impliedCtor.setConstructor(true);
-                AU.addModifiers(impliedCtor, Modifier.PRIVATE);
+                astUtils.addModifiers(impliedCtor, Modifier.PRIVATE);
                 prefixCtorChain(impliedCtor, //
-                        AU.newType(String.class), "name", //
-                        AU.newType(int.class), "index");
+                        astUtils.newType(String.class), "name", //
+                        astUtils.newType(int.class), "index");
                 cBody.add(0, impliedCtor);
             }
 
@@ -982,37 +983,37 @@ public class J4conv
 
                 VariableDeclarationFragment cConst_f = ast.newVariableDeclarationFragment();
                 {
-                    cConst_f.setName(AU.copy(_name));
+                    cConst_f.setName(astUtils.copy(_name));
                     ClassInstanceCreation _new = ast.newClassInstanceCreation();
-                    _new.setType(AU.newType(typeName));
+                    _new.setType(astUtils.newType(typeName));
                     List<Expression> _newArgs = _new.arguments();
                     StringLiteral nameQuoted = ast.newStringLiteral();
                     nameQuoted.setLiteralValue(_name.getIdentifier());
                     _newArgs.add(nameQuoted);
                     _newArgs.add(ast.newNumberLiteral("" + (++ordinal)));
                     for (Expression arg : args)
-                        _newArgs.add(AU.copy(arg));
+                        _newArgs.add(astUtils.copy(arg));
                     if (anonDecl != null)
-                        _new.setAnonymousClassDeclaration(AU.copy(anonDecl));
+                        _new.setAnonymousClassDeclaration(astUtils.copy(anonDecl));
                     cConst_f.setInitializer(_new);
                 }
                 FieldDeclaration cConst = ast.newFieldDeclaration(cConst_f);
                 {
-                    AU.addModifiers(cConst, //
+                    astUtils.addModifiers(cConst, //
                             Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL);
-                    cConst.setType(AU.newType(typeName));
+                    cConst.setType(astUtils.newType(typeName));
                 }
                 cBody.add(cConst);
             }
 
             MethodDeclaration valueOf_f = ast.newMethodDeclaration();
             {
-                AU.addModifiers(valueOf_f, Modifier.PUBLIC | Modifier.STATIC);
-                valueOf_f.setReturnType2(AU.newType(typeName));
+                astUtils.addModifiers(valueOf_f, Modifier.PUBLIC | Modifier.STATIC);
+                valueOf_f.setReturnType2(astUtils.newType(typeName));
                 List<SingleVariableDeclaration> parameters = valueOf_f.parameters();
                 {
                     SingleVariableDeclaration varName = ast.newSingleVariableDeclaration();
-                    varName.setType(AU.newType(String.class));
+                    varName.setType(astUtils.newType(String.class));
                     varName.setName(ast.newSimpleName("name"));
                     parameters.add(varName);
                 }
@@ -1026,7 +1027,7 @@ public class J4conv
                             JavaEnum.class.getSimpleName()));
                     super_valueOf.setName(ast.newSimpleName("valueOf"));
                     List<Expression> arguments = super_valueOf.arguments();
-                    arguments.add(AU.newTypeLiteral(AU.newType(typeName)));
+                    arguments.add(astUtils.newTypeLiteral(astUtils.newType(typeName)));
                     arguments.add(ast.newSimpleName("name"));
                     statements.add(ast.newExpressionStatement(super_valueOf));
                 }
@@ -1034,8 +1035,8 @@ public class J4conv
             }
             MethodDeclaration values_f = ast.newMethodDeclaration();
             {
-                AU.addModifiers(values_f, Modifier.PUBLIC | Modifier.STATIC);
-                values_f.setReturnType2(ast.newArrayType(AU.newType(typeName)));
+                astUtils.addModifiers(values_f, Modifier.PUBLIC | Modifier.STATIC);
+                values_f.setReturnType2(ast.newArrayType(astUtils.newType(typeName)));
                 Block block = values_f.getBody();
                 if (block == null)
                     values_f.setBody(block = ast.newBlock());
@@ -1046,7 +1047,7 @@ public class J4conv
                             JavaEnum.class.getSimpleName()));
                     super_values.setName(ast.newSimpleName("_values"));
                     List<Expression> arguments = super_values.arguments();
-                    arguments.add(AU.newTypeLiteral(AU.newType(typeName)));
+                    arguments.add(astUtils.newTypeLiteral(astUtils.newType(typeName)));
                     statements.add(ast.newExpressionStatement(super_values));
                 }
                 cBody.add(values_f);
@@ -1066,7 +1067,7 @@ public class J4conv
                     Type type = (Type) prefixes[i];
                     String name = (String) prefixes[i + 1];
                     SingleVariableDeclaration var = ast.newSingleVariableDeclaration();
-                    var.setType(AU.copy(type));
+                    var.setType(astUtils.copy(type));
                     var.setName(ast.newSimpleName(name));
                     parameters.add(insert++, var);
                 }

@@ -26,6 +26,7 @@ import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.IPrintOut;
+import net.bodz.bas.traits.AbstractParser;
 import net.bodz.bas.traits.IParser;
 import net.bodz.bas.util.Pair;
 import net.bodz.lapiota.util.StringUtil;
@@ -98,9 +99,9 @@ public class XMLEdit
     public XMLEdit() {
         docfac = DocumentFactory.getInstance();
 
-        TypeParsers.register(XPath.class, new IParser<XPath>() {
+        TypeParsers.register(XPath.class, new AbstractParser<XPath>() {
             @Override
-            public Object parse(String text)
+            public XPath parse(String text)
                     throws ParseException {
                 return xpathParser.parse(text);
             }
@@ -215,7 +216,7 @@ public class XMLEdit
             if (sibling.isRootElement())
                 throw new DocumentException(CLINLS.getString("XMLEdit.outOfRoot"));
             Element parent = sibling.getParent();
-            List siblings = parent.elements();
+            List<Element> siblings = parent.elements();
             int index = siblings.indexOf(sibling);
             for (Node child : selection) {
                 Element childelm = (Element) child;
@@ -238,7 +239,7 @@ public class XMLEdit
             if (sibling.isRootElement())
                 throw new DocumentException(CLINLS.getString("XMLEdit.outOfRoot"));
             Element parent = sibling.getParent();
-            List siblings = parent.elements();
+            List<Element> siblings = parent.elements();
             int index = siblings.indexOf(sibling);
             for (Node child : selection) {
                 Element childelm = (Element) child;

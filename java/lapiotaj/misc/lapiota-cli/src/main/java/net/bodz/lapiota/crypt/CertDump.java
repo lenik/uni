@@ -1,10 +1,9 @@
 package net.bodz.lapiota.crypt;
 
 import java.security.Provider;
-import java.security.cert.CertSelector;
 
+import net.bodz.bas.c.javax.security.auth.CertSelector;
 import net.bodz.bas.cli.skel.BasicCLI;
-import net.bodz.bas.log.LogLevel;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.Stdio;
@@ -32,7 +31,7 @@ public class CertDump
         // INFO -> 0
         // DETAIL -> 1
         // DEBUG -> 2
-        detailLevel = L.getMaxPriority() - LogLevel.INFO.getPriority();
+        detailLevel = L.getDelta();
     }
 
     @Override

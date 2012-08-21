@@ -1,15 +1,17 @@
 package net.bodz.lapiota.xmlfs;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.tree.AbstractCDATA;
+
+import net.bodz.bas.err.OutOfDomainException;
+import net.bodz.bas.io.resource.tools.StreamReading;
+import net.bodz.bas.vfs.IFile;
 
 public class XmlfsData
         extends AbstractCDATA {
@@ -17,39 +19,41 @@ public class XmlfsData
     private static final long serialVersionUID = 8857200444733966492L;
 
     private Element parent;
-    private File file;
-    private long readSize;
+    private IFile file;
+    private int readSize;
     private Reference<byte[]> data;
     private Charset encoding;
 
-    public XmlfsData(Element parent, File file, long readSize, Charset encoding) {
+    public XmlfsData(Element parent, IFile file, long readSize, Charset encoding) {
+        if (readSize > Integer.MAX_VALUE)
+            throw new OutOfDomainException("readSize is too large", readSize, Integer.MAX_VALUE);
         this.parent = parent;
         this.file = file;
-        this.readSize = readSize;
+        this.readSize = (int) readSize;
         this.encoding = encoding;
     }
 
-    public XmlfsData(XmlfsElement parent, File file, long readSize) {
+    public XmlfsData(XmlfsElement parent, IFile file, long readSize) {
         this(parent, file, readSize, null);
     }
 
-    public XmlfsData(XmlfsElement parent, File file) {
+    public XmlfsData(XmlfsElement parent, IFile file) {
         this(parent, file, file.length(), null);
     }
 
-    public File getFile() {
+    public IFile getFile() {
         return file;
     }
 
-    public void setFile(File file) {
+    public void setFile(IFile file) {
         this.file = file;
     }
 
-    public long getReadSize() {
+    public int getReadSize() {
         return readSize;
     }
 
-    public void setReadSize(long readSize) {
+    public void setReadSize(int readSize) {
         this.readSize = readSize;
     }
 
@@ -71,7 +75,7 @@ public class XmlfsData
         byte[] bytes = null;
         if (data == null || (bytes = data.get()) == null) {
             try {
-                bytes = Files.readBytes(file, readSize);
+                bytes = file.tooling()._for(StreamReading.class).readBytes(readSize);
             } catch (IOException e) {
                 String s = "<read-error>" + e.getMessage() + "</read-error>";
                 bytes = s.getBytes();

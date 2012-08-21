@@ -6,7 +6,6 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -25,7 +24,7 @@ import net.bodz.bas.loader.Classpath;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.lapiota.util.TypeExtensions.FileParser2;
+import net.bodz.bas.vfs.IFile;
 
 /**
  * Find the class file defined the specified class
@@ -48,7 +47,6 @@ public class FindClassResource
      *
      * @option -lc =CLASS(FileFilter)
      */
-    @ParsedBy(ClassInstanceParser.class)
     protected FileFilter filter;
 
     protected List<URL> classpaths = new ArrayList<URL>();
@@ -56,7 +54,6 @@ public class FindClassResource
     /**
      * @option -b =FILE|DIR
      */
-    @ParsedBy(FileParser2.class)
     protected void bootClasspath(File file)
             throws IOException {
         FsWalk walker = new FsWalk(file, filter, recursive) {
@@ -80,7 +77,7 @@ public class FindClassResource
             throws IOException {
         FsWalk walker = new FsWalk(file, filter, recursive) {
             @Override
-            public void process(File file)
+            public void process(IFile file)
                     throws IOException {
                 if (file.isDirectory())
                     return;
@@ -150,7 +147,7 @@ public class FindClassResource
      * @option -T
      */
     protected void test()
-            throws Throwable {
+            throws IOException, ReflectiveOperationException {
         if (testArguments == null)
             testArguments = new String[0];
 
@@ -181,8 +178,6 @@ public class FindClassResource
                 try {
                     L.info("execute ", mainf.getDeclaringClass(), "::", mainf.getName(), "/", testArguments.length);
                     mainf.invoke(null, (Object) testArguments);
-                } catch (InvocationTargetException te) {
-                    throw te.getTargetException();
                 } finally {
                     if (testQuiet) {
                         System.setOut(_out);
@@ -196,7 +191,7 @@ public class FindClassResource
                 tryAdd = tryFind(failClass);
                 if (tryAdd != null) {
                     String lib = libpath(tryAdd);
-                    L.i.P("add required ", lib);
+                    L.info("add required ", lib);
                     URL liburl = new File(lib).toURI().toURL();
                     if (tryAdds.contains(liburl)) {
                         L.error("loop fail");
@@ -207,7 +202,7 @@ public class FindClassResource
                     Classpath.addURL(craftLoader, liburl);
                     continue;
                 } else {
-                    L.e.P("failed to find: ", failClass);
+                    L.error("failed to find: ", failClass);
                     throw e;
                 }
             }
@@ -221,8 +216,8 @@ public class FindClassResource
     }
 
     @Override
-    protected void _main(String[] args)
-            throws Throwable {
+    protected void doMain(String[] args)
+            throws Exception {
         if (testClass == null) {
             for (URL url : classpaths) {
                 L.debug("add classpath: ", url);
@@ -266,8 +261,7 @@ public class FindClassResource
     }
 
     @Override
-    protected void _boot()
-            throws Throwable {
+    protected void _boot() {
         if (filter == null)
             filter = new FileFilter() {
                 @Override
@@ -280,7 +274,7 @@ public class FindClassResource
 
     public static void main(String[] args)
             throws Throwable {
-        new FindClassResource().climain(args);
+        new FindClassResource().execute(args);
     }
 
 }

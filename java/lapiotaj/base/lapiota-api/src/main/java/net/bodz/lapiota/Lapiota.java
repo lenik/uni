@@ -2,12 +2,14 @@ package net.bodz.lapiota;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 
+import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
+import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.snm.abc.ModulesRoot;
+import net.bodz.bas.vfs.impl.javaio.JavaioFile;
 
 public class Lapiota {
 
@@ -22,11 +24,11 @@ public class Lapiota {
     static {
         String s = System.getenv("LAPIOTA");
         if (s == null) {
-            if (!(lapRoot = Files.canoniOf("/lapiota")).isDirectory())
-                if (!(lapRoot = Files.canoniOf("C:/lapiota")).isDirectory())
+            if (!(lapRoot = FilePath.canoniOf("/lapiota")).isDirectory())
+                if (!(lapRoot = FilePath.canoniOf("C:/lapiota")).isDirectory())
                     throw new Error("Can't find lapiota");
         } else {
-            lapRoot = Files.canoniOf(s);
+            lapRoot = FilePath.canoniOf(s);
         }
         lapEtc = new File(lapRoot, "etc");
         lapAbcd = new File(lapRoot, "abc.d");
@@ -38,9 +40,9 @@ public class Lapiota {
                     s = "noname";
                 s = "/home/" + s;
             }
-        userHome = Files.canoniOf(s);
+        userHome = FilePath.canoniOf(s);
         if (userHome.isFile())
-            userHome = Files.canoniOf("/");
+            userHome = FilePath.canoniOf("/");
         else if (!userHome.exists())
             userHome.mkdirs();
 
@@ -50,13 +52,13 @@ public class Lapiota {
         if (lams.isFile()) {
             List<String> lamdef;
             try {
-                lamdef = Files.readLines(lams);
+                lamdef = new JavaioFile(lams).tooling()._for(StreamReading.class).listLines();
             } catch (IOException e) {
                 throw new Error("can't read " + lams);
             }
             for (String lampath : lamdef) {
                 lampath = lampath.trim();
-                File lam = Files.canoniOf(lampath);
+                File lam = FilePath.canoniOf(lampath);
                 lapModules.put(lam.getName(), lam);
             }
         }

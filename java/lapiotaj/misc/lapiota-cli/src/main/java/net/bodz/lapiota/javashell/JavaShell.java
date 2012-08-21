@@ -85,8 +85,7 @@ public class JavaShell
      *
      * @option -E =NAM=VAL
      */
-    @ValueType(String.class)
-    TextMap<Object> env;
+    TextMap<String> env;
 
     public JavaShell() {
         aliases = new TreeTextMap<String[]>();
@@ -98,7 +97,7 @@ public class JavaShell
         commands.put("help", new Help());
         commands.put("import", new Import());
         commands.put("set", new Set());
-        env = new TreeTextMap<Object>(System.getenv());
+        env = new TreeTextMap<String>(System.getenv());
         env.put("PROMPT", "# ");
         env.put("SHELL", getClass().getName());
     }

@@ -2,19 +2,19 @@ package net.bodz.lapiota.datafiles;
 
 import static net.bodz.lapiota.nls.CLINLS.CLINLS;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
+import java.io.PrintStream;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.List;
 
 import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.err.IllegalUsageException;
+import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.util.Nullables;
+import net.bodz.bas.vfs.IFile;
 
 /**
  * Patch using the modified grep result (grep -Hn)
@@ -44,16 +44,16 @@ public class GrepPatch
     }
 
     @Override
-    protected void doFileArgument(File file)
+    protected void doFileArgument(IFile file)
             throws Exception {
         L.status(CLINLS.getString("GrepPatch._patch"), file);
         int grepl = 0;
 
         String currentFileName = null;
-        File target = null;
+        IFile target = null;
         List<String> loaded = null;
 
-        for (String line : Files.readByLine2(inputEncoding, file)) {
+        for (String line : file.tooling()._for(StreamReading.class).lines()) {
             grepl++;
             String filepos = file + ":" + grepl;
 
@@ -95,7 +95,7 @@ public class GrepPatch
                     save(target, loaded);
                 currentFileName = fileName;
                 target = getOutputFile(fileName, file.getParentFile());
-                loaded = Files.readLines(target, inputEncoding);
+                loaded = target.tooling()._for(StreamReading.class).listLines();
             }
 
             if (lno > loaded.size()) {
@@ -110,14 +110,14 @@ public class GrepPatch
             save(target, loaded);
     }
 
-    void save(File target, List<String> lines)
+    void save(IFile target, List<String> lines)
             throws IOException {
-        File editTmp = _getEditTmp(target);
+        IFile editTmp = _getEditTmp(target);
         try {
 
-            Writer out = Files.writeTo(editTmp, outputEncoding);
+            PrintStream out = editTmp.getOutputTarget(outputEncoding).newPrintStream();
             for (String line : lines)
-                out.write(line);
+                out.println(line);
             out.close();
 
             EditResult result = EditResult.compareAndSave();

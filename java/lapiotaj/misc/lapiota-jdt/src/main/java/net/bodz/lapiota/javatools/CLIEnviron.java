@@ -31,9 +31,8 @@ import com.sun.security.auth.callback.TextCallbackHandler;
 
 /**
  * Dump Java CLI Environment
- *
- * @option
  */
+@SuppressWarnings("restriction")
 @ProgramName("jenv")
 @RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 1 })

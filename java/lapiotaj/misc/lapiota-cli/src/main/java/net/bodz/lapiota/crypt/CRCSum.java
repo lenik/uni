@@ -4,10 +4,11 @@ import static net.bodz.lapiota.nls.CLINLS.CLINLS;
 
 import java.io.InputStream;
 import java.security.MessageDigest;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.Checksum;
 
 import net.bodz.bas.c.java.lang.ClassTraits;
-import net.bodz.bas.c.type.Types;
 import net.bodz.bas.cli.skel.BatchCLI;
 import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.err.NotImplementedException;
@@ -80,7 +81,7 @@ public class CRCSum
     void errStatus() {
         if (mode != CHECK)
             L.warn(CLINLS.getString("CRCSum.errModeOnlyVerify"));
-        L.setLevel(LogLevel.ERROR);
+        L.setLevel(LogLevel.ERROR, 0);
     }
 
     /**
@@ -91,14 +92,14 @@ public class CRCSum
     void errWarn() {
         if (mode != CHECK)
             L.warn(CLINLS.getString("CRCSum.errModeOnlyVerify"));
-        L.setMaxPriority(LogLevel.ERROR);
+        L.setLevel(LogLevel.WARN, 0);
     }
 
     Class<? extends Checksum> _class = CRC32_LE.class;
 
-    static NamedTypes<Checksum> types;
+    static Map<String, Class<? extends Checksum>> types;
     static {
-        types = new NamedTypes<Checksum>();
+        types = new HashMap<String, Class<? extends Checksum>>();
         types.put("le", CRC32_LE.class);
         types.put("be", CRC32_BE.class);
         types.put("pgp", CRC32pgp.class);
@@ -107,7 +108,6 @@ public class CRCSum
     /**
      * @option -a =FQCN
      */
-    @SuppressWarnings("unchecked")
     void setAlgorithm(String name)
             throws ParseException {
         Class<? extends Checksum> clazz = types.get(name);
@@ -116,8 +116,9 @@ public class CRCSum
         _class = clazz;
     }
 
-    Checksum create() {
-        Checksum inst = Types.newInstance(_class);
+    Checksum create()
+            throws ReflectiveOperationException {
+        Checksum inst = _class.newInstance();
         if (key != 0)
             if (inst instanceof IKey)
                 ((IKey) inst).setKey((int) key);

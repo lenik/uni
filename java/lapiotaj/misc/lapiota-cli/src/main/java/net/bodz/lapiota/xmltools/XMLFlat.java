@@ -222,7 +222,7 @@ public class XMLFlat
     }
 
     @Override
-    protected void _help(CharOut out)
+    protected void _help(IPrintOut out)
             throws CLIException {
         super._help(out);
         out.println();

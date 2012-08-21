@@ -2,8 +2,9 @@ package net.bodz.lapiota.filesys;
 
 import static net.bodz.lapiota.nls.CLINLS.CLINLS;
 
-import java.io.File;
+import java.io.IOException;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -87,7 +88,7 @@ public class MergeDirectories
     Map<String, Object> relatives = new HashMap<String, Object>();
 
     /** hash code of absolute file names, or hash dist */
-    Map<File, Object> absolutes = new HashMap<File, Object>();
+    Map<IFile, Object> absolutes = new HashMap<IFile, Object>();
 
     /** hash -> count */
     static class HashDist
@@ -143,7 +144,7 @@ public class MergeDirectories
     }
 
     @Override
-    protected EditResult doEdit(File file)
+    protected EditResult doEdit(IFile file)
             throws Exception {
         String rname = getRelativeName(file);
         Object rhash = relatives.get(rname);
@@ -177,11 +178,11 @@ public class MergeDirectories
             }
 
             if (rhash.equals(hash)) {
-                File start = currentStartFile.getParentFile();
+                IFile start = currentStartFile.getParentFile();
                 if (start == null) {
                     L.warnf(CLINLS.getString("MergeDirectories.rootWarn_s"), currentStartFile);
                 }
-                File dst = getOutputFile(rname, start);
+                IFile dst = getOutputFile(rname, start);
                 if (dst.exists()) {
                     if (dst.equals(file))
                         return EditResult.pass(CLINLS.getString("MergeDirectories.same"));
@@ -200,12 +201,13 @@ public class MergeDirectories
         }
     }
 
-    Object getHash(IFile file) {
+    Object getHash(IFile file)
+            throws IOException {
         digest.reset();
         for (byte[] block : file.tooling()._for(StreamReading.class).byteBlocks())
             digest.update(block);
         byte[] d = digest.digest();
-        return Bytes.contents(d);
+        return Arrays.hashCode(d);
     }
 
     static final int CALC_DIGEST = 0;

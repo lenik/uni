@@ -1,11 +1,9 @@
 package net.bodz.lapiota.eclipse.jdt;
 
 import java.io.File;
-import java.net.URL;
-import java.nio.file.Files;
 
 import net.bodz.bas.cli.boot.win32.Mkbat;
-import net.bodz.bas.snm.EclipseProject;
+import net.bodz.bas.snm.MavenProjectOrigin;
 
 public class J4convTest {
 
@@ -16,10 +14,12 @@ public class J4convTest {
         try {
             outdir.mkdirs();
 
-            URL srcurl = EclipseProject.getSrcURL(J4conv.class);
-            String srcfile = srcurl.getFile();
+            MavenProjectOrigin po = MavenProjectOrigin.fromClass(J4conv.class);
+            File srcfile = po.getSourceFile(J4conv.class);
+            String srcpath = srcfile.getPath();
+
             int reslen = J4conv.class.getName().length() + ".java".length();
-            String srcdir = srcfile.substring(0, srcfile.length() - reslen);
+            String srcdir = srcpath.substring(0, srcpath.length() - reslen);
 
             // XXX must use a separate java.exe to get a clean class loader.
             Mkbat gl = new Mkbat();
@@ -27,7 +27,7 @@ public class J4convTest {
             gl.execute("-r", "-O", outdir.toString(), srcdir);
 
         } finally {
-            Files.deleteTree(outdir);
+            outdir.deleteTree();
         }
     }
 

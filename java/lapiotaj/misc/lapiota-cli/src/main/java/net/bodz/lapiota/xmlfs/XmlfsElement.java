@@ -10,6 +10,9 @@ import org.dom4j.Element;
 import org.dom4j.QName;
 import org.dom4j.tree.AbstractElement;
 
+import net.bodz.bas.vfs.FileMaskedModifiers;
+import net.bodz.bas.vfs.IFile;
+
 @SuppressWarnings("unchecked")
 public class XmlfsElement
         extends AbstractElement {
@@ -18,28 +21,28 @@ public class XmlfsElement
 
     protected Document document;
     protected Element parent;
-    protected File file;
+    protected IFile file;
     protected QName qName;
-    protected List attributes;
+    protected List<Attribute> attributes;
     protected List content;
 
-    public XmlfsElement(Document document, File file) {
+    public XmlfsElement(Document document, IFile file) {
         assert file != null;
         this.document = document;
         this.file = file;
     }
 
-    public XmlfsElement(Element parent, File file) {
+    public XmlfsElement(Element parent, IFile file) {
         assert file != null;
         this.parent = parent;
         this.file = file;
     }
 
-    public File getFile() {
+    public IFile getFile() {
         return file;
     }
 
-    public void setFile(File file) {
+    public void setFile(IFile file) {
         this.file = file;
     }
 
@@ -62,37 +65,37 @@ public class XmlfsElement
         if (attributes == null) {
             attributes = new ArrayList<Attribute>();
             attributes.add(new _Attribute(this, "name") {
-                        private static final long serialVersionUID = 4612157511767199075L;
+                private static final long serialVersionUID = 4612157511767199075L;
 
-                        @Override
-                        public String getValue() {
-                            return String.valueOf(file.getName());
-                        }
-                    });
+                @Override
+                public String getValue() {
+                    return String.valueOf(file.getName());
+                }
+            });
             attributes.add(new _Attribute(this, "size") {
-                        private static final long serialVersionUID = 4612157511767199075L;
+                private static final long serialVersionUID = 4612157511767199075L;
 
-                        @Override
-                        public String getValue() {
-                            return String.valueOf(file.length());
-                        }
-                    });
+                @Override
+                public String getValue() {
+                    return String.valueOf(file.length());
+                }
+            });
             attributes.add(new _Attribute(this, "lastModified") {
-                        private static final long serialVersionUID = 4612157511767199075L;
+                private static final long serialVersionUID = 4612157511767199075L;
 
-                        @Override
-                        public String getValue() {
-                            return String.valueOf(file.lastModified());
-                        }
-                    });
+                @Override
+                public String getValue() {
+                    return String.valueOf(file.lastModified());
+                }
+            });
             attributes.add(new _Attribute(this, "flags") {
-                        private static final long serialVersionUID = 4612157511767199075L;
+                private static final long serialVersionUID = 4612157511767199075L;
 
-                        @Override
-                        public String getValue() {
-                            return String.valueOf(FileMask.format(file));
-                        }
-                    });
+                @Override
+                public String getValue() {
+                    return String.valueOf(FileMaskedModifiers.format(file));
+                }
+            });
         }
         return attributes;
     }
@@ -111,7 +114,7 @@ public class XmlfsElement
     protected List contentList() {
         if (content == null) {
             content = new ArrayList();
-            if (file.isDirectory()) {
+            if (file.isTree()) {
                 for (File child : file.listFiles()) {
                     XmlfsElement e = new XmlfsElement(this, child);
                     content.add(e);
@@ -119,7 +122,7 @@ public class XmlfsElement
             }
             XmlfsDocument doc = (XmlfsDocument) getDocument();
             if (doc.isLoadData()) {
-                if (file.canRead()) {
+                if (file.isReadable()) {
                     long size = doc.getLoadDataSize();
                     if (size == 0)
                         size = file.length();

@@ -2,7 +2,12 @@ package net.bodz.lapiota.filesys;
 
 import static net.bodz.lapiota.nls.CLINLS.CLINLS;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringReader;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -24,18 +29,22 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 
-import net.bodz.bas.c.java.io.FileFinder;
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
 import net.bodz.bas.cli.plugin.CLIPlugin;
 import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.cli.skel.EditResult;
+import net.bodz.bas.io.resource.builtin.InputStreamSource;
+import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.meta.program.ProgramName;
 import net.bodz.bas.util.iter.Iterables;
-import net.bodz.lapiota.util.TypeExtensions.OutputFormatParser;
+import net.bodz.bas.vfs.IFile;
+import net.bodz.bas.vfs.impl.javaio.JavaioFile;
+import net.bodz.bas.vfs.util.FileFinder;
+import net.bodz.bas.vfs.util.IFilenameFilter;
 
 /**
  * Batch package-fragment (in *.jar or directory format) process
@@ -50,7 +59,6 @@ public class PackageFragmentsProcess
     /**
      * @option -F =pretty|compact
      */
-    @ParseBy(OutputFormatParser.class)
     protected OutputFormat outputFormat = new OutputFormat();
 
     private List<Action> actions = new ArrayList<Action>();
@@ -77,9 +85,9 @@ public class PackageFragmentsProcess
     }
 
     @Override
-    protected EditResult doEdit(File in)
+    protected EditResult doEdit(IFile in)
             throws Exception {
-        if (in.isDirectory()) { // dir
+        if (in.isTree()) { // dir
             for (Action act : actions) {
                 act.doDirectoryArg(in);
             }
@@ -106,7 +114,7 @@ public class PackageFragmentsProcess
     static interface Action
             extends CLIPlugin {
 
-        void doDirectoryArg(File dir)
+        void doDirectoryArg(IFile dir)
                 throws Exception;
 
         void doJarArg(JarFile jar)
@@ -129,13 +137,13 @@ public class PackageFragmentsProcess
         }
 
         @Override
-        public void doDirectoryArg(File dir)
+        public void doDirectoryArg(IFile dir)
                 throws Exception {
             int maxDepth = parameters().getRecursive();
             FileFinder finder = new FileFinder(maxDepth, dir);
-            for (File f : finder.listFiles()) {
-                String path = f.getPath();
-                if (f.isDirectory())
+            for (IFile f : finder.listFiles()) {
+                String path = f.getPath().toString();
+                if (f.isTree())
                     path += "/";
                 list(path);
             }
@@ -144,7 +152,7 @@ public class PackageFragmentsProcess
         @Override
         public void doJarArg(JarFile jar)
                 throws Exception {
-            for (JarEntry e : Iterates.once(jar.entries())) {
+            for (JarEntry e : Iterables.otp(jar.entries())) {
                 String ename = e.getName();
                 list(ename);
             }
@@ -174,23 +182,24 @@ public class PackageFragmentsProcess
         }
 
         @Override
-        public void doDirectoryArg(File dir)
+        public void doDirectoryArg(IFile dir)
                 throws Exception {
             String path = getPath();
-            File file = Files.canoniOf(dir, path);
+            IFile file = dir.getChild(path); // resolve
             doDirectoryEntry(file);
         }
 
-        public void doDirectoryEntry(File file)
+        public void doDirectoryEntry(IFile file)
                 throws Exception {
             URL url = Files.getURL(file);
-            if (file.isDirectory())
-                handle(url, file.list());
+            if (file.isTree())
+                handle(url, file.listChildren());
             else {
                 String content = null;
-                if (file.canRead())
-                    content = Files.readAll(file, parameters().getInputEncoding());
-                else if (!handleNull())
+                if (file.isReadable()) {
+                    // file.setPreferredCharset(parameters().getInputEncoding());
+                    content = file.tooling()._for(StreamReading.class).readTextContents();
+                } else if (!handleNull())
                     return;
                 handle(url, content);
             }
@@ -206,8 +215,10 @@ public class PackageFragmentsProcess
 
         public void doJarEntry(JarFile jar, JarEntry entry)
                 throws Exception {
+            String jarPath = jar.getName();
+            File _file = new File(jarPath);
+
             String path = entry.getName();
-            File _file = Files.canoniOf(jar.getName());
             String uri = "jar:" + _file.toURI() + "!/" + path;
             URL url = new URL(uri);
 
@@ -224,9 +235,11 @@ public class PackageFragmentsProcess
                 String[] list = buf.toArray(new String[0]);
                 handle(url, list);
             } else {
-                InputStream in = jar.getInputStream(entry);
-                String content = Files.readAll(in, parameters().getInputEncoding());
-                in.close();
+                InputStream entryIn = jar.getInputStream(entry);
+                InputStreamSource entrySource = new InputStreamSource(entryIn);
+                entrySource.setCharset(parameters().getInputEncoding());
+                String content = entrySource.tooling()._for(StreamReading.class).readTextContents();
+                entryIn.close();
                 handle(url, content);
             }
         }
@@ -280,7 +293,7 @@ public class PackageFragmentsProcess
         private boolean trim;
 
         private String path;
-        private FilenameFilter pathFilter;
+        private IFilenameFilter pathFilter;
         private Pattern pattern;
 
         public Grep() {
@@ -308,16 +321,16 @@ public class PackageFragmentsProcess
         }
 
         @Override
-        public void doDirectoryArg(File dir)
+        public void doDirectoryArg(IFile dir)
                 throws Exception {
             if (pathFilter == null)
                 super.doDirectoryArg(dir);
             else {
-                for (File f : dir.listFiles(pathFilter)) {
-                    if (f.isFile())
-                        super.doDirectoryEntry(f);
-                    else
+                for (IFile f : dir.listChildren(pathFilter)) {
+                    if (f.isTree())
                         doDirectoryArg(f);
+                    else
+                        super.doDirectoryEntry(f);
                 }
             }
         }
@@ -486,7 +499,7 @@ public class PackageFragmentsProcess
             extends AbstractAction {
 
         @Override
-        public void doDirectoryArg(File dir)
+        public void doDirectoryArg(IFile dir)
                 throws Exception {
             L.info(CLINLS.getString("PackageFragmentsProcess.skippedDir"), dir);
         }
@@ -547,23 +560,23 @@ public class PackageFragmentsProcess
         @Override
         public void doJarArg(JarFile jar)
                 throws Exception {
-            File jarFile = Files.canoniOf(jar.getName());
+            IFile jarFile = new JavaioFile(jar.getName());
             Enumeration<JarEntry> entries = jar.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
                 String ename = entry.getName();
                 if (match(ename)) {
-                    File start = jarFile.getParentFile();
+                    IFile start = jarFile.getParentFile();
                     assert start != null;
                     String destname = ename;
                     if (!flatExtract) {
                         if (!destname.startsWith("/"))
                             destname = "/" + destname;
-                        destname = FilePath.stripExtension(jarFile) + destname;
+                        destname = FilePath.stripExtension(jarFile.getName()) + destname;
                     }
-                    File dest = getOutputFile(destname, start);
-                    File destdir = dest.getParentFile();
-                    destdir.mkdirs(); // return false if already exists.
+                    IFile dest = getOutputFile(destname, start);
+                    IFile destdir = dest.getParentFile();
+                    destdir.createTree(); // return false if already exists.
                     L.info(CLINLS.getString("PackageFragmentsProcess.extract"), dest);
                     InputStream in = jar.getInputStream(entry);
                     try {

@@ -2,21 +2,21 @@ package net.bodz.lapiota.filesys;
 
 import static net.bodz.lapiota.nls.CLINLS.CLINLS;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.util.List;
 
 import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.bas.sio.ICharOut;
+import net.bodz.bas.sio.IPrintOut;
 import net.bodz.bas.sio.Stdio;
 import net.bodz.bas.text.diff.DiffComparator;
 import net.bodz.bas.text.diff.DiffComparators;
 import net.bodz.bas.text.diff.DiffFormat;
 import net.bodz.bas.text.diff.DiffFormats;
 import net.bodz.bas.text.diff.DiffInfo;
+import net.bodz.bas.vfs.IFile;
 
 /**
  * A Unix diff program implemented in Java
@@ -39,21 +39,21 @@ public class FileCompare
      *
      * @option :0 =FILE required
      */
-    protected File src;
+    protected IFile src;
 
     /**
      * Compile to
      *
      * @option :1 =FILE required
      */
-    protected File dst;
+    protected IFile dst;
 
     /**
      * Where to print the diff details
      *
      * @option -o
      */
-    protected ICharOut output = Stdio.cout;
+    protected IPrintOut output = Stdio.cout;
 
     @Override
     protected void doMain(String[] args)
@@ -61,8 +61,8 @@ public class FileCompare
         if (args.length > 0)
             throw new IllegalArgumentException(CLINLS.getString("FileCompare.unexpectedArgument") + args[0]);
         DiffComparator gnudiff = DiffComparators.gnudiff;
-        List<String> srcl = Files.readLines(src);
-        List<String> dstl = Files.readLines(dst);
+        List<String> srcl = src.tooling()._for(StreamReading.class).listLines();
+        List<String> dstl = dst.tooling()._for(StreamReading.class).listLines();
         List<DiffInfo> diffs = gnudiff.diffCompare(srcl, dstl);
         diffFormat.format(srcl, dstl, diffs, output);
     }

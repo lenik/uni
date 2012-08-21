@@ -2,20 +2,21 @@ package net.bodz.lapiota.filesys;
 
 import static net.bodz.lapiota.nls.CLINLS.CLINLS;
 
-import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.nio.file.Files;
 import java.util.Map;
 import java.util.Set;
 
 import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.EditResult;
+import net.bodz.bas.io.resource.tools.StreamReading;
+import net.bodz.bas.io.resource.tools.StreamWriting;
 import net.bodz.bas.lang.ControlBreak;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.meta.program.ProgramName;
+import net.bodz.bas.vfs.IFile;
 
 /**
  * Batch iconv written in java, JUN 2004
@@ -89,9 +90,9 @@ public class ConvertEncoding
     private static Charset CHARSET_UTF16_BE = Charset.forName("UTF-16BE");
 
     @Override
-    protected EditResult doEdit(File in, File out)
+    protected EditResult doEdit(IFile in, IFile out)
             throws Exception {
-        byte[] src = Files.readBytes(in);
+        byte[] src = in.tooling()._for(StreamReading.class).readBinaryContents();
         Charset srcenc = inputEncoding;
         Charset dstenc = outputEncoding;
         if (bomDetect) {
@@ -111,7 +112,7 @@ public class ConvertEncoding
 
         String decoded = new String(src, srcenc);
         byte[] dst = decoded.getBytes(dstenc);
-        Files.write(out, dst);
+        out.tooling()._for(StreamWriting.class).writeBytes(dst);
 
         return EditResult.compareAndSave();
     }
