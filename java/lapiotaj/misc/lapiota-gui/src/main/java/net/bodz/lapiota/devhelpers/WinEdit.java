@@ -6,7 +6,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.internal.gtk.OS;
+import org.eclipse.swt.internal.win32.OS;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -15,12 +15,12 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.*;
 
+import net.bodz.bas.gui.a.PreferredSize;
 import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.meta.misc.Win32Only;
 import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.bas.ui.a.PreferredSize;
 import net.bodz.jna.win32.GDI32.RECT;
 import net.bodz.jna.win32.*;
 import net.bodz.jna.win32.User32.POINT;
@@ -80,7 +80,7 @@ public class WinEdit
     @Override
     protected void _start() {
         if (interval > 0) {
-            updaterTimer = new Timer(interval, shell.getDisplay()) {
+            updaterTimer = new Timer(interval, shell) {
                 boolean noReentrant = false;
 
                 @Override

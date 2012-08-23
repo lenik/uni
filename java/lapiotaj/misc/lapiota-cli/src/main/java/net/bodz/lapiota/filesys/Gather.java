@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.bodz.bas.c.java.io.FilePath;
+import net.bodz.bas.c.java.io.FileWild;
 import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.collection.preorder.PrefixMap;
@@ -126,7 +127,7 @@ public class Gather
         void add(String srcdir, String srcfile, String dstfile) {
             srcdir = expand(srcdir);
             String srcwild = srcdir + "/" + srcfile;
-            List<File> srcs = Files.find(srcwild);
+            List<File> srcs = FileWild.listFiles(srcwild);
             if (srcs == null)
                 throw new IllegalArgumentException(CLINLS.getString("Gather.srcIsntExisted") + srcwild);
             if (srcs.size() > 1)

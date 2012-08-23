@@ -85,7 +85,7 @@ public class XmlfsElement
 
                 @Override
                 public String getValue() {
-                    return String.valueOf(file.lastModified());
+                    return String.valueOf(file.getLastModifiedTime());
                 }
             });
             attributes.add(new _Attribute(this, "flags") {

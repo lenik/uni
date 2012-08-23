@@ -132,7 +132,7 @@ public class IconConv
             String caseFix = testFile.getName();
             caseFix = StringPart.beforeLast(caseFix, '.');
             if (!base.equals(caseFix)) {
-                logger.debug("Case fixed: ", typeName, " -> ", caseFix);
+                L.debug("Case fixed: ", typeName, " -> ", caseFix);
                 outDir = testFile.getParentFile();
                 base = caseFix;
             }

@@ -17,12 +17,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import net.bodz.bas.gui.a.PreferredSize;
+import net.bodz.bas.gui.ia.UIException;
 import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.bas.ui.UIException;
-import net.bodz.bas.ui.a.PreferredSize;
 import net.bodz.redist.obfuz.pm.ProtectException;
 import net.bodz.redist.obfuz.util.ActivationByTargetString;
 import net.bodz.redist.obfuz.util.Registrant;

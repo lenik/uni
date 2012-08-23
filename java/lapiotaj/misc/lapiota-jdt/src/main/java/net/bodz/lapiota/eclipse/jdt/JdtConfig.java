@@ -2,8 +2,8 @@ package net.bodz.lapiota.eclipse.jdt;
 
 import java.net.URL;
 
+import net.bodz.bas.c.java.net.URLClassLoaders;
 import net.bodz.bas.loader.BundledLoader;
-import net.bodz.bas.loader.UCL;
 import net.bodz.bas.loader._LoadConfig;
 import net.bodz.bas.snm.SJEclipse;
 
@@ -34,6 +34,6 @@ public class JdtConfig
                 throw new Error("Can't find eclipse lib: " + lib);
             urls[i] = url;
         }
-        return UCL.addOrCreate(bl, urls);
+        return URLClassLoaders.addOrCreate(bl, urls);
     }
 }

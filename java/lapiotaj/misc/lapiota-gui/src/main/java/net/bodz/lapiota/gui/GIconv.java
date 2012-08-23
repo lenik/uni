@@ -23,11 +23,11 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 
 import net.bodz.bas.err.DecodeException;
+import net.bodz.bas.gui.a.PreferredSize;
+import net.bodz.bas.gui.ia.UIException;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.text.codec.builtin.HexCodec;
-import net.bodz.bas.ui.UIException;
-import net.bodz.bas.ui.a.PreferredSize;
 import net.bodz.swt.c.resources.SWTResources;
 import net.bodz.swt.program.BasicGUI;
 

@@ -10,6 +10,7 @@ import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
 import net.bodz.bas.lang.ref.Ref;
 import net.bodz.bas.potato.Potatoes;
+import net.bodz.bas.potato.ref.PropertyRef;
 import net.bodz.bas.potato.traits.IProperty;
 import net.bodz.bas.potato.traits.IType;
 
@@ -82,26 +83,8 @@ public class RefBinding
         IType type = Potatoes.getType(clazz);
 
         for (final IProperty property : type.getProperties()) {
-            Ref<Object> accessor = new Ref<Object>() {
-                @Override
-                public Object get() {
-                    try {
-                        return property.get(o);
-                    } catch (ReflectiveOperationException e) {
-                        throw new RuntimeException(e.getMessage(), e);
-                    }
-                }
-
-                @Override
-                public void set(Object val) {
-                    try {
-                        property.set(o, val);
-                    } catch (ReflectiveOperationException e) {
-                        throw new RuntimeException(e.getMessage(), e);
-                    }
-                }
-            };
-            addAccessor(property.getName(), accessor);
+            PropertyRef<Object> propertyRef = new PropertyRef<>(o, property);
+            addAccessor(property.getName(), propertyRef);
         }
     }
 

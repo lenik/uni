@@ -2,7 +2,6 @@ package net.bodz.lapiota.javatools;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -259,9 +258,9 @@ public class FindClassResource
     protected void _boot()
             throws Exception {
         if (filter == null)
-            filter = new FileFilter() {
+            filter = new IFileFilter() {
                 @Override
-                public boolean accept(File file) {
+                public boolean accept(IFile file) {
                     String ext = FilePath.getExtension(file.getName()).toLowerCase();
                     return JAR_EXTENSIONS.matcher(ext).matches();
                 }

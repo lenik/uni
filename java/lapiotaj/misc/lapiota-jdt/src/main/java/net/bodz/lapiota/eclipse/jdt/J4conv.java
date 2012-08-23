@@ -379,7 +379,6 @@ public class J4conv
             return super.visit(node);
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public boolean visit(VariableDeclarationStatement node) {
             Type type = node.getType();
@@ -391,7 +390,6 @@ public class J4conv
             return super.visit(node);
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public boolean visit(VariableDeclarationExpression node) {
             Type type = node.getType();
@@ -403,7 +401,6 @@ public class J4conv
             return super.visit(node);
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public boolean visit(FieldDeclaration node) {
             Type type = node.getType();
@@ -485,7 +482,6 @@ public class J4conv
         }
 
         /** throws T -> throws Type */
-        @SuppressWarnings("unchecked")
         @Override
         public boolean visit(MethodDeclaration node) {
             for (Object _exTypeName : node.thrownExceptions()) {
@@ -521,7 +517,6 @@ public class J4conv
          * invoke(fixed-arguments, new T[] { vararg1, vararg2, ... })
          * </pre>
          */
-        @SuppressWarnings("unchecked")
         @Override
         public boolean visit(MethodInvocation node) {
             if (node.getExpression() == null) {
@@ -581,7 +576,6 @@ public class J4conv
          * }
          * </pre>
          */
-        @SuppressWarnings("unchecked")
         @Override
         public boolean visit(EnhancedForStatement node) {
             SingleVariableDeclaration _itvar = node.getParameter();
@@ -741,7 +735,6 @@ public class J4conv
          * if (! (exp)) throw new AssertionError([msg]);
          * </pre>
          */
-        @SuppressWarnings("unchecked")
         @Override
         public boolean visit(AssertStatement node) {
             Expression exp = astUtils.moveRef(node.getExpression());
@@ -780,7 +773,6 @@ public class J4conv
          * class A extends JavaAnnotation
          * </pre>
          */
-        @SuppressWarnings("unchecked")
         @Override
         public boolean visit(AnnotationTypeDeclaration aTypeDecl) {
             TypeDeclaration cTypeDecl = ast.newTypeDeclaration();
@@ -819,7 +811,6 @@ public class J4conv
             return super.visit(aTypeDecl);
         }
 
-        @SuppressWarnings("unchecked")
         public List<BodyDeclaration> wrapAMember(AnnotationTypeMemberDeclaration aDecl) {
             Type _type = expandMajor(aDecl.getType());
             SimpleName _name = aDecl.getName();
@@ -929,7 +920,6 @@ public class J4conv
          * }
          * </pre>
          */
-        @SuppressWarnings("unchecked")
         @Override
         public boolean visit(EnumDeclaration eTypeDecl) {
             String typeName = eTypeDecl.getName().getIdentifier(); // must be
@@ -1057,7 +1047,6 @@ public class J4conv
             return false; // super.visit(eTypeDecl);
         }
 
-        @SuppressWarnings("unchecked")
         void prefixCtorChain(MethodDeclaration ctor, Object... prefixes) {
             assert ctor.isConstructor();
             List<SingleVariableDeclaration> parameters = ctor.parameters();

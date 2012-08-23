@@ -79,9 +79,9 @@ public class FindClassResource
             @Override
             public void process(IFile file)
                     throws IOException {
-                if (file.isDirectory())
+                if (file.isTree())
                     return;
-                URL url = file.toURI().toURL();
+                URL url = file.getPath().toURL();
                 L.debug("queue classpath: ", url);
                 classpaths.add(url);
             }

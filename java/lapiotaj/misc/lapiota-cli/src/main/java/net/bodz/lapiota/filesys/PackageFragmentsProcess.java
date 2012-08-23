@@ -191,7 +191,7 @@ public class PackageFragmentsProcess
 
         public void doDirectoryEntry(IFile file)
                 throws Exception {
-            URL url = Files.getURL(file);
+            URL url = file.getPath().toURL();
             if (file.isTree())
                 handle(url, file.listChildren());
             else {

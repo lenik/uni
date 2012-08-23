@@ -9,8 +9,8 @@ import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.IPrintOut;
+import net.bodz.swt.c3.ia.DialogInteraction;
 import net.bodz.swt.program.BasicGUI;
-import net.bodz.swt.reflect.util.DialogUI;
 
 /**
  * GUI Choice Utility
@@ -59,7 +59,7 @@ public class GChoice
         int style = SWT.SYSTEM_MODAL;
         if (topMost)
             style |= SWT.ON_TOP;
-        DialogUI act = new DialogUI(style);
+        DialogInteraction act = new DialogInteraction(style);
         if (envKey != null) {
             String _count = System.getenv(envKey + "_count");
             if (_count == null) {

@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.Arrays;
 
 import net.bodz.bas.c.java.io.TempFile;
@@ -16,6 +15,8 @@ import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.NotImplementedException;
+import net.bodz.bas.io.resource.builtin.LocalFileResource;
+import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.mem.ArrayMemory;
 import net.bodz.bas.mem.Memory;
 import net.bodz.bas.mem.MemoryAccessException;
@@ -278,7 +279,9 @@ public class PartialCopy
         if (tmp != null) {
             ((RandomAccessFileMemory) dst).getFile().close();
             dst = null;
-            byte[] data = Files.readBytes(tmp);
+
+            LocalFileResource res = new LocalFileResource(tmp);
+            byte[] data = res.tooling()._for(StreamReading.class).readBinaryContents();
             System.out.write(data);
             tmp.delete();
         }
