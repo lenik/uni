@@ -49,7 +49,7 @@ public class PGDBreak
             String type = new String(header, 4, 4);
             int size = chunk.readInt32(8);
             int crc = chunk.readInt32(12);
-            L.mesg(magic, //
+            logger.mesg(magic, //
                     " addr=", addr, //
                     " type=", type, //
                     " size=", size, //
@@ -61,7 +61,7 @@ public class PGDBreak
             String childName = file.getName() + "." + type + "." + chunkIndex++;
             IFile chunkFile = outputDirectory.getChild(childName);
 
-            L.mesg(tr._("write to "), chunkFile, " (", size, " bytes)");
+            logger.mesg(tr._("write to "), chunkFile, " (", size, " bytes)");
             chunkFile.tooling()._for(StreamWriting.class).writeBytes(header);
 
             addr = chunk.readInt64(16);

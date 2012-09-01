@@ -136,10 +136,10 @@ public class FindHash
                         boolean matched = match(digest);
                         if ((++count % 1000) == 0 || matched) {
                             String rt = rangesPrefix + "." + from + "-" + to;
-                            L.status(tr._("Range: "), rt, " = ",
+                            logger.status(tr._("Range: "), rt, " = ",
                                     HexCodec.getInstance().encode(digest));
                             if (matched)
-                                L.mesg(tr._("Match! "));
+                                logger.mesg(tr._("Match! "));
                         }
                     }
                     if (to != range.to) {

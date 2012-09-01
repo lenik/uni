@@ -88,7 +88,7 @@ public class TemplateProcess
             if (extension != null)
                 destFile += extension;
 
-            L.mesg("file ", destFile);
+            logger.mesg("file ", destFile);
             String contents = templateModel.expand(context);
 
             IFile defaultStart = file.getParentFile();

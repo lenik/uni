@@ -63,7 +63,7 @@ public class FindClassResource
             if (f.isTree())
                 return;
             URL url = f.getPath().toURL();
-            L.debug("add boot-classpath: ", url);
+            logger.debug("add boot-classpath: ", url);
             Classpath.addURL(url);
         }
     }
@@ -78,7 +78,7 @@ public class FindClassResource
             if (f.isTree())
                 return;
             URL url = f.getPath().toURL();
-            L.debug("queue classpath: ", url);
+            logger.debug("queue classpath: ", url);
             classpaths.add(url);
         }
     }
@@ -170,7 +170,7 @@ public class FindClassResource
             Method mainf = clazz.getMethod("main", String[].class);
             try {
                 try {
-                    L.info("execute ", mainf.getDeclaringClass(), "::", mainf.getName(), "/", testArguments.length);
+                    logger.info("execute ", mainf.getDeclaringClass(), "::", mainf.getName(), "/", testArguments.length);
                     Control.invoke(mainf, null, (Object) testArguments);
                 } finally {
                     if (testQuiet) {
@@ -181,14 +181,14 @@ public class FindClassResource
             } catch (NoClassDefFoundError e) {
                 String respath = e.getMessage();
                 String failClass = respath.replace('/', '.');
-                L.warn("try(", itry, ") ", failClass);
+                logger.warn("try(", itry, ") ", failClass);
                 tryAdd = tryFind(failClass);
                 if (tryAdd != null) {
                     String lib = libpath(tryAdd);
-                    L.info("add required ", lib);
+                    logger.info("add required ", lib);
                     URL liburl = new File(lib).toURL();
                     if (tryAdds.contains(liburl)) {
-                        L.error("loop fail");
+                        logger.error("loop fail");
                         break;
                     }
                     tryAdds.add(liburl);
@@ -196,15 +196,15 @@ public class FindClassResource
                     Classpath.addURL(craftLoader, liburl);
                     continue;
                 } else {
-                    L.error("failed to find: ", failClass);
+                    logger.error("failed to find: ", failClass);
                     throw e;
                 }
             }
             break;
         }
-        L.mesg("test succeeded, the required libraries: ");
+        logger.mesg("test succeeded, the required libraries: ");
         for (URL url : tryAdds)
-            L.mesg(libpath(url));
+            logger.mesg(libpath(url));
 
         testClass = null;
     }
@@ -214,7 +214,7 @@ public class FindClassResource
             throws Exception {
         if (testClass == null) {
             for (URL url : classpaths) {
-                L.debug("add classpath: ", url);
+                logger.debug("add classpath: ", url);
                 Classpath.addURL(url);
             }
 
@@ -223,16 +223,16 @@ public class FindClassResource
             if (args.length > 0)
                 strings = Arrays.asList(args);
             else {
-                L.stdout("Enter class names or resource paths: ");
+                logger.stdout("Enter class names or resource paths: ");
                 strings = new InputStreamSource(System.in).tooling()._for(StreamReading.class).lines();
             }
             for (String name : strings) {
                 name = name.trim();
                 URL url = findResource(loader, name);
                 if (url == null)
-                    L.mesg("No-Class: ", name);
+                    logger.mesg("No-Class: ", name);
                 else
-                    L.mesg("Found: ", libpath(url));
+                    logger.mesg("Found: ", libpath(url));
             }
         } else {
             if (args.length > 0) {

@@ -26,9 +26,9 @@ public class HelloCLI
     @Override
     protected void doMain(String[] args)
             throws Exception {
-        L.mesg("good morning!");
-        L.info("you are ", yourName);
-        L.debug("now in debug level");
+        logger.mesg("good morning!");
+        logger.info("you are ", yourName);
+        logger.debug("now in debug level");
         for (String welcome : welcomes) {
             String s = welcome + ", " + yourName + "!";
             if (hot)
@@ -42,7 +42,7 @@ public class HelloCLI
             throws Exception {
         HelloCLI app = new HelloCLI();
         IType type = app.getScriptClass();
-        Logger logger = app.L;
+        Logger logger = app.logger;
         System.out.println("Log Error Level = " + logger.getLevel());
         System.out.println("Log Verbose Level = " + logger.getDelta());
         app.run();

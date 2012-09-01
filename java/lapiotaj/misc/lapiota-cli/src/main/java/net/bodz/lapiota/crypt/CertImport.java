@@ -50,13 +50,13 @@ public class CertImport
 
         for (String arg : args) {
             CertSelector srcCert = new CertSelector(arg);
-            L.mesg("import ", srcCert);
+            logger.mesg("import ", srcCert);
             String alias = srcCert.getCertAlias();
             Certificate cert = srcCert.getCertificate();
             targetStore.setCertificateEntry(alias, cert);
         }
 
-        L.mesg("save ", target);
+        logger.mesg("save ", target);
         OutputStream out = new FileOutputStream(target.getStoreFile());
         try {
             targetStore.store(out, target.getStorePassword().toCharArray());

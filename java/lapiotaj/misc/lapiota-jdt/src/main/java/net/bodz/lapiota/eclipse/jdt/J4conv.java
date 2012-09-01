@@ -47,7 +47,7 @@ public class J4conv
     protected void bootClasspath(File file)
             throws IOException {
         URL url = file.toURI().toURL();
-        L.debug("add boot-classpath: ", url);
+        logger.debug("add boot-classpath: ", url);
         Classpath.addURL(url);
     }
 
@@ -57,7 +57,7 @@ public class J4conv
     protected void classpath(File file)
             throws IOException {
         URL url = file.toURI().toURL();
-        L.debug("add classpath: ", url);
+        logger.debug("add classpath: ", url);
         // classpaths.add(url);
         Classpath.addURL(url);
     }
@@ -128,7 +128,7 @@ public class J4conv
                 edit.apply(doc);
                 dst = doc.get();
             } else {
-                L.mesg("[FERR] ", in);
+                logger.mesg("[FERR] ", in);
             }
         }
 
@@ -239,30 +239,30 @@ public class J4conv
         }
 
         void enterScope() {
-            L.info(indent(), "enter-t=", //
+            logger.info(indent(), "enter-t=", //
                     Strings.ellipse(typens.toString(), 100));
             // _t.detail(indent(), "enter-f=", //
             // Strings.ellipse(funns.toString(), 100));
-            L.info(indent(), "enter-v=", //
+            logger.info(indent(), "enter-v=", //
                     Strings.ellipse(varns.toString(), 100));
             typens.enterNew();
             // funns.enterNew();
             varns.enterNew();
-            if (!L.isDebugEnabled())
+            if (!logger.isDebugEnabled())
                 indent += tabsize;
         }
 
         void leaveScope() {
-            L.info(indent(), "leave-t=", //
+            logger.info(indent(), "leave-t=", //
                     Strings.ellipse(typens.toString(), 100));
             // _t.detail(indent(), "leave-f=", //
             // Strings.ellipse(funns.toString(), 100));
-            L.info(indent(), "leave-v=", //
+            logger.info(indent(), "leave-v=", //
                     Strings.ellipse(varns.toString(), 100));
             typens.leave();
             // funns.leave();
             varns.leave();
-            if (!L.isDebugEnabled())
+            if (!logger.isDebugEnabled())
                 indent -= tabsize;
         }
 
@@ -281,7 +281,7 @@ public class J4conv
             Type expanded = expandMajor(name);
             if (expanded == null)
                 return type;
-            L.info(indent(), "expand ", type, " => ", expanded);
+            logger.info(indent(), "expand ", type, " => ", expanded);
             return expanded;
         }
 
@@ -304,23 +304,23 @@ public class J4conv
 
         @Override
         public void preVisit(ASTNode node) {
-            if (!L.isDebugEnabled())
+            if (!logger.isDebugEnabled())
                 return;
             String type = node.getClass().getSimpleName();
-            L.debug(Strings.repeat(indent, ' '));
+            logger.debug(Strings.repeat(indent, ' '));
             Map<?, ?> props = node.properties();
-            L.debugf("%s(%d/%d %d+%d %s): ", //
+            logger.debugf("%s(%d/%d %d+%d %s): ", //
                     type, node.getNodeType(), node.getFlags(), //
                     node.getStartPosition(), node.getLength(), //
                     props.isEmpty() ? "" : props.toString());
-            L.debug(node);
+            logger.debug(node);
             indent += tabsize;
             super.preVisit(node);
         }
 
         @Override
         public void postVisit(ASTNode node) {
-            if (!L.isDebugEnabled())
+            if (!logger.isDebugEnabled())
                 return;
             indent -= tabsize;
             super.postVisit(node);
@@ -488,7 +488,7 @@ public class J4conv
                 if (_exTypeName instanceof SimpleName) {
                     SimpleName exTypeName = (SimpleName) _exTypeName;
                     Type extype = expandMajor(exTypeName);
-                    L.info(indent(), "resolved ", node, " => ", extype);
+                    logger.info(indent(), "resolved ", node, " => ", extype);
                     if (extype instanceof SimpleType) {
                         SimpleType sim = (SimpleType) extype;
                         rewrite.replace(exTypeName, sim.getName(), null);
@@ -717,14 +717,14 @@ public class J4conv
         protected boolean visitExpression(Expression e) {
             ITypeBinding b = e.resolveTypeBinding();
             if (b == null) {
-                L.info(indent(), "no bind");
+                logger.info(indent(), "no bind");
                 return true;
             }
-            L.info(indent(), "bind-fqn", b.getQualifiedName());
-            L.info(indent(), "bind-bin", b.getBinaryName());
-            L.info(indent(), "bind-bounds", b.getBound());
-            L.info(indent(), "bind-erasure", b.getErasure());
-            L.info(indent(), "bind-key", b.getKey());
+            logger.info(indent(), "bind-fqn", b.getQualifiedName());
+            logger.info(indent(), "bind-bin", b.getBinaryName());
+            logger.info(indent(), "bind-bounds", b.getBound());
+            logger.info(indent(), "bind-erasure", b.getErasure());
+            logger.info(indent(), "bind-key", b.getKey());
             return true;
         }
 

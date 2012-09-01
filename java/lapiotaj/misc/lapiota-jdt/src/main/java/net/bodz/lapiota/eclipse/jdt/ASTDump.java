@@ -64,7 +64,7 @@ public class ASTDump
         if (file == null)
             _help();
 
-        L.info("load file ", file);
+        logger.info("load file ", file);
         char[] src = file.tooling()._for(StreamReading.class).readTextContents().toCharArray();
 
         ASTParser parser = ASTParser.newParser(parserLevel);
@@ -75,7 +75,7 @@ public class ASTDump
         options.put("org.eclipse.jdt.core.compiler.source", "1.6");
         parser.setCompilerOptions(options);
 
-        if (L.isInfoEnabled(/* 1 */)) {
+        if (logger.isInfoEnabled(/* 1 */)) {
             List<String> keys = new ArrayList<String>(options.keySet());
             Collections.sort(keys);
             for (String key : keys) {
@@ -102,13 +102,13 @@ public class ASTDump
         @Override
         public void preVisit(ASTNode node) {
             String type = node.getClass().getSimpleName();
-            L.mesg(Strings.repeat(indent, ' '));
+            logger.mesg(Strings.repeat(indent, ' '));
             Map<?, ?> props = node.properties();
-            L.mesgf("%s(%d/%d %d+%d %s): ", //
+            logger.mesgf("%s(%d/%d %d+%d %s): ", //
                     type, node.getNodeType(), node.getFlags(), //
                     node.getStartPosition(), node.getLength(), //
                     props.isEmpty() ? "" : props.toString());
-            L.mesg(node);
+            logger.mesg(node);
             indent += tabsize;
         }
 

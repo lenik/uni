@@ -74,7 +74,7 @@ public class Gather
             long srcv = src.lastModified();
             long dstv = dst.lastModified();
             if (dstv >= srcv) {
-                L.info(tr._("[skip] "), dst);
+                logger.info(tr._("[skip] "), dst);
                 return;
             }
         }
@@ -141,7 +141,7 @@ public class Gather
             for (Entry<File, File> e : src2dst.entrySet()) {
                 File src = e.getKey();
                 File dst = e.getValue();
-                L.mesg(tr._("[get] "), src);
+                logger.mesg(tr._("[get] "), src);
                 copy(src, dst);
             }
         }
@@ -151,7 +151,7 @@ public class Gather
             for (Entry<File, File> e : src2dst.entrySet()) {
                 File src = e.getKey();
                 File dst = e.getValue();
-                L.mesg(tr._("[put] "), src);
+                logger.mesg(tr._("[put] "), src);
                 copy(dst, src);
             }
         }

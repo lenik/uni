@@ -50,7 +50,7 @@ public class ZipSub
 
         Set<String> removeSet = new HashSet<String>();
         for (int i = 1; i < args.length; i++) {
-            L.status(tr._("subtract from: "), args[i]);
+            logger.status(tr._("subtract from: "), args[i]);
             ZipFile sub = new ZipFile(args[i]);
             int n = 0;
             for (ZipEntry entry : Iterables.otp(sub.entries())) {
@@ -58,7 +58,7 @@ public class ZipSub
                 if (removeSet.add(name))
                     n++;
             }
-            L.info(tr._("subtract from: "), args[i], " (", n, tr._(" uniq entries)"));
+            logger.info(tr._("subtract from: "), args[i], " (", n, tr._(" uniq entries)"));
         }
 
         File dest = CurrentDirectoryColo.getInstance().join(args[0]);
@@ -75,7 +75,7 @@ public class ZipSub
         for (ZipEntry entry : Iterables.otp(destZip.entries())) {
             String name = entry.getName();
             if (removeSet.contains(name)) {
-                L.mesg(tr._("removed "), name);
+                logger.mesg(tr._("removed "), name);
                 removed++;
             } else {
                 if (removed == 0) {
@@ -90,12 +90,12 @@ public class ZipSub
         if (removed != 0 && tempOut == null)
             tempOut = dumpHead(temp, destZip, pending);
 
-        L.status(tr._("Total ") + removed + tr._(" entries have been removed."));
+        logger.status(tr._("Total ") + removed + tr._(" entries have been removed."));
 
         destZip.close();
         if (tempOut != null) {
             tempOut.close();
-            L.mesg(tr._("backup "), dest);
+            logger.mesg(tr._("backup "), dest);
             File destBak = new File(destDir, dest.getName() + ".bak");
             if (destBak.exists()) {
                 if (!destBak.delete())
@@ -108,7 +108,7 @@ public class ZipSub
                 throw new IOException(tr._("Can\'t rename ") + temp + tr._(" to ")
                         + dest);
         } else {
-            L.mesg(tr._("Nothing has been removed. "));
+            logger.mesg(tr._("Nothing has been removed. "));
         }
     }
 
@@ -146,7 +146,7 @@ public class ZipSub
                 written += block.length;
                 int percent = (int) (100 * written / size);
                 if (percent != lastPercent) {
-                    L.status(title, name, " ", written, "/", size, //
+                    logger.status(title, name, " ", written, "/", size, //
                             " (", percent, "%)");
                     lastPercent = percent;
                 }
@@ -155,7 +155,7 @@ public class ZipSub
             // out.flush(); // ??
             out.closeEntry();
         }
-        L.info(title, name, " ", entry.getCompressedSize(), "/", size + ". ");
+        logger.info(title, name, " ", entry.getCompressedSize(), "/", size + ". ");
     }
 
     @Override

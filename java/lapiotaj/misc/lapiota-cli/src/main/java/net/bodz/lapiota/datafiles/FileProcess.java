@@ -52,7 +52,7 @@ public class FileProcess
      */
     protected void action(Action action)
             throws CLIException {
-        L.debug(tr._("action: "), action);
+        logger.debug(tr._("action: "), action);
         actions.add(action);
     }
 
@@ -308,9 +308,9 @@ public class FileProcess
             // Pattern segp = ("(\\.|[^" + sepEscaped + "])*");
             // Matcher m = segp.matcher(exp);
             String[] segs = exp.split(sepEscaped);
-            if (L.isDebugEnabled())
+            if (logger.isDebugEnabled())
                 for (int i = 0; i < segs.length; i++)
-                    L.debug("seg[", i, "] = ", segs[i]);
+                    logger.debug("seg[", i, "] = ", segs[i]);
             if (segs.length > 3)
                 throw new IllegalArgumentException(tr._("invalid subs-regexp format: ") + exp);
             int flags = 0;

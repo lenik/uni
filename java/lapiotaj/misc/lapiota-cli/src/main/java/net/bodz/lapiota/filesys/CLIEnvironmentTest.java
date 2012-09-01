@@ -30,7 +30,7 @@ public class CLIEnvironmentTest
         Collections.sort(keys);
         for (Object key : keys) {
             String value = env.get(key);
-            L.mesg(key, " = ", value);
+            logger.mesg(key, " = ", value);
         }
     }
 
@@ -43,7 +43,7 @@ public class CLIEnvironmentTest
         Collections.sort(keys, ComparableComparator.getRawInstance());
         for (Object key : keys) {
             Object value = properties.get(key);
-            L.mesg(key, " = ", value);
+            logger.mesg(key, " = ", value);
         }
     }
 
@@ -51,7 +51,7 @@ public class CLIEnvironmentTest
             throws Throwable {
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
-            L.mesgf("%4d. %s;", i, arg);
+            logger.mesgf("%4d. %s;", i, arg);
         }
     }
 

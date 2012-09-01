@@ -238,10 +238,10 @@ public class XMLFlat
             throws Exception {
         SAXReader reader = new SAXReader();
         if (inputFile == null) {
-            L.stdout(tr._("enter the xml document: "));
+            logger.stdout(tr._("enter the xml document: "));
             doc = reader.read(System.in);
         } else {
-            L.info(tr._("process "), inputFile);
+            logger.info(tr._("process "), inputFile);
             doc = reader.read(inputFile);
         }
 

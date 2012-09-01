@@ -68,7 +68,7 @@ public class PackageFragmentsProcess
      */
     protected void action(Action action)
             throws CLIException {
-        L.debug(tr._("action: "), action);
+        logger.debug(tr._("action: "), action);
         actions.add(action);
     }
 
@@ -356,7 +356,7 @@ public class PackageFragmentsProcess
                 Matcher m = pattern.matcher(line);
                 if (m.find()) {
                     if (matchedLines++ == 0)
-                        L.mesg(url, ": ");
+                        logger.mesg(url, ": ");
                     if (trim)
                         line = line.trim();
                     _stdout.printf("%4d %s\n", lineNo, line);
@@ -376,7 +376,7 @@ public class PackageFragmentsProcess
                 Matcher m = pattern.matcher(line);
                 if (m.find()) {
                     if (matchedLines++ == 0) {
-                        L.mesg(url, ": ");
+                        logger.mesg(url, ": ");
                     }
                     if (trim)
                         line = line.trim();
@@ -439,14 +439,14 @@ public class PackageFragmentsProcess
             XPath extensionOfPoint = doc.createXPath(_xpath);
             for (Object node : extensionOfPoint.selectNodes(doc)) {
                 if (!(node instanceof Node)) {
-                    L.debug(tr._("skip node: "), node);
+                    logger.debug(tr._("skip node: "), node);
                     continue;
                 }
                 Element ext = (Element) node;
-                L.info(tr._("extension: "), url);
+                logger.info(tr._("extension: "), url);
                 String shortText = getShortText(ext);
                 _stdout.println(critarg + ": " + shortText);
-                if (L.isInfoEnabled(1)) {
+                if (logger.isInfoEnabled(1)) {
                     String xmlenc = doc.getXMLEncoding();
                     if (xmlenc != null)
                         outputFormat.setEncoding(xmlenc);
@@ -499,7 +499,7 @@ public class PackageFragmentsProcess
         @Override
         public void doDirectoryArg(IFile dir)
                 throws Exception {
-            L.info(tr._("skipped directory "), dir);
+            logger.info(tr._("skipped directory "), dir);
         }
 
     }
@@ -575,7 +575,7 @@ public class PackageFragmentsProcess
                     IFile dest = getOutputFile(destname, start);
                     IFile destdir = dest.getParentFile();
                     destdir.createTree(); // return false if already exists.
-                    L.info(tr._("extract "), dest);
+                    logger.info(tr._("extract "), dest);
                     InputStream in = jar.getInputStream(entry);
                     try {
                         Files.copy(in, dest);

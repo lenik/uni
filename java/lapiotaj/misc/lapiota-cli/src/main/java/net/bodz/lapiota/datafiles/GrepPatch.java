@@ -44,7 +44,7 @@ public class GrepPatch
     @Override
     protected void doFileArgument(IFile file)
             throws Exception {
-        L.status(tr._("[patch] "), file);
+        logger.status(tr._("[patch] "), file);
         int grepl = 0;
 
         String currentFileName = null;
@@ -63,7 +63,7 @@ public class GrepPatch
                 continue;
             int col = line.indexOf(':');
             if (col == -1) {
-                L.error(tr._("invalid grep format: no filename at "), filepos);
+                logger.error(tr._("invalid grep format: no filename at "), filepos);
                 continue;
             }
             String fileName = line.substring(0, col);
@@ -71,7 +71,7 @@ public class GrepPatch
 
             col = line.indexOf(':');
             if (col == -1) {
-                L.error(tr._("invalid grep format: no line number at "), filepos);
+                logger.error(tr._("invalid grep format: no line number at "), filepos);
                 continue;
             }
             String lineno = line.substring(0, col);
@@ -80,11 +80,11 @@ public class GrepPatch
             try {
                 lno = Integer.parseInt(lineno);
             } catch (NumberFormatException e) {
-                L.error(tr._("illegal line number \'"), lineno, "' at ", filepos);
+                logger.error(tr._("illegal line number \'"), lineno, "' at ", filepos);
                 continue;
             }
             if (lno < 1) {
-                L.error("line number < 0 at ", filepos);
+                logger.error("line number < 0 at ", filepos);
                 continue;
             }
 
@@ -97,7 +97,7 @@ public class GrepPatch
             }
 
             if (lno > loaded.size()) {
-                L.error("line number ", lno, " out of bounds, at ", filepos);
+                logger.error("line number ", lno, " out of bounds, at ", filepos);
                 continue;
             }
 

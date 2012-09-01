@@ -48,7 +48,7 @@ public class ZipMerge
     @Override
     protected void doFile(IFile file)
             throws IOException {
-        L.mesg(tr._("add "), file);
+        logger.mesg(tr._("add "), file);
         ZipFile zipFile = new ZipFile(file);
         try {
             for (ZipEntry entry : Iterables.otp(zipFile.entries())) {
@@ -73,11 +73,11 @@ public class ZipMerge
                     written += block.length;
                     int percent = (int) (100 * written / entry.getSize());
                     if (percent != lastPercent) {
-                        L.status(title, percent, "%)");
+                        logger.status(title, percent, "%)");
                         lastPercent = percent;
                     }
                 }
-                L.info();
+                logger.info();
             }
         } finally {
             zipFile.close();

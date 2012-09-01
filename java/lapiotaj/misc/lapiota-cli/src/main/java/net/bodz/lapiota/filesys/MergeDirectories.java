@@ -75,7 +75,7 @@ public class MergeDirectories
     protected void doFileArgument(IFile startFile)
             throws Exception {
         if (!startFile.isTree()) {
-            L.info(tr._("skipped file "), startFile);
+            logger.info(tr._("skipped file "), startFile);
             return;
         }
         // throw new IllegalArgumentException("not a directory: " + startFile);
@@ -178,7 +178,7 @@ public class MergeDirectories
             if (rhash.equals(hash)) {
                 IFile start = currentStartFile.getParentFile();
                 if (start == null) {
-                    L.warnf(tr._("start file %s is a root directory,which may be dangerous  "), currentStartFile);
+                    logger.warnf(tr._("start file %s is a root directory,which may be dangerous  "), currentStartFile);
                 }
                 IFile dst = getOutputFile(rname, start);
                 if (dst.exists()) {

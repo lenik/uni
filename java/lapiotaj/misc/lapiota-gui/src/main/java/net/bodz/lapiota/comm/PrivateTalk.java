@@ -11,7 +11,7 @@ public class PrivateTalk
     protected void doMainManaged(String[] args)
             throws Exception {
         System.out.println(Display.getCurrent());
-        L.mesg("Hello");
+        logger.mesg("Hello");
     }
 
     public static void main(String[] args)

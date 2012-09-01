@@ -151,7 +151,7 @@ public class GenerateClassWrappers
             count++;
         }
         jar.close();
-        L.info("added ", count, " classes from ", jarfile);
+        logger.info("added ", count, " classes from ", jarfile);
     }
 
     /**
@@ -163,7 +163,7 @@ public class GenerateClassWrappers
             throws MalformedURLException, IOException {
         Classpath.addURL(dir.toURL());
         int count = addDirectory(dir, "");
-        L.info("added ", count, " classes from ", dir);
+        logger.info("added ", count, " classes from ", dir);
     }
 
     protected int addDirectory(File dir, String prefix) {
@@ -206,7 +206,7 @@ public class GenerateClassWrappers
             String fqcn = line.trim();
             count += addClass(fqcn, false);
         }
-        L.info("added ", count, " classes from ", list);
+        logger.info("added ", count, " classes from ", list);
     }
 
     /**
@@ -279,7 +279,7 @@ public class GenerateClassWrappers
     protected void doMain(String[] args)
             throws Exception {
         for (Class<?> clazz : classes) {
-            L.status("type ", clazz);
+            logger.status("type ", clazz);
             make(clazz);
         }
     }

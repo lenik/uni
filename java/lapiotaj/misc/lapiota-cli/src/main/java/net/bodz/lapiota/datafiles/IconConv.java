@@ -132,7 +132,7 @@ public class IconConv
             String caseFix = testFile.getName();
             caseFix = StringPart.beforeLast(caseFix, '.');
             if (!base.equals(caseFix)) {
-                L.debug("Case fixed: ", typeName, " -> ", caseFix);
+                logger.debug("Case fixed: ", typeName, " -> ", caseFix);
                 outDir = testFile.getParentFile();
                 base = caseFix;
             }
@@ -160,7 +160,7 @@ public class IconConv
             }
             String outName = String.format(nameFormat, base, slice.width, slice.height, slice.depth, extension);
             IFile outFile = outDir.getChild(outName);
-            L.mesg("Create ", outFile);
+            logger.mesg("Create ", outFile);
             ImageLoader saver = new ImageLoader();
             saver.data = new ImageData[] { slice };
 

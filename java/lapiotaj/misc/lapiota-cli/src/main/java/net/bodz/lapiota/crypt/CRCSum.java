@@ -78,8 +78,8 @@ public class CRCSum
      */
     void errStatus() {
         if (mode != CHECK)
-            L.warn(tr._("err mode is meaningful only when verifying checksums"));
-        L.setLevel(LogLevel.ERROR, 0);
+            logger.warn(tr._("err mode is meaningful only when verifying checksums"));
+        logger.setLevel(LogLevel.ERROR, 0);
     }
 
     /**
@@ -89,8 +89,8 @@ public class CRCSum
      */
     void errWarn() {
         if (mode != CHECK)
-            L.warn(tr._("err mode is meaningful only when verifying checksums"));
-        L.setLevel(LogLevel.WARN, 0);
+            logger.warn(tr._("err mode is meaningful only when verifying checksums"));
+        logger.setLevel(LogLevel.WARN, 0);
     }
 
     Class<? extends Checksum> _class = CRC32_LE.class;

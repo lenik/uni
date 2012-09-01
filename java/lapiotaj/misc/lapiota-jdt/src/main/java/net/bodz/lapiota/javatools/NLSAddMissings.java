@@ -83,13 +83,13 @@ public class NLSAddMissings
         final String base = FilePath.stripExtension(file.getName());
         final String ext = FilePath.getExtension(file.getName());
         if (!"properties".equals(ext)) {
-            L.warn("Skipped non-properties file: ", file);
+            logger.warn("Skipped non-properties file: ", file);
             return;
         }
         Properties master = file.tooling()._for(StreamLoading.class).loadProperties();
         Enumeration<String> _enum = (Enumeration<String>) master.propertyNames();
         Set<String> masterNames = Collections.toSet(_enum);
-        L.infof("Master file: %s (%d entries)\n", file, masterNames.size());
+        logger.infof("Master file: %s (%d entries)\n", file, masterNames.size());
 
         IFile dir = file.getParentFile();
         if (dir == null)
@@ -111,7 +111,7 @@ public class NLSAddMissings
         int addSum = 0;
         int removeSum = 0;
         for (IFile localeFile : localeFiles) {
-            L.info("  File ", localeFile);
+            logger.info("  File ", localeFile);
 
             localeFile.setPreferredCharset(encoding);
             Properties props = localeFile.tooling()._for(StreamLoading.class).loadProperties();
@@ -121,7 +121,7 @@ public class NLSAddMissings
             int remove = 0;
             for (String name : masterNames)
                 if (!props.containsKey(name)) {
-                    L.info("    Add missing property ", name);
+                    logger.info("    Add missing property ", name);
                     props.setProperty(name, master.getProperty(name));
                     dirty = true;
                     add++;
@@ -131,7 +131,7 @@ public class NLSAddMissings
                 Set<String> pnames = Collections.toSet(_enum);
                 for (String pname : pnames) {
                     if (!masterNames.contains(pname)) {
-                        L.info("    Remove redundant property ", pname);
+                        logger.info("    Remove redundant property ", pname);
                         props.remove(pname);
                         dirty = true;
                         remove++;
@@ -140,18 +140,18 @@ public class NLSAddMissings
             }
 
             if (dirty) {
-                L.infof("    +%d -%d /%d entries. \n", add, remove, props.size());
+                logger.infof("    +%d -%d /%d entries. \n", add, remove, props.size());
                 if (backupExtension != null) {
                     File bakfile = new File(localeFile.getPath() + backupExtension);
                     if (bakfile.exists() && !force) {
-                        L.warn("  Bak file existed: ", bakfile);
-                        if (!UI.confirm("Overwrite " + bakfile + "? "))
+                        logger.warn("  Bak file existed: ", bakfile);
+                        if (!ia.confirm("Overwrite " + bakfile + "? "))
                             continue;
                     }
-                    L.info("    Backup to ", bakfile);
+                    logger.info("    Backup to ", bakfile);
                     Files.copy(localeFile, bakfile);
                 }
-                L.info("    Save ", localeFile);
+                logger.info("    Save ", localeFile);
                 // StringWriter buf = new StringWriter(props.size() * 100);
                 ByteArrayOutputStream buf = new ByteArrayOutputStream(props.size() * 100);
                 props.store(buf, null);
@@ -169,7 +169,7 @@ public class NLSAddMissings
             addSum += add;
             removeSum += remove;
         }
-        L.infof("  Total %d entries added, %d entries removed. \n\n", addSum, removeSum);
+        logger.infof("  Total %d entries added, %d entries removed. \n\n", addSum, removeSum);
     }
 
     public static void main(String[] args)

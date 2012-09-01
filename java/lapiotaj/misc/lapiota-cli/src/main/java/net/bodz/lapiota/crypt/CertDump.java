@@ -31,7 +31,7 @@ public class CertDump
         // INFO -> 0
         // DETAIL -> 1
         // DEBUG -> 2
-        detailLevel = L.getDelta();
+        detailLevel = logger.getDelta();
     }
 
     @Override

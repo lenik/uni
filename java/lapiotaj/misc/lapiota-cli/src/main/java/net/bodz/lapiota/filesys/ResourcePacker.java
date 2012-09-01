@@ -125,12 +125,12 @@ public class ResourcePacker
         JarOutputStream out = getJarOut();
         String name = getRelativeName(file);
         String ename = resNameOf(name);
-        L.status(tr._("add "), ename);
+        logger.status(tr._("add "), ename);
         ZipEntry ze = new ZipEntry(ename);
         out.putNextEntry(ze);
         Files.copy(file, out);
         out.closeEntry();
-        L.info(tr._("add "), ename, " [", ze.getCompressedSize(), "/", ze.getSize(), "]");
+        logger.info(tr._("add "), ename, " [", ze.getCompressedSize(), "/", ze.getSize(), "]");
         return EditResult.pass();
     }
 

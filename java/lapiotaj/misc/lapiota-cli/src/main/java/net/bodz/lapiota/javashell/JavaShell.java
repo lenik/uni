@@ -199,8 +199,8 @@ public class JavaShell
                 });
             } catch (ControlExit exit) {
                 int status = exit.getStatus();
-                L.info(tr._("exit "), status);
-                if (L.isDebugEnabled())
+                logger.info(tr._("exit "), status);
+                if (logger.isDebugEnabled())
                     exit.printStackTrace();
             } catch (Throwable t) {
                 t.printStackTrace();

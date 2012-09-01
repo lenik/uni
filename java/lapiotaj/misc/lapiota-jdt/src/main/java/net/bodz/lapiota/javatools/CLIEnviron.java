@@ -50,9 +50,9 @@ public class CLIEnviron
         Collections.sort(keys);
         for (Object key : keys) {
             String value = env.get(key);
-            L.mesg(key, " = ", value);
+            logger.mesg(key, " = ", value);
         }
-        L.mesg();
+        logger.mesg();
     }
 
     /**
@@ -62,7 +62,7 @@ public class CLIEnviron
      */
     void dumpProperties() {
         dump("System", System.getProperties(), 1);
-        L.mesg();
+        logger.mesg();
     }
 
     /**
@@ -101,7 +101,7 @@ public class CLIEnviron
     }
 
     void dumpProvider(Provider provider) {
-        L.mesgf("Provider %s (%.2f): %s\n", provider.getName(), provider.getVersion(), provider.getInfo());
+        logger.mesgf("Provider %s (%.2f): %s\n", provider.getName(), provider.getVersion(), provider.getInfo());
         dump(provider.getName(), provider, 1);
         List<Service> services = new ArrayList<Service>(provider.getServices());
         Comparator<Service> cmp = new Comparator<Service>() {
@@ -122,7 +122,7 @@ public class CLIEnviron
         for (Service service : services) {
             String type = service.getType();
             String alg = service.getAlgorithm();
-            L.mesgf("  Service %s(%s): %s\n", type, alg, service.getClassName());
+            logger.mesgf("  Service %s(%s): %s\n", type, alg, service.getClassName());
             Set<Service> servsInType = types.get(type);
             if (servsInType == null)
                 types.put(type, servsInType = new HashSet<Service>());
@@ -134,7 +134,7 @@ public class CLIEnviron
             for (Service storeServ : certStores) {
                 assert provider == storeServ.getProvider();
                 String storeType = storeServ.getAlgorithm();
-                L.mesg("  CertStore ", storeType, ": ");
+                logger.mesg("  CertStore ", storeType, ": ");
                 try {
                     CertStore store;
                     CertStoreParameters csparams = null;
@@ -148,12 +148,12 @@ public class CLIEnviron
                     }
                     store = CertStore.getInstance(storeType, csparams, provider);
                     Collection<? extends Certificate> certs = store.getCertificates(null);
-                    L.mesg(certs.size(), " entries");
+                    logger.mesg(certs.size(), " entries");
                     for (Certificate cert : certs) {
                         dumpCert("    ", cert, null);
                     }
                 } catch (Exception e) {
-                    L.error(e);
+                    logger.error(e);
                 }
             }
         Set<Service> keyStores = types.get("KeyStore");
@@ -162,7 +162,7 @@ public class CLIEnviron
                 assert provider == storeServ.getProvider();
                 String storeType = storeServ.getAlgorithm();
                 // String storeClass = storeServ.getClassName();
-                L.mesg("  KeyStore ", storeType, ": ");
+                logger.mesg("  KeyStore ", storeType, ": ");
                 try {
                     KeyStore store;
                     if (password != null) {
@@ -173,7 +173,7 @@ public class CLIEnviron
                         // will ask password here.
                         store = builder.getKeyStore();
                     }
-                    L.info(store.size(), " entries");
+                    logger.info(store.size(), " entries");
                     for (String alias : Iterables.otp(store.aliases())) {
                         Certificate cert = store.getCertificate(alias);
                         // @SuppressWarnings("unused")
@@ -183,7 +183,7 @@ public class CLIEnviron
                         dumpCert("    ", cert, creationDate);
                     }
                 } catch (Exception e) {
-                    L.error(e);
+                    logger.error(e);
                 }
             }
 
@@ -193,51 +193,51 @@ public class CLIEnviron
                 assert provider == cipherServ.getProvider();
                 String cipherAlg = cipherServ.getAlgorithm();
                 // String cipherClass = cipherServ.getClassName();
-                L.info("  Cipher ", cipherAlg, ": ");
+                logger.info("  Cipher ", cipherAlg, ": ");
                 Cipher cipher = null;
                 try {
                     cipher = Cipher.getInstance(cipherAlg, provider);
                 } catch (GeneralSecurityException e) {
-                    L.error(e);
+                    logger.error(e);
                 }
-                L.info(cipher.toString());
+                logger.info(cipher.toString());
                 int blockSize = cipher.getBlockSize();
                 byte[] iv = cipher.getIV();
                 AlgorithmParameters params = cipher.getParameters();
                 ExemptionMechanism mech = cipher.getExemptionMechanism();
-                L.info("    block-size = ", blockSize);
+                logger.info("    block-size = ", blockSize);
                 if (iv != null)
-                    L._info(1, "    IV = ", HexCodec.getInstance().encode(iv));
+                    logger._info(1, "    IV = ", HexCodec.getInstance().encode(iv));
                 if (params != null)
-                    L.info("    parameters = ", params);
+                    logger.info("    parameters = ", params);
                 if (mech != null)
-                    L.info("    exemption = ", mech.getName());
+                    logger.info("    exemption = ", mech.getName());
             }
 
-        L.mesg();
+        logger.mesg();
     }
 
     void dumpCert(String prefix, Certificate cert, Date creationDate) {
-        L.info(prefix, "Cert ", cert.getType(), ": ");
+        logger.info(prefix, "Cert ", cert.getType(), ": ");
         X509Certificate x509 = null;
         if (cert instanceof X509Certificate)
             x509 = (X509Certificate) cert;
         if (x509 != null)
-            L.info(x509.getSubjectDN());
+            logger.info(x509.getSubjectDN());
         if (creationDate != null)
-            L.info(" <", creationDate, ">");
-        L.info();
-        L.info(prefix, "    Data: ", cert);
+            logger.info(" <", creationDate, ">");
+        logger.info();
+        logger.info(prefix, "    Data: ", cert);
     }
 
     public void dump(String title, Properties properties, int indent) {
         String prefix = Strings.repeat(4 * indent, ' ');
-        L.mesg(prefix, title, " properties");
+        logger.mesg(prefix, title, " properties");
         List<Object> keys = new ArrayList<Object>(properties.keySet());
         Collections.sort(keys, ComparableComparator.getRawInstance());
         for (Object key : keys) {
             Object value = properties.get(key);
-            L.mesg(prefix, "    ", key, " = ", value);
+            logger.mesg(prefix, "    ", key, " = ", value);
         }
     }
 
@@ -247,7 +247,7 @@ public class CLIEnviron
         dumpRest();
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
-            L.mesgf("%4d. %s;\n", i, arg);
+            logger.mesgf("%4d. %s;\n", i, arg);
         }
     }
 

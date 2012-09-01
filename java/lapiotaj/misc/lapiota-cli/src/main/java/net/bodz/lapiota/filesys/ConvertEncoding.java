@@ -46,32 +46,32 @@ public class ConvertEncoding
         Map<String, Charset> charsets = Charset.availableCharsets();
         for (Map.Entry<String, Charset> e : charsets.entrySet()) {
             Charset charset = e.getValue();
-            L.mesgf("%s: ", e.getKey());
+            logger.mesgf("%s: ", e.getKey());
             if (!charset.displayName().equals(e.getKey()))
-                L.mesg(charset.displayName());
+                logger.mesg(charset.displayName());
 
-            if (L.isInfoEnabled()) {
+            if (logger.isInfoEnabled()) {
                 CharsetDecoder dec = charset.newDecoder();
                 float avgcpb = dec.averageCharsPerByte();
                 float maxcpb = dec.maxCharsPerByte();
-                L.infof(tr._(" dec(%.2f/%.2f)"), maxcpb, avgcpb);
+                logger.infof(tr._(" dec(%.2f/%.2f)"), maxcpb, avgcpb);
                 if (charset.canEncode()) {
                     CharsetEncoder enc = charset.newEncoder();
                     float avgbpc = enc.averageBytesPerChar();
                     float maxbpc = enc.maxBytesPerChar();
-                    L.infof(tr._(" enc(%.2f/%.2f)"), maxbpc, avgbpc);
+                    logger.infof(tr._(" enc(%.2f/%.2f)"), maxbpc, avgbpc);
                 }
             }
-            L.mesg("");
+            logger.mesg("");
 
             Set<String> aliases = charset.aliases();
             if (!aliases.isEmpty()) {
-                L.mesg("   ");
+                logger.mesg("   ");
                 for (String alias : charset.aliases()) {
-                    L.mesg(' ');
-                    L.mesg(alias);
+                    logger.mesg(' ');
+                    logger.mesg(alias);
                 }
-                L.mesg("");
+                logger.mesg("");
             }
         }
         throw new ControlBreak();
@@ -108,7 +108,7 @@ public class ConvertEncoding
             }
         }
 
-        L.status(CLINLS.format("ConvertEncoding.iconv_ssss", in, srcenc, out, dstenc));
+        logger.status(CLINLS.format("ConvertEncoding.iconv_ssss", in, srcenc, out, dstenc));
 
         String decoded = new String(src, srcenc);
         byte[] dst = decoded.getBytes(dstenc);
