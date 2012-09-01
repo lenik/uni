@@ -1,7 +1,5 @@
 package net.bodz.lapiota.xmltools;
 
-import static net.bodz.lapiota.nls.CLINLS.CLINLS;
-
 import java.io.File;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
@@ -240,10 +238,10 @@ public class XMLFlat
             throws Exception {
         SAXReader reader = new SAXReader();
         if (inputFile == null) {
-            L.stdout(CLINLS.getString("XMLFlat.enterXml"));
+            L.stdout(tr._("enter the xml document: "));
             doc = reader.read(System.in);
         } else {
-            L.info(CLINLS.getString("XMLFlat.process"), inputFile);
+            L.info(tr._("process "), inputFile);
             doc = reader.read(inputFile);
         }
 

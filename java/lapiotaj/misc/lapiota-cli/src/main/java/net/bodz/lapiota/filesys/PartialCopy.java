@@ -1,7 +1,5 @@
 package net.bodz.lapiota.filesys;
 
-import static net.bodz.lapiota.nls.CLINLS.CLINLS;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -59,7 +57,7 @@ public class PartialCopy
      *
      * @option -p
      */
-    protected char[] padding = CLINLS.getString("PartialCopy.0").toCharArray();
+    protected char[] padding = tr._("").toCharArray();
 
     /**
      * Don't expand the dst file
@@ -88,8 +86,8 @@ public class PartialCopy
     private int copies;
 
     public PartialCopy() {
-        plugins.registerCategory(CLINLS.getString("PartialCopy.1"), Process.class);
-        plugins.register(CLINLS.getString("PartialCopy.2"), PGPCRC32.class, this);
+        plugins.registerCategory(tr._("process"), Process.class);
+        plugins.register(tr._("crc.pgp"), PGPCRC32.class, this);
     }
 
     /**
@@ -99,7 +97,7 @@ public class PartialCopy
      */
     protected void setSrcTextSZ(String text) {
         if (src != null)
-            throw new IllegalStateException(CLINLS.getString("PartialCopy.srcIsSet") + src);
+            throw new IllegalStateException(tr._("src is already set: ") + src);
         byte[] bytes = text.getBytes(encoding);
         bytes = ArrayWrapper.wrap(bytes, bytes.length + 1).copyArray();
         setSrcBytes(bytes);
@@ -112,7 +110,7 @@ public class PartialCopy
      */
     protected void setSrcTextRaw(String text) {
         if (src != null)
-            throw new IllegalStateException(CLINLS.getString("PartialCopy.srcIsSet") + src);
+            throw new IllegalStateException(tr._("src is already set: ") + src);
         byte[] bytes = text.getBytes(encoding);
         setSrcBytes(bytes);
     }
@@ -124,7 +122,7 @@ public class PartialCopy
      */
     protected void setSrcBytes(byte[] bytes) {
         if (src != null)
-            throw new IllegalStateException(CLINLS.getString("PartialCopy.srcIsSet") + src);
+            throw new IllegalStateException(tr._("src is already set: ") + src);
         src = new ArrayMemory(bytes);
         srcSize = bytes.length;
     }
@@ -135,7 +133,7 @@ public class PartialCopy
     protected void setSrcFile(File file)
             throws IOException {
         if (src != null)
-            throw new IllegalStateException(CLINLS.getString("PartialCopy.srcIsSet") + src);
+            throw new IllegalStateException(tr._("src is already set: ") + src);
         RandomAccessFile rf = new RandomAccessFile(file, "r");
         src = new RandomAccessFileMemory(rf, 0);
         srcSize = rf.length();
@@ -149,7 +147,7 @@ public class PartialCopy
     protected void setDstFile(File file)
             throws IOException {
         if (dst != null)
-            throw new IllegalStateException(CLINLS.getString("PartialCopy.dstIsSet") + src);
+            throw new IllegalStateException(tr._("dst is already set: ") + src);
         RandomAccessFile rf = new RandomAccessFile(file, "rw");
         dst = new RandomAccessFileMemory(rf, 0);
         dstSize = rf.length();
@@ -184,7 +182,7 @@ public class PartialCopy
     protected void setDstStart(String exp)
             throws MemoryAccessException {
         if (dst == null)
-            throw new IllegalStateException(CLINLS.getString("PartialCopy.dstIsntSet"));
+            throw new IllegalStateException(tr._("dst isn\'t set"));
         dstStart = parsePosition(dst, 0, dstSize, exp);
     }
 
@@ -196,7 +194,7 @@ public class PartialCopy
     protected void setDstEnd(String exp)
             throws MemoryAccessException {
         if (dst == null)
-            throw new IllegalStateException(CLINLS.getString("PartialCopy.dstIsntSet"));
+            throw new IllegalStateException(tr._("dst isn\'t set"));
         long dstEnd = parsePosition(dst, dstStart, dstSize, exp);
         srclcopy = dstEnd - dstStart;
     }
@@ -219,7 +217,7 @@ public class PartialCopy
             throws MemoryAccessException, IOException {
         File tmp = null;
         if (src == null)
-            throw new IllegalUsageException(CLINLS.getString("PartialCopy.srcIsntSpecified"));
+            throw new IllegalUsageException(tr._("src isn\'t specified"));
         if (dst == null) {
             tmp = File.createTempFile("partcp", ".bin", TempFile.getTmpDir());
             setDstFile(tmp);
@@ -312,7 +310,7 @@ public class PartialCopy
                     flags = "";
                     break;
                 default:
-                    throw new IllegalArgumentException(CLINLS.getString("PartialCopy.unknownFlag") + flags);
+                    throw new IllegalArgumentException(tr._("unknown flag: ") + flags);
                 }
             }
         }
@@ -336,7 +334,7 @@ public class PartialCopy
                 flags.parse(exp.substring(slash + 1));
                 exp = exp.substring(0, slash);
             }
-            throw new NotImplementedException(CLINLS.getString("PartialCopy.REGEX"));
+            throw new NotImplementedException(tr._("REGEX"));
 
         } else if (exp.startsWith("x/")) { // x/HEX
             Flags flags = new Flags();
@@ -348,7 +346,7 @@ public class PartialCopy
             }
             byte[] pattern = StringUtil.parseHex(exp);
             if (pattern.length == 0)
-                throw new IllegalArgumentException(CLINLS.getString("PartialCopy.patternIsEmpty"));
+                throw new IllegalArgumentException(tr._("pattern is empty"));
             byte[] buf = new byte[pattern.length];
             Memory fMem = mem.offset(start);
             int fSize = IntMath.min(Integer.MAX_VALUE, end - pattern.length);
@@ -357,7 +355,7 @@ public class PartialCopy
                 if (Arrays.equals(pattern, buf))
                     return start + off + flags.extend(pattern.length);
             }
-            throw new RuntimeException(CLINLS.getString("PartialCopy.noMatchHex"));
+            throw new RuntimeException(tr._("no match of hex"));
         }
 
         else { // [+-]INT
@@ -382,15 +380,15 @@ public class PartialCopy
         super._help(out);
         out.println();
 
-        out.println(CLINLS.getString("PartialCopy.exprFormat"));
-        out.println(CLINLS.getString("PartialCopy.expr.absolute"));
-        out.println(CLINLS.getString("PartialCopy.expr.addlen"));
-        out.println(CLINLS.getString("PartialCopy.expr.sublen"));
-        out.println(CLINLS.getString("PartialCopy.expr.regex"));
-        out.println(CLINLS.getString("PartialCopy.expr.regex.bin"));
-        out.println(CLINLS.getString("PartialCopy.expr.xregex.flagExt"));
-        out.println(CLINLS.getString("PartialCopy.expr.xregex.flagI"));
-        out.println(CLINLS.getString("PartialCopy.expr.setToDef"));
+        out.println(tr._("Format of EXP: "));
+        out.println(tr._("    INT             absolute position"));
+        out.println(tr._("   +INT             length"));
+        out.println(tr._("   -INT             offset to the end"));
+        out.println(tr._("   /REGEX[/FLAGS]   search regular expression"));
+        out.println(tr._("  x/HEX/FLAGS       search binary"));
+        out.println(tr._("       flag +/-NUM  extent to the start of match"));
+        out.println(tr._("       flag i       case-insensitive"));
+        out.println(tr._("    *               set to the default value"));
         out.flush();
     }
 
@@ -446,12 +444,12 @@ public class PartialCopy
         public byte[] process(Memory src, long lenl)
                 throws MemoryAccessException {
             if (lenl >= Integer.MAX_VALUE)
-                throw new UnsupportedOperationException(CLINLS.getString("PartialCopy.tooLong"));
+                throw new UnsupportedOperationException(tr._("unsupport to get crc32 from >2G block"));
             int len = (int) lenl;
             byte[] bigEndian = new byte[len];
             src.read(0, bigEndian);
             if (len % 4 != 0)
-                throw new IllegalArgumentException(CLINLS.getString("PartialCopy.pgpCrc32ShouldAligned"));
+                throw new IllegalArgumentException(tr._("PGP-CRC32 is DWORD aligned"));
             if (fillRange != null) { // fill before switch byte-order
                 int padIndex = 0;
                 for (int i = fillRange.from; i < fillRange.to; i++) {

@@ -2,9 +2,9 @@ package net.bodz.lapiota.util;
 
 import java.io.File;
 
-import net.bodz.lapiota.Lapiota;
-
 import org.junit.Test;
+
+import net.bodz.lapiota.Lapiota;
 
 
 public class LapiotaTest {

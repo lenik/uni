@@ -1,7 +1,5 @@
 package net.bodz.lapiota.filesys;
 
-import static net.bodz.lapiota.nls.CLINLS.CLINLS;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -76,7 +74,7 @@ public class Gather
             long srcv = src.lastModified();
             long dstv = dst.lastModified();
             if (dstv >= srcv) {
-                L.info(CLINLS.getString("Gather.skip"), dst);
+                L.info(tr._("[skip] "), dst);
                 return;
             }
         }
@@ -129,9 +127,9 @@ public class Gather
             String srcwild = srcdir + "/" + srcfile;
             List<File> srcs = FileWild.listFiles(srcwild);
             if (srcs == null)
-                throw new IllegalArgumentException(CLINLS.getString("Gather.srcIsntExisted") + srcwild);
+                throw new IllegalArgumentException(tr._("src isn\'t existed: ") + srcwild);
             if (srcs.size() > 1)
-                throw new IllegalArgumentException(CLINLS.getString("Gather.tooManyMatchedSrc")
+                throw new IllegalArgumentException(tr._("too many matched src: \n")
                         + StringArray.join("\n", srcs));
             File src = FilePath.canoniOf(srcs.get(0));
             IFile dst = dstdir.getChild(dstfile);
@@ -143,7 +141,7 @@ public class Gather
             for (Entry<File, File> e : src2dst.entrySet()) {
                 File src = e.getKey();
                 File dst = e.getValue();
-                L.mesg(CLINLS.getString("Gather.get"), src);
+                L.mesg(tr._("[get] "), src);
                 copy(src, dst);
             }
         }
@@ -153,7 +151,7 @@ public class Gather
             for (Entry<File, File> e : src2dst.entrySet()) {
                 File src = e.getKey();
                 File dst = e.getValue();
-                L.mesg(CLINLS.getString("Gather.put"), src);
+                L.mesg(tr._("[put] "), src);
                 copy(dst, src);
             }
         }
@@ -163,11 +161,11 @@ public class Gather
     protected void doFileArgument(IFile dstdir)
             throws Exception {
         if (!dstdir.isTree())
-            throw new IllegalArgumentException(CLINLS.getString("Gather.notDirectory") + dstdir);
+            throw new IllegalArgumentException(tr._("not a directory: ") + dstdir);
 
         IFile gatherd = dstdir.getChild(gatherDir);
         if (!gatherd.isTree())
-            throw new IllegalArgumentException(CLINLS.getString("Gather.notGatheredTarget") + dstdir);
+            throw new IllegalArgumentException(tr._("not a gathered target: ") + dstdir);
 
         GMap gmap = new GMap(dstdir);
         IFile prefixf = gatherd.getChild(".prefix");
@@ -178,7 +176,7 @@ public class Gather
                     continue;
                 int eq = line.indexOf('=');
                 if (eq == -1)
-                    throw new ParseException(CLINLS.getString("Gather.invalidPrefix") + line);
+                    throw new ParseException(tr._("invalid prefix line: ") + line);
                 String prefix = line.substring(0, eq).trim();
                 String expanded = line.substring(eq + 1).trim();
                 gmap.setPrefix(prefix, expanded);
@@ -201,7 +199,7 @@ public class Gather
                     continue;
                 }
                 if (srcdir == null)
-                    throw new IllegalStateException(CLINLS.getString("Gather.srcdirIsntSet") + gfile + ": \n" + line);
+                    throw new IllegalStateException(tr._("srcdir isn\'t set, in ") + gfile + ": \n" + line);
                 String srcfile = line;
                 String dst = srcfile;
                 int eq = line.indexOf('=');

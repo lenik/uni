@@ -1,7 +1,5 @@
 package net.bodz.lapiota.filesys;
 
-import static net.bodz.lapiota.nls.CLINLS.CLINLS;
-
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.Arrays;
@@ -77,7 +75,7 @@ public class MergeDirectories
     protected void doFileArgument(IFile startFile)
             throws Exception {
         if (!startFile.isTree()) {
-            L.info(CLINLS.getString("MergeDirectories.skippedFile"), startFile);
+            L.info(tr._("skipped file "), startFile);
             return;
         }
         // throw new IllegalArgumentException("not a directory: " + startFile);
@@ -180,20 +178,20 @@ public class MergeDirectories
             if (rhash.equals(hash)) {
                 IFile start = currentStartFile.getParentFile();
                 if (start == null) {
-                    L.warnf(CLINLS.getString("MergeDirectories.rootWarn_s"), currentStartFile);
+                    L.warnf(tr._("start file %s is a root directory,which may be dangerous  "), currentStartFile);
                 }
                 IFile dst = getOutputFile(rname, start);
                 if (dst.exists()) {
                     if (dst.equals(file))
-                        return EditResult.pass(CLINLS.getString("MergeDirectories.same"));
+                        return EditResult.pass(tr._("same"));
                     else
-                        return EditResult.rm(CLINLS.getString("MergeDirectories.sameKill")); // psh.delete(file)
+                        return EditResult.rm(tr._("same-kill")); // psh.delete(file)
                     // ;
                 } else
                     return EditResult.mv(dst); // psh.move(file, dst);
             } else {
                 if (reduced && deleteIgnored)
-                    return EditResult.rm(CLINLS.getString("MergeDirectories.ignoreKill"));
+                    return EditResult.rm(tr._("ignore-kill"));
             }
             return EditResult.pass();
         } else {

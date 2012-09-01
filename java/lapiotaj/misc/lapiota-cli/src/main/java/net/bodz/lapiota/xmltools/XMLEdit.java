@@ -1,7 +1,5 @@
 package net.bodz.lapiota.xmltools;
 
-import static net.bodz.lapiota.nls.CLINLS.CLINLS;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -110,7 +108,7 @@ public class XMLEdit
 
     protected Document getDocument() {
         if (document == null)
-            throw new IllegalStateException(CLINLS.getString("XMLEdit.noDocument"));
+            throw new IllegalStateException(tr._("no document specified"));
         return document;
     }
 
@@ -214,7 +212,7 @@ public class XMLEdit
         for (Node arg : argnodes) {
             Element sibling = (Element) arg;
             if (sibling.isRootElement())
-                throw new DocumentException(CLINLS.getString("XMLEdit.outOfRoot"));
+                throw new DocumentException(tr._("out of the root"));
             Element parent = sibling.getParent();
             List<Element> siblings = parent.elements();
             int index = siblings.indexOf(sibling);
@@ -237,7 +235,7 @@ public class XMLEdit
         for (Node arg : argnodes) {
             Element sibling = (Element) arg;
             if (sibling.isRootElement())
-                throw new DocumentException(CLINLS.getString("XMLEdit.outOfRoot"));
+                throw new DocumentException(tr._("out of the root"));
             Element parent = sibling.getParent();
             List<Element> siblings = parent.elements();
             int index = siblings.indexOf(sibling);

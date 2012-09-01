@@ -1,7 +1,5 @@
 package net.bodz.lapiota.javashell;
 
-import static net.bodz.lapiota.nls.CLINLS.CLINLS;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -173,7 +171,7 @@ public class JavaShell
                 name = expansion[0];
                 _command = commands.get(name);
                 if (_command == null) {
-                    System.err.println(CLINLS.getString("JavaShell.commandIsntDefined") + name);
+                    System.err.println(tr._("Command isn\'t defined: ") + name);
                     continue;
                 }
 
@@ -201,7 +199,7 @@ public class JavaShell
                 });
             } catch (ControlExit exit) {
                 int status = exit.getStatus();
-                L.info(CLINLS.getString("JavaShell.exit"), status);
+                L.info(tr._("exit "), status);
                 if (L.isDebugEnabled())
                     exit.printStackTrace();
             } catch (Throwable t) {
@@ -219,7 +217,7 @@ public class JavaShell
         while ((exp = aliases.get(alias)) != null) {
             nest++;
             if (nest > MAX_NEST)
-                throw new IllegalUsageException(CLINLS.getString("JavaShell.aliasNestTooMuch") + alias);
+                throw new IllegalUsageException(tr._("alias nest too much: ") + alias);
             assert exp.length != 0;
             alias = exp[0];
             if (exp.length == 1)
@@ -282,7 +280,7 @@ public class JavaShell
         void dump(String name) {
             String[] expansion = aliases.get(name);
             String s = StringArray.join(" ", expansion); // quotes
-            System.out.println(CLINLS.getString("JavaShell.alias") + name + " = " + s);
+            System.out.println(tr._("alias ") + name + " = " + s);
         }
 
     }
@@ -299,7 +297,7 @@ public class JavaShell
                 try {
                     File dir = CurrentDirectoryColo.getInstance().join(args[0]);
                     if (!dir.isDirectory()) {
-                        System.err.println(CLINLS.getString("JavaShell.notDirectory") + dir);
+                        System.err.println(tr._("Not a directory: ") + dir);
                         return 1;
                     }
                     CurrentDirectoryColo.getInstance().set(dir);
@@ -371,7 +369,7 @@ public class JavaShell
                 throws Exception {
             int i = 0;
             if (args.length == 0)
-                throw new IllegalArgumentException(CLINLS.getString("JavaShell.noSpec"));
+                throw new IllegalArgumentException(tr._("no spec"));
             boolean isStatic = "static".equals(args[0]);
             if (isStatic)
                 i++;
@@ -407,7 +405,7 @@ public class JavaShell
             String name = dot == -1 ? spec : spec.substring(dot + 1);
             Class<?> clazz = Class.forName(spec);
             if (!Command.class.isAssignableFrom(clazz))
-                throw new IllegalArgumentException(CLINLS.getString("JavaShell.notCommand") + spec);
+                throw new IllegalArgumentException(tr._("not a command: ") + spec);
             Command command;
             try {
                 Constructor<?> ctor1 = clazz.getConstructor(JavaShell.class);
@@ -428,17 +426,17 @@ public class JavaShell
             }
             int dot = spec.lastIndexOf('.');
             if (dot == -1)
-                throw new IllegalArgumentException(CLINLS.getString("JavaShell.staticImportWithoutMember"));
+                throw new IllegalArgumentException(tr._("static import without member name"));
             String className = spec.substring(0, dot);
             String member = spec.substring(dot + 1);
             Class<?> declType = Class.forName(className);
             Field field = declType.getField(member);
             Class<?> clazz = field.getType();
             if (!Command.class.isAssignableFrom(clazz))
-                throw new IllegalArgumentException(CLINLS.getString("JavaShell.notCommand") + clazz);
+                throw new IllegalArgumentException(tr._("not a command: ") + clazz);
             int mod = field.getModifiers();
             if (!Modifier.isStatic(mod))
-                throw new IllegalArgumentException(CLINLS.getString("JavaShell.notStatic") + field);
+                throw new IllegalArgumentException(tr._("not static: ") + field);
             Command command = (Command) field.get(null);
             commands.put(member, command);
         }

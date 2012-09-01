@@ -1,7 +1,5 @@
 package net.bodz.lapiota.filesys;
 
-import static net.bodz.lapiota.nls.CLINLS.CLINLS;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -70,12 +68,12 @@ public class PackageFragmentsProcess
      */
     protected void action(Action action)
             throws CLIException {
-        L.debug(CLINLS.getString("PackageFragmentsProcess.action_"), action);
+        L.debug(tr._("action: "), action);
         actions.add(action);
     }
 
     public PackageFragmentsProcess() {
-        plugins.registerCategory(CLINLS.getString("PackageFragmentsProcess.action"), Action.class);
+        plugins.registerCategory(tr._("action"), Action.class);
         plugins.register("list", Lister.class, this);
         plugins.register("cat", Cat.class, this);
         // actionPoint.register("mani", ManiCat.class, this);
@@ -301,7 +299,7 @@ public class PackageFragmentsProcess
 
         public Grep(String[] args) {
             if (args.length < 1)
-                throw new IllegalArgumentException(CLINLS.getString("PackageFragmentsProcess.grepShortHelp"));
+                throw new IllegalArgumentException(tr._("Grep(REGEXP, [FILE=plugin.xml])"));
 
             int flags = 0;
             if (parameters().isIgnoreCase())
@@ -441,11 +439,11 @@ public class PackageFragmentsProcess
             XPath extensionOfPoint = doc.createXPath(_xpath);
             for (Object node : extensionOfPoint.selectNodes(doc)) {
                 if (!(node instanceof Node)) {
-                    L.debug(CLINLS.getString("PackageFragmentsProcess.skipNode"), node);
+                    L.debug(tr._("skip node: "), node);
                     continue;
                 }
                 Element ext = (Element) node;
-                L.info(CLINLS.getString("PackageFragmentsProcess.extension"), url);
+                L.info(tr._("extension: "), url);
                 String shortText = getShortText(ext);
                 _stdout.println(critarg + ": " + shortText);
                 if (L.isInfoEnabled(1)) {
@@ -475,7 +473,7 @@ public class PackageFragmentsProcess
 
         @Override
         protected String parseCriteria(String criteria) {
-            return CLINLS.getString("PackageFragmentsProcess.extensionCriteria") + criteria + "\"]";
+            return tr._("//extension[@point=\"") + criteria + "\"]";
         }
 
         @Override
@@ -486,7 +484,7 @@ public class PackageFragmentsProcess
         @Override
         protected String getShortText(Node node) {
             if (!(node instanceof Element))
-                return CLINLS.getString("PackageFragmentsProcess.unexpected");
+                return tr._("Unexpected");
             Element elm = (Element) node;
             Attribute id = elm.attribute("id");
             if (id == null)
@@ -501,7 +499,7 @@ public class PackageFragmentsProcess
         @Override
         public void doDirectoryArg(IFile dir)
                 throws Exception {
-            L.info(CLINLS.getString("PackageFragmentsProcess.skippedDir"), dir);
+            L.info(tr._("skipped directory "), dir);
         }
 
     }
@@ -577,7 +575,7 @@ public class PackageFragmentsProcess
                     IFile dest = getOutputFile(destname, start);
                     IFile destdir = dest.getParentFile();
                     destdir.createTree(); // return false if already exists.
-                    L.info(CLINLS.getString("PackageFragmentsProcess.extract"), dest);
+                    L.info(tr._("extract "), dest);
                     InputStream in = jar.getInputStream(entry);
                     try {
                         Files.copy(in, dest);

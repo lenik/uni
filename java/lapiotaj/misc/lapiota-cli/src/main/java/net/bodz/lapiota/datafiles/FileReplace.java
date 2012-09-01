@@ -1,7 +1,5 @@
 package net.bodz.lapiota.datafiles;
 
-import static net.bodz.lapiota.nls.CLINLS.CLINLS;
-
 import java.util.regex.Pattern;
 
 import net.bodz.bas.cli.skel.BatchEditCLI;
@@ -54,7 +52,7 @@ public class FileReplace
     protected void _boot()
             throws Exception {
         if ((regexp == null) == (text == null))
-            throw new CLIException(CLINLS.getString("FileReplace.regexpOrText"));
+            throw new CLIException(tr._("one and only one of --regexp and --text option must be specified"));
 
         if (parameters().isIgnoreCase()) {
             if (regexp != null)

@@ -7,14 +7,14 @@ import groovy.lang.MissingPropertyException;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.codehaus.groovy.control.CompilationFailedException;
+
 import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
 import net.bodz.bas.c.java.util.regex.PatternProcessor;
 import net.bodz.bas.c.string.StringEscape;
 import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.sio.BCharOut;
-
-import org.codehaus.groovy.control.CompilationFailedException;
 
 public class GroovyExpand
         extends PatternProcessor {

@@ -1,7 +1,5 @@
 package net.bodz.lapiota.filesys;
 
-import static net.bodz.lapiota.nls.CLINLS.CLINLS;
-
 import java.util.List;
 
 import net.bodz.bas.cli.skel.BasicCLI;
@@ -59,7 +57,7 @@ public class FileCompare
     protected void doMain(String[] args)
             throws Exception {
         if (args.length > 0)
-            throw new IllegalArgumentException(CLINLS.getString("FileCompare.unexpectedArgument") + args[0]);
+            throw new IllegalArgumentException(tr._("unexpected argument: ") + args[0]);
         DiffComparator gnudiff = DiffComparators.gnudiff;
         List<String> srcl = src.tooling()._for(StreamReading.class).listLines();
         List<String> dstl = dst.tooling()._for(StreamReading.class).listLines();

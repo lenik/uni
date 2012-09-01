@@ -2,15 +2,15 @@ package net.bodz.lapiota.util;
 
 import java.io.File;
 
+import org.dom4j.DocumentFactory;
+import org.dom4j.XPath;
+import org.dom4j.io.OutputFormat;
+
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.err.OutOfDomainException;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.snm.abc.ModulesRoot;
 import net.bodz.bas.traits.AbstractParser;
-
-import org.dom4j.DocumentFactory;
-import org.dom4j.XPath;
-import org.dom4j.io.OutputFormat;
 
 public class TypeExtensions {
 

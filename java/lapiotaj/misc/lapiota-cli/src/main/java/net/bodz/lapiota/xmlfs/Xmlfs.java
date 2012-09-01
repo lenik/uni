@@ -1,8 +1,8 @@
 package net.bodz.lapiota.xmlfs;
 
-import net.bodz.bas.c.java.util.regex.PatternProcessor;
-
 import org.dom4j.Namespace;
+
+import net.bodz.bas.c.java.util.regex.PatternProcessor;
 
 public class Xmlfs {
 

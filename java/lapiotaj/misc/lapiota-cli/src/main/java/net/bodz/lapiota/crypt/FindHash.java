@@ -1,7 +1,5 @@
 package net.bodz.lapiota.crypt;
 
-import static net.bodz.lapiota.nls.CLINLS.CLINLS;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
@@ -37,7 +35,7 @@ public class FindHash
         public Range(int from, int to) {
             if (from >= to)
                 throw new IllegalArgumentException(//
-                        CLINLS.getString("FindHash.0") + from + " > to " + to);
+                        tr._("from ") + from + " > to " + to);
             this.from = from;
             this.to = to;
         }
@@ -85,10 +83,10 @@ public class FindHash
         if (digest == null)
             digest = MessageDigest.getInstance("CRC32");
         if (!(digest instanceof Cloneable))
-            throw new UnsupportedOperationException(CLINLS.getString("FindHash.algIsntClonable") + digest
+            throw new UnsupportedOperationException(tr._("The algorithm isn\'t clonable: ") + digest
                     + ", class of " + digest.getClass().getName());
         if (hashes == null || hashes.length == 0)
-            throw new IllegalUsageException(CLINLS.getString("FindHash.noHash"));
+            throw new IllegalUsageException(tr._("no hash specified"));
     }
 
     class FindContext {
@@ -138,10 +136,10 @@ public class FindHash
                         boolean matched = match(digest);
                         if ((++count % 1000) == 0 || matched) {
                             String rt = rangesPrefix + "." + from + "-" + to;
-                            L.status(CLINLS.getString("FindHash.range"), rt, " = ",
+                            L.status(tr._("Range: "), rt, " = ",
                                     HexCodec.getInstance().encode(digest));
                             if (matched)
-                                L.mesg(CLINLS.getString("FindHash.matched"));
+                                L.mesg(tr._("Match! "));
                         }
                     }
                     if (to != range.to) {
@@ -180,15 +178,15 @@ public class FindHash
         super._help(out);
         out.println();
 
-        out.println(CLINLS.getString("FindHash.algorithms"));
+        out.println(tr._("Algorithms: "));
         for (String alg : Security.getAlgorithms("MessageDigest")) {
             try {
                 MessageDigest digest = MessageDigest.getInstance(alg);
                 int len = digest.getDigestLength();
                 // Provider provider = digest.getProvider();
-                out.printf(CLINLS.getString("FindHash.digestInfo_sds"), alg, len, digest.getClass());
+                out.printf(tr._("    %16s: len=%d, %s\n"), alg, len, digest.getClass());
             } catch (NoSuchAlgorithmException e) {
-                out.println(CLINLS.getString("FindHash.noAlg") + alg);
+                out.println(tr._("    Err: ") + alg);
             }
         }
 

@@ -1,7 +1,5 @@
 package net.bodz.lapiota.filesys;
 
-import static net.bodz.lapiota.nls.CLINLS.CLINLS;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -52,7 +50,7 @@ public class ZipSub
 
         Set<String> removeSet = new HashSet<String>();
         for (int i = 1; i < args.length; i++) {
-            L.status(CLINLS.getString("ZipSub.subtractFrom"), args[i]);
+            L.status(tr._("subtract from: "), args[i]);
             ZipFile sub = new ZipFile(args[i]);
             int n = 0;
             for (ZipEntry entry : Iterables.otp(sub.entries())) {
@@ -60,7 +58,7 @@ public class ZipSub
                 if (removeSet.add(name))
                     n++;
             }
-            L.info(CLINLS.getString("ZipSub.subtractFrom"), args[i], " (", n, CLINLS.getString("ZipSub.uniqEntries"));
+            L.info(tr._("subtract from: "), args[i], " (", n, tr._(" uniq entries)"));
         }
 
         File dest = CurrentDirectoryColo.getInstance().join(args[0]);
@@ -77,7 +75,7 @@ public class ZipSub
         for (ZipEntry entry : Iterables.otp(destZip.entries())) {
             String name = entry.getName();
             if (removeSet.contains(name)) {
-                L.mesg(CLINLS.getString("ZipSub.removed"), name);
+                L.mesg(tr._("removed "), name);
                 removed++;
             } else {
                 if (removed == 0) {
@@ -86,31 +84,31 @@ public class ZipSub
                 }
                 if (tempOut == null)
                     tempOut = dumpHead(temp, destZip, pending);
-                writeEntry(CLINLS.getString("ZipSub.write"), tempOut, destZip, entry);
+                writeEntry(tr._("write "), tempOut, destZip, entry);
             }
         }
         if (removed != 0 && tempOut == null)
             tempOut = dumpHead(temp, destZip, pending);
 
-        L.status(CLINLS.getString("ZipSub.total") + removed + CLINLS.getString("ZipSub.entriesRemoved"));
+        L.status(tr._("Total ") + removed + tr._(" entries have been removed."));
 
         destZip.close();
         if (tempOut != null) {
             tempOut.close();
-            L.mesg(CLINLS.getString("ZipSub.backup"), dest);
+            L.mesg(tr._("backup "), dest);
             File destBak = new File(destDir, dest.getName() + ".bak");
             if (destBak.exists()) {
                 if (!destBak.delete())
-                    throw new IOException(CLINLS.getString("ZipSub.cantDelete") + destBak);
+                    throw new IOException(tr._("Can\'t delete ") + destBak);
             }
             if (!dest.renameTo(destBak))
-                throw new IOException(CLINLS.getString("ZipSub.cantRename") + dest + CLINLS.getString("ZipSub._to_")
+                throw new IOException(tr._("Can\'t rename ") + dest + tr._(" to ")
                         + destBak);
             if (!temp.renameTo(dest))
-                throw new IOException(CLINLS.getString("ZipSub.cantRename") + temp + CLINLS.getString("ZipSub._to_")
+                throw new IOException(tr._("Can\'t rename ") + temp + tr._(" to ")
                         + dest);
         } else {
-            L.mesg(CLINLS.getString("ZipSub.noneRemoved"));
+            L.mesg(tr._("Nothing has been removed. "));
         }
     }
 
@@ -123,7 +121,7 @@ public class ZipSub
         Enumeration<? extends ZipEntry> head = zip.entries();
         for (int hi = 0; hi < n; hi++) {
             ZipEntry headEntry = head.nextElement();
-            writeEntry(CLINLS.getString("ZipSub.copy"), out, zip, headEntry);
+            writeEntry(tr._("copy "), out, zip, headEntry);
         }
         return out;
     }
@@ -162,7 +160,7 @@ public class ZipSub
 
     @Override
     protected String _helpRestSyntax() {
-        return CLINLS.getString("ZipSub.restSyntax");
+        return tr._("DEST-ZIP MINUS-ZIP-LIST");
     }
 
     public static void main(String[] args)

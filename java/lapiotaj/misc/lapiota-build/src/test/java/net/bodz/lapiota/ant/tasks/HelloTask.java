@@ -1,8 +1,8 @@
 package net.bodz.lapiota.ant.tasks;
 
-import net.bodz.bas.ant.CLITask;
-
 import org.apache.tools.ant.BuildException;
+
+import net.bodz.bas.ant.CLITask;
 
 public class HelloTask
         extends CLITask {

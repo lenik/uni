@@ -1,6 +1,5 @@
 package net.bodz.lapiota.datafiles;
 
-import static net.bodz.lapiota.nls.CLINLS.CLINLS;
 import groovy.lang.GroovyShell;
 
 import java.io.IOException;
@@ -53,7 +52,7 @@ public class FileProcess
      */
     protected void action(Action action)
             throws CLIException {
-        L.debug(CLINLS.getString("FileProcess.action"), action);
+        L.debug(tr._("action: "), action);
         actions.add(action);
     }
 
@@ -199,7 +198,7 @@ public class FileProcess
         public GroovyScript(String[] args)
                 throws IOException, ScriptException {
             if (args.length == 0) {
-                System.out.println(CLINLS.getString("FileProcess.enterScript"));
+                System.out.println(tr._("Enter the processing groovy script: "));
                 script = new InputStreamSource(System.in).tooling()._for(StreamReading.class).readTextContents();
             } else {
                 String scriptPath = args[0];
@@ -298,7 +297,7 @@ public class FileProcess
         /** [/]/PATTERN/REPLACEMENT[/FLAGS] */
         public RenamePattern(String exp) {
             if (!exp.startsWith("/"))
-                throw new IllegalArgumentException(CLINLS.getString("FileProcess.notSubsRegexp") + exp);
+                throw new IllegalArgumentException(tr._("not a subs-regexp: ") + exp);
             char sep = exp.charAt(0);
             exp = exp.substring(1);
             if (exp.charAt(0) == sep) {
@@ -313,7 +312,7 @@ public class FileProcess
                 for (int i = 0; i < segs.length; i++)
                     L.debug("seg[", i, "] = ", segs[i]);
             if (segs.length > 3)
-                throw new IllegalArgumentException(CLINLS.getString("FileProcess.invalidSubsRegexp") + exp);
+                throw new IllegalArgumentException(tr._("invalid subs-regexp format: ") + exp);
             int flags = 0;
             String _flags = segs.length == 3 ? segs[2] : this.flags;
             if (_flags != null) {
@@ -332,7 +331,7 @@ public class FileProcess
                         flags |= Pattern.MULTILINE;
                         break;
                     default:
-                        throw new IllegalArgumentException(CLINLS.getString("FileProcess.invalidRegexpFlag") + c);
+                        throw new IllegalArgumentException(tr._("invalid regexp flag: ") + c);
                     }
                 }
             }

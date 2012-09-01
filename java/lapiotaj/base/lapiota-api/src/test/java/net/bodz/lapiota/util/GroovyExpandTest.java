@@ -1,10 +1,11 @@
 package net.bodz.lapiota.util;
 
 import static org.junit.Assert.assertEquals;
-import net.bodz.bas.c.java.util.HashTextMap;
-import net.bodz.bas.c.java.util.TextMap;
 
 import org.junit.Test;
+
+import net.bodz.bas.c.java.util.HashTextMap;
+import net.bodz.bas.c.java.util.TextMap;
 
 public class GroovyExpandTest {
 

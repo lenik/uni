@@ -1,7 +1,5 @@
 package net.bodz.lapiota.datafiles;
 
-import static net.bodz.lapiota.nls.CLINLS.CLINLS;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -65,10 +63,10 @@ public class TemplateProcess
     String extension;
 
     public TemplateProcess() {
-        plugins.registerCategory(CLINLS.getString("TemplateProcess.sourceModel"), SourceModel.class);
+        plugins.registerCategory(tr._("source model"), SourceModel.class);
         plugins.register("ini", VariableDefSource.class, this);
         plugins.register("csv", CSVDefSource.class, this);
-        plugins.registerCategory(CLINLS.getString("TemplateProcess.templateModel"), TemplateModel.class);
+        plugins.registerCategory(tr._("template model"), TemplateModel.class);
         plugins.register("ve", VariableExpandTemplate.class, this);
         plugins.register("gsp", GroovyTemplate.class, this);
     }
@@ -379,7 +377,7 @@ public class TemplateProcess
                 throws Exception {
             if (template == null) {
                 if (templateFile == null)
-                    throw new CLIException(CLINLS.getString("TemplateProcess.templateIsntSpecified"));
+                    throw new CLIException(tr._("template file isn\'t specified"));
                 template = templateFile.tooling()._for(StreamReading.class).readTextContents();
             }
             Map<String, Object> vars = (Map<String, Object>) context;
@@ -429,7 +427,7 @@ public class TemplateProcess
                 throws Exception {
             if (template == null) {
                 if (templateFile == null)
-                    throw new CLIException(CLINLS.getString("TemplateProcess.templateIsntSpecified"));
+                    throw new CLIException(tr._("template file isn\'t specified"));
                 templateFile.setPreferredCharset(inputEncoding);
                 template = templateFile.tooling()._for(StreamReading.class).readTextContents();
             }
@@ -449,14 +447,14 @@ public class TemplateProcess
                 return ve.compileAndEvaluate(template);
             } catch (CompilationFailedException e) {
                 String script = ve.getCompiledScript();
-                System.err.println(CLINLS.getString("TemplateProcess.compile"));
+                System.err.println(tr._("Compile: "));
                 System.err.println(script);
                 throw e;
             } catch (Throwable e) {
                 String script = ve.getCompiledScript();
-                System.err.println(CLINLS.getString("TemplateProcess.evaluate"));
+                System.err.println(tr._("Evaluate: "));
                 System.err.println(script);
-                System.err.println(CLINLS.getString("TemplateProcess.vars"));
+                System.err.println(tr._("Variables: "));
                 // TODO - object dumper
                 for (Entry<String, Object> ent : _vars.entrySet())
                     System.err.println(ent.getKey() + " = " + ent.getValue());

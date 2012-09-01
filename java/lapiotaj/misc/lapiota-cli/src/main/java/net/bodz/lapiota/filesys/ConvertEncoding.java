@@ -54,12 +54,12 @@ public class ConvertEncoding
                 CharsetDecoder dec = charset.newDecoder();
                 float avgcpb = dec.averageCharsPerByte();
                 float maxcpb = dec.maxCharsPerByte();
-                L.infof(CLINLS.getString("ConvertEncoding.decode_ff"), maxcpb, avgcpb);
+                L.infof(tr._(" dec(%.2f/%.2f)"), maxcpb, avgcpb);
                 if (charset.canEncode()) {
                     CharsetEncoder enc = charset.newEncoder();
                     float avgbpc = enc.averageBytesPerChar();
                     float maxbpc = enc.maxBytesPerChar();
-                    L.infof(CLINLS.getString("ConvertEncoding.encode_ff"), maxbpc, avgbpc);
+                    L.infof(tr._(" enc(%.2f/%.2f)"), maxbpc, avgbpc);
                 }
             }
             L.mesg("");

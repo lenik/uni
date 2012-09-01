@@ -1,7 +1,5 @@
 package net.bodz.lapiota.datafiles;
 
-import static net.bodz.lapiota.nls.CLINLS.CLINLS;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
@@ -40,13 +38,13 @@ public class GrepPatch
         inputEncoding = parameters().getInputEncoding();
         outputEncoding = parameters().getOutputEncoding();
         if (!inputEncoding.equals(outputEncoding))
-            throw new IllegalUsageException(CLINLS.getString("GrepPatch.diffInOut"));
+            throw new IllegalUsageException(tr._("input and output encoding should be same"));
     }
 
     @Override
     protected void doFileArgument(IFile file)
             throws Exception {
-        L.status(CLINLS.getString("GrepPatch._patch"), file);
+        L.status(tr._("[patch] "), file);
         int grepl = 0;
 
         String currentFileName = null;
@@ -65,7 +63,7 @@ public class GrepPatch
                 continue;
             int col = line.indexOf(':');
             if (col == -1) {
-                L.error(CLINLS.getString("GrepPatch.grepNoFilename"), filepos);
+                L.error(tr._("invalid grep format: no filename at "), filepos);
                 continue;
             }
             String fileName = line.substring(0, col);
@@ -73,7 +71,7 @@ public class GrepPatch
 
             col = line.indexOf(':');
             if (col == -1) {
-                L.error(CLINLS.getString("GrepPatch.grepNoLineNum"), filepos);
+                L.error(tr._("invalid grep format: no line number at "), filepos);
                 continue;
             }
             String lineno = line.substring(0, col);
@@ -82,7 +80,7 @@ public class GrepPatch
             try {
                 lno = Integer.parseInt(lineno);
             } catch (NumberFormatException e) {
-                L.error(CLINLS.getString("GrepPatch.badlLineNum"), lineno, "' at ", filepos);
+                L.error(tr._("illegal line number \'"), lineno, "' at ", filepos);
                 continue;
             }
             if (lno < 1) {

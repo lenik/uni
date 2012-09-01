@@ -1,7 +1,5 @@
 package net.bodz.lapiota.filesys;
 
-import static net.bodz.lapiota.nls.CLINLS.CLINLS;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -50,7 +48,7 @@ public class ZipMerge
     @Override
     protected void doFile(IFile file)
             throws IOException {
-        L.mesg(CLINLS.getString("ZipMerge.add"), file);
+        L.mesg(tr._("add "), file);
         ZipFile zipFile = new ZipFile(file);
         try {
             for (ZipEntry entry : Iterables.otp(zipFile.entries())) {
@@ -66,8 +64,8 @@ public class ZipMerge
                 InputStream entryIn = zipFile.getInputStream(entry);
                 InputStreamSource entrySource = new InputStreamSource(entryIn);
 
-                String title = CLINLS.getString("ZipMerge.__add") + outEntry.getName() + //
-                        " (" + entry.getSize() + CLINLS.getString("ZipMerge.bytes");
+                String title = tr._("  add ") + outEntry.getName() + //
+                        " (" + entry.getSize() + tr._(" bytes, ");
                 int lastPercent = 0;
                 long written = 0;
                 for (byte[] block : entrySource.tooling()._for(StreamReading.class).byteBlocks()) {

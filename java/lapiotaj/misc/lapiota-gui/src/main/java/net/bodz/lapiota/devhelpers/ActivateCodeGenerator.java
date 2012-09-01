@@ -1,7 +1,5 @@
 package net.bodz.lapiota.devhelpers;
 
-import static net.bodz.redist.obfuz.nls.ProtectNLS.ProtectNLS;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -75,7 +73,7 @@ public class ActivateCodeGenerator
 
         final Label hostIdLabel = new Label(holder, SWT.NONE);
         hostIdLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-        hostIdLabel.setText(ProtectNLS.getString("ActivateCodeGenerator.hostId"));
+        hostIdLabel.setText(tr._("Host ID:"));
 
         hostIdText = new Text(holder, SWT.BORDER);
         hostIdText.setText("Host ID");
@@ -109,7 +107,7 @@ public class ActivateCodeGenerator
 
         final Label targetStringLabel = new Label(holder, SWT.NONE);
         targetStringLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-        targetStringLabel.setText(ProtectNLS.getString("ActivateCodeGenerator.targetString"));
+        targetStringLabel.setText(tr._("Target String:"));
 
         targetStringCombo = new Combo(holder, SWT.BORDER);
         targetStringCombo.setText("Target String");
@@ -120,7 +118,7 @@ public class ActivateCodeGenerator
 
         final Label codeLabel = new Label(holder, SWT.NONE);
         codeLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-        codeLabel.setText(ProtectNLS.getString("ActivateCodeGenerator.activationCode"));
+        codeLabel.setText(tr._("Activation Code: "));
 
         codeText = new Text(holder, SWT.BORDER | SWT.READ_ONLY);
         codeText.setText("Code");
@@ -142,11 +140,11 @@ public class ActivateCodeGenerator
         buttons.setLayout(gridLayout_1);
 
         final Button generateButton = new Button(buttons, SWT.NONE);
-        generateButton.setText(ProtectNLS.getString("ActivateCodeGenerator.generate"));
+        generateButton.setText(tr._("&Generate"));
         generateButton.addSelectionListener(regenerate);
 
         final Button copyButton = new Button(buttons, SWT.NONE);
-        copyButton.setText(ProtectNLS.getString("ActivateCodeGenerator.copy"));
+        copyButton.setText(tr._("&Copy"));
         copyButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {

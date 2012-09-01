@@ -1,7 +1,5 @@
 package net.bodz.lapiota.crypt;
 
-import static net.bodz.lapiota.nls.CLINLS.CLINLS;
-
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.HashMap;
@@ -80,7 +78,7 @@ public class CRCSum
      */
     void errStatus() {
         if (mode != CHECK)
-            L.warn(CLINLS.getString("CRCSum.errModeOnlyVerify"));
+            L.warn(tr._("err mode is meaningful only when verifying checksums"));
         L.setLevel(LogLevel.ERROR, 0);
     }
 
@@ -91,7 +89,7 @@ public class CRCSum
      */
     void errWarn() {
         if (mode != CHECK)
-            L.warn(CLINLS.getString("CRCSum.errModeOnlyVerify"));
+            L.warn(tr._("err mode is meaningful only when verifying checksums"));
         L.setLevel(LogLevel.WARN, 0);
     }
 
@@ -123,8 +121,8 @@ public class CRCSum
             if (inst instanceof IKey)
                 ((IKey) inst).setKey((int) key);
             else
-                throw new UnsupportedOperationException(CLINLS.getString("CRCSum.5") + _class.getName()
-                        + CLINLS.getString("CRCSum.6"));
+                throw new UnsupportedOperationException(tr._("algorithm ") + _class.getName()
+                        + tr._(" doesn\'t support key"));
         return inst;
     }
 
@@ -169,9 +167,9 @@ public class CRCSum
         super._help(out);
         out.println();
 
-        out.println(CLINLS.getString("CRCSum.namedAlgs"));
+        out.println(tr._("Named Algorithms: "));
         for (String name : types.keySet())
-            out.printf(CLINLS.getString("CRCSum.algInfo_ss"), name, types.get(name));
+            out.printf(tr._("    %8s = %s\n"), name, types.get(name));
 
         out.flush();
     }
