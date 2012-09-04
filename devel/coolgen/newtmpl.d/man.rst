@@ -29,7 +29,7 @@
 :Id: $Id:$
 :Manual group: @_man_group@
 :Manual section: @_man_sect@
-:Version: (dev)
+:Version: @_man_version@
 
 
 SYNOPSIS
@@ -77,5 +77,7 @@ SEE ALSO
 
 BUGS
 ====
+
+None currently known. However, this implimentation of the @_man_name@ command was written by a computer hobbyist; the source code has not, as of @_man_version@, been reviewed by an experienced C programmer.
 
 Please report any bugs, problems, queries, experiences, etc. directly to the author.

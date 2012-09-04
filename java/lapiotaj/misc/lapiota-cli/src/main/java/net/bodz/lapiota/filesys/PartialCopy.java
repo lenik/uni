@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 
 import net.bodz.bas.c.java.io.TempFile;
+import net.bodz.bas.c.java.util.Arrays;
 import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
 import net.bodz.bas.cli.plugin.CLIPlugin;
 import net.bodz.bas.cli.skel.BasicCLI;
@@ -23,7 +23,6 @@ import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.meta.program.ProgramName;
 import net.bodz.bas.sio.IPrintOut;
-import net.bodz.bas.util.array.ArrayWrapper;
 import net.bodz.bas.util.primitive.IntMath;
 import net.bodz.lapiota.crypt.CRCSum.CRC32pgp;
 import net.bodz.lapiota.crypt.FindHash.Range;
@@ -99,7 +98,7 @@ public class PartialCopy
         if (src != null)
             throw new IllegalStateException(tr._("src is already set: ") + src);
         byte[] bytes = text.getBytes(encoding);
-        bytes = ArrayWrapper.wrap(bytes, bytes.length + 1).copyArray();
+        bytes = Arrays.append(bytes, (byte) 0); // add terminator.
         setSrcBytes(bytes);
     }
 

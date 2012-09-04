@@ -11,11 +11,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import net.bodz.bas.c.java.util.Arrays;
 import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
 import net.bodz.bas.c.java.util.TreeTextMap;
@@ -31,7 +31,6 @@ import net.bodz.bas.lang.ControlExit;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.bas.util.array.ArrayWrapper;
 import net.bodz.bas.vfs.CurrentDirectoryColo;
 
 /**
@@ -265,7 +264,7 @@ public class JavaShell
                 if (args.length == 1)
                     dump(name);
                 else {
-                    String[] expansion = ArrayWrapper.wrap(args).shift();
+                    String[] expansion = Arrays.shift(args).getSecond();
                     aliases.put(name, expansion);
                 }
             }
@@ -455,7 +454,7 @@ public class JavaShell
                 if (args.length == 1)
                     dumpEnv(name);
                 else
-                    args = ArrayWrapper.wrap(args).shift();
+                    args = Arrays.shift(args).getSecond();
                 env.put(name, StringArray.join(" ", args));
             }
             return 0;
