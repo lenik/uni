@@ -21,6 +21,7 @@ my $opt_start_version = '0';
 my $opt_major_size = 12;
 my $opt_minor_months = 1;
 my %opt_authors;
+my $opt_reverse = 0;
 
 sub _boot {
     GetOptions('q|quiet'        => sub { $LOGLEVEL-- },
@@ -32,6 +33,7 @@ sub _boot {
                'm|major-size=n'     => \$opt_major_size,
                'n|minor-months=n'   => \$opt_minor_months,
                'u|user=s'           => \%opt_authors,
+               'r|reverse'          => \$opt_reverse,
                )
         or exit(1);
     _main;
@@ -117,6 +119,8 @@ Versioning:
     -s, --start-version=VER The start version. Default 0
     -m, --major-size=NUM    How many minor versions in a major version
     -n, --minor-months=NUM  How many months in each minor version
+    -u, --user ID=NAME      Normalize user names
+    -r, --reverse           Output in reversed order
 EOM
 }
 
@@ -151,16 +155,12 @@ sub _main {
     my @dates = sort keys %$dmap;
     my $start_date = $dates[0];
 
-    my %versions;
     my $last_mm;    # major.minor prefix.
     my $release = 0;
-    my @group;
+    my $dver = {};
 
     for (@dates) {
         my $date = $_;
-        my $authors = $dauthors->{$date};
-        my $content = $dmap->{$date};
-
         my ($dy, $dm) = date_subtract($date, $start_date);
 
         my $months = $dy * 12 + $dm;
@@ -174,12 +174,22 @@ sub _main {
             $last_mm = $mm;
         }
 
-        print "$opt_title-$mm.$release ($authors, $date)\n";
-        print $content;
+        $dver->{$date} = "$mm.$release";
 
         $release++;
     }
 
+    @dates = reverse(@dates) if $opt_reverse;
+
+    for (@dates) {
+        my $date = $_;
+        my $authors = $dauthors->{$date};
+        my $content = $dmap->{$date};
+        my $ver = $dver->{$date};
+
+        print "$opt_title-$ver ($authors, $date)\n";
+        print $content;
+    }
 }
 
 =head1 DIAGNOSTICS
