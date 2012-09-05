@@ -1,0 +1,265 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+gitcl2 -
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'gitcl2'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: - @VERSION@ @DATE@ @TIME@ - $');
+use Getopt::Long;
+    Getopt::Long::Configure('gnu_getopt');
+
+sub _main; sub _version; sub _help;
+
+my $opt_title = 'Version';
+my $opt_start_version = '0';
+my $opt_major_size = 12;
+my $opt_minor_months = 1;
+my %opt_authors;
+
+sub _boot {
+    GetOptions('q|quiet'        => sub { $LOGLEVEL-- },
+               'v|verbose'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'h|help'         => sub { _help; exit 0 },
+               't|title=s'          => \$opt_title,
+               's|start-version=s'  => \$opt_start_version,
+               'm|major-size=n'     => \$opt_major_size,
+               'n|minor-months=n'   => \$opt_minor_months,
+               'u|user=s'           => \%opt_authors,
+               )
+        or exit(1);
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<gitcl2>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<gitcl2> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-gitcl2-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item Show help
+
+    gitcl2 --help
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -q, --quiet             Repeat to get less info
+    -v, --verbose           Repeat to get more info
+    -h, --help              Show this help page
+        --version           Print the version info
+
+Versioning:
+    -s, --start-version=VER The start version. Default 0
+    -m, --major-size=NUM    How many minor versions in a major version
+    -n, --minor-months=NUM  How many months in each minor version
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+
+    my $dmap = {};      # Date -> Commits
+    my $dauthors = {};  # Date -> Authors
+
+    my $date;
+    my $authors;
+    my $content = '';
+    while (<>) {
+        if (/^\[(\d+-\d+-\d+)\] (.*)$/) {
+            if (defined $date) {
+                $dmap->{$date} = $content;
+                $dauthors->{$date} = $authors;
+            }
+            $date = $1;
+            $authors = $2;
+
+            for (keys %opt_authors) {
+                $authors =~ s/$_/$opt_authors{$_}/g;
+            }
+            $content = '';
+            next;
+        }
+        $content .= $_;
+    }
+
+    my @dates = sort keys %$dmap;
+    my $start_date = $dates[0];
+
+    my %versions;
+    my $last_mm;    # major.minor prefix.
+    my $release = 0;
+    my @group;
+
+    for (@dates) {
+        my $date = $_;
+        my $authors = $dauthors->{$date};
+        my $content = $dmap->{$date};
+
+        my ($dy, $dm) = date_subtract($date, $start_date);
+
+        my $months = $dy * 12 + $dm;
+        my $minors = int($months / $opt_minor_months);
+        my $major = int($minors / $opt_major_size);
+        my $minor = $minors % $opt_major_size;
+
+        my $mm = version_add($opt_start_version, "$major.$minor");
+        if ($last_mm != $mm) {
+            $release = 0;
+            $last_mm = $mm;
+        }
+
+        print "$opt_title-$mm.$release ($authors, $date)\n";
+        print $content;
+
+        $release++;
+    }
+
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+sub date_subtract($$) {
+    my ($d1, $d2) = @_;
+    my ($y1, $m1, $d1) = split('-', $d1);
+    my ($y2, $m2, $d2) = split('-', $d2);
+    my $months = ($y1 - $y2) * 12 + $m1 - $m2;
+    my $dy = int($months / 12);
+    my $dm = $months % 12;
+    my $order = $dm * 100 + $d1 - $d2;
+    return ($dy, $dm, $order);
+}
+
+sub version_add($$) {
+    my ($v1, $v2) = @_;
+    my @a1 = split('\.', $v1);
+    my @a2 = split('\.', $v2);
+    my @add = ();
+    my $n1 = scalar(@a1);
+    my $n2 = scalar(@a2);
+
+    my $skip2 = 0;
+    for (my $i = 0; $i < $n2; $i++) {
+        if ($a2[$i] == 0) {
+            $skip2++;
+        } else {
+            last;
+        }
+    }
+
+    my $max = $n1 >= $n2 ? $n1 : $n2;
+    for (my $i = 0; $i < $max; $i++) {
+        my $e1 = $i < $n1 ? $a1[$i] : 0;
+        my $e2 = $i < $n2 ? $a2[$i] : 0;
+        if ($i < $skip2) {
+            push @add, $e1;
+        } elsif ($i == $skip2) {
+            push @add, $e1 + $e2;
+        } else {
+            push @add, $e2;
+        }
+    }
+    return join('.', @add);
+}
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Git ChangeLog with version numbers\n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Lenik (谢继雷) <xjl@99jsj.com>
+
+=cut

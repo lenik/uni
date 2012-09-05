@@ -5,6 +5,7 @@ dist_bin_SCRIPTS = \
     git-stitch-fix \
     git2svn \
     gitcl \
+    gitcl2 \
     gitmod \
     keepdirs \
     svn2gits
