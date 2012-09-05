@@ -1,0 +1,92 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] "
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] MODULE-DIR"
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ ! -d "$1" ]; then
+        help
+        return 1
+    fi
+
+    if [ ! -f ".usermap" ]; then
+        quit "No .usermap file found in current directory."
+    fi
+
+    usermap=()
+    usermapn=0
+    while read id name; do
+        if [ -z "$id" ] || [ -z "$name" ]; then
+            continue
+        fi
+        usermap[usermapn++]=-u
+        usermap[usermapn++]="$id=$name"
+    done < .usermap
+
+    MODULE="$1"
+    RESDIR=$MODULE/src/main/resources/META-INF
+
+    mkdir -p "$RESDIR"
+
+    VERSION_FILE=$RESDIR/version
+    CHANGELOG=$RESDIR/changelog
+    VERLOG=$RESDIR/verlog
+
+    _log1 "Generate ChangeLog from Git Log..."
+    gitcl -v . >$CHANGELOG
+
+    _log1 "Generate ChangeLog with version numbers..."
+    _log2 Usermap: "${usermap[@]}"
+    gitcl2 -t "SEM" -r "${usermap[@]}" -m 10 -n 1 -r <$CHANGELOG >$VERLOG
+
+    read nver _ <$VERLOG
+        name="${nver%-*}"
+        ver="${nver##*-}"
+        _log1 Package-Name: $name
+        _log1 Package-Version: $ver
+
+    _log1 "Generate simple version file"
+        echo $ver >$VERSION_FILE
+
+    _log1 "Get total commit count"
+        read LINES WORDS CHARS < <(vcscmd log-graph | wc)
+        echo $LINES >>$VERSION_FILE
+}
+
+boot "$@"

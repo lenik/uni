@@ -12,6 +12,7 @@ dist_bin_SCRIPTS = \
     coolmvn \
     edit2 \
     epom \
+    git-m2ver \
     newmod \
     m2graph \
     m2help \

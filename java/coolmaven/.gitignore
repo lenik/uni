@@ -2,6 +2,7 @@ archetypes
 bash_completion.d/newmp
 edit2
 get-common-prefix
+git-m2ver
 jetty
 m2graph
 m2help
