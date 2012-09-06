@@ -41,28 +41,55 @@ function setopt() {
     esac
 }
 
+_date=
+declare -A author_stat
+declare -a commits
+
 function main() {
-    git log --no-merges --format="%cd" --date=short "$dir" \
-            | sort -u -r | while read DATE ; do
+    dir=.
+    if [ -n "$1" ]; then
+        dir="$1"
+    fi
 
-        daylog=(git log --no-merges --since="$DATE 00:00:00" --until="$DATE 24:00:00")
+    while IFS='|' read -r date author mesg ; do
 
-        echo
-        echo -n [$DATE]
+        if [ "$_date" != "$date" ]; then
+            commit
+            _date="$date"
+        fi
 
-        first=1
-        "${daylog[@]}" --format="%an" "$dir" | sort | uniq -i | while read author; do
-            if [ "$first" = 1 ]; then
-                echo -n " $author"
-                first=0
-            else
-                echo -n ", $author"
-            fi
+        (( author_stat["$author"]++ ))
+        commits[ncommit++]="$mesg"
+
+    done < <( git log --no-merges --format="%ad|%an|%s" --date=short "$dir" )
+
+    commit
+}
+
+function commit() {
+    local tab authors author count
+    local commit
+    if [ -n "$_date" ]; then
+
+        authors=
+        while IFS=, read count author; do
+            authors="$authors, $author"
+        done < <(
+                for author in "${!author_stat[@]}"; do
+                    echo "${author_stat[$author]},$author"
+                done | sort -n -r
+            )
+        echo -E "[$_date] ${authors#, }"
+
+        for commit in "${commits[@]}"; do
+            echo -E "	* $commit"
         done
         echo
-
-        "${daylog[@]}" --format="	* %s" "$dir"
-    done
+    fi
+    _date=
+    commits=()
+    ncommit=0
+    author_stat=()
 }
 
 boot "$@"
