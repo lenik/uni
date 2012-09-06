@@ -2,8 +2,10 @@
     . shlib-import cliboot
 
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="hqv"
-    long_opts="help,quiet,verbose,version"
+    short_opts="t:hqv"
+    long_opts="title:,help,quiet,verbose,version"
+
+    title=
 
 function version() {
     parse_id "$RCSID"
@@ -18,6 +20,7 @@ function help() {
     echo "    $0 [OPTION] [--] MODULE-DIR"
     echo
     echo "Options: "
+    echo "    -t, --title=TITLE       Specify the package title"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
@@ -26,6 +29,8 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -t|--title)
+            title="$2";;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -47,6 +52,10 @@ function main() {
 
     if [ ! -f ".usermap" ]; then
         quit "No .usermap file found in current directory."
+    fi
+
+    if [ -z "$title" ]; then
+        title="${PWD##*/}"
     fi
 
     usermap=()
@@ -73,7 +82,7 @@ function main() {
 
     _log1 "Generate ChangeLog with version numbers..."
     _log2 Usermap: "${usermap[@]}"
-    gitcl2 -t "SEM" -r "${usermap[@]}" -m 10 -n 1 -r <$CHANGELOG >$VERLOG
+    gitcl2 -t "$title" -r "${usermap[@]}" -m 10 -n 1 -r <$CHANGELOG >$VERLOG
 
     read nver _ <$VERLOG
         name="${nver%-*}"
