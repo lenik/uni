@@ -11,7 +11,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.dom4j.*;
+import org.dom4j.Attribute;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.Node;
+import org.dom4j.XPath;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
@@ -24,10 +29,10 @@ import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.IPrintOut;
-import net.bodz.bas.traits.AbstractParser;
-import net.bodz.bas.traits.IParser;
 import net.bodz.bas.util.Pair;
+import net.bodz.bas.util.order.EntryKeyComparator;
 import net.bodz.lapiota.util.StringUtil;
+import net.bodz.lapiota.util.TypeExtensions.XPathParser;
 
 /**
  * Simple XML document batch editor
@@ -76,34 +81,11 @@ public class XMLEdit
         escaping = !escaping;
     }
 
-    class XpathParser
-            implements IParser<XPath> {
-        @Override
-        public XPath parse(String xpath)
-                throws ParseException {
-            xpath = StringUtil.unescape(escaping, xpath);
-            if (document != null)
-                return document.createXPath(xpath);
-            return docfac.createXPath(xpath);
-        }
-    }
-
-    private XpathParser xpathParser = new XpathParser();
-
-    private DocumentFactory docfac;
     private File docfile;
     private Document document;
+    private XPathParser xpathParser = new XPathParser();
 
     public XMLEdit() {
-        docfac = DocumentFactory.getInstance();
-
-        TypeParsers.register(XPath.class, new AbstractParser<XPath>() {
-            @Override
-            public XPath parse(String text)
-                    throws ParseException {
-                return xpathParser.parse(text);
-            }
-        });
     }
 
     protected Document getDocument() {
@@ -139,7 +121,6 @@ public class XMLEdit
     /**
      * @option -s =XPATH
      */
-    @SuppressWarnings("unchecked")
     protected void selectXpath(XPath xpath) {
         selection = xpath.selectNodes(getDocument());
     }
@@ -147,7 +128,6 @@ public class XMLEdit
     /**
      * @option -S =XMLFRAG
      */
-    @SuppressWarnings("unchecked")
     protected void selectXML(String xmldoc)
             throws DocumentException {
         xmldoc = StringUtil.unescape(escaping, xmldoc);
@@ -205,7 +185,6 @@ public class XMLEdit
      *
      * @option -i =XPATH
      */
-    @SuppressWarnings("unchecked")
     protected void insertBefore(XPath xpath)
             throws DocumentException {
         List<Node> argnodes = xpath.selectNodes(getDocument());
@@ -228,7 +207,6 @@ public class XMLEdit
      *
      * @option -I =XPATH
      */
-    @SuppressWarnings("unchecked")
     protected void insertAfter(XPath xpath)
             throws DocumentException {
         List<Node> argnodes = xpath.selectNodes(getDocument());
@@ -251,7 +229,6 @@ public class XMLEdit
      *
      * @option -c =XPATH
      */
-    @SuppressWarnings("unchecked")
     protected void insertChild(XPath xpath) {
         List<Node> argnodes = xpath.selectNodes(getDocument());
         for (Node arg : argnodes) {
@@ -268,7 +245,6 @@ public class XMLEdit
      *
      * @option -d =XPATH
      */
-    @SuppressWarnings("unchecked")
     protected void delete(XPath xpath) {
         List<Node> argnodes = xpath.selectNodes(getDocument());
         for (Node arg : argnodes)
@@ -287,7 +263,6 @@ public class XMLEdit
      *
      * @option -t =XPATH
      */
-    @SuppressWarnings("unchecked")
     protected void sort(XPath xpath) {
         List<Node> argnodes = xpath.selectNodes(getDocument());
         if (argnodes.size() <= 1)
@@ -326,7 +301,6 @@ public class XMLEdit
             sortNodes(lastParent, group);
     }
 
-    @SuppressWarnings("unchecked")
     protected void sortNodes(Element parent, List<Node> nodes) {
         if (orderBy == null)
             try {
@@ -349,7 +323,7 @@ public class XMLEdit
             pairs.add(pair);
         }
 
-        Collections.sort(pairs, Comparators.PAIRK);
+        Collections.sort(pairs, EntryKeyComparator.<String, Node> getNaturalInstance());
 
         List<Node> siblings = parent.elements();
         for (Pair<String, Node> pair : pairs) {

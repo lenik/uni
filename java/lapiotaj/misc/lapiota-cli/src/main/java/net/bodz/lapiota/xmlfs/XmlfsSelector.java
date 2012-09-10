@@ -50,12 +50,11 @@ public class XmlfsSelector
      */
     protected OutputFormat outputFormat = OutputFormat.createPrettyPrint();
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void doFileArgument(IFile root)
             throws Exception {
         XmlfsDocument doc = new XmlfsDocument(root);
-        List list = select.selectNodes(doc);
+        List<?> list = select.selectNodes(doc);
         for (Object o : list) {
             if (o instanceof Node) {
                 OutputStream out = System.out;

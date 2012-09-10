@@ -28,6 +28,7 @@ import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 
 import net.bodz.bas.c.java.io.FilePath;
+import net.bodz.bas.c.java.util.regex.PatternTraits;
 import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
 import net.bodz.bas.cli.plugin.CLIPlugin;
 import net.bodz.bas.cli.skel.BatchEditCLI;
@@ -37,6 +38,7 @@ import net.bodz.bas.io.resource.builtin.InputStreamSource;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.meta.lang.TypeParameter;
 import net.bodz.bas.meta.program.ProgramName;
 import net.bodz.bas.util.iter.Iterables;
 import net.bodz.bas.vfs.IFile;
@@ -515,14 +517,14 @@ public class PackageFragmentsProcess
          *
          * @option =WILDCARDS
          */
-        @ParseBy(GlobParser.class)
+        @TypeParameter(id = PatternTraits.textformMode, value = PatternTraits.globTextformMode)
         Pattern includeFile;
         /**
          * exclude these filenames
          *
          * @option =WILDCARDS
          */
-        @ParseBy(GlobParser.class)
+        @TypeParameter(id = PatternTraits.textformMode, value = PatternTraits.globTextformMode)
         Pattern excludeFile;
 
         /**

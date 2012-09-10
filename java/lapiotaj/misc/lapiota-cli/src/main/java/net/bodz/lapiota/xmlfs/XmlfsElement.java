@@ -1,6 +1,5 @@
 package net.bodz.lapiota.xmlfs;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,21 +9,21 @@ import org.dom4j.Element;
 import org.dom4j.QName;
 import org.dom4j.tree.AbstractElement;
 
-import net.bodz.bas.vfs.FileMaskedModifiers;
+import net.bodz.bas.vfs.FileModifier;
 import net.bodz.bas.vfs.IFile;
+import net.bodz.bas.vfs.VFSException;
 
-@SuppressWarnings("unchecked")
 public class XmlfsElement
         extends AbstractElement {
 
-    private static final long serialVersionUID = -6930383484711901118L;
+    private static final long serialVersionUID = 1L;
 
     protected Document document;
     protected Element parent;
     protected IFile file;
     protected QName qName;
     protected List<Attribute> attributes;
-    protected List content;
+    protected List<Object> content;
 
     public XmlfsElement(Document document, IFile file) {
         assert file != null;
@@ -93,7 +92,8 @@ public class XmlfsElement
 
                 @Override
                 public String getValue() {
-                    return String.valueOf(FileMaskedModifiers.format(file));
+                    int modifiers = file.getModifiers();
+                    return String.valueOf(FileModifier.format(modifiers));
                 }
             });
         }
@@ -113,11 +113,15 @@ public class XmlfsElement
     @Override
     protected List contentList() {
         if (content == null) {
-            content = new ArrayList();
+            content = new ArrayList<Object>();
             if (file.isTree()) {
-                for (File child : file.listFiles()) {
-                    XmlfsElement e = new XmlfsElement(this, child);
-                    content.add(e);
+                try {
+                    for (IFile childFile : file.listChildren()) {
+                        XmlfsElement e = new XmlfsElement(this, childFile);
+                        content.add(e);
+                    }
+                } catch (VFSException e) {
+                    throw new RuntimeException(e.getMessage(), e);
                 }
             }
             XmlfsDocument doc = (XmlfsDocument) getDocument();
@@ -137,7 +141,7 @@ public class XmlfsElement
     @Override
     public void clearContent() {
         if (content == null)
-            content = new ArrayList();
+            content = new ArrayList<Object>();
         else
             content.clear();
     }

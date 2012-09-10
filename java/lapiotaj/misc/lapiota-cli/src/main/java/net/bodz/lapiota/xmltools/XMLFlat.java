@@ -24,6 +24,7 @@ import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.IPrintOut;
 import net.bodz.bas.sio.PrintStreamPrintOut;
 import net.bodz.bas.sio.Stdio;
+import net.bodz.bas.util.order.TableOrderComparator;
 import net.bodz.lapiota.util.StringUtil;
 
 /**
@@ -184,7 +185,7 @@ public class XMLFlat
         }
 
         if (sortColumns != null) {
-            Collections.sort(table, Comparators.array(sortColumns));
+            Collections.sort(table, new TableOrderComparator(sortColumns));
         }
 
         if (caption) {

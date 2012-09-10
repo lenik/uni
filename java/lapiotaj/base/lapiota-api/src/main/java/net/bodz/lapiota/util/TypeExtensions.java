@@ -2,6 +2,7 @@ package net.bodz.lapiota.util;
 
 import java.io.File;
 
+import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.XPath;
 import org.dom4j.io.OutputFormat;
@@ -9,6 +10,8 @@ import org.dom4j.io.OutputFormat;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.err.OutOfDomainException;
 import net.bodz.bas.err.ParseException;
+import net.bodz.bas.lang.negotiation.INegotiation;
+import net.bodz.bas.lang.negotiation.MandatoryException;
 import net.bodz.bas.snm.abc.ModulesRoot;
 import net.bodz.bas.traits.AbstractParser;
 
@@ -31,10 +34,24 @@ public class TypeExtensions {
             extends AbstractParser<XPath> {
 
         @Override
-        public XPath parse(String xpath)
+        public XPath parse(String xpathExpr)
                 throws ParseException {
             DocumentFactory factory = DocumentFactory.getInstance();
-            return factory.createXPath(xpath);
+            return factory.createXPath(xpathExpr);
+        }
+
+        @Override
+        public XPath parse(String xpathExpr, INegotiation negotiation)
+                throws ParseException, MandatoryException {
+            Document document = (Document) negotiation.getParameter(Document.class);
+            Boolean escaped = negotiation.get("escaped");
+            if (escaped == Boolean.TRUE)
+                xpathExpr = StringUtil.unescape(xpathExpr);
+            if (document == null) {
+                DocumentFactory factory = DocumentFactory.getInstance();
+                return factory.createXPath(xpathExpr);
+            } else
+                return document.createXPath(xpathExpr);
         }
 
     }
