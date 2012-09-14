@@ -22,6 +22,12 @@ my $opt_major_size = 12;
 my $opt_minor_months = 1;
 my %opt_authors;
 my $opt_reverse = 0;
+my $opt_tex = 0;
+my $opt_tex_vername = 'Version';
+my $opt_tex_datename = 'Date';
+my $opt_tex_logname = 'Change Log';
+my $opt_tex_logwidth = '10cm';
+my $opt_tex_logstyle = '';
 
 sub _boot {
     GetOptions('q|quiet'        => sub { $LOGLEVEL-- },
@@ -34,6 +40,12 @@ sub _boot {
                'n|minor-months=n'   => \$opt_minor_months,
                'u|user=s'           => \%opt_authors,
                'r|reverse'          => \$opt_reverse,
+               'T|TeX'              => \$opt_tex,
+               'Tv|TeX-version-name=s'  => \$opt_tex_vername,
+               'Td|TeX-date-name=s'     => \$opt_tex_datename,
+               'Tl|TeX-log-name=s'      => \$opt_tex_logname,
+               'Tw|TeX-log-width=s'     => \$opt_tex_logwidth,
+               'Ts|TeX-log-style=s'     => \$opt_tex_logstyle,
                )
         or exit(1);
     _main;
@@ -121,6 +133,12 @@ Versioning:
     -n, --minor-months=NUM  How many months in each minor version
     -u, --user ID=NAME      Normalize user names
     -r, --reverse           Output in reversed order
+    -T, --TeX               Output TeX script
+    --Tv, --TeX-version-name    Default 'Version'
+    --Td, --TeX-date-name       Default 'Date'
+    --Tl, --TeX-log-name        Default 'Change Log'
+    --Tw, --TeX-log-width       Default '10cm'
+    --Ts, --TeX-log-style       Default '', e.g. set to '\small' to get smaller font.
 EOM
 }
 
@@ -128,16 +146,19 @@ exit (_boot or 0);
 
 sub _main {
 
-    my $dmap = {};      # Date -> Commits
+    my $dmap = {};      # Date -> [Commits]
     my $dauthors = {};  # Date -> Authors
 
     my $date;
     my $authors;
-    my $content = '';
+    my @commits;
     while (<>) {
+        chomp;
+        next if ($_ eq '');
+
         if (/^\[(\d+-\d+-\d+)\] (.*)$/) {
             if (defined $date) {
-                $dmap->{$date} = $content;
+                $dmap->{$date} = [@commits];
                 $dauthors->{$date} = $authors;
             }
             $date = $1;
@@ -146,10 +167,12 @@ sub _main {
             for (keys %opt_authors) {
                 $authors =~ s/$_/$opt_authors{$_}/g;
             }
-            $content = '';
+            @commits=();
             next;
         }
-        $content .= $_;
+
+        s/^\s+\*\s+//;
+        push @commits, $_;
     }
 
     my @dates = sort keys %$dmap;
@@ -181,14 +204,70 @@ sub _main {
 
     @dates = reverse(@dates) if $opt_reverse;
 
-    for (@dates) {
-        my $date = $_;
+    if ($opt_tex) {
+        print <<EOT
+\\begin{longtable}{c|c|>{$opt_tex_logstyle}p{$opt_tex_logwidth}}
+    \\toprule
+    $opt_tex_vername & $opt_tex_datename & \\multicolumn{1}{c}{$opt_tex_logname} \\\\
+    \\midrule
+EOT
+    }
+
+    for(my $di = 0; $di < scalar(@dates); $di++) {
+        my $date = $dates[$di];
         my $authors = $dauthors->{$date};
-        my $content = $dmap->{$date};
         my $ver = $dver->{$date};
 
-        print "$opt_title-$ver ($authors, $date)\n";
-        print $content;
+        if ($opt_tex) {
+            # print "% $opt_title-$ver ($authors, $date)\n";
+        } else {
+            print "$opt_title-$ver ($authors, $date)\n";
+        }
+
+        my $list = $dmap->{$date};
+        my $n = scalar(@$list);
+        my $li = 0;
+        for (@$list) {
+            if ($opt_tex) {
+                if ($li == 0) {
+                    print "    \\multirow{$n}{*}{$opt_title-$ver} & \\multirow{$n}{*}{$date} & ";
+                } else {
+                    print "    & & ";
+                }
+
+                s/\\/\\textbackslash{}/g;
+                s/([\$%_{}&#])/\\\1/g;
+                print "$_ \\\\";
+
+                if ($li == scalar(@$list) - 1) { # if the last commit line in the ver
+                    if ($di != $#dates) { # if has next ver.
+                        my $nextdate = $dates[$di + 1];
+                        my $nextver = $dver->{$nextdate};
+                        my ($thismaj, $thismin) = split(/\./, $ver);
+                        my ($nextmaj, $nextmin) = split(/\./, $nextver);
+                        if ($nextmaj != $thismaj) {
+                            print " \\midrule";
+                        } elsif ($nextmin != $thismin) {
+                            print " \\hline";
+                        } else {
+                            print " \\hline";
+                        }
+                    }
+                }
+                print "\n";
+            } else {
+                print "\t* $_\n";
+            }
+            $li++;
+        } # for commits
+        print "\n";
+    }
+
+    if ($opt_tex) {
+        print <<EOT
+    \\bottomrule
+\\end{longtable}
+EOT
     }
 }
 
