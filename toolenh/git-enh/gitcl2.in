@@ -27,7 +27,10 @@ my $opt_tex_vername = 'Version';
 my $opt_tex_datename = 'Date';
 my $opt_tex_logname = 'Change Log';
 my $opt_tex_logwidth = '10cm';
-my $opt_tex_logstyle = '';
+my $opt_tex_bullet = '\circ';
+my $opt_tex_style = '>{\tt}c|c|>{\sl}p{10cm}';
+my $opt_tex_header = '';
+my $opt_tex_footer = '';
 
 sub _boot {
     GetOptions('q|quiet'        => sub { $LOGLEVEL-- },
@@ -45,7 +48,10 @@ sub _boot {
                'Td|TeX-date-name=s'     => \$opt_tex_datename,
                'Tl|TeX-log-name=s'      => \$opt_tex_logname,
                'Tw|TeX-log-width=s'     => \$opt_tex_logwidth,
-               'Ts|TeX-log-style=s'     => \$opt_tex_logstyle,
+               'Ts|TeX-style=s'         => \$opt_tex_style,
+               'Tb|TeX-bullet=s'        => \$opt_tex_bullet,
+               'Th|TeX-header=s'        => \$opt_tex_header,
+               'Tf|TeX-footer=s'        => \$opt_tex_footer,
                )
         or exit(1);
     _main;
@@ -134,17 +140,23 @@ Versioning:
     -u, --user ID=NAME      Normalize user names
     -r, --reverse           Output in reversed order
     -T, --TeX               Output TeX script
-    --Tv, --TeX-version-name    Default 'Version'
-    --Td, --TeX-date-name       Default 'Date'
-    --Tl, --TeX-log-name        Default 'Change Log'
-    --Tw, --TeX-log-width       Default '10cm'
-    --Ts, --TeX-log-style       Default '', e.g. set to '\small' to get smaller font.
+    --Tv, --TeX-version-name=*  Default 'Version'
+    --Td, --TeX-date-name=*     Default 'Date'
+    --Tl, --TeX-log-name=*      Default 'Change Log'
+    --Tw, --TeX-log-width=*     Default '10cm'
+    --Ts, --TeX-style=*         Default '$opt_tex_style'
+    --Tb, --TeX-bullet=*        Bullet symbol prepend to the message. Default \circ.
+    --Th, --TeX-header=*        longtable header
+    --Tf, --TeX-footer=*        longtable footer
 EOM
 }
 
 exit (_boot or 0);
 
 sub _main {
+    if ($opt_title ne '') {
+        $opt_title .= '-';
+    }
 
     my $dmap = {};      # Date -> [Commits]
     my $dauthors = {};  # Date -> Authors
@@ -206,7 +218,8 @@ sub _main {
 
     if ($opt_tex) {
         print <<EOT
-\\begin{longtable}{c|c|>{$opt_tex_logstyle}p{$opt_tex_logwidth}}
+\\begin{longtable}{$opt_tex_style}
+    $opt_tex_header
     \\toprule
     $opt_tex_vername & $opt_tex_datename & \\multicolumn{1}{c}{$opt_tex_logname} \\\\
     \\midrule
@@ -219,9 +232,9 @@ EOT
         my $ver = $dver->{$date};
 
         if ($opt_tex) {
-            # print "% $opt_title-$ver ($authors, $date)\n";
+            # print "% $opt_title$ver ($authors, $date)\n";
         } else {
-            print "$opt_title-$ver ($authors, $date)\n";
+            print "$opt_title$ver ($authors, $date)\n";
         }
 
         my $list = $dmap->{$date};
@@ -230,14 +243,14 @@ EOT
         for (@$list) {
             if ($opt_tex) {
                 if ($li == 0) {
-                    print "    \\multirow{$n}{*}{$opt_title-$ver} & \\multirow{$n}{*}{$date} & ";
+                    print "    \\multirow{$n}{*}{$opt_title$ver} & \\multirow{$n}{*}{$date} & ";
                 } else {
                     print "    & & ";
                 }
 
                 s/\\/\\textbackslash{}/g;
                 s/([\$%_{}&#])/\\\1/g;
-                print "$_ \\\\";
+                print "$opt_tex_bullet $_ \\\\";
 
                 if ($li == scalar(@$list) - 1) { # if the last commit line in the ver
                     if ($di != $#dates) { # if has next ver.
@@ -248,7 +261,7 @@ EOT
                         if ($nextmaj != $thismaj) {
                             print " \\midrule";
                         } elsif ($nextmin != $thismin) {
-                            print " \\hline";
+                            print " \\midrule";
                         } else {
                             print " \\hline";
                         }
@@ -266,9 +279,12 @@ EOT
     if ($opt_tex) {
         print <<EOT
     \\bottomrule
+    $opt_tex_footer
 \\end{longtable}
 EOT
     }
+
+    return 0;
 }
 
 =head1 DIAGNOSTICS
