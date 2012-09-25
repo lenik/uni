@@ -1,0 +1,91 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="nfhqv"
+    long_opts="no-act,force,help,quiet,verbose,version"
+
+    force=
+    no_act=
+    renopts=()
+    renoptn=0
+    perlexpr=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Rename filenames in all subdirs"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] perlexpr"
+    echo
+    echo "Options: "
+    echo "    -n, --no-act            No action, show what files would have been renamed"
+    echo "    -f, --force             Overwrite existing files."
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Print names of files successfully renamed."
+    echo "    -n, --quiet             Repeat to get less info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -f|--force)
+            renopts[renoptn++]=--force
+            force=1;;
+        -n|--no-act)
+            renopts[renoptn++]=--no-act
+            no_act=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $LOGLEVEL -ge 2 ]; then
+        renopts[renoptn++]=--verbose
+    fi
+
+    if [ -z "$1" ]; then
+        quit "perlexpr isn't specified."
+    else
+        perlexpr="$1"
+    fi
+
+    _log2 "rename options: ${renopts[@]} '$perlexpr' *"
+
+    ren-dir .
+
+    echo Done.
+}
+
+function ren-dir() {
+    local dir="$1"
+
+    _log2 "Process directory: $dir"
+    local last="$PWD"
+    cd "$dir" && rename "${renopts[@]}" "$perlexpr" *
+    cd "$last"
+
+    local sub
+    for sub in "$dir"/*; do
+        if [ -d "$sub" ]; then
+            ren-dir "$sub"
+        fi
+    done
+}
+
+boot "$@"

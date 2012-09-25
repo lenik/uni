@@ -11,7 +11,8 @@ dist_bin_SCRIPTS = \
     symfl \
     symflatten \
     mv-p \
-    rename-p \
+    ren-mkdirs \
+    ren-r \
     coolmore \
     tourl
 
@@ -31,4 +32,4 @@ CLEANFILES = ${setup_SCRIPTS}
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); \
-		$(LN_S) enfile disfile
+        $(LN_S) enfile disfile
