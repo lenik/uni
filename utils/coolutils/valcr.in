@@ -1,0 +1,76 @@
+#!/bin/bash
+    . shlib
+    import cliboot
+    import float
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="i:c:hqv"
+    long_opts="interval:,command:,help,quiet,verbose,version"
+
+    SLEEPENH=sleepenh
+
+    cmdspec=
+    interval=1
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Monitor a single variable and show its change per second"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -i, --interval=SECONDS  Interval in seconds, default 1"
+    echo "    -c, --command=CMDSPEC   Get the current value by shell command"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -i|--interval)
+            interval="$2";;
+        -c|--command)
+            cmdspec="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    last=0
+
+    while true; do
+        if [ -z "$cmdspec" ]; then
+            if ! read val; then
+                return 0
+            fi
+        else
+            if ! val=`sh -c "$cmdspec"`; then
+                return 1
+            fi
+        fi
+
+        d=$( float_eval "($val - $last) / $interval" )
+        last="$val"
+        echo "$d"  #EOL?
+        $SLEEPENH "$interval" >/dev/null
+    done
+}
+
+boot "$@"

@@ -3,7 +3,10 @@ include libauto/coolauto.am
 colldir = /var/lib
 
 AM_CPPFLAGS  = $(GLIB_CFLAGS)
-valsum_LDADD = $(GLIB_LIBS)
+
+%.c: %.c.in
+	$(do_subst) $< >$@
+#valsum_LDADD = $(GLIB_LIBS)
 
 bin_PROGRAMS = \
     uc \
@@ -12,20 +15,25 @@ bin_PROGRAMS = \
 #    valsum
 
 dist_bin_SCRIPTS = \
-    which2 \
-    whichother \
-    hm \
-    hm-subhist \
     collect-copy \
-    kill-all
+    htmldoc-man \
+    htmldoc-histgram \
+    kill-all \
+    timestamp \
+    valcr \
+    which2 \
+    whichother
 
 dist_bashcmpl_DATA = \
-    bash_completion.d/hm
+    bash_completion.d/coolutils.sh
+
+dist_aliases_DATA = \
+    bash_aliases.d/coolutils.sh
 
 dist_man_MANS = \
     uc.1 \
-    hm.1 \
-    collect-copy.1
+    collect-copy.1 \
+    htmldoc-man.1
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); \

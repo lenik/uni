@@ -2,13 +2,13 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([coolutils], [0.5.2], [xjl-bug@99jsj.com])
+AC_INIT([coolutils], [0.8.0], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 AC_CONFIG_SRCDIR([uc.c])
 
 # Checks for programs.
-AC_PROG_LN_S
 AC_PROG_CC
+AC_PROG_LN_S
 
 # Checks for libraries.
 PKG_CHECK_MODULES([GLIB], [glib-2.0])
