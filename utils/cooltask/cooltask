@@ -1,6 +1,6 @@
 # -*- bash -*-
 # vim: filetype=sh
-#
+
 _cooltask()
 {
     local args=()
@@ -18,4 +18,4 @@ _cooltask()
 
     COMPREPLY=($( cooltask_list "${args[@]}" ))
 } &&
-complete -F _cooltask T TO
+complete -F _cooltask T T.

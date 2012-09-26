@@ -1,14 +1,11 @@
 . shlib-import findabc
 
-[ -z "$COOLTASK_HOME" ] && COOLTASK_HOME=~/tasks
-
-export COOLTASK_HOME
-
-function cooltask() {
-    local d="$COOLTASK_HOME"
+function findcont() {
+    local d="$1" # root dir
     local n
     local cd
 
+    shift
     if [ $# = 0 ] || [ "$1" = '-l' ]; then
         shift
         cooltask_list "$@"
@@ -21,7 +18,7 @@ function cooltask() {
     fi
 
     while [ $# -ge 2 ]; do
-        if ! d=`findabc -p "$1" "$d"`; then
+        if ! d=`findabc -ap "$1" "$d"`; then
             echo "Failed to find $1 (in $d)" >&2
             return 1
         fi
@@ -29,13 +26,16 @@ function cooltask() {
     done
 
     if [ "$cd" = 1 ]; then
-        findabc "$1/" "$d"
+        findabc -a "$1/" "$d"
     else
-        findabc -p "$1" "$d"
+        findabc -ap "$1" "$d"
     fi
 }
 
-alias T='cooltask'
-alias TO='cooltask -C'
+# Using `T <job-class> <job-id>` for `J` and `Jwhich`.
+alias T='findcont %cooltask -C'
+#alias J='findcont %cooljob -C'
+alias T.='findcont %cooltask'
+#alias Jwhich='findcont %cooljob'
 
 alias Q='qlog'
