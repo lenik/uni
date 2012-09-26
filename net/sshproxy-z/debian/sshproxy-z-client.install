@@ -1,3 +1,4 @@
+/usr/bin/srs
 /etc/init/sshproxy.conf
 /home/sshproxy/.ssh/id_rsa
 /usr/share/setup/sshproxy-z/postinst-client.sh

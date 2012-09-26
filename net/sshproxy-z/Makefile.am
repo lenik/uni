@@ -7,6 +7,9 @@ do_subst += \
 homedir    = /home/sshproxy
 sshconfdir = ${homedir}/.ssh
 
+dist_bin_SCRIPTS = \
+    srs
+
 sshconf_DATA = \
     authorized_keys \
     id_rsa
