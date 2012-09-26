@@ -1,0 +1,63 @@
+/**
+    You should add following contents to auto tools:
+
+    configure.ac:
+        PKG_CHECK_MODULES([GLIB], [glib-2.0])
+        AC_HEADER_STDC
+        AC_CHECK_HEADERS([stdlib.h])
+        AC_CHECK_FUNCS([strchr])
+        AC_CHECK_FUNCS([strtol])
+        AC_FUNC_ERROR_AT_LINE
+
+    Makefile.am:
+        AM_CPPFLAGS = ${GLIB_CFLAGS}
+        <program>_LDADD = $(GLIB_LIBS)
+ */
+#include "config.h"
+
+#define RCS_ID      "$Id: - @VERSION@ @DATE@ @TIME@ - $"
+#define DESCRIPTION ""
+
+#include <cprog.h>
+
+int opt_count = 1;
+char *opt_sep = "|";
+
+static GOptionEntry options[] = {
+    { "count",     'c', 0, G_OPTION_ARG_INT, &opt_count,
+      "Count of lines to fold to single line", },
+
+    { "delim",     'd', 0, G_OPTION_ARG_STRING, &opt_sep,
+      "Char to delimit fields", },
+
+    { "force",     'f', 0, G_OPTION_ARG_NONE, &opt_force,
+      "Force to continue", },
+
+    { "quiet",     'q', G_OPTION_FLAG_NO_ARG,
+      G_OPTION_ARG_CALLBACK, set_verbose_arg,
+      "Show less verbose info", },
+
+    { "verbose",   'v', G_OPTION_FLAG_NO_ARG,
+      G_OPTION_ARG_CALLBACK, set_verbose_arg,
+      "Show more verbose info", },
+
+    { "version",   '\0', G_OPTION_FLAG_NO_ARG,
+      G_OPTION_ARG_CALLBACK, show_version,
+      "Show version info", },
+
+    { G_OPTION_REMAINING, '\0', 0, G_OPTION_ARG_FILENAME_ARRAY, &opt_files,
+      "FILES", },
+
+    { NULL },
+};
+
+int main(int argc, char **argv) {
+    if (! boot(&argc, &argv, "FILES"))
+        return 1;
+    return process_files(opt_files);
+}
+
+int process_file(char *filename, FILE *file) {
+    LOG1 printf("Processing file %s\n", filename);
+    return 0;
+}
