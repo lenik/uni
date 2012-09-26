@@ -4,16 +4,17 @@ dist_aliases_DATA = \
     fileutils.sh
 
 dist_bin_SCRIPTS = \
-    textp \
     binaryp \
-    swap \
+    coolmore \
     enfile \
-    symfl \
-    symflatten \
     mv-p \
+    overlay-ln \
     ren-mkdirs \
     ren-r \
-    coolmore \
+    swap \
+    symfl \
+    symflatten \
+    textp \
     tourl
 
 dist_man_MANS = \

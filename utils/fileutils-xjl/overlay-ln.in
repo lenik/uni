@@ -1,0 +1,108 @@
+#!/bin/bash
+    . shlib-import cliboot
+    shopt -s nullglob dotglob
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="scnhqv"
+    long_opts="sclean,dry-run,help,quiet,verbose,version"
+    SUDO=
+    clean=0
+    overlay=~/overlay
+    prefix=
+    dry_run=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Create overlay symlinks"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] <overlay-dir> [<prefix>]"
+    echo
+    echo "Options: "
+    echo "    -s, --sudo              Execute with sudo"
+    echo "    -c, --clean             Remove overlays"
+    echo "    -n, --dry-run           Print commands instead but don't execute"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -s|--sudo)
+            SUDO=sudo;;
+        -c|--clean)
+            clean=1;;
+        -n|--dry-run)
+            dry_run=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    [ -z "$1" ] && die "overlay-dir isn't specified."
+    [ -d "$1" ] || die "overlay-dir isn't existed: $1"
+    overlay="$1"
+    overlay=`readlink -f "$overlay"` \
+        || die "Can't get the absolute path of $overlay"
+
+    [ -n "$2" ] && prefix="$2"
+
+    _log2 "overlay=$overlay"
+    _log2 "prefix=$prefix"
+
+    mix "$overlay" "$prefix"
+}
+
+function mix() {
+    local src="$1"
+    local dst="$2"
+    local f
+    local base
+
+    if [ -z "$dst" -o -d "$dst" ]; then
+        if [ -h "$dst" ]; then
+            _log2 "Already mixed: $src -> $dst"
+        else
+            # assert -d $src
+            for f in "$src"/*; do
+                mix "$f" "$dst/${f##*/}"
+            done
+        fi
+    elif [ -f "$dst" ]; then
+        if [ -h "$dst" ]; then
+            _log2 "Already existed: $src -> $dst"
+        else
+            _warn "Override by overlay: $src -> $dst"
+            _ln -snf "$src" "$dst"
+        fi
+    else
+        _log1 "Add overlay $dst = $src"
+        _ln -snf "$src" "$dst"
+    fi
+}
+
+function _ln() {
+    if [ "$dry_run" = 1 ]; then
+        echo $SUDO ln "$@"
+    else
+        $SUDO ln "$@"
+    fi
+}
+
+boot "$@"
