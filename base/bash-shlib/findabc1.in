@@ -7,15 +7,18 @@
     LANG=C
 
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="efplzuwhqv"
-    long_opts="eval,fileonly,print,list,last,unix,windows,help,quiet,verbose,version"
+    short_opts="aefplzuwhqv"
+    long_opts="abctab,eval,fileonly,print,list,last,unix,windows,help,quiet,verbose,version"
 
+    perc=
     eval=
     fileonly=
     show=
     list=
     last=
     style=
+
+    declare -A abctab
 
 function version() {
     parse_id "$RCSID"
@@ -27,9 +30,10 @@ function help() {
     version
     echo
     echo "Syntax: "
-    echo "    $0 [OPTION] [--] package DIRLIST"
+    echo "    $0 [OPTION] [--] package { dir | %loc }..."
     echo
     echo "Options: "
+    echo "    -a, --abctab            Read abctab for %loc expansion"
     echo "    -e, --eval              Print shell commands to be evaluated"
     echo "    -f, --file-only         Find file only"
     echo "    -p, --print             Print the result"
@@ -45,6 +49,20 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -a|--abctab)
+            if [ -f ~/.abctab ]; then
+                while read loc path; do
+                    if [ -z "$loc" ] || [ -z "$path" ]; then
+                        continue
+                    fi
+                    if [ "${path:0:1}" != '/' ]; then
+                        path="$HOME/$path"
+                    fi
+                    # echo "abctab[$loc]=$path"
+                    abctab[$loc]="$path"
+                done < ~/.abctab
+            fi
+            perc=1;;
         -e|--eval)
             eval=1;;
         -f|--file-only)
@@ -104,47 +122,45 @@ function main() {
             package="${package%%/*}"
         fi
 
-    roots=
+    roots=()
+    nroot=0
+
     root=
-    groups=
     if [ $# -lt 1 ]; then
-        for d in /lam/*; do
-            roots="$roots|$d"
+        for d in "${abctab[@]}"; do
+            roots[nroot++]="$d"
         done
     else
         for arg in "$@"; do
+            if [ "$perc" = 1 ]; then
+                if [ "${arg:0:1}" = '%' ]; then
+                    arg="${arg:1}"
+                    arg="${abctab[$arg]}"
+                fi
+            fi
             if [ "${arg: -1}" = '/' ]; then
                 if [ "$arg" != '/' ]; then
                     arg="${arg::${#arg}-1}"
                  fi
             fi
-            roots="$roots|$arg"
+            roots[nroot++]="$arg"
         done
     fi
-    roots="${roots:1}"
+    # echo "Roots: $roots"
 
     # root-loop
     _home=
-    while [ -n "$roots" ]; do
-        if  [ "${roots/|}" = "$roots" ]; then
-            root="$roots"
-            roots=
-        else
-            root="${roots%%|*}"
-            roots="${roots#*|}"
-        fi
+    for root in "${roots[@]}"; do
         if [ "$root" = '/' ]; then root=; fi
         # echo "root: $root"
 
-        groups=
+        # Prepend subroots to the roots.
+        subroots=()
+        nsubroot=0
         for d in "$root/"*.d "$root/"\[*\]; do
-            groups="$groups$d|"
+            subroots[nsubroot++]="$d"
         done
-
-        if [ -n "$groups" ]; then
-            if [ -z "$roots" ]; then groups="${groups::${#groups}-1}"; fi
-            roots="$groups$roots"
-        fi
+        roots=("${subroots[@]}" "${roots[@]}")
 
         # xdir-loop
         _xdir=
