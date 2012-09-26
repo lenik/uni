@@ -2,19 +2,16 @@ include libauto/coolauto.am
 
 SUBDIRS = newtmpl.d
 
-bin_SCRIPTS = \
-    new
+dist_bin_SCRIPTS = \
+    new \
+    rnd
 
 dist_man_MANS = \
     new.1
 
 newtmpl_DATA =
 
-EXTRA_DIST = \
-    new.in
-
-CLEANFILES = \
-    new
+CLEANFILES = ${dist_bin_SCRIPTS}
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); \

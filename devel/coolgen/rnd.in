@@ -1,0 +1,74 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="chqv"
+    long_opts="stdout,help,quiet,verbose,version"
+
+    mode=copy
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Generate random number and copy to clipboard"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] <length in bytes>"
+    echo
+    echo "Options: "
+    echo "    -c, --stdout            Print to stdout (default copy to clip)"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -c|--stdout)
+            mode=stdout;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+alphabet=0123456789abcdefghijklmnopqrstuvwxyz
+
+function main() {
+
+    words=()
+    nword=0
+
+    for len in "$@"; do
+        str=0x
+        for ((i = 0; i < len * 2; i++)); do
+            digit=$((RANDOM % 16))
+            ch=${alphabet:digit:1}
+            str="$str$ch"
+        done
+
+        words[nword++]="$str"
+    done
+
+    if [ "$mode" = "$stdout" ]; then
+        for w in "${words[@]}"; do
+            echo "$w"
+        done
+    else
+        echo -n "${words[@]}" | xsel -ib
+    fi
+}
+
+boot "$@"
