@@ -4,7 +4,8 @@ qlogconfdir = ${pkgdatadir}
 
 dist_bin_SCRIPTS = \
     cooltask_list \
-    qlog
+    qlog \
+    qlog-console
 
 dist_qlogconf_DATA = \
     qlog.conf/focus \
@@ -26,7 +27,8 @@ EXTRA_DIST = \
 
 CLEANFILES = ${setup_SCRIPTS} \
     cooltask_list \
-    qlog
+    qlog \
+    qlog-console
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
