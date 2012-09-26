@@ -1,6 +1,7 @@
 autobuild
 eachdir
 echo-x
+esti-exec
 if-modified
 ldd-which
 localhost

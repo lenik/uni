@@ -22,6 +22,7 @@ dist_bin_SCRIPTS = \
     cd-exec \
     colorox \
     eachdir \
+    esti-exec \
     ifrsubst \
     ldd-which \
     localhost \
