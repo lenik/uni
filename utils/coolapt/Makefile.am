@@ -3,6 +3,7 @@ include libauto/coolauto.am
 aptconfdir=${sysconfdir}/apt/apt.conf.d
 
 dist_bin_SCRIPTS = \
+    apt-f \
     apt-fast \
     dwhich \
     lsdeb \
