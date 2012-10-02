@@ -1,0 +1,287 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="abdi:j:tD:I:PT:hqv"
+    long_opts="auto,batch,d,include:,job:,define:,input-path:,pdf,tex:,help,quiet,verbose,version"
+
+    TEX=xelatex
+    TEXOPTS=()
+    texoptn=0
+
+    DIFF=diff
+    DIFFOPTS=-q
+
+    preambles=()
+    preamblen=0
+    opt_v=
+
+    auto_rebuild=
+    batch_mode=
+    daemon_mode=
+    include_onlies=()
+    include_onlyn=0
+    job_name=
+    test_only=
+    defines=()
+    definen=0
+    want_pdf=
+
+    change_count=0
+    rerun_c=0
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Cool Tex Builder"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] FILE[.[tex]]"
+    echo
+    echo "Options: "
+    echo "    -a, --auto              Auto rebuild when necessary (for toc, idx, etc.)"
+    echo "    -b, --batch             Run in \\nonstopmode"
+    echo "    -d, --daemon            Daemon mode, auto rebuild on file change"
+    echo "    -i, --include=FILE      Add file to include-only list"
+    echo "    -j, --job=JOBNAME       Specify a job name different to file's basename"
+    echo "    -t, --test-only         For Tex lint, fast but don't generate anything"
+    echo "    -D, --define=NAM=VAL    Define macro/command"
+    echo "    -I, --input-path=DIR    Add directory to \\input search path"
+    echo "    -P, --want-pdf          Try to get a PDF if possible"
+    echo "    -T, --tex=<program>     Use specific tex, xelatex by default"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -a|--auto)
+            auto_rebuild=1;;
+        -b|--batch)
+            batch_mode=1;;
+        -d|--daemon)
+            daemon_mode=1;;
+        -i|--include)
+            include_onlies[include_onlyn++]="$2";;
+        -j|--job)
+            job_name="$2";;
+        -t|--test-only)
+            test_only=1;;
+        -D|--define)
+            defines[definen++]="$2";;
+        -I|--input-path)
+            if [ -z "$TEXINPUTS" ]; then
+                TEXINPUTS=.
+            fi
+            export TEXINPUTS="$TEXINPUTS:$2";;
+        -P|--want-pdf)
+            want_pdf=1;;
+        -T|--tex)
+            TEX="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $LOGLEVEL -ge 2 ]; then
+        COLORDIFF=`which colordiff` && DIFF="$COLORDIFF"
+        DIFFOPTS=-u
+        opt_v=-v
+    fi
+
+    if [ "$#" = 0 ]; then quit ".tex file isn't specified."; fi
+
+    texmode=tex
+    texoutfmt=dvi
+    case "${TEX##*/}" in
+        xetex)
+            texmode=tex
+            texoutfmt=pdf;;
+        xelatex)
+            texmode=latex
+            texoutfmt=pdf;;
+        *latex)
+            texmode=latex;;
+    esac
+
+    file="$1"
+        if [ ! -e "$file" ]; then
+            if [ -e "$file.tex" ]; then
+                file="$file.tex"
+            elif [ -e "${file}tex" ]; then
+                file="${file}tex"
+            fi
+        fi
+    base="${file%.*}"
+
+    [ -n "$job_name" ] && TEXOPTS[texoptn++]="-jobname=$job_name"
+
+    for def in "${defines[@]}"; do
+        key="${def%%=*}"
+        val="${def#*=}"
+        preambles[preamblen++]="\\def\\$key{$val}"
+    done
+
+    [ "$batch_mode" = 1 ] && preambles[preamblen++]='\nonstopmode'
+    [ "$test_only"  = 1 ] && preambles[preamblen++]='\usepackage{syntonly}'
+
+    onlies=
+        for only in "${include_onlies[@]}"; do
+            onlies="$onlies,$only"
+        done
+        if [ -n "$onlies" ]; then
+            onlies="${onlies:1}"
+            preambles[preamblen++]="\\includeonly{$onlies}"
+        fi
+
+    preamble=
+        for p in "${preambles[@]}"; do
+            preamble="$preamble$p"
+        done
+        preamble="\\AtBeginDocument{$preamble}"
+
+    while true; do
+        [ -r "$file" ] || quit "File isn't readable: $file"
+
+        if [ "$auto_rebuild" = 1 ]; then
+            _log2 "Backup aux files (.aux, .idx, etc.) to detect changes for re-run"
+            # for e in aux idx toc lot lof; do
+            for e in aux idx; do        # .toc, .lot, .lof are generatd in aux.
+                if [ -f "$base.$e" ]; then
+                    cp $opt_v -f "$base.$e" "$base.$e~"
+                fi
+            done
+        fi
+
+        outfile="$base.$texoutfmt"
+        _log2 "Assumed output file be $outfile..."
+
+        if ! run_tex "${TEXOPTS[@]}" "$preamble\\input{$file}"; then
+            _error "Failed to run $TEX: error=$?"
+            if [ "$daemon_mode" != 1 ]; then
+                exit 1
+            fi
+        fi
+
+        if [ "$auto_rebuild" = 1 ]; then
+            _log1 "Auto checking if additional rebuild is needed..."
+            rerun=
+
+            # check if .idx is changed
+            if [ -f "$base.idx" ]; then
+                # if [ "$outfile" -ot "$base.idx" ]; then
+                if ! _diff "$base.idx" "$base.idx~"; then
+                    # Convert .idx(\indexentry*) -> .ind(minipage)
+                    _log1 "  Updating index page"
+                    makeindex "$base.idx"
+                    rerun=1
+                fi
+            fi
+
+            # makeglossarie
+
+            # check if .aux is changed
+            if [ -f "$base.aux" ]; then
+                # if [ "$outfile" -ot "$base.aux" ]; then
+                if ! _diff "$base.aux" "$base.aux~"; then
+                    _log1 "  Auxiliary files were changed, rebuild the document"
+                    rerun=1
+                fi
+            fi
+
+            # check if .toc is changed
+           # if [ -f "$base.toc" ]; then
+           #     # if [ "$outfile" -ot "$base.toc" ]; then
+           #     if ! _diff "$base.toc" "$base.toc~"; then
+           #         _log1 "  Updating table of contents"
+           #         rerun=1
+           #     fi
+           # fi
+
+            if [ "$rerun" = 1 ]; then
+                _warn "Something changed, the document is going to be rebuilt again" \
+                    "($((++rerun_c)))"
+                continue
+            else
+                rerun_c=0
+            fi
+        fi
+
+        case "$texoutfmt" in
+            dvi)
+                if [ "$want_pdf" = 1 ]; then
+                    _log1 "Convert $base.dvi to $base.pdf"
+                    # dvips "$base.dvi"
+                    # ps2pdf "$base.ps"
+                    dvipdf "$base.dvi"
+                else
+                    _log1 "Convert $base.dvi to $base.ps"
+                    dvips "$base.dvi"
+                fi
+                ;;
+            ps)
+                if [ "$want_pdf" = 1 ]; then
+                    _log1 "Convert $base.ps to $base.pdf"
+                    ps2pdf "$base.ps"
+                fi
+                ;;
+            pdf)
+                if [ "$want_pdf" != 1 ]; then
+                    _log1 "Convert $base.pdf to $base.ps"
+                    pdf2ps "$base.pdf"
+                fi
+                ;;
+        esac
+
+        #_log2 "dvips/ps2pdf $base.dvi -> $base.pdf"
+        #dvips "$base.dvi"
+        #ps2pdf "$base.ps"
+
+        if [ "$daemon_mode" = 1 ]; then
+            _log1 "Waiting until $file is changed: $((++change_count)) times"
+
+            # wait for notify by until-changed from coolcmd
+            until-changed "$file" && continue
+
+            # until-changed errorred.
+            quit "until-changed failed, have you installed the coolcmd package?"
+        fi
+
+        break
+    done
+}
+
+function run_tex() {
+    _log2 "Execute: $TEX" "$@"
+    "$TEX" "$@" # 2>&1 | colorlog
+}
+
+function _diff() {
+    if [ -r "$1" ] && [ -r "$2" ]; then
+        if [ $LOGLEVEL -ge 2 ]; then
+            $DIFF $DIFFOPTS "$@"
+        else
+            $DIFF $DIFFOPTS "$@" >/dev/null 2>/dev/null
+        fi
+    else
+        return 1
+    fi
+}
+
+boot "$@"

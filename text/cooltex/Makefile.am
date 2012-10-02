@@ -1,9 +1,12 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-    abc-pslatex \
+    cooltex \
     pdfmon \
     treetex
+
+dist_aliases_DATA = \
+    cooltex.sh
 
 setup_SCRIPTS = \
     postinst \
