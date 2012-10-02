@@ -12,8 +12,6 @@
     DIFF=diff
     DIFFOPTS=-q
 
-    preambles=()
-    preamblen=0
     opt_v=
 
     auto_rebuild=
@@ -130,16 +128,23 @@ function main() {
         fi
     base="${file%.*}"
 
-    [ -n "$job_name" ] && TEXOPTS[texoptn++]="-jobname=$job_name"
+    if [ -n "$job_name" ]; then
+        TEXOPTS[texoptn++]="-jobname=$job_name"
+        base="$job_name"
+    fi
+
+    preinit=
+    heads=()
+    headn=0
 
     for def in "${defines[@]}"; do
         key="${def%%=*}"
         val="${def#*=}"
-        preambles[preamblen++]="\\def\\$key{$val}"
+        preinit="$preinit\\def\\$key{$val}"
     done
 
-    [ "$batch_mode" = 1 ] && preambles[preamblen++]='\nonstopmode'
-    [ "$test_only"  = 1 ] && preambles[preamblen++]='\usepackage{syntonly}'
+    [ "$batch_mode" = 1 ] && preinit="$preinit\\nonstopmode"
+    [ "$test_only"  = 1 ] && heads[headn++]='\usepackage{syntonly}'
 
     onlies=
         for only in "${include_onlies[@]}"; do
@@ -147,14 +152,14 @@ function main() {
         done
         if [ -n "$onlies" ]; then
             onlies="${onlies:1}"
-            preambles[preamblen++]="\\includeonly{$onlies}"
+            preinit="$preinit\\includeonly{$onlies}"
         fi
 
-    preamble=
-        for p in "${preambles[@]}"; do
-            preamble="$preamble$p"
+    begindoc=
+        for h in "${heads[@]}"; do
+            begindoc="$begindoc$h"
         done
-        preamble="\\AtBeginDocument{$preamble}"
+        begindoc="\\AtBeginDocument{$begindoc}"
 
     while true; do
         [ -r "$file" ] || quit "File isn't readable: $file"
@@ -172,10 +177,14 @@ function main() {
         outfile="$base.$texoutfmt"
         _log2 "Assumed output file be $outfile..."
 
-        if ! run_tex "${TEXOPTS[@]}" "$preamble\\input{$file}"; then
-            _error "Failed to run $TEX: error=$?"
+        if ! run_tex "${TEXOPTS[@]}" "$preinit$begindoc\\input{$file}"; then
             if [ "$daemon_mode" != 1 ]; then
-                exit 1
+                if [ "$outfile" -nt "$file" ]; then
+                    # Though there's errors, but still the file is created.
+                    _warn "Got the file. Continue with error. "
+                else
+                    exit 1
+                fi
             fi
         fi
 
@@ -269,7 +278,12 @@ function main() {
 
 function run_tex() {
     _log2 "Execute: $TEX" "$@"
-    "$TEX" "$@" # 2>&1 | colorlog
+    if "$TEX" "$@"; then # 2>&1 | colorlog
+        return 0
+    else
+        _error "Failed to run $TEX: error=$?"
+        return 1
+    fi
 }
 
 function _diff() {
