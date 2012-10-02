@@ -1,0 +1,29 @@
+# Common
+*.tmp
+*.swp
+*.log
+*.log.[0-9]*
+*.bak
+*.orig
+*.out
+*.lock
+*~
+*.out.xml
+nohup.out
+
+# TeX
+*.aux
+*.bbl
+*.blg
+*.cb
+*.dvi
+*.glo
+*.idx
+*.ilg
+*.ind
+*.lof
+*.lot
+*.toc
+*.xdv
+*.pdf
+*.ps
