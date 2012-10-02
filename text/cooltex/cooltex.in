@@ -3,7 +3,7 @@
 
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
     short_opts="abdi:j:tD:I:PT:hqv"
-    long_opts="auto,batch,d,include:,job:,define:,input-path:,pdf,tex:,help,quiet,verbose,version"
+    long_opts="auto,batch,d,include:,job:,define:,input-path:,want-ps,tex:,help,quiet,verbose,version"
 
     TEX=xelatex
     TEXOPTS=()
@@ -23,7 +23,7 @@
     test_only=
     defines=()
     definen=0
-    want_pdf=
+    want_ps=
 
     change_count=0
     rerun_c=0
@@ -50,7 +50,7 @@ function help() {
     echo "    -t, --test-only         For Tex lint, fast but don't generate anything"
     echo "    -D, --define=NAM=VAL    Define macro/command"
     echo "    -I, --input-path=DIR    Add directory to \\input search path"
-    echo "    -P, --want-pdf          Try to get a PDF if possible"
+    echo "    -P, --want-ps           Output in PostScript, instead of PDF"
     echo "    -T, --tex=<program>     Use specific tex, xelatex by default"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
@@ -79,8 +79,8 @@ function setopt() {
                 TEXINPUTS=.
             fi
             export TEXINPUTS="$TEXINPUTS:$2";;
-        -P|--want-pdf)
-            want_pdf=1;;
+        -P|--want-ps)
+            want_ps=1;;
         -T|--tex)
             TEX="$2";;
         -h|--help)
@@ -234,7 +234,7 @@ function main() {
 
         case "$texoutfmt" in
             dvi)
-                if [ "$want_pdf" = 1 ]; then
+                if [ -z "$want_ps" ]; then
                     _log1 "Convert $base.dvi to $base.pdf"
                     # dvips "$base.dvi"
                     # ps2pdf "$base.ps"
@@ -245,13 +245,13 @@ function main() {
                 fi
                 ;;
             ps)
-                if [ "$want_pdf" = 1 ]; then
+                if [ -z "$want_ps" ]; then
                     _log1 "Convert $base.ps to $base.pdf"
                     ps2pdf "$base.ps"
                 fi
                 ;;
             pdf)
-                if [ "$want_pdf" != 1 ]; then
+                if [ "$want_ps" = 1 ]; then
                     _log1 "Convert $base.pdf to $base.ps"
                     pdf2ps "$base.pdf"
                 fi
