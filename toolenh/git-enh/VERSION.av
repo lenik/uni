@@ -4,7 +4,7 @@
 format      = $major.$minor.$commit
 
 major       = 0 minor
-minor       = 4 rev commit
+minor       = 5 rev commit
 
 rev         = 0
 rev.base    = 0

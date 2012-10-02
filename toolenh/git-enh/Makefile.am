@@ -11,7 +11,7 @@ dist_bin_SCRIPTS = \
     svn2gits
 
 dist_aliases_DATA = \
-    git-enh.alt
+    10git-enh.sh
 
 aliases_DATA = \
     sw-git.sh

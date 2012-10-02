@@ -6,7 +6,7 @@ dist_bin_SCRIPTS = \
     vcsdirs
 
 dist_aliases_DATA = \
-    vcscmds.sh
+    50vcscmds.sh
 
 dist_bashcmpl_DATA = \
     vcscmds
