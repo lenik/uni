@@ -1,0 +1,22 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{z-fonts}[2012/10/03 boDz Templates]
+
+\newif\if@zfonts@manfnt@
+\newif\if@zfonts@textcomp@
+\newif\if@zfonts@ifsym@
+
+\@zfonts@manfnt@false
+\@zfonts@textcomp@false
+\@zfonts@ifsym@false
+
+\DeclareOption{manfnt}{\@zfonts@manfnt@true}
+\DeclareOption{textcomp}{\@zfonts@textcomp@true}
+\DeclareOption{ifsym}{\@zfonts@ifsym@true}
+\ProcessOptions\relax
+
+\if@zfonts@manfnt@
+    \RequirePackage{manfnt}\fi
+\if@zfonts@textcomp@
+    \RequirePackage{textcomp}\fi
+\if@zfonts@ifsym@
+    \RequirePackage[misc,electronic,alpine,geometry,clock,weather]{ifsym}\fi

@@ -1,0 +1,12 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{z-texhack}[2012/10/02 boDz Templates]
+
+\def\makedashletter{\catcode`-=11\relax}
+\def\makedashother{\catcode`-=12\relax}
+\def\makeunderlineletter{\catcode`\_=11\relax}
+\def\makeunderlinesubscript{\catcode`\_=8\relax}
+\def\maketildeletter{\catcode`\~=11\relax}
+\def\maketildeactive{\catcode`\~=13\relax}
+
+\def\begincodez{\makeatletter\makeunderlineletter}
+\def\endcodez{\makeatother\makeunderlinesubscript}

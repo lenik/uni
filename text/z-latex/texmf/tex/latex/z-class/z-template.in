@@ -1,0 +1,40 @@
+% vim: set filetype=tex :
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesClass{z-\CLASS}[2012/10/02 boDz Templates]
+
+\newif\ifz@CJK
+
+\DeclareOption{CJK}{\z@CJKtrue}
+\DeclareOption{CJKspace}{\PassOptionsToPackage{CJKspace}{xeCJK}}
+\DeclareOption{CJKmath}{\PassOptionsToPackage{CJKmath}{xeCJK}}
+\DeclareOption{CJKglue}{\PassOptionsToPackage{CJKglue}{xeCJK}}
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{\CLASS}}
+\ProcessOptions\relax
+
+\LoadClass{\CLASS}
+\RequirePackage{z-latexenh}
+
+\ifz@CJK
+    \RequirePackage[slantfont,boldfont]{xeCJK}
+    \setCJKmainfont{WenQuanYi Micro Hei}
+    %\setCJKmathfont{WenQuanYi Micro Hei}
+    \XeTeXlinebreaklocale "zh"
+    \XeTeXlinebreakskip = 0pt plus 1pt
+    \linespread{1.2}
+    \setlength{\columnsep}{.5in}
+\fi
+
+% Convert accent-glyph sequence to a single Unicode character.
+    \RequirePackage{xunicode}
+
+% xltxtra is included in fontspec. xltxtra < fontspec
+    %\RequirePackage{xltxtra}
+
+% fontspec provides auto interfaces to AAT and OpenType fonts thru NFSS. fontspec > l3kernel
+    \RequirePackage{fontspec}
+
+% common used fonts
+    \RequirePackage[textcomp,manfnt]{z-fonts}
+
+% private abbreviations
+    \RequirePackage{z-abbrev}
