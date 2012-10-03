@@ -1,0 +1,4 @@
+#!/bin/sh
+# master-file
+
+echo "z-latex - prerm.in ..."

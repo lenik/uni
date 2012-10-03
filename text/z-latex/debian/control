@@ -1,0 +1,16 @@
+Source: z-latex
+Section: tex
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.3
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/text/z-latex
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/text/z-latex
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/text/z-latex
+
+Package: z-latex
+Architecture: all
+Depends: ${misc:Depends}
+Recommends: cooltex
+Description: boDz LaTeX Templates.
+ This package contains LaTeX classes and packages for templating in boDz software.
