@@ -38,3 +38,48 @@
 
 % private abbreviations
     \RequirePackage{z-abbrev}
+
+\RequirePackage{ifthen}     % \ifthenelse
+%\RequirePackage{suffix}     % \WithSuffix *
+
+\mode<presentation> {
+    \setbeamercovered{transparent}
+}
+
+\newcommand<>{\itemframe}[2]{
+    \begin{frame}
+        \frametitle{#1}
+        \begin{itemize}[#3]
+            #2
+        \end{itemize}
+    \end{frame}
+}
+
+\newcommand<>{\enumframe}[2]{
+    \begin{frame}
+        \frametitle{#1}
+        \begin{enumerate}[#3]
+            #2
+        \end{enumerate}
+    \end{frame}
+}
+
+\newcommand<>{\itemsframe}[3][]{
+    \ifthenelse{\equal{#1}{}}{\subsection{#2}}{\subsection[#1]{#2}}
+    \itemframe#4{#2}{#3}
+}
+
+\newcommand<>{\itemssframe}[3][]{
+    \ifthenelse{\equal{#1}{}}{\subsection{#2}}{\subsection[#1]{#2}}
+    \itemframe#4{#2}{#3}
+}
+
+\newcommand<>{\enumsframe}[3][]{
+    \ifthenelse{\equal{#1}{}}{\subsection{#2}}{\subsection[#1]{#2}}
+    \enumframe#4{#2}{#3}
+}
+
+\newcommand<>{\enumssframe}[3][]{
+    \ifthenelse{\equal{#1}{}}{\subsection{#2}}{\subsection[#1]{#2}}
+    \enumframe#4{#2}{#3}
+}
