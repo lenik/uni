@@ -1,0 +1,66 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{z-beamer-impl}[2012/10/05 boDz Templates]
+
+\RequirePackage{ifthen}     % \ifthenelse
+%\RequirePackage{suffix}     % \WithSuffix *
+
+% Document Structure
+
+    \mode<presentation> {
+        \setbeamercovered{transparent}
+    }
+
+    \AtEndDocument{
+        \begin{frame}
+            \frametitle{结束}
+            \begin{center}\Large
+                谢谢观看！\\
+                如果您有任何疑问或建议，请发送信息至：\\
+                E-mail: \theauthorEmail
+            \end{center}
+        \end{frame}
+    }
+
+    \AtBeginPart{
+        \frame{\partpage}
+    }
+
+% Utility commands
+
+    \newcommand<>{\itemframe}[2]{
+        \begin{frame}
+            \frametitle{#1}
+            \begin{itemize}[#3]
+                #2
+            \end{itemize}
+        \end{frame}
+    }
+
+    \newcommand<>{\enumframe}[2]{
+        \begin{frame}
+            \frametitle{#1}
+            \begin{enumerate}[#3]
+                #2
+            \end{enumerate}
+        \end{frame}
+    }
+
+    \newcommand<>{\itemsframe}[3][]{
+        \ifthenelse{\equal{#1}{}}{\section{#2}}{\section[#1]{#2}}
+        \itemframe#4{#2}{#3}
+    }
+
+    \newcommand<>{\itemssframe}[3][]{
+        \ifthenelse{\equal{#1}{}}{\subsection{#2}}{\subsection[#1]{#2}}
+        \itemframe#4{#2}{#3}
+    }
+
+    \newcommand<>{\enumsframe}[3][]{
+        \ifthenelse{\equal{#1}{}}{\section{#2}}{\section[#1]{#2}}
+        \enumframe#4{#2}{#3}
+    }
+
+    \newcommand<>{\enumssframe}[3][]{
+        \ifthenelse{\equal{#1}{}}{\subsection{#2}}{\subsection[#1]{#2}}
+        \enumframe#4{#2}{#3}
+    }
