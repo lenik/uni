@@ -13,16 +13,29 @@
     \AtEndDocument{
         \begin{frame}
             \frametitle{结束}
-            \begin{center}\Large
-                谢谢观看！\\
-                如果您有任何疑问或建议，请发送信息至：\\
-                E-mail: \theauthorEmail
-            \end{center}
+            \thankyou
         \end{frame}
     }
-
     \AtBeginPart{
-        \frame{\partpage}
+        \begin{frame}
+            \partpage
+        \end{frame}
+    }
+    \AtBeginSection{
+        \begin{frame}<beamer>
+            \frametitle{纲要：\insertsectionhead}
+            \sectiontoc
+        \end{frame}
+    }
+    \providecommand\sectiontoc{
+        \tableofcontents[currentsection,subsectionstyle=show/show/shaded]
+    }
+    \providecommand\thankyou{
+        \begin{center}\Large
+            谢谢观看！\\
+            如果您有任何疑问或建议，请发送信息至：\\
+            E-mail: \theauthorEmail
+        \end{center}
     }
 
 % Utility commands
