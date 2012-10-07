@@ -13,6 +13,6 @@ Provides: cooltex
 Architecture: all
 Depends: perl, libcmt-perl,
     bash-shlib, bash-aliases
-Recommends: texlive-local
+Recommends: texlive-local, z-latex
 Suggests: texlive
 Description: Lenik's TeX utilities.
