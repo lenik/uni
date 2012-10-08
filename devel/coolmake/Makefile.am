@@ -11,8 +11,8 @@ dist_bin_SCRIPTS = \
     subdirs \
     autobuild
 
-dist_samples_DATA = \
-    samples/Makefile
+#dist_samples_DATA = \
+#    samples/Makefile
 
 dist_aliases_DATA = \
     coolmake.sh

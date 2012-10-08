@@ -12,5 +12,5 @@ Package: coolmake
 Provides: coolmake
 Architecture: all
 Depends: make, coolauto
-Recommends: cooltex
+Suggests: cooltex
 Description: Make shortcut & helpers

@@ -1,65 +1,110 @@
 #!/bin/bash
 # master-file
+    . shlib-import cliboot
 
-TREETEX=`which treetex`
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
 
-if [ -z "$MAKE" ]; then
-    MAKE=@bindir@/make-color
-fi
+    [ -x "$TREETEX" ]   || TREETEX=`which treetex`
+    [ -x "$MAKE" ]      || MAKE=@bindir@/make-color
+    [ -x "$MAKE" ]      || MAKE=`which make`
 
-if [ ! -f ./configure ]; then
-    echo Autoreconf2...
-    autoreconf2 -is
-fi
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] "
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
 
-if [ ! -f Makefile ] && [ -x ./configure ]; then
-    echo Generate Makefile by autotools...
-    if ./configure; then
-        if [ -f Makefile ]; then
-            echo Done
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ ! -f ./configure ]; then
+        _log1 "Generate configure script by autoreconf2"
+        autoreconf2 -is
+    fi
+
+    if [ ! -f Makefile ] && [ -x ./configure ]; then
+        _log1 Generate Makefile by autotools...
+        if ./configure; then
+            if [ -f Makefile ]; then
+                _log1 Done.
+            else
+                _error "./configure success but no Makefile generated. "
+                _error "Aborted."
+                exit 1
+            fi
         else
-            echo ./configure success but no Makefile generated.
-            echo Aborted.
+            _error "No Makefile and do not know how to create it. "
             exit 1
         fi
-    else
-        echo No Makefile and do not know how to create it.
+    fi
+
+    if ! distz=`maketestvar DIST_ARCHIVES`; then
+        _error "Failed to get make variable DIST_ARCHIVES. "
         exit 1
     fi
-fi
+    _log1 "Create distribution tarball: $distz"
+    TARZ="tar -a"
 
-if ! distz=`maketestvar DIST_ARCHIVES`; then
-    echo Failed to get DIST_ARCHIVES make variable.
-    exit 1
-fi
-echo Distribution file: $distz
-TARZ="tar -a"
+    $MAKE -s dist
 
-$MAKE -s dist
-
-echo
-echo "Distribution contents (Re-sorted): "
-$TARZ -tf $distz | LC_COLLATE=C sort
-
-tmpdestdir=/tmp/destdir.$$.$RANDOM
-rm -fR $tmpdestdir
-
-echo Install to temporary destdir $tmpdestdir:
-if $MAKE -s install DESTDIR=$tmpdestdir; then
-    tree -a $tmpdestdir
-    if [ -x "$TREETEX" ]; then
-        $TREETEX -a -r '\emph{<setupdir>}' $tmpdestdir >itree.tex
+    if [ $LOGLEVEL -ge 1 ]; then
+        echo
+        echo "Distribution contents (Re-sorted): "
+        $TARZ -tf $distz | LC_COLLATE=C sort
     fi
-else
-    echo Failed to install.
-fi
-for f in "$@"; do
-    echo "Check file $f: "
-    find $tmpdestdir -name $f -exec sh -c "echo In install: {}; cat {} | sed 's/^/> /'; echo" \;
-    $TARZ -tf $distz | grep "/$f\$" | xargs -l -I {} \
-        sh -c "echo In tarball: {}; $TARZ -xf $distz -O {} | sed 's/^/> /'; echo"
-    echo
-done
 
-echo Cleanup temp destdir.
-rm -fR $tmpdestdir
+    tmpdestdir=/tmp/destdir.$$.$RANDOM
+    rm -fR $tmpdestdir
+
+    _log1 "Install to temporary destdir $tmpdestdir: "
+    if $MAKE -s install DESTDIR=$tmpdestdir; then
+        tree -a $tmpdestdir
+        if [ -x "$TREETEX" ]; then
+            _log1 "Generate install tree in TeX"
+            $TREETEX -a -r '\emph{<setupdir>}' -F $tmpdestdir >itree.tex
+        fi
+    else
+        _error "Failed to install."
+    fi
+
+    for f in "$@"; do
+        echo "Check file $f: "
+        find $tmpdestdir -name $f -exec sh -c "echo In install: {}; cat {} | sed 's/^/> /'; echo" \;
+        $TARZ -tf $distz | grep "/$f\$" | xargs -l -I {} \
+            sh -c "echo In tarball: {}; $TARZ -xf $distz -O {} | sed 's/^/> /'; echo"
+        echo
+    done
+
+    _log1 "Cleanup temp destdir."
+    rm -fR $tmpdestdir
+}
+
+boot "$@"
