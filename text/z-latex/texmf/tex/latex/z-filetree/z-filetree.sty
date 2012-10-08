@@ -1,0 +1,31 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{z-filetree}[2012/10/08 boDz Templates]
+
+\RequirePackage{textcomp}               % textasciitilde
+\RequirePackage{tikz}
+\usetikzlibrary{arrows, trees}
+
+\RequirePackage{expl3}
+
+\colorlet{file}{gray}
+\colorlet{folder}{blue!50!violet}
+\colorlet{executable}{green!50!black}
+\colorlet{symlink}{cyan}
+\colorlet{system}{red}
+
+\newcommand\fileflag[1]{\color{black}#1}
+\providecommand\filetreescale{0.75}
+
+\tikzset{
+    file/.style     = {rectangle, thin, draw=black, anchor=west, font=\ttfamily},
+    dir/.style      = {file, rounded corners, draw=folder, text=folder, fill=folder!20},
+    plain/.style    = {file, fill=file!20},
+    symlink/.style  = {file, draw=symlink, text=symlink, fill=symlink!20},
+    executable/.style={file, draw=executable, text=executable, fill=executable!20},
+    pipe/.style     = {file, draw=system, text=system, fill=system!20},
+    socket/.style   = {file, draw=system, text=system, fill=system!20},
+    parallel/.style = {grow=right,
+        edge from parent path={(\tikzparentnode.east) -- (\tikzchildnode.west)}},
+    annotation/.style={anchor=west, text=gray, font=\sffamily\small},
+    file size/.style= {anchor=east, above, xshift=-1em, text=blue, font=\ttfamily\small},
+}
