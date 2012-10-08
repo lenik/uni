@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+# master-file
 
 =head1 NAME
 
@@ -10,7 +11,7 @@ use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
     $LOGNAME    = 'treetex'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: perl.pl 1908 2010-10-10 11:33:54Z lenik $');
+    my %RCSID   = parse_id('$Id: - @VERSION@ @DATE@ @TIME@ - $');
 use DirHandle;
 use File::Spec::Link;
 use Getopt::Long;
@@ -34,6 +35,10 @@ my $opt_show_date       = 0;
 my $opt_classify        = 0;
 my $opt_color           = 0;
 
+my $opt_hspan           = '0.5';
+my $opt_vspan           = '0.7';
+my $opt_vspan2          = '1.4';
+
 sub _boot {
     GetOptions('q|quiet'        => sub { $LOGLEVEL-- },
                'v|verbose'      => sub { $LOGLEVEL++ },
@@ -43,7 +48,7 @@ sub _boot {
                'C|color'        => \$opt_color,
                'd|dir'          => \$opt_dir_only,
                'D|date'         => \$opt_show_date,
-               'f|framedoc'     => \$opt_framedoc,
+               't|testdoc'      => \$opt_framedoc,
                'F|classify'     => \$opt_classify,
                'g|show-group'   => \$opt_show_group,
                'h|human-size'   => \$opt_human,
@@ -132,18 +137,18 @@ sub _help {
     print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
 
 Common options:
-    -f, --framedoc          Generate document skeleton
     -a, --all               All files are included
     -d, --dir               List directories only
-    -l, --follow-syms       Follow symlinks
-    -u, --show-user         Show owner user
     -g, --show-group        Show owner group
-    -s, --size              Show size
     -h, --human-size        Show size in human readable way
     -H, --si                Like --human, but use powers of 1000 not 1024
+    -l, --follow-syms       Follow symlinks
+    -s, --size              Show size
+    -t, --testdoc           Generate document skeleton for test
+    -u, --show-user         Show owner user
+    -C, --color             Turn on colorization
     -D, --date              Show last modified date
     -F, --classify          Append indicator (*/=>@|) to entries
-    -C, --color             Turn on colorization
     -q, --quiet             Repeat to get less info
     -v, --verbose           Repeat to get more info
         --help              Show this help page
@@ -155,17 +160,32 @@ exit (_boot or 0);
 
 sub _main {
     if ($opt_framedoc) {
-        print "\\documentclass{article}\n";
-        print "\\usepackage{pst-tree}\n";
-        print "\\begin{document}\n";
-        print "Directory Tree\n";
-        print "\n";
-        print "\\psset{ treemode=R, levelsep=3 }\n";
-        print "\\def\\psedge{\\ncangles[armA=.5, angleB=180, armB=.5, linearc=.2]}\n";
+        print <<"EOT"
+\\documentclass[CJK]{z-article}
+\\usepackage{z-filetree}
+\\begin{document}
+EOT
     }
 
     for (@ARGV) {
-        treetex(undef, $_, '', 0);
+        # dir, base, level
+        my $root = mktree(undef, $_, 0);
+        my $dirtitle = qtex($_);
+        # $root->{text} = $dirtitle;
+        print <<"EOT";
+\\begin{figure}
+\\caption{Directory Of $dirtitle}
+\\begin{tikzpicture}[
+    grow via three points={one child at ($opt_hspan,-$opt_vspan) and
+      two children at ($opt_hspan,-$opt_vspan) and ($opt_hspan,-$opt_vspan2)},
+    edge from parent path={(\\tikzparentnode.south) |- (\\tikzchildnode.west)}]
+    \\path
+EOT
+        texdump($root, '    ');
+        print ";\n";
+        print "\\end{tikzpicture}\n";
+        print "\\end{figure}\n";
+        print "\n";
     }
 
     if ($opt_framedoc) {
@@ -181,7 +201,10 @@ sub _main {
 # (HELPER FUNCTIONS)
 sub qtex($) {
     my $s = shift;
-    $s =~ s/([\\_^\$])/\\\1/g;
+    $s =~ s/\\/\\textbackslash/g;
+    $s =~ s/([{}&^_$#%])/\\\1/g;
+    #$s =~ s/~/\\textasciitilde/g;
+    $s =~ s/~/\$\\sim\$/g;
     return $s;
 }
 
@@ -191,8 +214,16 @@ sub qtex($) {
 
 =cut
 # (MODULE FUNCTIONS)
-sub treetex {
-    my ($dir, $base, $prefix, $level) = @_;
+
+# node struct:
+#   $node->{name}       \node (name)
+#   $node->{attrs}      \node [attrs]
+#   $node->{text}       \node {text} (Different to attrs.label)
+#   $node->{description}
+#   $node->{edge}
+#   $node->{children}
+sub mktree {
+    my ($dir, $base, $level) = @_;
     my $path = (defined $dir) ? "$dir/$base" : $base;
     my $slash = rindex($path, '/');
     if ($slash == -1) {
@@ -203,35 +234,54 @@ sub treetex {
         $base = substr($path, $slash + 1);
     }
 
-    my $entry = qtex($base);
-    if (defined $opt_roottex and $level == 0) {
-        $entry = $opt_roottex;
-    }
+    my $attrs = {};
+    my $styles = [];
+    my $children = [];
+    my $node = {
+        name    => $path,      # tr|/|_|... Not used currently.
+        attrs   => $attrs,
+        styles  => $styles,
+        children=> $children,
+    };
 
-    if (-l $path) { # symlink
-        my $linked = File::Spec::Link->linked($path);
-        $linked = qtex($linked);
-        $entry = '\treetex_link{'.$entry.'}{'.$linked.'}';
+    my $label = qtex($base);
+    my $description = '';
+
+    if (defined $opt_roottex and $level == 0) {
+        $label = $opt_roottex;
     }
 
     if (-d $path) { # dir
-        $entry = '\treetex_dir{'.$entry.'}/' if $opt_classify;
+        push @$styles, 'dir';
+        $label = "$label\\fileflag{/}" if $opt_classify;
     }
 
-    if (-x $path) { # executable
-        $entry = '\treetex_exec{'.$entry.'}*' if $opt_classify;
+    if (-l $path) { # symlink
+        my $target = File::Spec::Link->linked($path);
+        push @$styles, 'symlink';
+        $node->{target} = $target;
+    }
+
+    if (-x $path and -f $path) { # executable
+        push @$styles, 'executable';
+        $label = "$label\\fileflag{*}" if $opt_classify;
     }
 
     if (-p $path) { # pipe
-        $entry = '\treetex_pipe{'.$entry.'}|' if $opt_classify;
+        push @$styles, 'pipe';
+        $label = "$label\\fileflag{|}" if $opt_classify;
     }
 
     if (-S $path) { # socket
-        $entry = '\treetex_socket{'.$entry.'}=' if $opt_classify;
+        push @$styles, 'socket';
+        $label = "$label\\fileflag{=}" if $opt_classify;
     }
 
-    if (-f $path and $opt_show_size) { # file
-        $entry .= ' (';
+    if (scalar(@$styles) == 0) {
+        push @$styles, 'plain';
+    }
+
+    if ($opt_show_size and -f $path) { # file
         my @stat = stat($path);
         my $size = $stat[7];
         if ($opt_human) {
@@ -245,22 +295,17 @@ sub treetex {
             $unit = $units[$level];
             $size = "$size $unit";
         }
-        $entry .= $size;
-        $entry .= ')';
+        $label = " ($size) $label";
+        $node->{size} = $size;
     }
 
-    my $subtree = -d $path;
-    $subtree = 0 if (-l $path and ! $opt_follow_syms);
+    $node->{text} = $label;
+    $node->{description} = $description;
 
-    # print "$prefix$entry\n";
-    print "$prefix";
-    print '\treetex_tree{' if $subtree;
-    print '\treetex_entry{'.$entry.'}';
+    my $hsum = 0;
+    if (-d $path and
+            not (-l $path and not $opt_follow_syms)) {
 
-    if ($subtree) {
-        print "} {\n";
-
-        my $_prefix = $prefix . '  ';
         my $dh = new DirHandle($path);
         my @files = $dh->read();
         @files = sort @files;
@@ -277,12 +322,71 @@ sub treetex {
                 next unless -d $_path;
             }
 
-            treetex $path, $_, $_prefix, $level + 1;
-        }
-        print "$prefix}";
-    }
+            $hsum++;
 
-    print "\n";
+            my $child = mktree($path, $_, $level + 1);
+            push @$children, $child;
+            $hsum += $child->{innerheight};
+        }
+    }
+    $node->{innerheight} = $hsum;
+
+    return $node;
+}
+
+sub texdump($$) {
+    my ($node, $lead) = @_;
+    my $name = $node->{name};
+    my $text = $node->{text};
+    my $description = $node->{description};
+    my $styles = $node->{styles};
+    my $attrs = $node->{attrs};
+    my $children = $node->{children};
+
+    #if ($opt_show_size) {
+    #    print "node[file size] {$node->{size}}";
+    #    print "\n${lead}";
+    #}
+
+    print "node";
+    # if ($name ...) print "($name)";
+
+    $styles = join(', ', @$styles);
+    print "[$styles";
+        my $iattr = $styles eq '' ? 0 : 1;
+        foreach my $key (keys %$attrs) {
+            my $val = $attrs->{$key};
+            print ', ' if ($iattr != 0);
+            print "$key=$val";
+            $iattr++;
+        }
+        print "]";
+
+    print " {$text}";
+
+    my $sublead = $lead.'    ';
+    foreach my $child (@$children) {
+        my $cc = $child->{children};
+        my $leaf = scalar(@$cc) == 0;
+        my $target = $child->{target};
+
+        print "\n";
+        print "${lead}child";
+
+        print $leaf ? '{ ' : "{\n$sublead";
+        texdump($child, $sublead);
+
+        if (defined $target) {
+            $target = qtex($target);
+            print " child[->, parallel] { node[annotation] { $target } }";
+        }
+        print $leaf ? ' }' : "\n${lead}}";
+
+        my $skip = $child->{innerheight};
+        for (my $i = 0; $i < $skip; $i++) {
+            print "\n${lead}child[missing] {}";
+        }
+    }
 }
 
 =head1 HISTORY
