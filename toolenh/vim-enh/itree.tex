@@ -1,0 +1,76 @@
+\begin{figure}[bcth]
+  \centering
+  \begin{tikzpicture}[scale=0.75,
+    every node/.style={transform shape},
+    grow via three points={one child at (0.5,-0.7) and
+      two children at (0.5,-0.7) and (0.5,-1.4)},
+    edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+    \path
+node[dir] {\emph{«setupdir»}}
+    child{
+        node[dir] {etc\fileflag{/}}
+        child{
+            node[dir] {bash\_aliases.d\fileflag{/}}
+            child{ node[plain] {coolvim.sh} }
+        }
+        child[missing] {}
+        child{
+            node[dir] {profile.d\fileflag{/}}
+            child{ node[plain] {coolvim.sh} }
+        }
+        child[missing] {}
+        child{
+            node[dir] {sudoers.d\fileflag{/}}
+            child{ node[plain] {env\_editor} }
+        }
+        child[missing] {}
+        child{
+            node[dir] {vim\fileflag{/}}
+            child{ node[plain] {reload.cfg} }
+            child{ node[plain] {vimrc.cool} }
+        }
+    }
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child{
+        node[dir] {usr\fileflag{/}}
+        child{
+            node[dir] {local\fileflag{/}}
+            child{
+                node[dir] {bin\fileflag{/}}
+                child{ node[executable] {coolvim\fileflag{*}} }
+                child{ node[symlink, executable] {coolvims\fileflag{*}} child[->, parallel] { node[annotation] { /tmp/destdir.15206.26410/usr/local/bin/coolvim } } }
+                child{ node[executable] {find-prefix\fileflag{*}} }
+                child{ node[executable] {guesstab\fileflag{*}} }
+                child{ node[executable] {ifedit\fileflag{*}} }
+                child{ node[executable] {reload-file\fileflag{*}} }
+            }
+            child[missing] {}
+            child[missing] {}
+            child[missing] {}
+            child[missing] {}
+            child[missing] {}
+            child[missing] {}
+            child{
+                node[dir] {share\fileflag{/}}
+                child{
+                    node[dir] {setup\fileflag{/}}
+                    child{
+                        node[dir] {vim-enh\fileflag{/}}
+                        child{ node[executable] {postinst\fileflag{*}} }
+                        child{ node[executable] {prerm\fileflag{*}} }
+                    }
+                }
+            }
+        }
+    };
+  \end{tikzpicture}
+  \caption{Files in the package vim-enh}
+\end{figure}

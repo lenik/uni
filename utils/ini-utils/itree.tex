@@ -1,0 +1,35 @@
+\begin{figure}[bcth]
+  \centering
+  \begin{tikzpicture}[scale=0.75,
+    every node/.style={transform shape},
+    grow via three points={one child at (0.5,-0.7) and
+      two children at (0.5,-0.7) and (0.5,-1.4)},
+    edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+    \path
+node[dir] {\emph{«setupdir»}}
+    child{
+        node[dir] {usr\fileflag{/}}
+        child{
+            node[dir] {local\fileflag{/}}
+            child{
+                node[dir] {bin\fileflag{/}}
+                child{ node[executable] {get-config\fileflag{*}} }
+                child{ node[executable] {inifield\fileflag{*}} }
+            }
+            child[missing] {}
+            child[missing] {}
+            child{
+                node[dir] {share\fileflag{/}}
+                child{
+                    node[dir] {man\fileflag{/}}
+                    child{
+                        node[dir] {man1\fileflag{/}}
+                        child{ node[plain] {inifield.1} }
+                    }
+                }
+            }
+        }
+    };
+  \end{tikzpicture}
+  \caption{Files in the package ini-utils}
+\end{figure}

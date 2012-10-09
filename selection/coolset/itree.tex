@@ -1,0 +1,8 @@
+\begin{tikzpicture}[
+    scale=\filetreescale,
+    every node/.style={transform shape},
+    grow via three points={one child at (0.5,-0.7) and
+      two children at (0.5,-0.7) and (0.5,-1.4)},
+    edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+    \path node[plain] {\emph{«setupdir»}};
+\end{tikzpicture}

@@ -1,0 +1,82 @@
+\begin{tikzpicture}[
+    scale=\filetreescale,
+    every node/.style={transform shape},
+    grow via three points={one child at (0.5,-0.7) and
+      two children at (0.5,-0.7) and (0.5,-1.4)},
+    edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+    \path node[dir] {\emph{«setupdir»}}
+    child{
+        node[dir] {etc\fileflag{/}}
+        child{
+            node[dir] {apache2\fileflag{/}}
+            child{
+                node[dir] {sites-available\fileflag{/}}
+                child{ node[plain] {bodz-svn.site} }
+            }
+        }
+        child[missing] {}
+        child[missing] {}
+        child{
+            node[dir] {xinetd.d\fileflag{/}}
+            child{ node[plain] {svn} }
+        }
+    }
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child{
+        node[dir] {repos\fileflag{/}}
+        child{
+            node[dir] {svn\fileflag{/}}
+            child{ node[symlink] {blobfiles} child[->, parallel] { node[annotation] { /mnt/bodzdev/svn/blobfiles } } }
+            child{ node[symlink] {bodz} child[->, parallel] { node[annotation] { /mnt/bodzdev/svn/bodz } } }
+            child{
+                node[dir] {conf\fileflag{/}}
+                child{ node[plain] {svnserve.conf} }
+            }
+            child[missing] {}
+            child{ node[symlink] {jazz} child[->, parallel] { node[annotation] { /mnt/bodzdev/svn/jazz } } }
+            child{ node[symlink] {sites} child[->, parallel] { node[annotation] { /mnt/bodzdev/svn/sites } } }
+            child{ node[symlink] {times} child[->, parallel] { node[annotation] { /mnt/bodzdev/svn/times } } }
+            child{ node[symlink] {usnap} child[->, parallel] { node[annotation] { /mnt/bodzdev/svn/usnap } } }
+        }
+    }
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child{
+        node[dir] {usr\fileflag{/}}
+        child{
+            node[dir] {share\fileflag{/}}
+            child{
+                node[dir] {repos-styles\fileflag{/}}
+                child{
+                    node[dir] {repos-web\fileflag{/}}
+                    child{
+                        node[dir] {view\fileflag{/}}
+                        child{ node[plain] {z-repos.xsl} }
+                    }
+                }
+            }
+            child[missing] {}
+            child[missing] {}
+            child[missing] {}
+            child{
+                node[dir] {setup\fileflag{/}}
+                child{
+                    node[dir] {cdu-bodz-svn\fileflag{/}}
+                    child{ node[executable] {postinst\fileflag{*}} }
+                    child{ node[executable] {prerm\fileflag{*}} }
+                }
+            }
+        }
+    };
+\end{tikzpicture}

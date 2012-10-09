@@ -1,0 +1,124 @@
+\begin{tikzpicture}[
+    scale=\filetreescale,
+    every node/.style={transform shape},
+    grow via three points={one child at (0.5,-0.7) and
+      two children at (0.5,-0.7) and (0.5,-1.4)},
+    edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+    \path node[dir] {\emph{«setupdir»}}
+    child{
+        node[dir] {etc\fileflag{/}}
+        child{
+            node[dir] {bash\_aliases.d\fileflag{/}}
+            child{ node[plain] {coolmaven.sh} }
+        }
+        child[missing] {}
+        child{
+            node[dir] {bash\_completion.d\fileflag{/}}
+            child{ node[plain] {m2chdir} }
+            child{ node[plain] {newmp} }
+        }
+        child[missing] {}
+        child[missing] {}
+        child{ node[plain] {jettydefaults.xml} }
+        child{ node[plain] {m2deploy.cfg} }
+        child{
+            node[dir] {maven2\fileflag{/}}
+            child{
+                node[dir] {assembly\fileflag{/}}
+                child{ node[plain] {uber.xml} }
+            }
+        }
+    }
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child{
+        node[dir] {usr\fileflag{/}}
+        child{
+            node[dir] {bin\fileflag{/}}
+            child{ node[executable] {coolmvn\fileflag{*}} }
+            child{ node[executable] {edit2\fileflag{*}} }
+            child{ node[executable] {epom\fileflag{*}} }
+            child{ node[executable] {get-common-prefix\fileflag{*}} }
+            child{ node[executable] {git-m2ver\fileflag{*}} }
+            child{ node[executable] {jetty\fileflag{*}} }
+            child{ node[symlink, executable] {m2deployfile\fileflag{*}} child[->, parallel] { node[annotation] { /usr/bin/m2installfile } } }
+            child{ node[executable] {m2graph\fileflag{*}} }
+            child{ node[executable] {m2help\fileflag{*}} }
+            child{ node[executable] {m2installfile\fileflag{*}} }
+            child{ node[executable] {m2layout\fileflag{*}} }
+            child{ node[executable] {m2localdeps\fileflag{*}} }
+            child{ node[executable] {m2localgraph\fileflag{*}} }
+            child{ node[executable] {m2modlist\fileflag{*}} }
+            child{ node[executable] {m2release\fileflag{*}} }
+            child{ node[executable] {m2rpn\fileflag{*}} }
+            child{ node[executable] {m2search\fileflag{*}} }
+            child{ node[executable] {m2search-nexus\fileflag{*}} }
+            child{ node[executable] {m2which\fileflag{*}} }
+            child{ node[executable] {mjava\fileflag{*}} }
+            child{ node[executable] {newmod\fileflag{*}} }
+            child{ node[executable] {newmp\fileflag{*}} }
+            child{ node[executable] {pom-cascade\fileflag{*}} }
+            child{ node[executable] {pomid\fileflag{*}} }
+            child{ node[executable] {pomtree\fileflag{*}} }
+        }
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child{
+            node[dir] {lib\fileflag{/}}
+            child{
+                node[dir] {shlib.d\fileflag{/}}
+                child{ node[executable] {loadpom\fileflag{*}} }
+            }
+        }
+        child[missing] {}
+        child[missing] {}
+        child{
+            node[dir] {share\fileflag{/}}
+            child{
+                node[dir] {coolmaven\fileflag{/}}
+                child{ node[plain] {archetypes} }
+                child{ node[plain] {ng2txt.xsl} }
+            }
+            child[missing] {}
+            child[missing] {}
+            child{
+                node[dir] {man\fileflag{/}}
+                child{
+                    node[dir] {man5\fileflag{/}}
+                    child{ node[plain] {m2deploy.cfg.5} }
+                }
+            }
+        }
+    };
+\end{tikzpicture}

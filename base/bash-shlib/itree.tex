@@ -1,0 +1,78 @@
+\begin{tikzpicture}[
+    scale=\filetreescale,
+    every node/.style={transform shape},
+    grow via three points={one child at (0.5,-0.7) and
+      two children at (0.5,-0.7) and (0.5,-1.4)},
+    edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+    \path node[dir] {\emph{«setupdir»}}
+    child{
+        node[dir] {usr\fileflag{/}}
+        child{
+            node[dir] {bin\fileflag{/}}
+            child{ node[executable] {findabc1\fileflag{*}} }
+            child{ node[executable] {shlib\fileflag{*}} }
+            child{ node[executable] {shlib-import\fileflag{*}} }
+        }
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child{
+            node[dir] {lib\fileflag{/}}
+            child{
+                node[dir] {shlib.d\fileflag{/}}
+                child{ node[plain] {bashunit} }
+                child{ node[plain] {char} }
+                child{ node[plain] {cliboot} }
+                child{ node[plain] {cmds} }
+                child{ node[plain] {de\_alias} }
+                child{ node[plain] {echo-fill} }
+                child{ node[plain] {echo-raw} }
+                child{ node[plain] {export-p} }
+                child{ node[plain] {findabc} }
+                child{ node[plain] {float} }
+                child{ node[plain] {get\_perm} }
+                child{ node[plain] {import} }
+                child{ node[plain] {initdir} }
+                child{ node[plain] {lam} }
+                child{ node[plain] {load} }
+                child{ node[plain] {log} }
+                child{ node[plain] {overrides} }
+                child{ node[plain] {path} }
+                child{ node[plain] {rcs} }
+                child{ node[plain] {time} }
+            }
+        }
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child{
+            node[dir] {share\fileflag{/}}
+            child{
+                node[dir] {setup\fileflag{/}}
+                child{
+                    node[dir] {bash-shlib\fileflag{/}}
+                    child{ node[executable] {postinst\fileflag{*}} }
+                    child{ node[executable] {prerm\fileflag{*}} }
+                }
+            }
+        }
+    };
+\end{tikzpicture}

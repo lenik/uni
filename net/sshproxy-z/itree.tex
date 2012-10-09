@@ -1,0 +1,62 @@
+\begin{figure}[bcth]
+  \centering
+  \begin{tikzpicture}[scale=0.75,
+    every node/.style={transform shape},
+    grow via three points={one child at (0.5,-0.7) and
+      two children at (0.5,-0.7) and (0.5,-1.4)},
+    edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+    \path
+node[dir] {\emph{«setupdir»}}
+    child{
+        node[dir] {etc\fileflag{/}}
+        child{
+            node[dir] {init\fileflag{/}}
+            child{ node[plain] {sshproxy.conf} }
+        }
+    }
+    child[missing] {}
+    child[missing] {}
+    child{
+        node[dir] {home\fileflag{/}}
+        child{
+            node[dir] {sshproxy\fileflag{/}}
+            child{
+                node[dir] {.ssh\fileflag{/}}
+                child{ node[plain] {authorized\_keys} }
+                child{ node[plain] {id\_rsa} }
+            }
+        }
+    }
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child{
+        node[dir] {usr\fileflag{/}}
+        child{
+            node[dir] {local\fileflag{/}}
+            child{
+                node[dir] {bin\fileflag{/}}
+                child{ node[executable] {srs\fileflag{*}} }
+            }
+            child[missing] {}
+            child{
+                node[dir] {share\fileflag{/}}
+                child{
+                    node[dir] {setup\fileflag{/}}
+                    child{
+                        node[dir] {sshproxy-z\fileflag{/}}
+                        child{ node[executable] {postinst-base.sh\fileflag{*}} }
+                        child{ node[executable] {postinst-client.sh\fileflag{*}} }
+                        child{ node[executable] {postinst-server.sh\fileflag{*}} }
+                        child{ node[executable] {prerm-base.sh\fileflag{*}} }
+                        child{ node[executable] {prerm-client.sh\fileflag{*}} }
+                        child{ node[executable] {prerm-server.sh\fileflag{*}} }
+                    }
+                }
+            }
+        }
+    };
+  \end{tikzpicture}
+  \caption{Files in the package sshproxy-z}
+\end{figure}

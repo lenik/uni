@@ -30,7 +30,7 @@ postinst
 prerm
 
 # Generated stuff
-itree.tex
+# itree.tex
 
 # Archives
 *.bz2

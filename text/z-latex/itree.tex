@@ -1,0 +1,98 @@
+\begin{tikzpicture}[
+    scale=\filetreescale,
+    every node/.style={transform shape},
+    grow via three points={one child at (0.5,-0.7) and
+      two children at (0.5,-0.7) and (0.5,-1.4)},
+    edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+    \path node[dir] {\emph{«setupdir»}}
+    child{
+        node[dir] {usr\fileflag{/}}
+        child{
+            node[dir] {share\fileflag{/}}
+            child{
+                node[dir] {setup\fileflag{/}}
+                child{
+                    node[dir] {z-latex\fileflag{/}}
+                    child{ node[executable] {postinst\fileflag{*}} }
+                    child{ node[executable] {prerm\fileflag{*}} }
+                }
+            }
+            child[missing] {}
+            child[missing] {}
+            child[missing] {}
+            child{
+                node[dir] {texmf\fileflag{/}}
+                child{
+                    node[dir] {doc\fileflag{/}}
+                    child{
+                        node[dir] {latex\fileflag{/}}
+                        child{
+                            node[dir] {z-class\fileflag{/}}
+                            child{ node[plain] {classdoc-zh.tex} }
+                        }
+                    }
+                }
+                child[missing] {}
+                child[missing] {}
+                child[missing] {}
+                child{
+                    node[dir] {tex\fileflag{/}}
+                    child{
+                        node[dir] {latex\fileflag{/}}
+                        child{
+                            node[dir] {z-abbrev\fileflag{/}}
+                            child{ node[plain] {z-abbrev.sty} }
+                        }
+                        child[missing] {}
+                        child{
+                            node[dir] {z-class\fileflag{/}}
+                            child{ node[plain] {z-article-impl.sty} }
+                            child{ node[plain] {z-article.cls} }
+                            child{ node[plain] {z-beamer-impl.sty} }
+                            child{ node[plain] {z-beamer.cls} }
+                            child{ node[plain] {z-book-impl.sty} }
+                            child{ node[plain] {z-book.cls} }
+                            child{ node[plain] {z-template.in} }
+                        }
+                        child[missing] {}
+                        child[missing] {}
+                        child[missing] {}
+                        child[missing] {}
+                        child[missing] {}
+                        child[missing] {}
+                        child[missing] {}
+                        child{
+                            node[dir] {z-filetree\fileflag{/}}
+                            child{ node[plain] {z-filetree.sty} }
+                        }
+                        child[missing] {}
+                        child{
+                            node[dir] {z-fonts\fileflag{/}}
+                            child{ node[plain] {z-fonts.sty} }
+                        }
+                        child[missing] {}
+                        child{
+                            node[dir] {z-latexenh\fileflag{/}}
+                            child{ node[plain] {z-latexenh.sty} }
+                        }
+                        child[missing] {}
+                        child{
+                            node[dir] {z-texhack\fileflag{/}}
+                            child{ node[plain] {z-texhack.sty} }
+                        }
+                        child[missing] {}
+                        child{
+                            node[dir] {z-toolman\fileflag{/}}
+                            child{ node[plain] {z-toolman.cls} }
+                        }
+                        child[missing] {}
+                        child{
+                            node[dir] {z-toolsdoc\fileflag{/}}
+                            child{ node[plain] {z-toolsdoc.cls} }
+                        }
+                    }
+                }
+            }
+        }
+    };
+\end{tikzpicture}
