@@ -2,6 +2,7 @@
 *.log
 *.o
 *.tmp
+*~
 
 # Auto-tools generated
 Makefile
@@ -31,6 +32,22 @@ prerm
 
 # Generated stuff
 # itree.tex
+
+# TeX
+*.aux
+*.bbl
+*.blg
+*.cb
+*.dvi
+*.glo
+*.idx
+*.ilg
+*.ind
+*.lof
+*.lot
+*.toc
+*.xdv
+*.pdf
 
 # Archives
 *.bz2

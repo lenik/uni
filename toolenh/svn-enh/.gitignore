@@ -3,5 +3,8 @@ svn-isclean
 svn-remix
 svn-rename
 svn-swf
+svn-union
+svn-union-install
 svnadmin-authz-update
 svnpsl
+sw-svn.sh
