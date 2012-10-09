@@ -16,6 +16,7 @@ use DirHandle;
 use File::Spec::Link;
 use Getopt::Long;
     Getopt::Long::Configure('gnu_getopt');
+use Data::Dumper;
 
 sub _main; sub _version; sub _help;
 sub qtex($);
@@ -36,6 +37,8 @@ my $opt_show_date       = 0;
 my $opt_classify        = 0;
 my $opt_color           = 0;
 my $opt_scale           = 0.75;
+my $opt_destdir         = undef;
+my $opt_ignores         = [];
 
 my $opt_hspan           = '0.5';
 my $opt_vspan           = '0.7';
@@ -51,14 +54,16 @@ sub _boot {
                'C|color'        => \$opt_color,
                'd|dir'          => \$opt_dir_only,
                'D|date'         => \$opt_show_date,
-               't|testdoc'      => \$opt_framedoc,
+                 'destdir=s'    => \$opt_destdir,
                'F|classify'     => \$opt_classify,
                'g|show-group'   => \$opt_show_group,
                'h|human-size'   => \$opt_human,
                'H|si'           => \$opt_si1000,
+               'i|ignore=s@'    => \$opt_ignores,
                'l|follow-syms'  => \$opt_follow_syms,
                'r|root=s'       => \$opt_roottex,
                's|size'         => \$opt_show_size,
+               't|testdoc'      => \$opt_framedoc,
                'u|show-user'    => \$opt_show_user,
                'x|scale=f'      => \$opt_scale,
                 )
@@ -66,6 +71,19 @@ sub _boot {
 
     $opt_human = 1 if $opt_si1000;
     $opt_show_size = 1 if $opt_human;
+
+    if (defined $opt_destdir) {
+        $opt_destdir =~ s|/$||; # /usr/local/ => /usr/local.
+    }
+
+    # Convert the ignore list to ignore map.
+    my $ignoremap = {};
+    foreach (@$opt_ignores) {
+        #$_ = remove_destdir($_);
+        #s|^/||;
+        $ignoremap->{$_} = 1;
+    }
+    $opt_ignores = $ignoremap;
 
     _main;
 }
@@ -144,9 +162,11 @@ Common options:
     -a, --all               All files are included
     -c, --caption=TEXT      (LaTeX) Figure caption
     -d, --dir               List directories only
+        --destdir=DIR       Remove destdir prefix from symlink targets
     -g, --show-group        Show owner group
     -h, --human-size        Show size in human readable way
     -H, --si                Like --human, but use powers of 1000 not 1024
+    -i, --ignore=PATH*      Ignore path names (and its children)
     -l, --follow-syms       Follow symlinks
     -r, --root=TEXT         (LaTeX) Root node text
     -s, --size              Show size
@@ -175,8 +195,12 @@ EOT
     }
 
     for (@ARGV) {
-        # dir, base, level
-        my $root = mktree(undef, $_, 0);
+        # orig, dir, base, level
+        my $orig = $_;
+            $orig .= '/' unless $orig =~ m|/$|; # Add trailing slash.
+        my $root = mktree($orig, undef, $_, 0);
+        next unless defined $root;
+
         my $dirtitle = qtex($_);
         my $caption = $opt_caption;
             $caption = "Directory Of $dirtitle" unless defined $caption;
@@ -194,9 +218,11 @@ EOT
     grow via three points={one child at ($opt_hspan,-$opt_vspan) and
       two children at ($opt_hspan,-$opt_vspan) and ($opt_hspan,-$opt_vspan2)},
     edge from parent path={(\\tikzparentnode.south) |- (\\tikzchildnode.west)}]
-    \\path
 EOT
+        print "\\path ";
+
         texdump($root, '    ');
+
         print ";\n";
         print <<"EOT";
 \\end{tikzpicture}
@@ -227,6 +253,27 @@ sub qtex($) {
     return $s;
 }
 
+sub remove_prefix($$) {
+    my ($f, $prefix) = @_;
+    if (defined $prefix) {
+        if (substr($f, 0, length($prefix)) eq $prefix) {
+            $f = substr($f, length($prefix));
+        }
+    }
+    return $f;
+}
+
+sub remove_prefix_dir($$) {
+    my ($f, $dir) = @_;
+    if (defined $dir) {
+        my $test = $dir . '/';
+        if (substr($f, 0, length($test)) eq $test) {
+            $f = substr($f, length($dir));
+        }
+    }
+    return $f;
+}
+
 =head1 HACKING
 
 (No Information)
@@ -242,8 +289,13 @@ sub qtex($) {
 #   $node->{edge}
 #   $node->{children}
 sub mktree {
-    my ($dir, $base, $level) = @_;
+    my ($orig, $dir, $base, $level) = @_;
     my $path = (defined $dir) ? "$dir/$base" : $base;
+
+    # skip ignored paths
+    my $vpath = remove_prefix($path, $orig);
+    return undef if defined $opt_ignores->{$vpath};
+
     my $slash = rindex($path, '/');
     if ($slash == -1) {
         $dir = '.';
@@ -277,6 +329,7 @@ sub mktree {
 
     if (-l $path) { # symlink
         my $target = File::Spec::Link->linked($path);
+        $target = remove_prefix_dir($target, $opt_destdir);
         push @$styles, 'symlink';
         $node->{target} = $target;
     }
@@ -341,11 +394,11 @@ sub mktree {
                 next unless -d $_path;
             }
 
-            $hsum++;
-
-            my $child = mktree($path, $_, $level + 1);
-            push @$children, $child;
-            $hsum += $child->{innerheight};
+            my $child = mktree($orig, $path, $_, $level + 1);
+            if (defined $child) {
+                push @$children, $child;
+                $hsum += 1 + $child->{innerheight};
+            }
         }
     }
     $node->{innerheight} = $hsum;
