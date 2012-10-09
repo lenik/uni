@@ -356,6 +356,7 @@ sub texdump($$) {
     my $styles = $node->{styles};
     my $attrs = $node->{attrs};
     my $children = $node->{children};
+    my @childlist = @$children;
 
     #if ($opt_show_size) {
     #    print "node[file size] {$node->{size}}";
@@ -379,7 +380,9 @@ sub texdump($$) {
     print " {$text}";
 
     my $sublead = $lead.'    ';
-    foreach my $child (@$children) {
+    for (my $ichild = 0; $ichild < scalar(@childlist); $ichild++) {
+        my $child = $childlist[$ichild];
+        my $last = $ichild == $#childlist;
         my $cc = $child->{children};
         my $leaf = scalar(@$cc) == 0;
         my $target = $child->{target};
@@ -396,9 +399,11 @@ sub texdump($$) {
         }
         print $leaf ? ' }' : "\n${lead}}";
 
-        my $skip = $child->{innerheight};
-        for (my $i = 0; $i < $skip; $i++) {
-            print "\n${lead}child[missing] {}";
+        unless ($last) {
+            my $skip = $child->{innerheight};
+            for (my $i = 0; $i < $skip; $i++) {
+                print "\n${lead}child[missing] {}";
+            }
         }
     }
 }
