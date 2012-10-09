@@ -61,7 +61,7 @@ function main() {
 
     if [ ! -f Makefile ]; then
         makelook=1
-        if ! makelook; then
+        if ! makelook -p /usr; then
             exit 2
         fi
     fi
