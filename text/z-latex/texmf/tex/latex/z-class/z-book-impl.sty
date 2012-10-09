@@ -1,2 +1,11 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{z-book-impl}[2012/10/05 boDz Templates]
+
+\RequirePackage{import}
+\RequirePackage[pdfborder={0 0 0}]{hyperref}    % PDF Index
+
+% \importchapter[dir/]{file.tex}{title}
+\newcommand\importchapter[3][./]{%
+    \chapter{#3}%
+    \import{#1}{#2}%
+}
