@@ -1,0 +1,35 @@
+\newcommand\zclass{z-CLASS*}
+
+\section{使用}
+
+    z-latex 为常用的几个文档类添加了封装，如 book 对应为 z-book （以下简称在 \zclass）。 声明文档为 \zclass 的变体：
+
+    \begin{itemize}
+        \item \texttt { \textbackslash documentclass\{z-article\} }
+        \item \texttt { \textbackslash documentclass\{z-book\} }
+        \item \texttt { \textbackslash documentclass\{z-beamer\} }
+    \end{itemize}
+
+\section{中文支持}
+
+    \zclass 的文档需要用 xelatex 编译。
+    在 \LaTeX 中使用中文有很多麻烦的地方，比如源文件编码，字体设置，中文
+    排版等等。\zclass 把中文支持作为一个基本选项，通过传递参数：
+
+    \texttt { \textbackslash documentclass[CJK]\{\zclass\} }
+
+    将导入和中文相关的 \LaTeX 包，并设置如字体、间距等参数的默认值。
+
+\section{兼容性}
+
+    \zclass 在扩展基本文档类的同时还引入了一些必要的包，
+    大部分文档类选项都原分不动的传递给基本文档类了，因此通常不会有兼容性问题。
+
+    但由于有些包的顺序有严格要求（常见的比较容易出错的包如
+        \texttt{colorx},
+        \texttt{hyperref},
+        \texttt{fontspec}
+    等），因此可能会导致无法加载一些包。
+
+    当发生包冲突时，唯一的方法可能还是把 \zclass 模板的源文件复制粘帖到
+    你的文档中，然后手工调整包的顺序。

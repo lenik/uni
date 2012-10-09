@@ -1,0 +1,42 @@
+\documentclass[CJK, oneside]{z-toolsdoc}
+\usepackage{multicol}           % Multi column article
+
+\title{z-latex: \boDz \LaTeX 模板与工具 \\
+    简化 \LaTeX 编程并增强排版功能}
+\author{\xjlzh}
+
+\begin{document}
+
+    \maketitle
+
+\frontmatter
+    z-latex 是 \boDz 用于排版的 \TeX 工具集。
+    通过将相似的元素抽象到模板与文档类中，可以使 \boDz 的出版物看上去更加一致，
+    并减轻书写排版文档的复杂度。
+
+    \tableofcontents
+
+\mainmatter
+\chapter{简介}
+    \section{安装}
+
+    \Debian 下安装 z-latex 只需运行：
+
+        \fbox{\texttt{apt-get install z-latex}}
+
+    安装后将会在磁盘上建立如图 \ref{fig:filetree} 所示的文件结构：
+
+    \begin{figure} \label{fig:filetree}
+    \input{itree.tex}
+    \caption{z-latex 包含的文件}
+    \end{figure}
+
+\part{文档类}
+    \importchapter[texmf/doc/latex/z-class/]{classdoc-zh.tex}{文档类扩展}
+
+\part{工具库}
+\chapter{测试}
+
+    Blah blah blah\ldots
+
+\end{document}
