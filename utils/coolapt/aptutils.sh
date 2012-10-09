@@ -1,5 +1,5 @@
-alias about='postproc xxcat \; aptitude show'
-alias search='postproc xxcat \; aptitude search'
+alias pi='postproc xxcat \; aptitude show'      # package info
+alias pif='postproc xxcat \; aptitude search'   # package info find
 
 alias safi='sudo apt-fast install --allow-unauthenticated'
 alias sagb='sudo apt-get build-dep --allow-unauthenticated'
