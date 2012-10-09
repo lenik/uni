@@ -23,6 +23,7 @@ sub treetex;
 
 my $opt_framedoc        = 0;
 my $opt_roottex         = undef;
+my $opt_caption         = undef;
 my $opt_all             = 0;
 my $opt_dir_only        = 0;
 my $opt_follow_syms     = 0;
@@ -45,6 +46,7 @@ sub _boot {
                'version'        => sub { _version; exit 0 },
                'help'           => sub { _help; exit 0 },
                'a|all'          => \$opt_all,
+               'c|caption=s'    => \$opt_caption,
                'C|color'        => \$opt_color,
                'd|dir'          => \$opt_dir_only,
                'D|date'         => \$opt_show_date,
@@ -138,11 +140,13 @@ sub _help {
 
 Common options:
     -a, --all               All files are included
+    -c, --caption=TEXT      (LaTeX) Figure caption
     -d, --dir               List directories only
     -g, --show-group        Show owner group
     -h, --human-size        Show size in human readable way
     -H, --si                Like --human, but use powers of 1000 not 1024
     -l, --follow-syms       Follow symlinks
+    -r, --root=TEXT         (LaTeX) Root node text
     -s, --size              Show size
     -t, --testdoc           Generate document skeleton for test
     -u, --show-user         Show owner user
@@ -171,10 +175,14 @@ EOT
         # dir, base, level
         my $root = mktree(undef, $_, 0);
         my $dirtitle = qtex($_);
-        # $root->{text} = $dirtitle;
+        my $caption = $opt_caption;
+            $caption = "Directory Of $dirtitle" unless defined $caption;
+
+        $root->{text} = $opt_roottex if defined $opt_roottex;
+
         print <<"EOT";
 \\begin{figure}
-\\caption{Directory Of $dirtitle}
+\\caption{$caption}
 \\begin{tikzpicture}[
     grow via three points={one child at ($opt_hspan,-$opt_vspan) and
       two children at ($opt_hspan,-$opt_vspan) and ($opt_hspan,-$opt_vspan2)},
@@ -202,7 +210,7 @@ EOT
 sub qtex($) {
     my $s = shift;
     $s =~ s/\\/\\textbackslash/g;
-    $s =~ s/([{}&^_$#%])/\\\1/g;
+    $s =~ s/([{}&^_\$\#%])/\\\1/g;
     #$s =~ s/~/\\textasciitilde/g;
     $s =~ s/~/\$\\sim\$/g;
     return $s;
