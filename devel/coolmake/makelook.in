@@ -3,8 +3,8 @@
     . shlib-import cliboot
 
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="thqv"
-    long_opts="treedoc,help,quiet,verbose,version"
+    short_opts="p:thqv"
+    long_opts="prefix:,treedoc,help,quiet,verbose,version"
 
     [ -x "$TREETEX" ]   || TREETEX=`which treetex`
     [ -x "$MAKE" ]      || MAKE=@bindir@/make-color
@@ -12,6 +12,7 @@
 
     treetexopts=()
     treetexoptn=0
+    prefix=/usr/local
 
 function version() {
     parse_id "$RCSID"
@@ -26,6 +27,7 @@ function help() {
     echo "    $0 [OPTION] [--] ..."
     echo
     echo "Options: "
+    echo "    -p, --prefix=PATH       Set install prefix, default $prefix"
     echo "    -t, --treedoc           Generate complete tree document"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
@@ -35,6 +37,8 @@ function help() {
 
 function setopt() {
     case "$1" in
+        -p|--prefix)
+            prefix="$2";;
         -t|--treedoc)
             treetexopts[treetexoptn++]='-t';;
         -h|--help)
@@ -95,7 +99,7 @@ function main() {
     rm -fR $tmpdestdir
 
     _log1 "Install to temporary destdir $tmpdestdir: "
-    if $MAKE -s install DESTDIR=$tmpdestdir; then
+    if $MAKE -s install DESTDIR=$tmpdestdir prefix="$prefix"; then
         tree -a $tmpdestdir
         if [ -x "$TREETEX" ]; then
             _log1 "Generate install tree in TeX"
