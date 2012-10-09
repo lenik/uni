@@ -183,10 +183,13 @@ EOT
 
         $root->{text} = $opt_roottex if defined $opt_roottex;
 
-        print <<"EOT";
+        print <<"EOT" if $opt_framedoc;
 \\begin{figure}[bcth]
-  \\centering
-  \\begin{tikzpicture}[scale=$opt_scale,
+\\centering
+EOT
+        print <<"EOT";
+\\begin{tikzpicture}[
+    scale=\\filetreescale,
     every node/.style={transform shape},
     grow via three points={one child at ($opt_hspan,-$opt_vspan) and
       two children at ($opt_hspan,-$opt_vspan) and ($opt_hspan,-$opt_vspan2)},
@@ -196,8 +199,10 @@ EOT
         texdump($root, '    ');
         print ";\n";
         print <<"EOT";
-  \\end{tikzpicture}
-  \\caption{$caption}
+\\end{tikzpicture}
+EOT
+        print <<"EOT" if $opt_framedoc;
+\\caption{$caption}
 \\end{figure}
 EOT
     }
