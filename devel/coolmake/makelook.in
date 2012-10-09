@@ -3,8 +3,8 @@
     . shlib-import cliboot
 
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="p:thqv"
-    long_opts="prefix:,treedoc,help,quiet,verbose,version"
+    short_opts="p:i:thqv"
+    long_opts="prefix:,ignores:,treedoc,help,quiet,verbose,version"
 
     [ -x "$TREETEX" ]   || TREETEX=`which treetex`
     [ -x "$MAKE" ]      || MAKE=@bindir@/make-color
@@ -13,6 +13,7 @@
     treetexopts=()
     treetexoptn=0
     prefix=/usr/local
+    ignores=
 
 function version() {
     parse_id "$RCSID"
@@ -28,6 +29,7 @@ function help() {
     echo
     echo "Options: "
     echo "    -p, --prefix=PATH       Set install prefix, default $prefix"
+    echo "    -i, --ignores=PATH      Ignored pathnames for treetex, separated by :"
     echo "    -t, --treedoc           Generate complete tree document"
     echo "    -q, --quiet             Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
@@ -39,6 +41,18 @@ function setopt() {
     case "$1" in
         -p|--prefix)
             prefix="$2";;
+        -i|--ignore)
+            ignores="$2"
+            while [ -n "$ignores" ]; do
+                ignore="${ignores%%:*}"
+                ignores="${ignores#*:}"
+                if [ "$ignore" = "$ignores" ]; then
+                    ignores=
+                fi
+                treetexopts[treetexoptn++]='-i'
+                treetexopts[treetexoptn++]="$ignore"
+            done
+            ;;
         -t|--treedoc)
             treetexopts[treetexoptn++]='-t';;
         -h|--help)
