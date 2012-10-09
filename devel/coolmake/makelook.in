@@ -117,7 +117,7 @@ function main() {
         tree -a $tmpdestdir
         if [ -x "$TREETEX" ]; then
             _log1 "Generate install tree in TeX"
-            $TREETEX -aF \
+            $TREETEX -aF --destdir=$tmpdestdir \
                 -c "Files in the package $package_name" \
                 -r '\emph{«setupdir»}' \
                 "${treetexopts[@]}" $tmpdestdir >itree.tex
