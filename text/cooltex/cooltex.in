@@ -2,8 +2,8 @@
     . shlib-import cliboot
 
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="abdi:j:tD:I:PT:hqv"
-    long_opts="auto,batch,d,include:,job:,define:,input-path:,want-ps,tex:,help,quiet,verbose,version"
+    short_opts="abc:di:j:p:tD:I:PT:hqv"
+    long_opts="auto,batch,class:,daemon,include:,job:,package:,define:,input-path:,want-ps,tex:,help,quiet,verbose,version"
 
     TEX=xelatex
     TEXOPTS=()
@@ -15,15 +15,19 @@
     opt_v=
 
     auto_rebuild=
-    batch_mode=
+    batch_mode=             # nonstopmode
     daemon_mode=
+    job_name=
+    want_ps=
+
+    class_spec=
+    packages=()
+    packagen=0
     include_onlies=()
     include_onlyn=0
-    job_name=
     test_only=
     defines=()
     definen=0
-    want_ps=
 
     change_count=0
     rerun_c=0
@@ -44,9 +48,11 @@ function help() {
     echo "Options: "
     echo "    -a, --auto              Auto rebuild when necessary (for toc, idx, etc.)"
     echo "    -b, --batch             Run in \\nonstopmode"
+    echo "    -c, --class=CLASS[...]  Declare document class, and prepare document environment"
     echo "    -d, --daemon            Daemon mode, auto rebuild on file change"
     echo "    -i, --include=FILE      Add file to include-only list"
     echo "    -j, --job=JOBNAME       Specify a job name different to file's basename"
+    echo "    -p, --package=PKG[...]  Add package to use: \\usepackage[...]{PKG}"
     echo "    -t, --test-only         For Tex lint, fast but don't generate anything"
     echo "    -D, --define=NAM=VAL    Define macro/command"
     echo "    -I, --input-path=DIR    Add directory to \\input search path"
@@ -64,12 +70,16 @@ function setopt() {
             auto_rebuild=1;;
         -b|--batch)
             batch_mode=1;;
+        -c|--class)
+            class_spec="$2";;
         -d|--daemon)
             daemon_mode=1;;
         -i|--include)
             include_onlies[include_onlyn++]="$2";;
         -j|--job)
             job_name="$2";;
+        -p|--package)
+            packages[packagen++]="$2";;
         -t|--test-only)
             test_only=1;;
         -D|--define)
@@ -133,18 +143,42 @@ function main() {
         base="$job_name"
     fi
 
-    preinit=
-    heads=()
-    headn=0
+    preamble=
+    beginhook=
+    begindoc=
+    enddoc=
 
     for def in "${defines[@]}"; do
         key="${def%%=*}"
         val="${def#*=}"
-        preinit="$preinit\\def\\$key{$val}"
+        preamble="$preamble\\def\\$key{$val}"
     done
 
-    [ "$batch_mode" = 1 ] && preinit="$preinit\\nonstopmode"
-    [ "$test_only"  = 1 ] && heads[headn++]='\usepackage{syntonly}'
+    [ "$batch_mode" = 1 ] && preamble="$preamble\\nonstopmode"
+
+    if [ -n "$class_spec" ]; then
+        classname="${class_spec%%[*}"
+        if [ "$classname" = "$class_spec" ]; then
+            classopts=
+        else
+            classopts="${class_spec#*[}["
+        fi
+        preamble="$preamble\\documentclass$classopts{$classname}"
+        begindoc='\begin{document}'
+        enddoc='\end{document}'
+    fi
+
+    [ "$test_only"  = 1 ] && beginhook="$beginhook\\usepackage{syntonly}"
+
+    for pkg_spec in "${packages[@]}"; do
+        pkgname="${pkg_spec%%[*}"
+        if [ "$pkgname" = "$pkg_spec" ]; then
+            pkgopts=
+        else
+            pkgopts="${pkg_spec#*[}{"
+        fi
+        preamble="$preamble\\usepackage$pkgopts{$pkgname}"
+    done
 
     onlies=
         for only in "${include_onlies[@]}"; do
@@ -152,14 +186,10 @@ function main() {
         done
         if [ -n "$onlies" ]; then
             onlies="${onlies:1}"
-            preinit="$preinit\\includeonly{$onlies}"
+            preamble="$preamble\\includeonly{$onlies}"
         fi
 
-    begindoc=
-        for h in "${heads[@]}"; do
-            begindoc="$begindoc$h"
-        done
-        begindoc="\\AtBeginDocument{$begindoc}"
+    [ -n "$beginhook" ] && preamble="$preamble\\AtBeginDocument{$beginhook}"
 
     while true; do
         [ -r "$file" ] || quit "File isn't readable: $file"
@@ -177,7 +207,7 @@ function main() {
         outfile="$base.$texoutfmt"
         _log2 "Assumed output file be $outfile..."
 
-        if ! run_tex "${TEXOPTS[@]}" "$preinit$begindoc\\input{$file}"; then
+        if ! run_tex "${TEXOPTS[@]}" "$preamble$begindoc\\input{$file}$enddoc"; then
             if [ "$daemon_mode" != 1 ]; then
                 if [ "$outfile" -nt "$file" ]; then
                     # Though there's errors, but still the file is created.
