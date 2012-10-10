@@ -1,0 +1,33 @@
+\documentclass[CJK]{z-toolsdoc}
+\usepackage{multicol}
+
+\newcommand\pkgname{bash-shlib}
+\newcommand\shlib{\boDz \pkgname} \let\pkgsym\shlib
+\newcommand\findabc{$find_{abc}$}
+
+\title{\shlib \\ Bash 程序模块化支持}
+\author{\xjlzh}
+
+\begin{document}
+
+\frontmatter
+    \maketitle
+    \tableofcontents
+
+\mainmatter
+    \chapter{安装\shlib}
+
+        \Debian 系统中安装 \pkgsym 需要运行：
+
+        \texttt{ apt-get install \pkgname }
+
+        \begin{figure}[h]
+            \input{itree}
+            \caption{\pkgsym 安装后的目录结构}
+        \end{figure}
+
+    \importchapter{shlib}{使用\shlib}
+    \importchapter{builtins}{\shlib 基本库}
+    \importchapter{findabc}{\findabc 分类目录索引与进入}
+
+\end{document}

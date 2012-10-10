@@ -1,0 +1,38 @@
+    \boDz-uni 中大量命令行程序是基于 \shlib 开发的。
+    本章深入讲解 \shlib 的原理和应用。
+
+\section{\shlib 原理}
+
+    一个有用的 Bash 的脚本通常包含以下组成部分：
+
+    \begin{itemize}
+        \item 分析用户在命令行给出的选项，将它们转化为内部参数的变量。
+            如果参数格式错误、或者有些参数不支持，
+            这时可能需要显示相关的错误消息。
+
+        \item 如果用户指定了 \texttt{-h/--help} 等选项，
+            程序应该显示帮助信息。
+
+        \item 在完成具体任务的过程中，输出辅助的信息，如日志、警告提示、错误消息等。
+
+        \item 执行任务的关键代码。
+    \end{itemize}
+
+    \shlib 库称为``库''听上去有点过于庞大，实际上 \shlib 的库通常都非常小。
+    因为 \shlib 库是解释执行的，加载太大的库似乎没有意义。在这种情况下，应该将
+    较大的 \shlib 转换为更通用的外部程序，在要用的时候直接运行外部程序就行了。
+    这样不但可以简化加载过程，也便于在其它 Shell 解释器中使用。
+
+\section{导入 \shlib 库}
+
+    导入一个 \shlib 库有两种方法：
+
+    \texttt{ . shlib; import $\langle$ 库名称 $\rangle$ } \\
+    \texttt{ . shlib-import $\langle$ 库名称 $\rangle$ }
+
+    其中 \texttt{.} 相当于很多编程语言中的``include''，Shell 会读取 \texttt{.} 右边的给定的文件，并对其运行求值。用这种方法运行文件时，Shell 也会将文件名后面的参数按 \emph{\$1}, \ldots 传递给该程序。与运行命令不同的是，\texttt{.} 求值的程序可以修改环境变量。这样当 \texttt{.} 返回时，调用者可以从修改后的环境中得到信息。
+
+\section{自定义 \shlib 库}
+
+    \shlib 的库程序存放于 \texttt{/usr/share/bash-shlib.d} 目录中。
+    只要将自定义的库程序存放到该目录下，\texttt{import} 语句就能将其载入。
