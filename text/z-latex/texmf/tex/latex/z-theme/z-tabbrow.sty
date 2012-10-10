@@ -1,0 +1,76 @@
+% vim: set filetype=tex :
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{z-tabbrow}[2012/10/10 boDz Templates]
+
+\usepackage{background}
+\usepackage{etoolbox}
+\usepackage{totcount}
+\usepackage{nameref}
+
+\usetikzlibrary{backgrounds, positioning, chains}
+
+\let\oldsection\section
+\renewcommand{\section}[2][\relax]{%
+    \ifx#1\relax
+      \oldsection{#2}%
+    \else
+      \oldsection[#1]{#2}%
+    \fi%
+    \label{section:\thesection}%
+}
+
+\regtotcounter{section}
+\pretocmd{\section}{\clearpage}{}{}
+
+% auxiliary lengths for the height of the frame and the width of each tab
+\newlength\frameheight
+\newlength\avgtabwidth
+
+\tikzset{
+    tab button/.style = {
+        rectangle, rounded corners=12pt,
+        align=center, text height=20pt, text depth=25pt, font=\sffamily\LARGE,
+        inner sep=0pt },
+    unselected tab/.style = {
+        tab button, draw=gray, thick, fill=gray!20 },
+    selected tab/.style = {
+        tab button, color=white, fill=gray!90 },
+}
+
+% the page number is showed in the background material
+\pagestyle{empty}
+
+\newcommand\setuptabsatright{
+    \setlength\frameheight{\dimexpr\textheight+2cm\relax}
+    \ifnum\totvalue{section}>0
+        \setlength\avgtabwidth{\dimexpr\frameheight/\totvalue{section}\relax}
+    \fi
+
+    \backgroundsetup{scale=1, color=black, angle=0, opacity=1, contents={
+        \begin{tikzpicture}[remember picture, overlay]
+            \node[draw=gray, fill=none, line width=2pt, rectangle, rounded corners=10pt,
+                  inner sep=0pt, text width=\the\dimexpr\textwidth+3cm\relax] (border)
+                at (current page.center) {\rule{0pt}{\dimexpr\textheight+2cm\relax}};
+            %
+            \begin{scope}[on background layer, start chain=going below, node distance=2mm]
+                % initiator
+                \node[on chain, tab button, text width=30pt, fill=gray!20,
+                        anchor=south west, rotate=270, yshift=-18pt  ]
+                    at (border.north east) (tab-0) { H };
+                % follows
+                \foreach \sect in {1,...,\numexpr\totvalue{section}\relax} {
+                    \node[on chain, \ifnum\thesection<\sect unselected tab\relax
+                            \else \ifnum\thesection>\sect unselected tab\relax
+                            \else selected tab\fi\fi,
+                           rotate=270,
+                           anchor=south west,
+                           ]
+                       {\nameref{section:\sect}};
+                }
+            \end{scope}
+            %
+            \node[font=\LARGE\sffamily,fill=white]
+                at (border.south) {\makebox[3em][c]{\thepage}};
+        \end{tikzpicture}
+    }}
+}
