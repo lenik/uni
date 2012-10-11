@@ -1,0 +1,139 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+
+    DMD=dmd
+    dopts=()
+    doptn=0
+    appargs=()
+    appargn=0
+    compile=0
+    compile_hidden=0
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Auto compile dmd script and run"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] ..."
+    echo
+    echo "Options: "
+    echo "    -c, --compile           Compile and run, instead of -run"
+    echo "    -C, --compile-hidden    Compile to hidden file and run"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+    echo "  * (all other options are passed to the dmd compiler)"
+}
+
+function setopts() {
+    no_app_args="$1"
+    shift
+
+    endofoptions=0
+    for a in "$@"; do
+        if [ "$endofoptions" = 1 ]; then
+            app_args[app_argn++]="$a"
+            continue
+        fi
+
+        case "$a" in
+            -c|--compile)
+                compile=1;;
+            -c.|--compile-hidden)
+                compile=1
+                compile_hidden=1;;
+            -h|--help)
+                help; exit;;
+            -q|--quiet)
+                LOGLEVEL=$((LOGLEVEL - 1));;
+            -v|--verbose)
+                LOGLEVEL=$((LOGLEVEL + 1));;
+            --version)
+                version; exit;;
+            --)
+                endofoptions=1;;
+            #-run)
+            #    # -run is always used. so let's skip it and ...
+            #    endofoptions=1;;
+            -*)
+                dopts[doptn++]="$a";;
+            *)
+                if [ "$no_app_args" = 1 ]; then
+                    dopts[doptn++]="$a"
+                else
+                    app_args[app_argn++]="$a"
+                    endofoptions=1
+                fi;;
+        esac
+    done
+}
+
+function boot() {
+    expand_first=0
+
+    if [ $# != 0 ]; then
+        if [ ! -f "$1" ]; then
+            if [ "${1:0:1}" = '-' ]; then
+                expand_first=1
+            fi
+        fi
+    fi
+
+    if [ "$expand_first" = 1 ]; then
+        setopts 1 $1
+        shift
+    fi
+
+    setopts 0 "$@"
+
+    main "${app_args[@]}"
+}
+
+function main() {
+    d_file="$1"; shift
+    [ -f "$d_file" ] || quit "Source file $d_file isn't existed"
+
+    if [ "$compile" = 0 ]; then
+        _log2 "Execute: $DMD ${dopts[@]} -run '$d_file' $*"
+        $DMD "${dopts[@]}" -run "$d_file" "$@"
+        return
+    fi
+
+    d_dir="${d_file%/*}"
+    d_base="${d_file##*/}"
+    if [ "$d_dir" = "$d_file" ]; then
+        d_dir=.
+        d_base="$d_file"
+    fi
+
+    d_name="${d_base%.d}"
+    if [ "$d_name" = "$d_base" ]; then
+        quit "Source file must have extension .d: $d_base"
+    fi
+
+    if [ "$compile_hidden" = 1 ]; then
+        d_exe="$d_dir/.$d_name.bin"
+    else
+        d_exe="$d_dir/$d_name"
+    fi
+
+    if [ ! -f "$d_exe" ] || [ "$d_file" -nt "$d_exe" ]; then
+        _log2 "Compile:" $DMD "${dopts[@]}" -of"$d_exe" "$d_file"
+        if ! $DMD "${dopts[@]}" -of"$d_exe" "$d_file"; then
+            quit "Failed to compile."
+        fi
+    fi
+
+    _log2 "Execute:" "$d_exe" "$@"
+    "$d_exe" "$@"
+}
+
+boot "$@"

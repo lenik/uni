@@ -1,0 +1,27 @@
+\begin{tikzpicture}[
+    scale=\filetreescale,
+    every node/.style={transform shape},
+    grow via three points={one child at (0.5,-0.7) and
+      two children at (0.5,-0.7) and (0.5,-1.4)},
+    edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+\path node[dir] {\emph{«setupdir»}}
+    child{
+        node[dir] {usr\fileflag{/}}
+        child{
+            node[dir] {bin\fileflag{/}}
+            child{ node[executable] {dmd-run\fileflag{*}} }
+        }
+        child[missing] {}
+        child{
+            node[dir] {share\fileflag{/}}
+            child{
+                node[dir] {setup\fileflag{/}}
+                child{
+                    node[dir] {cooldmd\fileflag{/}}
+                    child{ node[executable] {postinst\fileflag{*}} }
+                    child{ node[executable] {prerm\fileflag{*}} }
+                }
+            }
+        }
+    };
+\end{tikzpicture}
