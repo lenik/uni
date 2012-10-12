@@ -126,6 +126,10 @@
 ;; (require 'emacs-wiki)
     ;; (global-set-key [?\C-\M-\?] 'emacs-wiki-follow-name-at-point)
 
+;; (require 'd-mode)
+    (autoload 'd-mode "progmodes/d-mode" "Major mode for editing D code." t)
+    (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
+
 ;; .section. lenik key bindings
     (defun lenik-help()
       (interactive)
@@ -177,3 +181,5 @@
 (require 'ibus)
     (add-hook 'after-init-hook 'ibus-mode-on)
     (global-set-key (kbd "C-`") 'ibus-toggle)
+
+(provide 'coolemacs)
