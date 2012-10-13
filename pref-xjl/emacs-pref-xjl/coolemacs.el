@@ -130,6 +130,11 @@
     (autoload 'd-mode "progmodes/d-mode" "Major mode for editing D code." t)
     (add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
 
+    (add-hook 'c++-mode-hook
+          (lambda () (setq comment-start "/* " comment-end " */")))
+    (add-hook 'd-mode-hook
+          (lambda () (setq comment-start "/* " comment-end " */")))
+
 ;; .section. lenik key bindings
     (defun lenik-help()
       (interactive)
