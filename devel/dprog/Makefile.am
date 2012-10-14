@@ -1,7 +1,10 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-    dmd-run
+    dprog
+
+dist_sysconf_DATA = \
+    dprog.rc
 
 setup_SCRIPTS = \
     postinst \

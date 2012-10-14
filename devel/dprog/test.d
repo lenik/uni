@@ -1,4 +1,4 @@
-#!./dmd-run.in -v -c.
+#!./dprog.in -v -i -B
 
 import std.stdio;
 

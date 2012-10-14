@@ -3,13 +3,19 @@
 
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
 
-    DMD=dmd
     dopts=()
     doptn=0
     appargs=()
     appargn=0
-    compile=0
-    compile_hidden=0
+
+    always=
+    inplace=
+    compiler=dmd
+
+    DPROGRC=@sysconfdir@/dprog.rc
+    if [ -f $DPROGRC ]; then
+        . $DPROGRC
+    fi
 
 function version() {
     parse_id "$RCSID"
@@ -24,9 +30,12 @@ function help() {
     echo "    $0 [OPTION] [--] ..."
     echo
     echo "Options: "
-    echo "    -c, --compile           Compile and run, instead of -run"
-    echo "    -C, --compile-hidden    Compile to hidden file and run"
-    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -B, --always-make     Always compile"
+    echo "    -i, --inplace         Compile to hidden file in the same dir, instead of tmpdir"
+    echo "        --dmd             Compile by dmd"
+    echo "        --dmd-run         Run the script using dmd-run"
+    echo "        --gdc             Compile by gdc"
+    echo "    -q, --quiet           Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
     echo "        --version           Print the version info"
@@ -45,11 +54,16 @@ function setopts() {
         fi
 
         case "$a" in
-            -c|--compile)
-                compile=1;;
-            -c.|--compile-hidden)
-                compile=1
-                compile_hidden=1;;
+            -B|--always-make)
+                always=1;;
+            -i|--inplace)
+                inplace=1;;
+            --dmd)
+                compiler=dmd;;
+            --dmd-run)
+                compiler=dmd-run;;
+            --gdc)
+                compiler=gdc;;
             -h|--help)
                 help; exit;;
             -q|--quiet)
@@ -94,6 +108,17 @@ function boot() {
 
     setopts 0 "$@"
 
+    case "$compiler" in
+        dmd)
+            DMD=`which dmd` || quit "Can't find dmd";;
+        dmd-run)
+            DMD=`which dmd` || quit "Can't find dmd";;
+        gdc)
+            GDC=`which gdc` || quit "Can't find gdc";;
+        *)
+            quit "Compiler isn't supported: $compiler";;
+    esac
+
     main "${app_args[@]}"
 }
 
@@ -101,7 +126,7 @@ function main() {
     d_file="$1"; shift
     [ -f "$d_file" ] || quit "Source file $d_file isn't existed"
 
-    if [ "$compile" = 0 ]; then
+    if [ "$compiler" = 'dmd-run' ]; then
         _log2 "Execute: $DMD ${dopts[@]} -run '$d_file' $*"
         $DMD "${dopts[@]}" -run "$d_file" "$@"
         return
@@ -119,17 +144,34 @@ function main() {
         quit "Source file must have extension .d: $d_base"
     fi
 
-    if [ "$compile_hidden" = 1 ]; then
+    if [ "$inplace" = 1 ]; then
         d_exe="$d_dir/.$d_name.bin"
     else
-        d_exe="$d_dir/$d_name"
+        outdir=/tmp/compiled.d
+        mkdir -p "$outdir"
+        # d_exe=`tempfile -d "$outdir" -p "$d_name" -s .bin`
+        d_exe="$outdir/$d_name.bin"
     fi
 
-    if [ ! -f "$d_exe" ] || [ "$d_file" -nt "$d_exe" ]; then
-        _log2 "Compile:" $DMD "${dopts[@]}" -of"$d_exe" "$d_file"
-        if ! $DMD "${dopts[@]}" -of"$d_exe" "$d_file"; then
-            quit "Failed to compile."
-        fi
+    if [ ! -f "$d_exe" ] || \
+            [ "$always" = 1 ] || \
+            [ "$d_file" -nt "$d_exe" ]; then
+        case "$compiler" in
+            dmd)
+                _log2 "Compile:" \
+                $DMD "${dopts[@]}" -of"$d_exe" "$d_file"
+                $DMD "${dopts[@]}" -of"$d_exe" "$d_file" ||
+                    quit "Failed to compile."
+                ;;
+            gdc)
+                _log2 "Compile:" \
+                $GDC "${dopts[@]}" -o "$d_exe" "$d_file"
+                $GDC "${dopts[@]}" -o "$d_exe" "$d_file" ||
+                    quit "Failed to compile."
+                ;;
+            *)
+                quit "Compiler isn't supported: $compiler";;
+        esac
     fi
 
     _log2 "Execute:" "$d_exe" "$@"
