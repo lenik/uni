@@ -4,6 +4,7 @@ qlogconfdir = ${pkgdatadir}
 
 dist_bin_SCRIPTS = \
     cooltask_list \
+    mtry \
     qlog \
     qlog-console
 
@@ -26,10 +27,11 @@ EXTRA_DIST = \
     prerm.in
 
 CLEANFILES = ${setup_SCRIPTS} \
+    ${dist_bin_SCRIPTS} \
     cooltask_list \
     qlog \
     qlog-console
 
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"
+#%: %.in Makefile
+#	$(do_subst) <$< >$@
+#	chmod -w "$@"

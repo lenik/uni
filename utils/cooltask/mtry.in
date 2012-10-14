@@ -1,0 +1,86 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    short_opts="hqv"
+    long_opts="help,quiet,verbose,version"
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] The programmer's modify & try tool"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] TYPE FILE ..."
+    echo
+    echo "Options: "
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    type="$1"
+    shift
+    if [ -z "$type" ]; then
+        echo "File type isn't specified." >&2
+        exit 1
+    fi
+
+    topic="$1"
+    shift
+    if [ -z "$topic" ]; then
+        echo "Topic isn't specified." >&2
+        exit 1
+    fi
+
+    dir="${topic%/*}"
+    base="${topic##*/}"
+    if [ "$dir" = "$topic" ]; then
+        dir=.
+    fi
+
+    ext="${base##*.}"
+    if [ "$ext" = "$base" ]; then
+        ext=d
+        base="$base.d"
+    fi
+    fpath="$dir/$base"
+
+    echo "Topic File: $fpath"
+
+    # new-$type -f "$fpath"
+    new-$type "$fpath"
+
+    # EDITOR..?
+    emacs "$fpath" &
+
+    if [ -x "$fpath" ]; then
+        onchange -v "$fpath" "$fpath" "$@"
+    else
+        # Refresh..?
+        onchanve -v "$fpath" echo File is changed...
+    fi
+}
+
+boot "$@"
