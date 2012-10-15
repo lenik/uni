@@ -7,7 +7,7 @@
 
 function version() {
     parse_id "$RCSID"
-    echo "[$BASENAME] <?= TEXT >"
+    echo "[$BASENAME] <?= TEXT ?>"
     echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
 }
 
