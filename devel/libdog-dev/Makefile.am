@@ -12,3 +12,7 @@ EXTRA_DIST = \
     prerm.in
 
 CLEANFILES = ${setup_SCRIPTS}
+
+install-data-hook:
+	mkdir -p $(DESTDIR)$(sited2dir)
+	rsync -av src/ $(DESTDIR)$(sited2dir)
