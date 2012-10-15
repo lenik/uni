@@ -12,5 +12,5 @@ Package: coolgen
 Provides: coolgen
 Architecture: all
 Depends: perl, libcmt-perl
-Recommends: coolutils
+Recommends: coolutils, libdog-dev
 Description: A simple cool script generator

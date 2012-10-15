@@ -1,12 +1,10 @@
-\begin{figure}[bcth]
-  \centering
-  \begin{tikzpicture}[scale=0.75,
+\begin{tikzpicture}[
+    scale=\filetreescale,
     every node/.style={transform shape},
     grow via three points={one child at (0.5,-0.7) and
       two children at (0.5,-0.7) and (0.5,-1.4)},
     edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
-    \path
-node[dir] {\emph{«setupdir»}}
+\path node[dir] {\emph{«setupdir»}}
     child{
         node[dir] {usr\fileflag{/}}
         child{
@@ -14,18 +12,14 @@ node[dir] {\emph{«setupdir»}}
             child{
                 node[dir] {bin\fileflag{/}}
                 child{ node[executable] {new\fileflag{*}} }
-                child{ node[symlink, executable] {new-bash\fileflag{*}} child[->, parallel] { node[annotation] { /tmp/destdir.28961.21371/usr/local/bin/new } } }
-                child{ node[symlink, executable] {new-cprog\fileflag{*}} child[->, parallel] { node[annotation] { /tmp/destdir.28961.21371/usr/local/bin/new } } }
-                child{ node[symlink, executable] {new-man\fileflag{*}} child[->, parallel] { node[annotation] { /tmp/destdir.28961.21371/usr/local/bin/new } } }
-                child{ node[symlink, executable] {new-perl\fileflag{*}} child[->, parallel] { node[annotation] { /tmp/destdir.28961.21371/usr/local/bin/new } } }
-                child{ node[symlink, executable] {new-perllib\fileflag{*}} child[->, parallel] { node[annotation] { /tmp/destdir.28961.21371/usr/local/bin/new } } }
-                child{ node[symlink, executable] {new-ps\fileflag{*}} child[->, parallel] { node[annotation] { /tmp/destdir.28961.21371/usr/local/bin/new } } }
-                child{ node[symlink, executable] {new-xe\fileflag{*}} child[->, parallel] { node[annotation] { /tmp/destdir.28961.21371/usr/local/bin/new } } }
-                child{ node[symlink, executable] {new-xy\fileflag{*}} child[->, parallel] { node[annotation] { /tmp/destdir.28961.21371/usr/local/bin/new } } }
+                child{ node[symlink, executable] {new-bash\fileflag{*}} child[->, parallel] { node[annotation] { /usr/local/bin/new } } }
+                child{ node[symlink, executable] {new-cprog\fileflag{*}} child[->, parallel] { node[annotation] { /usr/local/bin/new } } }
+                child{ node[symlink, executable] {new-dprog\fileflag{*}} child[->, parallel] { node[annotation] { /usr/local/bin/new } } }
+                child{ node[symlink, executable] {new-man\fileflag{*}} child[->, parallel] { node[annotation] { /usr/local/bin/new } } }
+                child{ node[symlink, executable] {new-perl\fileflag{*}} child[->, parallel] { node[annotation] { /usr/local/bin/new } } }
+                child{ node[symlink, executable] {new-perllib\fileflag{*}} child[->, parallel] { node[annotation] { /usr/local/bin/new } } }
                 child{ node[executable] {rnd\fileflag{*}} }
             }
-            child[missing] {}
-            child[missing] {}
             child[missing] {}
             child[missing] {}
             child[missing] {}
@@ -45,16 +39,12 @@ node[dir] {\emph{«setupdir»}}
                     node[dir] {newtmpl.d\fileflag{/}}
                     child{ node[executable] {bash.sh\fileflag{*}} }
                     child{ node[plain] {cprog.c} }
+                    child{ node[executable] {dprog.d\fileflag{*}} }
                     child{ node[plain] {man.rst} }
                     child{ node[executable] {perl.pl\fileflag{*}} }
                     child{ node[plain] {perllib.pm} }
-                    child{ node[plain] {ps.tex} }
-                    child{ node[plain] {xe.tex} }
-                    child{ node[plain] {xy.tex} }
                 }
             }
-            child[missing] {}
-            child[missing] {}
             child[missing] {}
             child[missing] {}
             child[missing] {}
@@ -74,6 +64,4 @@ node[dir] {\emph{«setupdir»}}
             }
         }
     };
-  \end{tikzpicture}
-  \caption{Files in the package coolgen}
-\end{figure}
+\end{tikzpicture}

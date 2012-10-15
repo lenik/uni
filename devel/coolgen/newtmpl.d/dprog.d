@@ -1,38 +1,42 @@
 #!/usr/bin/dprog -v
 
+import std.c.stdlib;
 import std.stdio;
 import std.getopt;
-import std.log;
+import std.path;
 
-import net.bodz.dog;                    /* boDz D prOGram framework */
+import net.bodz.dog.dprog;              /* boDz D prOGram framework */
 
-static immutable RCSID ID(r"$Id: - @VERSION@ @DATE@ @TIME@ - $");
+immutable RcsId rcsId = RcsId(r"$Id: - @VERSION@ @DATE@ @TIME@ - $");
+string progname;
 
 int loglevel;
 
 int main(string[] args) {
+    progname = stripExtension(baseName(args[0]));
     boot(args);
+    return 0;
 }
 
 void boot(ref string[] args) {
-    getopts(args,
-        "v|verbose",    { loglevel++; },
-        "q|quiet",      { loglevel--; },
-        "help",         { help(); exit(0); },
-        "version",      { version(); exit(0); }
+    getopt(args,
+        "v|verbose",    delegate { loglevel++; },
+        "q|quiet",      delegate { loglevel--; },
+        "h|help",       delegate { showHelp(); exit(0); },
+        "version",      delegate { showVersion(); exit(0); }
     );
 }
 
-void version() {
+void showVersion() {
     alias writeln ln;
-    ln("[" ~ progname ~ "] <?= description >");
-    ln("Written by <?= author ?>  Version 0." ~ ID.version
-        ~ "  Last updated at " ~ ID.date);
+    ln("[" ~ progname ~ "] <?= TEXT ?>");
+    ln("Written by <?= author ?>  Version 0." ~ rcsId.ver
+        ~ "  Last updated at " ~ rcsId.date);
 }
 
-void help() {
+void showHelp() {
     alias writeln ln;
-    version();
+    showVersion();
     ln();
     ln("Syntax: ");
     ln("    " ~ progname ~ " [OPTIONS] ...");
