@@ -1,0 +1,4 @@
+-od"bin"
+-of"bin/net.bodz.dog"
+
+-I"src"
