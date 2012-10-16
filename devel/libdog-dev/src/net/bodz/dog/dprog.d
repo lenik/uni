@@ -1,4 +1,3 @@
-#!/usr/bin/dprog -v
 module net.bodz.dog.dprog;
 
 import std.string;
@@ -52,3 +51,5 @@ struct RcsId {
         } /* while end < eol... */
     }
 }
+
+string progname;
