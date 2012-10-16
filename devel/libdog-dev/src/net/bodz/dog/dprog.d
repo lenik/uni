@@ -1,7 +1,10 @@
 module net.bodz.dog.dprog;
 
-import std.string;
-import std.getopt;
+public import std.stdio;
+public import std.string;
+public import std.getopt;
+
+string progname;
 
 struct RcsId {
     string file;                        /* The VCS managed file */
@@ -52,4 +55,3 @@ struct RcsId {
     } /* this() */
 }
 
-string progname;

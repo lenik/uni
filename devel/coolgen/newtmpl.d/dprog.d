@@ -2,15 +2,11 @@
 
 import std.c.stdlib;
 import std.stdio;
-import std.getopt;
 import std.path;
 
-import net.bodz.dog.dprog;              /* boDz D prOGram framework */
+import net.bodz.dog1;                   /* boDz D prOGram framework */
 
 immutable RcsId rcsId = RcsId(`$Id: - @VERSION@ @DATE@ @TIME@ - $`);
-string progname = null;
-
-int loglevel = 1;
 
 void boot(ref string[] args) {
     if (progname == null)
@@ -46,6 +42,6 @@ void showVersion() {
 
 int main(string[] args) {
     boot(args);
-    writeln("Hello, world!");
+    _log1("Hello, world!");
     return 0;
 }
