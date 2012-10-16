@@ -10,7 +10,7 @@ struct RcsId {
     string time;                        /* The last commit time */
     string mode;                        /* Experimental mode */
 
-    this(string id) {
+    this()(string id) @safe pure nothrow {
         assert(id.startsWith("$Id: ") && id.endsWith(" $"));
         id = id[4..$-1];
 
@@ -49,7 +49,7 @@ struct RcsId {
                 break;
             }
         } /* while end < eol... */
-    }
+    } /* this() */
 }
 
 string progname;
