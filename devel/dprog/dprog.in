@@ -11,11 +11,11 @@
     always=
     inplace=
     compiler=dmd
+    incdirs=()
+    incdirn=0
 
-    DPROGRC=@sysconfdir@/dprog.rc
-    if [ -f $DPROGRC ]; then
-        . $DPROGRC
-    fi
+    SYSRC=@sysconfdir@/dprog.rc
+    USERRC=$HOME/.dprog.rc
 
 function version() {
     parse_id "$RCSID"
@@ -35,6 +35,7 @@ function help() {
     echo "        --dmd             Compile by dmd"
     echo "        --dmd-run         Run the script using dmd-run"
     echo "        --gdc             Compile by gdc"
+    echo "    -I<PATH>              Add import path"
     echo "    -q, --quiet           Repeat to get less info"
     echo "    -v, --verbose           Repeat to get more info"
     echo "    -h, --help              Show this help page"
@@ -64,6 +65,9 @@ function setopts() {
                 compiler=dmd-run;;
             --gdc)
                 compiler=gdc;;
+            -I*)
+                import_path="${a#-I}"
+                incdirs[incdirn++]="$import_path";;
             -h|--help)
                 help; exit;;
             -q|--quiet)
@@ -108,13 +112,24 @@ function boot() {
 
     setopts 0 "$@"
 
+    for rc in "$SYSRC" "$USERRC"; do
+        _log2 "Load rc-file $rc"
+        if [ -f "$rc" ]; then
+            . $rc
+        fi
+    done
+
     case "$compiler" in
-        dmd)
-            DMD=`which dmd` || quit "Can't find dmd";;
-        dmd-run)
-            DMD=`which dmd` || quit "Can't find dmd";;
+        dmd|dmd-run)
+            if [ -z "$DMD" ]; then
+                DMD=`which dmd` || quit "Can't find dmd"
+            fi
+            ;;
         gdc)
-            GDC=`which gdc` || quit "Can't find gdc";;
+            if [ -z "$DMD" ]; then
+                DMD=`which gdmd` || quit "Can't find gdmd"
+            fi
+            ;;
         *)
             quit "Compiler isn't supported: $compiler";;
     esac
@@ -125,6 +140,10 @@ function boot() {
 function main() {
     d_file="$1"; shift
     [ -f "$d_file" ] || quit "Source file $d_file isn't existed"
+
+    for dir in "${incdirs[@]}"; do
+        dopts[doptn++]="-I$dir"
+    done
 
     if [ "$compiler" = 'dmd-run' ]; then
         _log2 "Execute: $DMD ${dopts[@]} -run '$d_file' $*"
@@ -157,13 +176,13 @@ function main() {
             [ "$always" = 1 ] || \
             [ "$d_file" -nt "$d_exe" ]; then
         case "$compiler" in
-            dmd)
+            dmd|gdc)
                 _log2 "Compile:" \
                 $DMD "${dopts[@]}" -of"$d_exe" "$d_file"
                 $DMD "${dopts[@]}" -of"$d_exe" "$d_file" ||
                     quit "Failed to compile."
                 ;;
-            gdc)
+            _gdc_orig) # Use gdmd above instead.
                 _log2 "Compile:" \
                 $GDC "${dopts[@]}" -o "$d_exe" "$d_file"
                 $GDC "${dopts[@]}" -o "$d_exe" "$d_file" ||
@@ -176,6 +195,16 @@ function main() {
 
     _log2 "Execute:" "$d_exe" "$@"
     "$d_exe" "$@"
+}
+
+# Functions can be used in RC script
+
+function importdir() {
+    if [ -d "$1" ]; then
+        incdirs[incdirn++]="$1"
+    else
+        quit "Non-existed import dir: $1"
+    fi
 }
 
 boot "$@"
