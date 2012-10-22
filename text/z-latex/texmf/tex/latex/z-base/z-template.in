@@ -21,10 +21,7 @@
     \RequirePackage[slantfont,boldfont]{xeCJK}
     \setCJKmainfont{WenQuanYi Micro Hei}
     %\setCJKmathfont{WenQuanYi Micro Hei}
-    \XeTeXlinebreaklocale "zh"
-    \XeTeXlinebreakskip = 0pt plus 1pt
-    \linespread{1.2}
-    \setlength{\columnsep}{.5in}
+    \RequirePackage{z-zhpref}
 \fi
 
 % Convert accent-glyph sequence to a single Unicode character.
