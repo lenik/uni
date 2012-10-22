@@ -161,7 +161,7 @@ function main() {
         if [ "$classname" = "$class_spec" ]; then
             classopts=
         else
-            classopts="${class_spec#*[}["
+            classopts="[${class_spec#*[}"
         fi
         preamble="$preamble\\documentclass$classopts{$classname}"
         begindoc='\begin{document}'
