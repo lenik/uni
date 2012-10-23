@@ -50,3 +50,17 @@
 %    \titleformat{\chapter}{\centering\huge}{第\thechapter{}章}{1em}{\textbf}
 %    \titleformat{\section}{\centering\LARGE}{\thesection}{1em}{\textbf}
 %    \titleformat{\subsection}{\Large}{\thesubsection}{1em}{\textbf}
+
+% 中文风格的带编号列表
+    \newcounter{enumerate.zh}
+    \newenvironment{enumerate.zh}[1][]{
+        \begin{list}{#1(\arabic{enumerate.zh})}{
+            \usecounter{enumerate.zh}
+            \setlength{\labelwidth}{1em} %标签盒子宽度
+            \setlength{\labelsep}{0.5em} %标签与列表文本距离
+            \setlength{\leftmargin}{0cm} %左右边界
+            \setlength{\rightmargin}{0cm}
+            \setlength{\itemsep}{0ex} %标签间距
+            \setlength{\itemindent}{3cc} %标签缩进量
+            \setlength{\listparindent}{2cc} %段落缩进量
+        }}{\end{list}}
