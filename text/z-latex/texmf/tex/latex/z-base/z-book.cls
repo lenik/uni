@@ -6,7 +6,6 @@
 \newif\ifz@titling@
 \DeclareOption{CJK}{\z@CJK@true}
 \DeclareOption{CJKspace}{\PassOptionsToPackage{CJKspace}{xeCJK}}
-\DeclareOption{CJKmath}{\PassOptionsToPackage{CJKmath}{xeCJK}}
 \DeclareOption{CJKglue}{\PassOptionsToPackage{CJKglue}{xeCJK}}
 
 \DeclareOption{titling}{\z@titling@true}
@@ -18,7 +17,7 @@
 \RequirePackage{z-latexenh}
 
 \ifz@CJK@
-    \RequirePackage[slantfont,boldfont]{xeCJK}
+    \RequirePackage[slantfont, boldfont, CJKmath=true]{xeCJK}
     \setCJKmainfont{WenQuanYi Micro Hei}
     %\setCJKmathfont{WenQuanYi Micro Hei}
     \RequirePackage{z-zhpref}
