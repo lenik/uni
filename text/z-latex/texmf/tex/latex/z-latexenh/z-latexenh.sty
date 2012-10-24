@@ -5,3 +5,12 @@
 \RequirePackage[l2tabu, orthodox]{nag}
 % \RequirePackage{todonotes}
 \RequirePackage{z-texhack}              % begincodez/endcodez
+
+\RequirePackage{environ}
+\NewEnviron{minifbox}[1]{%
+    \fbox{\begin{minipage}{#1}%
+    \BODY%
+    \end{minipage}}%
+}
+
+\RequirePackage{float}                      % Using [H] instead of [!htbp]
