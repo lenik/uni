@@ -1,0 +1,4 @@
+# master-file
+
+alias bc='bc -l @bcdir@/maths.b'
+alias sci='scilab -nwni'

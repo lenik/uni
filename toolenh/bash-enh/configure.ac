@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([bash-enh], [1.9.0], [xjl@99jsj.com])
+AC_INIT([bash-enh], [1.9.1], [xjl@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 
 AC_SUBST([prefix], [/usr])
