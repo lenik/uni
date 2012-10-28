@@ -2,8 +2,11 @@
     . shlib-import cliboot
 
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="hqv"
-    long_opts="help,quiet,verbose,version"
+
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option     --version    "Print the version info"
 
 function version() {
     parse_id "$RCSID"
@@ -17,11 +20,7 @@ function help() {
     echo "Syntax: "
     echo "    $0 [OPTION] [--] ..."
     echo
-    echo "Options: "
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
+    help_options
 }
 
 function setopt() {
