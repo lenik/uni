@@ -128,3 +128,91 @@ function dump() {
         echo arg[$i] = ${!i}
     done
 }
+
+short_opts=
+long_opts=
+
+#   -f, --FILE=PATH         Description...
+optdoc_align=28
+optdocs=()
+optdocn=0
+
+function option() {
+    local optdoc=
+    local vname=
+    local mod=
+    local shortform=0
+    for a in "$@"; do
+        case "$a" in
+        -*) ;;
+        =*)
+            vname="$a"
+            mod=:
+            break;;
+        *)
+            break;;
+        esac
+    done
+
+    while [ $# != 0 ]; do
+        case "$1" in
+            -*)
+                if [ -z "$optdoc" ]; then
+                    optdoc="    $1"
+                else
+                    optdoc="$optdoc, $1"
+                fi
+                if [ "${1:0:2}" = '--' ]; then
+                    if [ -z "$long_opts" ]; then
+                        long_opts="${1:2}$mod"
+                    else
+                        long_opts="$long_opts,${1:2}$mod"
+                    fi
+                else
+                    shortform=1
+                    short_opts="$short_opts${1:1}$mod"
+                fi
+                shift
+                ;;
+            =*)
+                shift;;
+            *)
+                break;;
+        esac
+    done
+
+    if [ $shortform = 0 ]; then
+        optdoc="    $optdoc"
+    fi
+
+    optdoc="$optdoc$vname"
+
+    while [ ${#optdoc} -lt $optdoc_align ]; do
+        optdoc="$optdoc "
+    done
+
+    optdoc="$optdoc$@"
+    optdocs[optdocn++]="$optdoc"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 $PROGRAM_SYNTAX"
+    echo
+    help_options
+}
+
+function help_options() {
+    echo "Options: "
+    for optdoc in "${optdocs[@]}"; do
+        echo "$optdoc"
+    done
+}
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] $PROGRAM_TITLE"
+    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+}
