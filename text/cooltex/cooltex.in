@@ -1,9 +1,26 @@
 #!/bin/bash
-    . shlib-import cliboot
-
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="abc:di:j:p:tD:I:PT:hqv"
-    long_opts="auto,batch,class:,daemon,include:,job:,package:,define:,input-path:,want-ps,tex:,help,quiet,verbose,version"
+    PROGRAM_TITLE="Cool Tex Builder"
+    PROGRAM_SYNTAX="[OPTION] [--] FILE[.[tex]]"
+
+    . shlib-import cliboot
+    option -a --auto                "Auto rebuild when necessary (for toc, idx, etc.)"
+    option -b --batch               "Run in \\nonstopmode"
+    option -c --class =CLASS[...]   "Wrapped in a specific document class"
+    option -d --daemon              "Daemon mode, auto rebuild on file change"
+    option -i --include =FILE       "Add file to include-only list"
+    option -j --job =JOBNAME        "Specify a job name different to file's basename"
+    option -o --open                "Open the result document"
+    option -p --package =PKG[...]   "Add package to use: \\usepackage[...]{PKG}"
+    option -t --test-only           "For Tex lint, fast but don't generate anything"
+    option -D --define =NAM=VAL     "Define macro/command"
+    option -I --input-path =DIR     "Add directory to \\input search path"
+    option -P --want-ps             "Output in PostScript, instead of PDF"
+    option -T --tex ="<program>"    "Use specific tex, xelatex by default"
+    option -q --quiet               "Repeat to get less info"
+    option -v --verbose             "Repeat to get more info"
+    option -h --help                "Show this help page"
+    option    --version             "Print the version info"
 
     TEX=xelatex
     TEXOPTS=()
@@ -15,6 +32,7 @@
     opt_v=
 
     auto_rebuild=
+    auto_open=
     batch_mode=             # nonstopmode
     daemon_mode=
     job_name=
@@ -32,38 +50,6 @@
     change_count=0
     rerun_c=0
 
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Cool Tex Builder"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] FILE[.[tex]]"
-    echo
-    echo "Options: "
-    echo "    -a, --auto              Auto rebuild when necessary (for toc, idx, etc.)"
-    echo "    -b, --batch             Run in \\nonstopmode"
-    echo "    -c, --class=CLASS[...]  Declare document class, and prepare document environment"
-    echo "    -d, --daemon            Daemon mode, auto rebuild on file change"
-    echo "    -i, --include=FILE      Add file to include-only list"
-    echo "    -j, --job=JOBNAME       Specify a job name different to file's basename"
-    echo "    -p, --package=PKG[...]  Add package to use: \\usepackage[...]{PKG}"
-    echo "    -t, --test-only         For Tex lint, fast but don't generate anything"
-    echo "    -D, --define=NAM=VAL    Define macro/command"
-    echo "    -I, --input-path=DIR    Add directory to \\input search path"
-    echo "    -P, --want-ps           Output in PostScript, instead of PDF"
-    echo "    -T, --tex=<program>     Use specific tex, xelatex by default"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
-
 function setopt() {
     case "$1" in
         -a|--auto)
@@ -78,6 +64,8 @@ function setopt() {
             include_onlies[include_onlyn++]="$2";;
         -j|--job)
             job_name="$2";;
+        -o|--open)
+            auto_open=1;;
         -p|--package)
             packages[packagen++]="$2";;
         -t|--test-only)
@@ -291,6 +279,24 @@ function main() {
         #_log2 "dvips/ps2pdf $base.dvi -> $base.pdf"
         #dvips "$base.dvi"
         #ps2pdf "$base.ps"
+
+        if [ "$auto_open" = 1 ] && [ $change_count = 0 ]; then
+            if [ -z "$OPEN_BY" ]; then
+                if which alt-exec >/dev/null; then
+                    OPEN_BY="alt-exec -s x-open"
+                elif which gnome-exec >/dev/null; then
+                    OPEN_BY="gnome-exec"
+                elif which mate-exec >/dev/null; then
+                    OPEN_BY="mate-exec"
+                else
+                    _error "Don't know how to open file"
+                fi
+            fi
+            if [ -n "$OPEN_BY" ]; then
+                _log2 "Auto open $outfile"
+                $OPEN_BY "$outfile"
+            fi
+        fi
 
         if [ "$daemon_mode" = 1 ]; then
             _log1 "Waiting until $file is changed: $((++change_count)) times"

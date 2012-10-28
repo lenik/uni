@@ -219,7 +219,7 @@ EOT
       two children at ($opt_hspan,-$opt_vspan) and ($opt_hspan,-$opt_vspan2)},
     edge from parent path={(\\tikzparentnode.south) |- (\\tikzchildnode.west)}]
 EOT
-        print "\\path ";
+        print "    \\path ";
 
         texdump($root, '    ');
 
