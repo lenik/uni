@@ -1,27 +1,13 @@
 #!/bin/bash
-    . shlib-import cliboot
-
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    PROGRAM_TITLE="<?= TEXT ?>"
+    PROGRAM_SYNTAX="[OPTIONS] [--] ..."
 
+    . shlib-import cliboot
     option -q --quiet       "Repeat to get less info"
     option -v --verbose     "Repeat to get more info"
     option -h --help        "Show this help page"
     option     --version    "Print the version info"
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] <?= TEXT ?>"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] ..."
-    echo
-    help_options
-}
 
 function setopt() {
     case "$1" in
