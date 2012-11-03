@@ -6,6 +6,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.bodz.bas.cli.skel.EditResult;
+import net.bodz.bas.vfs.IFile;
+import net.bodz.bas.vfs.VFS;
 
 public class FileProcessTest
         extends Assert {
@@ -17,7 +19,9 @@ public class FileProcessTest
             void o(String input, String expectedPath)
                     throws Exception {
                 String[] args = input.split("\\|", 2);
-                final String file = args[0].trim();
+                String path = args[0].trim();
+                final IFile file = VFS.resolve(path);
+
                 final String repl = args[1].trim();
                 final EditResult[] result = new EditResult[1];
                 new FileProcess() {
@@ -25,7 +29,7 @@ public class FileProcessTest
                     protected void doMain(String[] args)
                             throws Exception {
                         RenameComponents renAction = (RenameComponents) actions.get(0);
-                        result[0] = renAction.run(new File(file), null, null);
+                        result[0] = renAction.run(file, null, null);
                     }
                 }.execute("-Dnonexist=X", "-asg=" + repl);
                 File dst = (File) result[0].dest;

@@ -20,6 +20,7 @@ import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
 import net.bodz.bas.c.java.util.TreeTextMap;
 import net.bodz.bas.c.string.StringArray;
+import net.bodz.bas.c.system.UserDirColo;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.NotImplementedException;
@@ -31,7 +32,6 @@ import net.bodz.bas.lang.ControlExit;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.meta.program.ProgramName;
-import net.bodz.bas.vfs.CurrentDirectoryColo;
 
 /**
  * Lapiota Java Shell
@@ -291,15 +291,15 @@ public class JavaShell
         public int main(String... args)
                 throws Exception {
             if (args.length == 0)
-                System.out.println(CurrentDirectoryColo.getInstance().get());
+                System.out.println(UserDirColo.getInstance().get());
             else {
                 try {
-                    File dir = CurrentDirectoryColo.getInstance().join(args[0]);
+                    File dir = UserDirColo.getInstance().join(args[0]);
                     if (!dir.isDirectory()) {
                         System.err.println(tr._("Not a directory: ") + dir);
                         return 1;
                     }
-                    CurrentDirectoryColo.getInstance().set(dir);
+                    UserDirColo.getInstance().set(dir);
                 } catch (RuntimeException e) {
                     e.printStackTrace();
                     return 2;

@@ -15,8 +15,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import net.bodz.bas.gui.a.PreferredSize;
-import net.bodz.bas.gui.ia.UIException;
+import net.bodz.bas.gui.err.GUIException;
+import net.bodz.bas.gui.mda.PreferredSize;
 import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
@@ -48,7 +48,7 @@ public class ActivateCodeGenerator
 
     @Override
     protected void createInitialView(final Composite holder)
-            throws UIException {
+            throws GUIException {
 
         final GridLayout gridLayout = new GridLayout();
         gridLayout.numColumns = 3;

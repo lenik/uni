@@ -89,7 +89,7 @@ public class ASTDump
         CompilationUnit root = (CompilationUnit) parser.createAST(null);
 
         // ASTVisitor av = new ASTDumpVisitor(this);
-        ASTVisitor visitor = CompatMethods.newInstance(Visitor.class, this);
+        ASTVisitor visitor = new Visitor();
         root.accept(visitor);
     }
 

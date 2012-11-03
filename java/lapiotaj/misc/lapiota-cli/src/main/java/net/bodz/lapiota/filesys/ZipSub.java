@@ -12,16 +12,18 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import net.bodz.bas.c.java.io.FilePath;
+import net.bodz.bas.c.system.UserDirColo;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.io.resource.builtin.InputStreamSource;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.util.iter.Iterables;
-import net.bodz.bas.vfs.CurrentDirectoryColo;
 
 /**
  * Remove entries in zip file, which appears in another zips
+ *
+ * @usage DEST-ZIP MINUS-ZIP-LIST
  */
 @RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 0 })
@@ -61,7 +63,7 @@ public class ZipSub
             logger.info(tr._("subtract from: "), args[i], " (", n, tr._(" uniq entries)"));
         }
 
-        File dest = CurrentDirectoryColo.getInstance().join(args[0]);
+        File dest = UserDirColo.getInstance().join(args[0]);
         String destName = FilePath.getBaseName(dest.getPath());
         File destDir = dest.getParentFile();
 
@@ -102,11 +104,9 @@ public class ZipSub
                     throw new IOException(tr._("Can\'t delete ") + destBak);
             }
             if (!dest.renameTo(destBak))
-                throw new IOException(tr._("Can\'t rename ") + dest + tr._(" to ")
-                        + destBak);
+                throw new IOException(tr._("Can\'t rename ") + dest + tr._(" to ") + destBak);
             if (!temp.renameTo(dest))
-                throw new IOException(tr._("Can\'t rename ") + temp + tr._(" to ")
-                        + dest);
+                throw new IOException(tr._("Can\'t rename ") + temp + tr._(" to ") + dest);
         } else {
             logger.mesg(tr._("Nothing has been removed. "));
         }
@@ -156,11 +156,6 @@ public class ZipSub
             out.closeEntry();
         }
         logger.info(title, name, " ", entry.getCompressedSize(), "/", size + ". ");
-    }
-
-    @Override
-    protected String _helpRestSyntax() {
-        return tr._("DEST-ZIP MINUS-ZIP-LIST");
     }
 
     public static void main(String[] args)

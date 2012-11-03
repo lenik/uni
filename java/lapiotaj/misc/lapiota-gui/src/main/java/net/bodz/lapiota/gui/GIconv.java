@@ -23,8 +23,8 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 
 import net.bodz.bas.err.DecodeException;
-import net.bodz.bas.gui.a.PreferredSize;
-import net.bodz.bas.gui.ia.UIException;
+import net.bodz.bas.gui.err.GUIException;
+import net.bodz.bas.gui.mda.PreferredSize;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.text.codec.builtin.HexCodec;
@@ -58,7 +58,7 @@ public class GIconv
 
     @Override
     protected void createInitialView(Composite comp)
-            throws UIException, SWTException {
+            throws GUIException, SWTException {
         comp.setLayout(new FillLayout());
         comp = new Composite(comp, SWT.NONE);
         comp.setLayout(new FormLayout());

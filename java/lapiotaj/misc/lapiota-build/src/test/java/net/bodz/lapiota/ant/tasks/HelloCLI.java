@@ -2,7 +2,7 @@ package net.bodz.lapiota.ant.tasks;
 
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.log.Logger;
-import net.bodz.bas.potato.traits.IType;
+import net.bodz.bas.potato.model.IType;
 
 public class HelloCLI
         extends BasicCLI {
@@ -41,7 +41,7 @@ public class HelloCLI
     public static void main(String[] args)
             throws Exception {
         HelloCLI app = new HelloCLI();
-        IType type = app.getScriptClass();
+        IType type = app.getPotatoType();
         Logger logger = app.logger;
         System.out.println("Log Error Level = " + logger.getLevel());
         System.out.println("Log Verbose Level = " + logger.getDelta());

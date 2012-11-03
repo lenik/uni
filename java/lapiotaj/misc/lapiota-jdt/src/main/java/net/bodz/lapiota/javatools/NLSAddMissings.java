@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.collections15.SetUtils;
+
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.java.util.Collections;
 import net.bodz.bas.c.string.StringArray;

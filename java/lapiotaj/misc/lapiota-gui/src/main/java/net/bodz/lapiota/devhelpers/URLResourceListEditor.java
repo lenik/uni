@@ -8,31 +8,35 @@ import java.net.URL;
 import org.eclipse.swt.widgets.Composite;
 
 import net.bodz.bas.c.string.StringPart;
+import net.bodz.bas.io.resource.builtin.URLResource;
 import net.bodz.swt.c3.file.FileSelector;
 import net.bodz.swt.c3.list.AbstractListEditor;
 
-public class URLListEditor
-        extends AbstractListEditor<URL> {
+public class URLResourceListEditor
+        extends AbstractListEditor<URLResource> {
 
     private FileSelector fileSelector;
 
-    public URLListEditor(Composite parent, int style) {
+    public URLResourceListEditor(Composite parent, int style) {
         super(parent, style);
         this.fileSelector = new FileSelector();
     }
 
     @Override
-    protected URL createObject() {
+    protected URLResource createObject() {
         String path = fileSelector.select(getShell(), null);
         if (path == null)
             return null;
         File file = new File(path);
+        URL url;
         try {
-            URL url = file.toURI().toURL();
-            return url;
+            url = file.toURI().toURL();
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
+
+        URLResource resource = new URLResource(url);
+        return resource;
     }
 
     public FileSelector getFileSelector() {
@@ -46,9 +50,10 @@ public class URLListEditor
     }
 
     @Override
-    protected String format(URL url) {
-        if (url == null)
+    protected String format(URLResource resource) {
+        if (resource == null)
             return "(null)";
+        URL url = resource.getURL();
         String protocol = url.getProtocol();
         String s = url.getPath();
         if ("jar".equals(protocol))

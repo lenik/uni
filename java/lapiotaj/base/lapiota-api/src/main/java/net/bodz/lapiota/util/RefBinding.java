@@ -10,9 +10,9 @@ import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
 import net.bodz.bas.lang.ref.Ref;
 import net.bodz.bas.potato.Potatoes;
+import net.bodz.bas.potato.model.IProperty;
+import net.bodz.bas.potato.model.IType;
 import net.bodz.bas.potato.ref.PropertyRef;
-import net.bodz.bas.potato.traits.IProperty;
-import net.bodz.bas.potato.traits.IType;
 
 /**
  * Groovy variable binding with reflect fields

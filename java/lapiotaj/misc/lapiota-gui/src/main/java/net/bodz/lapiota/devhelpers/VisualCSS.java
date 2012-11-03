@@ -1,7 +1,6 @@
 package net.bodz.lapiota.devhelpers;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -23,8 +22,8 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 
 import net.bodz.bas.c.loader.ClassResource;
-import net.bodz.bas.gui.a.PreferredSize;
-import net.bodz.bas.gui.ia.UIException;
+import net.bodz.bas.gui.err.GUIException;
+import net.bodz.bas.gui.mda.PreferredSize;
 import net.bodz.bas.io.resource.builtin.URLResource;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
@@ -42,8 +41,8 @@ import net.bodz.swt.program.BasicGUI;
 public class VisualCSS
         extends BasicGUI {
 
-    private URLListEditor pageList;
-    private URLListEditor cssList;
+    private URLResourceListEditor pageList;
+    private URLResourceListEditor cssList;
     private Browser browser;
 
     private Label browserTitle;
@@ -66,7 +65,6 @@ public class VisualCSS
     static final String KEY_PAGEV = "pagev";
     static final String KEY_CSSV = "cssv";
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void _boot()
             throws Exception {
@@ -103,7 +101,7 @@ public class VisualCSS
 
     @Override
     protected void createInitialView(Composite holder)
-            throws UIException {
+            throws GUIException {
         final Display display = holder.getDisplay();
 
         GridLayout gridLayout = new GridLayout();
@@ -133,15 +131,14 @@ public class VisualCSS
         final SashForm leftPane = new SashForm(mainSash, SWT.VERTICAL | SWT.BORDER);
         leftPane.setSashWidth(1);
 
-        pageList = new URLListEditor(leftPane, SWT.NONE);
+        pageList = new URLResourceListEditor(leftPane, SWT.NONE);
         pageList.setText("Demo &Page");
         pageList.setList(pagev);
-        pageList.setAllowArrange(true);
+        pageList.setAllowMovingItems(true);
         pageList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                URL url = pageList.getSelection();
-                URLResource res = new URLResource(url);
+                URLResource res = pageList.getSelection();
                 res.setCharset("utf-8"); // xml auto decode??
                 try {
                     String html = res.tooling()._for(StreamReading.class).readTextContents();
@@ -153,14 +150,13 @@ public class VisualCSS
             }
         });
 
-        cssList = new URLListEditor(leftPane, SWT.NONE);
+        cssList = new URLResourceListEditor(leftPane, SWT.NONE);
         cssList.setText("Apply with &CSS");
         cssList.setList(cssv);
         cssList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                URL url = cssList.getSelection();
-                URLResource res = new URLResource(url);
+                URLResource res = cssList.getSelection();
                 res.setCharset("utf-8"); // css auto decode??
 
                 try {
