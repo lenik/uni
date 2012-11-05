@@ -24,7 +24,7 @@ public class HelloCLI
     }
 
     @Override
-    protected void mainImpl(String[] args)
+    protected void mainImpl(String... args)
             throws Exception {
         logger.mesg("good morning!");
         logger.info("you are ", yourName);

@@ -13,7 +13,7 @@ public class SnmCC
         extends BasicCLI {
 
     @Override
-    protected void mainImpl(String[] args)
+    protected void mainImpl(String... args)
             throws Exception {
     }
 

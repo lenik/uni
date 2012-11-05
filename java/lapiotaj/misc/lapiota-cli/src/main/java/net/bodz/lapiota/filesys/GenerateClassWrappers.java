@@ -273,7 +273,7 @@ public class GenerateClassWrappers
     }
 
     @Override
-    protected void mainImpl(String[] args)
+    protected void mainImpl(String... args)
             throws Exception {
         for (Class<?> clazz : classes) {
             logger.mesg("type ", clazz);

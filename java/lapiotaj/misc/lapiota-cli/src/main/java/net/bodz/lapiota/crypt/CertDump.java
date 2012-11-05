@@ -35,7 +35,7 @@ public class CertDump
     }
 
     @Override
-    protected void mainImpl(String[] args)
+    protected void mainImpl(String... args)
             throws Exception {
         if (args.length == 0)
             _help();

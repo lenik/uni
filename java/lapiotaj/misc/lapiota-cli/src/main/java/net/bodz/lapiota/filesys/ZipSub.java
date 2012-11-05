@@ -45,7 +45,7 @@ public class ZipSub
     boolean suffixMatch;
 
     @Override
-    protected void mainImpl(String[] args)
+    protected void mainImpl(String... args)
             throws Exception {
         if (args.length < 2)
             _help();

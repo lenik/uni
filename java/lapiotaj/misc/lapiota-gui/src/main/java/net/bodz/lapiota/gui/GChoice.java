@@ -54,12 +54,12 @@ public class GChoice
      * Exit with 0 if user canceled, or the selection index number from 1.
      */
     @Override
-    protected void doMain(String[] args)
+    protected void mainImpl(String... args)
             throws Exception {
         int style = SWT.SYSTEM_MODAL;
         if (topMost)
             style |= SWT.ON_TOP;
-        DialogInteraction dialogs = new DialogInteraction(style);
+        SwtDialogs dialogs = new SwtDialogs(style);
         if (envKey != null) {
             String _count = System.getenv(envKey + "_count");
             if (_count == null) {

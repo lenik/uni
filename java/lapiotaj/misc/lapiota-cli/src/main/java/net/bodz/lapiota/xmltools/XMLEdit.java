@@ -349,14 +349,17 @@ public class XMLEdit
         else
             out = System.out;
 
-        String xmlenc = document.getXMLEncoding();
-        if (xmlenc != null)
-            outputFormat.setEncoding(xmlenc);
+        try {
+            String xmlenc = document.getXMLEncoding();
+            if (xmlenc != null)
+                outputFormat.setEncoding(xmlenc);
 
-        XMLWriter writer = new XMLWriter(out, outputFormat);
-        writer.write(document);
-        if (out != System.out)
-            out.close();
+            XMLWriter writer = new XMLWriter(out, outputFormat);
+            writer.write(document);
+        } finally {
+            if (out != System.out)
+                out.close();
+        }
     }
 
     @Override
@@ -369,7 +372,7 @@ public class XMLEdit
     }
 
     @Override
-    protected void mainImpl(String[] args)
+    protected void mainImpl(String... args)
             throws Exception {
         save();
     }

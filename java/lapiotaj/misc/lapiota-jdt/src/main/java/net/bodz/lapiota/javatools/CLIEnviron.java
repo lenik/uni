@@ -242,7 +242,7 @@ public class CLIEnviron
     }
 
     @Override
-    protected void doMain(String[] args)
+    protected void mainImpl(String... args)
             throws Exception {
         dumpRest();
         for (int i = 0; i < args.length; i++) {
