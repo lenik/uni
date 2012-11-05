@@ -369,7 +369,7 @@ public class XMLEdit
     }
 
     @Override
-    protected void doMain(String[] args)
+    protected void mainImpl(String[] args)
             throws Exception {
         save();
     }

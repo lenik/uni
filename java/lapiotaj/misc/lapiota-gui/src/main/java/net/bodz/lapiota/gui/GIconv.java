@@ -308,7 +308,7 @@ public class GIconv
         try {
             bytes = HexCodec.getInstance().decode(hex);
         } catch (DecodeException e) {
-            UI.alert(e.getMessage(), e);
+            userDialogs.alert(e.getMessage(), e);
             return null;
         }
         return bytes;
@@ -329,7 +329,7 @@ public class GIconv
         try {
             setBinary(s.getBytes(charset));
         } catch (UnsupportedEncodingException e) {
-            UI.alert(e.getMessage(), e);
+            userDialogs.alert(e.getMessage(), e);
         }
     }
 
@@ -339,7 +339,7 @@ public class GIconv
         try {
             setBinary(s.getBytes(charset));
         } catch (UnsupportedEncodingException e) {
-            UI.alert(e.getMessage(), e);
+            userDialogs.alert(e.getMessage(), e);
         }
     }
 
@@ -354,7 +354,7 @@ public class GIconv
         try {
             s = new String(binary, charset);
         } catch (UnsupportedEncodingException e) {
-            UI.alert(e.getMessage(), e);
+            userDialogs.alert(e.getMessage(), e);
             return;
         }
         text1Text.setText(s);
@@ -371,7 +371,7 @@ public class GIconv
         try {
             s = new String(binary, charset);
         } catch (UnsupportedEncodingException e) {
-            UI.alert(e.getMessage(), e);
+            userDialogs.alert(e.getMessage(), e);
             return;
         }
         text2Text.setText(s);

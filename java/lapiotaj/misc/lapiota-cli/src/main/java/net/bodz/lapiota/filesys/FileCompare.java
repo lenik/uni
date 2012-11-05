@@ -54,7 +54,7 @@ public class FileCompare
     protected IPrintOut output = Stdio.cout;
 
     @Override
-    protected void doMain(String[] args)
+    protected void mainImpl(String[] args)
             throws Exception {
         if (args.length > 0)
             throw new IllegalArgumentException(tr._("unexpected argument: ") + args[0]);

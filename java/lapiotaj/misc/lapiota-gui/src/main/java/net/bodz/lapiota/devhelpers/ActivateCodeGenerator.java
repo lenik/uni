@@ -99,7 +99,7 @@ public class ActivateCodeGenerator
             @Override
             public void widgetSelected(SelectionEvent e) {
                 Registrant registrant = new Registrant();
-                UI.alert("Edit", registrant);
+                userDialogs.alert("Edit", registrant);
                 int hash = registrant.hashCode();
                 hashText.setText(String.valueOf(hash));
             }
@@ -164,7 +164,7 @@ public class ActivateCodeGenerator
             String code = abt.generateFor(target);
             codeText.setText(code);
         } catch (ProtectException e) {
-            UI.alert(e.getMessage(), e);
+            userDialogs.alert(e.getMessage(), e);
         }
     }
 

@@ -235,7 +235,7 @@ public class XMLFlat
     }
 
     @Override
-    protected void doMain(String[] args)
+    protected void mainImpl(String[] args)
             throws Exception {
         SAXReader reader = new SAXReader();
         if (inputFile == null) {

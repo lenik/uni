@@ -47,8 +47,9 @@ public class CLIEnvironmentTest
         }
     }
 
-    protected void _main(String[] args)
-            throws Throwable {
+    @Override
+    protected void mainImpl(String... args)
+            throws Exception {
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
             logger.mesgf("%4d. %s;", i, arg);

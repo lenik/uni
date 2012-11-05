@@ -392,7 +392,7 @@ public class PartialCopy
     }
 
     @Override
-    protected void doMain(String[] args)
+    protected void mainImpl(String[] args)
             throws Exception {
         if (copies == 0)
             doCopy();

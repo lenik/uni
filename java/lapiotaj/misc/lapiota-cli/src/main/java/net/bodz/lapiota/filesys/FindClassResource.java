@@ -216,7 +216,7 @@ public class FindClassResource
     }
 
     @Override
-    protected void doMain(String[] args)
+    protected void mainImpl(String[] args)
             throws Exception {
         if (testClass == null) {
             for (URL url : classpaths) {

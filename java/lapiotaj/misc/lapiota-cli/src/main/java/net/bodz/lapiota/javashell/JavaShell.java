@@ -140,7 +140,7 @@ public class JavaShell
     }
 
     @Override
-    protected synchronized void doMain(String[] scriptArgs)
+    protected synchronized void mainImpl(String[] scriptArgs)
             throws IOException {
         this.scriptArgs = scriptArgs;
 

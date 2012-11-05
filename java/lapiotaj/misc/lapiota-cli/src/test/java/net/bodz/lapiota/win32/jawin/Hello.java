@@ -22,7 +22,7 @@ public class Hello
     static boolean HELLO_DUMP = false;
 
     @Override
-    protected void doMain(String[] args)
+    protected void mainImpl(String[] args)
             throws Exception {
         if (HELLO_DUMP)
             Classpath.dumpURLs(Stdio.cerr);
