@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.eclipse.swt.SWT;
 
-import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.IPrintOut;
@@ -91,8 +90,7 @@ public class GChoice
     }
 
     @Override
-    protected void _help(IPrintOut out)
-            throws CLIException {
+    protected void _help(IPrintOut out) {
         super._help(out);
         out.println();
 

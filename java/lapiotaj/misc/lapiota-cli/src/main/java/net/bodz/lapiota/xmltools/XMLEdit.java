@@ -22,7 +22,6 @@ import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 
 import net.bodz.bas.cli.skel.BasicCLI;
-import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.loader.boot.BootInfo;
@@ -363,8 +362,7 @@ public class XMLEdit
     }
 
     @Override
-    protected void _help(IPrintOut out)
-            throws CLIException {
+    protected void _help(IPrintOut out) {
         super._help(out);
         out.println();
         StringUtil.helpEscapes(out);

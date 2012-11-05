@@ -8,7 +8,6 @@ import java.util.zip.Checksum;
 
 import net.bodz.bas.c.java.lang.ClassTraits;
 import net.bodz.bas.cli.skel.BatchCLI;
-import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.resource.tools.StreamReading;
@@ -162,8 +161,7 @@ public class CRCSum
     }
 
     @Override
-    protected void _help(IPrintOut out)
-            throws CLIException {
+    protected void _help(IPrintOut out) {
         super._help(out);
         out.println();
 

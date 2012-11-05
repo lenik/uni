@@ -10,7 +10,6 @@ import net.bodz.bas.c.java.util.Arrays;
 import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
 import net.bodz.bas.cli.plugin.CLIPlugin;
 import net.bodz.bas.cli.skel.BasicCLI;
-import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.io.resource.builtin.LocalFileResource;
@@ -374,8 +373,7 @@ public class PartialCopy
     }
 
     @Override
-    protected void _help(IPrintOut out)
-            throws CLIException {
+    protected void _help(IPrintOut out) {
         super._help(out);
         out.println();
 

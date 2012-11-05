@@ -17,7 +17,6 @@ import org.dom4j.XPath;
 import org.dom4j.io.SAXReader;
 
 import net.bodz.bas.cli.skel.BasicCLI;
-import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
@@ -221,8 +220,7 @@ public class XMLFlat
     }
 
     @Override
-    protected void _help(IPrintOut out)
-            throws CLIException {
+    protected void _help(IPrintOut out) {
         super._help(out);
         out.println();
         StringUtil.helpEscapes(out);

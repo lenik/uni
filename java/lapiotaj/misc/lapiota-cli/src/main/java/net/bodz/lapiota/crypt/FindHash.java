@@ -6,7 +6,6 @@ import java.security.Security;
 import java.util.Arrays;
 
 import net.bodz.bas.cli.skel.BasicCLI;
-import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.err.UnexpectedException;
@@ -171,8 +170,7 @@ public class FindHash
     }
 
     @Override
-    protected void _help(IPrintOut out)
-            throws CLIException {
+    protected void _help(IPrintOut out) {
         super._help(out);
         out.println();
 
