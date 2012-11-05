@@ -50,8 +50,7 @@ public class XmlfsSelector
      */
     protected OutputFormat outputFormat = OutputFormat.createPrettyPrint();
 
-    @Override
-    protected void doFileArgument(IFile root)
+    public void selectFromRoot(IFile root)
             throws Exception {
         XmlfsDocument doc = new XmlfsDocument(root);
         List<?> list = select.selectNodes(doc);
@@ -70,6 +69,13 @@ public class XmlfsSelector
     public static void main(String[] args)
             throws Exception {
         new XmlfsSelector().execute(args);
+    }
+
+    @Override
+    protected void mainImpl(String... args)
+            throws Exception {
+        for (IFile file : expandWildcards(args))
+            selectFromRoot(file);
     }
 
 }

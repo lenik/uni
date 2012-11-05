@@ -22,7 +22,7 @@ public class TestHello
         extends BasicCLI {
 
     @Override
-    protected void doMain(String[] args)
+    protected void mainImpl(String... args)
             throws Exception {
         System.out.println(SWT.class);
         System.out.println(Widget.class);

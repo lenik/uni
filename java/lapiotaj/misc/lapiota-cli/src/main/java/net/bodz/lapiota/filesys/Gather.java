@@ -129,8 +129,7 @@ public class Gather
             if (srcs == null)
                 throw new IllegalArgumentException(tr._("src isn\'t existed: ") + srcwild);
             if (srcs.size() > 1)
-                throw new IllegalArgumentException(tr._("too many matched src: \n")
-                        + StringArray.join("\n", srcs));
+                throw new IllegalArgumentException(tr._("too many matched src: \n") + StringArray.join("\n", srcs));
             File src = FilePath.canoniOf(srcs.get(0));
             IFile dst = dstdir.getChild(dstfile);
             src2dst.put(src, dst);
@@ -158,7 +157,13 @@ public class Gather
     }
 
     @Override
-    protected void doFileArgument(IFile dstdir)
+    protected void mainImpl(String... args)
+            throws Exception {
+        for (IFile dstdir : expandWildcards(args))
+            gatherDir(dstdir);
+    }
+
+    public void gatherDir(IFile dstdir)
             throws Exception {
         if (!dstdir.isTree())
             throw new IllegalArgumentException(tr._("not a directory: ") + dstdir);

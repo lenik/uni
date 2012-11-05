@@ -116,8 +116,7 @@ public class IconConv
         extension = extensions.get(imageType);
     }
 
-    @Override
-    protected void doFile(IFile file)
+    public void convertIconFile(IFile file)
             throws Exception {
         String base = StringPart.beforeLast(file.getName(), '.');
         if (base == null)
@@ -194,6 +193,13 @@ public class IconConv
     public static void main(String[] args)
             throws Exception {
         new IconConv().execute(args);
+    }
+
+    @Override
+    protected void mainImpl(String... args)
+            throws Exception {
+        for (IFile file : expandWildcards(args))
+            convertIconFile(file);
     }
 
 }

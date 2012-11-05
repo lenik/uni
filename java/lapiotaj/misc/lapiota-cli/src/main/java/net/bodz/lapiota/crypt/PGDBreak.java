@@ -1,5 +1,7 @@
 package net.bodz.lapiota.crypt;
 
+import java.io.File;
+
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.io.resource.tools.StreamWriting;
 import net.bodz.bas.mem.Memory;
@@ -35,8 +37,7 @@ public class PGDBreak
      *     PGPUInt32   reserved[2];
      * </pre>
      */
-    @Override
-    protected void doFileArgument(IFile file)
+    public void pgpBreakUp(File file)
             throws Exception {
         Memory mem = new RandomAccessFileMemory(file, 0);
         Memory chunk = mem;
@@ -74,6 +75,15 @@ public class PGDBreak
     public static void main(String[] args)
             throws Exception {
         new PGDBreak().execute(args);
+    }
+
+    @Override
+    protected void mainImpl(String... args)
+            throws Exception {
+        for (String pathname : args) {
+            File file = new File(pathname);
+            pgpBreakUp(file);
+        }
     }
 
 }

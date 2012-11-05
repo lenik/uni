@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.collections15.SetUtils;
-
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.java.util.Collections;
 import net.bodz.bas.c.string.StringArray;
@@ -147,7 +145,7 @@ public class NLSAddMissings
                     File bakfile = new File(localeFile.getPath() + backupExtension);
                     if (bakfile.exists() && !force) {
                         logger.warn("  Bak file existed: ", bakfile);
-                        if (!ia.confirm("Overwrite " + bakfile + "? "))
+                        if (!dialogs.confirm("Overwrite " + bakfile + "? "))
                             continue;
                     }
                     logger.info("    Backup to ", bakfile);

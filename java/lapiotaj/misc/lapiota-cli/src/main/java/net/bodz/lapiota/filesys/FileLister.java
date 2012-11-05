@@ -15,15 +15,18 @@ import net.bodz.bas.vfs.IFile;
 public class FileLister
         extends BatchCLI {
 
-    @Override
-    protected void doFile(IFile file)
-            throws Exception {
-        System.out.println(file);
-    }
-
     public static void main(String[] args)
             throws Exception {
         new FileLister().execute(args);
+    }
+
+    @Override
+    protected void mainImpl(String... args)
+            throws Exception {
+        // TODO: File scanner after expanded the wildcards.
+        for (IFile file : expandWildcards(args))
+            System.out.println(file);
+        ;
     }
 
 }

@@ -26,7 +26,7 @@ public class FileProcessTest
                 final EditResult[] result = new EditResult[1];
                 new FileProcess() {
                     @Override
-                    protected void doMain(String[] args)
+                    protected void mainImpl(String... args)
                             throws Exception {
                         RenameComponents renAction = (RenameComponents) actions.get(0);
                         result[0] = renAction.run(file, null, null);

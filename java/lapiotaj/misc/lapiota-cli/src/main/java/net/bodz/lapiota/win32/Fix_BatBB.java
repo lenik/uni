@@ -1,9 +1,6 @@
 package net.bodz.lapiota.win32;
 
-import net.bodz.bas.cli.skel.BasicCLI;
-
-public class Fix_BatBB
-        extends BasicCLI {
+public class Fix_BatBB {
 
     public static void main(String[] args)
             throws Exception {

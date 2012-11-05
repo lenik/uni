@@ -52,28 +52,22 @@ public class ASTDump
             throw new IllegalArgumentException("invalid version: " + ver);
     }
 
-    public static void main(String[] args)
-            throws Exception {
-        new ASTDump().execute(args);
-    }
-
     @SuppressWarnings("unchecked")
-    @Override
-    protected void doFileArgument(IFile file)
+    protected void dumpJavaFile(IFile javaFile)
             throws Exception {
-        if (file == null)
+        if (javaFile == null)
             _help();
 
-        logger.info("load file ", file);
-        char[] src = file.tooling()._for(StreamReading.class).readTextContents().toCharArray();
+        logger.info("load file ", javaFile);
+        char[] javaSource = javaFile.tooling()._for(StreamReading.class).readTextContents().toCharArray();
 
-        ASTParser parser = ASTParser.newParser(parserLevel);
+        ASTParser astParser = ASTParser.newParser(parserLevel);
         Map<String, Object> options = JavaCore.getOptions();
         // options.put("org.eclipse.jdt.core.compiler.compliance", "1.6");
         // options.put("org.eclipse.jdt.core.compiler.codegen.targetPlatform",
         // "1.6");
         options.put("org.eclipse.jdt.core.compiler.source", "1.6");
-        parser.setCompilerOptions(options);
+        astParser.setCompilerOptions(options);
 
         if (logger.isInfoEnabled(/* 1 */)) {
             List<String> keys = new ArrayList<String>(options.keySet());
@@ -84,9 +78,9 @@ public class ASTDump
             }
         }
 
-        parser.setSource(src);
+        astParser.setSource(javaSource);
 
-        CompilationUnit root = (CompilationUnit) parser.createAST(null);
+        CompilationUnit root = (CompilationUnit) astParser.createAST(null);
 
         // ASTVisitor av = new ASTDumpVisitor(this);
         ASTVisitor visitor = new Visitor();
@@ -117,6 +111,18 @@ public class ASTDump
             indent -= tabsize;
         }
 
+    }
+
+    public static void main(String[] args)
+            throws Exception {
+        new ASTDump().execute(args);
+    }
+
+    @Override
+    protected void mainImpl(String... args)
+            throws Exception {
+        for (IFile file : expandWildcards(args))
+            dumpJavaFile(file);
     }
 
 }

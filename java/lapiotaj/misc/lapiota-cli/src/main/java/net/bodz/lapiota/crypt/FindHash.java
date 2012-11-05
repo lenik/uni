@@ -83,8 +83,8 @@ public class FindHash
         if (digest == null)
             digest = MessageDigest.getInstance("CRC32");
         if (!(digest instanceof Cloneable))
-            throw new UnsupportedOperationException(tr._("The algorithm isn\'t clonable: ") + digest
-                    + ", class of " + digest.getClass().getName());
+            throw new UnsupportedOperationException(tr._("The algorithm isn\'t clonable: ") + digest + ", class of "
+                    + digest.getClass().getName());
         if (hashes == null || hashes.length == 0)
             throw new IllegalUsageException(tr._("no hash specified"));
     }
@@ -136,8 +136,7 @@ public class FindHash
                         boolean matched = match(digest);
                         if ((++count % 1000) == 0 || matched) {
                             String rt = rangesPrefix + "." + from + "-" + to;
-                            logger.status(tr._("Range: "), rt, " = ",
-                                    HexCodec.getInstance().encode(digest));
+                            logger.status(tr._("Range: "), rt, " = ", HexCodec.getInstance().encode(digest));
                             if (matched)
                                 logger.mesg(tr._("Match! "));
                         }
@@ -162,8 +161,7 @@ public class FindHash
 
     }
 
-    @Override
-    protected void doFileArgument(IFile file)
+    public void findFileRangeForHash(IFile file)
             throws Exception {
         byte[] data = file.tooling()._for(StreamReading.class).readBinaryContents();
         Range[] ranges = this.ranges;
@@ -196,6 +194,13 @@ public class FindHash
     public static void main(String[] args)
             throws Exception {
         new FindHash().execute(args);
+    }
+
+    @Override
+    protected void mainImpl(String... args)
+            throws Exception {
+        for (IFile file : expandWildcards(args))
+            findFileRangeForHash(file);
     }
 
 }

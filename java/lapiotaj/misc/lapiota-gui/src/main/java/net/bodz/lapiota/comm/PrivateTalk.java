@@ -8,7 +8,7 @@ public class PrivateTalk
         extends BasicGUI {
 
     @Override
-    protected void doMainManaged(String[] args)
+    protected void mainImpl(String... args)
             throws Exception {
         System.out.println(Display.getCurrent());
         logger.mesg("Hello");
