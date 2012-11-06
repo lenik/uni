@@ -15,6 +15,7 @@ import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
 import net.bodz.bas.cli.plugin.CLIPlugin;
 import net.bodz.bas.cli.skel.BatchEditCLI;
+import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.err.ParseException;
@@ -37,9 +38,6 @@ import net.bodz.lapiota.util.GroovyExpand;
 @MainVersion({ 0, 1 })
 public class TemplateProcess
         extends BatchEditCLI {
-
-    Charset inputEncoding;
-    Charset outputEncoding;
 
     /**
      * Source parsing model
@@ -74,8 +72,6 @@ public class TemplateProcess
     @Override
     protected void _boot()
             throws Exception {
-        inputEncoding = parameters().getInputEncoding();
-        outputEncoding = parameters().getOutputEncoding();
     }
 
     @Override
@@ -95,6 +91,7 @@ public class TemplateProcess
 
             IFile dst = getOutputFile(destFile, defaultStart);
 
+            Charset outputEncoding = CLIAccessor.getOutputEncoding(TemplateProcess.this);
             editTmp.setPreferredCharset(outputEncoding);
             editTmp.tooling()._for(StreamWriting.class).write(contents);
 
@@ -428,6 +425,7 @@ public class TemplateProcess
             if (template == null) {
                 if (templateFile == null)
                     throw new CLIException(tr._("template file isn\'t specified"));
+                Charset inputEncoding = CLIAccessor.getInputEncoding(TemplateProcess.this);
                 templateFile.setPreferredCharset(inputEncoding);
                 template = templateFile.tooling()._for(StreamReading.class).readTextContents();
             }

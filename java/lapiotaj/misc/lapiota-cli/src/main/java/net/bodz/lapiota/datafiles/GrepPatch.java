@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import net.bodz.bas.cli.skel.BatchEditCLI;
+import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.io.resource.tools.StreamReading;
@@ -35,8 +36,8 @@ public class GrepPatch
     @Override
     protected void _boot()
             throws Exception {
-        inputEncoding = parameters().getInputEncoding();
-        outputEncoding = parameters().getOutputEncoding();
+        inputEncoding = CLIAccessor.getInputEncoding(GrepPatch.this);
+        outputEncoding = CLIAccessor.getOutputEncoding(GrepPatch.this);
         if (!inputEncoding.equals(outputEncoding))
             throw new IllegalUsageException(tr._("input and output encoding should be same"));
     }

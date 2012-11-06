@@ -20,6 +20,7 @@ import net.bodz.bas.c.string.IndexVarSubst;
 import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
 import net.bodz.bas.cli.plugin.CLIPlugin;
 import net.bodz.bas.cli.skel.BatchEditCLI;
+import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.err.ParseException;
@@ -203,7 +204,7 @@ public class FileProcess
             } else {
                 String scriptPath = args[0];
                 IFile scriptFile = new JavaioFile(scriptPath);
-                scriptFile.setPreferredCharset(parameters().getInputEncoding());
+                scriptFile.setPreferredCharset(CLIAccessor.getInputEncoding(FileProcess.this));
                 script = scriptFile.tooling()._for(StreamReading.class).readTextContents();
             }
         }
@@ -223,7 +224,7 @@ public class FileProcess
             binding.setVariable("file", file);
             binding.setVariable("in", in);
 
-            String enc = parameters().getOutputEncoding().name();
+            String enc = CLIAccessor.getOutputEncoding(FileProcess.this).name();
             PrintStream pout = new PrintStream(out, true, enc);
             binding.setVariable("out", pout);
 

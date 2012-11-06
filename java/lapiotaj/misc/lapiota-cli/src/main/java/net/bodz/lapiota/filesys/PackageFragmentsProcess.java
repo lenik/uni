@@ -26,6 +26,7 @@ import net.bodz.bas.c.java.util.regex.PatternTraits;
 import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
 import net.bodz.bas.cli.plugin.CLIPlugin;
 import net.bodz.bas.cli.skel.BatchEditCLI;
+import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.io.resource.tools.StreamReading;
@@ -120,7 +121,7 @@ public class PackageFragmentsProcess
         @Override
         public void doRootDir(IFile rootDir)
                 throws Exception {
-            int maxDepth = parameters().getRecursive();
+            int maxDepth = CLIAccessor.getRecursive(PackageFragmentsProcess.this);
             FileFinder finder = new FileFinder(maxDepth, rootDir);
             for (IFile f : finder.listFiles()) {
                 String path = f.getPath().toString();
@@ -238,7 +239,7 @@ public class PackageFragmentsProcess
                 throw new IllegalArgumentException(tr._("Grep(REGEXP, [FILE=plugin.xml])"));
 
             int flags = 0;
-            if (parameters().isIgnoreCase())
+            if (CLIAccessor.isIgnoreCase(PackageFragmentsProcess.this))
                 flags |= Pattern.CASE_INSENSITIVE;
             pattern = Pattern.compile(args[0], flags);
 

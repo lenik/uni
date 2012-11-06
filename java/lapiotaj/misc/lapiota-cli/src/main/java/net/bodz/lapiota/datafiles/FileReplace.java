@@ -3,6 +3,7 @@ package net.bodz.lapiota.datafiles;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.cli.skel.BatchEditCLI;
+import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.lang.fn.Filt1;
@@ -54,7 +55,7 @@ public class FileReplace
         if ((regexp == null) == (text == null))
             throw new CLIException(tr._("one and only one of --regexp and --text option must be specified"));
 
-        if (parameters().isIgnoreCase()) {
+        if (CLIAccessor.isIgnoreCase(FileReplace.this)) {
             if (regexp != null)
                 regexp = Pattern.compile(regexp.pattern(), Pattern.CASE_INSENSITIVE);
             if (text != null)

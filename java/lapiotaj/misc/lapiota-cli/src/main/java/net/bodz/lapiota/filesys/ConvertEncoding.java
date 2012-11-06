@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.bodz.bas.cli.skel.BatchEditCLI;
+import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.io.resource.tools.StreamWriting;
@@ -26,9 +27,6 @@ import net.bodz.bas.vfs.IFile;
 @MainVersion({ 0, 1 })
 public class ConvertEncoding
         extends BatchEditCLI {
-
-    Charset inputEncoding;
-    Charset outputEncoding;
 
     /**
      * BOM detect
@@ -77,13 +75,6 @@ public class ConvertEncoding
         throw new ControlBreak();
     }
 
-    @Override
-    protected void _boot()
-            throws Exception {
-        inputEncoding = parameters().getInputEncoding();
-        outputEncoding = parameters().getOutputEncoding();
-    }
-
     // private static Charset CHARSET_L1 = Charset.forName("ISO-8859-1");
     private static Charset CHARSET_UTF8 = Charset.forName("UTF-8");
     private static Charset CHARSET_UTF16_LE = Charset.forName("UTF-16LE");
@@ -93,8 +84,8 @@ public class ConvertEncoding
     protected EditResult doEdit(IFile in, IFile out)
             throws Exception {
         byte[] src = in.tooling()._for(StreamReading.class).readBinaryContents();
-        Charset srcenc = inputEncoding;
-        Charset dstenc = outputEncoding;
+        Charset srcenc = CLIAccessor.getInputEncoding(this);
+        Charset dstenc = CLIAccessor.getOutputEncoding(this);
         if (bomDetect) {
             // UTF-8 EF BB BF
             // UTF-16LE FF FE "Last is FE"
