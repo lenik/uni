@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.CLIAccessor;
-import net.bodz.bas.cli.skel.CLIException;
+import net.bodz.bas.cli.skel.CLISyntaxException;
 import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.lang.fn.Filt1;
 import net.bodz.bas.meta.build.MainVersion;
@@ -53,7 +53,7 @@ public class FileReplace
     protected void _boot()
             throws Exception {
         if ((regexp == null) == (text == null))
-            throw new CLIException(tr._("one and only one of --regexp and --text option must be specified"));
+            throw new CLISyntaxException(tr._("one and only one of --regexp and --text option must be specified"));
 
         if (CLIAccessor.isIgnoreCase(FileReplace.this)) {
             if (regexp != null)

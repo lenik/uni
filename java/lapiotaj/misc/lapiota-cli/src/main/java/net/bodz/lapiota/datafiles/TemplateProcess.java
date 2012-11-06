@@ -16,7 +16,7 @@ import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
 import net.bodz.bas.cli.plugin.CLIPlugin;
 import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.CLIAccessor;
-import net.bodz.bas.cli.skel.CLIException;
+import net.bodz.bas.cli.skel.CLISyntaxException;
 import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.resource.tools.StreamReading;
@@ -294,7 +294,7 @@ public class TemplateProcess
 
         @Override
         public void setParameters(Map<String, Object> parameters)
-                throws CLIException, ParseException {
+                throws CLISyntaxException, ParseException {
             super.setParameters(parameters);
         }
 
@@ -374,7 +374,7 @@ public class TemplateProcess
                 throws Exception {
             if (template == null) {
                 if (templateFile == null)
-                    throw new CLIException(tr._("template file isn\'t specified"));
+                    throw new CLISyntaxException(tr._("template file isn\'t specified"));
                 template = templateFile.tooling()._for(StreamReading.class).readTextContents();
             }
             Map<String, Object> vars = (Map<String, Object>) context;
@@ -424,7 +424,7 @@ public class TemplateProcess
                 throws Exception {
             if (template == null) {
                 if (templateFile == null)
-                    throw new CLIException(tr._("template file isn\'t specified"));
+                    throw new CLISyntaxException(tr._("template file isn\'t specified"));
                 Charset inputEncoding = CLIAccessor.getInputEncoding(TemplateProcess.this);
                 templateFile.setPreferredCharset(inputEncoding);
                 template = templateFile.tooling()._for(StreamReading.class).readTextContents();

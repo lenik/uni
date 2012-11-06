@@ -27,7 +27,6 @@ import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
 import net.bodz.bas.cli.plugin.CLIPlugin;
 import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.CLIAccessor;
-import net.bodz.bas.cli.skel.CLIException;
 import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
@@ -60,8 +59,7 @@ public class PackageFragmentsProcess
      *
      * @option -a =ACTION=PARAM[...]
      */
-    protected void action(Action action)
-            throws CLIException {
+    protected void action(Action action) {
         logger.debug(tr._("action: "), action);
         actions.add(action);
     }

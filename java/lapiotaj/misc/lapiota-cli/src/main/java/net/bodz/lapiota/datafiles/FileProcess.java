@@ -21,7 +21,7 @@ import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
 import net.bodz.bas.cli.plugin.CLIPlugin;
 import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.CLIAccessor;
-import net.bodz.bas.cli.skel.CLIException;
+import net.bodz.bas.cli.skel.CLISyntaxException;
 import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.resource.builtin.InputStreamSource;
@@ -52,7 +52,7 @@ public class FileProcess
      * @option -a =ACTION=PARAM[,...]
      */
     protected void action(Action action)
-            throws CLIException {
+            throws CLISyntaxException {
         logger.debug(tr._("action: "), action);
         actions.add(action);
     }
@@ -410,7 +410,7 @@ public class FileProcess
 
         @Override
         public void setParameters(Map<String, Object> parameters)
-                throws CLIException, ParseException {
+                throws CLISyntaxException, ParseException {
             super.setParameters(parameters);
             if (puncts != null) {
                 int n = puncts.length();
