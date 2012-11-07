@@ -217,7 +217,7 @@ public class PartialCopy
         if (src == null)
             throw new IllegalUsageException(tr._("src isn\'t specified"));
         if (dst == null) {
-            tmp = File.createTempFile("partcp", ".bin", TempFile.getTmpDir());
+            tmp = File.createTempFile("partcp", ".bin", TempFile.getTempRoot());
             setDstFile(tmp);
         }
 
