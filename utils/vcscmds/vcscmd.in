@@ -1,12 +1,19 @@
 #!/bin/bash
-
 # master-file
 
-    . shlib-import cliboot
-
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="hqv"
-    long_opts="help,quiet,verbose,version,no-refname,iso-8601,timestamp,relative-date"
+    PROGRAM_TITLE="Common VCS commands dispatcher"
+    PROGRAM_SYNTAX="[OPTION|VCS-OPTION] [--] CMD|VCS-CMD ARGS|VCS-ARGS"
+
+    . shlib-import cliboot
+    option    --no-refname      "Hide ref-name in the log"
+    option    --iso-8601        "Show date in ISO 8601 format"
+    option    --timestamp       "Show date in UNIX timestamp format"
+    option    --relative-date   "Show date in relative format"
+    option -q --quiet           "Repeat to get less info"
+    option -v --verbose         "Repeat to get more info"
+    option -h --help            "Show this help page"
+    option    --version         "Print the version info"
 
     VCS_DEFAULT=git
       VCS_PROBE=
@@ -25,28 +32,7 @@
     date_format=relative
     git_log_date='%ar'
 
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Common VCS commands dispatcher"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION|VCS-OPTION] [--] CMD|VCS-CMD ARGS|VCS-ARGS"
-    echo
-    echo "Options: "
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-    echo
-    echo "        --no-refname        Hide ref-name in the log"
-    echo "        --iso-8601          Show date in ISO 8601 format"
-    echo "        --timestamp         Show date in UNIX timestamp format"
-    echo "        --relative-date     Show date in relative format"
+function help_extras() {
     echo
     echo "VCS-Command: "
     echo "  add-dir                 Add a directory without its contents"
