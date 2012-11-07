@@ -202,6 +202,7 @@ function help() {
     echo "    $0 $PROGRAM_SYNTAX"
     echo
     help_options
+    help_extras
 }
 
 function help_options() {
@@ -209,6 +210,10 @@ function help_options() {
     for optdoc in "${optdocs[@]}"; do
         echo "$optdoc"
     done
+}
+
+function help_extras() {
+    :
 }
 
 function version() {
