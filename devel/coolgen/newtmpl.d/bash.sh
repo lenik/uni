@@ -7,7 +7,7 @@
     option -q --quiet       "Repeat to get less info"
     option -v --verbose     "Repeat to get more info"
     option -h --help        "Show this help page"
-    option     --version    "Print the version info"
+    option    --version     "Print the version info"
 
 function setopt() {
     case "$1" in
