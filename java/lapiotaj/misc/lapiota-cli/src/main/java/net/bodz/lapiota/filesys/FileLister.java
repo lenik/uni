@@ -24,7 +24,7 @@ public class FileLister
     protected void mainImpl(String... args)
             throws Exception {
         // TODO: File scanner after expanded the wildcards.
-        for (IFile file : expandWildcards(args))
+        for (IFile file : expandFiles(args))
             System.out.println(file);
         ;
     }

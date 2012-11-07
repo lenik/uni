@@ -74,7 +74,7 @@ public class XmlfsSelector
     @Override
     protected void mainImpl(String... args)
             throws Exception {
-        for (IFile file : expandWildcards(args))
+        for (IFile file : expandFiles(args))
             selectFromRoot(file);
     }
 

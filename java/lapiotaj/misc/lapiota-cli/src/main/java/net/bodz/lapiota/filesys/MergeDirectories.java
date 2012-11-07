@@ -212,19 +212,19 @@ public class MergeDirectories
     static final int APPLY_MERGE = 1;
     private int stage;
 
-    @Override
-    protected void doMainManaged(String[] args)
-            throws Exception {
-        stage = CALC_DIGEST;
-        super.doMainManaged(args);
-
-        stage = APPLY_MERGE;
-        super.doMainManaged(args);
-    }
-
     public static void main(String[] args)
             throws Exception {
         new MergeDirectories().execute(args);
+    }
+
+    @Override
+    protected void mainImpl(String... args)
+            throws Exception {
+        stage = CALC_DIGEST;
+        super.mainImpl(args);
+
+        stage = APPLY_MERGE;
+        super.mainImpl(args);
     }
 
 }

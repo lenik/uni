@@ -159,7 +159,7 @@ public class Gather
     @Override
     protected void mainImpl(String... args)
             throws Exception {
-        for (IFile dstdir : expandWildcards(args))
+        for (IFile dstdir : expandFiles(args))
             gatherDir(dstdir);
     }
 
