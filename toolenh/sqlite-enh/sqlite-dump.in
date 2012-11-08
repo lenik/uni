@@ -1,0 +1,49 @@
+#!/bin/bash
+# master-file
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    PROGRAM_TITLE="SQLite Database Dumper"
+    PROGRAM_SYNTAX="[OPTIONS] [--] ..."
+
+    . shlib-import cliboot
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+    progbin="${0##*/}"
+    SQLITE="${progbin%%-*}"
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    _log2 "SQLITE=$SQLITE"
+    for db in "$@"; do
+        _log1 "Dump database: $db"
+        dump "$db"
+    done
+}
+
+function dump() {
+    local db="$1"
+
+    for tab in `$SQLITE "$db" .tables`; do
+        _log1 "  Table $tab"
+        $SQLITE -header -column "$db" "select * from $tab" | less -Ceifr
+    done
+}
+
+boot "$@"
