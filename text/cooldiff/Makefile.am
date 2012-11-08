@@ -1,7 +1,8 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-	diffcat
+    diffcat \
+    grep2patch
 
 setup_SCRIPTS = \
     postinst \

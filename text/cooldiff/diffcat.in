@@ -11,7 +11,7 @@ use vars qw($LOGNAME $LOGLEVEL);
 use cmt::clip('getclip');
 use cmt::log(2);
 use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id$');
+    my %RCSID   = parse_id('$Id: - @VERSION@ @DATE@ @TIME@ - $');
 use Data::Dumper;
 use Getopt::Long;
     Getopt::Long::Configure('gnu_getopt');
