@@ -116,7 +116,7 @@ public class XmlfsElement
             content = new ArrayList<Object>();
             if (file.isTree()) {
                 try {
-                    for (IFile childFile : file.listChildren()) {
+                    for (IFile childFile : file.children()) {
                         XmlfsElement e = new XmlfsElement(this, childFile);
                         content.add(e);
                     }

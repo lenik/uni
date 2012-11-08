@@ -23,6 +23,7 @@ import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.CLISyntaxException;
 import net.bodz.bas.cli.skel.EditResult;
+import net.bodz.bas.cli.skel.FileHandler;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.resource.builtin.InputStreamSource;
 import net.bodz.bas.io.resource.tools.StreamReading;
@@ -31,7 +32,7 @@ import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.meta.program.ProgramName;
 import net.bodz.bas.vfs.IFile;
-import net.bodz.bas.vfs.impl.javaio.JavaioFile;
+import net.bodz.bas.vfs.impl.jdk.JdkFile;
 import net.bodz.lapiota.util.RefBinding;
 
 /**
@@ -118,39 +119,27 @@ public class FileProcess
         plugins.register("sg", RenameComponents.class, this);
     }
 
-    @Override
-    protected IFile _getEditTmp(IFile file)
-            throws IOException {
-        if (edit)
-            return super._getEditTmp(file);
-        return null;
-    }
-
     /** canonical file */
     private IFile currentFile;
 
     private Action currentAction;
 
     @Override
-    protected void _processFile(IFile file) {
+    protected void processImpl(FileHandler handler)
+            throws Exception {
+        IFile file = handler.getFile();
         currentFile = file;
+
         for (Action action : actions) {
             currentAction = action;
             edit = action.isEditor();
-            super._processFile(file);
+
+            InputStream in = handler.openInputStream();
+            OutputStream out = handler.openOutputStream();
+
+            currentAction.run(currentFile, in, out);
         }
     }
-
-    @Override
-    protected EditResult doEditByIO(InputStream in, OutputStream out)
-            throws Exception {
-        return currentAction.run(currentFile, in, out);
-    }
-
-    // @Override
-    // protected ProtectedShell _getShell() {
-    // return new ProtectedShell(!dryRun, L.m);
-    // }
 
     public static void main(String[] args)
             throws Exception {
@@ -203,7 +192,7 @@ public class FileProcess
                 script = new InputStreamSource(System.in).tooling()._for(StreamReading.class).readTextContents();
             } else {
                 String scriptPath = args[0];
-                IFile scriptFile = new JavaioFile(scriptPath);
+                IFile scriptFile = new JdkFile(scriptPath);
                 scriptFile.setPreferredCharset(CLIAccessor.getInputEncoding(FileProcess.this));
                 script = scriptFile.tooling()._for(StreamReading.class).readTextContents();
             }

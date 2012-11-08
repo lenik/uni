@@ -28,6 +28,7 @@ import net.bodz.bas.cli.plugin.CLIPlugin;
 import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.EditResult;
+import net.bodz.bas.cli.skel.FileHandler;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
@@ -75,8 +76,10 @@ public class PackageFragmentsProcess
     }
 
     @Override
-    protected EditResult doEdit(IFile root)
+    protected void processImpl(FileHandler handler)
             throws Exception {
+        IFile root = handler.getFile();
+
         if (root.isBlob()) {
             // TODO if file is jar, file=new JarFile(file); else skip
         }
@@ -164,7 +167,7 @@ public class PackageFragmentsProcess
                 throws Exception {
             URL url = file.getPath().toURL();
             if (file.isTree())
-                handle(url, file.listChildren());
+                handle(url, file.children());
             else {
                 String content = null;
                 if (file.isReadable()) {
@@ -259,7 +262,7 @@ public class PackageFragmentsProcess
             if (pathFilter == null)
                 super.doRootDir(dir);
             else {
-                for (IFile f : dir.listChildren(pathFilter)) {
+                for (IFile f : dir.children(pathFilter)) {
                     if (f.isTree())
                         doRootDir(f);
                     else

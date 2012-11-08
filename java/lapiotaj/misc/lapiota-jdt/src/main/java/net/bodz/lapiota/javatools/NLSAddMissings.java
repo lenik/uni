@@ -5,7 +5,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -94,7 +93,7 @@ public class NLSAddMissings
         IFile dir = file.getParentFile();
         if (dir == null)
             throw new NullPointerException("dir");
-        List<? extends IFile> localeFiles = dir.listChildren(new IFilenameFilter() {
+        Iterable<? extends IFile> localeFiles = dir.children(new IFilenameFilter() {
             @Override
             public boolean accept(IFile dir, String filename) {
                 String fbase = FilePath.stripExtension(filename);

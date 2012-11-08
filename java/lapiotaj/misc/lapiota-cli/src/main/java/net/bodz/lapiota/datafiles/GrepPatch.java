@@ -8,6 +8,7 @@ import java.util.List;
 import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.EditResult;
+import net.bodz.bas.cli.skel.FileHandler;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
@@ -43,8 +44,10 @@ public class GrepPatch
     }
 
     @Override
-    protected void doFileArgument(IFile file)
+    protected void processImpl(FileHandler handler)
             throws Exception {
+        IFile file = handler.getFile();
+
         logger.status(tr._("[patch] "), file);
         int grepl = 0;
 

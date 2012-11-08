@@ -188,7 +188,7 @@ public class Gather
             }
         }
 
-        for (IFile gfile : gatherd.listChildren()) {
+        for (IFile gfile : gatherd.children()) {
             if (gfile.isTree())
                 continue;
             String base = gfile.getName();
