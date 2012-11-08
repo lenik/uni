@@ -3,6 +3,7 @@ include libauto/coolauto.am
 samplesdir = ${docdir}/samples
 
 dist_bin_SCRIPTS = \
+    itreepdf \
     make-color \
     maketest \
     maketestvar \

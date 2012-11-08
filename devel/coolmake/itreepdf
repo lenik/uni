@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cooltex -av -jitree -cz-article -pz-filetree itree.tex
+alt-exec -s x-open itree.pdf
