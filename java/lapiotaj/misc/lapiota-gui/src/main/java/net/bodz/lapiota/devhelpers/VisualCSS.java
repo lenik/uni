@@ -73,17 +73,17 @@ public class VisualCSS
 
         String pagevXml = preferences.get(KEY_PAGEV, null);
         if (pagevXml == null) {
-            pagev.add(ClassResource.classData(clazz, "basic.html"));
-            pagev.add(ClassResource.classData(clazz, "ntfs.html"));
-            pagev.add(ClassResource.classData(clazz, "stat.html"));
+            pagev.add(ClassResource.getData(clazz, "basic.html"));
+            pagev.add(ClassResource.getData(clazz, "ntfs.html"));
+            pagev.add(ClassResource.getData(clazz, "stat.html"));
         } else {
             pagev = (List<URLResource>) XMLs.decode(pagevXml);
         }
 
         String cssvXml = preferences.get(KEY_CSSV, null);
         if (cssvXml == null) {
-            cssv.add(ClassResource.classData(clazz, "basic.css"));
-            cssv.add(ClassResource.classData(clazz, "ntfs.css"));
+            cssv.add(ClassResource.getData(clazz, "basic.css"));
+            cssv.add(ClassResource.getData(clazz, "ntfs.css"));
         } else {
             cssv = (List<URLResource>) XMLs.decode(cssvXml);
         }
