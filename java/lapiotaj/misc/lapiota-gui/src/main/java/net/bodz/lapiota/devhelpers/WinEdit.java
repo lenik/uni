@@ -19,7 +19,7 @@ import net.bodz.bas.gui.mda.PreferredSize;
 import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.misc.Win32Only;
+import net.bodz.bas.meta.compile.Win32Only;
 import net.bodz.bas.meta.program.ProgramName;
 import net.bodz.jna.win32.GDI32.RECT;
 import net.bodz.jna.win32.*;
