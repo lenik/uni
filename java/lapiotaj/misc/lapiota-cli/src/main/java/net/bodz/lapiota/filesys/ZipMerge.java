@@ -9,12 +9,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import net.bodz.bas.c.java.util.Iterables;
 import net.bodz.bas.cli.skel.BatchCLI;
 import net.bodz.bas.io.resource.builtin.InputStreamSource;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.util.iter.Iterables;
 import net.bodz.bas.vfs.IFile;
 
 /**
