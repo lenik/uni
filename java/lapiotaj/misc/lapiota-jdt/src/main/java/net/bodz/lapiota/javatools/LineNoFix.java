@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.cli.skel.BatchEditCLI;
+import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
@@ -51,7 +52,7 @@ public class LineNoFix
     boolean join = true;
 
     public LineNoFix() {
-        parameters().setInclusiveMask(new FileMaskedModifiers("fT/fHT"));
+        CLIAccessor.setIncludeMask(this, new FileMaskedModifiers("fT/fHT"));
     }
 
     @Override

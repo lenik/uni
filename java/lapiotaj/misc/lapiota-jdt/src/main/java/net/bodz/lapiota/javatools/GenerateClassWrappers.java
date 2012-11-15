@@ -6,6 +6,7 @@ import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -132,7 +133,7 @@ public class GenerateClassWrappers
      */
     public void addJar(File jarfile)
             throws MalformedURLException, IOException {
-        Classpath.addURL(FileURL.getURL(jarfile));
+        Classpath.addURL(FileURL.getURL(jarfile, null));
         JarFile jar = new JarFile(jarfile);
         Enumeration<JarEntry> entries = jar.entries();
         int count = 0;
@@ -161,7 +162,8 @@ public class GenerateClassWrappers
      */
     public void addDirectory(File dir)
             throws MalformedURLException, IOException {
-        Classpath.addURL(dir.toURL());
+        URL dirURL = FileURL.getURL(dir, null);
+        Classpath.addURL(dirURL);
         int count = addDirectory(dir, "");
         logger.info("added ", count, " classes from ", dir);
     }
@@ -200,7 +202,7 @@ public class GenerateClassWrappers
         for (String line : list.tooling()._for(StreamReading.class).lines()) {
             if (line.startsWith(PI_CLASSPATH)) {
                 String path = line.substring(PI_CLASSPATH.length()).trim();
-                Classpath.addURL(FileURL.getURL(path));
+                Classpath.addURL(FileURL.getURL(path, null));
                 continue;
             }
             String fqcn = line.trim();

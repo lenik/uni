@@ -19,6 +19,7 @@ import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.ICharOut;
 import net.bodz.bas.sio.Stdio;
 import net.bodz.bas.vfs.IFile;
+import net.bodz.bas.vfs.VFS;
 
 /**
  * ASTDump description
@@ -52,7 +53,6 @@ public class ASTDump
             throw new IllegalArgumentException("invalid version: " + ver);
     }
 
-    @SuppressWarnings("unchecked")
     protected void dumpJavaFile(IFile javaFile)
             throws Exception {
         if (javaFile == null)
@@ -121,8 +121,10 @@ public class ASTDump
     @Override
     protected void mainImpl(String... args)
             throws Exception {
-        for (IFile file : expandWildcards(args))
+        for (String pathname : expandWildcards(args)) {
+            IFile file = VFS.resolve(pathname);
             dumpJavaFile(file);
+        }
     }
 
 }

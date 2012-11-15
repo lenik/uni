@@ -18,6 +18,7 @@ import org.eclipse.text.edits.TextEdit;
 
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.string.Strings;
+import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.collection.scope.CMap;
 import net.bodz.bas.dotnet.synthetics.JavaAnnotation;
@@ -65,8 +66,8 @@ public class J4conv
     @Override
     protected void _boot()
             throws Exception {
-        inputEncoding = parameters().getInputEncoding();
-        outputEncoding = parameters().getOutputEncoding();
+        inputEncoding = CLIAccessor.getInputEncoding(this);
+        outputEncoding = CLIAccessor.getOutputEncoding(this);
     }
 
     // aliases
