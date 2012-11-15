@@ -20,7 +20,7 @@
     \RequirePackage[slantfont, boldfont, CJKmath=true]{xeCJK}
     \setCJKmainfont{WenQuanYi Micro Hei}
     %\setCJKmathfont{WenQuanYi Micro Hei}
-    \RequirePackage{z-zhpref}
+    \RequirePackage{z-zhcore}
 \fi
 
 % Convert accent-glyph sequence to a single Unicode character.
