@@ -4,9 +4,9 @@ alias mte='mvn test'
 alias min='mvn install'
 alias mdp='mvn deploy'
 
-alias MPK='nohup mvn package -fn -Dmaven.test.skip=true'
-alias MIN='nohup mvn install -fn -Dmaven.test.skip=true'
-alias MDP='nohup mvn deploy -fn -Dmaven.test.skip=true'
+alias MPK='mvn package -fn -Dmaven.test.skip=true'
+alias MIN='mvn install -fn -Dmaven.test.skip=true'
+alias MDP='mvn deploy -fn -Dmaven.test.skip=true'
 
 alias M+='m2release'
 alias 'mr-'='cd.x mvn release:prepare'
