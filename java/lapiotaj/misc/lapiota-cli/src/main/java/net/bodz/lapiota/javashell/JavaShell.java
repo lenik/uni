@@ -20,6 +20,7 @@ import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
 import net.bodz.bas.c.java.util.TreeTextMap;
 import net.bodz.bas.c.string.StringArray;
+import net.bodz.bas.c.string.StringQuoted;
 import net.bodz.bas.c.system.UserDirColo;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.err.IllegalUsageException;
@@ -159,7 +160,7 @@ public class JavaShell
                 continue;
             if (line.startsWith("#"))
                 continue;
-            String[] _args = StringArray.split(line);
+            String[] _args = StringQuoted.split(line);
             assert _args.length != 0;
             int n = _args.length;
 

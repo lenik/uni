@@ -11,9 +11,9 @@ import java.util.regex.Pattern;
 import org.codehaus.groovy.control.CompilationFailedException;
 
 import net.bodz.bas.c.java.util.regex.UnixStyleVarProcessor;
-import net.bodz.bas.c.string.StringArray;
+import net.bodz.bas.c.string.StringQuoted;
 import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
-import net.bodz.bas.cli.plugin.CLIPlugin;
+import net.bodz.bas.cli.plugin.ICLIPlugin;
 import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.CLISyntaxException;
@@ -61,10 +61,10 @@ public class TemplateProcess
     String extension;
 
     public TemplateProcess() {
-        plugins.registerCategory(tr._("source model"), SourceModel.class);
+        plugins.addCategory(tr._("source model"), SourceModel.class);
         plugins.register("ini", VariableDefSource.class, this);
         plugins.register("csv", CSVDefSource.class, this);
-        plugins.registerCategory(tr._("template model"), TemplateModel.class);
+        plugins.addCategory(tr._("template model"), TemplateModel.class);
         plugins.register("ve", VariableExpandTemplate.class, this);
         plugins.register("gsp", GroovyTemplate.class, this);
     }
@@ -109,7 +109,7 @@ public class TemplateProcess
     // Plugin Interfaces
 
     static interface SourceModel
-            extends CLIPlugin {
+            extends ICLIPlugin {
         void reset(IFile sourceFile)
                 throws Exception;
 
@@ -127,7 +127,7 @@ public class TemplateProcess
     }
 
     static interface TemplateModel
-            extends CLIPlugin {
+            extends ICLIPlugin {
         String expand(Object context)
                 throws Exception;
     }
@@ -311,7 +311,7 @@ public class TemplateProcess
                 if (names != null && names.length < limit)
                     limit = names.length;
 
-                String[] parts = StringArray.split(line, _delim.toCharArray(), limit);
+                String[] parts = StringQuoted.split(line, _delim.toCharArray(), limit);
                 if (names == null) {
                     names = parts;
                     for (int i = 0; i < names.length; i++)

@@ -18,7 +18,7 @@ import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.java.util.regex.PatternProcessor;
 import net.bodz.bas.c.string.IndexVarSubst;
 import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
-import net.bodz.bas.cli.plugin.CLIPlugin;
+import net.bodz.bas.cli.plugin.ICLIPlugin;
 import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.CLISyntaxException;
@@ -113,7 +113,7 @@ public class FileProcess
     protected boolean edit = false;
 
     public FileProcess() {
-        plugins.registerCategory("action", Action.class);
+        plugins.addCategory("action", Action.class);
         plugins.register("g", GroovyScript.class, this);
         plugins.register("s", RenamePattern.class, this);
         plugins.register("sg", RenameComponents.class, this);
@@ -147,7 +147,7 @@ public class FileProcess
     }
 
     public interface Action
-            extends CLIPlugin {
+            extends ICLIPlugin {
         boolean isEditor();
 
         /**

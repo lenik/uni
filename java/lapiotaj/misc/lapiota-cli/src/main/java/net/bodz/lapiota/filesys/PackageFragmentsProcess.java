@@ -24,7 +24,7 @@ import org.dom4j.io.XMLWriter;
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.java.util.regex.PatternTraits;
 import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
-import net.bodz.bas.cli.plugin.CLIPlugin;
+import net.bodz.bas.cli.plugin.ICLIPlugin;
 import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.EditResult;
@@ -66,7 +66,7 @@ public class PackageFragmentsProcess
     }
 
     public PackageFragmentsProcess() {
-        plugins.registerCategory(tr._("action"), Action.class);
+        plugins.addCategory(tr._("action"), Action.class);
         plugins.register("list", Lister.class, this);
         plugins.register("cat", Cat.class, this);
         // actionPoint.register("mani", ManiCat.class, this);
@@ -98,7 +98,7 @@ public class PackageFragmentsProcess
     }
 
     static interface Action
-            extends CLIPlugin {
+            extends ICLIPlugin {
 
         void doRootDir(IFile dir)
                 throws Exception;

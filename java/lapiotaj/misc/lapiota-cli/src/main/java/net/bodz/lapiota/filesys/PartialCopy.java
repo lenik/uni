@@ -8,7 +8,7 @@ import java.nio.charset.Charset;
 import net.bodz.bas.c.java.io.TempFile;
 import net.bodz.bas.c.java.util.Arrays;
 import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
-import net.bodz.bas.cli.plugin.CLIPlugin;
+import net.bodz.bas.cli.plugin.ICLIPlugin;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.NotImplementedException;
@@ -84,7 +84,7 @@ public class PartialCopy
     private int copies;
 
     public PartialCopy() {
-        plugins.registerCategory(tr._("process"), Process.class);
+        plugins.addCategory(tr._("process"), Process.class);
         plugins.register(tr._("crc.pgp"), PGPCRC32.class, this);
     }
 
@@ -402,7 +402,7 @@ public class PartialCopy
     }
 
     static interface Process
-            extends CLIPlugin {
+            extends ICLIPlugin {
 
         byte[] process(Memory src, long len)
                 throws MemoryAccessException;
