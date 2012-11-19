@@ -22,6 +22,7 @@ import net.bodz.bas.c.java.util.TreeTextMap;
 import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.c.string.StringQuoted;
 import net.bodz.bas.c.system.UserDirColo;
+import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.NotImplementedException;
@@ -32,7 +33,6 @@ import net.bodz.bas.jvm.exit.ExitableProgram;
 import net.bodz.bas.lang.ControlExit;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.program.ProgramName;
 
 /**
  * Lapiota Java Shell

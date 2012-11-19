@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.c.java.io.FilePath;
+import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.io.resource.builtin.InputStreamSource;
 import net.bodz.bas.io.resource.tools.StreamReading;
@@ -23,7 +24,6 @@ import net.bodz.bas.jvm.stack.Caller;
 import net.bodz.bas.loader.Classpath;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.program.ProgramName;
 import net.bodz.bas.vfs.IFile;
 
 /**

@@ -8,6 +8,7 @@ import java.nio.charset.CharsetEncoder;
 import java.util.Map;
 import java.util.Set;
 
+import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.EditResult;
@@ -16,7 +17,6 @@ import net.bodz.bas.io.resource.tools.StreamWriting;
 import net.bodz.bas.lang.ControlBreak;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.program.ProgramName;
 import net.bodz.bas.vfs.IFile;
 
 /**

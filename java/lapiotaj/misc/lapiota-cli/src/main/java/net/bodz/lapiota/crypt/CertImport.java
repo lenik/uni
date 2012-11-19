@@ -7,10 +7,10 @@ import java.security.Provider;
 import java.security.cert.Certificate;
 
 import net.bodz.bas.c.javax.security.auth.CertSelector;
+import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.program.ProgramName;
 
 /**
  * KeyStore/Certificate Import

@@ -12,11 +12,11 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 
 import net.bodz.bas.c.java.io.FilePath;
+import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.EditResult;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.program.ProgramName;
 import net.bodz.bas.vfs.IFile;
 
 /**

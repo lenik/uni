@@ -12,6 +12,7 @@ import org.codehaus.groovy.control.CompilationFailedException;
 
 import net.bodz.bas.c.java.util.regex.UnixStyleVarProcessor;
 import net.bodz.bas.c.string.StringQuoted;
+import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
 import net.bodz.bas.cli.plugin.ICLIPlugin;
 import net.bodz.bas.cli.skel.BatchEditCLI;
@@ -25,7 +26,6 @@ import net.bodz.bas.lang.fn.EvalException;
 import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.program.ProgramName;
 import net.bodz.bas.vfs.IFile;
 import net.bodz.lapiota.util.GroovyExpand;
 
