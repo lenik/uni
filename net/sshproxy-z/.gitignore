@@ -4,4 +4,6 @@ postinst-server.sh
 prerm-base.sh
 prerm-client.sh
 prerm-server.sh
-sshproxy.conf
+sshproxy-z.conf
+sshproxy-z
+sudoscreen

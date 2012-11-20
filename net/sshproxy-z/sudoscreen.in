@@ -1,0 +1,73 @@
+#!/bin/bash
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    PROGRAM_TITLE=""
+    PROGRAM_SYNTAX="[OPTIONS] [--] CMDLINE"
+
+    . shlib-import cliboot
+    option -u: --user=USER  "Specify the user to be su'ed"
+    option -l  --list       "List the screens for the user"
+    option -d  --detach     "Start in detached mode"
+    option -q  --quiet      "Repeat to get less info"
+    option -v  --verbose    "Repeat to get more info"
+    option -h  --help       "Show this help page"
+    option     --version    "Print the version info"
+
+    user=
+    list=
+    detached=
+
+function setopt() {
+    case "$1" in
+        -u|--user)
+            user="$2";;
+        -l|--list)
+            list=1;;
+        -d|--detach)
+            detached=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    cmdl=(sudo)
+    n=1
+
+    if [ "$list" = 1 ]; then
+        # NOT WORK: /dev/pts permission problem.
+            # sudo -u... screen -ls
+            # [ -n "$user" ] && cmdl[n++]="-u$user"
+
+        # So, the actual owner of the screens is root.
+            # sudo screen -ls
+            cmdl[n++]=screen
+            cmdl[n++]=-ls
+    else
+        # sudo screen -dm sudo -u... ....
+        cmdl[n++]=screen
+        [ "$detached" = 1 ] && cmdl[n++]=-dm
+        cmdl[n++]=sudo
+        [ -n "$user" ] && cmdl[n++]="-u$user"
+
+        if [ "$#" = 0 ]; then
+            quit "No cmdline to run."
+        fi
+
+        for arg in "$@"; do
+            cmdl[n++]="$arg"
+        done
+    fi
+
+    _log1 "Execute: ${cmdl[@]}"
+    "${cmdl[@]}"
+}
+
+boot "$@"

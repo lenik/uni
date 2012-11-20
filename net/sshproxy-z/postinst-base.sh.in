@@ -3,10 +3,9 @@
 # master-file
 
 echo "Create user sshproxy"
-
     useradd \
         -md @homedir@ \
-        -s /bin/false \
+        -s /bin/bash \
         -rc "SSH forwarder" \
         sshproxy
 

@@ -1,17 +1,15 @@
-\begin{figure}[bcth]
-  \centering
-  \begin{tikzpicture}[scale=0.75,
+\begin{tikzpicture}[
+    scale=\filetreescale,
     every node/.style={transform shape},
     grow via three points={one child at (0.5,-0.7) and
       two children at (0.5,-0.7) and (0.5,-1.4)},
     edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
-    \path
-node[dir] {\emph{«setupdir»}}
+    \path node[dir] {\emph{«setupdir»}}
     child{
         node[dir] {etc\fileflag{/}}
         child{
             node[dir] {init\fileflag{/}}
-            child{ node[plain] {sshproxy.conf} }
+            child{ node[plain] {sshproxy-z.conf} }
         }
     }
     child[missing] {}
@@ -38,7 +36,11 @@ node[dir] {\emph{«setupdir»}}
             child{
                 node[dir] {bin\fileflag{/}}
                 child{ node[executable] {srs\fileflag{*}} }
+                child{ node[executable] {sshproxy-z\fileflag{*}} }
+                child{ node[executable] {sudoscreen\fileflag{*}} }
             }
+            child[missing] {}
+            child[missing] {}
             child[missing] {}
             child{
                 node[dir] {share\fileflag{/}}
@@ -57,6 +59,4 @@ node[dir] {\emph{«setupdir»}}
             }
         }
     };
-  \end{tikzpicture}
-  \caption{Files in the package sshproxy-z}
-\end{figure}
+\end{tikzpicture}

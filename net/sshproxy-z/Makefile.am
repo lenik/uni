@@ -8,6 +8,8 @@ homedir    = /home/sshproxy
 sshconfdir = ${homedir}/.ssh
 
 dist_bin_SCRIPTS = \
+    sudoscreen \
+    sshproxy-z \
     srs
 
 sshconf_DATA = \
@@ -15,7 +17,7 @@ sshconf_DATA = \
     id_rsa
 
 init_DATA = \
-    sshproxy.conf
+    sshproxy-z.conf
 
 setup_SCRIPTS = \
     postinst-base.sh \

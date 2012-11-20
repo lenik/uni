@@ -1,5 +1,7 @@
+/usr/bin/sshproxy-z
 /usr/bin/srs
-/etc/init/sshproxy.conf
+/usr/bin/sudoscreen
+/etc/init/sshproxy-z.conf
 /home/sshproxy/.ssh/id_rsa
 /usr/share/setup/sshproxy-z/postinst-client.sh
 /usr/share/setup/sshproxy-z/prerm-client.sh

@@ -1,0 +1,2 @@
+ALL ALL = (sshproxy) NOPASSWD: ALL
+# ALL ALL = (ALL) NOPASSWD: /usr/bin/sudo screen -dm sudo -usshproxy
