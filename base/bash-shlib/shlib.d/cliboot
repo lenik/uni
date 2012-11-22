@@ -60,7 +60,7 @@ function bootvoid() {
 
 function boot() {
     local args opt mid arg
-    if [ -z "$*" ]; then bootvoid; exit; fi
+    if [ -z "$*" ]; then bootvoid; return; fi
     if [ "$LONGOPTS" = 1 ]; then
 
         if ! args=`POSIXLY_CORRECT=1 getopt \
