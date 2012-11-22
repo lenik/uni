@@ -1,0 +1,80 @@
+#!/bin/bash
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    PROGRAM_TITLE="Ping RRD Wrapper"
+    PROGRAM_SYNTAX="[OPTIONS] [--] ..."
+
+    . shlib
+    import ../shlib.d/rrdwrapper
+
+# Config
+    database NetStat \
+        on 60sec step \
+        on 1step make max for 30day
+
+    plot-opts \
+        -w 785 -h 120 -a PNG \
+        --slope-mode \
+        --start -36000 --end now \
+        --font DEFAULT:7: \
+        --title "ping default gateway" \
+        --watermark "`date`" \
+        --vertical-label "latency(ms)" \
+        --right-axis-label "latency(ms)" \
+        --lower-limit 0 \
+        --right-axis 1:0 \
+        --x-grid MINUTE:10:HOUR:1:MINUTE:120:0:%R \
+        --alt-y-grid --rigid \
+
+# Data Sources
+    gauge pl 0:100 \
+        on 10min timeout \
+        on pingtest read LOSS
+
+    gauge rtt 0:10000000 \
+        on 300sec timeout \
+        on pingtest read RTT
+
+# Cron Jobs
+    cron pingtest \
+        on 3min
+
+    function pingtest() {
+        echo LOSS: ...
+    }
+
+# Vars
+    def roundtrip = NetStat.rtt:MAX
+    def packetloss = NetStat.pl:MAX
+
+    list trend = '(TREND roundtrip 1800)'
+    list pltrend = '(TREND packetloss 600)'
+
+    list pl10 = '(MIN (- (MAX packetloss 0) 0) 10)'
+    list pl25 = '(MIN (- (MAX packetloss 10) 10) 15)'
+    list pl50 = '(MIN (- (MAX packetloss 20) 20) 25)'
+    list pl100 ='(MIN (- (MAX packetloss 50) 50) 50)'
+
+    val rtmax = '(MAXIMUM roundtrip)'
+    list scale ='(/ (* packetloss rtmax) 100)'
+
+    list s10 = '(/ (* pl10 rtmax) 100)'
+    list s25 = '(/ (* pl25 rtmax) 100)'
+    list s50 = '(/ (* pl50 rtmax) 100)'
+    list s100 ='(/ (* pl100 rtmax) 100)'
+
+# Graph
+    putstr 'Round Trip Time\:       '
+    plot trend as line 3px $Gray    'trend(30)'
+    plot roundtrip as line $Blue    'latency(ms)'
+    plot pltrend as line 3px $DarkRed 'pltrend(10)'
+
+    gprint roundtrip:LAST           "Cur\: %5.2lf"
+    gprint roundtrip:AVERAGE        "Avg\: %5.2lf"
+    gprint roundtrip:MAX            "Max\: %5.2lf"
+    gprintln roundtrip:MIN          "Min\: %5.2lf"
+
+    putstr 'Packet Loss\:           '
+    plot s10 as area $Yellow            '0-10%'
+    plot s25 as stacked area $Orange    '10-25%'
+    plot s50 as stacked area $Orange1   '25-50%'
+    plot s100 as stacked area $Red      '50-100%\\n'

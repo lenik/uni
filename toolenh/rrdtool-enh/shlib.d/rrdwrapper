@@ -1,0 +1,287 @@
+# vim: set filetype=sh :
+
+    import cliboot
+
+    option -i --install     "Create an rrd database and setup crons"
+    option    --remove      "Delete an rrd database and remove crons"
+    option -r --run-cron =ID "Run the specific cron job"
+    option    --run-all     "Run all cron jobs immediately"
+    option -l --list        "List available graphs"
+    option -p --plot =ID    "Plot the specific graph"
+    option    --plot-all    "Plot all graphs"
+    option -c --cgi         "Run in CGI/HTML mode"
+    option -t --content-type =TYPE "Override the Content-Type header"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+    MODE=run-all
+    CGI=0
+    job_id=
+    plot_id=
+    content_type=
+
+function setopt() {
+    case "$1" in
+        -i|--install)
+            MODE=install;;
+        --remove)
+            MODE=remove;;
+        -r|--run-cron)
+            MODE=run-cron
+            job_id="$2";;
+        --run-all)
+            MODE=run-all;;
+        -l|--list)
+            MODE=list;;
+        -p|--plot)
+            MODE=plot
+            plot_id="$2";;
+        --plot-all)
+            MODE=plot-all;;
+        -c|--cgi)
+            CGI=1;;
+        -t|--content-type)
+            content_type="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    [ -n "$REMOTE_ADDR" ] && CGI=1
+
+    # initialization...
+}
+
+boot "$@"
+
+# RRD Wrapper Framework:
+
+job_id=
+
+plot_index=0
+current_plot_id=default
+plot_id=
+plot_opts=()
+plot_optn=0
+plotcmds=()
+plotcmdn=0
+
+function database() {
+    case "$MODE" in
+    install)
+        ;;
+    remove)
+        ;;
+    esac
+}
+
+function gauge() {
+    case "$MODE" in
+    install) # Define RRA records
+        ;;
+    run-cron) # On job done, do update
+        ;;
+    esac
+}
+
+function cron() {
+    case "$MODE" in
+    install) # Install crontab
+        ;;
+    remove) # Uninstall crontab
+        ;;
+    run-cron) # Run the command
+        ;;
+    esac
+}
+
+function graph() {
+    local id="$1"
+    shift
+
+    (( plot_index++ ))
+
+    case "$MODE" in
+    list)
+        #if [ "$CGI" = 0 ]; then
+            echo -n "Graph $plot_index. $1"
+            if [ $# = 0 ]; then
+                echo
+            else
+                echo ": $*"
+            fi
+        #fi
+        ;;
+
+    plot-all)
+        _log1 "Plot-Graph: $id"
+        "$PROGRAM" --plot "$id"
+        ;;
+
+    plot)
+        current_plot_id="$1"
+        plot_opts=()
+        plot_optn=0
+        ;;
+    esac
+}
+
+function isplot() {
+    [ "$MODE" = plot ] || return 1
+    [ "$current_plot_id" = "$plot_id" ] || return 1
+    return 0
+}
+
+function plot-config() {
+    isplot || return
+    plot_opts=("$@")
+    plot_optn="${#plot_opts}"
+}
+
+function emit() {
+    local arg
+    for arg in "$@"; do
+        plotcmds[plotcmdn++]="$arg"
+    done
+}
+
+function emitdef() {
+    local deftype="$1"
+    shift
+
+    local expr="$*"
+    local vname="${expr%%=*}"
+    expr="${expr#*=}"
+
+    vname="${vname% }"
+    expr="${expr# }"
+
+    expr=`rpn_eval $expr`
+    emit "$deftype:$vname:$expr"
+}
+
+function def() {
+    isplot || return
+    emitdef DEF "$@"
+}
+
+function list() {
+    isplot || return
+    emitdef CDEF "$@"
+}
+
+function val() {
+    isplot || return
+    emitdef VDEF "$@"
+}
+
+function putstr() {
+    isplot || return
+    emit "COMMENT:$*"
+}
+
+function putstrln() {
+    isplot || return
+    emit "COMMENT:$*"'\\n'
+}
+
+function plot() {
+    isplot || return
+    local vname="$1"
+    shift
+
+    [ "$1" = as ] || die "plot <vname>: Expected 'as': $1"
+
+    shape=LINE
+    width=1
+    stacked=
+    color=$White
+
+    local arg
+    for arg in "$@"; do
+        case "$arg" in
+            *px)
+                width="${arg%px}";;
+            '#'*)
+                color="$arg";;
+            line)
+                shape=line;;
+            area)
+                shape=area;;
+            stacked)
+                stacked=true;;
+            --)
+                shift; break;;
+            *)
+                break;;
+        esac
+        shift
+    done
+
+    local buf
+    case "$shape" in
+        LINE)
+            buf="LINE$width::";;
+        AREA)
+            buf="AREA::"
+            ;;
+    esac
+
+    emit "$buf:$*"
+}
+
+function gprint() {
+    isplot || return
+    local varspec="$1"
+    local mesg="$2"
+    emit "GPRINT:$varspec:$mesg"
+}
+
+function gprintln() {
+    isplot || return
+    local varspec="$1"
+    local mesg="$2"
+    emit "GPRINT:$varspec:$mesg"'\\n'
+}
+
+function rpn_eval() {
+    local expr="$*"
+    local r1="${expr#*)}"
+    if [ "$expr" = "$r1" ]; then
+        echo "$expr"
+        return
+    fi
+    expr="${expr%%)*}"
+    local l1="${expr%(*}"
+    if [ "$l1" = "$expr" ]; then
+        echo "$expr"
+        return
+    fi
+    expr="${expr##*(}"
+    expr=`rpn_call $expr`
+    rpn_eval $l1 $expr $r1
+}
+
+function rpn_call() {
+    #local fn="$1"; shift
+    local cmd="$1"; shift
+    local buf=
+    local arg
+    for arg in "$@"; do
+        arg=`rpn_eval "$arg"`
+        buf="$buf,$arg"
+    done
+    buf="$buf,$cmd"
+    echo ${buf#,}
+}

@@ -1,5 +1,8 @@
 include libauto/coolauto.am
 
+dist_shlib_DATA = \
+    shlib.d/rrdwrapper
+
 setup_SCRIPTS = \
     postinst \
     prerm
