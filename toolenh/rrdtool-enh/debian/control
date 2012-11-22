@@ -1,0 +1,18 @@
+Source: rrdtool-enh
+Section: utils
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.3
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/toolenh/rrdtool-enh
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/toolenh/rrdtool-enh
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/toolenh/rrdtool-enh
+
+Package: rrdtool-enh
+Architecture: all
+Depends: ${misc:Depends} rrdtool
+Description: rrdtool wrappers and utils
+ The default rrdtool has too many parameters, and it's too
+ complicated to setup a rrd database, cron tasks, etc.
+ This tool aims to simplify the process of create and
+ maintain rrd databases.
