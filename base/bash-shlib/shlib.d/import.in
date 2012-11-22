@@ -8,7 +8,7 @@ function import() {
         exit 127
     fi
 
-    local shlib="@shlibdir@:$PATH"
+    local shlib=":@shlibdir@:$PATH"
     while [ -n "$shlib" ]; do
         local _sl="${shlib%%:*}"
         if [ "$_sl" = "$shlib" ]; then
@@ -17,13 +17,16 @@ function import() {
             shlib="${shlib#*:}"
         fi
 
-        _sl="${_sl%/}"
-        if [ -z "$_sl" ]; then continue; fi
+        if [ -z "$_sl" ]; then
+            _sl="$name"
+        else
+            _sl="${_sl%/}/$name"
+        fi
 
-        # echo "search: $_sl/$name"
-        if [ -f "$_sl/$name" ]; then
-            if ! . "$_sl/$name" "$@"; then
-                echo "failed to import ($_sl/) $name, exit = $?" >&2
+        # echo "search: $_sl"
+        if [ -f "$_sl" ]; then
+            if ! . "$_sl" "$@"; then
+                echo "failed to import $_sl, exit = $?" >&2
                 exit 127
             fi
             return 0
