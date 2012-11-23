@@ -1,0 +1,49 @@
+#!/bin/bash
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    PROGRAM_TITLE="Show how many lines been worked"
+    PROGRAM_SYNTAX="[OPTIONS] [--] ( git-diff(1) options ...)"
+
+    . shlib-import cliboot
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $# = 0 ]; then
+        set origin/master
+    fi
+
+    patchf=`tempfile`
+
+    _log2 "Send git diff $* to $patchf"
+    git diff "$@"  >$patchf
+
+    added=( $(grep -v '^\(+++\|---\)' $patchf | grep '^+' | wc) )
+    removed=( $(grep -v '^\(+++\|---\)' $patchf | grep '^-' | wc) )
+
+    rm -f $patchf
+
+    plus=${added[0]}
+    minus=${removed[0]}
+
+    _log2 "Added $plus lines, removed $minus lines."
+    echo $(( plus - minus))
+}
+
+boot "$@"
