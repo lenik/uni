@@ -1,0 +1,53 @@
+#!/bin/bash
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    PROGRAM_TITLE="Convert bare git repository to a checked out one"
+    PROGRAM_SYNTAX="[OPTIONS] [--] ..."
+
+    . shlib-import cliboot
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for d in "$@"; do
+        d=`readlink -f "$d"`
+        d="${d%/}"
+
+        if [ "${d##*/}" = .git ]; then
+            d="${d%/*}"
+        else
+            [ -d "$d/.git" ] && continue
+            mkdir -v "$d/.git"
+            mv "$d"/* "$d/.git"
+        fi
+
+        # Remove .git extension
+        if [ "${d%.git}" != "$d" ]; then
+            mv -v "$d" "${d%.git}"
+            d="${d%.git}"
+        fi
+
+        (cd "$d"
+            git config --bool core.bare false
+            git reset --hard
+        )
+    done
+}
+
+boot "$@"

@@ -1,6 +1,8 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
+    bare2co \
+    co2bare \
     git-author \
     git-delta \
     git-stitch-fix \
