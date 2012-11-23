@@ -12,6 +12,7 @@ dist_shlib_DATA = \
     findabc \
     float \
     get_perm \
+    htmlcolor \
     import \
     initdir \
     lam \
