@@ -1,6 +1,6 @@
 #!/bin/bash
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    PROGRAM_TITLE="Ping RRD Wrapper"
+    PROGRAM_TITLE="Ping RRD Wrapper: Monitor network latency and packet loss"
     PROGRAM_SYNTAX="[OPTIONS] [--] ..."
 
     . shlib-import ../shlib.d/rrdwrapper

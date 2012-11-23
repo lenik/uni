@@ -6,8 +6,8 @@
     import time
     import htmlcolor
 
-    option -i --install         "Create an rrd database and setup crons"
-    option    --remove          "Delete an rrd database and remove crons"
+    option -i --install         "Create an RRD database and setup cron jobs"
+    option    --remove          "Delete an RRD database and remove cron jobs"
     option    --run =ID         "Run the specific sample procedure immediately"
     option -r --run-cron =ID    "Run the specific sample procedure from cron"
     option    --run-all         "Run all sample procedures immediately"
