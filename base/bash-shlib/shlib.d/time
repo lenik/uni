@@ -1,5 +1,32 @@
 # vim: set filetype=sh :
 
+function getunit() {
+    local arg="$1"
+    local retval=1
+    while [ -n "$arg" ]; do
+        case "$arg" in
+        [0-9]*)
+            arg="${arg:1}"
+            retval=0;;
+        *)
+            echo "$arg"
+            break;;
+        esac
+    done
+    return $retval
+}
+
+function isdurationunit() {
+    case "$1" in
+        sec|min|hr|day|wk|mo|yr)
+            return 0;;
+        S|M|H|D|W)
+            return 0;;
+        *)
+            return 1;;
+    esac
+}
+
 function duration2sec() {
     local duration="$1"
     case "$duration" in
