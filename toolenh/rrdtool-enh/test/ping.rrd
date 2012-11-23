@@ -3,15 +3,62 @@
     PROGRAM_TITLE="Ping RRD Wrapper"
     PROGRAM_SYNTAX="[OPTIONS] [--] ..."
 
-    . shlib
-    import ../shlib.d/rrdwrapper
+    . shlib-import ../shlib.d/rrdwrapper
+    option --extra "User option for test"
+
+    ping_count=3
+    ping_remote=git.bodz.com
+
+    boot "$@"
+
+    sample pingtest \
+        on 3min update
+
+    function pingtest_proc() {
+            echo PACKET_LOSS=123
+            echo RTT_AVG=33
+            return 0
+        local pingcmd=(ping -q -n -c $ping_count "$ping_remote")
+        local output=()
+
+        # 9 packets transmitted, 9 received, 0% packet loss, time 8244ms
+        # rtt min/avg/max/mdev = 36.436/37.264/38.287/0.730 ms
+
+        while read -a output; do
+            case "${output[*]}" in
+                "* packets transmitted, *")
+                    local packets="${output[0]}"
+                    local packet_loss="${output[5]}"
+                    echo PACKET=$packet
+                    echo PACKET_LOSS="${packet_loss%\%}"
+                    ;;
+                "rtt min/avg/max/*")
+                    IFS=/ read -a rtt_min rtt_avg rtt_max rtt_ < <(echo "${output[4]}")
+                    echo RTT_MIN=$rtt_min
+                    echo RTT_AVG=$rtt_avg
+                    echo RTT_MAX=$rtt_max
+                    ;;
+            esac
+        done < <("${pingcmd[@]}" 2>&1)
+    }
 
 # Config
     database NetStat \
         on 60sec step \
         on 1step make max for 30day
 
-    plot-opts \
+# Data Sources
+    gauge pl 0:100 \
+        on 10min timeout \
+        on pingtest read PACKET_LOSS
+
+    gauge rtt 0:10000000 \
+        on 300sec timeout \
+        on pingtest read RTT_AVG
+
+graph latency "Shows the network latency and packet loss."
+
+    plot-config \
         -w 785 -h 120 -a PNG \
         --slope-mode \
         --start -36000 --end now \
@@ -25,24 +72,6 @@
         --x-grid MINUTE:10:HOUR:1:MINUTE:120:0:%R \
         --alt-y-grid --rigid \
 
-# Data Sources
-    gauge pl 0:100 \
-        on 10min timeout \
-        on pingtest read LOSS
-
-    gauge rtt 0:10000000 \
-        on 300sec timeout \
-        on pingtest read RTT
-
-# Cron Jobs
-    cron pingtest \
-        on 3min
-
-    function pingtest() {
-        echo LOSS: ...
-    }
-
-# Vars
     def roundtrip = NetStat.rtt:MAX
     def packetloss = NetStat.pl:MAX
 
@@ -62,7 +91,6 @@
     list s50 = '(/ (* pl50 rtmax) 100)'
     list s100 ='(/ (* pl100 rtmax) 100)'
 
-# Graph
     putstr 'Round Trip Time\:       '
     plot trend as line 3px $Gray    'trend(30)'
     plot roundtrip as line $Blue    'latency(ms)'
