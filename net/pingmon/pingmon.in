@@ -1,13 +1,28 @@
 #!/bin/bash
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    PROGRAM_TITLE="Ping RRD Wrapper: Monitor network latency and packet loss"
-    PROGRAM_SYNTAX="[OPTIONS] [--] ..."
-
-    . shlib-import ../shlib.d/rrdwrapper
-    option --extra "User option for test"
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Monitor network latency and packet loss}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
     ping_count=3
-    ping_remote=git.bodz.com
+    ping_remote=www.google.com
+
+    . shlib-import ../shlib.d/rrdwrapper
+    option -c --count =NUM  "Specify count of ping tests to be made"
+    option -t --target =STR "Specify target host to ping"
+
+    function setopt() {
+        case "$1" in
+            -c|--count)
+                ping_count="$2";;
+            -t|--target)
+                PROGRAM_TITLE="$PROGRAM_TITLE to $2"
+                ping_target="$2"
+                ;;
+            *)
+                _setopt "$@"
+                ;;
+        esac
+    }
 
     boot "$@"
 
@@ -15,9 +30,6 @@
         on 3min update
 
     function pingtest_proc() {
-            echo PACKET_LOSS=66
-            echo RTT_AVG=12
-            return 0
         local pingcmd=(ping -q -n -c $ping_count "$ping_remote")
         local output=()
 
