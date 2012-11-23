@@ -1,0 +1,16 @@
+Source: pingmon
+Section: net
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.3
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/net/pingmon
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/net/pingmon
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/net/pingmon
+
+Package: pingmon
+Architecture: all
+Depends: ${misc:Depends}, rrdtool-enh, iputils-ping
+Description: Ping latency monitor.
+ This utility maintaince a ping latency Round Robin Database, and
+ create stat graph about the network status.
