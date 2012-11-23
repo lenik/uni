@@ -15,8 +15,8 @@
         on 3min update
 
     function pingtest_proc() {
-            echo PACKET_LOSS=123
-            echo RTT_AVG=33
+            echo PACKET_LOSS=66
+            echo RTT_AVG=12
             return 0
         local pingcmd=(ping -q -n -c $ping_count "$ping_remote")
         local output=()
@@ -104,5 +104,5 @@ graph latency "Shows the network latency and packet loss."
     putstr 'Packet Loss\:           '
     plot s10 as area $Yellow            '0-10%'
     plot s25 as stacked area $Orange    '10-25%'
-    plot s50 as stacked area $Orange1   '25-50%'
+    plot s50 as stacked area $OrangeRed '25-50%'
     plot s100 as stacked area $Red      '50-100%\\n'

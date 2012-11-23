@@ -4,25 +4,28 @@
 
     import cliboot
     import time
+    import htmlcolor
 
-    option -i --install     "Create an rrd database and setup crons"
-    option    --remove      "Delete an rrd database and remove crons"
-    option    --run =ID "Run the specific sample procedure immediately"
-    option -r --run-cron =ID "Run the specific sample procedure from cron"
-    option    --run-all     "Run all sample procedures immediately"
-    option -l --list        "List available graphs"
-    option -p --plot =ID    "Plot the specific graph"
-    option    --plot-all    "Plot all graphs"
-    option -c --cgi         "Run in CGI/HTML mode"
+    option -i --install         "Create an rrd database and setup crons"
+    option    --remove          "Delete an rrd database and remove crons"
+    option    --run =ID         "Run the specific sample procedure immediately"
+    option -r --run-cron =ID    "Run the specific sample procedure from cron"
+    option    --run-all         "Run all sample procedures immediately"
+    option -l --list            "List available graphs"
+    option -p --plot =ID        "Plot the specific graph"
+    option    --plot-all        "Plot all graphs"
+    option -s --show            "Open the result image after plot done"
+    option -c --cgi             "Run in CGI/HTML mode"
     option -t --content-type =TYPE "Override the Content-Type header"
-    option -q --quiet       "Repeat to get less info"
-    option -v --verbose     "Repeat to get more info"
-    option -h --help        "Show this help page"
-    option    --version     "Print the version info"
+    option -q --quiet           "Repeat to get less info"
+    option -v --verbose         "Repeat to get more info"
+    option -h --help            "Show this help page"
+    option    --version         "Print the version info"
 
     MODE=run-all
     CGI=0
     cron_mode=0
+    auto_open=
 
     rcfile="$HOME/.rrdwrapper.rc"
     datadir="$HOME/public/data"
@@ -30,8 +33,8 @@
     datafile=
     plotout=
 
-    run_id=
-    plot_id=
+    want_sample_id=
+    want_plot_id=
     content_type=
 
     pending_cmdv=()
@@ -44,10 +47,10 @@ function setopt() {
             MODE=remove;;
         --run)
             MODE=run
-            run_id="$2";;
+            want_sample_id="$2";;
         -r|--run-cron)
             MODE=run
-            run_id="$2"
+            want_sample_id="$2"
             cron_mode=1;;
         --run-all)
             MODE=run-all;;
@@ -55,9 +58,11 @@ function setopt() {
             MODE=list;;
         -p|--plot)
             MODE=plot
-            plot_id="$2";;
+            want_plot_id="$2";;
         --plot-all)
             MODE=plot-all;;
+        -s|--show)
+            auto_open=1;;
         -c|--cgi)
             CGI=1;;
         -t|--content-type)
@@ -110,8 +115,7 @@ topic=no-database
 step_time=300
 
 plot_index=0
-current_plot_id=default
-plot_id=
+context_plot_id=default
 plot_opts=()
 plot_optn=0
 plotcmds=()
@@ -269,7 +273,7 @@ function sample() {
             ;;
 
         run) # Run the command
-            if [ "$run_id" = "$id" ]; then
+            if [ "$want_sample_id" = "$id" ]; then
                 local run_now=1
                 if [ "$cron_mode" = 1 ]; then
                     local time_m=$(( `date +$s` / 60 )) # minutes since 1970-1-1
@@ -282,6 +286,11 @@ function sample() {
                     pendemit sample_exec "$id" # TODO Add custom arguments support?
                 fi
             fi
+            ;;
+
+        run-all) # Run all samples immediately
+            _log1 "Run-Sample: $id"
+            "$SCRIPT_PATH" --run "$id"
             ;;
     esac
 }
@@ -342,19 +351,39 @@ function graph() {
             ;;
 
         plot)
-            current_plot_id="$1"
+            context_plot_id="$id"
             plot_opts=()
             plot_optn=0
 
-            mkdir -p "$plotdir" || die "Failed to create plotdir $plotdir"
+            pending_cmdv=(rrdgraph)
+            function rrdgraph() {
+                local plotoutdir="$plotdir/$topic"
+                local serial=`date +%Y-%m-%d`
+                local plotout="$plotoutdir/$serial.png"
+
+                mkdir -p "$plotoutdir" || die "Failed to create image directory: $plotoutdir"
+
+                _log1 "Generate graph $plotout..."
+                if ! rrdtool graph "$plotout" "${plot_opts[@]}" "${plotcmds[@]}"; then
+                    _error "Failed to generate graph, exit code=$?."
+                else
+                    if [ "$auto_open" = 1 ]; then
+                        _log2 "Auto open the result image file: $plotout"
+                        alt-exec -su x-open "$plotout"
+                    fi
+                fi
+            }
             ;;
     esac
 }
 
 function isplot() {
     [ "$MODE" = plot ] || return 1
-    [ "$current_plot_id" = "$plot_id" ] || return 1
-    return 0
+    if [ "$context_plot_id" = "$want_plot_id" ]; then
+        return 0
+    else
+        return 1
+    fi
 }
 
 function plot-config() {
@@ -370,34 +399,37 @@ function plotemit() {
     done
 }
 
-function plotemitdef() {
-    local deftype="$1"
-    shift
-
-    local expr="$*"
-    local vname="${expr%%=*}"
-    expr="${expr#*=}"
-
-    vname="${vname% }"
-    expr="${expr# }"
-
-    expr=`rpn_eval $expr`
-    plotemit "$deftype:$vname:$expr"
-}
-
 function def() {
     isplot || return
-    plotemitdef DEF "$@"
+    # def roundtrip = NetStat.rtt:MAX
+    # => DEF:roundtrip=latency_db.rrd:rtt:MAX \
+    if parse_keyvalue "$@"; then
+        local rdb="$datadir/${VALUE%%.*}_db.rdb"
+        local ds_type="${VALUE#*.}"
+        plotemit "DEF:$KEY=$rdb:$ds_type"
+    else
+        _error "Illegal syntax: $@"
+    fi
 }
 
 function list() {
     isplot || return
-    plotemitdef CDEF "$@"
+    if parse_keyvalue "$@"; then
+        local rpn=`rpn_eval $VALUE`
+        plotemit "CDEF:$KEY=$rpn"
+    else
+        _error "Illegal syntax: $@"
+    fi
 }
 
 function val() {
     isplot || return
-    plotemitdef VDEF "$@"
+    if parse_keyvalue "$@"; then
+        local rpn=`rpn_eval $VALUE`
+        plotemit "VDEF:$KEY=$rpn"
+    else
+        _error "Illegal syntax: $@"
+    fi
 }
 
 function putstr() {
@@ -412,15 +444,15 @@ function putstrln() {
 
 function plot() {
     isplot || return
+
+    [ "$2" = as ] || die "plot <vname>: Expected 'as': $1"
     local vname="$1"
-    shift
+    shift 2
 
-    [ "$1" = as ] || die "plot <vname>: Expected 'as': $1"
-
-    shape=LINE
-    width=1
-    stacked=
-    color=$White
+    local shape=
+    local width=1
+    local stacking=
+    local color=
 
     local arg
     for arg in "$@"; do
@@ -434,7 +466,7 @@ function plot() {
             area)
                 shape=area;;
             stacked)
-                stacked=true;;
+                stacking=:STACK;;
             --)
                 shift; break;;
             *)
@@ -445,15 +477,19 @@ function plot() {
 
     local buf
     case "$shape" in
-        LINE)
-            buf="LINE$width::"
+        line)
+            # LINE[width]:value[#color][:legend[:STACK]][:dashes=...]
+            buf="LINE$width:$vname$color:$*$stacking"
             ;;
-        AREA)
-            buf="AREA::"
+        area)
+            # AREA:value[#color][:legend[:STACK]]
+            buf="AREA:$vname$color:$*$stacking"
             ;;
+        *)
+            die "Unknown shape: $@";;
     esac
 
-    plotemit "$buf:$*"
+    plotemit "$buf"
 }
 
 function gprint() {
@@ -468,6 +504,21 @@ function gprintln() {
     local varspec="$1"
     local mesg="$2"
     plotemit "GPRINT:$varspec:$mesg"'\\n'
+}
+
+function parse_keyvalue() {
+    local line="$*"
+    KEY="${line%%=*}"
+    VALUE="${line#*=}"
+    if [ "$KEY" = "$line" ]; then
+        return 1
+    fi
+    while [ "${KEY: -1}" = ' ' ]; do
+        KEY="${KEY% }"
+    done
+    while [ "${VALUE:0:1}" = ' ' ]; do
+        VALUE="${VALUE# }"
+    done
 }
 
 ##
@@ -500,7 +551,14 @@ function parse_event() {
     return 0
 }
 
+
 function rpn_eval() {
+    local args="$*"
+    local escaped=`_rpn_eval ${args//\*/_mul_}`
+    echo "${escaped//_mul_/*}"
+}
+
+function _rpn_eval() {
     local expr="$*"
     local r1="${expr#*)}"
     if [ "$expr" = "$r1" ]; then
@@ -514,17 +572,17 @@ function rpn_eval() {
         return
     fi
     expr="${expr##*(}"
-    expr=`rpn_call $expr`
-    rpn_eval $l1 $expr $r1
+    expr=`_rpn_call $expr`
+    _rpn_eval $l1 $expr $r1
 }
 
-function rpn_call() {
+function _rpn_call() {
     #local fn="$1"; shift
     local cmd="$1"; shift
     local buf=
     local arg
     for arg in "$@"; do
-        arg=`rpn_eval "$arg"`
+        arg=`_rpn_eval "$arg"`
         buf="$buf,$arg"
     done
     buf="$buf,$cmd"
