@@ -4,7 +4,23 @@
     PROGRAM_SYNTAX="[OPTIONS] [--] ..."
 
     . shlib-import ../shlib.d/rrdwrapper
-    option --extra "User option for test"
+
+    const1=1
+    const2=2500
+
+    option -c --const1 =N "Specify const1 (default $const1)"
+    option -k --const2 =N "Specify const2 (default $const2)"
+
+    function setopt() {
+        case "$1" in
+            -c|--const1)
+                const1="$2";;
+            -k|--const2)
+                const2="$2";;
+            *)
+                _setopt "$@" || quit "Illegal option: $*";;
+        esac
+    }
 
     boot "$@"
 
@@ -12,8 +28,8 @@
         on 3min update
 
     function sample1_proc() {
-        echo CONST1=1
-        echo CONST2=2500
+        echo CONST1=$const1
+        echo CONST2=$const2
         echo TS=`date +%s`
         echo RAND1=$RANDOM
     }

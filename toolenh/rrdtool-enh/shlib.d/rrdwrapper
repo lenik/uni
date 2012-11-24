@@ -6,17 +6,17 @@
     import time
     import htmlcolor
 
-    option -i --install         "Create an RRD database and setup cron jobs"
+    option    --install         "Create an RRD database and setup cron jobs"
     option    --remove          "Delete an RRD database and remove cron jobs"
     option    --run =ID         "Run the specific sample procedure immediately"
-    option -r --run-cron =ID    "Run the specific sample procedure from cron"
+    option    --run-cron =ID    "Run the specific sample procedure from cron"
     option    --run-all         "Run all sample procedures immediately"
-    option -l --list            "List available graphs"
+    option    --list            "List available graphs"
     option -p --plot =ID        "Plot the specific graph"
+    option -P --plot-show =ID   "Plot and open the specific graph"
     option    --plot-all        "Plot all graphs"
-    option -s --show            "Open the result image after plot done"
-    option -c --cgi             "Run in CGI/HTML mode"
-    option -t --content-type =TYPE "Override the Content-Type header"
+    option    --cgi             "Run in CGI/HTML mode"
+    option    --content-type =TYPE "Override the Content-Type header"
     option -q --quiet           "Repeat to get less info"
     option -v --verbose         "Repeat to get more info"
     option -h --help            "Show this help page"
@@ -40,6 +40,10 @@
     pending_cmdv=()
 
 function setopt() {
+    _setopt "$@" || quit "invalid option: $1"
+}
+
+function _setopt() {
     case "$1" in
         -i|--install)
             MODE=install;;
@@ -76,11 +80,16 @@ function setopt() {
         --version)
             version; exit;;
         *)
-            quit "invalid option: $1";;
+            return 1;;
     esac
+    return 0
 }
 
 function main() {
+    _main "$@"
+}
+
+function _main() {
     [ -n "$REMOTE_ADDR" ] && CGI=1
 
     # initialization...
@@ -131,7 +140,7 @@ plotcmdn=0
 
 function database() {
     topic="$1"
-    datafile="$datadir/${topic}_db.rdb"
+    datafile="$datadir/${topic}_db.rrd"
     shift
 
     case "$MODE" in
@@ -422,7 +431,7 @@ function def() {
     # def roundtrip = NetStat.rtt:MAX
     # => DEF:roundtrip=latency_db.rrd:rtt:MAX \
     if parse_keyvalue "$@"; then
-        local rdb="$datadir/${VALUE%%.*}_db.rdb"
+        local rdb="$datadir/${VALUE%%.*}_db.rrd"
         local ds_type="${VALUE#*.}"
         plotemit "DEF:$KEY=$rdb:$ds_type"
     else
