@@ -125,7 +125,7 @@ function pendemit() {
 }
 
 function cmdexec() {
-    _log2 Execute "$@"
+    _log2 "Execute: $@"
     "$@"
     local exitcode=$?
     if [ $exitcode = 0 ]; then
@@ -350,9 +350,10 @@ function sample() {
             if [ "$want_sample_id" = "$id" ]; then
                 local run_now=1
                 if [ "$cron_mode" = 1 ]; then
-                    local time_m=$(( `date +$s` / 60 )) # minutes since 1970-1-1
-                    local interval_m=$(( interval / 60 ))
-                    local offset=$(( time_m % interval_m ))
+                    local scale=1
+                        [ $interval -ge 60 ] && scale=60
+                    local time=$(( `date +$s` )) # seconds since 1970-1-1
+                    local offset=$(( (time/scale) % (interval/scale) ))
                     run_now=$(( offset == 0 ))
                 fi
                 if [ "$run_now" = 1 ]; then
@@ -436,8 +437,8 @@ function graph() {
 
         plot)
             context_plot_id="$id"
-            plot_opts=()
-            plot_optn=0
+            # plot_opts=()
+            # plot_optn=0
 
             pending_cmdv=(rrdgraph)
             function rrdgraph() {
@@ -453,9 +454,9 @@ function graph() {
                 _log1 "Generate graph $plotout..."
                 local cmdv=(rrdtool graph "$plotout" "${plot_opts[@]}" "${plotcmds[@]}")
                 if [ "$plotout" = '-' ]; then
-                    "${cmdv[@]}"
+                    cmdexec "${cmdv[@]}"
                 else
-                    "${cmdv[@]}" >/dev/null
+                    cmdexec "${cmdv[@]}" >/dev/null
                 fi
 
                 if [ $? = 0 ]; then
@@ -570,6 +571,14 @@ function plot() {
         esac
         shift
     done
+
+    if [ -z "$color" ] && [ -n "$*" ]; then
+        color='#'
+        hextab=0123456789ABCDEF
+        for i in {1..6}; do
+            color="$color${hextab:RANDOM % 16:1}"
+        done
+    fi
 
     local buf
     case "$shape" in
