@@ -1,6 +1,6 @@
 Source: bash-shlib
 Section: utils
-Priority: optional
+Priority: required
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
@@ -12,4 +12,10 @@ Package: bash-shlib
 Provides: bash-shlib
 Architecture: all
 Depends: bash
-Description: Add SHLIB support to bash.
+Description: A simple bash programming framework.
+    bash-shlib introduced library support to bash, you can then
+    build up shell programs by libraries.
+    All shell libraries (aka. shlib, for bash library) are stored
+    in /usr/lib/shlib.d directory. You can import them by import
+    statement. All you need is put "source (.) shlib" at the
+    beginning of your program.
