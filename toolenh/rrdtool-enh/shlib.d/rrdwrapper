@@ -8,6 +8,7 @@
 
     option    --install         "Create an RRD database and setup cron jobs"
     option    --remove          "Delete an RRD database and remove cron jobs"
+    option    --info            "Show RRD database information"
     option    --run =ID         "Run the specific sample procedure immediately"
     option    --run-cron =ID    "Run the specific sample procedure from cron"
     option    --run-all         "Run all sample procedures immediately"
@@ -22,54 +23,63 @@
     option -h --help            "Show this help page"
     option    --version         "Print the version info"
 
-    MODE=run-all
+    MODE= # run-all
     CGI=0
-    cron_mode=0
-    auto_open=
 
     rcfile="$HOME/.rrdwrapper.rc"
-    datadir="$HOME/public/data"
-    plotdir="$HOME/public/html/plots"
-    datafile=
-    plotout=
 
+    datadir="$HOME/public/data"
+    datafile=
+
+    plotdir="$HOME/public/html/plots"
+    plotout=
+    auto_open=
+
+    samples=()
+    samplen=0
     want_sample_id=
+    cron_mode=0
+
     want_plot_id=
     content_type=
 
     pending_cmdv=()
 
 function setopt() {
-    _setopt "$@" || quit "invalid option: $1"
+    _setopt "$@"
 }
 
 function _setopt() {
     case "$1" in
-        -i|--install)
+        --install)
             MODE=install;;
         --remove)
             MODE=remove;;
+        --info)
+            MODE=info;;
         --run)
             MODE=run
             want_sample_id="$2";;
-        -r|--run-cron)
+        --run-cron)
             MODE=run
             want_sample_id="$2"
             cron_mode=1;;
         --run-all)
             MODE=run-all;;
-        -l|--list)
+        --list)
             MODE=list;;
         -p|--plot)
             MODE=plot
             want_plot_id="$2";;
+        -P|--plot-show)
+            MODE=plot
+            auto_open=1
+            want_plot_id="$2";;
         --plot-all)
             MODE=plot-all;;
-        -s|--show)
-            auto_open=1;;
-        -c|--cgi)
+        --cgi)
             CGI=1;;
-        -t|--content-type)
+        --content-type)
             content_type="$2";;
         -h|--help)
             help; exit;;
@@ -80,9 +90,8 @@ function _setopt() {
         --version)
             version; exit;;
         *)
-            return 1;;
+            quit "Invalid option: $1"
     esac
-    return 0
 }
 
 function main() {
@@ -145,8 +154,7 @@ function database() {
 
     case "$MODE" in
         install)
-            mkdir -p "$datadir"
-            pending_cmdv=(rrdtool create "$datafile")
+            pendemit install_exec
 
             while parse_event "$@"; do
                 case "${ACTION[0]}" in
@@ -197,14 +205,83 @@ function database() {
                 esac
                 shift $NEXT_ON
             done
-
             ;;
 
         remove)
-            _log1 "Remove the RRD database $datafile."
-            rm -f "$datafile"
+            pendemit remove_exec
+            ;;
+
+        info)
+            read f_size f_date f_time < <(stat -c "%s %y" "$datafile")
+            echo "RRD-Database: $datafile"
+            echo "File-Size: $f_size"
+            echo "Last-Update-Time: $f_date $f_time"
+
+            local fields=()
+            local fieldn=0
+            while read -a array; do
+                [ ${#array[@]} = 0 ] && continue
+                set "${array[@]}"
+                case "$1" in
+                    *:)
+                        # local time="${1%:}"
+                        shift
+
+                        local i=0
+                        for arg in "$@"; do
+                            echo "Data-Source: ${fields[i++]} = $arg"
+                        done;;
+                    *)
+                        for arg in "$@"; do
+                            fields[fieldn++]="$arg"
+                        done;;
+                esac
+            done < <(rrdtool lastupdate "$datafile")
             ;;
     esac
+}
+
+function install_exec() {
+    _log1 "Create the RRD database $datafile"
+    mkdir -p "$datadir"
+    rrdtool create "$datafile" "$@"
+
+    local sample
+    for sample in "${samples[@]}"; do
+        cron_exec install "$sample"
+    done
+}
+
+function remove_exec() {
+    _log1 "Remove the RRD database $datafile"
+    rm -f "$datafile"
+
+    local sample
+    for sample in "${samples[@]}"; do
+        cron_exec remove "$sample"
+    done
+}
+
+function cron_exec() {
+    local mode="$1"
+    local id="$2"
+    local cronspec="* * * * *" # Ignore interval.
+    local crontab=`tempfile`
+    local cron_id="@rrdwrapper::$topic::$id"
+
+    crontab -l >$crontab
+
+    if [ "$mode" = install ]; then
+        lineconf -tm "Add sample procedure $id to crontab" \
+            $crontab "$cron_id" \
+            "$cronspec \"$SCRIPT_PATH\" --run-cron \"$id\""
+    else
+        lineconf -ktm "Remove sample procedure $id from crontab" \
+             $crontab "$cron_id"
+    fi
+
+    crontab $crontab
+    rm -f $crontab
 }
 
 function gauge() {
@@ -248,9 +325,9 @@ function gauge() {
 
 function sample() {
     local id="$1"; shift
+    samples[samplen++]=$id
+
     local interval
-    local crontab
-    local cron_id="@RRD $topic::$id"
 
     while parse_event "$@"; do
         case "${ACTION[0]}" in
@@ -264,29 +341,9 @@ function sample() {
 
     case "$MODE" in
         install) # Install crontab
-            local cronspec="* * * * *" # Ignore interval.
-
-            crontab=`tempfile`
-            crontab -l >$crontab
-
-            lineconf -tm "Add sample procedure to crontab" \
-                $crontab "$cron_id" \
-                "$cronspec \"$SCRIPT_PATH\" --run \"$id\""
-
-            crontab $crontab
-            rm -f $crontab
             ;;
 
         remove) # Uninstall crontab
-            _log1 "Remove sample procedure from crontab."
-
-            crontab=`tempfile`
-            crontab -l >$crontab
-
-            lineconf -k $crontab "$cron_id"
-
-            crontab $crontab
-            rm -f $crontab
             ;;
 
         run) # Run the command

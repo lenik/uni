@@ -1,6 +1,6 @@
 #!/bin/bash
     RCSID='$Id: - 0.0.1 2012-11-23 16:24:53 - $'
-    PROGRAM_TITLE="RRD wrapper demo"
+    PROGRAM_TITLE="Demo Wrapper"
     PROGRAM_SYNTAX="[OPTIONS] [--] ..."
 
     . shlib-import ../shlib.d/rrdwrapper
@@ -18,7 +18,7 @@
             -k|--const2)
                 const2="$2";;
             *)
-                _setopt "$@" || quit "Illegal option: $*";;
+                _setopt "$@"
         esac
     }
 
