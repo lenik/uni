@@ -95,11 +95,7 @@ function commit() {
     [ ${#pending_cmdv[@]} = 0 ] && return
 
     _log2 "Commit pending command: ${pending_cmdv[@]}"
-    if "${pending_cmdv[@]}"; then
-        _log2 "Succeeded."
-    else
-        _error "Failed: exit code=$?"
-    fi
+    cmdexec "${pending_cmdv[@]}"
 }
 
 function pendemit() {
@@ -108,6 +104,18 @@ function pendemit() {
     for arg in "$@"; do
         pending_cmdv[n++]="$arg"
     done
+}
+
+function cmdexec() {
+    _log2 Execute "$@"
+    "$@"
+    local exitcode=$?
+    if [ $exitcode = 0 ]; then
+        _log3 "  succeeded."
+    else
+        _log3 "  failed: exit code=$?"
+    fi
+    return $?
 }
 
 # RRD Wrapper Framework:
@@ -301,13 +309,19 @@ function sample_exec() {
     local output=`tempfile`
 
     if "${id}_proc" "$@" >$output; then
-        _log2 "Succeeded to execute the sample procedure."
+        if [ $LOGLEVEL -ge 2 ]; then
+            echo "Sample Output: " >&2
+            cat $output | sed -e 's/^/  > /' >&2
+        fi
 
         local key val
         while IFS== read key val; do
+            _log2 "Sample Field $key = $val"
             declare "val_$key"="$val"
-            _log2 "Field $key = $val"
         done <$output
+
+        local template=
+        local vals=N
 
         local cmap="${!cmap_var}"
         local entry
@@ -316,10 +330,14 @@ function sample_exec() {
             local vname="${entry%%=*}"
             local fieldvar="val_${entry#*=}"
             val="${!fieldvar}"
+
             _log1 "Update data source $vname to $val"
 
-            rrdtool update "$datafile" --template "$vname" N:"$val"
+            [ -n "$template" ] && template="$template:"
+            template="$template$vname"
+            vals="$vals:$val"
         done
+        cmdexec rrdtool update "$datafile" --template "$template" "$vals"
     else
         _error "Failed to execute the sample procedure, exit code=$?"
     fi
@@ -364,7 +382,7 @@ function graph() {
                 mkdir -p "$plotoutdir" || die "Failed to create image directory: $plotoutdir"
 
                 _log1 "Generate graph $plotout..."
-                if ! rrdtool graph "$plotout" "${plot_opts[@]}" "${plotcmds[@]}"; then
+                if ! cmdexec rrdtool graph "$plotout" "${plot_opts[@]}" "${plotcmds[@]}"; then
                     _error "Failed to generate graph, exit code=$?."
                 else
                     if [ "$auto_open" = 1 ]; then

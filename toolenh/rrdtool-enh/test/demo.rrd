@@ -1,0 +1,74 @@
+#!/bin/bash
+    RCSID='$Id: - 0.0.1 2012-11-23 16:24:53 - $'
+    PROGRAM_TITLE="RRD wrapper demo"
+    PROGRAM_SYNTAX="[OPTIONS] [--] ..."
+
+    . shlib-import ../shlib.d/rrdwrapper
+    option --extra "User option for test"
+
+    boot "$@"
+
+    sample sample1 \
+        on 3min update
+
+    function sample1_proc() {
+        echo CONST1=1
+        echo CONST2=2500
+        echo TS=`date +%s`
+        echo RAND1=$RANDOM
+    }
+
+# Config
+    database Demo \
+        on 1sec step \
+        on 2step make max for 1hr \
+        on 2step make average for 1hr
+
+# Data Sources
+    gauge const1 0:10 \
+        on 1min timeout \
+        on sample1 read CONST1
+
+    gauge const2 0:10000 \
+        on 1min timeout \
+        on sample1 read CONST2
+
+    gauge ts 1353000000:1353999999 \
+        on 1min timeout \
+        on sample1 read TS
+
+    gauge rand1 0:32768 \
+        on 1min timeout \
+        on sample1 read RAND1
+
+graph plot1 "Show simple variable change curves"
+
+    plot-config \
+        -w 320 -h 240 -a PNG \
+        --slope-mode \
+        --start -600 --end now \
+        --font DEFAULT:7: \
+        --title "Show simple variable change curves" \
+        --watermark "`date`" \
+        --vertical-label "Value" \
+        --right-axis-label "pure number" \
+        --lower-limit 0 \
+        --right-axis 1:0 \
+        --x-grid MINUTE:10:HOUR:1:MINUTE:120:0:%R \
+        --alt-y-grid --rigid \
+
+    def const1 = Demo.const1:MAX
+    def const2 = Demo.const2:MAX
+    def ts = Demo.ts:MAX
+    def rand1p = Demo.rand1:MAX
+    def rand1m = Demo.rand1:AVERAGE
+
+    list rand1mm = '(TREND rand1m 100)'
+    val rand1max = '(MAXIMUM rand1p)'
+
+    plot rand1m as line 2px $LightBlue   'Rand1~'
+    plot rand1p as line 1px $Blue   'Rand1'
+    plot rand1mm as line 3px $Pink  'Rand1~trend'
+
+    plot const2 as area 1px $Green  'Const-2'
+    plot const1 as line 5px $Red    'Const-1'
