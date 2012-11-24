@@ -1,7 +1,7 @@
 #!/bin/bash
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    PROGRAM_TITLE="<?= TEXT ?>"
-    PROGRAM_SYNTAX="[OPTIONS] [--] ..."
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=<?= TEXT ?>}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
     . shlib-import cliboot
     option -q --quiet       "Repeat to get less info"
