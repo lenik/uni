@@ -445,16 +445,28 @@ function graph() {
                 local serial=`date +%Y-%m-%d`
                 local plotout="$plotoutdir/$serial.png"
 
-                mkdir -p "$plotoutdir" || die "Failed to create image directory: $plotoutdir"
+                mkdir -p "$plotoutdir"
+                if [ "$CGI" = 1 ] && [ ! -w "$plotout" ]; then
+                    plotout=-
+                fi
 
                 _log1 "Generate graph $plotout..."
-                if ! cmdexec rrdtool graph "$plotout" "${plot_opts[@]}" "${plotcmds[@]}"; then
-                    _error "Failed to generate graph, exit code=$?."
+                local cmdv=(rrdtool graph "$plotout" "${plot_opts[@]}" "${plotcmds[@]}")
+                if [ "$plotout" = '-' ]; then
+                    "${cmdv[@]}"
                 else
+                    "${cmdv[@]}" >/dev/null
+                fi
+
+                if [ $? = 0 ]; then
                     if [ "$auto_open" = 1 ]; then
                         _log2 "Auto open the result image file: $plotout"
                         alt-exec -su x-open "$plotout"
+                    elif [ "$CGI" = 1 ]; then
+                        [ "$plotout" = '-' ] || cat "$plotout"
                     fi
+                else
+                    _error "Failed to generate graph, exit code=$?."
                 fi
             }
             ;;

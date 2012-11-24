@@ -3,6 +3,9 @@
     PROGRAM_TITLE="Round Robin Graphics Index"
     PROGRAM_SYNTAX="[OPTIONS] [--] ..."
 
+    index_dir=
+    indexer_name=
+
     . shlib-import cliboot
     option -q --quiet       "Repeat to get less info"
     option -v --verbose     "Repeat to get more info"
@@ -26,37 +29,179 @@ function setopt() {
     esac
 }
 
+function begin_html() {
+    local title="$1"; shift
+    echo "Content-Type: text/html"
+
+    local header
+    for header in "$@"; do
+        echo "$header"
+    done
+    echo
+
+    echo "<html>"
+    echo "<head>"
+    echo "<title>$title</title>"
+    echo "</head>"
+    echo "<body>"
+
+    echo "<h1>$title</h1>"
+    echo "<hr>"
+}
+
+function end_html() {
+    echo "</body>"
+    echo "</html>"
+}
+
+function die() {
+    echo "Content-Type: text/html"
+    echo
+    echo "<html><head><title>Error: $@</title></head>"
+    echo "<body>"
+    echo "<h1>Error</h1>"
+    echo "<hr>"
+    echo "<p style='color: red'>$@</p>"
+    echo "</body></html>"
+    exit 0
+}
+
+function detect_home() {
+    if [ -z  "$HOME" ]; then
+        case "$REQUEST_URI" in
+            /~*)
+                user="${REQUEST_URI#/~}"
+                user="${user%%/*}"
+                ;;
+            *)
+                case "$SCRIPT_FILENAME" in
+                    /home/*)
+                        user="${SCRIPT_FILENAME#/home/}"
+                        user="${user%%/*}"
+                        ;;
+                    *)
+                        user=unknown
+                        ;;
+                esac
+                ;;
+        esac
+        HOME="/home/$user"
+        export HOME
+    fi
+}
+
 function main() {
     _main "$@"
 }
 
 function _main() {
-    echo "Content-Type: text/html"
-    echo
+    index_dir="${SCRIPT_FILENAME%/*}"
+    indexer_name="${SCRIPT_FILENAME##*/}"
 
-    dir="${SCRIPT_FILENAME%/*}"
-    count=0
+    path="${PATH_INFO#/}"
+    if [ "$path" = "$PATH_INFO" ]; then
+        prefix="$indexer_name/"
+    else
+        prefix=
+    fi
 
-    echo "<html>"
-    echo "<head>"
-    echo "<title>$TITLE</title>"
-    echo "</head>"
-    echo "<body>"
+    if [ -z "$path" ]; then
+        list
+        return
+    fi
 
-    echo "<h1>$TITLE</h1>"
-    echo "<hr>"
+    topic="${path%%/*}"
+    wrapper="$index_dir/$topic.rrw"
+    [ -f "$wrapper" ] || die "Topic isn't existed: $topic."
+    [ -x "$wrapper" ] || die "The wrapper file isn't executable: $wrapper"
+    detect_home
 
-    files=("$dir"/*.rrw)
+    if [ "$topic" = "$path" ]; then
+        path=
+    else
+        path="${path#*/}"
+    fi
+
+    case "$path" in
+        ''|info)
+            begin_html "Current status of $topic"
+            echo "id: `id`"
+            echo "me: `whoami`"
+            echo "<table border='1' cellspacing='0' cellpadding='2'>"
+                echo "<thead><tr>"
+                echo "<th>Data Entry</th>"
+                echo "<th>Current Value</th>"
+                echo "</tr></thead>"
+                echo "<tbody>"
+                    while read _hdr _key _eq _val; do
+                        case "$_hdr" in
+                            Last-Update-Time:)
+                                echo "<tr><td>Last updated time</td><td>$_key $_eq</td></tr>" ;;
+                            Data-Source:)
+                                if [ "$_val" = 'U' ]; then
+                                    _val="<i style='color: gray'>Unknown</i>"
+                                fi
+                                echo "<tr><td>$_key</td><td>$_val</td></tr>" ;;
+                        esac
+                    done < <("$wrapper" --cgi --info)
+                echo "</tbody>"
+                echo "</table>"
+            end_html
+            ;;
+
+        plot/*)
+            plot_id="${path#plot/}"
+            begin_html "Plot of $topic : $plot_id" \
+                "Refresh: 5"
+
+            echo "<center>"
+            echo "<img src='../$plot_id.png'>"
+
+            echo "<p>"
+            "$wrapper" --list | grep "$plot_id"
+            echo "<p>"
+            echo "<cite style='color: gray'>The graph is plotted at `date`</cite>"
+            echo "</center>"
+            end_html
+            ;;
+
+        *.png)
+            plot_id="${path%.*}"
+            echo "Content-Type: image/png"
+            echo
+            "$wrapper" --cgi --plot "$plot_id"
+            ;;
+
+        *)
+            die "Failed to dispatch: $path"
+            ;;
+    esac
+}
+
+function list() {
+    begin_html "$PROGRAM_TITLE"
+
+    files=("$index_dir"/*.rrw)
     if [ ${#files[@]} = 0 ]; then
         echo "No round robin graphic available yet."
     else
         echo "<ul>"
         for file in "${files[@]}"; do
-            name="${file##*/}"
-            name="${name%.rrw}"
-            echo "<li>$name: "
+            topic="${file##*/}"
+            topic="${topic%.*}"
+            echo "<li>"
                 read _tag _title < <("$file" --version)
-                echo "$_title"
+                echo "$topic: "
+                echo "$_title "
+                echo "[ <a href='$prefix$topic'>info</a> ]"
+                echo "<ol>"
+                    while read _graph _index _id _description; do
+                        _id="${_id%:}"
+                        echo -n "<li>Plot "
+                        echo -n "<a href='$topic/plot/$_id'>$_id</a>"
+                        echo ": $_description</li>"
+                    done < <("$file" --list)
+                echo "</ol>"
             echo "</li>"
         done
         echo "</ul>"
@@ -64,6 +209,7 @@ function _main() {
 
     echo "<hr>"
     echo "<cite>Generated by: "; version; echo "</cite>"
+    end_html
 }
 
 boot "$@"
