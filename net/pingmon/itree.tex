@@ -8,20 +8,16 @@
     child{
         node[dir] {usr\fileflag{/}}
         child{
-            node[dir] {lib\fileflag{/}}
-            child{
-                node[dir] {shlib.d\fileflag{/}}
-                child{ node[plain] {rrdwrapper} }
-            }
+            node[dir] {bin\fileflag{/}}
+            child{ node[executable] {pingmon\fileflag{*}} }
         }
-        child[missing] {}
         child[missing] {}
         child{
             node[dir] {share\fileflag{/}}
             child{
                 node[dir] {setup\fileflag{/}}
                 child{
-                    node[dir] {rrdtool-enh\fileflag{/}}
+                    node[dir] {pingmon\fileflag{/}}
                     child{ node[executable] {postinst\fileflag{*}} }
                     child{ node[executable] {prerm\fileflag{*}} }
                 }

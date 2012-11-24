@@ -20,6 +20,8 @@
         node[dir] {usr\fileflag{/}}
         child{
             node[dir] {bin\fileflag{/}}
+            child{ node[executable] {bare2co\fileflag{*}} }
+            child{ node[executable] {co2bare\fileflag{*}} }
             child{ node[executable] {git-author\fileflag{*}} }
             child{ node[executable] {git-delta\fileflag{*}} }
             child{ node[executable] {git-stitch-fix\fileflag{*}} }
@@ -30,6 +32,8 @@
             child{ node[executable] {keepdirs\fileflag{*}} }
             child{ node[executable] {svn2gits\fileflag{*}} }
         }
+        child[missing] {}
+        child[missing] {}
         child[missing] {}
         child[missing] {}
         child[missing] {}

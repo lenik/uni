@@ -32,29 +32,26 @@
     child{
         node[dir] {usr\fileflag{/}}
         child{
-            node[dir] {local\fileflag{/}}
+            node[dir] {bin\fileflag{/}}
+            child{ node[executable] {srs\fileflag{*}} }
+            child{ node[executable] {sshproxy-z\fileflag{*}} }
+            child{ node[executable] {sudoscreen\fileflag{*}} }
+        }
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child{
+            node[dir] {share\fileflag{/}}
             child{
-                node[dir] {bin\fileflag{/}}
-                child{ node[executable] {srs\fileflag{*}} }
-                child{ node[executable] {sshproxy-z\fileflag{*}} }
-                child{ node[executable] {sudoscreen\fileflag{*}} }
-            }
-            child[missing] {}
-            child[missing] {}
-            child[missing] {}
-            child{
-                node[dir] {share\fileflag{/}}
+                node[dir] {setup\fileflag{/}}
                 child{
-                    node[dir] {setup\fileflag{/}}
-                    child{
-                        node[dir] {sshproxy-z\fileflag{/}}
-                        child{ node[executable] {postinst-base.sh\fileflag{*}} }
-                        child{ node[executable] {postinst-client.sh\fileflag{*}} }
-                        child{ node[executable] {postinst-server.sh\fileflag{*}} }
-                        child{ node[executable] {prerm-base.sh\fileflag{*}} }
-                        child{ node[executable] {prerm-client.sh\fileflag{*}} }
-                        child{ node[executable] {prerm-server.sh\fileflag{*}} }
-                    }
+                    node[dir] {sshproxy-z\fileflag{/}}
+                    child{ node[executable] {postinst-base.sh\fileflag{*}} }
+                    child{ node[executable] {postinst-client.sh\fileflag{*}} }
+                    child{ node[executable] {postinst-server.sh\fileflag{*}} }
+                    child{ node[executable] {prerm-base.sh\fileflag{*}} }
+                    child{ node[executable] {prerm-client.sh\fileflag{*}} }
+                    child{ node[executable] {prerm-server.sh\fileflag{*}} }
                 }
             }
         }
