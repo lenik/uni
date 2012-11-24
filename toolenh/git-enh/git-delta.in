@@ -1,7 +1,7 @@
 #!/bin/bash
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    PROGRAM_TITLE="Show how many lines been worked"
-    PROGRAM_SYNTAX="[OPTIONS] [--] ( git-diff(1) options ...)"
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Show how many lines been worked}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ( git-diff(1) options ...)}
 
     . shlib-import cliboot
     option -q --quiet       "Repeat to get less info"

@@ -5,6 +5,7 @@ dist_bin_SCRIPTS = \
     co2bare \
     git-author \
     git-delta \
+    git-delta.rrw \
     git-stitch-fix \
     git2svn \
     gitcl \

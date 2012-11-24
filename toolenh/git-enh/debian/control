@@ -11,4 +11,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/toolenh/git-enh
 Package: git-enh
 Architecture: all
 Depends: git
+Recommends: rrdtool-enh
 Description: Git shortcuts & Switcher

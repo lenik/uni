@@ -1,0 +1,127 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - 0.0.1 2012-11-22 20:52:53 - $}
+    : ${PROGRAM_TITLE:=Git-tracked unmerged modified source lines of code}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import ../shlib.d/rrdwrapper
+
+    dirsfile="${0%.rrw}.dirs"
+    colors=('#bdace5' '#984c5c' '#542d1c' '#251367' '#0cf979' '#644a6a' '#3fe1a7' '#6f00fc'
+            '#63b1eb' '#aace8f' '#6d0594' '#5b2f95' '#a5b7db' '#c37325' '#fa70c4' '#bb1a14'
+            '#f995e4' '#6ec3c9' '#5e9fe4' '#dbdf48' '#c66887' '#c66887' '#9995ba' '#8ad9c3'
+            '#a6b98e' '#707aea' '#548f6c' '#5c5d27' '#f97647' '#6e5025' '#6e5025' '#979500')
+
+    option    --dirs =PATH  "Specify the .dirs file, default $dirsfile"
+
+    function setopt() {
+        case "$1" in
+            --dirs)
+                dirsfile="$2";;
+            *)
+                _setopt "$@"
+        esac
+    }
+
+    boot "$@"
+
+    sample deltas on 1min update
+    function deltas_proc() {
+        local sum=0
+        while IFS=: read project label gitdir; do
+            case "$project" in
+                '') continue;;
+                \#*) continue;;
+            esac
+
+            _log2 "Get delta SLOC within $gitdir"
+            pushd "$gitdir" >/dev/null
+            local delta=`git-delta origin/master`
+            echo "d_$project=$delta"
+            ((sum += delta))
+            popd >/dev/null
+        done <"$dirsfile"
+        echo "sum=$sum"
+    }
+
+    database GitDelta \
+        on 1min step \
+        on 1min make last for 1yr \
+        on 10min make average for 1yr
+
+    while IFS=: read project label gitdir; do
+        case "$project" in
+            '') continue;;
+            \#*) continue;;
+        esac
+
+        # Max. 10 kLOC before push.
+        gauge $project 0:10000 \
+            on 2hr timeout \
+            on deltas read d_$project
+
+        graph "${project}" "Show modified SLOCs of project $label"
+
+        plot-config \
+            -w 750 -h 440 -a PNG \
+            --slope-mode \
+            --start -14400 --end now \
+            --font DEFAULT:7: \
+            --title "Unmerged SLOCs of project $label" \
+            --watermark "`date`" \
+            --vertical-label "SLOC" \
+            --right-axis-label "(unmerged)" \
+            --lower-limit 0 \
+            --right-axis 1:0 \
+            --x-grid MINUTE:10:HOUR:1:MINUTE:120:0:%R \
+            --alt-y-grid --rigid \
+
+        def delta = GitDelta.$project:LAST
+        def mean = GitDelta.$project:AVERAGE
+
+        list trend = '(TREND delta 100)'
+
+        plot trend as line 6px '#FFEEEE'    'Trend ΔSLOC'
+        plot mean as line 3px $Pink         'Mean ΔSLOC' # Δ
+        plot delta as line 1px $Black       'ΔSLOC'
+    done < "$dirsfile"
+
+    gauge sum 0:100000 \
+        on 1hr timeout \
+        on deltas read sum
+
+    graph "__sum__" "Show total modified SLOCs of all projects"
+
+        plot-config \
+            -w 800 -h 440 -a PNG \
+            --slope-mode \
+            --start -14400 --end now \
+            --font DEFAULT:7: \
+            --title "Total unmerged SLOCs of all projects" \
+            --watermark "`date`" \
+            --vertical-label "Σ SLOC" \
+            --right-axis-label "(unmerged)" \
+            --lower-limit 0 \
+            --right-axis 1:0 \
+            --x-grid MINUTE:10:HOUR:1:MINUTE:120:0:%R \
+            --alt-y-grid --rigid \
+
+        index=0
+        while IFS=: read project label gitdir; do
+            case "$project" in
+                '') continue;;
+                \#*) continue;;
+            esac
+
+            def delta_$project = GitDelta.$project:LAST
+            # def mean_$project = GitDelta.$project:AVERAGE
+            plot delta_$project as stacked area ${colors[index++]} "$label ΔSLOC"'\n'
+        done < "$dirsfile"
+
+        def delta = GitDelta.sum:LAST
+        def mean = GitDelta.sum:AVERAGE
+
+        list trend = '(TREND delta 100)'
+
+        plot trend as line 6px '#FFEEEE'    'Trend Σ ΔSLOC'
+        plot mean as line 3px $Pink         'Mean Σ ΔSLOC' # Δ
+        plot delta as line 1px $Black       'Σ ΔSLOC'
