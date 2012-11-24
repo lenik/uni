@@ -98,14 +98,25 @@ function _main() {
     index_dir="${SCRIPT_FILENAME%/*}"
     indexer_name="${SCRIPT_FILENAME##*/}"
 
-    path="${PATH_INFO#/}"
-    if [ "$path" = "$PATH_INFO" ]; then
-        prefix="$indexer_name/"
-    else
-        prefix=
+    request_path="${REQUEST_URI%%\?*}"
+    prefix=
+    path=
+
+    if [ -n "$PATH_INFO" ]; then
+        path="${PATH_INFO#/}"
     fi
 
     if [ -z "$path" ]; then
+        case "$request_path" in
+            */index.cgi/)
+                : ;;
+            *)
+                # To make PATH_INFO exist.
+                echo Location: index.cgi/
+                echo
+                return
+        esac
+
         list
         return
     fi
@@ -125,8 +136,6 @@ function _main() {
     case "$path" in
         ''|info)
             begin_html "Current status of $topic"
-            echo "id: `id`"
-            echo "me: `whoami`"
             echo "<table border='1' cellspacing='0' cellpadding='2'>"
                 echo "<thead><tr>"
                 echo "<th>Data Entry</th>"
