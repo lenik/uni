@@ -1,6 +1,7 @@
 collect-copy
 gcd
 htmldoc-man
+htmldoc-histgram
 kill-all
 random
 timestamp

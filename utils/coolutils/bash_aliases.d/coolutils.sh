@@ -1,0 +1,1 @@
+alias hm='htmldoc-man'

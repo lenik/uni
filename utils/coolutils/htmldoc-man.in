@@ -1,0 +1,164 @@
+#!/bin/bash
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    PROGRAM_TITLE="Find installed HTML documents for keywords"
+    PROGRAM_SYNTAX="[OPTION] [--] [nnn] PACKAGE-SPEC KEYWORDS..."
+
+    . shlib-import cliboot
+    option -p --packages        "List packages which contains html docs"
+    option -I --include =DIR    "Add dir to search path"
+    option -d --maxdepth =DEPTH "Max recursion depth to search into"
+    option -a --all             "Search all keywords with the prefix"
+    option -s --strict          "Search explicit keywords"
+    option -i --ignore-case     "Ignore case"
+    option -l --list            "Only list the candidates, don't open"
+    option -x --exec =COMMAND   "Open with specified command"
+    option -q --quiet           "Repeat to get less info"
+    option -v --verbose         "Repeat to get more info"
+    option -h --help            "Show this help page"
+    option    --version         "Print the version info"
+
+    includes=(/usr/share/doc /usr/local/share/doc)
+    list_packages=
+    maxdepth=3
+    word_boundary="\b"
+    strict=
+    ignore_case=
+    list_only=
+    opencmd=gnome-open
+
+    shopt -s nullglob
+
+function setopt() {
+    case "$1" in
+        -p|--packages)
+            list_packages=1;;
+        -I|--include)
+            includes[${#includes[@]}]="$2";;
+        -d|--maxdepth)
+            maxdepth="$2";;
+        -a|--all)
+            word_boundary=;;
+        -s|--strict)
+            strict=1;;
+        -i|--ignore-case)
+            ignore_case=1;;
+        -l|--list)
+            list_only=1;;
+        -x|--exec)
+            opencmd="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+
+    if [ "$list_packages" = 1 ]; then
+        for d in "${includes[@]}"; do
+            d=${d%/}/
+            if [ ! -d $d ]; then continue; fi
+            find $d -maxdepth 3 -name '*.html' | sed -e "s|^$d||"
+        done | sed -e 's,/.*$,,' | uniq \
+             | sed 's/^lib\(.*\)$/lib\1\n\1/' | sort -u
+        exit 0
+    fi
+
+    list_cands=0
+    if [ $LOGLEVEL -gt 0 ]; then list_cands=1; fi
+
+    selection=1
+    if [ -n "$1" ] && [ -z "${1//[0-9]}" ]; then
+        selection=$1
+        shift
+    fi
+
+    if [ -z "$1" ]; then
+        echo "No package specified. "
+        exit 1
+    fi
+    package_spec="$1"
+    shift
+
+    if [ "$#" = 0 ]; then
+        set ''
+    fi
+
+    regex_flags=
+    grep_flags=
+    if [ "$ignore_case" = 1 ]; then
+        regex_flags="i"
+        grep_flags=-i
+    fi
+
+    listf=/tmp/hm-listf.$$.$RANDOM
+
+    for inc in "${includes[@]}"; do
+        for package in $inc/*$package_spec*; do
+            find "$package" -maxdepth $maxdepth -name '*.*html' -o -name '*.*htm' | sed -e 's/^\|$/\"/g' >>$listf
+        done
+    done
+    eval "filelist=(/dev/null `cat $listf`)"
+    rm -f $listf
+    # for f in "${filelist[@]}"; do echo fl: $f; done
+
+    for keyword in "$@"; do
+        sleep 1
+        keyword="${keyword//\\/\\\\}"
+        if [ -z "$strict" ]; then
+            grep_keyword="${keyword//[-_.]/[-_.]}"
+            grep_keyword="['\"]\($grep_keyword$word_boundary[^'\"]*\)['\"]"
+             sed_keyword="$grep_keyword"
+        else
+            grep_keyword="['\"]\($keyword\)['\"]"
+             sed_keyword="$grep_keyword"
+        fi
+
+        grep_anchor="<a name=$grep_keyword>"
+         sed_anchor="$grep_anchor"
+
+        _log2 "grep-keyword: $grep_keyword"
+        _log2 " sed-keyword: $sed_keyword"
+        _log2 "grep-anchor: $grep_anchor"
+        _log2 " sed-anchor: $sed_anchor"
+
+        # XXX - filelist may exceeds the command-line max size.
+
+        # This just list matched files, but not list ambiguous cands.
+        # grep $grep_flags -l "$grep_anchor" "${filelist[@]}"
+
+        grep $grep_flags "$grep_anchor" "${filelist[@]}" | \
+                sed -e "s/^\([^:]*\):.*<a name=$sed_keyword.*\$/\1|\2/" | \
+                sort -u | \
+            while IFS=\| read file anchor; do
+                if [ "$list_only" = 1 ]; then
+                    if [ $LOGLEVEL -gt 2 ]; then
+                        echo "$anchor (${file##*/})"
+                    else
+                        echo "$anchor"
+                    fi
+                else
+                    ((index++))
+                    if [ "$index" = "$selection" ]; then
+                        url="file://${file// /+}#$anchor"
+                        _log2 $opencmd "$url"
+                        $opencmd "$url"
+                    elif [ "$list_cands" = 1 ]; then
+                        echo "$anchor (${file##*/})"
+                    elif [ "$index" -gt "$selection" ]; then
+                        break
+                    fi
+                fi
+            done
+    done
+}
+
+boot "$@"

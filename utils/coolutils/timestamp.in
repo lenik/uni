@@ -1,0 +1,45 @@
+#!/bin/bash
+
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    PROGRAM_TITLE="Get file timestamp"
+    PROGRAM_SYNTAX="[OPTION] [--] FILES"
+
+    . shlib-import cliboot
+    option -l --long            "Show filename besides timestamp"
+    option -q --quiet           "Repeat to get less info"
+    option -v --verbose         "Repeat to get more info"
+    option -h --help            "Show this help page"
+    option    --version         "Print the version info"
+
+    stat_format='%Y'
+
+function setopt() {
+    case "$1" in
+        -A|--access-time)
+            stat_format="%X";;
+        -M|--modify-time)
+            stat_format="%Y";;
+        -C|--change-time)
+            stat_format="%Z";;
+        -l|--long)
+            stat_format="$stat_format %n";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for f in "$@"; do
+        stat -c "$stat_format" "$f"
+    done
+}
+
+boot "$@"
