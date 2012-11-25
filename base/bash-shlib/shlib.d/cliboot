@@ -201,10 +201,15 @@ function help() {
     version
     echo
     echo "Syntax: "
-    echo "    $0 $PROGRAM_SYNTAX"
+
+    local syntax
+    while read syntax; do
+        echo "    $0 $syntax"
+    done < <(echo "$PROGRAM_SYNTAX")
+
     echo
     help_options
-    help_extras
+    help_more
 }
 
 function help_options() {
@@ -214,7 +219,7 @@ function help_options() {
     done
 }
 
-function help_extras() {
+function help_more() {
     :
 }
 
@@ -222,4 +227,9 @@ function version() {
     parse_id "$RCSID"
     echo "[$PROGRAM_NAME] $PROGRAM_TITLE"
     echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+    version_more
+}
+
+function version_more() {
+    :
 }
