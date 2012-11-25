@@ -1,6 +1,8 @@
+# Run uscan to download the source.
+#
 version=3
 
-# http://www.varaneckas.com/sites/default/files/jad/jad158e.linux.intel.zip
+# http://www.varaneckas.com/jad/jad158e.linux.intel.zip
 http://www.varaneckas.com/jad \
-    /sites/default/files/jad/jad(.*)\.linux\.static\.zip \
+    /jad(.*)\.linux\.static\.zip \
     debian debian/upstream-update
