@@ -41,7 +41,7 @@
 
     declare -A update_once
 
-function help2() { # TODO
+function help_more() {
     echo
     echo "Configurations (in ~/.m2/):"
     echo

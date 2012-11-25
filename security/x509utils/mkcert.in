@@ -9,8 +9,7 @@
     option -h --help        "Show this help page"
     option    --version     "Print the version info"
 
-# TODO version2
-function version2() {
+function version_more() {
     echo
     echo "(This is a get-config utility)"
 }

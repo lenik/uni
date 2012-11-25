@@ -21,8 +21,7 @@
     append=
 
 
-#TODO help2
-function help2() {
+function help_more() {
     echo
     echo "Variables: (You need to escape the \$ char)"
     echo "    $@ The target"

@@ -27,15 +27,9 @@
     zipext_gzip=gz
     zipext_xz=xz
 
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME]
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help2() { #TODO
+function help_more() {
     echo
-    ehco "Zip Programs: "
+    echo "Zip Programs: "
     echo "    bzip2 (.bz2)"
     echo "    gzip (.gz)"
     echo "    xz (.xz)"

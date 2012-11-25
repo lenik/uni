@@ -13,8 +13,7 @@
 
     force=
 
-# TODO hep2
-function help2() {
+function help_more() {
     echo
     echo "Supported SVN Commands: "
     echo "    cleanup                 clean up all join-points"

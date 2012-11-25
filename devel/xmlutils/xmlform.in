@@ -16,7 +16,7 @@
     tabonly=
     width=
 
-function version2() { #TODO
+function version_more() {
     echo
     echo "This tool is based on xmlindent(1) utility by Pekka Enberg & Thomas Fischer."
     echo

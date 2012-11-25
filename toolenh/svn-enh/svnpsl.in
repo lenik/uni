@@ -1,8 +1,8 @@
 #!/bin/bash
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
     : ${PROGRAM_TITLE:="Modify SVN multi-line property"}
-    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] PROPNAME PROPVAL... ; FILES"}
-    : ${PROGRAM_SYNTAX:="[OPTIONS] -I|-K|-X [--] PROPVAL... ; FILES"}  # TODO syntax2
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] PROPNAME PROPVAL... ; FILES"
+                        "[OPTIONS] -I|-K|-X [--] PROPVAL... ; FILES"}
 
     . shlib-import cliboot
     option -s --set         "Set values (default)"

@@ -9,8 +9,8 @@
     option -h --help        "Show this help page"
     option    --version     "Print the version info"
 
-# TODO help2
-function help2() {
+function help_more() {
+    echo
     echo "Command: "
     echo "    notags                  List package dirs without tags file"
 }

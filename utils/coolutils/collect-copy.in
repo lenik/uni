@@ -26,8 +26,7 @@
     find=
     stdin=
 
-# TODO help-more...
-function help2() {
+function help_more() {
     echo
     echo "Normalization Types: "
     echo "(Example path: ./any/libsepol-2.0.40/debian/postinst)"

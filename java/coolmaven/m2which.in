@@ -1,9 +1,8 @@
 #!/bin/bash
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
     : ${PROGRAM_TITLE:="Find path in maven modules"}
-    : ${PROGRAM_SYNTAX:="[OPTIONS] [-r]    [--] <path>"}
-    # TODO Syntax2
-    : ${PROGRAM_SYNTAX:="[OPTIONS] -l [-n] [--] <module-prefix>[/foo/bar]"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [-r]    [--] <path>"
+                        "[OPTIONS] -l [-n] [--] <module-prefix>[/foo/bar]"}
 
     . shlib-import cliboot
     option -r --root        "Get root module instead of nearest module"

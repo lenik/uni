@@ -24,7 +24,7 @@
     label="Ubuntu Live CD"
     iso_only=
 
-function version2() { # TODO
+function version_more() {
     echo
     echo "This tool is following the tutorial: "
     echo "    http://www.debuntu.org/how-to-customize-your-ubuntu-live-cd"

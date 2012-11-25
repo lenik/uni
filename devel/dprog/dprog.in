@@ -29,7 +29,7 @@
     SYSRC=@sysconfdir@/dprog.rc
     USERRC=$HOME/.dprog.rc
 
-function help2() { # TODO
+function help_more() {
     echo "  * (all other options are passed to the dmd compiler)"
 }
 

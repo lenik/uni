@@ -1,10 +1,8 @@
 #!/bin/bash
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
     : ${PROGRAM_TITLE:=Run command on file change}
-    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FILE COMMAND...}
-
-    # TODO many syntaxes..
-    : ${PROGRAM_SYNTAX:=[OPTIONS] -f FILE [--] COMMAND...}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] FILE COMMAND..."
+                        "[OPTIONS] -f FILE [--] COMMAND..."}
 
     . shlib-import cliboot
     option -f --file =FILE  "Add a file to monitor list"

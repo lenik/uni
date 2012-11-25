@@ -12,7 +12,7 @@
 
     force=0
 
-function help2() {  # TODO help2
+function help_more() {
     echo
     echo "Example: "
     echo "  # eclipse-link ../lib/model-1.2.3 link/10model"

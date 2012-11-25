@@ -1,9 +1,9 @@
 #!/bin/bash
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
     : ${PROGRAM_TITLE:="Modify a line of config file by pattern"}
-    : ${PROGRAM_SYNTAX:="[OPTIONS]    [--] FILE PATTERN LINES"}
-    # TODO syntax...
-    : ${PROGRAM_SYNTAX:="[OPTIONS] -k [--] FILE PATTERN       (If no file is specified, then stdin/out is used)"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS]    [--] FILE PATTERN LINES"
+                        "[OPTIONS] -k [--] FILE PATTERN"
+                        "(If no file is specified, then stdin/out is used)"}
 
     : ${GREP:=grep}
     : ${GREPL:=grepl}

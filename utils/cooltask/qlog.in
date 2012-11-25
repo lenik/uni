@@ -14,8 +14,7 @@
     qlog_dir=$HOME/.qlog
     color=
 
-#TODO helpmore..
-function help2() {
+function help_more() {
     echo
     echo "Task Schedule: "
     echo "    push <child-spec>     Add to the child list and jump to the task"
