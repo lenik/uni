@@ -6,8 +6,8 @@ import load
 import log
 import rcs
 
-BASENAME=${0##*/}
-LONGOPTS=1
+: ${PROGRAM_NAME:=${0##*/}}
+: ${LONGOPTS:=1}
 
 if [ "$OS" = Cygwin ]; then
     LONGOPTS=0 # It's too slow in cygwin
@@ -66,7 +66,7 @@ function boot() {
         if ! args=`POSIXLY_CORRECT=1 getopt \
                         -o "$short_opts" \
                         -l "$long_opts" \
-                        -n "$BASENAME" -- "$@"`; then
+                        -n "$PROGRAM_NAME" -- "$@"`; then
             die "Syntax error."
             exit 1
         fi
@@ -132,8 +132,10 @@ function dump() {
 short_opts=
 long_opts=
 
+##
+# Align at column 28, which looks like:
 #   -f, --FILE=PATH         Description...
-optdoc_align=28
+: ${OPTDOC_ALIGN:=28}
 optdocs=()
 optdocn=0
 
@@ -187,7 +189,7 @@ function option() {
 
     optdoc="$optdoc$vname"
 
-    while [ ${#optdoc} -lt $optdoc_align ]; do
+    while [ ${#optdoc} -lt $OPTDOC_ALIGN ]; do
         optdoc="$optdoc "
     done
 
@@ -218,6 +220,6 @@ function help_extras() {
 
 function version() {
     parse_id "$RCSID"
-    echo "[$BASENAME] $PROGRAM_TITLE"
+    echo "[$PROGRAM_NAME] $PROGRAM_TITLE"
     echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
 }

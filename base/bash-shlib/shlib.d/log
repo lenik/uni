@@ -10,14 +10,12 @@ LOGFX_ERROR='[1;41m'
 LOGLEVEL_WARN=0
 LOGLEVEL_ERROR=-1
 
-if [ -z "$LOGLEVEL" ]; then
-    LOGLEVEL=1
-fi
+: ${LOGLEVEL:=1}
 
-if [ -z "$BASENAME" ]; then
+if [ -z "$PROGRAM_NAME" ]; then
     LOGPREFIX=
 else
-    LOGPREFIX="[$BASENAME] "
+    LOGPREFIX="[$PROGRAM_NAME] "
 fi
 
 function _log() {
