@@ -1,9 +1,19 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Rename and create parent directories when necessary}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FROM TO FILES  (FROM, TO is specified in bash pattern)}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="a:o:gkcfhqv"
-    long_opts="and:,or:,global,keep-parents,clean-parents,force,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -a --and=FROM=TO     "Add and rule, only applied if last rule matched"
+    option -o --or=FROM=TO      "Add or rule, only applied if last rule unmatched"
+    option -g --global          "Replace all occurence of FROM"
+    option -k --keep-parents    "Don't remove empty parents"
+    option -c --clean-parents   "Remove empty parents"
+    option -f --force           "Overwrite existing files"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     rules=()
     orders=()
@@ -12,32 +22,6 @@
     global=0
     force=0
     clean_parents=1
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Rename and create parent directories when necessary"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] FROM TO FILES"
-    echo "  (FROM, TO is specified in bash pattern)"
-    echo
-    echo "Options: "
-    echo "    -a, --and=FROM=TO       add and rule, only applied if last rule matched"
-    echo "    -o, --or=FROM=TO        add or rule, only applied if last rule unmatched"
-    echo "    -g, --global            Replace all occurence of FROM"
-    echo "    -k, --keep-parents      Don't remove empty parents"
-    echo "    -c, --clean-parents     Remove empty parents"
-    echo "    -f, --force             Overwrite existing files"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

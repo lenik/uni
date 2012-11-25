@@ -1,19 +1,33 @@
 #!/bin/bash
-    . shlib
-    import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Maven2 incredible fast release utility"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] [<new-version>]"}
+
+    . shlib-import cliboot
+    option -b --refresh     "Force to refresh the project dependencies"
+    option -I --setver =X.Y-Z "Explicitly set the version"
+    option -i --incr =X.Y-Z "Increase the version, and reset the modifier to Z"
+    option -j --incr-auto =X.Y-Z "Increase the version only if vcs dirty"
+    option -a --all-modules "Reset all modules' version"
+    option -r --recursive   "Recursive increase the versions of dependent projects"
+    option -n --dry-run     "See what to do but don't execute"
+    option -f --fast        "Don't deploy, just change the version"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
     import loadpom
 
     shopt -s nullglob
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    MVN=`which coolmvn` || MVN=mvn
+
     CONFDIR="$HOME/.m2"
     PROJECT_LIST="$CONFDIR/PROJECT-LIST"
     MODULES="$CONFDIR/MODULES"
     DEPENDS="$CONFDIR/DEPENDS"
     RDEPENDS="$CONFDIR/RDEPENDS"
-
-    short_opts="abI:i:j:frnhqv"
-    long_opts="all-modules,refresh,setver:,incr:,incr-auto:,fast,recursive,dry-run,help,quiet,verbose,version"
 
     all_modules=
     refresh=
@@ -27,33 +41,7 @@
 
     declare -A update_once
 
-    MVN=`which coolmvn` || MVN=mvn
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Maven2 incredible fast release utility"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] [<new-version>]"
-    echo
-    echo "Options: "
-    echo "    -b, --refresh           Force to refresh the project dependencies"
-    echo "    -I, --setver=X.Y-Z      Explicitly set the version"
-    echo "    -i, --incr=X.Y-Z        Increase the version, and reset the modifier to Z"
-    echo "    -j, --incr-auto=X.Y-Z   Increase the version only if vcs dirty"
-    echo "    -a, --all-modules       Reset all modules' version"
-    echo "    -r, --recursive         Recursive increase the versions of dependent projects"
-    echo "    -n, --dry-run           See what to do but don't execute"
-    echo "    -f, --fast              Don't deploy, just change the version"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
+function help2() { # TODO
     echo
     echo "Configurations (in ~/.m2/):"
     echo

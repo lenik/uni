@@ -1,30 +1,16 @@
 #!/bin/bash
-    RCSID='$Id$'
-    short_opts="a:hqv"
-    #LONGOPTS=1
-    long_opts="args:,help,quiet,verbose,version"
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Shell-Macro Text"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] FILE.sht ..."}
+
+    . shlib-import cliboot
+    option -a --args =ARGS  "Arguments passed to sh-script"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
     sht_args=
-    . $LAM_KALA/lib/sh/cliboot
-
-function version() {
-    parse_id "$RCSID"
-    echo [$BASENAME] Shell-Macro Text
-    echo Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] FILE.sht ..."
-    echo
-    echo "Options: "
-    echo "    -a, --args=ARGS         arguments passed to sh-script"
-    echo "    -q, --quiet             repeat to get less info"
-    echo "    -v, --verbose           repeat to get more info"
-    echo "    -h, --help              show this help page"
-    echo "        --version           print the version info"
-}
 
 function setopt() {
     case "$1" in

@@ -4,8 +4,7 @@
     grow via three points={one child at (0.5,-0.7) and
       two children at (0.5,-0.7) and (0.5,-1.4)},
     edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
-    \path
-node[dir] {\emph{«setupdir»}}
+    \path node[dir] {\emph{«setupdir»}}
     child{
         node[dir] {etc\fileflag{/}}
         child{
@@ -27,9 +26,11 @@ node[dir] {\emph{«setupdir»}}
         child{
             node[dir] {bin\fileflag{/}}
             child{ node[executable] {cooltask\_list\fileflag{*}} }
+            child{ node[executable] {mtry\fileflag{*}} }
             child{ node[executable] {qlog\fileflag{*}} }
             child{ node[executable] {qlog-console\fileflag{*}} }
         }
+        child[missing] {}
         child[missing] {}
         child[missing] {}
         child[missing] {}

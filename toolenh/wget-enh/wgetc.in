@@ -1,20 +1,23 @@
 #!/bin/bash
-
-# master-file
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="wget with cache support"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] URL(s)"}
 
     . shlib-import cliboot
-
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="m:fhqv"
-    long_opts="mode:,force,help,quiet,verbose,version"
+    option -m --mode =MODE  "chmod to downloaded file"
+    option -f --force       "Invalidate the correspond cache"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     #SUDO="sudo -uwget"
     SUDO=
     umask 000
 
-    WGET=wget
-    CHMOD=chmod
-    RM=rm
+    : ${WGET:=wget}
+    : ${CHMOD:=chmod}
+    : ${RM:=rm}
     #if !  WGET=`which wget-wget`;  then WGET=wget;   fi
     #if ! CHMOD=`which wget-chmod`; then CHMOD=chmod; fi
     #if !    RM=`which wget-rm`;    then RM=rm;       fi
@@ -23,27 +26,6 @@
     cachedb=$cachedir/cache.db
     force=
     mode=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] wget with cache support"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] URL(s)"
-    echo
-    echo "Options: "
-    echo "    -m, --mode=MODE         chmod to downloaded file"
-    echo "    -f, --force             invalidate the correspond cache"
-    echo "    -q, --quiet             repeat to get less info"
-    echo "    -v, --verbose           repeat to get more info"
-    echo "    -h, --help              show this help page"
-    echo "        --version           print the version info"
-}
 
 function setopt() {
     case "$1" in

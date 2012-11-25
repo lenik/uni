@@ -1,9 +1,17 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Translate XML to text by simplified XSLT"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] XMLFILES"}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="sn:m:f:hqv"
-    long_opts="show-xsl,xmlns:,method:,for:,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -s --show-xsl    "Show the compiled XSL only"
+    option -n --xmlns =[NAME=]URI "Add namespace aliases"
+    option -f --'for' =XPATH:=EXPR "Add XSLT transform"
+    option -m --method =METHOD "Default method is text"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     method=text
     nsmap=()
@@ -11,29 +19,6 @@
     trans=()
     ntran=0
     show_xsl=0
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Translate XML to text by simplified XSLT"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] XMLFILES"
-    echo
-    echo "Options: "
-    echo "    -s, --show-xsl          Show the compiled XSL only"
-    echo "    -n, --xmlns=[NAME=]URI  Add namespace aliases"
-    echo "    -f, --for=XPATH:=EXPR   Add XSLT transform"
-    echo "    -m, --method=METHOD     Default method is text"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

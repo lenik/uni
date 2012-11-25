@@ -1,35 +1,20 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Run autobuild rule on changing to a directory"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] MAIN-DIR MORE-DIRS..."}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="t:rdhqv"
-    long_opts="target:,recursive,daemon,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -t --target =TARGET "Make target instead of 'autobuild'"
+    option -r --recursive   "Monitor the directory recursive"
+    option -d --daemon      "Run in background"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     target=autobuild
     daemon=0
     recursive=0
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Run autobuild rule on changing to a directory"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] MAIN-DIR MORE-DIRS..."
-    echo
-    echo "Options: "
-    echo "    -t, --target=TARGET     Make target instead of 'autobuild'"
-    echo "    -r, --recursive         Monitor the directory recursive"
-    echo "    -d, --daemon            Run in background"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

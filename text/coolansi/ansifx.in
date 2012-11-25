@@ -1,9 +1,22 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Display the effects of ANSI terminal escapes"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="al0123fbchqv"
-    long_opts="all,list,page-0,page-1,page-2,page-3,fgcolor,bgcolor,color,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -a --all         "Show all effects"
+    option -l --list        "List simple effects only (default)"
+    option -0 --page-0      "Show effects on page 0"
+    option -1 --page-1      "Show effects on page 1"
+    option -2 --page-2      "Show effects on page 2"
+    option -3 --page-3      "Show effects on page 3"
+    option -f --fgcolor     "Show foreground color effects"
+    option -b --bgcolor     "Show background color effects"
+    option -c --color       "Show all color effects (default if non-list)"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     list_only=
     fx_0=
@@ -13,34 +26,6 @@
     fx_fg=
     fx_bg=
     PAGESIZE=10
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Display the effects of ANSI terminal escapes"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] ..."
-    echo
-    echo "Options: "
-    echo "    -a, --all               Show all effects"
-    echo "    -l, --list              List simple effects only (default)"
-    echo "    -0, --page-0            Show effects on page 0"
-    echo "    -1, --page-1            Show effects on page 1"
-    echo "    -2, --page-2            Show effects on page 2"
-    echo "    -3, --page-3            Show effects on page 3"
-    echo "    -f, --fgcolor           Show foreground color effects"
-    echo "    -b, --bgcolor           Show background color effects"
-    echo "    -c, --color             Show all color effects (default if non-list)"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

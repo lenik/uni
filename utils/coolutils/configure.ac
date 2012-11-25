@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([coolutils], [0.8.0], [xjl-bug@99jsj.com])
+AC_INIT([coolutils], [0.9.0], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 AC_CONFIG_SRCDIR([uc.c])
 

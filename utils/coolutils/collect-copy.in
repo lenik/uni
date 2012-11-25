@@ -1,9 +1,19 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Collect files into categories}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="r:c:n:x:f:shqv"
-    long_opts="root:,category:,norm:,norm-exec:,find:,stdin,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -r --root =DIR         "Root dir of coll-repo, default /var/lib/coll"
+    option -c --category =NAME    "Specify category name"
+    option -n --norm =NORM-TYPE   "How to normalize path"
+    option -x --norm-exec =CMD    "Using 'exec' norm type, and specify the cmd"
+    option -f --find =PATTERN     "Get file list by find PATTERN from curdir"
+    option -s --stdin             "Read file list from stdin (when stream from find, it should be find -printf '%p\n\c')"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     root=/var/lib/coll
     category=
@@ -16,30 +26,8 @@
     find=
     stdin=
 
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Collect files into categories"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] ..."
-    echo
-    echo "Options: "
-    echo "    -r, --root=DIR          root dir of coll-repo, default /var/lib/coll"
-    echo "    -c, --category=NAME     specify category name"
-    echo "    -n, --norm=NORM-TYPE    how to normalize path"
-    echo "    -x, --norm-exec=CMD     using 'exec' norm type, and specify the cmd"
-    echo "    -f, --find=PATTERN      get file list by find PATTERN from curdir"
-    echo "    -s, --stdin             read file list from stdin"
-    echo "      (when stream from find, it should be find -printf '%p\n\c')"
-    echo "    -q, --quiet             repeat to get less info"
-    echo "    -v, --verbose           repeat to get more info"
-    echo "    -h, --help              show this help page"
-    echo "        --version           print the version info"
+# TODO help-more...
+function help2() {
     echo
     echo "Normalization Types: "
     echo "(Example path: ./any/libsepol-2.0.40/debian/postinst)"

@@ -1,9 +1,18 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Make a simple target with timeout support}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] TARGET [:] PREREQ... \; RULE-CMD...}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="BT:oeahqv"
-    long_opts="always-make,timeout:,stdout,stderr,append,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -B --always-make "Unconditionally make"
+    option -T --timeout ="#[unit]" "Timeout and force make, unit like min,hr,etc."
+    option -o --stdout      "Redirect stdout to target"
+    option -e --stderr      "Redirect stderr to target"
+    option -a --append      "Redirect in append mode"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     always_make=
     timeout=
@@ -11,32 +20,13 @@
     stderr=
     append=
 
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Make a simple target with timeout support"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
 
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] TARGET [:] PREREQ... \; RULE-CMD..."
+#TODO help2
+function help2() {
     echo
     echo "Variables: (You need to escape the \$ char)"
     echo "    $@ The target"
     echo "    $< The prerequsites"
-    echo
-    echo "Options: "
-    echo "    -B, --always-make       Unconditionally make"
-    echo "    -T, --timeout=#[unit]   Timeout and force make, unit like min,hr,etc."
-    echo "    -o, --stdout            Redirect stdout to target"
-    echo "    -e, --stderr            Redirect stderr to target"
-    echo "    -a, --append            Redirect in append mode"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
 }
 
 function setopt() {

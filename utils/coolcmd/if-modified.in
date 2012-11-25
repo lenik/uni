@@ -1,36 +1,21 @@
 #!/bin/bash
-    . shlib
-    import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Trigger command on file changes}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FILE COMMAND...}
+
+    . shlib-import cliboot
+    option -b --banner =STRING "Display banner and user provided string"
+    option -t --test-time =TIME "File's last-modified time to test"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
     import echo-raw
     import echo-fill
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="b:t:hqv"
-    long_opts="banner:,test-time:,help,quiet,verbose,version"
-
     banner=
     test_time=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Trigger command on file changes"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] FILE COMMAND..."
-    echo
-    echo "Options: "
-    echo "    -b, --banner=STRING     Display banner and user provided string"
-    echo "    -t, --test-time=TIME    File's last-modified time to test"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

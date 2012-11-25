@@ -1,35 +1,20 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Increase the debian version in debian/changelog"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="aD:m:hqv"
-    long_opts="autover,distribution:,message:,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -a --autover     "Get version from VERSION.au"
+    option -D --distribution =DIST "Set distribution name"
+    option -m --message =MESG "The message shown in new changelog entry"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     autover=
     distribution=unstable
     message=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Increase the debian version in debian/changelog"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] ..."
-    echo
-    echo "Options: "
-    echo "    -a, --autover           Get version from VERSION.au"
-    echo "    -D, --distribution=DIST Set distribution name"
-    echo "    -m, --message=MESSAGE   The message shown in new changelog entry"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

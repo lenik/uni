@@ -1,37 +1,20 @@
 #!/bin/bash
-    . shlib-import cliboot
-      shopt -s nullglob
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Rebuild the .deb archive and dput if succeed"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] PACKAGE-DIR"}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="ihqv"
-    long_opts="incr,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -i --incr        "Increase debian/changelog version"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     import overrides
 
-    incr=0
-    if [ ! -f debian/changelog ]; then
-        incr=1
-    fi
+    shopt -s nullglob
 
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Rebuild the .deb archive and dput if succeed"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] PACKAGE-DIR"
-    echo
-    echo "Options: "
-    echo "    -i, --incr              increase debian/changelog version"
-    echo "    -q, --quiet             repeat to get less info"
-    echo "    -v, --verbose           repeat to get more info"
-    echo "    -h, --help              show this help page"
-    echo "        --version           print the version info"
-}
+    incr=0; [ -f debian/changelog ] || incr=1
 
 function setopt() {
     case "$1" in

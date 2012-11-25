@@ -1,31 +1,16 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Prepare to chroot into root fs"}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="thqv"
-    long_opts="track,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -t --track       "Enable tracking mount"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     track=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Prepare to chroot into root fs"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] ..."
-    echo
-    echo "Options: "
-    echo "    -t, --track             Enable tracking mount"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

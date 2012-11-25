@@ -1,38 +1,22 @@
 #!/bin/bash
-    . shlib
-    import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Generate local m2 module list"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] START-DIR"}
+
+    . shlib-import cliboot
+    option -o --out =FILE   "Write output to file instead of stdout"
+    option -c --cache =TIMEOUT "Read from cache"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
     import time
-
     __THIS__="$0" #`readlink -f "$0"`
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="o:c:hqv"
-    long_opts="out:,cache:,help,quiet,verbose,version"
-
     shopt -s nullglob
 
     out=/dev/stdout
     cache=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Generate local m2 module list"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] START-DIR"
-    echo
-    echo "Options: "
-    echo "    -o, --out=FILE          Write output to file instead of stdout"
-    echo "    -c, --cache=TIMEOUT     Read from cache"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

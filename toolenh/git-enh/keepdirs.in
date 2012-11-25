@@ -1,42 +1,27 @@
 #!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Keep empty directories from ignored by Git"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
+
     . shlib-import cliboot
+    option -l --list        "List only, don't change anything"
+    option -n --name =NAME  "Specify a name other then $keep_name"
+    option -L --follow      "Follow symlinks"
+    option -H --follow-args "Follow symlinks for arguments only"
+    option -f --force       "Force update all $keep_name files"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     shopt -s nullglob
     # shopt -s dotglob
-
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="ln:Lfhqv"
-    long_opts="list,name:,follow,force,help,quiet,verbose,version"
 
     list=
     symlinks=
     force=
 
     keep_name=.keep
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Keep empty directories from ignored by Git"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] ..."
-    echo
-    echo "Options: "
-    echo "    -l, --list              List only, don't change anything"
-    echo "    -n, --name=NAME         Specify a name other then $keep_name"
-    echo "    -L, --follow            Follow symlinks"
-    echo "    -H, --follow-args       Follow symlinks for arguments only"
-    echo "    -f, --force             Force update all $keep_name files"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

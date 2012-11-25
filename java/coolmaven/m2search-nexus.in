@@ -1,9 +1,15 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="M2search Nexus driver"}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="s:a:hqv"
-    long_opts="server:,api:,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -s --server =SERVER "Nexus http server URL to use"
+    option -a --api =VERSION "Specify nexus api version, default 1.8"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     API_1_7="/service/local/data_index?q=%s&collapseresults=true"
     API_1_8="/service/local/lucene/search?q=%s&collapseresults=true"
@@ -11,27 +17,6 @@
 
     server=
     api=1.8
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] M2search Nexus driver"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] ..."
-    echo
-    echo "Options: "
-    echo "    -s, --server=SERVER     Nexus http server URL to use"
-    echo "    -a, --api=VERSION       Specify nexus api version, default 1.8"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

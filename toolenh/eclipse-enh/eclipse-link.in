@@ -1,29 +1,19 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Create 'symlink' for eclipse plugins"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] TARGET LINK-NAME"}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="fhqv"
-    long_opts="force,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -f --force       "Force to overwrite"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
     force=0
 
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Create 'symlink' for eclipse plugins"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
+function help2() {  # TODO help2
     echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] TARGET LINK-NAME"
-    echo
-    echo "Options: "
-    echo "    -f, --force             Force to overwrite"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
     echo "Example: "
     echo "  # eclipse-link ../lib/model-1.2.3 link/10model"
     echo "    will create a file link/10model.link -> /opt/eclipse/lib/model-1.2.3"

@@ -1,36 +1,21 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Reboot the gateway (ADSL Router)"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="i:u:p:hqv"
-    long_opts="interface,username,password,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -i --iface =NAME "Specify interface to use"
+    option -u --user =NAME  "Auth user name"
+    option -p --password =WORD "Auth password"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     iface=
     gw_addr=
     username=admin
     password=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Reboot the gateway (ADSL Router)"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] ..."
-    echo
-    echo "Options: "
-    echo "    -i, --iface=INTERFACE   specify interface to use"
-    echo "    -u, --user=USERNAME     auth user name"
-    echo "    -p, --password=PASSWORD auth password"
-    echo "    -q, --quiet             repeat to get less info"
-    echo "    -v, --verbose           repeat to get more info"
-    echo "    -h, --help              show this help page"
-    echo "        --version           print the version info"
-}
 
 function setopt() {
     case "$1" in

@@ -1,39 +1,22 @@
 #!/bin/bash
-# master-file
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Find path in maven modules"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [-r]    [--] <path>"}
+    # TODO Syntax2
+    : ${PROGRAM_SYNTAX:="[OPTIONS] -l [-n] [--] <module-prefix>[/foo/bar]"}
 
     . shlib-import cliboot
-
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    LOGLEVEL=0
-    short_opts="rlnhqv"
-    long_opts="root,list,name-only,help,quiet,verbose,version"
+    option -r --root        "Get root module instead of nearest module"
+    option -l --list        "List modules matching the pattern"
+    option -n --name-only   "List module names only, no full path"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     TIMEOUT=10day
     mode=which      # which, root, list
     name_only=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Find path in maven modules"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [-r]    [--] <path>"
-    echo "    $0 [OPTION] -l [-n] [--] <module-prefix>[/foo/bar]"
-    echo
-    echo "Options: "
-    echo "    -r, --root              Get root module instead of nearest module"
-    echo "    -l, --list              List modules matching the pattern"
-    echo "    -n, --name-only         List module names only, no full path"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

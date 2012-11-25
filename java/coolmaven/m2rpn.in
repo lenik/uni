@@ -1,9 +1,25 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Refactor package names for Maven2-based java project"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] SRCDIR DSTDIR"}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="w:p:fi:I:LbjJm:M:a:hqv"
-    long_opts="keyword:,package:,flatten,incr-ver,set-ver:,license:,build,install,deploy,message:,push:,all:,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -w, --keyword =OLD=NEW "Refactor a keyword, like bas=freejava (also rename BAS=FREEJAVA, etc.)"
+    option -p, --package =OLD=NEW "Refactor a package, like net.a=com.b (also rename all the descendent)"
+    option -f, --flatten    "Flatten package names"
+    option -i, --incr-ver =p.q.r "Refactor the version, add a p.q.r delta"
+    option -I, --set-ver =p.q.r "Reset the version for all modules"
+    option -L, --license =FILE "Add license to source header"
+    option -b, --build      "Do a full build"
+    option -j, --install    "Build and install"
+    option -J, --deploy     "Build and install and deploy"
+    option -m, --message =TEXT "Commit with the message"
+    option -M, --push =TEXT "Commit and push"
+    option -a, --all =TEXT  "Do build, deploy, commit, push, and all"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     keywords=()
     nkeyword=0
@@ -24,39 +40,6 @@
     commit_message=
     commit=
     push=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Refactor package names for Maven2-based java project"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] SRCDIR DSTDIR"
-    echo
-    echo "Options: "
-    echo "    -w, --keyword=OLD=NEW   Refactor a keyword, like bas=freejava"
-    echo "                             This will also rename BAS=FREEJAVA, etc."
-    echo "    -p, --package=OLD=NEW   Refactor a package, like net.a=com.b"
-    echo "                             This will also rename all the descendent"
-    echo "    -f, --flatten           Flatten package names"
-    echo "    -i, --incr-ver=p.q.r    Refactor the version, add a p.q.r delta"
-    echo "    -I, --set-ver=p.q.r     Reset the version for all modules"
-    echo "    -L, --license=FILE      Add license to source header"
-    echo "    -b, --build             Do a full build"
-    echo "    -j, --install           Build and install"
-    echo "    -J, --deploy            Build and install and deploy"
-    echo "    -m, --message=TEXT      Commit with the message"
-    echo "    -M, --push=TEXT         Commit and push"
-    echo "    -a, --all=TEXT          Do build, deploy, commit, push, and all"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

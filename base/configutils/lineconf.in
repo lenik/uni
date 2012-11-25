@@ -1,15 +1,33 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Modify a line of config file by pattern"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS]    [--] FILE PATTERN LINES"}
+    # TODO syntax...
+    : ${PROGRAM_SYNTAX:="[OPTIONS] -k [--] FILE PATTERN       (If no file is specified, then stdin/out is used)"}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="m:w:EFGPkl:tp:s:ehqv"
-    long_opts="message:,width:,extended-regexp,fixed-strings,basic-regexp,perl-regexp,kill,line:,magic-text,magic-prefix:,magic-suffix:,edit-status,help,quiet,verbose,version"
+    : ${GREP:=grep}
+    : ${GREPL:=grepl}
+    : ${SEDIT:="sedit -k"}
 
     LOGLEVEL=0
 
-    GREP=grep
-    GREPL=grepl
-    SEDIT="sedit -k"
+    . shlib-import cliboot
+    option -m --message =STR    "Show message and edit status"
+    option -w --width =WIDTH    "Minimum width of the message to display"
+    option -E --extended-regexp "PATTERN is an extended regexp"
+    option -F --fixed-strings   "PATTERN is a set of strings each a line"
+    option -G --basic-regexp    "PATTERN is a basic regexp (BRE)"
+    option -P --perl-regexp     "PATTERN is a Perl regexp"
+    option -l --lines =NUM      "Force to NUM lines in text to add/kill"
+    option -t --magic-text      "Use PATTERN as magic text"
+    option -p --magic-prefix =STR "Prepend STR to the magic text"
+    option -s --magic-suffix =STR "Append STR to the magic text"
+    option -e --edit-status     "Exit true(0) if anything changed"
+    option -k --kill            "Remove the pattern/text line"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     message=
     width=60
@@ -21,39 +39,6 @@
     kill=
     edit_status=
     dirty=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Modify a line of config file by pattern"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION]    [--] FILE PATTERN LINES"
-    echo "    $0 [OPTION] -k [--] FILE PATTERN"
-    echo "    (If no file is specified, then stdin/out is used)"
-    echo
-    echo "Options: "
-    echo "    -m, --message=STR       Show message and edit status"
-    echo "    -w, --width=WIDTH       Minimum width of the message to display"
-    echo "    -E, --extended-regexp   PATTERN is an extended regexp"
-    echo "    -F, --fixed-strings     PATTERN is a set of strings each a line"
-    echo "    -G, --basic-regexp      PATTERN is a basic regexp (BRE)"
-    echo "    -P, --perl-regexp       PATTERN is a Perl regexp"
-    echo "    -l, --lines=NUM         Force to NUM lines in text to add/kill"
-    echo "    -t, --magic-text        Use PATTERN as magic text"
-    echo "    -p, --magic-prefix=STR  Prepend STR to the magic text"
-    echo "    -s, --magic-suffix=STR  Append STR to the magic text"
-    echo "    -e, --edit-status       Exit true(0) if anything changed"
-    echo "    -k, --kill              Remove the pattern/text line"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

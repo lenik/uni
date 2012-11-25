@@ -1,32 +1,18 @@
 #!/bin/bash
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="s:hqv"
-    long_opts="stage:,help,quiet,verbose,version"
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="SVN Remix (Merge with re-indexing)"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] REPO-LIST"}
+
     . shlib-import cliboot
+    option -s --stage =STAGE "Resume from stage"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     stage=0
 
     allrepo_name=.allmixed
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] SVN Remix (Merge with re-indexing)"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] REPO-LIST"
-    echo
-    echo "Options: "
-    echo "    -s, --stage=STAGE       resume from stage"
-    echo "    -q, --quiet             repeat to get less info"
-    echo "    -v, --verbose           repeat to get more info"
-    echo "    -h, --help              show this help page"
-    echo "        --version           print the version info"
-}
 
 function setopt() {
     case "$1" in

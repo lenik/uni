@@ -1,27 +1,16 @@
 #!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="uni/ scan & maintainance utility"}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] CMD ...}
+
     . shlib-import cliboot
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="hqv"
-    long_opts="help,quiet,verbose,version"
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] uni/ scan & maintainance utility"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] CMD ..."
-    echo
-    echo "Options: "
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
+# TODO help2
+function help2() {
     echo "Command: "
     echo "    notags                  List package dirs without tags file"
 }

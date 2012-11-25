@@ -1,9 +1,19 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Batch edit"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] < FILELIST"}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="e:s:t12o:hqv"
-    long_opts="editor:,suffix:,timestamp,first-pass,second-pass,out:,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -e --editor =EDITOR "Use specific editor"
+    option -s --suffix =SUFFIX "Save each file with this suffix"
+    option -t --timestamp   "Include timestamp in the merged file"
+    option -1 --first-pass  "Gather all files into a temp file but not edit/merge"
+    option -2 --second-pass "Merge temp file into fs"
+    option -o --out =FILE   "Specify name of temp file"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     editor=$EDITOR
     suffix=
@@ -11,31 +21,6 @@
     p2=0
     tmpout=
     timestamp=0
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Batch edit"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] < FILELIST"
-    echo
-    echo "Options: "
-    echo "    -e, --editor=EDITOR     Use specific editor"
-    echo "    -s, --suffix=SUFFIX     Save each file with this suffix"
-    echo "    -t, --timestamp         Include timestamp in the merged file"
-    echo "    -1, --first-pass        Gather all files into a temp file but not edit/merge"
-    echo "    -2, --second-pass       Merge temp file into fs"
-    echo "    -o, --out=FILE          Specify name of temp file"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

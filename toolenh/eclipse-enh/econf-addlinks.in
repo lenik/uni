@@ -1,35 +1,18 @@
 #!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Add .link files to /opt/lib/eclipse"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
+    : ${LIBDIR:=/opt/lib/eclipse}
+
     . shlib-import cliboot
+    option -s --symlink     "Create symlinks by the way"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     shopt -s nullglob
-
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="shqv"
-    long_opts="symlink,help,quiet,verbose,version"
-
-    LIBDIR=/opt/lib/eclipse
-
     symlink=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Add .link files to /opt/lib/eclipse"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] ..."
-    echo
-    echo "Options: "
-    echo "    -s, --symlink           Create symlinks by the way"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

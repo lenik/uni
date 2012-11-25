@@ -1,9 +1,15 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="List contents as a tree in the archive"}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FILE.ZIP...}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="t:chqv"
-    long_opts="type:,color,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -t --type =AR-TYPE "Default determined by file extension"
+    option -c --color       "Render with color"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     type=
 
@@ -12,27 +18,6 @@
 
     aopts=()
     naopt=0
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] List contents tree in archive"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] FILE.ZIP..."
-    echo
-    echo "Options: "
-    echo "    -t, --type=AR-TYPE      Default determined by file extension"
-    echo "    -c, --color             Render with color"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

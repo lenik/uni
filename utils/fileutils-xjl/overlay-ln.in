@@ -1,37 +1,24 @@
 #!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Create overlay symlinks}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <overlay-dir> [<prefix>]}
+
     . shlib-import cliboot
+    option -s --sudo        "Execute with sudo"
+    option -c --clean       "Remove overlays"
+    option -n --dry-run     "Print commands instead but don't execute"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
     shopt -s nullglob dotglob
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="scnhqv"
-    long_opts="sclean,dry-run,help,quiet,verbose,version"
     SUDO=
     clean=0
     overlay=~/overlay
     prefix=
     dry_run=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Create overlay symlinks"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] <overlay-dir> [<prefix>]"
-    echo
-    echo "Options: "
-    echo "    -s, --sudo              Execute with sudo"
-    echo "    -c, --clean             Remove overlays"
-    echo "    -n, --dry-run           Print commands instead but don't execute"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

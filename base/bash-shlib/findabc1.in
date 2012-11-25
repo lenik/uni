@@ -1,14 +1,26 @@
 #!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Find file by prefix-chain"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] package { dir | %loc }..."}
+
     . shlib-import cliboot
+    option -a --abctab      "Read abctab for %loc expansion"
+    option -e --eval        "Print shell commands to be evaluated"
+    option -f --file-only   "Find file only"
+    option -p --print       "Print the result"
+    option -l --list        "List all matched paths"
+    option -z --last        "Get the last match"
+    option -u --unix        "Path format in Unix style"
+    option -w --windows     "Path format in Windows style"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     shopt -s nullglob
 
     # Fix utf-8 collation.
     LANG=C
-
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="aefplzuwhqv"
-    long_opts="abctab,eval,fileonly,print,list,last,unix,windows,help,quiet,verbose,version"
 
     perc=
     eval=
@@ -19,33 +31,6 @@
     style=
 
     declare -A abctab
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Find file by prefix-chain"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] package { dir | %loc }..."
-    echo
-    echo "Options: "
-    echo "    -a, --abctab            Read abctab for %loc expansion"
-    echo "    -e, --eval              Print shell commands to be evaluated"
-    echo "    -f, --file-only         Find file only"
-    echo "    -p, --print             Print the result"
-    echo "    -l, --list              List all matched paths"
-    echo "    -z, --last              Get the last match"
-    echo "    -u, --unix              Path format in Unix style"
-    echo "    -w, --windows           Path format in Windows style"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

@@ -1,31 +1,16 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Convert Raw image to VirtualBox VDI image"}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] file.img}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="o:hqv"
-    long_opts="output:,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -o --output =vdifile "Output to filename different than file.vdi"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     out=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Convert Raw image to VirtualBox VDI image"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] file.img"
-    echo
-    echo "Options: "
-    echo "    -o, --output=vdifile    Output to filename different than file.vdi"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

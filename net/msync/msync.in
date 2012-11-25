@@ -1,39 +1,25 @@
 #!/bin/bash
-    . shlib-import cliboot
-    shopt -s nullglob
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Rsync for site mirroring"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] module[/path]"}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="C:dDhp:qr:s:v"
-    long_opts="chdir:,delete,delete-all,help,page:,quiet,repeat:,server:,verbose,version"
+    . shlib-import cliboot
+    option -C --chdir =DIR  "Chdir to specified DIR"
+    option -d --delete      "Do rsync delete"
+    option -D --delete-all  "Also delete excluded files"
+    option -p --page =SIZE  "Split to pages by size [2^SIZE..2^SIZE+3)"
+    option -r --repeat =TIMEOUT "Repeat rsync after TIMEOUT"
+    option -s --server =SERVER "Specify the server to use"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+    shopt -s nullglob
 
     CHDIR=.
     DELETE_ARGS=--delete
     LOGDIR=/var/log/msync
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Rsync for site mirroring"
-    echo Written by Lenik, Version $rcs_rev, Last updated at $rcs_date
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] module[/path]"
-    echo
-    echo "Options: "
-    echo "    -C, --chdir=DIR         chdir to specified DIR"
-    echo "    -d, --delete            do rsync delete"
-    echo "    -D, --delete-all        also delete excluded files"
-    echo "    -p, --page=SIZE         split to pages by size [2^SIZE..2^SIZE+3)"
-    echo "    -r, --repeat=TIMEOUT    repeat rsync after TIMEOUT"
-    echo "    -s, --server=SERVER     specify the server to use"
-    echo "    -q, --quiet             repeat to get less info"
-    echo "    -v, --verbose           repeat to get more info"
-    echo "    -h, --help              show this help page"
-    echo "        --version           print the version info"
-}
 
 function setopt() {
     case "$1" in

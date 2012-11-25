@@ -1,33 +1,18 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Create vmdk wrapper for raw device"}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] raw-device .vmdk-file}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="rfhqv"
-    long_opts="register,force,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -r --register    "Register with media manager"
+    option -f --force       "Overwrite existing .vmdk file"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     force=
     register=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Create vmdk wrapper for raw device"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] raw-device .vmdk-file"
-    echo
-    echo "Options: "
-    echo "    -r, --register          Register with media manager"
-    echo "    -f, --force             Overwrite existing .vmdk file"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

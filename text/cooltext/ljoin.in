@@ -1,42 +1,27 @@
 #!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Left join (full) text files"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
+
     . shlib-import cliboot
+    option -a --all         "Print unpairable lines"
+    option -e --empty=EMPTY "Replace missing input fields with EMPTY"
+    option -i --ignore-case "Ignore case when comparing fields"
+    option -t --delim=CHAR  "Use CHAR as input and output field sep"
+    option    --check-order "Check if input is correctly sorted"
+    option    --nocheck-order "Don't check if input is correctly sorted"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     SELF="$0"
-
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="ae:it:hqv"
-    long_opts="all,empty:,ignore-case,delim:,check-order,nocheck-order,header,help,quiet,verbose,version"
 
     all=
     empty=
     ignore_case=
     delim=
     check_order=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Left join (full) text files"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] ..."
-    echo
-    echo "Options: "
-    echo "    -a, --all               Print unpairable lines"
-    echo "    -e, --empty=EMPTY       Replace missing input fields with EMPTY"
-    echo "    -i, --ignore-case       Ignore case when comparing fields"
-    echo "    -t, --delim=CHAR        Use CHAR as input and output field sep"
-    echo "        --check-order       Check if input is correctly sorted"
-    echo "        --nocheck-order     Don't check if input is correctly sorted"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

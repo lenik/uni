@@ -1,35 +1,20 @@
 #!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="SVN-Union: Integrate local-fs with SVN"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] [SVN-CMD] [SVN-CMD-OPTS]"}
+    : ${SVN:=svn}
 
-# master-file
-
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="fhqv"
-    long_opts="force,help,quiet,verbose,version"
     . shlib-import cliboot
+    option -f --force       "Run in fail-continue mode"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
-    if [ -z "$SVN" -o ! -f "$SVN" ]; then
-        SVN=svn
-    fi
     force=
 
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] SVN-Union: Integrate local-fs with SVN"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] [SVN-CMD] [SVN-CMD-OPTS]"
-    echo
-    echo "Options: "
-    echo "    -f, --force             run in fail-continue mode"
-    echo "    -q, --quiet             repeat to get less info"
-    echo "    -v, --verbose           repeat to get more info"
-    echo "    -h, --help              show this help page"
-    echo "        --version           print the version info"
+# TODO hep2
+function help2() {
     echo
     echo "Supported SVN Commands: "
     echo "    cleanup                 clean up all join-points"

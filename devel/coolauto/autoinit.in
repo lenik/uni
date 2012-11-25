@@ -1,11 +1,13 @@
 #!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Autotools init"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
 
-# master-file
-
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="hqv"
-    long_opts="help,quiet,verbose,version"
     . shlib-import cliboot
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     PACKAGE_NAME=${PWD##*/}
 
@@ -15,25 +17,6 @@
     fi
 
     import overrides
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Bash_simple_cli_program_template"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] ..."
-    echo
-    echo "Options: "
-    echo "    -q, --quiet             repeat to get less info"
-    echo "    -v, --verbose           repeat to get more info"
-    echo "    -h, --help              show this help page"
-    echo "        --version           print the version info"
-}
 
 function setopt() {
     case "$1" in

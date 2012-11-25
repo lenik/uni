@@ -4,12 +4,17 @@
     grow via three points={one child at (0.5,-0.7) and
       two children at (0.5,-0.7) and (0.5,-1.4)},
     edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
-\path node[dir] {\emph{«setupdir»}}
+    \path node[dir] {\emph{«setupdir»}}
+    child{
+        node[dir] {etc\fileflag{/}}
+        child{ node[plain] {dprog.rc} }
+    }
+    child[missing] {}
     child{
         node[dir] {usr\fileflag{/}}
         child{
             node[dir] {bin\fileflag{/}}
-            child{ node[executable] {dmd-run\fileflag{*}} }
+            child{ node[executable] {dprog\fileflag{*}} }
         }
         child[missing] {}
         child{

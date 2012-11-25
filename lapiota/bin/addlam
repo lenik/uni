@@ -1,35 +1,23 @@
 #!/bin/bash
-    RCSID='$Id$'
-    short_opts="hqstv"
-    long_opts="help,quiet,shortcuts,tags,verbose,version"
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Add Lapiota Module"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] <LAM mount point>"}
+
+    . shlib-import cliboot
+    option -s --shortcuts   "Only add shortcuts"
+    option -t --tags        "Only add tags"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
     add_shortcuts=1
     add_tags=1
-    . $LAM_KALA/lib/sh/cliboot
-    . $LAM_KALA/lib/sh/findabc
-    . $LAM_KALA/lib/sh/cmds
+
+    import findabc
+    import cmds
 
     shopt -s nocaseglob
-
-function version() {
-    parse_id "$RCSID"
-    echo [$BASENAME] Add Lapiota Module
-    echo Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date
-}
-
-function help() {
-    version
-    echo
-    echo   "Syntax: "
-    echo   "    $0 [OPTION] [--] <LAM mount point>"
-    echo
-    echo   "Options: "
-    echo   "    -s, --shortcuts         only add shortcuts"
-    echo   "    -t, --tags              only add tags"
-    echo   "    -q, --quiet             repeat to get less info"
-    echo   "    -v, --verbose           repeat to get more info"
-    echo   "    -h, --help              show this help page"
-    echo   "        --version           print the version info"
-}
 
 function setopt() {
     case "$1" in

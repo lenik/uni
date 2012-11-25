@@ -1,15 +1,24 @@
 #!/bin/bash
-# master-file
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Start jetty by maven-plugins"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] <project-dir>"}
+    : ${JETTY_PLUGIN_6:=org.mortbay.jetty:maven-jetty-plugin}
+    : ${JETTY_PLUGIN_7:=org.mortbay.jetty:jetty-maven-plugin:7.2.0.v20101020}
+    : ${JETTY_PLUGIN_8:=org.mortbay.jetty:jetty-maven-plugin}
 
     . shlib-import cliboot
-
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="67p:dP:RfFhqv"
-    long_opts="jetty6,jetty7,port:,debug,debug-port:,refresh-depends,tcpflow,tcpflow-new,help,quiet,verbose,version"
-
-    JETTY_PLUGIN_6=org.mortbay.jetty:maven-jetty-plugin
-    JETTY_PLUGIN_7=org.mortbay.jetty:jetty-maven-plugin:7.2.0.v20101020
-    JETTY_PLUGIN_8=org.mortbay.jetty:jetty-maven-plugin
+    option -6 --jetty6      "Run with Jetty 6 compatible"
+    option -7 --jetty7      "Run with Jetty 7 compatible"
+    option -p --port=PORT   "HTTP port, default 3108"
+    option -d --debug       "Enable remote debugging"
+    option -P --debug-port=PORT "Debug port, default (http_port - 4)"
+    option -R --refresh-depends "Force reinstall project dependencies"
+    option -f --tcpflow     "Run tcpflow on lo interface"
+    option -F --tcpflow-new "Run tcpflow in a new gnome-terminal"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     jetty_legacy=0
     jetty=$JETTY_PLUGIN_8
@@ -25,33 +34,6 @@
 
     tcpflow=
     tcpflow_new=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Start jetty by maven-plugins"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] <project-dir>"
-    echo
-    echo "Options: "
-    echo "    -6, --jetty6            Run with Jetty 6 compatible"
-    echo "    -7, --jetty7            Run with Jetty 7 compatible"
-    echo "    -p, --port=PORT         HTTP port, default 3108"
-    echo "    -d, --debug             Enable remote debugging"
-    echo "    -P, --debug-port=PORT   Debug port, default (http_port - 4)"
-    echo "    -R, --refresh-depends   Force reinstall project dependencies"
-    echo "    -f, --tcpflow           Run tcpflow on lo interface"
-    echo "    -F, --tcpflow-new       Run tcpflow in a new gnome-terminal"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

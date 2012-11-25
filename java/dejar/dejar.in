@@ -1,9 +1,16 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Decompile java classes in jar archive"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] JARLIST"}
+    : ${COLUMNS:=80}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="no:hqv"
-    long_opts="lineno,option:,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -n --lineno      "Include source line numbers"
+    option -o --option =JADOPT "Add more options to jad"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     # -d DIR   - directory for output files
     # -ff      - output fields before methods (fieldsfirst)
@@ -14,29 +21,6 @@
     # -s EXT   - output file extension (default: .jad)
     jadopts=(-ff -nl -o -r -s .java)
     jadnopt=0
-    if [ -z "$COLUMNS" ]; then COLUMNS=80; fi
-
-function version() {
-    parse_id "$RCSID"
-    echo [$BASENAME] Decompile java classes in jar archive.
-    echo "        (A frontend for jad program)"
-    echo Written by Lenik, Version $rcs_rev, Last updated at $rcs_date
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] JARLIST"
-    echo
-    echo "Options: "
-    echo "    -n, --lineno            include source line numbers"
-    echo "    -o, --option=JADOPT     add more options to jad"
-    echo "    -q, --quiet             repeat to get less info"
-    echo "    -v, --verbose           repeat to get more info"
-    echo "    -h, --help              show this help page"
-    echo "        --version           print the version info"
-}
 
 function setopt() {
     case "$1" in

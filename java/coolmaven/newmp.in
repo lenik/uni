@@ -1,11 +1,22 @@
 #!/bin/bash
-# master-file, please do not edit
-    . shlib-import cliboot
-    import loadpom
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Create new Maven Project by archetype:generate"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] [ARCHETYPE-NAME] ARTIFACT-ID POM-NAME   (Use ARCHETYPE-NAME unless -A is specified)"}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="G:A:V:g:a:w:p:hqv"
-    long_opts="arch-group:,arch-artifact:,arch-version:,target-group:,target-artifact:,target-version:,target-package:,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -G --arch-group =STR     "GroupId of the archetype"
+    option -A --arch-artifact =STR  "ArtifactId of the archetype"
+    option -V --arch-version =STR   "Version of the archetype, default LATEST"
+    option -g --target-group =STR   "GroupId of the generated project, default as parent"
+    option -a --target-artifact =STD "ArtifactId of the generated project"
+    option -w --target-version =STR "Version of the generated project"
+    option -p --target-package =STR "The preferred package name of the generated project"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+    import loadpom
 
     ARCHS="@DESTDIR@@pkgdatadir@/archetypes"
 
@@ -16,33 +27,6 @@
     target_artifactid=
     target_version=0.0.0-SNAPSHOT
     target_package=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Create new Maven Project by archetype:generate"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] [ARCHETYPE-NAME] ARTIFACT-ID POM-NAME"
-    echo "        (Use ARCHETYPE-NAME unless -A is specified)"
-    echo
-    echo "Options: "
-    echo "    -G, --arch-group=STR      GroupId of the archetype"
-    echo "    -A, --arch-artifact=STR   ArtifactId of the archetype"
-    echo "    -V, --arch-version=STR    Version of the archetype, default LATEST"
-    echo "    -g, --target-group=STR    GroupId of the generated project, default as parent"
-    echo "    -a, --target-artifact=STD ArtifactId of the generated project"
-    echo "    -w, --target-version=STR  Version of the generated project"
-    echo "    -p, --target-package=STR  The preferred package name of the generated project"
-    echo "    -q, --quiet               Repeat to get less info"
-    echo "    -v, --verbose             Repeat to get more info"
-    echo "    -h, --help                Show this help page"
-    echo "        --version             Print the version info"
-}
 
 function setopt() {
     case "$1" in

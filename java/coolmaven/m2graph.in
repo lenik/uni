@@ -1,9 +1,27 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Maven project graph"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="lLCD:EGorpS:Tt:O:dhqv"
-    long_opts="local,local-all,no-cascade,direction:,no-external,no-groupid,omitted,no-optional,pom,hide-scope:,no-transitive,title:,output:,display,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -l --local       "Draw local dependency"
+    option -L --local-all   "Draw local dependency and immediate deps"
+    option -C --no-cascade  "Don't cascade test-scope and optionals"
+    option -D --direction =DIR "One of TB LR BT RL"
+    option -E --no-external "Hide external dependencies"
+    option -G --no-groupid  "Hide group id"
+    option -o --omitted     "Show omitted dependencies"
+    option -r --no-optional "Hide optional dependencies"
+    option -p --pom         "Show pom dependencies"
+    option -S --hide-scope =SCOPES "Hide specific scopes, separate scope by comma"
+    option -T --no-transitive "Hide non-explicitly defined dependencies"
+    option -t --title =TITLE "Set the graph title"
+    option -O --output =FILE "Output to the file, in extension format"
+    option -d --display     "Open the result graph file"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     GRAPH_PLUGIN=org.fusesource.mvnplugins:maven-graph-plugin
     DEFAULT_OUT=target/project-graph.png
@@ -16,39 +34,6 @@
 
     display=
     outfile=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Maven project graph"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] ..."
-    echo
-    echo "Options: "
-    echo "    -l, --local             Draw local dependency"
-    echo "    -L, --local-all         Draw local dependency and immediate deps"
-    echo "    -C, --no-cascade        Don't cascade test-scope and optionals"
-    echo "    -D, --direction=DIR     One of TB LR BT RL"
-    echo "    -E, --no-external       Hide external dependencies"
-    echo "    -G, --no-groupid        Hide group id"
-    echo "    -o, --omitted           Show omitted dependencies"
-    echo "    -r, --no-optional       Hide optional dependencies"
-    echo "    -p, --pom               Show pom dependencies"
-    echo "    -S, --hide-scope=SCOPES Hide specific scopes, separate scope by comma"
-    echo "    -T, --no-transitive     Hide non-explicitly defined dependencies"
-    echo "    -t, --title=TITLE       Set the graph title"
-    echo "    -O, --output=FILE       Output to the file, in extension format"
-    echo "    -d, --display           Open the result graph file"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

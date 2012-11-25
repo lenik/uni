@@ -1,37 +1,25 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="XML file reformatter tool"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] FILE.xml ..."}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="i:tl:hqv"
-    long_opts="indent:,tab,width:,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -i --indent =INDENT "Indent level, default 4"
+    option -t --tab         "Use tabs instead of spaces for indent"
+    option -l --width =MAXCOLS "Maximum columns for line wrapping"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     indent=4
     tabonly=
     width=
 
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] XML file reformatter tool"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
+function version2() { #TODO
     echo
     echo "This tool is based on xmlindent(1) utility by Pekka Enberg & Thomas Fischer."
     echo
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] FILE.xml ..."
-    echo
-    echo "Options: "
-    echo "    -i, --indent=INDENT     Indent level, default 4"
-    echo "    -t, --tab               Use tabs instead of spaces for indent"
-    echo "    -l, --width=MAXCOLS     Maximum columns for line wrapping"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
 }
 
 function setopt() {

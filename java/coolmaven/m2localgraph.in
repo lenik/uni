@@ -1,32 +1,17 @@
 #!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Generate M2 dependency graph of local project"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] [dependency-list-file]"}
+
     . shlib-import cliboot
+    option -t, --title =TITLE "Title of the graph, default ./pom.xml/name"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
     import loadpom
-
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="t:hqv"
-    long_opts="title:,help,quiet,verbose,version"
-
     title=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Generate M2 dependency graph of local project"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] [dependency-list-file]"
-    echo
-    echo "Options: "
-    echo "    -t, --title=TITLE       Title of the graph, default ./pom.xml/name"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

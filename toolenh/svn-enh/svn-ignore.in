@@ -1,34 +1,19 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Add given files to the corresponding ignore list"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] FILES"}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="F:fhqv"
-    long_opts="listfile:,force,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -F --listfile =FILE "Get FILES from the list, - if stdin"
+    option -f --force       "Error continue"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     force=
     listfile=
     SVNPSL_OPTS=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Add given files to the corresponding ignore list"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] FILES"
-    echo
-    echo "Options: "
-    echo "    -F, --listfile=FILE     get FILES from the list, - if stdin"
-    echo "    -f, --force             error continue"
-    echo "    -q, --quiet             repeat to get less info"
-    echo "    -v, --verbose           repeat to get more info"
-    echo "    -h, --help              show this help page"
-    echo "        --version           print the version info"
-}
 
 function setopt() {
     case "$1" in

@@ -1,11 +1,23 @@
 #!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Single command nsupdate utility"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] { update-command | '-' raw-command } ..."}
+    : ${NSUPDATE:=nsupdate}
+
     . shlib-import cliboot
-
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="k:R:s:p:z:c:t:C:D:hqv"
-    long_opts="keyfile:,random:,server:,port:,zone:,class:,ttl:,cname:,ddns:,help,quiet,verbose,version"
-
-    NSUPDATE=nsupdate
+    option -k --keyfile =FILE "The shared secret to generate TSIG record"
+    option -R --random =DEV "A source of randomness."
+    option -s --server =HOSTNAME "Send all requests to this server, default localhost (Set to '__master__'  to use the master NS)"
+    option -p --port =PORT  "The UDP port to use, default 53 (DNS)"
+    option -z --zone =ZONE  "All updates are to be made to this zone (optional)"
+    option -c --class =CLASS "Specify the defautl class, default IN"
+    option -t --ttl =TTL    "Specify the default time to live (Default: ddns=600, cname=3600. set to 'none' to clear the default ttl)"
+    option -C --cname =NAME=DEST "Same to delete-add A RRs"
+    option -D --ddns =NAME=IP "Same to delete-add CNAME RRs"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     keyfile=
     random=/dev/urandom
@@ -18,37 +30,6 @@
     ddns=
     extras=()
     nextra=0
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Single command nsupdate utility"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] { update-command | '-' raw-command } ..."
-    echo
-    echo "Options: "
-    echo "    -k, --keyfile=FILE      The shared secret to generate TSIG record"
-    echo "    -R, --random=DEV        A source of randomness."
-    echo "    -s, --server=HOSTNAME   Send all requests to this server, default localhost"
-    echo "                            (Set to '__master__'  to use the master NS)"
-    echo "    -p, --port=PORT         The UDP port to use, default 53 (DNS)"
-    echo "    -z, --zone=ZONE         All updates are to be made to this zone (optional)"
-    echo "    -c, --class=CLASS       Specify the defautl class, default IN"
-    echo "    -t, --ttl=TTL           Specify the default time to live"
-    echo "                            (Default: ddns=600, cname=3600)"
-    echo "                            (You can set to 'none' to clear the default ttl)"
-    echo "    -C, --cname=NAME=DEST   Same to delete-add A RRs"
-    echo "    -D, --ddns=NAME=IP      Same to delete-add CNAME RRs"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

@@ -1,33 +1,18 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Mount a file image by loop device}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FILES}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="rthqv"
-    long_opts="readonly,tracking,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -r --readonly    "Mount as read-only"
+    option -t --tracking    "Mount as read-only with tracking fs"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     readonly=
     tracking=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Mount a file image by loop device"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] FILES"
-    echo
-    echo "Options: "
-    echo "    -r, --readonly          Mount as read-only"
-    echo "    -t, --tracking          Mount as read-only with tracking fs"
-    echo "    -q, --quiet             Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in

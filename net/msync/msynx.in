@@ -1,9 +1,25 @@
 #!/bin/bash
-    . shlib-import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:="Distributed msync utility"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
 
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="a:dlumc:srC:X:pnhqv"
-    long_opts="alphabet:,digits,lower-case,upper-case,mixed-case,concount:,shuffle,remote-eval,chdir:,distrib:,purge,dry-run,help,quiet,verbose,version"
+    . shlib-import cliboot
+    option -a --alphabet =CHARS "Alphabet to use, 0..9a..z by default"
+    option -d --digits          "Alphabet contains digits"
+    option -l --lower-case      "Alphabet contains lower case"
+    option -u --upper-case      "Alphabet contains upper case"
+    option -m --mixed-case      "Alphabet contains both cases, override -d, -l, -u"
+    option -p --purge           "Exclude items have been done, find in log dir"
+    option -s --shuffle         "Shuffle the alphabet"
+    option -r --remote-eval     "Do wild expansion in server-side"
+    option -c --concount =NUM   "Max concurrent connections"
+    option -C --chdir =DIR      "Chdir before execute"
+    option -X --distrib =DIR    "Distributed sync-mode"
+    option -n --dry-run         "Perform a trial run"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
     shopt -s nullglob
 
@@ -14,37 +30,6 @@
     PURGE=
     LOGDIR=/var/log/msync
     DRYRUN=
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Distributed msync utility"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] PREFIX"
-    echo
-    echo "Options: "
-    echo "    -a, --alphabet=CHARS    alphabet to use, 0..9a..z by default"
-    echo "    -d, --digits            alphabet contains digits"
-    echo "    -l, --lower-case        alphabet contains lower case"
-    echo "    -u, --upper-case        alphabet contains upper case"
-    echo "    -m, --mixed-case        alphabet contains both cases, override -d, -l, -u"
-    echo "    -p, --purge             exclude items have been done, find in log dir"
-    echo "    -s, --shuffle           shuffle the alphabet"
-    echo "    -r, --remote-eval       do wild expansion in server-side"
-    echo "    -c, --concount=NUM      max concurrent connections"
-    echo "    -C, --chdir=DIR         chdir before execute"
-    echo "    -X, --distrib=DIR       distributed sync-mode"
-    echo "    -n, --dry-run           perform a trial run"
-    echo "    -q, --quiet             repeat to get less info"
-    echo "    -v, --verbose           repeat to get more info"
-    echo "    -h, --help              show this help page"
-    echo "        --version           print the version info"
-}
 
 function setopt() {
     case "$1" in

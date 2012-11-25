@@ -1,41 +1,26 @@
 #!/bin/bash
-    . shlib
-    import cliboot
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Repeat commands}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] COMMAND...}
+
+    . shlib-import cliboot
+    option -s --session =NAME       "The name of the repeat session"
+    option -i --interval =NUM       "How many seconds to wait each time"
+    option -c --check-cmd =CMDLINE  "Check changes from the command's output"
+    option -T --temp-dir =DIR       "Specify another temporary dir instead of $TMP"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
     import echo-raw
     import echo-fill
-
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    short_opts="i:c:hqv"
-    long_opts="interval:,check-cmd:,help,quiet,verbose,version"
 
     session=$$
     counter=0
     interval=1
     cc_cmd=
     temp_dir="${TMP:-/tmp}"
-
-function version() {
-    parse_id "$RCSID"
-    echo "[$BASENAME] Repeat commands"
-    echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-}
-
-function help() {
-    version
-    echo
-    echo "Syntax: "
-    echo "    $0 [OPTION] [--] COMMAND..."
-    echo
-    echo "Options: "
-    echo "    -s, --session=NAME      The name of the repeat session"
-    echo "    -i, --interval=NUM      How many seconds to wait each time"
-    echo "    -c, --check-cmd=CMDLINE Check changes from the command's output"
-    echo "    -T, --temp-dir=DIR      Specify another temporary dir instead of $TMP"
-    echo "    -q, --quiet             No box. Repeat to get less info"
-    echo "    -v, --verbose           Repeat to get more info"
-    echo "    -h, --help              Show this help page"
-    echo "        --version           Print the version info"
-}
 
 function setopt() {
     case "$1" in
