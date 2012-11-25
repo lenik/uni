@@ -9,7 +9,9 @@ set modelines=10
 
 filetype plugin on
 
-colorscheme koehler
+colorscheme delek
+:nmap <F7>  :colorscheme koehler<CR>
+:nmap <F8>  :colorscheme blue<CR>
 
 " Tab/Space
 "
