@@ -4,7 +4,7 @@
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
     ping_count=3
-    ping_remote=www.google.com
+    ping_target=www.google.com
 
     . shlib-import ../shlib.d/rrdwrapper
     option -c --count =NUM  "Specify count of ping tests to be made"
@@ -30,7 +30,7 @@
         on 3min update
 
     function pingtest_proc() {
-        local pingcmd=(ping -q -n -c $ping_count "$ping_remote")
+        local pingcmd=(ping -q -n -c $ping_count "$ping_target")
         local output=()
 
         # 9 packets transmitted, 9 received, 0% packet loss, time 8244ms
@@ -38,14 +38,14 @@
 
         while read -a output; do
             case "${output[*]}" in
-                "* packets transmitted, *")
+                *" packets transmitted, "*)
                     local packets="${output[0]}"
                     local packet_loss="${output[5]}"
-                    echo PACKET=$packet
+                    echo PACKETS=$packets
                     echo PACKET_LOSS="${packet_loss%\%}"
                     ;;
-                "rtt min/avg/max/*")
-                    IFS=/ read -a rtt_min rtt_avg rtt_max rtt_ < <(echo "${output[4]}")
+                "rtt min/avg/max/"*)
+                    IFS=/ read rtt_min rtt_avg rtt_max rtt_ < <(echo "${output[3]}")
                     echo RTT_MIN=$rtt_min
                     echo RTT_AVG=$rtt_avg
                     echo RTT_MAX=$rtt_max
@@ -75,7 +75,7 @@ graph latency "Shows the network latency and packet loss."
         --slope-mode \
         --start -36000 --end now \
         --font DEFAULT:7: \
-        --title "ping default gateway" \
+        --title "Realtime network latency and packet loss to $ping_target" \
         --watermark "`date`" \
         --vertical-label "latency(ms)" \
         --right-axis-label "latency(ms)" \
