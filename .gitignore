@@ -60,6 +60,7 @@ prerm
 *.substvars
 *.dsc
 *.deb
+*.debhelper
 *.build
 *.changes
 *.upload

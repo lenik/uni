@@ -137,7 +137,7 @@ function cmdexec() {
 }
 
 # RRD Wrapper Framework:
-topic=no-database
+topic="$PROGRAM_NAME"
 step_time=300
 
 plot_index=0
@@ -148,7 +148,12 @@ plotcmds=()
 plotcmdn=0
 
 function database() {
-    topic="$1"
+    case "$1" in
+        default)
+            : ;;
+        *)
+            topic="$1";;
+    esac
     datafile="$datadir/${topic}_db.rrd"
     shift
 

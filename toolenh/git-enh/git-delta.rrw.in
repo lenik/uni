@@ -43,7 +43,7 @@
         echo "sum=$sum"
     }
 
-    database GitDelta \
+    database default \
         on 1min step \
         on 1min make last for 1yr \
         on 10min make average for 1yr
@@ -75,8 +75,8 @@
             --x-grid MINUTE:10:HOUR:1:MINUTE:120:0:%R \
             --alt-y-grid --rigid \
 
-        def delta = GitDelta.$project:LAST
-        def mean = GitDelta.$project:AVERAGE
+        def delta = $topic.$project:LAST
+        def mean = $topic.$project:AVERAGE
 
         list trend = '(TREND delta 100)'
 
@@ -112,13 +112,13 @@
                 \#*) continue;;
             esac
 
-            def delta_$project = GitDelta.$project:LAST
-            # def mean_$project = GitDelta.$project:AVERAGE
+            def delta_$project = $topic.$project:LAST
+            # def mean_$project = $topic.$project:AVERAGE
             plot delta_$project as stacked area ${colors[index++]} "$label ΔSLOC"'\n'
         done < "$dirsfile"
 
-        def delta = GitDelta.sum:LAST
-        def mean = GitDelta.sum:AVERAGE
+        def delta = $topic.sum:LAST
+        def mean = $topic.sum:AVERAGE
 
         list trend = '(TREND delta 100)'
 

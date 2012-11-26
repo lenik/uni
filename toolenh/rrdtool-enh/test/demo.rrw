@@ -35,7 +35,7 @@
     }
 
 # Config
-    database Demo \
+    database default \
         on 1sec step \
         on 2step make max for 1hr \
         on 2step make average for 1hr

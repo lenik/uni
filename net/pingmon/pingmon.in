@@ -55,7 +55,7 @@
     }
 
 # Config
-    database NetStat \
+    database default \
         on 60sec step \
         on 1step make max for 30day
 
