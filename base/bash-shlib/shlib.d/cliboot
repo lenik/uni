@@ -6,7 +6,8 @@ import load
 import log
 import rcs
 
-: ${PROGRAM_NAME:=${0##*/}}
+: ${PROGRAM_PATH:=$0}
+: ${PROGRAM_NAME:=${PROGRAM_PATH##*/}}
 : ${LONGOPTS:=1}
 
 if [ "$OS" = Cygwin ]; then
@@ -204,7 +205,7 @@ function help() {
 
     local syntax
     while read syntax; do
-        echo "    $0 $syntax"
+        echo "    $PROGRAM_PATH $syntax"
     done < <(echo "$PROGRAM_SYNTAX")
 
     echo

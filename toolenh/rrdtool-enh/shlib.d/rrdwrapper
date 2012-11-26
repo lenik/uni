@@ -21,13 +21,6 @@
     option -h --help            "Show this help page"
     option    --version         "Print the version info"
 
-    case "$0" in
-        /*)
-            SCRIPT_PATH="$0";;
-        *)
-            SCRIPT_PATH=`readlink -f $0`;;
-    esac
-
     MODE= # run-all
     CGI=0
 
@@ -142,7 +135,9 @@ function cmdexec() {
 }
 
 # RRD Wrapper Framework:
-topic="$PROGRAM_NAME"
+topic="${PROGRAM_NAME%.in}"
+topic="${topic%.sh}"
+topic="${topic%.rrw}"
 step_time=300
 
 plot_index=0
@@ -284,7 +279,7 @@ function cron_exec() {
     if [ "$mode" = install ]; then
         lineconf -tm "Add sample procedure $id to crontab" \
             $crontab "$cron_id" \
-            "$cronspec \"$SCRIPT_PATH\" --run-cron \"$id\""
+            "$cronspec \"$PROGRAM_PATH\" --run-cron \"$id\""
     else
         lineconf -ktm "Remove sample procedure $id from crontab" \
              $crontab "$cron_id"
@@ -375,7 +370,7 @@ function sample() {
 
         run-all) # Run all samples immediately
             _log1 "Run-Sample: $id"
-            "$SCRIPT_PATH" --run "$id"
+            "$PROGRAM_PATH" --run "$id"
             ;;
     esac
 }
@@ -442,7 +437,7 @@ function graph() {
 
         plot-all)
             _log1 "Plot-Graph: $id"
-            "$SCRIPT_PATH" --plot "$id"
+            "$PROGRAM_PATH" --plot "$id"
             ;;
 
         plot)

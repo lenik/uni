@@ -199,8 +199,10 @@ function list() {
             topic="${file##*/}"
             topic="${topic%.*}"
             echo "<li>"
-                read _tag _title < <("$file" --version)
-                echo "$topic: "
+                # [tag] title...
+                IFS=']' read _tag _title < <("$file" --version)
+
+                echo "<b>$topic</b>: "
                 echo "$_title "
                 echo "[ <a href='$prefix$topic'>info</a> ]"
                 echo "<ol>"
