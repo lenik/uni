@@ -198,7 +198,7 @@ function list() {
         for file in "${files[@]}"; do
             topic="${file##*/}"
             topic="${topic%.*}"
-            echo "<li>"
+            echo "<li style='padding-bottom: .7em'>"
                 # [tag] title...
                 IFS=']' read _tag _title < <("$file" --version)
 
@@ -210,7 +210,7 @@ function list() {
                         _id="${_id%:}"
                         echo -n "<li>Plot "
                         echo -n "<a href='$topic/plot/$_id'>$_id</a>"
-                        echo ": $_description</li>"
+                        echo ": <i style='color: gray'>$_description</i></li>"
                     done < <("$file" --list)
                 echo "</ol>"
             echo "</li>"
