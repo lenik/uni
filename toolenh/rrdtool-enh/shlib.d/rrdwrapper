@@ -1,7 +1,5 @@
 # vim: set filetype=sh :
 
-    SCRIPT_PATH=`readlink -f $0`
-
     import cliboot
     import time
     import htmlcolor
@@ -22,6 +20,13 @@
     option -v --verbose         "Repeat to get more info"
     option -h --help            "Show this help page"
     option    --version         "Print the version info"
+
+    case "$0" in
+        /*)
+            SCRIPT_PATH="$0";;
+        *)
+            SCRIPT_PATH=`readlink -f $0`;;
+    esac
 
     MODE= # run-all
     CGI=0
