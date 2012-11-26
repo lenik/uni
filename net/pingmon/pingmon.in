@@ -84,8 +84,8 @@ graph latency "Shows the network latency and packet loss."
         --x-grid MINUTE:10:HOUR:1:MINUTE:120:0:%R \
         --alt-y-grid --rigid \
 
-    def roundtrip = NetStat.rtt:MAX
-    def packetloss = NetStat.pl:MAX
+    def roundtrip = rtt:MAX
+    def packetloss = pl:MAX
 
     list trend = '(TREND roundtrip 1800)'
     list pltrend = '(TREND packetloss 600)'

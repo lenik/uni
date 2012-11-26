@@ -503,12 +503,21 @@ function plotemit() {
 
 function def() {
     isplot || return
-    # def roundtrip = NetStat.rtt:MAX
-    # => DEF:roundtrip=latency_db.rrd:rtt:MAX \
+    # def roundtrip = [$topic.]rtt:MAX
+    # => DEF:roundtrip=$topic_db.rrd:rtt:MAX \
     if parse_keyvalue "$@"; then
-        local rdb="$datadir/${VALUE%%.*}_db.rrd"
-        local ds_type="${VALUE#*.}"
-        plotemit "DEF:$KEY=$rdb:$ds_type"
+        local qname="${VALUE%%:*}"
+        local dst="${VALUE#*:}"
+        local _topic="${qname%.*}"
+        local vname
+        if [ "$_topic" = "$qname" ]; then
+            _topic="$topic"
+            vname="$qname"
+        else
+            vname="${qname##*.}"
+        fi
+        local rdb="$datadir/${_topic}_db.rrd"
+        plotemit "DEF:$KEY=$rdb:$vname:$dst"
     else
         _error "Illegal syntax: $@"
     fi

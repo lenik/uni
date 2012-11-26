@@ -73,11 +73,11 @@ graph plot1 "Show simple variable change curves"
         --x-grid MINUTE:10:HOUR:1:MINUTE:120:0:%R \
         --alt-y-grid --rigid \
 
-    def const1 = Demo.const1:MAX
-    def const2 = Demo.const2:MAX
-    def ts = Demo.ts:MAX
-    def rand1p = Demo.rand1:MAX
-    def rand1m = Demo.rand1:AVERAGE
+    def const1 = const1:MAX
+    def const2 = const2:MAX
+    def ts = ts:MAX
+    def rand1p = rand1:MAX
+    def rand1m = rand1:AVERAGE
 
     list rand1mm = '(TREND rand1m 100)'
     val rand1max = '(MAXIMUM rand1p)'
