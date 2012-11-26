@@ -6,10 +6,16 @@
     . shlib-import ../shlib.d/rrdwrapper
 
     dirsfile="${0%.rrw}.dirs"
-    colors=('#bdace5' '#984c5c' '#542d1c' '#251367' '#0cf979' '#644a6a' '#3fe1a7' '#6f00fc'
-            '#63b1eb' '#aace8f' '#6d0594' '#5b2f95' '#a5b7db' '#c37325' '#fa70c4' '#bb1a14'
-            '#f995e4' '#6ec3c9' '#5e9fe4' '#dbdf48' '#c66887' '#c66887' '#9995ba' '#8ad9c3'
-            '#a6b98e' '#707aea' '#548f6c' '#5c5d27' '#f97647' '#6e5025' '#6e5025' '#979500')
+    colors=(
+        '#44B458' '#42A593' '#57738C' '#83A579' '#51859F' '#6156B3' '#917BBB' '#6DA1AE'
+        '#616196' '#7D7E8B' '#7A857C' '#4E92B3' '#B0B264' '#A048A5' '#725383' '#AB5C5A'
+        '#5F5E56' '#A29756' '#B65DB7' '#736D86' '#8A5DB2' '#A1A176' '#72A35C' '#A16A82'
+        '#544B7F' '#A1B5BF' '#469C99' '#63AFBF' '#54B5B3' '#59758D' '#8C749E' '#747CB8'
+        '#8E90A9' '#B35470' '#408752' '#797270' '#707493' '#4F51A3' '#469FB6' '#835C91'
+        '#A0844F' '#924A59' '#49696D' '#515A96' '#5B6372' '#74A26D' '#AE9062' '#4C697F'
+        '#76934A' '#807BA8' '#B78347' '#87844F' '#469970' '#4FB56B' '#5B4A52' '#8A7F6D'
+        '#894B82' '#A4476A' '#5F4762' '#A9494A' '#415975' '#426A55' '#42A799' '#83BCB3'
+    )
 
     option    --dirs =PATH  "Specify the .dirs file, default $dirsfile"
 
@@ -66,7 +72,7 @@
             --slope-mode \
             --start -14400 --end now \
             --font DEFAULT:7: \
-            --title "Unmerged SLOCs of project $label" \
+            --title "Unmerged SLOCs of project $label   (Each falling edge could mean a merge)" \
             --watermark "`date`" \
             --vertical-label "SLOC" \
             --right-axis-label "(unmerged)" \
@@ -96,7 +102,7 @@
             --slope-mode \
             --start -14400 --end now \
             --font DEFAULT:7: \
-            --title "Total unmerged SLOCs of all projects" \
+            --title "Total unmerged SLOCs of all projects   (Each falling edge could mean a merge)" \
             --watermark "`date`" \
             --vertical-label "Σ SLOC" \
             --right-axis-label "(unmerged)" \
