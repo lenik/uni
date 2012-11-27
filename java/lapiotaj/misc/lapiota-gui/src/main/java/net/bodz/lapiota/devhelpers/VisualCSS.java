@@ -23,7 +23,6 @@ import org.eclipse.swt.widgets.Text;
 
 import net.bodz.bas.c.loader.ClassResource;
 import net.bodz.bas.gui.err.GUIException;
-import net.bodz.bas.gui.mda.PreferredSize;
 import net.bodz.bas.io.resource.builtin.URLResource;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
@@ -34,8 +33,9 @@ import net.bodz.swt.program.BasicGUI;
 
 /**
  * CSS Look&Feel
+ *
+ * @style width: 800; height: 600
  */
-@PreferredSize(width = 800, height = 600)
 @RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 1 })
 public class VisualCSS

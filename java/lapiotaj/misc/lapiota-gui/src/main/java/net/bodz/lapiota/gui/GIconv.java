@@ -24,7 +24,6 @@ import org.eclipse.swt.widgets.Text;
 
 import net.bodz.bas.err.DecodeException;
 import net.bodz.bas.gui.err.GUIException;
-import net.bodz.bas.gui.mda.PreferredSize;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.text.codec.builtin.HexCodec;
@@ -33,8 +32,9 @@ import net.bodz.swt.program.BasicGUI;
 
 /**
  * GUI iconv utility
+ *
+ * @style width: 640; height: 480
  */
-@PreferredSize(width = 640, height = 480)
 @RcsKeywords(id = "$Id$")
 @MainVersion({ 1, 0 })
 public class GIconv
