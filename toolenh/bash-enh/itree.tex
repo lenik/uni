@@ -11,9 +11,11 @@
             node[dir] {bash\_aliases.d\fileflag{/}}
             child{ node[plain] {dirs.sh} }
             child{ node[plain] {envchk.sh} }
+            child{ node[plain] {maths.sh} }
             child{ node[plain] {shorts.sh} }
             child{ node[plain] {stats.sh} }
         }
+        child[missing] {}
         child[missing] {}
         child[missing] {}
         child[missing] {}
@@ -53,6 +55,7 @@
     child[missing] {}
     child[missing] {}
     child[missing] {}
+    child[missing] {}
     child{
         node[dir] {usr\fileflag{/}}
         child{
@@ -67,7 +70,7 @@
             child{ node[executable] {echoli\fileflag{*}} }
             child{ node[executable] {echoln\fileflag{*}} }
             child{ node[executable] {history-histgram\fileflag{*}} }
-            child{ node[executable] {history-sort\fileflag{*}} }
+            child{ node[executable] {history2csv.d\fileflag{*}} }
             child{ node[executable] {orig\fileflag{*}} }
             child{ node[executable] {tree-less\fileflag{*}} }
         }
@@ -86,6 +89,15 @@
         child[missing] {}
         child{
             node[dir] {share\fileflag{/}}
+            child{
+                node[dir] {doc\fileflag{/}}
+                child{
+                    node[dir] {bc\fileflag{/}}
+                    child{ node[plain] {maths.b} }
+                }
+            }
+            child[missing] {}
+            child[missing] {}
             child{
                 node[dir] {setup\fileflag{/}}
                 child{

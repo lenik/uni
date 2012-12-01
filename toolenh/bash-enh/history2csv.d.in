@@ -1,0 +1,101 @@
+#!/usr/bin/dprog -v
+
+import std.c.stdlib;
+import std.stdio;
+import std.stream : File;
+import std.file;
+import std.path;
+import std.getopt;
+import std.string;
+
+import net.bodz.dog1;                   /* boDz D prOGram framework */
+
+immutable RcsId rcsId = RcsId(`$Id: - @VERSION@ @DATE@ @TIME@ - $`);
+
+void boot(ref string[] args) {
+    if (progname == null)
+        progname = stripExtension(baseName(args[0]));
+    getopt(args,
+        "v|verbose",    delegate { loglevel++; },
+        "q|quiet",      delegate { loglevel--; },
+        "h|help",       delegate { showHelp(); exit(0); },
+        "version",      delegate { showVersion(); exit(0); }
+    );
+}
+
+void showHelp() {
+    alias writeln ln;
+    showVersion();
+    ln();
+    ln("Syntax: ");
+    ln("    " ~ progname ~ " [OPTIONS] <bash-history files>");
+    ln();
+    ln("Options: ");
+    ln("    -q, --quiet             repeat to get less info");
+    ln("    -v, --verbose           repeat to get more info");
+    ln("    -h, --help              show this help page");
+    ln("        --version           print the version info");
+}
+
+void showVersion() {
+    alias writeln ln;
+    ln("[" ~ progname ~ "] ");
+    ln("Written by Lenik  Version 0." ~ rcsId.ver
+        ~ "  Last updated at " ~ rcsId.date);
+}
+
+int main(string[] args) {
+    boot(args);
+
+    for (int i = 1; i < args.length; i++) {
+        string path = args[i];
+        if (! exists(path)) {
+            _error("File not existed: " ~ path);
+            return 1;
+        }
+        _log1("Process " ~ path ~ "...");
+
+        File f = new File(path);
+        int mode = 0;
+        int records = 0;
+        bool pending = 0;
+
+        while (! f.eof()) {
+            char[] line = f.readLine();
+
+            switch (mode) {
+            case 0:
+                if (line.length != 0 && line[0] == '#') {
+                    if (pending)
+                        write("\n");
+                    write(line);
+                    mode = 1;
+                } else {
+                    if (pending)
+                        write("\\n");
+                    write(line);
+                }
+                pending = 1;
+                break;
+
+            case 1:
+                write(":");
+                write(line);
+                mode = 0;
+                records++;
+                break;
+
+            default:
+                assert(false);
+            }
+        }
+        f.close();
+
+        if (pending)
+            writeln();
+
+        _log1(format("File %s: %d records processed.", path, records));
+    }
+
+    return 0;
+}

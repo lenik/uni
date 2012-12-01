@@ -14,7 +14,7 @@ bin_PROGRAMS = \
 dist_bin_SCRIPTS = \
     orig \
     tree-less \
-    history-sort
+    history2csv.d
 
 dist_shsrc_SCRIPTS = \
     cd-ls \
