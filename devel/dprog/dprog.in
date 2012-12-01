@@ -148,9 +148,20 @@ function main() {
         d_base="$d_file"
     fi
 
+    # Workdaround: support for .d.in sources.
+    d_base_ex="${d_base%.in}"
+    if [ "$d_base_ex" != "$d_base" ]; then
+        if [ ! -f "$d_base_ex" ]; then
+            _log1 "Add helper symlink $d_base_ex -> $d_base"
+            ln -snf "$d_base" "$d_dir/$d_base_ex"
+        fi
+        d_base="$d_base_ex"
+        d_file="$d_dir/$d_base"
+    fi
+
     d_name="${d_base%.d}"
     if [ "$d_name" = "$d_base" ]; then
-        quit "Source file must have extension .d: $d_base"
+        quit "Source file must have extension .d (.in): $d_base"
     fi
 
     if [ "$inplace" = 1 ]; then
