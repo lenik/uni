@@ -18,7 +18,7 @@ void _log(File dev, int level, string[] mesgs ...) {
 }
 
 void _log(int level, string[] mesgs ...) {
-    _log(stdout, level, mesgs);
+    _log(stderr, level, mesgs);
 }
 
 void _logx(int level, string[] mesgs ...) {
