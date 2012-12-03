@@ -104,17 +104,19 @@ graph latency "Shows the network latency and packet loss."
     list s100 ='(/ (* pl100 rtmax) 100)'
 
     putstr 'Round Trip Time\:       '
-    plot trend as line 3px $Gray    'trend(30)'
-    plot roundtrip as line $Blue    'latency(ms)'
-    plot pltrend as line 3px $DarkRed 'pltrend(10)'
+    plot trend as line 3px $Gray    'Trend(30)'
+    plot roundtrip as line $Blue    'Latency(ms)\n'
 
-    gprint roundtrip:LAST           "Cur\: %5.2lf"
-    gprint roundtrip:AVERAGE        "Avg\: %5.2lf"
-    gprint roundtrip:MAX            "Max\: %5.2lf"
-    gprintln roundtrip:MIN          "Min\: %5.2lf"
+    putstr 'Packet Loss Ratio\:     '
+    plot pltrend as line 3px $DarkRed 'Trend(10)'
 
-    putstr 'Packet Loss\:           '
+    gprint roundtrip:LAST           'Cur\: %5.2lf'
+    gprint roundtrip:AVERAGE        'Avg\: %5.2lf'
+    gprint roundtrip:MAX            'Max\: %5.2lf'
+    gprint roundtrip:MIN            'Min\: %5.2lf\n'
+
+    putstr '                       '
     plot s10 as area $Yellow            '0-10%'
     plot s25 as stacked area $Orange    '10-25%'
     plot s50 as stacked area $OrangeRed '25-50%'
-    plot s100 as stacked area $Red      '50-100%\\n'
+    plot s100 as stacked area $Red      '50-100%\n'
