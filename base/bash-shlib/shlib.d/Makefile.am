@@ -5,6 +5,7 @@ dist_shlib_DATA = \
     char \
     cliboot \
     cmds \
+    date \
     de_alias \
     echo-fill \
     echo-raw \

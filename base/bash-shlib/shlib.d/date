@@ -1,0 +1,82 @@
+# vim: set filetype=sh :
+
+TZOFFSET=
+
+function timestamp2date() {
+    local ts="$1"
+    local yr y4 yi feb mo day
+    local hr min sec
+
+    if [ -z "$TZOFFSET" ]; then
+        local tz=`date +%z`
+        local tzh=$(( 1${tz:1:2} - 100 ))
+        local tzm=$(( 1${tz:3:2} - 100 ))
+        TZOFFSET=$(( (tzh * 60 + tzm) * 60 ))
+        if [ ${tz:0:1} = '-' ]; then
+            TZOFFSET=-$TZOFFSET
+        fi
+        (( ts += $TZOFFSET ))
+    fi
+
+    ((
+        sec = ts % 60,
+        ts /= 60,
+        min = ts % 60,
+        ts /= 60,
+        hr = ts % 24,
+        ts /= 24,
+        y4 = ts / 1461,
+        ts %= 1461,
+        yi = ts < 365*3 ? ts / 365 : ts == 365 * 3 ? 2 : 3,
+        feb = yi==2 ? 29 : 28,
+        yr = 1970 + y4*4 + yi,
+        ts -= yi >= 1 ? 365 : 0,
+        ts -= yi >= 2 ? 365 : 0,
+        ts -= yi >= 3 ? 366 : 0,
+        mo = 1,
+        day = ts
+    ))
+
+    if [ $day -ge 31 ]; then # >= 2
+      (( mo++, day -= 31 ))
+      if [ $day -ge $feb ]; then # >= 3
+        (( mo++, day -= feb ))
+        if [ $day -ge 31 ]; then # >= 4
+          (( mo++, day -= 31 ))
+          if [ $day -ge 30 ]; then # >= 5
+            (( mo++, day -= 30 ))
+            if [ $day -ge 31 ]; then # >= 6
+              (( mo++, day -= 31 ))
+              if [ $day -ge 31 ]; then # >= 7
+                (( mo++, day -= 31 ))
+                if [ $day -ge 30 ]; then # >= 8
+                  (( mo++, day -= 30 ))
+                  if [ $day -ge 31 ]; then # >= 9
+                    (( mo++, day -= 31 ))
+                    if [ $day -ge 30 ]; then # >= 10
+                      (( mo++, day -= 30 ))
+                      if [ $day -ge 31 ]; then # >= 11
+                        (( mo++, day -= 31 ))
+                        if [ $day -ge 30 ]; then # >= 12
+                          (( mo++, day -= 30 ))
+                        fi
+                      fi
+                    fi
+                  fi
+                fi
+              fi
+            fi
+          fi
+        fi
+      fi
+    fi
+
+    (( day++ ))
+    [ $mo -lt 10 ] && mo="0$mo"
+    [ $day -lt 10 ] && day="0$day"
+    [ $hr -lt 10 ] && hr="0$hr"
+    [ $min -lt 10 ] && min="0$min"
+    [ $sec -lt 10 ] && sec="0$sec"
+
+    echo "$yr-$mo-$day $hr:$min:$sec"
+}
