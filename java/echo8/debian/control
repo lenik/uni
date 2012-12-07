@@ -1,0 +1,15 @@
+Source: echo8
+Section: java
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.3
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/java/echo8
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/java/echo8
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/java/echo8
+
+Package: echo8
+Architecture: all
+Depends: ${misc:Depends}, jetty8
+Description: Embedded Java web server
+ Echo is a Jetty-based embedded-oriented web server.
