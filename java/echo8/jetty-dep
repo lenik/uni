@@ -1,0 +1,13 @@
+Jetty Dependency Graph:
+
+   -tester
+      -webapp
+        -servlet
+           -security
+               -server
+                   -continuation
+                   -http
+                       -io
+                           -util
+        -xml
+           -util
