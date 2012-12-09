@@ -6,6 +6,7 @@
     . shlib-import cliboot
     option -o --output =OUTPUT  "See xrandr for the output list"
     option -m --mode-name =NAME "Specify a mode name"
+    option -c --config-only     "Don't switch to the new mode"
     option -r --remove          "Reset existing mode with the same name"
     option -c --cvt             "Using VESA CVT mode lines (default)"
     option -g --gtf             "Using VESA GTF mode lines"
@@ -20,6 +21,7 @@
     mode_name=
     refresh=
     remove=
+    apply=1
 
 function setopt() {
     case "$1" in
@@ -27,6 +29,8 @@ function setopt() {
             output="$2";;
         -m|--mode-name)
             mode_name="$2";;
+        -c|--config_only)
+            apply=;;
         -r|--remove)
             remove=1;;
         -c|--cvt)
@@ -56,11 +60,21 @@ function main() {
     [ -n "$height" ]  || quit "Height isn't specified. "
     [ -n "$refresh" ] || refresh=60
 
+    # cvt:
+    #   # 1024x768 59.92 Hz (CVT 0.79M3) hsync: 47.82 kHz; pclk: 63.50 MHz
+    #   Modeline "1024x768_60.00"  63.50  1024 1072 1176 1328  768 771 775 798 -hsync +vsync
+    # gtf:
+    #   # 1024x768 @ 60.00 Hz (GTF) hsync: 47.70 kHz; pclk: 64.11 MHz
+    #   Modeline "1024x768_60.00"  64.11  1024 1080 1184 1344  768 769 772 795 -HSync +Vsync
+
     read -a spec < <($VESA $width $height $refresh | grep Modeline)
 
-    [ -n "$mode_name" ] || mode_name="${spec[1]}"
-    # shift ("Modeline", mode-name)
-    spec=("${spec[@]:2}")
+    if [ -z "$mode_name" ]; then
+        mode_name="${spec[1]}"
+        mode_name="${mode_name#\"}"
+        mode_name="${mode_name%\"}"
+    fi
+    mode_def=("${spec[@]:2}")
 
     if [ "$remove" = 1 ]; then
         _log1 "Delete mode $mode_name from $output"
@@ -70,11 +84,16 @@ function main() {
         xrandr --rmmode "$mode_name"
     fi
 
-    _log1 "Create new mode $mode_name: ${spec[@]}"
-    xrandr --output "$output"  --newmode "$mode_name" "${spec[@]}"
+    _log1 "Create new mode $mode_name: ${mode_def[@]}"
+    xrandr --output "$output" --newmode "$mode_name" "${mode_def[@]}"
 
     _log1 "Add mode $mode_name to $output"
     xrandr --addmode "$output" "$mode_name"
+
+    if [ "$apply" = 1 ]; then
+        _log1 "Switch to the mode $mode_name"
+        xrandr --output "$output" --mode "$mode_name"
+    fi
 }
 
 boot "$@"

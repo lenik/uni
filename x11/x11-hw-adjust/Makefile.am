@@ -1,7 +1,7 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-    xrandr-add-mode \
+    xrandr-mode \
     xrandr-add-scales
 
 setup_SCRIPTS = \
