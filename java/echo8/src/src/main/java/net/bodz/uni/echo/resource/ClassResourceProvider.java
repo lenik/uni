@@ -16,8 +16,8 @@ public class ClassResourceProvider
 
     @Override
     public URL getResource(String path) {
-        clazz.getResource(path);
-        return null;
+        URL resource = clazz.getResource(path);
+        return resource;
     }
 
 }

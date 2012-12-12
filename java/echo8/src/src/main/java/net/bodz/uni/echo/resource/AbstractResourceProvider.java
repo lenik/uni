@@ -6,17 +6,17 @@ import java.util.List;
 public abstract class AbstractResourceProvider
         implements IResourceProvider {
 
-    List<String> startPoints;
+    List<String> prefixes;
 
-    public AbstractResourceProvider(String... startPoints) {
-        this.startPoints = new ArrayList<String>();
+    public AbstractResourceProvider(String... prefixes) {
+        this.prefixes = new ArrayList<String>();
 
-        for (String startPoint : startPoints) {
-            while (startPoint.startsWith("/"))
-                startPoint = startPoint.substring(1);
-            while (startPoint.endsWith("/"))
-                startPoint = startPoint.substring(0, startPoint.length() - 1);
-            this.startPoints.add(startPoint);
+        for (String prefix : prefixes) {
+            while (prefix.startsWith("/"))
+                prefix = prefix.substring(1);
+            while (prefix.endsWith("/"))
+                prefix = prefix.substring(0, prefix.length() - 1);
+            this.prefixes.add(prefix);
         }
     }
 
@@ -26,8 +26,8 @@ public abstract class AbstractResourceProvider
     }
 
     @Override
-    public List<String> getStartPoints() {
-        return startPoints;
+    public List<String> getPrefixes() {
+        return prefixes;
     }
 
 }

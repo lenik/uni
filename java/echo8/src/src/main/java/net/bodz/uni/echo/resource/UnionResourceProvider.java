@@ -22,7 +22,7 @@ public class UnionResourceProvider
     }
 
     @Override
-    public List<String> getStartPoints() {
+    public List<String> getPrefixes() {
         return Arrays.asList("");
     }
 

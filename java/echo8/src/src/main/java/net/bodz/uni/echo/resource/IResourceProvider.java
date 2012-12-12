@@ -11,15 +11,17 @@ public interface IResourceProvider
     /**
      * Get the common prefixes to the path.
      *
-     * @return Non-null root paths, without the leading slash and the trailing slash.
+     * @return List of prefixes. There should be at least one resource for each prefix. The prefix
+     *         doesn't include the leading slash or the trailing slash.
      */
-    List<String> getStartPoints();
+    List<String> getPrefixes();
 
     /**
      * Get a system-wide accessible resource.
      *
      * @param path
      *            Non-null path string, without the leading "/".
+     * @return <code>null</code> if the resource isn't existed.
      */
     URL getResource(String path);
 
