@@ -20,7 +20,6 @@ import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.EditResult;
-import net.bodz.bas.collection.scope.CMap;
 import net.bodz.bas.dotnet.synthetics.JavaAnnotation;
 import net.bodz.bas.dotnet.synthetics.JavaEnum;
 import net.bodz.bas.err.UnexpectedException;
@@ -29,6 +28,7 @@ import net.bodz.bas.io.resource.tools.StreamWriting;
 import net.bodz.bas.loader.Classpath;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.t.scope.CMap;
 import net.bodz.bas.vfs.IFile;
 
 /**

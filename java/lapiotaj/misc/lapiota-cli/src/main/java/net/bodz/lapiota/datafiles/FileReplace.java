@@ -7,7 +7,7 @@ import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.CLISyntaxException;
 import net.bodz.bas.cli.skel.EditResult;
-import net.bodz.bas.lang.fn.Filt1;
+import net.bodz.bas.fn.legacy.Filt1;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.IPrintOut;

@@ -1,5 +1,6 @@
 package net.bodz.uni.echo.resource;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,20 @@ public abstract class AbstractResourceProvider
     @Override
     public List<String> getPrefixes() {
         return prefixes;
+    }
+
+    @Override
+    public void findResources(List<URL> resources, String path) {
+        URL resource = getResource(path);
+        if (resource != null)
+            resources.add(resource);
+    }
+
+    @Override
+    public final List<URL> getResources(String path) {
+        List<URL> resources = new ArrayList<URL>();
+        findResources(resources, path);
+        return resources;
     }
 
 }

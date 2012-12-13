@@ -3,7 +3,6 @@ package net.bodz.uni.echo.test;
 import org.junit.Test;
 
 import net.bodz.uni.echo._default.HelloServlet;
-import net.bodz.uni.echo.test.EchoTestApp;
 
 public class HelloServletTest
         extends EchoTestApp {

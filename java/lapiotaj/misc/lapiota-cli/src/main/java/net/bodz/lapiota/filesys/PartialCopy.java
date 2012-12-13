@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 
 import net.bodz.bas.c.java.io.TempFile;
 import net.bodz.bas.c.java.util.Arrays;
+import net.bodz.bas.c.primitive.IntMath;
 import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.plugin.AbstractCLIPlugin;
 import net.bodz.bas.cli.plugin.ICLIPlugin;
@@ -22,7 +23,6 @@ import net.bodz.bas.mem.RandomAccessFileMemory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.IPrintOut;
-import net.bodz.bas.util.primitive.IntMath;
 import net.bodz.lapiota.crypt.CRCSum.CRC32pgp;
 import net.bodz.lapiota.crypt.FindHash.Range;
 import net.bodz.lapiota.util.StringUtil;

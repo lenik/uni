@@ -5,7 +5,6 @@ import java.net.URL;
 import org.junit.Test;
 
 import net.bodz.uni.echo._default.HelloServlet;
-import net.bodz.uni.echo.test.EchoTestApp;
 
 public class EchoTestAppTest
         extends EchoTestApp {

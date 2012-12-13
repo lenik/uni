@@ -13,7 +13,7 @@ import javax.servlet.Servlet;
 
 import net.bodz.bas.c.object.UseNet;
 import net.bodz.bas.err.DuplicatedKeyException;
-import net.bodz.bas.util.order.PrioritySortedLists;
+import net.bodz.bas.t.order.PrioritySortedLists;
 
 public class EchoServerConfig {
 

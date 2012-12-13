@@ -1,8 +1,7 @@
-package net.bodz.lapiota.filesys;
+package net.bodz.lapiota.javatools;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -18,6 +17,7 @@ import java.util.regex.Pattern;
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.err.control.Control;
 import net.bodz.bas.io.resource.builtin.InputStreamSource;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.jvm.stack.Caller;
@@ -25,68 +25,62 @@ import net.bodz.bas.loader.Classpath;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.vfs.IFile;
+import net.bodz.bas.vfs.util.FileFinder;
+import net.bodz.bas.vfs.util.IFileFilter;
 
 /**
  * Find the class file defined the specified class
  */
-@MainVersion({ 0, 1 })
-@RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
 @ProgramName("jwhich")
+@RcsKeywords(id = "$Id$")
+@MainVersion({ 0, 1 })
 public class FindClassResource
         extends BasicCLI {
 
     /**
-     * Max depth of directories recurse into
+     * max depth of directories recurse into
      *
-     * @option -r =[DEPTH] default=65536
+     * @option -r =[DEPTH] default-value=65536
      */
     protected int recursive = 1;
 
     /**
-     * Using custom file filter, default find jar/?ar/zip files
+     * using custom file filter, default find jar/?ar/zip files
      *
-     * @option -lc =CLASS(FileFilter)
+     * @option -Ic =CLASS(FileFilter)
      */
-    protected FileFilter filter;
+    protected IFileFilter filter;
 
     protected List<URL> classpaths = new ArrayList<URL>();
 
     /**
      * @option -b =FILE|DIR
      */
-    protected void bootClasspath(File file)
+    protected void bootClasspath(IFile file)
             throws IOException {
-        FsWalk walker = new FsWalk(file, filter, recursive) {
-            @Override
-            public void process(File file)
-                    throws IOException {
-                if (file.isDirectory())
-                    return;
-                URL url = file.toURI().toURL();
-                logger.debug("add boot-classpath: ", url);
-                Classpath.addURL(url);
-            }
-        };
-        walker.walk();
+        FileFinder finder = new FileFinder(filter, recursive, file);
+        for (IFile f : finder.listFiles()) {
+            if (f.isTree())
+                return;
+            URL url = f.getPath().toURL();
+            logger.debug("add boot-classpath: ", url);
+            Classpath.addURL(url);
+        }
     }
 
     /**
-     * @option -c =FILE|DIR %want=FileParser2.class
+     * @option -c =FILE|DIR
      */
-    protected void classpath(File file)
+    protected void classpath(IFile file)
             throws IOException {
-        FsWalk walker = new FsWalk(file, filter, recursive) {
-            @Override
-            public void process(IFile file)
-                    throws IOException {
-                if (file.isTree())
-                    return;
-                URL url = file.getPath().toURL();
-                logger.debug("queue classpath: ", url);
-                classpaths.add(url);
-            }
-        };
-        walker.walk();
+        FileFinder finder = new FileFinder(filter, recursive, file);
+        for (IFile f : finder.listFiles()) {
+            if (f.isTree())
+                return;
+            URL url = f.getPath().toURL();
+            logger.debug("queue classpath: ", url);
+            classpaths.add(url);
+        }
     }
 
     static String libpath(URL url)
@@ -115,21 +109,21 @@ public class FindClassResource
     }
 
     /**
-     * Find all libraries required by the specified class
+     * find all libraries required by the specified class
      *
-     * @option -t=MAINCLASS
+     * @option -t =MAINCLASS
      */
     protected String testClass;
 
     /**
-     * Add one argument to the test arguments
+     * add one argument to the test arguments
      *
-     * @option -a=ARG
+     * @option -a =ARG
      */
     protected String[] testArguments;
 
     /**
-     * Suppress the output of test program
+     * suppress the output of test program
      *
      * @option -Q
      */
@@ -142,12 +136,12 @@ public class FindClassResource
     }
 
     /**
-     * Do test
+     * do test
      *
      * @option -T
      */
     protected void test()
-            throws IOException, ReflectiveOperationException {
+            throws Exception {
         if (testArguments == null)
             testArguments = new String[0];
 
@@ -177,7 +171,7 @@ public class FindClassResource
             try {
                 try {
                     logger.info("execute ", mainf.getDeclaringClass(), "::", mainf.getName(), "/", testArguments.length);
-                    mainf.invoke(null, (Object) testArguments);
+                    Control.invoke(mainf, null, (Object) testArguments);
                 } finally {
                     if (testQuiet) {
                         System.setOut(_out);
@@ -192,7 +186,7 @@ public class FindClassResource
                 if (tryAdd != null) {
                     String lib = libpath(tryAdd);
                     logger.info("add required ", lib);
-                    URL liburl = new File(lib).toURI().toURL();
+                    URL liburl = new File(lib).toURL();
                     if (tryAdds.contains(liburl)) {
                         logger.error("loop fail");
                         break;
@@ -224,15 +218,15 @@ public class FindClassResource
                 Classpath.addURL(url);
             }
 
-            ClassLoader loader = Caller.getCallerClassLoader(1);
-            Iterable<String> iter;
+            ClassLoader loader = Caller.getCallerClassLoader(0);
+            Iterable<String> strings;
             if (args.length > 0)
-                iter = Arrays.asList(args);
+                strings = Arrays.asList(args);
             else {
                 logger.stdout("Enter class names or resource paths: ");
-                iter = new InputStreamSource(System.in).tooling()._for(StreamReading.class).listLines();
+                strings = new InputStreamSource(System.in).tooling()._for(StreamReading.class).lines();
             }
-            for (String name : iter) {
+            for (String name : strings) {
                 name = name.trim();
                 URL url = findResource(loader, name);
                 if (url == null)
@@ -261,19 +255,20 @@ public class FindClassResource
     }
 
     @Override
-    protected void _boot() {
+    protected void _boot()
+            throws Exception {
         if (filter == null)
-            filter = new FileFilter() {
+            filter = new IFileFilter() {
                 @Override
-                public boolean accept(File file) {
-                    String ext = FilePath.getExtension(file).toLowerCase();
+                public boolean accept(IFile file) {
+                    String ext = FilePath.getExtension(file.getName()).toLowerCase();
                     return JAR_EXTENSIONS.matcher(ext).matches();
                 }
             };
     }
 
     public static void main(String[] args)
-            throws Throwable {
+            throws Exception {
         new FindClassResource().execute(args);
     }
 

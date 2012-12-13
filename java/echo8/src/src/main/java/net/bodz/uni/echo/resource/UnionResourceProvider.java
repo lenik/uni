@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 
-import net.bodz.bas.collection.preorder.PrefixMap;
+import net.bodz.bas.t.preorder.PrefixMap;
 
 public class UnionResourceProvider
         implements IResourceProvider {

@@ -2,7 +2,7 @@ package net.bodz.bas.html;
 
 import java.util.Map;
 
-import net.bodz.bas.util.order.IPriority;
+import net.bodz.bas.t.order.IPriority;
 
 public interface IPageGenerator
         extends IPriority {

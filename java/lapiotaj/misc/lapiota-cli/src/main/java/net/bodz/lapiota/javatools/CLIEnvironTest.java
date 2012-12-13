@@ -1,4 +1,4 @@
-package net.bodz.lapiota.filesys;
+package net.bodz.lapiota.javatools;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,7 +10,7 @@ import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.util.order.ComparableComparator;
+import net.bodz.bas.t.order.ComparableComparator;
 
 /**
  * Dump arguments for CLI program
@@ -18,7 +18,7 @@ import net.bodz.bas.util.order.ComparableComparator;
 @MainVersion({ 0, 1 })
 @RcsKeywords(id = "$Id: Rcs.java 784 2008-01-15 10:53:24Z lenik $")
 @ProgramName("jenv")
-public class CLIEnvironmentTest
+public class CLIEnvironTest
         extends BasicCLI {
 
     /**
@@ -58,7 +58,7 @@ public class CLIEnvironmentTest
 
     public static void main(String[] args)
             throws Throwable {
-        new CLIEnvironmentTest().execute(args);
+        new CLIEnvironTest().execute(args);
     }
 
 }

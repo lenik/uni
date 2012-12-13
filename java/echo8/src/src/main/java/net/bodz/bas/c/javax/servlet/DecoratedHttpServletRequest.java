@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
-import net.bodz.bas.model.AbstractProxy;
+import net.bodz.bas.t.model.AbstractProxy;
 
 /**
  * @see HttpServletRequestWrapper

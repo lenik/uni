@@ -1,7 +1,7 @@
 package net.bodz.uni.echo.config;
 
 import net.bodz.bas.c.object.UseNet;
-import net.bodz.bas.util.order.AbstractNonNullComparator;
+import net.bodz.bas.t.order.AbstractNonNullComparator;
 
 public class PluginDescriptorComparator
         extends AbstractNonNullComparator<IPluginDescriptor> {

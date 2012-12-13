@@ -23,7 +23,7 @@ import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.IPrintOut;
 import net.bodz.bas.sio.PrintStreamPrintOut;
 import net.bodz.bas.sio.Stdio;
-import net.bodz.bas.util.order.TableOrderComparator;
+import net.bodz.bas.t.order.TableOrderComparator;
 import net.bodz.lapiota.util.StringUtil;
 
 /**

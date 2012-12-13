@@ -1,6 +1,6 @@
 package net.bodz.uni.echo.client;
 
-import net.bodz.bas.lang.ControlExit;
+import net.bodz.bas.err.control.ControlExit;
 import net.bodz.uni.echo.server.EchoServer;
 
 public class QuitCommand

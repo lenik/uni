@@ -28,8 +28,8 @@ import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.IPrintOut;
-import net.bodz.bas.util.Pair;
-import net.bodz.bas.util.order.EntryKeyComparator;
+import net.bodz.bas.t.order.EntryKeyComparator;
+import net.bodz.bas.t.pojo.Pair;
 import net.bodz.lapiota.util.StringUtil;
 import net.bodz.lapiota.util.TypeExtensions.XPathParser;
 

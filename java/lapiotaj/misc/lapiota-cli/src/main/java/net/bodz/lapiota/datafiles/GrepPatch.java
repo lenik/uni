@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.EditResult;
@@ -13,7 +14,6 @@ import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.util.Nullables;
 import net.bodz.bas.vfs.IFile;
 
 /**
