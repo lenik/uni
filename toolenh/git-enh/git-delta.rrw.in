@@ -61,7 +61,7 @@
         esac
 
         # Max. 10 kLOC before push.
-        gauge $project 0:10000 \
+        gauge $project -10000:10000 \
             on 2hr timeout \
             on deltas read d_$project
 
@@ -76,10 +76,10 @@
             --watermark "`date`" \
             --vertical-label "SLOC" \
             --right-axis-label "(unmerged)" \
-            --lower-limit 0 \
             --right-axis 1:0 \
             --x-grid MINUTE:10:HOUR:1:MINUTE:120:0:%R \
             --alt-y-grid --rigid \
+            --lower-limit -1000
 
         def delta = $project:LAST
         def mean = $project:AVERAGE
@@ -106,10 +106,10 @@
             --watermark "`date`" \
             --vertical-label "Σ SLOC" \
             --right-axis-label "(unmerged)" \
-            --lower-limit 0 \
             --right-axis 1:0 \
             --x-grid MINUTE:10:HOUR:1:MINUTE:120:0:%R \
             --alt-y-grid --rigid \
+            --lower-limit -1000
 
         index=0
         while IFS=: read project label gitdir; do

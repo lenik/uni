@@ -27,6 +27,15 @@ function setopt() {
 function main() {
     if [ $# = 0 ]; then
         set origin/master
+        prev=origin/master
+    else
+        prev="$1"
+    fi
+
+    if ! prev_c=`git rev-parse "$prev" 2>/dev/null`; then
+        _warn "Unknown prev ref name: $prev"
+        echo 0
+        return 1
     fi
 
     patchf=`tempfile`
@@ -43,7 +52,7 @@ function main() {
     minus=${removed[0]}
 
     _log2 "Added $plus lines, removed $minus lines."
-    echo $(( plus - minus))
+    echo $(( plus - minus ))
 }
 
 boot "$@"
