@@ -5,10 +5,9 @@ import java.net.URL;
 public class ClassResourceProvider
         extends AbstractResourceProvider {
 
-    Class<?> clazz;
+    private final Class<?> clazz;
 
-    public ClassResourceProvider(Class<?> clazz, String rootPath) {
-        super(rootPath);
+    public ClassResourceProvider(Class<?> clazz) {
         if (clazz == null)
             throw new NullPointerException("clazz");
         this.clazz = clazz;

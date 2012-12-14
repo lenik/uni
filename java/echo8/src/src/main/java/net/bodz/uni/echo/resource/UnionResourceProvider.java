@@ -1,50 +1,65 @@
 package net.bodz.uni.echo.resource;
 
+import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 
-import net.bodz.bas.t.preorder.PrefixMap;
+import net.bodz.bas.t.order.PriorityComparator;
 
 public class UnionResourceProvider
-        implements IResourceProvider {
+        extends AbstractResourceProvider
+        implements Iterable<IResourceProvider> {
 
-    PrefixMap<List<IResourceProvider>> prefixMap;
+    private Set<IResourceProvider> resourceProviders;
 
-    public UnionResourceProvider() {
-        prefixMap = new PrefixMap<>();
+    public UnionResourceProvider(boolean sorted) {
+        if (sorted)
+            resourceProviders = new TreeSet<>(PriorityComparator.INSTANCE);
+        else
+            resourceProviders = new LinkedHashSet<>();
+    }
+
+    public boolean isEmpty() {
+        return resourceProviders.isEmpty();
     }
 
     @Override
-    public int getPriority() {
-        return 0;
+    public Iterator<IResourceProvider> iterator() {
+        return resourceProviders.iterator();
+    }
+
+    public void add(IResourceProvider resourceProvider) {
+        if (resourceProvider == null)
+            throw new NullPointerException("resourceProvider");
+        resourceProviders.add(resourceProvider);
+    }
+
+    public void remove(IResourceProvider resourceProvider) {
+        if (resourceProvider == null)
+            throw new NullPointerException("resourceProvider");
+        resourceProviders.remove(resourceProvider);
     }
 
     @Override
-    public List<String> getPrefixes() {
-        return Arrays.asList("");
-    }
-
-    @Override
-    public URL getResource(String path) {
-        Entry<String, List<IResourceProvider>> entry = prefixMap.meetEntry(path);
-        while (entry != null) {
-            for (IResourceProvider provider : entry.getValue()) {
-
-                URL resource = provider.getResource(path);
-                if (resource != null)
-                    return resource;
-
-                entry = prefixMap.higherEntry(entry.getKey());
-                if (entry == null)
-                    break;
-                String prefix = entry.getKey();
-                if (!path.startsWith(prefix))
-                    break;
-            }
+    public URL getResource(String path)
+            throws IOException {
+        for (IResourceProvider resourceProvider : resourceProviders) {
+            URL resource = resourceProvider.getResource(path);
+            if (resource != null)
+                return resource;
         }
         return null;
+    }
+
+    @Override
+    public void findResources(List<URL> resources, String path)
+            throws IOException {
+        for (IResourceProvider resourceProvider : resourceProviders)
+            resourceProvider.findResources(resources, path);
     }
 
 }
