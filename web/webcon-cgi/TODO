@@ -1,0 +1,17 @@
+
+
+develop test modules:
+	Test::SimpleTest
+
+
+working stack
+
+	genlayout (util)
+		mp3::ext-info (first unit & test example, for config.pm)
+			config
+				listdir
+				sel_op
+
+	stand-out web filemanager
+		webcon
+			utility on sf.net / own remote manager
