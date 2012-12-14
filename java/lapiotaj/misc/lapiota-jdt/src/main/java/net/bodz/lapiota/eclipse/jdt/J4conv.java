@@ -78,7 +78,7 @@ public class J4conv
     @Override
     protected EditResult doEdit(IFile in, IFile out)
             throws Exception {
-        if (!"java".equals(FilePath.getExtension(in.getName())))
+        if (!".java".equals(FilePath.getExtension(in.getName(), true)))
             return null;
 
         String src = in.tooling()._for(StreamReading.class).readTextContents();

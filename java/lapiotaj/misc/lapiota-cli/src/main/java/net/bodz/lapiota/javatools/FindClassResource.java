@@ -251,7 +251,7 @@ public class FindClassResource
 
     private static Pattern JAR_EXTENSIONS;
     static {
-        JAR_EXTENSIONS = Pattern.compile("(.ar|zip)", Pattern.CASE_INSENSITIVE);
+        JAR_EXTENSIONS = Pattern.compile("([a-z]ar|zip)", Pattern.CASE_INSENSITIVE);
     }
 
     @Override
@@ -262,7 +262,10 @@ public class FindClassResource
                 @Override
                 public boolean accept(IFile file) {
                     String ext = FilePath.getExtension(file.getName()).toLowerCase();
-                    return JAR_EXTENSIONS.matcher(ext).matches();
+                    if (ext == null)
+                        return false;
+                    else
+                        return JAR_EXTENSIONS.matcher(ext).matches();
                 }
             };
     }

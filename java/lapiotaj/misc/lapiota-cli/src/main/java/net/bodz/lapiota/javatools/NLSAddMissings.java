@@ -10,6 +10,7 @@ import java.util.Set;
 
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.java.util.Collections;
+import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.skel.BasicCLI;
@@ -85,6 +86,7 @@ public class NLSAddMissings
             logger.warn("Skipped non-properties file: ", file);
             return;
         }
+
         Properties master = file.tooling()._for(StreamLoading.class).loadProperties();
         Enumeration<String> _enum = (Enumeration<String>) master.propertyNames();
         Set<String> masterNames = Collections.toSet(_enum);
@@ -98,7 +100,7 @@ public class NLSAddMissings
             public boolean accept(IFile dir, String filename) {
                 String fbase = FilePath.stripExtension(filename);
                 String fext = FilePath.getExtension(filename);
-                if (!fext.equals(ext)) // extension must be same
+                if (!Nullables.equals(fext, ext)) // extension must be same
                     return false;
                 if (fbase.equals(base)) // self, ignore
                     return false;
