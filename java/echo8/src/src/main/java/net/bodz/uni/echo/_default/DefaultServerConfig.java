@@ -32,7 +32,6 @@ public class DefaultServerConfig
         ServletDescriptor unionServlet = addServlet(EchoResourceServlet.class, "/");
         unionServlet.setPriority(PRIORITY_FALLBACK);
         unionServlet.setInitParam("welcomeServlets", "true");
-        addServlet(unionServlet);
     }
 
 }

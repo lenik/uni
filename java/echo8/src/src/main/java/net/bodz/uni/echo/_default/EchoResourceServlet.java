@@ -2,11 +2,11 @@ package net.bodz.uni.echo._default;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.UnavailableException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,13 +16,14 @@ import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.util.resource.Resource;
 
 import net.bodz.bas.c.java.io.FilePath;
-import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.io.resource.builtin.OutputStreamTarget;
 import net.bodz.bas.io.resource.builtin.URLResource;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.io.resource.tools.StreamWriting;
 import net.bodz.bas.std.rfc.mime.ContentType;
+import net.bodz.bas.std.rfc.mime.ContentTypes;
 import net.bodz.uni.echo.resource.IResourceProvider;
+import net.bodz.uni.echo.server.EchoServer;
 import net.bodz.uni.echo.server.EchoServletContextHandler;
 
 /**
@@ -39,7 +40,17 @@ public class EchoResourceServlet
     IResourceProvider resourceProvider;
 
     public EchoResourceServlet() {
-        generateIndex = false; // TODO configurable.
+        // TODO configurable.
+        generateIndex = false;
+    }
+
+    @Override
+    public void init()
+            throws UnavailableException {
+        super.init();
+
+        EchoServer echoServer = EchoServer.fromContext(getServletContext());
+        resourceProvider = echoServer.getResourceProvider();
     }
 
     /**
@@ -48,33 +59,25 @@ public class EchoResourceServlet
      */
     @Override
     public Resource getResource(String pathInContext) {
-        logger.debug("Get overlapped resource: " + pathInContext);
+        logger.debug("get-resource: " + pathInContext);
 
-        URL resourceUrl = resourceProvider.getResource(pathInContext);
-
-        // Not in search-bases, fallback to the default one (which is resource-base based).
-        if (resourceUrl == null) {
-            // .jsf => .xhtml
-            if (pathInContext.endsWith(".jsf")) {
-                String xhtmlPath = pathInContext.substring(0, pathInContext.length() - 4) + ".xhtml";
-                URL xhtmlUrl = resourceProvider.getResource(xhtmlPath);
-                if (xhtmlUrl != null) {
-                    String _url = xhtmlUrl.toString();
-                    _url = _url.substring(0, _url.length() - 6) + ".jsf";
-                    try {
-                        resourceUrl = new URL(_url);
-                    } catch (MalformedURLException e) {
-                        throw new UnexpectedException("URL subst should work for: " + _url, e);
-                    }
-                }
-            }
-
-            if (resourceUrl == null)
-                return null;
-            else {
-                logger.debug("Resolved as servlet path: " + resourceUrl);
-            }
+        URL resourceUrl;
+        try {
+            String resourcePath = pathInContext;
+            while (resourcePath.startsWith("/"))
+                resourcePath = resourcePath.substring(1);
+            resourceUrl = resourceProvider.getResource(resourcePath);
+        } catch (IOException e) {
+            logger.ignore(e);
+            return null;
         }
+
+        if (resourceUrl == null)
+            // Not in search-bases, fallback to the default one (which is resource-base based).
+            // return super.getResource(pathInContext);
+            return null;
+
+        logger.debug("Resolved as servlet path: " + resourceUrl);
 
         Resource resource;
         try {
@@ -139,8 +142,10 @@ public class EchoResourceServlet
             return;
         }
 
+        ContentType contentType = ContentTypes.application_octet_stream; // null;
         String extension = FilePath.getExtension(path);
-        ContentType contentType = ContentType.forExtension(extension);
+        if (extension != null)
+            contentType = ContentType.forExtension(extension);
 
         if (contentType != null)
             resp.setContentType(contentType.getName());

@@ -1,16 +1,23 @@
 package net.bodz.uni.echo.config;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.Servlet;
 
+import net.bodz.mda.xjdoc.conv.ClassDocs;
+import net.bodz.mda.xjdoc.model.ClassDoc;
+
 public class ServletDescriptor
         extends AbstractPluginDescriptor {
 
+    private static final long serialVersionUID = 1L;
+
     Class<? extends Servlet> servletClass;
-    List<String> mappings;
-    Map<String, String> initParameterMap;
+    List<String> mappings = new ArrayList<>();
+    Map<String, String> initParameterMap = new HashMap<>();
 
     public ServletDescriptor(Class<? extends Servlet> servletClass) {
         this(null, servletClass);
@@ -21,6 +28,29 @@ public class ServletDescriptor
         if (servletClass == null)
             throw new NullPointerException("servletClass");
         this.servletClass = servletClass;
+
+        ClassDoc classDoc = ClassDocs.loadFromResource(servletClass);
+        if (classDoc != null)
+            // TODO Elements.copy(this, classDoc);
+            setDisplayName(classDoc.getText().headPar());
+    }
+
+    /**
+     * Get the initialize order. Holders with order<0, are initialized on use. Those with order>=0
+     * are initialized in increasing order when the handler is started.
+     */
+    @Override
+    public int getPriority() {
+        return super.getPriority();
+    }
+
+    /**
+     * Set the initialize order. Holders with order<0, are initialized on use. Those with order>=0
+     * are initialized in increasing order when the handler is started.
+     */
+    @Override
+    public void setPriority(int priority) {
+        super.setPriority(priority);
     }
 
     public Class<? extends Servlet> getServletClass() {

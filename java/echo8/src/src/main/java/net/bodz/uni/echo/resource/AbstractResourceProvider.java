@@ -10,9 +10,14 @@ import net.bodz.bas.meta.decl.Priority;
 public abstract class AbstractResourceProvider
         implements IResourceProvider {
 
+    String name;
     int priority;
 
-    public AbstractResourceProvider() {
+    public AbstractResourceProvider(String name) {
+        if (name == null)
+            throw new NullPointerException("name");
+        this.name = name;
+
         Priority _priority = getClass().getAnnotation(Priority.class);
         if (_priority != null)
             priority = _priority.value();
@@ -41,6 +46,11 @@ public abstract class AbstractResourceProvider
         URL resource = getResource(path);
         if (resource != null)
             resources.add(resource);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
 }

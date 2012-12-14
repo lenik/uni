@@ -14,25 +14,43 @@ import net.bodz.uni.echo.resource.IResourceProvider;
 public class EchoServletContextHandler
         extends ServletContextHandler {
 
-    // static Logger logger = LoggerFactory.getLogger(EchoServletContextHandler.class);
     static Logger logger = Log.getLogger(EchoServletContextHandler.class);
 
-    IResourceProvider resourceProvider;
+    private EchoServer echoServer;
+    private IResourceProvider resourceProvider;
 
-    public EchoServletContextHandler(int options) {
+    public EchoServletContextHandler(EchoServer echoServer) {
+        this(echoServer, SECURITY | SESSIONS);
+    }
+
+    public EchoServletContextHandler(EchoServer echoServer, int options) {
         super(options);
+        this.echoServer = echoServer;
+        this.resourceProvider = echoServer.getResourceProvider();
+    }
+
+    public EchoServer getEchoServer() {
+        return echoServer;
     }
 
     @Override
     public Resource getResource(String path)
             throws MalformedURLException {
-
-        // logger.debug("OC::GET " + path);
+        logger.debug("get-resource: " + path);
 
         if (path == null || !path.startsWith("/"))
             throw new MalformedURLException(path);
 
-        URL resourceUrl = resourceProvider.getResource(path);
+        URL resourceUrl;
+        try {
+            String resourcePath = path;
+            while (resourcePath.startsWith("/"))
+                resourcePath = resourcePath.substring(1);
+            resourceUrl = resourceProvider.getResource(resourcePath);
+        } catch (IOException e) {
+            logger.ignore(e);
+            return null;
+        }
 
         // Not in search-bases, fallback to the default one (which is resource-base based).
         if (resourceUrl == null)

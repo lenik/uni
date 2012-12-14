@@ -16,7 +16,8 @@ public class UnionResourceProvider
 
     private Set<IResourceProvider> resourceProviders;
 
-    public UnionResourceProvider(boolean sorted) {
+    public UnionResourceProvider(String name, boolean sorted) {
+        super("union:" + name);
         if (sorted)
             resourceProviders = new TreeSet<>(PriorityComparator.INSTANCE);
         else

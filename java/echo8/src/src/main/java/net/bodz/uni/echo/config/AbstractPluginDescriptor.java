@@ -2,11 +2,13 @@ package net.bodz.uni.echo.config;
 
 import net.bodz.bas.c.object.IdentityHashSet;
 import net.bodz.bas.c.object.ObjectInfo;
-import net.bodz.mda.xjdoc.model1.ArtifactObject;
+import net.bodz.bas.i18n.dom1.SimpleElement;
 
 public abstract class AbstractPluginDescriptor
-        extends ArtifactObject
+        extends SimpleElement
         implements IPluginDescriptor {
+
+    private static final long serialVersionUID = 1L;
 
     String id;
     int priority;

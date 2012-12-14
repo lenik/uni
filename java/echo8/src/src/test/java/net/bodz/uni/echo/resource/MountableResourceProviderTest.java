@@ -10,11 +10,11 @@ public class MountableResourceProviderTest
         extends AbstractResourceProviderTest {
 
     static MappedResourceProvider createMap(String... args) {
-        return MappedResourceProvider.createFromMap(TextMaps.create(args));
+        return ResourceProviders.createFromMap(TextMaps.create(args));
     }
 
     static MountableResourceProvider create(boolean unionAuto, boolean unionSorted) {
-        MountableResourceProvider result = new MountableResourceProvider();
+        MountableResourceProvider result = new MountableResourceProvider("test");
         result.setUnionAuto(unionAuto);
         result.setUnionSorted(unionSorted);
 

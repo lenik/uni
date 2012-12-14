@@ -14,13 +14,13 @@ public class UnionResourceProviderTest
     UnionResourceProvider sorted;
 
     static MappedResourceProvider createMap(String... args) {
-        return MappedResourceProvider.createFromMap(TextMaps.create(args));
+        return ResourceProviders.createFromMap(TextMaps.create(args));
     }
 
     @Before
     public void init() {
-        unsorted = new UnionResourceProvider(false);
-        sorted = new UnionResourceProvider(true);
+        unsorted = new UnionResourceProvider("unsorted", false);
+        sorted = new UnionResourceProvider("sorted", true);
 
         MappedResourceProvider map1 = createMap("a", "a-1", "b", "b-1");
         MappedResourceProvider map2 = createMap("a", "a-2", "c", "c-2");

@@ -4,14 +4,20 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
+
 public class MountableResourceProvider
         extends AbstractResourceProvider {
+
+    static final Logger logger = LoggerFactory.getLogger(MountableResourceProvider.class);
 
     private MountPoint root;
     private boolean unionAuto = true;
     private boolean unionSorted = false;
 
-    public MountableResourceProvider() {
+    public MountableResourceProvider(String name) {
+        super("root:" + name);
         root = new MountPoint(null);
     }
 
@@ -45,7 +51,7 @@ public class MountableResourceProvider
             if (existing instanceof UnionResourceProvider)
                 union = (UnionResourceProvider) existing;
             else {
-                union = new UnionResourceProvider(unionSorted);
+                union = new UnionResourceProvider("auto", unionSorted);
                 union.add(existing);
             }
             union.add(resourceProvider);

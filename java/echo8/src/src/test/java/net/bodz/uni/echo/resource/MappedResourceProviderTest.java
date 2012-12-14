@@ -13,7 +13,7 @@ public class MappedResourceProviderTest
     MappedResourceProvider provider;
 
     static MappedResourceProvider create(String... args) {
-        return MappedResourceProvider.createFromMap(TextMaps.create(args));
+        return ResourceProviders.createFromMap(TextMaps.create(args));
     }
 
     @Before

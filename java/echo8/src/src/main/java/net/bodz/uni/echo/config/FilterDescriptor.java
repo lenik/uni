@@ -9,8 +9,13 @@ import java.util.Map;
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 
+import net.bodz.mda.xjdoc.conv.ClassDocs;
+import net.bodz.mda.xjdoc.model.ClassDoc;
+
 public class FilterDescriptor
         extends AbstractPluginDescriptor {
+
+    private static final long serialVersionUID = 1L;
 
     Class<? extends Filter> filterClass;
     List<String> mappings = new ArrayList<String>();
@@ -28,6 +33,11 @@ public class FilterDescriptor
         if (filterClass == null)
             throw new NullPointerException("filterClass");
         this.filterClass = filterClass;
+
+        ClassDoc classDoc = ClassDocs.loadFromResource(filterClass);
+        if (classDoc != null)
+            // TODO Elements.copy(this, classDoc);
+            setDisplayName(classDoc.getText().headPar());
     }
 
     public Class<? extends Filter> getFilterClass() {

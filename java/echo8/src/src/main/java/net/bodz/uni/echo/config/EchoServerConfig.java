@@ -11,9 +11,12 @@ import java.util.TreeMap;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
+import org.apache.commons.collections15.map.HashedMap;
+
 import net.bodz.bas.c.object.UseNet;
 import net.bodz.bas.err.DuplicatedKeyException;
 import net.bodz.bas.t.order.PrioritySortedLists;
+import net.bodz.uni.echo.resource.IResourceProvider;
 
 public class EchoServerConfig {
 
@@ -23,46 +26,47 @@ public class EchoServerConfig {
     public static final int PRIORITY_LOW = 100;
     public static final int PRIORITY_FALLBACK = 10000;
 
+    IResourceProvider resourceProvider;
+    Map<String, String> extensionMap;
+
     String hostName;
     int portNumber;
     String contextPath = "";
 
-    List<String> welcomeFiles;
+    List<String> welcomeFiles = new ArrayList<>();
+    Map<String, String> initParamMap = new HashedMap<>();
 
-    UseNet<IPluginDescriptor> pluginNet;
-    PluginDescriptorComparator pluginCmp;
-    Map<String, ServletDescriptor> servletMap;
-    Map<String, FilterDescriptor> filterMap;
+    UseNet<IPluginDescriptor> pluginNet = new UseNet<>();
+    PluginDescriptorComparator pluginCmp = new PluginDescriptorComparator(pluginNet);
+    Map<String, ServletDescriptor> servletMap = new TreeMap<>();
+    Map<String, FilterDescriptor> filterMap = new TreeMap<>();
     int servletIndex;
     int filterIndex;
 
-    List<IServletContextListener> servletContextListeners;
-    List<IServletRequestListener> servletRequestListeners;
-    List<IServletContextAttributeListener> servletContextAttributeListeners;
-    List<IServletRequestAttributeListener> servletRequestAttributeListeners;
+    List<IServletContextListener> servletContextListeners = new ArrayList<>();
+    List<IServletRequestListener> servletRequestListeners = new ArrayList<>();
+    List<IServletContextAttributeListener> servletContextAttributeListeners = new ArrayList<>();
+    List<IServletRequestAttributeListener> servletRequestAttributeListeners = new ArrayList<>();
 
-    List<IHttpSessionListener> sessionListeners;
-    List<IHttpSessionAttributeListener> sessionAttributeListeners;
-    List<IHttpSessionActivationListener> sessionActivationListeners;
-    List<IHttpSessionBindingListener> sessionBindingListeners;
+    List<IHttpSessionListener> sessionListeners = new ArrayList<>();
+    List<IHttpSessionAttributeListener> sessionAttributeListeners = new ArrayList<>();
+    List<IHttpSessionActivationListener> sessionActivationListeners = new ArrayList<>();
+    List<IHttpSessionBindingListener> sessionBindingListeners = new ArrayList<>();
 
-    public EchoServerConfig() {
-        welcomeFiles = new ArrayList<>();
+    public IResourceProvider getResourceProvider() {
+        return resourceProvider;
+    }
 
-        pluginNet = new UseNet<>();
-        pluginCmp = new PluginDescriptorComparator(pluginNet);
-        servletMap = new TreeMap<>();
-        filterMap = new TreeMap<>();
+    public void setResourceProvider(IResourceProvider resourceProvider) {
+        this.resourceProvider = resourceProvider;
+    }
 
-        servletContextListeners = new ArrayList<IServletContextListener>();
-        servletRequestListeners = new ArrayList<IServletRequestListener>();
-        servletContextAttributeListeners = new ArrayList<IServletContextAttributeListener>();
-        servletRequestAttributeListeners = new ArrayList<IServletRequestAttributeListener>();
+    public Map<String, String> getExtensionMap() {
+        return extensionMap;
+    }
 
-        sessionListeners = new ArrayList<IHttpSessionListener>();
-        sessionAttributeListeners = new ArrayList<IHttpSessionAttributeListener>();
-        sessionActivationListeners = new ArrayList<IHttpSessionActivationListener>();
-        sessionBindingListeners = new ArrayList<IHttpSessionBindingListener>();
+    public void setExtensionMap(Map<String, String> extensionMap) {
+        this.extensionMap = extensionMap;
     }
 
     public String getHostName(String fallback) {
@@ -96,7 +100,7 @@ public class EchoServerConfig {
         if (contextPath == null)
             throw new NullPointerException("contextPath");
         if (!contextPath.isEmpty())
-            if (contextPath.startsWith("/"))
+            if (!contextPath.startsWith("/"))
                 throw new IllegalArgumentException("Context path must be empty or start with slash.");
         this.contextPath = contextPath;
     }
@@ -134,6 +138,18 @@ public class EchoServerConfig {
         if (welcomeFile == null)
             throw new NullPointerException("welcomeFile");
         welcomeFiles.remove(welcomeFile);
+    }
+
+    public Map<String, String> getInitParamMap() {
+        return initParamMap;
+    }
+
+    public void setInitParam(String key, String value) {
+        initParamMap.put(key, value);
+    }
+
+    public void removeInitParam(String key, String value) {
+        initParamMap.remove(key);
     }
 
     public Map<String, ServletDescriptor> getServletMap() {

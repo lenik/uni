@@ -7,16 +7,16 @@ import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.sio.IPrintOut;
 import net.bodz.uni.echo.config.EchoServerConfig;
 
-public class ShowCommand
+public class PrintCommand
         extends AbstractEchoClientCommand {
 
-    static final Logger logger = LoggerFactory.getLogger(ShowCommand.class);
+    static final Logger logger = LoggerFactory.getLogger(PrintCommand.class);
 
     EchoClient client;
     EchoServerConfig config;
     IPrintOut out;
 
-    public ShowCommand(EchoClient client, IPrintOut out) {
+    public PrintCommand(EchoClient client, IPrintOut out) {
         this.client = client;
         this.out = out;
     }
@@ -26,6 +26,7 @@ public class ShowCommand
             throws Exception {
         if (args.length == 0) {
             logger.error("No variable name specified.");
+            return;
         }
         String var = args[0];
         switch (var) {

@@ -54,7 +54,7 @@ public abstract class EchoTestApp
     }
 
     protected EchoServerConfig createConfig() {
-        return new EchoServerConfig();
+        return new TestServerConfig();
     }
 
     @Before

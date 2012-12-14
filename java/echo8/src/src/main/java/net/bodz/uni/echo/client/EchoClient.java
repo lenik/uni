@@ -19,6 +19,7 @@ import net.bodz.bas.err.control.ControlExit;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.sio.IPrintOut;
+import net.bodz.bas.sio.Stdio;
 import net.bodz.bas.t.pojo.Pair;
 import net.bodz.uni.echo.config.EchoServerConfig;
 import net.bodz.uni.echo.server.EchoServer;
@@ -31,15 +32,23 @@ public class EchoClient {
     EchoServer server;
     EchoServerConfig config;
     String location = "";
-    Map<String, IEchoClientCommand> commandMap = new TreeMap<String, IEchoClientCommand>();
 
-    IPrintOut out;
-    IPrintOut err;
+    Map<String, IEchoClientCommand> commandMap = new TreeMap<String, IEchoClientCommand>();
+    BrowseCommand browseCommand;
+
+    IPrintOut out = Stdio.cout;
+    IPrintOut err = Stdio.cerr;
 
     public EchoClient(EchoServer server) {
         if (server == null)
             throw new NullPointerException("server");
         this.server = server;
+        this.config = server.getConfig();
+
+        commandMap.put("p", new PrintCommand(this, out));
+        commandMap.put("b", browseCommand = new BrowseCommand(this, config));
+        commandMap.put("h", new HelpCommand(this, out));
+        commandMap.put("q", new QuitCommand(server));
     }
 
     public String getLocation() {
@@ -157,6 +166,19 @@ public class EchoClient {
         out.println(http.getContent());
     }
 
+    public void go(String location)
+            throws IOException {
+        setLocation(location);
+
+        try {
+            browseCommand.execute();
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
+        mainLoop();
+    }
+
     public void mainLoop()
             throws IOException {
         BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
@@ -168,6 +190,8 @@ public class EchoClient {
                 break;
 
             line = line.trim();
+            if (line.isEmpty())
+                continue;
 
             String[] args = StringQuoted.split(line, ' ');
             Pair<String, String[]> cmdArgs = Arrays.shift(args);

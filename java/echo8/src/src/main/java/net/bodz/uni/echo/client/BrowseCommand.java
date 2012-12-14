@@ -20,10 +20,13 @@ public class BrowseCommand
     EchoServerConfig config;
     String systemBrowser;
 
-    public BrowseCommand(EchoClient client) {
+    public BrowseCommand(EchoClient client, EchoServerConfig config) {
         if (client == null)
             throw new NullPointerException("client");
+        if (config == null)
+            throw new NullPointerException("config");
         this.client = client;
+        this.config = config;
     }
 
     String findSystemBrowser() {
@@ -43,12 +46,13 @@ public class BrowseCommand
     @Override
     public void execute(String... args)
             throws Exception {
-        if (args.length == 0) {
-            logger.error("location isn't specified.");
-            return;
-        }
+        String location;
 
-        String location = args[0];
+        if (args.length == 0)
+            location = client.location;
+        else
+            location = args[0];
+
         URL url = config.toURL(location);
         logger.info("Browse: " + url);
 

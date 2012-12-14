@@ -8,8 +8,7 @@ public class ClassResourceProvider
     private final Class<?> clazz;
 
     public ClassResourceProvider(Class<?> clazz) {
-        if (clazz == null)
-            throw new NullPointerException("clazz");
+        super("class:" + clazz.getName());
         this.clazz = clazz;
     }
 

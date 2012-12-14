@@ -29,7 +29,7 @@ public class EchoTestAppTest
 
     public static void main(String[] args)
             throws Exception {
-        new EchoTestAppTest().makeClient().mainLoop();
+        new EchoTestAppTest().makeClient().go("");
     }
 
 }
