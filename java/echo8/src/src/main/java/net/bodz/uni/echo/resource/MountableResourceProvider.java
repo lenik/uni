@@ -15,6 +15,26 @@ public class MountableResourceProvider
         root = new MountPoint(null);
     }
 
+    public boolean isUnionAuto() {
+        return unionAuto;
+    }
+
+    public void setUnionAuto(boolean unionAuto) {
+        this.unionAuto = unionAuto;
+    }
+
+    public boolean isUnionSorted() {
+        return unionSorted;
+    }
+
+    public void setUnionSorted(boolean unionSorted) {
+        this.unionSorted = unionSorted;
+    }
+
+    public MountPoint getRoot() {
+        return root;
+    }
+
     public synchronized void mount(String path, IResourceProvider resourceProvider) {
         MountPoint mountPoint = root.resolve(path);
 
@@ -33,10 +53,6 @@ public class MountableResourceProvider
         }
 
         mountPoint.setResourceProvider(resourceProvider);
-    }
-
-    public MountPoint getRoot() {
-        return root;
     }
 
     @Override
