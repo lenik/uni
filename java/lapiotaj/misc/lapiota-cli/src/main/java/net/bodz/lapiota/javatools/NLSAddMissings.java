@@ -19,9 +19,9 @@ import net.bodz.bas.io.resource.tools.StreamWriting;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.vfs.IFile;
-import net.bodz.bas.vfs.util.FileFinder;
-import net.bodz.bas.vfs.util.IFileFilter;
-import net.bodz.bas.vfs.util.IFilenameFilter;
+import net.bodz.bas.vfs.IFileFilter;
+import net.bodz.bas.vfs.IFilenameFilter;
+import net.bodz.bas.vfs.util.find.FileFinder;
 
 /**
  * Add missed entries for NLS property files

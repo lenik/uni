@@ -35,8 +35,8 @@ import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.meta.lang.TypeParameter;
 import net.bodz.bas.vfs.IFile;
-import net.bodz.bas.vfs.util.FileFinder;
-import net.bodz.bas.vfs.util.IFilenameFilter;
+import net.bodz.bas.vfs.IFilenameFilter;
+import net.bodz.bas.vfs.util.find.FileFinder;
 
 /**
  * Batch package-fragment (in *.jar or directory format) process

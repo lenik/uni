@@ -25,8 +25,8 @@ import net.bodz.bas.loader.Classpath;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.vfs.IFile;
-import net.bodz.bas.vfs.util.FileFinder;
-import net.bodz.bas.vfs.util.IFileFilter;
+import net.bodz.bas.vfs.IFileFilter;
+import net.bodz.bas.vfs.util.find.FileFinder;
 
 /**
  * Find the class file defined the specified class
