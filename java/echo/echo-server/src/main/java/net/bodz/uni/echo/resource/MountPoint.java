@@ -10,11 +10,13 @@ public final class MountPoint
 
     private IResourceProvider resourceProvider;
 
-    public MountPoint() {
+    public MountPoint(MountPoint parent) {
+        super(parent);
         this.resourceProvider = null;
     }
 
-    public MountPoint(IResourceProvider resourceProvider) {
+    public MountPoint(MountPoint parent, IResourceProvider resourceProvider) {
+        super(parent);
         this.resourceProvider = resourceProvider;
     }
 
@@ -33,7 +35,7 @@ public final class MountPoint
     @Override
     protected MountPoint newChild()
             throws CreateException {
-        return new MountPoint();
+        return new MountPoint(this);
     }
 
 }
