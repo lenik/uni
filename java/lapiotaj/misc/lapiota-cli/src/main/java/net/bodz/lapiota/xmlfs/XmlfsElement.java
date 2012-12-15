@@ -9,7 +9,7 @@ import org.dom4j.Element;
 import org.dom4j.QName;
 import org.dom4j.tree.AbstractElement;
 
-import net.bodz.bas.vfs.FileModifier;
+import net.bodz.bas.vfs.FileFlags;
 import net.bodz.bas.vfs.IFile;
 import net.bodz.bas.vfs.VFSException;
 
@@ -92,8 +92,8 @@ public class XmlfsElement
 
                 @Override
                 public String getValue() {
-                    int modifiers = file.getModifiers();
-                    return String.valueOf(FileModifier.format(modifiers));
+                    int modifiers = file.getFlags();
+                    return String.valueOf(FileFlags.format(modifiers));
                 }
             });
         }
