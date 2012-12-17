@@ -16,17 +16,13 @@ import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
 import net.bodz.bas.c.string.StringPart;
 import net.bodz.bas.cli.skel.BatchCLI;
-import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.vfs.IFile;
-import net.bodz.bas.xml.XMLs;
-import net.bodz.swt.program.SWTConfig;
 
 /**
  * Icon files batch converter
  */
-@BootInfo(userlibs = { "bodz_swt" }, configs = SWTConfig.class)
 @RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 1 })
 public class IconConv

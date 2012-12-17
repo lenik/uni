@@ -16,7 +16,6 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.*;
 
 import net.bodz.bas.cli.meta.ProgramName;
-import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.meta.compile.Win32Only;
@@ -36,7 +35,6 @@ import com.sun.jna.Pointer;
  *
  * @style width: 456; height: 375
  */
-@BootInfo(userlibs = { "bodz_jna", "jna" })
 @ProgramName("winedit")
 @RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 1 })

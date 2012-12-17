@@ -15,7 +15,6 @@ import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.resource.tools.StreamReading;
-import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.t.preorder.PrefixMap;
@@ -24,7 +23,6 @@ import net.bodz.bas.vfs.IFile;
 /**
  * Gather/Centralize Files
  */
-@BootInfo(syslibs = { "dom4j", "jaxen" })
 @RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 0 })
 public class Gather

@@ -28,7 +28,6 @@ import net.bodz.bas.cli.skel.FileHandler;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.resource.builtin.InputStreamSource;
 import net.bodz.bas.io.resource.tools.StreamReading;
-import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.vfs.IFile;
@@ -38,7 +37,6 @@ import net.bodz.lapiota.util.RefBinding;
 /**
  * An extensible file process program
  */
-@BootInfo(syslibs = "groovy")
 @ProgramName("jfor")
 @RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 1 })

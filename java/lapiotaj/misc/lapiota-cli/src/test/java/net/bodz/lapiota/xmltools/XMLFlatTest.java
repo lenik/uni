@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.junit.Test;
 
-import net.bodz.bas.snm.EclipseProject;
+import net.bodz.bas.snm.eclipse.EclipseProject;
 
 public class XMLFlatTest {
 

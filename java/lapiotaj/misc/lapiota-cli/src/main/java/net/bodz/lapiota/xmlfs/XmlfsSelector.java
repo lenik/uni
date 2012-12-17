@@ -11,7 +11,6 @@ import org.jaxen.XPath;
 
 import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.skel.BasicCLI;
-import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.vfs.IFile;
@@ -19,7 +18,6 @@ import net.bodz.bas.vfs.IFile;
 /**
  * Xmlfs XPath Selector
  */
-@BootInfo(syslibs = { "dom4j", "jaxen" })
 @ProgramName("xfss")
 @RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 1 })

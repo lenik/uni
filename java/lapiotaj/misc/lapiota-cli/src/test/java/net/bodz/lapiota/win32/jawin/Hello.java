@@ -11,11 +11,8 @@ import org.jawin.win32.Ole32;
 
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.loader.Classpath;
-import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.sio.Stdio;
-import net.bodz.lapiota.win32.JawinConfig;
 
-@BootInfo(userlibs = "%project", configs = JawinConfig.class)
 public class Hello
         extends BasicCLI {
 

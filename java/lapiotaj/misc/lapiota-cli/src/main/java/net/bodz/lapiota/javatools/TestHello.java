@@ -6,15 +6,12 @@ import org.eclipse.swt.widgets.Widget;
 
 import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.skel.BasicCLI;
-import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.swt.program.SWTConfig;
 
 /**
  * Hello World (Test Program)
  */
-@BootInfo(configs = SWTConfig.class)
 @ProgramName("jhello")
 @RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 0 })

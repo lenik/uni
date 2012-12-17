@@ -24,7 +24,6 @@ import org.dom4j.io.XMLWriter;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.err.UnexpectedException;
-import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.IPrintOut;
@@ -36,7 +35,6 @@ import net.bodz.lapiota.util.TypeExtensions.XPathParser;
 /**
  * Simple XML document batch editor
  */
-@BootInfo(syslibs = { "dom4j", "jaxen" })
 @RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 0 })
 public class XMLEdit

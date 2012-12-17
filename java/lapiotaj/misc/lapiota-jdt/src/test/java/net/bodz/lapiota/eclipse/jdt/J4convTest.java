@@ -2,8 +2,8 @@ package net.bodz.lapiota.eclipse.jdt;
 
 import java.io.File;
 
+import net.bodz.bas.c.m2.MavenProjectOrigin;
 import net.bodz.bas.cli.boot.win32.Mkbat;
-import net.bodz.bas.snm.MavenProjectOrigin;
 
 public class J4convTest {
 

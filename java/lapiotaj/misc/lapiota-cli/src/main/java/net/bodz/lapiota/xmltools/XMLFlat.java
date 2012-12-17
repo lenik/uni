@@ -17,7 +17,6 @@ import org.dom4j.XPath;
 import org.dom4j.io.SAXReader;
 
 import net.bodz.bas.cli.skel.BasicCLI;
-import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.IPrintOut;
@@ -29,7 +28,6 @@ import net.bodz.lapiota.util.StringUtil;
 /**
  * Convert XML document to plain table
  */
-@BootInfo(syslibs = { "dom4j", "jaxen" })
 @RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 1 })
 public class XMLFlat

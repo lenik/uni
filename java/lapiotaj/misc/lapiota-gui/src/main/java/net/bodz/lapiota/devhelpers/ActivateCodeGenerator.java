@@ -17,7 +17,6 @@ import org.eclipse.swt.widgets.Text;
 
 import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.gui.err.GUIException;
-import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.redist.obfuz.pm.ProtectException;
@@ -33,7 +32,6 @@ import net.bodz.swt.program.BasicGUI;
  * @style width: 400; height: 200
  * @website http://www.bodz.net/products/distins
  */
-@BootInfo(userlibs = "bodz_dist")
 @ProgramName("Abtsacg")
 @RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 1 })

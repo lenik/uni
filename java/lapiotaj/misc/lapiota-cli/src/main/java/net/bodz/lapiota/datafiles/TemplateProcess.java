@@ -23,7 +23,6 @@ import net.bodz.bas.err.ParseException;
 import net.bodz.bas.fn.EvalException;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.io.resource.tools.StreamWriting;
-import net.bodz.bas.loader.boot.BootInfo;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.vfs.IFile;
@@ -32,7 +31,6 @@ import net.bodz.lapiota.util.GroovyExpand;
 /**
  * General template processing
  */
-@BootInfo(syslibs = "groovy")
 @ProgramName("jsub")
 @RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 1 })
