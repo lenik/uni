@@ -2,7 +2,6 @@ package net.bodz.lapiota.devhelpers;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.eclipse.swt.widgets.Composite;
@@ -54,11 +53,7 @@ public class URLListEditor
         if ("jar".equals(protocol))
             s = StringPart.afterLast(s, '/');
         else if ("file".equals(protocol))
-            try {
-                s = new File(url.toURI()).getPath();
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e.getMessage(), e);
-            }
+            s = url.getFile();
         return s;
     }
 

@@ -59,11 +59,7 @@ public class URLResourceListEditor
         if ("jar".equals(protocol))
             s = StringPart.afterLast(s, '/');
         else if ("file".equals(protocol))
-            try {
-                s = new File(url.toURI()).getPath();
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e.getMessage(), e);
-            }
+            s = url.getFile();
         return s;
     }
 

@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -92,11 +91,7 @@ public class FindClassResource
             file = file.substring(4, pos);
         }
         url = new URL(file);
-        try {
-            file = new File(url.toURI()).getCanonicalPath();
-        } catch (URISyntaxException e) {
-            throw new Error(e.getMessage(), e);
-        }
+        file = FilePath.canoniOf(url).getPath();
         return file;
     }
 
