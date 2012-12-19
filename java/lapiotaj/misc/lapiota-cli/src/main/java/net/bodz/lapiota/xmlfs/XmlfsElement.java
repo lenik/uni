@@ -11,7 +11,7 @@ import org.dom4j.tree.AbstractElement;
 
 import net.bodz.bas.vfs.FileFlags;
 import net.bodz.bas.vfs.IFile;
-import net.bodz.bas.vfs.VFSException;
+import net.bodz.bas.vfs.VfsException;
 
 public class XmlfsElement
         extends AbstractElement {
@@ -120,7 +120,7 @@ public class XmlfsElement
                         XmlfsElement e = new XmlfsElement(this, childFile);
                         content.add(e);
                     }
-                } catch (VFSException e) {
+                } catch (VfsException e) {
                     throw new RuntimeException(e.getMessage(), e);
                 }
             }
