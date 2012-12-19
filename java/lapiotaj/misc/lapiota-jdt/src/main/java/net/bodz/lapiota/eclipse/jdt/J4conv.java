@@ -81,7 +81,7 @@ public class J4conv
         if (!".java".equals(FilePath.getExtension(in.getName(), true)))
             return null;
 
-        String src = in.tooling()._for(StreamReading.class).readTextContents();
+        String src = in.tooling()._for(StreamReading.class).readString();
         char[] srcChars = src.toCharArray();
 
         Map<String, String> options = JavaCore.getOptions();
@@ -133,7 +133,7 @@ public class J4conv
             }
         }
 
-        out.tooling()._for(StreamWriting.class).write(dst);
+        out.tooling()._for(StreamWriting.class).writeString(dst);
 
         return EditResult.compareAndSave();
     }

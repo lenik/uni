@@ -187,12 +187,12 @@ public class FileProcess
                 throws IOException, ScriptException {
             if (args.length == 0) {
                 System.out.println(tr._("Enter the processing groovy script: "));
-                script = new InputStreamSource(System.in).tooling()._for(StreamReading.class).readTextContents();
+                script = new InputStreamSource(System.in).tooling()._for(StreamReading.class).readString();
             } else {
                 String scriptPath = args[0];
                 IFile scriptFile = new JdkFile(scriptPath);
                 scriptFile.setPreferredCharset(CLIAccessor.getInputEncoding(FileProcess.this));
-                script = scriptFile.tooling()._for(StreamReading.class).readTextContents();
+                script = scriptFile.tooling()._for(StreamReading.class).readString();
             }
         }
 

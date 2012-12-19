@@ -91,7 +91,7 @@ public class TemplateProcess
 
             Charset outputEncoding = CLIAccessor.getOutputEncoding(TemplateProcess.this);
             editTmp.setPreferredCharset(outputEncoding);
-            editTmp.tooling()._for(StreamWriting.class).write(contents);
+            editTmp.tooling()._for(StreamWriting.class).writeString(contents);
 
             EditResult result = EditResult.compareAndSave();
             addResult(dst, dst, editTmp, result);
@@ -373,7 +373,7 @@ public class TemplateProcess
             if (template == null) {
                 if (templateFile == null)
                     throw new CLISyntaxException(tr._("template file isn\'t specified"));
-                template = templateFile.tooling()._for(StreamReading.class).readTextContents();
+                template = templateFile.tooling()._for(StreamReading.class).readString();
             }
             Map<String, Object> vars = (Map<String, Object>) context;
             if (env)
@@ -425,7 +425,7 @@ public class TemplateProcess
                     throw new CLISyntaxException(tr._("template file isn\'t specified"));
                 Charset inputEncoding = CLIAccessor.getInputEncoding(TemplateProcess.this);
                 templateFile.setPreferredCharset(inputEncoding);
-                template = templateFile.tooling()._for(StreamReading.class).readTextContents();
+                template = templateFile.tooling()._for(StreamReading.class).readString();
             }
             Map<String, Object> _vars = (Map<String, Object>) context;
             if (env)

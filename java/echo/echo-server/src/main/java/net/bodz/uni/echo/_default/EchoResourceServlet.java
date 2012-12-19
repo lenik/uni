@@ -127,7 +127,7 @@ public class EchoResourceServlet
             out.println("<h1>" + "Index of " + dirName + "</h1>");
             out.println("<hr />");
 
-            for (String baseName : resource.tooling()._for(StreamReading.class).listLines()) {
+            for (String baseName : resource.tooling()._for(StreamReading.class).readLines()) {
                 baseName = baseName.trim();
                 if (baseName.isEmpty())
                     continue;
@@ -153,7 +153,7 @@ public class EchoResourceServlet
         // Also guess the encoding?
 
         ServletOutputStream out = resp.getOutputStream();
-        new OutputStreamTarget(out).tooling()._for(StreamWriting.class).writeBytes(resource);
+        new OutputStreamTarget(out).tooling()._for(StreamWriting.class).write(resource);
     }
 
     static URL searchClassInherited(Class<?> clazz, String path) {

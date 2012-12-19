@@ -170,7 +170,7 @@ public class HtmlTemplate
             return null;
         else
             try {
-                return cssResource.tooling()._for(StreamReading.class).readTextContents();
+                return cssResource.tooling()._for(StreamReading.class).readString();
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }

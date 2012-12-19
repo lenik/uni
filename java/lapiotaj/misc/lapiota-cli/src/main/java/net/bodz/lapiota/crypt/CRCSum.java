@@ -138,7 +138,7 @@ public class CRCSum
     protected void doFile(IFile file, InputStream in)
             throws Exception {
         String name = file == null ? "-" : file.getName();
-        byte[] data = file.tooling()._for(StreamReading.class).readBinaryContents();
+        byte[] data = file.tooling()._for(StreamReading.class).read();
         // algorithmClass.newInstance();
         Checksum csum;
         csum = create();

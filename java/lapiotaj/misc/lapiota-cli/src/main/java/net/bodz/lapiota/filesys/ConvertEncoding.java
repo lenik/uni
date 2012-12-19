@@ -83,7 +83,7 @@ public class ConvertEncoding
     @Override
     protected EditResult doEdit(IFile in, IFile out)
             throws Exception {
-        byte[] src = in.tooling()._for(StreamReading.class).readBinaryContents();
+        byte[] src = in.tooling()._for(StreamReading.class).read();
         Charset srcenc = CLIAccessor.getInputEncoding(this);
         Charset dstenc = CLIAccessor.getOutputEncoding(this);
         if (bomDetect) {
@@ -103,7 +103,7 @@ public class ConvertEncoding
 
         String decoded = new String(src, srcenc);
         byte[] dst = decoded.getBytes(dstenc);
-        out.tooling()._for(StreamWriting.class).writeBytes(dst);
+        out.tooling()._for(StreamWriting.class).write(dst);
 
         return EditResult.compareAndSave();
     }

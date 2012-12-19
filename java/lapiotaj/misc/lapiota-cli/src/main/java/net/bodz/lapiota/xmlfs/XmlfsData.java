@@ -75,7 +75,7 @@ public class XmlfsData
         byte[] bytes = null;
         if (data == null || (bytes = data.get()) == null) {
             try {
-                bytes = file.tooling()._for(StreamReading.class).readBytes(readSize);
+                bytes = file.tooling()._for(StreamReading.class).read(readSize);
             } catch (IOException e) {
                 String s = "<read-error>" + e.getMessage() + "</read-error>";
                 bytes = s.getBytes();

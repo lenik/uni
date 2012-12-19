@@ -52,7 +52,7 @@ public class Lapiota {
         if (lams.isFile()) {
             List<String> lamdef;
             try {
-                lamdef = new JdkFile(lams).tooling()._for(StreamReading.class).listLines();
+                lamdef = new JdkFile(lams).tooling()._for(StreamReading.class).readLines();
             } catch (IOException e) {
                 throw new Error("can't read " + lams);
             }

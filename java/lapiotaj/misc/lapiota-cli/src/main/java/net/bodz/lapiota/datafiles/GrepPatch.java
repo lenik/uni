@@ -97,7 +97,7 @@ public class GrepPatch
                     save(target, loaded);
                 currentFileName = fileName;
                 target = getOutputFile(fileName, file.getParentFile());
-                loaded = target.tooling()._for(StreamReading.class).listLines();
+                loaded = target.tooling()._for(StreamReading.class).readLines();
             }
 
             if (lno > loaded.size()) {

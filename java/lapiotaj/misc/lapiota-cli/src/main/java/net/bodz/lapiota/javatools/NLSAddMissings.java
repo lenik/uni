@@ -164,7 +164,7 @@ public class NLSAddMissings
                     contents = StringArray.join("\n", lines);
                 }
 
-                localeFile.tooling()._for(StreamWriting.class).write(contents);
+                localeFile.tooling()._for(StreamWriting.class).writeString(contents);
             }
 
             addSum += add;

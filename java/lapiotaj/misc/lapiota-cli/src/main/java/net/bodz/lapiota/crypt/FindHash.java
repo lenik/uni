@@ -162,7 +162,7 @@ public class FindHash
 
     public void findFileRangeForHash(IFile file)
             throws Exception {
-        byte[] data = file.tooling()._for(StreamReading.class).readBinaryContents();
+        byte[] data = file.tooling()._for(StreamReading.class).read();
         Range[] ranges = this.ranges;
         if (ranges == null)
             ranges = new Range[] { new Range(0, data.length), };

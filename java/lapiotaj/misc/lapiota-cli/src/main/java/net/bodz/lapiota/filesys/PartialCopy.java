@@ -277,7 +277,7 @@ public class PartialCopy
             dst = null;
 
             LocalFileResource res = new LocalFileResource(tmp);
-            byte[] data = res.tooling()._for(StreamReading.class).readBinaryContents();
+            byte[] data = res.tooling()._for(StreamReading.class).read();
             System.out.write(data);
             tmp.delete();
         }

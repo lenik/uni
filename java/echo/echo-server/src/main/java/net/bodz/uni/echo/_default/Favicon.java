@@ -25,7 +25,7 @@ public class Favicon
         URLResource ico = ClassResource.getData(Favicon.class, "echo.ico");
 
         ServletOutputStream out = resp.getOutputStream();
-        new OutputStreamTarget(out).tooling()._for(StreamWriting.class).writeBytes(ico);
+        new OutputStreamTarget(out).tooling()._for(StreamWriting.class).write(ico);
 
         out.close();
     }

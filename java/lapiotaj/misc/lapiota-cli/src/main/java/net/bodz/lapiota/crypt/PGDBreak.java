@@ -63,7 +63,7 @@ public class PGDBreak
             IFile chunkFile = outputDirectory.getChild(childName);
 
             logger.mesg(tr._("write to "), chunkFile, " (", size, " bytes)");
-            chunkFile.tooling()._for(StreamWriting.class).writeBytes(header);
+            chunkFile.tooling()._for(StreamWriting.class).write(header);
 
             addr = chunk.readInt64(16);
             if (addr == 0)

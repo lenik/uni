@@ -68,7 +68,7 @@ public class ZipMerge
                         " (" + entry.getSize() + tr._(" bytes, ");
                 int lastPercent = 0;
                 long written = 0;
-                for (byte[] block : entrySource.tooling()._for(StreamReading.class).byteBlocks()) {
+                for (byte[] block : entrySource.tooling()._for(StreamReading.class).blocks()) {
                     zout.write(block);
                     written += block.length;
                     int percent = (int) (100 * written / entry.getSize());

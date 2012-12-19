@@ -59,7 +59,7 @@ public class ASTDump
             _help();
 
         logger.info("load file ", javaFile);
-        char[] javaSource = javaFile.tooling()._for(StreamReading.class).readTextContents().toCharArray();
+        char[] javaSource = javaFile.tooling()._for(StreamReading.class).readString().toCharArray();
 
         ASTParser astParser = ASTParser.newParser(parserLevel);
         Map<String, Object> options = JavaCore.getOptions();

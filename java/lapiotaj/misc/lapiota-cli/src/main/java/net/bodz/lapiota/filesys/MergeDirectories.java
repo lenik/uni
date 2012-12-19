@@ -202,7 +202,7 @@ public class MergeDirectories
     Object getHash(IFile file)
             throws IOException {
         digest.reset();
-        for (byte[] block : file.tooling()._for(StreamReading.class).byteBlocks())
+        for (byte[] block : file.tooling()._for(StreamReading.class).blocks())
             digest.update(block);
         byte[] d = digest.digest();
         return Arrays.hashCode(d);

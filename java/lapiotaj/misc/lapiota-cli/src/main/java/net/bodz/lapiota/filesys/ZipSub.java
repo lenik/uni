@@ -141,7 +141,7 @@ public class ZipSub
 
             long written = 0;
             int lastPercent = 0;
-            for (byte[] block : source.tooling()._for(StreamReading.class).byteBlocks()) {
+            for (byte[] block : source.tooling()._for(StreamReading.class).blocks()) {
                 out.write(block);
                 written += block.length;
                 int percent = (int) (100 * written / size);

@@ -172,7 +172,7 @@ public class PackageFragmentsProcess
                 String content = null;
                 if (file.isReadable()) {
                     // file.setPreferredCharset(parameters().getInputEncoding());
-                    content = file.tooling()._for(StreamReading.class).readTextContents();
+                    content = file.tooling()._for(StreamReading.class).readString();
                 } else if (!handleNull())
                     return;
                 handle(url, content);
