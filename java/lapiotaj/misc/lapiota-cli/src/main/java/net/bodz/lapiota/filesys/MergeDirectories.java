@@ -74,7 +74,7 @@ public class MergeDirectories
     @Override
     protected void doFileArgument(IFile startFile)
             throws Exception {
-        if (!startFile.isTree()) {
+        if (!startFile.isDirectory()) {
             logger.info(tr._("skipped file "), startFile);
             return;
         }

@@ -72,7 +72,7 @@ public class NLSAddMissings
     @Override
     protected void doFileArgument(IFile file)
             throws Exception {
-        if (file.isTree()) {
+        if (file.isDirectory()) {
             FileFinder finder = new FileFinder(new MasterPropertiesFilter(), file);
             for (IFile f : finder) {
                 doFileArgument(f);

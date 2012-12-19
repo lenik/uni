@@ -83,7 +83,7 @@ public class PackageFragmentsProcess
         if (root.isBlob()) {
             // TODO if file is jar, file=new JarFile(file); else skip
         }
-        if (root.isTree()) { // dir
+        if (root.isDirectory()) { // dir
             for (Action action : actions) {
                 action.doRootDir(root);
             }
@@ -126,7 +126,7 @@ public class PackageFragmentsProcess
             FileFinder finder = new FileFinder(maxDepth, rootDir);
             for (IFile f : finder.listFiles()) {
                 String path = f.getPath().toString();
-                if (f.isTree())
+                if (f.isDirectory())
                     path += "/";
                 list(path);
             }
@@ -166,7 +166,7 @@ public class PackageFragmentsProcess
         public void doDirectoryEntry(IFile file)
                 throws Exception {
             URL url = file.getPath().toURL();
-            if (file.isTree())
+            if (file.isDirectory())
                 handle(url, file.children());
             else {
                 String content = null;
@@ -263,7 +263,7 @@ public class PackageFragmentsProcess
                 super.doRootDir(dir);
             else {
                 for (IFile f : dir.children(pathFilter)) {
-                    if (f.isTree())
+                    if (f.isDirectory())
                         doRootDir(f);
                     else
                         super.doDirectoryEntry(f);

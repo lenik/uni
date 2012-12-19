@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.bodz.bas.c.java.io.FilePath;
-import net.bodz.bas.c.java.io.FileWild;
+import net.bodz.bas.c.java.io.FileGlob;
 import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.err.ParseException;
@@ -123,7 +123,7 @@ public class Gather
         void add(String srcdir, String srcfile, String dstfile) {
             srcdir = expand(srcdir);
             String srcwild = srcdir + "/" + srcfile;
-            List<File> srcs = FileWild.listFiles(srcwild);
+            List<File> srcs = FileGlob.listFiles(srcwild);
             if (srcs == null)
                 throw new IllegalArgumentException(tr._("src isn\'t existed: ") + srcwild);
             if (srcs.size() > 1)
@@ -163,11 +163,11 @@ public class Gather
 
     public void gatherDir(IFile dstdir)
             throws Exception {
-        if (!dstdir.isTree())
+        if (!dstdir.isDirectory())
             throw new IllegalArgumentException(tr._("not a directory: ") + dstdir);
 
         IFile gatherd = dstdir.getChild(gatherDir);
-        if (!gatherd.isTree())
+        if (!gatherd.isDirectory())
             throw new IllegalArgumentException(tr._("not a gathered target: ") + dstdir);
 
         GMap gmap = new GMap(dstdir);
@@ -187,7 +187,7 @@ public class Gather
         }
 
         for (IFile gfile : gatherd.children()) {
-            if (gfile.isTree())
+            if (gfile.isDirectory())
                 continue;
             String base = gfile.getName();
             if (base.startsWith("."))

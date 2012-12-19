@@ -114,7 +114,7 @@ public class XmlfsElement
     protected List contentList() {
         if (content == null) {
             content = new ArrayList<Object>();
-            if (file.isTree()) {
+            if (file.isDirectory()) {
                 try {
                     for (IFile childFile : file.children()) {
                         XmlfsElement e = new XmlfsElement(this, childFile);
