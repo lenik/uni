@@ -31,7 +31,7 @@ import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.vfs.IFile;
-import net.bodz.bas.vfs.impl.jdk.JdkFile;
+import net.bodz.bas.vfs.impl.pojf.PojfFile;
 import net.bodz.lapiota.util.RefBinding;
 
 /**
@@ -190,7 +190,7 @@ public class FileProcess
                 script = new InputStreamSource(System.in).tooling()._for(StreamReading.class).readString();
             } else {
                 String scriptPath = args[0];
-                IFile scriptFile = new JdkFile(scriptPath);
+                IFile scriptFile = new PojfFile(scriptPath);
                 scriptFile.setPreferredCharset(CLIAccessor.getInputEncoding(FileProcess.this));
                 script = scriptFile.tooling()._for(StreamReading.class).readString();
             }

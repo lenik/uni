@@ -14,7 +14,7 @@ import net.bodz.bas.cli.plugin.ICLIPlugin;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.NotImplementedException;
-import net.bodz.bas.io.resource.builtin.LocalFileResource;
+import net.bodz.bas.io.resource.builtin.FileResource;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.mem.ArrayMemory;
 import net.bodz.bas.mem.Memory;
@@ -276,7 +276,7 @@ public class PartialCopy
             ((RandomAccessFileMemory) dst).getFile().close();
             dst = null;
 
-            LocalFileResource res = new LocalFileResource(tmp);
+            FileResource res = new FileResource(tmp);
             byte[] data = res.tooling()._for(StreamReading.class).read();
             System.out.write(data);
             tmp.delete();

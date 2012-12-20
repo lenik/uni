@@ -9,7 +9,7 @@ import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.snm.abc.ModulesRoot;
-import net.bodz.bas.vfs.impl.jdk.JdkFile;
+import net.bodz.bas.vfs.impl.pojf.PojfFile;
 
 public class Lapiota {
 
@@ -52,7 +52,7 @@ public class Lapiota {
         if (lams.isFile()) {
             List<String> lamdef;
             try {
-                lamdef = new JdkFile(lams).tooling()._for(StreamReading.class).readLines();
+                lamdef = new PojfFile(lams).tooling()._for(StreamReading.class).readLines();
             } catch (IOException e) {
                 throw new Error("can't read " + lams);
             }
