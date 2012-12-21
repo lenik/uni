@@ -9,8 +9,8 @@ import org.jawin.io.LittleEndianOutputStream;
 import org.jawin.io.NakedByteStream;
 import org.jawin.win32.Ole32;
 
+import net.bodz.bas.c.loader.DefaultClassLoader;
 import net.bodz.bas.cli.skel.BasicCLI;
-import net.bodz.bas.loader.Classpath;
 import net.bodz.bas.sio.Stdio;
 
 public class Hello
@@ -22,7 +22,7 @@ public class Hello
     protected void mainImpl(String... args)
             throws Exception {
         if (HELLO_DUMP)
-            Classpath.dumpURLs(Stdio.cerr);
+            DefaultClassLoader.dump(Stdio.cerr);
         f3();
     }
 

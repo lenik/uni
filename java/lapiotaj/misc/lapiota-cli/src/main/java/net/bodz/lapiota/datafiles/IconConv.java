@@ -1,6 +1,9 @@
 package net.bodz.lapiota.datafiles;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +21,7 @@ import net.bodz.bas.c.string.StringPart;
 import net.bodz.bas.cli.skel.BatchCLI;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.vfs.IFile;
+import net.bodz.bas.xml.XMLs;
 
 /**
  * Icon files batch converter
@@ -33,8 +36,8 @@ public class IconConv
      *
      * @option -p =DIR
      */
-    IFile projectDir;
-    List<IFile> srcDirs;
+    File projectDir;
+    List<File> srcDirs;
 
     /**
      * Format string, args: NAME, W, H, DEPTH, EXT
@@ -84,11 +87,12 @@ public class IconConv
     @Override
     protected void _boot()
             throws Exception {
-        srcDirs = new ArrayList<IFile>();
+        srcDirs = new ArrayList<File>();
 
-        IFile classpathFile = projectDir.getChild(".classpath");
-        if (!classpathFile.isBlob())
+        File classpathFile = new File(projectDir, ".classpath");
+        if (!classpathFile.isFile())
             throw new FileNotFoundException(classpathFile.getPath().toString());
+
         XMLs.parse(classpathFile, new DefaultHandler() {
             @Override
             public void startElement(String uri, String localName, String name, Attributes attributes)
@@ -99,7 +103,7 @@ public class IconConv
                 if ("src".equals(kind)) {
                     String srcPath = attributes.getValue("path");
                     if (srcPath != null)
-                        srcDirs.add(projectDir.getChild(srcPath));
+                        srcDirs.add(new File(projectDir, srcPath));
                 }
             }
         });
@@ -112,18 +116,18 @@ public class IconConv
         extension = extensions.get(imageType);
     }
 
-    public void convertIconFile(IFile file)
+    public void convertIconFile(File file)
             throws Exception {
         String base = StringPart.beforeLast(file.getName(), '.');
         if (base == null)
             base = file.getName();
-        IFile outDir = file.getParentFile();
+        File outDir = file.getParentFile();
         if (projectDir != null) {
             outDir = findPackageDir(base); // on win32, case is ignored
             String typeName = StringPart.afterLast(base, '.');
             if (typeName == null)
                 typeName = base;
-            IFile testFile = outDir.getChild(typeName + ".java");
+            File testFile = new File(outDir, typeName + ".java");
             String caseFix = testFile.getName();
             caseFix = StringPart.beforeLast(caseFix, '.');
             if (!base.equals(caseFix)) {
@@ -134,7 +138,7 @@ public class IconConv
         }
 
         ImageLoader loader = new ImageLoader();
-        ImageData[] slices = loader.load(file.getInputSource().newInputStream());
+        ImageData[] slices = loader.load(new FileInputStream(file));
         if (slices.length == 0)
             return;
 
@@ -154,12 +158,12 @@ public class IconConv
                 break;
             }
             String outName = String.format(nameFormat, base, slice.width, slice.height, slice.depth, extension);
-            IFile outFile = outDir.getChild(outName);
+            File outFile = new File(outDir, outName);
             logger.mesg("Create ", outFile);
             ImageLoader saver = new ImageLoader();
             saver.data = new ImageData[] { slice };
 
-            OutputStream out = outFile.getOutputTarget().newOutputStream();
+            OutputStream out = new FileOutputStream(outFile);
             try {
                 saver.save(out, imageFormat);
                 out.close();
@@ -171,15 +175,15 @@ public class IconConv
         }
     }
 
-    IFile findPackageDir(String typeName)
+    File findPackageDir(String typeName)
             throws FileNotFoundException {
         // int dot = typeName.lastIndexOf('.');
         // String packageName = dot == -1 ? null : typeName.substring(0, dot);
         String fileName = typeName.replace('.', '/') + ".java";
-        for (IFile srcDir : srcDirs) {
-            IFile f = srcDir.getChild(fileName);
+        for (File srcDir : srcDirs) {
+            File f = new File(srcDir, fileName);
             if (f.exists()) {
-                IFile packageDir = f.getParentFile();
+                File packageDir = f.getParentFile();
                 return packageDir;
             }
         }
@@ -194,7 +198,7 @@ public class IconConv
     @Override
     protected void mainImpl(String... args)
             throws Exception {
-        for (IFile file : expandFiles(args))
+        for (File file : expandPojfFiles(args))
             convertIconFile(file);
     }
 

@@ -17,6 +17,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
 
 import net.bodz.bas.c.java.io.FilePath;
+import net.bodz.bas.c.loader.DefaultClassLoader;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.cli.skel.CLIAccessor;
 import net.bodz.bas.cli.skel.EditResult;
@@ -25,7 +26,6 @@ import net.bodz.bas.dotnet.synthetics.JavaEnum;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.io.resource.tools.StreamWriting;
-import net.bodz.bas.loader.Classpath;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.t.scope.CMap;
@@ -49,7 +49,7 @@ public class J4conv
             throws IOException {
         URL url = file.toURI().toURL();
         logger.debug("add boot-classpath: ", url);
-        Classpath.addURL(url);
+        DefaultClassLoader.addURLs(url);
     }
 
     /**
@@ -60,7 +60,7 @@ public class J4conv
         URL url = file.toURI().toURL();
         logger.debug("add classpath: ", url);
         // classpaths.add(url);
-        Classpath.addURL(url);
+        DefaultClassLoader.addURLs(url);
     }
 
     @Override

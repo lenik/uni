@@ -14,13 +14,14 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.c.java.io.FilePath;
+import net.bodz.bas.c.java.net.URLClassLoaders;
+import net.bodz.bas.c.loader.DefaultClassLoader;
 import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.err.control.Control;
 import net.bodz.bas.io.resource.builtin.InputStreamSource;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.jvm.stack.Caller;
-import net.bodz.bas.loader.Classpath;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.vfs.IFile;
@@ -63,7 +64,7 @@ public class FindClassResource
                 return;
             URL url = f.getPath().toURL();
             logger.debug("add boot-classpath: ", url);
-            Classpath.addURL(url);
+            DefaultClassLoader.addURLs(url);
         }
     }
 
@@ -187,8 +188,13 @@ public class FindClassResource
                         break;
                     }
                     tryAdds.add(liburl);
+
                     // Classpath.addURL(liburl);
-                    Classpath.addURL(craftLoader, liburl);
+                    URLClassLoader urlClassLoader = URLClassLoaders.findFirstURLClassLoader(craftLoader);
+                    if (urlClassLoader == null)
+                        throw new RuntimeException("No URLClassLoader found for " + craftLoader);
+
+                    URLClassLoaders.addURLs(urlClassLoader, liburl);
                     continue;
                 } else {
                     logger.error("failed to find: ", failClass);
@@ -210,7 +216,7 @@ public class FindClassResource
         if (testClass == null) {
             for (URL url : classpaths) {
                 logger.debug("add classpath: ", url);
-                Classpath.addURL(url);
+                DefaultClassLoader.addURLs(url);
             }
 
             ClassLoader loader = Caller.getCallerClassLoader(0);

@@ -15,12 +15,12 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import net.bodz.bas.c.java.io.FileURL;
+import net.bodz.bas.c.loader.DefaultClassLoader;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.jvm.stack.Caller;
-import net.bodz.bas.loader.Classpath;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.BCharOut;
@@ -133,7 +133,7 @@ public class GenerateClassWrappers
      */
     public void addJar(File jarfile)
             throws MalformedURLException, IOException {
-        Classpath.addURL(FileURL.toURL(jarfile, null));
+        DefaultClassLoader.addURL(FileURL.toURL(jarfile, null));
         JarFile jar = new JarFile(jarfile);
         Enumeration<JarEntry> entries = jar.entries();
         int count = 0;
@@ -163,7 +163,7 @@ public class GenerateClassWrappers
     public void addDirectory(File dir)
             throws MalformedURLException, IOException {
         URL dirURL = FileURL.toURL(dir, null);
-        Classpath.addURL(dirURL);
+        DefaultClassLoader.addURLs(dirURL);
         int count = addDirectory(dir, "");
         logger.info("added ", count, " classes from ", dir);
     }
@@ -202,7 +202,7 @@ public class GenerateClassWrappers
         for (String line : list.tooling()._for(StreamReading.class).lines()) {
             if (line.startsWith(PI_CLASSPATH)) {
                 String path = line.substring(PI_CLASSPATH.length()).trim();
-                Classpath.addURL(FileURL.toURL(path, null));
+                DefaultClassLoader.addURL(FileURL.toURL(path, null));
                 continue;
             }
             String fqcn = line.trim();
