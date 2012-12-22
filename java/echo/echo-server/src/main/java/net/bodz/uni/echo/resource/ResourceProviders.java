@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.bodz.bas.c.java.net.ContentURL;
-import net.bodz.bas.c.java.net.URLResourceScanner;
 import net.bodz.bas.c.loader.ClassResource;
+import net.bodz.bas.c.loader.scan.URLResourceScanner;
 import net.bodz.bas.c.object.ObjectInfo;
 
 public class ResourceProviders {
