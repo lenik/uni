@@ -12,7 +12,6 @@ import net.bodz.bas.err.OutOfDomainException;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.rtx.INegotiation;
 import net.bodz.bas.rtx.MandatoryException;
-import net.bodz.bas.snm.abc.ModulesRoot;
 import net.bodz.bas.traits.AbstractParser;
 
 public class TypeExtensions {

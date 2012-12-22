@@ -8,8 +8,8 @@ import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
 import net.bodz.bas.io.resource.tools.StreamReading;
-import net.bodz.bas.snm.abc.ModulesRoot;
 import net.bodz.bas.vfs.impl.pojf.PojfFile;
+import net.bodz.lapiota.util.ModulesRoot;
 
 public class Lapiota {
 
