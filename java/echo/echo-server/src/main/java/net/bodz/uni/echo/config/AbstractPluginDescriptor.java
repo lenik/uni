@@ -2,10 +2,10 @@ package net.bodz.uni.echo.config;
 
 import net.bodz.bas.c.object.IdentityHashSet;
 import net.bodz.bas.c.object.ObjectInfo;
-import net.bodz.bas.i18n.dom1.SimpleElement;
+import net.bodz.bas.i18n.dom1.MutableElement;
 
 public abstract class AbstractPluginDescriptor
-        extends SimpleElement
+        extends MutableElement
         implements IPluginDescriptor {
 
     private static final long serialVersionUID = 1L;

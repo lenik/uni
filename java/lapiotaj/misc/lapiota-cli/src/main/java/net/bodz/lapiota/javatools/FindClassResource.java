@@ -1,7 +1,6 @@
 package net.bodz.lapiota.javatools;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -14,6 +13,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.c.java.io.FilePath;
+import net.bodz.bas.c.java.io.FileURL;
 import net.bodz.bas.c.java.net.URLClassLoaders;
 import net.bodz.bas.c.loader.DefaultClassLoader;
 import net.bodz.bas.cli.meta.ProgramName;
@@ -22,6 +22,8 @@ import net.bodz.bas.err.control.Control;
 import net.bodz.bas.io.resource.builtin.InputStreamSource;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.jvm.stack.Caller;
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.vfs.IFile;
@@ -36,6 +38,8 @@ import net.bodz.bas.vfs.util.find.FileFinder;
 @MainVersion({ 0, 1 })
 public class FindClassResource
         extends BasicCLI {
+
+    static final Logger logger = LoggerFactory.getLogger(FindClassResource.class);
 
     /**
      * max depth of directories recurse into
@@ -182,7 +186,7 @@ public class FindClassResource
                 if (tryAdd != null) {
                     String lib = libpath(tryAdd);
                     logger.info("add required ", lib);
-                    URL liburl = new File(lib).toURL();
+                    URL liburl = FileURL.toURL(lib);
                     if (tryAdds.contains(liburl)) {
                         logger.error("loop fail");
                         break;
@@ -256,7 +260,7 @@ public class FindClassResource
     }
 
     @Override
-    protected void _boot()
+    protected void reconfigure()
             throws Exception {
         if (filter == null)
             filter = new IFileFilter() {

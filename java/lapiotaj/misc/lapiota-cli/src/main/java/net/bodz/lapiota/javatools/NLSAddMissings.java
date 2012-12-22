@@ -1,8 +1,6 @@
 package net.bodz.lapiota.javatools;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -16,11 +14,16 @@ import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.io.resource.tools.StreamLoading;
 import net.bodz.bas.io.resource.tools.StreamWriting;
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.vfs.IFile;
 import net.bodz.bas.vfs.IFileFilter;
 import net.bodz.bas.vfs.IFilenameFilter;
+import net.bodz.bas.vfs.VFS;
+import net.bodz.bas.vfs.facade.DefaultVfsFacade;
+import net.bodz.bas.vfs.facade.IVfsFacade;
 import net.bodz.bas.vfs.util.find.FileFinder;
 
 /**
@@ -31,6 +34,8 @@ import net.bodz.bas.vfs.util.find.FileFinder;
 @MainVersion({ 0, 1 })
 public class NLSAddMissings
         extends BasicCLI {
+
+    static final Logger logger = LoggerFactory.getLogger(NLSAddMissings.class);
 
     /**
      * backup file extension, include the dot(.) if necessary
@@ -51,6 +56,8 @@ public class NLSAddMissings
 
     boolean removeExtras = true;
 
+    IVfsFacade vfs = DefaultVfsFacade.getInstance();
+
     static class MasterPropertiesFilter
             implements IFileFilter {
 
@@ -68,14 +75,21 @@ public class NLSAddMissings
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    protected void doFileArgument(IFile file)
+    protected void mainImpl(String... args)
+            throws Exception {
+        for (String arg : expandWildcards(args)) {
+            IFile file = VFS.resolve(arg);
+            processFile(file);
+        }
+    }
+
+    protected void processFile(IFile file)
             throws Exception {
         if (file.isDirectory()) {
             FileFinder finder = new FileFinder(new MasterPropertiesFilter(), file);
             for (IFile f : finder) {
-                doFileArgument(f);
+                processFile(f);
             }
             return;
         }
@@ -142,16 +156,18 @@ public class NLSAddMissings
 
             if (dirty) {
                 logger.infof("    +%d -%d /%d entries. \n", add, remove, props.size());
+
                 if (backupExtension != null) {
-                    File bakfile = new File(localeFile.getPath() + backupExtension);
-                    if (bakfile.exists() && !force) {
+                    IFile bakfile = localeFile.resolve(localeFile.getName() + backupExtension);
+                    if (bakfile.isExisted() && !force) {
                         logger.warn("  Bak file existed: ", bakfile);
                         if (!dialogs.confirm("Overwrite " + bakfile + "? "))
                             continue;
                     }
                     logger.info("    Backup to ", bakfile);
-                    Files.copy(localeFile, bakfile);
+                    vfs.copy(localeFile, bakfile);
                 }
+
                 logger.info("    Save ", localeFile);
                 // StringWriter buf = new StringWriter(props.size() * 100);
                 ByteArrayOutputStream buf = new ByteArrayOutputStream(props.size() * 100);

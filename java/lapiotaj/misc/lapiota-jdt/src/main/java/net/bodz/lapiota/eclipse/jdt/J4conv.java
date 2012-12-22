@@ -20,12 +20,14 @@ import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.loader.DefaultClassLoader;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.cli.skel.CLIAccessor;
-import net.bodz.bas.cli.skel.EditResult;
+import net.bodz.bas.cli.skel.FileHandler;
 import net.bodz.bas.dotnet.synthetics.JavaAnnotation;
 import net.bodz.bas.dotnet.synthetics.JavaEnum;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.io.resource.tools.StreamWriting;
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.t.scope.CMap;
@@ -38,6 +40,8 @@ import net.bodz.bas.vfs.IFile;
 @MainVersion({ 0, 1 })
 public class J4conv
         extends JdtBatchCLI {
+
+    static final Logger logger = LoggerFactory.getLogger(J4conv.class);
 
     Charset inputEncoding;
     Charset outputEncoding;
@@ -64,7 +68,7 @@ public class J4conv
     }
 
     @Override
-    protected void _boot()
+    protected void reconfigure()
             throws Exception {
         inputEncoding = CLIAccessor.getInputEncoding(this);
         outputEncoding = CLIAccessor.getOutputEncoding(this);
@@ -76,10 +80,13 @@ public class J4conv
     }
 
     @Override
-    protected EditResult doEdit(IFile in, IFile out)
+    public void processFile(FileHandler handler)
             throws Exception {
+        IFile in = handler.getInputFile();
+        IFile out = handler.getOutputFile();
+
         if (!".java".equals(FilePath.getExtension(in.getName(), true)))
-            return null;
+            return;
 
         String src = in.tooling()._for(StreamReading.class).readString();
         char[] srcChars = src.toCharArray();
@@ -135,7 +142,7 @@ public class J4conv
 
         out.tooling()._for(StreamWriting.class).writeString(dst);
 
-        return EditResult.compareAndSave();
+        handler.save();
     }
 
     public static void main(String[] args)

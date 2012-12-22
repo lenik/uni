@@ -9,7 +9,7 @@ import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.skel.BatchEditCLI;
 import net.bodz.bas.cli.skel.CLIAccessor;
-import net.bodz.bas.cli.skel.EditResult;
+import net.bodz.bas.cli.skel.FileHandler;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.IPrintOut;
@@ -56,7 +56,7 @@ public class LineNoFix
     }
 
     @Override
-    protected void _boot()
+    protected void reconfigure()
             throws Exception {
         if (linePattern == null)
             linePattern = Pattern.compile("^\\s*/\\*\\s*(\\d+)\\s*\\*/");
@@ -102,12 +102,15 @@ public class LineNoFix
     }
 
     @Override
-    protected EditResult doEditByLine(Iterable<String> _lines, IPrintOut out)
+    public void processFile(FileHandler handler)
             throws Exception {
+        IPrintOut out = handler.openPrintOut();
+
         List<Line> lines = new ArrayList<Line>(10000);
         lines.add(null); // 1-based
         int last = -1;
-        for (String s : _lines) {
+
+        for (String s : handler.read().lines()) {
             Matcher matcher = linePattern.matcher(s);
             int n = 0;
             if (matcher.find()) {
@@ -163,7 +166,8 @@ public class LineNoFix
         }
         for (int i = 1; i < size; i++)
             out.print(lines.get(i).s);
-        return EditResult.compareAndSave();
+
+        handler.save();
     }
 
     public static void main(String[] args)

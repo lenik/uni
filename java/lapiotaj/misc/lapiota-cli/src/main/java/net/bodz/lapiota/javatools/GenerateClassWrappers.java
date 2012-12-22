@@ -21,6 +21,8 @@ import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.jvm.stack.Caller;
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.BCharOut;
@@ -36,6 +38,8 @@ import net.bodz.bas.vfs.IFile;
 @MainVersion({ 0, 0 })
 public class GenerateClassWrappers
         extends BasicCLI {
+
+    static final Logger logger = LoggerFactory.getLogger(GenerateClassWrappers.class);
 
     /**
      * prefix string to the generated class
@@ -133,7 +137,7 @@ public class GenerateClassWrappers
      */
     public void addJar(File jarfile)
             throws MalformedURLException, IOException {
-        DefaultClassLoader.addURL(FileURL.toURL(jarfile, null));
+        DefaultClassLoader.addURLs(FileURL.toURL(jarfile, null));
         JarFile jar = new JarFile(jarfile);
         Enumeration<JarEntry> entries = jar.entries();
         int count = 0;
@@ -202,7 +206,7 @@ public class GenerateClassWrappers
         for (String line : list.tooling()._for(StreamReading.class).lines()) {
             if (line.startsWith(PI_CLASSPATH)) {
                 String path = line.substring(PI_CLASSPATH.length()).trim();
-                DefaultClassLoader.addURL(FileURL.toURL(path, null));
+                DefaultClassLoader.addURLs(FileURL.toURL(path, null));
                 continue;
             }
             String fqcn = line.trim();
@@ -248,9 +252,9 @@ public class GenerateClassWrappers
             wname += suffix;
         File dir = new File(out, subdir);
         File file = new File(dir, wname);
-        PrintStream fileout = new PrintStream(file, encoding.name());
 
-        IPrintOut out = new PrintStreamPrintOut(fileout);
+        PrintStream fileOut = new PrintStream(file, encoding.name());
+        IPrintOut out = new PrintStreamPrintOut(fileOut);
 
         out.println("package " + wpkg + ";");
         out.println();
@@ -274,7 +278,7 @@ public class GenerateClassWrappers
 
         body.println("}");
         out.println(body);
-        fileout.close();
+        out.close();
     }
 
     @Override

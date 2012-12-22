@@ -14,6 +14,8 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.io.resource.tools.StreamReading;
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.ICharOut;
@@ -28,6 +30,8 @@ import net.bodz.bas.vfs.VFS;
 @MainVersion({ 0, 0 })
 public class ASTDump
         extends JdtBasicCLI {
+
+    static final Logger logger = LoggerFactory.getLogger(ASTDump.class);
 
     /**
      * Dump to the specified file.

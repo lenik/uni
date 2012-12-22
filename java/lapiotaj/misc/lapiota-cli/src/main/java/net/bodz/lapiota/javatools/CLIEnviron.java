@@ -21,6 +21,8 @@ import net.bodz.bas.c.java.util.TreeTextMap;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.t.iterator.Iterables;
@@ -38,6 +40,8 @@ import com.sun.security.auth.callback.TextCallbackHandler;
 @MainVersion({ 0, 1 })
 public class CLIEnviron
         extends BasicCLI {
+
+    static final Logger logger = LoggerFactory.getLogger(CLIEnviron.class);
 
     /**
      * Dump environ variables
@@ -82,7 +86,7 @@ public class CLIEnviron
     CallbackHandler ch;
 
     @Override
-    protected void _boot()
+    protected void reconfigure()
             throws Exception {
         ch = new TextCallbackHandler();
     }
