@@ -1,6 +1,6 @@
 package net.bodz.lapiota.batch.crypt;
 
-import net.bodz.bas.text.codec.builtin.HexCodec;
+import net.bodz.bas.data.codec.builtin.HexCodec;
 import net.bodz.lapiota.batch.crypt.Hashes.CRC32_LE;
 
 public class HashesTest {

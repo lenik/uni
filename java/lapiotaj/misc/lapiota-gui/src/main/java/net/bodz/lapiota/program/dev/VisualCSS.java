@@ -22,12 +22,12 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 
 import net.bodz.bas.c.loader.ClassResource;
+import net.bodz.bas.c.xml.XMLs;
 import net.bodz.bas.gui.err.GUIException;
 import net.bodz.bas.io.resource.builtin.URLResource;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.xml.XMLs;
 import net.bodz.swt.c.text.TextAdapters;
 import net.bodz.swt.program.BasicGUI;
 

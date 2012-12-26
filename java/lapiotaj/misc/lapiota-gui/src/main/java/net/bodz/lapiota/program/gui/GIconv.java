@@ -22,11 +22,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 
+import net.bodz.bas.data.codec.builtin.HexCodec;
 import net.bodz.bas.err.DecodeException;
 import net.bodz.bas.gui.err.GUIException;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.text.codec.builtin.HexCodec;
 import net.bodz.swt.c.resources.SWTResources;
 import net.bodz.swt.program.BasicGUI;
 

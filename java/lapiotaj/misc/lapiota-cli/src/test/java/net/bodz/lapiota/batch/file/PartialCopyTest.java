@@ -1,7 +1,7 @@
 package net.bodz.lapiota.batch.file;
 
 import net.bodz.bas.c.java.util.Arrays;
-import net.bodz.bas.text.codec.builtin.HexCodec;
+import net.bodz.bas.data.codec.builtin.HexCodec;
 
 public class PartialCopyTest {
 

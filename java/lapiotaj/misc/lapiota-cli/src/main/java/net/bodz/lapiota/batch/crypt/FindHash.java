@@ -6,6 +6,7 @@ import java.security.Security;
 import java.util.Arrays;
 
 import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.data.codec.builtin.HexCodec;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.err.UnexpectedException;
@@ -15,7 +16,6 @@ import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.sio.IPrintOut;
-import net.bodz.bas.text.codec.builtin.HexCodec;
 import net.bodz.bas.traits.AbstractParser;
 import net.bodz.bas.vfs.IFile;
 import net.bodz.lapiota.batch.crypt.Hashes.PeekDigest;
