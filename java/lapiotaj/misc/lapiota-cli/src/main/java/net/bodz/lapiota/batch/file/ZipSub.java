@@ -13,13 +13,13 @@ import java.util.zip.ZipOutputStream;
 
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.system.UserDirColo;
-import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.io.resource.builtin.InputStreamSource;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.t.iterator.Iterables;
 
 /**

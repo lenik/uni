@@ -10,7 +10,7 @@ import org.jawin.io.NakedByteStream;
 import org.jawin.win32.Ole32;
 
 import net.bodz.bas.c.loader.DefaultClassLoader;
-import net.bodz.bas.cli.skel.BasicCLI;
+import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.sio.Stdio;
 
 public class Hello

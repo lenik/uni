@@ -9,14 +9,14 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-import net.bodz.bas.cli.skel.BatchCLI;
-import net.bodz.bas.cli.skel.FileHandler;
 import net.bodz.bas.io.resource.builtin.InputStreamSource;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.skel.BatchCLI;
+import net.bodz.bas.program.skel.FileHandler;
 import net.bodz.bas.t.iterator.Iterables;
 import net.bodz.bas.vfs.IFile;
 import net.bodz.bas.vfs.impl.pojf.PojfFile;

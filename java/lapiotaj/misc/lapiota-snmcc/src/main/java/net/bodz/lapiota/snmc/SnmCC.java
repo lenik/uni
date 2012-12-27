@@ -1,8 +1,8 @@
 package net.bodz.lapiota.snmc;
 
-import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.skel.BasicCLI;
 
 /**
  * s.n.m. C-framework Console

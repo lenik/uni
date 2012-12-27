@@ -1,6 +1,6 @@
 package net.bodz.lapiota._extern;
 
-import net.bodz.bas.cli.boot.JavaLauncher;
+import net.bodz.bas.program.boot.JavaLauncher;
 
 public class ASMifier
         extends JavaLauncher {

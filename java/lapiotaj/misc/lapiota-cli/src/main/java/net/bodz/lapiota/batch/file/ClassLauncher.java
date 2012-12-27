@@ -4,9 +4,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import net.bodz.bas.cli.meta.ProgramName;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.meta.ProgramName;
 
 /**
  * Lapiota Java Program Launcher

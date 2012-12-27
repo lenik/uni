@@ -1,8 +1,8 @@
 package net.bodz.lapiota.ant.tasks;
 
-import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
+import net.bodz.bas.program.skel.BasicCLI;
 
 public class HelloCLI
         extends BasicCLI {

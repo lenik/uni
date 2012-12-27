@@ -8,14 +8,14 @@ import java.nio.charset.CharsetEncoder;
 import java.util.Map;
 import java.util.Set;
 
-import net.bodz.bas.cli.meta.ProgramName;
-import net.bodz.bas.cli.skel.BatchEditCLI;
-import net.bodz.bas.cli.skel.FileHandler;
 import net.bodz.bas.err.control.ControlBreak;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.meta.ProgramName;
+import net.bodz.bas.program.skel.BatchEditCLI;
+import net.bodz.bas.program.skel.FileHandler;
 import net.bodz.bas.vfs.IFile;
 
 /**

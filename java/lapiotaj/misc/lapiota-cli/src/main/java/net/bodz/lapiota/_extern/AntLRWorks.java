@@ -1,7 +1,7 @@
 package net.bodz.lapiota._extern;
 
-import net.bodz.bas.cli.boot.JavaLauncher;
-import net.bodz.bas.cli.meta.ProgramName;
+import net.bodz.bas.program.boot.JavaLauncher;
+import net.bodz.bas.program.meta.ProgramName;
 
 @ProgramName("aworks")
 public class AntLRWorks

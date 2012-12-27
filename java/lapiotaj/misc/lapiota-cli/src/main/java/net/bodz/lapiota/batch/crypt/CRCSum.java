@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.zip.Checksum;
 
 import net.bodz.bas.c.java.lang.ClassTraits;
-import net.bodz.bas.cli.skel.BatchCLI;
-import net.bodz.bas.cli.skel.FileHandler;
 import net.bodz.bas.data.codec.builtin.HexCodec;
 import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.err.ParseException;
@@ -18,6 +16,8 @@ import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.mem.types.Int32LE;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.skel.BatchCLI;
+import net.bodz.bas.program.skel.FileHandler;
 import net.bodz.bas.sio.IPrintOut;
 import net.bodz.bas.vfs.IFile;
 import net.bodz.lapiota.batch.crypt.Hashes.CRC32_BE;

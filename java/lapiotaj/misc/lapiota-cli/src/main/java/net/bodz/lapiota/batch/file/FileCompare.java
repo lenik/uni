@@ -2,11 +2,11 @@ package net.bodz.lapiota.batch.file;
 
 import java.util.List;
 
-import net.bodz.bas.cli.meta.ProgramName;
-import net.bodz.bas.cli.skel.BasicCLI;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.meta.ProgramName;
+import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.sio.IPrintOut;
 import net.bodz.bas.sio.Stdio;
 import net.bodz.bas.text.diff.DiffComparators;
