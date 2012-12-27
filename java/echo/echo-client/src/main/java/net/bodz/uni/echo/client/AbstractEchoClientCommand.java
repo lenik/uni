@@ -1,9 +1,9 @@
 package net.bodz.uni.echo.client;
 
-import net.bodz.mda.xjdoc.model1.ArtifactObject;
+import net.bodz.mda.xjdoc.model1.XjdocObject;
 
 public abstract class AbstractEchoClientCommand
-        extends ArtifactObject
+        extends XjdocObject
         implements IEchoClientCommand {
 
     @Override
