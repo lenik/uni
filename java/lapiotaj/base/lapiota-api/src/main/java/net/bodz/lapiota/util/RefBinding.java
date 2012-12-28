@@ -8,9 +8,9 @@ import javax.script.ScriptException;
 
 import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
-import net.bodz.bas.potato.Potatoes;
-import net.bodz.bas.potato.model.IProperty;
-import net.bodz.bas.potato.model.IType;
+import net.bodz.bas.potato.PotatoLoader;
+import net.bodz.bas.potato.element.IProperty;
+import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.potato.ref.PropertyRef;
 import net.bodz.bas.t.ref.Ref;
 
@@ -80,7 +80,7 @@ public class RefBinding
         assert o != null;
         Class<?> clazz = o.getClass();
 
-        IType type = Potatoes.getType(clazz);
+        IType type = PotatoLoader.getType(clazz);
 
         for (final IProperty property : type.getProperties()) {
             PropertyRef<Object> propertyRef = new PropertyRef<>(o, property);
