@@ -1,6 +1,6 @@
 package net.bodz.uni.echo.client;
 
-import net.bodz.mda.xjdoc.model1.XjdocObject;
+import net.bodz.mda.xjdoc.model.javadoc.XjdocObject;
 
 public abstract class AbstractEchoClientCommand
         extends XjdocObject
