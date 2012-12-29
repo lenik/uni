@@ -9,7 +9,7 @@ import java.util.Map;
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 
-import net.bodz.mda.xjdoc.conv.ClassDocs;
+import net.bodz.mda.xjdoc.conv.ClassDocLoader;
 import net.bodz.mda.xjdoc.model.ClassDoc;
 
 public class FilterDescriptor
@@ -34,7 +34,7 @@ public class FilterDescriptor
             throw new NullPointerException("filterClass");
         this.filterClass = filterClass;
 
-        ClassDoc classDoc = ClassDocs.loadFromResource(filterClass);
+        ClassDoc classDoc = ClassDocLoader.load(filterClass);
         if (classDoc != null)
             // TODO Elements.copy(this, classDoc);
             setDisplayName(classDoc.getText().headPar());

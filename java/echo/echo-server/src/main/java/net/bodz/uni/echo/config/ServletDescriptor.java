@@ -7,7 +7,7 @@ import java.util.Map;
 
 import javax.servlet.Servlet;
 
-import net.bodz.mda.xjdoc.conv.ClassDocs;
+import net.bodz.mda.xjdoc.conv.ClassDocLoader;
 import net.bodz.mda.xjdoc.model.ClassDoc;
 
 public class ServletDescriptor
@@ -29,7 +29,7 @@ public class ServletDescriptor
             throw new NullPointerException("servletClass");
         this.servletClass = servletClass;
 
-        ClassDoc classDoc = ClassDocs.loadFromResource(servletClass);
+        ClassDoc classDoc = ClassDocLoader.load(servletClass);
         if (classDoc != null)
             // TODO Elements.copy(this, classDoc);
             setDisplayName(classDoc.getText().headPar());
