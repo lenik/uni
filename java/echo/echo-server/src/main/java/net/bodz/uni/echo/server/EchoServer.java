@@ -64,7 +64,7 @@ public class EchoServer
 
         for (ServletDescriptor servlet : config.getServlets()) {
             ServletHolder holder = new ServletHolder(servlet.getServletClass());
-            holder.setDisplayName(Nullables.toString(servlet.getDisplayName()));
+            holder.setDisplayName(Nullables.toString(servlet.getLabel()));
             holder.setInitParameters(servlet.getInitParamMap());
             holder.setInitOrder(servlet.getPriority());
 
@@ -74,7 +74,7 @@ public class EchoServer
 
         for (FilterDescriptor filter : config.getFilters()) {
             FilterHolder holder = new FilterHolder(filter.getFilterClass());
-            holder.setDisplayName(Nullables.toString(filter.getDisplayName()));
+            holder.setDisplayName(Nullables.toString(filter.getLabel()));
             holder.setInitParameters(filter.getInitParamMap());
             holder.setAsyncSupported(filter.isSuspendable());
 

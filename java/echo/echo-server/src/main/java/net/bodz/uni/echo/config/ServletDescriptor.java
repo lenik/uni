@@ -32,7 +32,7 @@ public class ServletDescriptor
         ClassDoc classDoc = ClassDocLoader.load(servletClass);
         if (classDoc != null)
             // TODO Elements.copy(this, classDoc);
-            setDisplayName(classDoc.getText().headPar());
+            setLabel(classDoc.getText().headPar());
     }
 
     /**
