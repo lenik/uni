@@ -10,5 +10,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/bodz/uni/integra
 
 Package: cdu-bodz-m2-settings
 Architecture: all
-Depends: maven2 | maven3
+Depends: maven2 | maven
 Description: M2 settings.xml for m2.local.
