@@ -78,8 +78,7 @@
             --right-axis-label "(unmerged)" \
             --right-axis 1:0 \
             --x-grid MINUTE:10:HOUR:1:MINUTE:120:0:%R \
-            --alt-y-grid --rigid \
-            --lower-limit -1000
+            --alt-y-grid --rigid
 
         def delta = $project:LAST
         def mean = $project:AVERAGE
@@ -108,8 +107,7 @@
             --right-axis-label "(unmerged)" \
             --right-axis 1:0 \
             --x-grid MINUTE:10:HOUR:1:MINUTE:120:0:%R \
-            --alt-y-grid --rigid \
-            --lower-limit -1000
+            --alt-y-grid --rigid
 
         index=0
         while IFS=: read project label gitdir; do
