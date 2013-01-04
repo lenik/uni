@@ -1,8 +1,9 @@
 include ../libauto/coolauto.am
 
 dist_bashcmpl_DATA = \
-    newmp \
-    m2chdir
+    m2chdir \
+    mjava \
+    newmp
 
 EXTRA_DIST = \
     newmp.in

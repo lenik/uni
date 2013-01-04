@@ -2,15 +2,22 @@
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
     : ${PROGRAM_TITLE:="Maven Java Runtime"}
     : ${PROGRAM_SYNTAX:="[OPTIONS] [--] class [args...]"}
+    : ${MVN:=mvn}
 
     . shlib-import cliboot
+    option -e --errors      "Produce execution error messages"
     option -q --quiet       "Repeat to get less info"
     option -v --verbose     "Repeat to get more info"
     option -h --help        "Show this help page"
     option    --version     "Print the version info"
 
+    mvnopts=()
+    mvnoptn=0
+
 function setopt() {
     case "$1" in
+        -e|--errors)
+            mvnopts[mvnoptn++]=-e;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -33,7 +40,10 @@ function main() {
     fqcn="$1"
     shift
 
-    mvn exec:java -Dexec.mainClass="$fqcn" "$@"
+    $MVN "${mvnopts[@]}" exec:java \
+        -Dexec.classpathScope=test \
+        -Dexec.mainClass="$fqcn" \
+        "$@"
 }
 
 boot "$@"
