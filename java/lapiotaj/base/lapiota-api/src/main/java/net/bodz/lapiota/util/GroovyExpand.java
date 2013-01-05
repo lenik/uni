@@ -103,7 +103,7 @@ public class GroovyExpand
     }
 
     void echo(String s, boolean newline) {
-        s = StringEscape.java(s);
+        s = StringEscape.escapeJava(s);
         s = s.replace("$", "\\$"); // suppress in-quote $var expansion.
         if (newline)
             append("out.println(\"" + s + "\");\n");
