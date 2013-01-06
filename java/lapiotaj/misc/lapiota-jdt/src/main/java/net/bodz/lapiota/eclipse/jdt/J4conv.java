@@ -17,7 +17,8 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
 
 import net.bodz.bas.c.java.io.FilePath;
-import net.bodz.bas.c.loader.DefaultClassLoader;
+import net.bodz.bas.c.java.net.URLClassLoaders;
+import net.bodz.bas.c.loader.ClassLoaders;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.dotnet.synthetics.JavaAnnotation;
 import net.bodz.bas.dotnet.synthetics.JavaEnum;
@@ -53,7 +54,8 @@ public class J4conv
             throws IOException {
         URL url = file.toURI().toURL();
         logger.debug("add boot-classpath: ", url);
-        DefaultClassLoader.addURLs(url);
+        ClassLoader classLoader = ClassLoaders.getRuntimeClassLoader();
+        URLClassLoaders.addURLs1(classLoader, url);
     }
 
     /**
@@ -63,8 +65,8 @@ public class J4conv
             throws IOException {
         URL url = file.toURI().toURL();
         logger.debug("add classpath: ", url);
-        // classpaths.add(url);
-        DefaultClassLoader.addURLs(url);
+        ClassLoader classLoader = ClassLoaders.getRuntimeClassLoader();
+        URLClassLoaders.addURLs1(classLoader, url);
     }
 
     @Override

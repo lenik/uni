@@ -9,7 +9,8 @@ import org.jawin.io.LittleEndianOutputStream;
 import org.jawin.io.NakedByteStream;
 import org.jawin.win32.Ole32;
 
-import net.bodz.bas.c.loader.DefaultClassLoader;
+import net.bodz.bas.c.java.net.URLClassLoaders;
+import net.bodz.bas.c.loader.ClassLoaders;
 import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.sio.Stdio;
 
@@ -21,8 +22,11 @@ public class Hello
     @Override
     protected void mainImpl(String... args)
             throws Exception {
+        ClassLoader runtimeClassLoader = ClassLoaders.getRuntimeClassLoader();
+
         if (HELLO_DUMP)
-            DefaultClassLoader.dump(Stdio.cerr);
+            URLClassLoaders.dump(runtimeClassLoader, Stdio.cerr);
+
         f3();
     }
 

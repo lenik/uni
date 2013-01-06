@@ -15,7 +15,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import net.bodz.bas.c.java.io.FileURL;
-import net.bodz.bas.c.loader.DefaultClassLoader;
+import net.bodz.bas.c.java.net.URLClassLoaders;
+import net.bodz.bas.c.loader.ClassLoaders;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.io.resource.tools.StreamReading;
 import net.bodz.bas.jvm.stack.Caller;
@@ -40,6 +41,7 @@ public class GenerateClassWrappers
         extends BasicCLI {
 
     static final Logger logger = LoggerFactory.getLogger(GenerateClassWrappers.class);
+    ClassLoader runtimeLoader = ClassLoaders.getRuntimeClassLoader();
 
     /**
      * prefix string to the generated class
@@ -137,7 +139,8 @@ public class GenerateClassWrappers
      */
     public void addJar(File jarfile)
             throws MalformedURLException, IOException {
-        DefaultClassLoader.addURLs(FileURL.toURL(jarfile, null));
+        URLClassLoaders.addURLs1(runtimeLoader, FileURL.toURL(jarfile, null));
+
         JarFile jar = new JarFile(jarfile);
         Enumeration<JarEntry> entries = jar.entries();
         int count = 0;
@@ -167,7 +170,9 @@ public class GenerateClassWrappers
     public void addDirectory(File dir)
             throws MalformedURLException, IOException {
         URL dirURL = FileURL.toURL(dir, null);
-        DefaultClassLoader.addURLs(dirURL);
+
+        URLClassLoaders.addURLs1(runtimeLoader, dirURL);
+
         int count = addDirectory(dir, "");
         logger.info("added ", count, " classes from ", dir);
     }
@@ -206,7 +211,7 @@ public class GenerateClassWrappers
         for (String line : list.tooling()._for(StreamReading.class).lines()) {
             if (line.startsWith(PI_CLASSPATH)) {
                 String path = line.substring(PI_CLASSPATH.length()).trim();
-                DefaultClassLoader.addURLs(FileURL.toURL(path, null));
+                URLClassLoaders.addURLs1(runtimeLoader, FileURL.toURL(path, null));
                 continue;
             }
             String fqcn = line.trim();

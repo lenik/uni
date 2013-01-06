@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.java.io.FileURL;
 import net.bodz.bas.c.java.net.URLClassLoaders;
-import net.bodz.bas.c.loader.DefaultClassLoader;
+import net.bodz.bas.c.loader.ClassLoaders;
 import net.bodz.bas.err.control.Control;
 import net.bodz.bas.io.resource.builtin.InputStreamSource;
 import net.bodz.bas.io.resource.tools.StreamReading;
@@ -62,13 +62,16 @@ public class FindClassResource
      */
     protected void bootClasspath(IFile file)
             throws IOException {
+
+        ClassLoader classLoader = ClassLoaders.getRuntimeClassLoader();
+
         FileFinder finder = new FileFinder(filter, recursive, file);
         for (IFile f : finder.listFiles()) {
             if (f.isDirectory())
                 return;
             URL url = f.getPath().toURL();
             logger.debug("add boot-classpath: ", url);
-            DefaultClassLoader.addURLs(url);
+            URLClassLoaders.addURLs1(classLoader, url);
         }
     }
 
@@ -217,13 +220,15 @@ public class FindClassResource
     @Override
     protected void mainImpl(String... args)
             throws Exception {
+        ClassLoader runtimeLoader = ClassLoaders.getRuntimeClassLoader();
+
         if (testClass == null) {
             for (URL url : classpaths) {
                 logger.debug("add classpath: ", url);
-                DefaultClassLoader.addURLs(url);
+                URLClassLoaders.addURLs1(runtimeLoader, url);
             }
 
-            ClassLoader loader = Caller.getCallerClassLoader(0);
+            ClassLoader callerLoader = Caller.getCallerClassLoader(0);
             Iterable<String> strings;
             if (args.length > 0)
                 strings = Arrays.asList(args);
@@ -233,7 +238,7 @@ public class FindClassResource
             }
             for (String name : strings) {
                 name = name.trim();
-                URL url = findResource(loader, name);
+                URL url = findResource(callerLoader, name);
                 if (url == null)
                     logger.mesg("No-Class: ", name);
                 else
