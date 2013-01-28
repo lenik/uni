@@ -212,6 +212,41 @@
       <id>geotoolkit</id>
       <name>geotoolkit.org maven repo</name>
     </remoteRepository>
+    <remoteRepository>
+      <url>https://maven.alfresco.com/nexus/content/groups/public</url>
+      <username>lenik</username>
+      <password>sErp39wT</password>
+      <id>activiti</id>
+      <name>Acitviti Maven Repo</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>http://maven.restlet.org</url>
+      <username>lenik</username>
+      <password>sErp39wT</password>
+      <id>Restlet repo</id>
+      <name>maven-restlet</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>http://maven.vaadin.com/vaadin-addons</url>
+      <username>lenik</username>
+      <password>sErp39wT</password>
+      <id>vaadin-addons</id>
+      <name>vaadin-addons</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>https://maven.alfresco.com/nexus/content/repositories/activiti-thirdparty/</url>
+      <username>lenik</username>
+      <password>sErp39wT</password>
+      <id>activiti-3rdparty</id>
+      <name>Activiti third party</name>
+    </remoteRepository>
+    <remoteRepository>
+      <url>http://maven.thebuzzmedia.com/</url>
+      <username>lenik</username>
+      <password>sErp39wT</password>
+      <id>buzzmedia</id>
+      <name>The Buzzmedia</name>
+    </remoteRepository>
   </remoteRepositories>
   <proxyConnectors>
     <proxyConnector>
@@ -406,7 +441,37 @@
     <proxyConnector>
       <order>12</order>
       <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>geotoolkit</targetRepoId>
+      <whiteListPatterns>
+        <whiteListPattern>java3d/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <releases>always</releases>
+        <checksum>fail</checksum>
+        <snapshots>never</snapshots>
+        <cache-failures>no</cache-failures>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <order>11</order>
+      <sourceRepoId>internal</sourceRepoId>
       <targetRepoId>swt-googlecode</targetRepoId>
+      <proxyId>(direct connection)</proxyId>
+      <whiteListPatterns>
+        <whiteListPattern>org/eclipse/swt/**</whiteListPattern>
+        <whiteListPattern>org/eclipse/draw2d/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <releases>always</releases>
+        <checksum>fail</checksum>
+        <snapshots>never</snapshots>
+        <cache-failures>no</cache-failures>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <order>13</order>
+      <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>eclipse-testing</targetRepoId>
       <whiteListPatterns>
         <whiteListPattern>org/eclipse/**</whiteListPattern>
       </whiteListPatterns>
@@ -418,18 +483,71 @@
       </policies>
     </proxyConnector>
     <proxyConnector>
+      <order>15</order>
       <sourceRepoId>internal</sourceRepoId>
-      <targetRepoId>geotoolkit</targetRepoId>
+      <targetRepoId>Restlet repo</targetRepoId>
       <whiteListPatterns>
-        <whiteListPattern>java3d/**</whiteListPattern>
+        <whiteListPattern>org/restlet/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <releases>always</releases>
+        <checksum>fail</checksum>
+        <snapshots>always</snapshots>
+        <cache-failures>no</cache-failures>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <order>16</order>
+      <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>activiti-3rdparty</targetRepoId>
+      <whiteListPatterns>
+        <whiteListPattern>com/signavio/**</whiteListPattern>
+        <whiteListPattern>com/microsoft/sqlserver/**</whiteListPattern>
+        <whiteListPattern>com/ibm/db2/**</whiteListPattern>
+        <whiteListPattern>com/google/**</whiteListPattern>
+        <whiteListPattern>de/odysseus/**</whiteListPattern>
+        <whiteListPattern>juel/juel/**</whiteListPattern>
+        <whiteListPattern>org/tigris/subversion/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <releases>always</releases>
+        <checksum>fail</checksum>
+        <snapshots>always</snapshots>
+        <cache-failures>no</cache-failures>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <order>14</order>
+      <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>activiti</targetRepoId>
+      <proxyId>(direct connection)</proxyId>
+      <whiteListPatterns>
+        <whiteListPattern>org/activiti/**</whiteListPattern>
+        <whiteListPattern>math/geom/**</whiteListPattern>
+      </whiteListPatterns>
+      <policies>
+        <releases>always</releases>
+        <checksum>fail</checksum>
+        <snapshots>always</snapshots>
+        <cache-failures>no</cache-failures>
+      </policies>
+    </proxyConnector>
+    <proxyConnector>
+      <order>17</order>
+      <sourceRepoId>internal</sourceRepoId>
+      <targetRepoId>buzzmedia</targetRepoId>
+      <proxyId>(direct connection)</proxyId>
+      <whiteListPatterns>
+        <whiteListPattern>com/thebuzzmedia/**</whiteListPattern>
+        <whiteListPattern>org/imgscalr/**</whiteListPattern>
       </whiteListPatterns>
       <policies>
         <propagate-errors-on-update>always</propagate-errors-on-update>
         <cache-failures>no</cache-failures>
         <releases>always</releases>
         <propagate-errors>stop</propagate-errors>
-        <snapshots>never</snapshots>
-        <checksum>fail</checksum>
+        <snapshots>always</snapshots>
+        <checksum>ignore</checksum>
       </policies>
     </proxyConnector>
   </proxyConnectors>
