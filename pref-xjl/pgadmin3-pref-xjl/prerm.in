@@ -1,0 +1,4 @@
+#!/bin/sh
+# master-file
+
+echo "pgadmin3-pref-xjl - prerm.in ..."
