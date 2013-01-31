@@ -1,4 +1,15 @@
 #!/bin/sh
 # master-file
 
-echo "pgadmin3-pref-xjl - prerm.in ..."
+settings_ini="@pgadmin3datadir@/settings.ini"
+ctlSQLBox_patch="@setupdir@/ctlSQLBox.patch"
+
+echo "Remove [ctlSQLBox] section from $settings_ini"
+
+# -N (--forward): skip if already (reversed) patched.
+# -R: reversed mode
+# -p NNN: strip some prefixes.
+# -r rej-file: specify .rej filename, '-' for discard.
+patch -NR -p1 -r - "$settings_ini" < "$ctlSQLBox_patch"
+
+exit 0
