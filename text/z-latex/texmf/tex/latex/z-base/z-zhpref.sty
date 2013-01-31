@@ -3,6 +3,12 @@
 \ProvidesPackage{z-zhpref}[2012/10/02 boDz Templates]
 
 % 中文排版选项
+    \RequirePackage{titlesec}
+    \RequirePackage{titletoc}
+        \titleformat{\chapter}{\centering\huge}{第\CJKnumber{\thechapter}章}{1em}{\textbf}
+        \titleformat{\section}{\centering\LARGE}{\thesection}{1em}{\textbf}
+        \titleformat{\subsection}{\Large}{\thesubsection}{1em}{\textbf}
+
     \RequirePackage{enumitem}
         \setenumerate{listparindent=\parindent} % 列表中保留段首缩进
 
@@ -32,9 +38,6 @@
 %\RequirePackage{fancyhdr}                % 页眉页脚
 %    \pagestyle{fancy}                    % 页眉页脚风格
 %    \setlength{\headheight}{15pt}        % 有时会出现\headheight too small的warning
-%    \titleformat{\chapter}{\centering\huge}{第\thechapter{}章}{1em}{\textbf}
-%    \titleformat{\section}{\centering\LARGE}{\thesection}{1em}{\textbf}
-%    \titleformat{\subsection}{\Large}{\thesubsection}{1em}{\textbf}
 
 % 中文风格的带编号列表
     \newcounter{enumerate.zh}

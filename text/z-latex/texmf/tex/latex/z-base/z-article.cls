@@ -17,7 +17,7 @@
 \RequirePackage{z-latexenh}
 
 \ifz@CJK@
-    \RequirePackage[slantfont, boldfont, CJKmath=true]{xeCJK}
+    \RequirePackage[slantfont, boldfont, CJKmath=true, CJKnumber=true]{xeCJK}
     \setCJKmainfont{WenQuanYi Micro Hei}
     %\setCJKmathfont{WenQuanYi Micro Hei}
     \RequirePackage{z-zhcore}
