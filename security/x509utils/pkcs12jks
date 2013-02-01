@@ -1,0 +1,86 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Convert PKCS 12 to JKS keystore}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] file.p12 dest.jks}
+    : ${KEYTOOL:=keytool}
+    : ${KEYSTORE_PASSWORD:=}
+
+    . shlib-import cliboot
+    option -k =PASSWD       "PKCS#12 keystore password"
+    option -K =PASSWD       "JKS keystore password"
+    option -f --force       "Overwrite existing JKS keystore file"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+    opt_force=
+    pkcs12_passwd=
+    jks_passwd="$KEYSTORE_PASSWORD"
+
+function setopt() {
+    case "$1" in
+        -k)
+            pkcs12_passwd="$2";;
+        -K)
+            jks_passwd="$2";;
+        -f|--force)
+            opt_force=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $# -lt 2 ]; then
+        quit "pkcs12 file and jks file must be specified."
+    fi
+
+    pkcs12file="$1"
+    jksfile="$2"
+
+    [ -f "$pkcs12file" ] ||
+        quit "PKCS#12 file $pkcs12file isn't existed."
+
+    if [ -f "$jksfile" ]; then
+        # [ -z "$opt_force" ] && quit "The dest JKS keystore is already existed."
+        if [ "$opt_force" ]; then
+            _log1 "Remove existing JKS keystore $jksfile"
+            rm -f "$jksfile"
+        fi
+    fi
+
+    importkeystoreopts=()
+    n=0
+    if [ -n "$pkcs12_passwd" ]; then
+        importkeystoreopts[n++]="-srcstorepass"
+        importkeystoreopts[n++]="$pkcs12_passwd"
+    fi
+    if [ -n "$jks_passwd" ]; then
+        importkeystoreopts[n++]="-deststorepass"
+        importkeystoreopts[n++]="$jks_passwd"
+    fi
+
+    _log1 "Converting PKCS#12 keystore to JKS keystore..."
+    runcmd $KEYTOOL -importkeystore \
+        -srckeystore "$pkcs12file" -srcstoretype pkcs12 \
+        -destkeystore "$jksfile" -deststoretype JKS \
+        "${importkeystoreopts[@]}"
+
+    _log1 "Done."
+}
+
+function runcmd() {
+    _log1 "Execute $*"
+    "$@"
+}
+
+boot "$@"

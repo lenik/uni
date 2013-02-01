@@ -1,7 +1,8 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
-    mkcert
+    mkcert \
+    pkcs12jks
 
 dist_shlib_DATA = \
     mkcert.cs

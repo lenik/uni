@@ -11,5 +11,6 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/security/x509utils
 Package: x509utils
 Architecture: all
 Depends: bash-shlib, ini-utils, make, openssl
+Suggests: java-sdk
 Description: Lenik's key chain and utilities
     This is obsolete.

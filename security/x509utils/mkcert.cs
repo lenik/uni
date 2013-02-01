@@ -6,7 +6,8 @@ DN_O="www.example.com"
 # DN_OU="Your Organization"
 DN_CN="Your Name"
 DN_emailAddress="your-name@example.com"
-DAYS=3650
+# DAYS=36525 # 100 years.
+DAYS=18262 # 50 years
 
 function main() {
     if ! type -t "$1" >/dev/null; then echo "Bad config parameter: $1" >&2
