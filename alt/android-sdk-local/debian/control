@@ -1,0 +1,13 @@
+Source: android-sdk-local
+Section: java
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.3
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/alt/android-sdk-local
+
+Package: android-sdk-local
+Architecture: all
+Depends: ${misc:Depends}
+Description: Setup develop env for android-sdk local installation.
+  This package will setup PATH, etc., for the local android-sdk installation.
