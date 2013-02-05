@@ -1,5 +1,8 @@
 include libauto/coolauto.am
 
+dist_profile_DATA = \
+    android-sdk-local.sh
+
 setup_SCRIPTS = \
     postinst \
     prerm
