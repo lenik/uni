@@ -79,4 +79,9 @@ public class ServletDescriptor
         initParameterMap.remove(key);
     }
 
+    @Override
+    public String toString() {
+        return servletClass.getName();
+    }
+
 }

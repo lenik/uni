@@ -2,9 +2,9 @@ package net.bodz.uni.echo.test;
 
 import java.net.URL;
 
-import org.junit.Test;
-
 import net.bodz.uni.echo._default.HelloServlet;
+
+import org.junit.Test;
 
 public class EchoTestAppTest
         extends EchoTestApp {
@@ -29,7 +29,7 @@ public class EchoTestAppTest
 
     public static void main(String[] args)
             throws Exception {
-        new EchoTestAppTest().makeClient().go("");
+        new EchoTestAppTest().makeClient().go("/hello");
     }
 
 }

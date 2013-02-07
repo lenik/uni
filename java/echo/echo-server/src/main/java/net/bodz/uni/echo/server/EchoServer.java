@@ -7,14 +7,6 @@ import java.util.Map.Entry;
 
 import javax.servlet.ServletContext;
 
-import org.apache.commons.collections15.map.HashedMap;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.uni.echo.config.EchoServerConfig;
 import net.bodz.uni.echo.config.EchoServerConfigAdapter;
@@ -26,12 +18,22 @@ import net.bodz.uni.echo.resource.MountableResourceProvider;
 import net.bodz.uni.echo.resource.ResourceProviders;
 import net.bodz.uni.echo.resource.UnionResourceProvider;
 
+import org.apache.commons.collections15.map.HashedMap;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+
 public class EchoServer
         extends Server {
 
     EchoServerConfig config;
     ServletContextHandler servletContextHandler;
     IResourceProvider resourceProvider;
+
+    boolean initialized;
 
     public EchoServer(EchoServerConfig config) {
         super(config.getPortNumber());
@@ -48,42 +50,9 @@ public class EchoServer
 
         servletContextHandler = new EchoServletContextHandler(this);
         setHandler(servletContextHandler);
-
-        String contextPath = config.getContextPath();
-        if (contextPath != null)
-            servletContextHandler.setContextPath(contextPath);
-
-        List<String> welcomeFiles = config.getWelcomeFiles();
-        servletContextHandler.setWelcomeFiles(welcomeFiles.toArray(new String[0]));
-
-        for (Entry<String, String> entry : config.getInitParamMap().entrySet())
-            servletContextHandler.setInitParameter(entry.getKey(), entry.getValue());
-
-        EchoServerConfigAdapter configAdapter = new EchoServerConfigAdapter(config);
-        servletContextHandler.addEventListener(configAdapter);
-
-        for (ServletDescriptor servlet : config.getServlets()) {
-            ServletHolder holder = new ServletHolder(servlet.getServletClass());
-            holder.setDisplayName(Nullables.toString(servlet.getLabel()));
-            holder.setInitParameters(servlet.getInitParamMap());
-            holder.setInitOrder(servlet.getPriority());
-
-            for (String pathSpec : servlet.getMappings())
-                servletContextHandler.addServlet(holder, pathSpec);
-        }
-
-        for (FilterDescriptor filter : config.getFilters()) {
-            FilterHolder holder = new FilterHolder(filter.getFilterClass());
-            holder.setDisplayName(Nullables.toString(filter.getLabel()));
-            holder.setInitParameters(filter.getInitParamMap());
-            holder.setAsyncSupported(filter.isSuspendable());
-
-            for (String pathSpec : filter.getMappings())
-                servletContextHandler.addFilter(holder, pathSpec, filter.getDispatcherTypes());
-        }
     }
 
-    void buildResourceProvider()
+    private void buildResourceProvider()
             throws IOException {
         UnionResourceProvider serverResources = ResourceProviders.scanInheritedClassResources(getClass(), true);
         serverResources.setPriority(EchoServerConfig.PRIORITY_LOW);
@@ -126,9 +95,51 @@ public class EchoServer
         return resourceProvider;
     }
 
+    synchronized void init() {
+        if (initialized)
+            return;
+
+        String contextPath = config.getContextPath();
+        if (contextPath != null)
+            servletContextHandler.setContextPath(contextPath);
+
+        List<String> welcomeFiles = config.getWelcomeFiles();
+        servletContextHandler.setWelcomeFiles(welcomeFiles.toArray(new String[0]));
+
+        for (Entry<String, String> entry : config.getInitParamMap().entrySet())
+            servletContextHandler.setInitParameter(entry.getKey(), entry.getValue());
+
+        EchoServerConfigAdapter configAdapter = new EchoServerConfigAdapter(config);
+        servletContextHandler.addEventListener(configAdapter);
+
+        for (ServletDescriptor servlet : config.getServlets()) {
+            ServletHolder holder = new ServletHolder(servlet.getServletClass());
+            holder.setDisplayName(Nullables.toString(servlet.getLabel()));
+            holder.setInitParameters(servlet.getInitParamMap());
+            holder.setInitOrder(servlet.getPriority());
+
+            for (String pathSpec : servlet.getMappings())
+                servletContextHandler.addServlet(holder, pathSpec);
+        }
+
+        for (FilterDescriptor filter : config.getFilters()) {
+            FilterHolder holder = new FilterHolder(filter.getFilterClass());
+            holder.setDisplayName(Nullables.toString(filter.getLabel()));
+            holder.setInitParameters(filter.getInitParamMap());
+            holder.setAsyncSupported(filter.isSuspendable());
+
+            for (String pathSpec : filter.getMappings())
+                servletContextHandler.addFilter(holder, pathSpec, filter.getDispatcherTypes());
+        }
+
+        initialized = true;
+    }
+
     @Override
     protected void doStart()
             throws Exception {
+        init();
+
         super.doStart();
 
         if (config.getPortNumber() == 0) {
