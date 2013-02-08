@@ -17,7 +17,7 @@ alias dw='. d-which'
 alias  l='ls -aoF -N --color'
 alias ll='ls -alF -N --color'
 
-alias df='postproc sort \; df -hP'
+alias df='postproc sort \; df -T -B 1048576'
 
 alias du1='du --max-depth=1'
 alias du2='du --max-depth=2'
