@@ -1,5 +1,9 @@
 include libauto/coolauto.am
 
+dist_bin_SCRIPTS = \
+    r-push \
+    r-pull
+
 setup_SCRIPTS = \
     postinst \
     prerm

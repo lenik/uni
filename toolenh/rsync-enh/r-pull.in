@@ -1,0 +1,50 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$1" ]; then
+        quit "Source isn't specified."
+    fi
+
+    # Remove the trailing slash from source.
+    src="${1%/}"
+
+    rsyncopts=()
+    rsyncoptn=0
+    if [ -f .exclude ]; then
+        rsyncopts[rsyncoptn++]="--exclude=.exclude"
+    fi
+
+    # -m: prune empty dirs
+    runcmd rsync -av --delete "${rsyncopts[@]}" "$src$PWD/" "$PWD"
+}
+
+function runcmd() {
+    _log1 "$@"
+    "$@"
+}
+
+boot "$@"
