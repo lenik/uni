@@ -73,6 +73,7 @@ CLEANFILES = \
     m2search \
     m2search-nexus \
     m2which \
+    mjava \
     newmod \
     newmp \
     pom-cascade \

@@ -15,6 +15,7 @@
     option -R --refresh-depends "Force reinstall project dependencies"
     option -f --tcpflow     "Run tcpflow on lo interface"
     option -F --tcpflow-new "Run tcpflow in a new gnome-terminal"
+    option    --max-permsize =SIZE "Specify the max perm gen size"
     option -q --quiet       "Repeat to get less info"
     option -v --verbose     "Repeat to get more info"
     option -h --help        "Show this help page"
@@ -34,6 +35,8 @@
 
     tcpflow=
     tcpflow_new=
+
+    max_perm_size=
 
 function setopt() {
     case "$1" in
@@ -55,6 +58,8 @@ function setopt() {
         -F|--tcpflow-new)
             tcpflow=1
             tcpflow_new=1;;
+        --max-permsize)
+            max_perm_size="$2";;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -125,6 +130,10 @@ function main() {
             set +e
             popd >/dev/null
         fi
+    fi
+
+    if [ -n "$max_perm_size" ]; then
+        mvnopts[nmvnopt++]="-XX:MaxPermSize=$max_perm_size"
     fi
 
     if [ "$debug" = 1 ]; then
