@@ -1,0 +1,26 @@
+# vim: set filetype=sh :
+
+_mjava() {
+    # local prev=${COMP_WORDS[COMP_CWORD-1]}
+    local cur=`_get_cword`
+    local len=${#cur}
+    local f fqcn
+    local n=0
+
+    COMPREPLY=()
+
+    while read f; do
+        f="${f#./}"
+        f="${f#src/main/java/}"
+        f="${f#src/test/java/}"
+        f="${f%.java}"
+        fqcn="${f//\//.}"
+
+        if [ "${fqcn:0:len}" = "$cur" ]; then
+            COMPREPLY[n++]="$fqcn"
+        fi
+    done < <( grep -lr 'public static void main(String' . |
+              grep '.java' |
+              grep -v '/target/' )
+} &&
+complete -F _mjava mjava
