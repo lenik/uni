@@ -25,10 +25,10 @@ import net.bodz.bas.c.system.UserDirColo;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.err.control.ControlExit;
+import net.bodz.bas.fn.IExecutableX;
 import net.bodz.bas.io.ConcatReader;
 import net.bodz.bas.io.LineReader;
 import net.bodz.bas.jvm.exit.CatchExit;
-import net.bodz.bas.jvm.exit.ExitableProgram;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
@@ -194,7 +194,7 @@ public class JavaShell
             }
             final String[] args = _args;
             try {
-                new CatchExit().catchExit(new ExitableProgram<Exception>() {
+                new CatchExit().catchExit(new IExecutableX<Exception>() {
                     @Override
                     public void execute()
                             throws Exception {

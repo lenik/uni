@@ -1,18 +1,16 @@
 package net.bodz.lapiota._extern;
 
-import net.bodz.bas.program.boot.JavaLauncher;
+import net.bodz.bas.c.java.util.Arrays;
+import net.bodz.bas.shell.Main;
 
-public class ASMifier
-        extends JavaLauncher {
+public class ASMifier {
 
-    @Override
-    protected String getMainClassName() {
-        return "org.objectweb.asm.util.ASMifierClassVisitor";
-    }
+    static String FQCN = "org.objectweb.asm.util.ASMifierClassVisitor";
 
     public static void main(String[] args)
             throws Exception {
-        new ASMifier().launch(args);
+        String[] _args = Arrays.prepend(FQCN, args);
+        Main.main(_args);
     }
 
 }

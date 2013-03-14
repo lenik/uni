@@ -1,20 +1,18 @@
 package net.bodz.lapiota._extern;
 
-import net.bodz.bas.program.boot.JavaLauncher;
+import net.bodz.bas.c.java.util.Arrays;
 import net.bodz.bas.program.meta.ProgramName;
+import net.bodz.bas.shell.Main;
 
 @ProgramName("aworks")
-public class AntLRWorks
-        extends JavaLauncher {
+public class AntLRWorks {
 
-    @Override
-    protected String getMainClassName() {
-        return "org.antlr.works.IDE";
-    }
+    static String FQCN = "org.antlr.works.IDE";
 
     public static void main(String[] args)
             throws Exception {
-        new AntLRWorks().launch(args);
+        String[] _args = Arrays.prepend(FQCN, args);
+        Main.main(_args);
     }
 
 }

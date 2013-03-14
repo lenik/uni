@@ -1,18 +1,16 @@
 package net.bodz.lapiota._extern;
 
-import net.bodz.bas.program.boot.JavaLauncher;
+import net.bodz.bas.c.java.util.Arrays;
+import net.bodz.bas.shell.Main;
 
-public class JFlex
-        extends JavaLauncher {
+public class JFlex {
 
-    @Override
-    protected String getMainClassName() {
-        return "JFlex.Main";
-    }
+    static String FQCN = "JFlex.Main";
 
     public static void main(String[] args)
             throws Exception {
-        new JFlex().launch(args);
+        String[] _args = Arrays.prepend(FQCN, args);
+        Main.main(_args);
     }
 
 }
