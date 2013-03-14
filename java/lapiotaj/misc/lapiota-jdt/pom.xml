@@ -6,12 +6,11 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>lapiota-jdt</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
     <dependencies>
         <dependency>
           <groupId>net.bodz.uni</groupId>
           <artifactId>lapiota-api</artifactId>
-          <version>1.0.0-SNAPSHOT</version>
+          <version>${project.version}</version>
         </dependency>
         <dependency>
           <groupId>net.bodz.bas</groupId>

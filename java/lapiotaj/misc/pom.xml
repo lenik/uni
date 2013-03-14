@@ -9,7 +9,6 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>misc</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
         <module>lapiota-build</module>
