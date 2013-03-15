@@ -1,6 +1,6 @@
 include libauto/coolauto.am
 
-bin_SCRIPTS = \
+dist_bin_SCRIPTS = \
     usecode
 
 setup_SCRIPTS = \
