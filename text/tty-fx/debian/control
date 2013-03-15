@@ -1,15 +1,15 @@
-Source: coolansi
+Source: tty-fx
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/text/coolansi
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk/text/coolansi
-Vcs-Browser: http://svn.bodz.net/uni/trunk/text/coolansi
+Homepage: http://uni.bodz.net/text/tty-fx
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk/text/tty-fx
+Vcs-Browser: http://svn.bodz.net/uni/trunk/text/tty-fx
 
-Package: coolansi
-Provides: coolansi
+Package: tty-fx
+Provides: tty-fx
 Architecture: all
 Depends: bash-enh, ncurses-bin, sed
 Description: Lenik's terminal (device) utilities.

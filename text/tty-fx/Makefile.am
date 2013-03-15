@@ -6,6 +6,9 @@ dist_bin_SCRIPTS = \
     settermtitle \
     colorlog
 
+dist_aliases_DATA = \
+    stty-aliases.sh
+
 bin_SCRIPTS = \
     ansifilter
 

@@ -11,6 +11,6 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/java/coolmaven
 Package: coolmaven
 Provides: coolmaven
 Architecture: all
-Depends: bash-aliases, coolansi, svn-enh, maven2 | maven, xml2, grep, wget,
+Depends: bash-aliases, tty-fx, svn-enh, maven2 | maven, xml2, grep, wget,
     xmlutils, xmlindent, configutils, graphviz
 Description: Lenik's Maven utils

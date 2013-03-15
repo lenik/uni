@@ -11,5 +11,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/utils/cdtree
 Package: cdtree
 Provides: cdtree
 Architecture: all
-Depends: tree, bash-aliases, bash-shlib, coolansi, sed
+Depends: tree, bash-aliases, bash-shlib, tty-fx, sed
 Description: Chdir into complex directory tree

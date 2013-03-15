@@ -68,9 +68,9 @@
 	  debian/prerm: add debian control files.
 	* ., Makefile.am, VERSION.av, configure.ac, get-ansifilter,
 	  post-install.sh.in, pre-remove.sh.in: rename -coolterm to
-	  -coolansi
+	  -tty-fx
 
-	  add ansifilter (build on the fly) to -coolansi.
+	  add ansifilter (build on the fly) to -tty-fx.
 
 2010-09-07  lenik
 

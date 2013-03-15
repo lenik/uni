@@ -21,7 +21,7 @@ Recommends:
     bind-pref-xjl,
     cdtree,
     configutils,
-    coolansi,
+    tty-fx,
     coolapt,
     coolauto,
     coolcmd,
