@@ -3,7 +3,29 @@
 
 echo "Override maven2 settings.xml"
 
-mkdir -p @mavenconfdir@
-cp -f @setupdir@/settings.xml @mavenconfdir@
+do_maven=
+do_maven2=
+
+if [ -d @mavenconfdir@ ]; then
+    do_maven=1
+fi
+
+if [ -d @maven2confdir@ ]; then
+    do_maven2=1
+fi
+
+if [ -z "$do_maven" ] && [ -z "$do_maven2" ]; then
+    do_maven2=1
+fi
+
+if [ "$do_maven" = 1 ]; then
+    mkdir -p @mavenconfdir@
+    cp -f @setupdir@/settings.xml @mavenconfdir@
+fi
+
+if [ "$do_maven2" = 1 ]; then
+    mkdir -p @maven2confdir@
+    cp -f @setupdir@/settings.xml @maven2confdir@
+fi
 
 exit 0

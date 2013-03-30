@@ -8,14 +8,17 @@
     child{
         node[dir] {usr\fileflag{/}}
         child{
-            node[dir] {share\fileflag{/}}
+            node[dir] {local\fileflag{/}}
             child{
-                node[dir] {setup\fileflag{/}}
+                node[dir] {share\fileflag{/}}
                 child{
-                    node[dir] {cdu-bodz-m2-settings\fileflag{/}}
-                    child{ node[executable] {postinst\fileflag{*}} }
-                    child{ node[executable] {prerm\fileflag{*}} }
-                    child{ node[plain] {settings.xml} }
+                    node[dir] {setup\fileflag{/}}
+                    child{
+                        node[dir] {cdu-bodz-m2-settings\fileflag{/}}
+                        child{ node[executable] {postinst\fileflag{*}} }
+                        child{ node[executable] {prerm\fileflag{*}} }
+                        child{ node[plain] {settings.xml} }
+                    }
                 }
             }
         }
