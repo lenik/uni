@@ -1,0 +1,8 @@
+# vim: set filetype=conf :
+
+[general]
+anon-access = none
+auth-access = write
+password-db = @svnconfdir@/passwd
+authz-db    = @svnconfdir@/authz
+realm       = boDz SVN

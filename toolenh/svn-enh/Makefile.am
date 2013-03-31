@@ -1,6 +1,6 @@
 include libauto/coolauto.am
 
-SUBDIRS = test
+SUBDIRS = test conf
 
 do_subst += -e 's,[@]svnuniondir[@],$(svnuniondir),g'
 

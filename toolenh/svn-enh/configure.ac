@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([svn-enh], [0.8.0], [xjl@99jsj.com])
+AC_INIT([svn-enh], [0.8.4], [xjl@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 
 # Checks for programs.
@@ -16,5 +16,6 @@ AM_INIT_AUTOMAKE([-Wno-portability])
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([conf/Makefile])
 AC_CONFIG_FILES([test/Makefile])
 AC_OUTPUT
