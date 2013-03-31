@@ -7,6 +7,7 @@ do_subst += -e 's,[@]svnuniondir[@],$(svnuniondir),g'
 svnuniondir = ${sysconfdir}/svn_union.d
 
 dist_bin_SCRIPTS = \
+    sudosvn \
     svn-002 \
     svn-apply \
     svn-backup-sync \

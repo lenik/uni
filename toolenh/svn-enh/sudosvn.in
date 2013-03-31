@@ -1,0 +1,3 @@
+#!/bin/bash
+
+    sudo SVN_SSH="ssh -i '$HOME/.ssh/id_lenik'" svn "$@"
