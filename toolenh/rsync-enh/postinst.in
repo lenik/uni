@@ -1,4 +1,0 @@
-#!/bin/sh
-# master-file
-
-echo "rsync-enh - postinst.in ..."

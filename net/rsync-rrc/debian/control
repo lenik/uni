@@ -1,14 +1,14 @@
-Source: rsync-enh
+Source: rsync-rrc
 Section: net
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.3
-Homepage: http://uni.bodz.net//mnt/istore/projects/uni/toolenh/rsync-enh
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/toolenh/rsync-enh
-Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/toolenh/rsync-enh
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/toolenh/rsync-rrc
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/toolenh/rsync-rrc
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/toolenh/rsync-rrc
 
-Package: rsync-enh
+Package: rsync-rrc
 Architecture: all
 Depends: ${misc:Depends}, rsync, bash-shlib
 Description: Some sync utils based on rsync.

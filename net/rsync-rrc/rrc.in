@@ -1,0 +1,188 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+    FILLER='                                                                                                    '
+    repodir=
+    rrcdir=
+
+    remotes=()
+    nremote=0
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    [ -z "$1" ] && quit "No command"
+
+    fn="rrc_$1"
+    shift
+    type -t "$fn" >/dev/null || quit "Illegal command: $1"
+
+    d="$PWD"
+    repodir=
+    rrcdir=
+    while [ -n "$d" ]; do
+        if [ -d "$d/.rrc" ]; then
+            repodir="$d"
+            rrcdir="$repodir/.rrc"
+            break
+        fi
+        d="${d%/*}"
+    done
+
+    [ -d "$repodir" ] || quit "Not an rrc-working copy"
+    _log2 "Repository: $repodir"
+
+    rpath="${PWD:${#repodir} + 1}"
+    _log2 "Relative-Path: $rpath"
+
+    if [ -f "$rrcdir/remotes" ]; then
+        while IFS=: read alias prefix; do
+            if [ -z "$alias" ] || [ "${alias:0:1}" = '#' ]; then
+                continue
+            fi
+
+            remotes[nremote++]="$alias"
+            declare -g remote_$alias="$prefix"
+        done <"$rrcdir/remotes"
+    fi
+
+    $fn "$@"
+}
+
+function rrc_remote() {
+    if [ $# = 0 ]; then
+        for alias in "${remotes[@]}"; do
+            ref="remote_$alias"
+            prefix="${!ref}"
+
+            if [ $LOGLEVEL -le 1 ]; then
+                echo "$alias"
+            else
+                nalias=${#alias}
+                echo "$alias${FILLER:0:20-nalias}$prefix"
+            fi
+        done
+        return
+    fi
+
+    cmd="$1"
+    shift
+
+    case "$cmd" in
+    add)
+        [ $# = 2 ] || quit "$PROGRAM_NAME remote add <alias> <url>"
+        dup=
+        for a in "${remotes[@]}"; do
+            ref="remote_$a"
+            if [ "$a" = "$1" ]; then
+                echo "$a:$2"
+                dup=1
+            else
+                echo "$a:${!ref}"
+            fi
+        done >"$rrcdir/remotes"
+        [ -z "$dup" ] && echo "$1:$2" >>"$rrcdir/remotes"
+        ;;
+
+    rm)
+        [ $# = 1 ] || quit "$PROGRAM_NAME remote rm <alias>"
+
+        match=
+        for a in "${remotes[@]}"; do
+            ref="remote_$a"
+            if [ "$a" = "$1" ]; then
+                match=1
+            else
+                echo "$a:${!ref}"
+            fi
+        done >"$rrcdir/remotes"
+
+        [ -z "$match" ] && _warn "Undefined remote alias $1, ignored."
+        ;;
+
+    *)
+        quit "Illegal remote command: $1";;
+    esac
+}
+
+function rrc_tx() {
+    local mode="$1"
+    shift
+
+    local remote="${1:-origin}"
+    [ -z "$remote" ] && quit "No remote specified."
+
+    local ref="remote_$remote"
+    local prefix="${!ref}"
+    [ -z "$prefix" ] && quit "Undefined remote: $remote"
+
+    # Remove the trailing slash from the URL.
+    prefix="${prefix%/}"
+
+    rsyncopts=(
+            --exclude=/.rrc/
+            --filter=":- .gitignore"
+        )
+    rsyncoptn=${#rsyncopts[@]}
+
+    rsyncopts[rsyncoptn++]="--exclude-from="<(find -name .rrcignore)
+
+    dir=.
+    if [ -n "$2" ]; then
+        dir="${2%/}"
+    fi
+
+    if [ -z "$rpath" ]; then
+        rpathdir="$dir"
+    else
+        rpathdir="$rpath/$dir"
+    fi
+
+    case "$mode" in
+    push)
+        runcmd rsync -av --delete "${rsyncopts[@]}" \
+            "$dir/" "$prefix/$rpathdir"
+        ;;
+
+    pull)
+        runcmd rsync -av --delete "${rsyncopts[@]}" \
+            "$prefix/$rpathdir/" "$dir"
+        ;;
+    esac
+}
+
+function rrc_push() {
+    rrc_tx push "$@"
+}
+
+function rrc_pull() {
+    rrc_tx pull "$@"
+}
+
+function runcmd() {
+    _log1 "$@"
+    "$@"
+}
+
+boot "$@"

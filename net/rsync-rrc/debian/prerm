@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for rsync-enh
+# prerm script for rsync-rrc
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/rsync-enh/prerm
+        /usr/share/setup/rsync-rrc/prerm
     ;;
 
     failed-upgrade)
