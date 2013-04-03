@@ -24,10 +24,10 @@
     MVN=`which coolmvn` || MVN=mvn
 
     CONFDIR="$HOME/.m2"
-    PROJECT_LIST="$CONFDIR/PROJECT-LIST"
-    MODULES="$CONFDIR/MODULES"
-    DEPENDS="$CONFDIR/DEPENDS"
-    RDEPENDS="$CONFDIR/RDEPENDS"
+    projects_file="$CONFDIR/projects"
+    modules_file="$CONFDIR/modules.tab"
+    depends_file="$CONFDIR/depends.tab"
+    rdepends_file="$CONFDIR/rdepends.tab"
 
     all_modules=
     refresh=
@@ -45,13 +45,13 @@ function help_more() {
     echo
     echo "Configurations (in ~/.m2/):"
     echo
-    echo "   PROJECT-LIST    List of paths of all concerned projects"
-    echo "   MODULES         Generated list of all modules"
-    echo "                       GID:AID:PATH"
-    echo "   DEPENDS         Generated list of dependencies of by each module in all projects"
-    echo "                       GID:AID:DEP_GID:DEP_AID"
-    echo "   RDEPENDS        Reversed dependencies"
-    echo "                       DEP_GID:DEP_AID:GID:AID"
+    echo "   projects     List of paths of all concerned projects"
+    echo "   modules.tab  Generated list of all modules"
+    echo "                    GID:AID:PATH"
+    echo "   depends.tab  Generated list of dependencies of by each module in all projects"
+    echo "                    GID:AID:DEP_GID:DEP_AID"
+    echo "   rdepends.tab Reversed dependencies"
+    echo "                    DEP_GID:DEP_AID:GID:AID"
 }
 
 function setopt() {
@@ -103,31 +103,31 @@ function main() {
         shift
     fi
 
-    [ -f "$PROJECT_LIST" ] || die "You haven't set up $PROJECT_LIST yet."
+    [ -f "$projects_file" ] || die "You haven't set up $projects_file yet."
 
     # Do refresh when necessary.
 
         if [ "$refresh" = 1 ] \
-                || [ ! -f "$MODULES" ] \
-                || [ ! -f "$DEPENDS" ] \
-                || [ ! -f "$RDEPENDS" ]; then
+                || [ ! -f "$modules_file" ] \
+                || [ ! -f "$depends_file" ] \
+                || [ ! -f "$rdepends_file" ]; then
 
             _log1 "Refresh project dependencies"
 
-            rm -f "$MODULES"
-            rm -f "$DEPENDS"
-            rm -f "$RDEPENDS"
+            rm -f "$modules_file"
+            rm -f "$depends_file"
+            rm -f "$rdepends_file"
 
-            RDEPENDS_TMP=`tempfile`
+            tmp_rdepends_file=`tempfile`
 
             while read path; do
                 [ -z "$path" ] && continue
                 [ "${path:0:1}" = '#' ] && continue
                 project_analyze "$path"
-            done <"$PROJECT_LIST"
+            done <"$projects_file"
 
-            sort -u "$RDEPENDS_TMP" >"$RDEPENDS"
-            rm -f "$RDEPENDS_TMP"
+            sort -u "$tmp_rdepends_file" >"$rdepends_file"
+            rm -f "$tmp_rdepends_file"
         fi
 
     # Where to be start?
@@ -225,7 +225,7 @@ function project_analyze() {
 
     _log2 "    Module: $project_group_id:$project_artifact_id"
 
-    echo "$project_group_id:$project_artifact_id:$project_dir" >>"$MODULES"
+    echo "$project_group_id:$project_artifact_id:$project_dir" >>"$modules_file"
 
     while read l; do
         k="${l%%=*}"
@@ -254,9 +254,9 @@ function project_analyze() {
     done
 }
 
-# DEPENDS         Generated list of dependencies of by each module in all projects
+# depends.tab         Generated list of dependencies of by each module in all projects
 #                       GID:AID:DEP_GID:DEP_AID [:DEP_VER:DEP_PACK:DEP_SCOPE Not used.]
-# RDEPENDS        Reversed dependencies
+# rdepends.tab        Reversed dependencies
 #                       DEP_GID:DEP_AID:GID:AID
 function flush_dep() {
     local _this="$project_group_id:$project_artifact_id"
@@ -266,8 +266,8 @@ function flush_dep() {
         die "Invalid dependency: $this -> $_dep"
     fi
 
-    echo "$_this:$_dep:$d_ver:$d_type:$d_scope" >>$DEPENDS
-    echo "$_dep:$_this" >>$RDEPENDS_TMP
+    echo "$_this:$_dep:$d_ver:$d_type:$d_scope" >>$depends_file
+    echo "$_dep:$_this" >>$tmp_rdepends_file
 }
 
 function version_add() {
@@ -345,10 +345,10 @@ function module_path() {
 
     while IFS=: read gid aid path; do
         if [ -n "$mod_path" ]; then
-            die "Duplicated occurrence of $mod in $MODULES"
+            die "Duplicated occurrence of $mod in $modules_file"
         fi
         mod_path="$path"
-    done < <(grep "^$mod:" "$MODULES")
+    done < <(grep "^$mod:" "$modules_file")
 
     echo "$mod_path"
 }
@@ -386,7 +386,7 @@ function set_version() {
         if update_user_pom "$r_path/pom.xml" "$mod" "$version" "$indent    "; then
             r_deps[ndirty++]="$r_gid:$r_aid"
         fi
-    done < <(grep "^$mod:" "$RDEPENDS")
+    done < <(grep "^$mod:" "$rdepends_file")
 
     if [ "$recursive" = 1 ]; then
         for r_dep in "${r_deps[@]}"; do
