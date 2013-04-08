@@ -1,0 +1,5 @@
+[org/mate/panel/toplevels/bottom]
+expand=true
+orientation='bottom'
+screen=0
+size=24

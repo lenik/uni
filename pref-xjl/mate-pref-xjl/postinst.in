@@ -1,8 +1,6 @@
 #!/bin/sh
 # master-file
 
-echo "Setup mate-pref-xjl.defaults"
-
-patch -u "@mateconf2dir@/path" "@setupdir@/path.diff"
+dconf update
 
 exit 0

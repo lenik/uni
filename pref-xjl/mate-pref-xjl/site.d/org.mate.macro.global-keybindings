@@ -1,0 +1,17 @@
+[org/mate/marco/global-keybindings]
+panel-run-dialog='<Mod4>r'
+run-command-terminal='<Mod4>t'
+switch-to-workspace-down='<Mod4>j'
+switch-to-workspace-left='<Mod4>h'
+switch-to-workspace-right='<Mod4>l'
+switch-to-workspace-up='<Mod4>k'
+
+[org/mate/marco/window-keybindings]
+activate-window-menu='disabled'
+move-to-workspace-down='<Shift><Mod4>j'
+move-to-workspace-left='<Shift><Mod4>h'
+move-to-workspace-right='<Shift><Mod4>l'
+move-to-workspace-up='<Shift><Mod4>k'
+toggle-fullscreen='<Alt>F11'
+toggle-on-all-workspaces='<Shift><Mod4>asterisk'
+toggle-shaded='<Mod4>F12'

@@ -1,0 +1,5 @@
+[org/mate/panel/objects/menu-bar]
+locked=false
+object-type='menu-bar'
+position=0
+toplevel-id='bottom'

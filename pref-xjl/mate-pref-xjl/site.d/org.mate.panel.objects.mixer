@@ -1,0 +1,8 @@
+# The volume control applet
+
+[org/mate/panel/objects/mixer]
+applet-iid='MixerAppletFactory::MixerApplet'
+object-type='applet'
+panel-right-stick=true
+position=20
+toplevel-id='bottom'

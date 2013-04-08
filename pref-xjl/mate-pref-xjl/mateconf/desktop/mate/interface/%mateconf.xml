@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<mateconf>
-	<entry name="icon_theme" mtime="1336569649" type="string">
-		<stringvalue>Nuvola</stringvalue>
-	</entry>
-	<entry name="gtk_theme" mtime="1336569638" type="string">
-		<stringvalue>Dogmastik</stringvalue>
-	</entry>
-</mateconf>

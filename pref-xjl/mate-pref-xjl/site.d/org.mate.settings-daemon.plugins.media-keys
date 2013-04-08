@@ -1,0 +1,13 @@
+[org/mate/settings-daemon/plugins/media-keys]
+calculator='<Super>equal'
+email='<Mod4>m'
+home='<Mod4>Home'
+logout='<Control><Alt>Delete'
+next='<Mod4>Right'
+play='<Shift><Mod4>Right'
+previous='<Mod4>Left'
+screensaver='<Alt><Mod4>l'
+search='<Mod4>f'
+volume-down='<Mod4>Down'
+volume-up='<Mod4>Up'
+www='<Mod4>i'

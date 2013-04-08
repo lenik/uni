@@ -1,31 +1,30 @@
 include libauto/coolauto.am
 
-SUBDIRS = mateconf
-
 do_subst += \
-    -e 's,[@]mateconf2dir[@],$(mateconf2dir),g'
+    -e 's,[@]dconfdir[@],$(dconfdir),g' \
+    -e 's,[@]dcprofdir[@],$(dcprofdir),g' \
+    -e 's,[@]sitedbdir[@],$(sitedbdir),g'
 
-mateconf2dir   = ${sysconfdir}/mateconf/2
+dconfdir    = ${sysconfdir}/dconf
+dcprofdir   = ${dconfdir}/profile
+sitedbdir = ${dconfdir}/db/site.d
 
 dist_bin_SCRIPTS = \
     mate-switcher
+
+dist_dcprof_DATA = \
+    profile/user
 
 setup_SCRIPTS = \
     postinst \
     prerm
 
-setup_DATA = \
-    path.diff
-
-path.diff: path.0 path
-	-diff -u ${srcdir}/path.0 ${srcdir}/path >$@
-
-#path.0: ${mateconf2dir}/path
-#	cp -f "$<" "$@"
-
 EXTRA_DIST = \
     postinst.in \
     prerm.in
 
-CLEANFILES = ${setup_SCRIPTS} \
-    mateconf-cleanbase/%mateconf-tree.xml
+CLEANFILES = ${setup_SCRIPTS}
+
+install-data-hook:
+	mkdir -p $(DESTDIR)$(sitedbdir); \
+        rsync -amv "${srcdir}/site.d/" "${DESTDIR}${sitedbdir}"

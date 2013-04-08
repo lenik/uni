@@ -1,0 +1,11 @@
+[org/mate/panel/objects/workspace-switcher]
+applet-iid='WnckletFactory::WorkspaceSwitcherApplet'
+locked=false
+object-type='applet'
+panel-right-stick=false
+position=90
+toplevel-id='bottom'
+
+[org/mate/panel/objects/workspace-switcher/prefs]
+display-all-workspaces=true
+num-rows=1

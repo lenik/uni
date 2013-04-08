@@ -1,0 +1,3 @@
+[org/mate/terminal/global]
+default-profile='IceGreen'
+profile-list=['default', 'IceGreen', 'JapanGrid', 'Chocolate']

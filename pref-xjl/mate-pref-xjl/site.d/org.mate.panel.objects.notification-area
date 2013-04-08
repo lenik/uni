@@ -1,0 +1,7 @@
+[org/mate/panel/objects/notification-area]
+applet-iid='NotificationAreaAppletFactory::NotificationArea'
+locked=false
+object-type='applet'
+panel-right-stick=true
+position=50
+toplevel-id='bottom'

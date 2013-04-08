@@ -1,0 +1,6 @@
+[org/mate/panel/objects/window-list]
+applet-iid='WnckletFactory::WindowListApplet'
+locked=false
+object-type='applet'
+position=100
+toplevel-id='bottom'

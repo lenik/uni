@@ -1,0 +1,3 @@
+[org/mate/panel/general]
+object-id-list=['menu-bar', 'multi-load', 'workspace-switcher', 'window-list', 'indicator', 'notification-area', 'mixer', 'clock']
+toplevel-id-list=['bottom']

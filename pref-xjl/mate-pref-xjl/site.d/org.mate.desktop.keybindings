@@ -1,0 +1,24 @@
+[org/mate/desktop/keybindings/text-editor]
+action='alt-exec -s x-editor'
+binding='<Mod4>g'
+name='Text Editor'
+
+[org/mate/desktop/keybindings/virtualbox]
+action='virtualbox'
+binding='<Mod4>v'
+name='Virtual Box'
+
+[org/mate/desktop/keybindings/edit-keyboard-shortcuts]
+action='mate-keybinding-properties'
+binding='<Alt><Mod4>e'
+name='Edit Keyboard Shortcuts'
+
+[org/mate/desktop/keybindings/browse-private-folder]
+action='alt-exec -su x-open .private'
+binding='<Mod4>period'
+name='Browse Private Folder'
+
+[org/mate/desktop/keybindings/terminal-2x]
+action='alt-exec -s x-terminal --zoom=2 --full-screen --working-directory=$HOME'
+binding='<Shift><Mod4>t'
+name='Open Terminal (zoom 2x)'

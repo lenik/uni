@@ -1,7 +1,6 @@
 #!/bin/sh
 # master-file
 
-lineconf -ktm "Remove mate-pref-xjl.defaults from mateconf-2 path" \
-    @mateconf2dir@/path @mate-pref-xjl.defaults
+dconf update
 
 exit 0

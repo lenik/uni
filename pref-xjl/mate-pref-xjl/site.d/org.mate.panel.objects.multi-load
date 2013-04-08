@@ -1,0 +1,8 @@
+# The system monitor applet.
+
+[org/mate/panel/objects/multi-load]
+applet-iid='MultiLoadAppletFactory::MultiLoadApplet'
+object-type='applet'
+panel-right-stick=false
+position=80
+toplevel-id='bottom'

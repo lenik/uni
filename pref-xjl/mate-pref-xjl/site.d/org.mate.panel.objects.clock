@@ -1,0 +1,12 @@
+[org/mate/panel/objects/clock]
+applet-iid='ClockAppletFactory::ClockApplet'
+locked=false
+object-type='applet'
+panel-right-stick=true
+position=0
+toplevel-id='bottom'
+
+[org/mate/panel/objects/clock/prefs]
+show-date=false
+speed-unit='km/h'
+temperature-unit='Centigrade'

@@ -10,7 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-xjl/mate-pref-xjl
 
 Package: mate-pref-xjl
 Architecture: all
-Depends: x11-xserver-utils, desktoputils
+Depends: x11-xserver-utils, desktoputils, dconf-tools
 Recommends: mate-desktop-environment, compizconfig-settings-manager
 Suggests: compiz-plugins-extra
 Description: Lenik's PC/X11 environment
