@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<gconf>
-	<entry name="follow_focus" mtime="1291601431" type="bool" value="false"/>
-	<entry name="mouse_pan" mtime="1291601410" type="bool" value="true"/>
-	<entry name="restrain_margin" mtime="1291601404" type="int" value="0"/>
-	<entry name="hide_original_mouse" mtime="1291601404" type="bool" value="true"/>
-	<entry name="scale_mouse" mtime="1291601404" type="bool" value="true"/>
-	<entry name="sync_mouse" mtime="1291601404" type="bool" value="false"/>
-</gconf>
