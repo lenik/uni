@@ -1,5 +1,5 @@
 [org/mate/settings-daemon/plugins/media-keys]
-calculator='<Super>equal'
+calculator='<Mod4>equal'
 email='<Mod4>m'
 home='<Mod4>Home'
 logout='<Control><Alt>Delete'
