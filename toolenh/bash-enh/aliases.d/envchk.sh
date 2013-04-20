@@ -33,3 +33,11 @@ function env() {
         fi
     done
 }
+
+function pathadd() {
+    local a
+    for a in "$@"; do
+        a=`readlink -f "$a"`
+        PATH="$PATH:$a"
+    done
+}
