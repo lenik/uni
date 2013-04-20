@@ -1,0 +1,15 @@
+Source: 7z-enh
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/toolenh/7z-enh
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk/toolenh/7z-enh
+Vcs-Browser: http://svn.bodz.net/uni/trunk/toolenh/7z-enh
+
+Package: 7z-enh
+Architecture: all
+Depends: p7zip | p7zip-full, bash-shlib
+Description: 7z zip/unzip enhancements.
+    This package provides 7z wrappers, to convert filename encodings.

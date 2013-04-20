@@ -1,0 +1,4 @@
+#!/bin/sh
+# master-file
+
+echo "7z-enh - prerm.in ..."
