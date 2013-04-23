@@ -1,0 +1,35 @@
+#!/bin/bash
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    PROGRAM_TITLE="Unzip with filename encoding converted"
+    PROGRAM_SYNTAX="[OPTIONS] [--] "
+
+    . shlib-import cliboot
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    while read name; do
+        convmv -f gbk -t utf8 --notest "$name" >/dev/null 2>/dev/null
+    done < <( LANG=C 7z x -y "$1" \
+                | sed -n 's/^Extracting //p' \
+                | sed '1!G;h;$!d' )
+}
+
+boot "$@"
