@@ -1,0 +1,62 @@
+#!/bin/bash
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    PROGRAM_TITLE="Auto detect text file encoding and convert to utf-8"
+    PROGRAM_SYNTAX="[OPTIONS] [--] TEXT-FILES"
+
+    . shlib-import cliboot
+    option -f --from=CHARSET "Convert from this charset"
+    option -b --bak=EXT     "Save backup file"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+    from=
+    bak=
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for file in "$@"; do
+        if [ ! -f "$file" ]; then
+            _error "File isn't existed: $file"
+            continue
+        fi
+
+        enc="$from"
+        if [ -z "$enc" ]; then
+            IFS=: read _file _enc_etc < <(chardet "$file")
+            enc="${_enc_etc%%(*}"
+            enc="${enc% }"
+            enc="${enc# }"
+        fi
+
+        if [ "$enc" = utf-8 ]; then
+            _log1 "File is already converted: $file"
+            continue
+        fi
+        _log1 "Convert $file from $enc to utf-8"
+
+        if [ -n "$bak" ]; then
+            _log2 "    Backup $file.$bak"
+            cp "$file" "$file.$bak"
+        fi
+
+        sedit -Kv "$file" iconv -f "$enc" -t utf8
+    done
+}
+
+boot "$@"

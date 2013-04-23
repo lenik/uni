@@ -1,6 +1,7 @@
 include libauto/coolauto.am
 
 dist_bin_SCRIPTS = \
+    2utf8 \
     wcc \
     unindent \
     tabify \

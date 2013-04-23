@@ -11,5 +11,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/text/cooltext
 Package: cooltext
 Provides: cooltext
 Architecture: all
-Depends: coolutils, perl, libcmt-perl, libtext-diff-perl
+Depends: coolutils, perl, libcmt-perl, libtext-diff-perl, python-chardet
 Description: Text process utilities
