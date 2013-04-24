@@ -42,6 +42,12 @@ function main() {
             enc="${_enc_etc%%(*}"
             enc="${enc% }"
             enc="${enc# }"
+
+            case "$enc" in
+                GB2312|gb2312)
+                    # It's common to see Traditional Chinese in GBK, however not seen by chardet.
+                    enc=gbk;;
+            esac
         fi
 
         if [ "$enc" = utf-8 ]; then
@@ -55,7 +61,7 @@ function main() {
             cp "$file" "$file.$bak"
         fi
 
-        sedit -Kv "$file" iconv -f "$enc" -t utf8
+        sedit -Kv "$file" iconv -c -f "$enc" -t utf8
     done
 }
 
