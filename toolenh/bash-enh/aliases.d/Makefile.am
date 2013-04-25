@@ -6,7 +6,7 @@ do_subst += -e 's,@bcdir@,$(bcdir),g'
 
 dist_aliases_DATA = \
     dirs.sh \
-    envchk.sh \
+    envop.sh \
     maths.sh \
     shorts.sh \
     stats.sh
