@@ -27,6 +27,8 @@ function setopt() {
     case "$1" in
         -a|--each-db)
             each_db=1;;
+        -c|--console)
+            mode=console;;
         -e|--eval)
             mode=eval;;
         -f|--script-file)
