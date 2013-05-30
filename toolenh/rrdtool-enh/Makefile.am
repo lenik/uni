@@ -1,12 +1,14 @@
 include libauto/coolauto.am
 
+samplesdir = ${pkgdatadir}/samples
+
 dist_bin_SCRIPTS = \
     rrdwrapper-index
 
 dist_shlib_DATA = \
     shlib.d/rrdwrapper
 
-dist_pkgdata_SCRIPTS = \
+dist_samples_SCRIPTS = \
     test/demo.rrw
 
 setup_SCRIPTS = \
