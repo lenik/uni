@@ -1,0 +1,12 @@
+#!/bin/bash
+
+for d in /opt/java/astah-*; do
+    ASTAH_HOME="$d"
+done
+
+if [ ! -d "$ASTAH_HOME" ]; then
+    echo "No astah installation found." >&2
+    exit 1
+fi
+
+exec java -jar "$ASTAH_HOME/astah-pro.jar" "$@"
