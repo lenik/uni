@@ -1,0 +1,17 @@
+#!/bin/bash
+
+for f in "$@"; do
+    ext="${f##*.}"
+    if [ "$ext" != pdf ]; then
+        echo "Not a pdf: $f"
+        continue
+    fi
+
+    echo "Repair $f..."
+    base="${f%.*}"
+    gs \
+        -o "${base}.repaired.pdf" \
+        -sDEVICE=pdfwrite \
+        -dPDFSETTINGS=/prepress \
+        "$f"
+done

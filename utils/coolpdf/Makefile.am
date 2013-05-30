@@ -1,5 +1,9 @@
 include libauto/coolauto.am
 
+dist_bin_SCRIPTS = \
+    3rdparty/pdfcrop \
+    pdfrepair
+
 setup_SCRIPTS = \
     postinst \
     prerm
