@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+
+use strict;
+use Encode("decode");
+use Encode::Locale;
+use URI::Encode;
+
+my $encoder = URI::Encode->new({
+        encode_reserved => 0
+    });
+
+for (@ARGV) {
+    $_ = decode(locale => $_);
+    # print length($_)."\n";
+    print $encoder->encode($_, 'UTF8') . "\n";
+}

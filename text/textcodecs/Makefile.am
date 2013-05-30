@@ -1,5 +1,9 @@
 include libauto/coolauto.am
 
+dist_bin_SCRIPTS = \
+    uri-encode \
+    uri-decode
+
 setup_SCRIPTS = \
     postinst \
     prerm
