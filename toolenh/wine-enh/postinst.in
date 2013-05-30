@@ -1,4 +1,6 @@
 #!/bin/sh
 # master-file
 
+update-binfmts --import
+
 exit 0

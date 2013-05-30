@@ -1,0 +1,3 @@
+package wine-enh
+interpreter @bindir@/exe-runner
+magic MZ

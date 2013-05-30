@@ -1,4 +1,7 @@
 #!/bin/sh
 # master-file
 
+# However, this won't remove unused formats.
+# update-binfmts --import
+
 exit 0

@@ -1,0 +1,55 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    [ -n "$1" ] || quit "Exe name isn't specified"
+    exe="$1"
+    shift
+
+    exefile=$( readlink -f "$exe" )
+
+    if [ -x "$exefile" ]; then
+        dirname="${exefile%/*}"
+        basename="${exefile##*/}"
+
+        rcfile="$dirname/$basename.rc"
+        if [ -x "$rcfile" ]; then
+            _log2 "Eval rcfile: $rcfile"
+            source "$rcfile"
+        fi
+
+        if [ -n "$CHDIR" ]; then
+            _log2 "Chdir to $dirname"
+            cd "$dirname"
+            exe="./$basename"
+        fi
+    fi
+
+    _log2 "Execute $exe $*"
+    exec wine "$exe" "$@"
+}
+
+boot "$@"

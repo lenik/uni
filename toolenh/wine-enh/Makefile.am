@@ -1,6 +1,9 @@
 include libauto/coolauto.am
 
+SUBDIRS = binfmts
+
 dist_bin_SCRIPTS = \
+    exe-runner \
     install-exe
 
 setup_SCRIPTS = \
@@ -11,4 +14,6 @@ EXTRA_DIST = \
     postinst.in \
     prerm.in
 
-CLEANFILES = ${setup_SCRIPTS}
+CLEANFILES = \
+    ${dist_bin_SCRIPTS} \
+    ${setup_SCRIPTS}
