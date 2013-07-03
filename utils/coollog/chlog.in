@@ -1,0 +1,77 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FILE [message]}
+
+    . shlib-import cliboot
+    option -G --git-dir =DIR "Specify the git repository"
+    option -g --git-mode    "Trace changes using git"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+    git_mode=
+    git_dir=
+
+function setopt() {
+    case "$1" in
+        -g|--git-mode)
+            git_mode=1;;
+        -G|--git-dir)
+            git_mode=1
+            git_dir="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    [ -n "$1" ] || quit "File isn't specified."
+    [ -e "$1" ] || quit "File $1 isn't existed."
+
+    file="$1"
+    shift
+    message="$*"
+    if [ -z "$message" ]; then
+        message="(no message)"
+    fi
+
+    if [ "$git_mode" = 1 ]; then
+        if [ -z "$git_dir" ]; then
+            file_git="$file.lg"
+        else
+            file_git="$git_dir"
+        fi
+
+        if [ ! -d "$file_git" ]; then
+            git init "$file_git"
+        fi
+
+        cp -f "$file" "$file_git/file"
+        cd "$file_git"
+        git add file
+        git commit -m "$message"
+
+    else
+        file_0="$file.0"
+        file_log="$file.log"
+
+        if ! diff -Nq "$file_0" "$file" >/dev/null; then
+            echo >>"$file_log"
+            echo "# $message" >>"$file_log"
+            diff -Nu "$file_0" "$file" >>"$file_log"
+            cp -f "$file" "$file_0"
+        fi
+    fi
+}
+
+boot "$@"
