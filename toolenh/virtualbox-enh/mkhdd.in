@@ -1,0 +1,66 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Create HDD Disk Image}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] IMAGE-FILE}
+
+    . shlib-import cliboot
+    option -s --size =SIZE  "Specify the disk size"
+    option -f --force       "Force to overwrite existing image file"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+    size=
+    scale=1
+    force=
+
+function setopt() {
+    case "$1" in
+        -s|--size)
+            case "$2" in
+                *g|*G)  size="${2:0:-1}"; scale=1048576;;
+                *m|*M)  size="${2:0:-1}"; scale=1024;;
+                *k|*K)  size="${2:0:-1}";;
+                *)      size="$2";;
+            esac;;
+        -f|--force)
+            force=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    [ -z "$size" ] && quit "Disk size isn't specified."
+
+    size=$(( size * scale ))
+    [ $size -lt 32 ] && quit "Disk size is too small: $size KB"
+
+    image_file="$1"
+    [ -z "$image_file" ] && quit "Image file isn't specified."
+
+    if [ -e "$image_file" ]; then
+        if [ "$force" != 1 ]; then
+            quit "Image file is already existed: $image_file"
+        else
+            _log2 "Overwrite existing file: $image_file"
+        fi
+    fi
+
+    _log2 "Create disk image size: $size KB"
+
+    cp "@pkgdatadir@/x86_boot_sector" "$image_file"
+    sectors=$(( size * 2 - 1 ))
+    dd if=/dev/zero of="$image_file" bs=512 count=$sectors oflag=append conv=notrunc
+}
+
+boot "$@"
