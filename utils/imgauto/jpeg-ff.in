@@ -1,0 +1,105 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Repeat JPEG images by flip-flop}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -H --horizontal =NUM "Horizontal repeat count, default 2"
+    option -V --vertical =NUM "Vertical repeat count, default 2"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+    H=2
+    V=2
+
+function setopt() {
+    case "$1" in
+        -H|--horizontal)
+            if [ "$2" -le 0 ]; then
+                quit "Illegal horizontal repeat count: $2"
+            fi
+            H="$2";;
+        -V|--vertical)
+            if [ "$2" -le 0 ]; then
+                quit "Illegal vertical repeat count: $2"
+            fi
+            V="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    input="$1"
+    [ -f "$input" ] || quit "File isn't found: $input"
+    tmpdir=$(mktemp -d) || quit "Failed to create temp dir: $!"
+
+    dirname="${input%/*}"
+    if [ "$dirname" = "$input" ]; then
+        dirname=.
+        basename="$input"
+    else
+        basename="${input##*/}"
+    fi
+
+    extension="${basename##*.}"
+    if [ "$extension" = "$basename" ]; then
+        extension=
+    else
+        basename="${basename%.*}"
+        extension=".$extension"
+    fi
+
+    output="$dirname/$basename-${V}x${H}${extension}"
+
+    comp=()
+    ncomp=0
+
+    for ((y = 0; y < V; y++)); do
+        flip=$(( y % 2 ))
+
+        comp[ncomp++]='('
+
+        for ((x = 0; x < H; x++)); do
+            flop=$(( x % 2 ))
+
+            fragment="$tmpdir/$basename-$y-$x$extension"
+
+            _log2 "Generate fragment $y:$x"
+            case "$flip$flop" in
+                00)
+                    cp "$input" "$fragment";;
+                01)
+                    jpegtran -flip horizontal "$input" >"$fragment";;
+                10)
+                    jpegtran -flip vertical "$input" >"$fragment";;
+                11)
+                    jpegtran -flip horizontal "$input" |
+                    jpegtran -flip vertical >"$fragment";;
+            esac
+
+            comp[ncomp++]="$fragment"
+        done
+        comp[ncomp++]="+append"
+        comp[ncomp++]=')'
+    done
+    comp[ncomp++]="-append"
+
+    _log1 "Compose the result image $output"
+    convert "${comp[@]}" "$output"
+
+    _log2 "Clean up"
+    rm -fr "$tmpdir"
+}
+
+boot "$@"

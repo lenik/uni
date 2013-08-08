@@ -10,6 +10,6 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/utils/imgaut
 
 Package: imgauto
 Architecture: all
-Depends: ${misc:Depends}, imagemagick, jpegtran
+Depends: ${misc:Depends}, imagemagick, libjpeg-progs
 Description: Image automation tools
  This package provides utilities to process images.
