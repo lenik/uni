@@ -1,0 +1,15 @@
+Source: imgauto
+Section: graphics
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/utils/imgauto
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/utils/imgauto
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/utils/imgauto
+
+Package: imgauto
+Architecture: all
+Depends: ${misc:Depends}, imagemagick, jpegtran
+Description: Image automation tools
+ This package provides utilities to process images.

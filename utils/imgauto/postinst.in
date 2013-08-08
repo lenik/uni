@@ -1,0 +1,4 @@
+#!/bin/sh
+# master-file
+
+echo "imgauto - postinst.in ..."
