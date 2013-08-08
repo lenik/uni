@@ -1,0 +1,15 @@
+Source: cdu-bodz-uni
+Section: web
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/integration-cdu/cdu-bodz-uni
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/integration-cdu/cdu-bodz-uni
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/integration-cdu/cdu-bodz-uni
+
+Package: cdu-bodz-uni
+Architecture: all
+Depends: ${misc:Depends}, bash-enh, inoticoming, reprepro, apache2
+Description: uni Debian Server
+ This package provide uni-Debian related services.
