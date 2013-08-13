@@ -1,0 +1,97 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+    option -a --all         "Consider all possible dependencies"
+    option -r --recommends  "Consider recommended dependencies"
+    option -s --suggests    "Consider suggested dependencies"
+
+    recommends=
+    suggests=
+
+function setopt() {
+    case "$1" in
+        -a|--all)
+            recommends=1
+            suggests=1
+            ;;
+        -r|--recommends)
+            recommends=1;;
+        -s|--suggests)
+            suggests=1;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    opts=(-s Depends)
+    nopt=${#opts[@]}
+
+    if [ "$recommends" = 1 ]; then
+        opts[nopt++]=-s
+        opts[nopt++]=Recommends
+    fi
+
+    if [ "$suggests" = 1 ]; then
+        opts[nopt++]=-s
+        opts[nopt++]=Suggests
+    fi
+
+    grep-status -Fstatus 'install ok installed' -s Package "${opts[@]}" | perl -e '
+        use strict;
+        # use Data::Dumper;
+
+        my $package;
+        my @all;
+        my $depmap = {};
+
+        while (<>) {
+            chomp;
+            next if $_ eq "";
+
+            if (/^(\w+): (.*)$/) {
+                if ($1 eq "Package") {
+                    $package = $2;
+                    push @all, $package;
+                } else {                                 # } elsif ($1 eq "Depends" or $1 eq "Recommends") {
+                    my @dep;
+                    for (split(/, /, $2)) {
+                        s/ \(.*\)//;
+                        push @dep, $_;
+                    }
+                    $depmap->{$package} = [ @dep ];
+                }
+            }
+        }
+
+        my $cat = {};
+        $cat->{$_} = "top" for @all;
+
+        for my $deps (values %$depmap) {
+            # print join(", ", @$deps), "\n";
+            $cat->{$_} = "dep" for @$deps;
+        }
+
+        # print Dumper($cat);
+
+        @all = (sort @all);
+        print $cat->{$_} . ":" . $_ . "\n" for @all;
+        '
+}
+
+boot "$@"

@@ -1,4 +1,5 @@
 apt-f
+apt-list-dep
 debsize
 dwhich
 lsdeb
