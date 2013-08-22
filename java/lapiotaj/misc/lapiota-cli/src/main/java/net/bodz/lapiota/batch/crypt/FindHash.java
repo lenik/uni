@@ -16,6 +16,7 @@ import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.mf.std.AbstractParser;
 import net.bodz.bas.program.skel.BasicCLI;
+import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.sio.IPrintOut;
 import net.bodz.bas.vfs.IFile;
 import net.bodz.lapiota.batch.crypt.Hashes.PeekDigest;
@@ -49,7 +50,7 @@ public class FindHash
             extends AbstractParser<Range> {
 
         @Override
-        public Range parse(String text)
+        public Range parse(String text, IOptions options)
                 throws ParseException {
             int comma = text.indexOf(',');
             int from = Integer.parseInt(text.substring(0, comma));
