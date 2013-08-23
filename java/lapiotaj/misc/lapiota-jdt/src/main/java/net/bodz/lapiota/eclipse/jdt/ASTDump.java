@@ -60,7 +60,7 @@ public class ASTDump
     protected void dumpJavaFile(IFile javaFile)
             throws Exception {
         if (javaFile == null)
-            _help();
+            showHelpPage();
 
         logger.info("load file ", javaFile);
         char[] javaSource = javaFile.tooling()._for(StreamReading.class).readString().toCharArray();

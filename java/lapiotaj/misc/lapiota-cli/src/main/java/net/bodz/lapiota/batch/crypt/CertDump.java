@@ -42,7 +42,7 @@ public class CertDump
     protected void mainImpl(String... args)
             throws Exception {
         if (args.length == 0)
-            _help();
+            showHelpPage();
         for (String arg : args) {
             CertSelector cs = new CertSelector(arg, provider);
             cs.dump(Stdio.cout, detailLevel);

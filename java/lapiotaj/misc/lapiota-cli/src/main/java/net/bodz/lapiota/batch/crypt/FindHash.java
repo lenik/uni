@@ -175,8 +175,8 @@ public class FindHash
     }
 
     @Override
-    protected void _help(IPrintOut out) {
-        super._help(out);
+    protected void showHelpPage(IPrintOut out) {
+        super.showHelpPage(out);
         out.println();
 
         out.println(tr._("Algorithms: "));

@@ -52,7 +52,7 @@ public class ZipSub
     protected void mainImpl(String... args)
             throws Exception {
         if (args.length < 2)
-            _help();
+            showHelpPage();
 
         Set<String> removeSet = new HashSet<String>();
         for (int i = 1; i < args.length; i++) {

@@ -43,7 +43,7 @@ public class CertImport
     protected void mainImpl(String... args)
             throws Exception {
         if (args.length == 0)
-            _help();
+            showHelpPage();
 
         KeyStore targetStore = target.getKeyStore(provider);
 

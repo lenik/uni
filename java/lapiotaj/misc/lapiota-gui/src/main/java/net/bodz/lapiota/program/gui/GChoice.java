@@ -90,8 +90,8 @@ public class GChoice
     }
 
     @Override
-    protected void _help(IPrintOut out) {
-        super._help(out);
+    protected void showHelpPage(IPrintOut out) {
+        super.showHelpPage(out);
         out.println();
 
         out.println("Import from environ vars: ");
