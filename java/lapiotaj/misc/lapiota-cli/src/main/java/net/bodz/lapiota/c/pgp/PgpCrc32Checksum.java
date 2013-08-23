@@ -1,8 +1,8 @@
 package net.bodz.lapiota.c.pgp;
 
 import net.bodz.bas.c.java.util.zip.AbstractZipChecksum;
-import net.bodz.bas.mem.types.Int32BE;
-import net.bodz.bas.mem.types.Int32LE;
+import net.bodz.bas.data.mem.types.Int32BE;
+import net.bodz.bas.data.mem.types.Int32LE;
 
 public class PgpCrc32Checksum
         extends AbstractZipChecksum

@@ -3,8 +3,6 @@ package net.bodz.lapiota.program.xmlfs;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.bodz.lapiota.program.xmlfs.Xmlfs;
-
 public class XmlfsTest
         extends Assert {
 

@@ -7,6 +7,14 @@ import java.util.Map.Entry;
 
 import javax.servlet.ServletContext;
 
+import org.apache.commons.collections15.map.HashedMap;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.uni.echo.config.EchoServerConfig;
 import net.bodz.uni.echo.config.EchoServerConfigAdapter;
@@ -17,14 +25,6 @@ import net.bodz.uni.echo.resource.IResourceProvider;
 import net.bodz.uni.echo.resource.MountableResourceProvider;
 import net.bodz.uni.echo.resource.ResourceProviders;
 import net.bodz.uni.echo.resource.UnionResourceProvider;
-
-import org.apache.commons.collections15.map.HashedMap;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 
 public class EchoServer
         extends Server {

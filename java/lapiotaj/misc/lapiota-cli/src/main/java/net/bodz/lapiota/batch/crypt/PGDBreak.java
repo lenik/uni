@@ -2,11 +2,11 @@ package net.bodz.lapiota.batch.crypt;
 
 import java.io.File;
 
+import net.bodz.bas.data.mem.Memory;
+import net.bodz.bas.data.mem.RandomAccessFileMemory;
 import net.bodz.bas.io.resource.tools.StreamWriting;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
-import net.bodz.bas.mem.Memory;
-import net.bodz.bas.mem.RandomAccessFileMemory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.skel.BasicCLI;

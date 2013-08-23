@@ -2,9 +2,9 @@ package net.bodz.uni.echo.test;
 
 import java.net.URL;
 
-import net.bodz.uni.echo._default.HelloServlet;
-
 import org.junit.Test;
+
+import net.bodz.uni.echo._default.HelloServlet;
 
 public class EchoTestAppTest
         extends EchoTestApp {

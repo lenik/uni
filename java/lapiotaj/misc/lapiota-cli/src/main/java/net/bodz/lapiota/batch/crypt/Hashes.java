@@ -5,9 +5,9 @@ import java.security.MessageDigest;
 import java.security.Provider;
 import java.util.zip.Checksum;
 
+import net.bodz.bas.data.mem.types.Int32BE;
+import net.bodz.bas.data.mem.types.Int32LE;
 import net.bodz.bas.err.UnexpectedException;
-import net.bodz.bas.mem.types.Int32BE;
-import net.bodz.bas.mem.types.Int32LE;
 
 public class Hashes {
 

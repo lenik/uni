@@ -1,6 +1,5 @@
 package net.bodz.lapiota.program.gui;
 
-import net.bodz.lapiota.program.gui.GChoice;
 
 public class GChoiceTest {
 

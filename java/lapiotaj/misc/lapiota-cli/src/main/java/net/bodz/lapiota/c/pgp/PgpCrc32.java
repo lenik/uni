@@ -1,8 +1,8 @@
 package net.bodz.lapiota.c.pgp;
 
+import net.bodz.bas.data.mem.Memory;
+import net.bodz.bas.data.mem.MemoryAccessException;
 import net.bodz.bas.i18n.nls.II18nCapable;
-import net.bodz.bas.mem.Memory;
-import net.bodz.bas.mem.MemoryAccessException;
 import net.bodz.lapiota.batch.crypt.FindHash.Range;
 
 /**
