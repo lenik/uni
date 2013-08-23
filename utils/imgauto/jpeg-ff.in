@@ -6,6 +6,7 @@
     . shlib-import cliboot
     option -H --horizontal =NUM "Horizontal repeat count, default 2"
     option -V --vertical =NUM "Vertical repeat count, default 2"
+    option -1 --odd         "Odd arrangement"
     option -q --quiet       "Repeat to get less info"
     option -v --verbose     "Repeat to get more info"
     option -h --help        "Show this help page"
@@ -13,6 +14,7 @@
 
     H=2
     V=2
+    odd=0
 
 function setopt() {
     case "$1" in
@@ -26,6 +28,8 @@ function setopt() {
                 quit "Illegal vertical repeat count: $2"
             fi
             V="$2";;
+        -1|--odd)
+            odd=1;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -76,14 +80,14 @@ function main() {
             fragment="$tmpdir/$basename-$y-$x$extension"
 
             _log2 "Generate fragment $y:$x"
-            case "$flip$flop" in
-                00)
+            case "$odd.$flip$flop" in
+                0.00|1.11)
                     cp "$input" "$fragment";;
-                01)
+                0.01|1.10)
                     jpegtran -flip horizontal "$input" >"$fragment";;
-                10)
+                0.10|1.01)
                     jpegtran -flip vertical "$input" >"$fragment";;
-                11)
+                0.11|1.00)
                     jpegtran -flip horizontal "$input" |
                     jpegtran -flip vertical >"$fragment";;
             esac
