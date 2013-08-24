@@ -7,10 +7,10 @@ sudoersdir=@DESTDIR@@sudoersdir@
 # IMPORTANT.
 chmod 440 $sudoersdir/dev
 
-$setupdir/check-uid.sh $sysconfdir 70 99 700 999
-$setupdir/check-gid.sh $sysconfdir 70 99 700 999
-$setupdir/70.sh  $sysconfdir
-$setupdir/700.sh $sysconfdir
+$setupdir/check-uid.sh $sysconfdir 700 999
+$setupdir/check-gid.sh $sysconfdir 700 999
+$setupdir/700g.sh $sysconfdir
+$setupdir/700u.sh $sysconfdir
 
 setminuid 800
 

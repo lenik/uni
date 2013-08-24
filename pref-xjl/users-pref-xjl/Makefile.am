@@ -4,9 +4,12 @@ dist_bin_SCRIPTS = \
 	setminuid
 
 dist_setup_SCRIPTS = \
-	70.sh 700.sh \
-	check-uid.sh  check-gid.sh \
-	remove-uid.sh remove-gid.sh \
+	700g.sh \
+	700u.sh \
+	check-uid.sh \
+	check-gid.sh \
+	remove-uid.sh \
+	remove-gid.sh \
 	postinst \
 	prerm
 

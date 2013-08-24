@@ -11,10 +11,9 @@ if [ "$1" = '-f' ]; then
     force=1
 fi
 
-# group 70-99
+# group 700-799
 
-groupadd -g70 dev
-groupadd -g71 play
-groupadd -g72 demo
+groupadd -g700 dev
+groupadd -g701 play
+groupadd -g702 demo
 
-# user 70-99
