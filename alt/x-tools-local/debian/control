@@ -1,0 +1,15 @@
+Source: x-tools-local
+Section: devel
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/alt/x-tools-local
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/alt/x-tools-local
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/alt/x-tools-local
+
+Package: x-tools-local
+Architecture: all
+Depends: bash-shlib
+Description: Support for crosstool-ng and its dev environment builds.
+ This package provide support utils for cross development based on crosstool-ng.

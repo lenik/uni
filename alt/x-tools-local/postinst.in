@@ -1,0 +1,4 @@
+#!/bin/sh
+# master-file
+
+echo "x-tools-local - postinst.in ..."
