@@ -6,7 +6,7 @@ dist_sysconf_DATA = \
     mini-dinstall.conf
 
 dist_sites_DATA = \
-    dlocal.site
+    dlocal.conf
 
 setup_SCRIPTS = \
     postinst \
