@@ -3,7 +3,7 @@ include libauto/coolauto.am
 sitesdir = ${sysconfdir}/apache2/sites-available
 
 dist_sites_DATA = \
-    bodz-trac.site
+    bodz-trac.conf
 
 setup_SCRIPTS = \
     postinst \
