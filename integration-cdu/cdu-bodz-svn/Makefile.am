@@ -17,7 +17,7 @@ dist_svnconf_DATA = \
     svnserve.conf
 
 sites_DATA = \
-    bodz-svn.site
+    bodz-svn.conf
 
 dist_view_DATA = \
     z-repos.xsl
@@ -38,9 +38,9 @@ setup_SCRIPTS = \
 EXTRA_DIST = \
     postinst.in \
     prerm.in \
-    bodz-svn.site.in
+    bodz-svn.site.conf
 
 CLEANFILES = ${setup_SCRIPTS} \
     svnserve.conf \
-    bodz-svn.site \
+    bodz-svn.conf \
     svn
