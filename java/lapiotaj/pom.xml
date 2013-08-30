@@ -26,6 +26,8 @@
     <properties>
         <java.version>1.7</java.version>
         <javaProfile>JavaSE-7</javaProfile>
+        <bas.version>2.0.0-SNAPSHOT</bas.version>
+        <swt.version>1.2.0-SNAPSHOT</swt.version>
     </properties>
     <name>Lapiota</name>
     <url>http://lapiota.bodz.net/</url>

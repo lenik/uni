@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.Checksum;
 
-import net.bodz.bas.c.java.lang.ClassMdaFeatures;
+import net.bodz.bas.c.java.lang.ClassTypers;
 import net.bodz.bas.data.codec.builtin.HexCodec;
 import net.bodz.bas.data.mem.types.Int32LE;
 import net.bodz.bas.err.NotImplementedException;
@@ -112,7 +112,7 @@ public class CRCSum
             throws ParseException {
         Class<? extends Checksum> clazz = types.get(name);
         if (clazz == null)
-            clazz = (Class<? extends Checksum>) new ClassMdaFeatures().parse(name);
+            clazz = (Class<? extends Checksum>) new ClassTypers().parse(name);
         _class = clazz;
     }
 

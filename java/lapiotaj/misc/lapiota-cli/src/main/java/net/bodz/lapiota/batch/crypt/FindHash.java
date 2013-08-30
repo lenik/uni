@@ -14,10 +14,10 @@ import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.mf.std.AbstractParser;
 import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.sio.IPrintOut;
+import net.bodz.bas.typer.std.AbstractParser;
 import net.bodz.bas.vfs.IFile;
 import net.bodz.lapiota.batch.crypt.Hashes.PeekDigest;
 

@@ -2,7 +2,7 @@ package net.bodz.lapiota.ant.tasks;
 
 import org.apache.tools.ant.BuildException;
 
-import net.bodz.bas.ant.CLITask;
+import net.bodz.bas.ant.task.CLITask;
 
 public class HelloTask
         extends CLITask {

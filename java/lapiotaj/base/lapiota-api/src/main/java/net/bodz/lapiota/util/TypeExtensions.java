@@ -10,8 +10,8 @@ import org.dom4j.io.OutputFormat;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.err.OutOfDomainException;
 import net.bodz.bas.err.ParseException;
-import net.bodz.bas.mf.std.AbstractParser;
 import net.bodz.bas.rtx.IOptions;
+import net.bodz.bas.typer.std.AbstractParser;
 
 public class TypeExtensions {
 
