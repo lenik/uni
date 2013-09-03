@@ -10,6 +10,6 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/utils/diskut
 
 Package: diskutils
 Architecture: all
-Depends: ${misc:Depends}, bash-shlib, sfdisk
+Depends: ${misc:Depends}, bash-shlib, util-linux
 Description: Disk utils
  Contains: mkhdd, readmbr, writembr, etc.
