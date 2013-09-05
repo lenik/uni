@@ -2,7 +2,7 @@ package net.bodz.lapiota.batch.crypt;
 
 import java.io.File;
 
-import net.bodz.bas.data.mem.Memory;
+import net.bodz.bas.data.mem.IMemory;
 import net.bodz.bas.data.mem.RandomAccessFileMemory;
 import net.bodz.bas.io.resource.tools.StreamWriting;
 import net.bodz.bas.log.Logger;
@@ -43,8 +43,8 @@ public class PGDBreak
      */
     public void pgpBreakUp(File file)
             throws Exception {
-        Memory mem = new RandomAccessFileMemory(file, 0);
-        Memory chunk = mem;
+        IMemory mem = new RandomAccessFileMemory(file, 0);
+        IMemory chunk = mem;
         long addr = 0;
         int chunkIndex = 0;
         while (true) {

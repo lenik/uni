@@ -1,6 +1,6 @@
 package net.bodz.lapiota.c.pgp;
 
-import net.bodz.bas.data.mem.Memory;
+import net.bodz.bas.data.mem.IMemory;
 import net.bodz.bas.data.mem.MemoryAccessException;
 import net.bodz.bas.i18n.nls.II18nCapable;
 import net.bodz.lapiota.batch.crypt.FindHash.Range;
@@ -28,7 +28,7 @@ public class PgpCrc32
     public PgpCrc32() {
     }
 
-    public byte[] process(Memory src, long lenl)
+    public byte[] process(IMemory src, long lenl)
             throws MemoryAccessException {
         if (lenl >= Integer.MAX_VALUE)
             throw new UnsupportedOperationException(tr._("unsupport to get crc32 from >2G block"));
