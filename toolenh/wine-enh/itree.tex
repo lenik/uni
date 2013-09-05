@@ -9,11 +9,18 @@
         node[dir] {usr\fileflag{/}}
         child{
             node[dir] {bin\fileflag{/}}
+            child{ node[executable] {exe-runner\fileflag{*}} }
             child{ node[executable] {install-exe\fileflag{*}} }
         }
         child[missing] {}
+        child[missing] {}
         child{
             node[dir] {share\fileflag{/}}
+            child{
+                node[dir] {binfmts\fileflag{/}}
+                child{ node[plain] {wine-enh} }
+            }
+            child[missing] {}
             child{
                 node[dir] {setup\fileflag{/}}
                 child{

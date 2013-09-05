@@ -6,28 +6,18 @@
     edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
     \path node[dir] {\emph{«setupdir»}}
     child{
-        node[dir] {etc\fileflag{/}}
-        child{
-            node[dir] {apache2\fileflag{/}}
-            child{
-                node[dir] {sites-available\fileflag{/}}
-                child{ node[plain] {bodz-m2.conf} }
-                child{ node[plain] {local-m2.conf} }
-            }
-        }
-    }
-    child[missing] {}
-    child[missing] {}
-    child[missing] {}
-    child[missing] {}
-    child{
         node[dir] {usr\fileflag{/}}
+        child{
+            node[dir] {bin\fileflag{/}}
+            child{ node[executable] {jpeg-ff\fileflag{*}} }
+        }
+        child[missing] {}
         child{
             node[dir] {share\fileflag{/}}
             child{
                 node[dir] {setup\fileflag{/}}
                 child{
-                    node[dir] {cdu-bodz-m2\fileflag{/}}
+                    node[dir] {imgauto\fileflag{/}}
                     child{ node[executable] {postinst\fileflag{*}} }
                     child{ node[executable] {prerm\fileflag{*}} }
                 }
