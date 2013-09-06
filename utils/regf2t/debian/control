@@ -1,0 +1,17 @@
+Source: regf2t
+Section: utils
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/utils/regf2t
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/utils/regf2t
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/utils/regf2t
+
+Package: regf2t
+Architecture: all
+Depends: ${misc:Depends}, java
+Description: Win32 Registry File Transform Tool
+ This tool can transform Win32 registry file (e.g., NTUSER.DAT) to or
+ from structured text files. So you can manage the registry using your
+ favorite SCM softwares.
