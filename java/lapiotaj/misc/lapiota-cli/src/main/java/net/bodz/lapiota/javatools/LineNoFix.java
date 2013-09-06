@@ -6,13 +6,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.c.string.Strings;
+import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.bas.program.skel.BatchEditCLI;
 import net.bodz.bas.program.skel.CLIAccessor;
 import net.bodz.bas.program.skel.FileHandler;
-import net.bodz.bas.sio.IPrintOut;
 import net.bodz.bas.vfs.FileMaskedModifiers;
 
 /**

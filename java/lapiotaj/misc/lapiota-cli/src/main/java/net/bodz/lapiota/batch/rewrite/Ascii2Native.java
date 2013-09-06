@@ -4,11 +4,11 @@ import java.nio.CharBuffer;
 
 import net.bodz.bas.c.java.util.regex.BufParsers;
 import net.bodz.bas.c.java.util.regex.Unescape;
+import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.skel.BatchEditCLI;
 import net.bodz.bas.program.skel.FileHandler;
-import net.bodz.bas.sio.IPrintOut;
 
 /**
  * Convert ascii chars or \\uNNNN to native chars

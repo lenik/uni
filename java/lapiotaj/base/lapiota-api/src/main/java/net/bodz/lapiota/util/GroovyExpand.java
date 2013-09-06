@@ -14,7 +14,7 @@ import net.bodz.bas.c.java.util.TextMap;
 import net.bodz.bas.c.java.util.regex.PatternProcessor;
 import net.bodz.bas.c.string.StringEscape;
 import net.bodz.bas.err.NotImplementedException;
-import net.bodz.bas.sio.BCharOut;
+import net.bodz.bas.io.BCharOut;
 
 public class GroovyExpand
         extends PatternProcessor {

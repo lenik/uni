@@ -16,10 +16,10 @@ import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.util.resource.Resource;
 
 import net.bodz.bas.c.java.io.FilePath;
-import net.bodz.bas.io.resource.builtin.OutputStreamTarget;
-import net.bodz.bas.io.resource.builtin.URLResource;
-import net.bodz.bas.io.resource.tools.StreamReading;
-import net.bodz.bas.io.resource.tools.StreamWriting;
+import net.bodz.bas.io.res.builtin.OutputStreamTarget;
+import net.bodz.bas.io.res.builtin.URLResource;
+import net.bodz.bas.io.res.tools.StreamReading;
+import net.bodz.bas.io.res.tools.StreamWriting;
 import net.bodz.bas.std.rfc.mime.ContentType;
 import net.bodz.bas.std.rfc.mime.ContentTypes;
 import net.bodz.uni.echo.resource.IResourceProvider;

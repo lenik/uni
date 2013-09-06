@@ -7,7 +7,7 @@ import java.net.URL;
 import org.eclipse.swt.widgets.Composite;
 
 import net.bodz.bas.c.string.StringPart;
-import net.bodz.bas.io.resource.builtin.URLResource;
+import net.bodz.bas.io.res.builtin.URLResource;
 import net.bodz.swt.c3.file.FileSelector;
 import net.bodz.swt.c3.list.AbstractListEditor;
 

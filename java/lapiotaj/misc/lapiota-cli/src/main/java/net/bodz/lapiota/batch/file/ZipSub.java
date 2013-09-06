@@ -13,8 +13,8 @@ import java.util.zip.ZipOutputStream;
 
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.system.UserDirColo;
-import net.bodz.bas.io.resource.builtin.InputStreamSource;
-import net.bodz.bas.io.resource.tools.StreamReading;
+import net.bodz.bas.io.res.builtin.InputStreamSource;
+import net.bodz.bas.io.res.tools.StreamReading;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;

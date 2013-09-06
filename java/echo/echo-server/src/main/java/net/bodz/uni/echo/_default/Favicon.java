@@ -9,9 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.bodz.bas.c.loader.ClassResource;
-import net.bodz.bas.io.resource.builtin.OutputStreamTarget;
-import net.bodz.bas.io.resource.builtin.URLResource;
-import net.bodz.bas.io.resource.tools.StreamWriting;
+import net.bodz.bas.io.res.builtin.OutputStreamTarget;
+import net.bodz.bas.io.res.builtin.URLResource;
+import net.bodz.bas.io.res.tools.StreamWriting;
 
 public class Favicon
         extends HttpServlet {

@@ -13,13 +13,13 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import net.bodz.bas.c.string.Strings;
-import net.bodz.bas.io.resource.tools.StreamReading;
+import net.bodz.bas.io.ICharOut;
+import net.bodz.bas.io.Stdio;
+import net.bodz.bas.io.res.tools.StreamReading;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.sio.ICharOut;
-import net.bodz.bas.sio.Stdio;
 import net.bodz.bas.vfs.IFile;
 import net.bodz.bas.vfs.VFS;
 

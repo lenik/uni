@@ -4,7 +4,7 @@ import java.io.File;
 
 import net.bodz.bas.data.mem.IMemory;
 import net.bodz.bas.data.mem.RandomAccessFileMemory;
-import net.bodz.bas.io.resource.tools.StreamWriting;
+import net.bodz.bas.io.res.tools.StreamWriting;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;

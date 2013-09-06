@@ -11,8 +11,8 @@ import org.jawin.win32.Ole32;
 
 import net.bodz.bas.c.java.net.URLClassLoaders;
 import net.bodz.bas.c.loader.ClassLoaders;
+import net.bodz.bas.io.Stdio;
 import net.bodz.bas.program.skel.BasicCLI;
-import net.bodz.bas.sio.Stdio;
 
 public class Hello
         extends BasicCLI {

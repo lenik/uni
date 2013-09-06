@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.eclipse.swt.SWT;
 
+import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.sio.IPrintOut;
 import net.bodz.swt.c3.dialog.SwtDialogs;
 import net.bodz.swt.program.BasicGUI;
 

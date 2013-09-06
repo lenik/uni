@@ -15,6 +15,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import net.bodz.bas.c.java.io.ConcatReader;
+import net.bodz.bas.c.java.io.LineReader;
 import net.bodz.bas.c.java.util.Arrays;
 import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
@@ -26,8 +28,6 @@ import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.err.control.ControlExit;
 import net.bodz.bas.fn.IExecutableX;
-import net.bodz.bas.io.ConcatReader;
-import net.bodz.bas.io.LineReader;
 import net.bodz.bas.jvm.exit.CatchExit;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;

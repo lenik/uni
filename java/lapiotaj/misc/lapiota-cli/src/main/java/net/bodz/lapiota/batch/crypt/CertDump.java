@@ -3,12 +3,12 @@ package net.bodz.lapiota.batch.crypt;
 import java.security.Provider;
 
 import net.bodz.bas.c.javax.security.auth.CertSelector;
+import net.bodz.bas.io.Stdio;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.skel.BasicCLI;
-import net.bodz.bas.sio.Stdio;
 
 /**
  * KeyStore/Certificate Dump

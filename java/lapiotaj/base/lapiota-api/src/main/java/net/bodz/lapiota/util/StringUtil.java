@@ -3,7 +3,7 @@ package net.bodz.lapiota.util;
 import java.io.ByteArrayOutputStream;
 
 import net.bodz.bas.c.java.util.regex.PatternProcessor;
-import net.bodz.bas.sio.IPrintOut;
+import net.bodz.bas.io.IPrintOut;
 
 public class StringUtil {
 

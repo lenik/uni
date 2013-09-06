@@ -2,7 +2,7 @@ package net.bodz.uni.echo.client;
 
 import java.util.Map.Entry;
 
-import net.bodz.bas.sio.IPrintOut;
+import net.bodz.bas.io.IPrintOut;
 
 public class HelpCommand
         extends AbstractEchoClientCommand {

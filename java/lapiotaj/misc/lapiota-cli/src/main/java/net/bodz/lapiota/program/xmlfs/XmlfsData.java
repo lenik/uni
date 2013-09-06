@@ -10,7 +10,7 @@ import org.dom4j.Element;
 import org.dom4j.tree.AbstractCDATA;
 
 import net.bodz.bas.err.OutOfDomainException;
-import net.bodz.bas.io.resource.tools.StreamReading;
+import net.bodz.bas.io.res.tools.StreamReading;
 import net.bodz.bas.vfs.IFile;
 
 public class XmlfsData

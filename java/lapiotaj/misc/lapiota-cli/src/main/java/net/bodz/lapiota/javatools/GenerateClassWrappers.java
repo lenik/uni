@@ -18,7 +18,10 @@ import net.bodz.bas.c.java.io.FileURL;
 import net.bodz.bas.c.java.net.URLClassLoaders;
 import net.bodz.bas.c.loader.ClassLoaders;
 import net.bodz.bas.c.string.Strings;
-import net.bodz.bas.io.resource.tools.StreamReading;
+import net.bodz.bas.io.BCharOut;
+import net.bodz.bas.io.IPrintOut;
+import net.bodz.bas.io.adapter.PrintStreamPrintOut;
+import net.bodz.bas.io.res.tools.StreamReading;
 import net.bodz.bas.jvm.stack.Caller;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
@@ -26,9 +29,6 @@ import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.bas.program.skel.BasicCLI;
-import net.bodz.bas.sio.BCharOut;
-import net.bodz.bas.sio.IPrintOut;
-import net.bodz.bas.sio.PrintStreamPrintOut;
 import net.bodz.bas.vfs.IFile;
 
 /**
