@@ -1,9 +1,15 @@
 # General ignores
 *.log
+*.log.[0-9]*
 *.o
 *.out
 *.tmp
 *~
+*.swp
+*.bak
+*.orig
+*.lock
+nohup.out
 
 # Auto-tools generated
 Makefile
@@ -77,3 +83,26 @@ prerm
 */*/debian/*/
 
 /stats/
+
+# Maven
+target
+*.versionsBackup
+*.releaseBackup
+.m2*
+
+# Eclipse
+.project
+.classpath
+.settings
+
+# Idea
+.idea
+*.iml
+*.ipr
+*.iws
+
+# Misc
+stats
+
+/.pomdirs
+RELEASE-NOTES
