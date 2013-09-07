@@ -15,7 +15,6 @@
         <module>lapiota-cli</module>
         <module>lapiota-gui</module>
         <module>lapiota-jdt</module>
-        <module>lapiota-snmcc</module>
     </modules>
     <name>Lapiota :: Misc</name>
 </project>
