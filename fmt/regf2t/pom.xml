@@ -18,11 +18,6 @@
             <artifactId>bas-pojo-eg</artifactId>
             <version>${bas.version}</version>
         </dependency>
-        <dependency>
-            <groupId>net.bodz.swt</groupId>
-            <artifactId>swt-program</artifactId>
-            <version>${swt.version}</version>
-        </dependency>
     </dependencies>
     <name>Uni :: Fmt :: NT Registry File Text Transform Tool</name>
 </project>
