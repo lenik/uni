@@ -1,0 +1,15 @@
+Source: apt-enh
+Section: utils
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/utils/apt-enh
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk/utils/apt-enh
+Vcs-Browser: http://svn.bodz.net/uni/trunk/utils/apt-enh
+
+Package: apt-enh
+Provides: aptutils
+Architecture: all
+Depends: apt, aptitude, dpkg, bash-aliases, bash-shlib, csvtool
+Description: Aptitude packages utilities

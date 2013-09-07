@@ -1,0 +1,79 @@
+\begin{tikzpicture}[
+    scale=\filetreescale,
+    every node/.style={transform shape},
+    grow via three points={one child at (0.5,-0.7) and
+      two children at (0.5,-0.7) and (0.5,-1.4)},
+    edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+    \path node[dir] {\emph{«setupdir»}}
+    child{
+        node[dir] {etc\fileflag{/}}
+        child{
+            node[dir] {apt\fileflag{/}}
+            child{
+                node[dir] {apt.conf.d\fileflag{/}}
+                child{ node[plain] {10allowunauth} }
+            }
+        }
+        child[missing] {}
+        child[missing] {}
+        child{
+            node[dir] {bash\_aliases.d\fileflag{/}}
+            child{ node[plain] {aptutils.sh} }
+        }
+        child[missing] {}
+        child{
+            node[dir] {bash\_completion.d\fileflag{/}}
+            child{ node[plain] {aptutils\_compl.sh} }
+        }
+    }
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child[missing] {}
+    child{
+        node[dir] {usr\fileflag{/}}
+        child{
+            node[dir] {bin\fileflag{/}}
+            child{ node[executable] {apt-f\fileflag{*}} }
+            child{ node[executable] {apt-fast\fileflag{*}} }
+            child{ node[executable] {apt-list-dep\fileflag{*}} }
+            child{ node[executable] {debsize\fileflag{*}} }
+            child{ node[executable] {dwhich\fileflag{*}} }
+            child{ node[executable] {lsdeb\fileflag{*}} }
+        }
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child[missing] {}
+        child{
+            node[dir] {sbin\fileflag{/}}
+            child{ node[executable] {apt-get-reinstall2\fileflag{*}} }
+        }
+        child[missing] {}
+        child{
+            node[dir] {share\fileflag{/}}
+            child{
+                node[dir] {man\fileflag{/}}
+                child{
+                    node[dir] {man1\fileflag{/}}
+                    child{ node[plain] {dwhich.1} }
+                }
+            }
+            child[missing] {}
+            child[missing] {}
+            child{
+                node[dir] {setup\fileflag{/}}
+                child{
+                    node[dir] {apt-enh\fileflag{/}}
+                    child{ node[executable] {postinst\fileflag{*}} }
+                    child{ node[executable] {prerm\fileflag{*}} }
+                }
+            }
+        }
+    };
+\end{tikzpicture}
