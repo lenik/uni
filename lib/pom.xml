@@ -11,6 +11,7 @@
     <artifactId>lib</artifactId>
     <packaging>pom</packaging>
     <modules>
+        <module>libuni-java</module>
     </modules>
     <name>Uni :: Lib</name>
 </project>

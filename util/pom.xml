@@ -11,6 +11,7 @@
     <artifactId>util</artifactId>
     <packaging>pom</packaging>
     <modules>
+        <module>xmlproc</module>
     </modules>
     <name>Uni :: Util</name>
 </project>

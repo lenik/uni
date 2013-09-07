@@ -13,6 +13,11 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
+            <groupId>net.bodz.bas</groupId>
+            <artifactId>bas-program</artifactId>
+            <version>${bas.version}</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
