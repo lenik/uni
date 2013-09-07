@@ -1,4 +1,4 @@
-package net.bodz.lapiota.c.pgp;
+package net.bodz.uni.pgputils;
 
 public interface IIntKey {
 

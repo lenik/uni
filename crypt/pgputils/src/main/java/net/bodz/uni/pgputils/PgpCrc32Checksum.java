@@ -1,4 +1,4 @@
-package net.bodz.lapiota.c.pgp;
+package net.bodz.uni.pgputils;
 
 import net.bodz.bas.c.java.util.zip.AbstractZipChecksum;
 import net.bodz.bas.data.mem.types.Int32BE;

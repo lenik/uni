@@ -1,7 +1,7 @@
-package net.bodz.lapiota.batch.crypt;
+package net.bodz.uni.pgputils;
 
 import net.bodz.bas.data.codec.builtin.HexCodec;
-import net.bodz.lapiota.batch.crypt.Hashes.CRC32_LE;
+import net.bodz.uni.pgputils.Hashes.CRC32_LE;
 
 public class HashesTest {
 

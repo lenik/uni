@@ -11,6 +11,7 @@
     <artifactId>crypt</artifactId>
     <packaging>pom</packaging>
     <modules>
+        <module>pgputils</module>
     </modules>
     <name>Uni :: Crypt</name>
 </project>

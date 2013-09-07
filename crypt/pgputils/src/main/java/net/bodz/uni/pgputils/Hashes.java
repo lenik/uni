@@ -1,4 +1,4 @@
-package net.bodz.lapiota.batch.crypt;
+package net.bodz.uni.pgputils;
 
 import java.lang.reflect.Field;
 import java.security.MessageDigest;

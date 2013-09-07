@@ -1,4 +1,4 @@
-package net.bodz.lapiota.batch.crypt;
+package net.bodz.uni.pgputils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -7,7 +7,6 @@ import java.util.Arrays;
 
 import net.bodz.bas.data.codec.builtin.HexCodec;
 import net.bodz.bas.err.IllegalUsageException;
-import net.bodz.bas.err.ParseException;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.io.res.tools.StreamReading;
@@ -16,10 +15,8 @@ import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.skel.BasicCLI;
-import net.bodz.bas.rtx.IOptions;
-import net.bodz.bas.typer.std.AbstractParser;
 import net.bodz.bas.vfs.IFile;
-import net.bodz.lapiota.batch.crypt.Hashes.PeekDigest;
+import net.bodz.uni.pgputils.Hashes.PeekDigest;
 
 /**
  * Find which part of file make a specific hash value
@@ -29,36 +26,7 @@ import net.bodz.lapiota.batch.crypt.Hashes.PeekDigest;
 public class FindHash
         extends BasicCLI {
 
-    static final Logger logger = LoggerFactory.getLogger(FindHash.Range.class);
-
-    public static class Range {
-
-        public int from;
-        public int to;
-
-        public Range(int from, int to) {
-            if (from >= to)
-                throw new IllegalArgumentException(//
-                        tr._("from ") + from + " > to " + to);
-            this.from = from;
-            this.to = to;
-        }
-
-    }
-
-    public static class RangeParser
-            extends AbstractParser<Range> {
-
-        @Override
-        public Range parse(String text, IOptions options)
-                throws ParseException {
-            int comma = text.indexOf(',');
-            int from = Integer.parseInt(text.substring(0, comma));
-            int to = Integer.parseInt(text.substring(comma + 1));
-            return new Range(from, to);
-        }
-
-    }
+    static final Logger logger = LoggerFactory.getLogger(FindHash.class);
 
     /**
      * Hash algorithm to use, default CRC32
@@ -79,7 +47,7 @@ public class FindHash
      *
      * @option -r --range =FROM,TO
      */
-    Range[] ranges;
+    IntRange[] ranges;
 
     @Override
     protected void reconfigure()
@@ -95,12 +63,12 @@ public class FindHash
 
     class FindContext {
         byte[] data;
-        Range[] ranges;
+        IntRange[] ranges;
         // int[] rangeVal;
         MessageDigest cont;
         int count;
 
-        public FindContext(byte[] data, Range[] ranges, MessageDigest cont) {
+        public FindContext(byte[] data, IntRange[] ranges, MessageDigest cont) {
             this.data = data;
             this.ranges = ranges;
             // this.rangeVal = new int[ranges.length];
@@ -117,7 +85,7 @@ public class FindHash
 
         void find(String rangesPrefix, int rangeIndex, MessageDigest cont)
                 throws CloneNotSupportedException {
-            Range range = ranges[rangeIndex];
+            IntRange range = ranges[rangeIndex];
             // wordSize = BYTE
             int nextRange = rangeIndex + 1;
             for (int from = range.from; from < range.to; from++) {
@@ -168,9 +136,9 @@ public class FindHash
     public void findFileRangeForHash(IFile file)
             throws Exception {
         byte[] data = file.tooling()._for(StreamReading.class).read();
-        Range[] ranges = this.ranges;
+        IntRange[] ranges = this.ranges;
         if (ranges == null)
-            ranges = new Range[] { new Range(0, data.length), };
+            ranges = new IntRange[] { new IntRange(0, data.length), };
         new FindContext(data, ranges, digest).find();
     }
 

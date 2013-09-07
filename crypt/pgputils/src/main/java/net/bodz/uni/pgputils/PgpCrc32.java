@@ -1,9 +1,8 @@
-package net.bodz.lapiota.c.pgp;
+package net.bodz.uni.pgputils;
 
 import net.bodz.bas.data.mem.IMemory;
 import net.bodz.bas.data.mem.MemoryAccessException;
 import net.bodz.bas.i18n.nls.II18nCapable;
-import net.bodz.lapiota.batch.crypt.FindHash.Range;
 
 /**
  * PGP CRC32
@@ -16,7 +15,7 @@ public class PgpCrc32
      *
      * @option =FROM,TO
      */
-    Range fillRange;
+    IntRange fillRange;
 
     /**
      * Bytes to pad
