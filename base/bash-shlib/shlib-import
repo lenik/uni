@@ -1,1 +1,5 @@
-. shlib; import "$@"
+. shlib
+
+for lib in "$@"; do
+    import "$lib"
+done

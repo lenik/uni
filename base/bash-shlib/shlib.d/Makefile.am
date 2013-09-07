@@ -4,7 +4,7 @@ dist_shlib_DATA = \
     bashunit \
     char \
     cliboot \
-    cmds \
+    compat \
     date \
     de_alias \
     echo-fill \
@@ -22,5 +22,6 @@ dist_shlib_DATA = \
     overrides \
     path \
     rcs \
+    term \
     time
 

@@ -1,0 +1,37 @@
+# vim: set filetype=sh :
+
+TPUT=`which tput`
+function tput() {
+    if [ -x "$TPUT" ]; then
+        $TPUT "$@"
+    else
+        case "$1" in
+            cols|columns)
+                echo 80;;
+            lines)
+                echo 24;;
+            *)
+                return 1;;
+        esac
+    fi
+}
+
+# hline(fillchar, hskip, width)
+function hline() {
+    local fillchar="$1"
+    local hskip_n="${2:-0}"
+    local COLUMNS=$( tput cols || echo 80 )
+    local width=$(( $COLUMNS - $hskip_n ))
+    if [ -n "$3" ]; then
+        width=$3
+    fi
+
+    local i
+    for ((i = 0; i < hskip_n; i++)); do
+        echo -n ' '
+    done
+    for ((i = 0; i < width; i++)); do
+        echo -n "$fillchar"
+    done
+    echo
+}
