@@ -4,8 +4,7 @@
     grow via three points={one child at (0.5,-0.7) and
       two children at (0.5,-0.7) and (0.5,-1.4)},
     edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
-    \path
-node[dir] {\emph{«setupdir»}}
+    \path node[dir] {\emph{«setupdir»}}
     child{
         node[dir] {etc\fileflag{/}}
         child{
@@ -26,7 +25,7 @@ node[dir] {\emph{«setupdir»}}
         node[dir] {usr\fileflag{/}}
         child{
             node[dir] {bin\fileflag{/}}
-            child{ node[symlink, executable] {vcs\fileflag{*}} child[->, parallel] { node[annotation] { /tmp/destdir.6216.18559/usr/bin/vcscmd } } }
+            child{ node[symlink, executable] {vcs\fileflag{*}} child[->, parallel] { node[annotation] { /usr/bin/vcscmd } } }
             child{ node[executable] {vcscmd\fileflag{*}} }
             child{ node[executable] {vcscmd-ignore\fileflag{*}} }
             child{ node[executable] {vcsdirs\fileflag{*}} }
