@@ -1,0 +1,15 @@
+Source: visualcss
+Section: web
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/web/visualcss
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/web/visualcss
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/web/visualcss
+
+Package: visualcss
+Architecture: all
+Depends: ${misc:Depends}
+Description: A tool for creating CSS visually.
+  So you can edit CSS files with WYSIWYG previews.
