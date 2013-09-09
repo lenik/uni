@@ -1,0 +1,15 @@
+Source: ziputils
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://uni.bodz.net/toolenh/ziputils
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk/toolenh/ziputils
+Vcs-Browser: http://svn.bodz.net/uni/trunk/toolenh/ziputils
+
+Package: ziputils
+Architecture: all
+Depends: bash-shlib, findutils, gzip, bzip2, p7zip | p7zip-full
+Description: Extra support to various zip format.
+    This package provides 7z wrappers, to convert filename encodings.

@@ -11,6 +11,8 @@
     <artifactId>java</artifactId>
     <packaging>pom</packaging>
     <modules>
+        <module>jsrcutils</module>
+        <module>shelj</module>
     </modules>
     <name>Uni :: Java</name>
 </project>

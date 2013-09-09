@@ -1,4 +1,481 @@
+uni-2.14.11 (Lenik, 2013-09-09)
+	* Dispersed Lapiota/j into Jazz uni-project.
+	* shelj package created by newdeb
+	* visualcss package created by newdeb
+	* jsrcutils package created by newdeb
+	* winedit package created by newdeb
+	* coolclip: This package is reserved for adding extra format supports in clipboard.
+
+uni-2.14.10 (Lenik, 2013-09-07)
+	* snmcc: Renamed from lapiota-snmcc.
+	* pgputils: Separated from lapiota-cli.
+	* pgputils package created by newdeb
+	* lapiotaj: Moved lapiota-api to libuni-java, and XMLFlat/Edit to xmlproc.
+	* libuni-java package created by newdeb
+	* xmlproc package created by newdeb
+	* regf2t: Changed package name to ..fmt.regf2t.
+	* Initialized Maven multi-module project on uni.
+	* Refactor the whole directory structures. (...)
+	* vcscmds: Print hline for each dir in vcsdirs.
+	* bash-shlib: Added term to print hline.
+
+uni-2.14.9 (Lenik, 2013-09-06)
+	* regf2t: Added data structs. (Ref: reglookup, samba4)
+	* regf2t package created by newdeb
+	* lapiotaj: Refactor ..sio to io.*.
+
+uni-2.14.8 (Lenik, 2013-09-05)
+	* lapiotaj: Memory was renamed to IMemory.
+
+uni-2.14.7 (Lenik, 2013-09-04)
+	* wine-enh: The dependency winetricks is optional.
+
+uni-2.14.6 (Lenik, 2013-09-03)
+	* diskutils: Added read/writembr, and merged mkhdd/partoffset.
+	* diskutils package created by newdeb
+
+uni-2.14.5 (Lenik, 2013-08-30)
+	* echo, lapiotaj: New Jazz project/module metadata design.
+
+uni-2.14.4 (Lenik, 2013-08-24)
+	* x-tools-local: Setup PATH env for crosstool-ng.
+	* x-tools-local package created by newdeb
+	* users-pref-xjl: Shift 70-groups to 700+.
+	* cdu-bodz-svn: Upgraded site conf for apache-2.4.
+	* cdu-bodz-trac: Upgraded site conf for apache-2.4.
+	* cdu-bodz-m2: Upgraded site conf for apache-2.4.
+	* cls-a2sites: Upgraded site conf for apache-2.4.
+	* dlocal: Upgraded site conf for apache-2.4.
+
+uni-2.14.3 (Lenik, 2013-08-23)
+	* imgauto: Added option to jpeg-ff: --odd.
+	* lapiotaj: bas-memory was moved to bas-data.
+	* lapiotaj: Organized imports.
+	* lapiota-cli: _help() was renamed to showHelpPage().
+
+uni-2.14.2 (Lenik, 2013-08-22)
+	* lapiotaj: INegotiation was refactored to IOptions.
+	* lapiotaj: "trait" was changed to "mf".
+
+uni-2.14.1 (Lenik, 2013-08-13)
+	* coolapt: Added apt-list-dep, to mark dependencies as auto.
+
+uni-2.14.0 (Lenik, 2013-08-08)
+	* cdu-bodz-uni package created by newdeb
+	* README: Address changes.
+	* imgauto: Added jpeg-ff to generate flip-flop repeated images.
+	* imgauto package created by newdeb
+
+uni-2.13.1 (Lenik, 2013-07-16)
+	* virtualbox-enh: Added mkhdd.
+
+uni-2.13.0 (Lenik, 2013-07-03)
+	* keep empty dirs
+	* coollog: Added chlog (-g, -G to use git) to trace file changes.
+
+uni-2.12.9 (Lenik, 2013-05-30)
+	* vim-enh: Reload /etc/exports by `exportfs -ra`.
+	* wine-enh: Added exe-runner to run .exe files with options. (Using binfmts)
+	* rrdtool-enh: Install test/demo.rrd to /usr/share/rrdtool-enh/samples.
+	* git-enh: Added alias gmt = git mergetool --tool=meld.
+	* textcodecs: Added uri-decode/encode from lenik/bin.
+	* textcodecs package created by newdeb
+	* coolpdf: Added pdfcrop (from 3rdparty) and pdfrepair.
+	* coolpdf package created by newdeb
+	* astah-local: Added astah launcher.
+	* astah-local package created by newdeb
+
+uni-2.12.8 (Lenik, 2013-05-10)
+	* coolsql: Added missing --console option.
+
+uni-2.12.7 (Lenik, 2013-04-25)
+	* mjpl: Initial.
+	* bash-enh: Renamed env() to dv(), and envchk.sh to envop.sh.
+
+uni-2.12.6 (Lenik, 2013-04-24)
+	* 2utf8: Treat chardet/gb2312 as gbk. And use iconv -c option.
+
+uni-2.12.5 (Lenik, 2013-04-23)
+	* 7z-enh: Added unzip-utf8.
+
+uni-2.12.4 (Lenik, 2013-04-20)
+	* 7z-enh package created by newdeb
+
+uni-2.12.3 (Lenik, 2013-04-17)
+	* mate-pref-xjl: Changed "<Super>equal" to "<Mod4>equal".
+
+uni-2.12.2 (Lenik, 2013-04-08)
+	* mate-pref-xjl: Migrated from the mateconf backend to the dconf backend.
+
+uni-2.12.1 (Lenik, 2013-04-03)
+	* mjpl package created by newdeb
+	* isz-tool: Packaging for Debian.
+	* coolmaven: Renamed PROJECT-LIST to projects, MODULES to modules.tab, etc.
+
+uni-2.12.0 (Lenik, 2013-04-02)
+	* rsync-rrc: Merged rsync-enh/ r-pull/r-push to rrc.
+
+uni-2.11.8 (Lenik, 2013-03-31)
+	* svn-enh: Added sudosvn which try to use the private key of login user.
+	* svn-enh: Added /etc/subversion/cls/conf for shared authz/passwd.
+	* cdu-bodz-m2-settings: Added support for both maven2/maven3.
+
+uni-2.11.7 (Lenik, 2013-03-29)
+	* coolsql: Initial release with pg(postgresql) driver.
+	* coolsql package created by newdeb
+
+uni-2.11.6 (Lenik, 2013-03-15)
+	* usecode: Added dependency to tty-fx for ⚝ input.
+	* tty-fx: Renamed coolansi to tty-fx, and added stty ⚝ aliases.
+
+uni-2.11.5 (Lenik, 2013-03-14)
+	* lapiota/j: Utilized $project.version.
+	* lapiota-cli: Replaced JavaLauncher+ to Shell.Main.
+
+uni-2.11.4 (Lenik, 2013-02-19)
+	* coolmaven: Added --max-permsize option to jetty.
+
+uni-2.11.3 (Lenik, 2013-02-08)
+	* bash-enh: Changed df alias to "df -T -B 1048576".
+	* rsync-enh: Added r-push, r-pull.
+	* rsync-enh package created by newdeb
+
+uni-2.11.2 (Lenik, 2013-02-07)
+	* echo-server: Configure server in init() rathern then ctor, so one can do more configs.
+
+uni-2.11.1 (Lenik, 2013-02-05)
+	* android-sdk-local: Add android-sdk/tools to PATH.
+
+uni-2.11.0 (Lenik, 2013-02-01)
+	* android-sdk-local package created by newdeb
+	* x509utils: Changed default expire date to 50 years, and added pkcs12jks.
+
+uni-2.10.25 (Lenik, 2013-01-31)
+	* z-latex: Using CJK numbers in chapter names.
+	* pgadmin3-pref-xjl: Added [ctlSQLBox] patch installer.
+	* pgadmin3-pref-xjl package created by newdeb
+
+uni-2.10.24 (Lenik, 2013-01-28)
+	* archiva: Added activiti related repos.
+
+uni-2.10.23 (Lenik, 2013-01-07)
+	* echo-server: Moved http-servlet base types to bas-http.
+
+uni-2.10.22 (Lenik, 2013-01-06)
+	* lapiotaj: Refactor/ref: DefaultClassLoader -> ClassLoaders.runtimeClassLoader.
+
+uni-2.10.21 (Lenik, 2013-01-05)
+	* lapiotaj: Refactor/ref: StringEscape.escapeJava.
+
+uni-2.10.20 (Lenik, 2013-01-04)
+	* coolmaven: Added mjava -e option, and bash-completion support for search main classes.
+	* git-delta.rrw: Removed lower limit (=1000).
+
+uni-2.10.19 (Lenik, 2013-01-03)
+	* coolmaven, cdu-bodz-m2-settings: Depends on maven2 or maven3.
+
+uni-2.10.18 (Lenik, 2012-12-30)
+	* lapiotaj: Refactor/ref: displayName -> label.
+
+uni-2.10.17 (Lenik, 2012-12-29)
+	* mate-panel-control: Added mate-panel-control.
+	* mate-panel-control package created by newdeb
+	* git-enh: Added alias gd=git-delta, gg=gitg.
+
+uni-2.10.16 (Lenik, 2012-12-28)
+	* lapiotaj: Refactor/ref: potato element provider.
+
+uni-2.10.15 (Lenik, 2012-12-27)
+	* lapiotaj: Refactor/ref: ..cli -> program.
+
+uni-2.10.14 (Lenik, 2012-12-26)
+	* lapiotaj: Refactor/ref: Merged bas-data, bas-c5.
+
+uni-2.10.13 (Lenik, 2012-12-22)
+	* lapiotaj: CLI refactor. Removed unused programs with lot of errors.
+	* lapiotaj: Refactor/ref: merged bas-snmjava.
+
+uni-2.10.12 (Lenik, 2012-12-21)
+	* lapiotaj: Refactor/ref: bas-loader loader utils merged into -c3.
+	* lapiotaj: Refactor/ref: Moved snmjava eclipse utils to bas-c3.
+
+uni-2.10.11 (Lenik, 2012-12-20)
+	* lapiotaj: Refactor/ref: Renamed JdkVfs* to Pojf.
+
+uni-2.10.10 (Lenik, 2012-12-19)
+	* lapiotaj: Refactor/ref: IFsTree -> IFsDir.
+	* git-enh: Fixed alias griom = "rebase -i origin/master".
+	* lapiotaj: Refactor/ref: IFsTree -> IFsDir.
+	* lapiotaj: Refactor/ref: IStreamReading read/write function names.
+
+uni-2.10.9 (Lenik, 2012-12-18)
+	* lapiotaj: Refactor/ref: FileURL.toFile.
+
+uni-2.10.8 (Lenik, 2012-12-17)
+	* lapiotaj: Refactor/ref: Removed @BootInfo, and clean up -snmjava.
+
+uni-2.10.7 (Lenik, 2012-12-15)
+	* lapiotaj: Refactor/ref: FileModifier was renamed to FileFlags.
+	* lapiotaj: Refactor/ref: bas-vfs filter/finder moved to find package.
+	* echo: Init MountPoint with parent.
+
+uni-2.10.6 (Lenik, 2012-12-14)
+	* webcon-cgi: Moved from sites repository.
+	* Renamed echo8 to echo, and separated client/test from server.
+	* echo8: Changed resource.dir to resource.d.
+	* echo8: Resource providers integrated.
+	* lapiotaj: Refactor/ref: null extension in no-dot mode.
+	* echo8: Added Union/MountableResourceProvider tests.
+	* echo8: Added Union/MountableResourceProvider.
+
+uni-2.10.5 (Lenik, 2012-12-13)
+	* echo8: Moved std.rfc/iso to bas-std.
+	* Refactor/ref: bas-api refactor.
+	* git-delta: lowered the lower limit, to support clean up tasks.
+
+uni-2.10.4 (Lenik, 2012-12-12)
+	* echo8: Added MappedResourceProvider.
+	* echo8: Renamed IResourceProvider.startPoints to prefixes.
+
+uni-2.10.3 (Lenik, 2012-12-09)
+	* xrandr-mode: Apply the new mode immediately.
+
+uni-2.10.2 (Lenik, 2012-12-07)
+	* Added echo8 embedded web server.
+	* echo8 package created by newdeb
+
+uni-2.10.1 (Lenik, 2012-12-03)
+	* bash-enh: history-histgram on specific file.
+	* pingmon: Reordered legends.
+	* bash-shlib: Added date shlib to convert timestamp to date.
+
+uni-2.10.0 (Lenik, 2012-12-01)
+	* bash-enh: Rewritten: history-join/sort -> history2csv.
+	* cooldmd: Add support for .d.in sources.
+	* libdog-dev: Write all logs (info/error) to stderr.
+
+uni-2.9.38 (Lenik, 2012-11-27)
+	* Refactor/ref: gui xjdocs.
+
+uni-2.9.37 (Lenik, 2012-11-26)
+	* rrdtool-enh: Use font styles in rrdwrapper-index.
+	* git-enh: Generate random colortab in HSV colorspace, then converted to RGB.
+	* git-enh: Renew color tab for git-delta.rrw.
+	* rrdtool-enh: Use current topic as default database name in DEF statement.
+	* rrdtool-enh: Use source(.) to instantiate the rrdwrapper in template.
+	* rrdtool-enh: Don't expand SCRIPT_PATH, cuz the name of symlink is used.
+	* rrdtool-enh: Set database name as default to use the topic name.
+
+uni-2.9.36 (Lenik, 2012-11-25)
+	* Clean up help_more/version_more(s).
+	* bash-shlib: Added multiple program syntaxes support in cliboot.
+	* jad: Upstream URL changed.
+	* vim-enh: Added two colorschemes koehler/blue for switching by F7/F8.
+	* coolutils: Readded some lost files.
+	* Refactor bash programs to utilize the latest new-bash template.
+	* bash-shlib: Changd BASENAME to PROGRAM_NAME, and let it be overridable.
+	* pingmon: Fixed option vars and don't quote '*' in case labels.
+
+uni-2.9.35 (Lenik, 2012-11-24)
+	* coolgen: Made bash template metavars overriddable: RCSID/PROGRAM_*.
+	* bash-shlib: Changed priority to required, added detailed package description.
+
+uni-2.9.34 (Lenik, 2012-11-23)
+	* bash-shlib: Added htmlcolor.
+	* bash-shlib: added time/getunit function.
+
+uni-2.9.33 (Lenik, 2012-11-22)
+	* bash-shlib: Allow import with local path.
+	* bash-shlib: cliboot should not exit() after bootvoid.
+
+uni-2.9.32 (Lenik, 2012-11-21)
+	* Refactor/ref: polishing.
+
+uni-2.9.31 (Lenik, 2012-11-20)
+	* sshproxy-z: Added sudoscreen, and sshproxy launcher, no more upstart!
+
+uni-2.9.30 (Lenik, 2012-11-19)
+	* Refactor/ref: @ProgramName.
+
+uni-2.9.29 (Lenik, 2012-11-18)
+	* Refactor/ref: CLIPlugin.
+	* coolmaven: Don't use nohup in MIN/MPK/etc.
+
+uni-2.9.28 (Lenik, 2012-11-17)
+	* sudoer dev: no passwd for shutdown.
+
+uni-2.9.27 (Lenik, 2012-11-15)
+	* Refactor/ref: Polishing.
+	* z-latex: Separated zhcore from zhpref, removed zhpref from z-beamer class.
+
+uni-2.9.26 (Lenik, 2012-11-11)
+	* git-enh: Added grh=reset --hard, grb=rebase, grv=remote -v.
+
+uni-2.9.25 (Lenik, 2012-11-09)
+	* Refactor/ref: classData -> getData.
+	* Refactor/ref: bas-meta package renames.
+	* Refactor/ref: Iterables/Mitables.
+
+uni-2.9.24 (Lenik, 2012-11-08)
+	* Moved sqlite-dump to sqlite-enh.
+	* coolmake: Added itreepdf to convert itree fragment to pdf.
+	* Renamed package diffcat to cooldiff, and added grep2patch.
+	* sqlite-enh package created by newdeb
+	* Refactor/ref: CLI and VFS.
+
+uni-2.9.23 (Lenik, 2012-11-07)
+	* vcscmds: cliboot upgraded, vcsdirs added --foreground option.
+	* coolgen: fixed space typo.
+	* bash-shlib cliboot: Added help_extras support.
+	* Refactor/ref: expandWildcards -> expandFiles.
+	* Refactor/ref: TmpDir -> TempRoot.
+
+uni-2.9.22 (Lenik, 2012-11-06)
+	* CLIException was renamed to CLISyntaxException.
+	* Using CLIAccessor instead of parameters().
+	* _help won't throw CLIException.
+
+uni-2.9.21 (Lenik, 2012-11-05)
+	* Utilized mainImpl/expandWildcards for BasicCLI+.
+	* Polishing: mainImpl() using varargs.
+	* Refactor Lapiota/j to reflect upstream changes: SwtDialogs, mainImpl.
+
+uni-2.9.20 (Lenik, 2012-11-03)
+	* Refactor Lapiota/j to reflect upstream changes.
+
+uni-2.9.19 (Lenik, 2012-10-28)
+	* Use PROGRAM_TITLE, _SYNTAX in bash template.
+	* cooltex: Auto open the result document.
+	* coolgen/bash template: utilized option declaration.
+	* cliboot: Added option declaration support.
+
+uni-2.9.18 (Lenik, 2012-10-25)
+	* gitcl: Added multiple path support.
+
+uni-2.9.17 (Lenik, 2012-10-24)
+	* z-latexenh: new environ minifbox for framed minipage.
+	* Specify CJKmath=true by default for CJK mode.
+
+uni-2.9.16 (Lenik, 2012-10-23)
+	* z-zhpref package: \enumerate.zh for zh-style indented list.
+	* Added z-quickz: included common tikz libraries.
+
+uni-2.9.15 (Lenik, 2012-10-22)
+	* Added z-zhpref package to customize zh typset options.
+	* cooltex: Fixed [classopts] rewrite.
+
+uni-2.9.14 (Lenik, 2012-10-17)
+	* dprog: Added option -I* and importdir in .rc files.
+
+uni-2.9.13 (Lenik, 2012-10-16)
+	* dprog: public import std.getopt
+	* dprog: Refactor RcsId ctor to templated ctor, to allow compile-time init.
+	* libdog-dev: Added ..logging module, and install lib32/64 files.
+
+uni-2.9.12 (Lenik, 2012-10-15)
+	* libdog-dev package created by newdeb
+	* coolgen: Moved main() to the end in dprog.d template.
+	* coolgen: Changed template var format to <?= ... ?>
+	* coolgen: updated dprog quickstart template using libdog.
+	* libdog-dev: Added rcsid parsing in ..dog.dprog module.
+	* libdog-dev package created by newdeb
+
+uni-2.9.11 (Lenik, 2012-10-14)
+	* cooltask: Added mtry for modify&try workflow.
+	* coolgen: Changed template var to <?= template var ?>. Added dprog.d.
+	* jetty-pref-apache: depends on jetty or jetty8.
+	* Renamed dmd-run to dprog, and add -i, -B, --gdc, options.
+
+uni-2.9.10 (Lenik, 2012-10-13)
+	* coolemacs: C-style commenting in c++/d-mode.
+
+uni-2.9.9 (Lenik, 2012-10-12)
+	* emacs-pref-xjl: Added d-mode support.
+
+uni-2.9.8 (Lenik, 2012-10-11)
+	* Added dmd-run to compile and run dmd scripts.
+	* cooldmd package created by newdeb
+	* Prepared bash-shlib package doc.
+
+uni-2.9.7 (Lenik, 2012-10-10)
+	* cooldeb rebuild: ignore DEBIAN/.
+	* makelook: pass $tmpdestdir to treetex --destdir.
+	* makelook: Added --ignore option to exclude specific files from treetex.
+	* treetex: Added --destdir, --ignore options.
+
+uni-2.9.6 (Lenik, 2012-10-09)
+	* Updated .gitignores.
+	* Added the generated itree.tex (for building the entire doc faster).
+	* coolapt: `pi` for aptitude show, `pif` for aptitude search.
+	* coolcmd: Added cmd-wrap.sh. See also http://stackoverflow.com/questions/12622583/.
+	* cooldeb rebuild: makelook with prefix=/usr.
+	* makelook: Added --prefix option, /usr/local by default.
+	* Removed figure/caption from treetex.
+	* Removed symlink latex.
+	* z-latex: added toolman/toolsdoc support.
+	* treetex: Reduced number of `[missing] child` which took no effect.
+	* Generate treedoc (itree.tex) in makelook.
+	* treetex: Added --scale option.
+	* treetex: Fixed qtex(). Added --caption option.
+
+uni-2.9.5 (Lenik, 2012-10-08)
+	* Utilized new-bash for makelook.
+	* z-latex: Added z-filetree for treetex generator.
+	* treetex: Implemented using TikZ trees.
+
+uni-2.9.4 (Lenik, 2012-10-07)
+	* z-latex install texmf data to /usr/share/texmf.
+	* cooltex recommends z-latex.
+
+uni-2.9.3 (Lenik, 2012-10-06)
+	* Added section toc to z-beamer template.
+	* Separate impl. for different classes into CLASS-impl.sty packages.
+
+uni-2.9.2 (Lenik, 2012-10-04)
+	* Added to z-beamer: item/enumframe, item/enumssframe.
+
+uni-2.9.1 (Lenik, 2012-10-03)
+	* Prepared initial boDz templates for TeX.
+	* z-latex package created by newdeb
+
+uni-2.9.0 (Lenik, 2012-10-02)
+	* Set default to PDF output. Changed --want-pdf to --want-ps.
+	* git-enh/vcscmds aliases: Load git-enh aliases first, then vcscmds'.
+	* cooltex: Split preambles to preinit & heads. Continue with tex error.
+	* Added test .tex files for cooltex.
+	* Rewrite abc-pslatex => cooltex, with auto-rebuild, daemon-mode supports.
+
+uni-2.8.14 (Lenik, 2012-09-27)
+	* Prepared foldlines.c
+
+uni-2.8.13 (Lenik, 2012-09-26)
+	* fileutils-xjl: Added overlay-ln.
+	* coolutils: Added valcr (orig. rateps)
+	* cooltask: Added qlog-console.
+	* coolcmd: Added esti-exec, to execute command with approx progress.
+	* coolapt: added apt-f with specific listfile enabled temporarily.
+	* git-enh: Added pure=pull --rebase.
+	* bash-enh: Added ./bin, ../bin, ../../bin to paths.
+	* sshproxy: added srs.
+	* coolmaven: always nohup for MIN/MPK/MDP.
+	* coolgen: Added rnd.
+	* cooltask: `T` for chdir, `T.` for echo.
+	* findabc1: Added -a (--abctab) option to support predefined locations.
+
+uni-2.8.12 (Lenik, 2012-09-25)
+	* Renamed rename-p to ren-mkdirs, and added ren-r.
+
+uni-2.8.11 (Lenik, 2012-09-15)
+	* Added gitcl2 --TeX-header, --TeX-footer, --TeX-bullet options.
+
+uni-2.8.10 (Lenik, 2012-09-14)
+	* Added gitcl2 TeX format support.
+
+uni-2.8.9 (Lenik, 2012-09-10)
+	* Clean up errors.
+
 uni-2.8.8 (Lenik, 2012-09-06)
+	* Added uni ChangeLog.
 	* Added git-m2ver --title option.
 	* Rewrite gitcl: generate changelog in linear speed.
 
@@ -8,7 +485,7 @@ uni-2.8.7 (Lenik, 2012-09-05)
 	* Added gitcl2 to generate change log with versions.
 
 uni-2.8.6 (Lenik, 2012-09-04)
-	* up
+	* Updated lapiota/j to reflect upstream refactor.
 
 uni-2.8.5 (Lenik, 2012-09-01)
 	* Renamed BasicCLI.L to logger, BasicCLI.UI to ia.
@@ -158,7 +635,6 @@ uni-2.6.1 (Lenik, 2012-04-07)
 	* Refactor Fpst => abc-pslatex, utilized until-changed in pdfmon.
 	* Refactor if-modified=>until-changed, fnotify=>onchange.
 	* Added alias h=man, H=info.
-	* Added timestamp utilify to print file time, and renamed hm to htmldoc-man.
 
 uni-2.6.0 (Lenik, 2012-04-04)
 	* newdeb: magic text "master-file" should be escaped to avoid subst.
@@ -1211,7 +1687,6 @@ uni-1.16.29 (Lenik, 2010-09-22)
 	* add -g global option
 	* don't list .svn/ in bash filedir completion.
 	* add cachedir, varlibdir and pkg*.
-	* tab typo
 
 uni-1.16.28 (Lenik, 2010-09-21)
 	* rewrite whichm.  (the old whichpm)
@@ -1355,7 +1830,6 @@ uni-1.16.23 (Lenik, 2010-09-16)
 	* new cideb shortcut to do svn-commit, debuild, dput, update.
 	* rename svn-dirty to svn-isclean
 	* typo
-	* typo
 	* add svn-dirty to check if a working directory isn't full commited.
 	* [TL-354] use umask instead of sudoers, temporarily. (Maybe wgetc should rewrite in C)
 	* move core/lib/cmt to -libcmt.
@@ -1460,15 +1934,6 @@ uni-1.16.17 (Lenik, 2010-09-07)
 	* 0.1
 	* leave away hook scripts, for packaging.
 	* set executable on msync/x
-	* 0.1 (just for build, nothing yet.)
-	* 0.1
-	* 0.1
-	* 0.1
-	* 0.1
-	* 0.1
-	* 0.1
-	* 0.1
-	* 0.1
 	* 0.1 release.
 	* add sau, sagu alias.
 	* default with --createorig
@@ -1569,7 +2034,6 @@ uni-1.16.8 (Lenik, 2010-08-26)
 
 uni-1.16.7 (Lenik, 2010-08-25)
 	* autoconfiscated.
-	* autoconfiscated.
 	* Transferred from -coolutils.
 	* config sudoers to using vi as default editor.
 	* add force overwrite option. chmod --reference as the templates.
@@ -1618,8 +2082,6 @@ uni-1.16.4 (Lenik, 2010-08-21)
 
 uni-1.16.3 (Lenik, 2010-08-20)
 	* autoconfiscated
-	* autoconfiscated
-	* init
 	* init
 	* master/generated hints
 	* add generate-file hint notice
@@ -1645,11 +2107,8 @@ uni-1.16.2 (Lenik, 2010-08-19)
 
 uni-1.16.1 (Lenik, 2010-08-18)
 	* rename mount-tclams      to mountall.tc rename mount-tclams.conf to mount-tc.conf
-	* rename mount-tclams      to mountall.tc rename mount-tclams.conf to mount-tc.conf
 	* add xjl-cooledit, -coolsync (from msync utils)
 	* initial released
-	* init
-	* init
 	* init xjl- packages
 
 uni-1.16.0 (Lenik, 2010-08-17)
@@ -1659,7 +2118,6 @@ uni-1.16.0 (Lenik, 2010-08-17)
 
 uni-1.15.7 (Lenik, 2010-06-14)
 	* secca ssh keys.
-	* set executable
 	* set executable
 	* set svn-dump executable.
 
@@ -1699,8 +2157,6 @@ uni-1.12.1 (Lenik, 2009-12-12)
 
 uni-1.12.0 (Lenik, 2009-12-10)
 	* lenik zones localized.
-	* bind reorg.
-	* bind reorg.
 	* bind reorg.
 
 uni-1.11.9 (Lenik, 2009-11-24)
@@ -1942,7 +2398,6 @@ uni-1.5.1 (Lenik, 2008-10-03)
 
 uni-1.5.0 (Lenik, 2008-10-02)
 	* addlam: shortcut target => 'alias=target,...'
-	* lam-lize
 
 uni-1.4.13 (Lenik, 2008-09-30)
 	* lam-lize
@@ -2255,8 +2710,6 @@ uni-0.18.30 (Lenik, 2007-09-18)
 	* [lapiota] Fix exit code.
 	* [lapiota] Add mounts in lapiota-install.
 	* [kopy] dirt -> lapiota
-	* fixup!
-	* fixup!
 	* [win32 net] Rewrite nu (net use) in perl.
 
 uni-0.18.29 (Lenik, 2007-09-16)
@@ -2477,7 +2930,6 @@ uni-0.18.4 (Lenik, 2007-08-11)
 uni-0.18.3 (Lenik, 2007-08-09)
 	* [perl text -mix] Add oop, oop_compile methods. Add generated bat wrappers.
 	* [perl bat] Add generator version
-	* fixup!
 	* [perl bat] Add var $GENERATOR
 	* [perl bat] Add --make for batch processing
 	* [-mix perl text] Add rentest, cmt::oop.
@@ -2559,7 +3011,6 @@ uni-0.17.25 (Lenik, 2007-07-23)
 	* [perl shell] take account of USERNAME, SHELL, and auto 'mount'ing the root fs (by mapping B:).
 	* [perldev] Clear $SHELL, which is used in make program.
 	* [win32 net chmac] Initial released
-	* fixup!
 
 uni-0.17.24 (Lenik, 2007-07-22)
 	* [perl win32] Add alias to manipulate win32 registry "app paths"
@@ -2689,7 +3140,6 @@ uni-0.17.11 (Lenik, 2007-07-05)
 uni-0.17.10 (Lenik, 2007-07-04)
 	* [util] loop2: Using info2 instead of info
 	* [util] mani.bat using 2-level iteration: "for /r /d" because "for /r" scans hidden files
-	* fixup!
 	* [util] add option -r to mani.bat to regenerate .prj file .
 	* [util] Fix filetime to return 0 if file not exists.
 	* [diret] Add COPYING file.
@@ -2811,7 +3261,6 @@ uni-0.15.0 (Lenik, 2007-03-04)
 	* [diret] Add "send to sf..." command
 	* [perl net] "start cmd" if run in windows, or "exec cmd" if run in console
 	* [diret] Add mp3ltrim to mouse-right-menu
-	* fixup!
 
 uni-0.14.5 (Lenik, 2006-12-23)
 	* [perl cmt] Del duplicated "my" in cmt::util
@@ -2836,8 +3285,7 @@ uni-0.14.2 (Lenik, 2006-12-12)
 	* [nfs-data] Prepare for nfs/six refactor
 	* [perl] Fixed fun returns values
 	* [perl] new i18n (~is_utf8) for nfs/six refactor
-	* squash! [perl] new fun.pl to run utilities functions as programs
-	* [nfs] Use cmt::date to support datetime function
+	* [nfs] Use cmt::date to support datetime function, new fun.pl to run utilities functions as programs
 	* [perl] new fun.pl to run utilities functions as programs
 
 uni-0.14.1 (Lenik, 2006-12-08)
@@ -2851,7 +3299,6 @@ uni-0.13.7 (Lenik, 2006-11-18)
 	* [changelog]
 	* [net] Modified version info
 	* [net] Add resolv, cmt::dnsutil
-	* fixup!
 
 uni-0.13.6 (Lenik, 2006-11-17)
 	* [sev] Using %EVAL instead of %eval
@@ -3020,7 +3467,6 @@ uni-0.5.1 (Lenik, 2005-06-28)
 	* [diret] Add doweb, usecode. Update syset.
 
 uni-0.5.0 (Lenik, 2005-06-19)
-	* fixup!
 	* [cvscopy] Make readonly copy
 	* [cvscopy] Don't clean, for merge
 	* [batch] Add csv2xml, fs2xml, foreach, jarwrap. And other enhancements.
@@ -3041,7 +3487,6 @@ uni-0.3.2 (Lenik, 2005-03-30)
 
 uni-0.3.1 (Lenik, 2005-03-03)
 	* [dnac] Encode myself.
-	* fixup!
 	* [perl compiler] Add dnac/dnad.
 
 uni-0.3.0 (Lenik, 2005-03-02)
@@ -3098,13 +3543,11 @@ uni-0.2.3 (Lenik, 2004-12-12)
 	* [net] Add in, to edit hosts file.
 	* [hex text] Fixed a display char mistake
 	* [text] Add globs support in newline.
-	* fixup!
 	* [repl] Split help into version and help, (cuz repl.pl was refered too much, its code will be using as template)
 
 uni-0.2.2 (Lenik, 2004-12-07)
 	* [nfs] Move .help out from .def
 	* [nfs] Adjust space in .vol-def template.
-	* fixup!
 	* [nfs-data] Add 2004-11,12
 	* [nfs] Fixed a reentrant bug
 	* [net] Enhance so's escape/unescape functionality (see re-parts reference impl.)
@@ -3124,7 +3567,6 @@ uni-0.2.1 (Lenik, 2004-12-03)
 uni-0.2.0 (Lenik, 2004-12-01)
 	* [nfs diret] Rename uedit32 to ue.
 	* [diret] Fixed an unescaped-% error
-	* squash!
 	* [php] Add lot more functions in fontmap.
 	* [php] Add format-dependent codes in fontmap, add jpeg-quality option.
 
@@ -3134,14 +3576,9 @@ uni-0.1.14 (Lenik, 2004-11-30)
 	* [bat] Add args.
 	* [nfs] Moved replace/join into libstr, and modified the name.
 	* [diret] Rewrite syset.
-	* fixup!
-	* squash!
 	* [bat] Add libstr.bat
-	* squash!
 
 uni-0.1.13 (Lenik, 2004-11-29)
-	* squash!
-	* squash!
 	* [php] Add fontmap.
 
 uni-0.1.12 (Lenik, 2004-11-28)
@@ -3162,9 +3599,6 @@ uni-0.1.9 (Lenik, 2004-11-24)
 	* [nfs] Add template note-support in self, using "note .vol-def"
 
 uni-0.1.8 (Lenik, 2004-11-17)
-	* squash!
-	* squash!
-	* fixup!
 	* [text] Add newline to convert newline-mode between win32/unix.
 	* [six] Add temp extension-name support for .bat, .vbs using.
 
@@ -3182,18 +3616,13 @@ uni-0.1.6 (Lenik, 2004-11-13)
 
 uni-0.1.5 (Lenik, 2004-10-26)
 	* [util] Add loop.bat
-	* squash!
 
 uni-0.1.4 (Lenik, 2004-10-25)
-	* fixup!
 	* [net] Add whoare, for whois *
 
 uni-0.1.3 (Lenik, 2004-10-20)
-	* squash!
-	* squash! Use temporary file for both write-mode and output-mode, to clear sim-preprocessors for specific interpreters.
-	* [six] Add the initial sim, simxml. (Not impl yet)
+	* [six] Add the initial sim, simxml. (...)
 	* [fix %dirtyvar] [nfs] Fixed a dirty-variable bug.
-	* fixup!
 	* [cvs] Add cvsco, which is generalized from cvscosf
 
 uni-0.1.2 (Lenik, 2004-10-11)
@@ -3215,16 +3644,11 @@ uni-0.1.0 (Lenik, 2004-10-02)
 
 uni-0.0.3 (Lenik, 2004-09-24)
 	* [text] Add wcc enhancements.
-	* fixup!
-	* fixup!
 	* [cvs] Add cvsapp: append cvs repository from one to another.
 
 uni-0.0.2 (Lenik, 2004-09-23)
 	* [text] Use parse_id to show version info
 	* [cvs] Add version info in cvsexp.
-	* fixup!
-	* fixup!
-	* fixup!
 	* [text] Add wcc.
 	* Removed clip.bat
 	* [repl] Add option --veryquiet, display modified-count at end.
@@ -3235,8 +3659,7 @@ uni-0.0.1 (Lenik, 2004-09-22)
 	* [format] Add version info, $Id$ stuff at header.
 	* -k
 	* [text] Removed freqpls.bat, m.bat
-	* squash! Add tabsizes to do batch update
-	* [text] Remove tab-style.
+	* [text] Remove tab-style. Add tabsizes to do batch update
 	* [diret] Add c-text, cvsexp, getweb, get-mp4cn, note, syset
 	* [close %autoinit] [diret] Auto initialize system settings after updated.
 	* [text -s] Format

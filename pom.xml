@@ -31,6 +31,7 @@
         <module>devel</module>
         <module>fmt</module>
         <module>game</module>
+        <module>hack</module>
         <module>java</module>
         <module>lang</module>
         <module>lib</module>
@@ -47,6 +48,7 @@
         <javaProfile>JavaSE-7</javaProfile>
         <bas.version>2.0.0-SNAPSHOT</bas.version>
         <swt.version>1.2.0-SNAPSHOT</swt.version>
+        <redist.version>1.0.0-SNAPSHOT</redist.version>
     </properties>
     <name>Uni</name>
     <url>http://uni.bodz.net/</url>

@@ -9,6 +9,12 @@
     <artifactId>libuni-java</artifactId>
     <dependencies>
         <dependency>
+            <groupId>net.bodz.swt</groupId>
+            <artifactId>swt-program</artifactId>
+            <version>${swt.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
             <version>1.6.1</version>

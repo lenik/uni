@@ -1,0 +1,23 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>net.bodz.uni</groupId>
+        <artifactId>hack</artifactId>
+        <version>1.1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>winedit</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>net.bodz.bas</groupId>
+            <artifactId>bas-natives-win32</artifactId>
+            <version>${bas.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.bodz.swt</groupId>
+            <artifactId>swt-program</artifactId>
+            <version>${swt.version}</version>
+        </dependency>
+    </dependencies>
+    <name>Uni :: Hack :: WinEdit</name>
+</project>

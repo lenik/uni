@@ -17,22 +17,25 @@
     child{
         node[dir] {usr\fileflag{/}}
         child{
-            node[dir] {bin\fileflag{/}}
-            child{ node[executable] {alt-exec\fileflag{*}} }
-            child{ node[executable] {open-url\fileflag{*}} }
-            child{ node[executable] {wsswitch\fileflag{*}} }
-        }
-        child[missing] {}
-        child[missing] {}
-        child[missing] {}
-        child{
-            node[dir] {share\fileflag{/}}
+            node[dir] {local\fileflag{/}}
             child{
-                node[dir] {setup\fileflag{/}}
+                node[dir] {bin\fileflag{/}}
+                child{ node[executable] {alt-exec\fileflag{*}} }
+                child{ node[executable] {open-url\fileflag{*}} }
+                child{ node[executable] {wsswitch\fileflag{*}} }
+            }
+            child[missing] {}
+            child[missing] {}
+            child[missing] {}
+            child{
+                node[dir] {share\fileflag{/}}
                 child{
-                    node[dir] {desktoputils\fileflag{/}}
-                    child{ node[executable] {postinst\fileflag{*}} }
-                    child{ node[executable] {prerm\fileflag{*}} }
+                    node[dir] {setup\fileflag{/}}
+                    child{
+                        node[dir] {desktoputils\fileflag{/}}
+                        child{ node[executable] {postinst\fileflag{*}} }
+                        child{ node[executable] {prerm\fileflag{*}} }
+                    }
                 }
             }
         }
