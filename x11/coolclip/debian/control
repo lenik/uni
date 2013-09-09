@@ -12,4 +12,4 @@ Package: coolclip
 Provides: coolclip
 Architecture: all
 Depends: libc6, libx11-6, imagemagick
-Description: Clipboard releated enhancement and utilities.
+Description: Add image, video clipboard format supports in cmdline.
