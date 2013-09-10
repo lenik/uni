@@ -1,6 +1,9 @@
 package net.bodz.uni.fmt.regf.t;
 
-public interface IRegfConsts {
+import net.bodz.bas.sugar.IConstants;
+
+public interface IRegfConsts
+        extends IConstants {
 
     int OFFSET_NONE = 0xffffffff;
 

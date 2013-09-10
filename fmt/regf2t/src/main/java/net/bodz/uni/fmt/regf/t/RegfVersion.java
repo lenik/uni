@@ -30,10 +30,15 @@ public class RegfVersion
 
     private static final long serialVersionUID = 1L;
 
-    public int major;
+    public int major; // = 1
     public int minor;
-    public int release;
-    public int build;
+    public int release; // = 0
+    public int build; // = 1
+
+    @Override
+    public int sizeof() {
+        return 16;
+    }
 
     @Override
     public void readObject(IDataIn in)

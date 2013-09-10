@@ -17,6 +17,11 @@ public class HashRecord
     public final byte[] hash = new byte[4];
 
     @Override
+    public int sizeof() {
+        return 8;
+    }
+
+    @Override
     public void readObject(IDataIn in)
             throws IOException {
         nkOffset = in.readDword();

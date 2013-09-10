@@ -18,12 +18,12 @@ public class RegfHdr
 
     private static final long serialVersionUID = 1L;
 
-    /** 'regf' */
+    /** 'regf': 114, 101, 103, 102 */
     public final byte[] REGF_ID = new byte[4];
 
     public int updateCounter1;
     public int updateCounter2;
-    public NtTime modtime;
+    public final NtTime modtime = new NtTime();
 
     public final RegfVersion version = new RegfVersion();
     public int dataOffset;
@@ -33,9 +33,8 @@ public class RegfHdr
     public int uk7;
 
     /** charset(UTF16) - char[0x20] */
-    public String description;
-
-    public int[] padding = new int[99];
+    public final char description[] = new char[0x20];
+    public final int[] padding = new int[99];
 
     /** Checksum of first 0x200 bytes XOR-ed */
     public int chksum;
@@ -43,6 +42,7 @@ public class RegfHdr
     @Override
     public void readObject(IDataIn in)
             throws IOException {
+// byte[]
         in.read(REGF_ID);
         updateCounter1 = in.readDword();
         updateCounter2 = in.readDword();
@@ -54,7 +54,7 @@ public class RegfHdr
 
         byte buf[] = new byte[0x20 * 2];
         in.readFully(buf);
-        description = new String(buf, "utf16-le").trim();
+        System.arraycopy(new String(buf, "utf-16le").toCharArray(), 0, description, 0, 0x20);
 
         byte _pad[] = new byte[99 * 4];
         in.readFully(_pad);
@@ -75,7 +75,7 @@ public class RegfHdr
         out.writeDword(lastBlock);
         out.writeDword(uk7);
 
-        byte[] buf = description.getBytes("utf16-le");
+        byte[] buf = new String(description).getBytes("utf16-le");
         byte[] buf20 = new byte[0x20 * 2];
         System.arraycopy(buf, 0, buf20, 0, Math.min(0x20, buf.length));
         out.write(buf20);

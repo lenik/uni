@@ -25,6 +25,11 @@ public class NtTime
     public int high;
 
     @Override
+    public int sizeof() {
+        return 8;
+    }
+
+    @Override
     public void readObject(IDataIn in)
             throws IOException {
         low = in.readDword();
