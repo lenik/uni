@@ -2,9 +2,10 @@ package net.bodz.uni.fmt.regf.t;
 
 import java.io.IOException;
 
-import net.bodz.bas.data.struct.SfsDataStruct;
+import net.bodz.bas.data.struct.DataStruct;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
+import net.bodz.bas.text.rst.IRstSerializable;
 
 /**
  * <pre>
@@ -15,7 +16,8 @@ import net.bodz.bas.io.IDataOut;
  * </pre>
  */
 public class NtTime
-        extends SfsDataStruct {
+        extends DataStruct
+        implements IRstSerializable {
 
     private static final long serialVersionUID = 1L;
 

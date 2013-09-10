@@ -2,7 +2,7 @@ package net.bodz.uni.fmt.regf.t.samba4;
 
 import java.io.IOException;
 
-import net.bodz.bas.data.struct.SfsDataStruct;
+import net.bodz.bas.data.struct.DataStruct;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
 import net.bodz.uni.fmt.regf.t.NtTime;
@@ -12,7 +12,7 @@ import net.bodz.uni.fmt.regf.t.NtTime;
  * registry.
  */
 public class NkBlock
-        extends SfsDataStruct {
+        extends DataStruct {
 
     private static final long serialVersionUID = 1L;
 

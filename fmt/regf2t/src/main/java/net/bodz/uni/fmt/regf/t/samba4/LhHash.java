@@ -2,12 +2,12 @@ package net.bodz.uni.fmt.regf.t.samba4;
 
 import java.io.IOException;
 
-import net.bodz.bas.data.struct.SfsDataStruct;
+import net.bodz.bas.data.struct.DataStruct;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
 
 public class LhHash
-        extends SfsDataStruct {
+        extends DataStruct {
 
     private static final long serialVersionUID = 1L;
 

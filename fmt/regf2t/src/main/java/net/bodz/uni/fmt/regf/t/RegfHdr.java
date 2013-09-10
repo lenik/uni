@@ -2,9 +2,10 @@ package net.bodz.uni.fmt.regf.t;
 
 import java.io.IOException;
 
-import net.bodz.bas.data.struct.SfsDataStruct;
+import net.bodz.bas.data.struct.DataStruct;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
+import net.bodz.bas.text.rst.IRstSerializable;
 
 /**
  * "regf" is obviously the abbreviation for "Registry file". "regf" is the signature of the
@@ -12,7 +13,8 @@ import net.bodz.bas.io.IDataOut;
  * checksum is calculated over the first 0x200 bytes only!
  */
 public class RegfHdr
-        extends SfsDataStruct {
+        extends DataStruct
+        implements IRstSerializable {
 
     private static final long serialVersionUID = 1L;
 

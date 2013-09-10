@@ -1,4 +1,4 @@
-package net.bodz.uni.fmt.regf.t.samba4;
+package net.bodz.uni.fmt.regf.t;
 
 import java.io.IOException;
 
@@ -6,32 +6,23 @@ import net.bodz.bas.data.struct.DataStruct;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
 
-public class RiBlock
+public class RegfFile
         extends DataStruct {
 
     private static final long serialVersionUID = 1L;
 
-    /** charset(DOS) */
-    public byte[] header = new byte[2];
-
-    public short keyCount;
-
-    /** li/lh offset */
-    public int[] offset;
+    public final RegfHdr hdr = new RegfHdr();
 
     @Override
     public void readObject(IDataIn in)
             throws IOException {
-        in.read(header);
-        keyCount = in.readWord();
-        offset = new int[keyCount];
-        for (int i = 0; i < keyCount; i++)
-            offset[i] = in.readDword();
+        hdr.readObject(in);
     }
 
     @Override
     public void writeObject(IDataOut out)
             throws IOException {
+        hdr.writeObject(out);
     }
 
 }
