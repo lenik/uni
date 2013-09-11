@@ -1,4 +1,4 @@
-package net.bodz.uni.fmt.regf.t;
+package net.bodz.uni.fmt.regf.t.rec;
 
 /**
  * Subkey List -- list of key offsets and hashed names for consistency

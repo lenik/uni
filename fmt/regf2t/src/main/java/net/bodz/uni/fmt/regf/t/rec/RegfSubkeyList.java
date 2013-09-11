@@ -1,4 +1,6 @@
-package net.bodz.uni.fmt.regf.t;
+package net.bodz.uni.fmt.regf.t.rec;
+
+import net.bodz.uni.fmt.regf.t.IRegfConsts;
 
 /**
  * Subkey-list structure

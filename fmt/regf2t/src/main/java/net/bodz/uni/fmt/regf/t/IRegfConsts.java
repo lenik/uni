@@ -13,9 +13,9 @@ public interface IRegfConsts
     /** "regf" header block size */
     int REGF_SIZE = 0x1000;
     int REGF_MAGIC_SIZE = 4;
-    int REGF_NAME_SIZE = 64;
-    int REGF_RESERVED1_SIZE = 340;
-    int REGF_RESERVED2_SIZE = 3528;
+    int REGF_NAME_SIZE = 0x20;
+    int REGF_RESERVED1_SIZE = 0x0154;
+    int REGF_RESERVED2_SIZE = 0x0DC8;
     int HBIN_MAGIC_SIZE = 4;
     int CELL_MAGIC_SIZE = 2;
     int HBIN_HEADER_SIZE = 0x20;

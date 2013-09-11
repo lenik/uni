@@ -1,4 +1,4 @@
-package net.bodz.uni.fmt.regf.t;
+package net.bodz.uni.fmt.regf.t.file;
 
 import java.io.IOException;
 
@@ -10,9 +10,9 @@ import net.bodz.bas.text.rst.IRstSerializable;
 /**
  * Registry version number
  * <ul>
- * <li>1.2.0.1 for WinNT 3.51
- * <li>1.3.0.1 for WinNT 4
- * <li>1.5.0.1 for WinXP
+ * <li>1.2 for WinNT 3.51
+ * <li>1.3 for WinNT 4
+ * <li>1.5 for WinXP
  * </ul>
  *
  * <pre>
@@ -30,14 +30,15 @@ public class RegfVersion
 
     private static final long serialVersionUID = 1L;
 
+    /** Set to 1 in all known hives */
     public int major; // = 1
+
+    /** Set to 3 or 5 in all known hives */
     public int minor;
-    public int release; // = 0
-    public int build; // = 1
 
     @Override
     public int sizeof() {
-        return 16;
+        return 8;
     }
 
     @Override
@@ -45,8 +46,6 @@ public class RegfVersion
             throws IOException {
         major = in.readDword();
         minor = in.readDword();
-        release = in.readDword();
-        build = in.readDword();
     }
 
     @Override
@@ -54,8 +53,6 @@ public class RegfVersion
             throws IOException {
         out.writeDword(major);
         out.writeDword(minor);
-        out.writeDword(release);
-        out.writeDword(build);
     }
 
 }

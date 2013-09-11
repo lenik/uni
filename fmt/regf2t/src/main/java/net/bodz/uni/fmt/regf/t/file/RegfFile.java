@@ -1,4 +1,4 @@
-package net.bodz.uni.fmt.regf.t;
+package net.bodz.uni.fmt.regf.t.file;
 
 import java.io.IOException;
 
@@ -12,6 +12,10 @@ public class RegfFile
     private static final long serialVersionUID = 1L;
 
     public final RegfHdr hdr = new RegfHdr();
+
+    public transient int fileLength;
+//    RangeList hbins;
+//    lruCache skCache;
 
     @Override
     public void readObject(IDataIn in)

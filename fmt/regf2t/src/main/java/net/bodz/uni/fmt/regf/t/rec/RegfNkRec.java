@@ -1,4 +1,7 @@
-package net.bodz.uni.fmt.regf.t;
+package net.bodz.uni.fmt.regf.t.rec;
+
+import net.bodz.uni.fmt.regf.t.IRegfConsts;
+import net.bodz.uni.fmt.regf.t.NtTime;
 
 public class RegfNkRec
         implements IRegfConsts {
