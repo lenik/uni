@@ -1,21 +1,29 @@
 package net.bodz.uni.fmt.regf.t.rec;
 
-import net.bodz.uni.fmt.regf.t.IRegfConsts;
+import java.io.IOException;
+
+import net.bodz.bas.io.IDataIn;
+import net.bodz.bas.io.IDataOut;
+import net.bodz.uni.fmt.regf.t.file.RegfCellData;
 
 /**
  * Value structure
  */
 public class RegfVkRec
-        implements IRegfConsts {
+        extends RegfCellData {
 
-    /** Real offset of this record's cell in the file */
-    int offset;
+    /** VK record's magic number (should be "vk") */
+    public final byte[] magic = new byte[CELL_MAGIC_SIZE];
 
-    /** ((start_offset - end_offset) & 0xfffffff8) */
-    int cellSize;
+    /** Length of valuename_raw */
+    public short valueNameLength;
 
-    /* XXX: deprecated */
-    RegfData[] data;
+    /**
+     * The raw value name
+     *
+     * Length of the buffer is stored in name_length.
+     */
+    public byte[] valueNameRaw;
 
     /**
      * The name of this value converted to desired REGFI_ENCODING.
@@ -23,48 +31,45 @@ public class RegfVkRec
      * This conversion typically occurs automatically through REGFI_ITERATOR settings. String is NUL
      * terminated.
      */
-    String valuename;
-
-    /**
-     * The raw value name
-     *
-     * Length of the buffer is stored in name_length.
-     */
-    byte[] valuenameRaw;
-
-    /** Length of valuename_raw */
-    short nameLength;
-
-    /** Offset from beginning of this hbin block */
-    int hbinOffset;
+    transient String valueName;
 
     /**
      * Size of the value's data as reported in the VK record.
      *
      * May be different than that obtained while parsing the data cell itself.
      */
-    int dataSize;
+    public int dataSize;
 
     /** Virtual offset of data cell */
-    int dataOffset;
+    public int dataOffset;
 
     /** Value's data type */
-    int type;
-
-    /** VK record's magic number (should be "vk") */
-    byte[] magic = new byte[CELL_MAGIC_SIZE];
+    public int valueType;
 
     /** VK record flags */
-    short flags;
+    public short flags;
 
-    /* XXX: A 2-byte field of unknown purpose stored in the VK record */
-    short unknown1;
+    /** A 2-byte field of unknown purpose stored in the VK record */
+    short _unknown1;
 
     /**
      * Whether or not the data record is stored in the VK record's data_off field.
      *
      * This information is derived from the high bit of the raw data size field.
      */
-    byte dataInOffset;
+    transient boolean dataInOffset;
+
+    /* XXX: deprecated */
+    transient RegfData[] data;
+
+    @Override
+    public void readObject(IDataIn in)
+            throws IOException {
+    }
+
+    @Override
+    public void writeObject(IDataOut out)
+            throws IOException {
+    }
 
 }

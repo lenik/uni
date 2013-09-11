@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.junit.Assert;
 
+import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.Stdio;
 import net.bodz.bas.io.data.DataInImplLE;
@@ -16,14 +17,13 @@ public class Regf2tTest
         extends Assert {
 
     public static void main(String[] args)
-            throws IOException {
+            throws IOException, ParseException {
         RegfFile file = new RegfFile();
-        System.out.println(file.sizeof());
 
         IDataIn in = DataInImplLE.from(new FileResource("security.dat").newByteIn());
         file.readObject(in);
 
-        ReflectRstDumper.dump(RstOutputImpl.from(Stdio.cout), file);
+        ReflectRstDumper.getInstance().dump(RstOutputImpl.from(Stdio.cout), file);
     }
 
 }

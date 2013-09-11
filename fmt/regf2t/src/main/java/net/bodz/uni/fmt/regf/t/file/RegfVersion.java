@@ -2,7 +2,7 @@ package net.bodz.uni.fmt.regf.t.file;
 
 import java.io.IOException;
 
-import net.bodz.bas.data.struct.DataStruct;
+import net.bodz.bas.data.struct.RstDataStruct;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
 import net.bodz.bas.text.rst.IRstSerializable;
@@ -25,7 +25,7 @@ import net.bodz.bas.text.rst.IRstSerializable;
  * </pre>
  */
 public class RegfVersion
-        extends DataStruct
+        extends RstDataStruct
         implements IRstSerializable {
 
     private static final long serialVersionUID = 1L;

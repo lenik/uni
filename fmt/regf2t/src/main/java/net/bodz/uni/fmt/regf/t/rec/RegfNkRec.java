@@ -1,45 +1,84 @@
 package net.bodz.uni.fmt.regf.t.rec;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+
+import net.bodz.bas.err.ParseException;
+import net.bodz.bas.io.BByteOut;
+import net.bodz.bas.io.IDataIn;
+import net.bodz.bas.io.IDataOut;
+import net.bodz.bas.io.StringFlags;
+import net.bodz.bas.io.data.DataOutImplLE;
+import net.bodz.bas.text.rst.ElementHandlerException;
+import net.bodz.bas.text.rst.IRstOutput;
 import net.bodz.uni.fmt.regf.t.IRegfConsts;
 import net.bodz.uni.fmt.regf.t.NtTime;
+import net.bodz.uni.fmt.regf.t.file.RegfCellData;
 
 public class RegfNkRec
+        extends RegfCellData
         implements IRegfConsts {
 
-    /** Real offset of this record's cell in the file */
-    int offset;
-
-    /**
-     * Actual or estimated length of the cell. Always in multiples of 8.
-     */
-    int cellSize;
-
-    /**
-     * Preloaded value-list for this key. This element is loaded automatically when using the
-     * iterator interface and possibly some lower layer interfaces.
-     */
-    RegfValueList[] values;
-
-    /**
-     * Preloaded subkey-list for this key. This element is loaded automatically when using the
-     * iterator interface and possibly some lower layer interfaces.
-     */
-    RegfSubkeyList[] subkeys;
-
-    /** Key flags */
-    short flags;
+    private static final long serialVersionUID = 1L;
 
     /** Magic number of key (should be "nk") */
-    byte[] magic = new byte[CELL_MAGIC_SIZE];
+    public final byte[] magic = new byte[CELL_MAGIC_SIZE];
+
+    /** Key flags */
+    public short flags;
 
     /** Key's last modification time */
-    NtTime mtime;
+    public final NtTime mtime = new NtTime();
+
+    int _unknown1;
+
+    /** Virutal offset of parent key */
+    public int parentOffset;
+
+    /** Number of subkeys (stable) */
+    public int subkeyCount;
+
+    /** Number of subkeys (volatile) */
+    public int volatileSubkeyCount;
+
+    /** Virtual offset of subkey-list */
+    public int subkeysOffset;
+
+    /** Virtual offset of subkey-list */
+    public int volatileSubkeysOffset;
+
+    /** Number of values for this key */
+    public int valueCount;
+
+    /** Virtual offset of value-list */
+    public int valuesOffset;
+
+    /** Virtual offset of SK record */
+    public int skOffset;
+
+    /** Virutal offset of classname key */
+    public int classNameOffset;
+
+    /** in bytes: max subkey name * 2 */
+    public int subkeyNameMaxSize;
+
+    /** in bytes: max subkey classname length (as if) */
+    public int subkeyClassNameMaxSize;
+
+    /** in bytes: max valuename * 2 */
+    public int valueNameMaxSize;
+
+    /** in bytes: max value data size */
+    public int valueDataMaxSize;
+
+    /** possibly some sort of run-time index) */
+    int _unknown2;
 
     /** Length of keyname_raw */
-    short nameLength;
+    public short keyNameSize;
 
     /** Length of referenced classname */
-    short classnameLength;
+    public short classNameLength;
 
     /**
      * The name of this key converted to desired REGFI_ENCODING.
@@ -47,53 +86,110 @@ public class RegfNkRec
      * This conversion typically occurs automatically through REGFI_ITERATOR settings. String is NUL
      * terminated.
      */
-    char[] keyname;
+    public String keyName;
 
     /**
-     * The raw key name
-     *
-     * Length of the buffer is stored in name_length.
+     * Preloaded value-list for this key. This element is loaded automatically when using the
+     * iterator interface and possibly some lower layer interfaces.
      */
-    byte[] keynameRaw;
+    transient RegfValueList[] values;
 
-    /** Virutal offset of parent key */
-    int parentOffset;
+    /**
+     * Preloaded subkey-list for this key. This element is loaded automatically when using the
+     * iterator interface and possibly some lower layer interfaces.
+     */
+    transient RegfSubkeyList[] subkeys;
 
-    /** Virutal offset of classname key */
-    int classnameOffset;
+    @Override
+    public void readObject(IDataIn in)
+            throws IOException {
+        in.readBytes(magic);
+        flags = in.readWord();
+        mtime.readObject(in);
+        _unknown1 = in.readDword();
+        parentOffset = in.readDword();
+        subkeyCount = in.readDword();
+        volatileSubkeyCount = in.readDword();
+        subkeysOffset = in.readDword();
+        volatileSubkeysOffset = in.readDword();
+        valueCount = in.readDword();
+        valuesOffset = in.readDword();
+        skOffset = in.readDword();
+        classNameOffset = in.readDword();
+        subkeyNameMaxSize = in.readDword();
+        subkeyClassNameMaxSize = in.readDword();
+        valueNameMaxSize = in.readDword();
+        valueDataMaxSize = in.readDword();
+        _unknown2 = in.readDword();
+        keyNameSize = in.readWord();
+        classNameLength = in.readWord();
 
-    /** XXX: max subkey name * 2 */
-    int maxBytesSubkeyname;
+        byte[] keyNameBuf = new byte[keyNameSize];
+        in.readBytes(keyNameBuf);
+        if ((flags & NK_FLAG_ASCIINAME) != 0)
+            keyName = new String(keyNameBuf, "utf-8");
+        else
+            keyName = new String(keyNameBuf, "utf-16le");
+    }
 
-    /** XXX: max subkey classname length (as if) */
-    int maxBytesSubkeyclassname;
+    @Override
+    public void writeObject(IDataOut out)
+            throws IOException {
+        BByteOut bo = new BByteOut();
+        IDataOut bdo = DataOutImplLE.from(bo);
+        if ((flags & NK_FLAG_ASCIINAME) != 0)
+            bdo.writeString(StringFlags.NULL_TERM, keyName);
+        else
+            bdo.writeString(StringFlags._16BIT | StringFlags.NULL_TERM, keyName);
+        byte[] keyNameRaw = bo.toByteArray();
+        keyNameSize = (short) keyNameRaw.length;
 
-    /** XXX: max valuename * 2 */
-    int maxBytesValuename;
+        out.write(magic);
+        out.writeWord(flags);
+        mtime.writeObject(out);
+        out.writeDword(_unknown1);
+        out.writeDword(parentOffset);
+        out.writeDword(subkeyCount);
+        out.writeDword(volatileSubkeyCount);
+        out.writeDword(subkeysOffset);
+        out.writeDword(volatileSubkeysOffset);
+        out.writeDword(valueCount);
+        out.writeDword(valuesOffset);
+        out.writeDword(skOffset);
+        out.writeDword(classNameOffset);
+        out.writeDword(subkeyNameMaxSize);
+        out.writeDword(subkeyClassNameMaxSize);
+        out.writeDword(valueNameMaxSize);
+        out.writeDword(valueDataMaxSize);
+        out.writeDword(_unknown2);
+        out.writeDword(keyNameSize);
+        out.writeDword(classNameLength);
 
-    /** XXX: max value data size */
-    int maxBytesValue;
+        out.write(keyNameRaw);
+    }
 
-    /** XXX: Fields of unknown purpose */
-    int unknown1;
-    int unknown2;
-    int unknown3;
-    /** nigel says run time index ? */
-    int unkIndex;
+    static final RegfNkFlagsTyper flagsTyper = new RegfNkFlagsTyper();
 
-    /** Number of subkeys */
-    int numSubkeys;
+    @Override
+    public boolean writeObjectFieldOverride(IRstOutput out, Field field)
+            throws IOException {
+        switch (field.getName()) {
+        case "flags":
+            out.attribute("flags", flagsTyper.format(flags & 0xffff));
+            return true;
+        }
+        return false;
+    }
 
-    /** Virtual offset of subkey-list */
-    int subkeysOffset;
-
-    /** Number of values for this key */
-    int numValues;
-
-    /** Virtual offset of value-list */
-    int valuesOffset;
-
-    /** Virtual offset of SK record */
-    int skOffset;
+    @Override
+    public boolean attribute(String name, String data)
+            throws ParseException, ElementHandlerException {
+        switch (name) {
+        case "flags":
+            flags = flagsTyper.parse(data).shortValue();
+            return true;
+        }
+        return super.attribute(name, data);
+    }
 
 }

@@ -2,11 +2,10 @@ package net.bodz.uni.fmt.regf.t.file;
 
 import java.io.IOException;
 
-import net.bodz.bas.data.struct.DataStruct;
+import net.bodz.bas.data.struct.RstDataStruct;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
 import net.bodz.bas.io.StringFlags;
-import net.bodz.bas.text.rst.IRstSerializable;
 import net.bodz.uni.fmt.regf.t.IRegfConsts;
 import net.bodz.uni.fmt.regf.t.NtTime;
 
@@ -16,8 +15,8 @@ import net.bodz.uni.fmt.regf.t.NtTime;
  * checksum is calculated over the first 0x200 bytes only!
  */
 public class RegfHdr
-        extends DataStruct
-        implements IRstSerializable, IRegfConsts {
+        extends RstDataStruct
+        implements IRegfConsts {
 
     private static final long serialVersionUID = 1L;
 

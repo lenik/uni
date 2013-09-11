@@ -28,13 +28,6 @@ public class XPathTypers
     }
 
     @Override
-    public XPath parse(String xpathExpr)
-            throws ParseException {
-        DocumentFactory factory = DocumentFactory.getInstance();
-        return factory.createXPath(xpathExpr);
-    }
-
-    @Override
     public XPath parse(String xpathExpr, IOptions options)
             throws ParseException {
         Document document = (Document) options.getOption(Document.class);

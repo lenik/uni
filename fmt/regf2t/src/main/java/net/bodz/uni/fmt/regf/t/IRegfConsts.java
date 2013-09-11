@@ -58,7 +58,8 @@ public interface IRegfConsts
      * stored. http://msdn.microsoft.com/en-us/library/ms724836(VS.85).aspx
      */
     int NK_FLAG_PREDEF_KEY = 0x0040;
-    /** The name will be in ASCII if this next bit is set, otherwise UTF-16LE */
+
+    /** The name will be in ASCII if this bit is set, otherwise UTF-16LE */
     int NK_FLAG_ASCIINAME = 0x0020;
 
     /**
@@ -79,6 +80,7 @@ public interface IRegfConsts
      * it points to.
      */
     int NK_FLAG_HIVE_LINK = 0x0002;
+
     /**
      * These keys shouldn't be stored on disk, according to:
      * http://geekswithblogs.net/sdorman/archive/2007/12/24/volatile-registry-keys.aspx
