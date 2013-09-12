@@ -2,6 +2,7 @@ package net.bodz.uni.fmt.regf.t.cell;
 
 import java.io.IOException;
 
+import net.bodz.bas.data.address.IAddressedObjectManager;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
 import net.bodz.uni.fmt.regf.t.IRegfConsts;
@@ -68,6 +69,12 @@ public class SecurityCell
         out.writeDword(refCount);
         out.writeDword(securityDescriptorSize);
         out.write(securityDescriptor);
+    }
+
+    @Override
+    public void afterAddressSet(IAddressedObjectManager<AbstractCell> manager) {
+        SecurityCell prevSk = (SecurityCell) manager.get(prevSkOffset);
+        SecurityCell nextSk = (SecurityCell) manager.get(nextSkOffset);
     }
 
 }

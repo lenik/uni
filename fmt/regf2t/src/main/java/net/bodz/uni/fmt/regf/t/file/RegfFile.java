@@ -5,20 +5,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bodz.bas.data.address.IAddressedObjectManager;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
 import net.bodz.uni.fmt.regf.t.InvalidMagicException;
 import net.bodz.uni.fmt.regf.t.RegfStruct;
+import net.bodz.uni.fmt.regf.t.cell.AbstractCell;
 
 public class RegfFile
         extends RegfStruct {
 
     private static final long serialVersionUID = 1L;
 
+    public transient int fileLength;
+
     public final RegfHdr hdr = new RegfHdr();
     public List<RegfHbin> hbins = new ArrayList<>();
-
-    public transient int fileLength;
 
     @Override
     public void readObject(IDataIn in)
@@ -52,6 +54,13 @@ public class RegfFile
 
         for (RegfHbin hbin : hbins)
             hbin.writeObject(out);
+    }
+
+    @Override
+    public void afterAddressSet(IAddressedObjectManager<AbstractCell> manager) {
+        hdr.afterAddressSet(manager);
+        for (RegfHbin hbin : hbins)
+            hbin.afterAddressSet(manager);
     }
 
 }

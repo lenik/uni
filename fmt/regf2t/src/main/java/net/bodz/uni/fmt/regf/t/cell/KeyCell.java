@@ -3,6 +3,7 @@ package net.bodz.uni.fmt.regf.t.cell;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
+import net.bodz.bas.data.address.IAddressedObjectManager;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.BByteOut;
 import net.bodz.bas.io.IDataIn;
@@ -106,6 +107,9 @@ public class KeyCell
      */
     public String keyName;
 
+    public transient int hashLH;
+    public transient int hashLF;
+
     /**
      * Preloaded value-list for this key. This element is loaded automatically when using the
      * iterator interface and possibly some lower layer interfaces.
@@ -159,6 +163,25 @@ public class KeyCell
             keyName = new String(keyNameBuf, "utf-8");
         else
             keyName = new String(keyNameBuf, "utf-16le");
+
+        // compute LH hash.
+        int len = keyName.length();
+        int H = 0;
+        for (int i = 0; i < len; i++) {
+            char ch = keyName.charAt(i);
+            ch = Character.toUpperCase(ch);
+            H = H * 37 + ch;
+        }
+        hashLH = H;
+
+        H = 0;
+        for (int i = keyName.length() - 1; i >= 0; i--) {
+            char ch = keyName.charAt(i);
+            if (ch > 0x100)
+                continue;
+            H = H * 256 + ch;
+        }
+        hashLF = H;
     }
 
     @Override
@@ -218,6 +241,25 @@ public class KeyCell
             return true;
         }
         return super.attribute(name, data);
+    }
+
+    @Override
+    public void afterAddressSet(IAddressedObjectManager<AbstractCell> manager) {
+        KeyCell parent = null;
+        if ((flags & NK_FLAG_ROOT) == 0)
+            parent = (KeyCell) manager.get(parentOffset);
+
+        SubkeyListCell subkeys = (SubkeyListCell) manager.get(subkeysOffset);
+        SubkeyListCell volatileSubkeys = (SubkeyListCell) manager.get(volatileSubkeysOffset);
+        RawDataCell values = (RawDataCell) manager.get(valuesOffset);
+        SecurityCell security = (SecurityCell) manager.get(securityOffset);
+        RawDataCell className = (RawDataCell) manager.get(classNameOffset);
+
+        if (subkeys != null) {
+            if (subkeys.parent != null)
+                throw new IllegalStateException("subkeys are referenced by multiple key cell.");
+            subkeys.parent = this;
+        }
     }
 
 }

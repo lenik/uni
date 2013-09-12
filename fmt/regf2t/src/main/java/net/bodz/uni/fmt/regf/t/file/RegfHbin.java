@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.bodz.bas.data.address.IAddressed;
+import net.bodz.bas.data.address.IAddressedObjectManager;
 import net.bodz.bas.io.BByteIn;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
@@ -163,6 +165,12 @@ public class RegfHbin
         out.writeQword(mtime);
 
         out.writeDword(nextBlock);
+    }
+
+    @Override
+    public void afterAddressSet(IAddressedObjectManager<AbstractCell> manager) {
+        for (AbstractCell cell : cells)
+            cell.afterAddressSet(manager);
     }
 
 }

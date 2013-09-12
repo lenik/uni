@@ -2,10 +2,12 @@ package net.bodz.uni.fmt.regf.t.file;
 
 import java.io.IOException;
 
+import net.bodz.bas.data.address.IAddressedObjectManager;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
 import net.bodz.bas.io.StringFlags;
 import net.bodz.uni.fmt.regf.t.RegfStruct;
+import net.bodz.uni.fmt.regf.t.cell.AbstractCell;
 
 /**
  * "regf" is obviously the abbreviation for "Registry file". "regf" is the signature of the
@@ -155,6 +157,11 @@ public class RegfHdr
         computedChecksum = 0;
         for (int i = 0; i < ints.length; i++)
             computedChecksum ^= ints[i];
+    }
+
+    @Override
+    public void afterAddressSet(IAddressedObjectManager<AbstractCell> manager) {
+        AbstractCell rootCell = manager.get(rootCellOffset);
     }
 
 }

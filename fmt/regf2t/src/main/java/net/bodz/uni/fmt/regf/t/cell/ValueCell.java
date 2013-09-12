@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
+import net.bodz.bas.data.address.IAddressedObjectManager;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
@@ -67,6 +68,8 @@ public class ValueCell
      * This information is derived from the high bit of the raw data size field.
      */
     transient boolean dataInOffset;
+
+    public transient RawDataCell data;
 
     @Override
     public short getMagic() {
@@ -162,6 +165,14 @@ public class ValueCell
             return true;
         }
         return super.attribute(name, data);
+    }
+
+    @Override
+    public void afterAddressSet(IAddressedObjectManager<AbstractCell> manager) {
+        if (dataInOffset)
+            this.data = null;
+        else
+            this.data = (RawDataCell) manager.get(dataOffset);
     }
 
 }

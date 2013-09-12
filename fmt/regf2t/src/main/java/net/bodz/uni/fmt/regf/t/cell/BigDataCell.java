@@ -2,6 +2,7 @@ package net.bodz.uni.fmt.regf.t.cell;
 
 import java.io.IOException;
 
+import net.bodz.bas.data.address.IAddressedObjectManager;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
 
@@ -58,6 +59,12 @@ public class BigDataCell
             throws IOException {
         out.writeWord(fragmentCount);
         out.writeDword(indirectsOffset);
+    }
+
+    @Override
+    public void afterAddressSet(IAddressedObjectManager<AbstractCell> manager) {
+        AbstractCell indirects = manager.get(indirectsOffset);
+        System.out.println(indirects);
     }
 
 }
