@@ -5,19 +5,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import net.bodz.bas.data.struct.RstDataStruct;
 import net.bodz.bas.io.BByteIn;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
 import net.bodz.bas.io.data.DataInImplLE;
 import net.bodz.bas.t.Cc2Typer;
-import net.bodz.uni.fmt.regf.t.IRegfConsts;
 import net.bodz.uni.fmt.regf.t.InvalidMagicException;
+import net.bodz.uni.fmt.regf.t.RegfStruct;
 import net.bodz.uni.fmt.regf.t.cell.*;
 
 public class RegfHbin
-        extends RstDataStruct
-        implements IRegfConsts {
+        extends RegfStruct
+        implements IAddressed {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,7 +28,7 @@ public class RegfHbin
     public byte[] magic = new byte[HBIN_MAGIC_SIZE];
 
     /** Offset from first hbin block */
-    public int firstHbinOffset;
+    public int address;
 
     /** Block size of this block Should be a multiple of 4096 (0x1000) */
     public int blockSize;
@@ -50,12 +49,14 @@ public class RegfHbin
     transient byte[] data;
     public final List<AbstractCell> cells = new ArrayList<>();
 
-    /** Offset of this HBIN in the registry file */
-    public transient int fileOffset;
+    @Override
+    public int address() {
+        return address;
+    }
 
     @Override
-    public int sizeof() {
-        // block hdr size = 32
+    public int size() {
+        // int dataSize = blockSize - HBIN_HEADER_SIZE;
         return blockSize;
     }
 
@@ -68,7 +69,7 @@ public class RegfHbin
         if (!Arrays.equals(magic, magic_hbin))
             throw new InvalidMagicException(magic_hbin, magic, HBIN_ALLOC - HBIN_MAGIC_SIZE);
 
-        firstHbinOffset = in.readDword();
+        address = in.readDword();
         blockSize = in.readDword();
         if ((blockSize & 0xFFF) != 0)
             throw new IllegalArgumentException("Block is unaligned: " + blockSize);
@@ -81,6 +82,7 @@ public class RegfHbin
 
         nextBlock = in.readDword();
 
+        int offset = address + HBIN_HEADER_SIZE;
         int remaining = blockSize - HBIN_HEADER_SIZE;
         data = new byte[remaining];
         in.readBytes(data);
@@ -91,14 +93,14 @@ public class RegfHbin
         in = DataInImplLE.from(new BByteIn(data));
 
         while (remaining > 0) {
-            int cellLength = in.readDword();
-            boolean cellAllocated = cellLength < 0;
+            int cellSize = in.readDword();
+            boolean cellAllocated = cellSize < 0;
             if (cellAllocated)
-                cellLength = -cellLength;
+                cellSize = -cellSize;
 
-            byte[] cellBytes = new byte[cellLength - 4];
-            in.readBytes(cellBytes);
-            IDataIn _in = DataInImplLE.from(new BByteIn(cellBytes));
+            byte[] cellData = new byte[cellSize - 4];
+            in.readBytes(cellData);
+            IDataIn _in = DataInImplLE.from(new BByteIn(cellData));
 
             AbstractCell cell = null;
             short magic = _in.readWord();
@@ -135,22 +137,25 @@ public class RegfHbin
                 break;
             }
 
-            cell.setLength(cellLength);
+            cell.address(offset);
+            cell.size(cellSize);
             cell.allocated = cellAllocated;
 
             cell.setMagic(magic);
             cell.readObject2(_in);
 
             cells.add(cell);
-            remaining -= cellLength;
-        } // while hbinRemaining > 0
+
+            offset += cellSize;
+            remaining -= cellSize;
+        } // while remaining > 0
     }
 
     @Override
     public void writeObject(IDataOut out)
             throws IOException {
         out.write(magic);
-        out.writeDword(firstHbinOffset);
+        out.writeDword(address);
         out.writeDword(blockSize);
 
         out.writeDword(_unknown1);

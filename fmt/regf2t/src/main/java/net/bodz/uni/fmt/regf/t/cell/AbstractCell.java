@@ -3,55 +3,55 @@ package net.bodz.uni.fmt.regf.t.cell;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
-import net.bodz.bas.data.block.IMappedBlock;
-import net.bodz.bas.data.struct.RstDataStruct;
+import net.bodz.bas.data.address.IAddressed;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
 import net.bodz.bas.t.Cc2Typer;
 import net.bodz.bas.text.rst.ElementHandlerException;
 import net.bodz.bas.text.rst.IRstOutput;
-import net.bodz.uni.fmt.regf.t.IRegfConsts;
+import net.bodz.uni.fmt.regf.t.RegfStruct;
 
 public abstract class AbstractCell
-        extends RstDataStruct
-        implements IMappedBlock, IRegfConsts {
+        extends RegfStruct
+        implements IAddressed {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * Cell length (including these 4 bytes)..
+     * hbin offset.
+     */
+    private int address;
+
+    /**
+     * Cell size in bytes(including these 4 bytes)..
      *
      * Negative if allocated, positive if free. If a cell becomes unallocated and is adjacent to
      * another unallocaeted cell, they are merged by having the earlier cell's length extended.
      */
-    protected int length;
+    protected int size;
     public transient boolean allocated;
-
-    transient int fileOffset;
-    transient int hbinOffset;
 
     public abstract short getMagic();
 
     public abstract void setMagic(short magic);
 
     @Override
-    public int getOffset() {
-        return hbinOffset;
+    public int address() {
+        return address;
     }
 
     @Override
-    public int getLength() {
-        return length;
+    public int size() {
+        return size;
     }
 
-    public void setLength(int length) {
-        this.length = length;
+    public void address(int address) {
+        this.address = address;
     }
 
-    @Override
-    public final int sizeof() {
-        return length - 4;
+    public void size(int size) {
+        this.size = size;
     }
 
     @Override

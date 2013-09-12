@@ -5,13 +5,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.bodz.bas.data.struct.RstDataStruct;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
 import net.bodz.uni.fmt.regf.t.InvalidMagicException;
+import net.bodz.uni.fmt.regf.t.RegfStruct;
 
 public class RegfFile
-        extends RstDataStruct {
+        extends RegfStruct {
 
     private static final long serialVersionUID = 1L;
 

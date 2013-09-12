@@ -20,10 +20,10 @@ public class RawDataCell
     String hdValue;
 
     @Override
-    public void setLength(int length) {
-        super.setLength(length);
-        int size = length - 4;
-        data = new byte[size];
+    public void size(int size) {
+        super.size(size);
+        int dataSize = size - 4;
+        data = new byte[dataSize];
     }
 
     @Override
@@ -44,7 +44,7 @@ public class RawDataCell
     @Override
     public void readObject2(IDataIn in)
             throws IOException {
-        int remaining = length - 4 - 2;
+        int remaining = size - 4 - 2;
         in.readBytes(data, 2, remaining);
 
         if (!heuristicalDiscover)
@@ -53,23 +53,23 @@ public class RawDataCell
         hdType = null;
         hdValue = null;
 
-        int size = length - 4;
-        if (size < 4)
+        int dataSize = size - 4;
+        if (dataSize < 4)
             return;
 
-        switch (size) {
+        switch (dataSize) {
         case 2:
             hdType = "short";
             hdValue = "" + getMagic();
             break;
 
         default:
-            if (size > 4) {
+            if (dataSize > 4) {
                 // char/wchar_t *
                 int printableAscii = 0;
                 int high0 = 0;
                 int low0 = 0;
-                for (int i = 0; i < size; i++) {
+                for (int i = 0; i < dataSize; i++) {
                     int b = data[i];
                     if (b >= 0x20 && b <= 0x7f)
                         printableAscii++;
@@ -79,20 +79,20 @@ public class RawDataCell
                         else
                             high0++;
                 }
-                if (size % 2 == 0 && 200 * high0 / size > 90 && 200 * low0 / size < 10) {
+                if (dataSize % 2 == 0 && 200 * high0 / dataSize > 90 && 200 * low0 / dataSize < 10) {
                     hdType = "UTF-16LE";
                     hdValue = new String(data, "utf-16le");
                 }
 
-                else if (100 * printableAscii / size > 95) {
+                else if (100 * printableAscii / dataSize > 95) {
                     hdType = "ASCII";
                     hdValue = new String(data, "ascii");
                 }
             }
 
-            if (hdType == null && size % 4 == 0 && size <= 16) {
+            if (hdType == null && dataSize % 4 == 0 && dataSize <= 16) {
                 // int32[n]
-                int n = size / 4;
+                int n = dataSize / 4;
                 hdType = "int";
                 if (n > 1)
                     hdType += "[" + n + "]";
@@ -114,7 +114,7 @@ public class RawDataCell
     @Override
     public void writeObject2(IDataOut out)
             throws IOException {
-        int remaining = length - 4 - 2;
+        int remaining = size - 4 - 2;
         out.write(data, 2, remaining);
     }
 

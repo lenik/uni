@@ -2,11 +2,10 @@ package net.bodz.uni.fmt.regf.t.file;
 
 import java.io.IOException;
 
-import net.bodz.bas.data.struct.RstDataStruct;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
 import net.bodz.bas.io.StringFlags;
-import net.bodz.uni.fmt.regf.t.IRegfConsts;
+import net.bodz.uni.fmt.regf.t.RegfStruct;
 
 /**
  * "regf" is obviously the abbreviation for "Registry file". "regf" is the signature of the
@@ -14,8 +13,7 @@ import net.bodz.uni.fmt.regf.t.IRegfConsts;
  * checksum is calculated over the first 0x200 bytes only!
  */
 public class RegfHdr
-        extends RstDataStruct
-        implements IRegfConsts {
+        extends RegfStruct {
 
     private static final long serialVersionUID = 1L;
 
@@ -76,7 +74,7 @@ public class RegfHdr
     public int computedChecksum;
 
     @Override
-    public int sizeof() {
+    public int size() {
         return 4096;
     }
 

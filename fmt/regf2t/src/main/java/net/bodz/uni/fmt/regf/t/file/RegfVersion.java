@@ -2,10 +2,9 @@ package net.bodz.uni.fmt.regf.t.file;
 
 import java.io.IOException;
 
-import net.bodz.bas.data.struct.RstDataStruct;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
-import net.bodz.bas.text.rst.IRstSerializable;
+import net.bodz.uni.fmt.regf.t.RegfStruct;
 
 /**
  * Registry version number
@@ -23,8 +22,7 @@ import net.bodz.bas.text.rst.IRstSerializable;
  * </pre>
  */
 public class RegfVersion
-        extends RstDataStruct
-        implements IRstSerializable {
+        extends RegfStruct {
 
     private static final long serialVersionUID = 1L;
 
@@ -35,7 +33,7 @@ public class RegfVersion
     public int minor;
 
     @Override
-    public int sizeof() {
+    public int size() {
         return 8;
     }
 
