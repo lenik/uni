@@ -19,8 +19,6 @@ import net.bodz.bas.text.rst.IRstSerializable;
  * [noprint] struct regf_version {
  *     [value(1)] uint32 major;
  *     uint32 minor;
- *     [value(0)] uint32 release;
- *     [value(1)] uint32 build;
  * };
  * </pre>
  */
