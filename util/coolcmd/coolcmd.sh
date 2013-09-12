@@ -12,3 +12,5 @@ alias X='xcat'
 alias h='man'
 
 alias lddw='ldd-which'
+
+alias susl='sort | uniq -c | sort -n | less -eir'
