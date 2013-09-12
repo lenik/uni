@@ -1,20 +1,19 @@
-package net.bodz.uni.fmt.regf.t.rec;
+package net.bodz.uni.fmt.regf.t.cell;
 
 import java.io.IOException;
 
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
 import net.bodz.uni.fmt.regf.t.IRegfConsts;
-import net.bodz.uni.fmt.regf.t.file.RegfCellData;
 
-public class RegfSkRec
-        extends RegfCellData
+public class SecurityCell
+        extends AbstractCell
         implements IRegfConsts {
 
     private static final long serialVersionUID = 1L;
 
-    /** The magic number for this record (should be "sk") */
-    public final byte[] magic = new byte[CELL_MAGIC_SIZE];
+    /** Magic number of key */
+    public short magic;
 
     /** A 2-byte field of unknown purpose */
     short _unknown;
@@ -35,9 +34,20 @@ public class RegfSkRec
     public byte[] securityDescriptor;
 
     @Override
-    public void readObject(IDataIn in)
+    public short getMagic() {
+        return magic;
+    }
+
+    @Override
+    public void setMagic(short magic) {
+        if (magic != MAGIC_SK)
+            throw new IllegalArgumentException("Bad magic: " + magic);
+        this.magic = magic;
+    }
+
+    @Override
+    public void readObject2(IDataIn in)
             throws IOException {
-        in.readBytes(magic);
         _unknown = in.readWord();
         prevSkOffset = in.readDword();
         nextSkOffset = in.readDword();
@@ -48,11 +58,10 @@ public class RegfSkRec
     }
 
     @Override
-    public void writeObject(IDataOut out)
+    public void writeObject2(IDataOut out)
             throws IOException {
         securityDescriptorSize = securityDescriptor.length;
 
-        out.write(magic);
         out.writeDword(_unknown);
         out.writeDword(prevSkOffset);
         out.writeDword(nextSkOffset);

@@ -1,4 +1,4 @@
-package net.bodz.uni.fmt.regf.t.rec;
+package net.bodz.uni.fmt.regf.t.cell;
 
 /**
  * Class name structure (used in storing SysKeys)

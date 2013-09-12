@@ -1,6 +1,6 @@
-package net.bodz.uni.fmt.regf.t.rec;
+package net.bodz.uni.fmt.regf.t.cell;
 
-public class RegfValueList {
+public class ValueListCell {
 
     /**
      * Actual number of values referenced by this list.

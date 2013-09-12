@@ -99,4 +99,13 @@ public interface IRegfConsts
             | NK_FLAG_UNKNOWN2//
             | NK_FLAG_UNKNOWN3;
 
+    int MAGIC_NK = 0x6b6e;
+    int MAGIC_SK = 0x6b73;
+    int MAGIC_VK = 0x6b76;
+    int MAGIC_LF = 0x666c;
+    int MAGIC_LH = 0x686c;
+    int MAGIC_RI = 0x6972;
+    int MAGIC_LI = 0x696c;
+    int MAGIC_BD = 0x6462;
+
 }

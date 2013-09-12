@@ -1,12 +1,15 @@
 package net.bodz.uni.fmt.regf;
 
+import java.io.FileWriter;
 import java.io.IOException;
 
 import org.junit.Assert;
 
 import net.bodz.bas.err.ParseException;
+import net.bodz.bas.io.ICharOut;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.Stdio;
+import net.bodz.bas.io.adapter.WriterCharOut;
 import net.bodz.bas.io.data.DataInImplLE;
 import net.bodz.bas.io.res.builtin.FileResource;
 import net.bodz.bas.text.rst.ReflectRstDumper;
@@ -20,10 +23,13 @@ public class Regf2tTest
             throws IOException, ParseException {
         RegfFile file = new RegfFile();
 
-        IDataIn in = DataInImplLE.from(new FileResource("security.dat").newByteIn());
+        IDataIn in = DataInImplLE.from(new FileResource("system.dat").newByteIn());
         file.readObject(in);
 
-        ReflectRstDumper.getInstance().dump(RstOutputImpl.from(Stdio.cout), file);
+        ICharOut out = Stdio.cout;
+        out = new WriterCharOut(new FileWriter("/tmp/dump"));
+
+        ReflectRstDumper.getInstance().dump(RstOutputImpl.from(out), file);
     }
 
 }

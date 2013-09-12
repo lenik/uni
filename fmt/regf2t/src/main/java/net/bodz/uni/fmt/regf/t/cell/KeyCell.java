@@ -1,4 +1,4 @@
-package net.bodz.uni.fmt.regf.t.rec;
+package net.bodz.uni.fmt.regf.t.cell;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -12,36 +12,46 @@ import net.bodz.bas.io.data.DataOutImplLE;
 import net.bodz.bas.text.rst.ElementHandlerException;
 import net.bodz.bas.text.rst.IRstOutput;
 import net.bodz.uni.fmt.regf.t.IRegfConsts;
-import net.bodz.uni.fmt.regf.t.NtTime;
-import net.bodz.uni.fmt.regf.t.file.RegfCellData;
 
-public class RegfNkRec
-        extends RegfCellData
+public class KeyCell
+        extends AbstractCell
         implements IRegfConsts {
 
     private static final long serialVersionUID = 1L;
 
-    /** Magic number of key (should be "nk") */
-    public final byte[] magic = new byte[CELL_MAGIC_SIZE];
+    /** Magic number of key */
+    public short magic;
 
     /** Key flags */
     public short flags;
 
-    /** Key's last modification time */
-    public final NtTime mtime = new NtTime();
+    /**
+     * Key's last modification time
+     *
+     * Only updated if this key has subkeys. On Win2K, not updated even in that case.
+     * */
+    public long mtime;
 
     int _unknown1;
 
     /** Virutal offset of parent key */
     public int parentOffset;
 
-    /** Number of subkeys (stable) */
+    /**
+     * Number of subkeys (stable)
+     *
+     * Set to 0 after deletion.
+     */
     public int subkeyCount;
 
     /** Number of subkeys (volatile) */
     public int volatileSubkeyCount;
 
-    /** Virtual offset of subkey-list */
+    /**
+     * Virtual offset of subkey-list
+     *
+     * Set to -1 after deletion.
+     */
     public int subkeysOffset;
 
     /** Virtual offset of subkey-list */
@@ -53,13 +63,21 @@ public class RegfNkRec
     /** Virtual offset of value-list */
     public int valuesOffset;
 
-    /** Virtual offset of SK record */
-    public int skOffset;
+    /**
+     * Virtual offset of sk record
+     *
+     * Set to -1 after deletion.
+     */
+    public int securityOffset;
 
     /** Virutal offset of classname key */
     public int classNameOffset;
 
-    /** in bytes: max subkey name * 2 */
+    /**
+     * in bytes: max subkey name * 2
+     *
+     * Set to 0 after deletion.
+     */
     public int subkeyNameMaxSize;
 
     /** in bytes: max subkey classname length (as if) */
@@ -92,20 +110,31 @@ public class RegfNkRec
      * Preloaded value-list for this key. This element is loaded automatically when using the
      * iterator interface and possibly some lower layer interfaces.
      */
-    transient RegfValueList[] values;
+    transient ValueListCell[] values;
 
     /**
      * Preloaded subkey-list for this key. This element is loaded automatically when using the
      * iterator interface and possibly some lower layer interfaces.
      */
-    transient RegfSubkeyList[] subkeys;
+    transient SubkeyListCell[] subkeys;
 
     @Override
-    public void readObject(IDataIn in)
+    public short getMagic() {
+        return magic;
+    }
+
+    @Override
+    public void setMagic(short magic) {
+        if (magic != MAGIC_NK)
+            throw new IllegalArgumentException("Bad magic: " + magic);
+        this.magic = magic;
+    }
+
+    @Override
+    public void readObject2(IDataIn in)
             throws IOException {
-        in.readBytes(magic);
         flags = in.readWord();
-        mtime.readObject(in);
+        mtime = in.readQword();
         _unknown1 = in.readDword();
         parentOffset = in.readDword();
         subkeyCount = in.readDword();
@@ -114,7 +143,7 @@ public class RegfNkRec
         volatileSubkeysOffset = in.readDword();
         valueCount = in.readDword();
         valuesOffset = in.readDword();
-        skOffset = in.readDword();
+        securityOffset = in.readDword();
         classNameOffset = in.readDword();
         subkeyNameMaxSize = in.readDword();
         subkeyClassNameMaxSize = in.readDword();
@@ -133,7 +162,7 @@ public class RegfNkRec
     }
 
     @Override
-    public void writeObject(IDataOut out)
+    public void writeObject2(IDataOut out)
             throws IOException {
         BByteOut bo = new BByteOut();
         IDataOut bdo = DataOutImplLE.from(bo);
@@ -144,9 +173,8 @@ public class RegfNkRec
         byte[] keyNameRaw = bo.toByteArray();
         keyNameSize = (short) keyNameRaw.length;
 
-        out.write(magic);
         out.writeWord(flags);
-        mtime.writeObject(out);
+        out.writeQword(mtime);
         out.writeDword(_unknown1);
         out.writeDword(parentOffset);
         out.writeDword(subkeyCount);
@@ -155,7 +183,7 @@ public class RegfNkRec
         out.writeDword(volatileSubkeysOffset);
         out.writeDword(valueCount);
         out.writeDword(valuesOffset);
-        out.writeDword(skOffset);
+        out.writeDword(securityOffset);
         out.writeDword(classNameOffset);
         out.writeDword(subkeyNameMaxSize);
         out.writeDword(subkeyClassNameMaxSize);
@@ -168,17 +196,17 @@ public class RegfNkRec
         out.write(keyNameRaw);
     }
 
-    static final RegfNkFlagsTyper flagsTyper = new RegfNkFlagsTyper();
+    static final KeyFlagsTyper flagsTyper = new KeyFlagsTyper();
 
     @Override
     public boolean writeObjectFieldOverride(IRstOutput out, Field field)
             throws IOException {
         switch (field.getName()) {
         case "flags":
-            out.attribute("flags", flagsTyper.format(flags & 0xffff));
+            out._attribute("flags", flagsTyper.format(flags & 0xffff));
             return true;
         }
-        return false;
+        return super.writeObjectFieldOverride(out, field);
     }
 
     @Override

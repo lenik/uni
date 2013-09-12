@@ -1,9 +1,9 @@
-package net.bodz.uni.fmt.regf.t.rec;
+package net.bodz.uni.fmt.regf.t.cell;
 
 import net.bodz.bas.t._bit.Flags32Typer;
 import net.bodz.uni.fmt.regf.t.IRegfConsts;
 
-public class RegfNkFlagsTyper
+public class KeyFlagsTyper
         extends Flags32Typer
         implements IRegfConsts {
 

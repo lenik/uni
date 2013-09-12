@@ -7,7 +7,6 @@ import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
 import net.bodz.bas.io.StringFlags;
 import net.bodz.uni.fmt.regf.t.IRegfConsts;
-import net.bodz.uni.fmt.regf.t.NtTime;
 
 /**
  * "regf" is obviously the abbreviation for "Registry file". "regf" is the signature of the
@@ -25,7 +24,7 @@ public class RegfHdr
 
     public int sequence1;
     public int sequence2;
-    public final NtTime mtime = new NtTime();
+    public long mtime;
     public final RegfVersion version = new RegfVersion();
 
     /** Unverified. Set to 0 in all known hives */
@@ -87,7 +86,7 @@ public class RegfHdr
         in.read(REGF_ID);
         sequence1 = in.readDword();
         sequence2 = in.readDword();
-        mtime.readObject(in);
+        mtime = in.readQword();
         version.readObject(in);
         _type = in.readDword();
         _format = in.readDword();
@@ -123,7 +122,7 @@ public class RegfHdr
         out.write(REGF_ID);
         out.writeDword(sequence1);
         out.writeDword(sequence2);
-        mtime.writeObject(out);
+        out.writeQword(mtime);
         version.writeObject(out);
         out.writeDword(_type);
         out.writeDword(_format);
