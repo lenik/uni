@@ -120,7 +120,7 @@ public class WinEdit
         // shell.setLocation(10 + cursor.x, 10 + cursor.y);
 
         POINTByValue point = new POINTByValue(cursor.x, cursor.y);
-        setHwnd(User32Utils.GetWindowAt(null, point));
+        setHwnd(User32.fn.GetWindowAt(null, point));
     }
 
     void setHwnd(HWND hwnd) {
