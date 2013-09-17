@@ -19,9 +19,9 @@ import net.bodz.bas.gui.err.GUIException;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.meta.ProgramName;
-import net.bodz.redist.obfuz.pm.ProtectException;
-import net.bodz.redist.obfuz.util.ActivationByTargetString;
-import net.bodz.redist.obfuz.util.Registrant;
+import net.bodz.pkg.obfuz.pm.ProtectException;
+import net.bodz.pkg.obfuz.util.ActivationByTargetString;
+import net.bodz.pkg.obfuz.util.Registrant;
 import net.bodz.swt.c.text.TextAdapters;
 import net.bodz.swt.program.BasicGUI;
 

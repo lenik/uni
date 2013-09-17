@@ -15,9 +15,9 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>net.bodz.redist</groupId>
-            <artifactId>redist-obfuz</artifactId>
-            <version>${redist.version}</version>
+            <groupId>net.bodz.pkg</groupId>
+            <artifactId>pkg-obfuz</artifactId>
+            <version>${pkg.version}</version>
             <optional>true</optional>
         </dependency>
     </dependencies>

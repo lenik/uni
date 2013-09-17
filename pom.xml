@@ -48,7 +48,7 @@
         <javaProfile>JavaSE-7</javaProfile>
         <bas.version>2.0.0-SNAPSHOT</bas.version>
         <swt.version>1.2.0-SNAPSHOT</swt.version>
-        <redist.version>1.0.0-SNAPSHOT</redist.version>
+        <pkg.version>1.0.0-SNAPSHOT</pkg.version>
     </properties>
     <name>Uni</name>
     <url>http://uni.bodz.net/</url>
