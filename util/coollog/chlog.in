@@ -1,6 +1,6 @@
 #!/bin/bash
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
-    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_TITLE:=File changes logger}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FILE [message]}
 
     . shlib-import cliboot
