@@ -14,8 +14,7 @@ import net.bodz.bas.io.Stdio;
 import net.bodz.bas.io.adapter.WriterCharOut;
 import net.bodz.bas.io.data.DataInImplLE;
 import net.bodz.bas.io.res.builtin.FileResource;
-import net.bodz.bas.text.rst.ReflectRstDumper;
-import net.bodz.bas.text.rst.RstOutputImpl;
+import net.bodz.bas.text.rst.RstObject;
 import net.bodz.uni.fmt.regf.t.cell.AbstractCell;
 import net.bodz.uni.fmt.regf.t.file.RegfFile;
 import net.bodz.uni.fmt.regf.t.file.RegfHbin;
@@ -46,7 +45,7 @@ public class Regf2tTest
         ICharOut out = Stdio.cout;
         out = new WriterCharOut(new FileWriter("/tmp/dump"));
 
-        ReflectRstDumper.getInstance().dump(RstOutputImpl.from(out), file);
+        RstObject.fn.dump(file, out);
     }
 
 }
