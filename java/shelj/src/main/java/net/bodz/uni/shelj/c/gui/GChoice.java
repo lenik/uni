@@ -8,7 +8,7 @@ import org.eclipse.swt.SWT;
 import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.swt.c.dialog.SwtDialogs;
+import net.bodz.swt.c.dialog.SwtUserDialogs;
 import net.bodz.swt.program.BasicGUI;
 
 /**
@@ -58,7 +58,7 @@ public class GChoice
         int style = SWT.SYSTEM_MODAL;
         if (topMost)
             style |= SWT.ON_TOP;
-        SwtDialogs dialogs = new SwtDialogs(style);
+        SwtUserDialogs dialogs = new SwtUserDialogs(style);
         if (envKey != null) {
             String _count = System.getenv(envKey + "_count");
             if (_count == null) {
