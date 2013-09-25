@@ -21,7 +21,7 @@ function histx() {
     fi
 
     local i
-    for i in {1..$level}; do
+    for ((i = 0; i < level; i++)); do
         exp="$exp, \$$index"
         ((index++))
     done
