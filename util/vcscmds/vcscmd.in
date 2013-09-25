@@ -6,6 +6,7 @@
     PROGRAM_SYNTAX="[OPTION|VCS-OPTION] [--] CMD|VCS-CMD ARGS|VCS-ARGS"
 
     . shlib-import cliboot
+    option    --no-color        "Don't use color"
     option    --no-refname      "Hide ref-name in the log"
     option    --iso-8601        "Show date in ISO 8601 format"
     option    --timestamp       "Show date in UNIX timestamp format"
@@ -31,6 +32,7 @@
     refname=1
     date_format=relative
     git_log_date='%ar'
+    color=yes
 
 function help_extras() {
     echo
@@ -65,6 +67,8 @@ function setopt() {
             version; exit;;
         --no-refname)
             refname=0;;
+        --no-color)
+            color=none;;
         --iso-8601)
             date_format=iso-8601
             git_log_date='%ai'
@@ -83,6 +87,12 @@ function setopt() {
 }
 
 function main() {
+    if [ "$color" = "auto" ]; then
+        if [ -z "$COLUMNS" ]; then
+            color=none
+        fi
+    fi
+
     for p in \
             svn=.svn \
             svn=_svn \
@@ -423,11 +433,19 @@ function main() {
     }
 
     function git-log-graph() {
-        _hash_color=$'\e[47m'
-        _ref_color=$'\e[1;45m'
-        _author_color=$'\e[1;31m'
-        _date_color=$'\e[1;34m'
-        _reset=$'\e[0m'
+        if [ "$color" = "none" ]; then
+            _hash_color=
+            _ref_color=
+            _author_color=
+            _date_color=
+            _reset=
+        else
+            _hash_color=$'\e[47m'
+            _ref_color=$'\e[1;45m'
+            _author_color=$'\e[1;31m'
+            _date_color=$'\e[1;34m'
+            _reset=$'\e[0m'
+        fi
 
         # %h%d [%an] %s %ar: <hash-abbr><ref-name> <author-name> <subject> <author-date-relative>
             logformat=
