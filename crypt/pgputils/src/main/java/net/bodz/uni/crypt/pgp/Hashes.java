@@ -1,13 +1,12 @@
 package net.bodz.uni.crypt.pgp;
 
-import java.lang.reflect.Field;
 import java.security.MessageDigest;
 import java.security.Provider;
 import java.util.zip.Checksum;
 
 import net.bodz.bas.data.mem.types.Int32BE;
 import net.bodz.bas.data.mem.types.Int32LE;
-import net.bodz.bas.err.UnexpectedException;
+import net.bodz.bas.data.util.Crc32Core;
 
 public class Hashes {
 
@@ -32,35 +31,13 @@ public class Hashes {
 
         protected java.util.zip.CRC32 crc32;
 
-        static final Field CRC32_crc;
-        static {
-            try {
-                CRC32_crc = java.util.zip.CRC32.class.getDeclaredField("crc");
-            } catch (SecurityException e) {
-                throw new Error(e);
-            } catch (NoSuchFieldException e) {
-                throw new UnexpectedException(e);
-            }
-            CRC32_crc.setAccessible(true);
-        }
-
-        protected static int getCrc(java.util.zip.CRC32 crc32) {
-            try {
-                return CRC32_crc.getInt(crc32);
-            } catch (IllegalAccessException e) {
-                throw new Error(e);
-            }
-        }
-
         public CRC32(String algorithm, int state) {
             super(algorithm);
             crc32 = new java.util.zip.CRC32();
-            if (state != 0)
-                try {
-                    CRC32_crc.set(crc32, state);
-                } catch (IllegalAccessException e) {
-                    throw new Error(e);
-                }
+            if (state != 0) {
+                byte[] patch = Crc32Core.getInstance().findReverse(0, state);
+                crc32.update(patch);
+            }
         }
 
         protected abstract byte[] encode(int int32);
@@ -125,7 +102,7 @@ public class Hashes {
         @Override
         public Object clone()
                 throws CloneNotSupportedException {
-            return new CRC32_LE(getCrc(crc32));
+            return new CRC32_LE((int) crc32.getValue());
         }
 
     }
@@ -151,7 +128,7 @@ public class Hashes {
         @Override
         public Object clone()
                 throws CloneNotSupportedException {
-            return new CRC32_BE(getCrc(crc32));
+            return new CRC32_BE((int) crc32.getValue());
         }
 
     }
