@@ -4,8 +4,6 @@ import groovy.lang.GroovyShell;
 
 import org.junit.Test;
 
-import net.bodz.uni.util.RefBinding;
-
 public class RefBindingTest {
 
     String name = "tom";

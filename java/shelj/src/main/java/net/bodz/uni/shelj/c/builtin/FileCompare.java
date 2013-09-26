@@ -58,8 +58,8 @@ public class FileCompare
         if (args.length > 0)
             throw new IllegalArgumentException(tr._("unexpected argument: ") + args[0]);
         IDiffComparator gnudiff = DiffComparators.gnudiff;
-        List<String> srcl = src.tooling()._for(StreamReading.class).readLines();
-        List<String> dstl = dst.tooling()._for(StreamReading.class).readLines();
+        List<String> srcl = src.to(StreamReading.class).readLines();
+        List<String> dstl = dst.to(StreamReading.class).readLines();
         List<DiffEntry> diffs = gnudiff.compareDiff(srcl, dstl);
         diffFormat.printDiffs(output, srcl, dstl, diffs);
     }

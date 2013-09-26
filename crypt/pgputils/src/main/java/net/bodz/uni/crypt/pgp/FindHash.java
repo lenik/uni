@@ -135,7 +135,7 @@ public class FindHash
 
     public void findFileRangeForHash(IFile file)
             throws Exception {
-        byte[] data = file.tooling()._for(StreamReading.class).read();
+        byte[] data = file.to(StreamReading.class).read();
         IntRange[] ranges = this.ranges;
         if (ranges == null)
             ranges = new IntRange[] { new IntRange(0, data.length), };

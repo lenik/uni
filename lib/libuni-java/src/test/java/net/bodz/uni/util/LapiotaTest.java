@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import net.bodz.uni.Lapiota;
 
-
 public class LapiotaTest {
 
     @Test

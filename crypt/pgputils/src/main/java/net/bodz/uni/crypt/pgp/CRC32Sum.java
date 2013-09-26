@@ -141,7 +141,7 @@ public class CRC32Sum
         IFile inputFile = handler.getInputFile();
 
         String name = inputFile == null ? "-" : inputFile.getName();
-        byte[] data = inputFile.tooling()._for(StreamReading.class).read();
+        byte[] data = inputFile.to(StreamReading.class).read();
         // algorithmClass.newInstance();
         Checksum csum;
         csum = create();

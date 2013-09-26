@@ -234,7 +234,7 @@ public class FindClassResource
                 strings = Arrays.asList(args);
             else {
                 logger.stdout("Enter class names or resource paths: ");
-                strings = new InputStreamSource(System.in).tooling()._for(StreamReading.class).lines();
+                strings = new InputStreamSource(System.in).to(StreamReading.class).lines();
             }
             for (String name : strings) {
                 name = name.trim();

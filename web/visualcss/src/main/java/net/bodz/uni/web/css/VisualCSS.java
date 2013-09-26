@@ -142,7 +142,7 @@ public class VisualCSS
                 URLResource res = pageList.getSelection();
                 res.setCharset("utf-8"); // xml auto decode??
                 try {
-                    String html = res.tooling()._for(StreamReading.class).readString();
+                    String html = res.to(StreamReading.class).readString();
                     parseTemplate(html);
                     render();
                 } catch (IOException ex) {
@@ -161,7 +161,7 @@ public class VisualCSS
                 res.setCharset("utf-8"); // css auto decode??
 
                 try {
-                    String css = res.tooling()._for(StreamReading.class).readString();
+                    String css = res.to(StreamReading.class).readString();
                     cssFragment = "<style><!--\n" + css + "\n--></style>\n";
                     render();
                 } catch (IOException ex) {

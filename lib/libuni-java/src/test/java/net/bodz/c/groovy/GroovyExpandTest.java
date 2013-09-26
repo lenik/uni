@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
-import net.bodz.c.groovy.GroovyExpand;
 
 public class GroovyExpandTest {
 

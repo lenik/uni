@@ -101,7 +101,7 @@ public class NLSAddMissings
             return;
         }
 
-        Properties master = file.tooling()._for(StreamLoading.class).loadProperties();
+        Properties master = file.to(StreamLoading.class).loadProperties();
         Enumeration<String> _enum = (Enumeration<String>) master.propertyNames();
         Set<String> masterNames = Collections.toSet(_enum);
         logger.infof("Master file: %s (%d entries)\n", file, masterNames.size());
@@ -129,7 +129,7 @@ public class NLSAddMissings
             logger.info("  File ", localeFile);
 
             localeFile.setPreferredCharset(encoding);
-            Properties props = localeFile.tooling()._for(StreamLoading.class).loadProperties();
+            Properties props = localeFile.to(StreamLoading.class).loadProperties();
 
             boolean dirty = false;
             int add = 0;
@@ -180,7 +180,7 @@ public class NLSAddMissings
                     contents = StringArray.join("\n", lines);
                 }
 
-                localeFile.tooling()._for(StreamWriting.class).writeString(contents);
+                localeFile.to(StreamWriting.class).writeString(contents);
             }
 
             addSum += add;

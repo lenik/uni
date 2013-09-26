@@ -8,7 +8,6 @@ import org.eclipse.swt.widgets.Composite;
 
 import net.bodz.bas.c.string.StringPart;
 import net.bodz.swt.c.file.FileSelector;
-import net.bodz.swt.c.list.AbstractListEditor;
 
 public class URLListEditor
         extends AbstractListEditor<URL> {
