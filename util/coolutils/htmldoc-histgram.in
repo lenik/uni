@@ -1,7 +1,0 @@
-#!/bin/sh
-
-ls -al --color=no /usr/share/doc/*/*/*.html \
-    | cut -c49- \
-    | sed -e 's, ->.*,,' -e 's,/[^/]*\.html$,,' \
-    | sed -e 's,/.*/,,' \
-    | sort | uniq -c | sort -n

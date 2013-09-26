@@ -1,0 +1,89 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Print distrib stats over text files grouped by content type}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+    NUL=$'\0'
+    TAB=$'\011'
+
+    files=()
+    nfile=0
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    _log1 "Scan files"
+        while IFS="$NUL" read fn; do
+            case "$fn" in
+                */prerm)
+                    continue;;
+                */postinst)
+                    continue;;
+            esac
+            files[nfile++]="$fn"
+        done < <( find -type f -size +0 -not -path '*/.*')
+        _log1 "    $nfile records"
+
+    _log1 "Get file sizes"
+        filesizes=( $(stat -c %s -- "${files[@]}") )
+        _log1 "    ${#filesizes[@]} records"
+
+    _log1 "Count file lines"
+        lines=()
+        n=0
+        while read num nam; do
+            lines[n++]=$num
+        done < <( wc -l -- "${files[@]}" )
+        unset lines[n-1]
+        _log1 "    ${#lines[@]} records"
+
+    _log1 "Discover file content types"
+        filetypes=()
+        n=0
+        while IFS="$NUL" read ln; do
+            case "$ln" in
+                *", ASCII text executable")
+                    ln="${ln:0:-23}";;
+                *", ASCII text")
+                    ln="${ln:0:-12}";;
+                *", UTF-8 Unicode text executable")
+                    ln="${ln:0:-31}";;
+                *", UTF-8 Unicode text")
+                    ln="${ln:0:-20}";;
+            esac
+            filetypes[n++]="$ln"
+        done < <( file -bN -- "${files[@]}" )
+        _log1 "    $n records"
+
+    _log1 "Dump"
+        for ((i = 0; i < nfile; i++)); do
+            fn="${files[i]}"
+            ft="${filetypes[i]}"
+            fs="${filesizes[i]}"
+            fl="${lines[i]}"
+
+            # echo "$fn:$fc:$fs:$ft"
+            echo "$fl$TAB$fs$TAB$ft$TAB$fn"
+        done
+}
+
+boot "$@"

@@ -17,7 +17,6 @@ bin_PROGRAMS = \
 dist_bin_SCRIPTS = \
     collect-copy \
     htmldoc-man \
-    htmldoc-histgram \
     kill-all \
     timestamp \
     valcr \
