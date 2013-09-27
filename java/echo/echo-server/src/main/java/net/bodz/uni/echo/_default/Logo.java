@@ -40,7 +40,7 @@ public class Logo
         URLResource resource = new URLResource(url);
 
         ServletOutputStream out = resp.getOutputStream();
-        new OutputStreamTarget(out).tooling()._for(StreamWriting.class).write(resource);
+        new OutputStreamTarget(out).to(StreamWriting.class).write(resource);
 
         out.close();
     }
