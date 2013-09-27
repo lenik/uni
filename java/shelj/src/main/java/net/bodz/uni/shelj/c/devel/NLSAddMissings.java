@@ -63,7 +63,7 @@ public class NLSAddMissings
 
         @Override
         public boolean accept(IFile file) {
-            if (!file.isBlob())
+            if (!file.getAttributes().isRegularFile())
                 return false;
             if (file.getName().contains("_"))
                 return false;
@@ -86,7 +86,7 @@ public class NLSAddMissings
 
     protected void processFile(IFile file)
             throws Exception {
-        if (file.isDirectory()) {
+        if (file.getAttributes().isDirectory()) {
             FileFinder finder = new FileFinder(new MasterPropertiesFilter(), file);
             for (IFile f : finder) {
                 processFile(f);

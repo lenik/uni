@@ -67,7 +67,7 @@ public class FindClassResource
 
         FileFinder finder = new FileFinder(filter, recursive, file);
         for (IFile f : finder.listFiles()) {
-            if (f.isDirectory())
+            if (f.getAttributes().isDirectory())
                 return;
             URL url = f.getPath().toURL();
             logger.debug("add boot-classpath: ", url);
@@ -82,7 +82,7 @@ public class FindClassResource
             throws IOException {
         FileFinder finder = new FileFinder(filter, recursive, file);
         for (IFile f : finder.listFiles()) {
-            if (f.isDirectory())
+            if (f.getAttributes().isDirectory())
                 return;
             URL url = f.getPath().toURL();
             logger.debug("queue classpath: ", url);
