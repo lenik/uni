@@ -16,10 +16,12 @@ find-prefix.c: find-prefix.c.in
 dist_bin_SCRIPTS = \
     coolvim \
     guesstab \
-    ifedit
+    ifedit \
+    reload-file \
+    vimcat
 
-bin_SCRIPTS = \
-    reload-file
+dist_pkgdata_DATA = \
+    vimcat.vim
 
 dist_vimconf_DATA = \
     vimrc.cool \
@@ -43,8 +45,10 @@ EXTRA_DATA = \
     prerm.in \
     reload-file.in
 
-CLEANFILES = ${setup_SCRIPTS} \
-    reload-file
+CLEANFILES = \
+    ${setup_SCRIPTS} \
+    reload-file \
+    vimcat
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); ln -snf coolvim coolvims
