@@ -10,6 +10,7 @@ import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.java.util.Collections;
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.string.StringArray;
+import net.bodz.bas.fn.IFilter;
 import net.bodz.bas.io.res.tools.StreamLoading;
 import net.bodz.bas.io.res.tools.StreamWriting;
 import net.bodz.bas.log.Logger;
@@ -19,7 +20,6 @@ import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.vfs.IFile;
-import net.bodz.bas.vfs.IFileFilter;
 import net.bodz.bas.vfs.IFilenameFilter;
 import net.bodz.bas.vfs.VFS;
 import net.bodz.bas.vfs.facade.DefaultVfsFacade;
@@ -59,7 +59,7 @@ public class NLSAddMissings
     IVfsFacade vfs = DefaultVfsFacade.getInstance();
 
     static class MasterPropertiesFilter
-            implements IFileFilter {
+            implements IFilter<IFile> {
 
         @Override
         public boolean accept(IFile file) {

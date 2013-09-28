@@ -17,6 +17,7 @@ import net.bodz.bas.c.java.io.FileURL;
 import net.bodz.bas.c.java.net.URLClassLoaders;
 import net.bodz.bas.c.loader.ClassLoaders;
 import net.bodz.bas.err.control.Control;
+import net.bodz.bas.fn.IFilter;
 import net.bodz.bas.io.res.builtin.InputStreamSource;
 import net.bodz.bas.io.res.tools.StreamReading;
 import net.bodz.bas.jvm.stack.Caller;
@@ -27,7 +28,6 @@ import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.vfs.IFile;
-import net.bodz.bas.vfs.IFileFilter;
 import net.bodz.bas.vfs.util.find.FileFinder;
 
 /**
@@ -53,7 +53,7 @@ public class FindClassResource
      *
      * @option -Ic =CLASS(FileFilter)
      */
-    protected IFileFilter filter;
+    protected IFilter<IFile> filter;
 
     protected List<URL> classpaths = new ArrayList<URL>();
 
@@ -268,7 +268,7 @@ public class FindClassResource
     protected void reconfigure()
             throws Exception {
         if (filter == null)
-            filter = new IFileFilter() {
+            filter = new IFilter<IFile>() {
                 @Override
                 public boolean accept(IFile file) {
                     String ext = FilePath.getExtension(file.getName()).toLowerCase();
