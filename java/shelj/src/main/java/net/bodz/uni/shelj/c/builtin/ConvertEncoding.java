@@ -8,6 +8,7 @@ import java.nio.charset.CharsetEncoder;
 import java.util.Map;
 import java.util.Set;
 
+import net.bodz.bas.c.java.nio.Charsets;
 import net.bodz.bas.err.control.ControlBreak;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
@@ -76,11 +77,6 @@ public class ConvertEncoding
         throw new ControlBreak();
     }
 
-    // private static Charset CHARSET_L1 = Charset.forName("ISO-8859-1");
-    private static Charset CHARSET_UTF8 = Charset.forName("UTF-8");
-    private static Charset CHARSET_UTF16_LE = Charset.forName("UTF-16LE");
-    private static Charset CHARSET_UTF16_BE = Charset.forName("UTF-16BE");
-
     @Override
     public void processFile(FileHandler handler)
             throws Exception {
@@ -98,11 +94,11 @@ public class ConvertEncoding
             // UTF-16LE FF FE "Last is FE"
             // UTF-16BE FE FF "Begin is FE"
             if (input[0] == 0xEF && input[1] == 0xBB && input[2] == 0xBF)
-                srcCharset = CHARSET_UTF8;
+                srcCharset = Charsets.UTF8;
             else if (input[0] == 0xFF && input[1] == 0xFE)
-                srcCharset = CHARSET_UTF16_LE;
+                srcCharset = Charsets.UTF16_LE;
             else if (input[0] == 0xFE && input[1] == 0xFF) {
-                srcCharset = CHARSET_UTF16_BE;
+                srcCharset = Charsets.UTF16_BE;
             }
         }
 
