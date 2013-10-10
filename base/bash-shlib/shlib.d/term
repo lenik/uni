@@ -18,7 +18,7 @@ function tput() {
 
 # hline(fillchar, hskip, width)
 function hline() {
-    local fillchar="$1"
+    local fillchar="${1:-─}"
     local hskip_n="${2:-0}"
     local COLUMNS=$( tput cols || echo 80 )
     local width=$(( $COLUMNS - $hskip_n ))

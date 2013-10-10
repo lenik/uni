@@ -43,7 +43,7 @@ function main() {
         [ -z "$dir" ] && continue
         [ "${dir:0:1}" = '#' ] && continue
 
-        [ $n != 0 ] && hline '='
+        [ $n != 0 ] && hline
 
         if [ "${dir:0:1}" != '/' ]; then
             dir="$HOME/$dir"
