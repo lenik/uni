@@ -47,7 +47,9 @@
             child{ node[executable] {guesstab\fileflag{*}} }
             child{ node[executable] {ifedit\fileflag{*}} }
             child{ node[executable] {reload-file\fileflag{*}} }
+            child{ node[executable] {vimcat\fileflag{*}} }
         }
+        child[missing] {}
         child[missing] {}
         child[missing] {}
         child[missing] {}
@@ -63,6 +65,13 @@
                     child{ node[executable] {postinst\fileflag{*}} }
                     child{ node[executable] {prerm\fileflag{*}} }
                 }
+            }
+            child[missing] {}
+            child[missing] {}
+            child[missing] {}
+            child{
+                node[dir] {vim-enh\fileflag{/}}
+                child{ node[plain] {vimcat.vim} }
             }
         }
     };

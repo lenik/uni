@@ -10,8 +10,13 @@ else
     in="$1"
 fi
 
-if [ ! -r "$in" ]; then
+if [ -r "$in" ]; then
+    # check if conflicted modeline exists.
+    grep -qE 'vim?: .*(ts|tabsize|sw|shiftwidth|et|expandtab)=' < <(head "$in") && exit 0
+    grep -qE 'vim?: .*(ts|tabsize|sw|shiftwidth|et|expandtab)=' < <(tail "$in") && exit 0
+else
     echo "Could not read from $in"
+    exit 1
 fi
 
 hastab=0
