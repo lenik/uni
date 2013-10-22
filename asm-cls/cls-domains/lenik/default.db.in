@@ -1,3 +1,5 @@
+; vim: set filetype=bindzone :
+
 $TTL            60000
 
 ; The SOA resource record indicates that this DNS name server is the best

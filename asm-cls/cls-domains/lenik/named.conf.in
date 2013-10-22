@@ -1,3 +1,4 @@
+# vim: set filetype=named :
 
 zone "lo"           { type master; file "@datadir@/lo.db"; };
 zone "p"            { type master; file "@datadir@/p.db"; };

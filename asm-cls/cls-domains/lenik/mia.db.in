@@ -1,5 +1,9 @@
+; vim: set filetype=bindzone :
+
 $INCLUDE @datadir@/inc/default.db
 $INCLUDE @datadir@/inc/hotmail.db
 
-@           IN      3600    MX  10  1526356224873176055.pamx1.hotmail.com.
+; @           IN      3600    MX  10  1526356224873176055.pamx1.hotmail.com.
+@           IN      3600    MX  10  mxbiz1.qq.com.
+                            MX  20  mxbiz2.qq.com.
 

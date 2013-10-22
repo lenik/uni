@@ -1,1 +1,3 @@
+; vim: set filetype=bindzone :
+
 $INCLUDE @datadir@/social/99jsj.db
