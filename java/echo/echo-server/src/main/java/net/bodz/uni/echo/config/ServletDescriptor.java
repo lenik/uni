@@ -13,8 +13,6 @@ import net.bodz.mda.xjdoc.model.ClassDoc;
 public class ServletDescriptor
         extends AbstractPluginDescriptor {
 
-    private static final long serialVersionUID = 1L;
-
     Class<? extends Servlet> servletClass;
     List<String> mappings = new ArrayList<>();
     Map<String, String> initParameterMap = new HashMap<>();

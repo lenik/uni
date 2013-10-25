@@ -19,7 +19,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.ListBox;
 import org.eclipse.swt.widgets.Text;
 
 import net.bodz.bas.data.codec.builtin.HexCodec;
@@ -48,8 +48,8 @@ public class GIconv
     private Button D2Hold;
     private Button D1Hold;
     private Button E2Hold;
-    private List charset1;
-    private List charset2;
+    private ListBox charset1;
+    private ListBox charset2;
     private Text text1Text;
     private Text text2Text;
     private Text binText;
@@ -81,7 +81,7 @@ public class GIconv
         fd_text2Text.right = new FormAttachment(100, -5);
         text2Text.setLayoutData(fd_text2Text);
 
-        charset1 = new List(comp, SWT.V_SCROLL | SWT.BORDER);
+        charset1 = new ListBox(comp, SWT.V_SCROLL | SWT.BORDER);
         final FormData fd_charset1 = new FormData();
         fd_charset1.left = new FormAttachment(0, 5);
         charset1.setLayoutData(fd_charset1);
@@ -114,7 +114,7 @@ public class GIconv
         fd_e2Hold.bottom = new FormAttachment(text2Text, -5, SWT.TOP);
         E2Hold.setLayoutData(fd_e2Hold);
 
-        charset2 = new List(comp, SWT.V_SCROLL | SWT.BORDER);
+        charset2 = new ListBox(comp, SWT.V_SCROLL | SWT.BORDER);
         final FormData fd_charset2 = new FormData();
         fd_charset2.right = new FormAttachment(100, -5);
         charset2.setLayoutData(fd_charset2);

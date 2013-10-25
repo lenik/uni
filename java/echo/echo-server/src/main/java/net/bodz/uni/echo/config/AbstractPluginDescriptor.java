@@ -8,8 +8,6 @@ public abstract class AbstractPluginDescriptor
         extends MutableElement
         implements IPluginDescriptor {
 
-    private static final long serialVersionUID = 1L;
-
     String id;
     int priority;
     int index;

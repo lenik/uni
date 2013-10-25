@@ -15,6 +15,7 @@ import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.skel.BasicCLI;
+import net.bodz.bas.t.set.IntRange;
 import net.bodz.bas.vfs.IFile;
 import net.bodz.uni.crypt.pgp.Hashes.PeekDigest;
 
@@ -88,13 +89,13 @@ public class FindHash
             IntRange range = ranges[rangeIndex];
             // wordSize = BYTE
             int nextRange = rangeIndex + 1;
-            for (int from = range.from; from < range.to; from++) {
+            for (int from = range.start; from < range.end; from++) {
                 MessageDigest cont2 = (MessageDigest) cont.clone();
                 PeekDigest peekable = null;
                 if (cont2 instanceof PeekDigest)
                     peekable = (PeekDigest) cont2;
 
-                for (int to = from; to <= range.to; to++) {
+                for (int to = from; to <= range.end; to++) {
                     if (rangeIndex != ranges.length - 1) {
                         find(rangesPrefix + "." + from + "-" + to, nextRange, (MessageDigest) cont2.clone());
                     } else {
@@ -113,7 +114,7 @@ public class FindHash
                                 logger.mesg(tr._("Match! "));
                         }
                     }
-                    if (to != range.to) {
+                    if (to != range.end) {
                         cont2.update(data[to]);
                         // rangeVal[rangeIndex] = to;
                     }

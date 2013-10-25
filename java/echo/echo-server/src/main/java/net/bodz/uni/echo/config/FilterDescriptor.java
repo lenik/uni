@@ -15,8 +15,6 @@ import net.bodz.mda.xjdoc.model.ClassDoc;
 public class FilterDescriptor
         extends AbstractPluginDescriptor {
 
-    private static final long serialVersionUID = 1L;
-
     Class<? extends Filter> filterClass;
     List<String> mappings = new ArrayList<String>();
     Map<String, String> initParamMap = new HashMap<>();

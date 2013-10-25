@@ -6,7 +6,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.internal.win32.OS;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -26,6 +25,7 @@ import net.bodz.jna.win32.User32.POINTByValue;
 import net.bodz.jna.win32.User32.WNDENUMPROC;
 import net.bodz.jna.win32.W32API.HWND;
 import net.bodz.swt.c.misc.Timer;
+import net.bodz.swt.c.os.OS_Win32;
 import net.bodz.swt.program.BasicGUI;
 
 import com.sun.jna.Pointer;
@@ -73,7 +73,7 @@ public class WinEdit
     private Text boundsText;
     private Text sizeText;
     private Text searchText;
-    private List searchList;
+    private ListBox searchList;
 
     @Override
     protected void _start() {
@@ -114,7 +114,7 @@ public class WinEdit
         user32.GetCursorPos(cursor);
 
         // boolean scroll = (OS.GetKeyState(OS.VK_SCROLL) & 0x1) != 0;
-        boolean ctrlDown = (OS.GetKeyState(OS.VK_CONTROL) & 0x8000) != 0;
+        boolean ctrlDown = (OS_Win32.GetKeyState(OS_Win32.VK_CONTROL) & 0x8000) != 0;
         if (!(follow ^ ctrlDown))
             return;
         // shell.setLocation(10 + cursor.x, 10 + cursor.y);
@@ -290,7 +290,7 @@ public class WinEdit
         followButton.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false));
         followButton.setText("Follow");
 
-        searchList = new List(composite_1, SWT.BORDER);
+        searchList = new ListBox(composite_1, SWT.BORDER);
         searchList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         new Label(composite_1, SWT.NONE);
 
@@ -345,7 +345,7 @@ public class WinEdit
                 if (hwnd == null)
                     return;
                 boolean selection = visibleButton.getSelection();
-                user32.ShowWindow(hwnd, selection ? OS.SW_SHOW : OS.SW_HIDE);
+                user32.ShowWindow(hwnd, selection ? OS_Win32.SW_SHOW : OS_Win32.SW_HIDE);
             }
         });
         new Label(properties, SWT.NONE);

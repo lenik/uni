@@ -3,6 +3,7 @@ package net.bodz.uni.crypt.pgp;
 import net.bodz.bas.data.mem.IMemory;
 import net.bodz.bas.data.mem.MemoryAccessException;
 import net.bodz.bas.i18n.nls.II18nCapable;
+import net.bodz.bas.t.set.IntRange;
 
 /**
  * PGP CRC32
@@ -38,7 +39,7 @@ public class PgpCrc32
             throw new IllegalArgumentException(tr._("PGP-CRC32 is DWORD aligned"));
         if (fillRange != null) { // fill before switch byte-order
             int padIndex = 0;
-            for (int i = fillRange.from; i < fillRange.to; i++) {
+            for (int i = fillRange.start; i < fillRange.end; i++) {
                 byte padByte = padBytes[padIndex];
                 padIndex = (padIndex + 1) % padBytes.length;
                 bigEndian[i] = padByte;
