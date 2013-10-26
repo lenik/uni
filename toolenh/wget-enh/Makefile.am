@@ -18,6 +18,7 @@ dist_bin_SCRIPTS = \
     grepurl
 
 bin_SCRIPTS = \
+    wget-auto-referer \
     wgetc \
     wgetc-url
 

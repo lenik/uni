@@ -1,0 +1,36 @@
+#!/bin/bash
+
+opts=()
+nopt=0
+args=()
+narg=0
+flag=0
+
+for arg in "$@"; do
+    if [ "$flag" = 0 ]; then
+        [ "$arg" = '--' ] && flag=1
+        if [ "${arg:0:1}" = '-' ]; then
+            opts[nopt++]="$arg"
+            continue
+        else
+            flag=1
+        fi
+    fi
+    args[narg++]="$arg"
+done
+
+for arg in "${args[@]}"; do
+    case "$arg" in
+    *://*)
+        proto="${arg%%://*}"
+        host_="${arg#*://}"
+        host="${host_%%/*}"
+        if [ -n "$host" ]; then
+            opts[nopt++]="--referer"
+            opts[nopt++]="$proto://$host/"
+        fi
+        ;;
+    esac
+done
+
+exec wget "${opts[@]}" "${args[@]}"
