@@ -41,6 +41,12 @@ sub import {
             eval $s or die "can't import level $i: $@";
         }
     }
+
+    eval("sub $pkg\::_warn { \$$pkg\::LOGLEVEL >= -1 && &_log }; 1\n")
+        || die "can't def _warn: $@";
+
+    eval("sub $pkg\::_error { \$$pkg\::LOGLEVEL >= -2 && &_log }; 1\n")
+        || die "can't def _error: $@";
 }
 
 sub _findopt {
