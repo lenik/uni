@@ -3,9 +3,9 @@
 $INCLUDE @datadir@/inc/default.db
 $INCLUDE @datadir@/inc/google.db
 
-1                       CNAME   1.bodz.net.
+1                       CNAME   1.lenik.net.
 
 debian                  CNAME   lenik-pc
 lenik                   CNAME   1
-svn                     CNAME   svn.bodz.net.
+svn                     CNAME   svn.lenik.net.
 www                     CNAME   1

@@ -7,10 +7,10 @@ named_conf=$bindconfdir/named.conf
 
 # The domain conf files are included in the dist.
 #
-# bodz_url=http://svn.bodz.net/profiles/dns/trunk
-# if [ ! -d $bindconfdir/bodz ]; then
-#     echo "Link $bindconfdir/bodz to $bodz_url"
-#     svn-union-install $bodz_url $bindconfdir/bodz
+# lenik_url=http://svn.lenik.net/profiles/dns/trunk
+# if [ ! -d $bindconfdir/lenik ]; then
+#     echo "Link $bindconfdir/lenik to $lenik_url"
+#     svn-union-install $lenik_url $bindconfdir/lenik
 # fi
 
 lineconf -tm "Add lenik domains" \

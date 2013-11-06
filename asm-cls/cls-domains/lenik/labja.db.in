@@ -1,9 +1,0 @@
-; vim: set filetype=bindzone :
-
-$INCLUDE @datadir@/inc/default.db
-$INCLUDE @datadir@/inc/google.db
-
-1                       CNAME   1.dev.secca-project.com.
-www                     CNAME   1
-
-svn                     CNAME   svn.bodz.net.

@@ -13,7 +13,7 @@ c_utilsdir  = ${datadir}/utils
 
 data_DATA = \
     named.conf \
-    bodz.db \
+    lenik.db \
     zoo.db \
     p.db \
     lo.db
@@ -29,23 +29,15 @@ c_hack_DATA = \
     xor.db
 
 c_org_DATA = \
-    6sn.db \
     ebja.db
 
-c_projects_DATA = \
-    labja.db \
-    lapiota.db \
-    sixor.db
-
 c_social_DATA = \
-    0yy.db \
     99jsj.db \
     bela.db \
     ooojjj.db
 
 c_utils_DATA = \
     1na.db \
-    bia.db \
     mia.db
 
 CLEANFILES = \

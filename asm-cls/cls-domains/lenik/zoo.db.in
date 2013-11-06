@@ -3,8 +3,8 @@
 $TTL            1H
 
 @               IN      SOA     (
-                                    orig.bodz.net.  ; db creator host
-                                    admin.bodz.net. ; contact e-mail
+                                    orig.lenik.net.  ; db creator host
+                                    admin.lenik.net. ; contact e-mail
                                     2       ; serial
                                     1H      ; sync refresh interval
                                     10M     ; sync retry interval
@@ -29,6 +29,6 @@ lion                    A       5.69.77.113     ; <view hamachi>
 amoi                    A       5.0.0.1         ; <view hamachi>
 tiger                   A       5.62.239.91     ; <view hamachi>
 
-x                       CNAME   git.bodz.net.
-j                       CNAME   ja.bodz.net.
+x                       CNAME   git.lenik.net.
+j                       CNAME   ja.lenik.net.
 b                       CNAME   git.bee32.com.

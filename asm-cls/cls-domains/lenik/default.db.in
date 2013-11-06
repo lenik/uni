@@ -6,8 +6,8 @@ $TTL            60000
 ; source of information for the data within this DNS domain.
 
 @               IN      SOA     (
-                                    orig.bodz.net.  ; db creator host
-                                    admin.bodz.net. ; contact e-mail
+                                    orig.lenik.net.  ; db creator host
+                                    admin.lenik.net. ; contact e-mail
                                     11      ; serial
                                     1H      ; sync refresh interval
                                     10M     ; sync retry interval
