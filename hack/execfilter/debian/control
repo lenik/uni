@@ -1,0 +1,15 @@
+Source: execfilter
+Section: admin
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/hack/execfilter
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/hack/execfilter
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/hack/execfilter
+
+Package: execfilter
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Control the execution of specific programs.
+ This program gives you the ability to control the execution of specfic programs.
