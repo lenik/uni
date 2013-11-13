@@ -1,4 +1,11 @@
 #!/bin/sh
 # master-file
 
-echo "execfilter - postinst.in ..."
+preloadfile="@sysconfdir@/ld.so.preload"
+
+if [ ! -f "$preloadfile" ] || ! grep -q libexecfilter "$preloadfile"; then
+    echo "Add libexecfilter to preloaded library list."
+    echo libexecfilter.so >>"$preloadfile"
+fi
+
+exit 0

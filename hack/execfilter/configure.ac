@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([execfilter], [0.1], [xjl-bug@99jsj.com])
+AC_INIT([execfilter], [1.0.2], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 LT_INIT([disable-static])
 AC_CONFIG_MACRO_DIR([m4])
@@ -24,5 +24,5 @@ AC_HEADER_STDC
 
 # Checks for library functions.
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile test/Makefile])
 AC_OUTPUT

@@ -1,0 +1,232 @@
+#include <assert.h>
+#include <ctype.h>
+#include <dirent.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "filter.h"
+#include "trie.h"
+#include "path.h"
+#include "qstr.h"
+
+#define DEBUG
+
+#undef LINE_MAX
+#define LINE_MAX 4095
+
+GHashTable *pmap;
+GHashTable *rules;
+
+static GHashTable *parse_rules(const char *path);
+
+void pmap_load() {
+    DIR *configdir;
+    struct dirent *ent;
+    char name[PATH_MAX + 1];
+    int dirlen;
+    GHashTable *tab;
+
+    pmap = g_hash_table_new(g_str_hash, g_str_equal);
+
+    strcpy(name, "@configdir@");
+    configdir = opendir(name);
+
+    if (configdir) {
+        strcat(name, "/");
+        dirlen = strlen(name);
+
+        while ((ent = readdir(configdir)) != NULL) {
+            switch (ent->d_type) {
+            case DT_LNK:
+            case DT_REG:
+                strcpy(name + dirlen, ent->d_name);
+                parse_rules(name);
+            }
+        }
+    }
+}
+
+static char *readtok(char **headp) {
+    static char kwbuf[512];
+    char *head = *headp;
+    char *end;
+    int len;
+
+    /* trim left. */
+    while (isspace(*head)) head++;
+
+    end = head;
+    while (*end && !isspace(*end))
+        end++;
+
+    len = end - head;
+    strncpy(kwbuf, head, len);
+    kwbuf[len] = '\0';
+
+    /* trim left for the remaing text. */
+    while (isspace(*end)) end++;
+    *headp = end;
+
+    return kwbuf;
+}
+
+static GHashTable *parse_rules(const char *path) {
+    FILE *f = fopen(path, "rt");
+    char linebuf[LINE_MAX + 1];
+    char *p;
+    char *endp;
+    char *token;
+    GHashTable *tab;
+    int config;
+
+    if (f == NULL) {
+        fprintf(stderr, "Failed to open file %s: ", path);
+        perror("");
+        exit(1);
+    }
+
+    while (fgets(linebuf, sizeof(linebuf), f) != NULL) {
+        p = linebuf;
+
+        token = readtok(&p);
+        endp = p + strlen(p);
+        while (endp > p && isspace(endp[-1]))
+            *--endp = '\0';             /* trim right. */
+
+        switch (*token) {
+        case '\0':
+            continue;                   /* empty line */
+        case '#':
+            continue;                   /* comment line */
+
+        case 'f':
+            if (strcmp(token, "for") == 0) {
+                tab = g_hash_table_lookup(pmap, p);
+                if (tab == NULL) {
+                    tab = g_hash_table_new(g_str_hash, g_str_equal);
+                    g_hash_table_insert(pmap, strdup(p), tab);
+                }
+                break;
+            }
+
+        case 'a':
+            if (strcmp("allow", token) == 0) {
+                if (tab == NULL) {
+                    fprintf(stderr, "Error: program (for-clause) hasn't been specified yet.\n");
+                    continue;
+                }
+
+                char *which = path_find(p);
+                if (which != NULL)
+                    p = which;
+
+                config = get_config(tab, p);
+                config |= F_ALLOW;
+                config &= ~F_DENY;
+                set_config(tab, p, config);
+                break;
+            }
+
+        case 'd':
+            if (strcmp("deny", token) == 0) {
+                if (tab == NULL) {
+                    fprintf(stderr, "Error: program (for-clause) hasn't been specified yet.\n");
+                    continue;
+                }
+
+                char *which = path_find(p);
+                if (which != NULL)
+                    p = which;
+
+                config = get_config(tab, p);
+                config &= ~F_ALLOW;
+                config |= F_DENY;
+                set_config(tab, p, config);
+                break;
+            }
+
+        default:
+            fprintf(stderr, "Error: illegal syntax: %s %s.\n", token, p);
+            /* Dont exit program, otherwise the system will be unusable. */
+        }
+    }
+}
+
+static int initialized;
+static void lazy_init() {
+    if (! pmap) pmap_load();
+    if (initialized)
+        return;
+
+    /* normalize the current process and grab the entry. */
+    char path[PATH_MAX + 1];
+    int cc;
+    if ((cc = readlink("/proc/self/exe", path, PATH_MAX)) == -1) {
+        perror("readlink");
+        exit(1);
+    }
+    path[cc] = '\0';
+
+    /* rules maybe undefined, if the program is not configured.  */
+    rules = g_hash_table_lookup(pmap, path);
+
+    if (rules == NULL) {
+        rules = g_hash_table_new(g_str_hash, g_str_equal);
+#ifdef DEBUG
+        printf("Warning: %s isn't configured, yet.\n", path);
+#endif
+    }
+
+    initialized = 1;
+}
+
+static void pmap_each_rule(gpointer key, gpointer value, gpointer data) {
+    const char *target = (const char *) key;
+    printf("    ");
+
+    int config = (int) value;
+    if (config & F_ALLOW)
+        printf("allow ");
+    if (config & F_DENY)
+        printf("deny ");
+
+    printf("%s", target);
+    printf("\n");
+}
+
+static void pmap_each_tab(gpointer key, gpointer value, gpointer data) {
+    const char *program = (const char *) key;
+    GHashTable *tab = (GHashTable *) value;
+    printf("for %s\n", program);
+    g_hash_table_foreach(tab, pmap_each_rule, 0);
+    printf("\n");
+}
+
+void pmap_dump() {
+    lazy_init();
+    g_hash_table_foreach(pmap, pmap_each_tab, 0);
+}
+
+int get_config(GHashTable *tab, const char *norm_path) {
+    if (tab == NULL) {
+        lazy_init();
+        tab = rules;
+        assert(tab != NULL);
+    }
+
+    gpointer value = g_hash_table_lookup(tab, norm_path);
+    return (int) value;
+}
+
+void set_config(GHashTable *tab, const char *norm_path, int config) {
+    if (tab == NULL) {
+        lazy_init();
+        tab = rules;
+        assert(tab != NULL);
+    }
+
+    gpointer value = (gpointer) config;
+    g_hash_table_insert(tab, strdup(norm_path), value);
+}
