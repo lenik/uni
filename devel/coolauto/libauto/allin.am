@@ -34,3 +34,13 @@
 	rm -f "$@"
 	$(do_subst) <"$<" >"$@"
 	chmod -w "$@"
+
+%.c: %.c.in Makefile
+	rm -f "$@"
+	$(do_subst) <"$<" >"$@"
+	chmod -w "$@"
+
+%.h: %.h.in Makefile
+	rm -f "$@"
+	$(do_subst) <"$<" >"$@"
+	chmod -w "$@"
