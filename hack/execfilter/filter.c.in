@@ -11,8 +11,6 @@
 #include "path.h"
 #include "qstr.h"
 
-#define DEBUG
-
 #undef LINE_MAX
 #define LINE_MAX 4095
 

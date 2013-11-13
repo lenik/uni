@@ -1,12 +1,12 @@
 #!/bin/sh
 # master-file
 
-preloadfile="@sysconfdir@/ld.conf.preload"
+preloadfile="@sysconfdir@/ld.so.preload"
 
 if grep -q libexecfilter "$preloadfile"; then
     echo "Remove libexecfilter from preloaded library list."
     tmpf=`tempfile`
-    grep -v "$preloadfile" libexecfilter >"$tmpf"
+    grep -v libexecfilter "$preloadfile" >"$tmpf"
     mv -f "$tmpf" "$preloadfile"
 fi
 
