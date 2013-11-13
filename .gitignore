@@ -3,6 +3,9 @@
 *.log.[0-9]*
 *.o
 *.out
+*.lo
+*.le
+*.la
 *.tmp
 *~
 *.swp
@@ -12,10 +15,12 @@
 nohup.out
 
 # Auto-tools generated
+.libs/
 Makefile
 Makefile.in
 aclocal.m4
 autom4te.cache/
+compile
 config.guess
 config.h
 config.h.in
@@ -25,6 +30,7 @@ config.sub
 configure
 depcomp
 install-sh
+libtool
 ltmain.sh
 missing
 stamp-h1
