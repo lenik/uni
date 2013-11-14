@@ -4,21 +4,29 @@
     : ${PROGRAM_SYNTAX:="[OPTIONS] [--] [PATH ...]"}
     : ${GIT_PAGER:=cat}
 
+    ver_mode=none
+
     export GIT_PAGER
 
     . shlib-import cliboot
+    option -V --vercomp     "Include the (autover) version number"
+    option    --mmc         "Get the major.minor.commit version"
     option -q --quiet       "Repeat to get less info"
-    option -v --verbose     "Repeat to get more info"
+    option    --verbose     "Repeat to get more info"
     option -h --help        "Show this help page"
     option    --version     "Print the version info"
 
 function setopt() {
     case "$1" in
+        -V|--vercomp)
+            ver_mode=vercomp;;
+        --mmc)
+            ver_mode=mmc;;
         -h|--help)
             help; exit;;
         -q|--quiet)
             LOGLEVEL=$((LOGLEVEL - 1));;
-        -v|--verbose)
+        --verbose)
             LOGLEVEL=$((LOGLEVEL + 1));;
         --version)
             version; exit;;
@@ -28,30 +36,79 @@ function setopt() {
 }
 
 _date=
+_ver=
 declare -A author_stat
 declare -a commits
+ncommit=0
 
 function main() {
-    while IFS='|' read -r date author mesg ; do
+    startdir=.
+    [ -d "$1" ] && startdir="${1%/}"
 
-        if [ "$_date" != "$date" ]; then
-            commit
-            _date="$date"
-        fi
+    verdir=
+    [ -f "$startdir/VERSION.av" ] && verdir="$startdir"
+
+    while IFS='|' read -r hash date author mesg ; do
+
+        [ -z "$_date" ] && _date="$date"
+        [ -z "$_ver" ] && _ver="$ver"
+
+        case "$ver_mode" in
+        none)
+            if [ "$_date" != "$date" ]; then
+                commit
+                _date="$date"
+            fi
+            ;;
+        *)
+            if [ "$_ver" != "$ver" ]; then
+                commit
+                _ver="$ver"
+                _date="$date"
+            fi
+            ;;
+        esac
 
         (( author_stat["$author"]++ ))
-        commits[ncommit++]="$mesg"
 
-    done < <( git log --no-merges --format="%ad|%an|%s" --date=short "$@" )
+        case "$ver_mode" in
+        none)
+            :;;
+
+        vercomp)
+            ver=$( vercomp <(git show "$hash:$verdir/VERSION.av") )
+            ;;
+
+        mmc)
+            _major=
+            _minor=
+            _commit=
+            while read _k _eq _v _other; do
+                case "$_k" in
+                major)
+                    _major="$_v";;
+                minor)
+                    _minor="$_v";;
+                commit)
+                    _commit="$_v";;
+                esac
+            done < <(git show "$hash:$verdir/VERSION.av")
+            ver="$_major.$_minor.$_commit"
+            ;;
+        esac
+
+        commits[ncommit++]="$mesg"
+    done < <( git log --no-merges --format="%H|%ad|%an|%s" --date=short "$@" )
 
     commit
 }
 
+__ver=
 function commit() {
     local tab authors author count
     local commit
-    if [ -n "$_date" ]; then
 
+    if [ "$ncommit" != 0 ]; then
         authors=
         while IFS=, read count author; do
             authors="$authors, $author"
@@ -60,17 +117,32 @@ function commit() {
                     echo "${author_stat[$author]},$author"
                 done | sort -n -r
             )
-        echo -E "[$_date] ${authors#, }"
+        authors="${authors#, }"
+
+        if [ "$ver_mode" = none ]; then
+            echo -E "[$_date] ${authors}"
+        else
+            echo -E "[$_ver] ${authors} ($_date)"
+        fi
 
         for commit in "${commits[@]}"; do
             echo -E "	* $commit"
         done
         echo
     fi
-    _date=
+
     commits=()
     ncommit=0
     author_stat=()
+
+    case "$ver_mode" in
+    none)
+        _date=
+        ;;
+    *)
+        _ver=
+        ;;
+    esac
 }
 
 boot "$@"
