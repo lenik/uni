@@ -1,6 +1,6 @@
-include libauto/coolauto.am
+include _libauto/coolauto.am
 
-SUBDIRS = libauto
+SUBDIRS = _libauto
 
 bin_SCRIPTS = \
     autoinit \
