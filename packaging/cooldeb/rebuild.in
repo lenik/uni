@@ -42,11 +42,9 @@ function main() {
         fi
     fi
 
-    if [ ! -f Makefile ]; then
-        makelook=1
-        if ! makelook -p /usr -i DEBIAN; then
-            exit 2
-        fi
+    [ -f Makefile ] || makelook=1
+    if ! makelook -p /usr -i DEBIAN; then
+        exit 2
     fi
 
     # edit the changelog
