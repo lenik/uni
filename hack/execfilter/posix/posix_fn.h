@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <dlfcn.h>
 #define def_next(fn) \
@@ -42,4 +43,4 @@
 
 #define NORM_CONFIG(path)                       \
     char *norm = path_find_norm(path);          \
-    int config = get_config(NULL, norm)
+    int config = get_config_rec(getpid(), path)

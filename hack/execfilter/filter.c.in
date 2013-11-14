@@ -1,6 +1,10 @@
+// The core filter implementation for execfilter.
+// Written by Lenik, Nov 2013.
+
 #include <assert.h>
 #include <ctype.h>
 #include <dirent.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,9 +19,9 @@
 #define LINE_MAX 4095
 
 GHashTable *pmap;
-GHashTable *rules;
+program_conf_t *pconf;
 
-static GHashTable *parse_rules(const char *path);
+static program_conf_t *parse_rules(const char *path);
 
 void pmap_load() {
     DIR *configdir;
@@ -70,12 +74,13 @@ static char *readtok(char **headp) {
     return kwbuf;
 }
 
-static GHashTable *parse_rules(const char *path) {
+static program_conf_t *parse_rules(const char *path) {
     FILE *f = fopen(path, "rt");
     char linebuf[LINE_MAX + 1];
     char *p;
     char *endp;
     char *token;
+    program_conf_t *conf;
     GHashTable *tab;
     int config;
 
@@ -101,17 +106,22 @@ static GHashTable *parse_rules(const char *path) {
 
         case 'f':
             if (strcmp(token, "for") == 0) {
-                tab = g_hash_table_lookup(pmap, p);
-                if (tab == NULL) {
+                conf = g_hash_table_lookup(pmap, p);
+                if (conf == NULL) {
+                    conf = (program_conf_t *) malloc(sizeof(program_conf_t));
                     tab = g_hash_table_new(g_str_hash, g_str_equal);
-                    g_hash_table_insert(pmap, strdup(p), tab);
+                    conf->rules = tab;
+                    conf->config = 0;
+                    conf->mask = -1;
+                    g_hash_table_insert(pmap, strdup(p), conf);
                 }
+                tab = conf->rules;
                 break;
             }
 
         case 'a':
             if (strcmp("allow", token) == 0) {
-                if (tab == NULL) {
+                if (conf == NULL) {
                     fprintf(stderr, "Error: program (for-clause) hasn't been specified yet.\n");
                     continue;
                 }
@@ -120,16 +130,16 @@ static GHashTable *parse_rules(const char *path) {
                 if (which != NULL)
                     p = which;
 
-                config = get_config(tab, p);
+                config = get_config(conf, p);
                 config |= F_ALLOW;
                 config &= ~F_DENY;
-                set_config(tab, p, config);
+                set_config(conf, p, config);
                 break;
             }
 
         case 'd':
             if (strcmp("deny", token) == 0) {
-                if (tab == NULL) {
+                if (conf == NULL) {
                     fprintf(stderr, "Error: program (for-clause) hasn't been specified yet.\n");
                     continue;
                 }
@@ -138,10 +148,23 @@ static GHashTable *parse_rules(const char *path) {
                 if (which != NULL)
                     p = which;
 
-                config = get_config(tab, p);
+                config = get_config(conf, p);
                 config &= ~F_ALLOW;
                 config |= F_DENY;
-                set_config(tab, p, config);
+                set_config(conf, p, config);
+                break;
+            }
+
+            if (strcmp("default", token) == 0) {
+                if (conf == NULL) {
+                    fprintf(stderr, "Error: program (for-clause) hasn't been specified yet.\n");
+                    continue;
+                }
+
+                if (strcmp("allow", p) == 0)
+                    conf->config |= F_ALLOW;
+                if (strcmp("deny", p) == 0)
+                    conf->config |= F_DENY;
                 break;
             }
 
@@ -154,9 +177,10 @@ static GHashTable *parse_rules(const char *path) {
 
 static int initialized;
 static void lazy_init() {
-    if (! pmap) pmap_load();
     if (initialized)
         return;
+
+    pmap_load();
 
     /* normalize the current process and grab the entry. */
     char path[PATH_MAX + 1];
@@ -167,11 +191,12 @@ static void lazy_init() {
     }
     path[cc] = '\0';
 
-    /* rules maybe undefined, if the program is not configured.  */
-    rules = g_hash_table_lookup(pmap, path);
+    /* conf maybe undefined, if the program is not configured.  */
+    pconf = g_hash_table_lookup(pmap, path);
 
-    if (rules == NULL) {
-        rules = g_hash_table_new(g_str_hash, g_str_equal);
+    if (pconf == NULL) {
+        pconf = (program_conf_t *) malloc(sizeof(program_conf_t));
+        pconf->rules = g_hash_table_new(g_str_hash, g_str_equal);
 #ifdef DEBUG
         printf("Warning: %s isn't configured, yet.\n", path);
 #endif
@@ -196,9 +221,21 @@ static void pmap_each_rule(gpointer key, gpointer value, gpointer data) {
 
 static void pmap_each_tab(gpointer key, gpointer value, gpointer data) {
     const char *program = (const char *) key;
-    GHashTable *tab = (GHashTable *) value;
+    program_conf_t *conf = (program_conf_t *) value;
+
+    int bc = conf->config & conf->mask;
+
     printf("for %s\n", program);
-    g_hash_table_foreach(tab, pmap_each_rule, 0);
+    switch (bc & (F_ALLOW | F_DENY)) {
+    case F_ALLOW:
+        printf("    order allow, deny\n");
+        break;
+    case F_DENY:
+        printf("    order deny, allow\n");
+        break;
+    }
+
+    g_hash_table_foreach(conf->rules, pmap_each_rule, 0);
     printf("\n");
 }
 
@@ -207,24 +244,82 @@ void pmap_dump() {
     g_hash_table_foreach(pmap, pmap_each_tab, 0);
 }
 
-int get_config(GHashTable *tab, const char *norm_path) {
-    if (tab == NULL) {
+int get_config(program_conf_t *conf, const char *norm_path) {
+    if (conf == NULL) {
         lazy_init();
-        tab = rules;
-        assert(tab != NULL);
+        conf = pconf;
+        assert(conf != NULL);
     }
 
-    gpointer value = g_hash_table_lookup(tab, norm_path);
-    return (int) value;
+    gpointer value = g_hash_table_lookup(conf->rules, norm_path);
+    int config = (int) value;
+    config |= conf->config;
+    config &= conf->mask;
+    return (int) config;
 }
 
-void set_config(GHashTable *tab, const char *norm_path, int config) {
-    if (tab == NULL) {
+void set_config(program_conf_t *conf, const char *norm_path, int config) {
+    if (conf == NULL) {
         lazy_init();
-        tab = rules;
-        assert(tab != NULL);
+        conf = pconf;
+        assert(conf != NULL);
     }
 
     gpointer value = (gpointer) config;
-    g_hash_table_insert(tab, strdup(norm_path), value);
+    g_hash_table_insert(conf->rules, strdup(norm_path), value);
+}
+
+static pid_t stat_ppid(pid_t pid) {
+    char path[PATH_MAX];
+    FILE *f;
+    char comm[PATH_MAX];
+    char state;
+    pid_t ppid;
+
+    sprintf(path, "/proc/%d/stat", pid);
+    if ((f = fopen(path, "rt")) == NULL)
+        return -1;
+
+    fscanf(f, "%d %s %c %d", &pid, comm, &state, &ppid);
+    fclose(f);
+
+    return ppid;
+}
+
+int get_config_rec(pid_t pid, const char *obj) {
+    int all = 0;
+    char *obj_norm = path_find_norm(obj);
+
+    lazy_init();
+
+    while (pid != 0 && pid != -1) {
+        char psym[PATH_MAX];
+        char bin[PATH_MAX];
+        int cc;
+        program_conf_t *conf;
+
+        sprintf(psym, "/proc/%d/exe", pid);
+        cc = readlink(psym, bin, PATH_MAX);
+
+        if (cc == -1) {
+            if (errno == EACCES) {
+                /* skip this one. */
+            } else {
+                perror("readlink");
+                exit(1);
+            }
+        } else {
+            bin[cc] = '\0';
+            conf = g_hash_table_lookup(pmap, bin);
+            if (conf) {
+                int c = get_config(conf, obj_norm);
+                // printf("config for [%d] %s: %d\n", pid, bin, c);
+                all |= c;
+            }
+        }
+
+        pid = stat_ppid(pid);
+    }
+
+    return all;
 }

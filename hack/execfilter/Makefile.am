@@ -29,6 +29,8 @@ libexecfilter_la_LDFLAGS = -version-info 1:0:0
 libefstub_la_SOURCES = stub.c
 libefstub_la_LDFLAGS = -version-info 1:0:0
 
+dist_doc_DATA = ChangeLog
+
 setup_SCRIPTS = \
     postinst \
     prerm
