@@ -26,5 +26,5 @@ ci                      CNAME   1
 lenik                   CNAME   1
 shecti                  CNAME   1
 
-deb                     CNAME   lenik.dyndns.org.
+deb                     CNAME   1
 sshproxy                CNAME   1
