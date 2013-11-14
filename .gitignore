@@ -48,7 +48,7 @@ postinst
 prerm
 
 # Generated stuff
-# itree.tex
+itree.tex
 
 # TeX
 *.aux
