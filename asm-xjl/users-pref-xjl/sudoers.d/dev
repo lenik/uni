@@ -1,3 +1,8 @@
 # vim: set filetype=sudoers :
 %dev ALL=(ALL) ALL
 %dev ALL=(ALL) NOPASSWD: /sbin/shutdown
+%dev ALL=(ALL) NOPASSWD: /usr/sbin/pm-*
+
+%dev ALL = (ALL) NOPASSWD: /usr/bin/head
+%dev ALL = (ALL) NOPASSWD: /usr/bin/tail
+%dev ALL = (ALL) NOPASSWD: /usr/bin/hd
