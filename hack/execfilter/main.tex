@@ -2,8 +2,8 @@
 \usepackage{z-filetree}
 \usepackage{verbatim}
 \usepackage{environ}
-\usepackage{fancybox}
 \usepackage{fancyvrb}
+\usepackage{mdframed}
 
 \newcommand\code[1]{\texttt{#1}}
 
@@ -21,10 +21,13 @@
   numbers=left
 }
 
-\DefineVerbatimEnvironment{syntax}{Verbatim}{
-  frame=single,
-  framerule=0.5mm,
-  rulecolor=\color{brown}
+\newcommand\syntax[1]{
+  \begin{mdframed}[
+      linecolor=brown,
+      linewidth=2pt,
+    ]
+    #1
+  \end{mdframed}
 }
 
 \newcommand\xfilt{\textbf{execfilter}}
@@ -92,7 +95,7 @@ Or, you may download and compile yourself:
 This will build the source code and install the binaries to \code{/usr/local}
 by default.
 
-The installed files are layout as:
+The installed files are structured like:
 
 \def\filetreescale{0.7}
 \input{itree}
@@ -115,14 +118,14 @@ Each statement can be on of the following:
 
 \subsection {for statement}
 
-\begin{syntax}
-  ``for'' <APP-PATH>
-\end{syntax}
+\syntax{
+  ``for'' \textit{<APP-PATH>}
+}
 
 The \code{for} statement specifies which application the following statements
-will applied to. The APP-PATH should be the absolute path without any quote char
-(' or ").  The trailing space is ignored, so you can't define any rule for
-filenames with extra space in the end.
+will be applied to. The \textit{APP-PATH} should be the absolute path without
+any quote char (' or ").  The trailing space is ignored, so you can't define any
+rule for filenames with extra space in the end.
 
 \begin{codeblk}
   for APP1
@@ -152,9 +155,9 @@ you should always use absolute paths here.
 The \code{default} statement defines the default behavior if no rule matches the
 execution target.
 
-\begin{syntax}
+\syntax {
   ``default'' \{ ``allow'' | ``deny'' \}
-\end{syntax}
+}
 
 There are only two forms: \code{default allow} and \code{default deny}.
 
@@ -167,9 +170,9 @@ if any one is denied, the result is denied.
 
 \subsection {allow/deny statement}
 
-\begin{syntax}
-  \{ ``allow''| ``deny'' \} <TARGET-SPEC>
-\end{syntax}
+\syntax {
+  \{ ``allow''| ``deny'' \} \textit{<TARGET-SPEC>}
+}
 
 \code{allow} and \code{deny} statements define how \xfilt handles the execution target.
 
@@ -191,12 +194,12 @@ network playing mode, and everything else is denied.  However,
 to prevent from suspend or shutdown the machine after the downloader completed
 its tasks.
 
-The \code{TARGET-SPEC} specify the execution target, like the \code{for}-clause,
-it can be symbolic link name and relative path names, they are later be
-canonicalized by \xfilt. The \code{TARGET-SPEC} names are also be finding
-against the PATH environ, so you can omit the ``/bin'', ``/usr/bin'' parts if
-they are in the system PATH.  But for security considerations, you should use
-absolute pathnames whenever possible.
+The \textit{TARGET-SPEC} specify the execution target, like the
+\code{for}-clause, it can be symbolic link name and relative path names, they
+are later be canonicalized by \xfilt. The \textit{TARGET-SPEC} names are also be
+finding against the PATH environ, so you can omit the ``/bin'', ``/usr/bin''
+parts if they are in the system PATH.  But for security considerations, you
+should use absolute pathnames whenever possible.
 
 \section {Diagnostics}
 
