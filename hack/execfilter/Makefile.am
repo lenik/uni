@@ -31,7 +31,7 @@ libefstub_la_LDFLAGS = -version-info 1:0:0
 
 dist_doc_DATA = manual.pdf
 
-manual.pdf: main.tex
+manual.pdf: main.tex itree.tex
 	cooltex -a -jmanual main.tex
 
 setup_SCRIPTS = \
