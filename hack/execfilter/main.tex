@@ -1,0 +1,222 @@
+\documentclass[hyperref, bookmark]{z-article}
+\usepackage{z-filetree}
+\usepackage{verbatim}
+\usepackage{environ}
+\usepackage{fancybox}
+\usepackage{fancyvrb}
+
+\newcommand\code[1]{\texttt{#1}}
+
+\DefineVerbatimEnvironment{console}{Verbatim}{
+  frame=lines,
+  framerule=0.5mm,
+  rulecolor=\color{red},
+  label=CONSOLE
+}
+
+\DefineVerbatimEnvironment{codeblk}{Verbatim}{
+  frame=single,
+  framerule=0.5mm,
+  rulecolor=\color{green!20!black},
+  numbers=left
+}
+
+\DefineVerbatimEnvironment{syntax}{Verbatim}{
+  frame=single,
+  framerule=0.5mm,
+  rulecolor=\color{brown}
+}
+
+\newcommand\xfilt{\textbf{execfilter}}
+\newcommand\configdir{\texttt{/etc/execfilter.d/}}
+
+\setlength{\parskip}{\baselineskip}
+
+\title {execfilter \\ Execution Filter For Linux }
+\author{Lenik \\ \boDz TopCroak Software}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section {Quick Start}
+
+There are many applications under Linux which may spawn vulnerable processes to
+be hacked in.  The trivial Unix execution bits on the file won't let you to
+configure them specifically according to the needs of different applications.
+
+
+\xfilt is just born for this task. It's a shared library dynamically inserted
+before libc, where the most process creation calls are made.  To use this
+utility, you need to write some configurations under \configdir, one may look
+like this:
+
+\begin{codeblk}
+  # file: /etc/execfilter.d/warcraft
+  # Prevent the game warcraft to launch the shell.
+  for /usr/bin/warcraft
+      deny /bin/sh
+\end{codeblk}
+
+That's it! \xfilt will read all files (but without any sub-directory) in
+\configdir, parse and analyze them, if the target executable the current process
+wanted to spawn is listed in any of the denied statement, the execution will be
+immediately failed.
+
+\section {Install}
+
+To install \xfilt, you need to include the \boDz sources list in your apt
+config:
+
+\begin{console}
+  ## You need to be root to run this command:
+
+  # echo "deb http://deb.lenik.net/ unstable/" >> /etc/apt/sources.list
+  # apt-get update
+  # apt-get install execfilter
+\end{console}
+
+Or, you may download and compile yourself:
+
+\begin{console}
+  $ cd /home/my/build/dirs
+  $ wet http://....../execfilter.tar.bz2
+  $ tar xJf execfilter-1.0.5.tar.bz2
+  $ cd execfilter-1.0.5
+  $ ./configure
+  $  (...)
+  $ make
+  $ make install
+\end{console}
+
+This will build the source code and install the binaries to \code{/usr/local}
+by default.
+
+The installed files are layout as:
+
+\def\filetreescale{0.7}
+\input{itree}
+
+\section {Configuration}
+
+\xfilt use configuration files to describe rules applied to each
+application. These files are placed in \configdir directory. The loading order
+is arbitrary, as there is no dependency requirement in the rule definitions.
+
+Empty lines and comment lines which starts with ``\#'' are ignored.  Each statement
+is terminated by a new-line character.
+
+A single config file may contains several sections, each section describes
+executing rules applied to the caller process.  If a target program is denied by
+a parent process, all child processes are automatically inherited the denied
+rule.
+
+Each statement can be on of the following:
+
+\subsection {for statement}
+
+\begin{syntax}
+  ``for'' <APP-PATH>
+\end{syntax}
+
+The \code{for} statement specifies which application the following statements
+will applied to. The APP-PATH should be the absolute path without any quote char
+(' or ").  The trailing space is ignored, so you can't define any rule for
+filenames with extra space in the end.
+
+\begin{codeblk}
+  for APP1
+  ...
+  ... (statements applied to APP1)
+  ...
+  for APP2
+  ...
+  ... (statements applied to APP2)
+  ...
+  for APP1
+  ...
+\end{codeblk}
+
+The same application may be occurred in multiple sections in a single config
+file.  They will be merged by the parser, thus allows you to group rules in your
+own manner.
+
+During \xfilt matching the caller process to the application path specified in
+the \code{for} clause, the pathnames are canonicalized at the first.  So you can
+write symbolic links and relative paths here. But for security consideration,
+you should always use absolute paths here.
+
+
+\subsection {default statement}
+
+The \code{default} statement defines the default behavior if no rule matches the
+execution target.
+
+\begin{syntax}
+  ``default'' \{ ``allow'' | ``deny'' \}
+\end{syntax}
+
+There are only two forms: \code{default allow} and \code{default deny}.
+
+When you omitted the \code{default} statement, the default behavior is deny
+default.
+
+The default behavior is not inherited. That is, when there are multiple rules
+matching the ancestors of the caller process, each matching is evaluated first,
+if any one is denied, the result is denied.
+
+\subsection {allow/deny statement}
+
+\begin{syntax}
+  \{ ``allow''| ``deny'' \} <TARGET-SPEC>
+\end{syntax}
+
+\code{allow} and \code{deny} statements define how \xfilt handles the execution target.
+
+\begin{codeblk}
+  for /usr/bin/warcraft
+    default deny
+    allow /sbin/ifconfig
+
+  for /usr/bin/btdownloader
+    deny /sbin/pm-suspend
+    deny /sbin/shutdown
+\end{codeblk}
+
+This example shows, for application \code{/usr/bin/warcraft}, the execution of
+\code{/sbin/ifconfig} is allowed, because it may need \code{ifconfig} to start
+network playing mode, and everything else is denied.  However,
+\code{/usr/bin/btdownloader} uses an oppsite default mode, everything except
+\code{/sbin/pm-suspend} and \code{/sbin/shutdown} are allowed, this is intended
+to prevent from suspend or shutdown the machine after the downloader completed
+its tasks.
+
+The \code{TARGET-SPEC} specify the execution target, like the \code{for}-clause,
+it can be symbolic link name and relative path names, they are later be
+canonicalized by \xfilt. The \code{TARGET-SPEC} names are also be finding
+against the PATH environ, so you can omit the ``/bin'', ``/usr/bin'' parts if
+they are in the system PATH.  But for security considerations, you should use
+absolute pathnames whenever possible.
+
+\section {Diagnostics}
+
+In case of problems, check the following guide:
+
+\xfilt will update the \code{/etc/ld.so.preload} file which contains the
+preloaded library list, to include \xfilt itself. Occasionally, the file might
+be chmod to be unreadble from everyone.  This will cause \xfilt not work at
+all. To fix this problem, just run \code{sudo chmod +r /etc/ld.so.preload}.
+
+There maybe undiscovered bugs in the \xfilt implementation, which may cause the
+system unstable.  To determine whether it's a bug of \xfilt or something else,
+the \xfilt package contains a helper stub module.  Try to replace the
+\code{libexecfilter.so} with \code{libefstub.so} in \code{/etc/ld.so.preload}
+and check if the problem still exists.  If the problem is gone, it could be
+something wrong within \xfilt.  Please tell me (me (at) lenik.net) when you are
+in such cases.
+
+\appendix
+%\section {索引}
+%    \listoftables
+
+\end{document}
