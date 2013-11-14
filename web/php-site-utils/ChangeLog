@@ -1,9 +1,0 @@
-2010-12-18  lenik
-
-	* ., Makefile.am, VERSION.av, configure.ac, php, php/Makefile.am,
-	  php/echohh.php: move kala/etc/services/echohh.php to this new
-	  package.
-	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
-	  configure.ac, debian, debian/control, debian/docs,
-	  debian/postinst, debian/prerm, postinst.in, prerm.in: New
-	  xjl-coolphp package initialized by newdeb

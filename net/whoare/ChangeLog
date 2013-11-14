@@ -1,8 +1,0 @@
-2010-12-18  lenik
-
-	* ., Makefile.am, VERSION.av, configure.ac, debian/control, whoare:
-	  repackage kala/whoare.
-	* ., AUTHORS, ChangeLog, Makefile.am, NEWS, README, VERSION.av,
-	  configure.ac, debian, debian/control, debian/docs,
-	  debian/postinst, debian/prerm, postinst.in, prerm.in: New
-	  xjl-whoare package initialized by newdeb
