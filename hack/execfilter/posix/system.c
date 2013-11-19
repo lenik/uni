@@ -7,11 +7,14 @@ int system(const char *command) {
     // pmap_dump();
 
     char *copy = strdup(command);
-    char *cmd = qstr_btok(&copy);
+    if (copy == NULL)
+        return -1;                      /* ENOMEM */
+
+    char *cmd = qstr_btok(copy, NULL);
 
     NORM_CONFIG(cmd);
     // printf("config value for %s is %d\n", norm, config);
-    // free(copy);
+    free(copy);
 
     if (config & F_DENY) {
         fprintf(stderr, "Execution of %s is denied.\n", norm);

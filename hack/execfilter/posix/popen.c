@@ -6,11 +6,11 @@ FILE *popen(const char *command, const char *type) {
     def_next(popen);
 
     char *copy = strdup(command);
-    char *cmd = qstr_btok(&copy);
+    char *cmd = qstr_btok(copy, NULL);
 
     NORM_CONFIG(cmd);
 
-    // free(copy);
+    free(copy);
     RET_IF_DENY_(norm, config, NULL);
 
     return next(command, type);
