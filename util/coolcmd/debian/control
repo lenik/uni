@@ -10,7 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/utils/coolcmd
 
 Package: coolcmd
 Provides: coolcmd
-Architecture: all
+Architecture: any
 Depends: perl, bash-enh, coolutils, sleepenh
 Recommends: dnotify
 Description: Quick command invokes
