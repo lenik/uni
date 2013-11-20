@@ -10,6 +10,6 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/text/tty-fx
 
 Package: tty-fx
 Provides: tty-fx
-Architecture: all
+Architecture: any
 Depends: bash-enh, ncurses-bin, sed
 Description: Lenik's terminal (device) utilities.
