@@ -15,4 +15,4 @@ CLEANFILES = ${setup_SCRIPTS}
 	chmod -w "$@"
 
 install-data-hook:
-	cd orig; make install DESTDIR="$(DESTDIR)" PREFIX="$(prefix)"
+	cd orig && make install DESTDIR="$(DESTDIR)" PREFIX="$(prefix)"
