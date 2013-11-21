@@ -1,8 +1,11 @@
 include libauto/coolauto.am
 
+SUBDIRS = test
+
 bin_PROGRAMS = \
-    yangwei \
-    shendun
+    yangwei
+
+yangwei_SOURCES = yangwei.c ywcrypt.c
 
 setup_SCRIPTS = \
     postinst \
@@ -10,7 +13,6 @@ setup_SCRIPTS = \
 
 EXTRA_DIST = \
     yangwei.c \
-    shendun.c \
     postinst.in \
     prerm.in
 

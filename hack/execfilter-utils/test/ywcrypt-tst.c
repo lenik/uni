@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "crypt.h"
+#include "../ywcrypt.h"
 
 void main() {
     char buf[] = "hello, world";

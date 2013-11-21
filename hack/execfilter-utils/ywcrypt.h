@@ -1,5 +1,5 @@
-#ifndef __CRYPT_H
-#define __CRYPT_H
+#ifndef __YANGWEI_H
+#define __YANGWEI_H
 
 void garble_encrypt(char *buf, int size);
 
