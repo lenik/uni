@@ -1,4 +1,4 @@
 version=3
 
 http://sf.net/reposserver/repos-style-with-plugins-(.*)\.zip \
-    debian echoli
+    debian ./.update
