@@ -5,7 +5,7 @@
 
 LOGLEVEL=2
 
-_log1 "Search and download Archiva WAR"
+_log1 "Search and download Continuum WAR"
 
     index=http://continuum.apache.org/download.html
 

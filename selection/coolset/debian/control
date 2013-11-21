@@ -6,100 +6,137 @@ Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/xjl-cool
 
-Package: xjl-cools-terminal
-Provides: cools-terminal
+Package: coolset-base
 Architecture: all
-Description: Lenik's cool terminal tools set.
-    This package contains Lenik's cool terminal commands for Debian.
+Description: Lenik's cool base tools.
+    This package brings Lenik's cool base tools to you.
+Recommends:
+    bash-aliases,
+    bash-shlib,
+    configutils,
+    grub-enh,
+    isz-tool,
+    locale-setup,
+    more-loops
+
+Package: coolset-util
+Architecture: all
+Description: Lenik's cool util tools.
+    This package brings Lenik's cool util tools to you.
 Recommends:
     2tree,
     apache2-enh,
-    autover,
-    bash-aliases,
-    bash-enh,
-    bash-shlib,
-    bind-pref-xjl,
+    apt-enh,
     cdtree,
-    configutils,
-    tty-fx,
-    coolapt,
-    coolauto,
     coolcmd,
     cooldiff,
-    coolgen,
     coolhex,
-    coolldap,
     coollog,
-    coolmake,
-    coolspec,
     cooltask,
     cooltext,
     coolutils,
-    coolz,
-    db-utils-xjl,
+    diskutils,
     err-demux,
-    esperanto-dict,
+    filestats,
     fileutils-xjl,
     git-enh,
     gpg-enh,
     grepl,
-    grub-enh,
     ini-utils,
     laxar,
-    libcmt-perl,
-    libm4-xjl,
     mkchm,
     mksize,
     mountfile,
     msync,
     nameutils,
-    php-site-utils,
+    pingmon,
     python-enh,
+    regf2t,
     repl,
-    repos-styles,
-    sox-enh,
-    ssh-enh,
-    sshproxy-z,
+    rrdtool-enh,
+    rsync-rrc,
+    sqlite-enh,
     svn2cl-enh,
     svn-enh,
     symlinkutils,
+    textcodecs,
+    truecrypt-enh,
+    tty-fx,
     usecode,
-    users-pref-xjl,
     vcscmds,
     vexmount,
     vim-enh,
-    virtualbox-enh,
     wgetc,
     wget-enh,
-    whichm,
     whoare,
-    wine-enh,
     x509utils,
-    xmlutils,
-    yapp-enh
+    xmlproc,
+    ziputils
 
-Package: xjl-cools-java
-Provides: cools-java
+Package: coolset-text
 Architecture: all
-Description: Lenik's cool java tools set.
-    This package contains Lenik's cool java commands for Debian.
+Description: Lenik's cool text tools.
+    This package brings Lenik's cool text tools to you.
+Recommends:
+    coolpdf,
+    coolspec,
+    cooltex,
+    texlive-local,
+    z-latex
+
+Package: coolset-admin
+Architecture: all
+Description: Lenik's cool admin tools.
+    This package brings Lenik's cool admin tools to you.
+Recommends:
+    execfilter,
+    execfilter-utils,
+    extundelete,
+    router-vendor-utils
+
+Package: coolset-java
+Architecture: all
+Description: Lenik's cool java tools.
+    This package brings Lenik's cool java tools to you.
 Recommends:
     archiva,
+    astah-local,
     continuum,
     coolmaven,
     dejar,
     eclipse-enh,
     jad,
+    jdk7-local,
     jetty-pref-apache,
-    libderby-java
+    jsrcutils,
+    libuni-java,
+    mjpl,
+    shelj
 
-Package: xjl-cools-debian
-Provides: cools-debian
+Package: coolset-x11
 Architecture: all
-Description: Lenik's cool debian tools set.
-    This package contains Lenik's cool debian commands for Debian.
+Description: Lenik's cool x11 tools.
+    This package brings Lenik's cool x11 tools to you.
 Recommends:
-    cooldeb,
-    debiancd-utils,
-    dlocal,
-    patchbuild
+    coolclip,
+    desktoputils,
+    x11-hw-adjust,
+    x11-pref-xjl
+
+Package: coolset-gui
+Architecture: all
+Description: Lenik's cool gui tools.
+    This package brings Lenik's cool gui tools to you.
+Recommends:
+    empathy-enh,
+    gnome-pref-xjl,
+    imgauto,
+    svn-enh-gui
+
+Package: coolset-w32
+Architecture: all
+Description: Lenik's cool w32 tools.
+    This package brings Lenik's cool w32 tools to you.
+Recommends:
+    winedit,
+    wine-enh

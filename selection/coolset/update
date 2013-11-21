@@ -2,16 +2,15 @@
 
 cat control.in >debian/control
 
-for tag in terminal java debian; do
+for tag in base util text admin java x11 gui w32; do
 
 	echo "Scan $tag packages"
 
 	cat <<EOM >>debian/control
-Package: xjl-cools-$tag
-Provides: cools-$tag
+Package: coolset-$tag
 Architecture: all
-Description: Lenik's cool $tag tools set.
-    This package contains Lenik's cool $tag commands for Debian.
+Description: Lenik's cool $tag tools.
+    This package brings Lenik's cool $tag tools to you.
 Recommends:
 EOM
 
