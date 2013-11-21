@@ -1,0 +1,19 @@
+Source: ms-sys
+Section: web
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: http://uni.bodz.net/alt/ms-sys
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk/alt/ms-sys
+Vcs-Browser: http://svn.bodz.net/uni/trunk/alt/ms-sys
+
+Package: ms-sys
+Architecture: any
+Depends:
+Recommends:
+Description: A program to create Microsoft compatible boot records.
+    This is a Linux program for writing Microsoft compatible boot records.
+    The program does the same as Microsoft "fdisk /mbr" to a hard disk or
+    "sys d:" to a floppy or FAT partition except that it does not copy any
+    system files, only the boot record is written.

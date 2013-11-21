@@ -1,0 +1,6 @@
+# See uscan(1) for format
+
+version=3
+
+http://sf.net/ms-sys/ms-sys-(.*)\.tar\.gz \
+    debian ./.update
