@@ -55,7 +55,7 @@ function main() {
 
     # ln -snf @pkgdatadir@/inc/...
 
-    touch NEWS README AUTHORS ChangeLog
+    touch NEWS README AUTHORS
 
     # initialize VERSION.av
     if VERINIT=`which verinit`; then
