@@ -11,11 +11,9 @@ alias md='mkdir'
 alias rd='rmdir'
 
 alias  d='ls -oF -N --color'
-alias dd='ls -lF -N --color'
-alias dt='d -t | tail'
+alias d.='ls -doF -N --color'
 alias dw='. d-which'
-alias  l='ls -aoF -N --color'
-alias ll='ls -alF -N --color'
+alias  l='ls -alF -N --color'
 
 alias df='postproc sort \; df -T -B 1048576'
 
