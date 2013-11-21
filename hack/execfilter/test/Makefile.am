@@ -3,6 +3,8 @@ include ../libauto/coolauto.am
 configdir=${sysconfdir}/execfilter.d
 demobindir = ${pkgdatadir}
 
+AM_CFLAGS = -g -Og
+
 do_subst += \
     -e 's,[@]configdir[@],${configdir},g' \
     -e 's,[@]demobindir[@],${demobindir},g'

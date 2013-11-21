@@ -1,6 +1,8 @@
 // The core filter implementation for execfilter.
 // Written by Lenik, Nov 2013.
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <assert.h>
 #include <ctype.h>
 #include <dirent.h>
@@ -19,9 +21,12 @@
 #define LINE_MAX 4095
 
 GHashTable *pmap;
+int pmap_ver;                           /* file version. used in 2.0+ */
 program_conf_t *pconf;
+program_conf_t *preset;                 /* predefiend rules. used in 2.0+ */
 
-static program_conf_t *parse_rules(const char *path);
+static void parse_file(const char *path);
+static void parse_rules(char *script);
 
 void pmap_load() {
     DIR *configdir;
@@ -44,7 +49,7 @@ void pmap_load() {
             case DT_LNK:
             case DT_REG:
                 strcpy(name + dirlen, ent->d_name);
-                parse_rules(name);
+                parse_file(name);
             }
         }
     }
@@ -74,29 +79,77 @@ static char *readtok(char **headp) {
     return kwbuf;
 }
 
-static program_conf_t *parse_rules(const char *path) {
-    FILE *f = fopen(path, "rt");
-    char linebuf[LINE_MAX + 1];
-    char *p;
-    char *endp;
-    char *token;
-    program_conf_t *conf;
-    GHashTable *tab;
-    int config;
+/* String tokenizer, by replacing the end-of-line character by NUL.
+   Return the head, or NULL if EOT it met. */
+static char *strtok_eol(char *head, char **endp) {
+    char *end = head;
+    char ch;
+    if (*end == '\0')
+        return NULL;
 
+    while (ch = *end) {
+        if (ch == '\n') {
+            //if (end > head && end[-1] == '\r')
+            //    end[-1] = '\0';         /* Replace CR.LF by NUL.NUL. */
+            *end++ = '\0';
+            break;
+        }
+        end++;
+    }
+
+    if (endp)
+        *endp = end;
+    return head;
+}
+
+static void parse_file(const char *path) {
+    struct stat sb;
+    if (stat(path, &sb) == -1) {
+        fprintf(stderr, "Error: Failed to get file stat: %s\n", path);
+        perror("");
+        exit(1);
+    }
+
+    size_t size = sb.st_size;
+    char *data = malloc(size + 1);
+    if (data == NULL) {
+        fprintf(stderr, "Insufficient memory to read rules file %s.", path);
+        exit(1);
+    }
+
+    FILE *f = fopen(path, "rt");
     if (f == NULL) {
         fprintf(stderr, "Failed to open file %s: ", path);
         perror("");
         exit(1);
     }
 
-    while (fgets(linebuf, sizeof(linebuf), f) != NULL) {
-        p = linebuf;
+    int cb = fread(data, 1, size, f);
+    if (cb != size)
+        ;                               /* warning... read of partial file. */
+    data[cb] = '\0';
+    fclose(f);
 
+    parse_rules(data);
+    free(data);
+}
+
+static void parse_rules(char *script) {
+    char *head = script;
+    char *p;
+    char *end;
+    char *token;
+    program_conf_t *conf;
+    GHashTable *tab;
+    int config;
+
+    while (p = strtok_eol(head, &head)) {
         token = readtok(&p);
-        endp = p + strlen(p);
-        while (endp > p && isspace(endp[-1]))
-            *--endp = '\0';             /* trim right. */
+
+        /* trim right. */
+        char *end = p + strlen(p);
+        while (end > p && isspace(end[-1]))
+            *--end = '\0';
 
         switch (*token) {
         case '\0':

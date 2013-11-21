@@ -6,6 +6,7 @@ do_subst += -e 's,[@]configdir[@],${configdir},g'
 
 ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS = $(GLIB_CFLAGS)
+AM_CFLAGS = -g -Og
 
 SUBDIRS = test
 
