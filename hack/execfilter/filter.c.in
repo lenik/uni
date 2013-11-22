@@ -23,10 +23,10 @@
 GHashTable *pmap;
 int pmap_ver;                           /* file version. used in 2.0+ */
 program_conf_t *pconf;
-program_conf_t *preset;                 /* predefiend rules. used in 2.0+ */
+program_conf_t *preset;                 /* predefiend config. used in 2.0+ */
 
 static void parse_file(const char *path);
-static void parse_rules(char *script);
+static void parse_confs(char *script);
 
 void pmap_load() {
     DIR *configdir;
@@ -113,7 +113,7 @@ static void parse_file(const char *path) {
     size_t size = sb.st_size;
     char *data = malloc(size + 1);
     if (data == NULL) {
-        fprintf(stderr, "Insufficient memory to read rules file %s.", path);
+        fprintf(stderr, "Insufficient memory to read config file %s.", path);
         exit(1);
     }
 
@@ -130,18 +130,18 @@ static void parse_file(const char *path) {
     data[cb] = '\0';
     fclose(f);
 
-    parse_rules(data);
+    parse_confs(data);
     free(data);
 }
 
-static void parse_rules(char *script) {
+static void parse_confs(char *script) {
     char *head = script;
     char *p;
     char *end;
     char *token;
     program_conf_t *conf;
     GHashTable *tab;
-    int config;
+    xmode_t mode;
 
     while (p = strtok_eol(head, &head)) {
         token = readtok(&p);
@@ -163,12 +163,12 @@ static void parse_rules(char *script) {
                 if (conf == NULL) {
                     conf = (program_conf_t *) malloc(sizeof(program_conf_t));
                     tab = g_hash_table_new(g_str_hash, g_str_equal);
-                    conf->rules = tab;
-                    conf->config = 0;
+                    conf->modes = tab;
+                    conf->mode_all = 0;
                     conf->mask = -1;
                     g_hash_table_insert(pmap, strdup(p), conf);
                 }
-                tab = conf->rules;
+                tab = conf->modes;
                 break;
             }
 
@@ -183,10 +183,10 @@ static void parse_rules(char *script) {
                 if (which != NULL)
                     p = which;
 
-                config = get_config(conf, p);
-                config |= F_ALLOW;
-                config &= ~F_DENY;
-                set_config(conf, p, config);
+                mode = get_execution_mode(conf, p);
+                mode |= F_ALLOW;
+                mode &= ~F_DENY;
+                set_execution_mode(conf, p, mode);
                 break;
             }
 
@@ -201,10 +201,10 @@ static void parse_rules(char *script) {
                 if (which != NULL)
                     p = which;
 
-                config = get_config(conf, p);
-                config &= ~F_ALLOW;
-                config |= F_DENY;
-                set_config(conf, p, config);
+                mode = get_execution_mode(conf, p);
+                mode &= ~F_ALLOW;
+                mode |= F_DENY;
+                set_execution_mode(conf, p, mode);
                 break;
             }
 
@@ -215,9 +215,9 @@ static void parse_rules(char *script) {
                 }
 
                 if (strcmp("allow", p) == 0)
-                    conf->config |= F_ALLOW;
+                    conf->mode_all |= F_ALLOW;
                 if (strcmp("deny", p) == 0)
-                    conf->config |= F_DENY;
+                    conf->mode_all |= F_DENY;
                 break;
             }
 
@@ -249,7 +249,7 @@ static void lazy_init() {
 
     if (pconf == NULL) {
         pconf = (program_conf_t *) malloc(sizeof(program_conf_t));
-        pconf->rules = g_hash_table_new(g_str_hash, g_str_equal);
+        pconf->modes = g_hash_table_new(g_str_hash, g_str_equal);
 #ifdef DEBUG
         printf("Warning: %s isn't configured, yet.\n", path);
 #endif
@@ -258,14 +258,14 @@ static void lazy_init() {
     initialized = 1;
 }
 
-static void pmap_each_rule(gpointer key, gpointer value, gpointer data) {
+static void pmap_each_mode(gpointer key, gpointer value, gpointer data) {
     const char *target = (const char *) key;
     printf("    ");
 
-    int config = (int) value;
-    if (config & F_ALLOW)
+    xmode_t mode = (xmode_t) value;
+    if (mode & F_ALLOW)
         printf("allow ");
-    if (config & F_DENY)
+    if (mode & F_DENY)
         printf("deny ");
 
     printf("%s", target);
@@ -276,19 +276,22 @@ static void pmap_each_tab(gpointer key, gpointer value, gpointer data) {
     const char *program = (const char *) key;
     program_conf_t *conf = (program_conf_t *) value;
 
-    int bc = conf->config & conf->mask;
+    xmode_t m0 = conf->mode_all & conf->mask;
 
     printf("for %s\n", program);
-    switch (bc & (F_ALLOW | F_DENY)) {
+    switch (m0 & (F_ALLOW | F_DENY)) {
     case F_ALLOW:
         printf("    order allow, deny\n");
         break;
     case F_DENY:
         printf("    order deny, allow\n");
         break;
+    case F_ALLOW | F_DENY:
+        printf("    order none\n");
+        break;
     }
 
-    g_hash_table_foreach(conf->rules, pmap_each_rule, 0);
+    g_hash_table_foreach(conf->modes, pmap_each_mode, 0);
     printf("\n");
 }
 
@@ -297,29 +300,29 @@ void pmap_dump() {
     g_hash_table_foreach(pmap, pmap_each_tab, 0);
 }
 
-int get_config(program_conf_t *conf, const char *norm_path) {
+xmode_t get_execution_mode(program_conf_t *conf, const char *norm_path) {
     if (conf == NULL) {
         lazy_init();
         conf = pconf;
         assert(conf != NULL);
     }
 
-    gpointer value = g_hash_table_lookup(conf->rules, norm_path);
-    int config = (int) value;
-    config |= conf->config;
-    config &= conf->mask;
-    return (int) config;
+    gpointer value = g_hash_table_lookup(conf->modes, norm_path);
+    xmode_t mode = (xmode_t) value;
+    mode |= conf->mode_all;
+    mode &= conf->mask;
+    return mode;
 }
 
-void set_config(program_conf_t *conf, const char *norm_path, int config) {
+void set_execution_mode(program_conf_t *conf, const char *norm_path, xmode_t mode) {
     if (conf == NULL) {
         lazy_init();
         conf = pconf;
         assert(conf != NULL);
     }
 
-    gpointer value = (gpointer) config;
-    g_hash_table_insert(conf->rules, strdup(norm_path), value);
+    gpointer value = (gpointer) mode;
+    g_hash_table_insert(conf->modes, strdup(norm_path), value);
 }
 
 static pid_t stat_ppid(pid_t pid) {
@@ -339,8 +342,8 @@ static pid_t stat_ppid(pid_t pid) {
     return ppid;
 }
 
-int get_config_rec(pid_t pid, const char *obj) {
-    int all = 0;
+xmode_t get_execution_mode_rec(pid_t pid, const char *obj) {
+    xmode_t all = 0;
     char *obj_norm = path_find_norm(obj);
 
     lazy_init();
@@ -365,9 +368,9 @@ int get_config_rec(pid_t pid, const char *obj) {
             bin[cc] = '\0';
             conf = g_hash_table_lookup(pmap, bin);
             if (conf) {
-                int c = get_config(conf, obj_norm);
-                // printf("config for [%d] %s: %d\n", pid, bin, c);
-                all |= c;
+                xmode_t m = get_execution_mode(conf, obj_norm);
+                // printf("execution mode for [%d] %s: %d\n", pid, bin, c);
+                all |= m;
             }
         }
 

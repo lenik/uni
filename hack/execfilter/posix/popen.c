@@ -11,7 +11,7 @@ FILE *popen(const char *command, const char *type) {
     NORM_CONFIG(cmd);
 
     free(copy);
-    RET_IF_DENY_(norm, config, NULL);
+    RET_IF_DENY_(norm, mode, NULL);
 
     return next(command, type);
 }

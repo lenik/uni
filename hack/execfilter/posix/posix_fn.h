@@ -31,16 +31,16 @@
 #define __END__ }
 #endif
 
-#define RET_IF_DENY(path, config) RET_IF_DENY_(path, config, -1)
-#define RET_IF_DENY_(path, config, err)                             \
+#define RET_IF_DENY(path, mode) RET_IF_DENY_(path, mode, -1)
+#define RET_IF_DENY_(path, mode, err)                               \
     do {                                                            \
-        if ((config) & F_DENY) {                                    \
+        if ((mode) & F_DENY) {                                      \
             fprintf(stderr, "Execution of %s is denied.\n", path);  \
             errno = EACCES;                                         \
             return err;                                             \
         }                                                           \
     } while (0)
 
-#define NORM_CONFIG(path)                       \
-    char *norm = path_find_norm(path);          \
-    int config = get_config_rec(getpid(), path)
+#define NORM_CONFIG(path)                                       \
+    char *norm = path_find_norm(path);                          \
+    xmode_t mode = get_execution_mode_rec(getpid(), path)

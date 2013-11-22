@@ -76,7 +76,7 @@ int execv(const char *path, char *const argv[]) {
 
     NORM_CONFIG(path);
 
-    RET_IF_DENY(norm, config);
+    RET_IF_DENY(norm, mode);
 
     return next(path, argv);
 }
@@ -87,7 +87,7 @@ int execvp(const char *file, char *const argv[]) {
 
     NORM_CONFIG(file);
 
-    RET_IF_DENY(norm, config);
+    RET_IF_DENY(norm, mode);
 
     return next(file, argv);
 }
@@ -98,7 +98,7 @@ int execvpe(const char *file, char *const argv[], char *const envp[]) {
 
     NORM_CONFIG(file);
 
-    RET_IF_DENY(norm, config);
+    RET_IF_DENY(norm, mode);
 
     return next(file, argv, envp);
 }
@@ -109,7 +109,7 @@ int execve(const char *file, char *const argv[], char *const envp[]) {
 
     NORM_CONFIG(file);
 
-    RET_IF_DENY(norm, config);
+    RET_IF_DENY(norm, mode);
 
     return next(file, argv, envp);
 }

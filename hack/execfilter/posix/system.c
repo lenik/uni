@@ -13,10 +13,10 @@ int system(const char *command) {
     char *cmd = qstr_btok(copy, NULL);
 
     NORM_CONFIG(cmd);
-    // printf("config value for %s is %d\n", norm, config);
+    // printf("mode value for %s is %d\n", norm, mode);
     free(copy);
 
-    if (config & F_DENY) {
+    if (mode & F_DENY) {
         fprintf(stderr, "Execution of %s is denied.\n", norm);
         return -1;
     }

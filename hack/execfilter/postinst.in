@@ -12,4 +12,7 @@ fi
 # This file need to be worldwide readable.
 chmod +r "$preloadfile"
 
+# The module must be suid, or it will be ignored when it's linked with suid app.
+chmod +xs "@libdir@"/libexecfilter.so.*
+
 exit 0
