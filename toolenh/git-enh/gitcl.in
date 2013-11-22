@@ -50,27 +50,6 @@ function main() {
 
     while IFS='|' read -r hash date author mesg ; do
 
-        [ -z "$_date" ] && _date="$date"
-        [ -z "$_ver" ] && _ver="$ver"
-
-        case "$ver_mode" in
-        none)
-            if [ "$_date" != "$date" ]; then
-                commit
-                _date="$date"
-            fi
-            ;;
-        *)
-            if [ "$_ver" != "$ver" ]; then
-                commit
-                _ver="$ver"
-                _date="$date"
-            fi
-            ;;
-        esac
-
-        (( author_stat["$author"]++ ))
-
         case "$ver_mode" in
         none)
             :;;
@@ -96,6 +75,27 @@ function main() {
             ver="$_major.$_minor.$_commit"
             ;;
         esac
+
+        [ -z "$_date" ] && _date="$date"
+        [ -z "$_ver" ] && _ver="$ver"
+
+        case "$ver_mode" in
+        none)
+            if [ "$_date" != "$date" ]; then
+                commit
+                _date="$date"
+            fi
+            ;;
+        *)
+            if [ "$_ver" != "$ver" ]; then
+                commit
+                _ver="$ver"
+                _date="$date"
+            fi
+            ;;
+        esac
+
+        (( author_stat["$author"]++ ))
 
         commits[ncommit++]="$mesg"
     done < <( git log --no-merges --format="%H|%ad|%an|%s" --date=short "$@" )
