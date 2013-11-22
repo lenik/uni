@@ -78,6 +78,7 @@ do_subst += \
 	-e 's,[@]eardir[@],$(eardir),g' \
 	-e 's,[@]initdir[@],$(initdir),g' \
 	-e 's,[@]javalibdir[@],$(javalibdir),g' \
+	-e 's,[@]libdir[@],$(libdir),g' \
 	-e 's,[@]newtmpldir[@],$(newtmpldir),g' \
 	-e 's,[@]perllibdir[@],$(perllibdir),g' \
 	-e 's,[@]pkgcachedir[@],$(pkgcachedir),g' \
