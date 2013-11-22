@@ -2,11 +2,12 @@ include libauto/coolauto.am
 
 configdir=${sysconfdir}/execfilter.d
 
-do_subst += -e 's,[@]configdir[@],${configdir},g'
+do_subst += \
+    -e 's,[@]configdir[@],${configdir},g'
 
 ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS = $(GLIB_CFLAGS)
-AM_CFLAGS = -g -Og
+AM_CFLAGS = -Wall -g -Og
 
 SUBDIRS = test
 

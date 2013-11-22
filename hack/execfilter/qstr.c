@@ -27,13 +27,13 @@ char *qstr_btok(char *head, char **endp) {
 
     end = tok;
     if (delim == 0) {
-        while (ch = *end) {
+        while ((ch = *end)) {
             if (isspace(ch))
                 break;
             end++;
         }
     } else {
-        while (ch = *end++) {
+        while ((ch = *end++)) {
             if (ch == delim)
                 break;
         }

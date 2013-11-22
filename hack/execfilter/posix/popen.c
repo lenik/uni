@@ -2,7 +2,7 @@
 #include "posix_fn.h"
 
 FILE *popen(const char *command, const char *type) {
-    FILE *(*next)(const char *, const char *);
+    static FILE *(*next)(const char *, const char *);
     def_next(popen);
 
     char *copy = strdup(command);

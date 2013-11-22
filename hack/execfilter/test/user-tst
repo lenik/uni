@@ -1,0 +1,7 @@
+#!/bin/bash
+
+__DIR__="${0%/*}"
+
+source ${__DIR__}/.env
+
+${__DIR__}/user "$@"

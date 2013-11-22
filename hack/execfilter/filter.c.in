@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <dirent.h>
+#include <dlfcn.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +18,23 @@
 #include "path.h"
 #include "qstr.h"
 
+#define CONFIGDIR "@configdir@"
+
+#define E_FILT 127
+
+#undef DLSYM_MAX
+#define DLSYM_MAX 128
+
+typedef struct _symres_t {
+    char name[PATH_MAX];
+    char fn[DLSYM_MAX];
+    void *handle;
+    void *proc;
+} symres_t;
+
+symres_t gate_sr;                /* the global gate */
+GHashTable *formats;             /* extension -> symres_t */
+
 #undef LINE_MAX
 #define LINE_MAX 4095
 
@@ -25,19 +43,20 @@ int pmap_ver;                           /* file version. used in 2.0+ */
 program_conf_t *pconf;
 program_conf_t *preset;                 /* predefiend config. used in 2.0+ */
 
-static void parse_file(const char *path);
-static void parse_confs(char *script, const char *location);
+static const char *parse_file(const char *path);
+static const char *parse_confs(char *script, const char *location);
 
 void pmap_load() {
     DIR *configdir;
     struct dirent *ent;
     char name[PATH_MAX + 1];
     int dirlen;
-    GHashTable *tab;
+    const char *errmsg;
 
     pmap = g_hash_table_new(g_str_hash, g_str_equal);
+    formats = g_hash_table_new(g_str_hash, g_str_equal);
 
-    strcpy(name, "@configdir@");
+    strcpy(name, CONFIGDIR);
     configdir = opendir(name);
 
     if (configdir) {
@@ -54,7 +73,11 @@ void pmap_load() {
             case DT_LNK:
             case DT_REG:
                 strcpy(name + dirlen, ent->d_name);
-                parse_file(name);
+                errmsg = parse_file(name);
+                if (errmsg != NULL) {
+                    fprintf(stderr, "execfilter fatal error: %s\n", errmsg);
+                    exit(E_FILT);
+                }
             }
         }
     }
@@ -92,7 +115,7 @@ static char *strtok_eol(char *head, char **endp) {
     if (*end == '\0')
         return NULL;
 
-    while (ch = *end) {
+    while ((ch = *end)) {
         if (ch == '\n') {
             //if (end > head && end[-1] == '\r')
             //    end[-1] = '\0';         /* Replace CR.LF by NUL.NUL. */
@@ -107,48 +130,51 @@ static char *strtok_eol(char *head, char **endp) {
     return head;
 }
 
-static void parse_file(const char *path) {
+static const char *parse_file(const char *path) {
     struct stat sb;
     if (stat(path, &sb) == -1) {
         fprintf(stderr, "Error: Failed to get file stat: %s\n", path);
         perror("");
-        exit(1);
+        return "stat";
     }
 
     size_t size = sb.st_size;
     char *data = malloc(size + 1);
     if (data == NULL) {
         fprintf(stderr, "Insufficient memory to read config file %s.", path);
-        exit(1);
+        return "memory out";
     }
 
     FILE *f = fopen(path, "rt");
     if (f == NULL) {
         fprintf(stderr, "Failed to open file %s: ", path);
         perror("");
-        exit(1);
+        return "open config";
     }
 
     int cb = fread(data, 1, size, f);
     if (cb != size)
-        ;                               /* warning... read of partial file. */
+        return "read incomplete";
+
     data[cb] = '\0';
     fclose(f);
 
-    parse_confs(data, path);
+    const char *errmsg = parse_confs(data, path);
+
     free(data);
+
+    return errmsg;
 }
 
-static void parse_confs(char *script, const char *location) {
+static const char *parse_confs(char *script, const char *location) {
     char *head = script;
     char *p;
-    char *end;
     char *token;
-    program_conf_t *conf;
+    program_conf_t *conf = NULL;
     GHashTable *tab;
     xmode_t mode;
 
-    while (p = strtok_eol(head, &head)) {
+    while ((p = strtok_eol(head, &head))) {
         token = readtok(&p);
 
         /* trim right. */
@@ -161,21 +187,6 @@ static void parse_confs(char *script, const char *location) {
             continue;                   /* empty line */
         case '#':
             continue;                   /* comment line */
-
-        case 'f':
-            if (strcmp(token, "for") == 0) {
-                conf = g_hash_table_lookup(pmap, p);
-                if (conf == NULL) {
-                    conf = (program_conf_t *) malloc(sizeof(program_conf_t));
-                    tab = g_hash_table_new(g_str_hash, g_str_equal);
-                    conf->modes = tab;
-                    conf->mode_all = 0;
-                    conf->mask = -1;
-                    g_hash_table_insert(pmap, strdup(p), conf);
-                }
-                tab = conf->modes;
-                break;
-            }
 
         case 'a':
             if (strcmp("allow", token) == 0) {
@@ -196,6 +207,19 @@ static void parse_confs(char *script, const char *location) {
             }
 
         case 'd':
+            if (strcmp("default", token) == 0) {
+                if (conf == NULL) {
+                    fprintf(stderr, "Error: program (for-clause) hasn't been specified yet.\n");
+                    continue;
+                }
+
+                if (strcmp("allow", p) == 0)
+                    conf->mode_all |= F_ALLOW;
+                if (strcmp("deny", p) == 0)
+                    conf->mode_all |= F_DENY;
+                break;
+            }
+
             if (strcmp("deny", token) == 0) {
                 if (conf == NULL) {
                     fprintf(stderr, "Error: program (for-clause) hasn't been specified yet.\n");
@@ -213,16 +237,101 @@ static void parse_confs(char *script, const char *location) {
                 break;
             }
 
-            if (strcmp("default", token) == 0) {
+        case 'f':
+            /* for PATH */
+            if (strcmp(token, "for") == 0) {
+                conf = g_hash_table_lookup(pmap, p);
                 if (conf == NULL) {
-                    fprintf(stderr, "Error: program (for-clause) hasn't been specified yet.\n");
+                    conf = (program_conf_t *) malloc(sizeof(program_conf_t));
+                    tab = g_hash_table_new(g_str_hash, g_str_equal);
+                    conf->modes = tab;
+                    conf->mode_all = 0;
+                    conf->mask = -1;
+                    g_hash_table_insert(pmap, strdup(p), conf);
+                }
+                tab = conf->modes;
+                break;
+            }
+
+            /* format EXTNAME LIBNAME FN=decode */
+            if (strcmp("format", token) == 0) {
+                char *ext = readtok(&p);
+                if (ext == NULL) {
+                    fprintf(stderr, "Error: extension name isn't specified.\n");
                     continue;
                 }
 
-                if (strcmp("allow", p) == 0)
-                    conf->mode_all |= F_ALLOW;
-                if (strcmp("deny", p) == 0)
-                    conf->mode_all |= F_DENY;
+                char *libname = readtok(&p);
+                if (libname == NULL) {
+                    fprintf(stderr, "Error: library name isn't specified. (format: %s)\n", ext);
+                    continue;
+                }
+
+                char *fn = readtok(&p);
+                if (fn == NULL)
+                    fn = "decode";
+
+                symres_t *sr = g_hash_table_lookup(formats, ext);
+                if (sr != NULL) {
+                    fprintf(stderr, "Error: format %s is already defined.\n", ext);
+                    continue;
+                }
+
+                sr = (symres_t *) malloc(sizeof(symres_t));
+                memset(sr, 0, sizeof(symres_t));
+                g_hash_table_insert(formats, strdup(ext), sr);
+
+                sr->handle = dlopen(libname, RTLD_LAZY);
+                if (sr->handle == NULL) {
+                    fprintf(stderr, "Failed to open library %s", libname);
+                    perror("");
+                    return "load fmt lib";
+                }
+
+                sr->proc = dlsym(sr->handle, fn);
+                if (sr->proc == NULL) {
+                    fprintf(stderr, "No such function in library %s: %s.\n", libname, fn);
+                    return "resolve fmt fn";
+                }
+
+                strcpy(sr->name, libname);
+                strcpy(sr->fn, fn);
+                break;
+            }
+
+        case 'g':
+            /* gate LIBNAME FN=gate */
+            if (strcmp("gate", token) == 0) {
+                char *libname = readtok(&p);
+                if (libname == NULL) {
+                    fprintf(stderr, "Error: library name isn't specified. (gate)\n");
+                    continue;
+                }
+
+                char *fn = readtok(&p);
+                if (fn == NULL)
+                    fn = "gate";
+
+                if (gate_sr.handle) {
+                    dlclose(gate_sr.handle);
+                    memset(&gate_sr, 0, sizeof(gate_sr));
+                }
+
+                gate_sr.handle = dlopen(libname, RTLD_LAZY);
+                if (gate_sr.handle == NULL) {
+                    fprintf(stderr, "Failed to open library %s", libname);
+                    perror("");
+                    return "load gate lib";
+                }
+
+                gate_sr.proc = dlsym(gate_sr.handle, fn);
+                if (gate_sr.proc == NULL) {
+                    fprintf(stderr, "No such function in library %s: %s.\n", libname, fn);
+                    return "resolve gate fn";
+                }
+
+                strcpy(gate_sr.name, libname);
+                strcpy(gate_sr.fn, fn);
                 break;
             }
 
@@ -230,8 +339,9 @@ static void parse_confs(char *script, const char *location) {
             fprintf(stderr, "Error: illegal syntax in %s: %s %s.\n",
                     location, token, p);
             /* Dont exit program, otherwise the system will be unusable. */
-        }
-    }
+        } /* switch (token) */
+    } /* while: strtok_eol */
+    return NULL;
 }
 
 static int initialized;
@@ -368,7 +478,7 @@ xmode_t get_execution_mode_rec(pid_t pid, const char *obj) {
                 /* skip this one. */
             } else {
                 perror("readlink");
-                exit(1);
+                exit(E_FILT);
             }
         } else {
             bin[cc] = '\0';

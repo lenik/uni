@@ -1,7 +1,11 @@
 #ifndef __FILTER_H
 #define __FILTER_H
 
+#include <sys/types.h>
 #include <glib.h>
+
+typedef int (*gate_fn)(pid_t);
+typedef void (*encode_fn)(char *, size_t);
 
 typedef int xmode_t;
 
