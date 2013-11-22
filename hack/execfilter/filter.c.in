@@ -26,7 +26,7 @@ program_conf_t *pconf;
 program_conf_t *preset;                 /* predefiend config. used in 2.0+ */
 
 static void parse_file(const char *path);
-static void parse_confs(char *script);
+static void parse_confs(char *script, const char *location);
 
 void pmap_load() {
     DIR *configdir;
@@ -45,6 +45,11 @@ void pmap_load() {
         dirlen = strlen(name);
 
         while ((ent = readdir(configdir)) != NULL) {
+
+            /* skip hidden files. */
+            if (ent->d_name[0] == '.')
+                continue;
+
             switch (ent->d_type) {
             case DT_LNK:
             case DT_REG:
@@ -130,11 +135,11 @@ static void parse_file(const char *path) {
     data[cb] = '\0';
     fclose(f);
 
-    parse_confs(data);
+    parse_confs(data, path);
     free(data);
 }
 
-static void parse_confs(char *script) {
+static void parse_confs(char *script, const char *location) {
     char *head = script;
     char *p;
     char *end;
@@ -222,7 +227,8 @@ static void parse_confs(char *script) {
             }
 
         default:
-            fprintf(stderr, "Error: illegal syntax: %s %s.\n", token, p);
+            fprintf(stderr, "Error: illegal syntax in %s: %s %s.\n",
+                    location, token, p);
             /* Dont exit program, otherwise the system will be unusable. */
         }
     }
