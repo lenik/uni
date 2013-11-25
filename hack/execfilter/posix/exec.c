@@ -2,47 +2,59 @@
 
 #define PTRSIZE sizeof(void *)
 
-#define va_dup(arg0, envf)                                      \
-    int argc = 1;                                               \
-    int envc = 0;                                               \
-    char **argv;                                                \
-    char **envv = NULL;                                         \
-                                                                \
-    va_list va;                                                 \
-    va_start(va, arg0);                                         \
-    while (va_arg(va, const char *) != NULL)                    \
-        argc++;                                                 \
-    if (envf)                                                   \
-        while (va_arg(va, const char *) != NULL)                \
-            envc++;                                             \
-    va_end(va);                                                 \
-                                                                \
-    argv = (char **) malloc(PTRSIZE * (argc + 1));              \
-    if (envf)                                                   \
-        envv = (char **) malloc(sizeof(char *) * (envc + 1));   \
-                                                                \
-    int argi = 0;                                               \
-    argv[argi++] = (char *) arg0;                               \
-                                                                \
-    va_start(va, arg0);                                         \
-    const char *arg;                                            \
-    while ((arg = va_arg(va, const char *)) != NULL)            \
-        argv[argi++] = (char *) arg;                            \
-    assert(argi == argc);                                       \
-    argv[argc] = NULL;                                          \
-                                                                \
-    if (envf) {                                                 \
-        int envi = 0;                                           \
-        while ((arg = va_arg(va, const char *)) != NULL)        \
-            envv[envi++] = (char *) arg;                        \
-        assert(envi == envc);                                   \
-        envv[envc] = NULL;                                      \
-    }                                                           \
-    va_end(va)
+#define va_ptrsz(vp, arg0_ref, countp) \
+    _va_ptrsz(&(vp), (void **) (arg0_ref), countp)
+
+static char **_va_ptrsz(va_list *vp_ref, void **arg0_ref, int *countp) {
+    va_list vq;
+    va_copy(vq, *vp_ref);
+
+    int n = 0;
+    if (arg0_ref) {
+        if (*arg0_ref) {
+            n++;
+            while (va_arg(*vp_ref, char *) != NULL)
+                n++;
+        }
+    } else {
+        while (va_arg(*vp_ref, char *) != NULL)
+            n++;
+    }
+
+    char **ptrs = (char **) malloc((n + 1) * PTRSIZE);
+    char *ptr;
+    int i = 0;
+
+    if (arg0_ref) {
+        if (*arg0_ref) {
+            ptrs[i++] = (char *) *arg0_ref;
+            while ((ptr = va_arg(vq, char *)) != NULL)
+                ptrs[i++] = ptr;
+        }
+    } else {
+        while ((ptr = va_arg(vq, char *)) != NULL)
+            ptrs[i++] = ptr;
+    }
+
+    assert(i == n);
+    ptrs[n] = NULL;
+
+    if (countp)
+        *countp = n;
+
+    return ptrs;
+}
+
+/* p for PATH-search, e for environ:
+   execl, execlp, execle, execlpe, execv, execvp, execvpe, execve */
 
 int execl(const char *path, const char *arg0, ...) {
+    va_list vp;
+    va_start(vp, arg0);
+    char **argv = va_ptrsz(vp, &arg0, NULL);
+    va_end(vp);
+
     int exit;
-    va_dup(arg0, 0);
     exit = execv(path, argv);
     free(argv);
     return exit;
@@ -52,8 +64,12 @@ int execl(const char *path, const char *arg0, ...) {
    slashes, with all arguments after FILE until a NULL pointer and environment
    from `environ'.  */
 int execlp(const char *file, const char *arg0, ...) {
+    va_list vp;
+    va_start(vp, arg0);
+    char **argv = va_ptrsz(vp, &arg0, NULL);
+    va_end(vp);
+
     int exit;
-    va_dup(arg0, 0);
     exit = execvp(file, argv);
     free(argv);
     return exit;
@@ -62,8 +78,22 @@ int execlp(const char *file, const char *arg0, ...) {
 /* Execute PATH with all arguments after PATH until a NULL pointer, and the
    argument after that for environment.  */
 int execle(const char *path, const char *arg0, ...) {
+    // int argc, envc, i;
+
+    va_list vp;
+    va_start(vp, arg0);
+    // char **argv = va_ptrsz(vp, &arg0, &argc);
+    // char **envv = va_ptrsz(vp, NULL, &envc);
+    char **argv = va_ptrsz(vp, &arg0, NULL);
+    char **envv = va_ptrsz(vp, NULL, NULL);
+    va_end(vp);
+
+    // for (i = 0; i < argc; i++)
+    // printf("arg %d: %s\n", i, argv[i]);
+    // for (i = 0; i < envc; i++)
+    // printf("env %d: %s\n", i, envv[i]);
+
     int exit;
-    va_dup(arg0, 1);
     exit = execve(path, argv, envv);
     free(argv);
     free(envv);

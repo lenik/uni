@@ -4,9 +4,14 @@
 #include <sys/types.h>
 #include <glib.h>
 
+/* Determine whether a feature is enabled or not. Return 1 for enable, or 0 for
+   disable. */
 typedef int (*gate_fn)(pid_t);
+
+/* Encode the contents in the fixed-size buf. */
 typedef void (*encode_fn)(char *, size_t);
 
+/* Execution mode bits. */
 typedef int xmode_t;
 
 #define F_ALLOW 1

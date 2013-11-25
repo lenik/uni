@@ -32,8 +32,8 @@ typedef struct _symres_t {
     void *proc;
 } symres_t;
 
-symres_t gate_sr;                /* the global gate */
-GHashTable *formats;             /* extension -> symres_t */
+symres_t gate_sr;                       /* the global gate */
+GHashTable *formats;                    /* extension -> symres_t */
 
 #undef LINE_MAX
 #define LINE_MAX 4095
