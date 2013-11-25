@@ -2,6 +2,9 @@ include libauto/coolauto.am
 
 progmodesdir = ${lispdir}/progmodes
 
+dist_aliases_DATA = \
+    emacs-aliases.sh
+
 dist_lisp_LISP = \
     coolemacs.el
 

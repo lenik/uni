@@ -41,7 +41,7 @@
         japanese-jisx0208:-*-wenquanyi bitmap song-medium-*-normal--16-*-*-*-*-*-iso10646-1"
     )
     (setq default-frame-alist (append '((font . "fontset-cterm")) default-frame-alist))
-    (set-default-font "fontset-cterm")
+    (set-frame-font "fontset-cterm")
 
     (put 'downcase-region 'disabled nil)
     (put 'upcase-region 'disabled nil)
