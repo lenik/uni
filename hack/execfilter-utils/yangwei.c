@@ -34,13 +34,9 @@ static int process(int encrypt, FILE *in, FILE *out, int bs) {
             return 1;
 
         if (encrypt) {
-            xor_encrypt(buf, cb);
-            garble_encrypt(buf, cb);
+            yw_encrypt(buf, cb);
         } else {
-            garble_decrypt(buf, cb);
-            fprintf(stderr, "Gd=%s\n", buf);
-            xor_decrypt(buf, cb);
-            fprintf(stderr, "Xd=%s\n", buf);
+            yw_decrypt(buf, cb);
         }
 
         fwrite(buf, 1, cb, out);
