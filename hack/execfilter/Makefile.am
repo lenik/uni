@@ -11,6 +11,12 @@ AM_CFLAGS = -Wall -g -Og
 
 SUBDIRS = test
 
+bin_PROGRAMS = \
+    ef-dump
+
+ef_dump_SOURCES = ef-dump.c
+ef_dump_LDADD = -lexecfilter
+
 lib_LTLIBRARIES = \
     libexecfilter.la \
     libefstub.la
