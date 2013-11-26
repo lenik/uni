@@ -12,7 +12,7 @@ int system(const char *command) {
 
     char *cmd = qstr_btok(copy, NULL);
 
-    NORM_CONFIG(cmd);
+    NORM_CONFIG(system, cmd);
     // printf("mode value for %s is %d\n", norm, mode);
     free(copy);
 

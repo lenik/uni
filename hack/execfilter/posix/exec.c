@@ -104,7 +104,7 @@ int execv(const char *path, char *const argv[]) {
     static int (*next)(const char *, char *const *);
     def_next(execv);
 
-    NORM_CONFIG(path);
+    NORM_CONFIG(execv, path);
 
     RET_IF_DENY(norm, mode);
 
@@ -115,7 +115,7 @@ int execvp(const char *file, char *const argv[]) {
     static int (*next)(const char *, char *const *);
     def_next(execvp);
 
-    NORM_CONFIG(file);
+    NORM_CONFIG(execvp, file);
 
     RET_IF_DENY(norm, mode);
 
@@ -126,7 +126,7 @@ int execvpe(const char *file, char *const argv[], char *const envp[]) {
     static int (*next)(const char *, char *const *, char *const *);
     def_next(execvpe);
 
-    NORM_CONFIG(file);
+    NORM_CONFIG(execvpe, file);
 
     RET_IF_DENY(norm, mode);
 
@@ -137,7 +137,7 @@ int execve(const char *file, char *const argv[], char *const envp[]) {
     static int (*next)(const char *, char *const *, char *const *);
     def_next(execve);
 
-    NORM_CONFIG(file);
+    NORM_CONFIG(execve, file);
 
     RET_IF_DENY(norm, mode);
 
