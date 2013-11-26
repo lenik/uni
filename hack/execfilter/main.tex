@@ -42,6 +42,8 @@
 \maketitle
 \tableofcontents
 
+\clearpage
+
 \section {Quick Start}
 
 There are many applications under Linux which may spawn vulnerable processes to
@@ -201,6 +203,46 @@ finding against the PATH environ, so you can omit the ``/bin'', ``/usr/bin''
 parts if they are in the system PATH.  But for security considerations, you
 should use absolute pathnames whenever possible.
 
+\section {Extension}
+
+\xfilt supports two types of extension: configuration decoder and the system
+gate. A decoder is a library function to transform data bytes. \xfilt only
+supports fixed-size decoder, i.e., the size of the input bytes must match the
+size of the output bytes. Configurations in different extensions can be encoded
+in different way, to setup a specific format, you need to add the following line
+to \code{\configdir/filter.ini}:
+
+\syntax{
+  ``format''
+  \textit{<extension-name>}
+  \textit{<library-name>}
+  \textit{<function-name>}
+}
+
+The \textit{extension-name} is the last word of the filename without the dot
+(`.'), it's case-sensitive on a case-sensitive file system. The
+\textit{library-name} is the basename of the library, which will be searched
+automatically against library-path. If the library isn't installed in
+\code{/usr/lib} or somewhere known by the system, you should use the absolute
+pathname here.
+
+The \textit{function-name} is the function name defined in the library. It must
+be defined as \code{fn(char *buf, size\_t size)}, where \code{buf} is used for
+both input and output, and the \code{size} specified the size of the \code{buf}.
+
+The system gate extension is used to dynamically determine whether \xfilt is
+activated.
+
+\syntax {
+  ``gate''
+  \textit{<library-name>}
+  \textit{<function-name>}
+}
+
+The meaning of \textit{library-name} and \textit{function-name} are the same as
+above. If the return value of the system gate function is zero, \xfilt will be
+deactivated, and all executions are just pass thru to the original system calls.
+
 \section {Diagnostics}
 
 In case of problems, check the following guide:
@@ -217,6 +259,26 @@ the \xfilt package contains a helper stub module.  Try to replace the
 and check if the problem still exists.  If the problem is gone, it could be
 something wrong within \xfilt.  Please tell me (me (at) lenik.net) when you are
 in such cases.
+
+\subsection {Set-UID applications}
+
+Because \xfilt is implemented as a preloaded shared object, it could be ignored
+in set-uid applications if the set-uid bit isn't set on the \code{.so} file.
+
+By default, \xfilt installer will set the suid bit on the
+\code{libexecfilter.so} file, however, some programs may eventually reset the
+suid bit. You may notice the following warning when it happens:
+
+\begin{console}
+  ERROR: ld.so: object 'libexecfilter.so' from /etc/ld.so.preload
+  cannot be preloaded: ignored.
+\end{console}
+
+Set the suid bit again to remove the warning:
+
+\begin{console}
+  # chmod +xs /usr/lib/libexecfilter.so
+\end{console}
 
 \appendix
 %\section {索引}

@@ -52,6 +52,7 @@ char *path_find_norm(const char *name) {
     char *which = path_find(name);
     if (which) {
         char *norm = path_normalize(which);
+        // free(which);
         return norm;
     } else {
         char *norm = path_normalize(name);

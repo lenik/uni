@@ -4,6 +4,23 @@
 #include <sys/types.h>
 #include <glib.h>
 
+typedef int bool;
+
+enum {
+    false = 0,
+    true = 1,
+};
+
+enum {
+    FILT_UNINIT = 0,
+    FILT_ACTIVE,
+    FILT_NOP,
+    FILT_ERROR,
+    FILT_FATAL,
+};
+
+extern int run_level;
+
 /* Determine whether a feature is enabled or not. Return 1 for enable, or 0 for
    disable. */
 typedef int (*gate_fn)(pid_t);
@@ -34,7 +51,7 @@ extern GHashTable *pmap;
 extern program_conf_t *pconf;
 
 /* Eagerly load the pmap.  Die immediately if error occurred. */
-void pmap_load();
+bool pmap_load();
 
 /* Dump the actual config parsed from config files. These configs are then
    merged into a single in-memory structure.
@@ -60,6 +77,6 @@ void set_execution_mode(program_conf_t *conf, const char *norm_path, xmode_t mod
 /* Get merged execution mode recursively. This is the AND-ed mode bits from all
    ancestors of the process given by pid. The obj param contains the target
    launching path, which may not have been normalized yet. */
-xmode_t get_execution_mode_rec(pid_t pid, const char *obj);
+xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj);
 
 #endif

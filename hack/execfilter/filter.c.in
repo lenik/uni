@@ -18,22 +18,28 @@
 #include "path.h"
 #include "qstr.h"
 
-#define CONFIGDIR "@configdir@"
+#define CONFIGDIR "@configdir@"         /* The directory containing the
+                                           configuration files. */
 
-#define E_FILT 127
+#define PASS_THRU_MODE F_ALLOW          /* The default x-mode if the filter is
+                                           disabled. */
+
+int run_level = FILT_UNINIT;
 
 #undef DLSYM_MAX
 #define DLSYM_MAX 128
 
 typedef struct _symres_t {
-    char name[PATH_MAX];
+    char libname[PATH_MAX];
     char fn[DLSYM_MAX];
     void *handle;
     void *proc;
 } symres_t;
 
 symres_t gate_sr;                       /* the global gate */
+
 GHashTable *formats;                    /* extension -> symres_t */
+symres_t default_format;
 
 #undef LINE_MAX
 #define LINE_MAX 4095
@@ -43,10 +49,17 @@ int pmap_ver;                           /* file version. used in 2.0+ */
 program_conf_t *pconf;
 program_conf_t *preset;                 /* predefiend config. used in 2.0+ */
 
+static void lazy_init();
 static const char *parse_file(const char *path);
 static const char *parse_confs(char *script, const char *location);
+static void pmap_each_tab(gpointer key, gpointer value, gpointer data);
+static void pmap_each_mode(gpointer key, gpointer value, gpointer data);
+static bool loadsym(symres_t *, const char *spec);
+static pid_t stat_ppid(pid_t pid);
+static char *readtok(char **endp);
+static char *strtok_eol(char *head, char **endp);
 
-void pmap_load() {
+bool pmap_load() {
     DIR *configdir;
     struct dirent *ent;
     char name[PATH_MAX + 1];
@@ -56,6 +69,11 @@ void pmap_load() {
     pmap = g_hash_table_new(g_str_hash, g_str_equal);
     formats = g_hash_table_new(g_str_hash, g_str_equal);
 
+    memset(&default_format, 0, sizeof(symres_t));
+    g_hash_table_insert(formats, strdup("*"), &default_format);
+
+    memset(&gate_sr, 0, sizeof(symres_t));
+
     strcpy(name, CONFIGDIR);
     configdir = opendir(name);
 
@@ -63,48 +81,58 @@ void pmap_load() {
         strcat(name, "/");
         dirlen = strlen(name);
 
-        while ((ent = readdir(configdir)) != NULL) {
+        int t;
+        for (t = 0; t < 2; t++) {
+            rewinddir(configdir);
+            while ((ent = readdir(configdir)) != NULL) {
+                /* skip hidden files. */
+                if (ent->d_name[0] == '.')
+                    continue;
 
-            /* skip hidden files. */
-            if (ent->d_name[0] == '.')
-                continue;
+                int len = strlen(ent->d_name);
+                int isini = strcmp(ent->d_name + len - 4, ".ini") == 0;
+                int stage = isini ? 0 : 1;
 
-            switch (ent->d_type) {
-            case DT_LNK:
-            case DT_REG:
-                strcpy(name + dirlen, ent->d_name);
-                errmsg = parse_file(name);
-                if (errmsg != NULL) {
-                    fprintf(stderr, "execfilter fatal error: %s\n", errmsg);
-                    exit(E_FILT);
+                if (t != stage)
+                    continue;
+
+                switch (ent->d_type) {
+                case DT_LNK:
+                case DT_REG:
+                    strcpy(name + dirlen, ent->d_name);
+                    errmsg = parse_file(name);
+                    if (errmsg != NULL) {
+                        fprintf(stderr, "execfilter parse error: %s\n", errmsg);
+                        run_level = FILT_ERROR;
+                        return false;
+                    }
                 }
             }
         }
     }
+
+    return true;
 }
 
-static char *readtok(char **headp) {
-    static char kwbuf[512];
-    char *head = *headp;
+static char *readtok(char **endp) {
+    char *head = *endp;
     char *end;
-    int len;
 
     /* trim left. */
     while (isspace(*head)) head++;
+
+    if (*head == '\0')
+        return NULL;
 
     end = head;
     while (*end && !isspace(*end))
         end++;
 
-    len = end - head;
-    strncpy(kwbuf, head, len);
-    kwbuf[len] = '\0';
+    if (*end)
+        *end++ = '\0';
+    *endp = end;
 
-    /* trim left for the remaing text. */
-    while (isspace(*end)) end++;
-    *headp = end;
-
-    return kwbuf;
+    return head;
 }
 
 /* String tokenizer, by replacing the end-of-line character by NUL.
@@ -132,37 +160,63 @@ static char *strtok_eol(char *head, char **endp) {
 
 static const char *parse_file(const char *path) {
     struct stat sb;
+    size_t size;
+    FILE *in;
+    char *data;
+    int cb;
+    symres_t *format = NULL;
+    char *ext_name;
+
     if (stat(path, &sb) == -1) {
         fprintf(stderr, "Error: Failed to get file stat: %s\n", path);
         perror("");
         return "stat";
     }
 
-    size_t size = sb.st_size;
-    char *data = malloc(size + 1);
+    size = sb.st_size;
+    data = malloc(size + 1);
     if (data == NULL) {
         fprintf(stderr, "Insufficient memory to read config file %s.", path);
         return "memory out";
     }
 
-    FILE *f = fopen(path, "rt");
-    if (f == NULL) {
+    in = fopen(path, "rt");
+    if (in == NULL) {
         fprintf(stderr, "Failed to open file %s: ", path);
         perror("");
         return "open config";
     }
 
-    int cb = fread(data, 1, size, f);
+    cb = fread(data, 1, size, in);
     if (cb != size)
         return "read incomplete";
 
     data[cb] = '\0';
-    fclose(f);
+    fclose(in);
+
+    /* decode the file if necessary. */
+    ext_name = strrchr(path, '.');
+    if (ext_name) {
+        ext_name++;                     /* chop the dot. */
+        format = g_hash_table_lookup(formats, ext_name);
+    }
+    if (format == NULL)
+        format = &default_format;
+
+    if (format->proc) {                 /* if any format is defined.. */
+        encode_fn decoder = format->proc;
+        decoder(data, size);
+    } else {
+        /* If the format is undefined, just copy it thru. */
+        /* or fatal error if encoding is undefined. */
+#ifdef FORMAT_DEFINITION_REQUIRED
+        return "file format is undefined.";
+#endif
+    }
 
     const char *errmsg = parse_confs(data, path);
 
     free(data);
-
     return errmsg;
 }
 
@@ -176,6 +230,8 @@ static const char *parse_confs(char *script, const char *location) {
 
     while ((p = strtok_eol(head, &head))) {
         token = readtok(&p);
+        if (token == NULL)
+            continue;
 
         /* trim right. */
         char *end = p + strlen(p);
@@ -183,8 +239,6 @@ static const char *parse_confs(char *script, const char *location) {
             *--end = '\0';
 
         switch (*token) {
-        case '\0':
-            continue;                   /* empty line */
         case '#':
             continue;                   /* comment line */
 
@@ -261,77 +315,36 @@ static const char *parse_confs(char *script, const char *location) {
                     continue;
                 }
 
-                char *libname = readtok(&p);
-                if (libname == NULL) {
-                    fprintf(stderr, "Error: library name isn't specified. (format: %s)\n", ext);
-                    continue;
-                }
-
-                char *fn = readtok(&p);
-                if (fn == NULL)
-                    fn = "decode";
-
                 symres_t *sr = g_hash_table_lookup(formats, ext);
-                if (sr != NULL) {
-                    fprintf(stderr, "Error: format %s is already defined.\n", ext);
+                if (sr) {
+                    /* some format maybe pre-defined, but not implemented. */
+                    if (sr->handle) {
+                        fprintf(stderr, "Error: format %s is already defined"
+                                " as %s::%s.\n",
+                                ext, sr->libname, sr->fn);
+                        continue;
+                    }
+                } else {
+                    sr = (symres_t *) malloc(sizeof(symres_t));
+                    memset(sr, 0, sizeof(symres_t));
+                    g_hash_table_insert(formats, strdup(ext), sr);
+                }
+
+                if (! loadsym(sr, p)) {
+                    fprintf(stderr, "Error: can't resolve format %s.\n", ext);
                     continue;
                 }
 
-                sr = (symres_t *) malloc(sizeof(symres_t));
-                memset(sr, 0, sizeof(symres_t));
-                g_hash_table_insert(formats, strdup(ext), sr);
-
-                sr->handle = dlopen(libname, RTLD_LAZY);
-                if (sr->handle == NULL) {
-                    fprintf(stderr, "Failed to open library %s", libname);
-                    perror("");
-                    return "load fmt lib";
-                }
-
-                sr->proc = dlsym(sr->handle, fn);
-                if (sr->proc == NULL) {
-                    fprintf(stderr, "No such function in library %s: %s.\n", libname, fn);
-                    return "resolve fmt fn";
-                }
-
-                strcpy(sr->name, libname);
-                strcpy(sr->fn, fn);
                 break;
             }
 
         case 'g':
             /* gate LIBNAME FN=gate */
             if (strcmp("gate", token) == 0) {
-                char *libname = readtok(&p);
-                if (libname == NULL) {
-                    fprintf(stderr, "Error: library name isn't specified. (gate)\n");
+                if (! loadsym(&gate_sr, p)) {
+                    fprintf(stderr, "Error: can't resolve gate.\n");
                     continue;
                 }
-
-                char *fn = readtok(&p);
-                if (fn == NULL)
-                    fn = "gate";
-
-                if (gate_sr.handle) {
-                    dlclose(gate_sr.handle);
-                    memset(&gate_sr, 0, sizeof(gate_sr));
-                }
-
-                gate_sr.handle = dlopen(libname, RTLD_LAZY);
-                if (gate_sr.handle == NULL) {
-                    fprintf(stderr, "Failed to open library %s", libname);
-                    perror("");
-                    return "load gate lib";
-                }
-
-                gate_sr.proc = dlsym(gate_sr.handle, fn);
-                if (gate_sr.proc == NULL) {
-                    fprintf(stderr, "No such function in library %s: %s.\n", libname, fn);
-                    return "resolve gate fn";
-                }
-
-                strcpy(gate_sr.name, libname);
-                strcpy(gate_sr.fn, fn);
                 break;
             }
 
@@ -344,19 +357,20 @@ static const char *parse_confs(char *script, const char *location) {
     return NULL;
 }
 
-static int initialized;
 static void lazy_init() {
-    if (initialized)
+    if (run_level != FILT_UNINIT)
         return;
 
-    pmap_load();
+    if (! pmap_load())
+        return;
 
     /* normalize the current process and grab the entry. */
     char path[PATH_MAX + 1];
     int cc;
     if ((cc = readlink("/proc/self/exe", path, PATH_MAX)) == -1) {
         perror("readlink");
-        exit(1);
+        run_level = FILT_FATAL;
+        return;
     }
     path[cc] = '\0';
 
@@ -371,7 +385,7 @@ static void lazy_init() {
 #endif
     }
 
-    initialized = 1;
+    run_level = FILT_ACTIVE;
 }
 
 static void pmap_each_mode(gpointer key, gpointer value, gpointer data) {
@@ -413,6 +427,11 @@ static void pmap_each_tab(gpointer key, gpointer value, gpointer data) {
 
 void pmap_dump() {
     lazy_init();
+
+    printf("# pmap dump\n");
+    printf("# run-level: %d\n", run_level);
+    printf("\n");
+
     g_hash_table_foreach(pmap, pmap_each_tab, 0);
 }
 
@@ -458,11 +477,14 @@ static pid_t stat_ppid(pid_t pid) {
     return ppid;
 }
 
-xmode_t get_execution_mode_rec(pid_t pid, const char *obj) {
+xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
     xmode_t all = 0;
     char *obj_norm = path_find_norm(obj);
 
     lazy_init();
+
+    // TODO stat the src.
+    // fprintf(stderr, "-- %s: mode-rec %s\n", src, obj);
 
     while (pid != 0 && pid != -1) {
         char psym[PATH_MAX];
@@ -478,7 +500,7 @@ xmode_t get_execution_mode_rec(pid_t pid, const char *obj) {
                 /* skip this one. */
             } else {
                 perror("readlink");
-                exit(E_FILT);
+                return PASS_THRU_MODE;
             }
         } else {
             bin[cc] = '\0';
@@ -494,4 +516,57 @@ xmode_t get_execution_mode_rec(pid_t pid, const char *obj) {
     }
 
     return all;
+}
+
+static bool loadsym(symres_t *sr, const char *spec) {
+    char libfile[PATH_MAX];
+    char buf[PATH_MAX * 2];
+    strcpy(buf, spec);
+    char *p = buf;
+    void *handle;
+    void *proc;
+
+    char *libname = readtok(&p);
+    if (libname == NULL) {
+        fprintf(stderr, "Error: library name isn't specified.\n");
+        return false;
+    }
+
+    char *fn = readtok(&p);
+    if (fn == NULL)
+        fn = "decode";
+
+    if (libname[0] == '/') {
+        strcpy(libfile, libname);
+    } else {
+        strcpy(libfile, "lib");
+        strcat(libfile, libname);
+        strcat(libfile, ".so");
+    }
+
+    handle = dlopen(libfile, RTLD_LAZY);
+    if (handle == NULL) {
+        fprintf(stderr, "Failed to open library %s", libfile);
+        perror("");
+        return false;
+    }
+
+    proc = dlsym(handle, fn);
+    if (proc == NULL) {
+        dlclose(handle);
+        fprintf(stderr, "No such function in library %s: %s.\n",
+                libname, fn);
+        return false;
+    }
+
+    if (sr->handle) {
+        dlclose(sr->handle);
+        memset(sr, 0, sizeof(symres_t));
+    }
+    sr->handle = handle;
+    sr->proc = proc;
+    strcpy(sr->libname, libname);
+    strcpy(sr->fn, fn);
+
+    return true;
 }
