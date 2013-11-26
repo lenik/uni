@@ -1,5 +1,6 @@
 #include <assert.h>
-#include <ywcrypt.h>
+
+#include "ywcrypt.h"
 
 #define K1 52899                        /* factors: 3 7 11 229 */
 #define K2 22719                        /* factors: 3 7573 */

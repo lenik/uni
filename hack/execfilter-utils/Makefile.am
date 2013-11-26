@@ -12,8 +12,8 @@ SUBDIRS = test
 bin_PROGRAMS = \
     yangwei
 
-yangwei_SOURCES = yangwei.c
-yangwei_LDADD = ywcrypt.o
+yangwei_SOURCES = yangwei.c ywcrypt.c
+yangwei_CFLAGS = $(AM_CFLAGS)
 
 dist_bin_SCRIPTS = \
     shendun-efpoll
@@ -21,8 +21,8 @@ dist_bin_SCRIPTS = \
 lib_LTLIBRARIES = \
     libshendun-efext.la
 
-libshendun_efext_la_SOURCES = shendun-efext.c ywcrypt.o
-# libshendun_efext_la_LIBADD = ywcrypt.o
+libshendun_efext_la_SOURCES = shendun-efext.c ywcrypt.c
+# libshendun_efext_la_LIBADD =
 
 dist_config_DATA = \
     shendun.ini
