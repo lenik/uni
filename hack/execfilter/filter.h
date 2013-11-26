@@ -16,6 +16,7 @@ typedef int xmode_t;
 
 #define F_ALLOW 1
 #define F_DENY 2
+#define F_INTR 128
 
 typedef struct _program_conf_t {
     const char *name;                   /* program name */

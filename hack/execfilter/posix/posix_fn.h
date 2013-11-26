@@ -31,9 +31,10 @@
 #define __END__ }
 #endif
 
-#define RET_IF_DENY(path, mode) RET_IF_DENY_(path, mode, -1)
-#define RET_IF_DENY_(path, mode, err)                               \
+#define RET_IF_DENY(path, mode) RET_IF_DENY_(path, mode, -1, 0)
+#define RET_IF_DENY_(path, mode, err, pass)                         \
     do {                                                            \
+        if ((mode) & F_INTR) return err;                            \
         if ((mode) & F_DENY) {                                      \
             fprintf(stderr, "Execution of %s is denied.\n", path);  \
             errno = EACCES;                                         \
