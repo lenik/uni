@@ -4,7 +4,7 @@
     : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
 
     . shlib-import cliboot
-    option -c --compact     "Run in compact mode"
+    option -c --compact     "Run in compact mode (symlinks)"
     option -q --quiet       "Repeat to get less info"
     option -v --verbose     "Repeat to get more info"
     option -h --help        "Show this help page"
@@ -51,8 +51,10 @@ function setopt() {
 }
 
 function main() {
+    shopt -s nullglob
+
     if [ -z "$compact" ]; then
-        if [ -h install-sh ] || [ -h missing ]; then
+        if [ -L install-sh ] || [ -L missing ]; then
             compact=1
         fi
     fi
@@ -62,53 +64,60 @@ function main() {
     if [ -f Makefile ]; then
         subdirs=`maketestvar SUBDIRS`
         distfiles=`maketestvar DIST_ARCHIVES`
-        echo make distclean
+        _log1 make distclean
         make distclean
     fi
 
-    for f in *; do
-        if [ -h $f ]; then
+    for f in * m4/*; do
+        if [ -L $f ]; then
             src=`readlink -f $f`
-            if [ "$src" != "${src/\/automake-}" ]; then
-                echo "Remove file by --add-missing: $f"
-                $RM $f
-            fi
-            if [ "$src" != "${src/\/libauto}" ]; then
-                echo "Remove file by xjl-coolauto: $f"
-                $RM $f
-            fi
+            case "$src" in
+                */automake-*)
+                    _log1 "Remove file by --add-missing: $f"
+                    $RM $f;;
+                */aclocal/*)
+                    _log1 "Remove aclocal file: $f"
+                    $RM $f;;
+                */libtool/*)
+                    _log1 "Remove libtool file: $f"
+                    $RM $f;;
+                */libauto*)
+                    _log1 "Remove file by xjl-coolauto: $f"
+                    $RM $f;;
+            esac
         fi
     done
 
+    # Remove empty dirs.
+    rmdir m4 2>/dev/null
+
     if [ "$compact" = 1 ]; then
-        for f in \
-                aclocal.m4 \
-                depcomp \
-                configure \
-                install-sh \
-                missing \
-                ; do
+        for f in aclocal.m4 configure; do
             if [ -e $f ]; then
-                echo "Remove auto-tools generated file: $f"
-                $RM -fR $f
+                _log1 "Remove auto-tools generated local files: $f"
+                $RM $f
             fi
         done
 
-        for f in \
-                COPYING \
-                INSTALL \
-                ; do
+        for f in depcomp install-sh missing; do
             if [ -e $f ]; then
-                echo "Remove auto-tools generated template file: $f"
-                $RM -f $f
+                _log1 "Remove auto-tools generated file: $f"
+                $RM $f
+            fi
+        done
+
+        for f in COPYING INSTALL; do
+            if [ -e "$f" ]; then
+                _log1 "Remove auto-tools generated template file: $f"
+                $RM $f
             fi
         done
     fi
 
     for f in autoscan.log autom4te.cache config.status config.log stamp-h1; do
         if [ -e $f ]; then
-            echo "Remove auto-tools cache files: $f"
-            $RM -R $f
+            _log1 "Remove auto-tools cache files: $f"
+            $RM -Rf $f
         fi
     done
 
@@ -118,7 +127,7 @@ function main() {
             if grep "AC_CONFIG_FILES\|AC_CONFIG_HEADERS" \
                 $AC | grep -q "$base"; then
                 if [ -f $base ]; then
-                    echo "Remove config output file: $base"
+                    _log1 "Remove config output file: $base"
                     $RM $base
                 fi
             fi
@@ -127,25 +136,25 @@ function main() {
 
     if [ "$compact" = 1 ]; then
         if [ -f Makefile.am ] && [ -f Makefile.in ]; then
-            echo "Remove automake output: Makefile.in"
+            _log1 "Remove automake output: Makefile.in"
             $RM Makefile.in
         fi
     fi
 
     if [ -n "$distfiles" ]; then
         for f in $distfiles; do
-            echo "Remove dist file: $f"
+            _log1 "Remove dist file: $f"
             $RM $f
         done
     fi
 
     if [ -n "$subdirs" ]; then
-        # echo "Subdirs: $subdirs"
+        # _log1 "Subdirs: $subdirs"
         opts=
         if [ "$compact" = 1 ]; then opts="$opts -c"; fi
 
         for dir in $subdirs; do
-            echo "Recurse into $dir"
+            _log1 "Recurse into $dir"
             pushd $dir >/dev/null
             $__FILE__ $opts
             popd >/dev/null
