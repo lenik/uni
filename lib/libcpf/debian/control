@@ -1,0 +1,23 @@
+Source: libcpf
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Section: libs
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/lib/libcpf
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/lib/libcpf
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/lib/libcpf
+
+Package: libcpf-dev
+Section: libdevel
+Architecture: any
+Depends: libcpf
+Description: C prog framework
+ C prog framework
+
+Package: libcpf
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: C prog framework
+ C prog framework
