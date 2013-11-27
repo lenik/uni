@@ -34,6 +34,8 @@ libtool
 ltmain.sh
 missing
 stamp-h1
+**/m4/libtool.m4
+**/m4/lt*.m4
 
 # Default symlinks
 COPYING
