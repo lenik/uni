@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for execfilter-utils
+# postinst script for shendun-ef
 #
 # see: dh_installdeb(1)
 
@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-        /usr/share/setup/execfilter-utils/postinst
+        /usr/share/setup/shendun-ef/postinst
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

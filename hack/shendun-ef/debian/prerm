@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for execfilter-utils
+# prerm script for shendun-ef
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/execfilter-utils/prerm
+        /usr/share/setup/shendun-ef/prerm
     ;;
 
     failed-upgrade)
