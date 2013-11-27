@@ -1,0 +1,15 @@
+Source: libbas-c
+Section: libs
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/lib/libbas-c
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/lib/libbas-c
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/lib/libbas-c
+
+Package: libbas-c
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: bas framework for C.
+ The bas prog framework.
