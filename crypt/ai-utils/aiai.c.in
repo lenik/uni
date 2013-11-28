@@ -1,0 +1,677 @@
+#include "config.h"
+
+#include <sys/types.h>
+#include <assert.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <glib.h>
+
+#include <bas/cli.h>
+
+#define TEMPLATE_DIR "@templatedir@"
+#define DEFAULT_TEMPLATE "grid"
+
+#define ASCII_L1 10
+#define ASCII_L2 20
+#define ASCII_L3 40
+
+char *ascii_stab =
+    "O0S5Z2B8l1:;.,({)}i!"              /* high (10) */
+    "KkgycouvUV"                        /* medium: similar (5) */
+    "EFPRXY"                            /* medium: add/remove (3) */
+    "pqbdsztf69[]"                      /* medium: opposites (6) */
+    "JjMmNnWw"                          /* medium: case switch (4) */
+    "~^`'I|x*&%-="                      /* low/unstable (6) */
+    "aeA4DQT7H#G@3?"                    /* low (7) */
+    // unused: +=_-$"<>hrAL
+    ;
+
+static GOptionEntry options[] = {
+    OPTION('d', "decode", "Run in decode mode"),
+    OPTION('e', "encode", "Run in encode mode"),
+    OPTION('i', "info", "Show stat info"),
+    OPTARG('s', "stab", "Specify the substitution table"),
+    OPTARG('a', "ascii", "Specify encode level for ASCII-7 charset"),
+    OPTION('u', "utf-8", "Using UTF-8 charset"),
+    OPTARG('t', "template", "Specify the template ascii art image"),
+    OPTION('c', "stdout", "Write to stdout instead of the file"),
+    OPTION('f', "force", "Force to overwrite existing files"),
+    OPTION('k', "keep", "Keep the original files, don't delete them"),
+    OPTION('q', "quite", "Show less verbose info"),
+    OPTION('v', "verbose", "Show more verbose info"),
+    OPTION(0, "version", "Show version info"),
+    { NULL },
+};
+
+enum {
+    MODE_INFO = 0,
+    MODE_ENCODE,
+    MODE_DECODE,
+};
+int opt_mode = MODE_INFO;
+
+bool opt_stdout = false;
+bool opt_keep= false;
+char opt_stab8[256];                    /* 8-bit substition table  */
+bool opt_ascii7 = true;
+bool opt_utf8 = false;
+char *opt_template = NULL;
+
+
+char *template_image = NULL;
+
+char *parse_stab(char *map8, const char *stab);
+char *format_stab(char *stab, const char *map8);
+char *load_file(FILE *in, const char *path, size_t *sizep,
+                size_t mem_off, size_t padding);
+char *load_template(const char *name);
+bool ai_encode_file(const char *in_path, FILE *in,
+                    const char *out_path, FILE *out,
+                    const char *image);
+bool ai_decode_file(const char *in_path, FILE *in,
+                    const char *out_path, FILE *out);
+
+gboolean parse_option(const char *_opt, const char *val,
+                      gpointer data, GError **err) {
+    const char *opt = _opt;
+
+    bool shortopt = opt++[1] != '-';
+    while (*opt == '-')
+        opt++;
+
+    switch (*opt) {
+    case 'a':
+        if (shortopt || streq(opt, "ascii")) {
+            int level = strtol(val, NULL, 0);
+            if (level <= 0) {
+                error("Bad ascii-7 encode level: %s\n", val);
+                return false;
+            }
+
+            char *stab;
+            switch (level) {
+            case 1:
+                stab = strndup(ascii_stab, ASCII_L1 * 2);
+                break;
+            case 2:
+                stab = strndup(ascii_stab, ASCII_L2 * 2);
+                break;
+            case 3:
+                stab = strndup(ascii_stab, ASCII_L3 * 2);
+                break;
+            default:
+                stab = strdup(ascii_stab);
+                break;
+            }
+
+            parse_stab(opt_stab8, stab);
+            free(stab);
+
+            opt_ascii7 = true;
+            opt_utf8 = false;
+            return true;
+        }
+        break;
+
+    case 'c':
+        if (shortopt || streq(opt, "stdout")) {
+            opt_stdout = true;
+            return true;
+        }
+        break;
+
+    case 'd':
+        if (shortopt || streq(opt, "decode")) {
+            opt_mode = MODE_DECODE;
+            return true;
+        }
+        break;
+
+    case 'e':
+        if (shortopt || streq(opt, "encode")) {
+            opt_mode = MODE_ENCODE;
+            return true;
+        }
+        break;
+
+    case 'i':
+        if (shortopt || streq(opt, "info")) {
+            opt_mode = MODE_INFO;
+            return true;
+        }
+        break;
+
+    case 'k':
+        if (shortopt || streq(opt, "keep")) {
+            opt_keep = true;
+            return true;
+        }
+        break;
+
+    case 's':
+        if (shortopt || streq(opt, "stab")) {
+            parse_stab(opt_stab8, val);
+            return true;
+        }
+        break;
+
+    case 't':
+        if (shortopt || streq(opt, "template")) {
+            opt_template = strdup(val);
+            return true;
+        }
+        break;
+
+    case 'u':
+        if (shortopt || streq(opt, "utf-8")) {
+            opt_ascii7 = false;
+            opt_utf8 = true;
+            return true;
+        }
+        break;
+    }
+
+    return _parse_option(_opt, val, data, err);
+}
+
+int main(int argc, char **argv) {
+    program_title = "Ascii-Art Codec";
+    program_help_args = "FILES";
+
+    char *program = argv[0];
+    char *base = strrchr(program, '/');
+    if (base == NULL)
+        base = program;
+    else
+        base++;
+
+    if (strcmp(base, "ai") == 0)
+        opt_mode = MODE_ENCODE;
+    else if (strcmp(base, "unai") == 0)
+        opt_mode = MODE_DECODE;
+
+    /* The maximum level of ascii-7 by default. */
+    parse_stab(opt_stab8, ascii_stab);
+
+    if (! parse_options(options, &argc, &argv))
+        return 1;
+
+    if (opt_stdout || opt_mode == MODE_INFO)
+        opt_keep = true;
+
+    if (opt_template == NULL && opt_mode == MODE_ENCODE)
+        opt_template = DEFAULT_TEMPLATE;
+    if (opt_template != NULL)
+        template_image = load_template(opt_template);
+
+    int template_bits = 0;
+    if (template_image) {
+        char *p = template_image;
+        char ch;
+        while ((ch = *p++)) {
+            if (opt_stab8[ch])
+                template_bits++;
+        }
+
+        if (template_bits == 0) {
+            error("Bad template image: no useful bit.\n");
+            return 2;
+        }
+    }
+
+    switch (opt_mode) {
+    case MODE_INFO:
+        LOG2 printf("Run in info mode.\n");
+        printf("Useful bits in the template image: %d\n", template_bits);
+        break;
+
+    case MODE_ENCODE:
+        LOG2 printf("Run in encode mode.\n");
+        if (template_image == NULL) {
+            error("The template image used by the encoder isn't specified.\n");
+            return 1;
+        }
+
+        // LOG2 printf("Substition table: %s\n", opt_stab);
+        break;
+
+    case MODE_DECODE:
+        LOG2 printf("Run in decode mode.\n");
+        break;
+    }
+
+    while (--argc > 0) {
+        argv++;
+
+        char *path = *argv;
+        int len = strlen(path);
+        char out_path[PATH_MAX];
+        FILE *in;
+        FILE *out;
+        if (strcmp(path, "-") == 0) {
+            in = stdin;
+            path = "<stdin>";
+        } else {
+            in = fopen(path, "rb");
+            if (in == NULL) {
+                error("Faild to open file %s: ", path);
+                perror("");
+                continue;
+            }
+        }
+
+        if (opt_stdout) {
+            out = stdout;
+            strcpy(out_path, "<stdout>");
+        } else {
+            strcpy(out_path, path);
+            switch (opt_mode) {
+            case MODE_ENCODE:
+                /* encode file => file.img */
+                strcat(out_path, ".img");
+                break;
+            case MODE_DECODE:
+                if (len >= 5 && strcmp(path + len - 4, ".img") == 0)
+                    /* decode file.img => file */
+                    out_path[len - 4] = '\0';
+                else {
+                    error("Not an ai-image filename: %s\n", path);
+                    continue;
+                }
+                break;
+            }
+            if (opt_mode != MODE_INFO) {
+                out = fopen(out_path, "wb");
+            }
+        }
+
+        bool status;
+        switch (opt_mode) {
+        case MODE_ENCODE:
+            status = ai_encode_file(path, in, out_path, out, template_image);
+            break;
+
+        case MODE_DECODE:
+            status = ai_decode_file(path, in, out_path, out);
+            break;
+        }
+
+        if (out != NULL && out != stdout)
+            fclose(out);
+        if (in != NULL && in != stdin) {
+            fclose(in);
+            if (status && !opt_keep) {
+                /* Remove the original file if everything succeeded. */
+                LOG2 fprintf(stderr, "Remove the original file %s.\n", path);
+                unlink(path);
+            }
+        }
+    }
+
+    return 0;
+}
+
+/* map8: maximum 256 chars required. */
+char *parse_stab(char *map8, const char *stab) {
+    memset(map8, 0, 256);
+    int len = strlen(stab);
+    int i = 0;
+    while (i < len) {
+        char a = stab[i++];
+        char b = stab[i++];
+        map8[a] = b;
+        map8[b] = a;
+    }
+    return map8;
+}
+
+/* stab: maximum 256 chars required.  */
+char *format_stab(char *stab, const char *map8) {
+    int a, i = 0;
+    for (a = 0; a < 256; a++) {
+        char b = map8[a];
+        if (b == 0 || a >= b)
+            continue;
+        stab[i++] = a;
+        stab[i++] = b;
+    }
+    stab[i] = '\0';
+    return stab;
+}
+
+#define BLOCK_SIZE 64
+
+char *load_file(FILE *in, const char *path, size_t *sizep,
+                size_t mem_off, size_t padding) {
+    size_t capacity = 16;
+    char *data = (char *) malloc(capacity);
+    size_t off = mem_off;
+    char buf[BLOCK_SIZE];
+    size_t cb;
+    bool err = false;
+
+    while (! feof(in)) {
+        cb = fread(buf, 1, BLOCK_SIZE, in);
+        if (ferror(in)) {
+            error("Failed to read from file %s: ", path);
+            perror("");
+            err = true;
+            break;
+        }
+
+        size_t remaining;
+        while (1) {
+            remaining = capacity - off - padding;
+            if (remaining >= cb)
+                break;
+
+            data = realloc(data, capacity * 2);
+            if (data == NULL) {
+                error("Insufficient memory to load file %s.\n", path);
+                exit(1);
+            }
+            capacity *= 2;
+        }
+
+        memcpy(data + off, buf, cb);
+        off += cb;
+    }
+
+    if (err) {
+        if (data != NULL) {
+            free(data);
+            data = NULL;
+        }
+    } else {
+        if (sizep)
+            *sizep = off - mem_off;
+    }
+    return data;
+}
+
+char *load_template(const char *name) {
+    FILE *in = fopen(name, "rb");
+    size_t size;
+    size_t cb;
+    int i;
+    char *image;
+
+    if (in == NULL)
+        if (*name != '/') {
+            char shared_image[PATH_MAX];
+            strcpy(shared_image, TEMPLATE_DIR);
+            strcat(shared_image, "/");
+            strcat(shared_image, name);
+            in = fopen(shared_image, "rb");
+        }
+    if (in == NULL) {
+        error("Failed to open file %s: ", name);
+        perror("");
+        return NULL;
+    }
+
+    fseek(in, 0, SEEK_END);
+    size = ftell(in);
+    fseek(in, 0, SEEK_SET);
+
+    if (size >= 0x7fffffff) {
+        error("File is too big: %s\n", name);
+        return NULL;
+    }
+
+    image = (char *) malloc(size + 1); /* +1 for the terminator. */
+    if (image == NULL) {
+        fclose(in);
+        error("Memory out\n");
+        return NULL;
+    }
+
+    cb = fread(image, 1, size, in);
+    fclose(in);
+
+    if (cb != size) {
+        free(image);
+        error("Read incomplete: expected %d, but read %d: \n", size, cb);
+        perror("");
+        return NULL;
+    }
+    image[size] = '\0';
+
+    /* Check if the template image text contains '\0'.  */
+    for (i = 0; i < size; i++) {
+        if (image[i] == '\0') {
+            free(image);
+            error("The template image contains NUL char, at offset %d\n", i);
+            return NULL;
+        }
+    }
+
+    return image;
+}
+
+/* ai image header:
+ *
+ *   u16 flags;
+ *   u8 reserved;
+ *   u8 app;
+ *   u32 size in bytes;
+ */
+typedef struct _ai_header {
+    u_int16_t flags;
+    int8_t reserved;
+    int8_t app;
+    u_int32_t size;
+} ai_header;
+
+#define AIH_SIZE sizeof(ai_header)
+#define AIF_ENCRYPT 1
+
+enum {
+    AIH_APP_NONE = 0,
+    AIH_APP_GZIP,
+    AIH_APP_BZIP2,
+    AIH_APP_XZ,
+};
+
+bool ai_encode_file(const char *in_path, FILE *in,
+                    const char *out_path, FILE *out,
+                    const char *image) {
+    assert(template_image);
+    assert(AIH_SIZE == 8);
+
+    ai_header *hdr;
+    char *data;                         /* all data to be encoded */
+    size_t size;                        /* size in bytes of the input file */
+    char *end;                          /* end of the data to be encoded */
+    char *t, *p;
+    int frame = 0;
+    int j = 0;                          /* useful bit index w/i a frame */
+    int byt;
+    int k = 0;                          /* remaining bits of the current byte */
+    char a, b;
+
+    fputc('\0', out);                   /* start the frames. */
+
+    /* draw 2 frames, to dump the stab. */
+    for (; frame < 2; frame++) {
+        t = template_image;
+        j = 0;
+        while (a = *t++) {
+            if ((b = opt_stab8[a])) {
+                bool swap = j++ & 1;
+                if (frame == 1)
+                    swap = !swap;
+                fputc(swap ? b : a, out);
+            } else {
+                fputc(a, out);
+            }
+        }
+        fputc('\0', out);               /* end of frame */
+
+        /* j <= total useful bit in a single frame. */
+        if (j == 0) {
+            error("No useful bit in the template image.\n");
+            return false;
+        }
+    }
+
+    data = load_file(in, in_path, &size, AIH_SIZE, 0);
+    end = data + size + AIH_SIZE;
+    hdr = (ai_header *) data;
+    memset(hdr, 0, AIH_SIZE);
+    hdr->size = size;
+
+    p = data;
+    while (p < end || k > 0) {
+        t = template_image;
+        while (a = *t++) {
+            if ((b = opt_stab8[a])) {
+                /* a useful bit cell. */
+
+                if (k == 0) {           /* load the next byte. */
+                    if (p < end) {
+                        byt = *p++;
+                        k = 8;
+                    } else {
+                        byt = 0;        /* fill with bit 0 at the end */
+                        k = 1;
+                    }
+                }
+
+                if (byt & 0x80)
+                    fputc(b, out);
+                else
+                    fputc(a, out);
+
+                byt <<= 1;
+                k--;
+            } else {
+                fputc(a, out);
+            }
+        }
+        fputc('\0', out);               /* end of frame */
+    }
+
+    free(data);
+    return true;
+}
+
+bool ai_decode_file(const char *in_path, FILE *in,
+                    const char *out_path, FILE *out) {
+    assert(AIH_SIZE == 8);
+
+    char *data;                         /* the text image */
+    size_t size;                        /* size in bytes of the text image */
+    char *end;                          /* end of the image */
+    char map8[256];                     /* mapping rebuilt from first frames */
+    char stab[256];                     /* format stab for debugging */
+    int fid = 0;                        /* frame index */
+    int i;                              /* frame byte index */
+    size_t cb = 0;                      /* total bytes have been output */
+    int byt = 0;                        /* output byte buffer */
+    int k = 0;                          /* count of bit filled in the byte */
+    ai_header hdr;                      /* the decoded header */
+    char *p;
+
+    data = load_file(in, in_path, &size, 0, 1); /* padding 1 for terminate NUL. */
+    end = data + size;
+    *end = '\0';
+
+    LOG2 printf("Loaded file %s: size=%d\n", in_path, size);
+
+    int preamble_len = strlen(data);
+    char *frame0 = data + preamble_len + 1;
+    if (frame0 >= end) {
+        free(data);
+        error("Bad image file: frame#0 isn't available.\n");
+        return false;
+    }
+    int frame_len = strlen(frame0);
+
+    char *frame1 = frame0 + frame_len + 1;
+    if (frame1 >= end) {
+        free(data);
+        error("Bad image file: frame#1 isn't available.\n");
+        return false;
+    }
+    int frame1_len = strlen(frame1);
+
+    if (frame1_len != frame_len) {
+        free(data);
+        error("Bad image file: lengths of frame#0 and frame#1 are different.\n");
+        return false;
+    }
+
+    /* Rebuilding the stab mapping. */
+    int bits = 0;
+    memset(map8, 0, sizeof(map8));
+    for (i = 0; i < frame_len; i++) {
+        char a = frame0[i];
+        char b = frame1[i];
+        if (a != b) {
+            bool swapped = bits++ & 1;
+            map8[a] = b;
+            map8[b] = a;
+
+            if (swapped)
+                frame0[i] = b;          /* make frame0 as the base frame. */
+        }
+    }
+
+    format_stab(stab, map8);
+    LOG2 printf("stab: \"%s\"\n", stab);
+
+    memset(&hdr, 0, sizeof(ai_header));
+    p = (char *) &hdr;
+
+    /* Read the frames. */
+    fid = 2;
+    char *frame = frame1;
+    int len = frame_len;
+    while (1) {
+        frame += len + 1;
+        if (frame >= end)
+            break;
+
+        len = strlen(frame);            /* if the frame len=0, just no data
+                                           could be extracted */
+        LOG2 printf("Frame#%d length=%d\n", fid, len);
+
+        for (i = 0; i < len; i++) {
+            char a = frame[i];
+            char b = map8[a];
+            if (b != 0 && a != b) {
+                byt <<= 1;
+                if (a != frame0[i])
+                    byt |= 1;
+                k++;
+                if (k == 8) {           /* flush a full byte. */
+                    if (cb < AIH_SIZE)  /* load the header and drop it later. */
+                        *p++ = byt;
+                    else {
+                        fputc(byt, out);
+                    }
+                    byt = 0;
+                    k = 0;
+                    cb++;
+
+                    if (cb == AIH_SIZE) {
+                        LOG2 printf("hdr.flags: %d\n", hdr.flags);
+                        LOG2 printf("hdr.app: %d\n", hdr.app);
+                        LOG2 printf("hdr.size: %d\n", hdr.size);
+                    }
+                    if (cb >= AIH_SIZE && (cb - AIH_SIZE) >= hdr.size)
+                        break;
+                }
+            }
+        }
+        fid++;
+    }
+
+    LOG2 printf("Decoder output bytes=%d last byte=%02x k=%d\n", cb, byt, k);
+
+    free(data);
+    return true;
+}
