@@ -2,6 +2,18 @@
 
 function load-image() {
     local caller="${BASH_SOURCE[1]}"
-    local img="$caller.img"
+    local img="${caller%.in}.img"
+
+    local dir="${img%/*}"
+    local base="${img##*/}"
+    if [ "$dir" = "$img" ]; then
+        dir=.
+        base="$img"
+    fi
+
+    if [ -f "$dir/.$base" ]; then
+        img="$dir/.$base"
+    fi
+
     .. "$img"
 }
