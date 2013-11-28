@@ -2,6 +2,7 @@ include libauto/coolauto.am
 
 cachedir = /var/cache
 configdir = ${sysconfdir}/execfilter.d
+cronhourlydir = ${sysconfdir}/cron.hourly
 
 do_subst += \
     -e 's,[@]cachedir[@],${cachedir},g' \
@@ -33,6 +34,9 @@ libshendun_efext_la_SOURCES = shendun-efext.c ywcrypt.c
 
 dist_config_DATA = \
     shendun.ini
+
+dist_cronhourly_SCRIPTS = \
+    shendun-renew
 
 setup_SCRIPTS = \
     postinst \
