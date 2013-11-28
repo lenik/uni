@@ -1,0 +1,7 @@
+# vim: set filetype=sh :
+
+function load-image() {
+    local caller="${BASH_SOURCE[1]}"
+    local img="$caller.img"
+    .. "$img"
+}

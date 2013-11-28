@@ -1,0 +1,10 @@
+# vim: set filetype=sh :
+
+function ..() {
+    local f
+    for f in "$@"; do
+        . <(unai -c "$f")
+    done
+}
+
+.. "${BASH_SOURCE[0]}.img"

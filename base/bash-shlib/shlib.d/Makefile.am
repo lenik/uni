@@ -1,6 +1,8 @@
 include ../libauto/coolauto.am
 
 dist_shlib_DATA = \
+    ai \
+    ai.img \
     bashunit \
     char \
     cliboot \
@@ -25,3 +27,5 @@ dist_shlib_DATA = \
     term \
     time
 
+ai.img: ai2
+	ai -ct bridge $< >$@
