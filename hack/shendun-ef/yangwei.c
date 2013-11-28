@@ -3,118 +3,108 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <bas/cli.h>
+#include <bas/file.h>
+
 #include "ywcrypt.h"
 
-#define BLOCK_SIZE 1024
-#define LINEMAX 4095
+static GOptionEntry options[] = {
+    OPTION('e', "encrypt", "Encrypt file data"),
+    OPTION('d', "decrypt", "Decrypt file data"),
+    OPTION('q', "quite", "Show less verbose info"),
+    OPTION('v', "verbose", "Show more verbose info"),
+    OPTION(0, "version", "Show version info"),
+    { NULL },
+};
 
-static int process(int encrypt, FILE *in, FILE *out, int bs) {
-    int str = encrypt && bs < 0;
-    char *buf;
-    int cb;
+char opt_mode;
 
-    if (str)
-        bs = LINEMAX + 1;
-    if (bs == 0)
-        bs = BLOCK_SIZE;
+int process(int encrypt, const char *path, FILE *in, FILE *out);
 
-    buf = (char *) malloc(bs + 1);
+gboolean parse_option(const char *_opt, const char *val,
+                      gpointer data, GError **err) {
+    const char *opt = _opt;
 
-    while (! feof(in)) {
-        if (str)
-            if (fgets(buf, bs, in) == NULL)
-                return 0;
-            else
-                cb = strlen(buf);
-        else
-            cb = fread(buf, 1, bs, in);
-        buf[cb] = 0;
+    bool shortopt = opt++[1] != '-';
+    while (*opt == '-')
+        opt++;
 
-        if (ferror(in))
-            return 1;
-
-        if (encrypt) {
-            yw_encrypt(buf, cb);
-        } else {
-            yw_decrypt(buf, cb);
+    switch (*opt) {
+    case 'e':
+        if (shortopt || streq(opt, "encode")) {
+            opt_mode = 'e';
+            return true;
         }
-
-        fwrite(buf, 1, cb, out);
-        if (ferror(out))
-            return 2;
+        break;
+    case 'd':
+        if (shortopt || streq(opt, "decode")) {
+            opt_mode = 'd';
+            return true;
+        }
+        break;
     }
+
+    return _parse_option(_opt, val, data, err);
+}
+
+int main(int argc, char **argv) {
+    program_title = "Yangwei Encrypt Utility";
+    program_help_args = "FILES";
+
+    opt_mode = '?';
+
+    if (! parse_options(options, &argc, &argv))
+        return 1;
+
+    if (opt_mode == '?') {
+        fprintf(stderr, "Either encrypt(-e) or decrypt(-d) must be specified.\n");
+        return 1;
+    }
+
+    argc--;
+    argv++;
+
+    if (argc > 0)
+        while (argc-- > 0) {
+            char *path = *argv++;
+
+            FILE *f = fopen(path, "rb");
+            if (f == NULL) {
+                fprintf(stderr, "Failed to open file %s", path);
+                perror("");
+                return 2;
+            }
+
+            if (process(opt_mode == 'e', path, f, stdout) != 0) {
+                perror("Process error");
+                return 3;
+            }
+
+            fclose(f);
+        } /* for args */
+    else
+        process(opt_mode == 'e', "<stdin>", stdin, stdout);
 
     return 0;
 }
 
-char *program;
-char opt_mode;
+int process(int encrypt, const char *path, FILE *in, FILE *out) {
+    char *data;
+    size_t size;
 
-int main(int argc, char **argv) {
-    int eoo = 0;
-    char *arg;
-    size_t len;
-    int files = 0;
+    data = load_file(in, path, &size, 0, 1);
+    if (data == NULL)
+        return 1;
 
-    opt_mode = '?';
-    program = *argv++;
-    argc--;
-
-    while (argc-- > 0) {
-        arg = *argv++;
-
-        if (*arg == '-' && !eoo) {
-            switch (arg[1]) {
-            case 'h':
-                fprintf(stderr, "syntax: %s -e/-d filename\n", program);
-                return 1;
-            case 'e':
-                opt_mode='e';
-                continue;
-            case 'd':
-                opt_mode='d';
-                continue;
-            case '-':
-                eoo = 1;
-                continue;
-            }
-            fprintf(stderr, "Bad option: %s\n", arg);
-            return 1;
-        }
-
-        if (opt_mode == '?') {
-            fprintf(stderr, "Either encrypt(-e) or decrypt(-d) must be specified.\n");
-            return 1;
-        }
-
-
-        FILE *f = fopen(arg, "rb");
-        if (f == NULL) {
-            fprintf(stderr, "Failed to open file %s", arg);
-            perror("");
-            return 2;
-        }
-
-        fseek(f, 0L, SEEK_END);
-        len = ftell(f);
-        fseek(f, 0L, SEEK_SET);
-
-        if (process(opt_mode == 'e', f, stdout, len) != 0) {
-            perror("Process error");
-            return 3;
-        }
-
-        fclose(f);
-        files++;
-    } /* for args */
-
-    if (files == 0 && opt_mode != '?') {
-        fprintf(stderr, ""
-                "Warning: yangwei encryption doesn't support streaming, the result of the\n"
-                "line-based encryption can differ from the block-based encryption, and you won't\n"
-                "be able to decrypt the secret bin without line lengths.\n");
-        process(opt_mode == 'e', stdin, stdout, -1);
+    if (encrypt) {
+        yw_encrypt(data, size);
+    } else {
+        yw_decrypt(data, size);
     }
+
+    fwrite(data, 1, size, out);
+    if (ferror(out))
+        return 2;
 
     return 0;
 }
