@@ -3,16 +3,19 @@
     : ${PROGRAM_TITLE:=Shendun execfilter config poller}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
-    . shlib-import cliboot
+    . shlib-import cliboot ai
+    option -r --renew       "Register/Renew the license"
     option -q --quiet       "Repeat to get less info"
     option -v --verbose     "Repeat to get more info"
     option -h --help        "Show this help page"
     option    --version     "Print the version info"
 
-    start_url=
+    opt_mode=config
 
 function setopt() {
     case "$1" in
+        -r|--renew)
+            opt_mode=renew;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -26,29 +29,5 @@ function setopt() {
     esac
 }
 
-function main() {
-
-    read srv_url_enc < <(wget -qO- "$start_url")
-
-    if [ -n "$srv_url" ]; then
-        log_fail "Failed to query from $srv_url"
-    fi
-
-    srv_url=$(yw64dec "$srv_url_enc")
-    _log2 "Server URL: $srv_url"
-}
-
-function yw64enc() {
-    tmp=`tempfile`
-    echo "$@" >$tmp
-    yangwei -e $tmp | base64 -e
-}
-
-function yw64dec() {
-    tmp=`tempfile`
-    echo "$@" | base64 -d >$tmp
-    yangwei -d $tmp
-    rm -f $tmp
-}
-
+load-image
 boot "$@"

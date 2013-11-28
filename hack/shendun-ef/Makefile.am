@@ -13,14 +13,16 @@ bin_PROGRAMS = \
     yangwei
 
 yangwei_SOURCES = yangwei.c ywcrypt.c
-yangwei_CFLAGS = $(AM_CFLAGS)
+yangwei_CFLAGS = $(GLIB_CFLAGS) $(AM_CFLAGS)
+yangwei_LDADD = -lbas
 
 dist_bin_SCRIPTS = \
     shendun-efpoll \
     yw-edit \
-    .yw-edit.img
+    .yw-edit.img \
+    .shendun-efpoll.img
 
-.yw-edit.img: yw-edit.i
+.%.img: %.i
 	ai -ct alien $< >$@
 
 lib_LTLIBRARIES = \
