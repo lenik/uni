@@ -16,7 +16,12 @@ yangwei_SOURCES = yangwei.c ywcrypt.c
 yangwei_CFLAGS = $(AM_CFLAGS)
 
 dist_bin_SCRIPTS = \
-    shendun-efpoll
+    shendun-efpoll \
+    yw-edit \
+    .yw-edit.img
+
+.yw-edit.img: yw-edit.i
+	ai -ct alien $< >$@
 
 lib_LTLIBRARIES = \
     libshendun-efext.la
