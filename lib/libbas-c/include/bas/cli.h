@@ -4,15 +4,30 @@
 #include <stdio.h>
 #include <glib.h>
 
-typedef int bool;
-enum {
-    false = 0,
-    true = 1,
-};
+/* stdbool */
+typedef _Bool bool;
+#define true 1
+#define false 0
 
 bool streq(const char *a, const char *b);
 
 /* .section. options */
+
+#define OPTION(shortopt, longopt, description)  \
+    { longopt, shortopt,                        \
+            G_OPTION_FLAG_NO_ARG,               \
+            G_OPTION_ARG_CALLBACK,              \
+            &parse_option,                      \
+            description,                        \
+            }
+
+#define OPTARG(shortopt, longopt, description)  \
+    { longopt, shortopt,                        \
+            0,                                  \
+            G_OPTION_ARG_CALLBACK,              \
+            &parse_option,                      \
+            description,                        \
+            }
 
 extern const char *program_title;
 extern const char *program_help_args;

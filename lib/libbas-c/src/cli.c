@@ -47,12 +47,10 @@ gboolean _parse_option(const char *opt,
                        const char *val,
                        gpointer data,
                        GError **err) {
-    bool shortopt;
-
     assert(*opt == '-');
     opt++;
 
-    shortopt = *opt != '-';
+    bool shortopt = *opt != '-';
     while (*opt == '-') opt++;
 
     switch (*opt) {
