@@ -42,8 +42,8 @@ gboolean _parse_option(const char *opt, const char *val,
 
 typedef bool (*file_handler)(const char *path, FILE *in, void *data);
 
-int process_files(char **paths, const char *open_mode,
-                  file_handler handler, void *data);
+bool process_files(char **paths, const char *open_mode,
+                   file_handler handler, void *data);
 
 /* .section. logging */
 

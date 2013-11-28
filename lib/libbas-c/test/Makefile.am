@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include ../libauto/coolauto.am
 
 includedir = ${prefix}/include
 

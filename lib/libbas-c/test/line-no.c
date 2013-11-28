@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-bool parse_option(const char *opt, const char *val,
-                  gpointer data, GError **err) {
+gboolean parse_option(const char *opt, const char *val,
+                      gpointer data, GError **err) {
     return _parse_option(opt, val, data, err);
 }
