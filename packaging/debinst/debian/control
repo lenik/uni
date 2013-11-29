@@ -10,7 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/packaging/de
 
 Package: debinst
 Architecture: all
-Depends: aiai, bash-shlib, grep, gzip, sed, tar, wget
+Depends: aiai, alien, apt, bash-shlib, bzip2, grep, gzip, makeself, sed, tar, wget
 Description: Create installer application from .deb packages.
  debinst will automatically collect the depended .deb files and create
  an installer app for them.
