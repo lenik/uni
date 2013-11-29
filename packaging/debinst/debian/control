@@ -1,0 +1,16 @@
+Source: debinst
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/packaging/debinst
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/packaging/debinst
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/packaging/debinst
+
+Package: debinst
+Architecture: all
+Depends: aiai, bash-shlib, grep, gzip, sed, tar, wget
+Description: Create installer application from .deb packages.
+ debinst will automatically collect the depended .deb files and create
+ an installer app for them.
