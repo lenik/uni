@@ -2,6 +2,12 @@
 
 function load-image() {
     local caller="${BASH_SOURCE[1]}"
+    if [ "${caller:0:5}" = '/dev/' ]; then
+        if [ -f "$AI_SOURCE" ]; then
+            caller="$AI_SOURCE"
+        fi
+    fi
+
     local img="${caller%.in}.img"
 
     local dir="${img%/*}"
