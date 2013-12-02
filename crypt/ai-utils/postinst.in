@@ -1,4 +1,6 @@
 #!/bin/sh
 # master-file
 
-echo "aiai - postinst.in ..."
+update-binfmts --import aiscript
+
+exit 0

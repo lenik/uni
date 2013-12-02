@@ -2,6 +2,7 @@ include libauto/coolauto.am
 
 AM_CPPFLAGS = ${GLIB_CFLAGS}
 
+binfmtsdir = ${datadir}/binfmts
 templatedir = ${pkgdatadir}/template
 
 do_subst += \
@@ -12,6 +13,12 @@ bin_PROGRAMS = \
 
 dist_aiai_SOURCES = aiai.c
 aiai_LDADD = ${GLIB_LIBS} -lbas
+
+dist_bin_SCRIPTS = \
+    ai-runner
+
+dist_binfmts_DATA = \
+    aiscript
 
 setup_SCRIPTS = \
     postinst \

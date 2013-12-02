@@ -1,0 +1,3 @@
+package aiscript
+interpreter @bindir@/ai-runner
+magic \x20\x09\x20\x09\x20\x09\x20\x09

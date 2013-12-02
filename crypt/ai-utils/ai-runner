@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    echo "AI source file isn't specified." >&2
+    exit 1
+fi
+
+AI_SRC="$1"
+shift
+
+read -a AI_SHBANG < <(unai -c "$AI_SRC")
+AI_SHELL="${AI_SHBANG[0]}"
+if [ "${AI_SHELL:0:2}" = '#!' ]; then
+    AI_SHELL="${AI_SHELL:2}"
+    AI_SHARGS="${AI_SHBANG[@]:1}"
+else
+    AI_SHELL="${SHELL:-/bin/sh}"
+fi
+
+echo Exec: "$AI_SHELL" "${AI_SHARGS[@]}" <(unai -c "$AI_SRC") "$@"
+exec "$AI_SHELL" "${AI_SHARGS[@]}" <(unai -c "$AI_SRC") "$@"

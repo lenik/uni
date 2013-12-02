@@ -1,4 +1,6 @@
 #!/bin/sh
 # master-file
 
-echo "aiai - prerm.in ..."
+update-binfmts --remove aiscript "@bindir@/ai-runner"
+
+exit 0
