@@ -11,7 +11,7 @@
 static GOptionEntry options[] = {
     OPTION('e', "encrypt", "Encrypt file data"),
     OPTION('d', "decrypt", "Decrypt file data"),
-    OPTION('q', "quite", "Show less verbose info"),
+    OPTION('q', "quiet", "Show less verbose info"),
     OPTION('v', "verbose", "Show more verbose info"),
     OPTION(0, "version", "Show version info"),
     { NULL },

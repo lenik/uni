@@ -10,6 +10,6 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/hack/shendun
 
 Package: shendun-ef
 Architecture: any
-Depends: execfilter, cron, wget
+Depends: execfilter, cron, wget, bash-shlib, wget
 Description: Companion utils used with execfilter.
  Includes: config file codecs, remote config push/polls.

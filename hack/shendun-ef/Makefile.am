@@ -1,5 +1,7 @@
 include libauto/coolauto.am
 
+AI_TEMPLATE=alien
+
 cachedir = /var/cache
 configdir = ${sysconfdir}/execfilter.d
 cronhourlydir = ${sysconfdir}/cron.hourly
@@ -20,11 +22,8 @@ yangwei_LDADD = -lbas
 dist_bin_SCRIPTS = \
     shendun-efpoll \
     yw-edit \
-    .yw-edit.img \
-    .shendun-efpoll.img
-
-.%.img: %.i
-	ai -ct alien $< >$@
+    .shendun-efpoll.img \
+    .yw-edit.img
 
 lib_LTLIBRARIES = \
     libshendun-efext.la
