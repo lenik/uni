@@ -31,7 +31,7 @@ if ! cmp -s $acfile $tmp; then
 
     # if configure is versioned, reconf also.
     if [ -f configure ]; then
-        read conf_st _ < <(svn st configure)
+        read conf_st _ < <(vcscmd status configure)
         if [ "$conf_st" != '?' ]; then
             echo "  -- auto reconf when configure is versioned ($conf_st). "
 
