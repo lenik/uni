@@ -1,0 +1,30 @@
+# vim: set filetype=sh :
+
+_aiai() {
+    local prev=${COMP_WORDS[COMP_CWORD-1]}
+    local cword=`_get_cword`
+    local cwlen=${#cword}
+    local cwtype=
+    COMPREPLY=()
+
+    if [ "${prev:0:2}" = '--' ]; then
+        if [ "$prev" = 'template' ]; then
+            cwtype=template
+        fi
+    elif [ "${prev:0:1}" = '-' ]; then
+        if [ "${prev: -1}" = 't' ]; then
+            cwtype=template
+        fi
+    fi
+
+    if [ "$cwtype" = 'template' ]; then
+        COMPREPLY=(basename -a "@templatedir@"/*)
+    else
+        local opts=(-h --help -d --decode -e --encode -i --info -s --stab
+            -a --ascii -u --utf-8 -t --template -c --stdout -f --force
+            -k --keep -q --quiet -v --verbose --version)
+        COMPREPLY=($( compgen -o default -W "${opts[*]}" -- "$cword" ))
+
+    fi
+} &&
+complete -F _aiai aiai ai unai
