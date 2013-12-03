@@ -1,0 +1,102 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <expr>}
+
+    . shlib-import cliboot
+    option -a --arg =STR    "Add additional gcc argument"
+    option -d --dlang       "Same as '-x d'"
+    option -x --lang =STR   "Specify language, default C"
+    option -e --expand-macro "Print the macro expansion, instead of eval"
+    option -f --format =STR "Specify C printf format code, default %d"
+        # c c++ objective-c objective-c++ assembler ada d f77 f95 go java
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+    opt_args=()
+    narg=
+
+    opt_lang=c
+    opt_expand=
+    opt_format='%d'
+
+function setopt() {
+    case "$1" in
+        -a|--arg)
+            opt_args[narg++]="$2";;
+        -x|--lang)
+            opt_lang="$2";;
+        -d|--dlang)
+            opt_lang=d;;
+        -e|--expand-macro)
+            opt_expand=1;;
+        -f|--format)
+            opt_format="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    out=`tempfile`
+    generate "$@" | compile_and_run
+    rm -f $out
+}
+
+function generate() {
+    local expr
+    case "$opt_lang" in
+        c)
+            # echo "#include <stdbool.h>"
+            echo "#include <math.h>"
+            echo "#include <stdio.h>"
+            echo "#include <stdlib.h>"
+            echo "#include <unistd.h>"
+            echo
+            echo "int main() {"
+            for expr in "$@"; do
+                if [ "$opt_expand" = 1 ]; then
+                    echo "#ifndef $expr"
+                    echo "    printf(\"$expr is not defined.\n\");"
+                    echo "#else"
+                fi
+
+                echo "    printf(\"$expr = $opt_format\n\", $expr);"
+
+                if [ "$opt_expand" = 1 ]; then
+                    echo "#endif"
+                fi
+            done
+            echo "    return 0;"
+            echo "}"
+            ;;
+
+        *)
+            quit "language isn't supported yet: $opt_lang"
+            ;;
+    esac
+}
+
+function compile_and_run() {
+    _log2 "Compile: gcc -x "$opt_lang" -o $out "${opt_args[@]}" -"
+    if ! gcc -x "$opt_lang" -o $out "${opt_args[@]}" -; then
+        _error "Can't compile the expr."
+        return 1
+    fi
+    chmod +x $out
+
+    _log2 "Run"
+    $out
+}
+
+boot "$@"
