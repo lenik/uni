@@ -441,7 +441,7 @@ bool ai_encode_file(const char *in_path, FILE *in,
     int k = 0;                          /* remaining bits of the current byte */
     char a, b;
 
-    fputs(" \t \t \t \t\n", out);       /* binfmt magic for scripts. */
+    fputs(" \t   \t  \n", out);         /* binfmt magic for scripts. */
     fputc('\0', out);                   /* start the frames. */
 
     /* draw 2 frames, to dump the stab. */
