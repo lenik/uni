@@ -31,6 +31,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+AI=ai
+
 %: %.in Makefile
 	rm -f "$@"
 	$(do_subst) <"$<" >"$@"
@@ -44,4 +46,13 @@
 %.h: %.h.in Makefile
 	rm -f "$@"
 	$(do_subst) <"$<" >"$@"
+	chmod -w "$@"
+
+%: %.ain Makefile
+	rm -f "$@"
+	$(AI) -ct $(AI_TEMPLATE) <($(do_subst) <"$<") >$@
+	chmod -w "$@"
+
+.%.img: %.i
+	$(AI) -ct $(AI_TEMPLATE) <$< >$@
 	chmod -w "$@"
