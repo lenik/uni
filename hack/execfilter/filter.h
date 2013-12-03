@@ -2,14 +2,8 @@
 #define __FILTER_H
 
 #include <sys/types.h>
+#include <stdbool.h>
 #include <glib.h>
-
-typedef int bool;
-
-enum {
-    false = 0,
-    true = 1,
-};
 
 enum {
     FILT_UNINIT = 0,

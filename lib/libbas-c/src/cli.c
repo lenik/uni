@@ -2,16 +2,14 @@
 #include <assert.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
 #include <bas/cli.h>
-
-bool streq(const char *a, const char *b) {
-    return strcmp(a, b) == 0;
-}
+#include <bas/str.h>
 
 /* .section. options */
 

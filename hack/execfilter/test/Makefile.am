@@ -15,13 +15,7 @@ dist_config_DATA = \
 demobin_PROGRAMS = \
     user
 
-bin_PROGRAMS = \
-    qstr-tst
-
 user_SOURCES = user.c
 user_CFLAGS = -g -Og
-
-qstr_tst_SOURCES = qstr-tst.c
-qstr_tst_LDADD = ../qstr.o
 
 CLEANFILES = demo

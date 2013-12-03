@@ -14,10 +14,11 @@
     if (!next) \
         next = dlsym(RTLD_NEXT, #fn)
 
-#include "../filter.h"                  /* F_* bits */
-#include "../qstr.h"                    /* Utilities to parse the quoted
+#include <bas/path.h>                   /* Path normalization. */
+#include <bas/str.h>                    /* Utilities to parse the quoted
                                            strings. */
-#include "../path.h"                    /* Path normalization. */
+
+#include "../filter.h"                  /* F_* bits */
 
 /*
   #ifndef FN

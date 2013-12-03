@@ -1,5 +1,5 @@
-#ifndef __PATH_H
-#define __PATH_H
+#ifndef __BAS_PATH_H
+#define __BAS_PATH_H
 
 /* Normalize a given path. Return the normalized path if succeeded, otherwise
    NULL. The returned value should be freed after use. */

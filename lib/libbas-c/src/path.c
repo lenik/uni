@@ -3,13 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#include "path.h"
+#include <bas/path.h>
 
 char *path_normalize(const char *path) {
     char real[PATH_MAX];
-    realpath(path, real);
-    return strdup(real);
+    return strdup(realpath(path, real));
 }
 
 static char *pathv;

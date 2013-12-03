@@ -9,4 +9,6 @@ libbas_la_LDFLAGS = -version-info 1:0:0
 libbas_la_CFLAGS = ${GLIB_CFLAGS} -I../include
 dist_libbas_la_SOURCES = \
     cli.c \
-    file.c
+    file.c \
+    path.c \
+    str.c

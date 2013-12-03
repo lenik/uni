@@ -1,15 +1,9 @@
-#ifndef __CLI_H
-#define __CLI_H
+#ifndef __BAS_CLI_H
+#define __BAS_CLI_H
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <glib.h>
-
-/* stdbool */
-typedef _Bool bool;
-#define true 1
-#define false 0
-
-bool streq(const char *a, const char *b);
 
 /* .section. options */
 

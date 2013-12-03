@@ -12,11 +12,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <bas/path.h>
+#include <bas/str.h>
 
 #include "filter.h"
 #include "trie.h"
-#include "path.h"
-#include "qstr.h"
 
 #define CONFIGDIR "@configdir@"         /* The directory containing the
                                            configuration files. */
@@ -56,8 +56,6 @@ static void pmap_each_tab(gpointer key, gpointer value, gpointer data);
 static void pmap_each_mode(gpointer key, gpointer value, gpointer data);
 static bool loadsym(symres_t *, const char *spec);
 static pid_t stat_ppid(pid_t pid);
-static char *readtok(char **endp);
-static char *strtok_eol(char *head, char **endp);
 
 bool pmap_load() {
     DIR *configdir;
@@ -112,50 +110,6 @@ bool pmap_load() {
     }
 
     return true;
-}
-
-static char *readtok(char **endp) {
-    char *head = *endp;
-    char *end;
-
-    /* trim left. */
-    while (isspace(*head)) head++;
-
-    if (*head == '\0')
-        return NULL;
-
-    end = head;
-    while (*end && !isspace(*end))
-        end++;
-
-    if (*end)
-        *end++ = '\0';
-    *endp = end;
-
-    return head;
-}
-
-/* String tokenizer, by replacing the end-of-line character by NUL.
-   Return the head, or NULL if EOT it met. */
-static char *strtok_eol(char *head, char **endp) {
-    char *end = head;
-    char ch;
-    if (*end == '\0')
-        return NULL;
-
-    while ((ch = *end)) {
-        if (ch == '\n') {
-            //if (end > head && end[-1] == '\r')
-            //    end[-1] = '\0';         /* Replace CR.LF by NUL.NUL. */
-            *end++ = '\0';
-            break;
-        }
-        end++;
-    }
-
-    if (endp)
-        *endp = end;
-    return head;
 }
 
 static const char *parse_file(const char *path) {
