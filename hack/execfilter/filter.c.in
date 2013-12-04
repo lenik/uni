@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#define log_ident "execfilter"
 #include <bas/log.h>
 #include <bas/path.h>
 #include <bas/str.h>
@@ -40,7 +42,7 @@ typedef struct _symres_t {
 symres_t gate_sr;                       /* the global gate */
 
 GHashTable *formats;                    /* extension -> symres_t */
-symres_t default_format;
+symres_t *default_format;
 
 #undef LINE_MAX
 #define LINE_MAX 4095
@@ -65,11 +67,12 @@ bool pmap_load() {
     int dirlen;
     const char *errmsg;
 
-    pmap = g_hash_table_new(g_str_hash, g_str_equal);
-    formats = g_hash_table_new(g_str_hash, g_str_equal);
+    pmap = g_hash_table_new_full(g_str_hash, g_str_equal, free, free);
+    formats = g_hash_table_new_full(g_str_hash, g_str_equal, free, free);
 
-    memset(&default_format, 0, sizeof(symres_t));
-    g_hash_table_insert(formats, strdup("*"), &default_format);
+    default_format = malloc(sizeof(symres_t));
+    memset(default_format, 0, sizeof(symres_t));
+    g_hash_table_insert(formats, strdup("*"), default_format);
 
     memset(&gate_sr, 0, sizeof(symres_t));
 
@@ -153,7 +156,7 @@ static const char *parse_file(const char *path) {
         format = g_hash_table_lookup(formats, ext_name);
     }
     if (format == NULL)
-        format = &default_format;
+        format = default_format;
 
     if (format->proc) {                 /* if any format is defined.. */
         encode_fn decoder = format->proc;
@@ -246,7 +249,8 @@ static const char *parse_confs(char *script, const char *location) {
                 conf = g_hash_table_lookup(pmap, p);
                 if (conf == NULL) {
                     conf = (program_conf_t *) malloc(sizeof(program_conf_t));
-                    tab = g_hash_table_new(g_str_hash, g_str_equal);
+                    tab = g_hash_table_new_full(g_str_hash, g_str_equal,
+                                                free, free);
                     conf->modes = tab;
                     conf->mode_all = 0;
                     conf->mask = -1;
@@ -327,7 +331,8 @@ static void lazy_init() {
 
     if (pconf == NULL) {
         pconf = (program_conf_t *) malloc(sizeof(program_conf_t));
-        pconf->modes = g_hash_table_new(g_str_hash, g_str_equal);
+        pconf->modes = g_hash_table_new_full(g_str_hash, g_str_equal,
+                                             free, free);
 #ifdef DEBUG
         printf("Warning: %s isn't configured, yet.\n", path);
 #endif
@@ -336,11 +341,12 @@ static void lazy_init() {
     run_level = FILT_ACTIVE;
 }
 
-static void pmap_each_mode(gpointer key, gpointer value, gpointer data) {
+static void pmap_each_mode(gpointer key, gpointer value, gpointer user_data) {
     const char *target = (const char *) key;
     printf("    ");
 
-    xmode_t mode = (xmode_t) value;
+    xmode_t mode = *(xmode_t *) value;
+
     if (mode & F_ALLOW)
         printf("allow ");
     if (mode & F_DENY)
@@ -350,7 +356,7 @@ static void pmap_each_mode(gpointer key, gpointer value, gpointer data) {
     printf("\n");
 }
 
-static void pmap_each_tab(gpointer key, gpointer value, gpointer data) {
+static void pmap_each_tab(gpointer key, gpointer value, gpointer user_data) {
     const char *program = (const char *) key;
     program_conf_t *conf = (program_conf_t *) value;
 
@@ -391,7 +397,10 @@ xmode_t get_execution_mode(program_conf_t *conf, const char *norm_path) {
     }
 
     gpointer value = g_hash_table_lookup(conf->modes, norm_path);
-    xmode_t mode = (xmode_t) value;
+    if (value == NULL)                  /* not configured yet.. */
+        return 0;                       /* the default mode? */
+
+    xmode_t mode = *(xmode_t *) value;
     mode |= conf->mode_all;
     mode &= conf->mask;
     return mode;
@@ -404,8 +413,8 @@ void set_execution_mode(program_conf_t *conf, const char *norm_path, xmode_t mod
         assert(conf != NULL);
     }
 
-    gpointer value = (gpointer) mode;
-    g_hash_table_insert(conf->modes, strdup(norm_path), value);
+    xmode_t *data = malloc(sizeof(xmode_t));
+    g_hash_table_insert(conf->modes, strdup(norm_path), data);
 }
 
 static pid_t stat_ppid(pid_t pid) {
