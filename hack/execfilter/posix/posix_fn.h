@@ -44,6 +44,5 @@
         }                                                           \
     } while (0)
 
-#define NORM_CONFIG(src, path)                                  \
-    char *norm = path_find_norm(path);                          \
+#define NORM_CONFIG(src, path)                                      \
     xmode_t mode = get_execution_mode_rec(# src, getpid(), path)
