@@ -13,11 +13,11 @@
 #include <string.h>
 #include <unistd.h>
 
-#define log_ident "execfilter"
 #include <bas/log.h>
 #include <bas/path.h>
 #include <bas/str.h>
 
+#include "config.h"
 #include "filter.h"
 #include "trie.h"
 
@@ -465,7 +465,7 @@ xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
             conf = g_hash_table_lookup(pmap, bin);
             if (conf) {
                 xmode_t m = get_execution_mode(conf, obj_norm);
-                // log_debug("execution mode for [%d] %s: %d\n", pid, bin, c);
+                // log_debug("execution mode for [%d] %s: %x\n", pid, obj_norm, m);
                 all |= m;
             }
         }
@@ -474,7 +474,8 @@ xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
     }
 
     if (all & F_DENY) {
-        log_info("%s denied: %s", src, obj);
+        log_info("%s() denied: %s", src, obj);
+        log_notice("Execution Blocked: %s", obj);
     }
     return all;
 }

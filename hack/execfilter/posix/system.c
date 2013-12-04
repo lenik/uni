@@ -17,7 +17,7 @@ int system(const char *command) {
     free(copy);
 
     if (mode & F_DENY) {
-        fprintf(stderr, "Execution of %s is denied.\n", norm);
+        fprintf(stderr, "Execution of %s is denied.\n", cmd);
         return -1;
     }
 

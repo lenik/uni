@@ -4,6 +4,11 @@
 #include <spawn.h>
 #include <unistd.h>
 
+#define LOG_IDENT "execfilter/user"
+#define LOG_OPTION LOG_PERROR
+#define LOG_LEVEL LOG_DEBUG
+#include <bas/log.h>
+
 #define wifork(ec, st) \
     do { \
         if (pid = fork()) \
@@ -17,27 +22,31 @@
 int main() {
     pid_t pid;
 
-    printf("User functions test:\n");
+    log_notice("User functions test:\n");
 
-    printf("\nsystem(uname)\n");
+    log_notice("system(uname):");
     system("uname");
     system("echo Hey, this is an system cmd 'echo'.");
     // system("sh -c 'export | grep -n X'");
+    printf("\n");
 
-    printf("\nexecl(uname)\n");         /* execl won't expand PATH. */
+    log_notice("execl(uname):");         /* execl won't expand PATH. */
     wifork(1, execl("/bin/uname", "fake name", "-a", NULL));
     wifork(1, execl("/bin/bash", "fake name", "-c", "echo oh, another echo.", NULL));
+    printf("\n");
 
-    printf("\nexeclp(uname)\n");
+    log_notice("execlp(uname):");
     wifork(1, execlp("uname", "fake name", "-a", NULL));
     wifork(1, execlp("bash", "fake name", "-c", "echo oh, i\\'m in the PATH..", NULL));
+    printf("\n");
 
-    printf("\nexecle(sh -c 'export | grep -n X')\n");
+    log_notice("execle(sh -c 'export | grep -n X'):");
     wifork(1, execle("/bin/uname", "fake name", "-a", NULL));
     wifork(1, execle("/bin/bash", "fake name", "-c", "export | grep -n X", NULL,
         "X1=abc", "X2=def", NULL));
+    printf("\n");
 
-    printf("\nexecve(sh -c 'export | grep -n X)\n");
+    log_notice("execve(sh -c 'export | grep -n X):");
     {
         char *const argv1[] = { "fake name", "-a", NULL };
         char *const argv2[] = { "fake name", "-c", "export | grep -n X", NULL };
@@ -45,20 +54,22 @@ int main() {
         wifork(1, execve("/bin/uname", argv1, NULL));
         wifork(1, execve("/bin/bash", argv2, envv2));
     }
+    printf("\n");
 
-    printf("\npopen(uname)\n");
+    log_notice("popen(uname):");
     {
         FILE *p = popen("uname -a", "r");
         char buf[4096];
         if (p == NULL) {
-            perror("Can't open the pipe");
+            log_perr("Can't open the pipe");
             exit(1);
         }
         while (fgets(buf, sizeof(buf), p) != NULL) {
-            printf(" .. %s", buf);
+            log_notice("    .. %s", buf);
         }
         pclose(p);
     }
+    printf("\n");
 
     return 0;
 }

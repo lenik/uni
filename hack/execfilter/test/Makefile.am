@@ -17,5 +17,6 @@ demobin_PROGRAMS = \
 
 user_SOURCES = user.c
 user_CFLAGS = -g -Og
+user_LDADD = -lbas
 
 CLEANFILES = demo

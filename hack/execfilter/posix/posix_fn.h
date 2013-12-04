@@ -19,6 +19,7 @@
 #include <bas/str.h>                    /* Utilities to parse the quoted
                                            strings. */
 
+#include "../config.h"
 #include "../filter.h"                  /* F_* bits */
 
 /*
@@ -38,7 +39,6 @@
     do {                                                            \
         if ((mode) & F_INTR) return err;                            \
         if ((mode) & F_DENY) {                                      \
-            log_err("Execution of %s is denied.", path);            \
             errno = EACCES;                                         \
             return err;                                             \
         }                                                           \
