@@ -7,7 +7,10 @@
 
 char *path_normalize(const char *path) {
     char real[PATH_MAX];
-    return strdup(realpath(path, real));
+    if (realpath(path, real) == NULL)
+        return NULL;
+    else
+        return strdup(real);
 }
 
 static char *pathv;
