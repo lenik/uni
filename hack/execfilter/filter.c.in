@@ -438,11 +438,13 @@ static pid_t stat_ppid(pid_t pid) {
 xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
     xmode_t all = 0;
     char *obj_norm = path_find_norm(obj);
+    if (obj_norm == NULL)               /* obj isn't existed. */
+        /* maybe another F_HIDE? */
+        return 0;
 
     lazy_init();
 
-    // TODO stat the src.
-    // log_err("-- %s: mode-rec %s\n", src, obj);
+    log_debug("%s() analyze: %s\n", src, obj_norm);
 
     while (pid != 0 && pid != -1) {
         char psym[PATH_MAX];

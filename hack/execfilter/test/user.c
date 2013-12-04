@@ -24,6 +24,10 @@ int main() {
 
     log_notice("User functions test:\n");
 
+    log_notice("system(non-exist):");
+    system("/bin/non-exist");
+    printf("\n");
+
     log_notice("system(uname):");
     system("uname");
     system("echo Hey, this is an system cmd 'echo'.");
