@@ -10,5 +10,6 @@ libbas_la_CFLAGS = ${GLIB_CFLAGS} -I../include
 dist_libbas_la_SOURCES = \
     cli.c \
     file.c \
+    log.c \
     path.c \
     str.c
