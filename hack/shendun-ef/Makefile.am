@@ -21,9 +21,11 @@ yangwei_LDADD = -lbas
 
 dist_bin_SCRIPTS = \
     shendun-efpoll \
-    yw-edit \
-    .shendun-efpoll.img \
-    .yw-edit.img
+    yw-edit
+
+dist_pkgdata_DATA = \
+    shendun-efpoll.img \
+    yw-edit.img
 
 lib_LTLIBRARIES = \
     libshendun-efext.la
@@ -46,4 +48,6 @@ EXTRA_DIST = \
     postinst.in \
     prerm.in
 
-CLEANFILES = ${setup_SCRIPTS}
+CLEANFILES = \
+    ${setup_SCRIPTS} \
+    ${dist_bin_SCRIPTS}

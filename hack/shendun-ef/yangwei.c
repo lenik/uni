@@ -92,7 +92,7 @@ int process(int encrypt, const char *path, FILE *in, FILE *out) {
     char *data;
     size_t size;
 
-    data = load_file(in, path, &size, 0, 1);
+    data = _load_file(in, path, &size, 0, 1);
     if (data == NULL)
         return 1;
 

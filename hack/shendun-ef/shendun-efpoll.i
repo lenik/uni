@@ -62,18 +62,21 @@ function main() {
     mac="${hmac:0:5}-${hmac:5:5}-${hmac:10:5}-${hmac:15:5}"
     _log2 "MAC=$mac ($_mac)"
 
-    read -a resp < <(send "register: $mac")
-    _log2 "Register-Response: ${resp[@]}"
-    case "${resp[0]}" in
-        auth|trial)
-            now_ref=${resp[1]}
-            expire=${resp[2]}
-            ;;
-        config)
-            name="${resp[1]}"
-            text="${resp[2]}"
-            ;;
-    esac
+    while read -a resp; do
+        _log2 "Register-Response: ${resp[@]}"
+        case "${resp[0]}" in
+            auth|trial)
+                mac2="resp[1]"
+                [ "$mac" = "$mac2" ] || quit "MAC invalid: not matched."
+                now_ref=${resp[2]}
+                expire=${resp[3]}
+                ;;
+            config)
+                name="${resp[1]}"
+                text="${resp[2]}"
+                ;;
+        esac
+    done < <(send "register: $mac")
 }
 
 function send() {
