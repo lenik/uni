@@ -42,3 +42,5 @@ ChangeLog:
 clean:
 	rm -f ChangeLog
 	rm -f *-*.tar.gz
+
+.PHONY: ChangeLog
