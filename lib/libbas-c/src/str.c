@@ -1,10 +1,88 @@
+#include <assert.h>
 #include <ctype.h>
 #include <stdbool.h>
 #include <string.h>
 #include <bas/str.h>
 
 bool streq(const char *a, const char *b) {
+    if (a == b)
+        return true;
+    if (a == NULL || b == NULL)
+        return false;
     return strcmp(a, b) == 0;
+}
+
+bool startswith(const char *s, const char *t) {
+    return strncmp(s, t, strlen(t)) == 0;
+}
+
+bool endswith(const char *s, const char *t) {
+    int ns = strlen(s);
+    int nt = strlen(t);
+    if (ns < nt)
+        return false;
+    return strcmp(s + ns - nt, t) == 0;
+}
+
+const char *ltrim_c(const char *s) {
+    assert(s != NULL);
+
+    while (isspace(*s))
+        s++;
+
+    return s;
+}
+
+char *ltrim(char *s) {
+    assert(s != NULL);
+
+    while (isspace(*s))
+        s++;
+
+    return s;
+}
+
+
+char *rtrim(char *s) {
+    assert(s != NULL);
+
+    char *end = s + strlen(s) - 1;
+    while (end >= s && isspace(*end))
+        --end;
+
+    if (end >= s)
+        *end = '\0';
+
+    return s;
+}
+
+char *chop(char *s) {
+    assert(s != NULL);
+
+    int len = strlen(s);
+    if (len != 0)
+        s[len - 1] = '\0';
+
+    return s;
+}
+
+char *chomp(char *s) {
+    assert(s != NULL);
+
+    int len = strlen(s);
+    char *end = s + len - 1;
+
+    if (len > 0 && *end == '\n') {
+        *end-- = '\0';
+        len--;
+    }
+
+    if (len > 0 && *end == '\r') {
+        *end-- = '\0';
+        len--;
+    }
+
+    return s;
 }
 
 char *readtok(char **endp) {
