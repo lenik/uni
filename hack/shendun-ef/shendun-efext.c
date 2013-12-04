@@ -4,10 +4,14 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+
+#include <bas/log.h>
 #include <bas/file.h>
 #include <bas/str.h>
 
+#include "config.h"
 #include "ywcrypt.h"
 
 #define AUTH_FILE "@cachedir@/auth.dat"
@@ -48,13 +52,13 @@ static bool parse_auth(char *script, struct auth_db *db) {
 
         case 'm':
             if (streq("mac", token)) {
-
+                strncpy(db->mac, p, 16);
+                break;
             }
             break;
 
         default:
-            fprintf(stderr, "Error: illegal syntax in auth data: %s %s.\n",
-                    token, p);
+            log_err("illegal syntax in auth data: %s %s.", token, p);
             return false;
         } /* switch: token */
     } /* while: strtok_eol */
@@ -70,12 +74,12 @@ bool gate(pid_t pid) {
         if (errno == ENOENT) {          /* auth file isn't existed */
             int exit = system(RENEW_PROGRAM);
             if (exit != 0) {
-                fprintf(stderr, "Failed to execute the auth updater.\n");
+                log_err("Failed to execute the auth updater.");
                 return false;
             }
         }
         /* other stat error. */
-        perror("stat");
+        log_perr("stat file %s", AUTH_FILE);
         return false;                  /* bad auth file: can't stat it. stop. */
     }
 
@@ -89,7 +93,7 @@ bool gate(pid_t pid) {
         char *auth_data = load_file(AUTH_FILE, &size, 0, 1);
 
         if (auth_data == NULL) {
-            perror("Can't load auth file");
+            log_perr("Can't read from auth file.");
             return false;
         }
         auth_data[size] = '\0';
@@ -97,7 +101,7 @@ bool gate(pid_t pid) {
         yw_decrypt(auth_data, size);
 
         if (! parse_auth(auth_data, &db)) {
-            fprintf(stderr, "Parse error in auth file.\n");
+            log_err("Parse error in auth file.");
         } else {
             mtime = sb.st_mtime;        /* reloaded, okay. */
         }
@@ -105,13 +109,13 @@ bool gate(pid_t pid) {
         free(auth_data);
     }
 
-    if (db.acc > db.alloc) {            /* allocated time is used up. */
-        fprintf(stderr, "Registration expired.\n");
+    if (! db.registered) {
+        log_err("Software isn't registered, yet.");
         return false;
     }
 
-    if (! db.registered) {
-        fprintf(stderr, "Software isn't registered, yet.\n");
+    if (db.acc > db.alloc) {            /* allocated time is used up. */
+        log_err("Registration is expired.");
         return false;
     }
 
