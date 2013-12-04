@@ -3,19 +3,31 @@
 
 #include <syslog.h>
 
-extern int syslog_option;
 extern int syslog_facility;
 extern int syslog_level;
 
-void _log_x(const char *ident, int level, const char *format, ...);
-void _log_x_perror(const char *ident, int level, const char *format, ...);
+void _log_x(const char *ident, int option, int level, const char *format, ...);
+void _log_x_perror(const char *ident, int option, int level,
+                   const char *format, ...);
 
 #ifndef log_ident
 #define log_ident "user"
 #endif
 
+#ifndef log_option
+#define log_option LOG_PERROR
+#endif
+
+#ifndef log_level
+#  ifdef DEBUG
+#    define log_level LOG_DEBUG
+#  else
+#    define log_level LOG_INFO
+#  endif
+#endif
+
 #define LOG_IF_LEVEL(level, args...) \
-    if (syslog_level < level); else _log_x(log_ident, level, args)
+    if (level > log_level) ; else _log_x(log_ident, log_option, level, args)
 
 #define log_emerg(...) LOG_IF_LEVEL(LOG_ERR, __VA_ARGS__)
 #define log_alert(...) LOG_IF_LEVEL(LOG_ALERT, __VA_ARGS__)
@@ -27,7 +39,7 @@ void _log_x_perror(const char *ident, int level, const char *format, ...);
 #define log_debug(...) LOG_IF_LEVEL(LOG_DEBUG, __VA_ARGS__)
 
 #define LOG_PERROR_IF_LEVEL(level, ...) \
-    if (syslog_level < level); else _log_x_perror(log_ident, level, __VA_ARGS__)
+    if (syslog_level < level); else _log_x_perror(log_ident, log_option, level, __VA_ARGS__)
 
 #define log_perr(...) LOG_PERROR_IF_LEVEL(LOG_ERR, __VA_ARGS__)
 #define log_pwarn(...) LOG_PERROR_IF_LEVEL(LOG_WARNING, __VA_ARGS__)
