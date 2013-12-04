@@ -1,5 +1,69 @@
 #include "posix_fn.h"
 
+static int _execv(const char *path, char *const argv[]) {
+    static int (*next)(const char *, char *const *);
+    def_next(execv);
+
+    NORM_CONFIG(execv, path);
+
+    RET_IF_DENY(norm, mode);
+
+    return next(path, argv);
+}
+
+static int _execvp(const char *file, char *const argv[]) {
+    static int (*next)(const char *, char *const *);
+    def_next(execvp);
+
+    NORM_CONFIG(execvp, file);
+
+    RET_IF_DENY(norm, mode);
+
+    return next(file, argv);
+}
+
+static int _execvpe(const char *file, char *const argv[], char *const envp[]) {
+    static int (*next)(const char *, char *const *, char *const *);
+    def_next(execvpe);
+
+    NORM_CONFIG(execvpe, file);
+
+    RET_IF_DENY(norm, mode);
+
+    return next(file, argv, envp);
+}
+
+static int _execve(const char *file, char *const argv[], char *const envp[]) {
+    static int (*next)(const char *, char *const *, char *const *);
+    def_next(execve);
+
+    NORM_CONFIG(execve, file);
+
+    RET_IF_DENY(norm, mode);
+
+    return next(file, argv, envp);
+}
+
+int execv(const char *path, char *const argv[]) {
+    // log_info("execv %s ...", path);
+    return _execv(path, argv);
+}
+
+int execvp(const char *file, char *const argv[]) {
+    // log_info("execvp %s ...", file);
+    return _execvp(file, argv);
+}
+
+int execvpe(const char *file, char *const argv[], char *const envp[]) {
+    // log_info("execvpe %s ...", file);
+    return _execvpe(file, argv, envp);
+}
+
+int execve(const char *file, char *const argv[], char *const envp[]) {
+    // log_info("execve %s ...", file);
+    return _execve(file, argv, envp);
+}
+
 #define PTRSIZE sizeof(void *)
 
 #define va_ptrsz(vp, arg0_ref, countp) \
@@ -49,13 +113,15 @@ static char **_va_ptrsz(va_list *vp_ref, void **arg0_ref, int *countp) {
    execl, execlp, execle, execlpe, execv, execvp, execvpe, execve */
 
 int execl(const char *path, const char *arg0, ...) {
+    // log_info("execl %s ...", path);
+
     va_list vp;
     va_start(vp, arg0);
     char **argv = va_ptrsz(vp, &arg0, NULL);
     va_end(vp);
 
     int exit;
-    exit = execv(path, argv);
+    exit = _execv(path, argv);
     free(argv);
     return exit;
 }
@@ -64,13 +130,15 @@ int execl(const char *path, const char *arg0, ...) {
    slashes, with all arguments after FILE until a NULL pointer and environment
    from `environ'.  */
 int execlp(const char *file, const char *arg0, ...) {
+    // log_info("execlp %s ...", path);
+
     va_list vp;
     va_start(vp, arg0);
     char **argv = va_ptrsz(vp, &arg0, NULL);
     va_end(vp);
 
     int exit;
-    exit = execvp(file, argv);
+    exit = _execvp(file, argv);
     free(argv);
     return exit;
 }
@@ -78,6 +146,8 @@ int execlp(const char *file, const char *arg0, ...) {
 /* Execute PATH with all arguments after PATH until a NULL pointer, and the
    argument after that for environment.  */
 int execle(const char *path, const char *arg0, ...) {
+    // log_info("execle %s ...", path);
+
     // int argc, envc, i;
 
     va_list vp;
@@ -94,52 +164,8 @@ int execle(const char *path, const char *arg0, ...) {
     // printf("env %d: %s\n", i, envv[i]);
 
     int exit;
-    exit = execve(path, argv, envv);
+    exit = _execve(path, argv, envv);
     free(argv);
     free(envv);
     return exit;
-}
-
-int execv(const char *path, char *const argv[]) {
-    static int (*next)(const char *, char *const *);
-    def_next(execv);
-
-    NORM_CONFIG(execv, path);
-
-    RET_IF_DENY(norm, mode);
-
-    return next(path, argv);
-}
-
-int execvp(const char *file, char *const argv[]) {
-    static int (*next)(const char *, char *const *);
-    def_next(execvp);
-
-    NORM_CONFIG(execvp, file);
-
-    RET_IF_DENY(norm, mode);
-
-    return next(file, argv);
-}
-
-int execvpe(const char *file, char *const argv[], char *const envp[]) {
-    static int (*next)(const char *, char *const *, char *const *);
-    def_next(execvpe);
-
-    NORM_CONFIG(execvpe, file);
-
-    RET_IF_DENY(norm, mode);
-
-    return next(file, argv, envp);
-}
-
-int execve(const char *file, char *const argv[], char *const envp[]) {
-    static int (*next)(const char *, char *const *, char *const *);
-    def_next(execve);
-
-    NORM_CONFIG(execve, file);
-
-    RET_IF_DENY(norm, mode);
-
-    return next(file, argv, envp);
 }

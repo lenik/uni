@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <bas/log.h>
 #include <bas/path.h>
 #include <bas/str.h>
 
@@ -99,7 +100,7 @@ bool pmap_load() {
                     strcpy(name + dirlen, ent->d_name);
                     errmsg = parse_file(name);
                     if (errmsg != NULL) {
-                        fprintf(stderr, "execfilter parse error: %s\n", errmsg);
+                        log_err("parse error: %s", errmsg);
                         run_level = FILT_ERROR;
                         return false;
                     }
@@ -121,22 +122,20 @@ static const char *parse_file(const char *path) {
     char *ext_name;
 
     if (stat(path, &sb) == -1) {
-        fprintf(stderr, "Error: Failed to get file stat: %s\n", path);
-        perror("");
+        log_perr("Error: Failed to get file stat: %s", path);
         return "stat";
     }
 
     size = sb.st_size;
     data = malloc(size + 1);
     if (data == NULL) {
-        fprintf(stderr, "Insufficient memory to read config file %s.", path);
+        log_err("Insufficient memory to read config file %s.", path);
         return "memory out";
     }
 
     in = fopen(path, "rt");
     if (in == NULL) {
-        fprintf(stderr, "Failed to open file %s: ", path);
-        perror("");
+        log_perr("Failed to open file %s: ", path);
         return "open config";
     }
 
@@ -195,7 +194,7 @@ static const char *parse_confs(char *script, const char *location) {
         case 'a':
             if (streq("allow", token)) {
                 if (conf == NULL) {
-                    fprintf(stderr, "Error: program (for-clause) hasn't been specified yet.\n");
+                    log_err("program (for-clause) hasn't been specified yet.");
                     continue;
                 }
 
@@ -213,7 +212,7 @@ static const char *parse_confs(char *script, const char *location) {
         case 'd':
             if (streq("default", token)) {
                 if (conf == NULL) {
-                    fprintf(stderr, "Error: program (for-clause) hasn't been specified yet.\n");
+                    log_err("program (for-clause) hasn't been specified yet.");
                     continue;
                 }
 
@@ -226,7 +225,7 @@ static const char *parse_confs(char *script, const char *location) {
 
             if (streq("deny", token)) {
                 if (conf == NULL) {
-                    fprintf(stderr, "Error: program (for-clause) hasn't been specified yet.\n");
+                    log_err("program (for-clause) hasn't been specified yet.");
                     continue;
                 }
 
@@ -261,7 +260,7 @@ static const char *parse_confs(char *script, const char *location) {
             if (streq("format", token)) {
                 char *ext = readtok(&p);
                 if (ext == NULL) {
-                    fprintf(stderr, "Error: extension name isn't specified.\n");
+                    log_err("extension name isn't specified.");
                     continue;
                 }
 
@@ -269,8 +268,7 @@ static const char *parse_confs(char *script, const char *location) {
                 if (sr) {
                     /* some format maybe pre-defined, but not implemented. */
                     if (sr->handle) {
-                        fprintf(stderr, "Error: format %s is already defined"
-                                " as %s::%s.\n",
+                        log_err("format %s is already defined as %s::%s.",
                                 ext, sr->libname, sr->fn);
                         continue;
                     }
@@ -281,7 +279,7 @@ static const char *parse_confs(char *script, const char *location) {
                 }
 
                 if (! loadsym(sr, p)) {
-                    fprintf(stderr, "Error: can't resolve format %s.\n", ext);
+                    log_err("can't resolve format %s.", ext);
                     continue;
                 }
 
@@ -292,14 +290,14 @@ static const char *parse_confs(char *script, const char *location) {
             /* gate LIBNAME FN=gate */
             if (streq("gate", token)) {
                 if (! loadsym(&gate_sr, p)) {
-                    fprintf(stderr, "Error: can't resolve gate.\n");
+                    log_err("can't resolve gate.");
                     continue;
                 }
                 break;
             }
 
         default:
-            fprintf(stderr, "Error: illegal syntax in %s: %s %s.\n",
+            log_err("illegal syntax in %s: %s %s.",
                     location, token, p);
             /* Dont exit program, otherwise the system will be unusable. */
         } /* switch (token) */
@@ -434,7 +432,7 @@ xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
     lazy_init();
 
     // TODO stat the src.
-    // fprintf(stderr, "-- %s: mode-rec %s\n", src, obj);
+    // log_err("-- %s: mode-rec %s\n", src, obj);
 
     while (pid != 0 && pid != -1) {
         char psym[PATH_MAX];
@@ -457,7 +455,7 @@ xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
             conf = g_hash_table_lookup(pmap, bin);
             if (conf) {
                 xmode_t m = get_execution_mode(conf, obj_norm);
-                // printf("execution mode for [%d] %s: %d\n", pid, bin, c);
+                // log_debug("execution mode for [%d] %s: %d\n", pid, bin, c);
                 all |= m;
             }
         }
@@ -465,6 +463,9 @@ xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
         pid = stat_ppid(pid);
     }
 
+    if (all & F_DENY) {
+        log_info("%s denied: %s", src, obj);
+    }
     return all;
 }
 
@@ -478,7 +479,7 @@ static bool loadsym(symres_t *sr, const char *spec) {
 
     char *libname = readtok(&p);
     if (libname == NULL) {
-        fprintf(stderr, "Error: library name isn't specified.\n");
+        log_err("library name isn't specified.");
         return false;
     }
 
@@ -496,15 +497,14 @@ static bool loadsym(symres_t *sr, const char *spec) {
 
     handle = dlopen(libfile, RTLD_LAZY);
     if (handle == NULL) {
-        fprintf(stderr, "Failed to open library %s", libfile);
-        perror("");
+        log_perr("Failed to open library %s", libfile);
         return false;
     }
 
     proc = dlsym(handle, fn);
     if (proc == NULL) {
         dlclose(handle);
-        fprintf(stderr, "No such function in library %s: %s.\n",
+        log_err("No such function in library %s: %s.",
                 libname, fn);
         return false;
     }

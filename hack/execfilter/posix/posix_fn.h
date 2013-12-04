@@ -14,6 +14,7 @@
     if (!next) \
         next = dlsym(RTLD_NEXT, #fn)
 
+#include <bas/log.h>                    /* Logging functions */
 #include <bas/path.h>                   /* Path normalization. */
 #include <bas/str.h>                    /* Utilities to parse the quoted
                                            strings. */
@@ -37,7 +38,7 @@
     do {                                                            \
         if ((mode) & F_INTR) return err;                            \
         if ((mode) & F_DENY) {                                      \
-            fprintf(stderr, "Execution of %s is denied.\n", path);  \
+            log_err("Execution of %s is denied.", path);            \
             errno = EACCES;                                         \
             return err;                                             \
         }                                                           \
