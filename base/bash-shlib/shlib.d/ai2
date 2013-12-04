@@ -9,7 +9,6 @@ function load-image() {
     fi
 
     local img="${caller%.in}.img"
-
     local dir="${img%/*}"
     local base="${img##*/}"
     if [ "$dir" = "$img" ]; then
@@ -17,9 +16,19 @@ function load-image() {
         base="$img"
     fi
 
-    if [ -f "$dir/.$base" ]; then
-        img="$dir/.$base"
-    fi
+    local file=
+    for img in \
+            "$dir/$base" \
+            "$dir/.$base" \
+            "/usr/share/${caller_pkg:-aiai}/$base" \
+            "/usr/share/${caller_pkg:-aiai}/image/$base"; do
+        if [ -f "$img" ]; then
+            file="$img"
+            break
+        fi
+    done
 
-    .. "$img"
+    [ -z $file ] && return 1
+
+    .. "$file"
 }
