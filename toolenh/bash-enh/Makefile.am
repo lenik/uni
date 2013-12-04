@@ -28,7 +28,7 @@ dist_shsrc_SCRIPTS = \
 dist_sudoers_DATA = \
     sudoers.d/keep-hist
 
-dist_bashcmpl_DATA = \
+dist_completion_DATA = \
     bash_completion.d/nosvn \
     bash_completion.d/paths
 

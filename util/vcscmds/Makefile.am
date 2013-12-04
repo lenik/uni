@@ -8,7 +8,7 @@ dist_bin_SCRIPTS = \
 dist_aliases_DATA = \
     50vcscmds.sh
 
-dist_bashcmpl_DATA = \
+dist_completion_DATA = \
     vcscmds
 
 setup_SCRIPTS = \

@@ -1,6 +1,6 @@
 include ../libauto/coolauto.am
 
-dist_bashcmpl_DATA = \
+dist_completion_DATA = \
     m2chdir \
     mjava \
     newmp

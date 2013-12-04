@@ -14,7 +14,7 @@ bin_PROGRAMS = \
 dist_aiai_SOURCES = aiai.c
 aiai_LDADD = ${GLIB_LIBS} -lbas
 
-dist_bashcmpl_DATA = \
+dist_completion_DATA = \
     aiai.sh
 
 dist_bin_SCRIPTS = \

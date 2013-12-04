@@ -15,7 +15,7 @@ dist_qlogconf_DATA = \
 dist_aliases_DATA = \
     cooltask.sh
 
-dist_bashcmpl_DATA = \
+dist_completion_DATA = \
     cooltask
 
 setup_SCRIPTS = \

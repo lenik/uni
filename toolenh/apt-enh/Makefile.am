@@ -19,7 +19,7 @@ dist_man_MANS = \
 dist_aliases_DATA = \
     aptutils.sh
 
-dist_bashcmpl_DATA = \
+dist_completion_DATA = \
     aptutils_compl.sh
 
 dist_aptconf_DATA = \

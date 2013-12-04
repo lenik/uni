@@ -31,31 +31,31 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-DATETIME    = $(shell date +"%Y-%m-%d %H:%M:%S")
-DATE		= $(word 1,$(DATETIME))
-TIME		= $(word 2,$(DATETIME))
+DATETIME        = $(shell date +"%Y-%m-%d %H:%M:%S")
+DATE		    = $(word 1,$(DATETIME))
+TIME		    = $(word 2,$(DATETIME))
 
-aliasesdir  = ${sysconfdir}/bash_aliases.d
-apparmordir = ${sysconfdir}/apparmor.d
-bashcmpldir = ${sysconfdir}/bash_completion.d
-cachedir    = /var/cache
-eardir		= ${javalibdir}/ear
-initdir     = ${sysconfdir}/init
-javalibdir  = ${datadir}/java
-newtmpldir  = ${libdir}/newtmpl.d
-perllibdir  = ${datadir}/perl5
-pkgcachedir = ${cachedir}/${PACKAGE_NAME}
-pkgvarlibdir= ${varlibdir}/${PACKAGE_NAME}
-profiledir  = ${sysconfdir}/profile.d
-sbindir     = ${prefix}/sbin
-setupdir    = ${datadir}/setup/${PACKAGE_NAME}
-shlibdir    = ${libdir}/shlib.d
-substdir    = ${sysconfdir}/coolcmd/subst
-sudoersdir  = ${sysconfdir}/sudoers.d
-sysconfdir  = /etc
-sysvinitdir = ${sysconfdir}/init.d
-varlibdir   = /var/lib
-wardir		= ${javalibdir}/war
+aliasesdir      = ${sysconfdir}/bash_aliases.d
+apparmordir     = ${sysconfdir}/apparmor.d
+completiondir   = ${sysconfdir}/bash_completion.d
+cachedir        = /var/cache
+eardir		    = ${javalibdir}/ear
+initdir         = ${sysconfdir}/init
+javalibdir      = ${datadir}/java
+newtmpldir      = ${libdir}/newtmpl.d
+perllibdir      = ${datadir}/perl5
+pkgcachedir     = ${cachedir}/${PACKAGE_NAME}
+pkgvarlibdir    = ${varlibdir}/${PACKAGE_NAME}
+profiledir      = ${sysconfdir}/profile.d
+sbindir         = ${prefix}/sbin
+setupdir        = ${datadir}/setup/${PACKAGE_NAME}
+shlibdir        = ${libdir}/shlib.d
+substdir        = ${sysconfdir}/coolcmd/subst
+sudoersdir      = ${sysconfdir}/sudoers.d
+sysconfdir      = /etc
+sysvinitdir     = ${sysconfdir}/init.d
+varlibdir       = /var/lib
+wardir		    = ${javalibdir}/war
 
 do_subst = sed \
 	-e 's,[@]DATETIME[@],$(DATETIME),g' \
@@ -70,7 +70,7 @@ do_subst = sed \
 do_subst += \
 	-e 's,[@]aliasesdir[@],$(aliasesdir),g' \
 	-e 's,[@]apparmordir[@],$(apparmordir),g' \
-	-e 's,[@]bashcmpldir[@],$(bashcmpldir),g' \
+	-e 's,[@]completiondir[@],$(completiondir),g' \
 	-e 's,[@]bindir[@],$(bindir),g' \
 	-e 's,[@]cachedir[@],$(cachedir),g' \
 	-e 's,[@]datadir[@],$(datadir),g' \

@@ -26,7 +26,7 @@ bin_SCRIPTS = \
 dist_aliases_DATA = \
     cooldeb.sh
 
-dist_bashcmpl_DATA = \
+dist_completion_DATA = \
     cooldeb
 
 dist_man_MANS = \

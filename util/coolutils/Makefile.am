@@ -23,7 +23,7 @@ dist_bin_SCRIPTS = \
     which2 \
     whichother
 
-dist_bashcmpl_DATA = \
+dist_completion_DATA = \
     bash_completion.d/coolutils.sh
 
 dist_aliases_DATA = \
