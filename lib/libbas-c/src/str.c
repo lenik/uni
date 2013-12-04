@@ -48,10 +48,7 @@ char *rtrim(char *s) {
 
     char *end = s + strlen(s) - 1;
     while (end >= s && isspace(*end))
-        --end;
-
-    if (end >= s)
-        *end = '\0';
+        *--end = '\0';
 
     return s;
 }
