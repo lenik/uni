@@ -6,8 +6,23 @@
 
 #define BLOCK_SIZE 64
 
-char *load_file(FILE *in, const char *path, size_t *sizep,
+char *load_file(const char *path, size_t *sizep,
                 size_t mem_off, size_t padding) {
+    char *data;
+
+    FILE *in = fopen(path, "rb");
+    if (in == NULL)
+        return NULL;
+
+    data = _load_file(in, path, sizep, mem_off, padding);
+
+    fclose(in);
+
+    return data;
+}
+
+char *_load_file(FILE *in, const char *path, size_t *sizep,
+                 size_t mem_off, size_t padding) {
     size_t capacity = 16;
     char *data = (char *) malloc(capacity);
     size_t off = mem_off;

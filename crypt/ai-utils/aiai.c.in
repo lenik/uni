@@ -467,7 +467,7 @@ bool ai_encode_file(const char *in_path, FILE *in,
         }
     }
 
-    data = load_file(in, in_path, &size, AIH_SIZE, 0);
+    data = _load_file(in, in_path, &size, AIH_SIZE, 0);
     end = data + size + AIH_SIZE;
     hdr = (ai_header *) data;
     memset(hdr, 0, AIH_SIZE);
@@ -525,7 +525,7 @@ bool ai_decode_file(const char *in_path, FILE *in,
     ai_header hdr;                      /* the decoded header */
     char *p;
 
-    data = load_file(in, in_path, &size, 0, 1); /* padding 1 for terminate NUL. */
+    data = _load_file(in, in_path, &size, 0, 1); /* padding 1 for terminate NUL. */
     end = data + size;
     *end = '\0';
 
