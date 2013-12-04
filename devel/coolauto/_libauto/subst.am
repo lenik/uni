@@ -53,6 +53,7 @@ shlibdir        = ${libdir}/shlib.d
 substdir        = ${sysconfdir}/coolcmd/subst
 sudoersdir      = ${sysconfdir}/sudoers.d
 sysconfdir      = /etc
+syslogconfdir	= ${sysconfdir}/rsyslog.d
 sysvinitdir     = ${sysconfdir}/init.d
 varlibdir       = /var/lib
 wardir		    = ${javalibdir}/war
@@ -93,6 +94,7 @@ do_subst += \
 	-e 's,[@]substdir[@],$(substdir),g' \
 	-e 's,[@]sudoersdir[@],$(sudoersdir),g' \
 	-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
+	-e 's,[@]syslogconfdir[@],$(syslogconfdir),g' \
 	-e 's,[@]varlibdir[@],$(varlibdir),g' \
 	-e 's,[@]wardir[@],$(wardir),g' \
 	-e 's/master-file/generated-file, please do not edit/'
