@@ -35,6 +35,9 @@ libexecfilter_la_LDFLAGS = -version-info 1:0:0
 libefstub_la_SOURCES = stub.c
 libefstub_la_LDFLAGS = -version-info 1:0:0
 
+logconf_DATA = \
+    execfilter.conf
+
 dist_doc_DATA = manual.pdf
 
 manual.pdf: main.tex itree.tex
