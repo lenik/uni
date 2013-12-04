@@ -14,8 +14,10 @@ SUBDIRS = test
 bin_PROGRAMS = \
     ef-dump
 
-ef_dump_SOURCES = ef-dump.c
-ef_dump_LDADD = -lexecfilter
+ef_dump_SOURCES = ef-dump.c ${libexecfilter_la_SOURCES}
+# ef_dump_LDADD = -lexecfilter
+ef_dump_CFLAGS = ${AM_CFLAGS}
+ef_dump_LDADD = ${GLIB_LIBS} -lbas -ldl
 
 lib_LTLIBRARIES = \
     libexecfilter.la \
@@ -29,7 +31,7 @@ libexecfilter_la_SOURCES = \
     posix/spawn.c \
     posix/system.c
 
-libexecfilter_la_LIBADD = $(GLIB_LIBS) -lbas -ldl
+libexecfilter_la_LIBADD = ${GLIB_LIBS} -lbas -ldl
 libexecfilter_la_LDFLAGS = -version-info 1:0:0
 
 libefstub_la_SOURCES = stub.c
