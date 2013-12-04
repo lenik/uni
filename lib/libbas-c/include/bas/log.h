@@ -4,30 +4,35 @@
 #include <syslog.h>
 
 extern int syslog_facility;
-extern int syslog_level;
+// extern int syslog_level;
 
 void _log_x(const char *ident, int option, int level, const char *format, ...);
 void _log_x_perror(const char *ident, int option, int level,
                    const char *format, ...);
 
-#ifndef log_ident
-#define log_ident "user"
+#ifndef LOG_IDENT
+#define LOG_IDENT "user"
 #endif
 
-#ifndef log_option
-#define log_option LOG_PERROR
+#ifndef LOG_OPTION
+#define LOG_OPTION LOG_PERROR
 #endif
 
-#ifndef log_level
+#ifndef LOG_LEVEL
 #  ifdef DEBUG
-#    define log_level LOG_DEBUG
+#    define LOG_LEVEL LOG_DEBUG
 #  else
-#    define log_level LOG_INFO
+#    define LOG_LEVEL LOG_INFO
 #  endif
 #endif
 
-#define LOG_IF_LEVEL(level, args...) \
-    if (level > log_level) ; else _log_x(log_ident, log_option, level, args)
+#define LOG_IF_LEVEL(level, ...) \
+    if (level > LOG_LEVEL); \
+    else _log_x(LOG_IDENT, LOG_OPTION, level, __VA_ARGS__)
+
+#define LOG_PERROR_IF_LEVEL(level, ...) \
+    if (level > LOG_LEVEL); \
+    else _log_x_perror(LOG_IDENT, LOG_OPTION, level, __VA_ARGS__)
 
 #define log_emerg(...) LOG_IF_LEVEL(LOG_ERR, __VA_ARGS__)
 #define log_alert(...) LOG_IF_LEVEL(LOG_ALERT, __VA_ARGS__)
@@ -37,9 +42,6 @@ void _log_x_perror(const char *ident, int option, int level,
 #define log_notice(...) LOG_IF_LEVEL(LOG_NOTICE, __VA_ARGS__)
 #define log_info(...) LOG_IF_LEVEL(LOG_INFO, __VA_ARGS__)
 #define log_debug(...) LOG_IF_LEVEL(LOG_DEBUG, __VA_ARGS__)
-
-#define LOG_PERROR_IF_LEVEL(level, ...) \
-    if (syslog_level < level); else _log_x_perror(log_ident, log_option, level, __VA_ARGS__)
 
 #define log_perr(...) LOG_PERROR_IF_LEVEL(LOG_ERR, __VA_ARGS__)
 #define log_pwarn(...) LOG_PERROR_IF_LEVEL(LOG_WARNING, __VA_ARGS__)
