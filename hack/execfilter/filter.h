@@ -17,7 +17,7 @@ extern int run_level;
 
 /* Determine whether a feature is enabled or not. Return 1 for enable, or 0 for
    disable. */
-typedef int (*gate_fn)(pid_t);
+typedef bool (*gate_fn)(pid_t, int);
 
 /* Encode the contents in the fixed-size buf. */
 typedef void (*encode_fn)(char *, size_t);
