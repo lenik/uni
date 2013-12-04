@@ -414,6 +414,7 @@ void set_execution_mode(program_conf_t *conf, const char *norm_path, xmode_t mod
     }
 
     xmode_t *data = malloc(sizeof(xmode_t));
+    *data = mode;
     g_hash_table_insert(conf->modes, strdup(norm_path), data);
 }
 
