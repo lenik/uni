@@ -53,6 +53,6 @@ AI=ai
 	$(AI) -ct $(AI_TEMPLATE) <($(do_subst) <"$<") >$@
 	chmod -w "$@"
 
-.%.img: %.i
+%.img: %.i
 	$(AI) -ct $(AI_TEMPLATE) <$< >$@
 	chmod -w "$@"
