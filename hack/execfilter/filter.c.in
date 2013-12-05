@@ -13,13 +13,12 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <bas/log.h>
 #include <bas/path.h>
 #include <bas/str.h>
 
-#include "config.h"
 #include "filter.h"
 #include "trie.h"
+#include "log.h"
 
 #define CONFIGDIR "@configdir@"         /* The directory containing the
                                            configuration files. */
