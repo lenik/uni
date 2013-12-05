@@ -219,7 +219,9 @@ static const char *parse_confs(char *script, const char *location) {
                 }
 
                 if (streq("allow", p))
-                    conf->mode_all |= F_ALLOW;
+                    /* This should be the same as implicit rule.  Don't set
+                        F_ALLOW here. */
+                    conf->mode_all &= ~F_DENY;
                 if (streq("deny", p))
                     conf->mode_all |= F_DENY;
                 break;
@@ -396,12 +398,16 @@ xmode_t get_execution_mode(program_conf_t *conf, const char *norm_path) {
     }
 
     gpointer value = g_hash_table_lookup(conf->modes, norm_path);
-    if (value == NULL)                  /* not configured yet.. */
-        return 0;                       /* the default mode? */
+    xmode_t mode;
+    if (value == NULL) {                /* not configured yet.. */
+        mode = 0;                       /* the default mode? */
+    } else {
+        mode = *(xmode_t *) value;
+    }
 
-    xmode_t mode = *(xmode_t *) value;
     mode |= conf->mode_all;
     mode &= conf->mask;
+
     return mode;
 }
 
@@ -436,6 +442,8 @@ static pid_t stat_ppid(pid_t pid) {
 
 xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
     xmode_t all = 0;
+
+    /* NOTICE: the symlink is expanded, you must config the real path. */
     char *obj_norm = path_find_norm(obj);
     if (obj_norm == NULL)               /* obj isn't existed. */
         /* maybe another F_HIDE? */
@@ -456,9 +464,10 @@ xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
 
         if (cc == -1) {
             if (errno == EACCES) {
-                /* skip this one. */
+                /* since some pids are owned by root, this is very common. */
+                // log_warn("Error access %s, ignored.", psym);
             } else {
-                perror("readlink");
+                log_warn("The link %s is broken, pass thru forced.", psym);
                 return PASS_THRU_MODE;
             }
         } else {
@@ -466,17 +475,35 @@ xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
             conf = g_hash_table_lookup(pmap, bin);
             if (conf) {
                 xmode_t m = get_execution_mode(conf, obj_norm);
-                // log_debug("execution mode for [%d] %s: %x\n", pid, obj_norm, m);
+                log_debug("mode of %s for [%d] %s: %x\n",
+                          obj_norm, pid, bin, m);
                 all |= m;
+
+                /* explicit deny overrides anything else. */
+                if ((all & (F_ALLOW | F_DENY)) == F_DENY)
+                    break;
             }
         }
 
         pid = stat_ppid(pid);
     }
 
-    if (all & F_DENY) {
+    if ((all & (F_ALLOW | F_DENY)) == F_DENY) {
         log_info("%s() denied: %s", src, obj);
         log_notice("Execution Blocked: %s", obj);
+    } else {
+        char modes[200] = "";
+
+        if (all & F_ALLOW)
+            strcat(modes, " ALLOW");
+        if (all & F_DENY)
+            strcat(modes, " DENY");
+        if (all & ~(F_ALLOW | F_DENY))
+            strcat(modes, " OTHER");
+        if (!*modes)
+            sprintf(modes, "(none)");
+
+        log_debug("execution mode for %s:%s\n", obj_norm, modes);
     }
     return all;
 }
