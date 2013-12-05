@@ -12,4 +12,14 @@ Package: libbas-c
 Architecture: any
 Depends: libglib2.0-0
 Description: bas framework for C.
- The bas prog framework.
+    The bas prog framework.
+
+Package: libbas-c-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends:
+    libbas-c (= ${binary:Version}),
+    libglib2.0-0-dbg
+Description: Debugging symbols for the libbas-c library.
+    The bas prog framework.

@@ -86,14 +86,14 @@ itree.tex
 .deps
 
 # --- Regexp not works here ---
-*/*/debian/changelog
-*/*/debian/compat
-*/*/debian/copyright
-*/*/debian/rules
-*/*/debian/files
-*/*/debian/*.ex
-*/*/debian/*.EX
-*/*/debian/*/
+**/debian/changelog
+**/debian/compat
+**/debian/copyright
+**/debian/rules
+**/debian/files
+**/debian/*.ex
+**/debian/*.EX
+**/debian/*/
 
 /stats/
 
