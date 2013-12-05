@@ -56,7 +56,7 @@ static const char *parse_file(const char *path);
 static const char *parse_confs(char *script, const char *location);
 static void pmap_each_tab(gpointer key, gpointer value, gpointer data);
 static void pmap_each_mode(gpointer key, gpointer value, gpointer data);
-static bool loadsym(symres_t *, const char *spec);
+static bool loadsym(symres_t *, const char *spec, const char *default_fn);
 static pid_t stat_ppid(pid_t pid);
 
 bool pmap_load() {
@@ -283,7 +283,7 @@ static const char *parse_confs(char *script, const char *location) {
                     g_hash_table_insert(formats, strdup(ext), sr);
                 }
 
-                if (! loadsym(sr, p)) {
+                if (! loadsym(sr, p, "decode")) {
                     log_err("can't resolve format %s.", ext);
                     continue;
                 }
@@ -294,7 +294,7 @@ static const char *parse_confs(char *script, const char *location) {
         case 'g':
             /* gate LIBNAME FN=gate */
             if (streq("gate", token)) {
-                if (! loadsym(&gate_sr, p)) {
+                if (! loadsym(&gate_sr, p, "gate")) {
                     log_err("can't resolve gate.");
                     continue;
                 }
@@ -451,6 +451,15 @@ xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
 
     lazy_init();
 
+    if (gate_sr.proc) {
+        log_debug("Invoke gate fn: %s::%s", gate_sr.libname, gate_sr.fn);
+        gate_fn gatef = gate_sr.proc;
+        if (! gatef(pid, 0)) {
+            log_notice("execfilter is disabled. allow all: %s", obj_norm);
+            return 0;
+        }
+    }
+
     log_debug("%s() analyze: %s\n", src, obj_norm);
 
     while (pid != 0 && pid != -1) {
@@ -508,7 +517,7 @@ xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
     return all;
 }
 
-static bool loadsym(symres_t *sr, const char *spec) {
+static bool loadsym(symres_t *sr, const char *spec, const char *default_fn) {
     char libfile[PATH_MAX];
     char buf[PATH_MAX * 2];
     strcpy(buf, spec);
@@ -524,7 +533,7 @@ static bool loadsym(symres_t *sr, const char *spec) {
 
     char *fn = readtok(&p);
     if (fn == NULL)
-        fn = "decode";
+        fn = default_fn;
 
     if (libname[0] == '/') {
         strcpy(libfile, libname);
