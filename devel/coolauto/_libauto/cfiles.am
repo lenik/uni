@@ -37,7 +37,7 @@ dist_CAdoc_DATA = \
 	ChangeLog
 
 ChangeLog:
-	which gitcl >/dev/null && gitcl --mmc . >$@
+	if test -f VERSION.av; then which gitcl >/dev/null && gitcl --mmc . >$@; fi
 
 clean:
 	rm -f ChangeLog
