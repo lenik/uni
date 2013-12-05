@@ -3,7 +3,14 @@
 
 preloadfile="@sysconfdir@/ld.so.preload"
 
-if grep -q libexecfilter "$preloadfile"; then
+configured=0
+if [ -f "$preloadfile" ]; then
+    if grep -q libexecfilter "$preloadfile"; then
+        configured=1
+    fi
+fi
+
+if [ "$configured" = 1 ]; then
     echo "Remove libexecfilter from preloaded library list."
     tmpf=`tempfile`
     grep -v libexecfilter "$preloadfile" >"$tmpf"

@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.65])
 AC_INIT([execfilter], [1.2.10], [xjl-bug@99jsj.com])
-AM_INIT_AUTOMAKE([-Wno-portability])
+AM_INIT_AUTOMAKE([-Wno-portability subdir-objects])
 LT_INIT([disable-static])
 AC_CONFIG_MACRO_DIR([m4])
 
