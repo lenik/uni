@@ -1,4 +1,5 @@
 *.img
+shendun-efext.c
 shendun-efpoll
 yangwei
 yw-edit
