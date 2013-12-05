@@ -59,11 +59,16 @@ function main() {
                 resp_now=${resp[1]}
                 resp_expire=${resp[2]}
 
+                if [ -n "$auth_recent" ]; then
+                    if [ "$resp_now" -le "$auth_recent" ]; then
+                        quit "Invalid response: current time is illegal."
+                    fi
+                fi
                 auth_mac="$resp_mac"
-                auth_now="$resp_now"
+                auth_recent="$resp_now"
                 auth_expire="$resp_expire"
                 if [ -z "$auth_creation" ]; then
-                    auth_creation="$auth_now"
+                    auth_creation="$resp_now"
                 fi
                 ;;
 
@@ -179,8 +184,8 @@ function save_auth() {
 # updated at `date`
 auth_configs    = $auth_configs
 auth_creation   = $auth_creation
+auth_recent     = $auth_recent
 auth_expire     = $auth_expire
-auth_now        = $auth_now
 auth_fails      = $auth_fails
 auth_mac        = $auth_mac
 auth_serial     = $auth_serial
