@@ -58,11 +58,18 @@ function main() {
         autoreconf2 -is
     fi
 
+    if [ -f configure.ac ]; then
+        if grep -q AC_CONFIG_HEADER configure.ac; then
+            _log1 "Generate config headers"
+            autoheader
+        fi
+    fi
+
     if [ ! -f Makefile ] && [ -x ./configure ]; then
-        _log1 Generate Makefile by autotools...
+        _log1 "Generate Makefile by autotools..."
         if ./configure; then
             if [ -f Makefile ]; then
-                _log1 Done.
+                _log1 "Done."
             else
                 _error "./configure success but no Makefile generated. "
                 _error "Aborted."
