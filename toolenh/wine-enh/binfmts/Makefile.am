@@ -1,4 +1,4 @@
-include ../libauto/coolauto.am
+include ../libauto/common.am
 
 binfmtsdir = ${datadir}/binfmts
 

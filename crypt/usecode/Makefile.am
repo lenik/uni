@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 
 dist_bin_SCRIPTS = \
     usecode

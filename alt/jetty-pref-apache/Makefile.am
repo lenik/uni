@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 
 do_subst += \
     -e 's,[@]jettydir[@],$(jettydir),g' \

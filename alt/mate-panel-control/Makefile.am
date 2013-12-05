@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 
 bin_PROGRAMS = \
     mate-panel-control

@@ -1,4 +1,4 @@
-include ../libauto/coolauto.am
+include ../libauto/common.am
 
 # PERL        = $(shell realpath $$PERL)
 # YAPP        = $(PERL) $(shell rpath.bat '$(DIRT_HOME)/0/yapp.pl')

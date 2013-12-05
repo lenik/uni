@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 
 bin_SCRIPTS = \
     b43-tools/assembler/b43-asm \

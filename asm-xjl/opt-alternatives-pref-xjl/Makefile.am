@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 
 dist_profile_SCRIPTS = \
     profile.d/optenv.sh

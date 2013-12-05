@@ -1,4 +1,4 @@
-include ../libauto/coolauto.am
+include ../libauto/common.am
 
 assemblydir = ${sysconfdir}/maven2/assembly
 

@@ -1,4 +1,4 @@
-include ../libauto/coolauto.am
+include ../libauto/common.am
 
 a2confdir  = ${sysconfdir}/apache2
 a2sitesdir = ${a2confdir}/sites-available

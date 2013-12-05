@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 
 mavenconfdir = ${sysconfdir}/maven
 maven2confdir= ${sysconfdir}/maven2

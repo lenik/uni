@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 
 setup_DATA = \
     svn2cl.diff \

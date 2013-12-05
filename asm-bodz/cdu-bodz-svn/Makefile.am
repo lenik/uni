@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 
 svnrootdir = /repos/svn
 svnconfdir = ${svnrootdir}/conf

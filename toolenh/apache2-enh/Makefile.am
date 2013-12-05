@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 
 sitesdir = ${sysconfdir}/apache2/sites-available
 do_subst += -e 's,[@]sitesdir[@],${sitesdir},g'

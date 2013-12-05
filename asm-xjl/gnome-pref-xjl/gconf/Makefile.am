@@ -1,4 +1,4 @@
-include ../libauto/coolauto.am
+include ../libauto/common.am
 
 gconf2dir   = ${sysconfdir}/gconf/2
 gconflibdir = /var/lib/gconf

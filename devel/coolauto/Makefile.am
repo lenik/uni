@@ -1,4 +1,4 @@
-include _libauto/coolauto.am
+include _libauto/project.am
 
 SUBDIRS = _libauto
 

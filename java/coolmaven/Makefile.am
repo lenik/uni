@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 
 SUBDIRS = bash_completion.d assembly
 

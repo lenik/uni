@@ -1,5 +1,5 @@
 
-include libauto/coolauto.am
+include libauto/project.am
 
 msyncdir   = ${sysconfdir}/msync
 

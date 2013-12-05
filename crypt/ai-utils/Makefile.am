@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 
 AM_CPPFLAGS = ${GLIB_CFLAGS}
 

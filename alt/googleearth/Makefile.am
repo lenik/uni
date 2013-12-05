@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 include libauto/allin.am
 
 setup_SCRIPTS = \

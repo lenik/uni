@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 
 firmwaredir = /lib/firmware
 b43dir      = ${firmwaredir}/b43

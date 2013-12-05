@@ -1,3 +1,3 @@
-include libauto/coolauto.am
+include libauto/project.am
 
 SUBDIRS = m4x

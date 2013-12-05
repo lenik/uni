@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 
 bindconfdir     = ${sysconfdir}/bind
 dhcphookdir     = ${sysconfdir}/dhcp/dhclient-enter-hooks.d

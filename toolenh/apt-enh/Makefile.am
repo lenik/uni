@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 
 aptconfdir=${sysconfdir}/apt/apt.conf.d
 

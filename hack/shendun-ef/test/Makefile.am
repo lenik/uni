@@ -1,4 +1,4 @@
-include ../libauto/coolauto.am
+include ../libauto/common.am
 testdir = ${pkgdatadir}/test
 
 test_PROGRAMS = \

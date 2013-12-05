@@ -3,7 +3,9 @@ libautodir = ${pkgdatadir}/libauto
 
 dist_libauto_DATA = \
     allin.am \
+    common.am \
     coolauto.am \
-    cfiles.am \
+    changelog.am \
+    project.am \
     rst.am \
     subst.am

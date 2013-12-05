@@ -1,4 +1,4 @@
-include ../libauto/coolauto.am
+include ../libauto/common.am
 
 svnconfdir = ${sysconfdir}/subversion/cls/conf
 

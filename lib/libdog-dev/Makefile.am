@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 
 sited2dir = /usr/include/d2/site
 # zdogdir = ${sited2dir}/net/bodz/dog

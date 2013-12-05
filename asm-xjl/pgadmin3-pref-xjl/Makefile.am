@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 
 pgadmin3datadir = ${datadir}/pgadmin3
 

@@ -1,4 +1,4 @@
-include ../libauto/coolauto.am
+include ../libauto/common.am
 
 do_subst += -e 's,[@]datadir[@],$(datadir),g'
 

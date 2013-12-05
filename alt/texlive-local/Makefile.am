@@ -1,4 +1,4 @@
-include libauto/coolauto.am
+include libauto/project.am
 include libauto/allin.am
 
 do_subst += -e 's,[@]profilesdir[@],$(profilesdir),g'
