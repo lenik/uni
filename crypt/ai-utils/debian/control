@@ -10,6 +10,6 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/crypt/aiai
 
 Package: aiai
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: binfmt-support
 Description: Ascii Art Data Encoder
  Encode data in repeated sequence of a pre-defined ascii art picture.
