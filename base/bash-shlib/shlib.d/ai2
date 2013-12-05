@@ -8,29 +8,35 @@ function load-image() {
         fi
     fi
 
-    local img="${caller%.in}"
-        img="${img%.ain}"
-        img="$img.img"
-    local dir="${img%/*}"
-    local base="${img##*/}"
-    if [ "$dir" = "$img" ]; then
+    caller="${caller%.in}"
+    caller="${caller%.ain}"
+
+    local dir="${caller%/*}"
+    local base="${caller##*/}"
+    if [ "$dir" = "$caller" ]; then
         dir=.
-        base="$img"
+        base="$caller"
     fi
 
-    local file=
+    if [ -f "$dir/$base.i" ]; then
+        . "$dir/$base.i"
+        return
+    fi
+
+    local img
+    local found=0
     for img in \
-            "$dir/$base" \
-            "$dir/.$base" \
-            "/usr/share/${caller_pkg:-aiai}/$base" \
-            "/usr/share/${caller_pkg:-aiai}/image/$base"; do
+            "$dir/$base.img" \
+            "$dir/.$base.img" \
+            "/usr/share/${caller_pkg:-aiai}/$base.img" \
+            "/usr/share/${caller_pkg:-aiai}/image/$base.img"; do
         if [ -f "$img" ]; then
-            file="$img"
+            found=1
             break
         fi
     done
 
-    [ -z $file ] && return 1
+    [ $found = 0 ] && return 1
 
-    .. "$file"
+    .. "$img"
 }
