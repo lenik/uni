@@ -46,36 +46,41 @@ bool gate(pid_t pid, int reserved) {
     struct stat sb;
     if (stat(AUTH_FILE, &sb) != 0) {
         if (errno == ENOENT) {          /* auth file isn't existed */
-            int exit = system(RENEW_CMD);
-            if (exit != 0) {
-                log_err("Failed to execute the auth updater.");
+            // Re-entrant across process is dangerous.
+            // Let the installer do the initialization, ok.
+            //
+            // int exit = system(RENEW_CMD);
+            // if (exit != 0) {
+            //     log_err("Failed to execute the auth updater.");
+            //     return false;
+            // }
+            memset(&db, 0, sizeof(struct auth_db));
+        } else {
+            /* other stat error. */
+            log_perr("stat file %s", AUTH_FILE);
+            return false;                  /* bad auth file: can't stat it. stop. */
+        }
+    } else {
+        if (sb.st_mtime > mtime) {          /* file changed, reload it anyway. */
+            size_t size;
+            char *auth_data = load_file(AUTH_FILE, &size, 0, 1);
+
+            if (auth_data == NULL) {
+                log_perr("Can't read from auth file.");
                 return false;
             }
+            auth_data[size] = '\0';
+
+            yw_decrypt(auth_data, size);
+
+            if (! parse_auth(auth_data, &db)) {
+                log_err("Parse error in auth file.");
+            } else {
+                mtime = sb.st_mtime;        /* reloaded, okay. */
+            }
+
+            free(auth_data);
         }
-        /* other stat error. */
-        log_perr("stat file %s", AUTH_FILE);
-        return false;                  /* bad auth file: can't stat it. stop. */
-    }
-
-    if (sb.st_mtime > mtime) {          /* file changed, reload it anyway. */
-        size_t size;
-        char *auth_data = load_file(AUTH_FILE, &size, 0, 1);
-
-        if (auth_data == NULL) {
-            log_perr("Can't read from auth file.");
-            return false;
-        }
-        auth_data[size] = '\0';
-
-        yw_decrypt(auth_data, size);
-
-        if (! parse_auth(auth_data, &db)) {
-            log_err("Parse error in auth file.");
-        } else {
-            mtime = sb.st_mtime;        /* reloaded, okay. */
-        }
-
-        free(auth_data);
     }
 
     if (!strlen(db.mac) || db.expire == 0) {
