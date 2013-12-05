@@ -42,7 +42,7 @@ static time_t mtime;
 
 static bool parse_auth(char *script, struct auth_db *db);
 
-bool gate(pid_t pid) {
+bool gate(pid_t pid, int reserved) {
     struct stat sb;
     if (stat(AUTH_FILE, &sb) != 0) {
         if (errno == ENOENT) {          /* auth file isn't existed */
@@ -169,12 +169,14 @@ bool parse_auth(char *script, struct auth_db *db) {
     return true;
 }
 
+#if 0
 int main() {
     pid_t pid = getpid();
-    bool status = gate(pid);
+    bool status = gate(pid, 0);
     if (status)
         printf("gate ok\n");
     else
         printf("gate fail\n");
     return 0;
 }
+#endif
