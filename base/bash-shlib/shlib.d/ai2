@@ -8,7 +8,9 @@ function load-image() {
         fi
     fi
 
-    local img="${caller%.in}.img"
+    local img="${caller%.in}"
+        img="${img%.ain}"
+        img="$img.img"
     local dir="${img%/*}"
     local base="${img##*/}"
     if [ "$dir" = "$img" ]; then
