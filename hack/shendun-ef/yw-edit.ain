@@ -3,6 +3,7 @@
     : ${PROGRAM_TITLE:=yw config file editor}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
     : ${EDITOR:=vim}
+    : ${caller_pkg:=@PACKAGE@}
 
     . shlib-import cliboot ai
     option -q --quiet       "Repeat to get less info"
