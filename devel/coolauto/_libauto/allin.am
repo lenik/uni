@@ -50,9 +50,10 @@ AI=ai
 
 %: %.ain Makefile
 	rm -f "$@"
-	$(AI) -ct $(AI_TEMPLATE) <($(do_subst) <"$<") >$@
+	$(AI) -ct $(AI_TEMPLATE) <($(do_subst) <"$<") >"$@"
 	chmod -w "$@"
 
 %.img: %.i
-	$(AI) -ct $(AI_TEMPLATE) <$< >$@
+	rm -f "$@"
+	$(AI) -ct $(AI_TEMPLATE) "$<" >"$@"
 	chmod -w "$@"
