@@ -440,7 +440,7 @@ static pid_t stat_ppid(pid_t pid) {
     return ppid;
 }
 
-xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
+static xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
     xmode_t all = 0;
 
     /* NOTICE: the symlink is expanded, you must config the real path. */
@@ -517,6 +517,21 @@ xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
     return all;
 }
 
+xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
+    /* TODO thread-safe? */
+    static bool calling = false;        /* no re-entrant */
+
+    /* any re-entrant execution is strongly allowed. */
+    if (calling)
+        return F_ALLOW;
+    calling = true;
+
+    xmode_t mode = _get_rec(src, pid, obj);
+
+    calling = false;
+    return mode;
+}
+
 static bool loadsym(symres_t *sr, const char *spec, const char *default_fn) {
     char libfile[PATH_MAX];
     char buf[PATH_MAX * 2];
@@ -531,7 +546,7 @@ static bool loadsym(symres_t *sr, const char *spec, const char *default_fn) {
         return false;
     }
 
-    char *fn = readtok(&p);
+    const char *fn = readtok(&p);
     if (fn == NULL)
         fn = default_fn;
 
