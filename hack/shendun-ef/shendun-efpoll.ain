@@ -2,6 +2,7 @@
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
     : ${PROGRAM_TITLE:=Shendun execfilter config poller}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+    : ${caller_pkg:=@PACKAGE@}
 
     . shlib-import cliboot ai
     option -r --renew       "Register/Renew the license"
@@ -9,6 +10,10 @@
     option -v --verbose     "Repeat to get more info"
     option -h --help        "Show this help page"
     option    --version     "Print the version info"
+
+    cachedir="@cachedir@"
+    configdir="@configdir@"
+    rundir="@rundir@"
 
     opt_mode=config
 

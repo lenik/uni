@@ -5,6 +5,7 @@ AI_TEMPLATE=alien
 cachedir = /var/cache
 configdir = ${sysconfdir}/execfilter.d
 cronhourlydir = ${sysconfdir}/cron.hourly
+rundir = /var/run
 
 do_subst += \
     -e 's,[@]cachedir[@],${cachedir},g' \
@@ -19,6 +20,10 @@ yangwei_SOURCES = yangwei.c ywcrypt.c
 yangwei_CFLAGS = $(GLIB_CFLAGS) $(AM_CFLAGS)
 yangwei_LDADD = -lbas
 
+#efgate_SOURCES = shendun-efext.c ywcrypt.c
+#efgate_CFLAGS = ${AM_CFLAGS}
+#efgate_LDADD = -lbas
+
 dist_bin_SCRIPTS = \
     shendun-efpoll \
     yw-edit
@@ -30,7 +35,9 @@ dist_pkgdata_DATA = \
 lib_LTLIBRARIES = \
     libshendun-efext.la
 
-libshendun_efext_la_SOURCES = shendun-efext.c ywcrypt.c
+libshendun_efext_la_SOURCES = \
+    shendun-efext.c \
+    ywcrypt.c
 # libshendun_efext_la_LIBADD =
 
 dist_config_DATA = \
