@@ -47,11 +47,14 @@ int main() {
     wifork(1, execlp("bash", "fake name", "-c", "echo oh, i\\'m in the PATH..", NULL));
     printf("\n");
 
-    log_notice("execle(uname):");
-    wifork(1, execle("/bin/uname", "fake name", "-a", NULL));
-    log_notice("execle(sh -c 'export | grep -n X'):");
-    wifork(1, execle("/bin/bash", "fake name", "-c", "export | grep -n X", NULL,
-        "X1=abc", "X2=def", NULL));
+    {
+        char *const envv[] = { "X1=abc", "X2=def", NULL };
+        log_notice("execle(uname):");
+        wifork(1, execle("/bin/uname", "fake name", "-a", NULL, NULL));
+        log_notice("execle(sh -c 'export | grep -n X'):");
+        wifork(1, execle("/bin/bash", "fake name", "-c", "export | grep -n X", NULL,
+            envv));
+    }
     printf("\n");
 
     {

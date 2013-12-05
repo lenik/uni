@@ -66,47 +66,40 @@ int execve(const char *file, char *const argv[], char *const envp[]) {
 
 #define PTRSIZE sizeof(void *)
 
-#define va_ptrsz(vp, arg0_ref, countp) \
-    _va_ptrsz(&(vp), (void **) (arg0_ref), countp)
+static char **va_ptrsz(va_list ap, int *countp,
+                       bool has0, const char *arg0) {
+    int alloc = 16;
+    char **ptrv = malloc(alloc * sizeof(char *));
+    int count = 0;
 
-static char **_va_ptrsz(va_list *vp_ref, void **arg0_ref, int *countp) {
-    va_list vq;
-    va_copy(vq, *vp_ref);
+    bool more;
 
-    int n = 0;
-    if (arg0_ref) {
-        if (*arg0_ref) {
-            n++;
-            while (va_arg(*vp_ref, char *) != NULL)
-                n++;
-        }
+    if (has0) {
+        if ((more = arg0 != NULL))
+            ptrv[count++] = (char *) arg0;
     } else {
-        while (va_arg(*vp_ref, char *) != NULL)
-            n++;
+        more = true;
     }
 
-    char **ptrs = (char **) malloc((n + 1) * PTRSIZE);
-    char *ptr;
-    int i = 0;
-
-    if (arg0_ref) {
-        if (*arg0_ref) {
-            ptrs[i++] = (char *) *arg0_ref;
-            while ((ptr = va_arg(vq, char *)) != NULL)
-                ptrs[i++] = ptr;
+    if (more) {
+        while (true) {
+            char *ptr = va_arg(ap, char *);
+            if (ptr == NULL)
+                break;
+            if (count >= alloc - 1) {   /* extra +1 for NUL terminator */
+                alloc *= 2;
+                ptrv = realloc(ptrv, alloc * sizeof(char *));
+                assert(ptrv != NULL);
+            }
+            ptrv[count++] = ptr;
         }
-    } else {
-        while ((ptr = va_arg(vq, char *)) != NULL)
-            ptrs[i++] = ptr;
     }
 
-    assert(i == n);
-    ptrs[n] = NULL;
+    ptrv[count] = NULL;
 
     if (countp)
-        *countp = n;
-
-    return ptrs;
+        *countp = count;
+    return ptrv;
 }
 
 /* p for PATH-search, e for environ:
@@ -117,7 +110,7 @@ int execl(const char *path, const char *arg0, ...) {
 
     va_list vp;
     va_start(vp, arg0);
-    char **argv = va_ptrsz(vp, &arg0, NULL);
+    char **argv = va_ptrsz(vp, NULL, true, arg0);
     va_end(vp);
 
     int exit;
@@ -134,7 +127,7 @@ int execlp(const char *file, const char *arg0, ...) {
 
     va_list vp;
     va_start(vp, arg0);
-    char **argv = va_ptrsz(vp, &arg0, NULL);
+    char **argv = va_ptrsz(vp, NULL, true, arg0);
     va_end(vp);
 
     int exit;
@@ -146,22 +139,29 @@ int execlp(const char *file, const char *arg0, ...) {
 /* Execute PATH with all arguments after PATH until a NULL pointer, and the
    argument after that for environment.  */
 int execle(const char *path, const char *arg0, ...) {
-    // log_info("execle %s ...", path);
+    log_info("execle %s ...", path);
 
-    // int argc, envc, i;
+    int argc;
 
     va_list vp;
     va_start(vp, arg0);
-    // char **argv = va_ptrsz(vp, &arg0, &argc);
-    // char **envv = va_ptrsz(vp, NULL, &envc);
-    char **argv = va_ptrsz(vp, &arg0, NULL);
-    char **envv = va_ptrsz(vp, NULL, NULL);
+    char **argv = va_ptrsz(vp, &argc, true, arg0);
+    char **envv = va_arg(vp, char **);
     va_end(vp);
 
-    // for (i = 0; i < argc; i++)
-    // printf("arg %d: %s\n", i, argv[i]);
-    // for (i = 0; i < envc; i++)
-    // printf("env %d: %s\n", i, envv[i]);
+    /*
+    int i;
+    for (i = 0; i < argc; i++)
+        log_debug("  arg %d: %s\n", i, argv[i]);
+
+    if (envv) {
+        char **p = envv;
+        while (*p) {
+            log_debug("  env: %s\n", *p);
+            p++;
+        }
+    }
+    */
 
     int exit;
     exit = _execve(path, argv, envv);
