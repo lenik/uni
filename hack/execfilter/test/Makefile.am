@@ -1,4 +1,4 @@
-include ../libauto/coolauto.am
+include ../libauto/common.am
 
 configdir=${sysconfdir}/execfilter.d
 demobindir = ${pkgdatadir}
