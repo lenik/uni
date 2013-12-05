@@ -9,7 +9,9 @@ rundir = /var/run
 
 do_subst += \
     -e 's,[@]cachedir[@],${cachedir},g' \
-    -e 's,[@]configdir[@],${configdir},g'
+    -e 's,[@]configdir[@],${configdir},g' \
+    -e 's,[@]cronhourlydir[@],${cronhourlydir},g' \
+    -e 's,[@]rundir[@],${rundir},g'
 
 SUBDIRS = test
 
