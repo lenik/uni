@@ -10,6 +10,19 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/hack/execfil
 
 Package: execfilter
 Architecture: any
-Depends: libbas-c, libglib2.0-0
+Depends:
+    libbas-c,
+    libglib2.0-0
 Description: Control the execution of specific programs.
- This program gives you the ability to control the execution of specfic programs.
+    This program gives you the ability to control the execution of specfic programs.
+
+Package: execfilter-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends:
+    execfilter (= ${binary:Version}),
+    libbas-c-dbg,
+    ${misc:Depends}
+Description: Debugging symbols for the execfilter library.
+    This program gives you the ability to control the execution of specfic programs.
