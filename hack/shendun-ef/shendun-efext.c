@@ -7,12 +7,11 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <bas/log.h>
 #include <bas/file.h>
 #include <bas/str.h>
 
-#include "config.h"
 #include "ywcrypt.h"
+#include "log.h"
 
 #define AUTH_FILE "@cachedir@/auth.dat"
 #define RENEW_PROGRAM "shendun-renew"
