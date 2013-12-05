@@ -1,4 +1,5 @@
 #include <sys/stat.h>
+#include <assert.h>
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,10 +16,18 @@ char *path_normalize(const char *path) {
 
 static char *pathv;
 
+/* the result should be free-ed if it's non-null. */
 char *path_find(const char *name) {
     if (! pathv) {
-        char *paths = getenv("PATH");
-        pathv = strdup(paths);
+        char *pathenv = getenv("PATH");
+        if (pathenv == NULL)
+            pathenv = "";
+        int pathenvlen = strlen(pathenv);
+
+        pathv = malloc(pathenvlen + 2);
+        strcpy(pathv, pathenv);
+        pathv[pathenvlen + 1] = '\0';
+
         char *p = pathv;
         while (*p) {
             if (*p == ':')
@@ -50,13 +59,19 @@ char *path_find(const char *name) {
 }
 
 char *path_find_norm(const char *name) {
-    char *which = path_find(name);
-    if (which) {
-        char *norm = path_normalize(which);
-        // free(which);
-        return norm;
-    } else {
-        char *norm = path_normalize(name);
-        return norm;
+    assert(name != NULL);
+
+    char *norm;
+
+    if (*name != '/') {
+        char *path_expansion = path_find(name);
+        if (path_expansion != NULL) {
+            norm = path_normalize(path_expansion);
+            free(path_expansion);
+            return norm;
+        }
     }
+
+    norm = path_normalize(name);
+    return norm;
 }
