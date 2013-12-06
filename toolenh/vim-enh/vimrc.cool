@@ -9,7 +9,8 @@ set modelines=10
 
 filetype plugin on
 
-colorscheme delek
+set t_Co=256
+colorscheme torte
 :nmap <F7>  :colorscheme koehler<CR>
 :nmap <F8>  :colorscheme blue<CR>
 
