@@ -31,7 +31,7 @@ struct auth_db {
     char mac[AUTH_MAC_MAX + 1];         /* (128-bit) hash of machine identity */
     long creation;                      /* authenticated start date */
     long expire;                        /* authenticated expire date */
-    long now;                           /* current time in the auth server */
+    long recent;                        /* recent time in the auth server */
     int configs;                        /* re-config counter */
     int fails;                          /* communication failure counter */
     int serial;                         /* file serial (update counter) */
@@ -88,7 +88,7 @@ bool gate(pid_t pid, int reserved) {
         return false;
     }
 
-    if (db.now > db.expire) {
+    if (db.recent > db.expire) {
         log_err("Registration is expired.");
         return false;
     }
@@ -134,8 +134,8 @@ bool parse_auth(char *script, struct auth_db *db) {
                 db->expire = strtol(p, NULL, 0);
                 break;
             }
-            if (streq("auth_now", token)) {
-                db->now = strtol(p, NULL, 0);
+            if (streq("auth_recent", token)) {
+                db->recent = strtol(p, NULL, 0);
                 break;
             }
             if (streq("auth_fails", token)) {
@@ -166,7 +166,7 @@ bool parse_auth(char *script, struct auth_db *db) {
     log_debug("    auth_mac      = %s", db->mac);
     log_debug("    auth_creation = %d", db->creation);
     log_debug("    auth_expire   = %d", db->expire);
-    log_debug("    auth_now      = %d", db->now);
+    log_debug("    auth_recent   = %d", db->recent);
     log_debug("    auth_configs  = %d", db->configs);
     log_debug("    auth_fails    = %d", db->fails);
     log_debug("    auth_serial   = %d", db->serial);
