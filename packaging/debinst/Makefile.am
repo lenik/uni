@@ -1,11 +1,12 @@
 include libauto/project.am
 
-dist_bin_SCRIPTS = \
-    debinst \
-    .debinst.img
+AI_TEMPLATE = bridge
 
-.%.img: %.i
-	ai -ct bridge "$<" >$@
+dist_bin_SCRIPTS = \
+    debinst
+
+pkgdata_DATA = \
+    debinst.img
 
 dist_pkgdata_SCRIPTS = \
     startup.sh

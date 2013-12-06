@@ -2,6 +2,7 @@
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
     : ${PROGRAM_TITLE:=Create installer app for .deb packages}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+    : ${caller_pkg:=@PACKAGE@}
 
     . shlib-import cliboot ai
     option -q --quiet       "Repeat to get less info"
