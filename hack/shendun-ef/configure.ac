@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([shendun-ef], [1.0.6], [xjl-bug@99jsj.com])
+AC_INIT([shendun-ef], [1.0.7], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 LT_INIT([disable-static])
 AC_CONFIG_MACRO_DIR([m4])

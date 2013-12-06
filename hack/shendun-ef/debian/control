@@ -13,3 +13,9 @@ Architecture: any
 Depends: libbas-c, execfilter, cron, wget, bash-shlib, wget
 Description: Companion utils used with execfilter.
  Includes: config file codecs, remote config push/polls.
+
+Package: shendun-ef-dbg
+Architecture: any
+Depends: shendun-ef, execfilter-dbg
+Description: Debugging symbols for the shendun-ef extension.
+ Includes: config file codecs, remote config push/polls.
