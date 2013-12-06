@@ -4,6 +4,7 @@ dist_bin_SCRIPTS = \
     ansifx \
     meter \
     settermtitle \
+    sgr256 \
     colorlog
 
 dist_aliases_DATA = \

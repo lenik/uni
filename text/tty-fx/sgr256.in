@@ -1,0 +1,64 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=CSI SGR Xterm 256 colortable}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] NUM}
+
+    . shlib-import cliboot
+    option -f --foreground  "Listing for picking fg color"
+    option -b --background  "Listing for picking bg color"
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+    opt_mode=bg
+
+function setopt() {
+    case "$1" in
+        -f|--foreground)
+            opt_mode=fg;;
+        -b|--background)
+            opt_mode=bg;;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$1" ]; then
+        num=256
+    else
+        num="$1"
+        (( num += 0 ))
+    fi
+
+    for ((y = 0; y < num; y++)); do
+        if [ $num -lt 100 ]; then
+            ys=" $y"
+            ys="${ys:${#ys}-2}"
+        else
+            ys="  $y"
+            ys="${ys:${#ys}-3}"
+        fi
+        for ((x = 0; x < 16; x++)); do
+            xs=" $x"
+            xs="${xs:${#xs}-2}"
+            if [ "$opt_mode" = 'bg' ]; then
+                echo -n "[38;5;${x};48;5;${y}m$xs/$ys[0m "
+            else
+                echo -n "[38;5;${y};48;5;${x}m$xs/$ys[0m "
+            fi
+        done
+        echo
+    done
+}
+
+boot "$@"
