@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "jad - prerm.in ..."
+exit 0

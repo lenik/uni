@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "echo - postinst.in ..."
+exit 0

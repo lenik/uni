@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "more-loops - postinst.in ..."
+exit 0

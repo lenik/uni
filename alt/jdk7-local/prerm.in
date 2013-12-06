@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "jdk7-local - prerm.in ..."
+exit 0

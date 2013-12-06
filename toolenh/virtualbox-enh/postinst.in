@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "virtualbox-enh - postinst.in ..."
+exit 0

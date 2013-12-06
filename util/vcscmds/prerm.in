@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "vcscmds - prerm.in ..."
+exit 0

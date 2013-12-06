@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "mksize - postinst.in ..."
+exit 0

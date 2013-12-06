@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "regf2t - prerm.in ..."
+exit 0

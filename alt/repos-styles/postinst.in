@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "repos-styles - postinst.in ..."
+exit 0

@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "z-latex - postinst.in ..."
+exit 0

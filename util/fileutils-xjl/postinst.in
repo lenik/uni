@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "fileutils-xjl - postinst.in ..."
+exit 0

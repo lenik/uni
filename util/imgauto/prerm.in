@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "imgauto - prerm.in ..."
+exit 0

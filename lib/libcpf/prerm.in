@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "libcpf - prerm.in ..."
+exit 0

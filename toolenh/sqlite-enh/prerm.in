@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "sqlite-enh - prerm.in ..."
+exit 0

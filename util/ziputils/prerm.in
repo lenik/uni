@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "ziputils - prerm.in ..."
+exit 0

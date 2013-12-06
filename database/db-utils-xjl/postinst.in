@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "db-utils-xjl - postinst.in ..."
+exit 0

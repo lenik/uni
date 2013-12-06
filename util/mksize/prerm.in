@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "mksize - prerm.in ..."
+exit 0

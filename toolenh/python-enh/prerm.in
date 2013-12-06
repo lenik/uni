@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "python-enh - prerm.in ..."
+exit 0

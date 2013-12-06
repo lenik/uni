@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "pinyin-pref-xjl - postinst.in ..."
+exit 0

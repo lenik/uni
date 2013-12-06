@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "repl - postinst.in ..."
+exit 0

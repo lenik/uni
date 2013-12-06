@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "cls-lenik - postinst.in ..."
+exit 0

@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "googleearth - postinst.in ..."
+exit 0

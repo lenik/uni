@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "svn-enh-gui - prerm.in ..."
+exit 0

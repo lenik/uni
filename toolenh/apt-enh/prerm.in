@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "apt-enh - prerm.in ..."
+exit 0

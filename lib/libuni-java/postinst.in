@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "libuni-java - postinst.in ..."
+exit 0

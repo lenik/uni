@@ -1,4 +1,4 @@
 #!/bin/sh
 # generated-file, please do not edit
 
-echo "router-vendor-utils - postinst.in ..."
+exit 0

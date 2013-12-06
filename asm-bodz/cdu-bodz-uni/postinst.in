@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "cdu-bodz-uni - postinst.in ..."
+exit 0

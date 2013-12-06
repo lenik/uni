@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "desktoputils - postinst.in ..."
+exit 0

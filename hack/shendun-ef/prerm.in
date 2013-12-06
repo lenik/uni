@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "shendun-ef - prerm.in ..."
+exit 0

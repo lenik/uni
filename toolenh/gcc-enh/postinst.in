@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "gcc-enh - postinst.in ..."
+exit 0

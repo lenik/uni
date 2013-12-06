@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "ms-sys - prerm.in ..."
+exit 0

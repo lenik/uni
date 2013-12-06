@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "coolldap - prerm.in ..."
+exit 0

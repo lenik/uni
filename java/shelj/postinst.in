@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "shelj - postinst.in ..."
+exit 0

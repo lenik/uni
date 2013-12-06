@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "debiancd-utils - postinst.in ..."
+exit 0

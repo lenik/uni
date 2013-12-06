@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "pinyin-pref-xjl - prerm.in ..."
+exit 0

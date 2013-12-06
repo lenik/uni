@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "x-tools-local - prerm.in ..."
+exit 0

@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "xmlproc - postinst.in ..."
+exit 0

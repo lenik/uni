@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "isz-tool - postinst.in ..."
+exit 0

@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "esperanto-dict - postinst.in ..."
+exit 0

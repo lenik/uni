@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "pgputils - postinst.in ..."
+exit 0

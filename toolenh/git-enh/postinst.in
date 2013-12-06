@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "git-enh - postinst.in ..."
+exit 0

@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "cdtree - prerm.in ..."
+exit 0

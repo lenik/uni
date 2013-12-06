@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "rsync-rrc - prerm.in ..."
+exit 0

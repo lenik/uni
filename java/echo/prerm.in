@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "echo - prerm.in ..."
+exit 0

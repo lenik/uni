@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "coollog - prerm.in ..."
+exit 0

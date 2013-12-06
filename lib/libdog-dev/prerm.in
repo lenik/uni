@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "libdog-dev - prerm.in ..."
+exit 0

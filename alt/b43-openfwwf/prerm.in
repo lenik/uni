@@ -1,4 +1,4 @@
 #!/bin/sh
 # generated-file, please do not edit
 
-echo "b43-openfwwf - prerm.in ..."
+exit 0

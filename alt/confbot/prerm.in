@@ -1,4 +1,4 @@
 #!/bin/sh
 # generated-file, please do not edit
 
-echo "confbot - prerm.in ..."
+exit 0

@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "coolpdf - postinst.in ..."
+exit 0

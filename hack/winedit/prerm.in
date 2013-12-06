@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "winedit - prerm.in ..."
+exit 0

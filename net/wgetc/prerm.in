@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "wgetc - prerm.in ..."
+exit 0

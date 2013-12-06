@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "cdu-bodz-git - prerm.in ..."
+exit 0

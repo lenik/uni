@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "cls-lenik - prerm.in ..."
+exit 0

@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "symlinkutils - postinst.in ..."
+exit 0

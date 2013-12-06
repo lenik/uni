@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "filestats - prerm.in ..."
+exit 0

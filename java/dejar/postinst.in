@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "dejar - postinst.in ..."
+exit 0

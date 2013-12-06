@@ -1,4 +1,4 @@
 #!/bin/sh
 # generated-file, please do not edit
 
-echo "coolqt - prerm.in ..."
+exit 0

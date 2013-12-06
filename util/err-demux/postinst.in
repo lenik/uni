@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "err-demux - postinst.in ..."
+exit 0

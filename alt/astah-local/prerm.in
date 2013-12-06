@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "astah-local - prerm.in ..."
+exit 0

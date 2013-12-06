@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "ms-sys - postinst.in ..."
+exit 0

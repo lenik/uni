@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "apt-enh - postinst.in ..."
+exit 0

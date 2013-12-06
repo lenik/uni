@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "coolclip - postinst.in ..."
+exit 0

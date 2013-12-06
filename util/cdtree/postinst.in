@@ -1,4 +1,4 @@
 #!/bin/sh
 # master-file
 
-echo "cdtree - postinst.in ..."
+exit 0

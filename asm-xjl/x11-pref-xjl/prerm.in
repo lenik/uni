@@ -1,4 +1,4 @@
 #!/bin/sh
 # generated-file, please do not edit
 
-echo "x11-pref-xjl - prerm.in ..."
+exit 0

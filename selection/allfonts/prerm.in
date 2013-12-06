@@ -1,4 +1,4 @@
 #!/bin/sh
 # generated-file, please do not edit
 
-echo "allfonts - prerm.in ..."
+exit 0
