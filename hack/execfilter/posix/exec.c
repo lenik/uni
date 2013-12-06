@@ -1,11 +1,35 @@
 #include "posix_fn.h"
 
+/* print the cmdline. */
+#define echo_cmdline(...) ((void) 0)
+
+static void _echo_cmdline(const char *src, const char *file,
+                         char *const *argv, char *const *envp) {
+    char cmdl[4096] = "";
+    int maxlen = sizeof(cmdl) - 1;
+    cmdl[maxlen] = '\0';
+
+    char *const *p = argv;
+    int i = 0;
+    while (*p) {
+        if (i++ > 0)
+            strncat(cmdl, " ", maxlen);
+        strncat(cmdl, "\"", maxlen);
+        strncat(cmdl, *p, maxlen);
+        strncat(cmdl, "\"", maxlen);
+        p++;
+    }
+
+    log_debug("%s: %s", src, cmdl);
+}
+
 static int _execv(const char *path, char *const argv[]) {
     static int (*next)(const char *, char *const *);
     def_next(execv);
 
-    NORM_CONFIG(execv, path);
+    echo_cmdline("execv/l", path, argv, NULL);
 
+    NORM_CONFIG(execv, path);
     RET_IF_DENY(norm, mode);
 
     return next(path, argv);
@@ -15,8 +39,9 @@ static int _execvp(const char *file, char *const argv[]) {
     static int (*next)(const char *, char *const *);
     def_next(execvp);
 
-    NORM_CONFIG(execvp, file);
+    echo_cmdline("execvp/lp", file, argv, NULL);
 
+    NORM_CONFIG(execvp, file);
     RET_IF_DENY(norm, mode);
 
     return next(file, argv);
@@ -26,8 +51,9 @@ static int _execvpe(const char *file, char *const argv[], char *const envp[]) {
     static int (*next)(const char *, char *const *, char *const *);
     def_next(execvpe);
 
-    NORM_CONFIG(execvpe, file);
+    echo_cmdline("execvpe/lpe", file, argv, envp);
 
+    NORM_CONFIG(execvpe, file);
     RET_IF_DENY(norm, mode);
 
     return next(file, argv, envp);
@@ -37,8 +63,9 @@ static int _execve(const char *file, char *const argv[], char *const envp[]) {
     static int (*next)(const char *, char *const *, char *const *);
     def_next(execve);
 
-    NORM_CONFIG(execve, file);
+    echo_cmdline("execve/le", file, argv, envp);
 
+    NORM_CONFIG(execve, file);
     RET_IF_DENY(norm, mode);
 
     return next(file, argv, envp);
@@ -139,7 +166,7 @@ int execlp(const char *file, const char *arg0, ...) {
 /* Execute PATH with all arguments after PATH until a NULL pointer, and the
    argument after that for environment.  */
 int execle(const char *path, const char *arg0, ...) {
-    log_info("execle %s ...", path);
+    // log_info("execle %s ...", path);
 
     int argc;
 
