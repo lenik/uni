@@ -1,0 +1,5 @@
+etc/bash_completion.d/
+usr/bin/unai
+usr/bin/ai-runner
+usr/share/binfmts/aiscript
+usr/share/setup/aiai/

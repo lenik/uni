@@ -9,10 +9,14 @@ do_subst += \
     -e 's,[@]templatedir[@],${templatedir},g'
 
 bin_PROGRAMS = \
-    aiai
+    ai \
+    unai
 
-dist_aiai_SOURCES = aiai.c
-aiai_LDADD = ${GLIB_LIBS} -lbas
+dist_ai_SOURCES = ai.c
+ai_LDADD = ${GLIB_LIBS} -lbas
+
+dist_unai_SOURCES = unai.c
+unai_LDADD = ${GLIB_LIBS} -lbas
 
 dist_completion_DATA = \
     aiai.sh
@@ -34,6 +38,5 @@ EXTRA_DIST = \
 CLEANFILES = ${setup_SCRIPTS}
 
 install-data-hook:
-	cd ${DESTDIR}${bindir}; ln -snf aiai ai; ln -snf aiai unai
 	mkdir -p ${DESTDIR}${templatedir}
 	cp -R ${srcdir}/template/* ${DESTDIR}${templatedir}

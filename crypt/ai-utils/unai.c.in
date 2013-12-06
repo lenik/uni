@@ -1,0 +1,250 @@
+#include <sys/types.h>
+#include <assert.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <glib.h>
+
+#include <bas/cli.h>
+#include <bas/file.h>
+
+#include "config.h"
+#include "ai.h"
+
+static GOptionEntry options[] = {
+    OPTION('c', "stdout", "Write to stdout instead of the file"),
+    OPTION('f', "force", "Force to overwrite existing files"),
+    OPTION('k', "keep", "Keep the original files, don't delete them"),
+    OPTION('q', "quiet", "Show less verbose info"),
+    OPTION('v', "verbose", "Show more verbose info"),
+    OPTION(0, "version", "Show version info"),
+    { NULL },
+};
+
+bool opt_stdout = false;
+bool opt_keep= false;
+
+char *format_stab(char *stab, const char *map8);
+bool ai_decode_file(const char *in_path, FILE *in,
+                    const char *out_path, FILE *out);
+
+gboolean parse_option(const char *_opt, const char *val,
+                      gpointer data, GError **err) {
+    const char *opt = _opt;
+
+    bool shortopt = opt++[1] != '-';
+    while (*opt == '-')
+        opt++;
+
+    switch (*opt) {
+    case 'c':
+        if (shortopt || streq(opt, "stdout")) {
+            opt_stdout = true;
+            return true;
+        }
+        break;
+
+    case 'k':
+        if (shortopt || streq(opt, "keep")) {
+            opt_keep = true;
+            return true;
+        }
+        break;
+    }
+
+    return _parse_option(_opt, val, data, err);
+}
+
+int main(int argc, char **argv) {
+    program_title = "Ascii-Art Decoder";
+    program_help_args = "FILES";
+
+    if (! parse_options(options, &argc, &argv))
+        return 1;
+
+    if (opt_stdout)
+        opt_keep = true;
+
+    while (--argc > 0) {
+        argv++;
+
+        char *path = *argv;
+        int len = strlen(path);
+        char out_path[PATH_MAX];
+        FILE *in;
+        FILE *out;
+        if (strcmp(path, "-") == 0) {
+            in = stdin;
+            path = "<stdin>";
+        } else {
+            in = fopen(path, "rb");
+            if (in == NULL) {
+                log_perr("Open file %s: ", path);
+                continue;
+            }
+        }
+
+        if (opt_stdout) {
+            out = stdout;
+            strcpy(out_path, "<stdout>");
+        } else {
+            strcpy(out_path, path);
+            if (len >= 5 && strcmp(path + len - 4, ".img") == 0)
+                /* decode file.img => file */
+                out_path[len - 4] = '\0';
+            else {
+                log_err("Invalid image extension: %s", path);
+                continue;
+            }
+        }
+
+        bool status;
+        status = ai_decode_file(path, in, out_path, out);
+
+        if (out != NULL && out != stdout)
+            fclose(out);
+        if (in != NULL && in != stdin) {
+            fclose(in);
+            if (status && !opt_keep) {
+                /* Remove the original file if everything succeeded. */
+                log_notice("Remove the original file %s.", path);
+                unlink(path);
+            }
+        }
+    }
+
+    return 0;
+}
+
+/* stab: maximum 256 chars required.  */
+char *format_stab(char *stab, const char *map8) {
+    int a, i = 0;
+    for (a = 0; a < 256; a++) {
+        char b = map8[a];
+        if (b == 0 || a >= b)
+            continue;
+        stab[i++] = a;
+        stab[i++] = b;
+    }
+    stab[i] = '\0';
+    return stab;
+}
+
+bool ai_decode_file(const char *in_path, FILE *in,
+                    const char *out_path, FILE *out) {
+    assert(AIH_SIZE == 8);
+
+    char *data;                         /* the text image */
+    size_t size;                        /* size in bytes of the text image */
+    char *end;                          /* end of the image */
+    char map8[256];                     /* mapping rebuilt from first frames */
+    char stab[256];                     /* format stab for debugging */
+    int fid = 0;                        /* frame index */
+    int i;                              /* frame byte index */
+    size_t cb = 0;                      /* total bytes have been output */
+    int byt = 0;                        /* output byte buffer */
+    int k = 0;                          /* count of bit filled in the byte */
+    ai_header hdr;                      /* the decoded header */
+    char *p;
+
+    data = _load_file(in, in_path, &size, 0, 1); /* padding 1 for terminate NUL. */
+    end = data + size;
+    *end = '\0';
+
+    log_info("Loaded file %s: size=%d", in_path, size);
+
+    int preamble_len = strlen(data);
+    char *frame0 = data + preamble_len + 1;
+    if (frame0 >= end) {
+        free(data);
+        log_err("Bad image file: frame#0 isn't available.");
+        return false;
+    }
+    int frame_len = strlen(frame0);
+
+    char *frame1 = frame0 + frame_len + 1;
+    if (frame1 >= end) {
+        free(data);
+        log_err("Bad image file: frame#1 isn't available.");
+        return false;
+    }
+    int frame1_len = strlen(frame1);
+
+    if (frame1_len != frame_len) {
+        free(data);
+        log_err("Bad image file: lengths of frame#0 and frame#1 are different.");
+        return false;
+    }
+
+    /* Rebuilding the stab mapping. */
+    int bits = 0;
+    memset(map8, 0, sizeof(map8));
+    for (i = 0; i < frame_len; i++) {
+        char a = frame0[i];
+        char b = frame1[i];
+        if (a != b) {
+            bool swapped = bits++ & 1;
+            map8[a] = b;
+            map8[b] = a;
+
+            if (swapped)
+                frame0[i] = b;          /* make frame0 as the base frame. */
+        }
+    }
+
+    format_stab(stab, map8);
+    log_debug("stab: \"%s\"", stab);
+
+    memset(&hdr, 0, sizeof(ai_header));
+    p = (char *) &hdr;
+
+    /* Read the frames. */
+    fid = 2;
+    char *frame = frame1;
+    int len = frame_len;
+    while (1) {
+        frame += len + 1;
+        if (frame >= end)
+            break;
+
+        len = strlen(frame);            /* if the frame len=0, just no data
+                                           could be extracted */
+        log_debug("Frame#%d length=%d", fid, len);
+
+        for (i = 0; i < len; i++) {
+            char a = frame[i];
+            char b = map8[a];
+            if (b != 0 && a != b) {
+                byt <<= 1;
+                if (a != frame0[i])
+                    byt |= 1;
+                k++;
+                if (k == 8) {           /* flush a full byte. */
+                    if (cb < AIH_SIZE)  /* load the header and drop it later. */
+                        *p++ = byt;
+                    else {
+                        fputc(byt, out);
+                    }
+                    byt = 0;
+                    k = 0;
+                    cb++;
+
+                    if (cb == AIH_SIZE) {
+                        log_debug("    hdr.flags: %d", hdr.flags);
+                        log_debug("    hdr.app: %d", hdr.app);
+                        log_debug("    hdr.size: %d", hdr.size);
+                    }
+                    if (cb >= AIH_SIZE && (cb - AIH_SIZE) >= hdr.size)
+                        break;
+                }
+            }
+        }
+        fid++;
+    }
+
+    log_debug("Decoder output bytes=%d last byte=%02x k=%d", cb, byt, k);
+
+    free(data);
+    return true;
+}

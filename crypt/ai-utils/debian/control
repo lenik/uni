@@ -8,10 +8,18 @@ Homepage: http://uni.bodz.net//mnt/istore/projects/uni/crypt/aiai
 Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/crypt/aiai
 Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/crypt/aiai
 
-Package: aiai
+Package: ai
+Architecture: any
+Depends:
+    unai,
+    ${misc:Depends}
+Description: Ascii Art Data Encoder
+    Encode data in repeated sequence of a pre-defined ascii art picture.
+
+Package: unai
 Architecture: any
 Depends:
     binfmt-support,
     ${misc:Depends}
-Description: Ascii Art Data Encoder
-    Encode data in repeated sequence of a pre-defined ascii art picture.
+Description: Ascii Art Data Decoder
+    Decode ai encoded file.
