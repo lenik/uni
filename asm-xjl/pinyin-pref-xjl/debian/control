@@ -11,4 +11,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-xjl/pinyin-pref-xjl
 Package: pinyin-pref-xjl
 Architecture: all
 Depends:
+    ${misc:Depends}
 Description: Lenik's PinYin input method suite

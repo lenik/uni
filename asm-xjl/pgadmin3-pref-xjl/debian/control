@@ -10,6 +10,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/pref-xjl/pga
 
 Package: pgadmin3-pref-xjl
 Architecture: all
-Depends: pgadmin3
+Depends:
+    pgadmin3,
+    ${misc:Depends}
 Description: pgadmin3 preferences for xjl.
     Provided a cyan/pink color style for SQL scratchpad.

@@ -11,5 +11,6 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/alt/phddns
 Package: phddns
 Architecture: any
 Depends:
+    ${misc:Depends}
 Description: Peanuthull Linux-core 2.0
     By oray.com, copyright 2011

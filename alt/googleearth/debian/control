@@ -11,4 +11,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/alt/googleearth
 Package: googleearth
 Architecture: all
 Depends:
+    ${misc:Depends}
 Description: Google Earth for Linux

@@ -11,5 +11,11 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/devel/autover
 Package: autover
 Provides: autover
 Architecture: any
-Depends: libglib2.0-0, sed, diff | diffutils, autoconf, vcscmds
+Depends:
+    autoconf,
+    diff | diffutils,
+    libglib2.0-0,
+    sed,
+    vcscmds,
+    ${misc:Depends}
 Description: Automatic version manager (core)

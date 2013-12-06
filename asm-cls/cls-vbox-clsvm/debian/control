@@ -10,7 +10,11 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-cls/cls-vbox-clsvm
 
 Package: cls-vbox-clsvm
 Architecture: all
-Depends: bash-shlib, libfile-spec-perl,
+Depends:
+    bash-shlib,
+    libfile-spec-perl,
+    perl,
     virtualbox | virtualbox-ose,
-    virtualbox-enh
+    virtualbox-enh,
+    ${misc:Depends}
 Description: [Virtual Box] Windows SP3 with CLS Profile

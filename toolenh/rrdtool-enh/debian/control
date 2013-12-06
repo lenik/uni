@@ -10,9 +10,12 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/toolenh/rrdt
 
 Package: rrdtool-enh
 Architecture: all
-Depends: ${misc:Depends} rrdtool
+Depends:
+    bash-shlib,
+    rrdtool,
+    ${misc:Depends}
 Description: rrdtool wrappers and utils
- The default rrdtool has too many parameters, and it's too
- complicated to setup a rrd database, cron tasks, etc.
- This tool aims to simplify the process of create and
- maintain rrd databases.
+    The default rrdtool has too many parameters, and it's too
+    complicated to setup a rrd database, cron tasks, etc.
+    This tool aims to simplify the process of create and
+    maintain rrd databases.

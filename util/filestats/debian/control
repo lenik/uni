@@ -10,5 +10,10 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/util/filesta
 
 Package: filestats
 Architecture: all
-Depends: bash-shlib, bash-aliases, file, grep
+Depends:
+    bash-shlib,
+    bash-aliases,
+    file,
+    grep,
+    ${misc:Depends}
 Description: File stats.

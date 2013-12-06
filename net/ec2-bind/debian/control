@@ -10,5 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/clsdata/projects/uni/net/ec2-bin
 
 Package: ec2-bind
 Architecture: all
-Depends: bind9
+Depends:
+    bind9,
+    ${misc:Depends}
 Description: BIND name server for EC2.

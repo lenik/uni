@@ -10,12 +10,22 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/hack/shendun
 
 Package: shendun-ef
 Architecture: any
-Depends: libbas-c, execfilter, cron, wget, bash-shlib, wget
+Depends:
+    bash-shlib,
+    cron,
+    execfilter,
+    libbas-c,
+    wget,
+    ${misc:Depends}
 Description: Companion utils used with execfilter.
- Includes: config file codecs, remote config push/polls.
+  Includes:
+    config file codecs, remote config push/polls.
 
 Package: shendun-ef-dbg
 Architecture: any
-Depends: shendun-ef, execfilter-dbg
+Depends:
+    execfilter-dbg,
+    shendun-ef
 Description: Debugging symbols for the shendun-ef extension.
- Includes: config file codecs, remote config push/polls.
+  Includes:
+    config file codecs, remote config push/polls.

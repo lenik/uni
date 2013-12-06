@@ -10,5 +10,6 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/utils/symlinkutils
 
 Package: symlinkutils
 Architecture: all
-Depends: bash-shlib
+Depends:
+    bash-shlib
 Description: Utilities for analyse symbolic links

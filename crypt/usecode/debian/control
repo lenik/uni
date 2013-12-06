@@ -10,6 +10,11 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/security/usecode
 
 Package: usecode
 Architecture: all
-Depends: perl, xsel, libcmt-perl
-Recommends: tty-fx
+Depends:
+    libcmt-perl,
+    perl,
+    xsel,
+    ${misc:Depends}
+Recommends:
+    tty-fx
 Description: Lenik's security utilities

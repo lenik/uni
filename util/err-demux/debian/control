@@ -10,5 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/utils/err-demux
 
 Package: err-demux
 Architecture: all
-Depends: bash-shlib
+Depends:
+    bash-shlib,
+    ${misc:Depends}
 Description: Demux error contents from stdout

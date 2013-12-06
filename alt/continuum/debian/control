@@ -10,5 +10,10 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/bodz/uni/alt/con
 
 Package: continuum
 Architecture: all
-Depends: jetty-pref-apache, configutils, bash-shlib, wget-enh
+Depends:
+    bash-shlib,
+    configutils,
+    jetty-pref-apache,
+    wget-enh,
+    ${misc:Depends}
 Description: Apache Archiva run on Jetty server.

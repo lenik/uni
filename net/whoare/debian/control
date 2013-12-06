@@ -10,5 +10,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/net/whoare
 
 Package: whoare
 Architecture: all
-Depends: perl, libcmt-perl
+Depends:
+    libcmt-perl,
+    perl,
+    ${misc:Depends}
 Description: Whois for batch query

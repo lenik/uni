@@ -19,4 +19,5 @@ Provides: java-compiler, java-sdk, java2-compiler, java2-sdk, java5-sdk,
         java6-runtime, java6-runtime-headless,
         java7-runtime, java7-runtime-headless
 Depends:
+    ${misc:Depends}
 Description: Virtual package for local installed Java 7 SDK.

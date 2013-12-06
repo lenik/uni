@@ -10,5 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/toolenh/apache2-enh
 
 Package: apache2-enh
 Architecture: all
-Depends: apache2
+Depends:
+    apache2,
+    ${misc:Depends}
 Description: Apache2 enhancement.

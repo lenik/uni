@@ -10,5 +10,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-cls/cls-msync
 
 Package: cls-msync
 Architecture: all
-Depends: rsync, msync
+Depends:
+    msync,
+    rsync,
+    ${misc:Depends}
 Description: Msync configuration on CLS.

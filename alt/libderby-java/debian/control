@@ -11,4 +11,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/bodz/uni/alt/lib
 Package: libderby-java
 Architecture: all
 Depends:
+    ${misc:Depends}
 Description: The Java Derby database.

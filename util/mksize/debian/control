@@ -10,5 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/utils/mksize
 
 Package: mksize
 Architecture: all
-Depends: bash-shlib
+Depends:
+    bash-shlib,
+    ${misc:Depends}
 Description: Create arbitrary size empty file.

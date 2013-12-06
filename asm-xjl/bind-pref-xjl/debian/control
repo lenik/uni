@@ -11,5 +11,9 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-xjl/bind-pref-xjl
 Package: bind-pref-xjl
 Provides: cooldns
 Architecture: all
-Depends: ${misc:Depends}, bind9, bind9utils, coolutils
+Depends:
+    bind9,
+    bind9utils,
+    coolutils,
+    ${misc:Depends}
 Description: BIND utils and distrib conf management.

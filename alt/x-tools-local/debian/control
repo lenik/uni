@@ -10,6 +10,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/alt/x-tools-
 
 Package: x-tools-local
 Architecture: all
-Depends: bash-shlib
+Depends:
+    bash-shlib,
+    ${misc:Depends}
 Description: Support for crosstool-ng and its dev environment builds.
- This package provide support utils for cross development based on crosstool-ng.
+    This package provide support utils for cross development based on crosstool-ng.

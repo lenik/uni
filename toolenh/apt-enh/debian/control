@@ -11,5 +11,12 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/utils/apt-enh
 Package: apt-enh
 Provides: aptutils
 Architecture: all
-Depends: apt, aptitude, dpkg, bash-aliases, bash-shlib, csvtool
+Depends:
+    apt,
+    aptitude,
+    bash-aliases,
+    bash-shlib,
+    csvtool,
+    dpkg,
+    ${misc:Depends}
 Description: Aptitude packages utilities

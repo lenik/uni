@@ -10,6 +10,9 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/toolenh/wine-enh
 
 Package: wine-enh
 Architecture: all
-Depends: wine | wine-unstable | winetricks-wine
-Recommends: winetricks
+Depends:
+    wine | wine-unstable | winetricks-wine,
+    ${misc:Depends}
+Recommends:
+    winetricks
 Description: Lenik's WINE supplements.

@@ -10,6 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/crypt/pgputi
 
 Package: pgputils
 Architecture: all
-Depends: ${misc:Depends}
+Depends:
+    ${misc:Depends}
 Description: PGP related utils.
- Tools used for PGP, PGP disk images.
+    Tools used for PGP, PGP disk images.

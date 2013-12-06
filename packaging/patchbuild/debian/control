@@ -10,5 +10,11 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/package/patchbuild
 
 Package: patchbuild
 Architecture: all
-Depends: cooldeb, dpkg-dev, apt, aptitude, dput
+Depends:
+    apt,
+    aptitude,
+    cooldeb,
+    dpkg-dev,
+    dput,
+    ${misc:Depends}
 Description: Rebuild debian package with automatic personal patch management.

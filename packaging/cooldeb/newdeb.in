@@ -97,7 +97,7 @@ function main() {
             echo "#!/bin/sh" >$pf
             echo "# master""-file" >>$pf
             echo "" >>$pf
-            echo "echo \"$name - $pf ...\"" >>$pf
+            echo "exit 0" >>$pf
         done
         chmod a+x p*.in
 

@@ -11,4 +11,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/alt/jad
 Package: jad
 Architecture: any
 Depends:
+    ${misc:Depends}
 Description: The JAD java decompiler

@@ -10,6 +10,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/toolenh/yapp-enh
 
 Package: yapp-enh
 Architecture: all
-Depends: ${misc:Depends}, perl
+Depends:
+    perl,
+    ${misc:Depends}
 Description: Yet another Perl Parser.
     (Sorry, the DIRT/0/yapp is lost. )

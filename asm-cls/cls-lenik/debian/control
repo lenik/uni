@@ -11,4 +11,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-cls/cls-lenik
 Package: cls-lenik
 Architecture: all
 Depends:
+    ${misc:Depends}
 Description: CLS-Lenik profile.

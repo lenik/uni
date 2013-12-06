@@ -10,5 +10,11 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/devel/xmlutils
 
 Package: xmlutils
 Architecture: all
-Depends: xalan, xsltproc, bash-shlib, xmlindent, configutils
+Depends:
+    bash-shlib,
+    configutils,
+    xalan,
+    xmlindent,
+    xsltproc,
+    ${misc:Depends}
 Description: Simple XML utilities

@@ -10,5 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/utils/mountfile
 
 Package: mountfile
 Architecture: all
-Depends: mount, bash-shlib
+Depends:
+    mount,
+    bash-shlib
 Description: Mount file by loop device, using default directory naming.

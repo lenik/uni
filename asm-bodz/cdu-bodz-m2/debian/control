@@ -10,7 +10,11 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/integration-cdu/cdu-bodz-m2
 
 Package: cdu-bodz-m2
 Architecture: all
-Depends: cdu-bodz-base
-Recommends: cdu-bodz-m2-settings
-Suggests: cdu-bodz-vol-dev
+Depends:
+    cdu-bodz-base,
+    ${misc:Depends}
+Recommends:
+    cdu-bodz-m2-settings
+Suggests:
+    cdu-bodz-vol-dev
 Description: boDz M2 repository

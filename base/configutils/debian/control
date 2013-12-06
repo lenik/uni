@@ -11,5 +11,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/base/configutils
 Package: configutils
 Provides: configutils, sedit, lineconf
 Architecture: all
-Depends: bash-shlib, grepl
+Depends:
+    bash-shlib,
+    grepl,
+    ${misc:Depends}
 Description: Config helper utilities for installers

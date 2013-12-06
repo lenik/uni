@@ -10,8 +10,11 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/text/textcod
 
 Package: textcodecs
 Architecture: all
-Depends: ${misc:Depends} bash-shlib, perl
+Depends:
+    bash-shlib,
+    perl,
+    ${misc:Depends}
 Description: Utilities to convert between different text encodings
- textcodecs provides tools to help convert from one text encoding to another.
- Some binary encondings like BASE64 are also treated as text encoding.
- This also includes URL escaped encondings.
+    textcodecs provides tools to help convert from one text encoding to another.
+    Some binary encondings like BASE64 are also treated as text encoding.
+    This also includes URL escaped encondings.

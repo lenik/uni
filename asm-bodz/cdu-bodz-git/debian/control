@@ -10,5 +10,8 @@ Vcs-Browser: http://svn.bodz.net/uni/integration-cdu/cdu-bodz-git
 
 Package: cdu-bodz-git
 Architecture: all
-Depends: apache2-enh, gitweb
+Depends:
+    apache2-enh,
+    gitweb,
+    ${misc:Depends}
 Description: boDz Git service.

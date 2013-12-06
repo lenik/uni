@@ -10,5 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/database/db-utils-xjl
 
 Package: db-utils-xjl
 Architecture: all
-Depends: db4.8-util
+Depends:
+    db4.8-util,
+    ${misc:Depends}
 Description: Utilities for Berkeley DB

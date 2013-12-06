@@ -10,6 +10,7 @@ Vcs-Browser: http://trac.bodz.net/bodz/browser/uni/@PACKAGE_NAME@
 
 Package: @PACKAGE_NAME@
 Architecture: all
-Depends: ${misc:Depends}
+Depends:
+    ${misc:Depends}
 Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+    <insert long description, indented with spaces>

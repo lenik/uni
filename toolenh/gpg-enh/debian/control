@@ -11,5 +11,9 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/toolenh/gpg-enh
 Package: gpg-enh
 Provides: coolgpg
 Architecture: all
-Depends: ${misc:Depends}, bash-enh, coolutils, gnupg
+Depends:
+    bash-enh,
+    coolutils,
+    gnupg,
+    ${misc:Depends}
 Description: Cool GnuPG utilities and shortcuts.

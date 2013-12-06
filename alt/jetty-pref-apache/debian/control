@@ -10,7 +10,11 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/bodz/uni/alt/jet
 
 Package: jetty-pref-apache
 Architecture: all
-Depends: jetty | jetty8,
+Depends:
+    bash-shlib,
+    configutils,
+    jetty | jetty8,
+    libderby-java,
     libjetty-extra-java | libjetty8-extra-java,
-    libderby-java, configutils, bash-shlib
+    ${misc:Depends}
 Description: Apache web-app preferences for Jetty

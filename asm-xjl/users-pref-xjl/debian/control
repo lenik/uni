@@ -11,5 +11,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-xjl/users-pref-xjl
 Package: users-pref-xjl
 Provides: coolusers
 Architecture: all
-Depends: ${misc:Depends}, passwd, sed
+Depends:
+    passwd,
+    sed,
+    ${misc:Depends}
 Description: More predefined users, with fixed id.

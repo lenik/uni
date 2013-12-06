@@ -10,5 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/php/php-site-utils
 
 Package: php-site-utils
 Architecture: all
-Depends: php5
+Depends:
+    php5,
+    ${misc:Depends}
 Description: PHP utilities for development.

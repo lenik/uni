@@ -10,5 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/toolenh/empathy-enh
 
 Package: empathy-enh
 Architecture: all
-Depends: empathy
+Depends:
+    empathy,
+    ${misc:Depends}
 Description: Auto start Empathy.

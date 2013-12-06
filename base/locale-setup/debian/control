@@ -10,6 +10,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/clsdata/projects/uni/base/locale
 
 Package: locale-setup
 Architecture: all
-Depends: libc-bin
+Depends:
+    libc-bin,
+    ${misc:Depends}
 Description: Locale setups
- Locale init scripts
+    Locale init scripts

@@ -10,6 +10,9 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/devel/coolqt
 
 Package: coolqt
 Architecture: all
-Depends: ${misc:Depends}, bash-shlib, bash-aliases
+Depends:
+    bash-aliases,
+    bash-shlib,
+    ${misc:Depends}
 Description: Cool Qt developer tools
- This package contains utilities for developing with Qt.
+    This package contains utilities for developing with Qt.

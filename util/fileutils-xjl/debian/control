@@ -10,5 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/utils/fileutils-xjl
 
 Package: fileutils-xjl
 Architecture: all
-Depends: bash-shlib
+Depends:
+    bash-shlib,
+    ${misc:Depends}
 Description: File utilities.

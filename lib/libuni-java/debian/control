@@ -10,6 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/lib/libuni-j
 
 Package: libuni-java
 Architecture: all
-Depends: ${misc:Depends}
+Depends:
+    ${misc:Depends}
 Description: Uni/Lapiota Base Library For Java
- The base library for Uni (aka. Lapiota).
+    The base library for Uni (aka. Lapiota).

@@ -8,6 +8,7 @@ Homepage: http://uni.bodz.net//mnt/istore/projects/uni/alt/android-sdk-local
 
 Package: android-sdk-local
 Architecture: all
-Depends: ${misc:Depends}
+Depends:
+    ${misc:Depends}
 Description: Setup develop env for android-sdk local installation.
-  This package will setup PATH, etc., for the local android-sdk installation.
+    This package will setup PATH, etc., for the local android-sdk installation.

@@ -10,6 +10,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/alt/mate-pan
 
 Package: mate-panel-control
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, mate-panel
+Depends:
+    mate-panel,
+    ${misc:Depends}
 Description: MATE panel control commands.
- This package contains commands to show the Run Dialog and Main Menu.
+    This package contains commands to show the Run Dialog and Main Menu.

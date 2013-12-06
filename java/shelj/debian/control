@@ -10,5 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/java/shelj
 
 Package: shelj
 Architecture: all
-Depends: java-runtime
+Depends:
+    java-runtime,
+    ${misc:Depends}
 Description: A Java Shell with Maven support.

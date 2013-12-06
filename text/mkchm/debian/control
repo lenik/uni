@@ -10,6 +10,12 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/text/mkchm
 
 Package: mkchm
 Architecture: all
-Depends: libcmt-perl, libchm-bin, libchm1
-# libarchive-chm-perl, libtext-chm-perl
+Depends:
+    libchm1,
+    libchm-bin,
+    libcmt-perl,
+    perl,
+    ${misc:Depends}
+#    libarchive-chm-perl,
+#    libtext-chm-perl,
 Description: CHM utilities based on libchm for Debian

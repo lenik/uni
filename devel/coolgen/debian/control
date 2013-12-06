@@ -11,6 +11,11 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/devel/coolgen
 Package: coolgen
 Provides: coolgen
 Architecture: all
-Depends: perl, libcmt-perl
-Recommends: coolutils, libdog-dev
+Depends:
+    libcmt-perl,
+    perl,
+    ${misc:Depends}
+Recommends:
+    coolutils,
+    libdog-dev
 Description: A simple cool script generator

@@ -10,6 +10,9 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/x11/x11-hw-adjust
 
 Package: x11-hw-adjust
 Architecture: all
-Depends:
+Depends: ${misc:Depends}
 Description: X11 hardware adjust tools
-    Many tools.
+    Utilities to adjust the parameters of the display devices.
+  Included:
+    xrandr-add-scales
+    xrandr-mode

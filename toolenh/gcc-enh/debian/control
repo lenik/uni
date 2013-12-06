@@ -10,6 +10,10 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/toolenh/gcc-
 
 Package: gcc-enh
 Architecture: all
-Depends: gcc, grep, sed
+Depends:
+    gcc,
+    grep,
+    sed,
+    ${misc:Depends}
 Description: gcc helper tools
- Utilities work with GCC.
+    Utilities work with GCC.

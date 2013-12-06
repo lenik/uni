@@ -12,7 +12,8 @@ Package: execfilter
 Architecture: any
 Depends:
     libbas-c,
-    libglib2.0-0
+    libglib2.0-0,
+    ${misc:Depends}
 Description: Control the execution of specific programs.
     This program gives you the ability to control the execution of specfic programs.
 

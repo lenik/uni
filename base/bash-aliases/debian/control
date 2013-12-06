@@ -11,5 +11,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/base/bash-aliases
 Package: bash-aliases
 Provides: bash-aliases
 Architecture: all
-Depends: bash, configutils
+Depends:
+    bash,
+    configutils,
+    ${misc:Depends}
 Description: Add bash_aliases.d support to bash.

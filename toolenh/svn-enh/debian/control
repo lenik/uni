@@ -11,7 +11,11 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/toolenh/svn-enh
 Package: svn-enh
 Provides: coolsvn
 Architecture: all
-Depends: subversion,
-    bash-shlib, bash-aliases
-Suggests: svn-enh-gui
+Depends:
+    subversion,
+    bash-shlib,
+    bash-aliases,
+    ${misc:Depends}
+Suggests:
+    svn-enh-gui
 Description: Lenik's SVN utilities.

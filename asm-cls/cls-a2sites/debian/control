@@ -10,5 +10,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-cls/cls-a2sites
 
 Package: cls-a2sites
 Architecture: all
-Depends: apache2, configutils
+Depends:
+    apache2,
+    configutils,
+    ${misc:Depends}
 Description: Lenik's default apache2 websites

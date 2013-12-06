@@ -10,5 +10,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/package/amiutils
 
 Package: amiutils
 Architecture: all
-Depends: ec2-api-tools, ec2-ami-tools
+Depends:
+    ec2-api-tools,
+    ec2-ami-tools,
+    ${misc:Depends}
 Description: Amazon EC2 AMI support utilities & docs

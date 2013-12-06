@@ -11,7 +11,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/perl/libcmt-perl
 Package: libcmt-perl
 Provides: libcmt-perl, libcmt
 Architecture: all
-Depends: perl,
+Depends:
     libcrypt-blowfish-perl,
     libcrypt-cbc-perl,
     libcrypt-des-perl,
@@ -27,5 +27,7 @@ Depends: perl,
     libtime-hires-perl,
     libtk-perl,
     libxml-simple-perl,
-    libyaml-perl
+    libyaml-perl,
+    perl,
+    ${misc:Depends}
 Description: cmt library in Perl.

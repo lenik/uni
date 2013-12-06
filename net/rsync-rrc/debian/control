@@ -10,7 +10,10 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/toolenh/rsyn
 
 Package: rsync-rrc
 Architecture: all
-Depends: ${misc:Depends}, rsync, bash-shlib
+Depends:
+    bash-shlib,
+    rsync,
+    ${misc:Depends}
 Description: Some sync utils based on rsync.
   Includes:
     rsync-push

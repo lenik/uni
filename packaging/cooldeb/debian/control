@@ -11,6 +11,14 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/package/cooldeb
 Package: cooldeb
 Provides: cooldeb
 Architecture: all
-Depends: debhelper, devscripts, dh-make, coolapt,
-    bash-shlib, coolmake, vcscmds, dlocal
+Depends:
+    bash-shlib,
+    coolapt,
+    coolmake,
+    debhelper,
+    devscripts,
+    dh-make,
+    dlocal,
+    vcscmds,
+    ${misc:Depends}
 Description: Debian package by very clean manner.

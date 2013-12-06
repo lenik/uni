@@ -10,6 +10,9 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/net/router-v
 
 Package: router-vendor-utils
 Architecture: all
-Depends: bash-shlib, wget
+Depends:
+    bash-shlib,
+    wget,
+    ${misc:Depends}
 Description: Router vendor-dependent utils
- This package contains utilities to manipulate network router devices.
+    This package contains utilities to manipulate network router devices.

@@ -10,5 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/utils/vexmount
 
 Package: vexmount
 Architecture: all
-Depends: mount, bash-shlib
+Depends:
+    mount,
+    bash-shlib
 Description: VEX/alt mounts, etc.

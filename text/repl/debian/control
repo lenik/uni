@@ -10,5 +10,11 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/text/repl
 
 Package: repl
 Architecture: all
-Depends: perl, libcmt-perl, bash-shlib, awk, sed
+Depends:
+    awk,
+    bash-shlib,
+    libcmt-perl,
+    perl,
+    sed,
+    ${misc:Depends}
 Description: File batch replace utilities.

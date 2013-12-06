@@ -10,7 +10,11 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/utils/laxar
 
 Package: laxar
 Architecture: all
-Depends: perl, libcmt-perl, bash-shlib,
+Depends:
+    bash-shlib,
+    libcmt-perl,
     libdigest-md5-perl,
     libdigest-sha1-perl
+    perl,
+    ${misc:Depends}
 Description: Archivar used in Lapiota.

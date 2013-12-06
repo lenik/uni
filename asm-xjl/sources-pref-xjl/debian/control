@@ -10,6 +10,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-xjl/sources-pref-xjl
 
 Package: sources-pref-xjl
 Architecture: all
-Depends: ${misc:Depends}, upstart,
-    users-pref-xjl
+Depends:
+    upstart,
+    users-pref-xjl,
+    ${misc:Depends}
 Description: XJL Startup

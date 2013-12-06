@@ -11,4 +11,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/integration-cdu/cdu-bodz-base
 Package: cdu-bodz-base
 Architecture: all
 Depends:
+    ${misc:Depends}
 Description: virtual base

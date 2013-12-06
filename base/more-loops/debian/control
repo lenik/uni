@@ -11,6 +11,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/clsdata/projects/uni/base/more-l
 Package: more-loops
 Architecture: all
 Depends:
+    ${misc:Depends}
 Description: Create more /dev/loop* devices
- This is a pseudo-package to configure the default kernel module options
- to make more /dev/loop* devices at boot time.
+    This is a pseudo-package to configure the default kernel module options
+    to make more /dev/loop* devices at boot time.

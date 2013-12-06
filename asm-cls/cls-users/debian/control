@@ -10,5 +10,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-cls/cls-users
 
 Package: cls-users
 Architecture: all
-Depends: ${misc:Depends}, bash-enh, users-pref-xjl
+Depends:
+    bash-enh,
+    users-pref-xjl,
+    ${misc:Depends}
 Description: CLS predefined user switcher

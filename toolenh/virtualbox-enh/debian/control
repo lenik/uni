@@ -10,5 +10,9 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/toolenh/virtualbox-enh
 
 Package: virtualbox-enh
 Architecture: all
-Depends: virtualbox | virtualbox-ose, bash-shlib, diskutils
+Depends:
+    bash-shlib,
+    diskutils,
+    virtualbox | virtualbox-ose,
+    ${misc:Depends}
 Description: Virtual Box utilities

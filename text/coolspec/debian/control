@@ -11,5 +11,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/text/coolspec
 Package: coolspec
 Provides: coolspec
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, bash-enh, coolutils
+Depends:
+    bash-enh,
+    coolutils,
+    ${misc:Depends}
 Description: alpha-Spec tool chain.

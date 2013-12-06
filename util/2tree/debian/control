@@ -11,6 +11,16 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/utils/2tree
 
 Package: 2tree
 Architecture: all
-Depends: perl, libcmt-perl, coolcmd, bash-shlib
-Recommends: bzip2, p7zip, tar, unrar, unzip
+Depends:
+    bash-shlib,
+    coolcmd,
+    libcmt-perl,
+    perl,
+    ${misc:Depends}
+Recommends:
+    bzip2,
+    p7zip,
+    tar,
+    unrar,
+    unzip
 Description: Tree/filesystem visualization

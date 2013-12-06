@@ -11,5 +11,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/net/msync
 Package: msync
 Provides: coolsync
 Architecture: all
-Depends: rsync, bash-shlib
+Depends:
+    bash-shlib,
+    rsync,
+    ${misc:Depends}
 Description: Sync utils for rsync, etc.

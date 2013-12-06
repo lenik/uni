@@ -12,8 +12,9 @@ Package: b43-tools
 Provides: b43-fwcutter
 Architecture: any
 Depends:
+    ${misc:Depends}
 Description: BCM43xx build tools
- Includes:
+  Includes:
     b43-asm
     b43-beautifier
     b43-fwdump

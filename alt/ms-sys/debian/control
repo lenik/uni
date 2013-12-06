@@ -11,6 +11,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/alt/ms-sys
 Package: ms-sys
 Architecture: any
 Depends:
+    ${misc:Depends}
 Recommends:
 Description: A program to create Microsoft compatible boot records.
     This is a Linux program for writing Microsoft compatible boot records.

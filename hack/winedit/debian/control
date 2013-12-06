@@ -10,6 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/hack/winedit
 
 Package: winedit
 Architecture: all
-Depends: ${misc:Depends}
+Depends:
+    ${misc:Depends}
 Description: Window Editor (under dev)
- Will support both win32 and X11.
+    Will support both win32 and X11.

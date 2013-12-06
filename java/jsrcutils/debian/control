@@ -10,6 +10,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/java/jsrcuti
 
 Package: jsrcutils
 Architecture: all
-Depends: ${misc:Depends}
+Depends:
+    ${misc:Depends}
 Description: Java source file utilities.
-  Include: linefix, etc.
+  Includes:
+    linefix, etc.

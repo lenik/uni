@@ -10,6 +10,11 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/integration-
 
 Package: cdu-bodz-uni
 Architecture: all
-Depends: ${misc:Depends}, bash-enh, inoticoming, reprepro, apache2
+Depends:
+    apache2,
+    bash-enh,
+    inoticoming,
+    reprepro,
+    ${misc:Depends}
 Description: uni Debian Server
- This package provide uni-Debian related services.
+    This package provide uni-Debian related services.

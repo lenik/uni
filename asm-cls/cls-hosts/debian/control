@@ -10,5 +10,6 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-cls/cls-hosts
 
 Package: cls-hosts
 Architecture: all
-Depends: ${misc:Depends}
+Depends:
+    ${misc:Depends}
 Description: Lenik's aliases for hosts

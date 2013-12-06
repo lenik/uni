@@ -10,5 +10,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/toolenh/svn2cl-enh
 
 Package: svn2cl-enh
 Architecture: all
-Depends: subversion-tools, patch
+Depends:
+    patch,
+    subversion-tools,
+    ${misc:Depends}
 Description: Enhancement for svn2cl utility.

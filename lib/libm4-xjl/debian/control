@@ -10,5 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/devel/libm4-xjl
 
 Package: libm4-xjl
 Architecture: all
-Depends: ${misc:Depends}, m4
+Depends:
+    m4,
+    ${misc:Depends}
 Description: M4X libraries.

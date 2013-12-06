@@ -10,5 +10,11 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/devel/dlocal
 
 Package: dlocal
 Architecture: all
-Depends: dput, mini-dinstall, apache2, gnupg, gnupg-agent
+Depends:
+    apache2,
+    dput,
+    gnupg,
+    gnupg-agent,
+    mini-dinstall,
+    ${misc:Depends}
 Description: Local debian development support.

@@ -10,7 +10,12 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/integration-cdu/cdu-bodz
 
 Package: cdu-bodz
 Architecture: all
-Depends: users-pref-xjl, cdu-bodz-base,
-    cdu-bodz-svn, cdu-bodz-trac,
-    cdu-bodz-m2, cdu-bodz-ci
+Depends:
+    cdu-bodz-base,
+    cdu-bodz-ci,
+    cdu-bodz-m2,
+    cdu-bodz-svn,
+    cdu-bodz-trac,
+    users-pref-xjl,
+    ${misc:Depends}
 Description: boDz develop sites

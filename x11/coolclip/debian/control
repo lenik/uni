@@ -11,5 +11,9 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/x11/coolclip
 Package: coolclip
 Provides: coolclip
 Architecture: all
-Depends: libc6, libx11-6, imagemagick
+Depends:
+    imagemagick,
+    libc6,
+    libx11-6,
+    ${misc:Depends}
 Description: Add image, video clipboard format supports in cmdline.

@@ -10,5 +10,11 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/package/debiancd-utils
 
 Package: debiancd-utils
 Architecture: all
-Depends: bash-shlib, squashfs-tools, genisoimage, lzma, mountfile
+Depends:
+    bash-shlib,
+    genisoimage,
+    lzma,
+    mountfile,
+    squashfs-tools,
+    ${misc:Depends}
 Description: Tools for create Ubuntu Live CD, etc.

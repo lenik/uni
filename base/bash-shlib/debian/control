@@ -11,8 +11,11 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/base/bash-shlib
 Package: bash-shlib
 Provides: bash-shlib
 Architecture: all
-Depends: bash
-Recommends: ncurses-bin, aiai
+Depends:
+    bash
+Recommends:
+    aiai,
+    ncurses-bin
 Description: A simple bash programming framework.
     bash-shlib introduced library support to bash, you can then
     build up shell programs by libraries.

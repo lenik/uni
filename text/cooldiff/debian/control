@@ -11,5 +11,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/text/cooldiff
 Package: cooldiff
 Provides: cooldiff
 Architecture: all
-Depends: diff | diffutils, perl
+Depends:
+    diff | diffutils,
+    perl,
+    ${misc:Depends}
 Description: Diff utilities

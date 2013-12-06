@@ -11,4 +11,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/locale/esperanto-dict
 Package: esperanto-dict
 Architecture: all
 Depends:
+    ${misc:Depends}
 Description: Esperanto language accessories

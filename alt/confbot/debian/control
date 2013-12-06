@@ -10,5 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/alt/confbot
 
 Package: confbot
 Architecture: all
-Depends: python
+Depends:
+    python,
+    ${misc:Depends}
 Description: Conference Bot for Jabber IM (Google talk)

@@ -11,7 +11,10 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/utils/coolhex
 Package: coolhex
 Provides: coolhex
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-    , coreutils, diff | diffutils, patch
-    , bash-enh
+Depends:
+    bash-enh,
+    diff | diffutils,
+    patch,
+    ${shlibs:Depends},
+    ${misc:Depends}
 Description: Hex utilities by Lenik.

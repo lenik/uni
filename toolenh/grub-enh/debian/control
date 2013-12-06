@@ -11,5 +11,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/toolenh/grub-enh
 Package: grub-enh
 Provides: coolgrub
 Architecture: all
-Depends: ${misc:Depends}, grub2, coolutils
+Depends:
+    coolutils,
+    grub2,
+    ${misc:Depends}
 Description: Lenik's grub preferences.

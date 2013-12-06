@@ -12,4 +12,4 @@ Package: visualcss
 Architecture: all
 Depends: ${misc:Depends}
 Description: A tool for creating CSS visually.
-  So you can edit CSS files with WYSIWYG previews.
+    So you can edit CSS files with WYSIWYG previews.

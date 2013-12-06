@@ -10,5 +10,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-cls/cls-adslutils
 
 Package: cls-adslutils
 Architecture: all
-Depends: usecode, net-tools
+Depends:
+    net-tools,
+    usecode,
+    ${misc:Depends}
 Description: Utilities for Home LAN ADSL.

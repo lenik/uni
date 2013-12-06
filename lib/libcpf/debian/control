@@ -8,16 +8,16 @@ Homepage: http://uni.bodz.net//mnt/istore/projects/uni/lib/libcpf
 Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/lib/libcpf
 Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/lib/libcpf
 
-Package: libcpf-dev
-Section: libdevel
-Architecture: any
-Depends: libcpf
-Description: C prog framework
- C prog framework
-
 Package: libcpf
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: C prog framework
- C prog framework
+    C prog framework
+
+Package: libcpf-dev
+Section: libdevel
+Architecture: any
+Depends: libcpf
+Description: Header files for the libcpf library.
+    C prog framework

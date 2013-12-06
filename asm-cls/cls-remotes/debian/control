@@ -10,5 +10,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-cls/cls-remotes
 
 Package: cls-remotes
 Architecture: all
-Depends: ${misc:Depends}, rdesktop, bash-enh
+Depends:
+    bash-enh,
+    rdesktop,
+    ${misc:Depends}
 Description: CLS remote desktops

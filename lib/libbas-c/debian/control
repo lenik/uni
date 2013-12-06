@@ -10,7 +10,9 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/lib/libbas-c
 
 Package: libbas-c
 Architecture: any
-Depends: libglib2.0-0
+Depends:
+    libglib2.0-0,
+    ${misc:Depends}
 Description: bas framework for C.
     The bas prog framework.
 

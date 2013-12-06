@@ -10,6 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/alt/astah-lo
 
 Package: astah-local
 Architecture: all
-Depends: ${misc:Depends}
+Depends:
+    ${misc:Depends}
 Description: Astah local installation and helpers.
     Astah local installation and helpers.

@@ -10,5 +10,9 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/toolenh/sox-enh
 
 Package: sox-enh
 Architecture: all
-Depends: sox, libsox-fmt-all, lame
+Depends:
+    lame,
+    libsox-fmt-all,
+    sox,
+    ${misc:Depends}
 Description: Sox-based audio utilities

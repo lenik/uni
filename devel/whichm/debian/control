@@ -10,5 +10,8 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk/perl/whichm
 
 Package: whichm
 Architecture: all
-Depends: perl, libcmt-perl
+Depends:
+    libcmt-perl
+    perl,
+    ${misc:Depends}
 Description: Perl utilities.
