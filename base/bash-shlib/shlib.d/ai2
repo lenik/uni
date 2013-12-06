@@ -25,11 +25,18 @@ function load-image() {
 
     local img
     local found=0
+    local pkg=aiai
+    if [ -n "$caller_pkg" ]; then
+        pkg="$caller_pkg"
+    elif [ -n "$PACKAGE" ]; then
+        pkg="$PACKAGE"
+    fi
+
     for img in \
             "$dir/$base.img" \
             "$dir/.$base.img" \
-            "/usr/share/${caller_pkg:-aiai}/$base.img" \
-            "/usr/share/${caller_pkg:-aiai}/image/$base.img"; do
+            "/usr/share/$pkg/$base.img" \
+            "/usr/share/$pkg/image/$base.img"; do
         if [ -f "$img" ]; then
             found=1
             break
