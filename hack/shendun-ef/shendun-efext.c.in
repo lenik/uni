@@ -44,6 +44,8 @@ static bool parse_auth(char *script, struct auth_db *db);
 
 bool gate(pid_t pid, int reserved) {
     struct stat sb;
+
+    log_debug("get auth file stat.");
     if (stat(AUTH_FILE, &sb) != 0) {
         if (errno == ENOENT) {          /* auth file isn't existed */
             // Re-entrant across process is dangerous.
@@ -63,7 +65,10 @@ bool gate(pid_t pid, int reserved) {
     } else {
         if (sb.st_mtime > mtime) {          /* file changed, reload it anyway. */
             size_t size;
-            char *auth_data = load_file(AUTH_FILE, &size, 0, 1);
+            char *auth_data;
+
+            log_debug("auth file changed, reload it.");
+            auth_data = load_file(AUTH_FILE, &size, 0, 1);
 
             if (auth_data == NULL) {
                 log_perr("Can't read from auth file.");
@@ -98,6 +103,7 @@ bool gate(pid_t pid, int reserved) {
         return false;
     }
 
+    log_debug("gate enabled for pid %d", pid);
     return true;
 }
 
