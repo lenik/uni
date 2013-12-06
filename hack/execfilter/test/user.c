@@ -4,9 +4,7 @@
 #include <spawn.h>
 #include <unistd.h>
 
-#define LOG_IDENT "execfilter/user"
-#define LOG_OPTION LOG_PERROR
-#define LOG_LEVEL LOG_DEBUG
+#define LOG_IDENT "ef/user"
 #include <bas/log.h>
 
 #define wifork(ec, st) \

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#define LOG_IDENT "@PACKAGE_NAME@"
 #include <bas/cli.h>
 #include <bas/file.h>
 
@@ -57,7 +58,7 @@ int main(int argc, char **argv) {
         return 1;
 
     if (opt_mode == '?') {
-        fprintf(stderr, "Either encrypt(-e) or decrypt(-d) must be specified.\n");
+        log_err("Either encrypt(-e) or decrypt(-d) must be specified.");
         return 1;
     }
 
@@ -70,13 +71,12 @@ int main(int argc, char **argv) {
 
             FILE *f = fopen(path, "rb");
             if (f == NULL) {
-                fprintf(stderr, "Failed to open file %s", path);
-                perror("");
+                log_perr("Failed to open file %s", path);
                 return 2;
             }
 
             if (process(opt_mode == 'e', path, f, stdout) != 0) {
-                perror("Process error");
+                log_perr("Process error");
                 return 3;
             }
 
