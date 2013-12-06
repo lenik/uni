@@ -49,7 +49,7 @@ function main() {
 
     # edit the changelog
     # if ! ver=`maketestvar PACKAGE_VERSION`; then
-    #     echo "Don't know the version, no Makefile variable. " >&2
+    #     _error "Don't know the version, no Makefile variable. " >&2
     #     exit 4
     # fi
 
@@ -64,27 +64,48 @@ function main() {
         exit 3
     fi
 
-    # xjl-cooldeb_0.1.5-1_all.deb
-    dh_debname | while read debname; do
-        echo "Dput $debname..."
+    debnames=()
+    debver=
+        while read debname; do
+            # xjl-cooldeb_0.1.5-1_all.deb
+            debnames=("${debnames[@]}" "$debname")
 
-        chprefix="../${debname%_*}"
+            _no_arch="${debname%_*}"
+            [ "$_no_arch" = "$debname" ] && quit "Illegal deb file name: $debname"
+
+            _ver="${_no_arch##*_}"
+            [ "$_ver" = "$_no_arch" ] && quit "Illegal deb file name: $debname"
+
+            if [ -z "$debver" ]; then
+                debver="$_ver"
+            else
+                if [ "$debver" != "$_ver" ]; then
+                    quit "Multiple .deb files in different versions: $debver, $_ver"
+                fi
+            fi
+        done < <(dh_debname)
+
+        [ -n "$debver" ] || quit "Can't determine the .deb file version"
+
+    # Or, read the control file?..
+    pkgname="${PWD##*/}"
+        _log1 "Dput: ${debnames[*]}"
+        chprefix="../${pkgname}_${debver}"
         for ch in "$chprefix"_*.changes; do
-            echo "Commit $ch"
+            _log1 "Commit changes: $ch"
 
             # swapox: remove "override entry" in stderr.
             swapox dput -f dlocal "$ch" |
                 swapox grep -v "override entry"
         done
 
-        echo
-    done
+    echo
 
     if [ "$reconf" = 1 ]; then
         autounconf
     fi
 
-    echo Done.
+    _log1 Done.
 }
 
 boot "$@"
