@@ -1,9 +1,18 @@
 #ifndef __BAS_CLI_H
 #define __BAS_CLI_H
 
+#include <sys/types.h>
+#include <assert.h>
+#include <errno.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
 #include <glib.h>
+#include <bas/log.h>
 
 /* .section. options */
 
@@ -26,6 +35,9 @@
 extern const char *program_title;
 extern const char *program_help_args;
 
+extern bool opt_error_continue;
+extern bool opt_force;
+
 bool parse_options(GOptionEntry *options, int *_argc, char ***_argv);
 
 gboolean parse_option(const char *opt, const char *val,
@@ -38,19 +50,6 @@ typedef bool (*file_handler)(const char *path, FILE *in, void *data);
 
 bool process_files(char **paths, const char *open_mode,
                    file_handler handler, void *data);
-
-/* .section. logging */
-
-extern bool opt_error_continue;
-extern bool opt_force;
-extern int opt_log_level;
-
-#define LOG0 if (opt_log_level >= 0)
-#define LOG1 if (opt_log_level >= 1)
-#define LOG2 if (opt_log_level >= 2)
-#define LOG3 if (opt_log_level >= 3)
-
-bool error(const char *fmt, ...);
 
 /* .sectino. utils */
 

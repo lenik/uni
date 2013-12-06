@@ -31,7 +31,7 @@ bool parse_options(GOptionEntry *options, int *_argc, char ***_argv) {
                                       );
 
     if (! g_option_context_parse(opts, &argc, &argv, &gerr)) {
-        error("Couldn't parse options: %s\n", gerr->message);
+        log_err("Couldn't parse options: %s", gerr->message);
         return FALSE;
     }
 
@@ -68,14 +68,14 @@ gboolean _parse_option(const char *opt,
 
     case 'q':
         if (shortopt || streq(opt, "quiet")) {
-            opt_log_level--;
+            log_level--;
             return true;
         }
         break;
 
     case 'v':
         if (shortopt || streq(opt, "verbose")) {
-            opt_log_level++;
+            log_level++;
             return true;
         }
         if (streq(opt, "version")) {
@@ -86,7 +86,7 @@ gboolean _parse_option(const char *opt,
         break;
     }
 
-    error("Bad option: %s %s", opt, val);
+    log_err("Bad option: %s %s", opt, val);
     return FALSE;
 }
 
@@ -94,7 +94,6 @@ gboolean _parse_option(const char *opt,
 
 bool opt_error_continue = false;
 bool opt_force = false;
-int opt_log_level = 1;
 
 bool error(const char *fmt, ...) {
     va_list ap;
@@ -124,7 +123,7 @@ bool process_files(char **paths,
     for (path = *paths; *path; paths++) {
         FILE *in = fopen(path, open_mode);
         if (in == NULL) {
-            error("Can't open file %s", path);
+            log_perr("Can't open file %s", path);
             err = true;
         } else {
             if (! handler(path, in, data))
