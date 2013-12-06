@@ -440,7 +440,7 @@ static pid_t stat_ppid(pid_t pid) {
     return ppid;
 }
 
-static xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
+xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
     xmode_t all = 0;
 
     /* NOTICE: the symlink is expanded, you must config the real path. */
@@ -451,16 +451,18 @@ static xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
 
     lazy_init();
 
+    log_debug("Query execution(%s) mode for %s", src, obj_norm);
+
     if (gate_sr.proc) {
         log_debug("Invoke gate fn: %s::%s", gate_sr.libname, gate_sr.fn);
         gate_fn gatef = gate_sr.proc;
-        if (! gatef(pid, 0)) {
+        if (gatef(pid, 0)) {
+            log_debug("gate returned. continue...");
+        } else {
             log_notice("execfilter is disabled. allow all: %s", obj_norm);
             return 0;
         }
     }
-
-    log_debug("%s() analyze: %s\n", src, obj_norm);
 
     while (pid != 0 && pid != -1) {
         char psym[PATH_MAX];
@@ -522,8 +524,11 @@ xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
     static bool calling = false;        /* no re-entrant */
 
     /* any re-entrant execution is strongly allowed. */
-    if (calling)
+    if (calling) {
+        log_debug("Re-entrant is avoid: %s", obj);
         return F_ALLOW;
+    }
+
     calling = true;
 
     xmode_t mode = _get_rec(src, pid, obj);
