@@ -14,7 +14,7 @@ Architecture: all
 Depends:
     bash
 Recommends:
-    aiai,
+    unai,
     ncurses-bin
 Description: A simple bash programming framework.
     bash-shlib introduced library support to bash, you can then
