@@ -1,5 +1,8 @@
 # vim: set filetype=sh :
 
+datadir=@datadir@
+docdir=@datadir@/doc
+
 function ..() {
     local f
     for f in "$@"; do

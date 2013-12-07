@@ -27,5 +27,5 @@ dist_shlib_DATA = \
     term \
     time
 
-ai.img: ai2
-	ai -ct bridge $< >$@
+ai.img: ai.i
+	AI_KEYFILE= ${AI} -ct bridge $< >$@

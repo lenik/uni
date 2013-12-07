@@ -1,5 +1,7 @@
 # vim: set filetype=sh :
 
+: ${aikf:=README}
+
 function load-image() {
     local caller="${BASH_SOURCE[1]}"
     if [ "${caller:0:5}" = '/dev/' ]; then
@@ -28,8 +30,6 @@ function load-image() {
     local pkg=aiai
     if [ -n "$caller_pkg" ]; then
         pkg="$caller_pkg"
-    elif [ -n "$PACKAGE" ]; then
-        pkg="$PACKAGE"
     fi
 
     for img in \
@@ -47,3 +47,12 @@ function load-image() {
 
     .. "$img"
 }
+
+: ${caller_pkg:=$PACKAGE}
+: ${AI_KEYFILE:=$docdir/$caller_pkg/$aikf}
+
+if [ -s "${AI_KEYFILE}" ]; then
+    export AI_KEYFILE
+else
+    unset AI_KEYFILE
+fi
