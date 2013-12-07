@@ -180,7 +180,7 @@ int main(int argc, char **argv) {
 
     if (opt_keyfile == NULL)
         opt_keyfile = getenv("AI_KEYFILE");
-    if (opt_keyfile != NULL) {
+    if (opt_keyfile != NULL && *opt_keyfile) {
         keydata = load_file(opt_keyfile, &keysize, 0, 0);
         if (keydata == NULL) {
             log_perr("Can't load keyfile %s", opt_keyfile);
