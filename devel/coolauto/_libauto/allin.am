@@ -32,6 +32,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 AI=ai
+# Default AI_TEMPLATE...
+export AI_KEYFILE=${srcdir}/README
 
 %: %.in Makefile
 	rm -f "$@"
@@ -50,7 +52,7 @@ AI=ai
 
 %: %.ain Makefile
 	rm -f "$@"
-	$(AI) -ct $(AI_TEMPLATE) <($(do_subst) <"$<") >"$@"
+	AI_KEYFILE= $(AI) -ct $(AI_TEMPLATE) <($(do_subst) <"$<") >"$@"
 	chmod -w "$@"
 
 %.img: %.i
