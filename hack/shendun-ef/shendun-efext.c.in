@@ -168,14 +168,16 @@ bool parse_auth(char *script, struct auth_db *db) {
         } /* switch: token */
     } /* while: strtok_eol */
 
-    log_debug("Parsed auth file:");
-    log_debug("    auth_mac      = %s", db->mac);
-    log_debug("    auth_creation = %d", db->creation);
-    log_debug("    auth_expire   = %d", db->expire);
-    log_debug("    auth_recent   = %d", db->recent);
-    log_debug("    auth_configs  = %d", db->configs);
-    log_debug("    auth_fails    = %d", db->fails);
-    log_debug("    auth_serial   = %d", db->serial);
+    if (0) {
+        log_debug("Parsed auth file:");
+        log_debug("    auth_mac      = %s", db->mac);
+        log_debug("    auth_creation = %d", db->creation);
+        log_debug("    auth_expire   = %d", db->expire);
+        log_debug("    auth_recent   = %d", db->recent);
+        log_debug("    auth_configs  = %d", db->configs);
+        log_debug("    auth_fails    = %d", db->fails);
+        log_debug("    auth_serial   = %d", db->serial);
+    }
 
     return true;
 }
