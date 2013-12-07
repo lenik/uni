@@ -31,26 +31,33 @@ char *ascii_stab =
     ;
 
 static GOptionEntry options[] = {
+    OPTION('c', "stdout", "Write to stdout instead of the file"),
+    OPTION('k', "keep", "Keep the original files, don't delete them"),
+    OPTARG('t', "template", "Specify the template ascii art image"),
+    OPTARG('i', "keyfile", "A data file contains the key for encryption"),
+
     OPTARG('s', "stab", "Specify the substitution table"),
     OPTARG('a', "ascii", "Specify encode level for ASCII-7 charset"),
     OPTION('u', "utf-8", "Using UTF-8 charset"),
-    OPTARG('t', "template", "Specify the template ascii art image"),
-    OPTION('c', "stdout", "Write to stdout instead of the file"),
+
     OPTION('f', "force", "Force to overwrite existing files"),
-    OPTION('k', "keep", "Keep the original files, don't delete them"),
     OPTION('q', "quiet", "Show less verbose info"),
     OPTION('v', "verbose", "Show more verbose info"),
     OPTION(0, "version", "Show version info"),
+
     { NULL },
 };
 
 bool opt_stdout = false;
 bool opt_keep= false;
+char *opt_keyfile = NULL;               /* also the environ AI_KEYFILE */
 char opt_stab8[256];                    /* 8-bit substition table  */
 bool opt_ascii7 = true;
 bool opt_utf8 = false;
 char *opt_template = NULL;
 
+char *keydata = NULL;
+size_t keysize = 0;
 char *template_image = NULL;
 
 char *parse_stab(char *map8, const char *stab);
@@ -66,6 +73,14 @@ gboolean parse_option(const char *_opt, const char *val,
     bool shortopt = opt++[1] != '-';
     while (*opt == '-')
         opt++;
+
+    if (shortopt)                       /* normalize mixed options. */
+        switch (*opt) {
+        case 'i':
+            opt = "keyfile";
+            shortopt = false;
+            break;
+        }
 
     switch (*opt) {
     case 'a':
@@ -113,6 +128,10 @@ gboolean parse_option(const char *_opt, const char *val,
             opt_keep = true;
             return true;
         }
+        if (streq(opt, "keyfile")) {
+            opt_keyfile = strdup(val);
+            return true;
+        }
         break;
 
     case 's':
@@ -142,17 +161,36 @@ gboolean parse_option(const char *_opt, const char *val,
 }
 
 int main(int argc, char **argv) {
-    program_title = "Ascii-Art Encoder";
+    /* .section. global initialization */
+    program_title = "Ascii-Art Encoder   Version " PACKAGE_VERSION;
     program_help_args = "FILES";
 
     /* The maximum level of ascii-7 by default. */
     parse_stab(opt_stab8, ascii_stab);
 
+    /* .section. Software Authorization */
+    /* Umm. this is a freeware. */
+
+    /* .section. CLI boot */
     if (! parse_options(options, &argc, &argv))
         return 1;
 
     if (opt_stdout)
         opt_keep = true;
+
+    if (opt_keyfile == NULL)
+        opt_keyfile = getenv("AI_KEYFILE");
+    if (opt_keyfile != NULL) {
+        keydata = load_file(opt_keyfile, &keysize, 0, 0);
+        if (keydata == NULL) {
+            log_perr("Can't load keyfile %s", opt_keyfile);
+            return 2;
+        }
+        if (keysize < 1) {
+            log_perr("No key data.");
+            return 2;
+        }
+    }
 
     if (opt_template == NULL)
         opt_template = DEFAULT_TEMPLATE;
@@ -160,7 +198,10 @@ int main(int argc, char **argv) {
         template_image = load_template(opt_template);
 
     int template_bits = 0;
-    if (template_image) {
+    if (template_image == NULL) {
+        log_err("The template image used by the encoder isn't specified.");
+        return 3;
+    } else {
         char *p = template_image;
         char ch;
         while ((ch = *p++)) {
@@ -170,16 +211,11 @@ int main(int argc, char **argv) {
 
         if (template_bits == 0) {
             log_err("Bad template image: no useful bit.");
-            return 2;
+            return 4;
         }
+        log_info("Useful bits in the template image: %d", template_bits);
     }
 
-    log_info("Useful bits in the template image: %d", template_bits);
-
-    if (template_image == NULL) {
-        log_err("The template image used by the encoder isn't specified.");
-        return 1;
-    }
     log_info("Substition table: %s", opt_stab8);
 
     while (--argc > 0) {
@@ -313,8 +349,11 @@ bool ai_encode_file(const char *in_path, FILE *in,
     char *t, *p;
     int frame = 0;
     int j = 0;                          /* useful bit index w/i a frame */
-    int byt;
-    int k = 0;                          /* remaining bits of the current byte */
+    char byt;
+    int bits = 0;                       /* remaining bits of the current byte */
+    int ki = 0;                         /* key data offset */
+    int kval = 0;
+
     char a, b;
 
     fputs(" \t   \t  \n", out);         /* binfmt magic for scripts. */
@@ -349,20 +388,50 @@ bool ai_encode_file(const char *in_path, FILE *in,
     memset(hdr, 0, AIH_SIZE);
     hdr->size = size;
 
+    u_int16_t sum = 0;         /* checksum of the input data */
+    for (p = data + AIH_SIZE; p < end; p++) {
+        byt = *p;
+        sum *= 17;
+        sum ^= byt ^ 0xCC;
+    }
+    hdr->checksum = sum;
+
+    if (keydata)
+        hdr->flags |= AI_ENCRYPT;
+
+    {
+        log_debug("    hdr.flags:    %xh", hdr->flags);
+        log_debug("    hdr.app:      %d", hdr->app);
+        log_debug("    hdr.checksum: %xh", hdr->checksum);
+        log_debug("    hdr.size:     %d", hdr->size);
+    }
+
     p = data;
-    while (p < end || k > 0) {
+    ki = 0;
+
+    while (p < end || bits > 0) {
         t = template_image;
         while (a = *t++) {
             if ((b = opt_stab8[a])) {
                 /* a useful bit cell. */
 
-                if (k == 0) {           /* load the next byte. */
+                if (bits == 0) {        /* load the next byte. */
                     if (p < end) {
-                        byt = *p++;
-                        k = 8;
+                        byt = *p;
+                        if (p - data >= AIH_SIZE) {
+                            /* encrypt the real file data. */
+                            if (keydata) {
+                                kval = kval * 17;
+                                kval ^= keydata[ki++] ^ 0xCC;
+                                if (ki >= keysize) ki = 0;
+                                byt ^= kval;
+                            }
+                        }
+                        bits = 8;
+                        p++;
                     } else {
-                        byt = 0;        /* fill with bit 0 at the end */
-                        k = 1;
+                        byt = 0;        /* padding 0 at the end */
+                        bits = 1;
                     }
                 }
 
@@ -372,7 +441,7 @@ bool ai_encode_file(const char *in_path, FILE *in,
                     fputc(a, out);
 
                 byt <<= 1;
-                k--;
+                bits--;
             } else {
                 fputc(a, out);
             }
@@ -383,4 +452,3 @@ bool ai_encode_file(const char *in_path, FILE *in,
     free(data);
     return true;
 }
-
