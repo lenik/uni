@@ -16,6 +16,7 @@ Depends:
     execfilter,
     libbas-c,
     wget,
+    udisks,
     ${misc:Depends}
 Description: Companion utils used with execfilter.
   Includes:

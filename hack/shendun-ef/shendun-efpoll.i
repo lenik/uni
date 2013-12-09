@@ -140,6 +140,8 @@ function get_hw_mac() {
 
     mac_hd=
     for dev in sda sdb sdc sdd hda hdb hdc hdd; do
+        # NOTICE: VMware virtual disk vda... don't have a serial no.
+
         [ -b /dev/$dev ] || continue
 
         serial_line=$(udisks --show-info /dev/$dev | grep -m1 serial:)
@@ -158,7 +160,8 @@ function get_hw_mac() {
     done
 
     if [ -z "$mac_hd" ]; then
-        quit "No hard disk found, or none of them has a serial code."
+        # quit "No hard disk found, or none of them has a serial code."
+        mac_hd=NONE
     fi
 
     mac_lot="$mac_net/$mac_hd"
