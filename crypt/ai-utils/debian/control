@@ -20,6 +20,7 @@ Package: unai
 Architecture: any
 Depends:
     binfmt-support,
+    libbas-c,
     ${misc:Depends}
 Description: Ascii Art Data Decoder
     Decode ai encoded file.
