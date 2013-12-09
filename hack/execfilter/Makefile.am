@@ -38,7 +38,7 @@ libefstub_la_SOURCES = stub.c
 libefstub_la_LDFLAGS = -version-info 1:0:0
 
 syslogconf_DATA = \
-    execfilter.conf
+    10execfilter.conf
 
 dist_doc_DATA = manual.pdf
 
