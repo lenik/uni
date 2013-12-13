@@ -1,3 +1,9 @@
 mjpl
 !mjpl/
 
+i386/
+x86_64/
+
+# intermediate compiled objects
+std.*
+

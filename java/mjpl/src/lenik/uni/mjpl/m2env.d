@@ -1,17 +1,18 @@
 #!/usr/bin/dprog -vig
-
-module lenik.uni.mjpl;
+module lenik.uni.mjpl.m2env;
 
 import std.algorithm : sort, findSplit;
 import std.array;
-import std.ascii : isDigit;
-import std.conv;                        /* parse */
 import std.file;
 import std.path : baseName;
 import std.process : environment;
 import std.stdio;
 import std.string;
 import std.xml;
+
+import lenik.bas.util.versions;
+
+pragma(lib, "bas-d");
 
 class M2Env {
     string MAVEN_HOME;
@@ -173,9 +174,9 @@ class M2Env {
                 continue;
 
             string ver = entry.name.baseName;
-            if (!from.empty && cmpVer(ver, from) < fromCmpMin)
+            if (!from.empty && versionCmp(ver, from) < fromCmpMin)
                 continue;
-            if (!to.empty && cmpVer(ver, to) > toCmpMax)
+            if (!to.empty && versionCmp(ver, to) > toCmpMax)
                 continue;
             auto ls = array(dirEntries(entry.name, pattern, SpanMode.shallow));
             if (ls.empty)               /* version without jar */
@@ -188,14 +189,14 @@ class M2Env {
             return null;
 
         /* sort in descending version order. */
-        sort!((a, b) => cmpVer(a,b) >= 0) (list);
+        sort!((a, b) => versionNewer(a,b)) (list);
         string latestVersion = list[0];
         
         dir ~= "/" ~ latestVersion;
         return dir ~ "/" ~ base ~ "-" ~ latestVersion ~ ext;
     }
 
-    void dump() {
+    debug void dump() {
         writeln("HOME           = " ~ HOME);
         writeln("MAVEN_HOME     = " ~ MAVEN_HOME);
         writeln("m2conffdir     = " ~ m2confdir);
@@ -207,40 +208,6 @@ class M2Env {
             writeln("repo-dir: " ~ repodir);
     }
     
-}
-
-static int cmpVer(string v1, string v2) {
-    if (v1 == v2)
-        return 0;
-
-    auto w1 = findSplit(v1, ".");
-    auto w2 = findSplit(v2, ".");
-    string a1 = w1[0];
-    string a2 = w2[0];
-    if (a1 != a2) {                     /* the "major" part is different. */
-        if (!a1.empty && !a2.empty && a1[0].isDigit && a2[0].isDigit) {
-            char[] c1 = a1.dup;
-            char[] c2 = a2.dup;
-            uint n1 = parse!uint(c1);
-            uint n2 = parse!uint(c2);
-            /* "123", "123e" after parse become: "", "e"  */
-            if (n1 != n2)
-                return n1 - n2;
-            else
-                return cmp(c1, c2);
-        }
-        /* non-integer version item. */
-        return cmp(a1, a2);
-    }
-
-    /* Compare the "minor..." parts. */
-    string t1 = w1[2];
-    string t2 = w2[2];
-    if (t1.empty)
-        return -1;
-    if (t2.empty)
-        return 1;
-    return cmpVer(t1, t2);
 }
 
 int main(string[] argv) {

@@ -13,9 +13,11 @@
 *.bak
 *.orig
 *.lock
+.*.bin
 nohup.out
 
 # Auto-tools generated
+.dirstamp
 .libs/
 Makefile
 Makefile.in
