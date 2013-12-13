@@ -18,6 +18,7 @@
     option -k --no-object   "dmd: Suppress generation of object file"
     option -u --unittest    "Compile in unittest code"
     option -w --warnings    "Enable warnings"
+    option -. --go-out      "Increase the parent level to the outmost src dir"
     option -D --doc         "Generate documentations"
     option -H --header      "Generate D interface file"
     option -I --import =DIR "Add import search directory"
@@ -33,6 +34,7 @@
     compiler=dmd
     incdirs=()
     incdirn=0
+    outmostdir=
     dopts=()
     doptn=0
     no_obj=
@@ -63,12 +65,18 @@ function setopt() {
             dopts[doptn++]='-unittest';;
         -w|--warnings)
             dopts[doptn++]='-w';;
+        -.|--go-out)
+            if [ -z "$outmostdir" ]; then
+                outmostdir=..
+            else
+                outmostdir=${outmostdir}/..
+            fi;;
         -D|--doc)
             dopts[doptn++]='-D';;
         -H|--header)
             dopts[doptn++]='-H';;
-        -I)
-            import_dir "$2";;
+        -I|--import)
+            addimportdir "$2";;
         -O|--optimize)
             dopts[doptn++]='-O';;
         -h|--help)
@@ -110,6 +118,7 @@ function main() {
     d_file="$1"; shift
     [ -f "$d_file" ] || quit "Source file $d_file isn't existed"
 
+    [ -n "$outmostdir" ] && incdirs[incdirn++]="$outmostdir"
     for dir in "${incdirs[@]}"; do
         dopts[doptn++]="-I$dir"
     done
@@ -152,20 +161,33 @@ function main() {
         d_exe="$outdir/$d_name.bin"
     fi
 
+    d_files=("$d_file")
+    d_filen=1
+    
+    while IFS=' ;' read _import m_fqmn _; do
+        m_file="${m_fqmn//.//}"
+        for dir in "${incdirs[@]}"; do
+            if [ -f "$dir/$m_file.d" ]; then
+                _log2 "Link: $dir/$m_file.d"
+                d_files[d_filen++]="$dir/$m_file.d"
+            fi
+        done
+    done < <(grep '^import ' "$d_file" | grep '@link' )
+
     if [ ! -f "$d_exe" ] || \
             [ "$always" = 1 ] || \
             [ "$d_file" -nt "$d_exe" ]; then
         case "$compiler" in
             dmd|gdc)
                 _log2 "Compile:" \
-                $DMD "${dopts[@]}" -of"$d_exe" "$d_file"
-                $DMD "${dopts[@]}" -of"$d_exe" "$d_file" ||
+                $DMD "${dopts[@]}" -of"$d_exe" "${d_files[@]}"
+                $DMD "${dopts[@]}" -of"$d_exe" "${d_files[@]}" ||
                     quit "Failed to compile."
                 ;;
             _gdc_orig) # Use gdmd above instead.
                 _log2 "Compile:" \
-                $GDC "${dopts[@]}" -o "$d_exe" "$d_file"
-                $GDC "${dopts[@]}" -o "$d_exe" "$d_file" ||
+                $GDC "${dopts[@]}" -o "$d_exe" "${d_files[@]}"
+                $GDC "${dopts[@]}" -o "$d_exe" "${d_files[@]}" ||
                     quit "Failed to compile."
                 ;;
             *)
@@ -179,7 +201,7 @@ function main() {
 
 # Functions can be used in RC script
 
-function importdir() {
+function addimportdir() {
     if [ -d "$1" ]; then
         incdirs[incdirn++]="$1"
     else
