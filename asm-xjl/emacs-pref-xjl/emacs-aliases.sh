@@ -1,3 +1,3 @@
 #vim: set filetype=sh :
 
-alias ef='emacsclient -c'
+alias ef='run-bg emacsclient -c'
