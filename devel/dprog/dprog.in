@@ -32,8 +32,8 @@
     always=
     inplace=
     compiler=dmd
-    incdirs=()
-    incdirn=0
+    incdirs=(.)
+    incdirn=1
     outmostdir=
     dopts=()
     doptn=0
@@ -168,15 +168,13 @@ function main() {
         m_file="${m_fqmn//.//}"
         for dir in "${incdirs[@]}"; do
             if [ -f "$dir/$m_file.d" ]; then
-                _log2 "Link: $dir/$m_file.d"
+                _log1 "Link: $dir/$m_file.d"
                 d_files[d_filen++]="$dir/$m_file.d"
             fi
         done
     done < <(grep '^import ' "$d_file" | grep '@link' )
 
-    if [ ! -f "$d_exe" ] || \
-            [ "$always" = 1 ] || \
-            [ "$d_file" -nt "$d_exe" ]; then
+    if [ "$always" = 1 ] || expired "$d_exe" "${d_files[@]}"; then
         case "$compiler" in
             dmd|gdc)
                 _log2 "Compile:" \
@@ -197,6 +195,20 @@ function main() {
 
     _log2 "Execute:" "$d_exe" "$@"
     "$d_exe" "$@"
+}
+
+function expired() {
+    local target="$1"
+    shift
+
+    local prereq
+    [ -f "$target" ] || return 0
+    for prereq in "$@"; do
+        if [ "$prereq" -nt "$target" ]; then
+            return 0
+        fi
+    done
+    return 1
 }
 
 # Functions can be used in RC script
