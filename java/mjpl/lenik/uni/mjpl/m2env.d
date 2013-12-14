@@ -209,17 +209,3 @@ class M2Env {
     }
     
 }
-
-int main(string[] argv) {
-    M2Env env = new M2Env;
-    
-    foreach (string arg; argv[1..$]) {
-        string file = env.resolveFQAI(arg);
-        if (file == null)
-            writeln("Can't resolve " ~ arg);
-        else
-            writeln("Resolved " ~ arg ~ ": " ~ file);
-    }
-
-    return 0;
-}
