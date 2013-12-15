@@ -7,9 +7,21 @@ sited2dir = /usr/include/d2/site
 lib_LIBRARIES = \
     libbas-d.a
 
-.PHONY: libbas-d.a
-libbas-d.a:
-	cd src; dmd -lib -m${archbits} -of../$@ -op -Hd../include `find -name '*.d'`
+dist_libbas_d_a_SOURCES = \
+    lenik/bas/util/versions.d
+
+.PHONY: libbas-d.a libbas-d.a.dmd
+libbas-d.a: libbas-d.o libbas-d.a.dmd
+	ar rcs $@ $<
+libbas-d.a.dmd:
+	dmd -lib -m${archbits} -of$@ -op -Hdinclude -Dddoc ${dist_libbas_d_a_SOURCES}
+
+.PHONY: libbas-d.o
+libbas-d.o:
+	gdc -c -o $@ \
+            -fintfc -fintfc-dir=include.tmp \
+            -fdoc -fdoc-dir=doc.tmp \
+            ${dist_libbas_d_a_SOURCES}
 
 setup_SCRIPTS = \
     postinst \
@@ -19,9 +31,15 @@ EXTRA_DIST = \
     postinst.in \
     prerm.in
 
-CLEANFILES = ${setup_SCRIPTS} 
+CLEANFILES = \
+    ${setup_SCRIPTS} \
+    libbas-d.o \
+    libbas-d.a \
+    libbas-d.a.dmd
 
 install-data-hook:
 	mkdir -p $(DESTDIR)$(sited2dir)
 	rsync -av include/ $(DESTDIR)$(sited2dir)
+	mkdir -p $(DESTDIR)$(docdir)
+	rsync -av doc/ $(DESTDIR)$(docdir)
 
