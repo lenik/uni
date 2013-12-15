@@ -15,9 +15,12 @@
     option     --gdc        "Compile by GCC-based D Compiler"
     option     --ldc        "Compile by LLVM D Compiler"
 
+    option -4 --32-bit      "Compile to 32-bit code"
+    option -8 --64-bit      "Compile to 64-bit code"
     option -d --deprecated  "Allow deprecated features"
     option -g --debug       "Compile in debug code with symbolic info"
     option -k --no-object   "dmd: Suppress generation of object file"
+    option -l --link =LIB   "Link with specific library"
     option -m --map         "dmd: Generate linker .map file"
     option -p --property    "Enfore @property syntax"
     option -s --strip       "Optimized for space, generate compact code"
@@ -28,6 +31,7 @@
     option -H --header      "Generate D interface file"
     option -I --import =DIR "Add import search directory"
     option -O --optimize    "Generate optimized, release-mode code"
+    option -X --json        "Write JSON file"
 
     option -q --quiet       "Repeat to get less info"
     option -v --verbose     "Repeat to get more info"
@@ -38,13 +42,20 @@
     inplace=
     incdirs=(.)
     incdirn=1
+    libs=()
+    libn=0
     outmostdir=
-    no_obj=
     warnings=0
+    no_obj=
+    gen_doc=
+    gen_header=
+    gen_json=
     dmdopts=()
     dmdoptn=0
     gdcopts=()
     gdcoptn=0
+    gdcopts2=()
+    gdcoptn2=0
     ldcopts=()
     ldcoptn=0
 
@@ -66,6 +77,14 @@ function setopt() {
             DC=gdc;;
         --ldc)
             DC=ldc;;
+        -4|--32-bit)
+            dmdopts[dmdoptn++]='-m32'
+            ldcopts[ldcoptn++]='-m32'
+            ;;
+        -8|--64-bit)
+            dmdopts[dmdoptn++]='-m64'
+            ldcopts[ldcoptn++]='-m64'
+            ;;
         -d|--deprecated)
             dmdopts[dmdoptn++]='-d'
             gdcopts[gdcoptn++]='-Wno-deprecated'
@@ -79,6 +98,8 @@ function setopt() {
         -k|--no-object)
             # dmd: -o-, ldc: -o-
             no_obj=1;;
+        -l|--link)
+            addlinklib "$2";;
         -m|--map)
             dmdopts[dmdoptn++]='-map'
             ;;
@@ -114,20 +135,16 @@ function setopt() {
                 outmostdir=${outmostdir}/..
             fi;;
         -D|--doc)
+            gen_doc=1
             dmdopts[dmdoptn++]='-D'
-            #ldcopts[ldcoptn++]='-Dd=...'
             gdcopts[gdcoptn++]='-fdoc'
-            #gdcopts[gdcoptn++]="-fdoc-dir=..."
             ldcopts[ldcoptn++]='-D'
-            #ldcopts[ldcoptn++]='-Dd=...'
             ;;
         -H|--header)
+            gen_header=1
             dmdopts[dmdoptn++]='-H'
-            #dmdopts[dmdoptn++]="-Hd=..."
             gdcopts[gdcoptn++]='-fintfc'
-            #gdcopts[gdcoptn++]="-fintfc-dir=..."
             ldcopts[ldcoptn++]='-H'
-            #ldcopts[ldcoptn++]="-Hd=..."
             ;;
         -I|--import)
             addimportdir "$2";;
@@ -139,6 +156,8 @@ function setopt() {
             ldcopts[ldcoptn++]='-O3' # By default, -O is -O2.
             ldcopts[ldcoptn++]='-release'
             ;;
+        -X|--json)
+            gen_json=1;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -179,6 +198,7 @@ function main() {
     [ -f "$d_file" ] || quit "Source file $d_file isn't existed"
 
     [ -n "$outmostdir" ] && incdirs[incdirn++]="$outmostdir"
+
     for dir in "${incdirs[@]}"; do
         dmdopts[dmdoptn++]="-I$dir"
         gdcopts[gdcoptn++]="-I$dir"
@@ -222,12 +242,29 @@ function main() {
     fi
 
     if [ "$inplace" = 1 ]; then
-        d_exe="$d_dir/.$d_name.bin"
+        outdir="$d_dir"
+        d_exe="$outdir/.$d_name.bin"
     else
         outdir=/tmp/compiled.d
         mkdir -p "$outdir"
         # d_exe=`tempfile -d "$outdir" -p "$d_name" -s .bin`
         d_exe="$outdir/$d_name.bin"
+    fi
+
+    if [ "$gen_header" = 1 ]; then
+        dmdopts[dmdoptn++]="-Hd=$outdir"
+        gdcopts[gdcoptn++]="-fintfc-dir=$outdir"
+        ldcopts[ldcoptn++]="-Hd=$outdir"
+    fi
+    if [ "$gen_doc" = 1 ]; then
+        dmdopts[dmdoptn++]='-Dd=$outdir'
+        gdcopts[gdcoptn++]="-fdoc-dir=$outdir"
+        ldcopts[ldcoptn++]='-Dd=$outdir'
+    fi
+    if [ "$gen_json" = 1 ]; then
+        dmdopts[dmdoptn++]='-X'
+        dmdopts[dmdoptn++]="-Xf$outdir/$d_name.json"
+        gdcopts[gdcoptn++]="-fXf=$outdir/$d_name.json"
     fi
 
     d_files=("$d_file")
@@ -243,6 +280,17 @@ function main() {
         done
     done < <(grep '^import ' "$d_file" | grep '@link' )
 
+    while IFS='"' read _pragma_lib libname _; do
+        _log2 "Link with pragma lib: $libname"
+        addlinklib "$libname"
+    done < <(grep '^pragma(lib,' "${d_files[@]}")
+
+    for lib in "${libs[@]}"; do
+        dmdopts[dmdoptn++]="-L-l$lib"
+        gdcopts2[gdcoptn2++]="-l$lib"
+        ldcopts[ldcoptn++]="-L-l$lib"
+    done
+
     if [ "$always" = 1 ] || expired "$d_exe" "${d_files[@]}"; then
         case "$DC" in
             dmd)
@@ -253,8 +301,8 @@ function main() {
                 ;;
             gdc)
                 _log2 "Compile using gdc:" \
-                $GDC "${gdcopts[@]}" -o "$d_exe" "${d_files[@]}"
-                $GDC "${gdcopts[@]}" -o "$d_exe" "${d_files[@]}" ||
+                $GDC "${gdcopts[@]}" -o "$d_exe" "${d_files[@]}" "${gdcopts2[@]}"
+                $GDC "${gdcopts[@]}" -o "$d_exe" "${d_files[@]}" "${gdcopts2[@]}" ||
                     quit "Failed to compile."
                 ;;
             ldc)
@@ -294,6 +342,10 @@ function addimportdir() {
     else
         quit "Non-existed import dir: $1"
     fi
+}
+
+function addlinklib() {
+    libs[libn++]="$1"
 }
 
 boot "$@"
