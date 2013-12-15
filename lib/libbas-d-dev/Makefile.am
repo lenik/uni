@@ -8,6 +8,7 @@ lib_LIBRARIES = \
     libbas-d.a
 
 dist_libbas_d_a_SOURCES = \
+    lenik/bas/reflect.d \
     lenik/bas/util/versions.d
 
 .PHONY: libbas-d.a libbas-d.a.dmd
