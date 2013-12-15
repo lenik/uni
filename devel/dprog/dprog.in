@@ -3,26 +3,31 @@
     : ${PROGRAM_TITLE:="Auto compile dmd script and run"}
     : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
 
+    : ${DC:=gdc}
     : ${SYSRC:=@sysconfdir@/dprog.rc}
     : ${USERRC:=$HOME/.dprog.rc}
 
     . shlib-import cliboot
     option -B --always-make "Always compile"
     option -i --inplace     "Compile to hidden file in the same dir, instead of tmpdir"
-    option     --dmd        "Compile by dmd"
+    option     --dmd        "Compile by Digital Mars D2.x Compiler"
     option     --dmd-run    "Run the script using dmd-run"
-    option     --gdc        "Compile by gdc"
+    option     --gdc        "Compile by GCC-based D Compiler"
+    option     --ldc        "Compile by LLVM D Compiler"
 
     option -d --deprecated  "Allow deprecated features"
     option -g --debug       "Compile in debug code with symbolic info"
     option -k --no-object   "dmd: Suppress generation of object file"
+    option -m --map         "dmd: Generate linker .map file"
+    option -p --property    "Enfore @property syntax"
+    option -s --strip       "Optimized for space, generate compact code"
     option -u --unittest    "Compile in unittest code"
     option -w --warnings    "Enable warnings"
     option -. --go-out      "Increase the parent level to the outmost src dir"
     option -D --doc         "Generate documentations"
     option -H --header      "Generate D interface file"
     option -I --import =DIR "Add import search directory"
-    option -O --optimize    "Generate optimized code"
+    option -O --optimize    "Generate optimized, release-mode code"
 
     option -q --quiet       "Repeat to get less info"
     option -v --verbose     "Repeat to get more info"
@@ -31,13 +36,17 @@
 
     always=
     inplace=
-    compiler=dmd
     incdirs=(.)
     incdirn=1
     outmostdir=
-    dopts=()
-    doptn=0
     no_obj=
+    warnings=0
+    dmdopts=()
+    dmdoptn=0
+    gdcopts=()
+    gdcoptn=0
+    ldcopts=()
+    ldcoptn=0
 
 function help_more() {
     echo "  * (all other options are passed to the dmd compiler)"
@@ -50,21 +59,54 @@ function setopt() {
         -i|--inplace)
             inplace=1;;
         --dmd)
-            compiler=dmd;;
+            DC=dmd;;
         --dmd-run)
-            compiler=dmd-run;;
+            DC=dmd-run;;
         --gdc)
-            compiler=gdc;;
+            DC=gdc;;
+        --ldc)
+            DC=ldc;;
         -d|--deprecated)
-            dopts[doptn++]='-d';;
+            dmdopts[dmdoptn++]='-d'
+            gdcopts[gdcoptn++]='-Wno-deprecated'
+            ldcopts[ldcoptn++]='-d'
+            ;;
         -g|--debug)
-            dopts[doptn++]='-debug';;
+            dmdopts[dmdoptn++]='-debug'
+            gdcopts[gdcoptn++]='-fdebug=1'
+            ldcopts[ldcoptn++]='-g'
+            ;;
         -k|--no-object)
+            # dmd: -o-, ldc: -o-
             no_obj=1;;
+        -m|--map)
+            dmdopts[dmdoptn++]='-map'
+            ;;
+        -p|--property)
+            dmdopts[dmdoptn++]='-property'
+            gdcopts[gdcoptn++]='-fproperty'
+            ;;
+        -s|--strip)
+            gdcopts[gdcoptn++]='-fno-assert'
+            gdcopts[gdcoptn++]='-fno-invariants'
+            gdcopts[gdcoptn++]='-fno-in'
+            gdcopts[gdcoptn++]='-fno-out'
+            gdcopts[gdcoptn++]='-fno-bounds-check'
+            ldcopts[ldcoptn++]='-code-model=small'
+            ;;
         -u|--unittest)
-            dopts[doptn++]='-unittest';;
+            dmdopts[dmdoptn++]='-unittest'
+            gdcopts[gdcoptn++]='-funittest'
+            ldcopts[ldcoptn++]='-unittest'
+            ;;
         -w|--warnings)
-            dopts[doptn++]='-w';;
+            warnings=1
+            dmdopts[dmdoptn++]='-w'
+            # dmdopts[dmdoptn++]='-wi'
+            gdcopts[gdcoptn++]='-Wcast-result'
+            gdcopts[gdcoptn++]='-Wunknown-pragmas'
+            ldcopts[ldcoptn++]='-w'
+            ;;
         -.|--go-out)
             if [ -z "$outmostdir" ]; then
                 outmostdir=..
@@ -72,13 +114,31 @@ function setopt() {
                 outmostdir=${outmostdir}/..
             fi;;
         -D|--doc)
-            dopts[doptn++]='-D';;
+            dmdopts[dmdoptn++]='-D'
+            #ldcopts[ldcoptn++]='-Dd=...'
+            gdcopts[gdcoptn++]='-fdoc'
+            #gdcopts[gdcoptn++]="-fdoc-dir=..."
+            ldcopts[ldcoptn++]='-D'
+            #ldcopts[ldcoptn++]='-Dd=...'
+            ;;
         -H|--header)
-            dopts[doptn++]='-H';;
+            dmdopts[dmdoptn++]='-H'
+            #dmdopts[dmdoptn++]="-Hd=..."
+            gdcopts[gdcoptn++]='-fintfc'
+            #gdcopts[gdcoptn++]="-fintfc-dir=..."
+            ldcopts[ldcoptn++]='-H'
+            #ldcopts[ldcoptn++]="-Hd=..."
+            ;;
         -I|--import)
             addimportdir "$2";;
         -O|--optimize)
-            dopts[doptn++]='-O';;
+            dmdopts[dmdoptn++]='-O'
+            dmdopts[dmdoptn++]='-release'
+            gdcopts[gdcoptn++]='-O3'
+            gdcopts[gdcoptn++]='-frelease'
+            ldcopts[ldcoptn++]='-O3' # By default, -O is -O2.
+            ldcopts[ldcoptn++]='-release'
+            ;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -98,34 +158,43 @@ function main() {
         fi
     done
 
-    if [ -z "$DMD" ]; then
-        case "$compiler" in
-            dmd|dmd-run)
-                if [ -z "$DMD" ]; then
-                    DMD=`which dmd` || quit "Can't find dmd"
-                fi
-                ;;
-            gdc)
-                if [ -z "$DMD" ]; then
-                    DMD=`which gdmd` || quit "Can't find gdmd"
-                fi
-                ;;
-            *)
-                quit "Compiler isn't supported: $compiler";;
-        esac
-    fi
+    case "$DC" in
+        dmd|dmd-run)
+            if [ -z "$DMD" ]; then
+                DMD=`which dmd` || quit "Can't find dmd"
+            fi;;
+        gdc)
+            if [ -z "$GDC" ]; then
+                GDC=`which gdc` || quit "Can't find gdc"
+            fi;;
+        ldc)
+            if [ -z "$LDC" ]; then
+                LDC=`which ldc` || quit "Can't find ldc"
+            fi;;
+        *)
+            quit "Compiler isn't supported: $DC";;
+    esac
 
     d_file="$1"; shift
     [ -f "$d_file" ] || quit "Source file $d_file isn't existed"
 
     [ -n "$outmostdir" ] && incdirs[incdirn++]="$outmostdir"
     for dir in "${incdirs[@]}"; do
-        dopts[doptn++]="-I$dir"
+        dmdopts[dmdoptn++]="-I$dir"
+        gdcopts[gdcoptn++]="-I$dir"
+        ldcopts[ldcoptn++]="-I=$dir"
     done
 
-    if [ "$compiler" = 'dmd-run' ]; then
-        _log2 "Execute: $DMD ${dopts[@]} -run '$d_file' $*"
-        $DMD "${dopts[@]}" -run "$d_file" "$@"
+    if [ "$warnings" = 0 ]; then
+        # ignore unsupported warnings
+        dmdopts[dmdoptn++]='-ignore'
+        gdcopts[gdcoptn++]='-fignore-unknown-pragmas'
+        ldcopts[ldcoptn++]='-ignore'
+    fi
+
+    if [ "$DC" = 'dmd-run' ]; then
+        _log2 "Execute: $DMD ${dmdopts[@]} -run '$d_file' $*"
+        $DMD "${dmdopts[@]}" -run "$d_file" "$@"
         return
     fi
 
@@ -175,21 +244,27 @@ function main() {
     done < <(grep '^import ' "$d_file" | grep '@link' )
 
     if [ "$always" = 1 ] || expired "$d_exe" "${d_files[@]}"; then
-        case "$compiler" in
-            dmd|gdc)
-                _log2 "Compile:" \
-                $DMD "${dopts[@]}" -of"$d_exe" "${d_files[@]}"
-                $DMD "${dopts[@]}" -of"$d_exe" "${d_files[@]}" ||
+        case "$DC" in
+            dmd)
+                _log2 "Compile using dmd:" \
+                $DMD "${dmdopts[@]}" -of"$d_exe" "${d_files[@]}"
+                $DMD "${dmdopts[@]}" -of"$d_exe" "${d_files[@]}" ||
                     quit "Failed to compile."
                 ;;
-            _gdc_orig) # Use gdmd above instead.
-                _log2 "Compile:" \
-                $GDC "${dopts[@]}" -o "$d_exe" "${d_files[@]}"
-                $GDC "${dopts[@]}" -o "$d_exe" "${d_files[@]}" ||
+            gdc)
+                _log2 "Compile using gdc:" \
+                $GDC "${gdcopts[@]}" -o "$d_exe" "${d_files[@]}"
+                $GDC "${gdcopts[@]}" -o "$d_exe" "${d_files[@]}" ||
+                    quit "Failed to compile."
+                ;;
+            ldc)
+                _log2 "Compile using ldc:" \
+                $LDC "${ldcopts[@]}" -of="$d_exe" "${d_files[@]}"
+                $LDC "${ldcopts[@]}" -of="$d_exe" "${d_files[@]}" ||
                     quit "Failed to compile."
                 ;;
             *)
-                quit "Compiler isn't supported: $compiler";;
+                quit "Compiler isn't supported: $DC";;
         esac
     fi
 

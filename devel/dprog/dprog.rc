@@ -2,7 +2,7 @@
 
 # Always make/Ignore cache: set to 1 to re-compile each time
 # Even if there already exists the compiled executable binary.
-always=
+#always=
 
 # Compile inplace: set to 1 to output the compiled executable in the same directory
 # as the D source file.
@@ -12,11 +12,12 @@ always=
 #   If multiple D sources are with the same filename (but not the dirname), e.g.,
 #   /foo/a.d and /bar/a.d), then they are generated in the same binary name,
 #   i.e., /tmp/compiled.d/a.bin.
-inplace=
+#inplace=
 
 # Using which compiler to compile the D source:
 # Following compilers are supported:
 #   dmd         The Digital Mars D compiler
 #   dmd-run     dmd but don't compile, just run the script. However, dmd-run starts slow.
 #   gdc         The GCC frontend for D language.
-compiler=gdc
+#   ldc         The LLVM D compiler
+#compiler=dmd
