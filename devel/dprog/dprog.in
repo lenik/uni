@@ -26,6 +26,7 @@
     option -s --strip       "Optimized for space, generate compact code"
     option -u --unittest    "Compile in unittest code"
     option -w --warnings    "Enable warnings"
+    option -x --gdb         "Run in the gdb debugger"
     option -. --go-out      "Increase the parent level to the outmost src dir"
     option -D --doc         "Generate documentations"
     option -H --header      "Generate D interface file"
@@ -46,6 +47,7 @@
     libn=0
     outmostdir=
     warnings=0
+    gdb=
     no_obj=
     gen_doc=
     gen_header=
@@ -128,6 +130,8 @@ function setopt() {
             gdcopts[gdcoptn++]='-Wunknown-pragmas'
             ldcopts[ldcoptn++]='-w'
             ;;
+        -x|--gdb)
+            gdb=1;;
         -.|--go-out)
             if [ -z "$outmostdir" ]; then
                 outmostdir=..
@@ -316,8 +320,13 @@ function main() {
         esac
     fi
 
-    _log2 "Execute:" "$d_exe" "$@"
-    "$d_exe" "$@"
+    if [ -z "$gdb" ]; then
+        _log2 "Execute:" "$d_exe" "$@"
+        exec "$d_exe" "$@"
+    else
+        _log2 "Debug:" "$d_exe" "$@"
+        exec gdb --args "$d_exe" "$@"
+    fi
 }
 
 function expired() {
