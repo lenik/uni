@@ -3,9 +3,13 @@
 # RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
 
 function parse_id() {
-    local id=$1
-    # this tmp file should be memory-tmp, so it doesn't have to clean up.
-    local rtmp=/tmp/rcs
-    echo $id >$rtmp
-    read _ rcs_file rcs_rev rcs_date rcs_time rcs_user <$rtmp
+    local _Id_
+    local _
+    read _Id_ \
+        rcs_file \
+        rcs_rev \
+        rcs_date \
+        rcs_time \
+        rcs_user \
+        _ < <(echo $*)
 }
