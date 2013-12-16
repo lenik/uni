@@ -18,7 +18,7 @@ int log_level = 1;
 
 void _vlog_x(const char *ident, int option, int level,
              const char *format, va_list ap) {
-    int errnum = errno;                    /* save the errno immediately. */
+    int errnum = errno;                 /* save the errno immediately. */
     bool dirty = false;
 
     if (option & LOG_DATETIME) {
