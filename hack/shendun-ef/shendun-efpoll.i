@@ -22,6 +22,7 @@ function main() {
 
     if [ -z "$net_failure" ]; then
         _log2 "Server URL: $srv_url"
+        auth_fails=0
     else
         _error "Network failure: the server url is unknown."
 
@@ -94,7 +95,8 @@ function get_srv_url() {
         read resp_enc < <(wget -qO- "$start_url")
 
         if [ -z "$resp_enc" ]; then
-            quit "Failed to query from $start_url"
+            _error "Failed to query from $start_url"
+            return 1
         fi
 
         IFS='|' read srv_ip _ srv_port _ srv_path \
@@ -102,6 +104,7 @@ function get_srv_url() {
 
         echo "http://$srv_ip:$srv_port/$srv_path"
     fi
+    return 0
 }
 
 function send() {
