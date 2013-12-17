@@ -25,7 +25,9 @@ class Logger {
     int maxLevel;
     int option;
     File dev;
-
+    int indent;
+    string tab = "  ";
+    
     this(string ident = null,
          int maxLevel = 10,
          int option = LogOption.LevelName | LogOption.Color,
@@ -35,14 +37,25 @@ class Logger {
         this.option = option;
         this.dev = dev;
     }
+
+    void enter() {
+        indent++;
+    }
+
+    void leave() {
+        if (indent > 0)
+            indent--;
+        else
+            err("Nothing to leave()!");
+    }
     
     /* format: "2000-01-01 01:12:34 [ident] ERROR ... strerror" */
 
     void _logf(int level, S...)(int option, string format, S args) {
-        _logf!(level, S)(option, cast(Error) null, format, args);
+        _logf!(level, S)(option, cast(Throwable) null, format, args);
     }
     
-    void _logf(int level, S...)(int option, Error e, string format, S args) {
+    void _logf(int level, S...)(int option, Throwable e, string format, S args) {
         if (level > maxLevel)
             return;
         
@@ -133,6 +146,9 @@ class Logger {
             }
 
         if (dirty) dev.write(' ');
+        for (int i = 0; i < indent; i++)
+            dev.write(tab);
+        
         if (color) dev.write(level_color);
 
         if (option & LogOption.LevelName) {
@@ -143,32 +159,28 @@ class Logger {
 
         /* message */
         if (dirty) dev.write(' ');
-    
         dev.writef(format, args);
     
         if (color) dev.write(CSI ~ RESET ~ SGR);
 
-        /* strerror */
-        /*
-          if (option & LogOption.StrError) {
-          dev.write(' ');
-          if (color) dev.write(CSI ~ UNDERLINE ~ FG_RED ~ SGR);
-          dev.write(strerror(errnum));
-          if (color) dev.write(CSI ~ RESET ~ SGR);
-          }
-        */
-    
+        if (e !is null) {
+            dev.write(' ');
+            if (color) dev.write(CSI ~ UNDERLINE ~ FG_RED ~ SGR);
+            dev.write(e.msg);
+            if (color) dev.write(CSI ~ RESET ~ SGR);
+        }
+        
         if (option & LogOption.CR)
             dev.write('\r');
         else
             dev.writeln();
     }
     
-    void emerg(S...)(Error e, string fmt, S args) { _logf!(-4, S)(0, e, fmt, args); }
-    void alert(S...)(Error e, string fmt, S args) { _logf!(-3, S)(0, e, fmt, args); }
-    void crit(S...)(Error e, string fmt, S args) { _logf!(-2, S)(0, e, fmt, args); }
-    void err(S...)(Error e, string fmt, S args) { _logf!(-1, S)(0, e, fmt, args); }
-    void warn(S...)(Error e, string fmt, S args) { _logf!(0, S)(0, e, fmt, args); }
+    void emerg(S...)(Throwable e, string fmt, S args) { _logf!(-4, S)(0, e, fmt, args); }
+    void alert(S...)(Throwable e, string fmt, S args) { _logf!(-3, S)(0, e, fmt, args); }
+    void crit(S...)(Throwable e, string fmt, S args) { _logf!(-2, S)(0, e, fmt, args); }
+    void err(S...)(Throwable e, string fmt, S args) { _logf!(-1, S)(0, e, fmt, args); }
+    void warn(S...)(Throwable e, string fmt, S args) { _logf!(0, S)(0, e, fmt, args); }
 
     void emerg(S...)(string fmt, S args) { _logf!(-4, S)(0, fmt, args); }
     void alert(S...)(string fmt, S args) { _logf!(-3, S)(0, fmt, args); }
