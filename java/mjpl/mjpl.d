@@ -83,11 +83,11 @@ int main(string[] argv) {
             
             case "-q":
             case "--quiet":
-                log.maxLevel--; continue;
+                maxLogLevel--; continue;
 
             case "-v":
             case  "--verbose":
-                log.maxLevel++; continue;
+                maxLogLevel++; continue;
 
             case "--":
                 i++;

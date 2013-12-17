@@ -1,5 +1,6 @@
 module lenik.bas.log;
 
+import std.algorithm : min;
 import std.datetime;
 import std.file : File;
 import std.stdio : stdout, stderr;
@@ -19,21 +20,23 @@ enum LogOption {
     DateTime  = Date | Time,
 }
 
+int maxLogLevel;                        /* global max log level */
+
 class Logger {
 
-    string ident;
-    int maxLevel;
-    int option;
-    File dev;
-    int indent;
-    string tab = "  ";
+    private string ident;
+    private int logLevel;
+    private int option;
+    private File dev;
+    private int indent;
+    private string tab = "  ";
     
-    this(string ident = null,
-         int maxLevel = 10,
+    this(string ident,
+         int logLevel,
          int option = LogOption.LevelName | LogOption.Color,
          File dev = stderr) {
         this.ident = ident;
-        this.maxLevel = maxLevel;
+        this.logLevel = logLevel;
         this.option = option;
         this.dev = dev;
     }
@@ -51,12 +54,12 @@ class Logger {
     
     /* format: "2000-01-01 01:12:34 [ident] ERROR ... strerror" */
 
-    void _logf(int level, S...)(int option, string format, S args) {
-        _logf!(level, S)(option, cast(Throwable) null, format, args);
+    void _logf(S...)(int level, int option, string format, S args) {
+        _logf!(S)(level, option, cast(Throwable) null, format, args);
     }
     
-    void _logf(int level, S...)(int option, Throwable e, string format, S args) {
-        if (level > maxLevel)
+    void _logf(S...)(int level, int option, Throwable e, string format, S args) {
+        if (level > logLevel || level > maxLogLevel)
             return;
         
         option |= this.option;
@@ -65,7 +68,7 @@ class Logger {
         bool color = (option & LogOption.Color) != 0;
         
         if (option & LogOption.DateTime) {
-            SysTime t = Clock.currTime;
+            SysTime t = Clock.currTime();
             if (color) dev.write(CSI ~ FG_DARKGRAY ~ SGR);
 
             if (option & LogOption.Date) {
@@ -176,21 +179,21 @@ class Logger {
             dev.writeln();
     }
     
-    void emerg(S...)(Throwable e, string fmt, S args) { _logf!(-4, S)(0, e, fmt, args); }
-    void alert(S...)(Throwable e, string fmt, S args) { _logf!(-3, S)(0, e, fmt, args); }
-    void crit(S...)(Throwable e, string fmt, S args) { _logf!(-2, S)(0, e, fmt, args); }
-    void err(S...)(Throwable e, string fmt, S args) { _logf!(-1, S)(0, e, fmt, args); }
-    void warn(S...)(Throwable e, string fmt, S args) { _logf!(0, S)(0, e, fmt, args); }
+    void emerg(S...)(Throwable e, string fmt, S args) { _logf!(S)(-4, 0, e, fmt, args); }
+    void alert(S...)(Throwable e, string fmt, S args) { _logf!(S)(-3, 0, e, fmt, args); }
+    void  crit(S...)(Throwable e, string fmt, S args) { _logf!(S)(-2, 0, e, fmt, args); }
+    void   err(S...)(Throwable e, string fmt, S args) { _logf!(S)(-1, 0, e, fmt, args); }
+    void  warn(S...)(Throwable e, string fmt, S args) { _logf!(S)( 0, 0, e, fmt, args); }
 
-    void emerg(S...)(string fmt, S args) { _logf!(-4, S)(0, fmt, args); }
-    void alert(S...)(string fmt, S args) { _logf!(-3, S)(0, fmt, args); }
-    void crit(S...)(string fmt, S args) { _logf!(-2, S)(0, fmt, args); }
-    void err(S...)(string fmt, S args) { _logf!(-1, S)(0, fmt, args); }
-    void warn(S...)(string fmt, S args) { _logf!(0, S)(0, fmt, args); }
-    void notice(S...)(string fmt, S args) { _logf!(1, S)(0, fmt, args); }
-    void info(S...)(string fmt, S args) { _logf!(2, S)(0, fmt, args); }
-    void dbg(S...)(string fmt, S args) { _logf!(3, S)(0, fmt, args); }
-    void trace(S...)(string fmt, S args) { _logf!(4, S)(0, fmt, args); }
+    void  emerg(S...)(string fmt, S args) { _logf!(S)(-4, 0, fmt, args); }
+    void  alert(S...)(string fmt, S args) { _logf!(S)(-3, 0, fmt, args); }
+    void   crit(S...)(string fmt, S args) { _logf!(S)(-2, 0, fmt, args); }
+    void    err(S...)(string fmt, S args) { _logf!(S)(-1, 0, fmt, args); }
+    void   warn(S...)(string fmt, S args) { _logf!(S)( 0, 0, fmt, args); }
+    void notice(S...)(string fmt, S args) { _logf!(S)( 1, 0, fmt, args); }
+    void   info(S...)(string fmt, S args) { _logf!(S)( 2, 0, fmt, args); }
+    void    dbg(S...)(string fmt, S args) { _logf!(S)( 3, 0, fmt, args); }
+    void  trace(S...)(string fmt, S args) { _logf!(S)( 4, 0, fmt, args); }
     
 }
 
@@ -198,10 +201,10 @@ debug const int defaultLevel = 10;
  else const int defaultLevel = 1;
 
 template Log(string ident = null,
-             int maxLevel = defaultLevel,
+             int logLevel = defaultLevel,
              int option = LogOption.LevelName | LogOption.Color) {
     Logger log;
     static this() {
-        log = new Logger(ident, maxLevel, option);
+        log = new Logger(ident, logLevel, option);
     }
 }
