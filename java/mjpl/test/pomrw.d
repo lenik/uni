@@ -1,8 +1,6 @@
 #!/usr/bin/dprog -ivg.
 
-import std.array;
 import std.file : exists, read;
-import std.path : dirName, baseName;
 import std.stdio;
 import std.string;
 
@@ -16,10 +14,16 @@ int main(string[] argv) {
         return 1;
     }
 
+    // if (!lenik.uni.mjpl.pom.exists(argv[1])) {
+    if (!exists(argv[1])) {
+        writeln("POM file isn't existed: " ~ argv[1]);
+        return 1;
+    }
+    
     M2Env env = new M2Env;
     
     string pomfile = argv[1];
     Pom pom = new Pom(env, pomfile);
-    pom.dump();
+    // pom.dump();
     return 0;
 }

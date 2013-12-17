@@ -1,7 +1,20 @@
 include libauto/project.am
 
-dist_bin_SCRIPTS = \
+bin_PROGRAMS = \
     mjpl
+
+dist_mjpl_SOURCES = \
+    mjpl.d \
+    lenik/uni/mjpl/m2env.d \
+    lenik/uni/mjpl/pom.d
+
+mjpl: ${dist_mjpl_SOURCES}
+	gdc -O3 -frelease \
+        -I/usr/include/d2/site \
+        -fignore-unknown-pragmas \
+        -o $@ \
+        ${dist_mjpl_SOURCES} \
+        -lbas-d
 
 setup_SCRIPTS = \
     postinst \

@@ -1,4 +1,3 @@
-#!/usr/bin/dprog -vig
 module lenik.uni.mjpl.m2env;
 
 import std.algorithm : sort, findSplit;
@@ -10,9 +9,11 @@ import std.stdio;
 import std.string;
 import std.xml;
 
+pragma(lib, "bas-d");
+import lenik.bas.log : Log, Logger;
 import lenik.bas.util.versions;
 
-pragma(lib, "bas-d");
+mixin Log!("m2env");
 
 class M2Env {
     string MAVEN_HOME;
@@ -31,7 +32,15 @@ class M2Env {
 
         config();
 
-        repodirs = [ userm2repodir, m2repodir ];
+        if (exists(userm2repodir))
+            repodirs ~= userm2repodir;
+        else
+            userm2repodir = null;
+        
+        if (exists(m2repodir))
+            repodirs ~= m2repodir;
+        else
+            m2repodir = null;
     }
     
     void config() {
@@ -138,12 +147,16 @@ class M2Env {
     }
 
     bool exists1(string file) {
-        debug writeln("find for " ~ file);
-        return exists(file);
+        if (exists(file)) {
+            debug log.dbg("Resolved: " ~ file);
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    string findLatest(string dir, string base, string versionRange, string ext) {
-        auto split = findSplit(versionRange, ",");
+    string findLatest(string dir, string base, string verFromTo, string ext) {
+        auto split = findSplit(verFromTo, ",");
         string from = split[0].strip;
         string to = split[2].strip;
 
@@ -208,4 +221,9 @@ class M2Env {
             writeln("repo-dir: " ~ repodir);
     }
     
+}
+
+M2Env m2env;
+static this() {
+    m2env = new M2Env;
 }
