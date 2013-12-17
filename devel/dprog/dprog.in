@@ -200,27 +200,8 @@ function main() {
 
     d_file="$1"; shift
     [ -f "$d_file" ] || quit "Source file $d_file isn't existed"
-
-    [ -n "$outmostdir" ] && incdirs[incdirn++]="$outmostdir"
-
-    for dir in "${incdirs[@]}"; do
-        dmdopts[dmdoptn++]="-I$dir"
-        gdcopts[gdcoptn++]="-I$dir"
-        ldcopts[ldcoptn++]="-I=$dir"
-    done
-
-    if [ "$warnings" = 0 ]; then
-        # ignore unsupported warnings
-        dmdopts[dmdoptn++]='-ignore'
-        gdcopts[gdcoptn++]='-fignore-unknown-pragmas'
-        ldcopts[ldcoptn++]='-ignore'
-    fi
-
-    if [ "$DC" = 'dmd-run' ]; then
-        _log2 "Execute: $DMD ${dmdopts[@]} -run '$d_file' $*"
-        $DMD "${dmdopts[@]}" -run "$d_file" "$@"
-        return
-    fi
+    # option: only normalize if cwd != d_dir...
+    d_file=$( readlink -f "$d_file" )
 
     d_dir="${d_file%/*}"
     d_base="${d_file##*/}"
@@ -249,10 +230,44 @@ function main() {
         outdir="$d_dir"
         d_exe="$outdir/.$d_name.bin"
     else
-        outdir=/tmp/compiled.d
-        mkdir -p "$outdir"
+        outdir=/tmp/dprog.exe
+        if [ "$DC" != 'dmd-run' ]; then
+            mkdir -p "$outdir"
+        fi
         # d_exe=`tempfile -d "$outdir" -p "$d_name" -s .bin`
         d_exe="$outdir/$d_name.bin"
+    fi
+
+    [ -n "$outmostdir" ] && incdirs[incdirn++]="$outmostdir"
+
+    # Normalize inc dirs.
+    cdirs=()
+    cdirn=0
+    for dir in "${incdirs[@]}"; do
+        case "$dir" in
+        .)
+            dir="$d_dir";;
+        /*)
+            : ;;
+        *)
+            dir="$d_dir/$dir";;
+        esac
+        cdirs[cdirn++]="$dir"
+    done
+    incdirs=("${cdirs[@]}")
+
+    # Configure DC* to include the inc dirs.
+    for dir in "${incdirs[@]}"; do
+        dmdopts[dmdoptn++]="-I$dir"
+        gdcopts[gdcoptn++]="-I$dir"
+        ldcopts[ldcoptn++]="-I=$dir"
+    done
+
+    if [ "$warnings" = 0 ]; then
+        # ignore unsupported warnings
+        dmdopts[dmdoptn++]='-ignore'
+        gdcopts[gdcoptn++]='-fignore-unknown-pragmas'
+        ldcopts[ldcoptn++]='-ignore'
     fi
 
     if [ "$gen_header" = 1 ]; then
@@ -278,7 +293,7 @@ function main() {
         m_file="${m_fqmn//.//}"
         for dir in "${incdirs[@]}"; do
             if [ -f "$dir/$m_file.d" ]; then
-                _log1 "Link: $dir/$m_file.d"
+                _log2 "Linked Source: $dir/$m_file.d"
                 d_files[d_filen++]="$dir/$m_file.d"
             fi
         done
@@ -297,6 +312,12 @@ function main() {
 
     if [ "$always" = 1 ] || expired "$d_exe" "${d_files[@]}"; then
         case "$DC" in
+            dmd-run)
+                _log2 "Execute using dmd-run:" \
+                $DMD "${dmdopts[@]}" -run "$d_file" "$@"
+                $DMD "${dmdopts[@]}" -run "$d_file" "$@" ||
+                    quit "Failed to run."
+                ;;
             dmd)
                 _log2 "Compile using dmd:" \
                 $DMD "${dmdopts[@]}" -of"$d_exe" "${d_files[@]}"
