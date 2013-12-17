@@ -354,7 +354,20 @@ function addimportdir() {
 }
 
 function addlinklib() {
-    libs[libn++]="$1"
+    local a
+    for a in "$@"; do
+        local lib
+        local dup=
+        for lib in "${libs[@]}"; do
+            if [ "$lib" = "$a" ]; then
+                dup=1
+                break
+            fi
+        done
+        if [ -z "$dup" ]; then
+            libs[libn++]="$a"
+        fi
+    done
 }
 
 boot "$@"
