@@ -86,7 +86,7 @@ class M2Env {
             auto doc = new Document(xml);
             foreach (Element e; doc.elements)
                 if (e.tag.name == "localRepository") {
-                    userm2repodir = e.text;
+                    userm2repodir = e.text();
                     break;
                 }
         }
@@ -157,8 +157,8 @@ class M2Env {
 
     string findLatest(string dir, string base, string verFromTo, string ext) {
         auto split = findSplit(verFromTo, ",");
-        string from = split[0].strip;
-        string to = split[2].strip;
+        string from = split[0].strip();
+        string to = split[2].strip();
 
         int fromCmpMin;
         if (from.startsWith("["))
@@ -167,7 +167,7 @@ class M2Env {
             fromCmpMin = 1;
         else
             throw new Exception("Bad version range: from=" ~ from);
-        from = from[1..$].strip;
+        from = from[1..$].strip();
         
         int toCmpMax;
         if (to.endsWith("]"))
@@ -176,7 +176,7 @@ class M2Env {
             toCmpMax = -1;
         else
             throw new Exception("Bad version range: to=" ~ to);
-        to = to.chop().strip;
+        to = to.chop().strip();
         
         debug writeln("find latest for " ~ dir ~ "/*/" ~ base ~ "-*" ~ ext);
         string pattern = base ~ "-*" ~ ext;
@@ -186,7 +186,7 @@ class M2Env {
             if (! entry.isDir)          /* each version sit in a dir. */
                 continue;
 
-            string ver = entry.name.baseName;
+            string ver = entry.name.baseName();
             if (!from.empty && versionCmp(ver, from) < fromCmpMin)
                 continue;
             if (!to.empty && versionCmp(ver, to) > toCmpMax)

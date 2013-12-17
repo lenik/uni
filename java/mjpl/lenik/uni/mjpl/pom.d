@@ -205,21 +205,21 @@ private:
         foreach (Element e1; project.elements) {
             switch (e1.tag.name) {
             case "name":
-                name = e1.text; break;
+                name = e1.text(); break;
             case "description":
-                description = e1.text; break;
+                description = e1.text(); break;
             case "groupId":
-                _groupId = e1.text; break;
+                _groupId = e1.text(); break;
             case "artifactId":
-                _artifactId = e1.text; break;
+                _artifactId = e1.text(); break;
             case "packaging":
-                _packaging = e1.text; break;
+                _packaging = e1.text(); break;
             case "version":
-                _version = e1.text; break;
+                _version = e1.text(); break;
             case "properties":
                 foreach (Element e2; e1.elements) {
                     string key = e2.tag.name;
-                    string value = e2.text;
+                    string value = e2.text();
                     _props[key] = value;
                 }
                 break;
@@ -228,11 +228,11 @@ private:
                 foreach (Element e2; e1.elements) {
                     switch (e2.tag.name) {
                     case "groupId":
-                        parentGroupId = e2.text; break;
+                        parentGroupId = e2.text(); break;
                     case "artifactId":
-                        parentArtifactId = e2.text; break;
+                        parentArtifactId = e2.text(); break;
                     case "version":
-                        parentVersion = e2.text; break;
+                        parentVersion = e2.text(); break;
                     default:
                     }
                 }
@@ -254,7 +254,7 @@ private:
             case "modules":
                 foreach (Element e2; e1.elements) {
                     assert(e2.tag.name == "module");
-                    modules ~= e2.text;
+                    modules ~= e2.text();
                 }
                 break;
                 
@@ -272,21 +272,21 @@ private:
             foreach (Element e; _dep_.elements) {
                 switch (e.tag.name) {
                 case "groupId":
-                    dep.groupId = e.text; break;
+                    dep.groupId = e.text(); break;
                 case "artifactId":
-                    dep.artifactId = e.text; break;
+                    dep.artifactId = e.text(); break;
                 case "packaging":
-                    dep.packaging = e.text; break;
+                    dep.packaging = e.text(); break;
                 case "version":
-                    dep.version_ = e.text; break;
+                    dep.version_ = e.text(); break;
                 case "classifier":
-                    dep.classifier = e.text; break;
+                    dep.classifier = e.text(); break;
                 case "optional":
-                    if (e.text == "true")
+                    if (e.text() == "true")
                         dep.optional = true;
                     break;
                 case "scope":
-                    switch (e.text) {
+                    switch (e.text()) {
                     case "compile":
                     case "":
                         dep.scope_ = Scope.compile; break;
@@ -299,7 +299,7 @@ private:
                     case "system":
                         dep.scope_ = Scope.system; break;
                     default:
-                        throw new Exception("Bad scope: " ~ e.text);
+                        throw new Exception("Bad scope: " ~ e.text());
                     }
                     break;
                 default:

@@ -1,4 +1,4 @@
-#!/usr/bin/dprog -vi
+#!/usr/bin/dprog -vip
 module mjpl;
 
 import std.c.stdlib : exit;
@@ -180,7 +180,7 @@ int main(string[] argv) {
             tail = cast(string) p;
         else
             tail = cast(string) p[lastDot+1..$];
-        string alias_ = tail.toLower;
+        string alias_ = tail.toLower();
         programMap[alias_] = p;
     }
     
@@ -241,14 +241,14 @@ void scanImpls(string type, ref string[][string] providers) {
 
                     auto f = File(e.name, "rt");
                     string ln;
-                    while (!f.error && (ln = f.readln) !is null) {
-                        ln = ln.strip;
+                    while (!f.error && (ln = f.readln()) !is null) {
+                        ln = ln.strip();
                         if (ln.length == 0) /* skip empty lines */
                             continue;
                         log.dbg("    Provider %s", ln);
                         providers[fqcn] ~= ln;
                     }
-                    f.close;
+                    f.close();
                 }
             }
         } else {                        /* a jar/zip file */
@@ -267,7 +267,7 @@ void scanImpls(string type, ref string[][string] providers) {
                     
                     string content = cast(string) e.expandedData;
                     foreach (ln; content.split("\n")) {
-                        ln = ln.strip;
+                        ln = ln.strip();
                         if (ln.length == 0) /* skip empty lines */
                             continue;
                         
