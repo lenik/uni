@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for cooldmd
+# prerm script for dprog
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/cooldmd/prerm
+        /usr/share/setup/dprog/prerm
     ;;
 
     failed-upgrade)

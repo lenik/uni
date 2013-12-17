@@ -1,18 +1,18 @@
-Source: cooldmd
+Source: dprog
 Section: devel
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.3
-Homepage: http://uni.bodz.net//mnt/istore/projects/uni/devel/cooldmd
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/devel/cooldmd
-Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/devel/cooldmd
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/devel/dprog
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/devel/dprog
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/devel/dprog
 
-Package: cooldmd
+Package: dprog
 Architecture: all
 Depends:
     bash-shlib,
     dmd,
     ${misc:Depends}
 Description: D language develop tools
-    cooldmd includes utilities for development with Digital Mars D language.
+    dprog includes utilities for development with Digital Mars D language.
