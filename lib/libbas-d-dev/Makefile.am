@@ -9,6 +9,7 @@ lib_LIBRARIES = \
 
 dist_libbas_d_a_SOURCES = \
     lenik/bas/esc/csisgr.d \
+    lenik/bas/file.d \
     lenik/bas/log.d \
     lenik/bas/reflect.d \
     lenik/bas/str.d \
