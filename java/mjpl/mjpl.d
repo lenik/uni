@@ -1,4 +1,4 @@
-#!/usr/bin/dprog -i
+#!/usr/bin/dprog -vi
 module mjpl;
 
 import std.c.stdlib : exit;
@@ -164,34 +164,40 @@ int main(string[] argv) {
     }
 
     string[][string] providers;
-    scanImpls(opt_serviceType, providers);
+    string[string] programNames;
+    string[string] programTypes;
+    string[string] tailmap;
+    scanImpls(opt_serviceType, providers, programNames, programTypes, tailmap);
     
     if (opt_services) {
         writeln("Services: ");
         foreach (k; sort(providers.keys)) {
             if (opt_serviceType is null)
-                writeln(" -- " ~ k);
+                writeln("Service for: " ~ k);
             foreach (provider; providers[k])
                 writeln("    " ~ provider);
         }
     }
     
-    string[string] programMap;
-    foreach (p; providers["net.bodz.bas.program.IProgram"]) {
-        auto lastDot = p.lastIndexOf('.');
+    foreach (fqcn; providers["net.bodz.bas.program.IProgram"]) {
+        auto lastDot = fqcn.lastIndexOf('.');
         string tail;
         if (lastDot == -1)
-            tail = cast(string) p;
+            tail = cast(string) fqcn;
         else
-            tail = cast(string) p[lastDot+1..$];
+            tail = cast(string) fqcn[lastDot+1..$];
         string alias_ = tail.toLower();
-        programMap[alias_] = p;
+
+        if (alias_ !in programNames)
+            programNames[alias_] = fqcn;
     }
     
     if (opt_programs) {
         writeln("Programs:  ");
-        foreach (k, v; programMap)
-            writefln("    %s: %s", k, v);
+        string[] aliases = programNames.keys;
+        sort(aliases);
+        foreach (k; aliases)
+            writefln("    %s: %s", k, programNames[k]);
     }
     
     if (! runApp)
@@ -203,8 +209,8 @@ int main(string[] argv) {
     
     string program = argv[0];
     argv = argv[1..$];                  /* shift argv */
-    if (program in programMap)
-        program = programMap[program];
+    if (program in programNames)
+        program = programNames[program];
     
     string JAVA = "java";               /* which java... */
     string CLASSPATH = "";
@@ -223,7 +229,11 @@ int main(string[] argv) {
     return -1;
 }
 
-void scanImpls(string type, ref string[][string] providers) {
+void scanImpls(string serviceType,
+               ref string[][string] providers,
+               ref string[string] programNames,
+               ref string[string] programTypes,
+               ref string[string] tailmap) {
     foreach (path; classpaths) {
         if (! exists(path)) {
             log.err("Non-existed classpath: %s", path);
@@ -234,53 +244,85 @@ void scanImpls(string type, ref string[][string] providers) {
             log.info("DIR: %s", path);
             
             string servicesDir = path ~ "/META-INF/services";
-            if (! exists(servicesDir))
-                continue;
-            
-            foreach (e; dirEntries(servicesDir, SpanMode.shallow)) {
-                
-                string fqcn = baseName(e.name);
-                if (type is null || type == fqcn) {
-                    log.info("  Service %s", fqcn);
-
-                    auto f = File(e.name, "rt");
-                    string ln;
-                    while (!f.error && (ln = f.readln()) !is null) {
-                        ln = ln.strip();
-                        if (ln.length == 0) /* skip empty lines */
-                            continue;
-                        log.dbg("    Provider %s", ln);
-                        providers[fqcn] ~= ln;
+            if (exists(servicesDir)) {
+                foreach (e; dirEntries(servicesDir, SpanMode.shallow)) {
+                    string fqcn = baseName(e.name);
+                    if (serviceType is null || serviceType == fqcn) {
+                        log.info("  Service %s", fqcn);
+                        char[] content = cast(char[]) read(e.name);
+                        auto list = parseServices(content);
+                        providers[fqcn] ~= list;
                     }
-                    f.close();
                 }
             }
+            
+            string programsFile = path ~ "/META-INF/programs";
+            if (exists(programsFile)) {
+                char[] content = cast(char[]) read(programsFile);
+                parsePrograms(content, programNames, programTypes);
+            }
+            
         } else {                        /* a jar/zip file */
             log.info("JAR: %s", path);
             
             void[] data = read(path);
             ZipArchive ar = new ZipArchive(data);
-            string prefix = "META-INF/services/";
+            
             foreach (e; ar.directory) {
-                if (! e.name.startsWith(prefix))
-                    continue;
-                
-                string fqcn = e.name[prefix.length..$];
-                if (type is null || type == fqcn) {
-                    log.info("  Service %s", fqcn);
+                if (e.name.startsWith("META-INF/services/")) {
+                    string fqcn = e.name["META-INF/services/".length .. $];
+
+                    if (serviceType is null || serviceType == fqcn) {
+                        log.info("  Service %s", fqcn);
                     
-                    string content = cast(string) e.expandedData;
-                    foreach (ln; content.split("\n")) {
-                        ln = ln.strip();
-                        if (ln.length == 0) /* skip empty lines */
-                            continue;
-                        
-                        log.dbg("    Provider %s", ln);
-                        providers[fqcn] ~= ln;
+                        char[] content = cast(char[]) e.expandedData;
+                        auto list = parseServices(content);
+                        providers[fqcn] ~= list;
                     }
                 }
-            }
-        }
+
+                if (e.name == "META-INF/programs") {
+                    char[] content = cast(char[]) e.expandedData;
+                    parsePrograms(content, programNames, programTypes);
+                }
+            } /* for ar.directory */
+        } /* if dir/jar */
+    } /* for classpath */
+}
+
+string[] parseServices(char[] content) {
+    string[] list;
+    foreach (ln; content.split("\n")) {
+        ln = ln.strip();
+        if (ln.length == 0) /* skip empty lines */
+            continue;
+
+        log.dbg("    Service Provider %s", ln);
+        list ~= cast(string) ln;
+    }
+    return list;
+}
+
+void parsePrograms(char[] content,
+                   ref string[string] programNames,
+                   ref string[string] programTypes) {
+    foreach (ln; content.split("\n")) {
+        ln = ln.strip();
+        if (ln.length == 0) /* skip empty lines */
+            continue;
+
+        /* alias = runner fqcn */
+        auto eq = ln.indexOf('=');
+        string alias_ = cast(string) ln[0..eq];
+
+        string remain = cast(string) ln[eq+1..$];
+        remain = remain.strip();
+        auto spc = remain.indexOf(' ');
+        string runner = cast(string) remain[0..spc].strip();
+        string fqcn = cast(string) remain[spc+1..$].strip();
+
+        programNames[alias_] = fqcn;
+        programTypes[alias_] = runner;
     }
 }
 
