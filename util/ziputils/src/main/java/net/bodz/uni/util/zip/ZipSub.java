@@ -19,6 +19,7 @@ import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.t.iterator.Iterables;
 
@@ -27,8 +28,9 @@ import net.bodz.bas.t.iterator.Iterables;
  *
  * @usage DEST-ZIP MINUS-ZIP-LIST
  */
-@RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 0 })
+@ProgramName("zipsub")
+@RcsKeywords(id = "$Id$")
 public class ZipSub
         extends BasicCLI {
 

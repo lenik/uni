@@ -32,9 +32,9 @@ import net.bodz.swt.program.BasicGUI;
  * @style width: 400; height: 200
  * @website http://www.bodz.net/products/distins
  */
-@ProgramName("Abtsacg")
-@RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 1 })
+@ProgramName("abtsacg")
+@RcsKeywords(id = "$Id$")
 public class ActivateCodeGenerator
         extends BasicGUI {
 

@@ -29,9 +29,9 @@ import net.bodz.bas.vfs.util.find.FileFinder;
 /**
  * Add missed entries for NLS property files
  */
+@MainVersion({ 0, 1 })
 @ProgramName("nlsadd")
 @RcsKeywords(id = "$Id$")
-@MainVersion({ 0, 1 })
 public class NLSAddMissings
         extends BasicCLI {
 

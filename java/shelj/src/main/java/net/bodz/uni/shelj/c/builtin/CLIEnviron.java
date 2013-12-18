@@ -34,10 +34,10 @@ import com.sun.security.auth.callback.TextCallbackHandler;
 /**
  * Dump Java CLI Environment
  */
-@SuppressWarnings("restriction")
+@MainVersion({ 0, 1 })
 @ProgramName("jenv")
 @RcsKeywords(id = "$Id$")
-@MainVersion({ 0, 1 })
+@SuppressWarnings("restriction")
 public class CLIEnviron
         extends BasicCLI {
 

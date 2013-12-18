@@ -27,6 +27,7 @@ import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.t.order.EntryKeyComparator;
 import net.bodz.bas.t.pojo.Pair;
@@ -36,8 +37,9 @@ import net.bodz.bas.typer.std.IParser;
 /**
  * Simple XML document batch editor
  */
-@RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 0 })
+@ProgramName("xmledit")
+@RcsKeywords(id = "$Id$")
 public class XMLEdit
         extends BasicCLI {
 

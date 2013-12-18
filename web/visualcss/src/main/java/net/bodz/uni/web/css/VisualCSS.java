@@ -28,6 +28,7 @@ import net.bodz.bas.io.res.builtin.URLResource;
 import net.bodz.bas.io.res.tools.StreamReading;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.swt.c.list.URLResourceListEditor;
 import net.bodz.swt.c.text.TextAdapters;
 import net.bodz.swt.program.BasicGUI;
@@ -37,8 +38,9 @@ import net.bodz.swt.program.BasicGUI;
  *
  * @style width: 800; height: 600
  */
-@RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 1 })
+@ProgramName("visualcss")
+@RcsKeywords(id = "$Id$")
 public class VisualCSS
         extends BasicGUI {
 

@@ -8,13 +8,15 @@ import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.bas.program.skel.BasicCLI;
 
 /**
  * KeyStore/Certificate Dump
  */
-@RcsKeywords(id = "$Id$")
 @MainVersion({ 1, 0 })
+@ProgramName("certdump")
+@RcsKeywords(id = "$Id$")
 public class CertDump
         extends BasicCLI {
 

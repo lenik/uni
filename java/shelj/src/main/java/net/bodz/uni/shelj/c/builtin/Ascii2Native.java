@@ -7,6 +7,7 @@ import net.bodz.bas.c.java.util.regex.Unescape;
 import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.bas.program.skel.BatchEditCLI;
 import net.bodz.bas.program.skel.FileHandler;
 
@@ -14,6 +15,7 @@ import net.bodz.bas.program.skel.FileHandler;
  * Convert ascii chars or \\uNNNN to native chars
  */
 @MainVersion({ 0, 1 })
+@ProgramName("a2native")
 @RcsKeywords(id = "$Id$")
 public class Ascii2Native
         extends BatchEditCLI {

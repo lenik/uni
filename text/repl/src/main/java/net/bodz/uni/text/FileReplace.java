@@ -15,36 +15,36 @@ import net.bodz.bas.program.skel.FileHandler;
 /**
  * A Unix diff program implemented in Java
  */
+@MainVersion({ 0, 1 })
 @ProgramName("jrepl")
 @RcsKeywords(id = "$Id$")
-@MainVersion({ 0, 1 })
 public class FileReplace
         extends BatchEditCLI {
 
     /**
      * replace by regexp
-     *
+     * 
      * @option -P --regex =REGEXP
      */
     protected Pattern pattern;
 
     /**
      * Replace by literal text
-     *
+     * 
      * @option -F --fixed-string =TEXT
      */
     protected String textPattern;
 
     /**
      * The replacement. May include \\n (or $n) reference in regexp mode.
-     *
+     * 
      * @option -t --replacement =TEXT
      */
     protected String replacement;
 
     /**
      * Use the specific rewriter impl, this will ignore -P, -T, -t options
-     *
+     * 
      * @option =CLASS(IRewriter)
      */
     protected IRewriter<String> rewriter;

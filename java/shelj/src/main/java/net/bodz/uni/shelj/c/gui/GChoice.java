@@ -8,34 +8,36 @@ import org.eclipse.swt.SWT;
 import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.swt.c.dialog.SwtUserDialogs;
 import net.bodz.swt.program.BasicGUI;
 
 /**
  * GUI Choice Utility
  */
-@RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 1 })
+@ProgramName("gchoice")
+@RcsKeywords(id = "$Id$")
 public class GChoice
         extends BasicGUI {
 
     /**
      * Window title
-     *
+     * 
      * @option -t =TITLE
      */
     String title = "Choice";
 
     /**
      * initial index of selection
-     *
+     * 
      * @option -i =INDEX
      */
     int initial = 0;
 
     /**
      * Import list from environ vars
-     *
+     * 
      * @option -e =ENV-KEY
      */
     String envKey;
@@ -44,7 +46,7 @@ public class GChoice
 
     /**
      * set top-most (win32 only)
-     *
+     * 
      * @option -T
      */
     boolean topMost;

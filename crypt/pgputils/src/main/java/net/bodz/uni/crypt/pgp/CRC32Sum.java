@@ -17,6 +17,7 @@ import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.bas.program.skel.BatchCLI;
 import net.bodz.bas.program.skel.FileHandler;
 import net.bodz.bas.vfs.IFile;
@@ -26,8 +27,9 @@ import net.bodz.uni.crypt.pgp.Hashes.CRC32_LE;
 /**
  * Print or check CRC (32-bit) checksums
  */
-@RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 1 })
+@ProgramName("crc32sum")
+@RcsKeywords(id = "$Id$")
 public class CRC32Sum
         extends BatchCLI {
 
@@ -110,7 +112,7 @@ public class CRC32Sum
             throws ParseException {
         Class<? extends Checksum> clazz = types.get(name);
         if (clazz == null)
-            clazz = (Class<? extends Checksum>) new ClassTypers().parse(name);
+            clazz = new ClassTypers().parse(name);
         _class = clazz;
     }
 

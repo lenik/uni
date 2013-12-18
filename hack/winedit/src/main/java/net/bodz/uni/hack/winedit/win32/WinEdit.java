@@ -35,9 +35,9 @@ import com.sun.jna.Pointer;
  *
  * @style width: 456; height: 375
  */
+@MainVersion({ 0, 1 })
 @ProgramName("winedit")
 @RcsKeywords(id = "$Id$")
-@MainVersion({ 0, 1 })
 @Win32Only
 public class WinEdit
         extends BasicGUI

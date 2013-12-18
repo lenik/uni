@@ -39,7 +39,7 @@ import net.bodz.bas.program.skel.BasicCLI;
 /**
  * Lapiota Java Shell
  */
-@ProgramName("jl")
+@ProgramName("jsh")
 @RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 0 })
 public class JavaShell

@@ -22,9 +22,9 @@ import net.bodz.bas.vfs.IFile;
 /**
  * Batch iconv written in java, JUN 2004
  */
+@MainVersion({ 0, 1 })
 @ProgramName("jiconv")
 @RcsKeywords(id = "$Id$")
-@MainVersion({ 0, 1 })
 public class ConvertEncoding
         extends BatchEditCLI {
 

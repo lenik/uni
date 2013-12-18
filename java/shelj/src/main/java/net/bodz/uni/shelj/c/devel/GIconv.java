@@ -27,16 +27,18 @@ import net.bodz.bas.err.DecodeException;
 import net.bodz.bas.gui.err.GUIException;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.swt.c.resources.SWTResources;
 import net.bodz.swt.program.BasicGUI;
 
 /**
  * GUI iconv utility
- *
+ * 
  * @style width: 640; height: 480
  */
-@RcsKeywords(id = "$Id$")
 @MainVersion({ 1, 0 })
+@ProgramName("giconv")
+@RcsKeywords(id = "$Id$")
 public class GIconv
         extends BasicGUI {
 
