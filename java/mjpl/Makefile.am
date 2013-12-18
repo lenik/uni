@@ -12,6 +12,7 @@ mjpl: ${dist_mjpl_SOURCES}
 	gdc -O3 -frelease \
         -I/usr/include/d2/site \
         -fignore-unknown-pragmas \
+        -fproperty \
         -o $@ \
         ${dist_mjpl_SOURCES} \
         -lbas-d

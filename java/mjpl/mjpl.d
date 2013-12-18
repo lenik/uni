@@ -1,4 +1,4 @@
-#!/usr/bin/dprog -vip
+#!/usr/bin/dprog -i
 module mjpl;
 
 import std.c.stdlib : exit;
@@ -13,6 +13,7 @@ import std.string;
 import std.zip;
 
 pragma(lib, "bas-d");
+import lenik.bas.file : canonicalize;
 import lenik.bas.log;
 // import lenik.bas.program;
 
@@ -104,10 +105,13 @@ int main(string[] argv) {
 
     if (pomfile is null)
         pomfile = "pom.xml";            /* find pom.xml in current dir */
+    
     if (! exists(pomfile)) {
         log.err("No such file: %s", pomfile);
         return -1;
     }
+    pomfile = canonicalize(pomfile);
+    log.info("Load project pom: %s", pomfile);
     
     project = manager.resolveFile(pomfile);
     
