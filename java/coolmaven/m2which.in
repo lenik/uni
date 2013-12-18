@@ -104,7 +104,9 @@ function main() {
             else
                 show "$mod" "$path"
             fi
-        done < <(m2modlist -q -c $TIMEOUT "$root" | grep "^$module_name")
+        done < <(m2modlist -q -c $TIMEOUT "$root" \
+                    | grep "^$module_name" \
+                    | sort -t: -k1,1)
 
         return 1
     done
