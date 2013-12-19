@@ -10,7 +10,7 @@ pkgdata_DATA = \
 
 dist_pkgdata_SCRIPTS = \
     install-debs.sh \
-    install-rpms.sh
+    install-rpms.tmpl
 
 setup_SCRIPTS = \
     postinst \

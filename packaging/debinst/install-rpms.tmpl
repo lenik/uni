@@ -1,0 +1,24 @@
+#!/bin/bash
+
+_dir_="${0%/*}"
+if [ "$_dir_" = "$0" ]; then
+    _dir_=.
+fi
+
+cd "$_dir_"
+
+# Remove everything anyway
+rpm -e --force @PACKAGE_LIST@ >/dev/null 2>/dev/null
+
+for pkg in @PACKAGE_LIST@; do
+    echo "Install $pkg"
+
+    rpms=( $pkg-* )
+    rpm0="${rpms[0]}"
+
+    # Re-install it.
+    rpm "$@" -i --nodeps --force "$rpm0"
+
+    echo
+done
+

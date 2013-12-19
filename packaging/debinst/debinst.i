@@ -1,3 +1,7 @@
+# vim: set ft=sh :
+
+declare -g -A deplevel
+
 function main() {
     _dir_="${0%/*}"
     [ "$_dir_" = "$0" ] && _dir_=.
@@ -26,24 +30,33 @@ function main() {
     _log2 "Copy the installer startup script."
         [ -d "$pkgdatadir" ] || pkgdatadir="$_dir_"
         cp -f "$pkgdatadir/install-debs.sh" "$workdir_deb"
-        cp -f "$pkgdatadir/install-rpms.sh" "$workdir_rpm"
+        cp -f "$pkgdatadir/install-rpms.tmpl" "$workdir_rpm"
 
-    _log2 "Convert $workdir_deb to self-extracting deb archive"
-        archive="$userdir/$pkg1-$pkg1ver-$pkg1arch-$opt_deb_word-installer.run"
+    _log1 "Download all individual .debs."
         cd "$workdir_deb"
 
-        _log2 "Download all individual .debs."
-            local pkg
-            for pkg in "$@"; do
-                download_debs "$pkg"
-            done
+        local pkg
+        for pkg in "$@"; do
+            download_debs "$pkg" '' 0
+        done
+
+        deporder=( $(
+            for k in "${!deplevel[@]}"; do
+                v=${deplevel[$k]}
+                echo "$v:$k"
+            done | sort -r -t: -k1,1 | cut -d: -f2
+        ) )
+        _log2 "Dependency-Order: ${deporder[@]}"
+
+    _log1 "Convert $workdir_deb to self-extracting deb archive"
+        archive="$userdir/$pkg1-$pkg1ver-$pkg1arch-$opt_deb_word-installer.run"
 
         makeself "$workdir_deb" "$archive" "$pkg1 installer (deb)" \
             ./install-debs.sh
 
         _log1 "Created $archive"
 
-    _log2 "Convert $workdir_rpm to self-extracting rpm archive"
+    _log1 "Convert $workdir_rpm to self-extracting rpm archive"
         archive="$userdir/$pkg1-$pkg1ver-$pkg1arch-$opt_rpm_word-installer.run"
 
         _log2 "Convert debs to rpms using alien"
@@ -56,6 +69,12 @@ function main() {
 
         cd "$workdir_rpm"
 
+        sed -e "s/[@]PACKAGE_LIST[@]/${deporder[*]}/g" \
+            <./install-rpms.tmpl \
+            >./install-rpms.sh
+        rm -f ./install-rpms.tmpl
+        chmod +x ./install-rpms.sh
+
         makeself "$workdir_rpm" "$archive" "$pkg1 installer (rpm)" \
             ./install-rpms.sh
 
@@ -65,7 +84,8 @@ function main() {
 function download_debs() {
     local pkg="$1"
     local uri_match="$2"
-    local stack="$3"
+    local level="$3"
+    local stack="$4"
     local priority uri dist
     local c1 c2 c3
 
@@ -95,7 +115,12 @@ function download_debs() {
     apt-get -q download "$pkg" \
         || quit "Failed to download the package $pkg"
 
-    downloaded[$pkg]=1
+    old_level=${deplevel[$pkg]}
+    if [ -z "$old_level" ]; then
+        deplevel[$pkg]=$level
+    elif [ $level -gt "$old_level" ]; then
+        deplevel[$pkg]=$level
+    fi
 
     local key val
     local pkg_version
@@ -106,7 +131,7 @@ function download_debs() {
 
     while read key val; do
         [ -z "$key" ] && break          # only parse the first section.
-        key="${key%:}"
+        key="${key%\:}"
         case "$key" in
             Version)
                 pkg_version="$val";;
@@ -125,9 +150,10 @@ function download_debs() {
     _log2 "Candidate dependencies: ${deps[@]}"
     [ -n "$stack" ] && stack="$stack -> "
 
+    ((level++))
     for dep in "${deps[@]}"; do
         if [ -z "${downloaded[$dep]}" ]; then
-            download_debs "$dep" "$uri" "$stack$pkg"
+            download_debs "$dep" "$uri" "$level" "$stack$pkg"
         fi
     done
 }
