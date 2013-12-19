@@ -1,6 +1,21 @@
 #!/bin/sh
 # master-file
 
-update-binfmts --import aiscript
+# The Debian way won't work in Fedora/RHEL, etc.
+# Because binfmts-support isn't available.
+#    if which update-binfmts >/dev/null; then
+#        update-binfmts --import aiscript
+#        exit 0
+#    fi
+
+# so we'll use sysvinit to control the binfmt_misc fs.
+
+if which update-rc.d >/dev/null 2>&1; then
+    update-rc.d aifmt defaults
+else
+    chkconfig --add aifmt
+fi
+
+@sysvinitdir@/aifmt start
 
 exit 0

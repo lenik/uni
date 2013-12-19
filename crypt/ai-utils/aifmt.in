@@ -1,0 +1,79 @@
+#! /bin/sh
+# chkconfig: 2345 20 80
+# description: Control the binfmt support of AI scripts.
+
+### BEGIN INIT INFO
+# Provides:          aifmt
+# Required-Start:
+# Required-Stop:
+# Default-Start:     1 2 3 4 5
+# Default-Stop:      0 6
+# Short-Description: AI format support
+# Description:       Control the binfmt support of AI scripts.
+### END INIT INFO
+
+# Author: 谢继雷 <lenik@bodz.net>
+
+PATH=/sbin:/bin
+
+sysdir=/proc/sys
+bmdir=$sysdir/fs/binfmt_misc
+aifmt=$bmdir/aifmt
+
+do_start() {
+    if [ -e $aifmt ]; then
+        echo "already started"
+    else
+        if echo ':aifmt:M:: 	   	  ::@bindir@/runai:' >$bmdir/register; then
+            echo "started"
+        else
+            echo "failed to start"
+        fi
+    fi
+}
+
+do_stop() {
+    if [ -e $aifmt ]; then
+        if echo '-1' >$aifmt; then
+            echo "stopped"
+        else
+            echo "failed to stop"
+        fi
+    else
+        echo "already stopped"
+    fi
+}
+
+case "$1" in
+    start)
+        do_start
+        ;;
+
+    stop)
+        do_stop
+        ;;
+
+    restart|reload|force-reload)
+        test -e $aifmt && do_stop
+        do_start
+        ;;
+
+    status)
+        if test -e $aifmt; then
+            read w1 _ <$aifmt
+            if [ "$w1" = 'enabled' ]; then
+                echo "running"
+            else
+                echo "not running"
+            fi
+        else
+            echo "not installed"
+        fi
+        ;;
+      
+    *)
+        echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
+        exit 3
+        ;;
+esac
+

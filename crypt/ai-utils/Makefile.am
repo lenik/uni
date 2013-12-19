@@ -22,10 +22,10 @@ dist_completion_DATA = \
     aiai.sh
 
 dist_bin_SCRIPTS = \
-    ai-runner
+    runai
 
-dist_binfmts_DATA = \
-    aiscript
+dist_sysvinit_SCRIPTS = \
+    aifmt
 
 setup_SCRIPTS = \
     postinst \

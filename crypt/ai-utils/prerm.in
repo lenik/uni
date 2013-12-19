@@ -1,6 +1,19 @@
 #!/bin/sh
 # master-file
 
-update-binfmts --remove aiscript "@bindir@/ai-runner"
+# The Debian way won't work in Fedora/RHEL, etc.
+# Because binfmts-support isn't available.
+#    if which update-binfmts >/dev/null; then
+#        update-binfmts --remove aiscript "@bindir@/ai-runner"
+#    fi
+
+# so we'll use sysvinit to control the binfmt_misc fs.
+@sysvinitdir@/aifmt stop
+
+if which update-rc.d >/dev/null 2>&1; then
+    update-rc.d aifmt remove
+else
+    chkconfig --del aifmt
+fi
 
 exit 0
