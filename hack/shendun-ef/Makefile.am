@@ -6,6 +6,7 @@ cachedir = /var/cache
 configdir = ${sysconfdir}/execfilter.d
 cronhourlydir = ${sysconfdir}/cron.hourly
 rundir = /var/run
+lib2dir = ${prefix}/lib
 
 do_subst += \
     -e 's,[@]cachedir[@],${cachedir},g' \
@@ -34,13 +35,14 @@ dist_pkgdata_DATA = \
     shendun-efpoll.img \
     yw-edit.img
 
-lib_LTLIBRARIES = \
+lib2_LTLIBRARIES = \
     libshendun-efext.la
 
 libshendun_efext_la_SOURCES = \
     shendun-efext.c \
     ywcrypt.c
-# libshendun_efext_la_LIBADD =
+libshendun_efext_la_LDFLAGS = -version-info 1:0:0
+libshendun_efext_la_LIBADD = -lbas
 
 dist_config_DATA = \
     shendun.ini

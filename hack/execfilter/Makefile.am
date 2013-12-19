@@ -1,6 +1,7 @@
 include libauto/project.am
 
-configdir=${sysconfdir}/execfilter.d
+lib2dir = /usr/lib
+configdir = ${sysconfdir}/execfilter.d
 
 do_subst += \
     -e 's,[@]configdir[@],${configdir},g'
@@ -19,7 +20,7 @@ ef_dump_SOURCES = ef-dump.c ${libexecfilter_la_SOURCES}
 ef_dump_CFLAGS = ${AM_CFLAGS}
 ef_dump_LDADD = ${GLIB_LIBS} -lbas -ldl
 
-lib_LTLIBRARIES = \
+lib2_LTLIBRARIES = \
     libexecfilter.la \
     libefstub.la
 

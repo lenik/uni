@@ -1,8 +1,10 @@
 include ../libauto/common.am
 
+lib2dir = /usr/lib
+
 #AM_CFLAGS = -I../include
 
-lib_LTLIBRARIES = libbas.la
+lib2_LTLIBRARIES = libbas.la
 
 libbas_la_LIBADD = ${GLIB_LIBS}
 libbas_la_LDFLAGS = -version-info 1:0:0
