@@ -1,30 +1,35 @@
 #!/bin/sh
-# postinst script for diskutils
-#
 # see: dh_installdeb(1)
-
+# see: http://www.debian.org/doc/debian-policy/
 set -e
-
-# summary of how this script can be called:
-#        * <postinst> `configure' <most-recently-configured-version>
-#        * <old-postinst> `abort-upgrade' <new version>
-#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
-#          <new-version>
-#        * <postinst> `abort-remove'
-#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
-#          <failed-install-package> <version> `removing'
-#          <conflicting-package> <version>
-# for details, see http://www.debian.org/doc/debian-policy/ or
-# the debian-policy package
-
+PACKAGE_NAME=diskutils
+SCRIPT=/usr/share/setup/$PACKAGE_NAME/postinst
 
 case "$1" in
-    configure)
-        /usr/share/setup/diskutils/postinst
-    ;;
+    configure|0|1|2|3)
+        $SCRIPT "$@"
+        ;;
 
-    abort-upgrade|abort-remove|abort-deconfigure)
-    ;;
+    abort-upgrade)
+        new_version="$2"
+        ;;
+
+    abort-remove)
+        if [ "$2" = "in-favour" ]; then # conflictor's-postinst
+            in_favour_package="$3"
+            new_version="$4"
+        fi
+        ;;
+
+    abort-deconfigure)
+        if [ "$2" = "in-favour" ]; then # deconfigured's-postinst
+            failed_install_package="$3"
+            failed_version="$4"
+            # assert "$5" = 'removing'
+            conflicting_package="$6"
+            conflicting_version="$7"
+        fi
+        ;;
 
     *)
         echo "postinst called with unknown argument \`$1'" >&2

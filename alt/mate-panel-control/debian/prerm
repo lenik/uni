@@ -1,11 +1,10 @@
 #!/bin/sh
-# prerm script for mate-panel-control
-#
 # see: dh_installdeb(1)
-
+# see: http://www.debian.org/doc/debian-policy/
 set -e
+PACKAGE_NAME=mate-panel-control
+SCRIPT=/usr/share/setup/$PACKAGE_NAME/prerm
 
-# summary of how this script can be called:
 #        * <prerm> `remove'
 #        * <old-prerm> `upgrade' <new-version>
 #        * <new-prerm> `failed-upgrade' <old-version>
@@ -13,22 +12,37 @@ set -e
 #        * <deconfigured's-prerm> `deconfigure' `in-favour'
 #          <package-being-installed> <version> `removing'
 #          <conflicting-package> <version>
-# for details, see http://www.debian.org/doc/debian-policy/ or
+# for details, see 
 # the debian-policy package
 
-
 case "$1" in
-    remove|upgrade|deconfigure)
-        /usr/share/setup/mate-panel-control/prerm
-    ;;
+    remove|0|1|2|3)
+        test -x $SCRIPT && $SCRIPT "$@"
+        ;;
+
+    upgrade)
+        new_version="$2"
+        test -x $SCRIPT && $SCRIPT "$@"
+        ;;
+
+    deconfigure)
+        if [ "$2" = "in-favour" ]; then
+            install_package="$3"
+            install_version="$4"
+            # assert $5 = 'removing'
+            conflicting_package="$6"
+            conflicting_version="$7"
+        fi
+        test -x $SCRIPT && $SCRIPT "$@"
+        ;;
 
     failed-upgrade)
-    ;;
+        ;;
 
     *)
         echo "prerm called with unknown argument \`$1'" >&2
         exit 1
-    ;;
+        ;;
 esac
 
 # dh_installdeb will replace this with shell code automatically
