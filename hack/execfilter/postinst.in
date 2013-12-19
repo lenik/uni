@@ -23,4 +23,12 @@ chmod +r "$preloadfile"
 shopt -s nullglob
 chmod +xs "@libdir@"/libexecfilter.so.*
 
+if [ -f @sysconfdir@/rc.d/init.d ]; then # RHEL
+    initdir=@sysconfdir@/rc.d/init.d
+else
+    initdir=@sysconfdir@/init.d
+fi
+
+$initdir/rsyslog restart
+
 exit 0

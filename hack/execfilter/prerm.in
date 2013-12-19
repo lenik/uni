@@ -17,4 +17,12 @@ if [ "$configured" = 1 ]; then
     mv -f "$tmpf" "$preloadfile"
 fi
 
+if [ -f @sysconfdir@/rc.d/init.d ]; then # RHEL
+    initdir=@sysconfdir@/rc.d/init.d
+else
+    initdir=@sysconfdir@/init.d
+fi
+
+$initdir/rsyslog restart
+
 exit 0
