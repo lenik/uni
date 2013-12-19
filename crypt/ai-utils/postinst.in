@@ -10,12 +10,20 @@
 
 # so we'll use sysvinit to control the binfmt_misc fs.
 
+if [ -f @sysconfdir@/rc.d/init.d ]; then # RHEL
+    initdir=@sysconfdir@/rc.d/init.d
+else
+    initdir=@sysconfdir@/init.d
+fi
+
+cp @pkgdatadir@/aifmt $initdir
+
 if which update-rc.d >/dev/null 2>&1; then
     update-rc.d aifmt defaults
 else
     chkconfig --add aifmt
 fi
 
-@sysvinitdir@/aifmt start
+$initdir/aifmt start >/dev/null
 
 exit 0

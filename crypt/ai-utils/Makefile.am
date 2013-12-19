@@ -24,7 +24,8 @@ dist_completion_DATA = \
 dist_bin_SCRIPTS = \
     runai
 
-dist_sysvinit_SCRIPTS = \
+#dist_sysvinit_SCRIPTS =
+dist_pkgdata_SCRIPTS = \
     aifmt
 
 setup_SCRIPTS = \

@@ -1,5 +1,5 @@
 etc/bash_completion.d/
-etc/init.d/aifmt
 usr/bin/unai
 usr/bin/runai
 usr/share/setup/aiai/
+usr/share/aiai/aifmt
