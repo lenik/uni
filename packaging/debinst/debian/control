@@ -16,6 +16,7 @@ Depends:
     apt,
     bash-shlib,
     bzip2,
+    fakeroot,
     grep,
     gzip,
     makeself,

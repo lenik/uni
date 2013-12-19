@@ -9,7 +9,8 @@ pkgdata_DATA = \
     debinst.img
 
 dist_pkgdata_SCRIPTS = \
-    startup.sh
+    install-debs.sh \
+    install-rpms.sh
 
 setup_SCRIPTS = \
     postinst \

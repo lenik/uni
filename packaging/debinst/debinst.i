@@ -7,28 +7,59 @@ function main() {
     fi
     local pkg1="$1"
 
+    while read key val _; do
+        case "$key" in
+        "Version:")
+            pkg1ver="$val";;
+        "Architecture:")
+            pkg1arch="$val";;
+        esac
+    done < <(apt-cache show "$pkg1")
+    [ -z "$pkg1ver" ] && quit "Package version is unknown: $pkg1"
+    [ -z "$pkg1arch" ] && quit "Package architecture is unknown: $pkg1"
+
     workdir=`mktemp -d`
+    workdir_deb="$workdir/deb"
+    workdir_rpm="$workdir/rpm"
+    mkdir "$workdir_deb" "$workdir_rpm"
 
     _log2 "Copy the installer startup script."
-        startup_f="$pkgdatadir/startup.sh"
-        test -x "$startup_f" || startup_f="$_dir_/startup.sh"
-        test -x "$startup_f" || quit "The startup script isn't available."
-        cp -f "$startup_f" "$workdir"
+        [ -d "$pkgdatadir" ] || pkgdatadir="$_dir_"
+        cp -f "$pkgdatadir/install-debs.sh" "$workdir_deb"
+        cp -f "$pkgdatadir/install-rpms.sh" "$workdir_rpm"
 
-    cd "$workdir"
+    _log2 "Convert $workdir_deb to self-extracting deb archive"
+        archive="$userdir/$pkg1-$pkg1ver-$pkg1arch-$opt_deb_word-installer.run"
+        cd "$workdir_deb"
 
-    # Download all individual .debs.
-        local pkg
-        for pkg in "$@"; do
-            download_debs "$pkg"
-        done
+        _log2 "Download all individual .debs."
+            local pkg
+            for pkg in "$@"; do
+                download_debs "$pkg"
+            done
 
-    _log2 "Convert $workdir to self-extracting archive $archive."
-        archive="$userdir/$pkg1-installer.run"
-        makeself "$workdir" "$archive" "$pkg1 installer" ./startup.sh
+        makeself "$workdir_deb" "$archive" "$pkg1 installer (deb)" \
+            ./install-debs.sh
 
-        _log1 "The creation of $pkg installer is completed."
-        _log1 "See: $archive"
+        _log1 "Created $archive"
+
+    _log2 "Convert $workdir_rpm to self-extracting rpm archive"
+        archive="$userdir/$pkg1-$pkg1ver-$pkg1arch-$opt_rpm_word-installer.run"
+
+        _log2 "Convert debs to rpms using alien"
+        fakeroot alien -r -c *.deb ||
+            quit "Failed to convert deb packages to rpms."
+
+        _log2 "Move converted rpms to $workdir_rpm"
+        mv *.rpm "$workdir_rpm" ||
+            quit "Failed to move rpms to rpm workdir."
+
+        cd "$workdir_rpm"
+
+        makeself "$workdir_rpm" "$archive" "$pkg1 installer (rpm)" \
+            ./install-rpms.sh
+
+        _log1 "Created $archive"
 }
 
 function download_debs() {
