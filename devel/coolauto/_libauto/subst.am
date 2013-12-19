@@ -95,6 +95,7 @@ do_subst += \
 	-e 's,[@]sudoersdir[@],$(sudoersdir),g' \
 	-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
 	-e 's,[@]syslogconfdir[@],$(syslogconfdir),g' \
+	-e 's,[@]sysvinitdir[@],$(sysvinitdir),g' \
 	-e 's,[@]varlibdir[@],$(varlibdir),g' \
 	-e 's,[@]wardir[@],$(wardir),g' \
 	-e 's/master-file/generated-file, please do not edit/'
