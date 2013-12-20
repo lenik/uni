@@ -11,6 +11,11 @@ dist_aliases_DATA = \
 dist_completion_DATA = \
     vcscmds
 
+dist_man_MANS = \
+    vcscmd.1 \
+    vcscmd-ignore.1 \
+    vcsdirs.1
+
 setup_SCRIPTS = \
     postinst \
     prerm
@@ -20,14 +25,8 @@ EXTRA_DIST = \
     prerm.in
 
 CLEANFILES = \
-    ${setup_SCRIPTS} \
-    vcscmd \
-    vcscmd-ignore \
-    vcsdirs
-
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"
+    ${dist_bin_SCRIPTS} \
+    ${setup_SCRIPTS}
 
 install-data-hook:
 	ln -snf vcscmd $(DESTDIR)$(bindir)/vcs
