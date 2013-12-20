@@ -43,6 +43,15 @@
     (setq default-frame-alist (append '((font . "fontset-cterm")) default-frame-alist))
     (set-frame-font "fontset-cterm")
 
+    ;; Turn off the main menu and the tool bar.
+    (menu-bar-mode 0)
+    (tool-bar-mode 0)
+    (set-scroll-bar-mode 'right)
+
+    ;; The default: (5 ((shift) . 1) ((control)))
+    ;; (setq mouse-wheel-scroll-amount '(1 ((shift) . 3) ((control) . nil)))
+    (setq mouse-wheel-progressive-speed nil)
+
     (put 'downcase-region 'disabled nil)
     (put 'upcase-region 'disabled nil)
 
@@ -122,7 +131,10 @@
         (find-file (cdr (assoc-string fname tocpl)))))
     (global-set-key "\C-x\C-r" 'recentf-open-files-compl)
 
-;; (require 'php-mode)
+;(require 'php-mode nil 'no-error)
+(autoload 'php-mode "php-mode" "Major mode for editing php code." t)
+(add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
+
 ;; (require 'emacs-wiki)
     ;; (global-set-key [?\C-\M-\?] 'emacs-wiki-follow-name-at-point)
 
