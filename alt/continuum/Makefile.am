@@ -7,20 +7,16 @@ do_subst += \
 jettydir        = ${datadir}/jetty
 jettyconfdir    = $(sysconfdir)/jetty
 
-jettyconf_DATA = \
+dist_jettyconf_DATA = \
     continuum-jetty-config.xml
 
 dist_jettyconf_DATA = \
     continuum-override-web.xml
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in \
-    continuum-jetty-config.xml.in
-
-CLEANFILES = ${setup_SCRIPTS} \
-    continuum-jetty-config.xml
+CLEANFILES = \
+    continuum-jetty-config.xml \
+    ${dist_setup_SCRIPTS}

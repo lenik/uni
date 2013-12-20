@@ -16,7 +16,7 @@ do_subst += \
 dist_svnconf_DATA = \
     svnserve.conf
 
-sites_DATA = \
+dist_sites_DATA = \
     bodz-svn.conf
 
 dist_view_DATA = \
@@ -31,16 +31,15 @@ install-data-hook:
             ln -snf /mnt/bodzdev/svn/$$a .; \
         done
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
 EXTRA_DIST = \
-    postinst.in \
-    prerm.in \
     bodz-svn.site.conf
 
-CLEANFILES = ${setup_SCRIPTS} \
-    svnserve.conf \
+CLEANFILES = \
     bodz-svn.conf \
-    svn
+    svn \
+    svnserve.conf \
+    ${dist_setup_SCRIPTS}

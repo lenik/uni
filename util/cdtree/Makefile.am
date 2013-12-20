@@ -15,15 +15,8 @@ dist_aliases_DATA = \
 dist_completion_DATA = \
     bash_completion.d/cd-tree
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in
-
-CLEANFILES = ${setup_SCRIPTS}
-
-%: %.in Makefile
-	$(do_subst) <$< >$@
+CLEANFILES = ${dist_setup_SCRIPTS}

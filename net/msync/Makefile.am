@@ -4,8 +4,5 @@ dist_bin_SCRIPTS = \
     msync \
     msynx
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst
-
-EXTRA_DIST = \
-    postinst.in

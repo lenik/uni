@@ -3,15 +3,11 @@ include libauto/project.am
 sitetexmfdir = ${datadir}/texmf
 sitelatexdir = ${sitetexmfdir}/tex/latex
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in
-
-CLEANFILES = ${setup_SCRIPTS}
+CLEANFILES = ${dist_setup_SCRIPTS}
 
 # rsync: -m: prune empty dirs
 install-data-hook:

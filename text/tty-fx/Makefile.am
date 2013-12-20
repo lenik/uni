@@ -1,6 +1,7 @@
 include libauto/project.am
 
 dist_bin_SCRIPTS = \
+    ansifilter \
     ansifx \
     meter \
     settermtitle \
@@ -10,26 +11,20 @@ dist_bin_SCRIPTS = \
 dist_aliases_DATA = \
     stty-aliases.sh
 
-bin_SCRIPTS = \
-    ansifilter
-
-man_MANS = \
+dist_man_MANS = \
     ansifilter.1
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
 EXTRA_DIST = \
-    postinst.in \
-    prerm.in \
     get-ansifilter
 
 CLEANFILES = \
-    postinst \
-    prerm \
     ansifilter \
-    ansifilter.1
+    ansifilter.1 \
+    ${dist_setup_SCRIPTS}
 
 ansifilter ansifilter.1: get-ansifilter Makefile
 	$(srcdir)/$< $@

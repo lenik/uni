@@ -4,15 +4,11 @@ includedir = ${prefix}/include
 
 SUBDIRS = src test
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in
-
-CLEANFILES = ${setup_SCRIPTS}
+CLEANFILES = ${dist_setup_SCRIPTS}
 
 install-data-hook:
 	mkdir -p ${DESTDIR}${includedir}

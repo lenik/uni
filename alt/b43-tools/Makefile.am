@@ -10,15 +10,13 @@ bin_SCRIPTS = \
 dist_man_MANS = \
     b43-tools/fwcutter/b43-fwcutter.1
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in
-
-CLEANFILES = ${setup_SCRIPTS} b43-clean
+CLEANFILES = \
+    b43-clean \
+    ${dist_setup_SCRIPTS}
 
 b43-tools/assembler/b43-asm: assembler
 b43-tools/assembler/b43-asm.bin: assembler

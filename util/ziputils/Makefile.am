@@ -6,14 +6,10 @@ dist_bin_SCRIPTS = \
     z+ls \
     z+ls-R
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in
-
 CLEANFILES = \
     ${dist_bin_SCRIPTS} \
-    ${setup_SCRIPTS}
+    ${dist_setup_SCRIPTS}

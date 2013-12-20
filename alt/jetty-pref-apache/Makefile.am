@@ -20,18 +20,10 @@ dist_jettyconf_DATA = \
     env-shutdown.xml \
     env-users.xml
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in \
-    env-derby.xml.in
-
-CLEANFILES = ${setup_SCRIPTS} \
-    env-derby.xml
-
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"
+CLEANFILES = \
+    env-derby.xml \
+    ${dist_setup_SCRIPTS}

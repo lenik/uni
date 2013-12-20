@@ -11,17 +11,9 @@ dist_bin_SCRIPTS = \
     a2stop \
     a2proxy
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in
-
-CLEANFILES = ${setup_SCRIPTS} \
+CLEANFILES = ${dist_setup_SCRIPTS} \
     a2proxy
-
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"

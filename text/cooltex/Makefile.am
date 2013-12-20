@@ -8,13 +8,9 @@ dist_bin_SCRIPTS = \
 dist_aliases_DATA = \
     cooltex.sh
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
-
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in
 
 CLEANFILES = \
     postinst \

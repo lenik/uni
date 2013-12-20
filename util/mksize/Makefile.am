@@ -3,16 +3,9 @@ include libauto/project.am
 dist_bin_SCRIPTS = \
     mksize
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in
+CLEANFILES = ${dist_setup_SCRIPTS}
 
-CLEANFILES = ${setup_SCRIPTS}
-
-%: %.in Makefile
-	$(do_subst) <$< >$@
-	chmod -w "$@"

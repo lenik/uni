@@ -6,14 +6,10 @@ dist_bin_SCRIPTS = \
     econf-reset \
     econf-addlinks
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in
-
-CLEANFILES = ${setup_SCRIPTS} \
-    ${dist_bin_SCRIPTS}
-
+CLEANFILES = \
+    ${dist_bin_SCRIPTS} \
+    ${dist_setup_SCRIPTS}

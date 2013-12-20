@@ -36,7 +36,7 @@ dist_profile_DATA = \
 dist_sudoers_DATA = \
     sudoers.d/env_editor
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
@@ -46,7 +46,7 @@ EXTRA_DATA = \
     reload-file.in
 
 CLEANFILES = \
-    ${setup_SCRIPTS} \
+    ${dist_setup_SCRIPTS} \
     reload-file \
     vimcat
 

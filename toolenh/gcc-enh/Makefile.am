@@ -9,14 +9,10 @@ dist_aliases_DATA = \
 dist_completion_DATA = \
     bash_completion.d/gcc-enh.sh
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in
-
 CLEANFILES = \
     ${dist_bin_SCRIPTS} \
-    ${setup_SCRIPTS}
+    ${dist_setup_SCRIPTS}

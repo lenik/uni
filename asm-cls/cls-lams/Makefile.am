@@ -1,20 +1,12 @@
 include libauto/project.am
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-setup_DATA = \
+dist_setup_DATA = \
     fstab.tc \
     passwd.tc
 
-EXTRA_DIST = \
-    fstab.tc \
-    passwd.tc \
-    postinst.in \
-    prerm.in
-
 CLEANFILES = \
-    postinst \
-    prerm
-
+    ${dist_setup_SCRIPTS}

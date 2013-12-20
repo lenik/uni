@@ -12,12 +12,8 @@ dist_man_MANS = \
     raw-vmdk.1 \
     vdi2img.1
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in
-
-CLEANFILES = ${setup_SCRIPTS}
+CLEANFILES = ${dist_setup_SCRIPTS}

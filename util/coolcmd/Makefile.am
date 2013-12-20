@@ -15,9 +15,6 @@ bin_PROGRAMS = \
 AM_CPPFLAGS = $(GLIB_CFLAGS)
 xcat_LDADD = $(GLIB_LIBS)
 
-%.c: %.c.in
-	$(do_subst) <$< >$@
-
 dist_bin_SCRIPTS = \
     cd-exec \
     colorox \
@@ -57,15 +54,9 @@ dist_bin_SCRIPTS = \
     xxxmore \
     xxxxmore
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
-
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in
 
 CLEANFILES = \
-    postinst \
-    prerm
-
+    ${dist_setup_SCRIPTS}

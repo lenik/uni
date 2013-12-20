@@ -12,18 +12,15 @@ dist_man_MANS = \
     shlib.1 \
     shlib-import.1
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
 EXTRA_DIST = \
-    postinst.in \
-    prerm.in \
-    shlib.in \
     shlib.d
 
 CLEANFILES = \
     ${dist_bin_SCRIPTS} \
     ${dist_man_MANS} \
-    ${setup_SCRIPTS}
+    ${dist_setup_SCRIPTS}
 

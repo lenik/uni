@@ -16,17 +16,13 @@ dist_man_MANS = \
     vcscmd-ignore.1 \
     vcsdirs.1
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in
-
 CLEANFILES = \
     ${dist_bin_SCRIPTS} \
-    ${setup_SCRIPTS}
+    ${dist_setup_SCRIPTS}
 
 install-data-hook:
 	ln -snf vcscmd $(DESTDIR)$(bindir)/vcs

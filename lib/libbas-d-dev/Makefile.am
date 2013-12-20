@@ -28,16 +28,12 @@ libbas-d.o:
             -fdoc -fdoc-dir=doc.tmp \
             ${dist_libbas_d_a_SOURCES}
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in
-
 CLEANFILES = \
-    ${setup_SCRIPTS} \
+    ${dist_setup_SCRIPTS} \
     libbas-d.o \
     libbas-d.a \
     libbas-d.a.dmd

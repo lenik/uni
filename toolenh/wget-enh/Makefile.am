@@ -15,9 +15,7 @@ cache_DATA =
 
 dist_bin_SCRIPTS = \
     urljoin \
-    grepurl
-
-bin_SCRIPTS = \
+    grepurl \
     wget-auto-referer \
     wgetc \
     wgetc-url
@@ -31,18 +29,10 @@ dist_man_MANS = \
     wgetc.1 \
     wgetc-url.1
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in \
-    wgetc.in \
-    wgetc-url.in
-
 CLEANFILES = \
-    postinst \
-    prerm \
-    wgetc \
-    wgetc-url
+    ${dist_bin_SCRIPTS} \
+    ${dist_setup_SCRIPTS}

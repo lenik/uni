@@ -14,17 +14,14 @@ dist_init_DATA = \
 dist_bots_DATA = \
     sampleconf.ini.1
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in
-
-CLEANFILES = ${setup_SCRIPTS} \
+CLEANFILES = \
     confbot-scan \
-    confbot.conf
+    confbot.conf \
+    ${dist_setup_SCRIPTS}
 
 install-data-hook:
 	cp -a ${srcdir}/bot ${DESTDIR}${pkgdatadir}

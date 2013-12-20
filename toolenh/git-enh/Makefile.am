@@ -16,22 +16,12 @@ dist_bin_SCRIPTS = \
     svn2gits
 
 dist_aliases_DATA = \
-    10git-enh.sh
-
-aliases_DATA = \
+    10git-enh.sh \
     sw-git.sh
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in \
-    sw-git.sh.in
-
-CLEANFILES = ${setup_SCRIPTS} \
-    sw-git.sh
-
-%: %.in Makefile
-	$(do_subst) <$< >$@
+CLEANFILES = \
+    ${dist_setup_SCRIPTS}

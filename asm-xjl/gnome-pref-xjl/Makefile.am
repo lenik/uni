@@ -7,7 +7,7 @@ do_subst += \
 
 gconf2dir   = ${sysconfdir}/gconf/2
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
@@ -20,10 +20,5 @@ path.diff: path.0 path
 #path.0: ${gconf2dir}/path
 #	cp -f "$<" "$@"
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in
-
-CLEANFILES = ${setup_SCRIPTS} \
+CLEANFILES = ${dist_setup_SCRIPTS} \
     gconf-cleanbase/%gconf-tree.xml
-

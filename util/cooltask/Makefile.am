@@ -18,20 +18,13 @@ dist_aliases_DATA = \
 dist_completion_DATA = \
     cooltask
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    postinst.in \
-    prerm.in
-
-CLEANFILES = ${setup_SCRIPTS} \
+CLEANFILES = ${dist_setup_SCRIPTS} \
     ${dist_bin_SCRIPTS} \
     cooltask_list \
     qlog \
     qlog-console
 
-#%: %.in Makefile
-#	$(do_subst) <$< >$@
-#	chmod -w "$@"

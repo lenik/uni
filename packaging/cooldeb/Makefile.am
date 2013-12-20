@@ -39,18 +39,16 @@ dist_pkgdata_DATA = \
 
 debdefl_DATA =
 
-setup_SCRIPTS = \
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
 EXTRA_DIST = \
-    postinst.in \
-    prerm.in \
-    dh_add_missing.in \
-    debian-defaults
+    debian-defaults \
+    dh_add_missing.in
 
 CLEANFILES = \
-    ${setup_SCRIPTS} \
+    ${dist_setup_SCRIPTS} \
     dh_add_missing
 
 dist-hook:
