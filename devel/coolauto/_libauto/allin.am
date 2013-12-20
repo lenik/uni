@@ -38,24 +38,39 @@ export AI_KEYFILE=${srcdir}/README
 %: %.in Makefile
 	rm -f "$@"
 	$(do_subst) <"$<" >"$@"
+	chmod --reference "$<" "$@"
 	chmod -w "$@"
 
 %.c: %.c.in Makefile
 	rm -f "$@"
 	$(do_subst) <"$<" >"$@"
+	chmod --reference "$<" "$@"
 	chmod -w "$@"
 
 %.h: %.h.in Makefile
 	rm -f "$@"
 	$(do_subst) <"$<" >"$@"
+	chmod --reference "$<" "$@"
 	chmod -w "$@"
 
 %: %.ain Makefile
 	rm -f "$@"
 	AI_KEYFILE= $(AI) -ct $(AI_TEMPLATE) <($(do_subst) <"$<") >"$@"
+	chmod --reference "$<" "$@"
 	chmod -w "$@"
 
 %.img: %.i
 	rm -f "$@"
 	$(AI) -ct $(AI_TEMPLATE) "$<" >"$@"
+	chmod --reference "$<" "$@"
 	chmod -w "$@"
+
+%.1: %
+	help2man -n "$<" -s 1 -S boDz -N -o "$@" "./$<"
+
+%.6: %
+	help2man -n "$<" -s 6 -S boDz -N -o "$@" "./$<"
+
+%.8: %
+	help2man -n "$<" -s 8 -S boDz -N -o "$@" "./$<"
+

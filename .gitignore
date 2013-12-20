@@ -47,6 +47,10 @@ INSTALL
 # Cool-Auto generated
 libauto
 ChangeLog
+*.1
+*.6
+*.8
+#*.x
 
 # .in-subst
 postinst

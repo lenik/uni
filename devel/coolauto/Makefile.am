@@ -2,20 +2,24 @@ include _libauto/project.am
 
 SUBDIRS = _libauto
 
-bin_SCRIPTS = \
-    autoinit \
-    autoreconf2
-
 dist_bin_SCRIPTS = \
+    autoinit \
+    autoreconf2 \
     autounconf
+
+dist_man_MANS = \
+    autoinit.1 \
+    autoreconf2.1 \
+    autounconf.1
 
 dist_aliases_DATA = \
     aliases.d/autotools.sh
 
-pkgdata_DATA = \
+dist_pkgdata_DATA = \
     autoconf.template \
     automake.template
 
-CLEANFILES = autoinit    autoreconf2    automake.template
-EXTRA_DIST = autoinit.in autoreconf2.in automake.template.in
+CLEANFILES = \
+    ${dist_bin_SCRIPTS} \
+    ${dist_man_MANS}
 

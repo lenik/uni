@@ -16,6 +16,7 @@ Depends:
     automake,
     autover,
     bash-shlib,
+    help2man,
     libtool,
     make,
     ${misc:Depends}
