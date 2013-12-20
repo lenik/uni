@@ -50,15 +50,15 @@ dist_config_DATA = \
 dist_cronhourly_SCRIPTS = \
     shendun-renew
 
-setup_SCRIPTS = \
+dist_man_MANS = \
+    shendun-efpoll.8 \
+    yangwei.1 \
+    yw-edit.8
+
+dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    yangwei.c \
-    postinst.in \
-    prerm.in
-
 CLEANFILES = \
-    ${setup_SCRIPTS} \
+    ${dist_setup_SCRIPTS} \
     ${dist_bin_SCRIPTS}
