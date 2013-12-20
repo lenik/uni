@@ -24,6 +24,10 @@ dist_completion_DATA = \
 dist_bin_SCRIPTS = \
     runai
 
+dist_man_MANS = \
+    ai.1 \
+    unai.1
+
 #dist_sysvinit_SCRIPTS =
 dist_pkgdata_SCRIPTS = \
     aifmt
@@ -36,7 +40,9 @@ EXTRA_DIST = \
     postinst.in \
     prerm.in
 
-CLEANFILES = ${setup_SCRIPTS}
+CLEANFILES = \
+    ${dist_bin_SCRIPTS} \
+    ${setup_SCRIPTS}
 
 install-data-hook:
 	mkdir -p ${DESTDIR}${templatedir}
