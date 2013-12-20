@@ -1,3 +1,14 @@
+if [ "$1" = '--version' ]; then
+    echo "shlib @VERSION@ (last updated: @DATE@)"
+    exit 0
+fi
+
+if [ "$1" = '--help' ]; then
+    echo "Enable shlib support"
+    echo "Usage: Include '. shlib' in your shell script file."
+    exit 0
+fi
+
 if ! . @shlibdir@/import; then
     echo "Failed to initialize shlib import feature. " >&2
     exit 127

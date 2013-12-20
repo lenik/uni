@@ -199,16 +199,25 @@ function option() {
 }
 
 function help() {
-    version
-    echo
-    echo "Syntax: "
+    # version
 
-    local syntax
-    while read syntax; do
-        echo "    $PROGRAM_PATH $syntax"
-    done < <(echo "$PROGRAM_SYNTAX")
+    local usages=()
+    local l
 
-    echo
+    readarray -t usages < <(
+        while read l; do echo "$l"; done < <(
+            echo "$PROGRAM_SYNTAX"))
+
+    if [ ${#usages[@]} -gt 1 ]; then
+        echo "Usage: "
+        for l in "${usages[@]}"; do
+            echo "    $PROGRAM_PATH $l"
+        done
+        echo
+    else
+        echo "Usage: $usages"
+    fi
+
     help_options
     help_more
 }

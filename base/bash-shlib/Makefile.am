@@ -2,12 +2,15 @@ include libauto/project.am
 
 SUBDIRS = shlib.d
 
-bin_SCRIPTS = \
-    shlib \
-    findabc1
-
 dist_bin_SCRIPTS = \
+    findabc1 \
+    shlib \
     shlib-import
+
+dist_man_MANS = \
+    findabc1.1 \
+    shlib.1 \
+    shlib-import.1
 
 setup_SCRIPTS = \
     postinst \
@@ -20,6 +23,7 @@ EXTRA_DIST = \
     shlib.d
 
 CLEANFILES = \
-    ${setup_SCRIPTS} \
-    shlib
+    ${dist_bin_SCRIPTS} \
+    ${dist_man_MANS} \
+    ${setup_SCRIPTS}
 
