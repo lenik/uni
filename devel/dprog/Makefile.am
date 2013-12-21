@@ -6,6 +6,9 @@ dist_bin_SCRIPTS = \
 dist_sysconf_DATA = \
     dprog.rc
 
+dist_man_MANS = \
+    dprog.1
+
 dist_setup_SCRIPTS = \
     postinst \
     prerm

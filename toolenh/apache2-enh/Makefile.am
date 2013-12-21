@@ -11,6 +11,9 @@ dist_bin_SCRIPTS = \
     a2stop \
     a2proxy
 
+dist_man_MANS = \
+    a2proxy.1
+
 dist_setup_SCRIPTS = \
     postinst \
     prerm

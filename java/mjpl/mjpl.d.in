@@ -78,10 +78,6 @@ int main(string[] argv) {
                 runApp = false;
                 continue;
                 
-            case "-h":
-            case "--help":
-                showHelp(); continue;
-            
             case "-q":
             case "--quiet":
                 maxLogLevel--; continue;
@@ -89,6 +85,15 @@ int main(string[] argv) {
             case "-v":
             case  "--verbose":
                 maxLogLevel++; continue;
+
+            case "-h":
+            case "--help":
+                showHelp(); 
+                continue;
+            
+            case "--version":
+                showVersion(); 
+                continue;
 
             case "--":
                 i++;
@@ -328,15 +333,11 @@ void parsePrograms(char[] content,
 
 void showVersion() {
     writeln("Maven-based Java Application Launcher");
-    writeln("Written by Lenik, Version: 1.0.0");
+    writeln("Written by Lenik, Version: @VERSION@, Last updated at @DATE@");
 }
 
 void showHelp() {
-    showVersion();
-    writeln();
-    writeln("Syntax:");
-    writeln("    mjpl [OPTIONS] [--] <main-class or alias> [ARGS...]");
-    writeln();
+    writeln("Usage: mjpl [OPTIONS] [--] <main-class or alias> [ARGS...]");
     writeln("Options:");
     writeln("    -L, --libdir=PATH   Where to search the libraries");
     writeln("    -p, --project=FILE  Specify the start pom.xml path");
@@ -346,5 +347,4 @@ void showHelp() {
     writeln("    -q, --quiet         Repeat to get less info");
     writeln("    -v, --verbose       Repeat to get more info");
     writeln("    --version           Print the version info");
-    exit(1);
 }

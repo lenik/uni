@@ -9,6 +9,9 @@ dist_aliases_DATA = \
 dist_completion_DATA = \
     bash_completion.d/gcc-enh.sh
 
+dist_man_MANS = \
+    gcc-eval.1
+
 dist_setup_SCRIPTS = \
     postinst \
     prerm

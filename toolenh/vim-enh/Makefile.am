@@ -36,6 +36,10 @@ dist_profile_DATA = \
 dist_sudoers_DATA = \
     sudoers.d/env_editor
 
+dist_man_MANS = \
+    reload-file.1 \
+    vimcat.1
+
 dist_setup_SCRIPTS = \
     postinst \
     prerm

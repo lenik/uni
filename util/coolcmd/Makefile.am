@@ -54,6 +54,18 @@ dist_bin_SCRIPTS = \
     xxxmore \
     xxxxmore
 
+dist_man_MANS = \
+    eachdir.1 \
+    esti-exec.1 \
+    ldd-which.1 \
+    localhost.1 \
+    make1.1 \
+    onchange.1 \
+    repeat.1 \
+    subst.1 \
+    until-changed.1 \
+    xcat.1
+
 dist_setup_SCRIPTS = \
     postinst \
     prerm

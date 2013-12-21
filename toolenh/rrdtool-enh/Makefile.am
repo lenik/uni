@@ -5,6 +5,9 @@ samplesdir = ${pkgdatadir}/samples
 dist_bin_SCRIPTS = \
     rrdwrapper-index
 
+dist_man_MANS = \
+    rrdwrapper-index.1
+
 dist_shlib_DATA = \
     shlib.d/rrdwrapper
 

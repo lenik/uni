@@ -12,8 +12,15 @@ dist_bin_SCRIPTS = \
 dist_x11conf_DATA = \
     x-alts
 
+dist_man_MANS = \
+    alt-exec.1 \
+    open-url.1 \
+    wsswitch.1
+
 dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-CLEANFILES = ${dist_setup_SCRIPTS}
+CLEANFILES = \
+    ${dist_bin_SCRIPTS} \
+    ${dist_setup_SCRIPTS}

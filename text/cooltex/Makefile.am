@@ -8,6 +8,11 @@ dist_bin_SCRIPTS = \
 dist_aliases_DATA = \
     cooltex.sh
 
+dist_man_MANS = \
+    cooltex.1 \
+    pdfmon.1 \
+    treetex.1
+
 dist_setup_SCRIPTS = \
     postinst \
     prerm

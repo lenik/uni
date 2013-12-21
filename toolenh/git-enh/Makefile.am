@@ -19,9 +19,25 @@ dist_aliases_DATA = \
     10git-enh.sh \
     sw-git.sh
 
+dist_man_MANS = \
+    bare2co.1 \
+    co2bare.1 \
+    git-author.1 \
+    git-delta.1 \
+    git-delta.rrw.1 \
+    git-remote-ref.1 \
+    git-stitch-fix.1 \
+    git2svn.1 \
+    gitcl.1 \
+    gitcl2.1 \
+    keepdirs.1 \
+    svn2gits
+
 dist_setup_SCRIPTS = \
     postinst \
     prerm
 
 CLEANFILES = \
+    ${dist_bin_SCRIPTS} \
+    ${dist_man_MANS} \
     ${dist_setup_SCRIPTS}

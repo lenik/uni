@@ -43,7 +43,28 @@ dist_sysconf_DATA = \
     jettydefaults.xml
 
 dist_man_MANS = \
-    m2deploy.cfg.5
+    coolmvn.1 \
+    edit2.1 \
+    git-m2ver.1 \
+    newmod.1 \
+    m2deploy.cfg.5 \
+    m2graph.1 \
+    m2help.1 \
+    m2installfile.1 \
+    m2layout.1 \
+    m2localdeps.1 \
+    m2localgraph.1 \
+    m2modlist.1 \
+    m2release.1 \
+    m2rpn.1 \
+    m2search.1 \
+    m2which.1 \
+    mjava.1 \
+    pom-cascade.1 \
+    pomid.1 \
+    pomtree.1
+
+m2deploy.cfg.5:
 
 dist_pkgdata_DATA = \
     ng2txt.xsl \

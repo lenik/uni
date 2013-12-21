@@ -14,7 +14,12 @@ dist_sbin_SCRIPTS = \
     apt-get-reinstall2
 
 dist_man_MANS = \
-    dwhich.1
+    apt-f.8 \
+    debsize.8 \
+    dwhich.8 \
+    lsdeb.8
+
+dwhich.8:
 
 dist_aliases_DATA = \
     aptutils.sh

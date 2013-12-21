@@ -17,10 +17,14 @@ mjpl: ${dist_mjpl_SOURCES}
         ${dist_mjpl_SOURCES} \
         -lbas-d
 
+dist_man_MANS = \
+    mjpl.1
+
 dist_setup_SCRIPTS = \
     postinst \
     prerm
 
 CLEANFILES = \
     ${dist_bin_SCRIPTS} \
+    ${dist_man_MANS} \
     ${dist_setup_SCRIPTS}
