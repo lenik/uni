@@ -24,8 +24,8 @@ dist_aliases_DATA = \
     coolwget.sh
 
 dist_man_MANS = \
-    urljoin.1 \
     grepurl.1 \
+    urljoin.1 \
     wgetc.1 \
     wgetc-url.1
 
@@ -35,4 +35,5 @@ dist_setup_SCRIPTS = \
 
 CLEANFILES = \
     ${dist_bin_SCRIPTS} \
+    ${dist_man_SCRIPTS} \
     ${dist_setup_SCRIPTS}

@@ -2,33 +2,38 @@
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
     : ${PROGRAM_TITLE:="Find urls and join with the start url"}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] PATTERN START-URL}
-    : ${GREP:=grep}
 
     . shlib-import cliboot
-    option -E --extended-regexp "PATTERN in extended regexp (ERE)"
-    option -F --fixed-strings "PATTERN in strings separated by newline"
-    option -G --basic-regexp "PATTERN in basic regexp (BRE)"
-    option -P --perl-regexp "PATTERN in perl regexp (PRE)"
-    option -m --max-count =NUM "max urls to get"
-    option -q --quiet       "Repeat to get less info"
-    option -v --verbose     "Repeat to get more info"
-    option -h --help        "Show this help page"
-    option    --version     "Print the version info"
+    option -E --extended-regexp "Using extended regexp (ERE, default)"
+    option -P --perl-regexp     "Using perl regexp (PRE)"
+    option -m --max-count =NUM  "max urls to get"
+    option -s --strict          "Strict match"
+    option -q --quiet           "Repeat to get less info"
+    option -v --verbose         "Repeat to get more info"
+    option -h --help            "Show this help page"
+    option    --version         "Print the version info"
+
+    regexp_type=extended
+    grepopts=()
+    grepoptn=
 
     max_count=
+    strict=
 
 function setopt() {
     case "$1" in
         -E|--extended-regexp)
-            GREP="grep -E";;
-        -F|--fixed-strings)
-            GREP="grep -f";;
-        -G|--basic-regexp)
-            GREP="grep -G";;
-        -P|--perl-regxp)
-            GREP="grep -P";;
+            regexp_type=extended
+            grepopts[grepoptn++]=-E
+            ;;
+        -P|--perl-regexp)
+            regexp_type=perl
+            grepopts[grepoptn++]=-P
+            ;;
         -m|--max-count)
             max_count="$2";;
+        -s|--strict)
+            strict=1;;
         -h|--help)
             help; exit;;
         -q|--quiet)
@@ -44,7 +49,8 @@ function setopt() {
 
 function main() {
     if [ -n "$max_count" ]; then
-        GREP="$GREP -m $max_count"
+        grepopts[grepoptn++]='-m'
+        grepopts[grepoptn++]="$max_count"
     fi
 
     if [ $# -lt 2 ]; then
@@ -54,14 +60,29 @@ function main() {
     fi
 
     pattern="$1"
+    if [ -z "$strict" ]; then
+        case "$regexp_type" in
+        extended)
+            pattern="[^'\"]*$pattern[^'\"]*"
+            ;;
+        
+        perl)
+            pattern="[^'\"]*?$pattern[^'\"]*?"
+            ;;
+        esac
+    fi
+
     url="$2"
     shift 2
 
     while read match; do
+        _log2 "Matched: $match"
         match="${match#\"}"
         match="${match%\"}"
         urljoin "$url" "$match"
-    done < <(wget -qO- "$url" | $GREP -o "\"$pattern\"")
+    done < <(
+        wget -qO- --header='Accept-Encoding:' "$url" \
+            | grep "${grepopts[@]}" -o "\"$pattern\"")
 }
 
 boot "$@"
