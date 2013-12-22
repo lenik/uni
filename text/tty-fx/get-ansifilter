@@ -1,56 +1,80 @@
 #!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
-outfile="$1"
-if [ -d "$outfile" ]; then
-    outdir="$outfile"
-    outfile="$outdir/ansifilter"
-else
-    outdir="${outfile%/*}"
-    if [ "$outdir" = "$outfile" ]; then
-        outdir=.
-    fi
-fi
+    . shlib-import cliboot
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
 
-if [ ! -d $outdir ]; then
-    echo "directory $outdir isn't existed. "
-    exit 1
-fi
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
 
-index=http://www.andre-simon.de/zip/download.html
-
-# LIKE: http://www.andre-simon.de/zip/ansifilter-1.4.tar.bz2
-echo "Find latest version of ansifilter"
-if ! url=`grepurl -Em1 '[^"]*ansifilter-[1-9.]*.tar.bz2' $index`; then
-    echo "  error"
-    exit 1
-fi
-
-echo "Download $url..."
-if ! tarball=`wgetc -q $url`; then
-    echo "Failed to download $url"
-    exit 1
-fi
-
-abuild=/tmp/ansifilter-build$$-$RANDOM
-    mkdir $abuild
-    pushd $abuild >/dev/null
-
-    tar xaf $tarball
-    adir=ansifilter*
-    cd $adir
-
-    if ! make; then
-        echo "Failed to build ansifilter"
-        exit 1
+function main() {
+    outfile="$1"
+    if [ -d "$outfile" ]; then
+        outdir="$outfile"
+        outfile="$outdir/ansifilter"
+    else
+        outdir="${outfile%/*}"
+        if [ "$outdir" = "$outfile" ]; then
+            outdir=.
+        fi
     fi
 
-    popd
+    _log2 "outdir: $outdir"
+    _log2 "outfile: $outfile"
 
-    echo "Copy $outfile"
-    cp $abuild/$adir/src/ansifilter $outfile
+    [ -d $outdir ] || quit "directory $outdir isn't existed. "
 
-    echo "Copy $outdir/ansifilter.1"
-    gunzip -c $abuild/$adir/man/ansifilter.1.gz >$outdir/ansifilter.1
+    index="http://www.andre-simon.de/zip/download.html"
 
-    echo "Clean up"
-    rm -fr $abuild
+    # LIKE: http://www.andre-simon.de/zip/ansifilter-1.4.tar.bz2
+    _log1 "Find latest version of ansifilter"
+    _log2 "    in: $index"
+
+    url=$( grepurl -E --max-count 1 '[^"]*ansifilter-[1-9.]*.tar.bz2' $index) \
+        || quit "No matching of ansifilter-*-tar.bz2."
+
+    _log1 "Download $url..."
+    tarball=$( wgetc -q "$url" ) || quit "Failed to download $url"
+    [ -f "$tarball" ] || quit "Failed to save the url to local disk."
+
+    abuild=/tmp/ansifilter-build$$-$RANDOM
+        mkdir $abuild
+        pushd $abuild >/dev/null
+
+            tar xaf "$tarball"
+            adir=ansifilter*
+            cd $adir
+
+            make || quit "Failed to build ansifilter"
+
+        popd
+
+        _log1 "Copy $outfile"
+        cp $abuild/$adir/src/ansifilter $outfile
+
+        _log1 "Copy $outdir/ansifilter.1"
+        gunzip -c $abuild/$adir/man/ansifilter.1.gz >$outdir/ansifilter.1
+
+        _log1 "Clean up"
+        rm -fr $abuild
+}
+
+boot "$@"
