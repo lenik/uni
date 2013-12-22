@@ -215,7 +215,7 @@ function help() {
         done
         echo
     else
-        echo "Usage: $usages"
+        echo "Usage: $PROGRAM_PATH $usages"
     fi
 
     help_options
