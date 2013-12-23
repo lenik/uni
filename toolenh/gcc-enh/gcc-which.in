@@ -1,0 +1,88 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Find include path contains the specific header}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] header.h ...}
+    
+    . shlib-import cliboot
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+    incdirs=()
+    incdirn=0
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $# = 0 ]; then
+        quit "No header name given."
+    fi
+
+    init-incdirs
+
+    errors=0
+
+    for hdr in "$@"; do
+        matches=0
+
+        for dir in "${incdirs[@]}"; do
+            f="$dir/$hdr"
+            if [ -f "$f" ]; then
+                echo "$f"
+                ((matches++))
+            fi
+        done
+
+        if [ $matches = 0 ]; then
+            _error "Can't find $hdr."
+            ((errors++))
+        fi
+    done
+
+    return $errors
+}
+
+function init-incdirs() {
+    local tmpc=$( tempfile -s ".c" )
+    local state ln
+
+    echo "#include <ErrOr-bOgUs.h>" >$tmpc
+    echo 'void main() {' >>$tmpc
+    echo '}' >>$tmpc
+
+    state=0
+    while read ln; do
+        case "$ln" in
+        '#include '*)
+            state='incl-dir';;
+
+        'End of search list.')
+            break;;
+
+        *)
+            if [ "$state" = 'incl-dir' ]; then
+                incdirs[incdirn++]="$ln"
+            fi
+            ;;
+        esac
+    done < <(gcc -v $tmpc 2>&1)
+
+    rm -f $tmpc
+}
+
+boot "$@"

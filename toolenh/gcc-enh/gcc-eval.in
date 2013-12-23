@@ -1,6 +1,6 @@
 #!/bin/bash
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
-    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_TITLE:=Evaluate expression in C/C++/D with GCC}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <expr>}
 
     . shlib-import cliboot
