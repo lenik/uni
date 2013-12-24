@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 #include <bas/path.h>
+#include <bas/proc.h>
 #include <bas/str.h>
 
 #include "filter.h"
@@ -57,7 +58,6 @@ static const char *parse_confs(char *script, const char *location);
 static void pmap_each_tab(gpointer key, gpointer value, gpointer data);
 static void pmap_each_mode(gpointer key, gpointer value, gpointer data);
 static bool loadsym(symres_t *, const char *spec, const char *default_fn);
-static pid_t stat_ppid(pid_t pid);
 
 bool pmap_load() {
     DIR *configdir;
@@ -423,23 +423,6 @@ void set_execution_mode(program_conf_t *conf, const char *norm_path, xmode_t mod
     g_hash_table_insert(conf->modes, strdup(norm_path), data);
 }
 
-static pid_t stat_ppid(pid_t pid) {
-    char path[PATH_MAX];
-    FILE *f;
-    char comm[PATH_MAX];
-    char state;
-    pid_t ppid;
-
-    sprintf(path, "/proc/%d/stat", pid);
-    if ((f = fopen(path, "rt")) == NULL)
-        return -1;
-
-    fscanf(f, "%d %s %c %d", &pid, comm, &state, &ppid);
-    fclose(f);
-
-    return ppid;
-}
-
 xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
     xmode_t all = 0;
 
@@ -496,7 +479,7 @@ xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
             }
         }
 
-        pid = stat_ppid(pid);
+        pid = getppidof(pid);
     }
 
     if ((all & (F_ALLOW | F_DENY)) == F_DENY) {
