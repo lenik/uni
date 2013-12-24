@@ -108,10 +108,17 @@ function main() {
         tree -a $tmpdestdir
         if [ -x "$TREETEX" ]; then
             _log1 "Generate install tree in TeX"
+
+            itreetmp=`tempfile`
             $TREETEX -aF --destdir=$tmpdestdir \
                 -c "Files in the package $package_name" \
                 -r '\emph{«setupdir»}' \
-                "${treetexopts[@]}" $tmpdestdir >itree.tex
+                "${treetexopts[@]}" $tmpdestdir >$itreetmp
+
+            diff -q $itreetmp itree.tex >/dev/null \
+                || cp $itreetmp itree.tex
+
+            rm -f $itreetmp
         fi
     else
         _error "Failed to install."
