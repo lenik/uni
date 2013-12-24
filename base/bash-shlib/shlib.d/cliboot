@@ -137,12 +137,16 @@ long_opts=
 ##
 # Align at column 28, which looks like:
 #   -f, --FILE=PATH         Description...
-: ${OPTDOC_ALIGN:=28}
-optdocs=()
-optdocn=0
+: ${OPTHLP_ALIGN:=28}
+opthlp0=()
+opthlp1=()
+opthlp2=()
+opthlp3=()
+opthlp4=()
+nopt=0
 
 function option() {
-    local optdoc=
+    local opthlp=
     local vname=
     local mod=
     local shortform=0
@@ -161,10 +165,10 @@ function option() {
     while [ $# != 0 ]; do
         case "$1" in
             -*)
-                if [ -z "$optdoc" ]; then
-                    optdoc="    $1"
+                if [ -z "$opthlp" ]; then
+                    opthlp="$1"
                 else
-                    optdoc="$optdoc, $1"
+                    opthlp="$opthlp, $1"
                 fi
                 if [ "${1:0:2}" = '--' ]; then
                     if [ -z "$long_opts" ]; then
@@ -185,22 +189,40 @@ function option() {
         esac
     done
 
+    local leading='    '
     if [ $shortform = 0 ]; then
-        optdoc="    $optdoc"
+        leading="$leading    "
     fi
 
-    optdoc="$optdoc$vname"
+    opthlp="$opthlp$vname"
 
-    while [ ${#optdoc} -lt $OPTDOC_ALIGN ]; do
-        optdoc="$optdoc "
+    local indent
+    local tmp="$leading$opthlp"
+    while [ ${#tmp} -lt $OPTHLP_ALIGN ]; do
+        indent="$indent "
+        tmp="$leading$opthlp$indent"
     done
 
-    optdoc="$optdoc$@"
-    optdocs[optdocn++]="$optdoc"
+    opthlp0[nopt]="$leading"
+    opthlp1[nopt]="$opthlp"
+    opthlp2[nopt]="$indent"
+    opthlp3[nopt]="$1"
+    shift
+
+    local ln optdoc
+    for ln in "$@"; do
+        optdoc="$optdoc        $ln"$'\n'
+    done
+    opthlp4[nopt]="$optdoc"
+
+    ((nopt++))
 }
 
 function help() {
-    # version
+    local details=0
+    if [ "$1" == '--help' ]; then
+        details=1
+    fi
 
     local usages=()
     local l
@@ -219,14 +241,23 @@ function help() {
         echo "Usage: $PROGRAM_PATH $usages"
     fi
 
-    help_options
-    help_more
+    help_options $details
+    help_more $details
 }
 
 function help_options() {
+    local details="$1"
+    local i
     echo "Options: "
-    for optdoc in "${optdocs[@]}"; do
-        echo "$optdoc"
+    for ((i = 0; i < nopt; i++)); do
+        if [ "$details" = 1 ]; then
+            echo "${opthlp0[i]}${opthlp1[i]}${opthlp2[i]}${opthlp3[i]}"
+            if [ -n "${opthlp4[i]}" ]; then
+                echo "${opthlp4[i]}"
+            fi
+        else
+            echo "${opthlp0[i]}${opthlp1[i]}${opthlp2[i]}${opthlp3[i]}"
+        fi
     done
 }
 
