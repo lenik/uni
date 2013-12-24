@@ -1,15 +1,13 @@
-include libauto/project.am
+include libauto/private.am
+include libauto/compat.am
 
 AI_TEMPLATE=alien
 
-cachedir = /var/cache
 configdir = ${sysconfdir}/execfilter.d
 cronhourlydir = ${sysconfdir}/cron.hourly
 rundir = /var/run
-lib2dir = ${prefix}/lib
 
 do_subst += \
-    -e 's,[@]cachedir[@],${cachedir},g' \
     -e 's,[@]configdir[@],${configdir},g' \
     -e 's,[@]cronhourlydir[@],${cronhourlydir},g' \
     -e 's,[@]rundir[@],${rundir},g'
@@ -35,7 +33,7 @@ dist_pkgdata_DATA = \
     shendun-efpoll.img \
     yw-edit.img
 
-lib2_LTLIBRARIES = \
+lib1_LTLIBRARIES = \
     libshendun-efext.la
 
 libshendun_efext_la_SOURCES = \

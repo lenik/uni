@@ -5,7 +5,9 @@
     : ${caller_pkg:=@PACKAGE@}
 
     . shlib-import cliboot ai
-    option -r --renew       "Register/Renew the license"
+    option -r --renew       "Register/Renew the license" \
+        "Send registration or renew request to the licensing server." \
+        "This software won't run until it's licensed in a specific period."
     option -q --quiet       "Repeat to get less info"
     option -v --verbose     "Repeat to get more info"
     option -h --help        "Show this help page"
