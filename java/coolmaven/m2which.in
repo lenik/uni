@@ -26,7 +26,7 @@ function setopt() {
         -n|--name-only)
             name_only=1;;
         -h|--help)
-            help; exit;;
+            help $1; exit;;
         -q|--quiet)
             LOGLEVEL=$((LOGLEVEL - 1));;
         -v|--verbose)

@@ -38,7 +38,7 @@ function setopt() {
         -I|--info-mode)  info_mode="$2";;
         -D|--debug-mode) debug_mode="$2";;
         -h|--help)
-            help; exit;;
+            help $1; exit;;
         -q|--quiet)
             LOGLEVEL=$((LOGLEVEL - 1));;
         -v|--verbose)

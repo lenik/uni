@@ -31,7 +31,7 @@ function setopt() {
         -T|--temp-dir)
             temp_dir="$2";;
         -h|--help)
-            help; exit;;
+            help $1; exit;;
         -q|--quiet)
             LOGLEVEL=$((LOGLEVEL - 1));;
         -v|--verbose)

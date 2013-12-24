@@ -30,7 +30,7 @@ function setopt() {
             _log2 "Cache timeout: $cache seconds"
             ;;
         -h|--help)
-            help; exit;;
+            help $1; exit;;
         -q|--quiet)
             LOGLEVEL=$((LOGLEVEL - 1));;
         -v|--verbose)

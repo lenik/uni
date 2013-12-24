@@ -17,7 +17,7 @@
 function setopt() {
     case "$1" in
         -h|--help)
-            help; exit;;
+            help $1; exit;;
         -q|--quiet)
             LOGLEVEL=$((LOGLEVEL - 1));;
         -v|--verbose)

@@ -55,7 +55,7 @@ function setopt() {
             [ -f "$2" ] || die "File existed: $2"
             qlog_dir="$2";;
         -h|--help)
-            help; exit;;
+            help $1; exit;;
         -q|--quiet)
             LOGLEVEL=$((LOGLEVEL - 1));;
         -v|--verbose)

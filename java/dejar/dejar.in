@@ -25,7 +25,7 @@
 function setopt() {
     case "$1" in
         -h|--help)
-            help; exit;;
+            help $1; exit;;
         -o|--option)
             jadopts[jadnopt++]="$2";;
         -q|--quiet)

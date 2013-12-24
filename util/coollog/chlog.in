@@ -22,7 +22,7 @@ function setopt() {
             git_mode=1
             git_dir="$2";;
         -h|--help)
-            help; exit;;
+            help $1; exit;;
         -q|--quiet)
             LOGLEVEL=$((LOGLEVEL - 1));;
         -v|--verbose)

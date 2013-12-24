@@ -80,7 +80,7 @@ function _setopt() {
         --content-type)
             content_type="$2";;
         -h|--help)
-            help; exit;;
+            help $1; exit;;
         -q|--quiet)
             LOGLEVEL=$((LOGLEVEL - 1));;
         -v|--verbose)

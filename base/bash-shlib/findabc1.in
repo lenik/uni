@@ -63,7 +63,7 @@ function setopt() {
         -w|--windows)  # not used
             style=win32;;
         -h|--help)
-            help; exit;;
+            help $1; exit;;
         -q|--quiet)
             LOGLEVEL=$((LOGLEVEL - 1));;
         -v|--verbose)

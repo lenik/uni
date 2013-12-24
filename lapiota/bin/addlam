@@ -26,7 +26,7 @@ function setopt() {
         -t|--tags)
             unset add_shortcuts;;
         -h|--help)
-            help; exit;;
+            help $1; exit;;
         -q|--quiet)
             LOGLEVEL=$((LOGLEVEL - 1));;
         -v|--verbose)
