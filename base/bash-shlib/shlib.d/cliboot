@@ -251,7 +251,7 @@ function help_options() {
     echo "Options: "
     for ((i = 0; i < nopt; i++)); do
         if [ "$details" = 1 ]; then
-            echo "${opthlp0[i]}${opthlp1[i]}${opthlp2[i]}${opthlp3[i]}"
+            echo "${opthlp0[i]}${opthlp1[i]}${opthlp2[i]}${opthlp3[i]}."
             if [ -n "${opthlp4[i]}" ]; then
                 echo "${opthlp4[i]}"
             fi
