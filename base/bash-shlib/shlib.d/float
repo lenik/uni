@@ -1,3 +1,4 @@
+# -*- mode: sh -*-
 # vi: set filetype=sh :
 
 FLOAT_SCALE=3

@@ -1,3 +1,4 @@
+# -*- mode: sh -*-
 # vim: set filetype=sh :
 
 AliceBlue='#F0F8FF';      AntiqueWhite='#FAEBD7';   Aqua='#00FFFF';           AquaMarine='#7FFFD4';
