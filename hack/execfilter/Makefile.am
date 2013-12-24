@@ -1,6 +1,7 @@
-include libauto/project.am
+include libauto/private.am
+include libauto/compat.am
+include libauto/env/tex.am
 
-lib2dir = /usr/lib
 configdir = ${sysconfdir}/execfilter.d
 
 do_subst += \
@@ -20,7 +21,7 @@ ef_dump_SOURCES = ef-dump.c ${libexecfilter_la_SOURCES}
 ef_dump_CFLAGS = ${AM_CFLAGS}
 ef_dump_LDADD = ${GLIB_LIBS} -lbas -ldl
 
-lib2_LTLIBRARIES = \
+lib1_LTLIBRARIES = \
     libexecfilter.la \
     libefstub.la
 
@@ -44,7 +45,7 @@ syslogconf_DATA = \
 dist_doc_DATA = manual.pdf
 
 manual.pdf: main.tex itree.tex
-	cooltex -a -jmanual main.tex
+	cooltex -a -jmanual -T$(XELATEX) main.tex
 
 dist_setup_SCRIPTS = \
     postinst \

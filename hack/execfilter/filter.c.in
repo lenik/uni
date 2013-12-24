@@ -13,6 +13,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <bas/i18n.h>
 #include <bas/path.h>
 #include <bas/proc.h>
 #include <bas/str.h>
@@ -124,26 +125,26 @@ static const char *parse_file(const char *path) {
     char *ext_name;
 
     if (stat(path, &sb) == -1) {
-        log_perr("Error: Failed to get file stat: %s", path);
+        log_perr(tr("Error: Failed to get file stat: %s"), path);
         return "stat";
     }
 
     size = sb.st_size;
     data = malloc(size + 1);
     if (data == NULL) {
-        log_err("Insufficient memory to read config file %s.", path);
+        log_err(tr("Insufficient memory to read config file %s."), path);
         return "memory out";
     }
 
     in = fopen(path, "rt");
     if (in == NULL) {
-        log_perr("Failed to open file %s: ", path);
+        log_perr(tr("Failed to open file %s: "), path);
         return "open config";
     }
 
     cb = fread(data, 1, size, in);
     if (cb != size)
-        return "read incomplete";
+        return tr("Read incomplete");
 
     data[cb] = '\0';
     fclose(in);
@@ -196,7 +197,7 @@ static const char *parse_confs(char *script, const char *location) {
         case 'a':
             if (streq("allow", token)) {
                 if (conf == NULL) {
-                    log_err("program (for-clause) hasn't been specified yet.");
+                    log_err(tr("Program hasn't been specified yet."));
                     continue;
                 }
 
@@ -214,7 +215,7 @@ static const char *parse_confs(char *script, const char *location) {
         case 'd':
             if (streq("default", token)) {
                 if (conf == NULL) {
-                    log_err("program (for-clause) hasn't been specified yet.");
+                    log_err(tr("Program hasn't been specified yet."));
                     continue;
                 }
 
@@ -229,7 +230,7 @@ static const char *parse_confs(char *script, const char *location) {
 
             if (streq("deny", token)) {
                 if (conf == NULL) {
-                    log_err("program (for-clause) hasn't been specified yet.");
+                    log_err(tr("Program hasn't been specified yet."));
                     continue;
                 }
 
@@ -265,7 +266,7 @@ static const char *parse_confs(char *script, const char *location) {
             if (streq("format", token)) {
                 char *ext = readtok(&p);
                 if (ext == NULL) {
-                    log_err("extension name isn't specified.");
+                    log_err(tr("Extension name isn't specified."));
                     continue;
                 }
 
@@ -273,7 +274,7 @@ static const char *parse_confs(char *script, const char *location) {
                 if (sr) {
                     /* some format maybe pre-defined, but not implemented. */
                     if (sr->handle) {
-                        log_err("format %s is already defined as %s::%s.",
+                        log_err(tr("Format %s is already defined as %s::%s."),
                                 ext, sr->libname, sr->fn);
                         continue;
                     }
@@ -284,7 +285,7 @@ static const char *parse_confs(char *script, const char *location) {
                 }
 
                 if (! loadsym(sr, p, "decode")) {
-                    log_err("can't resolve format %s.", ext);
+                    log_err(tr("Can't resolve format %s."), ext);
                     continue;
                 }
 
@@ -295,14 +296,15 @@ static const char *parse_confs(char *script, const char *location) {
             /* gate LIBNAME FN=gate */
             if (streq("gate", token)) {
                 if (! loadsym(&gate_sr, p, "gate")) {
-                    log_err("can't resolve gate.");
+                    log_err(tr("Can't resolve gate."));
                     continue;
                 }
                 break;
             }
 
         default:
-            log_err("illegal syntax in %s: %s %s.",
+            /// location, token, args
+            log_err(tr("Illegal syntax in %s: %s %s."),
                     location, token, p);
             /* Dont exit program, otherwise the system will be unusable. */
         } /* switch (token) */
@@ -335,7 +337,7 @@ static void lazy_init() {
         pconf->modes = g_hash_table_new_full(g_str_hash, g_str_equal,
                                              free, free);
 #ifdef DEBUG
-        printf("Warning: %s isn't configured, yet.\n", path);
+        printf(tr("Warning: %s isn't configured, yet.\n"), path);
 #endif
     }
 
@@ -390,7 +392,8 @@ void pmap_dump() {
     g_hash_table_foreach(pmap, pmap_each_tab, 0);
 }
 
-xmode_t get_execution_mode(program_conf_t *conf, const char *norm_path) {
+xmode_t get_execution_mode(program_conf_t *conf,
+                           const char *norm_path) {
     if (conf == NULL) {
         lazy_init();
         conf = pconf;
@@ -411,7 +414,9 @@ xmode_t get_execution_mode(program_conf_t *conf, const char *norm_path) {
     return mode;
 }
 
-void set_execution_mode(program_conf_t *conf, const char *norm_path, xmode_t mode) {
+void set_execution_mode(program_conf_t *conf,
+                        const char *norm_path,
+                        xmode_t mode) {
     if (conf == NULL) {
         lazy_init();
         conf = pconf;
@@ -434,15 +439,15 @@ xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
 
     lazy_init();
 
-    log_debug("Query execution(%s) mode for %s", src, obj_norm);
+    log_debug(tr("Query execution(%s) mode for %s"), src, obj_norm);
 
     if (gate_sr.proc) {
-        log_debug("Invoke gate fn: %s::%s", gate_sr.libname, gate_sr.fn);
+        log_debug(tr("Invoke gate fn: %s::%s"), gate_sr.libname, gate_sr.fn);
         gate_fn gatef = gate_sr.proc;
         if (gatef(pid, 0)) {
-            log_debug("gate returned. continue...");
+            log_debug(tr("Gate returned. continue..."));
         } else {
-            log_notice("execfilter is disabled. allow all: %s", obj_norm);
+            log_notice(tr("Disabled by the gate. allow all: %s"), obj_norm);
             return 0;
         }
     }
@@ -461,7 +466,7 @@ xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
                 /* since some pids are owned by root, this is very common. */
                 // log_warn("Error access %s, ignored.", psym);
             } else {
-                log_warn("The link %s is broken, pass thru forced.", psym);
+                log_warn(tr("The link %s is broken, pass thru forced."), psym);
                 return PASS_THRU_MODE;
             }
         } else {
@@ -469,7 +474,7 @@ xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
             conf = g_hash_table_lookup(pmap, bin);
             if (conf) {
                 xmode_t m = get_execution_mode(conf, obj_norm);
-                log_debug("mode of %s for [%d] %s: %x\n",
+                log_debug(tr("Mode of %s for [%d] %s: %x\n"),
                           obj_norm, pid, bin, m);
                 all |= m;
 
@@ -484,7 +489,7 @@ xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
 
     if ((all & (F_ALLOW | F_DENY)) == F_DENY) {
         log_info("%s() denied: %s", src, obj);
-        log_notice("Execution Blocked: %s", obj);
+        log_notice(tr("Execution Blocked: %s"), obj);
     } else {
         char modes[200] = "";
 
@@ -497,7 +502,7 @@ xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
         if (!*modes)
             sprintf(modes, "(none)");
 
-        log_debug("execution mode for %s:%s\n", obj_norm, modes);
+        log_debug(tr("Execution mode for %s:%s\n"), obj_norm, modes);
     }
     return all;
 }
@@ -508,7 +513,7 @@ xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
 
     /* any re-entrant execution is strongly allowed. */
     if (calling) {
-        log_debug("Re-entrant is avoid: %s", obj);
+        log_debug(tr("Re-entrant is avoid: %s"), obj);
         return F_ALLOW;
     }
 
@@ -530,7 +535,7 @@ static bool loadsym(symres_t *sr, const char *spec, const char *default_fn) {
 
     char *libname = readtok(&p);
     if (libname == NULL) {
-        log_err("library name isn't specified.");
+        log_err(tr("Library name isn't specified."));
         return false;
     }
 
@@ -548,14 +553,14 @@ static bool loadsym(symres_t *sr, const char *spec, const char *default_fn) {
 
     handle = dlopen(libfile, RTLD_LAZY);
     if (handle == NULL) {
-        log_perr("Failed to open library %s", libfile);
+        log_perr(tr("Failed to open library %s"), libfile);
         return false;
     }
 
     proc = dlsym(handle, fn);
     if (proc == NULL) {
         dlclose(handle);
-        log_err("No such function in library %s: %s.",
+        log_err(tr("No such function in library %s: %s."),
                 libname, fn);
         return false;
     }
