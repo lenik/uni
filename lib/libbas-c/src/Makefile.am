@@ -14,5 +14,6 @@ dist_libbas_la_SOURCES = \
     file.c \
     log.c \
     path.c \
+    proc.c \
     str.c \
     syslog.c
