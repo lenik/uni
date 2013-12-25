@@ -86,7 +86,7 @@ function _setopt() {
         -v|--verbose)
             LOGLEVEL=$((LOGLEVEL + 1));;
         --version)
-            version; exit;;
+            show_version; exit;;
         *)
             quit "Invalid option: $1"
     esac

@@ -169,7 +169,7 @@ function setopt() {
         -v|--verbose)
             LOGLEVEL=$((LOGLEVEL + 1));;
         --version)
-            version; exit;;
+            show_version; exit;;
     esac
 }
 

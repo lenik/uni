@@ -16,7 +16,7 @@
     tabonly=
     width=
 
-function version_more() {
+function show_show_version_more() {
     echo
     echo "This tool is based on xmlindent(1) utility by Pekka Enberg & Thomas Fischer."
     echo
@@ -37,7 +37,7 @@ function setopt() {
         -v|--verbose)
             LOGLEVEL=$((LOGLEVEL + 1));;
         --version)
-            version; exit;;
+            show_version; exit;;
         *)
             quit "invalid option: $1";;
     esac

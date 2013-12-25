@@ -304,13 +304,13 @@ function help_more() {
     :
 }
 
-function version() {
+function show_version() {
     parse_id "$RCSID"
     echo "[$PROGRAM_NAME] $PROGRAM_TITLE"
     echo "Written by Lenik, Version $rcs_rev, Last updated at $rcs_date"
-    version_more
+    show_version_more
 }
 
-function version_more() {
+function show_version_more() {
     :
 }
