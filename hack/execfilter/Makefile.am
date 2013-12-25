@@ -39,7 +39,7 @@ libexecfilter_la_LDFLAGS = -version-info 1:0:0
 libefstub_la_SOURCES = stub.c
 libefstub_la_LDFLAGS = -version-info 1:0:0
 
-syslogconf_DATA = \
+dist_syslogconf_DATA = \
     10execfilter.conf
 
 dist_doc_DATA = manual.pdf
@@ -50,6 +50,12 @@ manual.pdf: main.tex itree.tex
 dist_setup_SCRIPTS = \
     postinst \
     prerm
+
+EXTRA_DIST = \
+    filter.h \
+    log.h \
+    trie.h \
+    posix/posix_fn.h
 
 CLEANFILES = \
     ${dist_setup_SCRIPTS}
