@@ -9,10 +9,10 @@
     option -a --add         "Add a keyword (default)"
     option -k --kill        "Remove a keyword"
     option -f --force       "Force to add bare keyword"
-    option -q --quiet       "Repeat to get less info"
-    option -v --verbose     "Repeat to get more info"
-    option -h --help        "Show this help page"
-    option    --version     "Print the version info"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
 
     global=
     list=

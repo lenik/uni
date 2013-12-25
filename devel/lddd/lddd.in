@@ -30,10 +30,10 @@
         "utility.  When the output of ldd contains all the dependencies (in" \
         "most cases), this option can be ignored."
 
-    option -q --quiet       "Repeat to get less info"
-    option -v --verbose     "Repeat to get more info"
-    option -h --help        "Show this help page"
-    option    --version     "Print the version info"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
 
     opt_format=normal
     opt_address=

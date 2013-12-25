@@ -8,10 +8,10 @@
     option -r --root        "Get root module instead of nearest module"
     option -l --list        "List modules matching the pattern"
     option -n --name-only   "List module names only, no full path"
-    option -q --quiet       "Repeat to get less info"
-    option -v --verbose     "Repeat to get more info"
-    option -h --help        "Show this help page"
-    option    --version     "Print the version info"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
 
     TIMEOUT=10day
     mode=which      # which, root, list

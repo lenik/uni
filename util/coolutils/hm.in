@@ -12,10 +12,10 @@
     option -i --ignore-case     "Ignore case"
     option -l --list            "Only list the candidates, don't open"
     option -x --exec =COMMAND   "Open with specified command"
-    option -q --quiet       "Repeat to get less info"
-    option -v --verbose     "Repeat to get more info"
-    option -h --help        "Show this help page"
-    option    --version     "Print the version info"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
 
     includes=(/usr/share/doc /usr/local/share/doc)
     list_packages=

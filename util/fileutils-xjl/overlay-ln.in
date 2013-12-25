@@ -7,10 +7,10 @@
     option -s --sudo        "Execute with sudo"
     option -c --clean       "Remove overlays"
     option -n --dry-run     "Print commands instead but don't execute"
-    option -q --quiet       "Repeat to get less info"
-    option -v --verbose     "Repeat to get more info"
-    option -h --help        "Show this help page"
-    option    --version     "Print the version info"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
 
     shopt -s nullglob dotglob
 

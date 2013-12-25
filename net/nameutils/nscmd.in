@@ -14,10 +14,10 @@
     option -t --ttl =TTL    "Specify the default time to live (Default: ddns=600, cname=3600. set to 'none' to clear the default ttl)"
     option -C --cname =NAME=DEST "Same to delete-add A RRs"
     option -D --ddns =NAME=IP "Same to delete-add CNAME RRs"
-    option -q --quiet       "Repeat to get less info"
-    option -v --verbose     "Repeat to get more info"
-    option -h --help        "Show this help page"
-    option    --version     "Print the version info"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
 
     keyfile=
     random=/dev/urandom

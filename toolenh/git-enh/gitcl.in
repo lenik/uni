@@ -11,10 +11,10 @@
     . shlib-import cliboot
     option -V --vercomp     "Include the (autover) version number"
     option    --mmc         "Get the major.minor.commit version"
-    option -q --quiet       "Repeat to get less info"
+    option -q --quiet
     option    --verbose     "Repeat to get more info"
-    option -h --help        "Show this help page"
-    option    --version     "Print the version info"
+    option -h --help
+    option    --version
 
 function setopt() {
     case "$1" in

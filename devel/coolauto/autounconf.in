@@ -5,10 +5,10 @@
 
     . shlib-import cliboot
     option -c --compact     "Run in compact mode (symlinks)"
-    option -q --quiet       "Repeat to get less info"
-    option -v --verbose     "Repeat to get more info"
-    option -h --help        "Show this help page"
-    option    --version     "Print the version info"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
 
     __FILE__=`readlink -f $0`
 

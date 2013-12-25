@@ -7,10 +7,10 @@
     option -H --horizontal =NUM "Horizontal repeat count, default 2"
     option -V --vertical =NUM "Vertical repeat count, default 2"
     option -1 --odd         "Odd arrangement"
-    option -q --quiet       "Repeat to get less info"
-    option -v --verbose     "Repeat to get more info"
-    option -h --help        "Show this help page"
-    option    --version     "Print the version info"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
 
     H=2
     V=2

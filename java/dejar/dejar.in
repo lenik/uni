@@ -7,10 +7,10 @@
     . shlib-import cliboot
     option -n --lineno      "Include source line numbers"
     option -o --option =JADOPT "Add more options to jad"
-    option -q --quiet       "Repeat to get less info"
-    option -v --verbose     "Repeat to get more info"
-    option -h --help        "Show this help page"
-    option    --version     "Print the version info"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
 
     # -d DIR   - directory for output files
     # -ff      - output fields before methods (fieldsfirst)

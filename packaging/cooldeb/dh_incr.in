@@ -7,10 +7,10 @@
     option -a --autover     "Get version from VERSION.au"
     option -D --distribution =DIST "Set distribution name"
     option -m --message =MESG "The message shown in new changelog entry"
-    option -q --quiet       "Repeat to get less info"
-    option -v --verbose     "Repeat to get more info"
-    option -h --help        "Show this help page"
-    option    --version     "Print the version info"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
 
     autover=
     distribution=unstable

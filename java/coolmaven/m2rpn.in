@@ -16,10 +16,10 @@
     option -m, --message =TEXT "Commit with the message"
     option -M, --push =TEXT "Commit and push"
     option -a, --all =TEXT  "Do build, deploy, commit, push, and all"
-    option -q --quiet       "Repeat to get less info"
-    option -v --verbose     "Repeat to get more info"
-    option -h --help        "Show this help page"
-    option    --version     "Print the version info"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
 
     keywords=()
     nkeyword=0

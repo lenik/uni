@@ -18,10 +18,10 @@
     option -t --title =TITLE "Set the graph title"
     option -O --output =FILE "Output to the file, in extension format"
     option -d --display     "Open the result graph file"
-    option -q --quiet       "Repeat to get less info"
-    option -v --verbose     "Repeat to get more info"
-    option -h --help        "Show this help page"
-    option    --version     "Print the version info"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
 
     GRAPH_PLUGIN=org.fusesource.mvnplugins:maven-graph-plugin
     DEFAULT_OUT=target/project-graph.png

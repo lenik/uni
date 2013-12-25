@@ -6,10 +6,10 @@
     . shlib-import cliboot
     option -m --mode =MODE  "chmod to downloaded file"
     option -f --force       "Invalidate the correspond cache"
-    option -q --quiet       "Repeat to get less info"
-    option -v --verbose     "Repeat to get more info"
-    option -h --help        "Show this help page"
-    option    --version     "Print the version info"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
 
     #SUDO="sudo -uwget"
     SUDO=
