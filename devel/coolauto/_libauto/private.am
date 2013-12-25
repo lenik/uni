@@ -34,6 +34,6 @@
 include $(top_srcdir)/libauto/project.am
 
 dist-hook:
-	cd ${distdir} && sedit Makefile.am amexpand -is Makefile.am
+	cd ${distdir} && sedit Makefile.am amexpand -isH Makefile.am
 	cd ${distdir} && rm -fr libauto/
 
