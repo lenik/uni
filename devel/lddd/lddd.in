@@ -1,0 +1,187 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=ldd for developer}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <executable>}
+    
+    . shlib-import cliboot
+    option -a --address     "Show address in the first column" \
+        "You can then sort the entries by address with the sort utility." \
+        "This option is only useful in --name-only or --path-only mode."
+
+    option -s --size        "Show file size" \
+        "Print the file size before the library name." \
+        "This size information is useful to estimate the real disk space" \
+        "requirement of a program." \
+        "You can also get a total size including of all dependencies and the"\
+        "executable itself by specify -v to the cmdline."
+
+    option -n --name-only   "Show only the library name" \
+        "Restrict the output to just contain the library name." \
+        "This option is useful when called by another program."
+
+    option -p --path-only   "Show only the library path" \
+        "Restrict the output to just contain the library path." \
+        "This option is useful when called by another program."
+
+    option -r --recursive   "Get the closure" \
+        "Get the depended libraries recursively. " \
+        "The default bahavior is depended on the implementation of the ldd" \
+        "utility.  When the output of ldd contains all the dependencies (in" \
+        "most cases), this option can be ignored."
+
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+    opt_format=normal
+    opt_address=
+    opt_size=
+    opt_recursive=
+
+function setopt() {
+    case "$1" in
+        -a|--address)
+            opt_address=1;;
+        -s|--size)
+            opt_size=1;;
+        -n|--name-only)
+            opt_format=name;;
+        -p|--path-only)
+            opt_format=path;;
+        -r|--recursive)
+            opt_recursive=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    local nexe=$#
+    local exe
+
+    [ $nexe = 0 ] && quit "You didn't specify any executable."
+
+    for exe in "$@"; do
+        declare -g -a names=()
+        declare -g -A nameMap=()
+        declare -g -A pathMap=()
+        declare -g -A addrMap=()
+        local total_size=0
+
+        [ $nexe -gt 1 ] && echo "$exe:"
+
+        collect "$exe" 0
+        for _nam in "${names[@]}"; do
+            _path="${nameMap[$_nam]}"
+            _addr="${addrMap[$_nam]}"
+            # echo "$_addr : $_nam : $_path"
+
+            echo -n $'\t'
+
+            if [ "$opt_format" = 'normal' ]; then
+                echo "$_nam => $_path ($_addr)"
+                continue
+            fi
+
+            if [ "$opt_address" = 1 ]; then
+                echo -n "$_addr "
+            fi
+
+            if [ "$opt_size" = 1 ]; then
+                size="(n/a)"
+                if [ -f "$_path" ]; then
+                    size=$( stat -Lc%s "$_path" )
+                    ((total_size += size))
+                fi
+                while [ "${#size}" -lt 10 ]; do
+                    size=" $size"
+                done
+                echo -n "$size "
+            fi
+
+            case "$opt_format" in
+            name)
+                echo "$_nam"
+                ;;
+
+            path)
+                echo "$_path"
+                ;;
+            esac
+        done
+
+        if [ "$opt_size" = 1 ]; then
+            exe_size=$( stat -Lc%s "$exe" )
+            _log1 "Size-Sum: $total_size"
+            _log2 "Executable-Size: $exe_size"
+            _log2 "Total-Size: $((total_size + exe_size))"
+        fi
+    done
+}
+
+function collect() {
+    local file=`readlink -f "$1"`
+    local level=$2
+    local q=()
+    local nq=0
+
+    #for ((i = 0; i < level; i++)); do echo -n ' '; done
+    #echo "Collect: $file"
+
+    local _nam _eq _path _addr
+    while read _nam _eq _path _addr; do
+        if [ "$_nam $_eq" = 'statically linked' ]; then
+            continue
+        fi
+
+        if [ "$_eq" != '=>' ]; then
+            if [ "${_nam:0:1}" = '/' ]; then
+                _path="$_nam"
+            else
+                _path=
+            fi
+            _addr="$_eq"
+            _eq=
+        fi
+
+        if [ -z "${addrMap[$_nam]}" ]; then
+            q[nq++]="$_path"
+        else
+            continue
+        fi
+
+        names=("${names[@]}" "$_nam")
+        nameMap[$_nam]="$_path"
+
+        _addr="${_addr#(}"
+        _addr="${_addr#0x}"
+        _addr="${_addr%)}"
+        addrMap[$_nam]="$_addr"
+
+        if [ -n "$_path" ]; then
+            _path=$( readlink -f "$_path" )
+            pathMap[$_path]="$_nam"
+        fi
+    done < <(ldd "$file")
+
+    if [ "$opt_recursive" = 1 ]; then
+        ((level++))
+        for _path in "${q[@]}"; do
+            if [ -f "$_path" ]; then
+                collect "$_path" $level
+            fi
+        done
+    fi
+}
+
+boot "$@"
