@@ -195,8 +195,9 @@
 (require 'hl-line)
     (global-hl-line-mode)
 
-(require 'ibus)
-    (add-hook 'after-init-hook 'ibus-mode-on)
-    (global-set-key (kbd "C-`") 'ibus-toggle)
+(if (require 'ibus nil 'no-error)
+    (progn                              ; load success
+      (add-hook 'after-init-hook 'ibus-mode-on)
+      (global-set-key (kbd "C-`") 'ibus-toggle)))
 
 (provide 'coolemacs)
