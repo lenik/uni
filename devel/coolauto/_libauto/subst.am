@@ -32,8 +32,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 DATETIME        = $(shell date +"%Y-%m-%d %H:%M:%S")
-DATE                = $(word 1,$(DATETIME))
-TIME                = $(word 2,$(DATETIME))
+DATE            = $(word 1,$(DATETIME))
+TIME            = $(word 2,$(DATETIME))
 
 aliasesdir      = ${sysconfdir}/bash_aliases.d
 apparmordir     = ${sysconfdir}/apparmor.d
