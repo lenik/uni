@@ -149,7 +149,8 @@ function option() {
     local opthlp=
     local vname=
     local mod=
-    local shortform=0
+    local shortform=
+    local longform=
     for a in "$@"; do
         case "$a" in
         -*) ;;
@@ -171,13 +172,14 @@ function option() {
                     opthlp="$opthlp, $1"
                 fi
                 if [ "${1:0:2}" = '--' ]; then
+                    longform="$1"
                     if [ -z "$long_opts" ]; then
                         long_opts="${1:2}$mod"
                     else
                         long_opts="$long_opts,${1:2}$mod"
                     fi
                 else
-                    shortform=1
+                    shortform="$1"
                     short_opts="$short_opts${1:1}$mod"
                 fi
                 shift
@@ -190,7 +192,7 @@ function option() {
     done
 
     local leading='    '
-    if [ $shortform = 0 ]; then
+    if [ -z "$shortform" ]; then
         leading="$leading    "
     fi
 
@@ -206,14 +208,51 @@ function option() {
     opthlp0[nopt]="$leading"
     opthlp1[nopt]="$opthlp"
     opthlp2[nopt]="$indent"
-    opthlp3[nopt]="$1"
-    shift
 
-    local ln optdoc
-    for ln in "$@"; do
-        optdoc="$optdoc        $ln"$'\n'
+    local description
+    local textlines=()
+
+    if [ $# -gt 0 ]; then
+        description="$1"
+        shift
+        textlines=("$@")
+    else
+        case "$longform" in
+            --help)
+                description="Print this help page"
+                textlines=(
+        "Display a brief usage for this command, and exit."
+                    )
+                ;;
+            --quiet)
+                description="Be more quiet"
+                textlines=(
+        "Repeat this option to reduce the verbosity of information to output."
+                    )
+                ;;
+            --verbose)
+                description="Be more verbose"
+                textlines=(
+        "Repeat this option to expand the verbosity of information to output."
+                    )
+                ;;
+            --version)
+                description="Print the version information"
+                textlines=(
+        "Print the program title, a short description, and the version string"
+        "at the very beginning, and exit."
+                    )
+                ;;
+        esac
+    fi
+
+    opthlp3[nopt]="$description"
+
+    local text ln
+    for ln in "${textlines[@]}"; do
+        text="$text        $ln"$'\n'
     done
-    opthlp4[nopt]="$optdoc"
+    opthlp4[nopt]="$text"
 
     ((nopt++))
 }
