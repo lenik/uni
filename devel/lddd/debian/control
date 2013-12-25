@@ -1,0 +1,16 @@
+Source: lddd
+Section: libs
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/devel/lddd
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/devel/lddd
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/devel/lddd
+
+Package: lddd
+Architecture: all
+Depends:
+    libc-bin,
+    ${misc:Depends}
+Description: See the closure of dynamic library dependencies.
