@@ -1,0 +1,84 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    #option -I --include-dir =DIR "Add include search dir"
+    option -i --include     "Expand include directives"
+    option -s --strip       "Remove empty and comment lines"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_include=0
+    opt_strip=0
+
+function setopt() {
+    case "$1" in
+        -i|--include)
+            opt_include=1;;
+        -s|--strip)
+            opt_strip=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    local am
+    local lines=()
+    local ln
+
+    for am in "$@"; do
+        [ -f "$am" ] || quit "Bad file: $am"
+        expand "$am"
+    done
+}
+
+function expand() {
+    local file="$1"
+    local lines=()
+    local incfile
+
+    readarray -t lines <"$file"
+    for ln in "${lines[@]}"; do
+        case "$ln" in
+        '')
+            [ "$opt_strip" = 1 ] && continue
+            ;;
+
+        \#*)
+            [ "$opt_strip" = 1 ] && continue
+            ;;
+
+        'include '*)
+            if [ "$opt_include" = 1 ]; then
+                read _include incfile < <(echo "$ln")
+
+                # eval makefile vars...
+                incfile="${incfile//\$(top_srcdir)/.}"
+
+                _log2 "Include $incfile..."
+                expand "$incfile"
+                continue
+            fi
+            ;;
+        esac
+
+        # Everything else...
+        echo "$ln"
+    done
+}
+
+boot "$@"
