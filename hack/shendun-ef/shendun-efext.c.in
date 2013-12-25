@@ -24,7 +24,7 @@ void decode(char *buf, int size) {
 
 #define AUTH_FILE       "@rundir@/sdefauth"
 #define AUTH_MAC_MAX    99
-#define FAILURE_MAX     5
+#define FAILURE_MAX     24
 #define RENEW_CMD       "shendun-efpoll -r"
 
 struct auth_db {
