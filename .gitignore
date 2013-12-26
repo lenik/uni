@@ -14,6 +14,7 @@
 *.orig
 *.lock
 .*.bin
+.#*
 nohup.out
 
 # Auto-tools generated
@@ -55,6 +56,16 @@ ChangeLog
 # .in-subst
 postinst
 prerm
+
+# gettext stuff
+**/po/*.gmo
+**/po/*.header
+**/po/*.sed
+**/po/*.sin
+**/po/*.template
+POTFILES
+Rules-quot
+stamp-po
 
 # Generated stuff
 itree.tex
