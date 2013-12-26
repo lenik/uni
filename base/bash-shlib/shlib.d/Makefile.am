@@ -1,4 +1,8 @@
 include ../libauto/common.am
+include ../libauto/subst-ai.am
+
+export AI_KEYFILE=
+AI_TEMPLATE=bridge
 
 dist_shlib_DATA = \
     ai \
@@ -27,5 +31,6 @@ dist_shlib_DATA = \
     term \
     time
 
-ai.img: ai.i
-	AI_KEYFILE= ${AI} -ct bridge $< >$@
+CLEANFILES= \
+    ai \
+    ai.img

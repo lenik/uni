@@ -21,8 +21,8 @@ function load-image() {
         base="$caller"
     fi
 
-    if [ -f "$dir/$base.i" ]; then
-        . "$dir/$base.i"
+    if [ -f "$dir/$base.img.ain" ]; then
+        . "$dir/$base.img.ain"
         return
     fi
 
