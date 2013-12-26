@@ -1,5 +1,6 @@
 // The core filter implementation for execfilter.
 // Written by Lenik, Nov 2013.
+#include "config.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -25,7 +26,7 @@
 #define CONFIGDIR "@configdir@"         /* The directory containing the
                                            configuration files. */
 
-#define PASS_THRU_MODE F_ALLOW          /* The default x-mode if the filter is
+#define PASS_THRU_MODE EM_ALLOW         /* The default x-mode if the filter is
                                            disabled. */
 
 int run_level = FILT_UNINIT;
@@ -196,55 +197,48 @@ static const char *parse_confs(char *script, const char *location) {
 
         case 'a':
             if (streq("allow", token)) {
-                if (conf == NULL) {
-                    log_err(tr("Program hasn't been specified yet."));
-                    continue;
-                }
-
+                if (conf == NULL) goto NO_CONF;
+                
                 char *which = path_find(p);
                 if (which != NULL)
                     p = which;
 
                 mode = get_execution_mode(conf, p);
-                mode |= F_ALLOW;
-                mode &= ~F_DENY;
+                mode |= EM_ALLOW;
+                mode &= ~EM_DENY;
                 set_execution_mode(conf, p, mode);
-                break;
+                continue;
             }
-
+            break;
+            
         case 'd':
             if (streq("default", token)) {
-                if (conf == NULL) {
-                    log_err(tr("Program hasn't been specified yet."));
-                    continue;
-                }
+                if (conf == NULL) goto NO_CONF;
 
                 if (streq("allow", p))
                     /* This should be the same as implicit rule.  Don't set
-                        F_ALLOW here. */
-                    conf->mode_all &= ~F_DENY;
+                        EM_ALLOW here. */
+                    conf->mode_all &= ~EM_DENY;
                 if (streq("deny", p))
-                    conf->mode_all |= F_DENY;
-                break;
+                    conf->mode_all |= EM_DENY;
+                continue;
             }
 
             if (streq("deny", token)) {
-                if (conf == NULL) {
-                    log_err(tr("Program hasn't been specified yet."));
-                    continue;
-                }
+                if (conf == NULL) goto NO_CONF;
 
                 char *which = path_find(p);
                 if (which != NULL)
                     p = which;
 
                 mode = get_execution_mode(conf, p);
-                mode &= ~F_ALLOW;
-                mode |= F_DENY;
+                mode &= ~EM_ALLOW;
+                mode |= EM_DENY;
                 set_execution_mode(conf, p, mode);
-                break;
+                continue;
             }
-
+            break;
+            
         case 'f':
             /* for PATH */
             if (streq(token, "for")) {
@@ -259,9 +253,9 @@ static const char *parse_confs(char *script, const char *location) {
                     g_hash_table_insert(pmap, strdup(p), conf);
                 }
                 tab = conf->modes;
-                break;
+                continue;
             }
-
+            
             /* format EXTNAME LIBNAME FN=decode */
             if (streq("format", token)) {
                 char *ext = readtok(&p);
@@ -289,9 +283,10 @@ static const char *parse_confs(char *script, const char *location) {
                     continue;
                 }
 
-                break;
+                continue;
             }
-
+            break;
+            
         case 'g':
             /* gate LIBNAME FN=gate */
             if (streq("gate", token)) {
@@ -299,15 +294,38 @@ static const char *parse_confs(char *script, const char *location) {
                     log_err(tr("Can't resolve gate."));
                     continue;
                 }
-                break;
+                continue;
             }
+            break;
 
-        default:
-            /// location, token, args
-            log_err(tr("Illegal syntax in %s: %s %s."),
-                    location, token, p);
-            /* Dont exit program, otherwise the system will be unusable. */
+        case 'l':
+            if (streq("logging", token)) {
+                if (conf == NULL) goto NO_CONF;
+
+                if (streq("none", p))
+                    conf->logging = LOG_NONE;
+                else if (streq("blocked", p))
+                    conf->logging = LOG_BLOCKED;
+                else if (streq("all", p))
+                    conf->logging = LOG_ALL;
+                else
+                    log_err(tr("Invalid logging type: %s"), p);
+                continue;
+            }
+            break;
+            
         } /* switch (token) */
+        
+        /* Dont exit program, otherwise the system will be unusable. */
+        /// format: location, token, args
+        log_err(tr("Illegal syntax in %s: %s %s."),
+                location, token, p);
+        continue;
+        
+    NO_CONF:
+        log_err(tr("Program hasn't been specified yet."));
+        continue;
+        
     } /* while: strtok_eol */
     return NULL;
 }
@@ -315,6 +333,9 @@ static const char *parse_confs(char *script, const char *location) {
 static void lazy_init() {
     if (run_level != FILT_UNINIT)
         return;
+
+    // setlocale(LC_ALL, "");
+    bindtextdomain(PACKAGE, "@localedir@");
 
     if (! pmap_load())
         return;
@@ -350,9 +371,9 @@ static void pmap_each_mode(gpointer key, gpointer value, gpointer user_data) {
 
     xmode_t mode = *(xmode_t *) value;
 
-    if (mode & F_ALLOW)
+    if (mode & EM_ALLOW)
         printf("allow ");
-    if (mode & F_DENY)
+    if (mode & EM_DENY)
         printf("deny ");
 
     printf("%s", target);
@@ -366,14 +387,14 @@ static void pmap_each_tab(gpointer key, gpointer value, gpointer user_data) {
     xmode_t m0 = conf->mode_all & conf->mask;
 
     printf("for %s\n", program);
-    switch (m0 & (F_ALLOW | F_DENY)) {
-    case F_ALLOW:
+    switch (m0 & (EM_ALLOW | EM_DENY)) {
+    case EM_ALLOW:
         printf("    order allow, deny\n");
         break;
-    case F_DENY:
+    case EM_DENY:
         printf("    order deny, allow\n");
         break;
-    case F_ALLOW | F_DENY:
+    case EM_ALLOW | EM_DENY:
         printf("    order none\n");
         break;
     }
@@ -452,34 +473,41 @@ xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
         }
     }
 
+    char ctl_bin[PATH_MAX] = "";
+    program_conf_t *ctl_conf = NULL;
+    
     while (pid != 0 && pid != -1) {
-        char psym[PATH_MAX];
-        char bin[PATH_MAX];
+        char psym[PATH_MAX] = "";
+        char bin[PATH_MAX] = "";
         int cc;
-        program_conf_t *conf;
+        program_conf_t *conf = NULL;
 
         sprintf(psym, "/proc/%d/exe", pid);
         cc = readlink(psym, bin, PATH_MAX);
 
-        if (cc == -1) {
+        if (cc == -1) {                 /* symlink problem */
             if (errno == EACCES) {
                 /* since some pids are owned by root, this is very common. */
                 // log_warn("Error access %s, ignored.", psym);
             } else {
+                /* (unexpected) */
                 log_warn(tr("The link %s is broken, pass thru forced."), psym);
                 return PASS_THRU_MODE;
             }
-        } else {
+        } else {                        /* symlink ok */
             bin[cc] = '\0';
             conf = g_hash_table_lookup(pmap, bin);
             if (conf) {
+                strcpy(ctl_bin, bin);
+                ctl_conf = conf;
+                
                 xmode_t m = get_execution_mode(conf, obj_norm);
                 log_debug(tr("Mode of %s for [%d] %s: %x\n"),
                           obj_norm, pid, bin, m);
                 all |= m;
 
                 /* explicit deny overrides anything else. */
-                if ((all & (F_ALLOW | F_DENY)) == F_DENY)
+                if ((all & (EM_ALLOW | EM_DENY)) == EM_DENY)
                     break;
             }
         }
@@ -487,22 +515,29 @@ xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
         pid = getppidof(pid);
     }
 
-    if ((all & (F_ALLOW | F_DENY)) == F_DENY) {
-        log_info("%s() denied: %s", src, obj);
-        log_notice(tr("Execution Blocked: %s"), obj);
+    if ((all & (EM_ALLOW | EM_DENY)) == EM_DENY) {
+        log_info(tr("%s() denied: %s"), src, obj);
+        if (ctl_conf == NULL || ctl_conf->logging >= LOG_BLOCKED) {
+            log_notice(tr("Execution Blocked: %s -> %s"),
+                       *ctl_bin ? ctl_bin : src, obj);
+        }
     } else {
         char modes[200] = "";
 
-        if (all & F_ALLOW)
+        if (all & EM_ALLOW)
             strcat(modes, " ALLOW");
-        if (all & F_DENY)
+        if (all & EM_DENY)
             strcat(modes, " DENY");
-        if (all & ~(F_ALLOW | F_DENY))
+        if (all & ~(EM_ALLOW | EM_DENY))
             strcat(modes, " OTHER");
         if (!*modes)
             sprintf(modes, "(none)");
 
         log_debug(tr("Execution mode for %s:%s\n"), obj_norm, modes);
+        if (ctl_conf == NULL || ctl_conf->logging >= LOG_ALL) {
+            log_notice(tr("Execution Allowed: %s -> %s"),
+                       *ctl_bin ? ctl_bin : src, obj);
+        }
     }
     return all;
 }
@@ -514,7 +549,7 @@ xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
     /* any re-entrant execution is strongly allowed. */
     if (calling) {
         log_debug(tr("Re-entrant is avoid: %s"), obj);
-        return F_ALLOW;
+        return EM_ALLOW;
     }
 
     calling = true;

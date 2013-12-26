@@ -26,10 +26,14 @@ lib1_LTLIBRARIES = \
     libefstub.la
 
 libexecfilter_la_SOURCES = \
+    filter.h \
     filter.c \
+    log.h \
+    trie.h \
     trie.c \
     posix/exec.c \
     posix/popen.c \
+    posix/posix_fn.h \
     posix/spawn.c \
     posix/system.c
 
@@ -51,11 +55,6 @@ dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
-    filter.h \
-    log.h \
-    trie.h \
-    posix/posix_fn.h
-
+EXTRA_DIST =
 CLEANFILES = \
     ${dist_setup_SCRIPTS}

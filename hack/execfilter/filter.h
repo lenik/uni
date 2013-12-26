@@ -25,12 +25,17 @@ typedef void (*encode_fn)(char *, size_t);
 /* Execution mode bits. */
 typedef int xmode_t;
 
-#define F_ALLOW 1
-#define F_DENY 2
-#define F_INTR 128
+#define EM_ALLOW 1
+#define EM_DENY 2
+#define EM_INTR 128
+
+#define LOG_NONE 0
+#define LOG_BLOCKED 1
+#define LOG_ALL 2
 
 typedef struct _program_conf_t {
     const char *name;                   /* program name */
+    int logging;                        /* logging execution events */
     int mode_all;                       /* the default execution mode */
     int mask;                           /* execution mode mask */
     GHashTable *modes;                  /* norm path => exection mode */
@@ -60,8 +65,8 @@ void pmap_dump();
    If the parameter `conf` is set to NULL, the config for current process is
    used.
 
-   The return value is encoded in bit flags. F_ALLOW means the entry is explicit
-   allowed, and F_DENY means the entry is explicit denied. The default bahavior
+   The return value is encoded in bit flags. EM_ALLOW means the entry is explicit
+   allowed, and EM_DENY means the entry is explicit denied. The default bahavior
    is undefined. */
 xmode_t get_execution_mode(program_conf_t *conf, const char *norm_path);
 
