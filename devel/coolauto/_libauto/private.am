@@ -32,8 +32,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 include $(top_srcdir)/libauto/project.am
+include $(top_srcdir)/libauto/subst-ai.am
 
 dist-hook:
-	cd ${distdir} && sedit Makefile.am amexpand -isH Makefile.am
+	cd ${distdir} && sedit Makefile.am amexpand -isp Makefile.am
 	cd ${distdir} && rm -fr libauto/
 

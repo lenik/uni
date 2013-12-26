@@ -31,10 +31,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-AI=ai
-# Default AI_TEMPLATE...
-export AI_KEYFILE=${srcdir}/README
-
 %: %.in Makefile
 	rm -f "$@"
 	$(do_subst) <"$<" >"$@"
@@ -52,25 +48,3 @@ export AI_KEYFILE=${srcdir}/README
 	$(do_subst) <"$<" >"$@"
 	chmod --reference "$<" "$@"
 	chmod -w "$@"
-
-%: %.ain Makefile
-	rm -f "$@"
-	AI_KEYFILE= $(AI) -ct $(AI_TEMPLATE) <($(do_subst) <"$<") >"$@"
-	chmod --reference "$<" "$@"
-	chmod -w "$@"
-
-%.img: %.i
-	rm -f "$@"
-	$(AI) -ct $(AI_TEMPLATE) "$<" >"$@"
-	chmod --reference "$<" "$@"
-	chmod -w "$@"
-
-%.1: %
-	help2man -n "$<" -s 1 -S boDz -N -o "$@" "./$<"
-
-%.6: %
-	help2man -n "$<" -s 6 -S boDz -N -o "$@" "./$<"
-
-%.8: %
-	help2man -n "$<" -s 8 -S boDz -N -o "$@" "./$<"
-
