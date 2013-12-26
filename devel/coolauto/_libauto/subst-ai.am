@@ -33,7 +33,7 @@
 
 AI=ai
 # Default AI_TEMPLATE...
-export AI_KEYFILE=${srcdir}/README
+export AI_KEYFILE=${top_srcdir}/README
 
 %: %.ain Makefile
 	rm -f "$@"
@@ -41,8 +41,8 @@ export AI_KEYFILE=${srcdir}/README
 	chmod --reference "$<" "$@"
 	chmod -w "$@"
 
-%.img: %.i
+%.img: %.img.ain Makefile
 	rm -f "$@"
-	$(AI) -ct $(AI_TEMPLATE) "$<" >"$@"
+	$(AI) -ct $(AI_TEMPLATE) <($(do_subst) <"$<") >"$@"
 	chmod --reference "$<" "$@"
 	chmod -w "$@"
