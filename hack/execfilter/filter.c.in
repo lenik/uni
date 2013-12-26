@@ -334,7 +334,10 @@ static void lazy_init() {
     if (run_level != FILT_UNINIT)
         return;
 
-    // setlocale(LC_ALL, "");
+    /* Warning: This could affect the global locale environ. */
+    /* Warning: It seems no reason to disable it, anyway. */
+    setlocale(LC_ALL, "");
+    
     bindtextdomain(PACKAGE, "@localedir@");
 
     if (! pmap_load())
