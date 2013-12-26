@@ -1,0 +1,142 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Lenik
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: execfilter 1.4.0\n"
+"Report-Msgid-Bugs-To: xjl-bug@99jsj.com\n"
+"POT-Creation-Date: 2013-12-26 12:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: filter.c.in:129
+#, c-format
+msgid "Error: Failed to get file stat: %s"
+msgstr ""
+
+#: filter.c.in:136
+#, c-format
+msgid "Insufficient memory to read config file %s."
+msgstr ""
+
+#: filter.c.in:142
+#, c-format
+msgid "Failed to open file %s: "
+msgstr ""
+
+#: filter.c.in:148
+msgid "Read incomplete"
+msgstr ""
+
+#: filter.c.in:264
+msgid "Extension name isn't specified."
+msgstr ""
+
+#: filter.c.in:272
+#, c-format
+msgid "Format %s is already defined as %s::%s."
+msgstr ""
+
+#: filter.c.in:283
+#, c-format
+msgid "Can't resolve format %s."
+msgstr ""
+
+#: filter.c.in:295
+msgid "Can't resolve gate."
+msgstr ""
+
+#: filter.c.in:313
+#, c-format
+msgid "Invalid logging type: %s"
+msgstr ""
+
+#: filter.c.in:322
+#, c-format
+msgid "Illegal syntax in %s: %s %s."
+msgstr ""
+
+#: filter.c.in:327
+msgid "Program hasn't been specified yet."
+msgstr ""
+
+#: filter.c.in:362
+#, c-format
+msgid "Warning: %s isn't configured, yet.\n"
+msgstr ""
+
+#: filter.c.in:464
+#, c-format
+msgid "Query execution(%s) mode for %s"
+msgstr ""
+
+#: filter.c.in:467
+#, c-format
+msgid "Invoke gate fn: %s::%s"
+msgstr ""
+
+#: filter.c.in:470
+msgid "Gate returned. continue..."
+msgstr ""
+
+#: filter.c.in:472
+#, c-format
+msgid "Disabled by the gate. allow all: %s"
+msgstr ""
+
+#: filter.c.in:495
+#, c-format
+msgid "The link %s is broken, pass thru forced."
+msgstr ""
+
+#: filter.c.in:506
+#, c-format
+msgid "Mode of %s for [%d] %s: %x\n"
+msgstr ""
+
+#: filter.c.in:520
+#, c-format
+msgid "%s() denied: %s"
+msgstr ""
+
+#: filter.c.in:522
+#, c-format
+msgid "Execution Blocked: %s -> %s"
+msgstr ""
+
+#: filter.c.in:537
+#, c-format
+msgid "Execution mode for %s:%s\n"
+msgstr ""
+
+#: filter.c.in:539
+#, c-format
+msgid "Execution Allowed: %s -> %s"
+msgstr ""
+
+#: filter.c.in:552
+#, c-format
+msgid "Re-entrant is avoid: %s"
+msgstr ""
+
+#: filter.c.in:574
+msgid "Library name isn't specified."
+msgstr ""
+
+#: filter.c.in:592
+#, c-format
+msgid "Failed to open library %s"
+msgstr ""
+
+#: filter.c.in:599
+#, c-format
+msgid "No such function in library %s: %s."
+msgstr ""

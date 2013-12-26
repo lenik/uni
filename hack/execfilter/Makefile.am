@@ -1,6 +1,7 @@
 include libauto/private.am
 include libauto/compat.am
 include libauto/env/tex.am
+include po.am
 
 configdir = ${sysconfdir}/execfilter.d
 
@@ -8,10 +9,10 @@ do_subst += \
     -e 's,[@]configdir[@],${configdir},g'
 
 ACLOCAL_AMFLAGS = -I m4
-AM_CPPFLAGS = $(GLIB_CFLAGS)
+AM_CPPFLAGS = $(GLIB_CFLAGS) -DLOCALEDIR=\"$(localedir)\"
 AM_CFLAGS = -Wall -g -Og
 
-SUBDIRS = test
+SUBDIRS = po test
 
 bin_PROGRAMS = \
     ef-dump
@@ -19,7 +20,7 @@ bin_PROGRAMS = \
 ef_dump_SOURCES = ef-dump.c ${libexecfilter_la_SOURCES}
 # ef_dump_LDADD = -lexecfilter
 ef_dump_CFLAGS = ${AM_CFLAGS}
-ef_dump_LDADD = ${GLIB_LIBS} -lbas -ldl
+ef_dump_LDADD = ${GLIB_LIBS} $(LIBINTL) -lbas -ldl
 
 lib1_LTLIBRARIES = \
     libexecfilter.la \
