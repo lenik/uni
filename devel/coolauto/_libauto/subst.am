@@ -99,3 +99,7 @@ do_subst += \
         -e 's,[@]varlibdir[@],$(varlibdir),g' \
         -e 's,[@]wardir[@],$(wardir),g' \
         -e 's/master-file/generated-file, please do not edit/'
+
+# localedir is defined with AM_GNU_GETTEXT
+do_subst += \
+        -e 's,[@]localedir[@],$(localedir),g'
