@@ -1,6 +1,10 @@
 # -*- mode: sh -*-
 # vim: set filetype=sh :
 
+LSB_RELEASE=$(which lsb_release 2>/dev/null)
+YANGWEI=@pkgdatadir@/yangwei
+[ -x "$YANGWEI" ] || YANGWEI=./yangwei
+
 start_url=http://sd.shenduncn.com/sds.php
 auth_file="$rundir/sdefauth"
 mac_lot=
@@ -13,7 +17,7 @@ function main() {
             [ "${k:0:1}" = '#' ] && continue # comment lines
             declare $k="$v"
             _log2 "$k=$v"
-        done < <(yangwei -d "$auth_file")
+        done < <($YANGWEI -d "$auth_file")
     fi
 
     net_failure=
@@ -37,11 +41,19 @@ function main() {
 
     local req
     if [ -z "$auth_mac" ]; then
-        req="register: $mac_norm"
+        req=$(
+            echo register: $mac_norm
+            echo os: $(uname -srm)
+            if [ -x "$LSB_RELEASE" ]; then
+                echo linux: $($LSB_RELEASE -sd)
+            fi
+        )
     else
         # no need to re-validate the old mac if they are mismatch.
         # just validate the new one.
-        req="validate: $mac_norm"
+        req=$(
+            echo validate: $mac_norm
+        )
     fi
 
     CR=$'\r'
@@ -100,7 +112,7 @@ function get_srv_url() {
         fi
 
         IFS='|' read srv_ip _ srv_port _ srv_path \
-            < <(echo "$resp_enc" | base64 -d | yangwei -d)
+            < <(echo "$resp_enc" | base64 -d | $YANGWEI -d)
 
         echo "http://$srv_ip:$srv_port/$srv_path"
     fi
@@ -111,12 +123,12 @@ function send() {
     local url="$1"
     shift
 
-    local req=$(echo -ne "$@" | yangwei -e | base64)
+    local req=$(echo -ne "$@" | $YANGWEI -e | base64)
     _log2 "POST: $req ($*)"
 
     local data
     read data < <(wget -qO- --post-data "$req" "$url")
-    echo -n "$data" | base64 -d | yangwei -d
+    echo -n "$data" | base64 -d | $YANGWEI -d
 }
 
 function get_hw_mac() {
@@ -185,7 +197,7 @@ function save_auth() {
     (( auth_serial ++ ))
     _log2 "Updating $auth_file (serial $auth_serial)."
 
-    cat <<EOF | yangwei -e >"$auth_file"
+    cat <<EOF | $YANGWEI -e >"$auth_file"
 # shendun authentication file
 # updated at `date`
 auth_configs    = $auth_configs

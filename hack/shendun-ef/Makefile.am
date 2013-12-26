@@ -5,16 +5,18 @@ AI_TEMPLATE=alien
 
 configdir = ${sysconfdir}/execfilter.d
 cronhourlydir = ${sysconfdir}/cron.hourly
+specbindir = ${pkgdatadir}
 rundir = /var/run
 
 do_subst += \
     -e 's,[@]configdir[@],${configdir},g' \
     -e 's,[@]cronhourlydir[@],${cronhourlydir},g' \
+    -e 's,[@]specbindir[@],${specbindir},g' \
     -e 's,[@]rundir[@],${rundir},g'
 
 SUBDIRS = test
 
-bin_PROGRAMS = \
+specbin_PROGRAMS = \
     yangwei
 
 yangwei_SOURCES = yangwei.c ywcrypt.c
