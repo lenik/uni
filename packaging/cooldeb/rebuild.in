@@ -95,7 +95,7 @@ function main() {
             _log1 "Commit changes: $ch"
 
             # swapox: remove "override entry" in stderr.
-            swapox dput -f dlocal "$ch" |
+            swapox dput -f bodz "$ch" |
                 swapox grep -v "override entry"
         done
 

@@ -18,7 +18,9 @@ Depends:
     debhelper,
     devscripts,
     dh-make,
-    dlocal,
+    dput,
+    gnupg,
+    gnupg-agent,
     vcscmds,
     ${misc:Depends}
 Description: Debian package by very clean manner.
