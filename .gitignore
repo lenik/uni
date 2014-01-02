@@ -67,6 +67,9 @@ POTFILES
 Rules-quot
 stamp-po
 
+ABOUT-NLS
+config.rpath
+
 # Generated stuff
 itree.tex
 

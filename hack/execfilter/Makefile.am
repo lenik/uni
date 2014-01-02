@@ -1,7 +1,6 @@
 include libauto/private.am
 include libauto/compat.am
 include libauto/env/tex.am
-include po.am
 
 configdir = ${sysconfdir}/execfilter.d
 
@@ -50,12 +49,12 @@ dist_syslogconf_DATA = \
 dist_doc_DATA = manual.pdf
 
 manual.pdf: main.tex itree.tex
-	cooltex -a -jmanual -T$(XELATEX) main.tex
+	-cooltex -a -jmanual -T$(XELATEX) main.tex
 
 dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST =
+EXTRA_DIST = config.rpath 
 CLEANFILES = \
     ${dist_setup_SCRIPTS}
