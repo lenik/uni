@@ -65,6 +65,21 @@ function main() {
         fi
     fi
 
+    if [ -d po/ ]; then
+        gettext_miss=
+        for f in ABOUT-NLS config.rpath; do
+            if [ ! -f "$f" ]; then
+                gettext_miss=1
+                break
+            fi
+        done
+
+        if [ "$gettext_miss" = 1 ]; then
+            _log1 "Prepare sources to use gettext"
+            gettextize -f --symlink
+        fi
+    fi
+
     if [ ! -f Makefile ] && [ -x ./configure ]; then
         _log1 "Generate Makefile by autotools..."
         if ./configure; then
