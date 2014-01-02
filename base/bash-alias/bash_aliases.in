@@ -1,0 +1,11 @@
+# vim: set filetype=sh :
+
+aliasdir=@aliasdir@
+compatdir=@sysconfdir@/bash_aliases.d
+
+shopt -s nullglob
+for f in $aliasdir/*.sh $compatdir/*.sh; do
+    if [ -f $f ]; then
+        . $f
+    fi
+done

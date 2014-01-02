@@ -13,7 +13,7 @@ Provides: coolvim
 Architecture: any
 Depends:
     bash-shlib,
-    bash-aliases,
+    bash-alias,
     grep,
     sudo,
     vim-tiny,

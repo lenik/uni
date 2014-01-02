@@ -1,6 +1,6 @@
 include libauto/project.am
 
-aliases_DATA =
+alias_DATA =
 
 dist_sysconf_DATA = \
     bash_aliases

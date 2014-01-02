@@ -14,7 +14,7 @@ Architecture: all
 Depends:
     apt,
     aptitude,
-    bash-aliases,
+    bash-alias,
     bash-shlib,
     csvtool,
     dpkg,

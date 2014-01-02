@@ -14,7 +14,7 @@ Architecture: all
 Depends:
     subversion,
     bash-shlib,
-    bash-aliases,
+    bash-alias,
     ${misc:Depends}
 Suggests:
     svn-enh-gui

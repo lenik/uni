@@ -1,7 +1,7 @@
 xjl-amisupport      amiutils
 xjl-aptutils        coolapt
 xjl-autover         autover
-xjl-bash-aliases    bash-aliases
+xjl-bash-alias      bash-alias
 xjl-bash-shlib      bash-shlib
 xjl-cdtree          cdtree
 xjl-configutils     configutils

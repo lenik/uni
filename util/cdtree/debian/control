@@ -12,7 +12,7 @@ Package: cdtree
 Provides: cdtree
 Architecture: all
 Depends:
-    bash-aliases,
+    bash-alias,
     bash-shlib,
     sed,
     tree,

@@ -12,7 +12,7 @@ Package: filestats
 Architecture: all
 Depends:
     bash-shlib,
-    bash-aliases,
+    bash-alias,
     file,
     grep,
     ${misc:Depends}

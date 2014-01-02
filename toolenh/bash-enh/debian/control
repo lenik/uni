@@ -16,6 +16,6 @@ Depends:
     bash-shlib,
     ${misc:Depends}
 Recommends:
-    bash-aliases,
+    bash-alias,
     cdtree
 Description: Cool bash utilities by Lenik.

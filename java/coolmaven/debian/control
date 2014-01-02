@@ -12,7 +12,7 @@ Package: coolmaven
 Provides: coolmaven
 Architecture: any
 Depends:
-    bash-aliases,
+    bash-alias,
     configutils,
     graphviz,
     grep,

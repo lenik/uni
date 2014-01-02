@@ -11,7 +11,7 @@ Architecture: all
 Description: Lenik's cool base tools.
     This package brings Lenik's cool base tools to you.
 Recommends:
-    bash-aliases,
+    bash-alias,
     bash-shlib,
     configutils,
     grub-enh,

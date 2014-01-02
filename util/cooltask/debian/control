@@ -12,6 +12,6 @@ Package: cooltask
 Architecture: all
 Depends:
     bash-shlib,
-    bash-aliases,
+    bash-alias,
     ${misc:Depends}
 Description: Helper utitilities for task switching and logs

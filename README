@@ -43,7 +43,7 @@ It may divide into following categories:
 
     * Enhancement for existing tools
         (toolenh/*)
-        These are mostly bash-aliases and bash-completion.d/* for easing purpose.
+        These are mostly bash-alias and bash-completion.d/* for easing purpose.
 
     * Lapiota win32/cygwin/linux misc tools
         Lapiota is a very old toolset (orig. named Diret) I worked on from 1997 maybe.
