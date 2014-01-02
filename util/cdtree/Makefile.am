@@ -9,7 +9,7 @@ dist_bin_SCRIPTS = \
 dist_shsrc_SCRIPTS = \
     cd-tree
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     bash_aliases.d/cd-tree.sh
 
 dist_completion_DATA = \

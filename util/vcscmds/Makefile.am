@@ -5,7 +5,7 @@ dist_bin_SCRIPTS = \
     vcscmd-ignore \
     vcsdirs
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     50vcscmds.sh
 
 dist_completion_DATA = \

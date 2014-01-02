@@ -27,7 +27,7 @@ dist_vimconf_DATA = \
     vimrc.cool \
     reload.cfg
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     aliases.d/coolvim.sh
 
 dist_profile_DATA = \

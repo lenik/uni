@@ -4,7 +4,7 @@ bcdir = ${datadir}/doc/bc
 
 do_subst += -e 's,@bcdir@,$(bcdir),g'
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     dirs.sh \
     envop.sh \
     maths.sh \

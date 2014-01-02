@@ -46,10 +46,10 @@ dist_man_MANS = \
 dist_svnunion_DATA = \
     svn_union.d/README
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     coolsvn.sh
 
-aliases_DATA = \
+alias_DATA = \
     sw-svn.sh
 
 EXTRA_DIST = \

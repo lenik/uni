@@ -8,7 +8,7 @@ dist_bin_SCRIPTS = \
     settermtitle \
     sgr256
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     stty-aliases.sh
 
 dist_man_MANS = \

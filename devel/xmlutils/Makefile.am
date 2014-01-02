@@ -4,7 +4,7 @@ dist_bin_SCRIPTS = \
     xmltran \
     xml2vi
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     xmlutils.sh
 
 dist_setup_SCRIPTS = \

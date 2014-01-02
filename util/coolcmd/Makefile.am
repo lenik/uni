@@ -2,7 +2,7 @@ include libauto/project.am
 
 cmtlibdir = ${perllibdir}/cmt
 
-dist_aliases_SCRIPTS = \
+dist_alias_DATA = \
     coolcmd.sh
 
 dist_cmtlib_DATA = \

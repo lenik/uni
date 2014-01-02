@@ -5,7 +5,7 @@ SUBDIRS = bash_completion.d assembly
 bin_PROGRAMS = \
     get-common-prefix
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     coolmaven.sh
 
 dist_bin_SCRIPTS = \

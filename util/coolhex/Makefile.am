@@ -11,7 +11,7 @@ dist_bin_SCRIPTS = \
     xdiff \
     xpatch
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     aliases.d/coolhex.sh
 
 dist_man_MANS = \

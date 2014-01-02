@@ -2,7 +2,7 @@ include libauto/project.am
 
 progmodesdir = ${lispdir}/progmodes
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     emacs-aliases.sh
 
 dist_lisp_LISP = \

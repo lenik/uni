@@ -12,7 +12,7 @@ dist_man_MANS = \
     autoreconf2.1 \
     autounconf.1
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     aliases.d/autotools.sh
 
 dist_pkgdata_DATA = \

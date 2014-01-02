@@ -12,7 +12,7 @@ dist_qlogconf_DATA = \
     qlog.conf/focus \
     qlog.conf/priority
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     cooltask.sh
 
 dist_completion_DATA = \

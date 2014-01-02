@@ -5,7 +5,7 @@ dist_bin_SCRIPTS = \
     pdfmon \
     treetex
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     cooltex.sh
 
 dist_man_MANS = \

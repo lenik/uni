@@ -21,7 +21,7 @@ dist_man_MANS = \
 
 dwhich.8:
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     aptutils.sh
 
 dist_completion_DATA = \

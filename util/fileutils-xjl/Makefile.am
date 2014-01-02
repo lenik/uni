@@ -1,6 +1,6 @@
 include libauto/project.am
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     fileutils.sh
 
 dist_bin_SCRIPTS = \

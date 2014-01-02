@@ -1,1 +1,1 @@
-alias -- -svn='. @aliasesdir@/coolsvn.sh'
+alias -- -svn='. @aliasdir@/coolsvn.sh'

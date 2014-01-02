@@ -23,7 +23,7 @@ dist_bin_SCRIPTS = \
 bin_SCRIPTS = \
     dh_add_missing
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     cooldeb.sh
 
 dist_completion_DATA = \

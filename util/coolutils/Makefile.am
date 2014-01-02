@@ -26,7 +26,7 @@ dist_bin_SCRIPTS = \
 dist_completion_DATA = \
     bash_completion.d/coolutils.sh
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     bash_aliases.d/coolutils.sh
 
 dist_man_MANS = \

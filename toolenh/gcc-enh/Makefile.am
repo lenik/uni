@@ -4,7 +4,7 @@ dist_bin_SCRIPTS = \
     gcc-eval \
     gcc-which
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     bash_aliases.d/gcc-enh.sh
 
 dist_completion_DATA = \

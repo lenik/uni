@@ -15,7 +15,7 @@ dist_bin_SCRIPTS = \
     keepdirs \
     svn2gits
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     10git-enh.sh \
     sw-git.sh
 

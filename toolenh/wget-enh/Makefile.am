@@ -20,7 +20,7 @@ dist_bin_SCRIPTS = \
     wgetc \
     wgetc-url
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     coolwget.sh
 
 dist_man_MANS = \

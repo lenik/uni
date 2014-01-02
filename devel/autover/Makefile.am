@@ -28,7 +28,7 @@ dist_doc_DATA = \
 dist_pkgdata_DATA = \
     VERSION.template
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     aliases.d/autover.sh
 
 EXTRA_DIST = verinit.in

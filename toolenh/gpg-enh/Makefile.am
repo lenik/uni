@@ -10,7 +10,7 @@ dist_bin_SCRIPTS = \
     gpgf \
     gpgf-passwd
 
-dist_aliases_DATA = coolgpg.sh
+dist_alias_DATA = coolgpg.sh
 
 dist_man_MANS = \
     gennk.1

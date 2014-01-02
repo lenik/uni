@@ -1,6 +1,6 @@
 include libauto/project.am
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     svnguis.sh
 
 dist_setup_SCRIPTS = \

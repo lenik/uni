@@ -16,7 +16,7 @@ dist_bin_SCRIPTS = \
 #dist_samples_DATA = \
 #    samples/Makefile
 
-dist_aliases_DATA = \
+dist_alias_DATA = \
     coolmake.sh
 
 dist_man_MANS = \
