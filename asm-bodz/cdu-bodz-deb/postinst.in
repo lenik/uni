@@ -37,6 +37,7 @@ lineconf -tm "/etc/hosts: Resolve deb.bodz.net to localhost" \
     "127.0.0.1 deb.bodz.net"
 
 echo "apache2: Enable bodz-deb site"
+    a2enmod dav_fs
     a2ensite bodz-deb.conf
     /etc/init.d/apache2 reload
 

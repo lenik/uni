@@ -4,18 +4,25 @@
     : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
 
     . shlib-import cliboot
-    option -b --batch-mode  "Build only, don't upgrade the system"
+    option -b --batch-mode          "Build only, don't upgrade the system"
+    option -D --distribution =DIST  "Set distribution name"
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
 
     batch_mode=
+    distribution=
+    rebuildopts=()
 
 function setopt() {
     case "$1" in
         -b|--batch-mode)
             batch_mode=1;;
+        -D|--distribution)
+            distribution="$2"
+            rebuildopts=("${rebuildopts[@]}" -D "$distribution")
+            ;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -54,7 +61,7 @@ function main() {
 
     [ -f configure.ac ] && autover
 
-    if ! rebuild -i; then
+    if ! rebuild -i "${rebuildopts[@]}"; then
         echo Redist/build failed.
         exit 1
     fi

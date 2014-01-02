@@ -7,6 +7,7 @@
     option -d --vcs-diff    "Refresh changed packages in working checkout"
     option -u --vcs-update  "Refresh packages will be updated by VCS"
     option -U --unconf      "Do autounconf before builds"
+    option -D --distribution =DIST "Set distribution name"
     option -q --quiet
     option -v --verbose
     option -h --help
@@ -15,6 +16,8 @@
     vcs_diff=
     vcs_update=
     unconf=
+    distribution=
+    rebuildopts=()
 
 function setopt() {
     case "$1" in
@@ -24,6 +27,10 @@ function setopt() {
             vcs_update=1;;
         -U|--unconf)
             unconf=1;;
+        -D|--distribution)
+            distribution="$2"
+            rebuildopts=("${rebuildopts[@]}" -D "$distribution")
+            ;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -82,7 +89,7 @@ function main() {
     done <"$packages"
 
     _log1 "Start build of each package"
-    eachdir -vs "$packages" rebuild -i
+    eachdir -vs "$packages" rebuild -i "${rebuildopts[@]}"
 
     _log1 "End of all builds"
     rm -f $packages

@@ -4,7 +4,8 @@
     : ${PROGRAM_SYNTAX:="[OPTIONS] [--] PACKAGE-DIR"}
 
     . shlib-import cliboot
-    option -i --incr        "Increase debian/changelog version"
+    option -i --incr                "Increase debian/changelog version"
+    option -D --distribution =DIST  "Set distribution name"
     option -q --quiet
     option -v --verbose
     option -h --help
@@ -15,11 +16,14 @@
     shopt -s nullglob
 
     incr=0; [ -f debian/changelog ] || incr=1
+    distribution=testing
 
 function setopt() {
     case "$1" in
         -i|--incr)
             incr=1;;
+        -D|--distribution)
+            distribution="$2";;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -34,7 +38,6 @@ function setopt() {
 }
 
 function main() {
-
     if [ ! -f configure ]; then
         reconf=1
         if ! autoreconf2 -is; then
@@ -57,7 +60,7 @@ function main() {
 
     # increase debian version by debian/changelog
     if [ "$incr" = 1 ]; then
-        dh_incr
+        dh_incr -D "$distribution"
     fi
 
     if ! debuild --no-tgz-check; then
