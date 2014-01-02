@@ -2,13 +2,8 @@
 # master-file
 
 bashrc=@sysconfdir@/bash.bashrc
-a_init=@sysconfdir@/bash_aliases
+bash_alias=@sysconfdir@/bash_alias
 
-echo -n "Add $a_init to start up... "
-    if lineconf -et $bashrc \
-            COOLBASH::a_init "if [ -f $a_init ]; then . $a_init; fi"
-    then
-        echo Done
-    else
-        echo Skipped
-    fi
+lineconf -tm "Add $bash_alias to start up... " \
+    $bashrc @bash-alias \
+    "if [ -f $bash_alias ]; then . $bash_alias; fi"

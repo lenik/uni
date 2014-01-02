@@ -2,12 +2,8 @@
 # master-file
 
 bashrc=@sysconfdir@/bash.bashrc
-a_init=@sysconfdir@/bash_aliases
-echo -n "Remove $a_init from start up... "
-    if lineconf -ekt $bashrc COOLBASH::a_init; then
-        echo Done
-    else
-        echo Skipped
-    fi
+bash_alias=@sysconfdir@/bash_aliases
+lineconf -ktm "Remove $bash_alias from start up... " \
+    $bashrc @bash-alias
 
 exit 0
