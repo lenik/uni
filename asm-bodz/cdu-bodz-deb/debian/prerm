@@ -2,7 +2,7 @@
 # see: dh_installdeb(1)
 # see: http://www.debian.org/doc/debian-policy/
 set -e
-PACKAGE_NAME=dlocal
+PACKAGE_NAME=cdu-bodz-deb
 SCRIPT=/usr/share/setup/$PACKAGE_NAME/prerm
 
 #        * <prerm> `remove'

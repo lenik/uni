@@ -1,20 +1,19 @@
-Source: dlocal
+Source: cdu-bodz-deb
 Section: devel
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/devel/dlocal
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk/devel/dlocal
-Vcs-Browser: http://svn.bodz.net/uni/trunk/devel/dlocal
+Homepage: http://uni.bodz.net/devel/cdu-bodz-deb
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk/devel/cdu-bodz-deb
+Vcs-Browser: http://svn.bodz.net/uni/trunk/devel/cdu-bodz-deb
 
-Package: dlocal
+Package: cdu-bodz-deb
 Architecture: all
 Depends:
     apache2,
-    dput,
-    gnupg,
-    gnupg-agent,
     mini-dinstall,
     ${misc:Depends}
-Description: Local debian development support.
+Recommends:
+    dnotify
+Description: Server configuration for deb.bodz.net.

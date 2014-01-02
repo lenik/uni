@@ -1,52 +1,54 @@
 #!/bin/sh
 # master-file
 
-echo "Set permission of /var/lib/dlocal/mini-dinstall/incoming"
-install -d -m 2775 -o root -g dev /var/lib/dlocal
-install -d -m 2775 -o root -g dev /var/lib/dlocal/mini-dinstall
-install -d -m 2775 -o root -g dev /var/lib/dlocal/mini-dinstall/incoming
+echo "Set permission of /repo/deb/mini-dinstall/incoming"
+    #install -d -m 2775 -o root      -g dev /repo/deb
+    #install -d -m 2775 -o root      -g dev /repo/deb/mini-dinstall
+    install -d -m 2775 -o www-data  -g dev /repo/deb/mini-dinstall/incoming
 
-if ! grep -q '\[dlocal\]' /etc/dput.cf; then
-    echo "Create new [dlocal] section"
+if ! grep -q '\[bodz\]' /etc/dput.cf; then
+    echo "Create new [bodz] section"
     cat <<EOM >>/etc/dput.cf
 
-[dlocal]
-# @dlocal::method
-method          = local
-# @dlocal::incoming
-incoming        = /var/lib/dlocal/mini-dinstall/incoming
-# @dlocal::run
-run_dinstall    = 0
-# @dlocal::post
-post_upload_command =
+[bodz]
+# @bodz::fqdn
+fqdn            = deb.bodz.net
+# @bodz::method
+method          = http
+# @bodz::incoming
+incoming        = /upload
 EOM
 fi
 
-lineconf -tm "Config [dlocal] incoming location" \
-    /etc/dput.cf @dlocal::incoming \
-    "incoming        = /var/lib/dlocal/mini-dinstall/incoming"
+lineconf -tm "Config dput [bodz] fqdn" \
+    /etc/dput.cf @bodz::fqdn \
+    "fqdn            = deb.bodz.net"
 
-lineconf -tm "Config [dlocal] post_upload_command" \
-    /etc/dput.cf @dlocal::post \
-    "post_upload_command = /usr/bin/mini-dinstall --batch /var/lib/dlocal"
+lineconf -tm "Config dput [bodz] method" \
+    /etc/dput.cf @bodz::method \
+    "method          = http"
 
-lineconf -tm "Add dlocal to /etc/hosts" \
-    /etc/hosts @host::dlocal \
-    "127.0.0.1 dlocal"
+lineconf -tm "Config dput [bodz] incoming location" \
+    /etc/dput.cf @bodz::incoming \
+    "incoming        = /upload"
 
-echo "Turn on dlocal site"
-    a2ensite dlocal.site
+lineconf -tm "/etc/hosts: Resolve deb.bodz.net to localhost" \
+    /etc/hosts @host::deb.bodz.net \
+    "127.0.0.1 deb.bodz.net"
+
+echo "apache2: Enable bodz-deb site"
+    a2ensite bodz-deb.conf
     /etc/init.d/apache2 reload
 
-local_list=/etc/apt/sources.list.d/local.list
+list=/etc/apt/sources.list.d/bodz.list
 # release=`lsb_release -cs`
-release=unstable
-    lineconf -tm "Add to local.list: deb dlocal $release/" \
-        $local_list @deb::dlocal \
-        "deb     http://dlocal/ $release/"
-
-    lineconf -tm "Add to local.list: deb-src dlocal $release/" \
-        $local_list @deb-src::dlocal \
-        "deb-src http://dlocal/ $release/"
+for section in stable testing unstable; do
+    lineconf -tm "Configure apt bodz.list ($section)" \
+        $list @bodz::$section \
+        "deb     http://deb.bodz.net/ $section/"
+    lineconf -tm "Configure apt bodz.list ($section) src" \
+        $list @bodz::$section-src \
+        "deb-src http://deb.bodz.net/ $section/"
+done
 
 exit 0

@@ -6,10 +6,11 @@ dist_sysconf_DATA = \
     mini-dinstall.conf
 
 dist_sites_DATA = \
-    dlocal.conf
+    bodz-deb.conf
 
 dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-CLEANFILES = ${dist_setup_SCRIPTS}
+CLEANFILES = \
+    ${dist_setup_SCRIPTS}

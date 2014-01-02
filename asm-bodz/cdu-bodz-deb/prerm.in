@@ -1,18 +1,20 @@
 #!/bin/sh
 # master-file
 
-lineconf -tkm "Remove dlocal from /etc/hosts" \
-    /etc/hosts @host::dlocal
+lineconf -ktm "/etc/hosts: Reset deb.bodz.net" \
+    /etc/hosts @host::deb.bodz.net
 
-echo "Turn off dlocal site"
-    a2dissite dlocal.site
+echo "apache2: Disable bodz-deb site"
+    a2dissite bodz-deb.conf
     /etc/init.d/apache2 reload
 
-local_list=/etc/apt/sources.list.d/local.list
-    lineconf -tm "Remove deb dlocal from local.list" \
-        $local_list @deb::dlocal
+list=/etc/apt/sources.list.d/bodz.list
+for section in unstable testing stable; do
+    lineconf -ktm "Remove apt bodz.list ($section)" \
+        $list @bodz::$section
 
-    lineconf -tm "Remove deb-src dlocal from local.list" \
-        $local_list @deb-src::dlocal
+    lineconf -ktm "Remove apt bodz.list ($section) src" \
+        $list @bodz::$section-src
+done
 
 exit 0
