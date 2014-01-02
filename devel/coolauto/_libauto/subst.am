@@ -35,9 +35,9 @@ DATETIME        = $(shell date +"%Y-%m-%d %H:%M:%S")
 DATE            = $(word 1,$(DATETIME))
 TIME            = $(word 2,$(DATETIME))
 
-aliasesdir      = ${sysconfdir}/bash_aliases.d
+aliasdir        = ${datadir}/bash-alias/aliases
 apparmordir     = ${sysconfdir}/apparmor.d
-completiondir   = ${sysconfdir}/bash_completion.d
+completiondir   = ${datadir}/bash-completion/completions
 cachedir        = /var/cache
 eardir          = ${javalibdir}/ear
 initdir         = ${sysconfdir}/init
@@ -69,7 +69,7 @@ do_subst = sed \
         -e 's,[@]VERSION[@],$(VERSION),g'
 
 do_subst += \
-        -e 's,[@]aliasesdir[@],$(aliasesdir),g' \
+        -e 's,[@]aliasdir[@],$(aliasdir),g' \
         -e 's,[@]apparmordir[@],$(apparmordir),g' \
         -e 's,[@]completiondir[@],$(completiondir),g' \
         -e 's,[@]bindir[@],$(bindir),g' \
