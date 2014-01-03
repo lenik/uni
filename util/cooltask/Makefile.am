@@ -16,15 +16,17 @@ dist_alias_DATA = \
     cooltask.sh
 
 dist_completion_DATA = \
-    cooltask
+    completions/cooltask
 
 dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-CLEANFILES = ${dist_setup_SCRIPTS} \
+CLEANFILES = \
     ${dist_bin_SCRIPTS} \
-    cooltask_list \
-    qlog \
-    qlog-console
+    ${dist_setup_SCRIPTS}
 
+install-data-hook:
+	cd ${DESTDIR}${completiondir}; \
+        ln -snf cooltask T; \
+        ln -snf cooltask T.
