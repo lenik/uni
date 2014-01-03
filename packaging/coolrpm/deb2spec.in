@@ -167,7 +167,7 @@ sub _main {
         print "\n";
         print "License:        $rpm_license\n" if defined $rpm_license;
         print "URL:            $rpm_url\n";
-        print "Source:         %{tarball}\n";
+        print "Source0:        %{name}-%{version}.tar.gz\n";
         print "\n";
         print "BuildRequires:  $rpm_buildrequires\n" if defined $rpm_buildrequires;
         print "Requires:       $rpm_requires\n" if defined $rpm_requires;
@@ -192,11 +192,11 @@ sub _main {
         print "%files\n";
         print "%defattr(-,root,root)\n";
         print "/usr/bin/\n" if scalar(@bins);
-        print "/usr/lib/\n" if scalar(@bins);
+        print "/usr/lib/\n" if scalar(@libs);
         print "$_\n" for @files;
         print "/usr/share/bash-alias/aliases/\n" if scalar(@aliases);
         print "/usr/share/bash-completion/completions/\n" if scalar(@completions);
-        print "/usr/share/setup/\n" if scalar(@bins);
+        print "/usr/share/setup/\n" if scalar(@setups);
         
         print "%doc\n";
         print "/usr/share/doc/\n" if scalar(@docs);
@@ -211,6 +211,9 @@ sub _main {
         print "\n";
         print "%preun\n";
         print "/usr/share/setup/$rpm_name/prerm\n";
+        print "\n";
+        print "%changelog\n";
+        system "gitcl --mmc --format rpm .";
     }
 }
 
@@ -280,6 +283,7 @@ sub rpmdeps(@) {
             s/^\s*//;
             s/\s*$//;
             $_ } @ar;
+    @ar = grep { !/^\$/ } @ar;
     return join(', ', @ar);
 }
 
