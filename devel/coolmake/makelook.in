@@ -5,6 +5,7 @@
 
     . shlib-import cliboot
     option -p --prefix =PATH "Set install prefix, default $prefix"
+    option -k --keep        "Keep the tmp installed destdir"
     option -i --ignores =PATH "Ignored pathnames for treetex, separated by :"
     option -t --treedoc     "Generate complete tree document"
     option -q --quiet
@@ -20,11 +21,14 @@
     treetexoptn=0
     prefix=/usr/local
     ignores=
+    keep=
 
 function setopt() {
     case "$1" in
         -p|--prefix)
             prefix="$2";;
+        -k|--keep)
+            keep=1;;
         -i|--ignore)
             ignores="$2"
             while [ -n "$ignores" ]; do
@@ -120,7 +124,15 @@ function main() {
 
     _log1 "Install to temporary destdir $tmpdestdir: "
     if $MAKE -s install DESTDIR=$tmpdestdir prefix="$prefix"; then
+
+        # preview the tree
         tree -a $tmpdestdir
+
+        # save the file list in the installed destdir.
+        ( cd $tmpdestdir;
+            find -type d | sed -e 's,$,/,';
+            find -type f ) >FILES
+        
         if [ -x "$TREETEX" ]; then
             _log1 "Generate install tree in TeX"
 
@@ -147,8 +159,10 @@ function main() {
         echo
     done
 
-    _log1 "Cleanup temp destdir."
-    rm -fR $tmpdestdir
+    if [ -z "$keep" ]; then
+        _log1 "Cleanup temp destdir."
+        rm -fR $tmpdestdir
+    fi
 }
 
 boot "$@"
