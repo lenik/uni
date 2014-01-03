@@ -55,6 +55,10 @@ dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = config.rpath 
+EXTRA_DIST = \
+    config.rpath \
+    main.tex \
+    itree.tex
+
 CLEANFILES = \
     ${dist_setup_SCRIPTS}
