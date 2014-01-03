@@ -12,6 +12,7 @@ Package: netcaps
 Architecture: all
 Depends: 
     bash-shlib,
+    libbas-d,
     tcpdump,
     ${misc:Depends}
 Description: Network capturing and analysis tools

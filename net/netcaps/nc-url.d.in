@@ -1,0 +1,42 @@
+#!/usr/bin/dprog -vi
+module nc_url;
+
+import std.c.stdlib : exit;
+import std.algorithm : sort;
+import std.conv : to;
+import std.file;
+import std.getopt;
+import std.path : baseName;
+import std.process;
+import std.stdio;
+import std.string;
+
+pragma(lib, "bas-d");
+import lenik.bas.log;
+// import lenik.bas.program;
+
+mixin Log!("nc-url");
+
+int main(string[] argv) {
+    if (argv[1] == "--version") {
+        showVersion();
+    }
+    if (argv[1] == "--help") {
+        showHelp();
+    }
+    return 0;
+}
+
+void showVersion() {
+    writeln("Network URL Capturer");
+    writeln("Written by Lenik, Version: @VERSION@, Last updated at @DATE@");
+}
+
+void showHelp() {
+    writeln("Usage: nc-url [OPTIONS] [--] [expression]");
+    writeln("Options:");
+    writeln("    -h, --help          Show this help page");
+    writeln("    -q, --quiet         Repeat to get less info");
+    writeln("    -v, --verbose       Repeat to get more info");
+    writeln("    --version           Print the version info");
+}

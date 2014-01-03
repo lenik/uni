@@ -1,0 +1,7 @@
+#!/bin/bash
+
+read route gwaddr mask ug x y z iface \
+    < <(LANG=C route -n | grep ^0.0.0.0)
+
+sudo tcpflow -i $iface -ce "$@"
+
