@@ -27,7 +27,7 @@ dist_alias_DATA = \
     cooldeb.sh
 
 dist_completion_DATA = \
-    cooldeb
+    completions/TP
 
 dist_man_MANS = \
     newdeb.1 \
