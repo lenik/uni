@@ -8,6 +8,7 @@ dist_bin_SCRIPTS = \
     git-delta.rrw \
     git-remote-ref \
     git-stitch-fix \
+    git-ws-fix \
     git2svn \
     gitcl \
     gitcl2 \
@@ -27,6 +28,7 @@ dist_man_MANS = \
     git-delta.rrw.1 \
     git-remote-ref.1 \
     git-stitch-fix.1 \
+    git-ws-fix.1 \
     git2svn.1 \
     gitcl.1 \
     gitcl2.1 \
