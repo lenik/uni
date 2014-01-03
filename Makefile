@@ -2,6 +2,7 @@
 all: .gitignore
 
 .gitignore: .gitignore.in
+	rm -f $@
 	sed -e 's/ *#.*$$//' <$< >$@
 	chmod -w $@
 

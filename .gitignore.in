@@ -52,6 +52,7 @@
 *.pdf                                   # cooltex
 *.releaseBackup                         # Maven
 *.substvars                             # cooldeb
+*.spec                                  # deb2spec
 *.swp                                   # Vim swap file
 *.tmp
 *.toc                                   # cooltex Table Of Contents
@@ -72,6 +73,7 @@
 .project                                # Eclipse project file
 .settings                               # Eclipse project settings
 /.pomdirs                               # coolmaven
+ABOUT-NLS                               # gettextize
 COPYING                                 # cooldeb
 ChangeLog                               # coolauto
 FILES                                   # coolmake
@@ -88,6 +90,7 @@ config.guess
 config.h
 config.h.in
 config.log
+config.rpath                            # gettextize
 config.status
 config.sub
 configure                               # configure.ac

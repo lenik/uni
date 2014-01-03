@@ -52,6 +52,7 @@
 *.pdf
 *.releaseBackup
 *.substvars
+*.spec
 *.swp
 *.tmp
 *.toc
@@ -72,6 +73,7 @@
 .project
 .settings
 /.pomdirs
+ABOUT-NLS
 COPYING
 ChangeLog
 FILES
@@ -88,6 +90,7 @@ config.guess
 config.h
 config.h.in
 config.log
+config.rpath
 config.status
 config.sub
 configure
