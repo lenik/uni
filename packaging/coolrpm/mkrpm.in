@@ -1,0 +1,50 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    RPMDIR=$( rpm --eval "%{_rpmdir}" )
+    SRCDIR=$( rpm --eval "%{_sourcedir}" )
+
+    pkgname=${PWD##*/}
+    pkgver=`vercomp`
+
+    _log1 "Generate the file FILES and the src tarball."
+    makelook -qq -p/usr
+    cp -v "$pkgname-$pkgver.tar.gz" "$SRCDIR"
+
+    _log1 "Generate the rpmbuild spec file from debian/control."
+    deb2spec . >$pkgname.spec
+
+    _log1 "Do the build..."
+    rpmbuild -D "%version $pkgver" -ba $pkgname.spec
+
+    for rpm in "$RPMDIR"/*/$pkgname-$pkgver-*.rpm; do
+        _log1 "Found RPM: $rpm"
+    done
+}
+
+boot "$@"
