@@ -4,11 +4,11 @@
     : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
 
     . shlib-import cliboot
-    option -c --continue    "Build again after edit-patch"
-    option -l --local       "Install by dpkg -i, instead of apt-get"
+    option -c --continue        "Build again after edit-patch"
+    option -l --local           "Install by dpkg -i, instead of apt-get"
     option -p --dput-host =HOST "Host config name used to dput"
-    option -f --fast-build  "Don't clean & re-configure before build"
-    option -s --symlink     "Add patch files by symlink"
+    option -f --fast-build      "Don't clean & re-configure before build"
+    option -s --symlink         "Add patch files by symlink"
     option -q --quiet
     option -v --verbose
     option -h --help
@@ -18,7 +18,7 @@
 
     cont=
     local_install=0
-    dput_host=dlocal
+    dput_host=bodz
     fast_build=
     symlink=
 

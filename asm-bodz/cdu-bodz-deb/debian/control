@@ -15,5 +15,6 @@ Depends:
     mini-dinstall,
     ${misc:Depends}
 Recommends:
-    dnotify
+    dnotify,
+    inotify-tools
 Description: Server configuration for deb.bodz.net.

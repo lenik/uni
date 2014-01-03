@@ -12,8 +12,8 @@ Package: cooldeb
 Provides: cooldeb
 Architecture: all
 Depends:
+    apt-enh,
     bash-shlib,
-    coolapt,
     coolmake,
     debhelper,
     devscripts,

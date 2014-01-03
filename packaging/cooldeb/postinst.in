@@ -1,3 +1,41 @@
 #!/bin/sh
-
 # master-file
+
+if ! grep -q '\[bodz\]' /etc/dput.cf; then
+    echo "Create new [bodz] section"
+    cat <<EOM >>/etc/dput.cf
+
+[bodz]
+# @bodz::fqdn
+fqdn            = deb.bodz.net
+# @bodz::method
+method          = http
+# @bodz::incoming
+incoming        = /upload
+EOM
+fi
+
+lineconf -tm "Config dput [bodz] fqdn" \
+    /etc/dput.cf @bodz::fqdn \
+    "fqdn            = deb.bodz.net"
+
+lineconf -tm "Config dput [bodz] method" \
+    /etc/dput.cf @bodz::method \
+    "method          = http"
+
+lineconf -tm "Config dput [bodz] incoming location" \
+    /etc/dput.cf @bodz::incoming \
+    "incoming        = /upload"
+
+list=/etc/apt/sources.list.d/bodz.list
+# release=`lsb_release -cs`
+for section in stable testing unstable; do
+    lineconf -tm "Configure apt bodz.list ($section)" \
+        $list @bodz::$section \
+        "deb     http://deb.bodz.net/ $section/"
+    lineconf -tm "Configure apt bodz.list ($section) src" \
+        $list @bodz::$section-src \
+        "deb-src http://deb.bodz.net/ $section/"
+done
+
+exit 0

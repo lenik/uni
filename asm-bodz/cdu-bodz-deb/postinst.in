@@ -6,50 +6,13 @@ echo "Set permission of /repo/deb/mini-dinstall/incoming"
     #install -d -m 2775 -o root      -g dev /repo/deb/mini-dinstall
     install -d -m 2775 -o www-data  -g dev /repo/deb/mini-dinstall/incoming
 
-if ! grep -q '\[bodz\]' /etc/dput.cf; then
-    echo "Create new [bodz] section"
-    cat <<EOM >>/etc/dput.cf
-
-[bodz]
-# @bodz::fqdn
-fqdn            = deb.bodz.net
-# @bodz::method
-method          = http
-# @bodz::incoming
-incoming        = /upload
-EOM
-fi
-
-lineconf -tm "Config dput [bodz] fqdn" \
-    /etc/dput.cf @bodz::fqdn \
-    "fqdn            = deb.bodz.net"
-
-lineconf -tm "Config dput [bodz] method" \
-    /etc/dput.cf @bodz::method \
-    "method          = http"
-
-lineconf -tm "Config dput [bodz] incoming location" \
-    /etc/dput.cf @bodz::incoming \
-    "incoming        = /upload"
-
-lineconf -tm "/etc/hosts: Resolve deb.bodz.net to localhost" \
-    /etc/hosts @host::deb.bodz.net \
-    "127.0.0.1 deb.bodz.net"
-
 echo "apache2: Enable bodz-deb site"
     a2enmod dav_fs
     a2ensite bodz-deb.conf
     /etc/init.d/apache2 reload
 
-list=/etc/apt/sources.list.d/bodz.list
-# release=`lsb_release -cs`
-for section in stable testing unstable; do
-    lineconf -tm "Configure apt bodz.list ($section)" \
-        $list @bodz::$section \
-        "deb     http://deb.bodz.net/ $section/"
-    lineconf -tm "Configure apt bodz.list ($section) src" \
-        $list @bodz::$section-src \
-        "deb-src http://deb.bodz.net/ $section/"
-done
+lineconf -tm "/etc/hosts: Resolve deb.bodz.net to localhost" \
+    /etc/hosts @host::deb.bodz.net \
+    "127.0.0.1 deb.bodz.net"
 
 exit 0

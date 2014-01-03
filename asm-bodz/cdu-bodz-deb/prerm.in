@@ -8,13 +8,4 @@ echo "apache2: Disable bodz-deb site"
     a2dissite bodz-deb.conf
     /etc/init.d/apache2 reload
 
-list=/etc/apt/sources.list.d/bodz.list
-for section in unstable testing stable; do
-    lineconf -ktm "Remove apt bodz.list ($section)" \
-        $list @bodz::$section
-
-    lineconf -ktm "Remove apt bodz.list ($section) src" \
-        $list @bodz::$section-src
-done
-
 exit 0

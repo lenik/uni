@@ -1,3 +1,13 @@
 #!/bin/sh
-
 # master-file
+
+list=/etc/apt/sources.list.d/bodz.list
+for section in unstable testing stable; do
+    lineconf -ktm "Remove apt bodz.list ($section)" \
+        $list @bodz::$section
+
+    lineconf -ktm "Remove apt bodz.list ($section) src" \
+        $list @bodz::$section-src
+done
+
+exit 0
