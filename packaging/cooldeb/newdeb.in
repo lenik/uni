@@ -102,12 +102,13 @@ function main() {
         chmod a+x p*.in
 
         cat <<EOT >>Makefile.am
+
 dist_setup_SCRIPTS = \\
     postinst \\
     prerm
 
 CLEANFILES = \\
-    \\${dist_setup_SCRIPTS}
+    \${dist_setup_SCRIPTS}
 EOT
     fi
 
