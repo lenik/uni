@@ -2,19 +2,21 @@
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
     : ${PROGRAM_TITLE:="Generate Git Changelog"}
     : ${PROGRAM_SYNTAX:="[OPTIONS] [--] [PATH ...]"}
-    : ${GIT_PAGER:=cat}
+    : ${GIT_PAGER:=cat}; export GIT_PAGER
 
     ver_mode=none
-
-    export GIT_PAGER
+    format=clean
+    date_format=short
 
     . shlib-import cliboot
     option -V --vercomp     "Include the (autover) version number"
     option    --mmc         "Get the major.minor.commit version"
+    option -F --format =FMT "Specify the ChangeLog format"
     option -q --quiet
     option    --verbose     "Repeat to get more info"
     option -h --help
     option    --version
+
 
 function setopt() {
     case "$1" in
@@ -22,6 +24,17 @@ function setopt() {
             ver_mode=vercomp;;
         --mmc)
             ver_mode=mmc;;
+        -F|--format)
+            format="$2"
+            case "$format" in
+                clean)
+                    : ;;
+                rpm)
+                    date_format=rfc;;
+                *)
+                    quit "Illegal changelog format: $format";;
+            esac
+            ;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -98,7 +111,7 @@ function main() {
         (( author_stat["$author"]++ ))
 
         commits[ncommit++]="$mesg"
-    done < <( git log --no-merges --format="%H|%ad|%an|%s" --date=short "$@" )
+    done < <( git log --no-merges --format="%H|%ad|%an|%s" --date=$date_format "$@" )
 
     commit
 }
@@ -122,13 +135,30 @@ function commit() {
         if [ "$ver_mode" = none ]; then
             echo -E "[$_date] ${authors}"
         else
-            echo -E "[$_ver] ${authors} ($_date)"
+            case "$format" in
+            clean)
+                echo -E "[$_ver] ${authors} ($_date)";;
+            rpm)
+                IFS=', ' read _wday _day _mon _year _time < <(echo $_date)
+                echo -E "* $_wday $_mon $_day $_year - $authors $_ver";;
+            esac
         fi
 
         for commit in "${commits[@]}"; do
-            echo -E "	* $commit"
+            case "$format" in
+            clean)
+                echo -E "	* $commit";;
+            rpm)
+                echo -E "   - $commit";;
+            esac
         done
-        echo
+
+        case "$format" in
+        rpm)
+            : ;;
+        *)
+            echo
+        esac
     fi
 
     commits=()
