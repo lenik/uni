@@ -1,0 +1,314 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+deb2spec - Convert a Debian control file to RedHat spec file
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'deb2spec'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: - @VERSION@ @DATE@ @TIME@ - $');
+use Data::Dumper;
+use Parse::DebControl;
+use Getopt::Long;
+    Getopt::Long::Configure('gnu_getopt');
+
+sub _main; sub _version; sub _help;
+
+sub _boot {
+    GetOptions('q|quiet'        => sub { $LOGLEVEL-- },
+               'v|verbose'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'h|help'         => sub { _help; exit 0 },
+               )
+        or exit(1);
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<deb2spec>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<deb2spec> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-deb2spec-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item Show help
+
+    deb2spec --help
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -q, --quiet             Repeat to get less info
+    -v, --verbose           Repeat to get more info
+    -h, --help              Show this help page
+        --version           Print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    my $srcdir = shift @ARGV;
+    my $control = "$srcdir/debian/control";
+    die "No such file: $control" unless -f $control;
+    _log1 "Control File: $control";
+
+    my $parser = new Parse::DebControl;
+    my $stanzas = $parser->parse_file($control, {
+            # strict => 1,
+            allowUnknownFields => 1,
+            stripComments => 1,
+            type => 'debian/control',
+        });
+    my ($srcpkg, @pkgs) = @$stanzas;
+
+    for my $pkg (@pkgs) {
+        my $rpm_name = $pkg->{Package};
+        my $rpm_release = '1%{?dist}';
+        my $rpm_license = 'GPL';
+        my $rpm_url = $srcpkg->{Homepage};
+        my $rpm_buildrequires; # $srcpkg->{'Build-Depends'}
+        my $rpm_requires = rpmdeps($pkg->{Depends}, $pkg->{Recommends});
+        my ($rpm_summary, $rpm_description) = split2($pkg->{Description});
+
+        my %extmap;
+        for my $ext (qw(install preinst postinst prerm postrm)) {
+            $extmap{$ext} = "$srcdir/debian/$ext"
+                if -f "$srcdir/debian/$ext";
+            $extmap{$ext} = "$srcdir/debian/$rpm_name.$ext"
+                if -f "$srcdir/debian/$rpm_name.$ext";
+        }
+
+        my $files_lst = $extmap{install};
+            $files_lst = "$srcdir/FILES" unless -f $files_lst;
+            die "The installed file list is uknown. Try makelook."
+                unless -f $files_lst;
+
+        open(FH, "<$files_lst") || die "Can't open $files_lst to read: $!";
+            my @files = <FH>;
+            @files = grep { !/\/$/ } @files;
+            @files = map { s,^./,,; s,^,/,; s/\s+$//; $_ } @files;
+            close FH;
+
+        my @bins = slice_regex(qr(^/usr/bin/), \@files);
+        my @libs = slice_regex(qr(^/usr/lib/), \@files);
+        my @aliases = slice_regex(qr(^/usr/share/bash-alias/aliases/), \@files);
+        my @completions = slice_regex(qr(^/usr/share/bash-completion/completions/), \@files);
+        my @setups = slice_regex(qr(^/usr/share/setup/), \@files);
+        my @docs = slice_regex(qr(^/usr/share/doc/), \@files);
+        my @mans = slice_regex(qr(^/usr/share/man/), \@files);
+        my @configs = slice_regex(qr(^/etc/), \@files);
+
+        print "Name:           $rpm_name\n";
+        print "Version:        %{version}\n";
+        print "Release:        $rpm_release\n" if defined $rpm_release;
+        print "Summary:        $rpm_summary\n";
+        print "\n";
+        print "License:        $rpm_license\n" if defined $rpm_license;
+        print "URL:            $rpm_url\n";
+        print "Source:         %{tarball}\n";
+        print "\n";
+        print "BuildRequires:  $rpm_buildrequires\n" if defined $rpm_buildrequires;
+        print "Requires:       $rpm_requires\n" if defined $rpm_requires;
+        print "\n";
+        print "%description\n";
+        print "$rpm_description\n" if defined $rpm_description;
+        print "\n";
+        print "%prep\n";
+        print "%setup -q\n";
+        print "\n";
+        print "\n";
+        print "%build\n";
+        print "%configure\n";
+        print "make %{?_smp_mflags}\n";
+        print "\n";
+        print "\n";
+        print "%install\n";
+        print "rm -rf \$RPM_BUILD_ROOT\n";
+        print "%make_install\n";
+        print "\n";
+        print "\n";
+        print "%files\n";
+        print "%defattr(-,root,root)\n";
+        print "/usr/bin/\n" if scalar(@bins);
+        print "/usr/lib/\n" if scalar(@bins);
+        print "$_\n" for @files;
+        print "/usr/share/bash-alias/aliases/\n" if scalar(@aliases);
+        print "/usr/share/bash-completion/completions/\n" if scalar(@completions);
+        print "/usr/share/setup/\n" if scalar(@bins);
+        
+        print "%doc\n";
+        print "/usr/share/doc/\n" if scalar(@docs);
+        print "/usr/share/man/\n" if scalar(@mans);
+
+        print "%config\n";
+        print "/etc/\n" if scalar(@configs);
+
+        print "\n";
+        print "%post\n";
+        print "/usr/share/setup/$rpm_name/postinst\n";
+        print "\n";
+        print "%preun\n";
+        print "/usr/share/setup/$rpm_name/prerm\n";
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+sub split2($) {
+    my $text = shift;
+    my $nl = index($text, "\n");
+    if ($nl == -1) {
+        return ($text, '');
+    } else {
+        my $first = substr($text, 0, $nl);
+        my $remain = substr($text, $nl+1);
+        return ($first, $remain);
+    }
+}
+
+sub slice_out($$) {
+    my ($ref, $val) = @_;
+    my @re;
+    my $got = 0;
+    for (@$ref) {
+        if ($_ eq $val) {
+            $got = 1;
+        } else {
+            push @re, $_;
+        }
+    }
+    if ($got) {
+        @$ref = @re;
+        return $val;
+    } else {
+        return undef;
+    }
+}
+
+sub slice_regex($$) {
+    my ($regex, $ref) = @_;
+    my (@t, @f);
+    for (@$ref) {
+        if (/$regex/) {
+            push @t, $_;
+        } else {
+            push @f, $_;
+        }
+    }
+    @$ref = @f;
+    return @t;
+}
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+sub rpmdeps(@) {
+    my @ar;
+    push(@ar, split(',', $_)) for @_;
+    @ar = map {
+            # TODO: a | b ...
+            s/\(.*\)//;
+            s/^\s*//;
+            s/\s*$//;
+            $_ } @ar;
+    return join(', ', @ar);
+}
+
+my %sgmap = (
+        utils => ,
+    );
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Convert a Debian control file to RedHat spec file\n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"deb2spec">
+
+=head1 AUTHOR
+
+Lenik (谢继雷) <xjl@99jsj.com>
+
+=cut
