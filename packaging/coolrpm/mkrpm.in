@@ -42,7 +42,7 @@ function main() {
     _log1 "Do the build..."
     rpmbuild -D "%version $pkgver" -ba $pkgname.spec
 
-    for rpm in "$RPMDIR"/*/$pkgname-$pkgver-*.rpm; do
+    for rpm in "$RPMDIR"/*/$pkgname-*$pkgver-*.rpm; do
         _log1 "Found RPM: $rpm"
     done
 }

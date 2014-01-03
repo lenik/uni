@@ -123,12 +123,37 @@ sub _main {
         });
     my ($srcpkg, @pkgs) = @$stanzas;
 
+    my $rpm_name = $srcpkg->{Source};
+    my $rpm_release = '1%{?dist}';
+    my $rpm_license = 'GPL';
+    my $rpm_url = $srcpkg->{Homepage};
+    my $rpm_vendor;
+    my $rpm_packager = $srcpkg->{Maintainer};
+    my $rpm_group = rpmgroup($srcpkg->{Section});
+    my $rpm_buildrequires; # $srcpkg->{'Build-Depends'}
+
+    print "Name:           $rpm_name\n";
+    print "Version:        %{version}\n";
+    print "Release:        $rpm_release\n" if defined $rpm_release;
+    print "\n";
+    print "License:        $rpm_license\n" if defined $rpm_license;
+    print "URL:            $rpm_url\n";
+    print "Vendor          $rpm_vendor\n" if defined $rpm_vendor;
+    print "Packager:       $rpm_packager\n" if defined $rpm_packager;
+    print "Source0:        %{name}-%{version}.tar.gz\n";
+    print "\n";
+    print "BuildRequires:  $rpm_buildrequires\n" if defined $rpm_buildrequires;
+
+    my $PBI = 0;                        # prepare, build, install
+
     for my $pkg (@pkgs) {
-        my $rpm_name = $pkg->{Package};
-        my $rpm_release = '1%{?dist}';
-        my $rpm_license = 'GPL';
-        my $rpm_url = $srcpkg->{Homepage};
-        my $rpm_buildrequires; # $srcpkg->{'Build-Depends'}
+        my $pkgname = $pkg->{Package};
+        my ($rpm_package, $rpm_provides);
+        if ($pkgname ne $rpm_name) {
+            $rpm_provides = $pkgname;
+            $rpm_package = getsuffixtag($rpm_name, $pkgname);
+        }
+
         my $rpm_requires = rpmdeps($pkg->{Depends}, $pkg->{Recommends});
         my ($rpm_summary, $rpm_description) = split2($pkg->{Description});
 
@@ -136,18 +161,22 @@ sub _main {
         for my $ext (qw(install preinst postinst prerm postrm)) {
             $extmap{$ext} = "$srcdir/debian/$ext"
                 if -f "$srcdir/debian/$ext";
-            $extmap{$ext} = "$srcdir/debian/$rpm_name.$ext"
-                if -f "$srcdir/debian/$rpm_name.$ext";
+            $extmap{$ext} = "$srcdir/debian/$pkgname.$ext"
+                if -f "$srcdir/debian/$pkgname.$ext";
         }
 
         my $files_lst = $extmap{install};
-            $files_lst = "$srcdir/FILES" unless -f $files_lst;
+        my $strict = 0;
+        if (! -f $files_lst) {
+            $files_lst = "$srcdir/FILES";
             die "The installed file list is uknown. Try makelook."
                 unless -f $files_lst;
+            $strict = 1;
+        }
 
         open(FH, "<$files_lst") || die "Can't open $files_lst to read: $!";
             my @files = <FH>;
-            @files = grep { !/\/$/ } @files;
+            @files = grep { !/\/$/ } @files if $strict;
             @files = map { s,^./,,; s,^,/,; s/\s+$//; $_ } @files;
             close FH;
 
@@ -160,61 +189,72 @@ sub _main {
         my @mans = slice_regex(qr(^/usr/share/man/), \@files);
         my @configs = slice_regex(qr(^/etc/), \@files);
 
-        print "Name:           $rpm_name\n";
-        print "Version:        %{version}\n";
-        print "Release:        $rpm_release\n" if defined $rpm_release;
-        print "Summary:        $rpm_summary\n";
-        print "\n";
-        print "License:        $rpm_license\n" if defined $rpm_license;
-        print "URL:            $rpm_url\n";
-        print "Source0:        %{name}-%{version}.tar.gz\n";
-        print "\n";
-        print "BuildRequires:  $rpm_buildrequires\n" if defined $rpm_buildrequires;
+        print "\n\n%package $rpm_package\n" if defined $rpm_package;
+        print "Provides:       $rpm_provides\n" if defined $rpm_provides;
+
         print "Requires:       $rpm_requires\n" if defined $rpm_requires;
+        print "Summary:        $rpm_summary\n" if defined $rpm_summary;
         print "\n";
-        print "%description\n";
+        print "%description $rpm_package\n";
         print "$rpm_description\n" if defined $rpm_description;
         print "\n";
-        print "%prep\n";
-        print "%setup -q\n";
-        print "\n";
-        print "\n";
-        print "%build\n";
-        print "%configure\n";
-        print "make %{?_smp_mflags}\n";
-        print "\n";
-        print "\n";
-        print "%install\n";
-        print "rm -rf \$RPM_BUILD_ROOT\n";
-        print "%make_install\n";
-        print "\n";
-        print "\n";
-        print "%files\n";
+        
+        if ($PBI == 0) {
+            print "%prep\n";
+            print "%setup -q\n";
+            print "\n";
+            print "\n";
+            print "%build\n";
+            print "%configure\n";
+            print "make %{?_smp_mflags}\n";
+            print "\n";
+            print "\n";
+            print "%install\n";
+            print "rm -rf \$RPM_BUILD_ROOT\n";
+            print "%make_install\n";
+            print "\n";
+            print "\n";
+            $PBI = 1;
+        }
+
+        print "%files $rpm_package\n";
         print "%defattr(-,root,root)\n";
-        print "/usr/bin/\n" if scalar(@bins);
-        print "/usr/lib/\n" if scalar(@libs);
+
+        #print "/usr/bin/\n" if scalar(@bins);
+        print "$_\n" for @bins;
+        #print "/usr/lib/\n" if scalar(@libs);
+        print "$_\n" for @libs;
+        
         print "$_\n" for @files;
-        print "/usr/share/bash-alias/aliases/\n" if scalar(@aliases);
-        print "/usr/share/bash-completion/completions/\n" if scalar(@completions);
-        print "/usr/share/setup/\n" if scalar(@setups);
+
+        #print "/usr/share/bash-alias/aliases/\n" if scalar(@aliases);
+        print "$_\n" for @aliases;
+        #print "/usr/share/bash-completion/completions/\n" if scalar(@completions);
+        print "$_\n" for @completions;
+        #print "/usr/share/setup/\n" if scalar(@setups);
+        print "$_\n" for @setups;
         
         print "%doc\n";
-        print "/usr/share/doc/\n" if scalar(@docs);
-        print "/usr/share/man/\n" if scalar(@mans);
+        #print "/usr/share/doc/\n" if scalar(@docs);
+        print "$_\n" for @docs;
+        #print "/usr/share/man/\n" if scalar(@mans);
+        print "$_\n" for @mans;
 
         print "%config\n";
-        print "/etc/\n" if scalar(@configs);
+        #print "/etc/\n" if scalar(@configs);
+        print "$_\n" for @configs;
 
         print "\n";
-        print "%post\n";
+        print "%post $rpm_package\n";
         print "/usr/share/setup/$rpm_name/postinst\n";
         print "\n";
-        print "%preun\n";
+        print "%preun $rpm_package\n";
         print "/usr/share/setup/$rpm_name/prerm\n";
-        print "\n";
-        print "%changelog\n";
-        system "gitcl --mmc --format rpm .";
     }
+
+    print "\n";
+    print "%changelog\n";
+    system "gitcl --mmc --format rpm .";
 }
 
 =head1 DIAGNOSTICS
@@ -268,6 +308,18 @@ sub slice_regex($$) {
     return @t;
 }
 
+sub getsuffixtag($$) {
+    my ($base, $name) = @_;
+    my $nbase = length($base);
+    return $name unless substr($name, 0, $nbase) eq $base;
+
+    my $tail = substr($name, $nbase);
+    return $name unless substr($tail, 0, 1) eq '-';
+
+    my $tag = substr($tail, 1);
+    return ($tag eq '') ? $name : $tag;
+}
+
 =head1 HACKING
 
 (No Information)
@@ -284,12 +336,40 @@ sub rpmdeps(@) {
             s/\s*$//;
             $_ } @ar;
     @ar = grep { !/^\$/ } @ar;
-    return join(', ', @ar);
+    my $deps = join(', ', @ar);
+    return $deps eq '' ? undef : $deps;
 }
 
 my %sgmap = (
-        utils => ,
+        admin   => 'Applications/System',
+        database=> 'Applications/Databases',
+        debug   => 'Development/Debuggers',
+        devel   => 'Development/Tools',
+        doc     => 'Documentation',
+        games   => 'Amusements/Games',
+        gnome   => 'User Interface/Desktops',
+        graphics=> 'Amusements/Graphics',
+        java    => 'Development/Languages',
+        kde     => 'User Interface/Desktops',
+        kernel  => 'Development/System',
+        libs    => 'Development/Libraries',
+        math    => 'Applications/Engineering',
+        net     => 'Applications/Internet',
+        perl    => 'Development/Languages',
+        python  => 'Development/Languages',
+        tex     => 'Applications/Publishing',
+        text    => 'Applications/Text',
+        utils   => 'Development/Tools',
+        video   => 'Applications/Multimedia',
+        x11     => 'User Interface/X',
     );
+
+sub rpmgroup($) {
+    my ($section) = @_;
+    my $group = $sgmap{$section};
+    $group = 'Applications/System' unless defined $group;
+    return $group;
+}
 
 =head1 HISTORY
 
