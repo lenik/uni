@@ -9,6 +9,7 @@ lib2_LTLIBRARIES = libbas.la
 libbas_la_LIBADD = ${GLIB_LIBS}
 libbas_la_LDFLAGS = -version-info 1:0:0
 libbas_la_CFLAGS = -I../include ${GLIB_CFLAGS}
+
 dist_libbas_la_SOURCES = \
     cli.c \
     file.c \

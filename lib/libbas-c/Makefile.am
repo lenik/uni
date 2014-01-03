@@ -10,6 +10,10 @@ dist_setup_SCRIPTS = \
 
 CLEANFILES = ${dist_setup_SCRIPTS}
 
+dist-hook:
+	cp -R ${srcdir}/include ${distdir}/include
+	cd ${distdir}/include; find -name '*.h' -o -type f -delete
+
 install-data-hook:
 	mkdir -p ${DESTDIR}${includedir}
 	cp -R ${srcdir}/include/* ${DESTDIR}${includedir}
