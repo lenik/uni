@@ -1,0 +1,24 @@
+Source: netcaps
+Section: net
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/net/netcaps
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/net/netcaps
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/net/netcaps
+
+Package: netcaps
+Architecture: all
+Depends: 
+    bash-shlib,
+    tcpdump,
+    ${misc:Depends}
+Description: Network capturing and analysis tools
+    This package contains some tools for network capturing and analysis.
+    These tools are mainly based on tcpdump/tcpflow.
+    You can find alternatives for some famous programs like urlsnarf.
+Description-zh_CN: 网络捕捉与分析综合工具集
+    这个软件包是一些用于网络数据包的捕捉与分析的工具。
+    这些工具主要构建于 tcpdump/tcpflow 之上。
+    一些经典的程序如 urlsnarf 在这个软件包中都有重写的替代版本。
