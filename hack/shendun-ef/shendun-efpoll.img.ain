@@ -147,7 +147,9 @@ function get_hw_mac() {
     local mac_net
     local mac_hd
 
-    mac_net=$(/sbin/ifconfig $iface | grep -o -m1 'HWaddr [0-9a-f:]\+') \
+    mac_net=$( /sbin/ifconfig $iface \
+            | grep -o -m1 'HWaddr [0-9a-fA-F:]\+' \
+            | tr [A-Z] [a-z] ) \
         || quit "Can't find network address.";
     mac_net=${mac_net##* }
     mac_net=${mac_net//:/}
