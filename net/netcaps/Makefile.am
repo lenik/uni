@@ -1,25 +1,28 @@
 include libauto/project.am
 
+dcompiler = gdc \
+    -O3 -frelease \
+    -I/usr/include/d2/site \
+    -fignore-unknown-pragmas \
+    -fproperty
+
 dist_alias_DATA = \
     netcaps.sh
 
 dist_bin_SCRIPTS = \
     tcpflow0
 
-bin_SCRIPTS = \
-    nc-url \
-    nc-passwd
+bin_PROGRAMS = \
+    nc-url$(EXEEXT) \
+    nc-passwd$(EXEEXT)
 
-#dist_nc_url_SOURCES = nc-url.d
-#dist_nc_passwd_SOURCES = nc-passwd.d
+dist_nc_url_SOURCES = nc-url.d
+dist_nc_passwd_SOURCES = nc-passwd.d
 
-%: %.d
-	gdc -O3 -frelease \
-        -I/usr/include/d2/site \
-        -fignore-unknown-pragmas \
-        -fproperty \
-        -o $@ $< \
-        -lbas-d
+nc-url$(EXEEXT): nc-url.d
+	$(dcompiler) -o $@ $< -lbas-d
+nc-passwd$(EXEEXT): nc-passwd.d
+	$(dcompiler) -o $@ $< -lbas-d
 
 dist_man_MANS = \
     nc-url.1 \
