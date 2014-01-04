@@ -1,4 +1,6 @@
 #!/bin/bash
+    [ $BASH = '/bin/bash' ] && [ -x /bin/bash4 ] && exec /bin/bash4 "$0" "$@"
+
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
     : ${PROGRAM_TITLE:=Shendun execfilter config poller}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
