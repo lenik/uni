@@ -14,6 +14,7 @@ Depends:
     bash-shlib,
     cron,
     execfilter,
+    hdparm,
     libbas-c,
     wget,
     udisks,

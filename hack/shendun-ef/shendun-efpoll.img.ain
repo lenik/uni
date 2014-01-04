@@ -155,21 +155,36 @@ function get_hw_mac() {
     mac_net=${mac_net//:/}
     _log2 "Found network address: $mac_net."
 
+    UDISKS=$( which udisks 2>/dev/null ) || UDISKS=
+    HDPARM=$( which hdparm 2>/dev/null ) || HDPARM=
+
     mac_hd=
     for dev in sda sdb sdc sdd hda hdb hdc hdd; do
         # NOTICE: VMware virtual disk vda... don't have a serial no.
 
         [ -b /dev/$dev ] || continue
 
-        serial_line=$(udisks --show-info /dev/$dev | grep -m1 serial:)
-        # quit "Can't access the hard drive $dev."
-        if [ -z "$serial_line" ]; then
-            continue
-        fi
+        _log2 "Query hard drive: $dev"
 
-        read _serail mac_hd < <(echo "$serial_line")
-        if [ -z "$mac_hd" ]; then
-            continue
+        if [ -x "$UDISKS" ]; then
+            serial_line=$(udisks --show-info /dev/$dev | grep -m1 serial:)
+            # quit "Can't access the hard drive $dev."
+            [ -z "$serial_line" ] && continue
+
+            read _serail mac_hd < <(echo "$serial_line")
+            [ -z "$mac_hd" ] && continue
+
+        elif [ -x "$HDPARM" ]; then
+            # stderr: Some may not be able to fetch the hdparm.
+            serial_line=$(hdparm -I /dev/$dev 2>&1 | grep -m1 'Serial Number:')
+            # quit "Can't access the hard drive $dev."
+            [ -z "$serial_line" ] && continue
+
+            read _serial _number mac_hd < <(echo "$serial_line")
+            [ -z "$mac_hd" ] && continue
+
+        else
+            quit "You need to install either udisks or hdparm."
         fi
 
         _log2 "Found the serial code: $mac_hd"
