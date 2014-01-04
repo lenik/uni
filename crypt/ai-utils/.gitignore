@@ -3,5 +3,6 @@ ai.c
 aifmt
 aiscript
 runai
+runai.c
 unai
 unai.c

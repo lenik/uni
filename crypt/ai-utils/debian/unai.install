@@ -1,4 +1,3 @@
-etc/bash_completion.d/
 usr/bin/unai
 usr/bin/runai
 usr/share/aiai/aifmt

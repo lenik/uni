@@ -10,19 +10,19 @@ do_subst += \
 
 bin_PROGRAMS = \
     ai \
+    runai \
     unai
 
 dist_ai_SOURCES = ai.c
 ai_LDADD = ${GLIB_LIBS} -lbas
 
+dist_runai_SOURCES = runai.c
+
 dist_unai_SOURCES = unai.c
 unai_LDADD = ${GLIB_LIBS} -lbas
 
 dist_completion_DATA = \
-    aiai.sh
-
-dist_bin_SCRIPTS = \
-    runai
+    completions/aiai
 
 dist_man_MANS = \
     ai.1 \
@@ -43,3 +43,4 @@ CLEANFILES = \
 install-data-hook:
 	mkdir -p ${DESTDIR}${templatedir}
 	cp -R ${srcdir}/template/* ${DESTDIR}${templatedir}
+	cd ${DESTDIR}${completiondir}; ln -snf aiai ai; ln -snf aiai unai

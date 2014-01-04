@@ -1,0 +1,107 @@
+#include <sys/stat.h>
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#define E_RUNAI 255
+
+extern char **environ;
+
+int main(int argc, char **argv) {
+    char cmd_buf[1024];
+    char buf[4096];
+    //char *p;
+    char **pp;
+    
+    argv++;
+    argc--;
+    if (argc == 0) {
+        fprintf(stderr, "AI source file isn't specified.\n");
+        return E_RUNAI;
+    }
+    
+    char *ai_src = *argv++;
+    argc--;
+
+    snprintf(cmd_buf, sizeof(cmd_buf), "unai -c \"%s\"", ai_src);
+    FILE *script = popen(cmd_buf, "r");
+    if (script == NULL) {
+        fprintf(stderr, "Error unai (cmd %s)", cmd_buf);
+        perror("");
+        return E_RUNAI;
+    }
+    if (fgets(buf, sizeof(buf), script) == NULL) {
+        perror("Error read shebang");
+        return E_RUNAI;
+    }
+    pclose(script);
+
+    /* Re-open to read from the beginning. */
+    script = popen(cmd_buf, "r");
+
+    char *program = ai_src;
+    char **s_argv = malloc(sizeof(char *) * (argc + 10));
+    char **sa = s_argv;
+
+    int envc = 0;
+    pp = environ;
+    while (*pp++) envc++;
+    char **s_env = malloc(sizeof(char *) * (envc + 10));
+    char **se = s_env + envc;
+    memcpy(s_env, environ, sizeof(char *) * envc);
+    
+    if (buf[0] == '#' && buf[1] == '!') {
+        /* (#!) <interpreter> [arg1] <(unai -c ...) args... */
+        char *shebang = strtok(buf, " \t\r\n");
+        program = strdup(shebang + 2);
+        *sa++ = program;                /* display name */
+
+        /* don't parse the shebang args, treat as a single long arg. */
+        char *arg1opt = strtok(NULL, "\0");
+        if (arg1opt)
+            *sa++ = arg1opt;
+
+        /* readlink -f /proc/self/fd/### */
+        int fd = fileno(script);
+        char fdpath[PATH_MAX];
+        sprintf(fdpath, "/dev/fd/%d", fd);  /* path of the fd. */
+        *sa++ = fdpath;
+    } else {
+        *sa++ = program;                /* display name */
+
+        /* decode into a tmp file, run it then. */
+        char *tmp = tempnam(NULL, "");  /* allocated */
+        FILE *out = fopen(tmp, "wb");
+        if (out == NULL) {
+            perror("Can't write to tmp file");
+            return E_RUNAI;
+        }
+
+        int c;
+        while ((c = fgetc(script)) != EOF)
+            fputc(c, out);
+        
+        fchmod(fileno(out), S_IRUSR | S_IWUSR | S_IXUSR);
+        fclose(out);
+
+        program = tmp;                  /* The real program. */
+        /* TODO: remove the tmp on exit. */
+    }
+    
+    while (argc--)
+        *sa++ = *argv++;
+    *sa = NULL;
+
+    sprintf(buf, "AI_SOURCE=%s", ai_src);
+    *se++ = strdup(buf);
+    *se++ = NULL;
+    
+    // printf("execv %s\n", program);
+    // sa = s_argv; while (*sa) printf("  arg: %s\n", *sa++);
+    // se = s_env; while (*se) printf("  env: %s\n", *se++);
+    
+    execve(program, s_argv, s_env);
+    return E_RUNAI;
+}
