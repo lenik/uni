@@ -1,21 +1,21 @@
 include libauto/project.am
 
+dcompiler = gdc \
+    -O3 -frelease \
+    -I/usr/include/d2/site \
+    -fignore-unknown-pragmas \
+    -fproperty
+
 bin_PROGRAMS = \
-    mjpl
+    mjpl$(EXEEXT)
 
 dist_mjpl_SOURCES = \
     mjpl.d \
     lenik/uni/mjpl/m2env.d \
     lenik/uni/mjpl/pom.d
 
-mjpl: ${dist_mjpl_SOURCES}
-	gdc -O3 -frelease \
-        -I/usr/include/d2/site \
-        -fignore-unknown-pragmas \
-        -fproperty \
-        -o $@ \
-        ${dist_mjpl_SOURCES} \
-        -lbas-d
+mjpl$(EXEEXT): ${dist_mjpl_SOURCES}
+	$(dcompiler) -o $@ ${dist_mjpl_SOURCES} -lbas-d
 
 dist_man_MANS = \
     mjpl.1

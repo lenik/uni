@@ -9,7 +9,7 @@ Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/java/mj
 Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/java/mjpl
 
 Package: mjpl
-Architecture: all
+Architecture: any
 Depends:
     bash-shlib,
     ${misc:Depends}
