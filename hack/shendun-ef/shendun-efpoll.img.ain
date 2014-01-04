@@ -112,7 +112,7 @@ function get_srv_url() {
         fi
 
         IFS='|' read srv_ip _ srv_port _ srv_path \
-            < <(echo "$resp_enc" | base64 -d | $YANGWEI -d)
+            < <(echo -n "$resp_enc" | base64 -d | $YANGWEI -d)
 
         echo "http://$srv_ip:$srv_port/$srv_path"
     fi
