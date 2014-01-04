@@ -57,9 +57,9 @@ function main() {
     fi
 
     CR=$'\r'
-    while IFS=': ' read resp_cmd resp_data; do
+    while IFS=': ' read -r resp_cmd resp_data; do
         resp_data="${resp_data%$CR}"
-        read -a resp < <(echo "$resp_data")
+        read -ra resp < <(echo -E "$resp_data")
         _log2 "Response: $resp_cmd: ${resp[@]}"
 
         case "$resp_cmd" in
@@ -87,9 +87,9 @@ function main() {
 
             config)
                 name="${resp[0]}"
-                text="${resp[1]}"
-                _log2 "Update config $name.yw"
-                echo -e "$text" >"$configdir/$name.yw"
+                text="${resp[*]:1}"
+                _log2 "Update config $name.conf"
+                echo -e "$text" | $YANGWEI -e >"$configdir/$name.conf"
                 (( auth_configs++ ))
                 ;;
 
