@@ -20,7 +20,7 @@ enum LogOption {
     DateTime  = Date | Time,
 }
 
-int maxLogLevel;                        /* global max log level */
+int maxLogLevel = 1;                    /* global max log level */
 
 class Logger {
 
@@ -192,16 +192,17 @@ class Logger {
     void   warn(S...)(string fmt, S args) { _logf!(S)( 0, 0, fmt, args); }
     void notice(S...)(string fmt, S args) { _logf!(S)( 1, 0, fmt, args); }
     void   info(S...)(string fmt, S args) { _logf!(S)( 2, 0, fmt, args); }
-    void    dbg(S...)(string fmt, S args) { _logf!(S)( 3, 0, fmt, args); }
-    void  trace(S...)(string fmt, S args) { _logf!(S)( 4, 0, fmt, args); }
-    
+    void    log(S...)(string fmt, S args) { _logf!(S)( 3, 0, fmt, args); }
+    void    dbg(S...)(string fmt, S args) { _logf!(S)( 4, 0, fmt, args); }
+    void  trace(S...)(string fmt, S args) { _logf!(S)( 5, 0, fmt, args); }
+
 }
 
-debug const int defaultLevel = 10;
- else const int defaultLevel = 1;
+debug const int defaultLogLevel = 10;
+ else const int defaultLogLevel = 3;
 
 template Log(string ident = null,
-             int logLevel = defaultLevel,
+             int logLevel = defaultLogLevel,
              int option = LogOption.LevelName | LogOption.Color) {
     Logger log;
     static this() {
