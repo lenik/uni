@@ -1,4 +1,4 @@
-#!/usr/bin/dprog -vi
+#!/usr/bin/dprog -i
 module mjpl;
 
 import std.c.stdlib : exit;
@@ -183,7 +183,8 @@ int main(string[] argv) {
                 writeln("    " ~ provider);
         }
     }
-    
+
+    /* Register IProgram(s) using their simple names. */
     foreach (fqcn; providers["net.bodz.bas.program.IProgram"]) {
         auto lastDot = fqcn.lastIndexOf('.');
         string tail;
@@ -318,10 +319,9 @@ void parsePrograms(char[] content,
 
         /* alias = runner fqcn */
         auto eq = ln.indexOf('=');
-        string alias_ = cast(string) ln[0..eq];
+        string alias_ = cast(string) ln[0..eq].strip();
+        string remain = cast(string) ln[eq+1..$].strip();
 
-        string remain = cast(string) ln[eq+1..$];
-        remain = remain.strip();
         auto spc = remain.indexOf(' ');
         string runner = cast(string) remain[0..spc].strip();
         string fqcn = cast(string) remain[spc+1..$].strip();
