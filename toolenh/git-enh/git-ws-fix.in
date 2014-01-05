@@ -2,16 +2,26 @@
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
     : ${PACKAGE:=@PACKAGE@}
     : ${PROGRAM_TITLE:=Fix whitespace in the Git history}
-    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] [<rev-list options>...]}
+    : ${GIT_EMPTY_TREE:=4b825dc642cb6eb9a060e54bf8d69288fbee4904}
+    : ${GIT_PREV:=git-prev}
 
     . shlib-import cliboot
+    option -i --fix-index   "Fix the last commit in the index"
+    option -l --rev-list    "Fix histories specified by rev-list"
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
 
+    fn=
+
 function setopt() {
     case "$1" in
+        -i|--fix-index)
+            fn=fix-index;;
+        -l|--rev-list)
+            fn=fix-rev-list;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -26,14 +36,49 @@ function setopt() {
 }
 
 function main() {
-    if git rev-parse --quiet --verify $GIT_COMMIT^ >/dev/null
-    then
-            against=$(map $(git rev-parse $GIT_COMMIT^))
-            git reset -q $against -- .
+    if [ -z "$fn" ]; then
+        quit "Nothing to do."
+    fi
+
+    # assert $(type -t "$fn") = 'function'
+
+    $fn "$@"
+}
+
+function fix-rev-list() {
+    # --index-filter env:
+    #   GIT_AUTHOR_EMAIL=<email>
+    #   GIT_AUTHOR_DATE=@<timestamp> +<tz>
+    #   GIT_AUTHOR_NAME=<name>
+    #   GIT_COMMIT=<commitish>
+    #   GIT_COMMITTER_DATE=@<timestamp> +<tz>
+    #   GIT_COMMITTER_NAME=<name>
+    #   GIT_DIR=<root>/.git
+    #   GIT_INDEX_FILE=<root>/.git-rewrite/t/../index"
+    #   GIT_WORK_TREE=.
+    git filter-branch --index-filter \
+        "$0 -i \$GIT_COMMIT \$(map \$($GIT_PREV -i $GIT_EMPTY_TREE \$GIT_COMMIT))" \
+        "$@"
+}
+
+function fix-index() {
+    GIT_COMMIT="$1"
+    against="$2"
+
+    if [ -z "$GIT_COMMIT" ]; then
+        GIT_COMMIT=HEAD
+    fi
+
+    if [ -z "$against" ]; then
+        # it's not called by --filter-branch, (ie., no map function)
+        against=$($GIT_PREV -i $GIT_EMPTY_TREE $GIT_COMMIT)
+    fi
+
+    if [ "$against" = $GIT_EMPTY_TREE ]; then
+        # Initial commit: diff against an empty tree object
+        git rm --cached -rfq --ignore-unmatch '*'
     else
-            # Initial commit: diff against an empty tree object
-            against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
-            git rm --cached -rfq --ignore-unmatch '*'
+        git reset -q $against -- .
     fi
 
     if ! git diff --quiet --full-index $against $GIT_COMMIT; then

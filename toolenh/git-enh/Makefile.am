@@ -6,6 +6,7 @@ dist_bin_SCRIPTS = \
     git-author \
     git-delta \
     git-delta.rrw \
+    git-prev \
     git-remote-ref \
     git-stitch-fix \
     git-ws-fix \

@@ -1,0 +1,20 @@
+#!/bin/sh
+
+init_rev=
+
+if [ "$1" = '-i' ]; then
+    init_rev="$2"
+    if [ "$init_rev" = "4b825dc" ]; then
+        # the famous empty-tree.
+        init_rev=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+    fi
+    shift 2
+fi
+
+for rev in "$@"; do
+    if git rev-parse --quiet --verify $rev^ >/dev/null; then
+        git rev-parse $rev^
+    else
+        echo $init_rev
+    fi
+done
