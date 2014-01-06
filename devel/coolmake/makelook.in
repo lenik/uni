@@ -19,7 +19,7 @@
 
     treetexopts=()
     treetexoptn=0
-    prefix=/usr/local
+    prefix=/usr
     ignores=
     keep=
 
