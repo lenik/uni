@@ -4,12 +4,11 @@
 #include <stdbool.h>
 
 bool streq(const char *a, const char *b);
-bool startswith(const char *s, const char *t);
-bool endswith(const char *s, const char *t);
+char *startswith(const char *s, const char *t);
+char *endswith(const char *s, const char *t);
 
 #define LTRIM(s) while (isspace(*(s))) (s)++
-const char *ltrim_c(const char *s);
-char *ltrim(char *s);
+char *ltrim(const char *s);
 char *rtrim(char *s);
 
 char *chop(char *s);

@@ -12,36 +12,33 @@ bool streq(const char *a, const char *b) {
     return strcmp(a, b) == 0;
 }
 
-bool startswith(const char *s, const char *t) {
-    return strncmp(s, t, strlen(t)) == 0;
+char *startswith(const char *s, const char *t) {
+    int n = strlen(t);
+    if (strncmp(s, t, n) == 0)
+        return (char *) (s + n);
+    else
+        return NULL;
 }
 
-bool endswith(const char *s, const char *t) {
+char *endswith(const char *s, const char *t) {
     int ns = strlen(s);
     int nt = strlen(t);
     if (ns < nt)
-        return false;
-    return strcmp(s + ns - nt, t) == 0;
+        return NULL;
+    if (strcmp(s + ns - nt, t) == 0)
+        return (char *) (s + ns - nt);
+    else
+        return NULL;
 }
 
-const char *ltrim_c(const char *s) {
+char *ltrim(const char *s) {
     assert(s != NULL);
 
     while (isspace(*s))
         s++;
 
-    return s;
+    return (char *) s;
 }
-
-char *ltrim(char *s) {
-    assert(s != NULL);
-
-    while (isspace(*s))
-        s++;
-
-    return s;
-}
-
 
 char *rtrim(char *s) {
     assert(s != NULL);
