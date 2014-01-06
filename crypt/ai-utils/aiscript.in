@@ -1,3 +1,0 @@
-package aiscript
-interpreter @bindir@/runai
-magic \x20\x09\x20\x20\x20\x09\x20\x20

@@ -4,10 +4,10 @@
 
 ### BEGIN INIT INFO
 # Provides:          aifmt
-# Required-Start:
-# Required-Stop:
-# Default-Start:     1 2 3 4 5
-# Default-Stop:      0 6
+# Required-Start:    $local_fs $remote_fs
+# Required-Stop:     $local_fs $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:
 # Short-Description: AI format support
 # Description:       Control the binfmt support of AI scripts.
 ### END INIT INFO
@@ -24,7 +24,7 @@ do_start() {
     if [ -e $aifmt ]; then
         echo "already started"
     else
-        if echo ':aifmt:M:: 	   	  ::@bindir@/runai:' >$bmdir/register; then
+        if echo ':aifmt:M:: 	   	  ::@bindir@/air:' >$bmdir/register; then
             echo "started"
         else
             echo "failed to start"
