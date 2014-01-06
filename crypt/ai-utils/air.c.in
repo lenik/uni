@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
         log_err("Invalid data.");
         goto err;
     } else {
-        free(ai_data);
+        free(ai_data); 
         ai_data = NULL;
     }
 
@@ -128,27 +128,17 @@ int main(int argc, char **argv) {
         fwrite(data, 1, size, stdout);
         return 0;
     }
-
+    
     int pipefd[2] = { 0, 0 };
     if (pipe(pipefd) != 0) {            /* setup the pipe */
         log_err("Pipe failed.");
         goto err;
     } else {
-        pid_t pid = fork();
-        if (pid < (pid_t) 0) {
-            log_err("Fork failed.");
-            goto err;
-        }
-        if (pid == 0) {                     /* child process */
-            /* send the decoded data to the pipe. */
-            close(pipefd[0]);
-            FILE *pipe_out = fdopen(pipefd[1], "w");
-            fwrite(data, 1, size, pipe_out);
-            fclose(pipe_out);
-            return 0;
-        } else {
-            close(pipefd[1]);
-        }
+        /* send the decoded data to the pipe. */
+        FILE *pipe_out = fdopen(pipefd[1], "w");
+        fwrite(data, 1, size, pipe_out);
+        fclose(pipe_out);
+        // free(data); data = NULL;
     }
     
     program = ai_src;
