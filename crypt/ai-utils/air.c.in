@@ -46,6 +46,30 @@ int main(int argc, char **argv) {
     
     argv++;
     argc--;
+
+    while (argc && **argv == '-') {
+        char *arg = *argv;
+        while (*arg == '-')
+            arg++;
+
+        if (strcmp(arg, "version") == 0) {
+            printf("[air] AI image runner\n");
+            printf("Written by Lenik, Version @VERSION@, Last updated at @DATE@\n");
+            return 0;
+        }
+        
+        if (strcmp(arg, "help") == 0) {
+            printf("Usage: air [OPTIONS] AI-IMAGE ARGS...\n");
+            printf("\n");
+            printf("Options:\n");
+            printf("    --help          Print this help page.\n");
+            printf("    --version       Print the version information.\n");
+            return 0;
+        }
+
+        break;
+    }
+    
     if (argc == 0) {
         fprintf(stderr, "AI source file isn't specified.\n");
         return E_AIR;

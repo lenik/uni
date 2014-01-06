@@ -1,12 +1,6 @@
 include ../libauto/common.am
-include ../libauto/subst-ai.am
-
-export AI_KEYFILE=
-AI_TEMPLATE=bridge
 
 dist_shlib_DATA = \
-    ai \
-    ai.img \
     bashunit \
     char \
     cliboot \
@@ -30,7 +24,3 @@ dist_shlib_DATA = \
     rcs \
     term \
     time
-
-CLEANFILES= \
-    ai \
-    ai.img

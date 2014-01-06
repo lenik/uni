@@ -1,6 +1,9 @@
 include libauto/project.am
+include libauto/subst-ai.am
 
-AM_CPPFLAGS = ${GLIB_CFLAGS} -DLOG_LEVEL=4
+AI = ./ai
+export AI_KEYFILE =
+AI_TEMPLATE = template/bridge
 
 binfmtsdir = ${datadir}/binfmts
 templatedir = ${pkgdatadir}/template
@@ -12,6 +15,8 @@ bin_PROGRAMS = \
     ai \
     air \
     unai
+
+AM_CPPFLAGS = ${GLIB_CFLAGS} -DLOG_LEVEL=4
 
 dist_ai_SOURCES = ai.c aicodec.c
 ai_LDADD = ${GLIB_LIBS} -lbas
@@ -27,11 +32,16 @@ dist_completion_DATA = \
 
 dist_man_MANS = \
     ai.1 \
+    air.1 \
     unai.1
 
 #dist_sysvinit_SCRIPTS =
 dist_pkgdata_SCRIPTS = \
     aifmt
+
+dist_shlib_DATA = \
+    shlib.d/ai \
+    shlib.d/ai.img
 
 dist_setup_SCRIPTS = \
     postinst \
@@ -39,7 +49,8 @@ dist_setup_SCRIPTS = \
 
 CLEANFILES = \
     ${dist_bin_SCRIPTS} \
-    ${dist_setup_SCRIPTS}
+    ${dist_setup_SCRIPTS} \
+    ${dist_shlib_DATA}
 
 install-data-hook:
 	mkdir -p ${DESTDIR}${templatedir}

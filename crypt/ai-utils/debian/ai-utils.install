@@ -1,6 +1,6 @@
 usr/bin/ai
 usr/bin/unai
-usr/share/ai-utils/template
-usr/share/bash-completion
+usr/share/ai-utils/template/
+usr/share/bash-completion/
 usr/share/man/man1/ai.1
 usr/share/man/man1/unai.1
