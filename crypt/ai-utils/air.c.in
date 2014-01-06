@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include <sys/stat.h>
 #include <limits.h>
 #include <stdio.h>
@@ -5,54 +7,129 @@
 #include <string.h>
 #include <unistd.h>
 
-#define E_RUNAI 255
+#include <bas/file.h>
+#include <bas/log.h>
+
+#include "ai.h"
+
+#define E_AIR 255
 
 extern char **environ;
+
+bool opt_pipesym = false;
+char *opt_keyfile = NULL;
+char *keydata = NULL;
+size_t keysize = 0;
+
+char dtemp[] = "/tmp/XXXXXX";
+char pipesym[PATH_MAX] = "";
+void del_dtemp() {
+    if (strlen(pipesym))
+        unlink(pipesym);
+    rmdir(dtemp);
+}
 
 int main(int argc, char **argv) {
     char cmd_buf[1024];
     char buf[4096];
     //char *p;
     char **pp;
+    char *ai_src;
+    char *ai_name;                      /* the basename of ai_src */
+    char *ai_data = NULL;               /* AI-encoded bytes */
+    size_t ai_size = 0;                 /* size of ai_data */
+    char *data = NULL;                  /* decoded bytes */
+    size_t size = 0;                    /* size of data */
+    char *program = NULL;               /* the program to exec */
+    char **s_argv = NULL;               /* script argv */
+    char **s_env = NULL;                /* script environ */
     
     argv++;
     argc--;
     if (argc == 0) {
         fprintf(stderr, "AI source file isn't specified.\n");
-        return E_RUNAI;
+        return E_AIR;
     }
     
-    char *ai_src = *argv++;
+    ai_src = *argv++;
     argc--;
 
-    snprintf(cmd_buf, sizeof(cmd_buf), "unai -c \"%s\"", ai_src);
-    FILE *script = popen(cmd_buf, "r");
-    if (script == NULL) {
-        fprintf(stderr, "Error unai (cmd %s)", cmd_buf);
-        perror("");
-        return E_RUNAI;
+    ai_name = strrchr(ai_src, '/');     /* find the basename */
+    if (ai_name == NULL)
+        ai_name = ai_src;
+    else
+        ai_name++;
+    
+    if (opt_keyfile == NULL)            /* environ AI_KEYFILE */
+        opt_keyfile = getenv("AI_KEYFILE");
+    if (opt_keyfile != NULL && *opt_keyfile) {
+        keydata = load_file(opt_keyfile, &keysize, 0, 0);
+        if (keydata == NULL) {
+            log_perr("Can't load keyfile %s", opt_keyfile);
+            return E_AIR;
+        }
+        if (keysize < 1) {
+            log_perr("No key data.");
+            return E_AIR;
+        }
     }
-    if (fgets(buf, sizeof(buf), script) == NULL) {
-        perror("Error read shebang");
-        return E_RUNAI;
+
+    ai_data = load_file(ai_src, &ai_size, 0, 0); /* loading */
+    if (ai_data == NULL) {
+        log_err("Failed to load file %s.\n", ai_src);
+        return E_AIR;
     }
-    pclose(script);
 
-    /* Re-open to read from the beginning. */
-    script = popen(cmd_buf, "r");
+    data = ai_decode(ai_data, ai_size, &size, /* decoding */
+                     keydata, keysize);
+    if (data == NULL) {
+        log_err("Invalid data.");
+        goto err;
+    }
 
-    char *program = ai_src;
-    char **s_argv = malloc(sizeof(char *) * (argc + 10));
-    char **sa = s_argv;
-
+    int pipefd[2] = { 0, 0 };
+    if (pipe(pipefd) != 0) {            /* setup the pipe */
+        log_err("Pipe failed.");
+        goto err;
+    } else {
+        pid_t pid = fork();
+        if (pid < (pid_t) 0) {
+            log_err("Fork failed.");
+            goto err;
+        }
+        if (pid == 0) {                     /* child process */
+            /* send the decoded data to the pipe. */
+            close(pipefd[0]);
+            FILE *pipe_out = fdopen(pipefd[1], "w");
+            fwrite(data, 1, size, pipe_out);
+            fclose(pipe_out);
+            return 0;
+        } else {
+            close(pipefd[1]);
+        }
+    }
+    
+    program = ai_src;
+                                        /* clone the environ */
     int envc = 0;
     pp = environ;
     while (*pp++) envc++;
-    char **s_env = malloc(sizeof(char *) * (envc + 10));
+    s_env = malloc(sizeof(char *) * (envc + 10));
     char **se = s_env + envc;
     memcpy(s_env, environ, sizeof(char *) * envc);
-    
-    if (buf[0] == '#' && buf[1] == '!') {
+                                        /* prepare the args */
+    s_argv = malloc(sizeof(char *) * (argc + 10));
+    char **sa = s_argv;
+
+                                        /* script / binary? */
+    if (data[0] == '#' && data[1] == '!') {
+        /* copy the first line to buf */
+        int lmax = sizeof(buf);
+        char *next = strchr(data, '\n');
+        if (next != NULL && next - data < lmax)
+            lmax = next - data;
+        strncpy(buf, data, lmax);
+        
         /* (#!) <interpreter> [arg1] <(unai -c ...) args... */
         char *shebang = strtok(buf, " \t\r\n");
         program = strdup(shebang + 2);
@@ -63,11 +140,28 @@ int main(int argc, char **argv) {
         if (arg1opt)
             *sa++ = arg1opt;
 
-        /* readlink -f /proc/self/fd/### */
-        int fd = fileno(script);
         char fdpath[PATH_MAX];
-        sprintf(fdpath, "/dev/fd/%d", fd);  /* path of the fd. */
-        *sa++ = fdpath;
+        sprintf(fdpath, "/dev/fd/%d", pipefd[0]);
+
+        /* OPTIM: try to create a symlink to the pipe. */
+        if (opt_pipesym) {
+            if (!mkdtemp(dtemp)) {
+                log_err("Failed to create tmp dir");
+                goto err;
+            } else {
+                atexit(del_dtemp);
+                strcpy(pipesym, dtemp);
+                strcat(pipesym, "/");
+                strcat(pipesym, ai_name);
+                if (symlink(fdpath, pipesym) != 0)
+                    *sa++ = pipesym;
+                else
+                    *sa++ = fdpath;
+            }
+        } else {
+            *sa++ = fdpath;
+        }
+        
     } else {
         *sa++ = program;                /* display name */
 
@@ -76,12 +170,10 @@ int main(int argc, char **argv) {
         FILE *out = fopen(tmp, "wb");
         if (out == NULL) {
             perror("Can't write to tmp file");
-            return E_RUNAI;
+            goto err;
         }
 
-        int c;
-        while ((c = fgetc(script)) != EOF)
-            fputc(c, out);
+        fwrite(data, 1, size, out);
         
         fchmod(fileno(out), S_IRUSR | S_IWUSR | S_IXUSR);
         fclose(out);
@@ -103,5 +195,7 @@ int main(int argc, char **argv) {
     // se = s_env; while (*se) printf("  env: %s\n", *se++);
     
     execve(program, s_argv, s_env);
-    return E_RUNAI;
+
+ err:
+    return E_AIR;
 }
