@@ -1,5 +1,6 @@
 #!/bin/bash
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_PATH:=@bindir@/yw-edit}
     : ${PROGRAM_TITLE:=yw config file editor}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
     : ${EDITOR:=vim}
