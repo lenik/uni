@@ -27,5 +27,5 @@ function setopt() {
     esac
 }
 
-load-image
+loadimage
 boot "$@"

@@ -10,14 +10,7 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/hack/shendun
 
 Package: shendun-ef
 Architecture: any
-Depends:
-    bash-shlib,
-    cron,
-    execfilter,
-    hdparm,
-    libbas-c,
-    wget,
-    udisks,
+Depends: air, bash-shlib, cron, execfilter, hdparm, libbas-c, wget, udisks, 
     ${misc:Depends}
 Description: Companion utils used with execfilter.
   Includes:
