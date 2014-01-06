@@ -5,9 +5,6 @@ AI_TEMPLATE = bridge
 dist_bin_SCRIPTS = \
     debinst
 
-pkgdata_DATA = \
-    debinst.img
-
 dist_pkgdata_SCRIPTS = \
     install-debs.sh \
     install-rpms.tmpl

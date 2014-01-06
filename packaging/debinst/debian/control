@@ -11,7 +11,6 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/packaging/de
 Package: debinst
 Architecture: all
 Depends:
-    ai,
     alien,
     apt,
     bash-shlib,
