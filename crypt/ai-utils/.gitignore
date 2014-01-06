@@ -4,5 +4,7 @@ aifmt
 air
 air.c
 aiscript
+loadimage
+loadimage.c
 unai
 unai.c

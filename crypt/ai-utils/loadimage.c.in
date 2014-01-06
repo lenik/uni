@@ -1,0 +1,289 @@
+#include "config.h"
+
+#include <limits.h>
+#include <stdio.h>
+
+#include <bash/builtins.h>
+#include <bash/builtins/bashgetopt.h>
+#include <bash/shell.h>
+
+#include <bas/file.h>
+#include <bas/log.h>
+#include <bas/str.h>
+
+#include "ai.h"
+
+#define log log_debug
+
+char *datadir = "@datadir@";
+
+static bool exists(const char *file) {
+    if (access(file, R_OK) == 0) {
+        log("file exists: %s", file);
+        return true;
+    } else {
+        log("file not exists: %s", file);
+        return false;
+    }
+}
+
+static char *getvar(const char *name) {
+    char *value = get_string_value(name);
+    if (value)
+        log("Variable %s = %s.", name, value);
+    return value;
+}
+
+static void dump_var(SHELL_VAR *var);
+static void dump_array(ARRAY *array);
+static void dump_words(WORD_LIST *words);
+
+int loadimage_builtin(WORD_LIST *list) {
+    char *AI_SOURCE;                    /* env AI_SOURCE */
+    char *AI_KEYFILE;                   /* env AI_KEYFILE */
+    
+    char keyfile[PATH_MAX];             /* The actual keyfile */
+    char *keydata = NULL;
+    size_t keysize = 0;
+    char *ai_data = NULL;               /* AI-encoded data */
+    size_t ai_size = 0;
+    char *data = NULL;                  /* Decoded data */
+    size_t size = 0;
+    
+    int opt;
+    SHELL_VAR *var;
+    int i;
+    
+    reset_internal_getopt();
+    while ((opt = internal_getopt(list, "")) != -1) {
+        switch (opt) {
+        default:
+            builtin_usage();
+            return EX_USAGE;
+        }
+    }
+    list = loptend;
+
+    char *pkg = getvar("caller_pkg");
+    if (pkg == NULL) {
+        pkg = getvar("PACKAGE");
+        if (pkg == NULL)
+            pkg = "ai-utils";
+    }
+    
+    AI_SOURCE = getvar("AI_SOURCE");
+    AI_KEYFILE = getvar("AI_KEYFILE");
+
+    if (AI_KEYFILE != NULL) {
+        strcpy(keyfile, AI_KEYFILE);
+    } else {
+        sprintf(keyfile, "%s/doc/%s/README", datadir, pkg);
+        if (exists(keyfile)) {
+            var = set_if_not("AI_KEYFILE", keyfile);
+            var->attributes |= att_exported;
+        }
+    }
+    if (exists(keyfile)) {
+        keydata = load_file(keyfile, &keysize, 0, 0);
+        if (keydata == NULL) {
+            log_err("Failed to load the keyfile %s.", keyfile);
+            return EXECUTION_FAILURE;
+        }
+        log("Loaded key data (%d bytes) from file %s.", keysize, keyfile);
+    }
+    
+                                        /* find the image */
+    char *caller = AI_SOURCE;
+    if (caller == NULL) {
+        var = find_variable("BASH_SOURCE");
+        if (var == NULL || !array_p(var))
+            goto err;
+        
+        ARRAY *BASH_SOURCE = array_cell(var);
+        caller = array_reference(BASH_SOURCE, 0);
+    }
+    log("caller: %s", caller);
+    
+    char dir[PATH_MAX];
+    char base[PATH_MAX];
+    char *p;
+    strcpy(dir, caller);
+    
+    if (p = endswith(dir, ".in"))
+        *p = '\0';
+    if (p = endswith(dir, ".ain"))
+        *p = '\0';
+    
+    if (p = strrchr(dir, '/')) {
+        *p = '\0';
+        strcpy(base, p + 1);
+    } else {
+        strcpy(base, dir);
+        strcpy(dir, ".");
+    }
+    log("caller.dir: %s", dir);
+    log("caller.base: %s", base);
+    
+    char file[PATH_MAX];
+    sprintf(file, "%s/%s.img.ain", dir, base);
+    if (exists(file)) {
+        source_file(file, 0);
+        return EXECUTION_SUCCESS;
+    }
+
+    bool no_match = false;
+    do {
+        sprintf(file, "%s/%s.img", dir, base);
+        if (exists(file))
+            break;
+        
+        sprintf(file, "%s/.%s.img", dir, base);
+        if (exists(file))
+            break;
+        
+        sprintf(file, "%s/%s/%s.img", datadir, pkg, base);
+        if (exists(file))
+            break;
+        
+        sprintf(file, "%s/%s/image/%s.img", datadir, pkg, base);
+        if (exists(file))
+            break;
+
+        no_match = true;
+    } while (0);
+    
+    if (no_match) {
+        log_err("No available image.");
+        return EXECUTION_FAILURE;
+    }
+
+
+    ai_data = load_file(file, &ai_size, 0, 0);
+    if (ai_data == NULL) {
+        log_err("Failed to load file %s.", file);
+        return EXECUTION_FAILURE;
+    }
+
+    data = ai_decode(ai_data, ai_size, &size,
+                     keydata, keysize);
+    if (data == NULL) {
+        log_err("Invalid file data.");
+        goto err;
+    } else {
+        free(ai_data);
+        ai_data = NULL;
+    }
+    
+    /* There are two methods:
+       1. create pipe and "source /dev/fd/3". (Here we are)
+       2. eval the large string.
+     */
+    int pipefd[2] = { 0, 0 };
+    if (pipe(pipefd) != 0) {
+        log_err("Pipe failed.");
+        goto err;
+    } else {
+        FILE *out = fdopen(pipefd[1], "w");
+        fwrite(data, 1, size, out);
+        fclose(out);
+        free(data);
+        data = NULL;
+    }
+
+    char fdpath[PATH_MAX];
+    sprintf(fdpath, "/dev/fd/%d", pipefd[0]);
+    
+    source_file(fdpath, 0);
+
+    close(pipefd[0]);                   /* close anyway. */
+    
+    return EXECUTION_SUCCESS;
+
+ err:
+    if (data)
+        free(data);
+    if (ai_data)
+        free(ai_data);
+    return EXECUTION_FAILURE;
+}
+
+char *loadimage_doc[] = {
+    "Load AI image",
+    "",
+    "Load AI image.",
+    NULL,
+};
+
+struct builtin loadimage_struct = {
+    "loadimage",
+    loadimage_builtin,
+    BUILTIN_ENABLED,
+    loadimage_doc,
+    0
+};
+
+static void dump_var(SHELL_VAR *var) {
+    log("Variable %s: ", var->name);
+
+    char buf[1000] = "";
+    int attrs = var->attributes;
+    if (attrs & att_exported)   strcat(buf, " exported");
+    if (attrs & att_readonly)   strcat(buf, " readonly");
+    if (attrs & att_array)      strcat(buf, " array");
+    if (attrs & att_function)   strcat(buf, " function");
+    if (attrs & att_integer)    strcat(buf, " integer");
+    if (attrs & att_local)      strcat(buf, " local");
+    if (attrs & att_assoc)      strcat(buf, " assoc");
+    if (attrs & att_trace)      strcat(buf, " trace");
+    if (attrs & att_uppercase)  strcat(buf, " uppercase");
+    if (attrs & att_lowercase)  strcat(buf, " lowercase");
+    if (attrs & att_capcase)    strcat(buf, " capcase");
+    if (attrs & att_invisible)  strcat(buf, " invisible");
+    if (attrs & att_nounset)    strcat(buf, " nounset");
+    if (attrs & att_noassign)   strcat(buf, " noassign");
+    if (attrs & att_imported)   strcat(buf, " imported");
+    if (attrs & att_special)    strcat(buf, " special");
+    if (attrs & att_nofree)     strcat(buf, " nofree");
+    if (attrs & att_tempvar)    strcat(buf, " tempvar");
+    if (attrs & att_propagate)  strcat(buf, " propagate");
+    log("    attributes: %s", buf);
+
+    log("    value: (%x) %s", var->value, var->value);
+    if (var->exportstr)
+        log("    exportstr: %s", var->exportstr);
+    if (var->context)
+        log("    context: %d", var->context);
+    if (var->dynamic_value)
+        log("    dynamic_value: %x", var->dynamic_value);
+    if (var->assign_func)
+        log("    assign_func: %x", var->assign_func);
+}
+
+static void dump_array(ARRAY *array) {
+    log("%s array of %d elements, max_index=%d:",
+        array->type == array_indexed ? "Indexed" :
+        array->type == array_assoc ? "Assoc" : "Unknown",
+        array->num_elements, array->max_index);
+
+    int i;
+
+    ARRAY_ELEMENT *elm = array->head->next;
+    for (i = 0; i < array->num_elements; i++) {
+        char *val = elm->value;
+        int ind = elm->ind;
+        log("    Element [%d] = %s.", ind, val);
+        elm = elm->next;
+    }
+}
+
+static void dump_words(WORD_LIST *list) {
+    if (list == NULL)
+        log("Null word list.");
+    else
+        log("Word list %x:", list);
+    
+    while (list) {
+        log("    word: %s.", list->word->word);
+        list = list->next;
+    }
+}

@@ -1,4 +1,5 @@
 usr/bin/air
+usr/lib/loadimage
 usr/lib/shlib.d/
 usr/share/ai-utils/aifmt
 usr/share/man/man1/air.1
