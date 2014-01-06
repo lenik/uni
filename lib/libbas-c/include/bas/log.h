@@ -26,9 +26,9 @@ void _log_x(const char *ident, int option, int level,
 /* This is the logging level configured for each source file. */
 #ifndef LOG_LEVEL
 #  ifdef DEBUG
-#    define LOG_LEVEL 3
+#    define LOG_LEVEL 10
 #  else
-#    define LOG_LEVEL 1
+#    define LOG_LEVEL 2
 #  endif
 #endif
 
