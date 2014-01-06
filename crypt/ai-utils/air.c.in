@@ -14,8 +14,12 @@
 
 #define E_AIR 255
 
+#define MODE_RUN 1
+#define MODE_DECODE 2
+
 extern char **environ;
 
+int opt_mode = MODE_RUN;
 bool opt_pipesym = false;
 char *opt_keyfile = NULL;
 char *keydata = NULL;
@@ -67,7 +71,13 @@ int main(int argc, char **argv) {
             return 0;
         }
 
-        break;
+        if (strcmp(arg, "d") == 0 || strcmp(arg, "decode") == 0)
+            opt_mode = MODE_DECODE;
+        else
+            break;
+
+        argc--;
+        argv++;
     }
     
     if (argc == 0) {
@@ -109,6 +119,14 @@ int main(int argc, char **argv) {
     if (data == NULL) {
         log_err("Invalid data.");
         goto err;
+    } else {
+        free(ai_data);
+        ai_data = NULL;
+    }
+
+    if (opt_mode == MODE_DECODE) {      /* decode-only */
+        fwrite(data, 1, size, stdout);
+        return 0;
     }
 
     int pipefd[2] = { 0, 0 };
