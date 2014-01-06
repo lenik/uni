@@ -1,6 +1,6 @@
 # vim: set filetype=sh :
 
-_aiai() {
+_ai_utils() {
     local prev=${COMP_WORDS[COMP_CWORD-1]}
     local cword=`_get_cword`
     local cwlen=${#cword}
@@ -27,4 +27,4 @@ _aiai() {
 
     fi
 } &&
-complete -F _aiai aiai ai unai
+complete -F _ai_utils ai unai

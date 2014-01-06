@@ -2,7 +2,7 @@
 # see: dh_installdeb(1)
 # see: http://www.debian.org/doc/debian-policy/
 set -e
-PACKAGE_NAME=aiai
+PACKAGE_NAME=ai-utils
 SCRIPT=/usr/share/setup/$PACKAGE_NAME/postinst
 
 case "$1" in

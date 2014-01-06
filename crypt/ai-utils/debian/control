@@ -1,25 +1,26 @@
-Source: aiai
+Source: ai-utils
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.4
-Homepage: http://uni.bodz.net//mnt/istore/projects/uni/crypt/aiai
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/crypt/aiai
-Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/crypt/aiai
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/crypt/ai-utils
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/crypt/ai-utils
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/crypt/ai-utils
 
-Package: ai
+Package: ai-utils
 Architecture: any
 Depends:
-    unai,
+    libbas-c,
+    air,
     ${misc:Depends}
-Description: Ascii Art Data Encoder
-    Encode data in repeated sequence of a pre-defined ascii art picture.
+Description: Ascii Art format utilities
+    Encode or decode data in repeated sequence of a pre-defined ascii art 
+    picture.
 
-Package: unai
+Package: air
 Architecture: any
 Depends:
     libbas-c,
     ${misc:Depends}
-Description: Ascii Art Data Decoder
-    Decode ai encoded file.
+Description: Provides support of AI executable.
