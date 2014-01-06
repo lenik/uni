@@ -1,6 +1,6 @@
 include libauto/project.am
 
-AM_CPPFLAGS = ${GLIB_CFLAGS}
+AM_CPPFLAGS = ${GLIB_CFLAGS} -DLOG_LEVEL=4
 
 binfmtsdir = ${datadir}/binfmts
 templatedir = ${pkgdatadir}/template
@@ -13,12 +13,13 @@ bin_PROGRAMS = \
     air \
     unai
 
-dist_ai_SOURCES = ai.c
+dist_ai_SOURCES = ai.c aicodec.c
 ai_LDADD = ${GLIB_LIBS} -lbas
 
-dist_air_SOURCES = air.c
+dist_air_SOURCES = air.c aicodec.c
+air_LDADD = ${GLIB_LIBS} -lbas
 
-dist_unai_SOURCES = unai.c
+dist_unai_SOURCES = unai.c aicodec.c
 unai_LDADD = ${GLIB_LIBS} -lbas
 
 dist_completion_DATA = \

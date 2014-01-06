@@ -1,9 +1,4 @@
-#include <sys/types.h>
 #include <assert.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 #include <glib.h>
 
 #include <bas/cli.h>
@@ -18,17 +13,6 @@
 #define ASCII_L1 10
 #define ASCII_L2 20
 #define ASCII_L3 40
-
-char *ascii_stab =
-    "O0S5Z2B8l1:;.,({)}i!"              /* high (10) */
-    "KkgycouvUV"                        /* medium: similar (5) */
-    "EFPRXY"                            /* medium: add/remove (3) */
-    "pqbdsztf69[]"                      /* medium: opposites (6) */
-    "JjMmNnWw"                          /* medium: case switch (4) */
-    "~^`'I|x*&%-="                      /* low/unstable (6) */
-    "aeA4DQT7H#G@3?"                    /* low (7) */
-    // unused: +=_-$"<>hrAL
-    ;
 
 static GOptionEntry options[] = {
     OPTION('c', "stdout", "Write to stdout instead of the file"),
@@ -60,11 +44,7 @@ char *keydata = NULL;
 size_t keysize = 0;
 char *template_image = NULL;
 
-char *parse_stab(char *map8, const char *stab);
 char *load_template(const char *name);
-bool ai_encode_file(const char *in_path, FILE *in,
-                    const char *out_path, FILE *out,
-                    const char *image);
 
 gboolean parse_option(const char *_opt, const char *val,
                       gpointer data, GError **err) {
@@ -247,7 +227,10 @@ int main(int argc, char **argv) {
         }
 
         bool status;
-        status = ai_encode_file(path, in, out_path, out, template_image);
+        status = ai_encode_file(path, in, out_path, out,
+                                keydata, keysize,
+                                opt_stab8,
+                                template_image);
 
         if (out != NULL && out != stdout)
             fclose(out);
@@ -262,20 +245,6 @@ int main(int argc, char **argv) {
     }
 
     return 0;
-}
-
-/* map8: maximum 256 chars required. */
-char *parse_stab(char *map8, const char *stab) {
-    memset(map8, 0, 256);
-    int len = strlen(stab);
-    int i = 0;
-    while (i < len) {
-        char a = stab[i++];
-        char b = stab[i++];
-        map8[a] = b;
-        map8[b] = a;
-    }
-    return map8;
 }
 
 char *load_template(const char *name) {
@@ -334,121 +303,4 @@ char *load_template(const char *name) {
     }
 
     return image;
-}
-
-bool ai_encode_file(const char *in_path, FILE *in,
-                    const char *out_path, FILE *out,
-                    const char *image) {
-    assert(template_image);
-    assert(AIH_SIZE == 8);
-
-    ai_header *hdr;
-    char *data;                         /* all data to be encoded */
-    size_t size;                        /* size in bytes of the input file */
-    char *end;                          /* end of the data to be encoded */
-    char *t, *p;
-    int frame = 0;
-    int j = 0;                          /* useful bit index w/i a frame */
-    char byt;
-    int bits = 0;                       /* remaining bits of the current byte */
-    int ki = 0;                         /* key data offset */
-    int kval = 0;
-
-    char a, b;
-
-    fputs(" \t   \t  \n", out);         /* binfmt magic for scripts. */
-    fputc('\0', out);                   /* start the frames. */
-
-    /* draw 2 frames, to dump the stab. */
-    for (; frame < 2; frame++) {
-        t = template_image;
-        j = 0;
-        while (a = *t++) {
-            if ((b = opt_stab8[a])) {
-                bool swap = j++ & 1;
-                if (frame == 1)
-                    swap = !swap;
-                fputc(swap ? b : a, out);
-            } else {
-                fputc(a, out);
-            }
-        }
-        fputc('\0', out);               /* end of frame */
-
-        /* j <= total useful bit in a single frame. */
-        if (j == 0) {
-            log_err("No useful bit in the template image.");
-            return false;
-        }
-    }
-
-    data = _load_file(in, in_path, &size, AIH_SIZE, 0);
-    end = data + size + AIH_SIZE;
-    hdr = (ai_header *) data;
-    memset(hdr, 0, AIH_SIZE);
-    hdr->size = size;
-
-    u_int16_t sum = 0;         /* checksum of the input data */
-    for (p = data + AIH_SIZE; p < end; p++) {
-        byt = *p;
-        sum *= 17;
-        sum ^= byt ^ 0xCC;
-    }
-    hdr->checksum = sum;
-
-    if (keydata)
-        hdr->flags |= AI_ENCRYPT;
-
-    {
-        log_debug("    hdr.flags:    %xh", hdr->flags);
-        log_debug("    hdr.app:      %d", hdr->app);
-        log_debug("    hdr.checksum: %xh", hdr->checksum);
-        log_debug("    hdr.size:     %d", hdr->size);
-    }
-
-    p = data;
-    ki = 0;
-
-    while (p < end || bits > 0) {
-        t = template_image;
-        while (a = *t++) {
-            if ((b = opt_stab8[a])) {
-                /* a useful bit cell. */
-
-                if (bits == 0) {        /* load the next byte. */
-                    if (p < end) {
-                        byt = *p;
-                        if (p - data >= AIH_SIZE) {
-                            /* encrypt the real file data. */
-                            if (keydata) {
-                                kval = kval * 17;
-                                kval ^= keydata[ki++] ^ 0xCC;
-                                if (ki >= keysize) ki = 0;
-                                byt ^= kval;
-                            }
-                        }
-                        bits = 8;
-                        p++;
-                    } else {
-                        byt = 0;        /* padding 0 at the end */
-                        bits = 1;
-                    }
-                }
-
-                if (byt & 0x80)
-                    fputc(b, out);
-                else
-                    fputc(a, out);
-
-                byt <<= 1;
-                bits--;
-            } else {
-                fputc(a, out);
-            }
-        }
-        fputc('\0', out);               /* end of frame */
-    }
-
-    free(data);
-    return true;
 }

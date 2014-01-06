@@ -1,9 +1,4 @@
-#include <sys/types.h>
 #include <assert.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 #include <glib.h>
 
 #include <bas/cli.h>
@@ -25,15 +20,12 @@ static GOptionEntry options[] = {
 };
 
 bool opt_stdout = false;
+bool opt_streaming = true;
 bool opt_keep= false;
 char *opt_keyfile = NULL;               /* also the environ AI_KEYFILE */
 
 char *keydata = NULL;
 size_t keysize = 0;
-
-char *format_stab(char *stab, const char *map8);
-bool ai_decode_file(const char *in_path, FILE *in,
-                    const char *out_path, FILE *out);
 
 gboolean parse_option(const char *_opt, const char *val,
                       gpointer data, GError **err) {
@@ -132,8 +124,28 @@ int main(int argc, char **argv) {
         }
 
         bool status;
-        status = ai_decode_file(path, in, out_path, out);
-
+        if (opt_streaming) {
+            status = ai_decode_file(path, in, out_path, out,
+                                    keydata, keysize);
+        } else {
+            size_t in_size;
+            char *in_buf = load_file(path, &in_size, 0, 0);
+            if (in_buf == NULL) {
+                log_err("Failed to load file %s", path);
+                return 3;
+            }
+        
+            size_t out_size;
+            char *out_buf = ai_decode(in_buf, in_size, &out_size,
+                                      keydata, keysize);
+            status = out_buf != NULL;
+            if (status) {
+                fwrite(out_buf, 1, out_size, out);
+                free(out_buf);
+            }
+            free(in_buf);
+        }
+        
         if (out != NULL && out != stdout)
             fclose(out);
         if (in != NULL && in != stdin) {
@@ -147,163 +159,4 @@ int main(int argc, char **argv) {
     }
 
     return 0;
-}
-
-/* stab: maximum 256 chars required.  */
-char *format_stab(char *stab, const char *map8) {
-    int a, i = 0;
-    for (a = 0; a < 256; a++) {
-        char b = map8[a];
-        if (b == 0 || a >= b)
-            continue;
-        stab[i++] = a;
-        stab[i++] = b;
-    }
-    stab[i] = '\0';
-    return stab;
-}
-
-bool ai_decode_file(const char *in_path, FILE *in,
-                    const char *out_path, FILE *out) {
-    assert(AIH_SIZE == 8);
-
-    char *data;                         /* the text image */
-    size_t size;                        /* size in bytes of the text image */
-    char *end;                          /* end of the image */
-    char map8[256];                     /* mapping rebuilt from first frames */
-    char stab[256];                     /* format stab for debugging */
-    int fid = 0;                        /* frame index */
-    int i;                              /* frame byte index */
-    size_t cb = 0;                      /* total bytes have been output */
-    char byt = 0;                       /* output byte buffer */
-    int bits = 0;                       /* count of bit filled in the byte */
-    int ki = 0;                         /* key data offset */
-    int kval = 0;
-    ai_header hdr;                      /* the decoded header */
-    char *p;
-    u_int16_t sum = 0;                  /* checksum of the output file data */
-
-    /* padding 1 byte for terminate-NUL. */
-    data = _load_file(in, in_path, &size, 0, 1);
-
-    end = data + size;
-    *end = '\0';
-
-    log_info("Loaded file %s: size=%d", in_path, size);
-
-    int preamble_len = strlen(data);
-    char *frame0 = data + preamble_len + 1;
-    if (frame0 >= end) {
-        free(data);
-        log_err("Bad image file: frame#0 isn't available.");
-        return false;
-    }
-    int frame_len = strlen(frame0);
-
-    char *frame1 = frame0 + frame_len + 1;
-    if (frame1 >= end) {
-        free(data);
-        log_err("Bad image file: frame#1 isn't available.");
-        return false;
-    }
-    int frame1_len = strlen(frame1);
-
-    if (frame1_len != frame_len) {
-        free(data);
-        log_err("Bad image file: lengths of frame#0 and frame#1 are different.");
-        return false;
-    }
-
-    /* Rebuilding the stab mapping. */
-    memset(map8, 0, sizeof(map8));
-    for (i = 0; i < frame_len; i++) {
-        char a = frame0[i];
-        char b = frame1[i];
-        if (a != b) {
-            bool swapped = bits++ & 1;
-            map8[a] = b;
-            map8[b] = a;
-
-            if (swapped)
-                frame0[i] = b;          /* make frame0 as the base frame. */
-        }
-    }
-
-    format_stab(stab, map8);
-    log_debug("stab: \"%s\"", stab);
-
-    memset(&hdr, 0, sizeof(ai_header));
-    p = (char *) &hdr;
-    bits = 0;
-
-    /* Read the frames. */
-    fid = 2;
-    char *frame = frame1;
-    int len = frame_len;
-    while (1) {
-        frame += len + 1;
-        if (frame >= end)
-            break;
-
-        len = strlen(frame);            /* if the frame len=0, just no data
-                                           could be extracted */
-        log_debug("Frame#%d length=%d", fid, len);
-
-        for (i = 0; i < len; i++) {
-            char a = frame[i];
-            char b = map8[a];
-            if (b != 0 && a != b) {
-                byt <<= 1;
-                if (a != frame0[i])
-                    byt |= 1;
-                bits++;
-                if (bits == 8) {           /* flush a full byte. */
-                    if (cb < AIH_SIZE) {
-                        /* file header, load and drop it. */
-                        *p++ = byt;
-                    } else {
-                        /* real file data. */
-                        if (hdr.flags & AI_ENCRYPT) {
-                            kval = kval * 17;
-                            kval ^= keydata[ki++] ^ 0xCC;
-                            if (ki >= keysize) ki = 0;
-                            /* decrypt the file byte */
-                            byt ^= kval;
-                        }
-                        fputc(byt, out);
-                        sum *= 17;
-                        sum ^= byt ^ 0xCC;
-                    }
-                    byt = 0;
-                    bits = 0;
-                    cb++;
-
-                    if (cb == AIH_SIZE) {
-                        if (hdr.flags & AI_ENCRYPT) {
-                            if (keydata == NULL) {
-                                log_err("File is encrypted. No keyfile specified.");
-                                return false;
-                            }
-                        }
-                        log_debug("    hdr.flags:    %xh", hdr.flags);
-                        log_debug("    hdr.app:      %d", hdr.app);
-                        log_debug("    hdr.checksum: %xh", hdr.checksum);
-                        log_debug("    hdr.size:     %d", hdr.size);
-                    }
-                    if (cb >= AIH_SIZE && (cb - AIH_SIZE) >= hdr.size)
-                        break;
-                }
-            }
-        }
-        fid++;
-    }
-
-    if (sum != hdr.checksum)
-        log_err("File checksum failed.");
-
-    log_debug("Decoder output bytes=%d last byte=%02x bits=%d checksum=%xh",
-              cb, byt, bits, sum);
-
-    free(data);
-    return true;
 }
