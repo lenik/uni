@@ -14,7 +14,8 @@ do_subst += \
 bin_PROGRAMS = \
     ai \
     air \
-    unai
+    unai \
+    loadimage
 
 AM_CPPFLAGS = ${GLIB_CFLAGS} -DLOG_LEVEL=4
 
@@ -27,16 +28,13 @@ air_LDADD = ${GLIB_LIBS} -lbas
 dist_unai_SOURCES = unai.c aicodec.c
 unai_LDADD = ${GLIB_LIBS} -lbas
 
+dist_loadimage_SOURCES = loadimage.c aicodec.c
+loadimage_CFLAGS = -fpic -I/usr/include/bash
+loadimage${EXEEXT}: ${am_loadimage_OBJECTS}
+	ld -shared -lbas -o $@ $^
+
 dist_completion_DATA = \
     completions/ai_utils
-
-pkgdata_SCRIPTS = \
-    loadimage
-
-loadimage: loadimage.o aicodec.o
-	ld -x -Bshareable -o $@ $^
-loadimage.o: loadimage.c loadimage.c.in
-	gcc -fpic -I/usr/include/bash -c -o $@ $< -lbas
 
 #dist_sysvinit_SCRIPTS =
 dist_pkgdata_SCRIPTS = \
@@ -65,4 +63,4 @@ install-data-hook:
             ln -snf ai_utils ai; \
             ln -snf ai_utils unai
 	mkdir -p ${DESTDIR}${libdir}
-	mv ${DESTDIR}${pkgdatadir}/loadimage ${DESTDIR}${libdir}
+	mv ${DESTDIR}${bindir}/loadimage ${DESTDIR}${libdir}
