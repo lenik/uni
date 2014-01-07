@@ -6,6 +6,7 @@ AC_INIT([bash-ex], [0.1], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 
 # Checks for programs.
+AC_PROG_CC
 AC_PROG_LN_S
 
 # Checks for libraries.
