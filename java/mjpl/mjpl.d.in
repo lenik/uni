@@ -8,7 +8,8 @@ import std.file;
 import std.getopt;
 import std.path : baseName;
 import std.process;
-import std.stdio;
+import std.stdio : writeln, writefln;
+import std.stream : File, FileMode;
 import std.string;
 import std.zip;
 
@@ -22,7 +23,9 @@ import lenik.uni.mjpl.pom : Pom, Scope, manager; /* @link */
 
 mixin Log!("mjpl");
 
-string IPROGRAM = "net.bodz.bas.program.IProgram";
+string IPROGRAM         = "net.bodz.bas.program.IProgram";
+string SRCDIRS_MJPL     = ".srcdirs.mjpl";
+string CLASSPATH_MJPL   = ".classpath.mjpl";;
 
 /* TODO:
 
@@ -36,14 +39,15 @@ string IPROGRAM = "net.bodz.bas.program.IProgram";
   
 */
 Pom project;
+string[] srcdirs;
 string[] classpaths;
 
 int main(string[] argv) {
     string project_file;
-    string[] srcdirs;
     bool runApp = true;
 
     bool opt_refresh;
+    bool opt_test;
     bool list_deps;
     bool list_programs;
     bool list_services;
@@ -70,11 +74,15 @@ int main(string[] argv) {
                 project_file = argv[++i];
                 continue;
                 
-            case "-d": case "--dir":
+            case "-s": case "--srcdir":
                 if (!more) break;
                 srcdirs ~= argv[++i];
                 continue;
-                
+
+            case "-t": case "--test":
+                opt_test = true;
+                continue;
+                                
             case "-l": case "--list":
                 list_programs = true;
                 runApp = false;
@@ -90,7 +98,7 @@ int main(string[] argv) {
                 if (more) list_service_t = argv[++i];
                 runApp = false;
                 continue;
-                
+
             case "-q": case "--quiet":
                 maxLogLevel--;
                 continue;
@@ -120,13 +128,6 @@ int main(string[] argv) {
     }
     argv = argv[i..$];
 
-    foreach (srcdir; srcdirs) {
-        string file = srcdir ~ "/pom.xml";
-        file = canonicalize(file);
-        Pom pom = manager.resolveFile(file); /* Preload the local dir */
-        manager.scanLocalModules(pom);
-    }
-    
     if (project_file is null)
         project_file = "pom.xml";        /* find pom.xml in current dir */
     
@@ -134,69 +135,38 @@ int main(string[] argv) {
         log.err("No such file: %s", project_file);
         return -1;
     }
+
     project_file = canonicalize(project_file);
     log.info("Load project pom: %s", project_file);
-    
+
     project = manager.resolveFile(project_file);
-    
-    manager.scanLocalModules(project.localRoot);
-    manager.loadDependencies(project);
-    
     if (project is null) {
         log.err("Project is unknown.");
         return -1;
     }
+    
+    string classpath_cfg = project.dir ~ "/" ~ CLASSPATH_MJPL;
+    if (exists(classpath_cfg) && ! opt_refresh) {
+        log.info("Load cache: %s", classpath_cfg);
+        string s = readText(classpath_cfg);
+        foreach (ln; splitLines(s))
+            classpaths ~= ln.strip();
+    } else {
+        classpaths = collectClasspaths(list_deps, opt_test);
 
-    /* Collect the dependencies. */
-    auto deps = manager.collectDependencies(project, false);
-    foreach (idVer; deps) {
-        auto split = idVer.split(":");
-        string groupId = split[0];
-        string artifactId = split[1];
-        string version_ = split[2];
-        
-        if (list_deps)
-            log.info("Dependency for %s:%s:%s", groupId, artifactId, version_);
-
-        bool workDir = false;
-        Pom dpom = manager.resolveId(groupId, artifactId, version_);
-
-        if (dpom !is null) {            /* There is a pom.xml */
-            string classesDir = dpom.dir ~ "/target/classes/";
-            string testClassesDir = dpom.dir ~ "/target/test-classes/";
-
-            if (exists(classesDir)) {    /* We have src/target */
-                workDir = true;
-                classpaths ~= classesDir;
-                if (list_deps)
-                    writeln(classesDir);
-            }
-            if (exists(testClassesDir)) {
-                workDir = true;
-                classpaths ~= testClassesDir;
-                if (list_deps)
-                    writeln(testClassesDir);
-            }
-        }
-        
-        if (! workDir) {                /* In the repo, without src. */
-            string jar = m2env.resolve(groupId, artifactId, version_, "jar");
-            if (jar is null || jar.length == 0) {
-                log.warn("Resolved to [%s]: %s:%s:%s:jar",
-                         jar, groupId, artifactId, version_);
-                continue;
-            }
-            classpaths ~= jar;
-            if (list_deps)
-                writeln(jar);
-        }
-    } /* for deps */
-
+        log.info("Write cache: %s", classpath_cfg);
+        File f = new File(classpath_cfg, FileMode.OutNew);
+        foreach (cp; classpaths)
+            f.writeLine(cp);
+        f.close();
+    }
+    
     string[][string] providersMap;
     string[string] programNames;
     string[string] programTypes;
     string[string] tailmap;
-    scanImpls(list_service_t, providersMap, programNames, programTypes, tailmap);
+    scanImpls(list_service_t, providersMap,
+              programNames, programTypes, tailmap);
     
     if (list_services) {
         writeln("Services: ");
@@ -205,7 +175,7 @@ int main(string[] argv) {
             if (providers.length == 0)  /* skip empty list */
                 continue;
             if (list_service_t is null) /* show interface only in all-mode */
-                writeln("    --o " ~ k);
+                writeln("--o " ~ k);
             foreach (provider; providers)
                 writeln("        " ~ provider);
         }
@@ -261,6 +231,79 @@ int main(string[] argv) {
     log.info("Exec: %s", join(javaargs, " "));
     execvp(JAVA, javaargs);
     return -1;
+}
+
+string[] collectClasspaths(bool list_deps, bool test) {
+    string[] classpaths;
+    
+    if (srcdirs.length == 0) {
+        string srcdirs_cfg = project.dir ~ "/" ~ SRCDIRS_MJPL;
+        if (exists(srcdirs_cfg)) {
+            log.info("Load srcdirs config: %s", srcdirs_cfg);
+            string s = readText(srcdirs_cfg);
+            foreach (ln; splitLines(s))
+                srcdirs ~= ln.strip();
+        }
+    }
+    
+    /* Preload local srcdirs */
+    foreach (srcdir; srcdirs) {
+        string file = srcdir ~ "/pom.xml";
+        file = canonicalize(file);
+        Pom pom = manager.resolveFile(file);
+        manager.scanLocalModules(pom);
+    }
+    
+    manager.scanLocalModules(project.localRoot);
+    manager.loadDependencies(project);
+    
+    /* Collect the dependencies. */
+    auto deps = manager.collectDependencies(project, test);
+    foreach (idVer; deps) {
+        if (list_deps)
+            log.info("Dependency for %s", idVer);
+        
+        auto split = idVer.split(":");
+        string groupId = split[0];
+        string artifactId = split[1];
+        string version_ = split[2];
+            
+        bool workDir = false;
+        Pom dpom = manager.resolveId(groupId, artifactId, version_);
+
+        if (dpom !is null) {            /* There is a pom.xml */
+            string classesDir = dpom.dir ~ "/target/classes/";
+            if (exists(classesDir)) {
+                workDir = true;
+                classpaths ~= classesDir;
+                if (list_deps)
+                    writeln(classesDir);
+            }
+
+            string testClassesDir = dpom.dir ~ "/target/test-classes/";
+            if (exists(testClassesDir)) {
+                workDir = true;
+                if (test) {
+                    classpaths ~= testClassesDir;
+                    if (list_deps)
+                        writeln(testClassesDir);
+                }
+            }
+        }
+        
+        if (! workDir) {                /* In the repo, without src. */
+            string jar = m2env.resolve(groupId, artifactId, version_, "jar");
+            if (jar is null || jar.length == 0) {
+                log.err("M2env.resolve failed: %s", idVer);
+                continue;
+            }
+            classpaths ~= jar;
+            if (list_deps)
+                writeln(jar);
+        }
+    } /* for deps */
+    
+    return classpaths;
 }
 
 void scanImpls(string serviceType,
@@ -378,11 +421,11 @@ void showHelp() {
     writeln("    -B, --refresh       Discard any cache");
     writeln("    -L, --libdir=PATH   Where to search the libraries");
     writeln("    -p, --pom=FILE      Path of the project POM, default pom.xml");
-    writeln("    -d, --dir=DIR       Add local dir to the project path");
+    writeln("    -s, --srcdir=DIR    Add local src dir to the project path");
     writeln("    -l, --list          List application aliases");
     writeln("        --deps          List dependencies in full path");
     writeln("        --services[=T]  List service providers for T or all");
-    writeln("    -t, --test          Run with test environ");
+    writeln("    -t, --test          Include test scope dependencies");
     writeln("    -h, --help          Show this help page");
     writeln("    -q, --quiet         Repeat to get less info");
     writeln("    -v, --verbose       Repeat to get more info");
