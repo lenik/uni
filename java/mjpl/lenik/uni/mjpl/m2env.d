@@ -116,9 +116,9 @@ class M2Env {
     string resolve(string groupId, string artifactId, string versionRange,
                    string packaging = "jar") {
         string file;
-        bool unique = versionRange.indexOf(',') == -1;
-        string version_ = unique ? versionRange : null;
-        
+        bool simple = versionRange.indexOf(',') == -1;
+        string version_ = simple ? versionRange : null;
+
         foreach (string repodir; repodirs) {
             string repodir_ = repodir ~ '/';
             string ext = '.' ~ packaging;
@@ -126,7 +126,7 @@ class M2Env {
             file = repodir_ ~ artifactId ~ ext;
             if (exists1(file)) return file;
 
-            if (unique) {
+            if (simple) {               /* find: repo/foo-x.y.z.jar */
                 string avx = artifactId ~ '-' ~ version_ ~ ext;
                 file = repodir_ ~ avx;
                 if (exists1(file)) return file;
@@ -134,11 +134,11 @@ class M2Env {
             
             string groupdir_ = groupId.replace(".", "/") ~ '/';
             string dir = repodir_ ~ groupdir_ ~ artifactId;
-            if (unique) {
+            if (simple) {               /* find: repo/net/.../foo/x.y.z/... */
                 string avx = artifactId ~ '-' ~ version_ ~ ext;
                 file = dir ~ '/' ~ version_ ~ '/' ~ avx;
                 if (exists1(file)) return file;
-            } else {
+            } else {                    /* find: latest version... */
                 file = findLatest(dir, artifactId, versionRange, ext);
                 if (file != null) return file;
             }

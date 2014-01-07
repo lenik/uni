@@ -22,6 +22,8 @@ import lenik.uni.mjpl.pom : Pom, Scope, manager; /* @link */
 
 mixin Log!("mjpl");
 
+string IPROGRAM = "net.bodz.bas.program.IProgram";
+
 /* TODO:
 
   - using scope to determine which dependencies are required.
@@ -37,13 +39,15 @@ Pom project;
 string[] classpaths;
 
 int main(string[] argv) {
-    string pomfile;
+    string project_file;
+    string[] srcdirs;
     bool runApp = true;
-    
-    bool opt_dependencies;
-    bool opt_programs;
-    bool opt_services;
-    string opt_serviceType = null;
+
+    bool opt_refresh;
+    bool list_deps;
+    bool list_programs;
+    bool list_services;
+    string list_service_t = null;
     
     int i;
  L: for (i = 1; i < argv.length; i++) {
@@ -52,42 +56,50 @@ int main(string[] argv) {
         
         if (arg.startsWith("-")) {
             switch (arg) {
-            case "-p": case "--project":
-                if (!more) break;
-                pomfile = argv[++i];
+            case "-B": case "--refresh":
+                opt_refresh = true;
                 continue;
                 
             case "-L": case "--libdir":
                 if (!more) break;
                 m2env.repodirs ~= argv[++i];
                 continue;
-
-            case "-d": case "--dependencies":
-                opt_dependencies = true;
-                runApp = false;
+                
+            case "-p": case "--pom":
+                if (!more) break;
+                project_file = argv[++i];
+                continue;
+                
+            case "-d": case "--dir":
+                if (!more) break;
+                srcdirs ~= argv[++i];
                 continue;
                 
             case "-l": case "--list":
-                opt_programs = true;
-                runApp = false;
-                continue;
-            
-            case "-s": case "--services":
-                opt_services = true;
-                if (more) opt_serviceType = argv[++i];
+                list_programs = true;
                 runApp = false;
                 continue;
                 
-            case "-q":
-            case "--quiet":
-                maxLogLevel--; continue;
+            case "--deps":
+                list_deps = true;
+                runApp = false;
+                continue;
+                
+            case "--services":
+                list_services = true;
+                if (more) list_service_t = argv[++i];
+                runApp = false;
+                continue;
+                
+            case "-q": case "--quiet":
+                maxLogLevel--;
+                continue;
 
-            case "-v":
-            case  "--verbose":
-                maxLogLevel++; continue;
+            case "-v": case  "--verbose":
+                maxLogLevel++;
+                continue;
 
-            case "-h":
-            case "--help":
+            case "-h": case "--help":
                 showHelp(); 
                 continue;
             
@@ -108,17 +120,24 @@ int main(string[] argv) {
     }
     argv = argv[i..$];
 
-    if (pomfile is null)
-        pomfile = "pom.xml";            /* find pom.xml in current dir */
+    foreach (srcdir; srcdirs) {
+        string file = srcdir ~ "/pom.xml";
+        file = canonicalize(file);
+        Pom pom = manager.resolveFile(file); /* Preload the local dir */
+        manager.scanLocalModules(pom);
+    }
     
-    if (! exists(pomfile)) {
-        log.err("No such file: %s", pomfile);
+    if (project_file is null)
+        project_file = "pom.xml";        /* find pom.xml in current dir */
+    
+    if (! exists(project_file)) {
+        log.err("No such file: %s", project_file);
         return -1;
     }
-    pomfile = canonicalize(pomfile);
-    log.info("Load project pom: %s", pomfile);
+    project_file = canonicalize(project_file);
+    log.info("Load project pom: %s", project_file);
     
-    project = manager.resolveFile(pomfile);
+    project = manager.resolveFile(project_file);
     
     manager.scanLocalModules(project.localRoot);
     manager.loadDependencies(project);
@@ -136,7 +155,7 @@ int main(string[] argv) {
         string artifactId = split[1];
         string version_ = split[2];
         
-        if (opt_dependencies)
+        if (list_deps)
             log.info("Dependency for %s:%s:%s", groupId, artifactId, version_);
 
         bool workDir = false;
@@ -149,56 +168,65 @@ int main(string[] argv) {
             if (exists(classesDir)) {    /* We have src/target */
                 workDir = true;
                 classpaths ~= classesDir;
-                if (opt_dependencies)
+                if (list_deps)
                     writeln(classesDir);
             }
             if (exists(testClassesDir)) {
                 workDir = true;
                 classpaths ~= testClassesDir;
-                if (opt_dependencies)
+                if (list_deps)
                     writeln(testClassesDir);
             }
         }
         
-        if (! workDir) {                /* In the repo, but no src code. */
+        if (! workDir) {                /* In the repo, without src. */
             string jar = m2env.resolve(groupId, artifactId, version_, "jar");
+            if (jar is null || jar.length == 0) {
+                log.warn("Resolved to [%s]: %s:%s:%s:jar",
+                         jar, groupId, artifactId, version_);
+                continue;
+            }
             classpaths ~= jar;
-            if (opt_dependencies)
+            if (list_deps)
                 writeln(jar);
         }
-    }
+    } /* for deps */
 
-    string[][string] providers;
+    string[][string] providersMap;
     string[string] programNames;
     string[string] programTypes;
     string[string] tailmap;
-    scanImpls(opt_serviceType, providers, programNames, programTypes, tailmap);
+    scanImpls(list_service_t, providersMap, programNames, programTypes, tailmap);
     
-    if (opt_services) {
+    if (list_services) {
         writeln("Services: ");
-        foreach (k; sort(providers.keys)) {
-            if (opt_serviceType is null)
-                writeln("Service for: " ~ k);
-            foreach (provider; providers[k])
-                writeln("    " ~ provider);
+        foreach (k; sort(providersMap.keys)) {
+            auto providers = providersMap[k];
+            if (providers.length == 0)  /* skip empty list */
+                continue;
+            if (list_service_t is null) /* show interface only in all-mode */
+                writeln("    --o " ~ k);
+            foreach (provider; providers)
+                writeln("        " ~ provider);
         }
     }
 
     /* Register IProgram(s) using their simple names. */
-    foreach (fqcn; providers["net.bodz.bas.program.IProgram"]) {
-        auto lastDot = fqcn.lastIndexOf('.');
-        string tail;
-        if (lastDot == -1)
-            tail = cast(string) fqcn;
-        else
-            tail = cast(string) fqcn[lastDot+1..$];
-        string alias_ = tail.toLower();
+    if (IPROGRAM in providersMap)
+        foreach (fqcn; providersMap[IPROGRAM]) {
+            auto lastDot = fqcn.lastIndexOf('.');
+            string tail;
+            if (lastDot == -1)
+                tail = cast(string) fqcn;
+            else
+                tail = cast(string) fqcn[lastDot+1..$];
+            string alias_ = tail.toLower();
 
-        if (alias_ !in programNames)
-            programNames[alias_] = fqcn;
-    }
+            if (alias_ !in programNames)
+                programNames[alias_] = fqcn;
+        }
     
-    if (opt_programs) {
+    if (list_programs) {
         writeln("Programs:  ");
         string[] aliases = programNames.keys;
         sort(aliases);
@@ -236,19 +264,20 @@ int main(string[] argv) {
 }
 
 void scanImpls(string serviceType,
-               ref string[][string] providers,
+               ref string[][string] providersMap,
                ref string[string] programNames,
                ref string[string] programTypes,
                ref string[string] tailmap) {
     foreach (path; classpaths) {
         if (! exists(path)) {
-            log.err("Non-existed classpath: %s", path);
+            log.err("Non-existed classpath: %s.", path);
             continue;
         }
         
         if (isDir(path)) {
             log.info("DIR: %s", path);
-            
+
+            /* services in local dir */
             string servicesDir = path ~ "/META-INF/services";
             if (exists(servicesDir)) {
                 foreach (e; dirEntries(servicesDir, SpanMode.shallow)) {
@@ -257,11 +286,12 @@ void scanImpls(string serviceType,
                         log.info("  Service %s", fqcn);
                         char[] content = cast(char[]) read(e.name);
                         auto list = parseServices(content);
-                        providers[fqcn] ~= list;
+                        providersMap[fqcn] ~= list;
                     }
                 }
             }
-            
+
+            /* programs in local dir */
             string programsFile = path ~ "/META-INF/programs";
             if (exists(programsFile)) {
                 char[] content = cast(char[]) read(programsFile);
@@ -275,18 +305,24 @@ void scanImpls(string serviceType,
             ZipArchive ar = new ZipArchive(data);
             
             foreach (e; ar.directory) {
+                /* services in jar */
                 if (e.name.startsWith("META-INF/services/")) {
                     string fqcn = e.name["META-INF/services/".length .. $];
 
+                    /* skip dir entries */
+                    if (fqcn.length == 0 || fqcn.indexOf('/') != -1)
+                        continue;
+                    
                     if (serviceType is null || serviceType == fqcn) {
                         log.info("  Service %s", fqcn);
                     
                         char[] content = cast(char[]) e.expandedData;
                         auto list = parseServices(content);
-                        providers[fqcn] ~= list;
+                        providersMap[fqcn] ~= list;
                     }
                 }
 
+                /* programs in jar */
                 if (e.name == "META-INF/programs") {
                     char[] content = cast(char[]) e.expandedData;
                     parsePrograms(content, programNames, programTypes);
@@ -339,10 +375,14 @@ void showVersion() {
 void showHelp() {
     writeln("Usage: mjpl [OPTIONS] [--] <main-class or alias> [ARGS...]");
     writeln("Options:");
+    writeln("    -B, --refresh       Discard any cache");
     writeln("    -L, --libdir=PATH   Where to search the libraries");
-    writeln("    -p, --project=FILE  Specify the start pom.xml path");
-    writeln("    -d, --dependencies  List dependencies in full path");
+    writeln("    -p, --pom=FILE      Path of the project POM, default pom.xml");
+    writeln("    -d, --dir=DIR       Add local dir to the project path");
     writeln("    -l, --list          List application aliases");
+    writeln("        --deps          List dependencies in full path");
+    writeln("        --services[=T]  List service providers for T or all");
+    writeln("    -t, --test          Run with test environ");
     writeln("    -h, --help          Show this help page");
     writeln("    -q, --quiet         Repeat to get less info");
     writeln("    -v, --verbose       Repeat to get more info");
