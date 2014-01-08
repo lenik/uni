@@ -4,7 +4,7 @@ YANGWEI=@specbindir@/yangwei
 [ -x $YANGWEI ] || YANGWEI=./yangwei
 
 function main() {
-    tmp=`tempfile`
+    tmp=`mktemp`
 
     for f in "$@"; do
         _log2 "Decode $f => $tmp"

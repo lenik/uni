@@ -136,7 +136,7 @@ function main() {
         if [ -x "$TREETEX" ]; then
             _log1 "Generate install tree in TeX"
 
-            itreetmp=`tempfile`
+            itreetmp=`mktemp`
             $TREETEX -aF --destdir=$tmpdestdir \
                 -c "Files in the package $package_name" \
                 -r '\emph{«setupdir»}' \

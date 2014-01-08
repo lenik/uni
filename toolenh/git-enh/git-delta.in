@@ -38,7 +38,7 @@ function main() {
         return 1
     fi
 
-    patchf=`tempfile`
+    patchf=`mktemp`
 
     _log2 "Send git diff $* to $patchf"
     git diff "$@"  >$patchf

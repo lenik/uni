@@ -30,7 +30,7 @@ function main() {
     [ -z "$map" ] && map=/dev/stdin
 
     # Generate the sed subst script
-    sedf=`tempfile`
+    sedf=`mktemp`
     echo "#!/bin/bash" >$sedf
     echo "for f in \"\$@\"; do" >>$sedf
     echo "    sed -i \\" >>$sedf

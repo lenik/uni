@@ -207,7 +207,7 @@ function main() {
 
     if [ $# -gt 0 ]; then
         pomname="$1"
-        tmpfile=`tempfile`
+        tmpfile=`mktemp`
         _log2 "Set POM name to $pomname"
         xml2 <"$pomfile" \
             | sed -e "s|/project/name=.*|/project/name=$pomname|" \

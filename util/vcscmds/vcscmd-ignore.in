@@ -153,8 +153,8 @@ function il-version() {
 }
 
 function il-add() {
-    tmpf=`tempfile`
-    tmpedit=`tempfile`
+    tmpf=`mktemp`
+    tmpedit=`mktemp`
     $READ "$dirpath" >$tmpf
     cat $tmpf >$tmpedit
     for a in "$@"; do
@@ -171,8 +171,8 @@ function il-add() {
 }
 
 function il-remove() {
-    tmpf=`tempfile`
-    tmpedit=`tempfile`
+    tmpf=`mktemp`
+    tmpedit=`mktemp`
     $READ "$dirpath" >$tmpf
     while IFS='|' read line; do
         remove=
@@ -193,8 +193,8 @@ function il-edit() {
         [ -x /usr/bin/editor ] && EDITOR=/usr/bin/editor
     fi
 
-    tmpf=`tempfile`
-    tmpedit=`tempfile`
+    tmpf=`mktemp`
+    tmpedit=`mktemp`
     $READ "$dirpath" >$tmpf
     cp $tmpf $tmpedit
     $EDITOR $tmpedit
@@ -202,7 +202,7 @@ function il-edit() {
 }
 
 function il-contains() {
-    tmpf=`tempfile`
+    tmpf=`mktemp`
     $READ "$dirpath" >$tmpf
     while IFS='|' read line; do
         exists=
@@ -231,7 +231,7 @@ function il-set() {
 }
 
 function il-set-grep() {
-    tmpf=`tempfile`
+    tmpf=`mktemp`
     $READ "$dirpath" | grep "$@" >$tmpf
     $WRITE "$dirpath" <$tmpf
     rm -f $tmpf

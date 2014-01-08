@@ -271,7 +271,7 @@ function cron_exec() {
     local mode="$1"
     local id="$2"
     local cronspec="* * * * *" # Ignore interval.
-    local crontab=`tempfile`
+    local crontab=`mktemp`
     local cron_id="@rrdwrapper::$topic::$id"
 
     crontab -l >$crontab
@@ -378,7 +378,7 @@ function sample() {
 function sample_exec() {
     local id="$1"; shift
     local cmap_var=cmap_$id
-    local output=`tempfile`
+    local output=`mktemp`
 
     if "${id}_proc" "$@" >$output; then
         if [ $LOGLEVEL -ge 2 ]; then

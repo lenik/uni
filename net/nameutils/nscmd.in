@@ -105,7 +105,7 @@ function main() {
     [ -n "$keyfile" ] || quit "Keyfile isn't specified."
     ttl=${ttl:-$ttl_default}
 
-    tmp=`tempfile`
+    tmp=`mktemp`
     _log2 "Create nsupdate script: $tmp"
 
     [ $LOGLEVEL -ge 4 ] && echo "debug" >>$tmp

@@ -66,7 +66,7 @@ function main() {
             tmpf="$out"
             echo -n >"$tmpf"
         else
-            tmpf=`tempfile` || die "Failed to create temp file"
+            tmpf=`mktemp` || die "Failed to create temp file"
         fi
 
         echo .DIR "$PWD" >>$tmpf
@@ -136,7 +136,7 @@ function main() {
         cname=
         cfile=
         cfile_s=
-        ctmp=`tempfile`
+        ctmp=`mktemp`
         cdate=
 
         while IFS=$'\x1' read l; do

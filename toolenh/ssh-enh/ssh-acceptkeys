@@ -14,7 +14,7 @@ fi
 
 echo -n >>$khfile
 
-tmp=`tempfile`
+tmp=`mktemp`
 ssh-keyscan -t rsa,dsa "$@" | sort -u - $khfile >$tmp
 cat $tmp >$khfile
 rm -f $tmp

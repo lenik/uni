@@ -59,7 +59,7 @@ digraph m2localgraph {
 
 HEAD
 
-    tmpf=`tempfile`
+    tmpf=`mktemp`
     cat >$tmpf
 
     cut -d: -f1 $tmpf | sort -u \

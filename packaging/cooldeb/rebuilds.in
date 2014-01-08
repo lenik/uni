@@ -57,14 +57,14 @@ function debof() {
 }
 
 function main() {
-    list=`tempfile`
+    list=`mktemp`
     _log1 "Prepare all package names to be rebuild in $list"
 
     [ "$vcs_update" = 1 ] && vcscmd slupdate >>$list
     [ "$vcs_diff"   = 1 ] && vcscmd slist | cut -c9- >>$list
     echoln "$@" >>$list
 
-    packages=`tempfile`
+    packages=`mktemp`
     grep -v changelog "$list" \
         | while read f; do
             echo `debof "$f$"`

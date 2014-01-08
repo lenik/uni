@@ -127,7 +127,7 @@ function main() {
 
         # Search & copy to debian/patches
         _log1 "Search personal patches for $package"
-        tmplist=`tempfile`
+        tmplist=`mktemp`
         [ -f "$listfile" ] && cat "$listfile" >$tmplist
 
         for p in "$PPDIR/"*; do

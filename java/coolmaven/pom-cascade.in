@@ -40,7 +40,7 @@ function main() {
     _log1 "Top Project Name: $top_name"
     top_name="${top_name%% *}"
 
-    tmp=`tempfile`
+    tmp=`mktemp`
 
     for top_mod in */; do
         top_mod="${top_mod%/}"

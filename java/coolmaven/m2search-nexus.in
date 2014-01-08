@@ -48,7 +48,7 @@ function main() {
     api="${!api_var}"
 
     err=0
-    tmp=`tempfile`
+    tmp=`mktemp`
     for query in "$@"; do
         url=`printf "$server$api" "$query"`
         _log2 "Query $url"

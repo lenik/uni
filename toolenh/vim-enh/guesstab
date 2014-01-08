@@ -3,7 +3,7 @@
 istmp=0
 
 if [ -z "$1" ]; then
-    in=`tempfile`
+    in=`mktemp`
     cat >"$in"
     istmp=1
 else

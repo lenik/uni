@@ -30,7 +30,7 @@ function setopt() {
 }
 
 function main() {
-    tmp=`tempfile`
+    tmp=`mktemp`
     for f in "$@"; do
         xml2 <"$f" >$tmp
         if vi $tmp; then

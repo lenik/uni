@@ -33,7 +33,7 @@ function main() {
     [ -d "$gitroot" ] && die "Git split root already existed: $gitroot"
 
     svnurl=file://`readlink -f "$svnrepo"`
-    workcopy=`tempfile`
+    workcopy=`mktemp`
     rm -f $workcopy
     _log1 "Checkout $svnrepo -> $workcopy/"
     svn co "$svnurl" "$workcopy" >/dev/null \

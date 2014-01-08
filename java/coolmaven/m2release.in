@@ -118,7 +118,7 @@ function main() {
             rm -f "$depends_file"
             rm -f "$rdepends_file"
 
-            tmp_rdepends_file=`tempfile`
+            tmp_rdepends_file=`mktemp`
 
             while read path; do
                 [ -z "$path" ] && continue
@@ -160,7 +160,7 @@ function main() {
         fi
 
     # Prepare the environment
-        tmp=`tempfile`
+        tmp=`mktemp`
 
     # Always increase the version at first.
     set_version "$module" "$new_version"
@@ -182,7 +182,7 @@ function main() {
                 exit 0
             fi
 
-        commit_file=`tempfile`
+        commit_file=`mktemp`
             echo -n "Released $module-$new_version" >$commit_file
             for release in "${releases[@]}"; do
                 echo -n "$release" >>$commit_file

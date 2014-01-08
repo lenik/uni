@@ -25,7 +25,7 @@ function setopt() {
 }
 
 function main() {
-    local file=`tempfile`
+    local file=`mktemp`
     local key pattern
     local lines words chars
     cat >$file

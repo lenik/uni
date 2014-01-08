@@ -38,8 +38,8 @@ function check() {
 
 function main() {
 
-    listf=`tempfile`
-    sortf=`tempfile`
+    listf=`mktemp`
+    sortf=`mktemp`
 
     _log1 "Collect package names"
     apt-cache pkgnames >$listf

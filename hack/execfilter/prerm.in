@@ -12,7 +12,7 @@ fi
 
 if [ "$configured" = 1 ]; then
     echo "Remove libexecfilter from preloaded library list."
-    tmpf=`tempfile`
+    tmpf=`mktemp`
     grep -v libexecfilter "$preloadfile" >"$tmpf"
     mv -f "$tmpf" "$preloadfile"
 fi

@@ -25,7 +25,7 @@ function setopt() {
 }
 
 function tempdir() {
-    local f=`tempfile`
+    local f=`mktemp`
     rm -f $f && mkdir $f || die "Failed to mkdir $f"
     echo $f
 }

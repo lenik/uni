@@ -58,7 +58,7 @@ function main() {
 }
 
 function init-incdirs() {
-    local tmpc=$( tempfile -s ".c" )
+    local tmpc=$( mktemp --sufffix ".c" )
     local state ln
 
     echo "#include <ErrOr-bOgUs.h>" >$tmpc

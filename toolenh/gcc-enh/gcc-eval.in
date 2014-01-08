@@ -48,7 +48,7 @@ function setopt() {
 }
 
 function main() {
-    out=`tempfile`
+    out=`mktemp`
     generate "$@" | compile_and_run
     rm -f $out
 }

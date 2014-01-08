@@ -481,7 +481,7 @@ function main() {
         gource=`which gource` || quit "gource isn't installed."
 
         gitcmd=`gource --log-command git`
-        tmplog=`tempfile`
+        tmplog=`mktemp`
 
         $gitcmd "$file" "$@" >$tmplog
         gource $tmplog
