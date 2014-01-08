@@ -25,7 +25,8 @@ mixin Log!("mjpl");
 
 string IPROGRAM         = "net.bodz.bas.program.IProgram";
 string SRCDIRS_MJPL     = ".srcdirs.mjpl";
-string CLASSPATH_MJPL   = ".classpath.mjpl";;
+string CLASSPATH_MAIN   = ".classpath.main";;
+string CLASSPATH_TEST   = ".classpath.test";;
 
 /* TODO:
 
@@ -145,7 +146,8 @@ int main(string[] argv) {
         return -1;
     }
     
-    string classpath_cfg = project.dir ~ "/" ~ CLASSPATH_MJPL;
+    string classpath_cfg = project.dir ~ "/" ~
+        (opt_test ? CLASSPATH_TEST : CLASSPATH_MAIN);
     if (exists(classpath_cfg) && ! opt_refresh) {
         log.info("Load cache: %s", classpath_cfg);
         string s = readText(classpath_cfg);
