@@ -19,16 +19,16 @@ bin_PROGRAMS = \
 
 AM_CPPFLAGS = ${GLIB_CFLAGS} -DLOG_LEVEL=4
 
-dist_ai_SOURCES = ai.c aicodec.c
+dist_ai_SOURCES = ai.c ai.h aicodec.c
 ai_LDADD = ${GLIB_LIBS} -lbas
 
-dist_air_SOURCES = air.c aicodec.c
+dist_air_SOURCES = air.c ai.h aicodec.c
 air_LDADD = ${GLIB_LIBS} -lbas
 
-dist_unai_SOURCES = unai.c aicodec.c
+dist_unai_SOURCES = unai.c ai.h aicodec.c
 unai_LDADD = ${GLIB_LIBS} -lbas
 
-dist_loadimage_SOURCES = loadimage.c aicodec.c
+dist_loadimage_SOURCES = loadimage.c ai.h aicodec.c
 loadimage_CFLAGS = -fpic -I/usr/include/bash
 loadimage${EXEEXT}: ${am_loadimage_OBJECTS}
 	ld -shared -lbas -o $@ $^

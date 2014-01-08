@@ -3,9 +3,9 @@
 #include <limits.h>
 #include <stdio.h>
 
-#include <bash/builtins.h>
-#include <bash/builtins/bashgetopt.h>
-#include <bash/shell.h>
+#include <builtins.h>
+#include <builtins/bashgetopt.h>
+#include <shell.h>
 
 #include <bas/file.h>
 #include <bas/log.h>
