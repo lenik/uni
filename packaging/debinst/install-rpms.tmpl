@@ -1,4 +1,5 @@
 #!/bin/bash
+# vim: set filetype=sh :
 
 _dir_="${0%/*}"
 if [ "$_dir_" = "$0" ]; then
@@ -6,6 +7,10 @@ if [ "$_dir_" = "$0" ]; then
 fi
 
 cd "$_dir_"
+
+if [ -f ./pre-inst ]; then
+    ./pre-inst
+fi
 
 # Remove everything anyway
 rpm -e --force @PACKAGE_LIST@ >/dev/null 2>/dev/null
@@ -22,3 +27,6 @@ for pkg in @PACKAGE_LIST@; do
     echo
 done
 
+if [ -f ./post-inst ]; then
+    ./post-inst
+fi

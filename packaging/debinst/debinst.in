@@ -4,8 +4,9 @@
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
     . shlib-import cliboot
-    option --deb-word =STR  "Change the word deb in the deb archive"
-    option --rpm-word =STR  "Change the word rpm in the rpm archive"
+    option -u --unpack =TARBALL "Unpack additional tarball"
+    option --deb-word =STR      "Change the word deb in the deb archive"
+    option --rpm-word =STR      "Change the word rpm in the rpm archive"
     option -q --quiet
     option -v --verbose
     option -h --help
@@ -20,8 +21,15 @@
     declare -A downloaded
     declare -g -A deplevel
 
+    unpacks=()
+
 function setopt() {
     case "$1" in
+        -u|--unpack)
+            if ! tarball=$(readlink -f "$2"); then
+                quit "No such tarball: $2"
+            fi
+            unpacks=("${unpacks[@]}" "$tarball");;
         --deb-word)
             opt_deb_word="$2";;
         --rpm-word)
@@ -72,6 +80,10 @@ function main() {
     _log1 "Download all individual .debs."
         cd "$workdir_deb"
 
+        for tarball in "${unpacks[@]}"; do
+            tar xaf "$tarball" || quit "Failed to extract $tarball"
+        done
+
         local pkg
         for pkg in "$@"; do
             download_debs "$pkg" '' 0
@@ -105,6 +117,10 @@ function main() {
             quit "Failed to move rpms to rpm workdir."
 
         cd "$workdir_rpm"
+
+        for tarball in "${unpacks[@]}"; do
+            tar xaf "$tarball" || quit "Failed to extract $tarball"
+        done
 
         sed -e "s/[@]PACKAGE_LIST[@]/${deporder[*]}/g" \
             <./install-rpms.tmpl \
