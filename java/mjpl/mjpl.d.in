@@ -109,11 +109,11 @@ int main(string[] argv) {
 
             case "-h": case "--help":
                 showHelp(); 
-                continue;
+                return 0;
             
             case "--version":
                 showVersion(); 
-                continue;
+                return 0;
 
             case "--":
                 i++;
