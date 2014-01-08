@@ -193,6 +193,5 @@ int execle(const char *path, const char *arg0, ...) {
     int exit;
     exit = _execve(path, argv, envv);
     free(argv);
-    free(envv);
     return exit;
 }
