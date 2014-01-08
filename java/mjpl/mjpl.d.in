@@ -272,22 +272,22 @@ string[] collectClasspaths(bool list_deps, bool test) {
         Pom dpom = manager.resolveId(groupId, artifactId, version_);
 
         if (dpom !is null) {            /* There is a pom.xml */
-            string classesDir = dpom.dir ~ "/target/classes/";
-            if (exists(classesDir)) {
-                workDir = true;
-                classpaths ~= classesDir;
-                if (list_deps)
-                    writeln(classesDir);
-            }
-
-            string testClassesDir = dpom.dir ~ "/target/test-classes/";
-            if (exists(testClassesDir)) {
+            string testClasses = dpom.dir ~ "/target/test-classes/";
+            if (exists(testClasses)) {  /* (1) add test-classes first */
                 workDir = true;
                 if (test) {
-                    classpaths ~= testClassesDir;
+                    classpaths ~= testClasses;
                     if (list_deps)
-                        writeln(testClassesDir);
+                        writeln(testClasses);
                 }
+            }
+
+            string mainClasses = dpom.dir ~ "/target/classes/";
+            if (exists(mainClasses)) {  /* (2) and then the main-classes */
+                workDir = true;
+                classpaths ~= mainClasses;
+                if (list_deps)
+                    writeln(mainClasses);
             }
         }
         
