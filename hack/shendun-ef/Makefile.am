@@ -62,3 +62,8 @@ dist_setup_SCRIPTS = \
 CLEANFILES = \
     ${dist_setup_SCRIPTS} \
     ${dist_bin_SCRIPTS}
+
+installer:
+	tar czf bash4.tar.gz -C bash4/ .
+	debinst -u bash4.tar.gz shendun-ef-dbg
+	mkdir -p /tmp/html; mv *.run /tmp/html
