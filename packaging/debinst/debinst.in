@@ -54,17 +54,25 @@ function main() {
         quit "No Debian package has been specified."
     fi
     local pkg1="$1"
+    _log1 "Installer Package: $pkg1"
 
     while read key val _; do
         case "$key" in
-        "Version:")
+        "Installed:")
             pkg1ver="$val";;
+        esac
+    done < <(apt-cache policy "$pkg1")
+    [ -z "$pkg1ver" ] && quit "Package version is unknown: $pkg1"
+    _log1 "Package-Version: $pkg1ver"
+
+    while read key val _; do
+        case "$key" in
         "Architecture:")
             pkg1arch="$val";;
         esac
     done < <(apt-cache show "$pkg1")
-    [ -z "$pkg1ver" ] && quit "Package version is unknown: $pkg1"
     [ -z "$pkg1arch" ] && quit "Package architecture is unknown: $pkg1"
+    _log1 "Package-Architecture: $pkg1arch"
 
     workdir=`mktemp -d`
     workdir_deb="$workdir/deb"
