@@ -1,0 +1,45 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Maven local repository maintainer\'s tool}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -r --retry       "Remove cached network fails, so as to try download again" \
+            "When Maven fails to download an artifact from the configured repositories," \
+            "it will create a file describing the failure, and won't download it again" \
+            "even if it's available until timeout." \
+            "Doing --retry will force Maven to re-download them again immediately."
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_retry=
+
+function setopt() {
+    case "$1" in
+        -r|--retry)
+            opt_retry=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ "$opt_retry" = 1 ]; then
+        _log1 "Remove cached network fails, so as to try download again."
+        find -name '*lastUpdated*' -print -delete
+        find -name '*-not-available' -print -delete
+    fi
+}
+
+boot "$@"

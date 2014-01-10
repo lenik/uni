@@ -13,27 +13,27 @@ dist_bin_SCRIPTS = \
     edit2 \
     epom \
     git-m2ver \
-    newmod \
+    jetty \
     m2graph \
     m2help \
     m2installfile \
     m2layout \
     m2localdeps \
     m2localgraph \
+    m2mkdirs \
     m2modlist \
     m2release \
+    m2repo \
     m2rpn \
     m2search \
+    m2search-nexus \
     m2which \
     mjava \
+    newmod \
+    newmp \
     pom-cascade \
     pomid \
     pomtree
-
-bin_SCRIPTS = \
-    jetty \
-    m2search-nexus \
-    newmp
 
 dist_shlib_SCRIPTS = \
     loadpom
@@ -54,10 +54,12 @@ dist_man_MANS = \
     m2layout.1 \
     m2localdeps.1 \
     m2localgraph.1 \
+    m2mkdirs.1 \
     m2modlist.1 \
+    m2repo.8 \
     m2release.1 \
     m2rpn.1 \
-    m2search.1 \
+    m2search.8 \
     m2which.1 \
     mjava.1 \
     pom-cascade.1 \
@@ -77,30 +79,9 @@ dist_pkgdata_DATA = \
 #	xmltran -f "//archetype:=concat(groupId, ':', artifactId, ':', version, ':', normalize-space(translate(description, '&#10;', ' ')), '&#10;')" \
 #		$(srcdir)/archetype-catalog.xml >$@
 
-EXTRA_DIST = \
-    jetty.in \
-    m2search-nexus.in
-
+EXTRA_DIST =
 CLEANFILES = \
-    jetty \
-    m2graph \
-    m2help \
-    m2installfile \
-    m2layout \
-    m2localdeps \
-    m2localgraph \
-    m2release \
-    m2rpn \
-    m2search \
-    m2search-nexus \
-    m2which \
-    mjava \
-    newmod \
-    newmp \
-    pom-cascade \
-    pomid \
-    pomtree
-#    archetypes
+    ${dist_bin_SCRIPTS}
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); \

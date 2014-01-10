@@ -4,8 +4,8 @@
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
     . shlib-import cliboot
-    option -s --server =SERVER "Nexus http server URL to use"
-    option -a --api =VERSION "Specify nexus api version, default 1.8"
+    option -s --server =SERVER  "Nexus http server URL to use"
+    option -a --api =VERSION    "Specify nexus api version, default 1.8"
     option -q --quiet
     option -v --verbose
     option -h --help

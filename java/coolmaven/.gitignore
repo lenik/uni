@@ -1,6 +1,8 @@
 archetypes
 bash_completion.d/newmp
+coolmvn
 edit2
+epom
 get-common-prefix
 git-m2ver
 jetty
@@ -10,8 +12,10 @@ m2installfile
 m2layout
 m2localdeps
 m2localgraph
+m2mkdirs
 m2modlist
 m2release
+m2repo
 m2rpn
 m2search
 m2search-nexus
