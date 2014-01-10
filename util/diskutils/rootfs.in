@@ -1,0 +1,77 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Tool for creating root fs}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <rootfs-dir> <cmd> ARGS...}
+    
+    . shlib-import cliboot
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+function help_more() {
+    echo
+    echo "Commands:"
+    echo "    mount     Create system dirs and mount them"
+    echo "    umount    Un-mount system dirs"
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    root="$1"
+    if [ ! -d "$root" ]; then
+        quit "Root dir isn't not existed: $root"
+    else
+        shift
+        cd "$root" || quit "Can't enter $root"
+    fi
+
+    if [ -z "$1" ]; then
+        quit "Command isn't specified."
+    else
+        fn="rootfs-$1"
+        shift
+        if [ $(type -t "$fn") != 'function' ]; then
+            quit "Bad command: $1"
+        fi
+    fi
+
+    "$fn" "$@"
+}
+
+function rootfs-mount() {
+    mkdir -p dev/pts proc sys tmp
+
+    mount -t devtmpfs   none dev
+    mount -t devpts     none dev/pts
+    mount -t proc       none proc
+    mount -t sysfs      none sys
+    mount -t tmpfs      none tmp
+
+}
+
+function rootfs-umount() {
+    umount tmp
+    umount sys
+    umount proc
+    umount dev/pts
+    umount dev
+
+    rmdir dev/pts dev proc sys tmp
+}
+
+boot "$@"

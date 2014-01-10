@@ -1,4 +1,6 @@
+blockdev-info
 mkhdd
 partoffset
 readmbr
+rootfs
 writembr
