@@ -64,3 +64,10 @@ set smarttab
 :inoremap <F5>   <C-R>=strftime("%y-%m-%d %H:%M:%S ")<CR>
 :nnoremap <S-F5>     "=strftime("%c ")<CR>P
 :inoremap <S-F5> <C-R>=strftime("%c ")<CR>
+
+" Disable beep and flash
+"
+set noerrorbells visualbell t_vb=
+if has('autocmd')
+    autocmd GUIEnter * set visualbell t_vb=
+endif
