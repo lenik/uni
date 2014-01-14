@@ -37,6 +37,7 @@ TIME            = $(word 2,$(DATETIME))
 
 aliasdir        = ${datadir}/bash-alias/aliases
 apparmordir     = ${sysconfdir}/apparmor.d
+bashrcdir       = ${sysconfdir}/bashrc.d
 completiondir   = ${datadir}/bash-completion/completions
 cachedir        = /var/cache
 eardir          = ${javalibdir}/ear
@@ -71,6 +72,7 @@ do_subst = sed \
 do_subst += \
         -e 's,[@]aliasdir[@],$(aliasdir),g' \
         -e 's,[@]apparmordir[@],$(apparmordir),g' \
+        -e 's,[@]bashrcdir[@],$(bashrcdir),g' \
         -e 's,[@]completiondir[@],$(completiondir),g' \
         -e 's,[@]bindir[@],$(bindir),g' \
         -e 's,[@]cachedir[@],$(cachedir),g' \
