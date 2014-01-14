@@ -1,13 +1,15 @@
 #!/bin/bash
 # master-file
 
+tex_arch=$( @tex_arch_cmd@ )
+
 instdir=
-for texbin in /usr/local/texlive/*/bin/*/tex; do
+for texbin in /usr/local/texlive/*/bin/${tex_arch}-linux/tex; do
     if [ -x "$texbin" ]; then
         archbindir=${texbin%/tex}
         bindir=${archbindir%/*}
         instdir=${bindir%/*}
-        echo "Found texlive installation: $inst"
+        echo "Found texlive installation: $instdir"
     fi
 done
 

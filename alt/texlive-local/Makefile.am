@@ -1,5 +1,5 @@
 include libauto/project.am
-include libauto/allin.am
+include libauto/env/tex.am
 
 do_subst += -e 's,[@]profilesdir[@],$(profilesdir),g'
 
