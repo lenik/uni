@@ -1,5 +1,10 @@
 include libauto/project.am
 
+SUBDIRS = src
+
+dist_shlib_DATA = \
+    shlib.d/strfn
+
 dist_setup_SCRIPTS = \
     postinst \
     prerm

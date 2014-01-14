@@ -1,0 +1,2 @@
+enable -f bash-ex tolower
+enable -f bash-ex toupper
