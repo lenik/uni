@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([libbas-c], [0.5.4], [xjl-bug@99jsj.com])
+AC_INIT([libbas-c], [0.5.5], [xjl-bug@99jsj.com])
 LT_INIT([disable-static])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([-Wno-portability])
@@ -22,5 +22,9 @@ PKG_CHECK_MODULES([GLIB], [glib-2.0])
 AC_SUBST([GLIB_CFLAGS])
 AC_SUBST([GLIB_LIBS])
 
-AC_CONFIG_FILES([Makefile] [src/Makefile] [test/Makefile])
+AC_CONFIG_FILES(
+    [Makefile]
+    [src/Makefile]
+    [test/Makefile]
+    [util/Makefile])
 AC_OUTPUT

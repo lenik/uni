@@ -2,7 +2,7 @@ include libauto/project.am
 
 includedir = ${prefix}/include
 
-SUBDIRS = src test
+SUBDIRS = src test util
 
 dist_setup_SCRIPTS = \
     postinst \
