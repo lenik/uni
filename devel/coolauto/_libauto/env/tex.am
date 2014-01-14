@@ -49,6 +49,14 @@ texmfdir = $(shell test -x $(localtexbindir)/tex \
                    && echo $(localtexdir)/texmf \
                    || echo /usr/share/texmf)
 
+do_subst += \
+    -e 's/[@]tex_arch_cmd[@]/${tex_arch_cmd}/g' \
+    -e 's,[@]tex_arch[@],${tex_arch},g' \
+    -e 's,[@]localtexdir[@],${localtexdir},g' \
+    -e 's,[@]localtexbindir[@],${localtexbindir},g' \
+    -e 's,[@]texbindir[@],${texbindir},g' \
+    -e 's,[@]texmfdir[@],${texmfdir},g'
+
 AMSTEX    = $(texbindir)/amstex
 LATEX     = $(texbindir)/latex
 LUALATEX  = $(texbindir)/lualatex
