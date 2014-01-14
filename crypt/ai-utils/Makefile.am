@@ -7,6 +7,7 @@ AI_TEMPLATE = template/bridge
 
 binfmtsdir = ${datadir}/binfmts
 templatedir = ${pkgdatadir}/template
+bashbuiltinsdir = ${libdir}
 
 do_subst += \
     -e 's,[@]templatedir[@],${templatedir},g'
@@ -14,8 +15,7 @@ do_subst += \
 bin_PROGRAMS = \
     ai \
     air \
-    unai \
-    loadimage
+    unai
 
 AM_CPPFLAGS = ${GLIB_CFLAGS} -DLOG_LEVEL=4
 
@@ -27,6 +27,9 @@ air_LDADD = ${GLIB_LIBS} -lbas
 
 dist_unai_SOURCES = unai.c ai.h aicodec.c
 unai_LDADD = ${GLIB_LIBS} -lbas
+
+bashbuiltins_PROGRAMS = \
+    loadimage
 
 dist_loadimage_SOURCES = loadimage.c ai.h aicodec.c
 loadimage_CFLAGS = -fpic -I/usr/include/bash
@@ -62,5 +65,3 @@ install-data-hook:
 	cd ${DESTDIR}${completiondir}; \
             ln -snf ai_utils ai; \
             ln -snf ai_utils unai
-	mkdir -p ${DESTDIR}${libdir}
-	mv ${DESTDIR}${bindir}/loadimage ${DESTDIR}${libdir}
