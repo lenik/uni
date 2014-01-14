@@ -1,5 +1,7 @@
 *.img
 *.run
+osp.tgz
+@rundir@
 shendun-efext.c
 shendun-efpoll
 yangwei

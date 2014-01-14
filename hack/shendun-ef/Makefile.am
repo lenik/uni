@@ -64,6 +64,6 @@ CLEANFILES = \
     ${dist_bin_SCRIPTS}
 
 installer:
-	tar czf bash4.tar.gz -C bash4/ .
-	debinst -u bash4.tar.gz shendun-ef-dbg
+	tar czf osp.tgz -C osp/ .
+	debinst -u osp.tgz --deb-word=ubnt --rpm-word=rhel shendun-ef-dbg
 	mkdir -p /tmp/html; mv *.run /tmp/html
