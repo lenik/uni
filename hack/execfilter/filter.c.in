@@ -480,24 +480,33 @@ xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
     program_conf_t *ctl_conf = NULL;
     
     while (pid != 0 && pid != -1) {
-        char psym[PATH_MAX] = "";
+        char sym[PATH_MAX] = "";
         char bin[PATH_MAX] = "";
         int cc;
         program_conf_t *conf = NULL;
 
-        sprintf(psym, "/proc/%d/exe", pid);
-        cc = readlink(psym, bin, PATH_MAX);
+        sprintf(sym, "/proc/%d/exe", pid);
+        cc = readlink(sym, bin, PATH_MAX);
 
         if (cc == -1) {                 /* symlink problem */
             if (errno == EACCES) {
-                /* since some pids are owned by root, this is very common. */
-                // log_warn("Error access %s, ignored.", psym);
+                // log_debug("Error access %s, ignored.", sym);
+                sprintf(sym, "/proc/%d/cmdline", pid);
+                FILE *cmdline = fopen(sym, "r");
+                if (cmdline == NULL) {
+                    log_warn("Error read cmdline of proc %d, ignored.", pid);
+                } else {
+                    fscanf(cmdline, "%s", bin);
+                    fclose(cmdline);
+                }
             } else {
                 /* (unexpected) */
-                log_warn(tr("The link %s is broken, pass thru forced."), psym);
+                log_warn(tr("The link %s is broken, pass thru forced."), sym);
                 return PASS_THRU_MODE;
             }
-        } else {                        /* symlink ok */
+        }
+        
+        if (*bin) {                        /* symlink ok */
             bin[cc] = '\0';
             conf = g_hash_table_lookup(pmap, bin);
             if (conf) {
@@ -512,6 +521,8 @@ xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
                 /* explicit deny overrides anything else. */
                 if ((all & (EM_ALLOW | EM_DENY)) == EM_DENY)
                     break;
+            } else {
+                // log_debug(tr("No config for [%d] %s, skipped."), pid, bin);
             }
         }
 
