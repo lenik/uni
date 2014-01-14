@@ -509,8 +509,11 @@ xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
         if (*bin) {                        /* symlink ok */
             bin[cc] = '\0';
             conf = g_hash_table_lookup(pmap, bin);
-            if (conf) {
+
+            if (conf || !*ctl_bin)
                 strcpy(ctl_bin, bin);
+
+            if (conf) {
                 ctl_conf = conf;
                 
                 xmode_t m = get_execution_mode(conf, obj_norm);
@@ -530,7 +533,7 @@ xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
     }
 
     if ((all & (EM_ALLOW | EM_DENY)) == EM_DENY) {
-        log_info(tr("%s() denied: %s"), src, obj);
+        log_debug(tr("%s() denied: %s"), src, obj);
         if (ctl_conf == NULL || ctl_conf->logging >= LOG_BLOCKED) {
             log_notice(tr("Execution Blocked: %s -> %s"),
                        *ctl_bin ? ctl_bin : src, obj);
