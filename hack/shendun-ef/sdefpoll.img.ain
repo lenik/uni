@@ -1,6 +1,9 @@
 # -*- mode: sh -*-
 # vim: set filetype=sh :
 
+# hdparm is usually installed at /sbin/hdparm.
+PATH=/sbin:/usr/sbin:$PATH
+
 LSB_RELEASE=$(which lsb_release 2>/dev/null)
 YANGWEI=@pkgdatadir@/yangwei
 [ -x "$YANGWEI" ] || YANGWEI=./yangwei
