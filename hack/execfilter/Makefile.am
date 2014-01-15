@@ -48,7 +48,7 @@ dist_syslogconf_DATA = \
 
 dist_doc_DATA = manual.pdf
 
-manual.pdf: main.tex itree.tex
+manual.pdf: main.tex
 	-cooltex -a -jmanual -T$(XELATEX) main.tex
 
 dist_setup_SCRIPTS = \

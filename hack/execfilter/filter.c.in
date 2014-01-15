@@ -268,7 +268,7 @@ static const char *parse_confs(char *script, const char *location) {
                 if (sr) {
                     /* some format maybe pre-defined, but not implemented. */
                     if (sr->handle) {
-                        log_err(tr("Format %s is already defined as %s::%s."),
+                        log_warn(tr("Format %s is already defined as %s::%s."),
                                 ext, sr->libname, sr->fn);
                         continue;
                     }
@@ -468,9 +468,7 @@ xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
     if (gate_sr.proc) {
         log_debug(tr("Invoke gate fn: %s::%s"), gate_sr.libname, gate_sr.fn);
         gate_fn gatef = gate_sr.proc;
-        if (gatef(pid, 0)) {
-            log_debug(tr("Gate returned. continue..."));
-        } else {
+        if (! gatef(pid, 0)) {
             log_notice(tr("Disabled by the gate. allow all: %s"), obj_norm);
             return 0;
         }
@@ -494,14 +492,14 @@ xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
                 sprintf(sym, "/proc/%d/cmdline", pid);
                 FILE *cmdline = fopen(sym, "r");
                 if (cmdline == NULL) {
-                    log_warn("Error read cmdline of proc %d, ignored.", pid);
+                    log_warn(" - Error read cmdline of proc %d, ignored.", pid);
                 } else {
                     fscanf(cmdline, "%s", bin);
                     fclose(cmdline);
                 }
             } else {
                 /* (unexpected) */
-                log_warn(tr("The link %s is broken, pass thru forced."), sym);
+                log_warn(tr(" - The link %s is broken, pass thru forced."), sym);
                 return PASS_THRU_MODE;
             }
         }
@@ -517,7 +515,7 @@ xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
                 ctl_conf = conf;
                 
                 xmode_t m = get_execution_mode(conf, obj_norm);
-                log_debug(tr("Mode of %s for [%d] %s: %x\n"),
+                log_debug(tr(" - Mode of %s for [%d] %s: %x\n"),
                           obj_norm, pid, bin, m);
                 all |= m;
 
@@ -525,7 +523,7 @@ xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
                 if ((all & (EM_ALLOW | EM_DENY)) == EM_DENY)
                     break;
             } else {
-                // log_debug(tr("No config for [%d] %s, skipped."), pid, bin);
+                // log_debug(tr(" - No config for [%d] %s, skipped."), pid, bin);
             }
         }
 

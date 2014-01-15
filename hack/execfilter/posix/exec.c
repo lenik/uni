@@ -2,10 +2,11 @@
 
 /* print the cmdline. */
 #define echo_cmdline(...) ((void) 0)
+//#define echo_cmdline _echo_cmdline
 
 static void _echo_cmdline(const char *src, const char *file,
                          char *const *argv, char *const *envp) {
-    char cmdl[4096] = "";
+    char cmdl[8000] = "";
     int maxlen = sizeof(cmdl) - 1;
     cmdl[maxlen] = '\0';
 
@@ -20,55 +21,77 @@ static void _echo_cmdline(const char *src, const char *file,
         p++;
     }
 
-    log_debug("%s: %s", src, cmdl);
+    log_debug("%s%c %s", src, envp ? '=' : ':', cmdl);
+
+    if (envp) {
+        p = envp;
+        while (*p)
+            log_debug("  env %s", *p++);
+    }
 }
 
 static int _execv(const char *path, char *const argv[]) {
     static int (*next)(const char *, char *const *);
     def_next(execv);
 
-    echo_cmdline("execv/l", path, argv, NULL);
+    echo_cmdline("execl/v", path, argv, NULL);
 
     NORM_CONFIG(execv, path);
     RET_IF_DENY(norm, mode);
 
-    return next(path, argv);
+    int ret = next(path, argv);
+    if (ret == -1) {
+        log_perr("execv failed");
+    }
+    return ret;
 }
 
 static int _execvp(const char *file, char *const argv[]) {
     static int (*next)(const char *, char *const *);
     def_next(execvp);
 
-    echo_cmdline("execvp/lp", file, argv, NULL);
+    echo_cmdline("execl/vp", file, argv, NULL);
 
     NORM_CONFIG(execvp, file);
     RET_IF_DENY(norm, mode);
 
-    return next(file, argv);
+    int ret = next(file, argv);
+    if (ret == -1) {
+        log_perr("execvp failed");
+    }
+    return ret;
 }
 
 static int _execvpe(const char *file, char *const argv[], char *const envp[]) {
     static int (*next)(const char *, char *const *, char *const *);
     def_next(execvpe);
 
-    echo_cmdline("execvpe/lpe", file, argv, envp);
+    echo_cmdline("execl/vpe", file, argv, envp);
 
     NORM_CONFIG(execvpe, file);
     RET_IF_DENY(norm, mode);
 
-    return next(file, argv, envp);
+    int ret = next(file, argv, envp);
+    if (ret == -1) {
+        log_perr("execvpe failed");
+    }
+    return ret;
 }
 
 static int _execve(const char *file, char *const argv[], char *const envp[]) {
     static int (*next)(const char *, char *const *, char *const *);
     def_next(execve);
 
-    echo_cmdline("execve/le", file, argv, envp);
+    echo_cmdline("execl/ve", file, argv, envp);
 
     NORM_CONFIG(execve, file);
     RET_IF_DENY(norm, mode);
 
-    return next(file, argv, envp);
+    int ret = next(file, argv, envp);
+    if (ret == -1) {
+        log_perr("execve failed");
+    }
+    return ret;
 }
 
 int execv(const char *path, char *const argv[]) {
@@ -93,7 +116,7 @@ int execve(const char *file, char *const argv[], char *const envp[]) {
 
 #define PTRSIZE sizeof(void *)
 
-static char **va_ptrsz(va_list ap, int *countp,
+static char **va_ptrsz(va_list *vpp, int *countp,
                        bool has0, const char *arg0) {
     int alloc = 16;
     char **ptrv = malloc(alloc * sizeof(char *));
@@ -110,7 +133,7 @@ static char **va_ptrsz(va_list ap, int *countp,
 
     if (more) {
         while (true) {
-            char *ptr = va_arg(ap, char *);
+            char *ptr = va_arg(*vpp, char *);
             if (ptr == NULL)
                 break;
             if (count >= alloc - 1) {   /* extra +1 for NUL terminator */
@@ -137,7 +160,7 @@ int execl(const char *path, const char *arg0, ...) {
 
     va_list vp;
     va_start(vp, arg0);
-    char **argv = va_ptrsz(vp, NULL, true, arg0);
+    char **argv = va_ptrsz(&vp, NULL, true, arg0);
     va_end(vp);
 
     int exit;
@@ -154,7 +177,7 @@ int execlp(const char *file, const char *arg0, ...) {
 
     va_list vp;
     va_start(vp, arg0);
-    char **argv = va_ptrsz(vp, NULL, true, arg0);
+    char **argv = va_ptrsz(&vp, NULL, true, arg0);
     va_end(vp);
 
     int exit;
@@ -172,7 +195,7 @@ int execle(const char *path, const char *arg0, ...) {
 
     va_list vp;
     va_start(vp, arg0);
-    char **argv = va_ptrsz(vp, &argc, true, arg0);
+    char **argv = va_ptrsz(&vp, &argc, true, arg0);
     char **envv = va_arg(vp, char **);
     va_end(vp);
 
