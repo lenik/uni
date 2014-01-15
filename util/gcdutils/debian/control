@@ -1,0 +1,16 @@
+Source: gcdutils
+Section: utils
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/util/gcdutils
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/util/gcdutils
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/util/gcdutils
+
+Package: gcdutils
+Architecture: all
+Depends: bash-shlib, bash-ex
+Description: Git version-controlled device utilities.
+ Track device changes using Git.
+

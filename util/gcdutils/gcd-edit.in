@@ -1,0 +1,77 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Git-controlled device edit command}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <git-working-dir>}
+    
+    . shlib-import cliboot
+    option -q --quiet       "Repeat to get less info"
+    option -v --verbose     "Repeat to get more info"
+    option -h --help        "Show this help page"
+    option    --version     "Print the version info"
+
+    workdir_mounted=
+    gitdir_mounted=
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    shopt -s nullglob
+
+    [ -d "$1" ] || quit "No such directory: $1"
+    workdir="${1%/}"
+
+    files=("$workdir"/*)
+    echoli "${files[@]}"
+    if [ "${#files[@]}" = 0 ]; then
+        _log1 "Mount $workdir as read/write..."
+        if sudo mount -o rw "$workdir"; then
+            workdir_mounted=1
+        else
+            quit "Failed to mount."
+        fi
+    fi
+
+    [ -d "$1/.git" ] || quit "Not a working dir: $1"
+    gitdir="$1/.git"
+
+    if [ ! -e "$gitdir/config" ] && [ ! -L "$gitdir" ]; then
+        _log1 "Mount $gitdir..."
+        if sudo mount "$gitdir"; then
+            gitdir_mounted=1
+        else
+            quit "Failed to mount."
+        fi
+    fi
+
+    echo "Okay, please do some edits, and then press Ctrl-D to continue..."
+    worknam="${workdir##*/}"
+    pushd "$workdir" >/dev/null
+    "$SHELL" --rcfile <(echo "export PS1='\[\e[1;43m\]$worknam::\[\e[0;47m\]\w\[\e[43m\]\$ \[\e[m\]'")
+    popd >/dev/null
+
+    if [ "$gitdir_mounted" = 1 ]; then
+        _log1 "Unmount $gitdir..."
+        sudo umount "$gitdir"
+    fi
+    if [ "$workdir_mounted" = 1 ]; then
+        _log1 "Unmount $workdir..."
+        sudo umount "$workdir"
+    fi
+
+    _log1 Done.
+}
+
+boot "$@"
