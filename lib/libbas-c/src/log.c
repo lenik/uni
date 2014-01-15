@@ -132,6 +132,8 @@ void _vlog_x(const char *ident, int option, int level,
         fputc('\r', LOG_FILE);
     else
         fputc('\n', LOG_FILE);
+
+    errno = errnum;                     /* restore the errno */
 }
 
 void _log_x(const char *ident, int option, int level,
