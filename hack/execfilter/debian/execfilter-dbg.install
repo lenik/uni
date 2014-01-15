@@ -1,0 +1,3 @@
+etc/execfilter.d/
+usr/bin/ef-dump
+usr/share/execfilter/user

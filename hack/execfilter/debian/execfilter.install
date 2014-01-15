@@ -1,2 +1,5 @@
-etc/
-usr/
+etc/rsyslog.d/
+usr/lib/
+usr/share/doc/
+usr/share/locale/
+usr/share/setup/
