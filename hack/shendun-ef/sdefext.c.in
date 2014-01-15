@@ -25,7 +25,7 @@ void decode(char *buf, int size) {
 #define AUTH_FILE       "@rundir@/sdefauth"
 #define AUTH_MAC_MAX    99
 #define FAILURE_MAX     24
-#define RENEW_CMD       "shendun-efpoll -r"
+#define RENEW_CMD       "sdefpoll -r"
 
 struct auth_db {
     char mac[AUTH_MAC_MAX + 1];         /* (128-bit) hash of machine identity */

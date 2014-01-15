@@ -23,35 +23,38 @@ yangwei_SOURCES = yangwei.c ywcrypt.c
 yangwei_CFLAGS = $(GLIB_CFLAGS) $(AM_CFLAGS)
 yangwei_LDADD = -lbas
 
-#efgate_SOURCES = shendun-efext.c ywcrypt.c
+#efgate_SOURCES = sdefext.c ywcrypt.c
 #efgate_CFLAGS = ${AM_CFLAGS}
 #efgate_LDADD = -lbas
 
 dist_bin_SCRIPTS = \
-    shendun-efpoll \
+    sdefpoll \
     yw-edit
 
 dist_pkgdata_DATA = \
-    shendun-efpoll.img \
+    sdefpoll.img \
     yw-edit.img
 
 lib1_LTLIBRARIES = \
-    libshendun-efext.la
+    libsdefext.la
 
-libshendun_efext_la_SOURCES = \
-    shendun-efext.c \
+libsdefext_la_SOURCES = \
+    sdefext.c \
     ywcrypt.c
-libshendun_efext_la_LDFLAGS = -version-info 1:0:0
-libshendun_efext_la_LIBADD = -lbas
+libsdefext_la_LDFLAGS = -version-info 1:0:0
+libsdefext_la_LIBADD = -lbas
 
 dist_config_DATA = \
     shendun.ini
 
+dist_sysvinit_SCRIPTS = \
+    sdefinit
+
 dist_cronhourly_SCRIPTS = \
-    shendun-renew
+    sdefre
 
 dist_man_MANS = \
-    shendun-efpoll.8 \
+    sdefpoll.8 \
     yangwei.1 \
     yw-edit.8
 

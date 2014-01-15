@@ -2,7 +2,7 @@
 *.run
 osp.tgz
 @rundir@
-shendun-efext.c
-shendun-efpoll
+sdefext.c
+sdefpoll
 yangwei
 yw-edit
