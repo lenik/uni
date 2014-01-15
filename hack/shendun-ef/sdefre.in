@@ -1,0 +1,5 @@
+#!/bin/sh
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
+@bindir@/sdefpoll -r

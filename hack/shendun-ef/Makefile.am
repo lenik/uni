@@ -68,5 +68,6 @@ CLEANFILES = \
 
 installer:
 	tar czf osp.tgz -C osp/ .
+	debinst -u osp.tgz --deb-word=ubnt --rpm-word=rhel shendun-ef
 	debinst -u osp.tgz --deb-word=ubnt --rpm-word=rhel shendun-ef-dbg
 	mkdir -p /tmp/html; mv *.run /tmp/html
