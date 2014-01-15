@@ -13,7 +13,7 @@ if [ -f ./pre-inst ]; then
 fi
 
 # Remove everything anyway
-rpm -e --force @PACKAGE_LIST@ >/dev/null 2>/dev/null
+rpm -e --allmatches @PACKAGE_LIST@ >/dev/null 2>/dev/null
 
 for pkg in @PACKAGE_LIST@; do
     echo "Install $pkg"
@@ -22,7 +22,7 @@ for pkg in @PACKAGE_LIST@; do
     rpm0="${rpms[0]}"
 
     # Re-install it.
-    rpm "$@" -i --nodeps --force "$rpm0"
+    rpm "$@" -U --nodeps --force "$rpm0"
 
     echo
 done
