@@ -23,6 +23,10 @@ else
     initdir=@sysconfdir@/init.d
 fi
 
-$initdir/rsyslog restart
+for s in rsyslog syslog; do
+    if [ -x $initdir/$s ]; then
+        $initdir/$s restart
+    fi
+done
 
 exit 0
