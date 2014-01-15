@@ -1,4 +1,20 @@
 #!/bin/sh
 # master-file
 
+if [ -f @sysconfdir@/rc.d/init.d ]; then # RHEL
+    initdir=@sysconfdir@/rc.d/init.d
+else
+    initdir=@sysconfdir@/init.d
+fi
+
+cp @pkgdatadir@/sdefinit $initdir
+
+if which update-rc.d >/dev/null 2>&1; then
+    update-rc.d sdefinit defaults
+else
+    chkconfig --add sdefinit
+fi
+
+$initdir/sdefinit start >/dev/null
+
 exit 0

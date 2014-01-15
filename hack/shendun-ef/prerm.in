@@ -1,4 +1,18 @@
 #!/bin/sh
 # master-file
 
+if [ -f @sysconfdir@/rc.d/init.d ]; then # RHEL
+    initdir=@sysconfdir@/rc.d/init.d
+else
+    initdir=@sysconfdir@/init.d
+fi
+
+$initdir/sdefinit stop >/dev/null
+
+if which update-rc.d >/dev/null 2>&1; then
+    update-rc.d sdefinit remove
+else
+    chkconfig --del sdefinit
+fi
+
 exit 0

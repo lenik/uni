@@ -89,12 +89,12 @@ bool gate(pid_t pid, int reserved) {
     }
 
     if (!strlen(db.mac) || db.expire == 0) {
-        log_err("Software isn't registered, yet.");
+        log_info("Software isn't registered, yet.");
         return false;
     }
 
     if (db.recent > db.expire) {
-        log_err("Registration is expired.");
+        log_info("Registration is expired.");
         return false;
     }
 

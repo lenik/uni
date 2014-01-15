@@ -35,6 +35,9 @@ dist_pkgdata_DATA = \
     sdefpoll.img \
     yw-edit.img
 
+dist_pkgdata_SCRIPTS = \
+    sdefinit
+
 lib1_LTLIBRARIES = \
     libsdefext.la
 
@@ -46,9 +49,6 @@ libsdefext_la_LIBADD = -lbas
 
 dist_config_DATA = \
     shendun.ini
-
-dist_sysvinit_SCRIPTS = \
-    sdefinit
 
 dist_cronhourly_SCRIPTS = \
     sdefre
