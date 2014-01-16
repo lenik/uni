@@ -11,5 +11,4 @@ dist_bash_ex_SOURCES = \
 bash_ex_CFLAGS = -fpic -I/usr/include/bash
 
 bash-ex${EXEEXT}: ${am_bash_ex_OBJECTS}
-	ld -shared -lbas -o $@ $^
-
+	gcc -shared -lbas -o $@ $^
