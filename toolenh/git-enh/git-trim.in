@@ -1,0 +1,52 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] NEW-SIZE}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$1" ]; then
+        quit "The new size isn't specified."
+    fi
+
+    size="$1"
+    if [ "$size" -lt 1 ]; then
+        quit "Invalid size: $size"
+    fi
+
+    branch=$(git branch --no-color | grep '*' | cut -c3-)
+    head=$(git rev-parse $branch)
+    _log1 "Current branch: $branch $head"
+
+    prevs=$((size - 1))
+    orig=$(git rev-parse $branch~$prevs)
+
+    _log1 "Recreating $branch branch with initial commit $orig ..."
+    git checkout --orphan orig-tmp $orig
+    git commit -C $orig
+    git rebase --onto orig-tmp $orig $branch
+    git branch -d orig-tmp
+}
+
+boot "$@"

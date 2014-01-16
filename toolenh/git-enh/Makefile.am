@@ -9,6 +9,7 @@ dist_bin_SCRIPTS = \
     git-prev \
     git-remote-ref \
     git-stitch-fix \
+    git-trim \
     git-ws-fix \
     git2svn \
     gitcl \
