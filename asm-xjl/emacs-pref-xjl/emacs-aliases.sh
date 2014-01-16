@@ -1,3 +1,4 @@
 #vim: set filetype=sh :
 
-alias ef='run-bg emacsclient -c'
+# Emacs with frame.
+alias e='emacsclient -nc'
