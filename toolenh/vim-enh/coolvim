@@ -8,8 +8,8 @@ else
     SUDO=
 fi
 
-if [ -z "$vim" ]; then
-    vim=vim
+if [ -z "$VIM" ]; then
+    VIM=vim
 fi
 
 vimopts=()
@@ -20,7 +20,7 @@ if [ -z "$1" ]; then
         vimopts[nvimopts++]=-S
         vimopts[nvimopts++]=.vimrc
     fi
-    $vim "${vimopts[@]}"
+    $VIM "${vimopts[@]}"
     exit $?
 fi
 
@@ -62,7 +62,7 @@ for f in "$@"; do
     before=0
     if [ -f "$f" ]; then before=`stat -c%Y "$f"`; fi
 
-    if $sudo_w $vim "${vimopts[@]}" -c "$tabrc" "$f"; then
+    if $sudo_w $VIM "${vimopts[@]}" -c "$tabrc" "$f"; then
         [ -f "$f" ] || continue
 
         read $sudo_r head < <(head -1 "$f")
