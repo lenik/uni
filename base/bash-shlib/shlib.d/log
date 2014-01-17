@@ -8,9 +8,6 @@ LOGFX_DEBUG='[37m'
 LOGFX_WARN='[1;45m'
 LOGFX_ERROR='[1;41m'
 
-LOGLEVEL_WARN=0
-LOGLEVEL_ERROR=-1
-
 : ${LOGLEVEL:=1}
 
 if [ -z "$PROGRAM_NAME" ]; then
@@ -39,6 +36,14 @@ function _log() {
 }
 
 function _warn() {
+    if [ -z "$LOGLEVEL_WARN" ]; then
+        if [ $LOGLEVEL -ge 0 ]; then
+            LOGLEVEL_WARN=0
+        else
+            LOGLEVEL_WARN=$((LOGLEVEL - 1))
+        fi
+    fi
+
     if [ $LOGLEVEL -ge $LOGLEVEL_WARN ]; then
         if [ $LOGFX = 1 ]; then
             echo "$LOGFX_WARN$LOGPREFIX$@[0m" >&2
@@ -49,6 +54,14 @@ function _warn() {
 }
 
 function _error() {
+    if [ -z "$LOGLEVEL_ERROR" ]; then
+        if [ $LOGLEVEL -ge 0 ]; then
+            LOGLEVEL_ERROR=-1
+        else
+            LOGLEVEL_ERROR=$((LOGLEVEL - 2))
+        fi
+    fi
+
     if [ $LOGLEVEL -ge $LOGLEVEL_ERROR ]; then
         if [ $LOGFX = 1 ]; then
             echo "$LOGFX_ERROR$LOGPREFIX$@[0m" >&2
