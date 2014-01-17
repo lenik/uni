@@ -1,5 +1,6 @@
 # -*- mode: sh -*-
 # vim: set filetype=sh :
+LOGLEVEL=-3
 
 # hdparm is usually installed at /sbin/hdparm.
 PATH=/sbin:/usr/sbin:$PATH
@@ -9,18 +10,19 @@ YANGWEI=@pkgdatadir@/yangwei
 [ -x "$YANGWEI" ] || YANGWEI=./yangwei
 
 start_url=http://sd.shenduncn.com/sds.php
-auth_file="$rundir/sdefauth"
+authdir="$rundir"
+authfile="$authdir/sdefauth"
 mac_lot=
 mac_norm=
 
 function main() {
-    if [ -f "$auth_file" ]; then
+    if [ -f "$authfile" ]; then
         while IFS=' =' read k v; do
             [ -z "$k" ] && continue         # empty lines
             [ "${k:0:1}" = '#' ] && continue # comment lines
             declare $k="$v"
             _log2 "$k=$v"
-        done < <($YANGWEI -d "$auth_file")
+        done < <($YANGWEI -d "$authfile")
     fi
 
     net_failure=
@@ -89,6 +91,11 @@ function main() {
                 ;;
 
             config)
+                if [ ! -w "$configdir" ]; then
+                    _error "Can't update config."
+                    quit "You may need to run this program as root."
+                fi
+
                 name="${resp[0]}"
                 text="${resp[*]:1}"
                 _log2 "Update config $name.conf"
@@ -206,18 +213,17 @@ function get_hw_mac() {
 }
 
 function save_auth() {
-    if [ ! -w "$auth_file" ]; then
-        # assert false. cuz this script should be run by root user.
-        if ! rm -f "$auth_file"; then
-            _error "Auth file isn't writable."
-            return 1
-        fi
+    rm -f "$authfile"
+    if [ ! -w "$authdir" ]; then
+        _error "Can't update auth."
+        quit "You may need to run this program as root."
+        return 1
     fi
 
     (( auth_serial ++ ))
-    _log2 "Updating $auth_file (serial $auth_serial)."
+    _log2 "Updating $authfile (serial $auth_serial)."
 
-    cat <<EOF | $YANGWEI -e >"$auth_file"
+    cat <<EOF | $YANGWEI -e >"$authfile"
 # shendun authentication file
 # updated at `date`
 auth_configs    = $auth_configs

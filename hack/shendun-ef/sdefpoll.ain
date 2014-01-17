@@ -2,12 +2,12 @@
     [ $BASH = '/bin/bash' ] && [ -x /bin/bash4 ] && exec /bin/bash4 "$0" "$@"
 
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
     : ${PROGRAM_PATH:=@bindir@/sdefpoll}
     : ${PROGRAM_TITLE:=Shendun execfilter config poller}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
-    : ${caller_pkg:=@PACKAGE@}
 
-    . shlib-import cliboot ai
+    . shlib-import ai cliboot
     option -r --renew       "Register/Renew the license" \
         "Send registration or renew request to the licensing server." \
         "This software won't run until it's licensed in a specific period."
