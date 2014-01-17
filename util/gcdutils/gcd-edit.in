@@ -30,8 +30,24 @@ function setopt() {
 function main() {
     shopt -s nullglob
 
-    [ -d "$1" ] || quit "No such directory: $1"
+    [ -z "$1" ] && quit "Workdir isn't specified."
+    [ "$1" = '/' ] && quit "Bad workdir: $1"
     workdir="${1%/}"
+    workdir_created=0
+
+    if [ ! -d "$workdir" ]; then
+        parentdir="${workdir%/*}"
+        base="${workdir##*/}"
+        [ "$parentdir" = "$workdir" ] && parentdir=.
+
+        stem="${base%.d}"
+        hdd="$parentdir/$stem.hdd"
+        if [ -e "$hdd" ]; then
+            _log1 "Auto create workdir for hdd image $hdd"
+            mkdir "$workdir" || quit "Failed to create dir $workdir"
+            workdir_created=1
+        fi
+    fi
 
     files=("$workdir"/*)
     echoli "${files[@]}"
@@ -40,19 +56,22 @@ function main() {
         if sudo mount -o rw "$workdir"; then
             workdir_mounted=1
         else
-            quit "Failed to mount."
+            quit "Failed to mount $workdir."
         fi
     fi
 
     [ -d "$1/.git" ] || quit "Not a working dir: $1"
     gitdir="$1/.git"
 
-    if [ ! -e "$gitdir/config" ] && [ ! -L "$gitdir" ]; then
+    if [ ! -e "$gitdir/objects/info" ] && [ ! -L "$gitdir" ]; then
         _log1 "Mount $gitdir..."
-        if sudo mount "$gitdir"; then
-            gitdir_mounted=1
+        if msg=$( sudo mount "$gitdir" 2>&1 ); then
+            gitdir_mounted="$gitdir"
+        elif msg=$( sudo mount "$gitdir/objects" 2>&1 ); then
+            gitdir_mounted="$gitdir/objects"
         else
-            quit "Failed to mount."
+            gitdir_mounted=
+            _error "Failed to mount: $msg"
         fi
     fi
 
@@ -62,15 +81,18 @@ function main() {
     "$SHELL" --rcfile <(echo "export PS1='\[\e[1;43m\]$worknam::\[\e[0;47m\]\w\[\e[43m\]\$ \[\e[m\]'")
     popd >/dev/null
 
-    if [ "$gitdir_mounted" = 1 ]; then
-        _log1 "Unmount $gitdir..."
-        sudo umount "$gitdir"
+    if [ -n "$gitdir_mounted" ]; then
+        _log1 "Unmount $gitdir_mounted..."
+        sudo umount "$gitdir_mounted"
     fi
     if [ "$workdir_mounted" = 1 ]; then
         _log1 "Unmount $workdir..."
         sudo umount "$workdir"
     fi
-
+    if [ "$workdir_created" = 1 ]; then
+        _log1 "Auto rmdir $workdir"
+        rmdir "$workdir"
+    fi
     _log1 Done.
 }
 
