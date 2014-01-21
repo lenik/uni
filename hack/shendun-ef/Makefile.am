@@ -19,7 +19,7 @@ SUBDIRS = test
 specbin_PROGRAMS = \
     yangwei
 
-yangwei_SOURCES = yangwei.c ywcrypt.c
+yangwei_SOURCES = yangwei.c ywcrypt.c ywcrypt.h
 yangwei_CFLAGS = $(GLIB_CFLAGS) $(AM_CFLAGS)
 yangwei_LDADD = -lbas
 
@@ -43,7 +43,9 @@ lib1_LTLIBRARIES = \
 
 libsdefext_la_SOURCES = \
     sdefext.c \
-    ywcrypt.c
+    ywcrypt.c \
+    ywcrypt.h \
+    log.h
 libsdefext_la_LDFLAGS = -version-info 1:0:0
 libsdefext_la_LIBADD = -lbas
 

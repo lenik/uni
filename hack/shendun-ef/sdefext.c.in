@@ -60,10 +60,10 @@ bool gate(pid_t pid, int reserved) {
         } else {
             /* other stat error. */
             log_perr("stat file %s", AUTH_FILE);
-            return false;                  /* bad auth file: can't stat it. stop. */
+            return false;               /* bad auth file: can't stat. stop. */
         }
     } else {
-        if (sb.st_mtime > mtime) {          /* file changed, reload it anyway. */
+        if (sb.st_mtime > mtime) {      /* file changed, reload it anyway. */
             size_t size;
             char *auth_data;
 
@@ -81,7 +81,7 @@ bool gate(pid_t pid, int reserved) {
             if (! parse_auth(auth_data, &db)) {
                 log_err("Parse error in auth file.");
             } else {
-                mtime = sb.st_mtime;        /* reloaded, okay. */
+                mtime = sb.st_mtime;    /* reloaded, okay. */
             }
 
             free(auth_data);
