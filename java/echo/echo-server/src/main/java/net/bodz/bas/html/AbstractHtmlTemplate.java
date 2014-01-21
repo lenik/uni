@@ -6,8 +6,8 @@ import java.io.Writer;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.bodz.bas.c.javax.servlet.http.ThreadServletContext;
 import net.bodz.bas.err.UnexpectedException;
+import net.bodz.bas.http.ctx.ThreadServletContext;
 
 import com.googlecode.jatl.Html;
 

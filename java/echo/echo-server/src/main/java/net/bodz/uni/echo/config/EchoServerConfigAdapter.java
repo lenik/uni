@@ -5,6 +5,8 @@ import java.util.List;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
+import net.bodz.bas.c.javax.servlet.http.*;
+
 public class EchoServerConfigAdapter
         implements ServletContextListener, //
         ServletContextAttributeListener, //

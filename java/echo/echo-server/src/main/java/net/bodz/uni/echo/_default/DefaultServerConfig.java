@@ -1,7 +1,7 @@
 package net.bodz.uni.echo._default;
 
 import net.bodz.bas.c.javax.servlet.http.RequestLogger;
-import net.bodz.bas.c.javax.servlet.http.ThreadServletResponseListener;
+import net.bodz.bas.http.ctx.ThreadServletContext;
 import net.bodz.uni.echo.config.EchoServerConfig;
 import net.bodz.uni.echo.config.ServletDescriptor;
 
@@ -14,13 +14,14 @@ public class DefaultServerConfig
         addWelcomeFile("index.html");
         addWelcomeFile("index.htm");
 
-        addFilter(RequestLogger.class, "*");
+        addServletRequestListener(new ThreadServletContext());
+        addServletRequestListener(new RequestLogger());
 
         /**
          * There is no HttpResponse parameter in servlet-request-event, this is a work-around fix,
          * use filter to get the response object.
          */
-        addFilter(ThreadServletResponseListener.class, "/*");
+        addFilter(ThreadServletContext.class, "/*");
 
         addFilter(Welcome.class, "/");
 

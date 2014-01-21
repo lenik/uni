@@ -13,6 +13,7 @@ import javax.servlet.Servlet;
 
 import org.apache.commons.collections15.map.HashedMap;
 
+import net.bodz.bas.c.javax.servlet.http.*;
 import net.bodz.bas.c.object.UseNet;
 import net.bodz.bas.err.DuplicatedKeyException;
 import net.bodz.bas.t.order.PrioritySortedLists;
@@ -238,13 +239,13 @@ public class EchoServerConfig {
         return servletRequestListeners;
     }
 
-    public void addServletContextListener(IServletRequestListener listener) {
+    public void addServletRequestListener(IServletRequestListener listener) {
         if (listener == null)
             throw new NullPointerException("listener");
         PrioritySortedLists.add(servletRequestListeners, listener);
     }
 
-    public void removeServletContextListener(IServletRequestListener listener) {
+    public void removeServletRequestListener(IServletRequestListener listener) {
         if (listener == null)
             throw new NullPointerException("listener");
         PrioritySortedLists.remove(servletRequestListeners, listener);
