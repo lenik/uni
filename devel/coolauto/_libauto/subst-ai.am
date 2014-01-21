@@ -31,18 +31,26 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-AI=ai
+AI=${shell which ai}
 # Default AI_TEMPLATE...
 export AI_KEYFILE=${top_srcdir}/README
 
 %: %.ain Makefile
 	rm -f "$@"
-	AI_KEYFILE= $(AI) -ct $(AI_TEMPLATE) <($(do_subst) <"$<") >"$@"
+	if test -x "${AI}"; then \
+	    AI_KEYFILE= ${AI} -ct ${AI_TEMPLATE} <(${do_subst} <"$<") >"$@"; \
+	else \
+	    ${do_subst} <"$<" >"$@"; \
+	fi
 	chmod --reference "$<" "$@"
 	chmod -w "$@"
 
 %.img: %.img.ain Makefile
 	rm -f "$@"
-	$(AI) -ct $(AI_TEMPLATE) <($(do_subst) <"$<") >"$@"
+	if test -x "${AI}"; then \
+	    ${AI} -ct ${AI_TEMPLATE} <(${do_subst} <"$<") >"$@" ; \
+	else \
+	    ${do_subst} <"$<" >"$@"; \
+	fi
 	chmod --reference "$<" "$@"
 	chmod -w "$@"
