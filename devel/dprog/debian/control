@@ -12,7 +12,7 @@ Package: dprog
 Architecture: all
 Depends:
     bash-shlib,
-    dmd,
+    dmd | gdc | ldc,
     ${misc:Depends}
 Description: D language develop tools
     dprog includes utilities for development with Digital Mars D language.
