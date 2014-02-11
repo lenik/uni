@@ -1,7 +1,7 @@
 #!/bin/bash
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
     : ${PROGRAM_TITLE:="Mount ssh points"}
-    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ssh-mountpoints... (named in format user@host:port:path)"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ssh-mountpoints... (named in format user@host:port,path)"}
 
     . shlib-import cliboot
     option -q --quiet
@@ -33,8 +33,8 @@ function main() {
         id="${id##*/}"
 
         remote=
-        # user@host:port:path
-        # user@host::path
+        # user@host:port,path
+        # user@host,path
         user="${id%%@*}"
         if [ "$user" = "$id" ]; then
             user=
@@ -43,24 +43,23 @@ function main() {
             remote="$user@"
         fi
 
-        host="${id%%:*}"
-        if [ "$host" = "$id" ]; then
-            # no port, no path.
+        hostport="${id%%,*}"
+        if [ "$hostport" = "$id" ]; then
+            # no path.
             id=''
         else
-            id="${id#*:}"
+            id="${id#*,}"
         fi
-        remote="$remote$host"
 
-        if [ -n "$id" ]; then
-            port="${id%%:*}"
-            if [ "$port" = "$id" ]; then
-                # no path
-                id=''
-            else
-                id="${id#*:}"
-            fi
-            # remote="$remote:$port"
+        host="${hostport%:*}"
+        if [ "$host" = "$hostport" ]; then
+            port=
+        else
+            port="${hostport##*:}"
+        fi
+
+        remote="$remote$host"
+        if [ -n "$port" ]; then
             sshfs_opts[sshfs_optn++]=-p
             sshfs_opts[sshfs_optn++]=$port
         fi
@@ -72,7 +71,7 @@ function main() {
         _log2 "Remote-Path:  $rpath"
         _log2 "Connect-Name: $remote"
 
-        _log2 Execute: sshfs -p $port "$remote:$rpath" "$dir"
+        _log2 Execute: sshfs "${sshfs_opts[@]}" "$remote:$rpath" "$dir"
         sshfs "${sshfs_opts[@]}" "$remote:$rpath" "$dir"
     done
 }
