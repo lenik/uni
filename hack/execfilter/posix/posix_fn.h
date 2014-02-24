@@ -36,8 +36,8 @@
 #define RET_IF_DENY(path, mode) RET_IF_DENY_(path, mode, -1, 0)
 #define RET_IF_DENY_(path, mode, err, pass)                         \
     do {                                                            \
-        if ((mode) & EM_INTR) return err;                            \
-        if (((mode) & (EM_ALLOW | EM_DENY)) == EM_DENY) {              \
+        if ((mode) & EM_INTR) return err;                           \
+        if (((mode) & (EM_ALLOW | EM_DENY)) == EM_DENY) {           \
             errno = EACCES;                                         \
             return err;                                             \
         }                                                           \

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([execfilter], [1.4.4], [xjl-bug@99jsj.com])
+AC_INIT([execfilter], [1.4.5], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability subdir-objects])
 LT_INIT([disable-static])
 AC_CONFIG_MACRO_DIR([m4])
