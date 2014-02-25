@@ -414,6 +414,7 @@ class PomManager {
 
         string id = pom.groupId ~ ":" ~ pom.artifactId;
         string idVer = id ~ ":" ~ pom.version_;
+        // log.dbg("  cache imap: %s", idVer);
         imap[idVer] = pom;
 
         if (id !in maxVers)
@@ -466,8 +467,16 @@ class PomManager {
             if (parentDir !is null) {
                 string parentFile = parentDir ~ "/pom.xml";
                 if (exists(parentFile)) {
-                    log.dbg("Found local file %s", parentFile);
+                    if (artifactId == parentDir.baseName) {
+                        log.dbg("  Found local file %s", parentFile);
+                    } else {
+                        log.dbg("  Possible local file %s", parentFile);
+                    }
                     parent = resolveFile(parentFile);
+                    if (parent.groupId != groupId || parent.artifactId != artifactId) {
+                        log.dbg("    Unmatched! Try other...");
+                        parent = null;
+                    }
                 }
             }
 
@@ -475,10 +484,10 @@ class PomManager {
             if (parent is null) {
                 parent = resolveId(groupId, artifactId, version_);
                 if (parent is null) {
-                    log.err("Can't resolve the parent.");
+                    log.err("  Can't resolve the parent.");
                     return false;
                 } else {
-                    log.dbg("Found in repo %s", parent.file);
+                    log.dbg("  Found in repo %s", parent.file);
                 }
             }
         }
