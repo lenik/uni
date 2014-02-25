@@ -198,10 +198,21 @@ private:
         /* BUGFIX CommentException */
         static auto killRegex = regex(r"<!--.*==.*-->", "g");
         xml = replace(xml, killRegex, "");
-        
-        debug(2) xml.check();
-        
-        auto project = new Document(xml);
+        Document project;
+
+        try {
+            debug(2) xml.check();
+        } catch (Exception e) {
+            log.err("Failed to check xml: %s", pomFile);
+        }
+
+        try {
+            project = new Document(xml);
+        } catch (Exception e) {
+            log.err("Failed to parse xml: %s", pomFile);
+            return;
+        }
+
         foreach (Element e1; project.elements) {
             switch (e1.tag.name) {
             case "name":
