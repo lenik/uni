@@ -54,6 +54,9 @@ public class EchoServerConfig {
     List<IHttpSessionActivationListener> sessionActivationListeners = new ArrayList<>();
     List<IHttpSessionBindingListener> sessionBindingListeners = new ArrayList<>();
 
+    public EchoServerConfig() {
+    }
+
     public IResourceProvider getResourceProvider() {
         return resourceProvider;
     }
