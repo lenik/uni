@@ -243,11 +243,12 @@ private:
                 break;
 
             case "dependencyManagement":
-                Element e2 = e1.elements[0];
-                assert(e2.tag.name == "dependencies");
-                foreach (Dependency dm; parseDependencies(e2)) {
-                    string dmkey = dm.groupId ~ ":" ~ dm.artifactId;
-                    _dmgmt[dmkey] = dm;
+                foreach (Element e2; e1.elements) {
+                    assert(e2.tag.name == "dependencies");
+                    foreach (Dependency dm; parseDependencies(e2)) {
+                        string dmkey = dm.groupId ~ ":" ~ dm.artifactId;
+                        _dmgmt[dmkey] = dm;
+                    }
                 }
                 break;
 
