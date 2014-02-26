@@ -49,6 +49,7 @@ int main(string[] argv) {
 
     bool opt_refresh;
     bool opt_test;
+    bool opt_dump;
     bool list_deps;
     bool list_programs;
     bool list_services;
@@ -84,6 +85,10 @@ int main(string[] argv) {
                 opt_test = true;
                 continue;
                                 
+            case "--dump":
+                opt_dump = true;
+                continue;
+
             case "-l": case "--list":
                 list_programs = true;
                 runApp = false;
@@ -163,6 +168,11 @@ int main(string[] argv) {
         f.close();
     }
     
+    if (opt_dump) {
+        project.dump();
+        return 0;
+    }
+
     string[][string] providersMap;
     string[string] programNames;
     string[string] programTypes;
@@ -425,6 +435,7 @@ void showHelp() {
     writeln("    -L, --libdir=PATH   Where to search the libraries");
     writeln("    -p, --pom=FILE      Path of the project POM, default pom.xml");
     writeln("    -s, --srcdir=DIR    Add local src dir to the project path");
+    writeln("        --dump          Dump the POM structure");
     writeln("    -l, --list          List application aliases");
     writeln("        --deps          List dependencies in full path");
     writeln("        --services[=T]  List service providers for T or all");
