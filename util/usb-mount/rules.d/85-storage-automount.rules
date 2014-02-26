@@ -1,0 +1,1 @@
+ENV{DEVTYPE}=="partition", RUN+="/lib/udev/storage-automount.sh", ENV{REMOVE_CMD}="/lib/udev/storage-autounmount.sh"
