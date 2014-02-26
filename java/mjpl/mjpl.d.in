@@ -1,4 +1,4 @@
-#!/usr/bin/dprog -i
+#!/usr/bin/dprog -ig
 module mjpl;
 
 import std.c.stdlib : exit;
@@ -268,19 +268,21 @@ string[] collectClasspaths(bool list_deps, bool test) {
     }
     
     manager.scanLocalModules(project.localRoot);
-    manager.loadDependencies(project);
+    manager.loadDependencyPoms(project, true);
     
     /* Collect the dependencies. */
     auto deps = manager.collectDependencies(project, test);
-    foreach (idVer; deps) {
+    foreach (keyVer; deps) {
         if (list_deps)
-            log.info("Dependency for %s", idVer);
+            log.info("Dependency for %s", keyVer);
         
-        auto split = idVer.split(":");
+        auto split = keyVer.split(":");
         string groupId = split[0];
         string artifactId = split[1];
-        string version_ = split[2];
-            
+        string type = split[2];
+        string version_ = split[3];
+        // log.warn("DEP T=%s %s:%s V=%s", type, groupId, artifactId, version_);
+
         bool workDir = false;
         Pom dpom = manager.resolveId(groupId, artifactId, version_);
 
@@ -288,7 +290,15 @@ string[] collectClasspaths(bool list_deps, bool test) {
             string testClasses = dpom.dir ~ "/target/test-classes/";
             if (exists(testClasses)) {  /* (1) add test-classes first */
                 workDir = true;
-                if (test) {
+                bool included = false;
+
+                // free mode
+                // if (test) included = true;
+                // strict mode
+
+                if (type == "test-jar") included = true;
+
+                if (included) {
                     classpaths ~= testClasses;
                     if (list_deps)
                         writeln(testClasses);
@@ -298,16 +308,24 @@ string[] collectClasspaths(bool list_deps, bool test) {
             string mainClasses = dpom.dir ~ "/target/classes/";
             if (exists(mainClasses)) {  /* (2) and then the main-classes */
                 workDir = true;
-                classpaths ~= mainClasses;
-                if (list_deps)
-                    writeln(mainClasses);
+                bool included = false;
+
+                // strict mode
+                if (type != "test-jar")
+                    included = true;
+
+                if (included) {
+                    classpaths ~= mainClasses;
+                    if (list_deps)
+                        writeln(mainClasses);
+                }
             }
         }
         
         if (! workDir) {                /* In the repo, without src. */
             string jar = m2env.resolve(groupId, artifactId, version_, "jar");
             if (jar is null || jar.length == 0) {
-                log.err("M2env.resolve failed: %s", idVer);
+                log.err("M2env.resolve failed: %s", keyVer);
                 continue;
             }
             classpaths ~= jar;

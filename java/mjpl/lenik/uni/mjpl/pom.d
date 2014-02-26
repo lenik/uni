@@ -1,6 +1,7 @@
 module lenik.uni.mjpl.pom;
 
 import std.array;
+import std.conv : to;
 import std.file : exists, read;
 import std.path : dirName, baseName;
 import std.process : environment;
@@ -111,7 +112,7 @@ class Pom {
     }
 
     final Dependency dmgmt(Dependency dep) {
-        return dmgmt(dep.key);
+        return dmgmt(dep.id);
     }
     
     final Dependency dmgmt(string groupId, string artifactId) {
@@ -291,8 +292,10 @@ private:
                     dep.packaging = e.text(); break;
                 case "version":
                     dep.version_ = e.text(); break;
-                case "classifier":
-                    dep.classifier = e.text(); break;
+                //case "classifier":
+                //    dep.classifier = e.text(); break;
+                case "type":
+                    dep.type = e.text(); break;
                 case "optional":
                     if (e.text() == "true")
                         dep.optional = true;
@@ -385,21 +388,28 @@ class Dependency {
     string artifactId;
     string packaging = "jar";
     string version_;
-    string classifier;
+    string type;
     Scope scope_ = Scope.compile;
     bool optional;
     
     /* inclusions/exclusions... */
-    @property string key() {
+
+    @property string id() {
         return groupId ~ ":" ~ artifactId;
     }
 
+    @property string key() {
+        return groupId ~ ":" ~ artifactId ~ ":" ~ type;
+    }
+
     @property string str() {
-        return groupId
+        string s = groupId
             ~ ":" ~ artifactId
-            ~ (classifier is null ? "" : ("/" ~ classifier))
             ~ ":" ~ packaging
             ~ ":" ~ version_;
+        if (type !is null)
+            s ~= "/" ~ type;
+        return s;
     }
     
 }
@@ -525,15 +535,18 @@ class PomManager {
         }
     }
 
-    void loadDependencies(Pom pom) {
-        log.dbg("Load dependencies in %s:%s:%s",
+    void loadDependencyPoms(Pom pom, bool loadOptionals) {
+        log.dbg("Load dep poms for %s:%s:%s",
                 pom.groupId, pom.artifactId, pom.version_);
         log.enter(); scope(exit) log.leave();
         
         foreach (dep; pom.dependencies) {
-            if (dep.pom !is null)
+            if (dep.pom !is null)       /* already loaded */
                 continue;
             
+            if (dep.optional && !loadOptionals)
+                continue;
+
             switch (dep.scope_) {
             case Scope.compile:
             case Scope.runtime:
@@ -548,57 +561,67 @@ class PomManager {
                 continue;
             }
             
-            log.dbg("Load dependency %s:%s:%s (%s)",
+            log.dbg("Resolve dep pom: %s:%s:%s (%s)",
                     dep.groupId, dep.artifactId, dep.version_, dep.scope_);
 
-            Pom pom2 = resolveId(dep.groupId, dep.artifactId, dep.version_);
-            if (pom2 is null)
-                continue;
-
-            if (! dep.optional)
-                loadDependencies(pom2);
-            
-            dep.pom = pom2;
+            Pom dpom = resolveId(dep.groupId, dep.artifactId, dep.version_);
+            if (dpom !is null) {
+                log.dbg("resolved.");
+                loadDependencyPoms(dpom, false);
+                dep.pom = dpom;
+            } else {
+                log.dbg("not available.");
+            }
         }
     }
 
     string[] collectDependencies(Pom project, bool test) {
         string[string] useVers;
         string[] order;
-        collectDependencies(project, project, test, useVers, order);
+
+        Dependency dep0 = new Dependency;
+        dep0.pom = project;
+        dep0.groupId = project.groupId;
+        dep0.artifactId = project.artifactId;
+        dep0.version_ = project.version_;
+        dep0.packaging = project.packaging;
+
+        collectDependencies(project, dep0, test, useVers, order);
 
         string[] list;
-        foreach (id; order) {
-            string ver = useVers[id];
-            list ~= id ~ ":" ~ ver;
+        foreach (key; order) {
+            string ver = useVers[key];
+            list ~= key ~ ":" ~ ver;
         }
         return list;
     }
     
 private:
     
-    void collectDependencies(Pom project, Pom pom, bool test,
+    void collectDependencies(Pom project, Dependency dep, bool test,
                              ref string[string] useVers, ref string[] order) {
-        string id = pom.groupId ~ ":" ~ pom.artifactId;
         string ver;
 
-        if (id in useVers)
+        if (dep.key in useVers)
             return;
         
-        auto dm = project.dmgmt(id);
+        auto dm = project.dmgmt(dep.id);
         if (dm !is null)
             ver = dm.version_;
         else
-            ver = manager.maxVers[id]; /* assert non-null */
+            ver = manager.maxVers[dep.id]; /* assert non-null */
 
-        useVers[id] = ver;
-        order ~= id;
-        
-        foreach (d; pom.dependencies) {
-            if (d.packaging != "jar")   /* only collect jars. */
+        useVers[dep.key] = ver;
+        order ~= dep.key;
+
+        if (dep.pom is null)
+            return;
+
+        foreach (dd; dep.pom.dependencies) {
+            if (dd.packaging != "jar")   /* only collect jars. */
                 continue;
             
-            switch (d.scope_) {
+            switch (dd.scope_) {
             case Scope.compile:
             case Scope.runtime:
                 break;
@@ -615,8 +638,8 @@ private:
                 continue;
             }
 
-            if (d.pom !is null)
-                collectDependencies(project, d.pom, test, useVers, order);
+            if (dd.pom !is null)
+                collectDependencies(project, dd, test, useVers, order);
         }
     }
     
