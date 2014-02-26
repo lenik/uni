@@ -173,6 +173,7 @@ int main(string[] argv) {
     if (list_services) {
         writeln("Services: ");
         foreach (k; sort(providersMap.keys)) {
+                writeln("K: " ~ k);
             auto providers = providersMap[k];
             if (providers.length == 0)  /* skip empty list */
                 continue;
@@ -361,7 +362,7 @@ void scanImpls(string serviceType,
                     if (serviceType is null || serviceType == fqcn) {
                         log.info("  Service %s", fqcn);
                     
-                        char[] content = cast(char[]) e.expandedData;
+                        char[] content = cast(char[]) ar.expand(e);
                         auto list = parseServices(content);
                         providersMap[fqcn] ~= list;
                     }
@@ -369,7 +370,7 @@ void scanImpls(string serviceType,
 
                 /* programs in jar */
                 if (e.name == "META-INF/programs") {
-                    char[] content = cast(char[]) e.expandedData;
+                    char[] content = cast(char[]) ar.expand(e);
                     parsePrograms(content, programNames, programTypes);
                 }
             } /* for ar.directory */

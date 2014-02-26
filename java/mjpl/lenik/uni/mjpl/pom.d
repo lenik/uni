@@ -478,7 +478,7 @@ class PomManager {
             if (parentDir !is null) {
                 string parentFile = parentDir ~ "/pom.xml";
                 if (exists(parentFile)) {
-                    if (artifactId == parentDir.baseName) {
+                    if (artifactId == parentDir.baseName()) {
                         log.dbg("  Found local file %s", parentFile);
                     } else {
                         log.dbg("  Possible local file %s", parentFile);

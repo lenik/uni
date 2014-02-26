@@ -65,6 +65,7 @@
 .#*                                     # Emacs bak file
 .*.bin
 .classpath                              # Eclipse project classpath
+.classpath.*                            # mjpl
 .deps                                   # cooldeb
 .dirstamp
 .idea                                   # Idea project file

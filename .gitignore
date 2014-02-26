@@ -65,6 +65,7 @@
 .
 .*.bin
 .classpath
+.classpath.*
 .deps
 .dirstamp
 .idea
