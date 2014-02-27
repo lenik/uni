@@ -569,29 +569,30 @@ xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
 
     calling = true;
 
-    xmode_t mode;
-    do {
-        pid_t ppid = getppidof(pid);
-        char path[PATH_MAX + 1];
-        sprintf(path, "/proc/%d/status", ppid);
-        FILE *status = fopen(path, "r");
-        if (status != NULL) {
-            char buf[1024];
-            while (fgets(buf, sizeof(buf), status)) {
-                if (! strncmp(buf, "Uid:", 4)) {
-                    int ruid, euid, saved, fuid;
-                    sscanf(buf + 5, "%d %d %d %d", &ruid, &euid, &saved, &fuid);
-                    if (euid == 0) {
-                        mode = EM_ALLOW;
-                        break;
-                    }
+    xmode_t mode = -1;
+
+    pid_t ppid = getpid();
+    char path[PATH_MAX + 1];
+    sprintf(path, "/proc/%d/status", ppid);
+    FILE *status = fopen(path, "r");
+    if (status != NULL) {
+        char buf[1024];
+        while (fgets(buf, sizeof(buf), status)) {
+            if (! strncmp(buf, "Uid:", 4)) {
+                int ruid = -1, euid = -1, saved = -1, fuid = -1;
+                sscanf(buf + 5, "%d %d %d %d", &ruid, &euid, &saved, &fuid);
+                // log_warn("UID: %d, %d, %d, %d", ruid, euid, saved, fuid);
+                if (euid == 0) {
+                    mode = EM_ALLOW;
+                    break;
                 }
             }
-            fclose(status);
         }
+        fclose(status);
+    }
 
+    if (mode == -1)
         mode = _get_rec(src, pid, obj);
-    } while(0);
 
     calling = false;
     return mode;
