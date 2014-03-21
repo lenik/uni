@@ -152,10 +152,36 @@ function main() {
     fi
 
     for f in "$@"; do
+        fdir="${f%/*}"
+        fnam="${f##*/}"
+        if [ "${fdir}" = "$f" ]; then
+            fdir=
+        else
+            fdir="/$fdir"
+        fi
+
         echo "Check file $f: "
-        find $tmpdestdir -name $f -exec sh -c "echo In install: {}; cat {} | sed 's/^/> /'; echo" \;
-        $TARZ -tf $distz | grep "/$f\$" | xargs -l -I {} \
-            sh -c "echo In tarball: {}; $TARZ -xf $distz -O {} | sed 's/^/> /'; echo"
+
+        n=0
+        if [ -d "$tmpdestdir$fdir" ]; then
+            while read entry; do
+                echo "In install: $entry"
+                cat "$entry" | sed 's/^/> /'
+                echo
+                (( n++ ))
+            done < <(find "$tmpdestdir$fdir" -name "$fnam")
+        fi
+        [ $n = 0 ] && _warn "Not installed: $f"
+
+        n=0
+        while read entry; do
+            echo "In tarball: $entry"
+            $TARZ -xf $distz -O "$entry" | sed 's/^/> /'
+            echo
+            (( n++ ))
+        done < <($TARZ -tf $distz | grep "/$f\$")
+        [ $n = 0 ] && _warn "Not distributed: $f"
+
         echo
     done
 
