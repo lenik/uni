@@ -6,7 +6,7 @@ AC_INIT([execfilter], [1.4.6], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability subdir-objects])
 LT_INIT([disable-static])
 AC_CONFIG_MACRO_DIR([m4])
-AM_GNU_GETTEXT
+AM_GNU_GETTEXT([external])
 
 # Checks for programs.
 AC_PROG_CC
