@@ -2,7 +2,10 @@ Source: execfilter
 Section: admin
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 8.0.0), libbas-c, libglib2.0-0
+Build-Depends: debhelper (>= 8.0.0), 
+    pkg-config, automake, 
+    libglib2.0-0,
+    libbas-c
 Standards-Version: 3.9.4
 Homepage: http://uni.bodz.net//mnt/istore/projects/uni/hack/execfilter
 Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/hack/execfilter

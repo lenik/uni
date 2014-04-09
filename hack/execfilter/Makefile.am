@@ -9,7 +9,7 @@ do_subst += \
 
 ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS = $(GLIB_CFLAGS) -DLOCALEDIR=\"$(localedir)\"
-AM_CFLAGS = -Wall -g -Og
+#AM_CFLAGS = -Wall -g -O0
 
 SUBDIRS = po test
 
