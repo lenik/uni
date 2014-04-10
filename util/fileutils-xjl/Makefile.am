@@ -7,6 +7,7 @@ dist_bin_SCRIPTS = \
     binaryp \
     coolmore \
     enfile \
+    fix-symlinks \
     mv-p \
     overlay-ln \
     ren-mkdirs \
@@ -18,6 +19,7 @@ dist_bin_SCRIPTS = \
     tourl
 
 dist_man_MANS = \
+    fix-symlinks.8 \
     symfl.1 \
     mv-p.1
 

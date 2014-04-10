@@ -1,0 +1,101 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Fix broken symlinks or convert to relative form}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -l --lnk-list =FILE          "Process symlinks in the specified list file"
+    option -k --kill-prefix =PREFIX     "Remove the prefix from dst path"
+    option -n --dry-run                 "Just show what will do"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+lnk_list=
+kill_prefix=
+dry_run=
+
+function setopt() {
+    case "$1" in
+        -l|--lnk-list)
+            lnk_list="$2";;
+        -k|--kill-prefix)
+            kill_prefix="$2";;
+        -n|--dry-run)
+            dry_run=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+
+    incmd=()
+    if [ -n "$lnk_list" ]; then
+        incmd=(cat "$lnk_list")
+    else
+        incmd=(find -L -type l)
+    fi
+
+    while read lnk; do
+        lnk="${lnk#./}"
+        dst=$( readlink "$lnk" )
+        _log2 "symlink $lnk -> $dst"
+
+        if [ -n "$kill_prefix" ]; then
+            dst="${dst#$kill_prefix}"
+            _log2 "  stripped dst: $dst"
+        fi
+
+        if [ "${dst:0:1}" = '/' ]; then
+            p1="${lnk}"
+            p2="${dst#/}"
+
+            while true; do
+                d1="${p1%%/*}"
+                d2="${p2%%/*}"
+                [ "$d1" != "$d2" ] && break
+
+                if [ "$d1" = "$p1" ]; then
+                    _error "Bad symlink: $lnk -> $dst"
+                    p1=
+                    break
+                else
+                    p1="${p1#*/}"
+                fi
+
+                if [ "$d2" = "$p2" ]; then
+                    p2=..
+                else
+                    p2="${p2#*/}"
+                fi
+            done
+
+            if [ -n "$p1" ]; then
+                while [ "$p1" != "${p1#*/}" ]; do
+                    p1="${p1#*/}"
+                    p2="../$p2"
+                done
+                dst="$p2"
+                _log2 "  relative: $lnk -> $dst"
+
+                if [ "$dry_run" != 1 ]; then
+                    _log1 "Rewrite $lnk -> $dst"
+                    ln -snf "$dst" "$lnk"
+                fi
+            fi
+        fi
+    done < <( "${incmd[@]}" )
+}
+
+boot "$@"
