@@ -1,0 +1,241 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+ascgen - Auto source comment generator
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'ascgen'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: - @VERSION@ @DATE@ @TIME@ - $');
+use Getopt::Long;
+    Getopt::Long::Configure('gnu_getopt');
+
+sub _main; sub _version; sub _help;
+sub process_C;
+sub to_desc;
+
+our %EXTMAP = (
+    'c'         => 'C',
+    'cpp'       => 'C',
+    'cxx'       => 'C',
+    'd'         => 'D',
+    'pl'        => 'perl',
+    'pm'        => 'perl',
+    'p'         => 'perl',
+    'py'        => 'python',
+    'sh'        => 'shell',
+);
+
+my $opt_type;
+
+sub _boot {
+    GetOptions('q|quiet'        => sub { $LOGLEVEL-- },
+               'v|verbose'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'h|help'         => sub { _help; exit 0 },
+               't|type=s'       => \$opt_type,
+               )
+        or exit(1);
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<ascgen>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<ascgen> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-ascgen-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item Show help
+
+    ascgen --help
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] FILES\n", <<'EOM';
+
+Common options:
+    -t, --type=TYPE         Specify the file type, override file extension
+    -q, --quiet             Repeat to get less info
+    -v, --verbose           Repeat to get more info
+    -h, --help              Show this help page
+        --version           Print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    if (scalar(@ARGV) == 0) {
+        *IN = *STDIN;
+        process_C;
+    } else {
+        for (@ARGV) {
+            my $ext = $_;
+            $ext =~ s/\.in$//;
+            $ext =~ s/^.*\.//;
+
+            my $lang = $EXTMAP{$ext};
+            if (defined $lang) {
+                _log2 "Determined lang of $_: $lang";
+            } else {
+                die "Unknown file type: $_";
+            }
+
+            open(IN, "<$_") or die "Failed to open $_: $!";
+            process_C;
+            close IN;
+        }
+    }
+}
+
+sub process_C {
+    while (<IN>) {
+        # KEYWORD+ id '(' ARGS ')' '{' ...
+        if (/^(\s*) (\w+\s+)+ (\w+) \s* \(\s* (.*?) \s*\) \s* \{/x) {
+            my $indent = $1;
+            my $keywords = $2;  # LTRIM
+            my $fn = $3;        # WORD
+            my $args = $4;      # TRIM
+
+            # my $staticp = $keywords =~ /\bstatic\b/;
+            my $fn_desc = to_desc $fn;
+
+            print "${indent}/**\n";
+            print "${indent} * The $fn_desc function.\n";
+            print "${indent} *\n";
+            for (split(/,\s*/, $args)) {
+                die "Illegal argument spec $_"
+                    unless /^\s* (.+?) \s* (\w+)$/x;
+
+                my $arg_type = $1;
+                my $arg_name = $2;
+                my $arg_desc = to_desc $arg_name;
+                my $pointer_p = $arg_type =~ /\*/;
+                my $arg_0 = $pointer_p ? 'NULL' : '0';
+
+                print "${indent} * \@param $arg_name\n";
+                print "${indent} *     Specify the $arg_desc, default is $arg_0.\n";
+            }
+            print "${indent} */\n";
+        }
+        print;
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+sub to_desc($) {
+    for (@_) {
+    # break camel-id to words
+        s/([A-Z]+[a-z])/ \1/g;
+        s/([A-Z]+)([A-Z])/\1 \2/g;
+        s/_/ /g;
+        s/^\s+//;
+        
+        my $buf = '';
+        for (split(/\s+/, $_)) {
+            $buf .= ' ' if ($buf ne '');
+            $_ = lc($_) unless /^[A-Z]+$/;
+            $buf .= $_;
+        }
+        #$buf =~ s/^\s+//;
+        #$buf =~ s/\s+$//;
+        return $buf;
+    }
+}
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Auto source comment generator \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Lenik (谢继雷) <xjl@99jsj.com>
+
+=cut
