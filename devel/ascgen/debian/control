@@ -1,0 +1,14 @@
+Source: ascgen
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Homepage: http://uni.bodz.net//mnt/istore/projects/uni/devel/ascgen
+Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/devel/ascgen
+Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/devel/ascgen
+
+Package: ascgen
+Architecture: all
+Depends: perl, libcmt-perl
+Description: Auto source comment generator
