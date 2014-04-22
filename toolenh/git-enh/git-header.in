@@ -1,0 +1,109 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    f_rev=
+    f_date=
+    f_log=
+    f_logdate=
+    width=
+
+    . shlib-import cliboot
+    option -a --all             "Include all available info in the header"
+    option -n --revision        "Include revision in the header"
+    option -l --log             "Include changelog in the header"
+    option -d --date            "Include date information in the log"
+    option -w --width =NUM      "Text width for line wrapping"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -a|--all)
+            f_rev=1
+            f_date=1
+            f_log=1
+            f_logdate=1
+            ;;
+        -n|--revision)
+            f_rev=1;;
+        -l|--log)
+            f_log=1;;
+        -d|--date)
+            f_date=1
+            f_logdate=1
+            ;;
+        -w|--width)
+            width="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    tmplog=`tempfile`
+
+    if [ -n "$width" ]; then
+        fill=....
+        while [ "${#fill}" -lt "$width" ]; do
+            fill="$fill$fill"
+        done
+        fill="${fill:0:width-1}"
+    else
+        fill=
+    fi
+
+    for file in "$@"; do
+        _log1 "File: $file"
+
+        # %a- author date format:
+        #       %ad     Wed Jan 15 20:30:28 2014 +0800 (or --date)
+        #       %aD     Wed, 15 Jan 2014 20:30:28 +0800
+        #       %ai     2014-01-15 20:30:28 +0800
+        #       %ar     3 months ago
+        #       %at     1389789028
+        log_format="[%an] %s"
+        if [ "$f_logdate" = 1 ]; then
+            log_format="    [%an] %s (%ad)"
+        fi
+        git log --follow \
+            --date=short --format="$log_format" \
+            "$file" >$tmplog
+        read lines words chars < <(wc "$tmplog")
+
+        if [ "$f_rev" = 1 ]; then
+            echo "Revision:       $lines"
+        fi
+
+        # Date:   Fri Feb 18 09:46:41 2011 +0800
+        Date_=`git log "$file" | head -3 | grep Date:`
+        date="${Date_#Date:   }"
+        if [ "$f_date" = 1 ]; then
+            echo "Modified Time:  $date"
+        fi
+    
+        if [ "$f_log" = 1 ]; then
+            echo "Change Log:"
+            sed -e 's/^* /    * /' $tmplog | grep -v '\.\.\.' |
+                if [ -z "$fill" ]; then
+                    cat
+                else
+                    sed -e "s/\($fill\) \([a-z]\)/\1\n            \2/g"
+                fi
+        fi
+    done
+}
+
+boot "$@"
