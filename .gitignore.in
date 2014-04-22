@@ -106,6 +106,7 @@ nohup.out                               # nohup CMDLINE...
 postinst                                # postinst.in
 prerm                                   # prerm.in
 rpmbuild/                               # coolrpm
+srcsheet.txt                            # coolauto
 stamp-h1
 stamp-po                                # gettextize
 stats/                                  # gitstats

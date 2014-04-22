@@ -106,6 +106,7 @@ nohup.out
 postinst
 prerm
 rpmbuild/
+srcsheet.txt
 stamp-h1
 stamp-po
 stats/
