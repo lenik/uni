@@ -9,28 +9,36 @@ use strict;
 use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
     $LOGNAME    = 'ascgen'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::util('readfile');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id: - @VERSION@ @DATE@ @TIME@ - $');
 use Getopt::Long;
     Getopt::Long::Configure('gnu_getopt');
 
 sub _main; sub _version; sub _help;
-sub process_C;
+sub process_c;
+sub process_sh;
+sub process_tex;
 sub to_desc;
 
 our %EXTMAP = (
     'c'         => 'C',
     'cpp'       => 'C',
     'cxx'       => 'C',
+    'h'         => 'C',
+    'hpp'       => 'C',
+    'hxx'       => 'C',
     'd'         => 'D',
     'pl'        => 'perl',
     'pm'        => 'perl',
     'p'         => 'perl',
     'py'        => 'python',
-    'sh'        => 'shell',
+    'sh'        => 'sh',
+    'tex'       => 'tex',
 );
 
 my $opt_type;
+my @header;
 
 sub _boot {
     GetOptions('q|quiet'        => sub { $LOGLEVEL-- },
@@ -127,7 +135,7 @@ exit (_boot or 0);
 sub _main {
     if (scalar(@ARGV) == 0) {
         *IN = *STDIN;
-        process_C;
+        process_sh;
     } else {
         for (@ARGV) {
             my $ext = $_;
@@ -138,20 +146,60 @@ sub _main {
             if (defined $lang) {
                 _log2 "Determined lang of $_: $lang";
             } else {
-                die "Unknown file type: $_";
+                $lang = 'sh';
+            }
+
+            if (-x ".ascgen.sh") {
+                _log2 "Execute .ascgen.sh";
+                open(SH, "./.ascgen.sh \"$_\" |")
+                    or die("Failed to execute .ascgen.sh: $!");
+                @header = <SH>;
+                close SH;
             }
 
             open(IN, "<$_") or die "Failed to open $_: $!";
-            process_C;
+
+            if ($lang eq 'C') {
+                process_c;
+            } elsif ($lang eq 'sh') {
+                process_sh;
+            } elsif ($lang eq 'tex') {
+                process_tex;
+            }
             close IN;
         }
     }
 }
 
-sub process_C {
+sub process_sh {
+    my $line = 0;
+    while (<IN>) {
+        if (/^\#\!/) { print; next }
+        if ($line++ == 0) {
+            print "# $_" for @header;
+        }
+        print;
+    }
+}
+
+sub process_tex {
+    print "% $_" for @header;
+    while (<IN>) {
+        print;
+    }
+}
+
+sub process_c {
+    if (scalar(@header)) {
+        print "/**\n";
+        print " * $_" for @header;
+        print " */\n";
+    }
+
     while (<IN>) {
         # KEYWORD+ id '(' ARGS ')' '{' ...
-        if (/^(\s*) (\w+\s+)+ (\w+) \s* \(\s* (.*?) \s*\) \s* \{/x) {
+        if (/^(\s*) ( [A-Za-z_0-9]+ [ \t\*\&]+)+
+                (\w+) \s* \(\s* (.*?) \s*\) \s* \{/x) {
             my $indent = $1;
             my $keywords = $2;  # LTRIM
             my $fn = $3;        # WORD
@@ -162,19 +210,25 @@ sub process_C {
 
             print "${indent}/**\n";
             print "${indent} * The $fn_desc function.\n";
-            print "${indent} *\n";
+
+            my $arg_index = 0;
             for (split(/,\s*/, $args)) {
+                next if /^\.\.\.$/;
                 die "Illegal argument spec $_"
-                    unless /^\s* (.+?) \s* (\w+)$/x;
+                    unless /^\s* (.+?) \s* (\w+) (\s*\[\])* $/x;
+
+                print "${indent} *\n" if ($arg_index++ == 0);
 
                 my $arg_type = $1;
                 my $arg_name = $2;
                 my $arg_desc = to_desc $arg_name;
                 my $pointer_p = $arg_type =~ /\*/;
-                my $arg_0 = $pointer_p ? 'NULL' : '0';
+                my $arg_0 = $pointer_p ? 'NULL' : undef;
 
-                print "${indent} * \@param $arg_name\n";
-                print "${indent} *     Specify the $arg_desc, default is $arg_0.\n";
+                print "${indent} * \@param $arg_name ($arg_type)\n";
+                print "${indent} *     Specify the $arg_desc. ";
+                    print "$arg_0 for default." if defined $arg_0;
+                    print "\n";
             }
             print "${indent} */\n";
         }
