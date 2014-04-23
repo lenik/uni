@@ -14,6 +14,7 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.component.LifeCycle;
 
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.uni.echo.config.EchoServerConfig;
@@ -34,6 +35,7 @@ public class EchoServer
     IResourceProvider resourceProvider;
 
     boolean initialized;
+    Thread shutdownThread;
 
     public EchoServer(EchoServerConfig config) {
         super(config.getPortNumber());
@@ -50,6 +52,19 @@ public class EchoServer
 
         servletContextHandler = new EchoServletContextHandler(this);
         setHandler(servletContextHandler);
+
+        shutdownThread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    EchoServer.this.stop();
+                } catch (Exception e) {
+                    throw new RuntimeException(e.getMessage(), e);
+                }
+            }
+        };
+
+        addLifeCycleListener(new LifeCycleListener());
     }
 
     private void buildResourceProvider()
@@ -157,6 +172,26 @@ public class EchoServer
     protected void doStop()
             throws Exception {
         super.doStop();
+    }
+
+    class LifeCycleListener
+            extends AbstractLifeCycleListener {
+
+        @Override
+        public void lifeCycleStarted(LifeCycle event) {
+            Runtime.getRuntime().addShutdownHook(shutdownThread);
+        }
+
+        @Override
+        public void lifeCycleStopped(LifeCycle event) {
+            Runtime.getRuntime().removeShutdownHook(shutdownThread);
+        }
+
+        @Override
+        public void lifeCycleFailure(LifeCycle event, Throwable cause) {
+            Runtime.getRuntime().removeShutdownHook(shutdownThread);
+        }
+
     }
 
 }
