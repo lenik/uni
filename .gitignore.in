@@ -30,6 +30,7 @@
 *.debhelper                             # cooldeb
 *.dsc                                   # cooldeb
 *.dvi                                   # cooltex
+*.ff                                    # mda-xjdoc
 *.glo                                   # cooltex
 *.gz                                    # source tarballs
 *.idx                                   # cooltex

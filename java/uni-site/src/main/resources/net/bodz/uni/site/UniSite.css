@@ -1,0 +1,61 @@
+body {
+    margin: 0;
+}
+
+h2 {
+    margin: 2em 0 0;
+}
+
+dl {
+    border-radius: 1em;
+    margin: .5em 2em;
+    column-width: 20em;
+    -moz-column-width: 20em;
+    -webkit-column-width: 20em;
+}
+
+dt {
+    font-family: monospace, courier;
+    font-weight: bold;
+    display: list-item;
+    list-style-position: inside;
+    list-style-image: url("img/project.png");
+}
+
+dd { #
+    font-family: courier;
+    padding-bottom: 0.5em;
+}
+
+hr.line {
+    margin: 0;
+    height: 4px;
+    border: none;
+    background-color: #ccccff;
+}
+
+#logo {
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
+#main {
+    margin: 0 1em;
+}
+
+.side-bar {
+    margin: .5em 0 0 0;
+    float: right;
+}
+
+.side-box {
+    width: 10em;
+    margin-bottom: 1em;
+}
+
+.copyright {
+    text-align: center;
+    font-style: italic;
+    height: 7em;
+}

@@ -1,0 +1,30 @@
+body {
+    background-color: #e4fcff;
+    color: #114a92;
+}
+
+h1 {
+    text-shadow: .1em .1em .2em white;
+}
+
+h2 {
+    background-color: #e2f2ff;
+    text-shadow: .1em .1em .2em #aaaaff;
+}
+
+a {
+    color: #0569ff;
+}
+
+dl {
+    border: dotted 2px #2c56c2;
+}
+
+.side-box {
+    background-color: gray;
+}
+
+.copyright {
+    background-color: #1d1a31;
+    color: #688c97;
+}

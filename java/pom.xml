@@ -13,6 +13,7 @@
     <modules>
         <module>jsrcutils</module>
         <module>shelj</module>
+        <module>uni-site</module>
     </modules>
     <name>Uni :: Java</name>
 </project>

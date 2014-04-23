@@ -7,7 +7,7 @@ import java.util.Map;
 
 import javax.servlet.Servlet;
 
-import net.bodz.mda.xjdoc.conv.ClassDocLoader;
+import net.bodz.mda.xjdoc.ClassDocLoader;
 import net.bodz.mda.xjdoc.model.ClassDoc;
 
 public class ServletDescriptor
