@@ -16,8 +16,12 @@ a {
     color: #0569ff;
 }
 
-dl {
+dl.projects {
     border: dotted 2px #2c56c2;
+}
+
+#navbar {
+    background-color: black;
 }
 
 .side-box {

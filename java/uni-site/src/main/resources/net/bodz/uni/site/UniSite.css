@@ -2,11 +2,7 @@ body {
     margin: 0;
 }
 
-h2 {
-    margin: 2em 0 0;
-}
-
-dl {
+dl.projects {
     border-radius: 1em;
     margin: .5em 2em;
     column-width: 20em;
@@ -14,7 +10,7 @@ dl {
     -webkit-column-width: 20em;
 }
 
-dt {
+dl.projects dt {
     font-family: monospace, courier;
     font-weight: bold;
     display: list-item;
@@ -40,6 +36,12 @@ hr.line {
     top: 0;
 }
 
+#navbar {
+    width: 100%;
+    height: 1em;
+    padding: 0.5em 1em;
+}
+
 #main {
     margin: 0 1em;
 }
@@ -58,4 +60,43 @@ hr.line {
     text-align: center;
     font-style: italic;
     height: 7em;
+}
+
+.uni-section {
+    margin-bottom: 2em;
+}
+
+.uni-project {
+    margin: 0 1em 2em;
+}
+
+.prj-icon {
+    width: 48px;
+    height: 48px;
+    float: left;
+    border: solid 1px black;
+    margin-right: 1em;
+}
+
+.prj-icon-large {
+    width: 100px;
+    height: 100px;
+    float: right;
+    border: solid 1px black;
+    margin: 1em;
+}
+
+.prj-description a {
+    display: list-item;
+    list-style-position: inside;
+    list-style-image: url("../img/project.png");
+}
+
+.prj-status {
+    font-size: small;
+}
+
+.prj-panel {
+    margin: 1em 0;
+    border: dashed 1px blue;
 }

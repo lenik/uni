@@ -32,43 +32,46 @@ public class UniSiteVbo
     }
 
     @Override
+    public void buildTitle(StringBuilder buffer, UniSite value) {
+        ClassDoc classDoc = ClassDocLoader.load(value.getClass());
+        String title = (String) classDoc.getTag("title");
+        buffer.setLength(0);
+        buffer.append(title);
+    }
+
+    @Override
     public IHtmlOutputContext buildHtmlView(IHtmlOutputContext ctx, IRefEntry<UniSite> entry, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
+        UniSite site = entry.get();
+
+        boolean frameOnly = false;
+        if (entry instanceof PathArrivalEntry) {
+            IPathArrival arrival = ((PathArrivalEntry<UniSite>) entry).getArrival();
+            if (arrival.getRemainingPath() != null)
+                frameOnly = true;
+        }
 
         out.head().start();
         {
             out.link().type("text/css").rel("stylesheet").href("UniSite.css");
-            out.link().type("text/css").rel("stylesheet").href("UniSite-blue.css");
+            out.link().type("text/css").rel("stylesheet").href("UniSite-pink.css");
             out.endTag();
         }
 
-        UniSite site = entry.get();
-
         UniSiteHrefs hrefs = UniSiteHrefs.getInstance();
         out.img().id("logo").src(hrefs.img + "button/text/uni-tools-100.png");
-        out.img().id("lead-bar").src(hrefs.img + "hbar/angel-city.png").width("100%");
+
+        out.img().src(hrefs.img + "hbar/angel-city.png").width("100%");
         out.hr().class_("line");
 
         out.div().id("main").start();
 
-        // out.h1().text(site.getLabel());
-        ClassDoc classDoc = ClassDocLoader.load(site.getClass());
-        out.p().text(classDoc.getTag("title"));
-
         // PropertyGUIRefMap refMap = explode(site);
         // refMap.importProperties();
 
-        boolean body = true;
-        if (entry instanceof PathArrivalEntry) {
-            IPathArrival arrival = ((PathArrivalEntry<UniSite>) entry).getArrival();
-            if (arrival.getRemainingPath() != null)
-                body = false;
-        }
-        if (body)
+        if (!frameOnly)
             indexBody(out, site);
-
-        out.endTag();
 
         return ctx;
     }
@@ -83,22 +86,26 @@ public class UniSiteVbo
     }
 
     void indexBody(IHtmlOut out, UniSite site) {
+        out.h1().text("List Of Projects");
+
         for (UniSection section : site.sectionMap.values()) {
+            out.div().class_("uni-section").start();
+
             out.h2().start();
             out.a().href(section.getName() + "/").text(section.getName());
             out.text(" - " + section.getDescription());
-            out.endTag();
+            out.endTag(); // <h2>
 
-            out.dl().start();
+            out.dl().class_("projects").start();
             for (UniProject project : section.getProjects()) {
                 out.a().href(section.getName() + "/" + project.getName() + "/").start();
                 out.dt().text(project.getName());
-                out.endTag();
+                out.endTag(); // <a>
 
                 out.dd().text(project.getDescription());
             }
-            out.endTag();
-
+            out.endTag(); // <dl.projects>
+            out.endTag(); // <div#uni-section>
             // out.hr();
         }
     }
