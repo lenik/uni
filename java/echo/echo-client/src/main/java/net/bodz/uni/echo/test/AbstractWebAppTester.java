@@ -1,5 +1,7 @@
 package net.bodz.uni.echo.test;
 
+import java.util.Random;
+
 import javax.servlet.ServletContext;
 
 import org.junit.After;
@@ -8,6 +10,7 @@ import org.junit.Before;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.test.junit.JUnitApp;
+import net.bodz.uni.echo._default.DefaultServerConfig;
 import net.bodz.uni.echo.client.EchoClient;
 import net.bodz.uni.echo.config.EchoServerConfig;
 import net.bodz.uni.echo.server.EchoServer;
@@ -26,8 +29,7 @@ public abstract class AbstractWebAppTester
     private boolean managedServerLifecycle;
 
     public AbstractWebAppTester() {
-        this.config = createConfig();
-        // configure(config);
+        this.config = createTestConfig();
 
         server = new EchoServer(config);
         server.setAttribute(TESTER_ATTRIBUTE, this);
@@ -53,8 +55,21 @@ public abstract class AbstractWebAppTester
         return config;
     }
 
+    protected EchoServerConfig createTestConfig() {
+        EchoServerConfig config = createConfig();
+        int portNumber = config.getPortNumber();
+        portNumber = 0;
+        config.setPortNumber(portNumber);
+
+        int rand = new Random().nextInt(10000);
+        String contextPath = "/app" + rand;
+        config.setContextPath(contextPath);
+
+        return config;
+    }
+
     protected EchoServerConfig createConfig() {
-        return new TestServerConfig();
+        return new DefaultServerConfig();
     }
 
     @Before
@@ -74,19 +89,7 @@ public abstract class AbstractWebAppTester
     public EchoClient makeClient()
             throws Exception {
         final AbstractWebAppTester app = this; // assemble();
-
         app.server.start();
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                try {
-                    app.server.stop();
-                } catch (Exception e) {
-                    throw new RuntimeException(e.getMessage(), e);
-                }
-            }
-        });
         return app.client;
     }
 
