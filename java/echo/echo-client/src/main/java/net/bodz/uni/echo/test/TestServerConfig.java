@@ -8,6 +8,10 @@ public class TestServerConfig
         extends DefaultServerConfig {
 
     public TestServerConfig() {
+        int portNumber = getPortNumber();
+        portNumber = 0;
+        setPortNumber(portNumber);
+
         int rand = new Random().nextInt(10000);
         String contextPath = "/app" + rand;
         setContextPath(contextPath);

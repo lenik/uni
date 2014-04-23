@@ -12,33 +12,33 @@ import net.bodz.uni.echo.client.EchoClient;
 import net.bodz.uni.echo.config.EchoServerConfig;
 import net.bodz.uni.echo.server.EchoServer;
 
-public abstract class EchoTestApp
-        extends JUnitApp<EchoTestApp> {
+public abstract class AbstractWebAppTester
+        extends JUnitApp<AbstractWebAppTester> {
 
-    static Logger logger = LoggerFactory.getLogger(EchoTestApp.class);
+    static Logger logger = LoggerFactory.getLogger(AbstractWebAppTester.class);
 
-    protected final EchoTestServer server;
+    public static final String TESTER_ATTRIBUTE = "WebAppTester";
+
+    protected final EchoServer server;
     protected final EchoServerConfig config;
     protected final EchoClient client;
 
     private boolean managedServerLifecycle;
 
-    public EchoTestApp() {
+    public AbstractWebAppTester() {
         this.config = createConfig();
         // configure(config);
 
-        server = new EchoTestServer(this, config);
+        server = new EchoServer(config);
+        server.setAttribute(TESTER_ATTRIBUTE, this);
         client = new EchoClient(server);
 
         managedServerLifecycle = getClass().isAnnotationPresent(ManagedServerLifecycle.class);
     }
 
-    public static EchoTestApp fromContext(ServletContext servletContext) {
+    public static AbstractWebAppTester fromContext(ServletContext servletContext) {
         EchoServer server = EchoServer.fromContext(servletContext);
-        if (server instanceof EchoTestServer)
-            return ((EchoTestServer) server).testApp;
-        else
-            return null;
+        return (AbstractWebAppTester) server.getAttribute(TESTER_ATTRIBUTE);
     }
 
     public EchoServer getServer() {
@@ -73,7 +73,7 @@ public abstract class EchoTestApp
 
     public EchoClient makeClient()
             throws Exception {
-        final EchoTestApp app = this; // assemble();
+        final AbstractWebAppTester app = this; // assemble();
 
         app.server.start();
 

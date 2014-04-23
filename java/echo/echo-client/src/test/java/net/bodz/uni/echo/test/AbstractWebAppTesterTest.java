@@ -7,8 +7,8 @@ import org.junit.Test;
 import net.bodz.uni.echo._default.HelloServlet;
 import net.bodz.uni.echo.config.EchoServerConfig;
 
-public class EchoTestAppTest
-        extends EchoTestApp {
+public class AbstractWebAppTesterTest
+        extends AbstractWebAppTester {
 
     @Override
     protected EchoServerConfig createConfig() {
@@ -35,7 +35,7 @@ public class EchoTestAppTest
 
     public static void main(String[] args)
             throws Exception {
-        new EchoTestAppTest().makeClient().go("hello");
+        new AbstractWebAppTesterTest().makeClient().go("hello");
     }
 
 }

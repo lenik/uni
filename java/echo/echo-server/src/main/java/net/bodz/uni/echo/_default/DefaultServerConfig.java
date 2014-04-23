@@ -8,9 +8,17 @@ import net.bodz.uni.echo.config.ServletDescriptor;
 public class DefaultServerConfig
         extends EchoServerConfig {
 
+    public static final String ATTRIBUTE_PORT = "echo.port";
+
     String[] hintFilenames = { "WEB-INF/web.xml", "index.html" };
 
     public DefaultServerConfig() {
+        int portNumber = 8080;
+        String echoPort = System.getProperty(ATTRIBUTE_PORT);
+        if (echoPort != null)
+            portNumber = Integer.parseInt(echoPort);
+        setPortNumber(portNumber);
+
         addWelcomeFile("index.html");
         addWelcomeFile("index.htm");
 
@@ -23,7 +31,7 @@ public class DefaultServerConfig
          */
         addFilter(ThreadServletContext.class, "/*");
 
-        addFilter(Welcome.class, "/");
+        // addFilter(Welcome.class, "/");
 
         addServlet(Favicon.class, "/favicon.ico");
 

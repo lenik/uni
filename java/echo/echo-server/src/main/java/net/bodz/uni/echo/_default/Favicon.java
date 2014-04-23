@@ -23,6 +23,10 @@ public class Favicon
             throws ServletException, IOException {
 
         URLResource ico = ClassResource.getData(Favicon.class, "echo.ico");
+        if (ico == null) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
 
         ServletOutputStream out = resp.getOutputStream();
         new OutputStreamTarget(out).to(StreamWriting.class).write(ico);

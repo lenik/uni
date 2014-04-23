@@ -4,8 +4,8 @@ import org.junit.Test;
 
 import net.bodz.uni.echo._default.HelloServlet;
 
-public class HelloServletTest
-        extends EchoTestApp {
+public class HelloServletTester
+        extends AbstractWebAppTester {
 
     @Test
     public void testHello()
