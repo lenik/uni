@@ -2,10 +2,10 @@ package net.bodz.uni.site;
 
 import java.io.IOException;
 
+import net.bodz.bas.html.AbstractHtmlViewBuilder;
+import net.bodz.bas.html.IHttpReprContext;
 import net.bodz.bas.io.html.IHtmlOut;
 import net.bodz.bas.potato.ref.IRefEntry;
-import net.bodz.bas.repr.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.repr.html.IHtmlOutputContext;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 
