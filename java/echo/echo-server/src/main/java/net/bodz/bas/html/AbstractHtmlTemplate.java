@@ -7,7 +7,7 @@ import java.io.Writer;
 import javax.servlet.http.HttpServletRequest;
 
 import net.bodz.bas.err.UnexpectedException;
-import net.bodz.bas.http.ctx.ThreadServletContext;
+import net.bodz.bas.http.ctx.CurrentHttpService;
 
 import com.googlecode.jatl.Html;
 
@@ -35,7 +35,7 @@ public abstract class AbstractHtmlTemplate
     }
 
     protected HttpServletRequest getRequest() {
-        return ThreadServletContext.getRequest();
+        return CurrentHttpService.getRequest();
     }
 
     public String make() {
