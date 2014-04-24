@@ -43,6 +43,7 @@ public class UniSiteVbo
     public IHtmlOutputContext buildHtmlView(IHtmlOutputContext ctx, IRefEntry<UniSite> entry, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
+        UniSiteHrefs hrefs = UniSiteHrefs.getInstance();
         UniSite site = entry.get();
 
         boolean frameOnly = false;
@@ -54,12 +55,12 @@ public class UniSiteVbo
 
         out.head().start();
         {
-            out.link().type("text/css").rel("stylesheet").href("UniSite.css");
-            out.link().type("text/css").rel("stylesheet").href("UniSite-pink.css");
+            out.link().css("UniSite.css");
+            out.link().css("UniSite-pink.css");
+            out.script().javascriptSrc(hrefs.js + "jquery/jquery.js");
             out.endTag();
         }
 
-        UniSiteHrefs hrefs = UniSiteHrefs.getInstance();
         out.img().id("logo").src(hrefs.img + "button/text/uni-tools-100.png");
 
         out.img().src(hrefs.img + "hbar/angel-city.png").width("100%");

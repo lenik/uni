@@ -9,9 +9,13 @@ public class UniSiteServerConfig
         extends DefaultServerConfig {
 
     public UniSiteServerConfig() {
-        ServletDescriptor fileAccessor = addServlet(FileAccessorServlet.class, "/img/*");
-        fileAccessor.setInitParam(FileAccessorServlet.ATTRIBUTE_PATH, //
+        ServletDescriptor imgLink = addServlet(FileAccessorServlet.class, "/img/*");
+        imgLink.setInitParam(FileAccessorServlet.ATTRIBUTE_PATH, //
                 "/mnt/istore/projects/design/img");
+
+        ServletDescriptor javascriptLink = addServlet(FileAccessorServlet.class, "/js/*");
+        javascriptLink.setInitParam(FileAccessorServlet.ATTRIBUTE_PATH, //
+                "/usr/share/javascript");
 
         PathDispatchServlet.startObject = new UniSite();
         addServlet(PathDispatchServlet.class, "/*");
