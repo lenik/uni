@@ -17,7 +17,7 @@ public class UniProjectVbo
     }
 
     @Override
-    public IHtmlOutputContext buildHtmlView(IHtmlOutputContext ctx, IRefEntry<UniProject> entry, IOptions options)
+    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IRefEntry<UniProject> entry, IOptions options)
             throws ViewBuilderException, IOException {
         if (enter(ctx))
             return null;

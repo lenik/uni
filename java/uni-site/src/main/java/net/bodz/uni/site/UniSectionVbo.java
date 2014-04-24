@@ -17,7 +17,7 @@ public class UniSectionVbo
     }
 
     @Override
-    public IHtmlOutputContext buildHtmlView(IHtmlOutputContext ctx, IRefEntry<UniSection> entry, IOptions options)
+    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IRefEntry<UniSection> entry, IOptions options)
             throws ViewBuilderException, IOException {
         if (enter(ctx))
             return null;

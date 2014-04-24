@@ -40,10 +40,9 @@ public class UniSiteVbo
     }
 
     @Override
-    public IHtmlOutputContext buildHtmlView(IHtmlOutputContext ctx, IRefEntry<UniSite> entry, IOptions options)
+    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IRefEntry<UniSite> entry, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
-        UniSiteHrefs hrefs = UniSiteHrefs.getInstance();
         UniSite site = entry.get();
 
         boolean frameOnly = false;
@@ -78,7 +77,7 @@ public class UniSiteVbo
     }
 
     @Override
-    public void buildHtmlViewTail(IHtmlOutputContext ctx, IRefEntry<UniSite> entry, IOptions options)
+    public void buildHtmlViewTail(IHttpReprContext ctx, IRefEntry<UniSite> entry, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
         UniSite site = entry.get();
