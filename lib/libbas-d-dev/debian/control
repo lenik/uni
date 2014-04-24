@@ -4,9 +4,9 @@ Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.4
 Section: libs
-Homepage: http://uni.bodz.net//mnt/istore/projects/uni/lib/libbas-d-dev
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/lib/libbas-d-dev
-Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/lib/libbas-d-dev
+Homepage: http://uni.bodz.net/lib/libbas-d-dev
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/lib/libbas-d-dev
 
 Package: libbas-d-dev
 Section: libs

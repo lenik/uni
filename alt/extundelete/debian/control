@@ -5,8 +5,8 @@ Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~), e2fslibs-dev
 Standards-Version: 3.9.1
 Homepage: http://extundelete.sourceforge.net/
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/alt/extundelete
-Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/alt/extundelete
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/extundelete
 
 Package: extundelete
 Architecture: any

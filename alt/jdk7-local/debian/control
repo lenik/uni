@@ -4,9 +4,9 @@ Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.9.1
-Homepage: http://uni.bodz.net//mnt/istore/projects/uni/alt/jdk7-local
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/alt/jdk7-local
-Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/alt/jdk7-local
+Homepage: http://uni.bodz.net/alt/jdk7-local
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/jdk7-local
 
 Package: jdk7-local
 Architecture: all

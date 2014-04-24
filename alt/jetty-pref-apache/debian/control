@@ -4,9 +4,9 @@ Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net//mnt/istore/projects/bodz/uni/alt/jetty-pref-apache
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/bodz/uni/alt/jetty-pref-apache
-Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/bodz/uni/alt/jetty-pref-apache
+Homepage: http://uni.bodz.net/alt/jetty-pref-apache
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/jetty-pref-apache
 
 Package: jetty-pref-apache
 Architecture: all

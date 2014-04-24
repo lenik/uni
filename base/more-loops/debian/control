@@ -4,9 +4,9 @@ Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
-Homepage: http://uni.bodz.net//mnt/clsdata/projects/uni/base/more-loops
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/clsdata/projects/uni/base/more-loops
-Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/clsdata/projects/uni/base/more-loops
+Homepage: http://uni.bodz.net/base/more-loops
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/base/more-loops
 
 Package: more-loops
 Architecture: all

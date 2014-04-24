@@ -4,9 +4,9 @@ Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.3
-Homepage: http://uni.bodz.net//mnt/istore/projects/uni/toolenh/sqlite-enh
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/toolenh/sqlite-enh
-Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/toolenh/sqlite-enh
+Homepage: http://uni.bodz.net/toolenh/sqlite-enh
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/toolenh/sqlite-enh
 
 Package: sqlite-enh
 Architecture: all

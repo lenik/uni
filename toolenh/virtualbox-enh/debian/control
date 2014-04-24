@@ -5,8 +5,8 @@ Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
 Homepage: http://uni.bodz.net/toolenh/virtualbox-enh
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk/toolenh/virtualbox-enh
-Vcs-Browser: http://svn.bodz.net/uni/trunk/toolenh/virtualbox-enh
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/toolenh/virtualbox-enh
 
 Package: virtualbox-enh
 Architecture: all

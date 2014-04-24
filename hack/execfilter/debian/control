@@ -7,9 +7,9 @@ Build-Depends: debhelper (>= 8.0.0),
     libglib2.0-0,
     libbas-c
 Standards-Version: 3.9.4
-Homepage: http://uni.bodz.net//mnt/istore/projects/uni/hack/execfilter
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/hack/execfilter
-Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/hack/execfilter
+Homepage: http://uni.bodz.net/hack/execfilter
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/hack/execfilter
 
 Package: execfilter
 Architecture: any

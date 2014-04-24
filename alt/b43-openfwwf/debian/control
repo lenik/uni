@@ -4,9 +4,9 @@ Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~), b43-tools
 Standards-Version: 3.9.1
-Homepage: http://uni.bodz.net//mnt/clsdata/projects/uni/alt/b43-openfwwf
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/clsdata/projects/uni/alt/b43-openfwwf
-Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/clsdata/projects/uni/alt/b43-openfwwf
+Homepage: http://uni.bodz.net/alt/b43-openfwwf
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/b43-openfwwf
 
 Package: b43-openfwwf
 Architecture: all

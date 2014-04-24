@@ -5,8 +5,8 @@ Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/devel/coolmake
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk/devel/coolmake
-Vcs-Browser: http://svn.bodz.net/uni/trunk/devel/coolmake
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/devel/coolmake
 
 Package: coolmake
 Provides: coolmake

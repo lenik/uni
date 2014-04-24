@@ -5,8 +5,8 @@ Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
 Homepage: http://uni.bodz.net/pref-xjl/opt-alternatives-pref-xjl
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk/pref-xjl/opt-alternatives-pref-xjl
-Vcs-Browser: http://svn.bodz.net/uni/trunk/pref-xjl/opt-alternatives-pref-xjl
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/asm-xjl/opt-alternatives-pref-xjl
 
 Package: opt-alternatives-pref-xjl
 Architecture: all

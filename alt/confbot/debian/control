@@ -4,9 +4,9 @@ Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.9.1
-Homepage: http://uni.bodz.net//mnt/istore/projects/uni/alt/confbot
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/alt/confbot
-Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/alt/confbot
+Homepage: http://uni.bodz.net/alt/confbot
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/confbot
 
 Package: confbot
 Architecture: all

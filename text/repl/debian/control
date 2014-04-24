@@ -5,8 +5,8 @@ Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
 Homepage: http://uni.bodz.net/text/repl
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk/text/repl
-Vcs-Browser: http://svn.bodz.net/uni/trunk/text/repl
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/text/repl
 
 Package: repl
 Architecture: all

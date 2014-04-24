@@ -4,9 +4,9 @@ Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.4
-Homepage: http://uni.bodz.net//mnt/istore/projects/uni/utils/regf2t
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/utils/regf2t
-Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/utils/regf2t
+Homepage: http://uni.bodz.net/utils/regf2t
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/fmt/regf2t
 
 Package: regf2t
 Architecture: all

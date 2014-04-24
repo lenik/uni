@@ -4,9 +4,9 @@ Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.4
-Homepage: http://uni.bodz.net//mnt/istore/projects/uni/net/netcaps
-Vcs-SVN: http://svn.bodz.net/svn/bodz/uni/trunk//mnt/istore/projects/uni/net/netcaps
-Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/net/netcaps
+Homepage: http://uni.bodz.net/net/netcaps
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/net/netcaps
 
 Package: netcaps
 Architecture: any
