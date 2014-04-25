@@ -16,9 +16,9 @@ import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.mda.xjdoc.ClassDocLoader;
 import net.bodz.mda.xjdoc.model.ClassDoc;
-import net.bodz.uni.site.preference.Language;
-import net.bodz.uni.site.preference.Theme;
-import net.bodz.uni.site.preference.UserPreferences;
+import net.bodz.uni.site.user.Language;
+import net.bodz.uni.site.user.Preferences;
+import net.bodz.uni.site.user.Theme;
 
 public class UniSiteVbo
         extends AbstractHtmlViewBuilder<UniSite>
@@ -31,6 +31,11 @@ public class UniSiteVbo
     @Override
     public void getRequirements(IRequirements requires) {
         // requires.add(CSS, "site", "1.0");
+    }
+
+    @Override
+    public boolean isOrigin(UniSite value) {
+        return true;
     }
 
     @Override
@@ -53,7 +58,7 @@ public class UniSiteVbo
         UniSite site = entry.get();
 
         HttpSession session = ctx.getSession();
-        UserPreferences pref = UserPreferences.fromSession(session);
+        Preferences pref = Preferences.fromSession(session);
 
         boolean frameOnly = false;
         if (entry instanceof PathArrivalEntry) {

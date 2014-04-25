@@ -1,16 +1,16 @@
-package net.bodz.uni.site.preference;
+package net.bodz.uni.site.user;
 
 import java.io.Serializable;
 import java.util.Locale;
 
 import javax.servlet.http.HttpSession;
 
-public class UserPreferences
+public class Preferences
         implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String ATTRIBUTE = UserPreferences.class.getSimpleName();
+    public static final String ATTRIBUTE = Preferences.class.getSimpleName();
 
     Theme theme = Theme.CYAN;
     Language language = Language.ENGLISH;
@@ -23,6 +23,18 @@ public class UserPreferences
         if (theme == null)
             throw new NullPointerException("theme");
         this.theme = theme;
+    }
+
+    /**
+     * Set theme by name.
+     *
+     * @throws IllegalArgumentException
+     *             If theme name isn't defined.
+     */
+    public void setTheme(String themeName) {
+        if (themeName == null)
+            throw new NullPointerException("themeName");
+        setTheme(Theme.valueOf(themeName));
     }
 
     public Language getLanguage() {
@@ -40,10 +52,22 @@ public class UserPreferences
         Locale.setDefault(locale);
     }
 
-    public static UserPreferences fromSession(HttpSession session) {
-        UserPreferences preferences = (UserPreferences) session.getAttribute(ATTRIBUTE);
+    /**
+     * Set theme by name.
+     *
+     * @throws IllegalArgumentException
+     *             If theme name isn't defined.
+     */
+    public void setLanguage(String languageName) {
+        if (languageName == null)
+            throw new NullPointerException("languageName");
+        setLanguage(Language.valueOf(languageName));
+    }
+
+    public static Preferences fromSession(HttpSession session) {
+        Preferences preferences = (Preferences) session.getAttribute(ATTRIBUTE);
         if (preferences == null) {
-            preferences = new UserPreferences();
+            preferences = new Preferences();
             session.setAttribute(ATTRIBUTE, preferences);
         }
         return preferences;

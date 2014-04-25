@@ -1,4 +1,4 @@
-package net.bodz.uni.site.preference;
+package net.bodz.uni.site.user;
 
 import net.bodz.mda.xjdoc.ClassDocLoader;
 import net.bodz.mda.xjdoc.model.IJavaElementDoc;
@@ -8,7 +8,7 @@ public enum Theme
         implements IXjdocAware {
 
     /**
-     * Blue
+     * Cyan
      *
      * <p lang="zh-cn">
      * 天使蓝
