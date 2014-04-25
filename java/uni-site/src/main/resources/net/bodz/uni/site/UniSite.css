@@ -8,6 +8,8 @@ dl.projects {
     column-width: 20em;
     -moz-column-width: 20em;
     -webkit-column-width: 20em;
+    border-style: dotted;
+    border-width: 2px;
 }
 
 dl.projects dt {
@@ -39,9 +41,13 @@ hr.line {
 }
 
 .ui-menubox {
-    padding: 0 0 0.5em 0;
+    display: none;
     max-width: 20em;
     overflow: hidden;
+    padding: 0 0 0.5em 0;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 0 10px 10px;
 }
 
 .ui-caption {
@@ -67,13 +73,15 @@ ul.ui-enums li {
     margin-right: .5em;
     padding: .2em;
     line-height: 2em;
-    border-style: dashed;
+    border-style: solid;
     border-width: 1px;
     border-radius: 5px;
 }
 
-ul.ui-enums li.ui-inactive {
-    border-style: solid;
+ul.ui-enums li.ui-active {
+    border-style: dashed;
+    font-weight: bold;
+    font-style: italic;
 }
 
 ul.ui-enums li a {

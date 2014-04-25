@@ -1,17 +1,27 @@
-$(document).ready(function() {
+(function($) {
 
-    var speed = 'medium';
+    $(document).ready(function() {
 
-    function menubox(elm) {
-        var menu = $(elm).parents(".ui-menu");
-        var menubox = menu.find(".ui-menubox");
-        return menubox;
-    }
+        var speed = 'medium';
 
-    $(".ui-menu").hover(function(event) {
-        menubox(event.srcElement).fadeIn(speed);
-    }, function(event) {
-        menubox(event.srcElement).fadeOut(speed);
+        function menubox(elm) {
+            var menu = $(elm).parents(".ui-menu");
+            var menubox = menu.find(".ui-menubox");
+            return menubox;
+        }
+
+        $(".ui-menu").hover(function(event) {
+            menubox(event.srcElement).fadeIn(speed);
+        }, function(event) {
+            //menubox(event.srcElement).fadeOut(speed);
+        });
+
     });
 
-});
+})(jQuery);
+
+function setTheme(theme, a) {
+    themeLink.href = _webApp_ + "UniSite-" + theme + ".css";
+    $(a).parents(".ui-enums").find("li").removeClass("ui-active");
+    $(a).parent("li").addClass("ui-active");
+}

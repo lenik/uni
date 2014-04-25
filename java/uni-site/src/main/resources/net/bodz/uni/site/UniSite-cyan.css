@@ -1,0 +1,57 @@
+body {
+    background-color: hsl(187, 100%, 95%);
+    color: hsl(213, 79%, 32%);
+}
+
+h1 {
+    text-shadow: .1em .1em .2em white;
+}
+
+h2 {
+    background-color: hsl(207, 100%, 94%);
+    text-shadow: .1em .1em .2em hsl(240, 100%, 83%);
+}
+
+a {
+    color: hsl(216, 100%, 51%);
+}
+
+dl.projects {
+    border-color: hsl(200, 63%, 47%);
+}
+
+.ui-menubar {
+    
+}
+
+.ui-menubox {
+    background-color: hsla(60, 100%, 95%, 0.9);
+    border-color: hsl(200, 100%, 79%);
+}
+
+ul.ui-enums li {
+    border-color: hsl(200, 100%, 70%);
+    background-color: hsl(180, 100%, 50%);
+}
+
+ul.ui-enums li.ui-active {
+    background-color: hsl(180, 100%, 91%);
+}
+
+.ui-caption {
+    background-color: hsl(200, 100%, 87%);
+    background-image: -webkit-gradient(linear, 0 0, 100% 0, from(hsl(200, 100%, 87%) ), to(hsl(0, 100%, 100%) ) );
+}
+
+#navbar {
+    background-color: black;
+}
+
+.side-box {
+    background-color: gray;
+}
+
+.copyright {
+    background-color: hsl(200, 46%, 33%);
+    color: hsl(200, 65%, 90%);
+}
