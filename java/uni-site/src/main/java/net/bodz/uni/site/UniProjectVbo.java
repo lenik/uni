@@ -31,7 +31,7 @@ public class UniProjectVbo
 
         out.div().class_("prj-status").start();
         out.text("H hh M mm D dd");
-        out.endTag(); // <div#prj-status>
+        out.end(); // <div#prj-status>
 
         String description = project.getDescription().toString();
         if (description != null)
@@ -39,11 +39,11 @@ public class UniProjectVbo
 
         out.div().class_("prj-panel").id("download").start();
         out.text("Download");
-        out.endTag(); // <div#download>
+        out.end(); // <div#download>
 
         out.div().class_("prj-panel").id("comments").start();
         out.text("Comments");
-        out.endTag(); // <div#comments>
+        out.end(); // <div#comments>
 
         return ctx;
     }

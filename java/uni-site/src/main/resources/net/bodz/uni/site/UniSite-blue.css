@@ -20,6 +20,28 @@ dl.projects {
     border: dotted 2px #2c56c2;
 }
 
+.ui-menubar {
+    
+}
+
+.ui-menubox {
+    background-color: #fffff0;
+    border: solid 1px blue;
+}
+
+ul.ui-enums li {
+    border-color: blue;
+    background-color: lightcyan;
+}
+
+ul.ui-enums li.ui-inactive {
+    background-color: cyan;
+}
+
+.ui-caption {
+    background-color: #eeeeff;
+}
+
 #navbar {
     background-color: black;
 }

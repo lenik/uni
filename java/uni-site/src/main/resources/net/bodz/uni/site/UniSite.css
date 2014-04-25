@@ -30,10 +30,54 @@ hr.line {
     background-color: #ccccff;
 }
 
-#logo {
+.ui-menubar {
     position: fixed;
     left: 0;
     top: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.ui-menubox {
+    padding: 0 0 0.5em 0;
+    max-width: 20em;
+    overflow: hidden;
+}
+
+.ui-caption {
+    font-size: large;
+    font-weight: bold;
+    font-style: italic;
+    margin: 0 0 .3em 0;
+    text-indent: 1em;
+}
+
+.ui-menuitem {
+    margin: 0 1em .2em 3em;
+}
+
+ul.ui-enums {
+    padding-left: 0;
+}
+
+ul.ui-enums li {
+    list-style: none;
+    display: inline;
+    white-space: nowrap;
+    margin-right: .5em;
+    padding: .2em;
+    line-height: 2em;
+    border-style: dashed;
+    border-width: 1px;
+    border-radius: 5px;
+}
+
+ul.ui-enums li.ui-inactive {
+    border-style: solid;
+}
+
+ul.ui-enums li a {
+    text-decoration: none;
 }
 
 #navbar {
@@ -89,7 +133,7 @@ hr.line {
 .prj-description a {
     display: list-item;
     list-style-position: inside;
-    list-style-image: url("../img/project.png");
+    list-style-image: url("img/project.png");
 }
 
 .prj-status {

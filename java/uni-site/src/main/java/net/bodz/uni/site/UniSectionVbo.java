@@ -39,16 +39,16 @@ public class UniSectionVbo
 
             out.a().href(project.getName() + "/").start();
             out.text(project.getName());
-            out.endTag(); // <a>
+            out.end(); // <a>
 
             out.div().class_("prj-status").start();
             out.text("H hh M mm D dd");
-            out.endTag(); // <div#prj-status>
+            out.end(); // <div#prj-status>
 
             out.text(project.getDescription().toString());
-            out.endTag();
+            out.end();
 
-            out.endTag(); // <div#uni-project>
+            out.end(); // <div#uni-project>
         }
 
         return ctx;
