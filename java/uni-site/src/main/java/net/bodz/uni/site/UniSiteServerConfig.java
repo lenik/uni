@@ -17,7 +17,7 @@ public class UniSiteServerConfig
         javascriptLink.setInitParam(FileAccessorServlet.ATTRIBUTE_PATH, //
                 "/usr/share/javascript");
 
-        PathDispatchServlet.startObject = new UniSite();
+        PathDispatchServlet.startObject = new UniSiteApplication();
         addServlet(PathDispatchServlet.class, "/*");
     }
 
