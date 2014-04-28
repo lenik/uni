@@ -88,16 +88,16 @@
   </databaseScanning>
   <managedRepositories>
     <managedRepository>
-      <location>/mnt/istore/m2/release</location>
-      <indexDir>/mnt/istore/m2/release.index</indexDir>
+      <location>/repo/m2/release</location>
+      <indexDir>/repo/m2/release.index</indexDir>
       <id>internal</id>
       <name>Archiva Managed Internal Repository</name>
     </managedRepository>
     <managedRepository>
-      <location>/mnt/istore/m2/snapshot</location>
+      <location>/repo/m2/snapshot</location>
       <releases>false</releases>
       <snapshots>true</snapshots>
-      <indexDir>/mnt/istore/m2/snapshot.index</indexDir>
+      <indexDir>/repo/m2/snapshot.index</indexDir>
       <retentionCount>3</retentionCount>
       <daysOlder>0</daysOlder>
       <deleteReleasedSnapshots>true</deleteReleasedSnapshots>
