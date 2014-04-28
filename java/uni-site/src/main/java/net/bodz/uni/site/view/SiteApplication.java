@@ -1,12 +1,13 @@
-package net.bodz.uni.site;
+package net.bodz.uni.site.view;
 
 import javax.servlet.http.HttpSession;
 
 import net.bodz.bas.http.ctx.CurrentHttpService;
-import net.bodz.uni.site.user.Preferences;
+import net.bodz.uni.site.model.Preferences;
+import net.bodz.uni.site.model.Site;
 
-public class UniSiteApplication
-        extends UniSite {
+public class SiteApplication
+        extends Site {
 
     public Preferences getPreferences() {
         HttpSession session = CurrentHttpService.getSession();

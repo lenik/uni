@@ -1,11 +1,11 @@
-package net.bodz.uni.site;
+package net.bodz.uni.site.model;
 
 import net.bodz.bas.i18n.dom1.MutableElement;
 
-public class UniProject
+public class Project
         extends MutableElement {
 
-    public UniProject(String name) {
+    public Project(String name) {
         setName(name);
     }
 

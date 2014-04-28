@@ -1,4 +1,4 @@
-package net.bodz.uni.site;
+package net.bodz.uni.site.model;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,22 +25,22 @@ import net.bodz.uni.site.util.DebControlParser;
  * @title Uni - Deveoper's Tools
  * @copyright (ↄ) Copyleft 2004-2014 Lenik
  */
-public class UniSite
+public class Site
         extends LilyStartSite
         implements IPathDispatchable {
 
-    static final Logger logger = LoggerFactory.getLogger(UniSite.class);
+    static final Logger logger = LoggerFactory.getLogger(Site.class);
 
     /** Root directory of the uni project. */
     File root;
 
-    Map<String, UniSection> sectionMap = new TreeMap<>();
-    List<String> news;
+    public Map<String, Section> sectionMap = new TreeMap<>();
+    public List<String> news;
 
-    String googleId;
-    String baiduId;
+    public String googleId;
+    public String baiduId;
 
-    public UniSite() {
+    public Site() {
         scan("/mnt/istore/projects/uni");
     }
 
@@ -55,7 +55,7 @@ public class UniSite
                 continue;
 
             String name = sectionDir.getName();
-            UniSection section = new UniSection(name);
+            Section section = new Section(name);
             sectionMap.put(name, section);
 
             AttributedText att = new AttributedText();
@@ -80,7 +80,7 @@ public class UniSite
         }
     }
 
-    void scanSection(UniSection section, File sectionDir) {
+    void scanSection(Section section, File sectionDir) {
         for (File projectDir : sectionDir.listFiles()) {
             if (!projectDir.isDirectory())
                 continue;
@@ -117,7 +117,7 @@ public class UniSite
     public IPathArrival dispatch(IPathArrival previous, ITokenQueue tokens)
             throws PathDispatchException {
         String token = tokens.peek();
-        UniSection section = sectionMap.get(token);
+        Section section = sectionMap.get(token);
         if (section == null)
             return null;
         else

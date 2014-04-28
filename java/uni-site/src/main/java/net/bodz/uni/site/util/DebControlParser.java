@@ -36,7 +36,7 @@ public class DebControlParser {
             if (value == null)
                 value = line;
             else
-                value = value + " " + line;
+                value = value + "\n" + line;
             return;
         }
 

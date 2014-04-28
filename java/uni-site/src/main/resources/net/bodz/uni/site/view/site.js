@@ -13,7 +13,7 @@
         $(".ui-menu").hover(function(event) {
             menubox(event.srcElement).fadeIn(speed);
         }, function(event) {
-            //menubox(event.srcElement).fadeOut(speed);
+            menubox(event.srcElement).fadeOut(speed);
         });
 
     });
@@ -21,7 +21,11 @@
 })(jQuery);
 
 function setTheme(theme, a) {
-    themeLink.href = _webApp_ + "UniSite-" + theme + ".css";
+    var themeLink = $("#themeLink")[0];
+    
+    themeLink.href = _webApp_ + "theme-" + theme + ".css";
     $(a).parents(".ui-enums").find("li").removeClass("ui-active");
     $(a).parent("li").addClass("ui-active");
+    
+    $.get(_webApp_ + "preferences/setTheme?arg=" + theme);
 }

@@ -4,7 +4,7 @@ import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.uni.echo.config.EchoServerConfig;
 import net.bodz.uni.echo.server.EchoServer;
 
-public class UniSiteWebServer
+public class UniSiteServer
         extends BasicCLI {
 
     @Override
@@ -17,7 +17,7 @@ public class UniSiteWebServer
 
     public static void main(String[] args)
             throws Exception {
-        new UniSiteWebServer().execute(args);
+        new UniSiteServer().execute(args);
     }
 
 }

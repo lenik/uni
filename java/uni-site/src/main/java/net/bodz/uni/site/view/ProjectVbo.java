@@ -1,4 +1,4 @@
-package net.bodz.uni.site;
+package net.bodz.uni.site.view;
 
 import java.io.IOException;
 
@@ -8,32 +8,36 @@ import net.bodz.bas.io.html.IHtmlOut;
 import net.bodz.bas.potato.ref.IRefEntry;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
+import net.bodz.uni.site.model.Project;
 
-public class UniProjectVbo
-        extends AbstractHtmlViewBuilder<UniProject> {
+public class ProjectVbo
+        extends AbstractHtmlViewBuilder<Project> {
 
-    public UniProjectVbo() {
-        super(UniProject.class);
+    public ProjectVbo() {
+        super(Project.class);
     }
 
     @Override
-    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IRefEntry<UniProject> entry, IOptions options)
+    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IRefEntry<Project> entry, IOptions options)
             throws ViewBuilderException, IOException {
         if (enter(ctx))
             return null;
 
         IHtmlOut out = ctx.getOut();
-        UniProject project = entry.get();
+        Project project = entry.get();
 
-        out.div().class_("prj-icon-large").text("IMAGE");
+        String name = project.getName();
+        String description = project.getDescription().toString();
 
-        out.h1().textf("Project %s", project.getName());
+        String letter = name.substring(0, 1).toUpperCase();
+        out.div().class_("prj-icon-large").text(letter);
+
+        out.h1().textf("Project %s", name);
 
         out.div().class_("prj-status").start();
-        out.text("H hh M mm D dd");
+        out.text("♥ 0 ♬ 0 ⇵ 0");
         out.end(); // <div#prj-status>
 
-        String description = project.getDescription().toString();
         if (description != null)
             out.p().text(description);
 

@@ -1,4 +1,4 @@
-package net.bodz.uni.site.user;
+package net.bodz.uni.site.model;
 
 import net.bodz.mda.xjdoc.ClassDocLoader;
 import net.bodz.mda.xjdoc.model.IJavaElementDoc;

@@ -3,7 +3,7 @@ package net.bodz.uni.site;
 import net.bodz.bas.http.ctx.IBasePath;
 import net.bodz.bas.http.ctx.WebAppPath;
 
-public interface IUniSiteBasePaths {
+public interface IBasePaths {
 
     IBasePath _webApp_ = new WebAppPath("/");
 

@@ -1,4 +1,4 @@
-package net.bodz.uni.site.user;
+package net.bodz.uni.site.view;
 
 import java.io.IOException;
 
@@ -8,6 +8,7 @@ import net.bodz.bas.io.html.IHtmlOut;
 import net.bodz.bas.potato.ref.IRefEntry;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
+import net.bodz.uni.site.model.Preferences;
 
 public class PreferencesVbo
         extends AbstractHtmlViewBuilder<Preferences> {

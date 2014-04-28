@@ -1,0 +1,178 @@
+body {
+    margin: 0;
+}
+
+dd { #
+    font-family: courier;
+    padding-bottom: 0.5em;
+}
+
+.copyright {
+    text-align: center;
+    font-style: italic;
+    height: 7em;
+}
+
+.letter-box {
+    width: 48px;
+    height: 48px;
+    float: left;
+    border: solid 1px;
+    margin-right: 16px;
+    font-family: serif;
+    font-size: 48px;
+    font-weight: bold;
+    line-height: 48px;
+    text-align: center;
+}
+
+hr.line {
+    margin: 0;
+    height: 4px;
+    border: none;
+    background-color: #ccccff;
+}
+
+.prj-description {
+    margin-left: 64px;
+}
+
+.prj-description a {
+    display: list-item;
+    list-style-position: inside;
+    list-style-image: url("img/project.png");
+}
+
+.prj-icon-large {
+    width: 100px;
+    height: 100px;
+    float: right;
+    border: solid 1px;
+    font-family: serif;
+    font-size: 100px;
+    font-weight: bold;
+    line-height: 100px;
+    text-align: center;
+}
+
+.prj-panel {
+    margin: 1em 0;
+    border: dashed 1px blue;
+}
+
+.prj-status {
+    font-size: small;
+}
+
+.side-bar {
+    margin: .5em 0 0 0;
+    float: right;
+}
+
+.side-box {
+    width: 10em;
+    margin-bottom: 1em;
+}
+
+ul.ui-enums {
+    padding-left: 0;
+}
+
+ul.ui-enums li {
+    list-style: none;
+    display: inline;
+    white-space: nowrap;
+    margin-right: .5em;
+    padding: .2em;
+    line-height: 2em;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+ul.ui-enums li.ui-active {
+    border-style: dashed;
+    font-weight: bold;
+    font-style: italic;
+}
+
+ul.ui-enums li a {
+    text-decoration: none;
+}
+
+.ui-caption {
+    font-size: large;
+    font-weight: bold;
+    font-style: italic;
+    margin: 0 0 .3em 0;
+    text-indent: 1em;
+}
+
+.ui-hidden {
+    visibility: hidden;
+}
+
+.ui-menubar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.ui-menubox {
+    display: none;
+    max-width: 20em;
+    overflow: hidden;
+    padding: 0 0 0.5em 0;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 0 10px 10px;
+}
+
+.ui-menuitem {
+    margin: 0 1em .2em 3em;
+}
+
+.uni-section {
+    margin-bottom: 2em;
+}
+
+dl.uni-projects {
+    border-radius: 1em;
+    margin: .5em 2em;
+    column-width: 20em;
+    -moz-column-width: 20em;
+    -webkit-column-width: 20em;
+    border-style: dotted;
+    border-width: 2px;
+}
+
+dl.uni-projects dt {
+    font-family: monospace, courier;
+    font-weight: bold;
+    display: list-item;
+    list-style-position: inside;
+    list-style-image: url("img/project.png");
+}
+
+.uni-project {
+    margin: 0 1em 2em;
+}
+
+#toolbox {
+    width: 100px;
+    height: 24px;
+    color: hsla(0, 100%, 100%, 0);
+}
+
+#main {
+    margin: 0 1em;
+}
+
+#navbar {
+    width: 100%;
+    height: 1em;
+    padding: 0.5em 1em;
+}

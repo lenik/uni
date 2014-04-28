@@ -1,4 +1,4 @@
-package net.bodz.uni.site;
+package net.bodz.uni.site.model;
 
 import java.util.Collection;
 import java.util.Map;
@@ -11,22 +11,22 @@ import net.bodz.bas.repr.path.ITokenQueue;
 import net.bodz.bas.repr.path.PathArrival;
 import net.bodz.bas.repr.path.PathDispatchException;
 
-public class UniSection
+public class Section
         extends MutableElement
         implements IPathDispatchable {
 
-    Map<String, UniProject> projectMap;
+    Map<String, Project> projectMap;
 
-    public UniSection(String name) {
+    public Section(String name) {
         setName(name);
         projectMap = new TreeMap<>();
     }
 
-    public Collection<UniProject> getProjects() {
+    public Collection<Project> getProjects() {
         return projectMap.values();
     }
 
-    public void addProject(UniProject project) {
+    public void addProject(Project project) {
         if (project == null)
             throw new NullPointerException("project");
         String name = project.getName();
@@ -37,7 +37,7 @@ public class UniSection
     public IPathArrival dispatch(IPathArrival previous, ITokenQueue tokens)
             throws PathDispatchException {
         String token = tokens.peek();
-        UniProject project = projectMap.get(token);
+        Project project = projectMap.get(token);
         if (project == null)
             return null;
         else

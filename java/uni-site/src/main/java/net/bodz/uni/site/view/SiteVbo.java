@@ -1,4 +1,4 @@
-package net.bodz.uni.site;
+package net.bodz.uni.site.view;
 
 import java.io.IOException;
 
@@ -16,16 +16,20 @@ import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.mda.xjdoc.ClassDocLoader;
 import net.bodz.mda.xjdoc.model.ClassDoc;
-import net.bodz.uni.site.user.Language;
-import net.bodz.uni.site.user.Preferences;
-import net.bodz.uni.site.user.Theme;
+import net.bodz.uni.site.IBasePaths;
+import net.bodz.uni.site.model.Language;
+import net.bodz.uni.site.model.Preferences;
+import net.bodz.uni.site.model.Project;
+import net.bodz.uni.site.model.Section;
+import net.bodz.uni.site.model.Site;
+import net.bodz.uni.site.model.Theme;
 
-public class UniSiteVbo
-        extends AbstractHtmlViewBuilder<UniSite>
-        implements IUniSiteBasePaths {
+public class SiteVbo
+        extends AbstractHtmlViewBuilder<Site>
+        implements IBasePaths {
 
-    public UniSiteVbo() {
-        super(UniSite.class);
+    public SiteVbo() {
+        super(Site.class);
     }
 
     @Override
@@ -34,7 +38,7 @@ public class UniSiteVbo
     }
 
     @Override
-    public boolean isOrigin(UniSite value) {
+    public boolean isOrigin(Site value) {
         return true;
     }
 
@@ -44,7 +48,7 @@ public class UniSiteVbo
     }
 
     @Override
-    public void buildTitle(StringBuilder buffer, UniSite value) {
+    public void buildTitle(StringBuilder buffer, Site value) {
         ClassDoc classDoc = ClassDocLoader.load(value.getClass());
         String title = (String) classDoc.getTag("title");
         buffer.setLength(0);
@@ -52,35 +56,38 @@ public class UniSiteVbo
     }
 
     @Override
-    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IRefEntry<UniSite> entry, IOptions options)
+    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IRefEntry<Site> entry, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
-        UniSite site = entry.get();
+        Site site = entry.get();
 
         HttpSession session = ctx.getSession();
         Preferences pref = Preferences.fromSession(session);
 
         boolean frameOnly = false;
         if (entry instanceof PathArrivalEntry) {
-            IPathArrival arrival = ((PathArrivalEntry<UniSite>) entry).getArrival();
+            IPathArrival arrival = ((PathArrivalEntry<Site>) entry).getArrival();
             if (arrival.getRemainingPath() != null)
                 frameOnly = true;
         }
 
         out.head().start();
         {
-            out.link().css(_webApp_ + "UniSite.css");
-            out.link().id("themeLink").css(_webApp_ + "UniSite-" + pref.getTheme().getSuffix() + ".css");
+            out.link().css(_webApp_ + "site.css");
+            out.link().id("themeLink").css(_webApp_ + "theme-" + pref.getTheme().getSuffix() + ".css");
             out.script().javascript("var _webApp_ = " + StringQuote.qq(_webApp_));
             out.script().javascriptSrc(_js_ + "jquery/jquery.min.js");
-            out.script().javascriptSrc(_webApp_ + "UniSite.js");
+            out.script().javascriptSrc(_webApp_ + "site.js");
             out.end(); // <head>
         }
 
         out.div().class_("ui-menubar").start();
         {
             out.span().class_("ui-menu").id("m-tools").start();
-            out.img().src(_img_ + "button/text/uni-tools-100.png"); // theme...?
+
+            out.a().style("text-decoration: none").href(_webApp_.toString()).start();
+            out.div().id("toolbox").text("Uni Tools");
+            out.end();
 
             out.div().class_("ui-menubox").start();
             out.div().class_("ui-caption").text("Theme");
@@ -140,10 +147,10 @@ public class UniSiteVbo
     }
 
     @Override
-    public void buildHtmlViewTail(IHttpReprContext ctx, IRefEntry<UniSite> entry, IOptions options)
+    public void buildHtmlViewTail(IHttpReprContext ctx, IRefEntry<Site> entry, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
-        UniSite site = entry.get();
+        Site site = entry.get();
         ClassDoc classDoc = ClassDocLoader.load(site.getClass());
 
         out.end(); // <div#main>
@@ -151,10 +158,10 @@ public class UniSiteVbo
         out.div().class_("copyright").text(classDoc.getTag("copyright"));
     }
 
-    void indexBody(IHtmlOut out, UniSite site) {
+    void indexBody(IHtmlOut out, Site site) {
         out.h1().text("List Of Projects");
 
-        for (UniSection section : site.sectionMap.values()) {
+        for (Section section : site.sectionMap.values()) {
             out.div().class_("uni-section").start();
 
             out.h2().start();
@@ -162,8 +169,8 @@ public class UniSiteVbo
             out.text(" - " + section.getDescription());
             out.end(); // <h2>
 
-            out.dl().class_("projects").start();
-            for (UniProject project : section.getProjects()) {
+            out.dl().class_("uni-projects").start();
+            for (Project project : section.getProjects()) {
                 out.a().href(section.getName() + "/" + project.getName() + "/").start();
                 out.dt().text(project.getName());
                 out.end(); // <a>

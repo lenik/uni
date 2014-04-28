@@ -1,4 +1,4 @@
-package net.bodz.uni.site;
+package net.bodz.uni.site.model;
 
 import java.util.Map;
 
@@ -6,7 +6,7 @@ import net.bodz.bas.i18n.dom.iString;
 import net.bodz.uni.site.util.DebControl;
 
 public class DebProject
-        extends UniProject {
+        extends Project {
 
     private DebControl debControl;
 

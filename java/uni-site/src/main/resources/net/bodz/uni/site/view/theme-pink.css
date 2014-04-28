@@ -1,0 +1,66 @@
+a {
+    color: hsl(320, 100%, 50%);
+}
+
+body {
+    background-color: hsl(325, 100%, 95%);
+    color: hsl(315, 80%, 30%);
+}
+
+h1 {
+    text-shadow: .1em .1em .2em white;
+}
+
+h2 {
+    background-color: hsl(300, 100%, 90%);
+    text-shadow: .1em .1em .2em hsl(340, 100%, 80%);
+}
+
+.copyright {
+    background-color: hsl(320, 46%, 33%);
+    color: hsl(320, 65%, 90%);
+}
+
+.letter-box {
+    border-color: hsl(320, 100%, 85%);
+    text-shadow: .1em .1em .2em hsl(340, 100%, 80%);
+}
+
+.side-box {
+    background-color: gray;
+}
+
+.ui-caption {
+    background-color: hsla(320, 100%, 91%);
+    background-image: -webkit-gradient(linear, 0 0, 100% 0, from(hsl(320, 100%, 91%) ), to(hsl(0, 100%, 100%) ) );
+}
+
+ul.ui-enums li {
+    border-color: hsl(320, 100%, 70%);
+    background-color: hsl(350, 100%, 88%);
+}
+
+ul.ui-enums li.ui-active {
+    background-color: hsl(350, 100%, 95%);
+}
+
+.ui-menubar {
+    
+}
+
+.ui-menubox {
+    background-color: hsla(60, 100%, 95%, 0.9);
+    border-color: hsl(320, 100%, 79%);
+}
+
+dl.uni-projects {
+    border-color: hsl(320, 63%, 47%);
+}
+
+#navbar {
+    background-color: black;
+}
+
+#toolbox {
+    background-image: url("img/button/text/uni-tools-pink-100.png");
+}

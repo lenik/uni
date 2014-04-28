@@ -1,9 +1,10 @@
-package net.bodz.uni.site;
+package net.bodz.uni.site.web;
 
 import net.bodz.uni.echo.config.EchoServerConfig;
 import net.bodz.uni.echo.test.AbstractWebAppTester;
+import net.bodz.uni.site.UniSiteServerConfig;
 
-public class UniSiteTester
+public class SiteTester
         extends AbstractWebAppTester {
 
     @Override
@@ -13,7 +14,7 @@ public class UniSiteTester
 
     public static void main(String[] args)
             throws Exception {
-        new UniSiteTester().makeClient().go("");
+        new SiteTester().makeClient().go("");
     }
 
 }

@@ -1,4 +1,4 @@
-package net.bodz.uni.site.user;
+package net.bodz.uni.site.model;
 
 import java.io.Serializable;
 import java.util.Locale;
