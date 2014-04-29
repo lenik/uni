@@ -1,8 +1,6 @@
-Title: Games
-Title-zh_CN: 游戏
+label = "Games" \
+    zh-cn "游戏"
 
-Some silly games for fun.
+. = "Some silly games for fun." \
+    zh-cn "一些愚蠢的自创游戏。"
 
-<p lang="zh-cn">
-
-一些愚蠢的自创游戏。

@@ -1,7 +1,6 @@
-Title: Text utilities.
-Title-zh_CN: 文本实用工具。
+label = "Text utilities" \
+    zh-cn "文本实用工具"
 
-Text-related utilities.
+. = "Text-related utilities." \
+    zh-cn "和文本处理、分析、排版相关的工具集。"
 
-<p lang="zh-cn">
-和文本处理、分析、排版相关的工具集。

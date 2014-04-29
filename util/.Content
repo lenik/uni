@@ -1,7 +1,6 @@
-Title: Common Utilities.
-Title-zh_CN: 通用工具。
+label = "Common Utilities" \
+    zh-cn "通用工具"
 
-Common utilities.
+. = "Common utilities." \
+    zh-cn "通用工具集。"
 
-<p lang="zh-cn">
-通用工具集。

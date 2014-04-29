@@ -1,7 +1,6 @@
-Title: Multi-lingua utilities.
-Title-zh_CN: 多语言工具。
+label = "Multi-lingua utilities" \
+    zh-cn "多语言工具"
 
-Multi-lingua Utilities.
+. = "Multi-lingua Utilities." \
+    zh-cn "多语言工具。"
 
-<p lang="zh-cn">
-多语言工具。

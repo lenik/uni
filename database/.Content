@@ -1,4 +1,6 @@
-Title: Database
-Title-zh_CN: 数据库
+label = "Database" \
+    zh-cn "数据库实用工具"
 
-数据库实用工具。
+. = "Database utilities" \
+    zh-cn "数据库实用工具。"
+

@@ -1,7 +1,6 @@
-Title: Network utilities.
-Title-zh_CN: 网络实用工具。
+label = "Network utilities" \
+    zh-cn "网络实用工具"
 
-Network utilities.
+. = "Network utilities." \
+    zh-cn "网络实用工具。"
 
-<p lang="zh-cn">
-网络实用工具。

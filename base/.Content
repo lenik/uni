@@ -1,7 +1,6 @@
-Title: Base System Utilities
-Title-zh_CN: 基本系统工具
+label = "Base System Utilities" \
+    zh-cn "基本系统工具"
 
-Base system utilities.
+. = "Base system utilities." \
+    zh-cn "基本系统工具。"
 
-<p lang="zh-CN">
-基本系统工具。

@@ -1,7 +1,6 @@
-Title: Web-related utilities.
-Title-zh_CN: 网站相关的工具。
+label = "Web-related utilities" \
+    zh-cn "网站相关的工具"
 
-Utilities for web development and adminitration.
+. = "Utilities for web development and adminitration." \
+    zh-cn "用于网站开发和管理相关的工具。"
 
-<p lang="zh-cn">
-用于网站开发和管理相关的工具。

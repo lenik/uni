@@ -1,7 +1,6 @@
-Title: Java development tools.
-Title-zh_CN: Java 开发工具。
+label = "Java development tools" \
+    zh-cn "Java 开发工具"
 
-Useful tools and applications in Java development.
+. = "Useful tools and applications in Java development." \
+    zh-cn "和 Java 开发有关的实用工具和应用程序。"
 
-<p lang="zh-cn">
-和 Java 开发有关的实用工具和应用程序。

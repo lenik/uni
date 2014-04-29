@@ -1,7 +1,6 @@
-Title: Development libraries.
-Title-zh_CN: 程序开发库。
+label = "Development libraries" \
+    zh-cn "程序开发库"
 
-Software libraries reusable for programming.
+. = "Software libraries reusable for programming." \
+    zh-cn "可在编程中复用的软件库。"
 
-<p lang="zh-cn">
-可在编程中复用的软件库。

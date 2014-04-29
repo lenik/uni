@@ -1,8 +1,6 @@
-Title: File Format Support
-Title-zh_CN: 文件格式支持
+label = "File Format Support" \
+    zh-cn "文件格式支持"
 
-Support tools for file analysis and creation in specific formats.
+. = "Support tools for file analysis and creation in specific formats." \
+    zh-cn "用于支持特定文件格式的分析和创建工具。"
 
-<p lang="zh-cn">
-
-用于支持特定文件格式的分析和创建工具。

@@ -1,7 +1,6 @@
-Title: Software development tools.
-Title-zh_CN: 软件开发、编程工具。
+label = "Software development tools" \
+    zh-cn "软件开发、编程工具"
 
-Useful tools used in the development process.
+. = "Useful tools used in the development process." \
+    zh-cn "对软件开发过程提供帮助的工具。"
 
-<p lang="zh-cn">
-对软件开发过程提供帮助的工具。
