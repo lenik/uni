@@ -31,7 +31,7 @@ h2 {
 }
 
 .ui-caption {
-    background-color: hsla(320, 100%, 91%);
+    background-color: hsl(320, 100%, 91%);
     background-image: -webkit-gradient(linear, 0 0, 100% 0, from(hsl(320, 100%, 91%) ), to(hsl(0, 100%, 100%) ) );
 }
 

@@ -11,9 +11,9 @@
         }
 
         $(".ui-menu").hover(function(event) {
-            menubox(event.srcElement).fadeIn(speed);
+            menubox(event.target).fadeIn(speed);
         }, function(event) {
-            menubox(event.srcElement).fadeOut(speed);
+            menubox(event.target).fadeOut(speed);
         });
 
         $(".ui-enums li a").click(function(event) {
@@ -31,13 +31,13 @@
     };
 
     window.setLanguage = function(lang) {
-        $.get(_webApp_ + "preferences/setLanguage/" + lang);
-        location.reload();
+        $.get(_webApp_ + "preferences/setLanguage/" + lang, null, function() {
+            location.reload();
+        });
     };
 
     window.reloadSite = function() {
-        $.get(_webApp_ + "reload");
-        location.reload();
+        $.get(_webApp_ + "reload", null, location.reload);
     };
 
 })(jQuery);
