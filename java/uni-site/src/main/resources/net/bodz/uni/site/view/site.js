@@ -16,16 +16,28 @@
             menubox(event.srcElement).fadeOut(speed);
         });
 
+        $(".ui-enums li a").click(function(event) {
+            var a = event.target;
+            $(a).parents(".ui-enums").find("li").removeClass("ui-active");
+            $(a).parent("li").addClass("ui-active");
+        });
+
     });
 
-})(jQuery);
+    window.setTheme = function(theme, suffix) {
+        var themeLink = $("#themeLink")[0];
+        themeLink.href = _webApp_ + "theme-" + suffix + ".css";
+        $.get(_webApp_ + "preferences/setTheme/" + theme);
+    };
 
-function setTheme(theme, a) {
-    var themeLink = $("#themeLink")[0];
-    
-    themeLink.href = _webApp_ + "theme-" + theme + ".css";
-    $(a).parents(".ui-enums").find("li").removeClass("ui-active");
-    $(a).parent("li").addClass("ui-active");
-    
-    $.get(_webApp_ + "preferences/setTheme?arg=" + theme);
-}
+    window.setLanguage = function(lang) {
+        $.get(_webApp_ + "preferences/setLanguage/" + lang);
+        location.reload();
+    };
+
+    window.reloadSite = function() {
+        $.get(_webApp_ + "reload");
+        location.reload();
+    };
+
+})(jQuery);

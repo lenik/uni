@@ -1,25 +1,87 @@
 package net.bodz.uni.site.model;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
-import net.bodz.bas.i18n.dom1.MutableElement;
+import net.bodz.bas.c.java.io.FileData;
+import net.bodz.bas.err.ParseException;
+import net.bodz.bas.io.res.builtin.FileResource;
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.repr.path.IPathArrival;
 import net.bodz.bas.repr.path.IPathDispatchable;
 import net.bodz.bas.repr.path.ITokenQueue;
 import net.bodz.bas.repr.path.PathArrival;
 import net.bodz.bas.repr.path.PathDispatchException;
+import net.bodz.mda.xjdoc.FlatfDocLoader;
+import net.bodz.mda.xjdoc.model.IElementDoc;
+import net.bodz.mda.xjdoc.model.javadoc.AbstractXjdocElement;
+import net.bodz.uni.site.util.DebControl;
+import net.bodz.uni.site.util.DebControlParser;
 
 public class Section
-        extends MutableElement
+        extends AbstractXjdocElement
         implements IPathDispatchable {
 
-    Map<String, Project> projectMap;
+    static final Logger logger = LoggerFactory.getLogger(Section.class);
+    static FlatfDocLoader flatfDocLoader = new FlatfDocLoader();
 
-    public Section(String name) {
-        setName(name);
-        projectMap = new TreeMap<>();
+    private String name;
+    private File dir;
+    private Map<String, Project> projectMap;
+
+    public Section(String name, File dir) {
+        this.name = name;
+        this.dir = dir;
+        this.projectMap = new TreeMap<>();
+    }
+
+    public void load() {
+        for (File projectDir : dir.listFiles()) {
+            if (!projectDir.isDirectory())
+                continue;
+
+            String name = projectDir.getName();
+
+            // A debian project.
+            File controlFile = new File(projectDir, "debian/control");
+            if (controlFile.exists()) {
+                try {
+                    String controlStr = FileData.readString(controlFile);
+                    DebControl debControl = new DebControlParser().parse(controlStr);
+                    DebProject project = new DebProject(name);
+                    project.setDebControl(debControl);
+                    addProject(project);
+                } catch (IOException e) {
+                    logger.errorf(e, "Failed to process %s.", controlFile);
+                }
+                continue;
+            }
+
+            // A Maven-based Java project.
+            File pomFile = new File(projectDir, "pom.xml");
+            if (pomFile.exists()) {
+                // ...
+                continue;
+            }
+
+            // Other, skip it.
+        }
+    }
+
+    @Override
+    protected IElementDoc loadXjdoc()
+            throws ParseException, IOException {
+        File contentFile = new File(dir, ".Content");
+        return flatfDocLoader.load(new FileResource(contentFile));
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     public Collection<Project> getProjects() {
@@ -32,6 +94,9 @@ public class Section
         String name = project.getName();
         projectMap.put(name, project);
     }
+
+    /** ⇱ Implementation Of {@link IPathDispatchable}. */
+/* _____________________________ */static section.iface __DISPATCH__;
 
     @Override
     public IPathArrival dispatch(IPathArrival previous, ITokenQueue tokens)

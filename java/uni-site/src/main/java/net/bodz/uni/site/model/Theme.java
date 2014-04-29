@@ -1,7 +1,7 @@
 package net.bodz.uni.site.model;
 
 import net.bodz.mda.xjdoc.ClassDocLoader;
-import net.bodz.mda.xjdoc.model.IJavaElementDoc;
+import net.bodz.mda.xjdoc.model.IElementDoc;
 import net.bodz.mda.xjdoc.model.javadoc.IXjdocAware;
 
 public enum Theme
@@ -9,6 +9,9 @@ public enum Theme
 
     /**
      * Cyan
+     *
+     * <p lang="ja">
+     * 天使の青
      *
      * <p lang="zh-cn">
      * 天使蓝
@@ -18,6 +21,9 @@ public enum Theme
     /**
      * Pink
      *
+     * <p lang="ja">
+     * 天使のピンク
+     *
      * <p lang="zh-cn">
      * 天使粉
      */
@@ -25,8 +31,8 @@ public enum Theme
 
     ;
 
-    String suffix;
-    IJavaElementDoc xjdoc;
+    private String suffix;
+    private IElementDoc xjdoc;
 
     private Theme(String suffix) {
         this.suffix = suffix;
@@ -37,12 +43,12 @@ public enum Theme
     }
 
     @Override
-    public IJavaElementDoc getXjdoc() {
+    public IElementDoc getXjdoc() {
         return xjdoc;
     }
 
     @Override
-    public void setXjdoc(IJavaElementDoc xjdoc) {
+    public void setXjdoc(IElementDoc xjdoc) {
         this.xjdoc = xjdoc;
     }
 

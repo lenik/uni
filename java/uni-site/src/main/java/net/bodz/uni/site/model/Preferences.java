@@ -15,6 +15,11 @@ public class Preferences
     Theme theme = Theme.CYAN;
     Language language = Language.ENGLISH;
 
+    /**
+     * @label Theme
+     * @label.ja 様式
+     * @label.zh.cn 风格
+     */
     public Theme getTheme() {
         return theme;
     }
@@ -37,6 +42,11 @@ public class Preferences
         setTheme(Theme.valueOf(themeName));
     }
 
+    /**
+     * @label Language
+     * @label.ja 言語
+     * @label.zh.cn 语言
+     */
     public Language getLanguage() {
         return language;
     }

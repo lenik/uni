@@ -4,7 +4,7 @@ import net.bodz.uni.echo.config.EchoServerConfig;
 import net.bodz.uni.echo.test.AbstractWebAppTester;
 import net.bodz.uni.site.UniSiteServerConfig;
 
-public class SiteTester
+public class UniSiteTester
         extends AbstractWebAppTester {
 
     @Override
@@ -14,7 +14,7 @@ public class SiteTester
 
     public static void main(String[] args)
             throws Exception {
-        new SiteTester().makeClient().go("");
+        new UniSiteTester().makeClient().go("");
     }
 
 }

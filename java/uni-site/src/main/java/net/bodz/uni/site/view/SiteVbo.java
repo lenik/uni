@@ -99,10 +99,10 @@ public class SiteVbo
                 boolean active = theme == pref.getTheme();
                 out.li().class_(active ? "ui-active" : "").start();
 
-                String script = String.format("setTheme(\"%s\", this)", theme.getSuffix());
-                out.a().onclick(script).text(themeLabel);
+                String script = String.format("setTheme(\"%s\", \"%s\")", theme.name(), theme.getSuffix());
+                out.a().attr("value", theme.name()).onclick(script).text(themeLabel);
 
-                out.end(); // <li.ui-enumitem>
+                out.end(); // <li>
             }
             out.end(); // <ul.enums>
             out.end(); // <div.ui-menuitem>
@@ -114,11 +114,11 @@ public class SiteVbo
             for (Language lang : Language.values()) {
                 String langLabel = lang.getXjdoc().getLabel().toString();
                 boolean active = lang == pref.getLanguage();
-                out.li().class_(active ? "ui-active" : "ui-inactive").start();
-                if (active)
-                    out.text(langLabel);
-                else
-                    out.a().href("javascript: setLanguage(this)").text(langLabel);
+                out.li().class_(active ? "ui-active" : "").start();
+
+                String script = String.format("setLanguage(\"%s\")", lang.name());
+                out.a().attr("value", lang.name()).onclick(script).text(langLabel);
+
                 out.end(); // <li>
             }
             out.end(); // <ul.enums>
@@ -159,14 +159,16 @@ public class SiteVbo
     }
 
     void indexBody(IHtmlOut out, Site site) {
-        out.h1().text("List Of Projects");
+        out.h1().text("List Of Projects").start();
+        out.a().style("cursor: pointer").onclick("reloadSite()").text("[Reload]");
+        out.end();
 
-        for (Section section : site.sectionMap.values()) {
+        for (Section section : site.getSectionMap().values()) {
             out.div().class_("uni-section").start();
 
             out.h2().start();
             out.a().href(section.getName() + "/").text(section.getName());
-            out.text(" - " + section.getDescription());
+            out.text(" - " + section.getLabel());
             out.end(); // <h2>
 
             out.dl().class_("uni-projects").start();

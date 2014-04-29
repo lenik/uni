@@ -1,4 +1,4 @@
-package net.bodz.uni.site.web;
+package net.bodz.uni.site.model;
 
 import org.junit.Assert;
 
