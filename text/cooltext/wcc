@@ -34,7 +34,7 @@ our %opt_ext        = qw(
         bas     text
         bat     text
         c       c
-        cls     vb
+        cls     unix
         cpp     c
         cs      c
         css     text
@@ -47,6 +47,7 @@ our %opt_ext        = qw(
         htm     text
         html    text
         hxx     c
+        in      unix
         java    c
         js      c
         jsp     text
@@ -56,6 +57,7 @@ our %opt_ext        = qw(
         pm      unix
         python  unix
         sh      unix
+        sty     unix
         tcl     unix
         txt     text
         xml     xml
@@ -215,7 +217,7 @@ sub process {
     my ($fn) = @_;
     my %counts = ();
     my ($fext, $fmodel);
-    if (-d $fn) {
+    if (-d $fn && not -l $fn) {
         _sig2 'DIR', $fn;
 
         my $dh = new DirHandle($fn);
