@@ -1,0 +1,32 @@
+% cooltex -abdv $^
+
+\documentclass[oneside]{z-article}
+\usepackage[vmargin=1.5cm]{geometry}
+\usepackage{z-tabbrow2}
+\usepackage{lipsum}
+
+\title{\boDz tabbrow test page}
+\author{\xjlzh}
+
+\AtBeginDocument{
+    \setuptabsatright
+}
+
+\begin{document}
+
+    \maketitle
+    %\tableofcontents
+
+    \section{One}
+    \lipsum[1-3]
+
+    \section{Two is bigger}
+    \lipsum[1-3]
+
+    \section{Small 3}
+    \lipsum[1-3]
+
+    \section{Here Comes: The Large Four}
+    \lipsum[1-3]
+
+\end{document}

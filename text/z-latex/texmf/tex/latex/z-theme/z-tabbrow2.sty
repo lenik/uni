@@ -7,7 +7,7 @@
 \usepackage{totcount}
 \usepackage{nameref}
 
-\usetikzlibrary{backgrounds, positioning, chains}
+\usetikzlibrary{backgrounds, positioning, chains, shapes.geometric}
 
 \let\oldsection\section
 \renewcommand{\section}[2][\relax]{%
@@ -28,14 +28,13 @@
 
 \tikzset{
     tab button/.style = {
-        % text width=\avgtabwidth, 
-        rectangle, rounded corners=12pt,
+        trapezium, trapezium angle=70, rounded corners=5,
         align=center, text height=20pt, text depth=25pt, font=\sffamily\LARGE,
         inner sep=5pt },
     unselected tab/.style = {
         tab button, draw=gray!20, thin, color=gray!20, fill=white },
     selected tab/.style = {
-        tab button, color=white, fill=gray!90 },
+        tab button, color=white, fill=black!75 },
     page border/.style = {
         text width=\the\dimexpr\textwidth+3cm\relax,
         draw=gray, fill=white, line width=2pt,
@@ -54,26 +53,37 @@
 
     \backgroundsetup{scale=1, color=black, angle=0, opacity=1, contents={
         \begin{tikzpicture}[remember picture, overlay]
-            \node[page border] % ",fill=none" for debug.
-                    at (current page.center)
-                (border) {\rule{0pt}{\dimexpr\textheight+2cm\relax}};
+            \draw (current page.north)
+                    ++(\the\dimexpr\textwidth/2+3cm/2\relax, 0) coordinate(vtop)
+                    ++(0, -1cm) coordinate(vtopBelow);
+            \draw (current page.south)
+                    ++(\the\dimexpr\textwidth/2+3cm/2\relax, 0) coordinate(vbottom)
+                    ++(0, 1cm) coordinate(vbottomAbove)
+                    ++(-1cm, -1cm) coordinate(vbottomLeft);
+            \fill[white] (vtop) rectangle (vbottomLeft);
+            \draw[gray!75] (vtop) -- (vbottom);
             % 侧边上的按钮
             \begin{scope}[on background layer, start chain=going right, node distance=0mm]
                 % initiator
-                \node[on chain] at (border.north east) {};
+                \node[on chain, yshift=-10mm] at (vtopBelow) {};
                 % follows
                 \foreach \sect in {1,...,\numexpr\totvalue{section}\relax} {
                     \node[on chain, \ifnum\thesection<\sect unselected tab\relax
                             \else \ifnum\thesection>\sect unselected tab\relax
                             \else selected tab\fi\fi,
-                            rotate=-90, xshift=2mm,
+                            rotate=-90, xshift=-5mm,
                            ]
                        (tab-\sect) {\nameref{section:\sect}};
                 }
+                \ifnum\thesection>0
+                    \node[selected tab, rotate=-90]
+                        at (tab-\thesection) {\nameref{section:\thesection}};
+                \fi
             \end{scope}
             % 底部的页码：
-            \node[font=\LARGE\sffamily,fill=white] at (border.south)
-                (page-num) {\makebox[3em][c]{\thepage}};
+            \node[font=\LARGE\sffamily, fill=gray!20, inner sep=1em,
+                    anchor=south east] at (current page.south east)
+                (page-num) {\thepage};
         \end{tikzpicture}
     }}
 }
