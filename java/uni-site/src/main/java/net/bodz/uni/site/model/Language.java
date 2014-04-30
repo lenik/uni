@@ -11,24 +11,24 @@ public enum Language
         implements IXjdocAware {
 
     /**
-     * @label English
+     * English
      */
     ENGLISH("en"),
 
     /**
-     * @label 中文（简体）
+     * 中文（简体）
      */
     SIMPLIFIED_CHINESE("zh-cn"),
 
     /**
-     * @label 日本語
+     * 日本語
      */
     JAPANESE("ja"),
 
     ;
 
-    String code;
-    IElementDoc xjdoc;
+    private String code;
+    private IElementDoc xjdoc;
 
     private Language(String code) {
         this.code = code;

@@ -10,6 +10,8 @@ import net.bodz.bas.html.IHttpReprContext;
 import net.bodz.bas.html.IRequirements;
 import net.bodz.bas.io.html.IHtmlOut;
 import net.bodz.bas.potato.ref.IRefEntry;
+import net.bodz.bas.potato.ref.PropertyGUIRefEntry;
+import net.bodz.bas.potato.ref.PropertyGUIRefMap;
 import net.bodz.bas.repr.path.IPathArrival;
 import net.bodz.bas.repr.path.PathArrivalEntry;
 import net.bodz.bas.repr.viz.ViewBuilderException;
@@ -17,12 +19,11 @@ import net.bodz.bas.rtx.IOptions;
 import net.bodz.mda.xjdoc.ClassDocLoader;
 import net.bodz.mda.xjdoc.model.ClassDoc;
 import net.bodz.uni.site.IBasePaths;
-import net.bodz.uni.site.model.Language;
 import net.bodz.uni.site.model.Preferences;
 import net.bodz.uni.site.model.Project;
 import net.bodz.uni.site.model.Section;
 import net.bodz.uni.site.model.Site;
-import net.bodz.uni.site.model.Theme;
+import net.bodz.uni.site.model.ToolMenu;
 
 public class SiteVbo
         extends AbstractHtmlViewBuilder<Site>
@@ -59,10 +60,13 @@ public class SiteVbo
     public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IRefEntry<Site> entry, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
-        Site site = entry.get();
+        SiteApplication site = (SiteApplication) entry.get();
 
         HttpSession session = ctx.getSession();
         Preferences pref = Preferences.fromSession(session);
+
+        PropertyGUIRefMap siteRefMap = explode(site);
+        siteRefMap.importProperties();
 
         boolean frameOnly = false;
         if (entry instanceof PathArrivalEntry) {
@@ -89,46 +93,10 @@ public class SiteVbo
             out.div().id("toolbox").text("Uni Tools");
             out.end();
 
-            out.div().class_("ui-menubox").start();
-            out.div().class_("ui-caption").text("Theme");
+            PropertyGUIRefEntry<ToolMenu> toolMenuEntry = siteRefMap.get("toolMenu");
+            new ToolMenuVbo().buildHtmlView(ctx, toolMenuEntry);
 
-            out.div().class_("ui-menuitem").start();
-            out.ul().class_("ui-enums").start();
-            for (Theme theme : Theme.values()) {
-                String themeLabel = theme.getXjdoc().getText().toString();
-                boolean active = theme == pref.getTheme();
-                out.li().class_(active ? "ui-active" : "").start();
-
-                String script = String.format("setTheme(\"%s\", \"%s\")", theme.name(), theme.getSuffix());
-                out.a().attr("value", theme.name()).onclick(script).text(themeLabel);
-
-                out.end(); // <li>
-            }
-            out.end(); // <ul.enums>
-            out.end(); // <div.ui-menuitem>
-
-            out.div().class_("ui-caption").text("Language");
-
-            out.div().class_("ui-menuitem").start();
-            out.ul().class_("ui-enums").start();
-            for (Language lang : Language.values()) {
-                String langLabel = lang.getXjdoc().getLabel().toString();
-                boolean active = lang == pref.getLanguage();
-                out.li().class_(active ? "ui-active" : "").start();
-
-                String script = String.format("setLanguage(\"%s\")", lang.name());
-                out.a().attr("value", lang.name()).onclick(script).text(langLabel);
-
-                out.end(); // <li>
-            }
-            out.end(); // <ul.enums>
-            out.end(); // <div.ui-menuitem>
-
-            out.div().class_("ui-caption").text("Caching");
-            out.div().class_("ui-menuitem").text("ON OFF");
-
-            out.end(); // <span#m-tools>
-            out.end(); // <span.ui-menu>
+            out.end(); // <span.ui-menu#m-tools>
             out.end(); // <divl#menubar>
         }
 
@@ -136,9 +104,6 @@ public class SiteVbo
         out.hr().class_("line");
 
         out.div().id("main").start();
-
-        // PropertyGUIRefMap refMap = explode(site);
-        // refMap.importProperties();
 
         if (!frameOnly)
             indexBody(out, site);
