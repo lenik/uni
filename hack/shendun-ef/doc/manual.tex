@@ -6,6 +6,7 @@
 \usepackage{environ}
 \usepackage{fancyvrb}
 \usepackage{mdframed}
+\usepackage{fontawesome}
 \usepackage{z-tabbrow2}
 \pretocmd{\subsection}{\clearpage}{}{}
 
@@ -45,9 +46,9 @@
 	    };
 	    \begin{scope}[start chain=going above left, node distance=0pt]
 		    \draw (comp.north east) ++(-1pt, -1pt) coordinate(close-corner);
-		    \node[on chain, win button] (close) at (close-corner) {$ \times $};
-		    \node[on chain, win button] (max) {$ \boxempty $};
-		    \node[on chain, win button] (min) {\_};
+		    \node[on chain, win button] (close) at (close-corner) { \faRemoveSign };
+		    \node[on chain, win button] (max) { \faChevronUp };
+		    \node[on chain, win button] (min) { \faChevronDown};
 	    \end{scope}
 
 	    \draw (comp.north west) rectangle (comp.south east);
