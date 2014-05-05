@@ -1,20 +1,13 @@
 #!/bin/bash
 # master-file
 
-tex_arch=$( @tex_arch_cmd@ )
+    tex_arch=$( @tex_arch_cmd@ )
 
-instdir=
-for texbin in /usr/local/texlive/*/bin/${tex_arch}-linux/tex; do
-    if [ -x "$texbin" ]; then
-        archbindir=${texbin%/tex}
-        bindir=${archbindir%/*}
-        instdir=${bindir%/*}
-        echo "Found texlive installation: $instdir"
-    fi
-done
+    instdir=/usr/local/tex
+    bindir=$instdir/bin
+    archbindir=$bindir/${tex_arch}-linux
 
-if [ -n "$instdir" ]; then
-    echo "Add texlive installation $instdir to environment"
+    echo "Local TeXLive install dir: $instdir"
     if [ ! -d @profilesdir@ ]; then
         mkdir -p @profilesdir@
     fi
@@ -37,11 +30,5 @@ fi
 
 export PATH MANPATH INFOPATH
 EOM
-
-else
-    echo "No texlive local installation found. "
-    echo "You must install texlive before install this package. "
-    exit 1
-fi
 
 exit 0
