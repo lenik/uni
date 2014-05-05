@@ -53,9 +53,7 @@ public class SectionVbo
 
             out.a().href(name + "/").text(name);
 
-            out.div().class_("prj-status").start();
-            out.text("♥ 0 ♬ 0 ⇵ 0");
-            out.end(); // <div#prj-status>
+            embed(ctx, project.getStat());
 
             out.println(description.replace("\n", "<br>\n"));
             out.end();

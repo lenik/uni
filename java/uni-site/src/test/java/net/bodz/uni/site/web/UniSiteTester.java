@@ -14,7 +14,7 @@ public class UniSiteTester
 
     public static void main(String[] args)
             throws Exception {
-        new UniSiteTester().makeClient().go("");
+        new UniSiteTester().makeClient().go("webjars/font-awesome/3.2.1/css/font-awesome.css");
     }
 
 }

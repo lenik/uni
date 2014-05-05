@@ -77,8 +77,12 @@ public class SiteVbo
 
         out.head().start();
         {
+            // stylesheets
             out.link().css(_webApp_ + "site.css");
             out.link().id("themeLink").css(_webApp_ + "theme-" + pref.getTheme().getSuffix() + ".css");
+            out.link().css(_webjars_ + "font-awesome/3.2.1/css/font-awesome.css");
+
+            // scripts
             out.script().javascript("var _webApp_ = " + StringQuote.qq(_webApp_));
             out.script().javascriptSrc(_js_ + "jquery/jquery.min.js");
             out.script().javascriptSrc(_webApp_ + "site.js");

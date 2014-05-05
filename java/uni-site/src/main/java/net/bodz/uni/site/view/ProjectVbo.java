@@ -34,9 +34,7 @@ public class ProjectVbo
 
         out.h1().textf("Project %s", name);
 
-        out.div().class_("prj-status").start();
-        out.text("♥ 0 ♬ 0 ⇵ 0");
-        out.end(); // <div#prj-status>
+        embed(ctx, project.getStat());
 
         if (description != null)
             out.p().text(description);
