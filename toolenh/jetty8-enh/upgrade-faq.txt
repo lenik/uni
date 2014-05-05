@@ -1,0 +1,41 @@
+- 转换 jetty6 配置文件到 jetty8.
+
+    XML DTD.
+    org.mortbay.jetty.Server -> org.eclipse.jetty.server.Server.
+    org.mortbay.jetty.naming.Resource -> org.eclipse.jetty.plus.jndi.Resource.
+    
+- JSP 不能用:
+    
+    jetty6:
+        因为 libjetty-extra-java 的依赖项 libtomcat6-java 变成了 libtomcat7-java，
+        因此 jetty-jsp 无法启用。
+        
+        强制将 libtomcat7-java 降级到 libtomcat6-java 后，因为与 libjetty-extra-java
+        不再兼容，故不能使用。
+        
+    jetty8:
+        tomcat7 jasper 编译器在载入时，构造 taglib 时调用下面语句
+            ContextHandler$Context.getClassLoader
+        出现安全异常，虽然强制关闭了安全管理器：
+            ~jetty/.java.policy:
+            grant {
+                permission java.security.AllPermission;
+            };
+        可以绕开安全问题，但 Tomcat Instance 并没有被正确设置到 context 中。
+
+- Jetty8/archiva-2.0 中出现 NoSuchEnumException 异常
+
+    这是因为遗留的 archiva.xml (for archiva-1.3.x) 中 RBAC 相关的配置项与新版不兼容导致。
+    
+    需要删除/抚慰 ~jetty/.m2/archiva.xml.
+
+- sealing violation: can't seal package org.apache.derby.impl.services.timer: already loaded
+
+    archiva/WEB-INF/lib 下已有 derby-10.10.2.2.jar，
+    与 jetty8/lib/data/derby-10.10.1.1.jar 冲突。
+
+    如果删除 jetty8/lib/data ，则配置文件 CNFE: org.apache.derby.jdbc.EmbeddedDataSource。
+    如果采用 tomcat jdbc pool，延迟加载 derby driver，会出现同样 CNFE.
+    将 WEB-INF/lib/derby-10.10.2.2.jar 复制到 jetty8/lib/data，使用同一版本的 derby ，问题解决。
+    
+

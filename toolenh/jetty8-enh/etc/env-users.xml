@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
+
+<Configure id="Server" class="org.eclipse.jetty.server.Server">
+
+  <New id="users" class="org.eclipse.jetty.plus.jndi.Resource">
+    <Arg>jdbc/users</Arg>
+    <Arg>
+      <New class="org.apache.tomcat.jdbc.pool.DataSource">
+        <Set name="driverClassName">org.apache.derby.jdbc.EmbeddedDriver</Set>
+        <Set name="url">jdbc:derby:users-db;create=true</Set>
+        <Set name="username">sa</Set>
+        <Set name="maxActive">20</Set>
+        <Set name="removeAbandoned">true</Set>
+        <Set name="logAbandoned">true</Set>
+        <Set name="initialSize">5</Set>
+        <Set name="testOnBorrow">true</Set>
+        <!-- very rigourous sql query validation -->
+        <Set name="validationQuery">select 1</Set>
+      </New>
+    </Arg>
+  </New>
+
+  <New id="usersShutdown" class="org.eclipse.jetty.plus.jndi.Resource">
+    <Arg>jdbc/usersShutdown</Arg>
+    <Arg>
+      <New class="org.apache.tomcat.jdbc.pool.DataSource">
+        <Set name="driverClassName">org.apache.derby.jdbc.EmbeddedDriver</Set>
+        <Set name="url">jdbc:derby:users-db</Set>
+        <Set name="username">sa</Set>
+      </New>
+    </Arg>
+  </New>
+
+</Configure>

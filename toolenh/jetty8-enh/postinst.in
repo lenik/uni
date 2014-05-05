@@ -1,4 +1,35 @@
-#!/bin/sh
+#!/bin/bash
 # master-file
+
+. shlib-import cliboot
+
+install -d -o jetty -g jetty -m 4775 @jettyvardir@
+install -d -o jetty -g jetty -m 4775 @jettydatadir@
+
+_log1 "Configure Jetty 8"
+
+lineconf -tm "  Set default port to 3008" \
+    @sysconfdir@/default/jetty8 jetty::port \
+    "JETTY_PORT=3008"
+
+lineconf -tm "  Load jetty-plus.xml" \
+    @jettyetcdir@/jetty.conf load::jetty-plus \
+    "@jettyetcdir@/jetty-plus.xml"
+
+lineconf -tm "  Load env-appserver.xml" \
+    @jettyetcdir@/jetty.conf load::env-appserver \
+    "@jettyetcdir@/env-appserver.xml"
+
+lineconf -tm "  Load env-derby.xml" \
+    @jettyetcdir@/jetty.conf load::env-derby \
+    "@jettyetcdir@/env-derby.xml"
+
+lineconf -tm "  Load env-users.xml" \
+    @jettyetcdir@/jetty.conf load::env-users \
+    "@jettyetcdir@/env-users.xml"
+
+lineconf -tm "  Load env-mail.xml" \
+    @jettyetcdir@/jetty.conf load::env-mail \
+    "@jettyetcdir@/env-mail.xml"
 
 exit 0

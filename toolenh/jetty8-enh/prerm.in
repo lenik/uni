@@ -1,4 +1,26 @@
-#!/bin/sh
+#!/bin/bash
 # master-file
+
+. shlib-import cliboot
+
+_log1 "Unconfigure Jetty 8"
+
+lineconf -ktm "  Unset default port from 3008" \
+    @sysconfdir@/default/jetty8 jetty::port
+
+lineconf -ktm "  Unload jetty-plus.xml" \
+    @jettyetcdir@/jetty.conf load::jetty-plus
+
+lineconf -ktm "  Unload env-appserver.xml" \
+    @jettyetcdir@/jetty.conf load::env-appserver
+
+lineconf -ktm "  Unload env-derby.xml" \
+    @jettyetcdir@/jetty.conf load::env-derby
+
+lineconf -ktm "  Unload env-users.xml" \
+    @jettyetcdir@/jetty.conf load::env-users
+
+lineconf -ktm "  Unload env-mail.xml" \
+    @jettyetcdir@/jetty.conf load::env-mail
 
 exit 0

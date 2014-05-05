@@ -10,5 +10,5 @@ Vcs-Browser: http://svn.bodz.net/uni/trunk//mnt/istore/projects/uni/toolenh/jett
 
 Package: jetty8-enh
 Architecture: all
-Depends: ${misc:Depends}
+Depends: jetty8, libjetty8-extra-java, libjetty8-java-doc
 Description: Jetty 8 utilities.

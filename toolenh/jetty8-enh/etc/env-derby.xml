@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
+
+<Configure id="Server" class="org.eclipse.jetty.server.Server">
+
+  <Call class="java.lang.System" name="setProperty">
+    <Arg>derby.system.home</Arg>
+    <Arg>/var/lib/jetty/derby</Arg>
+  </Call>
+
+</Configure>
