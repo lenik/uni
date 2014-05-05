@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 7), autotools-dev
 Standards-Version: 3.8.3
-Homepage: http://uni.bodz.net/package/cooldeb
+Homepage: http://uni.bodz.net/packaging/cooldeb
 Vcs-Git: git://git.bodz.net/uni.git
 Vcs-Browser: http://git.bodz.net/uni/packaging/cooldeb
 
