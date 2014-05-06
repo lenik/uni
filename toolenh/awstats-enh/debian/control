@@ -12,5 +12,7 @@ Package: awstats-enh
 Architecture: all
 Depends:
     awstats,
+    libgeo-ip-perl,
+    geoip-database,
     ${misc:Depends}
 Description: AWStats easy install.

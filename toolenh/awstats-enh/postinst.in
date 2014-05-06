@@ -1,4 +1,37 @@
 #!/bin/sh
 # master-file
 
+conf=@sysconfdir@/awstats/awstats.conf.local
+
+    lineconf -tm "Set awstats stylesheet" \
+        $conf @style-sheet          "#StyleSheet=\"/awstats/css/awstats_bw.css\""
+
+    lineconf -tm "Set awstats dns lookup" \
+        $conf @dns-lookup           "DNSLookup=0"
+
+    lineconf -tm "Set awstats dir icons" \
+        $conf @dir-icons            "DirIcons=\"/awstats/icon\""
+
+    lineconf -tm "Set allow to update stats from browser" \
+        $conf @allow-to-update      "AllowToUpdateStatsFromBrowser=1"
+
+    lineconf -tm "Set awstats allow full year view" \
+        $conf @allow-full-year-view "AllowFullYearView=3"
+
+    lineconf -tm "Set awstats use frames when cgi" \
+        $conf @use-frames-when-cgi  "UseFramesWhenCGI=0"
+
+    lineconf -tm "Set awstats use frames when cgi" \
+        $conf @use-frames-when-cgi  "UseFramesWhenCGI=0"
+
+    lineconf -tm "Load awstats plugin: geoip" \
+        $conf @plugin.geoip \
+        "LoadPlugin=\"geoip GEOIP_STANDARD /usr/share/GeoIP/GeoIP.dat"
+
+echo "Enable awstats in Apache 2"
+
+    a2enconf awstats
+    a2enconf serve-cgi-bin
+    a2reload
+
 exit 0

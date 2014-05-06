@@ -1,4 +1,35 @@
 #!/bin/sh
 # master-file
 
+conf=@sysconfdir@/awstats/awstats.conf.local
+
+    lineconf -ktm "Unset awstats log format" \
+        $conf @log-format
+
+    lineconf -ktm "Unset awstats site domain" \
+        $conf @site-domain
+
+    lineconf -ktm "Unset awstats dns lookup" \
+        $conf @dns-lookup
+
+    lineconf -ktm "Unset awstats dir icons" \
+        $conf @dir-icons
+
+    lineconf -ktm "Unset allow to update stats from browser" \
+        $conf @allow-to-update
+
+    lineconf -ktm "Unset awstats allow full year view" \
+        $conf @allow-full-year-view
+
+    lineconf -ktm "Unset awstats use frames when cgi" \
+        $conf @use-frames-when-cgi
+
+    lineconf -ktm "Unload awstats plugin: geoip" \
+        $conf @plugin.geoip
+
+echo "Disable awstats in Apache 2"
+
+    a2disconf awstats
+    a2reload
+
 exit 0
