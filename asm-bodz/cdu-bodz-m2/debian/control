@@ -12,6 +12,7 @@ Package: cdu-bodz-m2
 Architecture: all
 Depends:
     cdu-bodz-base,
+    archiva,
     ${misc:Depends}
 Recommends:
     cdu-bodz-m2-settings

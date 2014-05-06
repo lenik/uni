@@ -5,37 +5,46 @@
 
 LOGLEVEL=2
 
-if [ -f "@wardir@/archiva.war" ]; then
+wardir="@wardir@"
+warfile="$wardir/apache-archiva-2.war"
+
+if [ -f "$warfile" ]; then
     echo "Archiva.war is already installed, please remove it for full-upgrade"
 else
     _log1 "Search and download Archiva WAR"
 
     index=http://archiva.apache.org/download.html
     _log2 "Parse index-1: $index"
-    index2=`grepurl -Em1 '[^"]+\.war' $index` || die "Index-1 parse error"
+    result=`grepurl -Em1 '[^"]+\.war' $index` || die "Index-1 parse error"
 
-    _log2 "Parse index-2: $index2"
-    war_url=`grepurl -Em1 '[^"]+\.war' $index2` || die "Index-2 parse error"
+    #_log2 "Parse index-2: $index2"
+    #war_url=`grepurl -Em1 '[^"]+\.war' $index2` || die "Index-2 parse error"
+    war_url="$result"
 
     _log2 "Download $war_url..."
-    war_file=`wgetc -q $war_url` || die "Failed to download $war_url"
+    war_src=`wgetc -q $war_url` || die "Failed to download $war_url"
 
-    _log2 "Copy $war_file to @wardir@/archiva.war"
-    mkdir -p "@wardir@" || die "Couldn't create the directory @wardir@"
-    cp -f "$war_file" "@wardir@/archiva.war" || die "Failed to copy"
+    _log2 "Copy $war_src to $warfile"
+    mkdir -p "$wardir" || die "Couldn't create the directory $wardir"
+    cp -f "$war_src" "$warfile" || die "Failed to copy"
 fi
 
-_log1 "Install Archiva configs to Jetty Server"
+_log1 "Config Jetty server"
 
-    lineconf -tm "  Load archiva-jetty-config.xml" \
+    lineconf -tm "  Load archiva-db.xml" \
         @jettyconfdir@/jetty.conf load::archiva \
-        "@jettyconfdir@/archiva-jetty-config.xml"
+        "@jettyconfdir@/archiva-db.xml"
 
-_log1 "Configure apache proxy to forward to archiva"
+    _log1 "  Reuse Tomcat libraries"
+    mkdir -p @jettylibdir@/tomcat
+    for item in api util jdbc juli; do
+        ln -snf /usr/share/java/tomcat-$item-*.jar \
+                @jettylibdir@/tomcat/tomcat-$item.jar
+    done
 
-    a2enmod proxy
-    a2enmod proxy_http
-    a2enmod rewrite
-    a2reload
+_log1 "Set file permissions for www-data"
+
+    chown -R jetty:www-data "@archivadir@"
+    chmod -R g+w "@archivadir@"
 
 exit 0

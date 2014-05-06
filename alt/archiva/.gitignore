@@ -1,1 +1,3 @@
+*.war
 archiva-jetty-config.xml
+contexts/archiva.xml

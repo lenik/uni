@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <configuration>
   <version>2</version>
   <repositoryScanning>
@@ -52,87 +52,250 @@
           <pattern>**/*.sh</pattern>
           <pattern>**/.svn/**</pattern>
           <pattern>**/.DAV/**</pattern>
+          <pattern>.index/**</pattern>
+          <pattern>.indexer/**</pattern>
         </patterns>
       </fileType>
     </fileTypes>
     <knownContentConsumers>
-      <knownContentConsumer>update-db-artifact</knownContentConsumer>
       <knownContentConsumer>create-missing-checksums</knownContentConsumer>
-      <knownContentConsumer>update-db-repository-metadata</knownContentConsumer>
       <knownContentConsumer>validate-checksum</knownContentConsumer>
       <knownContentConsumer>validate-signature</knownContentConsumer>
       <knownContentConsumer>index-content</knownContentConsumer>
       <knownContentConsumer>auto-remove</knownContentConsumer>
       <knownContentConsumer>auto-rename</knownContentConsumer>
       <knownContentConsumer>metadata-updater</knownContentConsumer>
+      <knownContentConsumer>create-archiva-metadata</knownContentConsumer>
+      <knownContentConsumer>duplicate-artifacts</knownContentConsumer>
     </knownContentConsumers>
     <invalidContentConsumers>
       <invalidContentConsumer>update-db-bad-content</invalidContentConsumer>
     </invalidContentConsumers>
   </repositoryScanning>
-  <databaseScanning>
-    <cronExpression>0 0 * * * ?</cronExpression>
-    <unprocessedConsumers>
-      <unprocessedConsumer>index-artifact</unprocessedConsumer>
-      <unprocessedConsumer>update-db-project</unprocessedConsumer>
-      <unprocessedConsumer>validate-repository-metadata</unprocessedConsumer>
-      <unprocessedConsumer>index-archive-toc</unprocessedConsumer>
-      <unprocessedConsumer>update-db-bytecode-stats</unprocessedConsumer>
-      <unprocessedConsumer>index-public-methods</unprocessedConsumer>
-    </unprocessedConsumers>
-    <cleanupConsumers>
-      <cleanupConsumer>not-present-remove-db-artifact</cleanupConsumer>
-      <cleanupConsumer>not-present-remove-db-project</cleanupConsumer>
-      <cleanupConsumer>not-present-remove-indexed</cleanupConsumer>
-    </cleanupConsumers>
-  </databaseScanning>
+  <webapp>
+    <ui>
+      <showFindArtifacts>true</showFindArtifacts>
+      <appletFindEnabled>true</appletFindEnabled>
+      <disableEasterEggs>false</disableEasterEggs>
+      <disableRegistration>false</disableRegistration>
+    </ui>
+  </webapp>
+  <redbackRuntimeConfiguration>
+    <migratedFromRedbackConfiguration>true</migratedFromRedbackConfiguration>
+    <ldapConfiguration>
+      <port>-1</port>
+      <ssl>false</ssl>
+      <contextFactory>com.sun.jndi.ldap.LdapCtxFactory</contextFactory>
+      <bindAuthenticatorEnabled>false</bindAuthenticatorEnabled>
+      <writable>false</writable>
+      <useRoleNameAsGroup>false</useRoleNameAsGroup>
+    </ldapConfiguration>
+    <useUsersCache>true</useUsersCache>
+    <usersCacheConfiguration>
+      <timeToIdleSeconds>14400</timeToIdleSeconds>
+      <timeToLiveSeconds>14400</timeToLiveSeconds>
+      <maxElementsInMemory>1000</maxElementsInMemory>
+      <maxElementsOnDisk>0</maxElementsOnDisk>
+    </usersCacheConfiguration>
+    <userManagerImpls>
+      <userManagerImpl>jdo</userManagerImpl>
+    </userManagerImpls>
+    <rbacManagerImpls>
+      <rbacManagerImpl>jdo</rbacManagerImpl>
+    </rbacManagerImpls>
+    <configurationProperties>
+      <security>
+        <policy>
+          <password>
+            <previous>
+              <count>1</count>
+            </previous>
+            <expiration>
+              <enabled>true</enabled>
+              <days>10000</days>
+            </expiration>
+            <rule>
+              <numericalcount>
+                <minimum>1</minimum>
+                <enabled>false</enabled>
+              </numericalcount>
+              <musthave>
+                <enabled>false</enabled>
+              </musthave>
+              <nowhitespace>
+                <enabled>false</enabled>
+              </nowhitespace>
+              <reuse>
+                <enabled>false</enabled>
+              </reuse>
+              <alphacount>
+                <minimum>1</minimum>
+                <enabled>false</enabled>
+              </alphacount>
+              <characterlength>
+                <minimum>1</minimum>
+                <enabled>false</enabled>
+                <maximum>24</maximum>
+              </characterlength>
+              <alphanumeric>
+                <enabled>false</enabled>
+              </alphanumeric>
+            </rule>
+          </password>
+          <allowed>
+            <login>
+              <attempt>10000</attempt>
+            </login>
+          </allowed>
+          <unlockable>
+            <accounts/>
+          </unlockable>
+        </policy>
+        <rememberme>
+          <enabled>true</enabled>
+          <domain/>
+          <secure>false</secure>
+          <timeout>365</timeout>
+          <path>/</path>
+        </rememberme>
+        <signon>
+          <timeout>30</timeout>
+        </signon>
+      </security>
+      <ldap>
+        <config>
+          <groups>
+            <member>uniquemember</member>
+            <class>groupOfUniqueNames</class>
+          </groups>
+          <max>
+            <result>
+              <count>0</count>
+            </result>
+          </max>
+          <mapper>
+            <attribute>
+              <user>
+                <object>
+                  <class>inetOrgPerson</class>
+                </object>
+                <id>cn</id>
+              </user>
+              <fullname>givenName</fullname>
+              <email>mail</email>
+              <password>userPassword</password>
+            </attribute>
+          </mapper>
+          <user>
+            <attribute>uid</attribute>
+          </user>
+        </config>
+      </ldap>
+      <email>
+        <validation>
+          <subject>Welcome to Archiva</subject>
+          <timeout>2880</timeout>
+          <required>true</required>
+        </validation>
+      </email>
+      <redback>
+        <default>
+          <guest>guest</guest>
+          <admin>admin</admin>
+          <role>
+            <guest>
+              <id>guest</id>
+            </guest>
+          </role>
+        </default>
+      </redback>
+    </configurationProperties>
+  </redbackRuntimeConfiguration>
+  <networkConfiguration>
+    <usePooling>true</usePooling>
+  </networkConfiguration>
+  <archivaRuntimeConfiguration>
+    <fileLockConfiguration>
+      <skipLocking>true</skipLocking>
+    </fileLockConfiguration>
+    <urlFailureCacheConfiguration>
+      <timeToIdleSeconds>2700</timeToIdleSeconds>
+      <timeToLiveSeconds>1800</timeToLiveSeconds>
+      <maxElementsInMemory>1000</maxElementsInMemory>
+      <maxElementsOnDisk>0</maxElementsOnDisk>
+    </urlFailureCacheConfiguration>
+  </archivaRuntimeConfiguration>
   <managedRepositories>
     <managedRepository>
       <location>/repo/m2/release</location>
-      <indexDir>/repo/m2/release.index</indexDir>
+      <releases>true</releases>
+      <blockRedeployments>true</blockRedeployments>
+      <snapshots>false</snapshots>
+      <scanned>true</scanned>
+      <daysOlder>30</daysOlder>
+      <deleteReleasedSnapshots>false</deleteReleasedSnapshots>
+      <skipPackedIndexCreation>false</skipPackedIndexCreation>
+      <stageRepoNeeded>false</stageRepoNeeded>
       <id>internal</id>
       <name>Archiva Managed Internal Repository</name>
+      <indexDir>/repo/m2/release.index</indexDir>
     </managedRepository>
     <managedRepository>
       <location>/repo/m2/snapshot</location>
       <releases>false</releases>
+      <blockRedeployments>false</blockRedeployments>
       <snapshots>true</snapshots>
-      <indexDir>/repo/m2/snapshot.index</indexDir>
-      <retentionCount>3</retentionCount>
-      <daysOlder>0</daysOlder>
-      <deleteReleasedSnapshots>true</deleteReleasedSnapshots>
+      <scanned>true</scanned>
+      <refreshCronExpression>0 0\,30 * * * ?</refreshCronExpression>
+      <daysOlder>30</daysOlder>
+      <deleteReleasedSnapshots>false</deleteReleasedSnapshots>
+      <skipPackedIndexCreation>false</skipPackedIndexCreation>
+      <stageRepoNeeded>false</stageRepoNeeded>
       <id>snapshots</id>
       <name>Local snapshots</name>
+      <indexDir>/repo/m2/snapshot.index</indexDir>
     </managedRepository>
   </managedRepositories>
   <remoteRepositories>
     <remoteRepository>
       <url>http://download.java.net/maven/2/</url>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>maven2-repository.dev.java.net</id>
       <name>Java.net Repository for Maven 2</name>
     </remoteRepository>
     <remoteRepository>
       <url>http://repository.apache.org/content/groups/public</url>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>apache.public</id>
       <name>Apache Public</name>
     </remoteRepository>
     <remoteRepository>
       <url>http://repository.sonatype.org/content/repositories/central</url>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>sonatype</id>
       <name>Sonatype Central</name>
     </remoteRepository>
     <remoteRepository>
       <url>http:/repository.apache.org/content/groups/snapshots</url>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>apache.snapshots</id>
       <name>Apache Snapshots</name>
     </remoteRepository>
     <remoteRepository>
       <url>http://repository.codehaus.org</url>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>codehaus</id>
       <name>Codehaus</name>
     </remoteRepository>
     <remoteRepository>
       <url>http://repo2.maven.org/maven2</url>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>central</id>
       <name>Central Repository</name>
     </remoteRepository>
@@ -140,11 +303,15 @@
       <url>http://m2.bodz.net/release</url>
       <username>lenik</username>
       <password>sErp39wT</password>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>z-r</id>
       <name>boDz Releases</name>
     </remoteRepository>
     <remoteRepository>
       <url>http://mavensync.zkoss.org/maven2/</url>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>zk-ce</id>
       <name>ZK community</name>
     </remoteRepository>
@@ -152,6 +319,8 @@
       <url>http://m2.bee32.com/releases</url>
       <username>lenik</username>
       <password>sErp39wT</password>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>bee32</id>
       <name>Bee32 internal</name>
     </remoteRepository>
@@ -159,6 +328,8 @@
       <url>http://repository.primefaces.org</url>
       <username>lenik</username>
       <password>sErp39wT</password>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>primefaces</id>
       <name>Primefaces m2 repo</name>
     </remoteRepository>
@@ -166,6 +337,8 @@
       <url>http://scala-tools.org/repo-releases</url>
       <username>lenik</username>
       <password>sErp39wT</password>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>scala-tools</id>
       <name>Scala tools releases</name>
     </remoteRepository>
@@ -173,6 +346,8 @@
       <url>http://repository.openfaces.org/repository</url>
       <username>lenik</username>
       <password>sErp39wT</password>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>openfaces</id>
       <name>OpenFaces m2 repo</name>
     </remoteRepository>
@@ -180,6 +355,8 @@
       <url>http://www.ibiblio.org/maven/jfree/</url>
       <username>lenik</username>
       <password>sErp39wT</password>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>jfree</id>
       <name>JFree</name>
       <layout>legacy</layout>
@@ -188,6 +365,8 @@
       <url>https://repository.jboss.org/nexus/content/groups/public/</url>
       <username>lenik</username>
       <password>sErp39wT</password>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>jboss</id>
       <name>JBoss maven repository (Nexus)</name>
     </remoteRepository>
@@ -195,6 +374,8 @@
       <url>http://maven.eclipse.org/nexus/content/repositories/testing</url>
       <username>lenik</username>
       <password>sErp39wT</password>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>eclipse-testing</id>
       <name>Eclipse testing repo</name>
     </remoteRepository>
@@ -202,6 +383,8 @@
       <url>https://swt-repo.googlecode.com/svn/repo/</url>
       <username>lenik</username>
       <password>sErp39wT</password>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>swt-googlecode</id>
       <name>Google Code SWT repo</name>
     </remoteRepository>
@@ -209,6 +392,8 @@
       <url>http://maven.geotoolkit.org/</url>
       <username>lenik</username>
       <password>sErp39wT</password>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>geotoolkit</id>
       <name>geotoolkit.org maven repo</name>
     </remoteRepository>
@@ -216,6 +401,8 @@
       <url>https://maven.alfresco.com/nexus/content/groups/public</url>
       <username>lenik</username>
       <password>sErp39wT</password>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>activiti</id>
       <name>Acitviti Maven Repo</name>
     </remoteRepository>
@@ -223,6 +410,8 @@
       <url>http://maven.restlet.org</url>
       <username>lenik</username>
       <password>sErp39wT</password>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>Restlet repo</id>
       <name>maven-restlet</name>
     </remoteRepository>
@@ -230,6 +419,8 @@
       <url>http://maven.vaadin.com/vaadin-addons</url>
       <username>lenik</username>
       <password>sErp39wT</password>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>vaadin-addons</id>
       <name>vaadin-addons</name>
     </remoteRepository>
@@ -237,6 +428,8 @@
       <url>https://maven.alfresco.com/nexus/content/repositories/activiti-thirdparty/</url>
       <username>lenik</username>
       <password>sErp39wT</password>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>activiti-3rdparty</id>
       <name>Activiti third party</name>
     </remoteRepository>
@@ -244,6 +437,8 @@
       <url>http://maven.thebuzzmedia.com/</url>
       <username>lenik</username>
       <password>sErp39wT</password>
+      <downloadRemoteIndex>false</downloadRemoteIndex>
+      <downloadRemoteIndexOnStartup>false</downloadRemoteIndexOnStartup>
       <id>buzzmedia</id>
       <name>The Buzzmedia</name>
     </remoteRepository>
@@ -262,6 +457,7 @@
         <snapshots>never</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
       <order>1</order>
@@ -277,6 +473,7 @@
         <snapshots>always</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
       <order>4</order>
@@ -291,17 +488,19 @@
         <snapshots>never</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
       <order>2</order>
       <sourceRepoId>internal</sourceRepoId>
       <targetRepoId>central</targetRepoId>
       <policies>
-        <releases>always</releases>
-        <checksum>fail</checksum>
+        <releases>once</releases>
+        <checksum>fix</checksum>
         <snapshots>never</snapshots>
-        <cache-failures>no</cache-failures>
+        <cache-failures>yes</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
       <order>5</order>
@@ -319,6 +518,7 @@
         <snapshots>never</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
       <order>6</order>
@@ -333,6 +533,7 @@
         <snapshots>always</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
       <order>1</order>
@@ -349,6 +550,7 @@
         <snapshots>always</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
       <order>2</order>
@@ -363,6 +565,7 @@
         <snapshots>always</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
       <order>7</order>
@@ -377,6 +580,7 @@
         <snapshots>never</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
       <order>8</order>
@@ -393,6 +597,7 @@
         <snapshots>always</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
       <order>9</order>
@@ -407,6 +612,7 @@
         <snapshots>always</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
       <order>10</order>
@@ -421,6 +627,7 @@
         <snapshots>always</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
       <order>11</order>
@@ -437,9 +644,10 @@
         <snapshots>always</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
-      <order>12</order>
+      <order>13</order>
       <sourceRepoId>internal</sourceRepoId>
       <targetRepoId>geotoolkit</targetRepoId>
       <whiteListPatterns>
@@ -451,9 +659,10 @@
         <snapshots>never</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
-      <order>11</order>
+      <order>12</order>
       <sourceRepoId>internal</sourceRepoId>
       <targetRepoId>swt-googlecode</targetRepoId>
       <proxyId>(direct connection)</proxyId>
@@ -467,9 +676,10 @@
         <snapshots>never</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
-      <order>13</order>
+      <order>14</order>
       <sourceRepoId>internal</sourceRepoId>
       <targetRepoId>eclipse-testing</targetRepoId>
       <whiteListPatterns>
@@ -481,9 +691,10 @@
         <snapshots>never</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
-      <order>15</order>
+      <order>16</order>
       <sourceRepoId>internal</sourceRepoId>
       <targetRepoId>Restlet repo</targetRepoId>
       <whiteListPatterns>
@@ -495,9 +706,10 @@
         <snapshots>always</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
-      <order>16</order>
+      <order>17</order>
       <sourceRepoId>internal</sourceRepoId>
       <targetRepoId>activiti-3rdparty</targetRepoId>
       <whiteListPatterns>
@@ -515,9 +727,10 @@
         <snapshots>always</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
-      <order>14</order>
+      <order>15</order>
       <sourceRepoId>internal</sourceRepoId>
       <targetRepoId>activiti</targetRepoId>
       <proxyId>(direct connection)</proxyId>
@@ -531,9 +744,10 @@
         <snapshots>always</snapshots>
         <cache-failures>no</cache-failures>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
     <proxyConnector>
-      <order>17</order>
+      <order>18</order>
       <sourceRepoId>internal</sourceRepoId>
       <targetRepoId>buzzmedia</targetRepoId>
       <proxyId>(direct connection)</proxyId>
@@ -542,13 +756,14 @@
         <whiteListPattern>org/imgscalr/**</whiteListPattern>
       </whiteListPatterns>
       <policies>
+        <propagate-errors>stop</propagate-errors>
+        <releases>always</releases>
+        <checksum>ignore</checksum>
+        <snapshots>always</snapshots>
         <propagate-errors-on-update>always</propagate-errors-on-update>
         <cache-failures>no</cache-failures>
-        <releases>always</releases>
-        <propagate-errors>stop</propagate-errors>
-        <snapshots>always</snapshots>
-        <checksum>ignore</checksum>
       </policies>
+      <disabled>false</disabled>
     </proxyConnector>
   </proxyConnectors>
   <legacyArtifactPaths>

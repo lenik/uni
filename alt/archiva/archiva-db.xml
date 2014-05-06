@@ -1,0 +1,24 @@
+<?xml version="1.0"  encoding="utf-8"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
+
+<Configure id="Server" class="org.eclipse.jetty.server.Server">
+
+  <New id="archiva" class="org.eclipse.jetty.plus.jndi.Resource">
+    <Arg>jdbc/archiva</Arg>
+    <Arg>
+      <New class="org.apache.tomcat.jdbc.pool.DataSource">
+        <Set name="driverClassName">org.apache.derby.jdbc.EmbeddedDriver</Set>
+        <Set name="url">jdbc:derby:archiva-db;create=true</Set>
+        <Set name="username">sa</Set>
+        <Set name="maxActive">20</Set>
+        <Set name="removeAbandoned">true</Set>
+        <Set name="logAbandoned">true</Set>
+        <Set name="initialSize">5</Set>
+        <Set name="testOnBorrow">true</Set>
+        <!-- very rigourous sql query validation -->
+        <Set name="validationQuery">select 1</Set>
+      </New>
+    </Arg>
+  </New>
+
+</Configure>

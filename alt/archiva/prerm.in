@@ -7,11 +7,7 @@ LOGLEVEL=2
 
 _log1 "Unconfigure Jetty"
 
-    lineconf -ktm "  Unload archiva-jetty-config.xml" \
+    lineconf -ktm "  Unload archiva-db.xml" \
         @jettyconfdir@/jetty.conf load::archiva
-
-_log1 "Unconfig apache from forward archiva"
-
-    a2reload
 
 exit 0

@@ -13,7 +13,9 @@ Architecture: all
 Depends:
     bash-shlib,
     configutils,
-    jetty-pref-apache,
+    jetty8,
+    jetty8-enh,
+    libtomcat7-java,
     wget-enh,
     ${misc:Depends}
 Description: Apache Archiva run on Jetty server.
