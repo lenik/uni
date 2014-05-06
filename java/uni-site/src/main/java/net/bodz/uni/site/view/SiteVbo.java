@@ -5,11 +5,11 @@ import java.io.IOException;
 import javax.servlet.http.HttpSession;
 
 import net.bodz.bas.c.string.StringQuote;
+import net.bodz.bas.gui.dom1.IGUIRefEntry;
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.IHttpReprContext;
 import net.bodz.bas.html.IRequirements;
 import net.bodz.bas.io.html.IHtmlOut;
-import net.bodz.bas.potato.ref.IRefEntry;
 import net.bodz.bas.potato.ref.PropertyGUIRefEntry;
 import net.bodz.bas.potato.ref.PropertyGUIRefMap;
 import net.bodz.bas.repr.path.IPathArrival;
@@ -57,7 +57,7 @@ public class SiteVbo
     }
 
     @Override
-    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IRefEntry<Site> entry, IOptions options)
+    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IGUIRefEntry<Site> entry, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
         SiteApplication site = (SiteApplication) entry.get();
@@ -77,6 +77,8 @@ public class SiteVbo
 
         out.head().start();
         {
+            out.meta().name("viewport").content("width: device-width, initial-scale=1");
+
             // stylesheets
             out.link().css(_webApp_ + "site.css");
             out.link().id("themeLink").css(_webApp_ + "theme-" + pref.getTheme().getSuffix() + ".css");
@@ -116,7 +118,7 @@ public class SiteVbo
     }
 
     @Override
-    public void buildHtmlViewTail(IHttpReprContext ctx, IRefEntry<Site> entry, IOptions options)
+    public void buildHtmlViewTail(IHttpReprContext ctx, IGUIRefEntry<Site> entry, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
         Site site = entry.get();

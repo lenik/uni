@@ -2,10 +2,10 @@ package net.bodz.uni.site.view;
 
 import java.io.IOException;
 
+import net.bodz.bas.gui.dom1.IGUIRefEntry;
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.IHttpReprContext;
 import net.bodz.bas.io.html.IHtmlOut;
-import net.bodz.bas.potato.ref.IRefEntry;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.uni.site.model.Preferences;
@@ -23,7 +23,7 @@ public class PreferencesVbo
     }
 
     @Override
-    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IRefEntry<Preferences> entry, IOptions options)
+    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IGUIRefEntry<Preferences> entry, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
         Preferences preferences = entry.get();

@@ -3,10 +3,10 @@ package net.bodz.uni.site.view;
 import java.io.IOException;
 import java.util.EnumSet;
 
+import net.bodz.bas.gui.dom1.IGUIRefEntry;
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.IHttpReprContext;
 import net.bodz.bas.io.html.IHtmlOut;
-import net.bodz.bas.potato.ref.IRefEntry;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.mda.xjdoc.model.IElementDoc;
@@ -21,7 +21,7 @@ public class EnumVbo
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IRefEntry<Enum<?>> entry, IOptions options)
+    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IGUIRefEntry<Enum<?>> entry, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
         Enum<?> value = entry.get();
