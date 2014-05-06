@@ -1,0 +1,16 @@
+Source: awstats-enh
+Section: web
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Homepage: http://uni.bodz.net/toolenh/awstats-enh
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/toolenh/awstats-enh
+
+Package: awstats-enh
+Architecture: all
+Depends:
+    awstats,
+    ${misc:Depends}
+Description: AWStats easy install.
