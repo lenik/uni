@@ -13,7 +13,7 @@ h1 {
 
 h2 {
     background-color: hsl(200, 100%, 90%);
-    text-shadow: .1em .1em .2em hsl(240, 100%, 80%);
+    text-shadow: .1em .1em .2em hsl(200, 100%, 80%);
 }
 
 .copyright {

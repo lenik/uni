@@ -3,8 +3,8 @@ a {
 }
 
 body {
-    background-color: hsl(325, 100%, 95%);
-    color: hsl(315, 80%, 30%);
+    background-color: hsl(300, 100%, 95%);
+    color: hsl(300, 80%, 30%);
 }
 
 h1 {
@@ -13,17 +13,17 @@ h1 {
 
 h2 {
     background-color: hsl(300, 100%, 90%);
-    text-shadow: .1em .1em .2em hsl(340, 100%, 80%);
+    text-shadow: .1em .1em .2em hsl(300, 100%, 80%);
 }
 
 .copyright {
-    background-color: hsl(320, 46%, 33%);
-    color: hsl(320, 65%, 90%);
+    background-color: hsl(300, 46%, 33%);
+    color: hsl(300, 65%, 90%);
 }
 
 .letter-box {
-    border-color: hsl(320, 100%, 85%);
-    text-shadow: .1em .1em .2em hsl(340, 100%, 80%);
+    border-color: hsl(300, 100%, 85%);
+    text-shadow: .1em .1em .2em hsl(300, 100%, 80%);
 }
 
 .side-box {
