@@ -1,3 +1,7 @@
+area:focus {
+    outline: none;
+}
+
 body {
     margin: 0;
 }
@@ -118,6 +122,13 @@ ul.ui-enum li a {
     top: 0;
     margin: 0;
     padding: 0;
+    cursor: default;
+    -webkit-user-select: none; /* Chrome/Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+ */
+    /* Rules below not implemented in browsers yet */
+    -o-user-select: none;
+    user-select: none;
 }
 
 .ui-menubox {
@@ -133,7 +144,7 @@ ul.ui-enum li a {
     list-style: none;
 }
 
-.ui-menubox > li {
+.ui-menubox>li {
     margin: 0 1em .2em 3em;
 }
 
@@ -143,7 +154,7 @@ ul.ui-enum li a {
 
 dl.uni-projects {
     border-radius: 1em;
-    margin: .5em 2em;
+    margin: .5em 1em;
     column-width: 20em;
     -moz-column-width: 20em;
     -webkit-column-width: 20em;

@@ -91,18 +91,16 @@ public class SiteVbo
         out.div().class_("ui-menubar").start();
         {
             out.span().class_("ui-menu").id("m-tools").start();
-
-            out.a().style("text-decoration: none").href(_webApp_.toString()).start();
             out.div().id("toolbox").text("Uni Tools");
-            out.end();
-
             embed(ctx, propMap.get("toolMenu"));
-
             out.end(); // <span.ui-menu#m-tools>
             out.end(); // <divl#menubar>
         }
 
-        out.img().src(_img_ + "hbar/angel-city.png").width("100%");
+        out.img().src(_img_ + "hbar/angel-city.png").width("100%").usemap("#angel-city");
+        out.map().name("angel-city").start();
+        out.area().shape("circle").alt("Home").coords("764,114,92").href(_webApp_ + "/");
+        out.end(); // <map#angel-city>
         out.hr().class_("line");
 
         out.div().id("main").start();

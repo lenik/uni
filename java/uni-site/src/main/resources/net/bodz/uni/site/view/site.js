@@ -12,10 +12,14 @@ window.clickHandler = {};
             return menubox;
         }
 
-        $(".ui-menu").hover(function(event) {
+        $(".ui-menu").click(function(event) {
             menubox(event.target).fadeIn(speed);
+        });
+
+        $(".ui-menu").hover(function(event) {
+            menubox(event.target).stop().fadeToggle(speed);
         }, function(event) {
-            menubox(event.target).fadeOut(speed);
+            menubox(event.target).stop().fadeOut(speed);
         });
 
         $(".ui-enum li a").click(function(event) {
