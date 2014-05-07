@@ -2,12 +2,12 @@ package net.bodz.uni.site.view;
 
 import java.io.IOException;
 
-import net.bodz.bas.gui.dom1.IGUIRefEntry;
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.IHttpReprContext;
 import net.bodz.bas.io.html.IHtmlOut;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
+import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.uni.site.model.Project;
 
 public class ProjectVbo
@@ -18,13 +18,13 @@ public class ProjectVbo
     }
 
     @Override
-    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IGUIRefEntry<Project> entry, IOptions options)
+    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IUiRef<Project> ref, IOptions options)
             throws ViewBuilderException, IOException {
         if (enter(ctx))
             return null;
 
         IHtmlOut out = ctx.getOut();
-        Project project = entry.get();
+        Project project = ref.get();
 
         String name = project.getName();
         String description = project.getDescription().toString();

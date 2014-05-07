@@ -5,16 +5,16 @@ import java.io.IOException;
 import javax.servlet.http.HttpSession;
 
 import net.bodz.bas.c.string.StringQuote;
-import net.bodz.bas.gui.dom1.IGUIRefEntry;
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.IHttpReprContext;
 import net.bodz.bas.html.IRequirements;
 import net.bodz.bas.io.html.IHtmlOut;
-import net.bodz.bas.potato.ref.PropertyGUIRefMap;
+import net.bodz.bas.potato.ref.UiPropertyRefMap;
 import net.bodz.bas.repr.path.IPathArrival;
 import net.bodz.bas.repr.path.PathArrivalEntry;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
+import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.mda.xjdoc.ClassDocLoader;
 import net.bodz.mda.xjdoc.model.ClassDoc;
 import net.bodz.uni.site.IBasePaths;
@@ -55,7 +55,7 @@ public class SiteVbo
     }
 
     @Override
-    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IGUIRefEntry<Site> ref, IOptions options)
+    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IUiRef<Site> ref, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
         SiteApplication site = (SiteApplication) ref.get();
@@ -63,7 +63,7 @@ public class SiteVbo
         HttpSession session = ctx.getSession();
         Preferences pref = Preferences.fromSession(session);
 
-        PropertyGUIRefMap propMap = explode(ref);
+        UiPropertyRefMap propMap = explode(ref);
 
         boolean frameOnly = false;
         if (ref instanceof PathArrivalEntry) {
@@ -102,7 +102,7 @@ public class SiteVbo
             out.end(); // <divl#menubar>
         }
 
-        // out.img().src(_img_ + "hbar/angel-city.png").width("100%");
+        out.img().src(_img_ + "hbar/angel-city.png").width("100%");
         out.hr().class_("line");
 
         out.div().id("main").start();
@@ -114,7 +114,7 @@ public class SiteVbo
     }
 
     @Override
-    public void buildHtmlViewTail(IHttpReprContext ctx, IGUIRefEntry<Site> entry, IOptions options)
+    public void buildHtmlViewTail(IHttpReprContext ctx, IUiRef<Site> entry, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
         Site site = entry.get();

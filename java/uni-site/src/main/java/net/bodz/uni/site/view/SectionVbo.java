@@ -2,12 +2,12 @@ package net.bodz.uni.site.view;
 
 import java.io.IOException;
 
-import net.bodz.bas.gui.dom1.IGUIRefEntry;
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.IHttpReprContext;
 import net.bodz.bas.io.html.IHtmlOut;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
+import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.uni.site.model.Project;
 import net.bodz.uni.site.model.Section;
 
@@ -19,13 +19,13 @@ public class SectionVbo
     }
 
     @Override
-    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IGUIRefEntry<Section> entry, IOptions options)
+    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IUiRef<Section> ref, IOptions options)
             throws ViewBuilderException, IOException {
         if (enter(ctx))
             return null;
 
         IHtmlOut out = ctx.getOut();
-        Section section = entry.get();
+        Section section = ref.get();
 
         String name = section.getName();
         String description = section.getDescription().toString();

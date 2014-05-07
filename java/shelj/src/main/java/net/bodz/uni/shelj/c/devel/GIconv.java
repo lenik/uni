@@ -24,10 +24,10 @@ import org.eclipse.swt.widgets.Text;
 
 import net.bodz.bas.data.codec.builtin.HexCodec;
 import net.bodz.bas.err.DecodeException;
-import net.bodz.bas.gui.err.GUIException;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.meta.ProgramName;
+import net.bodz.bas.ui.err.UiException;
 import net.bodz.swt.c.resources.SWTResources;
 import net.bodz.swt.program.BasicGUI;
 
@@ -60,7 +60,7 @@ public class GIconv
 
     @Override
     protected void createInitialView(Composite comp)
-            throws GUIException, SWTException {
+            throws UiException, SWTException {
         comp.setLayout(new FillLayout());
         comp = new Composite(comp, SWT.NONE);
         comp.setLayout(new FormLayout());

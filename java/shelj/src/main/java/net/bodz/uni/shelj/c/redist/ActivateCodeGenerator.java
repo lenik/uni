@@ -15,10 +15,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import net.bodz.bas.gui.err.GUIException;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.meta.ProgramName;
+import net.bodz.bas.ui.err.UiException;
 import net.bodz.pkg.obfuz.pm.ProtectException;
 import net.bodz.pkg.obfuz.util.ActivationByTargetString;
 import net.bodz.pkg.obfuz.util.Registrant;
@@ -45,7 +45,7 @@ public class ActivateCodeGenerator
 
     @Override
     protected void createInitialView(final Composite holder)
-            throws GUIException {
+            throws UiException {
 
         final GridLayout gridLayout = new GridLayout();
         gridLayout.numColumns = 3;
