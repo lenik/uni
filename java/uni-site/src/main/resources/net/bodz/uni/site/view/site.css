@@ -74,11 +74,11 @@ hr.line {
     margin-bottom: 1em;
 }
 
-ul.ui-enums {
+ul.ui-enum {
     padding-left: 0;
 }
 
-ul.ui-enums li {
+ul.ui-enum li {
     list-style: none;
     display: inline;
     white-space: nowrap;
@@ -91,13 +91,13 @@ ul.ui-enums li {
     cursor: pointer;
 }
 
-ul.ui-enums li.ui-active {
+ul.ui-enum li.ui-active {
     border-style: dashed;
     font-weight: bold;
     font-style: italic;
 }
 
-ul.ui-enums li a {
+ul.ui-enum li a {
     text-decoration: none;
 }
 
@@ -125,14 +125,16 @@ ul.ui-enums li a {
     display: none;
     max-width: 20em;
     overflow: hidden;
+    margin: 0;
     padding: 0 0 0.5em 0;
     border-style: solid;
     border-width: 2px;
     border-radius: 0 10px 10px;
     box-shadow: 3px 3px 8px;
+    list-style: none;
 }
 
-.ui-menuitem {
+.ui-menubox > li {
     margin: 0 1em .2em 3em;
 }
 

@@ -1,19 +1,25 @@
 package net.bodz.uni.site.view;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.EnumSet;
 
 import net.bodz.bas.gui.dom1.IGUIRefEntry;
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.IHttpReprContext;
 import net.bodz.bas.io.html.IHtmlOut;
+import net.bodz.bas.potato.provider.bean.BeanProperty;
+import net.bodz.bas.potato.ref.PropertyRefEntry;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
+import net.bodz.bas.t.tree.IPathInfo;
 import net.bodz.mda.xjdoc.model.IElementDoc;
 import net.bodz.mda.xjdoc.model.javadoc.IXjdocAware;
+import net.bodz.uni.site.IBasePaths;
 
 public class EnumVbo
-        extends AbstractHtmlViewBuilder<Enum<?>> {
+        extends AbstractHtmlViewBuilder<Enum<?>>
+        implements IBasePaths {
 
     public EnumVbo() {
         super(Enum.class);
@@ -21,15 +27,22 @@ public class EnumVbo
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IGUIRefEntry<Enum<?>> entry, IOptions options)
+    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IGUIRefEntry<Enum<?>> ref, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
-        Enum<?> value = entry.get();
+        Enum<?> value = ref.get();
 
-        Class<? extends Enum<?>> enumType = entry.getValueType();
+        Class<?> enumType = ref.getValueType();
         boolean xjdocAware = IXjdocAware.class.isAssignableFrom(enumType);
 
-        out.ul().class_("ui-enums").start();
+        String id = IPathInfo.fn.getFullPath(ref).replace('/', '.');
+
+        PropertyRefEntry<?> propRef = (PropertyRefEntry<?>) ref;
+        BeanProperty property = (BeanProperty) propRef.getProperty();
+        Method setter = property.getPropertyDescriptor().getWriteMethod();
+        String setterPath = IPathInfo.fn.getFullPath(ref.getParent()) + "/" + setter.getName();
+
+        out.ul().id(id).class_("ui-enum").attr("path", _webApp_ + setterPath).start();
 
         for (Object _item : EnumSet.allOf((Class) enumType)) {
             Enum<?> item = (Enum<?>) _item;
@@ -43,10 +56,7 @@ public class EnumVbo
             }
 
             out.li().class_(active ? "ui-active" : "").start();
-
-            String onclick = String.format("setTheme(\"%s\")", item.name());
-            out.a().attr("value", name).onclick(onclick).text(text);
-
+            out.a().attr("value", name).text(text);
             out.end(); // <li>
         }
 

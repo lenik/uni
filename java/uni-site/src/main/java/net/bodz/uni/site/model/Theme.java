@@ -6,7 +6,7 @@ import net.bodz.mda.xjdoc.model.javadoc.IXjdocAware;
 
 /**
  * Theme
- * 
+ *
  * 风格
  */
 public enum Theme
@@ -14,38 +14,29 @@ public enum Theme
 
     /**
      * Cyan
-     * 
+     *
      * <p lang="ja">
      * 天使の青
-     * 
+     *
      * <p lang="zh-cn">
      * 天使蓝
      */
-    CYAN("cyan"),
+    CYAN,
 
     /**
      * Pink
-     * 
+     *
      * <p lang="ja">
      * 天使のピンク
-     * 
+     *
      * <p lang="zh-cn">
      * 天使粉
      */
-    PINK("pink"),
+    PINK,
 
     ;
 
-    private String suffix;
     private IElementDoc xjdoc;
-
-    private Theme(String suffix) {
-        this.suffix = suffix;
-    }
-
-    public String getSuffix() {
-        return suffix;
-    }
 
     @Override
     public IElementDoc getXjdoc() {

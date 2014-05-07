@@ -10,7 +10,6 @@ import net.bodz.bas.html.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.IHttpReprContext;
 import net.bodz.bas.html.IRequirements;
 import net.bodz.bas.io.html.IHtmlOut;
-import net.bodz.bas.potato.ref.PropertyGUIRefEntry;
 import net.bodz.bas.potato.ref.PropertyGUIRefMap;
 import net.bodz.bas.repr.path.IPathArrival;
 import net.bodz.bas.repr.path.PathArrivalEntry;
@@ -23,7 +22,6 @@ import net.bodz.uni.site.model.Preferences;
 import net.bodz.uni.site.model.Project;
 import net.bodz.uni.site.model.Section;
 import net.bodz.uni.site.model.Site;
-import net.bodz.uni.site.model.ToolMenu;
 
 public class SiteVbo
         extends AbstractHtmlViewBuilder<Site>
@@ -57,20 +55,19 @@ public class SiteVbo
     }
 
     @Override
-    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IGUIRefEntry<Site> entry, IOptions options)
+    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IGUIRefEntry<Site> ref, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
-        SiteApplication site = (SiteApplication) entry.get();
+        SiteApplication site = (SiteApplication) ref.get();
 
         HttpSession session = ctx.getSession();
         Preferences pref = Preferences.fromSession(session);
 
-        PropertyGUIRefMap siteRefMap = explode(site);
-        siteRefMap.importProperties();
+        PropertyGUIRefMap propMap = explode(ref);
 
         boolean frameOnly = false;
-        if (entry instanceof PathArrivalEntry) {
-            IPathArrival arrival = ((PathArrivalEntry<Site>) entry).getArrival();
+        if (ref instanceof PathArrivalEntry) {
+            IPathArrival arrival = ((PathArrivalEntry<Site>) ref).getArrival();
             if (arrival.getRemainingPath() != null)
                 frameOnly = true;
         }
@@ -81,7 +78,7 @@ public class SiteVbo
 
             // stylesheets
             out.link().css(_webApp_ + "site.css");
-            out.link().id("themeLink").css(_webApp_ + "theme-" + pref.getTheme().getSuffix() + ".css");
+            out.link().id("themeLink").css(_webApp_ + "theme-" + pref.getTheme() + ".css");
             out.link().css(_webjars_ + "font-awesome/3.2.1/css/font-awesome.css");
 
             // scripts
@@ -99,14 +96,13 @@ public class SiteVbo
             out.div().id("toolbox").text("Uni Tools");
             out.end();
 
-            PropertyGUIRefEntry<ToolMenu> toolMenuEntry = siteRefMap.get("toolMenu");
-            new ToolMenuVbo().buildHtmlView(ctx, toolMenuEntry);
+            embed(ctx, propMap.get("toolMenu"));
 
             out.end(); // <span.ui-menu#m-tools>
             out.end(); // <divl#menubar>
         }
 
-        out.img().src(_img_ + "hbar/angel-city.png").width("100%");
+        // out.img().src(_img_ + "hbar/angel-city.png").width("100%");
         out.hr().class_("line");
 
         out.div().id("main").start();

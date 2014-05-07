@@ -2,6 +2,9 @@ package net.bodz.uni.site.model;
 
 import net.bodz.uni.site.view.SiteApplication;
 
+/**
+ * @style.class ui-menubox
+ */
 public class ToolMenu {
 
     private SiteApplication app;
@@ -12,20 +15,30 @@ public class ToolMenu {
         this.app = app;
     }
 
+    /**
+     * @label Theme
+     * @label.ja 様式
+     * @label.zh.cn 风格
+     */
     public Theme getTheme() {
         return app.getPreferences().getTheme();
     }
 
-    public void setTheme(String themeName) {
-        app.getPreferences().setTheme(themeName);
+    public void setTheme(Theme theme) {
+        app.getPreferences().setTheme(theme);
     }
 
+    /**
+     * @label Language
+     * @label.ja 言語
+     * @label.zh.cn 语言
+     */
     public Language getLanguage() {
         return app.getPreferences().getLanguage();
     }
 
-    public void setLanguage(String languageName) {
-        app.getPreferences().setLanguage(languageName);
+    public void setLanguage(Language language) {
+        app.getPreferences().setLanguage(language);
     }
 
 }

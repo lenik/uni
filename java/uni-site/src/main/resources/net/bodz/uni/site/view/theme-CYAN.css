@@ -35,12 +35,12 @@ h2 {
     background-image: -webkit-gradient(linear, 0 0, 100% 0, from(hsl(200, 100%, 87%) ), to(hsl(0, 100%, 100%) ) );
 }
 
-ul.ui-enums li {
+ul.ui-enum li {
     border-color: hsl(200, 100%, 70%);
     background-color: hsl(180, 100%, 50%);
 }
 
-ul.ui-enums li.ui-active {
+ul.ui-enum li.ui-active {
     background-color: hsl(180, 100%, 91%);
 }
 
