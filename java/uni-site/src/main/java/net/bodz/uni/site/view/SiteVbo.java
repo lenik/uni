@@ -74,7 +74,7 @@ public class SiteVbo
 
         out.head().start();
         {
-            out.meta().name("viewport").content("width: device-width, initial-scale=1");
+            out.meta().name("viewport").content("width=device-width, initial-scale=1");
 
             // stylesheets
             out.link().css(_webApp_ + "site.css");
