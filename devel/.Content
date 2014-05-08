@@ -1,6 +1,6 @@
-label = "Software development tools" \
-    zh-cn "软件开发、编程工具"
-
-. = "Useful tools used in the development process." \
-    zh-cn "对软件开发过程提供帮助的工具。"
-
+@label
+    Software development tools
+    <p lang="zh-cn">软件开发、编程工具
+@text
+    Useful tools used in the development process.
+    <p lang="zh-cn">对软件开发过程提供帮助的工具。

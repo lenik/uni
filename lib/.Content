@@ -1,6 +1,6 @@
-label = "Development libraries" \
-    zh-cn "程序开发库"
-
-. = "Software libraries reusable for programming." \
-    zh-cn "可在编程中复用的软件库。"
-
+@label
+    Development libraries
+    <p lang="zh-cn">程序开发库
+@text
+    Software libraries reusable for programming.
+    <p lang="zh-cn">可在编程中复用的软件库。

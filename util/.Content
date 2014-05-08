@@ -1,6 +1,6 @@
-label = "Common Utilities" \
-    zh-cn "通用工具"
-
-. = "Common utilities." \
-    zh-cn "通用工具集。"
-
+@label
+    Common Utilities
+    <p lang="zh-cn">通用工具
+@text
+    Common utilities.
+    <p lang="zh-cn">通用工具集。

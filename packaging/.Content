@@ -1,6 +1,6 @@
-label = "Packaging utilities" \
-    zh-cn "打包工具"
-
-. = "Utilities for creating distributable software packages." \
-    zh-cn "用来制作可发行的软件包的实用工具。"
-
+@label
+    Packaging utilities
+    <p lang="zh-cn">打包工具
+@text
+    Utilities for creating distributable software packages.
+    <p lang="zh-cn">用来制作可发行的软件包的实用工具。

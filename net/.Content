@@ -1,6 +1,6 @@
-label = "Network utilities" \
-    zh-cn "网络实用工具"
-
-. = "Network utilities." \
-    zh-cn "网络实用工具。"
-
+@label
+    Network utilities
+    <p lang="zh-cn">网络实用工具
+@text
+    Network utilities.
+    <p lang="zh-cn">网络实用工具。

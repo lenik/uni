@@ -1,6 +1,6 @@
-label = "Base System Utilities" \
-    zh-cn "基本系统工具"
-
-. = "Base system utilities." \
-    zh-cn "基本系统工具。"
-
+@label
+    Base System Utilities
+    <p lang="zh-cn">基本系统工具
+@text
+    Base system utilities.
+    <p lang="zh-cn">基本系统工具。

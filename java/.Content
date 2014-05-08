@@ -1,6 +1,6 @@
-label = "Java development tools" \
-    zh-cn "Java 开发工具"
-
-. = "Useful tools and applications in Java development." \
-    zh-cn "和 Java 开发有关的实用工具和应用程序。"
-
+@label
+    Java development tools
+    <p lang="zh-cn">Java 开发工具
+@text
+    Useful tools and applications in Java development.
+    <p lang="zh-cn">和 Java 开发有关的实用工具和应用程序。

@@ -1,6 +1,6 @@
-label = "Multi-lingua utilities" \
-    zh-cn "多语言工具"
-
-. = "Multi-lingua Utilities." \
-    zh-cn "多语言工具。"
-
+@label
+    Multi-lingua utilities
+    <p lang="zh-cn">多语言工具
+@text
+    Multi-lingua Utilities.
+    <p lang="zh-cn">多语言工具。

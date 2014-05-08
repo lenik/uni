@@ -1,6 +1,6 @@
-label = "X11 related utilities" \
-    zh-cn "X11 相关的工具"
-
-. = "X11 related utilities." \
-    zh-cn "X11 相关的工具。"
-
+@label
+    X11 related utilities
+    <p lang="zh-cn">X11 相关的工具
+@text
+    X11 related utilities.
+    <p lang="zh-cn">X11 相关的工具。

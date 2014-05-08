@@ -1,6 +1,6 @@
-label = "Text utilities" \
-    zh-cn "文本实用工具"
-
-. = "Text-related utilities." \
-    zh-cn "和文本处理、分析、排版相关的工具集。"
-
+@label
+    Text utilities
+    <p lang="zh-cn">文本实用工具
+@text
+    Text-related utilities.
+    <p lang="zh-cn">和文本处理、分析、排版相关的工具集。

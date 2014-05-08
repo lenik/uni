@@ -1,6 +1,6 @@
-label = "Games" \
-    zh-cn "游戏"
-
-. = "Some silly games for fun." \
-    zh-cn "一些愚蠢的自创游戏。"
-
+@label
+    Games
+    <p lang="zh-cn">游戏
+@text
+    Some silly games for fun.
+    <p lang="zh-cn">一些愚蠢的自创游戏。
