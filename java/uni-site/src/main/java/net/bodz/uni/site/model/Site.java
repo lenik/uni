@@ -12,6 +12,8 @@ import net.bodz.bas.repr.path.IPathDispatchable;
 import net.bodz.bas.repr.path.ITokenQueue;
 import net.bodz.bas.repr.path.PathArrival;
 import net.bodz.bas.repr.path.PathDispatchException;
+import net.bodz.bas.vcs.IVcsWorkingCopy;
+import net.bodz.bas.vcs.git.NativeGitVcsWorkingCopy;
 import net.bodz.lily.site.LilyStartSite;
 
 /**
@@ -26,7 +28,8 @@ public class Site
     static final Logger logger = LoggerFactory.getLogger(Site.class);
 
     /** Root directory of the uni project. */
-    private File root;
+    private File rootDir;
+    private IVcsWorkingCopy workingCopy;
 
     private Map<String, Section> sectionMap = new TreeMap<>();
     private List<String> news;
@@ -35,29 +38,41 @@ public class Site
     public String baiduId;
 
     public Site() {
-        root = new File("/mnt/istore/projects/uni");
+        rootDir = new File("/mnt/istore/projects/uni");
+        workingCopy = new NativeGitVcsWorkingCopy(rootDir);
         reload();
     }
 
     public synchronized void reload() {
         sectionMap.clear();
-        for (File sectionDir : root.listFiles()) {
+        for (File sectionDir : rootDir.listFiles()) {
             if (!sectionDir.isDirectory())
                 continue;
             if (!new File(sectionDir, ".Content").exists())
                 continue;
 
             String name = sectionDir.getName();
-            Section section = new Section(name, sectionDir);
+            Section section = new Section(this, name, sectionDir);
             section.load();
 
             sectionMap.put(name, section);
         }
     }
 
+    public File getRootDir() {
+        return rootDir;
+    }
+
+    public IVcsWorkingCopy getWorkingCopy() {
+        return workingCopy;
+    }
+
     public synchronized Map<String, Section> getSectionMap() {
         return sectionMap;
     }
+
+    /** ⇱ Implementation Of {@link IPathDispatchable}. */
+    /* _____________________________ */static section.iface __PATH_DISP__;
 
     @Override
     public synchronized IPathArrival dispatch(IPathArrival previous, ITokenQueue tokens)

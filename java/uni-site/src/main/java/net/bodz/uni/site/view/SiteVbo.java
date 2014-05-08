@@ -97,10 +97,10 @@ public class SiteVbo
             out.end(); // <divl#menubar>
         }
 
-        out.img().src(_img_ + "hbar/angel-city.png").width("100%").usemap("#angel-city");
-        out.map().name("angel-city").start();
+        out.map().name("angel").start();
         out.area().shape("circle").alt("Home").coords("764,114,92").href(_webApp_ + "/");
         out.end(); // <map#angel-city>
+        out.img().src(_img_ + "hbar/angel-city.png").width("100%").usemap("angel");
         out.hr().class_("line");
 
         out.div().id("main").start();

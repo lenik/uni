@@ -29,11 +29,13 @@ public class Section
     static final Logger logger = LoggerFactory.getLogger(Section.class);
     static FlatfDocLoader flatfDocLoader = new FlatfDocLoader();
 
+    private Site site;
     private String name;
     private File dir;
     private Map<String, Project> projectMap;
 
-    public Section(String name, File dir) {
+    public Section(Site site, String name, File dir) {
+        this.site = site;
         this.name = name;
         this.dir = dir;
         this.projectMap = new TreeMap<>();
@@ -52,7 +54,7 @@ public class Section
                 try {
                     String controlStr = FileData.readString(controlFile);
                     DebControl debControl = new DebControlParser().parse(controlStr);
-                    DebProject project = new DebProject(name);
+                    DebProject project = new DebProject(site, name, projectDir);
                     project.setDebControl(debControl);
                     addProject(project);
                 } catch (IOException e) {

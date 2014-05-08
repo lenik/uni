@@ -10,6 +10,22 @@ dd {
     padding-bottom: 0.5em;
 }
 
+.changelog {
+}
+
+.changelog .author {
+    font-weight: bold;
+}
+
+.changelog .date {
+    font-style: italic;    
+}
+
+.changelog .minor {
+    font-style: italic;
+    opacity: 0.5;
+}
+
 .copyright {
     text-align: center;
     font-style: italic;

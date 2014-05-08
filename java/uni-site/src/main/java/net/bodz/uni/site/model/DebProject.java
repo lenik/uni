@@ -1,5 +1,6 @@
 package net.bodz.uni.site.model;
 
+import java.io.File;
 import java.util.Map;
 
 import net.bodz.bas.i18n.dom.iString;
@@ -10,8 +11,8 @@ public class DebProject
 
     private DebControl debControl;
 
-    public DebProject(String name) {
-        super(name);
+    public DebProject(Site site, String name, File directory) {
+        super(site, name, directory);
     }
 
     public DebControl getDebControl() {
