@@ -10,7 +10,13 @@ dd {
     padding-bottom: 0.5em;
 }
 
+h1 a {
+    color: inherit;
+    text-decoration: none;
+}
+
 .changelog {
+    
 }
 
 .changelog .author {
@@ -18,12 +24,16 @@ dd {
 }
 
 .changelog .date {
-    font-style: italic;    
+    font-style: italic;
 }
 
 .changelog .minor {
     font-style: italic;
     opacity: 0.5;
+}
+
+.changelog a {
+    text-decoration: none;
 }
 
 .copyright {
@@ -72,6 +82,11 @@ hr.line {
     font-weight: bold;
     line-height: 100px;
     text-align: center;
+}
+
+.prj-icon-large a {
+    color: inherit;
+    text-decoration: none;
 }
 
 .prj-panel {

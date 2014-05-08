@@ -31,18 +31,18 @@ public class Section
 
     private Site site;
     private String name;
-    private File dir;
+    private File directory;
     private Map<String, Project> projectMap;
 
-    public Section(Site site, String name, File dir) {
+    public Section(Site site, String name, File directory) {
         this.site = site;
         this.name = name;
-        this.dir = dir;
+        this.directory = directory;
         this.projectMap = new TreeMap<>();
     }
 
     public void load() {
-        for (File projectDir : dir.listFiles()) {
+        for (File projectDir : directory.listFiles()) {
             if (!projectDir.isDirectory())
                 continue;
 
@@ -54,7 +54,7 @@ public class Section
                 try {
                     String controlStr = FileData.readString(controlFile);
                     DebControl debControl = new DebControlParser().parse(controlStr);
-                    DebProject project = new DebProject(site, name, projectDir);
+                    DebProject project = new DebProject(this, name, projectDir);
                     project.setDebControl(debControl);
                     addProject(project);
                 } catch (IOException e) {
@@ -77,8 +77,12 @@ public class Section
     @Override
     protected IElementDoc loadXjdoc()
             throws ParseException, IOException {
-        File contentFile = new File(dir, ".Content");
+        File contentFile = new File(directory, ".Content");
         return flatfDocLoader.load(new FileResource(contentFile));
+    }
+
+    public Site getSite() {
+        return site;
     }
 
     @Override

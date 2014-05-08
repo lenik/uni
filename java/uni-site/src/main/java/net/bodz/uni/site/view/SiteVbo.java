@@ -97,10 +97,7 @@ public class SiteVbo
             out.end(); // <divl#menubar>
         }
 
-        out.map().name("angel").start();
-        out.area().shape("circle").alt("Home").coords("764,114,92").href(_webApp_ + "/");
-        out.end(); // <map#angel-city>
-        out.img().src(_img_ + "hbar/angel-city.png").width("100%").usemap("angel");
+        out.img().src(_img_ + "hbar/angel-city.png").width("100%");
         out.hr().class_("line");
 
         out.div().id("main").start();
@@ -129,7 +126,7 @@ public class SiteVbo
         out.end();
 
         for (Section section : site.getSectionMap().values()) {
-            out.div().class_("uni-section").start();
+            out.div().class_("uni-section").id(section.getName()).start();
 
             out.h2().start();
             out.a().href(section.getName() + "/").text(section.getName());

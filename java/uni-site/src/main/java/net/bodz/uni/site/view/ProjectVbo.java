@@ -1,7 +1,6 @@
 package net.bodz.uni.site.view;
 
 import java.io.IOException;
-import java.util.List;
 
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.IHttpReprContext;
@@ -10,11 +9,13 @@ import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.bas.vcs.IVcsLogEntry;
+import net.bodz.uni.site.IBasePaths;
 import net.bodz.uni.site.model.Project;
 import net.bodz.uni.site.view.util.RelativeTimeFormatter;
 
 public class ProjectVbo
-        extends AbstractHtmlViewBuilder<Project> {
+        extends AbstractHtmlViewBuilder<Project>
+        implements IBasePaths {
 
     public ProjectVbo() {
         super(Project.class);
@@ -33,7 +34,14 @@ public class ProjectVbo
         String description = project.getDescription().toString();
 
         String letter = name.substring(0, 1).toUpperCase();
-        out.div().class_("prj-icon-large").text(letter);
+        out.div().class_("prj-icon-large").start();
+        {
+            String sectionName = project.getSection().getName();
+            out.a().href(_webApp_ + sectionName + "#" + letter).start();
+            out.text(letter);
+            out.end(); // <a>
+            out.end(); // <div.prj-icon-large>
+        }
 
         out.h1().textf("Project %s", name);
 
@@ -55,8 +63,7 @@ public class ProjectVbo
 
         try {
             out.ul().class_("changelog").start();
-            List<IVcsLogEntry> logs = project.getLogs();
-            for (IVcsLogEntry ent : logs) {
+            for (IVcsLogEntry ent : project.getLogs().values()) {
                 String subject = ent.getSubject();
                 boolean matching = subject.contains(project.getName());
 
@@ -64,7 +71,7 @@ public class ProjectVbo
 
                 out.span().class_("author").text(ent.getAuthorName());
                 out.span().text(": ");
-                out.span().class_("subject").text(subject);
+                out.a().class_("subject").href("logs/" + ent.getVersion()).text(subject);
 
                 long relativeTime = ent.getAuthorDate().getTimeInMillis() - System.currentTimeMillis();
                 String relativeTimeStr = RelativeTimeFormatter.getInstance().format(relativeTime);

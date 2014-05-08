@@ -11,8 +11,8 @@ public class DebProject
 
     private DebControl debControl;
 
-    public DebProject(Site site, String name, File directory) {
-        super(site, name, directory);
+    public DebProject(Section section, String name, File directory) {
+        super(section, name, directory);
     }
 
     public DebControl getDebControl() {

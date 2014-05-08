@@ -4,15 +4,19 @@ import java.io.IOException;
 
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.IHttpReprContext;
+import net.bodz.bas.i18n.dom.iString;
 import net.bodz.bas.io.html.IHtmlOut;
+import net.bodz.bas.io.html.tag.HtmlDivBuilder;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
+import net.bodz.uni.site.IBasePaths;
 import net.bodz.uni.site.model.Project;
 import net.bodz.uni.site.model.Section;
 
 public class SectionVbo
-        extends AbstractHtmlViewBuilder<Section> {
+        extends AbstractHtmlViewBuilder<Section>
+        implements IBasePaths {
 
     public SectionVbo() {
         super(Section.class);
@@ -28,26 +32,37 @@ public class SectionVbo
         Section section = ref.get();
 
         String name = section.getName();
-        String description = section.getDescription().toString();
+        iString description = section.getDescription();
 
-        out.h1().textf("Section %s", name);
+        out.h1().start();
+        out.a().href(_webApp_ + "#" + section.getName()).text("Section " + name);
+        out.end(); // <h1>
+
         if (description != null)
             out.p().text(description);
 
         String lastLetter = "";
+        int letterIndex = 0;
 
         for (Project project : section.getProjects()) {
             name = project.getName();
-            description = project.getDescription().toString();
+            description = project.getDescription();
 
             out.div().class_("uni-project").start();
 
-            String letter = name.substring(0, 1).toUpperCase();
             String letterBoxClass = "letter-box";
-            if (letter.equals(lastLetter))
+            String letter = name.substring(0, 1).toUpperCase();
+            if (letter.equals(lastLetter)) {
+                letterIndex++;
                 letterBoxClass += " ui-hidden";
-            lastLetter = letter;
-            out.div().class_(letterBoxClass).text(letter);
+            } else {
+                letterIndex = 0;
+                lastLetter = letter;
+            }
+
+            HtmlDivBuilder letterDiv = out.div().class_(letterBoxClass).text(letter);
+            if (letterIndex == 0)
+                letterDiv.id(letter);
 
             out.div().class_("prj-description").start();
 
@@ -55,7 +70,7 @@ public class SectionVbo
 
             embed(ctx, project.getStat());
 
-            out.println(description.replace("\n", "<br>\n"));
+            out.println(description.toString().replace("\n", "<br>\n"));
             out.end();
 
             out.end(); // <div#uni-project>
