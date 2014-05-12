@@ -4,6 +4,7 @@ area:focus {
 
 body {
     margin: 0;
+    font-family: Tahoma, Arial, Liberation Sans, DejaVu Sans, sans-serif;
 }
 
 dd {
@@ -15,24 +16,24 @@ h1 a {
     text-decoration: none;
 }
 
-.changelog {
+#changelog {
     
 }
 
-.changelog .author {
+#changelog .author {
     font-weight: bold;
 }
 
-.changelog .date {
+#changelog .date {
     font-style: italic;
 }
 
-.changelog .minor {
+#changelog .minor {
     font-style: italic;
     opacity: 0.5;
 }
 
-.changelog a {
+#changelog a {
     text-decoration: none;
 }
 
@@ -40,6 +41,10 @@ h1 a {
     text-align: center;
     font-style: italic;
     height: 7em;
+}
+
+h1+.description {
+    font-size: large;
 }
 
 .letter-box {
@@ -55,6 +60,10 @@ h1 a {
     text-align: center;
 }
 
+.letter-box~div {
+    margin-left: 64px;
+}
+
 hr.line {
     margin: 0;
     height: 4px;
@@ -62,11 +71,7 @@ hr.line {
     background-color: #ccccff;
 }
 
-.prj-description {
-    margin-left: 64px;
-}
-
-.prj-description a {
+div.project a.download {
     display: list-item;
     list-style-position: inside;
     list-style-image: url("img/project.png");
@@ -89,12 +94,12 @@ hr.line {
     text-decoration: none;
 }
 
-.prj-panel {
+.project .panel {
     margin: 1em 0;
     border: dashed 1px blue;
 }
 
-.prj-status {
+.project .status {
     font-size: small;
 }
 

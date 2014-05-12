@@ -38,8 +38,11 @@ public class SectionVbo
         out.a().href(_webApp_ + "#" + section.getName()).text("Section " + name);
         out.end(); // <h1>
 
-        if (description != null)
-            out.p().text(description);
+        if (description != null) {
+            out.div().class_("description").start();
+            out.verbatim(description.toString());
+            out.end();
+        }
 
         String lastLetter = "";
         int letterIndex = 0;
@@ -64,9 +67,9 @@ public class SectionVbo
             if (letterIndex == 0)
                 letterDiv.id(letter);
 
-            out.div().class_("prj-description").start();
+            out.div().class_("project").start();
 
-            out.a().href(name + "/").text(name);
+            out.a().class_("download").href(name + "/").text(name);
 
             embed(ctx, project.getStat());
 

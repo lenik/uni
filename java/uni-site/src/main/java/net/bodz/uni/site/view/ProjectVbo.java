@@ -43,26 +43,24 @@ public class ProjectVbo
             out.end(); // <div.prj-icon-large>
         }
 
+        out.div().class_("project").start();
+
         out.h1().textf("Project %s", name);
-
-        embed(ctx, project.getStat());
-
+        // embed(ctx, project.getStat());
         if (description != null)
-            out.p().text(description);
+            out.p().class_("description").text(description);
 
         out.h2().text("Download");
-        out.div().class_("prj-panel").id("download").start();
+        out.div().class_("panel").id("download").start();
         out.end(); // <div#download>
 
         out.h2().text("Comments");
-        out.div().class_("prj-panel").id("comments").start();
+        out.div().class_("panel").id("comments").start();
         out.end(); // <div#comments>
 
         out.h2().text("Change Log");
-        out.div().class_("prj-panel").id("changelog").start();
-
         try {
-            out.ul().class_("changelog").start();
+            out.ul().class_("panel").id("changelog").start();
             for (IVcsLogEntry ent : project.getLogs().values()) {
                 String subject = ent.getSubject();
                 boolean matching = subject.contains(project.getName());
@@ -84,8 +82,7 @@ public class ProjectVbo
             throw new ViewBuilderException(e.getMessage(), e);
         }
 
-        out.end(); // <div#comments>
-
+        out.end(); // div.project
         return ctx;
     }
 }

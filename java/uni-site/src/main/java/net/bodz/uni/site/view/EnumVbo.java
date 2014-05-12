@@ -52,7 +52,7 @@ public class EnumVbo
 
             if (xjdocAware) {
                 IElementDoc doc = ((IXjdocAware) item).getXjdoc();
-                text = doc.getText().getHeadPar();
+                text = doc.getText().toString();
             }
 
             out.li().class_(active ? "ui-active" : "").start();

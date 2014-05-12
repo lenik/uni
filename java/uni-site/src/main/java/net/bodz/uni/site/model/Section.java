@@ -16,6 +16,7 @@ import net.bodz.bas.repr.path.IPathDispatchable;
 import net.bodz.bas.repr.path.ITokenQueue;
 import net.bodz.bas.repr.path.PathArrival;
 import net.bodz.bas.repr.path.PathDispatchException;
+import net.bodz.bas.text.textmap.I18nTextMapDocLoader;
 import net.bodz.mda.xjdoc.FlatfDocLoader;
 import net.bodz.mda.xjdoc.model.IElementDoc;
 import net.bodz.mda.xjdoc.model.javadoc.AbstractXjdocElement;
@@ -78,7 +79,9 @@ public class Section
     protected IElementDoc loadXjdoc()
             throws ParseException, IOException {
         File contentFile = new File(directory, ".Content");
-        return flatfDocLoader.load(new FileResource(contentFile));
+        // flatfDocLoader.load(new FileResource(contentFile));
+        IElementDoc doc = I18nTextMapDocLoader.load(new FileResource(contentFile));
+        return doc;
     }
 
     public Site getSite() {
