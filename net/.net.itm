@@ -1,0 +1,69 @@
+@label
+    Network utilities
+    <p lang="zh-cn">网络实用工具
+    <p lang="ja">ネットワークユーティリティ
+    
+@text
+    These tools are related to the network, and initiate network communications.
+    <p>
+    They can be divided into the following categories: 
+    <dl>
+        <dt>Remote synchronization tool: </dt>
+        <dd>Maintain files and versions be synchronized with remote hosts. </dd>
+        
+        <dt>Device management tools: </dt>
+        <dd>Manage related devices on the network, such as routers, switches, bridges and so on. </dd>
+        
+        <dt>Monitoring tools: </dt>
+        <dd>Capture packets flowing through the network, and make comprehensive analysis over them. </dd>
+        
+        <dt>Data transfer tools: </dt>
+        <dd>upload / download files, or initiate encrypted communications. </dd>
+        
+        <dt>Application tools: </dt>
+        <dd>Related tools running on the application layer.</dd>
+    </dl>
+    
+    <p lang="zh-cn">
+    这些工具与网络有关，并且会产生网络通信。
+    
+    可以分为下面几个类别：
+    <dl>
+        <dt>远程同步工具：</dt>
+        <dd>和远程主机之间保持文件、版本的同步。</dd>
+        
+        <dt>网络设备管理工具：</dt>
+        <dd>管理网络上的相关设备，如路由器、交换机、网桥等。</dd>
+        
+        <dt>网络监控工具：</dt>
+        <dd>捕获流经网络的数据包，并对其综合分析。</dd>
+        
+        <dt>数据传输工具：</dt>
+        <dd>上传/下载文件，或发起加密的通信。</dd>
+        
+        <dt>网络应用工具：</dt>
+        <dd>运行在应用层上的相关工具。</dd>
+    </dl>
+    
+    
+    <p lang="ja">
+    これらのツールは、ネットワークに関連し、ネットワーク通信を開始している。 
+    <p> 
+    彼らは、次のカテゴリに分けることができます。 
+    <dl>
+        <dt>リモート同期ツール：</dt>
+        <dd>保守のファイルとバージョンは、リモートホストと同期させること。</dd>
+        
+        <dt>デバイス管理ツール：</dt>
+        <dd>などというように、ルータ、スイッチ、ブリッジなどのネットワーク上の関連デバイスを管理します。 </dd>
+        
+        <dt>ツールのモニタリング：</dt>
+        <dd>キャプチャパケットがネットワーク上を流れると、それらの上に包括的な分析を行います。 </dd>
+        
+        <dt>データ転送ツール：</dt>
+        <dd>アップロード/ファイルをダウンロードするか、暗号化された通信を開始する。 </dd>
+        
+        <dt>アプリケーションツール：</dt>
+        <dd>関連ツールは、アプリケーション層で実行されている。</dd>
+    </dl>
+

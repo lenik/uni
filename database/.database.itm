@@ -1,0 +1,29 @@
+@label
+    Database Utilities
+    <p lang="zh-cn">数据库实用工具
+    <p lang="ja">データベース·ユーティリティ
+    
+@text
+    Possibly includes:
+    <ul>
+        <li>Consistently designed CLI, to reduce the difference between varies databases;</li>
+        <li>Specific tools used for analysis, reporting the summary content of a specific database;</li>
+        <li>Specific tools used to synchronize distributed databases, and advanced topics like database mining, etc.</li>
+    </ul>
+    
+    <p lang="zh-cn">
+    可能包含的内容有：
+    <ul>
+        <li>设计一致的命令行接口，降低数据库间的使用差异；</li>
+        <li>面向特定数据库的专门工具，用于分析、展示数据库的概要性内容；</li>
+        <li>分布式数据库同步、数据挖掘等高级应用的专门工具等。</li>
+    </ul>
+    
+    <p lang="ja">
+    おそらく含まれています：
+    <ul>
+        <li>一貫してデータベースの変化の差を低減するために、CLIを設計し；</li>
+        <li>特定のデータベースのサマリコンテンツを報告、分析用に使用される特定のツール；</li>
+        <li>分散データベースを同期するために使用される特定のツール、およびデータベースマイニングなど高度なトピックなどのます。</li>
+    </ul>
+

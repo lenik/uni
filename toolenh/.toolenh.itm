@@ -1,0 +1,34 @@
+@label
+    Tool enhancements
+    <p lang="zh-cn">工具增强
+    <p lang="ja">ツールの拡張機能
+    
+@text
+    Gives more commands and usages for existing tools.
+    <p>
+    Tool designers usually keep away from the minutiae which can be "combined on the use", in order to make the tool set a minimal set. 
+    But when you are working, you may find it either being too complicated to use or missing something.
+    <p>
+    These tool enhancements are mainly used by my self. They are, for example, shortcut aliases to a complex command line, custom functions added to the original functions, etc. They are not submitted to the original author because of the personality nature.
+    <p>
+    Some of the tools themselves have good support of extension development, like Git. The enhancements on these tools could be more complex than the others, maybe it should be come up with a separate stand-alone utility, but I'd like to let them just sitting there along with the other minor enhancements.
+
+    <p lang="zh-cn">
+    对原有的工具提供更多的命令和用法。
+    <p>
+    工具作者通常会秉持完美艺术的设计原则，把那些可以在“用到时再组合”的东西统统砍掉，以便形成纯粹的“最小集”。不过在工作的时候，总会有不是缺少这个就是那个用起来不是很方便的时候。
+    <p>
+    这些工具增强主要是我自己使用的，比如说给复杂的命令行起一个简单的别名，或者在原有功能上加一些定制的功能。因为具有较多个人色彩而不适合以补丁的方式提交给原作者，所以就作成专门的增强功能包了。
+    <p>
+    有些工具本身是有较好的扩展开发支持的，比如 Git，这些扩展项有些可能比较复杂，也许可以单独拿出来做为独立的实用程序，不过我也将它们混在增强功能里了。
+    
+    <p lang="ja">
+    既存のツールのためのより多くのコマンドと使用方法を提供します。 
+    <p>
+    ツールの設計者は通常、ツールは最小限のセットを設定するようにするために、離れて「使用上で組み合わせる」ことができる特徴点を避けて保管して。 
+    あなたが作業しているときには、あなたはそれがどちらかを使用するようにあまりにも複雑であることや何かが欠けているかもしれません。 
+    <p>
+    これらのツールの機能強化は、主に私の自己によって使用されます。彼らは、例えば、複雑なコマンドラインのショートカットエイリアスが、カスタム関数は、それらが原因で人格的性質の原作者に提出されていないなど、本来の機能に追加され、である。 
+    <p>
+    ツール自身の中には、Gitのように、拡張機能開発の良いサポートを持っている。これらのツールの拡張機能は、他のものよりも複雑になる可能性が多分それは独立したスタンドアロンのユーティリティを考え出す必要がありますが、私は彼らがちょうど他のマイナーな機能強化と一緒にそこに座ってできるようにしたいと思います。
+    

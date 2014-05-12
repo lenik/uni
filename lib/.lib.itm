@@ -1,0 +1,37 @@
+@label
+    Development libraries
+    <p lang="zh-cn">程序开发库
+    <p lang="ja">開発ライブラリ
+    
+@text
+    Libraries reusable in programming.
+    <p>
+    These libraries are written in varies programming languages, includes C, D, Java, Perl, etc.
+    You need to look at the sources to get the API. Well, I may not have enough time to write the complete technique references.
+    <p>
+    The Java libraries here are just a small part, most of my work are done in the Jazz project.
+    <p>
+    I'll develop more with D language in the future. The library libbas-d-dev is just a start.
+    I had also some libraries for embedded development, they are placed under usnap project, I'll merge them here in the future.
+    
+    <p lang="zh-cn">
+    可在编程中复用的库。
+    <p>
+    这些库有各种语言写成的，C, D, Java, Perl 等等。
+    库中组件的接口需要查看源码，因为精力有限没办法写作完美的技术参考手册。
+    <p>
+    Java 库这里只是一小部分，我主要的成果请参考 Jazz。
+    <p>
+    未来我会更偏向于 D 语言的开发，libbas-d-dev 仅是一个开始。
+    嵌入式开发相关的库我存放于 usnap 项目下，未来我也打算把它合并到 Uni 工具中。
+    
+    <p lang="ja">
+    プログラミングの再利用可能なライブラリ。 
+    <p> 
+    これらのライブラリは、プログラミング言語に変化する中で書かれているなど、C、D、ジャワ、Perlを、含まれています。 
+    あなたは、APIを取得するためにソースを見る必要がある。まあ、私は完全な技術の参照を記述するのに十分な時間を持っていない場合があります。
+    <p>
+    ここでのJavaライブラリがほんの一部であり、私の仕事のほとんどはジャズプロジェクトで行われています。
+    <p>
+    私は、将来的にはD言語でより多くを開発します。ライブラリlibbas-D-devが始まったばかりである。
+    私はまた、組込み開発のためのいくつかのライブラリは、それらは私がここで、将来的ににそれらをマージします、usnapプロジェクトの下に置かれているしていた。

@@ -1,0 +1,40 @@
+@label
+    Package creation tools
+    <p lang="zh-cn">包制作工具
+    <p lang="ja">パッケージ作成ツール
+    
+@text
+    Production tools for software package, ROM image, installer, etc.
+    <p>
+    There are two types of software packages mainly used by Linux distros: RPM and DEB. Compared to RPM, DEB is designed to be more clear, and there are more peripheral supports around DEB.
+    Personally, I like Debian more, most of the Uni tools are packaged only in DEB format.
+    <p>
+    Though we can convert DEB to RPM with conversion program like <a href="http://joeyh.name/code/alien/"><code>alien</code></a>, the conversion result won't always be installable on RedHat or CentOS.
+    <p>
+    The image creation tools here are used to create customized Linux ISO and AMI images. You can burn ISO image to a CD or DVD disc, while AMI image can be directly instantiated from Amazon EC2.
+    
+    <p lang="zh-cn">
+    软件包、映像、安装程序等制作工具。
+    <p>
+    Linux 发行版用的软件包主要有 RPM 和 DEB 两种，
+    相较于 RPM 包，DEB 包的设计更加清晰，周边支持也更丰富。
+    由于个人精力有限，加上我比较偏爱 Debian，所以大部分 Uni 工具只采用 DEB 格式打包。
+    <p>
+    除了包格式的不同，RPM 包和 DEB 包的软件组织、命名也有很大差异。
+    尽管使用 <a href="http://joeyh.name/code/alien/"><code>alien</code></a> 转换程序，可以将 DEB 包转换成 RPM 包，
+    但转换的结果往往无法在 RedHat 或 CentOS 上安装运行。
+    <p>
+    这里的映像制作工具用于制作定制 Linux 的 ISO 映像和 AMI 映像。
+    ISO 映像可以刻录到 CD 或 DVD 光盘中，而 AMI 映像可以直接在亚马逊的 EC2 平台上实例化。
+    <p>
+    除了制作 Linux 软件包外，这里还有一些安装程序的制作工具。laxar 是原来 Lapiota 上用来安装 Lapiota 模块的，debinst 可以将 DEB 包转换成可执行的自动安装程序。
+    
+    <p lang="ja">
+    などのソフトウェアパッケージ、ROMイメージ、インストーラのための制作ツール 
+    <p> 
+    RPMとDEB：主にLinuxディストリビューションで使用されるソフトウェアパッケージの2種類があります。 RPMと比較して、DEBは、より明確になるように設計されており、DEBの周りの周辺サポートがありますされている。 
+    個人的に、私はより多くの、ユニツールのほとんどが唯一のDEB形式でパッケージ化されているDebianのが好きです。 
+    <p> 
+    我々は <a href="http://joeyh.name/code/alien/"><code>alien</code></a> のような変換プログラムをRPMにDEBを変換することができますが、変換結果が常にRedHatのか、CentOSの上でインストール可能ではありません。
+    <p> 
+    ここで、画像作成ツールは、カスタマイズされたLinuxのISOおよびAMIイメージを作成するために使用される。 AMIイメージは直接のAmazon EC2からインスタンス化することができているときは、CDまたはDVDディスクにISOイメージを書き込むことができます。

@@ -1,0 +1,24 @@
+@label
+    Text utilities
+    <p lang="zh-cn">文本实用工具
+    <p lang="ja">テキストユーティリティ
+    
+@text
+    There are two types of text: those interact with the machine, and those interact with human. Programmers will call the first type as <i>text</i>, and the second type as <i>document</i>.
+    <p>
+    Probably say, there have some kind of <i>machine</i> property in the mankind. And the machine, just consider its forms regardless of its internal structure, it also has some kind of occasionality of human like. This occasionality is to say, the human mind seems to be nothing more but a coincidence. 
+    <p>
+    The program <a href="http://www.graphviz.org"><code>graphviz</code></a> converts graph notations into very nice looking pictures, we can either say <code>graphviz</code> is no life, no wisdom, but you can not refuse the actual equivalence of the cleverness of <code>graphviz</code> to a small part of human mind. We can put this cleverness attributed to the author of <code>graphviz</code>, who transferred his own wisdom to the program, but the wisdom solidified in the code shall be another occasionality of combination of binary. So I put the programs related to the text and document together here.
+    
+    <p lang="zh-cn">
+    有两种类型的文本：和机器交互的，和人交互的。通常程序员把第一种文本称为“文本”，而把第二种文本称为“文档”。
+    <p>
+    大概说来，人身上其实也具有某种“机器”的属性，而机器，不管其内部结构如何，就表现形式来说，总是具有某种与人相似的偶然性。这种偶然性是说，人类的思想似乎也只是一种偶然罢了。<a href="http://www.graphviz.org"><code>graphviz</code></a> 程序可以把图的文本描述转换成很漂亮的曲线图片，我们既可以说 <code>graphviz</code> 是没有生命的，毫无智慧的，但又无法拒绝相信 <code>graphviz</code> 可以等效与人类智慧的一小部分。虽然我们可以把这种智慧归结为 <code>graphviz</code> 的作者，是他个人的智慧转移到程序中来，但以代码形式固化下来的智慧又不得不说是一种二进制的偶然组合了。因此，我也就把文本和文档相关的程序都放在一起了。
+    
+    <p lang="ja">
+    これらのマシンと対話し、それらが人間との対話：テキストの2種類があります。プログラマは、「テキスト」と「文書」として第一種、第二のタイプを呼び出します。
+    <p>
+    おそらく人類の“機械”のプロパティのいくつかの種類をそこに持っている、と言う。そしてマシンは、ただそれはまたのような人間の偶然性のいくつかの種類があり、関係なく、その内部構造のその形式を検討してください。この 偶然性つまり、人間の心には何もなく、偶然の一致はないように思われる。
+    <p>
+    プログラムは <a href="http://www.graphviz.org"><code>graphviz</code></a> に非常に見栄えの良い写真にグラフ表記に変換し、我々はの <code>graphviz</code> と言うこともできます何の人生は、何の知恵でありませんが、人間の心の小さな部分に <code>graphviz</code> の賢さの実際等価を拒否することはできません。我々はプログラムに自分の知恵を移すの <code>graphviz</code> の作成者に帰属この賢さを置くことができますが、知恵は、バイナリの組み合わせの別の偶然性しなければならないコードの中で凝固した。だから私は一緒にここにテキストやドキュメントに関連するプログラムを置く。
+    

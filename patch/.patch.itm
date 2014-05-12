@@ -1,0 +1,41 @@
+@label
+    Patches for personal customizations
+    <p lang="zh-cn">个人定制补丁
+    <p lang="ja">個人的なカスタマイズ用のパッチ
+    
+@text
+    Personal customization/fixes to existing softwares.
+    <p>
+    Compared to the <a href="../toolenh/">toolenh</a> section,
+    these patches can't be implemented as add-on extensions, 
+    they can only be patched on the original source code.
+    <p>
+    Because these patches are more of personal preferences, so I didn't
+    submit to the original authors.
+    <p>
+    You should be familiar with the Debian patch process if you need the patch from here.
+    Further on, you may need <a href="../packaging/patchbuild">patchbuild</a> to build the patch.
+    
+    <p lang="zh-cn">
+    对现有软件的个性化定制/修复。
+    <p>
+    与 <a href="../toolenh/">toolenh</a> 不同，这些定制无法做成可以挂接的外部扩展，
+    而只能通过修改源代码实现。
+    <p>
+    因为同样是偏向于个人喜好，所以这些补丁并没有提交给原作者。
+    <p>
+    如果您需要使用这些补丁，您应该熟悉 Debian 上的补丁过程。
+    更进一步，这里的补丁需要使用 <a href="../packaging/patchbuild">patchbuild</a> 来完成构建。
+    
+    <p lang="ja">
+    既存のソフトウェアへの個人的なカスタマイズ/修正。
+    <p>
+    <a href="../toolenh/">toolenh</a> セクションと比較して、
+    これらのパッチは、アドオンの拡張機能として実装することができません、
+    彼らは元のソースコードにパッチを適用することができます。
+    <p>
+    これらのパッチは、個人の好みのよりなので、私はしませんでしたので、
+    オリジナルの作者に提出する。
+    <p>
+    あなたはここからパッチが必要な場合は、Debianのパッチプロセスに精通している必要があります。
+    さらに上の、パッチをビルドする <a href="../packaging/patchbuild">patchbuild</a> が必要な場合があります。

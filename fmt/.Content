@@ -1,6 +1,0 @@
-@label
-    File Format Support
-    <p lang="zh-cn">文件格式支持
-@text
-    Support tools for file analysis and creation in specific formats.
-    <p lang="zh-cn">用于支持特定文件格式的分析和创建工具。

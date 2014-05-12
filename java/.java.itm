@@ -1,0 +1,63 @@
+@label
+    Java peripherals and projects
+    <p lang="zh-cn">Java 周边与项目
+    <p lang="ja">Javaの周辺ツールやプロジェクト
+    
+@text
+    
+    This section can be divided into two categories:
+    <ol>
+        <li>peripheral utilities for Java Development, and</li>
+        <li>applications written in Java.</li>
+    </ol>
+    
+    <p>
+    The (1), are mainly related to JDK and Maven. 
+    Maybe cover Android development in the future.
+    <p>
+    The (2), I may create specific packages for tools powered by bas-program from Jazz here.
+    <p>
+    These tools were originally written under Win32, and they were working with Lapiota tools. There were generated .xjw wrappers to run them). Now they are refactored to Maven modules. The refactoring process was rather complicated, and spanned over several years, though the process was discontinuous.
+    <p>
+    Think of a fleeting few years had been passed. When I started to refactor the project into Maven modules, I made a big decision to say byebye to the mess of the mud of the classes. I supposed the refactor process could be done within several months. 
+    At that time, the Java 7 schedule told us that we would have a modular Java system before long. I had been hesitated to wait to the release of Java 7, because the Maven builder could be occasionally deprecated by the built-in modular system.
+    <p>
+    The schedule of Java 7 was delayed. After the acquirement of Sun microsystem by the Oracle, and now it'll be Java 9, as you see we still don't have a built-in Java modular system. However, Maven becomes more mature and popular.
+    Luckily I had switched to the Maven, without waiting. And now my mess of mud are probabally turning to be bricks.
+    
+    <p lang="zh-cn">
+    这个主题可以分为两类：围绕 Java 开发的周边工具，和用 Java 语言写作的程序、工具。
+    <p>
+    Java 的周边工具主要和 JDK，Maven 相关。以后可能也会包括 android 相关的项目。
+    以后也可能将 Jazz 下基于 bas-program 的工具分别制作专门的 Debian 包并存放在此。
+    这些工具最初最初是在 Win32 下开发的，和 Lapiota 一同工作的（可以用生成 .xjw 的启动器来运行）。现在基本上已经重构为 Maven 模块了，这次重构相当复杂，虽然断断续续，历时也近好几年了。
+    <p>
+    想想几年时间转瞬即逝。当初开始着手 Maven 重构时，心里想着终于要和这些烂泥巴来一次大清算了，
+    几个月应该就能搞定的吧！那个时候 Java 7 时间表上说我们很快就能有一个模块化的 Java 了。
+    那时候还在犹豫要不要等到 Java 7 发布了再说，因为 Java 7 的内建模块系统很可能会淘汰
+    现存的 Maven 技术，而 Maven 在当时还是有很多质疑的声音。
+    <p>
+    Jave 7 的发布时间一而再地推迟了，现在 Oracle 收购了 Sun，Java 9 也列入日程了，
+    Java 模块系统（Jigsaw）依然没有发布。但 Maven 正在变得越来越成熟和流行。
+    多亏我选择了正确的工具，我的烂泥巴也能勉强变成一块块砖头了。
+    
+    <p lang="ja">
+    このセクションでは、2つのカテゴリーに分けることができる。
+    <ol>
+        <li>Javaの開発のための周辺ユーティリティを 、およびます。</li>
+        <li>Javaで記述されたアプリケーション。</li>
+    </ol>
+    
+    <p>
+    （1）主に、JDKとMavenに関連している。たぶん、将来的にはAndroidの開発をカバーしています。
+    <p>
+    （2）私はここでジャズからbas-programを搭載ツールの特定のパッケージを作成することがあります。
+    
+    <p>
+    これらのツールは、もともとWin32の下に書かれていた、と彼らはLapiotaツールで作業していた。そこに発生させた。 xjwラッパーをそれらを実行する） 。今、彼らは、 Mavenのモジュールにリファクタリングされています。リファクタリングプロセスはかなり複雑で、プロセスは不連続であったが、数年にわたってスパン。
+    <p>
+    つかの間の数年を考えるには渡されていた。私はMavenのモジュールにプロジェクトをリファクタリングし始めたとき、私はクラスの泥の混乱にバイバイを言って大きな決断をしました。私は、リファクタリングプロセスは数ヶ月以内に行うことができたはず。
+    その時に、 Javaの7スケジュールは我々の前に長いモジュラーJavaシステムを持っているだろうと私たちに語った。 Mavenのビルダーは時折、組み込みのモジュールシステムで廃止される可能性があるため、私は、 Javaの7のリリースを待つことをためらっていた。
+    <p>
+    Javaの7のスケジュールが遅れた。オラクル、あなたは我々はまだ、組み込みのJavaのモジュラーシステムを持っていない見るように、今では、 Javaの9だろうのサンマイクロシステムの取得後に。しかし、 Mavenは、より成熟した、人気になります。
+    幸いにも私は待つことなく、 Mavenのに切り替えていた。そして今、泥の私の混乱はprobabally煉瓦ことに目を向けています。

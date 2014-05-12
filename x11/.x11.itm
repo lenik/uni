@@ -1,0 +1,23 @@
+@label
+    X11-related utilities
+    <p lang="zh-cn">X11 相关的工具
+    <p lang="ja">X11関連ユーティリティ
+    
+@text
+    Utilities related to the X System, such as the clipboard, displays, window arrangement, desktop themes, and so on.  These components may be subject to GNOME, KDE, sound mixers, graphics accelerator and all, which may have exceeded the scope of X any more. 
+     <p>
+     Usually GUI program for Linux can be loosely coupled, just think of X, WM, and many user programs for the most part. There are many so called GUI front-ends which turn to launch concrete processes to do the real things. The image processing program Gimp is a good example, all of its filters, are running in a separate process to get the preview and the product image, the front-end will then communicate with the filter thru the file system.
+     
+    <p lang="zh-cn">
+    和 X 窗口系统相关的一些工具，如剪贴板，显示器，窗口排列，桌面主题等。
+    这些组件也许涉及到 GNOME、KDE、混音器、图形加速器什么的，这些可能都超出了 X 的范畴。
+    <p>
+    Linux 中的 GUI 程序往往是松散耦合的，不管是 X，WM，还是用户程序大多如此。
+    甚至很多窗口程序通过运行其它程序来完成关键的功能。图像处理程序 Gimp 是一个很好的例子，
+    它的所有滤镜（包括动态效果预览）都是在独立的进程中完成计算，并通过文件系统来通讯的。
+    
+    <p lang="ja">
+    このようなように、クリップボード、ディスプレイ、窓の配置、デスクトップテーマなどのXシステムに関連するユーティリティ、。これらのコンポーネントは、それ以上のXの範囲を超えている可能性があり、GNOME、KDE、サウンドミキサー、グラフィックスアクセラレータとすべて、対象となることがあります。 
+    <p>
+    Linux用の通常のGUIプログラムが緩くだけで、X、WMを考え、結合されており、ほとんどの部分は、多くのユーザプログラムすることができます。本当のことを行うための具体的なプロセスを起動するために電源を入れ、多くのいわゆるGUIフロントエンドがあります。画像処理プログラムGIMPはそのすべてのフィルタは、プレビューと商品画像を取得する、フロントエンドは、ファイルシステムスルーフィルタと通信するために別のプロセスで実行されている、良い例です。
+

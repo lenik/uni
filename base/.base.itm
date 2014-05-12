@@ -1,0 +1,31 @@
+@label
+    Base System Utilities
+    <p lang="zh-cn">基本系统工具
+    <p lang="ja">基本システムツール
+    
+@text
+    Mainly some bash-related tools, extensions, etc.
+    Most of them are very simple.
+    <p>
+    The author supposed these base tools be provided by core utils, cuz they are so fundamental to the installer scripts. 
+    <p>
+    For example, most installers need to do some configurations over text files. Though you can do a lot with <code>grep</code> and <code>sed</code>, as most installers use them to configure files, a specific line-based configuration file editor would certainly make your implementations easier.
+    <p>
+    Most of uni tools depends on these base utilities.
+    
+    <p lang="zh-cn">
+    主要是 bash 相关的一些基本工具、扩展项等。
+    <p>
+    之所以把它们归类为基础工具，是因为作者认为它们本应该由操作系统的核心工具库来提供。比如说行配置工具，大多数安装脚本总需要对某些文本文件做一些配置工作。虽然用 <code>grep</code> 和 <code>sed</code> 能够实现很复杂的配置，事实上大多数安装脚本也是这么做的，但有一个专门面向行的配置工具会让安装程序的实现方便很多。
+    <p>
+    大部分 uni 工具都依赖于这些基本工具之一。
+    
+    <p lang="ja">
+    などを中心に、いくつかのbash関連のツール、拡張機能、それらのほとんどは非常に単純です。 
+    <p>
+    著者は、そこからインストーラスクリプトに非常に基本的であるため、これらの基本ツールは、コアutilsのによって提供されるはず。 
+    <p>
+    たとえば、ほとんどのインストーラは、テキストファイルを介して、いくつかの設定を行う必要があります。ほとんどのインストーラは、ファイルを構成するためにそれらを使用しているように、の<code>はgrep</ code>のと<code> SED</ code>にして多くのことを行うことができますが、特定の行ベースのコンフィギュレーションファイルエディタは確かにあなたの実装が容易になるだろう。 
+    <p>
+    UNIツールのほとんどは、これらのベースのユーティリティに依存します。
+

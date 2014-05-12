@@ -1,0 +1,50 @@
+@label
+    Utilities for system hacking
+    <p lang="zh-cn">用于系统监控、底层操作的工具
+    <p lang="ja">システムハッキングのためのユーティリティ
+    
+@text
+    Tools for monitoring, manipulating the internal state of the system,
+    bypassing any application.
+    <p>
+    The word <i>Hack</i> here also refers to the network intrusion and defense.
+    But it should be only limit to <i>"in the special way which is hard to implement using common techniques"</i>. So it's not always the same thing to be the hacking tools and the system tools.
+    <p>
+    The network tools not designed specifically for hacking are placed under <a href="../net/">net</a> section.
+    <p>
+    Similarly, programs for encryption and decryption, like hacker's dicts, Brute-Force password recovery tools, they are placed under <a href="../crypt/">crypt</a> section. They're not hacker-only tools IMHO.
+    <p>
+    I may work on device drivers for system monitoring in the future, they could be useful in hacking. These drivers would be placed under <a href="../base/">base</a> section.
+    <p>
+    It's the hacker's wisdom to put correct tools together to resolve their problems.
+    
+    <p lang="zh-cn">
+    绕开应用程序、直接监视、操控系统内部状态的工具。
+    <p>
+    这里词语“黑客”也含有网络入侵、防御相关的意思。
+    但这里仅限于“用通常的技术很难实现的方法”，以将黑客行为与一般的系统工具区分开来。
+    那些并不专门针对黑客的网络工具存放于 <a href="../net/">net</a> 分类中。
+    <p>
+    同样的，与加解密相关的程序，比如黑客词典，暴力破译等工具，它们也不是黑客的专属，
+    所以我把它们归入 <a href="../crypt/">crypt</a> 分类中。
+    <p>
+    未来可能会设计更多的以驱动程序实现的系统监控工具，它们也可能用于黑客行为，
+    这些驱动程序将位于 <a href="../base/">base</a> 分类中。
+    <p>
+    对黑客来说，找到正确的工具，综合利用它们解决问题是一种智慧。
+    
+    <p lang="ja">
+    システムの内部状態を操作、監視するためのツール、 
+    任意のアプリケーションをバイパスする。 
+    <p>
+    単語「ハックは」ここで、ネットワークへの侵入や防衛を指します。 
+    しかし、それは唯一の「一般的な技術を使用して実装するのは困難である特別な方法で」を制限する必要があります。だから、ハッキングツールやシステムツールであることが常に同じことではありません。 
+    <p>
+    ハッキングのために特別に設計されていないネットワークツールは、<a href="../net/">net</a> のセクションの下に配置されます。
+    <p>
+    同様に、ハッカーのdictsに、総当たりパスワード回復ツールのような暗号化と復号化のためのプログラムは、それらがの <a href="../crypt/">crypt</a> のセクションの下に配置されます。彼らはハッカー専用ツールの私見ではないね。
+    <p> 
+    私は、将来のシステム監視用のデバイスドライバで動作することができ、それらはハッキングに有用であり得る。これらのドライバは、<a href="../base/">base</a> のセクションの下に置かれるであろう。
+    <p>
+    それは彼らの問題を解決するために一緒に正しいツールを置くハッカーの知恵だ。
+    

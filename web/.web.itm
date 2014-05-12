@@ -1,0 +1,43 @@
+@label
+    Web development utilities
+    <p lang="zh-cn">网站开发实用工具
+    <p lang="ja">Web開発ユーティリティ
+    
+@text
+    Utilities about HTML, CSS, Javascript, CGI, and all related to the Web development.
+    <p>
+    Many tools I had planned to create seems unnecessary anymore, because:
+    <ul>
+        <li>There are so many online development tools come up in the recent years: jsfiddle, dropbox, kuler, pixlr, pingomatic, blah blah etc, which provide great convenience for Web development. </li>
+        <li>jQuery may not be the first one, but since it's widely accepted, JavaScript has become more and more modularized. </li>
+        <li>Setup a Web Server under Debian, you'll have immediately a lot of Web libraries available in hand, what you need to do is just run the <span title="sudo apt-get install" style="cursor: pointer">sagi</span> command. </li>
+        <li>Well, you may not use Debian at all, but we still have Maven, RequireJS, Bootstrap, font-awesome, and the like. </li>
+    </ul>
+    <p>
+    Altogether, the Web development becomes more and more professional, and also more interesting.
+    
+    <p lang="zh-cn">
+    网站开发相关的 HTML, CSS, Javascript, CGI 等工具集。
+    <p>
+    很多原先打算编写的开发工具现在看来都没有必要了。这是有很多原因造成的：
+    <ul>
+        <li>近几年流行起来的在线开发工具，像 jsfiddle, dropbox, kuler, pixlr, pingomatic 等等，为 Web 开发提供了很多便利。</li>
+        <li>虽然 jQuery 不是第一个，但自从它流行以来，JavaScript 正变得越来越模块化。</li>
+        <li>在 Debian 下搭建 Web 服务还有一个好处：数不清的库 <span title="sudo apt-get install" style="cursor: pointer">sagi</span> 即来，唾手可得。</li>
+        <li>即使不用 Debian 做服务器，我们还有 Maven，RequireJS，Bootstrap，font-awesome，等等。</li>
+    </ul>
+    <p>
+    不过这些原因加在一起，使得 Web 开发变得越来越专业，也更有趣。
+    
+    <p lang="ja">
+    HTML、CSS、JavaScriptやCGI、およびWeb開発に関連するすべてについてのユーティリティ。 
+    <p> 
+    私が作成を予定していた多くのツールはもう不必要なようだが、理由は次のとおり 
+    <ul> 
+        <li>jsfiddle、Dropbox、Kuler、pixlr、pingomatic、何とか何とかなど、Web開発のための優れた利便性を提供する：非常に多くのオンラインの開発ツールは、近年出てあります。</li>
+        <li>jQueryは最初の1ではないかもしれないが、それは広く受け入れられている年代から、JavaScriptは、ますますモジュール化となっています。</li>
+        <li>Debianの下に設定されたWebサーバー、あなたはすぐにあなたが何をする必要があるかの手で使用可能なWebライブラリがたくさんあるでしょうただSAGIコマンドを実行している。</li>
+        <li>さて、あなたは、まったくのDebianを使用することはできませんが、我々はまだMavenの、RequireJS、ブートストラップ、フォント素晴らしい、などを持っている。</li>
+    </ul>
+    <p>
+    完全に、Web開発はますます専門的、かつ、より面白くなる。

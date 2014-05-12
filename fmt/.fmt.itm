@@ -1,0 +1,34 @@
+@label
+    File Format Support
+    <p lang="zh-cn">文件格式支持
+    <p lang="ja">ファイル·フォーマットのサポート
+    
+@text
+    Tools for creation and analysis in varies file formats.
+    <p>
+    Generally, a specific file format is associated with some specific applications. However, sometimes we need to access the file directly without the application, in purpose of programming or, automation. It's not always easy to manipulate a specific file format, we need some utilities around it.
+    <p>
+    Take Windows Registry for example. The registry file is binary format with a `.DAT` extension, usually you need to access it with the Registry Editor. What if the Windows system being corrupted? What will yo do if you want to version control the registry changes? You can't run Registry Editor any more. But you may access the file directly regardless of the operating system.
+    <p>
+    Most of these file format supporting tools are written in Java. Internally, the file is read and parsed into intermediate structures represented using <i>bas-rst</i> models. And then the models are dumped to text form. Once you have the text form converted, you can process them with the powerful text tools already in your hands. 
+    
+    <p lang="zh-cn">
+    创建、分析各种类型的文件。
+    <p>
+    一般来说，文件格式总是和特定的应用程序相关联的。但有时候，出于编程或某种需要（编程总是为了实现某种自动化的目的），需要绕开应用程序、直接在磁盘上操作它们。这就需要对特定的文件类型实现对应的文件读写操作工具。
+    <p>
+    Windows 的注册表是一个例子，这些".DAT"结尾的二进制文件，通常需要使用“注册表编辑器”程序来访问。若是 Windows 损坏了怎么办呢？你就无法运行注册表编辑器了，如果你想对注册表的更改做版本控制，注册表编辑器也无能为力。但是你可以直接访问注册表文件，而不管操作系统如何。
+    <p>
+    这里的文件格式支持工具大部分是用 Java 实现的，在工具内部首先将文件分析、转换成 bas-rst 表示的中间结构，然后转存为文本文件，
+    这样我们就可以借用 Linux 下强大的文本分析能力了。
+    <p>
+    通常情况下，似乎没有什么“必须具备”的东西能逃出文本分析的范围，所以只要能转换成文本文件，再从文本文件转回来，应该就足够了。
+    
+    <p lang="ja">
+    内の作成と分析のためのツールは、ファイル形式を変更する。
+    <p>
+     一般に、特定のファイル形式は、いくつかの特定のアプリケーションに関連付けられている。しかし、時には我々はプログラミングや、自動化の目的で、アプリケーションせずに直接ファイルにアクセスする必要があります。それは、特定のファイル形式を操作するためには必ずしも容易ではありません、我々はその周りにいくつかのユーティリティが必要です。
+    <p>
+    たとえば、Windowsのレジストリを取る。レジストリファイルはバイナリ形式である`.DAT`拡張子は、通常、レジストリエディタでそれにアクセスする必要があります。どのようなWindowsのシステムが破損している場合は？バージョンにレジストリの変更を制御したい場合ヨ何をしますか？あなたはこれ以上、レジストリエディタを実行することはできません。しかし、あなたは直接関係なく、オペレーティングシステムのファイルにアクセスすることができます。
+    <p>
+    これらのファイル形式をサポートツールのほとんどは、Javaで記述されています。内部的には、ファイルがの<i>bas-rst</i>のモデルを使用して中間構造に表さ読み込み、解析されます。そして、その後のモデルはテキスト形式にダンプされます。あなたはテキスト形式を変換したら、あなたはすでにあなたの手の中に強力なテキストツールでそれらを処理することができます。

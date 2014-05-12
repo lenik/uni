@@ -1,0 +1,42 @@
+@label
+    Crypto related tools
+    <p lang="zh-cn">加解密相关工具
+    <p lang="ja">暗号関連のツール
+    
+@text
+
+    Sometimes encryption is associated with hacking, while the term `hack`
+    should indicate the behaviour of revealing and accessing to the internal state
+    of the system.
+    
+    These utilities for encryption and decryption are included:
+    
+    <ul>
+        <li>Access and restore of encrypted files.</li>
+        <li>Executable shelling tools.</li>
+        <li>Supporting tools about security protocols.</li>
+    </ul>
+    
+    <p lang="zh-cn">
+    加、解密总是让人联想到“黑客”，但专业术语“黑客”通常专指对系统内部结构的破译和访问行为。
+    
+    这里加解密相关的工具包括：
+    
+    <ul>
+        <li>加密文件的访问、恢复工具</li>
+        <li>用于可执行文件的加壳/脱壳工具</li>
+        <li>安全协议相关的支持工具</li>
+    </ul>
+    
+    <p lang="ja">
+    この用語は、`ハックながら、時には暗号化は、ハッキングと関連している` 
+    明らかにし、内部の状態にアクセスする行動を示す必要があります システムの。 
+    
+    暗号化と復号化のためのこれらのユーティリティが含まれています：
+    
+    <ul>
+        <li>アクセスと暗号化されたファイルの復元。</li>
+        <li>実行可能なシェルツール。</li>
+        <li>セキュリティプロトコルについてのツールをサポートしている。</li>
+    </ul>
+    

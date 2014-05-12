@@ -1,6 +1,0 @@
-@label
-    Hacking utilities
-    <p lang="zh-cn">系统内核相关的工具
-@text
-    Utilities for monitoring, manipulating system internals.
-    <p lang="zh-cn">一些用于监控、操纵系统内部信息的工具。

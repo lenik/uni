@@ -1,0 +1,35 @@
+@label
+    General Utilities
+    <p lang="zh-cn">通用工具
+    <p lang="ja">一般的なユーティリティ
+    
+@text
+    Closely related to the daily work, including:
+    <ul>
+        <li>File process utilities.</li>
+        <li>Disk and partition maintain tools.</li>
+        <li>Command line, I/O operations related tools.</li>
+        <li>Version control system supporting tools.</li>
+        <li>Work supporting tools for logging, task switching, etc.</li>
+    </ul>
+    
+    <p lang="zh-cn">
+    与日常工作密切相关，包括：
+    <ul>
+        <li>文件处理工具。</li>
+        <li>磁盘、分区的维护工具。</li>
+        <li>命令行、I/O 操作相关的工具。</li>
+        <li>版本控制支持工具。</li>
+        <li>日常工作支持工具如日志、任务切换等。</li>
+    </ul>
+    
+    <p lang="ja">
+    密接に含めて毎日の仕事に関連する：
+    <ul>
+        <li>ファイル処理ユーティリティ。 </li>
+        <li>ディスクとパーティションツールを維持する。</li>
+        <li>コマンドライン、I / O操作のツールに関連する。</li>
+        <li>バージョンコントロールシステムは、ツールを支持する。</li>
+        <li>など、ロギング、タスク切り替えのためのツールをサポートする仕事。</li>
+    </ul>
+

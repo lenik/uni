@@ -1,0 +1,35 @@
+@label
+    Software development tools
+    <p lang="zh-cn">软件开发、编程工具
+    <p lang="ja">ソフトウェア開発ツール
+    
+@text
+    Utilities which can be used in program development. For example: 
+     <ul> 
+         <li>Automated build tools: Utilized autotools to build a program automated and fast.</li>
+         <li>Code generator: generate the initial code for a specific task.</li>
+         <li>Launchers used to make a compiled language looking like a scripting language.</li>
+         <li>Specialized tools to provide assistance for LDAP, XML, Qt development.</li>
+         <li>etc.</li>
+     </ul>
+     
+    <p lang="zh-cn">
+    可用于编程开发的实用工具。比如：
+    <ul>
+        <li>自动构建工具: 应用 autotools 对程序进行快速构建和预览；</li>
+        <li>代码生成器：为特定目的生成某种语言的初始代码；</li>
+        <li>把编译型语言当作脚本语言来用的运行程序或启动器；</li>
+        <li>用于为 LDAP，XML，Qt 等开发技术提供帮助的专门的工具；</li>
+        <li>以及其它一些杂项等等。</li>
+    </ul>
+    
+    <p lang="ja">
+    プログラム開発で使用することができるユーティリティ。例：
+    <ul> 
+        <li>自動化と高速プログラムを作成するのautotoolsを使用しています。</li>
+        <li>コードジェネレータ：特定のタスクのための初期のコードを生成。</li>
+        <li>ランチャーは、スクリプト言語のように見えるコンパイル言語を作るために使用される。</li>
+        <li>専用ツールは、LDAP、XML、Qtの開発のための支援を提供する。</li>
+        <li>など。</li>
+    </ul>
+    
