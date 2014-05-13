@@ -33,12 +33,21 @@ public class Section
     private Site site;
     private String name;
     private File directory;
+    private File docFile;
     private Map<String, Project> projectMap;
 
     public Section(Site site, String name, File directory) {
         this.site = site;
         this.name = name;
         this.directory = directory;
+
+        docFile = new File(directory, name + ".itm");
+        if (!docFile.exists()) {
+            docFile = new File(directory, "." + name + ".itm");
+            if (!docFile.exists())
+                docFile = null;
+        }
+
         this.projectMap = new TreeMap<>();
     }
 
@@ -96,9 +105,9 @@ public class Section
     @Override
     protected IElementDoc loadXjdoc()
             throws ParseException, IOException {
-        File contentFile = new File(directory, ".Content");
-        // flatfDocLoader.load(new FileResource(contentFile));
-        IElementDoc doc = I18nTextMapDocLoader.load(new FileResource(contentFile));
+        if (!docFile.exists())
+            throw new IOException("No doc file: " + docFile);
+        IElementDoc doc = I18nTextMapDocLoader.load(new FileResource(docFile));
         return doc;
     }
 
@@ -109,6 +118,14 @@ public class Section
     @Override
     public String getName() {
         return name;
+    }
+
+    public File getDirectory() {
+        return directory;
+    }
+
+    public File getDocFile() {
+        return docFile;
     }
 
     public Collection<Project> getProjects() {

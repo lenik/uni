@@ -1,5 +1,7 @@
 package net.bodz.uni.site.view;
 
+import java.io.File;
+
 import javax.servlet.http.HttpSession;
 
 import net.bodz.bas.http.ctx.CurrentHttpService;
@@ -12,7 +14,8 @@ public class SiteApplication
 
     ToolMenu toolMenu;
 
-    public SiteApplication() {
+    public SiteApplication(File rootDir) {
+        super(rootDir);
         toolMenu = new ToolMenu(this);
     }
 

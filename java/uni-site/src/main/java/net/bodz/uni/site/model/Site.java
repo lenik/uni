@@ -37,8 +37,8 @@ public class Site
     public String googleId;
     public String baiduId;
 
-    public Site() {
-        rootDir = new File("/mnt/istore/projects/uni");
+    public Site(File rootDir) {
+        this.rootDir = rootDir;
         workingCopy = new NativeGitVcsWorkingCopy(rootDir);
         reload();
     }
@@ -48,11 +48,13 @@ public class Site
         for (File sectionDir : rootDir.listFiles()) {
             if (!sectionDir.isDirectory())
                 continue;
-            if (!new File(sectionDir, ".Content").exists())
-                continue;
 
             String name = sectionDir.getName();
+
             Section section = new Section(this, name, sectionDir);
+            if (section.getDocFile() == null)
+                continue;
+
             section.load();
 
             sectionMap.put(name, section);
