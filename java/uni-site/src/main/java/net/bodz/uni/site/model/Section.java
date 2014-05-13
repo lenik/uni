@@ -52,15 +52,33 @@ public class Section
             // A debian project.
             File controlFile = new File(projectDir, "debian/control");
             if (controlFile.exists()) {
+                String controlStr;
                 try {
-                    String controlStr = FileData.readString(controlFile);
-                    DebControl debControl = new DebControlParser().parse(controlStr);
-                    DebProject project = new DebProject(this, name, projectDir);
-                    project.setDebControl(debControl);
-                    addProject(project);
+                    controlStr = FileData.readString(controlFile);
                 } catch (IOException e) {
-                    logger.errorf(e, "Failed to process %s.", controlFile);
+                    logger.errorf(e, "Failed to read the control file %s.", controlFile);
+                    continue;
                 }
+                DebControl debControl = new DebControlParser().parse(controlStr);
+                DebProject project = new DebProject(this, name, projectDir);
+                project.setDebControl(debControl);
+                addProject(project);
+                continue;
+            }
+
+            // A patch project.
+            File origVersionFile = new File(projectDir, "version");
+            if (origVersionFile.exists()) {
+                String origVersion;
+                try {
+                    origVersion = FileData.readString(origVersionFile);
+                } catch (IOException e) {
+                    logger.errorf(e, "Failed to read the version file %s.", controlFile);
+                    continue;
+                }
+                PatchProject project = new PatchProject(this, name, projectDir);
+                project.setVersion(origVersion);
+                addProject(project);
                 continue;
             }
 
