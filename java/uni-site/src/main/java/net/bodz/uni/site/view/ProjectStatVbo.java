@@ -30,12 +30,12 @@ public class ProjectStatVbo
     public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IUiRef<ProjectStat> ref, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
-        ProjectStat status = ref.get();
+        ProjectStat stat = ref.get();
 
-        out.div().class_("prj-status fa").start();
-        out.span().class_(CLASS_FAVORITES).text(status.getFavorites().size());
-        out.span().class_(CLASS_COMMENTS).text(status.getComments().size());
-        out.span().class_(CLASS_DOWNLOADS).text(status.getDownloads().size());
+        out.div().class_("prj-stat fa").start();
+        out.span().class_(CLASS_FAVORITES).text(stat.getFavorites().size());
+        out.span().class_(CLASS_COMMENTS).text(stat.getComments().size());
+        out.span().class_(CLASS_DOWNLOADS).text(stat.getDownloads().size());
         out.end(); // <div#prj-status>
 
         return ctx;

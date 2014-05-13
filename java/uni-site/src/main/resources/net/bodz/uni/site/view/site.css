@@ -45,6 +45,12 @@ h1 a {
 
 h1+.description {
     font-size: large;
+    text-indent: 2em;
+}
+
+.description ul {
+    margin-left: 2em;
+    text-indent: 0;
 }
 
 .letter-box {
@@ -94,13 +100,19 @@ div.project a.download {
     text-decoration: none;
 }
 
+.prj-stat {
+    font-size: small;
+    letter-spacing: 0.4em;
+    margin-left: 2em;
+}
+
+.prj-stat span {
+    letter-spacing: 0.1em;
+}
+
 .project .panel {
     margin: 1em 0;
     border: dashed 1px blue;
-}
-
-.project .status {
-    font-size: small;
 }
 
 .side-bar {
