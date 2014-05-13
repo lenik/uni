@@ -1,0 +1,9 @@
+@label
+    CHM creation utility
+    <p lang="zh-cn">CHM 生成工具
+
+@text
+    CHM utilities based on libchm for Debian
+
+    <p lang="zh-cn">
+    没有描述。

@@ -1,0 +1,9 @@
+@label
+    Disable urlencode for wiki dump page filenames.
+    <p lang="zh-cn">在 wiki dump 页面文件名中禁用 urlencode。
+
+@text
+    trac
+
+    <p lang="zh-cn">
+    没有描述。

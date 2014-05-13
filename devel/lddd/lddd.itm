@@ -1,0 +1,9 @@
+@label
+    A simple utility to check the (linked objects) dependency closure
+    <p lang="zh-cn">快速检查程序的（动态库）依赖闭包的小工具
+
+@text
+    See the closure of dynamic library dependencies.
+
+    <p lang="zh-cn">
+    没有描述。

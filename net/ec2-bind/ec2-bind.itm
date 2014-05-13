@@ -1,0 +1,9 @@
+@label
+    BIND name server settings for Amazon EC2 instances
+    <p lang="zh-cn">域名服务器适用于 Amazon EC2 实例的参数设置
+
+@text
+    BIND name server for EC2.
+
+    <p lang="zh-cn">
+    没有描述。

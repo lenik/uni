@@ -1,0 +1,9 @@
+@label
+    Image/video format support in the clipboard
+    <p lang="zh-cn">剪贴板中图像/视频格式支持
+
+@text
+    Add image, video clipboard format supports in cmdline.
+
+    <p lang="zh-cn">
+    没有描述。

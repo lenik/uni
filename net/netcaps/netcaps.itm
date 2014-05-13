@@ -1,0 +1,12 @@
+@label
+    Terse packet capture and analysis tools
+    <p lang="zh-cn">简明数据包捕捉和分析工具
+
+@text
+    Network capturing and analysis tools
+    This package contains some tools for network capturing and analysis.
+    These tools are mainly based on tcpdump/tcpflow.
+    You can find alternatives for some famous programs like urlsnarf.
+
+    <p lang="zh-cn">
+    没有描述。

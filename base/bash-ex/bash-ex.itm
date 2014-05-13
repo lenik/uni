@@ -1,0 +1,9 @@
+@label
+    Bash extended built-ins.
+    <p lang="zh-cn">Bash 内建命令扩展
+
+@text
+    This package provides extra builtin commands.
+
+    <p lang="zh-cn">
+    没有描述。

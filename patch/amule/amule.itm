@@ -1,0 +1,9 @@
+@label
+    Disabled maximized startup window. Always decode URL in UTF-8.
+    <p lang="zh-cn">禁止启动时最大化，总是用UTF-8对URL解码。
+
+@text
+    amule
+
+    <p lang="zh-cn">
+    没有描述。

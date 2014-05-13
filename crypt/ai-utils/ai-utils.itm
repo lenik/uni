@@ -1,0 +1,11 @@
+@label
+    Ascii Art file format supporting utilities
+    <p lang="zh-cn">Ascii艺术文件格式支持工具
+
+@text
+    Ascii Art format utilities
+    Encode or decode data in repeated sequence of a pre-defined ascii art
+    picture.
+
+    <p lang="zh-cn">
+    没有描述。

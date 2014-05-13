@@ -1,0 +1,10 @@
+@label
+    Router device maintaince tools
+    <p lang="zh-cn">路由设备维护工具
+
+@text
+    Router vendor-dependent utils
+    This package contains utilities to manipulate network router devices.
+
+    <p lang="zh-cn">
+    没有描述。

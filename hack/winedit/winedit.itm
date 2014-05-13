@@ -1,0 +1,10 @@
+@label
+    GUI application form editor
+    <p lang="zh-cn">图形界面应用程序窗口编辑器
+
+@text
+    Window Editor (under dev)
+    Will support both win32 and X11.
+
+    <p lang="zh-cn">
+    没有描述。

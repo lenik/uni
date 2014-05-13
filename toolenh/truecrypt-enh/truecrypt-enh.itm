@@ -1,0 +1,11 @@
+@label
+    Integrated TrueCrypt helpers
+    <p lang="zh-cn">集成化 TrueCrypt 辅助工具
+
+@text
+    TrueCrypt integration utilities.
+    This package requires TrueCrypt.
+    Install it from:
+
+    <p lang="zh-cn">
+    没有描述。

@@ -1,0 +1,9 @@
+@label
+    Mount device file by loop device
+    <p lang="zh-cn">用环回设备装载设备文件
+
+@text
+    Mount file by loop device, using default directory naming.
+
+    <p lang="zh-cn">
+    没有描述。

@@ -1,0 +1,15 @@
+@label
+    Modularized function library support for Bash
+    <p lang="zh-cn">Bash 模块化函数库支持
+
+@text
+    A simple bash programming framework.
+    bash-shlib introduced library support to bash, you can then
+    build up shell programs by libraries.
+    All shell libraries (aka. shlib, for bash library) are stored
+    in /usr/lib/shlib.d directory. You can import them by import
+    statement. All you need is put "source (.) shlib" at the
+    beginning of your program.
+
+    <p lang="zh-cn">
+    没有描述。

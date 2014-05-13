@@ -1,0 +1,11 @@
+@label
+    Ping-based latency and packet loss monitor
+    <p lang="zh-cn">基于 ICMP-Ping 的时延和丢包率监控程序
+
+@text
+    Ping latency monitor.
+    This utility maintaince a ping latency Round Robin Database, and
+    create stat graph about the network status.
+
+    <p lang="zh-cn">
+    没有描述。

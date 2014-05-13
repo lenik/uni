@@ -1,0 +1,10 @@
+@label
+    SQLite enhancements
+    <p lang="zh-cn">SQLite 增强工具集
+
+@text
+    SQLite command line tools.
+    sqlite-enh provides command line tools for SQLite (2/3).
+
+    <p lang="zh-cn">
+    没有描述。

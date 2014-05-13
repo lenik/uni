@@ -1,0 +1,9 @@
+@label
+    Modularized rsync utility
+    <p lang="zh-cn">模块化的 rsync (远程同步）工具
+
+@text
+    Sync utils for rsync, etc.
+
+    <p lang="zh-cn">
+    没有描述。

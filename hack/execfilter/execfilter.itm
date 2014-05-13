@@ -1,0 +1,10 @@
+@label
+    Preloaded libc execution filter
+    <p lang="zh-cn">libc 前置执行过滤器
+
+@text
+    Control the execution of specific programs.
+    This program gives you the ability to control the execution of specfic programs.
+
+    <p lang="zh-cn">
+    没有描述。

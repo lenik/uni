@@ -1,0 +1,13 @@
+@label
+    X11 monitor resolution adjuster
+    <p lang="zh-cn">X11 分辨率调节工具
+
+@text
+    X11 hardware adjust tools
+    Utilities to adjust the parameters of the display devices.
+    Included:
+    xrandr-add-scales
+    xrandr-mode
+
+    <p lang="zh-cn">
+    没有描述。

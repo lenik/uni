@@ -1,0 +1,10 @@
+@label
+    D program as a script supporting tools
+    <p lang="zh-cn">D 语言脚本化支持工具
+
+@text
+    D language develop tools
+    dprog includes utilities for development with Digital Mars D language.
+
+    <p lang="zh-cn">
+    没有描述。

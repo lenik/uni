@@ -1,0 +1,9 @@
+@label
+    Navigation inside a complex directory tree in cmdline
+    <p lang="zh-cn">命令行中目录树导航支持
+
+@text
+    Chdir into complex directory tree
+
+    <p lang="zh-cn">
+    没有描述。

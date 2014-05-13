@@ -1,0 +1,10 @@
+@label
+    Image file batch process utilities
+    <p lang="zh-cn">图像文件批量处理工具
+
+@text
+    Image automation tools
+    This package provides utilities to process images.
+
+    <p lang="zh-cn">
+    没有描述。

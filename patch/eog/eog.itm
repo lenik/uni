@@ -1,0 +1,9 @@
+@label
+    Auto reload when file changes, no confirmation.
+    <p lang="zh-cn">当图片变化时自动刷新，不要提示。
+
+@text
+    eog
+
+    <p lang="zh-cn">
+    没有描述。

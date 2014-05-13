@@ -1,0 +1,12 @@
+@label
+    Win32 registry file transform tool (to/from text format)
+    <p lang="zh-cn">Win32 注册表文件转换程序（到/从文本格式）
+
+@text
+    Win32 Registry File Transform Tool
+    This tool can transform Win32 registry file (e.g., NTUSER.DAT) to or
+    from structured text files. So you can manage the registry using your
+    favorite SCM softwares.
+
+    <p lang="zh-cn">
+    没有描述。

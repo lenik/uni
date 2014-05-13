@@ -1,0 +1,11 @@
+@label
+    Java source code processing tools (JDT-based)
+    <p lang="zh-cn">Java 源代码处理工具 (基于JDT)
+
+@text
+    Java source file utilities.
+    Includes:
+    linefix, etc.
+
+    <p lang="zh-cn">
+    没有描述。

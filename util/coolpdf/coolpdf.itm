@@ -1,0 +1,11 @@
+@label
+    PDF file process utilities
+    <p lang="zh-cn">PDF 文件处理工具
+
+@text
+    PDF file process utils.
+    Includes:
+    pdfcrop, pdfrepair, etc.
+
+    <p lang="zh-cn">
+    没有描述。

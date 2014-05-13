@@ -1,0 +1,10 @@
+@label
+    Zip file helpers
+    <p lang="zh-cn">Zip 文件辅助工具
+
+@text
+    Extra support to various zip format.
+    This package provides 7z wrappers, to convert filename encodings.
+
+    <p lang="zh-cn">
+    没有描述。

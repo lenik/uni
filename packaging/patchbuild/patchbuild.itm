@@ -1,0 +1,9 @@
+@label
+    Personal patch building system
+    <p lang="zh-cn">个人补丁构建系统
+
+@text
+    Rebuild debian package with automatic personal patch management.
+
+    <p lang="zh-cn">
+    没有描述。

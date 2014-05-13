@@ -1,0 +1,9 @@
+@label
+    boDz SSH proxy server/client
+    <p lang="zh-cn">boDz SSH 代理服务器/客户端
+
+@text
+    SSH Proxy base environment.
+
+    <p lang="zh-cn">
+    没有描述。

@@ -1,0 +1,11 @@
+@label
+    Installer for more loop devices
+    <p lang="zh-cn">用于添加更多环回设备的安装程序
+
+@text
+    Create more /dev/loop* devices
+    This is a pseudo-package to configure the default kernel module options
+    to make more /dev/loop* devices at boot time.
+
+    <p lang="zh-cn">
+    没有描述。

@@ -1,0 +1,9 @@
+@label
+    Get the line number of the grep matched line
+    <p lang="zh-cn">获取 grep 匹配的行号
+
+@text
+    Minimal core text utilities.
+
+    <p lang="zh-cn">
+    没有描述。

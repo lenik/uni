@@ -1,0 +1,12 @@
+@label
+    Command-line XML batch process utilities
+    <p lang="zh-cn">命令行 XML 批量处理工具
+
+@text
+    XML CLI process tools.
+    Includes:
+    XMLEdit
+    XMLFlat
+
+    <p lang="zh-cn">
+    没有描述。

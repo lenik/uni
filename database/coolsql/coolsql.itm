@@ -1,0 +1,11 @@
+@label
+    A common SQL command line front-end
+    <p lang="zh-cn">一个公共的SQL命令行前端程序
+
+@text
+    A virtual SQL frontend.
+    coolsql allows you execute SQLs for various different database backends
+    in the same way.
+
+    <p lang="zh-cn">
+    没有描述。

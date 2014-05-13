@@ -1,0 +1,9 @@
+@label
+    Convert pathnames to ASCII tree
+    <p lang="zh-cn">将连续的文件名转换为树
+
+@text
+    Tree/filesystem visualization
+
+    <p lang="zh-cn">
+    没有描述。

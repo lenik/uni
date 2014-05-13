@@ -1,0 +1,12 @@
+@label
+    Rsync-based resource revision controller
+    <p lang="zh-cn">基于 rsync 的资源版本控制器
+
+@text
+    Some sync utils based on rsync.
+    Includes:
+    rsync-push
+    rsync-pull
+
+    <p lang="zh-cn">
+    没有描述。

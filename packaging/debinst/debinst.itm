@@ -1,0 +1,11 @@
+@label
+    Debian package installer creation tool
+    <p lang="zh-cn">Debian 包安装程序创建工具
+
+@text
+    Create installer application from .deb packages.
+    debinst will automatically collect the depended .deb files and create
+    an installer app for them.
+
+    <p lang="zh-cn">
+    没有描述。

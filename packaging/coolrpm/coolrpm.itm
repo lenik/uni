@@ -1,0 +1,9 @@
+@label
+    Automatic integrated RPM packager
+    <p lang="zh-cn">自动集成化 RPM 打包程序
+
+@text
+    Tools for creating RPM package.
+
+    <p lang="zh-cn">
+    没有描述。

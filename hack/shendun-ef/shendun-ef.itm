@@ -1,0 +1,11 @@
+@label
+    ShenDun execfilter extensions
+    <p lang="zh-cn">神盾 execfilter 扩展项
+
+@text
+    Companion utils used with execfilter.
+    Includes:
+    config file codecs, remote config push/polls.
+
+    <p lang="zh-cn">
+    没有描述。

@@ -1,0 +1,12 @@
+@label
+    Text encoding convertion tool
+    <p lang="zh-cn">文本编码转换工具
+
+@text
+    Utilities to convert between different text encodings
+    textcodecs provides tools to help convert from one text encoding to another.
+    Some binary encondings like BASE64 are also treated as text encoding.
+    This also includes URL escaped encondings.
+
+    <p lang="zh-cn">
+    没有描述。

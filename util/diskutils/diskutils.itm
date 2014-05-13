@@ -1,0 +1,11 @@
+@label
+    Disk maintaince utilities
+    <p lang="zh-cn">磁盘维护工具
+
+@text
+    Disk utils
+    Includes:
+    mkhdd, readmbr, writembr, etc.
+
+    <p lang="zh-cn">
+    没有描述。
