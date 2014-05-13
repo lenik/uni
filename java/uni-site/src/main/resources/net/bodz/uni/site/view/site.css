@@ -77,7 +77,7 @@ hr.line {
     background-color: #ccccff;
 }
 
-div.project a.download {
+div.project a.resource {
     display: list-item;
     list-style-position: inside;
     list-style-image: url("img/project.png");
@@ -113,6 +113,10 @@ div.project a.download {
 .project .panel {
     margin: 1em 0;
     border: dashed 1px blue;
+}
+
+.project-bar {
+    margin: 0 1em 2em;
 }
 
 .side-bar {
@@ -216,10 +220,6 @@ dl.uni-projects dt {
     display: list-item;
     list-style-position: inside;
     list-style-image: url("img/project.png");
-}
-
-.uni-project {
-    margin: 0 1em 2em;
 }
 
 #toolbox {

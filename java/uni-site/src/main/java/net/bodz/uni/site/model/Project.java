@@ -7,16 +7,22 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.bodz.bas.c.java.io.FilePath;
-import net.bodz.bas.i18n.dom1.MutableElement;
+import net.bodz.bas.err.ParseException;
+import net.bodz.bas.io.res.builtin.FileResource;
+import net.bodz.bas.text.textmap.I18nTextMapDocLoader;
 import net.bodz.bas.vcs.IVcsLogEntry;
 import net.bodz.bas.vcs.IVcsWorkingCopy;
 import net.bodz.bas.vcs.VcsLogOptions;
+import net.bodz.mda.xjdoc.model.IElementDoc;
+import net.bodz.mda.xjdoc.model.javadoc.AbstractXjdocElement;
 
 public class Project
-        extends MutableElement {
+        extends AbstractXjdocElement {
 
     Section section;
+    String name;
     File directory;
+    File docFile;
     String vcspath;
 
     ProjectStat projectStat;
@@ -25,12 +31,16 @@ public class Project
     Date logsExpires;
 
     public Project(Section section, String name, File directory) {
-        if (directory == null)
-            throw new NullPointerException("directory");
-
         this.section = section;
-        setName(name);
+        this.name = name;
         this.directory = directory;
+
+        docFile = new File(directory, name + ".itm");
+        if (!docFile.exists()) {
+            docFile = new File(directory, "." + name + ".itm");
+            if (!docFile.exists())
+                docFile = null;
+        }
 
         File rootDir = section.getSite().getRootDir();
         vcspath = FilePath.getRelativePath(directory.getPath(), rootDir + "/");
@@ -38,8 +48,22 @@ public class Project
         projectStat = new ProjectStat();
     }
 
+    @Override
+    protected IElementDoc loadXjdoc()
+            throws ParseException, IOException {
+        if (!docFile.exists())
+            throw new IOException("No doc file: " + docFile);
+        IElementDoc doc = I18nTextMapDocLoader.load(new FileResource(docFile));
+        return doc;
+    }
+
     public Section getSection() {
         return section;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     public File getDirectory() {
@@ -48,6 +72,10 @@ public class Project
 
     public String getVcsPath() {
         return vcspath;
+    }
+
+    public boolean isPrivate() {
+        return false;
     }
 
     public ProjectStat getStat() {

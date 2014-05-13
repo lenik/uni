@@ -49,9 +49,9 @@ public class SectionVbo
 
         for (Project project : section.getProjects()) {
             name = project.getName();
-            description = project.getDescription();
-
-            out.div().class_("uni-project").start();
+            if (project.isPrivate())
+                continue;
+            out.div().class_("project-bar").start();
 
             String letterBoxClass = "letter-box";
             String letter = name.substring(0, 1).toUpperCase();
@@ -68,15 +68,12 @@ public class SectionVbo
                 letterDiv.id(letter);
 
             out.div().class_("project").start();
-
-            out.a().class_("download").href(name + "/").text(name);
-
+            out.a().class_("resource").href(name + "/").text(name);
             embed(ctx, project.getStat());
+            out.println(project.getLabel());
+            out.end(); // <div.project>
 
-            out.println(description.toString().replace("\n", "<br>\n"));
-            out.end();
-
-            out.end(); // <div#uni-project>
+            out.end(); // <div.project-bar>
         }
 
         return ctx;

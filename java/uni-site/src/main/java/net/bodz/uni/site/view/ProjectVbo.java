@@ -10,6 +10,7 @@ import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.bas.vcs.IVcsLogEntry;
 import net.bodz.uni.site.IBasePaths;
+import net.bodz.uni.site.model.DebProject;
 import net.bodz.uni.site.model.Project;
 import net.bodz.uni.site.view.util.RelativeTimeFormatter;
 
@@ -31,7 +32,6 @@ public class ProjectVbo
         Project project = ref.get();
 
         String name = project.getName();
-        String description = project.getDescription().toString();
 
         String letter = name.substring(0, 1).toUpperCase();
         out.div().class_("prj-icon-large").start();
@@ -47,8 +47,12 @@ public class ProjectVbo
 
         out.h1().textf("Project %s", name);
         // embed(ctx, project.getStat());
-        if (description != null)
-            out.p().class_("description").text(description);
+        out.p().class_("description").text(project.getLabel());
+
+        if (project instanceof DebProject) {
+            DebProject deb = (DebProject) project;
+            out.pre().text(deb.getInfo().get("Description"));
+        }
 
         out.h2().text("Download");
         out.div().class_("panel").id("download").start();

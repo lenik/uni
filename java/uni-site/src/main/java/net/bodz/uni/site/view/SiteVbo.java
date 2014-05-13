@@ -135,11 +135,13 @@ public class SiteVbo
 
             out.dl().class_("uni-projects").start();
             for (Project project : section.getProjects()) {
+                if (project.isPrivate())
+                    continue;
                 out.a().href(section.getName() + "/" + project.getName() + "/").start();
                 out.dt().text(project.getName());
                 out.end(); // <a>
 
-                out.dd().text(project.getDescription());
+                out.dd().text(project.getLabel());
             }
             out.end(); // <dl.projects>
             out.end(); // <div#uni-section>
