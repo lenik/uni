@@ -36,8 +36,6 @@ public class VcsLogEntryVbo
         out.div().text("Author: " + ent.getAuthorName());
         out.div().text("Date: " + Dates.D10T8.format(ent.getAuthorDate().getTime()));
 
-        out.script().src(prettifySrc);
-
         out.ul().start();
         for (IFileChangement change : ent.getChanges()) {
             out.li().start();
@@ -62,9 +60,11 @@ public class VcsLogEntryVbo
             default:
             }
 
-            out.end();
+            out.end(); // <li>
         }
-        out.end();
+        out.end(); // <ul>
+
+        out.script().src(prettifySrc);
         return null;
     }
 

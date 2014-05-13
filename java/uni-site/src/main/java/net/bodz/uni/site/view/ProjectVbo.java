@@ -69,6 +69,7 @@ public class ProjectVbo
 
                 out.span().class_("author").text(ent.getAuthorName());
                 out.span().text(": ");
+                /** @see VcsLogEntryVbo */
                 out.a().class_("subject").href("logs/" + ent.getVersion()).text(subject);
 
                 long relativeTime = ent.getAuthorDate().getTimeInMillis() - System.currentTimeMillis();
