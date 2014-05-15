@@ -3,7 +3,7 @@ package net.bodz.uni.site.view;
 import java.io.IOException;
 
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.IHttpReprContext;
+import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.html.util.IFontAwesomeCharAliases;
 import net.bodz.bas.io.html.IHtmlOut;
 import net.bodz.bas.repr.viz.ViewBuilderException;
@@ -27,7 +27,7 @@ public class ProjectStatVbo
     }
 
     @Override
-    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IUiRef<ProjectStat> ref, IOptions options)
+    public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<ProjectStat> ref, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
         ProjectStat stat = ref.get();

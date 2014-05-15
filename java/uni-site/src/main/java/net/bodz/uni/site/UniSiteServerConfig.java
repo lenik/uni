@@ -7,7 +7,6 @@ import net.bodz.bas.web.servlet.ClassResourceAccessorServlet;
 import net.bodz.bas.web.servlet.FileAccessorServlet;
 import net.bodz.uni.echo._default.DefaultServerConfig;
 import net.bodz.uni.echo.config.ServletDescriptor;
-import net.bodz.uni.site.view.SiteApplication;
 
 public class UniSiteServerConfig
         extends DefaultServerConfig {
@@ -31,7 +30,7 @@ public class UniSiteServerConfig
         imgLink.setInitParam(FileAccessorServlet.ATTRIBUTE_PATH, //
                 "/mnt/istore/projects/design/img");
 
-        PathDispatchServlet.startObject = new SiteApplication(workDir);
+        PathDispatchServlet.startObject = new UniSite(workDir);
         addServlet(PathDispatchServlet.class, "/*");
     }
 

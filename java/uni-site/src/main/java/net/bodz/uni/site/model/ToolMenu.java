@@ -1,15 +1,15 @@
 package net.bodz.uni.site.model;
 
-import net.bodz.uni.site.view.SiteApplication;
+import net.bodz.uni.site.UniSite;
 
 /**
  * @style.class ui-menubox
  */
 public class ToolMenu {
 
-    private SiteApplication app;
+    private UniSite app;
 
-    public ToolMenu(SiteApplication app) {
+    public ToolMenu(UniSite app) {
         if (app == null)
             throw new NullPointerException("app");
         this.app = app;

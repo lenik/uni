@@ -91,6 +91,11 @@ public class Project
             // logOptions.maxEntries = 100;
             logOptions.abbrVersionLength = 10;
             logOptions.includeChanges = true;
+
+            // String trackFile = vcspath;
+            // if (new File(directory, "VERSION.av").exists())
+            // trackFile = vcspath + "/VERSION.av";
+
             for (IVcsLogEntry log : workingCopy.log(vcspath, logOptions))
                 cachedLogs.put(log.getVersion(), log);
         }

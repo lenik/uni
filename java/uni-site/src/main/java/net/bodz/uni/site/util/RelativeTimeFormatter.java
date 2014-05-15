@@ -1,4 +1,4 @@
-package net.bodz.uni.site.view.util;
+package net.bodz.uni.site.util;
 
 import java.util.Locale;
 

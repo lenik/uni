@@ -3,27 +3,42 @@ package net.bodz.uni.site.view;
 import java.io.IOException;
 
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.IHttpReprContext;
+import net.bodz.bas.html.IHtmlMetaData;
+import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.io.html.IHtmlOut;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.bas.vcs.IVcsLogEntry;
-import net.bodz.uni.site.IBasePaths;
+import net.bodz.uni.site.IUniSiteAnchors;
 import net.bodz.uni.site.model.DebProject;
 import net.bodz.uni.site.model.Project;
-import net.bodz.uni.site.view.util.RelativeTimeFormatter;
+import net.bodz.uni.site.util.RelativeTimeFormatter;
 
 public class ProjectVbo
         extends AbstractHtmlViewBuilder<Project>
-        implements IBasePaths {
+        implements IUniSiteAnchors {
 
     public ProjectVbo() {
         super(Project.class);
     }
 
     @Override
-    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IUiRef<Project> ref, IOptions options)
+    public void preview(IHtmlViewContext ctx, IUiRef<Project> ref, IOptions options) {
+        super.preview(ctx, ref, options);
+
+        IHtmlMetaData metaData = ctx.getMetaData();
+        Project project = ref.get();
+
+        if (project instanceof DebProject) {
+            DebProject deb = (DebProject) project;
+            String debDescription = deb.getInfo().get("Description");
+            metaData.setMeta(IHtmlMetaData.META_DESCRIPTION, debDescription);
+        }
+    }
+
+    @Override
+    public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<Project> ref, IOptions options)
             throws ViewBuilderException, IOException {
         if (enter(ctx))
             return null;

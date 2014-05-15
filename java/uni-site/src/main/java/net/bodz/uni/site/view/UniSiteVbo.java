@@ -6,8 +6,9 @@ import javax.servlet.http.HttpSession;
 
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.IHttpReprContext;
-import net.bodz.bas.html.IRequirements;
+import net.bodz.bas.html.IHtmlMetaData;
+import net.bodz.bas.html.IHtmlViewContext;
+import net.bodz.bas.html.artifact.IArtifactDependency;
 import net.bodz.bas.io.html.IHtmlOut;
 import net.bodz.bas.potato.ref.UiPropertyRefMap;
 import net.bodz.bas.repr.path.IPathArrival;
@@ -17,27 +18,22 @@ import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.mda.xjdoc.ClassDocLoader;
 import net.bodz.mda.xjdoc.model.ClassDoc;
-import net.bodz.uni.site.IBasePaths;
+import net.bodz.uni.site.IUniSiteAnchors;
+import net.bodz.uni.site.UniSite;
 import net.bodz.uni.site.model.Preferences;
 import net.bodz.uni.site.model.Project;
 import net.bodz.uni.site.model.Section;
-import net.bodz.uni.site.model.Site;
 
-public class SiteVbo
-        extends AbstractHtmlViewBuilder<Site>
-        implements IBasePaths {
+public class UniSiteVbo
+        extends AbstractHtmlViewBuilder<UniSite>
+        implements IUniSiteAnchors {
 
-    public SiteVbo() {
-        super(Site.class);
+    public UniSiteVbo() {
+        super(UniSite.class);
     }
 
     @Override
-    public void getRequirements(IRequirements requires) {
-        // requires.add(CSS, "site", "1.0");
-    }
-
-    @Override
-    public boolean isOrigin(Site value) {
+    public boolean isOrigin(UniSite value) {
         return true;
     }
 
@@ -47,18 +43,22 @@ public class SiteVbo
     }
 
     @Override
-    public void buildTitle(StringBuilder buffer, Site value) {
-        ClassDoc classDoc = ClassDocLoader.load(value.getClass());
-        String title = (String) classDoc.getTag("title");
-        buffer.setLength(0);
-        buffer.append(title);
+    public void preview(IHtmlViewContext ctx, IUiRef<UniSite> ref, IOptions options) {
+        super.preview(ctx, ref, options);
+
+        IHtmlMetaData metaData = ctx.getMetaData();
+        metaData.setMeta(IHtmlMetaData.META_AUTHOR, "谢继雷 (Xiè Jìléi)");
+        metaData.setMeta(IHtmlMetaData.META_VIEWPORT, "width=device-width, initial-scale=1");
+
+        metaData.addDependency("jquery-min", IArtifactDependency.SCRIPT);
+        metaData.addDependency("font-awesome", IArtifactDependency.STYLESHEET).setPriority(IArtifactDependency.LOW);
     }
 
     @Override
-    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IUiRef<Site> ref, IOptions options)
+    public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<UniSite> ref, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
-        SiteApplication site = (SiteApplication) ref.get();
+        UniSite site = ref.get();
 
         HttpSession session = ctx.getSession();
         Preferences pref = Preferences.fromSession(session);
@@ -67,24 +67,25 @@ public class SiteVbo
 
         boolean frameOnly = false;
         if (ref instanceof PathArrivalEntry) {
-            IPathArrival arrival = ((PathArrivalEntry<Site>) ref).getArrival();
+            IPathArrival arrival = ((PathArrivalEntry<UniSite>) ref).getArrival();
             if (arrival.getRemainingPath() != null)
                 frameOnly = true;
         }
 
+        out.html().start();
         out.head().start();
         {
-            out.meta().name("viewport").content("width=device-width, initial-scale=1");
+            writeHeadMetas(ctx);
+            writeHeadImports(ctx);
 
             // stylesheets
             out.link().css(_webApp_ + "site.css");
             out.link().id("themeLink").css(_webApp_ + "theme-" + pref.getTheme() + ".css");
-            out.link().css(_webjars_ + "font-awesome/3.2.1/css/font-awesome.css");
 
             // scripts
             out.script().javascript("var _webApp_ = " + StringQuote.qq(_webApp_));
-            out.script().javascriptSrc(_js_ + "jquery/jquery.min.js");
             out.script().javascriptSrc(_webApp_ + "site.js");
+
             out.end(); // <head>
         }
 
@@ -109,18 +110,20 @@ public class SiteVbo
     }
 
     @Override
-    public void buildHtmlViewTail(IHttpReprContext ctx, IUiRef<Site> entry, IOptions options)
+    public void buildHtmlViewTail(IHtmlViewContext ctx, IUiRef<UniSite> entry, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
-        Site site = entry.get();
+        UniSite site = entry.get();
         ClassDoc classDoc = ClassDocLoader.load(site.getClass());
 
         out.end(); // <div#main>
 
         out.div().class_("copyright").text(classDoc.getTag("copyright"));
+
+        out.end(); // <html>
     }
 
-    void indexBody(IHtmlOut out, Site site) {
+    void indexBody(IHtmlOut out, UniSite site) {
         out.h1().text("List Of Projects").start();
         out.a().style("cursor: pointer").onclick("reloadSite()").text("[Reload]");
         out.end();

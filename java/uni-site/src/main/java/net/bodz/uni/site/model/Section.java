@@ -20,6 +20,7 @@ import net.bodz.bas.text.textmap.I18nTextMapDocLoader;
 import net.bodz.mda.xjdoc.FlatfDocLoader;
 import net.bodz.mda.xjdoc.model.IElementDoc;
 import net.bodz.mda.xjdoc.model.javadoc.AbstractXjdocElement;
+import net.bodz.uni.site.UniSite;
 import net.bodz.uni.site.util.DebControl;
 import net.bodz.uni.site.util.DebControlParser;
 
@@ -30,13 +31,13 @@ public class Section
     static final Logger logger = LoggerFactory.getLogger(Section.class);
     static FlatfDocLoader flatfDocLoader = new FlatfDocLoader();
 
-    private Site site;
+    private UniSite site;
     private String name;
     private File directory;
     private File docFile;
     private Map<String, Project> projectMap;
 
-    public Section(Site site, String name, File directory) {
+    public Section(UniSite site, String name, File directory) {
         this.site = site;
         this.name = name;
         this.directory = directory;
@@ -111,7 +112,7 @@ public class Section
         return doc;
     }
 
-    public Site getSite() {
+    public UniSite getSite() {
         return site;
     }
 

@@ -9,6 +9,7 @@ import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.io.res.builtin.FileResource;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
+import net.bodz.uni.site.UniSite;
 import net.bodz.uni.site.UniSiteServerConfig;
 
 public class GenerateProjectItmFiles
@@ -18,7 +19,7 @@ public class GenerateProjectItmFiles
 
     public static void main(String[] args)
             throws IOException {
-        Site site = new Site(UniSiteServerConfig.workDir);
+        UniSite site = new UniSite(UniSiteServerConfig.workDir);
         for (Section section : site.getSectionMap().values()) {
             for (Project project : section.getProjects()) {
                 File docFile = new File(project.getDirectory(), project.getName() + ".itm");

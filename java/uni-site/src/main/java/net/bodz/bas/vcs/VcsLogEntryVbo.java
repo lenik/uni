@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import net.bodz.bas.c.java.util.Dates;
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.IHttpReprContext;
+import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.io.html.IHtmlOut;
 import net.bodz.bas.repr.path.IPathArrival;
 import net.bodz.bas.repr.viz.ViewBuilderException;
@@ -22,12 +22,12 @@ public class VcsLogEntryVbo
     }
 
     @Override
-    public IHttpReprContext buildHtmlView(IHttpReprContext ctx, IUiRef<IVcsLogEntry> ref, IOptions options)
+    public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<IVcsLogEntry> ref, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlOut out = ctx.getOut();
         IVcsLogEntry ent = ref.get();
 
-        IPathArrival __project_logs_entry = ctx.getPathArrival();
+        IPathArrival __project_logs_entry = ctx.query(IPathArrival.class);
         Project project = (Project) __project_logs_entry.getPrevious(2).getTarget();
 
         IVcsWorkingCopy workingCopy = project.getSection().getSite().getWorkingCopy();

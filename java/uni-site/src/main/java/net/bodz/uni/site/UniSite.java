@@ -1,10 +1,14 @@
-package net.bodz.uni.site.model;
+package net.bodz.uni.site;
 
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.servlet.http.HttpSession;
+
+import net.bodz.bas.html.HtmlViewBuilder;
+import net.bodz.bas.http.ctx.CurrentHttpService;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.repr.path.IPathArrival;
@@ -15,17 +19,23 @@ import net.bodz.bas.repr.path.PathDispatchException;
 import net.bodz.bas.vcs.IVcsWorkingCopy;
 import net.bodz.bas.vcs.git.NativeGitVcsWorkingCopy;
 import net.bodz.lily.site.LilyStartSite;
+import net.bodz.uni.site.model.Preferences;
+import net.bodz.uni.site.model.Section;
+import net.bodz.uni.site.model.ToolMenu;
+import net.bodz.uni.site.view.UniSiteVbo;
 
 /**
- * @label The Uni Site
- * @title Uni - Deveoper's Tools
+ * @label Uni - Development Tools
+ * @label.zh.cn Uni 开发工具
+ * @label.ja Uni 開発ツール
  * @copyright (ↄ) Copyleft 2004-2014 Lenik
  */
-public class Site
+@HtmlViewBuilder(UniSiteVbo.class)
+public class UniSite
         extends LilyStartSite
         implements IPathDispatchable {
 
-    static final Logger logger = LoggerFactory.getLogger(Site.class);
+    static final Logger logger = LoggerFactory.getLogger(UniSite.class);
 
     /** Root directory of the uni project. */
     private File rootDir;
@@ -37,10 +47,13 @@ public class Site
     public String googleId;
     public String baiduId;
 
-    public Site(File rootDir) {
+    private ToolMenu toolMenu;
+
+    public UniSite(File rootDir) {
         this.rootDir = rootDir;
         workingCopy = new NativeGitVcsWorkingCopy(rootDir);
         reload();
+        toolMenu = new ToolMenu(this);
     }
 
     public synchronized void reload() {
@@ -71,6 +84,16 @@ public class Site
 
     public synchronized Map<String, Section> getSectionMap() {
         return sectionMap;
+    }
+
+    public Preferences getPreferences() {
+        HttpSession session = CurrentHttpService.getSession();
+        Preferences preferences = Preferences.fromSession(session);
+        return preferences;
+    }
+
+    public ToolMenu getToolMenu() {
+        return toolMenu;
     }
 
     /** ⇱ Implementation Of {@link IPathDispatchable}. */

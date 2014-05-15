@@ -1,77 +1,44 @@
-package net.bodz.uni.site.view.util;
+package net.bodz.uni.site.util;
 
 import net.bodz.mda.xjdoc.ClassDocLoader;
 import net.bodz.mda.xjdoc.model.IElementDoc;
 import net.bodz.mda.xjdoc.model.javadoc.IXjdocAware;
 
-public enum DurationUnit
+public enum DurationDirection
         implements IXjdocAware {
 
     /**
-     * second
+     * just now
      *
      * <p lang="zh-cn">
-     * 秒
+     * 刚刚
      *
      * <p lang="ja">
-     * 秒
+     * ただ
      */
-    SECOND,
+    NOW,
 
     /**
-     * minute
+     * ago
      *
      * <p lang="zh-cn">
-     * 分钟
+     * 以前
      *
      * <p lang="ja">
-     * 分
+     * 前に
      */
-    MINUTE,
+    AGO,
 
     /**
-     * hour
+     * in the future
      *
      * <p lang="zh-cn">
-     * 小时
+     * 以后
      *
      * <p lang="ja">
-     * 時
+     * 後に
      */
-    HOUR,
-
-    /**
-     * day
-     *
-     * <p lang="zh-cn">
-     * 天
-     *
-     * <p lang="ja">
-     * 日
-     */
-    DAY,
-
-    /**
-     * month
-     *
-     * <p lang="zh-cn">
-     * 月
-     *
-     * <p lang="ja">
-     * 月
-     */
-    MONTH,
-
-    /**
-     * year
-     *
-     * <p lang="zh-cn">
-     * 年
-     *
-     * <p lang="ja">
-     * 年
-     */
-    YEAR,
+    FUTURE,
 
     ;
 
@@ -88,7 +55,7 @@ public enum DurationUnit
     }
 
     static {
-        ClassDocLoader.injectFields(DurationUnit.class, false);
+        ClassDocLoader.injectFields(DurationDirection.class, false);
     }
 
 }
