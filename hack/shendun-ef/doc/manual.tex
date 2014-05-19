@@ -30,7 +30,7 @@
 \usetikzlibrary{shapes, shadows}
 \tikzset{
     win button/.style = {
-        fill, rectangle, color=white,fill=gray,
+        fill, rectangle, color=white,fill=none,
 		text width=0.7em, text height=0.6em, 
 		align=center, anchor=north east, xshift=-1pt },
 }
@@ -38,22 +38,25 @@
 \newcommand\console[2]{
     \begin{center}
     \begin{tikzpicture}[framed]
-	    \node[draw, color=white, rectangle split, rectangle split parts=2, 
+	    \node[rectangle split, rectangle split parts=2, 
 	            text width=35em] (comp) at (0,0) {
-		    \large \textbf{#1}
+		    \nodepart[color=white, text centered]{one}
+		        \large \faEdit \hskip 0.5em \sffamily \textbf{#1}
 		    \nodepart[color=black]{two}
-		    \texttt{#2}
+		        \hskip -0.25em
+		        \texttt{#2}
 	    };
 	    \begin{scope}[start chain=going above left, node distance=0pt]
-		    \draw (comp.north east) ++(-1pt, -1pt) coordinate(close-corner);
-		    \node[on chain, win button] (close) at (close-corner) { \faRemoveSign };
+		    \draw (comp.north east) ++(-1pt, -2pt) coordinate(close-ne);
+		    \node[on chain, win button] (close) at (close-ne) { \faRemoveSign };
 		    \node[on chain, win button] (max) { \faChevronUp };
 		    \node[on chain, win button] (min) { \faChevronDown};
+		    \draw (close.south east) ++(2pt, -2pt) coordinate(close-se);
 	    \end{scope}
 
 	    \draw (comp.north west) rectangle (comp.south east);
 	    \begin{scope}[on background layer]
-		    \fill[black] (comp.north west) rectangle (close.south east);
+		    \fill[black] (comp.north west) rectangle (close-se);
 	    \end{scope}
     \end{tikzpicture}
     \end{center}
@@ -71,18 +74,19 @@
       linecolor=brown,
       linewidth=2pt,
     ]
+    \vskip 0.1em
     #1
   \end{mdframed}
 }
 
-\newcommand\sdef{神盾Linux服务器安全卫士}
+\newcommand\sdef{神盾Linux服务器安全卫士软件}
 \newcommand\sdcom{海宁神盾网络信息技术有限公司}
 \newcommand\configdir{\texttt{/etc/execfilter.d/}}
 
 \setlength{\parskip}{\baselineskip}
 
-\title {使用说明书 \\ 神盾Linux服务器安全卫士 (版本 1.4.2)}
-\author{谢继雷 \\ \sdcom}
+\title {神盾Linux服务器安全卫士软件 \\ 版本 1.4.2 \\ 使用说明书}
+\author{\sdcom}
 
 \AtBeginDocument{\setuptabsatright}
 
@@ -95,7 +99,7 @@
 
     随着 Linux 在服务器市场日益广泛的推广和普及，Linux 服务器正面临着日益严峻的安全风险。许多 Linux 应用存在着不可知的后门程序，这些程序难以检测，危害极大，需要一种更积极的防范策略来控制这些程序对系统关键资源的访问。
 
-    \sdef 采用启发式进程监控技术能够有效避免一大类基于后门的入侵行为。在传统的 Linux 进程安全实践中主要是可执行位 (execution bit) 、SELinux 进程策略等，它们需要服务器管理员对 Linux 的深刻理解和精确的配置才能有效使用，这在安全管控方面可能是很大的开销，并且具有很大的不确定性。
+    \sdef 采用启发式进程监控技术能够有效避免一大类基于后门的入侵行为。在传统的 Linux 进程安全实践中主要是可执行位 (execution bit) 、SELinux 进程策略等，它们需要管理员对 Linux 的深刻理解和精确配置才能有效使用，在复杂的机房环境中，这种方法不仅成本高，而且可能比较低效。
 
     \begin{figure}[h]
         \centering
@@ -266,22 +270,22 @@
          Package    Arch  Version  Repository Size \\
         =========================================== \\
         Removing: \\
-         shendun-ef i386  1.4.3-4  installed  326 k \\
+        \hskip 2em shendun-ef i386  1.4.3-4  installed  326 k \\
         Transaction Summary \\
         =========================================== \\
-        Remove    1 Package(s) \\
-        Reinstall   0 Package(s) \\
-        Downgrade   0 Package(s) \\
+        Remove \hskip 2em 1 Package(s) \\
+        Reinstall \hskip 2em 0 Package(s) \\
+        Downgrade \hskip 2em 0 Package(s) \\
         Is this ok [y/N]: y \\
         Downloading Packages: \\
-        Running rpm_check_debug \\
+        Running rpm\_check\_debug \\
         Running Transaction Test \\
         Finished Transaction Test \\
         Transaction Test Succeeded \\
         Running Transaction \\
-          Erasing        : shendun-ef            1/1 \\
+        \hskip 2em Erasing \hskip 4em : shendun-ef \hskip 4em 1/1 \\
         Removed: \\
-          shendun-ef.i386  0:1.4.3-4 \\
+        \hskip 2em shendun-ef.i386  0:1.4.3-4 \\
         Complete! \\
         \#
     }
@@ -289,16 +293,32 @@
 \section {配置}
 
     \sdef 使用配置文件来描述作用于具体应用程序的监控规则。这些配置文件在 \configdir 目录下。
-    各个规则项之间不存在依赖关系，配置文件的装载顺序是任意的。
+    各个规则项之间不存在依赖关系，配置文件的装载顺序是任意的，但通常可能会根据文件名的字典顺序依次读入。
+    重复的规则，后面装载的值会覆盖前面装载的值。但最好不要有重复的规则，以免影响系统的稳定性。
 
-    空行和以 ``\#'' 开头的注释将会被忽略。每条语句以换行符结尾。
+    如果配置文件中存在语法错误，系统会自动忽略出错的语句，在日志中记录警告信息，
+    并尽可能多地继续读入后续的语句。
 
-    一个配置文件中可以含有多个段，每个段描述了作用于调用者进程的执行规则。监控规则是可以被子进程继承的，
-    如果规则描述一个目标程序被父进程拦截了，那么那个目标程序也将会被该父进程的所有子孙进程所拦截。
+    空行和以 ``\#'' 开头的注释将会被自动忽略。每条语句以换行符结尾，
+    如果语句太长是没有办法续行的。通常这是因为文件名太长引起的。
+
+    一个配置文件中可以含有多个段，每个段以 for 语句开始，说明这个段作用于哪个调用者进程。
+    一个段描述作用于那个调用者进程的部分执行规则。一个相同的 for 语句可以分布于多个段，
+    这样最终合并后就可以知道作用于一个调用者进程的所有规则了。
+    
+    通过将类似的规则，或具有特别用途的规则组织在一个配置文件中，便可以对配置进行分类管理、维护。例如，
+    一个配置文件 “critical” 中书写一系列用于“临时提高安全等级任务” 的规则，
+    当存在突发安全风险时，就将这个配置文件移动到配置目录 \configdir 下，
+    而当安全风险降低时，可以将这个配置文件移出到其它位置，以关闭这些专门的临时规则。
+    与把所有规则都放在一起的做法相比较，通过这样分门别类来管理规则，不仅效率提高了，而且更不容易出错。
     
     通常情况下，修改配置文件将立即起作用。但服务进程因为存在缓存，在重新启动前进程控制规则将不会更新。
+    
     尽管如此，一些服务器如 Apache Http 服务器总是通过 Shell 来创建新的进程，因此可以在不重启服务的
-    情况下就能立即更新配置。
+    情况下就能立即更新配置，这是因为新创建的 Shell 会立即读取更新后的配置文件，而实际上对进程的监控是在
+    新创建的 Shell 中执行的。注意：\sdef 对从父进程继承来的规则和子进程的规则是“相与”的，
+    也就是额外的限制会在子孙进程中逐步添加，如果规则项的更改是趋向于松散、不受限的，那么虽然新创建的
+    Shell 获得了最新的配置，但因为父进程仍然保持着严格的规则，因此这样的更改不会立即起作用。
     
     让我们从一个简单的例子开始配置文件的书写吧！
     
@@ -367,6 +387,15 @@
 
     如果您忽略了 \code{default} 语句，默认位 \code{default allow}。
 
+    
+    \code{default allow} 表示，当没有规则可以匹配目标进程时，调用者进程将以允许创建目标进程作为默认的行为。
+    
+    \code{default deny} 表示，当没有规则可以匹配目标进程时，调用者进程将以拒绝创建目标进程作为默认的行为。
+    
+    如果您忽略了 \code{default} 语句，系统默认为 \code{default allow}。
+    
+    当配置文件中出现重复的 default 语句时，出现在后面的 default 语句会覆盖出现在前面的 default 语句。
+
     与其它规则不同的是，\code{default} 是不可继承的。也就是说，如果调用者进程和它的祖先进程中，
     当有多条规则可以匹配目标进程时，各个祖先进程的 \code{default} 行为可以是不同的。当任何一个
     祖先进程在它的 \code{default} 行为以及那个祖先进程做为调用者进程所对应的规则集阻止了目标进
@@ -389,7 +418,7 @@
         for /usr/bin/warcraft \\
         \hskip 2em default deny \\
         \hskip 2em allow /sbin/ifconfig \\
-        \phantom \\
+        \vskip 1em
         for /usr/bin/btdownloader \\
         \hskip 2em deny /sbin/pm-suspend \\
         \hskip 2em deny /sbin/shutdown \\
@@ -467,6 +496,10 @@
 \section {常见故障与维护}
 
     如有发生故障，请参考下面的指示：
+
+    请确保使用最新版的神盾 Linux 服务器安全卫士软件，您碰到的问题在新版本中可能已经被解决了。
+
+    请确保您的操作系统已经应用了最新发布的操作系统补丁，以避免可能出现的版本兼容性问题。
 
     \sdef 安装程序会修改列表文件 \code{/etc/ld.so.preload}，将自身插入到列表中。这个文件描述了
     当创建进程时，哪些共享库是要提前装载的。在某些情况下，这个文件的访问权限可能会被错误的更改，导致
