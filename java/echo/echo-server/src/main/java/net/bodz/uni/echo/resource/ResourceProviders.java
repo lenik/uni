@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.bodz.bas.c.java.net.ContentURL;
+import net.bodz.bas.c.java.net.InMemoryURL;
 import net.bodz.bas.c.loader.ClassResource;
 import net.bodz.bas.c.loader.scan.URLResourceScanner;
 import net.bodz.bas.c.object.ObjectInfo;
@@ -18,7 +18,7 @@ public class ResourceProviders {
         for (Entry<String, String> entry : textMap.entrySet()) {
             String name = entry.getKey();
             String contents = entry.getValue();
-            URL resource = ContentURL.create("/" + name, contents);
+            URL resource = InMemoryURL.create("/" + name, contents);
             map.put(name, resource);
         }
         return new MappedResourceProvider(ObjectInfo.getSimpleId(map), map);
