@@ -9,15 +9,16 @@ import java.util.Map;
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.res.builtin.FileResource;
+import net.bodz.bas.repr.content.AbstractXjdocContent;
+import net.bodz.bas.std.rfc.http.ICacheControl;
 import net.bodz.bas.text.textmap.I18nTextMapDocLoader;
 import net.bodz.bas.vcs.IVcsLogEntry;
 import net.bodz.bas.vcs.IVcsWorkingCopy;
 import net.bodz.bas.vcs.VcsLogOptions;
 import net.bodz.mda.xjdoc.model.IElementDoc;
-import net.bodz.mda.xjdoc.model.javadoc.AbstractXjdocElement;
 
 public class Project
-        extends AbstractXjdocElement {
+        extends AbstractXjdocContent {
 
     Section section;
     String name;
@@ -42,7 +43,7 @@ public class Project
                 docFile = null;
         }
 
-        File rootDir = section.getSite().getRootDir();
+        File rootDir = section.getSite().getBaseDir();
         vcspath = FilePath.getRelativePath(directory.getPath(), rootDir + "/");
 
         projectStat = new ProjectStat();
@@ -100,6 +101,14 @@ public class Project
                 cachedLogs.put(log.getVersion(), log);
         }
         return cachedLogs;
+    }
+
+    /** ⇱ Implementation Of {@link ICacheControl}. */
+    /* _____________________________ */static section.iface __CACHE__;
+
+    @Override
+    public int getMaxAge() {
+        return 36 * 3600; // 1.5 days
     }
 
 }

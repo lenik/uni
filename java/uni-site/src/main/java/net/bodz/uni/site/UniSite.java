@@ -3,6 +3,7 @@ package net.bodz.uni.site;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpSession;
@@ -16,6 +17,8 @@ import net.bodz.bas.repr.path.IPathDispatchable;
 import net.bodz.bas.repr.path.ITokenQueue;
 import net.bodz.bas.repr.path.PathArrival;
 import net.bodz.bas.repr.path.PathDispatchException;
+import net.bodz.bas.site.org.ICrawlable;
+import net.bodz.bas.site.org.ICrawler;
 import net.bodz.bas.vcs.IVcsWorkingCopy;
 import net.bodz.bas.vcs.git.NativeGitVcsWorkingCopy;
 import net.bodz.lily.site.LilyStartSite;
@@ -32,13 +35,12 @@ import net.bodz.uni.site.view.UniSiteVbo;
  */
 @HtmlViewBuilder(UniSiteVbo.class)
 public class UniSite
-        extends LilyStartSite
-        implements IPathDispatchable {
+        extends LilyStartSite {
 
     static final Logger logger = LoggerFactory.getLogger(UniSite.class);
 
     /** Root directory of the uni project. */
-    private File rootDir;
+    private File baseDir;
     private IVcsWorkingCopy workingCopy;
 
     private Map<String, Section> sectionMap = new TreeMap<>();
@@ -47,18 +49,15 @@ public class UniSite
     public String googleId;
     public String baiduId;
 
-    private ToolMenu toolMenu;
-
-    public UniSite(File rootDir) {
-        this.rootDir = rootDir;
-        workingCopy = new NativeGitVcsWorkingCopy(rootDir);
+    public UniSite(File baseDir) {
+        this.baseDir = baseDir;
+        workingCopy = new NativeGitVcsWorkingCopy(baseDir);
         reload();
-        toolMenu = new ToolMenu(this);
     }
 
     public synchronized void reload() {
         sectionMap.clear();
-        for (File sectionDir : rootDir.listFiles()) {
+        for (File sectionDir : baseDir.listFiles()) {
             if (!sectionDir.isDirectory())
                 continue;
 
@@ -74,8 +73,8 @@ public class UniSite
         }
     }
 
-    public File getRootDir() {
-        return rootDir;
+    public File getBaseDir() {
+        return baseDir;
     }
 
     public IVcsWorkingCopy getWorkingCopy() {
@@ -93,7 +92,12 @@ public class UniSite
     }
 
     public ToolMenu getToolMenu() {
-        return toolMenu;
+        return new ToolMenu(this);
+    }
+
+    @Override
+    public String getHomeUrl() {
+        return "http://uni.bodz.net";
     }
 
     /** ⇱ Implementation Of {@link IPathDispatchable}. */
@@ -104,10 +108,19 @@ public class UniSite
             throws PathDispatchException {
         String token = tokens.peek();
         Section section = sectionMap.get(token);
-        if (section == null)
-            return null;
-        else
+        if (section != null)
             return PathArrival.shift(previous, section, tokens);
+
+        return super.dispatch(previous, tokens);
+    }
+
+    /** ⇱ Implementation Of {@link ICrawlable}. */
+    /* _____________________________ */static section.iface __CRAWL__;
+
+    @Override
+    public void crawlableIntrospect(ICrawler crawler) {
+        for (Entry<String, Section> entry : sectionMap.entrySet())
+            crawler.follow(entry.getKey() + "/", entry.getValue());
     }
 
 }

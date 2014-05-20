@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import net.bodz.bas.c.java.io.FileData;
@@ -11,25 +12,26 @@ import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.res.builtin.FileResource;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
+import net.bodz.bas.repr.content.AbstractXjdocContent;
 import net.bodz.bas.repr.path.IPathArrival;
 import net.bodz.bas.repr.path.IPathDispatchable;
 import net.bodz.bas.repr.path.ITokenQueue;
 import net.bodz.bas.repr.path.PathArrival;
 import net.bodz.bas.repr.path.PathDispatchException;
+import net.bodz.bas.site.org.ICrawlable;
+import net.bodz.bas.site.org.ICrawler;
+import net.bodz.bas.std.rfc.http.ICacheControl;
 import net.bodz.bas.text.textmap.I18nTextMapDocLoader;
-import net.bodz.mda.xjdoc.FlatfDocLoader;
 import net.bodz.mda.xjdoc.model.IElementDoc;
-import net.bodz.mda.xjdoc.model.javadoc.AbstractXjdocElement;
 import net.bodz.uni.site.UniSite;
 import net.bodz.uni.site.util.DebControl;
 import net.bodz.uni.site.util.DebControlParser;
 
 public class Section
-        extends AbstractXjdocElement
-        implements IPathDispatchable {
+        extends AbstractXjdocContent
+        implements IPathDispatchable, ICrawlable {
 
     static final Logger logger = LoggerFactory.getLogger(Section.class);
-    static FlatfDocLoader flatfDocLoader = new FlatfDocLoader();
 
     private UniSite site;
     private String name;
@@ -140,6 +142,14 @@ public class Section
         projectMap.put(name, project);
     }
 
+    /** ⇱ Implementation Of {@link ICacheControl}. */
+    /* _____________________________ */static section.iface __CACHE__;
+
+    @Override
+    public int getMaxAge() {
+        return 3600 * 12;
+    }
+
     /** ⇱ Implementation Of {@link IPathDispatchable}. */
 /* _____________________________ */static section.iface __DISPATCH__;
 
@@ -152,6 +162,12 @@ public class Section
             return null;
         else
             return PathArrival.shift(previous, project, tokens);
+    }
+
+    @Override
+    public void crawlableIntrospect(ICrawler crawler) {
+        for (Entry<String, Project> entry : projectMap.entrySet())
+            crawler.follow(entry.getKey() + "/", entry.getValue());
     }
 
 }

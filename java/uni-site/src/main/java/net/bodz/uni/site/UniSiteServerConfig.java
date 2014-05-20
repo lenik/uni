@@ -2,6 +2,8 @@ package net.bodz.uni.site;
 
 import java.io.File;
 
+import net.bodz.bas.c.m2.MavenPomDir;
+import net.bodz.bas.err.IllegalConfigException;
 import net.bodz.bas.html.servlet.PathDispatchServlet;
 import net.bodz.bas.web.servlet.ClassResourceAccessorServlet;
 import net.bodz.bas.web.servlet.FileAccessorServlet;
@@ -10,8 +12,6 @@ import net.bodz.uni.echo.config.ServletDescriptor;
 
 public class UniSiteServerConfig
         extends DefaultServerConfig {
-
-    public static File workDir = new File("/mnt/istore/projects/uni");
 
     public UniSiteServerConfig() {
         ServletDescriptor webjarsLink = addServlet(ClassResourceAccessorServlet.class, "/webjars/*");
@@ -30,8 +30,16 @@ public class UniSiteServerConfig
         imgLink.setInitParam(FileAccessorServlet.ATTRIBUTE_PATH, //
                 "/mnt/istore/projects/design/img");
 
-        PathDispatchServlet.startObject = new UniSite(workDir);
+        PathDispatchServlet.startObject = new UniSite(getBaseDirFromSrc());
         addServlet(PathDispatchServlet.class, "/*");
+    }
+
+    public static File getBaseDirFromSrc() {
+        File pomDir = MavenPomDir.fromClass(UniSite.class).getBaseDir();
+        File baseDir = pomDir.getParentFile().getParentFile();
+        if (baseDir == null || !baseDir.exists())
+            throw new IllegalConfigException("Can't find base dir of the uni project.");
+        return baseDir;
     }
 
 }
