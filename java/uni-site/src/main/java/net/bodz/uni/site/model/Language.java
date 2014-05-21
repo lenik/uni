@@ -1,5 +1,11 @@
 package net.bodz.uni.site.model;
 
+import java.util.Arrays;
+import java.util.Collection;
+
+import net.bodz.bas.c.java.lang.StringTypers;
+import net.bodz.bas.typer.std.IAttributes;
+import net.bodz.bas.typer.std.ITyperFamily;
 import net.bodz.mda.xjdoc.ClassDocLoader;
 import net.bodz.mda.xjdoc.model.IElementDoc;
 import net.bodz.mda.xjdoc.model.javadoc.IXjdocAware;
@@ -8,7 +14,7 @@ import net.bodz.mda.xjdoc.model.javadoc.IXjdocAware;
  * See: <a href="http://en.wikipedia.org/wiki/ISO_639-1">ISO 639-1 language code</a>.
  */
 public enum Language
-        implements IXjdocAware {
+        implements IXjdocAware, IAttributes {
 
     /**
      * English
@@ -46,6 +52,25 @@ public enum Language
     @Override
     public void setXjdoc(IElementDoc xjdoc) {
         this.xjdoc = xjdoc;
+    }
+
+    @Override
+    public Collection<String> getAttributeNames() {
+        return Arrays.asList("code");
+    }
+
+    @Override
+    public Object getAttribute(String attributeName) {
+        switch (attributeName) {
+        case "code":
+            return code;
+        }
+        return null;
+    }
+
+    @Override
+    public ITyperFamily<?> getAttributeTypers(String attributeName) {
+        return StringTypers.INSTANCE;
     }
 
     static {

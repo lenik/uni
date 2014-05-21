@@ -34,7 +34,7 @@ window.clickHandler = {};
             $.get(_webApp_ + path + "/" + value, null, function() {
                 var handler = window.clickHandler[id];
                 if (handler != null) {
-                    handler(value);
+                    handler(a, value);
                 } else {
                     location.reload();
                 }
@@ -43,9 +43,20 @@ window.clickHandler = {};
 
     });
 
-    window.clickHandler["toolMenu.theme"] = function(val) {
+    window.clickHandler["toolMenu.theme"] = function(a, val) {
         var themeLink = $("#themeLink")[0];
         themeLink.href = _webApp_ + "theme-" + val + ".css";
+    };
+
+    window.clickHandler["toolMenu.language"] = function(a) {
+        var href = location.href;
+        var m = href.match(/\/intl\/([A-Za-z-]+)/);
+        if (m == null) {
+            location.reload();
+        } else {
+            var code = a.attr("code");
+            location.href = href.replace(/\/intl\/[A-Za-z-]+/, "/intl/" + code);
+        }
     };
 
     window.reloadSite = function() {

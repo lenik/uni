@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 
 import net.bodz.bas.html.HtmlViewBuilder;
 import net.bodz.bas.http.ctx.CurrentHttpService;
+import net.bodz.bas.i18n.LocaleCtl;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.repr.path.IPathArrival;
@@ -97,7 +98,13 @@ public class UniSite
 
     @Override
     public String getHomeUrl() {
-        return "http://uni.bodz.net";
+        String url = "http://uni.bodz.net";
+
+        String path = LocaleCtl.LOCALE.getPath();
+        if (path != null)
+            url += "/intl/" + path;
+
+        return url;
     }
 
     /** ⇱ Implementation Of {@link IPathDispatchable}. */
