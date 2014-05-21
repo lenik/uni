@@ -57,6 +57,9 @@ public class UniSiteVbo
     @Override
     public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<UniSite> ref, IOptions options)
             throws ViewBuilderException, IOException {
+        if (enter(ctx))
+            return null;
+
         IHtmlOut out = ctx.getOut();
         UniSite site = ref.get();
 
