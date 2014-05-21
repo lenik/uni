@@ -12,7 +12,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import net.bodz.bas.c.java.io.FilePath;
-import net.bodz.bas.c.system.UserDirColo;
+import net.bodz.bas.c.system.UserDirCtl;
 import net.bodz.bas.io.res.builtin.InputStreamSource;
 import net.bodz.bas.io.res.tools.StreamReading;
 import net.bodz.bas.log.Logger;
@@ -72,7 +72,7 @@ public class ZipSub
             zipFile.close();
         }
 
-        File dest = UserDirColo.getInstance().join(args[0]);
+        File dest = UserDirCtl.getInstance().join(args[0]);
         String destName = FilePath.getBaseName(dest.getPath());
         File destDir = dest.getParentFile();
 

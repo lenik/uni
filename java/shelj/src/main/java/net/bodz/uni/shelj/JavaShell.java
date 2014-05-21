@@ -23,7 +23,7 @@ import net.bodz.bas.c.java.util.TextMap;
 import net.bodz.bas.c.java.util.TreeTextMap;
 import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.c.string.StringQuoted;
-import net.bodz.bas.c.system.UserDirColo;
+import net.bodz.bas.c.system.UserDirCtl;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.err.control.ControlExit;
@@ -296,15 +296,15 @@ public class JavaShell
         public int main(String... args)
                 throws Exception {
             if (args.length == 0)
-                System.out.println(UserDirColo.getInstance().get());
+                System.out.println(UserDirCtl.getInstance().get());
             else {
                 try {
-                    File dir = UserDirColo.getInstance().join(args[0]);
+                    File dir = UserDirCtl.getInstance().join(args[0]);
                     if (!dir.isDirectory()) {
                         System.err.println(tr._("Not a directory: ") + dir);
                         return 1;
                     }
-                    UserDirColo.getInstance().set(dir);
+                    UserDirCtl.getInstance().set(dir);
                 } catch (RuntimeException e) {
                     e.printStackTrace();
                     return 2;
