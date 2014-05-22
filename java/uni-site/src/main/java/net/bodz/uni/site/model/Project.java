@@ -8,10 +8,10 @@ import java.util.Map;
 
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.err.ParseException;
+import net.bodz.bas.fmt.textmap.I18nTextMapDocLoader;
 import net.bodz.bas.io.res.builtin.FileResource;
 import net.bodz.bas.repr.content.AbstractXjdocContent;
 import net.bodz.bas.std.rfc.http.ICacheControl;
-import net.bodz.bas.text.textmap.I18nTextMapDocLoader;
 import net.bodz.bas.vcs.IVcsLogEntry;
 import net.bodz.bas.vcs.IVcsWorkingCopy;
 import net.bodz.bas.vcs.VcsLogOptions;

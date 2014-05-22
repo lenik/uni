@@ -9,6 +9,7 @@ import java.util.TreeMap;
 
 import net.bodz.bas.c.java.io.FileData;
 import net.bodz.bas.err.ParseException;
+import net.bodz.bas.fmt.textmap.I18nTextMapDocLoader;
 import net.bodz.bas.io.res.builtin.FileResource;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
@@ -21,7 +22,6 @@ import net.bodz.bas.repr.path.PathDispatchException;
 import net.bodz.bas.site.org.ICrawlable;
 import net.bodz.bas.site.org.ICrawler;
 import net.bodz.bas.std.rfc.http.ICacheControl;
-import net.bodz.bas.text.textmap.I18nTextMapDocLoader;
 import net.bodz.mda.xjdoc.model.IElementDoc;
 import net.bodz.uni.site.UniSite;
 import net.bodz.uni.site.util.DebControl;
