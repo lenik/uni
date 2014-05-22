@@ -11,6 +11,9 @@
     option -h --help
     option    --version
 
+    datadir="@pkgdatadir@"
+    # [ "${datadir:0:1}" = '@' ] && datadir="${0%/*}"
+
     size=
     scale=1
     force=
@@ -58,9 +61,9 @@ function main() {
 
     _log2 "Create disk image size: $size KB"
 
-    cp "@pkgdatadir@/x86_boot_sector" "$image_file"
-    sectors=$(( size * 2 - 1 ))
-    dd if=/dev/zero of="$image_file" bs=512 count=$sectors oflag=append conv=notrunc
+    mksize -s "${size}K" "$image_file"
+    dd if="$datadir/x86_boot_sector" of="$image_file" \
+        bs=512 count=1 conv=notrunc
 }
 
 boot "$@"

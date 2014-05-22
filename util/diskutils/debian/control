@@ -13,6 +13,7 @@ Architecture: all
 Depends:
     bash-shlib,
     util-linux,
+    mksize,
     ${misc:Depends}
 Description: Disk utils
   Includes:
