@@ -22,9 +22,14 @@ public enum Language
     ENGLISH("en"),
 
     /**
-     * 中文（简体）
+     * 简体中文
      */
     SIMPLIFIED_CHINESE("zh-cn"),
+
+    /**
+     * 繁体中文
+     */
+    TRADITIONAL_CHINESE("zh-tw"),
 
     /**
      * 日本語
@@ -42,6 +47,18 @@ public enum Language
 
     public String getCode() {
         return code;
+    }
+
+    public boolean isFullTranslated() {
+        switch (this) {
+        case ENGLISH:
+        case SIMPLIFIED_CHINESE:
+            return true;
+        case TRADITIONAL_CHINESE:
+        case JAPANESE:
+        default:
+            return false;
+        }
     }
 
     @Override

@@ -5,6 +5,8 @@ import java.io.File;
 import net.bodz.bas.c.m2.MavenPomDir;
 import net.bodz.bas.err.IllegalConfigException;
 import net.bodz.bas.html.servlet.PathDispatchServlet;
+import net.bodz.bas.http.ctx.CurrentRequestContextTeller;
+import net.bodz.bas.i18n.LocaleCtl;
 import net.bodz.bas.web.servlet.ClassResourceAccessorServlet;
 import net.bodz.bas.web.servlet.FileAccessorServlet;
 import net.bodz.uni.echo._default.DefaultServerConfig;
@@ -14,6 +16,16 @@ public class UniSiteServerConfig
         extends DefaultServerConfig {
 
     public UniSiteServerConfig() {
+        configEnv();
+        configServlets();
+    }
+
+    void configEnv() {
+        LocaleCtl localeCtl = LocaleCtl.LOCALE;
+        localeCtl.setTeller(new CurrentRequestContextTeller());
+    }
+
+    void configServlets() {
         ServletDescriptor webjarsLink = addServlet(ClassResourceAccessorServlet.class, "/webjars/*");
         webjarsLink.setInitParam(FileAccessorServlet.ATTRIBUTE_PATH, //
                 "META-INF/resources/webjars");

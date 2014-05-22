@@ -1,6 +1,7 @@
 package net.bodz.uni.site;
 
 import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,7 +11,6 @@ import javax.servlet.http.HttpSession;
 
 import net.bodz.bas.html.HtmlViewBuilder;
 import net.bodz.bas.http.ctx.CurrentHttpService;
-import net.bodz.bas.i18n.LocaleCtl;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.repr.path.IPathArrival;
@@ -23,6 +23,7 @@ import net.bodz.bas.site.org.ICrawler;
 import net.bodz.bas.vcs.IVcsWorkingCopy;
 import net.bodz.bas.vcs.git.NativeGitVcsWorkingCopy;
 import net.bodz.lily.site.LilyStartSite;
+import net.bodz.uni.site.model.Language;
 import net.bodz.uni.site.model.Preferences;
 import net.bodz.uni.site.model.Section;
 import net.bodz.uni.site.model.ToolMenu;
@@ -56,22 +57,18 @@ public class UniSite
         reload();
     }
 
-    public synchronized void reload() {
-        sectionMap.clear();
-        for (File sectionDir : baseDir.listFiles()) {
-            if (!sectionDir.isDirectory())
-                continue;
+    @Override
+    public String getSiteUrl() {
+        return "http://uni.bodz.net";
+    }
 
-            String name = sectionDir.getName();
-
-            Section section = new Section(this, name, sectionDir);
-            if (section.getDocFile() == null)
-                continue;
-
-            section.load();
-
-            sectionMap.put(name, section);
-        }
+    @Override
+    protected Map<String, String> getAlternateUrls() {
+        Map<String, String> alternateUrls = new LinkedHashMap<String, String>();
+        for (Language lang : Language.values())
+            if (lang.isFullTranslated())
+                alternateUrls.put(lang.getCode(), getSiteUrl() + "/intl/" + lang.getCode());
+        return alternateUrls;
     }
 
     public File getBaseDir() {
@@ -96,15 +93,22 @@ public class UniSite
         return new ToolMenu(this);
     }
 
-    @Override
-    public String getHomeUrl() {
-        String url = "http://uni.bodz.net";
+    public synchronized void reload() {
+        sectionMap.clear();
+        for (File sectionDir : baseDir.listFiles()) {
+            if (!sectionDir.isDirectory())
+                continue;
 
-        String path = LocaleCtl.LOCALE.getPath();
-        if (path != null)
-            url += "/intl/" + path;
+            String name = sectionDir.getName();
 
-        return url;
+            Section section = new Section(this, name, sectionDir);
+            if (section.getDocFile() == null)
+                continue;
+
+            section.load();
+
+            sectionMap.put(name, section);
+        }
     }
 
     /** ⇱ Implementation Of {@link IPathDispatchable}. */

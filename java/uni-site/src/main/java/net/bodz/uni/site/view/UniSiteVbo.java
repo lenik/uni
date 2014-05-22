@@ -1,7 +1,11 @@
 package net.bodz.uni.site.view;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import net.bodz.bas.c.string.StringQuote;
@@ -15,11 +19,13 @@ import net.bodz.bas.repr.path.IPathArrival;
 import net.bodz.bas.repr.path.PathArrivalEntry;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
+import net.bodz.bas.t.pojo.Pair;
 import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.mda.xjdoc.ClassDocLoader;
 import net.bodz.mda.xjdoc.model.ClassDoc;
 import net.bodz.uni.site.IUniSiteAnchors;
 import net.bodz.uni.site.UniSite;
+import net.bodz.uni.site.model.Language;
 import net.bodz.uni.site.model.Preferences;
 import net.bodz.uni.site.model.Project;
 import net.bodz.uni.site.model.Section;
@@ -81,9 +87,17 @@ public class UniSiteVbo
             writeHeadMetas(ctx);
             writeHeadImports(ctx);
 
+            // lang alternatives
+            for (Entry<String, Pair<Language, String>> entry : getAltLangHrefs(ctx.getRequest()).entrySet()) {
+                Pair<Language, String> langHref = entry.getValue();
+                Language lang = langHref.getKey();
+                if (lang != null && lang.isFullTranslated())
+                    out.link().rel("alternate").hreflang(entry.getKey()).href(langHref.getValue());
+            }
+
             // stylesheets
             out.link().css(_webApp_ + "site.css");
-            out.link().id("themeLink").css(_webApp_ + "theme-" + pref.getTheme() + ".css");
+            out.link().css(_webApp_ + "theme-" + pref.getTheme() + ".css").id("themeLink");
 
             // scripts
             out.script().javascript("var _webApp_ = " + StringQuote.qq(_webApp_));
@@ -153,6 +167,26 @@ public class UniSiteVbo
             out.end(); // <div#uni-section>
             // out.hr();
         }
+    }
+
+    Map<String, Pair<Language, String>> getAltLangHrefs(HttpServletRequest request) {
+        Map<String, Pair<Language, String>> map = new LinkedHashMap<>();
+
+        String path = request.getPathInfo();
+        if (path.startsWith("/intl/")) {
+            int slash2 = path.indexOf('/', 6);
+            path = path.substring(slash2);
+
+            String defaultHref = _webApp_ + path.substring(1);
+            map.put("x-default", Pair.of((Language) null, defaultHref));
+        }
+
+        for (Language lang : Language.values()) {
+            String href = _webApp_.join("intl/") + lang.getCode() + path;
+            map.put(lang.getCode(), Pair.of(lang, href));
+        }
+
+        return map;
     }
 
 }
