@@ -1,7 +1,7 @@
 package net.bodz.uni.fmt.regf.t;
 
 import net.bodz.bas.data.address.IAddressedObjectManager;
-import net.bodz.bas.data.struct.RstDataStruct;
+import net.bodz.bas.fmt.rst.RstDataStruct;
 import net.bodz.uni.fmt.regf.t.cell.AbstractCell;
 
 public abstract class RegfStruct

@@ -6,10 +6,10 @@ import java.util.Arrays;
 
 import net.bodz.bas.data.address.IAddressedObjectManager;
 import net.bodz.bas.err.ParseException;
+import net.bodz.bas.fmt.rst.ElementHandlerException;
+import net.bodz.bas.fmt.rst.IRstOutput;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
-import net.bodz.bas.text.rst.ElementHandlerException;
-import net.bodz.bas.text.rst.IRstOutput;
 import net.bodz.bas.win32.RegValueType;
 
 /**
