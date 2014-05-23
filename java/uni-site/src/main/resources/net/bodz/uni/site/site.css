@@ -37,10 +37,15 @@ h1 a {
     text-decoration: none;
 }
 
-.copyright {
+.foot {
     text-align: center;
     font-style: italic;
     height: 7em;
+}
+
+.foot a {
+    color: inherit;
+    text-decoration: none;
 }
 
 h1+.description {

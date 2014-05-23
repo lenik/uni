@@ -11,6 +11,7 @@ import javax.servlet.http.HttpSession;
 
 import net.bodz.bas.html.HtmlViewBuilder;
 import net.bodz.bas.http.ctx.CurrentHttpService;
+import net.bodz.bas.i18n.dom.iString;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.repr.path.IPathArrival;
@@ -91,6 +92,19 @@ public class UniSite
 
     public ToolMenu getToolMenu() {
         return new ToolMenu(this);
+    }
+
+    public Map<iString, Map<String, String>> getFootLinkMap() {
+        Map<iString, Map<String, String>> map = new LinkedHashMap<>();
+        Map<String, String> sites = new LinkedHashMap<String, String>();
+        sites.put("Jazz Framework", "http://jazz.bodz.net");
+        sites.put("Uni Tools", "http://uni.bodz.net");
+        Map<String, String> help = new LinkedHashMap<>();
+        help.put("About", "about/");
+        help.put("Contacts", "contacts/");
+        map.put(iString.fn.val("Sites"), sites);
+        map.put(iString.fn.val("Help"), help);
+        return map;
     }
 
     public synchronized void reload() {

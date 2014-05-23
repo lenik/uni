@@ -133,11 +133,38 @@ public class UniSiteVbo
         UniSite site = entry.get();
         ClassDoc classDoc = ClassDocLoader.load(site.getClass());
 
-        out.end(); // <div#main>
+        out.end(); // </div#main>
 
-        out.div().class_("copyright").text(classDoc.getTag("copyright"));
+        out.div().class_("foot").start();
+        {
+            out.div().class_("list").start();
+            out.span().text("Section: ");
+            for (Section section : site.getSectionMap().values()) {
+                String href = _webApp_.join(section.getName() + "/").toString();
+                out.a().href(href).text(section.getName());
+            }
+            out.end();
 
-        out.end(); // <html>
+            out.div().start();
+            out.span().text("Language: ");
+            for (Pair<Language, String> langHref : getAltLangHrefs(ctx.getRequest()).values()) {
+                Language lang = langHref.getKey();
+                if (lang == null)
+                    continue;
+                out.a().href(langHref.getValue()).text(lang.getXjdoc().getText());
+            }
+            out.end();
+
+            out.div().start();
+            out.span().text("Powered by: ");
+            out.a().href(_webApp_.join("modules/bas-site/").toString()).text("BAS Site Framework 2.0");
+            out.end();
+
+            out.text(classDoc.getTag("copyright").toString());
+        }
+        out.end();
+
+        out.end(); // </html>
     }
 
     void indexBody(IHtmlOut out, UniSite site) {
@@ -180,8 +207,8 @@ public class UniSiteVbo
             String defaultHref = _webApp_ + path.substring(1);
             map.put("x-default", Pair.of((Language) null, defaultHref));
         }
-
         for (Language lang : Language.values()) {
+
             String href = _webApp_.join("intl/") + lang.getCode() + path;
             map.put(lang.getCode(), Pair.of(lang, href));
         }

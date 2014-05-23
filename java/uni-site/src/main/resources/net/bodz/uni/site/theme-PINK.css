@@ -16,7 +16,7 @@ h2 {
     text-shadow: .1em .1em .2em hsl(300, 100%, 80%);
 }
 
-.copyright {
+.foot {
     background-color: hsl(300, 46%, 33%);
     color: hsl(300, 65%, 90%);
 }

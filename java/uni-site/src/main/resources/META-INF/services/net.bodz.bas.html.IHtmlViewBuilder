@@ -1,5 +1,7 @@
 net.bodz.bas.vcs.VcsLogEntryVbo
 net.bodz.uni.site.view.EnumVbo
+net.bodz.uni.site.view.MapVbo
+net.bodz.uni.site.view.ModuleVbo
 net.bodz.uni.site.view.PreferencesVbo
 net.bodz.uni.site.view.ProjectStatVbo
 net.bodz.uni.site.view.ProjectVbo
