@@ -2,12 +2,11 @@ package net.bodz.uni.site.view;
 
 import java.io.IOException;
 
+import net.bodz.bas.c.java.util.Dates;
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.IHtmlMetaData;
 import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.html.dom.IHtmlTag;
-import net.bodz.bas.html.dom.tag.HtmlATag;
-import net.bodz.bas.html.dom.tag.HtmlDivTag;
 import net.bodz.bas.html.dom.tag.HtmlLiTag;
 import net.bodz.bas.html.dom.tag.HtmlUlTag;
 import net.bodz.bas.repr.viz.ViewBuilderException;
@@ -16,6 +15,7 @@ import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.bas.vcs.IVcsLogEntry;
 import net.bodz.uni.site.IUniSiteAnchors;
 import net.bodz.uni.site.model.DebProject;
+import net.bodz.uni.site.model.DownloadItem;
 import net.bodz.uni.site.model.Project;
 import net.bodz.uni.site.util.RelativeTimeFormatter;
 
@@ -49,16 +49,10 @@ public class ProjectVbo
 
         IHtmlTag out = ctx.getOut();
         Project project = ref.get();
-
         String name = project.getName();
 
         String letter = name.substring(0, 1).toUpperCase();
-        HtmlDivTag iconDiv = out.div().class_("prj-icon-large");
-        {
-            String sectionName = project.getSection().getName();
-            HtmlATag a = iconDiv.a().href(_webApp_ + sectionName + "#" + letter);
-            a.text(letter);
-        }
+        out.div().class_("prj-icon-large").text(letter);
 
         out = out.div().class_("project");
 
@@ -72,7 +66,13 @@ public class ProjectVbo
         }
 
         out.h2().text("Download");
-        out.div().class_("panel").id("download");
+        IHtmlTag panel = out.div().class_("panel").id("download");
+        panel = panel.ul();
+        for (DownloadItem item : project.getDownloadItems()) {
+            HtmlLiTag li = panel.li();
+            li.a().href(item.href).text(item.filename);
+            li.text(" (" + item.fileSize + " bytes, " + Dates.YYYY_MM_DD.format(item.lastModified) + ")");
+        }
 
         out.h2().text("Comments");
         out.div().class_("panel").id("comments");

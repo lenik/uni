@@ -2,8 +2,11 @@ package net.bodz.uni.site.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.bodz.bas.c.java.io.FilePath;
@@ -27,6 +30,7 @@ public class Project
     String vcspath;
 
     ProjectStat projectStat;
+    List<DownloadItem> downloadItems;
 
     Map<String, IVcsLogEntry> cachedLogs;
     Date logsExpires;
@@ -47,6 +51,27 @@ public class Project
         vcspath = FilePath.getRelativePath(directory.getPath(), rootDir + "/");
 
         projectStat = new ProjectStat();
+
+        downloadItems = new ArrayList<DownloadItem>();
+        for (File sct : new File("/repo/deb").listFiles()) {
+            if (!sct.isDirectory())
+                continue;
+            for (String baseName : sct.list()) {
+                if (!baseName.startsWith(name + "_"))
+                    continue;
+                if (!baseName.endsWith(".deb"))
+                    continue;
+                File file = new File(sct, baseName);
+                DownloadItem item = new DownloadItem();
+                item.section = sct.getName();
+                item.filename = baseName;
+                item.href = "http://deb.bodz.net/" + sct.getName() + "/" + baseName;
+                item.lastModified = file.lastModified();
+                item.fileSize = file.length();
+                downloadItems.add(item);
+            }
+        }
+        Collections.reverse(downloadItems);
     }
 
     @Override
@@ -81,6 +106,10 @@ public class Project
 
     public ProjectStat getStat() {
         return projectStat;
+    }
+
+    public List<DownloadItem> getDownloadItems() {
+        return downloadItems;
     }
 
     public synchronized Map<String, IVcsLogEntry> getLogs()
