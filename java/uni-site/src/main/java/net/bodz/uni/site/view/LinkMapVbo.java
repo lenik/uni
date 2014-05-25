@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.IHtmlViewContext;
-import net.bodz.bas.io.html.IHtmlOut;
+import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
@@ -21,19 +21,16 @@ public class LinkMapVbo
     @Override
     public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<Map<?, ?>> ref, IOptions options)
             throws ViewBuilderException, IOException {
-        IHtmlOut out = ctx.getOut();
+        IHtmlTag out = ctx.getOut();
         Map<?, ?> map = ref.get();
-        out.ul().start();
+        out = out.ul();
 
         for (Entry<?, ?> entry : map.entrySet()) {
             Object label = entry.getKey();
             Object href = entry.getValue();
-            out.li().start();
-            out.a().href(href.toString()).text(label);
-            out.end(); // </li>
+            out.li().a().href(href.toString()).text(label);
         }
 
-        out.end(); // </ul>
         return ctx;
     }
 

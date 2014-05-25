@@ -13,7 +13,8 @@ import net.bodz.bas.html.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.IHtmlMetaData;
 import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.html.artifact.IArtifactDependency;
-import net.bodz.bas.io.html.IHtmlOut;
+import net.bodz.bas.html.dom.IHtmlTag;
+import net.bodz.bas.html.dom.tag.*;
 import net.bodz.bas.potato.ref.UiPropertyRefMap;
 import net.bodz.bas.repr.path.IPathArrival;
 import net.bodz.bas.repr.path.PathArrivalEntry;
@@ -66,7 +67,7 @@ public class UniSiteVbo
         if (enter(ctx))
             return null;
 
-        IHtmlOut out = ctx.getOut();
+        IHtmlTag out = ctx.getOut();
         UniSite site = ref.get();
 
         HttpSession session = ctx.getSession();
@@ -81,118 +82,98 @@ public class UniSiteVbo
                 frameOnly = true;
         }
 
-        out.html().start();
-        out.head().start();
+        out = out.html();
+
+        HtmlHeadTag head = out.head();
         {
-            writeHeadMetas(ctx);
-            writeHeadImports(ctx);
+            writeHeadMetas(ctx, head);
+            writeHeadImports(ctx, head);
 
             // lang alternatives
             for (Entry<String, Pair<Language, String>> entry : getAltLangHrefs(ctx.getRequest()).entrySet()) {
                 Pair<Language, String> langHref = entry.getValue();
                 Language lang = langHref.getKey();
                 if (lang != null && lang.isFullTranslated())
-                    out.link().rel("alternate").hreflang(entry.getKey()).href(langHref.getValue());
+                    head.link().rel("alternate").hreflang(entry.getKey()).href(langHref.getValue());
             }
 
             // stylesheets
-            out.link().css(_webApp_ + "site.css");
-            out.link().css(_webApp_ + "theme-" + pref.getTheme() + ".css").id("themeLink");
+            head.link().css(_webApp_ + "site.css");
+            head.link().css(_webApp_ + "theme-" + pref.getTheme() + ".css").id("themeLink");
 
             // scripts
-            out.script().javascript("var _webApp_ = " + StringQuote.qq(_webApp_));
-            out.script().javascriptSrc(_webApp_ + "site.js");
-
-            out.end(); // <head>
+            head.script().javascript("var _webApp_ = " + StringQuote.qq(_webApp_));
+            head.script().javascriptSrc(_webApp_ + "site.js");
         }
 
-        out.div().class_("ui-menubar").start();
+        out = out.body();
+
+        HtmlDivTag menubar = out.div().class_("ui-menubar");
         {
-            out.span().class_("ui-menu").id("m-tools").start();
-            out.div().id("toolbox").text("Uni Tools");
-            embed(ctx, propMap.get("toolMenu"));
-            out.end(); // <span.ui-menu#m-tools>
-            out.end(); // <divl#menubar>
+            HtmlSpanTag span = menubar.span().class_("ui-menu").id("m-tools");
+            span.div().id("toolbox").text("Uni Tools");
+            embed(ctx, span, propMap.get("toolMenu"));
         }
 
         out.img().src(_img_ + "hbar/angel-city.png").width("100%");
         out.hr().class_("line");
 
-        out.div().id("main").start();
+        HtmlDivTag mainDiv = out.div().id("main");
 
         if (!frameOnly)
-            indexBody(out, site);
+            indexBody(mainDiv, site);
 
-        return ctx;
-    }
-
-    @Override
-    public void buildHtmlViewTail(IHtmlViewContext ctx, IUiRef<UniSite> entry, IOptions options)
-            throws ViewBuilderException, IOException {
-        IHtmlOut out = ctx.getOut();
-        UniSite site = entry.get();
         ClassDoc classDoc = ClassDocLoader.load(site.getClass());
 
-        out.end(); // </div#main>
-
-        out.div().class_("foot").start();
+        HtmlDivTag foot = out.div().class_("foot");
         {
-            out.div().class_("list").start();
-            out.span().text("Section: ");
+            HtmlDivTag sectDiv = foot.div().class_("list");
+            sectDiv.span().text("Section: ");
             for (Section section : site.getSectionMap().values()) {
                 String href = _webApp_.join(section.getName() + "/").toString();
-                out.a().href(href).text(section.getName());
+                sectDiv.a().href(href).text(section.getName());
             }
-            out.end();
 
-            out.div().start();
-            out.span().text("Language: ");
+            HtmlDivTag langDiv = foot.div();
+            langDiv.span().text("Language: ");
             for (Pair<Language, String> langHref : getAltLangHrefs(ctx.getRequest()).values()) {
                 Language lang = langHref.getKey();
                 if (lang == null)
                     continue;
-                out.a().href(langHref.getValue()).text(lang.getXjdoc().getText());
+                langDiv.a().href(langHref.getValue()).text(lang.getXjdoc().getText());
             }
-            out.end();
 
-            out.div().start();
-            out.span().text("Powered by: ");
-            out.a().href(_webApp_.join("modules/bas-site/").toString()).text("BAS Site Framework 2.0");
-            out.end();
+            HtmlDivTag powerDiv = foot.div();
+            powerDiv.span().text("Powered by: ");
+            powerDiv.a().href(_webApp_.join("modules/bas-site/").toString()).text("BAS Site Framework 2.0");
 
-            out.text(classDoc.getTag("copyright").toString());
+            foot.text(classDoc.getTag("copyright").toString());
         }
-        out.end();
 
-        out.end(); // </html>
+        ctx.setOut(mainDiv);
+        return ctx;
     }
 
-    void indexBody(IHtmlOut out, UniSite site) {
-        out.h1().text("List Of Projects").start();
-        out.a().style("cursor: pointer").onclick("reloadSite()").text("[Reload]");
-        out.end();
+    void indexBody(IHtmlTag out, UniSite site) {
+        HtmlH1Tag h1 = out.h1().text("List Of Projects");
+        h1.a().style("cursor: pointer").onclick("reloadSite()").text("[Reload]");
 
         for (Section section : site.getSectionMap().values()) {
-            out.div().class_("uni-section").id(section.getName()).start();
+            HtmlDivTag div = out.div().class_("uni-section").id(section.getName());
 
-            out.h2().start();
-            out.a().href(section.getName() + "/").text(section.getName());
-            out.text(" - " + section.getLabel());
-            out.end(); // <h2>
+            HtmlH2Tag h2 = div.h2();
+            h2.a().href(section.getName() + "/").text(section.getName());
+            h2.text(" - " + section.getLabel());
 
-            out.dl().class_("uni-projects").start();
+            HtmlDlTag dl = div.dl().class_("uni-projects");
             for (Project project : section.getProjects()) {
                 if (project.isPrivate())
                     continue;
-                out.a().href(section.getName() + "/" + project.getName() + "/").start();
-                out.dt().text(project.getName());
-                out.end(); // <a>
+                HtmlATag a = dl.a().href(section.getName() + "/" + project.getName() + "/");
+                a.dt().text(project.getName());
 
-                out.dd().text(project.getLabel());
+                dl.dd().text(project.getLabel());
             }
-            out.end(); // <dl.projects>
-            out.end(); // <div#uni-section>
-            // out.hr();
         }
     }
 

@@ -9,7 +9,9 @@ import java.util.Map.Entry;
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.IHtmlViewBuilder;
 import net.bodz.bas.html.IHtmlViewContext;
-import net.bodz.bas.io.html.IHtmlOut;
+import net.bodz.bas.html.dom.IHtmlTag;
+import net.bodz.bas.html.dom.tag.HtmlTdTag;
+import net.bodz.bas.html.dom.tag.HtmlTrTag;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
@@ -36,36 +38,28 @@ public class MapTableVbo<V>
     @Override
     public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<Map<?, V>> ref, IOptions options)
             throws ViewBuilderException, IOException {
-        IHtmlOut out = ctx.getOut();
+        IHtmlTag out = ctx.getOut();
         Map<?, V> map = ref.get();
 
-        out.table().start();
+        out = out.table();
 
         // this array list is used to keep the value order be same to the keys.
         List<V> values = new ArrayList<>();
 
-        out.thead().start();
-        out.tr().start();
+        HtmlTrTag tr = out.thead().tr();
         for (Entry<?, V> entry : map.entrySet()) {
             values.add(entry.getValue());
             Object key = entry.getKey();
-            out.td().start();
-            out.text(key.toString());
-            out.end(); // </td>
+            tr.td().text(key.toString());
         }
-        out.end(); // </tr>
-        out.end(); // </thead>
 
-        out.tbody().start();
-        out.tr().start();
+        tr = out.tbody().tr();
         for (V value : values) {
             UiValue<V> valueRef = UiValue.wrap(value);
-            out.td().start();
+            HtmlTdTag td = tr.td();
             valueViewBuilder.buildHtmlView(ctx, valueRef, options);
-            out.end(); // </td>
         }
-        out.end(); // </tr>
-        out.end(); // </tbody>
         return ctx;
     }
+
 }

@@ -5,7 +5,10 @@ import java.io.IOException;
 import net.bodz.bas.c.java.util.Dates;
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.IHtmlViewContext;
-import net.bodz.bas.io.html.IHtmlOut;
+import net.bodz.bas.html.dom.IHtmlTag;
+import net.bodz.bas.html.dom.tag.HtmlLiTag;
+import net.bodz.bas.html.dom.tag.HtmlPreTag;
+import net.bodz.bas.html.dom.tag.HtmlUlTag;
 import net.bodz.bas.repr.path.IPathArrival;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
@@ -24,7 +27,7 @@ public class VcsLogEntryVbo
     @Override
     public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<IVcsLogEntry> ref, IOptions options)
             throws ViewBuilderException, IOException {
-        IHtmlOut out = ctx.getOut();
+        IHtmlTag out = ctx.getOut();
         IVcsLogEntry ent = ref.get();
 
         IPathArrival __project_logs_entry = ctx.query(IPathArrival.class);
@@ -36,33 +39,30 @@ public class VcsLogEntryVbo
         out.div().text("Author: " + ent.getAuthorName());
         out.div().text("Date: " + Dates.D10T8.format(ent.getAuthorDate().getTime()));
 
-        out.ul().start();
+        HtmlUlTag ul = out.ul();
         for (IFileChangement change : ent.getChanges()) {
-            out.li().start();
+            HtmlLiTag li = ul.li();
 
-            out.span().text(change.getStatus());
-            out.span().text(change.getPath());
+            li.span().text(change.getStatus());
+            li.span().text(change.getPath());
 
             switch (change.getStatus()) {
             case ADD:
             case MODIFY:
             case RENAME:
-                out.pre().class_("prettyprint").start();
+                HtmlPreTag pre = li.pre().class_("prettyprint");
                 try {
                     for (String line : workingCopy.getDiff(change.getPath(), ent.getVersion())) {
-                        out.text(line);
+                        pre.text(line);
                     }
                 } catch (InterruptedException e) {
                     throw new ViewBuilderException("Error get diff: " + e.getMessage(), e);
                 }
-                out.end(); // <pre>
 
             default:
             }
 
-            out.end(); // <li>
         }
-        out.end(); // <ul>
 
         out.script().src(prettifySrc);
         return null;

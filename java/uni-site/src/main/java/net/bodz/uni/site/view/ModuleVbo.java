@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.IHtmlViewContext;
-import net.bodz.bas.io.html.IHtmlOut;
+import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.t.project.IJazzModule;
@@ -26,11 +26,11 @@ public class ModuleVbo
 
         ClassDoc moduleDoc = ClassDocLoader.load(module.getClass());
 
-        IHtmlOut out = ctx.getOut();
+        IHtmlTag out = ctx.getOut();
         out.h1().text(module.getName());
         out.text("");
 
-        out.println(moduleDoc.getText());
+        out.verbatim(moduleDoc.getText().toString());
 
         return ctx;
     }

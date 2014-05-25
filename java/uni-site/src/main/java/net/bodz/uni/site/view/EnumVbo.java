@@ -6,8 +6,10 @@ import java.util.EnumSet;
 
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.IHtmlViewContext;
-import net.bodz.bas.io.html.IHtmlOut;
-import net.bodz.bas.io.html.tag.HtmlABuilder;
+import net.bodz.bas.html.dom.IHtmlTag;
+import net.bodz.bas.html.dom.tag.HtmlATag;
+import net.bodz.bas.html.dom.tag.HtmlLiTag;
+import net.bodz.bas.html.dom.tag.HtmlUlTag;
 import net.bodz.bas.potato.provider.bean.BeanProperty;
 import net.bodz.bas.potato.ref.PropertyRefEntry;
 import net.bodz.bas.repr.viz.ViewBuilderException;
@@ -31,7 +33,7 @@ public class EnumVbo
     @Override
     public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<Enum<?>> ref, IOptions options)
             throws ViewBuilderException, IOException {
-        IHtmlOut out = ctx.getOut();
+        IHtmlTag out = ctx.getOut();
         Enum<?> value = ref.get();
 
         Class<?> enumType = ref.getValueType();
@@ -45,7 +47,7 @@ public class EnumVbo
         Method setter = property.getPropertyDescriptor().getWriteMethod();
         String setterPath = IPathInfo.fn.getFullPath(ref.getParent()) + "/" + setter.getName();
 
-        out.ul().id(id).class_("ui-enum").attr("path", _webApp_ + setterPath).start();
+        HtmlUlTag ul = out.ul().id(id).class_("ui-enum").attr("path", _webApp_ + setterPath);
 
         for (Object _item : EnumSet.allOf((Class) enumType)) {
             Enum<?> item = (Enum<?>) _item;
@@ -58,20 +60,16 @@ public class EnumVbo
                 text = doc.getText().toString();
             }
 
-            out.li().class_(active ? "ui-active" : "").start();
+            HtmlLiTag li = ul.li().class_(active ? "ui-active" : "");
 
-            HtmlABuilder a = out.a().attr("value", name);
+            HtmlATag a = li.a().attr("value", name);
             if (attributed) {
                 IAttributes attributes = (IAttributes) item;
                 for (String attrName : attributes.getAttributeNames())
                     a.attr(attrName, attributes.getAttribute(attrName));
             }
             a.text(text);
-
-            out.end(); // <li>
         }
-
-        out.end(); // <ul.enums>
         return ctx;
     }
 
