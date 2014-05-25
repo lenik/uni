@@ -39,7 +39,7 @@ public class SectionVbo
         String name = section.getName();
         iString description = section.getDescription();
 
-        out.h1().a().href(_webApp_ + "#" + section.getName()).text("Section " + name);
+        out.h1().a().text("Section " + name);
 
         if (description != null) {
             out.div().class_("description").verbatim(description.toString());

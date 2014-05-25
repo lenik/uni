@@ -15,6 +15,7 @@ import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.html.artifact.IArtifactDependency;
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.dom.tag.*;
+import net.bodz.bas.i18n.dom1.IElement;
 import net.bodz.bas.potato.ref.UiPropertyRefMap;
 import net.bodz.bas.repr.path.IPathArrival;
 import net.bodz.bas.repr.path.PathArrivalEntry;
@@ -75,14 +76,8 @@ public class UniSiteVbo
 
         UiPropertyRefMap propMap = explode(ref);
 
-        boolean frameOnly = false;
-        if (ref instanceof PathArrivalEntry) {
-            IPathArrival arrival = ((PathArrivalEntry<UniSite>) ref).getArrival();
-            if (arrival.getRemainingPath() != null)
-                frameOnly = true;
-        }
-
-        out = out.html();
+        IPathArrival arrival = (IPathArrival) ctx.getRequest().getAttribute(IPathArrival.class.getName());
+        boolean frameOnly = arrival.getPrevious(site).getRemainingPath() != null;
 
         HtmlHeadTag head = out.head();
         {
@@ -118,8 +113,23 @@ public class UniSiteVbo
         out.img().src(_img_ + "hbar/angel-city.png").width("100%");
         out.hr().class_("line");
 
-        HtmlDivTag mainDiv = out.div().id("main");
+        if (ref instanceof PathArrivalEntry) {
+            IHtmlTag nav = out.nav().ul();
+            for (IPathArrival a : arrival.toList()) {
+                Object target = a.getTarget();
 
+                String label;
+                if (target instanceof IElement)
+                    label = ((IElement) target).getLabel().toString();
+                else
+                    label = target.toString();
+
+                String href = _webApp_.join(a.getConsumedFullPath() + "/").toString();
+                nav.li().a().href(href).text(label);
+            }
+        }
+
+        HtmlDivTag mainDiv = out.div().id("main");
         if (!frameOnly)
             indexBody(mainDiv, site);
 

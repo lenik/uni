@@ -16,6 +16,14 @@ h1 a {
     text-decoration: none;
 }
 
+nav li {
+    display: inline;
+}
+
+nav li:not(:first-child):before {
+    content: "→";
+}
+
 #changelog {
     
 }
