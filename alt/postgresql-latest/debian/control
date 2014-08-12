@@ -1,0 +1,40 @@
+Source: postgresql-latest
+Section: database
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/alt/postgresql-latest
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/postgresql-latest
+
+Package: postgresql-latest
+Architecture: all
+Depends:
+    postgresql
+        | postgresql-8.4
+        | postgresql-9.1
+        | postgresql-9.3
+        | postgresql-9.4,
+Recommends:
+    postgresql-contrib
+        | postgresql-8.4-contrib
+        | postgresql-9.1-contrib
+        | postgresql-9.3-contrib
+        | postgresql-9.4-contrib,
+    postgresql-plperl
+        | postgresql-8.4-plperl
+        | postgresql-9.1-plperl
+        | postgresql-9.3-plperl
+        | postgresql-9.4-plperl,
+    postgresql-plpython
+        | postgresql-8.4-plpython
+        | postgresql-9.1-plpython
+        | postgresql-9.3-plpython
+        | postgresql-9.4-plpython,
+    postgresql-plsh
+        | postgresql-8.4-plsh
+        | postgresql-9.1-plsh
+        | postgresql-9.3-plsh
+        | postgresql-9.4-plsh
+Description: Select the latest PostgreSQL databse.
