@@ -16,7 +16,6 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.component.LifeCycle;
 
-import net.bodz.bas.c.object.Nullables;
 import net.bodz.uni.echo.config.EchoServerConfig;
 import net.bodz.uni.echo.config.EchoServerConfigAdapter;
 import net.bodz.uni.echo.config.FilterDescriptor;
@@ -129,7 +128,7 @@ public class EchoServer
 
         for (ServletDescriptor servlet : config.getServlets()) {
             ServletHolder holder = new ServletHolder(servlet.getServletClass());
-            holder.setDisplayName(Nullables.toString(servlet.getLabel()));
+            holder.setDisplayName(servlet.getDisplayName());
             holder.setInitParameters(servlet.getInitParamMap());
             holder.setInitOrder(servlet.getPriority());
 
@@ -139,7 +138,7 @@ public class EchoServer
 
         for (FilterDescriptor filter : config.getFilters()) {
             FilterHolder holder = new FilterHolder(filter.getFilterClass());
-            holder.setDisplayName(Nullables.toString(filter.getLabel()));
+            holder.setDisplayName(filter.getDisplayName());
             holder.setInitParameters(filter.getInitParamMap());
             holder.setAsyncSupported(filter.isSuspendable());
 

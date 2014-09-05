@@ -2,15 +2,14 @@ package net.bodz.uni.echo.config;
 
 import net.bodz.bas.c.object.IdentityHashSet;
 import net.bodz.bas.c.object.ObjectInfo;
-import net.bodz.bas.i18n.dom1.MutableElement;
 
 public abstract class AbstractPluginDescriptor
-        extends MutableElement
         implements IPluginDescriptor {
 
     String id;
-    int priority;
     int index;
+    int priority;
+    String displayName;
     IdentityHashSet<Object> dependencies;
 
     public AbstractPluginDescriptor() {
@@ -32,6 +31,15 @@ public abstract class AbstractPluginDescriptor
     }
 
     @Override
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    @Override
     public int getPriority() {
         return priority;
     }
@@ -40,13 +48,12 @@ public abstract class AbstractPluginDescriptor
         this.priority = priority;
     }
 
-    @Override
-    public int getIndex() {
-        return index;
+    public String getDisplayName() {
+        return displayName;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public IdentityHashSet<Object> getDependencies() {

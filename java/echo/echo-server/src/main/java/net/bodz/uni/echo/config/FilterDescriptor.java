@@ -35,7 +35,7 @@ public class FilterDescriptor
         ClassDoc classDoc = ClassDocLoader.load(filterClass);
         if (classDoc != null)
             // TODO Elements.copy(this, classDoc);
-            setLabel(classDoc.getText().headPar());
+            setDisplayName(classDoc.getText().getHeadPar());
     }
 
     public Class<? extends Filter> getFilterClass() {
