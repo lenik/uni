@@ -1,0 +1,27 @@
+#!/bin/bash
+
+__DIR__="${0%/*}"
+
+source ${__DIR__}/.env
+
+if /sbin/fdisk -h >/dev/null 2>/dev/null; then
+    echo 'Please set "default deny" in config files.'
+    echo LD_PRELOAD=$LD_PRELOAD
+    exit
+else
+    echo 'white list policy is detected. (default deny for bash)'
+    echo "okay... let's see..."
+    echo
+fi
+
+echo id:
+    id
+    echo
+
+echo uname:
+    uname
+    echo
+
+echo some pl script:
+    ${__DIR__}/a.pl
+

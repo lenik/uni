@@ -48,7 +48,8 @@ trie_t *trie_find(trie_t *start, char *path) {
     return trie_find(next, path);
 }
 
-void trie_enter(trie_t *start, char *path, void *data, int size, void (*dtor)(void *) dtor) {
+void trie_enter(trie_t *start, char *path, void *data, int size,
+                void (*dtor)(void *)) {
     if (! *path) {
         if (data)
             memcpy(&(start->data), data, size);

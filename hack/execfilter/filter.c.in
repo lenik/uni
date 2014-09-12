@@ -43,14 +43,15 @@ typedef struct _symres_t {
 
 symres_t gate_sr;                       /* the global gate */
 
-GHashTable *formats;                    /* extension -> symres_t */
+GHashTable *formats;                    /* ext -> symres_t */
 symres_t *default_format;
 
 #undef LINE_MAX
 #define LINE_MAX 4095
 
-GHashTable *pmap;
+GHashTable *pmap;                       /* program map, path -> conf */
 int pmap_ver;                           /* file version. used in 2.0+ */
+GHashTable *extmap;                     /* extension map, ext -> conf */
 program_conf_t *pconf;
 program_conf_t *preset;                 /* predefiend config. used in 2.0+ */
 
@@ -69,6 +70,7 @@ bool pmap_load() {
     const char *errmsg;
 
     pmap = g_hash_table_new_full(g_str_hash, g_str_equal, free, free);
+    extmap = g_hash_table_new_full(g_str_hash, g_str_equal, free, free);
     formats = g_hash_table_new_full(g_str_hash, g_str_equal, free, free);
 
     default_format = malloc(sizeof(symres_t));
@@ -196,6 +198,7 @@ static const char *parse_confs(char *script, const char *location) {
             continue;                   /* comment line */
 
         case 'a':
+            /* allow PATH */
             if (streq("allow", token)) {
                 if (conf == NULL) goto NO_CONF;
                 
@@ -210,7 +213,15 @@ static const char *parse_confs(char *script, const char *location) {
                 continue;
             }
             break;
-            
+
+        case 'b':
+            if (streq("blocked", token)) {
+                if (conf == NULL) goto NO_CONF;
+                conf->blocked = true;
+                continue;
+            }
+            break;
+
         case 'd':
             if (streq("default", token)) {
                 if (conf == NULL) goto NO_CONF;
@@ -238,10 +249,30 @@ static const char *parse_confs(char *script, const char *location) {
                 continue;
             }
             break;
+
+        case 'e':
+            /* extension EXT */
+            if (streq("extension", token)) {
+                conf = g_hash_table_lookup(extmap, p);
+                if (conf == NULL) {
+                    conf = (program_conf_t *) malloc(sizeof(program_conf_t));
+                    tab = g_hash_table_new_full(g_str_hash, g_str_equal,
+                                                free, free);
+                    conf->modes = tab;
+                    conf->mode_all = 0;
+                    conf->mask = -1;
+                    conf->trusted = false;
+                    conf->blocked = false;
+                    g_hash_table_insert(extmap, strdup(p), conf);
+                }
+                tab = conf->modes;
+                continue;
+            }
+            break;
             
         case 'f':
             /* for PATH */
-            if (streq(token, "for")) {
+            if (streq("for", token)) {
                 conf = g_hash_table_lookup(pmap, p);
                 if (conf == NULL) {
                     conf = (program_conf_t *) malloc(sizeof(program_conf_t));
@@ -250,6 +281,8 @@ static const char *parse_confs(char *script, const char *location) {
                     conf->modes = tab;
                     conf->mode_all = 0;
                     conf->mask = -1;
+                    conf->trusted = false;
+                    conf->blocked = false;
                     g_hash_table_insert(pmap, strdup(p), conf);
                 }
                 tab = conf->modes;
@@ -310,6 +343,14 @@ static const char *parse_confs(char *script, const char *location) {
                     conf->logging = LOG_ALL;
                 else
                     log_err(tr("Invalid logging type: %s"), p);
+                continue;
+            }
+            break;
+            
+        case 't':
+            if (streq("trusted", token)) {
+                if (conf == NULL) goto NO_CONF;
+                conf->trusted = true;
                 continue;
             }
             break;
@@ -384,25 +425,31 @@ static void pmap_each_mode(gpointer key, gpointer value, gpointer user_data) {
 }
 
 static void pmap_each_tab(gpointer key, gpointer value, gpointer user_data) {
+    const char *usage = (const char *) user_data;
     const char *program = (const char *) key;
     program_conf_t *conf = (program_conf_t *) value;
 
     xmode_t m0 = conf->mode_all & conf->mask;
 
-    printf("for %s\n", program);
+    printf("%s %s\n", usage, program);
     switch (m0 & (EM_ALLOW | EM_DENY)) {
     case EM_ALLOW:
-        printf("    order allow, deny\n");
+        printf("    default allow\n");
         break;
     case EM_DENY:
-        printf("    order deny, allow\n");
+        printf("    default deny\n");
         break;
     case EM_ALLOW | EM_DENY:
-        printf("    order none\n");
+        printf("    default unknown\n");
         break;
     }
 
     g_hash_table_foreach(conf->modes, pmap_each_mode, 0);
+
+    if (conf->trusted)
+        printf("    trusted\n");
+    if (conf->blocked)
+        printf("    blocked\n");
     printf("\n");
 }
 
@@ -413,7 +460,8 @@ void pmap_dump() {
     printf("# run-level: %d\n", run_level);
     printf("\n");
 
-    g_hash_table_foreach(pmap, pmap_each_tab, 0);
+    g_hash_table_foreach(pmap, pmap_each_tab, "for");
+    g_hash_table_foreach(extmap, pmap_each_tab, "extension");
 }
 
 xmode_t get_execution_mode(program_conf_t *conf,
@@ -474,15 +522,46 @@ xmode_t _get_rec(const char *src, pid_t pid, const char *obj) {
         }
     }
 
+    /* check obj overrides */
+    program_conf_t *obj_conf = g_hash_table_lookup(pmap, obj_norm);
+    if (obj_conf) {
+        if (obj_conf->blocked) {
+            log_notice(tr("Black-Listed (by obj): %s\n"), obj_norm);
+            return EM_DENY;
+        }
+        if (obj_conf->trusted) {
+            log_notice(tr("Trusted (by obj): %s\n"), obj_norm);
+            return EM_ALLOW;
+        }
+    }
+    
+    /* check obj extmap overrides */
+    const char *lastdot = strrchr(obj_norm, '.');
+    if (lastdot) {
+        const char *ext = lastdot + 1;
+        program_conf_t *econf = g_hash_table_lookup(extmap, ext);
+        if (econf) {
+            if (econf->blocked) {
+                log_notice(tr("Black-Listed: *.%s\n"), ext);
+                return EM_DENY;
+            }
+            if (econf->trusted) {
+                log_notice(tr("Trusted: *.%s\n"), ext);
+                return EM_ALLOW;
+            }
+        }
+    }
+    
     char ctl_bin[PATH_MAX] = "";
     program_conf_t *ctl_conf = NULL;
-    
+
+    /* Traverse the process tree of the calling process. */
     while (pid != 0 && pid != -1) {
-        char sym[PATH_MAX] = "";
-        char bin[PATH_MAX] = "";
+        char sym[PATH_MAX] = "";    /* symlink name: /proc/.../exe */
+        char bin[PATH_MAX] = "";    /* the real exe path. */
         int cc;
         program_conf_t *conf = NULL;
-
+        
         sprintf(sym, "/proc/%d/exe", pid);
         cc = readlink(sym, bin, PATH_MAX);
 
@@ -571,6 +650,7 @@ xmode_t get_execution_mode_rec(const char *src, pid_t pid, const char *obj) {
 
     xmode_t mode = -1;
 
+    /* EM_ALLOW for root euid. */
     pid_t ppid = getpid();
     char path[PATH_MAX + 1];
     sprintf(path, "/proc/%d/status", ppid);

@@ -1,5 +1,5 @@
 etc/rsyslog.d/
-usr/lib/
+lib/
 usr/share/doc/
 usr/share/locale/
 usr/share/setup/

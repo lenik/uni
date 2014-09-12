@@ -38,12 +38,18 @@ typedef struct _program_conf_t {
     int logging;                        /* logging execution events */
     int mode_all;                       /* the default execution mode */
     int mask;                           /* execution mode mask */
+    bool trusted;                       /* this program is always trusted */
+    bool blocked;                       /* this program is always blocked */
     GHashTable *modes;                  /* norm path => exection mode */
 } program_conf_t;
 
 /* The program map: normalized path => rules.  This map could be memory mapped
-   to share between processes. */
+   to be shared between processes. */
 extern GHashTable *pmap;
+
+/* The extension map: extension name => rules.  This map could be memory mapped
+   to be shared between processes. */
+extern GHashTable *extmap;
 
 /* The config applied to the current program. This conf is lazy initialized to
    the corresponding entry in the pmap when the program starts. */

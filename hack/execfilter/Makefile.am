@@ -21,7 +21,7 @@ ef_dump_SOURCES = ef-dump.c ${libexecfilter_la_SOURCES}
 ef_dump_CFLAGS = ${AM_CFLAGS}
 ef_dump_LDADD = ${GLIB_LIBS} $(LIBINTL) -lbas -ldl
 
-lib1_LTLIBRARIES = \
+rootlib_LTLIBRARIES = \
     libexecfilter.la \
     libefstub.la
 
