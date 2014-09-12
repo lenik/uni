@@ -38,7 +38,7 @@ dist_pkgdata_DATA = \
 dist_pkgdata_SCRIPTS = \
     sdefinit
 
-lib1_LTLIBRARIES = \
+rootlib_LTLIBRARIES = \
     libsdefext.la
 
 libsdefext_la_SOURCES = \
