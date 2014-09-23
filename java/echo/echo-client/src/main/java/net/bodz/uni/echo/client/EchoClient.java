@@ -13,6 +13,7 @@ import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.LocalConnector;
 import org.eclipse.jetty.testing.HttpTester;
 
+import net.bodz.bas.c.java.util.ArrayAndScalar;
 import net.bodz.bas.c.java.util.Arrays;
 import net.bodz.bas.c.string.StringQuoted;
 import net.bodz.bas.err.control.ControlExit;
@@ -194,9 +195,9 @@ public class EchoClient {
                 continue;
 
             String[] args = StringQuoted.split(line, ' ');
-            Pair<String, String[]> cmdArgs = Arrays.shift(args);
-            String commandName = cmdArgs.getFirst();
-            args = cmdArgs.getSecond();
+            ArrayAndScalar<String[], String> cmdArgs = Arrays.shift(args);
+            String commandName = cmdArgs.scalar;
+            args = cmdArgs.array;
 
             IEchoClientCommand command = commandMap.get(commandName);
             if (command == null) {

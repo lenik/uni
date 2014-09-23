@@ -269,7 +269,7 @@ public class JavaShell
                 if (args.length == 1)
                     dump(name);
                 else {
-                    String[] expansion = Arrays.shift(args).getSecond();
+                    String[] expansion = Arrays.shift(args).array;
                     aliases.put(name, expansion);
                 }
             }
@@ -459,7 +459,7 @@ public class JavaShell
                 if (args.length == 1)
                     dumpEnv(name);
                 else
-                    args = Arrays.shift(args).getSecond();
+                    args = Arrays.shift(args).array;
                 env.put(name, StringArray.join(" ", args));
             }
             return 0;
