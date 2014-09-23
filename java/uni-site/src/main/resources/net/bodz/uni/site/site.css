@@ -79,7 +79,7 @@ h1+.description {
     text-align: center;
 }
 
-.letter-box~div {
+.letter-box  ~div {
     margin-left: 64px;
 }
 

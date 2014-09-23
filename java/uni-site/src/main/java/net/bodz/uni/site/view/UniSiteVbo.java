@@ -107,7 +107,7 @@ public class UniSiteVbo
         {
             HtmlSpanTag span = menubar.span().class_("ui-menu").id("m-tools");
             span.div().id("toolbox").text("Uni Tools");
-            embed(ctx, span, propMap.get("toolMenu"));
+            embed(ctx, span, propMap.getEntry("toolMenu"));
         }
 
         out.img().src(_img_ + "hbar/angel-city.png").width("100%");

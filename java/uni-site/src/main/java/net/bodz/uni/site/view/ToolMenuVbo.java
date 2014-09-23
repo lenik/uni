@@ -30,7 +30,7 @@ public class ToolMenuVbo
         // makeOutmostTag(ctx, "ul", entry.getStyle());
         out = out.ul().class_("ui-menubox");
 
-        for (UiPropertyRef<Object> prop : propMap.values()) {
+        for (UiPropertyRef<Object> prop : propMap.getEntries()) {
             iString label = prop.getLabel();
             if (label == null)
                 continue;

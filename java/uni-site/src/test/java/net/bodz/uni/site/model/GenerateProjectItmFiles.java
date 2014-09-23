@@ -19,7 +19,7 @@ public class GenerateProjectItmFiles
 
     public static void main(String[] args)
             throws IOException {
-        UniSite site = new UniSite(UniSiteServerConfig.getBaseDirFromSrc());
+        UniSite site = new UniSite(UniSiteServerConfig.getUniDirFromSrc());
         for (Section section : site.getSectionMap().values()) {
             for (Project project : section.getProjects()) {
                 File docFile = new File(project.getDirectory(), project.getName() + ".itm");
