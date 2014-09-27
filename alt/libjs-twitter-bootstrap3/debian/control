@@ -1,0 +1,14 @@
+Source: libjs-twitter-bootstrap3
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/alt/libjs-twitter-bootstrap3
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/libjs-twitter-bootstrap3
+
+Package: libjs-twitter-bootstrap3
+Architecture: all
+Depends: ${misc:Depends}
+Description: Twitter Bootstrap Framework
