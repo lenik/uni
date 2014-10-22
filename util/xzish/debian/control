@@ -13,5 +13,7 @@ Architecture: all
 Depends: 
     bash-shlib, 
     diskutils, 
+    nbdkit,
+    nbd-client,
     ${misc:Depends}
 Description: XZ-image shell
