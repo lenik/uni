@@ -1,10 +1,10 @@
 include libauto/project.am
 
 dist_bin_SCRIPTS = \
-    xzish
+    do-mount
 
 dist_man_MANS = \
-    xzish.1
+    do-mount.1
 
 dist_setup_SCRIPTS = \
     postinst \

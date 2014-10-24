@@ -1,0 +1,136 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Mount any block dev, in a sub-shell}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -n --no-mount        "Don't mount any partition"
+    option    --child           "(internal use) Launch a sub-shell."
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    no_mount=
+    fn=toplevel
+
+function setopt() {
+    case "$1" in
+        -n|--no-mount)
+            no_mount=1;;
+        --child)
+            fn=child;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    $fn "$@"
+}
+
+function toplevel() {
+    [ -r "$1" ] || quit "Not readable: $1"
+    export IMAGE="$1"
+
+    cmdl=( "$PROGRAM_PATH" )
+        [ "$no_mount" = 1 ] && cmdl=( "${cmdl[@]}" --no-mount )
+        for ((i = 1; i < $LOGLEVEL; i++)); do
+            cmdl=( "${cmdl[@]}" -v )
+        done
+
+    case "$IMAGE" in
+        /dev/*)
+            mkenv "$IMAGE"
+            ;;
+
+        *.xz)
+            _log1 "XZ-image will be mounted using nbdkit."
+            _log2 "For better performance, it should be compressed with appropriate block size."
+            cmdl=( "${cmdl[@]}" --child nbd '$nbd' )
+            _log2 "nbdkit run cmd: ${cmdl[*]}"
+            exec nbdkit --run "${cmdl[*]}" xz file="$IMAGE"
+            ;;
+
+        *)
+            mkenv "$IMAGE"
+            ;;
+    esac
+}
+
+function child() {
+    local type=$1
+    shift
+    child-$type "$@"
+}
+
+function child-nbd() {
+    local s="$1"
+    local protocol="${s%%:*}"
+    s="${s#*:}"
+    local host="${s%%:*}"
+    s="${s#*:}"
+    local port="$s"
+    local dev=/dev/nbd0
+
+    _log2 "nbd-client $host $port $dev"
+    nbd-client $host $port $dev
+    _log2 "Device: $dev"
+
+    mkenv "$dev"
+
+    _log2 "nbd-client -d $dev"
+    nbd-client -d $dev
+}
+
+function mkenv() {
+    local dev="$1"
+
+    local workdir=
+    local olddir=
+    local mps=()
+    
+    if [ -z "$no_mount" ]; then
+        workdir=`mktemp -d`
+        olddir="$PWD"
+        cd "$workdir"
+
+        i=0
+        while read s; do
+            off="${s#*] }"
+            [ $off = 0 ] && continue
+            _log2 "Partition $i offset: $off"
+            mp="$workdir/partition$i"
+            mps=( "${mps[@]}" "$mp" )
+            mkdir "$mp"
+            _log2 mount -o offset=$off "$dev" "$mp"
+            mount -o offset=$off "$dev" "$mp"
+            (( i++ ))
+        done < <(partoffset "$dev")
+    fi
+
+    _warn "You must exit the shell after use, to do necessary clean ups."
+    $SHELL
+
+    if [ -n "$workdir" ]; then
+        for mp in "${mps[@]}"; do
+            _log2 umount "$mp"
+            umount "$mp"
+            rmdir "$mp"
+        done
+
+        cd "$olddir"
+        rmdir "$workdir"
+    fi
+}
+
+boot "$@"
