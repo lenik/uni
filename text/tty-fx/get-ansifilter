@@ -27,6 +27,10 @@ function setopt() {
 
 function main() {
     outfile="$1"
+    if [ -z "$outfile" ]; then
+        quit "No output file specified."
+    fi
+    
     if [ -d "$outfile" ]; then
         outdir="$outfile"
         outfile="$outdir/ansifilter"
@@ -48,7 +52,7 @@ function main() {
     _log1 "Find latest version of ansifilter"
     _log2 "    in: $index"
 
-    url=$( grepurl -E --max-count 1 '[^"]*ansifilter-[1-9.]*.tar.bz2' $index) \
+    url=$( grepurl -E --max-count 1 '[^"]*ansifilter-[1-9.]*.tar.*' $index) \
         || quit "No matching of ansifilter-*-tar.bz2."
 
     _log1 "Download $url..."
