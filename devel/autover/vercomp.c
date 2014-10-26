@@ -590,7 +590,7 @@ gboolean field_refresh_all() {
             FILE *   proc_out;
             GString *cap   = NULL;
             char *   end;
-            char     c;
+            int      c;
             long     result_val;
 
             LOG1 {
