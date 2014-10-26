@@ -11,6 +11,7 @@ Vcs-Browser: http://git.bodz.net/uni/alt/continuum
 Package: continuum
 Architecture: all
 Depends:
+    apache2-enh,
     bash-shlib,
     configutils,
     jetty-pref-apache,

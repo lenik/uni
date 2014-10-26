@@ -12,12 +12,14 @@ Description: Lenik's cool base tools.
     This package brings Lenik's cool base tools to you.
 Recommends:
     bash-alias,
+    bash-ex,
     bash-shlib,
     configutils,
     grub-enh,
     isz-tool,
     locale-setup,
-    more-loops
+    more-loops,
+    postgresql-latest
 
 Package: coolset-util
 Architecture: all
@@ -25,8 +27,10 @@ Description: Lenik's cool util tools.
     This package brings Lenik's cool util tools to you.
 Recommends:
     2tree,
+    ai-utils,
     apache2-enh,
     apt-enh,
+    ascgen,
     cdtree,
     coolcmd,
     cooldiff,
@@ -36,6 +40,8 @@ Recommends:
     cooltext,
     coolutils,
     diskutils,
+    do-mount,
+    dprog,
     err-demux,
     filestats,
     fileutils-xjl,
@@ -44,6 +50,7 @@ Recommends:
     grepl,
     ini-utils,
     laxar,
+    lddd,
     mkchm,
     mksize,
     mountfile,
@@ -89,9 +96,11 @@ Architecture: all
 Description: Lenik's cool admin tools.
     This package brings Lenik's cool admin tools to you.
 Recommends:
-    execfilter,
-    execfilter-utils,
+    coolrpm,
+    debinst,
     extundelete,
+    ms-sys,
+    netcaps,
     router-vendor-utils
 
 Package: coolset-java
@@ -99,16 +108,13 @@ Architecture: all
 Description: Lenik's cool java tools.
     This package brings Lenik's cool java tools to you.
 Recommends:
-    archiva,
     astah-local,
-    continuum,
     coolmaven,
     dejar,
     eclipse-enh,
     jad,
     jdk7-local,
-    jetty-pref-apache,
-    jsrcutils,
+    jetty8-enh,
     libuni-java,
     mjpl,
     shelj
@@ -120,7 +126,6 @@ Description: Lenik's cool x11 tools.
 Recommends:
     coolclip,
     desktoputils,
-    x11-hw-adjust,
     x11-pref-xjl
 
 Package: coolset-gui
@@ -138,5 +143,5 @@ Architecture: all
 Description: Lenik's cool w32 tools.
     This package brings Lenik's cool w32 tools to you.
 Recommends:
-    winedit,
     wine-enh
+
