@@ -1,0 +1,17 @@
+Source: omxplayer-enh
+Section: video
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/x11/omxplayer-enh
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/x11/omxplayer-enh
+
+Package: omxplayer-enh
+Architecture: all
+Depends: 
+    bash-shlib,
+    omxplayer,
+    ${misc:Depends}
+Description: omxplayer utilities and desktop settings.
