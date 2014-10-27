@@ -1,0 +1,88 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -m --mode =MODE      "Set the interval mode"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    mode=toplevel
+    debug=0
+
+function setopt() {
+    case "$1" in
+        -m|--mode)
+            mode="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    "$mode" "$@"
+}
+
+function toplevel() {
+    if [ ! -f "$1" ]; then
+        quit "No file specified."
+    fi
+
+    export VIDEO="$1"
+
+    play "$@"
+    #lxterminal -e "$PROGRAM_PATH -m play"
+}
+
+function play() {
+    local videos=( "$VIDEO" )
+
+    console_focus
+
+    if [ "$debug" = 1 ]; then
+        allopts=("${allopts[@]}" --win '0 0 600 400')
+    else
+        allopts=("${allopts[@]}" -b)
+    fi
+
+    font='/usr/share/fonts/truetype/wqy/wqy-microhei.ttc'
+    allopts=("${allopts[@]}" --font "$font")
+
+    for video in "${videos[@]}"; do
+        opts=("${allopts[@]}")
+
+        woext="${video%.*}"
+        for srt in "${woext}.srt" "${woext}".*.srt; do
+            if [ -f "$srt" ]; then
+                opts=("${opts[@]}" --subtitles "$srt")
+                break
+            fi
+        done
+
+        omxplayer "${opts[@]}" "$VIDEO"
+    done
+}
+
+function console_focus() {
+    _log1 "focusing playback window"
+    wintitle="Fullscreen_OMXPlayer"
+    echo -en "\033]2;$wintitle\007"
+
+    # -a: activate
+    # -R: move to the current window, and give it focus.
+    wmctrl -a -F "$wintitle"
+}
+
+boot "$@"
