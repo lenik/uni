@@ -1,0 +1,396 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FQCN...}
+
+    . shlib-import cliboot strfn
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for d in src/main/java src/main/resources; do
+        [ -d $d ] || quit "Non-existed directory: $d."
+    done
+
+    for fqcn in "$@"; do
+        pkg=${fqcn%.*}
+        pkg_impl=$pkg.impl
+        Base=${fqcn##*.}
+        [ "$Base" != "$fqcn" ] || quit "Not an FQCN: $fqcn"
+        dirs=${pkg//.//}
+        dirs_impl=$dirs/impl
+        
+        B=${Base:0:1}
+        base="$(tolower $B)${Base:1}"
+        _log1 "Generating files for $pkg::$Base $base (in */$dirs)."
+
+        mk_ent          "src/main/java/$dirs/$Base.java"
+        mk_ent_vbo      "src/main/java/$dirs_impl/${Base}Vbo.java"
+        mk_vbo_inf      "$pkg_impl.${Base}Vbo"
+        mk_criteria     "src/main/java/$dirs_impl/${Base}Criteria.java"
+        mk_mapper       "src/main/java/$dirs_impl/${Base}Mapper.java"
+        mk_mapper_xml   "src/main/resources/$dirs_impl/${Base}Mapper.xml"
+        mk_mapper_inf   "$pkg_impl.${Base}Mapper"
+        mk_manager      "src/main/java/$dirs_impl/${Base}Manager.java"
+        mk_manager_inf  "$pkg_impl.${Base}Manager"
+        mk_manager_vbo  "src/main/java/$dirs_impl/${Base}ManagerVbo.java"
+        mk_vbo_inf      "$pkg_impl.${Base}ManagerVbo"
+    done
+}
+
+function findfile() {
+    file="$1"
+    if [ -f "$file" ]; then
+        _log2 "Reusing file $file."
+        return 0
+    fi
+
+    dirname="${file%/*}"
+    if [ "$dirname" = "$file" ]; then
+        dirname=.
+    fi
+    if [ ! -d "$dirname" ]; then
+        _log2 "Creating directory $dirname..."
+        mkdir -p "$dirname"
+    fi
+    _log1 "Creating $file..."
+    return 1
+}
+
+function mk_ent() {
+    file="$1"
+    findfile "$file" && return
+    cat <<EOT >"$file"
+package $pkg;
+
+import com.tinylily.model.base.CoEntity;
+
+public class $Base
+        extends $CoEntity {
+
+    private static final long serialVersionUID = 1L;
+    
+    public $Base() {
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder(128);
+        sb.append("$base: ...");
+        return sb.toString();
+    }
+
+}
+EOT
+}
+
+function mk_ent_vbo() {
+    file="$1"
+    findfile "$file" && return
+    cat <<EOT >"$file"
+package $pkg_impl;
+
+import java.io.IOException;
+
+import net.bodz.bas.html.AbstractHtmlViewBuilder;
+import net.bodz.bas.html.IHtmlViewContext;
+import net.bodz.bas.repr.viz.ViewBuilderException;
+import net.bodz.bas.rtx.IOptions;
+import net.bodz.bas.site.IBasicSiteAnchors;
+import net.bodz.bas.ui.dom1.IUiRef;
+
+import $fqcn;
+
+public class ${Base}Vbo
+        extends AbstractHtmlViewBuilder<$Base>
+        implements IBasicSiteAnchors {
+    
+    public ${Base}Vbo() {
+        super($Base.class);
+    }
+
+    @Override
+    public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<$Base> ref, IOptions options)
+            throws ViewBuilderException, IOException {
+        return ctx;
+    }
+
+}
+EOT
+}
+
+function mk_criteria() {
+    file="$1"
+    findfile "$file" && return
+    cat <<EOT >"$file"
+package $pkg_impl;
+
+import com.tinylily.model.base.CoEntityCriteria;
+
+/**
+ * @see $fqcn
+ */
+public class ${Base}Criteria
+        extends CoEntityCriteria {
+
+    Integer categoryId;
+
+}
+EOT
+}
+
+function mk_mapper() {
+    file="$1"
+    findfile "$file" && return
+    cat <<EOT >"$file"
+package $pkg_impl;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Delete;
+
+import net.bodz.bas.db.batis.IMapper;
+
+import $fqcn;
+
+public interface ${Base}Mapper
+        extends IMapperTemplate<$Base, ${Base}Criteria> {
+
+}
+EOT
+}
+
+function mk_mapper_xml() {
+    file="$1"
+    findfile "$file" && return
+    cat <<EOT >"$file"
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper 
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="$pkg_impl.${Base}Mapper">
+
+    <resultMap id="map1" type="$fqcn" extends="message.mapX">
+        <result property="beginTime" column="t0" />
+        <result property="endTime" column="t1" />
+    </resultMap>
+
+    <sql id="select1"><![CDATA[
+        select
+            a.*,
+            u.label "uid_label",
+            g.label "gid_label"
+        from $base a
+            left join "user" u on a.uid=u.id
+            left join "group" g on a.gid=g.id
+        ]]>
+    </sql>
+
+    <sql id="select2"><![CDATA[
+        select
+            a.*,
+            u.label "uid_label",
+            g.label "gid_label"
+        from $base a
+            left join "user" u on a.uid=u.id
+            left join "group" g on a.gid=g.id
+        ]]>
+    </sql>
+
+    <select id="all" resultMap="map1">
+        <include refid="select1" />
+    </select>
+
+    <select id="filter" resultMap="map1">
+        <include refid="select1" />
+        <where>
+            <if test="categoryId != null">and a.id=#{categoryId}</if>
+        </where>
+    </select>
+
+    <select id="select" parameterType="int" resultMap="map1">
+        <include refid="select2" />
+        <where>
+            <if test="_parameter != null">a.id=#{id}</if>
+        </where>
+    </select>
+
+    <select id="insert" resultType="int">
+        <![CDATA[
+        insert into $base(code, label, description)
+            values(#{codeName},#{label},#{description})
+            returning id
+    ]]></select>
+
+    <update id="update">
+        update $base
+        <set>
+            <include refid="base.setU" />
+        </set>
+        <where>
+            <if test="id != null">id=#{id}, </if>
+        </where>
+    </update>
+
+</mapper>
+EOT
+}
+
+function mk_manager() {
+    file="$1"
+    findfile "$file" && return
+    cat <<EOT >"$file"
+package $pkg_impl;
+
+import com.bee32.zebra.tk.sql.VhostDataService;
+import com.tinylily.repr.CoEntityManager;
+
+import $fqcn;
+
+/**
+ * TITLE
+ * 
+ * @label LABEL
+ * 
+ * @rel HREF1: TEXT1
+ * 
+ * @see <a href="HREF2">TEXT2</a>
+ */
+public class ${Base}Manager
+        extends CoEntityManager {
+
+    ${Base}Mapper mapper;
+
+    public ${Base}Manager() {
+        mapper = VhostDataService.getInstance().getMapper(${Base}Mapper.class);
+    }
+
+    public ${Base}Mapper getMapper() {
+        return mapper;
+    }
+
+}
+EOT
+}
+
+function mk_manager_vbo() {
+    file="$1"
+    findfile "$file" && return
+    cat <<EOT >"$file"
+package $pkg_impl;
+
+import java.io.IOException;
+import java.util.List;
+
+import net.bodz.bas.c.reflect.NoSuchPropertyException;
+import net.bodz.bas.c.string.Strings;
+import net.bodz.bas.err.ParseException;
+import net.bodz.bas.html.IHtmlViewContext;
+import net.bodz.bas.html.dom.tag.HtmlDivTag;
+import net.bodz.bas.html.dom.tag.HtmlTrTag;
+import net.bodz.bas.html.util.IFontAwesomeCharAliases;
+import net.bodz.bas.repr.viz.ViewBuilderException;
+import net.bodz.bas.rtx.IOptions;
+import net.bodz.bas.ui.dom1.IUiRef;
+
+import com.tinylily.model.base.security.User;
+
+import $fqcn;
+
+public class ${Base}ManagerVbo
+        extends Zc3Template_CEM<${Base}Manager, $Base> {
+
+    public ${Base}ManagerVbo()
+            throws NoSuchPropertyException, ParseException {
+        super(${Base}Manager.class);
+        formStruct = new ${Base}().getFormStruct();
+        setIndexFields("id", "op", "subject", "text", "category", "phase", "value" //
+                , "creationDate", "lastModified" //
+        // , "owner.label", "ownerGroup.label"
+        );
+    }
+
+    @Override
+    public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<${Base}Manager> ref, IOptions options)
+            throws ViewBuilderException, IOException {
+
+        ctx = super.buildHtmlView(ctx, ref, options);
+        PageStruct p = new PageStruct(ctx);
+
+        ${Base}Manager manager = ref.get();
+        ${Base}Mapper mapper = manager.getMapper();
+        List<${Base}> list = mapper.all();
+
+        titleInfo(p);
+
+        IndexTable indexTable = mkIndexTable(p.mainCol, "list");
+        for (${Base} o : list) {
+            User op = o.getOp();
+
+            HtmlTrTag tr = indexTable.tbody.tr();
+            tr.td().text(o.getId()).class_("col-id");
+            tr.td().text(op == null ? "" : op.getFullName()).align("center");
+            tr.td().b().text(o.getSubject()).class_("small").style("max-width: 20em");
+            tr.td().text(Strings.ellipsis(o.getText(), 50)).class_("small").style("max-width: 30em");
+            tr.td().text(o.getValue());
+            stdcols(tr, o);
+        }
+
+        dumpData(p.extradata, list);
+
+        return ctx;
+    }
+
+}
+EOT
+}
+
+function mk_manager_inf() {
+    list="src/main/resources/META-INF/services/com.tinylily.repr.CoEntityManager"
+    add_inf "$list" "$@"
+}
+
+function mk_mapper_inf() {
+    list="src/main/resources/META-INF/services/net.bodz.bas.db.batis.IMapper"
+    add_inf "$list" "$@"
+}
+
+function mk_vbo_inf() {
+    list="src/main/resources/META-INF/services/net.bodz.bas.html.IHtmlViewBuilder"
+    add_inf "$list" "$@"
+}
+
+function add_inf() {
+    list="$1"
+    shift
+    findfile "$list"
+
+    items=()
+    if [ -f "$list" ]; then
+        mapfile -t items<$list
+    fi
+
+    items=( "${items[@]}" "$@" )
+    for a in "${items[@]}"; do
+        echo "$a"
+    done | sort -u >$list
+}
+
+boot "$@"
