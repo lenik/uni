@@ -3,7 +3,7 @@ package net.bodz.uni.site.view;
 import java.io.IOException;
 
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.IHtmlMetaData;
+import net.bodz.bas.html.IHtmlHeadData;
 import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.repr.viz.ViewBuilderException;
@@ -20,7 +20,7 @@ public class PreferencesVbo
 
     @Override
     public void preview(IHtmlViewContext ctx, IUiRef<Preferences> ref, IOptions options) {
-        IHtmlMetaData metaData = ctx.getMetaData();
+        IHtmlHeadData metaData = ctx.getHeadData();
         metaData.setTitle("User Preferences");
     }
 

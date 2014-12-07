@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import net.bodz.bas.c.java.util.Dates;
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.IHtmlMetaData;
+import net.bodz.bas.html.IHtmlHeadData;
 import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.dom.tag.HtmlLiTag;
@@ -31,13 +31,13 @@ public class ProjectVbo
     public void preview(IHtmlViewContext ctx, IUiRef<Project> ref, IOptions options) {
         super.preview(ctx, ref, options);
 
-        IHtmlMetaData metaData = ctx.getMetaData();
+        IHtmlHeadData metaData = ctx.getHeadData();
         Project project = ref.get();
 
         if (project instanceof DebProject) {
             DebProject deb = (DebProject) project;
             String debDescription = deb.getInfo().get("Description");
-            metaData.setMeta(IHtmlMetaData.META_DESCRIPTION, debDescription);
+            metaData.setMeta(IHtmlHeadData.META_DESCRIPTION, debDescription);
         }
     }
 
