@@ -23,7 +23,7 @@ import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.t.pojo.Pair;
 import net.bodz.bas.ui.dom1.IUiRef;
-import net.bodz.mda.xjdoc.ClassDocLoader;
+import net.bodz.mda.xjdoc.Xjdocs;
 import net.bodz.mda.xjdoc.model.ClassDoc;
 import net.bodz.uni.site.IUniSiteAnchors;
 import net.bodz.uni.site.UniSite;
@@ -133,7 +133,7 @@ public class UniSiteVbo
         if (!frameOnly)
             indexBody(mainDiv, site);
 
-        ClassDoc classDoc = ClassDocLoader.load(site.getClass());
+        ClassDoc classDoc = Xjdocs.getDefaultProvider().getClassDoc(site.getClass());
 
         HtmlDivTag foot = out.div().class_("foot");
         {

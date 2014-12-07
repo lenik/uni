@@ -9,7 +9,7 @@ import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.t.project.IJazzModule;
 import net.bodz.bas.ui.dom1.IUiRef;
-import net.bodz.mda.xjdoc.ClassDocLoader;
+import net.bodz.mda.xjdoc.Xjdocs;
 import net.bodz.mda.xjdoc.model.ClassDoc;
 
 public class ModuleVbo
@@ -24,13 +24,14 @@ public class ModuleVbo
             throws ViewBuilderException, IOException {
         IJazzModule module = ref.get();
 
-        ClassDoc moduleDoc = ClassDocLoader.load(module.getClass());
+        ClassDoc doc = Xjdocs.getDefaultProvider().getClassDoc(module.getClass());
 
         IHtmlTag out = ctx.getOut();
         out.h1().text(module.getName());
         out.text("");
 
-        out.verbatim(moduleDoc.getText().toString());
+        if (doc != null)
+            out.verbatim(doc.getText().toString());
 
         return ctx;
     }
