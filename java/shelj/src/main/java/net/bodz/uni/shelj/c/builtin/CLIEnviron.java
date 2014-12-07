@@ -27,7 +27,7 @@ import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.t.iterator.Iterables;
-import net.bodz.bas.t.order.ComparableComparator;
+import net.bodz.bas.t.order.DefaultComparator;
 
 import com.sun.security.auth.callback.TextCallbackHandler;
 
@@ -238,7 +238,7 @@ public class CLIEnviron
         String prefix = Strings.repeat(4 * indent, ' ');
         logger.mesg(prefix, title, " properties");
         List<Object> keys = new ArrayList<Object>(properties.keySet());
-        Collections.sort(keys, ComparableComparator.getRawInstance());
+        Collections.sort(keys, DefaultComparator.INSTANCE);
         for (Object key : keys) {
             Object value = properties.get(key);
             logger.mesg(prefix, "    ", key, " = ", value);

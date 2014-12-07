@@ -323,7 +323,7 @@ public class XMLEdit
             pairs.add(pair);
         }
 
-        Collections.sort(pairs, EntryKeyComparator.<String> getNaturalInstance());
+        Collections.sort(pairs, EntryKeyComparator.<String> getDefaultInstance());
 
         List<Node> siblings = parent.elements();
         for (Pair<String, Node> pair : pairs) {

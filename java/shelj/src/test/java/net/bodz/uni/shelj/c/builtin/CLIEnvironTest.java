@@ -12,7 +12,7 @@ import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.bas.program.skel.BasicCLI;
-import net.bodz.bas.t.order.ComparableComparator;
+import net.bodz.bas.t.order.DefaultComparator;
 
 /**
  * Dump arguments for CLI program
@@ -44,7 +44,7 @@ public class CLIEnvironTest
     void dumpProperties() {
         Properties properties = System.getProperties();
         List<Object> keys = new ArrayList<Object>(properties.keySet());
-        Collections.sort(keys, ComparableComparator.getRawInstance());
+        Collections.sort(keys, DefaultComparator.INSTANCE);
         for (Object key : keys) {
             Object value = properties.get(key);
             logger.mesg(key, " = ", value);
