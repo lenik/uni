@@ -1,0 +1,32 @@
+= Directory Structure
+
+    my-project/
+        index.cgi -> /usr/bin/rrdwrapper-index
+        foo.rrw
+        bar.rrw
+        ...
+
+= .rrw file format
+
+    #!/bin/bash
+
+    PROGRAM_TITLE="Title"
+
+    . cmd...
+
+= Apache2 Configuration
+    <Directory ...>
+        Options ExecCGI FollowSymLinks ...
+        AddHandler cgi-script .cgi
+        ...
+    </Directory>
+
+# Create database and install cron tasks
+
+    -- The database dir: ../data/PROGRAM_db.rrd
+
+    for rrw in *.rrw; do
+        "$rrw" --install
+    done
+
+

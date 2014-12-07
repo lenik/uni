@@ -273,13 +273,14 @@ function cron_exec() {
     local cronspec="* * * * *" # Ignore interval.
     local crontab=`mktemp`
     local cron_id="@rrdwrapper::$topic::$id"
+    local fullpath=$(readlink -f "$PROGRAM_PATH")
 
     crontab -l >$crontab
 
     if [ "$mode" = install ]; then
         lineconf -tm "Add sample procedure $id to crontab" \
             $crontab "$cron_id" \
-            "$cronspec \"$PROGRAM_PATH\" --run-cron \"$id\""
+            "$cronspec \"$fullpath\" --run-cron \"$id\""
     else
         lineconf -ktm "Remove sample procedure $id from crontab" \
              $crontab "$cron_id"
