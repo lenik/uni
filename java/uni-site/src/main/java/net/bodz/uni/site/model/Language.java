@@ -6,7 +6,6 @@ import java.util.Collection;
 import net.bodz.bas.c.java.lang.StringTypers;
 import net.bodz.bas.typer.std.IAttributes;
 import net.bodz.bas.typer.std.ITyperFamily;
-import net.bodz.mda.xjdoc.ClassDocLoader;
 import net.bodz.mda.xjdoc.model.IElementDoc;
 import net.bodz.mda.xjdoc.model.javadoc.IXjdocAware;
 
@@ -38,7 +37,7 @@ public enum Language
 
     ;
 
-    private String code;
+    private final String code;
     private IElementDoc xjdoc;
 
     private Language(String code) {
@@ -76,13 +75,21 @@ public enum Language
         return Arrays.asList("code");
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object getAttribute(String attributeName) {
+    public <T> T getAttribute(String attributeName) {
+        Object value = null;
         switch (attributeName) {
         case "code":
-            return code;
+            value = code;
         }
-        return null;
+        return (T) value;
+    }
+
+    @Override
+    public <T> T getAttribute(String name, T defaultValue) {
+        T value = getAttribute(name);
+        return value != null ? value : defaultValue;
     }
 
     @Override
