@@ -1,6 +1,5 @@
 package net.bodz.uni.site.model;
 
-import net.bodz.mda.xjdoc.ClassDocLoader;
 import net.bodz.mda.xjdoc.model.IElementDoc;
 import net.bodz.mda.xjdoc.model.javadoc.IXjdocAware;
 
@@ -49,7 +48,7 @@ public enum Theme
     }
 
     static {
-        ClassDocLoader.injectFields(Theme.class, false);
+        fn.injectFields(Theme.class, false);
     }
 
 }

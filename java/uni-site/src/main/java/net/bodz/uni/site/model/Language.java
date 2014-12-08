@@ -91,7 +91,7 @@ public enum Language
     }
 
     static {
-        ClassDocLoader.injectFields(Language.class, false);
+        fn.injectFields(Language.class, false);
     }
 
 }

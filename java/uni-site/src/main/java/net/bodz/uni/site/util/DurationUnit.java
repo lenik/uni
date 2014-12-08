@@ -1,6 +1,5 @@
 package net.bodz.uni.site.util;
 
-import net.bodz.mda.xjdoc.ClassDocLoader;
 import net.bodz.mda.xjdoc.model.IElementDoc;
 import net.bodz.mda.xjdoc.model.javadoc.IXjdocAware;
 
@@ -88,7 +87,7 @@ public enum DurationUnit
     }
 
     static {
-        ClassDocLoader.injectFields(DurationUnit.class, false);
+        fn.injectFields(DurationUnit.class, false);
     }
 
 }
