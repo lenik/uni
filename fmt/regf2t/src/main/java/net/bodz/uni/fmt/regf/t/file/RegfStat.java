@@ -19,9 +19,9 @@ public class RegfStat
     public transient List<BigDataCell> bigDatas = new ArrayList<>();
 
     public void test() {
-        int eq = 0;
-        int neq = 0;
-        int z = 0;
+        int eq = 0; // count of: hash = hashLF/LH
+        int neq = 0; // count of: hash != hashLF/LH
+        int z = 0; // count of: hash = 0
         for (SubkeyListCell subkeyList : subkeyLists) {
             for (SubkeyElement element : subkeyList.elements) {
                 switch (subkeyList.magic) {
@@ -52,6 +52,8 @@ public class RegfStat
                 }
             }
         }
+
+        System.out.printf("z=%d, eq=%d, neq=%d", z, eq, neq);
         return;
     }
 
