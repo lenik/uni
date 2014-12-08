@@ -10,8 +10,9 @@ import javax.servlet.http.HttpSession;
 
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.IHtmlMetaData;
+import net.bodz.bas.html.IHtmlHeadData;
 import net.bodz.bas.html.IHtmlViewContext;
+import net.bodz.bas.html.artifact.ArtifactType;
 import net.bodz.bas.html.artifact.IArtifactDependency;
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.dom.tag.*;
@@ -54,12 +55,12 @@ public class UniSiteVbo
     public void preview(IHtmlViewContext ctx, IUiRef<UniSite> ref, IOptions options) {
         super.preview(ctx, ref, options);
 
-        IHtmlMetaData metaData = ctx.getMetaData();
-        metaData.setMeta(IHtmlMetaData.META_AUTHOR, "谢继雷 (Xiè Jìléi)");
-        metaData.setMeta(IHtmlMetaData.META_VIEWPORT, "width=device-width, initial-scale=1");
+        IHtmlHeadData metaData = ctx.getHeadData();
+        metaData.setMeta(IHtmlHeadData.META_AUTHOR, "谢继雷 (Xiè Jìléi)");
+        metaData.setMeta(IHtmlHeadData.META_VIEWPORT, "width=device-width, initial-scale=1");
 
-        metaData.addDependency("jquery-min", IArtifactDependency.SCRIPT);
-        metaData.addDependency("font-awesome", IArtifactDependency.STYLESHEET).setPriority(IArtifactDependency.LOW);
+        metaData.addDependency("jquery-min", ArtifactType.SCRIPT);
+        metaData.addDependency("font-awesome", ArtifactType.STYLESHEET).setPriority(IArtifactDependency.LOW);
     }
 
     @Override
@@ -157,7 +158,7 @@ public class UniSiteVbo
             powerDiv.span().text("Powered by: ");
             powerDiv.a().href(_webApp_.join("modules/bas-site/").toString()).text("BAS Site Framework 2.0");
 
-            foot.text(classDoc.getTag("copyright").toString());
+            foot.text(classDoc.getTag("copyright"));
         }
 
         ctx.setOut(mainDiv);
