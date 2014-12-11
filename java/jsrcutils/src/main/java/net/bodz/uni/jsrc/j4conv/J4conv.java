@@ -254,11 +254,11 @@ public class J4conv
 
         void enterScope() {
             logger.info(indent(), "enter-t=", //
-                    Strings.ellipse(typens.toString(), 100));
+                    Strings.ellipsis(typens.toString(), 100));
             // _t.detail(indent(), "enter-f=", //
             // Strings.ellipse(funns.toString(), 100));
             logger.info(indent(), "enter-v=", //
-                    Strings.ellipse(varns.toString(), 100));
+                    Strings.ellipsis(varns.toString(), 100));
             typens.enterNew();
             // funns.enterNew();
             varns.enterNew();
@@ -268,11 +268,11 @@ public class J4conv
 
         void leaveScope() {
             logger.info(indent(), "leave-t=", //
-                    Strings.ellipse(typens.toString(), 100));
+                    Strings.ellipsis(typens.toString(), 100));
             // _t.detail(indent(), "leave-f=", //
             // Strings.ellipse(funns.toString(), 100));
             logger.info(indent(), "leave-v=", //
-                    Strings.ellipse(varns.toString(), 100));
+                    Strings.ellipsis(varns.toString(), 100));
             typens.leave();
             // funns.leave();
             varns.leave();
