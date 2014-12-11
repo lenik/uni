@@ -19,6 +19,6 @@ char *strtok_eol(char *head, char **endp);
 
 /* Break the quoted string, return the head token, and advance the *endp so as
    to prepare to return the next token. */
-char *qstr_btok(char *head, char **endp);
+char *qstr_btok(char *head, char **endp, bool killq);
 
 #endif
