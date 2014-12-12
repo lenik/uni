@@ -21,7 +21,7 @@ chmod +r "$preloadfile"
 
 # The module must be suid, or it will be ignored when it's linked with suid app.
 shopt -s nullglob
-chmod +xs "@libdir@"/libexecfilter.so.*
+chmod +xs "@rootlibdir@"/libexecfilter.so.*
 
 if [ -f @sysconfdir@/rc.d/init.d ]; then # RHEL
     initdir=@sysconfdir@/rc.d/init.d
