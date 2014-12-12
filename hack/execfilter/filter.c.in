@@ -18,6 +18,7 @@
 #include <bas/path.h>
 #include <bas/proc.h>
 #include <bas/str.h>
+#include <bas/compat/all.h>
 
 #include "filter.h"
 #include "trie.h"
