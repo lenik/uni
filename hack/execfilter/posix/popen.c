@@ -6,7 +6,7 @@ FILE *popen(const char *command, const char *type) {
     def_next(popen);
 
     char *copy = strdup(command);
-    char *cmd = qstr_btok(copy, NULL);
+    char *cmd = qstr_btok(copy, NULL, true);
 
     NORM_CONFIG(popen, cmd);
 

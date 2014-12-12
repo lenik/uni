@@ -10,7 +10,7 @@ int system(const char *command) {
     if (copy == NULL)
         return -1;                      /* ENOMEM */
 
-    char *cmd = qstr_btok(copy, NULL);
+    char *cmd = qstr_btok(copy, NULL, true);
 
     NORM_CONFIG(system, cmd);
 
