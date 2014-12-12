@@ -8,6 +8,8 @@
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
     . shlib-import ai cliboot
+    option -c --check       "Check for update" \
+        "Quick check if there is any need to update"
     option -r --renew       "Register/Renew the license" \
         "Send registration or renew request to the licensing server." \
         "This software won't run until it's licensed in a specific period."
@@ -24,6 +26,8 @@
 
 function setopt() {
     case "$1" in
+        -c|--check)
+            opt_mode=check;;
         -r|--renew)
             opt_mode=renew;;
         -h|--help)

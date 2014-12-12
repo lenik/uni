@@ -16,6 +16,24 @@ mac_lot=
 mac_norm=
 
 function main() {
+    get_hw_mac
+    _log2 "MAC=$mac_norm ($mac_lot)"
+
+    do_$opt_mode "$@"
+}
+
+function do_check() {
+    _log1 "Check for update..."
+    status=$( echo -n $mac_norm | echo nc -w 3 sd.shenduncn.com 55555 )
+    if [ "$status" = 1 ]; then
+        _log1 "Need to update."
+        do_renew
+    else
+        _log1 "No update."
+    fi
+}
+
+function do_renew() {
     if [ -f "$authfile" ]; then
         while IFS=' =' read k v; do
             [ -z "$k" ] && continue         # empty lines
@@ -40,9 +58,6 @@ function main() {
         save_auth
         return 1
     fi
-
-    get_hw_mac
-    _log2 "MAC=$mac_norm ($mac_lot)"
 
     local req
     if [ -z "$auth_mac" ]; then
