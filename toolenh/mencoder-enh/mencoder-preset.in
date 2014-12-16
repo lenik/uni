@@ -1,0 +1,173 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=mencoder with presets}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <preset> FILES...}
+    : ${PRESETDIR:=@presetdir@}
+
+    bitrate=
+    profile=
+    time_keep=
+    force=
+    g_outdir=
+    g_outfile=
+
+    . shlib-import cliboot
+    option    --outdir =DIR     "Specify output directory."
+    option -o --output =FILE    "Specify the output filename."
+    option -b --bitrate =kbps   "Specify the video bitrate."
+    option -p --profile =NAME   "Use the given profile."
+    option -t --time-keep       "Preserve the file time same to the src."
+    option -f --force           "Force to overwrite existing output file."
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        --outdir)
+            g_outdir="$2";;
+        -o|--out)
+            g_outfile="$2";;
+        -b|--bitrate)
+            bitrate="$2";;
+        -p|--profile)
+            profile="$2";;
+        -t|--time_keep)
+            time_keep=1;;
+        -f|--force)
+            force=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    preset="$1"
+    presetfile="$PRESETDIR/$preset"
+    [ -f "$presetfile" ] || quit "Preset is undefined: $preset"
+    shift
+    
+    # Check options...
+        if [ -n "$g_outfile" ]; then
+            # the dirname of --outfile will override --outdir.
+            [ -z "$g_outdir" ] && g_outdir=.
+            d="${g_outfile%/*}"
+            if [ "$d" != "$g_outfile" ]; then
+                g_outdir="$d"
+                g_outfile="${g_outfile##*/}"
+            fi
+        fi
+
+    _log2 "Determine the output extension..."
+        outext=avi
+        while IFS== read k v; do
+            case "$k" in
+            o)
+                # e.g. o=[m6]noname.avi
+                outext=${v##*.}
+                if [ "$outext" = "$v" ]; then
+                    outext=avi
+                fi
+                ;;
+            esac
+        done <"$presetfile"
+
+    # Init global options...
+        outinfo="$preset"
+        [ -n "$profile" ] && outinfo="$outinfo.$profile"
+        [ -n "$bitrate" ] && outinfo="$outinfo vbr-$bitrate"
+
+        mopts=()
+        if [ -n "$profile" ]; then
+            mopts=( "${mopts[@]}" -profile "$profile" )
+        fi
+
+    for infile in "$@"; do
+        opts=( "${mopts[@]}" )
+
+        # parse filename
+            indir="${infile%/*}"
+            inbase="${infile##*/}"
+            if [ "$indir" = "$infile" ]; then
+                indir=.
+            fi
+
+            inname="${inbase%.*}"
+            inext="${inbase##*.}"
+            if [ "$inname" = "$inbase" ]; then
+                inext=
+            fi
+
+        _log2 "Find if there is any .edl file..."
+            edlfile="${infile%.*}.edl"
+            if [ -f "$edlfile" ]; then
+                _log1 "Using edit-decision-list: $edlfile"
+                opts=( "${opts[@]}" -edl "$edlfile" )
+            fi
+
+        _log2 "Determine the output file..."
+            outdir="${g_outdir:-$indir}"
+            if [ -n "$g_outfile" ]; then
+                outfile="$g_outdir/$g_outfile"
+            else
+                outfile="$outdir/[$outinfo]$inname.$outext"
+            fi
+
+            if [ -f "$outfile" ]; then
+                if [ "$force" != 1 ]; then
+                    _log1 "File is already existed: $outfile"
+                    continue
+                fi
+            fi
+            _log1 "Output: $outfile"
+            opts=( "${opts[@]}" -o "$outfile" )
+
+        _log2 "Execute: mencoder -include $presetfile ${opts[@]} $infile"
+            # cat <(expand "$presetfile")
+            mencoder -include <(expand "$presetfile") "${opts[@]}" "$infile"
+
+        if [ "$time_keep" = 1 ] && [ -f "$outfile" ]; then
+            _log1 "Reset output file time."
+            touch -r "$infile" "$outfile"
+        fi
+    done
+}
+
+function expand() {
+    local __FILE__
+    for __FILE__ in "$@"; do
+        while read ln; do
+            s1="${ln%%\$\{*}"
+            if [ "$s1" = "$ln" ]; then
+                echo "$ln"
+            else
+                s2="${ln#*\$\{}"
+                var="${s2%%\}*}"
+                [ "$var" = "$s2" ] && quit "Bad variable: ...$s2"
+                s3="${s2#*\}}"
+
+                val="${var#*=}"
+                if [ "$val" = "$var" ]; then
+                    val=
+                else
+                    var="${var%%=*}"
+                fi
+                realval="${!var}"
+                [ -n "$realval" ] && val="$realval"
+                echo "$s1$val$s3"
+            fi
+        done <"$__FILE__"
+    done
+}
+
+boot "$@"

@@ -1,9 +1,7 @@
-#=BITRATE=lavcopts vbitrate
-
 # default output filename
 o=encoded.mpg
 
-# autio encoding options
+# audio encoding options
 oac=mp3lame=yes
 lameopts=preset=medium
 
@@ -11,7 +9,7 @@ lameopts=preset=medium
 ovc=lavc=yes
 # lavcopts=acodec=mp2
 lavcopts=vcodec=mpeg4:mbd=1
-lavcopts=vbitrate=2500
+lavcopts=vbitrate=${bitrate=2500}
 
 # doesn't work with -edl originalfile.edl
 #hr-edl-seek=yes
