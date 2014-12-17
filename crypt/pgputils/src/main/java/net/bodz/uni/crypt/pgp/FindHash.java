@@ -16,7 +16,7 @@ import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.bas.program.skel.BasicCLI;
-import net.bodz.bas.t.set.IntRange;
+import net.bodz.bas.t.range.IntRange;
 import net.bodz.bas.vfs.IFile;
 import net.bodz.uni.crypt.pgp.Hashes.PeekDigest;
 
