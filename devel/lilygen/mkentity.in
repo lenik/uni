@@ -150,7 +150,11 @@ import com.tinylily.model.base.CoEntityCriteria;
 public class ${Base}Criteria
         extends CoEntityCriteria {
 
-    Integer categoryId;
+    @Override
+    protected void populate(QVariantMap<String> map)
+            throws ParseException {
+        super.populate(map);
+    }
 
 }
 EOT
@@ -249,6 +253,10 @@ function mk_mapper_xml() {
         </where>
     </update>
 
+    <delete id="delete">
+        delete from $base where id=#{id}
+    </delete>
+
 </mapper>
 EOT
 }
@@ -321,10 +329,7 @@ public class ${Base}ManagerVbo
             throws NoSuchPropertyException, ParseException {
         super(${Base}Manager.class);
         formStruct = new ${Base}().getFormStruct();
-        setIndexFields("id", "op", "subject", "text", "category", "phase", "value" //
-                , "creationDate", "lastModified" //
-        // , "owner.label", "ownerGroup.label"
-        );
+        insertIndexFields("op", "subject", "text", "category", "phase", "value");
     }
 
     @Override
@@ -345,12 +350,12 @@ public class ${Base}ManagerVbo
             User op = o.getOp();
 
             HtmlTrTag tr = indexTable.tbody.tr();
-            tr.td().text(o.getId()).class_("col-id");
+            stdcols0(tr, o);
             tr.td().text(op == null ? "" : op.getFullName()).align("center");
             tr.td().b().text(o.getSubject()).class_("small").style("max-width: 20em");
             tr.td().text(Strings.ellipsis(o.getText(), 50)).class_("small").style("max-width: 30em");
             tr.td().text(o.getValue());
-            stdcols(tr, o);
+            stdcols1(tr, o);
         }
 
         dumpData(p.extradata, list);
