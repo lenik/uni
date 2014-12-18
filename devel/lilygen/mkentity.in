@@ -142,6 +142,8 @@ function mk_criteria() {
     cat <<EOT >"$file"
 package $pkg_impl;
 
+import net.bodz.bas.err.ParseException;
+
 import com.tinylily.model.base.CoEntityCriteria;
 
 /**
@@ -191,7 +193,7 @@ function mk_mapper_xml() {
  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="$pkg_impl.${Base}Mapper">
 
-    <resultMap id="map1" type="$fqcn" extends="message.mapX">
+    <resultMap id="map1" type="$fqcn" extends="co.mapUS">
         <result property="beginTime" column="t0" />
         <result property="endTime" column="t1" />
     </resultMap>
@@ -246,7 +248,7 @@ function mk_mapper_xml() {
     <update id="update">
         update $base
         <set>
-            <include refid="base.setU" />
+            <include refid="co.setU" />
         </set>
         <where>
             <if test="id != null">id=#{id}, </if>
@@ -256,6 +258,10 @@ function mk_mapper_xml() {
     <delete id="delete">
         delete from $base where id=#{id}
     </delete>
+
+    <select id="count" resultType="hashmap">
+        select count(*) "total" from ${base}
+    </select>
 
 </mapper>
 EOT
@@ -287,6 +293,7 @@ public class ${Base}Manager
     ${Base}Mapper mapper;
 
     public ${Base}Manager() {
+        super($Base.class);
         mapper = VhostDataService.getInstance().getMapper(${Base}Mapper.class);
     }
 
@@ -329,32 +336,25 @@ public class ${Base}ManagerVbo
             throws NoSuchPropertyException, ParseException {
         super(${Base}Manager.class);
         formStruct = new ${Base}().getFormStruct();
-        insertIndexFields("op", "subject", "text", "category", "phase", "value");
+        insertIndexFields("label", "description");
     }
 
     @Override
     public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<${Base}Manager> ref, IOptions options)
             throws ViewBuilderException, IOException {
-
         ctx = super.buildHtmlView(ctx, ref, options);
+
         PageStruct p = new PageStruct(ctx);
 
         ${Base}Manager manager = ref.get();
         ${Base}Mapper mapper = manager.getMapper();
         List<${Base}> list = mapper.all();
 
-        titleInfo(p);
-
         IndexTable indexTable = mkIndexTable(p.mainCol, "list");
         for (${Base} o : list) {
-            User op = o.getOp();
-
             HtmlTrTag tr = indexTable.tbody.tr();
             stdcols0(tr, o);
-            tr.td().text(op == null ? "" : op.getFullName()).align("center");
-            tr.td().b().text(o.getSubject()).class_("small").style("max-width: 20em");
-            tr.td().text(Strings.ellipsis(o.getText(), 50)).class_("small").style("max-width: 30em");
-            tr.td().text(o.getValue());
+            stdcolsLD(tr, o);
             stdcols1(tr, o);
         }
 
