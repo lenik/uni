@@ -1,9 +1,5 @@
 package net.bodz.uni.site;
 
-import java.io.File;
-
-import net.bodz.bas.c.m2.MavenPomDir;
-import net.bodz.bas.err.IllegalConfigException;
 import net.bodz.bas.html.servlet.PathDispatchServlet;
 import net.bodz.bas.http.ctx.CurrentRequestContextTeller;
 import net.bodz.bas.http.servlet.ClassResourceAccessorServlet;
@@ -42,17 +38,8 @@ public class UniSiteServerConfig
         imgLink.setInitParam(FileAccessorServlet.ATTRIBUTE_PATH, //
                 "/mnt/istore/projects/design/img");
 
-        PathDispatchServlet.startObject = new UniSite(getUniDirFromSrc());
-        addServlet(PathDispatchServlet.class, "/*");
-    }
-
-    public static File getUniDirFromSrc() {
-        File pomDir = MavenPomDir.fromClass(UniSite.class).getBaseDir();
-        File javaDir = pomDir.getParentFile();
-        File uniDir = javaDir.getParentFile();
-        if (uniDir == null || !uniDir.exists())
-            throw new IllegalConfigException("Can't find base dir of the uni project.");
-        return uniDir;
+        ServletDescriptor pathDispatch = addServlet(PathDispatchServlet.class, "/*");
+        pathDispatch.setInitParam(PathDispatchServlet.ROOT_CLASS, UniSiteFromSrc.class.getName());
     }
 
 }
