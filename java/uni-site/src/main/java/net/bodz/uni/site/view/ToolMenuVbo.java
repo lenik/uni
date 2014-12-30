@@ -7,6 +7,7 @@ import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.dom.tag.HtmlLiTag;
 import net.bodz.bas.i18n.dom.iString;
+import net.bodz.bas.potato.ref.UiHelper;
 import net.bodz.bas.potato.ref.UiPropertyRef;
 import net.bodz.bas.potato.ref.UiPropertyRefMap;
 import net.bodz.bas.repr.viz.ViewBuilderException;
@@ -25,7 +26,7 @@ public class ToolMenuVbo
     public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<ToolMenu> ref, IOptions options)
             throws ViewBuilderException, IOException {
         IHtmlTag out = ctx.getOut();
-        UiPropertyRefMap propMap = explode(ref);
+        UiPropertyRefMap propMap = UiHelper.explode(ref);
 
         // makeOutmostTag(ctx, "ul", entry.getStyle());
         out = out.ul().class_("ui-menubox");
