@@ -2,10 +2,10 @@ package net.bodz.uni.site.view;
 
 import java.io.IOException;
 
-import net.bodz.bas.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.dom.tag.HtmlLiTag;
+import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
+import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.i18n.dom.iString;
 import net.bodz.bas.potato.ref.UiHelper;
 import net.bodz.bas.potato.ref.UiPropertyRef;
@@ -23,9 +23,8 @@ public class ToolMenuVbo
     }
 
     @Override
-    public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<ToolMenu> ref, IOptions options)
+    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<ToolMenu> ref, IOptions options)
             throws ViewBuilderException, IOException {
-        IHtmlTag out = ctx.getOut();
         UiPropertyRefMap propMap = UiHelper.explode(ref);
 
         // makeOutmostTag(ctx, "ul", entry.getStyle());
@@ -42,7 +41,7 @@ public class ToolMenuVbo
             embed(ctx, li, prop);
         }
 
-        return ctx;
+        return out;
     }
 
 }

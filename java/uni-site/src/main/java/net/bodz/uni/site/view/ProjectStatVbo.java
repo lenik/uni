@@ -2,10 +2,10 @@ package net.bodz.uni.site.view;
 
 import java.io.IOException;
 
-import net.bodz.bas.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.util.IFontAwesomeCharAliases;
+import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
+import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
@@ -27,9 +27,8 @@ public class ProjectStatVbo
     }
 
     @Override
-    public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<ProjectStat> ref, IOptions options)
+    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<ProjectStat> ref, IOptions options)
             throws ViewBuilderException, IOException {
-        IHtmlTag out = ctx.getOut();
         ProjectStat stat = ref.get();
 
         out = out.div().class_("prj-stat fa");
@@ -37,7 +36,7 @@ public class ProjectStatVbo
         out.span().class_(CLASS_COMMENTS).text(stat.getComments().size());
         out.span().class_(CLASS_DOWNLOADS).text(stat.getDownloads().size());
 
-        return ctx;
+        return out;
     }
 
 }

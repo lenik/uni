@@ -2,10 +2,10 @@ package net.bodz.uni.site.view;
 
 import java.io.IOException;
 
-import net.bodz.bas.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.dom.tag.HtmlDivTag;
+import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
+import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.i18n.dom.iString;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
@@ -28,12 +28,11 @@ public class SectionVbo
     }
 
     @Override
-    public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<Section> ref, IOptions options)
+    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<Section> ref, IOptions options)
             throws ViewBuilderException, IOException {
         if (enter(ctx))
             return null;
 
-        IHtmlTag out = ctx.getOut();
         Section section = ref.get();
 
         String name = section.getName();
@@ -74,6 +73,6 @@ public class SectionVbo
             projectDiv.text(project.getLabel());
         }
 
-        return ctx;
+        return out;
     }
 }

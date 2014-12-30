@@ -6,23 +6,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.bodz.bas.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.IHtmlViewBuilder;
-import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.dom.tag.HtmlTdTag;
 import net.bodz.bas.html.dom.tag.HtmlTrTag;
+import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
+import net.bodz.bas.html.viz.IHtmlViewBuilder;
+import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.bas.ui.dom1.UiValue;
 
-public class MapTableVbo<V>
+public class MapTable_htm<V>
         extends AbstractHtmlViewBuilder<Map<?, V>> {
 
     IHtmlViewBuilder<V> valueViewBuilder;
 
-    public MapTableVbo(IHtmlViewBuilder<V> valueViewBuilder) {
+    public MapTable_htm(IHtmlViewBuilder<V> valueViewBuilder) {
         super(Map.class);
         this.valueViewBuilder = valueViewBuilder;
     }
@@ -36,9 +36,8 @@ public class MapTableVbo<V>
     }
 
     @Override
-    public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<Map<?, V>> ref, IOptions options)
+    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<Map<?, V>> ref, IOptions options)
             throws ViewBuilderException, IOException {
-        IHtmlTag out = ctx.getOut();
         Map<?, V> map = ref.get();
 
         out = out.table();
@@ -57,9 +56,9 @@ public class MapTableVbo<V>
         for (V value : values) {
             UiValue<V> valueRef = UiValue.wrap(value);
             HtmlTdTag td = tr.td();
-            valueViewBuilder.buildHtmlView(ctx, valueRef, options);
+            valueViewBuilder.buildHtmlView(ctx, out, valueRef, options);
         }
-        return ctx;
+        return out;
     }
 
 }

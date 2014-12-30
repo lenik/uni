@@ -9,7 +9,7 @@ import java.util.TreeMap;
 
 import javax.servlet.http.HttpSession;
 
-import net.bodz.bas.html.HtmlViewBuilder;
+import net.bodz.bas.html.meta.HtmlViewBuilder;
 import net.bodz.bas.http.ctx.CurrentHttpService;
 import net.bodz.bas.i18n.dom.iString;
 import net.bodz.bas.log.Logger;

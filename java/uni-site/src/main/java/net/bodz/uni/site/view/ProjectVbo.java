@@ -3,12 +3,12 @@ package net.bodz.uni.site.view;
 import java.io.IOException;
 
 import net.bodz.bas.c.java.util.Dates;
-import net.bodz.bas.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.IHtmlHeadData;
-import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.dom.tag.HtmlLiTag;
 import net.bodz.bas.html.dom.tag.HtmlUlTag;
+import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
+import net.bodz.bas.html.viz.IHtmlHeadData;
+import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
@@ -42,12 +42,11 @@ public class ProjectVbo
     }
 
     @Override
-    public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<Project> ref, IOptions options)
+    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<Project> ref, IOptions options)
             throws ViewBuilderException, IOException {
         if (enter(ctx))
             return null;
 
-        IHtmlTag out = ctx.getOut();
         Project project = ref.get();
         String name = project.getName();
 
@@ -99,7 +98,7 @@ public class ProjectVbo
             throw new ViewBuilderException(e.getMessage(), e);
         }
 
-        return ctx;
+        return out;
     }
 
 }

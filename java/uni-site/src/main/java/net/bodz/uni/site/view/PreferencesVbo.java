@@ -2,10 +2,10 @@ package net.bodz.uni.site.view;
 
 import java.io.IOException;
 
-import net.bodz.bas.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.IHtmlHeadData;
-import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.html.dom.IHtmlTag;
+import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
+import net.bodz.bas.html.viz.IHtmlHeadData;
+import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
@@ -25,9 +25,8 @@ public class PreferencesVbo
     }
 
     @Override
-    public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<Preferences> ref, IOptions options)
+    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<Preferences> ref, IOptions options)
             throws ViewBuilderException, IOException {
-        IHtmlTag out = ctx.getOut();
         Preferences preferences = ref.get();
 
         out.h1().text("User Preferences");
@@ -38,7 +37,7 @@ public class PreferencesVbo
         out.dt().text("Language: ");
         out.dd().text(preferences.getLanguage().toString());
 
-        return ctx;
+        return out;
     }
 
 }

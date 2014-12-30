@@ -3,12 +3,12 @@ package net.bodz.bas.vcs;
 import java.io.IOException;
 
 import net.bodz.bas.c.java.util.Dates;
-import net.bodz.bas.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.dom.tag.HtmlLiTag;
 import net.bodz.bas.html.dom.tag.HtmlPreTag;
 import net.bodz.bas.html.dom.tag.HtmlUlTag;
+import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
+import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.repr.path.IPathArrival;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
@@ -25,9 +25,8 @@ public class VcsLogEntryVbo
     }
 
     @Override
-    public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<IVcsLogEntry> ref, IOptions options)
+    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<IVcsLogEntry> ref, IOptions options)
             throws ViewBuilderException, IOException {
-        IHtmlTag out = ctx.getOut();
         IVcsLogEntry ent = ref.get();
 
         IPathArrival __project_logs_entry = ctx.query(IPathArrival.class);

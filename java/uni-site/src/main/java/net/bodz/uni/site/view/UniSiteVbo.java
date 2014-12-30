@@ -9,13 +9,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import net.bodz.bas.c.string.StringQuote;
-import net.bodz.bas.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.IHtmlHeadData;
-import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.html.artifact.ArtifactType;
 import net.bodz.bas.html.artifact.IArtifactDependency;
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.dom.tag.*;
+import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
+import net.bodz.bas.html.viz.IHtmlHeadData;
+import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.i18n.dom1.IElement;
 import net.bodz.bas.potato.ref.UiHelper;
 import net.bodz.bas.potato.ref.UiPropertyRefMap;
@@ -65,12 +65,11 @@ public class UniSiteVbo
     }
 
     @Override
-    public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<UniSite> ref, IOptions options)
+    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<UniSite> ref, IOptions options)
             throws ViewBuilderException, IOException {
         if (enter(ctx))
             return null;
 
-        IHtmlTag out = ctx.getOut();
         UniSite site = ref.get();
 
         HttpSession session = ctx.getSession();
@@ -163,7 +162,7 @@ public class UniSiteVbo
         }
 
         ctx.setOut(mainDiv);
-        return ctx;
+        return out;
     }
 
     void indexBody(IHtmlTag out, UniSite site) {

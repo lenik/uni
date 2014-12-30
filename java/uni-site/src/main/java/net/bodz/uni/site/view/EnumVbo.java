@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.EnumSet;
 
-import net.bodz.bas.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.dom.tag.HtmlATag;
 import net.bodz.bas.html.dom.tag.HtmlLiTag;
 import net.bodz.bas.html.dom.tag.HtmlUlTag;
+import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
+import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.potato.provider.bean.BeanProperty;
 import net.bodz.bas.potato.ref.PropertyRefEntry;
 import net.bodz.bas.repr.viz.ViewBuilderException;
@@ -31,9 +31,8 @@ public class EnumVbo
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<Enum<?>> ref, IOptions options)
+    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<Enum<?>> ref, IOptions options)
             throws ViewBuilderException, IOException {
-        IHtmlTag out = ctx.getOut();
         Enum<?> value = ref.get();
 
         Class<?> enumType = ref.getValueType();
@@ -70,7 +69,7 @@ public class EnumVbo
             }
             a.text(text);
         }
-        return ctx;
+        return out;
     }
 
 }
