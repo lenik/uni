@@ -12,7 +12,5 @@ CLEANFILES = \
 
 install-data-hook:
 	mkdir -p ${DESTDIR}${jsdir}
-	for d in iCheck/*; do \
-	    cp -a $$d/* ${DESTDIR}${jsdir}/; \
-	done
+	cp -a iCheck/* ${DESTDIR}${jsdir}/
 

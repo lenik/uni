@@ -12,7 +12,5 @@ CLEANFILES = \
 
 install-data-hook:
 	mkdir -p ${DESTDIR}${jsdir}
-	for d in Magnific-Popup/; do \
-	    cp -a $$d/* ${DESTDIR}${jsdir}/; \
-	done
+	cp -a Magnific-Popup/* ${DESTDIR}${jsdir}/
 

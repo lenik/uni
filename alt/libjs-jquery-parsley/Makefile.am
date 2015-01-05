@@ -12,7 +12,5 @@ CLEANFILES = \
 
 install-data-hook:
 	mkdir -p ${DESTDIR}${jsdir}
-	for d in Parsley.js-*/; do \
-	    cp -a $$d/* ${DESTDIR}${jsdir}/; \
-	done
+	cp -a Parsley.js-*/* ${DESTDIR}${jsdir}/
 
