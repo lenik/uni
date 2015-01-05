@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([libjs-jquery-wallpaper], [0.1], [xjl-bug@99jsj.com])
+AC_INIT([libjs-jquery-wallpaper], [3.1.18], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 
 # Checks for programs.
