@@ -15,8 +15,6 @@ Depends:
     ${misc:Depends}
 Description: THE JQUERY PLUGIN FOR BIG BACKGROUND VIDEO (AND IMAGES)
     This plugin makes it easy to add fit-to-fill background video to websites. It can play silent ambient background video (or series of videos). Or use it as a player to show video playlist. BigVideo.js can also show big background images, which is nice to have for showing big background images for devices that don’t have autoplay for ambient video.
-
     BigVideo.js is built on top of Video.js from zencoder. So big thanks to them!
-
     You can read about how to use BigVideo.js below. Also, check out the tutorial I wrote for Codrops.
 
