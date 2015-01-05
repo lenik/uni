@@ -1,0 +1,18 @@
+Source: libjs-jquery-magnific-popup
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/alt/libjs-jquery-magnific-popup
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/libjs-jquery-magnific-popup
+
+Package: libjs-jquery-magnific-popup
+Architecture: all
+Depends: 
+    libjs-jquery,
+    ${misc:Depends}
+Description: Fast, light, mobile-friendly and responsive lightbox and modal dialog plugin.
+    Open inline HTML, ajax loaded content, image, form, iframe (YouTube video, Vimeo, Google Maps), 
+    photo gallery. Animation effects added with CSS3 transitions. For jQuery or Zepto.
