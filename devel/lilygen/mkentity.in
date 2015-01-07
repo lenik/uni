@@ -109,27 +109,15 @@ package $pkg_impl;
 
 import java.io.IOException;
 
-import net.bodz.bas.html.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.IHtmlViewContext;
-import net.bodz.bas.repr.viz.ViewBuilderException;
-import net.bodz.bas.rtx.IOptions;
-import net.bodz.bas.site.IBasicSiteAnchors;
-import net.bodz.bas.ui.dom1.IUiRef;
+import net.bodz.bas.html.viz.util.AbstractForm_htm;
 
 import $fqcn;
 
 public class ${Base}Vbo
-        extends AbstractHtmlViewBuilder<$Base>
-        implements IBasicSiteAnchors {
+        extends AbstractForm_htm<$Base> {
     
     public ${Base}Vbo() {
         super($Base.class);
-    }
-
-    @Override
-    public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<$Base> ref, IOptions options)
-            throws ViewBuilderException, IOException {
-        return ctx;
     }
 
 }
@@ -194,8 +182,6 @@ function mk_mapper_xml() {
 <mapper namespace="$pkg_impl.${Base}Mapper">
 
     <resultMap id="map1" type="$fqcn" extends="co.mapUS">
-        <result property="beginTime" column="t0" />
-        <result property="endTime" column="t1" />
     </resultMap>
 
     <sql id="select1"><![CDATA[
@@ -227,7 +213,7 @@ function mk_mapper_xml() {
     <select id="filter" resultMap="map1">
         <include refid="select1" />
         <where>
-            <if test="categoryId != null">and a.id=#{categoryId}</if>
+            <if test="categoryId != null">and a.cat=#{categoryId}</if>
         </where>
     </select>
 
@@ -238,25 +224,26 @@ function mk_mapper_xml() {
         </where>
     </select>
 
-    <select id="insert" resultType="int">
-        <![CDATA[
-        insert into $base(code, label, description)
-            values(#{codeName},#{label},#{description})
-            returning id
+    <select id="insert" resultType="int"><![CDATA[
+        insert into $base(
+            code, label, description)
+        ) values(
+            #{codeName},#{label},#{description}
+        ) returning id
     ]]></select>
 
     <update id="update">
         update $base
         <set>
-            <include refid="co.setU" />
+            <include refid="co.setUS" />
         </set>
         <where>
-            <if test="id != null">id=#{id}, </if>
+            <if test="id != null">id = #{id}</if>
         </where>
     </update>
 
     <delete id="delete">
-        delete from $base where id=#{id}
+        delete from $base where id = #{id}
     </delete>
 
     <select id="count" resultType="hashmap">
@@ -272,6 +259,8 @@ function mk_manager() {
     findfile "$file" && return
     cat <<EOT >"$file"
 package $pkg_impl;
+
+import net.bodz.bas.rtx.IQueryable;
 
 import com.bee32.zebra.tk.sql.VhostDataService;
 import com.tinylily.repr.CoEntityManager;
@@ -290,15 +279,8 @@ import $fqcn;
 public class ${Base}Manager
         extends CoEntityManager {
 
-    ${Base}Mapper mapper;
-
-    public ${Base}Manager() {
-        super($Base.class);
-        mapper = VhostDataService.getInstance().getMapper(${Base}Mapper.class);
-    }
-
-    public ${Base}Mapper getMapper() {
-        return mapper;
+    public ${Base}Manager(IQueryable context) {
+        super($Base.class, context);
     }
 
 }
@@ -335,32 +317,38 @@ public class ${Base}ManagerVbo
     public ${Base}ManagerVbo()
             throws NoSuchPropertyException, ParseException {
         super(${Base}Manager.class);
-        formStruct = new ${Base}().getFormStruct();
-        insertIndexFields("label", "description");
+        insertIndexFields("i*sa", "label", "description");
     }
 
     @Override
-    public IHtmlViewContext buildHtmlView(IHtmlViewContext ctx, IUiRef<${Base}Manager> ref, IOptions options)
+    public void buildDataView(IHtmlViewContext ctx, DataViewAnchors<$Base> a, IUiRef<${Base}Manager> ref, IOptions options)
             throws ViewBuilderException, IOException {
-        ctx = super.buildHtmlView(ctx, ref, options);
+        ${Base}Mapper mapper = ctx.query(${Base}Mapper.class);
 
-        PageStruct p = new PageStruct(ctx);
-
-        ${Base}Manager manager = ref.get();
-        ${Base}Mapper mapper = manager.getMapper();
-        List<${Base}> list = mapper.all();
-
-        IndexTable indexTable = mkIndexTable(p.mainCol, "list");
-        for (${Base} o : list) {
-            HtmlTrTag tr = indexTable.tbody.tr();
-            stdcols0(tr, o);
-            stdcolsLD(tr, o);
-            stdcols1(tr, o);
+        ${Base}Criteria criteria = criteriaFromRequest(new ${Base}Criteria(), ctx.getRequest());
+        FilterSectionDiv filters = new FilterSectionDiv(a.frame, "s-filter");
+        {
+            SwitchOverride<Integer> so;
+            so = filters.switchEntity("分类", true, //
+                    ctx.query(CategoryDefMapper.class).filter(CategoryDefCriteria.forSchema(Schemas.OPPORTUNITY)), //
+                    "cat", criteria.categoryId, criteria.noCategory);
+            criteria.categoryId = so.key;
+            criteria.noCategory = so.isNull;
         }
 
-        dumpData(p.extradata, list);
+        List<${Base}> list = postfilt(mapper.filter(criteria));
 
-        return ctx;
+        IndexTable indexTable = mkIndexTable(ctx, a.data, "list");
+        if (a.dataList())
+            for (${Base} o : list) {
+                HtmlTrTag tr = indexTable.tbody.tr();
+                cocols("i", tr, o);
+                cocols("u", tr, o);
+                cocols("sa", tr, o);
+            }
+
+        if (a.extradata != null)
+            dumpFullData(page.extradata, list);
     }
 
 }
