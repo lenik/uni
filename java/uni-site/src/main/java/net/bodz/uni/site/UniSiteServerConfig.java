@@ -2,14 +2,14 @@ package net.bodz.uni.site;
 
 import net.bodz.bas.html.servlet.PathDispatchServlet;
 import net.bodz.bas.http.ctx.CurrentRequestContextTeller;
-import net.bodz.bas.http.servlet.ClassResourceAccessorServlet;
-import net.bodz.bas.http.servlet.FileAccessorServlet;
 import net.bodz.bas.i18n.LocaleCtl;
-import net.bodz.uni.echo._default.DefaultServerConfig;
+import net.bodz.bas.site.BasicSiteServerConfig;
 import net.bodz.uni.echo.config.ServletDescriptor;
 
 public class UniSiteServerConfig
-        extends DefaultServerConfig {
+        extends BasicSiteServerConfig {
+
+    ServletDescriptor imgLink;
 
     public UniSiteServerConfig() {
         configEnv();
@@ -22,21 +22,7 @@ public class UniSiteServerConfig
     }
 
     void configServlets() {
-        ServletDescriptor webjarsLink = addServlet(ClassResourceAccessorServlet.class, "/webjars/*");
-        webjarsLink.setInitParam(FileAccessorServlet.ATTRIBUTE_PATH, //
-                "META-INF/resources/webjars");
-
-        ServletDescriptor fontsLink = addServlet(FileAccessorServlet.class, "/fonts/*");
-        fontsLink.setInitParam(FileAccessorServlet.ATTRIBUTE_PATH, //
-                "/usr/share/fonts");
-
-        ServletDescriptor javascriptLink = addServlet(FileAccessorServlet.class, "/js/*");
-        javascriptLink.setInitParam(FileAccessorServlet.ATTRIBUTE_PATH, //
-                "/usr/share/javascript");
-
-        ServletDescriptor imgLink = addServlet(FileAccessorServlet.class, "/img/*");
-        imgLink.setInitParam(FileAccessorServlet.ATTRIBUTE_PATH, //
-                "/mnt/istore/projects/design/img");
+        imgLink = addLocalLink("/img", "/mnt/istore/projects/design/img", 100);
 
         ServletDescriptor pathDispatch = addServlet(PathDispatchServlet.class, "/*");
         pathDispatch.setInitParam(PathDispatchServlet.ROOT_CLASS, UniSiteFromSrc.class.getName());
