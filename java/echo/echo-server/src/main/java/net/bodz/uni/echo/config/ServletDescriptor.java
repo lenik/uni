@@ -69,8 +69,12 @@ public class ServletDescriptor
         return initParameterMap;
     }
 
-    public void setInitParam(String key, String value) {
-        initParameterMap.put(key, value);
+    public void setInitParam(String key, Object value) {
+        if (key == null)
+            throw new NullPointerException("key");
+        if (value == null)
+            throw new NullPointerException("value");
+        initParameterMap.put(key, value.toString());
     }
 
     public void removeInitParam(String key) {
