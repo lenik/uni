@@ -1,0 +1,18 @@
+Source: libjs-jquery-chosen
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/alt/libjs-jquery-chosen
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/libjs-jquery-chosen
+
+Package: libjs-jquery-chosen
+Architecture: all
+Depends: 
+    libjs-jquery,
+    ${misc:Depends}
+Description: a library for making long, unwieldy select boxes more user friendly.
+
+ <insert long description, indented with spaces>
