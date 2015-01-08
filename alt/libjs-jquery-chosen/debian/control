@@ -14,5 +14,5 @@ Depends:
     libjs-jquery,
     ${misc:Depends}
 Description: a library for making long, unwieldy select boxes more user friendly.
-
- <insert long description, indented with spaces>
+    - jQuery support: 1.4+
+    - Prototype support: 1.7+
