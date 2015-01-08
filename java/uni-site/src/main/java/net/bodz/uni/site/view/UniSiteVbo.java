@@ -116,7 +116,7 @@ public class UniSiteVbo
 
         if (ref instanceof PathArrivalEntry) {
             IHtmlTag nav = out.nav().ul();
-            for (IPathArrival a : arrival.toList()) {
+            for (IPathArrival a : arrival.toList(true)) {
                 Object target = a.getTarget();
 
                 String label;
