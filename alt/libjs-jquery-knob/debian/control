@@ -1,0 +1,17 @@
+Source: libjs-jquery-knob
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/alt/libjs-jquery-knob
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/libjs-jquery-knob
+
+Package: libjs-jquery-knob
+Architecture: all
+Depends: 
+    libjs-jquery,
+    ${misc:Depends}
+Description: Nice, downward compatible, touchable, jQuery dial. 
+    * implemented interactions : mouse click and wheel mouse, keyboard (on focus) and fingers (touch events)
