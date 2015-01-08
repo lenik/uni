@@ -1,0 +1,17 @@
+Source: libjs-jquery-selectize
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/alt/libjs-jquery-selectize
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/libjs-jquery-selectize
+
+Package: libjs-jquery-selectize
+Architecture: all
+Depends: 
+    libjs-jquery,
+    ${misc:Depends}
+Description: Selectize is a jQuery-based custom <select> UI control.
+    Useful for tagging, contact lists, country selectors, etc.
