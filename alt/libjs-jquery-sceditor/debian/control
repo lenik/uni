@@ -1,0 +1,17 @@
+Source: libjs-jquery-sceditor
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/alt/libjs-jquery-sceditor
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/libjs-jquery-sceditor
+
+Package: libjs-jquery-sceditor
+Architecture: all
+Depends: 
+    libjs-jquery,
+    ${misc:Depends}
+Description: A lightweight WYSIWYG BBCode and XHTML editor.
+
