@@ -2,7 +2,7 @@ package net.bodz.uni.site.util;
 
 import java.util.Locale;
 
-import net.bodz.bas.i18n.LocaleCtl;
+import net.bodz.bas.i18n.LocaleScr;
 import net.bodz.bas.l10n.en.English;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.typer.std.AbstractFormatter;
@@ -54,7 +54,7 @@ public class RelativeTimeFormatter
         String directionName = direction.getXjdoc().getText().toString();
 
         if (n > 1) {
-            Locale locale = LocaleCtl.LOCALE.get();
+            Locale locale = LocaleScr.LOCALE.get();
             String lang = locale.getLanguage();
             if (lang.startsWith("en"))
                 unitName = English.pluralOf(unitName);
