@@ -2,11 +2,11 @@ package net.bodz.uni.echo.test;
 
 import javax.servlet.ServletContext;
 
+import net.bodz.bas.http.config.ServletContextConfig;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.uni.echo._default.DefaultServerConfig;
 import net.bodz.uni.echo.client.EchoClient;
-import net.bodz.uni.echo.config.EchoServerConfig;
 import net.bodz.uni.echo.server.EchoServer;
 
 public abstract class AbstractWebAppRunner {
@@ -16,7 +16,7 @@ public abstract class AbstractWebAppRunner {
     public static final String RUNNER_ATTRIBUTE = "WebAppRunner";
 
     protected final EchoServer server;
-    protected final EchoServerConfig config;
+    protected final ServletContextConfig config;
     protected final EchoClient client;
 
     public AbstractWebAppRunner() {
@@ -41,11 +41,11 @@ public abstract class AbstractWebAppRunner {
         return client;
     }
 
-    public EchoServerConfig getConfig() {
+    public ServletContextConfig getConfig() {
         return config;
     }
 
-    protected EchoServerConfig createConfig() {
+    protected ServletContextConfig createConfig() {
         return new DefaultServerConfig();
     }
 

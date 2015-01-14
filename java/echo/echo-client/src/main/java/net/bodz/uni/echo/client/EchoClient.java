@@ -17,12 +17,12 @@ import net.bodz.bas.c.java.util.ArrayAndScalar;
 import net.bodz.bas.c.java.util.Arrays;
 import net.bodz.bas.c.string.StringQuoted;
 import net.bodz.bas.err.control.ControlExit;
+import net.bodz.bas.http.config.ServletContextConfig;
 import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.io.Stdio;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.t.pojo.Pair;
-import net.bodz.uni.echo.config.EchoServerConfig;
 import net.bodz.uni.echo.server.EchoServer;
 import net.bodz.uni.echo.test.HttpTesterException;
 
@@ -31,7 +31,7 @@ public class EchoClient {
     static final Logger logger = LoggerFactory.getLogger(EchoClient.class);
 
     EchoServer server;
-    EchoServerConfig config;
+    ServletContextConfig config;
     String location = "";
 
     Map<String, IEchoClientCommand> commandMap = new TreeMap<String, IEchoClientCommand>();

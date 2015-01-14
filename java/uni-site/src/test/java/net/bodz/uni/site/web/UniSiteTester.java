@@ -1,6 +1,6 @@
 package net.bodz.uni.site.web;
 
-import net.bodz.uni.echo.config.EchoServerConfig;
+import net.bodz.bas.http.config.ServletContextConfig;
 import net.bodz.uni.echo.test.AbstractWebAppTester;
 import net.bodz.uni.site.UniSiteServerConfig;
 
@@ -8,7 +8,7 @@ public class UniSiteTester
         extends AbstractWebAppTester {
 
     @Override
-    protected EchoServerConfig createConfig() {
+    protected ServletContextConfig createConfig() {
         return new UniSiteServerConfig();
     }
 

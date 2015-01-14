@@ -16,10 +16,10 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.component.LifeCycle;
 
-import net.bodz.uni.echo.config.EchoServerConfig;
-import net.bodz.uni.echo.config.EchoServerConfigAdapter;
-import net.bodz.uni.echo.config.FilterDescriptor;
-import net.bodz.uni.echo.config.ServletDescriptor;
+import net.bodz.bas.http.config.ServletContextConfig;
+import net.bodz.bas.http.config.ServletContextConfigAdapter;
+import net.bodz.bas.http.config.FilterDescriptor;
+import net.bodz.bas.http.config.ServletDescriptor;
 import net.bodz.uni.echo.resource.DerivedResourceProvider;
 import net.bodz.uni.echo.resource.IResourceProvider;
 import net.bodz.uni.echo.resource.MountableResourceProvider;
@@ -29,14 +29,14 @@ import net.bodz.uni.echo.resource.UnionResourceProvider;
 public class EchoServer
         extends Server {
 
-    EchoServerConfig config;
+    ServletContextConfig config;
     ServletContextHandler servletContextHandler;
     IResourceProvider resourceProvider;
 
     boolean initialized;
     Thread shutdownThread;
 
-    public EchoServer(EchoServerConfig config) {
+    public EchoServer(ServletContextConfig config) {
         super(config.getPortNumber());
 
         this.config = config;
@@ -69,7 +69,7 @@ public class EchoServer
     private void buildResourceProvider()
             throws IOException {
         UnionResourceProvider serverResources = ResourceProviders.scanInheritedClassResources(getClass(), true);
-        serverResources.setPriority(EchoServerConfig.PRIORITY_LOW);
+        serverResources.setPriority(ServletContextConfig.PRIORITY_LOW);
 
         MountableResourceProvider rootResourceProvider = new MountableResourceProvider("root");
         rootResourceProvider.setUnionAuto(true);
@@ -97,7 +97,7 @@ public class EchoServer
         return null;
     }
 
-    public EchoServerConfig getConfig() {
+    public ServletContextConfig getConfig() {
         return config;
     }
 
@@ -123,7 +123,7 @@ public class EchoServer
         for (Entry<String, String> entry : config.getInitParamMap().entrySet())
             servletContextHandler.setInitParameter(entry.getKey(), entry.getValue());
 
-        EchoServerConfigAdapter configAdapter = new EchoServerConfigAdapter(config);
+        ServletContextConfigAdapter configAdapter = new ServletContextConfigAdapter(config);
         servletContextHandler.addEventListener(configAdapter);
 
         for (ServletDescriptor servlet : config.getServlets()) {

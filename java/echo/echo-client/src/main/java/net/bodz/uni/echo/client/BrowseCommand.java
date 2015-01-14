@@ -7,9 +7,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import net.bodz.bas.c.system.SystemProperties;
+import net.bodz.bas.http.config.ServletContextConfig;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
-import net.bodz.uni.echo.config.EchoServerConfig;
 
 public class BrowseCommand
         extends AbstractEchoClientCommand {
@@ -17,10 +17,10 @@ public class BrowseCommand
     static final Logger logger = LoggerFactory.getLogger(BrowseCommand.class);
 
     EchoClient client;
-    EchoServerConfig config;
+    ServletContextConfig config;
     String systemBrowser;
 
-    public BrowseCommand(EchoClient client, EchoServerConfig config) {
+    public BrowseCommand(EchoClient client, ServletContextConfig config) {
         if (client == null)
             throw new NullPointerException("client");
         if (config == null)

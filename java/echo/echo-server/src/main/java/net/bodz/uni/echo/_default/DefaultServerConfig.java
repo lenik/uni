@@ -1,19 +1,24 @@
 package net.bodz.uni.echo._default;
 
+import java.util.ServiceLoader;
+
 import net.bodz.bas.c.javax.servlet.http.RequestLogger;
+import net.bodz.bas.http.config.IServletContextConfigurer;
+import net.bodz.bas.http.config.ServletContextConfig;
+import net.bodz.bas.http.config.ServletDescriptor;
 import net.bodz.bas.http.ctx.CurrentHttpService;
 import net.bodz.bas.http.ctx.CurrentServletContext;
-import net.bodz.uni.echo.config.EchoServerConfig;
-import net.bodz.uni.echo.config.ServletDescriptor;
 
 public class DefaultServerConfig
-        extends EchoServerConfig {
+        extends ServletContextConfig {
 
     public static final String ATTRIBUTE_PORT = "echo.port";
 
     String[] hintFilenames = { "WEB-INF/web.xml", "index.html" };
 
     public DefaultServerConfig() {
+        ServiceLoader<IServletContextConfigurer> configurers = ServiceLoader.load(IServletContextConfigurer.class);
+
         int portNumber = 8080;
         String echoPort = System.getProperty(ATTRIBUTE_PORT);
         if (echoPort != null)
@@ -29,13 +34,11 @@ public class DefaultServerConfig
 
         /** Workaround: There is no HttpResponse parameter in servlet-request-event. */
         // addFilter(CurrentHttpService.class, "/*");
+        for (IServletContextConfigurer configurer : configurers)
+            configurer.filters(this);
 
-        // addFilter(Welcome.class, "/");
-
-        addServlet(Favicon.class, "/favicon.ico");
-
-        // The wildcard * is needed, cuz they are class resources, not overlapped resources.
-        addServlet(Logo.class, "/logo/*");
+        for (IServletContextConfigurer configurer : configurers)
+            configurer.servlets(this);
 
         ServletDescriptor unionServlet = addServlet(EchoResourceServlet.class, "/");
         unionServlet.setPriority(PRIORITY_FALLBACK);

@@ -4,15 +4,15 @@ import java.net.URL;
 
 import org.junit.Test;
 
+import net.bodz.bas.http.config.ServletContextConfig;
 import net.bodz.uni.echo._default.HelloServlet;
-import net.bodz.uni.echo.config.EchoServerConfig;
 
 public class AbstractWebAppTesterTest
         extends AbstractWebAppTester {
 
     @Override
-    protected EchoServerConfig createConfig() {
-        EchoServerConfig config = super.createConfig();
+    protected ServletContextConfig createConfig() {
+        ServletContextConfig config = super.createConfig();
         config.addServlet(HelloServlet.class, "/hello");
         return config;
     }

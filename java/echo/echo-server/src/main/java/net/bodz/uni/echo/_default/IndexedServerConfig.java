@@ -3,11 +3,11 @@ package net.bodz.uni.echo._default;
 import java.util.ServiceLoader;
 
 import net.bodz.bas.c.javax.servlet.http.*;
-import net.bodz.uni.echo.config.EchoServerConfig;
-import net.bodz.uni.echo.config.ServletDescriptor;
+import net.bodz.bas.http.config.ServletContextConfig;
+import net.bodz.bas.http.config.ServletDescriptor;
 
 public class IndexedServerConfig
-        extends EchoServerConfig {
+        extends ServletContextConfig {
 
     public IndexedServerConfig() {
         for (IServletContextListener listener : ServiceLoader.load(IServletContextListener.class))

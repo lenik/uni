@@ -7,12 +7,12 @@ import javax.servlet.ServletContext;
 import org.junit.After;
 import org.junit.Before;
 
+import net.bodz.bas.http.config.ServletContextConfig;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.test.junit.JUnitApp;
 import net.bodz.uni.echo._default.DefaultServerConfig;
 import net.bodz.uni.echo.client.EchoClient;
-import net.bodz.uni.echo.config.EchoServerConfig;
 import net.bodz.uni.echo.server.EchoServer;
 
 public abstract class AbstractWebAppTester
@@ -23,7 +23,7 @@ public abstract class AbstractWebAppTester
     public static final String TESTER_ATTRIBUTE = "WebAppTester";
 
     protected final EchoServer server;
-    protected final EchoServerConfig config;
+    protected final ServletContextConfig config;
     protected final EchoClient client;
 
     private boolean managedServerLifecycle;
@@ -51,12 +51,12 @@ public abstract class AbstractWebAppTester
         return client;
     }
 
-    public EchoServerConfig getConfig() {
+    public ServletContextConfig getConfig() {
         return config;
     }
 
-    protected EchoServerConfig createTestConfig() {
-        EchoServerConfig config = createConfig();
+    protected ServletContextConfig createTestConfig() {
+        ServletContextConfig config = createConfig();
         int portNumber = config.getPortNumber();
         portNumber = 0;
         config.setPortNumber(portNumber);
@@ -68,7 +68,7 @@ public abstract class AbstractWebAppTester
         return config;
     }
 
-    protected EchoServerConfig createConfig() {
+    protected ServletContextConfig createConfig() {
         return new DefaultServerConfig();
     }
 
