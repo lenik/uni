@@ -2,6 +2,7 @@
 *.run
 osp.tgz
 @rundir@
+sdefchk
 sdefext.c
 sdefpoll
 sdefre

@@ -4,12 +4,14 @@ include libauto/compat.am
 AI_TEMPLATE=alien
 
 configdir = ${sysconfdir}/execfilter.d
+crondir = ${sysconfdir}/cron.d
 cronhourlydir = ${sysconfdir}/cron.hourly
 specbindir = ${pkgdatadir}
 rundir = /var/run
 
 do_subst += \
     -e 's,[@]configdir[@],${configdir},g' \
+    -e 's,[@]crondir[@],${crondir},g' \
     -e 's,[@]cronhourlydir[@],${cronhourlydir},g' \
     -e 's,[@]specbindir[@],${specbindir},g' \
     -e 's,[@]rundir[@],${rundir},g'
@@ -51,6 +53,9 @@ libsdefext_la_LIBADD = -lbas
 
 dist_config_DATA = \
     shendun.ini
+
+dist_cron_DATA = \
+    sdefchk
 
 dist_cronhourly_SCRIPTS = \
     sdefre
