@@ -49,10 +49,10 @@ function main() {
         mk_mapper       "src/main/java/$dirs_impl/${Base}Mapper.java"
         mk_mapper_xml   "src/main/resources/$dirs_impl/${Base}Mapper.xml"
         mk_mapper_inf   "$pkg_impl.${Base}Mapper"
-        mk_manager      "src/main/java/$dirs_impl/${Base}Manager.java"
-        mk_manager_inf  "$pkg_impl.${Base}Manager"
-        mk_manager_vbo  "src/main/java/$dirs_impl/${Base}ManagerVbo.java"
-        mk_vbo_inf      "$pkg_impl.${Base}ManagerVbo"
+        mk_index        "src/main/java/$dirs_impl/${Base}Index.java"
+        mk_index_inf    "$pkg_impl.${Base}Index"
+        mk_index_vbo    "src/main/java/$dirs_impl/${Base}IndexVbo.java"
+        mk_vbo_inf      "$pkg_impl.${Base}IndexVbo"
     done
 }
 
@@ -109,12 +109,10 @@ package $pkg_impl;
 
 import java.io.IOException;
 
-import net.bodz.bas.html.viz.util.AbstractForm_htm;
-
 import $fqcn;
 
 public class ${Base}Vbo
-        extends AbstractForm_htm<$Base> {
+        extends FooVbo<$Base> {
     
     public ${Base}Vbo() {
         super($Base.class);
@@ -165,7 +163,7 @@ import net.bodz.bas.db.batis.IMapper;
 import $fqcn;
 
 public interface ${Base}Mapper
-        extends IMapperTemplate<$Base, ${Base}Criteria> {
+        extends FooMapper<$Base, ${Base}Criteria> {
 
 }
 EOT
@@ -224,7 +222,7 @@ function mk_mapper_xml() {
         </where>
     </select>
 
-    <select id="insert" resultType="int"><![CDATA[
+    <select id="insert" resultType="long"><![CDATA[
         insert into $base(
             code, label, description)
         ) values(
@@ -254,7 +252,7 @@ function mk_mapper_xml() {
 EOT
 }
 
-function mk_manager() {
+function mk_index() {
     file="$1"
     findfile "$file" && return
     cat <<EOT >"$file"
@@ -263,7 +261,7 @@ package $pkg_impl;
 import net.bodz.bas.rtx.IQueryable;
 
 import com.bee32.zebra.tk.sql.VhostDataService;
-import com.tinylily.repr.CoEntityManager;
+import com.bee32.zebra.tk.sea.FooIndex;
 
 import $fqcn;
 
@@ -276,18 +274,19 @@ import $fqcn;
  * 
  * @see <a href="HREF2">TEXT2</a>
  */
-public class ${Base}Manager
-        extends CoEntityManager {
+@ObjectType($Base.class)
+public class ${Base}Index
+        extends FooIndex {
 
-    public ${Base}Manager(IQueryable context) {
-        super($Base.class, context);
+    public ${Base}Index(IQueryable context) {
+        super(context);
     }
 
 }
 EOT
 }
 
-function mk_manager_vbo() {
+function mk_index_vbo() {
     file="$1"
     findfile "$file" && return
     cat <<EOT >"$file"
@@ -311,17 +310,17 @@ import com.tinylily.model.base.security.User;
 
 import $fqcn;
 
-public class ${Base}ManagerVbo
-        extends Zc3Template_CEM<${Base}Manager, $Base> {
+public class ${Base}IndexVbo
+        extends Zc3Template_CEM<${Base}Index, $Base> {
 
-    public ${Base}ManagerVbo()
+    public ${Base}IndexVbo()
             throws NoSuchPropertyException, ParseException {
-        super(${Base}Manager.class);
+        super(${Base}Index.class);
         insertIndexFields("i*sa", "label", "description");
     }
 
     @Override
-    public void buildDataView(IHtmlViewContext ctx, DataViewAnchors<$Base> a, IUiRef<${Base}Manager> ref, IOptions options)
+    public void buildDataView(IHtmlViewContext ctx, DataViewAnchors<$Base> a, IUiRef<${Base}Index> ref, IOptions options)
             throws ViewBuilderException, IOException {
         ${Base}Mapper mapper = ctx.query(${Base}Mapper.class);
 
@@ -348,25 +347,25 @@ public class ${Base}ManagerVbo
             }
 
         if (a.extradata != null)
-            dumpFullData(page.extradata, list);
+            dumpFullData(a, list);
     }
 
 }
 EOT
 }
 
-function mk_manager_inf() {
-    list="src/main/resources/META-INF/services/com.tinylily.repr.CoEntityManager"
+function mk_index_inf() {
+    list="src/main/resources/META-INF/services/com.tinylily.model.base.CoObjectIndex"
     add_inf "$list" "$@"
 }
 
 function mk_mapper_inf() {
-    list="src/main/resources/META-INF/services/net.bodz.bas.db.batis.IMapper"
+    list="src/main/resources/META-INF/services/net.bodz.bas.db.ibatis.IMapper"
     add_inf "$list" "$@"
 }
 
 function mk_vbo_inf() {
-    list="src/main/resources/META-INF/services/net.bodz.bas.html.IHtmlViewBuilder"
+    list="src/main/resources/META-INF/services/net.bodz.bas.html.viz.IHtmlViewBuilder"
     add_inf "$list" "$@"
 }
 
