@@ -1,0 +1,17 @@
+Source: libjs-jquery-qtip
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/alt/libjs-jquery-qtip
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/libjs-jquery-qtip
+
+Package: libjs-jquery-qtip
+Architecture: all
+Depends: 
+    libjs-jquery,
+    ${misc:Depends}
+Description: qTip2 - Pretty powerful tooltips
+    Introducing... qTip2. The second generation of the advanced qTip plugin for the ever popular jQuery framework.
