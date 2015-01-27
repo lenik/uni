@@ -1,18 +1,18 @@
 #!/bin/bash
 
-# Add 700-series users&groups.
+# Add 800-series users&groups.
+
+force=
+if [ "$1" = '-f' ]; then
+    force=1
+    shift
+fi
 
 etcdir="$1"
 if [ ! -f "$etcdir/passwd" ]; then
     exit 0
 fi
 shift
-
-force=
-if [ "$1" = '-f' ]; then
-    force=1
-fi
-
 
 function getgid() {
     local gname="$1"
@@ -34,6 +34,7 @@ function add_user() {
     local ucmt="$4"
     local uhome="$5"
     local ucmd="$6"
+    shift 4; shift; shift
 
     echo "Add user $uname ($uid)"
 
@@ -64,10 +65,15 @@ function add_user() {
         create_home=--create-home
     fi
 
+    local groups="$ugrp"
+    for a in "$@"; do
+        groups="$groups,$a"
+    done
+
     if ! useradd \
         --uid     $uid \
         --gid     $gid \
-        --groups  "$ugrp" --no-user-group \
+        --groups  "$groups" --no-user-group \
         --home    "$uhome" $create_home \
         --comment "$ucmt" \
         --shell   "$ucmd" \
@@ -80,25 +86,23 @@ function add_user() {
     return 0
 }
 
-# user 700-799
+# user 800-899
+    add_user 800 appserv    dev  "App Server"           /home/appserv
+    add_user 801 scm        dev  "VCS daemon"           /none /bin/false
 
-add_user 700 bind     -    "Name daemon"         /var/cache/bind /bin/false
-add_user 701 postfix  -    "Postfix daemon"      /var/spool/postfix /bin/false
-
-add_user 710 postgres -    "PostgreSQL admin"    /var/lib/postgresql
-add_user 711 mysql    dev  "MySQL daemon"        /var/lib/mysql /bin/balse
-
-add_user 720 appserv  dev  "App Server"          /home/appserv
-
-add_user 730 scm      dev  "VCS daemon"          /none /bin/false
-
-# add_user 740 wine     dev  "WINE player"         /home/wine /bin/bash
-
-# user 800-999
-
-add_user 900 play     play "Player"
-add_user 910 demo     demo "Demo User"
-
-add_user 999 dev      dev,admin,postgres "Developer"
+# user 900-999
+    add_user 900 play       play "Player"
+    add_user 901 demo       demo "Demo User"
+    add_user 999 dev        dev "Developer"             /home/dev /bin/bash \
+        admin \
+        cdrom \
+        dev \
+        dialout \
+        disk \
+        lpadmin \
+        netdev \
+        plugdev \
+        vboxusers \
+        video
 
 exit 0

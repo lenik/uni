@@ -5,7 +5,7 @@ dist_bin_SCRIPTS = \
 
 dist_setup_SCRIPTS = \
 	700g.sh \
-	700u.sh \
+	800u.sh \
 	check-uid.sh \
 	check-gid.sh \
 	remove-uid.sh \
