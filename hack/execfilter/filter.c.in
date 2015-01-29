@@ -257,6 +257,7 @@ static const char *parse_confs(char *script, const char *location) {
                 conf = g_hash_table_lookup(extmap, p);
                 if (conf == NULL) {
                     conf = (program_conf_t *) malloc(sizeof(program_conf_t));
+                    conf->logging = LOG_ALL;
                     tab = g_hash_table_new_full(g_str_hash, g_str_equal,
                                                 free, free);
                     conf->modes = tab;
@@ -277,6 +278,7 @@ static const char *parse_confs(char *script, const char *location) {
                 conf = g_hash_table_lookup(pmap, p);
                 if (conf == NULL) {
                     conf = (program_conf_t *) malloc(sizeof(program_conf_t));
+                    conf->logging = LOG_ALL;
                     tab = g_hash_table_new_full(g_str_hash, g_str_equal,
                                                 free, free);
                     conf->modes = tab;
@@ -400,6 +402,7 @@ static void lazy_init() {
 
     if (pconf == NULL) {
         pconf = (program_conf_t *) malloc(sizeof(program_conf_t));
+        pconf->logging = LOG_ALL;
         pconf->modes = g_hash_table_new_full(g_str_hash, g_str_equal,
                                              free, free);
 #ifdef DEBUG
@@ -446,6 +449,21 @@ static void pmap_each_tab(gpointer key, gpointer value, gpointer user_data) {
     }
 
     g_hash_table_foreach(conf->modes, pmap_each_mode, 0);
+
+    printf("    logging ");
+    switch (conf->logging) {
+    case LOG_NONE:
+        printf("none\n");
+        break;
+    case LOG_BLOCKED:
+        printf("blocked\n");
+        break;
+    case LOG_ALL:
+        printf("all\n");
+        break;
+    default:
+        printf("%d\n", conf->logging);
+    }
 
     if (conf->trusted)
         printf("    trusted\n");

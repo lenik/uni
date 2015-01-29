@@ -203,6 +203,26 @@ finding against the PATH environ, so you can omit the ``/bin'', ``/usr/bin''
 parts if they are in the system PATH.  But for security considerations, you
 should use absolute pathnames whenever possible.
 
+\subsection {logging statement}
+
+\syntax {
+    ``logging'' \{ ``none'' | ``blocked'' | ``all'' \}
+}
+
+Set the logging level for the current execution target.
+
+The option ``none'' will disable the logging, while ``blocked'' will only log blocked executions,
+and ``all'' will log all managed executions regardless if they are allowed or blocked.
+
+\begin{codeblk}
+    for /usr/bin/btdownloader
+        deny /sbin/pm-suspend
+        deny /sbin/shutdown
+        logging blocked
+\end{codeblk}
+
+In this example, only blocked execution (\code{/sbin/pm-suspend} or \code{/sbin/shutdown}) will be logged.
+
 \section {Extension}
 
 \xfilt supports two types of extension: configuration decoder and the system
