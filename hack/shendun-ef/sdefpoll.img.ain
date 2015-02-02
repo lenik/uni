@@ -24,7 +24,7 @@ function main() {
 
 function do_check() {
     _log1 "Check for update..."
-    status=$( echo -n $mac_norm | nc -w 3 sd.shenduncn.com 55556 )
+    status=$( (echo -n $mac_norm; sleep 1) | nc -w 3 sd.shenduncn.com 55556 )
     if [ "$status" = 1 ]; then
         _log1 "Need to update."
         do_renew
