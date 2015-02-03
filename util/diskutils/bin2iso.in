@@ -1,0 +1,79 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Convert .bin/.cue image to .iso}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -o --output =ISOFILE "Specify the output .iso path"
+    option -m --moveto =DIR     "Move the converted .bin/.cue files to DIR"
+    option -d --delete          "Delete the converted .bin/.cue files"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    out=
+    moveto=
+    delete=
+    
+function setopt() {
+    case "$1" in
+        -o|--output)
+            out="$2";;
+        -m|--moveto)
+            moveto="$2";;
+        -d|--delete)
+            delete=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    file="$1"
+    [ -f "$file" ] || quit "File isn't existed: $file."
+
+    dir="${file%/*}"
+    base="${file##*/}"
+    [ "$dir" = "$file" ] && dir=.
+    
+    name="${base%.*}"
+    ext="${base##*.}"
+    if [ "$ext" = "$base" ]; then
+        ext=
+    else
+        ext=".$ext"
+    fi
+    
+    case "$ext" in
+    .bin|.cue)
+        bin="$dir/$name.bin"
+        cue="$dir/$name.cue"
+        ;;
+    *)
+        quit "Unknown file type: $file.";;
+    esac
+    
+    [ -f "$bin" ] || quit ".bin file: $bin isn't existed."
+    [ -f "$cue" ] || quit ".cue file: $cue isn't existed."
+
+    [ -z "$out" ] && out="$dir/$name.iso"
+    [ -d "$out" ] && out="$out/$name.iso"
+    
+    _log1 "bin file: $bin"
+    _log1 "cue file: $cue"
+    _log1 "output file: $out"
+
+    bchunk "$bin" "$cue" "$out"
+}
+
+boot "$@"

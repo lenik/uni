@@ -1,6 +1,7 @@
 include libauto/project.am
 
 dist_bin_SCRIPTS = \
+    bin2iso \
     blockdev-info \
     mkhdd \
     partoffset \
@@ -12,6 +13,7 @@ dist_pkgdata_DATA = \
     x86_boot_sector
 
 dist_man_MANS = \
+    bin2iso.1 \
     blockdev-info.8 \
     mkhdd.8 \
     partoffset.8 \
