@@ -15,12 +15,12 @@ import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.uni.site.model.Project;
 
-public class VcsLogEntryVbo
+public class VcsLogEntry_htm
         extends AbstractHtmlViewBuilder<IVcsLogEntry> {
 
     static final String prettifySrc = "https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js";
 
-    public VcsLogEntryVbo() {
+    public VcsLogEntry_htm() {
         super(IVcsLogEntry.class);
     }
 

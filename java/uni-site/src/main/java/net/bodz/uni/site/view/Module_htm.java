@@ -12,10 +12,10 @@ import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.mda.xjdoc.Xjdocs;
 import net.bodz.mda.xjdoc.model.ClassDoc;
 
-public class ModuleVbo
+public class Module_htm
         extends AbstractHtmlViewBuilder<IJazzModule> {
 
-    public ModuleVbo() {
+    public Module_htm() {
         super(IJazzModule.class);
     }
 

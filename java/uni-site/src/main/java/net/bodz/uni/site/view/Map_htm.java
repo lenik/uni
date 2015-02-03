@@ -12,10 +12,10 @@ import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
 
-public class MapVbo
+public class Map_htm
         extends AbstractHtmlViewBuilder<Map<?, ?>> {
 
-    public MapVbo() {
+    public Map_htm() {
         super(Map.class);
     }
 

@@ -1,0 +1,19 @@
+@label
+    mencoder helper
+    <p lang="zh-cn">mencoder 辅助工具
+
+@text
+    The command-line of <code>mencoder</code> (MPlayer's Movie Encoder) is very complex.
+    This helper can encapsulate the command-line options into a reusable config file.
+    <p>
+    For example, if you want to convert a video file into H.264, or maybe Mpeg 4,
+    you have to pass a lot of options to <code>mencoder</code>, which is so inconvinent.
+    By using this helper program, you can prepare those options in a config file,
+    and refer the the config name later to reuse all the necessary options.
+
+    <p lang="zh-cn">
+    这个工具可以把复杂的 mencoder 命令行选项封装成简单的可重复使用的配置文件。
+    <p>
+    比如说经常需要将视频转码成 H.264 或 Mpeg4，mencoder 的命令行需要大量的繁琐的选项，
+    使用这个辅助工具可以将选项编写到配置文件里，在命令行中只需要用简单的引用那个配置即可。
+

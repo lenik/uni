@@ -19,11 +19,11 @@ import net.bodz.uni.site.model.DownloadItem;
 import net.bodz.uni.site.model.Project;
 import net.bodz.uni.site.util.RelativeTimeFormatter;
 
-public class ProjectVbo
+public class Project_htm
         extends AbstractHtmlViewBuilder<Project>
         implements IUniSiteAnchors {
 
-    public ProjectVbo() {
+    public Project_htm() {
         super(Project.class);
     }
 
@@ -55,7 +55,7 @@ public class ProjectVbo
 
         out = out.div().class_("project");
 
-        out.h1().text("Project %s", name);
+        out.h1().textf("Project %s", name);
         // embed(ctx, project.getStat());
         out.p().class_("description").text(project.getLabel());
 

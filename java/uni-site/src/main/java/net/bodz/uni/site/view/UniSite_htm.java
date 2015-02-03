@@ -34,11 +34,11 @@ import net.bodz.uni.site.model.Preferences;
 import net.bodz.uni.site.model.Project;
 import net.bodz.uni.site.model.Section;
 
-public class UniSiteVbo
+public class UniSite_htm
         extends AbstractHtmlViewBuilder<UniSite>
         implements IUniSiteAnchors {
 
-    public UniSiteVbo() {
+    public UniSite_htm() {
         super(UniSite.class);
     }
 
@@ -122,11 +122,16 @@ public class UniSiteVbo
                 String label;
                 if (target instanceof IElement)
                     label = ((IElement) target).getLabel().toString();
-                else
-                    label = target.toString();
+                else {
+                    // label = target.toString();
+                    label = a.getConsumedPath();
+                }
 
                 String href = _webApp_.join(a.getConsumedFullPath() + "/").toString();
-                nav.li().a().href(href).text(label);
+                IHtmlTag tag = nav.li();
+                if (target != arrival.getTarget())
+                    tag = tag.a().href(href);
+                tag.text(label);
             }
         }
 

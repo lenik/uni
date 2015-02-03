@@ -1,0 +1,12 @@
+@label
+    A generator for the Lily framework
+    <p lang="zh-cn">Lily框架源码生成工具
+
+@text
+    <a href="http://jazz.bodz.net/lily/">Lily framework</a> is an application
+    oriented site framework. lilygen can generate sources for concrete objects.
+
+    <p lang="zh-cn">
+    <a href="http://jazz.bodz.net/lily/">Lily框架</a>是一个面向应用的站点框架，
+    lilygen 用于自动生成具体对象相关的源码。
+

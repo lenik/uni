@@ -11,10 +11,10 @@ import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.uni.site.model.Preferences;
 
-public class PreferencesVbo
+public class Preferences_htm
         extends AbstractHtmlViewBuilder<Preferences> {
 
-    public PreferencesVbo() {
+    public Preferences_htm() {
         super(Preferences.class);
     }
 

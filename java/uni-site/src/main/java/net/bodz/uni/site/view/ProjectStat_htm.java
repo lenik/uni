@@ -11,7 +11,7 @@ import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.uni.site.model.ProjectStat;
 
-public class ProjectStatVbo
+public class ProjectStat_htm
         extends AbstractHtmlViewBuilder<ProjectStat>
         implements IFontAwesomeCharAliases {
 
@@ -22,7 +22,7 @@ public class ProjectStatVbo
     static final String CLASS_COMMENTS = "icon-comments";
     static final String CLASS_DOWNLOADS = "icon-download-alt";
 
-    public ProjectStatVbo() {
+    public ProjectStat_htm() {
         super(ProjectStat.class);
     }
 

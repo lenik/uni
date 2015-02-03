@@ -4,22 +4,15 @@ import java.io.File;
 
 import net.bodz.bas.c.m2.MavenPomDir;
 import net.bodz.bas.err.IllegalConfigException;
-import net.bodz.bas.t.ref.RuntimeValue;
+import net.bodz.bas.fn.IEvaluable;
 
 public class UniSiteFromSrc
-        extends RuntimeValue<UniSite> {
-
-    private static final long serialVersionUID = 1L;
+        implements IEvaluable<UniSite> {
 
     private UniSite val = new UniSite(getUniDirFromSrc());
 
     @Override
-    public Class<UniSite> getValueType() {
-        return UniSite.class;
-    }
-
-    @Override
-    public UniSite get() {
+    public UniSite eval() {
         return val;
     }
 

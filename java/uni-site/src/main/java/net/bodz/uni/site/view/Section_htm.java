@@ -14,11 +14,11 @@ import net.bodz.uni.site.IUniSiteAnchors;
 import net.bodz.uni.site.model.Project;
 import net.bodz.uni.site.model.Section;
 
-public class SectionVbo
+public class Section_htm
         extends AbstractHtmlViewBuilder<Section>
         implements IUniSiteAnchors {
 
-    public SectionVbo() {
+    public Section_htm() {
         super(Section.class);
     }
 

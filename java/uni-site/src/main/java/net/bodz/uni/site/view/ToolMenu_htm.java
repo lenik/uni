@@ -15,10 +15,10 @@ import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.uni.site.model.ToolMenu;
 
-public class ToolMenuVbo
+public class ToolMenu_htm
         extends AbstractHtmlViewBuilder<ToolMenu> {
 
-    public ToolMenuVbo() {
+    public ToolMenu_htm() {
         super(ToolMenu.class);
     }
 
@@ -31,10 +31,12 @@ public class ToolMenuVbo
         out = out.ul().class_("ui-menubox");
 
         for (UiPropertyRef<Object> prop : propMap.getEntries()) {
-            iString label = prop.getLabel();
-            if (label == null)
+            switch (prop.getName()) { // TODO
+            case "class":
                 continue;
+            }
 
+            iString label = prop.getLabel();
             out.div().class_("ui-caption").text(label);
 
             HtmlLiTag li = out.li();
@@ -43,5 +45,4 @@ public class ToolMenuVbo
 
         return out;
     }
-
 }

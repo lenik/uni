@@ -44,7 +44,8 @@ public class Project
         if (!docFile.exists()) {
             docFile = new File(directory, "." + name + ".itm");
             if (!docFile.exists())
-                docFile = null;
+                if (docFile == null)
+                    throw new NullPointerException("docFile");
         }
 
         File rootDir = section.getSite().getBaseDir();
@@ -77,6 +78,8 @@ public class Project
     @Override
     protected IElementDoc loadXjdoc()
             throws ParseException, IOException {
+        if (docFile == null)
+            throw new NullPointerException("docFile");
         if (!docFile.exists())
             throw new IOException("No doc file: " + docFile);
         IElementDoc doc = I18nTextMapDocLoader.load(new FileResource(docFile));

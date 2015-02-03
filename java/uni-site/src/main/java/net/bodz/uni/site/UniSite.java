@@ -9,7 +9,6 @@ import java.util.TreeMap;
 
 import javax.servlet.http.HttpSession;
 
-import net.bodz.bas.html.meta.HtmlViewBuilder;
 import net.bodz.bas.http.ctx.CurrentHttpService;
 import net.bodz.bas.i18n.dom.iString;
 import net.bodz.bas.log.Logger;
@@ -27,7 +26,6 @@ import net.bodz.uni.site.model.Language;
 import net.bodz.uni.site.model.Preferences;
 import net.bodz.uni.site.model.Section;
 import net.bodz.uni.site.model.ToolMenu;
-import net.bodz.uni.site.view.UniSiteVbo;
 
 import com.tinylily.site.LilyStartSite;
 
@@ -37,7 +35,6 @@ import com.tinylily.site.LilyStartSite;
  * @label.ja Uni 開発ツール
  * @copyright (ↄ) Copyleft 2004-2014 Lenik
  */
-@HtmlViewBuilder(UniSiteVbo.class)
 public class UniSite
         extends LilyStartSite {
 

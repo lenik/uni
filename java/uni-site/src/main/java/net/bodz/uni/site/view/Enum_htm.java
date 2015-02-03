@@ -21,11 +21,11 @@ import net.bodz.mda.xjdoc.model.IElementDoc;
 import net.bodz.mda.xjdoc.model.javadoc.IXjdocAware;
 import net.bodz.uni.site.IUniSiteAnchors;
 
-public class EnumVbo
+public class Enum_htm
         extends AbstractHtmlViewBuilder<Enum<?>>
         implements IUniSiteAnchors {
 
-    public EnumVbo() {
+    public Enum_htm() {
         super(Enum.class);
     }
 

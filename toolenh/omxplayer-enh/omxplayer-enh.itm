@@ -1,0 +1,13 @@
+@label
+    omxplayer helper
+    <p lang="zh-cn">omxplayer 工具增强
+
+@text
+    <code>omxplayer</code> is a hardware-accelerated video player for raspberry pi.
+    This enhancement fixed some minor problems about
+    integration <code>omxplayer</code> with the desktop.
+
+    <p lang="zh-cn">
+    <code>omxplayer</code> 可以在 raspi 中启用图形加速来播放视频。
+    这个包用来改善 <code>omxplayer</code> 在桌面系统集成中存在的一些问题。
+

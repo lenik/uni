@@ -15,7 +15,7 @@ import net.bodz.uni.site.UniSiteFromSrc;
 public class UniSiteTest
         extends Assert {
 
-    UniSite site = new UniSiteFromSrc().get();
+    UniSite site = new UniSiteFromSrc().eval();
 
     public void dumpSitemap() {
         Sitemap sitemap = site.getSitemap();
