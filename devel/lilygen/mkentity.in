@@ -43,16 +43,16 @@ function main() {
         _log1 "Generating files for $pkg::$Base $base (in */$dirs)."
 
         mk_ent          "src/main/java/$dirs/$Base.java"
-        mk_ent_vbo      "src/main/java/$dirs_impl/${Base}Vbo.java"
-        mk_vbo_inf      "$pkg_impl.${Base}Vbo"
+        mk_ent_htm      "src/main/java/$dirs_impl/${Base}_htm.java"
+        mk_htm_inf      "$pkg_impl.${Base}_htm"
         mk_criteria     "src/main/java/$dirs_impl/${Base}Criteria.java"
         mk_mapper       "src/main/java/$dirs_impl/${Base}Mapper.java"
         mk_mapper_xml   "src/main/resources/$dirs_impl/${Base}Mapper.xml"
         mk_mapper_inf   "$pkg_impl.${Base}Mapper"
         mk_index        "src/main/java/$dirs_impl/${Base}Index.java"
         mk_index_inf    "$pkg_impl.${Base}Index"
-        mk_index_vbo    "src/main/java/$dirs_impl/${Base}IndexVbo.java"
-        mk_vbo_inf      "$pkg_impl.${Base}IndexVbo"
+        mk_index_htm    "src/main/java/$dirs_impl/${Base}Index_htm.java"
+        mk_htm_inf      "$pkg_impl.${Base}Index_htm"
     done
 }
 
@@ -83,8 +83,9 @@ package $pkg;
 
 import com.tinylily.model.base.CoEntity;
 
+@IdType(Integer.class)
 public class $Base
-        extends $CoEntity {
+        extends CoEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
     
@@ -101,9 +102,13 @@ public class $Base
 EOT
 }
 
-function mk_ent_vbo() {
+function mk_ent_htm() {
     file="$1"
     findfile "$file" && return
+
+    local simplename="${file##*/}"
+    simplename="${simplename%.java}"
+
     cat <<EOT >"$file"
 package $pkg_impl;
 
@@ -111,10 +116,10 @@ import java.io.IOException;
 
 import $fqcn;
 
-public class ${Base}Vbo
-        extends FooVbo<$Base> {
+public class ${simplename}
+        extends SlimForm_htm<$Base> {
     
-    public ${Base}Vbo() {
+    public ${simplename}() {
         super($Base.class);
     }
 
@@ -163,7 +168,7 @@ import net.bodz.bas.db.batis.IMapper;
 import $fqcn;
 
 public interface ${Base}Mapper
-        extends FooMapper<$Base, ${Base}Criteria> {
+        extends IMapperTemplate<$Base, ${Base}Criteria> {
 
 }
 EOT
@@ -199,9 +204,14 @@ function mk_mapper_xml() {
             u.label "uid_label",
             g.label "gid_label"
         from $base a
-            left join "user" u on a.uid=u.id
-            left join "group" g on a.gid=g.id
+            left join "user" u on a.uid = u.id
+            left join "group" g on a.gid = g.id
         ]]>
+    </sql>
+
+    <sql id="filtconds">
+        <!-- co -->
+        <include refid="co.modefilt" />
     </sql>
 
     <select id="all" resultMap="map1">
@@ -211,14 +221,14 @@ function mk_mapper_xml() {
     <select id="filter" resultMap="map1">
         <include refid="select1" />
         <where>
-            <if test="categoryId != null">and a.cat=#{categoryId}</if>
+            <include refid="filtconds" />
         </where>
     </select>
 
     <select id="select" parameterType="int" resultMap="map1">
         <include refid="select2" />
         <where>
-            <if test="_parameter != null">a.id=#{id}</if>
+            <if test="_parameter != null">a.id = #{id}</if>
         </where>
     </select>
 
@@ -246,6 +256,9 @@ function mk_mapper_xml() {
 
     <select id="count" resultType="hashmap">
         select count(*) "total" from ${base}
+        <where>
+            <include refid="filtconds" />
+        </where>
     </select>
 
 </mapper>
@@ -260,9 +273,6 @@ package $pkg_impl;
 
 import net.bodz.bas.rtx.IQueryable;
 
-import com.bee32.zebra.tk.sql.VhostDataService;
-import com.bee32.zebra.tk.sea.FooIndex;
-
 import $fqcn;
 
 /**
@@ -276,7 +286,7 @@ import $fqcn;
  */
 @ObjectType($Base.class)
 public class ${Base}Index
-        extends FooIndex {
+        extends CoObjectIndex {
 
     public ${Base}Index(IQueryable context) {
         super(context);
@@ -286,7 +296,7 @@ public class ${Base}Index
 EOT
 }
 
-function mk_index_vbo() {
+function mk_index_htm() {
     file="$1"
     findfile "$file" && return
     cat <<EOT >"$file"
@@ -310,37 +320,44 @@ import com.tinylily.model.base.security.User;
 
 import $fqcn;
 
-public class ${Base}IndexVbo
-        extends Zc3Template_CEM<${Base}Index, $Base> {
+public class ${Base}Index_htm
+        extends SlimIndex_htm<${Base}Index, $Base, ${Base}Criteria> {
 
-    public ${Base}IndexVbo()
+    public ${Base}Index_htm()
             throws NoSuchPropertyException, ParseException {
         super(${Base}Index.class);
-        insertIndexFields("i*sa", "label", "description");
+        indexFields.parse("i*sa", "label", "description");
+    }
+
+
+    @Override
+    protected ${Base}Criteria buildSwitchers(IHtmlViewContext ctx, SwitcherModelGroup switchers)
+            throws ViewBuilderException {
+        // ${Base}Mapper mapper = ctx.query(${Base}Mapper.class);
+        ${Base}Criteria criteria = fn.criteriaFromRequest(new ${Base}Criteria(), ctx.getRequest());
+
+        SwitcherModel<Integer> sw;
+        sw = switchers.entityOf("表单", true, //
+                ctx.query(FormDefMapper.class).filter(FormDefCriteria.all()), //
+                "form", criteria.formId, criteria.noForm);
+        criteria.formId = sw.getSelection1();
+        criteria.noForm = sw.isSelectNull();
+
+        return criteria;
     }
 
     @Override
-    public void buildDataView(IHtmlViewContext ctx, DataViewAnchors<$Base> a, IUiRef<${Base}Index> ref, IOptions options)
+    public void dataIndex(IHtmlViewContext ctx, DataViewAnchors<$Base> a, IUiRef<${Base}Index> ref, IOptions options)
             throws ViewBuilderException, IOException {
         ${Base}Mapper mapper = ctx.query(${Base}Mapper.class);
-
-        ${Base}Criteria criteria = criteriaFromRequest(new ${Base}Criteria(), ctx.getRequest());
-        FilterSectionDiv filters = new FilterSectionDiv(a.frame, "s-filter");
-        {
-            SwitchOverride<Integer> so;
-            so = filters.switchEntity("分类", true, //
-                    ctx.query(CategoryDefMapper.class).filter(CategoryDefCriteria.forSchema(Schemas.OPPORTUNITY)), //
-                    "cat", criteria.categoryId, criteria.noCategory);
-            criteria.categoryId = so.key;
-            criteria.noCategory = so.isNull;
-        }
-
+        ${Base}Criteria criteria = ctx.query(${Base}Criteria.class);
         List<${Base}> list = postfilt(mapper.filter(criteria));
 
-        IndexTable indexTable = mkIndexTable(ctx, a.data, "list");
+        IndexTable itab = new IndexTable(a.data);
+        itab.buildHeader(ctx, indexFields.values());
         if (a.dataList())
             for (${Base} o : list) {
-                HtmlTrTag tr = indexTable.tbody.tr();
+                HtmlTrTag tr = itab.tbody.tr();
                 cocols("i", tr, o);
                 cocols("u", tr, o);
                 cocols("sa", tr, o);
@@ -364,7 +381,7 @@ function mk_mapper_inf() {
     add_inf "$list" "$@"
 }
 
-function mk_vbo_inf() {
+function mk_htm_inf() {
     list="src/main/resources/META-INF/services/net.bodz.bas.html.viz.IHtmlViewBuilder"
     add_inf "$list" "$@"
 }
