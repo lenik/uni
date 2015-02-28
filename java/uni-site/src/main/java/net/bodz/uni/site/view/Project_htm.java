@@ -6,9 +6,9 @@ import net.bodz.bas.c.java.util.Dates;
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.dom.tag.HtmlLiTag;
 import net.bodz.bas.html.dom.tag.HtmlUlTag;
-import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
+import net.bodz.bas.html.viz.AbstractHttpViewBuilder;
 import net.bodz.bas.html.viz.IHtmlHeadData;
-import net.bodz.bas.html.viz.IHtmlViewContext;
+import net.bodz.bas.html.viz.IHttpViewContext;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
@@ -20,7 +20,7 @@ import net.bodz.uni.site.model.Project;
 import net.bodz.uni.site.util.RelativeTimeFormatter;
 
 public class Project_htm
-        extends AbstractHtmlViewBuilder<Project>
+        extends AbstractHttpViewBuilder<Project>
         implements IUniSiteAnchors {
 
     public Project_htm() {
@@ -28,7 +28,7 @@ public class Project_htm
     }
 
     @Override
-    public void preview(IHtmlViewContext ctx, IUiRef<Project> ref, IOptions options) {
+    public void preview(IHttpViewContext ctx, IUiRef<Project> ref, IOptions options) {
         super.preview(ctx, ref, options);
 
         IHtmlHeadData metaData = ctx.getHeadData();
@@ -42,7 +42,7 @@ public class Project_htm
     }
 
     @Override
-    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<Project> ref, IOptions options)
+    public IHtmlTag buildHtmlView(IHttpViewContext ctx, IHtmlTag out, IUiRef<Project> ref, IOptions options)
             throws ViewBuilderException, IOException {
         if (enter(ctx))
             return null;

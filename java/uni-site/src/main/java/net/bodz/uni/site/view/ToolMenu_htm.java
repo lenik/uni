@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.dom.tag.HtmlLiTag;
-import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.viz.IHtmlViewContext;
+import net.bodz.bas.html.viz.AbstractHttpViewBuilder;
+import net.bodz.bas.html.viz.IHttpViewContext;
 import net.bodz.bas.i18n.dom.iString;
 import net.bodz.bas.potato.ref.UiHelper;
 import net.bodz.bas.potato.ref.UiPropertyRef;
@@ -16,14 +16,14 @@ import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.uni.site.model.ToolMenu;
 
 public class ToolMenu_htm
-        extends AbstractHtmlViewBuilder<ToolMenu> {
+        extends AbstractHttpViewBuilder<ToolMenu> {
 
     public ToolMenu_htm() {
         super(ToolMenu.class);
     }
 
     @Override
-    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<ToolMenu> ref, IOptions options)
+    public IHtmlTag buildHtmlView(IHttpViewContext ctx, IHtmlTag out, IUiRef<ToolMenu> ref, IOptions options)
             throws ViewBuilderException, IOException {
         UiPropertyRefMap propMap = UiHelper.explode(ref);
 

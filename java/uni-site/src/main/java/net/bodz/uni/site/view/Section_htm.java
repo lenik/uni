@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.dom.tag.HtmlDivTag;
-import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.viz.IHtmlViewContext;
+import net.bodz.bas.html.viz.AbstractHttpViewBuilder;
+import net.bodz.bas.html.viz.IHttpViewContext;
 import net.bodz.bas.i18n.dom.iString;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
@@ -15,7 +15,7 @@ import net.bodz.uni.site.model.Project;
 import net.bodz.uni.site.model.Section;
 
 public class Section_htm
-        extends AbstractHtmlViewBuilder<Section>
+        extends AbstractHttpViewBuilder<Section>
         implements IUniSiteAnchors {
 
     public Section_htm() {
@@ -23,12 +23,12 @@ public class Section_htm
     }
 
     @Override
-    public void preview(IHtmlViewContext ctx, IUiRef<Section> ref, IOptions options) {
+    public void preview(IHttpViewContext ctx, IUiRef<Section> ref, IOptions options) {
         super.preview(ctx, ref, options);
     }
 
     @Override
-    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<Section> ref, IOptions options)
+    public IHtmlTag buildHtmlView(IHttpViewContext ctx, IHtmlTag out, IUiRef<Section> ref, IOptions options)
             throws ViewBuilderException, IOException {
         if (enter(ctx))
             return null;
