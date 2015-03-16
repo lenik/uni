@@ -135,13 +135,13 @@ package $pkg_impl;
 
 import net.bodz.bas.err.ParseException;
 
-import com.tinylily.model.base.CoEntityCriteria;
+import com.tinylily.model.base.CoObjectCriteria;
 
 /**
  * @see $fqcn
  */
 public class ${Base}Criteria
-        extends CoEntityCriteria {
+        extends CoObjectCriteria {
 
     @Override
     protected void populate(QVariantMap<String> map)
@@ -308,10 +308,10 @@ import java.util.List;
 import net.bodz.bas.c.reflect.NoSuchPropertyException;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.err.ParseException;
-import net.bodz.bas.html.IHtmlViewContext;
 import net.bodz.bas.html.dom.tag.HtmlDivTag;
 import net.bodz.bas.html.dom.tag.HtmlTrTag;
 import net.bodz.bas.html.util.IFontAwesomeCharAliases;
+import net.bodz.bas.html.viz.IHttpViewContext;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
@@ -331,7 +331,7 @@ public class ${Base}Index_htm
 
 
     @Override
-    protected ${Base}Criteria buildSwitchers(IHtmlViewContext ctx, SwitcherModelGroup switchers)
+    protected ${Base}Criteria buildSwitchers(IHttpViewContext ctx, SwitcherModelGroup switchers)
             throws ViewBuilderException {
         // ${Base}Mapper mapper = ctx.query(${Base}Mapper.class);
         ${Base}Criteria criteria = fn.criteriaFromRequest(new ${Base}Criteria(), ctx.getRequest());
@@ -347,7 +347,7 @@ public class ${Base}Index_htm
     }
 
     @Override
-    public void dataIndex(IHtmlViewContext ctx, DataViewAnchors<$Base> a, IUiRef<${Base}Index> ref, IOptions options)
+    public void dataIndex(IHttpViewContext ctx, DataViewAnchors<$Base> a, IUiRef<${Base}Index> ref, IOptions options)
             throws ViewBuilderException, IOException {
         ${Base}Mapper mapper = ctx.query(${Base}Mapper.class);
         ${Base}Criteria criteria = ctx.query(${Base}Criteria.class);
@@ -358,13 +358,13 @@ public class ${Base}Index_htm
         if (a.dataList())
             for (${Base} o : list) {
                 HtmlTrTag tr = itab.tbody.tr();
-                cocols("i", tr, o);
-                cocols("u", tr, o);
-                cocols("sa", tr, o);
+                itab.cocols("i", tr, o);
+                itab.cocols("u", tr, o);
+                itab.cocols("sa", tr, o);
             }
 
         if (a.extradata != null)
-            dumpFullData(a, list);
+            dumpFullData(a.extradata, list);
     }
 
 }
@@ -382,7 +382,7 @@ function mk_mapper_inf() {
 }
 
 function mk_htm_inf() {
-    list="src/main/resources/META-INF/services/net.bodz.bas.html.viz.IHtmlViewBuilder"
+    list="src/main/resources/META-INF/services/net.bodz.bas.html.viz.IHttpViewBuilder"
     add_inf "$list" "$@"
 }
 
