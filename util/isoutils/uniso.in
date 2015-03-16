@@ -1,0 +1,101 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Extract from ISO image}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] image-files}
+
+    . shlib-import cliboot
+    option -o --outdir =DIR     "Where the extracted files be saved"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    outdir=
+    isodir=
+
+function setopt() {
+    case "$1" in
+        -o|--outdir)
+            outdir="$2"
+            ;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    shopt -s nullglob
+    shopt -s dotglob
+
+    isodir=`mktemp -d`
+
+    for f in "$@"; do
+        ext="${f##*.}"
+        base="${f%.*}"
+
+        case "$ext" in
+        isz)
+            iso="$base.iso"
+            _log1 "Convert $f to $iso..."
+            isz-tool.py isz2iso "$f" "$iso"
+            ;;
+
+        iso)
+            iso="$f"
+            ;;
+
+        *)
+            _warn "Unknown file type: $f"
+            continue
+            ;;
+        esac
+
+        if [ -z "$outdir" ]; then
+            srcdir="${f%/*}"
+            [ "$srcdir" = "$f" ] && srcdir=.
+            dst="$srcdir/$base"
+        else
+            dst="$outdir/$base"
+        fi
+
+        if ! mkdir -p "$dst"; then
+            _error "Can't create dir $dst: $!"
+            continue
+        fi
+
+        _log2 "Mount on $isodir"
+        sudo mount -o ro "$iso" "$isodir"
+        
+        _log2 "Copy to $dst"
+        cp -R "$isodir"/* "$dst"
+        
+        _log2 "Remove the converted iso file"
+        sudo umount "$isodir"
+
+        if [ "$ext" = "iso" ]; then
+            rm "$iso"
+        fi
+
+        _log2 "Set executable bits..."
+        find "$dst" -type f -exec chmod -x {} +
+        find "$dst" -type f -iname '*.exe' -exec chmod +x {} +
+        find "$dst" -type f -iname '*.com' -exec chmod +x {} +
+        find "$dst" -type f -iname '*.bat' -exec chmod +x {} +
+
+        _log2 "Set files to be writable..."
+        chmod +w -R "$dst"
+    done
+
+    [ -z "$isodir" ] || rmdir "$isodir"
+}
+
+boot "$@"
