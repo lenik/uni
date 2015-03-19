@@ -1,0 +1,20 @@
+Source: crosstool-ng
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/alt/crosstool-ng
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/crosstool-ng
+
+Package: crosstool-ng
+Architecture: any
+Depends: 
+    make,
+    ${shlibs:Depends}, 
+    ${misc:Depends}
+Description: ct-ng, crosstool-NG - Build cross-toolchains
+       Building a cross-toolchain can be a real pain.
+       crosstool-NG makes it easy to build cross-toolchains, and allows you to take all the juice out of your target by configuring the different components of the toolchain according to the targeted processor.
+
