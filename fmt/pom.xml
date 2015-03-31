@@ -11,6 +11,7 @@
     <artifactId>fmt</artifactId>
     <packaging>pom</packaging>
     <modules>
+        <module>cfb2t</module>
         <module>regf2t</module>
     </modules>
     <name>Uni :: Fmt</name>
