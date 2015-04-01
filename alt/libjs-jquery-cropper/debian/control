@@ -1,0 +1,16 @@
+Source: libjs-jquery-cropper
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/alt/libjs-jquery-cropper
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/libjs-jquery-cropper
+
+Package: libjs-jquery-cropper
+Architecture: all
+Depends: 
+    libjs-jquery,
+    ${misc:Depends}
+Description: A simple jQuery image cropping plugin.
