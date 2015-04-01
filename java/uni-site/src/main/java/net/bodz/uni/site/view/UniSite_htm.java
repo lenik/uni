@@ -67,7 +67,7 @@ public class UniSite_htm
     @Override
     public IHtmlTag buildHtmlView(IHttpViewContext ctx, IHtmlTag out, IUiRef<UniSite> ref, IOptions options)
             throws ViewBuilderException, IOException {
-        if (enter(ctx))
+        if (enter(ctx, ref))
             return null;
 
         UniSite site = ref.get();

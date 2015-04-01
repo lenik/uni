@@ -44,7 +44,7 @@ public class Project_htm
     @Override
     public IHtmlTag buildHtmlView(IHttpViewContext ctx, IHtmlTag out, IUiRef<Project> ref, IOptions options)
             throws ViewBuilderException, IOException {
-        if (enter(ctx))
+        if (enter(ctx, ref))
             return null;
 
         Project project = ref.get();
