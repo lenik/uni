@@ -35,11 +35,20 @@ function main() {
     fi
 
     unit=512
+    if ! SFDISK=$(which sfdisk); then
+        for d in /sbin /usr/sbin /usr/local/sbin; do
+            if [ -x "$d/sfdisk" ]; then
+                SFDISK=$d/sfdisk
+                break
+            fi
+        done
+        [ -x "$SFDISK" ] || die "sfdisk is unavailable."
+    fi
 
     for dev in "$@"; do
         ndev=${#dev}
         # -d: dump
-        LANG=C sfdisk -d "$dev" | while IFS=: read key line; do
+        LANG=C $SFDISK -d "$dev" | while IFS=: read key line; do
             if [ "${key:0:1}" = '#' ]; then continue; fi
             if [ -z "$key" ]; then continue; fi
 
