@@ -1,32 +1,67 @@
 #!/bin/bash
 # vim: set filetype=sh :
 
-_dir_="${0%/*}"
-if [ "$_dir_" = "$0" ]; then
-    _dir_=.
-fi
+__DIR__="${0%/*}"
+[ "$__DIR__" = "$0" ] && __DIR__=.
 
-cd "$_dir_"
+W=$( tput cols || echo 77 )
+    SPC='                                                                     '
+    SPC="$SPC$SPC$SPC$SPC$SPC$SPC$SPC$SPC"
+    FX='\e[7;36m'
 
-if [ -f ./pre-inst ]; then
-    ./pre-inst
-fi
+function sig2() {
+    local left="$1"
+    local right="$2"
+    local csr="$3"
+    local rsc=
+    
+    [ -n "$csr" ] && rsc='[0m'
+    
+    local nl=${#left}
+    local nr=${#right}
+    local lpad=$(( W - nr -  nl))
+    
+    if [ $lpad -lt 5 ]; then
+        local nmax=$(( W - nr - 10 ))
+        left="${left:0:nmax}..."
+        nl=${#left}
+        lpad=$(( W - nr - nl ))
+    fi
+
+    echo -en "$csr$left${SPC:0:lpad}$right$rsc\r"
+}
+
+cd "$__DIR__"
+
+    if [ -f ./pre-inst ]; then
+        ./pre-inst
+    fi
 
 # Remove everything anyway
-rpm -e --allmatches @PACKAGE_LIST@ >/dev/null 2>/dev/null
+    rpm -e --allmatches @PACKAGE_LIST@ >/dev/null 2>/dev/null
 
-for pkg in @PACKAGE_LIST@; do
-    echo "Install $pkg"
+# Install individual packages
+    pkgs=(@PACKAGE_LIST@)
+    npkg=${#pkgs[@]}
+    i=0
+    for pkg in "${pkgs[@]}"; do
+        progress=$(( 100 * i / npkg ))
+        ((i++))
 
-    rpms=( $pkg-* )
-    rpm0="${rpms[0]}"
+        sig2 "  Install $pkg" "$progress%  " "$FX"
 
-    # Re-install it.
-    rpm "$@" -U --nodeps --force "$rpm0"
+        rpms=( $pkg-* )
+        rpm0="${rpms[0]}"
 
+        # Re-install it.
+        rpm "$@" -U --nodeps --force "$rpm0"
+    done
+
+# Post installs.
+    if [ -f ./post-inst ]; then
+        ./post-inst
+    fi
+
+    sig2 "  Install completes." "100%  " "$FX"
     echo
-done
 
-if [ -f ./post-inst ]; then
-    ./post-inst
-fi
