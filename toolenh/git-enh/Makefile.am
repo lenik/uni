@@ -7,6 +7,7 @@ dist_bin_SCRIPTS = \
     git-delta \
     git-delta.rrw \
     git-header \
+	git-mkmv \
     git-prev \
     git-remote-ref \
     git-stitch-fix \
@@ -30,6 +31,7 @@ dist_man_MANS = \
     git-delta.1 \
     git-delta.rrw.1 \
     git-header.1 \
+	git-mkmv.1 \
     git-remote-ref.1 \
     git-stitch-fix.1 \
     git-ws-fix.1 \

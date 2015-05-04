@@ -4,8 +4,8 @@
     : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
 
     . shlib-import cliboot
-    option -l --list        "List only, don't change anything"
-    option -n --name =NAME  "Specify a name other then $keep_name"
+    option -n --dry-run     "List only, don't change anything"
+    option -o --out =NAME   "Specify filename other then $keep_name"
     option -L --follow      "Follow symlinks"
     option -H --follow-args "Follow symlinks for arguments only"
     option -f --force       "Force update all $keep_name files"
@@ -15,9 +15,9 @@
     option    --version
 
     shopt -s nullglob
-    # shopt -s dotglob
+    shopt -s dotglob
 
-    list=
+    dry_run=
     symlinks=
     force=
 
@@ -25,9 +25,9 @@
 
 function setopt() {
     case "$1" in
-        -l|--list)
-            list=1;;
-        -n|--name)
+        -n|--dry-run)
+            dry_run=1;;
+        -o|--out)
             keep_name="$2";;
         -L|--follow)
             symlinks=follow;;
@@ -69,21 +69,29 @@ function main() {
 
 function scan() {
     local d="$1"
+    local children=("$d"/*)
+    local nchild=${#children[@]}
 
-    child=("$d"/*)
-    case ${#child} in
-        0)
+    local nkeep=0
+    if [ -f "$d/$keep_name" ]; then
+        nkeep=1
+        (( nchild-- ))
+    fi
+    
+    if [ $nchild = 0 ]; then
+        if [ $nkeep = 0 ]; then
             _log1 "  Found empty directory: $d"
             hold "$d"
-            ;;
-        1)
-            if [ "$child" = "$keep_name" ]; then
-                if [ "$force" = 1 ]; then
-                    hold "$d"
-                fi
-            fi
-            ;;
-    esac
+        elif [ "$force" = 1 ]; then
+            _log1 "  Update empty directory: $d"
+            hold "$d"
+        fi
+    else
+        if [ $nkeep = 1 ]; then
+            _log1 "  No more empty directory: $d"
+            unhold "$d"
+        fi
+    fi
 
     for subdir in "$d"/*/; do
         subdir="${subdir%/}"
@@ -95,10 +103,16 @@ function scan() {
 }
 
 function hold() {
-    [ "$list" = 1 ] && return 0
+    [ "$dry_run" = 1 ] && return 0
     local kf="$1/$keep_name"
     echo "This file is used to keep the directory from be ignored, or be pruned. " >"$kf"
     echo "Please don't this file. " >>"$kf"
+}
+
+function unhold() {
+    [ "$dry_run" = 1 ] && return 0
+    local kf="$1/$keep_name"
+    rm -f "$kf"
 }
 
 boot "$@"

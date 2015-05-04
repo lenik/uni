@@ -1,0 +1,118 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=git-mv with autocreated subdirs}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <src-pattern> <dst-pattern> [path-patterns]}
+
+    . shlib-import cliboot
+    option -n --dry-run     "No action, just check what to do."
+    option -c --cleanup     "Remove empty parent directories after rename."
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    shopt -s dotglob
+    shopt -s nullglob
+
+    dry_run=
+    cleanup=
+
+function setopt() {
+    case "$1" in
+        -c|--cleanup)
+            cleanup=1;;
+        -n|--dry-run)
+            dry_run=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    case "$#" in
+        0)
+            quit "src pattern isn't specified.";;
+        1)
+            quit "dst pattern isn't specified.";;
+        2)
+            mkmv "$1" "$2";;
+        *)
+            local src="$1"
+            local dst="$2"
+            shift 2
+            for path in "$@"; do
+                qsrc=$path
+                qdst="${qsrc//$src/$dst}"
+                mkmv "$qsrc" "$qdst"
+            done
+            ;;
+    esac
+}
+
+function mkmv() {
+    local src="$1"
+    local dst="$2"
+    if [ "$src" = "$dst" ]; then
+        _log2 "Skipped the same name: $src"
+        return 0
+    fi
+
+    local dstp="${dst%/*}"
+    if [ "$dstp" != "$dst" ]; then
+        if [ ! -d "$dstp" ]; then
+            _log2 "Create directory: $dstp"
+            try mkdir -p "$dstp"
+        fi
+    fi
+
+    try git mv "$src" "$dst"
+
+    if [ "$cleanup" = 1 ]; then
+        rmdir-p "$src"
+    fi
+}
+
+function try() {
+    if [ "$dry_run" = 1 ]; then
+        _log1 "Execute: $*"
+    else
+        "$@"
+    fi
+}
+
+function rmdir-p() {
+    local file="$1"
+    local parent="${file%/*}"
+    if [ "$parent" = "$file" ]; then
+        parent=.
+        return 0
+    fi
+    if [ ! -d "$parent" ]; then
+        return 0
+    fi
+
+    local siblings=( "$parent"/* )
+    local nsibling=${#siblings[@]}
+    if [ $nsibling != 0 ]; then
+        return 0
+    fi
+
+    _log2 "Remove directory: $parent"
+    try rmdir "$parent"
+    rmdir-p "$parent"
+}
+
+boot "$@"
+
+# Examples:
+#   git-mkmv com/tinylily net/bodz/lily `find -path */src/*/com/tinylily`
+

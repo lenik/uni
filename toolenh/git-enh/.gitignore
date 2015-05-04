@@ -4,6 +4,7 @@ git-author
 git-delta
 git-delta.rrw
 git-header
+git-mkmv
 git-prev
 git-remote-ref
 git-stitch-fix
