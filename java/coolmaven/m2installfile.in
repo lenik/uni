@@ -4,25 +4,26 @@
     : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
 
     . shlib-import cliboot
-    option -g --group-id =ID "Specify group-id"
+    option -g --group-id =ID    "Specify group-id, term 'D' or 'DIR' to use the relative dirname"
     option -a --artifact-id =ID "Specify artifact-id, default get from filename"
-    option -w --ver =VER    "Specify version, default get from filename"
+    option -w --ver =VER        "Specify version, default get from filename"
     option -s --sources-jar =FILE "The corresponding sources, default artifactid-VER-sources.jar"
     option -j --javadoc-jar =FILE "The corresponding javadocs, default artifactid-VER-javadoc.jar"
-    option -d --deploy      "Deploy it also"
+    option -d --deploy          "Deploy it also"
     option -r --repo-id =REPOID "Repository id used to deploy"
-    option -u --url =URL    "Repository URL used to deploy"
+    option -u --url =URL        "Repository URL used to deploy"
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
 
-    __FILE__="$BASH_SOURCE"
-    if [ "${__FILE__##*/}" = m2deployfile ]; then
-        deploy=1
-    else
-        deploy=0
-    fi
+    sysconfdir=@sysconfdir@
+
+    deploy=0
+        case "$0" in
+            *deploy*)
+                deploy=1;;
+        esac
     group_id=
     artifact_id=
     version=
@@ -67,7 +68,7 @@ function setopt() {
 
 function main() {
     if [ "$deploy" = 1 ]; then
-        for f in /etc/m2deploy.cfg $HOME/.m2deploy.cfg; do
+        for f in $sysconfdir/m2deploy.cfg $HOME/.m2deploy.cfg; do
             if [ -f "$f" ]; then
                 while read key val; do
                     if [ -z "$key" ]; then continue; fi
@@ -90,6 +91,14 @@ function main() {
     fi
 
     file="$1"
+    case "$group_id" in
+        D|DIR)
+            dir="${file%/*}"
+            dir="${dir#./}"
+            group_id="${dir//\//.}"
+            ;;
+    esac
+
     if [ -z "$group_id" ]; then
         parent=`jar tf "$file" | grep -e '^[a-z]\+/' | grep -v '/$' | get-common-prefix`
         _log1 "Auto determine group id by longest-parent-dir: $parent"
