@@ -1,0 +1,20 @@
+Source: git-fat
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/alt/git-fat
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/git-fat
+
+Package: git-fat
+Architecture: all
+Depends: 
+    git,
+    ${misc:Depends}
+Description: Simple way to handle fat files without committing them to git, supports synchronization using rsync
+    Checking large binary files into a source repository (Git or otherwise) is a bad idea because repository size quickly becomes unreasonable.
+    Even if the instantaneous working tree stays manageable, preserving repository integrity requires all binary files in the entire project history, which given the typically poor compression of binary diffs, implies that the repository size will become impractically large.
+    Some people recommend checking binaries into different repositories or even not versioning them at all, but these are not satisfying solutions for most workflows.
+
