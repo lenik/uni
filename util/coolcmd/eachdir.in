@@ -154,9 +154,9 @@ function main() {
         fi
 
         if [ "$background" = 1 ]; then
-            bash -c "${cmdline[*]}" &
+            bash -c "${cmdline[*]}" </dev/tty &
         else
-            bash -c "${cmdline[*]}"
+            bash -c "${cmdline[*]}" </dev/tty
         fi
 
         popd >/dev/null
