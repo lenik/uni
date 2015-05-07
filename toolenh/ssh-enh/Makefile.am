@@ -1,7 +1,8 @@
 include libauto/project.am
 
 dist_bin_SCRIPTS = \
-    mount.ssh
+    mount.ssh \
+    ssh-fingerprint
 
 dist_sbin_SCRIPTS = \
     ssh-acceptkeys \
