@@ -1,0 +1,32 @@
+Source: cocos2d-x-local
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/alt/cocos2d-x-local
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/cocos2d-x-local
+
+Package: cocos2d-x-local
+Architecture: all
+Depends: 
+    libx11-dev,
+    libxmu-dev,
+    libglu1-mesa-dev,
+    libgl2ps-dev,
+    libxi-dev,
+    g++-4.9,
+    libzip-dev,
+    libpng12-dev,
+    libcurl4-gnutls-dev,
+    libfontconfig1-dev,
+    libsqlite3-dev,
+    libglew-dev,
+    libssl-dev,
+    xorg-dev,
+    libglu1-mesa-dev,
+    cmake,
+    curl,
+    ${misc:Depends}
+Description: Cocos2d-x dev package.
