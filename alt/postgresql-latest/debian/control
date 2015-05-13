@@ -11,11 +11,11 @@ Vcs-Browser: http://git.bodz.net/uni/alt/postgresql-latest
 Package: postgresql-latest
 Architecture: all
 Depends:
-    postgresql-9.3
+    postgresql-9.4
 Recommends:
-    postgresql-plperl-9.3,
-    postgresql-plpython-9.3,
-    postgresql-client-9.3,
-    postgresql-contrib-9.3,
-    postgresql-doc-9.3
+    postgresql-plperl-9.4,
+    postgresql-plpython-9.4,
+    postgresql-client-9.4,
+    postgresql-contrib-9.4,
+    postgresql-doc
 Description: Select the latest PostgreSQL databse.
