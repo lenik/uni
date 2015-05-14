@@ -74,6 +74,9 @@ function main() {
     fi
 
     if [ ! -f "$template" ]; then
+        autoext=
+        [ "$template" = "${template%.*}" ] && autoext=1
+
         parentv=(. "$newtmpldir")
         pathv=()
 
@@ -105,21 +108,33 @@ function main() {
 
         template="${pathv[0]}"
     fi
-    base="${template##*/}"
-    tname="${base%.*}"
-
-    cfg[_TEMPLATE]="$template"
-    cfg[_TNAME]="$tname"
 
     if [ $# != 0 ]; then
         outfile="$1"
         if [ -f "$outfile" ]; then
-            if [ "$force" != 1 && "$stdout" != 1 ]; then
+            if [ "$force" != 1 ] && [ "$stdout" != 1 ]; then
                 quit "File is already existed: $outfile"
             fi
         fi
         shift
     fi
+
+    tdir="${template%/*}"
+    tbase="${template##*/}"
+        [ "$tdir" = "$template" ] && tdir=.
+    tname="${tbase%.*}"
+
+    if [ "$autoext" = 1 ]; then
+        base="${outfile##*/}"
+        ext="${base##*.}"
+        if [ "$ext" != "$base" ]; then
+            template="$tdir/$tname.$ext"
+            _log2 "Auto pick template by extension: $template."
+        fi
+    fi
+
+    cfg[_TEMPLATE]="$template"
+    cfg[_TNAME]="$tname"
 
     cfg[__FILE__]="$outfile"
     base="${outfile##*/}"
