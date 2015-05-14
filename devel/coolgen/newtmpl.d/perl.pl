@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-<?= _file_name ?> - <?= TEXT ?>
+<?= $Name ?> - <?= $words ?>
 
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
-    $LOGNAME    = '<?= _file_name ?>'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+    $LOGNAME    = '<?= $cfg["__NAME__"] ?>'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id: - @VERSION@ @DATE@ @TIME@ - $');
 use Getopt::Long;
@@ -28,7 +28,7 @@ sub _boot {
 
 =head1 SYNOPSIS
 
-B<<?= _file_name ?>>
+B<<?= $Name ?>>
     S<[ B<-q> | B<--quiet> ]>
     S<[ B<-v> | B<--verbose> ]>
     S<[ B<-h> | B<--help> ]>
@@ -38,11 +38,11 @@ B<<?= _file_name ?>>
 
 =head1 DESCRIPTION
 
-B<<?= _file_name ?>> is a WHAT used for WHAT. It HOW-WORKS.
+B<<?= $Name ?>> is a WHAT used for WHAT. It HOW-WORKS.
 
 BACKGROUND-PROBLEM.
 
-HOW-<?= _file_name ?>-RESOLVES.
+HOW-<?= $Name ?>-RESOLVES.
 
 =head1 OPTIONS
 
@@ -76,7 +76,7 @@ Display a short version information and exit(0).
 
 =item Show help
 
-    <?= _file_name ?> --help
+    <?= $Name ?> --help
 
 =back
 
@@ -137,7 +137,7 @@ The initial version.
 
 =cut
 sub _version {
-    print "[$LOGNAME] <?= TEXT ?> \n";
+    print "[$LOGNAME] <?= $words ?> \n";
     print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
 }
 
@@ -147,6 +147,6 @@ The L<cmt/"Perl_simple_cli_program_template">
 
 =head1 AUTHOR
 
-<?= _user ?> <<?= _email_x ?>>
+<?= $cfg['user'] ?> <<?= $cfg['emailat'] ?>>
 
 =cut

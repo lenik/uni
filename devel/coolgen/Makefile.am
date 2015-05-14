@@ -1,6 +1,6 @@
 include libauto/project.am
 
-SUBDIRS = newtmpl.d
+SUBDIRS = lib
 
 dist_bin_SCRIPTS = \
     new \
@@ -14,8 +14,10 @@ newtmpl_DATA =
 CLEANFILES = ${dist_bin_SCRIPTS}
 
 install-data-hook:
-	cd $(DESTDIR)$(bindir); \
-		for tmpl in $(DESTDIR)$(newtmpldir)/*; do \
+	mkdir -p ${DESTDIR}${newtmpldir}
+	cp -R ${srcdir}/newtmpl.d/* ${DESTDIR}${newtmpldir}
+	cd $(DESTDIR)${bindir}; \
+		for tmpl in $(DESTDIR)${newtmpldir}/*; do \
 			base="$${tmpl##*/}"; \
 			base="$${base%.*}"; \
 			ln -snf new new-$$base; \

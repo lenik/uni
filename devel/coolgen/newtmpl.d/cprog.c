@@ -16,7 +16,7 @@
 #include "config.h"
 
 #define RCS_ID      "$Id: - @VERSION@ @DATE@ @TIME@ - $"
-#define DESCRIPTION "<?= TEXT ?>"
+#define DESCRIPTION "<?= words ?>"
 
 #include <cprog.h>
 

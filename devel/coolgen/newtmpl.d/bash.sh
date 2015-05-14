@@ -1,7 +1,7 @@
 #!/bin/bash
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
     : ${PACKAGE:=@PACKAGE@}
-    : ${PROGRAM_TITLE:=<?= TEXT ?>}
+    : ${PROGRAM_TITLE:=<?= $words ?>}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
     . shlib-import cliboot

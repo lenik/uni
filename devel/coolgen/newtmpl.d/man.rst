@@ -1,5 +1,26 @@
-.. <?= _man_name ?> - manual
-.. Copyright (C) <?= _year ?> <?= _user ?>
+<?php
+    $MAN_SECTIONS = [
+        '1' => 'Command Usage',
+        '2' => 'System Call',
+        '3' => 'Library Function',
+        '4' => 'special files',
+        '5' => 'File Format',
+        '6' => 'Games',
+        '7' => 'Miscellaneous',
+        '8' => 'System Administration',
+        '9' => 'Kernel Routines',
+    ];
+
+    $man_name = $Name;
+    $man_sect = pathinfo($cfg['__FILE__'], PATHINFO_EXTENSION);
+    $man_group = $MAN_SECTIONS[$man_sect];
+
+    $man_version = '';
+    $year = date("Y");
+    $month = date("M");
+
+?>.. <?= $man_name ?> - manual
+.. Copyright (C) <?= $year ?> <?= $cfg['user'] ?>
 ..
 .. This program is free software; you can redistribute it and/or modify
 .. it under the terms of the GNU General Public License as published by
@@ -16,33 +37,33 @@
 ..
 
 ===============================================================================
-<?= _man_name ?>
+<?= $man_name ?>
 ===============================================================================
 
 -------------------------------------------------------------------------------
-<?= TEXT ?>
+<?= $words ?>
 -------------------------------------------------------------------------------
 
-:Author: <?= _user ?> <<?= _email ?>>
+:Author: <?= $cfg['user'] ?> <<?= $cfg['email'] ?>>
 :Copyright: GNU GPLv3
-:Date: <?= _month ?> <?= _year ?>
+:Date: <?= $month ?> <?= $year ?>
 :Id: $Id:$
-:Manual group: <?= _man_group ?>
-:Manual section: <?= _man_sect ?>
-:Version: <?= _man_version ?>
+:Manual group: <?= $man_group ?>
+:Manual section: <?= $man_sect ?>
+:Version: <?= $man_version ?>
 
 
 SYNOPSIS
 ========
 
-    <?= _man_name ?> [ARGUMENTS]
+    <?= $man_name ?> [ARGUMENTS]
 
 
 
 DESCRIPTION
 ===========
 
-<?= TEXT ?>
+<?= $words ?>
 
 
 
@@ -64,7 +85,7 @@ ENVIRONMENT
 EXAMPLES
 ========
 
-    * <?= _man_name ?> example-arguments
+    * <?= $man_name ?> example-arguments
 
         example-description
 
@@ -78,6 +99,6 @@ SEE ALSO
 BUGS
 ====
 
-None currently known. However, this implimentation of the <?= _man_name ?> command was written by a computer hobbyist; the source code has not, as of <?= _man_version ?>, been reviewed by an experienced C programmer.
+None currently known. However, this implimentation of the <?= $man_name ?> command was written by a computer hobbyist; the source code has not, as of <?= $man_version ?>, been reviewed by an experienced C programmer.
 
 Please report any bugs, problems, queries, experiences, etc. directly to the author.

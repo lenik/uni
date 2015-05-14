@@ -1,325 +1,200 @@
-#!/usr/bin/perl
-# master-file
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Generate new file from template}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] [TemplateSpec] File [KEY=VAL...] ...}
 
-=head1 NAME
+    . shlib-import cliboot
+    option -D --define =K=V         "Define named parameter"
+    option -t --template =NAME      "Specify the template"
+    option -c --stdout              "Write to stdout always"
+    option -f --force               "Force to overwrite existing file"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
 
-new - Generate new file from template
+    newtmpldir=@newtmpldir@
+    [ -d "$newtmpldir" ] || newtmpldir=newtmpl.d
 
-=cut
-use strict;
-use vars qw($LOGNAME $LOGLEVEL);
-use cmt::log(2);
-    $LOGNAME    = 'new'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
-use cmt::path('path_split', 'path_join');
-# use cmt::util('readfile', 'writefile', 'listdir');
-use cmt::vcs('parse_id');
-    my %RCSID   = parse_id('$Id: - @VERSION@ @DATE@ @TIME@ - $');
-use Data::Dumper;
-use Getopt::Long;
-    Getopt::Long::Configure('gnu_getopt');
-use POSIX('strftime');
+    template=
+    outfile=/dev/stdout
+    stdout=
+    force=
 
-our %MAN_SECTIONS = (
-    '1' => 'Command Usage',
-    '2' => 'System Call',
-    '3' => 'Library Function',
-    '4' => 'special files',
-    '5' => 'File Format',
-    '6' => 'Games',
-    '7' => 'Miscellaneous',
-    '8' => 'System Administration',
-    '9' => 'Kernel Routines',
-);
+    declare -A cfg
 
-sub _main; sub _version; sub _help;
-
-our $opt_force;
-our $opt_template_name;
-our $opt_template_file;
-our %opt_env = %ENV;
-our %opt_vars;
-our $opt_notext = 0;
-
-our $opt_outfile;
-our @opt_tmpl_dirs = qw(@newtmpldir@);
-
-sub _boot {
-    my $self = path_split($0);
-    if ($self =~ /^new-(.*)/) {
-        $opt_template_name = $1;
-    }
-
-    GetOptions('quiet|q'        => sub { $LOGLEVEL-- },
-               'verbose|v'      => sub { $LOGLEVEL++ },
-               'version'        => sub { _version; exit 0 },
-               'help|h'         => sub { _help; exit 0 },
-               'force|f'        => \$opt_force,
-               'template|t=s'   => \$opt_template_name,
-               'define|D=s'     => \%opt_vars,
-               'notext|n'       => \$opt_notext,
-               );
-
-    unless (defined $opt_template_name) {
-        die "Template is unknown" unless @ARGV;
-        $opt_template_name = shift @ARGV;
-    }
-
-    if (-f $opt_template_name) {
-        $opt_template_file = $opt_template_name;
-    } else {
-        for my $dir (@opt_tmpl_dirs) {
-            my $prefix = path_join($dir, $opt_template_name);
-            if (-f $prefix) {
-                $opt_template_file = $prefix;
-            } else {
-                my @glob = <$prefix.*>;
-                if (@glob) {
-                    $opt_template_file = shift @glob;
-                    last;
-                }
-            }
-        }
-        die "Template $opt_template_name hasn't been defined. "
-            unless defined $opt_template_file;
-    }
-
-    $opt_outfile = shift @ARGV;
-    if (defined($opt_outfile) and $opt_outfile eq '-') {
-        undef $opt_outfile;
-    }
-
-    if ($opt_notext) {
-        for (@ARGV) {
-            my $eq = index($_, '=');
-            my $key = $_;
-            my $val = '';
-            if ($eq != -1) {
-                $key = substr($_, 0, $eq);
-                $val = substr($_, $eq + 1);
-            }
-            $opt_vars{$key} = $val;
-        }
-    } else {
-        $opt_env{'TEXT'} = join(' ', @ARGV);
-    }
-
-    _log2 "template: $opt_template_file";
-
-    _main;
+function setopt() {
+    case "$1" in
+        -D|--define)
+            k="${2%%=*}"
+            [ "$k" = "$2" ] && quit "Bad spec: $2"
+            v="${2#*=}"
+            cfg[$k]="$v"
+            ;;
+        -t|--template)
+            template="$2";;
+        -c|--stdout)
+            stdout=1;;
+        -f|--force)
+            force=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
 }
 
-=head1 SYNOPSIS
+function main() {
+    shopt -s nullglob
 
-B<new>
-    S<[ B<-q> | B<--quiet> ]>
-    S<[ B<-v> | B<--verbose> ]>
-    S<[ B<-h> | B<--help> ]>
-    S<[ B<--version> ]>
-    S<[ B<--> ]>
-    S<[ I<...the rest of arguments...> ]>
+    cfg[user]="${DEBFULLNAME-$USERNAME}"
+    email="${DEBEMAIL-$EMAIL}"
+    cfg[email]="$email"
+    cfg[emailat]="${email/@/ (at) }"
 
-=head1 DESCRIPTION
+    if [ -z "$template" ]; then
+        this="${0##*/}"
+        case "$this" in
+            new-*)
+                template="${this#new-}";;
+            mk*)
+                template="${this#mk}";;
+            *)
+                [ -z "$1" ] && quit "No template name specified."
+                template="$1"
+                shift;;
+        esac
+    fi
 
-B<new> is a WHAT used for WHAT. It HOW-WORKS.
+    if [ ! -f "$template" ]; then
+        parentv=(. "$newtmpldir")
+        pathv=()
 
-BACKGROUND-PROBLEM.
+        token="$template"
+        while true; do
+            ndir=0
+            for parent in "${parentv[@]}"; do
+                _log2 "Search $parent/$token*"
+                for f in "$parent/$token"*; do
+                    [ -d "$f" ] && (( ndir++ ))
+                    pathv=("${pathv[@]}" "$f")
+                    break
+                done
+            done
+            if [ ${#pathv[@]} = 0 ]; then
+                quit "Undefined template: $template"
+            fi
 
-HOW-new-RESOLVES.
+            [ $ndir = 0 ] && break
 
-=head1 OPTIONS
+            if [ $# = 0 ]; then
+                quit "Template name is incompleted."
+            fi
+            parentv="${pathv[@]}"
+            pathv=()
+            token="$1"
+            shift
+        done
 
-=over 8
+        template="${pathv[0]}"
+    fi
+    base="${template##*/}"
+    tname="${base%.*}"
 
-=item B<-m> | B<--my-option>
+    cfg[_TEMPLATE]="$template"
+    cfg[_TNAME]="$tname"
 
-...
+    if [ $# != 0 ]; then
+        outfile="$1"
+        if [ -f "$outfile" ]; then
+            if [ "$force" != 1 && "$stdout" != 1 ]; then
+                quit "File is already existed: $outfile"
+            fi
+        fi
+        shift
+    fi
 
-=item B<-q> | B<--quiet>
+    cfg[__FILE__]="$outfile"
+    base="${outfile##*/}"
+    cfg[__BASE__]="$base"
+    cfg[__NAME__]="${base%.*}"
 
-Repeat this option to suppress unimportant information to display.
+    if [ "$stdout" = 1 ]; then
+        outfile=/dev/stdout
+    fi
 
-=item B<-v> | B<--verbose>
+    for a in "$@"; do
+        k="${a%%=*}"
+        [ "$k" = "$a" ] && break
+        v="${a#*=}"
+        shift
+        cfg["$k"]="$v"
+    done
 
-Repeat this option to display more detailed information.
+    cfg[words]="$*"
 
-=item B<-h> | B<--help>
+    cfgfile=`tempfile`
+    _log2 "Config:"
+    for k in "${!cfg[@]}"; do
+        v="${cfg[$k]}"
+        echo "$k=$v" >>$cfgfile
+        _log2 "  $k = $v."
+    done
 
-Display a breif help page and exit(0).
+    tlinked=`tempfile`
+    header >$tlinked
+    cat "$template" >>$tlinked
 
-=item B<--version>
+    php $tlinked <$cfgfile >$outfile
 
-Display a short version information and exit(0).
-
-=back
-
-=head1 EXAMPLES
-
-=over 4
-
-=item Show help
-
-    new --help
-
-=back
-
-=head1 ENVIRONMENT
-
-=over 8
-
-=item TEMP, TMP
-
-TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
-temporary files.
-
-=back
-
-=cut
-sub _help {
-    &_version;
-    print <<"EOM";
-
-Syntax:
-    new [OPTIONS] [--] TemplateName File [KEY=VALUE...]"
-    new-TemplateName [OPTIONS] [--] File [KEY=VALUE...]"
-    new* [OPTIONS] -t TemplateName [--] File [KEY=VALUE...]"
-
-Common options:
-    -D, --define=KEY=VALUE  redefine variables
-    -t, --template=NAME     specifiy the template to use
-    -f, --force             overwrite existing files
-    -q, --quiet             repeat to get less info
-    -v, --verbose           repeat to get more info
-    -h, --help              show this help page
-        --version           print the version info
-EOM
+    rm -f $cfgfile
+    rm -f $tlinked
 }
 
-exit (_boot or 0);
-
-sub _main {
-
-    my ($_file_dir, $_file_base) = path_split($opt_outfile);
-    my ($_file_name, $_file_ext) = ($_file_base, undef);
-        my $last_dot = rindex($_file_base, '.');
-        if ($last_dot != -1) {
-            $_file_name = substr($_file_base, 0, $last_dot);
-            $_file_ext = substr($_file_base, $last_dot + 1);
-        }
-
-    my ($_man_name, $_man_sect) = $_file_base =~ /^(.*)\.([1-9])(?:\..*?)?$/;
-    my $_man_group = $MAN_SECTIONS{$_man_sect};
-
-    my @tm = localtime();
-
-    my $_user = $ENV{'DEBFULLNAME'} || $ENV{'USERNAME'};
-    my $_email = $ENV{'DEBEMAIL'} || $ENV{'EMAIL'};
-    my $_email_x = $_email;
-       $_email_x =~ s/@/ (at) /;
-
-    %opt_env = (
-        _template   => $opt_template_file,
-        _file       => $opt_outfile,
-        _file_dir   => $_file_dir,
-        _file_base  => $_file_base,
-        _file_name  => $_file_name,
-        _file_ext   => $_file_ext,
-        _man_name   => $_man_name,
-        _man_sect   => $_man_sect,
-        _man_group  => $_man_group,
-        _date       => strftime("%F", @tm),
-        _year       => strftime("%Y", @tm),
-        _month      => strftime("%b", @tm),
-        _week       => strftime("%a", @tm),
-        _user       => $_user,
-        _email      => $_email,
-        %opt_env);
-
-    _log2 Dumper(\%opt_env);
-
-    open(TMPL, "<$opt_template_file")
-        or die("Can't open template file $opt_template_file: $!");
-
-    if (defined $opt_outfile) {
-        if (-f $opt_outfile) {
-            if ($opt_force) {
-                _log1 "Overwrite $opt_outfile";
-            } else {
-                die "File $opt_outfile is already existed. ";
-            }
-        }
-        open(OUT, ">$opt_outfile")
-            or die("Can't write to file $opt_outfile: $!");
-    } else {
-        *OUT = *STDOUT;
+function header() {
+    cat <<'EOT'
+<?php
+    function camelCase($str) {
+        $str = preg_replace('/[^a-z0-9]+/i', ' ', $str);
+        $str = trim($str);
+        $str = ucwords($str);
+        $str = str_replace(" ", "", $str);
+        $str = lcfirst($str);
+        return $str;
     }
 
-    while (<TMPL>) {
-        while (/<\?= \s* (\w+)(?:=(.*?))? \s* \?>/x) {
-            my $key = $1;
-            my $val = $opt_vars{$key};
-            $val = $opt_env{$key} unless defined $val;
-            unless (defined $val) {
-                my $defl = $2;
-                print "Please enter a value for $key: ";
-                $val = <STDIN>;
-                chomp $val;
-                if ($val eq '' and defined $defl) {
-                    $val = $defl;
-                }
-                $opt_vars{$key} = $val;
-            }
-            $_ = substr($_, 0, $-[0]) . $val . substr($_, $+[0]);
+    function hyphen($str, $delim) {
+        $str = preg_replace('/([A-Z])/', ' $1', $str);
+        $str = trim($str);
+        $str = str_replace(' ', $delim, $str);
+        return $str;
+    }
+
+    $cfg = [];
+    while ($s = fgets(STDIN)) {
+        $eq = strpos($s, '=');
+        if ($eq !== false) {
+            $k = substr($s, 0, $eq);
+            $v = substr($s, $eq + 1);
+            $cfg[$k] = chop($v);
         }
-        # s/\\@/@/g;
-        print OUT $_;
     }
-
-    close OUT;
-    close TMPL;
-
-    if (defined $opt_outfile) {
-        _log2 "Set permission to the same as template file. ";
-        my $perm = (stat $opt_template_file)[2] & 07777;
-        chmod $perm, $opt_outfile;
-    }
+    
+    $words = $cfg['words'];
+    $Name = $cfg['__NAME__'];
+    $name = strtolower($Name);
+    $naMe = camelCase($Name);
+    $NAME = strtoupper($Name);
+    $NA_ME = strtoupper(hyphen($Name, '_'));
+?>
+EOT
 }
 
-=head1 DIAGNOSTICS
-
-(No Information)
-
-=cut
-# (HELPER FUNCTIONS)
-
-=head1 HACKING
-
-(No Information)
-
-=cut
-# (MODULE FUNCTIONS)
-
-=head1 HISTORY
-
-=over
-
-=item 0.x
-
-The initial version.
-
-=back
-
-=cut
-sub _version {
-    print "[$LOGNAME] Generate new file from template\n";
-    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
-}
-
-=head1 SEE ALSO
-
-The L<cmt/"Perl_simple_cli_program_template">
-
-=head1 AUTHOR
-
-Xima Lenik <name@mail.box>
-
-=cut
+boot "$@"

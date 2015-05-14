@@ -35,8 +35,8 @@ void showHelp() {
 
 void showVersion() {
     alias writeln ln;
-    ln("[" ~ progname ~ "] <?= TEXT ?>");
-    ln("Written by <?= author ?>  Version 0." ~ rcsId.ver
+    ln("[" ~ progname ~ "] <?= $words ?>");
+    ln("Written by <?= $cfg['author'] ?>  Version 0." ~ rcsId.ver
         ~ "  Last updated at " ~ rcsId.date);
 }
 
