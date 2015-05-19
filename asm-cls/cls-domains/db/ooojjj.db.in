@@ -1,0 +1,6 @@
+; vim: set filetype=bindzone :
+
+$INCLUDE @dbdir@/social/99jsj.db
+
+$INCLUDE @dbdir@/inc/auto.db
+

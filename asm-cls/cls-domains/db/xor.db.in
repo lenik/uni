@@ -1,0 +1,7 @@
+; vim: set filetype=bindzone :
+
+$INCLUDE @dbdir@/inc/default.db
+$INCLUDE @dbdir@/inc/google.db
+
+$INCLUDE @dbdir@/inc/auto.db
+

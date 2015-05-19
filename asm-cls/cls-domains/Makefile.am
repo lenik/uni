@@ -1,6 +1,6 @@
 include libauto/project.am
 
-SUBDIRS = lenik
+SUBDIRS = db
 
 do_subst += -e 's,[@]bindconfdir[@],$(bindconfdir),g'
 

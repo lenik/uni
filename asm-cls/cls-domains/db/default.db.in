@@ -15,7 +15,7 @@ $TTL            60000
                                     1H      ; minimum TTL
                                 )
 
-$INCLUDE @datadir@/inc/dns-usage.db
+$INCLUDE @dbdir@/inc/dns-usage.db
 
                         TXT     "t=zoo owner=lenik"
 

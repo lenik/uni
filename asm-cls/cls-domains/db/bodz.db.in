@@ -1,7 +1,7 @@
 ; vim: set filetype=bindzone :
 
-$INCLUDE @datadir@/inc/default.db
-$INCLUDE @datadir@/inc/google.db
+$INCLUDE @dbdir@/inc/default.db
+$INCLUDE @dbdir@/inc/google.db
 
 ns1                     A       inst:xjl-1[ipw]
 ns2                     A       inst:xjl-1[ipw]
@@ -14,17 +14,5 @@ orig                    A       inst:xjl-1[ipw]
 1                       A       inst:xjl-1[ipw]
 
 www                     CNAME   1
-xml                     CNAME   1
-uni                     CNAME   1
 
-git                     CNAME   1
-svn                     CNAME   1
-trac                    CNAME   1
-m2                      CNAME   1
-ci                      CNAME   1
-
-lenik                   CNAME   1
-shecti                  CNAME   1
-
-deb                     CNAME   1
-sshproxy                CNAME   1
+$INCLUDE @dbdir@/inc/auto.db

@@ -1,6 +1,9 @@
 ; vim: set filetype=bindzone :
 
-$INCLUDE @datadir@/inc/default.db
-$INCLUDE @datadir@/inc/hotmail.db
+$INCLUDE @dbdir@/inc/default.db
+$INCLUDE @dbdir@/inc/hotmail.db
 
 @           IN      3600    MX  10  938477070141483920.pamx1.hotmail.com.
+
+$INCLUDE @dbdir@/inc/auto.db
+

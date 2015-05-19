@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([cls-domains], [1.4.1], [xjl-bug@99jsj.com])
+AC_INIT([cls-domains], [1.5.0], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 
 # Checks for programs.
@@ -17,5 +17,5 @@ AC_PROG_LN_S
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([lenik/Makefile])
+AC_CONFIG_FILES([db/Makefile])
 AC_OUTPUT

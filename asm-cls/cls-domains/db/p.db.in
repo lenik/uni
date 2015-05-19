@@ -12,7 +12,7 @@ $TTL            30D
                                     1H      ; minimum TTL
                                 )
 
-$INCLUDE @datadir@/inc/dns-usage.db
+$INCLUDE @dbdir@/inc/dns-usage.db
 
 1       A       192.168.1.1
 2       A       192.168.1.2

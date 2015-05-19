@@ -13,12 +13,14 @@ named_conf=$bindconfdir/named.conf
 #     svn-union-install $lenik_url $bindconfdir/lenik
 # fi
 
-lineconf -tm "Add lenik domains" \
+lineconf -tm "Add cls domains" \
     $named_conf @section::lenik \
-    "include \"$bindconfdir/lenik/named.conf\";"
+    "include \"$bindconfdir/cls.conf\";"
 
 # Need write access to journal files. (for nsupdate)
+chown -R bind:bind "$bindconfdir/inc"
 chown -R bind:bind "$bindconfdir/lenik"
+chown -R bind:bind "$bindconfdir/net"
 
 echo "Reload bind9"
     /etc/init.d/bind9 reload
