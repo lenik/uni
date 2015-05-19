@@ -16,3 +16,5 @@ $TTL            60000
                                     1H      ; minimum TTL
                                 )
 
+$INCLUDE @dbdir@/inc/dns-usage.db
+
