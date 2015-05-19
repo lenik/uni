@@ -1,4 +1,4 @@
 ; vim: set filetype=bindzone :
 ; Example   IN  3600    MX  10  Parameters...
 
-*               60      CNAME   0
+@           IN  3600    TXT     "t=spf1 A MX ~all"      ; SPF Framework

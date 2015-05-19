@@ -17,11 +17,14 @@ bindconf_DATA = \
     cls.conf
 
 inc_DATA = \
-	auto.db \
+    auto.db \
     default.db \
     dns-usage.db \
-    google.db \
-    hotmail.db
+    instances.db \
+    soa.db \
+    mail-google.db \
+    mail-hotmail.db \
+    mail-qq.db
 
 lenik_DATA = \
     1na.db \
@@ -29,6 +32,7 @@ lenik_DATA = \
     bela.db \
     bodz.db \
     ebja.db \
+    lenik.db \
     mia.db \
     ooojjj.db \
     pfpf.db \

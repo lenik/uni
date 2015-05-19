@@ -1,14 +1,12 @@
 ; vim: set filetype=bindzone :
+; Example   IN  3600    MX  10  Parameters...
 
+$INCLUDE @dbdir@/inc/soa.db
+$INCLUDE @dbdir@/inc/mail-google.db
 $INCLUDE @dbdir@/inc/default.db
-$INCLUDE @dbdir@/inc/google.db
+$INCLUDE @dbdir@/inc/instances.db
 
-1                       CNAME   1.lenik.net.
-
-debian                  CNAME   lenik-pc
-lenik                   CNAME   1
-svn                     CNAME   svn.lenik.net.
-www                     CNAME   1
+0                       CNAME   xjl-1
 
 $INCLUDE @dbdir@/inc/auto.db
 

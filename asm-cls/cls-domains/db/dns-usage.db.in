@@ -1,4 +1,5 @@
 ; vim: set filetype=bindzone :
+; Example   IN  3600    MX  10  Parameters...
 
                         NS      ns1.lenik.net.
                         NS      ns2.lenik.net.

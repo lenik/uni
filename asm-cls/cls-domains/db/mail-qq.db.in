@@ -1,0 +1,6 @@
+; vim: set filetype=bindzone :
+; Example   IN  3600    MX  10  Parameters...
+
+@           IN  3600    MX  10  mxbiz1.qq.com.
+                        MX  20  mxbiz2.qq.com.
+

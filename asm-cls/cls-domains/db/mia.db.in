@@ -1,11 +1,12 @@
 ; vim: set filetype=bindzone :
+; Example   IN  3600    MX  10  Parameters...
 
+$INCLUDE @dbdir@/inc/soa.db
+$INCLUDE @dbdir@/inc/mail-qq.db
 $INCLUDE @dbdir@/inc/default.db
-$INCLUDE @dbdir@/inc/hotmail.db
+$INCLUDE @dbdir@/inc/instances.db
 
-; @           IN      3600    MX  10  1526356224873176055.pamx1.hotmail.com.
-@           IN      3600    MX  10  mxbiz1.qq.com.
-                            MX  20  mxbiz2.qq.com.
+0                       CNAME   xjl-1
 
 $INCLUDE @dbdir@/inc/auto.db
 
