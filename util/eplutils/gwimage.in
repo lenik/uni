@@ -1,0 +1,205 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Convert image to EPL GW command}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] IMAGES...}
+    : ${EXTDIR:=@extdir@}
+
+    . shlib-import cliboot
+    option -d --dpi =DPI            "Specify the resolution in DPI"
+    option -s --size =SIZE          "Specify the paper size by name or WxH"
+    option -F --floyd-steinberg     "Dither using Floyd Steinberg method"
+    option -R --riemersma           "Dither using Riemersma method"
+    option    --dump                "Dump the binary image"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    dpi=203
+    width=
+    height=
+    dither=
+    dump=
+
+
+function setopt() {
+    case "$1" in
+        -d|--dpi)
+            dpi="$2";;
+        -s|--size)
+            size="$2"
+            if [ "$size" = "${size/x/}" ]; then
+                size=$(getsize "$size") || quit "Illegal paper size: $size"
+            fi
+            w="${size%x*}"
+            h="${size#*x}"
+            width=$(parse $w)
+            height=$(parse $h)
+            ;;
+        -F|--floyd-steinberg)
+            dither=FloydSteinberg;;
+        -R|--riemersma)
+            dither=Riemersma;;
+        --dump)
+            dump=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    xpmtmp=`tempfile -s.xpm` || quit "Failed to generate temp file."
+    xpmname=${xpmtmp##*/}
+    xpmname=${xpmname%.xpm}
+
+    ctmp=`tempfile -s.c`
+    bintmp=`tempfile -s.bin`
+    gwtmp=`tempfile -s.gw`
+
+    opts=(-monochrome)
+    if [ -n "$width" ]; then
+        opts=( "${opts[@]}" -resize "${width}x${height}" )
+    fi
+    if [ -n "$dither" ]; then
+        opts=( "${opts[@]}" -dither "$dither" )
+    fi
+
+    for img in "$@"; do
+        _log1 "Convert $img to PCX format..."
+        _log2 "Exec: convert ${opts[*]} $img $xpmtmp"
+        convert "${opts[@]}" "$img" $xpmtmp || quit "Failed to convert $img to PCX."
+
+        # convert $xpmtmp a.bmp
+        cat $xpmtmp >$ctmp
+        echo "#define DATA $xpmname" >>$ctmp
+        cat $EXTDIR/xpm2gw.c >>$ctmp
+        gcc -std=c11 -o $bintmp $ctmp
+        $bintmp >$gwtmp
+
+        if [ "$dump" = 1 ]; then
+            while IFS=' ' read _cols rows colors cpp _; do
+                if [ "${_cols:0:1}" = '"' ]; then
+                    cols="${_cols#\"}"
+                    bytesperrow=$(( (cols + 7) / 8 ))
+                    echo cols: $cols, bpr: $bytesperrow
+                    xxd -c "$bytesperrow" -b "$gwtmp" \
+                        | sed -e 's/0/ /g' -e 's/1/⬛/g'
+                    break
+                fi
+            done < <(grep -A1 'columns rows colors' "$xpmtmp")
+        fi
+    done
+
+    rm -f $xpmtmp $ctmp $bintmp $gwtmp
+}
+
+function getsize() {
+    case "$1" in
+        4A)     echo 1682x2378;;
+        2A)     echo 1189x1682;;
+        A0)     echo 841x1189;;
+        A1)     echo 594x841;;
+        A2)     echo 420x594;;
+        A3)     echo 297x420;;
+        A4)     echo 210x297;;
+        A5)     echo 148x210;;
+        A6)     echo 105x148;;
+        A7)     echo 74x105;;
+        A8)     echo 52x74;;
+        A9)     echo 37x52;;
+        A10)    echo 26x37;;
+        4B)     echo 2000x2828;;
+        2B)     echo 1414x2000;;
+        B0)     echo 1000x1414;;
+        B1)     echo 707x1000;;
+        B2)     echo 500x707;;
+        B3)     echo 353x500;;
+        B4)     echo 250x353;;
+        B5)     echo 176x250;;
+        B6)     echo 125x176;;
+        B7)     echo 88x125;;
+        B8)     echo 62x88;;
+        B9)     echo 44x62;;
+        B10)    echo 31x44;;
+        C0)     echo 917x1297;;
+        C1)     echo 648x917;;
+        C2)     echo 458x648;;
+        C3)     echo 324x458;;
+        C4)     echo 229x324;;
+        C5)     echo 162x229;;
+        C6)     echo 114x162;;
+        C7)     echo 81x114;;
+        C8)     echo 57x81;;
+        C9)     echo 40x57;;
+        C10)    echo 28x40;;
+        1K)     echo 740x1040;;
+        2K)     echo 520x740;;
+        4K)     echo 370x520;;
+        8K)     echo 260x370;;
+        16K)    echo 185x260;;
+        32K)    echo 130x185;;
+        64K)    echo 92.5x130;;
+        Letter) echo 216x279;;
+        Legal)  echo 216x356;;
+        Ledger) echo 432x279;;
+        Tabloid)echo 279x432;;
+        2R)     echo 64x89;;
+        3-5)    echo 76x127;;
+        LD|DSC) echo 89x119;;
+        3R|L)   echo 89x127;;
+        LW)     echo 89x133;;
+        KGD)    echo 102x136;;
+        4R|KG)  echo 102x152;;
+        2LD)    echo 127x169;;
+        DSCW)   echo 127x169;;
+        5R|2L)  echo 127x178;;
+        2LW)    echo 127x190;;
+        6R)     echo 152x203;;
+        8R|6P)  echo 203x254;;
+        S8R|6PW)echo 203x305;;
+        11R)    echo 279x356;;
+        A3+)    echo 330x483;;
+        PA0)    echo 840x1120;;
+        PA1)    echo 560x840;;
+        PA2)    echo 420x560;;
+        PA3)    echo 280x420;;
+        PA4)    echo 210x280;;
+        PA5)    echo 140x210;;
+        PA6)    echo 105x140;;
+        PA7)    echo 70x105;;
+        PA8)    echo 52x70;;
+        PA9)    echo 35x52;;
+        PA10)   echo 26x35;;
+        DL)     echo 99x210;;
+        DLE)    echo 110x220;;
+        F4)     echo 210x330;;
+        RA0)    echo 841x1189;;
+        RA1)    echo 610x860;;
+        RA2)    echo 320x610;;
+        RA3)    echo 305x430;;
+        RA4)    echo 215x305;;
+        SRA0)   echo 900x1280;;
+        SRA1)   echo 640x900;;
+        SRA2)   echo 450x640;;
+        SRA3)   echo 320x450;;
+        SRA4)   echo 225x320;;
+        *)      quit "Illegal paper size: $1";;
+    esac
+}
+
+function parse() {
+    dpmm=$(( (dpi * 10 + 254 / 2) / 254 ))
+    echo "$(( $1 * dpmm ))"
+}
+
+boot "$@"
+

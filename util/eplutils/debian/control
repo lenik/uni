@@ -12,7 +12,10 @@ Package: eplutils
 Architecture: all
 Depends: 
     bash-shlib,
+    gcc,
+    grep,
     imagemagick,
     sed,
+    vim-common,
     ${misc:Depends}
 Description: Tools for creating printing documents in Zebra EPL.
