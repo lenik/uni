@@ -13,4 +13,5 @@ alias sadu='sudo apt-get update; sudo apt-get dist-upgrade'
 alias dtree='LANG=C postproc 2tree -c \; postproc grep -v "^diverted by" \; dpkg -L'
 
 alias acp='apt-cache policy'
+alias sdi='sudo dpkg -i'
 alias sdr='sudo dpkg-reconfigure'
