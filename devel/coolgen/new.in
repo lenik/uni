@@ -74,8 +74,8 @@ function main() {
     fi
 
     if [ ! -f "$template" ]; then
-        autoext=
-        [ "$template" = "${template%.*}" ] && autoext=1
+        t_unspec=
+        [ "$template" = "${template%.*}" ] && t_unspec=1
 
         parentv=(. "$newtmpldir")
         pathv=()
@@ -86,6 +86,7 @@ function main() {
             for parent in "${parentv[@]}"; do
                 _log2 "Search $parent/$token*"
                 for f in "$parent/$token"*; do
+                    [ -e "$f" ] || continue
                     [ -d "$f" ] && (( ndir++ ))
                     pathv=("${pathv[@]}" "$f")
                     break
@@ -100,7 +101,7 @@ function main() {
             if [ $# = 0 ]; then
                 quit "Template name is incompleted."
             fi
-            parentv="${pathv[@]}"
+            parentv=("${pathv[@]}")
             pathv=()
             token="$1"
             shift
@@ -119,19 +120,57 @@ function main() {
         shift
     fi
 
+    for a in "$@"; do
+        k="${a%%=*}"
+        [ "$k" = "$a" ] && break
+        v="${a#*=}"
+        shift
+        cfg["$k"]="$v"
+    done
+    cfg[words]="$*"
+
     tdir="${template%/*}"
     tbase="${template##*/}"
         [ "$tdir" = "$template" ] && tdir=.
     tname="${tbase%.*}"
+    t_ext="${tbase##*.}"
+    [ "$t_ext" = "$tbase" ] && t_ext=
 
-    if [ "$autoext" = 1 ]; then
-        base="${outfile##*/}"
-        ext="${base##*.}"
-        if [ "$ext" != "$base" ]; then
-            template="$tdir/$tname.$ext"
-            _log2 "Auto pick template by extension: $template."
-        fi
+    base="${outfile##*/}"
+    ext="${base##*.}"
+    [ "$ext" = "$base" ] && ext=
+
+    if [ -z "$t_unspec" ]; then
+        # template has extension.
+        generate "$template" "$outfile"
+        return
     fi
+
+    # template has no extension.
+    if [ -z "$ext" ]; then
+        # outfile has no extension.
+        prefix="$tdir/$tname"
+        nprefix=${#prefix}
+        for template in "$prefix"*; do
+            suffix="${template:nprefix}"
+            generate "$template" "$outfile$suffix"
+        done
+    else
+        # outfile has extension.
+        spec="$tdir/$tname.$ext"
+        if [ -f "$spec" ]; then
+            template="$tdir/$tname.$ext"
+            _log1 "Auto pick template by extension: $template."
+        fi
+        generate "$template" "$outfile"
+    fi
+}
+
+function generate() {
+    local template="$1"
+    local outfile="$2"
+
+    _log1 "Instantiate $outfile from $template."
 
     cfg[_TEMPLATE]="$template"
     cfg[_TNAME]="$tname"
@@ -145,18 +184,8 @@ function main() {
         outfile=/dev/stdout
     fi
 
-    for a in "$@"; do
-        k="${a%%=*}"
-        [ "$k" = "$a" ] && break
-        v="${a#*=}"
-        shift
-        cfg["$k"]="$v"
-    done
-
-    cfg[words]="$*"
-
     cfgfile=`tempfile`
-    _log2 "Config:"
+    _log2 "Config Variables:"
     for k in "${!cfg[@]}"; do
         v="${cfg[$k]}"
         echo "$k=$v" >>$cfgfile
@@ -168,6 +197,7 @@ function main() {
     cat "$template" >>$tlinked
 
     php $tlinked <$cfgfile >$outfile
+    chmod --reference "$template" "$outfile"
 
     rm -f $cfgfile
     rm -f $tlinked
