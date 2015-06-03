@@ -11,8 +11,8 @@ Vcs-Browser: http://git.bodz.net/uni/toolenh/wine-enh
 Package: wine-enh
 Architecture: all
 Depends:
-    wine | wine-unstable | winetricks-wine,
     ${misc:Depends}
 Recommends:
+    wine | wine-unstable,
     winetricks
 Description: Lenik's WINE supplements.
