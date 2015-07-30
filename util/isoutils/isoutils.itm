@@ -1,0 +1,10 @@
+@label
+    CDROM image utilities
+    <p lang="zh-cn">光盘影响辅助工具
+
+@text
+    ISO CDROM image manipulation tools.
+    - Use uniso to extract from ISO image without mount.
+
+    <p lang="zh-cn">
+    光盘映像文件（ISO）相关的工具，可以直接解压 ISO 而不必 mount。

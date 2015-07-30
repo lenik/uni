@@ -1,0 +1,10 @@
+@label
+    NPM enhancements
+    <p lang="zh-cn">NPM 增强工具集
+
+@text
+    Provides NPM (nodejs package manager) shortcuts.
+
+    <p lang="zh-cn">
+    提供了一些 NPM 包管理的常用快捷方式。
+

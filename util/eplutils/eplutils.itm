@@ -1,0 +1,9 @@
+@label
+    Zebra Scanner EPL utilities.
+    <p lang="zh-cn">Zebra EPL 开发工具
+
+@text
+    SDK tools working with the EPL language for Zebra scanners.
+
+    <p lang="zh-cn">
+    Zebra 条码扫描仪用编程语言 EPL 辅助开发工具。
