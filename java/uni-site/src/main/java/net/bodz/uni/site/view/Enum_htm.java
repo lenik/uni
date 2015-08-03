@@ -8,8 +8,8 @@ import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.dom.tag.HtmlATag;
 import net.bodz.bas.html.dom.tag.HtmlLiTag;
 import net.bodz.bas.html.dom.tag.HtmlUlTag;
-import net.bodz.bas.html.viz.AbstractHttpViewBuilder;
-import net.bodz.bas.html.viz.IHttpViewContext;
+import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
+import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.potato.provider.bean.BeanProperty;
 import net.bodz.bas.potato.ref.PropertyRefEntry;
 import net.bodz.bas.repr.viz.ViewBuilderException;
@@ -22,7 +22,7 @@ import net.bodz.mda.xjdoc.model.javadoc.IXjdocAware;
 import net.bodz.uni.site.IUniSiteAnchors;
 
 public class Enum_htm
-        extends AbstractHttpViewBuilder<Enum<?>>
+        extends AbstractHtmlViewBuilder<Enum<?>>
         implements IUniSiteAnchors {
 
     public Enum_htm() {
@@ -31,7 +31,7 @@ public class Enum_htm
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public IHtmlTag buildHtmlView(IHttpViewContext ctx, IHtmlTag out, IUiRef<Enum<?>> ref, IOptions options)
+    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<Enum<?>> ref, IOptions options)
             throws ViewBuilderException, IOException {
         Enum<?> value = ref.get();
 

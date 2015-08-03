@@ -9,26 +9,26 @@ import java.util.Map.Entry;
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.dom.tag.HtmlTdTag;
 import net.bodz.bas.html.dom.tag.HtmlTrTag;
-import net.bodz.bas.html.viz.AbstractHttpViewBuilder;
-import net.bodz.bas.html.viz.IHttpViewBuilder;
-import net.bodz.bas.html.viz.IHttpViewContext;
+import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
+import net.bodz.bas.html.viz.IHtmlViewBuilder;
+import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.bas.ui.dom1.UiValue;
 
 public class MapTable_htm<V>
-        extends AbstractHttpViewBuilder<Map<?, V>> {
+        extends AbstractHtmlViewBuilder<Map<?, V>> {
 
-    IHttpViewBuilder<V> valueViewBuilder;
+    IHtmlViewBuilder<V> valueViewBuilder;
 
-    public MapTable_htm(IHttpViewBuilder<V> valueViewBuilder) {
+    public MapTable_htm(IHtmlViewBuilder<V> valueViewBuilder) {
         super(Map.class);
         this.valueViewBuilder = valueViewBuilder;
     }
 
     @Override
-    public void preview(IHttpViewContext ctx, IUiRef<Map<?, V>> ref, IOptions options) {
+    public void preview(IHtmlViewContext ctx, IUiRef<Map<?, V>> ref, IOptions options) {
         for (Entry<?, V> entry : ref.get().entrySet()) {
             UiValue<V> valueRef = UiValue.wrap(entry.getValue());
             valueViewBuilder.preview(ctx, valueRef, options);
@@ -36,7 +36,7 @@ public class MapTable_htm<V>
     }
 
     @Override
-    public IHtmlTag buildHtmlView(IHttpViewContext ctx, IHtmlTag out, IUiRef<Map<?, V>> ref, IOptions options)
+    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<Map<?, V>> ref, IOptions options)
             throws ViewBuilderException, IOException {
         Map<?, V> map = ref.get();
 

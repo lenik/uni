@@ -13,9 +13,9 @@ import net.bodz.bas.html.artifact.ArtifactType;
 import net.bodz.bas.html.artifact.IArtifactDependency;
 import net.bodz.bas.html.dom.IHtmlTag;
 import net.bodz.bas.html.dom.tag.*;
-import net.bodz.bas.html.viz.AbstractHttpViewBuilder;
+import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.viz.IHtmlHeadData;
-import net.bodz.bas.html.viz.IHttpViewContext;
+import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.i18n.dom1.IElement;
 import net.bodz.bas.potato.ref.UiHelper;
 import net.bodz.bas.potato.ref.UiPropertyRefMap;
@@ -35,7 +35,7 @@ import net.bodz.uni.site.model.Project;
 import net.bodz.uni.site.model.Section;
 
 public class UniSite_htm
-        extends AbstractHttpViewBuilder<UniSite>
+        extends AbstractHtmlViewBuilder<UniSite>
         implements IUniSiteAnchors {
 
     public UniSite_htm() {
@@ -53,7 +53,7 @@ public class UniSite_htm
     }
 
     @Override
-    public void preview(IHttpViewContext ctx, IUiRef<UniSite> ref, IOptions options) {
+    public void preview(IHtmlViewContext ctx, IUiRef<UniSite> ref, IOptions options) {
         super.preview(ctx, ref, options);
 
         IHtmlHeadData metaData = ctx.getHeadData();
@@ -65,7 +65,7 @@ public class UniSite_htm
     }
 
     @Override
-    public IHtmlTag buildHtmlView(IHttpViewContext ctx, IHtmlTag out, IUiRef<UniSite> ref, IOptions options)
+    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<UniSite> ref, IOptions options)
             throws ViewBuilderException, IOException {
         if (enter(ctx, ref))
             return null;
