@@ -167,7 +167,7 @@ public class UniSite_htm
         }
 
         ctx.setOut(mainDiv);
-        return out;
+        return mainDiv;
     }
 
     void indexBody(IHtmlTag out, UniSite site) {
