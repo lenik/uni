@@ -124,11 +124,19 @@ function main() {
                 file="${file}tex"
             fi
         fi
-    base="${file%.*}"
+    dir="${file%/*}"
+        if [ "$dir" = "$file" ]; then
+            dir=.
+        else
+            file="${file##*/}"
+        fi
+        cd "$dir" || quit "Can't enter $dir."
+    
+    fnam="${file%.*}"
 
     if [ -n "$job_name" ]; then
         TEXOPTS[texoptn++]="-jobname=$job_name"
-        base="$job_name"
+        fnam="$job_name"
     fi
 
     preamble=
@@ -186,13 +194,13 @@ function main() {
             _log2 "Backup aux files (.aux, .idx, etc.) to detect changes for re-run"
             # for e in aux idx toc lot lof; do
             for e in aux idx; do        # .toc, .lot, .lof are generatd in aux.
-                if [ -f "$base.$e" ]; then
-                    cp $opt_v -f "$base.$e" "$base.$e~"
+                if [ -f "$fnam.$e" ]; then
+                    cp $opt_v -f "$fnam.$e" "$fnam.$e~"
                 fi
             done
         fi
 
-        outfile="$base.$texoutfmt"
+        outfile="$fnam.$texoutfmt"
         _log2 "Assumed output file be $outfile..."
 
         if ! run_tex "${TEXOPTS[@]}" "$preamble$begindoc\\input{$file}$enddoc"; then
@@ -211,12 +219,12 @@ function main() {
             rerun=
 
             # check if .idx is changed
-            if [ -f "$base.idx" ]; then
-                # if [ "$outfile" -ot "$base.idx" ]; then
-                if ! _diff "$base.idx" "$base.idx~"; then
+            if [ -f "$fnam.idx" ]; then
+                # if [ "$outfile" -ot "$fnam.idx" ]; then
+                if ! _diff "$fnam.idx" "$fnam.idx~"; then
                     # Convert .idx(\indexentry*) -> .ind(minipage)
                     _log1 "  Updating index page"
-                    makeindex "$base.idx"
+                    makeindex "$fnam.idx"
                     rerun=1
                 fi
             fi
@@ -224,18 +232,18 @@ function main() {
             # makeglossarie
 
             # check if .aux is changed
-            if [ -f "$base.aux" ]; then
-                # if [ "$outfile" -ot "$base.aux" ]; then
-                if ! _diff "$base.aux" "$base.aux~"; then
+            if [ -f "$fnam.aux" ]; then
+                # if [ "$outfile" -ot "$fnam.aux" ]; then
+                if ! _diff "$fnam.aux" "$fnam.aux~"; then
                     _log1 "  Auxiliary files were changed, rebuild the document"
                     rerun=1
                 fi
             fi
 
             # check if .toc is changed
-           # if [ -f "$base.toc" ]; then
-           #     # if [ "$outfile" -ot "$base.toc" ]; then
-           #     if ! _diff "$base.toc" "$base.toc~"; then
+           # if [ -f "$fnam.toc" ]; then
+           #     # if [ "$outfile" -ot "$fnam.toc" ]; then
+           #     if ! _diff "$fnam.toc" "$fnam.toc~"; then
            #         _log1 "  Updating table of contents"
            #         rerun=1
            #     fi
@@ -253,32 +261,32 @@ function main() {
         case "$texoutfmt" in
             dvi)
                 if [ -z "$want_ps" ]; then
-                    _log1 "Convert $base.dvi to $base.pdf"
-                    # dvips "$base.dvi"
-                    # ps2pdf "$base.ps"
-                    dvipdf "$base.dvi"
+                    _log1 "Convert $fnam.dvi to $fnam.pdf"
+                    # dvips "$fnam.dvi"
+                    # ps2pdf "$fnam.ps"
+                    dvipdf "$fnam.dvi"
                 else
-                    _log1 "Convert $base.dvi to $base.ps"
-                    dvips "$base.dvi"
+                    _log1 "Convert $fnam.dvi to $fnam.ps"
+                    dvips "$fnam.dvi"
                 fi
                 ;;
             ps)
                 if [ -z "$want_ps" ]; then
-                    _log1 "Convert $base.ps to $base.pdf"
-                    ps2pdf "$base.ps"
+                    _log1 "Convert $fnam.ps to $fnam.pdf"
+                    ps2pdf "$fnam.ps"
                 fi
                 ;;
             pdf)
                 if [ "$want_ps" = 1 ]; then
-                    _log1 "Convert $base.pdf to $base.ps"
-                    pdf2ps "$base.pdf"
+                    _log1 "Convert $fnam.pdf to $fnam.ps"
+                    pdf2ps "$fnam.pdf"
                 fi
                 ;;
         esac
 
-        #_log2 "dvips/ps2pdf $base.dvi -> $base.pdf"
-        #dvips "$base.dvi"
-        #ps2pdf "$base.ps"
+        #_log2 "dvips/ps2pdf $fnam.dvi -> $fnam.pdf"
+        #dvips "$fnam.dvi"
+        #ps2pdf "$fnam.ps"
 
         if [ "$auto_open" = 1 ] && [ $change_count = 0 ]; then
             if [ -z "$OPEN_BY" ]; then
