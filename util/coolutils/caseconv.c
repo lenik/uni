@@ -132,6 +132,10 @@ int main(int argc, char **argv) {
         opt_case = UPPER;
     else if (! strcmp(program_base, "lc"))
         opt_case = LOWER;
+    else if (! strcmp(program_base, "to-upper"))
+        opt_case = UPPER;
+    else if (! strcmp(program_base, "to-lower"))
+        opt_case = LOWER;
     else if (! strcmp(program_base, "to-caption"))
         opt_case = CAPTION;
     else if (! strcmp(program_base, "to-dash")) /* see: bsdmainutils:ul */

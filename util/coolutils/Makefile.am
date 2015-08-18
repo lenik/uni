@@ -9,7 +9,7 @@ AM_CPPFLAGS  = $(GLIB_CFLAGS)
 #valsum_LDADD = $(GLIB_LIBS)
 
 bin_PROGRAMS = \
-    uc \
+    caseconv \
     gcd \
     random
 #    valsum
@@ -30,27 +30,29 @@ dist_alias_DATA = \
     bash_aliases.d/coolutils.sh
 
 dist_man_MANS = \
-    uc.1 \
+    caseconv.1 \
     collect-copy.1 \
     htmldoc-man.1
 
 install-data-hook:
 	cd $(DESTDIR)$(bindir); \
-		$(LN_S) -f uc lc; \
-		$(LN_S) -f uc to-caption; \
-		$(LN_S) -f uc to-dash; \
-		$(LN_S) -f uc to-camel; \
-		$(LN_S) -f uc to-mech
+		$(LN_S) -f caseconv to-upper; \
+		$(LN_S) -f caseconv to-lower; \
+		$(LN_S) -f caseconv to-caption; \
+		$(LN_S) -f caseconv to-dash; \
+		$(LN_S) -f caseconv to-camel; \
+		$(LN_S) -f caseconv to-mech
 	cd $(DESTDIR)$(man1dir); \
-		$(LN_S) -f uc.1 lc.1; \
-		$(LN_S) -f uc.1 to-caption.1; \
-		$(LN_S) -f uc.1 to-dash.1; \
-		$(LN_S) -f uc.1 to-camel.1; \
-		$(LN_S) -f uc.1 to-mech.1
+		$(LN_S) -f caseconv.1 to-upper.1; \
+		$(LN_S) -f caseconv.1 to-lower.1; \
+		$(LN_S) -f caseconv.1 to-caption.1; \
+		$(LN_S) -f caseconv.1 to-dash.1; \
+		$(LN_S) -f caseconv.1 to-camel.1; \
+		$(LN_S) -f caseconv.1 to-mech.1
 	install -d -m 2775 $(DESTDIR)$(colldir)
 
 uninstall-hook:
 	cd $(DESTDIR)$(bindir); \
-		rm -f lc to-caption to-dash to-camel to-mech disfile
+		rm -f to-upper to-lower to-caption to-dash to-camel to-mech disfile
 	cd $(DESTDIR)$(man1dir); \
-		rm -f lc.1 to-caption.1 to-dash.1 to-camel.1 to-mech.1
+		rm -f to-upper.1 to-lower.1 to-caption.1 to-dash.1 to-camel.1 to-mech.1
