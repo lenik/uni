@@ -1,0 +1,14 @@
+Source: rdesktop-enh
+Section: x11
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.6
+Homepage: http://uni.bodz.net/toolenh/rdesktop-enh
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/toolenh/rdesktop-enh
+
+Package: rdesktop-enh
+Architecture: all
+Depends: ${misc:Depends}
+Description: rdesktop utils and shortcuts
