@@ -1,0 +1,48 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=rdesktop cmdline shortcut}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    cfgdir="$HOME/.config/rdesktop"
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    remote="$1"
+    [ -z "$remote" ] && quit "remote isn't specified."
+
+    opts=()
+    opts=( -5 -K -r clipboard:CLIPBOARD )
+
+    cfg="$cfgdir/$remote"
+    if [ -f "$cfg" ]; then
+        while read -a ar; do
+            opts=("${opts[@]}" "${ar[@]}")
+            break
+        done <"$cfg"
+    fi
+
+    exec rdesktop "${opts[@]}" "$remote"
+}
+
+boot "$@"
