@@ -1,4 +1,5 @@
 autobuild
+chop
 eachdir
 echo-x
 esti-exec

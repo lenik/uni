@@ -9,10 +9,12 @@ dist_cmtlib_DATA = \
     cmt/subst.pm
 
 bin_PROGRAMS = \
+    chop \
     echo-x \
     xcat
 
 AM_CPPFLAGS = $(GLIB_CFLAGS)
+chop_LDADD = $(GLIB_LIBS)
 xcat_LDADD = $(GLIB_LIBS)
 
 dist_bin_SCRIPTS = \
