@@ -1,0 +1,136 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Remix AVI with random MP3}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] file.avi file.mp3 ...}
+
+    . shlib-import cliboot
+    option -o --option =FILE    "Specify the output file, default stdout"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    output=-
+
+function setopt() {
+    case "$1" in
+        -o|--output)
+            output="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    [ -n "$1" ] || quit "AVI file isn't specified."
+    [ -f "$1" ] || quit "File isn't existed: $1"
+    avifile="$1"
+    shift
+
+    audios=()
+    for f in "$@"; do
+        [ -f "$f" ] || quit "Invalid mp3 file: $f"
+        audios=("${audios[@]}" "$f")
+    done
+
+    naudio=${#audios[@]}
+    [ $naudio -lt 1 ] && quit "No mp3 file specified."
+
+    avilen=$( avi_length "$avifile" ) # in seconds
+    avilen=${avilen%.*}
+    milli=${avilen#*.}
+    avilen=$(( avilen * 1000 + milli ))
+
+    _log2 "AVI-Length: $avilen ms, $avifile"
+
+    while true; do
+        [ $naudio = 0 ] && break
+
+        index=$(( RANDOM % naudio ))
+        mp3="${audios[index]}"
+
+        audios=( "${audios[@]:0:index}" "${audios[@]:index+1}" )
+        naudio=${#audios[@]}
+
+        s=$(mp3length "$mp3") || quit "failed to get mp3 length, file: $mp3"
+        len="${s##*: }"
+        [ "$s" = "$len" ] && quit "bad mp3 length: $s, file: $mp3"
+
+        hour=${len%%:*}
+        len="${len#*:}"
+        min=${len%%:*}
+        len="${len#*:}"
+        sec=${len%%+*}
+        milli=${len#*+}
+
+        mp3len=$(( hour * 3600 + min * 60 + sec ))
+        mp3len=$(( mp3len * 1000 + milli ))
+        _log2 "MP3-Length: $mp3len ms, $mp3"
+
+        if [ $mp3len -gt $avilen ]; then
+            _log1 "Try to mix $avifile with $mp3"
+
+             start_sec=$(( RANDOM * RANDOM % (mp3len - avilen) ))
+               end_sec=$(( start_sec + avilen - 3000 ))
+            start_time=$( to_time $start_sec )
+              end_time=$( to_time $end_sec )
+            
+            _log2 "Cut-Range: $start_time to $end_time"
+            cutfile=`tempfile -s .mp3` || quit "Failed to create tmp file"
+            mp3cut -o $cutfile -t $start_time-$end_time "$mp3" \
+                || quit "mp3cut failed: $!"
+
+            mencoder "$avifile" \
+                -audiofile "$mp3" \
+                -oac copy \
+                -ovc copy -of mpeg -o "$output"
+                #-oac mp3lame -lameopts vbr=3 \
+            rm -f $cutfile
+            exit 0
+        fi
+    done
+
+    quit "No available mp3 with length > $avi_len"
+}
+
+function avi_length() {
+    local s
+    
+    if s=$(mplayer -vo null -ao null -frames 0 -identify "$1" 2>/dev/null \
+            | grep "^ID_LENGTH" ); then
+        local len="${s#ID_LENGTH=}"
+        [ "$s" = "$len" ] && quit "get length failed: no length output"
+        echo "$len"
+    else
+        quit "get length failed: mplayer error."
+    fi
+}
+
+function to_time() {
+    local n="$1"
+    local milli=000$(( n % 1000 ))
+    n=$(( n / 1000 ))
+    local sec=00$(( n % 60 ))
+    n=$(( n / 60 ))
+    local min=00$(( n % 60 ))
+    n=$(( n / 60 ))
+    local hr=00$(( n % 60 ))
+    n=$(( n / 60 ))
+
+    milli=${milli: -3}
+    sec=${sec: -2}
+    min=${min: -2}
+    hr=${hr: -2}
+    echo "$hr:$min:$sec+$milli"
+}
+
+boot "$@"

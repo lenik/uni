@@ -11,5 +11,6 @@ Architecture: all
 Depends: 
     bash-shlib,
     mencoder,
+    poc-streamer,
     ${misc:Depends}
 Description: mencoder helper tools.
