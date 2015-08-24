@@ -1,0 +1,16 @@
+Source: modtext
+Section: interpreters
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.6
+Homepage: http://uni.bodz.net/devel/modtext
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/devel/modtext
+
+Package: modtext
+Architecture: all
+Depends: 
+    bash-shlib,
+    ${misc:Depends}
+Description: Modularized Text interpreter and utilities.
