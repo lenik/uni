@@ -5,6 +5,7 @@ dist_alias_DATA = \
 
 dist_bin_SCRIPTS = \
     binaryp \
+    chmod-autofix \
     coolmore \
     enfile \
     fix-symlinks \
@@ -19,6 +20,7 @@ dist_bin_SCRIPTS = \
     tourl
 
 dist_man_MANS = \
+    chmod-autofix.1 \
     fix-symlinks.8 \
     symfl.1 \
     mv-p.1
