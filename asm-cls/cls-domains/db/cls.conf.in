@@ -25,8 +25,10 @@ zone "pfpf.net"         { type master; file "@lenikdir@/pfpf.db"; };
 zone "topcroak.com"     { type master; file "@lenikdir@/topcroak.db"; };
 zone "xor.cn"           { type master; file "@lenikdir@/xor.db"; };
 
-zone "xn--dj1a291b.com" { type master; file "@lenikdir@/集英.db"; };
-zone "xn--fizp2rftq.com"{ type master; file "@lenikdir@/集英社.db"; };
-zone "xn--iuzn16a.net"  { type master; file "@lenikdir@/童话.db"; };
-zone "xn--rhtv21e.com"  { type master; file "@lenikdir@/空山.db"; };
-zone "xn--vcsoer8lm35a.net" { type master; file "@lenikdir@/国家地理.db"; };
+zone "xn--dj1a291b.com"         { type master; file "@lenikdir@/集英.db"; };
+zone "xn--fizp2rftq.com"        { type master; file "@lenikdir@/集英社.db"; };
+zone "xn--iqvs52d43q.com"       { type master; file "@lenikdir@/花骨朵.db"; };
+zone "xn--iuzn16a.net"          { type master; file "@lenikdir@/童话.db"; };
+zone "xn--rhtv21e.com"          { type master; file "@lenikdir@/空山.db"; };
+zone "xn--vcsoer8lm35a.net"     { type master; file "@lenikdir@/国家地理.db"; };
+

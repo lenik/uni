@@ -13,7 +13,7 @@ $TTL            1H
                                     1H      ; minimum TTL
                                 )
 
-$INCLUDE @dbdir@/inc/dns-usage.db
+$INCLUDE inc/dns-usage.db
 
 
 ; - 旅行移动设备必须设置在 192.168.1.* ，以方便接入其它网络，其它移动设备不管。
@@ -96,13 +96,11 @@ nd7                     A       192.168.1.247
 nd8                     A       192.168.1.248
 nd9                     A       192.168.1.249
 
-work                    A       192.168.8.1
-bed                     A       192.168.8.11
-home                    A       192.168.8.21
-
 x                       CNAME   git.lenik.net.
 xjl-1                   CNAME   git.lenik.net.
 
 b                       CNAME   git.bee32.com.
 bee32                   CNAME   git.bee32.com.
 
+$INCLUDE net/zoo-i.db
+$INCLUDE net/zoo-pi.db

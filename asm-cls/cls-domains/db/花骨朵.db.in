@@ -8,7 +8,8 @@ $INCLUDE inc/instances.db
 
 0                       CNAME   xjl-1
 
-xn--566a                CNAME   0               ; 鸟
+xn--5gq50t              CNAME   0               ; 园丁
+xn--ep5asf              CNAME   0               ; 雨露
 
 $INCLUDE inc/auto.db
 

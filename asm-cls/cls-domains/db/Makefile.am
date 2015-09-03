@@ -39,24 +39,28 @@ lenik_DATA = \
     topcroak.db \
     xor.db \
     国家地理.db \
-    空山.db \
-    童话.db \
+    花骨朵.db \
     集英.db \
-    集英社.db
+    集英社.db \
+    空山.db \
+    童话.db
 
 nets_DATA = \
     lo.db \
     p.db \
-    zoo.db
+    zoo.db \
+    zoo-i.db \
+    zoo-pi.db
 
 CLEANFILES = \
     ${bindconf_DATA} \
-    ${inc_DATA} \
     ${lenik_DATA} \
+    ${inc_DATA} \
     ${nets_DATA}
 
 dist-hook:
 	cp ${srcdir}/*.in ${distdir}
 
+# Eval inst:*[ipw] using substcat
 %: %.in Makefile
 	$(do_subst) <$< | substcat >$@

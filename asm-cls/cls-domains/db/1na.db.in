@@ -1,13 +1,13 @@
 ; vim: set filetype=bindzone :
 ; Example   IN  3600    MX  10  Parameters...
 
-$INCLUDE @dbdir@/inc/soa.db
-$INCLUDE @dbdir@/inc/mail-google.db
-$INCLUDE @dbdir@/inc/default.db
-$INCLUDE @dbdir@/inc/instances.db
+$INCLUDE inc/soa.db
+$INCLUDE inc/mail-google.db
+$INCLUDE inc/default.db
+$INCLUDE inc/instances.db
 
 a                       A       121.12.118.188
 m                       A       121.12.118.188
 
-$INCLUDE @dbdir@/inc/auto.db
+$INCLUDE inc/auto.db
 
