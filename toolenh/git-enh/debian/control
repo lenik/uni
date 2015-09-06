@@ -12,6 +12,7 @@ Package: git-enh
 Architecture: all
 Depends:
     git,
+    git-svn,
     ${misc:Depends}
 Recommends:
     rrdtool-enh
