@@ -78,18 +78,27 @@ function main() {
         [ "$template" = "${template%.*}" ] && t_unspec=1
 
         parentv=(. "$newtmpldir")
+        p_distv=(0 0)
         pathv=()
+        distv=()
 
         token="$template"
+        tokenlen=${#token}
         while true; do
             ndir=0
-            for parent in "${parentv[@]}"; do
+            for ((i = 0; i < ${#parentv[@]}; i++)); do
+                parent="${parentv[i]}"
+                p_dist="${p_distv[i]}"
+
                 _log2 "Search $parent/$token*"
                 for f in "$parent/$token"*; do
                     [ -e "$f" ] || continue
                     [ -d "$f" ] && (( ndir++ ))
+                    _base="${f##*/}"
+                    _name="${_base%.*}"
+                    _namelen=${#_name}
                     pathv=("${pathv[@]}" "$f")
-                    break
+                    distv=("${distv[@]}" $((p_dist + _namelen - tokenlen)) )
                 done
             done
             if [ ${#pathv[@]} = 0 ]; then
@@ -102,12 +111,29 @@ function main() {
                 quit "Template name is incompleted."
             fi
             parentv=("${pathv[@]}")
+            p_distv=("${distv[@]}")
             pathv=()
+            distv=()
             token="$1"
+            tokenlen=${#token}
             shift
         done
 
-        template="${pathv[0]}"
+        _log2 "Found: ${pathv[@]}"
+        _log2 "Score: ${distv[@]}"
+
+        minpath=
+        mindist=
+        for ((i = 0; i < ${#pathv[@]}; i++)); do
+            _path="${pathv[i]}"
+            _dist="${distv[i]}"
+            if [ -z "$minpath" ] || [ $_dist -lt "$mindist" ]; then
+                minpath="$_path"
+                mindist="$_dist"
+            fi
+        done
+        _log2 "The nearest template: $minpath (distance=$mindist)"
+        template="$minpath"
     fi
 
     if [ $# != 0 ]; then
