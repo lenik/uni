@@ -1,0 +1,51 @@
+#!/bin/bash
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    PROGRAM_TITLE="Unzip archives with specific encoding"
+    PROGRAM_SYNTAX="[OPTIONS] [--] "
+
+    . shlib-import cliboot
+    option -f --from =CHARSET   "Convert from this charset"
+    option -O =CHARSET          "Convert from this charset (Ubuntu mod)"
+    option -t --to =CHARSET     "Convert to this charset"
+    option -y --yes             "Always answer yes"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+    
+    from=gbk
+    to=utf-8
+    opts=()
+
+function setopt() {
+    case "$1" in
+        -f|--from)
+            from="$2";;
+        -t|--to)
+            to="$2";;
+        -y|--yes)
+            opts=("${opts[@]}" -y);;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for ar in "$@"; do
+        while read name; do
+            convmv -f gbk -t utf8 --notest "$name" >/dev/null 2>/dev/null
+        done < <( LANG=C 7z x "${opts[@]}" "$ar" \
+                    | sed -n 's/^Extracting //p' \
+                    | sed '1!G;h;$!d' )
+    done
+}
+
+boot "$@"

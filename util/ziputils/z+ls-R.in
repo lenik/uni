@@ -1,7 +1,8 @@
 #!/bin/bash
-    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
-    PROGRAM_TITLE="Unzip with filename encoding converted"
-    PROGRAM_SYNTAX="[OPTIONS] [--] "
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
     . shlib-import cliboot
     option -q --quiet
@@ -25,11 +26,9 @@ function setopt() {
 }
 
 function main() {
-    while read name; do
-        convmv -f gbk -t utf8 --notest "$name" >/dev/null 2>/dev/null
-    done < <( LANG=C 7z x -y "$1" \
-                | sed -n 's/^Extracting //p' \
-                | sed '1!G;h;$!d' )
+    # ls-Z=`dirname `readlink -f $0``/ls-Z
+    /bin/find "$@" | ls-Z
 }
 
 boot "$@"
+
