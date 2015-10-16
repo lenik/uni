@@ -1,0 +1,323 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+catme - Stupid Text Concatenater
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'catme'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: - @VERSION@ @DATE@ @TIME@ - $');
+use FileHandle;
+use Getopt::Long;
+    Getopt::Long::Configure('gnu_getopt');
+
+sub _main; sub _version; sub _help;
+
+my @searchpath = ();
+my @dirstack = ('.');
+my $delim = [ '#', '' ];
+my ($sbegin, $send);
+my ($nbegin, $nend);
+my $ext;
+
+my $cmds = {
+    'import' => \&fn_import,
+    'include' => \&fn_include,
+    'sinclude' => \&fn_sinclude,
+};
+
+sub _boot {
+    GetOptions('q|quiet'        => sub { $LOGLEVEL-- },
+               'v|verbose'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'h|help'         => sub { _help; exit 0 },
+               'L|lib=s'        => \@searchpath,
+               'c'              => sub { $delim = [ '/*', '*/' ] },
+               'u|unix'         => sub { $delim = [ '#', '' ] },
+               'd|dash-dash'    => sub { $delim = [ '--', '' ] },
+               )
+        or exit(1);
+
+    my $lib = $ENV{'LIB'};
+    if (defined $lib) {
+        for my $item (split(/:/, $lib)) {
+            next if $item eq '';
+            push @searchpath, $item;
+        }
+    }
+    
+    for my $path (@searchpath) {
+        _log2 "Search: $path";
+    }
+
+    ($sbegin, $send) = @$delim;
+    $nbegin = length($sbegin);
+    $nend = length($send);
+    _log2 "Delimiter: $sbegin($nbegin), $send($nend)";
+
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<catme>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<catme> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-catme-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item Show help
+
+    catme --help
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -q, --quiet             Repeat to get less info
+    -v, --verbose           Repeat to get more info
+    -h, --help              Show this help page
+        --version           Print the version info
+
+Environment options:
+    -L, --lib=PATH          Add to the library search path
+
+Source format options:
+    -c                      C-style comment
+    -u, --unix              Unix-style comment (the default)
+    -d, --dash-dash         Double dash (SQL-style) comment
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    for my $file (@ARGV) {
+        process($file);
+    }
+}
+
+sub process {
+    my ($file, $range) = @_;
+    _log2 "Process $file";
+
+    my ($dir, $base) = ($file, $file);
+        $dir =~ s/\/.*?$//;
+        if ($dir eq $file) {
+            $dir = '.';
+        } else {
+            $base =~ s/^.*\///;
+        }
+        push @dirstack, $dir;
+
+    $ext = $base;
+        if ($ext =~ s/^.*\.//) {
+            $ext = ".$ext";
+        } else {
+            $ext = '';
+        }
+    
+    my $err;
+    my $fh = new FileHandle;
+    $fh->open("<$file")
+        or die "Can't open $file: $!";
+
+    my $line = 0;
+    while (<$fh>) {
+        $line++;
+        my $s = $_;
+            $s =~ s/^\s+//;
+            chomp $s;
+        my $n = length($s);
+        if ((substr($s, 0, $nbegin) eq $sbegin) and
+                (substr($s, $n - $nend) eq $send)) {
+            $s = substr($s, $nbegin, $n - $nend);
+            $s =~ s/^\s*//;
+            if (substr($s, 0, 1) eq '\\') {
+                $err = parse($s);
+                if ($err) {
+                    _error "    at $file:$line";
+                    last; # while <>
+                } else {
+                    next;
+                }
+            }
+        }
+        print;
+    }
+
+    $fh->close();
+
+    pop @dirstack;
+    return $err;
+}
+
+sub parse {
+    for (@_) {
+        my $s = $_;
+        if ($s =~ /^\\([a-z\-]+)\b\s*(.*)$/) {
+            my $cmd = "$1";
+            my @args = split(/\s+/, $2);
+            my $code = $cmds->{$cmd};
+            unless (defined $code) {
+                _error "Illegal command: $cmd";
+                return 1;
+            }
+            my $err = $code->(@args);
+            return $err if $err;
+        }
+    }
+    return 0;
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+sub fqn2base {
+    my @v;
+    for (@_) {
+        s/\./\//g;
+        push @v, "$_$ext";
+    }
+    return @v;
+}
+
+sub search {
+    my $base = shift;
+    my @v;
+
+    for my $dir (@_) {
+        my $file = "$dir/$base";
+        if (-f $file) {
+            push @v, $file;
+        }
+    }
+    return @v;
+}
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+my $imported = {};
+
+sub fn_import {
+    my ($fqn) = @_;
+    return 0 if defined $imported->{$fqn};
+    $imported->{$fqn} = 1;
+    fn_include(@_);
+}
+
+sub _fn_include {
+    my ($silent, $fqn, $range) = @_;
+    my ($base) = fqn2base($fqn);
+
+    my $workdir = $dirstack[-1];
+    my @v = search($base, ($workdir, @searchpath));
+    if (scalar(@v) == 0) {
+        return 0 if $silent;
+        _error "Not found: $fqn ($base)";
+        return 1;
+    }
+
+    my $dst = $v[0];
+    process($dst, $range);
+}
+
+sub fn_include {
+    _fn_include(0, @_);
+}
+
+sub fn_sinclude {
+    _fn_include(1, @_);
+}
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] Stupid Text Concatenater\n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Lenik <lenik at bodz.net>
+
+=cut

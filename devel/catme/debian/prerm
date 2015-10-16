@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for modtext
+# prerm script for catme
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/modtext/prerm
+        /usr/share/setup/catme/prerm
     ;;
 
     failed-upgrade)

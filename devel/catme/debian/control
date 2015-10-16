@@ -1,14 +1,14 @@
-Source: modtext
+Source: catme
 Section: interpreters
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 9)
 Standards-Version: 3.9.6
-Homepage: http://uni.bodz.net/devel/modtext
+Homepage: http://uni.bodz.net/devel/catme
 Vcs-Git: git://git.bodz.net/uni.git
-Vcs-Browser: http://git.bodz.net/uni/devel/modtext
+Vcs-Browser: http://git.bodz.net/uni/devel/catme
 
-Package: modtext
+Package: catme
 Architecture: all
 Depends: 
     bash-shlib,
