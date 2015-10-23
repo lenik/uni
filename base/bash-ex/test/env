@@ -1,0 +1,9 @@
+dir="${0%/*}"
+if [ "$dir" = "$0" ]; then
+    dir=.
+fi
+
+testdir=$( readlink -f "$dir" )
+srcdir=${testdir%/test}
+outdir="$srcdir/src"
+

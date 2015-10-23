@@ -1,0 +1,9 @@
+#!/bin/bash
+
+. $(dirname "$0")/env
+
+enable -f $outdir/bash-ex tolower
+
+tolower Hello,  World.
+tolower "Just another TeST"
+

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+. $(dirname "$0")/env
+
+enable -f $outdir/bash-ex min max avg sum
+
+v=(2 3 5 7 11)
+
+min "${v[@]}"
+max "${v[@]}"
+sum "${v[@]}"
+avg "${v[@]}"
+

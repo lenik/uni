@@ -6,7 +6,8 @@ bashbuiltins_PROGRAMS = \
     bash-ex
 
 dist_bash_ex_SOURCES = \
-    strfn.c
+    strfn.c \
+    math.c
 
 bash_ex_CFLAGS = -fpic -I/usr/include/bash
 
