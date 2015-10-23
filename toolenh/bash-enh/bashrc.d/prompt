@@ -21,4 +21,10 @@ function coolprompt() {
     PS1="$root$cs_loc\u@\h:$cs_cwd\w$cs_sym\$ \[\e[0m\]"
 }
 
-coolprompt
+if [ -v PS1_LOCK ]; then
+    PS1="$PS1_LOCK"
+    #unset PS1_LOCK
+else
+    coolprompt
+fi
+
