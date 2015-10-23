@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for libsqlgreat-postgresql
+# postinst script for libsqltiger-postgresql
 #
 # see: dh_installdeb(1)
 
@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-        /usr/share/setup/libsqlgreat-postgresql/postinst
+        /usr/share/setup/libsqltiger-postgresql/postinst
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

@@ -1,14 +1,14 @@
-Source: libsqlgreat-postgresql
+Source: libsqltiger-postgresql
 Section: devel
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 9)
 Standards-Version: 3.9.5
-Homepage: http://uni.bodz.net/lib/libsqlgreat-postgresql
+Homepage: http://uni.bodz.net/lib/libsqltiger-postgresql
 Vcs-Git: git://git.bodz.net/uni.git
-Vcs-Browser: http://git.bodz.net/uni/lib/libsqlgreat-postgresql
+Vcs-Browser: http://git.bodz.net/uni/lib/libsqltiger-postgresql
 
-Package: libsqlgreat-postgresql
+Package: libsqltiger-postgresql
 Architecture: all
 Depends: 
     catme,

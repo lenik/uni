@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for libsqlgreat-postgresql
+# prerm script for libsqltiger-postgresql
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/libsqlgreat-postgresql/prerm
+        /usr/share/setup/libsqltiger-postgresql/prerm
     ;;
 
     failed-upgrade)
