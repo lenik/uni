@@ -1,0 +1,17 @@
+Source: onoff
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/util/onoff
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/util/onoff
+
+Package: onoff
+Architecture: all
+Depends: 
+    bash-shlib,
+    ${misc:Depends}
+Recommends:
+Description: Filename-based functionality toggler (enable/disable)
