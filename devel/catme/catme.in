@@ -9,6 +9,8 @@ use strict;
 use vars qw($LOGNAME $LOGLEVEL);
 use cmt::log(2);
     $LOGNAME    = 'catme'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::path('path_split');
+use cmt::util('readfile');
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id: - @VERSION@ @DATE@ @TIME@ - $');
 use FileHandle;
@@ -17,12 +19,19 @@ use Getopt::Long;
 
 sub _main; sub _version; sub _help;
 
-my @searchpath = ();
-my @dirstack = ('.');
-my $delim = [ '#', '' ];
+my $opt_configdir = $ENV{HOME} . "/.config/catme";
+my @opt_searchpath = ('.');
+my $opt_delim;
+my $opt_keep = 0;
+
+my @dirstack = ();
+my @searchpath;
+my $ext_delim = {
+        '.sql' => [ '--', '' ],
+    };
 my ($sbegin, $send);
 my ($nbegin, $nend);
-my $ext;
+my @extstack;
 
 my $cmds = {
     'import' => \&fn_import,
@@ -35,10 +44,11 @@ sub _boot {
                'v|verbose'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
                'h|help'         => sub { _help; exit 0 },
-               'L|lib=s'        => \@searchpath,
-               'c'              => sub { $delim = [ '/*', '*/' ] },
-               'u|unix'         => sub { $delim = [ '#', '' ] },
-               'd|dash-dash'    => sub { $delim = [ '--', '' ] },
+               'L|lib=s'        => \@opt_searchpath,
+               'c'              => sub { $opt_delim = [ '/*', '*/' ] },
+               'u|unix'         => sub { $opt_delim = [ '#', '' ] },
+               'd|dash-dash'    => sub { $opt_delim = [ '--', '' ] },
+               'k|keep'         => \$opt_keep,
                )
         or exit(1);
 
@@ -46,18 +56,13 @@ sub _boot {
     if (defined $lib) {
         for my $item (split(/:/, $lib)) {
             next if $item eq '';
-            push @searchpath, $item;
+            push @opt_searchpath, $item;
         }
     }
     
-    for my $path (@searchpath) {
+    for my $path (@opt_searchpath) {
         _log2 "Search: $path";
     }
-
-    ($sbegin, $send) = @$delim;
-    $nbegin = length($sbegin);
-    $nend = length($send);
-    _log2 "Delimiter: $sbegin($nbegin), $send($nend)";
 
     _main;
 }
@@ -161,21 +166,48 @@ sub process {
     _log2 "Process $file";
 
     my ($dir, $base) = ($file, $file);
-        $dir =~ s/\/.*?$//;
-        if ($dir eq $file) {
-            $dir = '.';
-        } else {
+        if ($dir =~ s/\/[^\/]*$//) {
             $base =~ s/^.*\///;
+        } else {
+            $dir = '.';
         }
         push @dirstack, $dir;
 
-    $ext = $base;
-        if ($ext =~ s/^.*\.//) {
+    my ($name, $ext) = ($base, $base);
+        if ($name =~ s/\.[^.]*$//) {
+            $ext =~ s/^.*\.//;
             $ext = ".$ext";
         } else {
             $ext = '';
         }
-    
+        push @extstack, $ext;
+
+    my $fqn = ($dir eq '.') ? $name : "$dir/$name";
+        $fqn =~ s/\//./g;
+
+    my $delim = $opt_delim;
+    unless (defined $delim) {
+        $delim = $ext_delim->{$ext};
+        unless (defined $delim) {
+            $delim = [ '#', '' ];
+        }
+        _log2 "Auto determined the delimiters from file extension.";
+    }
+
+    ($sbegin, $send) = @$delim;
+    $nbegin = length($sbegin);
+    $nend = length($send);
+    _log2 "Delimiter: $sbegin($nbegin), $send($nend)";
+
+    @searchpath = @opt_searchpath;
+        my $pathcfg = "$opt_configdir/path$ext";
+        if (-f $pathcfg) {
+            for (readfile($pathcfg)) {
+                chomp;
+                push @searchpath, $_;
+            }
+        }
+
     my $err;
     my $fh = new FileHandle;
     $fh->open("<$file")
@@ -193,6 +225,7 @@ sub process {
             $s = substr($s, $nbegin, $n - $nend);
             $s =~ s/^\s*//;
             if (substr($s, 0, 1) eq '\\') {
+                print if $opt_keep;
                 $err = parse($s);
                 if ($err) {
                     _error "    at $file:$line";
@@ -207,6 +240,7 @@ sub process {
 
     $fh->close();
 
+    pop @extstack;
     pop @dirstack;
     return $err;
 }
@@ -235,8 +269,9 @@ sub parse {
 
 =cut
 # (HELPER FUNCTIONS)
-sub fqn2base {
+sub fqn2href {
     my @v;
+    my $ext = $extstack[-1];
     for (@_) {
         s/\./\//g;
         push @v, "$_$ext";
@@ -266,22 +301,37 @@ sub search {
 my $imported = {};
 
 sub fn_import {
-    my ($fqn) = @_;
-    return 0 if defined $imported->{$fqn};
+    my ($fqn, $range) = @_;
+    if (defined $imported->{$fqn}) {
+        _log2 "already imported: $fqn";
+        return 0;
+    }
     $imported->{$fqn} = 1;
-    fn_include(@_);
+
+    my ($href) = fqn2href($fqn);
+    my @v = search($href, @searchpath);
+    if (scalar(@v) == 0) {
+        _error "Import failed, not found: $href.";
+        _error "    search $_" for @searchpath;
+        return 1;
+    }
+
+    my $dst = $v[0];
+    process($dst, $range);
 }
 
 sub _fn_include {
-    my ($silent, $fqn, $range) = @_;
-    my ($base) = fqn2base($fqn);
+    my ($silent, $href, $range) = @_;
 
     my $workdir = $dirstack[-1];
-    my @v = search($base, ($workdir, @searchpath));
+    my @v = search($href, $workdir, @searchpath);
     if (scalar(@v) == 0) {
-        return 0 if $silent;
-        _error "Not found: $fqn ($base)";
-        return 1;
+        if ($silent) {
+            return 0;
+        } else {
+            _error "Include failed, not found: $href.";
+            return 1;
+        }
     }
 
     my $dst = $v[0];
