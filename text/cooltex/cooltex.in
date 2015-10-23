@@ -63,7 +63,7 @@ function setopt() {
         -i|--include)
             include_onlies[include_onlyn++]="$2";;
         -j|--job)
-            job_name="$2";;
+            job_name="${2%.pdf}";;
         -o|--open)
             auto_open=1;;
         -p|--package)
