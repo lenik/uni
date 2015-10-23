@@ -8,23 +8,27 @@
     option -O =CHARSET          "Convert from this charset (Ubuntu mod)"
     option -t --to =CHARSET     "Convert to this charset"
     option -y --yes             "Always answer yes"
+    option -s --seperate        "Unzip in separate directories"
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
     
-    from=gbk
-    to=utf-8
-    opts=()
+    opt_from=gbk
+    opt_to=utf-8
+    _7zopts=()
+    separate=0
 
 function setopt() {
     case "$1" in
         -f|--from)
-            from="$2";;
+            opt_from="$2";;
         -t|--to)
-            to="$2";;
+            opt_to="$2";;
         -y|--yes)
-            opts=("${opts[@]}" -y);;
+            _7zopts=("${_7zopts[@]}" -y);;
+        -s|--separate)
+            separate=1;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -39,13 +43,63 @@ function setopt() {
 }
 
 function main() {
+    which convmv >/dev/null || quit "convmv isn't available."
+
     for ar in "$@"; do
-        while read name; do
-            convmv -f gbk -t utf8 --notest "$name" >/dev/null 2>/dev/null
-        done < <( LANG=C 7z x "${opts[@]}" "$ar" \
-                    | sed -n 's/^Extracting //p' \
-                    | sed '1!G;h;$!d' )
+        ext="${ar##*.}"
+        if [ "$ext" = "$ar" ]; then
+            ext=
+        fi
+
+        xfn=
+        case "$ext" in
+            zip)
+                xfn=x-zip;;
+            rar)
+                xfn=x-rar;;
+            *)
+                _log1 "Unknown archive type: $ar"
+                continue;;
+        esac
+
+        olddir="$PWD"
+
+        if [ "$separate" = 1 ]; then
+            dir="${ar%/*}"
+            base="${ar##*/}"
+            if [ "$dir" = "$ar" ]; then
+                dir=.
+            fi
+            name="${base%.*}"
+            dir="$dir/$name"
+            mkdir -p "$dir" || quit "Failed to create directory $dir."
+
+            ar=$( readlink -f "$ar" )
+            _log1 "Enter into $dir"
+            cd "$dir"
+        fi
+
+        _log1 "Extract $ar..."
+        $xfn "$ar"
+        
+        if [ -n "$dir" ]; then
+            _log1 "Leave from $dir"
+            dir=
+        fi
+        cd "$olddir"
     done
+}
+
+function x-rar() {
+    unrar x "$1"
+}
+
+function x-zip() {
+    while read path; do
+        convmv -f $opt_from -t $opt_to --notest "$path" >/dev/null 2>/dev/null
+    done < <( LANG=C 7z x "${_7zopts[@]}" "$1" \
+                | sed -n 's/^Extracting //p' \
+                | sed '1!G;h;$!d' )
 }
 
 boot "$@"
