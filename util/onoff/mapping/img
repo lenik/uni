@@ -1,0 +1,8 @@
+# fs image types
+
+.ext2 = img
+.ext3 = img
+.ext4 = img
+.iso = img
+.sq = img
+.sqxz = img

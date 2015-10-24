@@ -1,0 +1,213 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -r --read-only       'Disable overlay mount'
+    option -s --sudo            'Use sudo to execute mount/umount'
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    read_only=
+
+    MOUNT=mount
+    UMOUNT=umount
+
+    # sudo if available.
+    if which sudo >/dev/null; then
+        MOUNT='sudo mount'
+        UMOUNT='sudo umount'
+    fi
+
+function setopt() {
+    case "$1" in
+        -r|--read-only)
+            read_only=1;;
+        -s|--sudo)
+            MOUNT="sudo mount"
+            UMOUNT="sudo umount"
+            ;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $# -lt 2 ]; then
+        quit "Syntax: $0 action image..."
+    fi
+
+    act="$1"
+    shift
+    if [ "$act" != on -a "$act" != off ]; then
+        quit "Invalid action: $act"
+    fi
+
+    for img in "$@"; do
+        dir="${img%/*}"
+        base="${img##*/}"
+        if [ "$dir" = "$img" ]; then
+            dir=.
+        fi
+        _log2 "Image-File: $dir/$base"
+
+        name="${base%.*}"
+        ext="${base##*.}"
+        if [ "$ext" = "$base" ]; then
+            ext=
+        else
+            ext=".$ext"
+        fi
+
+        ovl=
+        if [ -z "$read_only" ]; then
+            for ovlext in .overlay .ovl; do
+                for prefix in '' '.'; do
+                    d="$dir/$prefix$name$ovlext"
+                    if [ -d "$d" -a -w "$d" ]; then
+                        _log2 "Overlay-Dir: $d"
+                        ovl="$d"
+                        break
+                    fi
+                done
+                [ -d "$ovl" ] && break
+            done
+        fi
+
+        lower=
+        worktmp=
+        rd_lower=
+        rd_worktmp=
+        if [ -n "$ovl" ]; then
+            for t in "$dir/.$name.d" "$dir/.$name.tmp"; do
+                if [ -d "$t" ]; then
+                    lower="$t"
+                    break
+                fi
+            done
+            if [ -z "$lower" ]; then
+                lower="$dir/.$name.rotmp"
+                rd_lower=1
+            fi
+            _log2 "Lower-Dir: $lower"
+
+            worktmp="$dir/.$name.worktmp"
+            rd_worktmp=1
+            if [ -z "$worktmp" ]; then
+                # Filesystem     1K-blocks      Used Available Use% Mounted on
+                while read _fs _nblk _used _free _perc _mnt; do
+                    if [ "$_fs" != "Filesystem" ]; then
+                        worktmp="$_mnt/.work"
+                        break
+                    fi
+                done < <(LANG=C df "$dir")
+            fi
+            _log2 "Work-Tmp: $worktmp"
+        fi
+
+        mnt=
+        rd_mnt=
+        for t in "$dir/$name.d" "$dir/$name.rw"; do
+            if [ -d "$t" ]; then
+                mnt="$t"
+                break
+            fi
+        done
+        if [ -z "$mnt" ]; then
+            mnt="$dir/$name"
+            rd_mnt=1
+        fi
+        _log2 "Mount-Point: $mnt"
+
+        case "$act" in
+            on)
+                on "$@";;
+            off)
+                off "$@";;
+        esac
+    done
+}
+
+function on() {
+    if [ ! -d "$mnt" ]; then
+        _log1 "Create mount point: $mnt"
+        mkdir -p "$mnt" || quit "Can't create mount point $mnt"
+    fi
+
+    if [ -z "$ovl" ]; then
+        _log1 "Mount $img on $mnt"
+        $MOUNT "$img" "$mnt" || quit "Can't mount $img"
+        return
+    fi
+
+    if [ ! -d "$lower" ]; then
+        _log2 "Create lower dir: $lower"
+        mkdir -p "$lower" || quit "Can't create lower dir $lower"
+    fi
+    
+    if [ ! -d "$worktmp" ]; then
+        _log2 "Create work tmp: $worktmp"
+        mkdir -p "$worktmp" || quit "Can't create work tmp $worktmp"
+    fi
+
+    _log1 "Mount read-only $img on $lower"
+    $MOUNT -o ro,loop "$img" "$lower" || quit "Can't mount read-only $img"
+
+    _log1 "Mount overlay $lower+$ovl on $mnt"
+    if ! $MOUNT -t overlay none "$mnt" \
+            -o "workdir=$worktmp,lowerdir=$lower,upperdir=$ovl"; then
+        _error "Failed to mount overlay. Auto unmount..."
+        $UMOUNT "$lower"
+
+        quit "Can't mount overlay $lower+$ovl."
+    fi
+
+    _log1 "Mount overlay succeeded."
+}
+
+function off() {
+    if [ -z "$ovl" ]; then
+        if [ -d "$mnt" ]; then
+            _log1 "Unmount $mnt"
+            $UMOUNT "$mnt"
+        fi
+    else
+        if [ -d "$mnt" ]; then
+            _log1 "Unmount $mnt"
+            $UMOUNT "$mnt"
+        fi
+        if [ -d "$lower" ]; then
+            _log1 "Unmount $lower"
+            $UMOUNT "$lower"
+        fi
+    fi
+
+    if [ "$rd_worktmp" = 1 -a -d "$worktmp" ]; then
+        _log2 "Auto remove work tmp $worktmp."
+        rm -fr "$worktmp"
+    fi
+
+    if [ "$rd_lower" = 1 -a -d "$lower" ]; then
+        _log2 "Auto remove lower dir $lower."
+        rmdir "$lower"
+    fi
+
+    if [ "$rd_mnt" = 1 -a -d "$mnt" ]; then
+        _log2 "Auto remove mount point $mnt."
+        rmdir "$mnt"
+    fi
+}
+
+boot "$@"

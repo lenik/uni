@@ -1,0 +1,94 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Filename-based functionality toggler}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    pkgdatadir=@pkgdatadir@
+    if [ ! -d "$pkgdatadir" -a -f "./VERSION.av" ]; then
+        pkgdatadir=.
+    fi
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    shopt -s nullglob
+
+    binfile="$0"
+    binname="${binfile##*/}"
+    case "$binname" in
+        *on*)
+            act=on;;
+        *off*)
+            act=off;;
+        *)
+            quit "Unknown program name: $binname";;
+    esac
+
+    declare -A extmap
+    for d in "$pkgdatadir" "$HOME/.config"; do
+        mapdir="$d/mapping"
+        for mf in "$mapdir"/*; do
+            _log2 "Load mapping file $mf"
+            while IFS='= ' read k v; do
+                [ -z "$k" ] && continue
+                [ "${k:0:1}" = '#' ] && continue
+                _log3 "    extension $k -> $v"
+                extmap["$k"]="$v"
+            done <"$mf"
+        done
+    done
+    # echoli "${!extmap[@]}"
+
+    for f in "$@"; do
+        dir="${f%/*}"
+        base="${f##*/}"
+            if [ "$dir" = "$f" ]; then
+                dir=.
+            fi
+
+        name="${base%.*}"
+        ext="${base##*.}"
+            if [ "$name" = "$base" ]; then
+                ext=
+            else
+                ext=".$ext"
+            fi
+        
+        fn="${extmap[$ext]}"
+            if [ -z "$fn" ]; then
+                fn="${ext#.}"
+            fi
+            _log2 "Functionality: $fn"
+        
+        sub="onoff-$fn"
+        if ! subf=$( which "$sub" ); then
+            _error "File isn't supported: $f, ignored."
+            continue
+        fi
+        
+        _log1 "Turn $act $fn: $f"
+        "$sub" $act "$f"
+    done
+}
+
+boot "$@"
