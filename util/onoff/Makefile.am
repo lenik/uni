@@ -20,3 +20,5 @@ CLEANFILES = \
 install-data-hook:
 	mkdir -p ${DESTDIR}${pkgdatadir}
 	cp -R ${srcdir}/mapping ${DESTDIR}${pkgdatadir}/mapping
+	cd ${DESTDIR}/${bindir}; ln -snf onoff on
+	cd ${DESTDIR}/${bindir}; ln -snf onoff off
