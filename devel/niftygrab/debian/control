@@ -1,0 +1,17 @@
+Source: niftygrab
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/devel/niftygrab
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/devel/niftygrab
+
+Package: niftygrab
+Architecture: any
+Depends: 
+    bash-shlib,
+    ${shlibs:Depends}, 
+    ${misc:Depends}
+Description: Grab meaningfull data from generic files.
