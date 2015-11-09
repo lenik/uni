@@ -3,32 +3,56 @@
     PROGRAM_TITLE="Unzip archives with specific encoding"
     PROGRAM_SYNTAX="[OPTIONS] [--] "
 
+    : ${UNRAR:=unrar}
+    : ${UNZIP:=unzip}
+    : ${_7Z:=7z}
+    : ${BSDTAR:=bsdtar}
+
     . shlib-import cliboot
+    option -o --output =DIR     "Extract to this directory"
     option -f --from =CHARSET   "Convert from this charset"
     option -O =CHARSET          "Convert from this charset (Ubuntu mod)"
     option -t --to =CHARSET     "Convert to this charset"
     option -y --yes             "Always answer yes"
     option -s --seperate        "Unzip in separate directories"
+    option -k --delete          "Delete the archive if extraction succeeded"
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
     
+    if which unrar-auto >/dev/null; then
+        UNRAR=unrar-auto
+    fi
+
+    opt_outdir=
     opt_from=gbk
     opt_to=utf-8
+    opt_separate=0
+    opt_delete=
+
     _7zopts=()
-    separate=0
+    bsdtaropts=(-v)
+    unraropts=()
+    unzipopts=()
 
 function setopt() {
     case "$1" in
+        -o|--output)
+            opt_outdir="$2";;
         -f|--from)
             opt_from="$2";;
         -t|--to)
             opt_to="$2";;
         -y|--yes)
-            _7zopts=("${_7zopts[@]}" -y);;
+            unraropts=("${unraropts[@]}" -y)
+            unzipopts=("${unzipopts[@]}" -o)
+            _7zopts=("${_7zopts[@]}" -y)
+            ;;
         -s|--separate)
-            separate=1;;
+            opt_separate=1;;
+        -k|--delete)
+            opt_delete=1;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -46,17 +70,30 @@ function main() {
     which convmv >/dev/null || quit "convmv isn't available."
 
     for ar in "$@"; do
-        ext="${ar##*.}"
-        if [ "$ext" = "$ar" ]; then
+        dir="${ar%/*}"
+        base="${ar##*/}"
+        if [ "$dir" = "$ar" ]; then
+            dir=.
+        fi
+        name="${base%.*}"
+        ext="${base##*.}"
+        if [ "$ext" = "$base" ]; then
             ext=
         fi
 
         xfn=
         case "$ext" in
-            zip)
-                xfn=x-zip;;
+            7z)
+                xfn=x-7z;;
             rar)
-                xfn=x-rar;;
+                xfn=x-unrar;;
+            zip)
+                if [ "$opt_separate" = 1 ]; then
+                    xfn=x-bsdtarconv-cwd
+                else
+                    xfn=x-bsdtarconv
+                fi
+                ;;
             *)
                 _log1 "Unknown archive type: $ar"
                 continue;;
@@ -64,42 +101,91 @@ function main() {
 
         olddir="$PWD"
 
-        if [ "$separate" = 1 ]; then
-            dir="${ar%/*}"
-            base="${ar##*/}"
-            if [ "$dir" = "$ar" ]; then
-                dir=.
-            fi
-            name="${base%.*}"
-            dir="$dir/$name"
-            mkdir -p "$dir" || quit "Failed to create directory $dir."
+        outdir="$dir"
+        if [ -n "$opt_outdir" ]; then
+            outdir="$opt_outdir"
+        fi
 
-            ar=$( readlink -f "$ar" )
-            _log1 "Enter into $dir"
-            cd "$dir"
+        if [ "$opt_separate" = 1 ]; then
+            outdir="$outdir/$name"
+            mkdir -p "$outdir" || quit "Failed to create directory $outdir."
+        fi
+
+        _log1 "Enter into $outdir"
+        ar=$( readlink -f "$ar" )
+        if ! cd "$outdir"; then
+            _error "Can't enter into $outdir: $?"
+            continue
         fi
 
         _log1 "Extract $ar..."
-        $xfn "$ar"
-        
-        if [ -n "$dir" ]; then
-            _log1 "Leave from $dir"
-            dir=
+        if $xfn "$ar"; then
+            _log1 "Extraction succeeded."
+            if [ "$opt_delete" = 1 ]; then
+                _log1 "Delete the archive $ar."
+                rm "$ar" || _error "Failed to delete."
+            fi
+        else
+            _error "Failed to extract $ar."
         fi
+        
+        _log1 "Leave from $outdir"
         cd "$olddir"
     done
 }
 
-function x-rar() {
-    unrar x "$1"
+function x-unrar() {
+    $UNRAR x "${unraropts[@]}" "$1"
 }
 
-function x-zip() {
-    while read path; do
-        convmv -f $opt_from -t $opt_to --notest "$path" >/dev/null 2>/dev/null
-    done < <( LANG=C 7z x "${_7zopts[@]}" "$1" \
-                | sed -n 's/^Extracting //p' \
-                | sed '1!G;h;$!d' )
+function x-unzip() {
+    $UNZIP "${unzipopts[@]}" "$1"
+}
+
+function x-7z() {
+    $_7Z x "${_7zopts[@]}" "$1"
+}
+
+function x-7zconv() {
+    local list=`tempfile`
+    local status=0
+
+    if LANG=C $_7Z x "${_7zopts[@]}" "$1" \
+            | sed -n 's/^Extracting //p' \
+            | sed '1!G;h;$!d' \
+            >$list; then
+        while read path; do
+            convmv -f $opt_from -t $opt_to --notest "$path" >/dev/null 2>/dev/null
+        done <$list
+    else
+        status=$?
+    fi
+    
+    rm $list
+    return $status
+}
+
+function x-bsdtarconv-cwd() {
+    #set -e
+    if LANG=C $BSDTAR -x "${bsdtaropts[@]}" -f "$1"; then
+        convmv -f $opt_from -t $opt_to -r --notest .
+    fi
+}
+
+function x-bsdtarconv() {
+    local list=`tempfile`
+    local status=0
+
+    if LANG=C $BSDTAR -x "${bsdtaropts[@]}" -f "$1" 2>&1 >$list; then
+        while read path; do
+            echo convmv -f $opt_from -t $opt_to --notest "$path"
+            convmv -f $opt_from -t $opt_to --notest "$path" >/dev/null 2>/dev/null
+        done <$list
+    else
+        status=$?
+    fi
+    rm $list
+    return $status
 }
 
 boot "$@"
