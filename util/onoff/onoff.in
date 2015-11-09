@@ -74,6 +74,14 @@ function main() {
     # echoli "${!extmap[@]}"
 
     for f in "$@"; do
+        if [ -d "$f" ] || [ ! -e "$f" ]; then
+            siblings=( $f.* )
+            nsibling=${#siblings[@]}
+            if [ $nsibling = 1 ]; then
+                f=${siblings[0]}
+            fi
+        fi
+
         dir="${f%/*}"
         base="${f##*/}"
             if [ "$dir" = "$f" ]; then
