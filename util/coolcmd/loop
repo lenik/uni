@@ -9,10 +9,9 @@ else
 
     _cmd=$1
 
-    if _a=`alias $_cmd 2>/dev/null`; then
-        _a="${_a#*=\'}"
-        _a="${_a%\'}"
-        _cmd="$_a"
+    if _a=$( alias $_cmd 2>/dev/null ); then
+        _a="${_a#*=}"
+        _cmd=$( eval "echo $_a" )
     fi
 
     shift
