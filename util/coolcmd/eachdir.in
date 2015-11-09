@@ -148,7 +148,7 @@ function main() {
             continue
         fi
 
-        if ! pushd $dir >/dev/null; then
+        if ! pushd "$dir" >/dev/null; then
             _error "    Failed to enter $dir, skipped"
             continue
         fi
@@ -160,10 +160,10 @@ function main() {
         fi
 
         popd >/dev/null
-    done <$srcfile
+    done <"$srcfile"
 
     if [ "$quit_clean" = 1 ]; then
-        rm -f $srcfile
+        rm -f "$srcfile"
     fi
 }
 
