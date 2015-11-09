@@ -1,0 +1,53 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Switch to use next Terminal profile}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    g_index_file=/tmp/.terminalProfileIndex
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    list=( $(dconf list /org/mate/terminal/profiles/) )
+    n=${#list[@]}
+
+    g_index=0
+    if [ -f "$g_index_file" ]; then
+        read g_index <$g_index_file
+        g_index=$(( g_index * 1 ))
+    fi
+
+    g_index=$(( (g_index + 1) % n ))
+    echo $g_index >$g_index_file
+
+    profile=${list[g_index]}
+    
+    _log1 "Switch to $profile."
+    xdotool key Menu r
+    for ((i = 0; i < g_index; i++)); do
+        xdotool key Down
+    done
+    xdotool key Return
+}
+
+boot "$@"

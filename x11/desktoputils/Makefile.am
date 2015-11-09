@@ -6,6 +6,7 @@ x11confdir = ${sysconfdir}/X11
 
 dist_bin_SCRIPTS = \
     alt-exec \
+    next-profile \
     open-url \
     wsswitch
 
