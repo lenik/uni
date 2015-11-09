@@ -7,20 +7,21 @@
     . shlib-import cliboot
     option -r --read-only       'Disable overlay mount'
     option -s --sudo            'Use sudo to execute mount/umount'
+    option -t --use-rotmp       'Mount lowerdir (readonly) in different dir'
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
 
     read_only=
+    rotmp=
 
     MOUNT=mount
     UMOUNT=umount
 
-    # sudo if available.
+    SUDO=
     if which sudo >/dev/null; then
-        MOUNT='sudo mount'
-        UMOUNT='sudo umount'
+        SUDO=sudo
     fi
 
 function setopt() {
@@ -31,6 +32,8 @@ function setopt() {
             MOUNT="sudo mount"
             UMOUNT="sudo umount"
             ;;
+        -t|--use-rotmp)
+            rotmp=1;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -98,8 +101,11 @@ function main() {
                 fi
             done
             if [ -z "$lower" ]; then
-                lower="$dir/.$name.rotmp"
-                rd_lower=1
+                lower="$dir/$name"
+                if [ -n "$rotmp" ]; then
+                    lower="$dir/.$name.rotmp"
+                    rd_lower=1
+                fi
             fi
             _log2 "Lower-Dir: $lower"
 
@@ -148,7 +154,7 @@ function on() {
 
     if [ -z "$ovl" ]; then
         _log1 "Mount $img on $mnt"
-        $MOUNT "$img" "$mnt" || quit "Can't mount $img"
+        sudocmd $MOUNT "$img" "$mnt" || quit "Can't mount $img"
         return
     fi
 
@@ -163,13 +169,13 @@ function on() {
     fi
 
     _log1 "Mount read-only $img on $lower"
-    $MOUNT -o ro,loop "$img" "$lower" || quit "Can't mount read-only $img"
+    sudocmd $MOUNT -o ro,loop "$img" "$lower" || quit "Can't mount read-only $img"
 
     _log1 "Mount overlay $lower+$ovl on $mnt"
-    if ! $MOUNT -t overlay none "$mnt" \
+    if ! sudocmd $MOUNT -t overlay none "$mnt" \
             -o "workdir=$worktmp,lowerdir=$lower,upperdir=$ovl"; then
         _error "Failed to mount overlay. Auto unmount..."
-        $UMOUNT "$lower"
+        sudocmd $UMOUNT "$lower"
 
         quit "Can't mount overlay $lower+$ovl."
     fi
@@ -181,16 +187,16 @@ function off() {
     if [ -z "$ovl" ]; then
         if [ -d "$mnt" ]; then
             _log1 "Unmount $mnt"
-            $UMOUNT "$mnt"
+            sudocmd $UMOUNT "$mnt"
         fi
     else
         if [ -d "$mnt" ]; then
             _log1 "Unmount $mnt"
-            $UMOUNT "$mnt"
+            sudocmd $UMOUNT "$mnt"
         fi
         if [ -d "$lower" ]; then
             _log1 "Unmount $lower"
-            $UMOUNT "$lower"
+            sudocmd $UMOUNT "$lower"
         fi
     fi
 
@@ -208,6 +214,11 @@ function off() {
         _log2 "Auto remove mount point $mnt."
         rmdir "$mnt"
     fi
+}
+
+function sudocmd() {
+    _log2 "Execute: $*"
+    $SUDO "$@"
 }
 
 boot "$@"

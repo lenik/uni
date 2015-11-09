@@ -5,24 +5,38 @@
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
     . shlib-import cliboot
+    option -o --opt =OPTIONS    "Send options to the sub-module"
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
 
     pkgdatadir=@pkgdatadir@
-    if [ ! -d "$pkgdatadir" -a -f "./VERSION.av" ]; then
-        pkgdatadir=.
+    if [ ! -d "$pkgdatadir" ]; then
+        __FILE__=$( readlink -f "$0" )
+        __DIR__="${__FILE__%/*}"
+         if [ -f "$__DIR__/VERSION.av" ]; then
+            pkgdatadir="${__DIR__}"
+        fi
     fi
+
+    subopts=()
 
 function setopt() {
     case "$1" in
+        -o|--opt)
+            subopts=( "${subopts[@]}" "$2" )
+            ;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
-            LOGLEVEL=$((LOGLEVEL - 1));;
+            LOGLEVEL=$((LOGLEVEL - 1))
+            subopts=( "${subopts[@]}" -q )
+            ;;
         -v|--verbose)
-            LOGLEVEL=$((LOGLEVEL + 1));;
+            LOGLEVEL=$((LOGLEVEL + 1))
+            subopts=( "${subopts[@]}" -v )
+            ;;
         --version)
             show_version; exit;;
         *)
@@ -87,7 +101,7 @@ function main() {
         fi
         
         _log1 "Turn $act $fn: $f"
-        "$sub" $act "$f"
+        "$sub" "${subopts[@]}" $act "$f"
     done
 }
 
