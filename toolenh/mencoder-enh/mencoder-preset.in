@@ -9,6 +9,7 @@
     profile=
     time_keep=
     force=
+    kill=
     g_outdir=
     g_outfile=
 
@@ -19,6 +20,7 @@
     option -p --profile =NAME   "Use the given profile."
     option -t --time-keep       "Preserve the file time same to the src."
     option -f --force           "Force to overwrite existing output file."
+    option -k --delete          "Delete the src video."
     option -q --quiet
     option -v --verbose
     option -h --help
@@ -38,6 +40,8 @@ function setopt() {
             time_keep=1;;
         -f|--force)
             force=1;;
+        -k|--delete)
+            kill=1;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -133,12 +137,30 @@ function main() {
             opts=( "${opts[@]}" -o "$outfile" )
 
         _log2 "Execute: mencoder -include $presetfile ${opts[@]} $infile"
-            # cat <(expand "$presetfile")
-            mencoder -include <(expand "$presetfile") "${opts[@]}" "$infile"
+        # cat <(expand "$presetfile")
+
+        mencoder -include <(expand "$presetfile") "${opts[@]}" "$infile"
+        status=$?
+        
+        if [ $status = 0 ]; then
+            _log1 "Successfully encoded."
+        else
+            _warn "Something wrong when encoding. (Error=$status)"
+        fi
 
         if [ "$time_keep" = 1 ] && [ -f "$outfile" ]; then
             _log1 "Reset output file time."
             touch -r "$infile" "$outfile"
+        fi
+
+        if [ "$kill" = 1 ]; then
+            if [ $status = 0 ]; then
+                _log1 "Delete the source video $infile."
+                rm "$infile" ||
+                    _error "Failed to delete."
+            else
+                _log1 "Please check out the problem source $infole."
+            fi
         fi
     done
 }

@@ -1,6 +1,6 @@
 include libauto/project.am
 
-presetdir=${pkgdatadir}/preset.d
+presetdir = ${pkgdatadir}/preset.d
 
 do_subst += \
     -e 's,@presetdir@,${presetdir},g'
@@ -13,10 +13,6 @@ dist_man_MANS = \
     aviremix.1 \
     mencoder-preset.1
 
-dist_preset_DATA = \
-    preset.d/m6 \
-    preset.d/mpeg4
-
 dist_setup_SCRIPTS = \
     postinst \
     prerm
@@ -24,3 +20,6 @@ dist_setup_SCRIPTS = \
 CLEANFILES = \
     ${dist_setup_SCRIPTS}
 
+install-data-hook:
+	mkdir -p ${DESTDIR}${presetdir}
+	cp -R ${srcdir}/preset.d/* ${DESTDIR}${presetdir}
