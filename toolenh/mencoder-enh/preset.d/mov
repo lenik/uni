@@ -1,0 +1,19 @@
+# default output filename
+o=target.mov
+
+# maximum A-V sync correction per frame (in seconds)
+mc=0
+
+# libavformat muxer
+of=lavf
+lavfopts=format=mov:i_certify_that_my_video_stream_does_not_use_b_frames
+
+# audio encoding options
+oac=mp3lame=yes
+lameopts=vbr=0:br=128:vol=0:mode=0:aq=7:padding=3
+srate=44100
+
+# video encoding options
+ovc=lavc=yes
+lavcopts=aglobal=1:vglobal=1:vcodec=h264:acodec=mp3:vbitrate=1000
+

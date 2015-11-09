@@ -1,0 +1,32 @@
+# default output filename
+o=encoded.mp4
+
+of=lavf=yes
+lavfopts=format=mp4
+
+oac=faac=yes
+faacopts=br=96:raw=yes:mpeg=4:tns=yes:object=2
+# srate Select out sample rate.
+srate=48000
+
+# pullup Try to skip deinterlacing for progressive frames
+# hqdn3d High precision/quality version of denoise3d filter.
+# harddup Force dup frames to be encoded in the output.
+vf=pullup,softskip,pp=fd,hqdn3d
+lavdopts=threads=2
+
+ovc=x264=yes
+# crf=<1.0-50.0> constant quality mode, select the quality.15-11-03 01:26:59 
+# subq: subpel refinement quality (for qpel): (8, high)
+# frameref=<1-16> number of prev frames used. (3)
+# qcomp=<0-1> (ABR or two pass) quantizer compression (0.6)
+# 8x8dct Allows macroblocks to choose between 4x4 and 8x8.
+# weight_b Use weighted prediction in B frames.
+# trellis find the optimal encoding for each 8x8 block.
+# cabac (ctx-adaptive binary coding) save 10-15% bitrate. (on)
+x264encopts=crf=22:subq=6:frameref=6:qcomp=0.8:8x8dct=yes:weight_b=yes:me=umh:partitions=p8x8,i8x8:nodct_decimate=yes:trellis=1:direct_pred=auto:level_idc=30:threads=auto
+
+# sws <sw scalar type> (9=lanczos) used with -zoom option.
+sws=9
+#ofps=24000/1001
+
