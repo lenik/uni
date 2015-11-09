@@ -10,10 +10,10 @@ alias cd-alias='. cd-alias'
 alias md='mkdir'
 alias rd='rmdir'
 
-alias  d='ls -oF -N --color'
-alias d.='ls -doF -N --color'
+alias  d="ls -oF -N --color --block-size=\"'1\""
+alias d.='d -d'
 alias dw='. d-which'
-alias  l='ls -alF -N --color'
+alias  l="ls -alF -N --color --block-size=\"'1\""
 
 alias df='postproc sort \; df -T -B 1048576'
 
