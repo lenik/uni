@@ -150,15 +150,16 @@ function x-7zconv() {
     local list=`tempfile`
     local status=0
 
-    if LANG=C $_7Z x "${_7zopts[@]}" "$1" \
+    LANG=C $_7Z x "${_7zopts[@]}" "$1" \
             | sed -n 's/^Extracting //p' \
             | sed '1!G;h;$!d' \
-            >$list; then
+            >$list
+    status=$?
+
+    if [ $status = 0 ]; then
         while read path; do
             convmv -f $opt_from -t $opt_to --notest "$path" >/dev/null 2>/dev/null
         done <$list
-    else
-        status=$?
     fi
     
     rm $list
@@ -166,24 +167,31 @@ function x-7zconv() {
 }
 
 function x-bsdtarconv-cwd() {
-    #set -e
-    if LANG=C $BSDTAR -x "${bsdtaropts[@]}" -f "$1"; then
+    local status=0
+
+    LANG=C $BSDTAR -x "${bsdtaropts[@]}" -f "$1" 2>&1
+    status=$?
+
+    if [ $status = 0 ]; then
         convmv -f $opt_from -t $opt_to -r --notest .
     fi
+    return $status
 }
 
 function x-bsdtarconv() {
     local list=`tempfile`
     local status=0
 
-    if LANG=C $BSDTAR -x "${bsdtaropts[@]}" -f "$1" 2>&1 >$list; then
+    LANG=C $BSDTAR -x "${bsdtaropts[@]}" -f "$1" 2>&1 >$list
+    status=$?
+    
+    if [ $status = 0 ]; then
         while read path; do
             echo convmv -f $opt_from -t $opt_to --notest "$path"
             convmv -f $opt_from -t $opt_to --notest "$path" >/dev/null 2>/dev/null
         done <$list
-    else
-        status=$?
     fi
+
     rm $list
     return $status
 }
