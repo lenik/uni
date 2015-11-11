@@ -11,6 +11,7 @@ Vcs-Browser: http://git.bodz.net/uni/util/isoutils
 Package: isoutils
 Architecture: all
 Depends: 
+    genisoimage,
     isz-tool,
     ${misc:Depends}
 Description: Utilities for accessing ISO image files.

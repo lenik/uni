@@ -4,21 +4,31 @@
     : ${PROGRAM_TITLE:=Extract from ISO image}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] image-files}
 
+    : ${SUDO:=sudo}
+
     . shlib-import cliboot
+    option -l --list            "List the contents of ISO"
     option -o --outdir =DIR     "Where the extracted files be saved"
+    option -k --delete          "Auto delete the source archive"
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
 
-    outdir=
-    isodir=
+    opt_list=
+    opt_delete=
+    opt_outdir=
+
+    isotmp=
 
 function setopt() {
     case "$1" in
+        -l|--list)
+            opt_list=1;;
         -o|--outdir)
-            outdir="$2"
-            ;;
+            opt_outdir="$2";;
+        -k|--delete)
+            opt_delete=1;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -36,17 +46,77 @@ function main() {
     shopt -s nullglob
     shopt -s dotglob
 
-    isodir=`mktemp -d`
+    isotmp=`mktemp -d`
 
     for f in "$@"; do
-        ext="${f##*.}"
+        if [ "$opt_list" = 1 ]; then
+            case "$f" in
+                *.isz)
+                    isz-tool.py info "$f"
+                    ;;
+
+                *.iso)
+                    blksize=
+                    volsize=
+                    nJoliet=
+                    nRR=
+                    while read -a v; do
+                        l="${v[*]}"
+                        case "$l" in
+                            "Logical block size is:"*)
+                            #"Logical block size is:"*)
+                                blksize="${v[-1]}";;
+                            "Volume size is:"*)
+                                volsize="${v[-1]}";;
+                            "Juliet "*)
+                                nJoliet="${v[-2]}";;
+                            "Rock Ridge "*)
+                                nRR="${v[-2]}";;
+                        esac
+                    done < <(isoinfo -d -i "$f")
+
+                    _log1 "Logical block size: $blksize"
+                    _log1 "Volume size: $volsize"
+
+                    if [ "$nRR" -gt 0 ]; then
+                        _log1 "Rock Ridge directory of $f:"
+                        isoinfo -l -R -i "$f"
+                    elif [ "$nJoliet" -gt 0 ]; then
+                        _log1 "Joliet directory of $f:"
+                        isoinfo -l -J -i "$f"
+                    else
+                        _log1 "ISO9660 directory of $f:"
+                        isoinfo -l -i "$f"
+                    fi
+                    ;;
+
+                *)
+                    _warn "Unknown file type: $f"
+                    ;;
+            esac
+            continue
+        fi
+
         base="${f%.*}"
+        ext="${f##*.}"
+        if [ "$ext" = "$f" ]; then
+            ext=
+        fi
 
         case "$ext" in
         isz)
             iso="$base.iso"
             _log1 "Convert $f to $iso..."
-            isz-tool.py isz2iso "$f" "$iso"
+            if isz-tool.py isz2iso "$f" "$iso"; then
+                _log1 "Convertion succeeded."
+                if [ "$opt_delete" = 1 ]; then
+                    _log1 "Delete the isz file: $f"
+                    rm "$f"
+                fi
+            else
+                _error "Failed to convert, error=$?."
+                continue
+            fi
             ;;
 
         iso)
@@ -59,12 +129,12 @@ function main() {
             ;;
         esac
 
-        if [ -z "$outdir" ]; then
+        if [ -z "$opt_outdir" ]; then
             srcdir="${f%/*}"
             [ "$srcdir" = "$f" ] && srcdir=.
             dst="$srcdir/$base"
         else
-            dst="$outdir/$base"
+            dst="$opt_outdir/$base"
         fi
 
         if ! mkdir -p "$dst"; then
@@ -72,30 +142,43 @@ function main() {
             continue
         fi
 
-        _log2 "Mount on $isodir"
-        sudo mount -o ro "$iso" "$isodir"
+        _log2 "Mount ISO at $isotmp"
+        if ! $SUDO mount -o ro "$iso" "$isotmp"; then
+            _error "Failed to mount: error $?"
+            continue
+        fi
         
-        _log2 "Copy to $dst"
-        cp -R "$isodir"/* "$dst"
+        _log2 "Copy ISO contents to $dst"
+        cp -R "$isotmp"/* "$dst"
+        status=$?
         
-        _log2 "Remove the converted iso file"
-        sudo umount "$isodir"
+        _log2 "Unmount ISO $isotmp"
+        $SUDO umount "$isotmp"
 
-        if [ "$ext" = "iso" ]; then
-            rm "$iso"
+        if [ $status = 0 ]; then
+            _log2 "Copy succeeded."
+
+            if [ "$opt_delete" = 1 ]; then
+                if [ "$ext" = "iso" ]; then
+                    _log2 "Delete the converted ISO file."
+                    rm "$iso"
+                fi
+            fi
         fi
 
         _log2 "Set executable bits..."
         find "$dst" -type f -exec chmod -x {} +
-        find "$dst" -type f -iname '*.exe' -exec chmod +x {} +
-        find "$dst" -type f -iname '*.com' -exec chmod +x {} +
-        find "$dst" -type f -iname '*.bat' -exec chmod +x {} +
+        find "$dst" -type f -iname '*.exe' -exec chmod -v +x {} +
+        find "$dst" -type f -iname '*.com' -exec chmod -v +x {} +
+        find "$dst" -type f -iname '*.bat' -exec chmod -v +x {} +
 
         _log2 "Set files to be writable..."
-        chmod +w -R "$dst"
+        chmod -R +w "$dst"
     done
 
-    [ -z "$isodir" ] || rmdir "$isodir"
+    if [ -d "$isotmp" ]; then
+        rmdir "$isotmp"
+    fi
 }
 
 boot "$@"

@@ -1,0 +1,109 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=ISO image creator}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] }
+
+    . shlib-import cliboot
+    option -o --output =FILE    "Sepcify the generated ISO file"
+    option -O --option =OPTION  "Options passed to genisoimage (can be repeated)"
+    option -z --compress        "Compress the output ISO"
+    option -f --force           "Always overwrite the existing ISO file"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_out=
+    opts=()
+    nopt=0
+    opt_compress=
+    opt_force=
+
+function setopt() {
+    case "$1" in
+        -o|--output)
+            opt_out="$2";;
+        -O|--option)
+            opts[nopt++]="$2";;
+        -z|--compress)
+            opt_compress=1;;
+        -f|--force)
+            opt_force=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    files=(.)
+    if [ $# != 0 ]; then
+        files=("$@")
+    fi
+
+    isofile="$opt_out"
+    if [ -z "$isofile" ]; then
+        first="${files[0]}"
+        first=$( readlink -f "$first" )
+        firstname="${first##*/}"
+        isofile="$firstname.iso"
+    fi
+
+    if [ -f "$isofile" ]; then
+        if [ -z "$opt_force" ]; then
+            quit "File exists: $isofile"
+        else
+            _warn "Overwrite existing $isofile"
+        fi
+    fi
+
+    # Generate SUSP and RR records, with uid/gid=0, mode=r-X
+    opts[nopt++]=-r
+
+    # Generate Joliet directory records
+    # Joliet use Unicode and each path component can be up to 64 chars.
+    # (Only Windows and Linux can read Joliet extensions.)
+    opts[nopt++]=-J
+
+    # Allow Joliet filenames to be up to 103 Unicode characters.
+    # This breaks the Joliet specification, but appears to work.
+    # Use with caution
+    #opts[nopt++]=-joliet-long
+
+    # Generate a file TRANS.TBL in each directory on the CD-ROM.
+    # which can be used on non-Rock RIdge-capable systems.
+    opts[nopt++]=-T
+
+    # Allows ISO9660 filenames to begin with a period.
+    # This violates the ISO9660 std, but it happens to work on many systems.
+    # Use with caution.
+    opts[nopt++]=-ldots
+
+    # Allows more than one dot to appear in ISO9660 filenames.
+    # (-ldots isn't affected by this option.)
+    # This violates the ISO9660 std, but it happens to work on many systems.
+    # Use with caution.
+    opts[nopt++]=-allow-multidot
+
+    # Allows lowercase characters to appear in ISO9660 filenames.
+    # This violates the ISO9660 std, but it happens to work on many systems.
+    # Use with caution.
+    opts[nopt++]=-allow-lowercase
+
+    _log1 "Create ISO image $isofile"
+    if genisoimage "${opts[@]}" -o "$isofile" "${files[@]}"; then
+        _log1 "Succeeded"
+    else
+        _log1 "Error: $?"
+    fi
+}
+
+boot "$@"
