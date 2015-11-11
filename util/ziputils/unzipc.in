@@ -112,7 +112,8 @@ function main() {
         fi
 
         _log1 "Enter into $outdir"
-        ar=$( readlink -f "$ar" )
+        dir=$( readlink -f "$dir" )
+        ar="$dir/$base"
         if ! cd "$outdir"; then
             _error "Can't enter into $outdir: $?"
             continue
