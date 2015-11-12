@@ -23,4 +23,5 @@ dist_shlib_DATA = \
     path \
     rcs \
     term \
-    time
+    time \
+    trash

@@ -120,7 +120,39 @@ function boot() {
         shift $((OPTIND - 1))
     fi
 
-    for arg in "$@"; do do_arg "$arg"; done
+    local _lev=$(( $LOGLEVEL + $LOGLEVEL_DELTA ))
+    if [ $_lev -lt -1 ]; then
+        _lev=-1
+    elif [ $_lev -gt 3 ]; then
+        _lev=3
+    fi
+    case "$_lev" in
+        -1)
+            logopt=-q
+            logopts=-qq
+            ;;
+        0)
+            logopt=-q
+            logopts=-q
+            ;;
+        1)
+            logopt=
+            logopts=
+            ;;
+        2)
+            logopt=-v
+            logopts=-vv
+            ;;
+        3)
+            logopt=-v
+            logopts=-vvv
+            ;;
+    esac
+
+    for arg in "$@"; do
+        do_arg "$arg"
+    done
+    
     main "${_arg[@]}"
 }
 

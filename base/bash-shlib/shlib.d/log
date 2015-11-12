@@ -9,6 +9,7 @@ LOGFX_WARN='[1;45m'
 LOGFX_ERROR='[1;41m'
 
 : ${LOGLEVEL:=1}
+: ${LOGLEVEL_DELTA:=0}
 
 if [ -z "$PROGRAM_NAME" ]; then
     LOGPREFIX=
