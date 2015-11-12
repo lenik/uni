@@ -43,6 +43,7 @@ lenik_DATA = \
     集英.db \
     集英社.db \
     空山.db \
+    浅水湾.db \
     童话.db
 
 nets_DATA = \
