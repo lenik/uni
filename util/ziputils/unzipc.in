@@ -8,14 +8,17 @@
     : ${_7Z:=7z}
     : ${BSDTAR:=bsdtar}
 
-    . shlib-import cliboot
+    . shlib
+    import cliboot
+    import trash
+
     option -o --output =DIR     "Extract to this directory"
     option -f --from =CHARSET   "Convert from this charset"
     option -O =CHARSET          "Convert from this charset (Ubuntu mod)"
     option -t --to =CHARSET     "Convert to this charset"
     option -y --yes             "Always answer yes"
     option -s --seperate        "Unzip in separate directories"
-    option -k --delete          "Delete the archive if extraction succeeded"
+    option -k --delete          "Move the archive to trash or (repeat) delete it"
     option -q --quiet
     option -v --verbose
     option -h --help
@@ -29,7 +32,7 @@
     opt_from=gbk
     opt_to=utf-8
     opt_separate=0
-    opt_delete=
+    opt_delete=0
 
     _7zopts=()
     bsdtaropts=(-v)
@@ -52,7 +55,7 @@ function setopt() {
         -s|--separate)
             opt_separate=1;;
         -k|--delete)
-            opt_delete=1;;
+            (( opt_delete++ ));;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -123,10 +126,16 @@ function main() {
         _log1 "Extract $ar..."
         if $xfn "$ar"; then
             _log1 "Extraction succeeded."
-            if [ "$opt_delete" = 1 ]; then
-                _log1 "Delete the archive $ar."
-                rm "$ar" || _error "Failed to delete."
-            fi
+            case $opt_delete in
+                1)
+                    _log1 "Trash the archive $ar."
+                    trash "$ar" || _error "Failed to trash"
+                    ;;
+                2)
+                    _log1 "Delete the archive $ar."
+                    rm "$ar" || _error "Failed to delete."
+                    ;;
+            esac
         else
             _error "Failed to extract $ar."
         fi
