@@ -1,0 +1,19 @@
+# -*- mode: sh -*-
+# vim: set filetype=sh :
+
+GVFS_TRASH=`which gvfs-trash 2>&1`
+
+function trash() {
+    if [ -x $GVFS_TRASH ]; then
+        gvfs-trash -f "$@"
+    fi
+}
+
+function trashOrDelete() {
+    if [ -x $GVFS_TRASH ]; then
+        gvfs-trash -f "$@"
+    else
+        rm -f "$@"
+    fi
+} 
+
