@@ -7,7 +7,7 @@ catme - Stupid Text Concatenater
 =cut
 use strict;
 use vars qw($LOGNAME $LOGLEVEL);
-use cmt::log(2);
+use cmt::log(3);
     $LOGNAME    = 'catme'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
 use cmt::path('path_split');
 use cmt::util('readfile');
@@ -26,9 +26,6 @@ my $opt_keep = 0;
 
 my @dirstack = ();
 my @searchpath;
-my $ext_delim = {
-        '.sql' => [ '--', '' ],
-    };
 my ($sbegin, $send);
 my ($nbegin, $nend);
 my @extstack;
@@ -39,6 +36,19 @@ my $cmds = {
     'mixin' => \&fn_mixin,
     'sinclude' => \&fn_sinclude,
 };
+
+my $langtab = {
+    'p' => 'perl',
+    'pl' => 'perl',
+    'py' => 'python',
+    'r' => 'ruby',
+    'sql' => 'sql',
+    'ddl' => 'sql',
+};
+
+my $lang_delim = {
+        'sql' => [ '--', '' ],
+    };
 
 sub _boot {
     GetOptions('q|quiet'        => sub { $LOGLEVEL-- },
@@ -158,6 +168,44 @@ exit (_boot or 0);
 
 sub _main {
     for my $file (@ARGV) {
+        my $base = $file;
+            $base =~ s/^.*\///g;
+        my $lastdot = rindex($base, '.');
+        my $ext = $lastdot == -1 ? undef : substr($base, $lastdot + 1);
+
+        @searchpath = @opt_searchpath;
+
+        if (defined $ext) {
+            for my $pathdir ("$opt_configdir/path/$ext", "@pkgdatadir@/path/$ext") {
+                next unless opendir(my $dh, $pathdir);
+
+                my @files = grep { -f "$pathdir/$_" } readdir($dh);
+                closedir $dh;
+
+                for my $pathfile (@files) {
+                    _log2 "Parse path file $pathdir/$pathfile...";
+                    for (readfile("$pathdir/$pathfile")) {
+                        chomp;
+                        next unless -d $_;
+                        _log3 "Add search path $_";
+                        push @searchpath, $_;
+                    }
+                }
+            }
+        }
+
+        my $lang = $langtab->{$ext};
+        if (defined $lang) {
+            my $libvar = uc($lang) . 'LIB';
+            my $lib = $ENV{$libvar};
+            if (defined $lib) {
+                for (split(/:/, $lib)) {
+                    _log2 "Add search path $_";
+                    push(@searchpath, $_) if -d;
+                }
+            }
+        }
+
         process($file);
     }
 }
@@ -177,9 +225,8 @@ sub process {
     my ($name, $ext) = ($base, $base);
         if ($name =~ s/\.[^.]*$//) {
             $ext =~ s/^.*\.//;
-            $ext = ".$ext";
         } else {
-            $ext = '';
+            $ext = undef;
         }
         push @extstack, $ext;
 
@@ -188,7 +235,8 @@ sub process {
 
     my $delim = $opt_delim;
     unless (defined $delim) {
-        $delim = $ext_delim->{$ext};
+        my $lang = $langtab->{$ext};
+        $delim = $lang_delim->{$lang};
         unless (defined $delim) {
             $delim = [ '#', '' ];
         }
@@ -199,15 +247,6 @@ sub process {
     $nbegin = length($sbegin);
     $nend = length($send);
     _log2 "Delimiter: $sbegin($nbegin), $send($nend)";
-
-    @searchpath = @opt_searchpath;
-        my $pathcfg = "$opt_configdir/path$ext";
-        if (-f $pathcfg) {
-            for (readfile($pathcfg)) {
-                chomp;
-                push @searchpath, $_;
-            }
-        }
 
     my $err;
     my $fh = new FileHandle;
