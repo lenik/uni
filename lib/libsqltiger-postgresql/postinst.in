@@ -1,4 +1,9 @@
 #!/bin/sh
 # master-file
 
+catmecfgdir=@datadir@/catme/path/sql
+
+mkdir -p $catmecfgdir
+echo "@libsqldir@" >$catmecfgdir/libsqldir
+
 exit 0

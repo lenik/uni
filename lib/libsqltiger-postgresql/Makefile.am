@@ -1,6 +1,9 @@
 include libauto/project.am
 
-libsqldir = ${libdir}/sql
+libsqldir = ${prefix}/lib/sql
+
+do_subst += \
+    -e 's,@libsqldir@,${libsqldir},g'
 
 dist_setup_SCRIPTS = \
     postinst \
