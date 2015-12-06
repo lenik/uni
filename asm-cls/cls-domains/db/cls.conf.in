@@ -32,3 +32,4 @@ zone "xn--iuzn16a.net"          { type master; file "@lenikdir@/童话.db"; };
 zone "xn--rhtv21e.com"          { type master; file "@lenikdir@/空山.db"; };
 zone "xn--1rwrwm3a.com"         { type master; file "@lenikdir@/浅水湾.db"; };
 zone "xn--vcsoer8lm35a.net"     { type master; file "@lenikdir@/国家地理.db"; };
+zone "xn--yets94djwi.com"       { type master; file "@lenikdir@/小睡莲.db"; };
