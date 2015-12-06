@@ -6,3 +6,7 @@ dist_setup_SCRIPTS = \
 
 CLEANFILES = \
     ${dist_setup_SCRIPTS}
+
+extractor-gtk-code:
+	svn checkout svn://svn.code.sf.net/p/extractor-gtk/code/trunk/extractor extractor-gtk-code
+
