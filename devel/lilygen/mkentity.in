@@ -5,13 +5,27 @@
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FQCN...}
 
     . shlib-import cliboot strfn
+    option -l --layout =LAYOUT      "Specify the source layout"
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
 
+    opt_layout=simple
+
 function setopt() {
     case "$1" in
+        -l|--layout)
+            case "$2" in
+                simple)
+                    opt_layout=simple;;
+                db)
+                    opt_layout=db;;
+                dbhtm)
+                    opt_layout=dbhtm;;
+                *)
+                    quit "Bad layout name: $2";;
+            esac;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -32,27 +46,46 @@ function main() {
 
     for fqcn in "$@"; do
         pkg=${fqcn%.*}
-        pkg_impl=$pkg.impl
         Base=${fqcn##*.}
         [ "$Base" != "$fqcn" ] || quit "Not an FQCN: $fqcn"
-        dirs=${pkg//.//}
-        dirs_impl=$dirs/impl
+        dir_pojo=${pkg//.//}
+
+        case "$opt_layout" in
+            simple)
+                pkg_db=$pkg.impl
+                pkg_web=$pkg.impl
+                dir_db=$dir_pojo/impl
+                dir_web=$dir_pojo/impl
+                ;;
+            db)
+                pkg_db=${pkg%.*}.db
+                pkg_web=${pkg}
+                dir_db=${dir_pojo%/*}/db
+                dir_web=${dir_pojo}
+                ;;
+            dbhtm)
+                pkg_db=${pkg%.*}.db
+                pkg_web=${pkg%.*}.htm
+                dir_db=${dir_pojo%/*}/db
+                dir_web=${dir_pojo%/*}/htm
+                ;;
+        esac
         
         B=${Base:0:1}
         base="$(tolower $B)${Base:1}"
-        _log1 "Generating files for $pkg::$Base $base (in */$dirs)."
+        _log1 "Generating files for $pkg::$Base $base (in */$dir_pojo)."
 
-        mk_ent          "src/main/java/$dirs/$Base.java"
-        mk_ent_htm      "src/main/java/$dirs_impl/${Base}_htm.java"
-        mk_htm_inf      "$pkg_impl.${Base}_htm"
-        mk_criteria     "src/main/java/$dirs_impl/${Base}Criteria.java"
-        mk_mapper       "src/main/java/$dirs_impl/${Base}Mapper.java"
-        mk_mapper_xml   "src/main/resources/$dirs_impl/${Base}Mapper.xml"
-        mk_mapper_inf   "$pkg_impl.${Base}Mapper"
-        mk_index        "src/main/java/$dirs_impl/${Base}Index.java"
-        mk_index_inf    "$pkg_impl.${Base}Index"
-        mk_index_htm    "src/main/java/$dirs_impl/${Base}Index_htm.java"
-        mk_htm_inf      "$pkg_impl.${Base}Index_htm"
+        mk_ent          "src/main/java/$dir_pojo/$Base.java"
+        mk_ent_htm      "src/main/java/$dir_web/${Base}_htm.java"
+        mk_htm_inf      "$pkg_web.${Base}_htm"
+        mk_criteria     "src/main/java/$dir_db/${Base}Criteria.java"
+        mk_mapper       "src/main/java/$dir_db/${Base}Mapper.java"
+        mk_mapper_xml   "src/main/resources/$dir_db/${Base}Mapper.xml"
+        mk_mapper_inf   "$pkg_db.${Base}Mapper"
+        mk_index        "src/main/java/$dir_web/${Base}Index.java"
+        mk_index_inf    "$pkg_web.${Base}Index"
+        mk_index_htm    "src/main/java/$dir_web/${Base}Index_htm.java"
+        mk_htm_inf      "$pkg_web.${Base}Index_htm"
     done
 }
 
@@ -110,7 +143,7 @@ function mk_ent_htm() {
     simplename="${simplename%.java}"
 
     cat <<EOT >"$file"
-package $pkg_impl;
+package $pkg_web;
 
 import java.io.IOException;
 
@@ -131,7 +164,7 @@ function mk_criteria() {
     file="$1"
     findfile "$file" && return
     cat <<EOT >"$file"
-package $pkg_impl;
+package $pkg_db;
 
 import net.bodz.bas.err.ParseException;
 
@@ -157,7 +190,7 @@ function mk_mapper() {
     file="$1"
     findfile "$file" && return
     cat <<EOT >"$file"
-package $pkg_impl;
+package $pkg_db;
 
 import java.util.List;
 
@@ -182,7 +215,7 @@ function mk_mapper_xml() {
 <!DOCTYPE mapper 
  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="$pkg_impl.${Base}Mapper">
+<mapper namespace="$pkg_db.${Base}Mapper">
 
     <resultMap id="map1" type="$fqcn" extends="co.mapUS">
     </resultMap>
@@ -269,7 +302,7 @@ function mk_index() {
     file="$1"
     findfile "$file" && return
     cat <<EOT >"$file"
-package $pkg_impl;
+package $pkg_web;
 
 import net.bodz.bas.rtx.IQueryable;
 
@@ -300,7 +333,7 @@ function mk_index_htm() {
     file="$1"
     findfile "$file" && return
     cat <<EOT >"$file"
-package $pkg_impl;
+package $pkg_web;
 
 import java.io.IOException;
 import java.util.List;
@@ -372,7 +405,7 @@ EOT
 }
 
 function mk_index_inf() {
-    list="src/main/resources/META-INF/services/com.tinylily.model.base.CoObjectIndex"
+    list="src/main/resources/META-INF/services/net.bodz.lily.model.base.CoObjectIndex"
     add_inf "$list" "$@"
 }
 
