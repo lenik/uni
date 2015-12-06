@@ -1,0 +1,49 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Create symlinks for cocos2d-x shared files}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+    : ${COCOS2D_SDK:=/opt/sdk/cocos2d-x}
+    : ${COCOS2D_CACHE:=$HOME/.cache/cocos2d-x}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for d in "$@"; do
+        if [ ! -L "$d/cocos2d" ]; then
+            rm -fr "$d/cocos2d"
+            ln -snf "$COCOS2D_SDK" "$d/cocos2d"
+        fi
+
+        mkdir -p "$d/linux-build"
+        if [ ! -L "$d/linux-build/cocos2d" ]; then
+            rm -fr "$d/linux-build/cocos2d"
+            ln -snf "$COCOS2D_CACHE/linux-build/cocos2d" "$d/linux-build/cocos2d"
+        fi
+        if [ ! -L "$d/linux-build/lib" ]; then
+            rm -fr "$d/linux-build/lib"
+            ln -snf "$COCOS2D_CACHE/linux-build/lib" "$d/linux-build/lib"
+        fi
+    done
+}
+
+boot "$@"

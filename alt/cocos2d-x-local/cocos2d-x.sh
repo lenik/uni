@@ -12,6 +12,6 @@ export ANT_ROOT=/usr/share/ant/bin
 export ANDROID_SDK_ROOT=/opt/sdk/android
 
 # Add environment variable NDK_ROOT for cocos2d-x
-export NDK_ROOT=/opt/sdk/android-ndk
+export NDK_ROOT=/opt/sdk/android/ndk
 
 export PATH=$PATH:$COCOS_CONSOLE_ROOT:$NDK_ROOT
