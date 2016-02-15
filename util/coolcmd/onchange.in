@@ -5,7 +5,9 @@
                         "[OPTIONS] -f FILE [--] COMMAND..."}
 
     . shlib-import cliboot
-    option -f --file =FILE  "Add a file to monitor list"
+    option -a --delay-after =ms "Delay for a short interval after execution"
+    option -b --delay-before =ms "Delay for a short interval before execution"
+    option -f --file =FILE      "Add a file to monitor list"
     option -q --quiet
     option -v --verbose
     option -h --help
@@ -13,9 +15,15 @@
 
     files=()
     nfile=0
+    opt_delay_after=0
+    opt_delay_before=100
 
 function setopt() {
     case "$1" in
+        -a|--delay-after)
+            opt_delay_after="$2";;
+        -b|--delay-before)
+            opt_delay_before="$2";;
         -f|--file)
             files[nfile++]="$2";;
         -h|--help)
@@ -46,14 +54,29 @@ function main() {
         exit 1
     fi
 
+    opt_delay_after=$( div1000 $opt_delay_after )
+    opt_delay_before=$( div1000 $opt_delay_before )
+    _log2 "Delay for $opt_delay_before/$opt_delay_after for each execution."
 
     . settermtitle "${files[*]} => $*"
 
     while true; do
-        until-changed "${files[@]}"
+        until-changed $logopts "${files[@]}"
+
+        sleepenh $opt_delay_before >/dev/null 2>/dev/null
         _log2 "Execute: $@"
         "$@"
+
+        sleepenh $opt_delay_after >/dev/null 2>/dev/null
     done
+}
+
+function div1000() {
+    local n=$1
+    local div=$(( n / 1000 ))
+    local rem=$(( 1000 + n % 1000 ))
+    rem=${rem:1}
+    echo $div.$rem
 }
 
 boot "$@"
