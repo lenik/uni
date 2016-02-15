@@ -57,6 +57,7 @@ our @EXPORT_OK = qw(
 our $opt_force;
 our %opt_fswalk         = (-depth => 0);
 our $opt_filter;
+our $opt_follow         = 0;
 our $opt_ascii          = 1;
 our $opt_binary;
 our $opt_stdout;
@@ -81,6 +82,7 @@ our %COMOPT = ( # bcdfikrtw
                'diff-style|ds=s'=> \$opt_diff_style,
                'dry-run'        => \$opt_dry_run,
                'filter|t=s'     => \$opt_filter,
+               'follow|L'       => \$opt_follow,
                'force|f'        => \$opt_force,
                'ignore-case|i'  => \$opt_ignore_case,
                'recursive|r:n'  => sub { shift; $opt_fswalk{-depth} = shift || 100 },
@@ -97,6 +99,7 @@ our $COMOPT = <<'EOM';
     -t, --filter=REGEXP     => --walkopt=-filter=REGEXP
     -f, --force             force change read-only files
     -i, --ignore-case       ignore case
+    -L, --follow            follow symlinks
     -r, --recursive[=DEPTH] => --walkopt=-depth=DEPTH
     -w, --walkopt=OPTION    extra options for directory iterator (see follow)
     -k, --backup[=EXT]      backup the original files (default EXT=bak)
@@ -147,6 +150,10 @@ sub batch_main {
 
     unless (defined $opt_fswalk{-filter}) {
         $opt_fswalk{-filter} = qr/$opt_filter/ if defined $opt_filter;
+    }
+
+    unless (defined $opt_fswalk{-follow}) {
+        $opt_fswalk{-follow} = $opt_follow;
     }
 
     if ($LOGLEVEL >= 2) {

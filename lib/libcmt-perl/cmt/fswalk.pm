@@ -47,6 +47,8 @@ HOW-cmt::fswalk-RESOLVES.
     -start=START-PATH
     -filter=REGEXP or CALLBACK
         only files matched the specified filter is iterated.
+    -follow
+        follow symlinks
     -hidden=1
         include hidden files
     -depth=N
@@ -77,6 +79,7 @@ sub fswalk(&;@) {
                     my $ok = ($fp || $fdirs) && $filterf->(@_);
                     $ok ? $_cb->(@_) : ($fp ? 0 : 1) };
     }
+    my $follow  = $cfg{-follow};
     my $hidden  = $cfg{-hidden};
     my $depth   = _or($cfg{-depth}, 999);
     my $bfirst  = index('bw', $cfg{-order}); # breadth-first
@@ -111,6 +114,7 @@ sub fswalk(&;@) {
         for (@files) {
             my $path = path_join($dir, $_);
             if (-d $path) {
+                next if (-l $path) and not $follow;
                 next if $level >= $depth;
                 if ($bfirst) {
                     push @dirs, $path;
