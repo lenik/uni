@@ -1,0 +1,357 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+qdlparser - QDL (Quick Dom Layout language) parser
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'qdlparser'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: - @VERSION@ @DATE@ @TIME@ - $');
+use Data::Dumper;
+use Getopt::Long;
+    Getopt::Long::Configure('gnu_getopt');
+use Switch;
+
+sub _main;
+sub _help;
+sub _version;
+
+my $opt_format = 'dump';
+
+sub _boot {
+    GetOptions('q|quiet'        => sub { $LOGLEVEL-- },
+               'v|verbose'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'h|help'         => sub { _help; exit 0 },
+               'd|dump'         => sub { $opt_format = 'dump' },
+               'H|html'         => sub { $opt_format = 'html' },
+               'x|xml'          => sub { $opt_format = 'xml' },
+               'c|css'          => sub { $opt_format = 'css' },
+               )
+        or exit(1);
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<qdlparser>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<qdlparser> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-qdlparser-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item Show help
+
+    qdlparser --help
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -q, --quiet             Repeat to get less info
+    -v, --verbose           Repeat to get more info
+    -h, --help              Show this help page
+        --version           Print the version info
+
+Dump format:
+    -d, --dump              Output internal structure (default)
+    -H, --html              Output in HTML format
+    -x, --xml               Output in XML format
+    -c, --css               Output in CSS format
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+
+    my $root = {
+        tag => 'body',
+        attrs => {},
+        children => [],
+        };
+
+    my @stack = ($root);
+    my @levels = (-1);
+
+    while (<>) {
+        chop;
+        s/^( *)//;
+        my $leadspc = $1;
+        my $nspc = length($leadspc);
+
+        next if length($_) == 0;
+        next if substr($_, 0, 1) eq '#';
+        # -- comment node...
+
+        while (scalar(@stack)) {
+            my $plevel = ($levels[-1]);
+            if ($nspc <= $plevel) {
+                pop @stack;
+                pop @levels;
+                next;
+            }
+            last;
+        }
+
+        my $node = parseline($_);
+
+        my $parent = $stack[-1];
+        if (defined $parent) {
+            $node->{parent} = $parent;
+            my $v = $parent->{children};
+            push @$v, $node;
+        }
+
+        push @stack, $node;
+        push @levels, $nspc; #leadspc;
+
+        unless (defined $node->{tag}) {
+            if (defined $parent) {
+                my $ptag = $parent->{tag};
+                if (in($ptag, 'ol', 'ul')) {
+                    $node->{tag} = 'li';
+                } elsif (in($ptag, 'table', 'tbody', 'tfoot')) {
+                    $node->{tag} = 'tr';
+                } elsif (in($ptag, 'tr')) {
+                    $node->{tag} = 'td';
+                }
+            }
+            unless (defined $node->{tag}) {
+                $node->{tag} = 'div';
+            }
+        }
+    }
+
+    switch ($opt_format) {
+        case 'dump'     { print Dumper($root); }
+        case 'css'      { dump_css($root, {}); }
+        case 'html'     { dump_html($root); }
+        case 'xml'      { dump_html($root); }
+    }
+}
+
+sub dump_css {
+    my ($node) = @_;
+    my $map = listclass($node);
+    my @paths = sort keys %$map;
+    for (@paths) {
+        print "$_ { }\n";
+    }
+}
+
+sub listclass {
+    my ($node, $map) = @_;
+    $map = {} unless defined $map;
+
+    my $class = $node->{attrs}->{class};
+    if (defined $class) {
+        my @classv = split(/\s+/, $class);
+        my $q = join('', map { ".$_" } @classv);
+        $map->{$q} = 1;
+    }
+
+    my $children = $node->{children};
+    listclass($_, $map) for @$children;
+    return $map;
+}
+
+sub dump_html {
+    my ($node, $prefix) = @_;
+    my $childv = $node->{children};
+    my $nchild = scalar(@$childv);
+    my $attrs = $node->{attrs};
+
+    print $prefix . "<" . $node->{tag};
+    for my $k (keys %$attrs) {
+        my $v = $attrs->{$k};
+        print " $k=\"$v\"";
+    }
+    print ">";
+
+    if (length($node->{text})) {
+        print "\n$prefix    " if $nchild;
+        print $node->{text};
+    }
+
+    print "\n" if $nchild;
+
+    for (@$childv) {
+        dump_html($_, $prefix . "    ");
+    }
+
+    print $prefix if $nchild;
+    print "</" . $node->{tag} . ">\n";
+}
+
+sub parseline($) {
+    my $s = shift;
+    my ($cmd, @args) = qbrk($s);
+    my $classv = [];
+    my $node = {
+            type => 'tag',
+            tag => undef,
+            attrs => {},
+            text => '',
+            children => [],
+        };
+
+    if ($cmd =~ s/^\@//)
+        { $node->{tag} = 'ul'; }
+    if ($cmd =~ s/^%//)
+        { $node->{tag} = 'table'; }
+
+    if ($cmd =~ /^(["'])(.*)\1$/) {
+        $node->{text} = $2;
+        $cmd = undef;
+    }
+
+    for (@args) {
+        if (s/^\.//)
+            { push @$classv, $_; next }
+        if (/^<(.*)>$/)
+            { $node->{tag} = $1; next }
+        
+        _error "Bad argument: $_";
+    }
+
+    $node->{attrs}->{id} = $cmd if defined $cmd;
+    $node->{attrs}->{class} = join(' ', @$classv) if scalar(@$classv);
+
+    return $node;
+}
+
+sub qbrk($) {
+    my $s = shift;
+    my @v;
+    my $end;
+    while ($end = length($s)) {
+        my $c = substr($s, 0, 1);
+        if ($c eq '"') {
+            $end = index($s, '"', 1);
+            push @v, substr($s, 0);
+            if ($end == -1) {
+                $v[-1] .= '"';
+            } else {
+                $s = substr($s, ++$end);
+            }
+        } elsif ($c eq '\'') {
+            $end = index($s, '\'', 1);
+            $end = length($s) if $end == -1;
+            push @v, substr($s, 1, $end++);
+            $s = substr($s, $end);
+        } else {
+            $s =~ s/^(\S+)\s*//;
+            push @v, $1;
+            next;
+        }
+        $s =~ s/^\s*//;
+    }
+    return @v;
+}
+
+sub in {
+    my $word = shift;
+    for (@_) {
+        return 1 if $word eq $_;
+    }
+    return 0;
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME]  \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Lenik (谢继雷) <lenik (at) bodz.net>
+
+=cut
