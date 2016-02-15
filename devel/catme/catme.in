@@ -31,6 +31,8 @@ my ($nbegin, $nend);
 my @extstack;
 
 my $cmds = {
+    'dnl' => \&fn_dnl,
+    'comment' => \&fn_dnl,
     'import' => \&fn_import,
     'include' => \&fn_include,
     'mixin' => \&fn_mixin,
