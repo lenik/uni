@@ -10,14 +10,23 @@ Vcs-Browser: http://git.bodz.net/uni/alt/jdk7-local
 
 Package: jdk7-local
 Architecture: all
-Provides: java-compiler, java-sdk, java2-compiler, java2-sdk, java5-sdk,
-        java6-sdk, java7-sdk,
-        java-virtual-machine,
-        java-runtime, java-runtime-headless,
-        java2-runtime, java2-runtime-headless,
-        java5-runtime, java5-runtime-headless,
-        java6-runtime, java6-runtime-headless,
-        java7-runtime, java7-runtime-headless
+Provides: 
+    default-jre,
+    java-compiler, 
+    java2-compiler, 
+    java-runtime, java-runtime-headless,
+    java2-runtime, java2-runtime-headless,
+    java5-runtime, java5-runtime-headless,
+    java6-runtime, java6-runtime-headless,
+    java7-runtime, java7-runtime-headless,
+    java-sdk, 
+    java2-sdk, 
+    java5-sdk,
+    java6-sdk, 
+    java7-sdk,
+    java-virtual-machine,
+    openjdk-7-jre,
+    openjdk-7-jre-headless
 Depends:
     ${misc:Depends}
 Description: Virtual package for local installed Java 7 SDK.
