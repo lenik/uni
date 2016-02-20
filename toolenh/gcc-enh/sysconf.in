@@ -1,0 +1,66 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Print system config info}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] CONFIG...}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function help_more() {
+    echo Configuration Names:
+    echo    ld          Show lib search path in order
+    echo    ld32        Show 32-bit lib search path in order
+    echo    ld64        Show 64-bit lib search path in order
+}
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
+
+    for name in "$@"; do
+        case "$name" in
+        ld)
+            ldconfig -v 2>/dev/null \
+                | grep -v ^$'\t' \
+                | sed -e 's/:.*$//'
+            ;;
+
+        ld32)
+            gcc -m32 -Xlinker --verbose  2>/dev/null \
+                | grep SEARCH \
+                | sed 's/SEARCH_DIR("=\?\([^"]\+\)"); */\1\n/g'  \
+                | grep -vE '^$'
+            ;;
+
+        ld64)
+            gcc -m64 -Xlinker --verbose  2>/dev/null \
+                | grep SEARCH \
+                | sed 's/SEARCH_DIR("=\?\([^"]\+\)"); */\1\n/g'  \
+                | grep -vE '^$'
+            ;;
+
+        *)
+            quit "Unknown config: $name";;
+        esac
+    done
+}
+
+boot "$@"
