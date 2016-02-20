@@ -23,3 +23,6 @@ function ⚝() {
         stty echo
     fi
 }
+
+alias title='settermtitle'
+
