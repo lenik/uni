@@ -179,6 +179,11 @@ sub _main {
                 $node->{tag} = 'div';
             }
         }
+
+        my $id = $node->{attrs}->{id};
+        if ($node->{text} eq '') {
+            $node->{text} = $id if defined $id;
+        }
     }
 
     switch ($opt_format) {
@@ -221,7 +226,7 @@ sub dump_html {
     my $attrs = $node->{attrs};
 
     print $prefix . "<" . $node->{tag};
-    for my $k (keys %$attrs) {
+    for my $k (sort keys %$attrs) {
         my $v = $attrs->{$k};
         print " $k=\"$v\"";
     }
