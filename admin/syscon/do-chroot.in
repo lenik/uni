@@ -1,0 +1,111 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Chroot with sys dirs mounted}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -u --umount-only         "Umount only. If you forgot to exit the shell."
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_mount=1
+    opt_umount=1
+
+    SUDO=sudo
+
+function setopt() {
+    case "$1" in
+        -u|--umount-only)
+            opt_mount=0;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    newroot="$1"
+    newroot="${newroot%/}"
+    [ -n "$newroot" ] || quit "Please specify a new root dir to go."
+    [ -d "$newroot" ] || quit "Not a dir: $newroot"
+
+    if [ "$opt_mount" = 1 ]; then
+        _mount devtmpfs "$newroot"/dev
+        _mount devpts "$newroot"/dev/pts
+        _mount tmpfs "$newroot"/dev/shm
+        _mount proc "$newroot"/proc
+        _mount tmpfs "$newroot"/run
+        _mount sysfs "$newroot"/sys
+        _mount tmpfs "$newroot"/tmp
+        _mount tmpfs "$newroot"/var/lock
+        _mount tmpfs "$newroot"/var/run
+    fi
+
+    _warn "Don't forget to exit the shell for cleaning ups."
+    #$SHELL
+    $SUDO chroot "$newroot"
+    
+    if [ "$opt_umount" = 1 ]; then
+        _umount "$newroot"/var/run
+        _umount "$newroot"/var/lock
+        _umount "$newroot"/tmp
+        _umount "$newroot"/sys
+        _umount "$newroot"/run
+        _umount "$newroot"/proc
+        _umount "$newroot"/dev/shm
+        _umount "$newroot"/dev/pts
+        _umount "$newroot"/dev
+    fi
+}
+
+function _mount() {
+    local fs="$1"
+    local mp="$2"
+    local dev="$3"
+        if [ -z "$dev" ]; then dev=none; fi
+    local opts=()
+        if [ -n "$4" ]; then
+            opts=("${opts[@]}}" -o "$4")
+        fi
+    local err=0
+
+    if [ -d "$mp" ]; then
+        if [ ! -L "$mp" ]; then
+            _log1 "Mount $mp"
+            $SUDO mount -t $fs "${opts[@]}" "$dev" "$mp"
+            err=$?
+            [ "$err" = 0 ] || _err "   failed: $?."
+        fi
+    fi
+
+    return $err
+}
+
+function _umount() {
+    local mp="$1"
+    local err=0
+
+    if [ -d "$mp" ]; then
+        if [ ! -L "$mp" ]; then
+            _log1 "Unmount $mp"
+            $SUDO umount "$mp"
+            err=$?
+            [ "$err" = 0 ] || _err "    failed: $?."
+        fi
+    fi
+
+    return $err
+}
+
+boot "$@"
+
