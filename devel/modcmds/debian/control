@@ -1,14 +1,14 @@
-Source: modutils
+Source: modcmds
 Section: devel
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 9)
 Standards-Version: 3.9.5
-Homepage: http://uni.bodz.net/devel/modutils
+Homepage: http://uni.bodz.net/devel/modcmds
 Vcs-Git: git://git.bodz.net/uni.git
-Vcs-Browser: http://git.bodz.net/uni/devel/modutils
+Vcs-Browser: http://git.bodz.net/uni/devel/modcmds
 
-Package: modutils
+Package: modcmds
 Architecture: all
 Depends: 
     bash-shlib,

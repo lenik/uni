@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for modutils
+# prerm script for modcmds
 #
 # see: dh_installdeb(1)
 
@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-        /usr/share/setup/modutils/prerm
+        /usr/share/setup/modcmds/prerm
     ;;
 
     failed-upgrade)

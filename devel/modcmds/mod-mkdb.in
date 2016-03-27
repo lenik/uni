@@ -1,0 +1,62 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Re-create databases}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <mod project dir>...}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for arg in "$@"; do
+        if [ ! -d "$arg" ]; then
+            continue
+        fi
+        if [ ! -L "$arg" ]; then
+            continue
+        fi
+
+        code="${arg%/}"
+        home=$( readlink -f "$code" )
+        home="${home%/}"
+        name="${home##*/}"
+
+        _log1 "Re-create database $name"
+
+        _log2 "  - dropdb"
+        pgx dropdb $name 2>/dev/null
+
+        _log2 "  - createdb"
+        pgx createdb $name
+
+        if [ -f "$code/sql/Makefile" ]; then
+            _log2 "  - make all.sql"
+            make -BC "$code/sql" all.sql
+        fi
+
+        if [ -f "$code/sql/all.sql" ]; then
+            _log2 "  - psql -d$name -f$code/sql/all.sql"
+            pgx psql -d$name -f"$code/sql/all.sql"
+        fi
+    done
+}
+
+boot "$@"
