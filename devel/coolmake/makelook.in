@@ -4,10 +4,10 @@
     : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
 
     . shlib-import cliboot
-    option -p --prefix =PATH "Set install prefix, default $prefix"
-    option -k --keep        "Keep the tmp installed destdir"
-    option -i --ignores =PATH "Ignored pathnames for treetex, separated by :"
-    option -t --treedoc     "Generate complete tree document"
+    option -p --prefix =PATH    "Set install prefix, default $prefix"
+    option -k --keep            "Keep the tmp installed destdir"
+    option -i --ignores =PATH   "Ignored pathnames for treetex, separated by :"
+    option -t --treedoc         "Generate complete tree document"
     option -q --quiet
     option -v --verbose
     option -h --help
@@ -57,6 +57,11 @@ function setopt() {
 }
 
 function main() {
+    makeopts=()
+    if [ $LOGLEVEL -lt 1 ]; then
+        makeopts=( "${makeopts[@]}" -s )
+    fi
+
     if [ ! -f ./configure ]; then
         _log1 "Generate configure script by autoreconf2"
         autoreconf2 -is
@@ -111,7 +116,7 @@ function main() {
     _log1 "Create distribution tarball: $distz"
     TARZ="tar -a"
 
-    $MAKE -s dist
+    $MAKE "${makeopts[@]}" dist
 
     if [ $LOGLEVEL -ge 1 ]; then
         echo
@@ -123,7 +128,7 @@ function main() {
     rm -fR $tmpdestdir
 
     _log1 "Install to temporary destdir $tmpdestdir: "
-    if $MAKE -s install DESTDIR=$tmpdestdir prefix="$prefix"; then
+    if $MAKE "${makeopts[@]}" install DESTDIR=$tmpdestdir prefix="$prefix"; then
 
         # preview the tree
         tree -a $tmpdestdir
