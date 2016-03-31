@@ -1,0 +1,47 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Show movie identifiers}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <movie file>...}
+
+    . shlib-import cliboot
+    option -e --escape      "Escape special characters in C-style."
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_escape=0
+
+function setopt() {
+    case "$1" in
+        -e|--escape)
+            opt_escape=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for m in "$@"; do
+        _log1 "Movie $m"
+        mplayer -vo null -ao null -frames 0 -identify "$m" 2>/dev/null |
+            (
+                if [ "$opt_escape" = 1 ]; then
+                    sed -ne '/^ID_/ { s/[]()|&;<>`'"'"'\\!$" []/\\&/g;p }'
+                else
+                    grep '^ID_'
+                fi
+            )
+    done
+}
+
+boot "$@"

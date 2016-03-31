@@ -13,6 +13,8 @@ Architecture: all
 Depends: 
     mplayer,
     ${misc:Depends}
-Suggests:
+Recommends:
     smplayer
+Suggests:
+    zhspeak
 Description: mplayer utilities and wrappers.

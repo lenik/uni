@@ -1,0 +1,243 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=auto play next movies}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <movie>...}
+
+    . shlib
+    import cliboot
+    import strfn
+    import trash
+
+    option -s --speak           "Speak the filename before play"
+    option    --no-speak        "Never speak the filename before play"
+    option -m --mplayer         "Use mplayer always"
+    option -t --trash           "Trash the already played movies"
+    option -d --trash-dir =DIR  "Move the played movies to this dir"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_speak=
+    opt_timeout=5
+    opt_trash=0
+    opt_trash_dir=
+
+    player=auto
+    playeropts=()
+
+function setopt() {
+    case "$1" in
+        -s|--speak)
+            opt_speak=1;;
+        --no-speak)
+            opt_speak=0;;
+        -m|--mplayer)
+            player=mplayer;;
+        -t|--trash)
+            opt_trash=1;;
+        -d|--trash_dir)
+            opt_trash=1
+            opt_trash_dir="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    MPLAYER=$( which mplayer 2>/dev/null ) \
+        || quit "mplayer isn't installed."
+
+    if SPEAK=`which zhspeak.py 2>/dev/null`; then
+        if [ -z "$opt_speak" ]; then
+            opt_speak=1
+        fi
+    else
+        opt_speak=0
+    fi
+
+    if [ "$player" = auto ]; then
+        if which smplayer 2>&1 >/dev/null; then
+            player=smplayer
+            playeropts=( -close-at-end -fullscreen )
+        else
+            player=mplayer
+        fi 
+    fi
+
+    if [ "$player" = mplayer ]; then
+        player=$MPLAYER
+        playeropts=(-really-quiet -fs)
+        # playeropts=("${playeropts[@]}" -nolirc)
+    fi
+
+    for arg in "$@"; do
+        arg_dir="${arg%/*}"
+        arg_base="${arg##*/}"
+        if [ "$arg_dir" = "$arg" ]; then
+            arg_dir=.
+        fi
+
+        _log2 "Find sibling movies to $arg"
+        queue=()
+        n=0
+        cur=
+        for f in "$arg_dir"/*; do
+            base="${f##*/}"
+            hint=
+            is_movie "$f" || continue
+            if [ "$base" = "$arg_base" ]; then
+                cur=$n
+                hint=" (*active*)"
+            fi
+            _log3 "    $f$hint"
+            queue[n++]="$f"
+        done
+        if [ -z "$cur" ]; then
+            cur=$n
+        fi
+
+        while [ $cur -lt $n ]; do
+            cur1=$(( cur + 1 ))
+            f="${queue[cur]}"
+            
+            incr=1
+            do_trash=
+            end=
+
+            _log1 "Playing ($cur1/$n) $f"
+            if play "$f"; then
+                _log2 "    played $f"
+                if [ "$opt_trash" = 1 ]; then
+                    do_trash=1
+                fi
+            fi
+
+            timeout=$opt_timeout
+            while [ $timeout -gt 0 ]; do
+                echo -n $'\r'"Watch more? (H for help, $timeout seconds...) "
+                IFS='' read -n1 -t1 -r key
+
+                if [ -z "$key" ]; then
+                    (( timeout-- ))
+                else
+                    timeout=$opt_timeout
+                fi
+
+                case "$key" in
+                    H|h)
+                        echo
+                        echo "    n, <down>     Play the next movie"
+                        echo "    p, <up>       Play the previous movie"
+                        echo "    r             Replay this movie"
+                        echo "    q             Quit"
+                        echo "    ctrl-c        Cancel, don't trash the last movie"
+                        continue
+                        ;;
+                    N|n|B)        # down: OB
+                        break
+                        ;;
+                    P|p|A)        # up: OA
+                        incr=-1
+                        break
+                        ;;
+                    R|r)
+                        incr=0
+                        ;;
+                    Q|q)
+                        end=1
+                        ;;
+                    *)
+                        continue;;
+                esac
+                break
+            done
+            echo
+
+            [ "$do_trash" = 1 ] && trashormove "$f"
+            [ "$end" = 1 ] && return
+
+            (( cur += incr ))
+            if [ "$cur" -lt 0 ]; then
+                cur=$((n-1))
+            fi
+        done
+    done
+}
+
+movie_exts=(
+    26l 3ga 3gp 3p2
+    aac asf avi bink cpk dat flv
+    h263 h264 ifv
+    m2t mj2 mjp mjp2 mka mkv mov mp3 mp4 mpeg mpeg4 mpg mpg4
+    nut ogg ogm qt rm rmvb roq smi ts
+    vivo vob webm wma wmv
+)
+
+function is_movie() {
+    local f="$1"
+    local ext="${f##*.}"
+    if [ "$ext" = "$f" ]; then
+        ext=
+    else
+        ext=$( tolower "$ext" )
+    fi
+
+    local e
+    for e in "${movie_exts[@]}"; do
+        if [ "$e" = "$ext" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+function play() {
+    local f="$1"
+    local name="${f##*/}"
+    name="${name%.*}"
+    if [ "$opt_speak" = 1 ]; then
+        $SPEAK "$name" >/dev/null
+    fi
+
+    if [ "$LOGLEVEL" -le 2 ]; then
+        "$player" "${playeropts[@]}" "$f" 2>/dev/null
+    else
+        "$player" "${playeropts[@]}" "$f"
+    fi
+}
+
+function trashormove() {
+    if [ "$opt_trash" != 1 ]; then
+        return 0
+    fi
+
+    local f
+    for f in "$@"; do
+        if [ -z "$opt_trash_dir" ]; then
+            _log2 "Trash $f"
+            trash "$f"
+        else
+            local dir="${f%/*}"
+            local base="${f##*/}"
+            if [ "$dir" = "$f" ]; then
+                dir=.
+            fi
+            trashdir="$dir/$opt_trash_dir"
+            mkdir -p "$trashdir"
+            _log2 "Move $f to $trashdir"
+            mv -nv "$f" "$trashdir"
+        fi
+    done
+}
+
+boot "$@"
