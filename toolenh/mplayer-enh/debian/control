@@ -1,0 +1,18 @@
+Source: mplayer-enh
+Section: graphics
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/toolenh/mplayer-enh
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/toolenh/mplayer-enh
+
+Package: mplayer-enh
+Architecture: all
+Depends: 
+    mplayer,
+    ${misc:Depends}
+Suggests:
+    smplayer
+Description: mplayer utilities and wrappers.
