@@ -1,0 +1,21 @@
+Source: zhspeak
+Section: sound
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/alt/zhspeak
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/zhspeak
+
+Package: zhspeak
+Architecture: all
+Depends: 
+    python3,
+    ${misc:Depends}
+Description: A lightweight Chinese TTS.
+    This is a lightweight Chinese TTS, which uses the same voice files to Ekho. It has smaller package size (WAVE voice files are compressed in OGG format) and easier to install (written in Python).
+
+    Author: Dr Colin Kong (hob4bit at googlemail dot com)
+
+    Source download page: http://sourceforge.net/projects/e-guidedog/files/zhspeak/
