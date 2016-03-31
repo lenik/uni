@@ -15,7 +15,5 @@ Depends:
     ${misc:Depends}
 Description: A lightweight Chinese TTS.
     This is a lightweight Chinese TTS, which uses the same voice files to Ekho. It has smaller package size (WAVE voice files are compressed in OGG format) and easier to install (written in Python).
-
     Author: Dr Colin Kong (hob4bit at googlemail dot com)
-
     Source download page: http://sourceforge.net/projects/e-guidedog/files/zhspeak/
