@@ -4,12 +4,11 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.bodz.bas.html.dom.IHtmlTag;
-import net.bodz.bas.html.dom.tag.HtmlDdTag;
+import net.bodz.bas.html.io.IHtmlOut;
+import net.bodz.bas.html.io.tag.HtmlDd;
 import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.repr.viz.ViewBuilderException;
-import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
 
 public class Map_htm
@@ -20,7 +19,7 @@ public class Map_htm
     }
 
     @Override
-    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<Map<?, ?>> ref, IOptions options)
+    public IHtmlOut buildHtmlViewStart(IHtmlViewContext ctx, IHtmlOut out, IUiRef<Map<?, ?>> ref)
             throws ViewBuilderException, IOException {
         out = out.dd();
 
@@ -30,7 +29,7 @@ public class Map_htm
 
             out.dt().text(key.toString());
 
-            HtmlDdTag dd = out.dd();
+            HtmlDd dd = out.dd();
             embed(ctx, dd, value);
         }
 

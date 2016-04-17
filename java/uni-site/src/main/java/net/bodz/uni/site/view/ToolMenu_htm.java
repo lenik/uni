@@ -2,8 +2,8 @@ package net.bodz.uni.site.view;
 
 import java.io.IOException;
 
-import net.bodz.bas.html.dom.IHtmlTag;
-import net.bodz.bas.html.dom.tag.HtmlLiTag;
+import net.bodz.bas.html.io.IHtmlOut;
+import net.bodz.bas.html.io.tag.HtmlLi;
 import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.i18n.dom.iString;
@@ -11,7 +11,6 @@ import net.bodz.bas.potato.ref.UiHelper;
 import net.bodz.bas.potato.ref.UiPropertyRef;
 import net.bodz.bas.potato.ref.UiPropertyRefMap;
 import net.bodz.bas.repr.viz.ViewBuilderException;
-import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.uni.site.model.ToolMenu;
 
@@ -23,7 +22,7 @@ public class ToolMenu_htm
     }
 
     @Override
-    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<ToolMenu> ref, IOptions options)
+    public IHtmlOut buildHtmlViewStart(IHtmlViewContext ctx, IHtmlOut out, IUiRef<ToolMenu> ref)
             throws ViewBuilderException, IOException {
         UiPropertyRefMap propMap = UiHelper.explode(ref);
 
@@ -39,10 +38,10 @@ public class ToolMenu_htm
             iString label = prop.getLabel();
             out.div().class_("ui-caption").text(label);
 
-            HtmlLiTag li = out.li();
+            HtmlLi li = out.li();
             embed(ctx, li, prop);
         }
-
         return out;
     }
+
 }

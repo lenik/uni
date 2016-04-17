@@ -3,15 +3,14 @@ package net.bodz.bas.vcs;
 import java.io.IOException;
 
 import net.bodz.bas.c.java.util.Dates;
-import net.bodz.bas.html.dom.IHtmlTag;
-import net.bodz.bas.html.dom.tag.HtmlLiTag;
-import net.bodz.bas.html.dom.tag.HtmlPreTag;
-import net.bodz.bas.html.dom.tag.HtmlUlTag;
+import net.bodz.bas.html.io.IHtmlOut;
+import net.bodz.bas.html.io.tag.HtmlLi;
+import net.bodz.bas.html.io.tag.HtmlPre;
+import net.bodz.bas.html.io.tag.HtmlUl;
 import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.repr.path.IPathArrival;
 import net.bodz.bas.repr.viz.ViewBuilderException;
-import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.uni.site.model.Project;
 
@@ -25,7 +24,7 @@ public class VcsLogEntry_htm
     }
 
     @Override
-    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<IVcsLogEntry> ref, IOptions options)
+    public IHtmlOut buildHtmlViewStart(IHtmlViewContext ctx, IHtmlOut out, IUiRef<IVcsLogEntry> ref)
             throws ViewBuilderException, IOException {
         IVcsLogEntry ent = ref.get();
 
@@ -38,9 +37,9 @@ public class VcsLogEntry_htm
         out.div().text("Author: " + ent.getAuthorName());
         out.div().text("Date: " + Dates.D10T8.format(ent.getAuthorDate().getTime()));
 
-        HtmlUlTag ul = out.ul();
+        HtmlUl ul = out.ul();
         for (IFileChangement change : ent.getChanges()) {
-            HtmlLiTag li = ul.li();
+            HtmlLi li = ul.li();
 
             li.span().text(change.getStatus());
             li.span().text(change.getPath());
@@ -49,7 +48,7 @@ public class VcsLogEntry_htm
             case ADD:
             case MODIFY:
             case RENAME:
-                HtmlPreTag pre = li.pre().class_("prettyprint");
+                HtmlPre pre = li.pre().class_("prettyprint");
                 try {
                     for (String line : workingCopy.getDiff(change.getPath(), ent.getVersion())) {
                         pre.text(line);
@@ -64,7 +63,7 @@ public class VcsLogEntry_htm
         }
 
         out.script().src(prettifySrc);
-        return null;
+        return out;
     }
 
 }

@@ -2,11 +2,10 @@ package net.bodz.uni.site.view;
 
 import java.io.IOException;
 
-import net.bodz.bas.html.dom.IHtmlTag;
+import net.bodz.bas.html.io.IHtmlOut;
 import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.repr.viz.ViewBuilderException;
-import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.t.project.IJazzModule;
 import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.mda.xjdoc.Xjdocs;
@@ -20,7 +19,7 @@ public class Module_htm
     }
 
     @Override
-    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<IJazzModule> ref, IOptions options)
+    public IHtmlOut buildHtmlViewStart(IHtmlViewContext ctx, IHtmlOut out, IUiRef<IJazzModule> ref)
             throws ViewBuilderException, IOException {
         IJazzModule module = ref.get();
 

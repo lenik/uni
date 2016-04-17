@@ -3,14 +3,13 @@ package net.bodz.uni.site.view;
 import java.io.IOException;
 
 import net.bodz.bas.c.java.util.Dates;
-import net.bodz.bas.html.dom.IHtmlTag;
-import net.bodz.bas.html.dom.tag.HtmlLiTag;
-import net.bodz.bas.html.dom.tag.HtmlUlTag;
+import net.bodz.bas.html.io.IHtmlOut;
+import net.bodz.bas.html.io.tag.HtmlLi;
+import net.bodz.bas.html.io.tag.HtmlUl;
 import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.viz.IHtmlHeadData;
 import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.repr.viz.ViewBuilderException;
-import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.bas.vcs.IVcsLogEntry;
 import net.bodz.uni.site.IUniSiteAnchors;
@@ -28,8 +27,8 @@ public class Project_htm
     }
 
     @Override
-    public void preview(IHtmlViewContext ctx, IUiRef<Project> ref, IOptions options) {
-        super.preview(ctx, ref, options);
+    public void preview(IHtmlViewContext ctx, IUiRef<Project> ref) {
+        super.preview(ctx, ref);
 
         IHtmlHeadData metaData = ctx.getHeadData();
         Project project = ref.get();
@@ -42,9 +41,9 @@ public class Project_htm
     }
 
     @Override
-    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<Project> ref, IOptions options)
+    public IHtmlOut buildHtmlViewStart(IHtmlViewContext ctx, IHtmlOut out, IUiRef<Project> ref)
             throws ViewBuilderException, IOException {
-        if (enter(ctx, ref))
+        if (addSlash(ctx, ref))
             return null;
 
         Project project = ref.get();
@@ -55,7 +54,7 @@ public class Project_htm
 
         out = out.div().class_("project");
 
-        out.h1().textf("Project %s", name);
+        out.h1().text(String.format("Project %s", name));
         // embed(ctx, project.getStat());
         out.p().class_("description").text(project.getLabel());
 
@@ -65,10 +64,10 @@ public class Project_htm
         }
 
         out.h2().text("Download");
-        IHtmlTag panel = out.div().class_("panel").id("download");
+        IHtmlOut panel = out.div().class_("panel").id("download");
         panel = panel.ul();
         for (DownloadItem item : project.getDownloadItems()) {
-            HtmlLiTag li = panel.li();
+            HtmlLi li = panel.li();
             li.a().href(item.href).text(item.filename);
             li.text(" (" + item.fileSize + " bytes, " + Dates.YYYY_MM_DD.format(item.lastModified) + ")");
         }
@@ -78,12 +77,12 @@ public class Project_htm
 
         out.h2().text("Change Log");
         try {
-            HtmlUlTag ul = out.ul().class_("panel").id("changelog");
+            HtmlUl ul = out.ul().class_("panel").id("changelog");
             for (IVcsLogEntry ent : project.getLogs().values()) {
                 String subject = ent.getSubject();
                 boolean matching = subject.contains(project.getName());
 
-                HtmlLiTag li = ul.li().class_((matching ? "major" : "minor"));
+                HtmlLi li = ul.li().class_((matching ? "major" : "minor"));
 
                 li.span().class_("author").text(ent.getAuthorName());
                 li.span().text(": ");
@@ -97,7 +96,6 @@ public class Project_htm
         } catch (InterruptedException e) {
             throw new ViewBuilderException(e.getMessage(), e);
         }
-
         return out;
     }
 

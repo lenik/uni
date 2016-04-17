@@ -11,8 +11,8 @@ import javax.servlet.http.HttpSession;
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.html.artifact.ArtifactType;
 import net.bodz.bas.html.artifact.IArtifactDependency;
-import net.bodz.bas.html.dom.IHtmlTag;
-import net.bodz.bas.html.dom.tag.*;
+import net.bodz.bas.html.io.IHtmlOut;
+import net.bodz.bas.html.io.tag.*;
 import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.viz.IHtmlHeadData;
 import net.bodz.bas.html.viz.IHtmlViewContext;
@@ -22,7 +22,6 @@ import net.bodz.bas.potato.ref.UiPropertyRefMap;
 import net.bodz.bas.repr.path.IPathArrival;
 import net.bodz.bas.repr.path.PathArrivalEntry;
 import net.bodz.bas.repr.viz.ViewBuilderException;
-import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.t.pojo.Pair;
 import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.mda.xjdoc.Xjdocs;
@@ -53,8 +52,8 @@ public class UniSite_htm
     }
 
     @Override
-    public void preview(IHtmlViewContext ctx, IUiRef<UniSite> ref, IOptions options) {
-        super.preview(ctx, ref, options);
+    public void preview(IHtmlViewContext ctx, IUiRef<UniSite> ref) {
+        super.preview(ctx, ref);
 
         IHtmlHeadData metaData = ctx.getHeadData();
         metaData.setMeta(IHtmlHeadData.META_AUTHOR, "谢继雷 (Xiè Jìléi)");
@@ -65,9 +64,9 @@ public class UniSite_htm
     }
 
     @Override
-    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<UniSite> ref, IOptions options)
+    public IHtmlOut buildHtmlViewStart(IHtmlViewContext ctx, IHtmlOut out, IUiRef<UniSite> ref)
             throws ViewBuilderException, IOException {
-        if (enter(ctx, ref))
+        if (addSlash(ctx, ref))
             return null;
 
         UniSite site = ref.get();
@@ -80,7 +79,7 @@ public class UniSite_htm
         IPathArrival arrival = (IPathArrival) ctx.getRequest().getAttribute(IPathArrival.class.getName());
         boolean frameOnly = arrival.getPrevious(site).getRemainingPath() != null;
 
-        HtmlHeadTag head = out.head();
+        HtmlHead head = out.head();
         {
             writeHeadMetas(ctx, head);
             writeHeadImports(ctx, head);
@@ -104,9 +103,9 @@ public class UniSite_htm
 
         out = out.body();
 
-        HtmlDivTag menubar = out.div().class_("ui-menubar");
+        HtmlDiv menubar = out.div().class_("ui-menubar");
         {
-            HtmlSpanTag span = menubar.span().class_("ui-menu").id("m-tools");
+            HtmlSpan span = menubar.span().class_("ui-menu").id("m-tools");
             span.div().id("toolbox").text("Uni Tools");
             embed(ctx, span, propMap.getEntry("toolMenu"));
         }
@@ -115,8 +114,8 @@ public class UniSite_htm
         out.hr().class_("line");
 
         if (ref instanceof PathArrivalEntry) {
-            IHtmlTag nav = out.nav().ul();
-            for (IPathArrival a : arrival.toList(true)) {
+            IHtmlOut nav = out.nav().ul();
+            for (IPathArrival a : arrival.toList().mergeTransients()) {
                 Object target = a.getTarget();
 
                 String label;
@@ -128,29 +127,29 @@ public class UniSite_htm
                 }
 
                 String href = _webApp_.join(a.getConsumedFullPath() + "/").toString();
-                IHtmlTag tag = nav.li();
+                IHtmlOut tag = nav.li();
                 if (target != arrival.getTarget())
                     tag = tag.a().href(href);
                 tag.text(label);
             }
         }
 
-        HtmlDivTag mainDiv = out.div().id("main");
+        HtmlDiv mainDiv = out.div().id("main");
         if (!frameOnly)
             indexBody(mainDiv, site);
 
         ClassDoc classDoc = Xjdocs.getDefaultProvider().getClassDoc(site.getClass());
 
-        HtmlDivTag foot = out.div().class_("foot");
+        HtmlDiv foot = out.div().class_("foot");
         {
-            HtmlDivTag sectDiv = foot.div().class_("list");
+            HtmlDiv sectDiv = foot.div().class_("list");
             sectDiv.span().text("Section: ");
             for (Section section : site.getSectionMap().values()) {
                 String href = _webApp_.join(section.getName() + "/").toString();
                 sectDiv.a().href(href).text(section.getName());
             }
 
-            HtmlDivTag langDiv = foot.div();
+            HtmlDiv langDiv = foot.div();
             langDiv.span().text("Language: ");
             for (Pair<Language, String> langHref : getAltLangHrefs(ctx.getRequest()).values()) {
                 Language lang = langHref.getKey();
@@ -159,33 +158,32 @@ public class UniSite_htm
                 langDiv.a().href(langHref.getValue()).text(lang.getXjdoc().getText());
             }
 
-            HtmlDivTag powerDiv = foot.div();
+            HtmlDiv powerDiv = foot.div();
             powerDiv.span().text("Powered by: ");
             powerDiv.a().href(_webApp_.join("modules/bas-site/").toString()).text("BAS Site Framework 2.0");
 
             foot.text(classDoc.getTag("copyright"));
         }
 
-        ctx.setOut(mainDiv);
         return mainDiv;
     }
 
-    void indexBody(IHtmlTag out, UniSite site) {
-        HtmlH1Tag h1 = out.h1().text("List Of Projects");
+    void indexBody(IHtmlOut out, UniSite site) {
+        HtmlH1 h1 = out.h1().text("List Of Projects");
         h1.a().style("cursor: pointer").onclick("reloadSite()").text("[Reload]");
 
         for (Section section : site.getSectionMap().values()) {
-            HtmlDivTag div = out.div().class_("uni-section").id(section.getName());
+            HtmlDiv div = out.div().class_("uni-section").id(section.getName());
 
-            HtmlH2Tag h2 = div.h2();
+            HtmlH2 h2 = div.h2();
             h2.a().href(section.getName() + "/").text(section.getName());
             h2.text(" - " + section.getLabel());
 
-            HtmlDlTag dl = div.dl().class_("uni-projects");
+            HtmlDl dl = div.dl().class_("uni-projects");
             for (Project project : section.getProjects()) {
                 if (project.isPrivate())
                     continue;
-                HtmlATag a = dl.a().href(section.getName() + "/" + project.getName() + "/");
+                HtmlA a = dl.a().href(section.getName() + "/" + project.getName() + "/");
                 a.dt().text(project.getName());
 
                 dl.dd().text(project.getLabel());

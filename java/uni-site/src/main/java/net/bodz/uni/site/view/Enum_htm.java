@@ -4,16 +4,15 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.EnumSet;
 
-import net.bodz.bas.html.dom.IHtmlTag;
-import net.bodz.bas.html.dom.tag.HtmlATag;
-import net.bodz.bas.html.dom.tag.HtmlLiTag;
-import net.bodz.bas.html.dom.tag.HtmlUlTag;
+import net.bodz.bas.html.io.IHtmlOut;
+import net.bodz.bas.html.io.tag.HtmlA;
+import net.bodz.bas.html.io.tag.HtmlLi;
+import net.bodz.bas.html.io.tag.HtmlUl;
 import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
 import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.potato.provider.bean.BeanProperty;
 import net.bodz.bas.potato.ref.PropertyRefEntry;
 import net.bodz.bas.repr.viz.ViewBuilderException;
-import net.bodz.bas.rtx.IOptions;
 import net.bodz.bas.t.tree.IPathInfo;
 import net.bodz.bas.typer.std.IAttributes;
 import net.bodz.bas.ui.dom1.IUiRef;
@@ -31,7 +30,7 @@ public class Enum_htm
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public IHtmlTag buildHtmlView(IHtmlViewContext ctx, IHtmlTag out, IUiRef<Enum<?>> ref, IOptions options)
+    public IHtmlOut buildHtmlViewStart(IHtmlViewContext ctx, IHtmlOut out, IUiRef<Enum<?>> ref)
             throws ViewBuilderException, IOException {
         Enum<?> value = ref.get();
 
@@ -46,7 +45,7 @@ public class Enum_htm
         Method setter = property.getPropertyDescriptor().getWriteMethod();
         String setterPath = IPathInfo.fn.getFullPath(ref.getParent()) + "/" + setter.getName();
 
-        HtmlUlTag ul = out.ul().id(id).class_("ui-enum").attr("path", _webApp_ + setterPath);
+        HtmlUl ul = out.ul().id(id).class_("ui-enum").attr("path", _webApp_ + setterPath);
 
         for (Object _item : EnumSet.allOf((Class) enumType)) {
             Enum<?> item = (Enum<?>) _item;
@@ -59,9 +58,9 @@ public class Enum_htm
                 text = doc.getText().toString();
             }
 
-            HtmlLiTag li = ul.li().class_(active ? "ui-active" : "");
+            HtmlLi li = ul.li().class_(active ? "ui-active" : "");
 
-            HtmlATag a = li.a().attr("value", name);
+            HtmlA a = li.a().attr("value", name);
             if (attributed) {
                 IAttributes attributes = (IAttributes) item;
                 for (String attrName : attributes.getAttributeNames())
