@@ -1,0 +1,34 @@
+.ZwkTab.p1 {
+    border-bottom: 1px solid gray;
+    overflow: hidden;
+    width: 100%;
+
+    > ul {
+	    list-style-type: none;
+	    margin: 0;
+	    margin-left: 10px; /*offset of first tab relative to page left edge*/
+	    padding: 0;
+
+        > li {
+	        float: left;
+	        position: relative;
+	        top: 5px;
+	        margin: 0 0 0 3px;
+	        text-decoration: none;
+	        border-width: 6 8 2;
+	        border-image-source: url(img/ZwkTab1.png);
+	        border-image-slice: 6 8 2 8 fill;
+
+            &:hover {
+	            top: 0;
+	            padding-bottom: 5px;
+            }
+
+            &.selected {
+	            top: 0;
+	            padding-bottom: 5px;
+	            border-image-source: url(img/ZwkTab1-dark.png);
+            }
+        }
+    }
+}

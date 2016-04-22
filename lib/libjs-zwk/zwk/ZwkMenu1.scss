@@ -1,0 +1,73 @@
+
+@mixin menu-btn-normal {
+    color: black;
+    background-color: inherit;
+}
+
+@mixin menu-btn-highlight {
+    color: white;
+    background-color: hsl(210, 75%, 60%);
+}
+
+.ZwkMenuBar.p1 {
+    background-color: hsl(0, 0%, 95%);
+    box-shadow: 1px 3px 10px 0px rgba(0, 0, 0, .6);
+    cursor: pointer;
+    z-index: 10;
+
+    // ul.
+    list-style-type: none;
+    margin: 0;
+    padding: 0 0 0 1em;
+
+    &.-top {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width : 100%;
+    }
+
+    > li {
+        float : left;
+        padding: 2px 10px;
+        font-family: Arial, Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        @include menu-btn-normal;
+
+        &:hover {
+            @include menu-btn-highlight;
+        }
+    }
+}
+
+.ZwkMenu.p1 {
+    background: hsl(0, 0%, 95%);
+    border: solid 1px gray;
+    cursor: pointer;
+    position: absolute;
+    display: none;
+    box-shadow: 1px 5px 20px 0px rgba(0, 0, 0, .6);
+    z-index: 11;
+
+    // ul.
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+
+    > li {
+        font-family: Arial, Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        white-space: nowrap;
+        padding: 5px 12px;
+        @include menu-btn-normal;
+
+        &:hover {
+            @include menu-btn-highlight;
+        }
+    }
+
+    > hr {
+        margin: 2 2;
+    }
+
+}
