@@ -1,0 +1,57 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Print the relative path}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ContextDir File...}
+
+    . shlib
+    import cliboot
+    import relpath
+
+    option -f --canonicalize    "Use canonicalized forms"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_norm=
+
+function setopt() {
+    case "$1" in
+        -f|--canonicalize)
+            opt_norm=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $# -lt 1 ]; then
+        quit "ContextDir isn't specified."
+    fi
+
+    ctxdir="$1"
+    shift
+
+    if [ "$opt_norm" = 1 ]; then
+        ctxdir=$( readlink -f "$ctxdir" )
+    fi
+
+    for arg in "$@"; do
+        if [ "$opt_norm" = 1 ]; then
+            arg=$( readlink -f "$arg" )
+        fi
+
+        getrelpath "$ctxdir" "$arg"
+    done
+}
+
+boot "$@"

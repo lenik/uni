@@ -1,4 +1,5 @@
 *.1
 findabc1
+relpath
 shlib
 shlib-import
