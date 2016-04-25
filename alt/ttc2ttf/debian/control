@@ -1,0 +1,18 @@
+Source: ttc2ttf
+Section: fonts
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/alt/ttc2ttf
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/ttc2ttf
+
+Package: ttc2ttf
+Architecture: all
+Depends: 
+    python3,
+    ${misc:Depends}
+Description: Extract TTF fonts from .TTC (TrueType Collection).
+    First released as C++ program by Hiroyuki Tsutsumi as part of the free software suite “Beer”
+    I thought porting it to Python could be both a challenge and useful
