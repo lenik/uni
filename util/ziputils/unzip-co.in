@@ -1,0 +1,76 @@
+#!/bin/bash
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    PROGRAM_TITLE="Check out files in the zip file"
+    PROGRAM_SYNTAX="[OPTIONS] [--] FILE.zip FILENAMES..."
+
+    : ${UNRAR:=unrar}
+    : ${UNZIP:=unzip}
+    : ${_7Z:=7z}
+    : ${BSDTAR:=bsdtar}
+
+    . shlib
+    import cliboot
+    import trash
+
+    option -o --out =FILE       "Print the content of each file in the list to FILE"
+    option -k --keep            "Keep extracted files"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+    
+    opt_out=
+    opt_keep=
+    
+function setopt() {
+    case "$1" in
+        -o|--out)
+            opt_out="$2";;
+        -k|--keep)
+            opt_keep=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    zip="$1"
+    [ -f "$zip" ] || quit "The zip file isn't specified."
+    shift
+    [ "$#" = 0 ] && quit "No file list specified."
+    
+    origdir="$PWD"
+    zip_f=`readlink -f "$zip"`
+
+    tmpdir=`mktemp -d` || quit "Failed to create tmp dir"
+    cd "$tmpdir"
+
+    for arg in "$@"; do
+        unzip "$zip_f" "$arg" \
+            | while read mesg; do
+                _log1 "$mesg"
+            done
+
+        if [ -n "$opt_out" ]; then
+            cat "$arg" >>"$opt_out"
+        else
+            cat "$arg"
+        fi
+        
+        if [ "$opt_keep" != 1 ]; then
+            rm -f "$arg"
+        fi
+    done
+
+    rm -fr "$tmpdir"
+}
+
+boot "$@"
