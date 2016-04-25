@@ -1,0 +1,165 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Auto rename font filename}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot strfn
+    option -a --auto            'Auto determine the filename'
+    option -f --family          'Use family as the filename'
+    option -u --fullname        'Use full name as the filename'
+    option -p --psname          'Use PostScript name as the filename'
+    option -n --no-version      'Exclude version number in the filename'
+    option -w --with-version    'Include version number in the filename'
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_mode=auto
+    opt_version=0
+
+    # for +( ) pattern matching
+    shopt -s extglob    || quit "require extglob"
+    shopt -s nullglob   || quit "require nullglob"
+
+function setopt() {
+    case "$1" in
+        -a|--auto)
+            opt_mode=auto;;
+        -f|--family)
+            opt_mode=family;;
+        -u|--fullname)
+            opt_mode=fullname;;
+        -p|--psname)
+            opt_mode=psname;;
+        -n|--no-version)
+            opt_version=0;;
+        -w|--with-version)
+            opt_version=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for f in "$@"; do
+        if [ ! -f "$f" ]; then
+            _warn "Not a file: $f"
+            continue
+        fi
+        
+        dir="${f%/*}"
+        base="${f##*/}"
+        if [ "$dir" = "$f" ]; then
+            dir=.
+        fi
+
+        name="${base%.*}"
+        ext="${base##*.}"
+        if [ "$name" = "$base" ]; then
+            ext=
+        else
+            ext=$(tolower ".$ext")
+        fi
+        
+        dst=
+        case "$ext" in
+            .ttf)
+                dst=$( parse "$f" );;
+                
+            .ttc)
+                tmpdir=$( mktemp -d ) || quit "Failed to create tmp dir."
+                abs=$( readlink -f "$f" )
+                tmpsrc=$tmpdir/src.ttc
+                _log1 "Extract $abs in $tmpdir..."
+                ln -snf "$abs" "$tmpsrc"
+                ttc2ttf "$tmpsrc"
+                
+                dst=
+                for ttf in "$tmpdir"/*.ttf; do
+                    dst=$( parse "$ttf" )
+                    _log1 "Use the first TTF name as filename: $dst"
+                    break
+                done
+                if [ -z "$dst" ]; then
+                    _error "No TTF extracted."
+                fi
+                rm -fr "$tmpdir"
+                ;;
+        esac
+        
+        [ -z "$dst" ] && continue
+        
+        if [ "$base" = "$dst$ext" ]; then
+            _log2 "Same file: $f"
+            continue
+        fi
+
+        mv -v -n "$f" "$dir/$dst$ext"
+        
+    done
+}
+
+function parse() {
+    local family=
+    local subfamily=
+    local fullname=
+    local psname=
+    local version=
+    while IFS=: read k v; do
+        v="${v##+([[:space:]])}"
+        v="${v%%+([[:space:]])}"
+        s="${v// /}"
+        case "$k" in
+            'Family')
+                family="$s";;
+            'Subfamily')
+                subfamily="$s";;
+            'Full name')
+                fullname="$s";;
+            'PostScript name')
+                psname="$s";;
+            'Version')
+                version="$v";;
+        esac
+    done < <(otfinfo --info "$1")
+
+    local dst=
+    case "$opt_mode" in
+        auto)
+            dst="$fullname"
+            #[ -z "$dst" ] && dst="$psname"
+            [ -z "$dst" ] && dst="$family"
+            ;;
+        family)
+            dst="$family";;
+        fullname)
+            dst="$fullname";;
+        psname)
+            dst="$psname";;
+    esac
+    
+    if [ -n "$version" ] && [ "$opt_version" = 1 ]; then
+        m=$( echo "$version" | sed -e 's/[0-9.]\+/<<&>>/' )
+        m=${m#*<<}
+        m=${m%%>>*}
+        if [ "$m" != "$version" ]; then
+            _log2 "Extract version number $m from string $version."
+            version="$m"
+        fi
+        dst="$dst-$version"
+    fi
+
+    echo "$dst"
+}
+
+boot "$@"
