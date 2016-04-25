@@ -1,0 +1,16 @@
+Source: hackscripts
+Section: admin
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/hack/hackscripts
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/hack/hackscripts
+
+Package: hackscripts
+Architecture: all
+Depends: 
+    bash-shlib,
+    ${misc:Depends}
+Description: Hacker's scripts
