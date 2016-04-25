@@ -1,0 +1,98 @@
+#!/bin/bash
+    RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
+    PROGRAM_TITLE="Supersede the owner/permission on current work dir"
+    PROGRAM_SYNTAX="[OPTIONS] [--] [FILES default .]"
+
+    . shlib
+    import cliboot
+    import trash
+
+    option -s --single          "No recursive"
+    option -a --all             "Same as -ugrwX"
+    option -u --user            "Chown to me, and chmod user bits"
+    option -g --group           "Chgrp to my group, and chmod group bits"
+    option -o --other           "Only chmod other bits"
+    option -r -w -x -X          "Chmod bits"
+    option    --dry-run         "Show commands to be run only"
+    option -o --out =FILE       "Print the content of each file in the list to FILE"
+    option -k --keep            "Keep extracted files"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+    
+    opt_recursive=1
+    opt_user=
+    opt_group=
+    opt_other=
+    chmod_r=
+    chmod_w=
+    chmod_x=
+    chmod_X=
+
+    EXEC=sudo
+
+function setopt() {
+    case "$1" in
+        -s|--single)
+            opt_recursive=;;
+        -a|--all)
+            opt_user=1
+            opt_group=1
+            chmod_r=1
+            chmod_w=1
+            chmod_X=1
+            ;;
+        -u|--user)
+            opt_user=1;;
+        -g|--group)
+            opt_group=1;;
+        -o|--other)
+            opt_other=1;;
+        -r)
+            chmod_r=1;;
+        -w)
+            chmod_w=1;;
+        -x)
+            chmod_x=1;;
+        -X)
+            chmod_X=1;;
+        --dry-run)
+            EXEC=echo;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    [ -z "$USER" ]  && USER=`whoami`
+    [ -z "$GROUP" ] && read GROUP MINOR_GROUPS < <(groups)
+
+    [ $# = 0 ] && set .
+
+    if [ "$opt_user$opt_group" = 11 ]; then
+        $EXEC chown ${opt_recursive:+-R} "$USER:$GROUP" "$@"
+    else
+        [ -z "$opt_user" ]  || $EXEC chown ${opt_recursive:+-R} "$USER" "$@"
+        [ -z "$opt_group" ] || $EXEC chgrp ${opt_recursive:+-R} "$GROUP" "$@"
+    fi
+    
+    sel="${opt_user:+u}${opt_group:+g}"
+    mod="${chmod_r:+r}${chmod_w:+w}${chmod_x:+x}${chmod_X:+X}"
+    mod="${mod:=r}"
+    
+    _log1 "chmod $sel+$mod $@"
+    if [ -n "$mod" ]; then
+        $EXEC chmod ${opt_recursive:+-R} "$sel+$mod" "$@"
+    fi
+}
+
+boot "$@"
