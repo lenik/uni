@@ -1,0 +1,17 @@
+Source: unrar-enh
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://uni.bodz.net/toolenh/unrar-enh
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/toolenh/unrar-enh
+
+Package: unrar-enh
+Architecture: all
+Depends: 
+    bash-shlib,
+    unrar,
+    ${misc:Depends}
+Description: Unrar shortcuts.
