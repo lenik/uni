@@ -2,9 +2,9 @@ package net.bodz.uni.site.view;
 
 import java.io.IOException;
 
+import net.bodz.bas.html.dom.IHtmlHeadData;
 import net.bodz.bas.html.io.IHtmlOut;
 import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.viz.IHtmlHeadData;
 import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.ui.dom1.IUiRef;
@@ -18,7 +18,7 @@ public class Preferences_htm
     }
 
     @Override
-    public void preview(IHtmlViewContext ctx, IUiRef<Preferences> ref) {
+    public void precompile(IHtmlViewContext ctx, IUiRef<Preferences> ref) {
         IHtmlHeadData metaData = ctx.getHeadData();
         metaData.setTitle("User Preferences");
     }

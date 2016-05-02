@@ -7,7 +7,6 @@ import net.bodz.bas.http.config.IServletContextConfigurer;
 import net.bodz.bas.http.config.ServletContextConfig;
 import net.bodz.bas.http.config.ServletDescriptor;
 import net.bodz.bas.http.ctx.CurrentHttpService;
-import net.bodz.bas.http.ctx.CurrentServletContext;
 
 public class DefaultServerConfig
         extends ServletContextConfig {
@@ -28,7 +27,6 @@ public class DefaultServerConfig
         addWelcomeFile("index.html");
         addWelcomeFile("index.htm");
 
-        addServletContextListener(new CurrentServletContext());
         addServletRequestListener(new CurrentHttpService());
         addServletRequestListener(new RequestLogger());
 

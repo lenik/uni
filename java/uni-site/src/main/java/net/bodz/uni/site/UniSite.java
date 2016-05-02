@@ -129,6 +129,9 @@ public class UniSite
     public synchronized IPathArrival dispatch(IPathArrival previous, ITokenQueue tokens)
             throws PathDispatchException {
         String token = tokens.peek();
+        if (token == null)
+            return null;
+
         Section section = sectionMap.get(token);
         if (section != null)
             return PathArrival.shift(previous, section, tokens);

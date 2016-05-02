@@ -27,7 +27,7 @@ public class MapTable_htm<V>
     }
 
     @Override
-    public void preview(IHtmlViewContext ctx, IUiRef<Map<?, V>> ref) {
+    public void precompile(IHtmlViewContext ctx, IUiRef<Map<?, V>> ref) {
         for (Entry<?, V> entry : ref.get().entrySet()) {
             UiValue<V> valueRef = UiValue.wrap(entry.getValue());
             valueViewBuilder.precompile(ctx, valueRef);

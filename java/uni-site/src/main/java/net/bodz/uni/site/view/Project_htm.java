@@ -3,11 +3,11 @@ package net.bodz.uni.site.view;
 import java.io.IOException;
 
 import net.bodz.bas.c.java.util.Dates;
+import net.bodz.bas.html.dom.IHtmlHeadData;
 import net.bodz.bas.html.io.IHtmlOut;
 import net.bodz.bas.html.io.tag.HtmlLi;
 import net.bodz.bas.html.io.tag.HtmlUl;
 import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.viz.IHtmlHeadData;
 import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.repr.viz.ViewBuilderException;
 import net.bodz.bas.ui.dom1.IUiRef;
@@ -27,8 +27,8 @@ public class Project_htm
     }
 
     @Override
-    public void preview(IHtmlViewContext ctx, IUiRef<Project> ref) {
-        super.preview(ctx, ref);
+    public void precompile(IHtmlViewContext ctx, IUiRef<Project> ref) {
+        super.precompile(ctx, ref);
 
         IHtmlHeadData metaData = ctx.getHeadData();
         Project project = ref.get();
@@ -43,7 +43,7 @@ public class Project_htm
     @Override
     public IHtmlOut buildHtmlViewStart(IHtmlViewContext ctx, IHtmlOut out, IUiRef<Project> ref)
             throws ViewBuilderException, IOException {
-        if (addSlash(ctx, ref))
+        if (fn.redirect.addSlash(ctx, ref))
             return null;
 
         Project project = ref.get();

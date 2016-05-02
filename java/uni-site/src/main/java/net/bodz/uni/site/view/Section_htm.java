@@ -22,14 +22,14 @@ public class Section_htm
     }
 
     @Override
-    public void preview(IHtmlViewContext ctx, IUiRef<Section> ref) {
-        super.preview(ctx, ref);
+    public void precompile(IHtmlViewContext ctx, IUiRef<Section> ref) {
+        super.precompile(ctx, ref);
     }
 
     @Override
     public IHtmlOut buildHtmlViewStart(IHtmlViewContext ctx, IHtmlOut out, IUiRef<Section> ref)
             throws ViewBuilderException, IOException {
-        if (addSlash(ctx, ref))
+        if (fn.redirect.addSlash(ctx, ref))
             return null;
 
         Section section = ref.get();

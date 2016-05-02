@@ -4,15 +4,15 @@ import java.io.File;
 
 import net.bodz.bas.c.m2.MavenPomDir;
 import net.bodz.bas.err.IllegalConfigException;
-import net.bodz.bas.fn.IEvaluable;
+import net.bodz.bas.repr.path.INoPathRef;
 
 public class UniSiteFromSrc
-        implements IEvaluable<UniSite> {
+        implements INoPathRef {
 
     private UniSite val = new UniSite(getUniDirFromSrc());
 
     @Override
-    public UniSite eval() {
+    public UniSite getTarget() {
         return val;
     }
 

@@ -2,8 +2,8 @@ package net.bodz.uni.site;
 
 import net.bodz.bas.html.servlet.PathDispatchServlet;
 import net.bodz.bas.http.config.ServletDescriptor;
-import net.bodz.bas.http.ctx.CurrentRequestScope;
-import net.bodz.bas.i18n.LocaleScr;
+import net.bodz.bas.http.ctx.RequestScopeTeller;
+import net.bodz.bas.i18n.LocaleVars;
 import net.bodz.uni.echo._default.DefaultServerConfig;
 
 public class UniSiteServerConfig
@@ -15,8 +15,8 @@ public class UniSiteServerConfig
     }
 
     void configEnv() {
-        LocaleScr localeCtl = LocaleScr.LOCALE;
-        localeCtl.setTeller(new CurrentRequestScope());
+        LocaleVars localeCtl = LocaleVars.LOCALE;
+        localeCtl.setTeller(new RequestScopeTeller());
     }
 
     void configServlets() {

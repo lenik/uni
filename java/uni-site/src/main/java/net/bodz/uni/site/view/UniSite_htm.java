@@ -11,10 +11,10 @@ import javax.servlet.http.HttpSession;
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.html.artifact.ArtifactType;
 import net.bodz.bas.html.artifact.IArtifactDependency;
+import net.bodz.bas.html.dom.IHtmlHeadData;
 import net.bodz.bas.html.io.IHtmlOut;
 import net.bodz.bas.html.io.tag.*;
 import net.bodz.bas.html.viz.AbstractHtmlViewBuilder;
-import net.bodz.bas.html.viz.IHtmlHeadData;
 import net.bodz.bas.html.viz.IHtmlViewContext;
 import net.bodz.bas.i18n.dom1.IElement;
 import net.bodz.bas.potato.ref.UiHelper;
@@ -52,8 +52,8 @@ public class UniSite_htm
     }
 
     @Override
-    public void preview(IHtmlViewContext ctx, IUiRef<UniSite> ref) {
-        super.preview(ctx, ref);
+    public void precompile(IHtmlViewContext ctx, IUiRef<UniSite> ref) {
+        super.precompile(ctx, ref);
 
         IHtmlHeadData metaData = ctx.getHeadData();
         metaData.setMeta(IHtmlHeadData.META_AUTHOR, "谢继雷 (Xiè Jìléi)");
@@ -66,7 +66,7 @@ public class UniSite_htm
     @Override
     public IHtmlOut buildHtmlViewStart(IHtmlViewContext ctx, IHtmlOut out, IUiRef<UniSite> ref)
             throws ViewBuilderException, IOException {
-        if (addSlash(ctx, ref))
+        if (fn.redirect.addSlash(ctx, ref))
             return null;
 
         UniSite site = ref.get();
@@ -81,8 +81,7 @@ public class UniSite_htm
 
         HtmlHead head = out.head();
         {
-            writeHeadMetas(ctx, head);
-            writeHeadImports(ctx, head);
+            fn.head.writeHeadData(ctx, head);
 
             // lang alternatives
             for (Entry<String, Pair<Language, String>> entry : getAltLangHrefs(ctx.getRequest()).entrySet()) {

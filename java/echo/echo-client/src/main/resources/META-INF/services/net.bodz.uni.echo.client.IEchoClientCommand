@@ -1,0 +1,4 @@
+net.bodz.uni.echo.client.BrowseCommand
+net.bodz.uni.echo.client.HelpCommand
+net.bodz.uni.echo.client.PrintCommand
+net.bodz.uni.echo.client.QuitCommand

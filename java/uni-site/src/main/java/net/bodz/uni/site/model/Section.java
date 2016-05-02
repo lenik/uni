@@ -157,6 +157,9 @@ public class Section
     public IPathArrival dispatch(IPathArrival previous, ITokenQueue tokens)
             throws PathDispatchException {
         String token = tokens.peek();
+        if (token == null)
+            return null;
+
         Project project = projectMap.get(token);
         if (project == null)
             return null;
