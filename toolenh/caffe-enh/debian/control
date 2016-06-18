@@ -1,0 +1,16 @@
+Source: caffe-enh
+Section: graphics
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>=9)
+Standards-Version: 3.9.8
+Homepage: http://uni.bodz.net/toolenh/caffe-enh
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/toolenh/caffe-enh
+
+Package: caffe-enh
+Architecture: any
+Depends:
+    bash-shlib,
+    ${shlibs:Depends}, ${misc:Depends}
+Description: Caffe utilities.
