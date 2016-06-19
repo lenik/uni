@@ -12,7 +12,7 @@ SCRIPT=/usr/share/setup/$PACKAGE_NAME/prerm
 #        * <deconfigured's-prerm> `deconfigure' `in-favour'
 #          <package-being-installed> <version> `removing'
 #          <conflicting-package> <version>
-# for details, see 
+# for details, see
 # the debian-policy package
 
 case "$1" in
