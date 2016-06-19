@@ -1,0 +1,17 @@
+Source: ttfstr
+Section: fonts
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>=9)
+Standards-Version: 3.9.8
+Homepage: http://uni.bodz.net/graphics/ttfstr
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/graphics/ttfstr
+
+Package: ttfstr
+Architecture: any
+Depends:
+    bash-shlib,
+    ${shlibs:Depends},
+    ${misc:Depends}
+Description: Create picture of string with font files.
