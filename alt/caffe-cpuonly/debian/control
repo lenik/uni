@@ -1,0 +1,29 @@
+Source: caffe-cpuonly
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends:
+    debhelper (>=9),
+    libatlas-base-dev,
+    libgflags-dev,
+    libgoogle-glog-dev,
+    libhdf5-serial-dev,
+    libleveldb-dev,
+    liblmdb-dev,
+    libopencv-dev,
+    libprotobuf-dev,
+    libsnappy-dev,
+    protobuf-compiler
+Standards-Version: 3.9.8
+Homepage: http://uni.bodz.net/alt/caffe-cpuonly
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/caffe-cpuonly
+
+Package: caffe-cpuonly
+Architecture: any
+Depends:
+    bash-shlib,
+    ${shlibs:Depends},
+    ${misc:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
