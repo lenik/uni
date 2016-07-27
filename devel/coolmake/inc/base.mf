@@ -1,0 +1,76 @@
+SHELL = bash
+
+project = $(notdir $(PWD))
+
+remotehost = localhost
+remotedir = /tmp
+remote = $(remotehost):$(remotedir)
+
+sharedir = share
+
+bin_files = \
+    bin/ \
+    lib/ \
+    target/
+
+src_excludes = \
+    target
+
+
+all: \
+    ../$(project).bin.tar.gz \
+    ../$(project).src.tar.gz
+
+all-text: \
+    ../$(project).bin.tgz.txt \
+    ../$(project).src.tgz.txt
+
+%.tgz.txt: %.tar.gz
+	mv -nv "$<" "$@"
+
+../$(project).bin.tar.%: $(bin_PRE)
+	tar caf "$@" \
+	    --dereference \
+	    --exclude-vcs \
+	    --transform 's,^,$(project)/,' \
+		$(bin_files) \
+	    `[ -d $(sharedir) ] && (cd $(sharedir); echo -C $(sharedir) *)`
+
+../$(project).src.tar.%:
+	shopt -s dotglob; \
+	tar caf "$@" \
+	    --exclude-vcs \
+	    --exclude=$(gitworkcopy) \
+	    --exclude=$(svnworkcopy) \
+	    --exclude=$(sharedir) \
+	    $(addprefix --exclude=, $(src_excludes)) \
+	    --transform 's,^,$(project)/,' \
+	    *
+
+gitworkcopy = gitworkcopy
+svnworkcopy = svnworkcopy
+
+svn-update-and-merge-into:
+	cd $(svnworkcopy); \
+	    svn update
+	git clone `vcscmd rootpath` $(gitworkcopy)
+	cd $(gitworkcopy); \
+	    git subtree split -P `vcscmd localname` -b $(project); \
+	    git checkout $(project)
+	cp -afT $(gitworkcopy)/ $(svnworkcopy)/
+	rm -fR $(gitworkcopy)
+
+svn-pushlastcommit: svn-update-and-merge-into
+	@echo
+	@echo Commit to svn with message:
+	@git log --format='%s' HEAD~.. .
+	@echo
+	msg=$$(git log --format='%s' HEAD~.. .); \
+	    cd $(svnworkcopy); \
+	    svn status; \
+	    svn commit -m "$$msg" .; \
+	    svn update
+
+ver:
+	@echo project: $(project)
+	@echo remote: $(remote)

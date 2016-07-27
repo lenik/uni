@@ -1,7 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ -z "$MAKE" ]; then
     MAKE=make
+    makeopts=(-I "@incdir@")
+else
+    makeopts=()
 fi
 
 if [ -z "$1" ]; then
@@ -30,6 +33,6 @@ cp -f $mkorig $mktmp
 echo "$test_target: ">>$mktmp
 echo "	$test_rule">>$mktmp
 
-$MAKE -f "$mktmp" "$@" $test_target
+$MAKE "${makeopts[@]}" -f "$mktmp" "$@" $test_target
 
 rm -f $mktmp

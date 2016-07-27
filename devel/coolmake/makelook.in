@@ -57,7 +57,7 @@ function setopt() {
 }
 
 function main() {
-    makeopts=()
+    makeopts=(-I "@incdir@")
     if [ $LOGLEVEL -lt 1 ]; then
         makeopts=( "${makeopts[@]}" -s )
     fi

@@ -1,0 +1,18 @@
+selfdir := $(dir $(lastword $(MAKEFILE_LIST)))
+include $(selfdir)/base.mf
+
+bin_files += \
+    lib/ \
+    target/
+
+src_excludes = \
+    target
+
+update-lib:
+	rm -f .classpath.main .classpath.test
+	rm -f lib/*
+	mjpl -v --deps 2>&1 \
+	    | grep -Po '/.*\.jar' \
+	    | while read f; do cp "$$f" lib/; done
+
+bin_PRE += update-lib

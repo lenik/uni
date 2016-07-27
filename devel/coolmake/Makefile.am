@@ -1,6 +1,11 @@
 include libauto/project.am
 
+incdir = ${includedir}
 samplesdir = ${docdir}/samples
+
+do_subst += \
+    -e 's,@incdir@,${incdir},g' \
+    -e 's,@samplesdir@,${samplesdir},g'
 
 dist_bin_SCRIPTS = \
     amexpand \
@@ -28,3 +33,7 @@ dist_man_MANS = \
 CLEANFILES = \
     ${dist_bin_SCRIPTS} \
     ${dist_man_MANS}
+
+install-data-hook:
+	mkdir -p ${DESTDIR}${incdir}
+	cp -a inc/ ${DESTDIR}${incdir}/coolmake
