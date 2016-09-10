@@ -26,19 +26,17 @@ function setopt() {
 
 function main() {
     if [ $# = 0 ]; then
-        quit "Filename to monitor isn't specified."
+        quit "No file to monitor."
     fi
 
-    file="$1"
-    shift
-
-    while read event; do
-        _log2 "File event: $file: $event"
-    done < <(inotifywait -q --format "%e" \
+    while read line; do
+        _log2 "inotifywait: $line"
+    done < <(
+        inotifywait -q --format "%e %f" \
             -e close_write \
             -e move_self \
             -e delete_self \
-            "$file")
+            "$@" )
 }
 
 boot "$@"
