@@ -47,11 +47,14 @@ lenik_DATA = \
     童话.db
 
 nets_DATA = \
+    lan.db \
     lo.db \
-    p.db \
     zoo.db \
     zoo-i.db \
     zoo-pi.db
+
+lan.db: lan.db.php
+	php $< >$@
 
 CLEANFILES = \
     ${bindconf_DATA} \

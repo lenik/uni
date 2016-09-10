@@ -1,7 +1,7 @@
 # vim: set filetype=named :
 
+zone "l"                { type master; file "@netsdir@/lan.db"; };
 zone "lo"               { type master; file "@netsdir@/lo.db"; };
-zone "p"                { type master; file "@netsdir@/p.db"; };
 
 zone "j"                { type master; file "@netsdir@/zoo.db"; };
 zone "zoo"              { type master; file "@netsdir@/zoo.db"; };
