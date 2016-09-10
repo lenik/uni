@@ -4,71 +4,85 @@
 
 " Misc
 "
-set modeline
-set modelines=10
+    set modeline
+    set modelines=10
 
-filetype plugin on
+    filetype plugin on
 
-set t_Co=256
-colorscheme torte
-:nmap <F7>  :colorscheme koehler<CR>
-:nmap <F8>  :colorscheme blue<CR>
+" Color Scheme
+    set t_Co=256
+    colorscheme torte
+    nmap <F7>  :colorscheme koehler<CR>
+    nmap <F8>  :colorscheme blue<CR>
+
+
+    " With the default backslash leader key,
+    "   typing \l and \c will toggle highlighting on and off.
+    nnoremap <Leader>l :set cursorline!<CR>
+    nnoremap <Leader>c :set cursorcolumn!<CR>
+
+    highlight CursorLine cterm=NONE ctermbg=darkcyan ctermfg=white
+    highlight CursorLine guibg=darkcyan guifg=white
+    highlight CursorColumn cterm=NONE ctermbg=darkcyan ctermfg=white
+    highlight CursorColumn guibg=darkcyan guifg=white
+
+    set cursorline
 
 " Tab/Space
 "
-set expandtab
-set tabstop=8
-set softtabstop=4
-set shiftwidth=4
-set smartindent
-set smarttab
+    set expandtab
+    set tabstop=8
+    set softtabstop=4
+    set shiftwidth=4
+    set smartindent
+    set smarttab
 
 " Buffer Management
 "
-:nmap <C-S>      :w<CR>
-:imap <C-S> <C-O>:w<CR>
+    nmap <C-S>      :w<CR>
+    imap <C-S> <C-O>:w<CR>
 
 " Windows Management
 "
-:set mousefocus
+    set mousefocus
 
-:map <F4>       :q<CR>
-:map <F6>       <C-W>w
-:nmap <Tab>     <C-W>w
+    map <F4>       :q<CR>
+    map <F6>       <C-W>w
+    nmap <Tab>     <C-W>w
 
-:nmap -         <C-W>-
-:nmap +         <C-W>+
-:map -        <C-W>-
-:map +        <C-W>+
-:map <        <C-W><
-:map >        <C-W>>
+    nmap -         <C-W>-
+    nmap +         <C-W>+
+    map -        <C-W>-
+    map +        <C-W>+
+    map <        <C-W><
+    map >        <C-W>>
 
-:nmap <silent> <A-Left>     :wincmd h<CR>
-:nmap <silent> <A-Down>     :wincmd j<CR>
-:nmap <silent> <A-Up>       :wincmd k<CR>
-:nmap <silent> <A-Right>    :wincmd l<CR>
+    nmap <silent> <A-Left>     :wincmd h<CR>
+    nmap <silent> <A-Down>     :wincmd j<CR>
+    nmap <silent> <A-Up>       :wincmd k<CR>
+    nmap <silent> <A-Right>    :wincmd l<CR>
 
-:nmap <silent> h          :wincmd h<CR>
-:nmap <silent> j          :wincmd j<CR>
-:nmap <silent> k          :wincmd k<CR>
-:nmap <silent> l          :wincmd l<CR>
+    nmap <silent> h          :wincmd h<CR>
+    nmap <silent> j          :wincmd j<CR>
+    nmap <silent> k          :wincmd k<CR>
+    nmap <silent> l          :wincmd l<CR>
 
 " Paste Raw Texts
 "
-:nmap <F2>      :set invpaste paste?<CR>
-:imap <F2> <C-O>:set invpaste paste?<CR>
-:set pastetoggle=<F2>
+    nmap <F2>      :set invpaste paste?<CR>
+    imap <F2> <C-O>:set invpaste paste?<CR>
+    set pastetoggle=<F2>
 
 " Insert
 "
-:nnoremap <F5>       "=strftime("%y-%m-%d %H:%M:%S ")<CR>P
-:inoremap <F5>   <C-R>=strftime("%y-%m-%d %H:%M:%S ")<CR>
-:nnoremap <S-F5>     "=strftime("%c ")<CR>P
-:inoremap <S-F5> <C-R>=strftime("%c ")<CR>
+    nnoremap <F5>       "=strftime("%y-%m-%d %H:%M:%S ")<CR>P
+    inoremap <F5>   <C-R>=strftime("%y-%m-%d %H:%M:%S ")<CR>
+    nnoremap <S-F5>     "=strftime("%c ")<CR>P
+    inoremap <S-F5> <C-R>=strftime("%c ")<CR>
 
 " Disable beep and flash
 "
-set noerrorbells visualbell t_vb=
-if has('autocmd')
-    autocmd GUIEnter * set visualbell t_vb=
-endif
+    set noerrorbells visualbell t_vb=
+    if has('autocmd')
+        autocmd GUIEnter * set visualbell t_vb=
+    endif
