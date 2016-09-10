@@ -1,6 +1,7 @@
 include _libauto/project.am
 
 libautodir = $(pkgdatadir)/libauto
+makeincdir = ${includedir}
 
 dist_bin_SCRIPTS = \
     autoinit \
@@ -25,3 +26,5 @@ CLEANFILES = \
 
 install-data-hook:
 	cp -R $(srcdir)/_libauto $(DESTDIR)$(libautodir)
+	mkdir -p $(DESTDIR)$(makeincdir)
+	ln -snf $(libautodir) $(DESTDIR)$(makeincdir)/libauto
