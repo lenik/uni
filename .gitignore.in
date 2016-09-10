@@ -96,6 +96,7 @@ config.rpath                            # gettextize
 config.status
 config.sub
 configure                               # configure.ac
+debhelper-build-stamp
 depcomp
 install-sh                              # autoreconf -i
 itree.tex                               # makelook

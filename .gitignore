@@ -96,6 +96,7 @@ config.rpath
 config.status
 config.sub
 configure
+debhelper-build-stamp
 depcomp
 install-sh
 itree.tex
