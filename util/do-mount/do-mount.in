@@ -93,7 +93,7 @@ function child-nbd() {
 }
 
 function mkenv() {
-    local dev="$1"
+    local dev=$(readlink -f "$1")
 
     local workdir=
     local olddir=
