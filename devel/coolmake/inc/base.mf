@@ -8,6 +8,9 @@ remote = $(remotehost):$(remotedir)
 
 sharedir = share
 
+gitworkcopy = gitworkcopy
+svnworkcopy = svnworkcopy
+
 bin_files = \
     bin/ \
     lib/ \
@@ -28,7 +31,7 @@ all-text: \
 %.tgz.txt: %.tar.gz
 	mv -nv "$<" "$@"
 
-../$(project).bin.tar.%: $(bin_PRE)
+../$(project).bin.tar.%: .
 	tar caf "$@" \
 	    --dereference \
 	    --exclude-vcs \
@@ -36,7 +39,7 @@ all-text: \
 		$(bin_files) \
 	    `[ -d $(sharedir) ] && (cd $(sharedir); echo -C $(sharedir) *)`
 
-../$(project).src.tar.%:
+../$(project).src.tar.%: .
 	shopt -s dotglob; \
 	tar caf "$@" \
 	    --exclude-vcs \
@@ -46,9 +49,6 @@ all-text: \
 	    $(addprefix --exclude=, $(src_excludes)) \
 	    --transform 's,^,$(project)/,' \
 	    *
-
-gitworkcopy = gitworkcopy
-svnworkcopy = svnworkcopy
 
 svn-update-and-merge-into:
 	cd $(svnworkcopy); \
@@ -74,3 +74,16 @@ svn-pushlastcommit: svn-update-and-merge-into
 ver:
 	@echo project: $(project)
 	@echo remote: $(remote)
+
+deploy_archives = \
+    ../$(project).bin.tar.gz
+deploy_ar_names = $(notdir $(deploy_archives))
+
+deploy: $(deploy_archives)
+	scp $< $(remote)
+	ssh $(remotehost) \
+            'cd $(remotedir); \
+            for ar in $(deploy_ar_names); do \
+                tar xaf $$ar; \
+                rm $$ar; \
+            done'
