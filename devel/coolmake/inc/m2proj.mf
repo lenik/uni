@@ -1,8 +1,12 @@
+# vim: set ft=make :
+
 selfdir := $(dir $(lastword $(MAKEFILE_LIST)))
 include $(selfdir)/base.mf
 
+libdir = lib
+
 bin_files += \
-    lib/ \
+    $(libdir)/ \
     target/
 
 src_excludes = \
@@ -10,9 +14,11 @@ src_excludes = \
 
 update-lib:
 	rm -f .classpath.main .classpath.test
-	rm -f lib/*
-	mjpl -v --deps 2>&1 \
+	mkdir -p $(libdir)
+	rm -f $(libdir)/*
+	mjpl -t -v --deps 2>&1 \
 	    | grep -Po '/.*\.jar' \
-	    | while read f; do cp "$$f" lib/; done
+	    | while read f; do cp -nv "$$f" $(libdir)/; done
 
 bin_PRE += update-lib
+
