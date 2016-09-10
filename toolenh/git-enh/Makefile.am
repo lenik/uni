@@ -24,6 +24,9 @@ dist_alias_DATA = \
     10git-enh.sh \
     sw-git.sh
 
+dist_complconf_DATA = \
+    completion/git-enh
+
 dist_man_MANS = \
     bare2co.1 \
     co2bare.1 \
