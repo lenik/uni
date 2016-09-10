@@ -4,13 +4,18 @@
     PROGRAM_SYNTAX="[OPTIONS] [--] ..."
 
     . shlib-import cliboot
+    option -c --console     'Run in console mode (alloc screen by default)'
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
 
+    console=
+
 function setopt() {
     case "$1" in
+        -c|--console)
+            console=1;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -25,15 +30,22 @@ function setopt() {
 }
 
 function main() {
+    sshopts=(-v)
 
     # -T disable pseudo-tty allocation
     # -f go to background after login but before command exec
     # -n stdin from /dev/null, must be used when ssh is run in bg.
+    sshopts=("${sshopts[@]}" -Tn)
+
     # -N no command
     # -D "dynamic" app-level port forwarding.
+    sshopts=("${sshopts[@]}" -N -D '*:7878')
 
-    sudoscreen -usshproxy autossh -vTn -ND *:7878 sshproxy.bodz.net
-
+    if [ "$console" = 1 ]; then
+        sudo -usshproxy ssh "${sshopts[@]}" sshproxy.bodz.net
+    else
+        sudoscreen -usshproxy autossh "${sshopts[@]}" sshproxy.bodz.net
+    fi
 }
 
 boot "$@"
