@@ -26,3 +26,15 @@ else {
 foreach my $package (@{$dh{DOPACKAGES}}) {
     print udeb_filename($package) . "\n";
 }
+
+# This function is marked as unused and dropped from Dh_Lib.pm.
+# Generates the filename that is used for a udeb package.
+sub udeb_filename {
+        my $package=shift;
+
+        my $filearch=package_arch($package);
+        isnative($package); # side effect
+        my $version=$dh{VERSION};
+        $version=~s/^[0-9]+://; # strip any epoch
+        return "${package}_${version}_$filearch.udeb";
+}
