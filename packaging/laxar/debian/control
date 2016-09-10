@@ -14,7 +14,7 @@ Depends:
     bash-shlib,
     libcmt-perl,
     libdigest-md5-perl,
-    libdigest-sha1-perl
+    libdigest-sha-perl,
     perl,
     ${misc:Depends}
 Description: Archivar used in Lapiota.
