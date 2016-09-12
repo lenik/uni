@@ -1,0 +1,98 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -d --vchar =CHAR "Specify version delimiter char, default 'v'"
+    option -f --force       "Force to overwrite existing files"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_force=
+    opt_vchar=v
+
+function setopt() {
+    case "$1" in
+        -f|--force)
+            opt_force=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for f in "$@"; do
+        dir="${f%/*}"
+        base="${f##*/}"
+        if [ "$f" = "$base" ]; then
+            dir=.
+        fi
+
+        name="${base%.*}"
+        ext="${base##*.}"
+        if [ "$base" = "$name" ]; then
+            ext=
+        else
+            ext=".$ext"
+        fi
+
+        stem="${name%-$opt_vchar*}"
+        name_date="${name##*-$opt_vchar}"
+        if [ ! -z "${name_date//[0-9-]/}" ]; then
+            stem="$name"
+            name_date=
+        fi
+
+        time=$(stat -c%Y "$f")
+        datestr=$(date -d "1970-01-01 + $time secs" '+%F')
+
+        (
+            cd "$dir"
+
+            stem_date_ext="$stem-$opt_vchar$datestr$ext"
+            if [ "$base" = "$stem_date_ext" ]; then
+                _log2 "ignore: $f"
+                continue
+            fi
+
+            if [ -e "$stem_date_ext" ]; then
+                if [ "$opt_force" != 1 ]; then
+                    _log1 "file existed: $stem_date_ext"
+                    continue
+                else
+                    _log1 "overwrite $stem_date_ext"
+                fi
+            fi
+
+            stem_ext="$stem$ext"
+            if [ "$base" != "$stem_ext" ]; then
+                _log1 "fix version: $stem_ext ($base) -> $stem_date_ext"
+                if [ -e "$stem_ext" ]; then
+                    if [ "$opt_force" != 1 ]; then
+                        _log1 "file existed: $stem_ext"
+                        continue
+                    else
+                        _log1 "overwrite $stem_ext"
+                    fi
+                fi
+            fi
+
+            mv "$base" "$stem_date_ext"
+            ln -snf "$stem_date_ext" "$stem$ext"
+        )
+    done
+}
+
+boot "$@"
