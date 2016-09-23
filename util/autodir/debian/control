@@ -1,0 +1,18 @@
+Source: autodir
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>=9)
+Standards-Version: 3.9.8
+Homepage: http://uni.bodz.net/util/autodir
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/util/autodir
+
+Package: autodir
+Architecture: all
+Depends:
+    bash-alias,
+    bash-completion,
+    bash-shlib,
+    ${misc:Depends}
+Description: Directory as an shell environment.
