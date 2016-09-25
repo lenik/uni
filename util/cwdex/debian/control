@@ -1,14 +1,14 @@
-Source: autodir
+Source: cwdex
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>=9)
 Standards-Version: 3.9.8
-Homepage: http://uni.bodz.net/util/autodir
+Homepage: http://uni.bodz.net/util/cwdex
 Vcs-Git: git://git.bodz.net/uni.git
-Vcs-Browser: http://git.bodz.net/uni/util/autodir
+Vcs-Browser: http://git.bodz.net/uni/util/cwdex
 
-Package: autodir
+Package: cwdex
 Architecture: all
 Depends:
     bash-alias,
