@@ -1,0 +1,17 @@
+Source: screen-enh
+Section: misc
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>=9)
+Standards-Version: 3.9.8
+Homepage: http://uni.bodz.net/toolenh/screen-enh
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/toolenh/screen-enh
+
+Package: screen-enh
+Architecture: all
+Depends:
+    bash-alias,
+    screen,
+    ${misc:Depends}
+Description: screen shortcuts
