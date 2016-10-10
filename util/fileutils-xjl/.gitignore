@@ -4,5 +4,6 @@ fix-symlinks
 overlay-ln
 ren-mkdirs
 ren-r
+ren-symback
 ren-timever
 symflatten

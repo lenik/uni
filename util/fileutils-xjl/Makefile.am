@@ -13,6 +13,7 @@ dist_bin_SCRIPTS = \
     overlay-ln \
     ren-mkdirs \
     ren-r \
+    ren-symback \
     ren-timever \
     swap \
     symfl \
@@ -23,6 +24,7 @@ dist_bin_SCRIPTS = \
 dist_man_MANS = \
     chmod-autofix.1 \
     fix-symlinks.8 \
+    ren-symback.1 \
     ren-timever.1 \
     symfl.1 \
     mv-p.1

@@ -1,0 +1,67 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Rename sym->ver back to filename w/o ver}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -f --force       "Force to overwrite existing files"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_force=
+
+function setopt() {
+    case "$1" in
+        -f|--force)
+            opt_force=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for f in "$@"; do
+        if [ ! -L "$f" ]; then
+            _log2 "ignored non-symlink: $f"
+            continue
+        fi
+
+        dir="${f%/*}"
+        base="${f##*/}"
+        if [ "$f" = "$base" ]; then
+            dir=.
+        fi
+
+        (
+            cd "$dir"
+
+            dst=$(readlink "$base")
+            if ! mv -n "$base" "$base.deltmp"; then
+                _err "Failed to rename $base to $base.deltmp."
+                continue
+            fi
+
+            if ! mv -n "$dst" "$base"; then
+                _err "Failed to move $dir/$dst to $dir/$base."
+                _log2 "Restore $base: rename back from $base.deltmp."
+                mv -n "$base.deltmp" "$base"
+                continue
+            fi
+
+            rm "$base.deltmp"
+        )
+    done
+}
+
+boot "$@"
