@@ -6,9 +6,10 @@ epom
 get-common-prefix
 git-m2ver
 jetty
+m2deploy
 m2graph
 m2help
-m2installfile
+m2install
 m2layout
 m2localdeps
 m2localgraph

@@ -14,9 +14,10 @@ dist_bin_SCRIPTS = \
     epom \
     git-m2ver \
     jetty \
+    m2deploy \
     m2graph \
     m2help \
-    m2installfile \
+    m2install \
     m2layout \
     m2localdeps \
     m2localgraph \
@@ -47,10 +48,11 @@ dist_man_MANS = \
     edit2.1 \
     git-m2ver.1 \
     newmod.1 \
+    m2deploy.1 \
     m2deploy.cfg.5 \
     m2graph.1 \
     m2help.1 \
-    m2installfile.1 \
+    m2install.1 \
     m2layout.1 \
     m2localdeps.1 \
     m2localgraph.1 \
@@ -72,12 +74,12 @@ dist_pkgdata_DATA = \
     ng2txt.xsl \
     archetypes
 
-#archetype-catalog.xml: Makefile
-#	mvn -Dcatalog=$@ archetype:crawl
+archetype-catalog.xml:
+	mvn -Dcatalog=$@ archetype:crawl
 
-#archetypes: archetype-catalog.xml Makefile
-#	xmltran -f "//archetype:=concat(groupId, ':', artifactId, ':', version, ':', normalize-space(translate(description, '&#10;', ' ')), '&#10;')" \
-#		$(srcdir)/archetype-catalog.xml >$@
+archetypes:
+	xmltran -f "//archetype:=concat(groupId, ':', artifactId, ':', version, ':', normalize-space(translate(description, '&#10;', ' ')), '&#10;')" \
+		$(srcdir)/archetype-catalog.xml >$@
 
 EXTRA_DIST =
 CLEANFILES = \

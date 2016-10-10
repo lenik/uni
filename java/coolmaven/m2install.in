@@ -4,7 +4,7 @@
     : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
 
     . shlib-import cliboot
-    option -g --group-id =ID    "Specify group-id, term 'D' or 'DIR' to use the relative dirname"
+    option -g --group-id =ID    "Specify group-id, default get from dirname"
     option -a --artifact-id =ID "Specify artifact-id, default get from filename"
     option -w --ver =VER        "Specify version, default get from filename"
     option -s --sources-jar =FILE "The corresponding sources, default artifactid-VER-sources.jar"
@@ -18,6 +18,7 @@
     option    --version
 
     sysconfdir=@sysconfdir@
+    [ -d "$sysconfdir" ] || sysconfdir=/etc
 
     deploy=0
         case "$0" in
@@ -28,6 +29,7 @@
     artifact_id=
     version=
     packaging=
+    pomfile=
     sources_jar=
     javadoc_jar=
     repo_id=
@@ -90,23 +92,38 @@ function main() {
         exit 1
     fi
 
-    file="$1"
-    case "$group_id" in
-        D|DIR)
-            dir="${file%/*}"
+    local file="$1"
+    local dir="${file%/*}"
+        if [ "$dir" = "$file" ]; then
+            dir=.
+        else
             dir="${dir#./}"
-            group_id="${dir//\//.}"
-            ;;
-    esac
+        fi
+
+        local nslash=0
+        local s="$dir"
+        while true; do
+            [ "$s" = "${s%/*}" ] && break
+            s="${s%/*}"
+            (( nslash++ ))
+        done
 
     if [ -z "$group_id" ]; then
-        parent=`jar tf "$file" | grep -e '^[a-z]\+/' | grep -v '/$' | get-common-prefix`
-        _log1 "Auto determine group id by longest-parent-dir: $parent"
+        if [ $nslash -ge 2 ]; then      # foo/bar/foobar/1.2.3 -> foo.bar
+            dir_ver="${dir##*/}"
+            dir_chop="${dir%/*}"
+            dir_artifact="${dir_chop##*/}"
+            dir_chop="${dir_chop%/*}"
+            group_id="${dir_chop//\//.}"
+        else
+            parent=`jar tf "$file" | grep -e '^[a-z]\+/' | grep -v '/$' | get-common-prefix`
+            _log1 "Auto determine group id by longest-parent-dir: $parent"
 
-        # assert parent is "*/" or "*/<partial-name>"
-        parent="${parent%/*}"
+            # assert parent is "*/" or "*/<partial-name>"
+            parent="${parent%/*}"
 
-        group_id="${parent//\//.}"
+            group_id="${parent//\//.}"
+        fi
     fi
 
     extension="${file##*.}"
@@ -143,24 +160,27 @@ function main() {
         artifact_id="$base_nover"
     fi
 
-    if [ -z "$sources_jar" ]; then
-        if [ -f "$base-sources.jar" ]; then
-            sources_jar="$base-sources.jar"
-        elif [ -f "$base-sources.zip" ]; then
-            sources_jar="$base-sources.zip"
-        elif [ -f "$base-src.jar" ]; then
-            sources_jar="$base-src.jar"
-        elif [ -f "$base-src.zip" ]; then
-            sources_jar="$base-src.zip"
+    if [ -z "$pomfile" ]; then
+        if [ -f "$dir/$base.pom" ]; then
+            pomfile="$dir/$base.pom"
         fi
     fi
 
+    if [ -z "$sources_jar" ]; then
+        for s in sources.jar sources.zip src.jar src.zip; do
+            if [ -f "$dir/$base-$s" ]; then
+                sources_jar="$dir/$base-$s"
+                break
+            fi
+        done
+    fi
+
     if [ -z "$javadoc_jar" ]; then
-        if [ -f "$base-javadoc.jar" ]; then
-            javadoc_jar="$base-javadoc.jar"
-        elif [ -f "$base-javadoc.zip" ]; then
-            javadoc_jar="$base-javadoc.zip"
-        fi
+        for s in javadoc.jar javadoc.zip; do
+            if [ -f "$dir/$base-$s" ]; then
+                javadoc_jar="$dir/$base-$s"
+            fi
+        done
     fi
 
     if [ "$deploy" = 1 ]; then
@@ -175,11 +195,14 @@ function main() {
     opts[nopt++]="-Dversion=$version"
     opts[nopt++]="-Dpackaging=$packaging"
     opts[nopt++]="-Dfile=$file"
-    if [ -f "$javadoc_jar" ]; then opts[nopt++]="-Djavadoc=$javadoc_jar"; fi
-    if [ -f "$sources_jar" ]; then opts[nopt++]="-Dsources=$sources_jar"; fi
 
-    if [ -n "$repo_id" ]; then opts[nopt++]="-DrepositoryId=$repo_id"; fi
-    if [ -n "$repo_url" ]; then opts[nopt++]="-Durl=$repo_url"; fi
+    [ -f "$pomfile" ]     && opts[nopt++]="-DpomFile=$pomfile"
+
+    [ -f "$javadoc_jar" ] && opts[nopt++]="-Djavadoc=$javadoc_jar"
+    [ -f "$sources_jar" ] && opts[nopt++]="-Dsources=$sources_jar"
+
+    [ -n "$repo_id" ]     && opts[nopt++]="-DrepositoryId=$repo_id"
+    [ -n "$repo_url" ]    && opts[nopt++]="-Durl=$repo_url"
 
     _log1 "Execute mvn ${opts[@]}"
     mvn "${opts[@]}"

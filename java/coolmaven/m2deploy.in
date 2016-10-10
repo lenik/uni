@@ -1,0 +1,126 @@
+#!/bin/bash
+    . shlib-import cliboot
+
+    RCSID='$Id: bash.sh 2255 2011-01-01 06:58:58Z lenik $'
+    short_opts="m:hqv"
+    long_opts="match:,help,quiet,verbose,version"
+
+    opt_match=
+
+function version() {
+    parse_id "$RCSID"
+    echo "[$BASENAME] Deploy all jars under this directory"
+    echo "Written by Lenik, Version 0.$rcs_rev, Last updated at $rcs_date"
+}
+
+function help() {
+    version
+    echo
+    echo "Syntax: "
+    echo "    $0 [OPTION] [--] REPO-ID REPO-URL [file.jar ...]"
+    echo
+    echo "Options: "
+    echo "    -m, --match=PATTERN     Only file name with pattern"
+    echo "    -q, --quiet             Repeat to get less info"
+    echo "    -v, --verbose           Repeat to get more info"
+    echo "    -h, --help              Show this help page"
+    echo "        --version           Print the version info"
+    echo
+    echo "Available repositories for distribution: "
+    echo "    lo                http://m2.local"
+    echo "    seccareleases     http://m2.bee32.com/archiva/repository/internal"
+    echo "    seccasnapshots    http://m2.bee32.com/archiva/repository/snapshots"
+}
+
+function setopt() {
+    case "$1" in
+        -m|--match)
+            opt_match="$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $# -lt 2 ]; then help; exit 1; fi
+
+    repo_id="$1"
+    repo_url="$2"
+    shift 2
+
+    if [ $# = 0 ]; then
+        find . -name '*.jar' | while IFS='|' read jar; do
+            _deploy "$jar"
+        done
+    else
+        for jar in "$@"; do
+            _deploy "$jar"
+        done
+    fi
+}
+
+function _deploy() {
+    local jar="$1"
+
+    if [ -n "$opt_match" ]; then
+        if [ "${jar/$opt_match}" = "$jar" ]; then
+            # not contained.
+            continue
+        else
+            _log2 "Matched jar"
+        fi
+    fi
+
+    local path="${jar#./}"
+    local dir="${path%/*}"
+    local base="${path##*/}"
+    local name="${base%.jar}"
+
+    if [ "$name" != "${name%-source}" ]; then
+        _log2 "Skipped source jar"
+        continue
+    fi
+
+    local group_id="${dir//\//.}"
+    local artifact_id="${name%-*}"
+    local version="${name##*-}"
+    local packaging="${base##*.}"
+    local generatePom=true
+
+    _log1 "Deploy $jar ($group_id:$artifact_id:$version:$packaging) to $repo_id"
+
+    cmd=( mvn deploy:deploy-file
+        -DgroupId="$group_id"
+        -DartifactId="$artifact_id"
+        -Dversion="$version"
+        -Dfile="$jar"
+        -Dpackaging="$packaging"
+        -DrepositoryId="$repo_id"
+        -Durl="$repo_url" )
+    _log2 "Execute ${cmd[@]}"
+    "${cmd[@]}"
+
+    sourcejar="$dir/$name-source.jar"
+    if [ -f "$sourcejar" ]; then
+        cmd=( mvn deploy:deploy-file
+            -DgroupId="$group_id"
+            -DartifactId="$artifact_id"
+            -Dversion="$version"
+            -Dfile="$sourcejar"
+            -Dpackaging="java-source"
+            -DgeneratePom="false"
+            -DrepositoryId="$repo_id"
+            -Durl="$repo_url" )
+        _log2 "Execute ${cmd[@]}"
+        "${cmd[@]}"
+    fi
+}
+boot "$@"
