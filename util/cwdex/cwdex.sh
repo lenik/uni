@@ -53,9 +53,9 @@ function cwdex-cd() {
     return 0
 }
 
-alias _cd='builtin cd'
-alias _pushd='builtin pushd'
-alias _popd='builtin popd'
+alias __cd='builtin cd'
+alias __pushd='builtin pushd'
+alias __popd='builtin popd'
 
 alias cd='cwdex-cd cd'
 alias chdir='cwdex-cd cd'
