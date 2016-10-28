@@ -11,18 +11,18 @@
     option -h --help
     option    --version
 
-    opt_layout=simple
+    opt_layout=auto
 
 function setopt() {
     case "$1" in
         -l|--layout)
             case "$2" in
-                simple)
-                    opt_layout=simple;;
-                db)
-                    opt_layout=db;;
-                dbhtm)
-                    opt_layout=dbhtm;;
+                auto)
+                    opt_layout=auto;;
+                baseimpl)
+                    opt_layout=baseimpl;;
+                separate)
+                    opt_layout=separate;;
                 *)
                     quit "Bad layout name: $2";;
             esac;;
@@ -48,44 +48,97 @@ function main() {
         pkg=${fqcn%.*}
         Base=${fqcn##*.}
         [ "$Base" != "$fqcn" ] || quit "Not an FQCN: $fqcn"
-        dir_pojo=${pkg//.//}
 
-        case "$opt_layout" in
-            simple)
-                pkg_db=$pkg.impl
-                pkg_web=$pkg.impl
-                dir_db=$dir_pojo/impl
-                dir_web=$dir_pojo/impl
+        pkg_pojo="$pkg"
+        layout=$opt_layout
+        if [ "$layout" = auto ]; then
+            case "$pkg" in
+                *.model)
+                    pkg=${pkg_pojo%.*}
+                    layout=separate
+                    ;;
+                *)
+                    layout=baseimpl
+                    ;;
+            esac
+        fi
+
+        case "$layout" in
+            baseimpl)
+                pkg_db=$pkg_pojo.impl
+                pkg_web=$pkg_pojo.impl
                 ;;
-            db)
-                pkg_db=${pkg%.*}.db
-                pkg_web=${pkg}
-                dir_db=${dir_pojo%/*}/db
-                dir_web=${dir_pojo}
-                ;;
-            dbhtm)
-                pkg_db=${pkg%.*}.db
-                pkg_web=${pkg%.*}.htm
-                dir_db=${dir_pojo%/*}/db
-                dir_web=${dir_pojo%/*}/htm
+            separate)
+                pkg_db=$pkg.db
+                pkg_web=$pkg.htm
                 ;;
         esac
+        dir_pojo=${pkg_pojo//.//}
+        dir_db=${pkg_db//.//}
+        dir_web=${pkg_web//.//}
         
         B=${Base:0:1}
         base="$(tolower $B)${Base:1}"
         _log1 "Generating files for $pkg::$Base $base (in */$dir_pojo)."
 
-        mk_ent          "src/main/java/$dir_pojo/$Base.java"
-        mk_ent_htm      "src/main/java/$dir_web/${Base}_htm.java"
-        mk_htm_inf      "$pkg_web.${Base}_htm"
-        mk_criteria     "src/main/java/$dir_db/${Base}Criteria.java"
-        mk_mapper       "src/main/java/$dir_db/${Base}Mapper.java"
-        mk_mapper_xml   "src/main/resources/$dir_db/${Base}Mapper.xml"
-        mk_mapper_inf   "$pkg_db.${Base}Mapper"
-        mk_index        "src/main/java/$dir_web/${Base}Index.java"
-        mk_index_inf    "$pkg_web.${Base}Index"
-        mk_index_htm    "src/main/java/$dir_web/${Base}Index_htm.java"
-        mk_htm_inf      "$pkg_web.${Base}Index_htm"
+                  f_ent="src/main/java/$dir_pojo/$Base.java"
+                 f_mask="src/main/java/$dir_db/${Base}Mask.java"
+
+               f_mapper="src/main/java/$dir_db/${Base}Mapper.java"
+           f_mapper_xml="src/main/resources/$dir_db/${Base}Mapper.xml"
+
+              f_ent_htm="src/main/java/$dir_web/${Base}_htm.java"
+          f_ent_htm_css="src/main/resources/$dir_web/${Base}_htm.css"
+           f_ent_htm_js="src/main/resources/$dir_web/${Base}_htm.js"
+
+                f_index="src/main/java/$dir_web/${Base}Index.java"
+            f_index_htm="src/main/java/$dir_web/${Base}Index_htm.java"
+        f_index_htm_css="src/main/resources/$dir_web/${Base}Index_htm.css"
+         f_index_htm_js="src/main/resources/$dir_web/${Base}Index_htm.js"
+
+              f_htm_inf="$pkg_web.${Base}_htm"
+           f_mapper_inf="$pkg_db.${Base}Mapper"
+            f_index_inf="$pkg_web.${Base}Index"
+              f_htm_inf="$pkg_web.${Base}Index_htm"
+
+              see_alsos=()
+        for f in \
+                "$f_mask" \
+                "$f_mapper" \
+                "$f_ent_htm" \
+                "$f_index" \
+                "$f_index_htm" \
+                ; do
+            c="${f#src/main/java/}"
+            c="${c%.java}"
+            c="${c//\//.}"
+            see_alsos=("${see_alsos[@]}" "$c")
+        done
+        for f in \
+                "$f_mapper_xml" \
+                "$f_ent_htm_css" \
+                "$f_ent_htm_js" \
+                "$f_index_htm_css" \
+                "$f_index_htm_js" \
+                ; do
+            see_alsos=("${see_alsos[@]}" "$f")
+        done
+
+        mk_ent          "$f_ent"
+        mk_ent_htm      "$f_ent_htm"
+        touch           "$f_ent_htm_css"
+        touch           "$f_ent_htm_js"
+        mk_htm_inf      "$f_htm_inf"
+        mk_mask         "$f_mask"
+        mk_mapper       "$f_mapper"
+        mk_mapper_xml   "$f_mapper_xml"
+        mk_mapper_inf   "$f_mapper_inf"
+        mk_index        "$f_index"
+        mk_index_inf    "$f_index_inf"
+        mk_index_htm    "$f_index_htm"
+        touch           "$f_index_htm_css"
+        touch           "$f_index_htm_js"
+        mk_htm_inf      "$f_htm_inf"
     done
 }
 
@@ -111,11 +164,18 @@ function findfile() {
 function mk_ent() {
     file="$1"
     findfile "$file" && return
-    cat <<EOT >"$file"
-package $pkg;
 
-import com.tinylily.model.base.CoEntity;
-
+    echo "package $pkg;" >"$file"
+    echo >>"$file"
+    echo "import com.tinylily.model.base.CoEntity;" >>"$file"
+    echo >>"$file"
+    echo "/**" >>"$file"
+    for s in "${see_alsos[@]}"; do
+        echo " * @see $s" >>"$file"
+    done
+    echo "*/" >>"$file"
+    
+    cat <<EOT >>"$file"
 @IdType(Integer.class)
 public class $Base
         extends CoEntity<Integer> {
@@ -160,26 +220,26 @@ public class ${simplename}
 EOT
 }
 
-function mk_criteria() {
+function mk_mask() {
     file="$1"
     findfile "$file" && return
     cat <<EOT >"$file"
 package $pkg_db;
 
 import net.bodz.bas.err.ParseException;
-
-import com.tinylily.model.base.CoObjectCriteria;
+import net.bodz.bas.t.variant.IVariantMap;
+import net.bodz.lily.model.base.CoObjectMask;
 
 /**
  * @see $fqcn
  */
-public class ${Base}Criteria
-        extends CoObjectCriteria {
+public class ${Base}Mask
+        extends CoObjectMask {
 
     @Override
-    protected void populate(QVariantMap<String> map)
+    public void readObject(IVariantMap<String> map)
             throws ParseException {
-        super.populate(map);
+        super.readObject(map);
     }
 
 }
@@ -192,16 +252,15 @@ function mk_mapper() {
     cat <<EOT >"$file"
 package $pkg_db;
 
-import java.util.List;
-
-import org.apache.ibatis.annotations.Delete;
-
-import net.bodz.bas.db.batis.IMapper;
+import net.bodz.bas.db.ibatis.IMapperTemplate;
 
 import $fqcn;
 
+/**
+ * @see $file
+ */
 public interface ${Base}Mapper
-        extends IMapperTemplate<$Base, ${Base}Criteria> {
+        extends IMapperTemplate<$Base, ${Base}Mask> {
 
 }
 EOT
@@ -265,9 +324,17 @@ function mk_mapper_xml() {
         </where>
     </select>
 
+    <insert id="_insert"><![CDATA[
+        insert into $base(
+            code, label, description
+        ) values(
+            #{codeName},#{label},#{description}
+        )
+    ]]></insert>
+
     <select id="insert" resultType="long"><![CDATA[
         insert into $base(
-            code, label, description)
+            code, label, description
         ) values(
             #{codeName},#{label},#{description}
         ) returning id
@@ -279,7 +346,7 @@ function mk_mapper_xml() {
             <include refid="co.setUS" />
         </set>
         <where>
-            <if test="id != null">id = #{id}</if>
+            id = #{id}
         </where>
     </update>
 
@@ -288,7 +355,7 @@ function mk_mapper_xml() {
     </delete>
 
     <select id="count" resultType="hashmap">
-        select count(*) "total" from ${base}
+        select count(*) "rows" from ${base}
         <where>
             <include refid="filtconds" />
         </where>
@@ -304,7 +371,8 @@ function mk_index() {
     cat <<EOT >"$file"
 package $pkg_web;
 
-import net.bodz.bas.rtx.IQueryable;
+import net.bodz.bas.meta.decl.ObjectType;
+import net.bodz.lily.model.base.CoObjectIndex;
 
 import $fqcn;
 
@@ -312,18 +380,12 @@ import $fqcn;
  * TITLE
  * 
  * @label LABEL
- * 
  * @rel HREF1: TEXT1
- * 
  * @see <a href="HREF2">TEXT2</a>
  */
 @ObjectType($Base.class)
 public class ${Base}Index
         extends CoObjectIndex {
-
-    public ${Base}Index(IQueryable context) {
-        super(context);
-    }
 
 }
 EOT
@@ -354,7 +416,7 @@ import com.tinylily.model.base.security.User;
 import $fqcn;
 
 public class ${Base}Index_htm
-        extends SlimIndex_htm<${Base}Index, $Base, ${Base}Criteria> {
+        extends SlimIndex_htm<${Base}Index, $Base, ${Base}Mask> {
 
     public ${Base}Index_htm()
             throws NoSuchPropertyException, ParseException {
@@ -364,27 +426,27 @@ public class ${Base}Index_htm
 
 
     @Override
-    protected ${Base}Criteria buildSwitchers(IHttpViewContext ctx, SwitcherModelGroup switchers)
+    protected ${Base}Mask buildSwitchers(IHttpViewContext ctx, SwitcherModelGroup switchers)
             throws ViewBuilderException {
         // ${Base}Mapper mapper = ctx.query(${Base}Mapper.class);
-        ${Base}Criteria criteria = fn.criteriaFromRequest(new ${Base}Criteria(), ctx.getRequest());
+        ${Base}Mask mask = fn.maskFromRequest(new ${Base}Mask(), ctx.getRequest());
 
         SwitcherModel<Integer> sw;
         sw = switchers.entityOf("表单", true, //
-                ctx.query(FormDefMapper.class).filter(FormDefCriteria.all()), //
-                "form", criteria.formId, criteria.noForm);
-        criteria.formId = sw.getSelection1();
-        criteria.noForm = sw.isSelectNull();
+                ctx.query(FormDefMapper.class).filter(FormDefMask.all()), //
+                "form", mask.formId, mask.noForm);
+        mask.formId = sw.getSelection1();
+        mask.noForm = sw.isSelectNull();
 
-        return criteria;
+        return mask;
     }
 
     @Override
     public void dataIndex(IHttpViewContext ctx, DataViewAnchors<$Base> a, IUiRef<${Base}Index> ref, IOptions options)
             throws ViewBuilderException, IOException {
         ${Base}Mapper mapper = ctx.query(${Base}Mapper.class);
-        ${Base}Criteria criteria = ctx.query(${Base}Criteria.class);
-        List<${Base}> list = postfilt(mapper.filter(criteria));
+        ${Base}Mask mask = ctx.query(${Base}Mask.class);
+        List<${Base}> list = postfilt(mapper.filter(mask));
 
         IndexTable itab = new IndexTable(a.data);
         itab.buildHeader(ctx, indexFields.values());
