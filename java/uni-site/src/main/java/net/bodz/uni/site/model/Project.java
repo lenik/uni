@@ -12,16 +12,23 @@ import java.util.Map;
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.fmt.textmap.I18nTextMapDocLoader;
+import net.bodz.bas.io.res.IStreamInputSource;
 import net.bodz.bas.io.res.builtin.FileResource;
+import net.bodz.bas.io.res.builtin.StringSource;
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.repr.content.AbstractXjdocContent;
 import net.bodz.bas.std.rfc.http.ICacheControl;
 import net.bodz.bas.vcs.IVcsLogEntry;
 import net.bodz.bas.vcs.IVcsWorkingCopy;
 import net.bodz.bas.vcs.VcsLogOptions;
 import net.bodz.mda.xjdoc.model.IElementDoc;
+import net.bodz.mda.xjdoc.model.MutableElementDoc;
 
 public class Project
         extends AbstractXjdocContent {
+
+    static final Logger logger = LoggerFactory.getLogger(Project.class);
 
     Section section;
     String name;
@@ -54,25 +61,28 @@ public class Project
         projectStat = new ProjectStat();
 
         downloadItems = new ArrayList<DownloadItem>();
-        for (File sct : new File("/repo/deb").listFiles()) {
-            if (!sct.isDirectory())
-                continue;
-            for (String baseName : sct.list()) {
-                if (!baseName.startsWith(name + "_"))
-                    continue;
-                if (!baseName.endsWith(".deb"))
-                    continue;
-                File file = new File(sct, baseName);
+        File debRepo = new File("/repo/deb");
+        if (debRepo.isDirectory()) {
+            // branch: stable, testing, unstable
+            for (File branch : debRepo.listFiles())
+                if (branch.isDirectory())
+                    scanDebs(branch);
+            Collections.reverse(downloadItems);
+        }
+    }
+
+    void scanDebs(File branch) {
+        for (String baseName : branch.list())
+            if (baseName.startsWith(name + "_") && baseName.endsWith(".deb")) {
+                File file = new File(branch, baseName);
                 DownloadItem item = new DownloadItem();
-                item.section = sct.getName();
+                item.section = branch.getName();
                 item.filename = baseName;
-                item.href = "http://deb.bodz.net/" + sct.getName() + "/" + baseName;
+                item.href = "http://deb.bodz.net/" + branch.getName() + "/" + baseName;
                 item.lastModified = file.lastModified();
                 item.fileSize = file.length();
                 downloadItems.add(item);
             }
-        }
-        Collections.reverse(downloadItems);
     }
 
     @Override
@@ -80,9 +90,14 @@ public class Project
             throws ParseException, IOException {
         if (docFile == null)
             throw new NullPointerException("docFile");
-        if (!docFile.exists())
-            throw new IOException("No doc file: " + docFile);
-        IElementDoc doc = I18nTextMapDocLoader.load(new FileResource(docFile));
+        IStreamInputSource docRes;
+        if (!docFile.exists()) {
+            logger.warn("No doc file: " + docFile);
+            docRes = new StringSource("");
+        } else {
+            docRes = new FileResource(docFile);
+        }
+        IElementDoc doc = I18nTextMapDocLoader.load(docRes);
         return doc;
     }
 
