@@ -1,0 +1,55 @@
+.ZwkTree.p1 {
+
+    cursor: arrow;
+    user-select: none;
+    -webkit-user-select: none;
+    
+    ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0 0 0 2em;
+    }
+    
+    li {
+        &:hover {
+            background-color: hsla(180, 100%, 94%, .1);
+        }
+        
+        &.selected {
+            background-color: hsla(180, 100%, 94%, .3);
+        }
+        
+        &.ng {
+            display: none;
+        }
+        
+        &.cleaf, &.leaf {
+            margin: 3px 0;
+        }
+        
+        &:not(.leaf) {
+            &:not(.expand) {
+                > .toggle:after {
+                    content: "\00f054";      // chevron-right
+                }
+            }
+            &.expand {
+                > .toggle:after {
+                    content: "\00f078";      // chevron-down
+                }
+            }
+        }
+        
+        &:not(.expand) > ul {
+            display: none;
+        }
+    }
+
+    .toggle {
+        display: inline-block;
+        margin-left: 8px;
+        font-size: small;
+        padding: 2px;
+    }
+}
+

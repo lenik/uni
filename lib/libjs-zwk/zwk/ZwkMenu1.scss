@@ -1,3 +1,4 @@
+$font-arial: Arial, Helvetica, sans-serif;
 
 @mixin menu-btn-normal {
     color: black;
@@ -7,6 +8,7 @@
 @mixin menu-btn-highlight {
     color: white;
     background-color: hsl(210, 75%, 60%);
+    font-style: italic;
 }
 
 .ZwkMenuBar.p1 {
@@ -30,7 +32,7 @@
     > li {
         float : left;
         padding: 2px 10px;
-        font-family: Arial, Arial, Helvetica, sans-serif;
+        font-family: $font-arial;
         font-weight: bold;
         @include menu-btn-normal;
 
@@ -49,20 +51,25 @@
     box-shadow: 1px 5px 20px 0px rgba(0, 0, 0, .6);
     z-index: 11;
 
-    // ul.
     list-style-type: none;
     margin: 0;
     padding: 0;
 
     > li {
-        font-family: Arial, Arial, Helvetica, sans-serif;
-        font-weight: bold;
+        font-family: $font-arial;
         white-space: nowrap;
-        padding: 5px 12px;
+        padding: 5px 12px 5px 32px;
         @include menu-btn-normal;
 
         &:hover {
             @include menu-btn-highlight;
+            font-weight: bold;
+        }
+        
+        .icon {
+            position: absolute;
+            left: 8px;
+            color: gray;
         }
     }
 

@@ -1,0 +1,20 @@
+@function light-less($clr, $amount) {
+    @return darken(desaturate($clr, $amount), $amount);
+}
+
+@function light-more($clr, $amount) {
+    @return lighten(saturate($clr, $amount), $amount);
+}
+
+@function dark-less($clr, $amount) {
+    @return lighten(desaturate($clr, $amount), $amount);
+}
+
+@function dark-more($clr, $amount) {
+    @return darken(saturate($clr, $amount), $amount);
+}
+
+@function shadow($clr, $amount: 0.5) {
+    @return fade-out(darken($clr, 75%), $amount);
+}
+

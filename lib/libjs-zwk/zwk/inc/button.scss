@@ -1,0 +1,84 @@
+@import "color.scss";
+
+@mixin btn {
+    cursor: pointer;
+
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+@mixin btn-normal($clr, $step) {
+    @include btn;
+    color: invert($clr);
+    background-color: $clr;
+    border: solid 1px hsl(0, 0%, 50%);
+    box-shadow: 1px 1px 3px 0px shadow($clr);
+    padding: 4px 10px;
+    position: relative;
+    
+    &:hover {
+        color: invert(light-more($clr, $step));
+        background-color: light-more($clr, $step);
+        box-shadow: 1px 1px 1px 0px shadow(light-more($clr, $step));
+    }
+}
+
+@mixin btn-round($clr, $step) {
+    @include btn-normal($clr, $step);
+    border-radius: 8px;
+}
+
+@mixin btn-text($clr, $step) {
+    @include btn;
+    
+    color: fade-out($clr, $step);
+    text-shadow: 1px 1px 2px shadow($clr, 0.75);
+    
+    &:hover {
+        color: fade-in($clr, $step);
+        text-shadow: 1px 1px 0px shadow(fade-in($clr, $step), 0.75);
+    }
+}
+
+@mixin btn-text-dark($clr, $step) {
+    @include btn;
+    
+    color: $clr;
+    text-shadow: 1px 1px 2px shadow($clr, 0.75);
+    
+    &:hover {
+        color: light-more($clr, $step);
+        text-shadow: 1px 1px 0px shadow(light-more($clr, $step), 0.75);
+    }
+}
+
+@mixin btn-text-light($clr, $step) {
+    @include btn;
+    
+    color: $clr;
+    text-shadow: 1px 1px 2px shadow($clr, 0.75);
+    
+    &:hover {
+        color: dark-more($clr, $step);
+        text-shadow: 1px 1px 0px shadow(dark-more($clr, $step), 0.75);
+    }
+}
+
+@mixin btn-ltext-dark($clr, $step) {
+    @include btn-normal($clr, $step);
+    
+    border: none;
+    box-shadow: none;
+    background-color: fade-out($clr, .5);
+    border-bottom: dashed 1px hsl(0, 0%, 50%);
+    padding: 2px 8px;
+    
+    &:hover {
+        top: 2px;
+        left: 2px;
+        color: invert(light-more($clr, $step));
+        background-color: fade-out(light-more($clr, $step), .5);
+        box-shadow: 1px 1px 1px 0px shadow(light-more($clr, $step));
+    }
+}
+
