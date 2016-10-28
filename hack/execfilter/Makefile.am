@@ -55,7 +55,7 @@ dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-EXTRA_DIST = \
+EXTRA_DIST = config.rpath m4/ChangeLog  \
     config.rpath \
     main.tex \
     itree.tex
