@@ -25,5 +25,5 @@ Depends:
     bash-shlib,
     ${shlibs:Depends},
     ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Conflicts: caffe-local, caffe-nv
+Description: CAFFE CPU-only build
