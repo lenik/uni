@@ -1,42 +1,45 @@
-.\"
-.\"
-.\" hm.man - hm manpage
-.\" Copyright (C) 2010 Lenik (谢继雷)
-.\"
-.\" This program is free software; you can redistribute it and/or modify
-.\" it under the terms of the GNU General Public License as published by
-.\" the Free Software Foundation; either version 2 of the License, or
-.\" (at your option) any later version.
-.\"
-.\" This program is distributed in the hope that it will be useful,
-.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
-.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-.\" GNU General Public License for more details.
-.\" You should have received a copy of the GNU General Public License
-.\" along with this program; if not, write to the Free Software
-.\" Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-.\"
-.TH HM 1
+.TH [HTMLDOC-MAN] "1" "April 2016" "boDz" "User Commands"
 .SH NAME
-hm \- Search and open installed HTML documents
+[htmldoc-man] \- htmldoc-man
 .SH SYNOPSIS
-.B hm
-[OPTIONS] [--] [nnnn] PACKAGE-SPEC KEYWORDS...
-.SH DESCRIPTION
-Search and open installed HTML documents
-
-.SH EXAMPLES
-
-.B
-hm example-arguments
-.PP
-example-description
-
-.SH ENVIRONMENT
-
-.SH REPORTING BUGS
-Please report any bugs, problems, queries, experiences, etc. directly to the author.
-
-.SH AUTHORS
-Lenik <lenik at bodz.net>
-.br
+.B htmldoc-man
+[\fI\,OPTION\/\fR] [\fI\,--\/\fR] [\fI\,nnn\/\fR] \fI\,PACKAGE-SPEC KEYWORDS\/\fR...
+.SH OPTIONS
+.TP
+\fB\-p\fR, \fB\-\-packages\fR
+List packages which contains html docs.
+.TP
+\fB\-I\fR, \fB\-\-include\fR=\fI\,DIR\/\fR
+Add dir to search path.
+.TP
+\fB\-d\fR, \fB\-\-maxdepth\fR=\fI\,DEPTH\/\fR
+Max recursion depth to search into.
+.TP
+\fB\-a\fR, \fB\-\-all\fR
+Search all keywords with the prefix.
+.TP
+\fB\-s\fR, \fB\-\-strict\fR
+Search explicit keywords.
+.TP
+\fB\-i\fR, \fB\-\-ignore\-case\fR
+Ignore case.
+.TP
+\fB\-l\fR, \fB\-\-list\fR
+Only list the candidates, don't open.
+.TP
+\fB\-x\fR, \fB\-\-exec\fR=\fI\,COMMAND\/\fR
+Open with specified command.
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Repeat to get less info.
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Repeat to get more info.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Show this help page.
+.TP
+\fB\-\-version\fR
+Print the version info.
+.SH AUTHOR
+Written by Lenik, Version 0.10.0, Last updated at 2016\-04\-07

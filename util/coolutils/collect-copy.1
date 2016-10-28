@@ -1,42 +1,60 @@
-.\"
-.\"
-.\" collect-copy.man - collect-copy manpage
-.\" Copyright (C) 2010 Lenik (谢继雷)
-.\"
-.\" This program is free software; you can redistribute it and/or modify
-.\" it under the terms of the GNU General Public License as published by
-.\" the Free Software Foundation; either version 2 of the License, or
-.\" (at your option) any later version.
-.\"
-.\" This program is distributed in the hope that it will be useful,
-.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
-.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-.\" GNU General Public License for more details.
-.\" You should have received a copy of the GNU General Public License
-.\" along with this program; if not, write to the Free Software
-.\" Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-.\"
-.TH COLLECT-COPY 1
+.TH [COLLECT-COPY] "1" "April 2016" "boDz" "User Commands"
 .SH NAME
-collect-copy \- Collect files into categories
+[collect-copy] \- collect-copy
 .SH SYNOPSIS
 .B collect-copy
-ARGUMENTS
-.SH DESCRIPTION
-Collect files into categories
-
-.SH EXAMPLES
-
-.B
-collect-copy -v -f*post* -cpost -n-debian
+[\fI\,OPTIONS\/\fR] [\fI\,--\/\fR] ...
+.SH OPTIONS
+.TP
+\fB\-r\fR, \fB\-\-root\fR=\fI\,DIR\/\fR
+Root dir of coll\-repo, default \fI\,/var/lib/coll\/\fP.
+.TP
+\fB\-c\fR, \fB\-\-category\fR=\fI\,NAME\/\fR
+Specify category name.
+.TP
+\fB\-n\fR, \fB\-\-norm\fR=\fI\,NORM\-TYPE\/\fR
+How to normalize path.
+.TP
+\fB\-x\fR, \fB\-\-norm\-exec\fR=\fI\,CMD\/\fR
+Using 'exec' norm type, and specify the cmd.
+.TP
+\fB\-f\fR, \fB\-\-find\fR=\fI\,PATTERN\/\fR
+Get file list by find PATTERN from curdir.
+.TP
+\fB\-s\fR, \fB\-\-stdin\fR
+Read file list from stdin (when stream from find, it should be find \fB\-printf\fR '%p\en\ec').
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Be more quiet.
+.IP
+Repeat this option to reduce the verbosity of information to output.
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Be more verbose.
+.IP
+Repeat this option to expand the verbosity of information to output.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print this help page.
+.IP
+Display a brief usage for this command, and exit.
+.TP
+\fB\-\-version\fR
+Print the version information.
+.IP
+Print the program title, a short description, and the version string
+at the very beginning, and exit.
 .PP
-Find filenames contains 'post' and collect them into category `post', with `/debian/' stripped.
-
-.SH ENVIRONMENT
-
-.SH REPORTING BUGS
-Please report any bugs, problems, queries, experiences, etc. directly to the author.
-
-.SH AUTHORS
-Lenik <lenik at bodz.net>
-.br
+Normalization Types:
+(Example path: ./any/libsepol\-2.0.40/debian/postinst)
+.TP
+c (default)
+__any_libsepol\-2.0.40_debian_postinst
+.TP
+dash (or \-)
+any\-libsepol\-2.0.40\-debian\-postinst
+.TP
+dash\-any\-debian
+libsepol\-2.0.40\-postinst
+.SH AUTHOR
+Written by Lenik, Version 0.10.0, Last updated at 2016\-04\-07
