@@ -21,7 +21,11 @@ import net.bodz.bas.potato.ref.UiHelper;
 import net.bodz.bas.potato.ref.UiPropertyRefMap;
 import net.bodz.bas.repr.path.IPathArrival;
 import net.bodz.bas.repr.path.PathArrivalEntry;
+import net.bodz.bas.repr.path.PathArrivalList;
 import net.bodz.bas.repr.viz.ViewBuilderException;
+import net.bodz.bas.rtx.IQueryable;
+import net.bodz.bas.site.artifact.LibFontsArtifacts;
+import net.bodz.bas.site.artifact.LibJsArtifacts;
 import net.bodz.bas.t.pojo.Pair;
 import net.bodz.bas.ui.dom1.IUiRef;
 import net.bodz.mda.xjdoc.Xjdocs;
@@ -55,12 +59,12 @@ public class UniSite_htm
     public void precompile(IHtmlViewContext ctx, IUiRef<UniSite> ref) {
         super.precompile(ctx, ref);
 
-        IHtmlHeadData metaData = ctx.getHeadData();
-        metaData.setMeta(IHtmlHeadData.META_AUTHOR, "谢继雷 (Xiè Jìléi)");
-        metaData.setMeta(IHtmlHeadData.META_VIEWPORT, "width=device-width, initial-scale=1");
+        IHtmlHeadData headData = ctx.getHeadData();
+        headData.setMeta(IHtmlHeadData.META_AUTHOR, "谢继雷 (Xiè Jìléi)");
+        headData.setMeta(IHtmlHeadData.META_VIEWPORT, "width=device-width, initial-scale=1");
 
-        metaData.addDependency("jquery-min", ArtifactType.SCRIPT);
-        metaData.addDependency("font-awesome", ArtifactType.STYLESHEET).setPriority(IArtifactDependency.LOW);
+        headData.addDependency(LibJsArtifacts.jQuery);
+        headData.addDependency(LibFontsArtifacts.fontAwesome);
     }
 
     @Override
@@ -114,7 +118,8 @@ public class UniSite_htm
 
         if (ref instanceof PathArrivalEntry) {
             IHtmlOut nav = out.nav().ul();
-            for (IPathArrival a : arrival.toList().mergeTransients()) {
+            PathArrivalList av = arrival.toList();
+            for (IPathArrival a : av.mergeTransients()) {
                 Object target = a.getTarget();
 
                 String label;
@@ -137,6 +142,13 @@ public class UniSite_htm
         if (!frameOnly)
             indexBody(mainDiv, site);
 
+        return mainDiv;
+    }
+
+    @Override
+    public void buildHtmlViewEnd(IHtmlViewContext ctx, IHtmlOut out, IHtmlOut body, IUiRef<UniSite> ref)
+            throws ViewBuilderException, IOException {
+        UniSite site = ref.get();
         ClassDoc classDoc = Xjdocs.getDefaultProvider().getClassDoc(site.getClass());
 
         HtmlDiv foot = out.div().class_("foot");
@@ -163,8 +175,6 @@ public class UniSite_htm
 
             foot.text(classDoc.getTag("copyright"));
         }
-
-        return mainDiv;
     }
 
     void indexBody(IHtmlOut out, UniSite site) {
