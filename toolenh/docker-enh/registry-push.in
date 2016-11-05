@@ -1,0 +1,89 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Push docker images to registry}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] [images...] }
+
+    . shlib-import cliboot
+    option -a --all             "Push all cached images"
+    option -h --host =HOST      "hostname of the registry server"
+    option -p --port =PORT      "port number of the registry server"
+    option -q --quiet
+    option -v --verbose
+    option    --help
+    option    --version
+
+    opt_all=
+    opt_host=localhost
+    opt_port=5000
+
+function setopt() {
+    case "$1" in
+        -a|--all)
+            opt_all=1;;
+        -h|--host)
+            opt_host="$2";;
+        -p|--port)
+            opt_port="$2";;
+        --help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    local repo tag imageid created size _
+    local arg
+    
+    if [ "$opt_all" = 1 ]; then
+        while read repo tag imageid created size _; do
+            case "$repo" in
+                REPOSITORY)
+                    continue;;
+                '<none>')
+                    continue;;
+                *:*/*)
+                    continue;;
+                *)
+                    push "$repo" "$tag" "$imageid";;
+            esac
+        done < <(docker images)
+    else
+        for arg in "$@"; do
+            repo="${arg%:*}"
+            tag="${arg##*:}"
+            if [ "$repo" = "$arg" ]; then
+                tag=latest
+            fi
+            push "$repo" "$tag"
+        done
+    fi
+}
+
+function push() {
+    local repo="$1"
+    local tag="$2"
+    local imageid="$3"
+    
+    local name="${repo##*/}"
+    local src="$repo:$tag"
+    local dst="$opt_host:$opt_port/$name:$tag"
+    
+    if [ "$repo" = '<none>' ] || [ -z "$repo" ]; then
+        src="$imageid"
+        dst="$opt_host:$opt_port/$imageid"
+    fi
+
+    _log1 "Push $src to $opt_host:$opt_port"
+    docker tag "$src" "$dst"
+    docker push "$dst"
+}
+
+boot "$@"
