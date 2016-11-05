@@ -1,0 +1,55 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Docker garbage collector}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -c --remove-containers   'Remove exited container'
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_rm=
+
+function setopt() {
+    case "$1" in
+        -c|--remove-containers)
+            opt_rm=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    while read repo tag image created size; do
+        local repotag_$image="$repo:$tag"
+    done < <(docker images)
+
+    if [ "$opt_rm" = 1 ]; then
+        while read id image names; do
+            ref=repotag_$image
+            repotag=${!ref}
+            _log1 "Remove exited container [$image->$id] $repotag -> $names"
+            docker rm "$id"
+        done < <(docker ps -a -f 'status=exited' --format='{{.ID}} {{.Image}} {{.Names}}')
+    fi
+
+    docker images --no-trunc |
+            grep '<none>' |
+        while read repo tag image created size; do
+            _log1 "Remove docker image $repo/$tag ($image)"
+            docker rmi "$image"
+        done
+}
+
+boot "$@"
