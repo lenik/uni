@@ -3,17 +3,21 @@
     : ${PACKAGE:=@PACKAGE@}
     : ${PROGRAM_TITLE:=Mount any block dev, in a sub-shell}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+    : ${SUDO:=sudo}
 
     . shlib-import cliboot
     option -n --no-mount        "Don't mount any partition"
     option    --child           "(internal use) Launch a sub-shell."
+    option -r --read-only       "Mount read-only"
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
 
-    no_mount=
     fn=toplevel
+    no_mount=
+    read_only=
+    mount_oopts=()
 
 function setopt() {
     case "$1" in
@@ -21,6 +25,10 @@ function setopt() {
             no_mount=1;;
         --child)
             fn=child;;
+        -r|--read-only)
+            read_only=1
+            mount_oopts=("${mounts_oopts[@]}" ro)
+            ;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -112,8 +120,10 @@ function mkenv() {
             mp="$workdir/partition$i"
             mps=( "${mps[@]}" "$mp" )
             mkdir "$mp"
-            _log2 mount -o offset=$off "$dev" "$mp"
-            mount -o offset=$off "$dev" "$mp"
+
+            oopts=("${mount_oopts[@]}" offset=$off)
+            sudoexec mount -o $(join , "${oopts[@]}") "$dev" "$mp"
+
             (( i++ ))
         done < <(partoffset "$dev")
     fi
@@ -124,13 +134,31 @@ function mkenv() {
     if [ -n "$workdir" ]; then
         for mp in "${mps[@]}"; do
             _log2 umount "$mp"
-            umount "$mp"
+            $SUDO umount "$mp"
             rmdir "$mp"
         done
 
         cd "$olddir"
         rmdir "$workdir"
     fi
+}
+
+function join() {
+    local sep="$1"; shift
+    local sb init=1 arg
+    for arg in "$@"; do
+        if [ -z "$init" ]; then
+            sb="$sb$sep"
+        fi
+        sb="$sb$arg"
+        init=
+    done
+    echo "$sb"
+}
+
+function sudoexec() {
+    _log2 "$@"
+    $SUDO "$@"
 }
 
 boot "$@"
