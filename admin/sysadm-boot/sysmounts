@@ -1,0 +1,87 @@
+#!/bin/bash
+
+# Find the root dir.
+    root=
+    dir=$PWD
+    while true; do
+        testdirs=(bin dev etc lib proc run sys tmp var)
+        ndir=${#testdirs[@]}
+        score=0
+        for testdir in "${testdirs[@]}"; do
+            if [ -d "$dir/$testdir" ]; then
+                (( score++ ))
+            fi
+        done
+        
+        (( score = score * 100 / ndir ))
+        echo score $dir = $score
+        if [ $score -ge 75 ]; then
+            root="$dir"
+            break
+        fi
+
+        parent="${dir%/*}"
+        if [ "$parent" = "$dir" ]; then
+            echo "Root dir not found." >&2
+            exit 1
+        else
+            dir="$parent"
+        fi
+    done
+
+    echo "Found root dir at $root."
+
+function main() {
+    case "$1" in
+        -h|--help)
+            echo "$0 -h|--help"
+            echo "$0 [--mount]"
+            echo "$0 -u | --umount"
+            ;;
+
+        ''|--mount)
+            mount-a
+            ;;
+
+        -u|--umount)
+            umount-a
+            ;;
+
+        *)
+            echo "Bad option: $1" >&2
+            exit 1
+            ;;
+    esac
+}
+
+function mount-a() {
+    mount -t devtmpfs   none    "$root/dev"
+    mount -t devpts     none    "$root/dev/pts"
+
+    mount -t proc       none    "$root/proc"
+
+    mount -t tmpfs      none    "$root/run"
+    mkdir -p "$root/run/lock"
+    mount -t tmpfs      none    "$root/run/lock"
+    mkdir -p "$root/run/shm"
+    mount -t tmpfs      none    "$root/run/shm"
+
+    mount -t sysfs      none    "$root/sys"
+    mount -t tmpfs      none    "$root/tmp"
+    echo Mounted system filesystems.
+}
+
+function umount-a() {
+    umount "$root/run/shm"
+    umount "$root/run/lock"
+    umount "$root/run"
+    umount "$root/tmp"
+    umount "$root/proc"
+    umount "$root/dev/pts"
+    umount "$root/dev"
+    umount "$root/sys"
+    echo Unmounted system filesystems.
+}
+
+main "$@"
+
