@@ -1,0 +1,17 @@
+Source: sysadm-boot
+Section: admin
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>=9)
+Standards-Version: 3.9.8
+Homepage: http://uni.bodz.net/admin/sysadm-boot
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/admin/sysadm-boot
+
+Package: sysadm-boot
+Architecture: all
+Depends: 
+    bash,
+    mount,
+    ${misc:Depends}
+Description: System admin scripts for bootable maintainence.
