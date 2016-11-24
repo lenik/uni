@@ -4,22 +4,27 @@
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FILE...}
 
     . shlib-import cliboot
+    option -c --concat              "Append bytes of the size to the existing file"
     option -z --fill-zero           "Fill zero"
     option -s --size =SIZE[kmgKMG]  "Specify file size, default 4K (k=1000, K=1024)"
+    option -f --force               "Overwrite existing file"
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
 
+    opt_concat=0
     block_size=4096
     block_count=1
-    force=0
-    fill=
+    opt_force=0
+    opt_fillchar=
 
 function setopt() {
     case "$1" in
+        -c|--concat)
+            opt_concat=1;;
         -z|--zero)
-            fill=0;;
+            opt_fillchar=0;;
         -s|--size)
             case $2 in
             *k) block_count=${2%k}; block_size=1000;;
@@ -33,7 +38,7 @@ function setopt() {
             esac
             ;;
         -f|--force)
-            force=1;;
+            opt_force=1;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -48,20 +53,39 @@ function setopt() {
 }
 
 function main() {
+    
+    ddflags=()
+    size0=0
+    count0=0
+    
     for f in "$@"; do
         _log1 "Create file $f"
-        if [ -f "$f" ] && [ "$force" != 1 ]; then
-            echo "File already existed: $f"
-            exit 1
+        if [ -f "$f" ]; then
+            if [ "$opt_concat" = 1 ]; then
+                size0=$(stat -c%s "$f")
+                count0=$(( (size0 + block_size - 1) / block_size ))
+            elif [ "$opt_force" != 1 ]; then
+                echo "File already existed: $f"
+                exit 1
+            fi
         fi
 
-        case "$fill" in
+        case "$opt_fillchar" in
         '')
-            echo-x dd of="$f" bs=$block_size count=0 seek=$block_count;;
+            echo-x dd if=/dev/zero of="$f" \
+                bs=$block_size count=0 seek=$((block_count + count0)) \
+                "${ddflags[@]}"
+            ;;
         0)
-            echo-x dd if=/dev/zero of="$f" bs=$block_size count=$block_count;;
+            if [ "$opt_concat" = 1 ]; then
+                ddflags=(conv=notrunc oflags=append)
+            fi
+            echo-x dd if=/dev/zero of="$f" \
+                bs=$block_size count=$block_count \
+                "${ddflags[@]}"
+            ;;
         *)
-            echo "Unsupported fill char: $fill"
+            echo "Unsupported fill char: $opt_fillchar"
             exit 1;;
         esac
     done
