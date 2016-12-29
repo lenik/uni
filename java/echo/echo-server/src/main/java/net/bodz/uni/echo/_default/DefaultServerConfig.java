@@ -7,7 +7,9 @@ import net.bodz.bas.http.config.IServletContextConfigurer;
 import net.bodz.bas.http.config.ServletContextConfig;
 import net.bodz.bas.http.config.ServletDescriptor;
 import net.bodz.bas.http.ctx.CurrentHttpService;
+import net.bodz.bas.meta.codegen.IndexedTypeLoader;
 
+@IndexedTypeLoader(IServletContextConfigurer.class)
 public class DefaultServerConfig
         extends ServletContextConfig {
 

@@ -5,7 +5,19 @@ import java.util.ServiceLoader;
 import net.bodz.bas.c.javax.servlet.http.*;
 import net.bodz.bas.http.config.ServletContextConfig;
 import net.bodz.bas.http.config.ServletDescriptor;
+import net.bodz.bas.meta.codegen.IndexedTypeLoader;
 
+@IndexedTypeLoader({//
+IServletContextListener.class, //
+        IServletContextAttributeListener.class, //
+        IHttpFilter.class,//
+        IHttpSessionListener.class, //
+        IHttpSessionAttributeListener.class, //
+        IHttpSessionActivationListener.class, //
+        IHttpSessionBindingListener.class, //
+        IServletRequestListener.class, //
+        IServletRequestAttributeListener.class, //
+})
 public class IndexedServerConfig
         extends ServletContextConfig {
 
