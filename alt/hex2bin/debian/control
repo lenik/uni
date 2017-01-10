@@ -1,0 +1,16 @@
+Source: hex2bin
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>=9)
+Standards-Version: 3.9.8
+Homepage: http://uni.bodz.net/alt/hex2bin
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/hex2bin
+
+Package: hex2bin
+Architecture: any
+Depends: 
+    ${shlibs:Depends}, 
+    ${misc:Depends}
+Description: Convert Intel hex file to binary image.
