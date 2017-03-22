@@ -1,0 +1,16 @@
+Source: ip-over-udpsink
+Section: net
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>=9)
+Standards-Version: 3.9.8
+Homepage: http://uni.bodz.net/net/ip-over-udpsink
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/net/ip-over-udpsink
+
+Package: ip-over-udpsink
+Architecture: any
+Depends:
+    ${shlibs:Depends},
+    ${misc:Depends}
+Description: IP adapter over UDP-sink
