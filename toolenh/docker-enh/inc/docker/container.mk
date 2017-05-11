@@ -3,7 +3,8 @@ SHELL = /bin/bash
 GUEST_SHELL = bash -i
 REPO = localhost:5000
 
-DOCKER_RUN_OPTS = --dns 192.168.201.178
+DOCKER_RUN_OPTS =
+#DOCKER_RUN_OPTS = --dns 8.8.8.8
 
 # ID: container id
 IMAGE = $(ID)
@@ -24,11 +25,17 @@ run: -run-docker -tty-cleanup
 -tty-cleanup:
 	@settermtitle "IMG $${PWD##*/}"
 
-start:
+start: pre-start -start post-start
+-start:
 	docker start $(ID)
+pre-start:
+post-start:
 
-stop:
+stop: pre-stop -stop post-stop
+-stop:
 	docker stop $(ID)
+pre-stop:
+post-stop:
 
 rm: stop
 	docker rm $(ID)
