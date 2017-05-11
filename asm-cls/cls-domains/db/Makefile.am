@@ -31,12 +31,9 @@ lenik_DATA = \
     99jsj.db \
     bela.db \
     bodz.db \
-    ebja.db \
-    lenik.db \
     mia.db \
     ooojjj.db \
     pfpf.db \
-    topcroak.db \
     xor.db \
     国家地理.db \
     花骨朵.db \
@@ -64,6 +61,12 @@ CLEANFILES = \
 
 dist-hook:
 	cp ${srcdir}/*.in ${distdir}
+
+install-data-hook:
+	ln -sn bodz.db  ${DESTDIR}${lenikdir}/ebja.db
+	ln -sn bodz.db  ${DESTDIR}${lenikdir}/lenik.db
+	ln -sn bodz.db  ${DESTDIR}${lenikdir}/topcroak.db
+	ln -sn zoo.db   ${DESTDIR}${netsdir}/j.db
 
 # Eval inst:*[ipw] using substcat
 %: %.in Makefile
