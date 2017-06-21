@@ -1,0 +1,15 @@
+Source: libjs-vuejs
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>=9)
+Standards-Version: 3.9.8
+Homepage: http://uni.bodz.net/alt/libjs-vuejs
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/libjs-vuejs
+
+Package: libjs-vuejs
+Architecture: all
+Depends:
+    ${misc:Depends}
+Description: Vue.js framework
