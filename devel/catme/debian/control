@@ -1,0 +1,18 @@
+Source: catme
+Section: interpreters
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.8
+Homepage: http://uni.bodz.net/devel/catme
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/devel/catme
+
+Package: catme
+Architecture: any
+Depends:
+    bash-shlib,
+    libglib2.0-0,
+    ${shlibs:Depends},
+    ${misc:Depends}
+Description: Modularized Text interpreter and utilities.
