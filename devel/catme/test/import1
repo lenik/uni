@@ -1,8 +1,0 @@
-#!../catme.in -u
-Hello, here comes some template...
-wait a minute...
-
-#\sinclude sample
-#\sinclude sample2
-
-That's it.

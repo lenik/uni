@@ -1,6 +1,0 @@
-#!../catme.in -u
-head
-
-#\badcmd foo bar
-
-tail
