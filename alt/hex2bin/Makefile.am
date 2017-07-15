@@ -6,3 +6,9 @@ dist_setup_SCRIPTS = \
 
 CLEANFILES = \
     ${dist_setup_SCRIPTS}
+
+install-data-hook:
+	mkdir -p ${DESTDIR}${prefix}/bin
+	mkdir -p ${DESTDIR}${prefix}/man/man1
+	cd src; make install INSTALL_DIR=${DESTDIR}${prefix}
+
