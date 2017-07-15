@@ -1,0 +1,40 @@
+#!/bin/bash
+# master-file
+
+shopt -s nullglob
+
+suffix=
+case `arch` in
+    x86_64) suffix=-64;;
+esac
+nsuffix="${#suffix}"
+
+jdk_latest=
+for jdkdir in /opt/java/jdk-*; do
+    [ -x "$jdkdir/bin/javac" ] || continue
+    base="${jdkdir##*/}"
+    if [ -n "$suffix"  ] && [ "${base: -nsuffix}" != "$suffix" ]; then
+        continue
+    fi
+    jdk_latest="$jdkdir"
+done
+
+if [ -z "$jdk_latest" ]; then
+    echo "No JDK installation found in /opt/java/jdk-*$suffix" >&2
+    exit 1
+fi
+
+for bin in "$jdk_latest"/bin/*; do
+    [ -x "$bin" ] || continue
+
+    base="${bin##*/}"
+    #echo "Make as default: $base -> $bin"
+    update-alternatives --install /usr/bin/$base $base \
+        "$bin" 10000
+done
+
+lineconf -tm "Set JAVA_HOME in system wide environment" \
+    @sysconfdir@/environment \
+    @jdk8-local::JAVA_HOME JAVA_HOME="$jdk_latest"
+
+exit 0

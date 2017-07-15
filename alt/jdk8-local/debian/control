@@ -1,0 +1,36 @@
+Source: jdk8-local
+Section: java
+Priority: extra
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.9.1
+Homepage: http://uni.bodz.net/alt/jdk8-local
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/jdk8-local
+
+Package: jdk8-local
+Architecture: all
+Provides:
+    default-jre,
+    java-compiler,
+    java2-compiler,
+    java-runtime, java-runtime-headless,
+    java2-runtime, java2-runtime-headless,
+    java5-runtime, java5-runtime-headless,
+    java6-runtime, java6-runtime-headless,
+    java7-runtime, java7-runtime-headless,
+    java8-runtime, java8-runtime-headless,
+    java-sdk,
+    java2-sdk,
+    java5-sdk,
+    java6-sdk,
+    java7-sdk,
+    java8-sdk,
+    java-virtual-machine,
+    openjdk-7-jre,
+    openjdk-7-jre-headless,
+    openjdk-8-jre,
+    openjdk-8-jre-headless
+Depends:
+    ${misc:Depends}
+Description: Virtual package for local installed Java 7 SDK.
