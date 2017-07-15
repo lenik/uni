@@ -13,4 +13,4 @@ CLEANFILES = \
 
 install-data-hook:
 	mkdir -p ${DESTDIR}${jsdir}
-	cp -a vue/* ${DESTDIR}${jsdir}/
+	cp -a vue/dist/* ${DESTDIR}${jsdir}/
