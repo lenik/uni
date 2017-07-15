@@ -1,0 +1,81 @@
+#!/bin/bash
+    : ${RCSID:=$Id$}
+    : ${PROGRAM_TITLE:="Update alternatives for specific JDK"}
+    : ${PROGRAM_SYNTAX:="[OPTIONS]    [--] JDK_HOME"}
+
+    . shlib-import cliboot
+    option -p --priority =NUM   "Specify priority for all executable"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    priority=0
+    slave_mode=
+
+function setopt() {
+    case "$1" in
+        -p|--priority)
+            priority="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    [ -z "$1" ] && die "JAVA_HOME doesn't specified. "
+
+    JAVA_HOME=`readlink -f "$1"` || die "Failed to readlink -f $1"
+    [ -x "$JAVA_HOME/bin/javac" ] || die "Not JAVA_HOME: $JAVA_HOME"
+
+    cd "$JAVA_HOME/bin"
+
+    altopts=()
+    naltopt=0
+
+    if [ "$slave_mode" = 1 ]; then
+        altopts[naltopt++]=--install
+        altopts[naltopt++]=/usr/bin/javac
+        altopts[naltopt++]=javac
+        altopts[naltopt++]=$JAVA_HOME/bin/javac
+        altopts[naltopt++]=$priority
+    fi
+
+    for f in *; do
+        [ -x "$f" ] || continue
+        name="$f"
+        # [ "$name" = 'javac' ] && continue
+
+        path="$JAVA_HOME/bin/$f"
+
+        if [ "$slave_mode" = 1 ]; then
+            altopts[naltopt++]=--slave
+        else
+            altopts=(--install)
+            naltopt=1
+        fi
+        altopts[naltopt++]=/usr/bin/$name
+        altopts[naltopt++]=$name
+        altopts[naltopt++]=$JAVA_HOME/bin/$name
+        if [ -z "$slave_mode" ]; then
+            altopts[naltopt++]=$priority
+            _log2 "Update $name"
+            sudo update-alternatives "${altopts[@]}"
+        fi
+    done
+
+    if [ "$slave_mode" = 1 ]; then
+        echoli update-alternatives "${altopts[@]}"
+        sudo update-alternatives "${altopts[@]}"
+    fi
+}
+
+boot "$@"
