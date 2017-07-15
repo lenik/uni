@@ -1,0 +1,19 @@
+Source: libjs-lenik
+Section: javascript
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.8
+Homepage: http://uni.bodz.net/lib/libjs-lenik
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/lib/libjs-lenik
+
+Package: libjs-lenik
+Architecture: all
+Depends:
+    libjs-createjs,
+    libjs-jquery,
+    libjs-jquery-ui,
+    libjs-vuejs,
+    ${misc:Depends}
+Description: Lenik's Javascript Library
