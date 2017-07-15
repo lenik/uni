@@ -23,6 +23,7 @@
 *.bbl
 *.blg
 *.build
+*.buildinfo
 *.bz2
 *.cb
 *.changes

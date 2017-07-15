@@ -23,6 +23,7 @@
 *.bbl                                   # cooltex
 *.blg                                   # cooltex
 *.build                                 # cooldeb
+*.buildinfo                             # cooldeb
 *.bz2                                   # source tarballs
 *.cb                                    # cooltex
 *.changes                               # cooldeb
