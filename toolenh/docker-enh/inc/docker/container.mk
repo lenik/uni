@@ -3,22 +3,36 @@ SHELL = /bin/bash
 GUEST_SHELL = bash -i
 REPO = localhost:5000
 
-DOCKER_RUN_OPTS =
-#DOCKER_RUN_OPTS = --dns 8.8.8.8
+DOCKER_RUN_DNS =
+#DOCKER_RUN_DNS = --dns 8.8.8.8
+DOCKER_RUN_VOLS = \
+    -v /home:/home \
+    -v /media:/media \
+    -v /mnt:/mnt \
+    -v /tmp:/tmp
+
+DOCKER_RUN_OPTS = \
+    $(DOCKER_RUN_DNS) \
+    $(DOCKER_RUN_VOLS)
 
 # ID: container id
 IMAGE = $(ID)
 VERSION = latest
+
+DO_PREBUILD = true
+DO_POSTBUILD = true
 
 build: prebuild
 	docker build \
 	    --rm=false \
 	    -t $(IMAGE):$(VERSION) \
 	    .
-	if [ -x postbuild.sh ]; then ./postbuild.sh; fi
+	if [ "$(DO_POSTBUILD)" = true && -x postbuild.sh ]; \
+	    then ./postbuild.sh; fi
 
 prebuild:
-	if [ -x prebuild.sh ]; then ./prebuild.sh; fi
+	if [ "$(DO_PREBUILD)" = true && -x prebuild.sh ]; \
+	    then ./prebuild.sh; fi
 
 run: -run-docker -tty-cleanup
 
