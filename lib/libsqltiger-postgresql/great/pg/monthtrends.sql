@@ -12,8 +12,8 @@ create or replace function monthtrends(
         "count" bigint,
         sum_1 real,
         sum_2 real,
-        t0 timestamp, 
-        t1 timestamp) as $$
+        t0 timestamptz, 
+        t1 timestamptz) as $$
 declare
     q_table varchar;
     v record;
