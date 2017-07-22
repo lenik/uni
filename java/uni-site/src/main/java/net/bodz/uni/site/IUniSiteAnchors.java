@@ -6,6 +6,6 @@ import net.bodz.bas.site.IBasicSiteAnchors;
 public interface IUniSiteAnchors
         extends IBasicSiteAnchors {
 
-    IAnchor _img_ = _webApp_.join("img/");
+    IAnchor _img_ = _webApp_.join("d-img/");
 
 }

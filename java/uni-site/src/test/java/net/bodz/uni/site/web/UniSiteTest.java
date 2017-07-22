@@ -10,12 +10,12 @@ import net.bodz.bas.site.org.SiteGraphDotBuilder;
 import net.bodz.bas.site.org.Sitemap;
 import net.bodz.bas.site.org.SitemapEntry;
 import net.bodz.uni.site.UniSite;
-import net.bodz.uni.site.UniSiteFromSrc;
+import net.bodz.uni.site.DefaultUniSite;
 
 public class UniSiteTest
         extends Assert {
 
-    UniSite site = new UniSiteFromSrc().getTarget();
+    UniSite site = new DefaultUniSite().getTarget();
 
     public void dumpSitemap() {
         Sitemap sitemap = site.getSitemap();

@@ -21,7 +21,7 @@ public class UniSiteServerConfig
 
     void configServlets() {
         ServletDescriptor pathDispatch = addServlet(PathDispatchServlet.class, "/*");
-        pathDispatch.setInitParam(PathDispatchServlet.ROOT_CLASS, UniSiteFromSrc.class.getName());
+        pathDispatch.setInitParam(PathDispatchServlet.ROOT_CLASS, DefaultUniSite.class.getName());
     }
 
 }

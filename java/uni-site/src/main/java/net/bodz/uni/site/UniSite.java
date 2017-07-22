@@ -18,11 +18,11 @@ import net.bodz.bas.repr.path.IPathDispatchable;
 import net.bodz.bas.repr.path.ITokenQueue;
 import net.bodz.bas.repr.path.PathArrival;
 import net.bodz.bas.repr.path.PathDispatchException;
+import net.bodz.bas.site.BasicSite;
 import net.bodz.bas.site.org.ICrawlable;
 import net.bodz.bas.site.org.ICrawler;
 import net.bodz.bas.vcs.IVcsWorkingCopy;
 import net.bodz.bas.vcs.git.NativeGitVcsWorkingCopy;
-import net.bodz.lily.site.LilyStartSite;
 import net.bodz.uni.site.model.Language;
 import net.bodz.uni.site.model.Preferences;
 import net.bodz.uni.site.model.Section;
@@ -35,7 +35,7 @@ import net.bodz.uni.site.model.ToolMenu;
  * @copyright (ↄ) Copyleft 2004-2014 Lenik
  */
 public class UniSite
-        extends LilyStartSite {
+        extends BasicSite {
 
     static final Logger logger = LoggerFactory.getLogger(UniSite.class);
 
