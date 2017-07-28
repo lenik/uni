@@ -1,0 +1,74 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Show graphics for prototxt file (using dot)}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FILE.prototxt}
+
+    . shlib-import cliboot
+    option -o --out =FILE   'Write image to this file.'
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_out=
+
+function setopt() {
+    case "$1" in
+        -o|--out)
+            opt_out="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    DRAW_NET=
+    if ! DRAW_NET=$( which 'draw_net.py' 2>/dev/null ); then
+        for d in /usr/local/python; do
+            if [ -x "$d/draw_net.py" ]; then
+                DRAW_NET="$d/draw_net.py"
+                break
+            fi
+        done
+    fi
+    
+    [ -x "$DRAW_NET" ] || quit "Can't find draw_net.py"
+
+    for txt in "$@"; do
+        if [ -z "$opt_out" ]; then
+            graph="$txt.svg"
+        else
+            graph="$opt_out"
+        fi
+
+        _log2 "Execute $DRAW_NET \"$txt\" \"$graph\""
+        if "$DRAW_NET" "$txt" "$graph"; then
+            _log2 "Succeeded."
+        else
+            _error "Failed to render $txt."
+            continue
+        fi
+
+        (
+            #_log2 "Open $graph"
+            #alt-exec -s x-open "$graph"
+            eom -n "$graph"
+
+            if [ -z "$opt_out" ]; then
+                _log2 "Remove generated image $graph."
+                rm -f "$graph"
+            fi
+        ) &
+    done
+}
+
+boot "$@"

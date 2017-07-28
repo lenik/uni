@@ -23,7 +23,10 @@ AM_LDFLAGS = \
 bin_PROGRAMS = \
     cclass
 
-cclass_SOURCES = \
+dist_bin_SCRIPTS = \
+    nnlook
+
+dist_cclass_SOURCES = \
     cclass.cc \
     classifier.cc \
     fn.cc
@@ -31,6 +34,9 @@ cclass_SOURCES = \
 cclass_LDADD = \
     -lboost_system
     #$(BOOST_SYSTEM_LIB)
+
+dist_man_MANS = \
+    nnlook.1
 
 dist_setup_SCRIPTS = \
     postinst \
