@@ -1,0 +1,83 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Post document files to an ElasticSearch index}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -S --server =HOST    "ElasticSearch server (or node) address"
+    option -P --port =PORT      "Specify a port other than 9200"
+    option -i --index =INDEX    "The index name"
+    option -t --type =TYPE      "The type name, default doc"
+    option -p --property =NAME  "The property name, default file"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_server=localhost
+    opt_port=9200
+    opt_index=
+    opt_type=doc
+    opt_property=file
+    
+function setopt() {
+    case "$1" in
+        -s|--server)
+            opt_server="$2";;
+        -p|--port)
+            opt_port="$2";;
+        -i|--index)
+            opt_index="$2";;
+        -t|--type)
+            opt_type="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    
+    [ -z "$opt_index" ]     && quit "You didn't specify the index name."
+    [ -z "$opt_type" ]      && quit "You didn't specify the mapping type name."
+    [ -z "$opt_property" ]  && quit "You didn't specify the property name."
+    
+    local url="http://$opt_server:$opt_port/$opt_index/$opt_type"
+    _log1 "Type URL: $url"
+    
+    for f in "$@"; do
+        [ -f "$f" ] || quit "Invalid file: $f"
+        
+        file=$( readlink -f "$f" )
+        pathid=$(md5sum <(echo "$file"))
+        pathid=${pathid%% *}
+        
+        base="${file##*/}"
+        date=$( stat -c%y "$f" )
+        
+        _log1 "Post document: $f"
+        curl -XPUT "$url/$pathid" -d @<(
+            echo "{"
+                echo "\"$opt_property\": {"
+                    echo "\"_name\" : \"$file\","
+                    echo "\"_title\" : \"$base\","
+                    echo "\"_date\" : \"$date\","
+                    echo -n "\"_content\" : \""
+                        base64 -w0 "$f"
+                        echo    "\""
+                echo "}"
+            echo "}"
+        )
+        _log1 "ok"
+    done
+}
+
+boot "$@"
