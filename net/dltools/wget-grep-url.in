@@ -8,6 +8,8 @@
     option -P --perl-regexp     "Using perl regexp (PRE)"
     option -m --max-count =NUM  "max urls to get"
     option -s --strict          "Strict match"
+    option -j --join            "Join the href with the starting urls"
+    option -J --no-join         "Don't join href with urls"
     option -q --quiet           "Repeat to get less info"
     option -v --verbose         "Repeat to get more info"
     option -h --help            "Show this help page"
@@ -18,7 +20,8 @@
     grepoptn=
 
     max_count=
-    strict=
+    opt_strict=
+    opt_join=1
 
 function setopt() {
     case "$1" in
@@ -32,8 +35,12 @@ function setopt() {
             ;;
         -m|--max-count)
             max_count="$2";;
-        -s|--strict)
-            strict=1;;
+        -s|--opt_strict)
+            opt_strict=1;;
+        -j|--join)
+            opt_join=1;;
+        -J|--no-join)
+            opt_join=0;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -60,7 +67,7 @@ function main() {
     fi
 
     pattern="$1"
-    if [ -z "$strict" ]; then
+    if [ -z "$opt_strict" ]; then
         case "$regexp_type" in
         extended)
             pattern="[^'\"]*$pattern[^'\"]*"
@@ -72,17 +79,41 @@ function main() {
         esac
     fi
 
-    url="$2"
-    shift 2
+    shift
 
-    while read match; do
-        _log2 "Matched: $match"
-        match="${match#\"}"
-        match="${match%\"}"
-        urljoin "$url" "$match"
-    done < <(
-        wget -qO- --header='Accept-Encoding:' "$url" \
-            | grep "${grepopts[@]}" -o "\"$pattern\"")
+    for url in "$@"; do
+        _log1 "Starting-URL: $url"
+
+        while read match; do
+            _log2 "Matched-URL: $match"
+            match="${match#\"}"
+            match="${match#\'}"
+            match="${match%\"}"
+            match="${match%\'}"
+            if [ "$opt_join" = 1 ]; then
+                urljoin "$url" "$match"
+            else
+                echo "$match"
+            fi
+        done < <( wget-grep "$url" "$pattern" )
+    done
+}
+
+function wget-grep() {
+    local url="$1"
+    local pattern="$2"
+
+    case "$regexp_type" in
+        extended)
+            patterns="(\"$pattern\")|('$pattern$')"
+            ;;
+        *)
+            patterns="\(\"$pattern\"\)\|\('$pattern$'\)"
+    esac
+
+    # empty string as the header will clear all previous defined ones.
+    wget -qO- --header='Accept-Encoding:' "$url" \
+        | grep "${grepopts[@]}" -o "$patterns"
 }
 
 boot "$@"

@@ -1,5 +1,5 @@
-grepurl
+dlcache-find
 urljoin
 wget-auto-referer
 wgetc
-wgetc-url
+wget-grep-url

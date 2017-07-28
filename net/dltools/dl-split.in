@@ -1,0 +1,114 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib
+    import cliboot
+
+    option -l --length =LENGTH      "Set this if length is already known"
+    option -s --block-size =SIZE    "Size of each fragment"
+    option -j --jobs =N             "Download in N parallel processes"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_length=
+    opt_blksize=4096
+    opt_jobs=1
+
+function setopt() {
+    case "$1" in
+        -l|--length)
+            opt_length=$(( $2 )) || quit "invalid length $2"
+            ;;
+        -s|--block-size)
+            opt_blksize=$(( $2 )) || quit "invalid size $2"
+            ;;
+        -j|--jobs)
+            opt_jobs=$(( $2 )) || quit "invalid jobs $2"
+            ;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    curlopts=
+    if [ $LOGLEVEL -le 1 ]; then
+        curlopts=-s
+    fi
+
+    for url in "$@"; do
+        local file="${url%%\?*}"
+        local base="${file##*/}"
+        if [ -z "$base" ]; then
+            base="index.html"
+        fi
+
+        if [ "$opt_jobs" -le 1 ]; then
+            fetchv "$url" "$base" 1 0
+        else
+            for ((j = 0; j < opt_jobs; j++)); do
+                fetchv "$url" "$base" "$opt_jobs" "$j" &
+            done
+        fi
+    done
+}
+
+function fetchv() {
+    local url="$1"
+    local prefix="$2"
+    local div="$3"
+    local mod="$4"
+
+    local _hdr _val
+    local size=
+
+    if [ -z "$opt_length" ]; then
+        _log1 "Query the file size..."
+        while IFS=: read _hdr _val; do
+            size="${_val// /}"
+        done < <(curl -XHEAD -v "$url" | grep -i 'Content-Length')
+    else
+        size=$opt_length
+    fi
+
+    local n=$(( (size + opt_blksize - 1) / $opt_blksize ))
+    local width=${#n}
+    _log1 "File $prefix, size: $size, $n fragments to be downloaded..."
+
+    local i=$mod
+    local off=0
+
+    while [ $i -lt $n ]; do
+        (( off = i * opt_blksize ))
+        end=$(( off + opt_blksize - 1 ))
+        if [ $end -ge $size ]; then
+            end=$(( size - 1 ))
+        fi
+
+        wi=0000000000000000000000$i
+        wi=${wi: -width}
+
+
+        _log1 "Download part $wi/$n: offset $off .. $end (byte)."
+        curl ${curlopts} -r $off-$end -o "$prefix.$wi" "$url"
+        _log1 "Downloaded part $wi/$n: offset $off .. $end (byte)."
+
+        (( i += div ))
+    done
+
+}
+
+boot "$@"

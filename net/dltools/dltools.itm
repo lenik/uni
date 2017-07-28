@@ -1,0 +1,14 @@
+@label
+    Download tools
+    <p lang="zh-cn">下载实用工具集
+
+@text
+    Wget with cache support, and other url-related utilities
+
+    <p lang="zh-cn">
+    带缓存的下载, 下载同一个URL时, 如果之前有下载过, 就自动返回下载过的内容.
+
+    其它工具方面包括, 分卷下载: 将一个很大的文件分块下载到不同文件, 以便当下载发生错误时, 通过检查内容手工确定具体是哪一个块出错了, 然后重新下载那个出错的块.
+
+    wget-grep-url 用于从页面中提取URL, 当页面中的URL为相对地址时, 自动根据页面地址形成绝对地址.
+

@@ -14,20 +14,19 @@ cache_DATA =
 #	sudoers.d/wget
 
 dist_bin_SCRIPTS = \
+    dlcache-find \
     urljoin \
-    grepurl \
     wget-auto-referer \
-    wgetc \
-    wgetc-url
+    wget-grep-url \
+    wgetc
 
 dist_alias_DATA = \
     coolwget.sh
 
 dist_man_MANS = \
-    grepurl.1 \
     urljoin.1 \
-    wgetc.1 \
-    wgetc-url.1
+    wget-grep-url.1 \
+    wgetc.1
 
 dist_setup_SCRIPTS = \
     postinst \
