@@ -1,0 +1,89 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Convert video to mp4 using ffmpeg}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -o --option =OPTION  "Options passed to ffmpeg (repeat)"
+    option -k --delete          "Delete the source video if successful"
+    option -f --force           "Overwrite existing file"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_opts=()
+    opt_delete=
+    opt_force=
+
+function setopt() {
+    case "$1" in
+        -o|--option)
+            opt_opts=( "${opt_opts[@]}" "$2" );;
+        -k|--delete)
+            opt_delete=1;;
+        -f|--force)
+            opt_force=1
+            opt_opts=( "${opt_opts[@]}" -y )
+            ;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for src in "$@"; do
+        dir="${src%/*}"
+        base="${src##*/}"
+        if [ "$dir" = "$src" ]; then
+            dir=.
+        fi
+
+        name="${base%.*}"
+        ext="${base##*.}"
+        if [ "$ext" = "$name" ]; then
+            ext=
+        else
+            ext=".$ext"
+        fi
+
+        outname="$name"
+        if [ -z "$opt_force" ] || [ "$ext" = .mp4 ]; then
+            seq=
+            while [ -f "$dir/$outname.mp4" ]; do
+                if [ -z "$seq" ]; then
+                    seq=1
+                else
+                    (( seq++ ))
+                fi
+                outname="$name ($seq)"
+            done
+        fi
+
+        _log1 "Convert $dir/$base to $dir/$outname.mp4"
+        if ffmpeg -loglevel error \
+                "${opt_opts[@]}" \
+                -i "$dir/$base" "$dir/$outname.mp4" </dev/tty; then
+            if [ -f "$dir/$outname.mp4" ]; then
+                _log1 "Succeeded!"
+                if [ "$opt_delete" = 1 ]; then
+                    _log1 "Delete the source file $src"
+                    rm "$src"
+                fi
+            fi
+        else
+            _log1 "Failed to convert. (error=$?)"
+        fi
+    done
+}
+
+boot "$@"

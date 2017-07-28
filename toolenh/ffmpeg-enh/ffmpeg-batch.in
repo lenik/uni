@@ -1,0 +1,70 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Batch mp4 convertion with ffmpeg}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib
+    import cliboot
+    import trash
+
+    option -k --trash       "Trash converted source files, repeat to delete directly"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_trash=0
+
+function setopt() {
+    case "$1" in
+        -k|--trash)
+            ((opt_trash++));;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for src in "$@"; do
+        dst="${src%.*}.mp4"
+        if ! do_ffmpeg -loglevel error -y -i "$src" "$dst" </dev/tty; then
+            _error "Failed to convert $src: exit=$?, skipped."
+            continue
+        fi
+
+        if [ ! -f "$dst" ]; then
+            _error "Not converted to $dst. skipped."
+            continue
+        fi
+
+        _log1 "Convert succeeded."
+        case "$opt_trash" in
+            0)
+                : ;;
+            1)
+                _log1 "Trash source file $src."
+                trash "$src"
+                ;;
+            *)
+                _log1 "Delete source file $src."
+                rm -f "$src"
+                ;;
+        esac
+    done
+}
+
+function do_ffmpeg() {
+    _log2 "Execute: $*"
+    "$@"
+}
+
+boot "$@"
