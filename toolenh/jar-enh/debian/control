@@ -1,0 +1,16 @@
+Source: jar-enh
+Section: java
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.8
+Homepage: http://uni.bodz.net/toolenh/jar-enh
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/toolenh/jar-enh
+
+Package: jar-enh
+Architecture: all
+Depends: 
+    java-compiler,
+    ${misc:Depends}
+Description: JAR (Java Archive) contents analyze assistent.
