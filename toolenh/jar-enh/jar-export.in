@@ -1,0 +1,64 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Show exported packages/classes in the .jar}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -p --pkg-only    "Show only packages"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_pkg_only=0
+
+function setopt() {
+    case "$1" in
+        -p|--pkg-only)
+            opt_pkg_only=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for jar in "$@"; do
+        base="${jar##*/}"
+        dir="${jar%%/*}"
+        if [ "$base" = "$jar" ]; then
+            dir=.
+        fi
+
+        name="${base%.jar}"
+
+        if [ "$opt_pkg_only" = 1 ]; then
+            _log1 "Packages in $jar:"
+            jar tf "$jar" \
+                | grep '/$' \
+                | grep -v 'META-INF' \
+                | sed -e 's,/$,,' \
+                      -e 's,/,.,g' \
+                | sort -d \
+                | uniq
+        else
+            _log1 "Class names in $jar:"
+            jar tf "$jar" \
+                | grep '\.class$' \
+                | sed -e 's,\.class$,,' \
+                      -e 's,/,.,g' \
+                | sort -d
+        fi
+    done
+
+}
+
+boot "$@"

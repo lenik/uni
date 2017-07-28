@@ -1,0 +1,70 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Show imported classes in the .jar}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for jar in "$@"; do
+        base="${jar##*/}"
+        dir="${jar%%/*}"
+        if [ "$base" = "$jar" ]; then
+            dir=.
+        fi
+
+        name="${base%.jar}"
+
+        _log1 "Decompile $jar"
+        if ! dejar "$jar"; then
+            quit "Failed to decompile jar $jar."
+        fi
+
+        srcjar=$( readlink -f "$dir/$name-src.jar" )
+        if [ ! -f "$srcjar" ]; then
+            quit "No -src jar created."
+        fi
+
+        _log1 "find unique imports in $jar."
+        (
+            tmpdir=$( mktemp -d )
+            tmplst=$( mktemp )
+            olddir="$PWD"
+            cd $tmpdir
+            jar xf "$srcjar"
+            grep -hr '^import ' . >$tmplst
+            dos2unix $tmplst
+            sed -e 's,^import ,,' \
+                    -e 's,;$,,' \
+                    $tmplst \
+                | sort | uniq
+            cd "$olddir"
+            rm -fr $tmpdir
+            rm -f $tmplst
+        ) >"$jar.imports"
+
+        sed 's,^,    ,' "$jar.imports"
+    done
+}
+
+boot "$@"
