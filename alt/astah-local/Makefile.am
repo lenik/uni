@@ -1,5 +1,8 @@
 include libauto/project.am
 
+dist_bin_SCRIPTS = \
+    astah
+
 dist_setup_SCRIPTS = \
     postinst \
     prerm
