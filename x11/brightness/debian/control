@@ -1,0 +1,14 @@
+Source: brightness
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.8
+Homepage: http://uni.bodz.net/x11/brightness
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/x11/brightness
+
+Package: brightness
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Change display brightness
