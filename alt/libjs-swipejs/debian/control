@@ -1,0 +1,17 @@
+Source: libjs-swipejs
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.8
+Homepage: http://uni.bodz.net/alt/libjs-swipejs
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/alt/libjs-swipejs
+
+Package: libjs-swipejs
+Architecture: all
+Depends: 
+    ${misc:Depends}
+Description: Swipe is the most accurate touch slider. 
+    It is extremely lightweight (only 6kb minified) and works across all browsers, including IE7+.
+    Support both Angular.js and React.js
