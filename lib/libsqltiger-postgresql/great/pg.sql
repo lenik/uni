@@ -1,5 +1,6 @@
 --\import great.pg.columnstat
 --\import great.pg.dropemptytables
+--\import great.pg.execsql
 --\import great.pg.killtable
 --\import great.pg.mkaview
 --\import great.pg.monthtrends
