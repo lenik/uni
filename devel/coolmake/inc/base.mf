@@ -87,3 +87,7 @@ deploy: $(deploy_archives)
                 tar xaf $$ar; \
                 rm $$ar; \
             done'
+
+rsync:
+	rsync -amv --delete . $(remotehost):$(remotedir)
+
