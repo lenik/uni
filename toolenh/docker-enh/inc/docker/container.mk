@@ -12,6 +12,7 @@ DOCKER_RUN_VOLS = \
     -v /tmp:/tmp
 
 DOCKER_RUN_OPTS = \
+    --hostname $(ID) \
     $(DOCKER_RUN_DNS) \
     $(DOCKER_RUN_VOLS)
 
