@@ -52,10 +52,14 @@ function main() {
             if [ "${key:0:1}" = '#' ]; then continue; fi
             if [ -z "$key" ]; then continue; fi
 
-            if [ "$key" = unit ]; then
-                # assert $line = sectors
-                continue
-            fi
+            case "$key" in
+                label) continue;;
+                label-id) continue;;
+                device) continue;;
+                unit)
+                    # assert $line = "sectors"
+                    continue;;
+            esac
 
             index="${key:$ndev}"
             index="${index% }"
