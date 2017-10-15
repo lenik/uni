@@ -105,6 +105,7 @@ public class UniSite
     }
 
     public synchronized void reload() {
+        logger.info("Reload uni-site in the directory " + baseDir);
         sectionMap.clear();
         for (File sectionDir : baseDir.listFiles()) {
             if (!sectionDir.isDirectory())
@@ -113,8 +114,10 @@ public class UniSite
             String name = sectionDir.getName();
 
             Section section = new Section(this, name, sectionDir);
-            if (section.getDocFile() == null)
+            if (section.getDocFile() == null) {
+                logger.infof("Skipped non-section dir %s.", sectionDir);
                 continue;
+            }
 
             section.load();
 

@@ -1,6 +1,7 @@
 package net.bodz.uni.site;
 
 import java.io.File;
+import java.io.IOException;
 
 import net.bodz.bas.c.m2.MavenPomDir;
 import net.bodz.bas.log.Logger;
@@ -30,7 +31,16 @@ public class DefaultUniSite
 
     public static File getUniDirFromSrc() {
         File pomDir = MavenPomDir.fromClass(UniSite.class).getBaseDir();
-        File javaDir = pomDir.getParentFile();
+        File uniSiteProjDir;
+        try {
+            uniSiteProjDir = pomDir.getCanonicalFile();
+        } catch (IOException e) {
+            logger.error("Bad base-dir: " + pomDir);
+            return null;
+        }
+        File javaDir = uniSiteProjDir.getParentFile();
+        if (javaDir == null)
+            return null;
         File uniDir = javaDir.getParentFile();
         if (uniDir == null)
             return null;
@@ -38,5 +48,4 @@ public class DefaultUniSite
             uniDir = null;
         return uniDir;
     }
-
 }
