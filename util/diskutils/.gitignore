@@ -1,5 +1,6 @@
 bin2iso
 blockdev-info
+fragoutside
 mkhdd
 partoffset
 readmbr

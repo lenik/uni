@@ -3,6 +3,7 @@ include libauto/project.am
 dist_bin_SCRIPTS = \
     bin2iso \
     blockdev-info \
+    fragoutside \
     mkhdd \
     partoffset \
     readmbr \
@@ -15,6 +16,7 @@ dist_pkgdata_DATA = \
 dist_man_MANS = \
     bin2iso.1 \
     blockdev-info.8 \
+    fragoutside.8 \
     mkhdd.8 \
     partoffset.8 \
     readmbr.8 \

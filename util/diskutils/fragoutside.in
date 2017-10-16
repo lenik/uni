@@ -1,0 +1,88 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Print files with fragment outside of specific boundary}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FILES}
+
+    . shlib-import cliboot
+    option -b --blocks =NUM     'in blocks'
+    option -p --percent =NUM    'in percent of current disk'
+    option -d --defrag          'run defrag program'
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    block_size=4096
+    blocks_in_1M=$(( 1048576 / block_size ))
+    max_block=
+    opt_defrag=
+
+function setopt() {
+    case "$1" in
+        -b|--blocks)
+            max_block=$2;;
+
+        -p|--percent)
+            read dev sizek _ < <(df --output=source,size . | grep '^/')
+            blocks=$(( sizek / 4 ))
+            max_block=$(( blocks * $2 / 100 ))
+            ;;
+
+        -d|--defrag)
+            opt_defrag=1;;
+
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$blocks" ]; then
+        quit "block number isn't specified."
+    fi
+
+    _filefrag -v "$@" | grep '\.\..*eof$' -A1 | parse
+}
+
+function parse() {
+    while read line; do
+        IFS=: read fn _
+        IFS=: read ext log phy len expected flags _ < <(echo "$line")
+        read sep
+
+        phy0=${phy%..*}
+        phy1=${phy#*..}
+        phy0=${phy0// /}
+        phy1=${phy1// /}
+        # [ "$phy0" != "$phy1" ] || continue
+
+        if [ "$phy0" -gt "$max_block" ]; then
+            if [ "$opt_defrag" = 1 ]; then
+                _log2 "Defrag $fn (extent $ext starts on $phy0)"
+                _e4defrag "$fn"
+            else
+                echo "$phy0:$fn"
+            fi
+        fi
+    done
+}
+
+function _filefrag() {
+    sudo filefrag "$@"
+}
+
+function _e4defrag() {
+    sudo e4defrag "$@"
+}
+
+
+boot "$@"
