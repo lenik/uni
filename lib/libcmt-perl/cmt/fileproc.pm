@@ -85,7 +85,7 @@ our %COMOPT = ( # bcdfikrtw
                'follow|L'       => \$opt_follow,
                'force|f'        => \$opt_force,
                'ignore-case|i'  => \$opt_ignore_case,
-               'recursive|r:n'  => sub { shift; $opt_fswalk{-depth} = shift || 100 },
+               'recursive|r'    => sub { shift; $opt_fswalk{-depth} = 1000 },
                'stdout|c'       => \$opt_stdout,
                'walkopt|w=n'    => \%opt_fswalk,
                );
