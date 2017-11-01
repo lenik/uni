@@ -134,7 +134,7 @@ function main() {
             continue
         fi
 
-        _log1 "Extract $ar..."
+        _log1 "Extract $ar using $xfn..."
         if $xfn "$dir" "$base"; then
             _log1 "Extraction succeeded."
             case $opt_delete in
@@ -156,16 +156,21 @@ function main() {
     done
 }
 
+function execute() {
+    _log2 "Run: $*"
+    "$@"
+}
+
 function x-unrar() {
-    $UNRAR x "${unraropts[@]}" "$1/$2"
+    execute $UNRAR x "${unraropts[@]}" "$1/$2"
 }
 
 function x-unzip() {
-    $UNZIP "${unzipopts[@]}" "$1/$2"
+    execute $UNZIP "${unzipopts[@]}" "$1/$2"
 }
 
 function x-7z() {
-    $_7Z x "${_7zopts[@]}" "$1/$2"
+    execute $_7Z x "${_7zopts[@]}" "$1/$2"
 }
 
 function x-7z-conv() {
@@ -188,6 +193,8 @@ function x-7z-conv() {
     done
 
     LANG=en.latin1 \
+    # execute $_7Z x "${_7zopts[@]}" "${adds[@]}" "$dir/$base" > >(tee $list)
+    _log2 "Run: " $_7Z x "${_7zopts[@]}" "${adds[@]}" "$dir/$base"
     $_7Z x "${_7zopts[@]}" "${adds[@]}" "$dir/$base" > >(tee $list)
     status=$?
 
@@ -200,7 +207,7 @@ function x-7z-conv() {
                 | sed -n 's/^Extracting //p' \
                 | sed '1!G;h;$!d')
         _log1 "Convert filename encodings (listing)..."
-        convmv -f $opt_from -t $opt_to --notest "${v[@]}"
+        execute convmv -f $opt_from -t $opt_to --notest "${v[@]}"
     fi
     
     rm $list
@@ -210,13 +217,13 @@ function x-7z-conv() {
 function x-bsdtar-conv-cwd() {
     local status=0
 
-    LANG=en.UTF-8 \
-    $BSDTAR -x "${bsdtaropts[@]}" -f "$1/$2" 2>&1
+    LANG=C.UTF-8 \
+    $BSDTAR -x "${bsdtaropts[@]}" -f "$1/$2"
     status=$?
 
     if [ $status = 0 ]; then
         _log1 "Convert filename encodings (all)..."
-        convmv -f $opt_from -t $opt_to -r --notest .
+        execute convmv -f $opt_from -t $opt_to -r --notest .
     fi
     return $status
 }
@@ -225,19 +232,19 @@ function x-bsdtar-conv() {
     local list=`tempfile`
     local status=0
 
-    LANG=en.UTF-8 \
-    $BSDTAR -x "${bsdtaropts[@]}" -f "$1/$2" > >(tee $list) 2>&1
+    LANG=C.UTF-8 \
+    execute $BSDTAR -x "${bsdtaropts[@]}" -f "$1/$2" > >(tee $list) 2>&1
     status=$?
     
     if [ $status = 0 ]; then
         v=()
         n=0
-        while read path; do
+        while read x_char path; do
             v[n++]="$path"
             _log2 "  - $path"
         done <$list
         _log1 "Convert filename encodings (list)..."
-        convmv -f $opt_from -t $opt_to --notest "${v[@]}"
+        execute convmv -f $opt_from -t $opt_to --notest "${v[@]}"
     fi
 
     rm $list
