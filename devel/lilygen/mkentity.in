@@ -125,20 +125,20 @@ function main() {
         done
 
         mk_ent          "$f_ent"
-        mk_ent_htm      "$f_ent_htm"
-        touch           "$f_ent_htm_css"
-        touch           "$f_ent_htm_js"
-        mk_htm_inf      "$f_htm_inf"
+        #mk_ent_htm      "$f_ent_htm"
+        #touch           "$f_ent_htm_css"
+        #touch           "$f_ent_htm_js"
+        #mk_htm_inf      "$f_htm_inf"
         mk_mask         "$f_mask"
         mk_mapper       "$f_mapper"
         mk_mapper_xml   "$f_mapper_xml"
         mk_mapper_inf   "$f_mapper_inf"
         mk_index        "$f_index"
         mk_index_inf    "$f_index_inf"
-        mk_index_htm    "$f_index_htm"
-        touch           "$f_index_htm_css"
-        touch           "$f_index_htm_js"
-        mk_htm_inf      "$f_htm_inf"
+        #mk_index_htm    "$f_index_htm"
+        #touch           "$f_index_htm_css"
+        #touch           "$f_index_htm_js"
+        #mk_htm_inf      "$f_htm_inf"
     done
 }
 
@@ -276,7 +276,7 @@ function mk_mapper_xml() {
  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="$pkg_db.${Base}Mapper">
 
-    <resultMap id="map1" type="$fqcn" extends="co.mapUS">
+    <resultMap id="map1" type="$fqcn" extends="co.MAP_UVX">
     </resultMap>
 
     <sql id="select1"><![CDATA[
@@ -328,17 +328,17 @@ function mk_mapper_xml() {
         insert into $base(
             code, label, description
         ) values(
-            #{codeName},#{label},#{description}
+            #{codeName}, #{label}, #{description}
         )
     ]]></insert>
 
-    <select id="insert" resultType="long"><![CDATA[
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"><![CDATA[
         insert into $base(
             code, label, description
         ) values(
-            #{codeName},#{label},#{description}
-        ) returning id
-    ]]></select>
+            #{codeName}, #{label}, #{description}
+        ) returning id; --
+    ]]></insert>
 
     <update id="update">
         update $base
@@ -357,7 +357,9 @@ function mk_mapper_xml() {
     <select id="count" resultType="hashmap">
         select count(*) "rows" from ${base}
         <where>
-            <include refid="filtconds" />
+            <if test="_parameter != null">
+                <include refid="filtconds" />
+            </if>
         </where>
     </select>
 
@@ -372,20 +374,13 @@ function mk_index() {
 package $pkg_web;
 
 import net.bodz.bas.meta.decl.ObjectType;
-import net.bodz.lily.model.base.CoObjectIndex;
+import net.bodz.lily.model.base.CoIndex;
 
 import $fqcn;
 
-/**
- * TITLE
- * 
- * @label LABEL
- * @rel HREF1: TEXT1
- * @see <a href="HREF2">TEXT2</a>
- */
 @ObjectType($Base.class)
 public class ${Base}Index
-        extends CoObjectIndex {
+        extends CoIndex<$Base, ${Base}Mask> {
 
 }
 EOT
@@ -467,7 +462,7 @@ EOT
 }
 
 function mk_index_inf() {
-    list="src/main/resources/META-INF/services/net.bodz.lily.model.base.CoObjectIndex"
+    list="src/main/resources/META-INF/services/net.bodz.lily.model.base.CoIndex"
     add_inf "$list" "$@"
 }
 
@@ -477,7 +472,7 @@ function mk_mapper_inf() {
 }
 
 function mk_htm_inf() {
-    list="src/main/resources/META-INF/services/net.bodz.bas.html.viz.IHttpViewBuilder"
+    list="src/main/resources/META-INF/services/net.bodz.bas.http.viz.IHttpViewBuilder"
     add_inf "$list" "$@"
 }
 
