@@ -34,11 +34,11 @@ function main() {
                 continue
             fi
         fi
+        real=`readlink -f "$f"`
         if [ -h "$f" ]; then
-            f=`readlink -f "$f"`
-            echo "$f"
+            _log1 "Symlink-To: $real"
         fi
-        dpkg -S "$f"
+        dpkg -S "$real"
     done
 }
 
