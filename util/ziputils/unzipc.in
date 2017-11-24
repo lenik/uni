@@ -38,6 +38,7 @@
 
     _7zopts=()
     bsdtaropts=(-v)
+    taropts=(-v)
     unraropts=()
     unzipopts=()
 
@@ -91,13 +92,20 @@ function main() {
 
         xfn="$opt_extractor"
         if [ -z "$xfn" ]; then
-            case "$ext" in
-                7z)
+            case "$base" in
+                *.7z)
                     xfn=x-7z;;
-                rar)
+                *.rar)
                     xfn=x-unrar;;
-                zip)
+                *.zip)
                     xfn=x-bsdtar;;
+                *.tar|*.tgz)
+                    xfn=x-tar;;
+                *.tar.*)
+                    ext1="${name##*.}"
+                    name="${name%.*}"
+                    ext="$ext1.$ext"
+                    xfn=x-tar;;
                 *)
                     _log1 "Unknown archive type: $ar"
                     continue;;
@@ -159,6 +167,10 @@ function main() {
 function execute() {
     _log2 "Run: $*"
     "$@"
+}
+
+function x-tar() {
+    execute tar -x -a "${taropts[@]}" -f "$1/$2"
 }
 
 function x-unrar() {
