@@ -226,7 +226,6 @@ function mk_mask() {
     cat <<EOT >"$file"
 package $pkg_db;
 
-import net.bodz.bas.err.ParseException;
 import net.bodz.bas.t.variant.IVariantMap;
 import net.bodz.lily.model.base.CoObjectMask;
 
@@ -235,12 +234,6 @@ import net.bodz.lily.model.base.CoObjectMask;
  */
 public class ${Base}Mask
         extends CoObjectMask {
-
-    @Override
-    public void readObject(IVariantMap<String> map)
-            throws ParseException {
-        super.readObject(map);
-    }
 
 }
 EOT
@@ -285,8 +278,8 @@ function mk_mapper_xml() {
             u.label "uid_label",
             g.label "gid_label"
         from $base a
-            left join "user" u on a.uid=u.id
-            left join "group" g on a.gid=g.id
+            left join "user" u on a.uid = u.id
+            left join "group" g on a.gid = g.id
         ]]>
     </sql>
 
@@ -323,14 +316,6 @@ function mk_mapper_xml() {
             <if test="_parameter != null">a.id = #{id}</if>
         </where>
     </select>
-
-    <insert id="_insert"><![CDATA[
-        insert into $base(
-            code, label, description
-        ) values(
-            #{codeName}, #{label}, #{description}
-        )
-    ]]></insert>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"><![CDATA[
         insert into $base(
