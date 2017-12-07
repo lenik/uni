@@ -1,0 +1,16 @@
+Source: dirtag
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.8
+Homepage: http://uni.bodz.net/util/dirtag
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/util/dirtag
+
+Package: dirtag
+Architecture: all
+Depends: 
+    bash-shlib,
+    ${misc:Depends}
+Description: Dir tagging tool.
