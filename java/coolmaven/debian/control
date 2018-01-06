@@ -17,11 +17,12 @@ Depends:
     graphviz,
     grep,
     maven2 | maven,
-    svn-enh,
     tty-fx,
     xml2,
     xmlindent,
     xmlutils,
     wget,
     ${misc:Depends}
+Suggests:
+    svn-enh
 Description: Lenik's Maven utils
