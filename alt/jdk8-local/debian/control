@@ -12,6 +12,7 @@ Package: jdk8-local
 Architecture: all
 Provides:
     default-jre,
+    default-jdk,
     java-compiler,
     java2-compiler,
     java-runtime, java-runtime-headless,
@@ -30,8 +31,10 @@ Provides:
     jdk5-local,
     jdk6-local,
     jdk7-local,
+    openjdk-7-jdk,
     openjdk-7-jre,
     openjdk-7-jre-headless,
+    openjdk-8-jdk,
     openjdk-8-jre,
     openjdk-8-jre-headless
 Conflicts: jdk7-local
