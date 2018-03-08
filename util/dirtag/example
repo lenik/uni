@@ -1,0 +1,17 @@
+.register
+    # general register
+        public*
+        famous
+    
+    # batch ops
+        vcsdir
+        cooltask
+    
+    # system dev support
+        lib
+        include
+    
+    # dev library:
+        python
+        perl
+
