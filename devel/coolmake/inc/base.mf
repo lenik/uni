@@ -1,12 +1,14 @@
+# vim: set ft=make :
+
 SHELL = bash
 
-project = $(notdir $(PWD))
+project = $(notdir $(shell readlink -f $(PWD)))
 
 remotehost = localhost
 remotedir = /tmp
-remote = $(remotehost):$(remotedir)
 
 sharedir = share
+remotehostdir = $(remotehost):$(remotedir)
 
 gitworkcopy = gitworkcopy
 svnworkcopy = svnworkcopy
@@ -32,12 +34,13 @@ all-text: \
 	mv -nv "$<" "$@"
 
 ../$(project).bin.tar.%: .
+	shopt -s dotglob; \
 	tar caf "$@" \
 	    --dereference \
 	    --exclude-vcs \
-	    --transform 's,^,$(project)/,' \
 		$(bin_files) \
 	    `[ -d $(sharedir) ] && (cd $(sharedir); echo -C $(sharedir) *)`
+	    --transform 's|^|$(project)/|' \
 
 ../$(project).src.tar.%: .
 	shopt -s dotglob; \
@@ -47,7 +50,7 @@ all-text: \
 	    --exclude=$(svnworkcopy) \
 	    --exclude=$(sharedir) \
 	    $(addprefix --exclude=, $(src_excludes)) \
-	    --transform 's,^,$(project)/,' \
+	    --transform 's|^|$(project)/|' \
 	    *
 
 svn-update-and-merge-into:
@@ -71,16 +74,16 @@ svn-pushlastcommit: svn-update-and-merge-into
 	    svn commit -m "$$msg" .; \
 	    svn update
 
-ver:
+info:
 	@echo project: $(project)
-	@echo remote: $(remote)
+	@echo remote: $(remotehostdir)
 
 deploy_archives = \
     ../$(project).bin.tar.gz
 deploy_ar_names = $(notdir $(deploy_archives))
 
-deploy: $(deploy_archives)
-	scp $< $(remote)
+deploy: ${deploy_archives}
+	scp ${deploy_archives} $(remotehostdir)
 	ssh $(remotehost) \
             'cd $(remotedir); \
             for ar in $(deploy_ar_names); do \
@@ -88,6 +91,11 @@ deploy: $(deploy_archives)
                 rm $$ar; \
             done'
 
+rsync-dist: ${deploy_archives}
+	tmpdir=`mktemp -d`; \
+	tar -xz -C $$tmpdir -f ${deploy_archives}; \
+	rsync -camv --delete $$tmpdir/* ${remotehostdir}
+
 rsync:
-	rsync -camv --delete . $(remotehost):$(remotedir)
+	rsync -camv --delete . $(remotehostdir}
 
