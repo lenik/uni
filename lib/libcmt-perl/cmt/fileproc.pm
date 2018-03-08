@@ -85,7 +85,8 @@ our %COMOPT = ( # bcdfikrtw
                'follow|L'       => \$opt_follow,
                'force|f'        => \$opt_force,
                'ignore-case|i'  => \$opt_ignore_case,
-               'recursive|r'    => sub { shift; $opt_fswalk{-depth} = 1000 },
+               'recursive|r'    => sub { shift; $opt_fswalk{-depth} = 100 },
+               'max-depth=n'    => sub { $opt_fswalk{-depth} = $_[1] },
                'stdout|c'       => \$opt_stdout,
                'walkopt|w=n'    => \%opt_fswalk,
                );
@@ -100,7 +101,8 @@ our $COMOPT = <<'EOM';
     -f, --force             force change read-only files
     -i, --ignore-case       ignore case
     -L, --follow            follow symlinks
-    -r, --recursive[=DEPTH] => --walkopt=-depth=DEPTH
+    -r, --recursive         recursive search sub-directories
+        --max-depth=NUM     same as '-w -depth=NUM', default 100
     -w, --walkopt=OPTION    extra options for directory iterator (see follow)
     -k, --backup[=EXT]      backup the original files (default EXT=bak)
 EOM
