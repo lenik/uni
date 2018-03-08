@@ -89,5 +89,5 @@ deploy: $(deploy_archives)
             done'
 
 rsync:
-	rsync -amv --delete . $(remotehost):$(remotedir)
+	rsync -camv --delete . $(remotehost):$(remotedir)
 

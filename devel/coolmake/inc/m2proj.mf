@@ -18,7 +18,7 @@ update-lib:
 	rm -f $(libdir)/*
 	mjpl -t -v --deps 2>&1 \
 	    | grep -Po '/.*\.jar' \
-	    | while read f; do cp -nv "$$f" $(libdir)/; done
+	    | while read f; do cp -pnv "$$f" $(libdir)/; done
 
 bin_PRE += update-lib
 
