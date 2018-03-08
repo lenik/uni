@@ -1,5 +1,7 @@
 package net.bodz.uni.echo._default;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.ServiceLoader;
 
 import net.bodz.bas.c.javax.servlet.http.RequestLogger;
@@ -8,6 +10,8 @@ import net.bodz.bas.http.config.ServletContextConfig;
 import net.bodz.bas.http.config.ServletDescriptor;
 import net.bodz.bas.http.ctx.CurrentHttpService;
 import net.bodz.bas.meta.codegen.IndexedTypeLoader;
+import net.bodz.bas.t.iterator.Iterables;
+import net.bodz.bas.t.order.PriorityComparator;
 
 @IndexedTypeLoader(IServletContextConfigurer.class)
 public class DefaultServerConfig
@@ -18,8 +22,6 @@ public class DefaultServerConfig
     String[] hintFilenames = { "WEB-INF/web.xml", "index.html" };
 
     public DefaultServerConfig() {
-        ServiceLoader<IServletContextConfigurer> configurers = ServiceLoader.load(IServletContextConfigurer.class);
-
         int portNumber = 8080;
         String echoPort = System.getProperty(ATTRIBUTE_PORT);
         if (echoPort != null)
@@ -32,13 +34,19 @@ public class DefaultServerConfig
         addServletRequestListener(new CurrentHttpService());
         addServletRequestListener(new RequestLogger());
 
-        /** Workaround: There is no HttpResponse parameter in servlet-request-event. */
-        // addFilter(CurrentHttpService.class, "/*");
-        for (IServletContextConfigurer configurer : configurers)
-            configurer.filters(this);
+        ServiceLoader<IServletContextConfigurer> configurers = ServiceLoader.load(IServletContextConfigurer.class);
+        {
+            List<IServletContextConfigurer> sorted = Iterables.toList(configurers);
+            Collections.sort(sorted, PriorityComparator.INSTANCE);
 
-        for (IServletContextConfigurer configurer : configurers)
-            configurer.servlets(this);
+            /** Workaround: There is no HttpResponse parameter in servlet-request-event. */
+            // addFilter(CurrentHttpService.class, "/*");
+            for (IServletContextConfigurer configurer : sorted)
+                configurer.filters(this);
+
+            for (IServletContextConfigurer configurer : sorted)
+                configurer.servlets(this);
+        }
 
         ServletDescriptor unionServlet = addServlet(EchoResourceServlet.class, "/");
         unionServlet.setPriority(PRIORITY_FALLBACK);
