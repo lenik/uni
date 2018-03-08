@@ -12,6 +12,7 @@ bin_files += \
 src_excludes = \
     target
 
+bin_PRE += update-lib
 update-lib:
 	rm -f .classpath.main .classpath.test
 	mkdir -p $(libdir)
@@ -19,6 +20,4 @@ update-lib:
 	mjpl -t -v --deps 2>&1 \
 	    | grep -Po '/.*\.jar' \
 	    | while read f; do cp -pnv "$$f" $(libdir)/; done
-
-bin_PRE += update-lib
 
