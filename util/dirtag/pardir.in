@@ -1,0 +1,108 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=index-style project maintainer}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] cmd [cmd-options]}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    cmd="$1"
+    if [ -z "$cmd" ]; then
+        quit "No command specified."
+    fi
+    shift
+
+    cmd_handler="do-$cmd"
+    cmd_type=`type -t $cmd_handler` || quit "Unknown command $cmd."
+
+    root=$(vcscmd rootpath) || quit "Can't get vcs root path of the working copy."
+    parent="${root%/*}"
+
+    pwdroot=$(relpath "$PWD" "$root")
+    #pwdparent=$(relpath "$PWD" "$parent")
+
+    rootname="${root##*/}"
+
+    case `type -t $cmd_handler` in
+        function)
+            $cmd_handler "$@"
+            ;;
+        file)
+            #exec $cmd_handler "$@"
+            $cmd_handler "$@"
+            ;;
+        *)
+            quit "Unknown command type: $cmd."
+            ;;
+    esac
+}
+
+function do-subdir() {
+    d="$PWD"
+    while [ -n "$d" ]; do
+        p="${d%/*}"
+        [ -z "$p" ] && return 1
+
+        pn="${p##*/}"
+        if [ "$pn" == "index" ]; then
+            echo "$d"
+            return 0
+        fi
+        d="$p"
+    done
+}
+
+# Make/update parallel outmost dirs.
+function do-mkpars() {
+    for d in "$parent/$rootname."*; do
+        base=${d##*/}
+        rsib=../$base
+        parname="${base##*.}"
+        ln -snfv "../$base" "$root/$parname"
+    done
+}
+
+function do-mksubpars() {
+    do-mkpars
+
+    subdir=$(do-subdir) || quit "Not in a index-sub dir."
+    subname=${subdir##*/}
+    subroot=$(relpath $subdir $root)
+
+    for d in "$parent/$rootname."*; do
+        base=${d##*/}
+        parname="${base##*.}"
+        pwdpar="$pwdroot/$parname"
+        if [ ! -d "$pwdpar" ]; then
+            _log2 "Parallel $parname not enabled, ignored."
+            continue
+        fi
+
+        if [ -d "$pwdroot/$parname/$subname" ]; then
+            subpar="$subroot/$parname/$subname"
+            ln -snfv "$subroot/$parname/$subname" "$subdir/$parname"
+        fi
+    done
+}
+
+boot "$@"
