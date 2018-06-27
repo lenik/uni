@@ -24,6 +24,7 @@ my %opt_authors;
 my $opt_reverse = 0;
 my $opt_tex = 0;
 my $opt_tex_vername = 'Version';
+my $opt_tex_authorname = '';
 my $opt_tex_datename = 'Date';
 my $opt_tex_logname = 'Change Log';
 my $opt_tex_logwidth = '10cm';
@@ -45,6 +46,7 @@ sub _boot {
                'r|reverse'          => \$opt_reverse,
                'T|TeX'              => \$opt_tex,
                'Tv|TeX-version-name=s'  => \$opt_tex_vername,
+               'Ta|TeX-author-name=s'   => \$opt_tex_authorname,
                'Td|TeX-date-name=s'     => \$opt_tex_datename,
                'Tl|TeX-log-name=s'      => \$opt_tex_logname,
                'Tw|TeX-log-width=s'     => \$opt_tex_logwidth,
@@ -169,7 +171,7 @@ sub _main {
         next if ($_ eq '');
 
         if (/^\[(\d+-\d+-\d+)\] (.*)$/) {
-            if (defined $date) {
+            if (defined($date) and scalar(@commits)) {
                 $dmap->{$date} = [@commits];
                 $dauthors->{$date} = $authors;
             }
@@ -185,6 +187,10 @@ sub _main {
 
         s/^\s+\*\s+//;
         push @commits, $_;
+    }
+    if (defined($date) and scalar(@commits)) {
+        $dmap->{$date} = [@commits];
+        $dauthors->{$date} = $authors;
     }
 
     my @dates = sort keys %$dmap;
@@ -217,13 +223,15 @@ sub _main {
     @dates = reverse(@dates) if $opt_reverse;
 
     if ($opt_tex) {
-        print <<EOT
-\\begin{longtable}{$opt_tex_style}
-    $opt_tex_header
-    \\toprule
-    $opt_tex_vername & $opt_tex_datename & \\multicolumn{1}{c}{$opt_tex_logname} \\\\
-    \\midrule
-EOT
+        print "\\begin{longtable}{$opt_tex_style}\n";
+        print "    $opt_tex_header\n";
+        print "    \\toprule\n";
+        print "    $opt_tex_vername";
+            print " & $opt_tex_authorname" if $opt_tex_authorname;
+            print " & $opt_tex_datename";
+            print " & \\multicolumn{1}{c}{$opt_tex_logname}";
+            print " \\\\\n";
+        print "    \\midrule\n";
     }
 
     for(my $di = 0; $di < scalar(@dates); $di++) {
@@ -238,14 +246,20 @@ EOT
         }
 
         my $list = $dmap->{$date};
+        $list = [reverse @$list] unless $opt_reverse;
+
         my $n = scalar(@$list);
         my $li = 0;
         for (@$list) {
             if ($opt_tex) {
+                print "    ";
                 if ($li == 0) {
-                    print "    \\multirow{$n}{*}{$opt_title$ver} & \\multirow{$n}{*}{$date} & ";
+                    print "$opt_title$ver";
+                    print " & $authors " if $opt_tex_authorname;
+                    print " & $date";
+                    print " & ";
                 } else {
-                    print "    & & ";
+                    print "& & & ";
                 }
 
                 s/\\/\\textbackslash{}/g;
