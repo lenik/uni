@@ -1,0 +1,17 @@
+Source: typora-enh
+Section: tex
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 10)
+Standards-Version: 4.1.2
+Homepage: http://uni.bodz.net/toolenh/typora-enh
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/toolenh/typora-enh
+
+Package: typora-enh
+Architecture: all
+Depends: 
+    perl,
+    typora,
+    ${misc:Depends}
+Description: Typora latex supports.
