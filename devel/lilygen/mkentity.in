@@ -4,14 +4,25 @@
     : ${PROGRAM_TITLE:=}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FQCN...}
 
+    pkgdatadir='@pkgdatadir@'
+    if [ "${pkgdatadir:0:1}" = '@' ]; then
+        __FILE__=$(readlink -f "$0")
+        pkgdatadir="${__FILE__%/*}"
+    fi
+    templatedir="$pkgdatadir/template"
+
     . shlib-import cliboot strfn
     option -l --layout =LAYOUT      "Specify the source layout"
+    option -f --force               "Override existing source files"
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
 
     opt_layout=auto
+    opt_force=
+
+    E_SET_FILE=100
 
 function setopt() {
     case "$1" in
@@ -28,6 +39,8 @@ function setopt() {
             esac;;
         -h|--help)
             help $1; exit;;
+        -f|--force)
+            opt_force=1;;
         -q|--quiet)
             LOGLEVEL=$((LOGLEVEL - 1));;
         -v|--verbose)
@@ -40,6 +53,9 @@ function setopt() {
 }
 
 function main() {
+    _log2 "pkgdatadir: $pkgdatadir"
+    _log2 "template-dir: $templatedir"
+
     for d in src/main/java src/main/resources; do
         [ -d $d ] || quit "Non-existed directory: $d."
     done
@@ -81,75 +97,34 @@ function main() {
         base="$(tolower $B)${Base:1}"
         _log1 "Generating files for $pkg::$Base $base (in */$dir_pojo)."
 
-                  f_ent="src/main/java/$dir_pojo/$Base.java"
-                 f_mask="src/main/java/$dir_db/${Base}Mask.java"
+        template=default
+        for tmpl in "$templatedir/$template"/*; do
+            file=
+            file=$(set -e; . $tmpl)
+            if [ -z "$file" ]; then
+                quit "Illegal template $tmpl: file isn't set."
+            fi
 
-               f_mapper="src/main/java/$dir_db/${Base}Mapper.java"
-           f_mapper_xml="src/main/resources/$dir_db/${Base}Mapper.xml"
-
-              f_ent_htm="src/main/java/$dir_web/${Base}_htm.java"
-          f_ent_htm_css="src/main/resources/$dir_web/${Base}_htm.css"
-           f_ent_htm_js="src/main/resources/$dir_web/${Base}_htm.js"
-
-                f_index="src/main/java/$dir_web/${Base}Index.java"
-            f_index_htm="src/main/java/$dir_web/${Base}Index_htm.java"
-        f_index_htm_css="src/main/resources/$dir_web/${Base}Index_htm.css"
-         f_index_htm_js="src/main/resources/$dir_web/${Base}Index_htm.js"
-
-              f_htm_inf="$pkg_web.${Base}_htm"
-           f_mapper_inf="$pkg_db.${Base}Mapper"
-            f_index_inf="$pkg_web.${Base}Index"
-              f_htm_inf="$pkg_web.${Base}Index_htm"
-
-              see_alsos=()
-        for f in \
-                "$f_mask" \
-                "$f_mapper" \
-                "$f_ent_htm" \
-                "$f_index" \
-                "$f_index_htm" \
-                ; do
-            c="${f#src/main/java/}"
-            c="${c%.java}"
-            c="${c//\//.}"
-            see_alsos=("${see_alsos[@]}" "$c")
+            findfile "$file" && continue
+            . $tmpl
         done
-        for f in \
-                "$f_mapper_xml" \
-                "$f_ent_htm_css" \
-                "$f_ent_htm_js" \
-                "$f_index_htm_css" \
-                "$f_index_htm_js" \
-                ; do
-            see_alsos=("${see_alsos[@]}" "$f")
-        done
-
-        mk_ent          "$f_ent"
-        #mk_ent_htm      "$f_ent_htm"
-        #touch           "$f_ent_htm_css"
-        #touch           "$f_ent_htm_js"
-        #mk_htm_inf      "$f_htm_inf"
-        mk_mask         "$f_mask"
-        mk_mapper       "$f_mapper"
-        mk_mapper_xml   "$f_mapper_xml"
-        mk_mapper_inf   "$f_mapper_inf"
-        mk_index        "$f_index"
-        mk_index_inf    "$f_index_inf"
-        #mk_index_htm    "$f_index_htm"
-        #touch           "$f_index_htm_css"
-        #touch           "$f_index_htm_js"
-        #mk_htm_inf      "$f_htm_inf"
     done
 }
 
+# return 1 if create new.
 function findfile() {
-    file="$1"
+    local file="$1"
     if [ -f "$file" ]; then
-        _log2 "Reusing file $file."
-        return 0
+        if [ "$opt_force" != 1 ]; then
+            _log2 "Reusing file $file."
+            return 0
+        else
+            _log2 "Overwrite file $file."
+            return 1
+        fi
     fi
 
-    dirname="${file%/*}"
+    local dirname="${file%/*}"
     if [ "$dirname" = "$file" ]; then
         dirname=.
     fi
@@ -161,304 +136,13 @@ function findfile() {
     return 1
 }
 
-function mk_ent() {
-    file="$1"
-    findfile "$file" && return
-
-    echo "package $pkg;" >"$file"
-    echo >>"$file"
-    echo "import com.tinylily.model.base.CoEntity;" >>"$file"
-    echo >>"$file"
-    echo "/**" >>"$file"
-    for s in "${see_alsos[@]}"; do
-        echo " * @see $s" >>"$file"
-    done
-    echo "*/" >>"$file"
-    
-    cat <<EOT >>"$file"
-@IdType(Integer.class)
-public class $Base
-        extends CoEntity<Integer> {
-
-    private static final long serialVersionUID = 1L;
-    
-    public $Base() {
-    }
-
-    public String toString() {
-        StringBuilder sb = new StringBuilder(128);
-        sb.append("$base: ...");
-        return sb.toString();
-    }
-
-}
-EOT
-}
-
-function mk_ent_htm() {
-    file="$1"
-    findfile "$file" && return
-
-    local simplename="${file##*/}"
-    simplename="${simplename%.java}"
-
-    cat <<EOT >"$file"
-package $pkg_web;
-
-import java.io.IOException;
-
-import $fqcn;
-
-public class ${simplename}
-        extends SlimForm_htm<$Base> {
-    
-    public ${simplename}() {
-        super($Base.class);
-    }
-
-}
-EOT
-}
-
-function mk_mask() {
-    file="$1"
-    findfile "$file" && return
-    cat <<EOT >"$file"
-package $pkg_db;
-
-import net.bodz.bas.t.variant.IVariantMap;
-import net.bodz.lily.model.base.CoObjectMask;
-
-/**
- * @see $fqcn
- */
-public class ${Base}Mask
-        extends CoObjectMask {
-
-}
-EOT
-}
-
-function mk_mapper() {
-    file="$1"
-    findfile "$file" && return
-    cat <<EOT >"$file"
-package $pkg_db;
-
-import net.bodz.bas.db.ibatis.IMapperTemplate;
-
-import $fqcn;
-
-/**
- * @see $file
- */
-public interface ${Base}Mapper
-        extends IMapperTemplate<$Base, ${Base}Mask> {
-
-}
-EOT
-}
-
-function mk_mapper_xml() {
-    file="$1"
-    findfile "$file" && return
-    cat <<EOT >"$file"
-<?xml version="1.0" encoding="UTF-8" ?> 
-<!DOCTYPE mapper 
- PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
- "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="$pkg_db.${Base}Mapper">
-
-    <resultMap id="map1" type="$fqcn" extends="co.MAP_UVX">
-    </resultMap>
-
-    <sql id="select1"><![CDATA[
-        select
-            a.*,
-            u.label "uid_label",
-            g.label "gid_label"
-        from $base a
-            left join "user" u on a.uid = u.id
-            left join "group" g on a.gid = g.id
-        ]]>
-    </sql>
-
-    <sql id="select2"><![CDATA[
-        select
-            a.*,
-            u.label "uid_label",
-            g.label "gid_label"
-        from $base a
-            left join "user" u on a.uid = u.id
-            left join "group" g on a.gid = g.id
-        ]]>
-    </sql>
-
-    <sql id="filtconds">
-        <!-- co -->
-        <include refid="co.modefilt" />
-    </sql>
-
-    <select id="all" resultMap="map1">
-        <include refid="select1" />
-    </select>
-
-    <select id="filter" resultMap="map1">
-        <include refid="select1" />
-        <where>
-            <include refid="filtconds" />
-        </where>
-    </select>
-
-    <select id="select" parameterType="int" resultMap="map1">
-        <include refid="select2" />
-        <where>
-            <if test="_parameter != null">a.id = #{id}</if>
-        </where>
-    </select>
-
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id"><![CDATA[
-        insert into $base(
-            code, label, description
-        ) values(
-            #{codeName}, #{label}, #{description}
-        ) returning id; --
-    ]]></insert>
-
-    <update id="update">
-        update $base
-        <set>
-            <include refid="co.setUS" />
-        </set>
-        <where>
-            id = #{id}
-        </where>
-    </update>
-
-    <delete id="delete">
-        delete from $base where id = #{id}
-    </delete>
-
-    <select id="count" resultType="hashmap">
-        select count(*) "rows" from ${base}
-        <where>
-            <if test="_parameter != null">
-                <include refid="filtconds" />
-            </if>
-        </where>
-    </select>
-
-</mapper>
-EOT
-}
-
-function mk_index() {
-    file="$1"
-    findfile "$file" && return
-    cat <<EOT >"$file"
-package $pkg_web;
-
-import net.bodz.bas.meta.decl.ObjectType;
-import net.bodz.lily.model.base.CoIndex;
-
-import $fqcn;
-
-@ObjectType($Base.class)
-public class ${Base}Index
-        extends CoIndex<$Base, ${Base}Mask> {
-
-}
-EOT
-}
-
-function mk_index_htm() {
-    file="$1"
-    findfile "$file" && return
-    cat <<EOT >"$file"
-package $pkg_web;
-
-import java.io.IOException;
-import java.util.List;
-
-import net.bodz.bas.c.reflect.NoSuchPropertyException;
-import net.bodz.bas.c.string.Strings;
-import net.bodz.bas.err.ParseException;
-import net.bodz.bas.html.dom.tag.HtmlDivTag;
-import net.bodz.bas.html.dom.tag.HtmlTrTag;
-import net.bodz.bas.html.util.IFontAwesomeCharAliases;
-import net.bodz.bas.html.viz.IHttpViewContext;
-import net.bodz.bas.repr.viz.ViewBuilderException;
-import net.bodz.bas.rtx.IOptions;
-import net.bodz.bas.ui.dom1.IUiRef;
-
-import com.tinylily.model.base.security.User;
-
-import $fqcn;
-
-public class ${Base}Index_htm
-        extends SlimIndex_htm<${Base}Index, $Base, ${Base}Mask> {
-
-    public ${Base}Index_htm()
-            throws NoSuchPropertyException, ParseException {
-        super(${Base}Index.class);
-        indexFields.parse("i*sa", "label", "description");
-    }
-
-
-    @Override
-    protected ${Base}Mask buildSwitchers(IHttpViewContext ctx, SwitcherModelGroup switchers)
-            throws ViewBuilderException {
-        // ${Base}Mapper mapper = ctx.query(${Base}Mapper.class);
-        ${Base}Mask mask = fn.maskFromRequest(new ${Base}Mask(), ctx.getRequest());
-
-        SwitcherModel<Integer> sw;
-        sw = switchers.entityOf("表单", true, //
-                ctx.query(FormDefMapper.class).filter(FormDefMask.all()), //
-                "form", mask.formId, mask.noForm);
-        mask.formId = sw.getSelection1();
-        mask.noForm = sw.isSelectNull();
-
-        return mask;
-    }
-
-    @Override
-    public void dataIndex(IHttpViewContext ctx, DataViewAnchors<$Base> a, IUiRef<${Base}Index> ref, IOptions options)
-            throws ViewBuilderException, IOException {
-        ${Base}Mapper mapper = ctx.query(${Base}Mapper.class);
-        ${Base}Mask mask = ctx.query(${Base}Mask.class);
-        List<${Base}> list = postfilt(mapper.filter(mask));
-
-        IndexTable itab = new IndexTable(a.data);
-        itab.buildHeader(ctx, indexFields.values());
-        if (a.dataList())
-            for (${Base} o : list) {
-                HtmlTrTag tr = itab.tbody.tr();
-                itab.cocols("i", tr, o);
-                itab.cocols("u", tr, o);
-                itab.cocols("sa", tr, o);
-            }
-
-        if (a.extradata != null)
-            dumpFullData(a.extradata, list);
-    }
-
-}
-EOT
-}
-
-function mk_index_inf() {
-    list="src/main/resources/META-INF/services/net.bodz.lily.model.base.CoIndex"
-    add_inf "$list" "$@"
-}
-
-function mk_mapper_inf() {
-    list="src/main/resources/META-INF/services/net.bodz.bas.db.ibatis.IMapper"
-    add_inf "$list" "$@"
-}
-
-function mk_htm_inf() {
-    list="src/main/resources/META-INF/services/net.bodz.bas.http.viz.IHttpViewBuilder"
-    add_inf "$list" "$@"
+function file() {
+    if [ -z "$file" ]; then
+        echo "$1"
+        return $E_SET_FILE
+    else
+        return 0
+    fi
 }
 
 function add_inf() {
