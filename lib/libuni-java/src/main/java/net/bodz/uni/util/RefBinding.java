@@ -80,7 +80,7 @@ public class RefBinding
         assert o != null;
         Class<?> clazz = o.getClass();
 
-        IType type = PotatoTypes.getInstance().forClass(clazz);
+        IType type = PotatoTypes.getInstance().loadType(clazz);
 
         for (final IProperty property : type.getProperties()) {
             PropertyRef<Object> propertyRef = new PropertyRef<>(o, property);

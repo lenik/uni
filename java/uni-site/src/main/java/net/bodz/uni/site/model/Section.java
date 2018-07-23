@@ -22,6 +22,7 @@ import net.bodz.bas.repr.path.PathDispatchException;
 import net.bodz.bas.site.org.ICrawlable;
 import net.bodz.bas.site.org.ICrawler;
 import net.bodz.bas.std.rfc.http.ICacheControl;
+import net.bodz.bas.t.variant.IVariantMap;
 import net.bodz.mda.xjdoc.model.IElementDoc;
 import net.bodz.uni.site.UniSite;
 import net.bodz.uni.site.util.DebControl;
@@ -154,7 +155,7 @@ public class Section
 /* _____________________________ */static section.iface __DISPATCH__;
 
     @Override
-    public IPathArrival dispatch(IPathArrival previous, ITokenQueue tokens)
+    public IPathArrival dispatch(IPathArrival previous, ITokenQueue tokens, IVariantMap<String> q)
             throws PathDispatchException {
         String token = tokens.peek();
         if (token == null)

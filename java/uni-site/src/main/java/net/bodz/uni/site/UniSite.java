@@ -21,6 +21,7 @@ import net.bodz.bas.repr.path.PathDispatchException;
 import net.bodz.bas.site.BasicSite;
 import net.bodz.bas.site.org.ICrawlable;
 import net.bodz.bas.site.org.ICrawler;
+import net.bodz.bas.t.variant.IVariantMap;
 import net.bodz.bas.vcs.IVcsWorkingCopy;
 import net.bodz.bas.vcs.git.NativeGitVcsWorkingCopy;
 import net.bodz.uni.site.model.Language;
@@ -129,7 +130,7 @@ public class UniSite
     /* _____________________________ */static section.iface __PATH_DISP__;
 
     @Override
-    public synchronized IPathArrival dispatch(IPathArrival previous, ITokenQueue tokens)
+    public synchronized IPathArrival dispatch(IPathArrival previous, ITokenQueue tokens, IVariantMap<String> q)
             throws PathDispatchException {
         String token = tokens.peek();
         if (token == null)
@@ -139,7 +140,7 @@ public class UniSite
         if (section != null)
             return PathArrival.shift(previous, section, tokens);
 
-        return super.dispatch(previous, tokens);
+        return super.dispatch(previous, tokens, q);
     }
 
     /** ⇱ Implementation Of {@link ICrawlable}. */
