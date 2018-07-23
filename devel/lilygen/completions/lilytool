@@ -1,0 +1,36 @@
+#: set filetype=bash :
+
+function _lilytool() {
+    local arg nonopt0
+    for ((i = 1; i < COMP_CWORD; i++)); do
+        arg="${COMP_WORDS[i]}"
+        case "$arg" in
+            --)
+                ((i++))
+                break;;
+            -*|--*)
+                ;;
+            *)
+                break;;
+        esac
+    done
+    nonopt0=$i
+
+    local cmd=${COMP_WORDS[nonopt0]}
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+    
+    if [ $COMP_CWORD = $nonopt0 ]; then
+        COMPREPLY=( $(lilytool helpcmds | grep "^$cur") )
+        return 0
+    fi
+    
+    case "$cmd" in
+        table)
+            COMPREPLY=( $(lilytool table -l $cur) );;
+    esac
+    
+    return 0
+}
+
+complete -F _lilytool lilytool lilytool.in lt
+

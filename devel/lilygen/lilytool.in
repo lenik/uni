@@ -1,0 +1,95 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+    
+    PAD='                                               '
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    [ -z "$1" ] && quit "Expect command."
+    cmd=$1
+    shift
+
+    fn=cmd-$cmd
+    [ -z `type -t $fn` ] && quit "Illegal command $cmd."
+    
+    $fn "$@"
+}
+
+function cmd-helpcmds() {
+    echoln helpcmds table list
+}
+
+function cmd-table() {
+    local opt_list=
+    if [ "$1" = -l ]; then
+        # list matching table names for auto-completion.
+        opt_list=1
+        shift
+    fi
+    
+    local table="$1"
+    shift
+    
+    if [ -z "$table" ]; then
+        if [ "$opt_list" != 1 ]; then
+            quit "No table specified."
+        fi
+    fi
+    
+    local p tab
+    while IFS=: read path ann; do
+        tab="${ann#*name = \"}"
+        tab="${tab%%\"*}"
+        if [ "$opt_list" = 1 ]; then
+            echo $tab
+        else
+            p=${path#*/java/}
+            p=${p%.java}
+            p=${p//\//.}
+            _log1 "Entity: $p"
+        fi
+    done < <(grep -rP '@'Table"\(.*name\s*=\s*\"($table)" .)
+}
+
+function cmd-list() {
+    local path ann
+    local p tab
+    while IFS=: read path ann; do
+
+        p=${path#*/java/}
+        p=${p%.java}
+        p=${p//\//.}
+
+        tab="${ann#*name = \"}"
+        tab="${tab%%\"*}"
+
+        tab="$tab$PAD"
+        tab=${tab:0:20}
+        echo "$tab $p"
+    done < <(grep -r '@'Table)
+}
+
+boot "$@"
