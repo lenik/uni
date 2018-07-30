@@ -23,7 +23,6 @@ import net.bodz.bas.vcs.IVcsLogEntry;
 import net.bodz.bas.vcs.IVcsWorkingCopy;
 import net.bodz.bas.vcs.VcsLogOptions;
 import net.bodz.mda.xjdoc.model.IElementDoc;
-import net.bodz.mda.xjdoc.model.MutableElementDoc;
 
 public class Project
         extends AbstractXjdocContent {

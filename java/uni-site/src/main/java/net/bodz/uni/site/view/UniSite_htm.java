@@ -9,8 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import net.bodz.bas.c.string.StringQuote;
-import net.bodz.bas.html.artifact.ArtifactType;
-import net.bodz.bas.html.artifact.IArtifactDependency;
 import net.bodz.bas.html.dom.IHtmlHeadData;
 import net.bodz.bas.html.io.IHtmlOut;
 import net.bodz.bas.html.io.tag.*;
@@ -23,7 +21,6 @@ import net.bodz.bas.repr.path.IPathArrival;
 import net.bodz.bas.repr.path.PathArrivalEntry;
 import net.bodz.bas.repr.path.PathArrivalList;
 import net.bodz.bas.repr.viz.ViewBuilderException;
-import net.bodz.bas.rtx.IQueryable;
 import net.bodz.bas.site.artifact.LibFontsArtifacts;
 import net.bodz.bas.site.artifact.LibJsArtifacts;
 import net.bodz.bas.t.pojo.Pair;
