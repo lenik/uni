@@ -1,0 +1,6 @@
+#!/bin/sh
+
+mkdir src/
+cd src
+wget https://jaist.dl.sourceforge.net/project/e-guidedog/zhspeak/zhspeak_4.0.0_generic.tar.xz
+

@@ -3,10 +3,10 @@
 
 format      = $major.$minor.$rev
 
-major       = 3 minor
+major       = 4 minor
 minor       = 0 rev commit
 
-rev         = 7 
+rev         = 0 
 
 commit      = 0 
 commit.base = 0

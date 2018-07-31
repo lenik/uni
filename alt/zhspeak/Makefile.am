@@ -1,8 +1,7 @@
 include libauto/project.am
 
 dist_bin_SCRIPTS = \
-    src/bin/zhspeak \
-    src/bin/zhspeak.py
+    zhspeak
 
 dist_setup_SCRIPTS = \
     postinst \
@@ -13,5 +12,5 @@ CLEANFILES = \
 
 install-data-hook:
 	mkdir -p "${DESTDIR}${pkgdatadir}"
-	cp -R "${srcdir}"/src/zhspeak-data "${DESTDIR}${pkgdatadir}/data"
+	cp -RT "${srcdir}"/src "${DESTDIR}${pkgdatadir}"
 
