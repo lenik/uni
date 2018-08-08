@@ -56,10 +56,10 @@ function main() {
                     ;;
 
                 *.iso)
-                    blksize=
-                    volsize=
-                    nJoliet=
-                    nRR=
+                    blksize=0
+                    volsize=0
+                    nJoliet=0
+                    nRR=0
                     while read -a v; do
                         l="${v[*]}"
                         case "$l" in
@@ -78,12 +78,12 @@ function main() {
                     _log1 "Logical block size: $blksize"
                     _log1 "Volume size: $volsize"
 
-                    if [ "$nRR" -gt 0 ]; then
-                        _log1 "Rock Ridge directory of $f:"
-                        isoinfo -l -R -i "$f"
-                    elif [ "$nJoliet" -gt 0 ]; then
+                    if [ "$nJoliet" -gt 0 ]; then
                         _log1 "Joliet directory of $f:"
                         isoinfo -l -J -i "$f"
+                    elif [ "$nRR" -gt 0 ]; then
+                        _log1 "Rock Ridge directory of $f:"
+                        isoinfo -l -R -i "$f"
                     else
                         _log1 "ISO9660 directory of $f:"
                         isoinfo -l -i "$f"
@@ -97,15 +97,18 @@ function main() {
             continue
         fi
 
-        base="${f%.*}"
-        ext="${f##*.}"
-        if [ "$ext" = "$f" ]; then
+        srcdir="${f%/*}"
+        [ "$srcdir" = "$f" ] && srcdir=.
+        base="${f##*/}"
+        name="${base%.*}"
+        ext="${base##*.}"
+        if [ "$ext" = "$name" ]; then
             ext=
         fi
 
         case "$ext" in
         isz)
-            iso="$base.iso"
+            iso="$srcdir/$name.iso"
             _log1 "Convert $f to $iso..."
             if isz-tool.py isz2iso "$f" "$iso"; then
                 _log1 "Convertion succeeded."
@@ -130,11 +133,10 @@ function main() {
         esac
 
         if [ -z "$opt_outdir" ]; then
-            srcdir="${f%/*}"
-            [ "$srcdir" = "$f" ] && srcdir=.
-            dst="$srcdir/$base"
+            srcdir=$(readlink -f "$srcdir")
+            dst="${srcdir/yundl/mmc-lib}/$name"
         else
-            dst="$opt_outdir/$base"
+            dst="$opt_outdir/$name"
         fi
 
         if ! mkdir -p "$dst"; then
@@ -143,7 +145,7 @@ function main() {
         fi
 
         _log2 "Mount ISO at $isotmp"
-        if ! $SUDO mount -o ro "$iso" "$isotmp"; then
+        if ! $SUDO mount -o loop,ro "$iso" "$isotmp"; then
             _error "Failed to mount: error $?"
             continue
         fi
