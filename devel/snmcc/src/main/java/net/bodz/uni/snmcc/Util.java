@@ -1,4 +1,4 @@
-package net.bodz.uni.snmc;
+package net.bodz.uni.snmcc;
 
 import net.bodz.bas.c.java.util.regex.PatternProcessor;
 
