@@ -3,7 +3,7 @@ package net.bodz.uni.echo;
 import net.bodz.bas.t.project.AbstractJazzModule;
 import net.bodz.bas.t.project.IJazzProject;
 
-public class AbstractEchoModule
+public abstract class AbstractEchoModule
         extends AbstractJazzModule {
 
     @Override
