@@ -1,0 +1,16 @@
+Source: m2proj
+Section: java
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 11)
+Standards-Version: 4.1.3
+Homepage: http://uni.bodz.net/java/m2proj
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/java/m2proj
+
+Package: m2proj
+Architecture: all
+Depends: 
+    bash-shlib,
+    ${misc:Depends}
+Description: Maven-based Java project utilities
