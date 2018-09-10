@@ -13,11 +13,19 @@ src_excludes = \
     target
 
 bin_PRE += update-lib
-update-lib:
-	rm -f .classpath.main .classpath.test
+update-lib: -update-lib lib/list
+-update-lib: .deps.lst
 	mkdir -p $(libdir)
 	rm -f $(libdir)/*
+	while read f; do cp -pnv "$$f" $(libdir)/; done <.deps.lst
+
+.deps.lst:
+	rm -f .classpath.main .classpath.test
 	mjpl -t -v --deps 2>&1 \
-	    | grep -Po '/.*\.jar' \
-	    | while read f; do cp -pnv "$$f" $(libdir)/; done
+	    | grep -Po '/.*\.jar' > $@
+
+lib/list: .deps.lst
+	sed -e 's,.*/,,' $< \
+	    | nl | sort -k2 | uniq -f1 | sort -n \
+	    | cut -f2 >$@
 
