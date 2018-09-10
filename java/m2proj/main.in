@@ -1,0 +1,88 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    : ${JAVA:=java}
+    : ${JAVAOPTS:=-ea}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$1" ]; then
+        echo "App isn't specified." >&2
+        exit 1
+    fi
+    name=$1
+    shift
+
+    appcls=()
+    for a in $(find target/classes -iname "$name.class"); do
+        a="${a[0]}"
+        a=${a#target/classes/}
+        a=${a%.class}
+        a=${a//\//.}
+        appcls=( "${appcls[@]}" "$a" )
+    done
+
+    n=${#appcls[@]}
+    if [ $n != 1 ]; then
+        if [ $n = 0 ]; then
+            echo "No such app: $app" >&2
+        else
+            echo "Name ambiguous:" >&2
+            for a in "${appcls[@]}"; do
+                echo "    $a" >&2
+            done
+        fi
+        exit 1
+    fi
+
+    classpath=
+    if [ -f "lib/list" ]; then
+        while read item; do
+            add_cp "lib/$item"
+        done <lib/list
+    else
+        for jar in lib/*.jar; do
+            add_cp "$jar"
+        done
+    fi
+    add_cp target/classes
+    add_cp target/test-classes
+    classpath="${classpath#:}"
+
+    _log2 "Execute: $JAVA $JAVAOPTS -cp ... $appcls $*"
+    $JAVA $JAVAOPTS -cp "$classpath" "$appcls" "$@"
+}
+
+function add_cp() {
+    local a
+    for a in "$@"; do
+        _log2 "Classpath: $a"
+        classpath="$classpath:$a"
+    done
+}
+
+boot "$@"
+
