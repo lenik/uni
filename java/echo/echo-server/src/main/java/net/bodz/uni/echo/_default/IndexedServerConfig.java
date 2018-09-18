@@ -1,8 +1,7 @@
 package net.bodz.uni.echo._default;
 
-import java.util.ServiceLoader;
-
 import net.bodz.bas.c.javax.servlet.http.*;
+import net.bodz.bas.c.type.IndexedTypes;
 import net.bodz.bas.http.config.ServletContextConfig;
 import net.bodz.bas.http.config.ServletDescriptor;
 import net.bodz.bas.meta.codegen.IndexedTypeLoader;
@@ -22,34 +21,36 @@ public class IndexedServerConfig
         extends ServletContextConfig {
 
     public IndexedServerConfig() {
-        for (IServletContextListener listener : ServiceLoader.load(IServletContextListener.class))
+        for (IServletContextListener listener : IndexedTypes.loadInOrder(IServletContextListener.class))
             addServletContextListener(listener);
 
-        for (IServletContextAttributeListener listener : ServiceLoader.load(IServletContextAttributeListener.class))
+        for (IServletContextAttributeListener listener : IndexedTypes
+                .loadInOrder(IServletContextAttributeListener.class))
             addServletContextAttributeListener(listener);
 
         // TODO PrototypeLoader...
-        for (IHttpFilter filter : ServiceLoader.load(IHttpFilter.class)) {
+        for (IHttpFilter filter : IndexedTypes.loadInOrder(IHttpFilter.class)) {
             String mapping = filter.getPreferredMapping();
             addFilter(filter.getClass(), mapping);
         }
 
-        for (IHttpSessionListener listener : ServiceLoader.load(IHttpSessionListener.class))
+        for (IHttpSessionListener listener : IndexedTypes.loadInOrder(IHttpSessionListener.class))
             addSessionListener(listener);
 
-        for (IHttpSessionAttributeListener listener : ServiceLoader.load(IHttpSessionAttributeListener.class))
+        for (IHttpSessionAttributeListener listener : IndexedTypes.loadInOrder(IHttpSessionAttributeListener.class))
             addHttpSessionAttributeListener(listener);
 
-        for (IHttpSessionActivationListener listener : ServiceLoader.load(IHttpSessionActivationListener.class))
+        for (IHttpSessionActivationListener listener : IndexedTypes.loadInOrder(IHttpSessionActivationListener.class))
             addHttpSessionActivationListener(listener);
 
-        for (IHttpSessionBindingListener listener : ServiceLoader.load(IHttpSessionBindingListener.class))
+        for (IHttpSessionBindingListener listener : IndexedTypes.loadInOrder(IHttpSessionBindingListener.class))
             addHttpSessionBindingListener(listener);
 
-        for (IServletRequestListener listener : ServiceLoader.load(IServletRequestListener.class))
+        for (IServletRequestListener listener : IndexedTypes.loadInOrder(IServletRequestListener.class))
             addServletRequestListener(listener);
 
-        for (IServletRequestAttributeListener listener : ServiceLoader.load(IServletRequestAttributeListener.class))
+        for (IServletRequestAttributeListener listener : IndexedTypes
+                .loadInOrder(IServletRequestAttributeListener.class))
             addServletRequestAttributeListener(listener);
 
         addServlet(Favicon.class, "/favicon.ico");

@@ -12,12 +12,20 @@ import net.bodz.bas.c.javax.servlet.http.AbstractHttpFilter;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 
+/**
+ * Redirect start URL (/) to welcome page.
+ */
 public class Welcome
         extends AbstractHttpFilter {
 
     static Logger logger = LoggerFactory.getLogger(Welcome.class);
 
     boolean displayed;
+
+    @Override
+    public int getPriority() {
+        return 10;
+    }
 
     @Override
     public void init(FilterConfig filterConfig)
