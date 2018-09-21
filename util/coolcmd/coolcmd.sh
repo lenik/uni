@@ -1,4 +1,4 @@
-alias @='gnome-open'
+alias @='xdg-open'
 
 alias _bg='. run-bg'
 alias _dir='. cd-exec'
