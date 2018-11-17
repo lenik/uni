@@ -97,5 +97,5 @@ rsync-dist: ${deploy_archives}
 	rsync -camv --delete $$tmpdir/* ${remotehostdir}
 
 rsync:
-	rsync -camv --delete . $(remotehostdir}
+	rsync -camv --delete . ${remotehostdir}
 
