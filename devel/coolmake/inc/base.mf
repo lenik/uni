@@ -39,8 +39,8 @@ all-text: \
 	    --dereference \
 	    --exclude-vcs \
 		$(bin_files) \
-	    `[ -d $(sharedir) ] && (cd $(sharedir); echo -C $(sharedir) *)`
-	    --transform 's|^|$(project)/|' \
+	    `[ -d $(sharedir) ] && (cd $(sharedir); echo -C $(sharedir) *)` \
+	    --transform 's|^|$(project)/|'
 
 ../$(project).src.tar.%: .
 	shopt -s dotglob; \
