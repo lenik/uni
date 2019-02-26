@@ -1,0 +1,28 @@
+#!/bin/bash
+
+exec_name=google-chrome
+chrome_exe="/opt/google/chrome/google-chrome"
+
+while true; do
+    case "$1" in
+        -0)
+            exec_name="$2"
+            shift 2
+            continue
+            ;;
+        -exe)
+            chrome_exe="$2"
+            shift 2
+            continue
+            ;;
+    esac
+    break
+done
+
+    #--disable-web-security \
+exec -a "$exec_name" "$chrome_exe" \
+    --allow-file-access-from-files \
+    --allow-file-access \
+    --enable-file-cookies \
+    "$@"
+
