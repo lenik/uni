@@ -1,0 +1,17 @@
+Source: google-chrome-enh
+Section: web
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 11)
+Standards-Version: 4.1.3
+Homepage: http://uni.bodz.net/toolenh/google-chrome-enh
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/toolenh/google-chrome-enh
+
+Package: google-chrome-enh
+Architecture: all
+Depends: 
+    bash-shlib,
+    google-chrome-stable | google-chrome-unstable | google-chrome-beta,
+    ${misc:Depends}
+Description: Google Chrome developer utils
