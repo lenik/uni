@@ -17,3 +17,8 @@ dist_setup_SCRIPTS = \
 
 CLEANFILES = \
     ${dist_setup_SCRIPTS}
+
+install-data-hook:
+	mkdir -p ${DESTDIR}${pkgdatadir}/dist-util
+	cp -a dist-util ${DESTDIR}${pkgdatadir}/
+
