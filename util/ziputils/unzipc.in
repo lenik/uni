@@ -18,6 +18,7 @@
     option -t --to =CHARSET     "Convert to this charset"
     option -y --yes             "Always answer yes"
     option -s --seperate        "Unzip in separate directories"
+    option -S --single          "Unzip in separate directories or single file renamed"
     option -k --delete          "Trash (or repeat to delete) the archive"
     option -x --extractor =CMD  "Use this command (default auto)"
     option -q --quiet
@@ -33,6 +34,7 @@
     opt_from=gbk
     opt_to=utf-8
     opt_separate=0
+    opt_reduce=0
     opt_delete=0
     opt_extractor=
 
@@ -53,11 +55,15 @@ function setopt() {
         -y|--yes)
             _7zopts=("${_7zopts[@]}" -y)
             # othersie, bsdtaropts=("${bsdtaropts[@]}" -k)
-            unraropts=("${unraropts[@]}" -y)
+            unraropts=("${unraropts[@]}" -y -p-)
             unzipopts=("${unzipopts[@]}" -o)
             ;;
         -s|--separate)
             opt_separate=1;;
+        -S|--single)
+            opt_separate=1
+            opt_reduce=1
+            ;;
         -k|--delete)
             (( opt_delete++ ));;
         -x|--extractor)
@@ -111,11 +117,15 @@ function main() {
                     continue;;
             esac
         fi
+
+        # use x-*-conv version when possible.
         _conv_type=$( type -t $xfn-conv )
         if [ "$_conv_type" = "function" ]; then
             xfn=$xfn-conv
         fi
+
         if [ "$opt_separate" = 1 ]; then
+            # use x-*-cwd version when possible.
             _cwd_type=$( type -t $xfn-cwd )
             if [ "$_cwd_type" = "function" ]; then
                 xfn=$xfn-cwd
@@ -155,12 +165,66 @@ function main() {
                     rm "$ar" || _error "Failed to delete."
                     ;;
             esac
+
+            if [ "$opt_reduce" = 1 ]; then
+                # assert opt_separate.
+                reduce .
+            fi
         else
             _error "Failed to extract $ar."
         fi
         
         _log1 "Leave from $outdir"
         cd "$olddir"
+    done
+}
+
+function reduce() {
+    shopt -s dotglob
+    shopt -s nullglob
+
+    local dir
+    for dir in "$@"; do
+        dir="${dir%/}"
+        [ -z "$dir" ] && quit "Can't reduce rootdir."
+        [ -d "$dir" ] || continue
+
+        local items=("$dir"/*)
+        local nitem=${#items[@]}
+        [ $nitem == 1 ] || continue
+
+        local one="${items[0]}"
+        reduce "$one"
+
+        _log1 "Reduce to parent: $one"
+
+        local base1="${one##*/}"
+        local name1="${base1%.*}"
+        local ext1="${base1##*.}"
+
+        # only simple extension is supported.
+        # extensions like .tar.gz won't be supported.
+        if [ "$ext1" != "$base1" ]; then
+            ext1=".$ext1"
+        fi
+
+        if [ "${dir:0:1}" = . ]; then
+            dir=$(readlink -f "$dir")
+        fi
+
+        local parent="${dir%/*}"
+        local base="${dir##*/}"
+        if [ "$dir" = "$parent" ]; then
+            parent=.
+        fi
+
+        local dirbak="$parent/$base.bak"
+        if [ -d "$dirbak" ]; then
+            quit "Pre-exist dir conflicts: $dirbak"
+        fi
+        mv -n "$dir" "$dirbak"
+        mv -n "$dirbak/$base1" "$parent/$base$iext"
+        rmdir "$dirbak"
     done
 }
 
