@@ -6,11 +6,13 @@ do_subst += -e 's,@templatedir@,${templatedir},g'
 
 dist_bin_SCRIPTS = \
     lilytool \
-    mkentity 
+    mkentity \
+    mkv-andr
 
 man_MANS = \
     lilytool.1 \
-    mkentity.1
+    mkentity.1 \
+    mkv-andr.1
 
 dist_alias_DATA = \
     lilygen.sh

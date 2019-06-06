@@ -1,0 +1,146 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - 0.1.3 2018-07-25 13:16:22 - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Generate sources for Android UI view}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FQCN LABEL}
+
+    pkgdatadir='@pkgdatadir@'
+    if [ "${pkgdatadir:0:1}" = '@' ]; then
+        __FILE__=$(readlink -f "$0")
+        pkgdatadir="${__FILE__%/*}"
+    fi
+    templatedir="$pkgdatadir/template"
+
+    . shlib-import cliboot strfn
+    option -l --layout =LAYOUT      "Specify the source layout"
+    option -f --force               "Override existing source files"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_layout=auto
+    opt_force=
+
+    E_SET_FILE=100
+
+function setopt() {
+    case "$1" in
+        -l|--layout)
+            case "$2" in
+                auto)
+                    opt_layout=auto;;
+                activity)
+                    opt_layout=activity;;
+                widget)
+                    opt_layout=widget;;
+                *)
+                    quit "Bad layout name: $2";;
+            esac;;
+        -h|--help)
+            help $1; exit;;
+        -f|--force)
+            opt_force=1;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    _log2 "pkgdatadir: $pkgdatadir"
+    _log2 "template-dir: $templatedir"
+
+    for d in app/src/main/java app/src/main/res; do
+        [ -d $d ] || quit "Non-existed directory: $d."
+    done
+
+    fqcn="$1"
+    label="$2"
+    
+    [ -z "$fqcn" ] && quit "FQCN isn't specified."
+
+    pkg=${fqcn%.*}
+    Base=${fqcn##*.}
+    [ "$Base" != "$fqcn" ] || quit "Not an FQCN: $fqcn"
+    [ -z "$label" ] && label=$Base
+
+    layout=$opt_layout
+    if [ "$layout" = auto ]; then
+        case "$pkg" in
+            *.activity|*.ui)
+                layout=activity
+                ;;
+            *)
+                layout=widget
+                ;;
+        esac
+    fi
+
+    dir=${pkg//.//}
+        
+    B=${Base:0:1}
+    base="$(tolower $B)${Base:1}"
+    pkg_base=${pkg##*.}
+    pkg_parent=${pkg%.*}
+    if [ "$pkg_parent" = "$pkg" ]; then
+        quit "package $pkg is too simple."
+    fi
+    
+    ba_se=$(hyphenatize "$base")
+
+    _log1 "Generating files for $pkg::$Base $base (in */$dir)."
+
+    template=$layout
+    for tmpl in "$templatedir/$template"/*; do
+        file=
+        file=$(set -e; . $tmpl)
+        if [ -z "$file" ]; then
+            quit "Illegal template $tmpl: file isn't set."
+        fi
+
+        findfile "$file" && continue
+        . $tmpl
+    done
+}
+
+# return 1 if create new.
+function findfile() {
+    local file="$1"
+    if [ -f "$file" ]; then
+        if [ "$opt_force" != 1 ]; then
+            _log2 "Reusing file $file."
+            return 0
+        else
+            _log2 "Overwrite file $file."
+            return 1
+        fi
+    fi
+
+    local dirname="${file%/*}"
+    if [ "$dirname" = "$file" ]; then
+        dirname=.
+    fi
+    if [ ! -d "$dirname" ]; then
+        _log2 "Creating directory $dirname..."
+        mkdir -p "$dirname"
+    fi
+    _log1 "Creating $file..."
+    return 1
+}
+
+function file() {
+    if [ -z "$file" ]; then
+        echo "$1"
+        return $E_SET_FILE
+    else
+        return 0
+    fi
+}
+
+boot "$@"
