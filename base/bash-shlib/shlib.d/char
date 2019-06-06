@@ -33,6 +33,38 @@ function tolower() {
     eval "$1=\"$v\""
 }
 
+# to_lower VAR
+function to_lower() {
+    local v=${!1}
+    v=${v//A/_a}
+    v=${v//B/_b}
+    v=${v//C/_c}
+    v=${v//D/_d}
+    v=${v//E/_e}
+    v=${v//F/_f}
+    v=${v//G/_g}
+    v=${v//H/_h}
+    v=${v//I/_i}
+    v=${v//J/_j}
+    v=${v//K/_k}
+    v=${v//L/_l}
+    v=${v//M/_m}
+    v=${v//N/_n}
+    v=${v//O/_o}
+    v=${v//P/_p}
+    v=${v//Q/_q}
+    v=${v//R/_r}
+    v=${v//S/_s}
+    v=${v//T/_t}
+    v=${v//U/_u}
+    v=${v//V/_v}
+    v=${v//W/_w}
+    v=${v//X/_x}
+    v=${v//Y/_y}
+    v=${v//Z/_z}
+    eval "$1=\"$v\""
+}
+
 # toupper VAR
 function toupper() {
     local v=${!1}
