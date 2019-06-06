@@ -12,7 +12,7 @@
 #define LINEMAX     8000
 
 /* TODO UTF-8 Support */
-typedef void str_proc(char *buf);
+typedef void str_proc(const char *buf);
 
 int strfn_builtin(WORD_LIST *list, str_proc fn, const char *fsep, const char *asep) {
     int opt;
@@ -71,8 +71,8 @@ int strfn_builtin(WORD_LIST *list, str_proc fn, const char *fsep, const char *as
     return rval;
 }
 
-void tolower_fn(char *buf) {
-    char *p = buf;
+void tolower_fn(const char *buf) {
+    const char *p = buf;
     char ch;
     while (ch = *p++) {
         ch = tolower(ch);
@@ -80,8 +80,8 @@ void tolower_fn(char *buf) {
     }
 }
 
-void toupper_fn(char *buf) {
-    char *p = buf;
+void toupper_fn(const char *buf) {
+    const char *p = buf;
     char ch;
     while (ch = *p++) {
         ch = toupper(ch);
@@ -89,8 +89,8 @@ void toupper_fn(char *buf) {
     }
 }
 
-void hyphenatize_fn(char *buf) {
-    char *p = buf;
+void hyphenatize_fn(const char *buf) {
+    const char *p = buf;
     char ch;
     while (ch = *p++) {
         if (isupper(ch)) {
@@ -101,8 +101,8 @@ void hyphenatize_fn(char *buf) {
     }
 }
 
-void camelCase_fn(char *buf) {
-    char *p = buf;
+void camelCase_fn(const char *buf) {
+    const char *p = buf;
     char ch;
     bool upnext = false;
     while (ch = *p++) {
