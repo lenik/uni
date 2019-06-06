@@ -172,6 +172,9 @@ function main() {
             fi
         else
             _error "Failed to extract $ar."
+            if [ "$opt_reduce" = 1 ]; then
+                _warn "Not reduced due to extraction failure."
+            fi
         fi
         
         _log1 "Leave from $outdir"
