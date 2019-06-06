@@ -1,9 +1,10 @@
 #!/bin/bash
 
-if [ $# -lt 2 ]; then
-    echo "loop <interval> <cmd-line>..."
-    false
-else
+    if [ $# -lt 2 ]; then
+        echo "loop <interval> <cmd-line>..."
+        return 1
+    fi
+
     _interval="$1"
     shift
 
@@ -16,22 +17,42 @@ else
 
     shift
     _index=0
-    _pad='------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------'
+    _PAD='------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------'
+
+    _t0=`date +%s.%N`
+    _t0s=${_t0%.*}
+    _t0n=1${_t0#*.}
 
     while true; do
         ((_index++))
 
         _cols=`tput cols`
-        _title="[42mLoop Iteration[47m $_index[m"
-        _ntitle=$(( ${#_title} + 2 - 13 ))
+
+        _t1=`date +%s.%N`
+        _t1s=${_t1%.*}
+        _t1n=1${_t1#*.}
+        _dts=$(( _t1s - _t0s - 1 ))
+        _dtn=$(( 1000000000 + _t1n - _t0n ))
+        if [ $_dtn -ge 1000000000 ]; then
+            (( _dts++ ))
+            (( _dtn -= 1000000000 ))
+        fi
+
+        _dtn=000000000$_dtn
+        _dtn="${_dtn: -9}"
+
+        _ts=$(date +'%Y-%m-%d %H:%M:%S')
+        _dt=$(date -u +'%H:%M:%S.%N' -d "@$_dts.$_dtn")
+
+        _title="[42m $_index [47m $_ts [42m ~ [47m $_dt[m"
+        _ntitle=$(( ${#_title} + 2 - 23 ))
         _halfpad=$(( (_cols - _ntitle) / 2 ))
-        _line="${_pad:0:_halfpad} $_title ${_pad:0:_cols - _ntitle - _halfpad}"
+        _line="${_PAD:0:_halfpad} $_title ${_PAD:0:_cols - _ntitle - _halfpad}"
         echo "$_line"
         . settermtitle "L($_interval:$_index) $_cmd"
 
         eval $_cmd "$@"
 
-        echo "${_pad:0:_cols}"
-        sleep $_interval
+        # echo "${_PAD:0:_cols}"
+        sleepenh $_interval >/dev/null
     done
-fi
