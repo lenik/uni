@@ -10,6 +10,7 @@ libbas_la_LIBADD = ${GLIB_LIBS}
 libbas_la_LDFLAGS = -version-info 1:0:0
 libbas_la_CFLAGS = \
     -I/usr/include/bash \
+    -I/usr/include/bash/include \
     -I../include \
 	${GLIB_CFLAGS}
 
