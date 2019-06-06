@@ -55,17 +55,13 @@ int strfn_builtin(WORD_LIST *list, str_proc fn, const char *fsep, const char *as
 
             while (fgets(buf, LINEMAX, in)) {
                 fn(buf);
-                fputs(buf, stdout);
             }
             
             fclose(in);
         } else {                        /* string argument */
             if (index) fputs(asep, stdout);
 
-            strcpy(buf, arg);
-            fn(buf);
-
-            fputs(buf, stdout);
+            fn(arg);
         }
     }
 
@@ -78,18 +74,48 @@ int strfn_builtin(WORD_LIST *list, str_proc fn, const char *fsep, const char *as
 void tolower_fn(char *buf) {
     char *p = buf;
     char ch;
-    while (ch = *p) {
+    while (ch = *p++) {
         ch = tolower(ch);
-        *p++ = ch;
+        putchar(ch);
     }
 }
 
 void toupper_fn(char *buf) {
     char *p = buf;
     char ch;
-    while (ch = *p) {
+    while (ch = *p++) {
         ch = toupper(ch);
-        *p++ = ch;
+        putchar(ch);
+    }
+}
+
+void hyphenatize_fn(char *buf) {
+    char *p = buf;
+    char ch;
+    while (ch = *p++) {
+        if (isupper(ch)) {
+            putchar('-');
+            ch = tolower(ch);
+        }
+        putchar(ch);
+    }
+}
+
+void camelCase_fn(char *buf) {
+    char *p = buf;
+    char ch;
+    bool upnext = false;
+    while (ch = *p++) {
+        if (isalnum(ch)) {
+            if (upnext) {
+                ch = toupper(ch);
+                upnext = false;
+            }
+        } else {
+            upnext = true;
+            continue;
+        }
+        putchar(ch);
     }
 }
 
@@ -99,6 +125,14 @@ int tolower_builtin(WORD_LIST *list) {
 
 int toupper_builtin(WORD_LIST *list) {
     strfn_builtin(list, toupper_fn, "\n", " ");
+}
+
+int hyphenatize_builtin(WORD_LIST *list) {
+    strfn_builtin(list, hyphenatize_fn, "\n", " ");
+}
+
+int camelCase_builtin(WORD_LIST *list) {
+    strfn_builtin(list, camelCase_fn, "\n", " ");
 }
 
 char *tolower_doc[] = {
@@ -112,6 +146,20 @@ char *toupper_doc[] = {
     "Convert to upper case",
     "",
     "Convert the argument string (or file) to upper case.",
+    NULL
+};
+
+char *hyphenatize_doc[] = {
+    "Convert camelCase identifier to hyphenatized-words",
+    "",
+    "Convert camelCase identifier to hyphenatized-words in lower case.",
+    NULL
+};
+
+char *camelCase_doc[] = {
+    "Convert hyphenatized-words to camelCase",
+    "",
+    "Convert hyphenatized-words to camelCased identifier.",
     NULL
 };
 
@@ -130,5 +178,23 @@ struct builtin toupper_struct = {
     BUILTIN_ENABLED,
     toupper_doc,
     "toupper [-f] string/file ...",
+    NULL
+};
+
+struct builtin hyphenatize_struct = {
+    "hyphenatize",
+    hyphenatize_builtin,
+    BUILTIN_ENABLED,
+    hyphenatize_doc,
+    "hyphenatize [-f] string/file ...",
+    NULL
+};
+
+struct builtin camelCase_struct = {
+    "camelCase",
+    camelCase_builtin,
+    BUILTIN_ENABLED,
+    camelCase_doc,
+    "camelCase [-f] string/file ...",
     NULL
 };
