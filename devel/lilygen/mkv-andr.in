@@ -72,8 +72,8 @@ function main() {
 
     layout=$opt_layout
     if [ "$layout" = auto ]; then
-        case "$pkg" in
-            *.activity|*.ui)
+        case "$fqcn" in
+            *.activity.*|*Activity)
                 layout=activity
                 ;;
             *)
@@ -93,6 +93,7 @@ function main() {
     fi
     
     ba_se=$(hyphenatize "$base")
+    ba_se=${ba_se//-/_}
 
     _log1 "Generating files for $pkg::$Base $base (in */$dir)."
 
