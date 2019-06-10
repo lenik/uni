@@ -1,13 +1,13 @@
 package net.bodz.uni.echo.server;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.servlet.ServletContext;
 
-import org.apache.commons.collections15.map.HashedMap;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
@@ -16,9 +16,9 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.component.LifeCycle;
 
+import net.bodz.bas.http.config.FilterDescriptor;
 import net.bodz.bas.http.config.ServletContextConfig;
 import net.bodz.bas.http.config.ServletContextConfigAdapter;
-import net.bodz.bas.http.config.FilterDescriptor;
 import net.bodz.bas.http.config.ServletDescriptor;
 import net.bodz.uni.echo.resource.DerivedResourceProvider;
 import net.bodz.uni.echo.resource.IResourceProvider;
@@ -78,7 +78,7 @@ public class EchoServer
 
         Map<String, String> extensionMap = config.getExtensionMap();
         if (extensionMap == null) {
-            extensionMap = new HashedMap<String, String>();
+            extensionMap = new HashMap<String, String>();
             config.setExtensionMap(extensionMap);
         }
 
