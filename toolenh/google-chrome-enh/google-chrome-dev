@@ -21,6 +21,7 @@ done
 
     #--disable-web-security \
 exec -a "$exec_name" "$chrome_exe" \
+    --allow-cross-origin-auth-prompt \
     --allow-file-access-from-files \
     --allow-file-access \
     --enable-file-cookies \
