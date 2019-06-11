@@ -1,12 +1,12 @@
 #include <stdargs.h>
 
-char *expand_line(char *s, GHashTable *map) {
+char *VarExpr_expand(char *s, GHashTable *map) {
     //$s =~ s/\$(\d+|\w[A-Za_z0-9_\$]*)/expand_bare($1, $vars)/ge;
     //$s =~ s/\$\{([^{]+)\}/expand_brace($1, $vars)/ge;
     return s;
 }
 
-char *expand_bareVar(char *expr, GHashTable *map) {
+char *VarExpr_evalOrBareName(char *expr, GHashTable *map) {
     char *val = expand_expr(expr, map);
     if (val)
         return val;
@@ -16,8 +16,8 @@ char *expand_bareVar(char *expr, GHashTable *map) {
     return var;
 }
 
-char *expand_braceVar(char *expr, GHashTable *map) {
-    char *val = expand_expr(expr, map);
+char *VarExpr_evalOrCurlyName(char *expr, GHashTable *map) {
+    char *val = VarExpr_expand(expr, map);
     if (val)
         return val;
     char *var = (char *) malloc(strlen(expr) + 4);
@@ -27,7 +27,7 @@ char *expand_braceVar(char *expr, GHashTable *map) {
     return var;
 }
 
-char *expand_expr(char *expr, GHashTable *map) {
+char *VarExpr_eval(char *expr, GHashTable *map) {
     int pad = 0;
     char *defl = NULL;
 
@@ -67,15 +67,3 @@ char *expand_expr(char *expr, GHashTable *map) {
         strcat(val, ' ');
     return val;
 }
-
-GList *fqn2href(...) {
-    Frame *frame = Stack_peek();
-    char *ext = frame->ext;
-    GList *vals = NULL;
-    for (args) {
-        arg = replace(arg, ".", "/");
-        g_list_append(vals, "arg.ext");
-    }
-    return args;
-}
-

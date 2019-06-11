@@ -6,22 +6,20 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <cprog.h>
-#include "type.h"
+
+#include "File.h"
+#include "FileSearcher.h"
+#include "Frame.h"
+#include "Options.h"
 
 char *pkgdatadir = "@pkgdatadir@";
 char opt_configdir[PATH_MAX];
 
-char **opt_libpath;
-gboolean opt_echo = false;
-
-GList *pathv = NULL;
-GQueue *stack = NULL;
-
-#include "cli.c"
+FileSearcher *fileSearcher = NULL;
+Frame rootFrame;
+Frame *context = &rootFrame;
 
 int main(int argc, char **argv) {
-    stack = g_queue_new();
-    
     if (! boot(&argc, &argv, "FILES"))
         return 1;
 
@@ -33,19 +31,8 @@ int main(int argc, char **argv) {
     strcpy(opt_configdir, HOME);
     strcat(opt_configdir, "/.config/catme");
     
-    char *LIB = getenv("LIB");
-    if (LIB) {
-        char *tok = strtok(LIB, ":");
-        do {
-            pathv = g_list_append(pathv, strdup(tok));
-        } while (tok = strtok(NULL, ":"));
-    }
-    
-    GList *node = pathv;
-    while (node) {
-        LOG2 printf("Search-Path: %s\n", node->data);
-        node = node->next;
-    }
+    FileSearcher_addPathEnv("LIB");
+    FileSearcher_dump();
     
     return process_files(opt_files);
 }
@@ -76,10 +63,10 @@ int process_file(char *filename, FILE *file) {
         strcat(pathdir, ext);
         loadPathFiles(pathdir);
 
-        FileLang lang = FileLang_parse(ext);
+        SrcLang lang = SrcLang_parse(ext);
         if (lang) {
             char var[100];
-            strcpy(var, FileLang_toString(lang));
+            strcpy(var, SrcLang_toString(lang));
             strcat(var, "LIB");
             strupper(var);
             char *langLIB = getenv(var);
@@ -148,15 +135,17 @@ int process(char *file, ...) {
 
     char *delim = opt_delim;
     if (delim == NULL) {
-        FileLang lang = FileLang_parse(ext);
+        SrcLang lang = SrcLang_parse(ext);
         Frame_initExt(frame, ext);
         LOG2 printf("Auto determined the delimiters from file extension.\n");
     }
     
-    char *del = delim[0];
-    char *der = delim[1];
-    LOG2 printf("Delimiter: %s(%d), %s(%d)\n", del, ndel, der, nder);
-    LOG2 printf("Inline-Delimiter: %s(%d), %s(%d)\n", idel, nidel, ider, nider);
+    char *startSeq = delim[0];
+    char *stopSeq = delim[1];
+    LOG2 printf("Delimiter: %s(%d), %s(%d)\n",
+        startSeq, nStartSeq, stopSeq, nStopSeq);
+    LOG2 printf("Inline-Delimiter: %s(%d), %s(%d)\n",
+        startSeq1, nStartSeq1, stopSeq1, nStopSeq1);
     
     frame->echo = 0;
     frame->copy = 1;
@@ -180,9 +169,9 @@ int process(char *file, ...) {
         int n = strlen(s);
 
         /* catme cmds must be within the delimitors */
-        if ((strncmp(s, del, n) == 0)
-            && strcmp(s + (n - nder), der) == 0) {
-            s = substr($s, $ndel, $n - $nder); /* remove del and der */
+        if ((strncmp(s, startSeq, n) == 0)
+            && strcmp(s + (n - nStopSeq), stopSeq) == 0) {
+            s = substr($s, $nStartSeq, $n - $nStopSeq); /* remove startSeq and stopSeq */
             s = trimLeft(s);
 
             if (*s == '\\') {
@@ -197,7 +186,7 @@ int process(char *file, ...) {
         }
         
         if (frame->copy) {
-            char *exp = expand_line(line, vars);
+            char *exp = VarExpr_expand(line, vars);
             puts(exp);
         }
     } /* while fgets */

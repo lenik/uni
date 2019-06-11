@@ -1,3 +1,9 @@
+#include "Options.h"
+
+Options options = {
+    NULL, /* char *libPath; */
+    false, /* gboolean opt_echo; */
+};
 
 void set_delim(const char *del, const char *der) {
     Frame *frame = Stack_peek();
