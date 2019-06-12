@@ -2,8 +2,12 @@
 #define __Options_H
 
 typedef struct _Options {
-    char *libPath;
-    gboolean opt_echo;
+    char **searchPath;
+    
+    gboolean echo;
+    
+    char **files;
+    
 } Options;
 
 extern Options options;

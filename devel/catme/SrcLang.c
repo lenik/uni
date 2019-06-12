@@ -34,3 +34,29 @@ const char *SrcLang_toString(SrcLang lang) {
         return "unix";
     }
 }
+
+SrcLang SrcLang_fromExt(const char *ext, SrcLang defaultLang) {
+    if (ext == NULL)
+        return defaultLang;
+    
+    if (streq(ext, "htm")
+             || streq(ext, "html")
+             || streq(ext, "xhtml")
+             || streq(ext, "xml"))
+        return SrcLang_XML;
+    
+    if (streq(ext, "p")        /* perl */
+             || streq(ext, "pl")
+             || streq(ext, "py"))        /* python */
+        return SrcLang_UNIX;
+    
+    if (streq(ext, "r")             /* ruby */
+             || streq(ext, "rb"))
+        return SrcLang_UNIX;
+    
+    if (streq(ext, "sql")           /* SQL */
+             || streq(ext, "ddl"))
+        return SrcLang_SQL;
+    
+    return defaultLang;
+}

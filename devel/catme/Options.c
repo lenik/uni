@@ -1,37 +1,59 @@
+#include "CatMe.h"
 #include "Options.h"
+
+#define OPTION_FN(fn_name) \
+    fn_name(const gchar *option_name, \
+            const gchar *value, \
+            gpointer data, \
+            GError **error)
 
 Options options = {
     NULL, /* char *libPath; */
     false, /* gboolean opt_echo; */
 };
 
-void set_delim(const char *del, const char *der) {
-    Frame *frame = Stack_peek();
-    SET_STRDUP(frame->del, del);
-    SET_STRDUP(frame->der, der);
+gboolean OPTION_FN(set_format_c) {
+    Frame_setSrcLang(context, SrcLang_C);
+    return TRUE;
 }
 
-void set_format_c() {
-    set_delim("/*", "*/");
+gboolean OPTION_FN(set_format_sql) {
+    Frame_setSrcLang(context, SrcLang_SQL);
+    return TRUE;
 }
 
-void set_format_unix() {
-    set_delim("#", "");
+gboolean OPTION_FN(set_format_unix) {
+    Frame_setSrcLang(context, SrcLang_UNIX);
+    return TRUE;
 }
 
-void set_format_sql() {
-    set_delim("--", "");
+gboolean OPTION_FN(set_format_xml) {
+    Frame_setSrcLang(context, SrcLang_XML);
+    return TRUE;
 }
 
-void set_format_xml() {
-    set_delim("<!--", "-->");
+gboolean OPTION_FN(set_verbose_arg) {
+    char *p = option_name;
+    while (*p == '-') p++;
+    if (*p == 'q') {                  /* q, quiet */
+        opt_verbose--;
+    } else if (*p == 'v') {           /* v, verbose */
+        opt_verbose++;
+    }
+    return TRUE;
+}
+
+void OPTION_FN(show_version) {
+    printf("catme 2.0\n"
+           "written by Lenik, (at) 99jsj.com\n");
+    exit(0);
 }
 
 static GOptionEntry options[] = {
-    { "lib", 'L', 0, G_OPTION_ARG_FILENAME_ARRAY, &opt_libpath,
+    { "lib", 'L', 0, G_OPTION_ARG_FILENAME_ARRAY, &options.path,
       "Add to the library search path", },
     
-    { "echo", 'e', 0, G_OPTION_ARG_NONE, &opt_echo,
+    { "echo", 'e', 0, G_OPTION_ARG_NONE, &options.echo,
       "Preserve catme commands in output", },
 
     { "format-c", 0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, set_format_c,
@@ -55,7 +77,7 @@ static GOptionEntry options[] = {
     { "version", 0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, show_version,
       "Show version info", },
 
-    { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &opt_files,
+    { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &options.files,
       "FILES", },
 
     { NULL },

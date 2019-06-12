@@ -85,8 +85,14 @@ int process_file(char *filename, FILE *file) {
 int process(char *file, ...) {
     LOG2 printf("Process %s", file);
 
-    Frame *frame = Stack_enter();
+    Frame *frame = Frame_new(context, file);
+
+    LOG2 printf("Delimiter: start %s(%d), stop %s(%d), sl-start %s(%d)\n",
+        startSeq, nStartSeq, stopSeq, nStopSeq, slStartSeq, nSlStartSeq);
     
+    frame->echo = 0;
+    frame->copy = 1;
+
     GHashTable *vars = g_hashtable_new();
     int argi;
     for (argi = 0; argi < narg; argi++) {
@@ -101,55 +107,6 @@ int process(char *file, ...) {
         g_hashtable_set(vars, k, arg);
     }
 
-    char *dir = file;
-    char *base = strrchr(file, '/');
-    if (base == NULL) {
-        dir = strdup(".");
-        base = file;
-    } else {
-        dir = strndup(file, base - file);
-        base++;
-    }
-    frame->dir = dir;
-
-    char *name = base;
-    char *ext = strrchr(base, '.');
-    if (ext == NULL) {
-        name = strdup(base);
-    } else {
-        name = strndup(base, ext - name);
-        ext = strdup(ext + 1);
-    }
-    // NEED: free(name);
-    frame->ext = ext;
-
-    char fqn[PATH_MAX];
-    if (streq(dir, ".")) {
-        strcpy(fqn, name);
-    } else {
-        strcpy(fqn, dir);
-        strcat(fqn, "/");
-        strcat(fqn, name);
-        replace(fqn, "/", ".");
-    }
-
-    char *delim = opt_delim;
-    if (delim == NULL) {
-        SrcLang lang = SrcLang_parse(ext);
-        Frame_initExt(frame, ext);
-        LOG2 printf("Auto determined the delimiters from file extension.\n");
-    }
-    
-    char *startSeq = delim[0];
-    char *stopSeq = delim[1];
-    LOG2 printf("Delimiter: %s(%d), %s(%d)\n",
-        startSeq, nStartSeq, stopSeq, nStopSeq);
-    LOG2 printf("Inline-Delimiter: %s(%d), %s(%d)\n",
-        startSeq1, nStartSeq1, stopSeq1, nStopSeq1);
-    
-    frame->echo = 0;
-    frame->copy = 1;
-
     File *f = fopen(file, "rt");
     if (f == NULL) {
         fprintf(stderr, "Can't open %s", file);
@@ -157,21 +114,25 @@ int process(char *file, ...) {
         return 1;
     }
 
-    int line = 0;
-    char line[4000];
-    while (fgets(line, sizeof(line), f)) {
-        line++;
+    int lineNo = 0;
+    Buffer buf;
+    char *p;
+    while (p = Buffer_fgets(&linebuf)) {
+        lineNo++;
 
         /* save a copy of the line */
-        char *s = strdup(line);
-        s = trimLeft(s);
-        s = chomp(s);
-        int n = strlen(s);
+        while (*p && isspace(*p)) p++; // trim-left
+        
+        int len = strlen(p);
+        while (len && isspace(p[len - 1])) len--; // chomp and trim-right
 
+        char *line = strndup(p, len);
+        p = line;
+        
         /* catme cmds must be within the delimitors */
-        if ((strncmp(s, startSeq, n) == 0)
-            && strcmp(s + (n - nStopSeq), stopSeq) == 0) {
-            s = substr($s, $nStartSeq, $n - $nStopSeq); /* remove startSeq and stopSeq */
+        if ((strncmp(p, context->startSeq, n) == 0)
+            && strcmp(s + (n - context->nStopSeq), context->stopSeq) == 0) {
+            s = substr(s, $nStartSeq, n - context->nStopSeq); /* remove startSeq and stopSeq */
             s = trimLeft(s);
 
             if (*s == '\\') {
@@ -191,6 +152,6 @@ int process(char *file, ...) {
         }
     } /* while fgets */
     fclose(f);
-    Stack_leave();
+    context = context->parent;
     return err;
 }

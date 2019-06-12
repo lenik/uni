@@ -106,14 +106,3 @@ void FileSearcher_dump(FileSearcher *searcher) {
         node = node->next;
     }
 }
-
-GList *fqn2href(...) {
-    Frame *frame = Stack_peek();
-    char *ext = frame->ext;
-    GList *vals = NULL;
-    for (args) {
-        arg = replace(arg, ".", "/");
-        g_list_append(vals, "arg.ext");
-    }
-    return args;
-}

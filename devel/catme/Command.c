@@ -40,32 +40,31 @@ int parse_cmd(char *s) {
     return 0;
 }
 
-int _fn_import(bool once, char *fqn, ...) {
-    if (once && g_hashtable_get(fqn)) {
-        LOG2 printf("already imported: %s", fqn);
+int _fn_import(bool once, char *qName, ...) {
+    if (once && g_hashtable_get(qName)) {
+        LOG2 printf("already imported: %s", qName);
         return 0;
     }
-    g_hashtable_set(imported, fqn, 1);
+    g_hashtable_set(imported, qName, 1);
 
-    char *href = fqn2href(fqn);
-    GList *hits = search(href, pathv);
+    char *href = Frame_qName2Href(context, qName);
+    GList *hits = FileSearcher_search(fileSearcher, href);
     int nhit = g_list_size(hits);
     if (nhit == 0) {
         fprintf(stderr, "Import failed, not found: %s\n", href);
-        for (pathv)
-            fprintf(stderr, "    search %s", item);
+        FileSearcher_dump(fileSearcher);
     }
 
     char *dst = (char *) hits->data;
     return process(dst, va_args);
 }
 
-int fn_import(char *fqn, ...) {
-    return _fn_import(true, fqn, va_args);
+int fn_import(char *qName, ...) {
+    return _fn_import(true, qName, va_args);
 }
 
-int fn_mixin(char *fqn, ...) {
-    return _fn_import(false, fqn, va_args);
+int fn_mixin(char *qName, ...) {
+    return _fn_import(false, qName, va_args);
 }
 
 int _fn_include(bool silent, char *href, ...) {
