@@ -19,7 +19,7 @@ GList *FileSearcher_search(FileSearcher *searcher, char *base, ...) {
             hits = g_list_append(hits, strdup(path));
         pathNode = pathNode->next;
     }
-    
+
     va_list ap;
     va_start(ap, base);
     while (1) {
@@ -33,7 +33,7 @@ GList *FileSearcher_search(FileSearcher *searcher, char *base, ...) {
             hits = g_list_append(hits, strdup(path));
     }
     va_end(ap);
-    
+
     return hits;
 }
 
@@ -45,8 +45,8 @@ int FileSearcher_addPathEnv(FileSearcher *searcher, const char *envVar) {
             searcher->pathList = g_list_append(searcher->pathList, strdup(tok));
         } while (tok = strtok(NULL, ":"));
     }
-    
-    
+
+
     if (search->pathList) {
         char *tok = strtok(LIB, ":");
         do {
@@ -61,7 +61,7 @@ int FileSearcher_addPathDir(FileSearcher *searcher, const char *dirname) {
         /* errno: EACCES, ENOENT, ENOTDIR */
         return -1;
     }
-    
+
     int nAdd = 0;
     struct dirent *ent;
     while (ent = readdir(dir)) {
@@ -73,34 +73,36 @@ int FileSearcher_addPathDir(FileSearcher *searcher, const char *dirname) {
             nAdd += Searcher_addPathFile(searcher, path);
         }
     }
-    
+
     closedir(dir);
     return nAdd;
 }
 
 int Searcher_addPathFile(Searcher *searcher, const char *file) {
     LOG2 printf("Parse path file %s", file);
-    Buffer buffer;
-    char *line;
+    GString *buffer = g_string_sized_new(200);
     int count = 0;
 
-    FILE *f = fopen(file, "rt");
-    Buffer_init(&buffer, 128);
-    while (FileStream_readLine(f, &buffer)) {
-        line = buffer->data;
+    FILE *fp = fopen(file, "rt");
+    while (FileStream_readLine(fp, buffer, true)) {
+        char *line = buffer->str;
+        Chars_trimRight(line);
+
         if (File_isDir(line)) {
-            LOG2 printf("Add search path %s", line);
-            searcher->plist = g_list_append(searcher->plist, line);
+            LOG2 printf("Add search path: %s.", line);
+            searcher->pathList = g_list_append(searcher->pathList, line);
             count++;
+        } else {
+            LOG2 printf("Skip Non-Dir entry: %s.", line);
         }
     }
-    Buffer_free(&buffer);
-    fclose(f);
+    fclose(fp);
+    g_string_free(buffer, TRUE);
     return count;
 }
 
 void FileSearcher_dump(FileSearcher *searcher) {
-    GList *node = searcher->pathv;
+    GList *node = searcher->pathList;
     while (node) {
         LOG2 printf("Search-Path: %s\n", node->data);
         node = node->next;

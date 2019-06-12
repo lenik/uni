@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,9 +8,12 @@
 #include "type.h"
 
 Frame *Frame_new(Frame *parent, const char *path) {
-    Frame *frame = g_new0(Frame, 1);
-    frame->parent = parent;
+    assert(parent != null);
+    assert(frame != path);
     
+    Frame *frame = g_new0(Frame, 1);
+    
+    frame->parent = parent;
     frame->lang = parent->lang;
     frame->startSeq = parent->startSeq;
     frame->stopSeq = parent->stopSeq;
@@ -25,25 +29,28 @@ Frame *Frame_free(Frame *frame) {
     
     Frame *parent = frame->parent;
     
-    N_FREE(frame->path);
-    N_FREE(frame->dir);
-    N_FREE(frame->fileName);
-    N_FREE(frame->fileExt);
+    g_free(frame->path);
+    g_free(frame->dir);
+    g_free(frame->fileName);
+    g_free(frame->fileExt);
     
-    N_FREE(frame->packageName);
-    N_FREE(frame->qName);
-    N_FREE(frame->name);
+    g_free(frame->packageName);
+    g_free(frame->qName);
+    g_free(frame->name);
     
-    N_FREE(frame->startSeq);
-    N_FREE(frame->stopSeq);
-    N_FREE(frame->slStartSeq);
+    g_free(frame->startSeq);
+    g_free(frame->stopSeq);
+    g_free(frame->slStartSeq);
     
-    N_FREE(frame);
+    g_free(frame);
     
     return parent;
 }
 
 void Frame_setPath(Frame *frame, const char *path) {
+    assert(frame != null);
+    assert(path != null);
+    
     char *dir;
     char *fileName;
 
@@ -81,14 +88,14 @@ void Frame_setPath(Frame *frame, const char *path) {
         strcat(qName, name);
     }
     
-    N_SET(frame->path,      N_strdup(path));
-    N_SET(frame->dir,       dir);
-    N_SET(frame->fileName,  fileName);
-    N_SET(frame->fileExt,   fileExt);
+    N_SET(frame->path,          g_strdup(path));
+    N_SET(frame->dir,           dir);
+    N_SET(frame->fileName,      fileName);
+    N_SET(frame->fileExt,       fileExt);
     
-    N_SET(frame->qName,     N_strdup(qName));
-    N_SET(frame->packageName,N_strdup(packageName));
-    N_SET(frame->name,      name);
+    N_SET(frame->qName,         g_strdup(qName));
+    N_SET(frame->packageName,   g_strdup(packageName));
+    N_SET(frame->name,          name);
     
     SrcLang lang = SrcLang_fromExt(fileExt);
     if (lang != SrcLang_Unknown)
@@ -96,6 +103,10 @@ void Frame_setPath(Frame *frame, const char *path) {
 }
 
 void Frame_setSrcLang(Frame *frame, SrcLang lang) {
+    assert(frame != null);
+    
+    frame->lang = lang;
+    
     const char *startSeq = "#";
     const char *stopSeq = "";
     const char *slStartSeq = "";
@@ -113,6 +124,7 @@ void Frame_setSrcLang(Frame *frame, SrcLang lang) {
         case SrcLang_XML:
             startSeq = "<!--";
             stopSeq = "-->";
+            slStartSeq = "";
             break;
         case SrcLang_UNIX:
             startSeq = "";
@@ -120,21 +132,26 @@ void Frame_setSrcLang(Frame *frame, SrcLang lang) {
             slStartSeq = "#";
             break;
     }
-    frame->lang = lang;
     Frame_setDelim(startSeq, stopSeq, slStartSeq);
 }
 
-void Frame_setDelim(const char *startSeq, const char *stopSeq, const char *slStartSeq) {
+void Frame_setDelim(Frame *frame, const char *startSeq, const char *stopSeq,
+        const char *slStartSeq) {
+    assert(frame != null);
+    
     Frame *frame = Stack_peek();
-    N_SET(frame->startSeq, N_strdup(startSeq));
-    N_SET(frame->stopSeq, N_strdup(stopSeq));
-    N_SET(frame->slStartSeq, N_strdup(slStartSeq));
+    N_SET(frame->startSeq, g_strdup(startSeq));
+    N_SET(frame->stopSeq, g_strdup(stopSeq));
+    N_SET(frame->slStartSeq, g_strdup(slStartSeq));
     frame->nStartSeq = N_strlen(startSeq);
     frame->nStopSeq = N_strlen(stopSeq);
     frame->nSlStartSeq = N_strlen(slStartSeq);
 }
 
 char *Frame_qName2Href(Frame *frame, const char *qName) {
+    assert(frame != null);
+    assert(qName != null);
+    
     char buf[MAX_PATH];
     strcpy(buf, qName);
     Chars_replace(buf, '.', '/');

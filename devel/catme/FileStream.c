@@ -6,29 +6,29 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-bool FileStream_readLine(File *f, Buffer *buf) {
+bool FileStream_readLine(File *f, GString *buf, bool chomp) {
     int ch;
-    size_t size = 0;
-    buf->used = 0;
+    int len = 0;
+    int saved = -1;
     while ((ch = fgetc(f)) != EOF) {
-        size++;
-        if (buf->used == buf->size) {
-            size_t newSize = buf->size * 2;
-            char *p;
-            if (newSize == 0) {
-                newSize = 4;
-                p = malloc(newSize);
-            } else {
-                p = realloc(buf->data, newSize);
-            }
-            if (p == NULL) {
-                perror("Memory out");
-                exit(1);
-            }
-            buf->data = p;
-            buf->size = newSize;
+        len++;
+
+        if (ch == '\r') {
+            saved = ch;
+            continue;
         }
-        buf->data[buf->used++] = ch;
+        if (ch == '\n')
+            if (chomp) break;
+
+        if (saved != -1) {
+            g_string_append_c(buf, saved);
+            saved = -1;
+        }
+
+        g_string_append_c(buf, ch);
+
+        if (ch == '\n')
+            break;
     }
-    return size != 0;
+    return len != 0;
 }

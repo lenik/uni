@@ -12,7 +12,7 @@
         ref = val; \
     } while (0)
 
-char *N_strdup(const char *s);
+char *g_strdup(const char *s);
 char *N_strlen(const char *s);
 
 #endif

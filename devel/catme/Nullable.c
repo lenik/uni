@@ -1,6 +1,6 @@
 #include "Nullable.h"
 
-char *N_strdup(const char *s) {
+char *g_strdup(const char *s) {
     if (s == NULL)
         return NULL;
     else

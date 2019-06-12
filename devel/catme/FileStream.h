@@ -4,13 +4,14 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "Buffer.h"
+#include <glib.h>
 
 /**
- * Read a line into memory.
+ * Read a line into memory. Includes the trailing EOL if any.
  *
- * @param buf  allocated.
+ * @param buf allocated.
+ * @return false when eof reached.
  */
-bool FileStream_readLine(File *f, Buffer *buf);
+bool FileStream_readLine(File *f, GString *buf, bool chomp);
 
 #endif
