@@ -7,10 +7,10 @@
  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="$pkg_db.${Base}Mapper">
 
-    <resultMap id="map1" type="$fqcn" extends="co.MAP_UVX">
+    <resultMap id="objlist_map" type="$fqcn" extends="co.MAP_UVX">
     </resultMap>
 
-    <sql id="select1"><![CDATA[
+    <sql id="objlist_sql"><![CDATA[
         select
             a.*,
             u.label "uid_label",
@@ -21,7 +21,7 @@
         ]]>
     </sql>
 
-    <sql id="select2"><![CDATA[
+    <sql id="objedit_sql"><![CDATA[
         select
             a.*,
             u.label "uid_label",
@@ -37,18 +37,18 @@
         <include refid="co.modefilt" />
     </sql>
 
-    <select id="all" resultMap="map1">
-        <include refid="select1" />
+    <select id="all" resultMap="objlist_map">
+        <include refid="objlist_sql" />
     </select>
 
-    <select id="filter" resultMap="map1">
-        <include refid="select1" />
+    <select id="filter" resultMap="objlist_map">
+        <include refid="objlist_sql" />
         <where>
             <include refid="filtconds" />
         </where>
     </select>
 
-    <select id="select" parameterType="int" resultMap="map1">
+    <select id="select" parameterType="int" resultMap="objlist_map">
         <include refid="select2" />
         <where>
             <if test="_parameter != null">a.id = #{id}</if>
