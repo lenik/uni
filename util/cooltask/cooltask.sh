@@ -12,9 +12,16 @@ function findcont() {
         return
     fi
 
-    if [ "$1" = '-C' ]; then
-        cd=1
+    if [ "$1" = '-C' ]; then cd=1; shift; fi
+    if [ "$1" = '-A' ]; then
         shift
+        local abbr="$1"
+        local len=${#abbr} i
+        local opts=()
+        for (( i = 0; i < len; i++)); do
+            opts=("${opts[@]}" ${abbr:i:1})
+        done
+        set -- "${opts[@]}"
     fi
 
     while [ $# -ge 2 ]; do
@@ -34,6 +41,7 @@ function findcont() {
 
 # Using `T <job-class> <job-id>` for `J` and `Jwhich`.
 alias T='findcont %cooltask -C'
+alias t='findcont %cooltask -C -A'
 #alias J='findcont %cooljob -C'
 alias T.='findcont %cooltask'
 #alias Jwhich='findcont %cooljob'
