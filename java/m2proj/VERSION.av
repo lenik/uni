@@ -10,6 +10,6 @@ rev         = 0
 rev.base    = 0
 rev.exec    = svn_revision .
 
-commit      = 0 
+commit      = 2 
 commit.base = 2
 

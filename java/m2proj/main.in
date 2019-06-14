@@ -13,6 +13,10 @@
     option -h --help
     option    --version
 
+    opt_orderfile=order.lst
+
+    shopt -s nullglob
+
 function setopt() {
     case "$1" in
         -h|--help)
@@ -59,11 +63,14 @@ function main() {
     fi
 
     classpath=
-    if [ -f "lib/list" ]; then
+    if [ -f "$opt_orderfile" ]; then
         while read item; do
-            add_cp "lib/$item"
-        done <lib/list
+            add_cp "$item"
+        done <"$opt_orderfile"
     else
+        for dir in classes/*/; do
+            add_cp "$dir"
+        done
         for jar in lib/*.jar; do
             add_cp "$jar"
         done

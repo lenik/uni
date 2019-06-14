@@ -1,5 +1,7 @@
 # vim: set ft=make :
 
+SHELL = /bin/bash
+
 selfdir := $(dir $(lastword $(MAKEFILE_LIST)))
 include $(selfdir)/base.mf
 
@@ -13,19 +15,8 @@ src_excludes = \
     target
 
 bin_PRE += update-lib
-update-lib: -update-lib lib/list
--update-lib: .deps.lst
-	mkdir -p $(libdir)
-	rm -f $(libdir)/*
-	while read f; do cp -pnv "$$f" $(libdir)/; done <.deps.lst
+update-lib: order.lst
 
-.deps.lst:
-	rm -f .classpath.main .classpath.test
-	mjpl -t -v --deps 2>&1 \
-	    | grep -Po '/.*\.jar' > $@
-
-lib/list: .deps.lst
-	sed -e 's,.*/,,' $< \
-	    | nl | sort -k2 | uniq -f1 | sort -n \
-	    | cut -f2 >$@
+order.lst:
+	m2mklib -B
 

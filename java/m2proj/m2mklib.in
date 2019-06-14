@@ -1,0 +1,115 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -B --refresh             "Invalidate cached contents."
+    option -L --lib-dir =DIR        "Specify the lib directory, default lib"
+    option -o --order-file =NAME    "Specify filename of the order file, default lib/order.lst"
+    option    --deps-file =NAME     "Specify the deps file, default .deps.list"
+    option -o --order-file =NAME    "Specify filename of the order file, default lib/order.lst"
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_refresh=0
+    opt_depsfile=.deps.lst
+    opt_orderfile=order.lst
+
+    opt_libdir=lib
+    opt_classesdir=classes
+    opt_modulesdir=modules
+
+function setopt() {
+    case "$1" in
+        -B|--refresh)
+            opt_refresh=1;;
+        -L|--lib-dir)
+            opt_libdir="$2";;
+        -o|--order-file)
+            opt_orderfile="$2";;
+        --deps-file)
+            opt_depsfile="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    local type path base rel
+    local ordertmp
+
+    mkdir -p "$opt_libdir"
+    mkdir -p "$opt_classesdir"
+    mkdir -p "$opt_modulesdir"
+
+    if [ ! -f $opt_depsfile ] || [ $opt_refresh = 1 ]; then
+        rm -f .classpath.main .classpath.test
+        
+        mjpl -t -v --deps 2>&1 \
+            | grep -Po '(JAR|DIR): [/A-Za-z0-9 ._\-]+' >$opt_depsfile
+
+        ordertmp=`mktemp`
+    fi
+
+    while read type path; do
+        test -e "$path" || continue
+        base="${path##*/}"
+
+        case "$type" in
+        DIR:)
+            path="${path%/}"
+            rel=$( relpath "$PWD" "$path" )
+            [ "$rel" = "target/classes" ] && continue
+
+            rel=$( echo $rel | sed -e 's,^\(../\)*,,' )
+
+            case "$rel" in
+                */target/classes)
+                    projdir=${path%/target/classes}
+                    rel=${rel%/target/classes}
+                    [ -n "$ordertmp" ] && echo "$opt_modulesdir/$rel/target/classes/" >>$ordertmp
+                    rsync -am --info=name "$projdir"/* "$opt_modulesdir/$rel/"
+                    ;;
+
+                *)
+                    [ -n "$ordertmp" ] && echo "$opt_classesdir/$rel/" >>$ordertmp
+                    rsync -am --info=name "$path"/* "$opt_classesdir/$rel/"
+                    ;;
+            esac
+            ;;
+
+        JAR:)
+            [ -n "$ordertmp" ] && echo "$opt_libdir/$base" >>$ordertmp
+
+            if [ -f "$opt_libdir/$base" ]; then
+                if diff -q "$path" "$opt_libdir/$base"; then
+                    # already updated.
+                    continue
+                fi
+            fi
+
+            cp -nv "$path" "$opt_libdir/"
+            ;;
+        esac
+    done <$opt_depsfile
+
+    if [ -n "$ordertmp" ]; then
+        nl $ordertmp \
+            | sort -k2 | uniq -f1 | sort -n \
+            | cut -f2 >$opt_orderfile
+        rm $ordertmp
+    fi
+}
+
+boot "$@"
