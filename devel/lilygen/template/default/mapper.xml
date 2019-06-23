@@ -49,7 +49,7 @@
     </select>
 
     <select id="select" parameterType="int" resultMap="objlist_map">
-        <include refid="select2" />
+        <include refid="objedit_sql" />
         <where>
             <if test="_parameter != null">a.id = #{id}</if>
         </where>
