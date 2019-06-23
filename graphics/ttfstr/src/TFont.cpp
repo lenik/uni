@@ -1,4 +1,4 @@
-#include "TFont.hh"
+#include "TFont.h"
 
 TFont::TFont(FT_Face face, int encoding) {
     cmapIndex = 0;

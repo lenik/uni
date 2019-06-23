@@ -1,9 +1,9 @@
-#include "TLibrary.hh"
+#include "TLibrary.h"
 
 #include FT_XFREE86_H
 #define FT_Get_Font_Format FT_Get_X11_Font_Format
 
-#include "fn.hh"
+#include "fn.h"
 
 #include <vector>
 #include <bas/log.h>

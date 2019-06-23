@@ -5,7 +5,7 @@
 
 #include <cprog.h>
 
-#include "TLibrary.hh"
+#include "TLibrary.h"
 
 static int opt_width = 64;
 static int opt_height = 64;

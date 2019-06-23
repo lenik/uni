@@ -1,4 +1,5 @@
-#include "fn.hh"
+#include "fn.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
