@@ -1,0 +1,67 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Module index generator}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] JAVA-DIR...}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $# = 0 ]; then
+        quit "No (java) dir specified."
+    fi
+
+    for d in "$@"; do (
+        _log2 "Search module in $d"
+        cd $d
+        for mod in $(find -name '*Module.java' \
+                -exec grep -lP 'extends .*Module' {} + \
+                | grep -vi 'abstract'); do
+            modfqcn=${mod#./}
+            modfqcn=${modfqcn%.java}
+            modfqcn=${modfqcn//\//.}
+        done
+
+        if [ -z "$modfqcn" ]; then
+            _log2 "No module, skipped."
+            return
+        fi
+        _log1 "Module: $modfqcn"
+
+        mkdir -p ../resources/META-INF/modules/
+        mkdir -p ../resources/META-INF/services/
+
+        find -name '*.java' | 
+            sed -e 's|^./||' \
+                -e 's|.java$||' \
+                -e 's|/|.|g' > ../resources/META-INF/modules/$modfqcn
+
+        mods=../resources/META-INF/services/net.bodz.bas.t.project.IJazzModule
+        echo $modfqcn >>$mods
+
+        tmp=`mktemp`
+        sort $mods | uniq >$tmp
+        mv -f $tmp $mods
+    ); done
+}
+
+boot "$@"
