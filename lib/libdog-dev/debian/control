@@ -11,7 +11,7 @@ Vcs-Browser: http://git.bodz.net/uni/lib/libdog-dev
 Package: libdog-dev
 Architecture: all
 Depends:
-    libphobos2-dev,
+    libgphobos-dev,
     ${misc:Depends}
 Description: D prOGram framework
     libdog is a D library.
