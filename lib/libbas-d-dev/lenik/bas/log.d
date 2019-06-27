@@ -2,8 +2,7 @@ module lenik.bas.log;
 
 import std.algorithm : min;
 import std.datetime;
-import std.file : File;
-import std.stdio : stdout, stderr;
+import std.stdio;
 import std.string;
 
 import lenik.bas.esc.csisgr;

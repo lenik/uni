@@ -8,8 +8,7 @@ import std.file;
 import std.getopt;
 import std.path : baseName;
 import std.process;
-import std.stdio : writeln, writefln;
-import std.stream : File, FileMode;
+import std.stdio;
 import std.string;
 import std.zip;
 
@@ -162,9 +161,9 @@ int main(string[] argv) {
         classpaths = collectClasspaths(list_deps, opt_test);
 
         log.info("Write cache: %s", classpath_cfg);
-        File f = new File(classpath_cfg, FileMode.OutNew);
+        File f = File(classpath_cfg, "w");
         foreach (cp; classpaths)
-            f.writeLine(cp);
+            f.writeln(cp);
         f.close();
     }
     
