@@ -194,11 +194,26 @@ private:
         if (! exists(pomFile))
             throw new Exception("No such file: " ~ pomFile);
         
-        string xml = cast(string) pomFile.read();
+        string xml0 = cast(string) pomFile.read();
 
         /* BUGFIX CommentException */
-        static auto killRegex = regex(r"<!--.*==.*-->", "g");
-        xml = replace(xml, killRegex, "");
+        static auto kill1 = regex(r"<!--[^>]*-->", "sg");
+        static auto kill2 = regex(r"<!\[CDATA\[.*?\]\]>", "sg");
+        
+        string xml1 = replace(xml0, kill1, "");
+        string xml2 = replace(xml1, kill2, "");
+        
+        if (xml1 != xml2) {
+            log.warn("XML edit happens.");
+            File f1 = File("before", "w");
+            f1.write(xml1);
+            f1.close();
+            File f2 = File("after", "w");
+            f2.write(xml2);
+            f2.close();
+        }
+        string xml = xml2;
+        
         Document project;
 
         try {
