@@ -5,17 +5,22 @@
     : ${MVN:=mvn}
 
     . shlib-import cliboot
+    option -O --online      "Maven online mode"
     option -e --errors      "Produce execution error messages"
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
 
+    opt_online=
+
     mvnopts=()
     mvnoptn=0
 
 function setopt() {
     case "$1" in
+        -O|--online)
+            opt_opline=1;;
         -e|--errors)
             mvnopts[mvnoptn++]=-e;;
         -h|--help)
@@ -37,13 +42,28 @@ function main() {
         return 1
     fi
 
+    if [ "$opt_online" != 1 ]; then
+        mvnopts=("${mvnopts[@]}" -o)
+    fi
+    
+    if [ "$LOGLEVEL" -ge 1 ]; then
+        mvnopts=("${mvnopts[@]}" -X)
+    fi
+
     fqcn="$1"
     shift
 
-    $MVN "${mvnopts[@]}" exec:java \
+    _exec $MVN "${mvnopts[@]}" exec:java \
         -Dexec.classpathScope=test \
         -Dexec.mainClass="$fqcn" \
         "$@"
+}
+
+function _exec() {
+    if [ "$LOGLEVEL" -ge 1 ]; then
+        _log1 "Execute $*"
+    fi
+    exec "$@"
 }
 
 boot "$@"
