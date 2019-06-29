@@ -50,13 +50,13 @@ function main() {
         mvnopts=("${mvnopts[@]}" -X)
     fi
 
-    fqcn="$1"
+    prog="$1"
     shift
 
     _exec $MVN "${mvnopts[@]}" exec:java \
         -Dexec.classpathScope=test \
-        -Dexec.mainClass="$fqcn" \
-        "$@"
+        -Dexec.mainClass="net.bodz.bas.program.ProgramLauncher" \
+        -Dexec.args="$prog $*"
 }
 
 function _exec() {
