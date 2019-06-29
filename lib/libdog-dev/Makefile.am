@@ -1,34 +1,41 @@
 include libauto/project.am
 
 sited2dir = /usr/include/d2/site
-# zdogdir = ${sited2dir}/net/bodz/dog
-lib32dir = ${libdir}/i386-linux-gnu
-lib64dir = ${libdir}/x86_64-linux-gnu
 
-lib32_DATA = \
-    i386/libdog.a
+lib_LIBRARIES = \
+    libdog.a
 
-lib64_DATA = \
-    x86_64/libdog.a
+dist_libdog_d_a_SOURCES = ${d_sources}
+
+d_sources = \
+    net/bodz/dog/logging.d \
+    net/bodz/dog/dprog.d \
+    net/bodz/dog1.d
+
+d_objs = $(patsubst %.d, %.o, $(d_sources))
+
+libdog.a: ${d_objs}                                                           
+	ar rcs $@ $^
+
+%.o: %.d ${d_sources}
+	gdc -c -o $@ \
+	    -fintfc -fintfc-dir=include/$(dir $@) \
+	    -fdoc -fdoc-dir=doc/$(dir $@) \
+	    $<
 
 dist_setup_SCRIPTS = \
     postinst \
     prerm
 
-CLEANFILES = ${dist_setup_SCRIPTS}
-
-# libdog.so.$(PACKAGE_VERSION):
-i386/libdog.a:
-	mkdir -p i386
-	cd src; dmd -lib -m32 -of../$@ -op -Hd../i386/include/ `find -name '*.d'`
-
-x86_64/libdog.a:
-	mkdir -p x86_64
-	cd src; dmd -lib -m64 -of../$@ -op -Hd../x86_64/include/ `find -name '*.d'`
+CLEANFILES = \
+    ${dist_setup_SCRIPTS} \
+    libdog.o \
+    libdog.a \
+    ${d_objs}
 
 install-data-hook:
 	mkdir -p $(DESTDIR)$(sited2dir)
-	rsync -av i386/include/ $(DESTDIR)$(sited2dir)
+	rsync -av include/ $(DESTDIR)$(sited2dir)
+	mkdir -p $(DESTDIR)$(docdir)
+	rsync -av doc/ $(DESTDIR)$(docdir)
 
-clean:
-	rm -fr i386 x86_64

@@ -1,2 +1,8 @@
-i386
-x86_64
+doc/
+include/
+
+i386/
+x86_64/
+
+libdog.a
+
