@@ -15,4 +15,6 @@ ns5             3600    A       inst:xjl-1[ipw]
 0                       CNAME   xjl-1
 *.p16                   CNAME   lenik.vicp.net.
 
+deb             3600    A       inst:a10[ipw]
+
 $INCLUDE inc/auto.db
