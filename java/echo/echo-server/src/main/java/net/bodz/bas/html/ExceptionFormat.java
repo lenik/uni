@@ -2,9 +2,11 @@ package net.bodz.bas.html;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.bodz.bas.c.java.util.regex.PatternProcessor;
+import net.bodz.bas.c.java.util.regex.IPartProcessor;
+import net.bodz.bas.c.java.util.regex.TextPrepByParts;
 
 public class ExceptionFormat {
 
@@ -24,10 +26,10 @@ public class ExceptionFormat {
     }
 
     public static String highlightPackageNames(String s) {
-        PatternProcessor proc = new PatternProcessor(packagePattern) {
+        TextPrepByParts prep = TextPrepByParts.match(packagePattern, new IPartProcessor() {
 
             @Override
-            protected void matched(String part) {
+            public String process(String part, Matcher matcher) {
                 String sub = matcher.group(2);
 
                 String tag = "b";
@@ -54,12 +56,12 @@ public class ExceptionFormat {
                 String prefix = "<" + tag + " " + attrs + ">";
                 String suffix = "</" + tag + ">";
 
-                append(prefix + part + suffix);
+                part = prefix + part + suffix;
+                return part;
             }
+        });
 
-        };
-
-        s = proc.process(s);
+        s = prep.process(s);
         return s;
     }
 
