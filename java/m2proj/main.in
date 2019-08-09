@@ -5,7 +5,9 @@
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
     : ${JAVA:=java}
-    : ${JAVAOPTS:=-ea}
+
+    # The encoding can be 'ANSI_X3.4-1968' when not specified.
+    : ${JAVAOPTS:=-ea -Dsun.jnu.encoding=utf-8 -Dfile.encoding=utf-8}
 
     . shlib-import cliboot
     option -d --debug       "Enable debug mode"
