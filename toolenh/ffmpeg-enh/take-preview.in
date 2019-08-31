@@ -1,0 +1,87 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Get video sample}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] VIDEO-FILE...}
+
+    . shlib-import cliboot
+    option -p --position =NUM   "Indicate the position in the video (0-100)"
+    option -o --outfile =FILE   "Save the image to the specified file"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+    
+    ffmpegopts=()
+
+    opt_position=50
+    opt_outfile=
+    
+function setopt() {
+    case "$1" in
+        -p|--position)
+            opt_position=$2;;
+        -o|--outfile)
+            opt_outfile=$2;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    local arg
+    
+    case $LOGLEVEL in
+        0)
+            ffmpegopts=("${ffmpegopts[@]}" -loglevel fatal);;
+        1)
+            ffmpegopts=("${ffmpegopts[@]}" -loglevel error);;
+        2)
+            ffmpegopts=("${ffmpegopts[@]}" -loglevel warning);;
+        3)
+            ffmpegopts=("${ffmpegopts[@]}" -loglevel info);;
+    esac
+    
+    for arg in "$@"; do
+        grab "$arg"
+    done
+}
+
+function grab() {
+    local file="$1"
+    local ds=$(ffprobe -loglevel error -of csv=p=0 -show_entries format=duration "$file")
+    local sec=$ds
+    local min=${ds%:*}
+        [ "$min" = "$ds" ] && min=0 || ds=${ds##*:}
+    local hour=${ds%:*}
+        [ "$hour" = "$ds" ] && hour=0 || ds=${ds##*:}
+    local sec=${ds%.*}
+    local ms=${ds#*.}
+    local seconds=$((hour * 3600 + min * 60 + sec))
+    local p=$((seconds * opt_position / 100))
+    _log1 "Duration: $seconds seconds, request position: +$p second."
+    
+    local out="$opt_outfile"
+    if [ -z "$out" ]; then
+        out="$file at $opt_position.jpg"
+    fi
+    
+    run ffmpeg "${ffmpegopts[@]}" -y \
+        -ss $p -i "$file" \
+        -f mjpeg -vframes 1 "$out"
+}
+
+function run() {
+    _log2 "Execute $*"
+    "$@"
+}
+
+boot "$@"
