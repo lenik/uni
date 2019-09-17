@@ -1,0 +1,88 @@
+# vim: set ft=sh:
+
+. shlib
+import math
+
+opt_guest=
+
+function getrelpath() {
+    local ctxdir="$1"
+    local arg="$2"
+    local trim tail
+    local -a av bv cv
+    local na nb nc a b c
+    local min ans
+
+    # ctxdir =~ s,/+,,
+    while true; do
+        trim="${ctxdir%/}"
+        if [ "$trim" = "$ctxdir" ]; then
+            break
+        else
+            ctxdir="$trim"
+        fi
+    done
+
+    IFS=/ read -r -a cv <<<"$ctxdir"
+    while [ "${cv[0]}" = '.' ]; do
+        cv=( "${cv[@]:1}" )
+    done
+    nc=${#cv[@]}
+
+    # for arg in "$@"; do
+        tail=
+
+        if [ "$opt_quest" = 1 ]; then
+            trim="${arg%#*}"
+            if [ "$arg" != "$trim" ]; then
+                arg="$trim"
+                tail="${arg##*#}$tail"
+            fi
+
+            trim="${arg%?*}"
+            if [ "$arg" != "$trim" ]; then
+                arg="$trim"
+                tail="${arg##*?}$tail"
+            fi
+        fi
+
+        trim="${arg%/}"
+        if [ "$arg" != "$trim" ]; then
+            arg="$trim"
+            tail="/$tail"
+        fi
+
+        IFS=/ read -r -a av <<<"$arg"
+        while [ "${av[0]}" = '.' ]; do
+            av=( "${av[@]:1}" )
+        done
+        na=${#av[@]}
+
+        min=$( min $na $nb )
+        for ((i = 0; i < min; i++)); do
+            c="${cv[i]}"
+            a="${av[i]}"
+            if [ "$c" != "$a" ]; then
+                break
+            fi
+        done
+
+        #while [ "${av[i]}" = ".." ]; do
+        #    cv=( "${cv[@]:0:nc-1}" )
+        #    av=( "${av[@]:0:i}" "${av[@]:i+1}" )
+        #    (( nc-- ))
+        #    (( na-- ))
+        #done
+
+        ans=""
+        for ((j = i; j < nc; j++)); do
+            ans="$ans../"
+        done
+        for ((j = i; j < na; j++)); do
+            ans="$ans${av[j]}/"
+        done
+
+        ans="${ans%/}"
+        echo "$ans$tail"
+    # done
+}
