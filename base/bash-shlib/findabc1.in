@@ -20,7 +20,7 @@
     shopt -s nullglob
 
     # Fix utf-8 collation.
-    LANG=C
+    LC_COLLATE=C
 
     perc=
     eval=
@@ -101,7 +101,7 @@ function main() {
     package="$1"
     inner=
         shift
-        # if package.contains '/'
+        # if package contains '/'
         if [ "${package/\/}" != "$package" ]; then
             inner="/${package#*/}"
             package="${package%%/*}"
@@ -147,11 +147,12 @@ function main() {
         done
         roots=("${subroots[@]}" "${roots[@]}")
 
-        # xdir-loop
         _xdir=
-        while [ -z "$_home" -o "$list" = 1 ]; do
+        while [ -z "$_home" -o "$list" = 1 ]; do # xdir-loop
             local prefix="$package"
+            local matches=()
             # if exist p/prefix* found.
+
             for f in "$root/$_xdir$prefix"*; do
                 if [ "${f: -1}" = '*' ]; then continue; fi
 
@@ -162,19 +163,26 @@ function main() {
                 fi
 
                 # FOUND
-                if [ -z "$_home" -o "$last" = 1 ]; then
-                    _home="$f"
-                fi
+                matches=("${matches[@]}" "$f")
                 if [ "$list" = 1 ]; then
-                    echo "$f"
-                elif [ -z $last ]; then
-                    break
+                    echo "Got: $f"
                 fi
             done
-            if [ -n "$_home" ]; then
-                if [ "$list" = 1 ]; then
-                    break #xdir-loop
+
+            local nmatch=${#matches[@]}
+            if [ $nmatch != 0 ]; then
+                #local sorted=()
+                #while read s; do
+                #    sorted=("${sorted[@]}" "$s")
+                #done < <( echoln "${matches[@]}" | sort )
+                #matches="${sorted[@]}"
+
+                if [ -z "$last" ]; then
+                    _home="${matches[0]}"
                 else
+                    _home="${matches[-1]}"
+                fi
+                if [ "$list" != 1 ]; then
                     break 2 #root-loop
                 fi
             fi
