@@ -1,0 +1,4 @@
+#!/bin/bash
+
+xsel -b | "$@" | xsel -b
+
