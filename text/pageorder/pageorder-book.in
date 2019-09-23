@@ -1,0 +1,183 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Reorder page numbers for book printing}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] PDF-FILES...}
+
+    . shlib-import cliboot
+    option -s --start =PAGE         "The start page of printing content (0-based, default 0)"
+    option -n --page0 =NUM          "The page number starts with this value"
+    option -B --blank =PAGE         "A blank page if there's any (default at the end)"
+    option -g --group-npaper =NUM   "Paper number in a group (default 5, ie. 20 pages)"
+    option -o --out-pdf =FILE       "PDF file for book printing"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_blank=
+    opt_blank_pdf=
+    opt_start=0
+    opt_page0=1
+    g_npaper=5
+    opt_out=
+    
+function setopt() {
+    case "$1" in
+        -s|--start)
+            opt_start=$2;;
+        -n|--page0)
+            opt_page0=$2;;
+        -B|--blank)
+            opt_blank=-$2;;
+        -g|--group-npaper)
+            g_npaper=$2;;
+        -o|--out-pdf)
+            opt_out=$2;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    g_npage=$(( g_npaper * 4 ))
+
+    local pdf cat
+    local npage page_blank
+    
+    for pdf in "$@"; do
+        while IFS=: read k v; do
+            s="${v// /}"
+            case "$k" in
+                Pages)
+                    npage=$s;;
+            esac
+        done < <(pdfinfo "$pdf")
+        _log1 "Reorder $npage pages for $pdf:"
+        
+        page_blank=$opt_blank
+        if [ -z "$page_blank" ]; then
+            generate_blank_pdf
+            cat=`mktemp --suffix .pdf`
+            _log2 "  create tmp concat pdf file $cat"
+            pdftk A="$pdf" B="$opt_blank_pdf" cat A B output "$cat"
+            page_blank="$((npage))"
+            _log2 "  the blank page is at $page_blank+$opt_page0."
+        else
+            cat="$pdf"
+        fi
+        
+        #book_order $npage $page_blank
+
+        _log1 "Build page serials."
+        build_books $npage $page_blank
+        
+        if [ "$cat" != "$pdf" ]; then
+            _log1 "Open $cat with evince, and wait for closing."
+            evince "$cat"
+            _log1 "Evince is closed. Clean up."
+            rm -f "$cat"
+        fi
+    done
+}
+
+function generate_blank_pdf() {
+    if [ ! -f "$opt_blank_pdf" ]; then
+        if [ -z "$opt_blank_pdf" ]; then
+            opt_blank_pdf=`mktemp --suffix .pdf`
+        fi
+        _log2 "Generate blank page at $opt_blank_pdf"
+        echo "" | ps2pdf -sPAPERSIZE=a4 - $opt_blank_pdf
+    fi
+}
+
+function build_books() {
+    local start=$opt_start
+    local npage=$1
+    local ngroup=$(( (npage + g_npage - 1) / g_npage ))
+    local page_blank=$2
+    
+    print_begin
+    while [ $start -lt $npage ]; do
+        local remain=$((npage - start))
+        local npaper_remain=$(( (remain + 3) / 4 ))
+        local npaper=$g_npaper
+        if [ $npaper_remain -lt $npaper ]; then
+            npaper=$npaper_remain
+        fi
+        _log2 "Build paper group ($npaper) at offset $start"
+        book_order $npaper $page_blank $start
+        (( start += npaper * 4 ))
+    done
+    print_end
+}
+
+function book_order() {
+    local npaper=$1
+    local page_blank=$2
+    local start=$3
+    if [ -z "$page_blank" ]; then page_blank=$opt_blank; fi
+
+    local npage=$((npaper * 4))
+    local npage_pad=$((npaper * 4))
+    local npage_half=$((npage_pad / 2))
+    local i A B C D rev
+    
+    _log2 "book_order(npage=$npage, blank=$page_blank, start=$start)"
+
+    for ((i = 0; i < npaper; i++)); do
+        B=$((i * 2 + 0))
+        C=$((i * 2 + 1))
+        rev=$(( npage_half + (npaper - i) * 2 ))
+        A=$((rev - 1))
+        D=$((rev - 2))
+        
+        [ $A -ge $npage ] && A=$page_blank
+        noff=$((start + opt_page0))
+        print $noff $A
+        print $noff $B
+
+        if [ $i == $((npaper - 1)) ]; then
+            [ $C -lt $npage ] && print $noff $C
+            [ $D -lt $npage ] && print $noff $D
+        else
+            [ $C -ge $npage ] && C=$page_blank
+            print $noff $C
+            [ $D -ge $npage ] && D=$page_blank
+            print $noff $D
+        fi
+    done
+}
+
+function print_begin() {
+    print_page=0
+}
+function print() {
+    local initial="$1"
+    local p
+    shift
+    for p in "$@"; do
+        if [ $((++print_page)) -gt 1 ]; then
+            echo -n ","
+        fi
+        if [ $p -ge 0 ]; then
+            p=$((p + initial))
+        else
+            p=$((-p))
+        fi
+        echo -n $p
+    done
+}
+function print_end() {
+    echo
+}
+
+boot "$@"
