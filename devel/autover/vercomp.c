@@ -25,7 +25,7 @@ char **     opt_files;
 gboolean    opt_stdout    = FALSE;      /* write to stdout instead of save */
 gboolean    opt_update    = FALSE;      /* always save? */
 
-char *      start_dir;                  /* startup working dir */
+char        start_dir[MAX_LINE];        /* startup working dir */
 char *      filename;
 int         line = 0;
 
@@ -127,14 +127,15 @@ int main(int argc, char **argv) {
     if (filename == NULL)
         filename = g_strdup("VERSION.av");
 
-    start_dir = get_current_dir_name();
+    if (getcwd(start_dir, sizeof(start_dir)) == NULL) {
+	    perror("Can't getcwd: ");
+	    return 1;
+    }
 
     vartab = g_hash_table_new_full(g_str_hash, g_str_equal,
                                    g_free, g_free);
 
     err = pass_1();
-
-    free(start_dir);
 
     g_free(filename);
 
@@ -261,7 +262,7 @@ int pass_1() {
     retval = pass_rest();
 
     if (chdir(start_dir) != 0) {
-        fprintf(stderr, "Failed to leave %s: ", dirname);
+        fprintf(stderr, "Failed to leave %s for %s: ", dirname, start_dir);
         perror("");
         return 1;
     }
