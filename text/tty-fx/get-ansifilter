@@ -52,8 +52,9 @@ function main() {
     _log1 "Find latest version of ansifilter"
     _log2 "    in: $index"
 
-    url=$( grepurl -E --max-count 1 '[^"]*ansifilter-[1-9.]*.tar.*' $index) \
+    url=$( grepurl -E --max-count 1 '[^"]*ansifilter-[1-9.]*.tar.bz2' $index) \
         || quit "No matching of ansifilter-*-tar.bz2."
+    url="${url%%.bz2*}.bz2"
 
     _log1 "Download $url..."
     tarball=$( wgetc -q "$url" ) || quit "Failed to download $url"
