@@ -39,7 +39,6 @@ aliasdir        = ${datadir}/bash-alias/aliases
 apparmordir     = ${sysconfdir}/apparmor.d
 bashrcdir       = ${sysconfdir}/bashrc.d
 completiondir   = ${datadir}/bash-completion/completions
-complconfdir    = ${sysconfdir}/bash-completion.d
 cachedir        = /var/cache
 eardir          = ${javalibdir}/ear
 initdir         = ${sysconfdir}/init
