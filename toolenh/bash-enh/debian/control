@@ -12,7 +12,7 @@ Package: bash-enh
 Provides: coolbash
 Architecture: any
 Depends:
-    bash,,
+    bash,
     bash-shlib,
     ${misc:Depends}
 Recommends:

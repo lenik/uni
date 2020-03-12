@@ -1,6 +1,6 @@
 include libauto/project.am
 
-SUBDIRS = aliases.d profile.d
+SUBDIRS = aliases.d
 
 do_subst += -e 's,[@]libbashdir[@],$(libbashdir),g'
 
@@ -15,10 +15,6 @@ dist_bin_SCRIPTS = \
     orig \
     tree-less \
     history2csv.d
-
-dist_bashrc_DATA = \
-    bashrc.d/prompt \
-    bashrc.d/shlibs
 
 dist_completion_DATA = \
     bash_completion.d/nosvn \
@@ -42,4 +38,8 @@ dist_setup_SCRIPTS = \
 
 CLEANFILES = \
     ${dist_setup_SCRIPTS}
+
+install-data-hook:
+	mkdir -p $(DESTDIR)$(bashrcdir); \
+    rsync -amv "${srcdir}"/bashrc.d/* "${DESTDIR}${bashrcdir}"
 
