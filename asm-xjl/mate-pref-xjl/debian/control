@@ -11,7 +11,7 @@ Vcs-Browser: http://git.bodz.net/uni/asm-xjl/mate-pref-xjl
 Package: mate-pref-xjl
 Architecture: all
 Depends:
-    dconf-tools
+    dconf-cli,
     desktoputils,
     x11-xserver-utils,
     ${misc:Depends}
