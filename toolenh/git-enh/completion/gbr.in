@@ -1,0 +1,5 @@
+# vim: set filetype=sh :
+
+. @completiondir@/git
+
+__git_complete gbr      _git_branch

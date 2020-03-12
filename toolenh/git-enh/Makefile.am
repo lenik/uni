@@ -1,5 +1,7 @@
 include libauto/project.am
 
+SUBDIRS = completion
+
 dist_bin_SCRIPTS = \
     bare2co \
     co2bare \
@@ -23,9 +25,6 @@ dist_bin_SCRIPTS = \
 dist_alias_DATA = \
     10git-enh.sh \
     sw-git.sh
-
-dist_complconf_DATA = \
-    completion/git-enh
 
 dist_man_MANS = \
     bare2co.1 \
