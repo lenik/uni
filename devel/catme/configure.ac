@@ -4,7 +4,7 @@
 AC_PREREQ([2.65])
 AC_INIT([catme], [0.1], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
-AC_CONFIG_SRCDIR([catme.c])
+AC_CONFIG_SRCDIR([CatMe.c])
 
 # Checks for programs.
 AC_PROG_CC

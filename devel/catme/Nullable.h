@@ -13,6 +13,6 @@
     } while (0)
 
 char *g_strdup(const char *s);
-char *N_strlen(const char *s);
+size_t N_strlen(const char *s);
 
 #endif

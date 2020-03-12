@@ -1,10 +1,10 @@
 include libauto/project.am
 
 AM_CPPFLAGS = ${GLIB_CFLAGS}
-catme_LDADD = ${GLIB_LIBS}
+CatMe_LDADD = ${GLIB_LIBS}
 
 bin_PROGRAMS = \
-    catme
+    CatMe
 
 dist_setup_SCRIPTS = \
     postinst \

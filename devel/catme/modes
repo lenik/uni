@@ -1,0 +1,44 @@
+
+多片式类型模板：
+
+    Spark.sql
+        -- \mixin foo.Bar
+        
+    SparkMapper.xml
+        <!-- \mixin foo.BarMapper:fields param=val ... -->
+        <!-- \mixin foo.BarMapper:filters -->
+        <!-- \mixin foo.BarMapper:updates -->
+        <!-- \mixin foo.BarMapper:leftJoins -->
+
+    index.html
+        <!-- \mixin foo.BarIndex.columns -->
+        <!-- \mixin foo.BarIndex.formInputs -->
+
+
+        select
+            \mixin my:fields
+        from
+            \mixin my:leftJoins
+
+    include/my.ANY:
+        \def fields
+            \mixin foo.BarMapper:fields param=val
+            \mixin foo.CarMapper:fields param=val
+        \def leftJoins
+            ...
+
+前后参照式：
+    
+    foo:
+        --\
+    
+    bar:
+        \def foo:FooSpec
+            ...
+        \cut @foo.lastModTime+0800
+        
+        \def BarSpec
+            ...
+            ...
+        \def
+

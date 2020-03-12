@@ -7,7 +7,7 @@
             gpointer data, \
             GError **error)
 
-Options options = {
+Options cmdOptions = {
     NULL, /* char *libPath; */
     false, /* gboolean opt_echo; */
 };
@@ -52,7 +52,7 @@ void OPTION_FN(show_version) {
 static GOptionEntry options[] = {
     { "lib", 'L', 0, G_OPTION_ARG_FILENAME_ARRAY, &options.path,
       "Add to the library search path", },
-    
+
     { "echo", 'e', 0, G_OPTION_ARG_NONE, &options.echo,
       "Preserve catme commands in output", },
 

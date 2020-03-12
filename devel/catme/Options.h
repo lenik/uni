@@ -3,13 +3,13 @@
 
 typedef struct _Options {
     char **searchPath;
-    
+
     gboolean echo;
-    
+
     char **files;
-    
+
 } Options;
 
-extern Options options;
+extern Options cmdOptions;
 
 #endif

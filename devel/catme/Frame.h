@@ -3,9 +3,12 @@
 
 #include <glib.h>
 
-typedef struct _Frame {
+#include "SrcLang.h"
+
+typedef struct _Frame Frame;
+struct _Frame {
     Frame *parent;                      /* the including file */
-    
+
     char *path;
     char *dir;                          /* this directory */
     char *fileName;                     /* base file name */
@@ -14,7 +17,7 @@ typedef struct _Frame {
     char *qName;
     char *packageName;
     char *name;
-    
+
     SrcLang lang;
     char *startSeq;                     /* start delimitor seq */
     char *stopSeq;                      /* stop delimitor seq */
@@ -22,13 +25,13 @@ typedef struct _Frame {
     size_t nStartSeq;
     size_t nStopSeq;
     size_t nSlStartSeq;
-    
+
     bool echo;               /* echo the commands (process instructions) */
     int echoAdd;             /* number of echo lines after \noecho (include) */
     bool copy;               /* copy the text, switch by \(no)skip, \(no)copy */
-    
+
     GHashTable *vars;
-} Frame;
+};
 
 Frame *Frame_new(Frame *parent, const char *path);
 
