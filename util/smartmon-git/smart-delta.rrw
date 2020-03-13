@@ -1,0 +1,162 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - 0.0.1 2012-11-22 20:52:53 - $}
+    : ${PROGRAM_TITLE:=Git-tracked S.M.A.R.T. health monitor}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import ../shlib.d/rrdwrapper
+
+    dirsfile="${0%.rrw}.dirs"
+    colors=(
+        '#FF1000' '#00FF78' '#0800FF' '#CFFF00' '#E100FF' '#FF7200' '#5900FF' '#FF0024'
+        '#00EBFF' '#ECFF00' '#ED00FF' '#FF5A00' '#FFF300' '#A8FF00' '#B000FF' '#B500FF'
+        '#06FF00' '#2B00FF' '#E4FF00' '#FF9A00' '#FF0066' '#0081FF' '#2BFF00' '#FFDA00'
+        '#00A4FF' '#FF5700' '#6500FF' '#7300FF' '#00ECFF' '#FF6C00' '#0000FF' '#B8FF00'
+        '#00FFE4' '#00FFA1' '#FF0054' '#006FFF' '#00FFAF' '#FF00B4' '#FF8E00' '#D000FF'
+        '#0087FF' '#F200FF' '#3FFF00' '#5A00FF' '#00FFC1' '#FF1B00' '#ED00FF' '#00FFBE'
+        '#00FF64' '#FF0074' '#FF6100' '#FF7A00' '#FFBD00' '#FFF700' '#003EFF' '#FFE000'
+        '#00D5FF' '#FF00DC' '#00ACFF' '#D200FF' '#FFD600' '#FF0088' '#FFDC00' '#00E4FF'
+    )
+
+    # Specify interval in seconds
+    #  @option -i --interval =NUM
+        opt_interval=1
+
+    # Specify the S.M.A.R.T. enabled block device."
+    #  @option    -b --block-device =DEV
+        opt_dev=/dev/sda
+
+    option    -b --block-device =DEV "Specify the S.M.A.R.T. enabled block device."
+
+    function setopt() {
+        case "$1" in
+            -b|--block-device)
+                opt_dev="$2";;
+            *)
+                _setopt "$@"
+        esac
+    }
+
+    boot "$@"
+
+    sample report on 10min update
+    attrs=()
+    function check_proc() {
+        _log2 "Query S.M.A.R.T. data for $opt_dev"
+        local state=INIT
+        while read id name flag value worst thresh type updated when_failed val; do
+            case $state in
+            INIT)
+                [ "$id" = 'ID#' ] && state=START
+                continue;;
+            START)
+                [ -z "$id" ] && state=STOP && continue
+                : ;;
+            *)
+                continue
+            esac
+            # started
+            attrs=("${attrs[@]}" $name)
+            declare -g smart_$name=$val
+        done < <(sudo smartctl -A $opt_dev)
+    }
+
+    check_proc "$@"
+    echoli "${attrs[@]}"
+    for name in "${attrs[@]}"; do
+        ref=smart_$name
+        val=${!ref}
+        echo $name: $val
+    done
+exit
+
+    database default \
+        on 1min step \
+        on 1min make last for 1yr \
+        on 10min make average for 1yr
+
+    while IFS=: read project label gitdir; do
+        case "$project" in
+            '') continue;;
+            \#*) continue;;
+        esac
+
+        # Max. 10 kLOC before push.
+        gauge $project -10000:10000 \
+            on 2hr timeout \
+            on deltas read d_$project
+
+        graph "${project}" "Show modified SLOCs of project $label"
+
+        plot-config \
+            -w 750 -h 440 -a PNG \
+            --slope-mode \
+            --start -57600 --end now \
+            --font DEFAULT:7: \
+            --title "Unmerged SLOCs of project $label   (Each falling edge could mean a merge)" \
+            --watermark "`date`" \
+            --vertical-label "SLOC" \
+            --right-axis-label "(unmerged)" \
+            --right-axis 1:0 \
+            --x-grid MINUTE:10:HOUR:1:MINUTE:120:0:%R \
+            --alt-y-grid --rigid
+
+        def delta = $project:LAST
+        def mean = $project:AVERAGE
+
+        list trend = '(TREND delta 100)'
+
+        plot trend as line 6px '#FFEEEE'    'Trend ΔSLOC'
+        plot mean as line 3px $Pink         'Mean ΔSLOC' # Δ
+        plot delta as line 1px $Black       'ΔSLOC'
+    done < "$dirsfile"
+
+    gauge sum 0:100000 \
+        on 1hr timeout \
+        on deltas read sum
+
+    graph "__sum__" "Show total modified SLOCs of all projects"
+
+        plot-config \
+            -w 800 -h 440 -a PNG \
+            --slope-mode \
+            --start -57600 --end now \
+            --font DEFAULT:7: \
+            --title "Total unmerged SLOCs of all projects   (Each falling edge could mean a merge)" \
+            --watermark "`date`" \
+            --vertical-label "Σ SLOC" \
+            --right-axis-label "(unmerged)" \
+            --right-axis 1:0 \
+            --x-grid MINUTE:10:HOUR:1:MINUTE:120:0:%R \
+            --alt-y-grid --rigid
+
+        index=0
+        while IFS=: read project label gitdir; do
+            case "$project" in
+                '') continue;;
+                \#*) continue;;
+            esac
+
+            def delta_$project = $project:LAST
+            # def mean_$project = $project:AVERAGE
+            plot delta_$project as stacked area ${colors[index++]} "$label ΔSLOC"'\n'
+        done < "$dirsfile"
+
+        def delta = sum:LAST
+        def mean = sum:AVERAGE
+
+        list trend = '(TREND delta 100)'
+
+        plot trend as line 6px '#FFEEEE'    'Trend Σ ΔSLOC'
+        plot mean as line 3px $Pink         'Mean Σ ΔSLOC' # Δ
+        plot delta as line 1px $Black       'Σ ΔSLOC'
+        
+function list() {
+    while read dev opt type _; do
+        #/dev/sda -d scsi # /dev/sda, SCSI device
+        #/dev/sdb -d scsi # /dev/sdb, SCSI device
+        #/dev/sdc -d sat # /dev/sdc [SAT], ATA device
+        echo $dev: $type
+    done < <(smartctl --scan)
+}
+
+
