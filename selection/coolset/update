@@ -2,11 +2,21 @@
 
 cat control.in >debian/control
 
-for tag in base util text admin java x11 gui w32; do
+for tag in \
+        admin \
+        base \
+        gui \
+        java \
+        text \
+        util \
+        vcs \
+        w32 \
+        x11 \
+        ; do
 
-	echo "Scan $tag packages"
+    echo "Scan $tag packages"
 
-	cat <<EOM >>debian/control
+    cat <<EOM >>debian/control
 Package: coolset-$tag
 Architecture: all
 Description: Lenik's cool $tag tools.
@@ -14,15 +24,15 @@ Description: Lenik's cool $tag tools.
 Recommends:
 EOM
 
-	grep --include=tags -l $tag -r ../.. \
-		| grep /debian/tags \
-		| grep -v /all/ \
-		| cut -d/ --complement -f -3 \
-		| cut -d/ -f1 \
-		| sort \
-		| sed -e 's/^/    /' -e '$q;s/$/,/' \
-		>>debian/control
+    grep --include=tags -l $tag -r ../.. \
+        | grep /debian/tags \
+        | grep -v /all/ \
+        | cut -d/ --complement -f -3 \
+        | cut -d/ -f1 \
+        | sort \
+        | sed -e 's/^/    /' -e '$q;s/$/,/' \
+        >>debian/control
 
-	echo >>debian/control
+    echo >>debian/control
 
 done

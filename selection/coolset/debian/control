@@ -6,6 +6,18 @@ Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/xjl-cool
 
+Package: coolset-admin
+Architecture: all
+Description: Lenik's cool admin tools.
+    This package brings Lenik's cool admin tools to you.
+Recommends:
+    coolrpm,
+    debinst,
+    extundelete,
+    ms-sys,
+    netcaps,
+    router-vendor-utils
+
 Package: coolset-base
 Architecture: all
 Description: Lenik's cool base tools.
@@ -18,8 +30,44 @@ Recommends:
     grub-enh,
     isz-tool,
     locale-setup,
-    more-loops,
-    postgresql-latest
+    more-loops
+
+Package: coolset-gui
+Architecture: all
+Description: Lenik's cool gui tools.
+    This package brings Lenik's cool gui tools to you.
+Recommends:
+    empathy-enh,
+    gnome-pref-xjl,
+    imgauto,
+    svn-enh-gui
+
+Package: coolset-java
+Architecture: all
+Description: Lenik's cool java tools.
+    This package brings Lenik's cool java tools to you.
+Recommends:
+    astah-local,
+    coolmaven,
+    dejar,
+    eclipse-enh,
+    jad,
+    jdk8-local,
+    jetty8-enh,
+    libuni-java,
+    mjpl,
+    shelj
+
+Package: coolset-text
+Architecture: all
+Description: Lenik's cool text tools.
+    This package brings Lenik's cool text tools to you.
+Recommends:
+    coolpdf,
+    coolspec,
+    cooltex,
+    texlive-local,
+    z-latex
 
 Package: coolset-util
 Architecture: all
@@ -40,6 +88,7 @@ Recommends:
     cooltext,
     coolutils,
     diskutils,
+    dltools,
     do-mount,
     dprog,
     err-demux,
@@ -73,51 +122,23 @@ Recommends:
     vcscmds,
     vexmount,
     vim-enh,
-    wgetc,
-    wget-enh,
     whoare,
     x509utils,
     xmlproc,
     ziputils
 
-Package: coolset-text
+Package: coolset-vcs
 Architecture: all
-Description: Lenik's cool text tools.
-    This package brings Lenik's cool text tools to you.
+Description: Lenik's cool vcs tools.
+    This package brings Lenik's cool vcs tools to you.
 Recommends:
-    coolpdf,
-    coolspec,
-    cooltex,
-    texlive-local,
-    z-latex
 
-Package: coolset-admin
+Package: coolset-w32
 Architecture: all
-Description: Lenik's cool admin tools.
-    This package brings Lenik's cool admin tools to you.
+Description: Lenik's cool w32 tools.
+    This package brings Lenik's cool w32 tools to you.
 Recommends:
-    coolrpm,
-    debinst,
-    extundelete,
-    ms-sys,
-    netcaps,
-    router-vendor-utils
-
-Package: coolset-java
-Architecture: all
-Description: Lenik's cool java tools.
-    This package brings Lenik's cool java tools to you.
-Recommends:
-    astah-local,
-    coolmaven,
-    dejar,
-    eclipse-enh,
-    jad,
-    jdk7-local,
-    jetty8-enh,
-    libuni-java,
-    mjpl,
-    shelj
+    wine-enh
 
 Package: coolset-x11
 Architecture: all
@@ -127,21 +148,4 @@ Recommends:
     coolclip,
     desktoputils,
     x11-pref-xjl
-
-Package: coolset-gui
-Architecture: all
-Description: Lenik's cool gui tools.
-    This package brings Lenik's cool gui tools to you.
-Recommends:
-    empathy-enh,
-    gnome-pref-xjl,
-    imgauto,
-    svn-enh-gui
-
-Package: coolset-w32
-Architecture: all
-Description: Lenik's cool w32 tools.
-    This package brings Lenik's cool w32 tools to you.
-Recommends:
-    wine-enh
 
