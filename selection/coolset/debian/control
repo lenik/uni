@@ -32,15 +32,65 @@ Recommends:
     locale-setup,
     more-loops
 
-Package: coolset-gui
+Package: coolset-database
 Architecture: all
-Description: Lenik's cool gui tools.
-    This package brings Lenik's cool gui tools to you.
+Description: Lenik's cool database tools.
+    This package brings Lenik's cool database tools to you.
 Recommends:
-    empathy-enh,
-    gnome-pref-xjl,
-    imgauto,
-    svn-enh-gui
+
+Package: coolset-debug
+Architecture: all
+Description: Lenik's cool debug tools.
+    This package brings Lenik's cool debug tools to you.
+Recommends:
+
+Package: coolset-devel
+Architecture: all
+Description: Lenik's cool devel tools.
+    This package brings Lenik's cool devel tools to you.
+Recommends:
+    coolmake,
+    coolqt,
+    db-utils-xjl,
+    emacs-pref-xjl,
+    gcc-enh,
+    libcmt-perl,
+    libcpf,
+    libdog-dev,
+    libm4-xjl,
+    php-site-utils,
+    repos-styles,
+    x-tools-local
+
+Package: coolset-doc
+Architecture: all
+Description: Lenik's cool doc tools.
+    This package brings Lenik's cool doc tools to you.
+Recommends:
+
+Package: coolset-fonts
+Architecture: all
+Description: Lenik's cool fonts tools.
+    This package brings Lenik's cool fonts tools to you.
+Recommends:
+
+Package: coolset-gnome
+Architecture: all
+Description: Lenik's cool gnome tools.
+    This package brings Lenik's cool gnome tools to you.
+Recommends:
+
+Package: coolset-graphics
+Architecture: all
+Description: Lenik's cool graphics tools.
+    This package brings Lenik's cool graphics tools to you.
+Recommends:
+
+Package: coolset-interpreters
+Architecture: all
+Description: Lenik's cool interpreters tools.
+    This package brings Lenik's cool interpreters tools to you.
+Recommends:
 
 Package: coolset-java
 Architecture: all
@@ -58,6 +108,88 @@ Recommends:
     mjpl,
     shelj
 
+Package: coolset-javascript
+Architecture: all
+Description: Lenik's cool javascript tools.
+    This package brings Lenik's cool javascript tools to you.
+Recommends:
+
+Package: coolset-kernel
+Architecture: all
+Description: Lenik's cool kernel tools.
+    This package brings Lenik's cool kernel tools to you.
+Recommends:
+
+Package: coolset-libdevel
+Architecture: all
+Description: Lenik's cool libdevel tools.
+    This package brings Lenik's cool libdevel tools to you.
+Recommends:
+
+Package: coolset-libs
+Architecture: all
+Description: Lenik's cool libs tools.
+    This package brings Lenik's cool libs tools to you.
+Recommends:
+
+Package: coolset-misc
+Architecture: all
+Description: Lenik's cool misc tools.
+    This package brings Lenik's cool misc tools to you.
+Recommends:
+    amiutils,
+    ec2-bind,
+    opt-alternatives-pref-xjl,
+    pgadmin3-pref-xjl,
+    pgputils,
+    pinyin-pref-xjl,
+    sources-pref-xjl,
+    sox-enh,
+    virtualbox-enh,
+    yapp-enh
+
+Package: coolset-net
+Architecture: all
+Description: Lenik's cool net tools.
+    This package brings Lenik's cool net tools to you.
+Recommends:
+    sshproxy-z
+
+Package: coolset-php
+Architecture: all
+Description: Lenik's cool php tools.
+    This package brings Lenik's cool php tools to you.
+Recommends:
+
+Package: coolset-python
+Architecture: all
+Description: Lenik's cool python tools.
+    This package brings Lenik's cool python tools to you.
+Recommends:
+
+Package: coolset-shells
+Architecture: all
+Description: Lenik's cool shells tools.
+    This package brings Lenik's cool shells tools to you.
+Recommends:
+
+Package: coolset-sound
+Architecture: all
+Description: Lenik's cool sound tools.
+    This package brings Lenik's cool sound tools to you.
+Recommends:
+
+Package: coolset-tex
+Architecture: all
+Description: Lenik's cool tex tools.
+    This package brings Lenik's cool tex tools to you.
+Recommends:
+    coolpdf,
+    coolspec,
+    cooltex,
+    texlive-local,
+    z-latex
+
 Package: coolset-text
 Architecture: all
 Description: Lenik's cool text tools.
@@ -69,63 +201,11 @@ Recommends:
     texlive-local,
     z-latex
 
-Package: coolset-util
+Package: coolset-utils
 Architecture: all
-Description: Lenik's cool util tools.
-    This package brings Lenik's cool util tools to you.
+Description: Lenik's cool utils tools.
+    This package brings Lenik's cool utils tools to you.
 Recommends:
-    2tree,
-    ai-utils,
-    apache2-enh,
-    apt-enh,
-    ascgen,
-    cdtree,
-    coolcmd,
-    cooldiff,
-    coolhex,
-    coollog,
-    cooltask,
-    cooltext,
-    coolutils,
-    diskutils,
-    dltools,
-    do-mount,
-    dprog,
-    err-demux,
-    filestats,
-    fileutils-xjl,
-    git-enh,
-    gpg-enh,
-    grepl,
-    ini-utils,
-    laxar,
-    lddd,
-    mkchm,
-    mksize,
-    mountfile,
-    msync,
-    nameutils,
-    pingmon,
-    python-enh,
-    regf2t,
-    repl,
-    rrdtool-enh,
-    rsync-rrc,
-    sqlite-enh,
-    svn2cl-enh,
-    svn-enh,
-    symlinkutils,
-    textcodecs,
-    truecrypt-enh,
-    tty-fx,
-    usecode,
-    vcscmds,
-    vexmount,
-    vim-enh,
-    whoare,
-    x509utils,
-    xmlproc,
-    ziputils
 
 Package: coolset-vcs
 Architecture: all
@@ -133,12 +213,17 @@ Description: Lenik's cool vcs tools.
     This package brings Lenik's cool vcs tools to you.
 Recommends:
 
-Package: coolset-w32
+Package: coolset-video
 Architecture: all
-Description: Lenik's cool w32 tools.
-    This package brings Lenik's cool w32 tools to you.
+Description: Lenik's cool video tools.
+    This package brings Lenik's cool video tools to you.
 Recommends:
-    wine-enh
+
+Package: coolset-web
+Architecture: all
+Description: Lenik's cool web tools.
+    This package brings Lenik's cool web tools to you.
+Recommends:
 
 Package: coolset-x11
 Architecture: all

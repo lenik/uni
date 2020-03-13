@@ -2,18 +2,11 @@
 
 cat control.in >debian/control
 
-for tag in \
-        admin \
-        base \
-        gui \
-        java \
-        text \
-        util \
-        vcs \
-        w32 \
-        x11 \
-        ; do
+shopt -s globstar nullglob
 
+tags=($( grep -h Section: ../../**/debian/control | cut -d: -f2 | sort | uniq ))
+
+for tag in "${tags[@]}"; do
     echo "Scan $tag packages"
 
     cat <<EOM >>debian/control
