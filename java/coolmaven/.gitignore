@@ -10,6 +10,7 @@ m2deploy
 m2graph
 m2help
 m2install
+m2installfile
 m2layout
 m2localdeps
 m2localgraph
