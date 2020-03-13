@@ -14,3 +14,7 @@ dist_setup_SCRIPTS = \
 
 CLEANFILES = \
     ${dist_setup_SCRIPTS}
+
+install-data-hook:
+	cp -a $(srcdir)/inc $(DESTDIR)${prefix}/include
+
