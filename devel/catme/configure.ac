@@ -16,6 +16,9 @@ PKG_CHECK_MODULES([GLIB], [glib-2.0])
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([stdlib.h])
+AC_CHECK_FUNCS([strchr])
+AC_CHECK_FUNCS([strtol])
+AC_FUNC_ERROR_AT_LINE
 
 # Checks for typedefs, structures, and compiler characteristics.
 

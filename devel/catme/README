@@ -1,0 +1,14 @@
+catme
+
+    General Text Modularization And Parameterization Processor
+    泛文本模块化和参数化处理器
+
+    catme
+    用途：
+        把较长的文本分拆成较短的段落，对每个段落分别管理，然后再重新连接起来。
+        
+        - 纯文本的模块化
+        - SQL 的模块化
+        - 集成版本管理
+    
+    
