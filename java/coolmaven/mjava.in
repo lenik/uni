@@ -20,7 +20,7 @@
 function setopt() {
     case "$1" in
         -O|--online)
-            opt_opline=1;;
+            opt_online=1;;
         -e|--errors)
             mvnopts[mvnoptn++]=-e;;
         -h|--help)
