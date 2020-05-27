@@ -2,10 +2,10 @@ package net.bodz.uni.echo.client;
 
 import java.net.URL;
 
-import net.bodz.bas.http.config.ServletContextConfig;
 import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
+import net.bodz.bas.servlet.config.ServletContextConfig;
 
 public class PrintCommand
         extends AbstractEchoClientCommand {

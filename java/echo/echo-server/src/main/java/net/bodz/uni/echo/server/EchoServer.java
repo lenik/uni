@@ -16,10 +16,10 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.component.LifeCycle;
 
-import net.bodz.bas.http.config.FilterDescriptor;
-import net.bodz.bas.http.config.ServletContextConfig;
-import net.bodz.bas.http.config.ServletContextConfigAdapter;
-import net.bodz.bas.http.config.ServletDescriptor;
+import net.bodz.bas.servlet.config.FilterDescriptor;
+import net.bodz.bas.servlet.config.ServletContextConfig;
+import net.bodz.bas.servlet.config.ServletContextConfigAdapter;
+import net.bodz.bas.servlet.config.ServletDescriptor;
 import net.bodz.uni.echo.resource.DerivedResourceProvider;
 import net.bodz.uni.echo.resource.IResourceProvider;
 import net.bodz.uni.echo.resource.MountableResourceProvider;

@@ -7,7 +7,7 @@ import java.io.Writer;
 import javax.servlet.http.HttpServletRequest;
 
 import net.bodz.bas.err.UnexpectedException;
-import net.bodz.bas.http.ctx.CurrentHttpService;
+import net.bodz.bas.servlet.ctx.CurrentHttpService;
 
 import com.googlecode.jatl.Html;
 

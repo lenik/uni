@@ -2,9 +2,9 @@ package net.bodz.uni.echo.test;
 
 import javax.servlet.ServletContext;
 
-import net.bodz.bas.http.config.ServletContextConfig;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
+import net.bodz.bas.servlet.config.ServletContextConfig;
 import net.bodz.uni.echo._default.DefaultServerConfig;
 import net.bodz.uni.echo.client.EchoClient;
 import net.bodz.uni.echo.server.EchoServer;

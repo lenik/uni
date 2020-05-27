@@ -4,7 +4,7 @@ import java.net.URL;
 
 import org.junit.Test;
 
-import net.bodz.bas.http.config.ServletContextConfig;
+import net.bodz.bas.servlet.config.ServletContextConfig;
 import net.bodz.uni.echo._default.HelloServlet;
 
 public class AbstractWebAppTesterTest

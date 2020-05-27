@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 import net.bodz.bas.c.javax.servlet.http.RequestLogger;
-import net.bodz.bas.http.HttpModFilter;
-import net.bodz.bas.http.config.IServletContextConfigurer;
-import net.bodz.bas.http.config.ServletContextConfig;
-import net.bodz.bas.http.config.ServletDescriptor;
-import net.bodz.bas.http.ctx.CurrentHttpService;
 import net.bodz.bas.meta.codegen.IndexedTypeLoader;
+import net.bodz.bas.servlet.HttpModFilter;
+import net.bodz.bas.servlet.config.IServletContextConfigurer;
+import net.bodz.bas.servlet.config.ServletContextConfig;
+import net.bodz.bas.servlet.config.ServletDescriptor;
+import net.bodz.bas.servlet.ctx.CurrentHttpService;
 import net.bodz.bas.t.iterator.Iterables;
 import net.bodz.bas.t.order.PriorityComparator;
 

@@ -1,7 +1,7 @@
 package net.bodz.uni.echo._default;
 
-import net.bodz.bas.http.config.AbstractServletContextConfigurer;
-import net.bodz.bas.http.config.ServletContextConfig;
+import net.bodz.bas.servlet.config.AbstractServletContextConfigurer;
+import net.bodz.bas.servlet.config.ServletContextConfig;
 
 public class EchoBranding
         extends AbstractServletContextConfigurer {

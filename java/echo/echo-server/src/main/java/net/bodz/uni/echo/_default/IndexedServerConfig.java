@@ -2,9 +2,9 @@ package net.bodz.uni.echo._default;
 
 import net.bodz.bas.c.javax.servlet.http.*;
 import net.bodz.bas.c.type.IndexedTypes;
-import net.bodz.bas.http.config.ServletContextConfig;
-import net.bodz.bas.http.config.ServletDescriptor;
 import net.bodz.bas.meta.codegen.IndexedTypeLoader;
+import net.bodz.bas.servlet.config.ServletContextConfig;
+import net.bodz.bas.servlet.config.ServletDescriptor;
 
 @IndexedTypeLoader({//
 IServletContextListener.class, //

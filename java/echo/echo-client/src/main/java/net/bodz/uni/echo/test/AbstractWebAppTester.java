@@ -7,9 +7,9 @@ import javax.servlet.ServletContext;
 import org.junit.After;
 import org.junit.Before;
 
-import net.bodz.bas.http.config.ServletContextConfig;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
+import net.bodz.bas.servlet.config.ServletContextConfig;
 import net.bodz.bas.test.junit.JUnitApp;
 import net.bodz.uni.echo._default.DefaultServerConfig;
 import net.bodz.uni.echo.client.EchoClient;
