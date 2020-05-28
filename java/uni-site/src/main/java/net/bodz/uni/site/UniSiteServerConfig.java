@@ -1,9 +1,9 @@
 package net.bodz.uni.site;
 
 import net.bodz.bas.html.servlet.PathDispatchServlet;
-import net.bodz.bas.http.config.ServletDescriptor;
-import net.bodz.bas.http.ctx.RequestScopeTeller;
 import net.bodz.bas.i18n.LocaleVars;
+import net.bodz.bas.servlet.config.ServletDescriptor;
+import net.bodz.bas.servlet.ctx.RequestScopeTeller;
 import net.bodz.uni.echo._default.DefaultServerConfig;
 
 public class UniSiteServerConfig

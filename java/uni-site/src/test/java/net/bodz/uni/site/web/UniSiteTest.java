@@ -9,8 +9,8 @@ import net.bodz.bas.site.org.SiteGraph;
 import net.bodz.bas.site.org.SiteGraphDotBuilder;
 import net.bodz.bas.site.org.Sitemap;
 import net.bodz.bas.site.org.SitemapEntry;
-import net.bodz.uni.site.UniSite;
 import net.bodz.uni.site.DefaultUniSite;
+import net.bodz.uni.site.UniSite;
 
 public class UniSiteTest
         extends Assert {

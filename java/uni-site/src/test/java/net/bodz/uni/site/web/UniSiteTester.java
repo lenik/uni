@@ -1,6 +1,6 @@
 package net.bodz.uni.site.web;
 
-import net.bodz.bas.http.config.ServletContextConfig;
+import net.bodz.bas.servlet.config.ServletContextConfig;
 import net.bodz.uni.echo.test.AbstractWebAppTester;
 import net.bodz.uni.site.UniSiteServerConfig;
 

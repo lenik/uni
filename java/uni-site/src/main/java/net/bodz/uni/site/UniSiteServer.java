@@ -1,7 +1,7 @@
 package net.bodz.uni.site;
 
-import net.bodz.bas.http.config.ServletContextConfig;
 import net.bodz.bas.program.skel.BasicCLI;
+import net.bodz.bas.servlet.config.ServletContextConfig;
 import net.bodz.uni.echo.server.EchoServer;
 
 public class UniSiteServer

@@ -9,7 +9,6 @@ import java.util.TreeMap;
 
 import javax.servlet.http.HttpSession;
 
-import net.bodz.bas.http.ctx.CurrentHttpService;
 import net.bodz.bas.i18n.dom.iString;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
@@ -18,6 +17,7 @@ import net.bodz.bas.repr.path.IPathDispatchable;
 import net.bodz.bas.repr.path.ITokenQueue;
 import net.bodz.bas.repr.path.PathArrival;
 import net.bodz.bas.repr.path.PathDispatchException;
+import net.bodz.bas.servlet.ctx.CurrentHttpService;
 import net.bodz.bas.site.BasicSite;
 import net.bodz.bas.site.org.ICrawlable;
 import net.bodz.bas.site.org.ICrawler;
