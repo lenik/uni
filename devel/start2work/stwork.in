@@ -1,0 +1,51 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Start dev environ with all their tools}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    sysconfdir=@sysconfdir@
+    libdir=@libdir@
+    pkgdatadir=@pkgdatadir@
+    if [ "@bindir@" = '@'bindir'@' ]; then
+        sysconfdir=/etc
+        libdir=/usr/lib
+        pkgdatadir=/usr/share/start2work
+    fi
+    
+    stdirs=(
+        $libdir/stwork
+        $pkgdatadir/stwork
+        $sysconfdir/stwork
+        $HOME/.config/stwork
+    )
+    
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for st in bin/st.*; do
+        _log1 "load $st..."
+        "$st" &
+    done
+}
+
+boot "$@"

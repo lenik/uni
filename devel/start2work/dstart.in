@@ -1,0 +1,89 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=start cmd with dependencies}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] CMD ARGS...}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+    
+    sysconfdir=@sysconfdir@
+    libdir=@libdir@
+    pkgdatadir=@pkgdatadir@
+    if [ "@bindir@" = '@'bindir'@' ]; then
+        sysconfdir=/etc
+        libdir=/usr/lib
+        pkgdatadir=/usr/share/start2work
+    fi
+    
+    depdirs=(
+        $libdir/dstart
+        $pkgdatadir/dstart
+        $sysconfdir/dstart
+        $HOME/.config/dstart
+    )
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    shopt -s nullglob
+    
+    cmd="$1"
+    shift
+    if [ -z "$cmd" ]; then
+        quit "No cmd specified."
+    fi
+    
+    cmdname="${cmd##*/}"
+    
+    OLDPATH="$PATH"
+    
+    for dd in "${depdirs[@]}"; do
+        _log2 "search scripts in depdir $dd"
+        PATH="$dd/$cmdname:$dd/bin:$OLDPATH"
+        
+        for dep in "$dd/$cmdname"/*; do
+            # [ -x "$dep" ] || continue
+            depbase="${dep##*/}"
+            case "$depbase" in
+                *.sh)
+                    if [ -x "$dep" ]; then
+                        _log2 "  run script $dep"
+                        if ! "$dep"; then
+                            quit "  failed to load $dep: $?"
+                        fi
+                    else
+                        _log2 "  source script $dep"
+                        if ! . "$dep"; then
+                            quit "  failed to source $dep: $?"
+                        fi
+                    fi
+                    ;;
+                *)
+                    _log2 "  ignore file $dep";;
+            esac
+        done
+    done
+    
+    PATH="$OLDPATH"
+    cmd_full=$(which "$cmd")
+    exec "$cmd_full" "$@"
+}
+
+boot "$@"
