@@ -1,0 +1,23 @@
+Source: start2work
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 11)
+Standards-Version: 4.1.3
+Homepage: http://uni.bodz.net/devel/start2work
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/devel/start2work
+
+Package: start2work
+Architecture: all
+Depends: 
+    bash-shlib,
+    sassc,
+    wmctrl,
+    ${misc:Depends}
+Recommends:
+    libjs-lenik
+Suggests:
+    atom,
+    google-chrome-stable | google-chrome-unstable
+Description: A script to setup up working environment.
