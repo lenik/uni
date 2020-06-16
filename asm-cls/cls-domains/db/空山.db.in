@@ -6,7 +6,7 @@ $INCLUDE inc/mail-qq.db
 $INCLUDE inc/default.db
 $INCLUDE inc/instances.db
 
-0                       CNAME   xjl-1
+0                       CNAME   sg1
 
 xn--566a                CNAME   0               ; 鸟
 

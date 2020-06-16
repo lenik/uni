@@ -1,7 +1,10 @@
 ; vim: set filetype=bindzone :
 ; Example   IN  3600    MX  10  Parameters...
 
-xjl-1           3600    A       inst:xjl-1[ipw]
+sg1             3600    A       IP_SG1
+us1             3600    A       IP_US1
+cn1             3600    A       IP_CN1
+cn2             3600    A       IP_CN2
 
 c-1                     CNAME   lenik.3322.org.
 c-2                     CNAME   lenik.dyndns.org.

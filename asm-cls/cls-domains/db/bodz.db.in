@@ -6,15 +6,15 @@ $INCLUDE inc/mail-google.db
 $INCLUDE inc/default.db
 $INCLUDE inc/instances.db
 
-ns1             3600    A       inst:xjl-1[ipw]
-ns2             3600    A       inst:xjl-1[ipw]
-ns3             3600    A       inst:xjl-1[ipw]
-ns4             3600    A       inst:xjl-1[ipw]
-ns5             3600    A       inst:xjl-1[ipw]
+ns1             3600    A       IP_SG1
+ns2             3600    A       IP_SG1
+ns3             3600    A       IP_SG1
+ns4             3600    A       IP_SG1
+ns5             3600    A       IP_SG1
 
-0                       CNAME   xjl-1
+0                       CNAME   sg1
 *.p16                   CNAME   lenik.vicp.net.
 
-deb             3600    A       inst:a10[ipw]
+deb             3600    A       IP_CN1
 
 $INCLUDE inc/auto.db

@@ -70,7 +70,7 @@ nd8                     A       192.168.1.248
 nd9                     A       192.168.1.249
 
 x                       CNAME   git.lenik.net.
-xjl-1                   CNAME   git.lenik.net.
+sg1                   CNAME   git.lenik.net.
 
 b                       CNAME   git.bee32.com.
 bee32                   CNAME   git.bee32.com.

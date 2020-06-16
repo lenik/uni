@@ -70,4 +70,4 @@ install-data-hook:
 
 # Eval inst:*[ipw] using substcat
 %: %.in Makefile
-	$(do_subst) <$< | substcat >$@
+	$(do_subst) <$< | m4 ip.conf - >$@
