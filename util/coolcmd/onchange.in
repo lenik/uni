@@ -8,6 +8,7 @@
     option -a --delay-after =ms "Delay for a short interval after execution"
     option -b --delay-before =ms "Delay for a short interval before execution"
     option -f --file =FILE      "Add a file to monitor list"
+    option -t --title =STR      "Specify the console window title"
     option -q --quiet
     option -v --verbose
     option -h --help
@@ -17,6 +18,8 @@
     nfile=0
     opt_delay_after=0
     opt_delay_before=100
+    title=
+    title_bak=
 
 function setopt() {
     case "$1" in
@@ -28,6 +31,8 @@ function setopt() {
             files[nfile++]="$2";;
         -h|--help)
             help $1; exit;;
+        -t|--title)
+            title="$2";;
         -q|--quiet)
             LOGLEVEL=$((LOGLEVEL - 1));;
         -v|--verbose)
@@ -54,11 +59,32 @@ function main() {
         exit 1
     fi
 
+    pid=$$
+    while getstat $pid; do
+        if [ "$exname" != "${exname/terminal}" ]; then
+            pid_term=$pid
+            _log1 "Found terminal window pid $pid"
+            title_bak=$( xdotool getwindowfocus getwindowname )
+            break
+        fi
+        pid=$ppid
+    done
+
+    trap onexit EXIT
+
     opt_delay_after=$( div1000 $opt_delay_after )
     opt_delay_before=$( div1000 $opt_delay_before )
     _log2 "Delay for $opt_delay_before/$opt_delay_after for each execution."
 
-    . settermtitle "${files[*]} => $*"
+    case "$title" in
+        '')
+            : ;;
+        files)
+            . xtermtitle --save --title "${files[*]} => $*"
+            ;;
+        *)
+            . xtermtitle --save --title "$title" ;; 
+    esac
 
     while true; do
         until-changed $logopts "${files[@]}"
@@ -69,6 +95,21 @@ function main() {
 
         sleepenh $opt_delay_after >/dev/null 2>/dev/null
     done
+}
+
+function onexit() {
+    if [ -n "$title" ]; then
+        xtermtitle --restore
+    fi
+    if [ -n "$title_bak" ]; then
+        xtermtitle --title "$title_bak"
+    fi
+}
+
+function getstat() {
+    [ -d /proc/$1 ] || return 1
+    read pid exname state ppid pgrp session tty tpgid flags _</proc/$1/stat
+    _log2 "[$pid=$1] $exname($state): ppid $ppid, pgrp $pgrp, session $session, tty=$tty, flags $flags."
 }
 
 function div1000() {
