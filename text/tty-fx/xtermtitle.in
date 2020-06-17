@@ -1,0 +1,41 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=xterm title control}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -s --save            "Save title on stack"
+    option -r --restore         "Restore title from stack"
+    option -t --title =STR      "Change the title"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -s|--save)
+            echo -ne '\033[22;0t' ;;
+        -r|--restore)
+            echo -ne '\033[23;0t' ;;
+        -t|--title)
+            echo -ne "\033]0;$2\007" ;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    return 0
+}
+
+boot "$@"

@@ -2,7 +2,9 @@ Source: tty-fx
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 7)
+Build-Depends: 
+    debhelper (>= 7),
+    dltools
 Standards-Version: 3.8.3
 Homepage: http://uni.bodz.net/text/tty-fx
 Vcs-Git: git://git.bodz.net/uni.git
@@ -15,5 +17,6 @@ Depends:
     bash-enh,
     ncurses-bin,
     sed,
+    xdotool,
     ${misc:Depends}
 Description: Lenik's terminal (device) utilities.
