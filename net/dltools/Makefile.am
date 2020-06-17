@@ -36,3 +36,7 @@ CLEANFILES = \
     ${dist_bin_SCRIPTS} \
     ${dist_man_SCRIPTS} \
     ${dist_setup_SCRIPTS}
+
+install-data-hook:
+	ln -sn wget-grep-url $(DESTDIR)${bindir}/grepurl
+
