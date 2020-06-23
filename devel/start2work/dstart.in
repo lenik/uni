@@ -5,6 +5,7 @@
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] CMD ARGS...}
 
     . shlib-import cliboot
+    option -o --output =FILE    "Redirect stdout/err to the file."
     option -q --quiet
     option -v --verbose
     option -h --help
@@ -28,6 +29,10 @@
 
 function setopt() {
     case "$1" in
+        -o|--output)
+            exec 1>>"$2.out"
+            exec 2>>"$2.err"
+            ;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -82,7 +87,9 @@ function main() {
     done
     
     PATH="$OLDPATH"
-    cmd_full=$(which "$cmd")
+    if ! cmd_full=$(which "$cmd"); then
+        cmd_full="$cmd"
+    fi
     exec "$cmd_full" "$@"
 }
 
