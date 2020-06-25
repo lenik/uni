@@ -11,4 +11,41 @@ catme
         - SQL 的模块化
         - 集成版本管理
     
-    
+1. cut -- template 中生成 frame 元素
+
+2. js/css import 依赖项管理，多点插入/import
+    \import == \import:*
+
+    \import[js]     qname
+    \import[css]    qname
+    \import[js|css] qname
+
+    imported file:
+        ...
+        \stream js
+            \include[js] libjs.foo
+        ...
+        \stream css
+        ...
+        \stream
+        \stream default
+        \stream js
+
+    \spec-import[tag]  qname
+
+    libjs/foo.jslib
+        \include[lib] libjs.bar
+        \stream js
+        <script href="...foo.js">
+        \stream css
+        <style href="..foo.css">
+
+    include/import 混用时，如何使include 重复import?
+        import
+            include         include*
+                import
+
+        import c
+        import a
+            import* b       markset=new
+                import c        -- 将重复import该c
