@@ -1,0 +1,21 @@
+Source: btshare
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 11)
+Standards-Version: 4.1.3
+Homepage: http://uni.bodz.net/hack/btshare
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/hack/btshare
+
+Package: btshare
+Architecture: all
+Depends:
+    bash-shlib,
+    dos2unix,
+    iconv,
+    ${misc:Depends}
+Recommends:
+    blueman
+Description: Share BlueTooth devices between different systems.
+    Includes: Windows, Linux.
