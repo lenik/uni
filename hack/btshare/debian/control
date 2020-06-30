@@ -13,7 +13,7 @@ Architecture: all
 Depends:
     bash-shlib,
     dos2unix,
-    iconv,
+    libc-bin,
     ${misc:Depends}
 Recommends:
     blueman

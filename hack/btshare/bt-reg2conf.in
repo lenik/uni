@@ -1,0 +1,128 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Convert NT HKLM/..BTHPORT to Linux /var/lib/bluetooth/..conf}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] Exported.reg}
+
+    . shlib-import cliboot strfn
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    [ -z "$1" ] && die "Expected reg file."
+
+    reg="$1"
+    [ -r "$reg" ] || die "Can't read from $reg."
+
+    hostid=
+    devid=
+    while IFS== read -r k v; do
+        [ -z "$k" ] && continue
+        if [ "${k:0:1}" = '"' ]; then
+            k="${k:1:-1}"
+        fi
+        case "$k" in
+            '[HKEY_'*)
+                id="${k##*\\BTHPORT\\\Parameters\\Keys\\}"
+                [ "$id" = "$k" ] && continue
+                hostid="${id%%\\*}"
+                devid="${id#*\\}"
+                devid="${devid%%]*}"
+                [ "$hostid" = "$id" ] && continue
+                _log1 "hostid: $hostid, devid: $devid"
+                ;;
+
+            LTK)
+                LTK=$(parsehex "$v");;
+
+            KeyLength)
+                KeyLength=$(parsedword "$v");;
+
+            ERand)
+                ERand=$(parsehexLE "$v");;
+
+            EDIV)
+                EDIV=$(parsedword "$v");;
+
+            IRK)
+                IRK=$(parsehex "$v");;
+
+            CSRK)
+                CSRK=$(parsehex "$v");;
+        esac
+    done < <(iconv -f utf-16le -t utf8 "$reg" | dos2unix)
+
+    cat <<EOT
+[IdentityResolvingKey]
+Key=$IRK
+
+[LocalSignatureKey]
+Key=$CSRK
+
+[LongTermKey]
+Key=$LTK
+EncSize=$KeyLength
+EDiv=$EDIV
+Rand=$ERand
+EOT
+    echo
+}
+
+function parsedword() {
+    local arg="$1"
+    case "$arg" in
+        dword:*)
+            hex2int "${arg#dword:}";;
+        *)
+            die "Bad dword: $arg";;
+    esac
+}
+
+function parsehex() {
+    local arg="$1"
+    local hex
+    case "$arg" in
+        "hex:"*)
+            hex="${arg:4}";;
+        "hex(b):"*):
+            hex="${arg:7}";;
+        *)
+            die "Bad hex: $arg";;
+    esac
+    hex="${hex//,/}"
+    toupper "$hex"
+}
+
+function parsehexLE() {
+    local hex=$(parsehex "$1")
+    local rev=
+    while [ -n "$hex" ]; do
+        rev="$rev${hex: -2}"
+        hex="${hex:0:-2}"
+    done
+    echo "ibase=16; $rev" | bc
+}
+
+function hex2int() {
+    local arg=$(toupper "$*")
+    echo "ibase=16; $arg" | bc
+}
+
+boot "$@"
