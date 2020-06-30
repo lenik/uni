@@ -1,6 +1,7 @@
 package net.bodz.uni.echo.server;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class EchoServer
     Thread shutdownThread;
 
     public EchoServer(ServletContextConfig config) {
-        super(config.getPortNumber());
+        super(getServerAddress(config));
 
         this.config = config;
 
@@ -64,6 +65,13 @@ public class EchoServer
         };
 
         addLifeCycleListener(new LifeCycleListener());
+    }
+
+    static InetSocketAddress getServerAddress(ServletContextConfig config) {
+        String hostname = config.getHostName("0.0.0.0");
+        int port = config.getPortNumber();
+        InetSocketAddress address = new InetSocketAddress(hostname, port);
+        return address;
     }
 
     private void buildResourceProvider()
