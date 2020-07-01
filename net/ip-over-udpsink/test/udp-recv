@@ -1,0 +1,6 @@
+p=10000
+while true; do
+    echo port $p
+    nc -ul $p -w1 >$p
+    ((p++))
+done

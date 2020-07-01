@@ -1,0 +1,7 @@
+p=10000
+for f in *; do
+    echo $f $p
+    nc -uw1 tz71 $p < $f
+    ((p++))
+    sleepenh 0.1
+done
