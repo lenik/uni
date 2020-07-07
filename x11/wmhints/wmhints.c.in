@@ -1,0 +1,221 @@
+#include <assert.h>
+#include <glib.h>
+
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <X11/Xlib.h>
+
+#include <bas/cli.h>
+#include <bas/file.h>
+
+#include "config.h"
+#include "wmhints.h"
+
+static GOptionEntry options[] = {
+    OPTARG('w', "window", "Specify the window id"),
+    OPTION('s', "set", "Set hints"),
+    OPTION('c', "clear", "Clear hints"),
+    OPTION('t', "toggle", "Toggle hints"),
+
+    OPTION('f', "force", "Force to overwrite existing files"),
+    OPTION('q', "quiet", "Show less verbose info"),
+    OPTION('v', "verbose", "Show more verbose info"),
+    OPTION(0, "version", "Show version info"),
+
+    { NULL },
+};
+
+char opt_mode = 's';
+char *opt_window_id = NULL;
+
+Display *display;
+Window window = 0;
+
+gboolean parse_option(const char *_opt, const char *val,
+                      gpointer data, GError **err) {
+    const char *opt = _opt;
+
+    bool shortopt = opt++[1] != '-';
+    while (*opt == '-')
+        opt++;
+
+    switch (*opt) {
+    case 'c':
+        if (shortopt || streq(opt, "clear")) {
+            opt_mode = 'c';
+            return true;
+        }
+        break;
+
+    case 's':
+        if (shortopt || streq(opt, "set")) {
+            opt_mode = 's';
+            return true;
+        }
+        break;
+
+    case 't':
+        if (shortopt || streq(opt, "toggle")) {
+            opt_mode = 't';
+            return true;
+        }
+        break;
+
+    case 'w':
+        if (shortopt || streq(opt, "window")) {
+            window = (Window) strtol(val, NULL, 0);
+            if (window == 0) {
+                error("Invalid window id: %s\n", val);
+                return false;
+            }
+            return true;
+        }
+        break;
+    }
+
+    return _parse_option(_opt, val, data, err);
+}
+
+static MotifWmHints *
+get_motif_wm_hints (Display *display, Window   window) {
+    Atom property;
+    int result;
+    Atom actual_type;
+    int actual_format;
+    unsigned long nitems;
+    unsigned long bytes_after;
+    unsigned char *data;
+
+    property = XInternAtom(display, "_MOTIF_WM_HINTS", False);
+    result = XGetWindowProperty(display, window, property,
+                                0, LONG_MAX, False, AnyPropertyType,
+                                &actual_type, &actual_format,
+                                &nitems, &bytes_after, &data);
+    
+    if (result != Success || data == NULL)
+        return NULL;
+
+    size_t data_size = nitems * sizeof(long);
+    size_t max_size = sizeof(MotifWmHints);
+    MotifWmHints *hints;
+    
+    hints = calloc(1, max_size);
+    
+    memcpy (hints, data, data_size > max_size ? max_size : data_size);
+    XFree (data);
+
+    return hints;
+}
+
+void mod_decorations(Display *display, Window window, unsigned mask) {
+    MotifWmHints *hints;
+
+    hints = get_motif_wm_hints(display, window);
+    if(hints == NULL) {
+        hints = calloc(1, sizeof(*hints));
+        printf("auto init\n");
+        hints->decorations = MWM_DECOR_ALL;
+    }
+
+    hints->flags |= MWM_HINTS_DECORATIONS;
+    switch (opt_mode) {
+    case 's':
+        hints->decorations = mask;
+        break;
+    case 'c':
+        hints->decorations &= ~mask;
+        break;
+    case 't':
+        hints->decorations ^= mask;
+        break;
+    }
+    printf("new decorations = %lx\n", hints->decorations);
+
+    Atom property = XInternAtom(display, "_MOTIF_WM_HINTS", False);
+    int nelem = sizeof(*hints) / sizeof(long);
+
+    XChangeProperty(display, window, property, property, 32, PropModeReplace,
+                    (unsigned char *) hints, nelem);
+    free(hints);
+}
+
+int main(int argc, char **argv) {
+    /* .section. global initialization */
+    program_title = "Windoww Hints Utility (Version " PACKAGE_VERSION ")";
+    program_help_args = "Props...";
+
+    /* .section. CLI boot */
+    if (! parse_options(options, &argc, &argv))
+        return 1;
+
+    display = XOpenDisplay(NULL);
+    if (display == NULL) {
+        error("Can't open display.");
+        return 1;
+    }
+    
+    if (window == 0) {
+        log_err("Window isn't specified.");
+        return 1;
+    }
+
+    int exitCode = 0;
+    while (--argc > 0) {
+        argv++;
+
+        char *expr = *argv;
+        int len = strlen(expr);
+
+        expr = trim(expr);
+        bool defined = false;
+
+        unsigned long decorations = 0;
+        
+        switch (*expr) {
+        case 'b':
+            if (streq(expr, "border")) { defined = true;
+                decorations |= MWM_DECOR_BORDER;
+            }
+            break;
+        case 'd':
+            if (streq(expr, "decorations")) { defined = true;
+                decorations |= MWM_DECOR_ALL;
+            }
+            break;
+        case 'm':
+            if (streq(expr, "menu")) { defined = true;
+                decorations |= MWM_DECOR_MENU;
+            } else if (streq(expr, "minimize")) { defined = true;
+                decorations |= MWM_DECOR_MINIMIZE;
+            } else if (streq(expr, "maximize")) { defined = true;
+                decorations |= MWM_DECOR_MAXIMIZE;
+            }
+            break;
+        case 'r':
+            if (streq(expr, "resizeh")) { defined = true;
+                decorations |= MWM_DECOR_RESIZEH;
+            }
+            break;
+        case 't':
+            if (streq(expr, "title")) { defined = true;
+                decorations |= MWM_DECOR_TITLE;
+            }
+            break;
+        } /* switch expr */
+
+        if (! defined) {
+            fprintf(stderr, "undefined symbol %s %d %d.", expr, decorations, true);
+            exitCode = 1;
+            break;
+        }
+
+        if (decorations != 0) {
+            mod_decorations(display, window, decorations);
+        }
+    } /* for args */
+
+    XCloseDisplay(display);
+    return exitCode;
+}

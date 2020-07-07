@@ -14,6 +14,7 @@ Vcs-Browser: http://git.bodz.net/uni/x11/wmhints
 Package: wmhints
 Architecture: any
 Depends: 
+    libbas-c,
     libx11-6,
     ${shlibs:Depends}, ${misc:Depends}
 Description: Utility to access/modify window hints flags.
