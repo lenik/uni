@@ -50,6 +50,12 @@ char *rtrim(char *s) {
     return s;
 }
 
+char *trim(char *s) {
+    s = ltrim(s);
+    s = rtrim(s);
+    return s;
+}
+
 char *chop(char *s) {
     assert(s != NULL);
 

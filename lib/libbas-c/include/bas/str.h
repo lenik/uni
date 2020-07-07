@@ -10,6 +10,7 @@ char *endswith(const char *s, const char *t);
 #define LTRIM(s) while (isspace(*(s))) (s)++
 char *ltrim(const char *s);
 char *rtrim(char *s);
+char *trim(char *s);
 
 char *chop(char *s);
 char *chomp(char *s);

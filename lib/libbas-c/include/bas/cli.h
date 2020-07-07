@@ -13,6 +13,7 @@
 
 #include <glib.h>
 #include <bas/log.h>
+#include <bas/str.h>
 
 /* .section. options */
 
