@@ -30,6 +30,7 @@ dist_bin_SCRIPTS = \
     make1 \
     onchange \
     postproc \
+    ppid-closest \
     repeat \
     run-bg \
     rsexec \

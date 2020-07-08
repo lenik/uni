@@ -1,0 +1,23 @@
+#!/bin/bash
+
+    pattern=terminal
+    if [ -n "$1" ]; then
+        pattern="$1"
+    fi
+    
+    function getstat() {
+        [ -d /proc/$1 ] || return 1
+        read pid exname state ppid pgrp session tty tpgid flags _</proc/$1/stat
+    }
+
+    pid=$$
+    while getstat $pid; do
+        if [ "$exname" != "${exname/$pattern}" ]; then
+            echo $pid
+            exit 0
+        fi
+        pid=$ppid
+    done
+    
+    echo "failed to find the parent pid closest to $pattern."
+    
