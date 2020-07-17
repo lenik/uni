@@ -1,6 +1,7 @@
 ; vim: set filetype=bindzone :
 ; Example   IN  3600    MX  10  Parameters...
 
+hk1             3600    A       IP_HK1
 sg1             3600    A       IP_SG1
 us1             3600    A       IP_US1
 cn1             3600    A       IP_CN1
