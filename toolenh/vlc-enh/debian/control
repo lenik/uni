@@ -1,0 +1,18 @@
+Source: vlc-enh
+Section: video
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper (>= 11)
+Standards-Version: 4.1.3
+Homepage: http://uni.bodz.net/vlc-enh
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/vlc-enh
+
+Package: vlc-enh
+Architecture: all
+Depends:
+    bash-shlib,
+    vlc,
+    vlc-plugin-access-extra,
+    ${misc:Depends}
+Description: vlc frequent using profiles as helper scripts
