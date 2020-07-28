@@ -1,0 +1,67 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -b --bandwidth =bytesPerSec  "Specify bandwidth"
+    option -o --outfile =FILE           "Where to save the recorded video file"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_bw=1000
+    opt_outdir=/tmp/
+    opt_outfile=
+
+function setopt() {
+    case "$1" in
+        -b|--bandwidth)
+            opt_bw="$2";;
+        -o|--outfile)
+            opt_outfile="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$opt_outfile" ]; then
+        datetime=$( date +"%Y-%m-%d/%H-%M-%S" )
+        date=${datetime%/*}
+        time=${datetime##*/}
+        opt_outdir="$opt_outdir/$date"
+        if ! mkdir -p "$opt_outdir"; then
+            quit "Failed to create dir $opt_outdir"
+        fi
+        opt_outfile="$opt_outdir/$time.mp4"
+    fi
+
+    transcode=
+    transcode=${transcode}vcodec=h265
+    #transcode=${transcode},venc="x264{scenecut=100,bframes=0,keyint=10}"
+    transcode=${transcode},vb=5000
+    #transcode=${transcode},acodec=none
+    transcode=${transcode},scale=0.5
+
+    dst="$opt_outfile"
+
+    vlc -I dummy \
+        screen:// \
+        :screen-fps=50 \
+        :screen-follow-mouse \
+        :sout="#transcode{$transcode}:duplicate{dst=std{mux=mp4,access=file,dst=\"$dst\"}}"
+
+}
+
+boot "$@"
