@@ -1,14 +1,14 @@
-Source: vlc-enh
+Source: screencast
 Section: video
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper (>= 11)
 Standards-Version: 4.1.3
-Homepage: http://uni.bodz.net/vlc-enh
+Homepage: http://uni.bodz.net/screencast
 Vcs-Git: git://git.bodz.net/uni.git
-Vcs-Browser: http://git.bodz.net/uni/vlc-enh
+Vcs-Browser: http://git.bodz.net/uni/screencast
 
-Package: vlc-enh
+Package: screencast
 Architecture: all
 Depends:
     bash-shlib,

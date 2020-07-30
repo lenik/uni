@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for vlc-enh
+# postinst script for screencast
 #
 # see: dh_installdeb(1)
 
@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-        /usr/share/setup/vlc-enh/postinst
+        /usr/share/setup/screencast/postinst
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

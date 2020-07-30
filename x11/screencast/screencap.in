@@ -5,6 +5,8 @@
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
     . shlib-import cliboot
+    option --ffmpeg                     "Use ffmpeg (default)"
+    option --vlc                        "Use vlc"
     option -b --bandwidth =bytesPerSec  "Specify bandwidth"
     option -o --outfile =FILE           "Where to save the recorded video file"
     option -q --quiet
@@ -12,12 +14,17 @@
     option -h --help
     option    --version
 
+    opt_mode=ffmpeg
     opt_bw=1000
-    opt_outdir=/tmp/
+    opt_outdir=/tmp/screencap
     opt_outfile=
 
 function setopt() {
     case "$1" in
+        --ffmpeg)
+            opt_mode=ffmpeg;;
+        --vlc)
+            opt_mode=vlc;;
         -b|--bandwidth)
             opt_bw="$2";;
         -o|--outfile)
@@ -47,21 +54,38 @@ function main() {
         opt_outfile="$opt_outdir/$time.mp4"
     fi
 
+    vfilter=
+    vfilter=${vfilter}croppadd{cropleft=0,croptop=0,cropright=0,cropbottom=0}
+
     transcode=
-    transcode=${transcode}vcodec=h265
-    #transcode=${transcode},venc="x264{scenecut=100,bframes=0,keyint=10}"
-    transcode=${transcode},vb=5000
-    #transcode=${transcode},acodec=none
-    transcode=${transcode},scale=0.5
+    transcode="${transcode}"vcodec=h264
+    transcode="${transcode}",acodec=none
+    transcode="${transcode}",venc="x264{scenecut=100,bframes=0,keyint=10}"
+    transcode="${transcode}",vb=2000,scale=0.5
+    #transcode="${transcode}",vfilter="$vfilter"
 
     dst="$opt_outfile"
+    #more=":duplicate{dst=std{mux=mp4,access=file,dst=\"$dst\"}}"
+    more=":std{access=file,mux=mp4,dst=\"$dst\"}"
 
-    vlc -I dummy \
-        screen:// \
-        :screen-fps=50 \
-        :screen-follow-mouse \
-        :sout="#transcode{$transcode}:duplicate{dst=std{mux=mp4,access=file,dst=\"$dst\"}}"
+    play /usr/share/sounds/KDE-Sys-App-Positive.ogg
 
+    if [ $opt_mode = ffmpeg ]; then
+		ffmpeg -y \
+			-f pulse -ac 2 -i default \
+			-video_size 3820x2160 \
+			-framerate 50 \
+			-f x11grab -i :0.0+0,0 \
+			-vf scale=1920:1080 \
+			"$opt_outfile"
+    else
+        #vlc \
+        vlc -I dummy \
+            screen:// \
+            :screen-fps=50 \
+            :screen-follow-mouse \
+            :sout="#transcode{$transcode}$more"
+    fi
 }
 
 boot "$@"

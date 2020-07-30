@@ -1,10 +1,10 @@
 include libauto/project.am
 
 dist_bin_SCRIPTS = \
-    vlc-screen-recorder
+    screencap
 
 dist_man_MANS = \
-    vlc-screen-recorder.1
+    screencap.1
 
 dist_setup_SCRIPTS = \
     postinst \
