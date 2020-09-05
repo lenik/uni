@@ -11,6 +11,7 @@
     <artifactId>devel</artifactId>
     <packaging>pom</packaging>
     <modules>
+        <module>jcatme</module>
         <module>snmcc</module>
     </modules>
     <name>Uni :: Devel</name>

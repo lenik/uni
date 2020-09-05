@@ -11,13 +11,13 @@ import org.codehaus.groovy.control.CompilationFailedException;
 
 import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
-import net.bodz.bas.c.java.util.regex.PatternProcessor;
+import net.bodz.bas.c.java.util.regex.TextPrepByParts;
 import net.bodz.bas.c.string.StringEscape;
 import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.io.BCharOut;
 
 public class GroovyExpand
-        extends PatternProcessor {
+        extends TextPrepByParts {
 
     private static Pattern gspTag;
     static {
@@ -66,30 +66,32 @@ public class GroovyExpand
     }
 
     @Override
-    protected void matched(int start, int end) {
-        String t = matcher.group(1).trim();
-        if (t.isEmpty())
-            return;
-        switch (t.charAt(0)) {
+    protected String matched(String part) {
+        String textBlock = matcher.group(1).trim();
+        if (textBlock.isEmpty())
+            return "";
+
+        String out;
+        switch (textBlock.charAt(0)) {
         case '@':
             throw new NotImplementedException("<%@ ... %> isn't supported");
         case '!':
-            String decl = t.substring(1);
-            append(decl);
+            String decl = textBlock.substring(1);
+            out = decl;
             break;
         case '=':
-            String exp = t.substring(1).trim();
-            append("out.print(" + exp + ");");
+            String exp = textBlock.substring(1).trim();
+            out = "out.print(" + exp + ");";
             break;
         default:
-            String code = t;
-            append(code);
+            String code = textBlock;
+            out = code;
         }
-        append('\n');
+        return out + "\n";
     }
 
     @Override
-    protected void unmatched(String s) {
+    protected String unmatched(String s) {
         String[] lines = s.split("\n", -1);
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
@@ -100,6 +102,7 @@ public class GroovyExpand
                 echo(line, true);
             }
         }
+        return "";
     }
 
     void echo(String s, boolean newline) {
