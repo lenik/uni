@@ -4,7 +4,7 @@
 AC_PREREQ([2.65])
 AC_INIT([catme], [0.1], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
-AC_CONFIG_SRCDIR([CatMe.c])
+#AC_CONFIG_SRCDIR([src/CatMe.c])
 
 # Checks for programs.
 AC_PROG_CC
@@ -27,6 +27,8 @@ AC_CHECK_FUNCS([strchr])
 AC_CHECK_FUNCS([strtol])
 AC_FUNC_ERROR_AT_LINE
 
-AC_CONFIG_FILES([Makefile])
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_FILES(
+    [Makefile]
+    [src/Makefile])
+AC_CONFIG_HEADERS([src/config.h])
 AC_OUTPUT
