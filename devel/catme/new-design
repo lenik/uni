@@ -1,0 +1,32 @@
+
+    1. catme --echo to enable self-iterations.
+
+    -- \import foo.bar.Template1
+        ....
+
+    -- \endimport (auto inserted in --echo mode)
+
+    2. include/import 冲突怎么办？
+
+        \include mod1
+        ...
+        \include mod1
+
+        mod1:
+            \import foo.bar
+
+        \context
+        \endcontext
+
+        \subst /REGEX/EXPR/flags
+        \endsubst
+            EXPR: text, $var, \$...
+
+        \indent           = \subst "^" "\t"
+        \endindent      = \endsubst
+            vs. cmdopt --indent=4, --indent-by-tab
+
+        \tabstop 16 20 28 36
+        \endtabstop
+
+        All \end* will be ended after EOF.
