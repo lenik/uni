@@ -10,11 +10,13 @@ zone "1na.net"          { type master; file "@lenikdir@/1na.db"; };
 zone "99jsj.com"        { type master; file "@lenikdir@/99jsj.db"; };
 zone "bela.cn"          { type master; file "@lenikdir@/bela.db"; };
 zone "bodz.net"         { type master; file "@lenikdir@/bodz.db"; };
+zone "c1904.com"        { type master; file "@lenikdir@/c1904.db"; };
 zone "ebja.com"         { type master; file "@lenikdir@/ebja.db"; };
 zone "lenik.net"        { type master; file "@lenikdir@/lenik.db"; };
 zone "mia.cn"           { type master; file "@lenikdir@/mia.db"; };
 zone "ooojjj.com"       { type master; file "@lenikdir@/ooojjj.db"; };
 zone "pfpf.net"         { type master; file "@lenikdir@/pfpf.db"; };
+zone "selfbuy.net"      { type master; file "@lenikdir@/selfbuy.db"; };
 zone "topcroak.com"     { type master; file "@lenikdir@/topcroak.db"; };
 zone "xor.cn"           { type master; file "@lenikdir@/xor.db"; };
 

@@ -8,5 +8,14 @@ $INCLUDE inc/instances.db
 
 0                       CNAME   sg1
 
+push1                   CNAME   push1.ooojjj.com.w.kunlunso.com.
+play1                   CNAME   play1.ooojjj.com.w.alikunlun.com.
+play11                  CNAME   play11.ooojjj.com.w.alikunlun.net.
+play12                  CNAME   play12.ooojjj.com.w.alikunlun.com.
+play13                  CNAME   play13.ooojjj.com.w.alikunlun.net.
+
+push2                   CNAME   push2.ooojjj.com.w.kunlunso.com.
+play2                   CNAME   play2.ooojjj.com.w.alikunlun.net.
+
 $INCLUDE inc/auto.db
 

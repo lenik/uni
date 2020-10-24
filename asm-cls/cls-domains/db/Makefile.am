@@ -31,9 +31,11 @@ lenik_DATA = \
     99jsj.db \
     bela.db \
     bodz.db \
+    c1904.db \
     mia.db \
     ooojjj.db \
     pfpf.db \
+    selfbuy.db \
     xor.db \
     国家地理.db \
     花骨朵.db \
