@@ -1,0 +1,35 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Show the formatted date of git-tracked files}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FILES}
+
+    . shlib-import cliboot
+    option -d --date-format =DATE_FORMAT    "Specify the date format"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_date_format="%Y-%m-%d %H:%M:%S"
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    git log --format="%ad" --date="format:$opt_date_format" -- "$@"
+}
+
+boot "$@"

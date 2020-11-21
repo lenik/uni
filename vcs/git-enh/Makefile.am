@@ -6,6 +6,7 @@ dist_bin_SCRIPTS = \
     bare2co \
     co2bare \
     git-author \
+    git-date \
     git-delta \
     git-delta.rrw \
     git-header \
@@ -30,6 +31,7 @@ dist_man_MANS = \
     bare2co.1 \
     co2bare.1 \
     git-author.1 \
+    git-date.1 \
     git-delta.1 \
     git-delta.rrw.1 \
     git-header.1 \
