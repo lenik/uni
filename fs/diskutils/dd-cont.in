@@ -1,0 +1,122 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=dd resumable}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -i --input =FILE     "Input file"
+    option -o --output =FILE    "Output file"
+    option -s --seek =NUM       "Num of bytes to skip/seek"
+    option -B --block-size =NUM "Block size"
+    option -S --block-seek =NUM "Num of blocks to skip/seek (override -s)"
+    option -c --count =NUM      "Count of blocks to copy"
+    option -I --block-ignore =NUN "Ignore blocks each time iteration"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    in=
+    out=
+    seek=
+    block_size=1024
+    block_seek=
+    count=
+    block_ignore=0
+
+function setopt() {
+    case "$1" in
+        -i|--input)
+            in="$2";;
+        -o|--output)
+            out="$2";;
+        -s|--seek)
+            seek="$2";;
+        -B|--block-size)
+            block_size="$2";;
+        -S|--block-seek)
+            block_seek="$2";;
+        -c|--count)
+            count="$2";;
+        -I|--block-ignore)
+            block_ignore="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$in" ]; then
+        if [ -n "$1" ]; then
+            in="$1"
+            shift
+        fi
+    fi
+
+    if [ -z "$out" ]; then
+        if [ -n "$1" ]; then
+            out="$1"
+            shift
+        fi
+    fi
+
+    _log1 "DD $in => $out"
+
+    block_seek_add=0
+    while true; do
+        [ -r "$in" ] || quit "Can't read from input: $!"
+        size=0
+        [ -e "$out" ] && size=$(stat -c%s "$out")
+
+        if [ -z "$block_seek" ]; then
+            if [ -z "$seek" ]; then
+                seek=$size
+                _log1 "seek: $seek"
+            fi
+            # if new block-size is larger than the old one,
+            # because integer divide will return a floor-ed result,
+            # some extra bytes will be recopied.
+            block_seek=$(( seek / block_size ))
+            _log1 "block-seek: $block_seek + $block_seek_add"
+            if [ "$block_seek_add" != 0 ]; then
+                echo "ignore $block_seek_add blocks at $block_seek." >>"$out.bb-$block_size"
+            fi
+            block_seek=$(( block_seek + block_seek_add))
+            seek=
+        fi
+
+        ddopts=(if="$in" of="$out" bs="$block_size")
+        ddopts=("${ddopts[@]}" skip="$block_seek" seek="$block_seek" conv=notrunc)
+        if [ -n "$count" ]; then
+            ddopts=("${ddopts[@]}" count="$count")
+        fi
+        block_seek=
+
+        if ! run dd "${ddopts[@]}"; then
+            error=$?
+            if [ -n "$block_ignore" ]; then
+                _warn "Error occurred ($error), ignore $block_ignore blocks and retry"
+                block_seek_add=$block_ignore
+                continue
+            fi
+        fi
+        break
+    done
+}
+
+function run() {
+    _log1 "Execute $*"
+    "$@"
+    return $?
+}
+
+boot "$@"
