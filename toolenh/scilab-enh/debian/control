@@ -1,0 +1,29 @@
+Source: scilab-enh
+Section: math
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.5.1
+Homepage: http://uni.bodz.net/toolenh/scilab-enh
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/toolenh/scilab-enh
+Rules-Requires-Root: no
+
+Package: scilab-enh
+Architecture: all
+Depends: 
+    scilab,
+    scilab-cli,
+    openjdk-16-jdk 
+        | openjdk-17-jdk 
+        | openjdk-18-jdk 
+        | openjdk-19-jdk
+        | openjdk-20-jdk
+        | openjdk-21-jdk
+        | openjdk-22-jdk
+        | openjdk-23-jdk
+        | openjdk-24-jdk
+        | openjdk-25-jdk
+        | openjdk-26-jdk,
+    ${misc:Depends}
+Description: scilab tools
