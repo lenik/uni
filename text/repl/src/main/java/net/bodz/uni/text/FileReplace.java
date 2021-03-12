@@ -5,8 +5,8 @@ import java.util.regex.Pattern;
 import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.fn.IRewriter;
 import net.bodz.bas.meta.build.MainVersion;
+import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.bas.program.skel.BatchEditCLI;
 import net.bodz.bas.program.skel.CLIAccessor;
 import net.bodz.bas.program.skel.CLISyntaxException;
@@ -23,28 +23,28 @@ public class FileReplace
 
     /**
      * replace by regexp
-     * 
+     *
      * @option -P --regex =REGEXP
      */
     protected Pattern pattern;
 
     /**
      * Replace by literal text
-     * 
+     *
      * @option -F --fixed-string =TEXT
      */
     protected String textPattern;
 
     /**
      * The replacement. May include \\n (or $n) reference in regexp mode.
-     * 
+     *
      * @option -t --replacement =TEXT
      */
     protected String replacement;
 
     /**
      * Use the specific rewriter impl, this will ignore -P, -T, -t options
-     * 
+     *
      * @option =CLASS(IRewriter)
      */
     protected IRewriter<String> rewriter;

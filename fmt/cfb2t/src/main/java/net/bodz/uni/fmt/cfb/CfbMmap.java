@@ -15,6 +15,7 @@ import net.bodz.bas.data.mem.RandomAccessFileMemory;
 import net.bodz.bas.err.BadFormatException;
 import net.bodz.bas.err.OutOfDomainException;
 import net.bodz.bas.io.BByteIn;
+import net.bodz.bas.io.IByteIn;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.data.DataInImplLE;
 import net.bodz.bas.io.res.builtin.FileResource;
@@ -24,7 +25,8 @@ import net.bodz.uni.fmt.cfb.t.file.CfbFile;
 import net.bodz.uni.fmt.cfb.t.file.DirectoryEntry;
 
 public class CfbMmap
-        implements ICfbConsts {
+        implements
+            ICfbConsts {
 
     IMemory mem;
 
@@ -44,7 +46,7 @@ public class CfbMmap
         this.mem = mem;
 
         MemoryIn memIn = new MemoryIn(mem);
-        IDataIn in = DataInImplLE.from(memIn);
+        IDataIn in = DataInImplLE.from((IByteIn) memIn);
 
         cfbFile = new CfbFile();
         cfbFile.readObject(in);

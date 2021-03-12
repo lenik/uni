@@ -30,7 +30,9 @@ import net.bodz.uni.site.util.DebControlParser;
 
 public class Section
         extends AbstractXjdocContent
-        implements IPathDispatchable, ICrawlable {
+        implements
+            IPathDispatchable,
+            ICrawlable {
 
     static final Logger logger = LoggerFactory.getLogger(Section.class);
 
@@ -165,7 +167,7 @@ public class Section
         if (project == null)
             return null;
         else
-            return PathArrival.shift(previous, project, tokens);
+            return PathArrival.shift(previous, this, project, tokens);
     }
 
     @Override

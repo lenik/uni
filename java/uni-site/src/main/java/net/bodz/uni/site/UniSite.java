@@ -138,7 +138,7 @@ public class UniSite
 
         Section section = sectionMap.get(token);
         if (section != null)
-            return PathArrival.shift(previous, section, tokens);
+            return PathArrival.shift(previous, this, section, tokens);
 
         return super.dispatch(previous, tokens, q);
     }

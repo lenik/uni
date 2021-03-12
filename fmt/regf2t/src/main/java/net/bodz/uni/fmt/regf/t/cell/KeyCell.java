@@ -1,7 +1,6 @@
 package net.bodz.uni.fmt.regf.t.cell;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 
 import net.bodz.bas.data.address.IAddressedObjectManager;
 import net.bodz.bas.err.ParseException;
@@ -222,14 +221,14 @@ public class KeyCell
     static final KeyFlagsTyper flagsTyper = new KeyFlagsTyper();
 
     @Override
-    public boolean writeObjectFieldOverride(IRstOutput out, Field field)
+    public boolean writeEntryOverride(IRstOutput out, String field)
             throws IOException {
-        switch (field.getName()) {
+        switch (field) {
         case "flags":
             out._attribute("flags", flagsTyper.format(flags & 0xffff));
             return true;
         }
-        return super.writeObjectFieldOverride(out, field);
+        return super.writeEntryOverride(out, field);
     }
 
     @Override

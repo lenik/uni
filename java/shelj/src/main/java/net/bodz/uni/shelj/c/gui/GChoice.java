@@ -7,8 +7,8 @@ import org.eclipse.swt.SWT;
 
 import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.meta.build.MainVersion;
+import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.swt.c.dialog.SwtUserDialogs;
 import net.bodz.swt.program.BasicGUI;
 

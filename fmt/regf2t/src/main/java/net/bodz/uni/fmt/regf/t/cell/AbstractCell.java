@@ -1,7 +1,6 @@
 package net.bodz.uni.fmt.regf.t.cell;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 
 import net.bodz.bas.data.address.IAddressed;
 import net.bodz.bas.err.ParseException;
@@ -87,7 +86,7 @@ public abstract class AbstractCell
             throws IOException;
 
     @Override
-    public String[] getElementArguments() {
+    public String[] getRstElementArguments() {
         String type = getClass().getSimpleName();
         return new String[] { type };
     }
@@ -95,14 +94,14 @@ public abstract class AbstractCell
     static final Cc2Typer CC2_TYPER = new Cc2Typer();
 
     @Override
-    public boolean writeObjectFieldOverride(IRstOutput out, Field field)
+    public boolean writeEntryOverride(IRstOutput out, String field)
             throws IOException {
-        switch (field.getName()) {
+        switch (field) {
         case "magic":
             out.attribute("magic", CC2_TYPER.format(getMagic()));
             return true;
         }
-        return super.writeObjectFieldOverride(out, field);
+        return super.writeEntryOverride(out, field);
     }
 
     @Override

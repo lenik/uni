@@ -3,7 +3,7 @@ package net.bodz.uni.crypt.pgp;
 import net.bodz.bas.data.mem.IMemory;
 import net.bodz.bas.data.mem.MemoryAccessException;
 import net.bodz.bas.i18n.nls.II18nCapable;
-import net.bodz.bas.t.range.IntRange;
+import net.bodz.bas.t.range.IntegerRange;
 
 /**
  * PGP CRC32
@@ -16,7 +16,7 @@ public class PgpCrc32
      *
      * @option =FROM,TO
      */
-    IntRange fillRange;
+    IntegerRange fillRange;
 
     /**
      * Bytes to pad

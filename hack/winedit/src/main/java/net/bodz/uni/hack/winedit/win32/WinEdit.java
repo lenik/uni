@@ -15,11 +15,12 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.*;
 
 import net.bodz.bas.meta.build.MainVersion;
+import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.meta.compile.Win32Only;
-import net.bodz.bas.program.meta.ProgramName;
+import net.bodz.bas.meta.source.Win32Only;
 import net.bodz.jna.win32.GDI32.RECT;
-import net.bodz.jna.win32.*;
+import net.bodz.jna.win32.IWin32;
+import net.bodz.jna.win32.User32;
 import net.bodz.jna.win32.User32.POINT;
 import net.bodz.jna.win32.User32.POINTByValue;
 import net.bodz.jna.win32.User32.WNDENUMPROC;

@@ -13,10 +13,10 @@ import net.bodz.bas.io.res.tools.StreamReading;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
+import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.bas.program.skel.BasicCLI;
-import net.bodz.bas.t.range.IntRange;
+import net.bodz.bas.t.range.IntegerRange;
 import net.bodz.bas.vfs.IFile;
 import net.bodz.uni.crypt.pgp.Hashes.PeekDigest;
 
@@ -50,7 +50,7 @@ public class FindHash
      *
      * @option -r --range =FROM,TO
      */
-    IntRange[] ranges;
+    IntegerRange[] ranges;
 
     @Override
     protected void reconfigure()
@@ -66,12 +66,12 @@ public class FindHash
 
     class FindContext {
         byte[] data;
-        IntRange[] ranges;
+        IntegerRange[] ranges;
         // int[] rangeVal;
         MessageDigest cont;
         int count;
 
-        public FindContext(byte[] data, IntRange[] ranges, MessageDigest cont) {
+        public FindContext(byte[] data, IntegerRange[] ranges, MessageDigest cont) {
             this.data = data;
             this.ranges = ranges;
             // this.rangeVal = new int[ranges.length];
@@ -88,7 +88,7 @@ public class FindHash
 
         void find(String rangesPrefix, int rangeIndex, MessageDigest cont)
                 throws CloneNotSupportedException {
-            IntRange range = ranges[rangeIndex];
+            IntegerRange range = ranges[rangeIndex];
             // wordSize = BYTE
             int nextRange = rangeIndex + 1;
             for (int from = range.start; from < range.end; from++) {
@@ -139,9 +139,9 @@ public class FindHash
     public void findFileRangeForHash(IFile file)
             throws Exception {
         byte[] data = file.to(StreamReading.class).read();
-        IntRange[] ranges = this.ranges;
+        IntegerRange[] ranges = this.ranges;
         if (ranges == null)
-            ranges = new IntRange[] { new IntRange(0, data.length), };
+            ranges = new IntegerRange[] { new IntegerRange(0, data.length), };
         new FindContext(data, ranges, digest).find();
     }
 

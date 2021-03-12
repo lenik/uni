@@ -4,7 +4,7 @@ import org.eclipse.swt.widgets.Display;
 
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
-import net.bodz.bas.program.meta.ProgramName;
+import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.swt.program.BasicGUI;
 
 @ProgramName("privtalk")

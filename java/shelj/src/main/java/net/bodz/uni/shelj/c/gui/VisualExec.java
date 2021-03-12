@@ -12,8 +12,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 import net.bodz.bas.meta.build.MainVersion;
+import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
-import net.bodz.bas.program.meta.ProgramName;
 import net.bodz.swt.program.BasicGUI;
 
 /**

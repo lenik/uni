@@ -8,7 +8,7 @@ import org.junit.Assert;
 import net.bodz.bas.data.address.AddressedObjectManager;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.err.UnexpectedException;
-import net.bodz.bas.fmt.rst.RstObject;
+import net.bodz.bas.fmt.rst.RstFn;
 import net.bodz.bas.io.ICharOut;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.Stdio;
@@ -45,7 +45,8 @@ public class Regf2tTest
         ICharOut out = Stdio.cout;
         out = new WriterCharOut(new FileWriter("/tmp/dump"));
 
-        RstObject.fn.dump(file, out);
+        String rst = RstFn.toString(file);
+        out.write(rst);
     }
 
 }

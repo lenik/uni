@@ -1,7 +1,6 @@
 package net.bodz.uni.fmt.regf.t.cell;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 
 import net.bodz.bas.data.address.IAddressedObjectManager;
@@ -144,15 +143,15 @@ public class ValueCell
     }
 
     @Override
-    public boolean writeObjectFieldOverride(IRstOutput out, Field field)
+    public boolean writeEntryOverride(IRstOutput out, String field)
             throws IOException {
-        switch (field.getName()) {
+        switch (field) {
         case "valueType":
             String valueTypeName = RegValueType.values()[valueType].name();
             out._attribute("valueType", valueTypeName);
             return true;
         }
-        return super.writeObjectFieldOverride(out, field);
+        return super.writeEntryOverride(out, field);
     }
 
     @Override

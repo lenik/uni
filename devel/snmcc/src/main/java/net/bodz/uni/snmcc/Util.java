@@ -1,6 +1,9 @@
 package net.bodz.uni.snmcc;
 
-import net.bodz.bas.c.java.util.regex.PatternProcessor;
+import java.util.regex.Matcher;
+
+import net.bodz.bas.c.java.util.regex.IPartProcessor;
+import net.bodz.bas.c.java.util.regex.TextPrepByParts;
 
 public class Util {
 
@@ -23,13 +26,14 @@ public class Util {
      * @return VRT-wrapper stripped string, or null if string doesn't contain VRT.
      */
     public static String parseVRT(String string) {
-        PatternProcessor pp = new PatternProcessor("VRT_(\\w+?)_TRV") {
+        TextPrepByParts pp = TextPrepByParts.match("VRT_(\\w+?)_TRV", new IPartProcessor() {
+
             @Override
-            protected void matched(String part) {
+            public String process(String part, Matcher matcher) {
                 String var = matcher.group(1);
-                append(var);
+                return var;
             }
-        };
+        });
 
         String stripped = pp.process(string);
         if (pp.getMatchedCount() > 0)
