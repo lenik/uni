@@ -4,6 +4,7 @@
         <groupId>net.bodz</groupId>
         <artifactId>parent</artifactId>
         <version>1-SNAPSHOT</version>
+        <relativePath></relativePath>
     </parent>
     <groupId>net.bodz.uni</groupId>
     <artifactId>uni</artifactId>

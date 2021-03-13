@@ -1,12 +1,18 @@
 package net.bodz.uni.catme;
 
-import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 public class Frame {
 
-    File file;
+    int echo;
+    int skip;
+
     Map<String, Object> vars;
-    Map<String, StreamDef> streams;
+    List<Object> filters;
+
+    public String filter(String s) {
+        return s;
+    }
 
 }
