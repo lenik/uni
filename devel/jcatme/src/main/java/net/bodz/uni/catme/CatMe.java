@@ -1,5 +1,7 @@
 package net.bodz.uni.catme;
 
+import java.io.File;
+
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
@@ -17,6 +19,15 @@ public class CatMe
     @Override
     protected void mainImpl(String... args)
             throws Exception {
+        MainParser parser = new MainParser();
+        for (String arg : args) {
+            File file = new File(arg);
+            if (file.exists()) {
+                parser.parse(file);
+                continue;
+            }
+            throw new IllegalArgumentException("invalid argument: " + arg);
+        }
     }
 
     public static void main(String[] args)

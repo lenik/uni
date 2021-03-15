@@ -15,6 +15,11 @@ public class FileFrame
     String simpleOpener;
 
     public FileFrame(File file) {
+        this(null, file);
+    }
+
+    public FileFrame(Frame parent, File file) {
+        super(parent);
         this.file = file;
         String extension = getExtension();
         lang = SrcLangType.forExtension(extension);
