@@ -12,9 +12,9 @@ import net.bodz.bas.c.string.StringPred;
 
 public class Frame {
 
-    final Frame parent;
-
     static final int SKIP_TO_END = -1;
+
+    final Frame parent;
 
     int echo;
     int skip;

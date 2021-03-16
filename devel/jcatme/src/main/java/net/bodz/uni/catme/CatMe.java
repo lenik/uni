@@ -23,7 +23,7 @@ public class CatMe
         for (String arg : args) {
             File file = new File(arg);
             if (file.exists()) {
-                parser.parse(file);
+                parser.parseFile(file);
                 continue;
             }
             throw new IllegalArgumentException("invalid argument: " + arg);

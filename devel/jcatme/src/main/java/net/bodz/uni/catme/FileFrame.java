@@ -9,11 +9,6 @@ public class FileFrame
 
     File file;
 
-    SrcLangType lang;
-    String opener;
-    String closer;
-    String simpleOpener;
-
     public FileFrame(File file) {
         this(null, file);
     }
@@ -21,11 +16,6 @@ public class FileFrame
     public FileFrame(Frame parent, File file) {
         super(parent);
         this.file = file;
-        String extension = getExtension();
-        lang = SrcLangType.forExtension(extension);
-        opener = lang.opener;
-        closer = lang.closer;
-        simpleOpener = lang.simpleOpener;
     }
 
     public String getPath() {
