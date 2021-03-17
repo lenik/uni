@@ -32,7 +32,7 @@ libbas-d.a.dmd:
 
 %.o: %.d ${dist_libbas_d_a_SOURCES}
 	gdc -c -static -o $@ \
-            -fintfc -fintfc-dir=include/$(dir $@) \
+            -H -Hd include/$(dir $@) \
             -fdoc -fdoc-dir=doc/$(dir $@) \
             $<
 

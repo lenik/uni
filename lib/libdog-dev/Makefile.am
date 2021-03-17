@@ -19,7 +19,7 @@ libdog.a: ${d_objs}
 
 %.o: %.d ${d_sources}
 	gdc -c -o $@ \
-	    -fintfc -fintfc-dir=include/$(dir $@) \
+	    -H -Hd include/$(dir $@) \
 	    -fdoc -fdoc-dir=doc/$(dir $@) \
 	    $<
 

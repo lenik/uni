@@ -3,8 +3,7 @@ include libauto/project.am
 dcompiler = gdc \
     -O3 -frelease \
     -I/usr/include/d2/site \
-    -fignore-unknown-pragmas \
-    -fproperty
+    -fignore-unknown-pragmas
 
 bin_PROGRAMS = \
     mjpl$(EXEEXT)

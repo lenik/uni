@@ -1,7 +1,7 @@
 #!/usr/bin/dprog -ig
 module mjpl;
 
-import std.c.stdlib : exit;
+import core.stdc.stdlib; // : exit;
 import std.algorithm : sort;
 import std.conv : to;
 import std.file;
