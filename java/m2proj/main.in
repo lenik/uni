@@ -12,6 +12,7 @@
     . shlib-import cliboot
     option -d --debug       "Enable debug mode"
     option -p --port =PORT  "Specify debug (JDWP) port, default 8000"
+    option -t --time        "Measure run time"
     option -q --quiet
     option -v --verbose
     option -h --help
@@ -20,6 +21,7 @@
     opt_orderfile=order.lst
     opt_debug=
     opt_port=8000
+    opt_time=
 
     shopt -s nullglob
 
@@ -29,6 +31,8 @@ function setopt() {
             opt_debug=1;;
         -p|--jdwp-port)
             opt_port=$2;;
+        -t|--time)
+            opt_time=1;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -100,8 +104,15 @@ function main() {
     add_cp target/test-classes
     classpath="${classpath#:}"
 
-    _log2 "Execute: $JAVA $JAVAOPTS -cp ... $appcls $*"
-    $JAVA $JAVAOPTS -cp "$classpath" "$appcls" "$@"
+    TIME=
+    if [ "$opt_time" = 1 ]; then TIME=do_time; fi
+
+    _log2 "Execute:$TIME $JAVA $JAVAOPTS -cp ... $appcls $*"
+    eval $TIME $JAVA $JAVAOPTS -cp "$classpath" "$appcls" "$@"
+}
+
+function do_time() {
+    time "$@"
 }
 
 function add_cp() {
