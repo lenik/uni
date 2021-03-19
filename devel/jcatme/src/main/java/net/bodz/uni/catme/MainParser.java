@@ -3,6 +3,7 @@ package net.bodz.uni.catme;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,13 +11,17 @@ import java.util.Map;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.graalvm.polyglot.HostAccess.Export;
+
 import net.bodz.bas.c.java.io.LineReader;
+import net.bodz.bas.c.m2.MavenPomDir;
 import net.bodz.bas.c.string.StringQuoted;
 import net.bodz.bas.c.system.SystemProperties;
+import net.bodz.bas.io.res.AbstractStreamResource;
 import net.bodz.bas.io.res.builtin.FileResource;
+import net.bodz.bas.io.res.builtin.URLResource;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 
@@ -39,8 +44,8 @@ public class MainParser {
     public static final String TEXT = "text";
     Map<String, StringBuffer> streams = new HashMap<>();
 
-    final ScriptEngine scriptEngine;
-    final Invocable invocable;
+    ScriptEngine scriptEngine;
+    Invocable scriptInvocable;
 
     PrintStream out = System.out;
 
@@ -58,23 +63,33 @@ public class MainParser {
         if (LIB != null)
             fileSearcher.addPathEnv(LIB);
 
-        ScriptEngineManager manager = new ScriptEngineManager();
-        scriptEngine = manager.getEngineByName("nashorn");
-        invocable = (Invocable) scriptEngine;
+        scriptEngine = ScriptSupport.getInstance().getEngine();
+        scriptInvocable = (Invocable) scriptEngine;
+
+        scriptEngine.put("parser", this);
+
+        String fileName = "js/main.js";
+        String mainjs = loadTextResource(fileName);
+        if (mainjs != null)
+            try {
+                scriptEngine.put(ScriptEngine.FILENAME, fileName);
+                scriptEngine.eval(mainjs);
+            } catch (Throwable e) {
+                logger.error("Failed to load main.js: " + e.getMessage(), e);
+            }
     }
 
-    public ScriptFunction getFunction(String function) {
-        return new ScriptFunction(invocable, function);
-    }
-
+    @Export
     public Object eval(String code)
             throws ScriptException {
         Object retval = scriptEngine.eval(code);
         return retval;
     }
 
+    @Export
     public void parseFile(File file)
             throws IOException {
+        logger.info("parseFile: " + file);
         FileFrame fileFrame = new FileFrame(file);
         String ext = fileFrame.getExtensionWithDot();
 
@@ -108,17 +123,12 @@ public class MainParser {
         }
     }
 
-    enum ParserState {
-        NORMAL,
-        IBUF,
-    }
-
     void parse(Frame frame, LineReader lineReader)
             throws IOException {
         String line;
-        ParserState state = ParserState.NORMAL;
+        // ParserState state = ParserState.NORMAL;
         StringBuilder commentLines = new StringBuilder();
-        StringBuilder commentBlock = new StringBuilder();
+        // StringBuilder commentBlock = new StringBuilder();
 
         while ((line = lineReader.readLine()) != null) {
             int pos;
@@ -163,30 +173,48 @@ public class MainParser {
 
     } // while
 
+    @Export
     void parseLeftText(Frame frame, String text)
             throws IOException {
         parseText(frame, text);
     }
 
+    @Export
     void parseRightText(Frame frame, String text)
             throws IOException {
         parseText(frame, text);
     }
 
+    @Export
     void parseText(Frame frame, String text)
             throws IOException {
+        scriptEngine.put("frame", frame);
         out.print(text);
     }
 
+    @Export
     void parseInstruction(Frame frame, String instruction)
             throws IOException {
         String[] args = StringQuoted.split(instruction);
         List<String> list = new ArrayList<>();
         for (String arg : args)
             list.add(arg);
-        // jsengine.eval(parseInstruction)
+
+        try {
+            scriptEngine.put("frame", frame);
+            scriptInvocable.invokeFunction("parseInstruction", list);
+        } catch (Exception e) {
+            logger.error("Failed to parse at js side: " + e.getMessage(), e);
+            // throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
+    @Export
+    public SrcLangType getLang() {
+        return lang;
+    }
+
+    @Export
     public String getOpener() {
         return opener;
     }
@@ -195,6 +223,7 @@ public class MainParser {
         this.opener = opener;
     }
 
+    @Export
     public String getCloser() {
         return closer;
     }
@@ -203,6 +232,7 @@ public class MainParser {
         this.closer = closer;
     }
 
+    @Export
     public String getSimpleOpener() {
         return simpleOpener;
     }
@@ -211,6 +241,7 @@ public class MainParser {
         this.simpleOpener = simpleOpener;
     }
 
+    @Export
     public String getEscapePrefix() {
         return escapePrefix;
     }
@@ -221,6 +252,38 @@ public class MainParser {
         if (escapePrefix.isEmpty())
             throw new IllegalArgumentException("escapePrefix is empty.");
         this.escapePrefix = escapePrefix;
+    }
+
+    MavenPomDir pomDir = MavenPomDir.fromClass(getClass());
+
+    @Export
+    public String loadTextResource(String filename)
+            throws IOException {
+        AbstractStreamResource res = findResource(filename);
+        if (res == null) {
+            logger.error("Can't find resource " + filename);
+            return null;
+        }
+        String text = res.read().readString();
+        return text;
+    }
+
+    @Export
+    public AbstractStreamResource findResource(String filename) {
+        if (pomDir != null) {
+            File resdir = pomDir.getResourceDir(getClass());
+            File resfile = new File(resdir, filename);
+            if (resfile.exists())
+                return new FileResource(resfile);
+        }
+
+        URL url = getClass().getResource(filename);
+        if (url != null)
+            return new URLResource(url);
+
+        for (File file : fileSearcher.search(filename))
+            return new FileResource(file);
+        return null;
     }
 
 }

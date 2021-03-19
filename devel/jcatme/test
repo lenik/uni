@@ -1,0 +1,21 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    MAIN=`which main`
+
+    . shlib
+    import cliboot
+    import findabc
+
+    . /usr/share/bash-alias/aliases/cooltask.sh
+    sqldir=`findcont %cooltask job cam19 sql`
+    _log2 "sql dir: $sqldir"
+
+    $MAIN \
+        -O -Dpolyglot.inspect=localhost:9229 \
+        -O -Dpolyglot.inspect.Secure=false \
+        CatMe "$@" $sqldir/cam19.sql
+
