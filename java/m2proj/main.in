@@ -13,6 +13,7 @@
     option -d --debug       "Enable debug mode"
     option -p --port =PORT  "Specify debug (JDWP) port, default 8000"
     option -t --time        "Measure run time"
+    option -O --java-opt =STR "Add java option, eg. -O -Dfoo=bar or -O-Dfoo=bar"
     option -q --quiet
     option -v --verbose
     option -h --help
@@ -22,6 +23,7 @@
     opt_debug=
     opt_port=8000
     opt_time=
+    opt_javaopts=()
 
     shopt -s nullglob
 
@@ -33,6 +35,8 @@ function setopt() {
             opt_port=$2;;
         -t|--time)
             opt_time=1;;
+        -O|--java-opt)
+            opt_javaopts=("${opt_javaopts[@]}" "$2");;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -64,6 +68,10 @@ function main() {
         JAVAOPTS="$JAVAOPTS -Xrunjdwp:$JDWPOPTS"
         #JAVAOPTS="$JAVAOPTS -agentlib:jdwp=$JDWPOPTS"
     fi
+
+    for jo in "${opt_javaopts[@]}"; do
+        JAVAOPTS="$JAVAOPTS $jo"
+    done
 
     appcls=()
     for a in $(find target/classes -iname "$name.class"); do
