@@ -3,116 +3,94 @@ package net.bodz.uni.catme;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
-
-import org.graalvm.polyglot.HostAccess.Export;
+import org.graalvm.polyglot.Value;
 
 import net.bodz.bas.c.java.io.LineReader;
-import net.bodz.bas.c.m2.MavenPomDir;
 import net.bodz.bas.c.string.StringQuoted;
-import net.bodz.bas.c.system.SystemProperties;
-import net.bodz.bas.io.res.AbstractStreamResource;
+import net.bodz.bas.err.NotImplementedException;
+import net.bodz.bas.fn.EvalException;
 import net.bodz.bas.io.res.builtin.FileResource;
-import net.bodz.bas.io.res.builtin.URLResource;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
+import net.bodz.uni.catme.io.ResourceResolver;
+import net.bodz.uni.catme.io.ResourceVariant;
+import net.bodz.uni.catme.js.IScriptContext;
+import net.bodz.uni.catme.js.PolyglotContext;
 
 public class MainParser {
 
     static final Logger logger = LoggerFactory.getLogger(MainParser.class);
 
-    File pkgdatadir = new File("/usr/share/catme");
-    File configDir;
-    FileSearcher fileSearcher = new FileSearcher();
-    List<File> libDirs;
+    public static final String VAR_APP = CatMe.class.getSimpleName();
+    public static final String VAR_THIS = MainParser.class.getSimpleName();
+    public static final String VAR_FRAME = Frame.class.getSimpleName();
+
+    CatMe app;
 
     SrcLangType lang;
+    String extension;
     String opener;
     String closer;
     String simpleOpener;
-    String escapePrefix = "\"";
+    String escapePrefix = "\\";
 
     /** main text stream (output) */
     public static final String TEXT = "text";
     Map<String, StringBuffer> streams = new HashMap<>();
 
-    ScriptEngine scriptEngine;
-    Invocable scriptInvocable;
+    public ResourceResolver resourceResolver = new ResourceResolver();
+    IScriptContext scriptContext;
 
     PrintStream out = System.out;
 
-    public MainParser()
+    public MainParser(CatMe app)
             throws IOException {
-
-        String cwd = SystemProperties.getUserDir();
-        String home = SystemProperties.getUserHome();
-        if (home == null)
-            home = cwd;
-
-        this.configDir = new File(home + "/.config/catme");
-
-        String LIB = System.getenv("LIB");
-        if (LIB != null)
-            fileSearcher.addPathEnv(LIB);
-
-        scriptEngine = ScriptSupport.getInstance().getEngine();
-        scriptInvocable = (Invocable) scriptEngine;
-
-        scriptEngine.put("parser", this);
-
-        String fileName = "js/main.js";
-        String mainjs = loadTextResource(fileName);
-        if (mainjs != null)
-            try {
-                scriptEngine.put(ScriptEngine.FILENAME, fileName);
-                scriptEngine.eval(mainjs);
-            } catch (Throwable e) {
-                logger.error("Failed to load main.js: " + e.getMessage(), e);
-            }
+        this.app = app;
     }
 
-    @Export
     public Object eval(String code)
-            throws ScriptException {
-        Object retval = scriptEngine.eval(code);
-        return retval;
+            throws EvalException, IOException {
+        if (code == null)
+            throw new NullPointerException("code");
+        return scriptContext.eval(code);
     }
 
-    @Export
+    public Object eval(String code, String fileName)
+            throws EvalException, IOException {
+        if (code == null)
+            throw new NullPointerException("code");
+        return scriptContext.eval(code, fileName);
+    }
+
+    public PrintStream getOut() {
+        return out;
+    }
+
     public void parseFile(File file)
-            throws IOException {
+            throws IOException, EvalException {
         logger.info("parseFile: " + file);
         FileFrame fileFrame = new FileFrame(file);
-        String ext = fileFrame.getExtensionWithDot();
+        // String dotExt = fileFrame.getExtensionWithDot();
 
-        String extension = fileFrame.getExtension();
+        this.extension = fileFrame.getExtension();
         this.lang = SrcLangType.forExtension(extension);
         this.opener = lang.opener;
         this.closer = lang.closer;
         this.simpleOpener = lang.simpleOpener;
 
-        // fileSearcher.reset();
-        if (libDirs != null) {
-            for (File dir : libDirs)
-                fileSearcher.addSearchDir(dir);
-        }
-        String langLibName = lang.name() + "LIB";
-        String langLibPath = System.getenv(langLibName.toUpperCase());
-        if (langLibPath != null)
-            fileSearcher.addPathEnv(langLibPath);
+        scriptContext = PolyglotContext.js(resourceResolver);
+        scriptContext.put(VAR_APP, app);
+        scriptContext.put(VAR_THIS, this);
+        scriptContext.put(VAR_FRAME, fileFrame);
 
-        File sysPathDir = new File(pkgdatadir, "path" + "/" + ext);
-        fileSearcher.addPathDir(sysPathDir);
-        File userPathDir = new File(configDir, "path" + "/" + ext);
-        fileSearcher.addPathDir(userPathDir);
+        scriptContext.eval("load('./js/main.mjs')");
 
         FileResource resource = new FileResource(file, "utf-8");
         LineReader lineReader = resource.newLineReader();
@@ -173,48 +151,55 @@ public class MainParser {
 
     } // while
 
-    @Export
     void parseLeftText(Frame frame, String text)
             throws IOException {
         parseText(frame, text);
     }
 
-    @Export
     void parseRightText(Frame frame, String text)
             throws IOException {
         parseText(frame, text);
     }
 
-    @Export
     void parseText(Frame frame, String text)
             throws IOException {
-        scriptEngine.put("frame", frame);
+        scriptContext.put(VAR_FRAME, frame);
         out.print(text);
     }
 
-    @Export
+    Value cmdlineParser;
+
+    public Value getCmdlineParser() {
+        return cmdlineParser;
+    }
+
+    public void setCmdlineParser(Value cmdlineParser) {
+        this.cmdlineParser = cmdlineParser;
+    }
+
     void parseInstruction(Frame frame, String instruction)
             throws IOException {
+        if (cmdlineParser == null)
+            throw new IllegalStateException("cmdlineParser wasn't set.");
+
         String[] args = StringQuoted.split(instruction);
         List<String> list = new ArrayList<>();
         for (String arg : args)
             list.add(arg);
 
         try {
-            scriptEngine.put("frame", frame);
-            scriptInvocable.invokeFunction("parseInstruction", list);
+            scriptContext.put(VAR_FRAME, frame);
+            cmdlineParser.invokeMember("apply", null, list);
         } catch (Exception e) {
             logger.error("Failed to parse at js side: " + e.getMessage(), e);
             // throw new RuntimeException(e.getMessage(), e);
         }
     }
 
-    @Export
     public SrcLangType getLang() {
         return lang;
     }
 
-    @Export
     public String getOpener() {
         return opener;
     }
@@ -223,7 +208,6 @@ public class MainParser {
         this.opener = opener;
     }
 
-    @Export
     public String getCloser() {
         return closer;
     }
@@ -232,7 +216,6 @@ public class MainParser {
         this.closer = closer;
     }
 
-    @Export
     public String getSimpleOpener() {
         return simpleOpener;
     }
@@ -241,7 +224,6 @@ public class MainParser {
         this.simpleOpener = simpleOpener;
     }
 
-    @Export
     public String getEscapePrefix() {
         return escapePrefix;
     }
@@ -254,36 +236,41 @@ public class MainParser {
         this.escapePrefix = escapePrefix;
     }
 
-    MavenPomDir pomDir = MavenPomDir.fromClass(getClass());
+    public Set<String> imported = new HashSet<>();
 
-    @Export
-    public String loadTextResource(String filename)
+    public String resolveQName(String fqn)
             throws IOException {
-        AbstractStreamResource res = findResource(filename);
-        if (res == null) {
-            logger.error("Can't find resource " + filename);
-            return null;
-        }
-        String text = res.read().readString();
-        return text;
+        String fileName = fqn.replace('.', '/') + "." + extension;
+        return fileName;
     }
 
-    @Export
-    public AbstractStreamResource findResource(String filename) {
-        if (pomDir != null) {
-            File resdir = pomDir.getResourceDir(getClass());
-            File resfile = new File(resdir, filename);
-            if (resfile.exists())
-                return new FileResource(resfile);
+    public void parseChild(Frame parent, String href)
+            throws IOException {
+        ResourceVariant resource = resourceResolver.findResource(href);
+        if (resource == null)
+            throw new IOException("Can't find file " + href + ".");
+        if (resource.type != ResourceVariant.FILE)
+            throw new NotImplementedException();
+
+        File file = resource.file;
+        logger.info("parseChild: " + file);
+        FileFrame childFrame = new FileFrame(parent, file);
+
+        // XXX
+        this.extension = childFrame.getExtension();
+        this.lang = SrcLangType.forExtension(extension);
+        this.opener = lang.opener;
+        this.closer = lang.closer;
+        this.simpleOpener = lang.simpleOpener;
+
+        scriptContext.put(VAR_FRAME, childFrame);
+
+        LineReader lineReader = resource.toResource().newLineReader();
+        try {
+            parse(childFrame, lineReader);
+        } finally {
+            lineReader.close();
         }
-
-        URL url = getClass().getResource(filename);
-        if (url != null)
-            return new URLResource(url);
-
-        for (File file : fileSearcher.search(filename))
-            return new FileResource(file);
-        return null;
     }
 
 }

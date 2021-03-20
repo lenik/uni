@@ -7,8 +7,6 @@ import java.util.StringTokenizer;
 
 import javax.script.Invocable;
 
-import org.graalvm.polyglot.HostAccess.Export;
-
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.string.StringPred;
 
@@ -30,22 +28,18 @@ public class Frame {
         this.parent = parent;
     }
 
-    @Export
     public Frame getParent() {
         return parent;
     }
 
-    @Export
     public int getEcho() {
         return echo;
     }
 
-    @Export
     public void setEcho(int echo) {
         this.echo = echo;
     }
 
-    @Export
     public int getSkip() {
         return skip;
     }
@@ -54,7 +48,14 @@ public class Frame {
         this.skip = skip;
     }
 
-    @Export
+    public String getSkipToPattern() {
+        return skipToPattern;
+    }
+
+    public void setSkipToPattern(String skipToPattern) {
+        this.skipToPattern = skipToPattern;
+    }
+
     public void parseEcho(String echoSpec) {
         if (echoSpec.isEmpty()) {
             this.echo = 1;
@@ -67,7 +68,6 @@ public class Frame {
         }
     }
 
-    @Export
     public void parseSkip(String skipSpec) {
         if (skipSpec.isEmpty()) {
             skip = SKIP_TO_END;
@@ -96,7 +96,6 @@ public class Frame {
         }
     }
 
-    @Export
     public synchronized boolean isCommandDefined(String name) {
         if (commands != null)
             if (commands.containsKey(name))
@@ -106,7 +105,6 @@ public class Frame {
         return false;
     }
 
-    @Export
     public synchronized Command getCommand(String name) {
         if (commands != null)
             if (commands.containsKey(name)) {
@@ -118,21 +116,18 @@ public class Frame {
         return null;
     }
 
-    @Export
     public synchronized void register(Command command) {
-        String name = command.getName();
+        String name = command.name;
         if (commands == null)
             commands = new HashMap<>();
         commands.put(name, command);
     }
 
-    @Export
     public synchronized void unregister(String command) {
         if (commands != null)
             commands.remove(command);
     }
 
-    @Export
     public synchronized boolean isVarDefined(String name) {
         if (vars != null)
             if (vars.containsKey(name))
@@ -142,7 +137,6 @@ public class Frame {
         return false;
     }
 
-    @Export
     public synchronized <T> T getVar(String name) {
         if (vars != null)
             if (vars.containsKey(name)) {
@@ -155,19 +149,16 @@ public class Frame {
         return null;
     }
 
-    @Export
     public synchronized void define(String name, Object value) {
         if (vars == null)
             vars = new HashMap<>();
         vars.put(name, value);
     }
 
-    @Export
     public void undefine(String name) {
         vars.remove(name);
     }
 
-    @Export
     public synchronized String filter(String s) {
         if (filters != null)
             for (FilterEntry entry : filters)
@@ -179,13 +170,11 @@ public class Frame {
         return s;
     }
 
-    @Export
     public void beginFilter(ITextFilter filter, String key) {
         FilterEntry entry = new FilterEntry(key, filter);
         filters.push(entry);
     }
 
-    @Export
     public FilterEntry endFilter(String key) {
         if (filters.isEmpty())
             throw new IllegalStateException("No filter in use in the current frame.");
@@ -196,7 +185,6 @@ public class Frame {
         return top;
     }
 
-    @Export
     public void beginScriptFilter(Invocable invocable, String function) {
         ScriptFilter filter = new ScriptFilter(invocable, function);
         beginFilter(filter, null);

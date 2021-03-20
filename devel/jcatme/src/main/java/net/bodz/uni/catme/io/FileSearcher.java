@@ -1,4 +1,4 @@
-package net.bodz.uni.catme;
+package net.bodz.uni.catme.io;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,16 +18,22 @@ public class FileSearcher {
 
     static final Logger logger = LoggerFactory.getLogger(FileSearcher.class);
 
-    Set<File> dirs = new LinkedHashSet<>();
+    List<File> dirs = new ArrayList<>();
 
     static final String pathSeparator = SystemProperties.getPathSeparator();
 
     public int addPathEnv(String env) {
+        return addPathEnv(env, null);
+    }
+
+    public int addPathEnv(String env, String dirPrefix) {
         StringTokenizer tokens = new StringTokenizer(env, pathSeparator);
         int count = 0;
         while (tokens.hasMoreTokens()) {
-            String token = tokens.nextToken();
-            if (addSearchDir(token))
+            String dir = tokens.nextToken();
+            if (dirPrefix != null)
+                dir += dirPrefix;
+            if (addSearchDir(dir))
                 count++;
         }
         return count;

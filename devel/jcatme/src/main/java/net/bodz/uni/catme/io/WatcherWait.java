@@ -1,4 +1,4 @@
-package net.bodz.uni.catme;
+package net.bodz.uni.catme.io;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -133,7 +133,8 @@ public class WatcherWait
     }
 
     void process(WatchKey key, Path dir) {
-        for (WatchEvent<?> event : key.pollEvents()) {
+        List<WatchEvent<?>> events = key.pollEvents();
+        for (WatchEvent<?> event : events) {
             WatchEvent.Kind<?> kind = event.kind();
             if (kind == OVERFLOW)
                 continue;
@@ -152,14 +153,19 @@ public class WatcherWait
                 }
 
             if (callback != null) {
-                callback.onEvent(dir, event);
+                boolean cancel = false;
+                if (cancel = callback.onEvent(dir, event))
+                    break;
 
                 if (kind == ENTRY_CREATE)
-                    callback.onCreate(child);
+                    cancel = callback.onCreate(child);
                 else if (kind == ENTRY_DELETE)
-                    callback.onDelete(child);
+                    cancel = callback.onDelete(child);
                 else if (kind == ENTRY_MODIFY)
-                    callback.onModify(child);
+                    cancel = callback.onModify(child);
+
+                if (cancel)
+                    break;
             }
         }
 
