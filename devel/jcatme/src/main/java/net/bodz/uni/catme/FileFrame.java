@@ -5,16 +5,16 @@ import java.io.File;
 import net.bodz.bas.c.java.io.FilePath;
 
 public class FileFrame
-        extends Frame {
+        extends AbstractFrame {
 
     File file;
 
-    public FileFrame(File file) {
-        this(null, file);
+    public FileFrame(MainParser parser, File file) {
+        this(null, parser, file);
     }
 
-    public FileFrame(Frame parent, File file) {
-        super(parent);
+    public FileFrame(IFrame parent, MainParser parser, File file) {
+        super(parent, parser);
         this.file = file;
     }
 

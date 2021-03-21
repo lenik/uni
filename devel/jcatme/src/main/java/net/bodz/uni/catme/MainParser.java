@@ -30,7 +30,7 @@ public class MainParser {
 
     public static final String VAR_APP = CatMe.class.getSimpleName();
     public static final String VAR_THIS = MainParser.class.getSimpleName();
-    public static final String VAR_FRAME = Frame.class.getSimpleName();
+    public static final String VAR_FRAME = IFrame.class.getSimpleName();
 
     CatMe app;
 
@@ -76,7 +76,7 @@ public class MainParser {
     public void parseFile(File file)
             throws IOException, EvalException {
         logger.info("parseFile: " + file);
-        FileFrame fileFrame = new FileFrame(file);
+        FileFrame fileFrame = new FileFrame(this, file);
         // String dotExt = fileFrame.getExtensionWithDot();
 
         this.extension = fileFrame.getExtension();
@@ -101,7 +101,7 @@ public class MainParser {
         }
     }
 
-    void parse(Frame frame, LineReader lineReader)
+    void parse(IFrame IFrame, LineReader lineReader)
             throws IOException {
         String line;
         // ParserState state = ParserState.NORMAL;
@@ -117,11 +117,11 @@ public class MainParser {
                 String comment = line.substring(pos + simpleOpener.length()).trim();
 
                 if (!comment.startsWith(escapePrefix) && commentLines.length() == 0) {
-                    parseText(frame, line);
+                    parseText(IFrame, line);
                     continue;
                 }
 
-                parseLeftText(frame, l);
+                parseLeftText(IFrame, l);
 
                 if (comment.endsWith(" \\")) {
                     commentLines.append(comment.substring(0, comment.length() - 2));
@@ -134,7 +134,7 @@ public class MainParser {
                     commentLines.setLength(0);
                 }
 
-                parseInstruction(frame, comment);
+                parseInstruction(IFrame, comment);
                 continue;
             }
 
@@ -142,28 +142,28 @@ public class MainParser {
                 logger.error("Unnecessary \\ at the end of comment.");
                 String comment = commentLines.toString();
                 commentLines.setLength(0);
-                parseInstruction(frame, comment);
+                parseInstruction(IFrame, comment);
                 continue;
             }
 
-            parseText(frame, line);
+            parseText(IFrame, line);
         } // while
 
     } // while
 
-    void parseLeftText(Frame frame, String text)
+    void parseLeftText(IFrame IFrame, String text)
             throws IOException {
-        parseText(frame, text);
+        parseText(IFrame, text);
     }
 
-    void parseRightText(Frame frame, String text)
+    void parseRightText(IFrame IFrame, String text)
             throws IOException {
-        parseText(frame, text);
+        parseText(IFrame, text);
     }
 
-    void parseText(Frame frame, String text)
+    void parseText(IFrame IFrame, String text)
             throws IOException {
-        scriptContext.put(VAR_FRAME, frame);
+        scriptContext.put(VAR_FRAME, IFrame);
         out.print(text);
     }
 
@@ -177,7 +177,7 @@ public class MainParser {
         this.cmdlineParser = cmdlineParser;
     }
 
-    void parseInstruction(Frame frame, String instruction)
+    void parseInstruction(IFrame IFrame, String instruction)
             throws IOException {
         if (cmdlineParser == null)
             throw new IllegalStateException("cmdlineParser wasn't set.");
@@ -188,7 +188,7 @@ public class MainParser {
             list.add(arg);
 
         try {
-            scriptContext.put(VAR_FRAME, frame);
+            scriptContext.put(VAR_FRAME, IFrame);
             cmdlineParser.invokeMember("apply", null, list);
         } catch (Exception e) {
             logger.error("Failed to parse at js side: " + e.getMessage(), e);
@@ -244,7 +244,7 @@ public class MainParser {
         return fileName;
     }
 
-    public void parseChild(Frame parent, String href)
+    public void parseChild(IFrame parent, String href)
             throws IOException {
         ResourceVariant resource = resourceResolver.findResource(href);
         if (resource == null)
@@ -254,7 +254,7 @@ public class MainParser {
 
         File file = resource.file;
         logger.info("parseChild: " + file);
-        FileFrame childFrame = new FileFrame(parent, file);
+        FileFrame childFrame = new FileFrame(parent, this, file);
 
         // XXX
         this.extension = childFrame.getExtension();
