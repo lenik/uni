@@ -30,16 +30,9 @@ public class MainParser {
 
     public static final String VAR_APP = CatMe.class.getSimpleName();
     public static final String VAR_THIS = MainParser.class.getSimpleName();
-    public static final String VAR_FRAME = IFrame.class.getSimpleName();
+    public static final String VAR_FRAME = "Frame";
 
     CatMe app;
-
-    SrcLangType lang;
-    String extension;
-    String opener;
-    String closer;
-    String simpleOpener;
-    String escapePrefix = "\\";
 
     /** main text stream (output) */
     public static final String TEXT = "text";
@@ -79,12 +72,6 @@ public class MainParser {
         FileFrame fileFrame = new FileFrame(this, file);
         // String dotExt = fileFrame.getExtensionWithDot();
 
-        this.extension = fileFrame.getExtension();
-        this.lang = SrcLangType.forExtension(extension);
-        this.opener = lang.opener;
-        this.closer = lang.closer;
-        this.simpleOpener = lang.simpleOpener;
-
         scriptContext = PolyglotContext.js(resourceResolver);
         scriptContext.put(VAR_APP, app);
         scriptContext.put(VAR_THIS, this);
@@ -101,8 +88,12 @@ public class MainParser {
         }
     }
 
-    void parse(IFrame IFrame, LineReader lineReader)
+    void parse(IFrame frame, LineReader lineReader)
             throws IOException {
+        FileFrame ff = frame.getClosestFileFrame();
+        String simpleOpener = ff.getSimpleOpener();
+        String escapePrefix = ff.getEscapePrefix();
+
         String line;
         // ParserState state = ParserState.NORMAL;
         StringBuilder commentLines = new StringBuilder();
@@ -117,11 +108,11 @@ public class MainParser {
                 String comment = line.substring(pos + simpleOpener.length()).trim();
 
                 if (!comment.startsWith(escapePrefix) && commentLines.length() == 0) {
-                    parseText(IFrame, line);
+                    parseText(frame, line);
                     continue;
                 }
 
-                parseLeftText(IFrame, l);
+                parseLeftText(frame, l);
 
                 if (comment.endsWith(" \\")) {
                     commentLines.append(comment.substring(0, comment.length() - 2));
@@ -134,7 +125,7 @@ public class MainParser {
                     commentLines.setLength(0);
                 }
 
-                parseInstruction(IFrame, comment);
+                parseInstruction(frame, comment);
                 continue;
             }
 
@@ -142,11 +133,11 @@ public class MainParser {
                 logger.error("Unnecessary \\ at the end of comment.");
                 String comment = commentLines.toString();
                 commentLines.setLength(0);
-                parseInstruction(IFrame, comment);
+                parseInstruction(frame, comment);
                 continue;
             }
 
-            parseText(IFrame, line);
+            parseText(frame, line);
         } // while
 
     } // while
@@ -196,53 +187,7 @@ public class MainParser {
         }
     }
 
-    public SrcLangType getLang() {
-        return lang;
-    }
-
-    public String getOpener() {
-        return opener;
-    }
-
-    public void setOpener(String opener) {
-        this.opener = opener;
-    }
-
-    public String getCloser() {
-        return closer;
-    }
-
-    public void setCloser(String closer) {
-        this.closer = closer;
-    }
-
-    public String getSimpleOpener() {
-        return simpleOpener;
-    }
-
-    public void setSimpleOpener(String simpleOpener) {
-        this.simpleOpener = simpleOpener;
-    }
-
-    public String getEscapePrefix() {
-        return escapePrefix;
-    }
-
-    public void setEscapePrefix(String escapePrefix) {
-        if (escapePrefix == null)
-            throw new NullPointerException("escapePrefix");
-        if (escapePrefix.isEmpty())
-            throw new IllegalArgumentException("escapePrefix is empty.");
-        this.escapePrefix = escapePrefix;
-    }
-
     public Set<String> imported = new HashSet<>();
-
-    public String resolveQName(String fqn)
-            throws IOException {
-        String fileName = fqn.replace('.', '/') + "." + extension;
-        return fileName;
-    }
 
     public void parseChild(IFrame parent, String href)
             throws IOException {
@@ -257,12 +202,6 @@ public class MainParser {
         FileFrame childFrame = new FileFrame(parent, this, file);
 
         // XXX
-        this.extension = childFrame.getExtension();
-        this.lang = SrcLangType.forExtension(extension);
-        this.opener = lang.opener;
-        this.closer = lang.closer;
-        this.simpleOpener = lang.simpleOpener;
-
         scriptContext.put(VAR_FRAME, childFrame);
 
         LineReader lineReader = resource.toResource().newLineReader();

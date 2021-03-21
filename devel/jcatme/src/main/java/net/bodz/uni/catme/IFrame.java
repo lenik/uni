@@ -1,5 +1,6 @@
 package net.bodz.uni.catme;
 
+import java.io.IOException;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.fn.EvalException;
@@ -60,8 +61,10 @@ public interface IFrame {
 
     MainParser getParser();
 
-    ResourceVariant resolveHref(String href);
+    ResourceVariant resolveHref(String href)
+            throws IOException;
 
-    ResourceVariant resolveQName(String href);
+    ResourceVariant resolveQName(String qName)
+            throws IOException;
 
 }

@@ -1,0 +1,22 @@
+#!/bin/bash
+    : ${MAIN:=`which main`}
+
+    script=$(readlink -f "$0")
+    project_dir="${script%/*}"
+    echo p=$project_dir
+
+    if [ "$1" == '-d' ]; then
+        shift
+        opt_debug=1
+    fi
+
+    mainopts=(-r "$project_dir")
+
+    if [ "$opt_debug" = 1 ]; then
+        mainopts=("${mainopts[@]}" -O -Dpolyglot.inspect=localhost:9229)
+        mainopts=("${mainopts[@]}" -O -Dpolyglot.inspect.Secure=false)
+    fi
+
+    echo $MAIN "${mainopts[@]}" CatMe "$@"
+    $MAIN "${mainopts[@]}" CatMe "$@"
+

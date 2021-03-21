@@ -1,7 +1,7 @@
 import { parser, frame, out } from './parser.mjs';
 
 var CommandClass = Java.type("net.bodz.uni.catme.Command");
-var nEscape = parser.escape.length;
+var nEscape = frame.escape.length;
 
 async function init() {
     let builtins = [
@@ -21,7 +21,7 @@ async function init() {
             cmd.name = greedy ? k.substr(0, k.length - 1) : k;
             cmd.greedy = greedy;
             cmd.fn = fn;
-            frame.register(cmd);
+            frame.addCommand(cmd);
         }
     }
 }
@@ -36,8 +36,8 @@ parser.cmdlinef = function() {
     for (let i = 0; i < arguments.length; i++) {
         let arg = arguments[i];
         if (cmd == null) {
-            if (! arg.startsWith(parser.escape))
-                throw "Expected " + parser.escape + " before " + arg;
+            if (! arg.startsWith(frame.escape))
+                throw "Expected " + frame.escape + " before " + arg;
             let name = arg.substr(nEscape);
             let pos = name.indexOf('(');
             if (pos != -1) {

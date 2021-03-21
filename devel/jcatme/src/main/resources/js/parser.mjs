@@ -17,20 +17,6 @@ var $ = {
 };
 
 export var parser = {
-    get lang()          { return MainParser.getLang() },
-    
-    get opener()        { return MainParser.getOpener() },
-    set opener(val)     {        MainParser.setOpener(val) },
-    
-    get closer()        { return MainParser.getCloser() },
-    set closer(val)     {        MainParser.setCloser(val) },
-    
-    get slopener()      { return MainParser.getSimpleOpener() },
-    set slopener(val)   {        MainParser.setSimpleOpener(val) },
-
-    get escape()        { return MainParser.getEscapePrefix() },
-    set escape(val)     {        MainParser.setEscapePrefix(val) },
-    
     get cmdlinef()      { return MainParser.getCmdlineParser() },
     set cmdlinef(val)   {        MainParser.setCmdlineParser(val) },
     
@@ -40,24 +26,42 @@ export var parser = {
 export var out = parser.out;
 
 export var frame = {
-    get echo()          { return Frame.getEcho() },
+    get echo()          { return Frame.getEchoLines() },
     set echo(val) {
         if (typeof val == 'boolean')
             val = val ? 1 : 0;
-        Frame.setEcho(val);
+        Frame.setEchoLines(val);
     },
     
-    get skip()          { return Frame.getSkip() },
-    set skip(val)       {        Frame.setSkip(val) },
+    get skip()          { return Frame.getSkipLines() },
+    set skip(val)       {        Frame.setSkipLines(val) },
 
     get skip2()         { return Frame.getSkipToPattern() },
     set skip2(val)      {        Frame.setSkipToPattern(val) },
+    
+    get nfilter()       { return Frame.getFilterCount() },
     
     get path()          { return Frame.getPath() },
     get dir()           { return Frame.getDirName() },
     get base()          { return Frame.getBaseName() },
     get ext()           { return Frame.getExtension() },
-    get dotExt()        { return Frame.getExtensionWithDot() }
+    get dotExt()        { return Frame.getExtensionWithDot() },
+    
+    get closest()       { return Frame.getClosestFileFrame() },
+    
+    get lang()          { return Frame.getLang() },
+    
+    get opener()        { return Frame.getOpener() },
+    set opener(val)     {        Frame.setOpener(val) },
+    
+    get closer()        { return Frame.getCloser() },
+    set closer(val)     {        Frame.setCloser(val) },
+    
+    get slopener()      { return Frame.getSimpleOpener() },
+    set slopener(val)   {        Frame.setSimpleOpener(val) },
+
+    get escape()        { return Frame.getEscapePrefix() },
+    set escape(val)     {        Frame.setEscapePrefix(val) }
 };
 
 $.extend(parser, MainParser);

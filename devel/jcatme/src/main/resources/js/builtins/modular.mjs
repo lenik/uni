@@ -24,7 +24,7 @@ export var cmds = {
                 console.log("already imported: " + fqn);
                 return;
             }
-            var path = parser.resolveQName(fqn);
+            var path = frame.resolveQName(fqn);
             include(path, args);
         },
     

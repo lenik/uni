@@ -1,5 +1,6 @@
 package net.bodz.uni.catme;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -19,7 +20,7 @@ public abstract class AbstractFrame
 
     public static final int TO_END = -1;
 
-    IFrame parent;
+    protected final IFrame parent;
 
     int echoLines;
     int skipLines;
@@ -302,16 +303,18 @@ public abstract class AbstractFrame
     }
 
     @Override
-    public ResourceVariant resolveHref(String href) {
+    public ResourceVariant resolveHref(String href)
+            throws IOException {
         if (parent != null)
             return parent.resolveHref(href);
         return null;
     }
 
     @Override
-    public ResourceVariant resolveQName(String href) {
+    public ResourceVariant resolveQName(String qName)
+            throws IOException {
         if (parent != null)
-            return parent.resolveQName(href);
+            return parent.resolveQName(qName);
         return null;
     }
 
