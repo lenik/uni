@@ -1,29 +1,38 @@
 #!/bin/bash
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
     : ${PACKAGE:=@PACKAGE@}
-    : ${PROGRAM_TITLE:=}
-    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+    : ${PROGRAM_TITLE:=Java application launcher for Maven projects}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <app-alias> [app-options...]}
 
     : ${JAVA:=java}
 
     # The encoding can be 'ANSI_X3.4-1968' when not specified.
     : ${JAVAOPTS:=-ea -Dsun.jnu.encoding=utf-8 -Dfile.encoding=utf-8}
+    javaopts=($JAVAOPTS)
 
     . shlib-import cliboot
-    option -d --debug       "Enable debug mode"
-    option -p --port =PORT  "Specify debug (JDWP) port, default 8000"
-    option -t --time        "Measure run time"
-    option -O --java-opt =STR "Add java option, eg. -O -Dfoo=bar or -O-Dfoo=bar"
+    option -d --debug                   "Enable debug mode"
+    option -D --property =key=value     "Specify system property, the same as -O -Dkey=value"
+    option -O --java-opt =OptionSpec    "Add java option, eg. -O -Dfoo=bar or -O-Dfoo=bar"
+    option -p --port =PORT              "Specify debug (JDWP) port, default 8000"
+    option -P --profiler                "Run profiler for the app"
+    option -r --project-dir =DIR        "Specify the project dir"
+    option -t --timing                  "Measure how long the program has been running"
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
 
     opt_orderfile=order.lst
+
+    opt_project_dir=.
     opt_debug=
     opt_port=8000
-    opt_time=
+    opt_profiler=
+    opt_timing=
+
     opt_javaopts=()
+    opt_props=()
 
     shopt -s nullglob
 
@@ -31,12 +40,18 @@ function setopt() {
     case "$1" in
         -d|--debug)
             opt_debug=1;;
-        -p|--jdwp-port)
-            opt_port=$2;;
-        -t|--time)
-            opt_time=1;;
+        -D|--property)
+            opt_props=("${opt_props[@]}" "$2");;
+        -r|--project-dir)
+            opt_project_dir="$2";;
+        -t|--timing)
+            opt_timing=1;;
         -O|--java-opt)
             opt_javaopts=("${opt_javaopts[@]}" "$2");;
+        -p|--jdwp-port)
+            opt_port=$2;;
+        -P|--profiler)
+            opt_profiler=1;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -48,6 +63,10 @@ function setopt() {
         *)
             quit "invalid option: $1";;
     esac
+}
+
+function javaopt() {
+    javaopts=("${javaopts[@]}" "$@")
 }
 
 function main() {
@@ -64,62 +83,65 @@ function main() {
         JDWPOPTS="$JDWPOPTS,server=y"
         #JDWPOPTS="$JDWPOPTS,suspend=y"
 
-        JAVAOPTS="$JAVAOPTS -Xdebug"
-        JAVAOPTS="$JAVAOPTS -Xrunjdwp:$JDWPOPTS"
-        #JAVAOPTS="$JAVAOPTS -agentlib:jdwp=$JDWPOPTS"
+        javaopt -Xdebug
+        javaopt -Xrunjdwp:$JDWPOPTS
+        #javaopt -agentlib:jdwp=$JDWPOPTS
     fi
 
-    for jo in "${opt_javaopts[@]}"; do
-        JAVAOPTS="$JAVAOPTS $jo"
-    done
+    for pr in "${opt_props[@]}";    do javaopt "-D$pr"; done
+    for jo in "${opt_javaopts[@]}"; do javaopt "$jo";   done
 
     appcls=()
-    for a in $(find target/classes -iname "$name.class"); do
-        a="${a[0]}"
-        a=${a#target/classes/}
-        a=${a%.class}
-        a=${a//\//.}
-        appcls=( "${appcls[@]}" "$a" )
-    done
+        old_workdir="$PWD"
+        cd "$opt_project_dir"
+        for a in $(find target/classes -iname "$name.class"); do
+            a="${a[0]}"
+            a=${a#target/classes/}
+            a=${a%.class}
+            a=${a//\//.}
+            appcls=( "${appcls[@]}" "$a" )
+        done
+        cd "$old_workdir"
 
     n=${#appcls[@]}
     if [ $n != 1 ]; then
         if [ $n = 0 ]; then
-            echo "No such app: $app" >&2
+            _error "No such app: $app"
         else
-            echo "Name ambiguous:" >&2
+            _error "Name ambiguous:"
             for a in "${appcls[@]}"; do
-                echo "    $a" >&2
+                _error "    $a"
             done
         fi
         exit 1
     fi
 
     classpath=
-    if [ -f "$opt_orderfile" ]; then
+    if [ -f "$opt_project_dir/$opt_orderfile" ]; then
         while read item; do
-            add_cp "$item"
-        done <"$opt_orderfile"
+            item_full="$opt_project_dir/$item"
+            add_cp "$item_full"
+        done <"$opt_project_dir/$opt_orderfile"
     else
-        for dir in classes/*/; do
+        for dir in "$opt_project_dir"/classes/*/; do
             add_cp "$dir"
         done
-        for jar in lib/*.jar; do
+        for jar in "$opt_project_dir"/lib/*.jar; do
             add_cp "$jar"
         done
     fi
-    add_cp target/classes
-    add_cp target/test-classes
+    add_cp "$opt_project_dir"/target/classes
+    add_cp "$opt_project_dir"/target/test-classes
     classpath="${classpath#:}"
 
     TIME=
-    if [ "$opt_time" = 1 ]; then TIME=do_time; fi
+    if [ "$opt_timing" = 1 ]; then TIME=do_timing; fi
 
-    _log2 "Execute:$TIME $JAVA $JAVAOPTS -cp ... $appcls $*"
-    eval $TIME $JAVA $JAVAOPTS -cp "$classpath" "$appcls" "$@"
+    _log2 "Execute:$TIME $JAVA ${javaopts[@]} -cp ... $appcls $*"
+    eval $TIME $JAVA "$javaopts[@]}" -cp "$classpath" "$appcls" "$@"
 }
 
-function do_time() {
+function do_timing() {
     time "$@"
 }
 

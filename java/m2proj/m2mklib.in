@@ -62,13 +62,15 @@ function main() {
         ordertmp=`mktemp`
     fi
 
+    selfdir=$(readlink -f .)
+
     while read type path; do
         test -e "$path" || continue
+        path="${path%/}"
         base="${path##*/}"
 
         case "$type" in
         DIR:)
-            path="${path%/}"
             rel=$( relpath "$PWD" "$path" )
             [ "$rel" = "target/classes" ] && continue
 
@@ -77,14 +79,21 @@ function main() {
             case "$rel" in
                 */target/classes)
                     projdir=${path%/target/classes}
+                    if [ "$projdir" == "$selfdir" ]; then
+                        continue;
+                    fi
+
                     rel=${rel%/target/classes}
-                    [ -n "$ordertmp" ] && echo "$opt_modulesdir/$rel/target/classes/" >>$ordertmp
-                    rsync -am --info=name "$projdir"/* "$opt_modulesdir/$rel/"
+                    mod=${rel##*/}
+                    [ -n "$ordertmp" ] && echo "$opt_modulesdir/$mod/target/classes/" >>$ordertmp
+                    _log1 "Updating $opt_modulesdir/$mod..."
+                    do_rsync -am --info=name "$projdir"/* "$opt_modulesdir/$mod/" | sed 's/^/    /'
                     ;;
 
                 *)
-                    [ -n "$ordertmp" ] && echo "$opt_classesdir/$rel/" >>$ordertmp
-                    rsync -am --info=name "$path"/* "$opt_classesdir/$rel/"
+                    [ -n "$ordertmp" ] && echo "$opt_classesdir/$base/" >>$ordertmp
+                    _log1 "Updating $opt_classesdir/$base..."
+                    do_rsync -am --info=name "$path"/* "$opt_classesdir/$base/"
                     ;;
             esac
             ;;
@@ -99,7 +108,8 @@ function main() {
                 fi
             fi
 
-            cp -nv "$path" "$opt_libdir/"
+            _log1 "Updating $opt_libdir/$base..."
+            cp "$path" "$opt_libdir/"
             ;;
         esac
     done <$opt_depsfile
@@ -110,6 +120,11 @@ function main() {
             | cut -f2 >$opt_orderfile
         rm $ordertmp
     fi
+}
+
+function do_rsync() {
+    _log2 "rsync $*"
+    rsync "$@"
 }
 
 boot "$@"
