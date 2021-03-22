@@ -2,30 +2,39 @@ import { parser, frame, out } from '../parser.mjs';
 
 export var cmds = {
     "include*": 
-        function(opts, path, args) {
-            include(path, args);
+        function(opts, href, args) {
+            let res = frame.resolveHref(href);
+            if (res == null)
+                throw "Can't resolve href " + href;
+            include(res, args);
         },
         
     "sinclude*":
-        function(opts, path, args) {
-            if (pathExists(path))
-                include(path, args);
+        function(opts, href, args) {
+            let res = frame.resolveHref(href);
+            if (res != null)
+                include(res, args);
         },
         
     "mixin*": 
         function(opts, fqn, args) {
-            var path = parser.resolveQName(fqn);
-            include(path, args);
+            let res = frame.resolveQName(fqn);
+            if (res == null)
+                throw "Can't resolve name " + fqn;
+            include(res, args);
         },
         
     "import*":
         function(opts, fqn, args) {
             if (parser.imported.contains(fqn)) {
-                console.log("already imported: " + fqn);
+                // console.debug("already imported: " + fqn);
                 return;
             }
-            var path = frame.resolveQName(fqn);
-            include(path, args);
+            parser.imported.add(fqn);
+            let res = frame.resolveQName(fqn);
+            if (res == null)
+                throw "Can't resolve name " + fqn;
+            include(res, args);
         },
     
     "eof":
@@ -34,7 +43,11 @@ export var cmds = {
         }
 };
 
-function include(path, args) {
-    parser.parseChild(Frame, path);
+function include(res, args) {
+    if (res == null)
+        throw "null resource.";
+    var child = frame.createChildFrame(res);
+    // child.args = args;
+    child.parse();
 }
 

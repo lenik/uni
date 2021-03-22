@@ -4,7 +4,12 @@ import java.io.File;
 import java.io.IOException;
 
 import net.bodz.bas.c.java.io.FilePath;
+import net.bodz.bas.err.ParseException;
+import net.bodz.bas.io.ICharIn;
+import net.bodz.bas.io.res.IStreamResource;
+import net.bodz.bas.io.res.builtin.FileResource;
 import net.bodz.uni.catme.io.ResourceVariant;
+import net.bodz.uni.catme.trie.TrieLexer;
 
 public class FileFrame
         extends AbstractFrame {
@@ -17,6 +22,10 @@ public class FileFrame
     String closer;
     String simpleOpener;
     String escapePrefix = "\\";
+
+    TrieLexer<MySym> lexer;
+    TrieLexer<MySym> commentLexer;
+    TrieLexer<MySym> instructionLexer;
 
     public FileFrame(MainParser parser, File file) {
         this(null, parser, file);
@@ -31,6 +40,20 @@ public class FileFrame
         this.opener = lang.opener;
         this.closer = lang.closer;
         this.simpleOpener = lang.simpleOpener;
+
+        lexer = new TrieLexer<MySym>();
+        if (opener != null)
+            lexer.declare(opener, new MySym(MySym.OPENER, "opener"));
+        if (simpleOpener != null)
+            lexer.declare(simpleOpener, new MySym(MySym.SIMPLE_OPENER, "simpleOpener"));
+
+        commentLexer = new TrieLexer<MySym>();
+        if (closer != null)
+            commentLexer.declare(closer, new MySym(MySym.CLOSER, "closer"));
+
+        instructionLexer = new TrieLexer<MySym>();
+        if (escapePrefix != null)
+            instructionLexer.declare(escapePrefix, new MySym(MySym.ESCAPE, "escape"));
     }
 
     @Override
@@ -41,10 +64,15 @@ public class FileFrame
     @Override
     public ResourceVariant resolveHref(String href)
             throws IOException {
+        File join = FilePath.joinHref(file, href);
+        if (join.exists())
+            return new ResourceVariant(join);
+
         MainParser parser = getParser();
-        ResourceVariant resource = parser.resourceResolver.findResource(href);
+        ResourceVariant resource = parser.app.resourceResolver.findResource(href);
         if (resource != null)
             return resource;
+
         return super.resolveHref(href);
     }
 
@@ -55,6 +83,34 @@ public class FileFrame
             throw new NullPointerException("qName");
         String href = qName.replace('.', '/') + "." + extension;
         return resolveHref(href);
+    }
+
+    public void parse()
+            throws IOException, ParseException {
+        parse(new FileResource(file));
+    }
+
+    public void parse(IStreamResource resource)
+            throws IOException, ParseException {
+        Object oldFrame = parser.scriptContext.get(VAR_FRAME);
+        parser.scriptContext.put(VAR_FRAME, this);
+
+        ICharIn in = resource.newCharIn();
+        try {
+            parser.parse(this, in);
+        } finally {
+            in.close();
+            parser.scriptContext.put(VAR_FRAME, oldFrame);
+        }
+    }
+
+    @Override
+    public void parse(String href)
+            throws IOException, ParseException {
+        ResourceVariant resource = resolveHref(href);
+        if (resource == null)
+            throw new IllegalArgumentException("Can't resolve file: " + href);
+        parse(resource.toResource());
     }
 
     public String getPath() {
@@ -117,6 +173,11 @@ public class FileFrame
         if (escapePrefix.isEmpty())
             throw new IllegalArgumentException("escapePrefix is empty.");
         this.escapePrefix = escapePrefix;
+    }
+
+    @Override
+    public String toString() {
+        return file.getPath();
     }
 
 }

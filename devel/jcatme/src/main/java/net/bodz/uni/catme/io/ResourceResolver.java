@@ -103,16 +103,19 @@ public class ResourceResolver {
 
         String extension = FilePath.getExtension(filename, false);
 
-        if (pomDir != null) {
-            File resdir = pomDir.getResourceDir(getClass());
-            File resfile = new File(resdir, filename);
-            if (resfile.exists())
-                return new ResourceVariant(resfile);
-        }
+        // resolve js module.
+        {
+            if (pomDir != null) {
+                File resdir = pomDir.getResourceDir(getClass());
+                File resfile = new File(resdir, filename);
+                if (resfile.exists())
+                    return new ResourceVariant(resfile);
+            }
 
-        URL url = getClass().getResource(filename);
-        if (url != null)
-            return new ResourceVariant(url);
+            URL url = getClass().getResource(filename);
+            if (url != null)
+                return new ResourceVariant(url);
+        }
 
         FileSearcher fileSearcher = getFileSearcherForExtension(extension);
         for (File file : fileSearcher.search(filename))

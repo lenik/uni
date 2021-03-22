@@ -94,15 +94,15 @@ public class FileSearcher {
     }
 
     public Set<File> search(String name, String... extraDirs) {
-        List<File> list = null;
+        List<File> extraDirsList = null;
         if (extraDirs != null && extraDirs.length > 0) {
-            list = new ArrayList<>();
+            extraDirsList = new ArrayList<>();
             for (String d : extraDirs) {
                 File dir = new File(d);
-                list.add(dir);
+                extraDirsList.add(dir);
             }
         }
-        return search(name, list);
+        return search(name, extraDirsList);
     }
 
     public Set<File> search(String name, List<File> extraDirs) {

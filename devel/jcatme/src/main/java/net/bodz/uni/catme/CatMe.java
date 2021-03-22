@@ -14,7 +14,9 @@ import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.uni.catme.io.IWatcherCallback;
+import net.bodz.uni.catme.io.ResourceResolver;
 import net.bodz.uni.catme.io.WatcherWait;
+import net.bodz.uni.catme.js.PolyglotContext;
 
 /**
  * CatMe rewritten in Java.
@@ -25,18 +27,24 @@ import net.bodz.uni.catme.io.WatcherWait;
 public class CatMe
         extends BasicCLI {
 
-    static final Logger logger = LoggerFactory.getLogger(CatMe.class);
+    public static final String VAR_APP = CatMe.class.getSimpleName();
 
     String[] args;
+
+    ResourceResolver resourceResolver = new ResourceResolver();
+    PolyglotContext scriptContext;
 
     public CatMe() {
     }
 
     void runOnce() {
+        scriptContext = PolyglotContext.js(resourceResolver);
+        scriptContext.put(VAR_APP, this);
+
         try {
             MainParser parser;
             try {
-                parser = new MainParser(this);
+                parser = new MainParser(this, scriptContext);
             } catch (Exception e) {
                 logger.error("Failed to instantiate parser: " + e.getMessage(), e);
                 return;
@@ -44,7 +52,15 @@ public class CatMe
             for (String arg : args) {
                 File file = new File(arg);
                 if (file.exists()) {
-                    parser.parseFile(file);
+                    FileFrame frame = new FileFrame(parser, file);
+
+                    scriptContext.put(MainParser.VAR_PARSER, parser);
+                    scriptContext.put(IFrame.VAR_FRAME, frame);
+
+                    scriptContext.eval("load('./js/main.mjs')");
+
+                    frame.parse();
+                    logger.info("parse end.");
                     continue;
                 }
                 throw new IllegalArgumentException("invalid argument: " + arg);
@@ -92,5 +108,7 @@ public class CatMe
             throws Exception {
         new CatMe().execute(args);
     }
+
+    static final Logger logger = LoggerFactory.getLogger(CatMe.class);
 
 }

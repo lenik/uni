@@ -11,6 +11,7 @@ import javax.script.Invocable;
 
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.string.StringPred;
+import net.bodz.bas.err.ParseException;
 import net.bodz.bas.fn.EvalException;
 import net.bodz.uni.catme.io.ResourceVariant;
 
@@ -305,6 +306,8 @@ public abstract class AbstractFrame
     @Override
     public ResourceVariant resolveHref(String href)
             throws IOException {
+        if (href == null)
+            throw new NullPointerException("href");
         if (parent != null)
             return parent.resolveHref(href);
         return null;
@@ -316,6 +319,42 @@ public abstract class AbstractFrame
         if (parent != null)
             return parent.resolveQName(qName);
         return null;
+    }
+
+    public FileFrame createChildFrame(ResourceVariant res)
+            throws IOException {
+        if (res == null)
+            throw new NullPointerException("res");
+        return new FileFrame(this, parser, res.file);
+    }
+
+    @Override
+    public void parse(String href)
+            throws IOException, ParseException {
+        if (parent != null)
+            parent.parse(href);
+    }
+
+    @Override
+    public void processComments(String s, int textStart, int textEnd, boolean multiLine)
+            throws IOException, ParseException {
+        String text = s.substring(textStart, textEnd);
+
+        FileFrame ff = getClosestFileFrame();
+        boolean special = text.trim().startsWith(ff.escapePrefix);
+
+        if (special) {
+            parser.out.print(s);
+            parser.parseInstruction(this, text);
+        } else {
+            parser.out.print(s);
+        }
+    }
+
+    @Override
+    public void processText(String s)
+            throws IOException {
+        parser.out.print(s);
     }
 
 }

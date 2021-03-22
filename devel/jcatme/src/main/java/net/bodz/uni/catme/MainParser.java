@@ -1,8 +1,6 @@
 package net.bodz.uni.catme;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,25 +10,25 @@ import java.util.Set;
 
 import org.graalvm.polyglot.Value;
 
-import net.bodz.bas.c.java.io.LineReader;
 import net.bodz.bas.c.string.StringQuoted;
-import net.bodz.bas.err.NotImplementedException;
+import net.bodz.bas.err.ParseException;
 import net.bodz.bas.fn.EvalException;
-import net.bodz.bas.io.res.builtin.FileResource;
+import net.bodz.bas.io.ICharIn;
+import net.bodz.bas.io.ITreeOut;
+import net.bodz.bas.io.Stdio;
+import net.bodz.bas.io.impl.TreeOutImpl;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
-import net.bodz.uni.catme.io.ResourceResolver;
-import net.bodz.uni.catme.io.ResourceVariant;
 import net.bodz.uni.catme.js.IScriptContext;
-import net.bodz.uni.catme.js.PolyglotContext;
+import net.bodz.uni.catme.trie.ITokenCallback;
+import net.bodz.uni.catme.trie.Token;
+import net.bodz.uni.catme.trie.TrieParser;
 
 public class MainParser {
 
     static final Logger logger = LoggerFactory.getLogger(MainParser.class);
 
-    public static final String VAR_APP = CatMe.class.getSimpleName();
-    public static final String VAR_THIS = MainParser.class.getSimpleName();
-    public static final String VAR_FRAME = "Frame";
+    public static final String VAR_PARSER = MainParser.class.getSimpleName();
 
     CatMe app;
 
@@ -38,14 +36,17 @@ public class MainParser {
     public static final String TEXT = "text";
     Map<String, StringBuffer> streams = new HashMap<>();
 
-    public ResourceResolver resourceResolver = new ResourceResolver();
+    public Set<String> imported = new HashSet<>();
+
     IScriptContext scriptContext;
+    Value cmdlineParser;
 
-    PrintStream out = System.out;
+    ITreeOut out = TreeOutImpl.from(Stdio.cout);
 
-    public MainParser(CatMe app)
+    public MainParser(CatMe app, IScriptContext scriptContext)
             throws IOException {
         this.app = app;
+        this.scriptContext = scriptContext;
     }
 
     public Object eval(String code)
@@ -62,104 +63,6 @@ public class MainParser {
         return scriptContext.eval(code, fileName);
     }
 
-    public PrintStream getOut() {
-        return out;
-    }
-
-    public void parseFile(File file)
-            throws IOException, EvalException {
-        logger.info("parseFile: " + file);
-        FileFrame fileFrame = new FileFrame(this, file);
-        // String dotExt = fileFrame.getExtensionWithDot();
-
-        scriptContext = PolyglotContext.js(resourceResolver);
-        scriptContext.put(VAR_APP, app);
-        scriptContext.put(VAR_THIS, this);
-        scriptContext.put(VAR_FRAME, fileFrame);
-
-        scriptContext.eval("load('./js/main.mjs')");
-
-        FileResource resource = new FileResource(file, "utf-8");
-        LineReader lineReader = resource.newLineReader();
-        try {
-            parse(fileFrame, lineReader);
-        } finally {
-            lineReader.close();
-        }
-    }
-
-    void parse(IFrame frame, LineReader lineReader)
-            throws IOException {
-        FileFrame ff = frame.getClosestFileFrame();
-        String simpleOpener = ff.getSimpleOpener();
-        String escapePrefix = ff.getEscapePrefix();
-
-        String line;
-        // ParserState state = ParserState.NORMAL;
-        StringBuilder commentLines = new StringBuilder();
-        // StringBuilder commentBlock = new StringBuilder();
-
-        while ((line = lineReader.readLine()) != null) {
-            int pos;
-
-            if (simpleOpener != null && (pos = line.indexOf(simpleOpener)) != -1) {
-                // has simple comment
-                String l = line.substring(0, pos);
-                String comment = line.substring(pos + simpleOpener.length()).trim();
-
-                if (!comment.startsWith(escapePrefix) && commentLines.length() == 0) {
-                    parseText(frame, line);
-                    continue;
-                }
-
-                parseLeftText(frame, l);
-
-                if (comment.endsWith(" \\")) {
-                    commentLines.append(comment.substring(0, comment.length() - 2));
-                    continue;
-                }
-
-                if (commentLines.length() != 0) {
-                    commentLines.append(comment);
-                    comment = commentLines.toString();
-                    commentLines.setLength(0);
-                }
-
-                parseInstruction(frame, comment);
-                continue;
-            }
-
-            if (commentLines.length() != 0) {
-                logger.error("Unnecessary \\ at the end of comment.");
-                String comment = commentLines.toString();
-                commentLines.setLength(0);
-                parseInstruction(frame, comment);
-                continue;
-            }
-
-            parseText(frame, line);
-        } // while
-
-    } // while
-
-    void parseLeftText(IFrame IFrame, String text)
-            throws IOException {
-        parseText(IFrame, text);
-    }
-
-    void parseRightText(IFrame IFrame, String text)
-            throws IOException {
-        parseText(IFrame, text);
-    }
-
-    void parseText(IFrame IFrame, String text)
-            throws IOException {
-        scriptContext.put(VAR_FRAME, IFrame);
-        out.print(text);
-    }
-
-    Value cmdlineParser;
-
     public Value getCmdlineParser() {
         return cmdlineParser;
     }
@@ -168,8 +71,76 @@ public class MainParser {
         this.cmdlineParser = cmdlineParser;
     }
 
-    void parseInstruction(IFrame IFrame, String instruction)
-            throws IOException {
+    public ITreeOut getOut() {
+        return out;
+    }
+
+    void parse(IFrame frame, final ICharIn in)
+            throws IOException, ParseException {
+        FileFrame ff = frame.getClosestFileFrame();
+
+        class Callback
+                implements
+                    ITokenCallback<MySym> {
+
+            boolean inComments;
+            boolean singleLine = false;
+            StringBuilder buf = new StringBuilder();
+            int textStart, textEnd;
+
+            @Override
+            public boolean onToken(TrieParser<MySym> parser, Token<MySym> token)
+                    throws IOException, ParseException {
+                if (token.isSymbol()) {
+                    switch (token.symbol.id) {
+                    case MySym.SIMPLE_OPENER:
+                        singleLine = true;
+                    case MySym.OPENER:
+                        inComments = true;
+                        buf.append(token.text);
+                        textStart = buf.length();
+                        textEnd = 0;
+
+                        ff.commentLexer.parse(in, this);
+                        if (textEnd <= 0)
+                            textEnd = buf.length();
+                        frame.processComments(buf.toString(), textStart, textEnd, !singleLine);
+
+                        inComments = false;
+                        singleLine = false;
+                        buf.setLength(0);
+                        break;
+
+                    case MySym.ESCAPE:
+                        // ctoks.add(token);
+                        break;
+
+                    case MySym.CLOSER:
+                        textEnd = buf.length();
+                        buf.append(token.text);
+                        return false;
+
+                    default:
+                        assert false;
+                    }
+                } else {
+                    if (inComments) {
+                        buf.append(token.text);
+                        if (singleLine)
+                            return false;
+                    } else {
+                        frame.processText(token.text);
+                    }
+                }
+                return true;
+            }
+        }
+
+        ff.lexer.parse(in, new Callback());
+    }
+
+    void parseInstruction(IFrame frame, String instruction)
+            throws IOException, ParseException {
         if (cmdlineParser == null)
             throw new IllegalStateException("cmdlineParser wasn't set.");
 
@@ -179,36 +150,19 @@ public class MainParser {
             list.add(arg);
 
         try {
-            scriptContext.put(VAR_FRAME, IFrame);
             cmdlineParser.invokeMember("apply", null, list);
         } catch (Exception e) {
             logger.error("Failed to parse at js side: " + e.getMessage(), e);
-            // throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    public Set<String> imported = new HashSet<>();
-
-    public void parseChild(IFrame parent, String href)
-            throws IOException {
-        ResourceVariant resource = resourceResolver.findResource(href);
-        if (resource == null)
-            throw new IOException("Can't find file " + href + ".");
-        if (resource.type != ResourceVariant.FILE)
-            throw new NotImplementedException();
-
-        File file = resource.file;
-        logger.info("parseChild: " + file);
-        FileFrame childFrame = new FileFrame(parent, this, file);
-
-        // XXX
-        scriptContext.put(VAR_FRAME, childFrame);
-
-        LineReader lineReader = resource.toResource().newLineReader();
-        try {
-            parse(childFrame, lineReader);
-        } finally {
-            lineReader.close();
+            while (frame != null) {
+                if (frame.isFile()) {
+                    FileFrame f = (FileFrame) frame;
+                    logger.error("    " + f.file);
+                } else {
+                    logger.error("    * " + frame);
+                }
+                frame = frame.getParent();
+            }
+            throw e;
         }
     }
 
