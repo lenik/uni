@@ -2,7 +2,9 @@ Source: mjpl
 Section: java
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 8.0.0)
+Build-Depends: 
+    libbas-d-dev,
+    debhelper (>= 8.0.0)
 Standards-Version: 3.9.3
 Homepage: http://uni.bodz.net/java/mjpl
 Vcs-Git: git://git.bodz.net/uni.git
