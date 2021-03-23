@@ -74,9 +74,12 @@ function main() {
 Key=$IRK
 
 [LocalSignatureKey]
+Authenticated=true
+Counter=0
 Key=$CSRK
 
 [LongTermKey]
+Authenticated=true
 Key=$LTK
 EncSize=$KeyLength
 EDiv=$EDIV
