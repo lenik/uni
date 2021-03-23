@@ -69,7 +69,7 @@ public class FileFrame
             return new ResourceVariant(join);
 
         MainParser parser = getParser();
-        ResourceVariant resource = parser.app.resourceResolver.findResource(href);
+        ResourceVariant resource = parser.app.userResolver.findResource(href);
         if (resource != null)
             return resource;
 

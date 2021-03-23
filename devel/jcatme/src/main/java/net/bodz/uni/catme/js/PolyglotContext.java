@@ -3,8 +3,6 @@ package net.bodz.uni.catme.js;
 import static com.oracle.truffle.js.runtime.JSContextOptions.*;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.script.ScriptException;
 
@@ -42,6 +40,10 @@ public class PolyglotContext
         return value;
     }
 
+    public Value getBindings() {
+        return bindings;
+    }
+
     @Override
     public Object get(String name) {
         Value member = bindings.getMember(name);
@@ -53,9 +55,17 @@ public class PolyglotContext
         bindings.putMember(name, value);
     }
 
+    public Object include(String filename)
+            throws EvalException,
+            IOException {
+        Value result = (Value) eval("load(\"" + filename + "\");", filename);
+        return convert(result);
+    }
+
     @Override
     public Object eval(String code)
-            throws EvalException, IOException {
+            throws EvalException,
+            IOException {
         Source source = Source.newBuilder("js", code, "<script>") //
                 .mimeType("application/javascript+module").build();
         try {
@@ -68,7 +78,8 @@ public class PolyglotContext
 
     @Override
     public Object eval(String code, String fileName)
-            throws EvalException, IOException {
+            throws EvalException,
+            IOException {
         if (code == null)
             throw new NullPointerException("code");
         if (fileName == null)
@@ -84,7 +95,8 @@ public class PolyglotContext
 
     @Override
     public Object invokeMethod(Object thiz, String name, Object... args)
-            throws ScriptException, NoSuchMethodException {
+            throws ScriptException,
+            NoSuchMethodException {
         Value value = Value.asValue(thiz);
         Value result = value.invokeMember(name, args);
         return convert(result);
@@ -92,7 +104,8 @@ public class PolyglotContext
 
     @Override
     public Object invokeFunction(String name, Object... args)
-            throws ScriptException, NoSuchMethodException {
+            throws ScriptException,
+            NoSuchMethodException {
         Value fn = bindings.getMember(name);
         Value result = fn.execute(args);
         return convert(result);
@@ -109,7 +122,7 @@ public class PolyglotContext
         return value.as(clasz);
     }
 
-    static PolyglotContext createContext(ResourceResolver resolver) {
+    public static PolyglotContext createContext(ResourceResolver resolver) {
         Context context = Context.newBuilder(JavaScriptLanguage.ID) //
                 .fileSystem(new RrFileSystem(resolver)) //
                 .allowAllAccess(true) //
@@ -121,7 +134,7 @@ public class PolyglotContext
         return new PolyglotContext(context);
     }
 
-    static PolyglotContext createContext2(ResourceResolver resolver) {
+    public static PolyglotContext createContextVerbose(ResourceResolver resolver) {
         Context context = Context.newBuilder(JavaScriptLanguage.ID) //
                 .fileSystem(new RrFileSystem(resolver)) //
                 .allowAllAccess(true) //
@@ -153,17 +166,6 @@ public class PolyglotContext
                 .option(LOAD_FROM_URL_NAME, "true") //
                 .build();
         return new PolyglotContext(context);
-    }
-
-    static Map<ResourceResolver, PolyglotContext> cache = new HashMap<>();
-
-    public static synchronized PolyglotContext js(ResourceResolver resolver) {
-        PolyglotContext context = cache.get(resolver);
-        if (context == null) {
-            context = createContext(resolver);
-            cache.put(resolver, context);
-        }
-        return context;
     }
 
 }

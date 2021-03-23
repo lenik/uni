@@ -22,18 +22,35 @@ public class ResourceResolver {
 
     File pkgdatadir = new File("/usr/share/catme");
     File configDir;
-    List<File> libDirs;
 
+    public boolean searchWorkDir = false;
+    File workDir;
+    public boolean searchHomeDir = false;
+    File homeDir;
+
+    public boolean searchClassResources;
+
+    public boolean searchPomDir = true;
     MavenPomDir pomDir = MavenPomDir.fromClass(getClass());
 
-    boolean addLibDirsFromLIB = false;
-    boolean addLibDirsFromLANGLIB = true;
-    boolean addLibDirsForExtension = true;
-    Map<String, FileSearcher> fileSearcherByExt = new HashMap<>();
+    List<File> libDirs;
+    public boolean searchLibDirs = true;
+    public boolean searchLibDirsForExtension;
+
+    public boolean searchEnvLangLIBs;
+    public boolean searchEnvLIB;
+
+    Map<String, FileSearcher> byExtension = new HashMap<>();
 
     public ResourceResolver() {
         String cwd = SystemProperties.getUserDir();
+        if (cwd != null)
+            workDir = new File(cwd);
+
         String home = SystemProperties.getUserHome();
+        if (home != null)
+            homeDir = new File(home);
+
         if (home == null)
             home = cwd;
 
@@ -42,10 +59,10 @@ public class ResourceResolver {
 
     public synchronized FileSearcher getFileSearcherForExtension(String extension)
             throws IOException {
-        FileSearcher fileSearcher = fileSearcherByExt.get(extension);
+        FileSearcher fileSearcher = byExtension.get(extension);
         if (fileSearcher == null) {
             fileSearcher = buildFileSearcher(extension);
-            fileSearcherByExt.put(extension, fileSearcher);
+            byExtension.put(extension, fileSearcher);
         }
         return fileSearcher;
     }
@@ -53,31 +70,46 @@ public class ResourceResolver {
     FileSearcher buildFileSearcher(String extension)
             throws IOException {
         FileSearcher fileSearcher = new FileSearcher();
-        if (libDirs != null) {
-            for (File dir : libDirs)
-                fileSearcher.addSearchDir(dir);
+
+        if (searchWorkDir && workDir != null)
+            fileSearcher.addSearchDir(workDir);
+
+        if (searchHomeDir && homeDir != null)
+            fileSearcher.addSearchDir(homeDir);
+
+        if (searchPomDir)
+            if (pomDir != null) {
+                File mainResourceDir = pomDir.getResourceDir(getClass());
+                fileSearcher.addSearchDir(mainResourceDir);
+            }
+
+        if (searchLibDirs)
+            if (libDirs != null) {
+                for (File dir : libDirs)
+                    fileSearcher.addSearchDir(dir);
+            }
+
+        if (searchLibDirsForExtension) {
+            File sysPathDir = new File(pkgdatadir, "path" + fileSep + extension);
+            fileSearcher.addPathDir(sysPathDir);
+            File userPathDir = new File(configDir, "path" + fileSep + extension);
+            fileSearcher.addPathDir(userPathDir);
         }
 
-        if (addLibDirsFromLIB) {
-            String sysLibPath = System.getenv("LIB");
-            if (sysLibPath != null)
-                fileSearcher.addPathEnv(sysLibPath);
-        }
-
-        SrcLangType lang = SrcLangType.forExtension(extension);
-        if (addLibDirsFromLANGLIB) {
+        if (searchEnvLangLIBs) {
+            SrcLangType lang = SrcLangType.forExtension(extension);
             String langLibName = lang.name().toUpperCase() + "LIB";
             String langLibPath = System.getenv(langLibName.toUpperCase());
             if (langLibPath != null)
                 fileSearcher.addPathEnv(langLibPath);
         }
 
-        if (addLibDirsForExtension) {
-            File sysPathDir = new File(pkgdatadir, "path" + fileSep + extension);
-            fileSearcher.addPathDir(sysPathDir);
-            File userPathDir = new File(configDir, "path" + fileSep + extension);
-            fileSearcher.addPathDir(userPathDir);
+        if (searchEnvLIB) {
+            String sysLibPath = System.getenv("LIB");
+            if (sysLibPath != null)
+                fileSearcher.addPathEnv(sysLibPath);
         }
+
         return fileSearcher;
     }
 
@@ -101,22 +133,13 @@ public class ResourceResolver {
             return new ResourceVariant(file);
         }
 
-        String extension = FilePath.getExtension(filename, false);
-
-        // resolve js module.
-        {
-            if (pomDir != null) {
-                File resdir = pomDir.getResourceDir(getClass());
-                File resfile = new File(resdir, filename);
-                if (resfile.exists())
-                    return new ResourceVariant(resfile);
-            }
-
+        if (searchClassResources) {
             URL url = getClass().getResource(filename);
             if (url != null)
                 return new ResourceVariant(url);
         }
 
+        String extension = FilePath.getExtension(filename, false);
         FileSearcher fileSearcher = getFileSearcherForExtension(extension);
         for (File file : fileSearcher.search(filename))
             return new ResourceVariant(file);

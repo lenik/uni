@@ -5,20 +5,16 @@ import java.nio.file.WatchEvent;
 
 public interface IWatcherCallback {
 
-    default boolean onEvent(Path dir, WatchEvent<?> event) {
-        return false;
+    default void onEvent(WatcherWait watcher, Path dir, WatchEvent<?> event) {
     }
 
-    default boolean onCreate(Path file) {
-        return false;
+    default void onCreate(WatcherWait watcher, Path file) {
     }
 
-    default boolean onDelete(Path file) {
-        return false;
+    default void onDelete(WatcherWait watcher, Path file) {
     }
 
-    default boolean onModify(Path file) {
-        return false;
+    default void onModify(WatcherWait watcher, Path file) {
     }
 
 }

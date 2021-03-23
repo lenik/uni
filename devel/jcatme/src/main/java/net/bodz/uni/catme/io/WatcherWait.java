@@ -39,6 +39,9 @@ public class WatcherWait
     final Set<Path> files = new HashSet<>();
     final Map<WatchKey, Path> keyMap = new HashMap<>();
 
+    public static final int DEFAULT_AWHILE = 100;
+    long ignoreUntil;
+
     @SuppressWarnings("unchecked")
     private static final WatchEvent.Kind<Path>[] EMPTY_KINDS = new WatchEvent.Kind[0];
 
@@ -126,15 +129,26 @@ public class WatcherWait
                 logger.error("WatchKey not recognized!!");
                 return;
             }
+
             process(key, dir);
-            if (keyMap.isEmpty())
-                break;
+
+            boolean valid = key.reset();
+            if (!valid) {
+                keyMap.remove(key);
+                if (keyMap.isEmpty())
+                    break;
+            }
         }
     }
 
-    void process(WatchKey key, Path dir) {
+    boolean process(WatchKey key, Path dir) {
         List<WatchEvent<?>> events = key.pollEvents();
-        for (WatchEvent<?> event : events) {
+        int n = events.size();
+
+        boolean ignored = shouldIgnore();
+
+        for (int i = 0; i < n; i++) {
+            WatchEvent<?> event = events.get(i);
             WatchEvent.Kind<?> kind = event.kind();
             if (kind == OVERFLOW)
                 continue;
@@ -142,7 +156,7 @@ public class WatcherWait
             Path child = dir.resolve(name);
 
             // print out event
-            logger.debugf("event %s: %s\n", event.kind().name(), child);
+            logger.tracef("event %d/%d %s: %s", i + 1, n, event.kind().name(), child);
 
             if (recursive && (kind == ENTRY_CREATE))
                 try {
@@ -152,26 +166,39 @@ public class WatcherWait
                     // ignore to keep sample readbale
                 }
 
-            if (callback != null) {
-                boolean cancel = false;
-                if (cancel = callback.onEvent(dir, event))
-                    break;
-
-                if (kind == ENTRY_CREATE)
-                    cancel = callback.onCreate(child);
-                else if (kind == ENTRY_DELETE)
-                    cancel = callback.onDelete(child);
-                else if (kind == ENTRY_MODIFY)
-                    cancel = callback.onModify(child);
-
-                if (cancel)
-                    break;
+            if (ignored)
+                logger.trace("    ignored.");
+            else {
+                if (callback != null) {
+                    callback.onEvent(this, dir, event);
+                    if (kind == ENTRY_CREATE) {
+                        callback.onCreate(this, child);
+                    } else if (kind == ENTRY_DELETE) {
+                        callback.onDelete(this, child);
+                    } else if (kind == ENTRY_MODIFY) {
+                        callback.onModify(this, child);
+                    }
+                }
             }
-        }
 
-        boolean valid = key.reset();
-        if (!valid)
-            keyMap.remove(key);
+            ignored = shouldIgnore();
+        } // for events
+        return true;
+    }
+
+    public void ignoreForAwhile() {
+        ignoreForAwhile(DEFAULT_AWHILE);
+    }
+
+    public void ignoreForAwhile(int ms) {
+        ignoreUntil = System.currentTimeMillis() + ms;
+    }
+
+    private boolean shouldIgnore() {
+        if (ignoreUntil != 0)
+            if (System.currentTimeMillis() < ignoreUntil)
+                return true;
+        return false;
     }
 
 }
