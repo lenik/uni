@@ -1,4 +1,4 @@
-export var cmds = {
+provideCommands({
     "echo": 
         function() { frame.echo = true; },
     
@@ -12,5 +12,5 @@ export var cmds = {
     
     "noskip":
         function() { frame.skip = null; },
-};
+});
 

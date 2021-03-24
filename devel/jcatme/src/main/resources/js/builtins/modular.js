@@ -1,6 +1,12 @@
-import { parser, frame, out } from '../parser.mjs';
+function include(res, args) {
+    if (res == null)
+        throw "null resource.";
+    var child = frame.createChildFrame(res);
+    // child.args = args;
+    child.parse();
+}
 
-export var cmds = {
+provideCommands({
     "include*": 
         function(opts, href, args) {
             let res = frame.resolveHref(href);
@@ -41,13 +47,4 @@ export var cmds = {
         function(opts, args) {
             parser.stop();
         }
-};
-
-function include(res, args) {
-    if (res == null)
-        throw "null resource.";
-    var child = frame.createChildFrame(res);
-    // child.args = args;
-    child.parse();
-}
-
+});

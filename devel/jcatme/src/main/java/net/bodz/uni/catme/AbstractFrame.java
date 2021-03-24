@@ -7,8 +7,6 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import javax.script.Invocable;
-
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.string.StringPred;
 import net.bodz.bas.err.ParseException;
@@ -27,9 +25,11 @@ public abstract class AbstractFrame
     int skipLines;
     Pattern skipToPattern;
 
-    Map<String, Command> commands = new LinkedHashMap<>();
+    Map<String, ICommand> commands = new LinkedHashMap<>();
+    Map<String, ITextFilter> filters = new LinkedHashMap<>();
+
     Map<String, Object> vars = new LinkedHashMap<>();
-    Stack<FilterEntry> filters = new Stack<>();
+    Stack<FilterEntry> filterStack = new Stack<>();
 
     MainParser parser;
 
@@ -147,7 +147,7 @@ public abstract class AbstractFrame
     }
 
     @Override
-    public Command getCommand(String name) {
+    public ICommand getCommand(String name) {
         if (name == null)
             throw new NullPointerException("name");
         if (commands.containsKey(name))
@@ -158,11 +158,10 @@ public abstract class AbstractFrame
     }
 
     @Override
-    public void addCommand(Command command) {
+    public void addCommand(String name, ICommand command) {
         if (command == null)
             throw new NullPointerException("command");
-        String name = command.name;
-        Command prev = getCommand(name);
+        ICommand prev = getCommand(name);
         if (prev != null)
             throw new IllegalArgumentException("command is already defined: " + name);
         commands.put(name, command);
@@ -175,6 +174,49 @@ public abstract class AbstractFrame
         if (!commands.containsKey(name))
             throw new IllegalArgumentException("command isn't defined: " + name);
         commands.remove(name);
+    }
+
+    @Override
+    public boolean isFilterDefined(String name) {
+        if (name == null)
+            throw new NullPointerException("name");
+        if (filters.containsKey(name))
+            return true;
+        if (parent != null)
+            return parent.isFilterDefined(name);
+        return false;
+    }
+
+    @Override
+    public ITextFilter getFilter(String name) {
+        if (name == null)
+            throw new NullPointerException("name");
+        if (filters.containsKey(name))
+            return filters.get(name);
+        if (parent != null)
+            return parent.getFilter(name);
+        return null;
+    }
+
+    @Override
+    public void addFilter(String name, ITextFilter filter) {
+        if (name == null)
+            throw new NullPointerException("name");
+        if (filter == null)
+            throw new NullPointerException("filter");
+        ITextFilter prev = getFilter(name);
+        if (prev != null)
+            throw new IllegalArgumentException("filter is already defined: " + name);
+        filters.put(name, filter);
+    }
+
+    @Override
+    public void removeFilter(String name) {
+        if (name == null)
+            throw new NullPointerException("name");
+        if (!filters.containsKey(name))
+            throw new IllegalArgumentException("filter isn't defined: " + name);
+        filters.remove(name);
     }
 
     @Override
@@ -231,65 +273,37 @@ public abstract class AbstractFrame
 
     @Override
     public boolean isFilterInUse(String name) {
-        for (FilterEntry filter : filters)
+        for (FilterEntry filter : filterStack)
             if (name.equals(filter.key))
                 return true;
         return false;
     }
 
     @Override
-    public int getFilterCount() {
-        return filters.size();
-    }
-
-    @Override
-    public void pushFilter(FilterEntry filter) {
-        if (filter == null)
-            throw new NullPointerException("filter");
-        filters.push(filter);
-    }
-
-    @Override
-    public FilterEntry popFilter() {
-        if (filters.isEmpty())
-            return null;
-        else
-            return filters.pop();
-    }
-
-    @Override
-    public FilterEntry peekFilter() {
-        if (filters.isEmpty())
-            return null;
-        else
-            return filters.peek();
+    public Stack<FilterEntry> getFilterStack() {
+        return filterStack;
     }
 
     public void beginFilter(ITextFilter filter, String key) {
         FilterEntry entry = new FilterEntry(key, filter);
-        filters.push(entry);
+        filterStack.push(entry);
     }
 
     public FilterEntry endFilter(String key) {
-        if (filters.isEmpty())
+        if (filterStack.isEmpty())
             throw new IllegalStateException("No filter in use in the current frame.");
-        FilterEntry top = filters.peek();
+        FilterEntry top = filterStack.peek();
         if (!Nullables.equals(top.key, key))
             throw new IllegalArgumentException("Unmatched filter environment pair.");
-        filters.pop();
+        filterStack.pop();
         return top;
-    }
-
-    public void beginScriptFilter(Invocable invocable, String function) {
-        ScriptFilter filter = new ScriptFilter(invocable, function);
-        beginFilter(filter, null);
     }
 
     @Override
     public String filter(String s)
             throws EvalException {
-        if (filters != null)
-            for (FilterEntry entry : filters)
+        if (filterStack != null)
+            for (FilterEntry entry : filterStack)
                 s = entry.filter.filter(s);
 
         if (parent != null)

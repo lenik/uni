@@ -34,12 +34,6 @@ public class PolyglotContext
         return context;
     }
 
-    Object convert(Value value) {
-        if (value.isHostObject())
-            return value.asHostObject();
-        return value;
-    }
-
     public Value getBindings() {
         return bindings;
     }
@@ -47,7 +41,7 @@ public class PolyglotContext
     @Override
     public Object get(String name) {
         Value member = bindings.getMember(name);
-        return convert(member);
+        return ValueFn.convert(member);
     }
 
     @Override
@@ -56,21 +50,21 @@ public class PolyglotContext
     }
 
     public Object include(String filename)
-            throws EvalException,
-            IOException {
+            throws EvalException, IOException {
+        logger.debug("load/include " + filename);
+
         Value result = (Value) eval("load(\"" + filename + "\");", filename);
-        return convert(result);
+        return ValueFn.convert(result);
     }
 
     @Override
     public Object eval(String code)
-            throws EvalException,
-            IOException {
+            throws EvalException, IOException {
         Source source = Source.newBuilder("js", code, "<script>") //
                 .mimeType("application/javascript+module").build();
         try {
             Value result = context.eval(source);
-            return convert(result);
+            return ValueFn.convert(result);
         } catch (PolyglotException e) {
             throw new EvalException("error eval " + code + ": " + e.getMessage(), e);
         }
@@ -78,8 +72,7 @@ public class PolyglotContext
 
     @Override
     public Object eval(String code, String fileName)
-            throws EvalException,
-            IOException {
+            throws EvalException, IOException {
         if (code == null)
             throw new NullPointerException("code");
         if (fileName == null)
@@ -87,7 +80,7 @@ public class PolyglotContext
         Source source = Source.newBuilder("js", code, fileName).build();
         try {
             Value result = context.eval(source);
-            return convert(result);
+            return ValueFn.convert(result);
         } catch (PolyglotException e) {
             throw new EvalException("error eval " + code + ": " + e.getMessage(), e);
         }
@@ -95,20 +88,18 @@ public class PolyglotContext
 
     @Override
     public Object invokeMethod(Object thiz, String name, Object... args)
-            throws ScriptException,
-            NoSuchMethodException {
+            throws ScriptException, NoSuchMethodException {
         Value value = Value.asValue(thiz);
         Value result = value.invokeMember(name, args);
-        return convert(result);
+        return ValueFn.convert(result);
     }
 
     @Override
     public Object invokeFunction(String name, Object... args)
-            throws ScriptException,
-            NoSuchMethodException {
+            throws ScriptException, NoSuchMethodException {
         Value fn = bindings.getMember(name);
         Value result = fn.execute(args);
-        return convert(result);
+        return ValueFn.convert(result);
     }
 
     @Override

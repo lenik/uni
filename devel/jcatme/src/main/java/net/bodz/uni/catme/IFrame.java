@@ -1,6 +1,7 @@
 package net.bodz.uni.catme;
 
 import java.io.IOException;
+import java.util.Stack;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.err.ParseException;
@@ -33,9 +34,9 @@ public interface IFrame {
 
     boolean isCommandDefined(String name);
 
-    Command getCommand(String name);
+    ICommand getCommand(String name);
 
-    void addCommand(Command command);
+    void addCommand(String name, ICommand command);
 
     void removeCommand(String name);
 
@@ -49,15 +50,17 @@ public interface IFrame {
 
     void removeVar(String name);
 
+    boolean isFilterDefined(String name);
+
+    ITextFilter getFilter(String name);
+
+    void addFilter(String name, ITextFilter filter);
+
+    void removeFilter(String name);
+
+    Stack<FilterEntry> getFilterStack();
+
     boolean isFilterInUse(String name);
-
-    int getFilterCount();
-
-    void pushFilter(FilterEntry filter);
-
-    FilterEntry popFilter();
-
-    FilterEntry peekFilter();
 
     String filter(String s)
             throws EvalException;

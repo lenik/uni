@@ -30,14 +30,16 @@ public class WatcherWait
     // not implemented
     boolean recursive;
 
-    int timeout;
+    // int timeout;
     List<WatchEvent.Kind<Path>> events = new ArrayList<>();
     IWatcherCallback callback;
 
-    FileSystem fileSystem;
-    WatchService watcher;
-    final Set<Path> files = new HashSet<>();
+    Map<FileSystem, WatchService> byFileSys = new HashMap<>();
+
+    // final Set<Path> dirs = new HashSet<>();
     final Map<WatchKey, Path> keyMap = new HashMap<>();
+
+    int pollInterval = 1;
 
     public static final int DEFAULT_AWHILE = 100;
     long ignoreUntil;
@@ -61,18 +63,18 @@ public class WatcherWait
             this.events.add(event);
     }
 
-    public void addFile(File file)
+    public void addDirectory(File dir)
             throws IOException {
-        Path path = file.toPath();
-        addFile(path);
+        Path path = dir.toPath();
+        addDirectory(path);
     }
 
-    public void addFile(Path path)
+    public void addDirectory(Path dirPath)
             throws IOException {
         if (recursive)
-            registerAll(path);
+            registerAll(dirPath);
         else
-            register(path);
+            register(dirPath);
     }
 
     void register(Path dir)
@@ -83,15 +85,14 @@ public class WatcherWait
         if (fs == null)
             throw new NullPointerException("null filesystem from file.");
 
-        if (fileSystem == null) {
-            fileSystem = fs;
-            watcher = fileSystem.newWatchService();
-        } else {
-            if (!fs.equals(fileSystem))
-                throw new IllegalArgumentException("Not in a same filesystem.");
+        WatchService watcher = byFileSys.get(fs);
+        if (watcher == null) {
+            watcher = fs.newWatchService();
+            byFileSys.put(fs, watcher);
         }
-        // same fs.
-        this.files.add(dir);
+
+        logger.debug("register to watcher: " + dir);
+        // this.dirs.add(dir);
 
         Kind<Path>[] kindv = events.toArray(EMPTY_KINDS);
         WatchKey key = dir.register(watcher, kindv);
@@ -118,25 +119,30 @@ public class WatcherWait
     @Override
     public void run() {
         for (;;) {
-            WatchKey key;
+            for (WatchService watcher : byFileSys.values()) {
+                WatchKey key = watcher.poll();
+                if (key == null)
+                    continue;
+
+                Path dir = keyMap.get(key);
+                if (dir == null) {
+                    logger.error("WatchKey not recognized!!");
+                    return;
+                }
+
+                process(key, dir);
+
+                boolean valid = key.reset();
+                if (!valid) {
+                    keyMap.remove(key);
+                    if (keyMap.isEmpty())
+                        break;
+                }
+            } // poll multi-fs
             try {
-                key = watcher.take();
-            } catch (InterruptedException x) {
-                return;
-            }
-            Path dir = keyMap.get(key);
-            if (dir == null) {
-                logger.error("WatchKey not recognized!!");
-                return;
-            }
-
-            process(key, dir);
-
-            boolean valid = key.reset();
-            if (!valid) {
-                keyMap.remove(key);
-                if (keyMap.isEmpty())
-                    break;
+                Thread.sleep(pollInterval);
+            } catch (InterruptedException e) {
+                return; // forever otherwise.
             }
         }
     }

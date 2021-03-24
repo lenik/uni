@@ -1,4 +1,4 @@
-export var cmds = {
+provideCommands({
     "begin*": // filter
         function(opts, filterName, args) {
         },
@@ -14,9 +14,9 @@ export var cmds = {
             var name = 'anonymous';
             frame.addFilter(anonymous, fn);
         }
-};
+});
 
-export var filters = {
+provideFilters({
     "toupper":
         function(s) { return s.toUpper(); },
         
@@ -35,5 +35,5 @@ export var filters = {
         function(s, stops, args) {
             return s;
         }
-};
+});
 

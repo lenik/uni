@@ -1,4 +1,4 @@
-export var cmds = {
+provideCommands({
     "template":
         function(opts, qName, args) {
             var path = resolveQName(fqn);
@@ -16,5 +16,5 @@ export var cmds = {
             frame.echo = false;
             frame.skip = false;
         }
-};
+});
 
