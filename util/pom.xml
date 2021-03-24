@@ -11,7 +11,6 @@
     <artifactId>util</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>ziputils</module>
         <module>xmlproc</module>
     </modules>
     <name>Uni :: Util</name>
