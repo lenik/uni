@@ -1,18 +1,18 @@
 provideCommands({
-    "begin*": // filter
+    "begin/$@": // filter
         function(opts, filterName, args) {
         },
     
-    "end":  // endfilter
+    "end/$@":  // endfilter
         function(opts, filterName, args) {
         },
         
-    "map*":
-        function(opts, argsAsCode) {
-            var code = argsAsCode.join(' ');
+    "map/*":
+        function(opts, code) {
+            var code = args.join(' ');
             var fn = eval(code);
             var name = 'anonymous';
-            frame.addFilter(anonymous, fn);
+            Frame.addFilter(anonymous, fn);
         }
 });
 

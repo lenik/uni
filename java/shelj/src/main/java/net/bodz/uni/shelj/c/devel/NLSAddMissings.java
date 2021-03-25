@@ -3,11 +3,11 @@ package net.bodz.uni.shelj.c.devel;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
 import net.bodz.bas.c.java.io.FilePath;
-import net.bodz.bas.c.java.util.Collections;
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.fn.IFilter;
@@ -101,9 +101,11 @@ public class NLSAddMissings
             return;
         }
 
-        Properties master = file.to(StreamLoading.class).loadProperties();
-        Enumeration<String> _enum = (Enumeration<String>) master.propertyNames();
-        Set<String> masterNames = Collections.toSet(_enum);
+        Properties masterProps = file.to(StreamLoading.class).loadProperties();
+        Set<String> masterNames = new HashSet<>();
+        Enumeration<?> _enum = masterProps.propertyNames();
+        while (_enum.hasMoreElements())
+            masterNames.add((String) _enum.nextElement());
         logger.infof("Master file: %s (%d entries)\n", file, masterNames.size());
 
         IFile dir = file.getParentFile();
@@ -137,17 +139,17 @@ public class NLSAddMissings
             for (String name : masterNames)
                 if (!props.containsKey(name)) {
                     logger.info("    Add missing property ", name);
-                    props.setProperty(name, master.getProperty(name));
+                    props.setProperty(name, masterProps.getProperty(name));
                     dirty = true;
                     add++;
                 }
             if (removeExtras) {
-                _enum = (Enumeration<String>) props.propertyNames();
-                Set<String> pnames = Collections.toSet(_enum);
-                for (String pname : pnames) {
-                    if (!masterNames.contains(pname)) {
-                        logger.info("    Remove redundant property ", pname);
-                        props.remove(pname);
+                Enumeration<?> names = props.propertyNames();
+                while (names.hasMoreElements()) {
+                    String name = (String) names.nextElement();
+                    if (!masterNames.contains(name)) {
+                        logger.info("    Remove redundant property ", name);
+                        props.remove(name);
                         dirty = true;
                         remove++;
                     }

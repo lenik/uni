@@ -26,6 +26,7 @@ public class ASTUtils {
         this(rewrite.getAST(), rewrite);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends ASTNode> T copy(T node) {
         return (T) ASTNode.copySubtree(ast, node);
     }
@@ -42,6 +43,7 @@ public class ASTUtils {
         return copy;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends ASTNode> T copyRef(T node) {
         return (T) rewrite.createCopyTarget(node);
     }
@@ -51,6 +53,7 @@ public class ASTUtils {
         return copy(node);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends ASTNode> T moveRef(T node) {
         return (T) rewrite.createMoveTarget(node);
     }

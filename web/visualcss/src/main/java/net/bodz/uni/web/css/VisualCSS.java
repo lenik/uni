@@ -80,7 +80,7 @@ public class VisualCSS
             pagev.add(ClassResource.getData(clazz, "ntfs.html"));
             pagev.add(ClassResource.getData(clazz, "stat.html"));
         } else {
-            pagev = (List<URLResource>) XMLs.decode(pagevXml);
+            pagev = XMLs.decode(pagevXml);
         }
 
         String cssvXml = preferences.get(KEY_CSSV, null);
@@ -88,7 +88,7 @@ public class VisualCSS
             cssv.add(ClassResource.getData(clazz, "basic.css"));
             cssv.add(ClassResource.getData(clazz, "ntfs.css"));
         } else {
-            cssv = (List<URLResource>) XMLs.decode(cssvXml);
+            cssv = XMLs.decode(cssvXml);
         }
     }
 

@@ -73,7 +73,10 @@ public class FileFrame
         if (resource != null)
             return resource;
 
-        return super.resolveHref(href);
+        resource = super.resolveHref(href);
+        if (resource == null)
+            System.out.println("Resolve/java fail: " + href + ", from " + file);
+        return resource;
     }
 
     @Override
@@ -95,11 +98,13 @@ public class FileFrame
         Object oldFrame = parser.scriptContext.get(VAR_FRAME);
         parser.scriptContext.put(VAR_FRAME, this);
 
-        ICharIn in = resource.newCharIn();
+        ICharIn in = null;
         try {
+            in = resource.newCharIn();
             parser.parse(this, in);
         } finally {
-            in.close();
+            if (in != null)
+                in.close();
             parser.scriptContext.put(VAR_FRAME, oldFrame);
         }
     }

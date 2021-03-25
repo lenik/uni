@@ -1,6 +1,8 @@
 package net.bodz.uni.catme;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
@@ -31,6 +33,10 @@ public interface IFrame {
     Pattern getSkipToPattern();
 
     void setSkipToPattern(Pattern pattern);
+
+    List<String> getArguments();
+
+    Map<String, String> getParameters();
 
     boolean isCommandDefined(String name);
 

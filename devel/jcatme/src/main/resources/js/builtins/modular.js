@@ -1,43 +1,41 @@
 function include(res, args) {
     if (res == null)
         throw "null resource.";
-    var child = frame.createChildFrame(res);
+    var child = Frame.createChildFrame(res);
     // child.args = args;
     child.parse();
 }
 
 provideCommands({
-    "include*": 
+    "include/$@": 
         function(opts, href, args) {
-            let res = frame.resolveHref(href);
+            let res = Frame.resolveHref(href);
             if (res == null)
                 throw "Can't resolve href " + href;
             include(res, args);
         },
         
-    "sinclude*":
+    "sinclude/$@":
         function(opts, href, args) {
-            let res = frame.resolveHref(href);
+            let res = Frame.resolveHref(href);
             if (res != null)
                 include(res, args);
         },
         
-    "mixin*": 
+    "mixin/$@": 
         function(opts, fqn, args) {
-            let res = frame.resolveQName(fqn);
+            let res = Frame.resolveQName(fqn);
             if (res == null)
                 throw "Can't resolve name " + fqn;
             include(res, args);
         },
         
-    "import*":
+    "import/$@":
         function(opts, fqn, args) {
-            if (parser.imported.contains(fqn)) {
-                // console.debug("already imported: " + fqn);
+            if (Parser.isImported(fqn))
                 return;
-            }
-            parser.imported.add(fqn);
-            let res = frame.resolveQName(fqn);
+            Parser.addImported(fqn);
+            let res = Frame.resolveQName(fqn);
             if (res == null)
                 throw "Can't resolve name " + fqn;
             include(res, args);

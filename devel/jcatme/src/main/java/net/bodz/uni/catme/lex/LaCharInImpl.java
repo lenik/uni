@@ -1,4 +1,4 @@
-package net.bodz.uni.catme.trie;
+package net.bodz.uni.catme.lex;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -22,6 +22,9 @@ public class LaCharInImpl
     @Override
     public synchronized int read(char[] cbuf, int off, int len)
             throws IOException {
+        if (len == 0)
+            return 0;
+        // divide the read for block aligning.
         if (!lookbuf.isEmpty()) {
             int cc = 0;
             while (!lookbuf.isEmpty()) {
@@ -29,9 +32,22 @@ public class LaCharInImpl
                 cc++;
             }
             return cc;
+        } else {
+            return in.read(cbuf, off, len);
         }
-        // divide the read for block aligning.
-        return in.read(cbuf, off, len);
+    }
+
+    @Override
+    public synchronized int look()
+            throws IOException {
+        if (lookbuf.isEmpty()) {
+            int c = in.read();
+            if (c == -1)
+                return -1;
+            char ch = (char) c;
+            lookbuf.add(ch);
+        }
+        return lookbuf.peek();
     }
 
     @Override

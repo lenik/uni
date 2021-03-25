@@ -1,7 +1,6 @@
 package net.bodz.uni.catme;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,16 +9,22 @@ import java.util.Set;
 
 import org.graalvm.polyglot.Value;
 
-import net.bodz.bas.c.string.StringQuoted;
+import net.bodz.bas.c.java.io.capture.Processes;
+import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.fn.EvalException;
 import net.bodz.bas.io.ICharIn;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.io.Stdio;
+import net.bodz.bas.io.StringCharIn;
 import net.bodz.bas.io.impl.TreeOutImpl;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.uni.catme.js.IScriptContext;
+import net.bodz.uni.catme.lex.ILa1CharIn;
+import net.bodz.uni.catme.lex.ITokenLexer;
+import net.bodz.uni.catme.lex.La1CharInImpl;
+import net.bodz.uni.catme.lex.NonspaceTokenLexer;
 import net.bodz.uni.catme.trie.ITokenCallback;
 import net.bodz.uni.catme.trie.Token;
 import net.bodz.uni.catme.trie.TrieParser;
@@ -28,18 +33,17 @@ public class MainParser {
 
     static final Logger logger = LoggerFactory.getLogger(MainParser.class);
 
-    public static final String VAR_PARSER = MainParser.class.getSimpleName();
+    public static final String VAR_PARSER = "Parser";
 
     CatMe app;
+
+    IScriptContext scriptContext;
+    Value commandDispatcher;
+    Set<String> imported = new HashSet<>();
 
     /** main text stream (output) */
     public static final String TEXT = "text";
     Map<String, StringBuffer> streams = new HashMap<>();
-
-    public Set<String> imported = new HashSet<>();
-
-    IScriptContext scriptContext;
-    Value cmdlineParser;
 
     ITreeOut out = TreeOutImpl.from(Stdio.cout);
 
@@ -47,6 +51,10 @@ public class MainParser {
             throws IOException {
         this.app = app;
         this.scriptContext = scriptContext;
+    }
+
+    public IScriptContext getScriptContext() {
+        return scriptContext;
     }
 
     public Object eval(String code)
@@ -63,12 +71,31 @@ public class MainParser {
         return scriptContext.eval(code, fileName);
     }
 
-    public Value getCmdlineParser() {
-        return cmdlineParser;
+    public void shell(String[] cmdarray)
+            throws IOException, InterruptedException {
+        Process process = Processes.shellExec(cmdarray);
+        String result = Processes.iocap(process, "utf-8");
+        out.print(result);
     }
 
-    public void setCmdlineParser(Value cmdlineParser) {
-        this.cmdlineParser = cmdlineParser;
+    public Value getCommandDispatcher() {
+        return commandDispatcher;
+    }
+
+    public void setCommandDispatcher(Value commandDispatcher) {
+        this.commandDispatcher = commandDispatcher;
+    }
+
+    public boolean isImported(String qName) {
+        return imported.contains(qName);
+    }
+
+    public void addImported(String qName) {
+        imported.add(qName);
+    }
+
+    public void removeImported(String qName) {
+        imported.remove(qName);
     }
 
     public ITreeOut getOut() {
@@ -141,28 +168,56 @@ public class MainParser {
 
     void parseInstruction(IFrame frame, String instruction)
             throws IOException, ParseException {
-        if (cmdlineParser == null)
-            throw new IllegalStateException("cmdlineParser wasn't set.");
+        if (commandDispatcher == null)
+            throw new IllegalUsageException("commandDispatcher wan't set.");
 
-        String[] args = StringQuoted.split(instruction);
-        List<String> list = new ArrayList<>();
-        for (String arg : args)
-            list.add(arg);
+        ILa1CharIn in = new La1CharInImpl(new StringCharIn(instruction));
 
-        try {
-            cmdlineParser.invokeMember("apply", null, list);
-        } catch (Exception e) {
-            logger.error("Failed to parse at js side: " + e.getMessage(), e);
-            while (frame != null) {
-                if (frame.isFile()) {
-                    FileFrame f = (FileFrame) frame;
-                    logger.error("    " + f.file);
-                } else {
-                    logger.error("    * " + frame);
-                }
-                frame = frame.getParent();
+        FileFrame ff = frame.getClosestFileFrame();
+        String escape = ff.getEscapePrefix();
+
+        NonspaceTokenLexer nonspace = NonspaceTokenLexer.INSTANCE;
+        int c;
+        while ((c = in.look()) != -1) {
+            if (Character.isWhitespace(c)) {
+                in.read();
+                continue;
             }
-            throw e;
+            String name = nonspace.lex(in);
+            if (!name.startsWith(escape))
+                throw new IllegalArgumentException( //
+                        "Expected escape-seq(" + escape + ") before " + name);
+            name = name.substring(1);
+
+            String[] optv = {};
+            int pos = name.indexOf('(');
+            if (pos != -1) {
+                if (!name.endsWith(")"))
+                    throw new IllegalArgumentException("Unmatched parenthesis: " + name);
+                String opts = name.substring(pos + 1, name.length() - 1);
+                optv = opts.split("\\s+");
+                name = name.substring(0, pos);
+            }
+
+            ICommand cmd = frame.getCommand(name);
+            if (cmd == null)
+                throw new IllegalArgumentException("Unknown command: " + name);
+
+            ITokenLexer<List<?>> lexer = cmd.getArgumentsLexer();
+            List<?> args = lexer.lex(in);
+            commandDispatcher.execute(cmd, optv, args);
+        }
+    }
+
+    void dumpFrames(IFrame frame) {
+        while (frame != null) {
+            if (frame.isFile()) {
+                FileFrame f = (FileFrame) frame;
+                logger.error("    " + f.file);
+            } else {
+                logger.error("    * " + frame);
+            }
+            frame = frame.getParent();
         }
     }
 

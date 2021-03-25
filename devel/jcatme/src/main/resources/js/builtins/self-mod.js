@@ -1,7 +1,7 @@
 provideCommands({
-    "template":
+    "template/$@":
         function(opts, qName, args) {
-            var path = resolveQName(fqn);
+            var path = Frame.resolveQName(fqn);
             if (path == null) {
                 logger.error("Not existed: " + fqn);
                 return;

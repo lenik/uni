@@ -1,7 +1,9 @@
 package net.bodz.uni.catme;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.StringTokenizer;
@@ -24,6 +26,9 @@ public abstract class AbstractFrame
     int echoLines;
     int skipLines;
     Pattern skipToPattern;
+
+    List<String> arguments = new ArrayList<>();
+    Map<String, String> parameters = new LinkedHashMap<>();
 
     Map<String, ICommand> commands = new LinkedHashMap<>();
     Map<String, ITextFilter> filters = new LinkedHashMap<>();
@@ -133,6 +138,16 @@ public abstract class AbstractFrame
             }
             throw new IllegalArgumentException("Invalid skip token: '" + token + "'");
         }
+    }
+
+    @Override
+    public List<String> getArguments() {
+        return arguments;
+    }
+
+    @Override
+    public Map<String, String> getParameters() {
+        return parameters;
     }
 
     @Override
@@ -358,7 +373,11 @@ public abstract class AbstractFrame
         boolean special = text.trim().startsWith(ff.escapePrefix);
 
         if (special) {
-            parser.out.print(s);
+            if (echoLines != 0) {
+                parser.out.print(s);
+                if (echoLines != -1)
+                    echoLines--;
+            }
             parser.parseInstruction(this, text);
         } else {
             parser.out.print(s);
@@ -368,7 +387,7 @@ public abstract class AbstractFrame
     @Override
     public void processText(String s)
             throws IOException {
-        parser.out.print(s);
+        //parser.out.print(s);
     }
 
 }

@@ -1,12 +1,10 @@
-package net.bodz.uni.catme.trie;
+package net.bodz.uni.catme.lex;
 
 import java.io.IOException;
 
-import net.bodz.bas.io.ICharIn;
-
 public interface ILaCharIn
         extends
-            ICharIn {
+            ILa1CharIn {
 
     /**
      * Look len chars ahead.
