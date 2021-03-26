@@ -18,7 +18,7 @@ public class TrieParser<sym> {
     int line = lineStart, column = columnStart;
 
     TextBuf symbuf = new TextBuf();
-    TextBuf cbuf = new TextBuf();
+    TextBuf otherbuf = new TextBuf();
 
     ITokenCallback<sym> callback;
 
@@ -64,8 +64,8 @@ public class TrieParser<sym> {
                 symbuf.append(ch);
                 cur = cur.getChild(ch);
                 if (cur.isDefined()) { // TODO lookahead.
-                    if (cbuf.hasContent())
-                        if (!callback.onToken(this, cbuf.commit()))
+                    if (otherbuf.hasContent())
+                        if (!callback.onToken(this, otherbuf.commit()))
                             return;
                     if (!callback.onToken(this, symbuf.commit(cur.getData())))
                         return;
@@ -74,8 +74,8 @@ public class TrieParser<sym> {
             } else {
                 cur = root;
                 if (symbuf.hasContent())
-                    symbuf.transferTo(cbuf);
-                cbuf.append(ch);
+                    symbuf.transferTo(otherbuf);
+                otherbuf.append(ch);
             }
 
             switch (ch) {
@@ -85,7 +85,7 @@ public class TrieParser<sym> {
             case '\n':
                 line = line + 1;
                 column = columnStart;
-                if (!callback.onToken(this, cbuf.commit()))
+                if (!callback.onToken(this, otherbuf.commit()))
                     return;
                 break;
             default:
@@ -93,51 +93,54 @@ public class TrieParser<sym> {
             }
         }
 
-        if (cbuf.hasContent())
-            if (!callback.onToken(this, cbuf.commit()))
+        if (otherbuf.hasContent())
+            if (!callback.onToken(this, otherbuf.commit()))
                 return;
     }
 
     class TextBuf {
 
-        StringBuilder sb = new StringBuilder();
+        private StringBuilder sb = new StringBuilder(16384);
+        boolean hasContentAndMark;
         int startLine;
         int startColumn;
 
-        public boolean isEmpty() {
-            return sb.length() == 0;
+        public TextBuf() {
         }
 
         public boolean hasContent() {
-            return sb.length() != 0;
-        }
-
-        public char shift() {
-            assert sb.length() > 0;
-            char head = sb.charAt(0);
-            sb.deleteCharAt(0);
-            return head;
+            return hasContentAndMark;
         }
 
         public void append(char ch) {
-            append(String.valueOf(ch));
+            if (!hasContentAndMark) {
+                startLine = line;
+                startColumn = column;
+                hasContentAndMark = true;
+            }
+            sb.append(ch);
         }
 
         public void append(String str) {
-            if (sb.length() == 0) {
+            if (!hasContentAndMark) {
                 startLine = line;
                 startColumn = column;
+                hasContentAndMark = true;
             }
             sb.append(str);
         }
 
         public void transferTo(TextBuf other) {
-            if (other.isEmpty()) {
+            if (!hasContentAndMark)
+                return;
+            if (!other.hasContentAndMark) {
                 other.startLine = startLine;
                 other.startColumn = startColumn;
+                other.hasContentAndMark = true;
             }
-            other.sb.append(sb.toString());
+            other.sb.append(sb);
             sb.setLength(0);
+            hasContentAndMark = false;
         }
 
         public Token<sym> commit() {
@@ -147,12 +150,16 @@ public class TrieParser<sym> {
         public Token<sym> commit(sym symbol) {
             Token<sym> token = new Token<sym>(startLine, startColumn, sb.toString(), symbol);
             sb.setLength(0);
+            hasContentAndMark = false;
             return token;
         }
 
         @Override
         public String toString() {
-            return startLine + ":" + startColumn + ":" + sb;
+            if (hasContentAndMark)
+                return startLine + ":" + startColumn + ":" + sb;
+            else
+                return "?:?:" + sb;
         }
 
     }

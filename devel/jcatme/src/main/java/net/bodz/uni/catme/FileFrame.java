@@ -6,13 +6,15 @@ import java.io.IOException;
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.ICharIn;
+import net.bodz.bas.io.StringCharIn;
 import net.bodz.bas.io.res.IStreamResource;
 import net.bodz.bas.io.res.builtin.FileResource;
+import net.bodz.bas.io.res.tools.StreamReading;
+import net.bodz.uni.catme.io.ResourceResolver;
 import net.bodz.uni.catme.io.ResourceVariant;
 import net.bodz.uni.catme.trie.TrieLexer;
 
-public class FileFrame
-        extends AbstractFrame {
+public class FileFrame extends AbstractFrame {
 
     File file;
 
@@ -61,22 +63,25 @@ public class FileFrame
         return true;
     }
 
-    @Override
-    public ResourceVariant resolveHref(String href)
+    ResourceVariant resolveHref(String href, boolean user)
             throws IOException {
         File join = FilePath.joinHref(file, href);
         if (join.exists())
             return new ResourceVariant(join);
 
         MainParser parser = getParser();
-        ResourceVariant resource = parser.app.userResolver.findResource(href);
+        ResourceResolver resolver = user ? parser.app.userResolver : parser.app.scriptResolver;
+        ResourceVariant resource = resolver.findResource(href);
         if (resource != null)
             return resource;
 
-        resource = super.resolveHref(href);
-        if (resource == null)
-            System.out.println("Resolve/java fail: " + href + ", from " + file);
-        return resource;
+        return super.resolveHref(href);
+    }
+
+    @Override
+    public ResourceVariant resolveHref(String href)
+            throws IOException {
+        return resolveHref(href, true);
     }
 
     @Override
@@ -86,6 +91,15 @@ public class FileFrame
             throw new NullPointerException("qName");
         String href = qName.replace('.', '/') + "." + extension;
         return resolveHref(href);
+    }
+
+    @Override
+    public ResourceVariant resolveModule(String module)
+            throws IOException {
+        if (module == null)
+            throw new NullPointerException("module");
+        String href = module.replace('.', '/') + ".js";
+        return resolveHref(href, false);
     }
 
     public void parse()
@@ -100,8 +114,10 @@ public class FileFrame
 
         ICharIn in = null;
         try {
-            in = resource.newCharIn();
-            parser.parse(this, in);
+            // in = resource.newCharIn();
+            String text = resource.to(StreamReading.class).readString();
+            in = new StringCharIn(text);
+            parser.parseFrameSource(this, in);
         } finally {
             if (in != null)
                 in.close();

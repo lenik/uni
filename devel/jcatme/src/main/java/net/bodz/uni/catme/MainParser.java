@@ -90,8 +90,8 @@ public class MainParser {
         return imported.contains(qName);
     }
 
-    public void addImported(String qName) {
-        imported.add(qName);
+    public boolean addImported(String qName) {
+        return imported.add(qName);
     }
 
     public void removeImported(String qName) {
@@ -102,7 +102,13 @@ public class MainParser {
         return out;
     }
 
-    void parse(IFrame frame, final ICharIn in)
+    boolean stopParseFrameSource = false;
+
+    public void stop() {
+        stopParseFrameSource = true;
+    }
+
+    public void parseFrameSource(IFrame frame, final ICharIn in)
             throws IOException, ParseException {
         FileFrame ff = frame.getClosestFileFrame();
 
@@ -111,7 +117,7 @@ public class MainParser {
                     ITokenCallback<MySym> {
 
             boolean inComments;
-            boolean singleLine = false;
+            boolean singleLineComment = false;
             StringBuilder buf = new StringBuilder();
             int textStart, textEnd;
 
@@ -121,7 +127,7 @@ public class MainParser {
                 if (token.isSymbol()) {
                     switch (token.symbol.id) {
                     case MySym.SIMPLE_OPENER:
-                        singleLine = true;
+                        singleLineComment = true;
                     case MySym.OPENER:
                         inComments = true;
                         buf.append(token.text);
@@ -131,10 +137,10 @@ public class MainParser {
                         ff.commentLexer.parse(in, this);
                         if (textEnd <= 0)
                             textEnd = buf.length();
-                        frame.processComments(buf.toString(), textStart, textEnd, !singleLine);
+                        frame.processComments(buf.toString(), textStart, textEnd, !singleLineComment);
 
                         inComments = false;
-                        singleLine = false;
+                        singleLineComment = false;
                         buf.setLength(0);
                         break;
 
@@ -145,22 +151,19 @@ public class MainParser {
                     case MySym.CLOSER:
                         textEnd = buf.length();
                         buf.append(token.text);
-                        return false;
-
-                    default:
-                        assert false;
+                        return false; // quit the sub-lang
                     }
                 } else {
                     if (inComments) {
                         buf.append(token.text);
-                        if (singleLine)
-                            return false;
+                        if (singleLineComment)
+                            return false; // quit the sub-lang
                     } else {
                         frame.processText(token.text);
                     }
                 }
-                return true;
-            }
+                return !stopParseFrameSource;
+            } // if token.isSymbol()
         }
 
         ff.lexer.parse(in, new Callback());
@@ -189,13 +192,12 @@ public class MainParser {
                         "Expected escape-seq(" + escape + ") before " + name);
             name = name.substring(1);
 
-            String[] optv = {};
+            String opts = "";
             int pos = name.indexOf('(');
             if (pos != -1) {
                 if (!name.endsWith(")"))
                     throw new IllegalArgumentException("Unmatched parenthesis: " + name);
-                String opts = name.substring(pos + 1, name.length() - 1);
-                optv = opts.split("\\s+");
+                opts = name.substring(pos + 1, name.length() - 1);
                 name = name.substring(0, pos);
             }
 
@@ -205,19 +207,15 @@ public class MainParser {
 
             ITokenLexer<List<?>> lexer = cmd.getArgumentsLexer();
             List<?> args = lexer.lex(in);
-            commandDispatcher.execute(cmd, optv, args);
-        }
-    }
 
-    void dumpFrames(IFrame frame) {
-        while (frame != null) {
-            if (frame.isFile()) {
-                FileFrame f = (FileFrame) frame;
-                logger.error("    " + f.file);
+            if (cmd.isScript()) {
+                String[] optv = opts.split("\\s+");
+                commandDispatcher.execute(cmd, optv, args);
             } else {
-                logger.error("    * " + frame);
+                CommandOptions parsed = cmd.parseOptions(opts);
+                Object[] argv = args.toArray();
+                cmd.execute(frame, parsed, argv);
             }
-            frame = frame.getParent();
         }
     }
 

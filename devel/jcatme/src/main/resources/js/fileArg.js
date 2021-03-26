@@ -34,9 +34,5 @@ function provideFilter(k, fn) {
     Frame.addFilter(name, filter);
 }
 
-load('js/builtins/frame-control.js');
-load('js/builtins/modular.js');
 load('js/builtins/filter.js');
 load('js/builtins/self-mod.js');
-load('js/builtins/utils.js');
-

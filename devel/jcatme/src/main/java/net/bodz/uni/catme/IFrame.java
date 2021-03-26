@@ -79,6 +79,9 @@ public interface IFrame {
     ResourceVariant resolveQName(String qName)
             throws IOException;
 
+    ResourceVariant resolveModule(String module)
+            throws IOException;
+
     void parse(String href)
             throws IOException, ParseException;
 

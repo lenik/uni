@@ -6,17 +6,17 @@ import java.util.List;
 
 import net.bodz.bas.err.ParseException;
 
-public class MiniLexer
+public class LinkedLexer
         implements
             ITokenLexer<List<?>> {
 
     List<ITokenLexer<?>> lexers;
 
-    public MiniLexer(String flags) {
+    public LinkedLexer(String descriptor) {
         lexers = new ArrayList<>();
-        int n = flags.length();
+        int n = descriptor.length();
         for (int i = 0; i < n; i++) {
-            char ch = flags.charAt(i);
+            char ch = descriptor.charAt(i);
             ITokenLexer<?> item;
             switch (ch) {
             case 'N':
@@ -32,31 +32,30 @@ public class MiniLexer
                 item = CaptureTokenLexer.INSTANCE;
                 break;
             case '@':
-                item = new WordListLexer(QuotableTokenLexer.DEQUOTED);
+                item = new SpaceSeparatedLexer(QuotableTokenLexer.DEQUOTED);
                 break;
             default:
-                throw new IllegalArgumentException("Invalid flag: '" + ch + "'");
+                throw new IllegalArgumentException("Invalid descriptor char: '" + ch + "'");
             }
             lexers.add(item);
         }
     }
 
     @SafeVarargs
-    public MiniLexer(ITokenLexer<String>... lexers) {
+    public LinkedLexer(ITokenLexer<?>... lexers) {
         this.lexers = new ArrayList<>();
-        for (ITokenLexer<String> lexer : lexers)
+        for (ITokenLexer<?> lexer : lexers)
             this.lexers.add(lexer);
     }
 
-    public MiniLexer(List<ITokenLexer<?>> lexers) {
+    public LinkedLexer(List<ITokenLexer<?>> lexers) {
         if (lexers == null)
             throw new NullPointerException("lexers");
         this.lexers = lexers;
     }
 
     @Override
-    public List<Object> lex(ILa1CharIn in)
-            throws IOException, ParseException {
+    public List<Object> lex(ILa1CharIn in) throws IOException, ParseException {
         List<Object> list = new ArrayList<>();
         int c;
         L: for (ITokenLexer<?> itemLexer : lexers) {
@@ -74,5 +73,7 @@ public class MiniLexer
         }
         return list;
     }
+
+    public static LinkedLexer EMPTY = new LinkedLexer();
 
 }

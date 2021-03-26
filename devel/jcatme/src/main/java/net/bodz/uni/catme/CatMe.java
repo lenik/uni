@@ -12,6 +12,7 @@ import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.skel.BasicCLI;
+import net.bodz.uni.catme.builtin.*;
 import net.bodz.uni.catme.io.LoopRunner;
 import net.bodz.uni.catme.io.ResourceResolver;
 import net.bodz.uni.catme.io.ResourceVariant;
@@ -23,8 +24,7 @@ import net.bodz.uni.catme.js.PolyglotContext;
 @MainVersion({ 0, 1 })
 @ProgramName("jcatme")
 @RcsKeywords(id = "$Id$")
-public class CatMe
-        extends BasicCLI {
+public class CatMe extends BasicCLI {
 
     public static final String VAR_APP = CatMe.class.getSimpleName();
     public static final String VAR_GLOBAL = "global";
@@ -100,6 +100,8 @@ public class CatMe
             File file = new File(arg);
             if (file.exists()) {
                 FileFrame frame = new FileFrame(parser, file);
+                setupToplevel(frame);
+
                 scriptContext.put(IFrame.VAR_FRAME, frame);
 
                 try {
@@ -118,6 +120,32 @@ public class CatMe
             }
             throw new IllegalArgumentException("invalid argument: " + arg);
         }
+    }
+
+    void setupToplevel(FileFrame frame) {
+        frame.addCommand("include", InclusionCommand.INCLUDE);
+        frame.addCommand("includeOnce", InclusionCommand.INCLUDE_ONCE);
+        frame.addCommand("sinclude", InclusionCommand.SINCLUDE);
+        frame.addCommand("mixin", InclusionCommand.MIXIN);
+        frame.addCommand("import", InclusionCommand.IMPORT);
+
+        frame.addCommand("dnl", DnlCommand.INSTANCE);
+        frame.addCommand("stop", StopCommand.INSTANCE);
+
+        frame.addCommand("echo", SetEchoLinesCommand.ECHO);
+        frame.addCommand("noecho", SetEchoLinesCommand.NOECHO);
+        frame.addCommand("skip", SetSkipLinesCommand.SKIP);
+        frame.addCommand("noskip", SetSkipLinesCommand.NOSKIP);
+
+        frame.addCommand("use", LoadJsCommand.INSTANCE);
+        frame.addCommand("eval", EvalCommand.INSTANCE);
+        frame.addCommand("shell", ShellCommand.INSTANCE);
+
+        frame.addCommand("error", LogCommand.ERROR);
+        frame.addCommand("warn", LogCommand.WARN);
+        frame.addCommand("info", LogCommand.INFO);
+        frame.addCommand("debug", LogCommand.DEBUG);
+        frame.addCommand("trace", LogCommand.TRACE);
     }
 
     @Override

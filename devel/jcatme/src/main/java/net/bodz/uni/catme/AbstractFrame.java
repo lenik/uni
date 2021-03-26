@@ -350,6 +350,14 @@ public abstract class AbstractFrame
         return null;
     }
 
+    @Override
+    public ResourceVariant resolveModule(String module)
+            throws IOException {
+        if (parent != null)
+            return parent.resolveModule(module);
+        return null;
+    }
+
     public FileFrame createChildFrame(ResourceVariant res)
             throws IOException {
         if (res == null)
@@ -387,7 +395,7 @@ public abstract class AbstractFrame
     @Override
     public void processText(String s)
             throws IOException {
-        //parser.out.print(s);
+        parser.out.print(s);
     }
 
 }
