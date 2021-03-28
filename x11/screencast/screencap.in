@@ -8,6 +8,7 @@
     option --ffmpeg                     "Use ffmpeg (default)"
     option --vlc                        "Use vlc"
     option -b --bandwidth =bytesPerSec  "Specify bandwidth"
+    option -s --size =SCANLINES         "Specify video size"
     option -o --outfile =FILE           "Where to save the recorded video file"
     option -q --quiet
     option -v --verbose
@@ -18,6 +19,7 @@
     opt_bw=1000
     opt_outdir=/tmp/screencap
     opt_outfile=
+    opt_video_size=1920:1080
 
 function setopt() {
     case "$1" in
@@ -27,6 +29,24 @@ function setopt() {
             opt_mode=vlc;;
         -b|--bandwidth)
             opt_bw="$2";;
+        -s|--size)
+            case "$2" in
+                480*)
+                    opt_video_size=640:480;;
+                720*)
+                    opt_video_size=1280:720;;
+                1080*)
+                    opt_video_size=1920:1080;;
+                2160*)
+                    opt_video_size=3840:2160;;
+                2k)
+                    opt_video_size=1920:1080;;
+                4k)
+                    opt_video_size=3840:2160;;
+                *)
+                    quit "unknown scanlines: $2";;
+            esac
+            ;;
         -o|--outfile)
             opt_outfile="$2";;
         -h|--help)
@@ -68,16 +88,18 @@ function main() {
     #more=":duplicate{dst=std{mux=mp4,access=file,dst=\"$dst\"}}"
     more=":std{access=file,mux=mp4,dst=\"$dst\"}"
 
-    play /usr/share/sounds/KDE-Sys-App-Positive.ogg
+    #play /usr/share/sounds/KDE-Sys-App-Positive.ogg
 
     if [ $opt_mode = ffmpeg ]; then
-		ffmpeg -y \
-			-f pulse -ac 2 -i default \
-			-video_size 3820x2160 \
-			-framerate 50 \
-			-f x11grab -i :0.0+0,0 \
-			-vf scale=1920:1080 \
-			"$opt_outfile"
+        _log1 "Recording $opt_outfile"
+        ffmpeg -y -v error \
+                -f alsa -ac 1 \
+                -i default \
+                -video_size $opt_video_size \
+                -framerate 30 \
+                -f x11grab -i :0.0+0,0 \
+                -vf scale=1920:1080 \
+                "$opt_outfile"
     else
         #vlc \
         vlc -I dummy \
