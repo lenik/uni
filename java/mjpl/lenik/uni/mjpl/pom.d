@@ -197,6 +197,7 @@ private:
         string xml0 = cast(string) pomFile.read();
 
         /* BUGFIX CommentException */
+        /*
         static auto kill1 = regex(r"<!--[^>]*-->", "sg");
         static auto kill2 = regex(r"<!\[CDATA\[.*?\]\]>", "sg");
         
@@ -212,7 +213,8 @@ private:
             f2.write(xml2);
             f2.close();
         }
-        string xml = xml2;
+        */
+        string xml = xml0;
         
         Document project;
 
