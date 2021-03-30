@@ -58,10 +58,10 @@ public class FindHash
         if (digest == null)
             digest = MessageDigest.getInstance("CRC32");
         if (!(digest instanceof Cloneable))
-            throw new UnsupportedOperationException(tr._("The algorithm isn\'t clonable: ") + digest + ", class of "
+            throw new UnsupportedOperationException(nls.tr("The algorithm isn\'t clonable: ") + digest + ", class of "
                     + digest.getClass().getName());
         if (hashes == null || hashes.length == 0)
-            throw new IllegalUsageException(tr._("no hash specified"));
+            throw new IllegalUsageException(nls.tr("no hash specified"));
     }
 
     class FindContext {
@@ -111,9 +111,9 @@ public class FindHash
                         boolean matched = match(digest);
                         if ((++count % 1000) == 0 || matched) {
                             String rt = rangesPrefix + "." + from + "-" + to;
-                            logger.status(tr._("Range: "), rt, " = ", HexCodec.getInstance().encode(digest));
+                            logger.status(nls.tr("Range: "), rt, " = ", HexCodec.getInstance().encode(digest));
                             if (matched)
-                                logger.mesg(tr._("Match! "));
+                                logger.mesg(nls.tr("Match! "));
                         }
                     }
                     if (to != range.end) {
@@ -150,15 +150,15 @@ public class FindHash
         super.showHelpPage(out);
         out.println();
 
-        out.println(tr._("Algorithms: "));
+        out.println(nls.tr("Algorithms: "));
         for (String alg : Security.getAlgorithms("MessageDigest")) {
             try {
                 MessageDigest digest = MessageDigest.getInstance(alg);
                 int len = digest.getDigestLength();
                 // Provider provider = digest.getProvider();
-                out.printf(tr._("    %16s: len=%d, %s\n"), alg, len, digest.getClass());
+                out.printf(nls.tr("    %16s: len=%d, %s\n"), alg, len, digest.getClass());
             } catch (NoSuchAlgorithmException e) {
-                out.println(tr._("    Err: ") + alg);
+                out.println(nls.tr("    Err: ") + alg);
             }
         }
 

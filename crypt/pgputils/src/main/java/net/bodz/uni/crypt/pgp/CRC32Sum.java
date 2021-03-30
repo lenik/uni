@@ -80,7 +80,7 @@ public class CRC32Sum
      */
     void errStatus() {
         if (mode != CHECK)
-            logger.warn(tr._("err mode is meaningful only when verifying checksums"));
+            logger.warn(nls.tr("err mode is meaningful only when verifying checksums"));
         logger.setLevel(LogLevel.ERROR, 0);
     }
 
@@ -91,7 +91,7 @@ public class CRC32Sum
      */
     void errWarn() {
         if (mode != CHECK)
-            logger.warn(tr._("err mode is meaningful only when verifying checksums"));
+            logger.warn(nls.tr("err mode is meaningful only when verifying checksums"));
         logger.setLevel(LogLevel.WARN, 0);
     }
 
@@ -123,8 +123,8 @@ public class CRC32Sum
             if (inst instanceof IIntKey)
                 ((IIntKey) inst).setKey((int) key);
             else
-                throw new UnsupportedOperationException(tr._("algorithm ") + _class.getName()
-                        + tr._(" doesn\'t support key"));
+                throw new UnsupportedOperationException(nls.tr("algorithm ") + _class.getName()
+                        + nls.tr(" doesn\'t support key"));
         return inst;
     }
 
@@ -165,9 +165,9 @@ public class CRC32Sum
         super.showHelpPage(out);
         out.println();
 
-        out.println(tr._("Named Algorithms: "));
+        out.println(nls.tr("Named Algorithms: "));
         for (String name : types.keySet())
-            out.printf(tr._("    %8s = %s\n"), name, types.get(name));
+            out.printf(nls.tr("    %8s = %s\n"), name, types.get(name));
 
         out.flush();
     }

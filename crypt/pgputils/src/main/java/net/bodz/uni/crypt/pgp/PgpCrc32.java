@@ -31,12 +31,12 @@ public class PgpCrc32
     public byte[] process(IMemory src, long lenl)
             throws MemoryAccessException {
         if (lenl >= Integer.MAX_VALUE)
-            throw new UnsupportedOperationException(tr._("unsupport to get crc32 from >2G block"));
+            throw new UnsupportedOperationException(nls.tr("unsupport to get crc32 from >2G block"));
         int len = (int) lenl;
         byte[] bigEndian = new byte[len];
         src.read(0, bigEndian);
         if (len % 4 != 0)
-            throw new IllegalArgumentException(tr._("PGP-CRC32 is DWORD aligned"));
+            throw new IllegalArgumentException(nls.tr("PGP-CRC32 is DWORD aligned"));
         if (fillRange != null) { // fill before switch byte-order
             int padIndex = 0;
             for (int i = fillRange.start; i < fillRange.end; i++) {
