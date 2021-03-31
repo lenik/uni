@@ -197,14 +197,13 @@ private:
         string xml0 = cast(string) pomFile.read();
 
         /* BUGFIX CommentException */
-        /*
         static auto kill1 = regex(r"<!--[^>]*-->", "sg");
         static auto kill2 = regex(r"<!\[CDATA\[.*?\]\]>", "sg");
         
         string xml1 = replace(xml0, kill1, "");
         string xml2 = replace(xml1, kill2, "");
         
-        if (xml1 != xml2) {
+        if (0 && xml1 != xml2) {
             log.warn("XML edit happens.");
             File f1 = File("before", "w");
             f1.write(xml1);
@@ -213,8 +212,7 @@ private:
             f2.write(xml2);
             f2.close();
         }
-        */
-        string xml = xml0;
+        string xml = xml2;
         
         Document project;
 
@@ -455,10 +453,14 @@ class PomManager {
         // log.dbg("  cache imap: %s", idVer);
         imap[idVer] = pom;
 
-        if (id !in maxVers)
-            maxVers[id] = pom.version_;
-        else if (versionNewer(pom.version_, maxVers[id]))
-            maxVers[id] = pom.version_;
+        if (pom.version_ == "") {
+            log.err("no version: " ~ file);
+        } else {
+            if (id !in maxVers)
+                maxVers[id] = pom.version_;
+            else if (versionNewer(pom.version_, maxVers[id]))
+                maxVers[id] = pom.version_;
+        }
         
         return pom;
     }
@@ -625,8 +627,11 @@ private:
         auto dm = project.dmgmt(dep.id);
         if (dm !is null)
             ver = dm.version_;
-        else
+        else {
+            debug(2) foreach (k; manager.maxVers.keys)
+                log.info("    - " ~ k ~ ": " ~ manager.maxVers[k]);
             ver = manager.maxVers[dep.id]; /* assert non-null */
+        }
 
         useVers[dep.key] = ver;
         order ~= dep.key;

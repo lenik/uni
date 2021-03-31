@@ -1,6 +1,6 @@
 include libauto/project.am
 
-dcompiler = gdc \
+dcompiler = gdc -g \
     -O3 -frelease \
     -I/usr/include/d2/site \
     -fignore-unknown-pragmas
