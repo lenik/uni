@@ -16,6 +16,6 @@ Depends:
     bash-alias,
     grep,
     sudo,
-    vim-tiny,
+    vim | vim-tiny,
     ${misc:Depends}
 Description: Lenik's vim enhancement.
