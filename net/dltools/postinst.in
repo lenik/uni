@@ -5,11 +5,18 @@ echo "Add user wget"
     # recreate if empty dir.
     rmdir @cachedir@ 2>/dev/null
 
-    useradd \
-        -m -d @cachedir@ \
-        -s /bin/false \
-        -r -U -c "wgetc daemon" \
-        wget
+    for ((uid = 100; uid < 300; uid++)); do
+        useradd \
+            --create-home \
+            --home-dir @cachedir@ \
+            --shell /bin/false \
+            --system \
+            --user-group \
+            --uid $uid \
+            -c "wgetc daemon" \
+            wget && break
+    done
+    echo "created user wget with uid=$uid"
 
 sid=0
 if [ $sid = 1 ]; then
