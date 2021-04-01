@@ -12,6 +12,7 @@ Package: coolsql
 Architecture: all
 Depends:
     bash-shlib,
+    perl,
     ${misc:Depends}
 Description: A virtual SQL frontend.
     coolsql allows you execute SQLs for various different database backends

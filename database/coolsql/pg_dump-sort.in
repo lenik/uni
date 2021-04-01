@@ -1,0 +1,203 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+pg_dump_sort - Sort COPY contents in the pg_dump dump file.
+
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'baksplit'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: - @VERSION@ @DATE@ @TIME@ - $');
+use Getopt::Long;
+    Getopt::Long::Configure('gnu_getopt');
+
+sub _main; sub _version; sub _help;
+sub copy_lcmp;
+
+sub _boot {
+    GetOptions('q|quiet'        => sub { $LOGLEVEL-- },
+               'v|verbose'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'h|help'         => sub { _help; exit 0 },
+               )
+        or exit(1);
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<baksplit>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<baksplit> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-baksplit-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item Show help
+
+    pg_dump_sort --help
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Common options:
+    -q, --quiet             Repeat to get less info
+    -v, --verbose           Repeat to get more info
+    -h, --help              Show this help page
+        --version           Print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    my $state = '-';
+    my @buf;
+
+    while (<>) {
+        if ($state eq '-') {
+            print;
+
+            if (/^COPY\s+(.*?)\s+\(/) {
+                my $table = $1;
+                _log2 "Table: $table";
+                $state = 'C';
+                @buf = ();
+            }
+
+        } elsif ($state eq 'C') {
+
+            if (/^\\\.$/) {
+                @buf = sort { copy_lcmp($a, $b) } @buf;
+                print for @buf;
+                $state = '-';
+                print;
+            } else {
+                push @buf, $_;
+            }
+
+        }
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+sub copy_lcmp() {
+    my ($a, $b) = @_;
+
+    return 0 if $a eq $b;
+
+    return -1 if substr($a, 0, 5) eq 'COPY ';
+    return 1 if $a eq "\\.\n";
+
+    return 1 if substr($b, 0, 5) eq 'COPY ';
+    return -1 if $b eq "\\.\n";
+
+    my $n1 = index($a, "\t");
+    my $n2 = index($b, "\t");
+    if ($n1 != $n2) {
+        return $n1 - $n2;
+    } else {
+        $n1 = substr($a, 0, $n1);
+        $n2 = substr($b, 0, $n2);
+        my $cmp = int($n1) - int($n2);
+        return $cmp if $cmp != 0;
+    }
+
+    # Don't remove duplicated "id" by accident if any.
+    return -1;
+}
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME] PostgreSQL .bak COPY rows sorter \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Lenik (谢继雷) <xjl@99jsj.com>
+
+=cut

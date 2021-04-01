@@ -1,0 +1,100 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Restore backed-up database}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <connection> bak-files}
+
+    opt_instance=$(hostname)
+    opt_commit=
+    opt_commit_mesg="Cluster backup at $node"
+    opt_author=
+
+    . shlib-import cliboot
+    option -c --conn =STR       "Specify the connection @alias or conn-str"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_conn=
+
+function setopt() {
+    case "$1" in
+        -c|--conn)
+            opt_conn="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$opt_conn" ]; then
+        if [ -z "$1" ]; then
+            quit "Expected connection name."
+        fi
+        opt_conn="$1"
+        shift
+    fi
+    
+    for f in "$@"; do
+        if [ ! -r "$f" ]; then
+            _error "Not readable: $f"
+            continue
+        fi
+        restore "$f"
+    done
+}
+
+function restore() {
+    local bak="$1"
+
+    BACKUP_VERSION=0
+    BACKUP_DATE=
+    DATNAME=
+    DATDBA=
+    INSTANCE=
+
+    _log2 "Parse backed up file $bak"
+    while read prefix cmdline; do
+        if [ "$prefix" = '--!' ]; then
+            eval "$cmdline"
+            continue
+        fi
+        if [ -z "$prefix" ]; then
+            break
+        fi
+    done <"$bak"
+
+    if [ -z "$DATNAME" ]; then
+        _error "DATNAME isn't defined in backup file $bak"
+        return 1
+    fi
+    if [ -z "$DATDBA" ]; then
+        _error "DATDBA isn't defined in backup file $bak"
+        return 1
+    fi
+
+    _log2 "Last backed up at $BACKUP_DATE (version=$BACKUP_VERSION)"
+    _log1 "Restore database $DATNAME (from $CLUSTER) owned by $DATDBA"
+
+    _log2 "Dropping existing database if any: $DATNAME"
+    if ! ksql -c "$opt_conn" -x dropdb "$DATNAME"; then
+        _error "Failed to drop database $DATNAME"
+        return 2
+    fi
+
+    _log2 "Re-creating database $DATNAME with owner $DATDBA"
+    ksql -c "$opt_conn" -x createdb --owner "$DATDBA" "$DATNAME"
+
+    _log2 "Execute backed up DDL"
+    ksql -c "$opt_conn" -x psql -d "$DATNAME" -f "$bak"
+}
+
+boot "$@"

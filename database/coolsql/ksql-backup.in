@@ -1,0 +1,141 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Backup databases with vcs-tracked}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <connection> [<database>]}
+
+    opt_instance=
+    opt_backup_dir="."
+    opt_commit=
+    opt_commit_mesg=
+    opt_author=
+
+    . shlib-import cliboot
+    option -c --conn =STR       "Specify the connection @alias or conn-str"
+    option -n --name =NAME      "Specify the instance name"
+    option -d --backup-dir =DIR "Specify the backup dir"
+    option -C --commit          "Do VCS commit after backed up"
+    option -m --message =TEXT   "Override the default commit message"
+    option -a --author =AUTHOR  "The author name used for commiting"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_conn=
+    opt_dbname=
+    declare -A dat_dba
+
+function setopt() {
+    case "$1" in
+        -c|--conn)
+            opt_conn="$2";;
+        -n|--name)
+            opt_instance="$2";;
+        -d|--backup-dir)
+            opt_backup_dir="$2";;
+        -C|--commit)
+            opt_commit=1;;
+        -m|--message)
+            opt_commit_mesg="$2";;
+        -a|--author)
+            opt_author="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$opt_commit_mesg" ]; then
+        opt_commit_mesg="Cluster backup at $opt_instance"
+    fi
+
+    if [ -z "$opt_conn" ]; then
+        if [ -z "$1" ]; then
+            quit "Expected connection name."
+        fi
+        opt_conn="$1"
+        shift
+    fi
+    
+    if [ -z "$opt_dbname" ]; then
+        opt_dbname="$1"
+        shift
+    fi
+    
+    if [ -n "$opt_instance" ]; then
+        opt_backup_dir="$opt_backup_dir/$opt_instance"
+    fi
+
+    mkdir -p "$opt_backup_dir"
+    cd "$opt_backup_dir"
+    VcsCmd pull || quit "Failed to pull/update"
+
+    list_databases
+
+    for datname in "${!dat_dba[@]}"; do
+        if [ -n "$opt_dbname" ]; then
+            if [ "$opt_dbname" != "$datname" ]; then
+                continue
+            fi
+        fi
+        
+        dba="${dat_dba[$datname]}"
+        out="$datname.bak.sql"
+        date=`date "+%Y-%m-%d %H:%M:%S"`
+        _log1 "Backup database $datname..."
+        cat <<EOT >"$out"
+--! BACKUP_VERSION=1.0
+--! INSTANCE='$opt_instance'
+--! DATNAME='$datname'
+--! DATDBA='$dba'
+
+EOT
+        ksql -c "$opt_conn" -x pg_dump -d "$datname" | pg_dump-sort | grep -v '^--' >>"$out"
+
+        # split tables
+        dbdir="$datname"
+        [ -d "$dbdir" ] && VcsCmd rm -r "$dbdir"
+        pg_dump-split "$out"
+        [ -d "$dbdir" ] && VcsCmd add "$dbdir"
+    done
+    _log1 "Backup completed."
+
+    date=`date "+%Y-%m-%d %H:%M:%S"`
+    if [ "$opt_commit" = 1 ]; then
+        VcsCmd add .
+        
+        commitopts=()
+        [ -n "$opt_author" ] && commitopts=("${commitopts[@]}" --author "$opt_author")
+        VcsCmd commit "${commitopts[@]}" -m "[$date] $opt_commit_mesg"
+        
+        VcsCmd push
+    fi
+}
+
+function VcsCmd() {
+    if [ "$opt_commit" != 1 ]; then
+        return 0
+    fi
+    vcscmd "$@"
+}
+
+function list_databases() {
+    local sql="select datname, rolname, datistemplate \
+        from pg_database d left join pg_authid a on d.datdba=a.oid"
+    # -A: no-align, -t: tuples-only (no header/footer), -c: command
+    while IFS='|' read datname rolname istmpl _; do
+        [ "$istmpl" = t ] && continue
+        _log1 "Found database $datname (dba: $rolname)"
+        dat_dba[$datname]="$rolname"
+    done < <(ksql -c "$opt_conn" -x psql -Atc "$sql")
+}
+
+boot "$@"

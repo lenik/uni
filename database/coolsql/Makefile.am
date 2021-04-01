@@ -5,7 +5,12 @@ driverdir=${pkgdatadir}/driver
 do_subst += -e 's,@driverdir@,${driverdir},g'
 
 dist_bin_SCRIPTS = \
-    coolsql
+    ksql \
+    ksql-backup \
+    ksql-restore \
+    ksql-csv \
+    pg_dump-sort \
+    pg_dump-split
 
 dist_driver_DATA = \
     pg.csd

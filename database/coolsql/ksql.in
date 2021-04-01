@@ -1,0 +1,183 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Cool SQL Front-End}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] [connection] [cmdarray or codelines]}
+
+    THIS="$0"
+    configdir="$HOME/.config/coolsql"
+    bindir=$(readlink -f "$0"); bindir="${bindir%/*}"
+    driverdirs=("$bindir" "@driverdir@")
+
+    . shlib-import cliboot
+    option -c --conn =STR   "Specify the connection, @alias or conn-string"
+    option -a --each-db     "Eval for each database"
+    option -i --interactive "Stay with the sql console"
+    option -e --eval        "Eval code as SQL script"
+    option -x --exec        "Execute connection related cmdline app"
+    option -f --script-file "Eval script file named by code"
+    option -D --list-db     "List databases"
+    option -l --list-table  "List tables"
+    # option -T --tree        "Dump object tree"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_conn=
+    opt_each_db=
+    opt_mode=
+
+function setopt() {
+    case "$1" in
+        -c|--conn)
+            opt_conn="$2";;
+        -a|--each-db)
+            opt_each_db=1;;
+        -i|--interactive)
+            opt_mode=console;;
+        -e|--eval)
+            opt_mode=eval;;
+        -x|--exec)
+            opt_mode=exec;;
+        -f|--script-file)
+            opt_mode=file;;
+        -D|--list-db)
+            opt_mode=list_db;;
+        -l|--list-table)
+            opt_mode=list_table;;
+        -T|--tree)
+            opt_mode=dump_tree;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$opt_conn" ]; then
+        if [ -z "$1" ]; then
+            quit "Connection name isn't specified."
+        fi
+        opt_conn="$1"
+        shift
+    fi
+    
+    if [ "$opt_mode" = 'exec' ]; then
+        if [ -z "$1" ]; then
+            quit "Expect exec cmd name"
+        fi
+        opt_exec_cmd="$1"
+        shift
+    fi
+
+    db_type=pg
+    db_host=localhost
+    db_port=5432
+    db_name=postgres
+    db_user=postgres
+    db_pass=postgres
+
+    case "$opt_conn" in
+        @*)
+            conn_rc="$configdir/conn/${opt_conn#@}"
+
+            if [ ! -f "$conn_rc" ]; then
+                echo "Connection isn't defined: $opt_conn"
+                read -p "Define it now? (y/n)" yesno
+                if [ "$yesno" != 'y' ]; then
+                    return 1
+                fi
+
+                read -p "Database type name: "  db_type
+                read -p "Remote host name: "    db_host
+                read -p "Remote port number: "  db_port
+                read -p "Database name: "       db_name
+                read -p "Login user: "          db_user
+                read -p "Login password: "      db_pass
+
+                mkdir -p "$configdir/conn"
+                echo "# Connection config: $opt_conn" >"$conn_rc"
+
+                [ -n "$db_type" ] && echo "db_type='$db_type'" >>"$conn_rc"
+                [ -n "$db_host" ] && echo "db_host='$db_host'" >>"$conn_rc"
+                [ -n "$db_port" ] && echo "db_port='$db_port'" >>"$conn_rc"
+                [ -n "$db_name" ] && echo "db_name='$db_name'" >>"$conn_rc"
+                [ -n "$db_user" ] && echo "db_user='$db_user'" >>"$conn_rc"
+                [ -n "$db_pass" ] && echo "db_pass='$db_pass'" >>"$conn_rc"
+            fi
+
+            if ! source "$conn_rc"; then
+                quit "Failed to load connection config"
+            fi
+            ;;
+        *://*)
+            db_type="${opt_conn%%://*}"
+                s="${opt_conn#*://}"
+            db_name="${s#*/}"
+                s="${s%%/*}"
+            userpass="${s%@*}"
+                s="${s##*@}"
+            if [ "$userpass" != "$s" ]; then
+                db_user="${userpass%%:*}"
+                if [ "$db_user" != "$userpass" ]; then
+                    db_pass="${userpass#*:}"
+                fi
+            fi
+            db_host="${s%:*}"
+            if [ "$db_host" != "$s" ]; then
+                db_port="${s##*:}"
+            fi
+            ;;
+        *)
+            quit "Illegal connection string: $opt_conn"
+            ;;
+    esac
+    
+    if [ -z "$opt_mode" ]; then
+        if [ -z "$1" ]; then
+            opt_mode=console
+        else
+            opt_mode=eval
+        fi
+    fi
+
+    driver=
+    for dir in "${driverdirs[@]}"; do
+        csd="$dir/${db_type}.csd"
+        if [ -f "$csd" ]; then
+            driverdir="$dir"
+            driver="$csd"
+            break
+        fi
+    done
+
+    if [ -f "$driver" ]; then
+        _log2 "Load coolsql driver: $driver"
+        source "$driver"
+    fi
+
+    fn="_${db_type}_$opt_mode"
+    if ! type -t "$fn" >/dev/null; then
+        quit "Unsupported driver cmd: $opt_mode"
+    fi
+
+    if [ "$opt_each_db" = 1 ]; then
+        databases=( $("$THIS" -c "$opt_conn" -D) )
+        for db in "${databases[@]}"; do
+            db_name="$db"
+            _log1 "-- for database $db:"
+            "$fn" "$@"
+        done
+    else
+        "$fn" "$@"
+    fi
+}
+
+boot "$@"

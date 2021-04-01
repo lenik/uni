@@ -1,0 +1,76 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PROGRAM_TITLE:=Simple CSV Exporter Utility}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <connection> <SQL>}
+
+    opt_instance=
+    opt_backup_dir="."
+    opt_commit=
+    opt_commit_mesg="Cluster backup at $node"
+    opt_author=
+
+    . shlib-import cliboot
+    option -c --conn =STR       "Specify the connection @alias or conn-str"
+    option -b --body-only       "Don't print headers"
+    option -r --raw             "Never quote strings"
+    option -d --delim =DELIM    "Column separator other then $DELIM_DEFAULT"
+    option -X --Xname =value    "Extra args passed to psql"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    body_only=0
+    raw=0
+    delim=
+    xargs=()
+    nxargs=0
+
+function setopt() {
+    case "$1" in
+        -c|--conn)
+            opt_conn="$2";;
+        -b|--body-only)
+            body_only=1;;
+        -r|--raw)
+            raw=1;;
+        -d|--delim)
+            delim="$2";;
+        -X)
+            xargs[nxargs++]="-$2";;
+        -h|--help)
+            help; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ "$#" = 0 ]; then
+        quit "SQL isn't specified"
+    fi
+
+    opts=()
+    nopt=0
+    if [ "$body_only" = 1 ]; then
+        opts[nopt++]=--tuples-only
+    fi
+    if [ -n "$delim" ]; then
+        opts[nopt++]=--no-align
+        opts[nopt++]=--field-separator="$delim"
+    fi
+    if [ -n "$raw" ]; then
+        _warn "Raw-format isn't supported, yet"
+    fi
+
+    _log1 psql "${opts[@]}" "${xargs[@]}" -c "$*"
+    ksql -c "$opt_conn" -x psql "${opts[@]}" "${xargs[@]}" -c "$*"
+}
+
+boot "$@"
