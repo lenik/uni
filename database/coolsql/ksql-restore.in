@@ -84,10 +84,12 @@ function restore() {
     _log2 "Last backed up at $BACKUP_DATE (version=$BACKUP_VERSION)"
     _log1 "Restore database $DATNAME (from $CLUSTER) owned by $DATDBA"
 
-    _log2 "Dropping existing database if any: $DATNAME"
-    if ! ksql -c "$opt_conn" -x dropdb "$DATNAME"; then
-        _error "Failed to drop database $DATNAME"
-        return 2
+    if db_exists "$DATNAME"; then
+        _log2 "Dropping existing database: $DATNAME"
+        if ! ksql -c "$opt_conn" -x dropdb "$DATNAME"; then
+            _error "Failed to drop database $DATNAME"
+            return 2
+        fi
     fi
 
     _log2 "Re-creating database $DATNAME with owner $DATDBA"
@@ -95,6 +97,19 @@ function restore() {
 
     _log2 "Execute backed up DDL"
     ksql -c "$opt_conn" -x psql -d "$DATNAME" -f "$bak"
+}
+
+function db_exists() {
+    local db="$1"
+    local sql="select datname, rolname, datistemplate \
+        from pg_database d left join pg_authid a on d.datdba=a.oid and d.datname='$db'"
+    # -A: no-align, -t: tuples-only (no header/footer), -c: command
+    while IFS='|' read datname rolname istmpl _; do
+        if [ "$datname" = "$db" ]; then
+            return 0
+        fi
+    done < <(ksql -c "$opt_conn" -x psql -Atc "$sql")
+    return 1
 }
 
 boot "$@"
