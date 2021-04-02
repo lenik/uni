@@ -29,6 +29,8 @@ function passphrase() {
 
 function config() {
     local private_key="$1"
+    local reqexts=SAN
+
     echo "[ca]"
     echo "default_ca              = CA_default"
     echo
@@ -42,8 +44,7 @@ function config() {
     echo "attributes              = req_attributes"
     echo "prompt                  = no"
     echo "x509_extensions         = v3_ca"
-    [ "$n_domain" != 0 ] &&
-        echo "req_extensions          = v3_req"
+    echo "req_extensions          = req_extensions"
     echo
     echo "[req_distinguished_name]"
     [ -n "$DN_C" ] && echo "C     = $DN_C"
@@ -56,16 +57,9 @@ function config() {
     echo
     echo "[req_attributes]"
     echo
-    echo "[root_ca_extensions]"
-    echo "basicConstraints        = CA:true"
-    echo
-    echo "[v3_ca]"
-    echo "basicConstraints        = CA:true"
-
+    echo "[req_extensions]"
+    echo "basicConstraints        = CA:false"
     if [ "$n_domain" != 0 ]; then
-        echo
-        echo "[v3_req]"
-        echo "basicConstraints        = CA:false"
         echo "keyUsage                = nonRepudiation, digitalSignature, keyEncipherment"
         echo "subjectAltName          = @alt_names"
         echo
@@ -76,6 +70,13 @@ function config() {
             (( index++ ))
         done
     fi
+    echo
+    echo "[root_ca_extensions]"
+    echo "basicConstraints        = CA:true"
+    echo
+    echo "[v3_ca]"
+    echo "basicConstraints        = CA:true"
+
 }
 
 function x509-opts() {

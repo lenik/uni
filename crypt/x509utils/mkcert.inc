@@ -1,3 +1,5 @@
+# vim: set ft=make :
+
 SHELL=bash
 
 %.rand:
@@ -24,10 +26,12 @@ SHELL=bash
 	        echo "Generate child x509 certificate signed by $$dirname"; \
 	        openssl x509 -req -in "$*.csr" -out "$*.crt" -signkey "$*.pem" \
 	            -CA "../$$dirname.crt" -CAkey "../$$dirname.pem" -CAcreateserial \
+                    -extfile "$*.cfg" -extensions req_extensions \
 	            `get-config "$*.cs" x509-opts $*.cfg`; \
 	    else \
 	        echo "Generate self-signed x509 certificate"; \
 	        openssl x509 -req -in "$*.csr" -out "$*.crt" -signkey "$*.pem" \
+                    -extfile "$*.cfg" -extensions req_extensions \
 	            `get-config "$*.cs" x509-opts $*.cfg`; \
 	    fi
 
