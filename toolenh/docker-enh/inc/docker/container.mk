@@ -1,7 +1,9 @@
 SHELL = /bin/bash
 
 GUEST_SHELL = bash -i
-REPO = localhost:5000
+REPO_HOST = localhost
+REPO_PORT = 5000
+REPO = $(REPO_HOST):$(REPO_PORT)
 
 DOCKER_BUILD_OPTS =
 
