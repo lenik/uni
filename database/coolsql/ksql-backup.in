@@ -5,7 +5,7 @@
 
     opt_instance=
     opt_backup_dir="."
-    opt_commit=
+    opt_vcs=0
     opt_commit_mesg=
     opt_author=
 
@@ -34,8 +34,10 @@ function setopt() {
         -d|--backup-dir)
             opt_backup_dir="$2";;
         -C|--commit)
-            opt_commit=1;;
+            opt_vcs=1
+            ;;
         -m|--message)
+            opt_vcs=1
             opt_commit_mesg="$2";;
         -a|--author)
             opt_author="$2";;
@@ -53,6 +55,11 @@ function setopt() {
 }
 
 function main() {
+    if [ -z "$opt_instance" ]; then
+        opt_instance=$(hostname)
+    fi
+    # opt_backup_dir="$opt_backup_dir/$opt_instance"
+
     if [ -z "$opt_commit_mesg" ]; then
         opt_commit_mesg="Cluster backup at $opt_instance"
     fi
@@ -70,13 +77,17 @@ function main() {
         shift
     fi
     
-    if [ -n "$opt_instance" ]; then
-        opt_backup_dir="$opt_backup_dir/$opt_instance"
-    fi
-
     mkdir -p "$opt_backup_dir"
     cd "$opt_backup_dir"
-    VcsCmd pull || quit "Failed to pull/update"
+    
+    if [ "$opt_vcs" = 1 ]; then
+        vcs_remotes=( $(VcsCmd remote) )
+        vcs_nremote=${#vcs_remotes[@]}
+
+        if [ $vcs_nremote != 0 ]; then
+            VcsCmd pull || quit "Failed to pull/update"
+        fi
+    fi
 
     list_databases
 
@@ -109,21 +120,21 @@ EOT
     _log1 "Backup completed."
 
     date=`date "+%Y-%m-%d %H:%M:%S"`
-    if [ "$opt_commit" = 1 ]; then
+    if [ "$opt_vcs" = 1 ]; then
         VcsCmd add .
         
         commitopts=()
         [ -n "$opt_author" ] && commitopts=("${commitopts[@]}" --author "$opt_author")
         VcsCmd commit "${commitopts[@]}" -m "[$date] $opt_commit_mesg"
         
-        VcsCmd push
+        if [ $vcs_nremote != 0 ]; then
+            VcsCmd push origin master
+        fi
     fi
 }
 
 function VcsCmd() {
-    if [ "$opt_commit" != 1 ]; then
-        return 0
-    fi
+    _log2 "vcscmd $*"
     vcscmd "$@"
 }
 
