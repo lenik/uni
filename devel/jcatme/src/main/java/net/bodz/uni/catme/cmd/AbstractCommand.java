@@ -1,4 +1,4 @@
-package net.bodz.uni.catme.builtin;
+package net.bodz.uni.catme.cmd;
 
 import java.util.List;
 

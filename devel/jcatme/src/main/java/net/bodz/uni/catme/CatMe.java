@@ -12,7 +12,7 @@ import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.skel.BasicCLI;
-import net.bodz.uni.catme.builtin.*;
+import net.bodz.uni.catme.cmd.*;
 import net.bodz.uni.catme.io.LoopRunner;
 import net.bodz.uni.catme.io.ResourceResolver;
 import net.bodz.uni.catme.io.ResourceVariant;
