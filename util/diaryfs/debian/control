@@ -1,0 +1,19 @@
+Source: diaryfs
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.5.1
+Homepage: http://uni.bodz.net/util/diaryfs
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/util/diaryfs
+Rules-Requires-Root: no
+
+Package: diaryfs
+Architecture: all
+Depends: 
+    bash-shlib,
+    perl,
+    ${misc:Depends}
+Description: Utils to support files archiving, as a method used in daily works.
+
