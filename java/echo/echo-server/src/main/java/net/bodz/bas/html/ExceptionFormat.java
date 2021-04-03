@@ -1,5 +1,6 @@
 package net.bodz.bas.html;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.regex.Matcher;
@@ -29,7 +30,8 @@ public class ExceptionFormat {
         TextPrepByParts prep = TextPrepByParts.match(packagePattern, new IPartProcessor() {
 
             @Override
-            public String process(String part, Matcher matcher) {
+            public void process(CharSequence in, int start, int end, Appendable out, Matcher matcher)
+                    throws IOException {
                 String sub = matcher.group(2);
 
                 String tag = "b";
@@ -56,8 +58,9 @@ public class ExceptionFormat {
                 String prefix = "<" + tag + " " + attrs + ">";
                 String suffix = "</" + tag + ">";
 
-                part = prefix + part + suffix;
-                return part;
+                out.append(prefix);
+                out.append(in, start, end);
+                out.append(suffix);
             }
         });
 

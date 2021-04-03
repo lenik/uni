@@ -1,7 +1,10 @@
 package net.bodz.uni.catme;
 
+import java.io.IOException;
+
 public interface ITextFilter {
 
-    String filter(String s);
+    void filter(StringBuilder in, Appendable out)
+            throws IOException;
 
 }

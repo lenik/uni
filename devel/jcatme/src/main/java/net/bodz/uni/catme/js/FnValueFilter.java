@@ -1,5 +1,7 @@
 package net.bodz.uni.catme.js;
 
+import java.io.IOException;
+
 import org.graalvm.polyglot.Value;
 
 import net.bodz.uni.catme.ITextFilter;
@@ -15,10 +17,13 @@ public class FnValueFilter
     }
 
     @Override
-    public String filter(String s) {
-        Value result = fn.execute(s);
-        Object obj = ValueFn.convert(result);
-        return String.valueOf(obj);
+    public void filter(StringBuilder in, Appendable out)
+            throws IOException {
+        String s = in.toString();
+        Value resultVal = fn.execute(s);
+        Object obj = ValueFn.convert(resultVal);
+        String resultStr = String.valueOf(obj);
+        out.append(resultStr);
     }
 
 }

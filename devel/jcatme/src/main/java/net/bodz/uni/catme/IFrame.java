@@ -77,6 +77,16 @@ public interface IFrame {
     String filter(String s)
             throws EvalException;
 
+    /**
+     * @return normal?
+     *         <ul>
+     *         <li><code>true</code>: result is in the <code>out</code> buffer.
+     *         <li><code>false</code>: result is in the <code>in</code> buffer.
+     *         </ul>
+     */
+    boolean fastFilter(StringBuilder in, StringBuilder out)
+            throws EvalException;
+
     MainParser getParser();
 
     ResourceVariant resolveHref(String href)
@@ -98,7 +108,7 @@ public interface IFrame {
     void processComments(StringBuilder cbuf, int textStart, int textEnd, boolean multiLine)
             throws IOException, ParseException;
 
-    void processText(StringBuilder cbufs)
+    void processText(StringBuilder cbuf)
             throws IOException;
 
 }

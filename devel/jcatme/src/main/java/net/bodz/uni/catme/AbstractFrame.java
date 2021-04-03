@@ -350,14 +350,34 @@ public abstract class AbstractFrame
     @Override
     public String filter(String s)
             throws EvalException {
+        StringBuilder in = new StringBuilder(s);
+        StringBuilder out = new StringBuilder(s.length());
+        fastFilter(in, out);
+        return out.toString();
+    }
+
+    @Override
+    public boolean fastFilter(StringBuilder in, StringBuilder out)
+            throws EvalException {
+        boolean reversed = false;
         if (filterStack != null)
-            for (FilterEntry entry : filterStack)
-                s = entry.filter.filter(s);
-
+            for (FilterEntry entry : filterStack) {
+                try {
+                    entry.filter.filter(in, out);
+                } catch (Exception e) {
+                    String type = entry.filter.getClass().getSimpleName();
+                    String name = type + " " + entry.key;
+                    throw new EvalException("Filter(" + name + ") error: " + e.getMessage(), e);
+                }
+                StringBuilder tmp = in;
+                in = out;
+                out = tmp;
+                out.setLength(0);
+                reversed = !reversed;
+            }
         if (parent != null)
-            s = parent.filter(s);
-
-        return s;
+            reversed ^= parent.fastFilter(in, out);
+        return reversed;
     }
 
     @Override
