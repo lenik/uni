@@ -2,10 +2,8 @@ package net.bodz.uni.catme;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.graalvm.polyglot.Value;
 
@@ -14,10 +12,7 @@ import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.fn.EvalException;
 import net.bodz.bas.io.ICharIn;
-import net.bodz.bas.io.ITreeOut;
-import net.bodz.bas.io.Stdio;
 import net.bodz.bas.io.StringCharIn;
-import net.bodz.bas.io.impl.TreeOutImpl;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.uni.catme.js.IScriptContext;
@@ -26,7 +21,6 @@ import net.bodz.uni.catme.lex.ITokenLexer;
 import net.bodz.uni.catme.lex.La1CharInImpl;
 import net.bodz.uni.catme.lex.NonspaceTokenLexer;
 import net.bodz.uni.catme.trie.ITokenCallback;
-import net.bodz.uni.catme.trie.Token;
 import net.bodz.uni.catme.trie.TrieParser;
 
 public class MainParser {
@@ -39,13 +33,12 @@ public class MainParser {
 
     IScriptContext scriptContext;
     Value commandDispatcher;
-    Set<String> imported = new HashSet<>();
 
     /** main text stream (output) */
     public static final String TEXT = "text";
     Map<String, StringBuffer> streams = new HashMap<>();
 
-    ITreeOut out = TreeOutImpl.from(Stdio.cout);
+    Appendable out = System.out;
 
     public MainParser(CatMe app, IScriptContext scriptContext)
             throws IOException {
@@ -75,7 +68,7 @@ public class MainParser {
             throws IOException, InterruptedException {
         Process process = Processes.shellExec(cmdarray);
         String result = Processes.iocap(process, "utf-8");
-        out.print(result);
+        out.append(result);
     }
 
     public Value getCommandDispatcher() {
@@ -86,19 +79,7 @@ public class MainParser {
         this.commandDispatcher = commandDispatcher;
     }
 
-    public boolean isImported(String qName) {
-        return imported.contains(qName);
-    }
-
-    public boolean addImported(String qName) {
-        return imported.add(qName);
-    }
-
-    public void removeImported(String qName) {
-        imported.remove(qName);
-    }
-
-    public ITreeOut getOut() {
+    public Appendable getOut() {
         return out;
     }
 
@@ -118,26 +99,26 @@ public class MainParser {
 
             boolean inComments;
             boolean singleLineComment = false;
-            StringBuilder buf = new StringBuilder();
+            StringBuilder buf = new StringBuilder(1024);
             int textStart, textEnd;
 
             @Override
-            public boolean onToken(TrieParser<MySym> parser, Token<MySym> token)
+            public boolean onToken(TrieParser<MySym> parser, int line, int column, StringBuilder cbuf, MySym symbol)
                     throws IOException, ParseException {
-                if (token.isSymbol()) {
-                    switch (token.symbol.id) {
+                if (symbol != null) {
+                    switch (symbol.id) {
                     case MySym.SIMPLE_OPENER:
                         singleLineComment = true;
                     case MySym.OPENER:
                         inComments = true;
-                        buf.append(token.text);
+                        buf.append(cbuf);
                         textStart = buf.length();
                         textEnd = 0;
 
                         ff.commentLexer.parse(in, this);
                         if (textEnd <= 0)
                             textEnd = buf.length();
-                        frame.processComments(buf.toString(), textStart, textEnd, !singleLineComment);
+                        frame.processComments(buf, textStart, textEnd, !singleLineComment);
 
                         inComments = false;
                         singleLineComment = false;
@@ -150,16 +131,16 @@ public class MainParser {
 
                     case MySym.CLOSER:
                         textEnd = buf.length();
-                        buf.append(token.text);
+                        buf.append(cbuf);
                         return false; // quit the sub-lang
                     }
                 } else {
                     if (inComments) {
-                        buf.append(token.text);
+                        buf.append(cbuf);
                         if (singleLineComment)
                             return false; // quit the sub-lang
                     } else {
-                        frame.processText(token.text);
+                        frame.processText(cbuf);
                     }
                 }
                 return !stopParseFrameSource;

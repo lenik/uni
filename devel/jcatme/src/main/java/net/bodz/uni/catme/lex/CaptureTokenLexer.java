@@ -8,10 +8,12 @@ public class CaptureTokenLexer
         implements
             ITokenLexer<String> {
 
+    static final int _CAP_LEN = 100;
+
     @Override
     public String lex(ILa1CharIn in)
             throws IOException, ParseException {
-        StringBuilder buf = new StringBuilder();
+        StringBuilder buf = new StringBuilder(_CAP_LEN);
         int c;
         while ((c = in.read()) != -1)
             buf.append((char) c);

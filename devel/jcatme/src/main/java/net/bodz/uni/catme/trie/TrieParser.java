@@ -65,9 +65,9 @@ public class TrieParser<sym> {
                 cur = cur.getChild(ch);
                 if (cur.isDefined()) { // TODO lookahead.
                     if (otherbuf.hasContent())
-                        if (!callback.onToken(this, otherbuf.commit()))
+                        if (!otherbuf.commit(callback))
                             return;
-                    if (!callback.onToken(this, symbuf.commit(cur.getData())))
+                    if (!symbuf.commit(callback, cur.getData()))
                         return;
                     cur = root;
                 }
@@ -85,7 +85,7 @@ public class TrieParser<sym> {
             case '\n':
                 line = line + 1;
                 column = columnStart;
-                if (!callback.onToken(this, otherbuf.commit()))
+                if (!otherbuf.commit(callback))
                     return;
                 break;
             default:
@@ -94,7 +94,7 @@ public class TrieParser<sym> {
         }
 
         if (otherbuf.hasContent())
-            if (!callback.onToken(this, otherbuf.commit()))
+            if (!otherbuf.commit(callback))
                 return;
     }
 
@@ -143,15 +143,19 @@ public class TrieParser<sym> {
             hasContentAndMark = false;
         }
 
-        public Token<sym> commit() {
-            return commit(null);
+        public boolean commit(ITokenCallback<sym> cb)
+                throws IOException, ParseException {
+            return commit(cb, null);
         }
 
-        public Token<sym> commit(sym symbol) {
-            Token<sym> token = new Token<sym>(startLine, startColumn, sb.toString(), symbol);
-            sb.setLength(0);
-            hasContentAndMark = false;
-            return token;
+        public boolean commit(ITokenCallback<sym> cb, sym symbol)
+                throws IOException, ParseException {
+            try {
+                return cb.onToken(TrieParser.this, startLine, startColumn, sb, symbol);
+            } finally {
+                sb.setLength(0);
+                hasContentAndMark = false;
+            }
         }
 
         @Override

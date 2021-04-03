@@ -14,7 +14,8 @@ import net.bodz.uni.catme.io.ResourceResolver;
 import net.bodz.uni.catme.io.ResourceVariant;
 import net.bodz.uni.catme.trie.TrieLexer;
 
-public class FileFrame extends AbstractFrame {
+public class FileFrame
+        extends AbstractFrame {
 
     File file;
 
@@ -31,6 +32,7 @@ public class FileFrame extends AbstractFrame {
 
     public FileFrame(MainParser parser, File file) {
         this(null, parser, file);
+        allocateImportSet();
     }
 
     public FileFrame(IFrame parent, MainParser parser, File file) {

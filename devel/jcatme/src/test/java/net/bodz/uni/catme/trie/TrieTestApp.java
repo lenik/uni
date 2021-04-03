@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.bodz.bas.c.loader.ClassResource;
+import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.res.builtin.URLResource;
 
 public class TrieTestApp
@@ -65,12 +66,12 @@ public class TrieTestApp
     }
 
     @Override
-    public boolean onToken(TrieParser<Symbol> parser, Token<Symbol> token)
-            throws IOException {
-        if (token.isSymbol()) {
-            System.out.printf("<%d:%d:%s>", token.line, token.column, token.text);
+    public boolean onToken(TrieParser<Symbol> parser, int line, int column, StringBuilder cbuf, Symbol symbol)
+            throws IOException, ParseException {
+        if (symbol != null) {
+            System.out.printf("<%d:%d:%s>", line, column, cbuf);
         } else {
-            System.out.printf("%d:%d:%s", token.line, token.column, token.text);
+            System.out.printf("%d:%d:%s", line, column, cbuf);
         }
         return true;
     }

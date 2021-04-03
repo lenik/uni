@@ -9,6 +9,8 @@ public class Token<sym> {
     public sym symbol;
 
     public Token(int line, int column, String text, sym symbol) {
+        if (text == null)
+            throw new NullPointerException("text");
         this.line = line;
         this.column = column;
         this.text = text;
@@ -22,6 +24,8 @@ public class Token<sym> {
     }
 
     public Token(int line, int column, String text) {
+        if (text == null)
+            throw new NullPointerException("text");
         this.line = line;
         this.column = column;
         this.text = text;
@@ -33,7 +37,7 @@ public class Token<sym> {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(text.length() + 16);
         sb.append(line);
         sb.append(":");
         sb.append(column);

@@ -24,7 +24,8 @@ import net.bodz.uni.catme.js.PolyglotContext;
 @MainVersion({ 0, 1 })
 @ProgramName("jcatme")
 @RcsKeywords(id = "$Id$")
-public class CatMe extends BasicCLI {
+public class CatMe
+        extends BasicCLI {
 
     public static final String VAR_APP = CatMe.class.getSimpleName();
     public static final String VAR_GLOBAL = "global";
@@ -96,7 +97,11 @@ public class CatMe extends BasicCLI {
             return;
         }
 
+        int index = 0;
+
         for (String arg : cmdlineArgs) {
+            if (index++ == 1)
+                nonfirstStart();
             File file = new File(arg);
             if (file.exists()) {
                 FileFrame frame = new FileFrame(parser, file);
@@ -120,6 +125,9 @@ public class CatMe extends BasicCLI {
             }
             throw new IllegalArgumentException("invalid argument: " + arg);
         }
+    }
+
+    public void nonfirstStart() {
     }
 
     void setupToplevel(FileFrame frame) {

@@ -1,12 +1,7 @@
 package net.bodz.uni.catme;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.c.object.Nullables;
@@ -34,6 +29,7 @@ public abstract class AbstractFrame
     Map<String, ITextFilter> filters = new LinkedHashMap<>();
 
     Map<String, Object> vars = new LinkedHashMap<>();
+    Set<String> importSet;
     Stack<FilterEntry> filterStack = new Stack<>();
 
     MainParser parser;
@@ -286,6 +282,43 @@ public abstract class AbstractFrame
         vars.remove(name);
     }
 
+    protected void allocateImportSet() {
+        importSet = new HashSet<>();
+    }
+
+    @Override
+    public synchronized boolean isImported(String qName) {
+        if (importSet != null)
+            if (importSet.contains(qName))
+                return true;
+        if (parent != null)
+            if (parent.isImported(qName))
+                return true;
+        return false;
+    }
+
+    @Override
+    public synchronized boolean addImported(String qName) {
+        if (importSet != null)
+            return importSet.add(qName);
+
+        if (parent != null)
+            return parent.addImported(qName);
+
+        throw new UnsupportedOperationException("Can't import in an abstract frame.");
+    }
+
+    @Override
+    public boolean removeImported(String qName) {
+        if (importSet != null)
+            return importSet.remove(qName);
+
+        if (parent != null)
+            return parent.removeImported(qName);
+
+        return false;
+    }
+
     @Override
     public boolean isFilterInUse(String name) {
         for (FilterEntry filter : filterStack)
@@ -373,29 +406,30 @@ public abstract class AbstractFrame
     }
 
     @Override
-    public void processComments(String s, int textStart, int textEnd, boolean multiLine)
+    public void processComments(StringBuilder cbuf, int textStart, int textEnd, boolean multiLine)
             throws IOException, ParseException {
-        String text = s.substring(textStart, textEnd);
+        String trim = cbuf.substring(textStart, textEnd).trim();
 
         FileFrame ff = getClosestFileFrame();
-        boolean special = text.trim().startsWith(ff.escapePrefix);
+        boolean special = trim.startsWith(ff.escapePrefix);
 
         if (special) {
             if (echoLines != 0) {
-                parser.out.print(s);
+                parser.out.append(cbuf);
                 if (echoLines != -1)
                     echoLines--;
             }
-            parser.parseInstruction(this, text);
+            parser.parseInstruction(this, trim);
         } else {
-            parser.out.print(s);
+            parser.out.append(cbuf);
         }
     }
 
     @Override
-    public void processText(String s)
+    public void processText(StringBuilder cbuf)
             throws IOException {
-        parser.out.print(s);
+        parser.out.append("PT>");
+        parser.out.append(cbuf);
     }
 
 }

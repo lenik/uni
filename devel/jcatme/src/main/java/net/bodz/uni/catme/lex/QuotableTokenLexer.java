@@ -29,11 +29,14 @@ public class QuotableTokenLexer
     static final int Q_ESC_X = 3;
     static final int Q_ESC_U = 4;
 
+    static final int _LEN_QUOTED = 1000;
+    static final int _LEN_ESCSEQ = 8;
+
     @Override
     public String lex(ILa1CharIn in)
             throws IOException, ParseException {
-        StringBuilder buf = new StringBuilder();
-        StringBuilder ebuf = new StringBuilder();
+        StringBuilder buf = new StringBuilder(_LEN_QUOTED);
+        StringBuilder ebuf = new StringBuilder(_LEN_ESCSEQ);
 
         int state = START;
         int c;

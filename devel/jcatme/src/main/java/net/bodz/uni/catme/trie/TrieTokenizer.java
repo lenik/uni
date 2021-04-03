@@ -22,9 +22,9 @@ public class TrieTokenizer<sym>
     int nextLine = line, nextColumn = column;
 
     boolean concat;
-    TextBuf lookAhead = new TextBuf();
-    TextBuf symbuf = new TextBuf();
-    TextBuf cbuf = new TextBuf();
+    TextBuf lookAhead = new TextBuf(16);
+    TextBuf symbuf = new TextBuf(100);
+    TextBuf cbuf = new TextBuf(4000);
 
     public TrieTokenizer(CharTrie<sym> trie, ICharIn in) {
         this.trie = trie;
@@ -116,9 +116,19 @@ public class TrieTokenizer<sym>
 
     class TextBuf {
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb;
         int startLine;
         int startColumn;
+
+        static final int _LEN_TEXTBUF = 16;
+
+//        public TextBuf() {
+//            sb = new StringBuilder(_LEN_TEXTBUF);
+//        }
+
+        public TextBuf(int capacity) {
+            sb = new StringBuilder(capacity);
+        }
 
         public boolean isEmpty() {
             return sb.length() == 0;

@@ -59,23 +59,23 @@ public class TrieTestML
     boolean sub;
 
     @Override
-    public boolean onToken(TrieParser<Msym> parser, Token<Msym> token)
+    public boolean onToken(TrieParser<Msym> parser, int line, int column, StringBuilder text, Msym symbol)
             throws IOException, ParseException {
-        if (token.isSymbol()) {
+        if (symbol != null) {
             if (sub) {
-                System.out.printf("`%d:%d:%s'", token.line, token.column, token.text);
-                if (token.symbol.end)
+                System.out.printf("`%d:%d:%s'", line, column, text);
+                if (symbol.end)
                     return false;
             } else {
-                System.out.printf("<%d:%d:%s>", token.line, token.column, token.text);
-                if (token.symbol.comment) {
+                System.out.printf("<%d:%d:%s>", line, column, text);
+                if (symbol.comment) {
                     sub = true;
                     xlexer.parse(in, this);
                     sub = false;
                 }
             }
         } else {
-            System.out.printf("%d:%d:%s", token.line, token.column, token.text);
+            System.out.printf("%d:%d:%s", line, column, text);
         }
         return true;
     }

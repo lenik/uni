@@ -8,10 +8,10 @@ import net.bodz.bas.log.LoggerFactory;
 import net.bodz.uni.catme.CommandOptions;
 import net.bodz.uni.catme.FileFrame;
 import net.bodz.uni.catme.IFrame;
-import net.bodz.uni.catme.MainParser;
 import net.bodz.uni.catme.io.ResourceVariant;
 
-public class InclusionCommand extends AbstractCommand {
+public class InclusionCommand
+        extends AbstractCommand {
 
     static final Logger logger = LoggerFactory.getLogger(InclusionCommand.class);
 
@@ -38,8 +38,7 @@ public class InclusionCommand extends AbstractCommand {
         String path = args[0].toString();
 
         if (once) {
-            MainParser parser = frame.getParser();
-            if (!parser.addImported(path)) {
+            if (!frame.addImported(path)) {
                 logger.trace("already imported: " + path);
                 return;
             }

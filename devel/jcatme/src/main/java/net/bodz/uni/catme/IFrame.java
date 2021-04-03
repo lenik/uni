@@ -56,6 +56,12 @@ public interface IFrame {
 
     void removeVar(String name);
 
+    boolean isImported(String qName);
+
+    boolean addImported(String qName);
+
+    boolean removeImported(String qName);
+
     boolean isFilterDefined(String name);
 
     ITextFilter getFilter(String name);
@@ -89,10 +95,10 @@ public interface IFrame {
     int SpaceIgnorableLeading = 1;
     int SpaceIgnorableBetween = 2;
 
-    void processComments(String s, int textStart, int textEnd, boolean multiLine)
+    void processComments(StringBuilder cbuf, int textStart, int textEnd, boolean multiLine)
             throws IOException, ParseException;
 
-    void processText(String s)
+    void processText(StringBuilder cbufs)
             throws IOException;
 
 }

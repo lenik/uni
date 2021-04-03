@@ -9,7 +9,7 @@ public interface ITokenCallback<sym> {
     /**
      * @return <code>false</code> to quit the parse.
      */
-    boolean onToken(TrieParser<sym> parser, Token<sym> token)
+    boolean onToken(TrieParser<sym> parser, int line, int column, StringBuilder cbuf, sym symbol)
             throws IOException, ParseException;
 
 }
