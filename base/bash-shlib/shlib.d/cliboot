@@ -31,8 +31,7 @@ function setopt() {
 }
 
 function do_arg() {
-    local n=${#_arg[@]}
-    _arg[n + 1]="$1"
+    :
 }
 
 function quit() {
@@ -61,13 +60,38 @@ function bootvoid() {
 }
 
 function boot() {
-    local args opt mid arg
     if [ -z "$*" ]; then bootvoid; return; fi
+
+    parse_opts "$@"
+
+    main "${g_args[@]}"
+}
+
+function parse_opts() {
+    local args opt mid arg
+    local setopt_fn="${FUNCNAME[1]}_setopt"
+    if [ "$(type -t $setopt_fn)" != 'function' ]; then
+        if [ "$setopt_fn" = 'boot_setopt' ]; then
+            setopt_fn=setopt
+        else
+            local fn_list=("$setopt_fn" _setopt)
+            local fn found=0
+            for fn in "${fn_list[@]}"; do
+                if [ "$(type -t $fn)" = 'function' ]; then
+                    found=1
+                    break
+                fi
+            done
+            [ $found = 1 ] || die "function ${fn_list[0]} isn't defined."
+            setopt_fn=$fn
+        fi
+    fi
+
     if [ "$LONGOPTS" = 1 ]; then
 
         if ! args=`POSIXLY_CORRECT=1 getopt \
-                        -o "$short_opts" \
-                        -l "$long_opts" \
+                        -o "$g_short_opts" \
+                        -l "$g_long_opts" \
                         -n "$PROGRAM_NAME" -- "$@"`; then
             die "Syntax error."
             exit 1
@@ -75,7 +99,7 @@ function boot() {
 
         eval set -- "$args"
 
-        long_opts=",$long_opts"
+        g_long_opts=",$g_long_opts"
         while [ $# -ne 0 ]; do
             case "$1" in
             --)
@@ -84,21 +108,21 @@ function boot() {
                 ;;
             --*)
                 opt="${1#--}"
-                if [ "${long_opts/,$opt:}" != "$long_opts" ]; then
-                    setopt "$1" "$2"
+                if [ "${g_long_opts/,$opt:}" != "$g_long_opts" ]; then
+                    $setopt_fn "$1" "$2"
                     shift 2
                 else
-                    setopt "$1"
+                    $setopt_fn "$1"
                     shift 1
                 fi
                 ;;
             -*)
                 opt="${1#-}"
-                if [ "${short_opts/$opt:}" != "$short_opts" ]; then
-                    setopt "$1" "$2"
+                if [ "${g_short_opts/$opt:}" != "$g_short_opts" ]; then
+                    $setopt_fn "$1" "$2"
                     shift 2
                 else
-                    setopt "$1"
+                    $setopt_fn "$1"
                     shift 1
                 fi
                 ;;
@@ -107,8 +131,8 @@ function boot() {
 
     else
         # faster built-in
-        while getopts $short_opts opt; do
-            setopt -$opt "$OPTARG"
+        while getopts $g_short_opts opt; do
+            $setopt_fn -$opt "$OPTARG"
             ## all arguments between -opt1 <mid...> -opt2 are ignored
             # for ((mid = 2; mid < $OPTIND; mid++)); do
             #     do_arg "${!mid}"
@@ -149,33 +173,38 @@ function boot() {
             ;;
     esac
 
+    decl_opts_end
+
+    g_args=("$@")
+    g_args_n=${#g_args[@]}
     for arg in "$@"; do
         do_arg "$arg"
     done
     
-    main "${_arg[@]}"
+    decl_opts_begin
 }
 
-function dump() {
-    echo count=$#
-    for ((i=0; i<=$#; i++)); do
-        echo arg[$i] = ${!i}
-    done
+function decl_opts_begin() {
+    g_short_opts=
+    g_long_opts=
+
+    ##
+    # Align at column 28, which looks like:
+    #   -f, --FILE=PATH         Description...
+    : ${OPTHLP_ALIGN:=28}
+    g_opthlp0=()
+    g_opthlp1=()
+    g_opthlp2=()
+    g_opthlp3=()
+    g_opthlp4=()
+    g_nopt=0
 }
 
-short_opts=
-long_opts=
-
-##
-# Align at column 28, which looks like:
-#   -f, --FILE=PATH         Description...
-: ${OPTHLP_ALIGN:=28}
-opthlp0=()
-opthlp1=()
-opthlp2=()
-opthlp3=()
-opthlp4=()
-nopt=0
+function decl_opts_end() {
+    g_args=()
+    g_args_n=0
+}
+decl_opts_begin
 
 function option() {
     local opthlp=
@@ -205,14 +234,14 @@ function option() {
                 fi
                 if [ "${1:0:2}" = '--' ]; then
                     longform="$1"
-                    if [ -z "$long_opts" ]; then
-                        long_opts="${1:2}$mod"
+                    if [ -z "$g_long_opts" ]; then
+                        g_long_opts="${1:2}$mod"
                     else
-                        long_opts="$long_opts,${1:2}$mod"
+                        g_long_opts="$g_long_opts,${1:2}$mod"
                     fi
                 else
                     shortform="$1"
-                    short_opts="$short_opts${1:1}$mod"
+                    g_short_opts="$g_short_opts${1:1}$mod"
                 fi
                 shift
                 ;;
@@ -237,9 +266,9 @@ function option() {
         tmp="$leading$opthlp$indent"
     done
 
-    opthlp0[nopt]="$leading"
-    opthlp1[nopt]="$opthlp"
-    opthlp2[nopt]="$indent"
+    g_opthlp0[g_nopt]="$leading"
+    g_opthlp1[g_nopt]="$opthlp"
+    g_opthlp2[g_nopt]="$indent"
 
     local description
     local textlines=()
@@ -278,15 +307,15 @@ function option() {
         esac
     fi
 
-    opthlp3[nopt]="$description"
+    g_opthlp3[g_nopt]="$description"
 
     local text ln
     for ln in "${textlines[@]}"; do
         text="$text        $ln"$'\n'
     done
-    opthlp4[nopt]="$text"
+    g_opthlp4[g_nopt]="$text"
 
-    ((nopt++))
+    ((g_nopt++))
 }
 
 function help() {
@@ -320,14 +349,14 @@ function help_options() {
     local details="$1"
     local i
     echo "Options: "
-    for ((i = 0; i < nopt; i++)); do
+    for ((i = 0; i < g_nopt; i++)); do
         if [ "$details" = 1 ]; then
-            echo "${opthlp0[i]}${opthlp1[i]}${opthlp2[i]}${opthlp3[i]}."
-            if [ -n "${opthlp4[i]}" ]; then
-                echo "${opthlp4[i]}"
+            echo "${g_opthlp0[i]}${g_opthlp1[i]}${g_opthlp2[i]}${g_opthlp3[i]}."
+            if [ -n "${g_opthlp4[i]}" ]; then
+                echo "${g_opthlp4[i]}"
             fi
         else
-            echo "${opthlp0[i]}${opthlp1[i]}${opthlp2[i]}${opthlp3[i]}"
+            echo "${g_opthlp0[i]}${g_opthlp1[i]}${g_opthlp2[i]}${g_opthlp3[i]}"
         fi
     done
 }
@@ -346,3 +375,11 @@ function show_version() {
 function show_version_more() {
     :
 }
+
+function dump() {
+    echo count=$#
+    for ((i=0; i<=$#; i++)); do
+        echo arg[$i] = ${!i}
+    done
+}
+
