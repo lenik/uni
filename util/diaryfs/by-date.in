@@ -1,0 +1,124 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -d --by-date-dir =DIR    "Specify where organized files will go. (default ../by-date)"
+    option -p --date-path           "Use y/y-m/y-m-d date path. (default)"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_byDateDir=../by-date
+    opt_datePath=1
+
+function setopt() {
+    case "$1" in
+        -d|--by-date-dir)
+            opt_byDateDir="$2";;
+        -p|--date-path)
+            opt_datePath=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    local file dir base
+    local date y m d
+    for file in "$@"; do
+        dir="${file%/*}"
+        base="${file##*/}"
+        if [ "$file" = "$base" ]; then
+            dir=.
+        fi
+
+        case "$base" in
+            of_*)
+                if [ -L "$file" ]; then
+                    _log2 "ignore symlink $file"
+                    continue
+                fi
+                ;;
+        esac
+
+        if [ "$opt_datePath" = 0 ]; then
+            if [ -z "$opt_byDateDir" ]; then
+                if is-date "$base"; then
+                    _log2 "ignore (the target) date dir $file"
+                    continue
+                fi
+            fi
+        fi
+
+        date=$(stat -c%y "$file")
+            # yyyy-mm-dd hh:mm:ss.nnnn ...
+            y=${date:0:4}
+            m=${date:5:2}
+            d=${date:8:2}
+
+        local outdir="$dir"
+            if [ -n "$opt_byDateDir" ]; then
+                outdir="$opt_byDateDir"
+            fi
+            if [ "$opt_datePath" = 1 ]; then
+                outdir="$outdir/$y/$y-$m/$y-$m-$d"
+            else
+                outdir="$outdir/$y-$m-$d"
+            fi
+
+        if [ ! -d "$outdir" ]; then
+            _log2 "create dir $outdir"
+            if ! mkdir -p "$outdir"; then
+                _error "  failed to create $outdir."
+                continue
+            fi
+        fi
+
+        _log2 "move $file to $outdir/"
+        mv "$file" "$outdir"/
+    done
+}
+
+function is-date() {
+    local arg="$1"
+    local y m d
+
+    y="${arg%%-*}"
+    [ "$y" = "$arg" ] && return 1 # no dash
+    is-num "$y" || return 10
+    arg="${arg#*-}"
+
+    m="${arg%%-*}"
+    [ "$m" = "$arg" ] && return 2 # only 1 dash
+    is-num "$m" || return 20
+    arg="${arg#*-}"
+
+    d="${arg%-*}"
+    [ "$d" = "$arg" ] || return 3 # too many dashes
+    is-num "$d" || return 30
+
+    return 0
+}
+
+function is-num() {
+    local arg="$1"
+    if [ -z "$arg" ]; then
+        return 1
+    fi
+    arg="${arg//[0123456789]/}"
+    test -z "$arg"
+}
+
+boot "$@"

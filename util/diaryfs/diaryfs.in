@@ -1,0 +1,165 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=DiaryFS commands}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] cmd [cmd-args...]}
+
+    DIARYFS_PREFIX=diaryfs_
+
+    . shlib-import cliboot
+    option -d --start-dir =DIR       "Specify the start dir of diaryfs."
+    option -n --dry-run                 "Don't change real files."
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_start_dir=
+    opt_dry_run=0
+    
+function setopt() {
+    case "$1" in
+        -d|--start-dir)
+            opt_start_dir="$2";;
+        -n|--dry-run)
+            opt_dry_run=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            die "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$opt_start_dir" ]; then
+        local wdir
+            wdir=$(readlink -f .) || die "can't get the absolute path of cwd."
+        while [ -n "$wdir" ]; do
+            if [ -d "$wdir/by-date" ]; then
+                opt_start_dir="$wdir"
+                break
+            fi
+            wdir="${wdir%/*}"
+        done
+        if [ -z "$opt_start_dir" ]; then
+            for dir in "$HOME/diary"; do
+                if [ -d "$dir" ]; then
+                    opt_start_dir="$dir"
+                    break
+                fi
+            done
+        fi
+        [ -d "$opt_start_dir" ] || die "unknown diary start dir."
+        _log2 "Use $opt_start_dir as the diaryfs start directory."
+    fi
+    by_date_dir="$opt_start_dir/by-date"
+    
+    [ $# = 0 ] && die "expect cmdname."
+    
+    local cmdname="$1"
+    local fn="$DIARYFS_PREFIX$cmdname"
+    shift
+    
+    [ -z $(type -t "$fn") ] && die "invalid command: $cmdname."
+    
+    "$fn" "$@"
+}
+
+function diaryfs_version() {
+    echo 1.0
+}
+
+function diaryfs_archive() {
+    option -t --tag =TAG "Add a tag to the files. Can be repeated for multi tags."
+    option -h --help
+    
+    local tags=() ntag=0 hashtag i=0 tag
+    function _setopt() {
+        case "$1" in
+            -t|--tag)
+                tags[ntag++]="$2";;
+            -h|--help)
+                help $1; exit;;
+            *)
+                die "invalid option: $1";;
+        esac
+    }; parse_opts "$@"; set -- "${g_args[@]}"
+    
+    if [ $ntag != 0 ]; then
+        for tag in $(echoln "${tags[@]}" | sort); do
+            if [ $i = 0 ]; then
+                hashtag="["
+            else
+                hashtag="$hashtag, "
+            fi
+            hashtag="$hashtag#${tag}"
+            ((i++))
+        done
+        hashtag="$hashtag]"
+    fi
+    
+    local arg dir base
+    for arg in "$@"; do
+        dir="${arg%/*}"
+        base="${arg##*/}"
+        [ "$dir" = "$arg" ] && dir=.
+        if [ -n "$hashtag" ]; then
+            local newfile="$dir/$hashtag $base"
+            mv -n "$arg" "$newfile" || die "failed to rename $arg to $newfile."
+            by-date $logopts -d "$by_date_dir" "$newfile"
+        fi
+    done
+}
+
+function diaryfs_make() {
+    cd "$opt_start_dir" || die "failed to access $opt_start_dir."
+    mkdir -p by-date by-tag by-user current
+    mkdir -p by-mime by-mime-category
+    diaryfs_make_symlinks
+}
+
+function diaryfs_make_symlinks() {
+    cd "$opt_start_dir" || die "failed to access $opt_start_dir."
+    local YYYY_MM_DD='%y-%m-%d'
+
+    local day_0=$( date +"$YYYY_MM_DD" )
+    local day_1=$( date +"$YYYY_MM_DD" -d '1 days ago' )
+
+    function dayRefInCurrent() {
+        local date="$1"
+        shift
+        local yearMonth="${date%-*}"
+        local year="${yearMonth%-*}"
+        local datePath="by-date/$year/$yearMonth/$date"
+        local tag
+        for tag in "$@"; do
+            if [ "$opt_dry_run" = 1 ]; then
+                echo ln -snf "../$datePath" "current/$tag"
+            else
+                mkdir -p "$datePath" &&
+                    ln -snf "../$datePath" "current/$tag"
+            fi
+        done
+    }
+
+    refPrefix='of_'
+    ndays=7
+    dayRefInCurrent "$day_0" "${refPrefix}today"
+    #dayRefInCurrent "$day_1" "${refPrefix}yesterday"
+    for ((i = 1; i <= ndays; i++)); do
+        fmt=$( date +"$YYYY_MM_DD %u_%a" -d "$i days ago" )
+        date="${fmt% *}"
+        weekday="${fmt#* }"
+        dayRefInCurrent "$date" \
+            "${refPrefix}weekday_$weekday" \
+            "${refPrefix}${i}_days_ago"
+    done
+}
+
+boot "$@"
