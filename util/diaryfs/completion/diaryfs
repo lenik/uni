@@ -1,0 +1,58 @@
+#!/bin/bash -i
+# -*- bash -*-
+# vim: filetype=sh
+
+function _diaryfs() {
+    local cur prev words cword split
+    _init_completion -s || return
+
+    local i word
+    local state=opts
+    local cmd
+    for ((i = 1; i < COMP_CWORD; i++)); do
+        word="${COMP_WORDS[i]}"
+        echo "state $state: word $word"
+        case $state in
+            opts)
+                case "$word" in
+                    --)
+                        state=cmd;;
+                    -d|--start-dir)
+                        state=opt-file;;
+                    -*)
+                        continue;;
+                    *)
+                        cmd="$word"
+                        state=cmd-opts;;
+                esac;;
+            opt-file)
+                state=opts;;
+            cmd)
+                cmd="$word"
+                state=cmd-opts;;
+            cmd-opts)
+                : ;;
+        esac
+    done
+
+    echo "final state: $state, a1=$1."
+    case $state in
+        opts)
+            COMPREPLY=( $(compgen -W '$( _parse_help diaryfs --help)' -- "$cur") )
+            return;;
+        opt-file)
+            COMPREPLY=( $(compgen -o default -- "$cur") )
+            return;;
+        cmd)
+            COMPREPLY=( $(compgen -W 'archive make version' -- "$cur") )
+            return;;
+    esac
+    COMPREPLY=()
+}
+
+complete -F _diaryfs diaryfs dfs
+
+#COMP_WORDS=("$0" "$@")
+#COMP_CWORD=$#
+#_diaryfs
+
