@@ -7,7 +7,6 @@ import java.util.Stack;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.err.ParseException;
-import net.bodz.bas.fn.EvalException;
 import net.bodz.uni.catme.io.ResourceVariant;
 
 public interface IFrame {
@@ -16,11 +15,19 @@ public interface IFrame {
 
     IFrame getParent();
 
+    int getParentLine();
+
+    int getParentColumn();
+
     FileFrame getClosestFileFrame();
 
     int getDepth();
 
     boolean isFile();
+
+    int getCurrentLine();
+
+    int getCurrentColumn();
 
     int getEchoLines();
 
@@ -46,6 +53,8 @@ public interface IFrame {
 
     void removeCommand(String name);
 
+    Map<String, Object> getLocalVarMap();
+
     boolean isVarDefined(String name);
 
     Object getVar(String name);
@@ -64,9 +73,9 @@ public interface IFrame {
 
     boolean isFilterDefined(String name);
 
-    ITextFilter getFilter(String name);
+    ITextFilterClass getFilter(String name);
 
-    void addFilter(String name, ITextFilter filter);
+    void addFilter(String name, ITextFilterClass filter);
 
     void removeFilter(String name);
 
@@ -75,17 +84,13 @@ public interface IFrame {
     boolean isFilterInUse(String name);
 
     String filter(String s)
-            throws EvalException;
+            throws FilterException;
 
     /**
-     * @return normal?
-     *         <ul>
-     *         <li><code>true</code>: result is in the <code>out</code> buffer.
-     *         <li><code>false</code>: result is in the <code>in</code> buffer.
-     *         </ul>
+     * @return The StringBuilder has the output.
      */
-    boolean fastFilter(StringBuilder in, StringBuilder out)
-            throws EvalException;
+    StringBuilder fastFilter(IFrame caller, StringBuilder in, StringBuilder out)
+            throws FilterException;
 
     MainParser getParser();
 
@@ -109,6 +114,6 @@ public interface IFrame {
             throws IOException, ParseException;
 
     void processText(StringBuilder cbuf)
-            throws IOException;
+            throws IOException, FilterException;
 
 }

@@ -8,6 +8,9 @@ import net.bodz.bas.t.iterator.PrefetchedIterator;
 import net.bodz.bas.text.trie.CharTrie;
 import net.bodz.bas.text.trie.CharTrie.Node;
 
+/**
+ * a pull-style parser.
+ */
 public class TrieTokenizer<sym>
         implements
             Iterable<Token<sym>> {

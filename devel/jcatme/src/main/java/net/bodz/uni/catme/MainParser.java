@@ -89,7 +89,7 @@ public class MainParser {
         stopParseFrameSource = true;
     }
 
-    public void parseFrameSource(IFrame frame, final ICharIn in)
+    public void parseFrameSource(IMutableFrame frame, final ICharIn in)
             throws IOException, ParseException {
         FileFrame ff = frame.getClosestFileFrame();
 
@@ -103,8 +103,15 @@ public class MainParser {
             int textStart, textEnd;
 
             @Override
+            public String toString() {
+                return frame.toString();
+            }
+
+            @Override
             public boolean onToken(TrieParser<MySym> parser, int line, int column, StringBuilder cbuf, MySym symbol)
                     throws IOException, ParseException {
+                System.err.println("<token " + cbuf.toString().trim() + ">");
+                frame.setLocation(line, column);
                 if (symbol != null) {
                     switch (symbol.id) {
                     case MySym.SIMPLE_OPENER:
@@ -115,7 +122,7 @@ public class MainParser {
                         textStart = buf.length();
                         textEnd = 0;
 
-                        ff.commentLexer.parse(in, this);
+                        ff.commentLexer.newParser(in, this).at(line, column).parse();
                         if (textEnd <= 0)
                             textEnd = buf.length();
                         frame.processComments(buf, textStart, textEnd, !singleLineComment);
@@ -142,12 +149,12 @@ public class MainParser {
                     } else {
                         frame.processText(cbuf);
                     }
-                }
+                } // if token.isSymbol()
                 return !stopParseFrameSource;
-            } // if token.isSymbol()
+            }
         }
 
-        ff.lexer.parse(in, new Callback());
+        ff.lexer.newParser(in, new Callback()).at(0, 0).parse();
     }
 
     void parseInstruction(IFrame frame, String instruction)
@@ -173,12 +180,12 @@ public class MainParser {
                         "Expected escape-seq(" + escape + ") before " + name);
             name = name.substring(1);
 
-            String opts = "";
+            String parenthesizedStr = "";
             int pos = name.indexOf('(');
             if (pos != -1) {
                 if (!name.endsWith(")"))
                     throw new IllegalArgumentException("Unmatched parenthesis: " + name);
-                opts = name.substring(pos + 1, name.length() - 1);
+                parenthesizedStr = name.substring(pos + 1, name.length() - 1);
                 name = name.substring(0, pos);
             }
 
@@ -190,12 +197,12 @@ public class MainParser {
             List<?> args = lexer.lex(in);
 
             if (cmd.isScript()) {
-                String[] optv = opts.split("\\s+");
+                String[] optv = parenthesizedStr.split("\\s+");
                 commandDispatcher.execute(cmd, optv, args);
             } else {
-                CommandOptions parsed = cmd.parseOptions(opts);
+                CommandOptions options = cmd.parseOptions(parenthesizedStr);
                 Object[] argv = args.toArray();
-                cmd.execute(frame, parsed, argv);
+                cmd.execute(frame, options, argv);
             }
         }
     }

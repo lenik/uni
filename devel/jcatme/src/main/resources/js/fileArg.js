@@ -28,8 +28,8 @@ function provideFilters(filters) {
 }
 
 function provideFilter(k, fn) {
-    let FnValueFilter = Java.type("net.bodz.uni.catme.js.FnValueFilter");
-    let filter = new FnValueFilter(fn);
+    let FnValueFilterClass = Java.type("net.bodz.uni.catme.js.FnValueFilterClass");
+    let filter = new FnValueFilterClass(fn);
     let name = k;
     Frame.addFilter(name, filter);
 }

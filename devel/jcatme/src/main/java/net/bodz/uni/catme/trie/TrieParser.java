@@ -7,6 +7,9 @@ import net.bodz.bas.io.ICharIn;
 import net.bodz.bas.text.trie.CharTrie;
 import net.bodz.bas.text.trie.CharTrie.Node;
 
+/**
+ * a push-style parser.
+ */
 public class TrieParser<sym> {
 
     CharTrie<sym> trie;
@@ -14,8 +17,10 @@ public class TrieParser<sym> {
     private Node<sym> cur;
 
     ICharIn in;
-    int lineStart = 1, columnStart = 1;
-    int line = lineStart, column = columnStart;
+    // int lineStart = 1, columnStart = 1;
+    int line, column;
+
+    boolean breakLines;
 
     TextBuf symbuf = new TextBuf();
     TextBuf otherbuf = new TextBuf();
@@ -30,25 +35,18 @@ public class TrieParser<sym> {
         this.callback = callback;
     }
 
+    public TrieParser<sym> at(int line, int column) {
+        this.line = line;
+        this.column = column;
+        return this;
+    }
+
     public CharTrie<sym> getTrie() {
         return trie;
     }
 
     public void setTrie(CharTrie<sym> trie) {
         this.trie = trie;
-    }
-
-    public void setStart(int lineStart, int columnStart) {
-        this.line = this.lineStart = lineStart;
-        this.column = this.columnStart = columnStart;
-    }
-
-    public void setLineStart(int lineStart) {
-        this.line = this.lineStart = lineStart;
-    }
-
-    public void setColumnStart(int columnStart) {
-        this.column = this.columnStart = columnStart;
     }
 
     public void parse()
@@ -80,13 +78,14 @@ public class TrieParser<sym> {
 
             switch (ch) {
             case '\r':
-                column = columnStart;
+                column = 0;
                 break;
             case '\n':
                 line = line + 1;
-                column = columnStart;
-                if (!otherbuf.commit(callback))
-                    return;
+                column = 0;
+                if (breakLines)
+                    if (!otherbuf.commit(callback))
+                        return;
                 break;
             default:
                 column = column + 1;
@@ -122,6 +121,8 @@ public class TrieParser<sym> {
         }
 
         public void append(String str) {
+            if (str.isEmpty())
+                return;
             if (!hasContentAndMark) {
                 startLine = line;
                 startColumn = column;

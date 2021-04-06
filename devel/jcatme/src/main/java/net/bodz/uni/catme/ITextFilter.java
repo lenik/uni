@@ -4,7 +4,9 @@ import java.io.IOException;
 
 public interface ITextFilter {
 
-    void filter(StringBuilder in, Appendable out)
-            throws IOException;
+    ITextFilterClass getFilterClass();
+
+    void filter(IFrame frame, StringBuilder in, Appendable out)
+            throws IOException, FilterException;
 
 }

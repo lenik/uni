@@ -7,16 +7,20 @@ import java.util.regex.Pattern;
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.string.StringPred;
 import net.bodz.bas.err.ParseException;
-import net.bodz.bas.fn.EvalException;
 import net.bodz.uni.catme.io.ResourceVariant;
 
 public abstract class AbstractFrame
         implements
-            IFrame {
+            IMutableFrame {
 
     public static final int TO_END = -1;
 
     protected final IFrame parent;
+    protected final int parentLine;
+    protected final int parentColumn;
+
+    int currentLine;
+    int currentColumn;
 
     int echoLines;
     int skipLines;
@@ -26,7 +30,7 @@ public abstract class AbstractFrame
     Map<String, String> parameters = new LinkedHashMap<>();
 
     Map<String, ICommand> commands = new LinkedHashMap<>();
-    Map<String, ITextFilter> filters = new LinkedHashMap<>();
+    Map<String, ITextFilterClass> filterClasses = new LinkedHashMap<>();
 
     Map<String, Object> vars = new LinkedHashMap<>();
     Set<String> importSet;
@@ -36,12 +40,29 @@ public abstract class AbstractFrame
 
     public AbstractFrame(IFrame parent, MainParser parser) {
         this.parent = parent;
+        if (parent != null) {
+            this.parentLine = parent.getCurrentLine();
+            this.parentColumn = parent.getCurrentColumn();
+        } else {
+            this.parentLine = 0;
+            this.parentColumn = 0;
+        }
         this.parser = parser;
     }
 
     @Override
     public IFrame getParent() {
         return parent;
+    }
+
+    @Override
+    public int getParentLine() {
+        return parentLine;
+    }
+
+    @Override
+    public int getParentColumn() {
+        return parentColumn;
     }
 
     @Override
@@ -64,6 +85,22 @@ public abstract class AbstractFrame
     @Override
     public boolean isFile() {
         return false;
+    }
+
+    @Override
+    public int getCurrentLine() {
+        return currentLine;
+    }
+
+    @Override
+    public int getCurrentColumn() {
+        return currentColumn;
+    }
+
+    @Override
+    public void setLocation(int line, int column) {
+        this.currentLine = line;
+        this.currentColumn = column;
     }
 
     @Override
@@ -191,7 +228,7 @@ public abstract class AbstractFrame
     public boolean isFilterDefined(String name) {
         if (name == null)
             throw new NullPointerException("name");
-        if (filters.containsKey(name))
+        if (filterClasses.containsKey(name))
             return true;
         if (parent != null)
             return parent.isFilterDefined(name);
@@ -199,35 +236,40 @@ public abstract class AbstractFrame
     }
 
     @Override
-    public ITextFilter getFilter(String name) {
+    public ITextFilterClass getFilter(String name) {
         if (name == null)
             throw new NullPointerException("name");
-        if (filters.containsKey(name))
-            return filters.get(name);
+        if (filterClasses.containsKey(name))
+            return filterClasses.get(name);
         if (parent != null)
             return parent.getFilter(name);
         return null;
     }
 
     @Override
-    public void addFilter(String name, ITextFilter filter) {
+    public void addFilter(String name, ITextFilterClass filterClass) {
         if (name == null)
             throw new NullPointerException("name");
-        if (filter == null)
-            throw new NullPointerException("filter");
-        ITextFilter prev = getFilter(name);
+        if (filterClass == null)
+            throw new NullPointerException("filterClass");
+        ITextFilterClass prev = getFilter(name);
         if (prev != null)
-            throw new IllegalArgumentException("filter is already defined: " + name);
-        filters.put(name, filter);
+            throw new IllegalArgumentException("filter-class is already defined: " + name);
+        filterClasses.put(name, filterClass);
     }
 
     @Override
     public void removeFilter(String name) {
         if (name == null)
             throw new NullPointerException("name");
-        if (!filters.containsKey(name))
-            throw new IllegalArgumentException("filter isn't defined: " + name);
-        filters.remove(name);
+        if (!filterClasses.containsKey(name))
+            throw new IllegalArgumentException("filter-class isn't defined: " + name);
+        filterClasses.remove(name);
+    }
+
+    @Override
+    public Map<String, Object> getLocalVarMap() {
+        return vars;
     }
 
     @Override
@@ -268,7 +310,7 @@ public abstract class AbstractFrame
     public synchronized void putVar(String name, Object value) {
         if (name == null)
             throw new NullPointerException("name");
-        IFrame frame = parent.findVar(name);
+        IFrame frame = findVar(name);
         if (frame == this || frame == null)
             vars.put(name, value);
         else
@@ -321,8 +363,10 @@ public abstract class AbstractFrame
 
     @Override
     public boolean isFilterInUse(String name) {
+        if (name == null)
+            throw new NullPointerException("name");
         for (FilterEntry filter : filterStack)
-            if (name.equals(filter.key))
+            if (name.equals(filter.name))
                 return true;
         return false;
     }
@@ -332,16 +376,22 @@ public abstract class AbstractFrame
         return filterStack;
     }
 
-    public void beginFilter(ITextFilter filter, String key) {
-        FilterEntry entry = new FilterEntry(key, filter);
-        filterStack.push(entry);
+    public void beginFilter(String name, String... args) {
+        beginFilter(name, Arrays.asList(args));
     }
 
-    public FilterEntry endFilter(String key) {
+    public void beginFilter(String name, List<String> args) {
+        ITextFilterClass filterClass = getFilter(name);
+        ITextFilter filter = filterClass.createFilter(this, args);
+        FilterEntry filterEntry = new FilterEntry(name, filter);
+        filterStack.push(filterEntry);
+    }
+
+    public FilterEntry endFilter(String name) {
         if (filterStack.isEmpty())
             throw new IllegalStateException("No filter in use in the current frame.");
         FilterEntry top = filterStack.peek();
-        if (!Nullables.equals(top.key, key))
+        if (!Nullables.equals(top.name, name))
             throw new IllegalArgumentException("Unmatched filter environment pair.");
         filterStack.pop();
         return top;
@@ -349,35 +399,36 @@ public abstract class AbstractFrame
 
     @Override
     public String filter(String s)
-            throws EvalException {
+            throws FilterException {
         StringBuilder in = new StringBuilder(s);
         StringBuilder out = new StringBuilder(s.length());
-        fastFilter(in, out);
+        fastFilter(this, in, out);
         return out.toString();
     }
 
     @Override
-    public boolean fastFilter(StringBuilder in, StringBuilder out)
-            throws EvalException {
-        boolean reversed = false;
+    public StringBuilder fastFilter(IFrame caller, StringBuilder in, StringBuilder out)
+            throws FilterException {
         if (filterStack != null)
             for (FilterEntry entry : filterStack) {
                 try {
-                    entry.filter.filter(in, out);
+                    entry.filter.filter(caller, in, out);
+                } catch (FilterException e) {
+                    throw e;
                 } catch (Exception e) {
                     String type = entry.filter.getClass().getSimpleName();
-                    String name = type + " " + entry.key;
-                    throw new EvalException("Filter(" + name + ") error: " + e.getMessage(), e);
+                    String name = type + " " + entry.name;
+                    throw new FilterException("Filter(" + name + ") error: " + e.getMessage(), e);
                 }
-                StringBuilder tmp = in;
+                StringBuilder _in = in;
+                in.setLength(0);
                 in = out;
-                out = tmp;
-                out.setLength(0);
-                reversed = !reversed;
+                out = _in;
             }
         if (parent != null)
-            reversed ^= parent.fastFilter(in, out);
-        return reversed;
+            return parent.fastFilter(caller, in, out);
+        else
+            return in;
     }
 
     @Override
@@ -441,15 +492,19 @@ public abstract class AbstractFrame
             }
             parser.parseInstruction(this, trim);
         } else {
-            parser.out.append(cbuf);
+            processText(cbuf);
         }
     }
 
+    StringBuilder cbuf2 = new StringBuilder(16384);
+
     @Override
     public void processText(StringBuilder cbuf)
-            throws IOException {
-        parser.out.append("PT>");
-        parser.out.append(cbuf);
+            throws IOException, FilterException {
+        // parser.out.append("ProcessText>");
+        StringBuilder result = fastFilter(this, cbuf, cbuf2);
+        parser.out.append(result);
+        result.setLength(0);
     }
 
 }

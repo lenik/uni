@@ -1,9 +1,6 @@
 package net.bodz.c.groovy;
 
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
-import groovy.lang.MissingPropertyException;
-
+import java.io.IOException;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -15,6 +12,10 @@ import net.bodz.bas.c.java.util.regex.TextPrepByParts;
 import net.bodz.bas.c.string.StringEscape;
 import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.io.BCharOut;
+
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
+import groovy.lang.MissingPropertyException;
 
 public class GroovyExpand
         extends TextPrepByParts {
@@ -66,33 +67,36 @@ public class GroovyExpand
     }
 
     @Override
-    protected String matched(String part) {
+    protected void matched(CharSequence in, int start, int end, Appendable out)
+            throws IOException {
         String textBlock = matcher.group(1).trim();
         if (textBlock.isEmpty())
-            return "";
+            return;
 
-        String out;
         switch (textBlock.charAt(0)) {
         case '@':
             throw new NotImplementedException("<%@ ... %> isn't supported");
         case '!':
             String decl = textBlock.substring(1);
-            out = decl;
+            out.append(decl);
             break;
         case '=':
             String exp = textBlock.substring(1).trim();
-            out = "out.print(" + exp + ");";
+            out.append("out.print(" + exp + ");");
             break;
         default:
             String code = textBlock;
-            out = code;
+            out.append(code);
         }
-        return out + "\n";
+        out.append("\n");
     }
 
+    static Pattern NL = Pattern.compile("\n");
+
     @Override
-    protected String unmatched(String s) {
-        String[] lines = s.split("\n", -1);
+    protected void unmatched(CharSequence in, int start, int end, Appendable out)
+            throws IOException {
+        String[] lines = NL.split(in, -1);
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
             if (i == lines.length - 1) {
@@ -102,7 +106,6 @@ public class GroovyExpand
                 echo(line, true);
             }
         }
-        return "";
     }
 
     void echo(String s, boolean newline) {

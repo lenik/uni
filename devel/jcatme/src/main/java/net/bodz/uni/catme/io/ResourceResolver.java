@@ -40,6 +40,7 @@ public class ResourceResolver {
     public boolean searchEnvLangLIBs;
     public boolean searchEnvLIB;
 
+    FileSearcher bareNameSearcher;
     Map<String, FileSearcher> byExtension = new HashMap<>();
 
     public ResourceResolver() {
@@ -57,8 +58,17 @@ public class ResourceResolver {
         this.configDir = new File(home, ".config" + fileSep + "catme");
     }
 
+    public synchronized FileSearcher getFileSearcherForBareNames()
+            throws IOException {
+        if (bareNameSearcher == null)
+            bareNameSearcher = buildFileSearcher(null);
+        return bareNameSearcher;
+    }
+
     public synchronized FileSearcher getFileSearcherForExtension(String extension)
             throws IOException {
+        if (extension == null)
+            throw new NullPointerException("extension");
         FileSearcher fileSearcher = byExtension.get(extension);
         if (fileSearcher == null) {
             fileSearcher = buildFileSearcher(extension);
@@ -89,19 +99,21 @@ public class ResourceResolver {
                     fileSearcher.addSearchDir(dir);
             }
 
-        if (searchLibDirsForExtension) {
-            File sysPathDir = new File(pkgdatadir, "path" + fileSep + extension);
-            fileSearcher.addPathDir(sysPathDir);
-            File userPathDir = new File(configDir, "path" + fileSep + extension);
-            fileSearcher.addPathDir(userPathDir);
-        }
+        if (extension != null) {
+            if (searchLibDirsForExtension) {
+                File sysPathDir = new File(pkgdatadir, "path" + fileSep + extension);
+                fileSearcher.addPathDir(sysPathDir);
+                File userPathDir = new File(configDir, "path" + fileSep + extension);
+                fileSearcher.addPathDir(userPathDir);
+            }
 
-        if (searchEnvLangLIBs) {
-            SrcLangType lang = SrcLangType.forExtension(extension);
-            String langLibName = lang.name().toUpperCase() + "LIB";
-            String langLibPath = System.getenv(langLibName.toUpperCase());
-            if (langLibPath != null)
-                fileSearcher.addPathEnv(langLibPath);
+            if (searchEnvLangLIBs) {
+                SrcLangType lang = SrcLangType.forExtension(extension);
+                String langLibName = lang.name().toUpperCase() + "LIB";
+                String langLibPath = System.getenv(langLibName.toUpperCase());
+                if (langLibPath != null)
+                    fileSearcher.addPathEnv(langLibPath);
+            }
         }
 
         if (searchEnvLIB) {
@@ -140,7 +152,11 @@ public class ResourceResolver {
         }
 
         String extension = FilePath.getExtension(filename, false);
-        FileSearcher fileSearcher = getFileSearcherForExtension(extension);
+        FileSearcher fileSearcher;
+        if (extension != null)
+            fileSearcher = getFileSearcherForExtension(extension);
+        else
+            fileSearcher = getFileSearcherForBareNames();
         for (File file : fileSearcher.search(filename))
             return new ResourceVariant(file);
 

@@ -36,16 +36,16 @@ public class TrieLexer<sym> {
         return new TrieTokenizer<sym>(trie, in);
     }
 
-    public void parse(String s, ITokenCallback<sym> callback)
+    public TrieParser<sym> newParser(String s, ITokenCallback<sym> callback)
             throws IOException, ParseException {
         StringCharIn in = new StringCharIn(s);
-        parse(in, callback);
+        return newParser(in, callback);
     }
 
-    public void parse(ICharIn in, ITokenCallback<sym> callback)
+    public TrieParser<sym> newParser(ICharIn in, ITokenCallback<sym> callback)
             throws IOException, ParseException {
         TrieParser<sym> parser = new TrieParser<sym>(trie, in, callback);
-        parser.parse();
+        return parser;
     }
 
 }

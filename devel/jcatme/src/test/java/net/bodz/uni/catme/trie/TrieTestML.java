@@ -53,7 +53,7 @@ public class TrieTestML
         URLResource res = ClassResource.getData(TrieTestApp.class, "1");
         String source = res.read().readString();
         in = new StringCharIn(source);
-        lexer.parse(in, this);
+        lexer.newParser(in, this).parse();
     }
 
     boolean sub;
@@ -70,7 +70,7 @@ public class TrieTestML
                 System.out.printf("<%d:%d:%s>", line, column, text);
                 if (symbol.comment) {
                     sub = true;
-                    xlexer.parse(in, this);
+                    xlexer.newParser(in, this).parse();
                     sub = false;
                 }
             }

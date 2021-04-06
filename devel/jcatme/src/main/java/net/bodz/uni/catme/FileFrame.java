@@ -50,6 +50,7 @@ public class FileFrame
             lexer.declare(opener, new MySym(MySym.OPENER, "opener"));
         if (simpleOpener != null)
             lexer.declare(simpleOpener, new MySym(MySym.SIMPLE_OPENER, "simpleOpener"));
+        lexer.declare("\n", new MySym(MySym.NEWLINE, "newLine"));
 
         commentLexer = new TrieLexer<MySym>();
         if (closer != null)
@@ -200,7 +201,7 @@ public class FileFrame
 
     @Override
     public String toString() {
-        return file.getPath();
+        return file.getPath() + ":" + currentLine + ":" + currentColumn;
     }
 
 }

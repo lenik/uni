@@ -62,7 +62,7 @@ public class TrieTestApp
             throws Exception {
         URLResource res = ClassResource.getData(TrieTestApp.class, "1");
         String source = res.read().readString();
-        lexer.parse(source, this);
+        lexer.newParser(source, this).parse();
     }
 
     @Override

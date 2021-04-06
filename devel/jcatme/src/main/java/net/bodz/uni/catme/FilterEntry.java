@@ -2,12 +2,11 @@ package net.bodz.uni.catme;
 
 public class FilterEntry {
 
-    public String key;
-
+    public String name;
     public ITextFilter filter;
 
-    public FilterEntry(String key, ITextFilter filter) {
-        this.key = key;
+    public FilterEntry(String name, ITextFilter filter) {
+        this.name = name;
         this.filter = filter;
     }
 
