@@ -36,10 +36,10 @@ list=/etc/apt/sources.list.d/bodz.list
 for section in stable testing unstable; do
     lineconf -tm "Configure apt bodz.list ($section)" \
         $list @bodz::$section \
-        "deb     http://$host$wwwpath $section/"
+        "deb     [trusted=yes] http://$host$wwwpath $section/"
     lineconf -tm "Configure apt bodz.list ($section) src" \
         $list @bodz::$section-src \
-        "deb-src http://$host$wwwpath $section/"
+        "deb-src [trusted=yes] http://$host$wwwpath $section/"
 done
 
 exit 0
