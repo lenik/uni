@@ -1,4 +1,6 @@
 # -*- sh -*-
+**/debian/*.after                       # cooldeb excluded file
+**/debian/*.before                      # cooldeb excluded file
 **/debian/*.EX                          # cooldeb excluded file
 **/debian/*.ex                          # cooldeb excluded file
 **/debian/*/                            # cooldeb

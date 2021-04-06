@@ -1,4 +1,6 @@
 
+**/debian/*.after
+**/debian/*.before
 **/debian/*.EX
 **/debian/*.ex
 **/debian/*/
