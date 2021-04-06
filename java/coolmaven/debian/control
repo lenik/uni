@@ -2,8 +2,8 @@ Source: coolmaven
 Section: devel
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 7), xmlutils
-Standards-Version: 3.8.3
+Build-Depends: debhelper-compat (= 13), xmlutils
+Standards-Version: 4.5.1
 Homepage: http://uni.bodz.net/java/coolmaven
 Vcs-Git: git://git.bodz.net/uni.git
 Vcs-Browser: http://git.bodz.net/uni/java/coolmaven

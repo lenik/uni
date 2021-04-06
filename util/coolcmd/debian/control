@@ -2,8 +2,8 @@ Source: coolcmd
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 7), libglib2.0-dev
-Standards-Version: 3.8.3
+Build-Depends: debhelper-compat (= 13), libglib2.0-dev
+Standards-Version: 4.5.1
 Homepage: http://uni.bodz.net/utils/coolcmd
 Vcs-Git: git://git.bodz.net/uni.git
 Vcs-Browser: http://git.bodz.net/uni/util/coolcmd

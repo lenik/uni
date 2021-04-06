@@ -2,8 +2,8 @@ Source: desktoputils
 Section: x11
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 7)
-Standards-Version: 3.8.3
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.5.1
 Homepage: http://uni.bodz.net/x11/desktoputils
 Vcs-Git: git://git.bodz.net/uni.git
 Vcs-Browser: http://git.bodz.net/uni/x11/desktoputils

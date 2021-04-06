@@ -2,9 +2,9 @@ Source: emacs-pref-xjl
 Section: devel
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 7), emacs-goodies-el
+Build-Depends: debhelper-compat (= 13), emacs-goodies-el
 Build-ecommends: ibus-el
-Standards-Version: 3.8.3
+Standards-Version: 4.5.1
 Homepage: http://uni.bodz.net/pref-xjl/emacs-pref-xjl
 Vcs-Git: git://git.bodz.net/uni.git
 Vcs-Browser: http://git.bodz.net/uni/asm-xjl/emacs-pref-xjl
