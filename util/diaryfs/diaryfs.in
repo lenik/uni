@@ -111,9 +111,10 @@ function diaryfs_archive() {
         [ "$dir" = "$arg" ] && dir=.
         if [ -n "$hashtag" ]; then
             local newfile="$dir/$hashtag $base"
-            mv -n "$arg" "$newfile" || die "failed to rename $arg to $newfile."
-            by-date $logopts -d "$by_date_dir" "$newfile"
+            mv -n -- "$arg" "$newfile" || die "failed to rename $arg to $newfile."
+            arg="$newfile"
         fi
+        by-date $logopts -d "$by_date_dir" -- "$arg"
     done
 }
 
