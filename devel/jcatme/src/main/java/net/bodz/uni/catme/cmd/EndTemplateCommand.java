@@ -18,12 +18,16 @@ public class EndTemplateCommand
     }
 
     @Override
-    public void execute(IFrame frame, CommandOptions options, Object... _args)
-            throws IOException, ParseException {
+    public void prepare(IFrame frame, CommandOptions options, Object... args) {
         if (frame == null)
             throw new NullPointerException("frame");
-        frame.setEchoLines(0);
+        frame.setEchoLines(1);
         frame.setSkipLines(0);
+    }
+
+    @Override
+    public void execute(IFrame frame, CommandOptions options, Object... _args)
+            throws IOException, ParseException {
     }
 
     public static final EndTemplateCommand END_TEMPLATE = new EndTemplateCommand();

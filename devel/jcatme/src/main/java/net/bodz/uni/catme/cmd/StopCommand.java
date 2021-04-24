@@ -6,7 +6,8 @@ import net.bodz.bas.err.ParseException;
 import net.bodz.uni.catme.CommandOptions;
 import net.bodz.uni.catme.IFrame;
 
-public class StopCommand extends AbstractCommand {
+public class StopCommand
+        extends AbstractCommand {
 
     @Override
     public void execute(IFrame frame, CommandOptions options, Object... args)

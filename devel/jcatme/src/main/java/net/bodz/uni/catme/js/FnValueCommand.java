@@ -41,6 +41,10 @@ public class FnValueCommand
     }
 
     @Override
+    public void prepare(IFrame frame, CommandOptions options, Object... args) {
+    }
+
+    @Override
     public void execute(IFrame frame, CommandOptions options, Object... args) {
         fn.execute(args);
     }

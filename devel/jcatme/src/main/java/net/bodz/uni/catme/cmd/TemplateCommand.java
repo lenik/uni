@@ -23,12 +23,18 @@ public class TemplateCommand
     }
 
     @Override
-    public void execute(IFrame frame, CommandOptions options, Object... _args)
-            throws IOException, ParseException {
+    public void prepare(IFrame frame, CommandOptions options, Object... args) {
         if (frame == null)
             throw new NullPointerException("frame");
         frame.setEchoLines(1);
         frame.setSkipLines(-1);
+    }
+
+    @Override
+    public void execute(IFrame frame, CommandOptions options, Object... _args)
+            throws IOException, ParseException {
+        if (frame == null)
+            throw new NullPointerException("frame");
         inclusion.execute(frame, options, _args);
     }
 

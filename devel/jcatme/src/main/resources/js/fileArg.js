@@ -35,4 +35,3 @@ function provideFilter(k, fn) {
 }
 
 load('js/builtins/filter.js');
-load('js/builtins/self-mod.js');

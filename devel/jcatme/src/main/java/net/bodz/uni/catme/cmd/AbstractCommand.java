@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.bodz.uni.catme.CommandOptions;
 import net.bodz.uni.catme.ICommand;
+import net.bodz.uni.catme.IFrame;
 import net.bodz.uni.catme.lex.CaptureTokenLexer;
 import net.bodz.uni.catme.lex.ITokenLexer;
 import net.bodz.uni.catme.lex.LinkedLexer;
@@ -41,6 +42,10 @@ public abstract class AbstractCommand
     @Override
     public ITokenLexer<List<?>> getArgumentsLexer() {
         return lexer;
+    }
+
+    @Override
+    public void prepare(IFrame frame, CommandOptions options, Object... args) {
     }
 
 }

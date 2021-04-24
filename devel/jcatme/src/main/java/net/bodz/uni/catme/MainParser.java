@@ -1,6 +1,7 @@
 package net.bodz.uni.catme;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -180,30 +181,38 @@ public class MainParser {
         boolean special = trim.startsWith(ff.escapePrefix);
 
         if (special) {
+            List<CommandClosure> closures = parseInstructions(frame, trim);
+            for (CommandClosure closure : closures)
+                closure.prepare();
+
             int echoLines = frame.getEchoLines();
             if (echoLines != 0) {
                 out.append(cbuf);
                 if (echoLines != -1)
                     frame.setEchoLines(--echoLines);
             }
-            parseInstruction(frame, trim);
+
+            for (CommandClosure closure : closures)
+                closure.run();
         } else {
             parseText(frame, cbuf);
         }
         return special;
     }
 
-    void parseInstruction(IFrame frame, String instruction)
+    List<CommandClosure> parseInstructions(IFrame frame, String instructions)
             throws IOException, ParseException {
         // if (frame.isRemoveLeads())
         String indenter = trailingSpaceBuf.toString();
         frame.setIndenter(indenter);
         trailingSpaceBuf.setLength(0);
 
-        ILa1CharIn in = new La1CharInImpl(new StringCharIn(instruction));
+        ILa1CharIn in = new La1CharInImpl(new StringCharIn(instructions));
 
         FileFrame ff = frame.getClosestFileFrame();
         String escape = ff.getEscapePrefix();
+
+        List<CommandClosure> closures = new ArrayList<>();
 
         NonspaceTokenLexer nonspace = NonspaceTokenLexer.INSTANCE;
         int c;
@@ -238,14 +247,35 @@ public class MainParser {
                 String[] optv = parenthesizedStr.split("\\s+");
                 if (commandDispatcher == null)
                     throw new IllegalUsageException("commandDispatcher wan't set.");
-                else
-                    commandDispatcher.execute(cmd, optv, args);
+                closures.add(new CommandClosure() {
+                    @Override
+                    public void prepare() {
+                    }
+
+                    @Override
+                    public void run()
+                            throws IOException, ParseException {
+                        commandDispatcher.execute(cmd, optv, args);
+                    }
+                });
             } else {
                 CommandOptions options = cmd.parseOptions(parenthesizedStr);
                 Object[] argv = args.toArray();
-                cmd.execute(frame, options, argv);
+                closures.add(new CommandClosure() {
+                    @Override
+                    public void prepare() {
+                        cmd.prepare(frame, options, argv);
+                    }
+
+                    @Override
+                    public void run()
+                            throws IOException, ParseException {
+                        cmd.execute(frame, options, argv);
+                    }
+                });
             }
         }
+        return closures;
     }
 
     StringBuilder cbuf_alt = new StringBuilder(16384);
@@ -282,12 +312,30 @@ public class MainParser {
         }
 
         if (app.debug)
-            out.append("<" + result + ">");
-        else {
-            out.append(result);
+            out.append('<');
+
+        int skipLines = frame.getSkipLines();
+        if (skipLines == -1) {
+            result.setLength(0);
+            return;
         }
 
-        result.setLength(0);
+        int start = 0, end = result.length();
+        while (skipLines > 0) {
+            int nextNl = result.indexOf("\n", start);
+            if (nextNl == -1)
+                break;
+            skipLines--;
+            start = nextNl + 1;
+        }
+        frame.setSkipLines(skipLines);
+
+        if (skipLines == 0) {
+            out.append(result, start, end);
+            result.setLength(0);
+        } else {
+            result.delete(0, start);
+        }
     }
 
 }

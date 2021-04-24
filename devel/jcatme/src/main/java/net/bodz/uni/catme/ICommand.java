@@ -14,6 +14,8 @@ public interface ICommand {
 
     CommandOptions parseOptions(String s);
 
+    void prepare(IFrame frame, CommandOptions options, Object... args);
+
     void execute(IFrame frame, CommandOptions options, Object... args)
             throws IOException, ParseException;
 
