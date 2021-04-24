@@ -181,6 +181,10 @@ public class CatMe
         frame.addCommand("mixin", InclusionCommand.MIXIN);
         frame.addCommand("import", InclusionCommand.IMPORT);
 
+        frame.addCommand("template", TemplateCommand.TEMPLATE);
+        frame.addCommand("templatefile", TemplateCommand.TEMPLATE_FILE);
+        frame.addCommand("endtemplate", EndTemplateCommand.END_TEMPLATE);
+
         frame.addCommand("dnl", DnlCommand.INSTANCE);
         frame.addCommand("stop", StopCommand.INSTANCE);
 
