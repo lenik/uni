@@ -22,6 +22,9 @@ public abstract class AbstractFrame
     int currentLine;
     int currentColumn;
 
+    Boolean removeLeads;
+    static boolean defaultRemoveLeads = true;
+
     int echoLines;
     int skipLines;
     Pattern skipToPattern;
@@ -101,6 +104,22 @@ public abstract class AbstractFrame
     public void setLocation(int line, int column) {
         this.currentLine = line;
         this.currentColumn = column;
+    }
+
+    @Override
+    public boolean isRemoveLeads() {
+        if (removeLeads == null)
+            if (parent == null)
+                return parser.app.removeLeads;
+            else
+                return parent.isRemoveLeads();
+        else
+            return removeLeads.booleanValue();
+    }
+
+    @Override
+    public void setRemoveLeads(boolean removeLeads) {
+        this.removeLeads = removeLeads;
     }
 
     @Override
@@ -474,37 +493,6 @@ public abstract class AbstractFrame
             throws IOException, ParseException {
         if (parent != null)
             parent.parse(href);
-    }
-
-    @Override
-    public void processComments(StringBuilder cbuf, int textStart, int textEnd, boolean multiLine)
-            throws IOException, ParseException {
-        String trim = cbuf.substring(textStart, textEnd).trim();
-
-        FileFrame ff = getClosestFileFrame();
-        boolean special = trim.startsWith(ff.escapePrefix);
-
-        if (special) {
-            if (echoLines != 0) {
-                parser.out.append(cbuf);
-                if (echoLines != -1)
-                    echoLines--;
-            }
-            parser.parseInstruction(this, trim);
-        } else {
-            processText(cbuf);
-        }
-    }
-
-    StringBuilder cbuf2 = new StringBuilder(16384);
-
-    @Override
-    public void processText(StringBuilder cbuf)
-            throws IOException, FilterException {
-        // parser.out.append("ProcessText>");
-        StringBuilder result = fastFilter(this, cbuf, cbuf2);
-        parser.out.append(result);
-        result.setLength(0);
     }
 
 }

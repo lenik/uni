@@ -29,6 +29,10 @@ public interface IFrame {
 
     int getCurrentColumn();
 
+    boolean isRemoveLeads();
+
+    void setRemoveLeads(boolean removeLeads);
+
     int getEchoLines();
 
     void setEchoLines(int echoLines);
@@ -105,15 +109,5 @@ public interface IFrame {
 
     void parse(String href)
             throws IOException, ParseException;
-
-    int TextNormal = 0;
-    int SpaceIgnorableLeading = 1;
-    int SpaceIgnorableBetween = 2;
-
-    void processComments(StringBuilder cbuf, int textStart, int textEnd, boolean multiLine)
-            throws IOException, ParseException;
-
-    void processText(StringBuilder cbuf)
-            throws IOException, FilterException;
 
 }

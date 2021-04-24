@@ -49,6 +49,14 @@ public class TrieParser<sym> {
         this.trie = trie;
     }
 
+    public boolean isBreakLines() {
+        return breakLines;
+    }
+
+    public void setBreakLines(boolean breakLines) {
+        this.breakLines = breakLines;
+    }
+
     public void parse()
             throws IOException, ParseException {
         char ch;

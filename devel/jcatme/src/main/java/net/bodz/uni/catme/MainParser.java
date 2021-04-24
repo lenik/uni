@@ -30,6 +30,7 @@ public class MainParser {
     public static final String VAR_PARSER = "Parser";
 
     CatMe app;
+    boolean breakLines = false;
 
     IScriptContext scriptContext;
     Value commandDispatcher;
@@ -102,41 +103,48 @@ public class MainParser {
             StringBuilder buf = new StringBuilder(1024);
             int textStart, textEnd;
 
+            MySym lastSym;
+            boolean lastSpecial;
+
             @Override
             public String toString() {
                 return frame.toString();
             }
 
             @Override
-            public boolean onToken(TrieParser<MySym> parser, int line, int column, StringBuilder cbuf, MySym symbol)
+            public boolean onToken(TrieParser<MySym> trieParser, int line, int column, StringBuilder cbuf, MySym symbol)
                     throws IOException, ParseException {
-                System.err.println("<token " + cbuf.toString().trim() + ">");
                 frame.setLocation(line, column);
                 if (symbol != null) {
+                    lastSym = symbol;
                     switch (symbol.id) {
-                    case MySym.SIMPLE_OPENER:
+                    case MySym.ID_SL_OPENER:
+                        if (frame.isRemoveLeads())
+                            trailingSpaceBuf.setLength(0);
                         singleLineComment = true;
-                    case MySym.OPENER:
+                    case MySym.ID_OPENER:
                         inComments = true;
                         buf.append(cbuf);
                         textStart = buf.length();
                         textEnd = 0;
 
-                        ff.commentLexer.newParser(in, this).at(line, column).parse();
+                        TrieParser<MySym> subTrie = ff.commentLexer.newParser(in, this).at(line, column);
+                        subTrie.setBreakLines(symbol == MySym.SL_OPENER);
+                        subTrie.parse();
                         if (textEnd <= 0)
                             textEnd = buf.length();
-                        frame.processComments(buf, textStart, textEnd, !singleLineComment);
+                        lastSpecial = parseComments(frame, buf, textStart, textEnd, !singleLineComment);
 
                         inComments = false;
                         singleLineComment = false;
                         buf.setLength(0);
                         break;
 
-                    case MySym.ESCAPE:
+                    case MySym.ID_ESCAPE:
                         // ctoks.add(token);
                         break;
 
-                    case MySym.CLOSER:
+                    case MySym.ID_CLOSER:
                         textEnd = buf.length();
                         buf.append(cbuf);
                         return false; // quit the sub-lang
@@ -147,14 +155,48 @@ public class MainParser {
                         if (singleLineComment)
                             return false; // quit the sub-lang
                     } else {
-                        frame.processText(cbuf);
+//                        if (lastSym == MySym.SL_OPENER && lastSpecial) {
+//                            int leadingSpaces = 0, n = cbuf.length();
+//                            while (leadingSpaces < n) {
+//                                if (Character.isSpaceChar(cbuf.charAt(leadingSpaces)))
+//                                    leadingSpaces++;
+//                                else
+//                                    break;
+//                            }
+//                            cbuf.delete(0, leadingSpaces);
+//                        }
+                        parseText(frame, cbuf);
                     }
+                    lastSym = null;
                 } // if token.isSymbol()
                 return !stopParseFrameSource;
             }
         }
 
-        ff.lexer.newParser(in, new Callback()).at(0, 0).parse();
+        TrieParser<MySym> trieParser = ff.lexer.newParser(in, new Callback()).at(0, 0);
+        trieParser.setBreakLines(app.breakLines);
+        trieParser.parse();
+    }
+
+    boolean parseComments(IFrame frame, StringBuilder cbuf, int textStart, int textEnd, boolean multiLine)
+            throws IOException, ParseException {
+        String trim = cbuf.substring(textStart, textEnd).trim();
+
+        FileFrame ff = frame.getClosestFileFrame();
+        boolean special = trim.startsWith(ff.escapePrefix);
+
+        if (special) {
+            int echoLines = frame.getEchoLines();
+            if (echoLines != 0) {
+                out.append(cbuf);
+                if (echoLines != -1)
+                    frame.setEchoLines(--echoLines);
+            }
+            parseInstruction(frame, trim);
+        } else {
+            parseText(frame, cbuf);
+        }
+        return special;
     }
 
     void parseInstruction(IFrame frame, String instruction)
@@ -205,6 +247,47 @@ public class MainParser {
                 cmd.execute(frame, options, argv);
             }
         }
+    }
+
+    StringBuilder cbuf_alt = new StringBuilder(16384);
+    StringBuilder trailingSpaceBuf = new StringBuilder();
+
+    void parseText(IFrame frame, StringBuilder cbuf)
+            throws IOException, FilterException {
+        StringBuilder result = frame.fastFilter(frame, cbuf, cbuf_alt);
+
+        if (frame.isRemoveLeads()) {
+            if (trailingSpaceBuf.length() != 0) {
+                out.append(trailingSpaceBuf);
+                trailingSpaceBuf.setLength(0);
+            }
+
+            int n = result.length();
+            int y = 0;
+            L: for (int end = n - 1; end >= 0; end--) {
+                switch (result.charAt(end)) {
+                case ' ':
+                case '\t':
+                    y++;
+                    continue L;
+                case '\r':
+                case '\n':
+                    break L;
+                }
+            }
+
+            if (y != 0) {
+                trailingSpaceBuf.append(result.substring(n - y));
+                result.setLength(n - y);
+            }
+        }
+
+        if (app.debug)
+            out.append("<" + result + ">");
+        else
+            out.append(result);
+
+        result.setLength(0);
     }
 
 }

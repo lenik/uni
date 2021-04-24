@@ -1,11 +1,14 @@
 package net.bodz.uni.catme;
 
 import java.io.File;
+import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.graalvm.polyglot.Value;
 
+import net.bodz.bas.io.res.builtin.FileResource;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
@@ -32,6 +35,33 @@ public class CatMe
     public static final String VAR_GLOBAL = "global";
 
     /**
+     * Specify text encoding/charset.
+     *
+     * <p lang="zh-cn">
+     * 制定文字的编码/字符集。
+     *
+     * @option --encoding =CHARSET
+     */
+    Charset charset;
+
+    /**
+     * Edit files in place. (Only applied to the specified files on cmdline.)
+     *
+     * <p lang="zh-cn">
+     * 将输出结果保存至原文件。（仅对命令行参数指定的文件）
+     *
+     * @option -i --in-place
+     */
+    boolean inPlace;
+
+    /**
+     * Keep a backup.
+     *
+     * @option --backup
+     */
+    boolean backup;
+
+    /**
      * Monitor changes in the dirs and restart the app. This is useful when debugging.
      *
      * <p lang="zh-cn">
@@ -50,6 +80,25 @@ public class CatMe
      * @option -w --watch
      */
     boolean watchMode;
+
+    /**
+     * Operate in line-by-line mode.
+     *
+     * @option --break-lines
+     */
+    boolean breakLines = false;
+
+    /**
+     * Remove whitespace before single line instruction-comments.
+     *
+     * @option --remove-leads
+     */
+    boolean removeLeads = true;
+
+    /**
+     * @option --debug
+     */
+    boolean debug;
 
     ResourceResolver userResolver = new ResourceResolver();
     ResourceResolver scriptResolver = new ResourceResolver();
@@ -89,6 +138,7 @@ public class CatMe
     void runOnce() {
         if (!initScript())
             return;
+
         MainParser parser;
         try {
             parser = new MainParser(this, scriptContext);
@@ -98,36 +148,60 @@ public class CatMe
             return;
         }
 
-        int index = 0;
-
-        for (String arg : cmdlineArgs) {
-            if (index++ == 1)
+        for (int index = 0; index < cmdlineArgs.length; index++) {
+            String arg = cmdlineArgs[index];
+            if (index == 1)
                 nonfirstStart();
+
             File file = new File(arg);
-            if (file.exists()) {
-                FileFrame frame = new FileFrame(parser, file);
-                frame.addFilter("vars", new VarInterpolatorClass());
-                frame.beginFilter("vars");
-
-                setupToplevel(frame);
-
-                scriptContext.put(IFrame.VAR_FRAME, frame);
-
-                try {
-                    scriptContext.include("./js/fileArg.js");
-                } catch (Exception e) {
-                    logger.error("Failed to prepare file " + arg + ": " + e.getMessage(), e);
-                    return;
-                }
-
-                try {
-                    frame.parse();
-                } catch (Exception e) {
-                    logger.error("Failed to parse: " + e.getMessage(), e);
-                }
-                continue;
+            if (!file.isFile()) {
+                logger.error("Not a file: " + file);
+                return;
             }
-            throw new IllegalArgumentException("invalid argument: " + arg);
+
+            FileFrame frame = new FileFrame(parser, file);
+            if (charset != null)
+                frame.charset = charset;
+            frame.addFilter("vars", new VarInterpolatorClass());
+            frame.beginFilter("vars");
+
+            setupToplevel(frame);
+
+            scriptContext.put(IFrame.VAR_FRAME, frame);
+
+            try {
+                scriptContext.include("./js/fileArg.js");
+            } catch (Exception e) {
+                logger.error("Failed to prepare file " + arg + ": " + e.getMessage(), e);
+                return;
+            }
+
+            StringWriter outBuf = new StringWriter(4096);
+            try {
+                if (inPlace)
+                    parser.out = outBuf;
+
+                frame.parse();
+
+                if (inPlace) {
+                    if (backup) {
+                        File bakFile = new File(file.getPath() + ".bak");
+                        if (!file.renameTo(bakFile)) {
+                            logger.error("Can't rename file for backup, aborted: " + file);
+                            return;
+                        }
+                    }
+                    String content = outBuf.toString();
+                    logger.infof("Save in-place: %s (%d chars)", file, content.length());
+                    new FileResource(file, frame.charset).write().writeString(content);
+                }
+            } catch (Exception e) {
+                if (inPlace)
+                    System.err.println(outBuf);
+                logger.error("Failed to parse: " + e.getMessage(), e);
+                return;
+            }
+            continue;
         }
     }
 

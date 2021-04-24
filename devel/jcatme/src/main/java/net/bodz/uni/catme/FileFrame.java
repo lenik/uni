@@ -2,8 +2,10 @@ package net.bodz.uni.catme;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import net.bodz.bas.c.java.io.FilePath;
+import net.bodz.bas.c.java.nio.Charsets;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.ICharIn;
 import net.bodz.bas.io.StringCharIn;
@@ -18,6 +20,7 @@ public class FileFrame
         extends AbstractFrame {
 
     File file;
+    Charset charset = Charsets.UTF8;
 
     String extension;
     SrcLangType lang;
@@ -47,18 +50,18 @@ public class FileFrame
 
         lexer = new TrieLexer<MySym>();
         if (opener != null)
-            lexer.declare(opener, new MySym(MySym.OPENER, "opener"));
+            lexer.declare(opener, MySym.OPENER);
         if (simpleOpener != null)
-            lexer.declare(simpleOpener, new MySym(MySym.SIMPLE_OPENER, "simpleOpener"));
-        lexer.declare("\n", new MySym(MySym.NEWLINE, "newLine"));
+            lexer.declare(simpleOpener, MySym.SL_OPENER);
+        // lexer.declare("\n", MySym.NEWLINE);
 
         commentLexer = new TrieLexer<MySym>();
         if (closer != null)
-            commentLexer.declare(closer, new MySym(MySym.CLOSER, "closer"));
+            commentLexer.declare(closer, MySym.CLOSER);
 
         instructionLexer = new TrieLexer<MySym>();
         if (escapePrefix != null)
-            instructionLexer.declare(escapePrefix, new MySym(MySym.ESCAPE, "escape"));
+            instructionLexer.declare(escapePrefix, MySym.ESCAPE);
     }
 
     @Override
@@ -107,7 +110,7 @@ public class FileFrame
 
     public void parse()
             throws IOException, ParseException {
-        parse(new FileResource(file));
+        parse(new FileResource(file, charset));
     }
 
     public void parse(IStreamResource resource)
