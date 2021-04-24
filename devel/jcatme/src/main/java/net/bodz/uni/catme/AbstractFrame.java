@@ -6,7 +6,9 @@ import java.util.regex.Pattern;
 
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.string.StringPred;
+import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.err.ParseException;
+import net.bodz.bas.fn.EvalException;
 import net.bodz.uni.catme.io.ResourceVariant;
 
 public abstract class AbstractFrame
@@ -24,6 +26,7 @@ public abstract class AbstractFrame
 
     Boolean removeLeads;
     static boolean defaultRemoveLeads = true;
+    String indenter = "";
 
     int echoLines;
     int skipLines;
@@ -120,6 +123,16 @@ public abstract class AbstractFrame
     @Override
     public void setRemoveLeads(boolean removeLeads) {
         this.removeLeads = removeLeads;
+    }
+
+    @Override
+    public String getIndenter() {
+        return indenter;
+    }
+
+    @Override
+    public void setIndenter(String indenter) {
+        this.indenter = indenter;
     }
 
     @Override
@@ -493,6 +506,24 @@ public abstract class AbstractFrame
             throws IOException, ParseException {
         if (parent != null)
             parent.parse(href);
+    }
+
+    @Override
+    public Object eval(String code)
+            throws EvalException, IOException {
+        if (parent != null)
+            return parent.eval(code);
+        else
+            throw new NotImplementedException();
+    }
+
+    @Override
+    public Object eval(String code, String fileName)
+            throws EvalException, IOException {
+        if (parent != null)
+            return parent.eval(code, fileName);
+        else
+            throw new NotImplementedException();
     }
 
 }

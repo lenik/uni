@@ -29,7 +29,7 @@ public class LoadJsCommand extends AbstractCommand {
         String moduleHref = name.replace('.', '/') + ".js";
 
         try {
-            Value loadFn = (Value) frame.getParser().eval("load");
+            Value loadFn = (Value) frame.eval("load");
             if (loadFn == null)
                 throw new ParseException("load function isn't defined.");
             loadFn.execute(moduleHref);

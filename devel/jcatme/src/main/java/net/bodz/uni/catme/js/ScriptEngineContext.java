@@ -8,6 +8,7 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
+import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.fn.EvalException;
 
 public class ScriptEngineContext
@@ -49,6 +50,12 @@ public class ScriptEngineContext
         } catch (ScriptException e) {
             throw new EvalException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public Object include(String filename)
+            throws EvalException, IOException {
+        throw new NotImplementedException();
     }
 
     @Override

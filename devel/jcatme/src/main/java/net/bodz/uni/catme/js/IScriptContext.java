@@ -14,6 +14,9 @@ public interface IScriptContext
 
     void put(String name, Object value);
 
+    Object include(String filename)
+            throws EvalException, IOException;
+
     Object eval(String code)
             throws EvalException, IOException;
 

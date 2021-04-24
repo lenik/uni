@@ -7,6 +7,7 @@ import java.util.Stack;
 import java.util.regex.Pattern;
 
 import net.bodz.bas.err.ParseException;
+import net.bodz.bas.fn.EvalException;
 import net.bodz.uni.catme.io.ResourceVariant;
 
 public interface IFrame {
@@ -32,6 +33,10 @@ public interface IFrame {
     boolean isRemoveLeads();
 
     void setRemoveLeads(boolean removeLeads);
+
+    String getIndenter();
+
+    void setIndenter(String indenter);
 
     int getEchoLines();
 
@@ -106,6 +111,12 @@ public interface IFrame {
 
     ResourceVariant resolveModule(String module)
             throws IOException;
+
+    Object eval(String code)
+            throws EvalException, IOException;
+
+    Object eval(String code, String fileName)
+            throws EvalException, IOException;
 
     void parse(String href)
             throws IOException, ParseException;

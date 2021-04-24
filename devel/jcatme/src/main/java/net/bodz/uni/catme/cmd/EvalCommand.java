@@ -22,7 +22,7 @@ public class EvalCommand extends AbstractCommand {
             throws IOException, ParseException {
         String code = (String) args[0];
         try {
-            frame.getParser().eval(code);
+            frame.eval(code);
         } catch (EvalException e) {
             logger.error("eval failed: " + e.getMessage(), e);
         }

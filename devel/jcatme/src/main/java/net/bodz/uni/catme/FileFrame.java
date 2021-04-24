@@ -7,17 +7,23 @@ import java.nio.charset.Charset;
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.java.nio.Charsets;
 import net.bodz.bas.err.ParseException;
+import net.bodz.bas.fn.EvalException;
 import net.bodz.bas.io.ICharIn;
 import net.bodz.bas.io.StringCharIn;
 import net.bodz.bas.io.res.IStreamResource;
 import net.bodz.bas.io.res.builtin.FileResource;
 import net.bodz.bas.io.res.tools.StreamReading;
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
 import net.bodz.uni.catme.io.ResourceResolver;
 import net.bodz.uni.catme.io.ResourceVariant;
+import net.bodz.uni.catme.js.IScriptContext;
 import net.bodz.uni.catme.trie.TrieLexer;
 
 public class FileFrame
         extends AbstractFrame {
+
+    static final Logger logger = LoggerFactory.getLogger(FileFrame.class);
 
     File file;
     Charset charset = Charsets.UTF8;
@@ -32,6 +38,8 @@ public class FileFrame
     TrieLexer<MySym> lexer;
     TrieLexer<MySym> commentLexer;
     TrieLexer<MySym> instructionLexer;
+
+    IScriptContext scriptContext;
 
     public FileFrame(MainParser parser, File file) {
         this(null, parser, file);
@@ -108,6 +116,46 @@ public class FileFrame
         return resolveHref(href, false);
     }
 
+    public boolean initScript() {
+        if (scriptContext != null)
+            return true;
+
+        if (!parser.initScriptContext())
+            return false;
+
+        IScriptContext scriptContext = parser.getScriptContext();
+        scriptContext.put(IFrame.VAR_FRAME, this);
+
+        try {
+            scriptContext.include("./js/fileArg.js");
+        } catch (Exception e) {
+            logger.error("Failed to prepare file " + getPath() + ": " + e.getMessage(), e);
+            return false;
+        }
+        this.scriptContext = scriptContext;
+        return true;
+    }
+
+    public IScriptContext getScriptContext() {
+        if (!initScript())
+            throw new IllegalStateException("Script not ready.");
+        return scriptContext;
+    }
+
+    public Object eval(String code)
+            throws EvalException, IOException {
+        if (code == null)
+            throw new NullPointerException("code");
+        return getScriptContext().eval(code);
+    }
+
+    public Object eval(String code, String fileName)
+            throws EvalException, IOException {
+        if (code == null)
+            throw new NullPointerException("code");
+        return getScriptContext().eval(code, fileName);
+    }
+
     public void parse()
             throws IOException, ParseException {
         parse(new FileResource(file, charset));
@@ -115,8 +163,11 @@ public class FileFrame
 
     public void parse(IStreamResource resource)
             throws IOException, ParseException {
-        Object oldFrame = parser.scriptContext.get(VAR_FRAME);
-        parser.scriptContext.put(VAR_FRAME, this);
+        Object oldFrame = null;
+        if (scriptContext != null) {
+            oldFrame = scriptContext.get(VAR_FRAME);
+            scriptContext.put(VAR_FRAME, this);
+        }
 
         ICharIn in = null;
         try {
@@ -127,7 +178,8 @@ public class FileFrame
         } finally {
             if (in != null)
                 in.close();
-            parser.scriptContext.put(VAR_FRAME, oldFrame);
+            if (scriptContext != null)
+                scriptContext.put(VAR_FRAME, oldFrame);
         }
     }
 

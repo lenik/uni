@@ -6,8 +6,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.graalvm.polyglot.Value;
-
 import net.bodz.bas.io.res.builtin.FileResource;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
@@ -20,7 +18,6 @@ import net.bodz.uni.catme.filter.VarInterpolatorClass;
 import net.bodz.uni.catme.io.LoopRunner;
 import net.bodz.uni.catme.io.ResourceResolver;
 import net.bodz.uni.catme.io.ResourceVariant;
-import net.bodz.uni.catme.js.PolyglotContext;
 
 /**
  * CatMe rewritten in Java.
@@ -103,8 +100,6 @@ public class CatMe
     ResourceResolver userResolver = new ResourceResolver();
     ResourceResolver scriptResolver = new ResourceResolver();
 
-    PolyglotContext scriptContext;
-
     private String[] cmdlineArgs;
 
     public CatMe() {
@@ -119,30 +114,10 @@ public class CatMe
         userResolver.searchEnvLIB = true;
     }
 
-    boolean initScript() {
-        scriptContext = PolyglotContext.createContext(scriptResolver);
-        scriptContext.put(VAR_APP, this);
-
-        Value bindings = scriptContext.getBindings();
-        scriptContext.put(VAR_GLOBAL, bindings);
-
-        try {
-            scriptContext.include("./js/appInit.js");
-            return true;
-        } catch (Exception e) {
-            logger.error("Failed to initialize app: " + e.getMessage(), e);
-            return false;
-        }
-    }
-
     void runOnce() {
-        if (!initScript())
-            return;
-
         MainParser parser;
         try {
-            parser = new MainParser(this, scriptContext);
-            scriptContext.put(MainParser.VAR_PARSER, parser);
+            parser = new MainParser(this);
         } catch (Exception e) {
             logger.error("Failed to instantiate parser: " + e.getMessage(), e);
             return;
@@ -166,15 +141,6 @@ public class CatMe
             frame.beginFilter("vars");
 
             setupToplevel(frame);
-
-            scriptContext.put(IFrame.VAR_FRAME, frame);
-
-            try {
-                scriptContext.include("./js/fileArg.js");
-            } catch (Exception e) {
-                logger.error("Failed to prepare file " + arg + ": " + e.getMessage(), e);
-                return;
-            }
 
             StringWriter outBuf = new StringWriter(4096);
             try {
@@ -223,6 +189,7 @@ public class CatMe
         frame.addCommand("skip", SetSkipLinesCommand.SKIP);
         frame.addCommand("noskip", SetSkipLinesCommand.NOSKIP);
 
+        frame.addCommand("initjs", InitJsCommand.INSTANCE);
         frame.addCommand("use", LoadJsCommand.INSTANCE);
         frame.addCommand("eval", EvalCommand.INSTANCE);
         frame.addCommand("shell", ShellCommand.INSTANCE);

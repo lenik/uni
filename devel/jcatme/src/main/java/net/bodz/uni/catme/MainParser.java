@@ -10,12 +10,12 @@ import org.graalvm.polyglot.Value;
 import net.bodz.bas.c.java.io.capture.Processes;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.ParseException;
-import net.bodz.bas.fn.EvalException;
 import net.bodz.bas.io.ICharIn;
 import net.bodz.bas.io.StringCharIn;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.uni.catme.js.IScriptContext;
+import net.bodz.uni.catme.js.PolyglotContext;
 import net.bodz.uni.catme.lex.ILa1CharIn;
 import net.bodz.uni.catme.lex.ITokenLexer;
 import net.bodz.uni.catme.lex.La1CharInImpl;
@@ -41,28 +41,39 @@ public class MainParser {
 
     Appendable out = System.out;
 
-    public MainParser(CatMe app, IScriptContext scriptContext)
+    public MainParser(CatMe app)
             throws IOException {
         this.app = app;
-        this.scriptContext = scriptContext;
+    }
+
+    public boolean initScriptContext() {
+        if (this.scriptContext != null)
+            return true;
+
+        PolyglotContext scriptContext;
+        scriptContext = PolyglotContext.createContext(app.scriptResolver);
+        scriptContext.put(CatMe.VAR_APP, app);
+
+        Value bindings = scriptContext.getBindings();
+        scriptContext.put(CatMe.VAR_GLOBAL, bindings);
+
+        scriptContext.put(MainParser.VAR_PARSER, this);
+
+        try {
+            scriptContext.include("./js/appInit.js");
+            this.scriptContext = scriptContext;
+            return true;
+        } catch (Exception e) {
+            logger.error("Failed to initialize app: " + e.getMessage(), e);
+            return false;
+        }
     }
 
     public IScriptContext getScriptContext() {
+        if (!initScriptContext()) {
+            throw new IllegalStateException("Can't initialize JavaScript engine.");
+        }
         return scriptContext;
-    }
-
-    public Object eval(String code)
-            throws EvalException, IOException {
-        if (code == null)
-            throw new NullPointerException("code");
-        return scriptContext.eval(code);
-    }
-
-    public Object eval(String code, String fileName)
-            throws EvalException, IOException {
-        if (code == null)
-            throw new NullPointerException("code");
-        return scriptContext.eval(code, fileName);
     }
 
     public void shell(String[] cmdarray)
@@ -103,9 +114,6 @@ public class MainParser {
             StringBuilder buf = new StringBuilder(1024);
             int textStart, textEnd;
 
-            MySym lastSym;
-            boolean lastSpecial;
-
             @Override
             public String toString() {
                 return frame.toString();
@@ -116,11 +124,8 @@ public class MainParser {
                     throws IOException, ParseException {
                 frame.setLocation(line, column);
                 if (symbol != null) {
-                    lastSym = symbol;
                     switch (symbol.id) {
                     case MySym.ID_SL_OPENER:
-                        if (frame.isRemoveLeads())
-                            trailingSpaceBuf.setLength(0);
                         singleLineComment = true;
                     case MySym.ID_OPENER:
                         inComments = true;
@@ -133,7 +138,7 @@ public class MainParser {
                         subTrie.parse();
                         if (textEnd <= 0)
                             textEnd = buf.length();
-                        lastSpecial = parseComments(frame, buf, textStart, textEnd, !singleLineComment);
+                        parseComments(frame, buf, textStart, textEnd, !singleLineComment);
 
                         inComments = false;
                         singleLineComment = false;
@@ -155,19 +160,8 @@ public class MainParser {
                         if (singleLineComment)
                             return false; // quit the sub-lang
                     } else {
-//                        if (lastSym == MySym.SL_OPENER && lastSpecial) {
-//                            int leadingSpaces = 0, n = cbuf.length();
-//                            while (leadingSpaces < n) {
-//                                if (Character.isSpaceChar(cbuf.charAt(leadingSpaces)))
-//                                    leadingSpaces++;
-//                                else
-//                                    break;
-//                            }
-//                            cbuf.delete(0, leadingSpaces);
-//                        }
                         parseText(frame, cbuf);
                     }
-                    lastSym = null;
                 } // if token.isSymbol()
                 return !stopParseFrameSource;
             }
@@ -201,8 +195,10 @@ public class MainParser {
 
     void parseInstruction(IFrame frame, String instruction)
             throws IOException, ParseException {
-        if (commandDispatcher == null)
-            throw new IllegalUsageException("commandDispatcher wan't set.");
+        // if (frame.isRemoveLeads())
+        String indenter = trailingSpaceBuf.toString();
+        frame.setIndenter(indenter);
+        trailingSpaceBuf.setLength(0);
 
         ILa1CharIn in = new La1CharInImpl(new StringCharIn(instruction));
 
@@ -240,7 +236,10 @@ public class MainParser {
 
             if (cmd.isScript()) {
                 String[] optv = parenthesizedStr.split("\\s+");
-                commandDispatcher.execute(cmd, optv, args);
+                if (commandDispatcher == null)
+                    throw new IllegalUsageException("commandDispatcher wan't set.");
+                else
+                    commandDispatcher.execute(cmd, optv, args);
             } else {
                 CommandOptions options = cmd.parseOptions(parenthesizedStr);
                 Object[] argv = args.toArray();
@@ -284,8 +283,9 @@ public class MainParser {
 
         if (app.debug)
             out.append("<" + result + ">");
-        else
+        else {
             out.append(result);
+        }
 
         result.setLength(0);
     }
