@@ -408,10 +408,12 @@ public abstract class AbstractFrame
         return filterStack;
     }
 
+    @Override
     public void beginFilter(String name, String... args) {
         beginFilter(name, Arrays.asList(args));
     }
 
+    @Override
     public void beginFilter(String name, List<String> args) {
         ITextFilterClass filterClass = getFilter(name);
         ITextFilter filter = filterClass.createFilter(this, args);
@@ -419,7 +421,9 @@ public abstract class AbstractFrame
         filterStack.push(filterEntry);
     }
 
-    public FilterEntry endFilter(String name) {
+    @Override
+    public FilterEntry endFilter(String name)
+            throws FilterException {
         if (filterStack.isEmpty())
             throw new IllegalStateException("No filter in use in the current frame.");
         FilterEntry top = filterStack.peek();

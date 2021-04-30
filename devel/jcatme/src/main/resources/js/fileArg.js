@@ -34,4 +34,3 @@ function provideFilter(k, fn) {
     Frame.addFilter(name, filter);
 }
 
-load('js/builtins/filter.js');

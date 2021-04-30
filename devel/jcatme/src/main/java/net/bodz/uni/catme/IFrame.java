@@ -90,6 +90,15 @@ public interface IFrame {
 
     Stack<FilterEntry> getFilterStack();
 
+    void beginFilter(String name, String... args)
+            throws ParseException;
+
+    void beginFilter(String name, List<String> args)
+            throws ParseException;
+
+    FilterEntry endFilter(String name)
+            throws FilterException;
+
     boolean isFilterInUse(String name);
 
     String filter(String s)

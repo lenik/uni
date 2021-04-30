@@ -14,10 +14,12 @@ import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.uni.catme.cmd.*;
+import net.bodz.uni.catme.filter.StringFilterClass;
 import net.bodz.uni.catme.filter.VarInterpolatorClass;
 import net.bodz.uni.catme.io.LoopRunner;
 import net.bodz.uni.catme.io.ResourceResolver;
 import net.bodz.uni.catme.io.ResourceVariant;
+import net.bodz.uni.catme.js.FilterDefCommand;
 
 /**
  * CatMe rewritten in Java.
@@ -137,10 +139,9 @@ public class CatMe
             FileFrame frame = new FileFrame(parser, file);
             if (charset != null)
                 frame.charset = charset;
-            frame.addFilter("vars", new VarInterpolatorClass());
-            frame.beginFilter("vars");
 
             setupToplevel(frame);
+            frame.beginFilter("vars");
 
             StringWriter outBuf = new StringWriter(4096);
             try {
@@ -203,6 +204,17 @@ public class CatMe
         frame.addCommand("info", LogCommand.INFO);
         frame.addCommand("debug", LogCommand.DEBUG);
         frame.addCommand("trace", LogCommand.TRACE);
+
+        frame.addCommand("begin", BeginFilterCommand.BEGIN);
+        frame.addCommand("end", EndFilterCommand.END);
+        frame.addCommand("map", FilterDefCommand.MAP);
+
+        frame.addFilter("vars", new VarInterpolatorClass());
+        frame.addFilter("toupper", StringFilterClass.TOUPPER);
+        frame.addFilter("tolower", StringFilterClass.TOLOWER);
+        frame.addFilter("nop", StringFilterClass.NOP);
+        frame.addFilter("indent", StringFilterClass.INDENT);
+        frame.addFilter("tabular", StringFilterClass.TABULAR);
     }
 
     @Override
