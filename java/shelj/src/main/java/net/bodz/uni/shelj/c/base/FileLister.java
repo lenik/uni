@@ -1,4 +1,4 @@
-package net.bodz.uni.shelj.c.builtin;
+package net.bodz.uni.shelj.c.base;
 
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.ProgramName;

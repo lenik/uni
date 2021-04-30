@@ -34,6 +34,7 @@ import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.IProgram;
 import net.bodz.bas.program.skel.BasicCLI;
 
 /**
@@ -80,7 +81,7 @@ public class JavaShell
     }
 
     TextMap<String[]> aliases;
-    TextMap<IShellCommand> commands;
+    TextMap<IProgram> commands;
 
     /**
      * Init environ
@@ -90,8 +91,8 @@ public class JavaShell
     TextMap<String> env;
 
     public JavaShell() {
-        aliases = new TreeTextMap<String[]>();
-        commands = new HashTextMap<IShellCommand>();
+        aliases = new TreeTextMap<>();
+        commands = new HashTextMap<>();
         commands.put("alias", new Alias());
         commands.put("cwd", new Cwd());
         commands.put("echo", new Echo());
@@ -168,14 +169,14 @@ public class JavaShell
             assert _args.length != 0;
             int n = _args.length;
 
-            final IShellCommand _command;
+            final IProgram _command;
             try {
                 String name = _args[0];
                 String[] expansion = expandAliases(name);
                 name = expansion[0];
                 _command = commands.get(name);
                 if (_command == null) {
-                    System.err.println(tr._("Command isn\'t defined: ") + name);
+                    System.err.println(nls.tr("Command isn\'t defined: ") + name);
                     continue;
                 }
 
@@ -198,12 +199,12 @@ public class JavaShell
                     @Override
                     public void execute()
                             throws Exception {
-                        _command.main(args);
+                        _command.execute(args);
                     }
                 });
             } catch (ControlExit exit) {
                 int status = exit.getStatus();
-                logger.info(tr._("exit "), status);
+                logger.info(nls.tr("exit "), status);
                 if (logger.isDebugEnabled())
                     exit.printStackTrace();
             } catch (Throwable t) {
@@ -221,7 +222,7 @@ public class JavaShell
         while ((exp = aliases.get(alias)) != null) {
             nest++;
             if (nest > MAX_NEST)
-                throw new IllegalUsageException(tr._("alias nest too much: ") + alias);
+                throw new IllegalUsageException(nls.tr("alias nest too much: ") + alias);
             assert exp.length != 0;
             alias = exp[0];
             if (exp.length == 1)
@@ -247,20 +248,20 @@ public class JavaShell
         new JavaShell().execute(args);
     }
 
-    abstract class BuiltIn
-            extends AbstractShellCommand {
+    abstract class SimpleCommand
+            extends ShellCommand {
 
-        public BuiltIn() {
+        public SimpleCommand() {
             super(JavaShell.this);
         }
 
     }
 
     class Alias
-            extends BuiltIn {
+            extends SimpleCommand {
 
         @Override
-        public int main(String... args)
+        protected void mainImpl(String... args)
                 throws Exception {
             if (args.length == 0)
                 dump();
@@ -273,7 +274,6 @@ public class JavaShell
                     aliases.put(name, expansion);
                 }
             }
-            return 0;
         }
 
         void dump() {
@@ -284,83 +284,72 @@ public class JavaShell
         void dump(String name) {
             String[] expansion = aliases.get(name);
             String s = StringArray.join(" ", expansion); // quotes
-            System.out.println(tr._("alias ") + name + " = " + s);
+            System.out.println(nls.tr("alias ") + name + " = " + s);
         }
 
     }
 
     class Cwd
-            extends BuiltIn {
+            extends SimpleCommand {
 
         @Override
-        public int main(String... args)
+        protected void mainImpl(String... args)
                 throws Exception {
             if (args.length == 0)
                 System.out.println(UserDirVars.getInstance().get());
             else {
-                try {
-                    File dir = UserDirVars.getInstance().join(args[0]);
-                    if (!dir.isDirectory()) {
-                        System.err.println(tr._("Not a directory: ") + dir);
-                        return 1;
-                    }
-                    UserDirVars.getInstance().set(dir);
-                } catch (RuntimeException e) {
-                    e.printStackTrace();
-                    return 2;
-                }
+                File dir = UserDirVars.getInstance().join(args[0]);
+                if (!dir.isDirectory())
+                    throw new IllegalArgumentException(nls.tr("Not a directory: ") + dir);
+                UserDirVars.getInstance().set(dir);
             }
-            return 0;
         }
 
     }
 
     class Echo
-            extends BuiltIn {
+            extends SimpleCommand {
 
         @Override
-        public int main(String... args)
+        protected void mainImpl(String... args)
                 throws Exception {
             String line = StringArray.join(" ", args);
             System.out.println(line);
-            return 0;
         }
 
     }
 
     class Exit
-            extends BuiltIn {
+            extends SimpleCommand {
 
         @Override
-        public int main(String... args)
+        protected void mainImpl(String... args)
                 throws Exception {
             if (args.length > 0) {
                 int status = Integer.parseInt(args[0]);
                 exitStatus = status;
             }
             exit = true;
-            return 0;
         }
 
     }
 
     class Help
-            extends BuiltIn {
+            extends SimpleCommand {
 
         @Override
-        public int main(String... args)
+        protected void mainImpl(String... args)
                 throws Exception {
             String[] cmds = commands.keySet().toArray(new String[0]);
             Arrays.sort(cmds);
             for (String cmd : cmds)
                 System.out.println(cmd);
-            return 0;
         }
 
     }
 
     class Import
-            extends BuiltIn {
+            extends SimpleCommand {
 
         ClassLoader loader;
 
@@ -369,11 +358,11 @@ public class JavaShell
         }
 
         @Override
-        public int main(String... args)
+        protected void mainImpl(String... args)
                 throws Exception {
             int i = 0;
             if (args.length == 0)
-                throw new IllegalArgumentException(tr._("no spec"));
+                throw new IllegalArgumentException(nls.tr("no spec"));
             boolean isStatic = "static".equals(args[0]);
             if (isStatic)
                 i++;
@@ -382,7 +371,6 @@ public class JavaShell
                     doImportStatic(args[i]);
                 else
                     doImport(args[i]);
-            return 0;
         }
 
         String name2path(String name) {
@@ -408,14 +396,14 @@ public class JavaShell
             int dot = spec.lastIndexOf('.');
             String name = dot == -1 ? spec : spec.substring(dot + 1);
             Class<?> clazz = Class.forName(spec);
-            if (!IShellCommand.class.isAssignableFrom(clazz))
-                throw new IllegalArgumentException(tr._("not a command: ") + spec);
-            IShellCommand command;
+            if (!IProgram.class.isAssignableFrom(clazz))
+                throw new IllegalArgumentException(nls.tr("not a program: ") + spec);
+            IProgram command;
             try {
                 Constructor<?> ctor1 = clazz.getConstructor(JavaShell.class);
-                command = (IShellCommand) ctor1.newInstance(this);
+                command = (IProgram) ctor1.newInstance(this);
             } catch (NoSuchMethodException e) {
-                command = (IShellCommand) clazz.newInstance();
+                command = (IProgram) clazz.newInstance();
             } catch (Exception e) {
                 throw e;
             }
@@ -430,27 +418,27 @@ public class JavaShell
             }
             int dot = spec.lastIndexOf('.');
             if (dot == -1)
-                throw new IllegalArgumentException(tr._("static import without member name"));
+                throw new IllegalArgumentException(nls.tr("static import without member name"));
             String className = spec.substring(0, dot);
             String member = spec.substring(dot + 1);
             Class<?> declType = Class.forName(className);
             Field field = declType.getField(member);
             Class<?> clazz = field.getType();
-            if (!IShellCommand.class.isAssignableFrom(clazz))
-                throw new IllegalArgumentException(tr._("not a command: ") + clazz);
+            if (!IProgram.class.isAssignableFrom(clazz))
+                throw new IllegalArgumentException(nls.tr("not a command: ") + clazz);
             int mod = field.getModifiers();
             if (!Modifier.isStatic(mod))
-                throw new IllegalArgumentException(tr._("not static: ") + field);
-            IShellCommand command = (IShellCommand) field.get(null);
+                throw new IllegalArgumentException(nls.tr("not static: ") + field);
+            IProgram command = (IProgram) field.get(null);
             commands.put(member, command);
         }
     }
 
     class Set
-            extends BuiltIn {
+            extends SimpleCommand {
 
         @Override
-        public int main(String... args)
+        protected void mainImpl(String... args)
                 throws Exception {
             if (args.length == 0)
                 dumpEnv();
@@ -462,7 +450,6 @@ public class JavaShell
                     args = Arrays.shift(args).array;
                 env.put(name, StringArray.join(" ", args));
             }
-            return 0;
         }
 
         void dumpEnv() {

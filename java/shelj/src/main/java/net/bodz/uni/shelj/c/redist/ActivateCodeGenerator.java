@@ -70,7 +70,7 @@ public class ActivateCodeGenerator
 
         final Label hostIdLabel = new Label(holder, SWT.NONE);
         hostIdLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-        hostIdLabel.setText(tr._("Host ID:"));
+        hostIdLabel.setText(nls.tr("Host ID:"));
 
         hostIdText = new Text(holder, SWT.BORDER);
         hostIdText.setText("Host ID");
@@ -104,7 +104,7 @@ public class ActivateCodeGenerator
 
         final Label targetStringLabel = new Label(holder, SWT.NONE);
         targetStringLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-        targetStringLabel.setText(tr._("Target String:"));
+        targetStringLabel.setText(nls.tr("Target String:"));
 
         targetStringCombo = new Combo(holder, SWT.BORDER);
         targetStringCombo.setText("Target String");
@@ -115,7 +115,7 @@ public class ActivateCodeGenerator
 
         final Label codeLabel = new Label(holder, SWT.NONE);
         codeLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-        codeLabel.setText(tr._("Activation Code: "));
+        codeLabel.setText(nls.tr("Activation Code: "));
 
         codeText = new Text(holder, SWT.BORDER | SWT.READ_ONLY);
         codeText.setText("Code");
@@ -137,11 +137,11 @@ public class ActivateCodeGenerator
         buttons.setLayout(gridLayout_1);
 
         final Button generateButton = new Button(buttons, SWT.NONE);
-        generateButton.setText(tr._("&Generate"));
+        generateButton.setText(nls.tr("&Generate"));
         generateButton.addSelectionListener(regenerate);
 
         final Button copyButton = new Button(buttons, SWT.NONE);
-        copyButton.setText(tr._("&Copy"));
+        copyButton.setText(nls.tr("&Copy"));
         copyButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {

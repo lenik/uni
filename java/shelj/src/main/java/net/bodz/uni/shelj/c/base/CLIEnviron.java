@@ -1,4 +1,4 @@
-package net.bodz.uni.shelj.c.builtin;
+package net.bodz.uni.shelj.c.base;
 
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;

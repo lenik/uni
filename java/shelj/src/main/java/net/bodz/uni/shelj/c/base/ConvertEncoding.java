@@ -1,6 +1,6 @@
-package net.bodz.uni.shelj.c.builtin;
+package net.bodz.uni.shelj.c.base;
 
-import static net.bodz.uni.shelj.CLINLS.CLINLS;
+import static net.bodz.uni.shelj.CliNlstr.INSTANCE;
 
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
@@ -54,12 +54,12 @@ public class ConvertEncoding
                 CharsetDecoder dec = charset.newDecoder();
                 float avgcpb = dec.averageCharsPerByte();
                 float maxcpb = dec.maxCharsPerByte();
-                logger.infof(tr._(" dec(%.2f/%.2f)"), maxcpb, avgcpb);
+                logger.infof(nls.tr(" dec(%.2f/%.2f)"), maxcpb, avgcpb);
                 if (charset.canEncode()) {
                     CharsetEncoder enc = charset.newEncoder();
                     float avgbpc = enc.averageBytesPerChar();
                     float maxbpc = enc.maxBytesPerChar();
-                    logger.infof(tr._(" enc(%.2f/%.2f)"), maxbpc, avgbpc);
+                    logger.infof(nls.tr(" enc(%.2f/%.2f)"), maxbpc, avgbpc);
                 }
             }
             logger.mesg("");
@@ -102,7 +102,7 @@ public class ConvertEncoding
             }
         }
 
-        logger.status(CLINLS.format("ConvertEncoding.iconv_ssss", //
+        logger.status(INSTANCE.format("ConvertEncoding.iconv_ssss", //
                 handler.getInputFile(), srcCharset, handler.getOutputFile(), destCharset));
 
         String text = new String(input, srcCharset);

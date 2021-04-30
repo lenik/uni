@@ -1,4 +1,4 @@
-package net.bodz.uni.shelj.c.builtin;
+package net.bodz.uni.shelj.c.base;
 
 import java.util.List;
 
@@ -56,7 +56,7 @@ public class FileCompare
     protected void mainImpl(String... args)
             throws Exception {
         if (args.length > 0)
-            throw new IllegalArgumentException(tr._("unexpected argument: ") + args[0]);
+            throw new IllegalArgumentException(nls.tr("unexpected argument: ") + args[0]);
         IDiffComparator gnudiff = DiffComparators.gnudiff;
         List<String> srcl = src.to(StreamReading.class).readLines();
         List<String> dstl = dst.to(StreamReading.class).readLines();
