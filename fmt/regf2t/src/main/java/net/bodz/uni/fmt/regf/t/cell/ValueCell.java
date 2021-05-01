@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import net.bodz.bas.data.address.IAddressedObjectManager;
 import net.bodz.bas.err.ParseException;
-import net.bodz.bas.fmt.rst.ElementHandlerException;
+import net.bodz.bas.fmt.api.ElementHandlerException;
 import net.bodz.bas.fmt.rst.IRstOutput;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
@@ -143,7 +143,7 @@ public class ValueCell
     }
 
     @Override
-    public boolean writeEntryOverride(IRstOutput out, String field)
+    public boolean writeSpecialRstEntry(IRstOutput out, String field)
             throws IOException {
         switch (field) {
         case "valueType":
@@ -151,7 +151,7 @@ public class ValueCell
             out._attribute("valueType", valueTypeName);
             return true;
         }
-        return super.writeEntryOverride(out, field);
+        return super.writeSpecialRstEntry(out, field);
     }
 
     @Override

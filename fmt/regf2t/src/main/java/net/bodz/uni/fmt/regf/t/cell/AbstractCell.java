@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import net.bodz.bas.data.address.IAddressed;
 import net.bodz.bas.err.ParseException;
-import net.bodz.bas.fmt.rst.ElementHandlerException;
+import net.bodz.bas.fmt.api.ElementHandlerException;
 import net.bodz.bas.fmt.rst.IRstOutput;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
@@ -94,14 +94,14 @@ public abstract class AbstractCell
     static final Cc2Typer CC2_TYPER = new Cc2Typer();
 
     @Override
-    public boolean writeEntryOverride(IRstOutput out, String field)
+    public boolean writeSpecialRstEntry(IRstOutput out, String field)
             throws IOException {
         switch (field) {
         case "magic":
             out.attribute("magic", CC2_TYPER.format(getMagic()));
             return true;
         }
-        return super.writeEntryOverride(out, field);
+        return super.writeSpecialRstEntry(out, field);
     }
 
     @Override

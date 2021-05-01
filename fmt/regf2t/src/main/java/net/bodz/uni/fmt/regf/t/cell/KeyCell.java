@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import net.bodz.bas.data.address.IAddressedObjectManager;
 import net.bodz.bas.err.ParseException;
-import net.bodz.bas.fmt.rst.ElementHandlerException;
+import net.bodz.bas.fmt.api.ElementHandlerException;
 import net.bodz.bas.fmt.rst.IRstOutput;
 import net.bodz.bas.io.BByteOut;
 import net.bodz.bas.io.IDataIn;
@@ -221,14 +221,14 @@ public class KeyCell
     static final KeyFlagsTyper flagsTyper = new KeyFlagsTyper();
 
     @Override
-    public boolean writeEntryOverride(IRstOutput out, String field)
+    public boolean writeSpecialRstEntry(IRstOutput out, String field)
             throws IOException {
         switch (field) {
         case "flags":
             out._attribute("flags", flagsTyper.format(flags & 0xffff));
             return true;
         }
-        return super.writeEntryOverride(out, field);
+        return super.writeSpecialRstEntry(out, field);
     }
 
     @Override

@@ -53,7 +53,7 @@ public class FileReplace
     protected void reconfigure()
             throws Exception {
         if ((pattern == null) == (textPattern == null))
-            throw new CLISyntaxException(tr._("one and only one of --regexp and --text option must be specified"));
+            throw new CLISyntaxException(nls.tr("one and only one of --regexp and --text option must be specified"));
 
         if (CLIAccessor.isIgnoreCase(FileReplace.this)) {
             if (pattern != null)

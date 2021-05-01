@@ -1,5 +1,6 @@
 package net.bodz.uni.snmcc;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 
 import net.bodz.bas.c.java.util.regex.IPartProcessor;
@@ -29,9 +30,10 @@ public class Util {
         TextPrepByParts pp = TextPrepByParts.match("VRT_(\\w+?)_TRV", new IPartProcessor() {
 
             @Override
-            public String process(String part, Matcher matcher) {
+            public void process(CharSequence in, int start, int end, Appendable out, Matcher matcher)
+                    throws IOException {
                 String var = matcher.group(1);
-                return var;
+                out.append(var);
             }
         });
 
