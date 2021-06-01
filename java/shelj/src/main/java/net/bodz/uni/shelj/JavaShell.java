@@ -1,31 +1,16 @@
 package net.bodz.uni.shelj;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.io.*;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 import net.bodz.bas.c.java.io.ConcatReader;
 import net.bodz.bas.c.java.io.LineReader;
-import net.bodz.bas.c.java.util.Arrays;
-import net.bodz.bas.c.java.util.HashTextMap;
 import net.bodz.bas.c.java.util.TextMap;
 import net.bodz.bas.c.java.util.TreeTextMap;
-import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.c.string.StringQuoted;
-import net.bodz.bas.ctx.sys.UserDirVars;
 import net.bodz.bas.err.IllegalUsageException;
-import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.err.control.ControlExit;
 import net.bodz.bas.fn.IExecutableX;
 import net.bodz.bas.jvm.exit.CatchExit;
@@ -66,8 +51,10 @@ public class JavaShell
     boolean keepRun;
     boolean interactive;
     LineReader lineInput;
-    boolean exit;
+
+    boolean exitRequest;
     int exitStatus;
+
     Object prompt = "# ";
 
     /**
@@ -80,26 +67,21 @@ public class JavaShell
         keepRun = true;
     }
 
-    TextMap<String[]> aliases;
-    TextMap<IProgram> commands;
+    public final ShellAliases aliases = new ShellAliases();
+    public final ShellCommands commands = new ShellCommands();
 
     /**
      * Init environ
      *
      * @option -E =NAM=VAL
      */
-    TextMap<String> env;
+    public TextMap<String> env;
+
+    public PrintStream out = System.out;
 
     public JavaShell() {
-        aliases = new TreeTextMap<>();
-        commands = new HashTextMap<>();
-        commands.put("alias", new Alias());
-        commands.put("cwd", new Cwd());
-        commands.put("echo", new Echo());
-        commands.put("exit", new Exit());
-        commands.put("help", new Help());
-        commands.put("import", new Import());
-        commands.put("set", new Set());
+        commands.registerBuiltins(this);
+
         env = new TreeTextMap<String>(System.getenv());
         env.put("PROMPT", "# ");
         env.put("SHELL", getClass().getName());
@@ -151,11 +133,11 @@ public class JavaShell
         this.scriptArgs = scriptArgs;
 
         while (true) {
-            if (exit)
+            if (exitRequest)
                 System.exit(exitStatus);
             if (interactive) {
-                System.out.print(prompt);
-                System.out.flush();
+                out.print(prompt);
+                out.flush();
             }
             String line = lineInput.readLine();
             if (line == null)
@@ -172,7 +154,7 @@ public class JavaShell
             final IProgram _command;
             try {
                 String name = _args[0];
-                String[] expansion = expandAliases(name);
+                String[] expansion = aliases.expandAliases(name);
                 name = expansion[0];
                 _command = commands.get(name);
                 if (_command == null) {
@@ -213,255 +195,14 @@ public class JavaShell
         }
     }
 
-    static int MAX_NEST = 32;
-
-    String[] expandAliases(String alias) {
-        List<String> rev = null;
-        String[] exp;
-        int nest = 0;
-        while ((exp = aliases.get(alias)) != null) {
-            nest++;
-            if (nest > MAX_NEST)
-                throw new IllegalUsageException(nls.tr("alias nest too much: ") + alias);
-            assert exp.length != 0;
-            alias = exp[0];
-            if (exp.length == 1)
-                continue;
-            if (rev == null)
-                rev = new ArrayList<String>();
-            for (int i = exp.length - 1; i >= 1; i--)
-                rev.add(exp[i]);
-        }
-        if (rev == null)
-            return new String[] { alias };
-        rev.add(alias);
-        // Collections.reverse(rev);
-        int n = rev.size();
-        exp = new String[n];
-        for (int i = 0; i < n; i++)
-            exp[i] = rev.get(n - i - 1);
-        return exp;
-    }
-
     public static void main(String[] args)
             throws Exception {
         new JavaShell().execute(args);
     }
 
-    abstract class SimpleCommand
-            extends ShellCommand {
-
-        public SimpleCommand() {
-            super(JavaShell.this);
-        }
-
-    }
-
-    class Alias
-            extends SimpleCommand {
-
-        @Override
-        protected void mainImpl(String... args)
-                throws Exception {
-            if (args.length == 0)
-                dump();
-            else {
-                String name = args[0];
-                if (args.length == 1)
-                    dump(name);
-                else {
-                    String[] expansion = Arrays.shift(args).array;
-                    aliases.put(name, expansion);
-                }
-            }
-        }
-
-        void dump() {
-            for (String name : aliases.keySet())
-                dump(name);
-        }
-
-        void dump(String name) {
-            String[] expansion = aliases.get(name);
-            String s = StringArray.join(" ", expansion); // quotes
-            System.out.println(nls.tr("alias ") + name + " = " + s);
-        }
-
-    }
-
-    class Cwd
-            extends SimpleCommand {
-
-        @Override
-        protected void mainImpl(String... args)
-                throws Exception {
-            if (args.length == 0)
-                System.out.println(UserDirVars.getInstance().get());
-            else {
-                File dir = UserDirVars.getInstance().join(args[0]);
-                if (!dir.isDirectory())
-                    throw new IllegalArgumentException(nls.tr("Not a directory: ") + dir);
-                UserDirVars.getInstance().set(dir);
-            }
-        }
-
-    }
-
-    class Echo
-            extends SimpleCommand {
-
-        @Override
-        protected void mainImpl(String... args)
-                throws Exception {
-            String line = StringArray.join(" ", args);
-            System.out.println(line);
-        }
-
-    }
-
-    class Exit
-            extends SimpleCommand {
-
-        @Override
-        protected void mainImpl(String... args)
-                throws Exception {
-            if (args.length > 0) {
-                int status = Integer.parseInt(args[0]);
-                exitStatus = status;
-            }
-            exit = true;
-        }
-
-    }
-
-    class Help
-            extends SimpleCommand {
-
-        @Override
-        protected void mainImpl(String... args)
-                throws Exception {
-            String[] cmds = commands.keySet().toArray(new String[0]);
-            Arrays.sort(cmds);
-            for (String cmd : cmds)
-                System.out.println(cmd);
-        }
-
-    }
-
-    class Import
-            extends SimpleCommand {
-
-        ClassLoader loader;
-
-        public Import() {
-            loader = ClassLoader.getSystemClassLoader();
-        }
-
-        @Override
-        protected void mainImpl(String... args)
-                throws Exception {
-            int i = 0;
-            if (args.length == 0)
-                throw new IllegalArgumentException(nls.tr("no spec"));
-            boolean isStatic = "static".equals(args[0]);
-            if (isStatic)
-                i++;
-            for (; i < args.length; i++)
-                if (isStatic)
-                    doImportStatic(args[i]);
-                else
-                    doImport(args[i]);
-        }
-
-        String name2path(String name) {
-            String path = name.replace('.', '/');
-            // path = "/" + path;
-            return path;
-        }
-
-        String path2name(String path) {
-            String name = path.replace('/', '.');
-            name = name.replace('$', '.');
-            while (name.startsWith("."))
-                name = name.substring(1);
-            return name;
-        }
-
-        void doImport(String spec)
-                throws Exception {
-            if (spec.endsWith(".*")) {
-                // String path = name2path(spec);
-                throw new NotImplementedException();
-            }
-            int dot = spec.lastIndexOf('.');
-            String name = dot == -1 ? spec : spec.substring(dot + 1);
-            Class<?> clazz = Class.forName(spec);
-            if (!IProgram.class.isAssignableFrom(clazz))
-                throw new IllegalArgumentException(nls.tr("not a program: ") + spec);
-            IProgram command;
-            try {
-                Constructor<?> ctor1 = clazz.getConstructor(JavaShell.class);
-                command = (IProgram) ctor1.newInstance(this);
-            } catch (NoSuchMethodException e) {
-                command = (IProgram) clazz.newInstance();
-            } catch (Exception e) {
-                throw e;
-            }
-            commands.put(name, command);
-        }
-
-        void doImportStatic(String spec)
-                throws Exception {
-            if (spec.endsWith(".*")) {
-                // String path = name2path(spec);
-                throw new NotImplementedException();
-            }
-            int dot = spec.lastIndexOf('.');
-            if (dot == -1)
-                throw new IllegalArgumentException(nls.tr("static import without member name"));
-            String className = spec.substring(0, dot);
-            String member = spec.substring(dot + 1);
-            Class<?> declType = Class.forName(className);
-            Field field = declType.getField(member);
-            Class<?> clazz = field.getType();
-            if (!IProgram.class.isAssignableFrom(clazz))
-                throw new IllegalArgumentException(nls.tr("not a command: ") + clazz);
-            int mod = field.getModifiers();
-            if (!Modifier.isStatic(mod))
-                throw new IllegalArgumentException(nls.tr("not static: ") + field);
-            IProgram command = (IProgram) field.get(null);
-            commands.put(member, command);
-        }
-    }
-
-    class Set
-            extends SimpleCommand {
-
-        @Override
-        protected void mainImpl(String... args)
-                throws Exception {
-            if (args.length == 0)
-                dumpEnv();
-            else {
-                String name = args[0];
-                if (args.length == 1)
-                    dumpEnv(name);
-                else
-                    args = Arrays.shift(args).array;
-                env.put(name, StringArray.join(" ", args));
-            }
-        }
-
-        void dumpEnv() {
-            for (String name : env.keySet())
-                dumpEnv(name);
-        }
-
-        void dumpEnv(String name) {
-            Object value = env.get(name);
-            System.out.println(name + " = " + value);
-        }
-
+    public void requestExit(int exitStatus) {
+        this.exitStatus = exitStatus;
+        this.exitRequest = true;
     }
 
 }
