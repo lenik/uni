@@ -23,6 +23,8 @@
     option -h --help
     option    --version
 
+    alias_mode=0
+
     opt_orderfile=order.lst
 
     opt_project_dir=.
@@ -70,12 +72,29 @@ function javaopt() {
 }
 
 function main() {
-    if [ -z "$1" ]; then
-        echo "App isn't specified." >&2
-        exit 1
+    if [ "$alias_mode" = 1 ]; then
+        is_symlink=1
+        selfdir="${0%/*}"
+        if [ "$selfdir" = "$0" ]; then
+            selfdir=.
+        fi
+        name="${0##*/}"
+    else
+        if [ -z "$1" ]; then
+            echo "App isn't specified." >&2
+            exit 1
+        fi
+        selfdir=.
+        name="$1"
+        shift
     fi
-    name=$1
-    shift
+
+    for d in '' '/..' '/../..' '/../../..'; do
+        if [ -d "$selfdir$d/lib" ]; then
+            opt_project_dir=$(readlink -f "$selfdir$d")
+            break
+        fi
+    done
 
     if [ "$opt_debug" = 1 ]; then
         JDWPOPTS="transport=dt_socket"
@@ -153,5 +172,11 @@ function add_cp() {
     done
 }
 
-boot "$@"
+if [ -L "$0" ] && [ "${0##*/}" != 'main' ]; then
+    alias_mode=1
+    #((LOGLEVEL++))
+    main "$@"
+else
+    boot "$@"
+fi
 
