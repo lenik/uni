@@ -15,10 +15,10 @@ import net.bodz.bas.io.res.builtin.FileResource;
 import net.bodz.bas.io.res.tools.StreamReading;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
+import net.bodz.bas.text.qlex.trie.TrieLexer;
 import net.bodz.uni.catme.io.ResourceResolver;
 import net.bodz.uni.catme.io.ResourceVariant;
 import net.bodz.uni.catme.js.IScriptContext;
-import net.bodz.uni.catme.trie.TrieLexer;
 
 public class FileFrame
         extends AbstractFrame {

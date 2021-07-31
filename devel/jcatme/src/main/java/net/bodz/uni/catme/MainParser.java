@@ -15,14 +15,14 @@ import net.bodz.bas.io.ICharIn;
 import net.bodz.bas.io.StringCharIn;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
+import net.bodz.bas.text.qlex.ILa1CharIn;
+import net.bodz.bas.text.qlex.ITokenLexer;
+import net.bodz.bas.text.qlex.La1CharInImpl;
+import net.bodz.bas.text.qlex.NonspaceTokenLexer;
+import net.bodz.bas.text.qlex.trie.ITokenCallback;
+import net.bodz.bas.text.qlex.trie.TrieParser;
 import net.bodz.uni.catme.js.IScriptContext;
 import net.bodz.uni.catme.js.PolyglotContext;
-import net.bodz.uni.catme.lex.ILa1CharIn;
-import net.bodz.uni.catme.lex.ITokenLexer;
-import net.bodz.uni.catme.lex.La1CharInImpl;
-import net.bodz.uni.catme.lex.NonspaceTokenLexer;
-import net.bodz.uni.catme.trie.ITokenCallback;
-import net.bodz.uni.catme.trie.TrieParser;
 
 public class MainParser {
 

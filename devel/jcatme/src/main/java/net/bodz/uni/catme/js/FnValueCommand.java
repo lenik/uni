@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.graalvm.polyglot.Value;
 
+import net.bodz.bas.text.qlex.ITokenLexer;
+import net.bodz.bas.text.qlex.LinkedLexer;
 import net.bodz.uni.catme.CommandOptions;
 import net.bodz.uni.catme.ICommand;
 import net.bodz.uni.catme.IFrame;
-import net.bodz.uni.catme.lex.ITokenLexer;
-import net.bodz.uni.catme.lex.LinkedLexer;
 
 public class FnValueCommand
         implements

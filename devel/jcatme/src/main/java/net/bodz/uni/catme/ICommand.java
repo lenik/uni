@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import net.bodz.bas.err.ParseException;
-import net.bodz.uni.catme.lex.ITokenLexer;
+import net.bodz.bas.text.qlex.ITokenLexer;
 
 public interface ICommand {
 

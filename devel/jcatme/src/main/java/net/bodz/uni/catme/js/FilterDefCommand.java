@@ -8,6 +8,7 @@ import org.graalvm.polyglot.Value;
 import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.fn.EvalException;
+import net.bodz.bas.text.qlex.ITokenLexer;
 import net.bodz.uni.catme.CommandOptions;
 import net.bodz.uni.catme.FilterEntry;
 import net.bodz.uni.catme.FilterException;
@@ -15,7 +16,6 @@ import net.bodz.uni.catme.IFrame;
 import net.bodz.uni.catme.ITextFilter;
 import net.bodz.uni.catme.ITextFilterClass;
 import net.bodz.uni.catme.cmd.AbstractCommand;
-import net.bodz.uni.catme.lex.ITokenLexer;
 
 /**
  * Example:

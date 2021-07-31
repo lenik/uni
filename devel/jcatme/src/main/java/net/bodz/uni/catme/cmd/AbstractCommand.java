@@ -2,14 +2,14 @@ package net.bodz.uni.catme.cmd;
 
 import java.util.List;
 
+import net.bodz.bas.text.qlex.CaptureTokenLexer;
+import net.bodz.bas.text.qlex.ITokenLexer;
+import net.bodz.bas.text.qlex.LinkedLexer;
+import net.bodz.bas.text.qlex.QuotableTokenLexer;
+import net.bodz.bas.text.qlex.SpaceSeparatedLexer;
 import net.bodz.uni.catme.CommandOptions;
 import net.bodz.uni.catme.ICommand;
 import net.bodz.uni.catme.IFrame;
-import net.bodz.uni.catme.lex.CaptureTokenLexer;
-import net.bodz.uni.catme.lex.ITokenLexer;
-import net.bodz.uni.catme.lex.LinkedLexer;
-import net.bodz.uni.catme.lex.QuotableTokenLexer;
-import net.bodz.uni.catme.lex.SpaceSeparatedLexer;
 
 public abstract class AbstractCommand
         implements
