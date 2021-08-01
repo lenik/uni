@@ -5,6 +5,7 @@ dist_bin_SCRIPTS = \
     blockdev-info \
     dd-cont \
     fragoutside \
+    fstype \
     mkhdd \
     partoffset \
     readmbr \

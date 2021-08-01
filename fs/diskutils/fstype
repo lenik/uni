@@ -1,0 +1,6 @@
+#!/bin/bash
+for dir in "$@"; do
+    ans=( $(df --output=fstype "$dir") )
+    fstype=${ans[1]}
+    echo $fstype
+done
