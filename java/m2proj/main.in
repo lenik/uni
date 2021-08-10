@@ -9,6 +9,7 @@
     # The encoding can be 'ANSI_X3.4-1968' when not specified.
     : ${JAVAOPTS:=-ea -Dsun.jnu.encoding=utf-8 -Dfile.encoding=utf-8}
     javaopts=($JAVAOPTS)
+    appopts=()
 
     . shlib-import cliboot
     option -d --debug                   "Enable debug mode"
@@ -73,7 +74,7 @@ function javaopt() {
 
 function main() {
     if [ "$alias_mode" = 1 ]; then
-        is_symlink=1
+        #is_symlink=1
         selfdir="${0%/*}"
         if [ "$selfdir" = "$0" ]; then
             selfdir=.
@@ -89,12 +90,14 @@ function main() {
         shift
     fi
 
-    for d in '' '/..' '/../..' '/../../..'; do
-        if [ -d "$selfdir$d/lib" ]; then
-            opt_project_dir=$(readlink -f "$selfdir$d")
-            break
-        fi
-    done
+    if [ "$opt_project_dir" = . ]; then
+        for d in '' '/..' '/../..' '/../../..'; do
+            if [ -d "$selfdir$d/lib" ]; then
+                opt_project_dir=$(readlink -f "$selfdir$d")
+                break
+            fi
+        done
+    fi
 
     if [ "$opt_debug" = 1 ]; then
         JDWPOPTS="transport=dt_socket"
@@ -156,8 +159,17 @@ function main() {
     TIME=
     if [ "$opt_timing" = 1 ]; then TIME=do_timing; fi
 
-    _log2 "Execute:$TIME $JAVA ${javaopts[@]} -cp ... $appcls $*"
-    eval $TIME $JAVA "$javaopts[@]}" -cp "$classpath" "$appcls" "$@"
+    if [ "$alias_mode" = 1 ]; then
+        for rc in "$0.rc"; do
+            if [ -f "$rc" ]; then
+                _log2 "source $rc"
+                . "$rc"
+            fi
+        done
+    fi
+
+    _log2 "Execute:$TIME $JAVA ${javaopts[@]} -cp ... $appcls ${appopts[@]} $*"
+    eval $TIME $JAVA "$javaopts[@]}" -cp "$classpath" "$appcls" "${appopts[@]}" "$@"
 }
 
 function do_timing() {
@@ -174,8 +186,23 @@ function add_cp() {
 
 if [ -L "$0" ] && [ "${0##*/}" != 'main' ]; then
     alias_mode=1
-    #((LOGLEVEL++))
-    main "$@"
+    cliopts=()
+    while true; do
+        case "$1" in
+            -d|--debug)
+                opt_debug=1
+                shift
+                continue;;
+
+            -v|--verbose)
+                ((LOGLEVEL++))
+                cliopts=("${cliopts[@]}" "$1")
+                shift
+                continue;;
+        esac
+        break
+    done
+    main "${cliopts[@]}" "$@"
 else
     boot "$@"
 fi
