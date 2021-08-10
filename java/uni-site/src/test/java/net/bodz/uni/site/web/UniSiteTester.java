@@ -2,14 +2,14 @@ package net.bodz.uni.site.web;
 
 import net.bodz.bas.servlet.config.ServletContextConfig;
 import net.bodz.uni.echo.test.AbstractWebAppTester;
-import net.bodz.uni.site.UniSiteServerConfig;
+import net.bodz.uni.site.Uni14Config;
 
 public class UniSiteTester
         extends AbstractWebAppTester {
 
     @Override
     protected ServletContextConfig createConfig() {
-        return new UniSiteServerConfig();
+        return new Uni14Config();
     }
 
     public static void main(String[] args)

@@ -10,7 +10,7 @@ public class UniSiteServer
     @Override
     protected void mainImpl(String... args)
             throws Exception {
-        ServletContextConfig config = new UniSiteServerConfig();
+        ServletContextConfig config = new Uni14Config();
         EchoServer server = new EchoServer(config);
         server.start();
     }

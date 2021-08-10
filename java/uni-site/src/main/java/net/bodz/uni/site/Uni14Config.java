@@ -6,10 +6,10 @@ import net.bodz.bas.servlet.config.ServletDescriptor;
 import net.bodz.bas.servlet.ctx.RequestScopeTeller;
 import net.bodz.uni.echo._default.DefaultServerConfig;
 
-public class UniSiteServerConfig
+public class Uni14Config
         extends DefaultServerConfig {
 
-    public UniSiteServerConfig() {
+    public Uni14Config() {
         configEnv();
         configServlets();
     }
