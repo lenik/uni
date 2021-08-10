@@ -1,0 +1,8 @@
+# vim: set ft=sh :
+
+    if [ "$opt_debug" = 1 ]; then
+        javaopts=("${javaopts[@]}" -O -Dpolyglot.inspect=localhost:9229)
+        javaopts=("${javaopts[@]}" -O -Dpolyglot.inspect.Secure=false)
+        appopts=("${appopts[@]}" --debug)
+    fi
+

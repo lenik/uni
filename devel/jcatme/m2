@@ -1,0 +1,22 @@
+#!/usr/bin/env -S make -f m2
+
+include coolmake/m2proj.mf
+
+remotehost = a10
+remotedir = .
+
+bin_files += \
+    src/
+
+src_excludes += \
+    Makefile \
+    doc
+
+bin:
+	cp -a /mnt/istore/pro/uni/java/m2proj/bin .
+
+target-demo:
+	cd target/classes/net/bodz/uni/catme; \
+	rm -fr web; \
+	ln -snf ../../../../src/main/resources/net/bodz/uni/catme/web .
+

@@ -25,6 +25,11 @@
             <version>${bas.version}</version>
         </dependency>
         <dependency>
+            <groupId>net.bodz.bas</groupId>
+            <artifactId>bas-shell</artifactId>
+            <version>${bas.version}</version>
+        </dependency>
+        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
