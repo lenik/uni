@@ -20,7 +20,8 @@ import net.bodz.uni.site.util.RelativeTimeFormatter;
 
 public class Project_htm
         extends AbstractHtmlViewBuilder<Project>
-        implements IUniSiteAnchors {
+        implements
+            IUniSiteAnchors {
 
     public Project_htm() {
         super(Project.class);
@@ -90,7 +91,7 @@ public class Project_htm
                 li.a().class_("subject").href("logs/" + ent.getVersion()).text(subject);
 
                 long relativeTime = ent.getAuthorDate().getTimeInMillis() - System.currentTimeMillis();
-                String relativeTimeStr = RelativeTimeFormatter.getInstance().format(relativeTime);
+                String relativeTimeStr = RelativeTimeFormatter.getInstance()._format(relativeTime);
                 li.span().class_("date").text("(" + relativeTimeStr + ")");
             }
         } catch (InterruptedException e) {

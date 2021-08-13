@@ -5,10 +5,11 @@ import java.util.Locale;
 import net.bodz.bas.i18n.LocaleVars;
 import net.bodz.bas.l10n.en.English;
 import net.bodz.bas.rtx.IOptions;
-import net.bodz.bas.typer.std.AbstractFormatter;
+import net.bodz.bas.typer.std.IFormatter;
 
 public class RelativeTimeFormatter
-        extends AbstractFormatter<Long> {
+        implements
+            IFormatter<Long> {
 
     private static final int MINUTE_SECONDS = 60;
     private static final int HOUR_SECONDS = 60 * 60;
