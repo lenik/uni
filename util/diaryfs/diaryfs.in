@@ -127,7 +127,7 @@ function diaryfs_make() {
 
 function diaryfs_make_symlinks() {
     cd "$opt_start_dir" || die "failed to access $opt_start_dir."
-    local YYYY_MM_DD='%y-%m-%d'
+    local YYYY_MM_DD='%Y-%m-%d'
 
     local day_0=$( date +"$YYYY_MM_DD" )
     local day_1=$( date +"$YYYY_MM_DD" -d '1 days ago' )
