@@ -11,3 +11,7 @@ EXTRA_DIST = \
 CLEANFILES = \
     newmp
 
+install-data-hook:
+	ln -snf m2chdir $(DESTDIR)${completiondir}/M
+	ln -snf m2chdir $(DESTDIR)${completiondir}/m2which
+
