@@ -51,12 +51,12 @@ public class MainParser {
         if (this.scriptContext != null)
             return true;
 
-        PolyglotContext scriptContext;
+        IScriptContext scriptContext;
         scriptContext = PolyglotContext.createContext(app.scriptResolver);
         scriptContext.put(CatMe.VAR_APP, app);
 
-        Value bindings = scriptContext.getBindings();
-        scriptContext.put(CatMe.VAR_GLOBAL, bindings);
+        Object global = scriptContext.getGlobalObject();
+        scriptContext.put(CatMe.VAR_GLOBAL, global);
 
         scriptContext.put(MainParser.VAR_PARSER, this);
 

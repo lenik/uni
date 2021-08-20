@@ -7,6 +7,7 @@ import java.io.IOException;
 import javax.script.ScriptException;
 
 import org.graalvm.polyglot.*;
+import org.graalvm.polyglot.Context.Builder;
 
 import net.bodz.bas.fn.EvalException;
 import net.bodz.bas.log.Logger;
@@ -34,7 +35,8 @@ public class PolyglotContext
         return context;
     }
 
-    public Value getBindings() {
+    @Override
+    public Value getGlobalObject() {
         return bindings;
     }
 
@@ -115,19 +117,19 @@ public class PolyglotContext
     }
 
     public static PolyglotContext createContext(ResourceResolver resolver) {
-        Context context = Context.newBuilder(JavaScriptLanguage.ID) //
+        Builder option = Context.newBuilder(JavaScriptLanguage.ID) //
                 .fileSystem(new RrFileSystem(resolver)) //
                 .allowAllAccess(true) //
                 .allowExperimentalOptions(true) //
                 .option(ECMASCRIPT_VERSION_NAME, "13") // 5 to 13 or 2015 to 2022.
                 .option(INTEROP_COMPLETE_PROMISES_NAME, "true") //
-                .option(STRICT_NAME, "true") //
-                .build();
+                .option(STRICT_NAME, "true");
+        Context context = option.build();
         return new PolyglotContext(context);
     }
 
     public static PolyglotContext createContextVerbose(ResourceResolver resolver) {
-        Context context = Context.newBuilder(JavaScriptLanguage.ID) //
+        Builder option = Context.newBuilder(JavaScriptLanguage.ID) //
                 .fileSystem(new RrFileSystem(resolver)) //
                 .allowAllAccess(true) //
                 .allowExperimentalOptions(true) //
@@ -155,8 +157,8 @@ public class PolyglotContext
                 .option(SHEBANG_NAME, "true") //
                 .option(SYNTAX_EXTENSIONS_NAME, "true") //
                 .option(DISABLE_EVAL_NAME, "false") //
-                .option(LOAD_FROM_URL_NAME, "true") //
-                .build();
+                .option(LOAD_FROM_URL_NAME, "true");
+        Context context = option.build();
         return new PolyglotContext(context);
     }
 

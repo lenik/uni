@@ -10,6 +10,8 @@ public interface IScriptContext
         extends
             Invocable {
 
+    Object getGlobalObject();
+
     Object get(String name);
 
     void put(String name, Object value);

@@ -26,6 +26,11 @@ public class ScriptEngineContext
     }
 
     @Override
+    public Object getGlobalObject() {
+        return scriptEngine.getBindings(ScriptContext.GLOBAL_SCOPE);
+    }
+
+    @Override
     public Object get(String name) {
         return scriptEngine.get(name);
     }
