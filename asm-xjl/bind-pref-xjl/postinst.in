@@ -20,4 +20,9 @@ echo "Allow bind operator to update /etc/bind/*"
 install -d -o bind -g bind /var/log/named
 
 # restart may be necessary to listen on rndc port.
-/etc/init.d/bind9 restart
+if [ -x /etc/init.d/named ]; then
+    /etc/init.d/named restart
+elif [ -x /etc/init.d/bind9 ]; then
+    /etc/init.d/bind9 restart
+fi
+

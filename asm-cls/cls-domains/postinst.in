@@ -23,4 +23,8 @@ chown -R bind:bind "$bindconfdir/lenik"
 chown -R bind:bind "$bindconfdir/net"
 
 echo "Reload bind9"
-    /etc/init.d/bind9 reload
+    if [ -x /etc/init.d/named ]; then
+        /etc/init.d/named reload
+    elif [ -x /etc/init.d/bind9 ]; then
+        /etc/init.d/bind9 reload
+    fi
