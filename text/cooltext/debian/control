@@ -16,6 +16,6 @@ Depends:
     libcmt-perl,
     libtext-diff-perl,
     perl,
-    python-chardet,
+    python-chardet | python3-chardet,
     ${misc:Depends}
 Description: Text process utilities
