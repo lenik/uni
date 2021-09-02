@@ -101,13 +101,16 @@ function main() {
 
     if [ "$opt_debug" = 1 ]; then
         JDWPOPTS="transport=dt_socket"
-        JDWPOPTS="$JDWPOPTS,address=$opt_port"
         JDWPOPTS="$JDWPOPTS,server=y"
-        #JDWPOPTS="$JDWPOPTS,suspend=y"
+        JDWPOPTS="$JDWPOPTS,suspend=y"
+        JDWPOPTS="$JDWPOPTS,address=$opt_port"
 
-        javaopt -Xdebug
-        javaopt -Xrunjdwp:$JDWPOPTS
-        #javaopt -agentlib:jdwp=$JDWPOPTS
+        # Legacy: it will run in interpreted mode instead of JIT, which will be slower.
+        #javaopt "-Xdebug"
+        #javaopt "-Xrunjdwp:$JDWPOPTS"
+
+        # From Java 5.0+
+        javaopt "-agentlib:jdwp=$JDWPOPTS"
     fi
 
     for pr in "${opt_props[@]}";    do javaopt "-D$pr"; done
@@ -169,7 +172,12 @@ function main() {
     fi
 
     _log2 "Execute:$TIME $JAVA ${javaopts[@]} -cp ... $appcls ${appopts[@]} $*"
-    eval $TIME $JAVA "$javaopts[@]}" -cp "$classpath" "$appcls" "${appopts[@]}" "$@"
+    exec-v eval $TIME $JAVA "${javaopts[@]}" -cp "$classpath" "$appcls" "${appopts[@]}" "$@"
+}
+
+function exec-v() {
+    #echoli "$@"
+    "$@"
 }
 
 function do_timing() {
