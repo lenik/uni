@@ -8,6 +8,8 @@ import org.graalvm.polyglot.Value;
 import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.fn.EvalException;
+import net.bodz.bas.script.IScriptContext;
+import net.bodz.bas.script.js.ValueFn;
 import net.bodz.bas.text.qlex.ITokenLexer;
 import net.bodz.uni.catme.CommandOptions;
 import net.bodz.uni.catme.FilterEntry;

@@ -9,7 +9,7 @@ import net.bodz.bas.c.string.StringPred;
 import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.fn.EvalException;
-import net.bodz.uni.catme.io.ResourceVariant;
+import net.bodz.bas.script.io.ResourceVariant;
 
 public abstract class AbstractFrame
         implements
@@ -502,7 +502,7 @@ public abstract class AbstractFrame
             throws IOException {
         if (res == null)
             throw new NullPointerException("res");
-        return new FileFrame(this, parser, res.file);
+        return new FileFrame(this, parser, res.toFile());
     }
 
     @Override

@@ -6,11 +6,11 @@ import java.util.List;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
+import net.bodz.bas.script.io.ResourceVariant;
 import net.bodz.uni.catme.CommandOptions;
 import net.bodz.uni.catme.FileFrame;
 import net.bodz.uni.catme.FrameFn;
 import net.bodz.uni.catme.IFrame;
-import net.bodz.uni.catme.io.ResourceVariant;
 
 public class InclusionCommand
         extends AbstractCommand {

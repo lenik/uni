@@ -13,12 +13,13 @@ import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.skel.BasicCLI;
+import net.bodz.bas.script.io.ResourceResolver;
+import net.bodz.bas.script.io.ResourceVariant;
+import net.bodz.bas.script.io.ResourceVariantType;
 import net.bodz.uni.catme.cmd.*;
 import net.bodz.uni.catme.filter.StringFilterClass;
 import net.bodz.uni.catme.filter.VarInterpolatorClass;
 import net.bodz.uni.catme.io.LoopRunner;
-import net.bodz.uni.catme.io.ResourceResolver;
-import net.bodz.uni.catme.io.ResourceVariant;
 import net.bodz.uni.catme.js.FilterDefCommand;
 
 /**
@@ -105,14 +106,15 @@ public class CatMe
     private String[] cmdlineArgs;
 
     public CatMe() {
-        scriptResolver.searchClassResources = true;
+        scriptResolver.searchFrom(CatMe.class);
+        scriptResolver.searchFrom(CatMe.class.getClassLoader());
         scriptResolver.searchPomDir = true;
 
         // userResolver.searchWorkDir = true;
         // userResolver.searchHomeDir = true;
         // userResolver.searchClassResources = true;
         userResolver.searchLibDirsForExtension = true;
-        userResolver.searchEnvLangLIBs = true;
+        userResolver.searchEnvLangLibs((String ext) -> SrcLangType.forExtension(ext));
         userResolver.searchEnvLIB = true;
     }
 
@@ -228,8 +230,8 @@ public class CatMe
             boolean watchFiles = true;
             if (watchScripts) {
                 ResourceVariant resource = scriptResolver.findResource("js/version.mjs");
-                if (resource.type == ResourceVariant.FILE) {
-                    File jsDir = resource.file.getParentFile();
+                if (resource.type == ResourceVariantType.FILE) {
+                    File jsDir = resource.toFile().getParentFile();
                     watchDirs.add(jsDir);
                     File builtinsDir = new File(jsDir, "builtins");
                     watchDirs.add(builtinsDir);

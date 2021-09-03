@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.fn.EvalException;
-import net.bodz.uni.catme.io.ResourceVariant;
+import net.bodz.bas.script.io.ResourceVariant;
 
 public interface IFrame {
 

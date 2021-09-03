@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.graalvm.polyglot.Value;
 
+import net.bodz.bas.script.js.ValueFn;
 import net.bodz.uni.catme.IFrame;
 import net.bodz.uni.catme.ITextFilter;
 import net.bodz.uni.catme.ITextFilterClass;
