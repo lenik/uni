@@ -119,13 +119,28 @@ function main() {
     appcls=()
         old_workdir="$PWD"
         cd "$opt_project_dir"
-        for a in $(find target/classes -iname "$name.class"); do
-            a="${a[0]}"
-            a=${a#target/classes/}
-            a=${a%.class}
-            a=${a//\//.}
-            appcls=( "${appcls[@]}" "$a" )
-        done
+            
+            # find in programs
+            programs=target/classes/META-INF/programs
+            if [ -f $programs ]; then
+                while IFS='= ' read _key _scope _cls; do
+                    if [ "$_key" = "$name" ]; then
+                        appcls+=("$_cls")
+                    fi
+                done <$programs
+            fi
+
+            # find by simple classname
+            if [ ${#appcls[@]} = 0 ]; then
+                for a in $(find target/classes -iname "$name.class"); do
+                    a="${a[0]}"
+                    a=${a#target/classes/}
+                    a=${a%.class}
+                    a=${a//\//.}
+                    appcls=( "${appcls[@]}" "$a" )
+                done
+            fi
+
         cd "$old_workdir"
 
     n=${#appcls[@]}
