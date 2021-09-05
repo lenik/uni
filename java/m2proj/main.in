@@ -186,8 +186,15 @@ function main() {
         done
     fi
 
-    _log2 "Execute:$TIME $JAVA ${javaopts[@]} -cp ... $appcls ${appopts[@]} $*"
-    exec-v eval $TIME $JAVA "${javaopts[@]}" -cp "$classpath" "$appcls" "${appopts[@]}" "$@"
+    RLWRAP=
+    for rl in readline-editor rlwrap; do
+        if which $rl >/dev/null; then
+            RLWRAP=$rl
+            break
+        fi
+    done
+    _log2 "Execute:$TIME $RLWRAP $JAVA ${javaopts[@]} -cp ... $appcls ${appopts[@]} $*"
+    exec-v eval $TIME $RLWRAP $JAVA "${javaopts[@]}" -cp "$classpath" "$appcls" "${appopts[@]}" "$@"
 }
 
 function exec-v() {
