@@ -55,9 +55,6 @@ public class MainParser {
         scriptContext = PolyglotContext.createContext(app.scriptResolver);
         scriptContext.put(CatMe.VAR_APP, app);
 
-        Object global = scriptContext.getGlobalObject();
-        scriptContext.put(CatMe.VAR_GLOBAL, global);
-
         scriptContext.put(MainParser.VAR_PARSER, this);
 
         try {
