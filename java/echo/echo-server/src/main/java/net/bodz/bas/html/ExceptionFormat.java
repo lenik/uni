@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import net.bodz.bas.c.java.util.regex.IPartProcessor;
 import net.bodz.bas.c.java.util.regex.TextPrepByParts;
+import net.bodz.bas.c.java.util.regex.TextPreps;
 
 public class ExceptionFormat {
 
@@ -27,7 +28,7 @@ public class ExceptionFormat {
     }
 
     public static String highlightPackageNames(String s) {
-        TextPrepByParts prep = TextPrepByParts.match(packagePattern, new IPartProcessor() {
+        TextPrepByParts prep = TextPreps.match(packagePattern, new IPartProcessor() {
 
             @Override
             public void process(CharSequence in, int start, int end, Appendable out, Matcher matcher)
