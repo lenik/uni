@@ -7,7 +7,6 @@ import java.util.Map;
 import net.bodz.bas.c.java.util.regex.UnixStyleVarExpander;
 import net.bodz.bas.c.string.StringPred;
 import net.bodz.bas.err.TransformException;
-import net.bodz.bas.fn.ITransformer;
 import net.bodz.uni.catme.IFrame;
 import net.bodz.uni.catme.ITextFilter;
 import net.bodz.uni.catme.ITextFilterClass;
@@ -76,13 +75,7 @@ public class VarInterpolatorClass
     public void filter(IFrame frame, StringBuilder in, Appendable out)
             throws IOException {
         UnixStyleVarExpander expander = new UnixStyleVarExpander(//
-                new ITransformer<String, String>() {
-                    @Override
-                    public String transform(String input)
-                            throws TransformException {
-                        return transform2(frame, input);
-                    }
-                });
+                (String input) -> transform2(frame, input));
         String source = in.toString();
         String result = expander.process(source);
         out.append(result);
