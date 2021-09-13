@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 
 import net.bodz.bas.c.java.util.regex.IPartProcessor;
 import net.bodz.bas.c.java.util.regex.TextPrepByParts;
+import net.bodz.bas.c.java.util.regex.TextPreps;
 
 public class Util {
 
@@ -27,7 +28,7 @@ public class Util {
      * @return VRT-wrapper stripped string, or null if string doesn't contain VRT.
      */
     public static String parseVRT(String string) {
-        TextPrepByParts pp = TextPrepByParts.match("VRT_(\\w+?)_TRV", new IPartProcessor() {
+        TextPrepByParts pp = TextPreps.match("VRT_(\\w+?)_TRV", new IPartProcessor() {
 
             @Override
             public void process(CharSequence in, int start, int end, Appendable out, Matcher matcher)
