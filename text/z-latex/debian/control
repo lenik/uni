@@ -2,8 +2,8 @@ Source: z-latex
 Section: tex
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 8.0.0)
-Standards-Version: 3.9.3
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 3.9.4
 Homepage: http://uni.bodz.net/text/z-latex
 Vcs-Git: git://git.bodz.net/uni.git
 Vcs-Browser: http://git.bodz.net/uni/text/z-latex
