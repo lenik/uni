@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 import net.bodz.bas.c.javax.servlet.http.RequestLogger;
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.codegen.IndexedTypeLoader;
 import net.bodz.bas.servlet.FileSessionSupportFilter;
 import net.bodz.bas.servlet.config.IServletContextConfigurer;
@@ -17,6 +19,8 @@ import net.bodz.bas.t.order.PriorityComparator;
 @IndexedTypeLoader(IServletContextConfigurer.class)
 public class DefaultServerConfig
         extends ServletContextConfig {
+
+    static final Logger logger = LoggerFactory.getLogger(DefaultServerConfig.class);
 
     public static final String ATTRIBUTE_PORT = "echo.port";
 
@@ -40,6 +44,10 @@ public class DefaultServerConfig
         {
             List<IServletContextConfigurer> sorted = Iterables.toList(configurers);
             Collections.sort(sorted, PriorityComparator.INSTANCE);
+
+            for (IServletContextConfigurer configurer : sorted) {
+                logger.debug("configurer: " + configurer.getClass().getName());
+            }
 
             /** Workaround: There is no HttpResponse parameter in servlet-request-event. */
             // addFilter(CurrentHttpService.class, "/*");
