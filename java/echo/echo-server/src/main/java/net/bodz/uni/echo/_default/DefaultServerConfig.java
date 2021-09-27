@@ -6,7 +6,7 @@ import java.util.ServiceLoader;
 
 import net.bodz.bas.c.javax.servlet.http.RequestLogger;
 import net.bodz.bas.meta.codegen.IndexedTypeLoader;
-import net.bodz.bas.servlet.HttpModFilter;
+import net.bodz.bas.servlet.FileSessionSupportFilter;
 import net.bodz.bas.servlet.config.IServletContextConfigurer;
 import net.bodz.bas.servlet.config.ServletContextConfig;
 import net.bodz.bas.servlet.config.ServletDescriptor;
@@ -33,7 +33,7 @@ public class DefaultServerConfig
         addWelcomeFile("index.htm");
 
         addServletRequestListener(new RequestLogger());
-        addFilter(HttpModFilter.class, "/*");
+        addFilter(FileSessionSupportFilter.class, "/*");
         addFilter(CurrentHttpService.class, "/*");
 
         ServiceLoader<IServletContextConfigurer> configurers = ServiceLoader.load(IServletContextConfigurer.class);
