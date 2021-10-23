@@ -26,8 +26,8 @@ begin
             || 'count(*)::bigint, '
             || 'sum(' || field_1 || ')::real "sum_1", '
             || 'sum(' || field_2 || ')::real "sum_2", '
-            || 'min(' || field_g || ') "t0", '
-            || 'max(' || field_g || ') "t1"'
+            || 'min(' || field_g || ')::timestamp "t0", '
+            || 'max(' || field_g || ')::timestamp "t1"'
         || ' from ' || q_table
         || ' group by '
             || 'extract(year from ' || field_g || ')::int, '
