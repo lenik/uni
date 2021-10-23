@@ -25,30 +25,30 @@
             *deploy*)
                 deploy=1;;
         esac
-    group_id=
-    artifact_id=
-    version=
-    packaging=
-    pomfile=
-    sources_jar=
-    javadoc_jar=
+    opt_group_id=
+    opt_artifact_id=
+    opt_version=
+    opt_packaging=
+    opt_pomfile=
+    opt_sources_jar=
+    opt_javadoc_jar=
     repo_id=
     repo_url=
 
 function setopt() {
     case "$1" in
         -g|--group-id)
-            group_id=$2;;
+            opt_group_id=$2;;
         -a|--artifact-id)
-            artifact_id=$2;;
+            opt_artifact_id=$2;;
         -w|--ver)
-            version=$2;;
+            opt_version=$2;;
         -s|--sources-jar)
-            sources_jar=$2;;
+            opt_sources_jar=$2;;
         -j|--javadoc-jar)
-            javadoc_jar=$2;;
+            opt_javadoc_jar=$2;;
         -p|--packaging)
-            packaging=$2;;
+            opt_packaging=$2;;
         -d|--deploy)
             deploy=1;;
         -r|--repo-id)
@@ -92,6 +92,22 @@ function main() {
         exit 1
     fi
 
+    local arg
+    for arg in "$@"; do
+        _log1 "Process: $arg"
+        process "$arg"
+    done
+}
+
+function process() {
+    local group_id="$opt_group_id"
+    local artifact_id="$opt_artifact_id"
+    local version="$opt_version"
+    local packaging="$opt_packaging"
+    local pomfile="$opt_pomfile"
+    local sources_jar="$opt_sources_jar"
+    local javadoc_jar="$opt_javadoc_jar"
+
     local file="$1"
     local dir="${file%/*}"
         if [ "$dir" = "$file" ]; then
@@ -108,13 +124,57 @@ function main() {
             (( nslash++ ))
         done
 
+
+    # base, extension, version
+        local extension="${file##*.}"
+        if [ "$extension" = "$file" ]; then
+            echo "File $file doesn't have an extension"
+            exit 1
+        fi
+        if [ -z "$packaging" ]; then packaging=$extension; fi
+
+        local base="${file##*/}"
+        base="${base%.*}"
+
+        local ver="${base##*-}"
+        if [ "$ver" = "$base" ]; then
+            ver=
+        elif [ "${ver//[0-9.]}" = "$ver" ]; then
+            ver=
+        fi
+
+        local base_nover
+        if [ -n "$ver" ]; then
+            base_nover="${base%-*}"
+        else
+            base_nover="$base"
+        fi
+
+        if [ -z "$version" ]; then
+            if [ -z "$ver" ]; then
+                echo "Version is unknown. "
+                exit 1
+            fi
+            version="$ver"
+        fi
+
+    if [ -z "$artifact_id" ]; then
+        artifact_id="$base_nover"
+    fi
+
     if [ -z "$group_id" ]; then
-        if [ $nslash -ge 2 ]; then      # foo/bar/foobar/1.2.3 -> foo.bar
+        if [ $nslash -ge 1 ]; then
             dir_ver="${dir##*/}"
-            dir_chop="${dir%/*}"
-            dir_artifact="${dir_chop##*/}"
-            dir_chop="${dir_chop%/*}"
-            group_id="${dir_chop//\//.}"
+            dir_p1="${dir%/*}"
+            if [ "${base/-$dir_ver}" != "${base_nover}" ]; then
+                # foo/bar/foobar-1.2.3 -> foo.bar
+                dir_ver=
+                group_id="${dir//\//.}"
+            else
+                # foo/bar/foobar/1.2.3/foobar-1.2.3 -> foo.bar
+                dir_p2="${dir_p1%/*}"
+                group_id="${dir_p2//\//.}"
+            fi
         else
             parent=`jar tf "$file" | grep -e '^[a-z]\+/' | grep -v '/$' | get-common-prefix`
             _log1 "Auto determine group id by longest-parent-dir: $parent"
@@ -124,40 +184,6 @@ function main() {
 
             group_id="${parent//\//.}"
         fi
-    fi
-
-    extension="${file##*.}"
-    if [ "$extension" = "$file" ]; then
-        echo "File $file doesn't have an extension"
-        exit 1
-    fi
-    if [ -z "$packaging" ]; then packaging=$extension; fi
-
-    base="${file##*/}"
-    base="${base%.*}"
-
-    ver="${base##*-}"
-    if [ "$ver" = "$base" ]; then
-        ver=
-    elif [ -n "${ver//[0-9.]}" ]; then
-        ver=
-    fi
-    if [ -n "$ver" ]; then
-        base_nover="${base%-*}"
-    else
-        base_nover="$base"
-    fi
-
-    if [ -z "$version" ]; then
-        if [ -z "$ver" ]; then
-            echo "Version is unknown. "
-            exit 1
-        fi
-        version="$ver"
-    fi
-
-    if [ -z "$artifact_id" ]; then
-        artifact_id="$base_nover"
     fi
 
     if [ -z "$pomfile" ]; then
@@ -204,7 +230,8 @@ function main() {
     [ -n "$repo_id" ]     && opts[nopt++]="-DrepositoryId=$repo_id"
     [ -n "$repo_url" ]    && opts[nopt++]="-Durl=$repo_url"
 
-    _log1 "Execute mvn ${opts[@]}"
+    _log1 "[ $group_id :: $artifact_id :: $packaging :: $version ]"
+    _log2 "Execute mvn ${opts[@]}"
     mvn "${opts[@]}"
 }
 
