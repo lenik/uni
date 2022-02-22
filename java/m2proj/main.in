@@ -24,9 +24,13 @@
     option -h --help
     option    --version
 
-    alias_mode=0
+    alias_mode=
 
     opt_orderfile=lib/order.lst
+
+    exe="$0"
+    exe_dir=.
+    app_name=
 
     opt_project_dir=.
     opt_debug=
@@ -73,31 +77,29 @@ function javaopt() {
 }
 
 function main() {
-    if [ "$alias_mode" = 1 ]; then
-        #is_symlink=1
-        selfdir="${0%/*}"
-        if [ "$selfdir" = "$0" ]; then
-            selfdir=.
-        fi
-        name="${0##*/}"
-    else
+    _log2 "alias mode: $alias_mode"
+    if [ -z "$app_name" ]; then
         if [ -z "$1" ]; then
             echo "App isn't specified." >&2
             exit 1
         fi
-        selfdir=.
-        name="$1"
+        app_name="$1"
         shift
     fi
+    _log2 "exe: $exe"
+    _log2 "exe dir: $exe_dir"
+    _log2 "app name: $app_name"
 
     if [ "$opt_project_dir" = . ]; then
         for d in '' '/..' '/../..' '/../../..'; do
-            if [ -d "$selfdir$d/lib" ]; then
-                opt_project_dir=$(readlink -f "$selfdir$d")
+            if [ -f "$exe_dir$d/$opt_orderfile" ]; then
+                _log2 "found project dir: $exe_dir$d"
+                opt_project_dir=$(readlink -f "$exe_dir$d")
                 break
             fi
         done
     fi
+    _log2 "project dir: $opt_project_dir"
 
     if [ "$opt_debug" = 1 ]; then
         JDWPOPTS="transport=dt_socket"
@@ -124,7 +126,7 @@ function main() {
             programs=target/classes/META-INF/programs
             if [ -f $programs ]; then
                 while IFS='= ' read _key _scope _cls; do
-                    if [ "$_key" = "$name" ]; then
+                    if [ "$_key" = "$app_name" ]; then
                         appcls+=("$_cls")
                     fi
                 done <$programs
@@ -132,7 +134,11 @@ function main() {
 
             # find by simple classname
             if [ ${#appcls[@]} = 0 ]; then
-                for a in $(find target/classes -iname "$name.class"); do
+                if [ ! -d target/classes ]; then
+                    quit "Not a project dir: $opt_project_dir"
+                fi
+
+                for a in $(find target/classes -iname "$app_name.class"); do
                     a="${a[0]}"
                     a=${a#target/classes/}
                     a=${a%.class}
@@ -177,8 +183,8 @@ function main() {
     TIME=
     if [ "$opt_timing" = 1 ]; then TIME=do_timing; fi
 
-    if [ "$alias_mode" = 1 ]; then
-        for rc in "$0.rc"; do
+    if [ "$alias_mode" = symlink ]; then
+        for rc in "$exe.rc"; do
             if [ -f "$rc" ]; then
                 _log2 "source $rc"
                 . "$rc"
@@ -214,26 +220,91 @@ function add_cp() {
     done
 }
 
-if [ -L "$0" ] && [ "${0##*/}" != 'main' ]; then
-    alias_mode=1
-    cliopts=()
-    while true; do
-        case "$1" in
-            -d|--debug)
-                opt_debug=1
-                shift
-                continue;;
-
-            -v|--verbose)
-                ((LOGLEVEL++))
-                cliopts=("${cliopts[@]}" "$1")
-                shift
-                continue;;
+function dualboot() {
+    if [ -L "$exe" ]; then
+        local exe_name="${exe##*/}"
+        case "$exe_name" in
+            main|main.in)
+                : ;;
+            *)
+                # wrapper: dualboot() source() caller
+                # symlink: dualboot() caller
+                if [ "${FUNCNAME[1]}" = source ]; then
+                    alias_mode=wrapper
+                    source_by="${BASH_SOURCE[2]}"
+                    exe=$(readlink -f "$source_by")
+                else
+                    alias_mode=symlink
+                    exe="${BASH_SOURCE[1]}"
+                    app_name="${exe##*/}"
+                fi
+                exe_dir="${exe%/*}"
+                [ "$exe_dir" = "$exe" ] && exe_dir=.
+                ;;
         esac
-        break
-    done
-    main "${cliopts[@]}" "$@"
-else
-    boot "$@"
-fi
+    fi
 
+    if [ "$alias_mode" = symlink ]; then
+        local l_opts=()
+        local r_opts=()
+
+        local go=1
+        while [ $go = 1 ]; do
+            case "$1" in
+                --quiet|--verbose)
+                    l_opts+=("$1")
+                    r_opts+=("$1")
+                    ;;
+                --debug)
+                    l_opts+=("$1")
+                    ;;
+                --*)
+                    go=0;;
+                -*)
+                    local len=${#1}
+                    local xl=()
+                    local xr=()
+                    for ((i = 1; i < len; i++)); do
+                        case "${1:i:1}" in
+                            q) xl+=(--quiet); xr+=(--quiet);;
+                            v) xl+=(--verbose); xr+=(--verbose);;
+                            d) xl+=(--debug);;
+                            *) go=0; break;;
+                        esac
+                    done
+                    if [ $go = 1 ]; then
+                        l_opts+=("${xl[@]}")
+                        r_opts+=("${xr[@]}")
+                        shift
+                        continue
+                    fi
+                    ;;
+                *)
+                    go=0;;
+            esac
+            if [ $go = 1 ]; then
+                l_opts+=("$1")
+                r_opts+=("$1")
+                shift
+            fi
+        done
+        r_opts+=("$@")
+        _log2 "main exe opts: ${l_opts[*]}"
+        _log2 "application opts: ${r_opts[*]}"
+        for opt in "${l_opts[@]}"; do
+            case "$opt" in
+                --quiet)
+                    ((LOGLEVEL--));;
+                --verbose)
+                    ((LOGLEVEL++));;
+                --debug)
+                    opt_debug=1;;
+            esac
+        done
+        main "${r_opts[@]}"
+    else
+        boot "$@"
+    fi
+}
+
+dualboot "$@"
