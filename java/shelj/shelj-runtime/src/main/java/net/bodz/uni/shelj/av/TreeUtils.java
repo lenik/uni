@@ -6,6 +6,8 @@ import org.antlr.v4.runtime.misc.Utils;
 import org.antlr.v4.runtime.tree.Tree;
 import org.antlr.v4.runtime.tree.Trees;
 
+import net.bodz.bas.c.string.Strings;
+
 public class TreeUtils {
 
     /** Platform dependent end-of-line marker */
@@ -23,33 +25,38 @@ public class TreeUtils {
      */
     public static String toPrettyTree(final Tree t, final List<String> ruleNames) {
         level = 0;
-        return process(t, ruleNames).replaceAll("(?m)^\\s+$", "").replaceAll("\\r?\\n\\r?\\n", Eol);
+        String s = process(t, ruleNames);
+        String trim = s.replaceAll("(?m)^\\s+$", "");
+        String merge = trim.replaceAll("\\r?\\n\\r?\\n", Eol);
+        return merge;
     }
 
-    private static String process(final Tree t, final List<String> ruleNames) {
-        if (t.getChildCount() == 0)
-            return Utils.escapeWhitespace(Trees.getNodeText(t, ruleNames), false);
+    private static String process(Tree node, List<String> ruleNames) {
+        String text = Trees.getNodeText(node, ruleNames);
+        text = Utils.escapeWhitespace(text, false);
+
+        if (node.getChildCount() == 0)
+            return text;
+
         StringBuilder sb = new StringBuilder();
         sb.append(lead(level));
         level++;
-        String s = Utils.escapeWhitespace(Trees.getNodeText(t, ruleNames), false);
-        sb.append(s + ' ');
-        for (int i = 0; i < t.getChildCount(); i++) {
-            sb.append(process(t.getChild(i), ruleNames));
-        }
+        sb.append(text);
+        sb.append(" ");
+
+        for (int i = 0; i < node.getChildCount(); i++)
+            sb.append(process(node.getChild(i), ruleNames));
+
         level--;
         sb.append(lead(level));
         return sb.toString();
     }
 
     private static String lead(int level) {
-        StringBuilder sb = new StringBuilder();
-        if (level > 0) {
-            sb.append(Eol);
-            for (int cnt = 0; cnt < level; cnt++) {
-                sb.append(Indents);
-            }
-        }
-        return sb.toString();
+        if (level <= 0)
+            return "";
+        else
+            return Eol + Strings.repeat(level, Indents);
     }
+
 }

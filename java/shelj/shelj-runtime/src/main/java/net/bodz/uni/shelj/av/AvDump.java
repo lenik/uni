@@ -12,17 +12,17 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import net.bodz.bas.meta.build.ProgramName;
-import net.bodz.bas.program.model.AbstractProgram;
+import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.uni.shelj.av.ArgumentsParser.ScriptContext;
 
 /**
- * Argv language antlr dumper
+ * Dumper util for the arguments language
  *
- * @label A label
+ * @label av-dump
  */
 @ProgramName("avdump")
 public class AvDump
-        extends AbstractProgram {
+        extends BasicCLI {
 
     @Override
     protected void mainImpl(String... args)

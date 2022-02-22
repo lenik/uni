@@ -1,4 +1,1 @@
-#!/bin/bash
-
-main AvDump "$@"
-
+/usr/bin/main

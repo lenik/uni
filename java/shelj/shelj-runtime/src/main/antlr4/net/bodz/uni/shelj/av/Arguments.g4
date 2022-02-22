@@ -3,8 +3,6 @@ grammar Arguments;
 ID : [a-zA-Z] [a-zA-Z0-9]*;
 UID : [\p{Alpha}\p{General_Category=Other_Letter}] [\p{Alnum}\p{General_Category=Other_Letter}]*;
 
-ID_ASSIGN: ID '=';
-
 // WS : [ \t\r\n]+ -> skip ; 
 UNICODE_WS : [ \t\r\n\p{White_Space}]+ -> skip ; 
 SLCOMMENT : '#' ~[\r\n]* '\r'? '\n' -> skip ;
@@ -50,15 +48,15 @@ statements:
 
 statement:
 	';'		// nop
-	| ID_ASSIGN expr ';'
-	| ID_ASSIGN expr statement
+	| ID '=' expr ';'
+	| ID '=' expr statement
     | cmd_call ';'
     | fn_call ';'
     | '{' statements '}'
  	;
 
 cmd_call:
-	cmd=NSWORD args?
+	cmd=ID args?
 	;
 	
 fn_call:
