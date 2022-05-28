@@ -48,13 +48,13 @@ function setopt() {
         -d|--debug)
             opt_debug=1;;
         -D|--property)
-            opt_props=("${opt_props[@]}" "$2");;
+            opt_props+=("$2");;
         -r|--project-dir)
             opt_project_dir="$2";;
         -t|--timing)
             opt_timing=1;;
         -O|--java-opt)
-            opt_javaopts=("${opt_javaopts[@]}" "$2");;
+            opt_javaopts+=("$2");;
         -p|--jdwp-port)
             opt_port=$2;;
         -P|--profiler)
@@ -118,36 +118,61 @@ function main() {
     for pr in "${opt_props[@]}";    do javaopt "-D$pr"; done
     for jo in "${opt_javaopts[@]}"; do javaopt "$jo";   done
 
+    classpath=
+    classdirs=()
+        add_cp "$opt_project_dir"/target/test-classes
+        add_cp "$opt_project_dir"/target/classes
+        if [ -f "$opt_project_dir/$opt_orderfile" ]; then
+            while read item; do
+                if [ "${item:0:1}" = / ]; then
+                    item_full="$item"
+                else
+                    item_full="$opt_project_dir/$item"
+                fi
+                add_cp "$item_full"
+            done <"$opt_project_dir/$opt_orderfile"
+        else
+            for dir in "$opt_project_dir"/classes/*/; do
+                add_cp "$dir"
+            done
+            for jar in "$opt_project_dir"/lib/*.jar; do
+                add_cp "$jar"
+            done
+        fi
+        classpath="${classpath#:}"
+
     appcls=()
-        old_workdir="$PWD"
-        cd "$opt_project_dir"
-            
+        if [ "${app_name/./}" != "${app_name}" ]; then # qualified.
+            appcls+=( "$app_name" )
+        fi
+
+        for classdir in "${classdirs[@]}"; do
+            qname=()
             # find in programs
-            programs=target/classes/META-INF/programs
+            programs="$classdir/META-INF/programs"
             if [ -f $programs ]; then
                 while IFS='= ' read _key _scope _cls; do
                     if [ "$_key" = "$app_name" ]; then
-                        appcls+=("$_cls")
+                        qname+=("$_cls")
                     fi
                 done <$programs
             fi
 
             # find by simple classname
-            if [ ${#appcls[@]} = 0 ]; then
-                if [ ! -d target/classes ]; then
-                    quit "Not a project dir: $opt_project_dir"
-                fi
-
-                for a in $(find target/classes -iname "$app_name.class"); do
+            if [ ${#qname[@]} = 0 ]; then
+                for a in $(find "$classdir" -iname "$app_name.class"); do
                     a="${a[0]}"
-                    a=${a#target/classes/}
+                    classdirlen=${#classdir}
+                    a=${a:classdirlen}
+                    a=${a#/}
                     a=${a%.class}
                     a=${a//\//.}
-                    appcls=( "${appcls[@]}" "$a" )
+                    qname+=("$a" )
                 done
             fi
 
-        cd "$old_workdir"
+            appcls+=( "${qname[@]}" )
+        done
 
     n=${#appcls[@]}
     if [ $n != 1 ]; then
@@ -161,24 +186,6 @@ function main() {
         fi
         exit 1
     fi
-
-    classpath=
-    if [ -f "$opt_project_dir/$opt_orderfile" ]; then
-        while read item; do
-            item_full="$opt_project_dir/$item"
-            add_cp "$item_full"
-        done <"$opt_project_dir/$opt_orderfile"
-    else
-        for dir in "$opt_project_dir"/classes/*/; do
-            add_cp "$dir"
-        done
-        for jar in "$opt_project_dir"/lib/*.jar; do
-            add_cp "$jar"
-        done
-    fi
-    add_cp "$opt_project_dir"/target/classes
-    add_cp "$opt_project_dir"/target/test-classes
-    classpath="${classpath#:}"
 
     TIME=
     if [ "$opt_timing" = 1 ]; then TIME=do_timing; fi
@@ -215,8 +222,12 @@ function do_timing() {
 function add_cp() {
     local a
     for a in "$@"; do
-        _log2 "Classpath: $a"
+        _log2 "add-classpath: $a"
         classpath="$classpath:$a"
+
+        if [ -d "$a" ]; then
+            classdirs+=("$a")
+        fi
     done
 }
 
