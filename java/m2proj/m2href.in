@@ -1,0 +1,47 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    local pom
+    for pom in "$@"; do
+        pom=$(readlink -f "$pom")
+
+        local parentGroupId
+        local groupId
+        local artifactId
+        IFS=, read parentGroupId groupId artifactId < <(xq -r \
+            '.project.parent.groupId 
+            + "," + .project.groupId 
+            + "," + .project.artifactId' "$pom")
+        if [ -z "$groupId" ]; then
+            groupId=$parentGroupId
+        fi
+        echo "$groupId:$artifactId	${pom%/*}"
+    done
+}
+
+boot "$@"

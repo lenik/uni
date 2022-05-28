@@ -12,5 +12,6 @@ Package: m2proj
 Architecture: all
 Depends: 
     bash-shlib,
+    jq,
     ${misc:Depends}
 Description: Maven-based Java project utilities
