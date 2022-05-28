@@ -94,11 +94,12 @@ function main() {
         for d in '' '/..' '/../..' '/../../..'; do
             if [ -f "$exe_dir$d/$opt_orderfile" ]; then
                 _log2 "found project dir: $exe_dir$d"
-                opt_project_dir=$(readlink -f "$exe_dir$d")
+                opt_project_dir="$exe_dir$d"
                 break
             fi
         done
     fi
+    opt_project_dir=$(readlink -f "$opt_project_dir")
     _log2 "project dir: $opt_project_dir"
 
     if [ "$opt_debug" = 1 ]; then
