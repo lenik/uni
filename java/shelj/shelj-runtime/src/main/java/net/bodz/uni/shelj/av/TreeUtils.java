@@ -13,7 +13,7 @@ public class TreeUtils {
     /** Platform dependent end-of-line marker */
     public static final String Eol = System.lineSeparator();
     /** The literal indent char(s) used for pretty-printing */
-    public static final String Indents = "  ";
+    public static final String Indents = "    ";
     private static int level;
 
     private TreeUtils() {

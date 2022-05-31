@@ -7,6 +7,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -30,6 +31,15 @@ public class AvDump
         for (String name : args) {
             CharStream in = CharStreams.fromFileName(name);
             ArgumentsLexer lexer = new ArgumentsLexer(in);
+            while (true) {
+                Token tok = lexer.nextToken();
+                int t = tok.getType();
+                if (t == Token.EOF)
+                    break;
+                String displayName = lexer.getVocabulary().getDisplayName(t);
+                System.out.println(displayName + ": '" + tok.getText() + "'");
+            }
+            lexer.reset();
             CommonTokenStream tokens = new CommonTokenStream(lexer);
 
             ArgumentsParser parser = new ArgumentsParser(tokens);
