@@ -52,25 +52,46 @@ function main() {
 
     local pdf cat
     local npage page_blank
+    local test num
+    local num
     
     for pdf in "$@"; do
-        while IFS=: read k v; do
-            s="${v// /}"
-            case "$k" in
-                Pages)
-                    npage=$s;;
-            esac
-        done < <(pdfinfo "$pdf")
+        npage=
+        num=
+        test=0
+        if [ "${pdf:0:1}" = '@' ]; then
+            num="${pdf:1}"
+            if [ "$num" = "$((num * 1))" ]; then
+                test=1
+            fi
+        fi
+        
+        if [ $test = 1 ]; then
+            npage=$num
+        else
+            while IFS=: read k v; do
+                s="${v// /}"
+                case "$k" in
+                    Pages)
+                        npage=$s;;
+                esac
+            done < <(pdfinfo "$pdf")
+        fi
         _log1 "Reorder $npage pages for $pdf:"
         
         page_blank=$opt_blank
         if [ -z "$page_blank" ]; then
-            generate_blank_pdf
-            cat=`mktemp --suffix .pdf`
-            _log2 "  create tmp concat pdf file $cat"
-            pdftk A="$pdf" B="$opt_blank_pdf" cat A B output "$cat"
-            page_blank="$((npage))"
-            _log2 "  the blank page is at $page_blank+$opt_page0."
+            if [ $test = 0 ]; then
+                generate_blank_pdf
+                page_blank="$((npage))"
+                cat=`mktemp --suffix .pdf`
+                _log2 "  create tmp concat pdf file $cat"
+                pdftk A="$pdf" B="$opt_blank_pdf" cat A B output "$cat"
+                _log2 "  the blank page is at $page_blank+$opt_page0."
+            else
+                #page_blank=-
+                page_blank="$((npage))"
+            fi
         else
             cat="$pdf"
         fi
@@ -79,12 +100,15 @@ function main() {
 
         _log1 "Build page serials."
         build_books $npage $page_blank
+        _log2 "Printing with Two Sided (Short Edge Flip) and Binding Edge = Top."
         
-        if [ "$cat" != "$pdf" ]; then
-            _log1 "Open $cat with evince, and wait for closing."
-            evince "$cat"
-            _log1 "Evince is closed. Clean up."
-            rm -f "$cat"
+        if [ $test = 0 ]; then
+            if [ "$cat" != "$pdf" ]; then
+                _log1 "Open $cat with evince, and wait for closing."
+                evince "$cat"
+                _log1 "Evince is closed. Clean up."
+                rm -f "$cat"
+            fi
         fi
     done
 }
@@ -104,6 +128,7 @@ function build_books() {
     local npage=$1
     local ngroup=$(( (npage + g_npage - 1) / g_npage ))
     local page_blank=$2
+    if [ -z "$page_blank" ]; then page_blank=$opt_blank; fi
     
     print_begin
     while [ $start -lt $npage ]; do
@@ -113,25 +138,22 @@ function build_books() {
         if [ $npaper_remain -lt $npaper ]; then
             npaper=$npaper_remain
         fi
-        _log2 "Build paper group ($npaper) at offset $start"
-        book_order $npaper $page_blank $start
+        _log2 "Build paper group ($npaper) at offset $start, npage=$npage, blank=$page_blank"
+        book_order $start
         (( start += npaper * 4 ))
     done
     print_end
 }
 
 function book_order() {
-    local npaper=$1
-    local page_blank=$2
-    local start=$3
-    if [ -z "$page_blank" ]; then page_blank=$opt_blank; fi
+    local start=$1
 
-    local npage=$((npaper * 4))
+#    local npage=$((npaper * 4))
     local npage_pad=$((npaper * 4))
     local npage_half=$((npage_pad / 2))
     local i A B C D rev
     
-    _log2 "book_order(npage=$npage, blank=$page_blank, start=$start)"
+    _log2 "book_order(start=$start)"
 
     for ((i = 0; i < npaper; i++)); do
         B=$((i * 2 + 0))
@@ -139,7 +161,7 @@ function book_order() {
         rev=$(( npage_half + (npaper - i) * 2 ))
         A=$((rev - 1))
         D=$((rev - 2))
-        
+        #echo A$A B$B C$C D$D rev$rev
         [ $A -ge $npage ] && A=$page_blank
         noff=$((start + opt_page0))
         print $noff $A
@@ -154,6 +176,7 @@ function book_order() {
             [ $D -ge $npage ] && D=$page_blank
             print $noff $D
         fi
+        #echo
     done
 }
 
@@ -168,10 +191,12 @@ function print() {
         if [ $((++print_page)) -gt 1 ]; then
             echo -n ","
         fi
-        if [ $p -ge 0 ]; then
-            p=$((p + initial))
-        else
-            p=$((-p))
+        if [ "$p" != '-' ]; then
+            if [ $p -ge 0 ]; then
+                p=$((p + initial))
+            else
+                p=$((-p))
+            fi
         fi
         echo -n $p
     done
