@@ -45,6 +45,7 @@
 " Windows Management
 "
 "    set mousefocus
+    set mouse-=a
 
     map <F4>       :q<CR>
     map <F6>       <C-W>w
