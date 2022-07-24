@@ -2,7 +2,7 @@ Source: execfilter
 Section: admin
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 8.0.0), 
+Build-Depends: debhelper-compat (= 13)
     pkg-config, automake, 
     libglib2.0-0,
     libbas-c

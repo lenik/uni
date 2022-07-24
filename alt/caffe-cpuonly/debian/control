@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends:
-    debhelper (>=9),
+    debhelper-compat (= 13)
     libatlas-base-dev,
     libgflags-dev,
     libgoogle-glog-dev,

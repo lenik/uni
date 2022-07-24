@@ -2,7 +2,7 @@ Source: jar-enh
 Section: java
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 9)
+Build-Depends: debhelper-compat (= 13)
 Standards-Version: 3.9.8
 Homepage: http://uni.bodz.net/toolenh/jar-enh
 Vcs-Git: git://git.bodz.net/uni.git

@@ -2,7 +2,7 @@ Source: mate-panel-control
 Section: x11
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 8.0.0), libx11-dev, gcc
+Build-Depends: debhelper-compat (= 13)
 Standards-Version: 3.9.3
 Homepage: http://uni.bodz.net/alt/mate-panel-control
 Vcs-Git: git://git.bodz.net/uni.git

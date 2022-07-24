@@ -2,7 +2,7 @@ Source: xsel-enh
 Section: x11
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 11)
+Build-Depends: debhelper-compat (= 13)
 Standards-Version: 4.1.3
 Homepage: http://uni.bodz.net/toolenh/xsel-enh
 Vcs-Git: git://git.bodz.net/uni.git

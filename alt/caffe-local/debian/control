@@ -2,7 +2,7 @@ Source: caffe-local
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>=9)
+Build-Depends: debhelper-compat (= 13)
 Standards-Version: 3.9.8
 Homepage: http://uni.bodz.net/alt/caffe-local
 Vcs-Git: git://git.bodz.net/uni.git

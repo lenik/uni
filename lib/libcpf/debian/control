@@ -1,7 +1,7 @@
 Source: libcpf
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 8.0.0)
+Build-Depends: debhelper-compat (= 13)
 Standards-Version: 3.9.4
 Section: libs
 Homepage: http://uni.bodz.net/lib/libcpf

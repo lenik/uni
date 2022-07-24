@@ -2,7 +2,7 @@ Source: extundelete
 Section: utils
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 7.0.50~), e2fslibs-dev
+Build-Depends: debhelper-compat (= 13)
 Standards-Version: 3.9.1
 Homepage: http://extundelete.sourceforge.net/
 Vcs-Git: git://git.bodz.net/uni.git

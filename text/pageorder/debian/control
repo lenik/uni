@@ -2,7 +2,7 @@ Source: pageorder
 Section: text
 Priority: optional
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 11)
+Build-Depends: debhelper-compat (= 13)
 Standards-Version: 4.1.3
 Homepage: http://uni.bodz.net/text/pageorder
 Vcs-Git: git://git.bodz.net/uni.git

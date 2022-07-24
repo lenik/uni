@@ -2,7 +2,7 @@ Source: cdu-bodz-m2-settings
 Section: devel
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 7.0.50~)
+Build-Depends: debhelper-compat (= 13)
 Standards-Version: 3.8.4
 Homepage: http://uni.bodz.net/integration-cdu/cdu-bodz-m2-settings
 Vcs-Git: git://git.bodz.net/uni.git
