@@ -11,6 +11,7 @@ import javax.servlet.ServletContext;
 
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -41,8 +42,6 @@ public class EchoServer
         super(getServerAddress(config));
 
         this.config = config;
-
-        setSendServerVersion(false);
 
         try {
             buildResourceProvider();
@@ -166,10 +165,13 @@ public class EchoServer
 
         if (config.getPortNumber() == 0) {
             for (Connector connector : getConnectors()) {
-                int actualPort = connector.getLocalPort();
-                if (actualPort > 0) {
-                    config.setPortNumber(actualPort);
-                    break;
+                if (connector instanceof ServerConnector) {
+                    ServerConnector sc = (ServerConnector) connector;
+                    int actualPort = sc.getLocalPort();
+                    if (actualPort > 0) {
+                        config.setPortNumber(actualPort);
+                        break;
+                    }
                 }
             }
         }
@@ -182,7 +184,8 @@ public class EchoServer
     }
 
     class LifeCycleListener
-            extends AbstractLifeCycleListener {
+            implements
+                LifeCycle.Listener {
 
         @Override
         public void lifeCycleStarted(LifeCycle event) {

@@ -5,7 +5,6 @@ import java.net.URL;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -15,6 +14,7 @@ import net.bodz.bas.io.res.builtin.URLResource;
 import net.bodz.bas.io.res.tools.StreamWriting;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
+import net.bodz.bas.servlet.HttpServlet;
 
 public class Logo
         extends HttpServlet {

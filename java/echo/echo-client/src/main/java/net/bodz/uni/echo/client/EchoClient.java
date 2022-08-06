@@ -5,13 +5,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.eclipse.jetty.http.HttpField;
+import org.eclipse.jetty.http.HttpTester;
+import org.eclipse.jetty.http.HttpTester.Request;
+import org.eclipse.jetty.http.HttpTester.Response;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.LocalConnector;
-import org.eclipse.jetty.testing.HttpTester;
 
 import net.bodz.bas.c.java.util.ArrayAndScalar;
 import net.bodz.bas.c.java.util.Arrays;
@@ -86,27 +90,25 @@ public class EchoClient {
         return Pair.of(hostName, uri);
     }
 
-    public HttpTester httpGet(URL url)
+    public Response httpGet(URL url)
             throws Exception {
         return httpGet(url.toString());
     }
 
-    public HttpTester httpGet(String urlOrPath)
+    public Response httpGet(String urlOrPath)
             throws Exception {
-        HttpTester request = new HttpTester();
+        Pair<String, String> hostURI = splitHostURI(urlOrPath);
+
+        Request request = new Request();
         request.setMethod("GET");
         request.setVersion("HTTP/1.0");
 
-        Pair<String, String> hostURI = splitHostURI(urlOrPath);
+        request.setHeader("Host", hostURI.first);
+        request.setURI(hostURI.second);
 
-        request.setHeader("Host", hostURI.getFirst());
-        request.setURI(hostURI.getSecond());
-
-        String rawRequest = request.generate();
-
-        String rawResponse = getResponses(rawRequest);
-        HttpTester response = new HttpTester();
-        response.parse(rawResponse);
+        ByteBuffer rawRequest = request.generate();
+        ByteBuffer rawResponse = getResponse(rawRequest);
+        Response response = HttpTester.parseResponse(rawResponse);
 
         if (response.getStatus() >= 400)
             throw new HttpTesterException(response);
@@ -114,57 +116,56 @@ public class EchoClient {
         return response;
     }
 
-    public HttpTester httpPost(URL url, String content, Map<String, String> parameterMap)
+    public Response httpPost(URL url, String content, Map<String, String> parameterMap)
             throws Exception {
         return httpPost(url.toString(), content, parameterMap);
     }
 
-    public HttpTester httpPost(String uri, String content, Map<String, String> parameterMap)
+    public Response httpPost(String uri, String content, Map<String, String> parameterMap)
             throws Exception {
-        HttpTester request = new HttpTester();
+        Pair<String, String> hostURI = splitHostURI(uri);
+
+        Request request = new Request();
         request.setMethod("POST");
         request.setVersion("HTTP/1.0");
-
-        Pair<String, String> hostURI = splitHostURI(uri);
 
         request.setHeader("Host", hostURI.getFirst());
         request.setURI(hostURI.getSecond());
         request.setContent(content);
 
-        String rawResponse = getResponses(request.generate());
-        HttpTester response = new HttpTester();
-        response.parse(rawResponse);
+        ByteBuffer rawRequest = request.generate();
+        ByteBuffer rawResponse = getResponse(rawRequest);
+        Response response = HttpTester.parseResponse(rawResponse);
+
         return response;
     }
 
-    public String getResponses(String rawRequests)
+    public ByteBuffer getResponse(ByteBuffer rawRequest)
             throws Exception {
         for (Connector connector : server.getConnectors()) {
             if (connector instanceof LocalConnector) {
                 LocalConnector lc = (LocalConnector) connector;
-                String responses = lc.getResponses(rawRequests);
-                if (responses != null)
-                    return responses;
+                return lc.getResponse(rawRequest);
             }
         }
         return null;
     }
 
-    public void dumpResponse(HttpTester http) {
+    public void dumpResponse(Response response) {
         PrintStream out = System.err;
-        out.println(http.getStatus() + " " + http.getReason());
+        out.println(response.getStatus() + " " + response.getReason());
 
-        Enumeration<String> names = http.getHeaderNames();
+        Enumeration<String> names = response.getFieldNames();
 
         while (names.hasMoreElements()) {
             String name = names.nextElement();
-            String header = http.getHeader(name);
-            out.println(name + ": " + header);
+            HttpField header = response.getField(name);
+            out.println(header);
         }
 
         out.println();
 
-        out.println(http.getContent());
+        out.println(response.getContent());
     }
 
     public void go(String location)

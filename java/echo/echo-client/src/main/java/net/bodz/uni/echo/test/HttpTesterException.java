@@ -1,22 +1,22 @@
 package net.bodz.uni.echo.test;
 
-import org.eclipse.jetty.testing.HttpTester;
+import org.eclipse.jetty.http.HttpTester.Response;
 
 public class HttpTesterException
         extends Exception {
 
     private static final long serialVersionUID = 1L;
 
-    private final HttpTester tester;
+    private final Response response;
 
-    public HttpTesterException(HttpTester tester) {
-        super(tester.getStatus() + " " + tester.getReason());
+    public HttpTesterException(Response resp) {
+        super(resp.getStatus() + " " + resp.getReason());
 
-        this.tester = tester;
+        this.response = resp;
     }
 
-    public HttpTester getTester() {
-        return tester;
+    public Response getResponse() {
+        return response;
     }
 
 }

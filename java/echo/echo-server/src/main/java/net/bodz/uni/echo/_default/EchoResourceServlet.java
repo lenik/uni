@@ -10,9 +10,7 @@ import javax.servlet.UnavailableException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.servlet.DefaultServlet_welcome_patch;
-import org.eclipse.jetty.util.log.Log;
-import org.eclipse.jetty.util.log.Logger;
+import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.util.resource.Resource;
 
 import net.bodz.bas.c.java.io.FilePath;
@@ -20,6 +18,8 @@ import net.bodz.bas.io.res.builtin.OutputStreamTarget;
 import net.bodz.bas.io.res.builtin.URLResource;
 import net.bodz.bas.io.res.tools.StreamReading;
 import net.bodz.bas.io.res.tools.StreamWriting;
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.std.rfc.mime.ContentType;
 import net.bodz.bas.std.rfc.mime.ContentTypes;
 import net.bodz.uni.echo.resource.IResourceProvider;
@@ -30,11 +30,11 @@ import net.bodz.uni.echo.server.EchoServletContextHandler;
  * This servlet should be served as the default servlet, which means to replace the default one.
  */
 public class EchoResourceServlet
-        extends DefaultServlet_welcome_patch {
+        extends DefaultServlet {
 
     private static final long serialVersionUID = 1L;
 
-    static Logger logger = Log.getLogger(EchoResourceServlet.class);
+    static final Logger logger = LoggerFactory.getLogger(EchoResourceServlet.class);
 
     boolean generateIndex;
     IResourceProvider resourceProvider;
@@ -68,7 +68,7 @@ public class EchoResourceServlet
                 resourcePath = resourcePath.substring(1);
             resourceUrl = resourceProvider.getResource(resourcePath);
         } catch (IOException e) {
-            logger.ignore(e);
+            logger.error(e);
             return null;
         }
 
@@ -80,14 +80,8 @@ public class EchoResourceServlet
         logger.debug("Resolved as servlet path: " + resourceUrl);
 
         Resource resource;
-        try {
-            resource = Resource.newResource(resourceUrl);
-            // logger.debug("    => " + resource);
-        } catch (IOException e) {
-            logger.ignore(e);
-            return null;
-        }
-
+        resource = Resource.newResource(resourceUrl);
+        // logger.debug(" => " + resource);
         return resource;
     }
 

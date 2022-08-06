@@ -5,16 +5,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.util.log.Log;
-import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.util.resource.Resource;
 
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
 import net.bodz.uni.echo.resource.IResourceProvider;
 
 public class EchoServletContextHandler
         extends ServletContextHandler {
 
-    static Logger logger = Log.getLogger(EchoServletContextHandler.class);
+    static final Logger logger = LoggerFactory.getLogger(EchoServletContextHandler.class);
 
     private EchoServer echoServer;
     private IResourceProvider resourceProvider;
@@ -48,7 +48,7 @@ public class EchoServletContextHandler
                 resourcePath = resourcePath.substring(1);
             resourceUrl = resourceProvider.getResource(resourcePath);
         } catch (IOException e) {
-            logger.ignore(e);
+            logger.error(e);
             return null;
         }
 
@@ -57,13 +57,7 @@ public class EchoServletContextHandler
             return super.getResource(path);
 
         Resource resource;
-        try {
-            resource = Resource.newResource(resourceUrl);
-        } catch (IOException e) {
-            logger.ignore(e);
-            return null;
-        }
-
+        resource = Resource.newResource(resourceUrl);
         return resource;
     }
 
