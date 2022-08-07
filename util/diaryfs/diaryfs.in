@@ -261,6 +261,7 @@ function mk_symlink() {
 
         local old=$( readlink "$symlink_file" )
         if [ "$goback$target" != "$old" ]; then
+            _log1 "update $symlink_file"
             ln -snf "$goback$target" "$symlink_file"
         fi
     fi
