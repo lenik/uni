@@ -132,35 +132,138 @@ function diaryfs_make_symlinks() {
     local day_0=$( date +"$YYYY_MM_DD" )
     local day_1=$( date +"$YYYY_MM_DD" -d '1 days ago' )
 
+    lang=en
+    if [ $lang = en ]; then
+        K_TODAY=today
+        K_YESTERDAY=yesterday
+        K_DAYS_AGO=_days_ago
+        K_PASTWEEK=past_weekday_
+
+        K_WEEKS_AGO=_weeks_ago
+        K_WEEKDAY=weekday_
+        K_THISWEEK=week
+        K_LASTWEEK=last_week
+
+        K_MONTHS_AGO=_months_ago
+        K_MONTHDAY=day_
+        K_THISMONTH=month
+        K_LASTMONTH=last_month
+    else
+        K_TODAY=今天
+        K_YESTERDAY=昨天
+        K_DAYS_AGO=天以前
+        K_PASTWEEK=过去周
+
+        K_WEEKS_AGO=星期以前
+        K_WEEKDAY=星期
+        K_THISWEEK=本星期
+        K_LASTWEEK=上星期
+
+        K_MONTHS_AGO=月以前
+        K_MONTHDAY=日
+        K_THISMONTH=本月
+        K_LASTMONTH=上月
+    fi
+
     function dayRefInCurrent() {
-        local date="$1"
-        shift
+        local dir="$1"; shift
+        local date="$1"; shift
         local yearMonth="${date%-*}"
         local year="${yearMonth%-*}"
         local datePath="by-date/$year/$yearMonth/$date"
         local tag
+
         for tag in "$@"; do
-            if [ "$opt_dry_run" = 1 ]; then
-                echo ln -snf "../$datePath" "current/$tag"
-            else
-                mkdir -p "$datePath" &&
-                    ln -snf "../$datePath" "current/$tag"
-            fi
+            mk_symlink "$datePath" "$dir/$tag"
         done
     }
 
-    refPrefix='of_'
+    refPrefix=''
     ndays=7
-    dayRefInCurrent "$day_0" "${refPrefix}today"
-    #dayRefInCurrent "$day_1" "${refPrefix}yesterday"
-    for ((i = 1; i <= ndays; i++)); do
-        fmt=$( date +"$YYYY_MM_DD %u_%a" -d "$i days ago" )
-        date="${fmt% *}"
-        weekday="${fmt#* }"
-        dayRefInCurrent "$date" \
-            "${refPrefix}weekday_$weekday" \
-            "${refPrefix}${i}_days_ago"
+        dayRefInCurrent current "$day_0" "${refPrefix}$K_TODAY"
+        dayRefInCurrent current "$day_1" "${refPrefix}$K_YESTERDAY"
+        for ((i = 1; i <= ndays; i++)); do
+            fmt=$( date +"$YYYY_MM_DD %u_%a" -d "$i days ago" )
+            date="${fmt% *}"
+            weekday="${fmt#* }"
+            dayRefInCurrent "current" "$date" \
+                "${refPrefix}$K_PASTWEEK${i}" \
+                "${refPrefix}${i}$K_DAYS_AGO"
+        done
+
+    nweeks=3
+        for ((i = 0; i < nweeks; i++)); do
+            dir="$K_THISWEEK"
+            [ $i != 0 ] && dir="$i$K_WEEKS_AGO"
+            for ((j = 0; j < 7; j++)); do
+                date=$( date +"$YYYY_MM_DD" -d "last monday - $i week + $j day" )
+                dayRefInCurrent "current/$dir" "$date" \
+                    "${refPrefix}$K_WEEKDAY$((j+1))"
+            done
+        done
+        ( cd current; mk_symlink "1$K_WEEKS_AGO" "$K_LASTWEEK" )
+
+    nmonths=3
+        for ((i = 0; i < nmonths; i++)); do
+            dir="$K_THISMONTH"
+            [ $i != 0 ] && dir="$i$K_MONTHS_AGO"
+            m_this=$( date +"$YYYY_MM_DD" -d "- $i month" )
+            m_this_day="${m_this##*-}"
+            #m_begin="${m_this%-*}-01"
+            m_this_mo=${m_this%-*}
+            m_this_year=${m_this_mo%-*}
+
+            local direct=1
+            if [ $direct == 1 ]; then
+                mk_symlink "by-date/$m_this_year/$m_this_mo" "current/$dir"
+            else
+                m_next=$( date +"$YYYY_MM_DD" -d "$((- (i-1) )) month" )
+                m_next_day=${m_next##*-}
+                m_end=$(  date +"$YYYY_MM_DD" -d "$((- (i-1) )) month - $m_next_day day" )
+                #m_end="${m_next%-*}-01"
+                m_end_day=${m_end##*-}
+
+                for ((j=1; j <= m_end_day; j++)); do
+                    j_padded=000$j
+                    j_padded=${j_padded: -2}
+                    date="$m_this_mo-$j_padded"
+                    dayRefInCurrent "current/$dir" "$date" "${refPrefix}$K_MONTHDAY$j"
+                done
+            fi
+        done
+        ( cd current; mk_symlink "1$K_MONTHS_AGO" "$K_LASTMONTH" )
+}
+
+function mk_symlink() {
+    local target="$1"
+    local symlink_file="$2"
+
+    local goback=
+    local remain="$symlink_file"
+    local chop="${remain%/*}"
+    while [ "$chop" != "$remain" ]; do
+        goback="$goback../"
+        remain="$chop"
+        chop="${remain%/*}"
     done
+
+    if [ "$opt_dry_run" = 1 ]; then
+        echo ln -snf "$goback$target" "$symlink_file"
+    else
+        local parent="${symlink_file%/*}"
+        if [ "$parent" != "$symlink_file" ]; then
+            mkdir -p "$parent" || return 1
+        fi
+
+        if [ ! -e "$target" ]; then
+            mkdir -p "$target"
+        fi
+
+        local old=$( readlink "$symlink_file" )
+        if [ "$goback$target" != "$old" ]; then
+            ln -snf "$goback$target" "$symlink_file"
+        fi
+    fi
 }
 
 boot "$@"
