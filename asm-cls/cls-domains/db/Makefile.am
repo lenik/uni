@@ -50,7 +50,10 @@ nets_DATA = \
     lo.db \
     zoo.db \
     zoo-i.db \
-    zoo-pi.db
+    zoo-pi.db \
+    cn1.db \
+    cn2.db \
+    sg1.db
 
 lan.db: lan.db.php
 	php $< >$@

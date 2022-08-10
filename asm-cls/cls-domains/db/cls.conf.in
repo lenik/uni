@@ -3,6 +3,14 @@
 zone "l"                { type master; file "@netsdir@/lan.db"; };
 zone "lo"               { type master; file "@netsdir@/lo.db"; };
 
+zone "c1"               { type master; file "@netsdir@/c1.db"; };
+zone "c2"               { type master; file "@netsdir@/c2.db"; };
+zone "c3"               { type master; file "@netsdir@/c3.db"; };
+zone "cn1"              { type master; file "@netsdir@/cn1.db"; };
+zone "cn2"              { type master; file "@netsdir@/cn2.db"; };
+zone "cn3"              { type master; file "@netsdir@/cn3.db"; };
+zone "sg1"              { type master; file "@netsdir@/sg1.db"; };
+
 zone "j"                { type master; file "@netsdir@/j.db"; };
 zone "zoo"              { type master; file "@netsdir@/zoo.db"; };
 
