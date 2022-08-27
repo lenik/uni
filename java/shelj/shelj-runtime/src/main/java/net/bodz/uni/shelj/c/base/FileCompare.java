@@ -2,6 +2,10 @@ package net.bodz.uni.shelj.c.base;
 
 import java.util.List;
 
+import net.bodz.bas.compare.IListComparator;
+import net.bodz.bas.compare.IListCompareResult;
+import net.bodz.bas.compare.IListCompareResultFormatter;
+import net.bodz.bas.compare.gnudiff.GnuDiffComparator;
 import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.io.Stdio;
 import net.bodz.bas.io.res.tools.StreamReading;
@@ -9,10 +13,6 @@ import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
 import net.bodz.bas.program.skel.BasicCLI;
-import net.bodz.bas.text.diff.DiffComparators;
-import net.bodz.bas.text.diff.DiffEntry;
-import net.bodz.bas.text.diff.IDiffComparator;
-import net.bodz.bas.text.diff.IDiffFormat;
 import net.bodz.bas.vfs.IFile;
 
 /**
@@ -29,7 +29,7 @@ public class FileCompare
      *
      * @option -F =FORMAT
      */
-    protected IDiffFormat diffFormat = IDiffFormat.SIMPLE;
+    protected IListCompareResultFormatter<Object, Object> diffFormat; // XXX= IDiffFormat.SIMPLE;
 
     /**
      * Compare from
@@ -57,16 +57,17 @@ public class FileCompare
             throws Exception {
         if (args.length > 0)
             throw new IllegalArgumentException(nls.tr("unexpected argument: ") + args[0]);
-        IDiffComparator gnudiff = DiffComparators.gnudiff;
+        IListComparator<Object, Object> cmp = new GnuDiffComparator();
         List<String> srcl = src.to(StreamReading.class).readLines();
         List<String> dstl = dst.to(StreamReading.class).readLines();
-        List<DiffEntry> diffs = gnudiff.compareDiff(srcl, dstl);
-        diffFormat.printDiffs(output, srcl, dstl, diffs);
+        IListCompareResult<?, ?> result = cmp.compare(srcl, dstl);
+        diffFormat.format(output, result);
     }
 
     public static void main(String[] args)
             throws Exception {
         new FileCompare().execute(args);
+
     }
 
 }
