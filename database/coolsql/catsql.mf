@@ -1,0 +1,14 @@
+CATMEFLAGS=
+
+out/%.sql: %.sql
+	@mkdir -p out/
+	catme $(CATMEFLAGS) $< >$@
+
+%.lst: %.sql
+	@grep -P '^\s*create\s+table\s' $< | sed -e 's/\s*create\stable\s\+//' -e 's/(\s*$$//' >$@
+	@grep -P '^\s*create\s+view\s' $<  | sed -e 's/\s*create\sview\s\+//'  -e 's/\s\+as\s*$$//' >>$@
+
+%.drop.sql: %.sql
+	@grep -P '^\s*create\s+view\s' $<  | tac | sed -e 's/create\s\+view\s\+/drop view /'  -e 's/\s\+as\s*$$/;/' >$@
+	@grep -P '^\s*create\s+table\s' $< | tac | sed -e 's/create\s\+table\s\+/drop table /' -e 's/(\s*$$/;/' >>$@
+

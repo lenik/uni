@@ -1,6 +1,7 @@
 include libauto/project.am
 
 driverdir=${pkgdatadir}/driver
+incdir = ${includedir}/coolmake
 
 do_subst += -e 's,@driverdir@,${driverdir},g'
 
@@ -14,6 +15,9 @@ dist_bin_SCRIPTS = \
 
 dist_driver_DATA = \
     pg.csd
+
+dist_inc_DATA = \
+    catsql.mf
 
 dist_setup_SCRIPTS = \
     postinst \
