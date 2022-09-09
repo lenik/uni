@@ -1,0 +1,101 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=PostgreSQL dump table in insert DDLs}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] TABLE-PATTERN... }
+
+    . shlib-import cliboot
+    
+    option -h --host =HOSTNAME  "database server host or socket dir"
+    option -p --port =PORT      "database server port number"
+    option -U --username =NAME  "connect as specified database user"
+    option -w --no-password     "never prompt for password"
+    option -W --password        "force password prompt"
+    
+    option -d --dbname =NAME    "select database"
+    option -n --schema =NAME    "select schema"
+    
+    option -o --out =FILE       "dump to this file"
+    option -1 --single-object   "specified by the last arg, other args passed to pg_dump"
+    
+    option -q --quiet
+    option -v --verbose
+    option    --help
+    option    --version
+
+    opt_host=
+    opt_port=
+    opt_username=
+    opt_database=
+    opt_dbname=
+    opt_schema=
+    opt_single=
+    pgdumpopts=()
+
+    opt_out=
+    opt_encoding=
+    
+function setopt() {
+    case "$1" in
+        -h|--host)
+            opt_host="$2";;
+        -p|--port)
+            opt_port="$2";;
+        -U|--username)
+            opt_username="$2";;
+        -w|--no-password)
+            pgdumpopts+=(--no-password);;
+        -W|--password)
+            pgdumpopts+=(--password);;
+        -d|--dbname)
+            opt_dbname="$2";;
+        -n|--schema)
+            opt_schema="$2";;
+        -o|--out)
+            opt_out="$2";;
+        -E|--encoding)
+            opt_encoding="$2";;
+        -1|--single)
+            opt_single=true;;
+        --help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $LOGLEVEL -ge 2 ]; then
+        pgdumpopts+=(--verbose)
+    fi
+    
+    [ -z "$opt_host" ]      || pgdumpopts+=(--host "$opt_host")
+    [ -z "$opt_port" ]      || pgdumpopts+=(--port "$opt_port")
+    [ -z "$opt_username" ]  || pgdumpopts+=(--username "$opt_username")
+    [ -z "$opt_dbname" ]    || pgdumpopts+=(--dbname "$opt_dbname")
+    [ -z "$opt_out" ]       || pgdumpopts+=(--file "$opt_out")
+    [ -z "$opt_encoding" ]  || pgdumpopts+=(--encoding "$opt_encoding")
+    
+    if [ -n "$opt_single" ]; then
+        while [ $# -gt 1 ]; do
+        echo add opt
+            pgdumpopts+=("$1")
+            shift
+        done
+        pgdumpopts+=(--table "$1")
+    else
+        for arg in "$@"; do
+            pgdumpopts+=(--table "$arg")
+        done
+    fi
+    
+    exec pg_dump "${pgdumpopts[@]}" --format=p --inserts
+}
+
+boot "$@"

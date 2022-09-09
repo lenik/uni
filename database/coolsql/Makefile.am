@@ -10,8 +10,18 @@ dist_bin_SCRIPTS = \
     ksql-backup \
     ksql-restore \
     ksql-csv \
+    pg_dump-insert \
     pg_dump-sort \
     pg_dump-split
+
+dist_man_MANS = \
+    ksql.1 \
+    ksql-backup.1 \
+    ksql-restore.1 \
+    ksql-csv.1 \
+    pg_dump-insert.1 \
+    pg_dump-sort.1 \
+    pg_dump-split.1
 
 dist_driver_DATA = \
     pg.csd

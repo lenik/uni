@@ -2,5 +2,6 @@ ksql
 ksql-backup
 ksql-csv
 ksql-restore
+pg_dump-insert
 pg_dump-sort
 pg_dump-split
