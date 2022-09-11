@@ -17,6 +17,19 @@ else
     LOGPREFIX="[$PROGRAM_NAME] "
 fi
 
+function __log() {
+    local fx_on="$1"
+    local fx_off="[0m"
+    shift
+    
+    if [ "$LOGFX" != 1 ]; then
+        fx_on=
+        fx_off=
+    fi
+
+    echo "$fx_on$LOGPREFIX$*$fx_off" >&2
+}
+
 function _log() {
     local fx_=
     local _fx=
@@ -32,7 +45,7 @@ function _log() {
             fi
         fi
         shift
-        echo "$fx_$LOGPREFIX$@$_fx" >&2
+        __log "$fx_" "$@"
     fi
 }
 
@@ -46,11 +59,7 @@ function _warn() {
     fi
 
     if [ $LOGLEVEL -ge $LOGLEVEL_WARN ]; then
-        if [ $LOGFX = 1 ]; then
-            echo "$LOGFX_WARN$LOGPREFIX$@[0m" >&2
-        else
-            echo "$LOGPREFIX$@" >&2
-        fi
+        __log "$LOGFX_WARN" "$@"
     fi
 }
 
@@ -64,11 +73,7 @@ function _error() {
     fi
 
     if [ $LOGLEVEL -ge $LOGLEVEL_ERROR ]; then
-        if [ $LOGFX = 1 ]; then
-            echo "$LOGFX_ERROR$LOGPREFIX$@[0m" >&2
-        else
-            echo "$LOGPREFIX$@" >&2
-        fi
+        __log "$LOGFX_ERROR" "$@"
     fi
 }
 
