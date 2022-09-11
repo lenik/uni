@@ -19,5 +19,6 @@
         pid=$ppid
     done
     
-    echo "failed to find the parent pid closest to $pattern."
-    
+    echo "failed to find the parent pid closest to $pattern." >&2
+    exit 1
+
