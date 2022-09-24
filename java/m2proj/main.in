@@ -208,7 +208,7 @@ function main() {
         fi
     done
     _log2 "Execute:$TIME $RLWRAP $JAVA ${javaopts[@]} -cp ... $appcls ${appopts[@]} $*"
-    exec-v eval $TIME $RLWRAP $JAVA "${javaopts[@]}" -cp "$classpath" "$appcls" "${appopts[@]}" "$@"
+    exec-v $TIME $RLWRAP $JAVA "${javaopts[@]}" -cp "$classpath" "$appcls" "${appopts[@]}" "$@"
 }
 
 function exec-v() {
