@@ -12,7 +12,11 @@ Package: router-vendor-utils
 Architecture: all
 Depends:
     bash-shlib,
+    curl,
     wget,
+    xml2,
     ${misc:Depends}
+Recommends:
+    xdg-utils
 Description: Router vendor-dependent utils
     This package contains utilities to manipulate network router devices.

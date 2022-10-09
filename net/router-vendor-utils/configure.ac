@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([router-vendor-utils], [0.3.0], [xjl-bug@99jsj.com])
+AC_INIT([router-vendor-utils], [0.4.0], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 
 # Checks for programs.
