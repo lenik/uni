@@ -93,13 +93,13 @@ public class VisualCSS
     }
 
     @Override
-    protected void _exit()
+    protected void _exit(int status)
             throws Exception {
         String pagevXml = XMLs.encode(pagev);
         String cssvXml = XMLs.encode(cssv);
         preferences.put(KEY_PAGEV, pagevXml);
         preferences.put(KEY_CSSV, cssvXml);
-        super._exit();
+        super._exit(status);
     }
 
     @Override
