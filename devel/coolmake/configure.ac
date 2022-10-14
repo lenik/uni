@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([coolmake], [0.6.1], [xjl@99jsj.com])
+AC_INIT([coolmake], [0.6.2], [xjl@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 
 # Checks for programs.

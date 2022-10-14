@@ -21,6 +21,7 @@ bin_files = \
 src_excludes = \
     target
 
+rsync_excludes =
 
 all: \
     ../$(project).bin.tar.gz \
@@ -94,8 +95,12 @@ deploy: ${deploy_archives}
 rsync-dist: ${deploy_archives}
 	tmpdir=`mktemp -d`; \
 	tar -xz -C $$tmpdir -f ${deploy_archives}; \
-	rsync -camv --delete $$tmpdir/* ${remotehostdir}
+	rsync -camv -L --delete \
+	    $(addprefix --exclude=, $(rsync_excludes)) \
+            $$tmpdir/* ${remotehostdir}
 
 rsync:
-	rsync -camv --delete . ${remotehostdir}
+	rsync -camv -L --delete \
+	    $(addprefix --exclude=, $(rsync_excludes)) \
+            . ${remotehostdir}
 
