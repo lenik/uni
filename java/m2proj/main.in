@@ -2,7 +2,7 @@
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
     : ${PACKAGE:=@PACKAGE@}
     : ${PROGRAM_TITLE:=Java application launcher for Maven projects}
-    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <app-alias> [app-options...]}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <app-name> [app-options...]}
 
     : ${JAVA:=java}
 
@@ -12,9 +12,13 @@
     appopts=()
 
     . shlib-import cliboot
+    option -c --class                   "Use FQCN for app-name, don't use program launcher"
     option -d --debug                   "Enable debug mode"
     option -D --property =key=value     "Specify system property, the same as -O -Dkey=value"
     option -O --java-opt =OptionSpec    "Add java option, eg. -O -Dfoo=bar or -O-Dfoo=bar"
+    option -g --codegen                 "Generate the command script, don't run the app"
+    option -L --lang =TYPE              "script langauge, default sh"
+    option -j --search-jars             "Search program aliases in jars"
     option -p --port =PORT              "Specify debug (JDWP) port, default 8000"
     option -P --profiler                "Run profiler for the app"
     option -r --project-dir =DIR        "Specify the project dir"
@@ -33,7 +37,11 @@
     app_name=
 
     opt_project_dir=.
+    opt_class=0
     opt_debug=
+    opt_codegen=
+    opt_codelang=sh
+    opt_search_jars=
     opt_port=8000
     opt_profiler=
     opt_timing=
@@ -45,12 +53,20 @@
 
 function setopt() {
     case "$1" in
+        -c|--class)
+            opt_class=1;;
         -d|--debug)
             opt_debug=1;;
         -D|--property)
             opt_props+=("$2");;
         -r|--project-dir)
             opt_project_dir="$2";;
+        -g|--codegen)
+            opt_codegen=1;;
+        -L|--lang)
+            opt_codelang="$2";;
+        -s|--search-jars)
+            opt_search_jars=1;;
         -t|--timing)
             opt_timing=1;;
         -O|--java-opt)
@@ -131,6 +147,7 @@ function main() {
     for jo in "${opt_javaopts[@]}"; do javaopt "$jo";   done
 
     classpath=
+    classpath_items=()
     classdirs=()
         add_cp "$opt_project_dir"/target/test-classes
         add_cp "$opt_project_dir"/target/classes
@@ -153,50 +170,33 @@ function main() {
         fi
         classpath="${classpath#:}"
 
-    appcls=()
-        if [ "${app_name/./}" != "${app_name}" ]; then # qualified.
-            appcls+=( "$app_name" )
-        fi
-
-        for classdir in "${classdirs[@]}"; do
-            qname=()
-            # find in programs
-            programs="$classdir/META-INF/programs"
-            if [ -f $programs ]; then
-                while IFS='= ' read _key _scope _cls; do
-                    if [ "$_key" = "$app_name" ]; then
-                        qname+=("$_cls")
-                    fi
-                done <$programs
+    if [ "$opt_class" != 1 ]; then
+        # Defined in bas-api
+        appcls=net.bodz.bas.program.ProgramLauncher
+        appopts+=("$app_name")
+    else
+        appcls=()
+            if [ "${app_name/./}" != "${app_name}" ]; then # qualified.
+                appcls+=( "$app_name" )
             fi
 
-            # find by simple classname
-            if [ ${#qname[@]} = 0 ]; then
-                for a in $(find "$classdir" -iname "$app_name.class"); do
-                    a="${a[0]}"
-                    classdirlen=${#classdir}
-                    a=${a:classdirlen}
-                    a=${a#/}
-                    a=${a%.class}
-                    a=${a//\//.}
-                    qname+=("$a" )
+            for item in "${classpath_items[@]}"; do
+                scan_item "$item"
+                appcls+=( "${qname[@]}" )
+            done
+
+        n=${#appcls[@]}
+        if [ $n != 1 ]; then
+            if [ $n = 0 ]; then
+                _error "No such app: $app_name"
+            else
+                _error "Name ambiguous:"
+                for a in "${appcls[@]}"; do
+                    _error "    $a"
                 done
             fi
-
-            appcls+=( "${qname[@]}" )
-        done
-
-    n=${#appcls[@]}
-    if [ $n != 1 ]; then
-        if [ $n = 0 ]; then
-            _error "No such app: $app"
-        else
-            _error "Name ambiguous:"
-            for a in "${appcls[@]}"; do
-                _error "    $a"
-            done
+            exit 1
         fi
-        exit 1
     fi
 
     TIME=
@@ -218,8 +218,98 @@ function main() {
             break
         fi
     done
-    _log2 "Execute:$TIME $RLWRAP $JAVA ${javaopts[@]} -cp ... $appcls ${appopts[@]} $*"
-    exec-v $TIME $RLWRAP $JAVA "${javaopts[@]}" -cp "$classpath" "$appcls" "${appopts[@]}" "$@"
+
+    _log2 "Execute:$TIME $RLWRAP $JAVA -cp ... ${javaopts[@]} $appcls ${appopts[@]} $*"
+    cmdv=($TIME $RLWRAP $JAVA -cp "$classpath" "${javaopts[@]}" "$appcls" "${appopts[@]}" "$@")
+    if [ "$opt_codegen" = 1 ]; then
+        case "$opt_codelang" in
+        *)
+            echo '#!/bin/sh'
+            echo '    cp='
+            echo '    add_cp() {'
+            echo '        if test -n "$cp"; then cp="$cp:"; fi'
+            echo '        cp="$cp:$1";'
+            echo '    }'
+            echo
+
+            for a in "${classpath_items[@]}"; do
+                echo "    add_cp \"$a\""
+            done
+            echo
+
+            echo -n "    exec"
+            for a in $TIME $RLWRAP $JAVA; do echo -n " \"$a\""; done
+            echo " \\"
+
+            echo -n "       "
+            for a in "${javaopts[@]}"; do echo -n " \"$a\""; done
+            echo " \\"
+
+            echo "        -cp \"\$cp\" \\"
+            echo "        \"$appcls\" \\"
+
+            echo -n "       "
+            for a in "${appopts[@]}"; do echo -n " \"$a\""; done
+            echo " \\"
+
+            echo -n "       "
+            for a in "$@"; do echo -n " \"$a\""; done
+            echo
+            ;;
+        esac
+    else
+        exec-v "${cmdv[@]}"
+    fi
+}
+
+function scan_item() {
+    local item="$1"
+    local qname=()
+
+    [ -e "$item" ] || return
+
+    # find in programs
+    if [ -d "$item" ]; then
+        local programs="$item/META-INF/programs"
+        if [ -f $programs ]; then
+            while IFS='= ' read _key _scope _cls; do
+                if [ "$_key" = "$app_name" ]; then
+                    qname+=("$_cls")
+                fi
+            done <$programs
+        fi
+    elif [ "$opt_search_jars" = 1 ]; then
+        _log2 "search META-INF/programs in $item ..."
+        while IFS='= ' read _key _scope _cls; do
+            if [ "$_key" = "$app_name" ]; then
+                qname+=("$_cls")
+            fi
+        done < <(unzip -p "$item" META-INF/programs 2>/dev/null)
+    fi
+
+    # find by simple classname
+    if [ ${#qname[@]} = 0 ]; then
+        if [ -d "$item" ]; then
+            local item_len=${#item}
+            for a in $(find "$item" -iname "$app_name.class"); do
+                a="${a[0]}"
+                a=${a:item_len + 1}     # +1: trailing /
+                a=${a%.class}
+                a=${a//\//.}
+                qname+=("$a")
+            done
+        elif [ "$opt_search_jars" = 1 ]; then
+            _log2 "search $app_name.class in $item ..."
+            local app_name_len=${#app_name}
+            while read a; do
+                a="${a%.class}"
+                local char_before=${a: -app_name_len - 1:1}
+                [ "$char_before" == '/' ] || continue
+                a=${a//\//.}
+                qname+=("$a")
+            done < <(jar tf "$item" | grep "$app_name\.class")
+        fi
+    fi
 }
 
 function exec-v() {
@@ -236,6 +326,7 @@ function add_cp() {
     for a in "$@"; do
         _log2 "add-classpath: $a"
         classpath="$classpath:$a"
+        classpath_items+=("$a")
 
         if [ -d "$a" ]; then
             classdirs+=("$a")
