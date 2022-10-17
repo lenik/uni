@@ -104,3 +104,10 @@ rsync:
 	    $(addprefix --exclude=, $(rsync_excludes)) \
             . ${remotehostdir}
 
+lib-updater:
+	main lib-updater -dlib -saj    -o classpath.release.lst
+	main lib-updater -dlib -sam -k -o classpath.debug.lst
+
+lib-updater-O:
+	mjava -O lib-updater
+
