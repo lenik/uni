@@ -91,6 +91,7 @@ RELEASE-NOTES                           # coolmaven
 Rules-quot                              # gettextize
 aclocal.m4
 autom4te.cache/
+classpath.*                             # m2proj
 compile                                 # AC_PROG_CC
 config.guess
 config.h

@@ -226,35 +226,50 @@ function main() {
         *)
             echo '#!/bin/sh'
             echo '    cp='
-            echo '    add_cp() {'
-            echo '        if test -n "$cp"; then cp="$cp:"; fi'
-            echo '        cp="$cp:$1";'
-            echo '    }'
-            echo
 
-            for a in "${classpath_items[@]}"; do
-                echo "    add_cp \"$a\""
-            done
-            echo
+            if [ ${#classpath_items[@]} != 0 ]; then
+                echo
+                echo '    add_cp() {'
+                echo '        if test -n "$cp"; then cp="$cp:"; fi'
+                echo '        cp="$cp:$1";'
+                echo '    }'
+                echo
 
+                for a in "${classpath_items[@]}"; do
+                    echo "    add_cp \"$a\""
+                done
+            fi
+
+            echo
             echo -n "    exec"
             for a in $TIME $RLWRAP $JAVA; do echo -n " \"$a\""; done
             echo " \\"
 
-            echo -n "       "
-            for a in "${javaopts[@]}"; do echo -n " \"$a\""; done
-            echo " \\"
+            if [ ${#javaopts[@]} != 0 ]; then
+                echo -n "       "
+                for a in "${javaopts[@]}"; do echo -n " \"$a\""; done
+                echo " \\"
+            fi
 
-            echo "        -cp \"\$cp\" \\"
+            if [ -n "$classpath" ]; then
+                echo "        -cp \"\$cp\" \\"
+            fi
+
             echo "        \"$appcls\" \\"
 
-            echo -n "       "
-            for a in "${appopts[@]}"; do echo -n " \"$a\""; done
-            echo " \\"
+            if [ ${#appopts[@]} != 0 ]; then
+                echo -n "       "
+                for a in "${appopts[@]}"; do echo -n " \"$a\""; done
+                echo " \\"
+            fi
 
-            echo -n "       "
-            for a in "$@"; do echo -n " \"$a\""; done
-            echo
+            if [ $# != 0 ]; then
+                echo -n "       "
+                for a in "$@"; do echo -n " \"$a\""; done
+                echo " \\"
+            fi
+
+            echo "        \"\$@\""
             ;;
         esac
     else

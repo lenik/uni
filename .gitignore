@@ -91,6 +91,7 @@ RELEASE-NOTES
 Rules-quot
 aclocal.m4
 autom4te.cache/
+classpath.*
 compile
 config.guess
 config.h
