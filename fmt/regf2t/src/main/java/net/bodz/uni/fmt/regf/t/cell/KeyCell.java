@@ -225,7 +225,7 @@ public class KeyCell
             throws IOException {
         switch (field) {
         case "flags":
-            out._attribute("flags", flagsTyper.format(flags & 0xffff));
+            out.attribute("flags", flagsTyper.format(flags & 0xffff));
             return true;
         }
         return super.writeSpecialRstEntry(out, field);

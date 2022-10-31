@@ -148,7 +148,7 @@ public class ValueCell
         switch (field) {
         case "valueType":
             String valueTypeName = RegValueType.values()[valueType].name();
-            out._attribute("valueType", valueTypeName);
+            out.attribute("valueType", valueTypeName);
             return true;
         }
         return super.writeSpecialRstEntry(out, field);
