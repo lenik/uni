@@ -1,12 +1,17 @@
 ; vim: set filetype=bindzone :
 ; Example   IN  3600    MX  10  Parameters...
 
+kr1             3600    A       IP_KR1
 hk1             3600    A       IP_HK1
 sg1             3600    A       IP_SG1
 us1             3600    A       IP_US1
 cn1             3600    A       IP_CN1
 
+ns1             3600    A       IP_KR1
+ns2             3600    A       IP_SG1
+ns3             3600    A       IP_KR1
+ns4             3600    A       IP_SG1
+
 c-1                     CNAME   lenik.3322.org.
 c-2                     CNAME   lenik.dyndns.org.
 c-3                     CNAME   bee32.8866.org.
-

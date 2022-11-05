@@ -1,38 +1,38 @@
 # vim: set filetype=named :
 
-zone "l"                { type master; file "@netsdir@/lan.db"; };
-zone "lo"               { type master; file "@netsdir@/lo.db"; };
+zone "l"                    { type master; file "@netsdir@/lan.db"; };
+zone "lo"                   { type master; file "@netsdir@/lo.db"; };
 
-zone "c1"               { type master; file "@netsdir@/c1.db"; };
-zone "c2"               { type master; file "@netsdir@/c2.db"; };
-zone "c3"               { type master; file "@netsdir@/c3.db"; };
-zone "cn1"              { type master; file "@netsdir@/cn1.db"; };
-zone "cn2"              { type master; file "@netsdir@/cn2.db"; };
-zone "cn3"              { type master; file "@netsdir@/cn3.db"; };
-zone "sg1"              { type master; file "@netsdir@/sg1.db"; };
+zone "j"                    { type master; file "@netsdir@/zoo_j.db"; };
+zone "zoo"                  { type master; file "@netsdir@/zoo.db"; };
 
-zone "j"                { type master; file "@netsdir@/j.db"; };
-zone "zoo"              { type master; file "@netsdir@/zoo.db"; };
+zone "1na.net"              { type master; file "@lenikdir@/1na.db"; };
+zone "99jsj.com"            { type master; file "@lenikdir@/99jsj.db"; };
+zone "bela.cn"              { type master; file "@lenikdir@/bela.db"; };
+zone "bodz.net"             { type master; file "@lenikdir@/bodz.db"; };
+zone "bossnova.org"         { type master; file "@lenikdir@/bossnova.db"; };
+zone "c1904.com"            { type master; file "@lenikdir@/c1904.db"; };
+zone "ebja.com"             { type master; file "@lenikdir@/ebja.db"; };
+zone "its-it.org"           { type master; file "@lenikdir@/its-it.db"; };
+zone "lenik.net"            { type master; file "@lenikdir@/lenik.db"; };
+zone "lilyfond.com"         { type master; file "@lenikdir@/lilyfond.com.db"; };
+zone "lilyfond.org"         { type master; file "@lenikdir@/lilyfond.org.db"; };
+zone "mia.cn"               { type master; file "@lenikdir@/mia.db"; };
+zone "node-z.org"           { type master; file "@lenikdir@/node-z.db"; };
+zone "ooojjj.com"           { type master; file "@lenikdir@/ooojjj.db"; };
+zone "peegoo.org"           { type master; file "@lenikdir@/peegoo.db"; };
+zone "pfpf.net"             { type master; file "@lenikdir@/pfpf.db"; };
+zone "rainfield.me"         { type master; file "@lenikdir@/rainfield.db"; };
+zone "selfbuy.net"          { type master; file "@lenikdir@/selfbuy.db"; };
+zone "topcroak.com"         { type master; file "@lenikdir@/topcroak.db"; };
+zone "xn--1rwrwm3a.com"     { type master; file "@lenikdir@/浅水湾.db"; };
+zone "xn--dj1a291b.com"     { type master; file "@lenikdir@/集英.db"; };
+zone "xn--fizp2rftq.com"    { type master; file "@lenikdir@/集英社.db"; };
+zone "xn--iqvs52d43q.com"   { type master; file "@lenikdir@/花骨朵.db"; };
+zone "xn--iuzn16a.net"      { type master; file "@lenikdir@/童话.db"; };
+zone "xn--rhtv21e.com"      { type master; file "@lenikdir@/空山.db"; };
+zone "xn--vcsoer8lm35a.net" { type master; file "@lenikdir@/国家地理.db"; };
+zone "xn--yets94djwi.com"   { type master; file "@lenikdir@/小睡莲.db"; };
+zone "xor.cn"               { type master; file "@lenikdir@/xor.db"; };
+zone "youmute.org"          { type master; file "@lenikdir@/youmute.db"; };
 
-zone "1na.net"          { type master; file "@lenikdir@/1na.db"; };
-zone "99jsj.com"        { type master; file "@lenikdir@/99jsj.db"; };
-zone "bela.cn"          { type master; file "@lenikdir@/bela.db"; };
-zone "bodz.net"         { type master; file "@lenikdir@/bodz.db"; };
-zone "c1904.com"        { type master; file "@lenikdir@/c1904.db"; };
-zone "ebja.com"         { type master; file "@lenikdir@/ebja.db"; };
-zone "lenik.net"        { type master; file "@lenikdir@/lenik.db"; };
-zone "mia.cn"           { type master; file "@lenikdir@/mia.db"; };
-zone "ooojjj.com"       { type master; file "@lenikdir@/ooojjj.db"; };
-zone "pfpf.net"         { type master; file "@lenikdir@/pfpf.db"; };
-zone "selfbuy.net"      { type master; file "@lenikdir@/selfbuy.db"; };
-zone "topcroak.com"     { type master; file "@lenikdir@/topcroak.db"; };
-zone "xor.cn"           { type master; file "@lenikdir@/xor.db"; };
-
-zone "xn--dj1a291b.com"         { type master; file "@lenikdir@/集英.db"; };
-zone "xn--fizp2rftq.com"        { type master; file "@lenikdir@/集英社.db"; };
-zone "xn--iqvs52d43q.com"       { type master; file "@lenikdir@/花骨朵.db"; };
-zone "xn--iuzn16a.net"          { type master; file "@lenikdir@/童话.db"; };
-zone "xn--rhtv21e.com"          { type master; file "@lenikdir@/空山.db"; };
-zone "xn--1rwrwm3a.com"         { type master; file "@lenikdir@/浅水湾.db"; };
-zone "xn--vcsoer8lm35a.net"     { type master; file "@lenikdir@/国家地理.db"; };
-zone "xn--yets94djwi.com"       { type master; file "@lenikdir@/小睡莲.db"; };

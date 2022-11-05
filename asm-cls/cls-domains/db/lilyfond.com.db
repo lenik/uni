@@ -8,6 +8,5 @@ $INCLUDE inc/instances.db
 
 0                       CNAME   sg1
 
-xn--566a                CNAME   0               ; 鸟
-
 $INCLUDE inc/auto.db
+

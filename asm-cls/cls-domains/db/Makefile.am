@@ -31,24 +31,37 @@ lenik_DATA = \
     99jsj.db \
     bela.db \
     bodz.db \
+    bossnova.db \
     c1904.db \
+    ebja.db \
+    its-it.db \
+    lenik.db \
+    lilyfond.com.db \
+    lilyfond.org.db \
     mia.db \
+    node-z.db \
     ooojjj.db \
+    peegoo.db \
     pfpf.db \
+    rainfield.db \
     selfbuy.db \
+    topcroak.db \
     xor.db \
+    youmute.db \
     国家地理.db \
+    小睡莲.db \
+    浅水湾.db \
+    空山.db \
+    童话.db \
     花骨朵.db \
     集英.db \
-    集英社.db \
-    空山.db \
-    浅水湾.db \
-    童话.db
+    集英社.db
 
 nets_DATA = \
     lan.db \
     lo.db \
     zoo.db \
+    zoo_j.db \
     zoo-i.db \
     zoo-pi.db \
     cn1.db \
@@ -59,19 +72,13 @@ lan.db: lan.db.php
 	php $< >$@
 
 CLEANFILES = \
-    ${bindconf_DATA} \
-    ${lenik_DATA} \
-    ${inc_DATA} \
-    ${nets_DATA}
+    cls.conf \
+    instances.db
 
 dist-hook:
 	cp ${srcdir}/*.in ${distdir}
 
 install-data-hook:
-	ln -sn bodz.db  ${DESTDIR}${lenikdir}/ebja.db
-	ln -sn bodz.db  ${DESTDIR}${lenikdir}/lenik.db
-	ln -sn bodz.db  ${DESTDIR}${lenikdir}/topcroak.db
-	ln -sn zoo.db   ${DESTDIR}${netsdir}/j.db
 
 # Eval inst:*[ipw] using substcat
 %: %.in Makefile

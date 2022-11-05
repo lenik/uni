@@ -2,7 +2,7 @@
 ; Example   IN  3600    MX  10  Parameters...
 
 $INCLUDE inc/soa.db
-$INCLUDE inc/mail-qq.db
+$INCLUDE inc/mail-google.db
 $INCLUDE inc/default.db
 $INCLUDE inc/instances.db
 
@@ -11,4 +11,3 @@ $INCLUDE inc/instances.db
 xn--54qw71c             CNAME   0               ; 时光
 
 $INCLUDE inc/auto.db
-

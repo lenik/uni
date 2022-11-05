@@ -1,0 +1,17 @@
+; vim: set filetype=bindzone :
+; Example   IN  3600    MX  10  Parameters...
+
+kr1             3600    A       43.201.144.10
+hk1             3600    A       18.166.93.215
+sg1             3600    A       3.1.127.58
+us1             3600    A       54.83.26.26
+cn1             3600    A       121.43.146.153
+
+ns1             3600    A       43.201.144.10
+ns2             3600    A       3.1.127.58
+ns3             3600    A       43.201.144.10
+ns4             3600    A       3.1.127.58
+
+c-1                     CNAME   lenik.3322.org.
+c-2                     CNAME   lenik.dyndns.org.
+c-3                     CNAME   bee32.8866.org.
