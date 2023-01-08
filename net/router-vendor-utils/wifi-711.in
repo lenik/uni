@@ -5,13 +5,23 @@
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
     . shlib-import cliboot
-    option -o --logout      'Logout instead of login'
+    option -p --phone =NUM          'Specify the mobile phone no'
+    option -s --sms-code =CODE      'Specify the SMS verification code'
+    option -f --force               'Force re-login'
+    option -o --logout              'Logout instead of login'
+    option -d --debug               'Debug mode. keep temp files.'
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
 
+    CURL=$(which curl)
+
+    opt_phone=
+    opt_smscode=
+    opt_force=0
     opt_logout=0
+    opt_debug=0
     
     url_host=
     url_port=
@@ -21,8 +31,16 @@
     
 function setopt() {
     case "$1" in
+        -p|--phone)
+            opt_phone="$2";;
+        -s|--sms-code)
+            opt_smscode="$2";;
+        -f|--force)
+            opt_force=1;;
         -o|--logout)
             opt_logout=1;;
+        -d|--debug)
+            opt_debug=1;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -37,19 +55,21 @@ function setopt() {
 }
 
 function cleanup() {
-    case "$tmp" in
+    case "$workdir" in
     /tmp/*)
-        if [ -f "$tmp" ]; then
-            _log2 "Remove temp file $tmp."
-            rm -f -- "$tmp"
+        if [ "$opt_debug" != 1 ]; then
+            if [ -e "$workdir" ]; then
+                _log2 "Remove temp workdir $workdir."
+                rm -fr -- "$workdir"
+            fi
         fi
     esac
 }
 
 function main() {
-    tmp=`mktemp`
+    workdir=`mktemp -d`
     trap cleanup 0
-    curl -s http://10.2.160.1 | sed -e 's/&/&amp;/g' >$tmp
+    curl -s http://10.2.160.1 | sed -e 's/&/&amp;/g' >$workdir/start.html
     
     while IFS== read k v; do
         case "$k" in
@@ -60,7 +80,7 @@ function main() {
             /WISPAccessGatewayParam/Proxy/ResponseCode)
                 respcode="$v";;
         esac
-    done < <(xml2 <$tmp 2>/dev/null)
+    done < <(xml2 <$workdir/start.html 2>/dev/null)
 
     header 'Connection: keep-alive'
     header 'sec-ch-ua: "Google Chrome";v="105", "Not)A;Brand";v="8", "Chromium";v="105"'
@@ -80,8 +100,10 @@ function main() {
         logout
     else
         if [ -z "$respcode" ]; then
-            _log1 "Already logged in."
-            return 0
+            if [ "$opt_force" != 1 ]; then
+                _log1 "Already logged in."
+                return 0
+            fi
         fi
         
         _log1 "msgtype $msgtype, respcode $respcode, next $nexturl"
@@ -94,9 +116,8 @@ function main() {
 }
 
 function login() {
-    htmltmp=`mktemp --suffix=.html`
-    echo "<base href=\"$nexturl\">" >$htmltmp
-    GET -s -L "$nexturl" >>$htmltmp
+    echo "<base href=\"$nexturl\">" >$workdir/next.html
+    GET -s -L "$nexturl" >>$workdir/next.html
     
     input_name=
     declare -A form
@@ -107,17 +128,50 @@ function login() {
             /html/body/div/form/div/input/@value)
                 form[$input_name]="$v";;
         esac
-    done < <(html2 <$htmltmp 2>/dev/null)
+    done < <(sed -e '1,6d' $workdir/next.html | html2 2>/dev/null)
     
     # for k in "${!form[@]}"; do echo "$k => ${form[$k]}"; done
-    read -p 'Enter you phone number: ' phoneNo
-    param phoneNo="$phoneNo"
-    param jikeId=${form[jikeId]}
-    param usermac=${form[usermac]}
-    param wlanuserip=${form[wlanuserip]}
-    
-    POST https://112.15.229.33:5090/applyDynaPasswd.do | iconv -f gb2312 -t utf8
-    xdg-open "$htmltmp"
+    if [ -z "$opt_smscode" ]; then
+        while true; do
+            if [ -z "$opt_phone" ]; then
+                read -p 'Enter you phone number: ' opt_phone
+            fi
+            param phoneNo="$opt_phone"
+            param jikeId=${form[jikeId]}
+            param usermac=${form[usermac]}
+            param wlanuserip=${form[wlanuserip]}
+            
+            _log1 "request for SMS verification code"
+            POST "https://112.15.229.33:5090/applyDynaPasswd.do" \
+                | iconv -f gbk -t utf8 \
+                | tee "$workdir/sms.resp"
+
+            read sms_resp < $workdir/sms.resp
+            case "$sms_resp" in
+                '动态密码已经下发到手机中'*)
+                    phone_ok=1;;
+                *)
+                    opt_phone=
+                    continue
+                    ;;
+            esac
+            break
+        done
+
+        read -p "Enter SMS verification code: " opt_smscode
+    fi
+
+    # Read all form entries
+        for k in "${!form[@]}"; do
+            v="${form[$k]}"
+            param "$k=$v"
+        done
+        smsenc=$(encrypt "$opt_smscode")
+        param password="$smsenc"
+
+    POST "https://112.15.229.33:5090/login.do" | tee "$workdir/login.html"
+
+    xdg-open "$workdir/login.html"
 }
 
 function logout() {
@@ -129,6 +183,7 @@ function logout() {
 function param() {
     local arg
     for arg in "$@"; do
+        _log2 "Parameter: $arg"
         if [ -z "$params" ]; then
             params="?$arg"
         else
@@ -203,6 +258,17 @@ function POST() {
         "$url"
     
     params=
+}
+
+function curl() {
+    _log1 "Execute: $CURL $*"
+    "$CURL" "$@"
+}
+
+function encrypt() {
+    openssl enc -aes-256-cbc -nosalt -e -in <(echo -n "$1") \
+        -K  3132333435363738393041424344454631323334353637383930414243444566 \
+        -iv 30313233343536373839414243444546 | xxd -p
 }
 
 boot "$@"
