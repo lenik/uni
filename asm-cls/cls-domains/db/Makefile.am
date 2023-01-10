@@ -39,6 +39,7 @@ lenik_DATA = \
     lilyfond.com.db \
     lilyfond.org.db \
     mia.db \
+    mine.db \
     node-z.db \
     ooojjj.db \
     peegoo.db \

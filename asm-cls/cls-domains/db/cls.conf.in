@@ -3,9 +3,10 @@
 zone "l"                    { type master; file "@netsdir@/lan.db"; };
 zone "lo"                   { type master; file "@netsdir@/lo.db"; };
 
-zone "j"                    { type master; file "@netsdir@/zoo_j.db"; };
 zone "zoo"                  { type master; file "@netsdir@/zoo.db"; };
+zone "j"                    { type master; file "@netsdir@/zoo_j.db"; };
 
+zone "m"                    { type master; file "@lenikdir@/mine.db"; };
 zone "1na.net"              { type master; file "@lenikdir@/1na.db"; };
 zone "99jsj.com"            { type master; file "@lenikdir@/99jsj.db"; };
 zone "bela.cn"              { type master; file "@lenikdir@/bela.db"; };
