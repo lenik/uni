@@ -13,6 +13,8 @@ Package: locmore
 Architecture: all
 Depends: 
     perl,
+    libcmt-perl,
+    libdir-self-perl,
     ${misc:Depends}
 Description: Make your code looks more lines.
 

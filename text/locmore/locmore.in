@@ -1,0 +1,241 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+a - 
+=cut
+use strict;
+use vars qw($LOGNAME $LOGLEVEL);
+use cmt::log(2);
+    $LOGNAME    = 'a'; # $0 =~ /([^\/\\.]+)(?:\.\w+)*$/;
+use cmt::vcs('parse_id');
+    my %RCSID   = parse_id('$Id: - @VERSION@ @DATE@ @TIME@ - $');
+use Cwd('abs_path');
+use Dir::Self;
+use File::Basename;
+use Getopt::Long;
+    Getopt::Long::Configure('gnu_getopt');
+
+sub _main; sub _version; sub _help;
+
+    our $opt_datadir = '@datadir@';
+    our $opt_company = 'EXAMPLE COMPANY';
+    our $opt_cpad = '    ';
+    
+sub _boot {
+    my $src = __FILE__;
+    $src = abs_path($src) if -l $src;
+    my $dir = dirname($src);
+
+    if ($opt_datadir =~ /^@/) {
+        $opt_datadir = $dir;
+    }
+    
+    GetOptions('q|quiet'        => sub { $LOGLEVEL-- },
+               'v|verbose'      => sub { $LOGLEVEL++ },
+               'version'        => sub { _version; exit 0 },
+               'h|help'         => sub { _help; exit 0 },
+               'C|company=s'    => \$opt_company,
+               'c|comment-indent=s' => \$opt_cpad,
+               )
+        or exit(1);
+    _main;
+}
+
+=head1 SYNOPSIS
+
+B<a>
+    S<[ B<-q> | B<--quiet> ]>
+    S<[ B<-v> | B<--verbose> ]>
+    S<[ B<-h> | B<--help> ]>
+    S<[ B<--version> ]>
+    S<[ B<--> ]>
+    S<[ I<...the rest of arguments...> ]>
+
+=head1 DESCRIPTION
+
+B<a> is a WHAT used for WHAT. It HOW-WORKS.
+
+BACKGROUND-PROBLEM.
+
+HOW-a-RESOLVES.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-m> | B<--my-option>
+
+...
+
+=item B<-q> | B<--quiet>
+
+Repeat this option to suppress unimportant information to display.
+
+=item B<-v> | B<--verbose>
+
+Repeat this option to display more detailed information.
+
+=item B<-h> | B<--help>
+
+Display a breif help page and exit(0).
+
+=item B<--version>
+
+Display a short version information and exit(0).
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item Show help
+
+    a --help
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 8
+
+=item TEMP, TMP
+
+TEMP(or TMP, if $TEMP directory isn't existed) directory used to create
+temporary files.
+
+=back
+
+=cut
+sub _help {
+    &_version;
+    print "\nSyntax: \n    $0 [OPTION] [--] ...\n", <<'EOM';
+
+Options:
+    -C, --company =NAME         Specify company name in the license text
+    -c, --comment-indent =STR   Indent chars for license comments
+    
+Common options:
+    -q, --quiet                 Repeat to get less info
+    -v, --verbose               Repeat to get more info
+    -h, --help                  Show this help page
+        --version               Print the version info
+EOM
+}
+
+exit (_boot or 0);
+
+sub _main {
+    my $license_path = "$opt_datadir/license.txt";
+    my @templ;
+    open(FH, $license_path) || die "can't read $license_path";
+    while (<FH>) {
+        s/\[COMPANY NAME\]/$opt_company/g;
+        push @templ, $_;
+    }
+    close FH;
+    
+    my $type = '';
+    my $line = 0;
+    my $pending = '';
+
+    while (<>) {
+        if (/^[\/.].*\.(\w+)\s*[:]?\s*$/) {
+            $type = $1;
+            $line = 0;
+            print;
+            next;
+        }
+        $line++;
+    
+        if ($line == 1) {
+            if ($type eq 'java') {
+                print "$opt_cpad/**\n";
+                for (@templ) {
+                    print "$opt_cpad * $_";
+                }
+                print "$opt_cpad */\n";
+            } elsif ($type eq 'xml') {
+                print "$opt_cpad<!--\n";
+                for (@templ) {
+                    print "$opt_cpad  -- $_";
+                }
+                print "$opt_cpad  -->\n";
+            }
+        }
+        
+        if ($type eq 'java') {
+            if (/^(\s*)\}(\s*)(\S.*)$/) {
+                my ($lead, $sp, $other) = ($1, $2, $3);
+                print "$lead}\n";
+                $_ = "$lead$other\n";
+            }
+            if (/^(\s*)(.*?)(\S)\s*$/) {
+                my ($lead, $stuff, $stop) = ($1, $2, $3);
+                my $content = "$stuff$stop";
+                my $ord = index('{[(<`"\'', $stop);
+                if ($ord != -1) { # pending...
+                    my $pad = $pending || $lead;
+                    #print "P<$pending>, L<$lead>, D<$pad>\n";
+                    print "$lead$stuff\n";
+                    print "$pad$stop\n";
+                    $pending = '';
+                } else {
+                    if ($stop ne ';') {
+                        $pending = $pending || $lead;
+                    } else {
+                        $pending = '';
+                    }
+                    print;
+                }
+            } else {
+                print;
+            }
+            
+            next;
+        }
+        
+        print;
+    }
+}
+
+=head1 DIAGNOSTICS
+
+(No Information)
+
+=cut
+# (HELPER FUNCTIONS)
+
+=head1 HACKING
+
+(No Information)
+
+=cut
+# (MODULE FUNCTIONS)
+
+=head1 HISTORY
+
+=over
+
+=item 0.x
+
+The initial version.
+
+=back
+
+=cut
+sub _version {
+    print "[$LOGNAME]  \n";
+    print "Written by Lenik,  Version 0.$RCSID{rev},  Last updated at $RCSID{date}\n";
+}
+
+=head1 SEE ALSO
+
+The L<cmt/"Perl_simple_cli_program_template">
+
+=head1 AUTHOR
+
+Lenik (谢继雷) <lenik (at) bodz.net>
+
+=cut
