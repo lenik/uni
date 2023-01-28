@@ -1,0 +1,14 @@
+; vim: set filetype=bindzone :
+; Example   IN  3600    MX  10  Parameters...
+
+$INCLUDE @bindconfdir@/inc/soa.db
+$INCLUDE @bindconfdir@/inc/mail-google.db
+$INCLUDE @bindconfdir@/inc/default.db
+$INCLUDE @bindconfdir@/inc/instances.db
+
+0                       CNAME   sg1
+
+xn--5gq50t              CNAME   0               ; 园丁
+xn--ep5asf              CNAME   0               ; 雨露
+
+$INCLUDE @bindconfdir@/inc/auto.db

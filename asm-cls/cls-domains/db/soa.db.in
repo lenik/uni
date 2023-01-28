@@ -1,0 +1,19 @@
+; vim: set filetype=bindzone :
+; Example   IN  3600    MX  10  Parameters...
+
+$TTL            60000
+
+; The SOA resource record indicates that this DNS name server is the best
+; source of information for the data within this DNS domain.
+
+@               IN      SOA     (
+                                    orig.lenik.net.  ; db creator host
+                                    admin.lenik.net. ; contact e-mail
+                                    14      ; serial
+                                    1H      ; sync refresh interval
+                                    10M     ; sync retry interval
+                                    240H    ; sync expire
+                                    1H      ; minimum TTL
+                                )
+
+$INCLUDE @bindconfdir@/inc/dns-usage.db

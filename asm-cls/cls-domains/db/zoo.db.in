@@ -1,0 +1,79 @@
+; vim: set filetype=bindzone :
+; Example   IN  3600    MX  10  Parameters...
+
+$TTL            1H
+
+@               IN      SOA     (
+                                    orig.lenik.net.  ; db creator host
+                                    admin.lenik.net. ; contact e-mail
+                                    2       ; serial
+                                    1H      ; sync refresh interval
+                                    10M     ; sync retry interval
+                                    240H    ; sync expire
+                                    1H      ; minimum TTL
+                                )
+
+$INCLUDE @bindconfdir@/inc/dns-usage.db
+
+0net                    A       192.168.0.255
+1net                    A       192.168.1.255
+homenet                 A       192.168.2.255
+pinet                   A       192.168.3.255
+mynet                   A       192.168.8.255
+
+; laptops
+lt0                     A       192.168.1.210
+lt1                     A       192.168.1.211
+lt2                     A       192.168.1.212
+lt3                     A       192.168.1.213
+lt4                     A       192.168.1.214
+lt5                     A       192.168.1.215
+lt6                     A       192.168.1.216
+lt7                     A       192.168.1.217
+lt8                     A       192.168.1.218
+lt9                     A       192.168.1.219
+
+; mobile phones
+mp0                     A       192.168.1.220
+mp1                     A       192.168.1.221
+mp2                     A       192.168.1.222
+mp3                     A       192.168.1.223
+mp4                     A       192.168.1.224
+mp5                     A       192.168.1.225
+mp6                     A       192.168.1.226
+mp7                     A       192.168.1.227
+mp8                     A       192.168.1.228
+mp9                     A       192.168.1.229
+
+; misc devices
+md0                     A       192.168.1.230
+md1                     A       192.168.1.231
+md2                     A       192.168.1.232
+md3                     A       192.168.1.233
+md4                     A       192.168.1.234
+md5                     A       192.168.1.235
+md6                     A       192.168.1.236
+md7                     A       192.168.1.237
+md8                     A       192.168.1.238
+md9                     A       192.168.1.239
+
+; net devices
+nd0                     A       192.168.1.240
+nd1                     A       192.168.1.241
+nd2                     A       192.168.1.242
+nd3                     A       192.168.1.243
+nd4                     A       192.168.1.244
+nd5                     A       192.168.1.245
+nd6                     A       192.168.1.246
+nd7                     A       192.168.1.247
+nd8                     A       192.168.1.248
+nd9                     A       192.168.1.249
+
+x                       CNAME   git.lenik.net.
+sg1                   CNAME   git.lenik.net.
+
+b                       CNAME   git.bee32.com.
+bee32                   CNAME   git.bee32.com.
+
+$INCLUDE @bindconfdir@/net/zoo-i.db
+$INCLUDE @bindconfdir@/net/zoo-pi.db

@@ -74,7 +74,9 @@ lan.db: lan.db.php
 
 CLEANFILES = \
     cls.conf \
-    instances.db
+    $(inc_DATA) \
+    $(lenik_DATA) \
+    $(nets_DATA)
 
 dist-hook:
 	cp ${srcdir}/*.in ${distdir}
@@ -82,5 +84,9 @@ dist-hook:
 install-data-hook:
 
 # Eval inst:*[ipw] using substcat
+%: %.m4
+	cat $< | m4 ip.conf - >$@
+
 %: %.in Makefile
-	$(do_subst) <$< | m4 ip.conf - >$@
+	$(do_subst) <$< >$@
+
