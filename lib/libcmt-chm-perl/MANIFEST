@@ -1,6 +1,4 @@
-Changelog
-chmlib_update.sh
-libchm.def
+ChangeLog
 libchm.xs
 Makefile.PL
 MANIFEST
@@ -12,7 +10,7 @@ t/test.chm
 fallback/const-c.inc
 fallback/const-xs.inc
 lib/cmt/libchm.pm
-chmlib/Makefile.simple
+chmlib/Makefile
 chmlib/chm_http.c
 chmlib/chm_lib.c
 chmlib/chm_lib.h
