@@ -1,0 +1,19 @@
+Source: libcmt-chm-perl
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.5.1
+Section: libs
+Homepage: http://uni.bodz.net/lib/libcmt-chm-perl
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/lib/libcmt-chm-perl
+Rules-Requires-Root: no
+
+Package: libcmt-chm-perl-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: libcmt-chm-perl (= ${binary:Version}), ${misc:Depends}
+Description: dev support
+ .chm file extract util.
+
