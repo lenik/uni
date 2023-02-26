@@ -23,7 +23,7 @@ public class PatchProject
 
     @Override
     public iString getDescription() {
-        return iString.fn.val(getName());
+        return iString.fn.wrap(getName());
     }
 
 }

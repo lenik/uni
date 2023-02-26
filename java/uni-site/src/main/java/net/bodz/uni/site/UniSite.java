@@ -100,8 +100,8 @@ public class UniSite
         Map<String, String> help = new LinkedHashMap<>();
         help.put("About", "about/");
         help.put("Contacts", "contacts/");
-        map.put(iString.fn.val("Sites"), sites);
-        map.put(iString.fn.val("Help"), help);
+        map.put(iString.fn.wrap("Sites"), sites);
+        map.put(iString.fn.wrap("Help"), help);
         return map;
     }
 
