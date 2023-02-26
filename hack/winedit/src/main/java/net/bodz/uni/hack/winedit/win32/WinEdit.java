@@ -42,7 +42,8 @@ import com.sun.jna.Pointer;
 @Win32Only
 public class WinEdit
         extends BasicGUI
-        implements IWin32 {
+        implements
+            IWin32 {
 
     /**
      * Capture interval, default 1000
@@ -77,7 +78,7 @@ public class WinEdit
     private ListBox searchList;
 
     @Override
-    protected void _start() {
+    protected void guiMain(String[] args) {
         if (interval > 0) {
             updaterTimer = new Timer(interval, shell) {
                 boolean noReentrant = false;
