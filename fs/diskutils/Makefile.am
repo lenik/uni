@@ -6,6 +6,7 @@ dist_bin_SCRIPTS = \
     dd-cont \
     fragoutside \
     fstype \
+    inode-path \
     mkhdd \
     partoffset \
     readmbr \
@@ -20,6 +21,7 @@ dist_man_MANS = \
     blockdev-info.8 \
     dd-cont.1 \
     fragoutside.8 \
+    inode-path.8 \
     mkhdd.8 \
     partoffset.8 \
     readmbr.8 \

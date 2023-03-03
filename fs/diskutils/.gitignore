@@ -2,6 +2,7 @@ bin2iso
 blockdev-info
 dd-cont
 fragoutside
+inode-path
 mkhdd
 partoffset
 readmbr
