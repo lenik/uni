@@ -9,7 +9,8 @@ shsrcdir = ${bindir}
 bin_PROGRAMS = \
     echo-n \
     echoln \
-    echoli
+    echoli \
+    echoli-0
 
 dist_bin_SCRIPTS = \
     orig \

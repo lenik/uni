@@ -1,5 +1,6 @@
 echo-n
 echoln
 echoli
+echoli-0
 maths.sh
 history2csv.d
