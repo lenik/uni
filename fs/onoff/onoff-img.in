@@ -8,6 +8,7 @@
     option -r --read-only       'Disable overlay mount'
     option -s --sudo            'Use sudo to execute mount/umount'
     option -t --use-rotmp       'Mount lowerdir (readonly) in different dir'
+    option -O --overlay-in =DIR 'Mount overlayfs in specific dir'
     option -q --quiet
     option -v --verbose
     option -h --help
@@ -15,6 +16,7 @@
 
     read_only=
     rotmp=
+    overlay_in=
 
     MOUNT=mount
     UMOUNT=umount
@@ -34,6 +36,8 @@ function setopt() {
             ;;
         -t|--use-rotmp)
             rotmp=1;;
+        -O|--overlay-in)
+            overlay_in="$2";;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -123,19 +127,23 @@ function main() {
             _log2 "Work-Tmp: $worktmp"
         fi
 
-        mnt=
+        mntp=
         rd_mnt=
         for t in "$dir/$name.d" "$dir/$name.rw"; do
             if [ -d "$t" ]; then
-                mnt="$t"
+                mntp="$t"
                 break
             fi
         done
-        if [ -z "$mnt" ]; then
-            mnt="$dir/$name"
+        if [ -z "$mntp" ]; then
+            if [ -n "$overlay_in" ]; then
+                mntp="$overlay_in/$name"
+            else
+                mntp="$dir/$name"
+            fi
             rd_mnt=1
         fi
-        _log2 "Mount-Point: $mnt"
+        _log2 "Mount-Point: $mntp"
 
         case "$act" in
             on)
@@ -147,14 +155,14 @@ function main() {
 }
 
 function on() {
-    if [ ! -d "$mnt" ]; then
-        _log1 "Create mount point: $mnt"
-        mkdir -p "$mnt" || quit "Can't create mount point $mnt"
+    if [ ! -d "$mntp" ]; then
+        _log1 "Create mount point: $mntp"
+        mkdir -p "$mntp" || quit "Can't create mount point $mntp"
     fi
 
     if [ -z "$ovl" ]; then
-        _log1 "Mount $img on $mnt"
-        sudocmd $MOUNT "$img" "$mnt" || quit "Can't mount $img"
+        _log1 "Mount $img on $mntp"
+        sudocmd $MOUNT "$img" "$mntp" || quit "Can't mount $img"
         return
     fi
 
@@ -171,8 +179,8 @@ function on() {
     _log1 "Mount read-only $img on $lower"
     sudocmd $MOUNT -o ro,loop "$img" "$lower" || quit "Can't mount read-only $img"
 
-    _log1 "Mount overlay $lower+$ovl on $mnt"
-    if ! sudocmd $MOUNT -t overlay none "$mnt" \
+    _log1 "Mount overlay $lower+$ovl on $mntp"
+    if ! sudocmd $MOUNT -t overlay none "$mntp" \
             -o "workdir=$worktmp,lowerdir=$lower,upperdir=$ovl"; then
         _error "Failed to mount overlay. Auto unmount..."
         sudocmd $UMOUNT "$lower"
@@ -185,14 +193,14 @@ function on() {
 
 function off() {
     if [ -z "$ovl" ]; then
-        if [ -d "$mnt" ]; then
-            _log1 "Unmount $mnt"
-            sudocmd $UMOUNT "$mnt"
+        if [ -d "$mntp" ]; then
+            _log1 "Unmount $mntp"
+            sudocmd $UMOUNT "$mntp"
         fi
     else
-        if [ -d "$mnt" ]; then
-            _log1 "Unmount $mnt"
-            sudocmd $UMOUNT "$mnt"
+        if [ -d "$mntp" ]; then
+            _log1 "Unmount $mntp"
+            sudocmd $UMOUNT "$mntp"
         fi
         if [ -d "$lower" ]; then
             _log1 "Unmount $lower"
@@ -210,9 +218,9 @@ function off() {
         rmdir "$lower"
     fi
 
-    if [ "$rd_mnt" = 1 -a -d "$mnt" ]; then
-        _log2 "Auto remove mount point $mnt."
-        rmdir "$mnt"
+    if [ "$rd_mnt" = 1 -a -d "$mntp" ]; then
+        _log2 "Auto remove mount point $mntp."
+        rmdir "$mntp"
     fi
 }
 
