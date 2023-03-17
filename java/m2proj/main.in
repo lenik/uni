@@ -5,13 +5,17 @@
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <app-name> [app-options...]}
 
     : ${JAVA:=java}
+    JAVA_NAME=${java##*/}
 
     # The encoding can be 'ANSI_X3.4-1968' when not specified.
-    : ${JAVAOPTS:=-ea -Dsun.jnu.encoding=utf-8 -Dfile.encoding=utf-8}
-    javaopts=($JAVAOPTS)
+    : ${JAVAOPTS:=-Dsun.jnu.encoding=utf-8 -Dfile.encoding=utf-8}
+
+    javaopts=()
     appopts=()
 
     . shlib-import cliboot
+    option -a --assert                  "Enable assert"
+    option -A --no-assert               "Disable assert"
     option -c --class                   "Use FQCN for app-name, don't use program launcher"
     option -d --debug                   "Enable debug mode"
     option -D --property =key=value     "Specify system property, the same as -O -Dkey=value"
@@ -36,6 +40,7 @@
     exe_dir=.
     app_name=
 
+    opt_assert=
     opt_project_dir=.
     opt_class=0
     opt_debug=
@@ -53,6 +58,10 @@
 
 function setopt() {
     case "$1" in
+        -a|--assert)
+            opt_assert=1;;
+        -A|--no-assert)
+            opt_assert=0;;
         -c|--class)
             opt_class=1;;
         -d|--debug)
@@ -88,7 +97,13 @@ function setopt() {
     esac
 }
 
-function javaopt() {
+function stdjavaopt() {
+    if [ "$JAVA_NAME" = java ]; then
+        javaopts=("${javaopts[@]}" "$@")
+    fi
+}
+
+function alljavaopt() {
     javaopts=("${javaopts[@]}" "$@")
 }
 
@@ -99,8 +114,13 @@ function main() {
             echo "App isn't specified." >&2
             exit 1
         fi
+
         app_name="$1"
         shift
+
+        if [ "${app_name/./}" != "$app" ]; then
+            opt_class=1
+        fi
     fi
     _log2 "exe: $exe"
     _log2 "exe dir: $exe_dir"
@@ -113,11 +133,11 @@ function main() {
         JDWPOPTS="$JDWPOPTS,address=$opt_port"
 
         # Legacy: it will run in interpreted mode instead of JIT, which will be slower.
-        #javaopt "-Xdebug"
-        #javaopt "-Xrunjdwp:$JDWPOPTS"
+        #stdjavaopt "-Xdebug"
+        #stdjavaopt "-Xrunjdwp:$JDWPOPTS"
 
         # From Java 5.0+
-        javaopt "-agentlib:jdwp=$JDWPOPTS"
+        stdjavaopt "-agentlib:jdwp=$JDWPOPTS"
 
         classpath_lists=(classpath.debug.lst classpath.lst)
     fi
@@ -143,8 +163,17 @@ function main() {
     opt_project_dir=$(readlink -f "$opt_project_dir")
     _log2 "project dir: $opt_project_dir"
 
-    for pr in "${opt_props[@]}";    do javaopt "-D$pr"; done
-    for jo in "${opt_javaopts[@]}"; do javaopt "$jo";   done
+    stdjavaopt $JAVAOPTS
+
+    if [ -z "$opt_assert" ]; then
+        opt_assert=1
+    fi
+    if [ "$opt_assert" = 1 ]; then
+        stdjavaopt -ea
+    fi
+
+    for pr in "${opt_props[@]}";    do stdjavaopt "-D$pr"; done
+    for jo in "${opt_javaopts[@]}"; do alljavaopt "$jo";   done
 
     classpath=
     classpath_items=()
@@ -181,8 +210,8 @@ function main() {
             fi
 
             for item in "${classpath_items[@]}"; do
-                scan_item "$item"
-                appcls+=( "${qname[@]}" )
+                appcls+=( $(scan_item "$item") )
+                #appcls+=( "${qname[@]}" )
             done
 
         n=${#appcls[@]}
@@ -325,6 +354,8 @@ function scan_item() {
             done < <(jar tf "$item" | grep "$app_name\.class")
         fi
     fi
+
+    echoln "${qname[@]}"
 }
 
 function exec-v() {
