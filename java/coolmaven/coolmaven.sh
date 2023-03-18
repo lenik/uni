@@ -1,15 +1,63 @@
 alias mvn='coolmvn'
-alias mpk='mvn package'
-alias mte='mvn test'
-alias min='mvn install'
-alias mdp='mvn deploy'
 
-#alias MPK='mvn package -fn -Dmaven.test.skip=true'
-#alias MIN='mvn install -fn -Dmaven.test.skip=true'
-#alias MDP='mvn deploy -fn -Dmaven.test.skip=true'
-alias MPK='mvn package -fn -DskipTests'
-alias MIN='mvn install -fn -DskipTests'
-alias MDP='mvn deploy -fn -DskipTests'
+MAVENOPTS_SKIPTEST=(-Dmaven.test.skip=true -DskipTests)
+
+function mvnlist() {
+    local cmd="$1"
+    shift
+
+    local opts=()
+    while true; do
+        case "$1" in
+            -B|--batch-mode|-C|--strict-checksums|-c|--lax-checksums)
+                opts+=("$1")
+                shift 1;;
+            -D*)
+                opts+=("$1")
+                shift 1;;
+            --define)
+                opts+=("$1" "$2")
+                shift 2;;
+            -e|--errors|-q|--quiet|-X|--debug)
+                opts+=("$1")
+                shift 1;;
+            -fae|-ff|-fn|--fail-at-end|--fail-fast|--fail-never)
+                opts+=("$1")
+                shift 1;;
+            -N|--non-recursive)
+                opts+=("$1")
+                shift 1;;
+            -o|--offline)
+                opts+=("$1")
+                shift 1;;
+            -rf|--resume-from)
+                opts+=("$1" "$2")
+                shift 2;;
+            -U|--update-snapshots)
+                opts+=("$1")
+                shift 1;;
+            *)
+                break;;
+        esac
+    done
+
+    local mod
+    for mod in "$@"; do
+        (
+            m2chdir "$mod"
+            coolmvn "$cmd" "${opts[@]}"
+        )
+    done
+}
+
+alias mpk='mvnlist package'
+alias mte='mvnlist test'
+alias min='mvnlist install'
+alias mdp='mvnlist deploy'
+
+alias MPK="mvnlist package -fn ${MAVENOPTS_SKIPTEST[*]}"
+alias MIN="mvnlist install -fn ${MAVENOPTS_SKIPTEST[*]}"
+alias MDP="mvnlist deploy  -fn ${MAVENOPTS_SKIPTEST[*]}"
 
 alias M+='m2release'
 alias 'mr-'='cd.x mvn release:prepare'
