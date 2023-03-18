@@ -11,3 +11,16 @@ _m2chdir()
 
 } &&
 complete -F _m2chdir m2which m2chdir M
+
+_m2dirs()
+{
+    local mod
+
+    if [ $COMP_CWORD -ge 1 ]; then
+        mod=${COMP_WORDS[COMP_CWORD]}
+        COMPREPLY=( $( m2which -ln "$mod" ) )
+    fi
+
+} &&
+complete -F _m2dirs MPK MIN MDP mpk min mte mdp
+
