@@ -1,7 +1,12 @@
 
-all: z-article.cls z-book.cls z-beamer.cls
+classes = \
+    z-article.cls \
+    z-book.cls \
+    z-beamer.cls \
+    z-extarticle.cls
 
-%.cls: z-template.in
-	for a in article book beamer; do \
-	    sed -e s/\\\\CLASS/$$a/g <z-template.in >z-$$a.cls; \
-	done
+all: $(classes)
+
+z-%.cls: z-template.in
+	sed -e s/\\\\CLASS/$*/g <z-template.in >z-$*.cls
+

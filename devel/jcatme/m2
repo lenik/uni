@@ -12,9 +12,6 @@ src_excludes += \
     Makefile \
     doc
 
-bin:
-	cp -a /mnt/istore/pro/uni/java/m2proj/bin .
-
 target-demo:
 	cd target/classes/net/bodz/uni/catme; \
 	rm -fr web; \

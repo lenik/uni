@@ -1,6 +1,6 @@
 % vim: set filetype=tex :
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{z-beamer}[2012/10/02 boDz Templates]
+\ProvidesClass{z-extarticle}[2012/10/02 boDz Templates]
 
 \newif\ifz@CJK@
 \newif\ifz@titling@
@@ -10,10 +10,10 @@
 
 \DeclareOption{titling}{\z@titling@true}
 
-\DeclareOption*{\PassOptionsToClass{\CurrentOption}{beamer}}
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{extarticle}}
 \ProcessOptions\relax
 
-\LoadClass{beamer}
+\LoadClass{extarticle}
 \RequirePackage{z-latexenh}
 
 \ifz@CJK@
@@ -56,4 +56,4 @@
     \RequirePackage{z-abbrev}
 
 % class specific implementation
-    \RequirePackage{z-beamer-impl}
+    \RequirePackage{z-extarticle-impl}
