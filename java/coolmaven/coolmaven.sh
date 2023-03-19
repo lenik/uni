@@ -41,13 +41,32 @@ function mvnlist() {
         esac
     done
 
-    local mod
-    for mod in "$@"; do
-        (
-            m2chdir "$mod"
-            coolmvn "$cmd" "${opts[@]}"
-        )
-    done
+    if [ $# == 0 ]; then
+        make-mvn "$cmd" "${opts[@]}"
+    else
+        local mod
+        for mod in "$@"; do
+            (
+                m2chdir "$mod"
+                make-mvn "$cmd" "${opts[@]}"
+            )
+        done
+    fi
+}
+
+function make-mvn() {
+    local cmd="$1"
+    shift
+
+    if [ -f Makefile ]; then
+        # exit code: 0 if already updated, 1 if outdated, 2 if invalid
+        make --question before-mvn 2>/dev/null
+        local ret=$?
+        if [ $ret -le 1 ]; then
+            make before-mvn
+        fi
+    fi
+    coolmvn "$cmd" "$@"
 }
 
 alias mpk='mvnlist package'
