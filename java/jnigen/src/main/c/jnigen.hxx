@@ -3,9 +3,10 @@
 
 #include <jni.h>
 
-extern JavaVM *vm;
-
-JNIEnv *getEnv();
+extern "C" {
+    extern JavaVM *vm;
+    JNIEnv *getEnv();
+}
 
 jclass findClass(const char *name);
 jclass findClass(JNIEnv *env, const char *name);
