@@ -118,7 +118,7 @@ function main() {
         app_name="$1"
         shift
 
-        if [ "${app_name/./}" != "$app" ]; then
+        if [ "${app_name/./}" != "$app_name" ]; then
             opt_class=1
         fi
     fi
