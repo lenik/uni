@@ -17,6 +17,7 @@
     option -a --assert                  "Enable assert"
     option -A --no-assert               "Disable assert"
     option -c --class                   "Use FQCN for app-name, don't use program launcher"
+    option -i --cp-item =PATH           "Add more classpath item"
     option -d --debug                   "Enable debug mode"
     option -D --property =key=value     "Specify system property, the same as -O -Dkey=value"
     option -O --java-opt =OptionSpec    "Add java option, eg. -O -Dfoo=bar or -O-Dfoo=bar"
@@ -25,7 +26,7 @@
     option -j --search-jars             "Search program aliases in jars"
     option -p --port =PORT              "Specify debug (JDWP) port, default 8000"
     option -P --profiler                "Run profiler for the app"
-    option -r --project-dir =DIR        "Specify the project dir"
+    option -r --project-dir =DIR        "Specify the project dir(s)"
     option -t --timing                  "Measure how long the program has been running"
     option -q --quiet
     option -v --verbose
@@ -34,14 +35,20 @@
 
     alias_mode=
 
-    classpath_lists=(classpath.lst)
+    if [ -z "$classpath_lists" ]; then
+        classpath_lists=(classpath.lst)
+    fi
 
     exe="$0"
     exe_dir=.
     app_name=
+    project_dirs=()
+    cp_extraitems=()
+    cp_items=()
+    cp_dirs=()
+    declare -A cp_item_uniq=()
 
     opt_assert=
-    opt_project_dir=.
     opt_class=0
     opt_debug=
     opt_codegen=
@@ -64,22 +71,24 @@ function setopt() {
             opt_assert=0;;
         -c|--class)
             opt_class=1;;
+        -i|--cp-item)
+            cp_extraitems+=("$2");;
         -d|--debug)
             opt_debug=1;;
         -D|--property)
             opt_props+=("$2");;
         -r|--project-dir)
-            opt_project_dir="$2";;
+            project_dirs+=("$2");;
         -g|--codegen)
             opt_codegen=1;;
         -L|--lang)
             opt_codelang="$2";;
-        -s|--search-jars)
-            opt_search_jars=1;;
         -t|--timing)
             opt_timing=1;;
         -O|--java-opt)
             opt_javaopts+=("$2");;
+        -j|--search-jars)
+            opt_search_jars=1;;
         -p|--jdwp-port)
             opt_port=$2;;
         -P|--profiler)
@@ -139,29 +148,32 @@ function main() {
         # From Java 5.0+
         stdjavaopt "-agentlib:jdwp=$JDWPOPTS"
 
-        classpath_lists=(classpath.debug.lst classpath.lst)
+        if [ -f "classpath.debug.lst" ]; then
+            classpath_lists=(classpath.debug.lst "${classpath_lists[@]}")
+        fi
     fi
 
-    classpath_list=
-    for lst in "${classpath_lists[@]}"; do
-        if [ -f "$lst" ]; then
-            classpath_list="$lst"
-            break
-        fi
-    done
     # search lib/, modules/ if $classpath_list not defined.
 
-    if [ "$opt_project_dir" = . ]; then
+    if [ "${#project_dirs[@]}" = 0 ]; then
         for d in '' '/..' '/../..' '/../../..'; do
-            if [ -f "$exe_dir$d/$classpath_list" ]; then
-                _log2 "found project dir: $exe_dir$d"
-                opt_project_dir="$exe_dir$d"
-                break
-            fi
+            for lst in "${classpath_lists[@]}"; do
+                if [ -f "$exe_dir$d/$lst" ]; then
+                    _log2 "found project dir: $exe_dir$d"
+                    project_dirs=("$exe_dir$d")
+                    break 2
+                fi
+            done
         done
     fi
-    opt_project_dir=$(readlink -f "$opt_project_dir")
-    _log2 "project dir: $opt_project_dir"
+
+    dirs=()
+    for d in "${project_dirs[@]}"; do
+        d=$(readlink -f "$d")
+        _log2 "project dir: $d"
+        dirs+=("$d")
+    done
+    project_dirs=("${dirs[@]}")
 
     stdjavaopt $JAVAOPTS
 
@@ -176,27 +188,39 @@ function main() {
     for jo in "${opt_javaopts[@]}"; do alljavaopt "$jo";   done
 
     classpath=
-    classpath_items=()
-    classdirs=()
-        add_cp "$opt_project_dir"/target/test-classes
-        add_cp "$opt_project_dir"/target/classes
-        if [ -f "$opt_project_dir/$classpath_list" ]; then
-            while read item; do
-                if [ "${item:0:1}" = / ]; then
-                    item_full="$item"
-                else
-                    item_full="$opt_project_dir/$item"
+        for projdir in "${project_dirs[@]}"; do
+            add_cp "$projdir"/target/test-classes
+            add_cp "$projdir"/target/classes
+
+            n_valid_item=0
+
+            for lst in "${classpath_lists[@]}"; do
+                if [ -f "$projdir/$lst" ]; then
+                    while read item; do
+                        if [ "${item:0:1}" = / ]; then
+                            item_full="$item"
+                        else
+                            item_full="$projdir/$item"
+                        fi
+                        add_cp "$item_full"
+                        ((n_valid_item++))
+                    done <"$projdir/$lst"
                 fi
-                add_cp "$item_full"
-            done <"$opt_project_dir/$classpath_list"
-        else
-            for dir in "$opt_project_dir"/modules/*/; do
-                add_cp "$dir"
             done
-            for jar in "$opt_project_dir"/lib/*.jar; do
-                add_cp "$jar"
-            done
-        fi
+
+            if [ "$n_valid_item" = 0 ]; then
+                for dir in "$projdir"/modules/*/; do
+                    add_cp "$dir"
+                done
+                for jar in "$projdir"/lib/*.jar; do
+                    add_cp "$jar"
+                done
+            fi
+        done
+
+        for item in "${cp_extraitems[@]}"; do
+            add_cp "$item"
+        done
         classpath="${classpath#:}"
 
     if [ "$opt_class" != 1 ]; then
@@ -209,7 +233,7 @@ function main() {
                 appcls+=( "$app_name" )
             fi
 
-            for item in "${classpath_items[@]}"; do
+            for item in "${cp_items[@]}"; do
                 appcls+=( $(scan_item "$item") )
                 #appcls+=( "${qname[@]}" )
             done
@@ -256,7 +280,7 @@ function main() {
             echo '#!/bin/sh'
             echo '    cp='
 
-            if [ ${#classpath_items[@]} != 0 ]; then
+            if [ ${#cp_items[@]} != 0 ]; then
                 echo
                 echo '    add_cp() {'
                 echo '        if test -n "$cp"; then cp="$cp:"; fi'
@@ -264,7 +288,7 @@ function main() {
                 echo '    }'
                 echo
 
-                for a in "${classpath_items[@]}"; do
+                for a in "${cp_items[@]}"; do
                     echo "    add_cp \"$a\""
                 done
             fi
@@ -370,12 +394,23 @@ function do_timing() {
 function add_cp() {
     local a
     for a in "$@"; do
-        _log2 "add-classpath: $a"
-        classpath="$classpath:$a"
-        classpath_items+=("$a")
-
         if [ -d "$a" ]; then
-            classdirs+=("$a")
+            _log2 "add-classpath: $a (dir)"
+            cp_dirs+=("$a")
+            cp_items+=("$a")
+            classpath="$classpath:$a"
+        else
+            local base="${a##*/}"
+            local var="cp_item_uniq[$base]"
+            if [ "${!var}" = 1 ]; then
+                # already used.
+                _log2 "ignore-classpath: $a"
+            else
+                _log2 "add-classpath: $a"
+                cp_items+=("$a")
+                classpath="$classpath:$a"
+                cp_item_uniq[$base]=1
+            fi
         fi
     done
 }
