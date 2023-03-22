@@ -1,0 +1,121 @@
+# -*- sh -*-
+**/debian/*.EX                          # cooldeb excluded file
+**/debian/*.ex                          # cooldeb excluded file
+**/debian/*/                            # cooldeb
+**/debian/changelog                     # cooldeb
+**/debian/compat                        # cooldeb
+**/debian/copyright                     # cooldeb
+**/debian/files                         # cooldeb
+**/debian/rules                         # cooldeb
+**/m4/libtool.m4                        # libtool
+**/m4/lt*.m4                            # libtool
+**/po/*.gmo                             # gettextize
+**/po/*.header                          # gettextize
+**/po/*.sed                             # gettextize
+**/po/*.sin                             # gettextize
+**/po/*.template                        # gettextize
+*.1                                     # help2man
+*.6                                     # help2man
+*.8                                     # help2man
+*.Po
+*.aux                                   # cooltex
+*.bak                                   # Backup file
+*.bbl                                   # cooltex
+*.blg                                   # cooltex
+*.build                                 # cooldeb
+*.bz2                                   # source tarballs
+*.cb                                    # cooltex
+*.changes                               # cooldeb
+*.css.map                               # scss
+*.deb                                   # cooldeb
+*.debhelper                             # cooldeb
+*.dsc                                   # cooldeb
+*.dvi                                   # cooltex
+*.ff                                    # mda-xjdoc
+*.glo                                   # cooltex
+*.gz                                    # source tarballs
+*.idx                                   # cooltex
+*.ilg                                   # cooltex
+*.iml                                   # Idea
+*.ind                                   # cooltex
+*.ipr                                   # Idea
+*.iws                                   # Idea
+*.la                                    # libtool library info
+*.le
+*.lo                                    # libtool obj file
+*.lock
+*.lof                                   # cooltex
+*.log
+*.log.[0-9]*
+*.lot                                   # cooltex
+*.o                                     # obj file
+*.orig                                  # merge conflicts
+*.out
+*.pdf                                   # cooltex
+*.releaseBackup                         # Maven
+*.substvars                             # cooldeb
+*.spec                                  # deb2spec
+*.swp                                   # Vim swap file
+*.tmp
+*.toc                                   # cooltex Table Of Contents
+*.upload                                # cooldeb
+*.versionsBackup                        # Maven
+*.xdv                                   # cooltex
+*.xz                                    # source tarballs
+*.zip                                   # source tarballs
+*~                                      # Backup file
+.#*                                     # Emacs bak file
+.*.bin                                  # dprog -i
+.*.mjpl                                 # mjpl -B
+.classpath                              # Eclipse project classpath
+.classpath.*                            # mjpl
+.deps                                   # cooldeb
+.dirstamp
+.idea                                   # Idea project file
+.libs/                                  # libtool tmp build dir
+.m2*                                    # Maven
+.project                                # Eclipse project file
+.sass-cache/                            # scss
+.settings                               # Eclipse project settings
+/.pomdirs                               # coolmaven
+/features.list
+/services.list
+ABOUT-NLS                               # gettextize
+COPYING                                 # cooldeb
+ChangeLog                               # coolauto
+FILES                                   # coolmake
+INSTALL                                 # cooldeb
+Makefile.in                             # Makefile.am
+POTFILES                                # gettextize
+RELEASE-NOTES                           # coolmaven
+Rules-quot                              # gettextize
+aclocal.m4
+all.sql                                 # catme
+autom4te.cache/
+classpath.*                             # lib-updater
+compile                                 # AC_PROG_CC
+config.guess
+config.h
+config.h.in
+config.log
+config.rpath                            # gettextize
+config.status
+config.sub
+configure                               # configure.ac
+depcomp
+dependency-reduced-pom.xml              # maven
+install-sh                              # autoreconf -i
+itree.tex                               # makelook
+lib/                                    # lib-updater
+libauto                                 # coolauto
+libtool                                 # libtool
+ltmain.sh                               # libtool
+missing                                 # autoreconf -i
+nohup.out                               # nohup CMDLINE...
+postinst                                # postinst.in
+prerm                                   # prerm.in
+rpmbuild/                               # coolrpm
+stamp-h1
+stamp-po                                # gettextize
+stats/                                  # gitstats
+target/                                 # Maven build target dir
