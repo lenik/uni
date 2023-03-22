@@ -86,12 +86,19 @@ function main() {
             . xtermtitle --save --title "$title" ;; 
     esac
 
+    local cmd="$1"
+    local bin;
+    if ! bin=$( which "$cmd" ); then
+        _quit "Unknown executable: $cmd"
+    fi
+    shift
+
     while true; do
         until-changed $logopts "${files[@]}"
 
         sleepenh $opt_delay_before >/dev/null 2>/dev/null
         _log2 "Execute: $@"
-        "$@"
+        "$bin" "$@"
 
         sleepenh $opt_delay_after >/dev/null 2>/dev/null
     done
