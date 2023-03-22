@@ -10,6 +10,7 @@ do_subst += \
 dist_bin_SCRIPTS = \
     amexpand \
     autobuild \
+    autorun \
     itreepdf \
     make-color \
     maketest \
@@ -27,6 +28,7 @@ dist_alias_DATA = \
 dist_man_MANS = \
     amexpand.1 \
     autobuild.1 \
+    autorun.1 \
     makelook.1 \
     makeorig.1
 

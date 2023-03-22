@@ -1,0 +1,207 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Run autobuild commands on file change}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] cmd-args-for-the-last-dir}
+
+    . shlib
+    import cliboot
+    #import strfn
+    
+    option -d --dir =DIR            "Add dir to be monitored"
+    option -r --rootdir =DIR        "Add subdirs recursively to be monitored"
+    option -R --recursive           "Always recursive into subdirs"
+    option -c --command =CMD        "Run the command when previously specified dir changes"
+    option -f --file =FILE          "Read monitor dirs from file"
+    option -e --env =VAR            "Get monitor dirs from the named assoc variable"
+    option -k --keep                "Don't clean up monitor process on exit"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_dirs=()
+    opt_recursive=
+    opt_keep=0
+    
+    declare -A map=()
+    declare -A rmap=()
+    
+    ncmd=0
+    #dirv_1=() ...
+    #cmdv_1=() ...
+    
+    pids=()
+    
+function setopt() {
+    case "$1" in
+        -d|--dir)
+            opt_dirs+=("$2");;
+        -r|--rootdir)
+            opt_dirs+=("$2/**");;
+        -R|--recursive)
+            opt_recursive=1;;
+        -c|--command)
+            commit $2;;
+        -f|--file)
+            dirs=()
+            while IFS=: read dir cmd; do
+                dir=$(trim "$dir")
+                cmd=$(trim "$cmd")
+                [ -z "$dir" ] && continue
+                [ -z "$cmd" ] && continue
+                [ "${dir:0:1}" = '#' ] && continue
+                
+                if [ "${dir: -3}" = '/**' ]; then
+                    len=${#dir}
+                    rootdir=${dir:0:len-3}
+                    rmap[$rootdir]=$ncmd
+                    while read d; do
+                        dirs+=("$d")
+                    done < <(find "$rootdir" -type d)
+                else
+                    map[$dir]=$ncmd
+                    dirs+=("$dir")
+                fi
+                declare -n dirvar="dirs_$ncmd"
+                dirvar=( "${dirs[@]}" )
+                declare -n cmdvar="cmdv_$ncmd"
+                cmdvar=( $cmd )
+                (( ncmd++ ))
+            done < "$2"
+            ;;
+        -e|--env)
+            declare -n var="$2"
+            for k in ${!var[@]}; do
+                if [ "$opt_recursive" = 1 ]; then
+                    rmap[$k]=$ncmd
+                else
+                    map[$k]=$ncmd
+                fi
+                declare -n dirvar="dirs_$ncmd"
+                dirvar=( "$k" )
+                declare -n cmdvar="cmdv_$ncmd"
+                cmdvar=( ${var[$k]} )
+                (( ncmd++ ))
+            done
+            ;;
+        -k|--keep)
+            opt_keep=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function commit() {
+    local dir d
+    local dirs=()
+    for dir in "${opt_dirs[@]}"; do
+        if [ "${dir: -3}" = '/**' ]; then
+            len=${#dir}
+            rootdir=${dir:0:len-3}
+            rmap[$rootdir]=$ncmd
+            while read d; do
+                dirs+=("$d")
+            done < <(find "$rootdir" -type d)
+        else
+            if [ "$opt_recursive" = 1 ]; then
+                rmap[$dir]=$ncmd
+                while read d; do
+                    dirs+=("$d")
+                done < <(find "$dir" -type d)
+            else
+                map[$dir]=$ncmd
+                dirs+=("$dir")
+            fi
+        fi
+    done
+    declare -n dirvar="dirs_$ncmd"
+    dirvar=( "${dirs[@]}" )
+    declare -n cmdvar="cmdv_$ncmd"
+    cmdvar=( "$@" )
+    (( ncmd++ ))
+    
+    opt_dirs=()
+}
+
+function trim() {
+    local s="$*"
+    while [ "${s:0:1}" = ' ' ]; do
+        s=${s:1}
+    done
+    while [ "${s: -1}" = ' ' ]; do
+        n=${#s}
+        s=${s:0:n-1}
+    done
+    echo "$s"
+}
+
+function main() {
+    if [ $# != 0 ]; then
+        commit "$@"
+    fi
+    
+    #dump
+    
+    trap cleanup EXIT
+    
+    for ((i = 0; i < ncmd; i++)) do
+        declare -n ref=dirs_$i
+        opts=()
+        for d in "${ref[@]}"; do
+            opts+=(-f "$d")
+        done
+        
+        declare -n ref=cmdv_$i
+        cmdv=("${ref[@]}")
+        
+        onchange -q "${opts[@]}" "${cmdv[@]}" &
+        pids+=($!)
+    done
+
+    _log2 wait "${pids[@]}"    
+    wait "${pids[@]}"
+}
+
+function cleanup() {
+    # echo kill ${pids[@]}
+    kill ${pids[@]}
+}
+
+function dump() {
+    echo map:
+    for dir in "${!map[@]}"; do
+        declare -n cmdvar="cmdv_${map[$dir]}"
+        cmdv=("${cmdvar[@]}")
+        echo "    $k: ${cmdvar[@]}"
+    done
+    
+    echo rmap:
+    for k in "${!rmap[@]}"; do
+        declare -n cmdvar="cmdv_${rmap[$k]}"
+        echo "    $k: ${cmdvar[@]}"
+    done
+    
+    echo dirs:
+    for ((i = 0; i < ncmd; i++)) do
+        declare -n ref=dirs_$i
+        echo "    entry[$i]"
+        for d in "${ref[@]}"; do
+            echo "      - DIR $d"
+        done
+        declare -n ref=cmdv_$i
+        for arg in "${ref[@]}"; do
+            echo "      - ARG $arg"
+        done
+    done
+}
+
+boot "$@"
