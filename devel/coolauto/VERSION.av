@@ -10,5 +10,5 @@ rev         = 0
 rev.base    = 0
 rev.exec    = svn_revision .
 
-commit      = 16 
+commit      = 17 
 commit.base = 60
