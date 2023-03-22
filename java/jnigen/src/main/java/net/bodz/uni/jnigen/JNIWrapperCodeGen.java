@@ -6,7 +6,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,14 +14,16 @@ import net.bodz.bas.c.loader.scan.ClassScanner;
 import net.bodz.bas.c.loader.scan.TypeCollector;
 import net.bodz.bas.c.m2.MavenPomDir;
 import net.bodz.bas.c.string.StringId;
+import net.bodz.bas.c.system.SystemProperties;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.io.Stdio;
 import net.bodz.bas.io.res.builtin.FileResource;
 import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.program.skel.BasicCLI;
+import net.bodz.bas.repr.form.SortOrder;
 
 /**
- * Generate skeleton C++ code for JNI native methods and class wrappers.
+ * Generate C++ helpers for JNI classes.
  */
 @ProgramName("jnigen")
 public class JNIWrapperCodeGen
@@ -33,6 +34,21 @@ public class JNIWrapperCodeGen
     ClassLoader loader;
     ClassScanner scanner;
     TypeCollector collector;
+
+    /**
+     * Scan classes within this package. (and all subpackages)
+     *
+     * @option -P --package =NAME
+     */
+    String scanPackage;
+
+    /**
+     * Sort members.
+     *
+     * @option -s
+     */
+    boolean sortMembers;
+    SortOrder memberOrder = SortOrder.KEEP;
 
     /**
      * Specify the output directory.
@@ -65,17 +81,27 @@ public class JNIWrapperCodeGen
         loader = getClass().getClassLoader();
         scanner = new ClassScanner(loader);
 
-        MavenPomDir pomDir = MavenPomDir.fromClass(getClass());
-        if (pomDir != null)
-            outDir = new File(pomDir.getBaseDir(), MAVEN_DIR);
-        else
-            outDir = new File("src");
+        if (outDir == null) {
+            String workDir = SystemProperties.getUserDir();
+            MavenPomDir pomDir = MavenPomDir.closest(workDir);
+            if (pomDir != null)
+                outDir = new File(pomDir.getBaseDir(), MAVEN_DIR);
+            else
+                outDir = new File("src");
+        }
     }
 
     @Override
     protected void mainImpl(String... args)
             throws Exception {
-        List<Class<?>> list = scanner.scanPackage("coin");
+
+        if (scanPackage == null)
+            throw new IllegalArgumentException("Package name isn't specified.");
+
+        if (sortMembers)
+            memberOrder = SortOrder.SORTED;
+
+        List<Class<?>> list = scanner.scanPackage(scanPackage);
 
         for (Class<?> clazz : list) {
             String packageName = clazz.getPackage().getName();
@@ -106,7 +132,7 @@ public class JNIWrapperCodeGen
             for (Constructor<?> ctor : clazz.getConstructors())
                 ctors.add(ctor);
 
-            Map<String, OverloadedMethods> methodNameMap = new LinkedHashMap<>();
+            Map<String, OverloadedMethods> methodNameMap = memberOrder.newMap();
             for (Method method : clazz.getDeclaredMethods()) {
                 int modifiers = method.getModifiers();
                 if (!Modifier.isPublic(modifiers))
@@ -225,12 +251,16 @@ public class JNIWrapperCodeGen
         {
             out.println("jclass _class;");
 
-            int n = 0;
+            Map<String, Field> fields = memberOrder.newMap();
             for (Field field : clazz.getDeclaredFields()) {
                 int modifiers = field.getModifiers();
                 if (!Modifier.isPublic(modifiers))
                     continue;
+                fields.put(field.getName(), field);
+            }
 
+            int n = 0;
+            for (Field field : fields.values()) {
                 if (n++ == 0)
                     out.println();
                 out.fieldIdDecl(field, false);
@@ -302,6 +332,14 @@ public class JNIWrapperCodeGen
             out.println();
         }
 
+        Map<String, Field> fields = memberOrder.newMap();
+        for (Field field : clazz.getDeclaredFields()) {
+            int modifiers = field.getModifiers();
+            if (!Modifier.isPublic(modifiers))
+                continue;
+            fields.put(field.getName(), field);
+        }
+
         String lazyInit = null; // String.format("%s(%s, %s);")
         for (String methodName : methodNameMap.keySet()) {
             OverloadedMethods methods = methodNameMap.get(methodName);
@@ -325,10 +363,7 @@ public class JNIWrapperCodeGen
             out.printf("_class = findClass(env, \"%s\");\n", jniClassName);
             out.println("if (_class == NULL) return;");
 
-            for (Field field : clazz.getDeclaredFields()) {
-                int modifiers = field.getModifiers();
-                if (!Modifier.isPublic(modifiers))
-                    continue;
+            for (Field field : fields.values()) {
                 String sig = signature(field.getType());
                 out.printf("%s = env->GetFieldID(_class, \"%s\", \"%s\");\n", //
                         JNISourceWriter.getFieldIdVar(field), //
@@ -365,7 +400,7 @@ public class JNIWrapperCodeGen
         out.printf("void " + cClass + "_class::dump()");
         out.enterln(" {");
         {
-            for (Field field : clazz.getDeclaredFields()) {
+            for (Field field : fields.values()) {
                 int modifiers = field.getModifiers();
                 if (!Modifier.isPublic(modifiers))
                     continue;

@@ -14,8 +14,8 @@ dist_setup_SCRIPTS = \
     prerm
 
 CLEANFILES = \
-    $(dist_bin_SCRIPTS} \
-    $(dist_man_MANS} \
+    ${dist_bin_SCRIPTS} \
+    ${dist_man_MANS} \
     ${dist_setup_SCRIPTS}
 
 lib-updater:

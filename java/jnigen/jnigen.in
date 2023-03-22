@@ -1,4 +1,17 @@
-#!/bin/sh
+#!/bin/bash
 
-exec main -r "@pkgdatadir@" jnigen "$@"
+pkgdatadir="$pkgdatadir@"
+if [ "${pkgdatadir/@/}" != "$pkgdatadir" ]; then
+    __FILE__=$(readlink -f "${BASH_SOURCE[0]}")
+    __DIR__=${__FILE__%/*}
+    pkgdatadir="$__DIR__"
+fi
+
+opts=( -r "$pkgdatadir" )
+
+if [ -f pom.xml ]; then
+    opts+=( -r "$PWD" )
+fi
+
+exec main "${opts[@]}" jnigen "$@"
 
