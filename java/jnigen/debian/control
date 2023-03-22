@@ -1,0 +1,19 @@
+Source: jnigen
+Section: java
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.5.1
+Homepage: http://uni.bodz.net/java/jnigen/jnigen
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/java/jnigen/jnigen
+Rules-Requires-Root: no
+
+Package: jnigen
+Architecture: all
+Depends: 
+    bash-shlib,
+    m2proj,
+    ${misc:Depends}
+Description: Java JNI code generator.
+
