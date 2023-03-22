@@ -1,6 +1,6 @@
-# 
-
 include libauto/project.am
+
+SUBDIRS = src/main/c
 
 dist_bin_SCRIPTS = \
     javap2h \

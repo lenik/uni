@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pkgdatadir="$pkgdatadir@"
+pkgdatadir="@pkgdatadir@"
 if [ "${pkgdatadir/@/}" != "$pkgdatadir" ]; then
     __FILE__=$(readlink -f "${BASH_SOURCE[0]}")
     __DIR__=${__FILE__%/*}

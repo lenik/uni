@@ -27,7 +27,7 @@ public interface JNIAware {
         if (type.isArray())
             return "[" + signature(type.getComponentType());
 
-        return "L" + type.getName() + ";";
+        return "L" + type.getName().replace('.', '/') + ";";
     }
 
     default String signature(Method method) {
@@ -90,6 +90,14 @@ public interface JNIAware {
             return castExpr;
         }
         return expr;
+    }
+
+    default String propertyType(Class<?> type) {
+        String callname = JNIConsts.typeCallname.get(type);
+        if (callname != null)
+            return callname + "Property";
+        else
+            return "ObjectProperty<" + jniType(type) + ">";
     }
 
 }

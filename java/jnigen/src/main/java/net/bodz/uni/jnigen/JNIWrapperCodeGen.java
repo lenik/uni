@@ -9,7 +9,6 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 
-import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.loader.scan.ClassScanner;
 import net.bodz.bas.c.loader.scan.TypeCollector;
 import net.bodz.bas.c.m2.MavenPomDir;
@@ -119,8 +118,8 @@ public class JNIWrapperCodeGen
             }
             File headerFile = new File(outDir, headerFileName);
             File sourceFile = new File(outDir, sourceFileName);
-            File libraryHeaderFile = new File(outDir, "library" + headerExtension);
-            String libraryHeaderHref = FilePath.getRelativePath(libraryHeaderFile, headerFile);
+            // File libraryHeaderFile = new File(outDir, "jnigen" + headerExtension);
+            // String libraryHeaderHref = FilePath.getRelativePath(libraryHeaderFile, headerFile);
 
             ITreeOut out = Stdio.cout.indented();
             if (!stdout)
@@ -148,7 +147,7 @@ public class JNIWrapperCodeGen
 
             if (stdout)
                 jsw.println("/** FILE: " + headerFileName + " */");
-            generateWrapperHeader(jsw, clazz, libraryHeaderHref, ctors, methodNameMap);
+            generateWrapperHeader(jsw, clazz, ctors, methodNameMap);
             jsw.close();
 
             if (!stdout)
@@ -173,7 +172,7 @@ public class JNIWrapperCodeGen
     }
 
     void generateWrapperHeader(JNISourceWriter out, Class<?> clazz, //
-            String libraryHeaderHref, OverloadedCtors ctors, Map<String, OverloadedMethods> methodNameMap) {
+            OverloadedCtors ctors, Map<String, OverloadedMethods> methodNameMap) {
         out.println("/** GENERATED FILE, PLEASE DON'T MODIFY. **/");
         out.println();
 
@@ -185,61 +184,22 @@ public class JNIWrapperCodeGen
         out.println();
 
         out.println("#include <jni.h>");
-        out.printf("#include \"%s\"\n", libraryHeaderHref);
+        out.println("#include <jnigen.hxx>");
         out.println();
 
         String ns = clazz.getPackage().getName().replace(".", "::");
         out.printf("namespace %s {\n", ns);
         out.println();
 
+        Map<String, Field> fieldMap = memberOrder.newMap();
+        for (Field field : clazz.getDeclaredFields()) {
+            int modifiers = field.getModifiers();
+            if (!Modifier.isPublic(modifiers))
+                continue;
+            fieldMap.put(field.getName(), field);
+        }
+
         String cClass = clazz.getSimpleName();
-        out.println("class " + cClass + "_class;");
-        out.println();
-
-        out.println("class " + cClass + " {");
-        out.println("    jobject _this;");
-        out.println("    JNIEnv *_env;");
-        out.println();
-        out.enterln("public: ");
-        {
-            out.println("/* wrapper constructor */");
-            out.printf("%s(JNIEnv *env, jobject _this);\n", cClass);
-            out.printf("static %s *_wrap(jobject _this);\n", cClass);
-            out.leaveln("");
-        }
-
-        out.enterln("public: ");
-        {
-            out.println("/* ctor-create methods */");
-            Map<String, Constructor<?>> ctorMap = ctors.distinguishablization();
-            for (String ctorName : ctorMap.keySet()) {
-                out.ctorDecl(ctorName, ctorMap.get(ctorName), false);
-                out.println(";");
-            }
-            out.leaveln("");
-        }
-
-        out.enterln("public: ");
-        {
-            out.println("/* method wrappers */");
-            for (String methodName : methodNameMap.keySet()) {
-                OverloadedMethods methods = methodNameMap.get(methodName);
-                Map<String, Method> methodMap = methods.distinguishablization();
-                if (methodMap == null)
-                    throw new NullPointerException("methodMap: " + methodName);
-
-                for (String qMethodName : methodMap.keySet()) {
-                    out.methodDecl(qMethodName, methodMap.get(qMethodName), false);
-                    out.println(";");
-                }
-            }
-            out.leaveln("");
-        }
-
-        out.println("public: ");
-        out.printf("    static thread_local %s_class CLASS;\n", cClass);
-        out.println("}; // class " + cClass);
-        out.println();
 
         out.printf("class %s_class {\n", cClass);
         out.println("public:");
@@ -251,16 +211,8 @@ public class JNIWrapperCodeGen
         {
             out.println("jclass _class;");
 
-            Map<String, Field> fields = memberOrder.newMap();
-            for (Field field : clazz.getDeclaredFields()) {
-                int modifiers = field.getModifiers();
-                if (!Modifier.isPublic(modifiers))
-                    continue;
-                fields.put(field.getName(), field);
-            }
-
             int n = 0;
-            for (Field field : fields.values()) {
+            for (Field field : fieldMap.values()) {
                 if (n++ == 0)
                     out.println();
                 out.fieldIdDecl(field, false);
@@ -291,8 +243,67 @@ public class JNIWrapperCodeGen
         }
 
         out.printf("}; // class %s_class\n", cClass);
-
         out.println();
+
+        out.println("class " + cClass + " : public IWrapper {");
+        out.println("    jobject _this;");
+        out.println("    JNIEnv *_env;");
+        out.println();
+        out.enterln("public: ");
+        {
+            out.println("/* wrapper constructor */");
+            out.printf("%s(JNIEnv *env, jobject _this);\n", cClass);
+            out.printf("static %s *_wrap(jobject _this);\n", cClass);
+            out.println();
+            out.printf("inline JNIEnv *__env() { return _env; }\n");
+            out.printf("inline jobject __this() { return _this; }\n");
+            out.leaveln("");
+        }
+
+        out.enterln("public: ");
+        {
+            out.println("/* ctor-create methods */");
+            Map<String, Constructor<?>> ctorMap = ctors.distinguishablization();
+            for (String ctorName : ctorMap.keySet()) {
+                out.ctorDecl(ctorName, ctorMap.get(ctorName), false);
+                out.println(";");
+            }
+            out.leaveln("");
+        }
+
+        out.enterln("public: ");
+        {
+            out.println("/* field accessors */");
+            for (String fieldName : fieldMap.keySet()) {
+                Field field = fieldMap.get(fieldName);
+                String propertyType = propertyType(field.getType());
+                out.printf("%s %s = wrapfield(this, CLASS.FIELD_%s);\n", propertyType, field.getName(), fieldName);
+            }
+            out.leaveln("");
+        }
+
+        out.enterln("public: ");
+        {
+            out.println("/* method wrappers */");
+            for (String methodName : methodNameMap.keySet()) {
+                OverloadedMethods methods = methodNameMap.get(methodName);
+                Map<String, Method> methodMap = methods.distinguishablization();
+                if (methodMap == null)
+                    throw new NullPointerException("methodMap: " + methodName);
+
+                for (String qMethodName : methodMap.keySet()) {
+                    out.methodDecl(qMethodName, methodMap.get(qMethodName), false);
+                    out.println(";");
+                }
+            }
+            out.leaveln("");
+        }
+
+        out.println("public: ");
+        out.printf("    static thread_local %s_class CLASS;\n", cClass);
+        out.println("}; // class " + cClass);
+        out.println();
+
         out.println("} // namespace");
         out.println();
         out.println("#endif");
@@ -388,9 +399,15 @@ public class JNIWrapperCodeGen
                 for (String qMethodName : methodMap.keySet()) {
                     Method method = methodMap.get(qMethodName);
                     String sig = signature(method);
-                    out.printf("%s = env->GetMethodID(_class, \"%s\", \"%s\");\n", //
-                            JNISourceWriter.getMethodIdVar(qMethodName, method), //
-                            methodName, sig);
+                    int modifiers = method.getModifiers();
+                    if (Modifier.isStatic(modifiers))
+                        out.printf("%s = env->GetStaticMethodID(_class, \"%s\", \"%s\");\n", //
+                                JNISourceWriter.getMethodIdVar(qMethodName, method), //
+                                methodName, sig);
+                    else
+                        out.printf("%s = env->GetMethodID(_class, \"%s\", \"%s\");\n", //
+                                JNISourceWriter.getMethodIdVar(qMethodName, method), //
+                                methodName, sig);
                 }
             }
             out.leaveln("}");
