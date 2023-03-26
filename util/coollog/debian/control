@@ -11,6 +11,6 @@ Vcs-Browser: http://git.bodz.net/uni/util/coollog
 Package: coollog
 Architecture: all
 Depends:
-    python,
+    python3,
     ${misc:Depends}
 Description: Lenik's Cool CLI Log

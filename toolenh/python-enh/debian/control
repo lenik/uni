@@ -11,6 +11,6 @@ Vcs-Browser: http://git.bodz.net/uni/toolenh/python-enh
 Package: python-enh
 Architecture: all
 Depends:
-    python,
+    python3,
     ${misc:Depends}
 Description: Lenik's Python utilities.
