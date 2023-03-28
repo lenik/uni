@@ -1,7 +1,11 @@
-#include "jnigen.hxx"
-
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
+
+#include "jnigen.hxx"
+
+#include "java/lang/String.hxx"
+//using namespace java::lang;
 
 JavaVM *vm;
 
@@ -68,3 +72,28 @@ jobject newObject(JNIEnv *env, jclass clazz, jmethodID methodId, ...) {
     return ret;
 }
 
+jstring newString(const char *data) {
+    JNIEnv *env = getEnv();
+    if (env == NULL) return NULL;
+    return newString(getEnv(), data);
+}
+
+jstring newString(const char *data, int off, int len) {
+    JNIEnv *env = getEnv();
+    if (env == NULL) return NULL;
+    return newString(getEnv(), data, off, len);
+}
+
+jstring newString(JNIEnv *env, const char *data) {
+    size_t len = strlen(data);
+    return newString(env, data, 0, len);
+}
+
+jstring newString(JNIEnv *env, const char *data, int off, int len) {
+    jbyteArray array = env->NewByteArray(len);
+    printf("newbytearray-reftype: %d\n", env->GetObjectRefType(array));
+    env->SetByteArrayRegion(array, 0, len, (jbyte *) data);
+    java::lang::String copy(array);
+    env->DeleteLocalRef(array);
+    return copy;
+}

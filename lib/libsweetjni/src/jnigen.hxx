@@ -14,6 +14,11 @@ jclass findClass(JNIEnv *env, const char *name);
 jobject newObject(jclass clazz, jmethodID methodId, ...);
 jobject newObject(JNIEnv *env, jclass clazz, jmethodID methodId, ...);
 
+jstring newString(const char *data);
+jstring newString(const char *data, int off, int len);
+jstring newString(JNIEnv *env, const char *data);
+jstring newString(JNIEnv *env, const char *data, int off, int len);
+
 class IWrapper {
 public:
     virtual JNIEnv *__env() = 0;

@@ -12,8 +12,8 @@ JDK_INCLUDE_NATIVE = $(JDK_INCLUDE)/linux
 dist_include_HEADERS = \
     src/jnigen.hxx
 
-lib_LTLIBRARIES = libjnigen.la
-lib_LIBRARIES = libjnigen.a
+lib_LTLIBRARIES = libsweetjni.la
+lib_LIBRARIES = libsweetjni.a
 
 AM_LDFLAGS = -version-info 1:0:0
 AM_CXXFLAGS = \
@@ -22,15 +22,15 @@ AM_CXXFLAGS = \
     -I$(JDK_INCLUDE_NATIVE)
 AM_LIBADD =
 
-dist_libjnigen_a_SOURCES = \
+dist_libsweetjni_a_SOURCES = \
     src/jnigen.cxx
-dist_libjnigen_la_SOURCES = ${dist_libjnigen_a_SOURCES}
+dist_libsweetjni_la_SOURCES = ${dist_libsweetjni_a_SOURCES}
 
-libjnigen_a_CXXFLAGS = ${AM_CXXFLAGS}
-libjnigen_la_CXXFLAGS = ${AM_CXXFLAGS}
+libsweetjni_a_CXXFLAGS = ${AM_CXXFLAGS}
+libsweetjni_la_CXXFLAGS = ${AM_CXXFLAGS}
 
-libjnigen_a_LIBADD = ${AM_LIBADD}
-libjnigen_la_LIBADD = ${AM_LIBADD}
+libsweetjni_a_LIBADD = ${AM_LIBADD}
+libsweetjni_la_LIBADD = ${AM_LIBADD}
 
 dist_setup_SCRIPTS = \
     postinst \
@@ -41,7 +41,7 @@ CLEANFILES = \
 
 install-debug:
 	sudo ln -snf $$PWD/src/jnigen.hxx /usr/include/
-	sudo ln -snf $$PWD/.libs/libjnigen.so /usr/lib/libjnigen.so.1.0.0
+	sudo ln -snf $$PWD/.libs/libsweetjni.so /usr/lib/libsweetjni.so.1.0.0
 
 autobuild:
 	autorun -r src -c 'makelook'
