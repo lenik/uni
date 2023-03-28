@@ -4,7 +4,6 @@ aptconfdir=${sysconfdir}/apt/apt.conf.d
 
 dist_bin_SCRIPTS = \
     apt-f \
-    apt-fast \
     apt-list-dep \
     dwhich \
     lsdeb \
