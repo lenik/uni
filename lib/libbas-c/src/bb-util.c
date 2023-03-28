@@ -46,9 +46,7 @@ void bb_dump_var(SHELL_VAR *var) {
 }
 
 void bb_dump_array(ARRAY *array) {
-    log("%s array of %d elements, max_index=%d:",
-        array->type == array_indexed ? "Indexed" :
-        array->type == array_assoc ? "Assoc" : "Unknown",
+    log("array of %d elements, max_index=%d:",
         array->num_elements, array->max_index);
 
     int i;

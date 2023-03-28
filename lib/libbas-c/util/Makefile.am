@@ -7,3 +7,4 @@ bin_PROGRAMS = \
     ppid
 
 dist_ppid_SOURCES = ppid.c
+
