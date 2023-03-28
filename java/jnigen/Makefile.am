@@ -1,7 +1,5 @@
 include libauto/project.am
 
-SUBDIRS = src/main/c
-
 dist_bin_SCRIPTS = \
     javap2h \
     jnigen
@@ -38,4 +36,7 @@ install-data-hook:
 	cp classpath.release.lst $(DESTDIR)$(pkgdatadir)
 	cp -RL target/classes $(DESTDIR)$(pkgdatadir)/target
 	cp -RL lib $(DESTDIR)$(pkgdatadir)
+
+install-debug:
+	sudo ln -snf $$PWD/jnigen.in /bin/jnigen
 

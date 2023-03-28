@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([jnigen], [0.1.2], [xjl-bug@99jsj.com])
+AC_INIT([jnigen], [0.2.0], [xjl-bug@99jsj.com])
 LT_INIT([disable-static])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([-Wno-portability])
@@ -19,12 +19,11 @@ AC_PROG_LN_S
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
-PKG_CHECK_MODULES([GLIB], [glib-2.0])
-AC_SUBST([GLIB_CFLAGS])
-AC_SUBST([GLIB_LIBS])
+#PKG_CHECK_MODULES([GLIB], [glib-2.0])
+#AC_SUBST([GLIB_CFLAGS])
+#AC_SUBST([GLIB_LIBS])
 
 AC_CONFIG_FILES(
     [Makefile]
-    [src/main/c/Makefile]
     )
 AC_OUTPUT
