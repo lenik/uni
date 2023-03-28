@@ -1,0 +1,22 @@
+Source: libsweetjni
+Section: libs
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Rules-Requires-Root: no
+Build-Depends:
+    g++,
+    debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Homepage: http://uni.bodz.net/lib/libsweetjni
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/lib/libsweetjni
+Description: Sweet JNI library, used by code generated from jnigen.
+
+Package: libsweetjni-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends:
+    ${misc:Depends},
+Description: Sweet JNI library header files and static objects.
+
