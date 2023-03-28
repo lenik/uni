@@ -43,3 +43,6 @@ install-debug:
 	sudo ln -snf $$PWD/src/jnigen.hxx /usr/include/
 	sudo ln -snf $$PWD/.libs/libjnigen.so /usr/lib/libjnigen.so.1.0.0
 
+autobuild:
+	autorun -r src -c 'makelook'
+

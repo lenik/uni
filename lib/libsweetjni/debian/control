@@ -10,6 +10,11 @@ Standards-Version: 4.6.2
 Homepage: http://uni.bodz.net/lib/libsweetjni
 Vcs-Git: git://git.bodz.net/uni.git
 Vcs-Browser: http://git.bodz.net/uni/lib/libsweetjni
+
+Package: libsweetjni
+Architecture: any
+Depends:
+    ${misc:Depends}
 Description: Sweet JNI library, used by code generated from jnigen.
 
 Package: libsweetjni-dev
@@ -17,6 +22,6 @@ Section: libdevel
 Architecture: any
 Multi-Arch: same
 Depends:
-    ${misc:Depends},
+    ${misc:Depends}
 Description: Sweet JNI library header files and static objects.
 

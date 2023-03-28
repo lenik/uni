@@ -1,0 +1,5 @@
+usr/lib/*/*.la
+usr/lib/*/*.so
+usr/lib/*/*.so.*
+usr/share/doc/*/*
+usr/share/setup/*/*
