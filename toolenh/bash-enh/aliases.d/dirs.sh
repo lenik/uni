@@ -20,4 +20,4 @@ alias df='postproc sort \; df -T -B 1048576'
 alias du1='du --max-depth=1'
 alias du2='du --max-depth=2'
 
-alias tree='tree-less'
+alias treee='tree-less'
