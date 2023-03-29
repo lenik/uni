@@ -11,6 +11,11 @@ extern "C" {
 jclass findClass(const char *name);
 jclass findClass(JNIEnv *env, const char *name);
 
+jfieldID getFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
+jfieldID getStaticFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
+jmethodID getMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
+jmethodID getStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
+
 jobject newObject(jclass clazz, jmethodID methodId, ...);
 jobject newObject(JNIEnv *env, jclass clazz, jmethodID methodId, ...);
 

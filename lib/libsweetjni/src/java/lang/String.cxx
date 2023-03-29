@@ -2,12 +2,12 @@
 
 using namespace java::lang;
 
-String::String(JNIEnv *env, jobject _this) {
+String::String(JNIEnv *env, jstring _this) {
     this->_this = _this;
     this->_env = env;
 }
 
-String *String::_wrap(jobject _this) {
+String *String::_wrap(jstring _this) {
     JNIEnv *env = getEnv();
     return new String(env, _this);
 }
@@ -16,85 +16,85 @@ String *String::_wrap(jobject _this) {
 String::String(jobject arg0){
     jclass clazz = CLASS._class;
     this->_env = getEnv();
-    this->_this = newObject(_env, clazz, CLASS.INIT_StringBuffer, arg0);
+    this->_this = (jstring) newObject(_env, clazz, CLASS.INIT_StringBuffer, arg0);
 }
 
 String::String(jbyteArray arg0, jint arg1, jint arg2, jobject arg3){
     jclass clazz = CLASS._class;
     this->_env = getEnv();
-    this->_this = newObject(_env, clazz, CLASS.INIT_byteArray_int_int_Charset, arg0, arg1, arg2, arg3);
+    this->_this = (jstring) newObject(_env, clazz, CLASS.INIT_byteArray_int_int_Charset, arg0, arg1, arg2, arg3);
 }
 
 String::String(jbyteArray arg0, jstring arg1){
     jclass clazz = CLASS._class;
     this->_env = getEnv();
-    this->_this = newObject(_env, clazz, CLASS.INIT_byteArray_String, arg0, arg1);
+    this->_this = (jstring) newObject(_env, clazz, CLASS.INIT_byteArray_String, arg0, arg1);
 }
 
 String::String(jbyteArray arg0, jobject arg1){
     jclass clazz = CLASS._class;
     this->_env = getEnv();
-    this->_this = newObject(_env, clazz, CLASS.INIT_byteArray_Charset, arg0, arg1);
+    this->_this = (jstring) newObject(_env, clazz, CLASS.INIT_byteArray_Charset, arg0, arg1);
 }
 
 String::String(jbyteArray arg0, jint arg1, jint arg2){
     jclass clazz = CLASS._class;
     this->_env = getEnv();
-    this->_this = newObject(_env, clazz, CLASS.INIT_byteArray_int_int, arg0, arg1, arg2);
+    this->_this = (jstring) newObject(_env, clazz, CLASS.INIT_byteArray_int_int, arg0, arg1, arg2);
 }
 
 String::String(jbyteArray arg0){
     jclass clazz = CLASS._class;
     this->_env = getEnv();
-    this->_this = newObject(_env, clazz, CLASS.INIT_byteArray, arg0);
+    this->_this = (jstring) newObject(_env, clazz, CLASS.INIT_byteArray, arg0);
 }
 
 String::String(jcharArray arg0, jint arg1, jint arg2){
     jclass clazz = CLASS._class;
     this->_env = getEnv();
-    this->_this = newObject(_env, clazz, CLASS.INIT_charArray_int_int, arg0, arg1, arg2);
+    this->_this = (jstring) newObject(_env, clazz, CLASS.INIT_charArray_int_int, arg0, arg1, arg2);
 }
 
 String::String(jcharArray arg0){
     jclass clazz = CLASS._class;
     this->_env = getEnv();
-    this->_this = newObject(_env, clazz, CLASS.INIT_charArray, arg0);
+    this->_this = (jstring) newObject(_env, clazz, CLASS.INIT_charArray, arg0);
 }
 
 String::String(jstring arg0){
     jclass clazz = CLASS._class;
     this->_env = getEnv();
-    this->_this = newObject(_env, clazz, CLASS.INIT_String, arg0);
+    this->_this = (jstring) newObject(_env, clazz, CLASS.INIT_String, arg0);
 }
 
 String::String(){
     jclass clazz = CLASS._class;
     this->_env = getEnv();
-    this->_this = newObject(_env, clazz, CLASS.INIT);
+    this->_this = (jstring) newObject(_env, clazz, CLASS.INIT);
 }
 
 String::String(jbyteArray arg0, jint arg1, jint arg2, jstring arg3){
     jclass clazz = CLASS._class;
     this->_env = getEnv();
-    this->_this = newObject(_env, clazz, CLASS.INIT_byteArray_int_int_String, arg0, arg1, arg2, arg3);
+    this->_this = (jstring) newObject(_env, clazz, CLASS.INIT_byteArray_int_int_String, arg0, arg1, arg2, arg3);
 }
 
 String::String(jbyteArray arg0, jint arg1){
     jclass clazz = CLASS._class;
     this->_env = getEnv();
-    this->_this = newObject(_env, clazz, CLASS.INIT_byteArray_int, arg0, arg1);
+    this->_this = (jstring) newObject(_env, clazz, CLASS.INIT_byteArray_int, arg0, arg1);
 }
 
 String::String(jbyteArray arg0, jint arg1, jint arg2, jint arg3){
     jclass clazz = CLASS._class;
     this->_env = getEnv();
-    this->_this = newObject(_env, clazz, CLASS.INIT_byteArray_int_int_int, arg0, arg1, arg2, arg3);
+    this->_this = (jstring) newObject(_env, clazz, CLASS.INIT_byteArray_int_int_int, arg0, arg1, arg2, arg3);
 }
 
 String::String(jintArray arg0, jint arg1, jint arg2){
     jclass clazz = CLASS._class;
     this->_env = getEnv();
-    this->_this = newObject(_env, clazz, CLASS.INIT_intArray_int_int, arg0, arg1, arg2);
+    this->_this = (jstring) newObject(_env, clazz, CLASS.INIT_intArray_int_int, arg0, arg1, arg2);
 }
 
 jboolean String::equals(jobject arg0){
@@ -527,203 +527,205 @@ String_class::String_class() {
     if (env == NULL) return;
     _class = findClass(env, "java/lang/String");
     if (_class == NULL) return;
-    FIELD_CASE_INSENSITIVE_ORDER = env->GetFieldID(_class, "CASE_INSENSITIVE_ORDER", "Ljava/util/Comparator;");
-    INIT_StringBuffer = env->GetMethodID(_class, "<init>", "(Ljava/lang/StringBuffer;)V");
-    INIT_StringBuilder = env->GetMethodID(_class, "<init>", "(Ljava/lang/StringBuilder;)V");
-    INIT_byteArray_int_int_Charset = env->GetMethodID(_class, "<init>", "([BIILjava/nio/charset/Charset;)V");
-    INIT_byteArray_String = env->GetMethodID(_class, "<init>", "([BLjava/lang/String;)V");
-    INIT_byteArray_Charset = env->GetMethodID(_class, "<init>", "([BLjava/nio/charset/Charset;)V");
-    INIT_byteArray_int_int = env->GetMethodID(_class, "<init>", "([BII)V");
-    INIT_byteArray = env->GetMethodID(_class, "<init>", "([B)V");
-    INIT_charArray_int_int = env->GetMethodID(_class, "<init>", "([CII)V");
-    INIT_charArray = env->GetMethodID(_class, "<init>", "([C)V");
-    INIT_String = env->GetMethodID(_class, "<init>", "(Ljava/lang/String;)V");
-    INIT = env->GetMethodID(_class, "<init>", "()V");
-    INIT_byteArray_int_int_String = env->GetMethodID(_class, "<init>", "([BIILjava/lang/String;)V");
-    INIT_byteArray_int = env->GetMethodID(_class, "<init>", "([BI)V");
-    INIT_byteArray_int_int_int = env->GetMethodID(_class, "<init>", "([BIII)V");
-    INIT_intArray_int_int = env->GetMethodID(_class, "<init>", "([III)V");
-    METHOD_equals = env->GetMethodID(_class, "equals", "(Ljava/lang/Object;)Z");
-    METHOD_length = env->GetMethodID(_class, "length", "()I");
-    METHOD_toString = env->GetMethodID(_class, "toString", "()Ljava/lang/String;");
-    METHOD_hashCode = env->GetMethodID(_class, "hashCode", "()I");
-    METHOD_getChars = env->GetMethodID(_class, "getChars", "(II[CI)V");
-    METHOD_compareTo_String = env->GetMethodID(_class, "compareTo", "(Ljava/lang/String;)I");
-    METHOD_compareTo_Object = env->GetMethodID(_class, "compareTo", "(Ljava/lang/Object;)I");
-    METHOD_indexOf_String = env->GetMethodID(_class, "indexOf", "(Ljava/lang/String;)I");
-    METHOD_indexOf_String_int = env->GetMethodID(_class, "indexOf", "(Ljava/lang/String;I)I");
-    METHOD_indexOf_int = env->GetMethodID(_class, "indexOf", "(I)I");
-    METHOD_indexOf_int_int = env->GetMethodID(_class, "indexOf", "(II)I");
-    METHOD_valueOf_char = env->GetStaticMethodID(_class, "valueOf", "(C)Ljava/lang/String;");
-    METHOD_valueOf_charArray_int_int = env->GetStaticMethodID(_class, "valueOf", "([CII)Ljava/lang/String;");
-    METHOD_valueOf_charArray = env->GetStaticMethodID(_class, "valueOf", "([C)Ljava/lang/String;");
-    METHOD_valueOf_Object = env->GetStaticMethodID(_class, "valueOf", "(Ljava/lang/Object;)Ljava/lang/String;");
-    METHOD_valueOf_boolean = env->GetStaticMethodID(_class, "valueOf", "(Z)Ljava/lang/String;");
-    METHOD_valueOf_double = env->GetStaticMethodID(_class, "valueOf", "(D)Ljava/lang/String;");
-    METHOD_valueOf_long = env->GetStaticMethodID(_class, "valueOf", "(J)Ljava/lang/String;");
-    METHOD_valueOf_int = env->GetStaticMethodID(_class, "valueOf", "(I)Ljava/lang/String;");
-    METHOD_valueOf_float = env->GetStaticMethodID(_class, "valueOf", "(F)Ljava/lang/String;");
-    METHOD_charAt = env->GetMethodID(_class, "charAt", "(I)C");
-    METHOD_codePointAt = env->GetMethodID(_class, "codePointAt", "(I)I");
-    METHOD_codePointBefore = env->GetMethodID(_class, "codePointBefore", "(I)I");
-    METHOD_codePointCount = env->GetMethodID(_class, "codePointCount", "(II)I");
-    METHOD_offsetByCodePoints = env->GetMethodID(_class, "offsetByCodePoints", "(II)I");
-    METHOD_getBytes = env->GetMethodID(_class, "getBytes", "()[B");
-    METHOD_getBytes_Charset = env->GetMethodID(_class, "getBytes", "(Ljava/nio/charset/Charset;)[B");
-    METHOD_getBytes_String = env->GetMethodID(_class, "getBytes", "(Ljava/lang/String;)[B");
-    METHOD_getBytes_int_int_byteArray_int = env->GetMethodID(_class, "getBytes", "(II[BI)V");
-    METHOD_contentEquals_CharSequence = env->GetMethodID(_class, "contentEquals", "(Ljava/lang/CharSequence;)Z");
-    METHOD_contentEquals_StringBuffer = env->GetMethodID(_class, "contentEquals", "(Ljava/lang/StringBuffer;)Z");
-    METHOD_regionMatches_5 = env->GetMethodID(_class, "regionMatches", "(ZILjava/lang/String;II)Z");
-    METHOD_regionMatches_4 = env->GetMethodID(_class, "regionMatches", "(ILjava/lang/String;II)Z");
-    METHOD_startsWith_1 = env->GetMethodID(_class, "startsWith", "(Ljava/lang/String;)Z");
-    METHOD_startsWith_2 = env->GetMethodID(_class, "startsWith", "(Ljava/lang/String;I)Z");
-    METHOD_lastIndexOf_int_int = env->GetMethodID(_class, "lastIndexOf", "(II)I");
-    METHOD_lastIndexOf_int = env->GetMethodID(_class, "lastIndexOf", "(I)I");
-    METHOD_lastIndexOf_String_int = env->GetMethodID(_class, "lastIndexOf", "(Ljava/lang/String;I)I");
-    METHOD_lastIndexOf_String = env->GetMethodID(_class, "lastIndexOf", "(Ljava/lang/String;)I");
-    METHOD_substring_2 = env->GetMethodID(_class, "substring", "(II)Ljava/lang/String;");
-    METHOD_substring_1 = env->GetMethodID(_class, "substring", "(I)Ljava/lang/String;");
-    METHOD_isEmpty = env->GetMethodID(_class, "isEmpty", "()Z");
-    METHOD_replace_CharSequence_CharSequence = env->GetMethodID(_class, "replace", "(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;");
-    METHOD_replace_char_char = env->GetMethodID(_class, "replace", "(CC)Ljava/lang/String;");
-    METHOD_matches = env->GetMethodID(_class, "matches", "(Ljava/lang/String;)Z");
-    METHOD_replaceFirst = env->GetMethodID(_class, "replaceFirst", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
-    METHOD_replaceAll = env->GetMethodID(_class, "replaceAll", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
-    METHOD_split_2 = env->GetMethodID(_class, "split", "(Ljava/lang/String;I)[Ljava/lang/String;");
-    METHOD_split_1 = env->GetMethodID(_class, "split", "(Ljava/lang/String;)[Ljava/lang/String;");
-    METHOD_join_CharSequence_CharSequenceArray = env->GetStaticMethodID(_class, "join", "(Ljava/lang/CharSequence;[Ljava/lang/CharSequence;)Ljava/lang/String;");
-    METHOD_join_CharSequence_Iterable = env->GetStaticMethodID(_class, "join", "(Ljava/lang/CharSequence;Ljava/lang/Iterable;)Ljava/lang/String;");
-    METHOD_toLowerCase = env->GetMethodID(_class, "toLowerCase", "()Ljava/lang/String;");
-    METHOD_toLowerCase_1 = env->GetMethodID(_class, "toLowerCase", "(Ljava/util/Locale;)Ljava/lang/String;");
-    METHOD_toUpperCase = env->GetMethodID(_class, "toUpperCase", "()Ljava/lang/String;");
-    METHOD_toUpperCase_1 = env->GetMethodID(_class, "toUpperCase", "(Ljava/util/Locale;)Ljava/lang/String;");
-    METHOD_trim = env->GetMethodID(_class, "trim", "()Ljava/lang/String;");
-    METHOD_strip = env->GetMethodID(_class, "strip", "()Ljava/lang/String;");
-    METHOD_stripLeading = env->GetMethodID(_class, "stripLeading", "()Ljava/lang/String;");
-    METHOD_stripTrailing = env->GetMethodID(_class, "stripTrailing", "()Ljava/lang/String;");
-    METHOD_lines = env->GetMethodID(_class, "lines", "()Ljava/util/stream/Stream;");
-    METHOD_repeat = env->GetMethodID(_class, "repeat", "(I)Ljava/lang/String;");
-    METHOD_isBlank = env->GetMethodID(_class, "isBlank", "()Z");
-    METHOD_toCharArray = env->GetMethodID(_class, "toCharArray", "()[C");
-    METHOD_format_2 = env->GetStaticMethodID(_class, "format", "(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;");
-    METHOD_format_3 = env->GetStaticMethodID(_class, "format", "(Ljava/util/Locale;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;");
-    METHOD_codePoints = env->GetMethodID(_class, "codePoints", "()Ljava/util/stream/IntStream;");
-    METHOD_equalsIgnoreCase = env->GetMethodID(_class, "equalsIgnoreCase", "(Ljava/lang/String;)Z");
-    METHOD_compareToIgnoreCase = env->GetMethodID(_class, "compareToIgnoreCase", "(Ljava/lang/String;)I");
-    METHOD_endsWith = env->GetMethodID(_class, "endsWith", "(Ljava/lang/String;)Z");
-    METHOD_subSequence = env->GetMethodID(_class, "subSequence", "(II)Ljava/lang/CharSequence;");
-    METHOD_concat = env->GetMethodID(_class, "concat", "(Ljava/lang/String;)Ljava/lang/String;");
-    METHOD_contains = env->GetMethodID(_class, "contains", "(Ljava/lang/CharSequence;)Z");
-    METHOD_indent = env->GetMethodID(_class, "indent", "(I)Ljava/lang/String;");
-    METHOD_stripIndent = env->GetMethodID(_class, "stripIndent", "()Ljava/lang/String;");
-    METHOD_translateEscapes = env->GetMethodID(_class, "translateEscapes", "()Ljava/lang/String;");
-    METHOD_chars = env->GetMethodID(_class, "chars", "()Ljava/util/stream/IntStream;");
-    METHOD_transform = env->GetMethodID(_class, "transform", "(Ljava/util/function/Function;)Ljava/lang/Object;");
-    METHOD_formatted = env->GetMethodID(_class, "formatted", "([Ljava/lang/Object;)Ljava/lang/String;");
-    METHOD_copyValueOf_1 = env->GetStaticMethodID(_class, "copyValueOf", "([C)Ljava/lang/String;");
-    METHOD_copyValueOf_3 = env->GetStaticMethodID(_class, "copyValueOf", "([CII)Ljava/lang/String;");
-    METHOD_intern = env->GetMethodID(_class, "intern", "()Ljava/lang/String;");
-    METHOD_describeConstable = env->GetMethodID(_class, "describeConstable", "()Ljava/util/Optional;");
+    FIELD_CASE_INSENSITIVE_ORDER = getStaticFieldID(env, _class, "CASE_INSENSITIVE_ORDER", "Ljava/util/Comparator;");
+    INIT_StringBuffer = getMethodID(env, _class, "<init>", "(Ljava/lang/StringBuffer;)V");
+    INIT_StringBuilder = getMethodID(env, _class, "<init>", "(Ljava/lang/StringBuilder;)V");
+    INIT_byteArray_int_int_Charset = getMethodID(env, _class, "<init>", "([BIILjava/nio/charset/Charset;)V");
+    INIT_byteArray_String = getMethodID(env, _class, "<init>", "([BLjava/lang/String;)V");
+    INIT_byteArray_Charset = getMethodID(env, _class, "<init>", "([BLjava/nio/charset/Charset;)V");
+    INIT_byteArray_int_int = getMethodID(env, _class, "<init>", "([BII)V");
+    INIT_byteArray = getMethodID(env, _class, "<init>", "([B)V");
+    INIT_charArray_int_int = getMethodID(env, _class, "<init>", "([CII)V");
+    INIT_charArray = getMethodID(env, _class, "<init>", "([C)V");
+    INIT_String = getMethodID(env, _class, "<init>", "(Ljava/lang/String;)V");
+    INIT = getMethodID(env, _class, "<init>", "()V");
+    INIT_byteArray_int_int_String = getMethodID(env, _class, "<init>", "([BIILjava/lang/String;)V");
+    INIT_byteArray_int = getMethodID(env, _class, "<init>", "([BI)V");
+    INIT_byteArray_int_int_int = getMethodID(env, _class, "<init>", "([BIII)V");
+    INIT_intArray_int_int = getMethodID(env, _class, "<init>", "([III)V");
+    METHOD_equals = getMethodID(env, _class, "equals", "(Ljava/lang/Object;)Z");
+    METHOD_length = getMethodID(env, _class, "length", "()I");
+    METHOD_toString = getMethodID(env, _class, "toString", "()Ljava/lang/String;");
+    METHOD_hashCode = getMethodID(env, _class, "hashCode", "()I");
+    METHOD_getChars = getMethodID(env, _class, "getChars", "(II[CI)V");
+    METHOD_compareTo_String = getMethodID(env, _class, "compareTo", "(Ljava/lang/String;)I");
+    METHOD_compareTo_Object = getMethodID(env, _class, "compareTo", "(Ljava/lang/Object;)I");
+    METHOD_indexOf_String = getMethodID(env, _class, "indexOf", "(Ljava/lang/String;)I");
+    METHOD_indexOf_String_int = getMethodID(env, _class, "indexOf", "(Ljava/lang/String;I)I");
+    METHOD_indexOf_int = getMethodID(env, _class, "indexOf", "(I)I");
+    METHOD_indexOf_int_int = getMethodID(env, _class, "indexOf", "(II)I");
+    METHOD_valueOf_char = getStaticMethodID(env, _class, "valueOf", "(C)Ljava/lang/String;");
+    METHOD_valueOf_charArray_int_int = getStaticMethodID(env, _class, "valueOf", "([CII)Ljava/lang/String;");
+    METHOD_valueOf_charArray = getStaticMethodID(env, _class, "valueOf", "([C)Ljava/lang/String;");
+    METHOD_valueOf_Object = getStaticMethodID(env, _class, "valueOf", "(Ljava/lang/Object;)Ljava/lang/String;");
+    METHOD_valueOf_boolean = getStaticMethodID(env, _class, "valueOf", "(Z)Ljava/lang/String;");
+    METHOD_valueOf_double = getStaticMethodID(env, _class, "valueOf", "(D)Ljava/lang/String;");
+    METHOD_valueOf_long = getStaticMethodID(env, _class, "valueOf", "(J)Ljava/lang/String;");
+    METHOD_valueOf_int = getStaticMethodID(env, _class, "valueOf", "(I)Ljava/lang/String;");
+    METHOD_valueOf_float = getStaticMethodID(env, _class, "valueOf", "(F)Ljava/lang/String;");
+    METHOD_charAt = getMethodID(env, _class, "charAt", "(I)C");
+    METHOD_codePointAt = getMethodID(env, _class, "codePointAt", "(I)I");
+    METHOD_codePointBefore = getMethodID(env, _class, "codePointBefore", "(I)I");
+    METHOD_codePointCount = getMethodID(env, _class, "codePointCount", "(II)I");
+    METHOD_offsetByCodePoints = getMethodID(env, _class, "offsetByCodePoints", "(II)I");
+    METHOD_getBytes = getMethodID(env, _class, "getBytes", "()[B");
+    METHOD_getBytes_Charset = getMethodID(env, _class, "getBytes", "(Ljava/nio/charset/Charset;)[B");
+    METHOD_getBytes_String = getMethodID(env, _class, "getBytes", "(Ljava/lang/String;)[B");
+    METHOD_getBytes_int_int_byteArray_int = getMethodID(env, _class, "getBytes", "(II[BI)V");
+    METHOD_contentEquals_CharSequence = getMethodID(env, _class, "contentEquals", "(Ljava/lang/CharSequence;)Z");
+    METHOD_contentEquals_StringBuffer = getMethodID(env, _class, "contentEquals", "(Ljava/lang/StringBuffer;)Z");
+    METHOD_regionMatches_5 = getMethodID(env, _class, "regionMatches", "(ZILjava/lang/String;II)Z");
+    METHOD_regionMatches_4 = getMethodID(env, _class, "regionMatches", "(ILjava/lang/String;II)Z");
+    METHOD_startsWith_1 = getMethodID(env, _class, "startsWith", "(Ljava/lang/String;)Z");
+    METHOD_startsWith_2 = getMethodID(env, _class, "startsWith", "(Ljava/lang/String;I)Z");
+    METHOD_lastIndexOf_int_int = getMethodID(env, _class, "lastIndexOf", "(II)I");
+    METHOD_lastIndexOf_int = getMethodID(env, _class, "lastIndexOf", "(I)I");
+    METHOD_lastIndexOf_String_int = getMethodID(env, _class, "lastIndexOf", "(Ljava/lang/String;I)I");
+    METHOD_lastIndexOf_String = getMethodID(env, _class, "lastIndexOf", "(Ljava/lang/String;)I");
+    METHOD_substring_2 = getMethodID(env, _class, "substring", "(II)Ljava/lang/String;");
+    METHOD_substring_1 = getMethodID(env, _class, "substring", "(I)Ljava/lang/String;");
+    METHOD_isEmpty = getMethodID(env, _class, "isEmpty", "()Z");
+    METHOD_replace_CharSequence_CharSequence = getMethodID(env, _class, "replace", "(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;");
+    METHOD_replace_char_char = getMethodID(env, _class, "replace", "(CC)Ljava/lang/String;");
+    METHOD_matches = getMethodID(env, _class, "matches", "(Ljava/lang/String;)Z");
+    METHOD_replaceFirst = getMethodID(env, _class, "replaceFirst", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
+    METHOD_replaceAll = getMethodID(env, _class, "replaceAll", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
+    METHOD_split_2 = getMethodID(env, _class, "split", "(Ljava/lang/String;I)[Ljava/lang/String;");
+    METHOD_split_1 = getMethodID(env, _class, "split", "(Ljava/lang/String;)[Ljava/lang/String;");
+    METHOD_join_CharSequence_CharSequenceArray = getStaticMethodID(env, _class, "join", "(Ljava/lang/CharSequence;[Ljava/lang/CharSequence;)Ljava/lang/String;");
+    METHOD_join_CharSequence_Iterable = getStaticMethodID(env, _class, "join", "(Ljava/lang/CharSequence;Ljava/lang/Iterable;)Ljava/lang/String;");
+    METHOD_toLowerCase = getMethodID(env, _class, "toLowerCase", "()Ljava/lang/String;");
+    METHOD_toLowerCase_1 = getMethodID(env, _class, "toLowerCase", "(Ljava/util/Locale;)Ljava/lang/String;");
+    METHOD_toUpperCase = getMethodID(env, _class, "toUpperCase", "()Ljava/lang/String;");
+    METHOD_toUpperCase_1 = getMethodID(env, _class, "toUpperCase", "(Ljava/util/Locale;)Ljava/lang/String;");
+    METHOD_trim = getMethodID(env, _class, "trim", "()Ljava/lang/String;");
+    METHOD_strip = getMethodID(env, _class, "strip", "()Ljava/lang/String;");
+    METHOD_stripLeading = getMethodID(env, _class, "stripLeading", "()Ljava/lang/String;");
+    METHOD_stripTrailing = getMethodID(env, _class, "stripTrailing", "()Ljava/lang/String;");
+    METHOD_lines = getMethodID(env, _class, "lines", "()Ljava/util/stream/Stream;");
+    METHOD_repeat = getMethodID(env, _class, "repeat", "(I)Ljava/lang/String;");
+    METHOD_isBlank = getMethodID(env, _class, "isBlank", "()Z");
+    METHOD_toCharArray = getMethodID(env, _class, "toCharArray", "()[C");
+    METHOD_format_2 = getStaticMethodID(env, _class, "format", "(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;");
+    METHOD_format_3 = getStaticMethodID(env, _class, "format", "(Ljava/util/Locale;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;");
+    METHOD_codePoints = getMethodID(env, _class, "codePoints", "()Ljava/util/stream/IntStream;");
+    METHOD_equalsIgnoreCase = getMethodID(env, _class, "equalsIgnoreCase", "(Ljava/lang/String;)Z");
+    METHOD_compareToIgnoreCase = getMethodID(env, _class, "compareToIgnoreCase", "(Ljava/lang/String;)I");
+    METHOD_endsWith = getMethodID(env, _class, "endsWith", "(Ljava/lang/String;)Z");
+    METHOD_subSequence = getMethodID(env, _class, "subSequence", "(II)Ljava/lang/CharSequence;");
+    METHOD_concat = getMethodID(env, _class, "concat", "(Ljava/lang/String;)Ljava/lang/String;");
+    METHOD_contains = getMethodID(env, _class, "contains", "(Ljava/lang/CharSequence;)Z");
+    METHOD_indent = getMethodID(env, _class, "indent", "(I)Ljava/lang/String;");
+    METHOD_stripIndent = getMethodID(env, _class, "stripIndent", "()Ljava/lang/String;");
+    METHOD_translateEscapes = getMethodID(env, _class, "translateEscapes", "()Ljava/lang/String;");
+    METHOD_chars = getMethodID(env, _class, "chars", "()Ljava/util/stream/IntStream;");
+    METHOD_transform = getMethodID(env, _class, "transform", "(Ljava/util/function/Function;)Ljava/lang/Object;");
+    METHOD_formatted = getMethodID(env, _class, "formatted", "([Ljava/lang/Object;)Ljava/lang/String;");
+    METHOD_copyValueOf_1 = getStaticMethodID(env, _class, "copyValueOf", "([C)Ljava/lang/String;");
+    METHOD_copyValueOf_3 = getStaticMethodID(env, _class, "copyValueOf", "([CII)Ljava/lang/String;");
+    METHOD_intern = getMethodID(env, _class, "intern", "()Ljava/lang/String;");
+    METHOD_describeConstable = getMethodID(env, _class, "describeConstable", "()Ljava/util/Optional;");
 }
 
+typedef long numeric;
+
 void String_class::dump() {
-    printf("FIELD_CASE_INSENSITIVE_ORDER: %d\n", FIELD_CASE_INSENSITIVE_ORDER);
-    printf("INIT_StringBuffer: %d\n", INIT_StringBuffer);
-    printf("INIT_StringBuilder: %d\n", INIT_StringBuilder);
-    printf("INIT_byteArray_int_int_Charset: %d\n", INIT_byteArray_int_int_Charset);
-    printf("INIT_byteArray_String: %d\n", INIT_byteArray_String);
-    printf("INIT_byteArray_Charset: %d\n", INIT_byteArray_Charset);
-    printf("INIT_byteArray_int_int: %d\n", INIT_byteArray_int_int);
-    printf("INIT_byteArray: %d\n", INIT_byteArray);
-    printf("INIT_charArray_int_int: %d\n", INIT_charArray_int_int);
-    printf("INIT_charArray: %d\n", INIT_charArray);
-    printf("INIT_String: %d\n", INIT_String);
-    printf("INIT: %d\n", INIT);
-    printf("INIT_byteArray_int_int_String: %d\n", INIT_byteArray_int_int_String);
-    printf("INIT_byteArray_int: %d\n", INIT_byteArray_int);
-    printf("INIT_byteArray_int_int_int: %d\n", INIT_byteArray_int_int_int);
-    printf("INIT_intArray_int_int: %d\n", INIT_intArray_int_int);
-    printf("METHOD_equals: %d\n", METHOD_equals);
-    printf("METHOD_length: %d\n", METHOD_length);
-    printf("METHOD_toString: %d\n", METHOD_toString);
-    printf("METHOD_hashCode: %d\n", METHOD_hashCode);
-    printf("METHOD_getChars: %d\n", METHOD_getChars);
-    printf("METHOD_compareTo_String: %d\n", METHOD_compareTo_String);
-    printf("METHOD_compareTo_Object: %d\n", METHOD_compareTo_Object);
-    printf("METHOD_indexOf_String: %d\n", METHOD_indexOf_String);
-    printf("METHOD_indexOf_String_int: %d\n", METHOD_indexOf_String_int);
-    printf("METHOD_indexOf_int: %d\n", METHOD_indexOf_int);
-    printf("METHOD_indexOf_int_int: %d\n", METHOD_indexOf_int_int);
-    printf("METHOD_valueOf_char: %d\n", METHOD_valueOf_char);
-    printf("METHOD_valueOf_charArray_int_int: %d\n", METHOD_valueOf_charArray_int_int);
-    printf("METHOD_valueOf_charArray: %d\n", METHOD_valueOf_charArray);
-    printf("METHOD_valueOf_Object: %d\n", METHOD_valueOf_Object);
-    printf("METHOD_valueOf_boolean: %d\n", METHOD_valueOf_boolean);
-    printf("METHOD_valueOf_double: %d\n", METHOD_valueOf_double);
-    printf("METHOD_valueOf_long: %d\n", METHOD_valueOf_long);
-    printf("METHOD_valueOf_int: %d\n", METHOD_valueOf_int);
-    printf("METHOD_valueOf_float: %d\n", METHOD_valueOf_float);
-    printf("METHOD_charAt: %d\n", METHOD_charAt);
-    printf("METHOD_codePointAt: %d\n", METHOD_codePointAt);
-    printf("METHOD_codePointBefore: %d\n", METHOD_codePointBefore);
-    printf("METHOD_codePointCount: %d\n", METHOD_codePointCount);
-    printf("METHOD_offsetByCodePoints: %d\n", METHOD_offsetByCodePoints);
-    printf("METHOD_getBytes: %d\n", METHOD_getBytes);
-    printf("METHOD_getBytes_Charset: %d\n", METHOD_getBytes_Charset);
-    printf("METHOD_getBytes_String: %d\n", METHOD_getBytes_String);
-    printf("METHOD_getBytes_int_int_byteArray_int: %d\n", METHOD_getBytes_int_int_byteArray_int);
-    printf("METHOD_contentEquals_CharSequence: %d\n", METHOD_contentEquals_CharSequence);
-    printf("METHOD_contentEquals_StringBuffer: %d\n", METHOD_contentEquals_StringBuffer);
-    printf("METHOD_regionMatches_5: %d\n", METHOD_regionMatches_5);
-    printf("METHOD_regionMatches_4: %d\n", METHOD_regionMatches_4);
-    printf("METHOD_startsWith_1: %d\n", METHOD_startsWith_1);
-    printf("METHOD_startsWith_2: %d\n", METHOD_startsWith_2);
-    printf("METHOD_lastIndexOf_int_int: %d\n", METHOD_lastIndexOf_int_int);
-    printf("METHOD_lastIndexOf_int: %d\n", METHOD_lastIndexOf_int);
-    printf("METHOD_lastIndexOf_String_int: %d\n", METHOD_lastIndexOf_String_int);
-    printf("METHOD_lastIndexOf_String: %d\n", METHOD_lastIndexOf_String);
-    printf("METHOD_substring_2: %d\n", METHOD_substring_2);
-    printf("METHOD_substring_1: %d\n", METHOD_substring_1);
-    printf("METHOD_isEmpty: %d\n", METHOD_isEmpty);
-    printf("METHOD_replace_CharSequence_CharSequence: %d\n", METHOD_replace_CharSequence_CharSequence);
-    printf("METHOD_replace_char_char: %d\n", METHOD_replace_char_char);
-    printf("METHOD_matches: %d\n", METHOD_matches);
-    printf("METHOD_replaceFirst: %d\n", METHOD_replaceFirst);
-    printf("METHOD_replaceAll: %d\n", METHOD_replaceAll);
-    printf("METHOD_split_2: %d\n", METHOD_split_2);
-    printf("METHOD_split_1: %d\n", METHOD_split_1);
-    printf("METHOD_join_CharSequence_CharSequenceArray: %d\n", METHOD_join_CharSequence_CharSequenceArray);
-    printf("METHOD_join_CharSequence_Iterable: %d\n", METHOD_join_CharSequence_Iterable);
-    printf("METHOD_toLowerCase: %d\n", METHOD_toLowerCase);
-    printf("METHOD_toLowerCase_1: %d\n", METHOD_toLowerCase_1);
-    printf("METHOD_toUpperCase: %d\n", METHOD_toUpperCase);
-    printf("METHOD_toUpperCase_1: %d\n", METHOD_toUpperCase_1);
-    printf("METHOD_trim: %d\n", METHOD_trim);
-    printf("METHOD_strip: %d\n", METHOD_strip);
-    printf("METHOD_stripLeading: %d\n", METHOD_stripLeading);
-    printf("METHOD_stripTrailing: %d\n", METHOD_stripTrailing);
-    printf("METHOD_lines: %d\n", METHOD_lines);
-    printf("METHOD_repeat: %d\n", METHOD_repeat);
-    printf("METHOD_isBlank: %d\n", METHOD_isBlank);
-    printf("METHOD_toCharArray: %d\n", METHOD_toCharArray);
-    printf("METHOD_format_2: %d\n", METHOD_format_2);
-    printf("METHOD_format_3: %d\n", METHOD_format_3);
-    printf("METHOD_codePoints: %d\n", METHOD_codePoints);
-    printf("METHOD_equalsIgnoreCase: %d\n", METHOD_equalsIgnoreCase);
-    printf("METHOD_compareToIgnoreCase: %d\n", METHOD_compareToIgnoreCase);
-    printf("METHOD_endsWith: %d\n", METHOD_endsWith);
-    printf("METHOD_subSequence: %d\n", METHOD_subSequence);
-    printf("METHOD_concat: %d\n", METHOD_concat);
-    printf("METHOD_contains: %d\n", METHOD_contains);
-    printf("METHOD_indent: %d\n", METHOD_indent);
-    printf("METHOD_stripIndent: %d\n", METHOD_stripIndent);
-    printf("METHOD_translateEscapes: %d\n", METHOD_translateEscapes);
-    printf("METHOD_chars: %d\n", METHOD_chars);
-    printf("METHOD_transform: %d\n", METHOD_transform);
-    printf("METHOD_formatted: %d\n", METHOD_formatted);
-    printf("METHOD_copyValueOf_1: %d\n", METHOD_copyValueOf_1);
-    printf("METHOD_copyValueOf_3: %d\n", METHOD_copyValueOf_3);
-    printf("METHOD_intern: %d\n", METHOD_intern);
-    printf("METHOD_describeConstable: %d\n", METHOD_describeConstable);
+    printf("FIELD_CASE_INSENSITIVE_ORDER: %ld\n", (numeric) FIELD_CASE_INSENSITIVE_ORDER);
+    printf("INIT_StringBuffer: %ld\n", (numeric) INIT_StringBuffer);
+    printf("INIT_StringBuilder: %ld\n", (numeric) INIT_StringBuilder);
+    printf("INIT_byteArray_int_int_Charset: %ld\n", (numeric) INIT_byteArray_int_int_Charset);
+    printf("INIT_byteArray_String: %ld\n", (numeric) INIT_byteArray_String);
+    printf("INIT_byteArray_Charset: %ld\n", (numeric) INIT_byteArray_Charset);
+    printf("INIT_byteArray_int_int: %ld\n", (numeric) INIT_byteArray_int_int);
+    printf("INIT_byteArray: %ld\n", (numeric) INIT_byteArray);
+    printf("INIT_charArray_int_int: %ld\n", (numeric) INIT_charArray_int_int);
+    printf("INIT_charArray: %ld\n", (numeric) INIT_charArray);
+    printf("INIT_String: %ld\n", (numeric) INIT_String);
+    printf("INIT: %ld\n", (numeric) INIT);
+    printf("INIT_byteArray_int_int_String: %ld\n", (numeric) INIT_byteArray_int_int_String);
+    printf("INIT_byteArray_int: %ld\n", (numeric) INIT_byteArray_int);
+    printf("INIT_byteArray_int_int_int: %ld\n", (numeric) INIT_byteArray_int_int_int);
+    printf("INIT_intArray_int_int: %ld\n", (numeric) INIT_intArray_int_int);
+    printf("METHOD_equals: %ld\n", (numeric) METHOD_equals);
+    printf("METHOD_length: %ld\n", (numeric) METHOD_length);
+    printf("METHOD_toString: %ld\n", (numeric) METHOD_toString);
+    printf("METHOD_hashCode: %ld\n", (numeric) METHOD_hashCode);
+    printf("METHOD_getChars: %ld\n", (numeric) METHOD_getChars);
+    printf("METHOD_compareTo_String: %ld\n", (numeric) METHOD_compareTo_String);
+    printf("METHOD_compareTo_Object: %ld\n", (numeric) METHOD_compareTo_Object);
+    printf("METHOD_indexOf_String: %ld\n", (numeric) METHOD_indexOf_String);
+    printf("METHOD_indexOf_String_int: %ld\n", (numeric) METHOD_indexOf_String_int);
+    printf("METHOD_indexOf_int: %ld\n", (numeric) METHOD_indexOf_int);
+    printf("METHOD_indexOf_int_int: %ld\n", (numeric) METHOD_indexOf_int_int);
+    printf("METHOD_valueOf_char: %ld\n", (numeric) METHOD_valueOf_char);
+    printf("METHOD_valueOf_charArray_int_int: %ld\n", (numeric) METHOD_valueOf_charArray_int_int);
+    printf("METHOD_valueOf_charArray: %ld\n", (numeric) METHOD_valueOf_charArray);
+    printf("METHOD_valueOf_Object: %ld\n", (numeric) METHOD_valueOf_Object);
+    printf("METHOD_valueOf_boolean: %ld\n", (numeric) METHOD_valueOf_boolean);
+    printf("METHOD_valueOf_double: %ld\n", (numeric) METHOD_valueOf_double);
+    printf("METHOD_valueOf_long: %ld\n", (numeric) METHOD_valueOf_long);
+    printf("METHOD_valueOf_int: %ld\n", (numeric) METHOD_valueOf_int);
+    printf("METHOD_valueOf_float: %ld\n", (numeric) METHOD_valueOf_float);
+    printf("METHOD_charAt: %ld\n", (numeric) METHOD_charAt);
+    printf("METHOD_codePointAt: %ld\n", (numeric) METHOD_codePointAt);
+    printf("METHOD_codePointBefore: %ld\n", (numeric) METHOD_codePointBefore);
+    printf("METHOD_codePointCount: %ld\n", (numeric) METHOD_codePointCount);
+    printf("METHOD_offsetByCodePoints: %ld\n", (numeric) METHOD_offsetByCodePoints);
+    printf("METHOD_getBytes: %ld\n", (numeric) METHOD_getBytes);
+    printf("METHOD_getBytes_Charset: %ld\n", (numeric) METHOD_getBytes_Charset);
+    printf("METHOD_getBytes_String: %ld\n", (numeric) METHOD_getBytes_String);
+    printf("METHOD_getBytes_int_int_byteArray_int: %ld\n", (numeric) METHOD_getBytes_int_int_byteArray_int);
+    printf("METHOD_contentEquals_CharSequence: %ld\n", (numeric) METHOD_contentEquals_CharSequence);
+    printf("METHOD_contentEquals_StringBuffer: %ld\n", (numeric) METHOD_contentEquals_StringBuffer);
+    printf("METHOD_regionMatches_5: %ld\n", (numeric) METHOD_regionMatches_5);
+    printf("METHOD_regionMatches_4: %ld\n", (numeric) METHOD_regionMatches_4);
+    printf("METHOD_startsWith_1: %ld\n", (numeric) METHOD_startsWith_1);
+    printf("METHOD_startsWith_2: %ld\n", (numeric) METHOD_startsWith_2);
+    printf("METHOD_lastIndexOf_int_int: %ld\n", (numeric) METHOD_lastIndexOf_int_int);
+    printf("METHOD_lastIndexOf_int: %ld\n", (numeric) METHOD_lastIndexOf_int);
+    printf("METHOD_lastIndexOf_String_int: %ld\n", (numeric) METHOD_lastIndexOf_String_int);
+    printf("METHOD_lastIndexOf_String: %ld\n", (numeric) METHOD_lastIndexOf_String);
+    printf("METHOD_substring_2: %ld\n", (numeric) METHOD_substring_2);
+    printf("METHOD_substring_1: %ld\n", (numeric) METHOD_substring_1);
+    printf("METHOD_isEmpty: %ld\n", (numeric) METHOD_isEmpty);
+    printf("METHOD_replace_CharSequence_CharSequence: %ld\n", (numeric) METHOD_replace_CharSequence_CharSequence);
+    printf("METHOD_replace_char_char: %ld\n", (numeric) METHOD_replace_char_char);
+    printf("METHOD_matches: %ld\n", (numeric) METHOD_matches);
+    printf("METHOD_replaceFirst: %ld\n", (numeric) METHOD_replaceFirst);
+    printf("METHOD_replaceAll: %ld\n", (numeric) METHOD_replaceAll);
+    printf("METHOD_split_2: %ld\n", (numeric) METHOD_split_2);
+    printf("METHOD_split_1: %ld\n", (numeric) METHOD_split_1);
+    printf("METHOD_join_CharSequence_CharSequenceArray: %ld\n", (numeric) METHOD_join_CharSequence_CharSequenceArray);
+    printf("METHOD_join_CharSequence_Iterable: %ld\n", (numeric) METHOD_join_CharSequence_Iterable);
+    printf("METHOD_toLowerCase: %ld\n", (numeric) METHOD_toLowerCase);
+    printf("METHOD_toLowerCase_1: %ld\n", (numeric) METHOD_toLowerCase_1);
+    printf("METHOD_toUpperCase: %ld\n", (numeric) METHOD_toUpperCase);
+    printf("METHOD_toUpperCase_1: %ld\n", (numeric) METHOD_toUpperCase_1);
+    printf("METHOD_trim: %ld\n", (numeric) METHOD_trim);
+    printf("METHOD_strip: %ld\n", (numeric) METHOD_strip);
+    printf("METHOD_stripLeading: %ld\n", (numeric) METHOD_stripLeading);
+    printf("METHOD_stripTrailing: %ld\n", (numeric) METHOD_stripTrailing);
+    printf("METHOD_lines: %ld\n", (numeric) METHOD_lines);
+    printf("METHOD_repeat: %ld\n", (numeric) METHOD_repeat);
+    printf("METHOD_isBlank: %ld\n", (numeric) METHOD_isBlank);
+    printf("METHOD_toCharArray: %ld\n", (numeric) METHOD_toCharArray);
+    printf("METHOD_format_2: %ld\n", (numeric) METHOD_format_2);
+    printf("METHOD_format_3: %ld\n", (numeric) METHOD_format_3);
+    printf("METHOD_codePoints: %ld\n", (numeric) METHOD_codePoints);
+    printf("METHOD_equalsIgnoreCase: %ld\n", (numeric) METHOD_equalsIgnoreCase);
+    printf("METHOD_compareToIgnoreCase: %ld\n", (numeric) METHOD_compareToIgnoreCase);
+    printf("METHOD_endsWith: %ld\n", (numeric) METHOD_endsWith);
+    printf("METHOD_subSequence: %ld\n", (numeric) METHOD_subSequence);
+    printf("METHOD_concat: %ld\n", (numeric) METHOD_concat);
+    printf("METHOD_contains: %ld\n", (numeric) METHOD_contains);
+    printf("METHOD_indent: %ld\n", (numeric) METHOD_indent);
+    printf("METHOD_stripIndent: %ld\n", (numeric) METHOD_stripIndent);
+    printf("METHOD_translateEscapes: %ld\n", (numeric) METHOD_translateEscapes);
+    printf("METHOD_chars: %ld\n", (numeric) METHOD_chars);
+    printf("METHOD_transform: %ld\n", (numeric) METHOD_transform);
+    printf("METHOD_formatted: %ld\n", (numeric) METHOD_formatted);
+    printf("METHOD_copyValueOf_1: %ld\n", (numeric) METHOD_copyValueOf_1);
+    printf("METHOD_copyValueOf_3: %ld\n", (numeric) METHOD_copyValueOf_3);
+    printf("METHOD_intern: %ld\n", (numeric) METHOD_intern);
+    printf("METHOD_describeConstable: %ld\n", (numeric) METHOD_describeConstable);
 }

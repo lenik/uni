@@ -9,8 +9,13 @@ JAVA_HOME = $(patsubst %/bin, %, $(patsubst %/jre/bin, %, $(JAVA_DIR)))
 JDK_INCLUDE = $(JAVA_HOME)/include
 JDK_INCLUDE_NATIVE = $(JDK_INCLUDE)/linux
 
+javalangdir = ${includedir}/java/lang
+
 dist_include_HEADERS = \
-    src/jnigen.hxx
+    src/sweetjni.hxx
+
+dist_javalang_HEADERS = \
+    src/java/lang/String.hxx
 
 lib_LTLIBRARIES = libsweetjni.la
 lib_LIBRARIES = libsweetjni.a
@@ -23,7 +28,8 @@ AM_CXXFLAGS = \
 AM_LIBADD =
 
 dist_libsweetjni_a_SOURCES = \
-    src/jnigen.cxx
+    src/sweetjni.cxx \
+    src/java/lang/String.cxx
 dist_libsweetjni_la_SOURCES = ${dist_libsweetjni_a_SOURCES}
 
 libsweetjni_a_CXXFLAGS = ${AM_CXXFLAGS}
@@ -40,9 +46,11 @@ CLEANFILES = \
     ${dist_setup_SCRIPTS}
 
 install-debug:
-	sudo ln -snf $$PWD/src/jnigen.hxx /usr/include/
-	sudo ln -snf $$PWD/.libs/libsweetjni.so /usr/lib/libsweetjni.so.1.0.0
+	sudo ln -snf $$PWD/src/sweetjni.hxx     /usr/include/
+	sudo ln -snf $$PWD/.libs/libsweetjni.so /usr/lib/`arch`-linux-gnu/libsweetjni.so.1.0.0
 
 autobuild:
-	autorun -r src -c 'makelook'
+	autorun \
+            -r src              -c 'makelook' \
+            -r src/java/lang    -c 'makelook'
 

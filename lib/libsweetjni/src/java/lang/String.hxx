@@ -4,7 +4,7 @@
 #define __JAVA_LANG_STRING_H
 
 #include <jni.h>
-#include <jnigen.hxx>
+#include "../../sweetjni.hxx"
 
 namespace java::lang {
 
