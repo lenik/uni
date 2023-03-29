@@ -44,7 +44,7 @@ public class DirectoryEntry
     /**
      * SecID of first sector or short-sector, if this entry refers to a stream, SecID of first
      * sector of the short-stream container stream , if this is the root storage entry, 0 otherwise
-     * 
+     *
      * The directory entry of a stream contains the SecID of the first sector or short-sector
      * containing the stream data. All streams that are shorter than a specific size given in the
      * header are stored as a short-stream, thus inserted into the short-stream container stream. In
@@ -100,7 +100,7 @@ public class DirectoryEntry
     }
 
     @Override
-    public int size() {
+    public int dataSize() {
         return 0x80;
     }
 

@@ -40,7 +40,7 @@ public class CfbHdr
 
     /**
      * must be zero for 512-byte sectors, number of SECTs in directory chain for 4 KB sectors
-     * 
+     *
      * @version 4
      */
     public int nsectDir = 0;
@@ -93,7 +93,7 @@ public class CfbHdr
     }
 
     @Override
-    public int size() {
+    public int dataSize() {
         return 512;
     }
 

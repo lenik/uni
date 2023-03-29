@@ -33,7 +33,7 @@ public class CfbVersion
     public int minor;
 
     @Override
-    public int size() {
+    public int dataSize() {
         return 8;
     }
 

@@ -23,6 +23,7 @@ public class Guid
         this.c = c;
     }
 
+    @Override
     public Guid clone() {
         return new Guid(a, b, c);
     }
@@ -39,7 +40,7 @@ public class Guid
     }
 
     @Override
-    public int size() {
+    public int dataSize() {
         return 16;
     }
 

@@ -76,7 +76,7 @@ public class RegfHdr
     public int computedChecksum;
 
     @Override
-    public int size() {
+    public int dataSize() {
         return 4096;
     }
 
