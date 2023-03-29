@@ -1,4 +1,4 @@
-package net.bodz.uni.jnigen;
+package net.bodz.bas.type.overloaded;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -24,7 +24,7 @@ public enum DistinguishableNaming {
     static DistinguishableNaming[] defaultNamingCandidates = DistinguishableNaming.values();
 
     public String getName(Constructor<?> ctor) {
-        return ctor.getDeclaringClass().getSimpleName() + getSuffix(ctor.getParameters());
+        return getSuffix(ctor.getParameters());
     }
 
     public String getName(Method method) {
@@ -57,7 +57,7 @@ public enum DistinguishableNaming {
         case SIMPLE_PARAM_TYPE:
             sb = new StringBuilder();
             for (Parameter p : params)
-                sb.append("_" + p.getType().getSimpleName());
+                sb.append("_" + toSimpleTypeName(p.getType()));
             return sb.toString();
 
         case QUALIFIED_PARAM_TYPE:
@@ -72,7 +72,14 @@ public enum DistinguishableNaming {
         }
     }
 
+    static String arrayName(String name) {
+        return name + "Array";
+    }
+
     static String toQualifiedCamelName(Class<?> type) {
+        if (type.isArray()) {
+            return arrayName(toQualifiedCamelName(type.getComponentType()));
+        }
         String name = type.getName();
         StringTokenizer tokens = new StringTokenizer(name, ".");
         StringBuilder buf = new StringBuilder(name.length());
@@ -82,6 +89,14 @@ public enum DistinguishableNaming {
             buf.append(word);
         }
         return buf.toString();
+    }
+
+    static String toSimpleTypeName(Class<?> type) {
+        if (type.isArray()) {
+            return arrayName(toSimpleTypeName(type.getComponentType()));
+        }
+        String simpleName = type.getSimpleName();
+        return simpleName;
     }
 
 }

@@ -1,28 +1,26 @@
-package net.bodz.uni.jnigen;
+package net.bodz.bas.type.overloaded;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
-public class OverloadedMethods
-        extends ArrayList<Method> {
+public class OverloadedConstructors<T>
+        extends ArrayList<Constructor<T>> {
 
     private static final long serialVersionUID = 1L;
 
-    public Map<String, Method> distinguishablization() {
+    public ConstructorMap<T> distinguishablization() {
         return distinguishablization(DistinguishableNaming.defaultNamingCandidates);
     }
 
     /**
      * @return <code>null</code> if all naming strategy failed.
      */
-    public Map<String, Method> distinguishablization(DistinguishableNaming... namingCandidates) {
-        Map<String, Method> map = new LinkedHashMap<>();
+    public ConstructorMap<T> distinguishablization(DistinguishableNaming... namingCandidates) {
+        ConstructorMap<T> map = new ConstructorMap<T>();
         L: for (DistinguishableNaming candidate : namingCandidates) {
-            for (Method m : this) {
+            for (Constructor<T> m : this) {
                 String name = candidate.getName(m);
-                Method prev = map.put(name, m);
+                Constructor<T> prev = map.put(name, m);
                 if (prev != null) {
                     map.clear();
                     continue L;

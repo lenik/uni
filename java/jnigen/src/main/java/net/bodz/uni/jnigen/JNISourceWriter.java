@@ -46,7 +46,7 @@ public class JNISourceWriter
         out.enterln("{");
         out.printf("jclass clazz = CLASS._class;\n");
         out.printf("this->_env = getEnv();\n");
-        out.printf("this->_this = newObject(_env, clazz, CLASS.INIT_%s", ctorName);
+        out.printf("this->_this = newObject(_env, clazz, CLASS.INIT%s", ctorName);
 
         for (Parameter param : ctor.getParameters()) {
             out.print(", ");
@@ -167,7 +167,7 @@ public class JNISourceWriter
     }
 
     static String getCtorIdVar(String ctorName, Constructor<?> ctor) {
-        return "INIT_" + ctorName;
+        return "INIT" + ctorName;
     }
 
     void ctorIdDecl(String ctorName, Constructor<?> ctor, boolean def) {
@@ -204,6 +204,51 @@ public class JNISourceWriter
     void methodIdDef(String methodName, Method method) {
         methodIdDecl(methodName, method, true);
         out.println(";");
+    }
+
+    void nativeMethodDecl(String methodName, Method method, String softIndent, boolean def) {
+        int modifiers = method.getModifiers();
+        boolean isStatic = Modifier.isStatic(modifiers);
+
+        Class<?> clazz = method.getDeclaringClass();
+        String jniClassName = clazz.getName().replace('.', '_');
+        out.println("/*");
+        out.println(" * Class: " + jniClassName);
+        out.println(" * Method: " + method.getName());
+        out.println(" * Signature: " + signature(method));
+        out.println(" */");
+
+        String jniFunctionName = "Java_" + jniClassName + "_" + method.getName();
+        out.printf("JNIEXPORT %s JNICALL %s", jniType(method.getReturnType()), jniFunctionName);
+        if (softIndent != null) {
+            out.print("\n");
+            out.print(softIndent);
+        }
+
+        if (isStatic)
+            out.print("(JNIEnv *env, jclass _class");
+        else
+            out.print("(JNIEnv *env, jobject _this");
+
+        if (method.getParameterCount() != 0) {
+            out.print(", ");
+            paramsDecl(method.getParameters());
+        }
+        out.print(")");
+        // throwsDecl(method.getExceptionTypes());
+    }
+
+    void nativeMethodDef(String methodName, Method method) {
+        nativeMethodDecl(methodName, method, "        ", true);
+        out.enterln(" {");
+        Class<?> returnType = method.getReturnType();
+        if (returnType != void.class)
+            if (returnType.isPrimitive()) {
+                out.println("return 0;");
+            } else {
+                out.println("return NULL;");
+            }
+        out.leaveln("}");
     }
 
 }

@@ -2,21 +2,15 @@ package net.bodz.uni.jnigen;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import net.bodz.bas.c.loader.scan.ClassScanner;
 import net.bodz.bas.c.loader.scan.TypeCollector;
 import net.bodz.bas.c.m2.MavenPomDir;
-import net.bodz.bas.c.string.StringId;
 import net.bodz.bas.c.system.SystemProperties;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.io.Stdio;
-import net.bodz.bas.io.res.builtin.FileResource;
 import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.repr.form.SortOrder;
@@ -42,9 +36,16 @@ public class JNIWrapperCodeGen
     String scanPackage;
 
     /**
+     * Generate for specific class
+     *
+     * @option -C --class-name =NAME
+     */
+    List<String> scanClassNames = new ArrayList<>();
+
+    /**
      * Sort members.
      *
-     * @option -s
+     * @option -s --sort-members
      */
     boolean sortMembers;
     SortOrder memberOrder = SortOrder.KEEP;
@@ -54,7 +55,7 @@ public class JNIWrapperCodeGen
      *
      * By default, files are saved in src/main/native/ for maven project, or src/ otherwise.
      *
-     * @option -O --outdir =DIR
+     * @option -o --outdir =DIR
      */
     File outDir;
     static final String MAVEN_DIR = "src/main/native";
@@ -69,17 +70,41 @@ public class JNIWrapperCodeGen
     /**
      * Use flatten file names. By default, files are organized by directories according to package names.
      *
-     * @option -f
+     * @option -l
      */
     boolean flatten;
 
+    /**
+     * Force to overwrite existing native implemetation files.
+     *
+     * @option -f
+     */
+    boolean overwriteJNI = false;
+
+    /**
+     * C++ Header file extension, default .hxx
+     *
+     * @option
+     */
     String headerExtension = ".hxx";
+
+    /**
+     * C++ source file extension, default cxx
+     *
+     * @option
+     */
     String sourceExtension = ".cxx";
+
+    SourceFormat format = new SourceFormat();
 
     public JNIWrapperCodeGen() {
         loader = getClass().getClassLoader();
         scanner = new ClassScanner(loader);
+    }
 
+    @Override
+    protected void mainImpl(String... args)
+            throws Exception {
         if (outDir == null) {
             String workDir = SystemProperties.getUserDir();
             MavenPomDir pomDir = MavenPomDir.closest(workDir);
@@ -88,360 +113,86 @@ public class JNIWrapperCodeGen
             else
                 outDir = new File("src");
         }
-    }
 
-    @Override
-    protected void mainImpl(String... args)
-            throws Exception {
-
-        if (scanPackage == null)
-            throw new IllegalArgumentException("Package name isn't specified.");
+        if (scanPackage == null && scanClassNames.isEmpty()) {
+            System.err.println("nothing to generate.");
+            return;
+        }
 
         if (sortMembers)
             memberOrder = SortOrder.SORTED;
 
-        List<Class<?>> list = scanner.scanPackage(scanPackage);
+        List<Class<?>> list;
+        if (scanPackage != null)
+            list = scanner.scanPackage(scanPackage);
+        else
+            list = new ArrayList<>();
+        for (String name : scanClassNames) {
+            Class<?> clazz = Class.forName(name, false, loader);
+            list.add(clazz);
+        }
 
         for (Class<?> clazz : list) {
-            String packageName = clazz.getPackage().getName();
+            SourceFilesForSingleClass files = new SourceFilesForSingleClass();
             String name = clazz.getSimpleName();
-            String headerFileName;
-            String sourceFileName;
-            if (flatten) {
-                String packagePrefix = packageName.replace('.', '_');
-                headerFileName = packagePrefix + "_" + name + headerExtension;
-                sourceFileName = packagePrefix + "_" + name + sourceExtension;
-            } else {
-                String packageDir = packageName.replace('.', '/');
-                headerFileName = packageDir + "/" + name + headerExtension;
-                sourceFileName = packageDir + "/" + name + sourceExtension;
+            files.wrapperHeaderFile = file(name + headerExtension, clazz);
+            files.wrapperSourceFile = file(name + sourceExtension, clazz);
+
+            String typeInfoName = name + "_class";
+            files.typeInfoHeaderFile = file(typeInfoName + headerExtension, clazz);
+            files.typeInfoSourceFile = file(typeInfoName + sourceExtension, clazz);
+
+            String jniBaseName = name + "-jni";
+            files.jniHeaderFile = file(jniBaseName + headerExtension, clazz);
+            files.jniSourceFile = file(jniBaseName + sourceExtension, clazz);
+
+            ClassMembers members = new ClassMembers();
+            members.addPublicDeclaredMembers(clazz, format.toTypeInfoOptions());
+
+            run(files, members, new JNIWrapper_h(clazz));
+            run(files, members, new JNIWrapper_cxx(clazz));
+            run(files, members, new JNITypeInfo_h(clazz));
+            run(files, members, new JNITypeInfo_cxx(clazz));
+
+            if (!members.getNativeMethodNames().isEmpty()) {
+                if (overwriteJNI || !files.jniHeaderFile.exists())
+                    run(files, members, new JNINative_h(clazz));
+                if (overwriteJNI || !files.jniSourceFile.exists())
+                    run(files, members, new JNINative_cxx(clazz));
             }
-            File headerFile = new File(outDir, headerFileName);
-            File sourceFile = new File(outDir, sourceFileName);
-            // File libraryHeaderFile = new File(outDir, "jnigen" + headerExtension);
-            // String libraryHeaderHref = FilePath.getRelativePath(libraryHeaderFile, headerFile);
-
-            ITreeOut out = Stdio.cout.indented();
-            if (!stdout)
-                out = openAsIndendted(headerFile);
-
-            JNISourceWriter jsw = new JNISourceWriter(out);
-
-            OverloadedCtors ctors = new OverloadedCtors();
-            for (Constructor<?> ctor : clazz.getConstructors())
-                ctors.add(ctor);
-
-            Map<String, OverloadedMethods> methodNameMap = memberOrder.newMap();
-            for (Method method : clazz.getDeclaredMethods()) {
-                int modifiers = method.getModifiers();
-                if (!Modifier.isPublic(modifiers))
-                    continue;
-                String methodName = method.getName();
-                OverloadedMethods methods = methodNameMap.get(methodName);
-                if (methods == null) {
-                    methods = new OverloadedMethods();
-                    methodNameMap.put(methodName, methods);
-                }
-                methods.add(method);
-            }
-
-            if (stdout)
-                jsw.println("/** FILE: " + headerFileName + " */");
-            generateWrapperHeader(jsw, clazz, ctors, methodNameMap);
-            jsw.close();
-
-            if (!stdout)
-                out = openAsIndendted(sourceFile);
-            jsw = new JNISourceWriter(out);
-
-            if (stdout)
-                jsw.println("/** FILE: " + sourceFileName + " */");
-            generateWrapperImpl(jsw, clazz, ctors, methodNameMap);
-            jsw.close();
         }
-
     }
 
-    static ITreeOut openAsIndendted(File file)
+    void run(SourceFilesForSingleClass sourceFiles, ClassMembers members, JNISourceBuilder builder)
             throws IOException {
-        File parent = file.getParentFile();
-        parent.mkdirs();
-        if (!parent.exists() || !parent.isDirectory())
-            throw new IOException("Can't create parent directory: " + parent);
-        return new FileResource(file).newTreeOut();
+        builder.setSourceFiles(sourceFiles);
+        builder.setMembers(members);
+        builder.setFormat(format);
+
+        File file = builder.getPreferredFile();
+        ITreeOut out = null;
+        if (stdout) {
+            out = Stdio.cout.indented();
+            out.println("/** FILE: " + file + " */");
+        }
+
+        if (stdout)
+            builder.buildSource(out, file);
+        else
+            builder.buildSource(file);
     }
 
-    void generateWrapperHeader(JNISourceWriter out, Class<?> clazz, //
-            OverloadedCtors ctors, Map<String, OverloadedMethods> methodNameMap) {
-        out.println("/** GENERATED FILE, PLEASE DON'T MODIFY. **/");
-        out.println();
-
-        String Q_NAME = StringId.UL.breakQCamel(clazz.getName());
-        Q_NAME = Q_NAME.replace('.', '_').toUpperCase();
-
-        out.println("#ifndef __" + Q_NAME + "_H");
-        out.println("#define __" + Q_NAME + "_H");
-        out.println();
-
-        out.println("#include <jni.h>");
-        out.println("#include <jnigen.hxx>");
-        out.println();
-
-        String ns = clazz.getPackage().getName().replace(".", "::");
-        out.printf("namespace %s {\n", ns);
-        out.println();
-
-        Map<String, Field> fieldMap = memberOrder.newMap();
-        for (Field field : clazz.getDeclaredFields()) {
-            int modifiers = field.getModifiers();
-            if (!Modifier.isPublic(modifiers))
-                continue;
-            fieldMap.put(field.getName(), field);
+    File file(String name, Class<?> clazz) {
+        String packageName = clazz.getPackage().getName();
+        String path;
+        if (flatten) {
+            String packagePrefix = packageName.replace('.', '_');
+            path = packagePrefix + "_" + name;
+        } else {
+            String packageDir = packageName.replace('.', '/');
+            path = packageDir + "/" + name;
         }
-
-        String cClass = clazz.getSimpleName();
-
-        out.printf("class %s_class {\n", cClass);
-        out.println("public:");
-        out.printf("    %s_class();\n", cClass);
-        out.println("    void dump();");
-        out.println();
-
-        out.enterln("public:");
-        {
-            out.println("jclass _class;");
-
-            int n = 0;
-            for (Field field : fieldMap.values()) {
-                if (n++ == 0)
-                    out.println();
-                out.fieldIdDecl(field, false);
-                out.println(";");
-            }
-
-            n = 0;
-            Map<String, Constructor<?>> ctorMap = ctors.distinguishablization();
-            for (String ctorName : ctorMap.keySet()) {
-                if (n++ == 0)
-                    out.println();
-                out.ctorIdDecl(ctorName, ctorMap.get(ctorName), false);
-                out.println(";");
-            }
-
-            n = 0;
-            for (String methodName : methodNameMap.keySet()) {
-                OverloadedMethods methods = methodNameMap.get(methodName);
-                Map<String, Method> methodMap = methods.distinguishablization();
-                for (String qMethodName : methodMap.keySet()) {
-                    if (n++ == 0)
-                        out.println();
-                    out.methodIdDecl(qMethodName, methodMap.get(qMethodName), false);
-                    out.println(";");
-                }
-            }
-            out.leave();
-        }
-
-        out.printf("}; // class %s_class\n", cClass);
-        out.println();
-
-        out.println("class " + cClass + " : public IWrapper {");
-        out.println("    jobject _this;");
-        out.println("    JNIEnv *_env;");
-        out.println();
-        out.enterln("public: ");
-        {
-            out.println("/* wrapper constructor */");
-            out.printf("%s(JNIEnv *env, jobject _this);\n", cClass);
-            out.printf("static %s *_wrap(jobject _this);\n", cClass);
-            out.println();
-            out.printf("inline JNIEnv *__env() { return _env; }\n");
-            out.printf("inline jobject __this() { return _this; }\n");
-            out.leaveln("");
-        }
-
-        out.enterln("public: ");
-        {
-            out.println("/* ctor-create methods */");
-            Map<String, Constructor<?>> ctorMap = ctors.distinguishablization();
-            for (String ctorName : ctorMap.keySet()) {
-                out.ctorDecl(ctorName, ctorMap.get(ctorName), false);
-                out.println(";");
-            }
-            out.leaveln("");
-        }
-
-        out.enterln("public: ");
-        {
-            out.println("/* field accessors */");
-            for (String fieldName : fieldMap.keySet()) {
-                Field field = fieldMap.get(fieldName);
-                String propertyType = propertyType(field.getType());
-                out.printf("%s %s = wrapfield(this, CLASS.FIELD_%s);\n", propertyType, field.getName(), fieldName);
-            }
-            out.leaveln("");
-        }
-
-        out.enterln("public: ");
-        {
-            out.println("/* method wrappers */");
-            for (String methodName : methodNameMap.keySet()) {
-                OverloadedMethods methods = methodNameMap.get(methodName);
-                Map<String, Method> methodMap = methods.distinguishablization();
-                if (methodMap == null)
-                    throw new NullPointerException("methodMap: " + methodName);
-
-                for (String qMethodName : methodMap.keySet()) {
-                    out.methodDecl(qMethodName, methodMap.get(qMethodName), false);
-                    out.println(";");
-                }
-            }
-            out.leaveln("");
-        }
-
-        out.println("public: ");
-        out.printf("    static thread_local %s_class CLASS;\n", cClass);
-        out.println("}; // class " + cClass);
-        out.println();
-
-        out.println("} // namespace");
-        out.println();
-        out.println("#endif");
-    }
-
-    void generateWrapperImpl(JNISourceWriter out, Class<?> clazz, OverloadedCtors ctors,
-            Map<String, OverloadedMethods> methodNameMap) {
-        String headerFileName = clazz.getSimpleName() + headerExtension;
-        out.printf("#include \"%s\"\n", headerFileName);
-        out.println();
-
-        String ns = clazz.getPackage().getName().replace(".", "::");
-        out.printf("using namespace %s;\n", ns);
-        out.println();
-
-        String Q_NAME = StringId.UL.breakQCamel(clazz.getName());
-        Q_NAME = Q_NAME.replace('.', '_').toUpperCase();
-
-        String cClass = clazz.getSimpleName();
-
-        out.printf("%s::%s(JNIEnv *env, jobject _this) {\n", cClass, cClass);
-        out.printf("    this->_this = _this;\n");
-        out.printf("    this->_env = env;\n");
-        out.println("}");
-        out.println();
-
-        out.printf("%s *%s::_wrap(jobject _this) {\n", cClass, cClass);
-        out.printf("    JNIEnv *env = getEnv();\n");
-        out.printf("    return new %s(env, _this);\n", cClass);
-        out.println("}");
-        out.println();
-
-        out.println("/* ctor-create methods */");
-        Map<String, Constructor<?>> ctorMap = ctors.distinguishablization();
-        for (String ctorName : ctorMap.keySet()) {
-            out.ctorDef(ctorName, ctorMap.get(ctorName));
-            out.println();
-        }
-
-        Map<String, Field> fields = memberOrder.newMap();
-        for (Field field : clazz.getDeclaredFields()) {
-            int modifiers = field.getModifiers();
-            if (!Modifier.isPublic(modifiers))
-                continue;
-            fields.put(field.getName(), field);
-        }
-
-        String lazyInit = null; // String.format("%s(%s, %s);")
-        for (String methodName : methodNameMap.keySet()) {
-            OverloadedMethods methods = methodNameMap.get(methodName);
-            Map<String, Method> methodMap = methods.distinguishablization();
-            for (String qMethodName : methodMap.keySet()) {
-                out.methodDef(qMethodName, methodMap.get(qMethodName), lazyInit);
-                out.println();
-            }
-        }
-
-        out.printf("thread_local %s_class %s::CLASS;\n", cClass, cClass);
-        out.println();
-
-        out.printf("%s_class::%s_class()", cClass, cClass);
-        out.enterln(" {");
-        {
-            out.println("JNIEnv *env = getEnv();");
-            out.println("if (env == NULL) return;");
-
-            String jniClassName = clazz.getName().replace('.', '/');
-            out.printf("_class = findClass(env, \"%s\");\n", jniClassName);
-            out.println("if (_class == NULL) return;");
-
-            for (Field field : fields.values()) {
-                String sig = signature(field.getType());
-                out.printf("%s = env->GetFieldID(_class, \"%s\", \"%s\");\n", //
-                        JNISourceWriter.getFieldIdVar(field), //
-                        field.getName(), sig);
-            }
-
-            /*
-             * Constructs a new Java object. The method ID indicates which constructor method to invoke. This ID must be
-             * obtained by calling GetMethodID() with <init> as the method name and void (V) as the return type.
-             */
-            for (String ctorName : ctorMap.keySet()) {
-                Constructor<?> ctor = ctorMap.get(ctorName);
-                String sig = signature(ctor);
-                out.printf("%s = env->GetMethodID(_class, \"<init>\", \"%s\");\n", //
-                        JNISourceWriter.getCtorIdVar(ctorName, ctor), //
-                        sig);
-            }
-
-            for (String methodName : methodNameMap.keySet()) {
-                OverloadedMethods methods = methodNameMap.get(methodName);
-                Map<String, Method> methodMap = methods.distinguishablization();
-                for (String qMethodName : methodMap.keySet()) {
-                    Method method = methodMap.get(qMethodName);
-                    String sig = signature(method);
-                    int modifiers = method.getModifiers();
-                    if (Modifier.isStatic(modifiers))
-                        out.printf("%s = env->GetStaticMethodID(_class, \"%s\", \"%s\");\n", //
-                                JNISourceWriter.getMethodIdVar(qMethodName, method), //
-                                methodName, sig);
-                    else
-                        out.printf("%s = env->GetMethodID(_class, \"%s\", \"%s\");\n", //
-                                JNISourceWriter.getMethodIdVar(qMethodName, method), //
-                                methodName, sig);
-                }
-            }
-            out.leaveln("}");
-        }
-        out.println();
-
-        out.printf("void " + cClass + "_class::dump()");
-        out.enterln(" {");
-        {
-            for (Field field : fields.values()) {
-                int modifiers = field.getModifiers();
-                if (!Modifier.isPublic(modifiers))
-                    continue;
-                String var = JNISourceWriter.getFieldIdVar(field);
-                out.printf("printf(\"%s: %%d\\n\", %s);\n", var, var);
-            }
-
-            for (String ctorName : ctorMap.keySet()) {
-                Constructor<?> ctor = ctorMap.get(ctorName);
-                String var = JNISourceWriter.getCtorIdVar(ctorName, ctor);
-                out.printf("printf(\"%s: %%d\\n\", %s);\n", var, var);
-            }
-
-            for (String methodName : methodNameMap.keySet()) {
-                OverloadedMethods methods = methodNameMap.get(methodName);
-                Map<String, Method> methodMap = methods.distinguishablization();
-                for (String qMethodName : methodMap.keySet()) {
-                    Method method = methodMap.get(qMethodName);
-                    String var = JNISourceWriter.getMethodIdVar(qMethodName, method);
-                    out.printf("printf(\"%s: %%d\\n\", %s);\n", var, var);
-                }
-            }
-            out.leaveln("}");
-        }
+        return new File(outDir, path);
     }
 
     public static void main(String[] args)
