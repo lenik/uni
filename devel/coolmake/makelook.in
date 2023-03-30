@@ -4,6 +4,7 @@
     : ${PROGRAM_SYNTAX:="[OPTIONS] [--] ..."}
 
     . shlib-import cliboot
+    option -C --chdir =DIR      "Change workdir before make"
     option -p --prefix =PATH    "Set install prefix, default $prefix"
     option -k --keep            "Keep the tmp installed destdir"
     option -i --ignores =PATH   "Ignored pathnames for treetex, separated by :"
@@ -25,6 +26,8 @@
 
 function setopt() {
     case "$1" in
+        -C|--chdir)
+            cd "$2" || quit "failed to chdir to $2";;
         -p|--prefix)
             prefix="$2";;
         -k|--keep)
