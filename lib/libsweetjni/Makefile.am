@@ -50,7 +50,5 @@ install-debug:
 	sudo ln -snf $$PWD/.libs/libsweetjni.so /usr/lib/`arch`-linux-gnu/libsweetjni.so.1.0.0
 
 autobuild:
-	autorun \
-            -r src              -c 'makelook' \
-            -r src/java/lang    -c 'makelook'
+	autorun -r src -c 'makelook'
 

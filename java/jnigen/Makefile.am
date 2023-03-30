@@ -40,3 +40,7 @@ install-data-hook:
 install-debug:
 	sudo ln -snf $$PWD/jnigen.in /bin/jnigen
 
+autobuild:
+	autorun \
+            -r ../../lib/libsweetjni/src -c 'makelook -C ../../lib/libsweetjni'
+
