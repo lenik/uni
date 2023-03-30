@@ -9,13 +9,14 @@ import net.bodz.bas.fmt.rst.IRstOutput;
 import net.bodz.bas.io.BByteOut;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
-import net.bodz.bas.io.StringFlags;
+import net.bodz.bas.io.LengthType;
 import net.bodz.bas.io.data.DataOutImplLE;
 import net.bodz.uni.fmt.regf.t.IRegfConsts;
 
 public class KeyCell
         extends AbstractCell
-        implements IRegfConsts {
+        implements
+            IRegfConsts {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,7 +30,7 @@ public class KeyCell
      * Key's last modification time
      *
      * Only updated if this key has subkeys. On Win2K, not updated even in that case.
-     * */
+     */
     public long mtime;
 
     int _unknown1;
@@ -101,8 +102,7 @@ public class KeyCell
     /**
      * The name of this key converted to desired REGFI_ENCODING.
      *
-     * This conversion typically occurs automatically through REGFI_ITERATOR settings. String is NUL
-     * terminated.
+     * This conversion typically occurs automatically through REGFI_ITERATOR settings. String is NUL terminated.
      */
     public String keyName;
 
@@ -110,14 +110,14 @@ public class KeyCell
     public transient int hashLF;
 
     /**
-     * Preloaded value-list for this key. This element is loaded automatically when using the
-     * iterator interface and possibly some lower layer interfaces.
+     * Preloaded value-list for this key. This element is loaded automatically when using the iterator interface and
+     * possibly some lower layer interfaces.
      */
     transient ValueListCell[] values;
 
     /**
-     * Preloaded subkey-list for this key. This element is loaded automatically when using the
-     * iterator interface and possibly some lower layer interfaces.
+     * Preloaded subkey-list for this key. This element is loaded automatically when using the iterator interface and
+     * possibly some lower layer interfaces.
      */
     transient SubkeyListCell[] subkeys;
 
@@ -189,9 +189,9 @@ public class KeyCell
         BByteOut bo = new BByteOut();
         IDataOut bdo = DataOutImplLE.from(bo);
         if ((flags & NK_FLAG_ASCIINAME) != 0)
-            bdo.writeString(StringFlags.NULL_TERM, keyName);
+            bdo.writeUtf8String(LengthType.terminatedByNul, keyName);
         else
-            bdo.writeString(StringFlags._16BIT | StringFlags.NULL_TERM, keyName);
+            bdo.writeString(LengthType.terminatedByNul, keyName);
         byte[] keyNameRaw = bo.toByteArray();
         keyNameSize = (short) keyNameRaw.length;
 

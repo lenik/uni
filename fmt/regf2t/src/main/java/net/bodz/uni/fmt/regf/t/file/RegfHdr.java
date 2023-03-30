@@ -5,14 +5,13 @@ import java.io.IOException;
 import net.bodz.bas.data.address.IAddressedObjectManager;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
-import net.bodz.bas.io.StringFlags;
 import net.bodz.uni.fmt.regf.t.RegfStruct;
 import net.bodz.uni.fmt.regf.t.cell.AbstractCell;
 
 /**
- * "regf" is obviously the abbreviation for "Registry file". "regf" is the signature of the
- * header-block which is always 4kb in size, although only the first 64 bytes seem to be used and a
- * checksum is calculated over the first 0x200 bytes only!
+ * "regf" is obviously the abbreviation for "Registry file". "regf" is the signature of the header-block which is always
+ * 4kb in size, although only the first 64 bytes seem to be used and a checksum is calculated over the first 0x200 bytes
+ * only!
  */
 public class RegfHdr
         extends RegfStruct {
@@ -61,14 +60,14 @@ public class RegfHdr
     int _bootRecover;
 
     /**
-     * This seems to include random junk. Possibly unsanitized memory left over from when header
-     * block was written. For instance, chunks of nk records can be found, though often it's all 0s.
+     * This seems to include random junk. Possibly unsanitized memory left over from when header block was written. For
+     * instance, chunks of nk records can be found, though often it's all 0s.
      */
     final byte[] _reserved1 = new byte[REGF_RESERVED1_SIZE];
 
     /**
-     * This is likely reserved and unusued currently. (Should be all 0s.) Included here for easier
-     * access in looking for hidden data or doing research.
+     * This is likely reserved and unusued currently. (Should be all 0s.) Included here for easier access in looking for
+     * hidden data or doing research.
      */
     final byte[] _reserved2 = new byte[REGF_RESERVED2_SIZE];
 
@@ -94,7 +93,7 @@ public class RegfHdr
         lastBlockOffset = in.readDword();
         _cluster = in.readDword();
 
-        in.readChars(StringFlags._16BIT, fileName);
+        in.readChars(fileName);
 
         in.readDwords(_rmId);
         in.readDwords(_logId);
@@ -130,7 +129,7 @@ public class RegfHdr
         out.writeDword(lastBlockOffset);
         out.writeDword(_cluster);
 
-        out.writeChars(StringFlags._16BIT, fileName);
+        out.writeChars(fileName);
 
         out.writeDwords(_rmId);
         out.writeDwords(_logId);
