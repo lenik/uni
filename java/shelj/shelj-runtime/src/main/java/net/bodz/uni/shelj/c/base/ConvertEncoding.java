@@ -94,11 +94,11 @@ public class ConvertEncoding
             // UTF-16LE FF FE "Last is FE"
             // UTF-16BE FE FF "Begin is FE"
             if (input[0] == 0xEF && input[1] == 0xBB && input[2] == 0xBF)
-                srcCharset = Charsets.UTF8;
+                srcCharset = Charsets.UTF_8;
             else if (input[0] == 0xFF && input[1] == 0xFE)
-                srcCharset = Charsets.UTF16_LE;
+                srcCharset = Charsets.UTF_16LE;
             else if (input[0] == 0xFE && input[1] == 0xFF) {
-                srcCharset = Charsets.UTF16_BE;
+                srcCharset = Charsets.UTF_16BE;
             }
         }
 

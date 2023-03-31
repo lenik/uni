@@ -9,7 +9,7 @@ import net.bodz.bas.fmt.rst.IRstOutput;
 import net.bodz.bas.io.BByteOut;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
-import net.bodz.bas.io.LengthType;
+import net.bodz.bas.io.StringLengthType;
 import net.bodz.bas.io.data.DataOutImplLE;
 import net.bodz.uni.fmt.regf.t.IRegfConsts;
 
@@ -189,9 +189,9 @@ public class KeyCell
         BByteOut bo = new BByteOut();
         IDataOut bdo = DataOutImplLE.from(bo);
         if ((flags & NK_FLAG_ASCIINAME) != 0)
-            bdo.writeUtf8String(LengthType.terminatedByNul, keyName);
+            bdo.writeUtf8String(StringLengthType.terminatedByNull, keyName);
         else
-            bdo.writeString(LengthType.terminatedByNul, keyName);
+            bdo.writeString(StringLengthType.terminatedByNull, keyName);
         byte[] keyNameRaw = bo.toByteArray();
         keyNameSize = (short) keyNameRaw.length;
 
