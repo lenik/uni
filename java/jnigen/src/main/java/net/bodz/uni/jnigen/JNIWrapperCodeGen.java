@@ -68,7 +68,8 @@ public class JNIWrapperCodeGen
     boolean stdout;
 
     /**
-     * Use flatten file names. By default, files are organized by directories according to package names.
+     * Use flatten file names. By default, files are organized by directories according to package
+     * names.
      *
      * @option -l
      */
@@ -176,10 +177,22 @@ public class JNIWrapperCodeGen
             out.println("/** FILE: " + file + " */");
         }
 
-        if (stdout)
-            builder.buildSource(out, file);
-        else
-            builder.buildSource(file);
+        long classTime = builder.getLastModifiedTime();
+        long fileTime = file.lastModified();
+        boolean expired = fileTime == 0 //
+                || classTime == 0 //
+                || fileTime < classTime;
+
+        if (expired) {
+            if (stdout) {
+                builder.buildSource(out, file);
+            } else {
+                builder.buildSource(file);
+            }
+        } else {
+            if (stdout)
+                out.println("    // updated.");
+        }
     }
 
     File file(String name, Class<?> clazz) {

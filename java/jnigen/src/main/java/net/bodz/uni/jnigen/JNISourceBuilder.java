@@ -2,8 +2,15 @@ package net.bodz.uni.jnigen;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
 
 import net.bodz.bas.c.string.StringId;
+import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.io.ITreeOut;
 
 public abstract class JNISourceBuilder
@@ -12,6 +19,8 @@ public abstract class JNISourceBuilder
             JNIAware {
 
     protected final Class<?> clazz;
+    protected final long lastModifiedTime;
+
     protected final String simpleName;
     protected final String qualifiedName;
     protected final String underlinedName;
@@ -28,6 +37,21 @@ public abstract class JNISourceBuilder
 
     public JNISourceBuilder(Class<?> clazz) {
         this.clazz = clazz;
+        String classBasename = clazz.getSimpleName() + ".class";
+        URL classResource = clazz.getResource(classBasename);
+        if (classResource != null) {
+            try {
+                URI uri = classResource.toURI();
+                Path path = Paths.get(uri);
+                FileTime lastModifiedTime = Files.getLastModifiedTime(path);
+                this.lastModifiedTime = lastModifiedTime.toMillis();
+            } catch (Exception e) {
+                throw new UnexpectedException(e);
+            }
+        } else {
+            lastModifiedTime = 0;
+        }
+
         simpleName = clazz.getSimpleName();
         qualifiedName = clazz.getName();
         underlinedName = StringId.UL.breakCamel(simpleName);
@@ -38,6 +62,10 @@ public abstract class JNISourceBuilder
 
         String packageName = clazz.getPackage().getName();
         namespace = packageName.replace(".", "::");
+    }
+
+    public long getLastModifiedTime() {
+        return lastModifiedTime;
     }
 
     public SourceFormat getFormat() {

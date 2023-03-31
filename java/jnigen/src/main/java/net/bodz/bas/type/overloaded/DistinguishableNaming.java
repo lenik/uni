@@ -1,11 +1,13 @@
 package net.bodz.bas.type.overloaded;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.MalformedParametersException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.StringTokenizer;
 
 import net.bodz.bas.c.string.Strings;
+import net.bodz.bas.err.IllegalUsageException;
 
 public enum DistinguishableNaming {
 
@@ -28,7 +30,16 @@ public enum DistinguishableNaming {
     }
 
     public String getName(Method method) {
-        return method.getName() + getSuffix(method.getParameters());
+        Parameter[] parameters;
+        try {
+            // MalformedParametersException
+            parameters = method.getParameters();
+        } catch (MalformedParametersException e) {
+            String message = String.format("Error analyze method %s: %s", //
+                    method, e.getMessage());
+            throw new IllegalUsageException(message, e);
+        }
+        return method.getName() + getSuffix(parameters);
     }
 
     public String getSuffix(Parameter[] params) {

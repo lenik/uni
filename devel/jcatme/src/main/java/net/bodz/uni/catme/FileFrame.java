@@ -26,7 +26,7 @@ public class FileFrame
     static final Logger logger = LoggerFactory.getLogger(FileFrame.class);
 
     File file;
-    Charset charset = Charsets.UTF8;
+    Charset charset = Charsets.UTF_8;
 
     String extension;
     SrcLangType lang;
@@ -142,6 +142,7 @@ public class FileFrame
         return scriptContext;
     }
 
+    @Override
     public Object eval(String code)
             throws EvalException, IOException {
         if (code == null)
@@ -149,6 +150,7 @@ public class FileFrame
         return getScriptContext().eval(code);
     }
 
+    @Override
     public Object eval(String code, String fileName)
             throws EvalException, IOException {
         if (code == null)
