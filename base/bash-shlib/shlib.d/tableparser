@@ -1,0 +1,54 @@
+# -*- mode: sh -*-
+# vim: set filetype=sh :
+
+function _getfieldwidths() {
+    local -n ref="$1"
+    local max_fields="${2:-9999}"
+    local mode=l
+    if [ "$max_fields" -lt 0 ]; then
+        max_fields=${max_fields:1}
+        mode=r
+    fi
+    shift 2
+
+    local line="$*"
+    local i=0 w=0
+    local word=1
+    
+    while [ -n "$line" -a $((i+1)) -lt $max_fields ]; do
+        local ch="${line:0:1}"
+        line="${line:1}"
+        if [ "$mode" = l ]; then
+            if [ "$ch" = ' ' ]; then
+                word=0
+            elif [ "$word" = 0 ]; then
+                # space -> word raising edge
+                ref[i++]=$w
+                w=0
+                word=1
+            fi
+        else
+            if [ "$ch" != ' ' ]; then
+                word=1
+            elif [ "$word" = 1 ]; then
+                # word -> space falling edge
+                ref[i++]=$w
+                w=0
+                word=0
+            fi
+        fi
+        ((w++))
+    done
+    if [ "$w" != 0 -o -n "$line" ]; then
+        ref[i++]=$(( w + ${#line} ))
+    fi
+}
+
+function getfieldwidths() {
+    local max_fields="$1"
+    shift 1
+    local widths=()
+    _getfieldwidths widths "$max_fields" "$@"
+    echo "${widths[@]}"
+}
+

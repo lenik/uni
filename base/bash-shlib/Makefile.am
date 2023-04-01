@@ -4,12 +4,14 @@ SUBDIRS = shlib.d
 
 dist_bin_SCRIPTS = \
     findabc1 \
+    getfieldwidths \
     relpath \
     shlib \
     shlib-import
 
 dist_man_MANS = \
     findabc1.1 \
+    getfieldwidths.1 \
     relpath.1 \
     shlib.1 \
     shlib-import.1

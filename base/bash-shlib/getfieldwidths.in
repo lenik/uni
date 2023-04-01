@@ -1,0 +1,74 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Get table field widths}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib
+    import cliboot
+    import tableparser
+
+    option -l --left-aligned    "Fields are left aligned"
+    option -r --right-aligned   "Fields are right aligned"
+    option -n --max-fields =NUM "Max count of fields to be parsed"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_align=left
+    opt_max_fields=
+
+function setopt() {
+    case "$1" in
+        -l|--left-aligned)
+            opt_align=left;;
+        -r|--right-aligned)
+            opt_align=right;;
+        -n|--max-fields)
+            opt_max_fields="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    gfwopts=()
+    if [ -n "$opt_max_fields" ]; then
+        if [ "$opt_align" = right ]; then
+            gfwopts+=(-$opt_max_fields)
+        else
+            gfwopts+=($opt_max_fields)
+        fi
+    fi
+
+    if [ $# = 0 ]; then
+        process
+    else
+        for arg in "$@"; do
+            if [ "$arg" = - ]; then
+                process
+            else
+                process < "$arg"
+            fi
+        done
+    fi
+}
+
+function process() {
+    local line
+    while read line; do
+        getfieldwidths "${gfwopts[@]}" "$line"
+    done
+}
+
+boot "$@"
+
