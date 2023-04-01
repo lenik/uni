@@ -3,10 +3,14 @@ include libauto/project.am
 qlogconfdir = ${pkgdatadir}
 
 dist_bin_SCRIPTS = \
+    chtask \
     cooltask_list \
     mtry \
     qlog \
     qlog-console
+
+dist_shlib_SCRIPTS = \
+    findcont
 
 dist_qlogconf_DATA = \
     qlog.conf/focus \

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+. shlib-import findcont
+
+findcont %cooltask -C "$@"
+
