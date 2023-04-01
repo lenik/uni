@@ -1,0 +1,35 @@
+#!/usr/bin/supertask
+# vim: set filetype=sh :
+
+import shared.eclipse
+import terminal
+
+import jazz-bas
+import libsweetjni
+import jnigen
+
+task devEnv:
+    eclipse: shared.eclipse
+    autotest
+
+type shared-eclipse:
+    start:
+        dstart -o /tmp/eclipse.out \
+            --pid /tmp/eclipse.pid eclipse
+            
+    stop:
+        wmclose --pid-file /tmp/eclipse.pid \
+            --match 'Eclipse IDE'
+    
+    restart: stop start
+
+    check:
+        pid=$( wmctrl -l 'Eclipse IDE' --pid )
+        test -n "$pid"
+    
+    clean:
+        rm -f /tmp/eclipse.pid
+    
+task autotest:
+    start:
+
