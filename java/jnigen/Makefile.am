@@ -41,6 +41,32 @@ install-debug:
 	sudo ln -snf $$PWD/jnigen.in /bin/jnigen
 
 autobuild:
-	autorun \
-            -r ../../lib/libsweetjni/src -c 'makelook -C ../../lib/libsweetjni'
+	@echo "autobuild isn't supported, yet."
+	@echo "try install-debug instead."
+	@echo "see also: autoinstall"
+	@read
+
+open-window:
+	kitty -T "supertask:jnigen" \
+	        -o allow_remote_control=yes \
+	        -o confirm_os_window_close=0 \
+            make open-tabs tab-play
+
+open-tabs: tab-autobuild tab-libsweetjni-ab
+
+tab-play:
+	@kitty @set-tab-title 'jnigen/play'
+	@bash
+
+tab-libsweetjni-ab:
+	kitty @launch --type tab --keep-focus --no-response \
+            --tab-title "libsweetjni/autobuild" \
+            --cwd "$$PWD/../../lib/libsweetjni" \
+            make autobuild
+
+tab-autobuild:
+	kitty @launch --type tab --keep-focus --no-response \
+            --tab-title "jnigen/autobuild" \
+            --cwd "$$PWD" \
+            make autobuild
 
