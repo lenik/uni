@@ -6,7 +6,7 @@
 
     . shlib
     import cliboot
-    import tableparser
+    #import tableparser
     
     option -f --sort-fs         "sort by file system"
     option -S --sort-size       "sort by size (same as -b)"
@@ -85,16 +85,38 @@ function main() {
             opt_color=1
         fi
     fi
-    sort-df < <(LANG=C "$DF" "${dfopts[@]}")
+    
+    tmpf=$(mktemp -t df-sort.XXXX) || quit "can't create tmp file: $!"
+    
+    LANG=C "$DF" "${dfopts[@]}" >$tmpf
+    
+    field_widths=()
+    while read -a fields; do
+        local n=${#fields[@]}
+        for ((i = 0; i < n; i++)); do
+            last=${field_widths[i]:-0}
+            len=${#fields[i]}
+            [ $i != 0 ] && ((len++))
+            if [ -z "$last" -o "$last" -lt "$len" ]; then
+                field_widths[i]=$len
+            fi
+        done
+    done <$tmpf
+
+    sort-df <$tmpf
+}
+
+function cleanup() {
+    if [ -n "$tmpf" ]; then
+        rm -f "$tmpf"
+    fi
 }
 
 function sort-df() {
     read header_line
     
     header_fields=($header_line)
-    
-    field_widths=()
-    _getfieldwidths field_widths -999 "$header_line"
+    #_getfieldwidths field_widths -999 "$header_line"
     
     nfield="${#header_fields[@]}"
     for ((i = 0; i < nfield; i++)); do
