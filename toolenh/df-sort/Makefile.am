@@ -4,7 +4,7 @@ dist_bin_SCRIPTS = \
     df-sort
 
 dist_alias_DATA = \
-    df-sort.aliases
+    df-aliases.sh
 
 dist_man_MANS = \
     df-sort.1
