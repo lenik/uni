@@ -1,0 +1,20 @@
+Source: df-sort
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+Standards-Version: 4.6.2
+Homepage: http://uni.bodz.net/toolenh/df-sort
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/toolenh/df-sort
+
+Package: df-sort
+Architecture: all
+Depends:
+    coreutils,
+    bash-shlib,
+    ${misc:Depends}
+Description: df-sort is a /bin/df wrapper to get the output sorted in specific field(s).
+
