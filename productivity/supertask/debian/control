@@ -1,0 +1,23 @@
+Source: supertask
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+Standards-Version: 4.6.2
+Homepage: http://uni.bodz.net/productivity/supertask
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/productivity/supertask
+
+Package: supertask
+Architecture: all
+Depends:
+    bash,
+    bash-shlib,
+    make,
+    perl,
+    sysvinit-utils,
+    ${misc:Depends}
+Description: Producitivity toolset for complicated developer tasks.
+
