@@ -60,6 +60,8 @@ function bootvoid() {
 }
 
 function boot() {
+    trap cleanup EXIT
+
     if [ -z "$*" ]; then bootvoid; return; fi
 
     parse_opts "$@"
