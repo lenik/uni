@@ -1,0 +1,218 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=df with output sorted}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [df-options...]}
+
+    . shlib
+    import cliboot
+    import tableparser
+    
+    option -f --sort-fs         "sort by file system"
+    option -S --sort-size       "sort by size (same as -b)"
+    option -b --sort-blocks     "sort by blocks"
+    option -t --sort-type       "sort by fs type"
+    option -u --sort-used       "sort by used size"
+    option -s --sort-available  "sort by available space size"
+    option -p --sort-percentige "sort by used-percentige"
+    option -d --sort-mount-dir  "sort by mount dir"
+    option -r --reverse         "sort in reverse order"
+    option -c --color           "enable highlight on the output"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+    
+    DF=$(which df) || quit "can't find df."
+    
+    opt_fields=()
+    opt_reverse=0
+    
+    dfopts=()
+    
+    declare -A sort_keys
+    
+function show_help() {
+    echo help
+}
+
+function setopt() {
+    case "$1" in
+        -f|--sort-fs)
+            opt_fields+=(fs);;
+        -S|--sort-size)
+            opt_fields+=(size);;
+        -b|--sort-blocks)
+            opt_fields+=(blocks);;
+        -t|--sort-type)
+            dfopts+=(-T)
+            opt_fields+=(type);;
+        -u|--sort-used)
+            opt_fields+=(used);;
+        -s|--sort-available)
+            opt_fields+=(available);;
+        -p|--sort-percentige)
+            opt_fields+=(percentige);;
+        -d|--sort-mount-dir)
+            opt_fields+=(mount-dir);;
+        -r|--reverse)
+            opt_reverse=1;;
+        -c|--color)
+            opt_color=1;;
+        -h|--help)
+            help $1
+            echo '--'
+            "$DF" --help
+            exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version
+            echo '--'
+            "$DF" --version
+            exit;;
+        *)
+            dfopts+=("$1");;
+    esac
+}
+
+function main() {
+    sort-df < <(LANG=C "$DF" "${dfopts[@]}")
+}
+
+function sort-df() {
+    read header_line
+    
+    header_fields=($header_line)
+    
+    field_widths=()
+    _getfieldwidths field_widths -999 "$header_line"
+    
+    nfield="${#header_fields[@]}"
+    for ((i = 0; i < nfield; i++)); do
+        field="${header_fields[i]}"
+        sort_key=$((i + 1))
+        case "$field" in
+            Filesystem)
+                sort_keys[fs]="${sort_key},${sort_key}";;
+            Type)
+                sort_keys[type]="${sort_key},${sort_key}";;
+            *-blocks)
+                sort_keys[size]="${sort_key}n"
+                sort_keys[blocks]="${sort_key}n"
+                ;;
+            Used)
+                sort_keys[used]="${sort_key}n";;
+            Available)
+                sort_keys[available]="${sort_key}n";;
+            Use%)
+                sort_keys[percentige]="${sort_key}n";;
+            Mounted)
+                nfield=$sort_key
+                sort_keys[mount-dir]="${sort_key}";;
+            *)
+                sort_keys[$field]="${sort_key}";;
+        esac
+    done
+    
+    kmod=
+    if [ "$opt_reverse" = 1 ]; then
+        sortopts+=(-r)
+        kmod=r
+    fi
+    
+    for f in "${opt_fields[@]}"; do
+        k="${sort_keys[$f]}"
+        if [ -z "$k" ]; then
+            _error "ignore undefined field: $f"
+            continue
+        fi
+        sortopts+=("-k$k$kmod")
+    done
+    
+    _log2 sort "${sortopts[@]}"
+    if [ "$opt_color" = 1 ]; then
+        _LOWLINE=1 _BOLD=1 highlight "$header_line"
+        while read line; do
+            highlight "$line"
+        done < <(sort "${sortopts[@]}")
+    else
+        echo "$header_line"
+        sort "${sortopts[@]}"
+    fi
+}
+
+function highlight() {
+    local line="$1"
+    local i
+    
+    local off=0
+    for ((i = 0; i < nfield; i++)); do
+        if [ $((i+1)) == $nfield ]; then
+            cell="${line:off}"
+        else
+            local w=${field_widths[i]}
+            local cell="${line:off:w}"
+            ((off += w))
+        fi
+        local name=${header_fields[i]}
+        
+        if [ "$_LOWLINE" = 1 ]; then
+            cell=$(underline "$cell")
+        fi
+        cfield "$name" "$cell"
+    done
+    echo
+}
+
+CLR_FS="1;35"
+CLR_TYPE="32"
+CLR_BLOCKS="34"
+CLR_USED="31"
+CLR_AVAILABLE="36"
+CLR_USE_PERC="1;31"
+CLR_MOUNT_DIR="33"
+
+function cfield() {
+    local field="$1"
+    shift
+    case "$field" in
+        Filesystem)
+            clrecho $CLR_FS         "$@";;
+        Type)
+            clrecho $CLR_TYPE       "$@";;
+        *-blocks)
+            clrecho $CLR_BLOCKS     "$@";;
+        Used)
+            clrecho $CLR_USED       "$@";;
+        Available)
+            clrecho $CLR_AVAILABLE  "$@";;
+        Use%)
+            clrecho $CLR_USE_PERC   "$@";;
+        Mounted)
+            clrecho $CLR_MOUNT_DIR  "$@";;
+        *)
+            echo -n "$@";;
+    esac
+}
+
+function clrecho() {
+    local clr="$1"
+    if [ "$_BOLD" = 1 ]; then
+        clr="1;$clr"
+    fi
+    shift
+    echo -n "[${clr}m$*[0m"
+}
+
+function underline() {
+    local s="$*"
+    local n=${#s} i
+    for ((i = 0; i < n; i++)); do
+        echo -n "${s:i:1}"$'\u0332'
+    done
+}
+
+boot "$@"
