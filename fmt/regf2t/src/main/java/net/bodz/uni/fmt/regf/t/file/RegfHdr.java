@@ -3,6 +3,7 @@ package net.bodz.uni.fmt.regf.t.file;
 import java.io.IOException;
 
 import net.bodz.bas.data.address.IAddressedObjectManager;
+import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
 import net.bodz.uni.fmt.regf.t.RegfStruct;
@@ -81,7 +82,7 @@ public class RegfHdr
 
     @Override
     public void readObject(IDataIn in)
-            throws IOException {
+            throws IOException, ParseException {
         in.read(REGF_ID);
         sequence1 = in.readDword();
         sequence2 = in.readDword();

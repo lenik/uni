@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bodz.bas.data.address.IAddressedObjectManager;
+import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.IDataIn;
 import net.bodz.bas.io.IDataOut;
 import net.bodz.uni.fmt.regf.t.InvalidMagicException;
@@ -24,7 +25,7 @@ public class RegfFile
 
     @Override
     public void readObject(IDataIn in)
-            throws IOException {
+            throws IOException, ParseException {
         hdr.readObject(in);
 
         hbins.clear();
