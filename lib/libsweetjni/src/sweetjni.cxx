@@ -54,44 +54,44 @@ jclass findClass(JNIEnv *env, const char *name) {
     return cls;
 }
 
-jfieldID getFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig) {
+jfield getField(JNIEnv *env, jclass clazz, const char *name, const char *sig) {
     jfieldID id = env->GetFieldID(clazz, name, sig);
     env->ExceptionClear();
-    return id;
+    return jfield(clazz, id);
 }
 
-jfieldID getStaticFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig) {
+jfield getStaticField(JNIEnv *env, jclass clazz, const char *name, const char *sig) {
     jfieldID id = env->GetStaticFieldID(clazz, name, sig);
     env->ExceptionClear();
-    return id;
+    return jfield(clazz, id);
 }
 
-jmethodID getMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig) {
+jmethod getMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig) {
     jmethodID id = env->GetMethodID(clazz, name, sig);
     env->ExceptionClear();
-    return id;
+    return jmethod(clazz, id);
 }
 
-jmethodID getStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig) {
+jmethod getStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig) {
     jmethodID id = env->GetStaticMethodID(clazz, name, sig);
     env->ExceptionClear();
-    return id;
+    return jmethod(clazz, id);
 }
 
-jobject newObject(jclass clazz, jmethodID methodId, ...) {
+jobject newObject(jmethod method, ...) {
     JNIEnv *env = getEnv();
     if (env == NULL) return NULL;
     va_list args;
-    va_start(args, methodId);
-    jobject ret = env->NewObjectV(clazz, methodId, args);
+    va_start(args, method);
+    jobject ret = env->NewObjectV(method.clazz, method.id, args);
     va_end(args);
     return ret;
 }
 
-jobject newObject(JNIEnv *env, jclass clazz, jmethodID methodId, ...) {
+jobject newObject(JNIEnv *env, jmethod method, ...) {
     va_list args;
-    va_start(args, methodId);
-    jobject ret = env->NewObjectV(clazz, methodId, args);
+    va_start(args, method);
+    jobject ret = env->NewObjectV(method.clazz, method.id, args);
     va_end(args);
     return ret;
 }

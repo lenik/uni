@@ -11,13 +11,29 @@ extern "C" {
 jclass findClass(const char *name);
 jclass findClass(JNIEnv *env, const char *name);
 
-jfieldID getFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
-jfieldID getStaticFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
-jmethodID getMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
-jmethodID getStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
+struct jfield {
+    jclass clazz;
+    jfieldID id;
+    inline jfield() {}
+    inline jfield(jclass c, jfieldID id) : clazz(c), id(id) {}
+    inline operator long() { return (long) id; }
+};
 
-jobject newObject(jclass clazz, jmethodID methodId, ...);
-jobject newObject(JNIEnv *env, jclass clazz, jmethodID methodId, ...);
+struct jmethod {
+    jclass clazz;
+    jmethodID id;
+    inline jmethod() {}
+    inline jmethod(jclass c, jmethodID id) : clazz(c), id(id) {}
+    inline operator long() { return (long) id; }
+};
+
+jfield getField(JNIEnv *env, jclass clazz, const char *name, const char *sig);
+jfield getStaticField(JNIEnv *env, jclass clazz, const char *name, const char *sig);
+jmethod getMethod(JNIEnv *env, jclass clazz, const char *name, const char *sig);
+jmethod getStaticMethod(JNIEnv *env, jclass clazz, const char *name, const char *sig);
+
+jobject newObject(jmethod method, ...);
+jobject newObject(JNIEnv *env, jmethod method, ...);
 
 jstring newString(const char *data);
 jstring newString(const char *data, int off, int len);
@@ -26,82 +42,120 @@ jstring newString(JNIEnv *env, const char *data, int off, int len);
 
 class IWrapper {
 public:
-    virtual JNIEnv *__env() = 0;
-    virtual jobject __this() = 0;
+    virtual operator JNIEnv *() const = 0;
+    virtual operator jobject() const = 0;
 };
 
 struct WrapperAndField {
     IWrapper *wrapper;
-    jfieldID fieldId;
+    jfield field;
 };
-inline WrapperAndField wrapfield(IWrapper *wrapper, jfieldID fieldId) {
-    WrapperAndField waf = { wrapper, fieldId };
+inline WrapperAndField wrapfield(IWrapper *wrapper, jfield field) {
+    WrapperAndField waf = { wrapper, field };
     return waf;
 }
 
 template<class val_t>
 class ObjectProperty {
     IWrapper *ctx;
-    jfieldID fieldId;
+    jfield field;
 
 public:
-    inline ObjectProperty(IWrapper *ctx, jfieldID fieldId) {
-        this->ctx = ctx;
-        this->fieldId = fieldId;
+    inline ObjectProperty(IWrapper *ctx, jfield field)
+            : ctx(ctx), field(field) {
     }
-    inline ObjectProperty(WrapperAndField waf) {
-        this->ctx = waf.wrapper;
-        this->fieldId = waf.fieldId;
+    inline ObjectProperty(WrapperAndField waf)
+            : ctx(waf.wrapper), field(waf.field) {
     }
 
 public:
     inline operator val_t() const {
-        JNIEnv *env = ctx->__env();
-        jobject _this = ctx->__this();
-        return (val_t) (env->GetObjectField(_this, fieldId));
+        JNIEnv *env = *ctx;
+        jobject jobj = *ctx;
+        return (val_t) (env->GetObjectField(jobj, field.id));
     }
     
     inline ObjectProperty<val_t>& operator =(val_t v) {
-        JNIEnv *env = ctx->__env();
-        jobject _this = ctx->__this();
-        env->SetObjectField(_this,fieldId, v);
+        JNIEnv *env = *ctx;
+        jobject jobj = *ctx;
+        env->SetObjectField(jobj, field.id, v);
         return *this;
     }
 };
 
-#define property_type(type, m) \
-    class m##Property { \
+#define _jnitype_Byte       jbyte
+#define _jnitype_Short      jshort
+#define _jnitype_Int        jint
+#define _jnitype_Long       jlong
+#define _jnitype_Float      jfloat
+#define _jnitype_Double     jdouble
+#define _jnitype_Boolean    jboolean
+#define _jnitype_Char       jchar
+
+#define property_type2(proptype, jniword) \
+    class proptype { \
         IWrapper *ctx; \
-        jfieldID fieldId; \
+        jfield field; \
     public: \
-        inline m##Property(IWrapper *ctx, jfieldID fieldId) { \
-            this->ctx = ctx; \
-            this->fieldId = fieldId; \
+        inline proptype(IWrapper *ctx, jfield field) \
+            : ctx(ctx), field(field) { \
         } \
-        inline m##Property(WrapperAndField waf) { \
-            this->ctx = waf.wrapper; \
-            this->fieldId = waf.fieldId; \
+        inline proptype(WrapperAndField waf) \
+            : ctx(waf.wrapper), field(waf.field) { \
         } \
     public: \
-        inline operator type() const { \
-            JNIEnv *env = ctx->__env(); \
-            jobject _this = ctx->__this(); \
-            return (type) (env->Get##m##Field(_this, fieldId)); \
+        inline operator _jnitype_##jniword() const { \
+            JNIEnv *env = *ctx; \
+            jobject jobj = *ctx; \
+            return (_jnitype_##jniword) (env->Get##jniword##Field(jobj, field.id)); \
         } \
-        inline m##Property& operator =(const type& v) { \
-            JNIEnv *env = ctx->__env(); \
-            jobject _this = ctx->__this(); \
-            env->Set##m##Field(_this,fieldId, v); \
+        inline proptype& operator =(const _jnitype_##jniword& v) { \
+            JNIEnv *env = *ctx; \
+            jobject jobj = *ctx; \
+            env->Set##jniword##Field(jobj, field.id, (_jnitype_##jniword) v); \
             return *this; \
         } \
     }
-property_type(jbyte, Byte);
-property_type(jshort, Short);
-property_type(jint, Int);
-property_type(jlong, Long);
-property_type(jfloat, Float);
-property_type(jdouble, Double);
-property_type(jboolean, Boolean);
-property_type(jchar, Char);
+
+#define property_type3(proptype, type, jniword) \
+    class proptype { \
+        IWrapper *ctx; \
+        jfield field; \
+    public: \
+        inline proptype(IWrapper *ctx, jfield field) \
+            : ctx(ctx), field(field) { \
+        } \
+        inline proptype(WrapperAndField waf) \
+            : ctx(waf.wrapper), field(waf.field) { \
+        } \
+    public: \
+        inline operator type() const { \
+            JNIEnv *env = *ctx; \
+            jobject jobj = *ctx; \
+            return (type) (env->Get##jniword##Field(jobj, field.id)); \
+        } \
+        inline operator _jnitype_##jniword() const { \
+            return (_jnitype_##jniword) (type) *this; \
+        } \
+        inline proptype& operator =(const type& v) { \
+            JNIEnv *env = *ctx; \
+            jobject jobj = *ctx; \
+            env->Set##jniword##Field(jobj, field.id, (_jnitype_##jniword) v); \
+            return *this; \
+        } \
+    }
+
+#define __get_macro3(_1, _2, _3, name, ...) name
+#define property_type(...) __get_macro3(__VA_ARGS__, property_type3, property_type2)(__VA_ARGS__)
+
+property_type(ByteProperty,                 Byte);
+property_type(ShortProperty,                Short);
+property_type(IntProperty,                  Int);
+property_type(LongProperty,                 Long);
+property_type(FloatProperty,                Float);
+property_type(DoubleProperty,               Double);
+property_type(BooleanProperty,              Boolean);
+property_type(CharProperty,                 Char);
+property_type(PointerProperty,  void *,     Long);
 
 #endif

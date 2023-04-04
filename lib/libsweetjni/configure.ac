@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([libsweetjni], [0.3.1], [xjl-bug@99jsj.com])
+AC_INIT([libsweetjni], [0.3.2], [xjl-bug@99jsj.com])
 LT_INIT([disable-static])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([-Wno-portability])

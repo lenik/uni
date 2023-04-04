@@ -45,9 +45,15 @@ dist_setup_SCRIPTS = \
 CLEANFILES = \
     ${dist_setup_SCRIPTS}
 
+#install-data-hook:
+#	rsync --include "*.hxx" src $(DESTDIR)${includedir}
+
 install-debug:
-	sudo ln -snf $$PWD/src/sweetjni.hxx     /usr/include/
 	sudo ln -snf $$PWD/.libs/libsweetjni.so /usr/lib/`arch`-linux-gnu/libsweetjni.so.1.0.0
+	cd src && for hdr in $$(find . -name '*.hxx'); do \
+            sudo mkdir -p "/usr/include/$${hdr%/*}"; \
+            sudo ln -snf "$$PWD/$$hdr" "/usr/include/$$hdr"; \
+        done
 
 autobuild:
 	autorun -r src -c 'makelook'
