@@ -38,28 +38,6 @@ public class JNISourceWriter
         throwsDecl(ctor.getExceptionTypes());
     }
 
-    void ctorDef(Class<?> clazz, String ctorName, Constructor<?> ctor) {
-        ctorDecl(clazz, ctorName, ctor, true);
-
-        out.enterln("{");
-        out.printf("jclass jclass = CLASS._class;\n");
-        out.printf("this->_env = getEnv();\n");
-
-        String castExpr = "";
-        String jniType = jniType(clazz);
-        if (!"jobject".equals(jniType))
-            castExpr = " (" + jniType + ")";
-
-        out.printf("this->_jobj =%s newObject(_env, CLASS.INIT%s", castExpr, ctorName);
-
-        for (Parameter param : ctor.getParameters()) {
-            out.print(", ");
-            out.print(param.getName());
-        }
-        out.println(");");
-        out.leaveln("}");
-    }
-
     void methodDecl(Class<?> clazz, String methodName, Method method, boolean def) {
         int modifiers = method.getModifiers();
         boolean isStatic = Modifier.isStatic(modifiers);
@@ -82,54 +60,6 @@ public class JNISourceWriter
         paramsDecl(method.getParameters());
         out.print(")");
         throwsDecl(method.getExceptionTypes());
-    }
-
-    void methodDef(Class<?> clazz, String methodName, Method method, String _lazyInit) {
-        int modifiers = method.getModifiers();
-        boolean isStatic = Modifier.isStatic(modifiers);
-
-        methodDecl(clazz, methodName, method, true);
-        out.enterln("{");
-
-        if (_lazyInit != null)
-            out.println(_lazyInit);
-
-        Class<?> retType = method.getReturnType();
-        String methodVarName = getMethodVarName(methodName, method);
-
-        StringBuilder callExpr = new StringBuilder();
-        if (isStatic) {
-            out.println("JNIEnv *env = getEnv();");
-            String callMethodFunc = callStaticMethodFunc(method.getReturnType());
-            callExpr.append(String.format("env->%s(CLASS._class, CLASS.%s.id", //
-                    callMethodFunc, methodVarName));
-        } else {
-            String callMethodFunc = callMethodFunc(method.getReturnType());
-            callExpr.append(String.format("_env->%s(_jobj, CLASS.%s.id", //
-                    callMethodFunc, methodVarName));
-        }
-
-        for (Parameter param : method.getParameters()) {
-            callExpr.append(", ");
-            // Class<?> paramType = param.getType();
-            // String cParamType = jniType(paramType);
-            callExpr.append(param.getName());
-        }
-        callExpr.append(")");
-        String expr = callExpr.toString();
-
-        if (retType != void.class) {
-            out.print(jniType(retType) + " ret = ");
-            expr = autoCastFromObject(retType, callExpr.toString());
-        }
-
-        out.print(expr);
-        out.println(";");
-
-        if (retType != void.class)
-            out.println("return ret;");
-
-        out.leaveln("}");
     }
 
     void paramsDecl(Parameter[] params) {
@@ -168,10 +98,6 @@ public class JNISourceWriter
         out.println(";");
     }
 
-    static String getCtorVarName(String ctorName, Constructor<?> ctor) {
-        return "INIT" + ctorName;
-    }
-
     void ctorVarDecl(String ctorName, Constructor<?> ctor, boolean def) {
         out.print("jmethod ");
         if (def) {
@@ -180,16 +106,12 @@ public class JNISourceWriter
             out.print(c);
             out.print("::");
         }
-        out.print(getCtorVarName(ctorName, ctor));
+        out.print(TypeNames.getCtorVarName(ctorName, ctor));
     }
 
     void ctorVarDef(String ctorName, Constructor<?> ctor) {
         ctorVarDecl(ctorName, ctor, true);
         out.println(";");
-    }
-
-    static String getMethodVarName(String methodName, Method method) {
-        return "METHOD_" + methodName;
     }
 
     void methodVarDecl(String methodName, Method method, boolean def) {
@@ -200,7 +122,7 @@ public class JNISourceWriter
             out.print(c);
             out.print("::");
         }
-        out.print(getMethodVarName(methodName, method));
+        out.print(TypeNames.getMethodVarName(methodName, method));
     }
 
     void methodVarDef(String methodName, Method method) {

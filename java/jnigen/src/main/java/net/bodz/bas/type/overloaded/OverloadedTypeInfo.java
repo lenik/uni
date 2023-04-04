@@ -22,7 +22,7 @@ public class OverloadedTypeInfo {
                 ? clazz.getDeclaredConstructors()
                 : clazz.getConstructors();
         for (Constructor<?> _ctor : constructors) {
-            if (options.include(_ctor)) {
+            if (options.include(clazz, _ctor)) {
                 @SuppressWarnings("unchecked")
                 Constructor<T> ctor = (Constructor<T>) _ctor;
                 oCtors.add(ctor);
@@ -35,7 +35,7 @@ public class OverloadedTypeInfo {
         Method[] methods = options.declaredOnly ? //
                 clazz.getDeclaredMethods() : clazz.getMethods();
         for (Method method : methods) {
-            if (!options.include(method))
+            if (!options.include(clazz, method))
                 continue;
 
             String methodName = method.getName();
@@ -65,19 +65,22 @@ public class OverloadedTypeInfo {
                 ? clazz.getDeclaredFields()
                 : clazz.getFields();
         for (Field field : fields) {
-            if (!options.include(field))
+            if (!options.include(clazz, field))
                 continue;
             int modifiers = field.getModifiers();
+
             boolean isStatic = Modifier.isStatic(modifiers);
             boolean isFinal = Modifier.isFinal(modifiers);
 
             boolean isString = field.getType() == String.class;
             boolean isPrimitive = field.getType().isPrimitive();
             boolean basicType = isPrimitive || isString;
-            if (isStatic && isFinal && basicType)
-                staticFinalBasicFieldMap.put(field.getName(), field);
-            else
+            if (isStatic && isFinal && basicType) {
+                if (options.includeConsts)
+                    staticFinalBasicFieldMap.put(field.getName(), field);
+            } else {
                 fieldMap.put(field.getName(), field);
+            }
         }
     }
 

@@ -16,7 +16,6 @@ struct jfield {
     jfieldID id;
     inline jfield() {}
     inline jfield(jclass c, jfieldID id) : clazz(c), id(id) {}
-    inline operator long() { return (long) id; }
 };
 
 struct jmethod {
@@ -24,7 +23,6 @@ struct jmethod {
     jmethodID id;
     inline jmethod() {}
     inline jmethod(jclass c, jmethodID id) : clazz(c), id(id) {}
-    inline operator long() { return (long) id; }
 };
 
 jfield getField(JNIEnv *env, jclass clazz, const char *name, const char *sig);

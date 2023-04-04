@@ -14,10 +14,13 @@ public class TypeInfoOptions {
 
     public SortOrder memberOrder = SortOrder.KEEP;
     public boolean includeNativeMethodsAlways = true;
+    public boolean includeConsts;
 
-    public boolean include(Member member) {
-        if (member.getDeclaringClass() == Object.class)
-            return false;
+    public boolean include(Class<?> clazz, Member member) {
+        if (member.getDeclaringClass() != clazz)
+            if (member.getDeclaringClass() == Object.class)
+                return false;
+
         int modifiers = member.getModifiers();
         if (Modifier.isProtected(modifiers) && !_protected)
             return false;

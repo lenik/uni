@@ -1,5 +1,8 @@
 package net.bodz.uni.jnigen;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+
 public class TypeNames {
 
     public static boolean packageContains(String parent, String child) {
@@ -29,6 +32,14 @@ public class TypeNames {
             return name;
         else
             return ns + "::" + name;
+    }
+
+    public static String getCtorVarName(String ctorName, Constructor<?> ctor) {
+        return "INIT" + ctorName;
+    }
+
+    public static String getMethodVarName(String methodName, Method method) {
+        return "METHOD_" + methodName;
     }
 
 }

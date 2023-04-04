@@ -65,6 +65,7 @@ public class JNIConsts {
     public static Set<Class<?>> autoCastTypes = new HashSet<>();
     static {
         autoCastTypes.add(String.class);
+        autoCastTypes.add(Throwable.class);
         autoCastTypes.add(byte[].class);
         autoCastTypes.add(short[].class);
         autoCastTypes.add(int[].class);

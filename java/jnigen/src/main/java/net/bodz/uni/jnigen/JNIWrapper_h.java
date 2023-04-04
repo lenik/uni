@@ -37,6 +37,18 @@ public class JNIWrapper_h
         out.println("#include <sweetjni.hxx>");
         out.println();
 
+        if (containsSuperclass()) {
+            Class<?> parentClass = getInheritParent();
+            String parentFile = parentClass.getName().replace('.', '/');
+            String thisDir = clazz.getPackage().getName().replace('.', '/') + "/";
+            String parentHref = FilePath.getRelativePath(parentFile, thisDir);
+            out.printf("#include \"%s.hxx\"\n", parentHref);
+        } else {
+            if (!clazz.isInterface())
+                out.println("#include <java/lang/Object.hxx>");
+        }
+        out.println();
+
         String typeInfoHeader = FilePath.getRelativePath(sourceFiles.typeInfoHeaderFile, file);
         out.printf("#include \"%s\"\n", typeInfoHeader);
         out.println();
@@ -44,15 +56,20 @@ public class JNIWrapper_h
         out.printf("namespace %s {\n", namespace);
         out.println();
 
-        String parentClassName;
-        if (members.parentClass == null)
-            parentClassName = "IWrapper";
-        else
-            parentClassName = TypeNames.getName(members.parentClass, true);
+        if (containsSuperclass()) {
+            Class<?> parentClass = getInheritParent();
+            String parentClassName = TypeNames.getName(parentClass, true);
+            out.printf("class " + simpleName + " : public %s {\n", parentClassName);
+        } else {
+            if (clazz.isInterface()) {
+                out.printf("class " + simpleName + " : public IWrapper {\n");
+            } else {
+                String parentClassName = TypeNames.getName(Object.class, true);
+                out.printf("class " + simpleName + " : public %s {\n", parentClassName);
+            }
+        }
 
-        out.printf("class " + simpleName + " : public %s {\n", parentClassName);
-
-        if (members.parentClass == null) {
+        if (clazz.isInterface()) {
             out.println("    JNIEnv *_env;");
             if (Throwable.class.isAssignableFrom(clazz))
                 out.println("    jthrowable _jobj;");
@@ -88,14 +105,17 @@ public class JNIWrapper_h
     void section__WrapperCtors(JNISourceWriter out) {
         out.enterln("public: ");
         out.println("/* wrapper constructor */");
+        out.printf("%s(JNIEnv *env);\n", simpleName);
         out.printf("%s(JNIEnv *env, jobject jobj);\n", simpleName);
         out.printf("static %s *_wrap(jobject jobj);\n", simpleName);
-        out.println();
-        out.printf("inline operator JNIEnv *() const { return _env; }\n");
-        out.printf("inline operator jobject() const { return _jobj; }\n");
 
-        if (Throwable.class.isAssignableFrom(clazz))
-            out.printf("inline operator jthrowable() const { return _jobj; }\n");
+        if (clazz.isInterface()) {
+            out.println();
+            out.printf("inline operator JNIEnv *() const { return _env; }\n");
+            out.printf("inline operator jobject() const { return _jobj; }\n");
+            if (Throwable.class.isAssignableFrom(clazz))
+                out.printf("inline operator jthrowable() const { return _jobj; }\n");
+        }
 
         out.leaveln("");
     }

@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.type.overloaded.ConstructorMap;
 
 public class JNITypeInfo_h
@@ -35,14 +36,30 @@ public class JNITypeInfo_h
         out.println("#include <jni.h>");
         out.println();
 
+        if (containsSuperclass()) {
+            Class<?> parent = getInheritParent();
+            String superFile = parent.getName().replace('.', '/');
+            String thisDir = clazz.getPackage().getName().replace('.', '/') + "/";
+            String parentHref = FilePath.getRelativePath(superFile, thisDir);
+            out.printf("#include \"%s_class.hxx\"\n", parentHref);
+        } else {
+            if (!clazz.isInterface())
+                out.println("#include <java/lang/Object_class.hxx>");
+        }
+        out.println();
+
         out.printf("namespace %s {\n", namespace);
         out.println();
 
-        if (members.parentClass == null)
-            out.printf("class %s_class {\n", simpleName);
-        else {
-            String parent = TypeNames.getName(members.parentClass, true);
+        if (containsSuperclass()) {
+            Class<?> superclass = clazz.getSuperclass();
+            String parent = TypeNames.getName(superclass, true);
             out.printf("class %s_class : public %s_class {\n", simpleName, parent);
+        } else {
+            if (clazz.isInterface())
+                out.printf("class %s_class {\n", simpleName);
+            else
+                out.printf("class %s_class : public java::lang::Object_class {\n", simpleName);
         }
 
         out.println("public:");
@@ -52,7 +69,7 @@ public class JNITypeInfo_h
 
         out.enterln("public:");
         {
-            if (members.parentClass == null)
+            if (!containsSuperclass())
                 out.println("jclass _class;");
 
             int n = 0;

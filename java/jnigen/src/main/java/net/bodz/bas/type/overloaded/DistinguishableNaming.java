@@ -23,7 +23,13 @@ public enum DistinguishableNaming {
 
     ;
 
-    static DistinguishableNaming[] defaultNamingCandidates = DistinguishableNaming.values();
+    static DistinguishableNaming[] defaultNamingCandidates = { //
+            NO_PARAM, //
+            SIMPLE_PARAM_NAME, //
+            SIMPLE_PARAM_TYPE, //
+            PARAM_COUNT, //
+            QUALIFIED_PARAM_TYPE, //
+    };
 
     public String getName(Constructor<?> ctor) {
         return getSuffix(ctor.getParameters());

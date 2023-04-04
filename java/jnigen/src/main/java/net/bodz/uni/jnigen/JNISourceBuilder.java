@@ -32,7 +32,7 @@ public abstract class JNISourceBuilder
     protected final String namespace;
 
     protected SourceFormat format = new SourceFormat();
-    protected boolean inherited;
+    protected ClassMap classMap;
     protected ClassMembers members;
     protected SourceFilesForSingleClass sourceFiles;
 
@@ -63,6 +63,17 @@ public abstract class JNISourceBuilder
 
         String packageName = clazz.getPackage().getName();
         namespace = packageName.replace(".", "::");
+    }
+
+    public boolean containsSuperclass() {
+        return classMap.containsSuperclass(clazz);
+    }
+
+    public Class<?> getInheritParent() {
+        if (containsSuperclass())
+            return clazz.getSuperclass();
+        else
+            return Object.class;
     }
 
     public long getLastModifiedTime() {

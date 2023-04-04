@@ -66,13 +66,13 @@ jfield getStaticField(JNIEnv *env, jclass clazz, const char *name, const char *s
     return jfield(clazz, id);
 }
 
-jmethod getMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig) {
+jmethod getMethod(JNIEnv *env, jclass clazz, const char *name, const char *sig) {
     jmethodID id = env->GetMethodID(clazz, name, sig);
     env->ExceptionClear();
     return jmethod(clazz, id);
 }
 
-jmethod getStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig) {
+jmethod getStaticMethod(JNIEnv *env, jclass clazz, const char *name, const char *sig) {
     jmethodID id = env->GetStaticMethodID(clazz, name, sig);
     env->ExceptionClear();
     return jmethod(clazz, id);

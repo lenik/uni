@@ -24,12 +24,18 @@ AM_LDFLAGS = -version-info 1:0:0
 AM_CXXFLAGS = \
     -fPIC \
     -I$(JDK_INCLUDE) \
-    -I$(JDK_INCLUDE_NATIVE)
+    -I$(JDK_INCLUDE_NATIVE) \
+    -Isrc
 AM_LIBADD =
 
 dist_libsweetjni_a_SOURCES = \
     src/sweetjni.cxx \
-    src/java/lang/String.cxx
+    src/java/lang/Object.cxx \
+    src/java/lang/Object_class.cxx \
+    src/java/lang/String.cxx \
+    src/java/lang/String_class.cxx \
+    src/java/lang/Throwable.cxx \
+    src/java/lang/Throwable_class.cxx
 dist_libsweetjni_la_SOURCES = ${dist_libsweetjni_a_SOURCES}
 
 libsweetjni_a_CXXFLAGS = ${AM_CXXFLAGS}
