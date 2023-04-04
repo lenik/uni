@@ -156,4 +156,48 @@ property_type(BooleanProperty,              Boolean);
 property_type(CharProperty,                 Char);
 property_type(PointerProperty,  void *,     Long);
 
+template<typename record_t, class wrapper_t>
+class record_mapper {
+    JNIEnv *env;
+    
+private:
+    record_t record;
+    
+public:
+    inline record_mapper(JNIEnv *env = getEnv())
+        : env(env) {
+    }
+    
+    inline record_mapper(record_t record, JNIEnv *env = getEnv())
+        : record(record), env(env) {
+    }
+    
+    inline ~record_mapper() {
+    }
+    
+    inline operator record_t *() {
+        return &record;
+    }
+    
+    record_t& load(jobject jobj) {
+        wrapper_t wrapper(env, jobj);
+        jbyteArray array = wrapper.encode();
+        env->GetByteArrayRegion(array, 0, sizeof(record_t),
+            (jbyte *) &record);
+        env->DeleteLocalRef(array);
+        array = NULL;
+        return record;
+    }
+    
+    jobject save(jobject jobj = (jobject) wrapper_t()) {
+        wrapper_t wrapper(env, jobj);
+        jbyteArray array = env->NewByteArray(sizeof(record_t));
+        env->SetByteArrayRegion(array, 0, sizeof(record_t),
+            (jbyte *) &record);
+        wrapper.decode(array);
+        env->DeleteLocalRef(array);
+        return jobj;
+    }
+};
+
 #endif
