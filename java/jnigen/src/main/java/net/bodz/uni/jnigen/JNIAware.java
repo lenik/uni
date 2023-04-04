@@ -100,4 +100,49 @@ public interface JNIAware {
             return "ObjectProperty<" + jniType(type) + ">";
     }
 
+    default String jniEscape(String s) {
+        int n = s.length();
+        StringBuilder sb = new StringBuilder(n + 10);
+        for (int i = 0; i < n; i++) {
+            char ch = s.charAt(i);
+            if (ch >= 'A' && ch <= 'Z' || ch >= 'a' && ch <= 'z' || ch >= '0' && ch <= '9') {
+                sb.append(ch);
+                continue;
+            }
+            switch (ch) {
+            case '/':
+            case '.':
+                sb.append(".");
+                break;
+            case '_':
+                sb.append("_1");
+                break;
+            case ';':
+                sb.append("_2");
+                break;
+            case '[':
+                sb.append("_3");
+                break;
+            default:
+                sb.append("_0");
+                sb.append(String.format("%04x", (int) ch));
+            }
+        }
+        return sb.toString();
+    }
+
+    default String jniClassName(Class<?> clazz) {
+        String qName = clazz.getName();
+        String escName = jniEscape(qName);
+        escName = escName.replace('.', '_');
+        return escName;
+    }
+
+    default String jniFunctionName(Method method) {
+        String cls = jniClassName(method.getDeclaringClass());
+        String name = method.getName();
+        String escName = jniEscape(name);
+        return "Java_" + cls + "_" + escName;
+    }
+
 }

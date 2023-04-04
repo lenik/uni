@@ -32,6 +32,7 @@ public abstract class JNISourceBuilder
     protected final String namespace;
 
     protected SourceFormat format = new SourceFormat();
+    protected boolean inherited;
     protected ClassMembers members;
     protected SourceFilesForSingleClass sourceFiles;
 

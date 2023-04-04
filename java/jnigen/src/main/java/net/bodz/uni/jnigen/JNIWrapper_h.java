@@ -44,24 +44,36 @@ public class JNIWrapper_h
         out.printf("namespace %s {\n", namespace);
         out.println();
 
-        out.println("class " + simpleName + " : public IWrapper {");
-        out.println("    jobject _this;");
-        out.println("    JNIEnv *_env;");
-        out.println();
+        String parentClassName;
+        if (members.parentClass == null)
+            parentClassName = "IWrapper";
+        else
+            parentClassName = TypeNames.getName(members.parentClass, true);
 
-        sect_wrapperCtors(out);
+        out.printf("class " + simpleName + " : public %s {\n", parentClassName);
+
+        if (members.parentClass == null) {
+            out.println("    JNIEnv *_env;");
+            if (Throwable.class.isAssignableFrom(clazz))
+                out.println("    jthrowable _jobj;");
+            else
+                out.println("    jobject _jobj;");
+            out.println();
+        }
+
+        section__WrapperCtors(out);
 
         if (!members.getConstructors().isEmpty())
-            sect_initCtors(out);
+            section__InitCtors(out);
 
         if (!members.getConstFieldNames().isEmpty())
-            sect_constFields(out);
+            section__ConstFields(out);
 
         if (!members.getFieldNames().isEmpty())
-            sect_fieldAccessors(out);
+            section__FieldAccessors(out);
 
         if (!members.getMethodNames().isEmpty())
-            sect_methodWrappers(out);
+            section__MethodWrappers(out);
 
         out.println("public: ");
         out.printf("    static thread_local %s_class CLASS;\n", simpleName);
@@ -73,30 +85,33 @@ public class JNIWrapper_h
         out.println("#endif");
     }
 
-    void sect_wrapperCtors(JNISourceWriter out) {
+    void section__WrapperCtors(JNISourceWriter out) {
         out.enterln("public: ");
         out.println("/* wrapper constructor */");
-        out.printf("%s(JNIEnv *env, jobject _this);\n", simpleName);
-        out.printf("static %s *_wrap(jobject _this);\n", simpleName);
+        out.printf("%s(JNIEnv *env, jobject jobj);\n", simpleName);
+        out.printf("static %s *_wrap(jobject jobj);\n", simpleName);
         out.println();
-        out.printf("inline JNIEnv *__env() { return _env; }\n");
-        out.printf("inline jobject __this() { return _this; }\n");
-        out.printf("inline operator jobject() { return _this; }\n");
+        out.printf("inline operator JNIEnv *() const { return _env; }\n");
+        out.printf("inline operator jobject() const { return _jobj; }\n");
+
+        if (Throwable.class.isAssignableFrom(clazz))
+            out.printf("inline operator jthrowable() const { return _jobj; }\n");
+
         out.leaveln("");
     }
 
-    void sect_initCtors(JNISourceWriter out) {
+    void section__InitCtors(JNISourceWriter out) {
         ConstructorMap<?> dCtors = members.getConstructors();
         out.enterln("public: ");
         out.println("/* ctor-create methods */");
         for (String dName : dCtors.keySet()) {
-            out.ctorDecl(dName, dCtors.get(dName), false);
+            out.ctorDecl(clazz, dName, dCtors.get(dName), false);
             out.println(";");
         }
         out.leaveln("");
     }
 
-    void sect_constFields(JNISourceWriter out) {
+    void section__ConstFields(JNISourceWriter out) {
         out.enterln("public: ");
         out.println("/* static final basic constant fields */");
         for (String fieldName : members.getConstFieldNames()) {
@@ -160,7 +175,7 @@ public class JNIWrapper_h
         }
     }
 
-    void sect_fieldAccessors(JNISourceWriter out) {
+    void section__FieldAccessors(JNISourceWriter out) {
         out.enterln("public: ");
         out.println("/* field accessors */");
         for (String fieldName : members.getFieldNames()) {
@@ -172,7 +187,7 @@ public class JNIWrapper_h
         out.leaveln("");
     }
 
-    void sect_methodWrappers(JNISourceWriter out) {
+    void section__MethodWrappers(JNISourceWriter out) {
         out.enterln("public: ");
         out.println("/* method wrappers */");
         for (String methodName : members.getMethodNames()) {
@@ -180,7 +195,7 @@ public class JNIWrapper_h
             if (dMap == null)
                 throw new NullPointerException("No method: " + methodName);
             for (String dName : dMap.keySet()) {
-                out.methodDecl(dName, dMap.get(dName), false);
+                out.methodDecl(clazz, dName, dMap.get(dName), false);
                 out.println(";");
             }
         }

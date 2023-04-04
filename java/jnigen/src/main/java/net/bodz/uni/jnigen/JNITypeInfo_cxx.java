@@ -43,6 +43,11 @@ public class JNITypeInfo_cxx
     void f_init(JNISourceWriter out) {
         ConstructorMap<?> dCtors = members.getConstructors();
         out.printf("%s_class::%s_class()", simpleName, simpleName);
+
+        // default constructor is implied.
+        // if (members.parentClass != null)
+        // out.printf(" : %s()", members.parentClass.getSimpleName());
+
         out.enterln(" {");
         {
             out.println("JNIEnv *env = getEnv();");
@@ -56,12 +61,12 @@ public class JNITypeInfo_cxx
                 String sig = signature(field.getType());
                 int modifiers = field.getModifiers();
                 if (Modifier.isStatic(modifiers))
-                    out.printf("%s = getStaticFieldID(env, _class, \"%s\", \"%s\");\n", //
-                            JNISourceWriter.getFieldIdVar(field), //
+                    out.printf("%s = getStaticField(env, _class, \"%s\", \"%s\");\n", //
+                            JNISourceWriter.getFieldVarName(field), //
                             field.getName(), sig);
                 else
-                    out.printf("%s = getFieldID(env, _class, \"%s\", \"%s\");\n", //
-                            JNISourceWriter.getFieldIdVar(field), //
+                    out.printf("%s = getField(env, _class, \"%s\", \"%s\");\n", //
+                            JNISourceWriter.getFieldVarName(field), //
                             field.getName(), sig);
             }
 
@@ -72,8 +77,8 @@ public class JNITypeInfo_cxx
             for (String dName : dCtors.keySet()) {
                 Constructor<?> ctor = dCtors.get(dName);
                 String sig = signature(ctor);
-                out.printf("%s = getMethodID(env, _class, \"<init>\", \"%s\");\n", //
-                        JNISourceWriter.getCtorIdVar(dName, ctor), //
+                out.printf("%s = getMethod(env, _class, \"<init>\", \"%s\");\n", //
+                        JNISourceWriter.getCtorVarName(dName, ctor), //
                         sig);
             }
 
@@ -84,12 +89,12 @@ public class JNITypeInfo_cxx
                     String sig = signature(method);
                     int modifiers = method.getModifiers();
                     if (Modifier.isStatic(modifiers))
-                        out.printf("%s = getStaticMethodID(env, _class, \"%s\", \"%s\");\n", //
-                                JNISourceWriter.getMethodIdVar(dName, method), //
+                        out.printf("%s = getStaticMethod(env, _class, \"%s\", \"%s\");\n", //
+                                JNISourceWriter.getMethodVarName(dName, method), //
                                 name, sig);
                     else
-                        out.printf("%s = getMethodID(env, _class, \"%s\", \"%s\");\n", //
-                                JNISourceWriter.getMethodIdVar(dName, method), //
+                        out.printf("%s = getMethod(env, _class, \"%s\", \"%s\");\n", //
+                                JNISourceWriter.getMethodVarName(dName, method), //
                                 name, sig);
                 }
             }
@@ -103,26 +108,28 @@ public class JNITypeInfo_cxx
         out.printf("void " + simpleName + "_class::dump()");
         out.enterln(" {");
         {
+            // super.dump();
+
             for (Field field : members.getFields()) {
                 int modifiers = field.getModifiers();
                 if (!Modifier.isPublic(modifiers))
                     continue;
-                String var = JNISourceWriter.getFieldIdVar(field);
-                out.printf("printf(\"%s: %%d\\n\", %s);\n", var, var);
+                String var = JNISourceWriter.getFieldVarName(field);
+                out.printf("printf(\"%s: %%d\\n\", %s.id);\n", var, var);
             }
 
             for (String ctorName : dCtors.keySet()) {
                 Constructor<?> ctor = dCtors.get(ctorName);
-                String var = JNISourceWriter.getCtorIdVar(ctorName, ctor);
-                out.printf("printf(\"%s: %%d\\n\", %s);\n", var, var);
+                String var = JNISourceWriter.getCtorVarName(ctorName, ctor);
+                out.printf("printf(\"%s: %%d\\n\", %s.id);\n", var, var);
             }
 
             for (String name : members.getMethodNames()) {
                 MethodMap dMap = members.getMethods(name);
                 for (String dName : dMap.keySet()) {
                     Method method = dMap.get(dName);
-                    String var = JNISourceWriter.getMethodIdVar(dName, method);
-                    out.printf("printf(\"%s: %%d\\n\", %s);\n", var, var);
+                    String var = JNISourceWriter.getMethodVarName(dName, method);
+                    out.printf("printf(\"%s: %%d\\n\", %s.id);\n", var, var);
                 }
             }
             out.leaveln("}");

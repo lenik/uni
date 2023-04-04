@@ -39,6 +39,7 @@ public class JNINative_h
             Map<String, Method> dMap = members.getNativeMethods(methodName);
             for (String dName : dMap.keySet()) {
                 out.nativeMethodDecl(dName, dMap.get(dName), "        ", false);
+                out.println(";");
                 out.println();
             }
         }

@@ -23,30 +23,34 @@ public class JNISourceWriter
         this.out = out;
     }
 
-    public void ctorDecl(String ctorName, Constructor<?> ctor, boolean def) {
-        Class<?> type = ctor.getDeclaringClass();
-
+    public void ctorDecl(Class<?> clazz, String ctorName, Constructor<?> ctor, boolean def) {
         if (def) {
-            String c = type.getSimpleName();
+            String c = clazz.getSimpleName();
             out.print(c);
             out.print("::");
         }
 
         // out.print(ctorName);
-        out.print(type.getSimpleName());
+        out.print(clazz.getSimpleName());
         out.print("(");
         paramsDecl(ctor.getParameters());
         out.print(")");
         throwsDecl(ctor.getExceptionTypes());
     }
 
-    void ctorDef(String ctorName, Constructor<?> ctor) {
-        ctorDecl(ctorName, ctor, true);
+    void ctorDef(Class<?> clazz, String ctorName, Constructor<?> ctor) {
+        ctorDecl(clazz, ctorName, ctor, true);
 
         out.enterln("{");
-        out.printf("jclass clazz = CLASS._class;\n");
+        out.printf("jclass jclass = CLASS._class;\n");
         out.printf("this->_env = getEnv();\n");
-        out.printf("this->_this = newObject(_env, clazz, CLASS.INIT%s", ctorName);
+
+        String castExpr = "";
+        String jniType = jniType(clazz);
+        if (!"jobject".equals(jniType))
+            castExpr = " (" + jniType + ")";
+
+        out.printf("this->_jobj =%s newObject(_env, CLASS.INIT%s", castExpr, ctorName);
 
         for (Parameter param : ctor.getParameters()) {
             out.print(", ");
@@ -56,7 +60,7 @@ public class JNISourceWriter
         out.leaveln("}");
     }
 
-    void methodDecl(String methodName, Method method, boolean def) {
+    void methodDecl(Class<?> clazz, String methodName, Method method, boolean def) {
         int modifiers = method.getModifiers();
         boolean isStatic = Modifier.isStatic(modifiers);
 
@@ -68,8 +72,7 @@ public class JNISourceWriter
         out.print(" ");
 
         if (def) {
-            Class<?> type = method.getDeclaringClass();
-            String c = type.getSimpleName();
+            String c = clazz.getSimpleName();
             out.print(c);
             out.print("::");
         }
@@ -81,29 +84,29 @@ public class JNISourceWriter
         throwsDecl(method.getExceptionTypes());
     }
 
-    void methodDef(String methodName, Method method, String _lazyInit) {
+    void methodDef(Class<?> clazz, String methodName, Method method, String _lazyInit) {
         int modifiers = method.getModifiers();
         boolean isStatic = Modifier.isStatic(modifiers);
 
-        methodDecl(methodName, method, true);
+        methodDecl(clazz, methodName, method, true);
         out.enterln("{");
 
         if (_lazyInit != null)
             out.println(_lazyInit);
 
         Class<?> retType = method.getReturnType();
-        String methodId = getMethodIdVar(methodName, method);
+        String methodVarName = getMethodVarName(methodName, method);
 
         StringBuilder callExpr = new StringBuilder();
         if (isStatic) {
             out.println("JNIEnv *env = getEnv();");
             String callMethodFunc = callStaticMethodFunc(method.getReturnType());
-            callExpr.append(String.format("env->%s(CLASS._class, CLASS.%s", //
-                    callMethodFunc, methodId));
+            callExpr.append(String.format("env->%s(CLASS._class, CLASS.%s.id", //
+                    callMethodFunc, methodVarName));
         } else {
             String callMethodFunc = callMethodFunc(method.getReturnType());
-            callExpr.append(String.format("_env->%s(_this, CLASS.%s", //
-                    callMethodFunc, methodId));
+            callExpr.append(String.format("_env->%s(_jobj, CLASS.%s.id", //
+                    callMethodFunc, methodVarName));
         }
 
         for (Parameter param : method.getParameters()) {
@@ -146,63 +149,62 @@ public class JNISourceWriter
         }
     }
 
-    static String getFieldIdVar(Field field) {
+    static String getFieldVarName(Field field) {
         return "FIELD_" + field.getName();
     }
 
-    void fieldIdDecl(Field field, boolean def) {
-        out.print("jfieldID ");
+    void fieldVarDecl(Class<?> clazz, Field field, boolean def) {
+        out.print("jfield ");
         if (def) {
-            Class<?> type = field.getDeclaringClass();
-            String c = type.getSimpleName();
+            String c = clazz.getSimpleName();
             out.print(c);
             out.print("::");
         }
-        out.print(getFieldIdVar(field));
+        out.print(getFieldVarName(field));
     }
 
-    void fieldIdDef(Field field) {
-        fieldIdDecl(field, true);
+    void fieldVarDef(Class<?> clazz, Field field) {
+        fieldVarDecl(clazz, field, true);
         out.println(";");
     }
 
-    static String getCtorIdVar(String ctorName, Constructor<?> ctor) {
+    static String getCtorVarName(String ctorName, Constructor<?> ctor) {
         return "INIT" + ctorName;
     }
 
-    void ctorIdDecl(String ctorName, Constructor<?> ctor, boolean def) {
-        out.print("jmethodID ");
+    void ctorVarDecl(String ctorName, Constructor<?> ctor, boolean def) {
+        out.print("jmethod ");
         if (def) {
             Class<?> type = ctor.getDeclaringClass();
             String c = type.getSimpleName();
             out.print(c);
             out.print("::");
         }
-        out.print(getCtorIdVar(ctorName, ctor));
+        out.print(getCtorVarName(ctorName, ctor));
     }
 
-    void ctorIdDef(String ctorName, Constructor<?> ctor) {
-        ctorIdDecl(ctorName, ctor, true);
+    void ctorVarDef(String ctorName, Constructor<?> ctor) {
+        ctorVarDecl(ctorName, ctor, true);
         out.println(";");
     }
 
-    static String getMethodIdVar(String methodName, Method method) {
+    static String getMethodVarName(String methodName, Method method) {
         return "METHOD_" + methodName;
     }
 
-    void methodIdDecl(String methodName, Method method, boolean def) {
-        out.print("jmethodID ");
+    void methodVarDecl(String methodName, Method method, boolean def) {
+        out.print("jmethod ");
         if (def) {
             Class<?> type = method.getDeclaringClass();
             String c = type.getSimpleName();
             out.print(c);
             out.print("::");
         }
-        out.print(getMethodIdVar(methodName, method));
+        out.print(getMethodVarName(methodName, method));
     }
 
-    void methodIdDef(String methodName, Method method) {
-        methodIdDecl(methodName, method, true);
+    void methodVarDef(String methodName, Method method) {
+        methodVarDecl(methodName, method, true);
         out.println(";");
     }
 
@@ -211,24 +213,25 @@ public class JNISourceWriter
         boolean isStatic = Modifier.isStatic(modifiers);
 
         Class<?> clazz = method.getDeclaringClass();
-        String jniClassName = clazz.getName().replace('.', '_');
+        String jniClassName = jniClassName(clazz);
         out.println("/*");
         out.println(" * Class: " + jniClassName);
         out.println(" * Method: " + method.getName());
         out.println(" * Signature: " + signature(method));
         out.println(" */");
 
-        String jniFunctionName = "Java_" + jniClassName + "_" + method.getName();
-        out.printf("JNIEXPORT %s JNICALL %s", jniType(method.getReturnType()), jniFunctionName);
+        String jniFunctionName = jniFunctionName(method);
+        out.printf("JNIEXPORT %s JNICALL %s", //
+                jniType(method.getReturnType()), jniFunctionName);
         if (softIndent != null) {
             out.print("\n");
             out.print(softIndent);
         }
 
         if (isStatic)
-            out.print("(JNIEnv *env, jclass _class");
+            out.print("(JNIEnv *env, jclass jclass");
         else
-            out.print("(JNIEnv *env, jobject _this");
+            out.print("(JNIEnv *env, jobject jobj");
 
         if (method.getParameterCount() != 0) {
             out.print(", ");
@@ -236,19 +239,6 @@ public class JNISourceWriter
         }
         out.print(")");
         // throwsDecl(method.getExceptionTypes());
-    }
-
-    void nativeMethodDef(String methodName, Method method) {
-        nativeMethodDecl(methodName, method, "        ", true);
-        out.enterln(" {");
-        Class<?> returnType = method.getReturnType();
-        if (returnType != void.class)
-            if (returnType.isPrimitive()) {
-                out.println("return 0;");
-            } else {
-                out.println("return NULL;");
-            }
-        out.leaveln("}");
     }
 
 }

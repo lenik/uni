@@ -16,23 +16,30 @@ public class OverloadedTypeInfo {
     private Map<String, Field> fieldMap;
     private Map<String, Field> staticFinalBasicFieldMap;
 
-    public <T> void addPublicDeclaredMembers(Class<T> clazz, TypeInfoOptions options) {
-        OverloadedConstructors<T> ctors = new OverloadedConstructors<>();
-        for (Constructor<?> _ctor : clazz.getConstructors()) {
-            @SuppressWarnings("unchecked")
-            Constructor<T> ctor = (Constructor<T>) _ctor;
-            ctors.add(ctor);
+    public <T> void addMembers(Class<T> clazz, TypeInfoOptions options) {
+        OverloadedConstructors<T> oCtors = new OverloadedConstructors<>();
+        Constructor<?>[] constructors = options.declaredOnly //
+                ? clazz.getDeclaredConstructors()
+                : clazz.getConstructors();
+        for (Constructor<?> _ctor : constructors) {
+            if (options.include(_ctor)) {
+                @SuppressWarnings("unchecked")
+                Constructor<T> ctor = (Constructor<T>) _ctor;
+                oCtors.add(ctor);
+            }
         }
-        this.constructors = ctors;
+        this.constructors = oCtors;
 
         methodNameMap = options.memberOrder.newMap();
         nativeMethodNameMap = options.memberOrder.newMap();
-        for (Method method : clazz.getDeclaredMethods()) {
-            int modifiers = method.getModifiers();
-            if (!Modifier.isPublic(modifiers))
+        Method[] methods = options.declaredOnly ? //
+                clazz.getDeclaredMethods() : clazz.getMethods();
+        for (Method method : methods) {
+            if (!options.include(method))
                 continue;
 
             String methodName = method.getName();
+            int modifiers = method.getModifiers();
             if (Modifier.isNative(modifiers)) {
                 OverloadedMethods nativeMethods = nativeMethodNameMap.get(methodName);
                 if (nativeMethods == null) {
@@ -44,20 +51,23 @@ public class OverloadedTypeInfo {
                     continue;
             }
 
-            OverloadedMethods methods = methodNameMap.get(methodName);
-            if (methods == null) {
-                methods = new OverloadedMethods();
-                methodNameMap.put(methodName, methods);
+            OverloadedMethods oMethods = methodNameMap.get(methodName);
+            if (oMethods == null) {
+                oMethods = new OverloadedMethods();
+                methodNameMap.put(methodName, oMethods);
             }
-            methods.add(method);
+            oMethods.add(method);
         }
 
         fieldMap = options.memberOrder.newMap();
         staticFinalBasicFieldMap = options.memberOrder.newMap();
-        for (Field field : clazz.getDeclaredFields()) {
-            int modifiers = field.getModifiers();
-            if (!Modifier.isPublic(modifiers))
+        Field[] fields = options.declaredOnly //
+                ? clazz.getDeclaredFields()
+                : clazz.getFields();
+        for (Field field : fields) {
+            if (!options.include(field))
                 continue;
+            int modifiers = field.getModifiers();
             boolean isStatic = Modifier.isStatic(modifiers);
             boolean isFinal = Modifier.isFinal(modifiers);
 

@@ -35,22 +35,29 @@ public class JNIWrapper_cxx
         out.printf("thread_local %s_class %s::CLASS;\n", simpleName, simpleName);
         out.println();
 
-        out.printf("%s::%s(JNIEnv *env, jobject _this) {\n", simpleName, simpleName);
-        out.printf("    this->_this = _this;\n");
+        /// if(members.parentClass==null) {
+        out.printf("%s::%s(JNIEnv *env, jobject jobj) {\n", simpleName, simpleName);
         out.printf("    this->_env = env;\n");
+
+        String castExpr = "";
+        String jniType = jniType(clazz);
+        if (!"jobject".equals(jniType))
+            castExpr = " (" + jniType + ")";
+
+        out.printf("    this->_jobj =%s jobj;\n", castExpr);
         out.println("}");
         out.println();
 
-        out.printf("%s *%s::_wrap(jobject _this) {\n", simpleName, simpleName);
+        out.printf("%s *%s::_wrap(jobject jobj) {\n", simpleName, simpleName);
         out.printf("    JNIEnv *env = getEnv();\n");
-        out.printf("    return new %s(env, _this);\n", simpleName);
+        out.printf("    return new %s(env, jobj);\n", simpleName);
         out.println("}");
         out.println();
 
         out.println("/* ctor-create methods */");
         ConstructorMap<?> dCtors = members.getConstructors();
         for (String dName : dCtors.keySet()) {
-            out.ctorDef(dName, dCtors.get(dName));
+            out.ctorDef(clazz, dName, dCtors.get(dName));
             out.println();
         }
 
@@ -66,7 +73,7 @@ public class JNIWrapper_cxx
         for (String methodName : members.getMethodNames()) {
             MethodMap dMap = members.getMethods(methodName);
             for (String dName : dMap.keySet()) {
-                out.methodDef(dName, dMap.get(dName), lazyInit);
+                out.methodDef(clazz, dName, dMap.get(dName), lazyInit);
                 out.println();
             }
         }

@@ -7,6 +7,9 @@ public class SourceFormat {
 
     public SortOrder memberOrder = SortOrder.KEEP;
 
+    public SourceFormat() {
+    }
+
     public TypeInfoOptions toTypeInfoOptions() {
         TypeInfoOptions options = new TypeInfoOptions();
         options.memberOrder = memberOrder;

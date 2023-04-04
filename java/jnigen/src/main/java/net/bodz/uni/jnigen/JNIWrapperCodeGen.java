@@ -3,6 +3,7 @@ package net.bodz.uni.jnigen;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import net.bodz.bas.c.loader.scan.ClassScanner;
@@ -11,9 +12,12 @@ import net.bodz.bas.c.m2.MavenPomDir;
 import net.bodz.bas.c.system.SystemProperties;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.io.Stdio;
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.repr.form.SortOrder;
+import net.bodz.bas.type.overloaded.TypeInfoOptions;
 
 /**
  * Generate C++ helpers for JNI classes.
@@ -23,6 +27,8 @@ public class JNIWrapperCodeGen
         extends BasicCLI
         implements
             JNIAware {
+
+    static final Logger logger = LoggerFactory.getLogger(JNIWrapperCodeGen.class);
 
     ClassLoader loader;
     ClassScanner scanner;
@@ -45,17 +51,16 @@ public class JNIWrapperCodeGen
     /**
      * Sort members.
      *
-     * @option -s --sort-members
+     * @option -o
      */
-    boolean sortMembers;
-    SortOrder memberOrder = SortOrder.KEEP;
+    boolean sortMembers = true;
 
     /**
      * Specify the output directory.
      *
      * By default, files are saved in src/main/native/ for maven project, or src/ otherwise.
      *
-     * @option -o --outdir =DIR
+     * @option -O --outdir =DIR
      */
     File outDir;
     static final String MAVEN_DIR = "src/main/native";
@@ -68,19 +73,48 @@ public class JNIWrapperCodeGen
     boolean stdout;
 
     /**
-     * Use flatten file names. By default, files are organized by directories according to package
-     * names.
+     * Use flatten file names. By default, files are organized by directories according to package names.
      *
      * @option -l
      */
     boolean flatten;
 
     /**
+     * Generate codes for ancestor classes (up to the scan-package).
+     *
+     * In recursive mode, declared members instead of public members are included.
+     *
+     * @option -r
+     */
+    boolean recursive;
+
+    /**
+     * Include protected members (only declared ones).
+     *
+     * @option -t --protected
+     */
+    boolean includeProtectedMembers;
+
+    /**
+     * Include package private members. (implies --protected)
+     *
+     * @option -p --package-private
+     */
+    boolean includePackagePrivateMembers;
+
+    /**
+     * Include private members. (implies --package-private)
+     *
+     * @option -a --all --private
+     */
+    boolean includePrivateMembers;
+
+    /**
      * Force to overwrite existing native implemetation files.
      *
-     * @option -f
+     * @option -f --force
      */
-    boolean overwriteJNI = false;
+    boolean forceOverwrite = false;
 
     /**
      * C++ Header file extension, default .hxx
@@ -120,20 +154,27 @@ public class JNIWrapperCodeGen
             return;
         }
 
-        if (sortMembers)
-            memberOrder = SortOrder.SORTED;
-
-        List<Class<?>> list;
+        LinkedList<Class<?>> queue = new LinkedList<>();
         if (scanPackage != null)
-            list = scanner.scanPackage(scanPackage);
-        else
-            list = new ArrayList<>();
-        for (String name : scanClassNames) {
-            Class<?> clazz = Class.forName(name, false, loader);
-            list.add(clazz);
-        }
+            queue.addAll(scanner.scanPackage(scanPackage));
+        if (scanClassNames != null)
+            for (String name : scanClassNames) {
+                Class<?> clazz = Class.forName(name, false, loader);
+                queue.add(clazz);
+            }
 
-        for (Class<?> clazz : list) {
+        if (sortMembers)
+            format.memberOrder = SortOrder.SORTED;
+
+        includePackagePrivateMembers |= includePrivateMembers;
+        includeProtectedMembers |= includePackagePrivateMembers;
+
+        while (!queue.isEmpty()) {
+            Class<?> clazz = queue.pollFirst();
+            if (clazz == null)
+                break;
+            logger.info("Generate " + clazz);
+
             SourceFilesForSingleClass files = new SourceFilesForSingleClass();
             String name = clazz.getSimpleName();
             files.wrapperHeaderFile = file(name + headerExtension, clazz);
@@ -147,8 +188,25 @@ public class JNIWrapperCodeGen
             files.jniHeaderFile = file(jniBaseName + headerExtension, clazz);
             files.jniSourceFile = file(jniBaseName + sourceExtension, clazz);
 
+            Class<?> parent = null;
+            if (recursive) {
+                Class<?> superclass = clazz.getSuperclass();
+                String superpkg = superclass.getPackage().getName();
+                if (TypeNames.packageContains(scanPackage, superpkg)) {
+                    parent = superclass;
+                    queue.addFirst(parent);
+                }
+            }
+
+            TypeInfoOptions options = format.toTypeInfoOptions();
+            options.declaredOnly = parent != null;
+            options._protected = includeProtectedMembers;
+            options.packagePrivate = includePackagePrivateMembers;
+            options._private = includePrivateMembers;
+
             ClassMembers members = new ClassMembers();
-            members.addPublicDeclaredMembers(clazz, format.toTypeInfoOptions());
+            members.parentClass = parent;
+            members.addMembers(clazz, options);
 
             run(files, members, new JNIWrapper_h(clazz));
             run(files, members, new JNIWrapper_cxx(clazz));
@@ -156,9 +214,9 @@ public class JNIWrapperCodeGen
             run(files, members, new JNITypeInfo_cxx(clazz));
 
             if (!members.getNativeMethodNames().isEmpty()) {
-                if (overwriteJNI || !files.jniHeaderFile.exists())
+                if (forceOverwrite || !files.jniHeaderFile.exists())
                     run(files, members, new JNINative_h(clazz));
-                if (overwriteJNI || !files.jniSourceFile.exists())
+                if (forceOverwrite || !files.jniSourceFile.exists())
                     run(files, members, new JNINative_cxx(clazz));
             }
         }
@@ -183,7 +241,7 @@ public class JNIWrapperCodeGen
                 || classTime == 0 //
                 || fileTime < classTime;
 
-        if (expired) {
+        if (expired || forceOverwrite) {
             if (stdout) {
                 builder.buildSource(out, file);
             } else {

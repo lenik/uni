@@ -27,6 +27,8 @@ public abstract class SourceBuilder {
         parent.mkdirs();
         if (!parent.exists() || !parent.isDirectory())
             throw new IOException("Can't create parent directory: " + parent);
+
+        // System.out.println("Generate " + file);
         try (ITreeOut out = new FileResource(file).newTreeOut()) {
             buildSource(out, file);
         }

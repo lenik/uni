@@ -38,7 +38,13 @@ public class JNITypeInfo_h
         out.printf("namespace %s {\n", namespace);
         out.println();
 
-        out.printf("class %s_class {\n", simpleName);
+        if (members.parentClass == null)
+            out.printf("class %s_class {\n", simpleName);
+        else {
+            String parent = TypeNames.getName(members.parentClass, true);
+            out.printf("class %s_class : public %s_class {\n", simpleName, parent);
+        }
+
         out.println("public:");
         out.printf("    %s_class();\n", simpleName);
         out.println("    void dump();");
@@ -46,13 +52,14 @@ public class JNITypeInfo_h
 
         out.enterln("public:");
         {
-            out.println("jclass _class;");
+            if (members.parentClass == null)
+                out.println("jclass _class;");
 
             int n = 0;
             for (Field field : members.getFields()) {
                 if (n++ == 0)
                     out.println();
-                out.fieldIdDecl(field, false);
+                out.fieldVarDecl(clazz, field, false);
                 out.println(";");
             }
 
@@ -60,7 +67,7 @@ public class JNITypeInfo_h
             for (String dName : dCtors.keySet()) {
                 if (n++ == 0)
                     out.println();
-                out.ctorIdDecl(dName, dCtors.get(dName), false);
+                out.ctorVarDecl(dName, dCtors.get(dName), false);
                 out.println(";");
             }
 
@@ -70,7 +77,7 @@ public class JNITypeInfo_h
                 for (String dName : dMap.keySet()) {
                     if (n++ == 0)
                         out.println();
-                    out.methodIdDecl(dName, dMap.get(dName), false);
+                    out.methodVarDecl(dName, dMap.get(dName), false);
                     out.println(";");
                 }
             }
