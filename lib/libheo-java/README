@@ -1,0 +1,48 @@
+    
+libheo-java
+
+Human-editable octets dump (.heo .heoDump)
+
+# comments
+/* comments */
+// also comment
+| viz comments (reserved usage to only appeared after data bytes)
+
+\instruction
+ADDR : BYTES | comment
+* (repeat)
+
+0x1211: 41 42;44;46 | ADEF
+* repeat-until...
+
+\big-endian
+0x1213: 41 42;44;46 \n0x55: 51525345
+
+    3.61f       # IEEE float
+    2192.0      # IEEE double
+    NaN
+    
+    "RISC"
+
+\fill 41424142 | ABAB
+\def sym 12124141 | xxyy
+0x8877: \sym "{ hello }"
+    \n 10
+    \r 13
+    \t 08
+
+    41
+    65d 197d 31d 953d
+
+0x4000:
+
+    # indent means offset from last (parent) offset
+    0x30:
+        0x10:
+    0x560:
+
+name = 0x10000:  named offset (for nagivation)
+    # radix of data bytes are same as address.
+    0: 67 123 531
+    000: 031 120 320 002        | WHAT
+

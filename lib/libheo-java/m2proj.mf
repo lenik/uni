@@ -1,0 +1,2 @@
+include coolmake/m2proj.mf
+
