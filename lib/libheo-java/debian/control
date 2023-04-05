@@ -1,0 +1,17 @@
+Source: libheo-java
+Section: java
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+Standards-Version: 4.6.2
+Homepage: http://uni.bodz.net/lib/libheo-java
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/lib/libheo-java
+
+Package: libheo-java
+Architecture: all
+Depends:
+    ${misc:Depends}
+Description: Human-editable octets dump file format
