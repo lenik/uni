@@ -5,22 +5,28 @@
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
     . shlib-import cliboot
-    option -d --by-date-dir =DIR    "Specify where organized files will go. (default ../by-date)"
+    option -d --index-dir =DIR      "Specify the index directory, default searh the closest by-date/."
     option -p --date-path           "Use y/y-m/y-m-d date path. (default)"
+    option -f --force               "Overwrite existing files"
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
 
-    opt_byDateDir=../by-date
+    ((LOGLEVEL++))
+
+    opt_indexDir=
     opt_datePath=1
+    opt_force=0
 
 function setopt() {
     case "$1" in
         -d|--by-date-dir)
-            opt_byDateDir="$2";;
+            opt_indexDir="$2";;
         -p|--date-path)
             opt_datePath=1;;
+        -f|--force)
+            opt_force=1;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -35,9 +41,25 @@ function setopt() {
 }
 
 function main() {
+    mvopts=()
+    if [ "$opt_force" != 1 ]; then
+        mvopts+=(-n)
+    fi
+    if [ -z "$opt_indexDir" ]; then
+        if ! opt_indexDir=$(find-in-pars "$PWD" by-date index); then
+            quit "can't find by-date dir."
+        fi
+        _log1 "index directory: $opt_indexDir"
+    fi
+
     local file dir base
     local date y m d
     for file in "$@"; do
+        if [ ! -e "$file" ]; then
+            _error "not existed: $file"
+            continue
+        fi
+
         dir="${file%/*}"
         base="${file##*/}"
         if [ "$file" = "$base" ]; then
@@ -54,7 +76,7 @@ function main() {
         esac
 
         if [ "$opt_datePath" = 0 ]; then
-            if [ -z "$opt_byDateDir" ]; then
+            if [ -z "$opt_indexDir" ]; then
                 if is-date "$base"; then
                     _log2 "ignore (the target) date dir $file"
                     continue
@@ -69,8 +91,8 @@ function main() {
             d=${date:8:2}
 
         local outdir="$dir"
-            if [ -n "$opt_byDateDir" ]; then
-                outdir="$opt_byDateDir"
+            if [ -n "$opt_indexDir" ]; then
+                outdir="$opt_indexDir"
             fi
             if [ "$opt_datePath" = 1 ]; then
                 outdir="$outdir/$y/$y-$m/$y-$m-$d"
@@ -87,8 +109,33 @@ function main() {
         fi
 
         _log2 "move $file to $outdir/"
-        mv "$file" "$outdir"/
+        if ! mv "${mvopts[@]}" "$file" "$outdir"/; then
+            _error "failed to move $file: error $?, $!"
+        elif [ -e "$file" ]; then
+            _error "file is already existed: $file"
+        fi
     done
+}
+
+function find-in-pars() {
+    local start="$1"
+    shift
+
+    local arg
+    if [ ! -d "$start" ]; then
+        return 1
+    fi
+    for arg in "$@"; do
+        if [ -e "$start/$arg" ]; then
+            echo "$start/$arg"
+            return 0
+        fi
+    done
+    local par="${start%/*}"
+    if [ "$par" = "$start" ]; then
+        return 1
+    fi
+    find-in-pars "$par" "$@"
 }
 
 function is-date() {
