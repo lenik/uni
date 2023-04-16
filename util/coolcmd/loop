@@ -47,7 +47,11 @@
         _title="[42m $_index [47m $_ts [42m ~ [47m $_dt[m"
         _ntitle=$(( ${#_title} + 2 - 23 ))
         _halfpad=$(( (_cols - _ntitle) / 2 ))
-        _line="${_PAD:0:_halfpad} $_title ${_PAD:0:_cols - _ntitle - _halfpad}"
+        if [ $_halfpad -gt 0 ]; then
+            _line="${_PAD:0:_halfpad} $_title ${_PAD:0:_cols - _ntitle - _halfpad}"
+        else
+            _line="$_title"
+        fi
         echo "$_line"
         . settermtitle "L($_interval:$_index) $_cmd"
 
