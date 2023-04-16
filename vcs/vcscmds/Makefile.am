@@ -1,9 +1,13 @@
 include libauto/project.am
 
-dist_bin_SCRIPTS = \
+subst_scripts = \
     vcscmd \
     vcscmd-ignore \
     vcsdirs
+
+dist_bin_SCRIPTS = \
+    $(subst_scripts) \
+    vcsroot
 
 dist_alias_DATA = \
     50vcscmds.sh
@@ -13,7 +17,6 @@ dist_completion_DATA = \
 
 dist_man_MANS = \
     vcscmd.1 \
-    vcscmd-ignore.1 \
     vcsdirs.1
 
 dist_setup_SCRIPTS = \
@@ -21,7 +24,7 @@ dist_setup_SCRIPTS = \
     prerm
 
 CLEANFILES = \
-    ${dist_bin_SCRIPTS} \
+    ${subst_scripts} \
     ${dist_setup_SCRIPTS}
 
 install-data-hook:
