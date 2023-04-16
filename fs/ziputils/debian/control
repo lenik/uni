@@ -12,9 +12,10 @@ Package: ziputils
 Architecture: all
 Depends:
     bash-shlib,
+    bzip2,
     findutils,
     gzip,
-    bzip2,
+    libarchive-tools,
     p7zip | p7zip-full
 Description: Extra support to various zip format.
     This package provides 7z wrappers, to convert filename encodings.
