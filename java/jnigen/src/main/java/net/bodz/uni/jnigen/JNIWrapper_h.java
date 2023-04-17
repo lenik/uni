@@ -37,6 +37,8 @@ public class JNIWrapper_h
         out.println("#include <sweetjni.hxx>");
         out.println();
 
+        String jniType = jniType(clazz);
+
         if (containsSuperclass()) {
             Class<?> parentClass = getInheritParent();
             String parentFile = parentClass.getName().replace('.', '/');
@@ -44,8 +46,16 @@ public class JNIWrapper_h
             String parentHref = FilePath.getRelativePath(parentFile, thisDir);
             out.printf("#include \"%s.hxx\"\n", parentHref);
         } else {
-            if (!clazz.isInterface())
-                out.println("#include <java/lang/Object.hxx>");
+            if (!clazz.isInterface()) {
+                switch (jniType) {
+                case "jthrowable":
+                    out.println("#include <java/lang/Throwable.hxx>");
+                    break;
+                case "jobject":
+                default:
+                    out.println("#include <java/lang/Object.hxx>");
+                }
+            }
         }
         out.println();
 
@@ -64,14 +74,21 @@ public class JNIWrapper_h
             if (clazz.isInterface()) {
                 out.printf("class " + simpleName + " : public IWrapper {\n");
             } else {
-                String parentClassName = TypeNames.getName(Object.class, true);
+                String parentClassName;
+                switch (jniType) {
+                case "jthrowable":
+                    parentClassName = "java::lang::Throwable";
+                    break;
+                default:
+                    parentClassName = "java::lang::Object";
+                }
                 out.printf("class " + simpleName + " : public %s {\n", parentClassName);
             }
         }
 
         if (clazz.isInterface()) {
             out.println("    JNIEnv *_env;");
-            if (Throwable.class.isAssignableFrom(clazz))
+            if (Throwable.class.isAssignableFrom(clazz)) // never.
                 out.println("    jthrowable _jobj;");
             else
                 out.println("    jobject _jobj;");

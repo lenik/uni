@@ -72,8 +72,13 @@ public abstract class JNISourceBuilder
     public Class<?> getInheritParent() {
         if (containsSuperclass())
             return clazz.getSuperclass();
-        else
+        String jniType = jniType(clazz);
+        switch (jniType) {
+        case "jthrowable":
+            return Throwable.class;
+        default:
             return Object.class;
+        }
     }
 
     public long getLastModifiedTime() {
