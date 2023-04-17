@@ -7,11 +7,13 @@ if [ "${pkgdatadir/@/}" != "$pkgdatadir" ]; then
     pkgdatadir="$__DIR__"
 fi
 
-opts=( -r "$pkgdatadir" )
-
+opts=()
 if [ -f pom.xml ]; then
     opts+=( -r "$PWD" )
 fi
 
+opts+=( -r "$pkgdatadir" )
+
+#echo main "${opts[@]}" daogen "$@"
 exec main "${opts[@]}" daogen "$@"
 

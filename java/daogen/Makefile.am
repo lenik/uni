@@ -1,7 +1,7 @@
 include libauto/project.am
 
 dist_bin_SCRIPTS = \
-    daogen
+    java/daogen
 
 dist_man_MANS = 
 
@@ -14,29 +14,19 @@ CLEANFILES = \
     ${dist_man_MANS} \
     ${dist_setup_SCRIPTS}
 
-lib-updater:
-	make -f m2proj.mf $@
-
-lib-updater-O:
-	make -f m2proj.mf $@
-
-SOURCES = $(shell find src/main -type f)
+SOURCES = $(shell find java/src/main -type f)
 
 test:
 	echoli $(SOURCES)
 
-target/: $(SOURCES)
-	mvn package -fn -Dmaven.test.skip=true -DskipTests
-	touch $@
-
 install-data-hook:
 	mkdir -p $(DESTDIR)$(pkgdatadir)/target
-	cp classpath.release.lst $(DESTDIR)$(pkgdatadir)
-	cp -RL target/classes $(DESTDIR)$(pkgdatadir)/target
-	cp -RL lib $(DESTDIR)$(pkgdatadir)
+	cp java/classpath.release.lst $(DESTDIR)$(pkgdatadir)
+	cp -RL java/target/classes $(DESTDIR)$(pkgdatadir)/target
+	cp -RL java/lib $(DESTDIR)$(pkgdatadir)
 
 install-debug:
-	sudo ln -snf $$PWD/daogen.in /bin/daogen
+	sudo ln -snf $$PWD/java/daogen.in /bin/daogen
 
 autobuild:
 	@echo "autobuild isn't supported, yet."
@@ -50,7 +40,7 @@ open-window:
 	        -o confirm_os_window_close=0 \
             make open-tabs tab-play
 
-open-tabs: tab-autobuild tab-libsweetjni-ab
+open-tabs: tab-autobuild
 
 tab-play:
 	@kitty @set-tab-title 'daogen/play'
