@@ -426,6 +426,7 @@ public class LilyDaoCodegen
 
     public static void main(String[] args)
             throws Exception {
+
         LilyDaoCodegen app = new LilyDaoCodegen(//
                 DataHub.getPreferredHub().getMain());
         app.execute(args);

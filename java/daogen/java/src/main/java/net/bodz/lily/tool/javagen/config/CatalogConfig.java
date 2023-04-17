@@ -21,6 +21,7 @@ import net.bodz.bas.fmt.rst.IRstForm;
 import net.bodz.bas.fmt.rst.IRstHandler;
 import net.bodz.bas.fmt.rst.IRstOutput;
 import net.bodz.bas.json.JsonObject;
+import net.bodz.bas.t.catalog.ColumnOid;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.map.ListMap;
@@ -47,7 +48,7 @@ public class CatalogConfig
     public String defaultPackageName;
 
     public final Map<String, String> columnPropertyMap = new HashMap<>();
-    public final Map<String, String> columnRefMap = new HashMap<>();
+    public final ColumnRefMap columnRefMap = new ColumnRefMap();
     public final Map<String, String> tableNameMap = new HashMap<>();
     public final ListMap<String, String> class2TableList = new ListMap<>();
     public final Map<String, Integer> columnLevelMap = new HashMap<>();
@@ -158,9 +159,9 @@ public class CatalogConfig
         out.endElement();
 
         out.beginElement(K_COLUMN_REF);
-        for (String column : columnRefMap.keySet()) {
-            String ref = columnRefMap.get(column);
-            out.attribute(column, ref);
+        for (String alias : columnRefMap.alias2QColumn.keySet()) {
+            ColumnOid qColumn = columnRefMap.alias2QColumn.get(alias);
+            out.attribute(alias, qColumn.getFullName());
         }
         out.endElement();
 
@@ -254,7 +255,7 @@ public class CatalogConfig
                     return true;
 
                 case K_COLUMN_REF:
-                    columnRefMap.put(name, data.trim());
+                    columnRefMap.addColumnRef(name, data.trim());
                     return true;
 
                 case K_TABLE_NAME:
@@ -298,7 +299,7 @@ public class CatalogConfig
         out.map(columnPropertyMap);
 
         out.key(K_COLUMN_REF);
-        out.map(columnRefMap);
+        out.map(columnRefMap.alias2QColumn);
 
         out.key(K_TABLE_NAME);
         out.map(tableNameMap);

@@ -6,7 +6,8 @@ import net.bodz.bas.err.NoSuchKeyException;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.t.catalog.*;
-import net.bodz.bas.t.tuple.Split;
+import net.bodz.lily.tool.javagen.util.ReferencedTable;
+import net.bodz.lily.tool.javagen.util.ReferencedTableMap;
 
 public class CatalogConfigApplier
         implements
@@ -91,45 +92,69 @@ public class CatalogConfigApplier
 
     @Override
     public void endTableOrView(ITableMetadata table) {
-        for (String defCol : config.columnRefMap.keySet()) {
-            IColumnMetadata column = table.getColumn(defCol);
+        applyMapTuples(table);
+    }
+
+    void applyMapTuples(ITableMetadata table) {
+        ReferencedTableMap map = new ReferencedTableMap(table);
+
+        for (String alias : config.columnRefMap.alias2QColumn.keySet()) {
+            IColumnMetadata foreignColumn = table.getColumn(alias);
+            if (foreignColumn == null)
+                continue;
+            if (foreignColumn.isForeignKey()) // already
+                continue;
+
+            ColumnOid parentColumnOid = config.columnRefMap.alias2QColumn.get(alias);
+
+            ICatalogMetadata catalog = table.getCatalog();
+            if (catalog == null)
+                throw new IllegalArgumentException("no catalog info.");
+
+            ITableMetadata parent = catalog.getTable(parentColumnOid.getTable());
+            if (parent == null)
+                throw new NoSuchKeyException("invalid parent table: " + parentColumnOid.getTable());
+
+            // IColumnMetadata parentColumn = parent.getColumn(parentColumnOid.getColumnName());
+            ReferencedTable ref = map.resolveTable(parent);
+            ref.add(parentColumnOid.getColumnName(), alias);
+        }
+
+        if (!map.isEmpty())
+            map.dump();
+
+        for (ReferencedTable ref : map.values()) {
+            if (ref.isPrimaryKeyColumnsSet()) {
+                CrossReference fkey = ref.buildForeignKey(table);
+                DefaultTableMetadata mutable = (DefaultTableMetadata) table;
+                mutable.addForeignKey(fkey);
+            }
+        }
+    }
+
+    void applySingleMaps(ITableMetadata table) {
+        for (String columnAlias : config.columnRefMap.alias2QColumn.keySet()) {
+            IColumnMetadata column = table.getColumn(columnAlias);
             if (column == null) // not applicable.
                 continue;
-            CrossReference ref = table.getForeignKeyFromColumn(defCol);
+            CrossReference ref = table.getForeignKeyFromColumn(columnAlias);
             if (ref != null) // already defined
                 continue;
-
-            String refStr = config.columnRefMap.get(defCol);
-            Split tabCol = Split.packageName(refStr);
-            TableOid parentId = new TableOid();
-            parentId.setFullName(tabCol.a);
-            String parentColumnName = tabCol.b;
-
-            ITableMetadata parent = table.getCatalog().getTable(parentId);
-            if (parent == null)
-                throw new NoSuchKeyException("can't resolve table: " + parentId);
-
-            IColumnMetadata parentColumn = parent.getColumn(parentColumnName);
-            if (parentColumn == null)
-                throw new NoSuchKeyException("invalid column: " + parentColumnName + ", in " + parentId);
-
-            String fake = "__fk_" + defCol;
             ref = new CrossReference();
+
+            ColumnOid qCol = config.columnRefMap.alias2QColumn.get(columnAlias);
+
+            ITableMetadata parent = table.getCatalog().getTable(qCol.getTable());
+            if (parent == null)
+                throw new NoSuchKeyException("can't resolve table: " + qCol.getTable());
+
+            IColumnMetadata parentColumn = parent.getColumn(qCol.getColumnName());
+            if (parentColumn == null)
+                throw new NoSuchKeyException("invalid column: " + qCol.getColumnName() + ", in " + qCol.getTable());
+
+            String fake = "__fk_" + columnAlias;
             ref.setConstraintName(fake);
-
-            TableKey key = new TableKey(table.getId(), column);
-            TableKey parentKey = new TableKey(parentId, parentColumn);
-            ref.setForeignKey(key);
-            ref.setParentKey(parentKey);
-
-            ref.setForeignTable(table);
-            ref.setForeignColumns(new IColumnMetadata[] { column });
-
-            ref.setParentTable(parent);
-            ref.setParentColumns(new IColumnMetadata[] { parentColumn });
-
-            ref.setJavaPackage(parent.getJavaPackage());
-            ref.setJavaName(parent.getJavaName());
+            ref.manyToOne(table, column, parent, parentColumn);
 
             Map<String, CrossReference> foreignKeys = table.getForeignKeys();
             foreignKeys.put(fake, ref);
