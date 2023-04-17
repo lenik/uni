@@ -455,7 +455,7 @@ public class MiscTemplates {
         }
 
         columnGetterHeader(out, column);
-        out.printf("public %s %s%s()", //
+        out.printf("public synchronized %s %s%s()", //
                 out.im.name(type), isOrGet, n.Property);
         if (impl) {
             out.enterln(" {");
@@ -469,12 +469,11 @@ public class MiscTemplates {
         out.println();
 
         columnSetterHeader(out, column);
-        out.printf("public void set%s(%s%s value)", n.Property, //
+        out.printf("public synchronized void set%s(%s%s value)", n.Property, //
                 (notNull && !type.isPrimitive()) ? ("@" + out.im.name(NotNull.class) + " ") : "", out.im.name(type));
         if (impl) {
             out.enterln(" {");
-            out.printf("if (%s != null)\n", refField);
-            out.printf("    %s.set%s(value);\n", refField, p.Property);
+            out.printf("this.%s = null;\n", refField);
             out.printf("this.%s = value;\n", n.field);
             out.leaveln("}");
         } else {
