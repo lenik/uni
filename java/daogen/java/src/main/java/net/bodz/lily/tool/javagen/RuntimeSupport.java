@@ -21,12 +21,9 @@ public class RuntimeSupport {
     }
 
     public static String guessMapperNs(String className) {
-        Class<?> clazz = findMapperClass(className);
-        if (clazz != null) {
-            Class<IMapper> mapperClass = IMapper.fn.getMapperClass(clazz);
-            if (mapperClass != null)
-                return mapperClass.getName();
-        }
+        Class<?> mapperClass = findMapperClass(className);
+        if (mapperClass != null)
+            return mapperClass.getName();
         return className + "Mapper";
     }
 
