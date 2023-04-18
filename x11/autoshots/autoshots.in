@@ -1,0 +1,202 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Automatic take screenshots of specific window}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib
+    import cliboot
+
+    option -w --window =NUM                 "Select the window by number id"
+    option -p --program ="PID or :EXE"      "Select the window by pid or program name, use active window by default"
+    option -O --outdir =DIR                 "Where to save the screenshot imaages, tmpdir by default"
+    option -f --filename =TEMPLATE          '$PROGRAM-{}.png by default'
+    option -i --interval =SECONDS           "Time to wait before take next screenshot (in seconds, default 1.0)"
+    option -c --cursor                      "Include cursor"
+    option -n --max-count =NUM              "Max image count, 0 or '-' for infinite. (default 10)"
+    option -s --wait                        "If pid/program isn't existed, wait for it"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_window=
+    opt_program=
+    opt_outdir=
+    opt_filename='$PROGRAM-{}.png'
+    opt_interval=0.5
+    opt_cursor=0
+    opt_max_count=10
+    opt_wait=0
+    opt_wait_focus=1
+
+function setopt() {
+    case "$1" in
+        -w|--window)
+            opt_window="$2";;
+        -p|--program)
+            opt_program="$2";;
+        -O|--outdir)
+            opt_outdir="$2";;
+        -f|--filename)
+            opt_filename="$2";;
+        -i|--interval)
+            opt_interval="$2";;
+        -c|--cursor)
+            opt_cursor=1;;
+        -n|--max-count)
+            opt_max_count="$2";;
+        -s|--wait|--wait-for-start)
+            opt_wait=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$opt_max_count" -o "$opt_max_count" = '-' ]; then
+        opt_max_count=0
+    fi
+    (( opt_max_count += 0 ))
+
+    if [ -z "$opt_outdir" ]; then
+        opt_outdir=$( mktemp -d "autoshots-XXXX" ) || quit "failed to create tmp outdir: $!"
+    fi
+
+    if [ -z "$opt_program" ] && [ "$#" -ge 1 ]; then
+        opt_program="$1"
+    fi
+
+    window="$opt_window"
+    while [ -z "$window" ]; do
+        if [ -n "$opt_program" ]; then
+            if is_integer "$opt_program"; then
+                pids=( $pid )
+            else
+                local prog=${opt_program#:}
+                if ! pids=( $( pidof "$prog" ) ); then
+                    if [ "$opt_wait" = 1 ]; then
+                        wait_for_start_1
+                        continue
+                    else
+                        quit "Can't get the pid number for program $prog."
+                    fi
+                fi
+            fi
+
+            local searchopts=()
+            for p in "${pids[@]}"; do searchopts+=(--pid "$p"); done
+
+            windows=( $( xdotool search "${searchopts[@]}" --onlyvisible ) )
+
+            case "${#windows[@]}" in
+                0)
+                    if [ "$opt_wait" = 1 ]; then
+                        wait_for_start_1
+                    else
+                        quit "Can't find window for $opt_program (pids: ${pids[@]})"
+                    fi
+                    ;;
+                1)
+                    window=${windows[0]};;
+                *)
+                    window=${windows[0]}
+                    _warn "Found multiple windows for $opt_program (pids: ${pids[@]}), use the first one.";;
+            esac
+        else
+            # [ -z $opt_program ]
+            if ! window=$(xdotool getactivewindow); then
+                if [ "$opt_wait" = 1 ]; then
+                    wait_for_start_1
+                else
+                    quit "Can't find active window."
+                fi
+            fi
+        fi
+    done
+
+    name=$(xdotool getwindowname $window)
+    pid_=$(xdotool getwindowpid $window)
+    _log1 "window $window, name: $name, pid $pid_"
+
+    eval $(xdotool getwindowgeometry --shell $window)
+    _log1 "Geometry: screen $SCREEN position at (${X}, ${Y}) size ${WIDTH}x${HEIGHT}"
+
+    i=0
+    while [ $i -lt $opt_max_count -o $opt_max_count = 0 ]; do
+        if ! xdotool getwindowname $window 2>/dev/null; then
+            _log1 "window is closed, bye bye!"
+            break
+        fi
+
+        if [ "$opt_wait_focus" = 1 ]; then
+            while true; do
+                if focus=$( xdotool getwindowfocus ); then
+                    if [ "$focus" != "$window" ]; then
+                        wait_for_focus_1
+                        continue
+                    fi
+                fi
+                break
+            done
+        fi
+
+        maimopts=()
+        #maimopts+=(--nodecorations=0)
+        if [ "$opt_cursor" = 0 ]; then
+            maimopts+=(--hidecursor)
+        fi
+
+        PROGRAM="${opt_program#:}"
+        i_padded="00000000000$i"
+        i_padded=${i_padded: -4}
+        name_expr="${opt_filename/\{\}/$i_padded}"
+        name=$( eval "echo \"$name_expr\"" )
+        path="$opt_outdir/$name"
+
+        _log1 "Take screenshot [%d] (file path $path)"
+        _log2 "Execute: maim -i $window \"${maimopts[@]}\" \"$path\""
+        maim -i $window "${maimopts[@]}" "$path"
+        (( i++ ))
+
+        wait_for_next
+
+        # update window geometry.
+        eval $(xdotool getwindowgeometry --shell $window)
+        #_log1 "Geometry: screen $SCREEN position at (${X}, ${Y}) size ${WIDTH}x${HEIGHT}"
+    done
+}
+
+function is_integer() {
+    local s="$1"
+    [ -z "${s//[0-9]/}" ]
+}
+
+function sleepf() {
+    sleepenh "$@" >/dev/null 2>/dev/null
+}
+
+function wait_for_start_1() {
+    _log1 "waiting for start..."
+    sleepf 0.5
+}
+
+function wait_for_focus_1() {
+    _log1 "waiting for focus..."
+    sleepf 0.1
+}
+
+function wait_for_next() {
+    _log1 "waiting for next..."
+    sleepf $opt_interval
+}
+
+boot "$@"
