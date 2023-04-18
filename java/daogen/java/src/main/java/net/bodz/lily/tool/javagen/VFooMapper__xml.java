@@ -61,15 +61,18 @@ public class VFooMapper__xml
                 map(out, table, column, j);
             }
 
-            for (String alias : j.aliasMap.keySet()) {
+            Set<String> aliases = j.aliasMap.keySet();
+            for (String alias : aliases) {
                 CrossReference ref = j.aliasMap.get(alias);
                 ITableMetadata parent = ref.getParentTable();
                 String mapperNs = RuntimeSupport.guessMapperNs(parent.getJavaQName());
 
                 out.printf("<association property=\"%s\" javaType=\"%s\" resultMap=\"%s.%s\" columnPrefix=\"%s\" />\n", //
-                        ref.getJavaName(), parent.getJavaQName(), //
-                        mapperNs, "objlist_map", // resultMap id
-                        alias + "_");
+                        ref.getJavaName(), // property
+                        parent.getJavaQName(), // javaType
+                        mapperNs, "objlist_map", // resultMap.id
+                        alias + "_" // columnPrefix
+                );
             }
 
             out.leave();

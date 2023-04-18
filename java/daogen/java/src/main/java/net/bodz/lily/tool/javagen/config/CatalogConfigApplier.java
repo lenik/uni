@@ -1,5 +1,6 @@
 package net.bodz.lily.tool.javagen.config;
 
+import java.util.List;
 import java.util.Map;
 
 import net.bodz.bas.err.NoSuchKeyException;
@@ -96,7 +97,12 @@ public class CatalogConfigApplier
     }
 
     void applyMapTuples(ITableMetadata table) {
+        ICatalogMetadata catalog = table.getCatalog();
+        if (catalog == null)
+            throw new IllegalArgumentException("no catalog info.");
+
         ReferencedTableMap map = new ReferencedTableMap(table);
+        DefaultTableMetadata mutable = (DefaultTableMetadata) table;
 
         for (String alias : config.columnRefMap.alias2QColumn.keySet()) {
             IColumnMetadata foreignColumn = table.getColumn(alias);
@@ -107,10 +113,6 @@ public class CatalogConfigApplier
 
             ColumnOid parentColumnOid = config.columnRefMap.alias2QColumn.get(alias);
 
-            ICatalogMetadata catalog = table.getCatalog();
-            if (catalog == null)
-                throw new IllegalArgumentException("no catalog info.");
-
             ITableMetadata parent = catalog.getTable(parentColumnOid.getTable());
             if (parent == null)
                 throw new NoSuchKeyException("invalid parent table: " + parentColumnOid.getTable());
@@ -120,14 +122,20 @@ public class CatalogConfigApplier
             ref.add(parentColumnOid.getColumnName(), alias);
         }
 
-        if (!map.isEmpty())
-            map.dump();
+        if (!map.isEmpty()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Auto added column-ref references:");
+                map.dump();
+            }
+        }
 
         for (ReferencedTable ref : map.values()) {
             if (ref.isPrimaryKeyColumnsSet()) {
-                CrossReference fkey = ref.buildForeignKey(table);
-                DefaultTableMetadata mutable = (DefaultTableMetadata) table;
-                mutable.addForeignKey(fkey);
+                List<CrossReference> fkeys = ref.buildForeignKeys(table);
+                for (CrossReference fkey : fkeys) {
+                    mutable.addForeignKey(fkey);
+                    fkey.getForeignColumns();
+                }
             }
         }
     }

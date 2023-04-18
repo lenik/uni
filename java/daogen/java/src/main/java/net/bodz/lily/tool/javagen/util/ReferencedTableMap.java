@@ -25,7 +25,7 @@ public class ReferencedTableMap
     }
 
     public void dump() {
-        System.out.println("Referenced table map: on foreign talbe: " + foreignTable.getId());
+        System.out.println("on foreign talbe: " + foreignTable.getId());
         for (ReferencedTable ref : values()) {
             System.out.println("    ref " + ref);
         }
