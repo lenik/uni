@@ -1,0 +1,17 @@
+Source: autoshots
+Section: x11
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+Standards-Version: 4.6.2
+Homepage: http://uni.bodz.net/x11/autoshots
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/x11/autoshots
+
+Package: autoshots
+Architecture: all
+Depends:
+ ${misc:Depends},
+Description: Take screenshots automatically
