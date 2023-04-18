@@ -6,6 +6,7 @@ import java.util.Map;
 import net.bodz.bas.err.NoSuchKeyException;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
+import net.bodz.bas.meta.cache.Derived;
 import net.bodz.bas.t.catalog.*;
 import net.bodz.lily.tool.javagen.util.ReferencedTable;
 import net.bodz.lily.tool.javagen.util.ReferencedTableMap;
@@ -49,18 +50,21 @@ public class CatalogConfigApplier
         ColumnSettings columnSettings = null;
         columnSettings = tableSettings.resolveColumn(column.getName());
 
-        String property = config.columnPropertyMap.get(column.getName());
+        String propertyName = config.columnPropertyMap.get(column.getName());
         if (columnSettings.javaName == null)
-            columnSettings.javaName = property;
+            columnSettings.javaName = propertyName;
 
         if (column instanceof DefaultColumnMetadata) {
             DefaultColumnMetadata mutable = (DefaultColumnMetadata) column;
 
-            if (property != null) {
-                if (property.isEmpty() || "-".equals(property))
+            if (propertyName != null) {
+                if (propertyName.isEmpty() || "-".equals(propertyName))
                     mutable.setExcluded(true);
-                else
-                    mutable.setJavaName(property);
+                else {
+                    mutable.setJavaName(propertyName);
+                    if (column.getAnnotation(Derived.class) != null)
+                        mutable.setExcluded(true);
+                }
             }
 
             Integer verboseLevel = config.columnLevelMap.get(column.getName());

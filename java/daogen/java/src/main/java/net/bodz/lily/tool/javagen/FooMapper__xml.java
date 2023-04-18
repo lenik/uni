@@ -1,5 +1,7 @@
 package net.bodz.lily.tool.javagen;
 
+import java.util.List;
+
 import net.bodz.bas.codegen.XmlSourceBuffer;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
@@ -24,6 +26,8 @@ public class FooMapper__xml
         {
             out.println();
             resultMap_objlist_map(out, table);
+//            out.println();
+//            resultMap_objedit_map(out, table);
             out.println();
             sql_objlist_sql(out, table);
             out.println();
@@ -51,6 +55,8 @@ public class FooMapper__xml
     }
 
     void insert(XmlSourceBuffer out, ITableMetadata table) {
+        List<IColumnMetadata> columns = getIncludedColumns(table.getColumns());
+
         out.printf("<insert id=\"insert\" useGeneratedKeys=\"true\" keyProperty=\"id\"><![CDATA[\n");
         out.enter();
         {
@@ -59,7 +65,7 @@ public class FooMapper__xml
                 out.enter();
                 boolean first = true;
 
-                for (IColumnMetadata column : table.getColumns()) {
+                for (IColumnMetadata column : columns) {
                     if (ColumnUtils.isIgnoredInCreation(column))
                         continue;
 
@@ -78,7 +84,7 @@ public class FooMapper__xml
             out.enterln(") values(");
             {
                 boolean first = true;
-                for (IColumnMetadata column : table.getColumns()) {
+                for (IColumnMetadata column : columns) {
                     if (ColumnUtils.isIgnoredInCreation(column))
                         continue;
 
@@ -101,6 +107,8 @@ public class FooMapper__xml
     }
 
     void update(XmlSourceBuffer out, ITableMetadata table) {
+        List<IColumnMetadata> columns = getIncludedColumns(table.getColumns());
+
         out.enterln("<update id=\"update\">");
         {
             out.printf("update %s\n", table.getCompactName());
@@ -109,7 +117,7 @@ public class FooMapper__xml
                 boolean co = false;
                 if (co)
                     out.println("<include refid=\"co.setUS\" />");
-                for (IColumnMetadata column : table.getColumns()) {
+                for (IColumnMetadata column : columns) {
                     if (column.isPrimaryKey())
                         continue;
                     ColumnName cname = project.columnName(column);

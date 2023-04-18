@@ -80,36 +80,36 @@ public class FinishProcessor
             }
         }
 
-        BeanInfo beanInfo;
+        BeanInfo superInfo;
 
         try {
-            beanInfo = Introspector.getBeanInfo(superclass);
+            superInfo = Introspector.getBeanInfo(superclass);
         } catch (IntrospectionException e) {
             logger.error(e, "error getting bean info for " + javaType);
             return;
         }
 
-        for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
-            Method getter = pd.getReadMethod();
-            if (getter == null)
+        for (PropertyDescriptor superProperty : superInfo.getPropertyDescriptors()) {
+            Method superGetter = superProperty.getReadMethod();
+            if (superGetter == null)
                 continue;
 
-            String propertyName = pd.getName();
-            String columnName;
-            Column aColumn = getter.getAnnotation(Column.class);
-            if (aColumn != null)
-                columnName = aColumn.name();
+            String superPropertyName = superProperty.getName();
+            String superColumnName;
+            Column aSuperColumn = superGetter.getAnnotation(Column.class);
+            if (aSuperColumn != null)
+                superColumnName = aSuperColumn.name();
             else
-                columnName = Phrase.fooBar(propertyName).foo_bar;
+                superColumnName = Phrase.fooBar(superPropertyName).foo_bar;
 
-            IColumnMetadata column = tableView.getColumn(columnName);
-            if (column == null) {
-                column = tableView.findColumnByJavaName(propertyName);
+            IColumnMetadata superColumn = tableView.getColumn(superColumnName);
+            if (superColumn == null) {
+                superColumn = tableView.findColumnByJavaName(superPropertyName);
             }
-            if (column != null) {
-                if (column instanceof DefaultColumnMetadata) {
-                    DefaultColumnMetadata mutable = (DefaultColumnMetadata) column;
-                    mutable.setExcluded(true);
+            if (superColumn != null) {
+                if (superColumn instanceof DefaultColumnMetadata) {
+                    DefaultColumnMetadata _superColumn = (DefaultColumnMetadata) superColumn;
+                    _superColumn.setExcluded(true);
                 }
             }
         }

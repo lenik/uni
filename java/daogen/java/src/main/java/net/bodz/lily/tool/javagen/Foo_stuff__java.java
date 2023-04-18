@@ -22,52 +22,74 @@ public class Foo_stuff__java
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
         QualifiedName idType = templates.getIdType(table);
 
-        String javaType = table.getJavaType();
-        String parent;
-        if (javaType != null) {
-            Class<?> javaClass;
+        String simpleName = project._Foo_stuff.name;
+        String baseClassName = table.getJavaType();
+
+        String params = "";
+        String baseParams = "";
+        String typeAgain = null;
+
+        if (baseClassName != null) {
+            Class<?> baseClass;
             try {
-                javaClass = Class.forName(javaType);
+                baseClass = Class.forName(baseClassName);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
-            parent = out.im.name(javaClass);
+            baseClassName = out.im.name(baseClass); // import&compress
 
-            TypeParameters aTypeParams = javaClass.getAnnotation(TypeParameters.class);
+            TypeParameters aTypeParams = baseClass.getAnnotation(TypeParameters.class);
             if (aTypeParams != null) {
-                StringBuilder sb = new StringBuilder();
+                StringBuilder paramsBuf = new StringBuilder();
+                StringBuilder baseParamsBuf = new StringBuilder();
+                StringBuilder recBuf = new StringBuilder();
+                StringBuilder typeAgainParams = new StringBuilder();
                 for (TypeParamType param : aTypeParams.value()) {
-                    if (sb.length() != 0)
-                        sb.append(", ");
                     switch (param) {
                     case ID_TYPE:
-                        sb.append(idType.name);
+                        baseParamsBuf.append(", " + idType.name);
                         break;
                     case THIS_TYPE:
-                        sb.append(project._Foo_stuff.name);
+                        baseParamsBuf.append(", " + simpleName);
+                        break;
+                    case THIS_REC:
+                        paramsBuf.append(", this_t extends " + simpleName + "<%R>");
+                        baseParamsBuf.append(", this_t");
+                        recBuf.append(", this_t");
+                        typeAgainParams.append(", " + out.im.simpleId(TypeParamType.THIS_TYPE));
                         break;
                     default:
-                        sb.append("?");
+                        baseParamsBuf.append(", ?");
                     }
                 }
-                parent += "<" + sb + ">";
+                String rec = recBuf.length() == 0 ? "" : recBuf.substring(2);
+                params = paramsBuf.length() == 0 ? "" : ("<" + paramsBuf.substring(2) + ">");
+                params = params.replace("%R", rec);
+                baseParams = baseParamsBuf.length() == 0 ? "" : "<" + baseParamsBuf.substring(2) + ">";
+                typeAgain = typeAgainParams.length() == 0 ? null : typeAgainParams.substring(2);
             }
-        } else if (idType != null)
-            parent = out.im.name(CoEntity.class) + "<" + out.im.name(idType) + ">";
-        else
-            parent = out.im.name(StructRow.class);
+        } else if (idType != null) {
+            baseClassName = out.im.name(CoEntity.class);
+            baseParams = "<" + out.im.name(idType) + ">";
+        } else
+            baseClassName = out.im.name(StructRow.class);
 
         String description = table.getDescription();
         if (description != null)
             templates.javaDoc(out, description);
+
+        if (typeAgain != null)
+            out.printf("@%s({ %s })\n", //
+                    out.im.name(TypeParameters.class), //
+                    typeAgain);
 
         if (idType != null)
             out.printf("@%s(%s.class)\n", //
                     out.im.name(IdType.class), //
                     out.im.name(idType));
 
-        out.printf("public abstract class %s\n", project._Foo_stuff.name);
-        out.printf("        extends %s {\n", parent);
+        out.printf("public abstract class %s%s\n", simpleName, params);
+        out.printf("        extends %s%s {\n", baseClassName, baseParams);
         out.enter();
         {
             out.println();

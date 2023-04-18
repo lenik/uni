@@ -1,5 +1,6 @@
 package net.bodz.lily.tool.javagen;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -50,14 +51,36 @@ public class VFooMapper__xml
         out.println("</mapper>");
     }
 
+    boolean isIncluded(IColumnMetadata column) {
+        String javaName = column.getJavaName();
+        if (javaName != null)
+            if (javaName.isEmpty() || javaName.equals("-"))
+                return false;
+        return true;
+    }
+
+    boolean isUpdatable(IColumnMetadata column) {
+        return !column.isReadOnly();
+    }
+
+    List<IColumnMetadata> getIncludedColumns(Iterable<IColumnMetadata> columns) {
+        List<IColumnMetadata> list = new ArrayList<>();
+        for (IColumnMetadata column : columns)
+            if (isIncluded(column))
+                list.add(column);
+        return list;
+    }
+
     void resultMap_objlist_map(XmlSourceBuffer out, ITableMetadata table) {
         JoinColumns j = new JoinColumns(table);
 
         out.printf("<resultMap id=\"objlist_map\" type=\"%s\">\n", project.Foo);
         out.enter();
         {
-            List<IColumnMetadata> basicColumns = j.reorder(table.getColumns(), 2);
+            List<IColumnMetadata> basicColumns = j.reorder(table.getColumns(), 3);
             for (IColumnMetadata column : basicColumns) {
+                if (!isIncluded(column))
+                    continue;
                 map(out, table, column, j);
             }
 
@@ -65,12 +88,15 @@ public class VFooMapper__xml
             for (String alias : aliases) {
                 CrossReference ref = j.aliasMap.get(alias);
                 ITableMetadata parent = ref.getParentTable();
-                String mapperNs = RuntimeSupport.guessMapperNs(parent.getJavaQName());
 
-                out.printf("<association property=\"%s\" javaType=\"%s\" resultMap=\"%s.%s\" columnPrefix=\"%s\" />\n", //
+                String mapperNs = RuntimeSupport.guessMapperNs(parent.getJavaQName());
+                boolean defaultNs = mapperNs.equals(project.FooMapper.getFullName());
+                String nsPrefix = defaultNs ? "" : (mapperNs + ".");
+
+                out.printf("<association property=\"%s\" javaType=\"%s\" resultMap=\"%s\" columnPrefix=\"%s\" />\n", //
                         ref.getJavaName(), // property
                         parent.getJavaQName(), // javaType
-                        mapperNs, "objlist_map", // resultMap.id
+                        nsPrefix + "objlist_map", // resultMap.id
                         alias + "_" // columnPrefix
                 );
             }
@@ -105,13 +131,14 @@ public class VFooMapper__xml
     }
 
     void sql_objlist_sql(XmlSourceBuffer out, ITableMetadata table) {
+        List<IColumnMetadata> columns = getIncludedColumns(table.getColumns());
         out.println("<sql id=\"objlist_sql\"><![CDATA[");
         out.enter();
         {
             out.println("select");
 
             out.enter();
-            templates.sqlColumnNameList(out, table.getColumns(), "a.");
+            templates.sqlColumnNameList(out, columns, "a.");
             out.println();
             out.leave();
 
@@ -124,6 +151,7 @@ public class VFooMapper__xml
     }
 
     void sql_objedit_sql(XmlSourceBuffer out, ITableMetadata table) {
+        List<IColumnMetadata> columns = getIncludedColumns(table.getColumns());
         JoinColumns j = new JoinColumns(table);
 
         out.println("<sql id=\"objedit_sql\"><![CDATA[");
@@ -132,7 +160,7 @@ public class VFooMapper__xml
             out.println("select");
 
             out.enter();
-            templates.sqlColumnNameList(out, table.getColumns(), "a.");
+            templates.sqlColumnNameList(out, columns, "a.");
             for (String columnAlias : j.aliasColumns.keySet()) {
                 AliasedColumn ac = j.aliasColumns.get(columnAlias);
                 String columnName = ac.getColumn().getName();
@@ -156,12 +184,12 @@ public class VFooMapper__xml
                 String refTable = parentKey.getId().getCompactName(table.getId());
                 out.printf("left join %s %s", //
                         DialectFn.quoteQName(refTable), DialectFn.quoteName(parentAlias));
-                String[] columns = foreignKey.getColumnNames();
+                String[] foreignColumns = foreignKey.getColumnNames();
                 String[] parentColumns = parentKey.getColumnNames();
-                for (int i = 0; i < columns.length; i++) {
+                for (int i = 0; i < foreignColumns.length; i++) {
                     out.print(i == 0 ? " on" : " and");
                     out.printf(" a.%s = %s.%s", //
-                            DialectFn.quoteName(columns[i]), //
+                            DialectFn.quoteName(foreignColumns[i]), //
                             DialectFn.quoteName(parentAlias), //
                             DialectFn.quoteName(parentColumns[i]));
                 }
@@ -177,6 +205,8 @@ public class VFooMapper__xml
     }
 
     void sql_filtconds(XmlSourceBuffer out, ITableMetadata table) {
+        List<IColumnMetadata> columns = getIncludedColumns(table.getColumns());
+
         out.println("<sql id=\"filtconds\">");
         out.enter();
         {
@@ -190,7 +220,7 @@ public class VFooMapper__xml
                 out.println("<include refid=\"message.filter-all\" />");
             }
 
-            for (IColumnMetadata column : table.getColumns()) {
+            for (IColumnMetadata column : columns) {
                 filter(out, column);
             }
             out.leave();
