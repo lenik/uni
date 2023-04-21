@@ -25,6 +25,7 @@ zone "peegoo.org"           { type master; file "@lenikdir@/peegoo.db"; };
 zone "pfpf.net"             { type master; file "@lenikdir@/pfpf.db"; };
 zone "rainfield.me"         { type master; file "@lenikdir@/rainfield.db"; };
 zone "selfbuy.net"          { type master; file "@lenikdir@/selfbuy.db"; };
+zone "space-x.fun"          { type master; file "@lenikdir@/space-x.db"; };
 zone "topcroak.com"         { type master; file "@lenikdir@/topcroak.db"; };
 zone "xn--1rwrwm3a.com"     { type master; file "@lenikdir@/浅水湾.db"; };
 zone "xn--dj1a291b.com"     { type master; file "@lenikdir@/集英.db"; };

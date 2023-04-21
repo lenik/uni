@@ -5,7 +5,15 @@ do_subst += \
 	-e 's,[@]dbdir[@],$(dbdir),g' \
 	-e 's,[@]incdir[@],$(incdir),g' \
 	-e 's,[@]lenikdir[@],$(lenikdir),g' \
-	-e 's,[@]netsdir[@],$(netsdir),g'
+	-e 's,[@]netsdir[@],$(netsdir),g' \
+	-e 's/IP__CN1/121.43.146.153/g' \
+	-e 's/IP__SG1/13.215.235.166/g' \
+	-e 's/IP__KR1/43.201.144.10/g' \
+	-e 's/IP__US1/13.52.54.88/g' \
+	-e 's/IP6_CN1/2408:4005:30e:e700::100/g' \
+	-e 's/IP6_SG1/2406:da18:6a8:f200::100/g' \
+	-e 's/IP6_KR1/2406:da12:1ac:1202::100/g' \
+	-e 's/IP6_US1/2600:1f1c:834:9c03::100/g'
 
 bindconfdir = ${sysconfdir}/bind
 dbdir       = ${bindconfdir}
@@ -46,6 +54,7 @@ lenik_DATA = \
     pfpf.db \
     rainfield.db \
     selfbuy.db \
+    space-x.db \
     topcroak.db \
     xor.db \
     youmute.db \
@@ -89,4 +98,3 @@ install-data-hook:
 
 %: %.in Makefile
 	$(do_subst) <$< >$@
-
