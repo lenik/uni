@@ -2,3 +2,5 @@ enable -f bash-ex tolower
 enable -f bash-ex toupper
 enable -f bash-ex hyphenatize
 enable -f bash-ex camelCase
+true
+
