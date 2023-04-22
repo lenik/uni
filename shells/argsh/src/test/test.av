@@ -1,0 +1,25 @@
+    foo a 039 0x48 "str" c_d;
+    foo(a, 039, 0x48, "str", c_d);
+    
+    a=100;
+    if (a < 3) 
+        print("a\tb")
+    else
+        print 'O\u44ffMG\r'
+    ;
+     
+    if (true)
+        sub1
+    else if (true)
+        {sub2; sub2b }
+    else if (true)
+        sub3
+    ;
+    switch (val + val2) {
+        case 100: 
+            check; \print omg fj kljF&*(0
+        case 200:
+            print 200; break
+        default:
+            damn; continue
+    }
