@@ -17,6 +17,8 @@ dep_incl = declare_dependency(
     ]
 )
 
+install_headers('include/lextoken.h')
+
 subdir('src/argdom')
 subdir('src/parser')
 subdir('src/test')

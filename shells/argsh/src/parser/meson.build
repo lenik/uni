@@ -55,7 +55,8 @@ liblexer = static_library('lexer',
         arglang_lexer
     ],
     link_with: [ libdom ],
-    dependencies: [ dep_incl, libreflex ]
+    dependencies: [ dep_incl, libreflex ],
+    install: true
     )
 
 libparser = static_library('parser',
@@ -63,5 +64,9 @@ libparser = static_library('parser',
         arglang_parser
     ],
     link_with: libdom,
-    dependencies: dep_incl
+    dependencies: dep_incl,
+    install: true
     )
+
+install_headers('arglang-lexer.h')
+install_headers('arglang-parser.h')

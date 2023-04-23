@@ -5,7 +5,8 @@ executable('lexer-test',
         include_directories('../parser')
     ],
     link_with: [ liblexer ],
-    dependencies: dep_incl
+    dependencies: dep_incl,
+    install: true
     )
 
 executable('parser-test',
@@ -14,5 +15,6 @@ executable('parser-test',
         include_directories('../parser')
     ],
     link_with: [ liblexer, libparser ],
-    dependencies: dep_incl
+    dependencies: dep_incl,
+    install: true
     )

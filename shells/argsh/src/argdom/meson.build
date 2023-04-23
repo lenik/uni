@@ -35,5 +35,47 @@ libdom = static_library('argdom',
         'VarRef.cc',
         'WhileStatement.cc',
         ],
-    dependencies: [ dep_incl ]
+    dependencies: [ dep_incl ],
+    install: true
     )
+
+install_headers('../argdom.h')
+install_headers(
+    [
+        'Argument.h',
+        'Arguments.h',
+        'BinaryExpr.h',
+        'CForStatement.h',
+        'CmdLine.h',
+        'ControlLabel.h',
+        'Element.h',
+        'EvalStatement.h',
+        'Expr.h',
+        'FileSpec.h',
+        'ForEachStatement.h',
+        'ForStatement.h',
+        'FunctionCall.h',
+        'Identifier.h',
+        'IfStatement.h',
+        'LiteralValue.h',
+        'NopStatement.h',
+        'Parameter.h',
+        'Parameters.h',
+        'Program.h',
+        'RawChars.h',
+        'RedirectFragment.h',
+        'RedirectFragments.h',
+        'RedirectStatement.h',
+        'SimpleStatement.h',
+        'Statement.h',
+        'Statements.h',
+        'SwitchCase.h',
+        'SwitchCases.h',
+        'SwitchStatement.h',
+        'VarDeclaration.h',
+        'VarDeclarations.h',
+        'VarRef.h',
+        'WhileStatement.h',
+    ],
+    subdir: 'argdom'
+)
