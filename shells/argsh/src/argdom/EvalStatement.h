@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "../lextoken.h"
+#include <lextoken.h>
 #include "dom-base.h"
 
 #include "Statement.h"

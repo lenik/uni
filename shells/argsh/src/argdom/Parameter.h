@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "../lextoken.h"
+#include <lextoken.h>
 #include "dom-base.h"
 
 #include "Expr.h"
@@ -18,7 +18,7 @@ namespace arglang {
             {}
 
         Parameter(Argument *arg)
-            : _expr(NULL), _arg(arg), Element(&arg->source)
+            : Element(&arg->source), _expr(NULL), _arg(arg)
             {}
 
         static Parameter *expr(Expr *expr) {

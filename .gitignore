@@ -25,6 +25,7 @@
 *.bbl
 *.blg
 *.build
+!meson*.build
 *.buildinfo
 *.bz2
 *.cb

@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "../lextoken.h"
+#include <lextoken.h>
 #include "dom-base.h"
 
 #include "FileSpec.h"
@@ -21,10 +21,20 @@ namespace arglang {
     class RedirectFragment : public Element {
     public:
         RedirectFragment(Direction dir, FileSpec *fileSpec, int fd = 0) 
-            : dir(dir), fileSpec(fileSpec), statement(NULL), fd(fd) {
+            : Element(), 
+                fd(fd),
+                dir(dir), 
+                fileSpec(fileSpec), 
+                statement(NULL)
+                {
         }
         RedirectFragment(Direction dir, Statement *statement, int fd = 0) 
-            : dir(dir), fileSpec(NULL), statement(NULL), fd(fd) {
+            : Element(),
+                fd(fd),
+                dir(dir), 
+                fileSpec(NULL), 
+                statement(NULL)
+                {
         }
 
         static RedirectFragment *outputTo(FileSpec *fileSpec, int fd = 0) {

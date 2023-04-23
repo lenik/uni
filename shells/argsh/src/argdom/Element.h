@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-#include "../lextoken.h"
+#include <lextoken.h>
 
 namespace arglang {
 

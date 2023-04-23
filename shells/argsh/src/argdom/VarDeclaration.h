@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "../lextoken.h"
+#include <lextoken.h>
 #include "dom-base.h"
 
 #include "Statement.h"
@@ -18,7 +18,7 @@ namespace arglang {
             : identifier(identifier)
             {}
 
-        VarDeclaration(Identifier *name, Expr *init)
+        VarDeclaration(Identifier *identifier, Expr *init)
             : identifier(identifier), init(init)
             {}
 

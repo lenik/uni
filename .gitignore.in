@@ -25,6 +25,7 @@
 *.bbl                                   # cooltex
 *.blg                                   # cooltex
 *.build                                 # cooldeb
+!meson*.build
 *.buildinfo                             # cooldeb
 *.bz2                                   # source tarballs
 *.cb                                    # cooltex
