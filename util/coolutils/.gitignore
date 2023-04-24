@@ -1,7 +1,9 @@
 caseconv
 collect-copy
+collect-copy.1
 gcd
 htmldoc-man
+htmldoc-man.1
 htmldoc-histgram
 kill-all
 random
