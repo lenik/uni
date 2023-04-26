@@ -4,7 +4,7 @@
     : ${PROGRAM_TITLE:=Automatic take screenshots of specific window}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
-    . shlib
+    . shlib --
     import cliboot
 
     option -w --window =NUM                 "Select the window by number id"

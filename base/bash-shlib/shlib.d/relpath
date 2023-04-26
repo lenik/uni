@@ -1,6 +1,6 @@
 # vim: set ft=sh:
 
-. shlib
+. shlib --
 import math
 
 opt_guest=

@@ -4,7 +4,7 @@
     : ${PROGRAM_TITLE:=Get table field widths}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
-    . shlib
+    . shlib --
     import cliboot
     import tableparser
 

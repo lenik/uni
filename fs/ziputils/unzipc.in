@@ -8,7 +8,7 @@
     : ${_7Z:=7z}
     : ${BSDTAR:=bsdtar}
 
-    . shlib
+    . shlib --
     import cliboot
     import trash
 

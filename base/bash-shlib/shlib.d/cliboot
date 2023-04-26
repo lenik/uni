@@ -1,7 +1,7 @@
 # -*- mode: sh -*-
 # vim: set filetype=sh :
 
-. shlib
+. shlib --
 
 import load
 import log

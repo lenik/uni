@@ -4,7 +4,7 @@
     : ${PROGRAM_TITLE:=Print the relative path}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ContextDir File...}
 
-    . shlib
+    . shlib --
     import cliboot
     import relpath
 

@@ -4,7 +4,7 @@
     : ${PROGRAM_TITLE:=df with output sorted}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [df-options...]}
 
-    . shlib
+    . shlib --
     import cliboot
     #import tableparser
     

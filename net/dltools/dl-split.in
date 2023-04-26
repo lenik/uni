@@ -4,7 +4,7 @@
     : ${PROGRAM_TITLE:=}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
-    . shlib
+    . shlib --
     import cliboot
 
     option -l --length =LENGTH      "Set this if length is already known"

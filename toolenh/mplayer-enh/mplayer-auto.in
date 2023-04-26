@@ -4,7 +4,7 @@
     : ${PROGRAM_TITLE:=auto play next movies}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] <movie>...}
 
-    . shlib
+    . shlib --
     import cliboot
     import strfn
     import trash

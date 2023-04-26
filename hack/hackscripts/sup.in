@@ -3,7 +3,7 @@
     PROGRAM_TITLE="Supersede the owner/permission on current work dir"
     PROGRAM_SYNTAX="[OPTIONS] [--] [FILES default .]"
 
-    . shlib
+    . shlib --
     import cliboot
     import trash
 

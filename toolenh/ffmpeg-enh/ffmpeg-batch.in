@@ -4,7 +4,7 @@
     : ${PROGRAM_TITLE:=Batch mp4 convertion with ffmpeg}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
 
-    . shlib
+    . shlib --
     import cliboot
     import trash
 

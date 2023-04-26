@@ -4,7 +4,7 @@
     : ${PROGRAM_TITLE:=Run autobuild commands on file change}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] cmd-args-for-the-last-dir}
 
-    . shlib
+    . shlib --
     import cliboot
     #import strfn
     
