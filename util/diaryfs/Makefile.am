@@ -2,7 +2,11 @@ include libauto/project.am
 
 dist_bin_SCRIPTS = \
     by-date \
-    diaryfs
+    diaryfs \
+    editdiary
+
+dist_man_MANS = \
+    editdiary.1
 
 dist_completion_SCRIPTS = \
     completion/diaryfs

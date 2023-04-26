@@ -1,0 +1,188 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=open diary files, or created them automatically}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] [delta] filenames}
+
+    . shlib --
+    import cliboot
+    import findabc
+
+    option -d --delta =N/+N     "open for delta days before instead of today. specify +N for future"
+    option -n --name =NAME      "filename to open"
+    option -b --beat-log        "open beat log"
+    option -c --create          "always create for today"
+    option -u --reuse-maxday =N "reuse file from N days ago as template, implied -c when template exists"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_delta=
+    opt_name=
+    opt_create=0
+    opt_reuse_maxday=
+    opt_require_template=1
+    
+function setopt() {
+    case "$1" in
+        -d|--delta)
+            opt_delta="$2";;
+        -n|--name)
+            opt_name="$2";;
+        -b|--beat-log)
+            opt_name=beatLog;;
+        -c|--create)
+            opt_create=1;;
+        -u|--reuse-maxday)
+            opt_reuse_maxday="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    diarydir=$(findabc1 -ap Diary %cooltask)
+    
+    if [ -z "$opt_delta" ]; then
+        local delta="$1"
+        if [ -n "$delta" ]; then
+            delta="${delta/+/-}"
+            if [ "$delta" = $((delta + 0)) ]; then
+                opt_delta=$delta
+                shift 1
+            fi
+        fi
+        [ -z "$opt_delta" ] && opt_delta=0
+    else
+        opt_delta="${opt_delta/+/-}"
+    fi
+    _log2 "delta: $opt_delta"
+    
+    date=$(getdate $opt_delta)
+    todaydir="$(diarydir $date)"
+    _log1 "date: $date, dir $todaydir"
+    
+    if [ -n "$opt_reuse_maxday" ]; then
+        if [ "$opt_create" = 1 ]; then
+            opt_require_template=0
+        fi
+    fi
+    
+    names=()
+    if [ -n "$opt_name" ]; then
+        names+=("$opt_name")
+    fi
+    if [ $# != 0 ]; then
+        names=("$@")
+    fi
+    
+    for name in "${names[@]}"; do
+        file="$todaydir/$name"
+        if [ -f "$file" ]; then
+            open "$file"
+        elif [ -n "$opt_reuse_maxday" ]; then
+            found=0
+            for ((i = 1; i <= $opt_reuse_maxday; i++)); do
+                d_before=$((opt_delta + i))
+                chk_date=$(getdate $d_before)
+                chk_dir=$(diarydir $chk_date)
+                chk_file="$chk_dir/$name"
+                _log2 "check $d_before days before ($chk_file)"
+                if [ -f "$chk_file" ]; then
+                    _log1 "found $name at $chk_date ($d_before days before)"
+                    found=1
+                    if [ "$opt_create" = 1 ]; then
+                        create-as "$file" "$chk_file"
+                        open "$file"
+                    else
+                        open "$chk_file"
+                    fi
+                    break
+                fi
+            done
+            if [ $found = 0 ]; then
+                if [ $opt_create = 1 ]; then
+                    touch "$file"
+                    open "$file"
+                elif [ $opt_require_template = 1 ]; then
+                    _error "Can't find template for $name."
+                fi
+            fi
+        elif [ "$opt_create" = 1 ]; then
+            touch "$file"
+            open "$file"
+        else
+            _error "file not existed: $file"
+        fi
+    done
+}
+
+function open() {
+    _log1 "open $*"
+    xdg-open "$@"
+}
+
+function create-as() {
+    local file="$1"
+    local templ="$2"
+    
+    local -A vars
+        vars[diary-creation]=$(date)
+        vars[diary-author]=$(whoami)
+        vars[diary-from]=$(whoami)@$(hostname)
+        
+    local sedopts=()
+    for k in ${!vars[@]}; do
+        local -n val=vars[$k]
+        sedopts+=(-e "s/\($k:\).*/\1 $val/i")
+    done
+    
+    local dir="${file%/*}"
+    if [ ! -d "$dir" ]; then
+        _log1 "create parent dir: $dir"
+        mkdir -p "$dir"
+    fi
+    
+    _log1 sed "${sedopts[@]}" "$templ" ">$file"
+    sed "${sedopts[@]}" "$templ" >"$file"
+}
+
+function diarydir() {
+    local date="$1"
+    echo "$diarydir/by-date/$(cdir $date)"
+}
+
+function cdir() {
+    local d
+    for d in "$@"; do
+        local year=${d:0:4}
+        local mo=${d:5:2}
+        local day=${d:8:2}
+        echo "$year/$year-$mo/$d"
+    done
+}
+
+function getdate() {
+    local delta="$1"
+    local fmt="%Y-%m-%d"
+    date +"$fmt" -d "$delta days ago"
+}
+
+function date() {
+    if DATE=$(which date); then
+        "$DATE" "$@"
+    else
+        quit "date command isn't available."
+    fi
+}
+
+boot "$@"
