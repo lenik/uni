@@ -323,10 +323,11 @@ public class VFooMapper__xml
         case TypeId.BIG_INTEGER:
         case TypeId.BIG_DECIMAL:
 
+        case TypeId.JODA_DATETIME:
+            hasMain = false;
+
         case TypeId.DATE:
         case TypeId.SQL_DATE:
-        case TypeId.JODA_DATETIME:
-
             hasRange = true;
 
             if (hasMain) {
