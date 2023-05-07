@@ -19,6 +19,7 @@ zone "lenik.net"            { type master; file "@lenikdir@/lenik.db"; };
 zone "lilyfond.com"         { type master; file "@lenikdir@/lilyfond.com.db"; };
 zone "lilyfond.org"         { type master; file "@lenikdir@/lilyfond.org.db"; };
 zone "mia.cn"               { type master; file "@lenikdir@/mia.db"; };
+zone "mini-idl.com"         { type master; file "@lenikdir@/mini-idl.db"; };
 zone "node-z.org"           { type master; file "@lenikdir@/node-z.db"; };
 zone "ooojjj.com"           { type master; file "@lenikdir@/ooojjj.db"; };
 zone "peegoo.org"           { type master; file "@lenikdir@/peegoo.db"; };
