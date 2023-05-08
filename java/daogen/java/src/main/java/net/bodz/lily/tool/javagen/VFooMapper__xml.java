@@ -119,15 +119,9 @@ public class VFooMapper__xml
         if (property == null || ignoredProperties.contains(property))
             return;
 
-        switch (column.getSqlTypeName()) {
-        case "jsonb":
-            property += ".jsonStr";
-            break;
-        }
-
         String tag = column.isPrimaryKey() ? "id" : "result";
         out.printf("<%s property=\"%s\" column=\"%s\" />\n", //
-                tag, property, cname.column);
+                tag, templates.toProperty(column), cname.column);
     }
 
     void sql_objlist_sql(XmlSourceBuffer out, ITableMetadata table) {
@@ -306,7 +300,8 @@ public class VFooMapper__xml
         boolean hasRange = false;
         boolean hasPattern = false;
 
-        switch (TypeKind.getTypeId(column.getType())) {
+        int typeId = TypeKind.getTypeId(column.getType());
+        switch (typeId) {
         case TypeId._byte:
         case TypeId._short:
         case TypeId._long:
@@ -324,7 +319,10 @@ public class VFooMapper__xml
         case TypeId.BIG_DECIMAL:
 
         case TypeId.JODA_DATETIME:
-            hasMain = false;
+            // TODO date-range or date-criteria?
+            // more generic construction is needed.
+            if (typeId == TypeId.JODA_DATETIME)
+                hasMain = false;
 
         case TypeId.DATE:
         case TypeId.SQL_DATE:

@@ -22,6 +22,8 @@ public class JavaGenProject {
     CatalogConfig config;
     long randomSeed;
 
+    boolean parentColumnInParallelMode = true;
+
     public final ClassPathInfo Foo;
     public final ClassPathInfo _Foo_stuff;
     public final ClassPathInfo IFoo_Id;

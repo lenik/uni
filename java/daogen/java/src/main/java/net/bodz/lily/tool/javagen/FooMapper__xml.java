@@ -91,8 +91,7 @@ public class FooMapper__xml
                     if (!first)
                         out.print(",\n");
 
-                    ColumnName cname = project.columnName(column);
-                    out.print("#{" + cname.property + "}");
+                    out.print(templates.toSqlVar(column));
 
                     first = false;
                 }
@@ -121,7 +120,7 @@ public class FooMapper__xml
                     if (column.isPrimaryKey())
                         continue;
                     ColumnName cname = project.columnName(column);
-                    out.printf("%s = #{%s}", cname.columnQuoted, cname.property);
+                    out.printf("%s = %s", cname.columnQuoted, templates.toSqlVar(column));
                     out.println(",");
                 }
             }

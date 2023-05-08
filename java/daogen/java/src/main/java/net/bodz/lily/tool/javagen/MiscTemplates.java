@@ -459,8 +459,16 @@ public class MiscTemplates {
                 out.im.name(type), isOrGet, n.Property);
         if (impl) {
             out.enterln(" {");
-            out.printf("if (%s != null)\n", refField);
-            out.printf("    return %s.%s%s();\n", refField, isOrGet, p.Property);
+            out.printf("if (%s != null)", refField);
+            out.enterln(" {");
+            {
+                if (type.isPrimitive()) { // non-null
+                    out.printf("if (%s.%s%s() == null)\n", refField, isOrGet, p.Property);
+                    out.printf("    return %s;\n", nullDefault(type));
+                }
+                out.printf("return %s.%s%s();\n", refField, isOrGet, p.Property);
+                out.leaveln("}");
+            }
             out.printf("return %s;\n", n.field);
             out.leaveln("}");
         } else {
@@ -473,12 +481,33 @@ public class MiscTemplates {
                 (notNull && !type.isPrimitive()) ? ("@" + out.im.name(NotNull.class) + " ") : "", out.im.name(type));
         if (impl) {
             out.enterln(" {");
-            out.printf("this.%s = null;\n", refField);
+            if (!project.parentColumnInParallelMode)
+                out.printf("this.%s = null;\n", refField);
             out.printf("this.%s = value;\n", n.field);
             out.leaveln("}");
         } else {
             out.println(";");
         }
+    }
+
+    static Map<Class<?>, String> nullDefaults;
+    static {
+        nullDefaults = new HashMap<>();
+        nullDefaults.put(byte.class, "(byte) 0");
+        nullDefaults.put(short.class, "(short) 0");
+        nullDefaults.put(int.class, "0");
+        nullDefaults.put(long.class, "0L");
+        nullDefaults.put(float.class, "0.0f");
+        nullDefaults.put(double.class, "0.0");
+        nullDefaults.put(boolean.class, "false");
+        nullDefaults.put(char.class, "0");
+    }
+
+    static String nullDefault(Class<?> type) {
+        String code = nullDefaults.get(type);
+        if (code == null)
+            code = "(no default)";
+        return code;
     }
 
     static Map<Class<?>, Class<?>> rangeMapping;
@@ -595,8 +624,34 @@ public class MiscTemplates {
                 ColumnName cname = project.columnName(column);
                 if (i != 0)
                     out.print("and ");
-                out.println(cname.columnQuoted + " = #{" + cname.property + "}");
+                out.println(cname.columnQuoted + " = " + toSqlVar(column));
             }
+        }
+    }
+
+    public String toProperty(IColumnMetadata column) {
+        ColumnName cname = project.columnName(column);
+//        Class<?> type = column.getType();  type == Object.class
+//        if (JsonMap.class.isAssignableFrom(type)) {
+        switch (column.getSqlTypeName()) {
+        case "json":
+        case "jsonb":
+            return cname.property + ".jsonStr";
+        default:
+            return cname.property;
+        }
+    }
+
+    public String toSqlVar(IColumnMetadata column) {
+        ColumnName cname = project.columnName(column);
+//        Class<?> type = column.getType();
+//        if (JsonMap.class.isAssignableFrom(type)) {
+        switch (column.getSqlTypeName()) {
+        case "json":
+        case "jsonb":
+            return String.format("#{%s.jsonStr}::jsonb", cname.property);
+        default:
+            return String.format("#{%s}", cname.property);
         }
     }
 
