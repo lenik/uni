@@ -17,7 +17,7 @@ function load() {
         name="${name#*=}"
     fi
 
-    local shlib="@shlibdir@:$PATH"
+    local shlib="$shlibdir:$PATH"
     while [ -n "$shlib" ]; do
         local _sl="${shlib%%:*}"
         if [ "$_sl" = "$shlib" ]; then

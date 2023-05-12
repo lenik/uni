@@ -1,0 +1,178 @@
+# -*- mode: sh -*-
+# vim: set filetype=sh :
+
+function shortopts_type() {
+    local shortopts="$1"
+    local ch="$2"
+    local sub="${shortopts##*$ch}"
+    if [ "$sub" = "$shortopts" ]; then # undefined
+        echo "?"
+        return 1
+    fi
+    if [ "${sub:0:1}" = ":" ]; then
+        echo ":"
+    else
+        echo "."
+    fi
+}
+
+function longopts_type() {
+    local longopts="$1"
+    local kv="$2"
+    local k="${kv%%=*}"
+    local k_len=${#k}
+    #_log1 "longopts $longopts, test k=$k (len=$k_len)"
+    local keys=()       # matched keys
+    local remain="$longopts" tail
+    while [ -n "$remain" ]; do
+        # if remain.startsWith(k)
+        if [ "${remain:0:k_len}" = "$k" ]; then
+            # tail = remain.substr(k.len)
+            tail=${remain:k_len}
+        else
+            # tail = remain.substrAfter(,k)
+            tail=${remain#*,$k} # ,k(ey:...)
+            [ "$tail" == "$remain" ] && break
+        fi
+        local param=${tail%%,*}
+        param="$k$param"
+        keys+=("$param")
+
+        remain="${tail#*,}"         # ...,(xxx)
+        if [ "$remain" == "$tail" ]; then
+            remain=
+        fi
+        #_log1 "  - param $param, remain $remain"
+    done
+
+    local n=${#keys[@]}
+    if [ "$n" = 0 ]; then
+        echo '?'
+        return 1
+    fi
+
+    if [ "$n" = 1 ]; then
+        param="${keys[0]}"
+        if [ "${param: -1}" = ':' ]; then
+            echo ':'
+        else
+            echo '.'
+        fi
+        return 0
+    else # ambiguous
+        echo '?'
+        return 1
+    fi
+}
+
+function test_checkopts() {
+    for ((j = 1; j <= $#; j++)); do
+        arg=${!j}
+
+        len=${#arg}
+        case "$arg" in
+            --*)
+                type=$(longopts_type "$longopts" "${arg:2}")
+                echo "longtype($arg): $type"
+                case "$type" in
+                    "?")
+                        echo "    found unknown arg."
+                        ;;
+                    ":")
+                        if [ "${arg/=/}" != "$arg" ]; then
+                            echo "    option with a param with it."
+                        else
+                            echo "    option with a param after it."
+                            (( j++ ))
+                        fi
+                        ;;
+                esac
+                ;;
+            -*)
+                echo shortopt: $arg
+                for ((i = 1; i < len; i++)); do
+                    ch=${arg:i:1}
+                    type=$(shortopts_type "$shortopts" "$ch")
+                    echo "  short type: $type"
+                    case "$type" in
+                        "?")
+                            echo "    found unknown arg."
+                            ;;
+                        ":")
+                            if [ -z "${arg:i+1}" ]; then
+                                echo "    option has a param after it."
+                                (( j++ ))
+                            else
+                                echo "    option has a param with it."
+                            fi
+                            ;;
+                    esac
+                done
+                ;;
+            *)
+                echo file arg: "$arg"
+                ;;
+        esac
+    done
+}
+
+function contains() {
+    local str="$1"
+    local pat="$2"
+    test "${str/$pat/}" != "$str"
+}
+
+function splitopts() {
+    local -n var="$1"
+    local -n others="$2"
+    local shortopts="$3"
+    local longopts="$4"
+    shift 4
+    local type i ch 
+    local end=0 rejects=
+    while [ $# != 0 ]; do
+        local arg="$1"
+        local len=${#1}
+        if [ "${arg:0:2}" = '--' ]; then
+            type=$(longopts_type "$longopts" "${arg:2}")
+            [ "$type" = '?' ] && break
+            var+=("$1")
+            if [ "$type" = ':' ] && ! contains "$arg" '='; then
+                var+=("$2")
+                shift
+            fi
+            shift
+        elif [ "${arg:0:1}" = '-' ]; then
+            for ((i = 1; i < len; i++)); do
+                ch=${arg:i:1}
+                type=$(shortopts_type "$shortopts" "$ch")
+                if [ "$type" = '?' ]; then
+                    rejects="-${arg:i}"
+                    end=1
+                    break
+                fi
+                var+=("-$ch")
+                if [ "$type" = ':' ]; then
+                    local param="${arg:i+1}"
+                    if [ -z "$param" ]; then
+                        var+=("$2")
+                        shift
+                    else
+                        var+=("$param")
+                    fi
+                    break
+                fi
+            done
+            shift
+        else
+            # var+=("$1")
+            end=1
+        fi
+        [ $end = 1 ] && break
+    done
+
+    if [ -n "$rejects" ]; then
+        others+=("$rejects")
+    fi
+    others+=("$@")
+}

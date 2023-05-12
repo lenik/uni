@@ -23,6 +23,7 @@ dist_shlib_DATA = \
     path \
     rcs \
     relpath \
+    splitopts \
     tableparser \
     term \
     time \
