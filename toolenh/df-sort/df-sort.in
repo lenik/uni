@@ -6,6 +6,7 @@
 
     . shlib --
     import cliboot
+    import splitopts
     #import tableparser
     
     option -f --sort-fs         "sort by file system"
@@ -88,7 +89,9 @@ function main() {
     
     tmpf=$(mktemp -t df-sort.XXXX) || quit "can't create tmp file: $!"
     
-    LANG=C "$DF" "${dfopts[@]}" >$tmpf
+    LANG=C "$DF" "${dfopts[@]}" \
+        "${otherargs[@]}" \
+        >$tmpf
     
     field_widths=()
     while read -a fields; do
@@ -243,4 +246,7 @@ function underline() {
     done
 }
 
-boot "$@"
+validargs=()
+otherargs=()
+splitopts validargs otherargs "$g_short_opts" "$g_long_opts" "$@"
+boot "${validargs[@]}"
