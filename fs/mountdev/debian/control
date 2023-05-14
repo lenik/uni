@@ -1,0 +1,21 @@
+Source: mountdev
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+Standards-Version: 4.6.2
+Homepage: http://uni.bodz.net/fs/mountdev
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/fs/mountdev
+
+Package: mountdev
+Architecture: all
+Depends:
+    bash-shlib,
+    file,
+    diskutils,
+ ${misc:Depends},
+Description: Mount all partitions in a block device in auto-named mount points.
+
