@@ -15,7 +15,7 @@ Architecture: all
 Depends:
     bash-shlib,
     file,
-    diskutils,
+    mount,
  ${misc:Depends},
 Description: Mount all partitions in a block device in auto-named mount points.
 

@@ -1,0 +1,187 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Mount partitions in a block device}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] device}
+
+    . shlib-import cliboot
+    option -d --common-dir =DIR     "Common dir to create mount points, default ."
+    option -u --unmount             "Unmount the device"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_dir=.
+    opt_unmount=0
+
+function setopt() {
+    case "$1" in
+        -d|--common-dir)
+            opt_dir="$2";;
+        -u|--unmount)
+            opt_unmount=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    test -e "$1" || quit "Not existed device: $1"
+    local dev="$1"
+    shift
+
+    if test -b "$dev"; then
+        if [ "$opt_unmount" = 1 ]; then
+            mount_block -u "$dev"
+        else
+            mount_block "$dev"
+        fi
+    else
+        if [ "$opt_unmount" = 1 ]; then
+            umount_file "$dev"
+        else
+            mount_file "$dev"
+        fi
+    fi
+}
+
+function mount_block() {
+    local cmd=mount
+    if [ "$1" = '-u' ]; then
+        cmd=umount
+        shift
+    fi
+
+    local dev="$1"
+    local alias="$2"
+
+    local p
+    local dev_len=${#dev}
+    for p in $(parts "$dev"); do
+        local suffix=${p:dev_len}
+        local index=${suffix#p}
+        if [ "$((index + 0))" != "$index" ]; then
+            _warn "strange partition index $index, skipped."
+            continue
+        fi
+        local subdir="${p##*/}"
+        if [ -n "$alias" ]; then
+            subdir="$alias"
+        fi
+
+        local label=$(getlabel "$p")
+        if [ "$label" != '?' ]; then
+            subdir="$subdir-$label"
+        else
+            subdir="$subdir-$index"
+        fi
+
+        local mp="$opt_dir/$subdir"
+        
+        case "$cmd" in
+            mount)
+                _log1 "mount $p at $mp"
+                mkdir -p "$mp"
+                sudo mount "$p" "$mp"
+                ;;
+            umount)
+                if [ -d "$mp" ]; then
+                    _log1 "umount $p at $mp"
+                    sudo umount "$mp"
+                    rmdir "$mp"
+                fi
+                ;;
+        esac
+    done
+}
+
+function mount_file() {
+    local file="$1"
+    local dev
+    
+    if ! dev=$(losetup --find --show --partscan "$file"); then
+        quit "Failed to setup loop device."
+    fi
+
+    # the part device is soon created. however not always reading well.
+    local testpart=${dev}p1
+    _log2 "wait for $testpart"
+    while [ ! -e "$testpart" ]; do sleepenh 0.01 >/dev/null; done
+
+    local alias="${file##*/}"
+    alias="${alias%.*}"
+    mount_block "$dev" "$alias"
+}
+
+function umount_file() {
+    local file="$1"
+    local dev _info
+    
+    local alias="${file##*/}"
+    alias="${alias%.*}"
+
+    while IFS=: read dev _info; do
+        mount_block -u "$dev" "$alias"
+        break
+    done < <(losetup -j "$file")
+}
+
+function parts() {
+    local dev="$1"
+    local lastchar="${dev: -1}"
+    local parts=()
+    if [ "$lastchar" = "$((lastchar + 0))" ]; then
+        parts=("${dev}p"*)
+    else
+        local p
+        for p in "${dev}"*; do
+            [ "$p" = "$dev" ] && continue
+            parts+=("$p")
+        done
+    fi
+    echo "${parts[@]}"
+}
+
+function getlabel() {
+    local arg dev vars
+    for arg in "$@"; do
+        local i try_max=10
+        for ((i = 0; i < try_max; i++)); do
+            read -r dev vars < <(blkid "$arg") && break
+            sleepenh 0.01 >/dev/null
+        done
+        if [ $i == $try_max ]; then
+            _error "failed to execute blkid."
+            return 1
+        fi
+        _log2 "blkid $arg: dev $dev, vars $vars (tried $i times)"
+        
+        local LABEL_FATBOOT
+        local LABEL=
+        local UUID=
+        local BLOCK_SIZE=
+        local TYPE=
+        local PARTLABEL=
+        local PARTUUID=
+        eval "$vars"
+        local label='?'
+        for val in "$LABEL" "$PARTLABEL"; do
+            if [ -n "$val" ]; then
+                label="$val"
+                break
+            fi
+        done
+        echo "$label"
+    done
+}
+
+boot "$@"
