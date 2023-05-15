@@ -1,7 +1,6 @@
 package net.bodz.uni.echo.server;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +38,10 @@ public class EchoServer
     Thread shutdownThread;
 
     public EchoServer(ServletContextConfig config) {
-        super(getServerAddress(config));
+        super();
+
+        ServerConnector connector = buildConnector(config);
+        setConnectors(new Connector[] { connector });
 
         this.config = config;
 
@@ -66,11 +68,18 @@ public class EchoServer
         addLifeCycleListener(new LifeCycleListener());
     }
 
-    static InetSocketAddress getServerAddress(ServletContextConfig config) {
-        String hostname = config.getHostName("0.0.0.0");
+    ServerConnector buildConnector(ServletContextConfig config) {
+        ServerConnector connector = new ServerConnector(this);
+        String hostName = config.getHostName();
         int port = config.getPortNumber();
-        InetSocketAddress address = new InetSocketAddress(hostname, port);
-        return address;
+
+        if (hostName == null) {
+            // Enable both IPv4 & IPv6 on localhost.
+        } else {
+            connector.setHost(hostName);
+        }
+        connector.setPort(port);
+        return connector;
     }
 
     private void buildResourceProvider()
