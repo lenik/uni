@@ -36,6 +36,7 @@ public class CatalogConfig
 
     static final String K_COLUMN_PROPERTY = "column-property";
     static final String K_COLUMN_REF = "column-ref";
+    static final String K_KEY_COLUMNS = "key-columns";
     static final String K_TABLE_NAME = "table-name";
     static final String K_CLASS_MAP = "class-map";
     static final String K_COLUMN_LEVEL = "column-level";
@@ -49,6 +50,7 @@ public class CatalogConfig
 
     public final Map<String, String> columnPropertyMap = new HashMap<>();
     public final ColumnRefMap columnRefMap = new ColumnRefMap();
+    public final KeyColumnSettings keyColumnSettings = new KeyColumnSettings();
     public final Map<String, String> tableNameMap = new HashMap<>();
     public final ListMap<String, String> class2TableList = new ListMap<>();
     public final Map<String, Integer> columnLevelMap = new HashMap<>();
@@ -151,61 +153,83 @@ public class CatalogConfig
     @Override
     public void writeObject(IRstOutput out)
             throws IOException, FormatException {
-        out.beginElement(K_COLUMN_PROPERTY);
-        for (String column : columnPropertyMap.keySet()) {
-            String property = columnPropertyMap.get(column);
-            out.attribute(column, property);
-        }
-        out.endElement();
-
-        out.beginElement(K_COLUMN_REF);
-        for (String alias : columnRefMap.alias2QColumn.keySet()) {
-            ColumnOid qColumn = columnRefMap.alias2QColumn.get(alias);
-            out.attribute(alias, qColumn.getFullName());
-        }
-        out.endElement();
-
-        out.beginElement(K_TABLE_NAME);
-        for (String table : tableNameMap.keySet()) {
-            String javaName = tableNameMap.get(table);
-            out.attribute(table, javaName);
-        }
-        out.endElement();
-
-        out.beginElement(K_CLASS_MAP);
-        for (String type : class2TableList.keySet()) {
-            List<String> tables = class2TableList.get(type);
-            String tableList = StringArray.join(", ", tables);
-            out.attribute(type, tableList);
-        }
-        out.endElement();
-
-        out.beginElement(K_COLUMN_LEVEL);
-        for (String column : columnLevelMap.keySet()) {
-            Integer level = columnLevelMap.get(column);
-            out.attribute(column, level);
-        }
-        out.endElement();
-
-        out.beginElement(K_JOIN_LEVEL);
-        for (String column : joinLevelMap.keySet()) {
-            Integer depth = joinLevelMap.get(column);
-            out.attribute(column, depth);
-        }
-        out.endElement();
-
-        for (String tableName : tableMap.keySet()) {
-            out.beginElement(K_MIXIN, tableName);
-            TableSettings table = tableMap.get(tableName);
-            table.writeObject(out);
+        if (!columnPropertyMap.isEmpty()) {
+            out.beginElement(K_COLUMN_PROPERTY);
+            for (String column : columnPropertyMap.keySet()) {
+                String property = columnPropertyMap.get(column);
+                out.attribute(column, property);
+            }
             out.endElement();
         }
 
-        for (String mixinName : mixinMap.keySet()) {
-            out.beginElement(K_MIXIN, mixinName);
-            MixinSettings mixin = mixinMap.get(mixinName);
-            mixin.writeObject(out);
+        if (!columnRefMap.isEmpty()) {
+            out.beginElement(K_COLUMN_REF);
+            for (String alias : columnRefMap.alias2QColumn.keySet()) {
+                ColumnOid qColumn = columnRefMap.alias2QColumn.get(alias);
+                out.attribute(alias, qColumn.getFullName());
+            }
             out.endElement();
+        }
+
+        if (!keyColumnSettings.isEmpty()) {
+            out.beginElement(K_KEY_COLUMNS);
+            keyColumnSettings.writeObject(out);
+            out.endElement();
+        }
+
+        if (!tableNameMap.isEmpty()) {
+            out.beginElement(K_TABLE_NAME);
+            for (String table : tableNameMap.keySet()) {
+                String javaName = tableNameMap.get(table);
+                out.attribute(table, javaName);
+            }
+            out.endElement();
+        }
+
+        if (!class2TableList.isEmpty()) {
+            out.beginElement(K_CLASS_MAP);
+            for (String type : class2TableList.keySet()) {
+                List<String> tables = class2TableList.get(type);
+                String tableList = StringArray.join(", ", tables);
+                out.attribute(type, tableList);
+            }
+            out.endElement();
+        }
+
+        if (!columnLevelMap.isEmpty()) {
+            out.beginElement(K_COLUMN_LEVEL);
+            for (String column : columnLevelMap.keySet()) {
+                Integer level = columnLevelMap.get(column);
+                out.attribute(column, level);
+            }
+            out.endElement();
+        }
+
+        if (!joinLevelMap.isEmpty()) {
+            out.beginElement(K_JOIN_LEVEL);
+            for (String column : joinLevelMap.keySet()) {
+                Integer depth = joinLevelMap.get(column);
+                out.attribute(column, depth);
+            }
+            out.endElement();
+        }
+
+        if (!tableMap.isEmpty()) {
+            for (String tableName : tableMap.keySet()) {
+                out.beginElement(K_TABLE, tableName);
+                TableSettings table = tableMap.get(tableName);
+                table.writeObject(out);
+                out.endElement();
+            }
+        }
+
+        if (!mixinMap.isEmpty()) {
+            for (String mixinName : mixinMap.keySet()) {
+                out.beginElement(K_MIXIN, mixinName);
+                MixinSettings mixin = mixinMap.get(mixinName);
+                mixin.writeObject(out);
+                out.endElement();
+            }
         }
     }
 

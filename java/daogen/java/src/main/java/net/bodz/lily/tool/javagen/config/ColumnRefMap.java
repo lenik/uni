@@ -11,6 +11,10 @@ public class ColumnRefMap {
     Map<String, ColumnOid> alias2QColumn = new HashMap<>();
 //    Map<ColumnOid, Set<String>> qColumnAliases = new HashMap<>();
 
+    public boolean isEmpty() {
+        return alias2QColumn.isEmpty();
+    }
+
     public void addColumnRef(String columnAlias, String qColumnName) {
         ColumnOid qColumn = ColumnOid.parse(qColumnName);
         addColumnRef(columnAlias, qColumn);
