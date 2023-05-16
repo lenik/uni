@@ -5,10 +5,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.lily.tool.javagen.config.CatalogConfig;
+import net.bodz.lily.tool.javagen.config.KeyColumnSettings;
 
 public class JoinColumns
         implements
@@ -23,11 +26,21 @@ public class JoinColumns
     boolean ignoreCase;
     String[] defaultParentColumns = { "id", "label", "description", "image" };
 
-    public JoinColumns() {
+//    public JoinColumns() {
+//    }
+
+    KeyColumnSettings settings;
+
+    public JoinColumns(CatalogConfig config) {
+        this(config.keyColumnSettings);
     }
 
-    public JoinColumns(ITableMetadata table) {
-        addAll(table.getForeignKeys().values());
+    public JoinColumns(KeyColumnSettings settings) {
+        this.settings = settings;
+    }
+
+    public void addTable(ITableMetadata foreignTable) {
+        addAll(foreignTable.getForeignKeys().values());
     }
 
     public void addAll(Collection<CrossReference> refs) {
@@ -55,7 +68,8 @@ public class JoinColumns
         if (refAliasMap.containsKey(ref))
             throw new IllegalArgumentException("already added: " + ref);
 
-        String preferredParentAlias = ref.getPreferredAlias(prefix);
+        String preferredAlias = settings.getPreferredAlias(ref);
+        String preferredParentAlias = Nullables.concat(prefix, preferredAlias);
         Integer seq = null;
         String parentAlias;
         while (aliasMap.containsKey(parentAlias = concat(preferredParentAlias, seq)))

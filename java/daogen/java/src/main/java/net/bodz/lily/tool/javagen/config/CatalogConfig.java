@@ -123,11 +123,10 @@ public class CatalogConfig
         n.columnQuoted = DialectFn.quoteName(n.column);
 
         // boolean javaNameSpecified = column.getJavaName() != null;
-        n.field = column.getJavaName();
-        if (n.field == null)
-            n.field = StringId.UL.toCamel(n.column);
-
-        n.setPropertyFromField();
+        String field = column.getJavaName();
+        if (field == null)
+            field = StringId.UL.toCamel(n.column);
+        n.setField(field);
 
 //        if (column.isForeignKey()) {
 //            name.keyProperty = name.property;
@@ -253,6 +252,9 @@ public class CatalogConfig
                     throws ParseException, ElementHandlerException {
                 this.parent = name;
                 switch (name) {
+                case K_KEY_COLUMNS:
+                    return keyColumnSettings.getElementHandler();
+
                 case K_TABLE:
                     if (args.length != 1)
                         throw new ParseException("expect table name");
@@ -324,6 +326,13 @@ public class CatalogConfig
 
         out.key(K_COLUMN_REF);
         out.map(columnRefMap.alias2QColumn);
+
+        if (!keyColumnSettings.isEmpty()) {
+            out.key(K_KEY_COLUMNS);
+            out.object();
+            keyColumnSettings.jsonOut(out, opts);
+            out.endObject();
+        }
 
         out.key(K_TABLE_NAME);
         out.map(tableNameMap);

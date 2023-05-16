@@ -2,6 +2,7 @@ package net.bodz.lily.tool.javagen.config;
 
 import java.io.IOException;
 
+import net.bodz.bas.c.string.Phrase;
 import net.bodz.bas.err.FormatException;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.fmt.json.IJsonForm;
@@ -25,16 +26,29 @@ public class KeyColumnNameInfo
         return alias;
     }
 
-    public String getComponent() {
-        return component;
-    }
-
     public void setAlias(String alias) {
         this.alias = alias;
     }
 
+    public String getComponent() {
+        return component;
+    }
+
     public void setComponent(String component) {
         this.component = component;
+    }
+
+    public String getAliasProperty() {
+        return Phrase.foo_bar(alias).fooBar;
+    }
+
+    public String getComponentProperty() {
+        return Phrase.foo_bar(component).fooBar;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("alias %s, component %s", alias, component);
     }
 
     private static final String K_ALIAS = "alias";

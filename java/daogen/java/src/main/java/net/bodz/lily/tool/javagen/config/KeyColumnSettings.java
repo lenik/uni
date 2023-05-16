@@ -1,6 +1,7 @@
 package net.bodz.lily.tool.javagen.config;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -13,8 +14,8 @@ import net.bodz.bas.fmt.json.JsonFormOptions;
 import net.bodz.bas.fmt.rst.IRstForm;
 import net.bodz.bas.fmt.rst.IRstHandler;
 import net.bodz.bas.fmt.rst.IRstOutput;
-import net.bodz.bas.fmt.rst.StackRstHandler;
 import net.bodz.bas.json.JsonObject;
+import net.bodz.bas.t.catalog.CrossReference;
 
 public class KeyColumnSettings
         implements
@@ -38,6 +39,42 @@ public class KeyColumnSettings
                 return info;
         }
         return null;
+    }
+
+    public String getPreferredAlias(CrossReference ref) {
+        String[] columnNames = ref.getForeignKey().getColumnNames();
+        if (columnNames == null)
+            return null;
+        int n = columnNames.length;
+        if (n == 0)
+            return null;
+        if (n == 1)
+            return getPreferredSingleColumnAlias(ref, columnNames[0]);
+        else
+            return getPreferredMultiColumnAlias(ref, columnNames);
+    }
+
+    // column -> alias
+    static final Map<String, String> conventions = new HashMap<>();
+    static {
+        conventions.put("uid", "u");
+        conventions.put("gid", "g");
+    }
+
+    public String getPreferredSingleColumnAlias(CrossReference ref, String column) {
+        String alias = conventions.get(column);
+        if (alias == null) {
+            if (column.endsWith("_id") && column.length() > 3) {
+                alias = column.substring(0, column.length() - 3);
+            } else {
+                alias = column;
+            }
+        }
+        return alias;
+    }
+
+    public String getPreferredMultiColumnAlias(CrossReference ref, String[] columns) {
+        return ref.getJavaName();
     }
 
     private static final String K_FORMATS_json = "formats"; // json only
@@ -69,7 +106,7 @@ public class KeyColumnSettings
 
     @Override
     public IRstHandler getElementHandler() {
-        return new StackRstHandler() {
+        return new IRstHandler() {
 
             @Override
             public IRstHandler beginChild(String name, String[] args)

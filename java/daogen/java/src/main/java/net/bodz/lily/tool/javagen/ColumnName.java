@@ -12,17 +12,27 @@ public class ColumnName {
     public String property;
     public String Property;
 
-    public String keyProperty;
-    public String refProperty;
+//    public String keyProperty;
+//    public String refProperty;
 
     public String constField;
 
-    public void setPropertyFromField() {
-        this.property = this.field;
-        this.Property = Strings.ucfirst(this.field);
+    // public void setColumn(String column) {
+    // this.column = column;
+    // String camelName = StringId.UL.toCamel(column);
+    // setProperty(camelName);
+    // }
 
-        String property_name = StringId.UL.breakCamel(this.property);
-        this.constField = property_name.toUpperCase();
+    public void setField(String field) {
+        setProperty(field);
+    }
+
+    public void setProperty(String property) {
+        this.field = property;
+        this.property = property;
+        this.Property = Strings.ucfirst(property);
+        String under_line = StringId.UL.breakCamel(this.property);
+        this.constField = under_line.toUpperCase();
     }
 
     @Override

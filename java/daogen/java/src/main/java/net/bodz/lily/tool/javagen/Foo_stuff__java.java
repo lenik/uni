@@ -161,7 +161,7 @@ public class Foo_stuff__java
                     out.println();
                     out.println("@Override");
                     out.printf("public void id(%s id) {\n", out.im.name(idType));
-                    out.printf("    this.set%s(id);\n", cname.Property);
+                    out.printf("    set%s(id);\n", cname.Property);
                     out.printf("}\n");
                 }
             }

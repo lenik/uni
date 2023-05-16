@@ -72,7 +72,8 @@ public class VFooMapper__xml
     }
 
     void resultMap_objlist_map(XmlSourceBuffer out, ITableMetadata table) {
-        JoinColumns j = new JoinColumns(table);
+        JoinColumns j = new JoinColumns(project.config);
+        j.addTable(table);
 
         out.printf("<resultMap id=\"objlist_map\" type=\"%s\">\n", project.Foo);
         out.enter();
@@ -146,7 +147,8 @@ public class VFooMapper__xml
 
     void sql_objedit_sql(XmlSourceBuffer out, ITableMetadata table) {
         List<IColumnMetadata> columns = getIncludedColumns(table.getColumns());
-        JoinColumns j = new JoinColumns(table);
+        JoinColumns j = new JoinColumns(project.config);
+        j.addTable(table);
 
         out.println("<sql id=\"objedit_sql\"><![CDATA[");
         out.enter();
