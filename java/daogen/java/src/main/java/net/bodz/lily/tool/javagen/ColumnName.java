@@ -27,7 +27,8 @@ public class ColumnName {
 
     @Override
     public String toString() {
-        return column + "/" + field;
+        return String.format("column %s, field %s", //
+                column, field);
     }
 
 }

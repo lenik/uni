@@ -56,7 +56,7 @@ public class FinishProcessorTest
             Function<String, String> norm, String expected) {
         String[] av = split(as, ",");
         String[] bv = split(bs, ",");
-        String result = FinishProcessor.commonPrefix(av, bv, mapa, mapb, norm);
+        String result = FinishProcessor.trimSuffix(av, bv, mapa, mapb, norm);
         assertEquals(expected, result);
     }
 

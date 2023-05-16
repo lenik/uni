@@ -36,10 +36,10 @@ import net.bodz.lily.tool.javagen.config.FinishProcessor;
  * Generate DAO implementations in Java.
  */
 @ProgramName("daogen")
-public class LilyDaoCodegen
+public class DaoCodeGenerator
         extends BasicCLI {
 
-    static Logger logger = LoggerFactory.getLogger(LilyDaoCodegen.class);
+    static Logger logger = LoggerFactory.getLogger(DaoCodeGenerator.class);
     static int maxApiDepth = 2;
 
     /**
@@ -139,7 +139,7 @@ public class LilyDaoCodegen
     DefaultCatalogMetadata catalog = new DefaultCatalogMetadata();
     boolean loadDependedObjects = true;
 
-    public LilyDaoCodegen(DataContext dataContext) {
+    public DaoCodeGenerator(DataContext dataContext) {
         if (dataContext == null)
             throw new NullPointerException("dataContext");
         this.dataContext = dataContext;
@@ -414,7 +414,7 @@ public class LilyDaoCodegen
     MavenPomDir findPomDir(File startDir) {
         MavenPomDir pomDir = MavenPomDir.closest(startDir);
         if (pomDir == null) {
-            if (appClass == LilyDaoCodegen.class)
+            if (appClass == DaoCodeGenerator.class)
                 throw new RuntimeException("Can't locate the maven project from " + startDir);
 
             pomDir = MavenPomDir.fromClass(appClass);
@@ -427,7 +427,7 @@ public class LilyDaoCodegen
     public static void main(String[] args)
             throws Exception {
 
-        LilyDaoCodegen app = new LilyDaoCodegen(//
+        DaoCodeGenerator app = new DaoCodeGenerator(//
                 DataHub.getPreferredHub().getMain());
         app.execute(args);
     }

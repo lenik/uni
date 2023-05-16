@@ -1,2 +1,2 @@
 main cfgconv = net.bodz.lily.tool.javagen.config.ConfigFormatConv
-main daogen = net.bodz.lily.tool.javagen.LilyDaoCodegen
+main daogen = net.bodz.lily.tool.javagen.DaoCodeGenerator

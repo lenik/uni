@@ -9,6 +9,7 @@ import java.util.function.Function;
 
 import javax.persistence.Column;
 
+import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.string.Phrase;
 import net.bodz.bas.c.string.StringId;
 import net.bodz.bas.c.string.Strings;
@@ -17,7 +18,7 @@ import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.t.catalog.*;
-import net.bodz.bas.text.Nullables;
+import net.bodz.bas.text.Nullables_dmp;
 import net.bodz.lily.model.base.CoEntity;
 import net.bodz.lily.tool.javagen.ColumnName;
 import net.bodz.lily.tool.javagen.TableName;
@@ -115,7 +116,7 @@ public class FinishProcessor
         }
     }
 
-    static final Function<String, String> trimUnderline = (String s) -> {
+    static final Function<String, String> trimRightUnderline = (String s) -> {
         while (s.endsWith("_"))
             s = s.substring(0, s.length() - 1);
         return s;
@@ -150,22 +151,28 @@ public class FinishProcessor
 
         String property;
 
-        // 1. fooSegment -> Foo.segment, fooSid -> foo.sid, ===> property = foo
-        property = commonPrefix(fv, pv, //
+        // 1. [ property = foo ]
+        // fk property fooSegment -> parent property *.segment,
+        // fk property fooSid -> parent property *.sid
+        property = trimSuffix(fv, pv, //
                 (ColumnName name) -> name.property, //
                 (ColumnName name) -> Strings.ucfirst(name.property), //
                 null);
 
-        // 2. foo_seg -> foo.seg, foo_sid -> foo.sid, ===> property = foo
+        // 2. [ property = foo ]:
+        // fk column foo_seg -> parent column foo.seg
+        // fk column foo_sid -> parent column foo.sid
         if (property == null) {
-            String columnPrefix = commonPrefix(fv, pv, //
+            String columnHead = trimSuffix(fv, pv, //
                     (ColumnName name) -> name.column, //
-                    trimUnderline);
-            if (columnPrefix != null)
-                property = StringId.UL.toCamel(columnPrefix);
+                    trimRightUnderline);
+            if (!Nullables.isEmpty(columnHead))
+                property = StringId.UL.toCamel(columnHead);
         }
 
-        // 3. cat -> foocat.sid, seg -> foocat.seg ===> property = cat
+        // 3. [ property = cat ]:
+        // fk column cat -> parent column foocat.key_a
+        // fk column key_b -> parent column foocat.key_b
         if (property == null) {
             TableName parentName = config.tableName(parentTable);
 
@@ -225,47 +232,51 @@ public class FinishProcessor
                     DefaultColumnMetadata mutable = (DefaultColumnMetadata) column;
                     String normKeyProp = f.property + Strings.ucfirst(p.property);
                     String orig = column.getJavaName();
-                    if (Nullables.notEquals(orig, normKeyProp))
+                    if (Nullables_dmp.notEquals(orig, normKeyProp))
                         mutable.setJavaName(normKeyProp);
                 }
             }
         }
     }
 
-    public static <T> String commonPrefix(T[] av, T[] bv, //
+    public static <T> String trimSuffix(T[] av, T[] bv, //
             Function<T, String> map, Function<String, String> norm) {
-        return commonPrefix(av, bv, map, map, norm);
+        return trimSuffix(av, bv, map, map, norm);
     }
 
-    public static <T> String commonPrefix(T[] av, T[] bv, //
+    /**
+     * @return <code>null</code> if no common prefix
+     */
+    public static <T> String trimSuffix(T[] array, T[] suffixArray, //
             Function<T, String> mapa, Function<T, String> mapb, //
             Function<String, String> norm) {
-        int n = av.length;
-        String common = null;
+        int n = array.length;
+        if (n == 0)
+            return null;
+
+        String commonHead = null;
         for (int i = 0; i < n; i++) {
-            String a = mapa.apply(av[i]);
-            String b = mapb.apply(bv[i]);
-            String prefix;
-            if (a.endsWith(b))
-                prefix = a.substring(0, a.length() - b.length());
-            else {
+            String a = mapa.apply(array[i]);
+            String suffix = mapb.apply(suffixArray[i]);
+            String head;
+            if (a.endsWith(suffix)) {
+                head = a.substring(0, a.length() - suffix.length());
+            } else {
                 if (n == 1)
                     return null;
                 else
-                    prefix = a;
+                    head = a;
             }
 
             if (norm != null)
-                prefix = norm.apply(prefix);
+                head = norm.apply(head);
 
-            if (common == null)
-                common = prefix;
-            else if (!common.equals(prefix)) {
-                common = null;
-                break;
-            }
+            if (commonHead == null)
+                commonHead = head;
+            else if (!commonHead.equals(head))
+                return null;
         }
-        return common;
+        return commonHead;
     }
 
 }

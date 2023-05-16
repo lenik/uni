@@ -13,4 +13,9 @@ public class TableName {
     public String packageName;
     public String simpleClassName;
 
+    @Override
+    public String toString() {
+        return String.format("table %s, class %s", tableName, className);
+    }
+
 }
