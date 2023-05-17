@@ -37,16 +37,31 @@ public class QREncoder
     static final Logger logger = LoggerFactory.getLogger(QREncoder.class);
 
     /**
-     * Specify QR image size.
+     * Specify QR image size. Default auto determined.
      *
      * @option --size -s =SIZE
      */
-    int size = 125;
+    int imageSize = 0;
 
     /**
-     * Max version to use.
+     * Scale the result image. To avoid blur. Default 16.
+     *
+     * @option --dot-scale =RATIO
      */
-    int version = 20;
+    int dotScale = 16;
+
+    /**
+     * Max version to use. Default 40 (max)
+     *
+     * @option --qrcode-version -V =QRVER
+     */
+    int qrVersion = 40;
+
+    /**
+     * Error correction level.
+     *
+     * @option --ec-level -e =LEVEL
+     */
     ErrorCorrectionLevel ecLevel = ErrorCorrectionLevel.M;
 
     /**
@@ -70,7 +85,7 @@ public class QREncoder
             throw new IllegalArgumentException("No output name specified.");
 
         if (args.length == 0)
-            convert(System.in, Integer.MAX_VALUE);
+            convert(System.in, "-", Integer.MAX_VALUE);
         else {
             File outDir = new File(outputName).getParentFile();
             outDir.mkdirs();
@@ -79,40 +94,54 @@ public class QREncoder
                 File file = new File(arg);
                 long fileSize = file.length();
                 try (InputStream in = new FileInputStream(file)) {
-                    convert(in, fileSize);
+                    convert(in, file.getName(), fileSize);
                 }
             }
         }
     }
 
-    void convert(InputStream in, long maxSize)
+    void convert(InputStream in, String name, long maxSize)
             throws WriterException, IOException {
         int blockSize = getBlockSize();
 
         int headerSize = 4;
         int fileBlockSize = blockSize - headerSize;
         long maxBlocks = maxSize / fileBlockSize;
+        logger.debug("file block size: " + fileBlockSize);
+        logger.debug("max blocks: " + maxBlocks);
+
         int seqWidth = String.valueOf(maxBlocks).length();
+        if (seqWidth < 3)
+            seqWidth = 3;
         String zeros = Strings.repeat(seqWidth, '0');
 
         byte[] block = new byte[blockSize];
 
+        int off = headerSize;
+        String title = (name + ":" + maxSize + ":");
+        byte[] titleBytes = title.getBytes("utf-8");
+        System.arraycopy(titleBytes, 0, block, off, titleBytes.length);
+        off += titleBytes.length;
+
         int cbRead;
         int index = 0;
-        while ((cbRead = in.read(block, headerSize, fileBlockSize)) != -1) {
+        while ((cbRead = in.read(block, off, blockSize - off)) != -1) {
+            writeHeader(block, index);
+
             String seq = (zeros + index);
             seq = seq.substring(seq.length() - seqWidth);
             File file = new File(outputName + "-" + seq + "." + format);
 
-            String base45 = Base45Encoder.encodeToBase45QrPayload(block, 0, cbRead);
+            String base45 = Base45Encoder.encodeToBase45QrPayload( //
+                    block, 0, off + cbRead);
 
             logger.info("Generate block[%d]: %s", index, base45);
-            writeHeader(block, index);
 
             byte[] imageData = createQRImage(base45);
 
             Files.write(file.toPath(), imageData);
             index++;
+            off = headerSize;
         }
     }
 
@@ -123,12 +152,16 @@ public class QREncoder
         }
     }
 
+    Version getQRVersion() {
+        return Version.getVersionForNumber(this.qrVersion);
+    }
+
     int getBlockSize() {
-        Version version = Version.getVersionForNumber(this.version);
-        int numBytes = version.getTotalCodewords();
+        Version qrVer = getQRVersion();
+        int numBytes = qrVer.getTotalCodewords();
         // getNumECBytes = 130
 
-        Version.ECBlocks ecBlocks = version.getECBlocksForLevel(ecLevel);
+        Version.ECBlocks ecBlocks = qrVer.getECBlocksForLevel(ecLevel);
         int numEcBytes = ecBlocks.getTotalECCodewords();
 
         int numDataBytes = numBytes - numEcBytes;
@@ -150,7 +183,15 @@ public class QREncoder
         hintMap.put(EncodeHintType.ERROR_CORRECTION, ecLevel);
 
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        BitMatrix byteMatrix = qrCodeWriter.encode(base45, BarcodeFormat.QR_CODE, size, size, hintMap);
+
+        int size = imageSize;
+        if (size == 0) {
+            size = getQRVersion().getDimensionForVersion() * dotScale;
+        }
+        int width = size, height = size;
+
+        BitMatrix byteMatrix = qrCodeWriter.encode(base45, BarcodeFormat.QR_CODE, //
+                width, height, hintMap);
         // Make the BufferedImage that are to hold the QRCode
         int matrixWidth = byteMatrix.getWidth();
         BufferedImage image = new BufferedImage(matrixWidth, matrixWidth, BufferedImage.TYPE_INT_RGB);
