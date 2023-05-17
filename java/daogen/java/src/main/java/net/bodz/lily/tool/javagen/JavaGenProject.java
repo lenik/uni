@@ -42,6 +42,8 @@ public class JavaGenProject {
     public final ClassPathInfo FooMapper;
     public final ClassPathInfo FooIndex;
 
+    public final ClassPathInfo FooExporter;
+
     public final ClassPathInfo FooSamples; // test
     public final ClassPathInfo FooMapperTest; // test
     public final ClassPathInfo FooIndexTest; // test
@@ -70,6 +72,8 @@ public class JavaGenProject {
 
         FooMapper = modelPath.join(dao_ + Foo.name + "Mapper");
         FooIndex = modelPath.join(dao_ + Foo.name + "Index");
+
+        FooExporter = modelPath.join(Foo.name + "Exporter", generated);
 
         ClassPathInfo implTest = modelPath.join(Foo.name + "Test", "src/test/java", "src/test/resources");
         FooSamples = implTest.join(Foo.name + "Samples", generated);

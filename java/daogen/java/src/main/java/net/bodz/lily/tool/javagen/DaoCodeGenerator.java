@@ -67,8 +67,9 @@ public class DaoCodeGenerator
     File outDir;
 
     /**
-     * API/Headers output directory. By default, search sibling -api projects and put header files in src/main/java. If
-     * can't find such project, use the same value specified with <code>--out-dir</code>.
+     * API/Headers output directory. By default, search sibling -api projects and put header files
+     * in src/main/java. If can't find such project, use the same value specified with
+     * <code>--out-dir</code>.
      *
      * @option -H =PATH
      */
@@ -235,6 +236,7 @@ public class DaoCodeGenerator
         new FooMapper__xml(project).buildFile(table);
         new FooMapper__java(project).buildFile(table);
         new FooMapperTest__java(project).buildFile(table);
+        new FooExporter__java(project).buildFile(table);
         new FooSamples__java(project).buildFile(table);
     }
 
