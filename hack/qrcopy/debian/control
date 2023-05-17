@@ -1,0 +1,17 @@
+Source: qrcopy
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+Standards-Version: 4.6.2
+Homepage: http://uni.bodz.net/hack/qrcopy
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/hack/qrcopy
+
+Package: qrcopy
+Architecture: all
+Depends:
+    ${misc:Depends},
+Description: Copy data thru QRcodes.
