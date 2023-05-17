@@ -14,58 +14,58 @@ public class KeyColumnNameInfo
         implements
             IJsonForm {
 
-    String alias;
-    String component;
+    String sqlAlias;
+    String sqlField;
 
-    public KeyColumnNameInfo(String alias, String component) {
-        this.alias = alias;
-        this.component = component;
+    public KeyColumnNameInfo(String sqlAlias, String sqlField) {
+        this.sqlAlias = sqlAlias;
+        this.sqlField = sqlField;
     }
 
-    public String getAlias() {
-        return alias;
+    public String getSqlAlias() {
+        return sqlAlias;
     }
 
-    public void setAlias(String alias) {
-        this.alias = alias;
+    public void setSqlAlias(String sqlAlias) {
+        this.sqlAlias = sqlAlias;
     }
 
-    public String getComponent() {
-        return component;
+    public String getSqlField() {
+        return sqlField;
     }
 
-    public void setComponent(String component) {
-        this.component = component;
+    public void setSqlField(String sqlField) {
+        this.sqlField = sqlField;
     }
 
     public String getAliasProperty() {
-        return Phrase.foo_bar(alias).fooBar;
+        return Phrase.foo_bar(sqlAlias).fooBar;
     }
 
-    public String getComponentProperty() {
-        return Phrase.foo_bar(component).fooBar;
+    public String getFieldProperty() {
+        return Phrase.foo_bar(sqlField).fooBar;
     }
 
     @Override
     public String toString() {
-        return String.format("alias %s, component %s", alias, component);
+        return String.format("alias %s, field %s", sqlAlias, sqlField);
     }
 
     private static final String K_ALIAS = "alias";
-    private static final String K_COMPONENT = "component";
+    private static final String K_FIELD = "field";
 
     @Override
     public void jsonIn(JsonObject o, JsonFormOptions opts)
             throws ParseException {
-        this.alias = o.getString(K_ALIAS);
-        this.component = o.getString(K_COMPONENT);
+        this.sqlAlias = o.getString(K_ALIAS);
+        this.sqlField = o.getString(K_FIELD);
     }
 
     @Override
     public void jsonOut(IJsonOut out, JsonFormOptions opts)
             throws IOException, FormatException {
-        out.entryNotNull(K_ALIAS, this.alias);
-        out.entryNotNull(K_COMPONENT, this.component);
+        out.entryNotNull(K_ALIAS, this.sqlAlias);
+        out.entryNotNull(K_FIELD, this.sqlField);
     }
 
 }

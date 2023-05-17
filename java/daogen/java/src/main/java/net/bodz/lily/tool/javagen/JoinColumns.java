@@ -48,31 +48,32 @@ public class JoinColumns
     }
 
     public void addAll(Collection<CrossReference> refs, boolean ignoreCase) {
-        for (CrossReference ref : refs)
-            add(ref, ignoreCase, defaultParentColumns);
+        for (CrossReference ref : refs) {
+            add(ref, ignoreCase);
+        }
     }
 
-    public void add(CrossReference ref, String... parentColumns) {
-        add(ref, ignoreCase, parentColumns);
+    public void add(CrossReference ref) {
+        add(ref, ignoreCase);
     }
 
-    public void add(CrossReference ref, boolean ignoreCase, String... parentColumns) {
-        add("", ref, ignoreCase, parentColumns);
+    public void add(CrossReference ref, boolean ignoreCase) {
+        add("", ref, ignoreCase);
     }
 
-    public void add(String prefix, CrossReference ref, String... parentColumns) {
-        add(prefix, ref, ignoreCase, parentColumns);
+    public void add(String prefix, CrossReference ref) {
+        add(prefix, ref, ignoreCase);
     }
 
-    public void add(String prefix, CrossReference ref, boolean ignoreCase, String... parentColumns) {
+    public void add(String prefix, CrossReference ref, boolean ignoreCase) {
         if (refAliasMap.containsKey(ref))
             throw new IllegalArgumentException("already added: " + ref);
 
-        String preferredAlias = settings.getPreferredAlias(ref);
-        String preferredParentAlias = Nullables.concat(prefix, preferredAlias);
+        String preferredSqlAlias = settings.getPreferredSqlAlias(ref);
+        String preferredParentSqlAlias = Nullables.concat(prefix, preferredSqlAlias);
         Integer seq = null;
         String parentAlias;
-        while (aliasMap.containsKey(parentAlias = concat(preferredParentAlias, seq)))
+        while (aliasMap.containsKey(parentAlias = concat(preferredParentSqlAlias, seq)))
             if (seq == null)
                 seq = 1;
             else
@@ -80,18 +81,15 @@ public class JoinColumns
         aliasMap.put(parentAlias, ref);
         refAliasMap.put(ref, parentAlias);
 
-        for (IColumnMetadata c : ref.getForeignColumns()) {
-            IColumnMetadata existing = foreignColumns.get(c.getName());
+        for (IColumnMetadata foreignColumn : ref.getForeignColumns()) {
+            IColumnMetadata existing = foreignColumns.get(foreignColumn.getName());
             if (existing != null)
                 throw new IllegalUsageException("foreign column is already used: " + existing);
-            foreignColumns.put(c.getName(), c);
+            foreignColumns.put(foreignColumn.getName(), foreignColumn);
         }
 
         ITableMetadata parent = ref.getParentTable();
-        for (String name : parentColumns) {
-            IColumnMetadata column = parent.getColumn(name, ignoreCase);
-            if (column == null)
-                continue; // just ignore non-existing parent columns
+        for (IColumnMetadata column : parent.getColumns()) {
             String parentColumnAlias = parentAlias + "_" + column.getName();
             AliasedColumn ac = new AliasedColumn(parentAlias, parentColumnAlias, column);
             aliasColumns.put(parentColumnAlias, ac);

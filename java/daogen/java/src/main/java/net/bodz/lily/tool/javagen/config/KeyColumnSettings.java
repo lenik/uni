@@ -1,7 +1,6 @@
 package net.bodz.lily.tool.javagen.config;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -41,7 +40,7 @@ public class KeyColumnSettings
         return null;
     }
 
-    public String getPreferredAlias(CrossReference ref) {
+    public String getPreferredSqlAlias(CrossReference ref) {
         String[] columnNames = ref.getForeignKey().getColumnNames();
         if (columnNames == null)
             return null;
@@ -49,31 +48,19 @@ public class KeyColumnSettings
         if (n == 0)
             return null;
         if (n == 1)
-            return getPreferredSingleColumnAlias(ref, columnNames[0]);
+            return getPreferredSingleColumnSqlAlias(ref, columnNames[0]);
         else
-            return getPreferredMultiColumnAlias(ref, columnNames);
+            return getPreferredMultiColumnSqlAlias(ref, columnNames);
     }
 
-    // column -> alias
-    static final Map<String, String> conventions = new HashMap<>();
-    static {
-        conventions.put("uid", "u");
-        conventions.put("gid", "g");
+    public String getPreferredSingleColumnSqlAlias(CrossReference ref, String column) {
+        KeyColumnNameInfo info = parseColumnByAnyFormat(column);
+        if (info != null)
+            return info.getSqlAlias();
+        return column;
     }
 
-    public String getPreferredSingleColumnAlias(CrossReference ref, String column) {
-        String alias = conventions.get(column);
-        if (alias == null) {
-            if (column.endsWith("_id") && column.length() > 3) {
-                alias = column.substring(0, column.length() - 3);
-            } else {
-                alias = column;
-            }
-        }
-        return alias;
-    }
-
-    public String getPreferredMultiColumnAlias(CrossReference ref, String[] columns) {
+    public String getPreferredMultiColumnSqlAlias(CrossReference ref, String[] columns) {
         return ref.getJavaName();
     }
 

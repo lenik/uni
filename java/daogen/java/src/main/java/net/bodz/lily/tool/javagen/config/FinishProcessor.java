@@ -175,7 +175,7 @@ public class FinishProcessor
             if (info != null) {
                 property = info.getAliasProperty();
                 fv[0].setProperty(info.getAliasProperty());
-                pv[0].setProperty(info.getComponentProperty());
+                pv[0].setProperty(info.getFieldProperty());
             }
         }
 

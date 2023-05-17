@@ -16,6 +16,9 @@ import net.bodz.bas.t.catalog.TableKey;
 public class VFooMapper__xml
         extends JavaGen__xml {
 
+    static final String SQLID_OBJLIST = "objlist_sql";
+    static final String SQLID_OBJEDIT = "objedit_sql";
+
     public VFooMapper__xml(JavaGenProject project) {
         super(project, project.FooMapper);
     }
@@ -32,17 +35,18 @@ public class VFooMapper__xml
             out.println();
             resultMap_objlist_map(out, table);
             out.println();
-            sql_objlist_sql(out, table);
+            // sql_objlist_sql(out, table, SQLID_OBJLIST);
+            sql_objedit_sql(out, table, SQLID_OBJLIST);
             out.println();
-            sql_objedit_sql(out, table);
+            sql_objedit_sql(out, table, SQLID_OBJEDIT);
             out.println();
             sql_filtconds(out, table);
             out.println();
-            select_all(out, table);
+            select_all(out, table, SQLID_OBJLIST);
             out.println();
-            select_filter(out, table);
+            select_filter(out, table, SQLID_OBJLIST);
             out.println();
-            select(out, table);
+            select(out, table, SQLID_OBJEDIT);
             out.println();
             select_count(out, table);
             out.println();
@@ -94,12 +98,12 @@ public class VFooMapper__xml
                 boolean defaultNs = mapperNs.equals(project.FooMapper.getFullName());
                 String nsPrefix = defaultNs ? "" : (mapperNs + ".");
 
-                out.printf("<association property=\"%s\" javaType=\"%s\" resultMap=\"%s\" columnPrefix=\"%s\" />\n", //
+                out.printf("<association property=\"%s\" columnPrefix=\"%s\"\n", //
                         ref.getJavaName(), // property
-                        parent.getJavaQName(), // javaType
-                        nsPrefix + "objlist_map", // resultMap.id
                         alias + "_" // columnPrefix
                 );
+                out.printf("    javaType=\"%s\" \n", ref.getParentTable().getJavaQName());
+                out.printf("    resultMap=\"%s\" />\n", nsPrefix + "objlist_map");
             }
 
             out.leave();
@@ -125,9 +129,9 @@ public class VFooMapper__xml
                 tag, templates.toProperty(column), cname.column);
     }
 
-    void sql_objlist_sql(XmlSourceBuffer out, ITableMetadata table) {
+    void sql_objlist_sql(XmlSourceBuffer out, ITableMetadata table, String id) {
         List<IColumnMetadata> columns = getIncludedColumns(table.getColumns());
-        out.println("<sql id=\"objlist_sql\"><![CDATA[");
+        out.printf("<sql id=\"%s\"><![CDATA[\n", id);
         out.enter();
         {
             out.println("select");
@@ -145,12 +149,12 @@ public class VFooMapper__xml
         out.println("</sql>");
     }
 
-    void sql_objedit_sql(XmlSourceBuffer out, ITableMetadata table) {
+    void sql_objedit_sql(XmlSourceBuffer out, ITableMetadata table, String id) {
         List<IColumnMetadata> columns = getIncludedColumns(table.getColumns());
         JoinColumns j = new JoinColumns(project.config);
         j.addTable(table);
 
-        out.println("<sql id=\"objedit_sql\"><![CDATA[");
+        out.printf("<sql id=\"%s\"><![CDATA[\n", id);
         out.enter();
         {
             out.println("select");
@@ -224,22 +228,22 @@ public class VFooMapper__xml
         out.println("</sql>");
     }
 
-    void select_all(XmlSourceBuffer out, ITableMetadata table) {
+    void select_all(XmlSourceBuffer out, ITableMetadata table, String sqlId) {
         out.println("<select id=\"all\" resultMap=\"objlist_map\">");
         out.enter();
         {
-            out.println("<include refid=\"objlist_sql\" />");
+            out.printf("<include refid=\"%s\" />\n", sqlId);
             out.println("<include refid=\"co.opts\" />");
             out.leave();
         }
         out.println("</select>");
     }
 
-    void select_filter(XmlSourceBuffer out, ITableMetadata table) {
+    void select_filter(XmlSourceBuffer out, ITableMetadata table, String sqlId) {
         out.println("<select id=\"filter\" resultMap=\"objlist_map\">");
         out.enter();
         {
-            out.println("<include refid=\"objlist_sql\" />");
+            out.printf("<include refid=\"%s\" />\n", sqlId);
             out.println("<where>");
             out.enter();
             {
@@ -253,11 +257,11 @@ public class VFooMapper__xml
         out.println("</select>");
     }
 
-    void select(XmlSourceBuffer out, ITableMetadata table) {
+    void select(XmlSourceBuffer out, ITableMetadata table, String sqlId) {
         out.println("<select id=\"select\" resultMap=\"objlist_map\">");
         out.enter();
         {
-            out.println("<include refid=\"objedit_sql\" />");
+            out.printf("<include refid=\"%s\" />\n", sqlId);
             out.println("<where>");
             out.enter();
             {
