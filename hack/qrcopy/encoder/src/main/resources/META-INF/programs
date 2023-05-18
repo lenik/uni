@@ -1,1 +1,2 @@
+main base45d = net.bodz.uni.qrcopy.Base45Decoder
 main qrcopy = net.bodz.uni.qrcopy.QREncoder

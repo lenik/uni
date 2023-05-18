@@ -14,6 +14,7 @@ import java.util.Hashtable;
 import javax.imageio.ImageIO;
 
 import net.bodz.bas.c.string.Strings;
+import net.bodz.bas.data.util.Crc32;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.ProgramName;
@@ -62,7 +63,7 @@ public class QREncoder
      *
      * @option --ec-level -e =LEVEL
      */
-    ErrorCorrectionLevel ecLevel = ErrorCorrectionLevel.M;
+    ErrorCorrectionLevel ecLevel = ErrorCorrectionLevel.H;
 
     /**
      * Specify the output file name template.
@@ -88,7 +89,8 @@ public class QREncoder
             convert(System.in, "-", Integer.MAX_VALUE);
         else {
             File outDir = new File(outputName).getParentFile();
-            outDir.mkdirs();
+            if (outDir != null)
+                outDir.mkdirs();
 
             for (String arg : args) {
                 File file = new File(arg);
@@ -102,9 +104,9 @@ public class QREncoder
 
     void convert(InputStream in, String name, long maxSize)
             throws WriterException, IOException {
-        int blockSize = getBlockSize();
+        final int blockSize = getBlockSize();
 
-        int headerSize = 4;
+        int headerSize = 8;
         int fileBlockSize = blockSize - headerSize;
         long maxBlocks = maxSize / fileBlockSize;
         logger.debug("file block size: " + fileBlockSize);
@@ -126,17 +128,25 @@ public class QREncoder
         int cbRead;
         int index = 0;
         while ((cbRead = in.read(block, off, blockSize - off)) != -1) {
-            writeHeader(block, index);
+            int end = off + cbRead;
+
+            writeInt(block, 0, index);
+
+            // Cryptos.sha1(block, 0, encodeSize);
+            Crc32 crc32 = new Crc32();
+            crc32.update(block, headerSize, end - headerSize);
+            int crc = crc32.getValue();
+            writeInt(block, 4, crc);
+
+            String base45 = Base45Encoder.encodeToBase45QrPayload( //
+                    block, 0, end);
+            int base45Bytes = base45.length() * 11 / 2 / 8;
 
             String seq = (zeros + index);
             seq = seq.substring(seq.length() - seqWidth);
             File file = new File(outputName + "-" + seq + "." + format);
 
-            String base45 = Base45Encoder.encodeToBase45QrPayload( //
-                    block, 0, off + cbRead);
-
-            logger.info("Generate block[%d]: %s", index, base45);
-
+            logger.infof("Generate block %d / %d (crc %x)", index, maxBlocks, crc);
             byte[] imageData = createQRImage(base45);
 
             Files.write(file.toPath(), imageData);
@@ -145,10 +155,13 @@ public class QREncoder
         }
     }
 
-    void writeHeader(byte[] buf, int index) {
+    /**
+     * big-endian.
+     */
+    void writeInt(byte[] buf, int off, int data) {
         for (int i = 0; i < 4; i++) {
-            buf[i] = (byte) (index & 0xFF);
-            index >>= 8;
+            buf[off + 4 - i - 1] = (byte) (data & 0xFF);
+            data >>= 8;
         }
     }
 
@@ -179,7 +192,8 @@ public class QREncoder
             throws WriterException, IOException {
 
         // Create the ByteMatrix for the QR-Code that encodes the given String
-        Hashtable<EncodeHintType, ErrorCorrectionLevel> hintMap = new Hashtable<>();
+        Hashtable<EncodeHintType, Object> hintMap = new Hashtable<>();
+        hintMap.put(EncodeHintType.QR_VERSION, getQRVersion());
         hintMap.put(EncodeHintType.ERROR_CORRECTION, ecLevel);
 
         QRCodeWriter qrCodeWriter = new QRCodeWriter();

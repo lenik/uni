@@ -13,7 +13,7 @@ public class QRCopyModuleInit
     @Override
     public void setupBuilder(ConfigurationBuilder<? extends Configuration> builder) {
         builder.add(builder.newLogger("net.bodz", Level.INFO));
-        builder.add(builder.newLogger("net.bodz.uni", Level.DEBUG));
+        builder.add(builder.newLogger("net.bodz.uni", Level.INFO));
     }
 
 }

@@ -166,6 +166,7 @@ public class Base45Encoder {
             int numB45Digits = BINARY_TO_BASE45_DIGIT_COUNT_CONVERSION[x];
             BASE45_TO_BINARY_DIGIT_COUNT_CONVERSION.put(numB45Digits, x);
         }
+        BASE45_TO_BINARY_DIGIT_COUNT_CONVERSION.put(4, 3);
     }
 
     public static String encodeToBase45QrPayload(byte[] inputData)
@@ -287,7 +288,13 @@ public class Base45Encoder {
 
             // Write out in higher base
             final LinkedList<Byte> outputChunkBuffer = new LinkedList<>();
-            final int numBytes = BASE45_TO_BINARY_DIGIT_COUNT_CONVERSION.get(numB45Digits);
+            final Integer _NumBytes = BASE45_TO_BINARY_DIGIT_COUNT_CONVERSION.get(numB45Digits);
+            int numBytes;
+            if (_NumBytes == null)
+                numBytes = 0;
+            else
+                numBytes = _NumBytes;
+
             int numBytesProcessed = 0;
             while (numBytesProcessed < numBytes) {
                 // Chunk out 1 byte
