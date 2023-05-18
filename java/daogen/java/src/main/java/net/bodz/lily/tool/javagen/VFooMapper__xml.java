@@ -335,7 +335,7 @@ public class VFooMapper__xml
             hasRange = true;
 
             if (hasMain) {
-                out.printf("<if test=\"m.%s != null\">and %s = #{m.%s}</if>\n", //
+                out.printf("<if test=\"m.%s != null\">and a.%s = #{m.%s}</if>\n", //
                         maskProperty, cname.columnQuoted, maskProperty);
             }
 
@@ -360,10 +360,10 @@ public class VFooMapper__xml
             hasPattern = true;
 
             if (hasMain)
-                out.printf("<if test=\"m.%s != null\">and %s = #{m.%s}</if>\n", //
+                out.printf("<if test=\"m.%s != null\">and a.%s = #{m.%s}</if>\n", //
                         maskProperty, cname.columnQuoted, maskProperty);
             if (hasPattern)
-                out.printf("<if test=\"m.%sPattern != null\">and %s like '${m.%sPattern}'</if>\n", //
+                out.printf("<if test=\"m.%sPattern != null\">and a.%s like '${m.%sPattern}'</if>\n", //
                         maskProperty, cname.columnQuoted, maskProperty);
             break;
 
@@ -375,7 +375,7 @@ public class VFooMapper__xml
         case TypeId._boolean:
         case TypeId.BOOLEAN:
         default:
-            out.printf("<if test=\"m.%s != null\">and %s = #{m.%s}</if>\n", //
+            out.printf("<if test=\"m.%s != null\">and a.%s = #{m.%s}</if>\n", //
                     maskProperty, cname.columnQuoted, maskProperty);
         }
     }
