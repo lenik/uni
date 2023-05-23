@@ -26,6 +26,7 @@
     option -j --search-jars             "Search program aliases in jars"
     option -p --port =PORT              "Specify debug (JDWP) port, default 8000"
     option -P --profiler                "Run profiler for the app"
+    option -J --jprofiler-dir =DIR      "Specify the JProfiler installation dir"
     option -r --project-dir =DIR        "Specify the project dir(s)"
     option -t --timing                  "Measure how long the program has been running"
     option -q --quiet
@@ -46,7 +47,7 @@
     cp_extraitems=()
     cp_items=()
     cp_dirs=()
-    declare -A cp_item_uniq=()
+    declare -A cp_item_counter=()
 
     opt_assert=
     opt_class=0
@@ -56,6 +57,7 @@
     opt_search_jars=
     opt_port=8000
     opt_profiler=
+    opt_jprofile_dir=
     opt_timing=
 
     opt_javaopts=()
@@ -92,7 +94,10 @@ function setopt() {
         -p|--jdwp-port)
             opt_port=$2;;
         -P|--profiler)
+            opt_debug=1
             opt_profiler=1;;
+        -J|--jprofiler-dir)
+            opt_jprofiler_dir="$2";;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -149,7 +154,11 @@ function main() {
         stdjavaopt "-agentlib:jdwp=$JDWPOPTS"
 
         if [ -f "classpath.debug.lst" ]; then
-            classpath_lists=(classpath.debug.lst "${classpath_lists[@]}")
+            classpath_lists+=(classpath.debug.lst)
+        fi
+    else
+        if [ -f "clssspath.release.lst" ]; then
+            classpath_lists+=(classpath.release.lst)
         fi
     fi
 
@@ -167,13 +176,14 @@ function main() {
         done
     fi
 
-    dirs=()
-    for d in "${project_dirs[@]}"; do
-        d=$(readlink -f "$d")
-        _log2 "project dir: $d"
-        dirs+=("$d")
-    done
-    project_dirs=("${dirs[@]}")
+    # convert to absolute paths
+        dirs=()
+        for d in "${project_dirs[@]}"; do
+            d=$(readlink -f "$d")
+            _log2 "project dir: $d"
+            dirs+=("$d")
+        done
+        project_dirs=("${dirs[@]}")
 
     stdjavaopt $JAVAOPTS
 
@@ -200,11 +210,12 @@ function main() {
                         if [ "${item:0:1}" = / ]; then
                             item_full="$item"
                         else
-                            item_full="$projdir/$item"
+                            item_full=$(path_join "$projdir" "$item")
                         fi
                         add_cp "$item_full"
                         ((n_valid_item++))
                     done <"$projdir/$lst"
+                    break
                 fi
             done
 
@@ -265,12 +276,14 @@ function main() {
     fi
 
     RLWRAP=
-    for rl in readline-editor rlwrap; do
-        if which $rl >/dev/null; then
-            RLWRAP=$rl
-            break
-        fi
-    done
+    if [ -z "$opt_profiler" ]; then
+        for rl in readline-editor rlwrap; do
+            if which $rl >/dev/null; then
+                RLWRAP=$rl
+                break
+            fi
+        done
+    fi
 
     _log2 "Execute:$TIME $RLWRAP $JAVA -cp ... ${javaopts[@]} $appcls ${appopts[@]} $*"
     cmdv=($TIME $RLWRAP $JAVA -cp "$classpath" "${javaopts[@]}" "$appcls" "${appopts[@]}" "$@")
@@ -326,8 +339,128 @@ function main() {
             ;;
         esac
     else
-        exec-v "${cmdv[@]}"
+        if [ "$opt_profiler" = 1 ]; then
+            local script_pid=$$
+            _log2 "script_pid=$script_pid"
+            (
+                sleepenh 0.01 >/dev/null
+                #ps -f --ppid="$script_pid" #-Cjava
+                while read _pid _tty _time _cmd; do
+                    if [ "$_cmd" = java ]; then
+                        _log1 "found the child java process $_pid. profiler on it."
+                        profiler "$_pid"
+                        exit 0
+                    fi
+                done < <( ps --no-header --ppid="$script_pid" )
+                _error "not found the child java process to profiler"
+            ) &
+            exec-v "${cmdv[@]}"
+        else
+            exec-v "${cmdv[@]}"
+        fi
     fi
+}
+
+function path_join() {
+    local ctx="$1"
+    local other="$2"
+    ctx="${ctx%/}"
+    while [ "${other:0:3}" = '../' ]; do
+        local parent="${ctx%/*}"
+        if [ "$parent" = "$ctx" ]; then # "."
+            break
+        fi
+        ctx="$parent"
+        other="${other#../}"
+    done
+    echo "$ctx/$other"
+}
+
+function profiler() {
+    local pid="$1"
+    local jprofiler_dir="$opt_jprofiler_opt"
+    if [ -z "$jprofiler_dir" ]; then
+        IFS=$'\n'
+        for bin in $(find /opt/ -maxdepth 4 -name jprofiler); do
+            if [ -x "$bin" ]; then
+                local jprofiler_bin="$bin"
+            fi
+        done
+        if [ -x "$bin" ]; then
+            _log1 "found jprofiler bin: $jprofiler_bin"
+        else
+            quit "can't find jprofiler. specify one with --jprofiler-dir please."
+        fi
+        jprofiler_dir=${jprofiler_bin%/bin/jprofiler}
+    fi
+
+    for name in jpenable jpanalyze jpcontroller jpexport; do
+        local -n var=${name}_bin
+        var=${jprofiler_dir}/bin/$name
+        if [ -x "$var" ]; then
+            _log2 "found $name bin: $var"
+        else
+            quit "can't find $name."
+        fi
+    done
+    
+    local app_name="${PWD##*/}"
+    local config_dir="$PWD"
+    local config_file="$config_dir/$app_name.jprofilerConfig"
+    jprofiler_mkconfig "$config_file" "$app_name"
+
+    _log1 "JProfiler enable on java process(pid=$pid)"
+    if ! $jpenable_bin --offline --pid="$pid" --config="$config_file"; then
+        _error "failed to enable profiler agent on process $pid."
+        _error "    maybe the process is already enabled? (error ignored)"
+    fi
+
+    for tmpdir in /xxx /tmp .; do
+        if [ -d $tmpdir ]; then
+            local snapshot_file=$(mktemp --tmpdir=$tmpdir --suffix=.jps snapshot-XXXXXXXX)
+            break
+        fi
+    done
+    ln -snf $snapshot_file ./latest-snapshot.jps
+
+    _log1 "Control the jprofiler agent, start recording CPU data and memory allocations."
+    _log1 "    The snapshot file will be saved at $snapshot_file,"
+    _log1 "    You can also access it with the shortcut ./latest-snapshot.jps"
+    $jpcontroller_bin -n "$pid" << EOT
+addBookmark "Startup"
+startCPURecording true
+startAllocRecording true
+saveSnapshotOnExit $snapshot_file
+EOT
+}
+
+function jprofiler_mkconfig() {
+    local config_file="$1"
+    local app_name="$2"
+
+    _log1 "Generate jprofiler config file $config_file"
+    echo -n > "$config_file"
+    fprint $config_file "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+    fprint $config_file "<config version=\"12.0.2\">"
+    fprint $config_file "  <sessions>"
+    fprint $config_file "    <session id=\"200\" name=\"$app_name\" type=\"launch\" mainClass=\"$appcls\" methodCallRecordingType=\"instrumentation\" recordArrayAlloc=\"true\">"
+    fprint $config_file "      <filters>"
+    fprint $config_file "        <group type=\"exclusive\" name=\"Default excludes\" template=\"defaultExcludes\" />"
+    fprint $config_file "      </filters>"
+    fprint $config_file "      <classPath>"
+	for item in "${cp_items[@]}"; do
+        fprint $config_file "          <entry path=\"$item\" />"
+    done
+    fprint $config_file "      </classPath>"
+    fprint $config_file "    </session>"
+    fprint $config_file "  </sessions>"
+    fprint $config_file "</config>"
+}
+
+function fprint() {
+	local file="$1"
+	shift
+	echo "$*" >> $file
 }
 
 function scan_item() {
@@ -359,6 +492,9 @@ function scan_item() {
     if [ ${#qname[@]} = 0 ]; then
         if [ -d "$item" ]; then
             local item_len=${#item}
+            _log2 "search $app_name.class in directory $item/"
+                find "$item" -iname "$app_name.class"
+                echo
             for a in $(find "$item" -iname "$app_name.class"); do
                 a="${a[0]}"
                 a=${a:item_len + 1}     # +1: trailing /
@@ -367,7 +503,7 @@ function scan_item() {
                 qname+=("$a")
             done
         elif [ "$opt_search_jars" = 1 ]; then
-            _log2 "search $app_name.class in $item ..."
+            _log2 "search $app_name.class in archive $item"
             local app_name_len=${#app_name}
             while read a; do
                 a="${a%.class}"
@@ -387,6 +523,11 @@ function exec-v() {
     "$@"
 }
 
+function exec-bg() {
+    #echoli "$@"
+    "$@" &
+}
+
 function do_timing() {
     time "$@"
 }
@@ -394,24 +535,27 @@ function do_timing() {
 function add_cp() {
     local a
     for a in "$@"; do
-        if [ -d "$a" ]; then
-            _log2 "add-classpath: $a (dir)"
-            cp_dirs+=("$a")
-            cp_items+=("$a")
-            classpath="$classpath:$a"
+        a=${a%/}
+        local base="${a##*/}"
+        local -n counter="cp_item_counter[$a]"
+
+        if [ -z "$counter" ]; then
+            counter=1
         else
-            local base="${a##*/}"
-            local var="cp_item_uniq[$base]"
-            if [ "${!var}" = 1 ]; then
-                # already used.
-                _log2 "ignore-classpath: $a"
-            else
-                _log2 "add-classpath: $a"
-                cp_items+=("$a")
-                classpath="$classpath:$a"
-                cp_item_uniq[$base]=1
-            fi
+            ((counter++))
+            # already used.
+            _log2 "    ignore($counter): $a"
+            continue
         fi
+
+        if [ -d "$a" ]; then
+            _log2 "    add: $a/ (dir)"
+            cp_dirs+=("$a")
+        else
+            _log2 "    add: $a"
+        fi
+        cp_items+=("$a")
+        classpath="$classpath:$a"
     done
 }
 
