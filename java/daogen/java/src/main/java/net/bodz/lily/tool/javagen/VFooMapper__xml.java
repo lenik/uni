@@ -11,6 +11,8 @@ import net.bodz.bas.codegen.XmlSourceBuffer;
 import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.bas.t.catalog.ITableUsage;
+import net.bodz.bas.t.catalog.IViewMetadata;
 import net.bodz.bas.t.catalog.TableKey;
 
 public class VFooMapper__xml
@@ -265,13 +267,74 @@ public class VFooMapper__xml
             out.println("<where>");
             out.enter();
             {
-                out.println("<if test=\"_parameter != null\">a.id = #{id}</if>");
+                out.printf("<if test=\"_parameter != null\">");
+                IColumnMetadata[] kv = table.getPrimaryKeyColumns();
+                if (kv.length == 0) {
+                    kv = getIdColumnsFromUsageInfo(table);
+                    if (kv == null) {
+                        IColumnMetadata idColumn = getDefaultSingleIdColumn(table);
+                        if (idColumn != null)
+                            kv = new IColumnMetadata[] { idColumn };
+                        else
+                            kv = new IColumnMetadata[0]; // { table.getColumn(0) };
+                    }
+                }
+                if (kv.length == 1) {
+                    IColumnMetadata keyColumn = kv[0];
+                    out.printf("a.%s = #{id}", //
+                            DialectFn.quoteName(keyColumn.getName()));
+                } else {
+                    for (int i = 0; i < kv.length; i++) {
+                        IColumnMetadata keyColumn = kv[i];
+                        out.printf("a.%s = #{id.%s}", //
+                                DialectFn.quoteName(keyColumn.getName()), //
+                                keyColumn.getJavaName());
+                    }
+                }
+                out.printf("</if>\n");
                 out.leave();
             }
             out.println("</where>");
             out.leave();
         }
         out.println("</select>");
+    }
+
+    IColumnMetadata[] getIdColumnsFromUsageInfo(ITableMetadata _view) {
+        IViewMetadata view = (IViewMetadata) _view;
+        L: for (ITableUsage tableUsage : view.getTableUsages()) {
+            Set<String> columnUsage = new HashSet<>(tableUsage.getColumns());
+
+            ITableMetadata parent = _view.getCatalog().getTable(tableUsage.getTableId());
+            if (parent == null) {
+                logger.warn("referenced table isn't loaded: " + tableUsage.getTableId());
+                continue;
+            }
+
+            IColumnMetadata[] parentKV = parent.getPrimaryKeyColumns();
+            for (IColumnMetadata c : parentKV)
+                if (!columnUsage.contains(c.getName()))
+                    continue L;
+
+            // all primary key columns are included in the view.
+            IColumnMetadata[] kv = new IColumnMetadata[parentKV.length];
+            for (int i = 0; i < kv.length; i++) {
+                String name = kv[i].getName();
+                kv[i] = _view.getColumn(name);
+            }
+            return kv;
+        }
+        return null;
+    }
+
+    IColumnMetadata getDefaultSingleIdColumn(ITableMetadata table) {
+        String[] idColumnNames = { "id", "uuid", "guid", };
+        for (String name : idColumnNames) {
+            IColumnMetadata column = table.getColumn(name);
+            if (column != null)
+                return column;
+        }
+        return null;
     }
 
     void select_count(XmlSourceBuffer out, ITableMetadata table) {
