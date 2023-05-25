@@ -27,6 +27,7 @@
     option -p --port =PORT              "Specify debug (JDWP) port, default 8000"
     option -P --profiler                "Run profiler for the app"
     option -J --jprofiler-dir =DIR      "Specify the JProfiler installation dir"
+    option -k --keep                    "Keep intermediate files for debugging"
     option -r --project-dir =DIR        "Specify the project dir(s)"
     option -t --timing                  "Measure how long the program has been running"
     option -q --quiet
@@ -50,7 +51,7 @@
     declare -A cp_item_counter=()
 
     opt_assert=
-    opt_class=0
+    opt_is_class=0
     opt_debug=
     opt_codegen=
     opt_codelang=sh
@@ -58,7 +59,9 @@
     opt_port=8000
     opt_profiler=
     opt_jprofile_dir=
+    opt_keep=0
     opt_timing=
+    opt_tmpdir=/tmp
 
     opt_javaopts=()
     opt_props=()
@@ -72,7 +75,7 @@ function setopt() {
         -A|--no-assert)
             opt_assert=0;;
         -c|--class)
-            opt_class=1;;
+            opt_is_class=1;;
         -i|--cp-item)
             cp_extraitems+=("$2");;
         -d|--debug)
@@ -91,6 +94,8 @@ function setopt() {
             opt_javaopts+=("$2");;
         -j|--search-jars)
             opt_search_jars=1;;
+        -k|--keep)
+            opt_keep=1;;
         -p|--jdwp-port)
             opt_port=$2;;
         -P|--profiler)
@@ -122,6 +127,14 @@ function alljavaopt() {
 }
 
 function main() {
+    local tmpdir
+    for tmpdir in /xxx /tmp .; do
+        if [ -d $tmpdir ]; then
+            opt_tmpdir="$tmpdir"
+            break
+        fi
+    done
+
     _log2 "alias mode: $alias_mode"
     if [ -z "$app_name" ]; then
         if [ -z "$1" ]; then
@@ -133,12 +146,13 @@ function main() {
         shift
 
         if [ "${app_name/./}" != "$app_name" ]; then
-            opt_class=1
+            _log2 "specified the app by qualified name: $app_name"
+            opt_is_class=1
         fi
     fi
     _log2 "exe: $exe"
     _log2 "exe dir: $exe_dir"
-    _log2 "app name: $app_name"
+    _log2 "app name: $app_name (is_class=$opt_is_class)"
 
     if [ "$opt_debug" = 1 ]; then
         JDWPOPTS="transport=dt_socket"
@@ -234,33 +248,39 @@ function main() {
         done
         classpath="${classpath#:}"
 
-    if [ "$opt_class" != 1 ]; then
-        # Defined in bas-api
-        appcls=net.bodz.bas.program.ProgramLauncher
+    if [ "$opt_is_class" = 1 ]; then
+        # Use ProgramLauncher to support applications not in `main(String[])` form.
+        app_class=net.bodz.bas.program.ProgramLauncher # defined in bas-api
         appopts+=("$app_name")
     else
-        appcls=()
+        app_classes=()
             if [ "${app_name/./}" != "${app_name}" ]; then # qualified.
-                appcls+=( "$app_name" )
+                app_classes+=( "$app_name" )
             fi
 
             for item in "${cp_items[@]}"; do
-                appcls+=( $(scan_item "$item") )
-                #appcls+=( "${qname[@]}" )
+                local -a v
+                v=( $(scan_item "$item") )
+                if [ ${#v[@]} != 0 ]; then
+                    _log2 "found ${v[@]} in $item"
+                    app_classes+=( "${v[@]}" )
+                fi
+                #app_classes+=( "${qname[@]}" )
             done
 
-        n=${#appcls[@]}
+        n=${#app_classes[@]}
         if [ $n != 1 ]; then
             if [ $n = 0 ]; then
                 _error "No such app: $app_name"
             else
                 _error "Name ambiguous:"
-                for a in "${appcls[@]}"; do
+                for a in "${app_classes[@]}"; do
                     _error "    $a"
                 done
             fi
             exit 1
         fi
+        app_class=$app_classes
     fi
 
     TIME=
@@ -285,8 +305,21 @@ function main() {
         done
     fi
 
-    _log2 "Execute:$TIME $RLWRAP $JAVA -cp ... ${javaopts[@]} $appcls ${appopts[@]} $*"
-    cmdv=($TIME $RLWRAP $JAVA -cp "$classpath" "${javaopts[@]}" "$appcls" "${appopts[@]}" "$@")
+    cp_args=$(mktemp --tmpdir=$opt_tmpdir --suffix=.opts java-XXXXXXXX)
+        function rm_cp_args() {
+            if [ "$opt_keep" = 1 ]; then return 0; fi
+            _log2 "Remove $cp_args"
+            rm -f "$cp_args"
+        }
+        trap rm_cp_args EXIT
+
+        echo -n >$cp_args
+        #for item in "${cp_items[@]}"; do
+        fprint $cp_args "-cp"
+        fprint $cp_args "$classpath"
+
+    _log2 "Execute:$TIME $RLWRAP $JAVA @$cp_args ${javaopts[@]} $app_class ${appopts[@]} $*"
+    cmdv=($TIME $RLWRAP $JAVA @"$cp_args" "${javaopts[@]}" "$app_class" "${appopts[@]}" "$@")
     if [ "$opt_codegen" = 1 ]; then
         case "$opt_codelang" in
         *)
@@ -321,7 +354,7 @@ function main() {
                 echo "        -cp \"\$cp\" \\"
             fi
 
-            echo "        \"$appcls\" \\"
+            echo "        \"$app_class\" \\"
 
             if [ ${#appopts[@]} != 0 ]; then
                 echo -n "       "
@@ -415,12 +448,8 @@ function profiler() {
         _error "    maybe the process is already enabled? (error ignored)"
     fi
 
-    for tmpdir in /xxx /tmp .; do
-        if [ -d $tmpdir ]; then
-            local snapshot_file=$(mktemp --tmpdir=$tmpdir --suffix=.jps snapshot-XXXXXXXX)
-            break
-        fi
-    done
+    local snapshot_file=$(mktemp --tmpdir=$opt_tmpdir \
+        --suffix=.jps snapshot-XXXXXXXX)
     ln -snf $snapshot_file ./latest-snapshot.jps
 
     _log1 "Control the jprofiler agent, start recording CPU data and memory allocations."
@@ -443,7 +472,7 @@ function jprofiler_mkconfig() {
     fprint $config_file "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
     fprint $config_file "<config version=\"12.0.2\">"
     fprint $config_file "  <sessions>"
-    fprint $config_file "    <session id=\"200\" name=\"$app_name\" type=\"launch\" mainClass=\"$appcls\" methodCallRecordingType=\"instrumentation\" recordArrayAlloc=\"true\">"
+    fprint $config_file "    <session id=\"200\" name=\"$app_name\" type=\"launch\" mainClass=\"$app_class\" methodCallRecordingType=\"instrumentation\" recordArrayAlloc=\"true\">"
     fprint $config_file "      <filters>"
     fprint $config_file "        <group type=\"exclusive\" name=\"Default excludes\" template=\"defaultExcludes\" />"
     fprint $config_file "      </filters>"
@@ -492,9 +521,7 @@ function scan_item() {
     if [ ${#qname[@]} = 0 ]; then
         if [ -d "$item" ]; then
             local item_len=${#item}
-            _log2 "search $app_name.class in directory $item/"
-                find "$item" -iname "$app_name.class"
-                echo
+            _log3 "search $app_name.class in directory $item/"
             for a in $(find "$item" -iname "$app_name.class"); do
                 a="${a[0]}"
                 a=${a:item_len + 1}     # +1: trailing /
@@ -544,15 +571,15 @@ function add_cp() {
         else
             ((counter++))
             # already used.
-            _log2 "    ignore($counter): $a"
+            _log3 "    ignore($counter): $a"
             continue
         fi
 
         if [ -d "$a" ]; then
-            _log2 "    add: $a/ (dir)"
+            _log3 "    add: $a/ (dir)"
             cp_dirs+=("$a")
         else
-            _log2 "    add: $a"
+            _log3 "    add: $a"
         fi
         cp_items+=("$a")
         classpath="$classpath:$a"
