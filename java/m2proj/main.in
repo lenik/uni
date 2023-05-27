@@ -502,7 +502,10 @@ function scan_item() {
     if [ -d "$item" ]; then
         local programs="$item/META-INF/programs"
         if [ -f $programs ]; then
-            while IFS='= ' read _key _scope _cls; do
+            _log3 "search entry $app_name in file $programs"
+            # main bar = foo.Bar
+            while IFS='= ' read _scope _key _cls; do
+                _log4 "    scope $_scope, key $_key, cls $_cls"
                 if [ "$_key" = "$app_name" ]; then
                     qname+=("$_cls")
                 fi
@@ -510,7 +513,8 @@ function scan_item() {
         fi
     elif [ "$opt_search_jars" = 1 ]; then
         _log2 "search META-INF/programs in $item ..."
-        while IFS='= ' read _key _scope _cls; do
+        while IFS='= ' read _scope _key _cls; do
+            _log4 "    scope $_scope, key $_key, cls $_cls"
             if [ "$_key" = "$app_name" ]; then
                 qname+=("$_cls")
             fi
