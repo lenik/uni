@@ -1,8 +1,11 @@
 package net.bodz.lily.tool.javagen;
 
+import java.sql.DatabaseMetaData;
 import java.util.List;
 
 import net.bodz.bas.codegen.XmlSourceBuffer;
+import net.bodz.bas.t.catalog.CrossReference;
+import net.bodz.bas.t.catalog.ICatalogMetadata;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 
@@ -50,6 +53,13 @@ public class FooMapper__xml
             out.println();
             select_count(out, table);
             out.println();
+
+            if (deleteXrefs(out, table))
+                out.println();
+
+            if (createXrefs(out, table))
+                out.println();
+
             out.leave();
         }
         out.println("</mapper>");
@@ -145,6 +155,87 @@ public class FooMapper__xml
 
         }
         out.leaveln("</delete>");
+    }
+
+    boolean deleteXrefs(XmlSourceBuffer out, ITableMetadata table) {
+        ICatalogMetadata catalog = table.getCatalog();
+        List<CrossReference> xrefs = catalog.findCrossReferences(table.getId());
+        if (xrefs.isEmpty())
+            return false;
+
+        out.enterln("<update id=\"delete_xrefs\">");
+        {
+            for (CrossReference xref : xrefs) {
+                out.printf("alter table %s drop constraint %s;\n", //
+                        DialectFn.quoteQName(xref.getForeignKey().getId()), //
+                        DialectFn.quoteName(xref.getConstraintName()));
+            }
+        }
+        out.leaveln("</update>");
+        return true;
+    }
+
+    boolean createXrefs(XmlSourceBuffer out, ITableMetadata table) {
+        ICatalogMetadata catalog = table.getCatalog();
+        List<CrossReference> xrefs = catalog.findCrossReferences(table.getId());
+        if (xrefs.isEmpty())
+            return false;
+
+        out.enterln("<update id=\"create_xrefs\">");
+        {
+            for (CrossReference xref : xrefs) {
+                out.printf("alter table %s\n", //
+                        DialectFn.quoteQName(xref.getForeignKey().getId()));
+                out.enter();
+
+                // add constraint _ foreign key (c1, c2, ...)
+                out.printf("add constraint %s foreign key (", //
+                        DialectFn.quoteName(xref.getConstraintName()));
+                int i = 0;
+                for (IColumnMetadata foreignColumn : xref.getForeignColumns()) {
+                    if (i != 0)
+                        out.print(", ");
+                    out.print(DialectFn.quoteName(foreignColumn.getName()));
+                }
+                out.println(")");
+
+                // references PARENT(p1, p2, ...)
+                i = 0;
+                out.printf("references %s (", //
+                        DialectFn.quoteQName(xref.getParentKey().getId()));
+                for (IColumnMetadata parentColumn : xref.getParentColumns()) {
+                    if (i != 0)
+                        out.print(", ");
+                    out.print(DialectFn.quoteName(parentColumn.getName()));
+                }
+                out.println(")");
+
+                // on update cascade
+                switch (xref.getUpdateRule()) {
+                case DatabaseMetaData.importedKeyCascade:
+                    out.println("on update cascade");
+                    break;
+                }
+
+                // on delete cascade
+                switch (xref.getDeleteRule()) {
+                case DatabaseMetaData.importedKeyCascade:
+                    out.println("on delete cascade");
+                    break;
+                case DatabaseMetaData.importedKeySetDefault:
+                    out.println("on delete set default");
+                    break;
+                case DatabaseMetaData.importedKeySetNull:
+                    out.println("on delete set null");
+                    break;
+                }
+
+                out.println(";");
+                out.leave();
+            }
+        }
+        out.leaveln("</update>");
+        return true;
     }
 
 }

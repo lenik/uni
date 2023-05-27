@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import net.bodz.bas.c.string.StringQuote;
+import net.bodz.bas.t.catalog.TableOid;
 
 public class DialectFn {
 
@@ -26,9 +27,26 @@ public class DialectFn {
             String token = tokens.nextToken();
             if (i++ != 0)
                 sb.append(".");
-            String quoted = DialectFn.quoteName(token);
+            String quoted = quoteName(token);
             sb.append(quoted);
         }
+        return sb.toString();
+    }
+
+    public static String quoteQName(TableOid id) {
+        StringBuilder sb = new StringBuilder(40);
+        String catalogName = id.getCatalogName();
+        String schemaName = id.getSchemaName();
+        String tableName = id.getTableName();
+        if (catalogName != null) {
+            sb.append(quoteName(catalogName));
+            sb.append('.');
+        }
+        if (schemaName != null) {
+            sb.append(quoteName(schemaName));
+            sb.append('.');
+        }
+        sb.append(quoteName(tableName));
         return sb.toString();
     }
 
