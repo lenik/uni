@@ -7,18 +7,17 @@ _ai_utils() {
     local cwtype=
     COMPREPLY=()
 
-    if [ "${prev:0:2}" = '--' ]; then
-        if [ "$prev" = 'template' ]; then
-            cwtype=template
-        fi
-    elif [ "${prev:0:1}" = '-' ]; then
-        if [ "${prev: -1}" = 't' ]; then
-            cwtype=template
-        fi
-    fi
+    case "$prev" in
+        --template)
+            cwtype=template;;
+        --*)
+            : ;;
+        -*t)
+            cwtype=template;;
+    esac
 
     if [ "$cwtype" = 'template' ]; then
-        COMPREPLY=(basename -a "@templatedir@"/*)
+        COMPREPLY=($(basename -a "@templatedir@"/"$cword"*))
     else
         local opts=(-h --help -d --decode -e --encode -i --info -s --stab
             -a --ascii -u --utf-8 -t --template -c --stdout -f --force
