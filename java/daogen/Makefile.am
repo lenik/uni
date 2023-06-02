@@ -1,8 +1,7 @@
 include libauto/project.am
 
 dist_bin_SCRIPTS = \
-    java/daogen \
-    java/ioforms
+    java/daogen
 
 dist_man_MANS = 
 
@@ -28,7 +27,6 @@ install-data-hook:
 
 install-debug:
 	sudo ln -snf $$PWD/java/daogen.in /bin/daogen
-	sudo ln -snf $$PWD/java/ioforms.in /bin/ioforms
 
 autobuild:
 	@echo "autobuild isn't supported, yet."
