@@ -402,14 +402,16 @@ public class DaoCodeGenerator
     Class<?> appClass = getClass();
 
     MavenPomDir findPomDir(File startDir, int maxDepth, int maxParents, String... moduleNames) {
-        System.out.printf("find pomdir in %s [depth=%d, parents=%d]", startDir, maxDepth, maxParents);
+        logger.debugf("find pomdirs in %s [depth=%d, parents=%d]", startDir, maxDepth, maxParents);
 
         for (String moduleName : moduleNames) {
             if (moduleName == null)
                 continue;
             File moduleDir = new File(startDir, moduleName);
-            if (MavenPomDir.isPomDir(moduleDir))
+            if (MavenPomDir.isPomDir(moduleDir)) {
+                logger.debug("matched pom dir: " + moduleDir);
                 return new MavenPomDir(moduleDir);
+            }
         }
 
         if (maxDepth > 0) {

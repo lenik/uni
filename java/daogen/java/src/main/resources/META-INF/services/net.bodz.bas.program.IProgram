@@ -1,2 +1,2 @@
-net.bodz.lily.tool.javagen.DaoCodeGenerator
-net.bodz.lily.tool.javagen.config.ConfigFormatConv
+net.bodz.lily.tool.daogen.DaoCodeGenerator
+net.bodz.lily.tool.daogen.config.ConfigFormatConv
