@@ -1,0 +1,6 @@
+CATMEFLAGS=
+
+out/%.rst: %.rst
+	@mkdir -p out/
+	catme $(CATMEFLAGS) $< >$@
+

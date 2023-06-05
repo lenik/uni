@@ -27,6 +27,7 @@ dist_driver_DATA = \
     pg.csd
 
 dist_inc_DATA = \
+    catrst.mf \
     catsql.mf
 
 dist_setup_SCRIPTS = \
