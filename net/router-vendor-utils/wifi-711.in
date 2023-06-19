@@ -17,6 +17,9 @@
 
     CURL=$(which curl)
 
+    __FILE__=${0##*/}
+    SMSCACHE=/tmp/$__FILE__-smscode
+
     opt_phone=
     opt_smscode=
     opt_force=0
@@ -28,7 +31,7 @@
     
     params=
     headers=()
-    
+
 function setopt() {
     case "$1" in
         -p|--phone)
@@ -69,6 +72,7 @@ function cleanup() {
 function main() {
     workdir=`mktemp -d`
     trap cleanup 0
+
     curl -s http://10.2.160.1 | sed -e 's/&/&amp;/g' >$workdir/start.html
     
     while IFS== read k v; do
@@ -145,6 +149,7 @@ function login() {
             POST "https://112.15.229.33:5090/applyDynaPasswd.do" \
                 | iconv -f gbk -t utf8 \
                 | tee "$workdir/sms.resp"
+            echo
 
             read sms_resp < $workdir/sms.resp
             case "$sms_resp" in
@@ -158,7 +163,30 @@ function login() {
             break
         done
 
-        read -p "Enter SMS verification code: " opt_smscode
+        if [ -f "$SMSCACHE" ]; then
+            read code _ < $SMSCACHE
+            echo "Found previously entered code: [$code]."
+            confirm=
+            while [ -z "$confirm" ]; do
+                read -p "    Is it ok to reuse $code as SMS verfication code?" confirm
+            done
+            if [ "$confirm" = y ]; then
+                opt_smscode="$code"
+            fi
+        fi
+
+        if [ -z "$opt_smscode" ]; then
+            while true; do
+                read -p "Enter SMS verification code: " opt_smscode _
+                if check_smscode "$opt_smscode"; then
+                    break
+                else
+                    _error "Invalid SMS code detected, please retry..."
+                fi
+            done
+
+            echo "$opt_smscode" > $SMSCACHE
+        fi
     fi
 
     # Read all form entries
@@ -178,6 +206,14 @@ function logout() {
     param sj=00:00:11
     local url="https://$url_host:$url_port/GWlanRes/default/OnlineURL/pc/include/logout_result.jsp$params"
     GET -v "$url"
+}
+
+function check_smscode() {
+    local code="$1"
+    local len=${#code}
+    [ $len == 6 ] || return 1
+    [ -z "${code//[0-9]/}" ] || return 2
+    return 0
 }
 
 function param() {
