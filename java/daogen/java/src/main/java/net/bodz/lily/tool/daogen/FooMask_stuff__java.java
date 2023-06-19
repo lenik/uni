@@ -13,6 +13,8 @@ import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.meta.CriteriaClass;
 import net.bodz.lily.model.base.*;
+import net.bodz.lily.security.CoPrincipal;
+import net.bodz.lily.security.dao.CoPrincipalMask;
 import net.bodz.lily.t.base.CoMessage;
 import net.bodz.lily.t.base.CoMessageMask;
 import net.bodz.lily.template.CoCategory;
@@ -32,6 +34,7 @@ public class FooMask_stuff__java
         defaultMaskBases.put(CoCategory.class, CoCategoryMask.class);
         defaultMaskBases.put(CoCode.class, CoCodeMask.class);
         defaultMaskBases.put(CoNode.class, CoNodeMask.class);
+        defaultMaskBases.put(CoPrincipal.class, CoPrincipalMask.class);
     };
 
     @Override
