@@ -176,14 +176,18 @@ function login() {
         fi
 
         if [ -z "$opt_smscode" ]; then
-            while true; do
-                read -p "Enter SMS verification code: " opt_smscode _
-                if check_smscode "$opt_smscode"; then
-                    break
-                else
-                    _error "Invalid SMS code detected, please retry..."
-                fi
-            done
+            if check_smscode "$confirm"; then
+                opt_smscode="$confirm"
+            else
+                while true; do
+                    read -p "Enter SMS verification code: " opt_smscode _
+                    if check_smscode "$opt_smscode"; then
+                        break
+                    else
+                        _error "Invalid SMS code detected, please retry..."
+                    fi
+                done
+            fi
 
             echo "$opt_smscode" > $SMSCACHE
         fi
