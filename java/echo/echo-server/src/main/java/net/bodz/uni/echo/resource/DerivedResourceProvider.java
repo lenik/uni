@@ -13,7 +13,8 @@ import net.bodz.bas.err.UnexpectedException;
 
 public class DerivedResourceProvider
         extends DecoratedResourceProvider
-        implements IResourceProvider {
+        implements
+            IResourceProvider {
 
     private static final long serialVersionUID = 1L;
 
@@ -57,8 +58,7 @@ public class DerivedResourceProvider
 
         String oldSrc = extensionMap.get(derivedExtension);
         if (oldSrc != null)
-            throw new DuplicatedKeyException(String.format(//
-                    "Extension %s is already derived from %s.", derivedExtension, oldSrc));
+            throw new DuplicatedKeyException(derivedExtension, oldSrc);
 
         extensionMap.put(derivedExtension, srcExtension);
     }

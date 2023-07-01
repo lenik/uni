@@ -23,7 +23,7 @@ public class ColumnRefMap {
     public void addColumnRef(String columnAlias, ColumnOid qColumn) {
         ColumnOid existing = alias2QColumn.get(columnAlias);
         if (existing != null)
-            throw new DuplicatedKeyException(columnAlias);
+            throw new DuplicatedKeyException(columnAlias, existing);
 
         alias2QColumn.put(columnAlias, qColumn);
 

@@ -221,7 +221,7 @@ public class CatalogConfig
     public synchronized void addTableBase(String table, String base) {
         String preexist = tableBaseMap.get(table);
         if (preexist != null)
-            throw new DuplicatedKeyException("table is already set to be based on " + base);
+            throw new DuplicatedKeyException(table, preexist);
 
         List<String> tableList = _resolveTableList(base);
         tableList.add(table);
