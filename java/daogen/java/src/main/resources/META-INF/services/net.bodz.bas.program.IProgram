@@ -1,2 +1,3 @@
+net.bodz.lily.tool.ListEntity
 net.bodz.lily.tool.daogen.DaoCodeGenerator
 net.bodz.lily.tool.daogen.config.ConfigFormatConv

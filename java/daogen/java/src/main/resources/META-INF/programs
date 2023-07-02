@@ -1,2 +1,3 @@
 main cfgconv = net.bodz.lily.tool.daogen.config.ConfigFormatConv
 main daogen = net.bodz.lily.tool.daogen.DaoCodeGenerator
+main ls-entity = net.bodz.lily.tool.ListEntity
