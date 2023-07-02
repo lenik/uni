@@ -17,7 +17,10 @@ import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
+import net.bodz.bas.potato.element.IProperty;
+import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.t.catalog.*;
+import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.model.base.CoEntity;
 import net.bodz.lily.tool.daogen.ColumnName;
 import net.bodz.lily.tool.daogen.TableName;
@@ -36,11 +39,15 @@ public class FinishProcessor
 
     @Override
     public void endTableOrView(ITableMetadata table) {
-        setDefaultClassName(table);
-        excludeInheritedColumns(table);
+        if (table instanceof DefaultTableMetadata) {
+            DefaultTableMetadata mutable = (DefaultTableMetadata) table;
+            setDefaultClassName(mutable);
+            excludeInheritedColumns(mutable);
+            bindProperties(mutable);
+        }
     }
 
-    void setDefaultClassName(ITableMetadata table) {
+    void setDefaultClassName(DefaultTableMetadata table) {
         String simpleName = table.getJavaQName();
         String packageName = config.defaultPackageName;
 
@@ -60,22 +67,19 @@ public class FinishProcessor
             if (simpleName == null)
                 simpleName = Phrase.foo_bar(table.getId().getTableName()).FooBar;
         }
-        if (table instanceof DefaultTableMetadata) {
-            DefaultTableMetadata mutable = (DefaultTableMetadata) table;
-            mutable.setJavaPackage(packageName);
-            mutable.setJavaName(simpleName);
-        }
+        table.setJavaPackage(packageName);
+        table.setJavaName(simpleName);
     }
 
-    void excludeInheritedColumns(ITableMetadata tableView) {
+    void excludeInheritedColumns(DefaultTableMetadata tableView) {
         Class<?> superclass = CoEntity.class;
 
-        String javaType = tableView.getJavaType();
-        if (javaType != null) {
+        String parentType = tableView.getBaseTypeName();
+        if (parentType != null) {
             try {
-                superclass = Class.forName(javaType);
+                superclass = Class.forName(parentType);
             } catch (ClassNotFoundException e) {
-                logger.error(e, "unknown java type " + javaType);
+                logger.warn("unknown java type " + parentType);
                 return;
             }
         }
@@ -85,7 +89,7 @@ public class FinishProcessor
         try {
             superInfo = Introspector.getBeanInfo(superclass);
         } catch (IntrospectionException e) {
-            logger.error(e, "error getting bean info for " + javaType);
+            logger.error(e, "error getting bean info for " + parentType);
             return;
         }
 
@@ -113,6 +117,43 @@ public class FinishProcessor
                 }
             }
         }
+    }
+
+    /**
+     * Bind runtime IProperty to the table metadata.
+     */
+    void bindProperties(DefaultTableMetadata table) {
+        IType type = table.getEntityType();
+        if (type == null)
+            return;
+
+        for (IColumnMetadata column : table.getColumns()) {
+            DefaultColumnMetadata mutable = (DefaultColumnMetadata) column;
+            ColumnName cname = config.columnName(column);
+            IProperty property;
+            if (column.isCompositeProperty()) {
+                property = getPathProperty(type, cname.property);
+            } else {
+                property = type.getProperty(cname.property);
+            }
+            if (property != null)
+                mutable.setProperty(property);
+        }
+    }
+
+    IProperty getPathProperty(IType type, String path) {
+        if (type == null)
+            throw new NullPointerException("type");
+        if (path == null)
+            throw new NullPointerException("path");
+        Split split = Split.headDomain(path);
+        IProperty property = type.getProperty(split.a);
+        if (property == null)
+            return null;
+        if (split.b == null)
+            return property;
+        IProperty leaf = getPathProperty(property.getPropertyType(), split.b);
+        return leaf;
     }
 
     static final Function<String, String> trimRightUnderline = (String s) -> {
@@ -183,7 +224,7 @@ public class FinishProcessor
         // fk column cat -> parent column foocat.key_a
         // fk column key_b -> parent column foocat.key_b
         if (property == null) {
-            TableName parentName = config.tableName(parentTable);
+            TableName parentName = config.defaultTableName(parentTable);
             for (ColumnName f : fv)
                 if (parentName.simpleClassName.endsWith(f.Property)) {
                     property = f.property;

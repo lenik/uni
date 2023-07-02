@@ -1,13 +1,10 @@
 package net.bodz.lily.tool.daogen;
 
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -21,6 +18,9 @@ import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.meta.decl.Ordinal;
+import net.bodz.bas.potato.element.IProperty;
+import net.bodz.bas.potato.provider.bean.BeanProperty;
+import net.bodz.bas.potato.provider.reflect.FieldProperty;
 import net.bodz.bas.repr.form.meta.TextInput;
 import net.bodz.bas.repr.form.validate.NotNull;
 import net.bodz.bas.repr.form.validate.Precision;
@@ -30,6 +30,7 @@ import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.catalog.TableKey;
 import net.bodz.bas.t.catalog.TableOid;
 import net.bodz.bas.t.range.*;
+import net.bodz.bas.t.tuple.Split;
 
 public class MiscTemplates {
 
@@ -61,7 +62,7 @@ public class MiscTemplates {
         case 0:
             return null;
         case 1:
-            Class<?> kType = primaryKeyCols[0].getType();
+            Class<?> kType = primaryKeyCols[0].getJavaClass();
             Class<?> kBoxed = Primitives.box(kType);
             return QualifiedName.parse(kBoxed.getCanonicalName());
         default:
@@ -90,13 +91,13 @@ public class MiscTemplates {
             if (column.isNullable(true))
                 continue;
 
-            Class<?> type = column.getType();
+            Class<?> type = column.getJavaClass();
             String initVal = MiscTemplates.initVals.get(type);
             if (initVal == null)
                 continue;
 
-            ColumnName cname = project.columnName(column);
-            out.println("this." + cname.field + " = " + initVal + ";");
+            String code = getJavaSetCode(column, true, initVal);
+            out.println("this." + code + ";");
         }
         out.leave();
         out.println("}");
@@ -115,7 +116,7 @@ public class MiscTemplates {
             if (column.isCompositeProperty())
                 continue;
 
-            Class<?> type = column.getType();
+            Class<?> type = column.getJavaClass();
 
             ColumnName cname = project.columnName(column);
 
@@ -173,7 +174,7 @@ public class MiscTemplates {
     }
 
     public void columnField(JavaSourceWriter out, IColumnMetadata column) {
-        Class<?> type = column.getType();
+        Class<?> type = column.getJavaClass();
 
         String description = column.getDescription();
         if (description != null && !description.isEmpty())
@@ -196,7 +197,7 @@ public class MiscTemplates {
         ColumnName n = project.columnName(column);
         String N_COL_NAME = "N_" + n.constField;
 
-        Class<?> type = column.getType();
+        Class<?> type = column.getJavaClass();
 
         String description = column.getDescription();
         if (description != null && !description.isEmpty()) {
@@ -289,7 +290,7 @@ public class MiscTemplates {
      */
     public void columnAccessors(JavaSourceWriter out, IColumnMetadata column, boolean impl) {
         ColumnName n = project.columnName(column);
-        Class<?> type = column.getType();
+        Class<?> type = column.getJavaClass();
         boolean notNull = !column.isNullable(true);
         String isOrGet = boolean.class == type ? "is" : "get";
 
@@ -440,33 +441,35 @@ public class MiscTemplates {
         ColumnName n = project.columnName(column);
         ColumnName p = project.columnName(parentColumn);
 
-        Class<?> type = column.getType();
+        Class<?> returnType = column.getJavaClass();
         boolean notNull = !column.isNullable(true);
-        String isOrGet = boolean.class == type ? "is" : "get";
+        String isOrGet = boolean.class == returnType ? "is" : "get";
 
-        String refField = xref.getJavaName();
+        String refFieldName = xref.getJavaName();
 
-        boolean parentNull = parentColumn.isNullable(false);
-        if (parentNull == false) {
+        boolean parentNullable = parentColumn.isNullable(false);
+        if (parentNullable == false) {
             ColumnMember m = ColumnUtils.getMemberInfo(parentColumn, p, //
                     ColumnUtils.GET_GETTER);
             if (m != null && m.getter != null)
-                parentNull = !m.getter.getReturnType().isPrimitive();
+                parentNullable = !m.getter.getReturnType().isPrimitive();
         }
 
         columnGetterHeader(out, column);
         out.printf("public synchronized %s %s%s()", //
-                out.im.name(type), isOrGet, n.Property);
+                out.im.name(returnType), isOrGet, n.Property);
         if (impl) {
             out.enterln(" {");
-            out.printf("if (%s != null)", refField);
+            out.printf("if (%s != null)", refFieldName);
             out.enterln(" {");
             {
-                if (type.isPrimitive()) { // non-null
-                    out.printf("if (%s.%s%s() == null)\n", refField, isOrGet, p.Property);
-                    out.printf("    return %s;\n", nullDefault(type));
+                if (returnType.isPrimitive()) { // non-null
+                    if (parentNullable) {
+                        out.printf("if (%s.%s%s() == null)\n", refFieldName, isOrGet, p.Property);
+                        out.printf("    return %s;\n", nullDefault(returnType));
+                    }
                 }
-                out.printf("return %s.%s%s();\n", refField, isOrGet, p.Property);
+                out.printf("return %s.%s%s();\n", refFieldName, isOrGet, p.Property);
                 out.leaveln("}");
             }
             out.printf("return %s;\n", n.field);
@@ -478,11 +481,12 @@ public class MiscTemplates {
 
         columnSetterHeader(out, column);
         out.printf("public synchronized void set%s(%s%s value)", n.Property, //
-                (notNull && !type.isPrimitive()) ? ("@" + out.im.name(NotNull.class) + " ") : "", out.im.name(type));
+                (notNull && !returnType.isPrimitive()) ? ("@" + out.im.name(NotNull.class) + " ") : "",
+                out.im.name(returnType));
         if (impl) {
             out.enterln(" {");
             if (!project.parentColumnInParallelMode)
-                out.printf("this.%s = null;\n", refField);
+                out.printf("this.%s = null;\n", refFieldName);
             out.printf("this.%s = value;\n", n.field);
             out.leaveln("}");
         } else {
@@ -529,7 +533,7 @@ public class MiscTemplates {
 
     public void columnMaskFields(JavaSourceWriter out, IColumnMetadata column) {
         ColumnName cname = project.columnName(column);
-        Class<?> type = Primitives.box(column.getType());
+        Class<?> type = Primitives.box(column.getJavaClass());
 
         String description = column.getDescription();
         if (description != null && !description.isEmpty())
@@ -551,7 +555,7 @@ public class MiscTemplates {
 
     public void columnMaskAccessors(JavaSourceWriter out, IColumnMetadata column) {
         ColumnName cname = project.columnName(column);
-        Class<?> type = Primitives.box(column.getType());
+        Class<?> type = Primitives.box(column.getJavaClass());
 
         String description = column.getDescription();
         if (description != null && !description.isEmpty()) {
@@ -653,6 +657,88 @@ public class MiscTemplates {
         default:
             return String.format("#{%s}", cname.property);
         }
+    }
+
+    public static String getContextPrefix(String path) {
+        StringBuilder sb = new StringBuilder();
+        int dot;
+        while ((dot = path.indexOf('.')) != -1) {
+            String field = path.substring(0, dot);
+            path = path.substring(dot + 1);
+            sb.append("get" + Strings.ucfirst(field) + "().");
+        }
+        String prefix = sb.toString();
+        return prefix;
+    }
+
+    /**
+     * @return <code>null</code> if property is un-readable.
+     */
+    public String getJavaGetExpr(IColumnMetadata column) {
+        ColumnName cname = project.columnName(column);
+        IProperty property = column.getProperty();
+        if (property != null) {
+            String prefix = getContextPrefix(cname.property);
+            if (property instanceof FieldProperty) {
+                FieldProperty fp = (FieldProperty) property;
+                return prefix + fp.getName();
+            } else if (property instanceof BeanProperty) {
+                Method getter = ((BeanProperty) property).getReadMethod();
+                if (getter == null)
+                    return null;
+                return prefix + getter.getName() + "()";
+            } else
+                throw new UnsupportedOperationException();
+        }
+        return cname.field;
+    }
+
+    /**
+     * @return <code>null</code> if property is un-writable.
+     */
+    public String getJavaSetCode(IColumnMetadata column, boolean directAccess, String javaExpr) {
+        ColumnName cname = project.columnName(column);
+        IProperty property = column.getProperty();
+        if (property != null //
+                && (!directAccess || column.isCompositeProperty())) {
+            String context = getContextPrefix(cname.property);
+            if (property instanceof FieldProperty) {
+                FieldProperty fp = (FieldProperty) property;
+                return context + fp.getName() + " = " + javaExpr;
+            } else if (property instanceof BeanProperty) {
+                Method setter = ((BeanProperty) property).getWriteMethod();
+                if (setter == null)
+                    return null;
+                return context + setter.getName() + "(" + javaExpr + ")";
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        }
+        return cname.field + " = " + javaExpr;
+    }
+
+    Set<String> getCompositeHeads(ITableMetadata table) {
+        Set<String> compositeHeads = new HashSet<>();
+        for (String fkName : table.getForeignKeys().keySet()) {
+            CrossReference xref = table.getForeignKeys().get(fkName);
+            if (xref.isCompositeProperty()) {
+                IColumnMetadata column = xref.getForeignColumns()[0];
+                String propertyPath = column.getJavaName();
+                String head = Split.headDomain(propertyPath).a;
+                compositeHeads.add(head);
+            }
+        }
+
+        for (IColumnMetadata column : table.getColumns()) {
+            if (column.isExcluded()) // mixin?
+                continue;
+            if (column.isCompositeProperty()) {
+                String propertyPath = column.getJavaName();
+                String head = Split.headDomain(propertyPath).a;
+                compositeHeads.add(head);
+            }
+        }
+        return compositeHeads;
     }
 
 }

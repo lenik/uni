@@ -86,7 +86,7 @@ public class Foo_Id__java
             if (i != 0)
                 out.print(", ");
             ColumnName cname = project.columnName(kv[i]);
-            out.printf("%s %s", imports.name(kv[i].getType()), cname.field);
+            out.printf("%s %s", imports.name(kv[i].getJavaClass()), cname.field);
         }
         out.println(") {");
         out.enter();

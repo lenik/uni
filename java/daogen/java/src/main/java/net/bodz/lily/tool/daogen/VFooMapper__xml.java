@@ -369,7 +369,7 @@ public class VFooMapper__xml
         boolean hasRange = false;
         boolean hasPattern = false;
 
-        int typeId = TypeKind.getTypeId(column.getType());
+        int typeId = TypeKind.getTypeId(column.getJavaClass());
         switch (typeId) {
         case TypeId._byte:
         case TypeId._short:

@@ -24,7 +24,7 @@ public class FooMapper__xml
         out.println("PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\"");
         out.println("\"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">");
 
-        out.println("<mapper namespace=\"" + project.FooMapper + "\">");
+        out.println("<mapper namespace=\"" + project.FooMapper.getFullName() + "\">");
         out.enter();
         {
             out.println();
@@ -54,11 +54,12 @@ public class FooMapper__xml
             select_count(out, table);
             out.println();
 
-            if (deleteXrefs(out, table))
-                out.println();
-
-            if (createXrefs(out, table))
-                out.println();
+            if (project.extraDDLs) {
+                if (deleteXrefs(out, table))
+                    out.println();
+                if (createXrefs(out, table))
+                    out.println();
+            }
 
             out.leave();
         }
@@ -66,12 +67,13 @@ public class FooMapper__xml
     }
 
     void insert(XmlSourceBuffer out, ITableMetadata table) {
+        String qTableName = DialectFn.quoteQName(table.getCompactName());
         List<IColumnMetadata> columns = getIncludedColumns(table.getColumns());
 
         out.printf("<insert id=\"insert\" useGeneratedKeys=\"true\" keyProperty=\"id\"><![CDATA[\n");
         out.enter();
         {
-            out.printf("insert into %s(\n", table.nam().foo_bar);
+            out.printf("insert into %s(\n", qTableName);
             {
                 out.enter();
                 boolean first = true;
@@ -117,11 +119,12 @@ public class FooMapper__xml
     }
 
     void update(XmlSourceBuffer out, ITableMetadata table) {
+        String qTableName = DialectFn.quoteQName(table.getCompactName());
         List<IColumnMetadata> columns = getIncludedColumns(table.getColumns());
 
         out.enterln("<update id=\"update\">");
         {
-            out.printf("update %s\n", table.getCompactName());
+            out.printf("update %s\n", qTableName);
             out.enterln("<set>");
             {
                 boolean co = false;
@@ -145,9 +148,10 @@ public class FooMapper__xml
     }
 
     void delete(XmlSourceBuffer out, ITableMetadata table) {
+        String qTableName = DialectFn.quoteQName(table.getCompactName());
         out.enterln("<delete id=\"delete\">");
         {
-            out.println("delete from " + table.getCompactName());
+            out.println("delete from " + qTableName);
 
             out.enterln("<where>");
             templates.sqlMatchPrimaryKey(out, table.getPrimaryKeyColumns());

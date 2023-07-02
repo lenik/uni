@@ -23,6 +23,7 @@ public class JavaGenProject {
     long randomSeed;
 
     boolean parentColumnInParallelMode = true;
+    boolean extraDDLs;
 
     public final ClassPathInfo Foo;
     public final ClassPathInfo _Foo_stuff;

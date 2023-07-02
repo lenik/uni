@@ -36,7 +36,7 @@ public class FooMask_stuff__java
 
     @Override
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
-        String javaType = table.getJavaType();
+        String javaType = table.getBaseTypeName();
         Class<?> parentClass = null;
 
         if (javaType != null) {
@@ -75,6 +75,8 @@ public class FooMask_stuff__java
         for (IColumnMetadata column : table.getColumns()) {
             ColumnName cname = project.columnName(column);
             if (cname.property.isEmpty() || cname.property.equals("-"))
+                continue;
+            if (column.isCompositeProperty())
                 continue;
             if (parentType != null && parentType.getProperty(cname.property) != null)
                 continue; // exclude inherited ones.

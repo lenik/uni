@@ -2,7 +2,6 @@ package net.bodz.lily.tool.daogen.config;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +9,7 @@ import java.util.Map;
 import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.c.string.StringId;
 import net.bodz.bas.c.string.Strings;
+import net.bodz.bas.err.DuplicatedKeyException;
 import net.bodz.bas.err.FormatException;
 import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.err.ParseException;
@@ -21,6 +21,7 @@ import net.bodz.bas.fmt.rst.IRstForm;
 import net.bodz.bas.fmt.rst.IRstHandler;
 import net.bodz.bas.fmt.rst.IRstOutput;
 import net.bodz.bas.json.JsonObject;
+import net.bodz.bas.repr.form.SortOrder;
 import net.bodz.bas.t.catalog.ColumnOid;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
@@ -28,6 +29,7 @@ import net.bodz.bas.t.map.ListMap;
 import net.bodz.lily.tool.daogen.ColumnName;
 import net.bodz.lily.tool.daogen.DialectFn;
 import net.bodz.lily.tool.daogen.TableName;
+import net.bodz.lily.tool.daogen.util.JavaLang;
 
 public class CatalogConfig
         implements
@@ -35,12 +37,14 @@ public class CatalogConfig
             IJsonForm {
 
     static final String K_COLUMN_PROPERTY = "column-property";
+    static final String K_COLUMN_TYPE = "column-type";
     static final String K_COLUMN_REF = "column-ref";
+    static final String K_COLUMN_LEVEL = "column-level";
+    static final String K_COLUMN_JOIN_LEVEL = "column-join-level";
+
     static final String K_KEY_COLUMNS = "key-columns";
     static final String K_TABLE_NAME = "table-name";
     static final String K_CLASS_MAP = "class-map";
-    static final String K_COLUMN_LEVEL = "column-level";
-    static final String K_JOIN_LEVEL = "join-level";
     static final String K_TABLES = "tables";
     static final String K_TABLE = "table";
     static final String K_MIXINS = "mixins";
@@ -48,27 +52,34 @@ public class CatalogConfig
 
     public String defaultPackageName;
 
-    public final Map<String, String> columnPropertyMap = new HashMap<>();
+    public final Map<String, String> columnPropertyMap = newMap();
+    public final Map<String, String> columnTypeMap = newMap();
     public final ColumnRefMap columnRefMap = new ColumnRefMap();
-    public final KeyColumnSettings keyColumnSettings = new KeyColumnSettings();
-    public final Map<String, String> tableNameMap = new HashMap<>();
-    public final ListMap<String, String> class2TableList = new ListMap<>();
-    public final Map<String, Integer> columnLevelMap = new HashMap<>();
-    public final Map<String, Integer> joinLevelMap = new HashMap<>();
+    public final Map<String, Integer> columnLevelMap = newMap();
+    public final Map<String, Integer> columnJoinLevelMap = newMap();
 
-    public final Map<String, TableSettings> tableMap = new LinkedHashMap<>();
+    public final KeyColumnSettings keyColumnSettings = new KeyColumnSettings();
+
+    public final Map<String, String> tableNameMap = newMap();
+    private final ListMap<String, String> class2TableList = new ListMap<>(SortOrder.KEEP);
+
+    public final Map<String, TableSettings> tableMap = newMap();
 
     // cache
-    Map<String, String> tableClassMap;
-    Map<String, MixinSettings> mixinMap;
+    Map<String, String> tableBaseMap = newMap();
+    Map<String, MixinSettings> mixinMap = newMap();
 
     NameDecoratorList foreignKeyDecorators = new NameDecoratorList();
+
+    <K, V> Map<K, V> newMap() {
+        return new LinkedHashMap<>();
+    }
 
     public CatalogConfig() {
         foreignKeyDecorators.addSuffix("Id");
     }
 
-    List<String> resolveTableList(String className) {
+    List<String> _resolveTableList(String className) {
         List<String> list = class2TableList.get(className);
         if (list == null) {
             list = new ArrayList<>();
@@ -93,7 +104,8 @@ public class CatalogConfig
         return mixin;
     }
 
-    public TableName tableName(ITableMetadata table) {
+//    public TableName tableName(ITableMetadata table) {
+    public TableName defaultTableName(ITableMetadata table) {
         TableName n = new TableName();
         n.tableName = table.getName();
         n.tableNameQuoted = DialectFn.quoteName(n.tableName);
@@ -117,16 +129,69 @@ public class CatalogConfig
         return n;
     }
 
+    public String javaName(IColumnMetadata column) {
+        ITableMetadata table = (ITableMetadata) column.getParent();
+        return javaName(table, column);
+    }
+
+    public String javaName(ITableMetadata table, IColumnMetadata column) {
+        String columnName = column.getName();
+
+        TableSettings tableSettings = tableMap.get(columnName);
+        if (tableSettings != null) {
+            ColumnSettings columnSettings = tableSettings.columnMap.get(columnName);
+            if (columnSettings != null) {
+                if (columnSettings.javaName != null)
+                    return columnSettings.javaName;
+            }
+        }
+        String property = columnPropertyMap.get(columnName);
+        if (property != null)
+            return property;
+
+        String name = column.getJavaName();
+        if (name == null) {
+            name = StringId.UL.toCamel(columnName);
+        }
+
+        if (JavaLang.isKeyword(name))
+            name += "_";
+        return name;
+    }
+
+    public String javaType(IColumnMetadata column) {
+        ITableMetadata table = (ITableMetadata) column.getParent();
+        return javaType(table, column);
+    }
+
+    public String javaType(ITableMetadata table, IColumnMetadata column) {
+        String columnName = column.getName();
+
+        TableSettings tableSettings = tableMap.get(columnName);
+        if (tableSettings != null) {
+            ColumnSettings columnSettings = tableSettings.columnMap.get(columnName);
+            if (columnSettings != null) {
+                if (columnSettings.javaType != null)
+                    return columnSettings.javaType;
+            }
+        }
+
+        String type = columnTypeMap.get(columnName);
+        if (type != null)
+            return type;
+
+        Class<?> javaClass = column.getJavaClass();
+        return javaClass.getName();
+    }
+
     public ColumnName columnName(IColumnMetadata column) {
-        ColumnName n = new ColumnName();
-        n.column = column.getName();
-        n.columnQuoted = DialectFn.quoteName(n.column);
+        ColumnName cname = new ColumnName();
+        cname.column = column.getName();
+        cname.columnQuoted = DialectFn.quoteName(cname.column);
 
         // boolean javaNameSpecified = column.getJavaName() != null;
-        String field = column.getJavaName();
-        if (field == null)
-            field = StringId.UL.toCamel(n.column);
-        n.setField(field);
+        String javaName = javaName(column);
+        cname.setField(javaName);
 
 //        if (column.isForeignKey()) {
 //            name.keyProperty = name.property;
@@ -138,7 +203,7 @@ public class CatalogConfig
 //            else
 //                name.keyProperty = foreignKeyDecorators.getPreferredDecoratedName(name.property);
 //        }
-        return n;
+        return cname;
     }
 
     public ColumnName[] columnNames(IColumnMetadata[] columns) {
@@ -147,6 +212,20 @@ public class CatalogConfig
         for (int i = 0; i < n; i++)
             names[i] = columnName(columns[i]);
         return names;
+    }
+
+    public String getTableBase(String table) {
+        return tableBaseMap.get(table);
+    }
+
+    public synchronized void addTableBase(String table, String base) {
+        String preexist = tableBaseMap.get(table);
+        if (preexist != null)
+            throw new DuplicatedKeyException("table is already set to be based on " + base);
+
+        List<String> tableList = _resolveTableList(base);
+        tableList.add(table);
+        tableBaseMap.put(table, base);
     }
 
     @Override
@@ -161,11 +240,38 @@ public class CatalogConfig
             out.endElement();
         }
 
+        if (!columnTypeMap.isEmpty()) {
+            out.beginElement(K_COLUMN_TYPE);
+            for (String column : columnTypeMap.keySet()) {
+                String typeName = columnTypeMap.get(column);
+                out.attribute(column, typeName);
+            }
+            out.endElement();
+        }
+
         if (!columnRefMap.isEmpty()) {
             out.beginElement(K_COLUMN_REF);
             for (String alias : columnRefMap.alias2QColumn.keySet()) {
                 ColumnOid qColumn = columnRefMap.alias2QColumn.get(alias);
                 out.attribute(alias, qColumn.getFullName());
+            }
+            out.endElement();
+        }
+
+        if (!columnLevelMap.isEmpty()) {
+            out.beginElement(K_COLUMN_LEVEL);
+            for (String column : columnLevelMap.keySet()) {
+                Integer level = columnLevelMap.get(column);
+                out.attribute(column, level);
+            }
+            out.endElement();
+        }
+
+        if (!columnJoinLevelMap.isEmpty()) {
+            out.beginElement(K_COLUMN_JOIN_LEVEL);
+            for (String column : columnJoinLevelMap.keySet()) {
+                Integer depth = columnJoinLevelMap.get(column);
+                out.attribute(column, depth);
             }
             out.endElement();
         }
@@ -195,24 +301,6 @@ public class CatalogConfig
             out.endElement();
         }
 
-        if (!columnLevelMap.isEmpty()) {
-            out.beginElement(K_COLUMN_LEVEL);
-            for (String column : columnLevelMap.keySet()) {
-                Integer level = columnLevelMap.get(column);
-                out.attribute(column, level);
-            }
-            out.endElement();
-        }
-
-        if (!joinLevelMap.isEmpty()) {
-            out.beginElement(K_JOIN_LEVEL);
-            for (String column : joinLevelMap.keySet()) {
-                Integer depth = joinLevelMap.get(column);
-                out.attribute(column, depth);
-            }
-            out.endElement();
-        }
-
         if (!tableMap.isEmpty()) {
             for (String tableName : tableMap.keySet()) {
                 out.beginElement(K_TABLE, tableName);
@@ -222,7 +310,7 @@ public class CatalogConfig
             }
         }
 
-        if (!mixinMap.isEmpty()) {
+        if (mixinMap != null && !mixinMap.isEmpty()) {
             for (String mixinName : mixinMap.keySet()) {
                 out.beginElement(K_MIXIN, mixinName);
                 MixinSettings mixin = mixinMap.get(mixinName);
@@ -230,16 +318,6 @@ public class CatalogConfig
                 out.endElement();
             }
         }
-    }
-
-    public synchronized Map<String, String> getTableClassMap() {
-        if (tableClassMap == null) {
-            tableClassMap = new HashMap<>();
-            for (String type : class2TableList.keySet())
-                for (String table : class2TableList.get(type))
-                    tableClassMap.put(table, type);
-        }
-        return tableClassMap;
     }
 
     @Override
@@ -280,19 +358,12 @@ public class CatalogConfig
                     columnPropertyMap.put(name, data.trim());
                     return true;
 
+                case K_COLUMN_TYPE:
+                    columnTypeMap.put(name, data.trim());
+                    return true;
+
                 case K_COLUMN_REF:
                     columnRefMap.addColumnRef(name, data.trim());
-                    return true;
-
-                case K_TABLE_NAME:
-                    tableNameMap.put(name, data.trim());
-                    return true;
-
-                case K_CLASS_MAP:
-                    for (String token : data.split(",")) {
-                        resolveTableList(name).add(token.trim());
-                    }
-                    tableClassMap = null;
                     return true;
 
                 case K_COLUMN_LEVEL:
@@ -300,9 +371,19 @@ public class CatalogConfig
                     columnLevelMap.put(name, level);
                     return true;
 
-                case K_JOIN_LEVEL:
+                case K_COLUMN_JOIN_LEVEL:
                     int depth = Integer.parseInt(data.trim());
-                    joinLevelMap.put(name, depth);
+                    columnJoinLevelMap.put(name, depth);
+                    return true;
+
+                case K_TABLE_NAME:
+                    tableNameMap.put(name, data.trim());
+                    return true;
+
+                case K_CLASS_MAP:
+                    String base = name;
+                    for (String token : data.split(","))
+                        addTableBase(token.trim(), base);
                     return true;
 
                 default:
@@ -324,8 +405,17 @@ public class CatalogConfig
         out.key(K_COLUMN_PROPERTY);
         out.map(columnPropertyMap);
 
+        out.key(K_COLUMN_TYPE);
+        out.map(columnTypeMap);
+
         out.key(K_COLUMN_REF);
         out.map(columnRefMap.alias2QColumn);
+
+        out.key(K_COLUMN_LEVEL);
+        out.map(columnLevelMap);
+
+        out.key(K_COLUMN_JOIN_LEVEL);
+        out.map(columnJoinLevelMap);
 
         if (!keyColumnSettings.isEmpty()) {
             out.key(K_KEY_COLUMNS);
@@ -339,12 +429,6 @@ public class CatalogConfig
 
         out.key(K_CLASS_MAP);
         out.map(class2TableList);
-
-        out.key(K_COLUMN_LEVEL);
-        out.map(columnLevelMap);
-
-        out.key(K_JOIN_LEVEL);
-        out.map(joinLevelMap);
 
         out.key(K_TABLES);
         out.map(tableMap);

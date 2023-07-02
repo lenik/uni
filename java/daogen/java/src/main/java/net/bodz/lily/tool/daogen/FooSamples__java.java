@@ -1,32 +1,39 @@
 package net.bodz.lily.tool.daogen;
 
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
+
 import net.bodz.bas.c.java.lang.OptionNames;
 import net.bodz.bas.c.java.util.Dates;
+import net.bodz.bas.c.primitive.Primitives;
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.c.type.TypeId;
 import net.bodz.bas.c.type.TypeKind;
 import net.bodz.bas.codegen.EnglishTextGenerator;
 import net.bodz.bas.codegen.JavaSourceWriter;
-import net.bodz.bas.potato.PotatoTypes;
 import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.potato.element.IType;
+import net.bodz.bas.potato.provider.bean.BeanProperty;
 import net.bodz.bas.rtx.Options;
+import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
-import net.bodz.bas.t.tuple.Split;
 import net.bodz.bas.typer.Typers;
 import net.bodz.bas.typer.std.ISampleGenerator;
 import net.bodz.lily.model.base.CoObject;
-import net.bodz.lily.test.TestSamples;
+import net.bodz.lily.test.TestSampleBuilder;
 
 public class FooSamples__java
         extends JavaGen__java {
@@ -50,10 +57,17 @@ public class FooSamples__java
         return new EnglishTextGenerator(random);
     }
 
+    Random random;
+    EnglishTextGenerator enGen;
+
     @Override
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
-        Random random = random(table.getId());
-        EnglishTextGenerator enGen = en(table.getId());
+        random = random(table.getId());
+        enGen = en(table.getId());
+
+        IType entityType = table.getEntityType();
+        Set<String> compositeHeads = templates.getCompositeHeads(table);
+        List<IColumnMetadata> columns = new ArrayList<>(table.getColumns());
 
         out.println("public class " + project.FooSamples.name);
         out.enter();
@@ -61,11 +75,40 @@ public class FooSamples__java
             out.enter();
             {
                 out.printf("extends %s {\n", //
-                        out.im.name(TestSamples.class));
+                        out.im.name(TestSampleBuilder.class));
                 out.println();
                 out.leave();
             }
-            out.printf("public static %s build()\n", //
+
+            // foreign key references as member properties
+            for (String fkName : table.getForeignKeys().keySet()) {
+                CrossReference xref = table.getForeignKeys().get(fkName);
+                if (xref.isCompositeProperty())
+                    continue;
+                String parentClassName = xref.getParentTable().getEntityTypeName();
+                out.printf("public %s %s;\n", //
+                        out.im.name(parentClassName), xref.getJavaName());
+                for (IColumnMetadata foreignColumn : xref.getForeignColumns())
+                    columns.remove(foreignColumn);
+            }
+            if (!table.getForeignKeys().isEmpty())
+                out.println();
+
+            for (String head : compositeHeads) {
+                Class<?> propertyClass;
+                if (entityType != null) {
+                    IProperty headProperty = entityType.getProperty(head);
+                    propertyClass = headProperty.getPropertyClass();
+                } else {
+                    propertyClass = Object.class; // need user fix.
+                }
+                out.printf("public %s %s;\n", //
+                        out.im.name(propertyClass), head);
+            }
+            if (!compositeHeads.isEmpty())
+                out.println();
+
+            out.printf("public %s build()\n", //
                     out.im.name(project.Foo));
             out.println("        throws Exception {");
             out.enter();
@@ -73,110 +116,55 @@ public class FooSamples__java
                 out.printf("%s a = new %s();\n", //
                         out.im.name(project.Foo), out.im.name(project.Foo));
 
-                Set<String> heads = new HashSet<>();
-                for (IColumnMetadata column : table.getColumns()) {
+                for (String fkName : table.getForeignKeys().keySet()) {
+                    CrossReference xref = table.getForeignKeys().get(fkName);
+                    if (xref.isCompositeProperty())
+                        continue;
+
+                    String setterName;
+                    if (entityType != null) {
+                        IProperty refProperty = entityType.getProperty(xref.getJavaName());
+                        if (refProperty == null) {
+                            logger.warn("no property for xref " + fkName);
+                            continue;
+                        }
+
+                        BeanProperty bp = (BeanProperty) refProperty;
+                        Method setter = bp.getPropertyDescriptor().getWriteMethod();
+                        setterName = setter.getName();
+                    } else {
+                        String property = xref.getJavaName();
+                        setterName = "set" + Strings.ucfirst(property);
+                    }
+
+                    out.printf("a.%s(%s);\n", //
+                            setterName, //
+                            xref.getJavaName());
+                }
+
+                for (IColumnMetadata column : columns) {
                     if (column.isExcluded()) // mixin?
                         continue;
 
-                    if (column.isCompositeProperty()) {
-                        String propertyPath = column.getJavaName();
-                        String head = Split.headDomain(propertyPath).a;
-                        if (!heads.add(head))
-                            continue;
+                    if (column.isCompositeProperty())
+                        continue;
 
-                        IType type = PotatoTypes.getInstance().loadType(column.getType());
-                        List<IProperty> vector = type.resolvePropertyVector(propertyPath);
-                        Class<?> propertyType = vector.get(vector.size() - 1).getPropertyType();
-                        String compositeSamplesType = propertyType.getName() + "Samples";
+                    if (!canWrite(entityType, column))
+                        continue;
 
-                        out.printf("a.set%s(%s.build());\n", //
+                    makeEntry(out, column);
+                }
+
+                if (entityType != null)
+                    for (String head : compositeHeads) {
+                        IProperty headProperty = entityType.getProperty(head);
+                        Class<?> propertyClass = headProperty.getPropertyClass();
+                        String compositeSamplesType = propertyClass.getName() + "Samples";
+                        out.printf("a.set%s(new %s().build());\n", //
                                 Strings.ucfirst(head), //
                                 out.im.name(compositeSamplesType));
-                        continue;
                     }
 
-                    ColumnName cname = project.columnName(column);
-                    Class<?> type = column.getType();
-                    // FK..
-                    if (CoObject.class.isAssignableFrom(type))
-                        continue;
-
-                    String quoted = null;
-
-                    if (type == String.class) {
-                        int maxLen = column.getPrecision();
-                        if (maxLen <= 0)
-                            throw new IllegalArgumentException("invalid varchar length: " + maxLen);
-                        if (maxLen > maxStringLen)
-                            maxLen = maxStringLen;
-                        int wordMaxLen = 10;
-                        String sample = enGen.makeText(maxLen, wordMaxLen);
-                        quoted = StringQuote.qqJavaString(sample.toString());
-                    } else if (type == BigDecimal.class) {
-                        int precision = column.getPrecision();
-                        int scale = column.getScale();
-                        int intLen = precision;
-                        if (scale != 0)
-                            intLen -= scale; // + 1 (dot);
-
-                        StringBuilder sb = new StringBuilder(precision);
-                        randomDigits(sb, random.nextInt(intLen + 1), true, random);
-
-                        if (scale != 0 && random.nextBoolean()) {
-                            sb.append('.');
-                            randomDigits(sb, scale, false, random);
-                        }
-
-                        out.im.name(BigDecimal.class);
-                        quoted = "new BigDecimal(\"" + sb + "\")";
-                    } else if (type == BigInteger.class) {
-                        int maxLen = column.getPrecision();
-                        int len = random.nextInt(maxLen) + 1;
-                        StringBuilder sb = new StringBuilder(len);
-                        randomDigits(sb, random.nextInt(len + 1), true, random);
-                        out.im.name(BigInteger.class);
-                        quoted = "new BigInteger(\"" + sb + "\")";
-                    } else {
-                        ISampleGenerator<?> generator = Typers.getTyper(type, ISampleGenerator.class);
-                        // IToJavaCode toJavaCode= Typers.getTyper(type, IToJavaCode.class);
-                        if (generator != null) {
-                            Options options = new Options();
-                            options.addOption(OptionNames.signed, false);
-                            options.addOption(Random.class, random);
-
-                            Object sample = generator.newSample(options);
-
-                            if (sample instanceof Date) {
-                                String iso = Dates.ISO8601Z.format(sample);
-                                String isoQuoted = StringQuote.qqJavaString(iso);
-                                out.im.name(Dates.class);
-                                String timeQuoted = "Dates.ISO8601Z.parse(" + isoQuoted + ").getTime()";
-                                quoted = "new " + out.im.name(type) + "(" + timeQuoted + ")";
-
-                            } else {
-                                quoted = sample.toString();
-                                switch (TypeKind.getTypeId(type)) {
-                                case TypeId._byte:
-                                case TypeId.BYTE:
-                                    quoted = "(byte)" + quoted;
-                                    break;
-
-                                case TypeId._short:
-                                case TypeId.SHORT:
-                                    quoted = "(short)" + quoted;
-                                    break;
-
-                                case TypeId._long:
-                                case TypeId.LONG:
-                                    quoted = quoted + "L";
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (quoted != null)
-                        out.printf("a.set%s(%s);\n", cname.Property, quoted);
-                }
                 out.println("return a;");
                 out.leave();
             }
@@ -185,6 +173,138 @@ public class FooSamples__java
             out.leave();
         }
         out.println("}");
+    }
+
+    void makeEntry(JavaSourceWriter out, IColumnMetadata column) {
+        ColumnName cname = project.columnName(column);
+        Class<?> preferredType = column.getJavaClass();
+
+        if (CoObject.class.isAssignableFrom(preferredType)) {
+            logger.warn("unexpected column of entity: " + cname);
+            return;
+        }
+
+        String javaExpr = null;
+
+        Class<?> actualType = null;
+        IProperty property = column.getProperty();
+        if (property != null) {
+            actualType = property.getPropertyClass();
+            actualType = Primitives.box(actualType);
+        }
+
+        if (preferredType == String.class) {
+            int maxLen = column.getPrecision();
+            if (maxLen <= 0)
+                throw new IllegalArgumentException("invalid varchar length: " + maxLen);
+            if (maxLen > maxStringLen)
+                maxLen = maxStringLen;
+            int wordMaxLen = 10;
+            String sample = enGen.makeText(maxLen, wordMaxLen);
+            javaExpr = StringQuote.qqJavaString(sample.toString());
+
+        } else if (preferredType == BigDecimal.class) {
+            int precision = column.getPrecision();
+            int scale = column.getScale();
+            int intLen = precision;
+            if (scale != 0)
+                intLen -= scale; // + 1 (dot);
+
+            StringBuilder sb = new StringBuilder(precision);
+            randomDigits(sb, random.nextInt(intLen + 1), true, random);
+
+            if (scale != 0 && random.nextBoolean()) {
+                sb.append('.');
+                randomDigits(sb, scale, false, random);
+            }
+
+            out.im.name(BigDecimal.class);
+            javaExpr = "new BigDecimal(\"" + sb + "\")";
+
+        } else if (preferredType == BigInteger.class) {
+            int maxLen = column.getPrecision();
+            int len = random.nextInt(maxLen) + 1;
+            StringBuilder sb = new StringBuilder(len);
+            randomDigits(sb, random.nextInt(len + 1), true, random);
+            out.im.name(BigInteger.class);
+            javaExpr = "new BigInteger(\"" + sb + "\")";
+
+        } else {
+            ISampleGenerator<?> generator = Typers.getTyper(preferredType, ISampleGenerator.class);
+            // IToJavaCode toJavaCode= Typers.getTyper(type, IToJavaCode.class);
+            if (generator != null) {
+                Options options = new Options();
+                options.addOption(OptionNames.signed, false);
+                options.addOption(Random.class, random);
+
+                Object sample = generator.newSample(options);
+
+                if (sample instanceof Date) {
+                    String iso = Dates.ISO8601Z.format(sample);
+                    String isoQuoted = StringQuote.qqJavaString(iso);
+
+                    String timeLong = String.format("%s.%s.parse(%s).getTime()", //
+                            out.im.name(Dates.class), //
+                            "ISO8601Z", // Dates.ISO8601Z
+                            isoQuoted);
+
+                    if (actualType != null) {
+                        if (typesAcceptInstant.contains(actualType)) {
+                            javaExpr = "new " + out.im.name(actualType) //
+                                    + "(" + timeLong + ")";
+                        }
+                    }
+                } else {
+                    javaExpr = sample.toString();
+                    switch (TypeKind.getTypeId(preferredType)) {
+                    case TypeId._byte:
+                    case TypeId.BYTE:
+                        javaExpr = "(byte)" + javaExpr;
+                        break;
+
+                    case TypeId._short:
+                    case TypeId.SHORT:
+                        javaExpr = "(short)" + javaExpr;
+                        break;
+
+                    case TypeId._long:
+                    case TypeId.LONG:
+                        javaExpr = javaExpr + "L";
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (javaExpr != null)
+            out.printf("a.set%s(%s);\n", cname.Property, javaExpr);
+    }
+
+    static boolean canWrite(IType type, IColumnMetadata column) {
+        if (type != null) {
+            IProperty property = column.getProperty();
+            if (property == null) {
+                String propertyName = column.getJavaName();
+                if (propertyName != null)
+                    property = type.getProperty(propertyName);
+            }
+            if (property == null) {
+                // return false;
+            } else {
+                if (!property.isWritable()) // read-only column/property.
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    static Set<Class<?>> typesAcceptInstant = new HashSet<>();
+    static {
+        typesAcceptInstant.add(DateTime.class);
+        typesAcceptInstant.add(LocalDateTime.class);
+        typesAcceptInstant.add(Date.class);
+        typesAcceptInstant.add(java.sql.Date.class);
+        typesAcceptInstant.add(Timestamp.class);
     }
 
     void randomDigits(StringBuilder sb, int len, boolean noZeroStart, Random random) {

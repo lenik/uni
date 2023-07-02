@@ -41,7 +41,7 @@ public class ColumnUtils {
             m.declaringClass = Class.forName(m.declaringClassName);
             m.bestKnownClass = m.declaringClass;
         } catch (ClassNotFoundException e) {
-            String superClassName = table.getJavaType();
+            String superClassName = table.getBaseTypeName();
             if (superClassName == null)
                 return null;
             try {
@@ -51,7 +51,7 @@ public class ColumnUtils {
             }
         }
 
-        Class<?> type = column.getType();
+        Class<?> type = column.getJavaClass();
         boolean bool = type == boolean.class;
 
         if ((infoset & GET_FIELD) != 0)

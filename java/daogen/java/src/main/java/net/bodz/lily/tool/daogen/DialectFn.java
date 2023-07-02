@@ -142,4 +142,14 @@ public class DialectFn {
             keywords.add(k);
     }
 
+    static final String stringOfQuoteChar = "'";
+    static final String stringOfTwoQuoteChar = "''";
+
+    public static String quoteText(String s) {
+        if (s == null)
+            return "null";
+        s = s.replace(stringOfQuoteChar, stringOfTwoQuoteChar);
+        return stringOfQuoteChar + s + stringOfQuoteChar;
+    }
+
 }

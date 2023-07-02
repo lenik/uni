@@ -31,6 +31,7 @@ import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.tool.daogen.config.CatalogConfig;
 import net.bodz.lily.tool.daogen.config.CatalogConfigApplier;
 import net.bodz.lily.tool.daogen.config.FinishProcessor;
+import net.bodz.lily.tool.daogen.config.LangFixupApplier;
 
 /**
  * Generate DAO implementations in Java.
@@ -96,6 +97,13 @@ public class DaoCodeGenerator
     Boolean includeTables;
 
     /**
+     * Generate extra DDLs.
+     *
+     * @option -D --extra-ddls
+     */
+    boolean extraDDLs = false;
+
+    /**
      * Compute a digest as the random seed from the given string. "magic" by default.
      *
      * @option -S
@@ -125,6 +133,8 @@ public class DaoCodeGenerator
 
     CatalogConfig config = new CatalogConfig();
 
+    // The catalog data file can avoid to access the RDBMS, and speed up the loading,
+
     /**
      * Save the catalog metadata to file, and quit.
      *
@@ -138,6 +148,13 @@ public class DaoCodeGenerator
      * @option --load-catalog =FILE
      */
     File loadCatalogFile;
+
+    /**
+     * Save the effective config to file, for diagnostic.
+     *
+     * @option --save-config =FILE
+     */
+    File saveConfigFile;
 
     DataContext dataContext;
     Connection connection;
@@ -217,6 +234,8 @@ public class DaoCodeGenerator
         project.catalog = table.getCatalog();
         project.config = config;
 
+        project.extraDDLs = extraDDLs;
+
         UpdateMethod updateMethod;
         if (forceMode)
             updateMethod = diffMerge ? UpdateMethod.DIFF_MERGE : UpdateMethod.OVERWRITE;
@@ -242,8 +261,9 @@ public class DaoCodeGenerator
         new FooMapper__xml(project).buildFile(table);
         new FooMapper__java(project).buildFile(table);
         new FooMapperTest__java(project).buildFile(table);
-        new FooExporter__java(project).buildFile(table);
         new FooSamples__java(project).buildFile(table);
+        if (extraDDLs)
+            new FooExporter__java(project).buildFile(table);
     }
 
     public void makeView(IViewMetadata view)
@@ -297,6 +317,10 @@ public class DaoCodeGenerator
 
         if (includeTables == null && includeViews == null)
             includeTables = includeViews = true;
+
+        if (saveConfigFile != null) {
+            RstFn.saveToRst(config, saveConfigFile);
+        }
 
         for (String arg : args) {
             if (arg.startsWith("@")) {
@@ -374,6 +398,7 @@ public class DaoCodeGenerator
 
             config.defaultPackageName = parentPackage;
             catalog.accept(new CatalogConfigApplier(config));
+            catalog.accept(new LangFixupApplier(config));
             catalog.accept(new FinishProcessor(config));
 
             if (saveCatalogFile != null) {

@@ -2,9 +2,11 @@ package net.bodz.lily.tool.daogen;
 
 import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.codegen.QualifiedName;
+import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.entity.IdType;
 import net.bodz.lily.meta.TypeParamType;
 import net.bodz.lily.meta.TypeParameters;
@@ -23,7 +25,7 @@ public class Foo_stuff__java
         QualifiedName idType = templates.getIdType(table);
 
         String simpleName = project._Foo_stuff.name;
-        String baseClassName = table.getJavaType();
+        String baseClassName = table.getBaseTypeName();
 
         String params = "";
         String baseParams = "";
@@ -99,11 +101,16 @@ public class Foo_stuff__java
             templates.O_consts(out, table, null);
 
             for (IColumnMetadata column : table.getColumns()) {
+                String name = column.getName();
+                if (name.contains("class"))
+                    System.out.println(5245);
                 if (column.isExcluded())
                     continue;
 
-                if (column.isCompositeProperty())
+                if (column.isCompositeProperty()) {
+                    checkCompositeProperty(table, column);
                     continue;
+                }
 
                 if (column.isForeignKey())
                     continue;
@@ -114,6 +121,9 @@ public class Foo_stuff__java
 
             for (CrossReference xref : table.getForeignKeys().values()) {
                 if (xref.isExcluded(table))
+                    continue;
+
+                if (xref.isCompositeProperty())
                     continue;
 
                 out.println();
@@ -184,6 +194,9 @@ public class Foo_stuff__java
                 if (xref.isExcluded(table))
                     continue;
 
+                if (xref.isCompositeProperty())
+                    continue;
+
                 out.println();
                 templates.foreignKeyAccessors(out, xref, table);
 
@@ -207,6 +220,18 @@ public class Foo_stuff__java
         }
         out.println();
         out.println("}");
+    }
+
+    void checkCompositeProperty(ITableMetadata table, IColumnMetadata column) {
+        ColumnName cname = project.columnName(column);
+
+        // composite property, need to be declared in the user type.
+        // check if exists:
+        String head = Split.headDomain(cname.property).a;
+        IProperty headProperty = table.getEntityType().getProperty(head);
+        if (headProperty == null)
+            logger.warnf("context property (%s.%s) of the composite property(%s) isn't defined.",
+                    table.getEntityTypeName(), head, cname.property);
     }
 
 }

@@ -36,10 +36,9 @@ public class CatalogConfigApplier
                 mutable.setJavaQName(javaName);
             }
 
-            String type = config.getTableClassMap().get(table.getName());
-            if (type != null)
-                mutable.setJavaType(type);
-
+            String base = config.getTableBase(table.getName());
+            if (base != null)
+                mutable.setBaseTypeName(base);
         }
         tableSettings = config.resolveTable(table.getName());
         return true;
@@ -71,9 +70,9 @@ public class CatalogConfigApplier
             if (verboseLevel != null)
                 mutable.setVerboseLevel(verboseLevel.intValue());
 
-            Integer joinLevel = config.joinLevelMap.get(column.getName());
-            if (joinLevel != null)
-                mutable.setJoinLevel(joinLevel.intValue());
+            Integer columnJoinLevel = config.columnJoinLevelMap.get(column.getName());
+            if (columnJoinLevel != null)
+                mutable.setJoinLevel(columnJoinLevel.intValue());
 
             if (columnSettings != null) {
                 if (columnSettings.javaName != null)
@@ -86,7 +85,7 @@ public class CatalogConfigApplier
                     } catch (ClassNotFoundException e) {
                         throw new RuntimeException(e.getMessage(), e);
                     }
-                    mutable.setType(javaClass);
+                    mutable.setJavaClass(javaClass);
                 }
 
                 if (columnSettings.description != null)
