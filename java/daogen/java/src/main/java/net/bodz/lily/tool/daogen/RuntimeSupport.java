@@ -1,12 +1,13 @@
 package net.bodz.lily.tool.daogen;
 
 import net.bodz.bas.db.ibatis.IMapper;
+import net.bodz.lily.tool.daogen.util.CanonicalClass;
 
 public class RuntimeSupport {
 
     public static Class<?> findClass(String name) {
         try {
-            return Class.forName(name);
+            return CanonicalClass.forName(name);
         } catch (ClassNotFoundException e) {
             return null;
         }

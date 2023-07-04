@@ -12,6 +12,7 @@ import net.bodz.lily.meta.TypeParamType;
 import net.bodz.lily.meta.TypeParameters;
 import net.bodz.lily.model.base.CoEntity;
 import net.bodz.lily.model.base.StructRow;
+import net.bodz.lily.tool.daogen.util.CanonicalClass;
 
 public class Foo_stuff__java
         extends JavaGen__java {
@@ -34,7 +35,7 @@ public class Foo_stuff__java
         if (baseClassName != null) {
             Class<?> baseClass;
             try {
-                baseClass = Class.forName(baseClassName);
+                baseClass = CanonicalClass.forName(baseClassName);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
@@ -101,9 +102,6 @@ public class Foo_stuff__java
             templates.O_consts(out, table, null);
 
             for (IColumnMetadata column : table.getColumns()) {
-                String name = column.getName();
-                if (name.contains("class"))
-                    System.out.println(5245);
                 if (column.isExcluded())
                     continue;
 
@@ -127,6 +125,7 @@ public class Foo_stuff__java
                     continue;
 
                 out.println();
+
                 templates.foreignKeyField(out, xref, table);
 
                 for (String fkColumnName : xref.getForeignKey().getColumnNames()) {

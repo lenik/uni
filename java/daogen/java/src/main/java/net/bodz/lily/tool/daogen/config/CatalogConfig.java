@@ -131,10 +131,10 @@ public class CatalogConfig
 
     public String javaName(IColumnMetadata column) {
         ITableMetadata table = (ITableMetadata) column.getParent();
-        return javaName(table, column);
+        return javaName(table, column, true);
     }
 
-    public String javaName(ITableMetadata table, IColumnMetadata column) {
+    public String javaName(ITableMetadata table, IColumnMetadata column, boolean generateDefault) {
         String columnName = column.getName();
 
         TableSettings tableSettings = tableMap.get(columnName);
@@ -145,17 +145,30 @@ public class CatalogConfig
                     return columnSettings.javaName;
             }
         }
+
         String property = columnPropertyMap.get(columnName);
         if (property != null)
             return property;
 
         String name = column.getJavaName();
+
         if (name == null) {
-            name = StringId.UL.toCamel(columnName);
+            if (generateDefault)
+                name = StringId.UL.toCamel(columnName);
+            else
+                return null;
         }
 
+//        if (column.isForeignKey()) {
+//            INameDecorator decorator = foreignKeyDecorators.findDecorator(name);
+//            if (decorator != null)
+//                name = decorator.undecorate(name);
+//            else
+//                name = foreignKeyDecorators.getPreferredDecoratedName(name);
+//        }
+
         if (JavaLang.isKeyword(name))
-            name += "_";
+            name = JavaLang.renameKeyword(name);
         return name;
     }
 
@@ -181,7 +194,7 @@ public class CatalogConfig
             return type;
 
         Class<?> javaClass = column.getJavaClass();
-        return javaClass.getName();
+        return javaClass.getCanonicalName();
     }
 
     public ColumnName columnName(IColumnMetadata column) {
@@ -193,16 +206,6 @@ public class CatalogConfig
         String javaName = javaName(column);
         cname.setField(javaName);
 
-//        if (column.isForeignKey()) {
-//            name.keyProperty = name.property;
-//            name.refProperty = name.property;
-//
-//            INameDecorator decorator = foreignKeyDecorators.findDecorator(name.property);
-//            if (decorator != null)
-//                name.refProperty = decorator.undecorate(name.property);
-//            else
-//                name.keyProperty = foreignKeyDecorators.getPreferredDecoratedName(name.property);
-//        }
         return cname;
     }
 

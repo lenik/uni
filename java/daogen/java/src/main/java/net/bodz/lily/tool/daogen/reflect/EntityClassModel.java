@@ -14,6 +14,7 @@ import net.bodz.bas.c.string.StringId;
 import net.bodz.bas.potato.PotatoTypes;
 import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.t.catalog.TableOid;
+import net.bodz.lily.tool.daogen.util.CanonicalClass;
 
 public class EntityClassModel
         extends TableOid {
@@ -38,7 +39,7 @@ public class EntityClassModel
         String maskQn = pkg + ".impl." + simple + "Mask";
         IType maskType = null;
         try {
-            Class<?> maskClass = Class.forName(maskQn);
+            Class<?> maskClass = CanonicalClass.forName(maskQn);
             maskType = PotatoTypes.getInstance().loadType(maskClass);
         } catch (ClassNotFoundException e) {
         }

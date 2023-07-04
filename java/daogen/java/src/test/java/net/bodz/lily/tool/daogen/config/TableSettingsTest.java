@@ -5,8 +5,6 @@ import java.io.IOException;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.fmt.api.ElementHandlerException;
 import net.bodz.bas.fmt.rst.RstFn;
-import net.bodz.lily.tool.daogen.config.ColumnSettings;
-import net.bodz.lily.tool.daogen.config.TableSettings;
 
 public class TableSettingsTest {
 

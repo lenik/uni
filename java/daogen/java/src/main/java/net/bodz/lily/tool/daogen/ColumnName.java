@@ -12,9 +12,6 @@ public class ColumnName {
     public String property;
     public String Property;
 
-//    public String keyProperty;
-//    public String refProperty;
-
     public String constField;
 
     // public void setColumn(String column) {

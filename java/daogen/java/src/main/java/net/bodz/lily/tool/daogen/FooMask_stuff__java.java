@@ -19,6 +19,7 @@ import net.bodz.lily.t.base.CoMessage;
 import net.bodz.lily.t.base.CoMessageMask;
 import net.bodz.lily.template.CoCategory;
 import net.bodz.lily.template.CoCategoryMask;
+import net.bodz.lily.tool.daogen.util.CanonicalClass;
 
 public class FooMask_stuff__java
         extends JavaGen__java {
@@ -39,24 +40,26 @@ public class FooMask_stuff__java
 
     @Override
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
-        String javaType = table.getBaseTypeName();
+        String javaType = table.getJavaQName();
         Class<?> parentClass = null;
 
         if (javaType != null) {
             try {
-                Class<?> entityClass = Class.forName(javaType);
+                Class<?> entityClass = CanonicalClass.forName(javaType);
 
+                for (Class<?> base : defaultMaskBases.keySet()) {
+                    if (base.isAssignableFrom(entityClass)) {
+                        parentClass = defaultMaskBases.get(base);
+                        break;
+                    }
+                }
                 CriteriaClass aCriteriaClass = entityClass.getAnnotation(CriteriaClass.class);
                 if (aCriteriaClass != null) {
                     Class<?> criteriaClass = aCriteriaClass.value();
-                    parentClass = criteriaClass;
-                } else {
-                    for (Class<?> base : defaultMaskBases.keySet()) {
-                        if (base.isAssignableFrom(entityClass)) {
-                            parentClass = defaultMaskBases.get(base);
-                            break;
-                        }
-                    }
+                    if (parentClass == null)
+                        parentClass = criteriaClass;
+                    else if (parentClass.isAssignableFrom(criteriaClass))
+                        parentClass = criteriaClass;
                 }
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e.getMessage(), e);

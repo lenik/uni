@@ -9,7 +9,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.bodz.bas.c.string.Strings;
-import net.bodz.lily.tool.daogen.config.FinishProcessor;
 
 public class FinishProcessorTest
         extends Assert {

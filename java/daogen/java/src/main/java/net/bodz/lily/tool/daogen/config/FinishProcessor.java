@@ -24,6 +24,7 @@ import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.model.base.CoEntity;
 import net.bodz.lily.tool.daogen.ColumnName;
 import net.bodz.lily.tool.daogen.TableName;
+import net.bodz.lily.tool.daogen.util.CanonicalClass;
 
 public class FinishProcessor
         implements
@@ -77,7 +78,7 @@ public class FinishProcessor
         String parentType = tableView.getBaseTypeName();
         if (parentType != null) {
             try {
-                superclass = Class.forName(parentType);
+                superclass = CanonicalClass.forName(parentType);
             } catch (ClassNotFoundException e) {
                 logger.warn("unknown java type " + parentType);
                 return;

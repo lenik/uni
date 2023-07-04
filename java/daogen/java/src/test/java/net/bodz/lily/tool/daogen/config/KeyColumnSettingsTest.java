@@ -4,8 +4,6 @@ import org.junit.Test;
 
 import net.bodz.bas.fmt.json.JsonFn;
 import net.bodz.bas.fmt.rst.RstFn;
-import net.bodz.lily.tool.daogen.config.KeyColumnNameInfo;
-import net.bodz.lily.tool.daogen.config.KeyColumnSettings;
 
 public class KeyColumnSettingsTest {
 

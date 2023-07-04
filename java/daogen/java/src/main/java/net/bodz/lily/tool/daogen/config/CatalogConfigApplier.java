@@ -8,6 +8,7 @@ import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.cache.Derived;
 import net.bodz.bas.t.catalog.*;
+import net.bodz.lily.tool.daogen.util.CanonicalClass;
 import net.bodz.lily.tool.daogen.util.ReferencedTable;
 import net.bodz.lily.tool.daogen.util.ReferencedTableMap;
 
@@ -81,7 +82,7 @@ public class CatalogConfigApplier
                 if (columnSettings.javaType != null) {
                     Class<?> javaClass;
                     try {
-                        javaClass = Class.forName(columnSettings.javaType);
+                        javaClass = CanonicalClass.forName(columnSettings.javaType);
                     } catch (ClassNotFoundException e) {
                         throw new RuntimeException(e.getMessage(), e);
                     }

@@ -31,6 +31,7 @@ import net.bodz.bas.t.catalog.TableKey;
 import net.bodz.bas.t.catalog.TableOid;
 import net.bodz.bas.t.range.*;
 import net.bodz.bas.t.tuple.Split;
+import net.bodz.lily.tool.daogen.util.JavaLang;
 
 public class MiscTemplates {
 
@@ -174,7 +175,7 @@ public class MiscTemplates {
     }
 
     public void columnField(JavaSourceWriter out, IColumnMetadata column) {
-        Class<?> type = column.getJavaClass();
+        String javaType = project.config.javaType(column);
 
         String description = column.getDescription();
         if (description != null && !description.isEmpty())
@@ -189,7 +190,7 @@ public class MiscTemplates {
 
         ColumnName cname = project.columnName(column);
 //        String fieldName = fieldOverride != null ? fieldOverride : cname.field;
-        out.print(out.im.name(type) + " " + cname.field);
+        out.print(out.im.name(javaType) + " " + cname.field);
         out.println(";");
     }
 
@@ -290,13 +291,13 @@ public class MiscTemplates {
      */
     public void columnAccessors(JavaSourceWriter out, IColumnMetadata column, boolean impl) {
         ColumnName n = project.columnName(column);
-        Class<?> type = column.getJavaClass();
+        String javaType = project.config.javaType(column);
         boolean notNull = !column.isNullable(true);
-        String isOrGet = boolean.class == type ? "is" : "get";
+        String isOrGet = "boolean".equals(javaType) ? "is" : "get";
 
         columnGetterHeader(out, column);
         out.printf("public %s %s%s()", //
-                out.im.name(type), isOrGet, n.Property);
+                out.im.name(javaType), isOrGet, n.Property);
         if (impl) {
             out.println(" {");
             out.printf("    return %s;\n", n.field);
@@ -308,7 +309,10 @@ public class MiscTemplates {
 
         columnSetterHeader(out, column);
         out.printf("public void set%s(%s%s value)", n.Property, //
-                (notNull && !type.isPrimitive()) ? ("@" + out.im.name(NotNull.class) + " ") : "", out.im.name(type));
+                (notNull && !JavaLang.isPrimitive(javaType)) //
+                        ? ("@" + out.im.name(NotNull.class) + " ")
+                        : "",
+                out.im.name(javaType));
         if (impl) {
             out.println(" {");
             out.printf("    this.%s = value;\n", n.field);

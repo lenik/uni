@@ -4,6 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.m2.MavenPomDir;
@@ -27,11 +31,11 @@ import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.t.catalog.*;
-import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.tool.daogen.config.CatalogConfig;
 import net.bodz.lily.tool.daogen.config.CatalogConfigApplier;
 import net.bodz.lily.tool.daogen.config.FinishProcessor;
 import net.bodz.lily.tool.daogen.config.LangFixupApplier;
+import net.bodz.lily.tool.daogen.util.MavenDirs;
 
 /**
  * Generate DAO implementations in Java.
@@ -67,13 +71,12 @@ public class DaoCodeGenerator
     File outDir;
 
     /**
-     * API/Headers output directory. By default, search sibling -api or -model projects and put
-     * header files in src/main/java. If can't find such project, use the same value specified with
-     * <code>--out-dir</code>.
+     * API/Headers output directory. By default, search sibling -api or -model projects and put header files in
+     * src/main/java. If can't find such project, use the same value specified with <code>--out-dir</code>.
      *
      * @option -H =PATH
      */
-    File headerDir;
+    List<File> headerDirs = new ArrayList<>();
 
     /**
      * Max parent level to search for the header dir.
@@ -225,6 +228,19 @@ public class DaoCodeGenerator
         else
             seed = seedMagic.hashCode();
 
+        File headerDir = headerDirs.get(0);
+        String entityJava = table.getJavaQName().replace('.', '/') + ".java";
+        File altHeaderDir = null;
+        for (File hd : headerDirs)
+            if (new File(hd, "src/main/java/" + entityJava).exists()) {
+                altHeaderDir = hd;
+                break;
+            }
+        if (altHeaderDir != headerDir) {
+            logger.debug("use alternative header dir: " + altHeaderDir);
+            headerDir = altHeaderDir;
+        }
+
         ClassPathInfo modelPath = new ClassPathInfo(packageName, simpleName, //
                 outDir, "src/main/java", "src/main/resources");
         ClassPathInfo modelApiPath = new ClassPathInfo(packageName, simpleName, //
@@ -294,26 +310,12 @@ public class DaoCodeGenerator
             startDir = new File(startDir, chdir).getCanonicalFile();
 
         if (outDir == null) {
-            MavenPomDir pomDir = findPomDir(startDir);
+            MavenPomDir pomDir = MavenDirs.findPomDir(appClass, startDir);
             outDir = pomDir.getBaseDir();
         }
 
-        if (headerDir == null) {
-            MavenPomDir pomDir = findPomDir(startDir);
-            if (pomDir != null) {
-                String moduleName = pomDir.getName();
-                Split projectPart = Split.pop(moduleName, '-');
-                MavenPomDir apiPomDir = findPomDir(pomDir.getBaseDir(), 0, maxParents, //
-                        "model", //
-                        projectPart.a + "-api", //
-                        projectPart.a + "-model", //
-                        null);
-                if (apiPomDir != null)
-                    headerDir = apiPomDir.getBaseDir();
-            }
-            if (headerDir == null)
-                headerDir = outDir;
-        }
+        if (headerDirs.isEmpty())
+            headerDirs = findDefaultHeaderDir();
 
         if (includeTables == null && includeViews == null)
             includeTables = includeViews = true;
@@ -426,47 +428,28 @@ public class DaoCodeGenerator
 
     Class<?> appClass = getClass();
 
-    MavenPomDir findPomDir(File startDir, int maxDepth, int maxParents, String... moduleNames) {
-        logger.debugf("find pomdirs in %s [depth=%d, parents=%d]", startDir, maxDepth, maxParents);
-
-        for (String moduleName : moduleNames) {
-            if (moduleName == null)
-                continue;
-            File moduleDir = new File(startDir, moduleName);
-            if (MavenPomDir.isPomDir(moduleDir)) {
-                logger.debug("matched pom dir: " + moduleDir);
-                return new MavenPomDir(moduleDir);
+    List<File> findDefaultHeaderDir() {
+        MavenPomDir startPomDir = MavenDirs.findPomDir(appClass, startDir);
+        if (startPomDir != null) {
+            String moduleName = startPomDir.getName();
+            String prefix = "";
+            int lastDash = moduleName.lastIndexOf('-');
+            if (lastDash != -1)
+                prefix = moduleName.substring(0, lastDash);
+            List<MavenPomDir> pomDirs = MavenDirs.findPomDirs(startPomDir.getBaseDir(), 0, maxParents, //
+                    "model", //
+                    prefix + "-api", //
+                    prefix + "-model", //
+                    null);
+            if (!pomDirs.isEmpty()) {
+                List<File> headerDirs = new ArrayList<>();
+                for (MavenPomDir pomDir : pomDirs)
+                    headerDirs.add(pomDir.getBaseDir());
+                Collections.reverse(headerDirs);
+                return headerDirs;
             }
         }
-
-        if (maxDepth > 0) {
-            for (File subDir : startDir.listFiles((File f) -> f.isDirectory())) {
-                MavenPomDir child = findPomDir(subDir, maxDepth - 1, 0, moduleNames);
-                if (child != null)
-                    return child;
-            }
-        }
-
-        if (maxParents <= 0)
-            return null;
-        File parent = startDir.getParentFile();
-        if (parent == null)
-            return null;
-
-        return findPomDir(parent, maxDepth + 1, maxParents - 1, moduleNames);
-    }
-
-    MavenPomDir findPomDir(File startDir) {
-        MavenPomDir pomDir = MavenPomDir.closest(startDir);
-        if (pomDir == null) {
-            if (appClass == DaoCodeGenerator.class)
-                throw new RuntimeException("Can't locate the maven project from " + startDir);
-
-            pomDir = MavenPomDir.fromClass(appClass);
-            if (pomDir == null)
-                throw new RuntimeException("Can't locate the maven project from " + appClass);
-        }
-        return pomDir;
+        return Arrays.asList(outDir);
     }
 
     public static void main(String[] args)

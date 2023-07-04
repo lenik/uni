@@ -10,6 +10,7 @@ import net.bodz.lily.meta.TypeParamType;
 import net.bodz.lily.meta.TypeParameters;
 import net.bodz.lily.model.base.CoEntity;
 import net.bodz.lily.model.base.StructRow;
+import net.bodz.lily.tool.daogen.util.CanonicalClass;
 
 public class Foo__java_tv
         extends JavaGen__java {
@@ -34,7 +35,7 @@ public class Foo__java_tv
         if (baseClassName != null) {
             Class<?> baseClass = null;
             try {
-                baseClass = Class.forName(baseClassName);
+                baseClass = CanonicalClass.forName(baseClassName);
                 baseClassName = out.im.name(baseClass); // import&compress
             } catch (ClassNotFoundException e) {
                 baseClassName = out.im.name(baseClassName); // _Foo_stuff
