@@ -68,8 +68,8 @@ function main() {
     _log2 "delta: $opt_delta"
     
     date=$(getdate $opt_delta)
-    todaydir="$(diarydir $date)"
-    _log1 "date: $date, dir $todaydir"
+    datedir="$(diarydir $date)"
+    _log1 "date: $date, dir $datedir"
     
     if [ -n "$opt_reuse_maxday" ]; then
         if [ "$opt_create" = 1 ]; then
@@ -86,7 +86,7 @@ function main() {
     fi
     
     for name in "${names[@]}"; do
-        file="$todaydir/$name"
+        file="$datedir/$name"
         if [ -f "$file" ]; then
             open "$file"
         elif [ -n "$opt_reuse_maxday" ]; then
@@ -102,24 +102,23 @@ function main() {
                     found=1
                     if [ "$opt_create" = 1 ]; then
                         create-as "$file" "$chk_file"
-                        open "$file"
                     else
-                        open "$chk_file"
+                        file="$chk_file"
                     fi
                     break
                 fi
             done
             if [ $found = 0 ]; then
                 if [ $opt_create = 1 ]; then
-                    touch "$file"
-                    open "$file"
+                    open_new "$file"
                 elif [ $opt_require_template = 1 ]; then
                     _error "Can't find template for $name."
                 fi
+            else
+                open "$file"
             fi
         elif [ "$opt_create" = 1 ]; then
-            touch "$file"
-            open "$file"
+            open_new "$file"
         else
             _error "file not existed: $file"
         fi
@@ -129,6 +128,24 @@ function main() {
 function open() {
     _log1 "open $*"
     xdg-open "$@"
+}
+
+function open_new() {
+    local file="$1"
+    local dir="${file%/*}"
+    if [ ! -d "$dir" ]; then
+        _log1 "create directory $dir"
+        if ! mkdir -p "$dir"; then
+            _error "failed to create dir $dir."
+            exit 1
+        fi
+    fi
+    if [ ! -f "$file" ]; then
+        if ! touch "$file"; then
+            _error "failed to create file $file"
+        fi
+    fi
+    open "$file"
 }
 
 function create-as() {
