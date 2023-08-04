@@ -1,0 +1,21 @@
+Source: namecheapapi
+Section: admin
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+Standards-Version: 4.6.2
+Homepage: http://uni.bodz.net/admin/namecheapapi
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/admin/namecheapapi
+
+Package: namecheapapi
+Architecture: all
+Depends:
+    bash-shlib,
+    curl,
+    ${misc:Depends}
+Recommends:
+    proxychains4 | proxychains
+Description: Namecheap full api cmdline accessor.
