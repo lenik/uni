@@ -134,7 +134,15 @@ sub process() {
         $indent = ' ' x ($level * 4) if $opt_pretty;
     
     my ($head, @tail) = @selectors;
-    my @list = $node->find($head)->each;
+    my @headv = split(/,/, $head);
+    my @list = ();
+    for (@headv) {
+        s/^ +//;
+        s/ +$//;
+        my @sublist = $node->find($_)->each;
+        push(@list, @sublist);
+    }
+
     my $n = scalar(@list);
     if ($n == 0) { return 0; }
     
