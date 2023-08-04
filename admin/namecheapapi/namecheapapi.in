@@ -1,0 +1,337 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Namecheap API accessor}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] cmd args...}
+
+    . shlib-import cliboot
+    option -u --user =NAME      "Namecheap user name. (default the login user)"
+    option -s --server =HOSTNAME "The API server"
+    option -a --api-user =NAME  "API user name."
+    option -k --api-key =KEY    "Specify the API key"
+    option -n --dry-run         "Use the sandbox server"
+    option -c --client-ip =IP   "The client IP address. auto detected by default."
+    option -p --proxychains     "Use proxychains to execute commands"
+    
+    option -D --domains         "Set default package to domains"
+    option -B --domains-dns     "Set default package to domains.dns"
+    option -N --domains-ns      "Set default package to domains.ns"
+    option -T --domains-transfer "Set default package to domains,transfer"
+    option -S --ssl             "Set default package to ssl"
+    option -U --users           "Set default package to users"
+    option -A --users.address   "Set default package to users.address"
+    option -P --domainprivacy   "Set default package to domainprivacy"
+    
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    svr_sandbox=api.sandbox.namecheap.com
+    svr_production=api.namecheap.com
+
+    opt_user="$USER"
+    opt_server="$svr_production"
+    opt_key="a3a3ac557fc84fdb9338212c9b2ac9a1"
+    opt_api_user=
+    opt_dry_run=0
+    opt_client_ip=auto
+    opt_proxychains=0
+    opt_package=
+
+    curlopts=()
+    run_proxy=()
+    
+    configdir="$HOME/.config/ncapi"
+    
+function setopt() {
+    case "$1" in
+        -u|--user)
+            opt_user="$2";;
+        -s|--server)
+            opt_server="$2";;
+        -a|--api-user)
+            opt_api_user="$2";;
+        -k|--api-key)
+            opt_api_key="$2";;
+        -n|--dry-run)
+            opt_dry_run=1
+            opt_server="$svr_sandbox"
+            ;;
+        -c|--client-ip)
+            opt_client_ip="$2";;
+        -p|--proxychains)
+            opt_proxychains=1
+            run_proxy=(proxychains4 -q)
+            ;;
+            
+        -D|--domains)
+            opt_package=namecheap.domains;;
+        -B|--domains-dns)
+            opt_package=namecheap.domains.dns;;
+        -N|--domains-ns)
+            opt_package=namecheap.domains.ns;;
+        -T|--domains-transfer)
+            opt_package=namecheap.domains.transfer;;
+        -S|--ssl)
+            opt_package=namecheap.ssl;;
+        -U|--users)
+            opt_package=namecheap.users;;
+        -A|--users.address)
+            opt_package=namecheap.users.address;;
+        -P|--domainprivacy)
+            opt_package=namecheap.domainprivacy;;
+    
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    local cmd_name="$1"
+    shift
+    
+    init_RTTI
+
+    if [ -n "$opt_package" ]; then
+        if [ "${cmd_name/./}" == "${cmd_name}" ]; then
+            cmd_name="$opt_package.$cmd_name"
+        fi
+    fi
+    
+    if [ "${cmd_name/./}" == "${cmd_name}" ]; then
+        # cmd_name is simple name. try to expand it.
+        local cmd_names=()
+        local cmd_docs=()
+        if getMethodInfo "$cmd_name" cmd; then
+            local ncmd=${#cmd_names[@]}
+            if [ $ncmd -gt 1 ]; then
+                _error "ambiguous command name $cmd_name: "
+                for ((i = 0; i < ncmd; i++)); do
+                    _error "  ${cmd_names[i]}: ${cmd_docs[i]}"
+                done
+            fi
+            cmd_name="${cmd_names[0]}"
+        else
+            quit "command $cmd_name undefined."
+        fi
+    fi
+
+    if [ $LOGLEVEL -le 2 ]; then
+        curlopts+=(-s)
+    fi
+    
+    local cache_name=client-ip
+    if [ "$opt_proxychains" = 1 ]; then
+        cache_name=client-ip.proxy
+    fi
+    
+    if [ "$opt_client_ip" = auto ]; then
+        local ip=$( loadconfig $cache_name )
+        if [ ! -z "$ip" ]; then
+            _log1 "use cached client-ip $ip. refresh with -c0 if necessary."
+            opt_client_ip="$ip"
+        fi
+    fi
+    
+    if [ "$opt_client_ip" = auto -o "$opt_client_ip" = 0 ]; then
+        _log1 "detecting the client IP address."
+        if ip=$( myaddr ); then
+            _log1 "detected: $ip"
+            opt_client_ip="$ip"
+            saveconfig $cache_name "$ip"
+        else
+            quit "failed."
+        fi
+    fi
+    
+    if [ -z "$opt_api_user" ]; then
+        opt_api_user="$opt_user"
+    fi
+    
+    api_call "$cmd_name" "$@"
+}
+
+function myaddr() {
+    local svr=http://121.43.146.153:800/~lenik/admin/clientinfo
+    local svrip svrport myip myport
+    IFS=, read svrip svrport myip myport _ < <( curl "$svr" )
+    _log2 "server: $svrip port $svrport"
+    _log2 "client: $myip port $myport"
+    echo "$myip"
+}
+
+function api_call() {
+    local cmd="$1"
+    local client_ip=
+    shift
+    
+    local -A params
+    params[ApiUser]="$opt_api_user"
+    params[ApiKey]="$opt_key"
+    params[UserName]="$opt_user"
+    params[ClientIp]="$opt_client_ip"
+    params[Command]="$cmd"
+    
+    local url=$(make_url "https://$opt_server/xml.response" params)
+    curl $url
+}
+
+function make_url() {
+    local url="$1"
+    local -n map="$2"
+    
+    local i=0 k v
+    for k in "${!map[@]}"; do
+        v="${map[$k]}"
+        [ -z "$v" ] && continue
+        if [ "$i" == 0 ]; then
+            url="$url?$k=$v"
+        else
+            url="$url&$k=$v"
+        fi
+        ((i++))
+    done
+    
+    echo "$url"
+}
+
+CURL=$(which curl)
+function curl() {
+    _log2 "$CURL" "${curlopts[@]}" "$@"
+    "${run_proxy[@]}" "$CURL" "${curlopts[@]}" "$@"
+}
+
+function configfile() {
+    local name="$1"
+    local file="$configdir/$name"
+    if [ ! -d "configdir" ]; then
+        mkdir -p "$configdir"
+    fi
+    echo "$file"
+}
+
+function loadconfig() {
+    local name="$1"
+    local file="$configdir/$name"
+    if [ -f "$file" ]; then
+        cat "$file"
+    fi
+}
+
+function saveconfig() {
+    local file=$( configfile "$1" )
+    shift
+    echo "$*" > "$file"
+}
+
+declare -A methodInfo
+
+function init_RTTI() {
+    local package=
+    
+    while IFS='—' read k v; do
+        k="${k// /}" # remove space.
+        [ -z "$k" ] && continue
+        if [ -z "$v" ]; then
+            package="$k"
+            continue
+        fi
+        while [ "${v:0:1}" = ' ' ]; do v="${v:1}"; done
+        methodInfo[namecheap.$package.$k]="$v"
+    done <<EOT
+        domains
+        getList — Returns a list of domains for the particular user.
+        getContacts — Gets contact information of the requested domain.
+        create — Registers a new domain name.
+        getTldList — Returns a list of tlds
+        setContacts — Sets contact information for the domain.
+        check — Checks the availability of domains.
+        reactivate — Reactivates an expired domain.
+        renew — Renews an expiring domain.
+        getRegistrarLock — Gets the RegistrarLock status of the requested domain.
+        setRegistrarLock — Sets the RegistrarLock status for a domain.
+        getInfo — Returns information about the requested domain.
+        domains.dns
+        setDefault — Sets domain to use our default DNS servers. Required for free services like Host record management, URL forwarding, email forwarding, dynamic dns and other value added services.
+        setCustom — Sets domain to use custom DNS servers. NOTE: Services like URL forwarding, Email forwarding, Dynamic DNS will not work for domains using custom nameservers.
+        getList — Gets a list of DNS servers associated with the requested domain.
+        getHosts — Retrieves DNS host record settings for the requested domain.
+        getEmailForwarding — Gets email forwarding settings for the requested domain
+        setEmailForwarding — Sets email forwarding for a domain name.
+        setHosts — Sets DNS host records settings for the requested domain.
+        domains.ns
+        create — Creates a new nameserver.
+        delete — Deletes a nameserver associated with the requested domain.
+        getInfo — Retrieves information about a registered nameserver.
+        update — Updates the IP address of a registered nameserver.
+        domains.transfer
+        create — Transfers a domain to Namecheap. You can only transfer .biz, .ca, .cc, .co, .co.uk, .com, .com.es, .com.pe, .es, .in, .info, .me, .me.uk, .mobi, .net, .net.pe, .nom.es, .org, .org.es, .org.pe, .org.uk, .pe, .tv, .us domains through API at this time.
+        getStatus — Gets the status of a particular transfer.
+        updateStatus — Updates the status of a particular transfer. Allows you to re-submit the transfer after releasing the registry lock.
+        getList — Gets the list of domain transfers.
+        ssl
+        create — Creates a new SSL certificate.
+        getList — Returns a list of SSL certificates for the particular user.
+        parseCSR — Parsers the CSR
+        getApproverEmailList — Gets approver email list for the requested certificate.
+        activate — Activates a newly purchased SSL certificate.
+        resendApproverEmail — Resends the approver email.
+        getInfo — Retrieves information about the requested SSL certificate
+        renew — Renews an SSL certificate.
+        reissue — Reissues an SSL certificate.
+        resendfulfillmentemail — Resends the fulfilment email containing the certificate.
+        purchasemoresans — Purchases more add-on domains for already purchased certificate.
+        revokecertificate — Revokes a re-issued SSL certificate.
+        editDCVMethod — Sets new domain control validation (DCV) method for a certificate or serves as 'retry' mechanism
+        users
+        getPricing — Returns pricing information for a requested product type.
+        getBalances — Gets information about fund in the user's account.This method returns the following information: Available Balance, Account Balance, Earned Amount, Withdrawable Amount and Funds Required for AutoRenew.
+        changePassword — Changes password of the particular user's account.
+        update — Updates user account information for the particular user.
+        createaddfundsrequest — Creates a request to add funds through a credit card
+        getAddFundsStatus — Gets the status of add funds request.
+        create — Creates a new account at NameCheap under this ApiUser.
+        login — Validates the username and password of user accounts you have created using the API command namecheap.users.create.
+        resetPassword — When you call this API, a link to reset password will be emailed to the end user's profile email id.The end user needs to click on the link to reset password.
+        users.address
+        create — Creates a new address for the user
+        delete — Deletes the particular address for the user.
+        getInfo — Gets information for the requested addressID.
+        getList — Gets a list of addressIDs and addressnames associated with the user account.
+        setDefault — Sets default address for the user.
+        update — Updates the particular address of the user
+        domainprivacy
+        changeemailaddress — Changes domain privacy email address
+        enable — Enables domain privacy protection.
+        disable — Disables domain privacy protection.
+        getList — Gets the list of domain privacy protection.
+        renew — Renews domain privacy protection.
+EOT
+}
+
+function getMethodInfo() {
+    local simpleName="$1"
+    local -n fullNames="$2_names"
+    local -n helpDocs="$2_docs"
+    local k
+    for k in "${!methodInfo[@]}"; do
+        if [ "${k##*.}" = "$simpleName" ]; then
+            v="${methodInfo[$k]}"
+            fullNames+=("$k")
+            helpDocs+=("$v")
+        fi
+    done
+    local n=${#fullNames[@]}
+    test $n != 0
+}
+
+boot "$@"
