@@ -1,0 +1,32 @@
+# -*- mode: sh -*-
+# vim: set filetype=sh :
+
+function ltrim() {
+    local s="$*"
+    if shopt -q extglob; then
+        s="${s##+([[:space:]])}"
+        echo "$s"
+    else
+        local leading="${s%%[![:space:]]*}"
+        echo "${s#"$leading"}"
+    fi
+}
+
+function rtrim() {
+    local s="$*"
+    if shopt -q extglob; then
+        s="${s%%+([[:space:]])}"
+        echo "$s"
+    else
+        local trailing="${s##*[![:space:]]}"
+        echo "${s%"$trailing"}"
+    fi
+}
+
+function trim() {
+    local s="$*"
+    s=$(ltrim "$s")
+    s=$(rtrim "$s")
+    echo "$s"
+}
+
