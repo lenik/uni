@@ -18,7 +18,8 @@
     CURL=$(which curl)
 
     __FILE__=${0##*/}
-    SMSCACHE=/tmp/$__FILE__-smscode
+    cachedir="$HOME/.cache"
+    SMSCACHE="$cachedir/$__FILE__-smscode"
 
     opt_phone=
     opt_smscode=
@@ -189,6 +190,7 @@ function login() {
                 done
             fi
 
+            [ -d "$cachedir" ] || mkdir -p "$cachedir"
             echo "$opt_smscode" > $SMSCACHE
         fi
     fi
