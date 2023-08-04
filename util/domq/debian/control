@@ -1,0 +1,19 @@
+Source: domq
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+Standards-Version: 4.6.2
+Homepage: http://uni.bodz.net/util/domq
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/util/domq
+
+Package: domq
+Architecture: all
+Depends:
+    libcmt-perl,
+    libmojolicious-perl,
+    ${misc:Depends},
+Description: HTML DOM query util.
