@@ -19,6 +19,7 @@ use Mojo::DOM;
 
 sub _main; sub _version; sub _help;
 
+my $opt_pretty;
 my $opt_text;
 my $opt_all_text;
 
@@ -27,6 +28,7 @@ sub _boot {
                'v|verbose'      => sub { $LOGLEVEL++ },
                'version'        => sub { _version; exit 0 },
                'h|help'         => sub { _help; exit 0 },
+               'p|pretty'       => \$opt_pretty,
                't|text'         => \$opt_text,
                'T|all-text'     => \$opt_all_text,
                )
@@ -128,7 +130,8 @@ sub _main {
 
 sub process() {
     my ($node, $level, @selectors) = @_;
-    my $indent = ' ' x ($level * 4);
+    my $indent = '';
+        $indent = ' ' x ($level * 4) if $opt_pretty;
     
     my ($head, @tail) = @selectors;
     my @list = $node->find($head)->each;
@@ -140,7 +143,9 @@ sub process() {
     if ($n_tail) {
         for (my $i = 0; $i < $n; $i++) {
             my $item = $list[$i];
-            print "${indent}$i. " . $item->tag . "\n";
+            if ($opt_pretty) {
+                print "${indent}$i. " . $item->tag . "\n";
+            }
             process($item, $level + 1, @tail);
         }
     } else {
@@ -154,7 +159,10 @@ sub process() {
             } else {
                 $content = $item->content;
             }
-            print "${indent}$i. $content\n";
+            $content =~ s/^\s+//;
+            $content =~ s/\s+$//;
+            print "${indent}$i. " if $opt_pretty;
+            print "$content\n";
         }
     }
 }
