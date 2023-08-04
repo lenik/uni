@@ -4,7 +4,33 @@
     : ${PROGRAM_TITLE:=Namecheap API accessor}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] cmd args...}
 
-    . shlib-import cliboot
+    svr_sandbox=api.sandbox.namecheap.com
+    svr_production=api.namecheap.com
+
+    opt_user="$USER"
+    opt_server="$svr_production"
+    opt_key="a3a3ac557fc84fdb9338212c9b2ac9a1"
+    opt_api_user=
+    opt_dry_run=0
+    opt_client_ip=auto
+    opt_proxychains=0
+    opt_package=
+
+    curlopts=()
+    run_proxy=()
+    
+    pkgdatadir='@pkgdatadir@'
+    if [ "${pkgdatadir:0:1}" = '@' ]; then
+        __FILE__=$(readlink -f "$0")
+        pkgdatadir="${__FILE__%/*}"
+    fi
+
+    configdir="$HOME/.config/ncapi"
+
+    . shlib
+    import cliboot
+    #import strfn
+
     option -u --user =NAME      "Namecheap user name. (default the login user)"
     option -s --server =HOSTNAME "The API server"
     option -a --api-user =NAME  "API user name."
@@ -26,23 +52,6 @@
     option -v --verbose
     option -h --help
     option    --version
-
-    svr_sandbox=api.sandbox.namecheap.com
-    svr_production=api.namecheap.com
-
-    opt_user="$USER"
-    opt_server="$svr_production"
-    opt_key="a3a3ac557fc84fdb9338212c9b2ac9a1"
-    opt_api_user=
-    opt_dry_run=0
-    opt_client_ip=auto
-    opt_proxychains=0
-    opt_package=
-
-    curlopts=()
-    run_proxy=()
-    
-    configdir="$HOME/.config/ncapi"
     
 function setopt() {
     case "$1" in
@@ -99,7 +108,7 @@ function main() {
     local cmd_name="$1"
     shift
     
-    init_RTTI
+    . "$pkgdatadir/libnamecheap-cmds"
 
     if [ -n "$opt_package" ]; then
         if [ "${cmd_name/./}" == "${cmd_name}" ]; then
@@ -111,13 +120,15 @@ function main() {
         # cmd_name is simple name. try to expand it.
         local cmd_names=()
         local cmd_docs=()
-        if getMethodInfo "$cmd_name" cmd; then
+        if getCmdInfo "$cmd_name" cmd; then
             local ncmd=${#cmd_names[@]}
             if [ $ncmd -gt 1 ]; then
-                _error "ambiguous command name $cmd_name: "
+                _error "ambiguous command name $cmd_name. "
                 for ((i = 0; i < ncmd; i++)); do
-                    _error "  ${cmd_names[i]}: ${cmd_docs[i]}"
+                    local name2=${cmd_names[i]}
+                    _log1 "  $name2: ${cmd_docs[i]}"
                 done
+                exit 1
             fi
             cmd_name="${cmd_names[0]}"
         else
@@ -233,104 +244,21 @@ function saveconfig() {
     echo "$*" > "$file"
 }
 
-declare -A methodInfo
-
-function init_RTTI() {
-    local package=
-    
-    while IFS='—' read k v; do
-        k="${k// /}" # remove space.
-        [ -z "$k" ] && continue
-        if [ -z "$v" ]; then
-            package="$k"
-            continue
-        fi
-        while [ "${v:0:1}" = ' ' ]; do v="${v:1}"; done
-        methodInfo[namecheap.$package.$k]="$v"
-    done <<EOT
-        domains
-        getList — Returns a list of domains for the particular user.
-        getContacts — Gets contact information of the requested domain.
-        create — Registers a new domain name.
-        getTldList — Returns a list of tlds
-        setContacts — Sets contact information for the domain.
-        check — Checks the availability of domains.
-        reactivate — Reactivates an expired domain.
-        renew — Renews an expiring domain.
-        getRegistrarLock — Gets the RegistrarLock status of the requested domain.
-        setRegistrarLock — Sets the RegistrarLock status for a domain.
-        getInfo — Returns information about the requested domain.
-        domains.dns
-        setDefault — Sets domain to use our default DNS servers. Required for free services like Host record management, URL forwarding, email forwarding, dynamic dns and other value added services.
-        setCustom — Sets domain to use custom DNS servers. NOTE: Services like URL forwarding, Email forwarding, Dynamic DNS will not work for domains using custom nameservers.
-        getList — Gets a list of DNS servers associated with the requested domain.
-        getHosts — Retrieves DNS host record settings for the requested domain.
-        getEmailForwarding — Gets email forwarding settings for the requested domain
-        setEmailForwarding — Sets email forwarding for a domain name.
-        setHosts — Sets DNS host records settings for the requested domain.
-        domains.ns
-        create — Creates a new nameserver.
-        delete — Deletes a nameserver associated with the requested domain.
-        getInfo — Retrieves information about a registered nameserver.
-        update — Updates the IP address of a registered nameserver.
-        domains.transfer
-        create — Transfers a domain to Namecheap. You can only transfer .biz, .ca, .cc, .co, .co.uk, .com, .com.es, .com.pe, .es, .in, .info, .me, .me.uk, .mobi, .net, .net.pe, .nom.es, .org, .org.es, .org.pe, .org.uk, .pe, .tv, .us domains through API at this time.
-        getStatus — Gets the status of a particular transfer.
-        updateStatus — Updates the status of a particular transfer. Allows you to re-submit the transfer after releasing the registry lock.
-        getList — Gets the list of domain transfers.
-        ssl
-        create — Creates a new SSL certificate.
-        getList — Returns a list of SSL certificates for the particular user.
-        parseCSR — Parsers the CSR
-        getApproverEmailList — Gets approver email list for the requested certificate.
-        activate — Activates a newly purchased SSL certificate.
-        resendApproverEmail — Resends the approver email.
-        getInfo — Retrieves information about the requested SSL certificate
-        renew — Renews an SSL certificate.
-        reissue — Reissues an SSL certificate.
-        resendfulfillmentemail — Resends the fulfilment email containing the certificate.
-        purchasemoresans — Purchases more add-on domains for already purchased certificate.
-        revokecertificate — Revokes a re-issued SSL certificate.
-        editDCVMethod — Sets new domain control validation (DCV) method for a certificate or serves as 'retry' mechanism
-        users
-        getPricing — Returns pricing information for a requested product type.
-        getBalances — Gets information about fund in the user's account.This method returns the following information: Available Balance, Account Balance, Earned Amount, Withdrawable Amount and Funds Required for AutoRenew.
-        changePassword — Changes password of the particular user's account.
-        update — Updates user account information for the particular user.
-        createaddfundsrequest — Creates a request to add funds through a credit card
-        getAddFundsStatus — Gets the status of add funds request.
-        create — Creates a new account at NameCheap under this ApiUser.
-        login — Validates the username and password of user accounts you have created using the API command namecheap.users.create.
-        resetPassword — When you call this API, a link to reset password will be emailed to the end user's profile email id.The end user needs to click on the link to reset password.
-        users.address
-        create — Creates a new address for the user
-        delete — Deletes the particular address for the user.
-        getInfo — Gets information for the requested addressID.
-        getList — Gets a list of addressIDs and addressnames associated with the user account.
-        setDefault — Sets default address for the user.
-        update — Updates the particular address of the user
-        domainprivacy
-        changeemailaddress — Changes domain privacy email address
-        enable — Enables domain privacy protection.
-        disable — Disables domain privacy protection.
-        getList — Gets the list of domain privacy protection.
-        renew — Renews domain privacy protection.
-EOT
-}
-
-function getMethodInfo() {
-    local simpleName="$1"
-    local -n fullNames="$2_names"
-    local -n helpDocs="$2_docs"
-    local k
-    for k in "${!methodInfo[@]}"; do
-        if [ "${k##*.}" = "$simpleName" ]; then
-            v="${methodInfo[$k]}"
-            fullNames+=("$k")
-            helpDocs+=("$v")
+function getCmdInfo() {
+    local cmd="$1"
+    local retvar="$2"
+    local -n ret_names="${retvar}_names"
+    local -n ret_docs="${retvar}_docs"
+    local pkg
+    for pkg in "${PACKAGES[@]}"; do
+        local pkgvar=${pkg//./_}
+        local -n cmddoc="${pkgvar}[$cmd]"
+        if [ -n "$cmddoc" ]; then
+            ret_names+=("$pkg.$cmd")
+            ret_docs+=("$cmddoc")
         fi
     done
-    local n=${#fullNames[@]}
+    local n=${#ret_names[@]}
     test $n != 0
 }
 

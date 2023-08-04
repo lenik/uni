@@ -1,0 +1,137 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib
+    import cliboot
+    import strfn
+
+    option -p --package =PACKAGE
+    option -c --cmd-name =NAME
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_package=
+    opt_cmd_name=
+
+function setopt() {
+    case "$1" in
+        -p|--package)
+            opt_package="$2";;
+        -c|--cmd-name)
+            opt_cmd_name="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    indent1="    "
+    indent2="        "
+
+    for html in "$@"; do
+        package=$opt_package
+        cmd_name=$opt_cmd_name
+        if [ -z "$package" ]; then
+            read qid < <(domq -T h2 <"$html")
+            if [ "$qid" = 'Request Parameters' ]; then
+                read qid < <(domq -T '.api-docs h3' <"$html")
+            fi
+            package="${qid%.*}"
+            cmd_name="${qid##*.}"
+        fi
+
+        pkgvar=${package//./_}
+        cmdvar=${pkgvar}_${cmd_name}
+
+        echo
+        echo "# Package $package, Command $cmd_name"
+        echo "# (generated from file $html)"
+
+        read ntable nw nc _ < <( domq -t table <"$html" | wc )
+        section=1
+
+        echo
+        echo "${indent1}# Request Parameters"
+        echo "${indent2}declare -A ${cmdvar}_in"
+        echo "${indent2}declare -A ${cmdvar}_in_name"
+        echo "${indent2}declare -A ${cmdvar}_in_type"
+        echo "${indent2}declare -A ${cmdvar}_in_maxlen"
+        echo "${indent2}declare -A ${cmdvar}_in_required"
+        echo "${indent2}declare -A ${cmdvar}_in_description"
+        if [ $ntable -ge 3 ]; then
+            while read name type maxlen required description; do
+                [ -z "$name" ] && continue
+                local optname=$(hyphenatize $name)
+                optname=${optname#-}
+                echo
+                in_param "$name" "$optname" "$type" "$maxlen" "$required" "$description"
+            done < <(domq -T "table:nth-of-type($section)" tbody tr <"$html" )
+            ((section++))
+        fi
+
+        echo
+        echo "${indent1}# Response Parameters"
+        echo "${indent2}declare -A ${cmdvar}_out"
+        while read name description; do
+            [ -z "$name" ] && continue
+            out_param "$name" "$description"
+        done < <(domq -T "table:nth-of-type($section)" tbody tr <"$html" )
+        ((section++))
+
+        echo
+        echo "${indent1}# Error Codes"
+        echo "${indent2}declare -A ${cmdvar}_error"
+        while read number description; do
+            [ -z "$number" ] && continue
+            error_code "$number" "$description"
+        done < <(domq -T "table:nth-of-type($section)" tbody tr <"$html" )
+        ((section++))
+    done
+}
+
+function in_param() {
+    local name="$1"
+    local optname="$2"
+    local type="$3"
+    local maxlen="$4"
+    local required="$5"
+    local description=$(escape "$6")
+    echo "$indent2${cmdvar}_in[\"$name\"]=\"$description\""
+    echo "$indent2${cmdvar}_in_optname[\"$name\"]=\"$optname\""
+    echo "$indent2${cmdvar}_in_type[\"$name\"]=\"$type\""
+    echo "$indent2${cmdvar}_in_maxlen[\"$name\"]=\"$maxlen\""
+    echo "$indent2${cmdvar}_in_required[\"$name\"]=\"$required\""
+}
+
+function out_param() {
+    local name="$1"
+    local description=$(escape "$2")
+    echo "$indent2${cmdvar}_out[\"$name\"]=\"$description\""
+}
+
+function error_code() {
+    local number="$1"
+    local description=$(escape "$2")
+    echo "$indent2${cmdvar}_error[$number]=\"$description\""
+}
+
+function escape() {
+    local s="$*"
+    s="${s//\"/\\\"}"
+    echo "$s"
+}
+
+boot "$@"

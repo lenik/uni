@@ -1,0 +1,98 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib
+    import cliboot
+    import strfn
+    import string
+
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -p|--package)
+            opt_package="$2";;
+        -c|--cmd-name)
+            opt_cmd_name="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    local html="$1"
+    indent1="    "
+    indent2="        "
+
+    echo
+    echo "# Package Index"
+    echo "# (generated from file $html)"
+
+    echo
+    echo "${indent1}PACKAGES=()"
+
+    packages=()
+    
+    while IFS="—" read name description; do
+        name=$(rtrim "$name")
+        description=$(ltrim "$description")
+
+        pkgvar=namecheap_${name//./_}
+        if [ -z "$description" ]; then
+            package="$name"
+            packages+=("$package")
+            local cmdsvar="${pkgvar}__cmds"
+            local docsvar="${pkgvar}"
+            eval "declare -a $cmdsvar"
+            eval "declare -A $docsvar"
+            local -n cmds=$cmdsvar
+            local -n docs=$docsvar
+        else
+            cmds+=("$name")
+            docs[$name]="$description"
+        fi
+    done < <(domq -T .documentList h3,li <"$html")
+    
+    for package in ${packages[@]}; do
+        pkgvar=namecheap_${package//./_}
+        echo
+        echo "${indent1}PACKAGES+=(namecheap.$package)"
+        local cmdsvar="${pkgvar}__cmds"
+        local -n cmds="$cmdsvar"
+        echo "${indent1}${pkgvar}__cmds=(${cmds[@]})"
+        echo "${indent1}declare -A ${pkgvar}"
+        for cmd in "${cmds[@]}"; do
+            local docvar="${pkgvar}[$cmd]"
+            local -n doc="$docvar"
+            echo "${indent2}$docvar=\"$doc\""
+            
+            local optname=$(hyphenatize $cmd)
+                optname=${optname#-}
+            if [ "$optname" != "$cmd" ]; then
+                echo "${indent2}$pkgvar[$optname]=\"$doc\""
+            fi
+        done
+    done
+}
+
+function escape() {
+    local s="$*"
+    s="${s//\"/\\\"}"
+    echo "$s"
+}
+
+boot "$@"
