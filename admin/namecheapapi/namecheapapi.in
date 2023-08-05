@@ -15,6 +15,7 @@
     opt_client_ip=auto
     opt_proxychains=0
     opt_package=
+    opt_completion=0
 
     curlopts=()
     run_proxy=()
@@ -48,6 +49,7 @@
     option -A --users.address   "Set default package to users.address"
     option -P --domainprivacy   "Set default package to domainprivacy"
     
+    option -z --completion      "completion support mode, no operation"
     option -q --quiet
     option -v --verbose
     option -h --help
@@ -91,6 +93,8 @@ function setopt() {
         -P|--domainprivacy)
             opt_package=namecheap.domainprivacy;;
     
+        -z|--completion)
+            opt_completion=1;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -105,37 +109,50 @@ function setopt() {
 }
 
 function main() {
+    if [ "$opt_completion" = 1 ]; then
+        LOGLEVEL=0
+    fi
+
     local cmd_name="$1"
     shift
     
-    . "$pkgdatadir/libnamecheap-cmds"
-
-    if [ -n "$opt_package" ]; then
-        if [ "${cmd_name/./}" == "${cmd_name}" ]; then
-            cmd_name="$opt_package.$cmd_name"
-        fi
+    package=$opt_package
+    if [ "${cmd_name/./}" != "${cmd_name}" ]; then
+        package=${cmd_name%.*}
+        cmd_name="${cmd_name##*.}"
     fi
     
-    if [ "${cmd_name/./}" == "${cmd_name}" ]; then
+    . "$pkgdatadir/libnamecheap-cmds"
+    
+    cmd_undef=0
+    if [ -z "$package" ]; then
         # cmd_name is simple name. try to expand it.
-        local cmd_names=()
-        local cmd_docs=()
-        if getCmdInfo "$cmd_name" cmd; then
-            local ncmd=${#cmd_names[@]}
+        local match_names=()
+        local match_docs=()
+        if whichcmd "$cmd_name" match; then
+            local ncmd=${#match_names[@]}
             if [ $ncmd -gt 1 ]; then
-                _error "ambiguous command name $cmd_name. "
+                _error "ambiguous command name $cmd_name. ($ncmd)"
                 for ((i = 0; i < ncmd; i++)); do
-                    local name2=${cmd_names[i]}
-                    _log1 "  $name2: ${cmd_docs[i]}"
+                    local name2=${match_names[i]}
+                    _log1 "  $name2: ${match_docs[i]}"
                 done
                 exit 1
             fi
-            cmd_name="${cmd_names[0]}"
+            local first="${match_names[0]}"
+            package="${first%/*}"
         else
-            quit "command $cmd_name undefined."
+            cmd_undef=1
         fi
     fi
 
+    if [ $# = 0 ] && [ "$opt_completion" = 1 ]; then
+        compcmd "$cmd_name" "$package"
+        exit 0
+    fi
+
+    [ "$cmd_undef" = 1 ] && quit "command $cmd_name undefined."
+    
     if [ $LOGLEVEL -le 2 ]; then
         curlopts+=(-s)
     fi
@@ -168,7 +185,7 @@ function main() {
         opt_api_user="$opt_user"
     fi
     
-    api_call "$cmd_name" "$@"
+    api_call "$package" "$cmd_name" "$@"
 }
 
 function myaddr() {
@@ -181,10 +198,19 @@ function myaddr() {
 }
 
 function api_call() {
-    local cmd="$1"
+    local package="$1"
+    local cmd="$2"
     local client_ip=
-    shift
+    shift 2
     
+    if [ "$opt_completion" = 1 ]; then
+        local args=( "$@" )
+        local n=$#
+        local last="${args[n - 1]}"
+        compparam "$last" "$cmd" "$package"
+        exit 0
+    fi
+
     local -A params
     params[ApiUser]="$opt_api_user"
     params[ApiKey]="$opt_key"
@@ -244,7 +270,7 @@ function saveconfig() {
     echo "$*" > "$file"
 }
 
-function getCmdInfo() {
+function whichcmd() {
     local cmd="$1"
     local retvar="$2"
     local -n ret_names="${retvar}_names"
@@ -252,14 +278,56 @@ function getCmdInfo() {
     local pkg
     for pkg in "${PACKAGES[@]}"; do
         local pkgvar=${pkg//./_}
-        local -n cmddoc="${pkgvar}[$cmd]"
-        if [ -n "$cmddoc" ]; then
-            ret_names+=("$pkg.$cmd")
-            ret_docs+=("$cmddoc")
+        local -n docs="${pkgvar}"
+        if [ -n "$cmd" ]; then
+            local doc="${docs["$cmd"]}"
+            if [ -n "$doc" ]; then
+                ret_names+=("$pkg.$cmd")
+                ret_docs+=("$doc")
+            fi
         fi
     done
     local n=${#ret_names[@]}
     test $n != 0
+}
+
+function compcmd() {
+    local head="$1"
+    local pkg="$2"
+
+    local pkgv=("${PACKAGES[@]}")
+    [ -n "$pkg" ] && pkgv=("$pkg")
+
+    for pkg in "${pkgv[@]}"; do
+        local -n a_cmds=${pkg//./_}__cmds
+        local cmd
+        for cmd in ${a_cmds[@]}; do
+            if [ -z "$head" ] || [ "${cmd#"$head"}" != "$cmd" ]; then
+                echo "$cmd"
+            fi
+        done
+    done | sort -u
+}
+
+function compparam() {
+    local head="$1"
+    local cmd="$2"
+    local pkg="$3"
+
+    local pkgv=("${PACKAGES[@]}")
+    [ -n "$pkg" ] && pkgv=("$pkg")
+
+    for pkg in "${pkgv[@]}"; do
+        local cmdvar=${pkg//./_}_$cmd
+        local -n a_docs=${cmdvar}_in
+        local -n a_types=${cmdvar}_in_type
+        local key
+        for key in ${!a_types[@]}; do
+            if [ -z "$head" ] || [ "${key#"$head"}" != "$key" ]; then
+                echo "$key"
+            fi
+        done
+    done | sort -u
 }
 
 boot "$@"
