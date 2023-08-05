@@ -41,6 +41,11 @@ function main() {
     indent1="    "
     indent2="        "
 
+    fncode decl_cmd
+    fncode decl_in
+    fncode decl_out
+    fncode decl_err
+    
     for html in "$@"; do
         package=$opt_package
         cmd_name=$opt_cmd_name
@@ -65,18 +70,12 @@ function main() {
 
         echo
         echo "${indent1}# Request Parameters"
-        echo "${indent2}declare -A ${cmdvar}_in"
-        echo "${indent2}declare -A ${cmdvar}_in_name"
-        echo "${indent2}declare -A ${cmdvar}_in_type"
-        echo "${indent2}declare -A ${cmdvar}_in_maxlen"
-        echo "${indent2}declare -A ${cmdvar}_in_required"
-        echo "${indent2}declare -A ${cmdvar}_in_description"
+        echo "${indent2}decl_cmd \"$package\" \"$cmd_name\""
         if [ $ntable -ge 3 ]; then
             while read name type maxlen required description; do
                 [ -z "$name" ] && continue
                 local optname=$(hyphenatize $name)
                 optname=${optname#-}
-                echo
                 in_param "$name" "$optname" "$type" "$maxlen" "$required" "$description"
             done < <(domq -T "table:nth-of-type($section)" tbody tr <"$html" )
             ((section++))
@@ -84,7 +83,6 @@ function main() {
 
         echo
         echo "${indent1}# Response Parameters"
-        echo "${indent2}declare -A ${cmdvar}_out"
         while read name description; do
             [ -z "$name" ] && continue
             out_param "$name" "$description"
@@ -93,13 +91,60 @@ function main() {
 
         echo
         echo "${indent1}# Error Codes"
-        echo "${indent2}declare -A ${cmdvar}_error"
         while read number description; do
             [ -z "$number" ] && continue
             error_code "$number" "$description"
         done < <(domq -T "table:nth-of-type($section)" tbody tr <"$html" )
         ((section++))
     done
+}
+
+function fncode() {
+    local fn="$1"
+    type $fn | (read line; cat)
+}
+
+function decl_cmd() {
+    g_package="$1"
+    g_pkgvar=${g_package//./_}
+    g_cmd="$2"
+    local cmdvar=${g_pkgvar}_${g_cmd}
+    declare -gA ${cmdvar}_in
+    declare -gA ${cmdvar}_in_optname
+    declare -gA ${cmdvar}_in_type
+    declare -gA ${cmdvar}_in_maxlen
+    declare -gA ${cmdvar}_in_required
+    declare -gA ${cmdvar}_out
+    declare -gA ${cmdvar}_error
+}
+
+function decl_in() {
+    local name="$1"
+    local cmdvar=${g_pkgvar}_${g_cmd}
+    local -n a_optname=${cmdvar}_in_optname
+    local -n a_type=${cmdvar}_in_type
+    local -n a_maxlen=${cmdvar}_in_maxlen
+    local -n a_required=${cmdvar}_in_required
+    local -n a_doc=${cmdvar}_in
+    a_optname[$name]="$2"
+    a_type[$name]="$3"
+    a_maxlen[$name]="$4"
+    a_required[$name]="$5"
+    a_doc[$name]="$6"
+}
+
+function decl_out() {
+    local name="$1"
+    local cmdvar=${g_pkgvar}_${g_cmd}
+    local -n a_doc=${cmdvar}_out
+    a_doc[$name]="$2"
+}
+
+function decl_err() {
+    local number="$1"
+    local cmdvar=${g_pkgvar}_${g_cmd}
+    local -n a_doc=${cmdvar}_error
+    a_doc[$number]="$2"
 }
 
 function in_param() {
@@ -109,23 +154,20 @@ function in_param() {
     local maxlen="$4"
     local required="$5"
     local description=$(escape "$6")
-    echo "$indent2${cmdvar}_in[\"$name\"]=\"$description\""
-    echo "$indent2${cmdvar}_in_optname[\"$name\"]=\"$optname\""
-    echo "$indent2${cmdvar}_in_type[\"$name\"]=\"$type\""
-    echo "$indent2${cmdvar}_in_maxlen[\"$name\"]=\"$maxlen\""
-    echo "$indent2${cmdvar}_in_required[\"$name\"]=\"$required\""
+    echo "${indent2}decl_in \"$name\" \"$optname\" \"$type\" \"$maxlen\" \"$required\" \\"
+    echo "${indent2}        \"$description\""
 }
 
 function out_param() {
     local name="$1"
     local description=$(escape "$2")
-    echo "$indent2${cmdvar}_out[\"$name\"]=\"$description\""
+    echo "${indent2}decl_out \"$name\" \"$description\""
 }
 
 function error_code() {
     local number="$1"
     local description=$(escape "$2")
-    echo "$indent2${cmdvar}_error[$number]=\"$description\""
+    echo "${indent2}decl_err $number \"$description\""
 }
 
 function escape() {
