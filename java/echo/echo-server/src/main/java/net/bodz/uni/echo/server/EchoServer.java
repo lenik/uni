@@ -1,6 +1,7 @@
 package net.bodz.uni.echo.server;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,8 +41,8 @@ public class EchoServer
     public EchoServer(ServletContextConfig config) {
         super();
 
-        ServerConnector connector = buildConnector(config);
-        setConnectors(new Connector[] { connector });
+        List<ServerConnector> connectors = buildConnectors(config);
+        setConnectors(connectors.toArray(new ServerConnector[0]));
 
         this.config = config;
 
@@ -68,18 +69,22 @@ public class EchoServer
         addLifeCycleListener(new LifeCycleListener());
     }
 
-    ServerConnector buildConnector(ServletContextConfig config) {
-        ServerConnector connector = new ServerConnector(this);
-        String hostName = config.getHostName();
-        int port = config.getPortNumber();
+    List<ServerConnector> buildConnectors(ServletContextConfig config) {
+        List<ServerConnector> connectors = new ArrayList<>();
+        for (Integer port : config.getPorts()) {
 
-        if (hostName == null) {
-            // Enable both IPv4 & IPv6 on localhost.
-        } else {
-            connector.setHost(hostName);
+            ServerConnector connector = new ServerConnector(this);
+            String hostName = config.getHostName();
+
+            if (hostName == null) {
+                // Enable both IPv4 & IPv6 on localhost.
+            } else {
+                connector.setHost(hostName);
+            }
+            connector.setPort(port);
+            connectors.add(connector);
         }
-        connector.setPort(port);
-        return connector;
+        return connectors;
     }
 
     private void buildResourceProvider()
@@ -172,13 +177,13 @@ public class EchoServer
 
         super.doStart();
 
-        if (config.getPortNumber() == 0) {
+        if (config.getPorts().isEmpty()) {
             for (Connector connector : getConnectors()) {
                 if (connector instanceof ServerConnector) {
                     ServerConnector sc = (ServerConnector) connector;
                     int actualPort = sc.getLocalPort();
                     if (actualPort > 0) {
-                        config.setPortNumber(actualPort);
+                        config.addPort(actualPort);
                         break;
                     }
                 }

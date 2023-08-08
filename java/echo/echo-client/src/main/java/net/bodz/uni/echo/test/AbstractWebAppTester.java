@@ -57,9 +57,7 @@ public abstract class AbstractWebAppTester
 
     protected ServletContextConfig createTestConfig() {
         ServletContextConfig config = createConfig();
-        int portNumber = config.getPortNumber();
-        portNumber = 0;
-        config.setPortNumber(portNumber);
+        config.getPorts().clear();
 
         int rand = new Random().nextInt(10000);
         String contextPath = "/app" + rand;

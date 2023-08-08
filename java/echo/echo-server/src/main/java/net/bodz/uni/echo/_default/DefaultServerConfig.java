@@ -31,7 +31,7 @@ public class DefaultServerConfig
         String echoPort = System.getProperty(ATTRIBUTE_PORT);
         if (echoPort != null)
             portNumber = Integer.parseInt(echoPort);
-        setPortNumber(portNumber);
+        addPort(portNumber);
 
         addWelcomeFile("index.html");
         addWelcomeFile("index.htm");
