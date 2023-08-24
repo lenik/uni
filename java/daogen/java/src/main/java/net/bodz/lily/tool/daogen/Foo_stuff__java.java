@@ -98,8 +98,9 @@ public class Foo_stuff__java
             out.println();
             out.println("private static final long serialVersionUID = 1L;");
 
+            templates.FIELD_consts(out, table, null);
             templates.N_consts(out, table, null);
-            templates.O_consts(out, table, null);
+            templates.ord_consts(out, table, null);
 
             for (IColumnMetadata column : table.getColumns()) {
                 if (column.isExcluded())

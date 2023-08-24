@@ -11,6 +11,7 @@ import javax.persistence.Id;
 
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.primitive.Primitives;
+import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.codegen.QualifiedName;
@@ -25,6 +26,7 @@ import net.bodz.bas.repr.form.meta.TextInput;
 import net.bodz.bas.repr.form.validate.NotNull;
 import net.bodz.bas.repr.form.validate.Precision;
 import net.bodz.bas.t.catalog.CrossReference;
+import net.bodz.bas.t.catalog.DefaultColumnMetadata;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.catalog.TableKey;
@@ -104,6 +106,30 @@ public class MiscTemplates {
         out.println("}");
     }
 
+    public void FIELD_consts(ITreeOut out, ITableMetadata table, Boolean wantPrimaryKey) {
+        List<String> defs = new ArrayList<>();
+        for (IColumnMetadata column : table.getColumns()) {
+            if (wantPrimaryKey != null)
+                if (column.isPrimaryKey() != wantPrimaryKey.booleanValue())
+                    continue;
+
+            if (column.isExcluded())
+                continue;
+
+            if (column.isCompositeProperty())
+                continue;
+
+            ColumnName cname = project.columnName(column);
+            defs.add("public static final int FIELD_" + cname.constField + " = "
+                    + StringQuote.qqJavaString(cname.column) + ";");
+        }
+        if (!defs.isEmpty()) {
+            out.println();
+            for (String def : defs)
+                out.println(def);
+        }
+    }
+
     public void N_consts(ITreeOut out, ITableMetadata table, Boolean wantPrimaryKey) {
         List<String> defs = new ArrayList<>();
         for (IColumnMetadata column : table.getColumns()) {
@@ -121,10 +147,21 @@ public class MiscTemplates {
 
             ColumnName cname = project.columnName(column);
 
+            int precision = column.getPrecision();
+            int scale = column.getScale();
             if (type == String.class || Number.class.isAssignableFrom(type)) {
-                int precision = column.getPrecision();
-                if (precision > 0)
-                    defs.add("public static final int N_" + cname.constField + " = " + precision + ";");
+            } else {
+                if (precision < 0 && precision == Integer.MAX_VALUE)
+                    precision = 0;
+            }
+            if (precision > 0) {
+                String precisionVar = "N_" + cname.constField;
+                defs.add("public static final int " + precisionVar + " = " + precision + ";");
+                DefaultColumnMetadata m = (DefaultColumnMetadata) column;
+                m.setPrecisionExpr(precisionVar);
+            }
+            if (scale > 0) {
+                String scaleVar = "NS_" + cname.constField;
             }
         }
         if (!defs.isEmpty()) {
@@ -136,7 +173,7 @@ public class MiscTemplates {
 
     public static final String OrdinalPrefix = "_ord_";
 
-    public void O_consts(ITreeOut out, ITableMetadata table, Boolean wantPrimaryKey) {
+    public void ord_consts(ITreeOut out, ITableMetadata table, Boolean wantPrimaryKey) {
         List<String> defs = new ArrayList<>();
         String lastVarName = null;
         int lastOrdinal = 0;
@@ -226,6 +263,10 @@ public class MiscTemplates {
         // int columnDisplaySize = column.getColumnDisplaySize();
         int precision = column.getPrecision();
         int scale = column.getScale();
+
+        if (type == String.class || Number.class.isAssignableFrom(type)) {
+
+        }
 
         out.print("@" + out.im.name(Precision.class) + "(");
         {

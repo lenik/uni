@@ -29,8 +29,9 @@ public class IFoo_Id__java
         out.enter();
         {
 
+            templates.FIELD_consts(out, table, true);
             templates.N_consts(out, table, true);
-            templates.O_consts(out, table, true);
+            templates.ord_consts(out, table, true);
 
             for (IColumnMetadata column : primaryKeyCols) {
                 out.println();
