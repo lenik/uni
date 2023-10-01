@@ -1,14 +1,14 @@
-Source: jdk8-local
+Source: jdk-local
 Section: java
 Priority: extra
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: debhelper-compat (= 13)
 Standards-Version: 3.9.1
-Homepage: http://uni.bodz.net/alt/jdk8-local
+Homepage: http://uni.bodz.net/alt/jdk-local
 Vcs-Git: git://git.bodz.net/uni.git
-Vcs-Browser: http://git.bodz.net/uni/alt/jdk8-local
+Vcs-Browser: http://git.bodz.net/uni/alt/jdk-local
 
-Package: jdk8-local
+Package: jdk-local
 Architecture: all
 Provides:
     default-jre,
@@ -36,9 +36,18 @@ Provides:
     openjdk-7-jre-headless,
     openjdk-8-jdk,
     openjdk-8-jre,
-    openjdk-8-jre-headless
-Conflicts: jdk7-local
+    openjdk-8-jre-headless,
+    openjdk-11-jdk,
+    openjdk-11-jdk-headless,
+    openjdk-11-jre,
+    openjdk-11-jre-headless,
+    openjdk-17-jdk,
+    openjdk-17-jdk-headless,
+    openjdk-17-jre,
+    openjdk-17-jre-headless
+Conflicts: jdk7-local, jdk8-local
 Depends:
     bash-shlib,
     ${misc:Depends}
-Description: Virtual package for local installed Java 8 SDK.
+Description: Virtual package for latest local installed Java SDK.
+

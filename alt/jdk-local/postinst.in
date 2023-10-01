@@ -3,26 +3,49 @@
 
 shopt -s nullglob
 
-suffix=
-case `arch` in
-    x86_64) suffix=-64;;
-esac
-nsuffix="${#suffix}"
+arch=$( arch )
 
 jdk_latest=
-for jdkdir in /opt/java/jdk-*; do
+while read jdkdir; do
     [ -x "$jdkdir/bin/javac" ] || continue
     base="${jdkdir##*/}"
-    if [ -n "$suffix"  ] && [ "${base: -nsuffix}" != "$suffix" ]; then
-        continue
-    fi
+    case "$base" in
+        -64)
+            [ "$arch" != x86_64 ] && continue;;
+        -32)
+            [ "$arch" = x86_64 ] && continue;;
+    esac
     jdk_latest="$jdkdir"
-done
+    break
+done < <( echoln /opt/java/jdk-* | sort -Vr )
 
 if [ -z "$jdk_latest" ]; then
     echo "No JDK installation found in /opt/java/jdk-*$suffix" >&2
     exit 1
+else
+    echo "Found latest JDK: $jdk_latest"
 fi
+
+function ver2int() {
+    local v="$1"
+    local a
+    local n=
+    for a in ${v//./ }; do
+        if [ -z "$n" ]; then
+            n=$a
+        else
+            a=0$a
+            a=${a: -2}
+            n=$n$a
+        fi
+    done
+    echo $n
+}
+
+ver=${jdk_latest%-64}
+ver=${ver##*-}
+ver_int=$( ver2int "$ver" )
+echo "update-alternatives java apps with priority $ver_int."
 
 for bin in "$jdk_latest"/bin/*; do
     [ -x "$bin" ] || continue
@@ -30,11 +53,11 @@ for bin in "$jdk_latest"/bin/*; do
     base="${bin##*/}"
     #echo "Make as default: $base -> $bin"
     update-alternatives --install /usr/bin/$base $base \
-        "$bin" 10000
+        "$bin" $ver_int
 done
 
 lineconf -tm "Set JAVA_HOME in system wide environment" \
     @sysconfdir@/environment \
-    @jdk8-local::JAVA_HOME JAVA_HOME="$jdk_latest"
+    @jdk-local::JAVA_HOME JAVA_HOME="$jdk_latest"
 
 exit 0
