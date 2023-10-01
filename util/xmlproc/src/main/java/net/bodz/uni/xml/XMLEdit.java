@@ -325,11 +325,16 @@ public class XMLEdit
 
         Collections.sort(pairs, EntryKeyComparator.<String> getDefaultInstance());
 
-        List<Node> siblings = parent.elements();
+        List<Element> siblings = parent.elements();
         for (Pair<String, Node> pair : pairs) {
             Node node = pair.second;
             node.detach();
-            siblings.add(node);
+
+            // @TODO
+            if (node instanceof Element) {
+                Element elmNode = (Element) node;
+                siblings.add(elmNode);
+            }
         }
     }
 
