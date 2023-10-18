@@ -1,8 +1,8 @@
 package net.bodz.bas.html;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.googlecode.jatl.Html;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 public interface IFormChild {
 

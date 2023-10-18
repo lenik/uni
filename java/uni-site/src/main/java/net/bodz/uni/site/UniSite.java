@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import javax.servlet.http.HttpSession;
-
 import net.bodz.bas.i18n.dom.iString;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
@@ -28,6 +26,8 @@ import net.bodz.uni.site.model.Language;
 import net.bodz.uni.site.model.Preferences;
 import net.bodz.uni.site.model.Section;
 import net.bodz.uni.site.model.ToolMenu;
+
+import jakarta.servlet.http.HttpSession;
 
 /**
  * @label Uni - Development Tools

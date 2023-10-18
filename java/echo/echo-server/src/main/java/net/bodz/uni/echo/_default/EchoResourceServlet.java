@@ -4,12 +4,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.UnavailableException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.util.resource.Resource;
 
@@ -25,6 +19,12 @@ import net.bodz.bas.std.rfc.mime.ContentTypes;
 import net.bodz.uni.echo.resource.IResourceProvider;
 import net.bodz.uni.echo.server.EchoServer;
 import net.bodz.uni.echo.server.EchoServletContextHandler;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.UnavailableException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * This servlet should be served as the default servlet, which means to replace the default one.

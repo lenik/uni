@@ -5,9 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.html.dom.IHtmlHeadData;
 import net.bodz.bas.html.io.IHtmlOut;
@@ -33,6 +30,9 @@ import net.bodz.uni.site.model.Language;
 import net.bodz.uni.site.model.Preferences;
 import net.bodz.uni.site.model.Project;
 import net.bodz.uni.site.model.Section;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 public class UniSite_htm
         extends AbstractHtmlViewBuilder<UniSite>

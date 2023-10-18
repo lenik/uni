@@ -3,7 +3,7 @@ package net.bodz.uni.site.model;
 import java.io.Serializable;
 import java.util.Locale;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 public class Preferences
         implements Serializable {

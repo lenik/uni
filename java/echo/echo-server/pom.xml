@@ -31,7 +31,13 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
-            <version>9.4.48.v20220622</version>
+            <!--version>9.4.48.v20220622</version-->
+            <version>11.0.17</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-jmx</artifactId>
+            <version>11.0.17</version>
         </dependency>
         <dependency>
             <groupId>com.googlecode.jatl</groupId>

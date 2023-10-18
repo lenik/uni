@@ -1,14 +1,16 @@
 package net.bodz.uni.echo.server;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.ServletContext;
+import javax.management.MBeanServer;
 
+import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -28,6 +30,8 @@ import net.bodz.uni.echo.resource.MountableResourceProvider;
 import net.bodz.uni.echo.resource.ResourceProviders;
 import net.bodz.uni.echo.resource.UnionResourceProvider;
 
+import jakarta.servlet.ServletContext;
+
 public class EchoServer
         extends Server {
 
@@ -40,6 +44,10 @@ public class EchoServer
 
     public EchoServer(ServletContextConfig config) {
         super();
+
+        MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+        MBeanContainer mBeanContainer = new MBeanContainer(mBeanServer);
+        addBean(mBeanContainer);
 
         List<ServerConnector> connectors = buildConnectors(config);
         setConnectors(connectors.toArray(new ServerConnector[0]));
@@ -66,7 +74,7 @@ public class EchoServer
             }
         };
 
-        addLifeCycleListener(new LifeCycleListener());
+        addEventListener(new LifeCycleListener());
     }
 
     List<ServerConnector> buildConnectors(ServletContextConfig config) {

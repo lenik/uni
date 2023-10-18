@@ -2,8 +2,6 @@ package net.bodz.uni.echo.test;
 
 import java.util.Random;
 
-import javax.servlet.ServletContext;
-
 import org.junit.After;
 import org.junit.Before;
 
@@ -14,6 +12,8 @@ import net.bodz.bas.test.junit.JUnitApp;
 import net.bodz.uni.echo._default.DefaultServerConfig;
 import net.bodz.uni.echo.client.EchoClient;
 import net.bodz.uni.echo.server.EchoServer;
+
+import jakarta.servlet.ServletContext;
 
 public abstract class AbstractWebAppTester
         extends JUnitApp<AbstractWebAppTester> {
