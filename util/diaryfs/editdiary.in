@@ -13,6 +13,7 @@
     option -b --beat-log        "open beat log"
     option -c --create          "always create for today"
     option -u --reuse-maxday =N "reuse file from N days ago as template, implied -c when template exists"
+    option -C --vscode          "open with vscode"
     option -q --quiet
     option -v --verbose
     option -h --help
@@ -23,6 +24,7 @@
     opt_create=0
     opt_reuse_maxday=
     opt_require_template=1
+    opt_open=default
     
 function setopt() {
     case "$1" in
@@ -36,6 +38,8 @@ function setopt() {
             opt_create=1;;
         -u|--reuse-maxday)
             opt_reuse_maxday="$2";;
+        -C|--vscode)
+            opt_open=vscode;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -125,9 +129,48 @@ function main() {
     done
 }
 
+function findroot() {
+    local file="$1"
+    local dir="${file%/*}"
+    while [ -d "$dir" ]; do
+        if is_root "$dir"; then
+            echo "$dir"
+            return 0
+        fi
+        local parent="${dir%/*}"
+        if [ "$parent" = "$dir" ]; then
+            return 1
+        else
+            dir="$parent"
+        fi
+    done
+    return 1
+}
+
+function is_root() {
+    local dir="$1"
+    test -d "$dir/by-date"
+}
+
 function open() {
-    _log1 "open $*"
-    xdg-open "$@"
+    local file="$1"
+    _log1 "open $file"
+    case "$opt_open" in
+        default)
+            xdg-open "$file"
+            ;;
+        vscode)
+            local root
+            if ! root=$( vcscmd rootpath "$file" ); then
+                _log1 "not within a vcs workdir: $file, try to find diaryfs root."
+                root=$(findroot "$file") || quit "can't find diaryfs root for $file."
+            fi
+            _log1 "root: $root"
+            code -r "$root" "$file"
+            ;;
+        *)
+            quit "invalid open mode: $opt_open";;
+    esac
 }
 
 function open_new() {
