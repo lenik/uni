@@ -382,7 +382,8 @@ public class WinEdit
             public void widgetSelected(SelectionEvent e) {
                 if (hwnd == null)
                     return;
-                if (hwnd.equals(Pointer.createConstant(textEdit.handle)))
+                Pointer pHandle = Pointer.createConstant(textEdit.handle);
+                if (hwnd.getPointer().equals(pHandle))
                     return;
                 String text = textEdit.getText();
                 user32.SetWindowText(hwnd, text);
