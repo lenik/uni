@@ -1,0 +1,128 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=APK signature alternater}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] apk-file output-file}
+
+    . shlib-import cliboot
+    
+    option -k --keystore =PATH      'Specify the keystore location'
+    option -p --storepass =PASSWORD 'Specify the password'
+    option -n --alias =NAME         'Choose the key by alias name'
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_keystore=
+    opt_storepass=android
+    opt_alias=androiddebugkey
+    
+function setopt() {
+    case "$1" in
+        -k|--keystore)
+            opt_keystore="$2";;
+        -p|--storepass)
+            opt_storepass="$2";;
+        -n|--alias)
+            opt_alias="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    local ks apk
+    
+    if [ -z "$opt_keystore" ]; then
+        for ks in \
+                ~/.android/debug.keystore \
+                ; do
+            if [ -f "$ks" ]; then
+                _log1 "Auto selected keystore: $ks"
+                opt_keystore="$ks"
+                break
+            fi
+        done
+        if [ -z "$opt_keystore" ]; then
+            quit "keystore isn't specified."
+        fi
+    fi
+
+    if [ -z "$opt_alias" ]; then
+        quit "key alias isn't specified."
+    fi
+        
+    #USER_HOME=$(eval echo ~${SUDO_USER})
+
+    if [ -z "$1" ]; then
+        quit "apk file isn't specified."
+    fi
+    
+    local apk="$1"
+    local dir="${apk%/*}"
+    local base="${apk##*/}"
+    if [ "$base" = "$apk" ]; then
+        dir=.
+    fi
+    
+    local signed_apk="$2";
+    if [ -z "$signed_apk" ]; then
+        local name="${base%.*}"
+        local ext="${base##*.}"
+        signed_apk="$dir/$name-signed.$ext"
+    fi
+    
+    resign "$apk" "$signed_apk"
+}
+
+function resign() {
+    local apk="$1"
+    local out="$2"
+    
+    local copy=$(mktemp --tmpdir 'resign-XXXXXXXX.apk')
+    cp -f "$apk" "$copy"
+    
+    _log1 'delete META-INF folder'
+    zip -d $copy \
+        'META-INF/*.RSA' \
+        'META-INF/*.SF' \
+        'META-INF/*.MF'
+
+    _log1 'sign APK'
+    if ! jarsigner -verbose \
+            -sigalg SHA256withRSA \
+            -digestalg SHA256 \
+            -keystore "$opt_keystore" \
+            -storepass "$opt_storepass" \
+            $copy "$opt_alias"; then
+        quit "error signing with jarsigner."
+    fi
+        
+    _log1 'verify'
+    if ! jarsigner -verbose \
+            -verify \
+            -keystore "$opt_keystore" \
+            -storepass "$opt_storepass" \
+            $copy; then
+        quit "error verify the signature with jarsigner."
+    fi
+
+    _log1 'zipalign'
+    if ! zipalign -v 4 $copy "$out"; then
+        quit "error zipalign."
+    fi
+    
+    rm -f $copy
+}
+
+boot "$@"
+
