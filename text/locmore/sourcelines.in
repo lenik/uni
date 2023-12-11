@@ -1,0 +1,42 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Generate source lines}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FILES }
+
+    . shlib-import cliboot
+    option -l --file-list =FILE     'Get file names from the list'
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_list=
+    
+function setopt() {
+    case "$1" in
+        -l|--file-list)
+            opt_list="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for arg in "$@"; do
+        echo "FILE: $arg"
+        echo "-----------------------------------------------------------------"
+        nl -ba "$arg"
+        echo
+    done
+}
+
+boot "$@"
