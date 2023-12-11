@@ -9,6 +9,8 @@ import java.util.*;
 import javax.persistence.Column;
 import javax.persistence.Id;
 
+import org.joda.time.DateTime;
+
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.primitive.Primitives;
 import net.bodz.bas.c.string.StringQuote;
@@ -73,12 +75,24 @@ public class MiscTemplates {
         }
     }
 
-    static Map<Class<?>, String> initVals = new HashMap<>();
+    @FunctionalInterface
+    static interface CodeSnippet {
+        String make(JavaSourceWriter out);
+    }
+
+    static Map<Class<?>, CodeSnippet> initVals = new HashMap<>();
     static {
-        initVals.put(String.class, "\"\"");
-        initVals.put(BigDecimal.class, "BigDecimal.ZERO");
-        initVals.put(BigInteger.class, "BigInteger.ZERO");
-        initVals.put(Timestamp.class, "new Timestamp(System.currentTimeMillis())");
+        initVals.put(String.class, (JavaSourceWriter out) -> "\"\"");
+        initVals.put(BigDecimal.class, (JavaSourceWriter out) -> "BigDecimal.ZERO");
+        initVals.put(BigInteger.class, (JavaSourceWriter out) -> "BigInteger.ZERO");
+        initVals.put(DateTime.class, (JavaSourceWriter out) -> {
+            out.im.ref(DateTime.class);
+            return "new DateTime(System.currentTimeMillis())";
+        });
+        initVals.put(Timestamp.class, (JavaSourceWriter out) -> {
+            out.im.ref(Timestamp.class);
+            return "new Timestamp(System.currentTimeMillis())";
+        });
     }
 
     public void initNotNulls(JavaSourceWriter out, ITableMetadata table) {
@@ -95,10 +109,13 @@ public class MiscTemplates {
                 continue;
 
             Class<?> type = column.getJavaClass();
-            String initVal = MiscTemplates.initVals.get(type);
-            if (initVal == null)
+            System.out.printf("Column type: %s => %s\n", column.getName(), type);
+
+            CodeSnippet initValSnippet = MiscTemplates.initVals.get(type);
+            if (initValSnippet == null)
                 continue;
 
+            String initVal = initValSnippet.make(out);
             String code = getJavaSetCode(column, true, initVal);
             out.println("this." + code + ";");
         }
@@ -120,7 +137,7 @@ public class MiscTemplates {
                 continue;
 
             ColumnName cname = project.columnName(column);
-            defs.add("public static final int FIELD_" + cname.constField + " = "
+            defs.add("public static final String FIELD_" + cname.constField + " = "
                     + StringQuote.qqJavaString(cname.column) + ";");
         }
         if (!defs.isEmpty()) {
