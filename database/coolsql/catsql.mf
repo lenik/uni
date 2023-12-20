@@ -19,4 +19,7 @@ out/%.sql: %.sql
 	@grep -P '^\s*create\s+table\s' $< | tac | sed \
 		-e 's/create\s\+table\s\+/drop table /' \
 		-e 's/(\s*$$/;/' >>$@
+	@grep -P '^\s*create(\s+or\s+replace)?\s+sequence\s' $< | tac | sed \
+		-e 's/create\(\s\+or\s\+replace\)\?\s\+sequence\s\+\(\S\+\).*$$/drop sequence \2;/' \
+		>>$@
 

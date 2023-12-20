@@ -35,3 +35,8 @@ dist_setup_SCRIPTS = \
     prerm
 
 CLEANFILES = ${dist_setup_SCRIPTS}
+
+install-debug:
+	sudo ln -snf "$$PWD"/catrst.mf "$(DESTDIR)$(incdir)"
+	sudo ln -snf "$$PWD"/catsql.mf "$(DESTDIR)$(incdir)"
+
