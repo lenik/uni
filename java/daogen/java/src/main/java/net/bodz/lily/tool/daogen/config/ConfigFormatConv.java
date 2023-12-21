@@ -5,6 +5,7 @@ import java.io.File;
 import net.bodz.bas.fmt.json.JsonFn;
 import net.bodz.bas.fmt.json.JsonFormOptions;
 import net.bodz.bas.fmt.rst.RstFn;
+import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.program.skel.BasicCLI;
 
@@ -29,6 +30,8 @@ public class ConfigFormatConv
      */
     boolean rst;
 
+    IPrintOut out;
+
     @Override
     protected void mainImpl(String... args)
             throws Exception {
@@ -43,12 +46,12 @@ public class ConfigFormatConv
 
             if (json) {
                 String json = JsonFn.toJson(cc, JsonFormOptions.PRETTY);
-                System.out.println(json);
+                out.println(json);
             }
 
             if (rst) {
                 String rst = RstFn.toString(cc);
-                System.out.println(rst);
+                out.println(rst);
             }
         }
     }

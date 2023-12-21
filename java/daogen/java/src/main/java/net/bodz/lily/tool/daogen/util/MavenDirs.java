@@ -30,6 +30,7 @@ public class MavenDirs {
         if (moduleName == null)
             throw new NullPointerException("moduleName");
 
+        // System.out.printf("dir %s, maxd=%d, maxp=%d, mod %s\n", startDir, maxDepth, maxParents, moduleName);
         File moduleDir = new File(startDir, moduleName);
         if (MavenPomDir.isPomDir(moduleDir)) {
             logger.debug("matched pom dir: " + moduleDir);

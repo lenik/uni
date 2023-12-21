@@ -109,7 +109,7 @@ public class MiscTemplates {
                 continue;
 
             Class<?> type = column.getJavaClass();
-            System.out.printf("Column type: %s => %s\n", column.getName(), type);
+            // System.out.printf("Column type: %s => %s\n", column.getName(), type);
 
             CodeSnippet initValSnippet = MiscTemplates.initVals.get(type);
             if (initValSnippet == null)

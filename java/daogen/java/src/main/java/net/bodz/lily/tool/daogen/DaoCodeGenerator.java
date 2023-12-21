@@ -78,12 +78,14 @@ public class DaoCodeGenerator
      */
     List<File> headerDirs = new ArrayList<>();
 
+    boolean checkHeaderDir;
+
     /**
      * Max parent level to search for the header dir.
      *
      * @option --max-api-depth =NUM
      */
-    int maxParents = 2;
+    int maxParents = 1;
 
     /**
      * Generate models for views.
@@ -232,7 +234,7 @@ public class DaoCodeGenerator
         String entityJava = table.getJavaQName().replace('.', '/') + ".java";
         File altHeaderDir = null;
         for (File hd : headerDirs)
-            if (new File(hd, "src/main/java/" + entityJava).exists()) {
+            if (!checkHeaderDir || new File(hd, "src/main/java/" + entityJava).exists()) {
                 altHeaderDir = hd;
                 break;
             }
@@ -446,6 +448,8 @@ public class DaoCodeGenerator
                 for (MavenPomDir pomDir : pomDirs)
                     headerDirs.add(pomDir.getBaseDir());
                 Collections.reverse(headerDirs);
+                for (File dir : headerDirs)
+                    logger.log("header-dir: " + dir);
                 return headerDirs;
             }
         }
