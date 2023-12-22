@@ -23,53 +23,61 @@ public class FooExporter__java
         out.enter();
         {
 
-            out.printf("public static String exportDDL(%s obj) {\n", out.im.name(table.getJavaQName()));
-            out.enter();
-            {
-                Map<String, String> map = new LinkedHashMap<>();
-                for (IColumnMetadata column : table.getColumns()) {
-                    ColumnName cname = project.columnName(column);
-                    String col = cname.columnQuoted;
-                    String getExpr = templates.getJavaGetExpr(column);
-                    if (getExpr == null)
-                        continue;
-                    String code = String.format("encode(obj.%s, %s)", //
-                            getExpr, //
-                            out.im.simpleId(column.getJdbcType()));
-                    map.put(col, code);
-                }
+            out.println();
 
-                SBCodegen sb = new SBCodegen(out, "sb", null);
+            mtdExportDDL(out, table);
 
-                sb.append("insert into %s(", table.getName());
-
-                int i = 0;
-                for (String col : map.keySet()) {
-                    if (i++ == 0)
-                        sb.append(col);
-                    else
-                        sb.append(", " + col);
-                }
-
-                sb.append(") values (");
-
-                i = 0;
-                for (String col : map.keySet()) {
-                    if (i++ != 0)
-                        sb.append(", ");
-                    sb.appendCode(map.get(col));
-                }
-
-                sb.appendLine("); ");
-
-                out.println("return sb.toString();");
-                out.leave();
-            }
-            out.println("}"); // end of function
-
+            out.println();
             out.leave();
         }
         out.println();
+        out.println("}");
+    }
+
+    protected void mtdExportDDL(JavaSourceWriter out, ITableMetadata table) {
+        out.printf("public static String exportDDL(%s obj) {\n", //
+                out.im.name(table.getJavaQName()));
+        out.enter();
+        {
+            Map<String, String> map = new LinkedHashMap<>();
+            for (IColumnMetadata column : table.getColumns()) {
+                ColumnName cname = project.columnName(column);
+                String col = cname.columnQuoted;
+                String getExpr = templates.getJavaGetExpr(column);
+                if (getExpr == null)
+                    continue;
+                String code = String.format("encode(obj.%s, %s)", //
+                        getExpr, //
+                        out.im.simpleId(column.getJdbcType()));
+                map.put(col, code);
+            }
+
+            SBCodegen sb = new SBCodegen(out, "sb", null);
+
+            sb.append("insert into %s(", table.getName());
+
+            int i = 0;
+            for (String col : map.keySet()) {
+                if (i++ == 0)
+                    sb.append(col);
+                else
+                    sb.append(", " + col);
+            }
+
+            sb.append(") values (");
+
+            i = 0;
+            for (String col : map.keySet()) {
+                if (i++ != 0)
+                    sb.append(", ");
+                sb.appendCode(map.get(col));
+            }
+
+            sb.appendLine("); ");
+
+            out.println("return sb.toString();");
+            out.leave();
+        }
         out.println("}");
     }
 

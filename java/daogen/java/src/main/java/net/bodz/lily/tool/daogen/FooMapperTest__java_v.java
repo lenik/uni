@@ -25,7 +25,7 @@ public class FooMapperTest__java_v
                 out.leave();
             }
 
-            buildMapperMethods(out, model);
+            methods(out, model);
 
             out.println();
             out.leave();
@@ -33,7 +33,7 @@ public class FooMapperTest__java_v
         out.println("}");
     }
 
-    protected void buildMapperMethods(JavaSourceWriter out, ITableMetadata model) {
+    protected void methods(JavaSourceWriter out, ITableMetadata table) {
     }
 
 }

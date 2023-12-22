@@ -1,11 +1,13 @@
 package net.bodz.lily.tool.daogen;
 
+import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.codegen.QualifiedName;
 import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.bas.t.catalog.TableOid;
 import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.entity.IdType;
 import net.bodz.lily.meta.TypeParamType;
@@ -97,6 +99,18 @@ public class Foo_stuff__java
         {
             out.println();
             out.println("private static final long serialVersionUID = 1L;");
+
+            TableOid oid = table.getId();
+            out.println();
+            if (oid.getCatalogName() != null)
+                out.printf("public static final String CATALOG_NAME = %s;\n", //
+                        StringQuote.qqJavaString(oid.getCatalogName()));
+            if (oid.getSchemaName() != null)
+                out.printf("public static final String SCHEMA_NAME = %s;\n", //
+                        StringQuote.qqJavaString(oid.getSchemaName()));
+            if (oid.getTableName() != null)
+                out.printf("public static final String TABLE_NAME = %s;\n", //
+                        StringQuote.qqJavaString(oid.getTableName()));
 
             templates.FIELD_consts(out, table, null);
             templates.N_consts(out, table, null);

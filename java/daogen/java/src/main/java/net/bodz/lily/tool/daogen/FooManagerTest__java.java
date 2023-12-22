@@ -2,27 +2,28 @@ package net.bodz.lily.tool.daogen;
 
 import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.t.catalog.ITableMetadata;
-import net.bodz.lily.test.AbstractTableTest;
+import net.bodz.lily.test.AbstractManagerTest;
 
-public class FooMapperTest__java
+public class FooManagerTest__java
         extends JavaGen__java {
 
-    public FooMapperTest__java(JavaGenProject project) {
-        super(project, project.FooMapperTest);
+    public FooManagerTest__java(JavaGenProject project) {
+        super(project, project.FooManagerTest);
     }
 
     @Override
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
-        out.println("public class " + project.FooMapperTest.name);
+        out.println("public class " + project.FooManagerTest.name);
         out.enter();
         {
             out.enter();
             {
-                out.printf("extends %s<%s, %s, %s> {\n", //
-                        out.im.name(AbstractTableTest.class), //
-                        out.im.name(project.Foo), //
-                        out.im.name(project.FooMask), //
-                        project.FooMapper.name);
+                out.printf("extends %s<%s, %s, %s, %s> {\n", //
+                        out.im.name(AbstractManagerTest.class), //
+                        out.im.name(project.Foo.getFullName()), //
+                        out.im.name(project.FooMask.getFullName()), //
+                        out.im.name(project.FooMapper.getFullName()), //
+                        out.im.name(project.FooManager.getFullName()));
                 out.leave();
             }
 

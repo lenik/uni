@@ -6,7 +6,6 @@ import java.net.URL;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import net.bodz.bas.c.java.io.FilePath;
@@ -71,12 +70,39 @@ public class DaoCodeGenerator
     File outDir;
 
     /**
-     * API/Headers output directory. By default, search sibling -api or -model projects and put header files in
-     * src/main/java. If can't find such project, use the same value specified with <code>--out-dir</code>.
+     * Where to save header files include entity, mask, samples types.
+     *
+     * By default, search sibling -api or -model projects and put header files in src/main/java. fallback to out-dir.
      *
      * @option -H =PATH
      */
-    List<File> headerDirs = new ArrayList<>();
+    File headerDir;
+
+    /**
+     * Where to save -mapper files, exporters.
+     *
+     * By default, search sibling -impl or -dao projects and put class files in src/main/java. fallback to out-dir.
+     *
+     * @option =PATH
+     */
+    File daoDir;
+
+    /**
+     * Where to save web-service related files include -Index.
+     *
+     * By default, search sibling -webapp, -web, -ws, -server projects and put class files in src/main/java. fallback to
+     * out-dir.
+     *
+     * @option -W =PATH
+     */
+    File wsDir;
+
+    /**
+     * Where to save entity management web pages.
+     *
+     * @option -M =PATH
+     */
+    File htmlDir;
 
     boolean checkHeaderDir;
 
@@ -230,25 +256,15 @@ public class DaoCodeGenerator
         else
             seed = seedMagic.hashCode();
 
-        File headerDir = headerDirs.get(0);
-        String entityJava = table.getJavaQName().replace('.', '/') + ".java";
-        File altHeaderDir = null;
-        for (File hd : headerDirs)
-            if (!checkHeaderDir || new File(hd, "src/main/java/" + entityJava).exists()) {
-                altHeaderDir = hd;
-                break;
-            }
-        if (altHeaderDir != headerDir) {
-            logger.debug("use alternative header dir: " + altHeaderDir);
-            headerDir = altHeaderDir;
-        }
+        // ClassPathInfo outPath = ClassPathInfo.srcMain(packageName, simpleName, outDir);
+        ClassPathInfo headerPath = ClassPathInfo.srcMain(packageName, simpleName, headerDir);
+        ClassPathInfo daoPath = ClassPathInfo.srcMain(packageName, simpleName, daoDir);
+        ClassPathInfo wsPath = ClassPathInfo.srcMain(packageName, simpleName, wsDir);
+        ClassPathInfo htmlPath = ClassPathInfo.srcMain(packageName, simpleName, htmlDir);
 
-        ClassPathInfo modelPath = new ClassPathInfo(packageName, simpleName, //
-                outDir, "src/main/java", "src/main/resources");
-        ClassPathInfo modelApiPath = new ClassPathInfo(packageName, simpleName, //
-                headerDir, "src/main/java", "src/main/resources");
+        DirConfig dirConfig = new DirConfig(headerPath, daoPath, wsPath, htmlPath);
 
-        JavaGenProject project = new JavaGenProject(outDir, modelPath, modelApiPath, seed);
+        JavaGenProject project = new JavaGenProject(outDir, dirConfig, seed);
         project.catalog = table.getCatalog();
         project.config = config;
 
@@ -275,13 +291,19 @@ public class DaoCodeGenerator
         new Foo__java(project).buildFile(table);
         new FooMask_stuff__java(project).buildFile(table, UpdateMethod.OVERWRITE);
         new FooMask__java(project).buildFile(table);
-        new FooIndex__java(project).buildFile(table);
+        new FooSamples__java(project).buildFile(table);
+
         new FooMapper__xml(project).buildFile(table);
         new FooMapper__java(project).buildFile(table);
         new FooMapperTest__java(project).buildFile(table);
-        new FooSamples__java(project).buildFile(table);
+        new FooManager__java(project).buildFile(table);
+        new FooManagerTest__java(project).buildFile(table);
+
         if (extraDDLs)
             new FooExporter__java(project).buildFile(table);
+
+        new FooIndex__java(project).buildFile(table);
+        // new FooIndexTest__java(project).buildFile(table);
     }
 
     public void makeView(IViewMetadata view)
@@ -316,8 +338,14 @@ public class DaoCodeGenerator
             outDir = pomDir.getBaseDir();
         }
 
-        if (headerDirs.isEmpty())
-            headerDirs = findDefaultHeaderDir();
+        if (headerDir == null)
+            headerDir = findSiblingDir("header-dir", 0, "-types", "-model", "model", "-api");
+        if (daoDir == null)
+            daoDir = findSiblingDir("dao-dir", 0, "-dao", "-impl");
+        if (wsDir == null)
+            wsDir = findSiblingDir("ws-dir", 0, "-ws", "-webapp", "-server", "server");
+        if (htmlDir == null)
+            htmlDir = findSiblingDir("html-dir", 0, "-html", "-web", "-ws", "-webapp", "-server", "server");
 
         if (includeTables == null && includeViews == null)
             includeTables = includeViews = true;
@@ -430,30 +458,52 @@ public class DaoCodeGenerator
 
     Class<?> appClass = getClass();
 
-    List<File> findDefaultHeaderDir() {
+    File findSiblingDir(String logTitle, int index, String... search) {
+        List<File> list = findSiblingDirs(logTitle, search);
+        if (list.isEmpty())
+            return null;
+
+        if (index < 0)
+            index = list.size() + index;
+        if (index < 0 || index >= list.size())
+            return null;
+        File selection = list.get(index);
+        return selection;
+    }
+
+    List<File> findSiblingDirs(String logTitle, String... search) {
         MavenPomDir startPomDir = MavenDirs.findPomDir(appClass, startDir);
-        if (startPomDir != null) {
-            String moduleName = startPomDir.getName();
-            String prefix = "";
-            int lastDash = moduleName.lastIndexOf('-');
-            if (lastDash != -1)
-                prefix = moduleName.substring(0, lastDash);
-            List<MavenPomDir> pomDirs = MavenDirs.findPomDirs(startPomDir.getBaseDir(), 0, maxParents, //
-                    "model", //
-                    prefix + "-api", //
-                    prefix + "-model", //
-                    null);
-            if (!pomDirs.isEmpty()) {
-                List<File> headerDirs = new ArrayList<>();
-                for (MavenPomDir pomDir : pomDirs)
-                    headerDirs.add(pomDir.getBaseDir());
-                Collections.reverse(headerDirs);
-                for (File dir : headerDirs)
-                    logger.log("header-dir: " + dir);
-                return headerDirs;
-            }
+        if (startPomDir == null)
+            return Arrays.asList(outDir);
+
+        String moduleName = startPomDir.getName();
+        String prefix = "";
+        int lastDash = moduleName.lastIndexOf('-');
+        if (lastDash != -1)
+            prefix = moduleName.substring(0, lastDash);
+
+        String[] expands = new String[search.length];
+        for (int i = 0; i < search.length; i++) {
+            String s = search[i];
+            if (s.startsWith("-"))
+                s = prefix + s;
+            expands[i] = s;
         }
-        return Arrays.asList(outDir);
+
+        List<MavenPomDir> pomDirs = MavenDirs.findPomDirs(//
+                startPomDir.getBaseDir(), //
+                0 /* maxDepth */, maxParents, //
+                expands);
+
+        if (pomDirs.isEmpty())
+            return Arrays.asList(outDir);
+
+        List<File> dirs = new ArrayList<>();
+        for (MavenPomDir pomDir : pomDirs)
+            dirs.add(pomDir.getBaseDir());
+        for (File dir : dirs)
+            logger.log(logTitle + ": " + dir);
+        return dirs;
     }
 
     public static void main(String[] args)

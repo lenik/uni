@@ -83,11 +83,11 @@ public class Foo__java_tv
         {
             String catalog_name = oid.getCatalogName();
             if (catalog_name != null)
-                out.print("catalog = \"" + catalog_name + "\", ");
+                out.printf("catalog = %s.CATALOG_NAME, ", simpleName);
             String schema_name = oid.getSchemaName();
             if (schema_name != null)
-                out.print("schema = \"" + schema_name + "\", ");
-            out.print("name = \"" + oid.getTableName() + "\"");
+                out.printf("schema = %s.SCHEMA_NAME, ", simpleName);
+            out.printf("name = %s.TABLE_NAME", simpleName);
             out.println(")");
         }
 
@@ -97,8 +97,6 @@ public class Foo__java_tv
         {
             out.println();
             out.println("private static final long serialVersionUID = 1L;");
-
-            //
 
             out.leave();
         }

@@ -32,8 +32,11 @@ import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.typer.Typers;
 import net.bodz.bas.typer.std.ISampleGenerator;
+import net.bodz.lily.entity.type.EntityTypes;
+import net.bodz.lily.entity.type.IEntityTypeInfo;
 import net.bodz.lily.model.base.CoObject;
 import net.bodz.lily.test.TestSampleBuilder;
+import net.bodz.lily.util.IRandomPicker;
 
 public class FooSamples__java
         extends JavaGen__java {
@@ -65,10 +68,6 @@ public class FooSamples__java
         random = random(table.getId());
         enGen = en(table.getId());
 
-        IType entityType = table.getEntityType();
-        Set<String> compositeHeads = templates.getCompositeHeads(table);
-        List<IColumnMetadata> columns = new ArrayList<>(table.getColumns());
-
         out.println("public class " + project.FooSamples.name);
         out.enter();
         {
@@ -80,99 +79,209 @@ public class FooSamples__java
                 out.leave();
             }
 
+            List<IColumnMetadata> columns = new ArrayList<>(table.getColumns());
+
             // foreign key references as member properties
             for (String fkName : table.getForeignKeys().keySet()) {
                 CrossReference xref = table.getForeignKeys().get(fkName);
                 if (xref.isCompositeProperty())
                     continue;
-                String parentClassName = xref.getParentTable().getEntityTypeName();
-                out.printf("public %s %s;\n", //
-                        out.im.name(parentClassName), xref.getJavaName());
                 for (IColumnMetadata foreignColumn : xref.getForeignColumns())
                     columns.remove(foreignColumn);
             }
-            if (!table.getForeignKeys().isEmpty())
-                out.println();
 
-            for (String head : compositeHeads) {
-                Class<?> propertyClass;
-                if (entityType != null) {
-                    IProperty headProperty = entityType.getProperty(head);
-                    propertyClass = headProperty.getPropertyClass();
-                } else {
-                    propertyClass = Object.class; // need user fix.
-                }
-                out.printf("public %s %s;\n", //
-                        out.im.name(propertyClass), head);
-            }
-            if (!compositeHeads.isEmpty())
-                out.println();
+            fields(out, table, columns);
 
-            out.printf("public %s build()\n", //
-                    out.im.name(project.Foo));
-            out.println("        throws Exception {");
-            out.enter();
-            {
-                out.printf("%s a = new %s();\n", //
-                        out.im.name(project.Foo), out.im.name(project.Foo));
+            mtdBuild(out, table, columns);
 
-                for (String fkName : table.getForeignKeys().keySet()) {
-                    CrossReference xref = table.getForeignKeys().get(fkName);
-                    if (xref.isCompositeProperty())
-                        continue;
+            mtdWireAny(out, table);
 
-                    String setterName;
-                    if (entityType != null) {
-                        IProperty refProperty = entityType.getProperty(xref.getJavaName());
-                        if (refProperty == null) {
-                            logger.warn("no property for xref " + fkName);
-                            continue;
-                        }
-
-                        BeanProperty bp = (BeanProperty) refProperty;
-                        Method setter = bp.getPropertyDescriptor().getWriteMethod();
-                        setterName = setter.getName();
-                    } else {
-                        String property = xref.getJavaName();
-                        setterName = "set" + Strings.ucfirst(property);
-                    }
-
-                    out.printf("a.%s(%s);\n", //
-                            setterName, //
-                            xref.getJavaName());
-                }
-
-                for (IColumnMetadata column : columns) {
-                    if (column.isExcluded()) // mixin?
-                        continue;
-
-                    if (column.isCompositeProperty())
-                        continue;
-
-                    if (!canWrite(entityType, column))
-                        continue;
-
-                    makeEntry(out, column);
-                }
-
-                if (entityType != null)
-                    for (String head : compositeHeads) {
-                        IProperty headProperty = entityType.getProperty(head);
-                        Class<?> propertyClass = headProperty.getPropertyClass();
-                        String compositeSamplesType = propertyClass.getName() + "Samples";
-                        out.printf("a.set%s(new %s().build());\n", //
-                                Strings.ucfirst(head), //
-                                out.im.name(compositeSamplesType));
-                    }
-
-                out.println("return a;");
-                out.leave();
-            }
-            out.println("}");
-            out.println();
             out.leave();
         }
         out.println("}");
+    }
+
+    void fields(JavaSourceWriter out, ITableMetadata table, List<IColumnMetadata> columns) {
+        IType entityType = table.getEntityType();
+        Set<String> compositeHeads = templates.getCompositeHeads(table);
+
+        // foreign key references as member properties
+        for (String fkName : table.getForeignKeys().keySet()) {
+            CrossReference xref = table.getForeignKeys().get(fkName);
+            if (xref.isCompositeProperty())
+                continue;
+            String parentClassName = xref.getParentTable().getEntityTypeName();
+            out.printf("public %s %s;\n", //
+                    out.im.name(parentClassName), xref.getJavaName());
+            for (IColumnMetadata foreignColumn : xref.getForeignColumns())
+                columns.remove(foreignColumn);
+        }
+        if (!table.getForeignKeys().isEmpty())
+            out.println();
+
+        for (String head : compositeHeads) {
+            Class<?> propertyClass;
+            if (entityType != null) {
+                IProperty headProperty = entityType.getProperty(head);
+                propertyClass = headProperty.getPropertyClass();
+            } else {
+                propertyClass = Object.class; // need user fix.
+            }
+            out.printf("public %s %s;\n", //
+                    out.im.name(propertyClass), head);
+        }
+        if (!compositeHeads.isEmpty())
+            out.println();
+    }
+
+    void mtdBuild(JavaSourceWriter out, ITableMetadata table, List<IColumnMetadata> columns) {
+        IType entityType = table.getEntityType();
+        Set<String> compositeHeads = templates.getCompositeHeads(table);
+
+        out.println("@Override");
+        out.printf("public %s build()\n", //
+                out.im.name(project.Foo));
+        out.println("        throws Exception {");
+        out.enter();
+        {
+            out.printf("%s a = new %s();\n", //
+                    out.im.name(project.Foo), out.im.name(project.Foo));
+
+            for (String fkName : table.getForeignKeys().keySet()) {
+                CrossReference xref = table.getForeignKeys().get(fkName);
+                if (xref.isCompositeProperty())
+                    continue;
+
+                String setterName;
+                if (entityType != null) {
+                    IProperty refProperty = entityType.getProperty(xref.getJavaName());
+                    if (refProperty == null) {
+                        logger.warn("no property for xref " + fkName);
+                        continue;
+                    }
+
+                    BeanProperty bp = (BeanProperty) refProperty;
+                    Method setter = bp.getPropertyDescriptor().getWriteMethod();
+                    setterName = setter.getName();
+                } else {
+                    String property = xref.getJavaName();
+                    setterName = "set" + Strings.ucfirst(property);
+                }
+
+                out.printf("a.%s(%s);\n", //
+                        setterName, //
+                        xref.getJavaName());
+            }
+
+            for (IColumnMetadata column : columns) {
+                if (column.isExcluded()) // mixin?
+                    continue;
+
+                if (column.isCompositeProperty())
+                    continue;
+
+                if (!canWrite(entityType, column))
+                    continue;
+
+                makeEntry(out, column);
+            }
+
+            if (entityType != null)
+                for (String head : compositeHeads) {
+                    IProperty headProperty = entityType.getProperty(head);
+                    Class<?> propertyClass = headProperty.getPropertyClass();
+                    String compositeSamplesType = propertyClass.getName() + "Samples";
+                    out.printf("a.set%s(new %s().build());\n", //
+                            Strings.ucfirst(head), //
+                            out.im.name(compositeSamplesType));
+                }
+
+            out.println("return a;");
+            out.leave();
+        }
+        out.println("}");
+        out.println();
+    }
+
+    void mtdWireAny(JavaSourceWriter out, ITableMetadata table) {
+        IType entityType = table.getEntityType();
+        Set<String> compositeHeads = templates.getCompositeHeads(table);
+
+        out.println("@Override");
+        out.printf("public %s wireAny(%s picker) {\n", //
+                project.FooSamples.name, //
+                out.im.name(IRandomPicker.class));
+        // out.println(" throws Exception {");
+        out.enter();
+        {
+            for (String fkName : table.getForeignKeys().keySet()) {
+                CrossReference xref = table.getForeignKeys().get(fkName);
+                if (xref.isCompositeProperty())
+                    continue;
+
+                String parentClassName = xref.getParentTable().getEntityTypeName();
+                String parentMapperName = null;
+
+                IType parentType = xref.getParentTable().getEntityType();
+                if (parentType != null) {
+                    IEntityTypeInfo parentInfo = EntityTypes.getTypeInfo(parentType.getJavaClass());
+                    if (parentInfo != null) {
+                        Class<?> mc = parentInfo.getMapperClass();
+                        if (mc != null)
+                            parentMapperName = mc.getCanonicalName();
+                    }
+                }
+                if (parentMapperName == null) {
+                    int lastDot = parentClassName.lastIndexOf('.');
+                    String pkg = parentClassName.substring(0, lastDot);
+                    String simple = parentClassName.substring(lastDot + 1);
+                    parentMapperName = pkg + ".dao." + simple + "Mapper";
+                }
+
+                String templateField = xref.getJavaName();
+
+                // TODO need to update all entity classes before using TABLE_NAME.
+                // String parentClass = xref.getParentTable().getJavaQName();
+
+                out.printf("this.%s = picker.pickAny(%s.class, \"%s\");\n", //
+                        templateField, //
+                        out.im.name(parentMapperName), //
+                        // out.im.name(parentClass)
+                        xref.getParentTable().getName() //
+                );
+            }
+
+            if (entityType != null)
+                for (String head : compositeHeads) {
+                    IProperty headProperty = entityType.getProperty(head);
+                    if (headProperty == null)
+                        continue;
+                    Class<?> type = headProperty.getPropertyClass();
+                    String samplesClassName = type.getName() + "Samples";
+                    String templateField = head;
+                    out.printf("this.%s = new %s().build();\n", //
+                            templateField, //
+                            out.im.name(samplesClassName));
+                }
+
+            out.println("return this;");
+            out.leave();
+        }
+        out.println("}");
+        out.println();
+
+        out.println("@Override");
+        out.printf("public %s buildWired(%s picker)", //
+                out.im.name(project.Foo.getFullName()), //
+                out.im.name(IRandomPicker.class));
+        out.println(" throws Exception {");
+        out.enter();
+        {
+            out.printf("return wireAny(picker).build();\n");
+            out.leave();
+        }
+        out.println("}");
+        out.println();
     }
 
     void makeEntry(JavaSourceWriter out, IColumnMetadata column) {

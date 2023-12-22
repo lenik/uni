@@ -16,6 +16,7 @@ public class JavaGenProject {
 
     File baseDir;
     String daoPackage = "dao";
+    String wsPackage = "ws";
     UpdateMethod updateMethod;
 
     ICatalogMetadata catalog;
@@ -40,29 +41,32 @@ public class JavaGenProject {
     public final ClassPathInfo FooMask;
     public final ClassPathInfo FooMaskTest; // test
 
-    public final ClassPathInfo FooMapper;
-    public final ClassPathInfo FooIndex;
+    public final ClassPathInfo FooSamples; // test
 
+    public final ClassPathInfo FooMapper;
+    public final ClassPathInfo FooMapperTest; // test
+    public final ClassPathInfo FooManager;
+    public final ClassPathInfo FooManagerTest; // test
     public final ClassPathInfo FooExporter;
 
-    public final ClassPathInfo FooSamples; // test
-    public final ClassPathInfo FooMapperTest; // test
+    public final ClassPathInfo FooIndex;
     public final ClassPathInfo FooIndexTest; // test
 
-    public JavaGenProject(File baseDir, ClassPathInfo modelPath, ClassPathInfo modelApiPath, long randomSeed) {
+    public JavaGenProject(File baseDir, DirConfig dirs, long randomSeed) {
         this.baseDir = baseDir;
         this.randomSeed = randomSeed;
 
         String dao_ = daoPackage + ".";
+        String ws_ = wsPackage + ".";
         String generated = "src/main/generated";
 
-        Foo = modelApiPath;
+        Foo = dirs.modelPath;
         _Foo_stuff = Foo.join("_" + Foo.name + "_stuff", generated);
         IFoo_Id = Foo.join("I" + Foo.name + "_Id");
         Foo_Id = Foo.join(Foo.name + "_Id");
         Foo_IdAccessor = Foo.join(Foo.name + ".Id");
 
-        FooTest = Foo.join(Foo.name + "Test", "src/test/java", "src/test/resources");
+        FooTest = dirs.modelTestPath.join(Foo.name + "Test");
         _Foo_stuffTest = FooTest.join("_" + Foo.name + "_stuffTest");
         Foo_IdTest = FooTest.join(Foo.name + "_IdTest");
         Foo_IdAccessorTest = FooTest.join(Foo.name + "_IdAccessorTest");
@@ -71,15 +75,16 @@ public class JavaGenProject {
         FooMask = Foo.join(dao_ + Foo.name + "Mask");
         FooMaskTest = FooTest.join(dao_ + Foo.name + "MaskTest");
 
-        FooMapper = modelPath.join(dao_ + Foo.name + "Mapper");
-        FooIndex = modelPath.join(dao_ + Foo.name + "Index");
+        FooSamples = dirs.daoTestPath.join(Foo.name + "Samples", generated);
 
-        FooExporter = modelPath.join(Foo.name + "Exporter", generated);
+        FooMapper = dirs.daoPath.join(dao_ + Foo.name + "Mapper");
+        FooMapperTest = dirs.daoTestPath.join(dao_ + Foo.name + "MapperTest");
+        FooManager = dirs.daoPath.join(dao_ + Foo.name + "Manager");
+        FooManagerTest = dirs.daoTestPath.join(dao_ + Foo.name + "ManagerTest");
+        FooExporter = dirs.daoPath.join(Foo.name + "Exporter", generated);
 
-        ClassPathInfo implTest = modelPath.join(Foo.name + "Test", "src/test/java", "src/test/resources");
-        FooSamples = implTest.join(Foo.name + "Samples", generated);
-        FooMapperTest = implTest.join(dao_ + Foo.name + "MapperTest");
-        FooIndexTest = implTest.join(dao_ + Foo.name + "IndexTest");
+        FooIndex = dirs.wsPath.join(ws_ + Foo.name + "Index");
+        FooIndexTest = dirs.wsTestPath.join(ws_ + Foo.name + "IndexTest");
     }
 
     public UpdateMethod getPreferredUpdateMethod() {
