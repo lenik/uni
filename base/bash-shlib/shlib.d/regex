@@ -1,0 +1,108 @@
+# vim: set ft=sh :
+
+import string
+
+_gDbgRe=0
+
+function _dbgRe() {
+    [ $_gDbgRe = 1 ] && echo "$*"
+}
+
+function match-re() {
+    local s="$1"
+    local pattern="$2"
+    if [ "${pattern:0:1}" = '*' ]; then
+        ends-with-re "$s" "${pattern:1}"
+        return
+    elif [ "${pattern: -1}" = '*' ]; then
+        starts-with-re "$s" "${pattern%'*'}"
+        return
+    else
+        local head="${pattern%%'*'*}"
+        local tail="${pattern#*'*'}"
+        if [ "$head" != "$pattern" ]; then
+            # assert ! head.contains(*).
+            starts-with "$s" "$head" || return 1
+            ends-with-re "$s" "$tail" || return 1
+            return
+        fi
+    fi
+    test "$s" = "$pattern"
+}
+
+function starts-with-re() {
+    _dbgRe starts-with-re "$@"
+    local s="$1"
+    local pattern="$2"
+    if [ "${pattern:0:1}" = '*' ]; then
+        contains-re "$s" "${pattern:1}"
+        return
+    elif [ "${pattern: -1}" = '*' ]; then
+        starts-with-re "$s" "${pattern%'*'}"
+        return
+    else
+        local head="${pattern%%'*'*}"
+        local tail="${pattern#*'*'}"
+        if [ "$head" != "$pattern" ]; then
+            # assert ! head.contains(*).
+            local nhead=${#head}
+            starts-with "$s" "$head" || return 1
+            contains-re "${s:nhead}" "$tail" || return 1
+            return
+        fi
+    fi
+    
+    starts-with "$s" "$pattern"
+}
+
+function ends-with-re() {
+    _dbgRe ends-with-re "$@"
+    local s="$1"
+    local pattern="$2"
+    if [ "${pattern:0:1}" = '*' ]; then
+        ends-with-re "$s" "${pattern:1}"
+        return
+    elif [ "${pattern: -1}" = '*' ]; then
+        contains-re "$s" "${pattern%'*'}"
+        return
+    else
+        local head="${pattern%'*'*}"
+        local tail="${pattern##*'*'}"
+        if [ "$tail" != "$pattern" ]; then
+            # assert ! tail.contains(*).
+            ends-with "$s" "$tail" || return 1
+            local ntail=${#tail}
+            contains-re "${s:0: -ntail}" "$head" || return 1
+            return
+        fi
+    fi
+    
+    ends-with "$s" "$pattern"
+}
+
+function contains-re() {
+    _dbgRe contains-re "$@"
+    local s="$1"
+    local pattern="$2"
+    if [ "${pattern:0:1}" = '*' ]; then
+        contains-re "$s" "${pattern:1}"
+        return
+    elif [ "${pattern: -1}" = '*' ]; then
+        contains-re "$s" "${pattern%'*'}"
+        return
+    else
+        local head="${pattern%%'*'*}"
+        local tail="${pattern#*'*'}"
+        if [ "$tail" != "$pattern" ]; then
+            # assert ! head.contains(*).
+            local pos=$( index-of "$s" "$head" )
+            [ $pos == -1 ] && return 1
+            local nhead=${#head}
+            contains-re "${s:pos + nhead}" "$tail" || return 1
+            return
+        fi
+    fi
+    
+    local pos=$( index-of "$s" "$pattern" )
+    test $pos != -1
+}

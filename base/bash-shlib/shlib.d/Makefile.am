@@ -22,6 +22,7 @@ dist_shlib_DATA = \
     overrides \
     path \
     rcs \
+    regex \
     relpath \
     splitopts \
     string \

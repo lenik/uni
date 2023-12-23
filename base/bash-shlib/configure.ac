@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([bash-shlib], [2.1.15], [xjl-bug@99jsj.com])
+AC_INIT([bash-shlib], [2.1.16], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 
 # Checks for programs.
