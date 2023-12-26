@@ -45,8 +45,6 @@
         <module>x11</module>
     </modules>
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
         <bas.version>2.0.0-SNAPSHOT</bas.version>
         <swt.version>1.2.0-SNAPSHOT</swt.version>
         <pkg.version>1.0.0-SNAPSHOT</pkg.version>

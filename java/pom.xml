@@ -11,9 +11,11 @@
     <artifactId>java</artifactId>
     <packaging>pom</packaging>
     <modules>
+        <!--module>daogen/java</module-->
         <module>echo</module>
         <module>jsrcutils</module>
-        <module>shelj</module>
+        <!--module>shelj</module-->
+        <!--module>typedet</module-->
         <module>uni-site</module>
     </modules>
     <name>Uni :: Java</name>
