@@ -1,9 +1,12 @@
 include libauto/project.am
 
 dist_bin_SCRIPTS = \
-    java/typedet \
+    java/excel2csv \
+    java/typedet
 
-dist_man_MANS = 
+dist_man_MANS = \
+    java/excel2csv.1 \
+    java/typedet.1
 
 dist_setup_SCRIPTS = \
     postinst \

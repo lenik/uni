@@ -1,0 +1,3 @@
+main excel2csv = net.bodz.uni.tool.excel.Excel2CSV
+main excel2xml = net.bodz.uni.tool.excel.Excel2Xml
+main typedet = net.bodz.uni.typedet.TypeDet
