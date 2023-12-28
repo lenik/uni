@@ -119,3 +119,5 @@ stamp-h1
 stamp-po                                # gettextize
 stats/                                  # gitstats
 target/                                 # Maven build target dir
+v-store                                 # pnpm
+
