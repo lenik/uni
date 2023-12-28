@@ -21,16 +21,20 @@ public class StringStats
         super();
     }
 
+    public StringStats(SortOrder sortOrder) {
+        super(sortOrder);
+    }
+
+    public StringStats(int lruSize) {
+        super(lruSize);
+    }
+
     public StringStats(int lruSize, int maxCountToDrop) {
         super(lruSize, maxCountToDrop);
     }
 
     public StringStats(Map<String, Integer> _orig) {
         super(_orig);
-    }
-
-    public StringStats(SortOrder sortOrder) {
-        super(sortOrder);
     }
 
     @Override

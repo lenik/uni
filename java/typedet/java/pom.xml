@@ -30,6 +30,16 @@
             <version>${bas.version}</version>
         </dependency>
         <dependency>
+            <groupId>net.bodz.bas</groupId>
+            <artifactId>bas-html</artifactId>
+            <version>${bas.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.bodz.bas</groupId>
+            <artifactId>bas-xml</artifactId>
+            <version>${bas.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
             <version>4.4</version>
