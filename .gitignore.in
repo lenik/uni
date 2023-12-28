@@ -78,6 +78,7 @@
 .idea                                   # Idea project file
 .libs/                                  # libtool tmp build dir
 .m2*                                    # Maven
+.parcel-cache/                          # nodejs
 .project                                # Eclipse project file
 .settings                               # Eclipse project settings
 /.pomdirs                               # coolmaven
@@ -113,7 +114,9 @@ libauto                                 # coolauto
 libtool                                 # libtool
 ltmain.sh                               # libtool
 missing                                 # autoreconf -i
+node_modules/                           # nodejs
 nohup.out                               # nohup CMDLINE...
+pnpm-lock.yaml
 postinst                                # postinst.in
 prerm                                   # prerm.in
 rpmbuild/                               # coolrpm

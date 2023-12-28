@@ -1,0 +1,142 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>Font-Awesome Charmap</title>
+
+        <link rel="stylesheet" type="text/css" href="../node_modules/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="../.skel/skel.css">
+        <link rel="stylesheet" type="text/css" href="../site.css">
+        <link rel="stylesheet" type="text/css" href="index.css">
+
+        <script type="text/javascript" src="../node_modules/jquery/dist/jquery.min.js"></script>
+        <script type="text/javascript" src="../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="../node_modules/clipboard/dist/clipboard.min.js"></script>
+        <script type="text/javascript" src="../node_modules/tweenjs/lib/tweenjs.min.js"></script>
+        <script type="text/javascript" src="../node_modules/vue/dist/vue.js"></script>
+
+        <script type="text/javascript" src="../libjs/lenik/dev-local.js"></script>
+        <script type="text/javascript" src="../libjs/lenik/http-request.js"></script>
+        <script type="text/javascript" src="../libjs/lenik/dom-util.js"></script>
+        <script type="text/javascript" src="../libjs/lenik/ajax-form.js"></script>
+        <script type="text/javascript" src="../libjs/lenik/inlineEdit.js"></script>
+
+        <script type="text/javascript" src="../.skel/async.js"></script>
+        <script type="text/javascript" src="../site-model.js"></script>
+        <script type="text/javascript" src="index-model.js"></script>
+        <script type="text/javascript" src="../.skel/skel.js"></script>
+        <script type="text/javascript" src="../.skel/site-supp.js"></script>
+        <script type="text/javascript" src="fa.json"></script>
+        <script type="text/javascript" src="../site.js"></script>
+    </head>
+<body class="flex-column full-size">
+
+    <div id="top" class="clear-each">
+        <div id="sitebar" class="overflow-auto">
+            <a class="icon float-left">
+                <svg version="1.1" viewBox="0 0 1000 1000" width="32" height="32"
+                    style="fill: #ffd">
+                    <path d="M974,581.3C959.7,479.1,829.1,474,829.1,474c0-32.7-43.5-51.9-43.5-51.9h-625c-40.2,0-46.1,56.1-46.1,56.1c8.4,315,198.5,418.9,198.5,418.9h327.5c46.9-34.3,111.4-134,111.4-134c10.1,3.4,79.6-0.9,107.2-6.7C886.7,750.5,988.2,683.4,974,581.3z M339.8,842.7C180.7,727.1,196.6,483.3,196.6,483.3h88C236,621.5,332.3,795.8,345.7,820C359.1,844.3,339.8,842.7,339.8,842.7z M851.6,699.4c-41.1,24.4-71.3,8.4-71.3,8.4c42.7-59.5,46.1-174.2,46.1-174.2c7.5,2.5,13.4-28.5,67.1,26C947.1,613.9,892.7,675.1,851.6,699.4z"/>
+                    <path d="M90.3,990h738.4c36.3,0,65.7-31,65.7-69.4H24.7C24.7,959,54,990,90.3,990z"/>
+                    <path d="M324.6,82c0,0-130.6,79.7-48.6,154.1c82,74.5,74.5,102.2,26.8,167.6c0,0,89.6-45.2,77.8-114c-11.8-68.7-98-103-79.6-150.7C319.7,91.3,324.6,82,324.6,82z"/>
+                    <path d="M612.9,40.2c0,0-130.7,79.7-48.5,154.1c82,74.5,74.4,102.2,26.7,167.6c0,0,89.7-45.2,77.9-114c-11.7-68.7-98-103-79.7-150.7C607.9,49.4,612.9,40.2,612.9,40.2z"/>
+                    <path d="M477.2,10c0,0-81.3,6.7-96.4,85.5c-15,78.8,36,108.1,75.4,147.5c39.3,39.3,22.6,113-21.8,165.1c0,0,79.6-27.7,98-103.9c18.4-76.3-19-103.1-57.7-147.4C435.8,112.3,439.4,31.8,477.2,10z"/>
+                </svg>
+            </a>
+            <ul class="inline-block site-nav float-left">
+                <li><a href="#">Font-Awesome Charmap</a>
+                    </li>
+                <li><a :href="">
+                    <i class="fa"></i> Site 1</a>
+                    </li>
+                <li><a :href="">
+                    <i class="fa"></i> Site 2</a>
+                    </li>
+                <li><a href="http://sourceforge.net/a/projectid">
+                    <i class="fa fa-code"></i> Developer</a>
+                    </li>
+                <li><a href="https://github.com/lenik/projectid">
+                    <i class="fa fa-github"></i> GitHub</a>
+                    </li>
+            </ul>
+
+            <ul class="inline-block site-nav user-nav float-right">
+                <li><a><i class="fa fa-user"></i></a>
+                    </li>
+                <li><a><i class="fa fa-share-alt"></i></a>
+                    </li>
+            </ul>
+        </div>
+
+        <div id="proj-info" class="overflow-auto">
+            <div class="float-left">
+                <h2 class="editable">Project</h2>
+                <div class="editable subtitle">A small description of the project.</div>
+            </div>
+            <div k="stats">
+                <ul class="inline-block">
+                    <li class="counter-pair">
+                        <span class="name"><i class="fa fa-envelope-open-o"></i>View</span>
+                        <span class="val">{{stat.views}}</span>
+                        </li>
+                    <li class="counter-pair">
+                        <span class="name"><i class="fa fa-star"></i>Star</span>
+                        <span class="val">{{stat.stars}}</span>
+                        </li>
+                    <li class="counter-pair">
+                        <span class="name"><i class="fa fa-thumbs-o-up"></i>Vote</span>
+                        <span class="val">{{stat.upvotes}}/{{stat.downvotes}}</span>
+                        </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <nav id="view-nav" class="-tabular -bw">
+        <a v-for="(it, k) in views" :href="k" :class="{ selected: view == k }"
+            onclick="return false"
+            @click.stop="window.setView(k)">
+            <i :class="'fa fa-'+it.iconfa"></i>
+            {{it.label}}</a>
+    </nav>
+
+    <div id="views" class="stack">
+        <div id="v-about" :class="{selected: view=='about'}">
+            <ul id="chars">
+                <li v-for="it in fa_list"
+                        class="col-md-2 col-sm-1 col-lg-2 col-print-3"
+                        :title="'copy ' + it.name + ' to clipboard.'"
+                        @click="copy(it)">
+                    <div class="icon">
+                        <i class="fa" :class="'fa-' + it.name"></i>
+                    </div>
+                    <div class="name">
+                        fa-{{ it.name }}
+                    </div>
+                    <div class="unicode">{{ it.code.toString(16) }}</div>
+                </li>
+            </ul>
+        </div>
+
+        <div id="v-options" :class="{selected: view=='options'}">
+            <h2>Options</h2>
+
+            <ul>
+                <li>
+                <li>
+                <li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="footbar" style="display: flex; flex-direction: row">
+        <div class="copyright" style="flex: 50">
+            (ↄ) Jun 2017 @_lenik
+        </div>
+        <div id="statcounter" style="flex: 50">
+            <script>installStatCounter(11389146, 0, "cb1bef8f");</script>
+        </div>
+    </div>
+
+</body>
+</html>

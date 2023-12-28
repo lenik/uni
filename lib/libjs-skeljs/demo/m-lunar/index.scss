@@ -1,0 +1,107 @@
+// -*- css -*-
+
+#views {
+
+    #v-about {
+        margin: 1em;
+    }
+
+    #v-options {
+        margin: 1em;
+    }
+
+}
+
+.dark .clndr {
+    .nav.fa:hover {
+        background: #789;
+    }
+    table {
+        border-color: #555;
+    }
+    thead {
+        background-color: #336688;
+    }
+    tbody {
+        color: #fff;
+        tr {
+            background: #3a3f4e;
+            &:nth-child(even) {
+                background: #333344;
+            }
+        }
+    }
+    .day {
+        border-color: #555;
+        .lunar {
+            color: #9ab;
+        }
+        &:hover {
+            background: #556;
+        }
+    }
+    .today {
+        background-color: #667799;
+    }
+    .adjacent-month {
+        background-color: #666a77;
+        color: #aaa;
+    }
+}
+
+.clndr {
+    font-family: sans;
+
+    .nav {
+        .fa {
+            width: 1.2em;
+            height: 1.2em;
+            margin: 3px;
+            border-radius: 100px;
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
+    table {
+        border-style: solid;
+        border-width: 1px;
+        border-collapse: collapse;
+        color: inherit;
+    }
+    thead {
+        font-weight: bold;
+        text-align: center;
+        td {
+            padding: 0.5em;
+        }
+    }
+    tbody {
+    }
+    .day {
+        width: 4em;
+        height: 4em;
+        border-style: solid;
+        border-width: 1px;
+        border-collapse: collapse;
+        box-sizing: border-box;
+        cursor: pointer;
+        .flex-column {
+            height: 100%;
+            padding: .3em;
+        }
+        .solar {
+            text-align: right;
+        }
+        .lunar {
+            font-size: 80%;
+        }
+    }
+    .today {
+        font-weight: bold;
+    }
+    .adjacent-month {
+        font-style: italic;
+        cursor: default;
+    }
+}

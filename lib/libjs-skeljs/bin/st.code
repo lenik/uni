@@ -1,0 +1,14 @@
+#!/bin/bash
+# vim: set ft=sh :
+
+    alias code='code --disable-gpu'
+
+    if ! projectdir=$(dirhave -1 . demo); then
+        echo "can't find projectdir dir." >&2
+        exit 1
+    fi
+
+    realdir=$(readlink -f "$projectdir")
+    echo "realdir: $realdir"
+    code "$realdir" &
+

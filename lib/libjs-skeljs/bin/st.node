@@ -1,0 +1,32 @@
+#!/bin/bash
+# vim: set ft=sh :
+    
+    project_name=skeljs
+    
+    if ! project_dir=$(dirhave -1 . demo); then
+        echo "can't find project_dir dir." >&2
+        exit 1
+    fi
+    project_dir=$( readlink -f "$project_dir" )
+    
+    module_name="demo"
+    module_dir="$project_dir/demo"
+
+    q_name="$project_name.$module_name"
+
+    cd "$module_dir"
+    make -B
+    #make -B -C _skel
+
+    # mate-terminal --tab --title "$project_name auto-builder" -x make auto-build
+    kitty @ new-window --new-tab --tab-title "$q_name auto-builder" \
+        --cwd "$module_dir" \
+        make auto-build
+
+    #google-chrome-dev index.html &
+    kitty @ new-window --new-tab --tab-title "$q_name dev server" \
+        --cwd "$module_dir" \
+        pnpm run-script dev
+
+    google-chrome-dev http://localhost:1234 &
+

@@ -1,0 +1,132 @@
+@import "inc/color.scss";
+
+    $deg: -30deg;
+    $step: 10%;
+    
+    //$light: hsl(330, 40%, 65%);
+    $light: hsl(200, 60%, 75%);
+    
+    // $dark: invert($light);
+    $dark: hsl(hue($light), 100 - saturation($light), 100 - lightness($light));
+    $gray: mix($light, $dark, 0.5);
+    
+    $light_c: complement($light);
+    $light_i: invert($light);
+    
+    $light_q: light-more($light, $step);
+    $light_qq: light-more($light_q, $step);
+    $light_qqq: light-more($light_qq, $step);
+    $light_v: light-less($light, $step);
+    $light_vv: light-less($light_v, $step);
+    $light_vvv: light-less($light_vv, $step);
+
+    $dark_c: complement($dark);
+    $dark_i: invert($dark);
+    
+    $dark_q: dark-more($dark, $step);
+    $dark_qq: dark-more($dark_q, $step);
+    $dark_qqq: dark-more($dark_qq, $step);
+    $dark_v: dark-less($dark, $step);
+    $dark_vv: dark-less($dark_v, $step);
+    $dark_vvv: dark-less($dark_vv, $step);
+    
+    $lightl: adjust-hue($light, -1 * $deg);
+    $lightl_q: light-more($lightl, $step);
+    $lightl_qq: light-more($lightl_q, $step);
+    $lightl_qqq: light-more($lightl_qq, $step);
+    $lightl_v: light-less($lightl, $step);
+    $lightl_vv: light-less($lightl_v, $step);
+    $lightl_vvv: light-less($lightl_vv, $step);
+
+
+    $lightll: adjust-hue($light, -2 * $deg);
+    $lightll_q: light-more($lightll, $step);
+    $lightll_qq: light-more($lightll_q, $step);
+    $lightll_qqq: light-more($lightll_qq, $step);
+    $lightll_v: light-less($lightll, $step);
+    $lightll_vv: light-less($lightll_v, $step);
+    $lightll_vvv: light-less($lightll_vv, $step);
+
+    $lightlll: adjust-hue($light, -3 * $deg);
+    $lightlll_q: light-more($lightlll, $step);
+    $lightlll_qq: light-more($lightlll_q, $step);
+    $lightlll_qqq: light-more($lightlll_qq, $step);
+    $lightlll_v: light-less($lightlll, $step);
+    $lightlll_vv: light-less($lightlll_v, $step);
+    $lightlll_vvv: light-less($lightlll_vv, $step);
+
+    $lightr: adjust-hue($light, 1 * $deg);
+    $lightr_q: light-more($lightr, $step);
+    $lightr_qq: light-more($lightr_q, $step);
+    $lightr_qqq: light-more($lightr_qq, $step);
+    $lightr_v: light-less($lightr, $step);
+    $lightr_vv: light-less($lightr_v, $step);
+    $lightr_vvv: light-less($lightr_vv, $step);
+
+    $lightrr: adjust-hue($light, 2 * $deg);
+    $lightrr_q: light-more($lightrr, $step);
+    $lightrr_qq: light-more($lightrr_q, $step);
+    $lightrr_qqq: light-more($lightrr_qq, $step);
+    $lightrr_v: light-less($lightrr, $step);
+    $lightrr_vv: light-less($lightrr_v, $step);
+    $lightrr_vvv: light-less($lightrr_vv, $step);
+
+    $lightrrr: adjust-hue($light, 3 * $deg);
+    $lightrrr_q: light-more($lightrrr, $step);
+    $lightrrr_qq: light-more($lightrrr_q, $step);
+    $lightrrr_qqq: light-more($lightrrr_qq, $step);
+    $lightrrr_v: light-less($lightrrr, $step);
+    $lightrrr_vv: light-less($lightrrr_v, $step);
+    $lightrrr_vvv: light-less($lightrrr_vv, $step);
+
+    $darkl: adjust-hue($dark, -1 * $deg);
+    $darkl_q: dark-more($darkl, $step);
+    $darkl_qq: dark-more($darkl_q, $step);
+    $darkl_qqq: dark-more($darkl_qq, $step);
+    $darkl_v: dark-less($darkl, $step);
+    $darkl_vv: dark-less($darkl_v, $step);
+    $darkl_vvv: dark-less($darkl_vv, $step);
+
+    $darkll: adjust-hue($dark, -2 * $deg);
+    $darkll_q: dark-more($darkll, $step);
+    $darkll_qq: dark-more($darkll_q, $step);
+    $darkll_qqq: dark-more($darkll_qq, $step);
+    $darkll_v: dark-less($darkll, $step);
+    $darkll_vv: dark-less($darkll_v, $step);
+    $darkll_vvv: dark-less($darkll_vv, $step);
+
+
+    $darklll: adjust-hue($dark, -3 * $deg);
+    $darklll_q: dark-more($darklll, $step);
+    $darklll_qq: dark-more($darklll_q, $step);
+    $darklll_qqq: dark-more($darklll_qq, $step);
+    $darklll_v: dark-less($darklll, $step);
+    $darklll_vv: dark-less($darklll_v, $step);
+    $darklll_vvv: dark-less($darklll_vv, $step);
+
+    $darkr: adjust-hue($dark, 1 * $deg);
+    $darkr_q: dark-more($darkr, $step);
+    $darkr_qq: dark-more($darkr_q, $step);
+    $darkr_qqq: dark-more($darkr_qq, $step);
+    $darkr_v: dark-less($darkr, $step);
+    $darkr_vv: dark-less($darkr_v, $step);
+    $darkr_vvv: dark-less($darkr_vv, $step);
+
+    $darkrr: adjust-hue($dark, 2 * $deg);
+    $darkrr_q: dark-more($darkrr, $step);
+    $darkrr_qq: dark-more($darkrr_q, $step);
+    $darkrr_qqq: dark-more($darkrr_qq, $step);
+    $darkrr_v: dark-less($darkrr, $step);
+    $darkrr_vv: dark-less($darkrr_v, $step);
+    $darkrr_vvv: dark-less($darkrr_vv, $step);
+
+    $darkrrr: adjust-hue($dark, 3 * $deg);
+    $darkrrr_q: dark-more($darkrrr, $step);
+    $darkrrr_qq: dark-more($darkrrr_q, $step);
+    $darkrrr_qqq: dark-more($darkrrr_qq, $step);
+    $darkrrr_v: dark-less($darkrrr, $step);
+    $darkrrr_vv: dark-less($darkrrr_v, $step);
+    $darkrrr_vvv: dark-less($darkrrr_vv, $step);
+
+    $tag: light-more($lightrrr, $step);
+
