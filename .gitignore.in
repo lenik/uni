@@ -32,6 +32,7 @@
 *.changes                               # cooldeb
 *.deb                                   # cooldeb
 *.debhelper                             # cooldeb
+*-docs.docs                             # cooldeb
 *.dsc                                   # cooldeb
 *.dvi                                   # cooltex
 *.ff                                    # mda-xjdoc
@@ -88,6 +89,8 @@ INSTALL                                 # cooldeb
 Makefile
 Makefile.in                             # Makefile.am
 POTFILES                                # gettextize
+README.Debian                           # cooldeb
+README.source                           # cooldeb
 RELEASE-NOTES                           # coolmaven
 Rules-quot                              # gettextize
 aclocal.m4

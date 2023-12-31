@@ -32,6 +32,7 @@
 *.changes
 *.deb
 *.debhelper
+*-docs.docs
 *.dsc
 *.dvi
 *.ff
@@ -88,6 +89,8 @@ INSTALL
 Makefile
 Makefile.in
 POTFILES
+README.Debian
+README.source
 RELEASE-NOTES
 Rules-quot
 aclocal.m4

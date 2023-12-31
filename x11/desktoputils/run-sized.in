@@ -1,0 +1,267 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=GUI app launcher with specific window size}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] CMD ARGS...}
+
+    . shlib-import cliboot
+    option -C --chdir =DIR          "run cmd under this dir."
+    option -W --max-width =NUM      "specify the max window width"
+    option -H --max-height =NUM     "specify the max window height"
+    option -w --width =NUM          "specify the exact window width"
+    option -l --left =NUM           "the left position to place the window"
+    option -t --top =NUM            "the top position to place the window"
+    option -h --height =NUM         "specify the exact window height"
+    option -c --center              "center the window"
+    option -z --null-out            "redirect the cmd output to /dev/null"
+    option -q --quiet
+    option -v --verbose
+    option    --help
+    option    --version
+
+    opt_chdir=
+    opt_max_width=
+    opt_max_height=
+    opt_width=
+    opt_height=
+    opt_center=
+    opt_null_out=
+    
+function setopt() {
+    case "$1" in
+        -C|--chdir)
+            opt_chdir="$2";;
+        -W|--max-width)
+            opt_max_width="$2";;
+        -H|--max-height)
+            opt_max_height="$2";;
+        -w|--width)
+            opt_width="$2";;
+        -h|--height)
+            opt_height="$2";;
+        -c|--center)
+            opt_center=1;;
+        -z|--null-out)
+            opt_null_out=1;;
+        --help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    local i try_max=10
+    local win_id=
+
+    run-bg "$@"
+    local lastpid=$!
+    
+    if ! win_id=$( xdo_whosepid $lastpid); then
+        _error "can't find window for PID $lastpid."
+        exit 1
+    fi
+    win_id_hex=$(printf '%x\n' $win_id)
+    _log1 "found the window $win_id(0x$win_id_hex) for PID $lastpid."
+    
+    local -A geom
+    if ! wmctrl_whosepid geom $lastpid; then
+        _error "failed to find the window with wmctrl."
+        exit 1
+    fi
+
+    local id_hex=${geom[id_hex]}
+    local id=$(( $id_hex ))
+    local left=${geom[left]}
+    local top=${geom[top]}
+    local width=${geom[width]}
+    local height=${geom[height]}
+    _log1 "left $left, top $top, width $width, height $height."
+    
+    local disp_w disp_h
+    read disp_w disp_h _ < <(xdotool getdisplaygeometry)
+    local def_w=$(( disp_w * 80 / 100 ))
+    local def_h=$(( disp_h * 80 / 100 ))
+    
+    local max_width=${opt_max_width:-$def_w}
+    local max_height=${opt_max_height:-$def_h}
+
+    local mod=0
+    if [ -n "$max_width" ]; then
+        [ $width -gt $max_width ] && width=$max_width && mod=1
+        local right=$(( left + width ))
+        if [ $right -gt $max_width ]; then
+            left=$(( right - width ))
+            [ $left -lt 0 ] && left=0
+            mod=1
+        fi
+    fi
+    if [ -n "$max_height" ]; then
+        [ $height -gt $max_height ] && height=$max_height && mod=1
+        local bottom=$(( top + height ))
+        if [ $bottom -gt $max_height ]; then
+            top=$(( bottom - height ))
+            [ $top -lt 0 ] && top=0
+            mod=1
+        fi
+    fi
+    
+    if [ "$opt_center" = 1 ]; then
+        left=$(( ( disp_w - width ) / 2 ))
+        top=$(( ( disp_h - height ) / 2 ))
+        mod=1
+    fi
+    
+    [ -n "$opt_left" ]   &&   left=$opt_left    && mod=1
+    [ -n "$opt_top" ]    &&    top=$opt_top     && mod=1
+    [ -n "$opt_width" ]  &&  width=$opt_width   && mod=1
+    [ -n "$opt_height" ] && height=$opt_height  && mod=1
+    
+    if [ $mod = 0 ]; then
+        _log1 "Nothing to do."
+        return 0
+    fi
+
+    _log1 "resize window $id_hex ($id) to $width x $height and moved to $left x $top"
+    run wmctrl -i -r $id_hex -e 0,$left,$top,$width,$height
+}
+
+function xdo_whosepid() {
+    local pid=$1
+    local timeout=${2:-1}
+    local interval=0.01
+    local i n_max=$( div $timeout $interval )
+    
+    _log2 "Use xdotool to search the window for PID $pid, try $n_max max times."
+    for ((i = 0; i < n_max; i++)); do
+        if run xdotool search --pid $pid 2>/dev/null; then
+            _log2 "    succeeded within $((i + 1)) tries."
+            return 0
+        fi
+        fsleep $interval
+    done
+    return 1
+}
+
+function wmctrl_whosepid() {
+    local -n map=$1
+    shift
+    local pid=$1
+    local timeout=${2:-1}
+    local interval=0.1
+    local i n_max=$( div $timeout $interval )
+    
+    _log2 "Use wmctrl to get the window geometry for PID $pid, try $n_max max times."
+    local id id_hex desk _pid x y w h client title
+    for ((i = 0; i < n_max; i++)); do
+        while read id_hex desk _pid x y w h client title; do
+            [ $_pid = $pid ] || continue
+            id=$(( id_hex ))
+            map[id]=$id
+            map[id_hex]=$id_hex
+            map[desk]=$desk
+            map[pid]=$pid
+            map[left]=$x
+            map[top]=$y
+            map[width]=$w
+            map[height]=$h
+            map[client]="$client"
+            map[title]="$title"
+            
+            _log2 "    succeeded within $((i + 1)) tries."
+            _log3 "        win id $id($id_hex), pos $x x $y, size $w x $h"
+            _log3 "        desktop num $desk, client: $client, title: $title"
+            return 0
+        done < <(wmctrl -lpG)
+        fsleep $interval
+    done
+    return 1
+}
+
+function run() {
+    _log1 "Run: $*"
+    if [ "$opt_null_out" == 1 ]; then
+        "$@" >/dev/null 2>/dev/null
+    else
+        "$@"
+    fi
+}
+
+function run-bg() {
+    _log1 "Run in background: $*"
+    if [ "$opt_null_out" == 1 ]; then
+        "$@" >/dev/null 2>/dev/null &
+    else
+        "$@" &
+    fi
+}
+
+function fsleep() {
+    sleepenh "$@" >/dev/null
+}
+
+function mul_10e() {
+    local f=$1
+    local pow=${2:-0}
+    if [ $pow -lt 0 ]; then
+        div_10e $f ${pow#-}
+        return
+    fi
+    local int=${f%%.*}
+    local dec=${f#*.}
+    [ $int = $f ] && dec=
+    local dec_len=${#dec}
+    if [ $dec_len -lt $pow ]; then
+        dec=${dec}00000000000000000
+        dec=${dec:0:pow}
+    fi
+    f=$int${dec:0:pow}
+    dec=${dec:pow}
+    [ -n "$dec" ] && f=$f.$dec
+    echo "$f"
+}
+
+function div_10e() {
+    local f=$1
+    local pow=${2:-0}
+    if [ $pow -lt 0 ]; then
+        mul_10e $f ${pow#-}
+        return
+    fi
+    
+    local int=${f%%.*}
+    local dec=${f#*.}
+    [ $int = $f ] && dec=
+    local dec_len=${#dec}
+    if [ $int_len -lt $pow ]; then
+        int=000000000000000000000${int}
+        int=${int: -pow}
+    fi
+    f=${int:0: -pow}
+    dec=${int:pow}$dec
+    [ -n "$dec" ] && f=$f.$dec
+    echo "$f"
+}
+
+function div() {
+    local pow=${3:-8}
+    local a=$( mul_10e $1 $pow )
+    local b=$( mul_10e $2 $pow )
+    echo $(( a / b ))
+}
+
+function mul_f() {
+    local pow=${3:-8}
+    local a=$1
+    local b=$( mul_10e $2 $pow )
+    local ab = a * b
+    div_10e $ab $pow
+}
+
+boot "$@"

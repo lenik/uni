@@ -8,6 +8,7 @@ dist_bin_SCRIPTS = \
     alt-exec \
     next-profile \
     open-url \
+    run-sized \
     wsswitch
 
 dist_x11conf_DATA = \
@@ -16,6 +17,7 @@ dist_x11conf_DATA = \
 dist_man_MANS = \
     alt-exec.1 \
     open-url.1 \
+    run-sized.1 \
     wsswitch.1
 
 dist_setup_SCRIPTS = \
