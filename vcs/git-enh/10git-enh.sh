@@ -22,5 +22,3 @@ alias      grh='git reset --hard'
 alias    griom='git rebase -i origin/master'
 alias      grr='git remote-ref origin'
 
-alias       gg='gitg --no-commit-hooks'
-
