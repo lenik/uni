@@ -3,13 +3,6 @@
 import "../../skel/skel.scss";
 
 import NavBar from '../nav/NavBar.vue';
-import TabViews from './TabViews.vue';
-
-const view = defineModel('view');
-
-defineProps<{
-    views: any
-}>();
 
 </script>
 
@@ -32,9 +25,6 @@ defineProps<{
 
                 <div class="flex-1">
                     <slot>
-                        <TabViews :views="views" v-model:view="view">
-                            <slot name="views"></slot>
-                        </TabViews>
                     </slot>
                 </div>
             </div>

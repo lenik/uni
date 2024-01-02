@@ -1,8 +1,50 @@
 <script setup lang="ts">
 
-defineProps<{
-}>();
+import { ref } from "vue';
+"
+import makeDataTable from "@/enh/datatable/dt-decl";
+import formats from "@/enh/datatable/dt-formats";
+import * as conv from "@/enh/datatable/objconv";
+import { onMounted } from "vue";
 
+interface DataObject {
+    [key: string]: any
+}
+
+interface ColumnType {
+    title: string
+    type: string
+    format: string
+}
+
+interface ColumnTypes {
+    [key: string]: ColumnType
+}
+
+interface ColumnsData {
+    columns: ColumnTypes
+    data: any[][]
+}
+
+interface Props {
+
+    objects?: DataObject[]
+    columns?: ColumnTypes
+
+    columnsData?: ColumnsData
+
+    /**
+     * when version changed, a full-update will be made.
+     */
+    version?: number
+
+    watch?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    version: 0,
+    watch: false
+});
 
 const css = [
     "table",
@@ -13,15 +55,29 @@ const css = [
     "table-responsive",
 ];
 
+const tableRef = ref(null);
+
+onMounted(() => {
+    var context = {
+        getVar: (path) => {
+
+        },
+        getFormat: (path) => {
+            
+        }
+    }
+    makeDataTable(tableRef, context);
+});
 </script>
 
 <template>
-    <table class="datatable" :class="css">
-        <slot>
-            <thead>
-            </thead>
-        </slot>
+    <table v-ref="tableRef" class="datatable" :class="css">
+        <thead>
+            <slot>
+            </slot>
+        </thead>
         <tbody></tbody>
+        <slot name="foot"></slot>
     </table>
 </template>
 
