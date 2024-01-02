@@ -19,7 +19,7 @@ export default defineConfig({
         fs: {
             // Allow serving files from one level up to the project root
             allow: ['.',
-                '/home/lenik/.cache/v-store'],
+                '/'],
         },
     }
 })

@@ -1,22 +1,33 @@
-import * as Str from '../lang/string.js';
+// import * as Str from '../lang/string.js';
 
-export function splitDirBase(path) {
-    var lastSlash = path.lastIndexOf('/');
-    var dir, base;
+interface DirBase {
+    dir: string
+    base: string
+}
+
+export function splitDirBase(path: string): DirBase {
+    let lastSlash = path.lastIndexOf('/');
+    let dir, base;
     if (lastSlash == -1) {
-        dir = null;
+        dir = '.';
         base = path;
     } else {
-        dir = path.substr(0, lastSlash);
-        base = path.substr(lastSlash + 1);
+        dir = path.substring(0, lastSlash);
+        base = path.substring(lastSlash + 1);
     }
     return { "dir": dir, "base": base };
 }
 
-export function toAbsoluteUrl(href) {
-    var context = splitDirBase(document.URL).dir;
+
+export function baseName(s: string): string {
+    let lastSlash = s.lastIndexOf('/');
+    return lastSlash == -1 ? s : s.substring(lastSlash + 1);
+}
+
+export function toAbsoluteUrl(href: string): string {
+    let context = splitDirBase(document.URL).dir;
     while (href.startsWith("../")) {
-        href = href.substr(3);
+        href = href.substring(3);
         var db = splitDirBase(context);
         if (db.dir != null)
             context = db.dir;
@@ -25,12 +36,8 @@ export function toAbsoluteUrl(href) {
     return url;
 }
 
-export function alterHref(href) {
+export function alterHref(href: string): string {
     return alterHrefBase(href, window.hrefOverride);
-}
-
-if (document.currentScript != null) {
-    window.__FILE__ = toAbsoluteUrl(document.currentScript.getAttribute("src"));
 }
 
 /**
@@ -39,7 +46,7 @@ if (document.currentScript != null) {
  * @param href
  * @param newBase should be absolute url, like `http://...`
  */
-export function alterHrefBase(href, newBase) {
+export function alterHrefBase(href: string, newBase: string): string {
     if (newBase == null || newBase == '') // disabled.
         return href;
     if (href.indexOf(":") != -1) // ignore absolute href.
@@ -65,18 +72,24 @@ export function alterHrefBase(href, newBase) {
         }
         var localRoot = __FILE__.substr(0, __FILE__.length - expected.length);
         var nprefix = localRoot.length;
-        if (url.substr(0, nprefix) != localRoot)
+        if (url.substring(0, nprefix) != localRoot)
             throw "unexpected";
         
-        href = url.substr(nprefix);
+        href = url.substring(nprefix);
     }
     
     var ss = newBase.indexOf("://"); // assert true
     var slash = newBase.indexOf("/", ss + 3);
     if (slash != -1) // Trim to "http://....com:123".
-        newBase = newBase.substr(0, slash);
+        newBase = newBase.substring(0, slash);
 
-    if (newBase.substr(-1) == "/")
-        newBase = newBase.substr(0, newBase.length - 1);
+    if (newBase.substring(newBase.length -1) == "/")
+        newBase = newBase.substring(0, newBase.length - 1);
     return newBase + href;
+}
+
+if (document.currentScript != null) {
+    let scriptSrc = document.currentScript.getAttribute("src");
+    
+    window.__FILE__ = toAbsoluteUrl(scriptSrc);
 }
