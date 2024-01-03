@@ -3,17 +3,10 @@
 import $ from 'jquery';
 import { ref, watch } from 'vue';
 
-interface Item {
-    label: string
-    iconfa: string
-}
-
-interface Items {
-    [key: string]: Item
-}
+import type { Menu } from "./menu";
 
 interface Props {
-    items: Items
+    items: Menu
 }
 
 const model = defineModel<string>();

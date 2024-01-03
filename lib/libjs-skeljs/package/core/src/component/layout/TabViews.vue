@@ -2,10 +2,11 @@
 
 import "../../skel/skel.scss";
 
-import NavBar from '../nav/NavBar.vue';
+import NavBar from '../menu/NavBar.vue';
+import type { Menu } from "../menu/menu";
 
 interface Props {
-    views: any
+    views: Menu
 }
 
 const view = defineModel('view');

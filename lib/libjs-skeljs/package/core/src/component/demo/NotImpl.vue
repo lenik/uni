@@ -1,7 +1,13 @@
 <script setup lang="ts">
 
-defineProps<{
-}>();
+import "../../skel/skel.scss";
+
+interface Props {
+}
+
+const props = withDefaults(defineProps<Props>(), {
+
+});
 
 </script>
 

@@ -2,11 +2,13 @@
 
 import { ref } from 'vue';
 
-import ModelC from '../../src/component/layout/ModelC.vue';
-import SiteBar from '../../src/component/nav/SiteBar.vue';
-import ProjectInfo from '../../src/component/demo/ProjectInfo.vue';
-import NotImpl from '../../src/component/demo/NotImpl.vue';
-import View from '../../src/component/layout/View.vue';
+import ModelC from '@/component/layout/ModelC.vue';
+import SiteBar from '@/component/menu/SiteBar.vue';
+import ProjectInfo from '@/component/demo/ProjectInfo.vue';
+import TabViews from '@/component/layout/TabViews.vue';
+import View from '@/component/layout/View.vue';
+
+import { Menu, getSelection } from '@/component/menu/menu';
 
 const siteMenu = [
     { href: "./index.html", iconfa: "fa-file-o", label: "This" },
@@ -21,43 +23,33 @@ const stat = {
     downvotes: 2,
 };
 
-const view = ref("options");
-const views = {
-    about: {
-        label: "About",
+const views: Menu = {
+    layout: {
+        selected: true,
+        label: "Layouts",
         iconfa: "info",
     },
-    options: {
-        label: "Options",
+    menu: {
+        label: "Menus",
         iconfa: "cog",
     },
 };
 
-function msg(s) {
-    console.log(s);
-}
+const initialView = getSelection(views)[0];
+const view = ref(initialView);
 
 </script>
 
 <template>
-    <ModelC :views="views" v-model:view="view">
+    <ModelC>
         <template #site-bar>
             <SiteBar :items="siteMenu" :title="'Title1'" />
         </template>
 
         <template #project-info>
-            <ProjectInfo :stat="stat" label="Layout Test Page">
-                An example page using skeljs-core ModelC layout.
+            <ProjectInfo :stat="stat" label="Site Bar demo">
+                Site Bar demo
             </ProjectInfo>
-        </template>
-
-        <template #views>
-            <View name="about" :selection="view" @enter="msg('enter about')" @leave="msg('leave about')">
-                about
-            </View>
-            <View name="options" :selection="view">
-                <NotImpl />
-            </View>
         </template>
 
         <template #footer>

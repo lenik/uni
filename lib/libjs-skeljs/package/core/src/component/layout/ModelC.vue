@@ -2,8 +2,6 @@
 
 import "../../skel/skel.scss";
 
-import NavBar from '../nav/NavBar.vue';
-
 </script>
 
 <template>
