@@ -3,12 +3,13 @@
 import { ref } from 'vue';
 
 import ModelC from 'skeljs-core/src/component/layout/ModelC.vue';
-import SiteBar from 'skeljs-core/src/component/nav/SiteBar.vue';
+import SiteBar from 'skeljs-core/src/component/menu/SiteBar.vue';
 import ProjectInfo from 'skeljs-core/src/component/demo/ProjectInfo.vue';
 import NotImpl from 'skeljs-core/src/component/demo/NotImpl.vue';
+import TabViews from 'skeljs-core/src/component/layout/TabViews.vue';
 import View from 'skeljs-core/src/component/layout/View.vue';
 
-import * as conv from "../../src/enh/datatable/objconv.js";
+import * as conv from "../../src/component/table/objconv.ts";
 
 </script>
 
@@ -28,7 +29,8 @@ var people = [{
 }];
 var peopleTab = conv.objv2Tab(people);
 
-window.peopleTab = peopleTab;
+var win: any = window;
+win.peopleTab = peopleTab;
 
 </script>
 

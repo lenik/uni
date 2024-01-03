@@ -1,4 +1,4 @@
-// import * as Str from '../lang/string.js';
+// import * as Str from '../lang/string';
 
 interface DirBase {
     dir: string
