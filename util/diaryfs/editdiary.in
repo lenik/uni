@@ -7,6 +7,7 @@
     . shlib --
     import cliboot
     import findabc
+    import regex
 
     option -d --delta =N/+N     "open for delta days before instead of today. specify +N for future"
     option -n --name =NAME      "filename to open"
@@ -157,7 +158,7 @@ function open() {
     _log1 "open $file"
     case "$opt_open" in
         default)
-            xdg-open "$file"
+            run xdg-open "$file"
             ;;
         vscode)
             local root
@@ -166,7 +167,21 @@ function open() {
                 root=$(findroot "$file") || quit "can't find diaryfs root for $file."
             fi
             _log1 "root: $root"
-            code -r "$root" "$file"
+
+            local codeopts=()
+            
+            if activate_vscode_for_folder "$root"; then
+                codeopts=(--reuse-window)
+            else
+                codeopts=(--new-window)
+            fi
+            
+            local date=$( date +'%Y-%m-%d' )
+            local year_mo=${date:0:4}/${date:0:7}
+            
+            run code "${codeopts[@]}" \
+                "$root" \
+                "$file"
             ;;
         *)
             quit "invalid open mode: $opt_open";;
@@ -243,6 +258,53 @@ function date() {
     else
         quit "date command isn't available."
     fi
+}
+
+function run() {
+    _log1 "RUN $*"
+    "$@"
+}
+
+function activate_vscode_for_folder() {
+    local folder="$1"
+    local regex
+    local id desk client title
+    while read id desk client title; do
+        if match-re "$title" "* - Visual Studio Code"; then
+            local ws="${title% - Visual Studio Code}"
+            ws="${ws#* - }"
+            if [ "${ws:0:2}" = '~/' ]; then
+                ws="$HOME/${ws:2}"
+            fi
+            if [ ! -e "$ws" ]; then
+                _error "workspace file isn't existed: $ws"
+                return 1
+            fi
+            _log1 "workspace: $ws."
+            
+            case "$ws" in
+                */workspace.json)
+                    local path
+                    while read path; do
+                        if [ "$path" = "$root" ]; then
+                            ws="$root"
+                            break
+                        fi
+                    done < <(run jq -r '.folders[].path' "$ws")
+                    ;;
+            esac
+            
+            if [ "$ws" = "$folder" ]; then
+                run wmctrl -i -a "$id"
+                return 0
+            fi
+            
+            _log2 "vscode window $title: not the window for folder $folder. skipped"
+        fi
+    done < <(run wmctrl -l)
+    
+    _log2 "not found any vscode window for folder $folder."
+    return 1
 }
 
 boot "$@"
