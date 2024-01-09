@@ -21,10 +21,12 @@ import "../../skel/skel.scss";
                     <slot name="menu"></slot>
                 </div>
 
-                <div class="flex-1">
-                    <slot>
-                    </slot>
-                </div>
+                <slot name="main">
+                    <div class="main">
+                        <slot>
+                        </slot>
+                    </div>
+                </slot>
             </div>
         </slot>
 
@@ -35,6 +37,12 @@ import "../../skel/skel.scss";
         </div>
     </div>
 </template>
+
+<style lang="scss">
+.main>* {
+    margin: 1em;
+}
+</style>
 
 <style scoped lang="scss">
 .header {
@@ -55,5 +63,11 @@ import "../../skel/skel.scss";
     color: gray;
     text-align: center;
     font-family: Serif;
+}
+
+::v-deep() {
+    .main {
+        flex: 1;
+    }
 }
 </style>

@@ -33,7 +33,7 @@ watch(() => props.selection, async (toVal, fromVal) => {
 </script>
 
 <template>
-    <div :ref="div" :id="'v-' + name" :class="{ selected: selection == name }">
+    <div :ref="div" :id="'v-' + name" class="view" :class="{ selected: selection == name }">
         <slot></slot>
     </div>
 </template>

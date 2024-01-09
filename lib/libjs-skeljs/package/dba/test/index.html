@@ -7,17 +7,17 @@
         import { createApp } from "vue";
         import { createPinia } from 'pinia'
         import { createRouter, createWebHashHistory } from 'vue-router';
-        import { fs2Routes } from '../src/vue/routes';
+        import { fs2Routes } from 'skeljs-core/src/vue/routes';
 
         import App from "./App.vue";
         import Index from "./Index.vue";
-        import LayoutDemo from "./LayoutDemo.vue";
-        import MenuDemo from "./MenuDemo.vue";
+        import ObjvDemo from "./DataTables/ObjvDemo.vue";
+        import AjaxDemo from "./DataTables/AjaxDemo.vue";
 
         const routes = fs2Routes(
             [Index, {
-                'model-c': [LayoutDemo],
-                'menu': [MenuDemo],
+                'objv': [ObjvDemo],
+                'ajax': [AjaxDemo],
             }]);
         const router = createRouter({
             history: createWebHashHistory(),

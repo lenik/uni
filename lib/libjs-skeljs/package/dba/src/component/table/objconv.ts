@@ -1,5 +1,5 @@
 
-import * as types from './protocol';
+import * as types from './types';
 
 interface KeyOccurs {
     [key: string]: number
@@ -16,7 +16,7 @@ export function objv2Tab(objv: any[]) {
         }
     }
     let keys = Object.keys(colstat);
-    let columns = keys.map( (c) => ({ title: c}) );
+    let columns = keys.map((c) => ({ title: c }));
     let data = [];
     for (let i = 0; i < objv.length; i++) {
         let obj = objv[i];
@@ -29,7 +29,7 @@ export function objv2Tab(objv: any[]) {
         data.push(row);
     }
     return {
-        columns: columns, 
+        columns: columns,
         data: data
     };
 }
@@ -55,4 +55,101 @@ export function row2Obj(row: any, columns: any[]) {
         obj[key] = row[i];
     }
     return obj;
+}
+
+interface VarMatch {
+    value: any
+    remaining?: string
+}
+
+function findDeepest(varComposite: string, varMap: any): VarMatch {
+    varMap[varComposite]
+    let start = varComposite.length;
+    while (start != -1) {
+        let dot = varComposite.lastIndexOf('.', start);
+        let left = varComposite;
+        let right = undefined;
+        if (dot != -1) {
+            left = varComposite.substring(0, dot);
+            right = varComposite.substring(dot + 1);
+        }
+        if (varMap[left] !== undefined)
+            return { value: varMap[left], remaining: right };
+        start = dot;
+    }
+    return { value: undefined, remaining: varComposite };
+}
+
+function resolvePropertyComposite(obj: any, propertyVec: string[]): any {
+    if (propertyVec.length == 0)
+        return obj;
+    if (obj == null)
+        return undefined;
+    for (let property of propertyVec) {
+        obj = obj[property];
+        if (obj == null) // null or undefined.
+            break;
+    }
+    return obj;
+}
+
+export function convertToDataRows(fields: string[], cols: any[], rows: any[],
+    mapFn?: (val: any) => any /* optional */): any[][] {
+
+    if (rows.length == 0)
+        return [];
+
+    const isArray = Array.isArray(rows[0]);
+    if (mapFn === undefined) mapFn = fillUndefs;
+
+    if (cols == null) {
+        if (isArray)
+            throw "array[] without cols definition.";
+        let dataTab = objv2Tab(rows);
+        cols = dataTab.columns;
+    }
+
+    // config.columns = dataObj.columns;
+    let colIndexMap: any = {};
+    for (let i = 0; i < cols.length; i++) {
+        const col = cols[i];
+        const key = col.title || col;
+        colIndexMap[key] = i;
+    }
+
+    let projRows = rows.map(r => []);
+    for (let field of fields) {
+        let fieldv = field.split(/\./);
+        let { value: colIndex, remaining } = findDeepest(field, colIndexMap);
+        let tailv = remaining == null ? [] : remaining.split(/\./);
+
+        for (let y = 0; y < rows.length; y++) {
+            const _row = rows[y];
+            let projRow: any[] = projRows[y];
+
+            let obj = undefined;
+            if (isArray) {
+                if (colIndex != undefined) {
+                    obj = _row[colIndex];
+                    obj = resolvePropertyComposite(obj, tailv);
+                }
+            } else {
+                obj = resolvePropertyComposite(_row, fieldv);
+            }
+            if (mapFn != null)
+                obj = mapFn(obj);
+            projRow.push(obj);
+        }
+    }
+    return projRows;
+}
+
+export function fillUndefs(val: any) {
+    if (val === undefined)
+        return "<span class='undef'></span>";
+    if (val === null)
+        return "<span class='null'></span>";
+    if (val === undefined)
+        return null;
+    return val;
 }

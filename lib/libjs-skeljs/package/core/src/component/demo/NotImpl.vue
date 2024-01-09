@@ -18,6 +18,7 @@ const props = withDefaults(defineProps<Props>(), {
 <style lang="scss" scoped>
 .notimpl {
     background-size: 100% 100%;
+    margin: 0;
 
     &:nth-child(odd) {
         background-image: url(../../../image/notimpl1.jpg);

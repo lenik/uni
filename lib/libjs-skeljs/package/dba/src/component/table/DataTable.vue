@@ -1,37 +1,29 @@
 <script setup lang="ts">
 
-import { ref } from "vue';
-"
-import makeDataTable from "@/enh/datatable/dt-decl";
-import formats from "@/enh/datatable/dt-formats";
-import * as conv from "@/enh/datatable/objconv";
-import { onMounted } from "vue";
+import $ from "jquery";
 
-interface DataObject {
-    [key: string]: any
-}
+import { ref, onMounted, computed } from "vue";
+import { getCurrentInstance } from 'vue';
 
-interface ColumnType {
-    title: string
-    type: string
-    format: string
-}
+import { showError } from "skeljs-core/src/logging/api";
 
-interface ColumnTypes {
-    [key: string]: ColumnType
-}
-
-interface ColumnsData {
-    columns: ColumnTypes
-    data: any[][]
-}
+import type { DataTab, SymbolCompileFunc } from "./types";
+import formats from "./formats";
+import { useAjaxDataTable, useDataTable } from "./apply";
 
 interface Props {
 
-    objects?: DataObject[]
-    columns?: ColumnTypes
+    caption?: string
+    captionPosition?: 'top' | 'bottom' | 'both'
 
-    columnsData?: ColumnsData
+    dataObjv?: any[]
+
+    // columns?: ColumnType[]
+    dataTab?: DataTab
+
+    compile?: SymbolCompileFunc
+
+    config?: any
 
     /**
      * when version changed, a full-update will be made.
@@ -42,9 +34,24 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+    captionPosition: 'bottom',
+    compile: formats,
     version: 0,
     watch: false
 });
+
+const captionAtTop = computed(() => props.caption != null
+    && (props.captionPosition == 'top'
+        || props.captionPosition == 'both'
+    ));
+const captionAtBottom = computed(() => props.caption != null
+    && (props.captionPosition == 'bottom'
+        || props.captionPosition == 'both'
+    ));
+
+defineOptions({
+    inheritAttrs: false
+})
 
 const css = [
     "table",
@@ -58,30 +65,65 @@ const css = [
 const tableRef = ref(null);
 
 onMounted(() => {
-    var context = {
-        getVar: (path) => {
+    let cur = getCurrentInstance();
 
-        },
-        getFormat: (path) => {
-            
-        }
+    let table: HTMLElement = tableRef.value!;
+    let $table = $(table);
+    console.log($table.dataTable);
+
+    let fetch = () => props.dataObjv || props.dataTab;
+    let data = fetch();
+    if (data !== undefined) {
+        useDataTable(tableRef.value!, props.config, props.compile, fetch);
+        return;
     }
-    makeDataTable(tableRef, context);
+
+    let dataUrl = table.getAttribute('data-url');
+    if (dataUrl != null) {
+        useAjaxDataTable(tableRef.value!, props.config, props.compile);
+        return;
+    }
+
+    showError('invalid use of <DataTable>');
 });
+
 </script>
 
 <template>
-    <table v-ref="tableRef" class="datatable" :class="css">
+    <div class="caption" v-if="captionAtTop">{{ caption }}</div>
+    <table ref="tableRef" v-once class="datatable" :class="css" v-bind="$attrs">
         <thead>
             <slot>
             </slot>
         </thead>
-        <tbody></tbody>
+        <tbody>
+            <slot name="body"></slot>
+        </tbody>
         <slot name="foot"></slot>
     </table>
+    <div class="caption" v-if="captionAtBottom">{{ caption }}</div>
 </template>
 
+<style lang="scss">
+body {
+    counter-reset: dataTable;
+}
+
+table.dataTable {
+    counter-increment: dataTable;
+}
+</style>
+
 <style lang="scss" scoped>
+.caption {
+    text-align: center;
+    font-style: italic;
+
+    &::before {
+        content: 'Table ' counter(dataTable) ': ';
+    }
+}
+
 .dataTables_wrapper {
     .dataTable {
 

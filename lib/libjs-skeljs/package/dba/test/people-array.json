@@ -1,0 +1,8 @@
+{
+    "columns": ["name", "age", "sex", "info"],
+    "rows": [
+        ["Tom", 20, "m", { "interest": "reading", "hate": "sleep" }],
+        ["Lucy", 16, "f", { "hate": "play games" }],
+        ["Lily", 12, "f", null]
+    ]
+}

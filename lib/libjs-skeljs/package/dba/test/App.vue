@@ -2,13 +2,9 @@
 
 import { ref } from 'vue';
 
-import ModelC from '@/component/layout/ModelC.vue';
-import SiteBar from '@/component/menu/SiteBar.vue';
-import ProjectInfo from '@/component/demo/ProjectInfo.vue';
-import TabViews from '@/component/layout/TabViews.vue';
-import View from '@/component/layout/View.vue';
-
-import { Menu, getSelection } from '@/component/menu/menu';
+import ModelC from 'skeljs-core/src/component/layout/ModelC.vue';
+import SiteBar from 'skeljs-core/src/component/menu/SiteBar.vue';
+import ProjectInfo from 'skeljs-core/src/component/demo/ProjectInfo.vue';
 
 const siteMenu = [
     { href: "./index.html", iconfa: "fa-file-o", label: "This" },
@@ -23,21 +19,6 @@ const stat = {
     downvotes: 2,
 };
 
-const views: Menu = {
-    layout: {
-        selected: true,
-        label: "Layouts",
-        iconfa: "info",
-    },
-    menu: {
-        label: "Menus",
-        iconfa: "cog",
-    },
-};
-
-const initialView = getSelection(views)[0];
-const view = ref(initialView);
-
 </script>
 
 <template>
@@ -47,10 +28,12 @@ const view = ref(initialView);
         </template>
 
         <template #project-info>
-            <ProjectInfo :stat="stat" label="Site Bar demo">
-                Site Bar demo
+            <ProjectInfo :stat="stat" label="Test Apps">
+                Test applications of skeljs::core package.
             </ProjectInfo>
         </template>
+
+        <router-view></router-view>
 
         <template #footer>
             <div id="footbar" style="display: flex; flex-direction: row">

@@ -18,7 +18,6 @@ export function splitDirBase(path: string): DirBase {
     return { "dir": dir, "base": base };
 }
 
-
 export function baseName(s: string): string {
     let lastSlash = s.lastIndexOf('/');
     return lastSlash == -1 ? s : s.substring(lastSlash + 1);
