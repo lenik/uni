@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import $ from "jquery";
+import $, { data } from "jquery";
 
 import { ref, onMounted, computed } from "vue";
 import { getCurrentInstance } from 'vue';
@@ -10,6 +10,7 @@ import { showError } from "skeljs-core/src/logging/api";
 import type { DataTab, SymbolCompileFunc } from "./types";
 import formats from "./formats";
 import { useAjaxDataTable, useDataTable } from "./apply";
+import { objv2Tab } from "./objconv";
 
 interface Props {
 
@@ -68,12 +69,19 @@ onMounted(() => {
     let cur = getCurrentInstance();
 
     let table: HTMLElement = tableRef.value!;
-    let $table = $(table);
-    console.log($table.dataTable);
+    // let $table = $(table);
+    // console.log($table.dataTable);
 
-    let fetch = () => props.dataObjv || props.dataTab;
-    let data = fetch();
-    if (data !== undefined) {
+    if (props.dataTab != null) {
+        useDataTable(tableRef.value!, props.config, props.compile, () => props.dataTab);
+        return;
+    }
+
+    if (props.dataObjv != null) {
+        let fetch = () => {
+            let dataTab = objv2Tab(props.dataObjv!);
+            return dataTab;
+        };
         useDataTable(tableRef.value!, props.config, props.compile, fetch);
         return;
     }
@@ -84,6 +92,7 @@ onMounted(() => {
         return;
     }
 
+    throw 'invalid use of <DataTable>';
     showError('invalid use of <DataTable>');
 });
 

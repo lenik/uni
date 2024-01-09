@@ -117,10 +117,16 @@ export function configAjaxData(config: Config, dataUrl: string, columns: ColumnT
                 return;
             }
 
+            let head = _rows[0];
+            let isArray = Array.isArray(head);
+
             // preprocess rows
             if (entityClass != null) {
                 data.columns.push('_class');
-                _rows.forEach(row => row.push(entityClass));
+                if (isArray)
+                    _rows.forEach(row => row.push(entityClass));
+                else
+                    _rows.forEach(row => row._class = entityClass);
             }
 
             let rows = convertToDataRows(fields, data.columns, _rows);

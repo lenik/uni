@@ -2,30 +2,11 @@
 
 import DataTable from '../../src/component/table/DataTable.vue';
 import { convertToDataRows, objv2Tab } from '../../src/component/table/objconv';
+import people from '../people-objv.js';
 
 </script>
 
 <script lang="ts">
-var people = [{
-    name: 'Tom',
-    age: 20,
-    sex: 'm',
-    info: {
-        interest: 'reading',
-        hate: 'sleep'
-    }
-}, {
-    name: 'Lucy',
-    age: 16,
-    sex: 'f',
-    info: {
-        hate: 'play games',
-    }
-}, {
-    name: 'Lily',
-    age: 12,
-    sex: 'f'
-}];
 var peopleTab = objv2Tab(people);
 
 // Generate people-array.json:

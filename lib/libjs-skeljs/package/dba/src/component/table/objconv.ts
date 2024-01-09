@@ -64,18 +64,18 @@ interface VarMatch {
 
 function findDeepest(varComposite: string, varMap: any): VarMatch {
     varMap[varComposite]
-    let start = varComposite.length;
-    while (start != -1) {
-        let dot = varComposite.lastIndexOf('.', start);
+    let endpos = varComposite.length;
+    while (endpos != -1) {
+        endpos = varComposite.lastIndexOf('.', endpos);
         let left = varComposite;
         let right = undefined;
-        if (dot != -1) {
-            left = varComposite.substring(0, dot);
-            right = varComposite.substring(dot + 1);
+        if (endpos != -1) {
+            left = varComposite.substring(0, endpos);
+            right = varComposite.substring(endpos + 1);
+            endpos--;
         }
         if (varMap[left] !== undefined)
             return { value: varMap[left], remaining: right };
-        start = dot;
     }
     return { value: undefined, remaining: varComposite };
 }

@@ -6,13 +6,13 @@ export type FormatsFunc = (format: string, data?: any) => FormatFunc | string;
 export class DefaultFormats {
 
     formats = (format: string, data?: any): FormatFunc | string => {
-        let fn = eval('this.' + format);
-        if (fn == undefined)
+        let code = eval('this.' + format);
+        if (code == null)
             throw "invalid format: " + format;
         if (data === undefined)
-            return fn;
+            return code;
         else
-            return fn(data);
+            return code(data);
     }
 
     decimal = (n: number, scale: number): string | FormatFunc => {
@@ -32,22 +32,24 @@ export class DefaultFormats {
 
     integer = (n: number) => toFixed(n, 0);
 
-    percent = (n: number, scale: number): string | FormatFunc => {
+    percent = (n: number, scale?: number): string | FormatFunc => {
         if (scale == null) {
-            scale = n;
+            let _arg1 = n;
             return function (n: number) {
+                if (Number.isNaN(n)) return 'NaN';
                 n *= 100;
-                return toFixed(n, scale) + "%";
+                return toFixed(n, _arg1) + "%";
             };
         } else {
+            if (Number.isNaN(n)) return 'NaN';
             n *= 100;
             return toFixed(n, scale) + "%";
         }
     };
 
-    percent1 = (n: number) => toFixed(n * 100, 1) + "%";
+    percent1 = (n: number) => this.percent(n, 1);
 
-    percent2 = (n: number) => toFixed(n * 100, 2) + "%";
+    percent2 = (n: number) => this.percent(n, 2);
 
 };
 
@@ -56,8 +58,8 @@ function toFixed(o: any, len: number): string {
     return num.toFixed(len);
 }
 
-var defaultFormats = new DefaultFormats();
+export var formats = new DefaultFormats();
 
 export default (format: string, data?: any) => {
-    return defaultFormats.formats(format, data);
+    return formats.formats(format, data);
 };

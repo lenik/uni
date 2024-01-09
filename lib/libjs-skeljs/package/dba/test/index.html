@@ -11,13 +11,17 @@
 
         import App from "./App.vue";
         import Index from "./Index.vue";
-        import ObjvDemo from "./DataTables/ObjvDemo.vue";
-        import AjaxDemo from "./DataTables/AjaxDemo.vue";
+        import DataObjvDemo from "./DataTables/DataObjvDemo.vue";
+        import DataTabDemo from "./DataTables/DataTabDemo.vue";
+        import AjaxArrayDemo from "./DataTables/AjaxArrayDemo.vue";
+        import AjaxObjectDemo from "./DataTables/AjaxObjectDemo.vue";
 
         const routes = fs2Routes(
             [Index, {
-                'objv': [ObjvDemo],
-                'ajax': [AjaxDemo],
+                'data-tab': [DataTabDemo],
+                'data-objv': [DataObjvDemo],
+                'ajax-array': [AjaxArrayDemo],
+                'ajax-object': [AjaxObjectDemo],
             }]);
         const router = createRouter({
             history: createWebHashHistory(),
