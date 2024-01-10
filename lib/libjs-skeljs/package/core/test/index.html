@@ -6,23 +6,9 @@
     <script type="module" lang="ts">
         import { createApp } from "vue";
         import { createPinia } from 'pinia'
-        import { createRouter, createWebHashHistory } from 'vue-router';
-        import { fs2Routes } from '../src/vue/routes';
-
+        
         import App from "./App.vue";
-        import Index from "./Index.vue";
-        import LayoutDemo from "./LayoutDemo.vue";
-        import MenuDemo from "./MenuDemo.vue";
-
-        const routes = fs2Routes(
-            [Index, {
-                'model-c': [LayoutDemo],
-                'menu': [MenuDemo],
-            }]);
-        const router = createRouter({
-            history: createWebHashHistory(),
-            routes: routes,
-        });
+        import router from './router'
 
         const app = createApp(App);
         app.use(router);

@@ -7,6 +7,9 @@ import { getSelection } from '../src/component/menu/menu';
 
 import TabViews from '../src/component/layout/TabViews.vue';
 import View from '../src/component/layout/View.vue';
+import NodeTree from '../src/component/tree/NodeTree.vue';
+
+import { root } from './router';
 
 const views: Menu = {
     dtn: {
@@ -24,10 +27,13 @@ const view = ref(initialView);
 <template>
     <TabViews :views="views" v-model:view="view">
         <View name="dtn" :selection="view">
-            <ul>
-                <li><router-link to="model-c">Model-C Layout</router-link></li>
-                <li><router-link to="menu">Menu</router-link></li>
-            </ul>
+            <node-tree :node="root">
+                <template v-slot="{ path, node }">
+                    <router-link :to="path">
+                        {{ node[2]?.label || path }}
+                    </router-link>
+                </template>
+            </node-tree>
         </View>
     </TabViews>
 </template>
