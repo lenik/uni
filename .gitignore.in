@@ -108,6 +108,7 @@ config.sub
 configure                               # configure.ac
 debhelper-build-stamp
 depcomp
+dist/                                   # npm: vite outdir
 install-sh                              # autoreconf -i
 itree.tex                               # makelook
 libauto                                 # coolauto

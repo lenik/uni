@@ -108,6 +108,7 @@ config.sub
 configure
 debhelper-build-stamp
 depcomp
+dist/
 install-sh
 itree.tex
 libauto

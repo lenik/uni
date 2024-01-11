@@ -1,0 +1,28 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>DBA Tests</title>
+    <script type="module" lang="ts">
+        import { createApp } from "vue";
+        import { createPinia } from 'pinia'
+        
+        import App from "./App.vue";
+        import router from './router'
+
+        const app = createApp(App);
+        app.use(router);
+        app.use(createPinia());
+
+        app.mount("#app");
+    </script>
+</head>
+
+<body class="full-size">
+
+    <div id="app" class="flex-column full-size">
+    </div>
+
+</body>
+
+</html>
