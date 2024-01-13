@@ -2,8 +2,8 @@
 
 import $ from 'jquery';
 
-import { onMounted, ref } from "vue";
-import { Command } from './types';
+import { computed, onMounted, ref } from "vue";
+import { bool, Command } from './types';
 
 import Icon from './Icon.vue';
 
@@ -13,11 +13,22 @@ interface Props {
     cmd: Command
     tagName?: string
     target?: any
+
+    showIcon?: boolean | string
+    showLabel?: boolean | string
+    showBorder?: boolean | string
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    tagName: 'div'
+    tagName: 'div',
+    showIcon: true,
+    showLabel: true,
+    showBorder: true,
 });
+
+const withIcon = computed(() => props.cmd.icon != null && bool(props.showIcon));
+const withLabel = computed(() => props.cmd.label != null && bool(props.showLabel));
+const withBorder = computed(() => bool(props.showBorder));
 
 interface Emits {
     (e: 'created', event: Event): void
@@ -35,13 +46,16 @@ defineExpose({
 </script>
 
 <template>
-    <component :is="tagName" ref="rootElement" class="component">
+    <component :is="tagName" ref="rootElement" class="cmd-button">
         <div class="btn-with-extras">
-            <component :is="cmd.href != null ? 'a' : 'div'" class="btn" :href="cmd.href" :title="cmd.tooltip">
+            <component :is="cmd.href != null ? 'a' : 'div'" class="btn" :class="{ withIcon, withLabel, withBorder }"
+                :name="cmd.name" :href="cmd.href" :title="cmd.tooltip">
 
-                <Icon :name="cmd.icon" v-if="cmd.icon != null" />
+                <Icon :name="cmd.icon" v-if="withIcon" />
 
-                <span class="label">{{ cmd.label }}</span>
+                <span class="sep" v-if="withIcon && withLabel"></span>
+
+                <span class="label" v-if="withLabel">{{ cmd.label }}</span>
 
             </component>
 
@@ -55,34 +69,48 @@ defineExpose({
 </template>
 
 <style scoped lang="scss">
-.component {}
+.cmd-button {}
 
 .btn {
     display: flex;
     flex-direction: row;
     align-items: center;
-
-    margin: 3px;
-    padding: 4px 8px;
-
-    background-color: hsl(190, 45%, 85%);
-    border-radius: 5px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: hsl(190, 45%, 30%);
     cursor: pointer;
+    user-select: none;
 
-    &:hover {
-        background-color: hsl(190, 45%, 95%);
+    &.withLabel {
+        margin: .3em;
+        padding: .3em .8em;
     }
 
-    .icon {
-        margin-right: .5em;
+    &:not(.withLabel) {
+        margin: .2em;
+        padding: .2em;
+    }
+
+    &.withBorder {
+        background-color: hsl(190, 45%, 85%);
+        border-radius: 5px;
+        border-style: solid;
+        border-width: 1px;
+        border-color: hsl(190, 45%, 30%);
+
+        &:hover {
+            background-color: hsl(190, 45%, 95%);
+        }
+
+    }
+
+    .icon {}
+
+    .sep {
+        width: .5em;
     }
 
     .label {
         font-weight: 300;
     }
+
 }
 
 .description {

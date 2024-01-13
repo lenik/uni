@@ -15,6 +15,7 @@ import UiDialogDemo from "./UiDialogDemo.vue";
 import DialogDemo from "./DialogDemo.vue";
 import IconDemo from "./IconDemo.vue";
 import FieldRowDemo from "./FieldRowDemo.vue";
+import CmdButtonsDemo from "./CmdButtonsDemo.vue";
 
 export const root = uiExtract([
     Index,
@@ -26,6 +27,7 @@ export const root = uiExtract([
         ...ui(DialogDemo, 'dialog demo'),
         ...ui(IconDemo, 'icon demo'),
         ...ui(FieldRowDemo, 'field row demo'),
+        ...ui(CmdButtonsDemo, 'grouped cmd buttons demo'),
     }, {
         label: 'index page'
     }
