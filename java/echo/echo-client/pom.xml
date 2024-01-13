@@ -30,12 +30,12 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-http</artifactId>
-            <version>9.4.48.v20220622</version>
+            <version>11.0.17</version>
             <type>test-jar</type>
-        </dependency>
+        </dependency-->
     </dependencies>
     <name>Echo :: Client</name>
 </project>
