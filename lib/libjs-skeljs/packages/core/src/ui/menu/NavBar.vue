@@ -17,7 +17,7 @@ const emit = defineEmits<{
     (e: 'viewChanged', newView: string, oldView: string): void
 }>();
 
-var element = ref(null);
+var rootElement = ref();
 
 function select(newView: string) {
     const old = model.value;
@@ -33,7 +33,7 @@ watch(model, async (toVal, fromVal) => {
         if (onleave != null) eval(onleave);
     }
 
-    var navLink = $(">[href=" + toVal + "]", element);
+    var navLink = $(">[href=" + toVal + "]", rootElement);
     // navLink.siblings().removeClass("selected");
     // navLink.addClass("selected");
 
@@ -51,7 +51,7 @@ watch(model, async (toVal, fromVal) => {
 </script>
 
 <template>
-    <nav ref="element" class="-tabular -bw">
+    <nav ref="rootElement" class="-tabular -bw">
         <a v-for="(it, k) in items" :key="k" :href="k" :class="{ selected: modelValue == k }" onclick="return false"
             @click.stop="select(k)">
             <i :class="'fa fa-' + it.iconfa"></i>

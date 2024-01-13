@@ -55,7 +55,7 @@ const tagName = computed(() => {
     return 'ul';
 })
 
-const rootElement = ref(null);
+const rootElement = ref();
 
 </script>
 

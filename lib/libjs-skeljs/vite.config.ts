@@ -17,6 +17,7 @@ const base = defineConfig({
         alias: {
             '@core': fileURLToPath(new URL('./packages/core/src', import.meta.url)),
             '@dba': fileURLToPath(new URL('./packages/dba/src', import.meta.url)),
+            'jquery-ui-esm': '@eirslett/jquery-ui-esm/esm',
         }
     },
     server: {

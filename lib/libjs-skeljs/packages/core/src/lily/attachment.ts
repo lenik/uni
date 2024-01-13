@@ -54,7 +54,7 @@ export function getFirstImage(id: any, props?: Properties, fallback = ""): strin
     return href;
 }
 
-export function getObjectImage(obj: Entity, fallback: string) {
+export function getObjectImage(obj: Entity, fallback?: string) {
     if (fallback == null) fallback = "";
     var props = obj.properties;
     if (props == null) return fallback;

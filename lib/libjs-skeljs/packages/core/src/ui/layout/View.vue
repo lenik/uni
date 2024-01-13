@@ -14,7 +14,7 @@ const emit = defineEmits<{
     (e: 'leave', name: string, data: any): boolean
 }>();
 
-const div = ref(null);
+const rootElement = ref();
 
 watch(() => props.selection, async (toVal, fromVal) => {
     let name = props.name;
@@ -33,7 +33,7 @@ watch(() => props.selection, async (toVal, fromVal) => {
 </script>
 
 <template>
-    <div :ref="div" :id="'v-' + name" class="view" :class="{ selected: selection == name }">
+    <div :ref="rootElement" :id="'v-' + name" class="view" :class="{ selected: selection == name }">
         <slot></slot>
     </div>
 </template>

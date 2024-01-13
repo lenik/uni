@@ -1,5 +1,7 @@
 
-export function parseLen(val: number | string, percentBase: number, defaultValue: number): number {
+export function parseLen(val: number | string | null | undefined,
+    percentBase: number, defaultValue: number): number {
+
     if (val == null)
         return defaultValue;
 

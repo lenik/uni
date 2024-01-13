@@ -11,6 +11,10 @@ import Index from "./Index.vue";
 import LayoutDemo from "./LayoutDemo.vue";
 import MenuDemo from "./MenuDemo.vue";
 import NodeTreeDemo from "./NodeTreeDemo.vue";
+import UiDialogDemo from "./UiDialogDemo.vue";
+import DialogDemo from "./DialogDemo.vue";
+import IconDemo from "./IconDemo.vue";
+import FieldRowDemo from "./FieldRowDemo.vue";
 
 export const root = uiExtract([
     Index,
@@ -18,6 +22,10 @@ export const root = uiExtract([
         ...ui(LayoutDemo, 'model-c layout demo'),
         ...ui(MenuDemo, 'menu demo'),
         ...ui(NodeTreeDemo, 'recursive node tree demo'),
+        ...ui(UiDialogDemo, 'jquery-ui dialog demo'),
+        ...ui(DialogDemo, 'dialog demo'),
+        ...ui(IconDemo, 'icon demo'),
+        ...ui(FieldRowDemo, 'field row demo'),
     }, {
         label: 'index page'
     }

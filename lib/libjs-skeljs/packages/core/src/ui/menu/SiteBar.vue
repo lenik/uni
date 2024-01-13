@@ -1,7 +1,6 @@
 <script setup lang="ts">
 
 import {} from "../../skel/fonts.js";
-import 'font-awesome/css/font-awesome.css';
 
 interface Item {
     label: string
