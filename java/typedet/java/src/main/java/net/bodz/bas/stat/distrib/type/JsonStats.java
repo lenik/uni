@@ -4,7 +4,7 @@ import java.util.Map;
 
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.fmt.json.JsonFn;
-import net.bodz.bas.fmt.json.JsonVar;
+import net.bodz.bas.fmt.json.JsonVariant;
 import net.bodz.bas.json.JsonObject;
 import net.bodz.bas.repr.form.SortOrder;
 
@@ -44,7 +44,7 @@ public class JsonStats
         }
 
         try {
-            JsonVar any = JsonFn.parseAny(json);
+            JsonVariant any = JsonFn.parseAny(json);
             switch (any.getType()) {
             case OBJECT:
                 JsonObject jo = (JsonObject) any.getValue();

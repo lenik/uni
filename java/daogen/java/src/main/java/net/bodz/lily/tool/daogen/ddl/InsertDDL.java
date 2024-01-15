@@ -4,9 +4,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.bodz.lily.tool.daogen.DialectFn;
+import net.bodz.bas.db.sql.dialect.ISqlDialect;
 
 public class InsertDDL {
+
+    private ISqlDialect dialect;
 
     private String tableName;
     private Map<String, String> fieldMap;
@@ -39,7 +41,7 @@ public class InsertDDL {
     }
 
     public void set(String fieldName, String str) {
-        String qstr = DialectFn.quoteText(str);
+        String qstr = dialect.qString(str);
         put(fieldName, qstr);
     }
 

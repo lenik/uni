@@ -14,6 +14,7 @@ import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.catalog.ITableUsage;
 import net.bodz.bas.t.catalog.IViewMetadata;
 import net.bodz.bas.t.catalog.TableKey;
+import net.bodz.lily.tool.daogen.util.DialectFn;
 
 public class VFooMapper__xml
         extends JavaGen__xml {

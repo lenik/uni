@@ -8,6 +8,7 @@ import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.ICatalogMetadata;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.lily.tool.daogen.util.DialectFn;
 
 public class FooMapper__xml
         extends VFooMapper__xml {

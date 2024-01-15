@@ -27,8 +27,8 @@ import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.map.ListMap;
 import net.bodz.lily.tool.daogen.ColumnName;
-import net.bodz.lily.tool.daogen.DialectFn;
 import net.bodz.lily.tool.daogen.TableName;
+import net.bodz.lily.tool.daogen.util.DialectFn;
 import net.bodz.lily.tool.daogen.util.JavaLang;
 
 public class CatalogConfig
