@@ -1,8 +1,10 @@
-package net.bodz.lily.tool.daogen;
+package net.bodz.lily.tool.daogen.dir;
 
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.codegen.QualifiedName;
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.IColumnMetadata;
@@ -14,10 +16,15 @@ import net.bodz.lily.meta.TypeParamType;
 import net.bodz.lily.meta.TypeParameters;
 import net.bodz.lily.model.base.CoEntity;
 import net.bodz.lily.model.base.StructRow;
+import net.bodz.lily.tool.daogen.ColumnName;
+import net.bodz.lily.tool.daogen.JavaGenProject;
+import net.bodz.lily.tool.daogen.JavaGen__java;
 import net.bodz.lily.tool.daogen.util.CanonicalClass;
 
 public class Foo_stuff__java
         extends JavaGen__java {
+
+    static final Logger logger = LoggerFactory.getLogger(Foo_stuff__java.class);
 
     public Foo_stuff__java(JavaGenProject project) {
         super(project, project._Foo_stuff);

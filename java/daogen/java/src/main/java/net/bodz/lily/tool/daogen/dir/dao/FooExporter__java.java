@@ -1,4 +1,4 @@
-package net.bodz.lily.tool.daogen;
+package net.bodz.lily.tool.daogen.dir.dao;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -7,6 +7,9 @@ import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.db.sql.DDLExporter;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.lily.tool.daogen.ColumnName;
+import net.bodz.lily.tool.daogen.JavaGenProject;
+import net.bodz.lily.tool.daogen.JavaGen__java;
 import net.bodz.lily.tool.daogen.util.SBCodegen;
 
 public class FooExporter__java

@@ -1,8 +1,10 @@
-package net.bodz.lily.tool.daogen;
+package net.bodz.lily.tool.daogen.dir.ws;
 
 import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.meta.decl.ObjectType;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.lily.tool.daogen.JavaGenProject;
+import net.bodz.lily.tool.daogen.JavaGen__java;
 
 public class FooIndex__java
         extends JavaGen__java {

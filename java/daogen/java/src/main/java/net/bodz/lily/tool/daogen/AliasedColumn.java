@@ -4,7 +4,7 @@ import net.bodz.bas.t.catalog.IColumnMetadata;
 
 public class AliasedColumn {
 
-    String tableAlias;
+    public String tableAlias;
     String columnAlias;
     IColumnMetadata column;
 

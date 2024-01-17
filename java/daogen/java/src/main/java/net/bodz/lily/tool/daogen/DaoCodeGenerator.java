@@ -34,6 +34,16 @@ import net.bodz.lily.tool.daogen.config.CatalogConfig;
 import net.bodz.lily.tool.daogen.config.CatalogConfigApplier;
 import net.bodz.lily.tool.daogen.config.FinishProcessor;
 import net.bodz.lily.tool.daogen.config.LangFixupApplier;
+import net.bodz.lily.tool.daogen.dir.Foo_Id__java;
+import net.bodz.lily.tool.daogen.dir.Foo__java;
+import net.bodz.lily.tool.daogen.dir.Foo__java_tv;
+import net.bodz.lily.tool.daogen.dir.Foo_stuff__java;
+import net.bodz.lily.tool.daogen.dir.dao.*;
+import net.bodz.lily.tool.daogen.dir.dao.test.FooManagerTest__java;
+import net.bodz.lily.tool.daogen.dir.dao.test.FooMapperTest__java;
+import net.bodz.lily.tool.daogen.dir.dao.test.FooMapperTest__java_v;
+import net.bodz.lily.tool.daogen.dir.dao.test.FooSamples__java;
+import net.bodz.lily.tool.daogen.dir.ws.FooIndex__java;
 import net.bodz.lily.tool.daogen.util.MavenDirs;
 
 /**

@@ -1,4 +1,4 @@
-package net.bodz.lily.tool.daogen;
+package net.bodz.lily.tool.daogen.dir.dao;
 
 import java.sql.DatabaseMetaData;
 import java.util.List;
@@ -8,6 +8,9 @@ import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.ICatalogMetadata;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.lily.tool.daogen.ColumnName;
+import net.bodz.lily.tool.daogen.ColumnUtils;
+import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.util.DialectFn;
 
 public class FooMapper__xml

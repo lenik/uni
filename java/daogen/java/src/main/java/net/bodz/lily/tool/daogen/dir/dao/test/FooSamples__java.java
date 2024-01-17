@@ -1,4 +1,4 @@
-package net.bodz.lily.tool.daogen;
+package net.bodz.lily.tool.daogen.dir.dao.test;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -23,6 +23,8 @@ import net.bodz.bas.c.type.TypeId;
 import net.bodz.bas.c.type.TypeKind;
 import net.bodz.bas.codegen.EnglishTextGenerator;
 import net.bodz.bas.codegen.JavaSourceWriter;
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.potato.provider.bean.BeanProperty;
@@ -36,10 +38,15 @@ import net.bodz.lily.entity.type.EntityTypes;
 import net.bodz.lily.entity.type.IEntityTypeInfo;
 import net.bodz.lily.model.base.CoObject;
 import net.bodz.lily.test.TestSampleBuilder;
+import net.bodz.lily.tool.daogen.ColumnName;
+import net.bodz.lily.tool.daogen.JavaGenProject;
+import net.bodz.lily.tool.daogen.JavaGen__java;
 import net.bodz.lily.util.IRandomPicker;
 
 public class FooSamples__java
         extends JavaGen__java {
+
+    static final Logger logger = LoggerFactory.getLogger(FooSamples__java.class);
 
     int maxStringLen = 1000;
 

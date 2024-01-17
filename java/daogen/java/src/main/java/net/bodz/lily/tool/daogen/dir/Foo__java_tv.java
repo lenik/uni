@@ -1,4 +1,4 @@
-package net.bodz.lily.tool.daogen;
+package net.bodz.lily.tool.daogen.dir;
 
 import javax.persistence.Table;
 
@@ -10,6 +10,8 @@ import net.bodz.lily.meta.TypeParamType;
 import net.bodz.lily.meta.TypeParameters;
 import net.bodz.lily.model.base.CoEntity;
 import net.bodz.lily.model.base.StructRow;
+import net.bodz.lily.tool.daogen.JavaGenProject;
+import net.bodz.lily.tool.daogen.JavaGen__java;
 import net.bodz.lily.tool.daogen.util.CanonicalClass;
 
 public class Foo__java_tv

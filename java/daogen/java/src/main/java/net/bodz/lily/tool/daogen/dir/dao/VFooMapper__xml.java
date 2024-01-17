@@ -1,4 +1,4 @@
-package net.bodz.lily.tool.daogen;
+package net.bodz.lily.tool.daogen.dir.dao;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -8,16 +8,26 @@ import java.util.Set;
 import net.bodz.bas.c.type.TypeId;
 import net.bodz.bas.c.type.TypeKind;
 import net.bodz.bas.codegen.XmlSourceBuffer;
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.catalog.ITableUsage;
 import net.bodz.bas.t.catalog.IViewMetadata;
 import net.bodz.bas.t.catalog.TableKey;
+import net.bodz.lily.tool.daogen.AliasedColumn;
+import net.bodz.lily.tool.daogen.ColumnName;
+import net.bodz.lily.tool.daogen.JavaGenProject;
+import net.bodz.lily.tool.daogen.JavaGen__xml;
+import net.bodz.lily.tool.daogen.JoinColumns;
+import net.bodz.lily.tool.daogen.RuntimeSupport;
 import net.bodz.lily.tool.daogen.util.DialectFn;
 
 public class VFooMapper__xml
         extends JavaGen__xml {
+
+    static final Logger logger = LoggerFactory.getLogger(VFooMapper__xml.class);
 
     static final String SQLID_OBJLIST = "objlist_sql";
     static final String SQLID_OBJEDIT = "objedit_sql";

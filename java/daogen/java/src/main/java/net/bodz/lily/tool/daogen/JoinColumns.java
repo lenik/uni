@@ -17,11 +17,11 @@ public class JoinColumns
         implements
             IColumnOrder {
 
-    Map<String, CrossReference> aliasMap = new LinkedHashMap<>();
-    Map<CrossReference, String> refAliasMap = new HashMap<>();
-    Map<String, AliasedColumn> aliasColumns = new LinkedHashMap<>();
+    public Map<String, CrossReference> aliasMap = new LinkedHashMap<>();
+    public Map<CrossReference, String> refAliasMap = new HashMap<>();
+    public Map<String, AliasedColumn> aliasColumns = new LinkedHashMap<>();
 
-    Map<String, IColumnMetadata> foreignColumns = new LinkedHashMap<>();
+    public Map<String, IColumnMetadata> foreignColumns = new LinkedHashMap<>();
 
     boolean ignoreCase;
     String[] defaultParentColumns = { "id", "label", "description", "image" };

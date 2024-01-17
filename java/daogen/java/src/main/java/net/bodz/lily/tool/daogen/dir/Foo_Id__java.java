@@ -1,4 +1,4 @@
-package net.bodz.lily.tool.daogen;
+package net.bodz.lily.tool.daogen.dir;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -10,6 +10,9 @@ import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.entity.Identifier;
+import net.bodz.lily.tool.daogen.ColumnName;
+import net.bodz.lily.tool.daogen.JavaGenProject;
+import net.bodz.lily.tool.daogen.JavaGen__java;
 
 public class Foo_Id__java
         extends JavaGen__java {

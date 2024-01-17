@@ -20,11 +20,11 @@ public class JavaGenProject {
     UpdateMethod updateMethod;
 
     ICatalogMetadata catalog;
-    CatalogConfig config;
-    long randomSeed;
+    public CatalogConfig config;
+    public long randomSeed;
 
     boolean parentColumnInParallelMode = true;
-    boolean extraDDLs;
+    public boolean extraDDLs;
 
     public final ClassPathInfo Foo;
     public final ClassPathInfo _Foo_stuff;

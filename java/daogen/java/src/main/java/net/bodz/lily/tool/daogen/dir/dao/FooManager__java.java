@@ -1,9 +1,11 @@
-package net.bodz.lily.tool.daogen;
+package net.bodz.lily.tool.daogen.dir.dao;
 
 import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.db.ctx.DataContext;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.dao.AbstractEntityManager;
+import net.bodz.lily.tool.daogen.JavaGenProject;
+import net.bodz.lily.tool.daogen.JavaGen__java;
 
 public class FooManager__java
         extends JavaGen__java {

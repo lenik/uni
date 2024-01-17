@@ -1,10 +1,12 @@
-package net.bodz.lily.tool.daogen;
+package net.bodz.lily.tool.daogen.dir;
 
 import java.io.Serializable;
 
 import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.lily.tool.daogen.JavaGenProject;
+import net.bodz.lily.tool.daogen.JavaGen__java;
 
 public class IFoo_Id__java
         extends JavaGen__java {

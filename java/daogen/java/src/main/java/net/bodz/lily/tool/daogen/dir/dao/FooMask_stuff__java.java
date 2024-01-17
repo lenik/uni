@@ -1,4 +1,4 @@
-package net.bodz.lily.tool.daogen;
+package net.bodz.lily.tool.daogen.dir.dao;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -19,6 +19,9 @@ import net.bodz.lily.t.base.CoMessage;
 import net.bodz.lily.t.base.CoMessageMask;
 import net.bodz.lily.template.CoCategory;
 import net.bodz.lily.template.CoCategoryMask;
+import net.bodz.lily.tool.daogen.ColumnName;
+import net.bodz.lily.tool.daogen.JavaGenProject;
+import net.bodz.lily.tool.daogen.JavaGen__java;
 import net.bodz.lily.tool.daogen.util.CanonicalClass;
 
 public class FooMask_stuff__java

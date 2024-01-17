@@ -779,7 +779,7 @@ public class MiscTemplates {
         return cname.field + " = " + javaExpr;
     }
 
-    Set<String> getCompositeHeads(ITableMetadata table) {
+    public Set<String> getCompositeHeads(ITableMetadata table) {
         Set<String> compositeHeads = new HashSet<>();
         for (String fkName : table.getForeignKeys().keySet()) {
             CrossReference xref = table.getForeignKeys().get(fkName);
