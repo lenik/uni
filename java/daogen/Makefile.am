@@ -1,10 +1,12 @@
 include libauto/project.am
 
 dist_bin_SCRIPTS = \
+    java/criterion \
     java/daogen \
+    java/foob \
     java/ls-entity
 
-dist_man_MANS = 
+dist_man_MANS =
 
 dist_setup_SCRIPTS = \
     postinst \
@@ -27,7 +29,9 @@ install-data-hook:
 	cp -RL java/lib $(DESTDIR)$(pkgdatadir)
 
 install-debug:
+	sudo ln -snf $$PWD/java/criterion.in /bin/criterion
 	sudo ln -snf $$PWD/java/daogen.in /bin/daogen
+	sudo ln -snf $$PWD/java/foob.in /bin/foob
 	sudo ln -snf $$PWD/java/ls-entity.in /bin/ls-entity
 
 autobuild:
