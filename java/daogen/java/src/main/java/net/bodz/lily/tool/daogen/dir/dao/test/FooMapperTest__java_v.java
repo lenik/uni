@@ -19,10 +19,9 @@ public class FooMapperTest__java_v
         {
             out.enter();
             {
-                out.printf("extends %s<%s, %s, %s> {\n", //
+                out.printf("extends %s<%s, %s> {\n", //
                         out.im.name("net.bodz.lily.test.AbstractViewTest"), //
                         out.im.name(project.Foo), //
-                        out.im.name(project.FooMask), //
                         project.FooMapper.name);
                 out.leave();
             }

@@ -21,10 +21,9 @@ public class FooManager__java
         {
             out.enter();
             {
-                out.printf("extends %s<%s, %s, %s> {\n", //
+                out.printf("extends %s<%s, %s> {\n", //
                         out.im.name(AbstractEntityManager.class), //
                         out.im.name(project.Foo), //
-                        out.im.name(project.FooMask), //
                         out.im.name(project.FooMapper));
                 out.leave();
             }

@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.bodz.bas.c.type.TypeId;
-import net.bodz.bas.c.type.TypeKind;
 import net.bodz.bas.codegen.XmlSourceBuffer;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
@@ -218,24 +216,12 @@ public class VFooMapper__xml
     }
 
     void sql_filtconds(XmlSourceBuffer out, ITableMetadata table) {
-        List<IColumnMetadata> columns = getIncludedColumns(table.getColumns());
+        // List<IColumnMetadata> columns = getIncludedColumns(table.getColumns());
 
         out.println("<sql id=\"filtconds\">");
         out.enter();
         {
-            boolean includeCo = false;
-            if (includeCo) {
-                out.println("<!-- co -->");
-                out.println("<include refid=\"co.modefilt\" />");
-                out.println("<include refid=\"co.filter-id\" />");
-                out.println("<include refid=\"co.filter-ui\" />");
-                out.println("<include refid=\"co.filter-version\" />");
-                out.println("<include refid=\"message.filter-all\" />");
-            }
-
-            for (IColumnMetadata column : columns) {
-                filter(out, column);
-            }
+            out.println("${c.sqlCondition}");
             out.leave();
         }
         out.println("</sql>");
@@ -369,89 +355,6 @@ public class VFooMapper__xml
             out.leave();
         }
         out.println("</select>");
-    }
-
-    void filter(XmlSourceBuffer out, IColumnMetadata column) {
-        ColumnName cname = project.columnName(column);
-
-        // MaskFieldModel mask = column.mask;
-        String maskProperty = cname.property;
-        boolean hasMain = true;
-        boolean hasRange = false;
-        boolean hasPattern = false;
-
-        int typeId = TypeKind.getTypeId(column.getJavaClass());
-        switch (typeId) {
-        case TypeId._byte:
-        case TypeId._short:
-        case TypeId._long:
-        case TypeId._double:
-        case TypeId._float:
-        case TypeId._int:
-        case TypeId.BYTE:
-        case TypeId.SHORT:
-        case TypeId.INTEGER:
-        case TypeId.LONG:
-        case TypeId.FLOAT:
-        case TypeId.DOUBLE:
-
-        case TypeId.BIG_INTEGER:
-        case TypeId.BIG_DECIMAL:
-
-        case TypeId.JODA_DATETIME:
-            // TODO date-range or date-criteria?
-            // more generic construction is needed.
-            if (typeId == TypeId.JODA_DATETIME)
-                hasMain = false;
-
-        case TypeId.DATE:
-        case TypeId.SQL_DATE:
-            hasRange = true;
-
-            if (hasMain) {
-                out.printf("<if test=\"m.%s != null\">and a.%s = #{m.%s}</if>\n", //
-                        maskProperty, cname.columnQuoted, maskProperty);
-            }
-
-            if (hasRange) {
-                String range = maskProperty + "Range";
-                out.printf("<if test=\"m.%s!= null\">\n", range);
-                out.enter();
-                out.printf("<if test=\"m.%s.hasStartIncl\">and a.%s >= #{m.%s.start}</if>\n", //
-                        range, cname.columnQuoted, range);
-                out.printf("<if test=\"m.%s.hasStartExcl\">and a.%s > #{m.%s.start}</if>\n", //
-                        range, cname.columnQuoted, range);
-                out.printf("<if test=\"m.%s.hasEndIncl\">and a.%s &lt;= #{m.%s.end}</if>\n", //
-                        range, cname.columnQuoted, range);
-                out.printf("<if test=\"m.%s.hasEndExcl\">and a.%s &lt; #{m.%s.end}</if>\n", //
-                        range, cname.columnQuoted, range);
-                out.leave();
-                out.println("</if>");
-            }
-            break;
-
-        case TypeId.STRING:
-            hasPattern = true;
-
-            if (hasMain)
-                out.printf("<if test=\"m.%s != null\">and a.%s = #{m.%s}</if>\n", //
-                        maskProperty, cname.columnQuoted, maskProperty);
-            if (hasPattern)
-                out.printf("<if test=\"m.%sPattern != null\">and a.%s like '${m.%sPattern}'</if>\n", //
-                        maskProperty, cname.columnQuoted, maskProperty);
-            break;
-
-        // case TypeId.ENUM:
-
-        case TypeId._char:
-        case TypeId.CHARACTER:
-
-        case TypeId._boolean:
-        case TypeId.BOOLEAN:
-        default:
-            out.printf("<if test=\"m.%s != null\">and a.%s = #{m.%s}</if>\n", //
-                    maskProperty, cname.columnQuoted, maskProperty);
-        }
     }
 
 }

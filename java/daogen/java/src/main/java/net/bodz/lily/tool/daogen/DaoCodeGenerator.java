@@ -299,8 +299,8 @@ public class DaoCodeGenerator
             new Foo_Id__java(project).buildFile(table, UpdateMethod.OVERWRITE);
 
         new Foo__java(project).buildFile(table);
-        new FooMask_stuff__java(project).buildFile(table, UpdateMethod.OVERWRITE);
-        new FooMask__java(project).buildFile(table);
+        new FooCriteriaBuilder_stuff__java(project).buildFile(table, UpdateMethod.OVERWRITE);
+        new FooCriteriaBuilder__java(project).buildFile(table);
         new FooSamples__java(project).buildFile(table);
 
         new FooMapper__xml(project).buildFile(table);
@@ -325,8 +325,8 @@ public class DaoCodeGenerator
             new Foo_Id__java(project).buildFile(view, UpdateMethod.OVERWRITE);
 
         new Foo__java_tv(project).buildFile(view);
-        new FooMask_stuff__java(project).buildFile(view, UpdateMethod.OVERWRITE);
-        new FooMask__java(project).buildFile(view);
+        new FooCriteriaBuilder_stuff__java(project).buildFile(view, UpdateMethod.OVERWRITE);
+        new FooCriteriaBuilder__java(project).buildFile(view);
         new FooIndex__java(project).buildFile(view);
         new VFooMapper__xml(project).buildFile(view);
         new FooMapper__java_tv(project).buildFile(view);

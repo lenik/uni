@@ -13,6 +13,7 @@ import org.joda.time.DateTime;
 
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.primitive.Primitives;
+import net.bodz.bas.c.string.StringEscape;
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.codegen.JavaSourceWriter;
@@ -33,8 +34,8 @@ import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.catalog.TableKey;
 import net.bodz.bas.t.catalog.TableOid;
-import net.bodz.bas.t.range.*;
 import net.bodz.bas.t.tuple.Split;
+import net.bodz.lily.tool.daogen.util.CriteriaBuilderFieldInfo;
 import net.bodz.lily.tool.daogen.util.JavaLang;
 
 public class MiscTemplates {
@@ -576,92 +577,53 @@ public class MiscTemplates {
         return code;
     }
 
-    static Map<Class<?>, Class<?>> rangeMapping;
-    static {
-        rangeMapping = new HashMap<>();
-        rangeMapping.put(Short.class, ShortRange.class);
-        rangeMapping.put(Integer.class, IntegerRange.class);
-        rangeMapping.put(Long.class, LongRange.class);
-        rangeMapping.put(Float.class, FloatRange.class);
-        rangeMapping.put(Double.class, DoubleRange.class);
+    static Set<String> dateTypes = new HashSet<>(Arrays.asList(//
+            "java.util.Date", //
+            "java.sql.Date", //
+            "java.sql.Time", //
+            "java.time.LocalDate", //
+            "java.time.LocalTime", //
+            "java.time.LocalDateTime", //
+            "java.time.Instant", //
+            "java.time.ZonedDateTime", //
+            "org.joda.time.DateTime", //
+            "org.joda.time.LocalDateTime", //
+            "org.joda.time.LocalDate", //
+            "org.joda.time.LocalTime" //
+    ));
 
-        rangeMapping.put(BigInteger.class, BigIntegerRange.class);
-        rangeMapping.put(BigDecimal.class, BigDecimalRange.class);
-
-        rangeMapping.put(Date.class, DateTimeRange.class);
-        rangeMapping.put(java.sql.Date.class, DateTimeRange.class);
-        rangeMapping.put(Timestamp.class, DateTimeRange.class);
-    }
-
-    public void columnMaskFields(JavaSourceWriter out, IColumnMetadata column) {
+    public boolean columnCriteriaBuilderFields(JavaSourceWriter out, IColumnMetadata column) {
         ColumnName cname = project.columnName(column);
         Class<?> type = Primitives.box(column.getJavaClass());
+
+        String qColumn = cname.columnQuoted;
+        qColumn = StringEscape.escapeJava(qColumn);
 
         String description = column.getDescription();
         if (description != null && !description.isEmpty())
             out.println("/** " + description + " */");
 
-        out.println(out.im.name(type) + " " + cname.field + ";");
-
-        if (type == String.class)
-            out.println("String " + cname.field + "Pattern;");
-        else {
-            Class<?> rangeType = rangeMapping.get(type);
-            if (rangeType != null)
-                out.printf("%s %sRange = new %s();\n", //
-                        out.im.name(rangeType), //
-                        cname.field, //
-                        out.im.name(rangeType));
-        }
-    }
-
-    public void columnMaskAccessors(JavaSourceWriter out, IColumnMetadata column) {
-        ColumnName cname = project.columnName(column);
-        Class<?> type = Primitives.box(column.getJavaClass());
-
-        String description = column.getDescription();
-        if (description != null && !description.isEmpty()) {
-            out.println("/** " + description + " */");
-        }
-
-        out.printf("public %s get%s() {\n", //
-                out.im.name(type), cname.Property);
-        out.printf("    return %s;\n", cname.field);
-        out.println("}");
-        out.println();
-
-        if (description != null && !description.isEmpty()) {
-            out.println("/** " + description + " */");
-        }
-        out.printf("public void set%s(%s value) {\n", cname.Property, //
-                out.im.name(type));
-        out.printf("    this.%s = value;\n", cname.field);
-        out.println("}");
-
-        if (type == String.class) {
-            out.println();
-            out.printf("public String get%sPattern() {\n", cname.Property);
-            out.printf("    return %sPattern;\n", cname.field);
-            out.println("}");
-            out.println();
-            out.printf("public void set%sPattern(%s value) {\n", cname.Property, //
-                    out.im.name(type));
-            out.printf("    this.%sPattern = value;\n", cname.field);
-            out.println("}");
+        CriteriaBuilderFieldInfo info = CriteriaBuilderFieldInfo.get(type);
+        if (info != null) {
+            out.printf("public final %s %s = %s(\"%s\");\n", //
+                    info.fieldType, cname.field, //
+                    info.creatorFn, qColumn);
+        } else if (Number.class.isAssignableFrom(type)) {
+            String simpleType = out.im.name(type);
+            out.printf("public final NumberField<%s> %s = number(\"%s\", %s.class);\n", //
+                    simpleType, cname.field, //
+                    qColumn, simpleType);
+        } else if (dateTypes.contains(type.getName())) {
+            String simpleType = out.im.name(type);
+            out.printf("public final DateField<%s> %s = date(\"%s\", %s.class);\n", //
+                    simpleType, cname.field, //
+                    qColumn, simpleType);
         } else {
-            Class<?> rangeType = rangeMapping.get(type);
-            if (rangeType != null) {
-                String RT = out.im.name(rangeType);
-                out.println();
-                out.printf("public %s get%sRange() {\n", RT, cname.Property);
-                out.printf("    return %sRange;\n", cname.field);
-                out.println("}");
-                out.println();
-                out.printf("public void set%sRange(%s range) {\n", cname.Property, RT);
-                out.printf("    this.%sRange = range;\n", cname.field);
-                out.println("}");
-            }
+            // throw new UnsupportedOperationException();
+            // just ignore it.
+            return false;
         }
+        return true;
     }
 
     public void sqlColumnNameList(ITreeOut out, List<IColumnMetadata> columns, String prefix) {

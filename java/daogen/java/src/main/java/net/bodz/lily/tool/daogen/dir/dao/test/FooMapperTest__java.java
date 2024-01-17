@@ -20,10 +20,9 @@ public class FooMapperTest__java
         {
             out.enter();
             {
-                out.printf("extends %s<%s, %s, %s> {\n", //
+                out.printf("extends %s<%s, %s> {\n", //
                         out.im.name(AbstractTableTest.class), //
                         out.im.name(project.Foo), //
-                        out.im.name(project.FooMask), //
                         project.FooMapper.name);
                 out.leave();
             }

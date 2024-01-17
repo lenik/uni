@@ -20,10 +20,9 @@ public class FooManagerTest__java
         {
             out.enter();
             {
-                out.printf("extends %s<%s, %s, %s, %s> {\n", //
+                out.printf("extends %s<%s, %s, %s> {\n", //
                         out.im.name(AbstractManagerTest.class), //
                         out.im.name(project.Foo.getFullName()), //
-                        out.im.name(project.FooMask.getFullName()), //
                         out.im.name(project.FooMapper.getFullName()), //
                         out.im.name(project.FooManager.getFullName()));
                 out.leave();

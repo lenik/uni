@@ -26,10 +26,9 @@ public class FooIndex__java
         {
             out.enter();
             {
-                out.printf("extends %s<%s, %s> {\n", //
+                out.printf("extends %s<%s> {\n", //
                         out.im.name("net.bodz.lily.model.base.CoIndex"), //
-                        out.im.name(project.Foo), //
-                        out.im.name(project.FooMask));
+                        out.im.name(project.Foo));
                 out.leave();
             }
 //            out.println();

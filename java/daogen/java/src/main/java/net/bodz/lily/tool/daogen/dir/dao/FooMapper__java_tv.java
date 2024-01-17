@@ -21,10 +21,9 @@ public class FooMapper__java_tv
             out.enter();
             {
                 out.enterln("extends");
-                out.printf("%s<%s, %s> {\n", //
+                out.printf("%s<%s> {\n", //
                         out.im.name(IEntityMapper.class), //
-                        out.im.name(project.Foo), //
-                        out.im.name(project.FooMask));
+                        out.im.name(project.Foo));
                 out.leave();
 
                 out.println();

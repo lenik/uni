@@ -14,31 +14,31 @@ import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.meta.CriteriaClass;
 import net.bodz.lily.model.base.*;
 import net.bodz.lily.security.CoPrincipal;
-import net.bodz.lily.security.dao.CoPrincipalMask;
+import net.bodz.lily.security.dao.CoPrincipalCriteriaBuilder;
 import net.bodz.lily.t.base.CoMessage;
-import net.bodz.lily.t.base.CoMessageMask;
+import net.bodz.lily.t.base.CoMessageCriteriaBuilder;
 import net.bodz.lily.template.CoCategory;
-import net.bodz.lily.template.CoCategoryMask;
+import net.bodz.lily.template.CoCategoryCriteriaBuilder;
 import net.bodz.lily.tool.daogen.ColumnName;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
 import net.bodz.lily.tool.daogen.util.CanonicalClass;
 
-public class FooMask_stuff__java
+public class FooCriteriaBuilder_stuff__java
         extends JavaGen__java {
 
-    public FooMask_stuff__java(JavaGenProject project) {
-        super(project, project._FooMask_stuff);
+    public FooCriteriaBuilder_stuff__java(JavaGenProject project) {
+        super(project, project._FooCriteriaBuilder_stuff);
     }
 
-    static Map<Class<?>, Class<?>> defaultMaskBases = new LinkedHashMap<>();
+    static Map<Class<?>, Class<?>> defaultBases = new LinkedHashMap<>();
     static {
-        defaultMaskBases.put(CoMessage.class, CoMessageMask.class);
-        defaultMaskBases.put(CoMomentInterval.class, CoMomentIntervalMask.class);
-        defaultMaskBases.put(CoCategory.class, CoCategoryMask.class);
-        defaultMaskBases.put(CoCode.class, CoCodeMask.class);
-        defaultMaskBases.put(CoNode.class, CoNodeMask.class);
-        defaultMaskBases.put(CoPrincipal.class, CoPrincipalMask.class);
+        defaultBases.put(CoMessage.class, CoMessageCriteriaBuilder.class);
+        defaultBases.put(CoMomentInterval.class, CoMomentIntervalCriteriaBuilder.class);
+        defaultBases.put(CoCategory.class, CoCategoryCriteriaBuilder.class);
+        defaultBases.put(CoCode.class, CoCodeCriteriaBuilder.class);
+        defaultBases.put(CoNode.class, CoNodeCriteriaBuilder.class);
+        defaultBases.put(CoPrincipal.class, CoPrincipalCriteriaBuilder.class);
     };
 
     @Override
@@ -50,9 +50,9 @@ public class FooMask_stuff__java
             try {
                 Class<?> entityClass = CanonicalClass.forName(javaType);
 
-                for (Class<?> base : defaultMaskBases.keySet()) {
+                for (Class<?> base : defaultBases.keySet()) {
                     if (base.isAssignableFrom(entityClass)) {
-                        parentClass = defaultMaskBases.get(base);
+                        parentClass = defaultBases.get(base);
                         break;
                     }
                 }
@@ -72,9 +72,9 @@ public class FooMask_stuff__java
         if (parentClass == null) {
             QualifiedName idType = templates.getIdType(table);
             if (idType != null)
-                parentClass = CoObjectMask.class;
+                parentClass = CoObjectCriteriaBuilder.class;
             else
-                parentClass = StructRowMask.class;
+                parentClass = StructRowCriteriaBuilder.class;
         }
 
         IType parentType = PotatoTypes.getInstance().loadType(parentClass);
@@ -92,21 +92,18 @@ public class FooMask_stuff__java
             columns.add(column);
         }
 
-        out.printf("public class %s\n", project._FooMask_stuff.name);
-        out.printf("        extends %s {\n", parentSimpleName);
+        String className = project._FooCriteriaBuilder_stuff.name;
+        out.printf("public class %s<self_t extends %s<self_t>>\n", className, className);
+        out.printf("        extends %s<self_t> {\n", parentSimpleName);
         out.enter();
         {
-//            out.println();
-//            out.println("private static final long serialVersionUID = 1L;");
+            out.println();
 
+            boolean lastAny = false;
             for (IColumnMetadata column : columns) {
-                out.println();
-                templates.columnMaskFields(out, column);
-            }
-
-            for (IColumnMetadata column : columns) {
-                out.println();
-                templates.columnMaskAccessors(out, column);
+                if (lastAny)
+                    out.println();
+                lastAny = templates.columnCriteriaBuilderFields(out, column);
             }
 
             out.leave();

@@ -37,9 +37,9 @@ public class JavaGenProject {
     public final ClassPathInfo Foo_IdTest; // test
     public final ClassPathInfo Foo_IdAccessorTest; // test
 
-    public final ClassPathInfo _FooMask_stuff;
-    public final ClassPathInfo FooMask;
-    public final ClassPathInfo FooMaskTest; // test
+    public final ClassPathInfo _FooCriteriaBuilder_stuff;
+    public final ClassPathInfo FooCriteriaBuilder;
+    public final ClassPathInfo FooCriteriaBuilderTest; // test
 
     public final ClassPathInfo FooSamples; // test
 
@@ -71,9 +71,9 @@ public class JavaGenProject {
         Foo_IdTest = FooTest.join(Foo.name + "_IdTest");
         Foo_IdAccessorTest = FooTest.join(Foo.name + "_IdAccessorTest");
 
-        _FooMask_stuff = Foo.join(dao_ + "_" + Foo.name + "Mask_stuff", generated);
-        FooMask = Foo.join(dao_ + Foo.name + "Mask");
-        FooMaskTest = FooTest.join(dao_ + Foo.name + "MaskTest");
+        _FooCriteriaBuilder_stuff = Foo.join(dao_ + "_" + Foo.name + "CriteriaBuilder_stuff", generated);
+        FooCriteriaBuilder = Foo.join(dao_ + Foo.name + "CriteriaBuilder");
+        FooCriteriaBuilderTest = FooTest.join(dao_ + Foo.name + "CriteriaBuilderTest");
 
         FooSamples = dirs.daoTestPath.join(Foo.name + "Samples", generated);
 
