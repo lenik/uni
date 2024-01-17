@@ -8,7 +8,7 @@ import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.ICatalogMetadata;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
-import net.bodz.lily.tool.daogen.ColumnName;
+import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.ColumnUtils;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.util.DialectFn;
@@ -89,7 +89,7 @@ public class FooMapper__xml
                     if (!first)
                         out.print(",\n");
 
-                    ColumnName cname = project.columnName(column);
+                    ColumnNaming cname = project.naming(column);
                     out.print(cname.columnQuoted);
 
                     first = false;
@@ -137,7 +137,7 @@ public class FooMapper__xml
                 for (IColumnMetadata column : columns) {
                     if (column.isPrimaryKey())
                         continue;
-                    ColumnName cname = project.columnName(column);
+                    ColumnNaming cname = project.naming(column);
                     out.printf("%s = %s", cname.columnQuoted, templates.toSqlVar(column));
                     out.println(",");
                 }

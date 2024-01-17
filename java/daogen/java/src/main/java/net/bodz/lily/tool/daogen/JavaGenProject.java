@@ -97,8 +97,8 @@ public class JavaGenProject {
         this.updateMethod = updateMethod;
     }
 
-    public ColumnName columnName(IColumnMetadata column) {
-        return config.columnName(column);
+    public ColumnNaming naming(IColumnMetadata column) {
+        return config.naming(column);
     }
 
 }

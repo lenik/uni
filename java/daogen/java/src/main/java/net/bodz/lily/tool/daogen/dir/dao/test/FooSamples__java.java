@@ -38,7 +38,7 @@ import net.bodz.lily.entity.type.EntityTypes;
 import net.bodz.lily.entity.type.IEntityTypeInfo;
 import net.bodz.lily.model.base.CoObject;
 import net.bodz.lily.test.TestSampleBuilder;
-import net.bodz.lily.tool.daogen.ColumnName;
+import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
 import net.bodz.lily.util.IRandomPicker;
@@ -292,7 +292,7 @@ public class FooSamples__java
     }
 
     void makeEntry(JavaSourceWriter out, IColumnMetadata column) {
-        ColumnName cname = project.columnName(column);
+        ColumnNaming cname = project.naming(column);
         Class<?> preferredType = column.getJavaClass();
 
         if (CoObject.class.isAssignableFrom(preferredType)) {
@@ -393,7 +393,7 @@ public class FooSamples__java
         }
 
         if (javaExpr != null)
-            out.printf("a.set%s(%s);\n", cname.Property, javaExpr);
+            out.printf("a.set%s(%s);\n", cname.ucfirstPropertyName, javaExpr);
     }
 
     static boolean canWrite(IType type, IColumnMetadata column) {

@@ -7,7 +7,7 @@ import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.db.sql.DDLExporter;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
-import net.bodz.lily.tool.daogen.ColumnName;
+import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
 import net.bodz.lily.tool.daogen.util.SBCodegen;
@@ -44,7 +44,7 @@ public class FooExporter__java
         {
             Map<String, String> map = new LinkedHashMap<>();
             for (IColumnMetadata column : table.getColumns()) {
-                ColumnName cname = project.columnName(column);
+                ColumnNaming cname = project.naming(column);
                 String col = cname.columnQuoted;
                 String getExpr = templates.getJavaGetExpr(column);
                 if (getExpr == null)

@@ -19,7 +19,7 @@ import net.bodz.lily.t.base.CoMessage;
 import net.bodz.lily.t.base.CoMessageCriteriaBuilder;
 import net.bodz.lily.template.CoCategory;
 import net.bodz.lily.template.CoCategoryCriteriaBuilder;
-import net.bodz.lily.tool.daogen.ColumnName;
+import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
 import net.bodz.lily.tool.daogen.util.CanonicalClass;
@@ -82,12 +82,12 @@ public class FooCriteriaBuilder_stuff__java
 
         List<IColumnMetadata> columns = new ArrayList<>();
         for (IColumnMetadata column : table.getColumns()) {
-            ColumnName cname = project.columnName(column);
-            if (cname.property.isEmpty() || cname.property.equals("-"))
+            ColumnNaming cname = project.naming(column);
+            if (cname.propertyName.isEmpty() || cname.propertyName.equals("-"))
                 continue;
             if (column.isCompositeProperty())
                 continue;
-            if (parentType != null && parentType.getProperty(cname.property) != null)
+            if (parentType != null && parentType.getProperty(cname.propertyName) != null)
                 continue; // exclude inherited ones.
             columns.add(column);
         }

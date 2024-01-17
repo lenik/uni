@@ -5,7 +5,7 @@ import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.t.catalog.DefaultColumnMetadata;
 import net.bodz.bas.t.catalog.ICatalogVisitor;
 import net.bodz.bas.t.catalog.IColumnMetadata;
-import net.bodz.lily.tool.daogen.ColumnName;
+import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.util.JavaLang;
 
 public class LangFixupApplier
@@ -22,8 +22,8 @@ public class LangFixupApplier
 
     @Override
     public void column(IColumnMetadata column) {
-        ColumnName cname = config.columnName(column);
-        String name = cname.field;
+        ColumnNaming cname = config.naming(column);
+        String name = cname.fieldName;
         if (JavaLang.isKeyword(name)) {
             DefaultColumnMetadata mutable = (DefaultColumnMetadata) column;
             String renamed = JavaLang.renameKeyword(name);

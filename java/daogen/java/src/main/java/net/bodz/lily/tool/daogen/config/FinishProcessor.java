@@ -22,7 +22,7 @@ import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.t.catalog.*;
 import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.model.base.CoEntity;
-import net.bodz.lily.tool.daogen.ColumnName;
+import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.TableName;
 import net.bodz.lily.tool.daogen.util.CanonicalClass;
 
@@ -130,12 +130,12 @@ public class FinishProcessor
 
         for (IColumnMetadata column : table.getColumns()) {
             DefaultColumnMetadata mutable = (DefaultColumnMetadata) column;
-            ColumnName cname = config.columnName(column);
+            ColumnNaming cname = config.naming(column);
             IProperty property;
             if (column.isCompositeProperty()) {
-                property = getPathProperty(type, cname.property);
+                property = getPathProperty(type, cname.propertyName);
             } else {
-                property = type.getProperty(cname.property);
+                property = type.getProperty(cname.propertyName);
             }
             if (property != null)
                 mutable.setProperty(property);
@@ -187,8 +187,8 @@ public class FinishProcessor
         crossRef.setForeignColumns(columns);
         crossRef.setParentColumns(parentColumns);
 
-        ColumnName[] fv = config.columnNames(columns);
-        ColumnName[] pv = config.columnNames(parentColumns);
+        ColumnNaming[] fv = config.naming(columns);
+        ColumnNaming[] pv = config.naming(parentColumns);
 
         String property;
 
@@ -196,8 +196,8 @@ public class FinishProcessor
         // fk property fooSegment -> parent property *.segment,
         // fk property fooSid -> parent property *.sid
         property = trimSuffix(fv, pv, //
-                (ColumnName name) -> name.property, //
-                (ColumnName name) -> Strings.ucfirst(name.property), //
+                (ColumnNaming name) -> name.propertyName, //
+                (ColumnNaming name) -> Strings.ucfirst(name.propertyName), //
                 null);
 
         // 2. [ property = foo ]:
@@ -205,19 +205,19 @@ public class FinishProcessor
         // fk column foo_sid -> parent column foo.sid
         if (property == null) {
             String columnHead = trimSuffix(fv, pv, //
-                    (ColumnName name) -> name.column, //
+                    (ColumnNaming name) -> name.column, //
                     trimRightUnderline);
             if (!Nullables.isEmpty(columnHead))
                 property = StringId.UL.toCamel(columnHead);
         }
 
         if (n == 1) {
-            ColumnName column = fv[0];
+            ColumnNaming column = fv[0];
             KeyColumnNameInfo info = config.keyColumnSettings.parseColumnByAnyFormat(column.column);
             if (info != null) {
                 property = info.getAliasProperty();
-                fv[0].setProperty(info.getAliasProperty());
-                pv[0].setProperty(info.getFieldProperty());
+                fv[0].initByPropertyName(info.getAliasProperty());
+                pv[0].initByPropertyName(info.getFieldProperty());
             }
         }
 
@@ -226,9 +226,9 @@ public class FinishProcessor
         // fk column key_b -> parent column foocat.key_b
         if (property == null) {
             TableName parentName = config.defaultTableName(parentTable);
-            for (ColumnName f : fv)
-                if (parentName.simpleClassName.endsWith(f.Property)) {
-                    property = f.property;
+            for (ColumnNaming f : fv)
+                if (parentName.simpleClassName.endsWith(f.ucfirstPropertyName)) {
+                    property = f.propertyName;
                     break;
                 }
         }
@@ -236,7 +236,7 @@ public class FinishProcessor
         if (property == null) {
             if (n == 1)
                 // fallback to the property name for single column key.
-                property = fv[0].property;
+                property = fv[0].propertyName;
             else
                 throw new IllegalUsageException("can't determine the xref property name.");
         }
@@ -271,17 +271,17 @@ public class FinishProcessor
 
         // Rename foreign column's java name to xrefProperty_id
         for (int i = 0; i < n; i++) {
-            ColumnName f = fv[i];
-            ColumnName p = pv[i];
-            if (f.property.endsWith(p.Property)) {
-                String head = f.property.substring(0, f.property.length() - p.property.length());
+            ColumnNaming f = fv[i];
+            ColumnNaming p = pv[i];
+            if (f.propertyName.endsWith(p.ucfirstPropertyName)) {
+                String head = f.propertyName.substring(0, f.propertyName.length() - p.propertyName.length());
                 if (!head.equals(property))
                     throw new UnexpectedException();
             } else {
                 IColumnMetadata column = columns[i];
                 if (column instanceof DefaultColumnMetadata) {
                     DefaultColumnMetadata mutable = (DefaultColumnMetadata) column;
-                    String fkFieldProp = property + Strings.ucfirst(p.property);
+                    String fkFieldProp = property + Strings.ucfirst(p.propertyName);
                     String orig = column.getJavaName();
                     if (Nullables.notEquals(orig, fkFieldProp))
                         mutable.setJavaName(fkFieldProp);

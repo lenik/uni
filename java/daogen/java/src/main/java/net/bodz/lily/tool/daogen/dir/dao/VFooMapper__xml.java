@@ -15,7 +15,7 @@ import net.bodz.bas.t.catalog.ITableUsage;
 import net.bodz.bas.t.catalog.IViewMetadata;
 import net.bodz.bas.t.catalog.TableKey;
 import net.bodz.lily.tool.daogen.AliasedColumn;
-import net.bodz.lily.tool.daogen.ColumnName;
+import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__xml;
 import net.bodz.lily.tool.daogen.JoinColumns;
@@ -128,10 +128,10 @@ public class VFooMapper__xml
     }
 
     void map(XmlSourceBuffer out, ITableMetadata table, IColumnMetadata column, JoinColumns j) {
-        ColumnName cname = project.columnName(column);
+        ColumnNaming cname = project.naming(column);
         // Class<?> type = column.getType();
 
-        String property = cname.property;
+        String property = cname.propertyName;
         if (property == null || ignoredProperties.contains(property))
             return;
 

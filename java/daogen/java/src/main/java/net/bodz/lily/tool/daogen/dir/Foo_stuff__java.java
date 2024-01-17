@@ -16,7 +16,7 @@ import net.bodz.lily.meta.TypeParamType;
 import net.bodz.lily.meta.TypeParameters;
 import net.bodz.lily.model.base.CoEntity;
 import net.bodz.lily.model.base.StructRow;
-import net.bodz.lily.tool.daogen.ColumnName;
+import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
 import net.bodz.lily.tool.daogen.util.CanonicalClass;
@@ -177,22 +177,22 @@ public class Foo_stuff__java
                 out.printf("public void id(%s id) {\n", out.im.name(idType));
                 // out.printf(" this.id = id;\n");
                 for (IColumnMetadata k : primaryKeyCols) {
-                    ColumnName cname = project.columnName(k);
-                    out.printf("    this.%s = id.get%s();\n", cname.field, cname.Property);
+                    ColumnNaming cname = project.naming(k);
+                    out.printf("    this.%s = id.get%s();\n", cname.fieldName, cname.ucfirstPropertyName);
                 }
                 out.printf("}\n");
             } else {
                 for (IColumnMetadata k : primaryKeyCols) {
-                    ColumnName cname = project.columnName(k);
+                    ColumnNaming cname = project.naming(k);
                     out.println();
                     out.println("@Override");
                     out.printf("public %s id() {\n", out.im.name(idType));
-                    out.printf("    return get%s();\n", cname.Property);
+                    out.printf("    return get%s();\n", cname.ucfirstPropertyName);
                     out.printf("}\n");
                     out.println();
                     out.println("@Override");
                     out.printf("public void id(%s id) {\n", out.im.name(idType));
-                    out.printf("    set%s(id);\n", cname.Property);
+                    out.printf("    set%s(id);\n", cname.ucfirstPropertyName);
                     out.printf("}\n");
                 }
             }
@@ -244,15 +244,15 @@ public class Foo_stuff__java
     }
 
     void checkCompositeProperty(ITableMetadata table, IColumnMetadata column) {
-        ColumnName cname = project.columnName(column);
+        ColumnNaming cname = project.naming(column);
 
         // composite property, need to be declared in the user type.
         // check if exists:
-        String head = Split.headDomain(cname.property).a;
+        String head = Split.headDomain(cname.propertyName).a;
         IProperty headProperty = table.getEntityType().getProperty(head);
         if (headProperty == null)
             logger.warnf("context property (%s.%s) of the composite property(%s) isn't defined.",
-                    table.getEntityTypeName(), head, cname.property);
+                    table.getEntityTypeName(), head, cname.propertyName);
     }
 
 }

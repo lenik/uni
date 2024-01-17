@@ -26,7 +26,7 @@ import net.bodz.bas.t.catalog.ColumnOid;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.map.ListMap;
-import net.bodz.lily.tool.daogen.ColumnName;
+import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.TableName;
 import net.bodz.lily.tool.daogen.util.DialectFn;
 import net.bodz.lily.tool.daogen.util.JavaLang;
@@ -134,10 +134,40 @@ public class CatalogConfig
         return javaName(table, column, true);
     }
 
-    public String javaName(ITableMetadata table, IColumnMetadata column, boolean generateDefault) {
+    public String javaName(ITableMetadata table, IColumnMetadata column, boolean defaultToCamelCase) {
+        String name = getExplicitSpecifiedJavaName(table, column);
+//        boolean explicit = name != null;
+
+        if (name == null) {
+            if (defaultToCamelCase) {
+                String columnName = column.getName();
+                name = StringId.UL.toCamel(columnName);
+            } else
+                return null;
+        }
+
+        if (column.isForeignKey()) {
+            INameDecorator matchedDecorator = foreignKeyDecorators.findDecorator(name);
+            String stem;
+            if (matchedDecorator != null)
+                stem = matchedDecorator.undecorate(name);
+            else
+                stem = name;
+
+            String decorated = foreignKeyDecorators.getPreferredDecoratedName(stem);
+//            System.out.printf("fk column %s, name %s => %s.\n", column.getName(), name, decorated);
+            name = decorated;
+        }
+
+        if (JavaLang.isKeyword(name))
+            name = JavaLang.renameKeyword(name);
+        return name;
+    }
+
+    public String getExplicitSpecifiedJavaName(ITableMetadata table, IColumnMetadata column) {
         String columnName = column.getName();
 
-        TableSettings tableSettings = tableMap.get(columnName);
+        TableSettings tableSettings = tableMap.get(table.getName());
         if (tableSettings != null) {
             ColumnSettings columnSettings = tableSettings.columnMap.get(columnName);
             if (columnSettings != null) {
@@ -150,26 +180,7 @@ public class CatalogConfig
         if (property != null)
             return property;
 
-        String name = column.getJavaName();
-
-        if (name == null) {
-            if (generateDefault)
-                name = StringId.UL.toCamel(columnName);
-            else
-                return null;
-        }
-
-//        if (column.isForeignKey()) {
-//            INameDecorator decorator = foreignKeyDecorators.findDecorator(name);
-//            if (decorator != null)
-//                name = decorator.undecorate(name);
-//            else
-//                name = foreignKeyDecorators.getPreferredDecoratedName(name);
-//        }
-
-        if (JavaLang.isKeyword(name))
-            name = JavaLang.renameKeyword(name);
-        return name;
+        return column.getJavaName();
     }
 
     public String javaType(IColumnMetadata column) {
@@ -180,7 +191,7 @@ public class CatalogConfig
     public String javaType(ITableMetadata table, IColumnMetadata column) {
         String columnName = column.getName();
 
-        TableSettings tableSettings = tableMap.get(columnName);
+        TableSettings tableSettings = tableMap.get(table.getName());
         if (tableSettings != null) {
             ColumnSettings columnSettings = tableSettings.columnMap.get(columnName);
             if (columnSettings != null) {
@@ -197,23 +208,23 @@ public class CatalogConfig
         return javaClass.getCanonicalName();
     }
 
-    public ColumnName columnName(IColumnMetadata column) {
-        ColumnName cname = new ColumnName();
+    public ColumnNaming naming(IColumnMetadata column) {
+        ColumnNaming cname = new ColumnNaming();
         cname.column = column.getName();
         cname.columnQuoted = DialectFn.quoteName(cname.column);
 
         // boolean javaNameSpecified = column.getJavaName() != null;
         String javaName = javaName(column);
-        cname.setField(javaName);
+        cname.initByFieldName(javaName);
 
         return cname;
     }
 
-    public ColumnName[] columnNames(IColumnMetadata[] columns) {
+    public ColumnNaming[] naming(IColumnMetadata[] columns) {
         int n = columns.length;
-        ColumnName[] names = new ColumnName[n];
+        ColumnNaming[] names = new ColumnNaming[n];
         for (int i = 0; i < n; i++)
-            names[i] = columnName(columns[i]);
+            names[i] = naming(columns[i]);
         return names;
     }
 

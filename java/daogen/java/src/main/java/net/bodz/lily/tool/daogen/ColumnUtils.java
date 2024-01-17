@@ -34,7 +34,7 @@ public class ColumnUtils {
     public static final int GET_GETTER = 2;
     public static final int GET_SETTER = 4;
 
-    public static ColumnMember getMemberInfo(IColumnMetadata column, ColumnName n, int infoset) {
+    public static ColumnMember getMemberInfo(IColumnMetadata column, ColumnNaming n, int infoset) {
         IRowSetMetadata rowSet = column.getParent();
         if (!(rowSet instanceof ITableMetadata))
             return null;
@@ -61,13 +61,13 @@ public class ColumnUtils {
 
         if ((infoset & GET_FIELD) != 0)
             try {
-                m.field = m.bestKnownClass.getField(n.field);
+                m.field = m.bestKnownClass.getField(n.fieldName);
                 type = m.field.getType();
             } catch (NoSuchFieldException e) {
             }
 
         if ((infoset & GET_GETTER) != 0) {
-            String methodName = (bool ? "is" : "get") + n.Property;
+            String methodName = (bool ? "is" : "get") + n.ucfirstPropertyName;
             try {
                 m.getter = m.bestKnownClass.getMethod(methodName);
             } catch (NoSuchMethodException e) {
@@ -81,7 +81,7 @@ public class ColumnUtils {
             argType = m.getter.getReturnType();
 
         if ((infoset & GET_SETTER) != 0) {
-            String methodName = "set" + n.Property;
+            String methodName = "set" + n.ucfirstPropertyName;
             try {
                 m.setter = m.bestKnownClass.getMethod(methodName, argType);
             } catch (NoSuchMethodException e) {

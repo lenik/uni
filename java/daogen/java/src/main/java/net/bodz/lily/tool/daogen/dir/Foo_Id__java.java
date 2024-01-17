@@ -10,7 +10,7 @@ import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.entity.Identifier;
-import net.bodz.lily.tool.daogen.ColumnName;
+import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
 
@@ -89,15 +89,15 @@ public class Foo_Id__java
         for (int i = 0; i < kv.length; i++) {
             if (i != 0)
                 out.print(", ");
-            ColumnName cname = project.columnName(kv[i]);
-            out.printf("%s %s", imports.name(kv[i].getJavaClass()), cname.field);
+            ColumnNaming cname = project.naming(kv[i]);
+            out.printf("%s %s", imports.name(kv[i].getJavaClass()), cname.fieldName);
         }
         out.println(") {");
         out.enter();
         {
             for (IColumnMetadata k : kv) {
-                ColumnName cname = project.columnName(k);
-                out.printf("this.%s = %s;\n", cname.field, cname.field);
+                ColumnNaming cname = project.naming(k);
+                out.printf("this.%s = %s;\n", cname.fieldName, cname.fieldName);
             }
             out.leave();
         }
@@ -109,8 +109,8 @@ public class Foo_Id__java
         out.enter();
         {
             for (IColumnMetadata k : kv) {
-                ColumnName cname = project.columnName(k);
-                out.printf("this.%s = o.%s;\n", cname.field, cname.field);
+                ColumnNaming cname = project.naming(k);
+                out.printf("this.%s = o.%s;\n", cname.fieldName, cname.fieldName);
             }
             out.leave();
         }
@@ -122,8 +122,8 @@ public class Foo_Id__java
         out.enter();
         {
             for (IColumnMetadata k : kv) {
-                ColumnName cname = project.columnName(k);
-                out.printf("this.%s = o.%s;\n", cname.field, cname.field);
+                ColumnNaming cname = project.naming(k);
+                out.printf("this.%s = o.%s;\n", cname.fieldName, cname.fieldName);
             }
             out.leave();
         }
@@ -151,8 +151,8 @@ public class Foo_Id__java
         for (IColumnMetadata column : table.getPrimaryKeyColumns()) {
             if (i != 0)
                 out.print(", ");
-            ColumnName cname = project.columnName(column);
-            out.print(cname.field);
+            ColumnNaming cname = project.naming(column);
+            out.print(cname.fieldName);
             i++;
         }
         out.println(");");
@@ -175,9 +175,9 @@ public class Foo_Id__java
         out.println(project.Foo_Id.name + " o = (" + project.Foo_Id.name + ") obj;");
 
         for (IColumnMetadata column : table.getPrimaryKeyColumns()) {
-            ColumnName cname = project.columnName(column);
+            ColumnNaming cname = project.naming(column);
             out.printf("if (! Objects.equals(%s, o.%s)) return false;\n", //
-                    cname.field, cname.field);
+                    cname.fieldName, cname.fieldName);
         }
         out.println("return true;");
         out.leave();
@@ -192,11 +192,11 @@ public class Foo_Id__java
         out.println("StringBuilder sb = new StringBuilder(100);");
         int i = 0;
         for (IColumnMetadata column : table.getPrimaryKeyColumns()) {
-            ColumnName cname = project.columnName(column);
+            ColumnNaming cname = project.naming(column);
             out.print("sb.append(\"");
             if (i != 0)
                 out.print(", ");
-            out.println(cname.field + " \" + " + cname.field + ");");
+            out.println(cname.fieldName + " \" + " + cname.fieldName + ");");
             i++;
         }
         out.println("return sb.toString();");
