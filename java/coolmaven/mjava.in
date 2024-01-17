@@ -5,8 +5,9 @@
     : ${MVN:=mvn}
 
     . shlib-import cliboot
-    option -O --online      "Maven online mode"
-    option -e --errors      "Produce execution error messages"
+    option -O --online              "Maven online mode"
+    option -e --errors              "Produce execution error messages"
+    option -d --dependency =G:A:V   "Add dependency to exec:java"
     option -q --quiet
     option -v --verbose
     option -h --help
@@ -17,12 +18,16 @@
     mvnopts=()
     mvnoptn=0
 
+    deps=()
+
 function setopt() {
     case "$1" in
         -O|--online)
             opt_online=1;;
         -e|--errors)
             mvnopts[mvnoptn++]=-e;;
+        -d|--dependency)
+            deps+=("$2");;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -43,17 +48,43 @@ function main() {
     fi
 
     if [ "$opt_online" != 1 ]; then
-        mvnopts=("${mvnopts[@]}" -o)
+        mvnopts+=(-o)
     fi
     
-    if [ "$LOGLEVEL" -ge 1 ]; then
-        mvnopts=("${mvnopts[@]}" -X)
+    if [ "$LOGLEVEL" -le 1 ]; then
+        mvnopts+=(-q)
+    fi
+
+    if [ "$LOGLEVEL" -ge 3 ]; then
+        # produce debug output
+        mvnopts+=(-X)
     fi
 
     prog="$1"
     shift
 
+    adds=
+    for dep in "${deps[@]}"; do
+        groupId="${dep%%:*}"
+        str="${dep#*:}"
+        artifactId="${str%%:*}"
+        str="${str#*:}"
+        version="$str"
+        local_jar="$HOME/.m2/repository/${groupId//./\/}/$artifactId/$version/$artifactId-$version.jar"
+        if [ ! -f "$local_jar" ]; then
+            quit "can't find $dep in local m2 repository."
+        fi
+        adds=":$local_jar"
+    done
+    adds="${adds#:}"
+
+    execopts=()
+    if [ -n "$adds" ]; then
+        execopts+=(-Dexec.additionalClasspathElements="$adds")
+    fi
+
     _exec $MVN "${mvnopts[@]}" exec:java \
+        "${execopts[@]}" \
         -Dexec.classpathScope=test \
         -Dexec.mainClass="net.bodz.bas.program.ProgramLauncher" \
         -Dexec.args="$prog $*"

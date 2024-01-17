@@ -85,6 +85,10 @@ EXTRA_DIST =
 CLEANFILES = \
     ${dist_bin_SCRIPTS}
 
+install-debug:
+	sudo ln -snf $$PWD/mjava.in /bin/mjava
+
 install-data-hook:
 	cd $(DESTDIR)$(bindir); \
 	ln -snf m2installfile m2deployfile
+
