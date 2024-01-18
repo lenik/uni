@@ -3,22 +3,26 @@
 
     RCSID='$Id: - @VERSION@ @DATE@ @TIME@ - $'
     PROGRAM_TITLE="Pull all vcs-managed projects"
-    PROGRAM_SYNTAX="[OPTIONS] [--] VCS-ARGS"
+    PROGRAM_SYNTAX="[OPTIONS] [--] <vcscmd>|<executable> [args...]"
 
     . shlib-import cliboot term
-    option -f --foreground  "Run vcscmd in foreground one by one"
+    option -f --foreground      "Run vcscmd in foreground one by one"
+    option -c --cmd             "Execute cmdline instead of vcscmd"
     option -q --quiet
     option -v --verbose
     option -h --help
-    option     --version    "Print the version info"
+    option     --version        "Print the version info"
 
     list=~/.vcsdirs
     parallel=1
+    run_mode=auto
 
 function setopt() {
     case "$1" in
         -f|--foreground)
             parallel=;;
+        -c|--cmd)
+            run_mode=cmd;;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -38,6 +42,8 @@ function main() {
     pids=()
     n=0
 
+    oldpwd="$PWD"
+
     while read dir; do
 
         [ -z "$dir" ] && continue
@@ -50,15 +56,17 @@ function main() {
         fi
 
         _log2 "Update $dir"
-        pushd "$dir" >/dev/null || die "Failed to enter $dir"
+        cd "$dir" >/dev/null || die "Failed to enter $dir"
 
         if [ "$parallel" = 1 ]; then
-            _vcscmd "$@" &
+            run "$@" &
+            pids[n++]=$!
         else
-            _vcscmd "$@"
+            run "$@"
         fi
 
-        pids[n++]=$!
+        cd "$oldpwd"
+
     done <"$list"
 
     if [ "$parallel" = 1 ]; then
@@ -67,11 +75,47 @@ function main() {
     fi
 }
 
-function _vcscmd() {
-    _log1 "$1 $dir..."
-    if ! vcscmd "$@"; then
-        _error "    Failed to $1 $dir!"
+function run() {
+    local withenv=1
+    if [ "$withenv" = 1 ]; then
+        PAGER= \
+        _run "$@"
+    else
+        _run "$@"
     fi
+}
+
+function _run() {
+    if [ "$run_mode" = auto ]; then
+        type=$( vcscmd -t "$1" )
+        if [ "$type" = 'function' ]; then
+            run_mode=vcscmd
+        fi
+
+        case "$1" in
+            status|push|pull|stash)
+                run_mode=vcscmd
+                ;;
+            *)
+                run_mode=cmd
+                ;;
+        esac
+    fi
+
+    case "$run_mode" in
+        vcscmd)
+            _log1 "vcscmd $1 in $dir..."
+            vcscmd "$@" || _error "    Failed to run vcscmd $1 in $dir."
+            ;;
+        cmd)
+            _log1 "exec in $dir: $*"
+            if [ $# = 1 ]; then
+                $SHELL -c "$1"
+            else
+                "$@" || _error "    Failed to exec $* in $dir."
+            fi
+            ;;
+    esac
 }
 
 boot "$@"

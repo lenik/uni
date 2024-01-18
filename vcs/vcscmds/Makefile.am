@@ -27,5 +27,10 @@ CLEANFILES = \
     ${subst_scripts} \
     ${dist_setup_SCRIPTS}
 
+install-debug:
+	sudo ln -snf $$PWD/vcsdirs.in /bin/vcsdirs
+	sudo ln -snf $$PWD/vcscmd.in /bin/vcscmd
+
 install-data-hook:
 	ln -snf vcscmd $(DESTDIR)$(bindir)/vcs
+

@@ -6,6 +6,7 @@
     PROGRAM_SYNTAX="[OPTION|VCS-OPTION] [--] CMD|VCS-CMD ARGS|VCS-ARGS"
 
     . shlib-import cliboot
+    option -t --test            "Test if the cmd available, get the cmd type"
     option    --no-color        "Don't use color"
     option    --no-refname      "Hide ref-name in the log"
     option    --iso-8601        "Show date in ISO 8601 format"
@@ -15,6 +16,8 @@
     option -v --verbose         "Repeat to get more info"
     option -h --help            "Show this help page"
     option    --version         "Print the version info"
+
+    opt_mode=normal
 
     VCS_DEFAULT=git
       VCS_PROBE=
@@ -57,14 +60,8 @@ function help_extras() {
 
 function setopt() {
     case "$1" in
-        -h|--help)
-            help $1; exit;;
-        -q|--quiet)
-            LOGLEVEL=$((LOGLEVEL - 1));;
-        -v|--verbose)
-            LOGLEVEL=$((LOGLEVEL + 1));;
-        --version)
-            show_version; exit;;
+        -t|--test)
+            opt_mode=test;;
         --no-refname)
             refname=0;;
         --no-color)
@@ -81,6 +78,14 @@ function setopt() {
             date_format=relative
             git_log_date='%ar'
             ;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
         *)
             quit "invalid option: $1";;
     esac
@@ -194,7 +199,15 @@ function main() {
     esac
     [ -z "$delegate" ] && return
 
-    if [ "`type -t $VCS-$cmd`" = 'function' ]; then
+    _fn="$VCS-$cmd"
+    _fn_type=$(type -t "$_fn")
+
+    if [ "$_fn_type" = 'function' ]; then
+
+        if [ "$opt_mode" = test ]; then
+            echo 'function'
+            return 0
+        fi
 
         $VCS-$cmd "$@"
 
@@ -206,6 +219,11 @@ function main() {
         CMD_FLAGS=("${!FLAGSref}")
         if [ -n "$CMD_FLAGS" ]; then
             cmdopts=("${CMD_FLAGS[@]}" "${cmdopts[@]}")
+        fi
+
+        if [ "$opt_mode" = test ]; then
+            echo "$VCS_CMD"
+            return 0
         fi
 
         _log2 "Delegate to $VCS_CMD $cmd ${cmdopts[@]}"
