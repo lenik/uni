@@ -32,7 +32,7 @@ our @opt_select;
 our $opt_pattern;
 our $opt_replacement;
 our $opt_command        = '';
-our $opt_regexp_flags   = 'g';
+our $opt_regexp_flags   = '';
 our $opt_ignore_case;
 our $opt_ssub;
 
@@ -305,10 +305,9 @@ sub proc_eval {
 }
 
 sub proc_regexp {
-    local $_ = shift;
-    my $old = $_;
-    $opt_ssub->($_);
-    ($_ ne $old, $_);
+    my $old = shift;
+    my $new = $opt_ssub->($old);
+    ($new ne $old, $new);
 }
 
 sub proc_exec { 'placeholder' }
