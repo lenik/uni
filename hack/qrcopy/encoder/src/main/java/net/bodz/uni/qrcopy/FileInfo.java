@@ -1,8 +1,9 @@
 package net.bodz.uni.qrcopy;
 
 import java.io.IOException;
-
-import org.joda.time.DateTime;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import net.bodz.bas.c.java.util.DateTimes;
 import net.bodz.bas.data.codec.builtin.HexCodec;
@@ -33,7 +34,7 @@ public class FileInfo
 
     public long fileSize;
     public int blockSize;
-    public DateTime fileTime;
+    public ZonedDateTime fileTime;
     public byte[] sha1; // 160-bit
     private int nameLength;
     private String name;
@@ -80,30 +81,31 @@ public class FileInfo
         this.nameLength = name.length();
     }
 
-    public DateTime getFileTime() {
+    public ZonedDateTime getFileTime() {
         return fileTime;
     }
 
-    public void setFileTime(DateTime fileTime) {
+    public void setFileTime(ZonedDateTime fileTime) {
         this.fileTime = fileTime;
     }
 
     public void setFileTime(long millis) {
-        fileTime = new DateTime(millis);
+        Instant instant = Instant.ofEpochMilli(millis);
+        fileTime = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
     }
 
     public String getFileTimeString() {
         if (fileTime == null)
             return null;
         else
-            return DateTimes.ISO8601.print(fileTime);
+            return DateTimes.ISO8601.format(fileTime);
     }
 
     public void setFileTime(String s) {
         if (s == null)
             fileTime = null;
         else
-            fileTime = DateTimes.ISO8601.parseDateTime(s);
+            fileTime = ZonedDateTime.parse(s, DateTimes.ISO8601);
     }
 
     public String getSha1String() {
@@ -153,7 +155,7 @@ public class FileInfo
             if (fileTime == null)
                 out.writeQword(0);
             else
-                out.writeQword(fileTime.getMillis());
+                out.writeQword(fileTime.toInstant().toEpochMilli());
 
         if (includeSHA1)
             out.write(sha1, 0, 20);

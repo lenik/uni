@@ -301,7 +301,7 @@ public class DaoCodeGenerator
         new Foo__java(project).buildFile(table);
         new FooCriteriaBuilder_stuff__java(project).buildFile(table, UpdateMethod.OVERWRITE);
         new FooCriteriaBuilder__java(project).buildFile(table);
-        new FooSamples__java(project).buildFile(table);
+        new FooSamples__java(project).buildFile(table, UpdateMethod.OVERWRITE);
 
         new FooMapper__xml(project).buildFile(table);
         new FooMapper__java(project).buildFile(table);
@@ -310,7 +310,7 @@ public class DaoCodeGenerator
         new FooManagerTest__java(project).buildFile(table);
 
         if (extraDDLs)
-            new FooExporter__java(project).buildFile(table);
+            new FooExporter__java(project).buildFile(table, UpdateMethod.OVERWRITE);
 
         new FooIndex__java(project).buildFile(table);
         // new FooIndexTest__java(project).buildFile(table);

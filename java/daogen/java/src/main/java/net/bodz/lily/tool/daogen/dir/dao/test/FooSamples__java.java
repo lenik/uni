@@ -3,7 +3,14 @@ package net.bodz.lily.tool.daogen.dir.dao.test;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -11,10 +18,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import org.joda.time.DateTime;
-import org.joda.time.LocalDateTime;
-
 import net.bodz.bas.c.java.lang.OptionNames;
+import net.bodz.bas.c.java.util.DateTimes;
 import net.bodz.bas.c.java.util.Dates;
 import net.bodz.bas.c.primitive.Primitives;
 import net.bodz.bas.c.string.StringQuote;
@@ -23,6 +28,7 @@ import net.bodz.bas.c.type.TypeId;
 import net.bodz.bas.c.type.TypeKind;
 import net.bodz.bas.codegen.EnglishTextGenerator;
 import net.bodz.bas.codegen.JavaSourceWriter;
+import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.potato.element.IProperty;
@@ -123,7 +129,7 @@ public class FooSamples__java
             for (IColumnMetadata foreignColumn : xref.getForeignColumns())
                 columns.remove(foreignColumn);
         }
-        if (!table.getForeignKeys().isEmpty())
+        if (! table.getForeignKeys().isEmpty())
             out.println();
 
         for (String head : compositeHeads) {
@@ -137,7 +143,7 @@ public class FooSamples__java
             out.printf("public %s %s;\n", //
                     out.im.name(propertyClass), head);
         }
-        if (!compositeHeads.isEmpty())
+        if (! compositeHeads.isEmpty())
             out.println();
     }
 
@@ -187,7 +193,7 @@ public class FooSamples__java
                 if (column.isCompositeProperty())
                     continue;
 
-                if (!canWrite(entityType, column))
+                if (! canWrite(entityType, column))
                     continue;
 
                 makeEntry(out, column);
@@ -196,6 +202,8 @@ public class FooSamples__java
             if (entityType != null)
                 for (String head : compositeHeads) {
                     IProperty headProperty = entityType.getProperty(head);
+                    if (headProperty == null)
+                        continue;
                     Class<?> propertyClass = headProperty.getPropertyClass();
                     String compositeSamplesType = propertyClass.getName() + "Samples";
                     out.printf("a.set%s(new %s().build());\n", //
@@ -211,9 +219,6 @@ public class FooSamples__java
     }
 
     void mtdWireAny(JavaSourceWriter out, ITableMetadata table) {
-        IType entityType = table.getEntityType();
-        Set<String> compositeHeads = templates.getCompositeHeads(table);
-
         out.println("@Override");
         out.printf("public %s wireAny(%s picker) {\n", //
                 project.FooSamples.name, //
@@ -258,19 +263,6 @@ public class FooSamples__java
                 );
             }
 
-            if (entityType != null)
-                for (String head : compositeHeads) {
-                    IProperty headProperty = entityType.getProperty(head);
-                    if (headProperty == null)
-                        continue;
-                    Class<?> type = headProperty.getPropertyClass();
-                    String samplesClassName = type.getName() + "Samples";
-                    String templateField = head;
-                    out.printf("this.%s = new %s().build();\n", //
-                            templateField, //
-                            out.im.name(samplesClassName));
-                }
-
             out.println("return this;");
             out.leave();
         }
@@ -307,6 +299,7 @@ public class FooSamples__java
         if (property != null) {
             actualType = property.getPropertyClass();
             actualType = Primitives.box(actualType);
+            preferredType = actualType;
         }
 
         if (preferredType == String.class) {
@@ -370,6 +363,44 @@ public class FooSamples__java
                                     + "(" + timeLong + ")";
                         }
                     }
+
+                } else if (sample instanceof TemporalAccessor) {
+                    TemporalAccessor temporal = (TemporalAccessor) sample;
+                    DateTimeFormatter formatter;
+                    String formatName;
+                    switch (TypeKind.getTypeId(preferredType)) {
+                    case TypeId.INSTANT:
+                    case TypeId.ZONED_DATE_TIME:
+                    case TypeId.OFFSET_DATE_TIME:
+                    case TypeId.LOCAL_DATE_TIME:
+                        formatter = DateTimes.D10T8;
+                        formatName = "D10T8";
+                        break;
+                    case TypeId.LOCAL_DATE:
+                        formatter = DateTimes.YYYY_MM_DD;
+                        formatName = "YYYY_MM_DD";
+                        break;
+                    case TypeId.LOCAL_TIME:
+                        formatter = DateTimes.HH_MM_SS;
+                        formatName = "HH_MM_SS";
+                        break;
+                    default:
+                        throw new UnexpectedException();
+                    }
+
+                    String literal = formatter.format(temporal);
+                    String literalQuoted = StringQuote.qqJavaString(literal);
+
+                    String parseWithFormat = String.format("%s.parse(%s, %s.%s)", //
+                            out.im.name(preferredType), //
+                            literalQuoted, //
+                            out.im.name(DateTimes.class), formatName);
+
+                    if (actualType != null) {
+                        if (typesAcceptInstant.contains(actualType))
+                            javaExpr = parseWithFormat;
+                    }
+
                 } else {
                     javaExpr = sample.toString();
                     switch (TypeKind.getTypeId(preferredType)) {
@@ -407,7 +438,7 @@ public class FooSamples__java
             if (property == null) {
                 // return false;
             } else {
-                if (!property.isWritable()) // read-only column/property.
+                if (! property.isWritable()) // read-only column/property.
                     return false;
             }
         }
@@ -416,11 +447,16 @@ public class FooSamples__java
 
     static Set<Class<?>> typesAcceptInstant = new HashSet<>();
     static {
-        typesAcceptInstant.add(DateTime.class);
+//        typesAcceptInstant.add(Date.class);
+//        typesAcceptInstant.add(java.sql.Date.class);
+//        typesAcceptInstant.add(Timestamp.class);
+//        typesAcceptInstant.add(DateTime.class);
+        typesAcceptInstant.add(Instant.class);
+        typesAcceptInstant.add(ZonedDateTime.class);
+        typesAcceptInstant.add(OffsetDateTime.class);
         typesAcceptInstant.add(LocalDateTime.class);
-        typesAcceptInstant.add(Date.class);
-        typesAcceptInstant.add(java.sql.Date.class);
-        typesAcceptInstant.add(Timestamp.class);
+        typesAcceptInstant.add(LocalDate.class);
+        typesAcceptInstant.add(LocalTime.class);
     }
 
     void randomDigits(StringBuilder sb, int len, boolean noZeroStart, Random random) {

@@ -1,7 +1,6 @@
 package net.bodz.lily.tool.daogen.config;
 
 import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -89,7 +88,7 @@ public class FinishProcessor
 
         try {
             superInfo = Introspector.getBeanInfo(superclass);
-        } catch (IntrospectionException e) {
+        } catch (Throwable e) {
             logger.error(e, "error getting bean info for " + parentType);
             return;
         }

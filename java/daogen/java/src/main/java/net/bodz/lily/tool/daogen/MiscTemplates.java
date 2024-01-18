@@ -4,12 +4,16 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
-
-import org.joda.time.DateTime;
 
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.primitive.Primitives;
@@ -25,8 +29,8 @@ import net.bodz.bas.meta.decl.Ordinal;
 import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.potato.provider.bean.BeanProperty;
 import net.bodz.bas.potato.provider.reflect.FieldProperty;
+import net.bodz.bas.repr.form.meta.NotNull;
 import net.bodz.bas.repr.form.meta.TextInput;
-import net.bodz.bas.repr.form.validate.NotNull;
 import net.bodz.bas.repr.form.validate.Precision;
 import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.DefaultColumnMetadata;
@@ -86,13 +90,35 @@ public class MiscTemplates {
         initVals.put(String.class, (JavaSourceWriter out) -> "\"\"");
         initVals.put(BigDecimal.class, (JavaSourceWriter out) -> "BigDecimal.ZERO");
         initVals.put(BigInteger.class, (JavaSourceWriter out) -> "BigInteger.ZERO");
-        initVals.put(DateTime.class, (JavaSourceWriter out) -> {
-            out.im.ref(DateTime.class);
-            return "new DateTime(System.currentTimeMillis())";
-        });
+
         initVals.put(Timestamp.class, (JavaSourceWriter out) -> {
             out.im.ref(Timestamp.class);
             return "new Timestamp(System.currentTimeMillis())";
+        });
+
+        initVals.put(Instant.class, (JavaSourceWriter out) -> {
+            out.im.ref(Instant.class);
+            return "Instant.now()";
+        });
+        initVals.put(ZonedDateTime.class, (JavaSourceWriter out) -> {
+            out.im.ref(ZonedDateTime.class);
+            return "ZonedDateTime.now()";
+        });
+        initVals.put(OffsetDateTime.class, (JavaSourceWriter out) -> {
+            out.im.ref(OffsetDateTime.class);
+            return "OffsetDateTime.now()";
+        });
+        initVals.put(LocalDateTime.class, (JavaSourceWriter out) -> {
+            out.im.ref(LocalDateTime.class);
+            return "LocalDateTime.now()";
+        });
+        initVals.put(LocalDate.class, (JavaSourceWriter out) -> {
+            out.im.ref(LocalDate.class);
+            return "LocalDate.now()";
+        });
+        initVals.put(LocalTime.class, (JavaSourceWriter out) -> {
+            out.im.ref(LocalTime.class);
+            return "LocalTime.now()";
         });
     }
 
@@ -141,7 +167,7 @@ public class MiscTemplates {
             defs.add("public static final String FIELD_" + cname.constFieldName + " = "
                     + StringQuote.qqJavaString(cname.column) + ";");
         }
-        if (!defs.isEmpty()) {
+        if (! defs.isEmpty()) {
             out.println();
             for (String def : defs)
                 out.println(def);
@@ -182,7 +208,7 @@ public class MiscTemplates {
                 String scaleVar = "NS_" + cname.constFieldName;
             }
         }
-        if (!defs.isEmpty()) {
+        if (! defs.isEmpty()) {
             out.println();
             for (String def : defs)
                 out.println(def);
@@ -222,7 +248,7 @@ public class MiscTemplates {
             lastVarName = varName;
             lastOrdinal = ordinal;
         }
-        if (!defs.isEmpty()) {
+        if (! defs.isEmpty()) {
             out.println();
             for (String def : defs)
                 out.println(def);
@@ -233,13 +259,13 @@ public class MiscTemplates {
         String javaType = project.config.javaType(column);
 
         String description = column.getDescription();
-        if (description != null && !description.isEmpty())
+        if (description != null && ! description.isEmpty())
             out.println("/** " + description + " */");
 
         if (column.isPrimaryKey())
             out.println("@" + out.im.name(Id.class));
 
-        boolean notNull = !column.isNullable(true);
+        boolean notNull = ! column.isNullable(true);
         if (notNull)
             out.println("@" + out.im.name(NotNull.class));
 
@@ -256,7 +282,7 @@ public class MiscTemplates {
         Class<?> type = column.getJavaClass();
 
         String description = column.getDescription();
-        if (description != null && !description.isEmpty()) {
+        if (description != null && ! description.isEmpty()) {
             out.println("/**");
             out.println(" * " + description);
             out.println(" */");
@@ -274,8 +300,8 @@ public class MiscTemplates {
 
         boolean unique = column.isUnique();
 
-        boolean notNull = !column.isNullable(true);
-        if (notNull && !type.isPrimitive())
+        boolean notNull = ! column.isNullable(true);
+        if (notNull && ! type.isPrimitive())
             out.println("@" + out.im.name(NotNull.class));
 
         // int columnDisplaySize = column.getColumnDisplaySize();
@@ -315,9 +341,9 @@ public class MiscTemplates {
 
             boolean insertable = true;
             boolean updatable = true;
-            if (!insertable)
+            if (! insertable)
                 out.print(", insertable = false");
-            if (!updatable)
+            if (! updatable)
                 out.print(", updatable = false");
 
             if (type == String.class)
@@ -333,7 +359,7 @@ public class MiscTemplates {
 
     void columnSetterHeader(JavaSourceWriter out, IColumnMetadata column) {
         String description = column.getDescription();
-        if (description != null && !description.isEmpty()) {
+        if (description != null && ! description.isEmpty()) {
             out.println("/**");
             out.println(" * " + description);
             out.println(" */");
@@ -351,7 +377,7 @@ public class MiscTemplates {
     public void columnAccessors(JavaSourceWriter out, IColumnMetadata column, boolean impl) {
         ColumnNaming n = project.naming(column);
         String javaType = project.config.javaType(column);
-        boolean notNull = !column.isNullable(true);
+        boolean notNull = ! column.isNullable(true);
         String isOrGet = "boolean".equals(javaType) ? "is" : "get";
 
         columnGetterHeader(out, column);
@@ -368,7 +394,7 @@ public class MiscTemplates {
 
         columnSetterHeader(out, column);
         out.printf("public void set%s(%s%s value)", n.ucfirstPropertyName, //
-                (notNull && !JavaLang.isPrimitive(javaType)) //
+                (notNull && ! JavaLang.isPrimitive(javaType)) //
                         ? ("@" + out.im.name(NotNull.class) + " ")
                         : "",
                 out.im.name(javaType));
@@ -409,7 +435,7 @@ public class MiscTemplates {
 
         boolean notNull = false;
         for (IColumnMetadata c : columns)
-            if (!c.isNullable(false)) {
+            if (! c.isNullable(false)) {
                 notNull = true;
                 break;
             }
@@ -458,7 +484,7 @@ public class MiscTemplates {
 
         boolean notNull = false;
         for (IColumnMetadata c : columns)
-            if (!c.isNullable(false)) {
+            if (! c.isNullable(false)) {
                 notNull = true;
                 break;
             }
@@ -480,7 +506,7 @@ public class MiscTemplates {
         out.println();
 
         out.println("/**");
-        if (description != null && !description.isEmpty())
+        if (description != null && ! description.isEmpty())
             out.println(" * " + description);
         out.println(" */");
 
@@ -505,7 +531,7 @@ public class MiscTemplates {
         ColumnNaming p = project.naming(parentColumn);
 
         Class<?> returnType = column.getJavaClass();
-        boolean notNull = !column.isNullable(true);
+        boolean notNull = ! column.isNullable(true);
         String isOrGet = boolean.class == returnType ? "is" : "get";
 
         String refFieldName = xref.getJavaName();
@@ -515,7 +541,7 @@ public class MiscTemplates {
             ColumnMember m = ColumnUtils.getMemberInfo(parentColumn, p, //
                     ColumnUtils.GET_GETTER);
             if (m != null && m.getter != null)
-                parentNullable = !m.getter.getReturnType().isPrimitive();
+                parentNullable = ! m.getter.getReturnType().isPrimitive();
         }
 
         columnGetterHeader(out, column);
@@ -544,11 +570,11 @@ public class MiscTemplates {
 
         columnSetterHeader(out, column);
         out.printf("public synchronized void set%s(%s%s value)", n.ucfirstPropertyName, //
-                (notNull && !returnType.isPrimitive()) ? ("@" + out.im.name(NotNull.class) + " ") : "",
+                (notNull && ! returnType.isPrimitive()) ? ("@" + out.im.name(NotNull.class) + " ") : "",
                 out.im.name(returnType));
         if (impl) {
             out.enterln(" {");
-            if (!project.parentColumnInParallelMode)
+            if (! project.parentColumnInParallelMode)
                 out.printf("this.%s = null;\n", refFieldName);
             out.printf("this.%s = value;\n", n.fieldName);
             out.leaveln("}");
@@ -581,11 +607,12 @@ public class MiscTemplates {
             "java.util.Date", //
             "java.sql.Date", //
             "java.sql.Time", //
-            "java.time.LocalDate", //
-            "java.time.LocalTime", //
-            "java.time.LocalDateTime", //
             "java.time.Instant", //
             "java.time.ZonedDateTime", //
+            "java.time.OffsetDateTime", //
+            "java.time.LocalDateTime", //
+            "java.time.LocalDate", //
+            "java.time.LocalTime", //
             "org.joda.time.DateTime", //
             "org.joda.time.LocalDateTime", //
             "org.joda.time.LocalDate", //
@@ -600,7 +627,7 @@ public class MiscTemplates {
         qColumn = StringEscape.escapeJava(qColumn);
 
         String description = column.getDescription();
-        if (description != null && !description.isEmpty())
+        if (description != null && ! description.isEmpty())
             out.println("/** " + description + " */");
 
         CriteriaBuilderFieldInfo info = CriteriaBuilderFieldInfo.get(type);
@@ -724,7 +751,7 @@ public class MiscTemplates {
         ColumnNaming cname = project.naming(column);
         IProperty property = column.getProperty();
         if (property != null //
-                && (!directAccess || column.isCompositeProperty())) {
+                && (! directAccess || column.isCompositeProperty())) {
             String context = getContextPrefix(cname.propertyName);
             if (property instanceof FieldProperty) {
                 FieldProperty fp = (FieldProperty) property;
