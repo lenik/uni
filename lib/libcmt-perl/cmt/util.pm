@@ -128,13 +128,15 @@ sub safeslash {
 }
 
 sub ssub {
-    local $_ = safeslash shift;
-    my $dst = safeslash shift;
-    my $mod = _or(shift, '');
-    $mod .= 's' if (/(^|[^\\])\\[nr]/ or /[\n\r]/s);
-    my $code = eval 'sub(\$) { $_[0] =~ s/'."$_/$dst/$mod }";
-    die "can't compile substitute-regexp: $@" if $@;
-    return $code;
+    my ($regex, $replacement, $mode) = @_;
+    $mode = '' unless defined $mode;
+    $regex = qr/(?$mode)$regex/;
+
+    return eval 'sub($) {
+        my $text = shift;
+        $text =~ s/$regex/'.$replacement.'/g;
+        return $text;
+    }';
 }
 
 # eval quoted-string by perl-language
