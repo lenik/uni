@@ -53,6 +53,20 @@ export interface ColumnType {
     tooltip?: string        // default to `description`
 }
 
+type Script = string;
+interface _ThProps {
+    dateField?: string
+    dateType?: string
+    dataPriority?: number
+    dataOrder?: 'a' | 'asc' | 'ascend' | 'd' | 'desc' | 'descend' | true | false | 0 | 1 | undefined;
+    dataClass?: string              // styleClass
+    oncreate?: Script
+    dataParam?: string              // k1=v1;k2=v2;...
+    // [key: "param:*"]: string // => dataParam
+    dataFormat?: string | Script
+    dataRender?: string | Script    // also <script>
+}
+
 // spec
 
 export function parseSpecParams(s: string): any {
@@ -61,7 +75,7 @@ export function parseSpecParams(s: string): any {
     let map: any = {};
     s.split(/;/g).forEach((g: string) => {
         let key = g = g.trim();
-        let val = undefined;
+        let val: string | undefined = undefined;
         let eq = g.indexOf('=');
         if (eq != -1) {
             key = g.substring(0, eq).trim();
@@ -73,22 +87,22 @@ export function parseSpecParams(s: string): any {
 }
 
 export function parseOrder(s: string): boolean | undefined {
-    if (s == null)
-        return undefined;
-    if (s == 'a'
-        || s == 'asc'
-        || s == 'ascend'
-        || s == 'true'
-        || s == '1'
-    )
-        return true;
-    if (s == 'd'
-        || s == 'desc'
-        || s == 'descend'
-        || s == 'false'
-        || s == '0')
-        return false;
-    return undefined;
+    switch (s) {
+        case 'a':
+        case 'asc':
+        case 'ascend':
+        case 'true':
+        case '1':
+            return true;
+        case 'd':
+        case 'desc':
+        case 'descend':
+        case 'false':
+        case '0':
+            return false;
+        default:
+            return undefined;
+    }
 }
 
 export function compileOnCreate(js?: string): OnCellCreateFunc | undefined {

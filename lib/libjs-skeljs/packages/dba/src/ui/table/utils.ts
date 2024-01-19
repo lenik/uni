@@ -8,7 +8,7 @@ import { compileOnCreate, compileRender, parseOrder, parseSpecParams } from './t
 
 import { objv2Tab } from './objconv.js';
 
-export function getColumns(table: any, compile: SymbolCompileFunc) {
+export function getColumns(table: any, compile: SymbolCompileFunc): ColumnType[] {
     let $table = $(table);
     let columns: ColumnType[] = [];
 

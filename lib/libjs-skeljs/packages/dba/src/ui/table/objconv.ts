@@ -5,7 +5,7 @@ interface KeyOccurs {
     [key: string]: number
 }
 
-export function objv2Tab(objv: any[]) {
+export function objv2Tab(objv: any[], fallback = null) {
     let colstat: KeyOccurs = {};
     for (let i = 0; i < objv.length; i++) {
         let obj = objv[i];
@@ -17,13 +17,13 @@ export function objv2Tab(objv: any[]) {
     }
     let keys = Object.keys(colstat);
     let columns = keys.map((c) => ({ title: c }));
-    let data = [];
+    let data: any[] = [];
     for (let i = 0; i < objv.length; i++) {
         let obj = objv[i];
-        let row = [];
+        let row: any[] = [];
         for (let ci = 0; ci < keys.length; ci++) {
             let k = keys[ci];
-            let val = obj[k];
+            let val = obj[k] || fallback;
             row.push(val);
         }
         data.push(row);

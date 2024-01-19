@@ -3,17 +3,15 @@
 import $ from 'jquery';
 
 import { computed, onMounted, ref } from "vue";
-import { bool, Command } from './types';
+import { bool, Status } from './types';
 
 import Icon from './Icon.vue';
 
-const modelValue = defineModel();
+const model = defineModel();
 
 interface Props {
-    cmd: Command
+    status: Status
     tagName?: string
-    target?: any
-
     showIcon?: boolean | string
     showLabel?: boolean | string
     showBorder?: boolean | string
@@ -23,7 +21,7 @@ const props = withDefaults(defineProps<Props>(), {
     tagName: 'div',
     showIcon: true,
     showLabel: true,
-    showBorder: true,
+    showBorder: false,
 });
 
 const withIcon = computed(() => bool(props.showIcon));
@@ -46,56 +44,42 @@ defineExpose({
 </script>
 
 <template>
-    <component :is="tagName" ref="rootElement" class="cmd-button">
-        <div class="btn-with-extras">
-            <component :is="cmd.href != null ? 'a' : 'div'" class="btn" :class="{ withIcon, withLabel, withBorder }"
-                :name="cmd.name" :href="cmd.href" :title="cmd.tooltip">
+    <component :is="tagName" ref="rootElement" class="status-panel" :class="{ withIcon, withLabel, withBorder }">
 
-                <Icon :name="cmd.icon" v-if="withIcon && cmd.icon != null" />
+        <Icon :name="status.icon" v-if="withIcon && status.icon != null" />
 
-                <span class="sep" v-if="withIcon && withLabel"></span>
+        <span class="sep" v-if="withIcon && withLabel"></span>
 
-                <span class="label" v-if="withLabel">{{ cmd.label || cmd.name }}</span>
+        <span class="label" v-if="withLabel">{{ status.label || status.name }}</span>
 
-            </component>
-
-            <Icon name="fa-ques" v-if="cmd.description != null" />
-        </div>
-
-        <div class="description" v-if="cmd.description != null">
-            {{ cmd.description }}
-        </div>
     </component>
 </template>
 
 <style scoped lang="scss">
-.cmd-button {
-    padding: inherit;
-}
-
-.btn {
+.status-panel {
     display: flex;
     flex-direction: row;
     align-items: center;
+    box-sizing: border-box;
+    font-size: 85%;
     cursor: pointer;
     user-select: none;
+    margin: 0;
 
     &.withLabel {
-        margin: .3em;
-        padding: .3em .8em;
+        padding: .2em .5em;
     }
 
     &:not(.withLabel) {
-        margin: .2em;
         padding: .2em;
     }
 
     &.withBorder {
-        background-color: hsl(190, 45%, 85%);
-        border-radius: 5px;
+        background-color: #f8f8f8;
+        border-radius: 1px;
         border-style: solid;
         border-width: 1px;
-        border-color: hsl(190, 45%, 30%);
+        border-color: #eee;
 
         &:hover {
             background-color: hsl(190, 45%, 95%);
@@ -114,9 +98,5 @@ defineExpose({
         white-space: nowrap;
     }
 
-}
-
-.description {
-    display: none;
 }
 </style>

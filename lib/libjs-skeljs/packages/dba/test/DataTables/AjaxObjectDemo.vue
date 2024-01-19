@@ -1,10 +1,7 @@
 <script setup lang="ts">
 
+import { onMounted } from 'vue';
 import DataTable from '../../src/ui/table/DataTable.vue';
-
-</script>
-
-<script lang="ts">
 
 </script>
 

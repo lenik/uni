@@ -1,12 +1,13 @@
 <script setup lang="ts">
 
+import $ from 'jquery';
+import "datatables.net";
+
+import { onMounted } from 'vue';
 import DataTable from '../../src/ui/table/DataTable.vue';
 import { convertToDataRows, objv2Tab } from '../../src/ui/table/objconv';
 import people from '../people-objv.js';
 
-</script>
-
-<script lang="ts">
 var peopleTab = objv2Tab(people);
 
 // Generate people-array.json:
@@ -17,6 +18,9 @@ console.log(JSON.stringify({
     rows
 }));
 
+</script>
+
+<script lang="ts">
 </script>
 
 <template>

@@ -1,9 +1,6 @@
 <script setup lang="ts">
 
-import $, { data } from "jquery";
-
-import { ref, onMounted, computed } from "vue";
-import { getCurrentInstance } from 'vue';
+import { ref, onMounted, computed, getCurrentInstance } from "vue";
 
 import { showError } from "@skeljs/core/src/logging/api";
 
@@ -31,6 +28,9 @@ interface Props {
      */
     version?: number
 
+    hBand?: boolean
+    vBand?: boolean
+
     watch?: boolean
 }
 
@@ -38,6 +38,8 @@ const props = withDefaults(defineProps<Props>(), {
     captionPosition: 'bottom',
     compile: formats,
     version: 0,
+    hBand: true,
+    vBand: false,
     watch: false
 });
 
@@ -55,12 +57,13 @@ defineOptions({
 })
 
 const css = [
-    "table",
-    "table-striped",
-    "table-hover",
-    "table-condensed",
-    "dataTable",
-    "table-responsive",
+    "stripe",
+    "hover",
+    "compact",
+    "responsive",
+    "order-column",
+    "row-border",
+    "cell-border",
 ];
 
 const tableRef = ref(null);
@@ -100,10 +103,12 @@ onMounted(() => {
 
 <template>
     <div class="caption" v-if="captionAtTop">{{ caption }}</div>
-    <table ref="tableRef" v-once class="datatable" :class="css" v-bind="$attrs">
+    <table ref="tableRef" class="dataTable" :class="css" v-bind="$attrs">
         <thead>
-            <slot>
-            </slot>
+            <tr>
+                <slot>
+                </slot>
+            </tr>
         </thead>
         <tbody>
             <slot name="body"></slot>
@@ -133,37 +138,36 @@ table.dataTable {
     }
 }
 
-.dataTables_wrapper {
-    .dataTable {
+.dataTables_wrapper {}
 
-        tbody {
-            tr {
-                &:hover {
-                    background-color: #dee;
-                }
-
-                &.selected {
-                    background-color: #7aa !important;
-                }
-            }
+// v-deep() since the content are dynamically changed.
+table.dataTable::v-deep() {
+    >tbody>tr {
+        &:hover {
+            background-color: #dee;
         }
 
-        td.with-image {
-            img {
-                max-width: 1.5em;
-                max-height: 1.5em;
-                object-fit: contain;
-            }
+        &.selected {
+            background-color: #7aa !important;
         }
     }
 
-    ul.pagination {
-        font-family: Sans;
-
-        li {
-            display: inline-block;
-            margin: 0 .3em;
+    td.with-image {
+        img {
+            max-width: 1.5em;
+            max-height: 1.5em;
+            object-fit: contain;
         }
+    }
+
+}
+
+ul.pagination {
+    font-family: Sans;
+
+    li {
+        display: inline-block;
+        margin: 0 .3em;
     }
 }
 </style>

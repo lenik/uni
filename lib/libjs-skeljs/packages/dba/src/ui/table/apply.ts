@@ -1,10 +1,14 @@
 import $ from 'jquery';
 
 import 'datatables.net-dt/css/jquery.dataTables.css';
+// import 'datatables.net-bs/css/dataTables.bootstrap.css';
+import 'datatables.net-select-dt/css/select.dataTables.css';
 
-// import 'datatables.net-responsive';
+import 'datatables.net-responsive';
 
-import DataTables from 'datatables.net';
+import 'datatables.net';
+// import 'datatables.net-bs5';
+// import 'datatables.net-buttons-bs5';
 
 import type { Api, Config } from "datatables.net";
 
@@ -38,9 +42,6 @@ export function _useDataTable(table: any,
         autoWidth: false,
         dom: dom != null ? dom : 'C<"clear">lfrtip',
 
-        // by default ID-descend
-        order: [[0, "desc"]],
-
         // responsive: true,
         language: lang_zh,
     };
@@ -60,6 +61,11 @@ export function _useDataTable(table: any,
 
     let columns = getColumns(table, compile);
 
+    if (columns.filter(c => c.ascending != null).length == 0) {
+        // by default ID-descend
+        baseConfig.order = [[0, "desc"]];
+    }
+
     let config = $.extend({},
         baseConfig,
         getColumnsConfig(columns),
@@ -74,8 +80,9 @@ export function _useDataTable(table: any,
 
     let setup = setupData(config, columns);
 
-    // let dt = $table.DataTable(config);
-    let dt = new DataTables($table, config);
+    // console.log(config);
+    let dt = $table.DataTable(config);
+    // let dt = new DataTables($table, config);
 
     keepSelection(dt);
     makePageSizeAuto(dt);
@@ -134,6 +141,6 @@ function reloadEnh(dt: Api<any>, onReloaded?: any, resetPaging?: boolean) {
     }, resetPaging);
 }
 
-DataTables.Api.register("ajax.reload_enh()", function (this: Api<any>) {
+$.fn.DataTable.Api.register("ajax.reload_enh()", function (this: Api<any>) {
     reloadEnh(this, ...arguments);
 });

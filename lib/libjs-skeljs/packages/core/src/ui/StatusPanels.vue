@@ -1,16 +1,15 @@
 <script setup lang="ts">
 
 import { computed, onMounted, ref } from "vue";
-import { Command, UiGroup, group, select } from "./types";
+import { group, select, Status } from "./types";
 
-import CmdButton from './CmdButton.vue';
+import StatusPanel from './StatusPanel.vue';
 
 const model = defineModel();
 
-type CmdRunnerFunc = (cmd: Command, event: Event, target?: HTMLElement) => void;
-
 interface Props {
-    src: Command[]
+
+    src: Status[]
 
     includeGroups?: string[]  // include only these groups
     excludeGroups?: string[] // exclude these groups
@@ -21,8 +20,6 @@ interface Props {
     pos?: 'left' | 'right' | 'left?' | 'right?'  //  include if the position matches
     vpos?: 'top' | 'bottom' | 'top?' | 'bottom?' // include if the vertical position matches
 
-    runner?: CmdRunnerFunc
-    target?: HTMLElement
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -68,38 +65,24 @@ const rootElement = ref<HTMLElement>();
 onMounted(() => {
 });
 
-function runCmd(cmd: Command, event: Event) {
-    if (props.runner != null) {
-        props.runner(cmd, event, props.target);
-    } else {
-        if (cmd.run != null)
-            cmd.run(event);
-
-        if (cmd.action != null)
-            throw "don't know how to handle action " + cmd.action + ".";
-
-        if (cmd.href != null)
-            location.href = cmd.href;
-    }
-}
-
 defineExpose();
 
 </script>
 
 <template>
-    <ul class="cmd-buttons" ref="rootElement">
+    <ul class="status-panels" ref="rootElement">
         <template v-for="(groupName) in groupNames" :key="groupName">
-            <CmdButton tag-name="li" v-for="cmd in groupMap.get(groupName).items" :key="cmd.name" :cmd="cmd" :target="target"
-                @click="(event) => runCmd(cmd, event)" v-bind="$attrs">
-            </CmdButton>
-            <li class="sep" />
+            <template v-for="(status, i) in groupMap.get(groupName).items" :key="status.name">
+                <StatusPanel tag-name="li" :status="status" v-bind="$attrs" />
+                <li class="item-sep" v-if="i != groupMap.get(groupName).items.length - 1" />
+            </template>
+            <li class="group-sep" />
         </template>
     </ul>
 </template>
 
 <style scoped lang="scss">
-.cmd-buttons {
+.status-panels {
     display: flex;
     flex-direction: row;
     margin: 0;
@@ -108,7 +91,30 @@ defineExpose();
     align-items: center;
 }
 
-.sep {
+.item-sep {
+    width: .5em;
+    text-align: center;
+    vertical-align: middle;
+    align-self: normal;
+    position: relative;
+
+    &:before {
+        display: inline-block;
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 100%;
+        border-left: solid 1px #aaa;
+        content: ' ';
+    }
+
+    &:last-child {
+        display: none;
+    }
+
+}
+
+.group-sep {
     width: 1em;
     text-align: center;
     vertical-align: middle;
@@ -128,6 +134,5 @@ defineExpose();
     &:last-child {
         display: none;
     }
-
 }
 </style>

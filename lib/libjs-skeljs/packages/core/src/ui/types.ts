@@ -20,13 +20,16 @@ export function bool(val: boolean | number | string | null | undefined) {
     return false;
 }
 
-export type EventHandler = (event?: Event) => void | Promise<void>;
-export type Href = string;
 
-export interface Command {
+// UiGroup - UiGroupItem
 
+
+export interface UiGroupItem {
     group?: string
     ordinal?: number
+}
+
+export interface UiComponent extends UiGroupItem {
 
     pos?: 'left' | 'right'
     vPos?: 'top' | 'bottom'
@@ -40,6 +43,157 @@ export interface Command {
     tooltip?: string
 
     className?: string
+
+}
+
+export type NameSet = { [k: string]: boolean };
+
+export interface Selector {
+
+    includeGroupSet?: NameSet  // include only these groups
+    excludeGroupSet?: NameSet // exclude these groups
+
+    includeSet?: NameSet // include only these commands by name
+    excludeSet?: NameSet // include only these commands by name
+
+    pos?: 'left' | 'right' | 'left?' | 'right?'  //  include if the position matches
+    vpos?: 'top' | 'bottom' | 'top?' | 'bottom?' // include if the vertical position matches
+
+}
+
+export function select<E extends UiComponent>(selector: Selector, array: UiComponent[]) {
+    return array.filter(item => {
+        if (selector.includeSet != null)
+            if (!selector.includeSet[item.name])
+                return false;
+        if (selector.excludeSet != null)
+            if (selector.excludeSet[item.name])
+                return false;
+
+        let g = item.group || 'default';
+        if (selector.includeGroupSet != null)
+            if (!selector.includeGroupSet[g])
+                return false;
+        if (selector.excludeGroupSet != null)
+            if (selector.excludeGroupSet[g])
+                return false;
+
+        switch (selector.pos) {
+            case 'left':
+            case 'right':
+                if (item.pos != selector.pos)
+                    return false;
+                break;
+            case 'left?':
+                if (item.pos != null && item.pos != 'left')
+                    return false;
+                break;
+            case 'right?':
+                if (item.pos != null && item.pos != 'right')
+                    return false;
+                break;
+        }
+
+        switch (selector.vpos) {
+            case 'top':
+            case 'bottom':
+                if (item.vPos != selector.vpos)
+                    return false;
+                break;
+            case 'top?':
+                if (item.vPos != null && item.vPos != 'top')
+                    return false;
+                break;
+            case 'bottom?':
+                if (item.vPos != null && item.vPos != 'bottom')
+                    return false;
+                break;
+        }
+        return true;
+    });
+}
+
+export interface UiGroup<E> {
+    name: string
+    ordinalMin?: number
+    ordinalMax?: number
+    items: E[]
+}
+
+// type _UiGroupMap<E> = { [group: string]: UiGroup<E> };
+
+export class UiGroupMap<E> {
+
+    map: { [group: string]: UiGroup<E> }
+
+    constructor() {
+        this.map = {};
+    }
+
+    get(name: string) {
+        return this.map[name];
+    }
+
+    set(name: string, group: UiGroup<E>) {
+        this.map[name] = group;
+    }
+
+    get sortedNames(): string[] {
+        let groups = Object.values(this.map);
+        let gg = groups.sort((a: UiGroup<any>, b: UiGroup<any>) => {
+            if (a.ordinalMin != b.ordinalMin) {
+                if (a.ordinalMin == null)
+                    return 1;
+                if (b.ordinalMin == null)
+                    return -1;
+                return a.ordinalMin - b.ordinalMin;
+            }
+            if (a.name < b.name)
+                return -1;
+            if (a.name > b.name)
+                return 1;
+            return 0;
+        });
+        let names = groups.map(g => g.name);
+        return names;
+    }
+
+}
+
+export function group<E extends UiGroupItem>(items: E[], defaultGroup: string = 'default'): UiGroupMap<E> {
+    let map = new UiGroupMap<E>();
+    for (let item of items) {
+        let gName = item.group || defaultGroup;
+        let group = map.get(gName);
+        if (group == undefined) {
+            group = {
+                name: gName,
+                items: [],
+                ordinalMin: item.ordinal,
+                ordinalMax: item.ordinal
+            };
+            map.set(gName, group);
+        } else {
+            if (item.ordinal != null)
+                if (group.ordinalMin == null) {
+                    group.ordinalMin = item.ordinal;
+                    group.ordinalMax = item.ordinal;
+                } else {
+                    if (item.ordinal < group.ordinalMin) group.ordinalMin = item.ordinal;
+                    if (item.ordinal > group.ordinalMax!) group.ordinalMax = item.ordinal;
+                }
+        }
+        group.items.push(item);
+    }
+    return map;
+}
+
+// Command
+
+export type EventHandler = (event?: Event) => void | Promise<void>;
+export type Href = string;
+
+export interface Command extends UiComponent {
 
     href?: string
     action?: 'close' | 'maximize' | 'toggle'
@@ -59,44 +213,6 @@ export var dialogCmds = {
     }
 };
 
-export interface CommandGroup {
-    name: string
-    ordinalMin: number
-    ordinalMax: number
-    commands: Command[]
-}
-
-export type CommandGroupMap = { [group: string]: CommandGroup };
-
-export function group(cmds: Command[], defaultGroup: string = 'default'): CommandGroupMap {
-    let map: CommandGroupMap = {};
-    for (let cmd of cmds) {
-        let gName = cmd.group || defaultGroup;
-        let g = map[gName];
-        if (g == undefined) {
-            g = {
-                name: gName,
-                commands: []
-            }
-            if (cmd.ordinal != null) {
-                g.ordinalMin = cmd.ordinal;
-                g.ordinalMax = cmd.ordinal;
-            }
-            map[gName] = g;
-        } else {
-            if (cmd.ordinal != null)
-                if (g.ordinalMin == null) {
-                    g.ordinalMin = cmd.ordinal;
-                    g.ordinalMax = cmd.ordinal;
-                } else {
-                    if (cmd.ordinal < g.ordinalMin) g.ordinalMin = cmd.ordinal;
-                    if (cmd.ordinal > g.ordinalMax) g.ordinalMax = cmd.ordinal;
-                }
-        }
-        g.commands.push(cmd);
-    }
-    return map;
-}
 
 // Validation
 
@@ -111,3 +227,14 @@ export interface ValidateResult {
 
 export type Validator
     = (val: any) => ValidateResult;
+
+
+// Status
+
+export type MessageFunc = () => string;
+
+export interface Status extends UiComponent {
+
+    messageFn?: MessageFunc
+
+}

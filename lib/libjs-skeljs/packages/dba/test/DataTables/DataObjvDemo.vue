@@ -1,7 +1,6 @@
 <script setup lang="ts">
 
 import DataTable from '../../src/ui/table/DataTable.vue';
-import { convertToDataRows, objv2Tab } from '../../src/ui/table/objconv';
 import people from '../people-objv.js';
 
 </script>
@@ -14,7 +13,7 @@ import people from '../people-objv.js';
         <th data-field="name">Name</th>
         <th data-field="sex">Gender</th>
         <th data-type="number" data-format="decimal2" data-field="age">Age</th>
-        <th data-field="info.interest">Interests</th>
+        <th data-field="info.interest" data-order="0">Interests</th>
         <th data-field="info.hate">Hates</th>
     </DataTable>
 </template>
