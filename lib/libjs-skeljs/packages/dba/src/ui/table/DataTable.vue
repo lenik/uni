@@ -64,11 +64,11 @@ const captionAtBottom = computed(() => props.caption != null
     ));
 
 const selectedRows = computed(() => {
-    let dt = dataTable.value;
+    let dt = api.value;
     return dt.rows({ selected: true }).data();
 });
 const selectedRowIndexes = computed(() => {
-    let dt = dataTable.value;
+    let dt = api.value;
     return dt.rows({ selected: true }).index();
 });
 
@@ -87,7 +87,7 @@ const css = [
 ];
 
 const tableRef = ref<HTMLTableElement>();
-const dataTable = ref<Api<any>>();
+const api = ref<Api<any>>();
 
 interface Emits {
     (e: 'select', selection: Selection): void
@@ -144,7 +144,7 @@ onMounted(() => {
         throw 'invalid use of <DataTable>';
     }
 
-    dataTable.value = dt;
+    api.value = dt;
 
     function selectionChange(e: Event, dt: Api<any>, type: string, indexes: number[], select: boolean) {
         let selectedRows = dt.rows({ selected: true }).data().toArray() as any[][];
@@ -173,11 +173,11 @@ onMounted(() => {
 });
 
 function deleteSelection() {
-    let dt = dataTable.value;
+    let dt = api.value;
     dt!.rows({ selected: true }).remove().draw(false);
 }
 
-defineExpose({ dataTable, deleteSelection });
+defineExpose({ api: api, deleteSelection });
 
 </script>
 

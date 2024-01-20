@@ -1,5 +1,6 @@
 <script setup lang="ts">
 
+import $ from 'jquery';
 import { computed, onMounted, ref } from 'vue';
 import { convertToDataRows, objv2Tab } from '../../src/ui/table/objconv';
 import { Selection, EntityType } from '../../src/ui/table/types';
@@ -11,7 +12,7 @@ import Editor from './PersonEditor.vue';
 import people from '../people-objv.js';
 import { Command } from '@skeljs/core/src/ui/types';
 
-let people2 = [...people, ...people, ...people, ...people];
+let people2 = [...people, ...people, ...people];
 
 var peopleTab = ref(objv2Tab(people2));
 
@@ -23,7 +24,14 @@ let rows = convertToDataRows(fields, fields, people, (v) => v);
 const admin = ref<InstanceType<typeof DataAdmin>>();
 const editor = ref<InstanceType<typeof Dialog>>();
 
-const instance = ref<any>();
+interface RowInfo {
+    index?: number
+    // rowData?: any[]
+    obj: any
+}
+
+const selectedRowInfo = ref<RowInfo>({
+});
 
 const type: EntityType = {
     name: 'Person',
@@ -32,51 +40,90 @@ const type: EntityType = {
     description: 'A person is a living being that belongs to the species Homo sapiens, commonly known as humans. Humans are characterized by their ability to think, reason, and communicate using language. They have a complex biological makeup, including a highly developed brain, opposable thumbs, and a bipedal gait.',
 };
 
-function addNew(value) {
-    console.log(1);
-    let row = [value.name, value.sex, value.age, null, null];
-    let dt = admin.value.dataTable;
-    dt.dataTable.rows.add(row);
-    return true;
-}
-function update(value) {
-    let row = [value.name, value.sex, value.age, null, null];
-    let dt = admin.value.dataTable;
-    // dt.dataTable.rows.add(row);
-    return false;
+function openNew() {
+    let obj = {
+        sex: 'm',
+        age: 10,
+    };
+    selectedRowInfo.value = { obj };
+    admin.value!.editor!.open(saveNew);
 }
 
+function saveNew(obj) {
+    if (obj != null) {
+        let row = [obj.name, obj.sex, obj.age, null, null];
+        let dt = admin.value!.dataTable;
+        dt!.api!.row.add(row).draw()
+            .nodes().to$().addClass('new');
+    }
+    focus();
+    return true;
+}
+
+function openSelected() {
+    admin.value!.editor!.open(saveSelected);
+}
+
+function saveSelected(value) {
+    // assert value === selectedRowInfo.value
+    if (value != null) {
+        let info = selectedRowInfo.value!;
+        let row = [value.name, value.sex, value.age, null, null];
+        let api = admin.value!.dataTable!.api!;
+        api.row(info.index!).data(row).draw()
+            .nodes().to$().addClass('dirty');
+    }
+    focus();
+    return true;
+}
+
+function deleteSelection() {
+    let before = rowNumInfo()!;
+    admin.value?.dataTable?.deleteSelection();
+
+    let pos = before.pos || 0;
+    let after = rowNumInfo()!;
+    let api = admin.value?.dataTable?.api;
+    api?.row(after.nodes[pos]).select();
+}
+
+function reload() {
+
+}
+function toggleEditMode() {
+
+}
+function saveEdits() {
+
+
+}
 const tools = ref<Command[]>([
     {
         vPos: "top", pos: 'left', group: 'file', name: 'new',
         icon: 'fa-file', label: 'New',
-        run: () => {
-            instance.value = {};
-            admin.value!.editor.open(addNew);
-        }
+        run: openNew
     }, {
         vPos: "top", pos: 'left', group: 'file', name: 'open',
         icon: 'far-folder-open', label: 'Open',
-        run: () => {
-            admin.value!.editor.open(update);
-        }
+        run: openSelected
     }, {
         vPos: "top", pos: 'left', group: 'file', name: 'delete',
         icon: 'fa-trash', label: 'Delete',
-        run: () => {
-            admin.value!.dataTable.deleteSelection();
-        }
+        run: deleteSelection
     },
 
     {
         vPos: "top", pos: 'right', group: 'view', name: 'reload',
         icon: 'fa-sync', label: 'Reload',
+        run: reload
     }, {
         vPos: "top", pos: 'right', group: 'view', name: 'edit',
         icon: 'fa-edit', label: 'Edit', type: 'toggle',
+        run: toggleEditMode
     }, {
         vPos: "top", pos: 'right', group: 'view', name: 'save',
         icon: 'fa-save', label: 'Save',
+        run: saveEdits
     },
 
 ]);
@@ -89,23 +136,29 @@ const selectionText = computed(() => {
     if (sel.dataRow == null)
         return "nothing";
 
-    let columns = sel.dataTable.columns().header().map(d => d.textContent).toArray();
-    let sb = '';
+    let sb = '[' + sel.rowIndexes.join(', ') + '] ';
+
+    let api = admin.value?.dataTable?.api!;
+
+    let columns =
+        api.columns().header().map(d => d.textContent).toArray();
+
     for (let i = 0; i < columns.length; i++) {
         let cell = sel.dataRow[i];
         if (cell == null) continue;
-        if (sb.length) sb += ' ';
+        if (i) sb += ' ';
         sb += columns[i] + ":" + cell;
     }
     return sb;
 });
 const selectedRowCount = computed(() => {
     let sel: Selection | undefined = selection.value;
-    if (sel == null) return 'not yet';
+    if (sel == null) return undefined;
     let n = sel.rowIndexes.length;
     return n;
 });
 
+const keyName = ref();
 const stateText = ref('Ready');
 
 const statuses = ref([
@@ -122,6 +175,10 @@ const statuses = ref([
         icon: 'fa-pen-nib', label: 'Changed Items:',
         message: 0
     }, {
+        pos: 'right', name: 'key',
+        icon: 'fas-keyboard', label: 'Key:',
+        message: keyName
+    }, {
         pos: 'right', name: 'state',
         icon: 'fab-asymmetrik', label: 'State:',
         message: stateText
@@ -131,19 +188,81 @@ const statuses = ref([
 function onselect(sel: Selection) {
     selection.value = sel;
     if (sel.dataRow == null)
-        instance.value = undefined;
+        selectedRowInfo.value = {
+            index: undefined,
+            obj: undefined
+        };
     else {
         let [name, sex, age, interests, hates] = sel.dataRow!;
         let obj = { name, sex, age, interests, hates };
-        instance.value = obj;
+        selectedRowInfo.value = {
+            index: sel.rowIndex,
+            obj
+        }
     }
 }
+
+function rowNumInfo() {
+    let api = admin.value?.dataTable?.api;
+    if (api == null) return null;
+    let currentNode = api.row({ selected: true }).node();
+    let nodes = api.rows({ order: 'applied' }).nodes();
+    let current: number | undefined = undefined;
+    if (currentNode != null)
+        current = nodes.indexOf(currentNode);
+    return {
+        nodes: nodes,
+        n: nodes.length,
+        pos: current,
+    }
+}
+
+function focus() {
+    let elm = admin.value!.rootElement!;
+    elm.focus();
+}
+
+onMounted(() => {
+    let elm = admin.value!.rootElement!;
+    focus();
+    elm.addEventListener('keydown', (e: Event) => {
+        keyName.value = e.key;
+        switch (e.key) {
+            case 'Insert':
+                openNew();
+                break;
+            case 'Delete':
+                deleteSelection();
+                break;
+            case 'ArrowUp':
+            case 'ArrowDown':
+                let api = admin.value?.dataTable?.api;
+                let next = 0;
+                if (api != null) {
+                    let info = rowNumInfo()!;
+                    let current = info.pos;
+                    let next = 0;
+                    if (current != null) {
+                        next = current + (e.key == 'ArrowUp' ? -1 : 1);
+                        next = (next + info.n) % info.n;
+                        api.row(info.nodes[current]).deselect();
+                    }
+                    api.row(info.nodes[next]).select();
+                }
+                break;
+
+            case 'e':
+                openSelected();
+                break;
+        }
+    }, true);
+});
 
 </script>
 
 <template>
     <DataAdmin ref="admin" :type="type" :tools="tools" :statuses="statuses" :data-tab="peopleTab" dom="ftip"
-        v-model:instance="instance" @select="onselect">
+        v-model:instance="selectedRowInfo!.obj" @select="onselect">
         <template #columns>
             <th data-field="name">Name</th>
             <th data-field="sex">Gender</th>
@@ -153,7 +272,7 @@ function onselect(sel: Selection) {
         </template>
 
         <template #preview>
-            <Editor class="editor" v-model="instance" />
+            <Editor class="editor" v-model="selectedRowInfo!.obj" />
         </template>
 
         <template #side-tools>
@@ -161,7 +280,7 @@ function onselect(sel: Selection) {
         </template>
 
         <template #editor>
-            <Editor class="editor" v-model="instance" />
+            <Editor class="editor" v-model="selectedRowInfo!.obj" />
         </template>
     </DataAdmin>
 </template>

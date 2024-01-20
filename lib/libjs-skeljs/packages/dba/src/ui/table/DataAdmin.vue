@@ -26,6 +26,7 @@ const instanceModel = defineModel<any>('instance');
 
 interface Props {
     type?: EntityType
+    tabindex?: number
 
     tools: Command[]
     statuses: Status[]
@@ -33,13 +34,15 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    previewDetached: false
+    previewDetached: false,
+    tabindex: 0,
 });
 
 defineOptions({
     inheritAttrs: false
 })
 
+const rootElement = ref<HTMLElement>();
 const dataTable = ref<InstanceType<typeof DataTable>>();
 
 const editor = ref<InstanceType<typeof Dialog>>();
@@ -53,12 +56,12 @@ function deleteSelection() {
     dt.deleteSelection();
 }
 
-defineExpose({ editor, dataTable, deleteSelection });
+defineExpose({ rootElement, editor, dataTable, deleteSelection });
 
 </script>
 
 <template>
-    <div class="data-admin with-border">
+    <div ref="rootElement" class="data-admin with-border" :tabindex="tabindex">
         <div class="table-tooling">
             <div class="workpane">
                 <ul class="toolbar top">
@@ -224,6 +227,17 @@ defineExpose({ editor, dataTable, deleteSelection });
         border-top-style: var(--border-style);
         border-top-width: var(--border-width);
         border-top-color: var(--border-color);
+    }
+}
+
+.data-admin {
+    ::v-deep(.dataTable) {
+        tr.new {
+            background: hsl(60, 80%, 80%);
+        }
+        tr.dirty {
+            background: hsl(0, 80%, 80%);
+        }
     }
 }
 </style>

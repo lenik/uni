@@ -12,7 +12,7 @@ import CmdButtons from './CmdButtons.vue';
 
 const model = defineModel();
 
-type DialogCallback = (value: any, action: string, e?: Event) => boolean;
+type DialogCallback = (value: any, action?: string, e?: Event) => boolean;
 
 interface Props {
     group?: string
@@ -20,6 +20,7 @@ interface Props {
 
     icon?: string
     title?: string
+    tabindex?: number
 
     closable?: boolean | string
     maximizable?: boolean | string
@@ -35,6 +36,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+    tabindex: 0,
     closable: true,
     maximizable: false,
     minimizable: false,
@@ -73,6 +75,25 @@ onMounted(() => {
     dialogs.appendChild(rootElement.value!);
 
     makeMovable(dialogDiv.value!, titleDiv.value!);
+
+    dialogDiv.value!.addEventListener('keydown', (e: Event) => {
+        switch (e.key) {
+            case 'Escape':
+                close('close', e);
+                break;
+            case 'Enter':
+                // find next siblings after e.currentTarget...
+                let allInputs = $("input, select", dialogDiv.value);
+                let i = allInputs.index(e.target);
+                let next = i + 1;
+                if (next < allInputs.length) {
+                    allInputs[next].focus();
+                } else {
+                    accept('accept', e);
+                }
+                break;
+        }
+    }, true);
 });
 
 let callback: DialogCallback;
@@ -80,24 +101,36 @@ let callback: DialogCallback;
 function open(cb: DialogCallback) {
     callback = cb;
     $(rootElement.value!).show();
+    let inputs = $("input, select, textarea", dialogDiv.value!);
+    console.log(inputs);
+    if (inputs.length)
+        inputs[0].focus();
+    else
+        dialogDiv.value!.focus();
+}
+
+function close(action?: string, event?: Event) {
+    if (callback != null)
+        callback(undefined, action, event);
+    $(rootElement.value!).hide();
+}
+
+function accept(action?: string, event?: Event) {
+    if (callback != null)
+        if (!callback(model.value, action, event))
+            return; // prevent from close.
+    $(rootElement.value!).hide();
 }
 
 function run(button: Command, event?: Event) {
-    console.log(callback);
     switch (button.action) {
         case 'close':
-            if (callback != null)
-                callback(undefined, button.action, event);
-            $(rootElement.value!).hide();
+            close('close', event);
             break;
 
         case 'accept':
-            if (callback != null)
-                if (!callback(model.value, button.action, event))
-                    return; // prevent from close.
-            $(rootElement.value!).hide();
+            accept('accept', event);
             break;
-            ;
 
         case 'maximize':
             break;
@@ -115,7 +148,7 @@ defineExpose({
 <template>
     <div ref="rootElement" class="dialog-with-fx">
         <div class="disabler" :class="{ blink }" v-if="isModal"></div>
-        <div ref="dialogDiv" class="dialog">
+        <div ref="dialogDiv" class="dialog" :tabindex="tabindex">
             <div class="body">
                 <div ref="titleDiv" class="titlebar">
                     <Icon :name="icon" v-if="icon != null"></Icon>
