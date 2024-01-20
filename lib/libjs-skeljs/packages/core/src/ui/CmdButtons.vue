@@ -71,15 +71,6 @@ onMounted(() => {
 function runCmd(cmd: Command, event: Event) {
     if (props.runner != null) {
         props.runner(cmd, event, props.target);
-    } else {
-        if (cmd.run != null)
-            cmd.run(event);
-
-        if (cmd.action != null)
-            throw "don't know how to handle action " + cmd.action + ".";
-
-        if (cmd.href != null)
-            location.href = cmd.href;
     }
 }
 
@@ -90,8 +81,8 @@ defineExpose();
 <template>
     <ul class="cmd-buttons" ref="rootElement">
         <template v-for="(groupName) in groupNames" :key="groupName">
-            <CmdButton tag-name="li" v-for="cmd in groupMap.get(groupName).items" :key="cmd.name" :cmd="cmd" :target="target"
-                @click="(event) => runCmd(cmd, event)" v-bind="$attrs">
+            <CmdButton tag-name="li" v-for="cmd in groupMap.get(groupName).items" :key="cmd.name" :cmd="cmd"
+                :target="target" @click="(event) => runCmd(cmd, event)" v-bind="$attrs">
             </CmdButton>
             <li class="sep" />
         </template>

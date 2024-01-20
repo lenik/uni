@@ -5,11 +5,14 @@ import $ from 'jquery';
 import { computed, onMounted, ref } from "vue";
 import { resolveChild } from "../dom/create";
 import { bool, Command, dialogCmds } from './types';
+import { makeMovable } from '../dom/movable';
 
 import Icon from './Icon.vue';
 import CmdButtons from './CmdButtons.vue';
 
-const modelValue = defineModel();
+const model = defineModel();
+
+type DialogCallback = (value: any, action: string, e?: Event) => boolean;
 
 interface Props {
     group?: string
@@ -57,7 +60,9 @@ interface Emits {
 
 const emit = defineEmits<Emits>();
 
-const rootElement = ref<HTMLElement | null>();
+const rootElement = ref<HTMLElement>();
+const dialogDiv = ref<HTMLElement>();
+const titleDiv = ref<HTMLElement>();
 
 onMounted(() => {
     let dialogs = resolveChild(document.body, '.dialogs');
@@ -66,20 +71,36 @@ onMounted(() => {
         dialogs = resolveChild(dialogs, groupId, true);
     }
     dialogs.appendChild(rootElement.value!);
+
+    makeMovable(dialogDiv.value!, titleDiv.value!);
 });
 
-function open() {
+let callback: DialogCallback;
+
+function open(cb: DialogCallback) {
+    callback = cb;
     $(rootElement.value!).show();
 }
 
 function run(button: Command, event?: Event) {
+    console.log(callback);
     switch (button.action) {
         case 'close':
+            if (callback != null)
+                callback(undefined, button.action, event);
             $(rootElement.value!).hide();
-            return;
+            break;
+
+        case 'accept':
+            if (callback != null)
+                if (!callback(model.value, button.action, event))
+                    return; // prevent from close.
+            $(rootElement.value!).hide();
+            break;
+            ;
 
         case 'maximize':
-
+            break;
     }
 
     if (button.run != null)
@@ -94,34 +115,30 @@ defineExpose({
 <template>
     <div ref="rootElement" class="dialog-with-fx">
         <div class="disabler" :class="{ blink }" v-if="isModal"></div>
-        <div class="dialog">
-            <slot name="body">
-                <div class="body">
-                    <slot name="titlebar">
-                        <div class="titlebar">
-                            <Icon :name="icon" v-if="icon != null"></Icon>
-                            <i class="fa fa-edit"></i>
-                            {{ title }}
-                        </div>
-                    </slot>
-
-                    <slot name="content">
-                        <div class="content">
-                            <slot>
-                                Example Dialog Content
-                            </slot>
-                        </div>
-                    </slot>
-
-                    <slot name="commands">
-                        <div class="commands flex-row" v-if="buttons != null && rootElement != null">
-                            <CmdButtons :src="buttons" :target="rootElement" :runner="run" pos="left" />
-                            <div class="filler"></div>
-                            <CmdButtons :src="buttons" :target="rootElement" :runner="run" pos="right" />
-                        </div>
-                    </slot>
+        <div ref="dialogDiv" class="dialog">
+            <div class="body">
+                <div ref="titleDiv" class="titlebar">
+                    <Icon :name="icon" v-if="icon != null"></Icon>
+                    <i class="fa fa-edit"></i>
+                    {{ title }}
                 </div>
-            </slot>
+
+                <slot name="content">
+                    <div class="content">
+                        <slot>
+                            Example Dialog Content
+                        </slot>
+                    </div>
+                </slot>
+
+                <slot name="commands">
+                    <div class="commands flex-row" v-if="buttons != null && rootElement != null">
+                        <CmdButtons :src="buttons" :target="rootElement" :runner="run" pos="left" />
+                        <div class="filler"></div>
+                        <CmdButtons :src="buttons" :target="rootElement" :runner="run" pos="right" />
+                    </div>
+                </slot>
+            </div>
         </div>
     </div>
 </template>
@@ -165,28 +182,39 @@ defineExpose({
     top: 50%;
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
+    resize: both;
+    overflow: auto;
+    box-sizing: border-box;
+
 
     // width: 100%;
     max-width: 90%;
     max-height: 80%;
 
+    --frame-color: hsl(200, 30%, 90%);
+
     background: #fff;
-    border: solid 5px hsla(200, 30%, 30%, .5);
-    border-radius: 5px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: hsl(200, 30%, 50%);
+    border-radius: .4em;
     box-shadow: 3px 3px 10px 0px gray;
+
+    .titlebar {
+        background-color: var(--frame-color);
+    }
 
     >.body {
         display: flex;
         flex-direction: column;
         overflow: hidden;
         // box-sizing: border-box;
+        flex: 1;
 
         .titlebar {
             flex: 0 0 auto;
-        }
-
-        .body {
-            flex: 1;
+            cursor: pointer;
+            user-select: none;
         }
 
         .commands {
@@ -200,9 +228,7 @@ iframe {
 }
 
 .titlebar {
-    background: #e0eef0;
     border-bottom: solid 1px gray;
-    border-radius: 5px 5px 0 0;
     padding: .5em;
     font-size: 110%;
     font-weight: bold;

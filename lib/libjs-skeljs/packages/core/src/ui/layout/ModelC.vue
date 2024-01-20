@@ -31,10 +31,8 @@ import "../../skel/skel.scss";
         </slot>
 
 
-        <div class="footer">
-            <slot name="footer">
-            </slot>
-        </div>
+        <slot name="footer">
+        </slot>
     </div>
 </template>
 
@@ -54,15 +52,6 @@ import "../../skel/skel.scss";
             display: none;
         }
     }
-}
-
-.footer {
-    padding: 3px 2em;
-    border-top: solid 1px #ccc;
-    background: #eee;
-    color: gray;
-    text-align: center;
-    font-family: Serif;
 }
 
 ::v-deep() {

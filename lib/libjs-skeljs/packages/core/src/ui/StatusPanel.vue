@@ -28,6 +28,14 @@ const withIcon = computed(() => bool(props.showIcon));
 const withLabel = computed(() => bool(props.showLabel));
 const withBorder = computed(() => bool(props.showBorder));
 
+const content = computed(() => {
+    let status = props.status;
+    let msg = status.message;
+    return msg;
+});
+
+const haveContent = computed(() => bool(content.value != null));
+
 interface Emits {
     (e: 'created', event: Event): void
 }
@@ -44,7 +52,8 @@ defineExpose({
 </script>
 
 <template>
-    <component :is="tagName" ref="rootElement" class="status-panel" :class="{ withIcon, withLabel, withBorder }">
+    <component :is="tagName" ref="rootElement" class="status-panel"
+        :class="{ withIcon, withLabel, withBorder, haveContent }">
 
         <Icon :name="status.icon" v-if="withIcon && status.icon != null" />
 
@@ -52,6 +61,7 @@ defineExpose({
 
         <span class="label" v-if="withLabel">{{ status.label || status.name }}</span>
 
+        <span class="content">{{ '' + content }}</span>
     </component>
 </template>
 
@@ -87,7 +97,9 @@ defineExpose({
 
     }
 
-    .icon {}
+    .icon {
+        color: #644;
+    }
 
     .sep {
         width: .5em;
@@ -95,7 +107,14 @@ defineExpose({
 
     .label {
         font-weight: 300;
+        // font-weight: lighter;
         white-space: nowrap;
+    }
+
+    .content {
+        margin-left: .5em;
+        font-weight: 300;
+        color: hsl(190, 30%, 30%);
     }
 
 }

@@ -108,7 +108,6 @@ function validate(val: any = model.value, event?: Event): ValidateResult {
     let result: ValidateResult = { error: false };
 
     if (val == null) {
-        console.log(props.required);
         if (props.required === true)
             result = {
                 error: true,

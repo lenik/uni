@@ -32,6 +32,7 @@ const type = computed<string>(() => {
 
     switch (prefix) {
         case "fa":
+        case "fab":
         case "far":
         case "fas":
             return 'fa';

@@ -1,3 +1,4 @@
+import { Ref } from "vue";
 
 export function bool(val: boolean | number | string | null | undefined) {
     switch (val) {
@@ -12,6 +13,9 @@ export function bool(val: boolean | number | string | null | undefined) {
         case 0:
         case '0':
             return false;
+
+        case '':
+            return true;
 
         case null:
         case undefined:
@@ -190,13 +194,16 @@ export function group<E extends UiGroupItem>(items: E[], defaultGroup: string = 
 
 // Command
 
-export type EventHandler = (event?: Event) => void | Promise<void>;
+export type EventHandler = (event?: Event, cmd?: Command) => void | Promise<void>;
 export type Href = string;
 
 export interface Command extends UiComponent {
 
+    type?: undefined | 'button' | 'toggle'
+    checked?: boolean
+
     href?: string
-    action?: 'close' | 'maximize' | 'toggle'
+    action?: 'close' | 'maximize' | 'toggle' | 'accept'
     run?: EventHandler
 
     sync?: boolean
@@ -204,6 +211,14 @@ export interface Command extends UiComponent {
 }
 
 export var dialogCmds = {
+    accept: {
+        pos: 'right', name: 'accept',
+        icon: 'fa-check', label: 'OK',
+        action: 'accept',
+        description: 'Confirm and close.',
+        tooltip: 'Click on this button to accept the contents in the dialog.',
+    },
+
     close: {
         pos: 'right', name: 'close',
         icon: 'fa-close', label: 'Close',
@@ -235,6 +250,6 @@ export type MessageFunc = () => string;
 
 export interface Status extends UiComponent {
 
-    messageFn?: MessageFunc
+    message?: string | Ref<any | undefined>
 
 }
