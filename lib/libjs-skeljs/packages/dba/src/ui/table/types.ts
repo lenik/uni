@@ -48,6 +48,7 @@ export interface ColumnType {
 
     styleClass?: string
 
+    icon?: string
     label?: string          // default to `field`
     description?: string
     tooltip?: string        // default to `description`
@@ -119,4 +120,27 @@ export function compileRender(js: string): RenderFunc | undefined {
     let enclosed = "(function (data, type, row, meta) { " + js.trim() + " })";
     let f = eval(enclosed);
     return f;
+}
+
+
+export interface Selection {
+    event: any
+    dataTable: Api<any>
+    select: boolean // true for select, false for unselect
+    dataRows: any[][]
+    dataRow: any[] | null // first for multi-select
+    rowIndexes: number[]
+    rowIndex: number
+}
+
+
+export interface EntityType {
+    name: string        // Java class name
+    icon?: string
+
+    label?: string
+    description?: string
+
+    columns?: ColumnType[]
+
 }

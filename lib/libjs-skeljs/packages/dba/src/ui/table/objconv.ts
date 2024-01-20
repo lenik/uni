@@ -100,7 +100,7 @@ export function convertToDataRows(fields: string[], cols: any[], rows: any[],
         return [];
 
     const isArray = Array.isArray(rows[0]);
-    if (mapFn === undefined) mapFn = fillUndefs;
+    if (mapFn === undefined) mapFn = convertUndefs;
 
     if (cols == null) {
         if (isArray)
@@ -142,6 +142,12 @@ export function convertToDataRows(fields: string[], cols: any[], rows: any[],
         }
     }
     return projRows;
+}
+
+export function convertUndefs(val: any) {
+    if (val === undefined)
+        return null;
+    return val;
 }
 
 export function fillUndefs(val: any) {

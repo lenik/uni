@@ -8,9 +8,11 @@
         "preview": "vite -c ../../vite.config.ts preview",
         "test:unit": "vitest -c ../../vitest.config.ts",
         "build-only": "vite -c ../../vite.config.ts build",
-        "type-check": "vue-tsc --build --force"
+        "type-check": "vue-tsc --build --force",
+        "clean": " vite -c ../../vite.config.ts clean"
     },
     "dependencies": {
+        "@eirslett/jquery-ui-esm": "1.12.1-alpha",
         "@skeljs/core": "workspace:^",
         "bootstrap": "^4.6.2",
         "clipboard": "^2.0.11",
@@ -26,11 +28,15 @@
         "datatables.net-select": "^1.7.0",
         "datatables.net-select-dt": "^1.7.0",
         "font-awesome": "^4.7.0",
+        "install": "^0.13.0",
         "jquery": "^3.7.1",
         "jquery-ui": "^1.13.2",
+        "jquery-ui-dist": "^1.13.2",
         "moment": "^2.30.1",
+        "npm": "^10.3.0",
         "pinia": "^2.1.7",
         "vue": "^3.4.15",
+        "vue-draggable-resizable": "3.0.0-beta.2",
         "vue-router": "^4.2.5"
     },
     "devDependencies": {

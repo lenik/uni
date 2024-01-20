@@ -1,13 +1,14 @@
 <script setup lang="ts">
 
-import $, { data } from "jquery";
+import $ from "jquery";
 
 import { ref, onMounted, computed } from "vue";
-import { getCurrentInstance } from 'vue';
 
 import { showError } from "@skeljs/core/src/logging/api";
 
 import type { DataTab, SymbolCompileFunc } from "./types";
+import { EntityType } from "./types";
+
 import formats from "./formats";
 import { useAjaxDataTable, useDataTable } from "./apply";
 import { objv2Tab } from "./objconv";
@@ -15,23 +16,44 @@ import { objv2Tab } from "./objconv";
 import DataTable from './DataTable.vue';
 import CmdButtons from '@skeljs/core/src/ui/CmdButtons.vue';
 import StatusPanels from '@skeljs/core/src/ui/StatusPanels.vue';
-import { Command, Status } from "@skeljs/core/src/ui/types";
+import Detachable from '@skeljs/core/src/ui/layout/Detachable.vue';
+import Icon from '@skeljs/core/src/ui/Icon.vue';
+import Dialog from '@skeljs/core/src/ui/Dialog.vue';
+
+import { Command, dialogCmds, Status } from "@skeljs/core/src/ui/types";
+
+const instanceModel = defineModel<any>('instance');
 
 interface Props {
+    type?: EntityType
+
     tools: Command[]
     statuses: Status[]
+    previewDetached?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
+    previewDetached: false
 });
-
 
 defineOptions({
     inheritAttrs: false
 })
 
-onMounted(() => {
+const dataTable = ref<InstanceType<typeof DataTable>>();
+
+const editor = ref<InstanceType<typeof Dialog>>();
+const editorCommands = ref(Object.values(dialogCmds));
+const editorTitle = computed(() => {
+    return "Edit " + props.type.label;
 });
+
+function deleteSelection() {
+    let dt = dataTable.value!;
+    dt.deleteSelection();
+}
+
+defineExpose({ editor, dataTable, deleteSelection });
 
 </script>
 
@@ -47,7 +69,7 @@ onMounted(() => {
 
                 <div class="table">
                     <slot name="table">
-                        <DataTable v-bind="$attrs">
+                        <DataTable ref="dataTable" v-bind="$attrs">
                             <slot name="columns">
                             </slot>
                         </DataTable>
@@ -65,14 +87,13 @@ onMounted(() => {
                     <CmdButtons :src="tools" class="right" vpos="bottom" pos="right" />
                 </ul>
             </div>
-            <div class="helppane">
+            <div class="sidepane">
+                <Detachable class="preview" title="Preview" :detached="previewDetached" width="20em">
+                    <slot name="preview">
+                    </slot>
+                </Detachable>
                 <div class="side-tools">
                     <slot name="side-tools">
-                    </slot>
-                </div>
-                <div class="preview">
-                    <slot name="preview">
-                        preview pane, detachable to floating window.
                     </slot>
                 </div>
             </div>
@@ -86,10 +107,10 @@ onMounted(() => {
             </slot>
         </ul>
 
-        <div class="editor">
+        <Dialog ref="editor" v-model="instanceModel" modal="true" :title="editorTitle" :buttons="editorCommands">
             <slot name="editor"></slot>
-            <slot></slot>
-        </div>
+        </Dialog>
+
     </div>
 </template>
 
@@ -124,11 +145,18 @@ onMounted(() => {
     }
 }
 
-.helppane {
-    >* {
-        padding: .5em;
-    }
+.sidepane {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
 
+.preview.attached {
+    flex: 1;
+}
+
+.side-tools {
+    padding: .5em;
 }
 
 .toolbar {
@@ -149,10 +177,10 @@ onMounted(() => {
     list-style: none;
     margin: 0;
     padding: 0;
+}
 
-    .filler {
-        flex: 1;
-    }
+.filler {
+    flex: 1;
 }
 
 .data-admin.with-border {
@@ -168,12 +196,12 @@ onMounted(() => {
     // border-top-width: var(--border-width);
     // border-top-color: var(--border-color);
 
-    .helppane {
+    .sidepane {
         border-left-style: var(--border-style);
         border-left-width: var(--border-width);
         border-left-color: var(--border-color);
 
-        >*:not(:first-child) {
+        >:not(.detached):not(:first-child) {
             border-top-style: var(--border-style);
             border-top-width: var(--border-width);
             border-top-color: var(--border-color);

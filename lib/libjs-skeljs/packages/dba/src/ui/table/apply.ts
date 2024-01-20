@@ -4,9 +4,10 @@ import 'datatables.net-dt/css/jquery.dataTables.css';
 // import 'datatables.net-bs/css/dataTables.bootstrap.css';
 import 'datatables.net-select-dt/css/select.dataTables.css';
 
-import 'datatables.net-responsive';
+// import 'datatables.net-responsive';
 
 import 'datatables.net';
+import 'datatables.net-select';
 // import 'datatables.net-bs5';
 // import 'datatables.net-buttons-bs5';
 
@@ -84,7 +85,7 @@ export function _useDataTable(table: any,
     let dt = $table.DataTable(config);
     // let dt = new DataTables($table, config);
 
-    keepSelection(dt);
+    // keepSelection(dt);
     makePageSizeAuto(dt);
 
     if (onApplied != null)

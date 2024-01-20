@@ -136,25 +136,26 @@ export function getExtrasConfig(table: any) {
     return config;
 }
 
-export function keepSelection(dt: Api<any>) {
+export function keepSelection(dt: Api<any>, callback?: any) {
+    dt.on('click', 'tbody tr', function (this: HTMLElement, event: any) {
+        let tr = event.currentTarget as HTMLTableRowElement;
+        dt.rows().deselect();
+        dt.row(tr).select();
+        return;
 
-    dt.rows().on('click', 'tr', function (this: HTMLElement, event: any) {
-        let tr = $(this);
-        let row = dt.row(this); // could be the header.
-        let data = row.data();
-        if (data == null)
-            return null;
+        // let classList = tr.classList;
+        // let select = !classList.contains('selected');
+        // if (select) {
+        //     dt.rows('.selected').nodes().each((row) => row.classList.remove('selected'));
+        //     classList.add('selected');
+        // } else {
+        //     classList.remove('selected');
+        // }
 
-        let id = data[0];
-        if (id == undefined)
-            return;
-
-        if ($(this).hasClass("selected"))
-            $(this).removeClass("selected");
-        else {
-            dt.$("tr.selected").removeClass("selected");
-            $(this).addClass("selected");
-        }
+        // if (callback != null) {
+        //     let index = dt.row(tr).index();
+        //     callback(event, dt, 'row', [index], select);
+        // }
 
         //$(itab).trigger("rowClick", [ row ]);
     }); // row tr.onclick

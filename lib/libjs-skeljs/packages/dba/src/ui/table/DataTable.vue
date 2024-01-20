@@ -5,9 +5,15 @@ import { ref, onMounted, computed, getCurrentInstance } from "vue";
 import { showError } from "@skeljs/core/src/logging/api";
 
 import type { DataTab, SymbolCompileFunc } from "./types";
+import { Selection } from "./types";
+
 import formats from "./formats";
 import { useAjaxDataTable, useDataTable } from "./apply";
 import { objv2Tab } from "./objconv";
+import { baseName } from "@skeljs/core/src/io/url";
+import { bool } from "@skeljs/core/src/ui/types";
+import { Api } from "datatables.net";
+import { keepSelection } from "./utils";
 
 interface Props {
 
@@ -19,9 +25,13 @@ interface Props {
     // columns?: ColumnType[]
     dataTab?: DataTab
 
+    dataUrl?: string
+    entityUrl?: string // lily-specific
+
     compile?: SymbolCompileFunc
 
     config?: any
+    multi?: boolean | string
 
     /**
      * when version changed, a full-update will be made.
@@ -37,6 +47,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
     captionPosition: 'bottom',
     compile: formats,
+    multi: false,
     version: 0,
     hBand: true,
     vBand: false,
@@ -52,6 +63,15 @@ const captionAtBottom = computed(() => props.caption != null
         || props.captionPosition == 'both'
     ));
 
+const selectedRows = computed(() => {
+    let dt = dataTable.value;
+    return dt.rows({ selected: true }).data();
+});
+const selectedRowIndexes = computed(() => {
+    let dt = dataTable.value;
+    return dt.rows({ selected: true }).index();
+});
+
 defineOptions({
     inheritAttrs: false
 })
@@ -66,38 +86,98 @@ const css = [
     "cell-border",
 ];
 
-const tableRef = ref(null);
+const tableRef = ref<HTMLTableElement>();
+const dataTable = ref<Api<any>>();
+
+interface Emits {
+    (e: 'select', selection: Selection): void
+}
+
+const emit = defineEmits<Emits>();
 
 onMounted(() => {
     let cur = getCurrentInstance();
 
     let table: HTMLElement = tableRef.value!;
-    // let $table = $(table);
-    // console.log($table.dataTable);
+
+    let config = props.config || {};
+
+    let multiSelect = bool(props.multi);
+    if (multiSelect)
+        config.select = {
+            info: true,
+            style: 'multi+shift',
+            selector: 'td',
+        };
+
+    let dt: Api<any> | undefined;
 
     if (props.dataTab != null) {
-        useDataTable(tableRef.value!, props.config, props.compile, () => props.dataTab);
-        return;
+        dt = useDataTable(tableRef.value!, config, props.compile, () => props.dataTab);
     }
 
-    if (props.dataObjv != null) {
+    else if (props.dataObjv != null) {
         let fetch = () => {
             let dataTab = objv2Tab(props.dataObjv!);
             return dataTab;
         };
-        useDataTable(tableRef.value!, props.config, props.compile, fetch);
-        return;
+        dt = useDataTable(tableRef.value!, config, props.compile, fetch);
     }
 
-    let dataUrl = table.getAttribute('data-url');
-    if (dataUrl != null) {
-        useAjaxDataTable(tableRef.value!, props.config, props.compile);
-        return;
+    else {
+        let dataUrl = props.dataUrl;
+        if (dataUrl == null && props.entityUrl != null) {
+            let url = props.entityUrl;
+            if (url.endsWith("/"))
+                url = url.substring(0, url.length - 1);
+            let classHint = baseName(url);
+            dataUrl = url + "/__data__" + classHint;
+        }
+
+        if (dataUrl != null) {
+            dt = useAjaxDataTable(tableRef.value!, config, props.compile);
+        }
     }
 
-    throw 'invalid use of <DataTable>';
-    showError('invalid use of <DataTable>');
+    if (dt == null) {
+        showError('invalid use of <DataTable>');
+        throw 'invalid use of <DataTable>';
+    }
+
+    dataTable.value = dt;
+
+    function selectionChange(e: Event, dt: Api<any>, type: string, indexes: number[], select: boolean) {
+        let selectedRows = dt.rows({ selected: true }).data().toArray() as any[][];
+        let selectedIndexes = dt.rows({ selected: true }).indexes().toArray() as number[];
+        let selection: Selection = {
+            select: select,
+            event: e,
+            dataTable: dt,
+            dataRows: selectedRows,
+            dataRow: selectedRows[0],
+            rowIndexes: selectedIndexes,
+            rowIndex: selectedIndexes[0],
+        };
+        emit('select', selection);
+    }
+
+    if (!multiSelect)
+        keepSelection(dt, selectionChange);
+
+    dt.on('select', (e, dt, type, indexes) => selectionChange(e, dt, type, indexes, true));
+    // dt.on('deselect', (e, dt, type, indexes) => selectionChange(e, dt, type, indexes, true));
+
+    // dt.on('click', 'tbody td:not(:first-child)', function (e) {
+    //     editor.inline(this);
+    // });
 });
+
+function deleteSelection() {
+    let dt = dataTable.value;
+    dt!.rows({ selected: true }).remove().draw(false);
+}
+
+defineExpose({ dataTable, deleteSelection });
 
 </script>
 
