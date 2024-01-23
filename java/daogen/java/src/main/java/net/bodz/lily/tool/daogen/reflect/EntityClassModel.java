@@ -36,7 +36,7 @@ public class EntityClassModel
 
         String pkg = clazz.getPackage().getName();
         String simple = clazz.getSimpleName();
-        String maskQn = pkg + ".impl." + simple + "Mask";
+        String maskQn = pkg + ".dao." + simple + "Mask";
         IType maskType = null;
         try {
             Class<?> maskClass = CanonicalClass.forName(maskQn);
