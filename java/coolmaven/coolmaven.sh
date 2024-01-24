@@ -1,6 +1,6 @@
 alias mvn='coolmvn'
 
-MAVENOPTS_SKIPTEST=(-Dmaven.test.skip=true -DskipTests)
+MAVENOPTS_SKIPTEST=(-DskipTests)
 
 function mvnlist() {
     local cmd="$1"
