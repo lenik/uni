@@ -20,7 +20,7 @@ import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.t.catalog.*;
 import net.bodz.bas.t.tuple.Split;
-import net.bodz.lily.model.base.CoEntity;
+import net.bodz.lily.concrete.CoEntity;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.TableName;
 import net.bodz.lily.tool.daogen.util.CanonicalClass;

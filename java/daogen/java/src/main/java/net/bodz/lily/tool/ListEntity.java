@@ -18,16 +18,7 @@ import net.bodz.bas.potato.PotatoTypes;
 import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.t.order.AbstractNonNullComparator;
-import net.bodz.lily.model.base.CoCode;
-import net.bodz.lily.model.base.CoMomentInterval;
-import net.bodz.lily.model.base.CoNode;
-import net.bodz.lily.t.base.CoMessage;
-import net.bodz.lily.template.CoCategory;
-import net.bodz.lily.template.CoParameter;
-import net.bodz.lily.template.CoPhase;
-import net.bodz.lily.template.CoTag;
-import net.bodz.lily.template.CoTalk;
-import net.bodz.lily.template.VoteRecord;
+import net.bodz.lily.concrete.*;
 
 /**
  * List mapped entity types.

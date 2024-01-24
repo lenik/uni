@@ -245,7 +245,7 @@ public class CatalogConfig
     @Override
     public void writeObject(IRstOutput out)
             throws IOException, FormatException {
-        if (!columnPropertyMap.isEmpty()) {
+        if (! columnPropertyMap.isEmpty()) {
             out.beginElement(K_COLUMN_PROPERTY);
             for (String column : columnPropertyMap.keySet()) {
                 String property = columnPropertyMap.get(column);
@@ -254,7 +254,7 @@ public class CatalogConfig
             out.endElement();
         }
 
-        if (!columnTypeMap.isEmpty()) {
+        if (! columnTypeMap.isEmpty()) {
             out.beginElement(K_COLUMN_TYPE);
             for (String column : columnTypeMap.keySet()) {
                 String typeName = columnTypeMap.get(column);
@@ -263,7 +263,7 @@ public class CatalogConfig
             out.endElement();
         }
 
-        if (!columnRefMap.isEmpty()) {
+        if (! columnRefMap.isEmpty()) {
             out.beginElement(K_COLUMN_REF);
             for (String alias : columnRefMap.alias2QColumn.keySet()) {
                 ColumnOid qColumn = columnRefMap.alias2QColumn.get(alias);
@@ -272,7 +272,7 @@ public class CatalogConfig
             out.endElement();
         }
 
-        if (!columnLevelMap.isEmpty()) {
+        if (! columnLevelMap.isEmpty()) {
             out.beginElement(K_COLUMN_LEVEL);
             for (String column : columnLevelMap.keySet()) {
                 Integer level = columnLevelMap.get(column);
@@ -281,7 +281,7 @@ public class CatalogConfig
             out.endElement();
         }
 
-        if (!columnJoinLevelMap.isEmpty()) {
+        if (! columnJoinLevelMap.isEmpty()) {
             out.beginElement(K_COLUMN_JOIN_LEVEL);
             for (String column : columnJoinLevelMap.keySet()) {
                 Integer depth = columnJoinLevelMap.get(column);
@@ -290,13 +290,13 @@ public class CatalogConfig
             out.endElement();
         }
 
-        if (!keyColumnSettings.isEmpty()) {
+        if (! keyColumnSettings.isEmpty()) {
             out.beginElement(K_KEY_COLUMNS);
             keyColumnSettings.writeObject(out);
             out.endElement();
         }
 
-        if (!tableNameMap.isEmpty()) {
+        if (! tableNameMap.isEmpty()) {
             out.beginElement(K_TABLE_NAME);
             for (String table : tableNameMap.keySet()) {
                 String javaName = tableNameMap.get(table);
@@ -305,7 +305,7 @@ public class CatalogConfig
             out.endElement();
         }
 
-        if (!class2TableList.isEmpty()) {
+        if (! class2TableList.isEmpty()) {
             out.beginElement(K_CLASS_MAP);
             for (String type : class2TableList.keySet()) {
                 List<String> tables = class2TableList.get(type);
@@ -315,7 +315,7 @@ public class CatalogConfig
             out.endElement();
         }
 
-        if (!tableMap.isEmpty()) {
+        if (! tableMap.isEmpty()) {
             for (String tableName : tableMap.keySet()) {
                 out.beginElement(K_TABLE, tableName);
                 TableSettings table = tableMap.get(tableName);
@@ -324,7 +324,7 @@ public class CatalogConfig
             }
         }
 
-        if (mixinMap != null && !mixinMap.isEmpty()) {
+        if (mixinMap != null && ! mixinMap.isEmpty()) {
             for (String mixinName : mixinMap.keySet()) {
                 out.beginElement(K_MIXIN, mixinName);
                 MixinSettings mixin = mixinMap.get(mixinName);
@@ -396,7 +396,7 @@ public class CatalogConfig
 
                 case K_CLASS_MAP:
                     String base = name;
-                    for (String token : data.split(","))
+                    for (String token : data.split("[, ]+"))
                         addTableBase(token.trim(), base);
                     return true;
 
@@ -431,7 +431,7 @@ public class CatalogConfig
         out.key(K_COLUMN_JOIN_LEVEL);
         out.map(columnJoinLevelMap);
 
-        if (!keyColumnSettings.isEmpty()) {
+        if (! keyColumnSettings.isEmpty()) {
             out.key(K_KEY_COLUMNS);
             out.object();
             keyColumnSettings.jsonOut(out, opts);

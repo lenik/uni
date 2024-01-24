@@ -3,6 +3,7 @@ package net.bodz.lily.tool.daogen.dir.ws;
 import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.meta.decl.ObjectType;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.lily.concrete.CoIndex;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
 
@@ -27,7 +28,7 @@ public class FooIndex__java
             out.enter();
             {
                 out.printf("extends %s<%s> {\n", //
-                        out.im.name("net.bodz.lily.model.base.CoIndex"), //
+                        out.im.name(CoIndex.class), //
                         out.im.name(project.Foo));
                 out.leave();
             }
