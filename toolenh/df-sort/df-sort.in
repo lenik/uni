@@ -21,7 +21,7 @@
     option -c --color           "enable highlight on the output"
     option -q --quiet
     option -v --verbose
-    option -h --help
+    option    --help
     option    --version
     
     DF=$(which df) || quit "can't find df."
@@ -61,7 +61,7 @@ function setopt() {
             opt_reverse=1;;
         -c|--color)
             opt_color=1;;
-        -h|--help)
+        --help)
             help $1
             echo '--'
             "$DF" --help
