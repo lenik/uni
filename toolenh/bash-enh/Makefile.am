@@ -23,7 +23,6 @@ dist_completion_DATA = \
 
 dist_shsrc_SCRIPTS = \
     cd-ls \
-    cd-first \
     cd..n \
     cd.x \
     cd-alias \
