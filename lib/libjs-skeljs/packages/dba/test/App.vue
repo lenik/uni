@@ -27,15 +27,10 @@ const stat = {
         <template #site-bar>
             <SiteBar :items="siteMenu" :title="'Title1'" />
         </template>
-
         <template #project-info>
-            <ProjectInfo :stat="stat" label="DBA Test Apps">
-                Test applications of skeljs::dba package.
-            </ProjectInfo>
+            <ProjectInfo :stat="stat" label="DBA Test Apps"> Test applications of skeljs::dba package. </ProjectInfo>
         </template>
-
         <router-view></router-view>
-
         <template #footer>
             <Copyright />
         </template>

@@ -8,8 +8,8 @@ export function sleep(t: number, fn: Callback) {
     setTimeout(fn, t * 1000);
 }
 
-export function slowly(fn: Callback | ManagedCloser, msg: string) {
-    beginWait();
+export function slowly(fn: Callback | ManagedCloser, msg: string = "Wait...") {
+    beginWait(msg);
     var afterJob = endWait;
     //sleep(.5, function() {
     if (fn.length) {

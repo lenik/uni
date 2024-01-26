@@ -11,6 +11,20 @@ import Editor from './PersonEditor.vue';
 
 import people from '../people-objv.js';
 import { Command } from '@skeljs/core/src/ui/types';
+import { showError } from '@skeljs/core/src/logging/api';
+import { slowly } from '@skeljs/core/src/skel/waitbox';
+import { reloadSmooth } from '../../src/ui/table/apply';
+import { deserialize } from 'v8';
+
+
+interface Props {
+    lilyUrl?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    lilyUrl: "http://localhost:2800/Person",
+});
+
 
 let people2 = [...people, ...people, ...people];
 
@@ -88,18 +102,35 @@ function saveSelected(value) {
 }
 
 function deleteSelection() {
-    let before = rowNumInfo()!;
-    admin.value?.dataTable?.deleteSelection();
+    let url = props.lilyUrl;
+    let selectedObj = selectedRowInfo.value.obj;
+    if (selectedObj == null) return;
 
-    let pos = before.pos || 0;
-    let after = rowNumInfo()!;
-    let api = admin.value?.dataTable?.api;
-    api?.row(after.nodes[pos]).select();
+    // url: dataHref + "/delete?id=" + ids.join(",")
+    let deleteUrl = url + '/delete?id=' + selectedObj.id;
+
+    let api = admin.value!.dataTable!.api!;
+    let info = admin.value?.rowNumInfo();
+    let pos = info?.pos || 0;
+
+    $.ajax({
+        url: deleteUrl
+    }).done(function (e) {
+        reload(() => {
+            info = admin.value!.rowNumInfo()!;
+            pos = Math.min(pos, info.nodes.length - 1);
+            api.row(info.nodes[pos]).select();
+        });
+    }).fail(function (xhr, status, err) {
+        showError("Failed to delete: " + err);
+    });
 }
 
-function reload() {
-
+function reload(callback?: any) {
+    let api = admin.value!.dataTable!.api!;
+    api.ajax.reloadSmooth(false, callback);
 }
+
 function toggleEditMode() {
 
 }
@@ -125,7 +156,7 @@ const tools = ref<Command[]>([
     {
         vPos: "top", pos: 'right', group: 'view', name: 'reload',
         icon: 'fa-sync', label: 'Reload',
-        run: reload
+        run: () => reload()
     }, {
         vPos: "top", pos: 'right', group: 'view', name: 'edit',
         icon: 'fa-edit', label: 'Edit', type: 'toggle',
@@ -211,21 +242,6 @@ function onselect(sel: Selection) {
     }
 }
 
-function rowNumInfo() {
-    let api = admin.value?.dataTable?.api;
-    if (api == null) return null;
-    let currentNode = api.row({ selected: true }).node();
-    let nodes = api.rows({ order: 'applied' }).nodes();
-    let current: number | undefined = undefined;
-    if (currentNode != null)
-        current = nodes.indexOf(currentNode);
-    return {
-        nodes: nodes,
-        n: nodes.length,
-        pos: current,
-    }
-}
-
 function focus() {
     let elm = admin.value!.rootElement!;
     elm.focus();
@@ -234,61 +250,49 @@ function focus() {
 onMounted(() => {
     let elm = admin.value!.rootElement!;
     focus();
-    elm.addEventListener('keydown', (e: Event) => {
+    elm.addEventListener('keydown', (e: any) => {
         if (e.target != elm) return false;
 
         let api = admin.value?.dataTable?.api;
         let next = 0;
 
         keyName.value = e.key;
-        switch (e.key) {
-            case 'Insert':
-                openNew();
-                break;
-            case 'Delete':
-                deleteSelection();
-                break;
-            case 'e':
-                openSelected();
-                break;
+        if (e.ctrlKey)
+            switch (e.key) {
+                case 'd':
+                    deleteSelection();
+                    break;
 
-            case 'ArrowUp':
-            case 'ArrowDown':
-            case 'Home':
-            case 'End':
-                if (api != null) {
-                    let info = rowNumInfo()!;
-                    let current = info.pos;
-                    let next = 0;
-                    if (current != null) {
-                        switch (e.key) {
-                            case 'ArrowUp': next = current - 1; break;
-                            case 'ArrowDown': next = current + 1; break;
-                            case 'Home': next = 0; break;
-                            case 'End': next = info.n - 1; break;
-                        }
-                        // next = (next + info.n) % info.n;
-                        if (next < 0) next = 0;
-                        if (next >= info.n) next = info.n - 1;
+                case 'r':
+                    reload();
+                    break;
 
-                        api.row(info.nodes[current]).deselect();
-                    }
-                    api.row(info.nodes[next]).select();
-                }
-                break;
+                default:
+                    break;
+            }
 
-            case 'PageUp':
-            case 'PageDown':
-                if (api != null) {
-                    let info = rowNumInfo()!;
-                    let current = info.pos;
-                    api.page(e.key == 'PageUp' ? 'previous' : 'next').draw(false);
-                    info = rowNumInfo();
-                    let pos = Math.min(current, info.nodes.length - 1);
-                    api.row(info.nodes[pos]).select();
-                }
-                break;
-        }
+        else
+            switch (e.key) {
+                case 'Insert':
+                    openNew();
+                    break;
+
+                case 'Delete':
+                    deleteSelection();
+                    break;
+
+                case 'e':
+                    openSelected();
+                    break;
+                default:
+                    return;
+            }
+
+        e.preventDefault();
+        if (e.stopPropagation)
+            e.stopPropagation();
+        else
+            e.cancelBubble = true;
     }, true);
 });
 
@@ -296,8 +300,8 @@ onMounted(() => {
 
 <template>
     <DataAdmin ref="admin" :type="type" :tools="tools" :statuses="statuses" dom="frtip" A:data-tab="peopleTab"
-        fetch-size="10" processing=".processing" lily-url="http://localhost:2800/Person"
-        v-model:instance="selectedRowInfo!.obj" @select="onselect">
+        :lily-url="lilyUrl" fetch-size="10" processing=".processing" v-model:instance="selectedRowInfo!.obj"
+        @select="onselect">
         <template #columns>
             <th data-field="id">ID</th>
             <th data-field="properties" class="hidden">properties</th>
@@ -331,21 +335,6 @@ onMounted(() => {
 
 .dataTable {
     background: #f8f8f8;
-}
-
-.workpane {
-    padding: 1em;
-    // background: #fef;
-
-    --color1: #ddd3;
-    --color2: #fef3;
-    --width: 1px;
-    --scale: 1;
-    background: repeating-linear-gradient(-45deg,
-            var(--color1),
-            var(--color1) calc(var(--width) * var(--scale)),
-            var(--color2) calc(var(--width) * var(--scale)),
-            var(--color2) calc(10px * var(--scale)));
 }
 </style>
 

@@ -157,12 +157,17 @@ export function useAjaxDataTable(table: HTMLElement, configOverride: Config, com
 }
 
 // Remember the last selection after reload.
-function reloadEnh(dt: Api<any>, onReloaded?: any, resetPaging?: boolean) {
-    let selectedTr = dt.row(".selected").node();
+function _reloadSmooth(resetPaging: boolean = false, onReloaded?: any) {
+    let selectedTr = this.row(".selected").node();
     let lastId = $(selectedTr).data("id");
-    return dt.ajax.reload(function () {
+
+    this.iterator('table', function (settings) {
+        settings.clearCache = true;
+    });
+
+    return this.ajax.reload(function () {
         if (lastId != null) {
-            let tr = dt.row("[data-id=" + lastId + "]").node();
+            let tr = api.row("[data-id=" + lastId + "]").node();
             $(tr).addClass("selected");
         }
         if (onReloaded != undefined)
@@ -170,6 +175,12 @@ function reloadEnh(dt: Api<any>, onReloaded?: any, resetPaging?: boolean) {
     }, resetPaging);
 }
 
-$.fn.DataTable.Api.register("ajax.reload_enh()", function (this: Api<any>) {
-    reloadEnh(this, ...arguments);
+$.fn.DataTable.Api.register("ajax.reloadSmooth()", function (this: Api<any>) {
+    return _reloadSmooth.call(this, ...arguments);
+});
+
+$.fn.DataTable.Api.register("clearCache()", function () {
+    return this.iterator('table', function (settings) {
+        settings.clearCache = true;
+    });
 });

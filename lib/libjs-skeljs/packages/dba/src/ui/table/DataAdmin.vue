@@ -48,16 +48,107 @@ const dataTable = ref<InstanceType<typeof DataTable>>();
 const editor = ref<InstanceType<typeof Dialog>>();
 const editorCommands = ref(Object.values(dialogCmds));
 const editorTitle = computed(() => {
-    return "Edit " + props.type.label;
+    return "Edit " + props.type?.label;
+});
+const editorDialogName = computed(() => {
+    if (props.type != null) {
+        let typeName = props.type.name;
+        let lastDot = typeName.lastIndexOf('.');
+        let simpleName = lastDot == -1 ? typeName : typeName.substring(lastDot + 1);
+        return simpleName + "Editor";
+    } else {
+        return "ObjectEditor";
+    }
 });
 
 function deleteSelection() {
-    let dt = dataTable.value!;
-    dt.deleteSelection();
+    let before = rowNumInfo()!;
+
+    let dtComp = dataTable.value!;
+    dtComp.deleteSelection();
+
+    let pos = before.pos || 0;
+    let after = rowNumInfo()!;
+    dtComp.api?.row(after.nodes[pos]).select();
 }
 
-defineExpose({ rootElement, editor, dataTable, deleteSelection });
+defineExpose({ rootElement, editor, dataTable, deleteSelection, rowNumInfo });
 
+function rowNumInfo() {
+    let api = dataTable.value?.api;
+    if (api == null) return null;
+    let currentNode = api.row({ selected: true }).node();
+    let nodes = api.rows({ order: 'applied' }).nodes();
+    let current: number | undefined = undefined;
+    if (currentNode != null)
+        current = nodes.indexOf(currentNode);
+    return {
+        nodes: nodes,
+        n: nodes.length,
+        pos: current,
+    }
+}
+
+onMounted(() => {
+    let root = rootElement.value!;
+
+    root.addEventListener('keydown', (e: any) => {
+        if (e.target != root) return false;
+
+        let api = dataTable.value?.api;
+        let next = 0;
+
+        switch (e.key) {
+            // case 'Insert':
+            //     openNew();
+            //     break;
+            // case 'Delete':
+            //     deleteSelection();
+            //     break;
+            // case 'e':
+            //     openSelected();
+            //     break;
+
+            case 'ArrowUp':
+            case 'ArrowDown':
+            case 'Home':
+            case 'End':
+                if (api != null) {
+                    let info = rowNumInfo()!;
+                    let current = info.pos;
+                    let next = 0;
+                    if (current != null) {
+                        switch (e.key) {
+                            case 'ArrowUp': next = current - 1; break;
+                            case 'ArrowDown': next = current + 1; break;
+                            case 'Home': next = 0; break;
+                            case 'End': next = info.n - 1; break;
+                        }
+                        // next = (next + info.n) % info.n;
+                        if (next < 0) next = 0;
+                        if (next >= info.n) next = info.n - 1;
+
+                        api.row(info.nodes[current]).deselect();
+                    }
+                    api.row(info.nodes[next]).select();
+                }
+                break;
+
+            case 'PageUp':
+            case 'PageDown':
+                if (api != null) {
+                    let info = rowNumInfo()!;
+                    let current = info.pos;
+                    api.page(e.key == 'PageUp' ? 'previous' : 'next').draw(false);
+                    info = rowNumInfo()!;
+                    let pos = Math.min(current || 0, info.nodes.length - 1);
+                    api.row(info.nodes[pos]).select();
+                }
+                break;
+        }
+    }, true);
+
+});
 </script>
 
 <template>
@@ -105,15 +196,24 @@ defineExpose({ rootElement, editor, dataTable, deleteSelection });
                 <StatusPanels :src="statuses" vpos="bottom?" pos="right?" />
             </slot>
         </ul>
-        <Dialog ref="editor" v-model="instanceModel" modal="true" :title="editorTitle" :buttons="editorCommands">
+        <Dialog ref="editor" :name="editorDialogName" v-model="instanceModel" modal="true" :title="editorTitle"
+            :buttons="editorCommands">
             <slot name="editor"></slot>
         </Dialog>
         <div class="templates">
             <div class="processing">
                 <div class='fa-stack fa-lg'>
                     <i class='fa fa-spinner fa-spin fa-stack-2x fa-fw'></i>
-                </div> Processing ...
+                </div> Loading ...
             </div>
+            <Dialog id="waitbox" modal="true" :buttons="[]">
+                <div class="flex-row">
+                    <div class="content">
+                        <i class="fa fa-circle-o-notch fa-spin"></i>
+                        <span class="text">Wait...</span>
+                    </div>
+                </div>
+            </Dialog>
         </div>
     </div>
 </template>
@@ -263,7 +363,9 @@ defineExpose({ rootElement, editor, dataTable, deleteSelection });
 }
 
 .templates {
-    display: none;
+    >* {
+        display: none;
+    }
 }
 
 ::v-deep(.dataTables_processing) {
@@ -295,5 +397,68 @@ defineExpose({ rootElement, editor, dataTable, deleteSelection });
     .processing+* {
         display: none;
     }
+}
+
+.workpane {
+    padding: 1em;
+    // background: #fef;
+
+    --color1: #ddd3;
+    --color2: #fef3;
+    --width: 1px;
+    --scale: 1;
+    background: repeating-linear-gradient(-45deg,
+            var(--color1),
+            var(--color1) calc(var(--width) * var(--scale)),
+            var(--color2) calc(var(--width) * var(--scale)),
+            var(--color2) calc(10px * var(--scale)));
+}
+
+#waitbox {
+
+    cursor: wait;
+    --hue: 150;
+    --sat: 50%;
+
+    &::v-deep() {
+        .disabler {
+            // background-color: hsla(200, 30%, 20%, 30%);
+
+            animation: bgloop 1s infinite alternate ease-in-out;
+
+            @at-root {
+                @keyframes bgloop {
+                    0% {
+                        background: hsla(200, 30%, 20%, 25%);
+                    }
+
+                    100% {
+                        background: hsla(200, 30%, 20%, 18%);
+                    }
+                }
+            }
+        }
+
+        .dialog {
+            background: hsla(var(--hue), var(--sat), 90%, 85%);
+            border-color: hsla(var(--hue), var(--sat), 30%, 85%);
+            border-radius: 1em;
+        }
+
+        .content {
+            padding: .5em .8em;
+            text-align: center;
+            font-size: 150%;
+            font-family: Sans;
+            font-weight: bold;
+            color: hsla(var(--hue), var(--sat), 30%);
+
+            .text {
+                margin-left: .5em;
+            }
+        }
+    }
+
+
 }
 </style>

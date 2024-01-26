@@ -54,6 +54,9 @@ const isAutoOpen = computed(() => bool(props.autoOpen));
 
 const initDisplay = computed(() => isAutoOpen.value ? 'block' : 'none');
 
+const hasTitle = computed(() => props.title != null && props.title.length > 0);
+const hasButton = computed(() => props.buttons != null && props.buttons.length > 0);
+
 interface Emits {
     (e: 'created', event: Event): void
     (e: 'closed', event: Event): void
@@ -146,25 +149,21 @@ defineExpose({
 </script>
 
 <template>
-    <div ref="rootElement" class="dialog-with-fx">
+    <div ref="rootElement" class="dialog-container">
         <div class="disabler" :class="{ blink }" v-if="isModal"></div>
-        <div ref="dialogDiv" class="dialog" :tabindex="tabindex">
+        <div ref="dialogDiv" class="dialog" :class="{ hasTitle, hasButton }" :tabindex="tabindex">
             <div class="body">
-                <div ref="titleDiv" class="titlebar">
+                <div ref="titleDiv" class="titlebar" v-if="title != null && title.length > 0">
                     <Icon :name="icon" v-if="icon != null"></Icon>
                     <i class="fa fa-edit"></i>
-                    {{ title }}
+                    <span class="titleText">{{ title }}</span>
                 </div>
-
                 <slot name="content">
                     <div class="content">
-                        <slot>
-                            Example Dialog Content
-                        </slot>
+                        <slot> Example Dialog Content </slot>
                     </div>
                 </slot>
-
-                <slot name="commands">
+                <slot name="commands" v-if="buttons != null && buttons.length > 0">
                     <div class="commands flex-row" v-if="buttons != null && rootElement != null">
                         <CmdButtons :src="buttons" :target="rootElement" :runner="run" pos="left" />
                         <div class="filler"></div>
@@ -177,7 +176,7 @@ defineExpose({
 </template>
 
 <style scoped lang="scss">
-.dialog-with-fx {
+.dialog-container {
     display: v-bind(initDisplay);
 }
 
@@ -215,10 +214,8 @@ defineExpose({
     top: 50%;
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
-    resize: both;
     overflow: auto;
     box-sizing: border-box;
-
 
     // width: 100%;
     max-width: 90%;
@@ -232,6 +229,10 @@ defineExpose({
     border-color: hsl(200, 30%, 50%);
     border-radius: .4em;
     box-shadow: 3px 3px 10px 0px gray;
+
+    &.hasTitle {
+        resize: both;
+    }
 
     .titlebar {
         background-color: var(--frame-color);

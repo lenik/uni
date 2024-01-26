@@ -109,12 +109,6 @@ export function configAjaxData(config: Config, dataUrl: string, fetchSize: numbe
 
     let entityClass = getEntityClassFromUrl(dataUrl) || 'x';
 
-    // row-num => row
-    let cache: any[] = [];
-    let rowCountCache = -1;
-    let totalCountCache = -1;
-    let cacheOfMode: any = {};
-
     config.serverSide = true;
     config.processing = true;
     let templ = config.language?.processing;
@@ -129,7 +123,19 @@ export function configAjaxData(config: Config, dataUrl: string, fetchSize: numbe
     }
 
     // will be called when sort/search/page changes.
-    config.ajax = async function (viewData: any, drawCallback, opts: any) {
+    config.ajax = async function (viewData: any, drawCallback, settings: any) {
+        // row-num => row
+        let cache = this.data('cache');
+        if (cache == null || settings.clearCache) {
+            cache = {
+                rows: [] as any[],
+                rowCount: -1,
+                totalCount: -1,
+                ofMode: {}
+            };
+            this.data('cache', cache);
+        }
+
         let mode = {
             search: viewData.search.value,
             order: viewData.order.map((a: any) =>
@@ -137,28 +143,28 @@ export function configAjaxData(config: Config, dataUrl: string, fetchSize: numbe
         };
 
         let hit = true;
-        if (!isEqual(cacheOfMode, mode)) {
-            cache = [];
+        if (!isEqual(cache.ofMode, mode)) {
+            cache.rows = [];
             hit = false;
         }
 
         let viewEnd = viewData.start + viewData.length;
-        if (totalCountCache != -1 && viewEnd > totalCountCache)
-            viewEnd = totalCountCache;
+        if (cache.totalCount != -1 && viewEnd > cache.totalCount)
+            viewEnd = cache.totalCount;
 
         for (let i = viewData.start; i < viewEnd; i++)
-            if (cache[i] == undefined) {
+            if (cache.rows[i] == undefined) {
                 hit = false;
                 break;
             }
 
         if (hit) {
-            let slice = cache.slice(viewData.start, viewEnd);
+            let slice = cache.rows.slice(viewData.start, viewEnd);
             drawCallback({
                 data: slice,
                 draw: viewData.draw,
-                recordsFiltered: totalCountCache,
-                recordsTotal: totalCountCache,
+                recordsFiltered: cache.totalCount,
+                recordsTotal: cache.totalCount,
             });
             return;
         }
@@ -176,8 +182,8 @@ export function configAjaxData(config: Config, dataUrl: string, fetchSize: numbe
         query['page.limit'] = batch;
         query.seq = viewData.draw;
 
-        console.log("cache miss: load -> offset " + start + " limit " + batch);
-        console.log("    query data: " + JSON.stringify(query));
+        // console.log("cache miss: load -> offset " + start + " limit " + batch);
+        // console.log("    query data: " + JSON.stringify(query));
 
         await $.ajax({
             url: dataUrl,
@@ -207,21 +213,21 @@ export function configAjaxData(config: Config, dataUrl: string, fetchSize: numbe
                 rows = convertToDataRows(fields, data.columns, anyList);
             }
 
-            rowCountCache = data.rowCount;
+            cache.rowCount = data.rowCount;
             // assert data.rowCount == rows.length;
             // console.log('loaded row count: ' + data.rowCount);
             for (let i = 0; i < rows.length; i++)
-                cache[start + i] = rows[i];
-            cacheOfMode = mode;
-            totalCountCache = data.totalCount;
+                cache.rows[start + i] = rows[i];
+            cache.ofMode = mode;
+            cache.totalCount = data.totalCount;
 
-            let slice = cache.slice(viewData.start, viewData.start + viewData.length);
+            let slice = cache.rows.slice(viewData.start, viewData.start + viewData.length);
 
             drawCallback({
                 data: slice,
                 draw: data.seq,
-                recordsFiltered: totalCountCache,
-                recordsTotal: totalCountCache,
+                recordsFiltered: cache.totalCount,
+                recordsTotal: cache.totalCount,
             });
         }).fail(function (xhr: any, status: any, err) {
             showError("Failed to query index data: " + err);
