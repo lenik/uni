@@ -1,5 +1,6 @@
 <script setup lang="ts">
 
+import $ from 'jquery';
 import { ref, onMounted, computed, getCurrentInstance } from "vue";
 
 import { showError } from "@skeljs/core/src/logging/api";
@@ -26,7 +27,7 @@ interface Props {
     dataTab?: DataTab
 
     dataUrl?: string
-    entityUrl?: string // lily-specific
+    lilyUrl?: string // lily-specific: entity controller URL
 
     compile?: SymbolCompileFunc
 
@@ -126,12 +127,15 @@ onMounted(() => {
 
     else {
         let dataUrl = props.dataUrl;
-        if (dataUrl == null && props.entityUrl != null) {
-            let url = props.entityUrl;
+        if (dataUrl == null && props.lilyUrl != null) {
+            let url = props.lilyUrl;
             if (url.endsWith("/"))
                 url = url.substring(0, url.length - 1);
             let classHint = baseName(url);
             dataUrl = url + "/__data__" + classHint;
+            // props.dataUrl = dataUrl;
+            // config.url = dataUrl;
+            $(tableRef.value!).data('url', dataUrl);
         }
 
         if (dataUrl != null) {
@@ -182,20 +186,26 @@ defineExpose({ api: api, deleteSelection });
 </script>
 
 <template>
-    <div class="caption" v-if="captionAtTop">{{ caption }}</div>
-    <table ref="tableRef" class="dataTable" :class="css" v-bind="$attrs">
-        <thead>
-            <tr>
-                <slot>
+    <div class="dt-container">
+        <div class="caption" v-if="captionAtTop">{{ caption }}</div>
+        <table ref="tableRef" class="dataTable second" :class="css" v-bind="$attrs">
+            <thead>
+                <tr>
+                    <slot>
+                    </slot>
+                </tr>
+            </thead>
+            <tbody>
+                <slot name="body">
+                    <tr>
+                        <td>&nbsp;</td>
+                    </tr>
                 </slot>
-            </tr>
-        </thead>
-        <tbody>
-            <slot name="body"></slot>
-        </tbody>
-        <slot name="foot"></slot>
-    </table>
-    <div class="caption" v-if="captionAtBottom">{{ caption }}</div>
+            </tbody>
+            <slot name="foot"></slot>
+        </table>
+        <div class="caption" v-if="captionAtBottom">{{ caption }}</div>
+    </div>
 </template>
 
 <style lang="scss">
@@ -218,17 +228,139 @@ table.dataTable {
     }
 }
 
-.dataTables_wrapper {}
+
+::v-deep(.dataTables_wrapper) {
+    // border: solid 2px yellow;
+    position: relative;
+
+    .dataTables_filter,
+    .dataTables_info,
+    .dataTables_paginate {
+        display: block;
+        position: relative;
+        font-size: 85%;
+        font-weight: 300;
+        padding-top: 0;
+
+        input {
+            margin: 0 0 .2em .5em;
+            border: none;
+            border-bottom: dashed 1px hsl(200, 50%, 40%);
+            border-radius: 0;
+            padding: 0 .5em;
+            font-weight: 300;
+            font-family: monospace;
+
+            &:focus-visible {
+                outline: none;
+            }
+        }
+    }
+
+
+    .dataTables_filter {
+        color: hsl(200, 50%, 40%);
+    }
+
+    .dataTables_info,
+    .dataTables_paginate {
+        line-height: 1em;
+        top: 1em;
+        transform: translateY(-50%);
+        margin-bottom: 1.5em;
+    }
+
+    .dataTables_paginate {
+
+        .paginate_button {
+            background: none;
+        }
+
+        .paginate_button.current {
+            background: pink;
+        }
+
+        .paginate_button,
+        .paginate_button.current {
+            padding: .2em 0;
+            border: none;
+            border-radius: 3px;
+
+            &:not(:last-child) {
+                margin: 0 calc(-1* var(--bar-width));
+            }
+
+            --bar-width: 3px;
+            --bar-padding: 5px;
+            --bar-color: hsl(220, 30%, 60%);
+
+            &::before {
+                content: ' ';
+                padding-right: var(--bar-padding);
+                box-sizing: border-box;
+                border-left-style: solid;
+                border-left-width: var(--bar-width);
+                border-left-color: transparent;
+            }
+
+            &::after {
+                content: ' ';
+                padding-left: var(--bar-padding);
+                border-right-style: solid;
+                border-right-width: var(--bar-width);
+                border-right-color: transparent;
+            }
+
+            &:hover {
+                color: hsl(220, 30%, 30%) !important;
+                background: hsl(220, 30%, 94%);
+
+                &::before,
+                &::after {
+                    content: ' ';
+                    border-color: var(--bar-color);
+                }
+            }
+        }
+    }
+}
 
 // v-deep() since the content are dynamically changed.
 table.dataTable::v-deep() {
+
+    font-size: 85%;
+
+    >thead>tr>th {
+        background: hsl(200, 60%, 94%);
+        color: hsl(200, 60%, 20%);
+        font-weight: 500;
+        // text-align: center;
+        // font-family: serif;
+    }
+
     >tbody>tr {
-        &:hover {
-            background-color: #dee;
+
+        &:hover,
+        &:hover.selected {
+            >* {
+                background-color: #dee;
+                box-shadow: none !important;
+            }
         }
 
-        &.selected {
-            background-color: #7aa !important;
+        &.selected,
+        &.selected.odd,
+        &.selected.even {
+            >* {
+                background-color: #7aa;
+                box-shadow: none;
+            }
+
+            >.sorting_1,
+            >.sorting_2,
+            >.sorting_3 {
+                box-shadow: none !important;
+            }
         }
     }
 

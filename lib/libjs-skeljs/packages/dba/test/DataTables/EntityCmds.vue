@@ -40,9 +40,19 @@ const type: EntityType = {
     description: 'A person is a living being that belongs to the species Homo sapiens, commonly known as humans. Humans are characterized by their ability to think, reason, and communicate using language. They have a complex biological makeup, including a highly developed brain, opposable thumbs, and a bipedal gait.',
 };
 
+function row2obj(row: any[]) {
+    let [id, properties, label, description, gender, birthday] = row;
+    return { id, properties, label, description, gender, birthday };
+}
+
+function obj2row(obj: any) {
+    let { id, properties, label, description, gender, birthday } = obj;
+    return [id, properties, label, description, gender, birthday];
+}
+
 function openNew() {
     let obj = {
-        sex: 'm',
+        gender: 'm',
         age: 10,
     };
     selectedRowInfo.value = { obj };
@@ -51,7 +61,7 @@ function openNew() {
 
 function saveNew(obj) {
     if (obj != null) {
-        let row = [obj.name, obj.sex, obj.age, null, null];
+        let row = obj2row(obj);
         let dt = admin.value!.dataTable;
         dt!.api!.row.add(row).draw()
             .nodes().to$().addClass('new');
@@ -68,7 +78,7 @@ function saveSelected(value) {
     // assert value === selectedRowInfo.value
     if (value != null) {
         let info = selectedRowInfo.value!;
-        let row = [value.name, value.sex, value.age, null, null];
+        let row = obj2row(value);
         let api = admin.value!.dataTable!.api!;
         api.row(info.index!).data(row).draw()
             .nodes().to$().addClass('dirty');
@@ -193,8 +203,7 @@ function onselect(sel: Selection) {
             obj: undefined
         };
     else {
-        let [name, sex, age, interests, hates] = sel.dataRow!;
-        let obj = { name, sex, age, interests, hates };
+        let obj = row2obj(sel.dataRow!);
         selectedRowInfo.value = {
             index: sel.rowIndex,
             obj
@@ -226,6 +235,11 @@ onMounted(() => {
     let elm = admin.value!.rootElement!;
     focus();
     elm.addEventListener('keydown', (e: Event) => {
+        if (e.target != elm) return false;
+
+        let api = admin.value?.dataTable?.api;
+        let next = 0;
+
         keyName.value = e.key;
         switch (e.key) {
             case 'Insert':
@@ -234,25 +248,45 @@ onMounted(() => {
             case 'Delete':
                 deleteSelection();
                 break;
+            case 'e':
+                openSelected();
+                break;
+
             case 'ArrowUp':
             case 'ArrowDown':
-                let api = admin.value?.dataTable?.api;
-                let next = 0;
+            case 'Home':
+            case 'End':
                 if (api != null) {
                     let info = rowNumInfo()!;
                     let current = info.pos;
                     let next = 0;
                     if (current != null) {
-                        next = current + (e.key == 'ArrowUp' ? -1 : 1);
-                        next = (next + info.n) % info.n;
+                        switch (e.key) {
+                            case 'ArrowUp': next = current - 1; break;
+                            case 'ArrowDown': next = current + 1; break;
+                            case 'Home': next = 0; break;
+                            case 'End': next = info.n - 1; break;
+                        }
+                        // next = (next + info.n) % info.n;
+                        if (next < 0) next = 0;
+                        if (next >= info.n) next = info.n - 1;
+
                         api.row(info.nodes[current]).deselect();
                     }
                     api.row(info.nodes[next]).select();
                 }
                 break;
 
-            case 'e':
-                openSelected();
+            case 'PageUp':
+            case 'PageDown':
+                if (api != null) {
+                    let info = rowNumInfo()!;
+                    let current = info.pos;
+                    api.page(e.key == 'PageUp' ? 'previous' : 'next').draw(false);
+                    info = rowNumInfo();
+                    let pos = Math.min(current, info.nodes.length - 1);
+                    api.row(info.nodes[pos]).select();
+                }
                 break;
         }
     }, true);
@@ -261,24 +295,23 @@ onMounted(() => {
 </script>
 
 <template>
-    <DataAdmin ref="admin" :type="type" :tools="tools" :statuses="statuses" :data-tab="peopleTab" dom="ftip"
+    <DataAdmin ref="admin" :type="type" :tools="tools" :statuses="statuses" dom="frtip" A:data-tab="peopleTab"
+        fetch-size="10" processing=".processing" lily-url="http://localhost:2800/Person"
         v-model:instance="selectedRowInfo!.obj" @select="onselect">
         <template #columns>
-            <th data-field="name">Name</th>
-            <th data-field="sex">Gender</th>
-            <th data-type="number" data-format="decimal2" data-field="age">Age</th>
-            <th data-field="info.interest">Interests</th>
-            <th data-field="info.hate">Hates</th>
+            <th data-field="id">ID</th>
+            <th data-field="properties" class="hidden">properties</th>
+            <th data-field="label">Name</th>
+            <th data-field="description">Description</th>
+            <th data-field="gender">Gender</th>
+            <th data-type="date" data-field="birthday">Birthday</th>
+            <!-- <th data-field="properties.interest">Interests</th>
+            <th data-field="properties.hate">Hates</th> -->
         </template>
-
         <template #preview>
             <Editor class="editor" v-model="selectedRowInfo!.obj" />
         </template>
-
-        <template #side-tools>
-            Side Tools
-        </template>
-
+        <template #side-tools> Side Tools</template>
         <template #editor>
             <Editor class="editor" v-model="selectedRowInfo!.obj" />
         </template>
@@ -302,10 +335,10 @@ onMounted(() => {
 
 .workpane {
     padding: 1em;
-    background: #fef;
+    // background: #fef;
 
-    --color1: #ddd2;
-    --color2: #fef2;
+    --color1: #ddd3;
+    --color2: #fef3;
     --width: 1px;
     --scale: 1;
     background: repeating-linear-gradient(-45deg,
@@ -325,6 +358,7 @@ onMounted(() => {
     ::v-deep(.preview)>.content {
         padding: .5em 1em;
     }
+
 }
 
 .editor {

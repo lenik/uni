@@ -45,7 +45,24 @@ export function _useDataTable(table: any,
 
         // responsive: true,
         language: lang_zh,
+        deferred: true,
     };
+
+    let state = $table.data('state');
+    if (state != 'none') {
+        switch (state) {
+            case 'local':
+                baseConfig.stateDuration = 0; break;
+            case 'session':
+                baseConfig.stateDuration = -1; break;
+        }
+        baseConfig.stateSave = true;
+        baseConfig.stateSaveParams = function (settings, data) {
+            for (var i = 0, ien = data.columns.length; i < ien; i++) {
+                delete data.columns[i].visible;
+            }
+        };
+    }
 
     const paginated = dom == null || dom.includes('p');
     if (paginated) {
@@ -59,6 +76,7 @@ export function _useDataTable(table: any,
 
         baseConfig.deferRender = true;
     }
+
 
     let columns = getColumns(table, compile);
 
@@ -120,12 +138,22 @@ export function useDataTable(table: HTMLElement, configOverride: Config, compile
 export function useAjaxDataTable(table: HTMLElement, configOverride: Config, compile: SymbolCompileFunc) {
     let $table = $(table);
     let dataUrl = $table.data("url");
+    let fetchSizeAttr = $table.attr("fetch-size");
+    let fetchSize = fetchSizeAttr == undefined ? undefined : parseInt(fetchSizeAttr);
     let params = $table.data("params");
 
-    let setupData = (config: Config, columns: ColumnType[]) => {
-        configAjaxData(config, dataUrl, columns, params);
+    let processing = $table.attr('processing');
+    let config = {
+        language: {
+            processing: processing
+        }
     };
-    return _useDataTable(table, configOverride, compile, setupData);
+    config = $.extend(config, configOverride);
+
+    let setupData = (config: Config, columns: ColumnType[]) => {
+        configAjaxData(config, dataUrl, fetchSize, columns, params);
+    };
+    return _useDataTable(table, config, compile, setupData);
 }
 
 // Remember the last selection after reload.

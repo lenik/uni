@@ -55,8 +55,13 @@ import "../../skel/skel.scss";
 }
 
 ::v-deep() {
-    .main {
-        flex: 1;
+    .body {
+        overflow: hidden;
+
+        >.main {
+            flex: 1;
+            overflow: hidden;
+        }
     }
 }
 </style>

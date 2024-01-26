@@ -2,6 +2,28 @@
 
 import DataTable from '../../src/ui/table/DataTable.vue';
 import people from '../people-objv.js';
+import { Converter } from '../objv2ddl';
+
+function plusYears(date: Date, n: number) {
+    let year = date.getFullYear();
+    let newDate = new Date(date);
+    newDate.setFullYear(year + n);
+    return newDate;
+}
+
+let personList = people.map(a => ({
+    label: a.name,
+    description: a.name + ' converted from people-objv',
+    gender: a.sex,
+    birthday: plusYears(new Date(), -1),
+    props: JSON.stringify(a.info),
+}));
+
+let ddl = new Converter({
+    birthday: {
+        format: (d: any) => "'" + (d as Date).toDateString() + "'",
+    }
+}).toInsert('person', ...personList);
 
 </script>
 

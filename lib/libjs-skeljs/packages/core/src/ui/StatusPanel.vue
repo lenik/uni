@@ -54,13 +54,9 @@ defineExpose({
 <template>
     <component :is="tagName" ref="rootElement" class="status-panel"
         :class="{ withIcon, withLabel, withBorder, haveContent }">
-
         <Icon :name="status.icon" v-if="withIcon && status.icon != null" />
-
         <span class="sep" v-if="withIcon && withLabel"></span>
-
         <span class="label" v-if="withLabel">{{ status.label || status.name }}</span>
-
         <span class="content">{{ '' + content }}</span>
     </component>
 </template>
@@ -115,6 +111,8 @@ defineExpose({
         margin-left: .5em;
         font-weight: 300;
         color: hsl(190, 30%, 30%);
+        white-space: nowrap;
+        overflow: hidden;
     }
 
 }

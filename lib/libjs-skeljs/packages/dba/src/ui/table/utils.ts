@@ -161,7 +161,7 @@ export function keepSelection(dt: Api<any>, callback?: any) {
     }); // row tr.onclick
 }
 
-export function makePageSizeAuto(dt: Api<any>) {
+export function makePageSizeAuto(dt: Api<any>, minPageSize: number = 3) {
     let table: HTMLTableElement = dt.table().node() as HTMLTableElement;
 
     // if (paginated && $table.hasClass("page-resize")) {
@@ -180,20 +180,38 @@ export function makePageSizeAuto(dt: Api<any>) {
         // let headerHeight = $('thead', table).height() || 0;
         // let footerHeight = $('tfoot', table).height() || 0;
         let bodyHeight = $('tbody', table).height() || 0;
-        let nonBody = wrapperHeight - bodyHeight;
+
+        // height(thead + tfoot + search + pagination)
+        let dtAdds = wrapperHeight - bodyHeight;
 
         // let other = outerHeight - wrapperHeight;
 
-        let availableHeight = outerHeight - nonBody; // - other;
-        let rowNode: HTMLElement = dt.row(0).node() as HTMLElement;
-        if (rowNode == null) return;
+        let availableHeight = outerHeight - dtAdds; // - other;
+        let rowHeight;
 
-        let rowHeight = rowNode.offsetHeight;
-        if (rowHeight == 0) rowHeight = 1;
+        let rowNode: HTMLElement = dt.row(0).node() as HTMLElement;
+        if (rowNode == null) {
+            let tbody = $('tbody', table)[0];
+            let tr: HTMLTableRowElement = tbody.children[0] as HTMLTableRowElement;
+            if (tr == null) {
+                tr = document.createElement('tr');
+                tbody.appendChild(tr);
+                let td = document.createElement('td');
+                td.textContent = '&nbsp;'
+                tr.appendChild(td);
+            }
+            rowHeight = tr.offsetHeight;
+            tbody.removeChild(tr);
+        } else {
+            rowHeight = rowNode.offsetHeight;
+        }
+
+        if (rowHeight == 0) rowHeight = 20;
+        rowHeight += 2; // border
 
         let rowsPerPage = Math.floor(availableHeight / rowHeight);
-        if (rowsPerPage < 10)
-            rowsPerPage = 10;
+        if (rowsPerPage < minPageSize)
+            rowsPerPage = minPageSize;
 
         dt.page.len(rowsPerPage).draw();
     }

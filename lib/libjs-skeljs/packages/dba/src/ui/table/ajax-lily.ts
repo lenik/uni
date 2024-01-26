@@ -2,12 +2,14 @@ import $ from 'jquery';
 
 import type { Config } from "datatables.net";
 
+import { isEqual } from 'lodash-es';
+
 import { baseName } from "@skeljs/core/src/io/url";
 import { showError } from "@skeljs/core/src/logging/api";
 
-import type { ColumnType } from "./types";
 import { AjaxProtocol } from "./ajax";
 import { convertToDataRows } from './objconv';
+import type { ColumnType } from "./types";
 
 export interface TableData {
     columns: string[]
@@ -70,7 +72,13 @@ export class Lily extends AjaxProtocol {
     }
 }
 
-export function configAjaxData(config: Config, dataUrl: string, columns: ColumnType[], params?: any) {
+let defaultFetchSize = 500;
+
+export function configAjaxData(config: Config, dataUrl: string, fetchSize: number | undefined,
+    columns: ColumnType[], params?: any) {
+    let batch = fetchSize || defaultFetchSize;
+    let ratio = 0.2;
+    let before = Math.floor(batch * ratio);
 
     config.columnDefs?.push({
         targets: "with-image",
@@ -81,10 +89,11 @@ export function configAjaxData(config: Config, dataUrl: string, columns: ColumnT
     });
 
     let fields = columns.map(c => c.field);
-    let query = {
+    let query: any = {
         row: "array", // or "object"
         columns: fields.join(","),
         formats: JSON.stringify(getFormats(columns)),
+        counting: true, // want total count
     };
 
     if (params != null) {
@@ -100,8 +109,77 @@ export function configAjaxData(config: Config, dataUrl: string, columns: ColumnT
 
     let entityClass = getEntityClassFromUrl(dataUrl) || 'x';
 
-    config.ajax = function (data: any, callback, opts: any) {
-        $.ajax({
+    // row-num => row
+    let cache: any[] = [];
+    let rowCountCache = -1;
+    let totalCountCache = -1;
+    let cacheOfMode: any = {};
+
+    config.serverSide = true;
+    config.processing = true;
+    let templ = config.language?.processing;
+    if (templ != null) {
+        let templElm = $(templ)[0];
+        if (templElm != null) {
+            templ = templElm.outerHTML;
+            templElm.remove();
+            config.language ||= {};
+            config.language.processing = templ;
+        }
+    }
+
+    // will be called when sort/search/page changes.
+    config.ajax = async function (viewData: any, drawCallback, opts: any) {
+        let mode = {
+            search: viewData.search.value,
+            order: viewData.order.map((a: any) =>
+                (a.dir == 'asc' ? '' : '~') + columns[a.column].field)
+        };
+
+        let hit = true;
+        if (!isEqual(cacheOfMode, mode)) {
+            cache = [];
+            hit = false;
+        }
+
+        let viewEnd = viewData.start + viewData.length;
+        if (totalCountCache != -1 && viewEnd > totalCountCache)
+            viewEnd = totalCountCache;
+
+        for (let i = viewData.start; i < viewEnd; i++)
+            if (cache[i] == undefined) {
+                hit = false;
+                break;
+            }
+
+        if (hit) {
+            let slice = cache.slice(viewData.start, viewEnd);
+            drawCallback({
+                data: slice,
+                draw: viewData.draw,
+                recordsFiltered: totalCountCache,
+                recordsTotal: totalCountCache,
+            });
+            return;
+        }
+
+        let start = viewData.start;
+        start -= start % batch;
+        start -= before;
+        if (start < 0) start = 0;
+        if (start + batch < viewEnd)
+            batch = viewEnd - start;
+
+        query['search-text'] = mode.search;
+        query.order = mode.order.join(',');
+        query['page.offset'] = start;
+        query['page.limit'] = batch;
+        query.seq = viewData.draw;
+
+        console.log("cache miss: load -> offset " + start + " limit " + batch);
+        console.log("    query data: " + JSON.stringify(query));
+
+        await $.ajax({
             url: dataUrl,
             data: query,
             method: "POST"
@@ -111,26 +189,40 @@ export function configAjaxData(config: Config, dataUrl: string, columns: ColumnT
                 return;
             }
 
-            let _rows: any[] = data.rows!;
-            if (_rows.length == 0) {
-                callback({ data: [] });
-                return;
+            let anyList: any[] = data.rows!;
+            let rows: any[] = [];
+            if (anyList.length) {
+                let head = anyList[0];
+                let isArray = Array.isArray(head);
+
+                // preprocess rows
+                if (entityClass != null) {
+                    data.columns.push('_class');
+                    if (isArray)
+                        anyList.forEach(row => row.push(entityClass));
+                    else
+                        anyList.forEach(row => row._class = entityClass);
+                }
+
+                rows = convertToDataRows(fields, data.columns, anyList);
             }
 
-            let head = _rows[0];
-            let isArray = Array.isArray(head);
+            rowCountCache = data.rowCount;
+            // assert data.rowCount == rows.length;
+            // console.log('loaded row count: ' + data.rowCount);
+            for (let i = 0; i < rows.length; i++)
+                cache[start + i] = rows[i];
+            cacheOfMode = mode;
+            totalCountCache = data.totalCount;
 
-            // preprocess rows
-            if (entityClass != null) {
-                data.columns.push('_class');
-                if (isArray)
-                    _rows.forEach(row => row.push(entityClass));
-                else
-                    _rows.forEach(row => row._class = entityClass);
-            }
+            let slice = cache.slice(viewData.start, viewData.start + viewData.length);
 
-            let rows = convertToDataRows(fields, data.columns, _rows);
-            callback({ data: rows });
+            drawCallback({
+                data: slice,
+                draw: data.seq,
+                recordsFiltered: totalCountCache,
+                recordsTotal: totalCountCache,
+            });
         }).fail(function (xhr: any, status: any, err) {
             showError("Failed to query index data: " + err);
         });

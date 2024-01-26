@@ -69,7 +69,6 @@ defineExpose({ rootElement, editor, dataTable, deleteSelection });
                     <li class="filler"></li>
                     <CmdButtons :src="tools" class="right" vpos="top?" pos="right" />
                 </ul>
-
                 <div class="table">
                     <slot name="table">
                         <DataTable ref="dataTable" v-bind="$attrs">
@@ -78,12 +77,10 @@ defineExpose({ rootElement, editor, dataTable, deleteSelection });
                         </DataTable>
                     </slot>
                 </div>
-
                 <slot name="table-below">
                     <div class="table-below">
                     </div>
                 </slot>
-
                 <ul class="toolbar bottom">
                     <CmdButtons :src="tools" class="left" vpos="bottom" pos="left?" />
                     <li class="filler"></li>
@@ -101,7 +98,6 @@ defineExpose({ rootElement, editor, dataTable, deleteSelection });
                 </div>
             </div>
         </div>
-
         <ul class="statusbar">
             <slot name="statusbar">
                 <StatusPanels :src="statuses" vpos="bottom?" pos="left" />
@@ -109,11 +105,16 @@ defineExpose({ rootElement, editor, dataTable, deleteSelection });
                 <StatusPanels :src="statuses" vpos="bottom?" pos="right?" />
             </slot>
         </ul>
-
         <Dialog ref="editor" v-model="instanceModel" modal="true" :title="editorTitle" :buttons="editorCommands">
             <slot name="editor"></slot>
         </Dialog>
-
+        <div class="templates">
+            <div class="processing">
+                <div class='fa-stack fa-lg'>
+                    <i class='fa fa-spinner fa-spin fa-stack-2x fa-fw'></i>
+                </div> Processing ...
+            </div>
+        </div>
     </div>
 </template>
 
@@ -129,12 +130,18 @@ defineExpose({ rootElement, editor, dataTable, deleteSelection });
     // background: repeating-linear-gradient(-45deg, #444cf7, #444cf7 5px, #e5e5f7 5px, #e5e5f7 25px);
 
     background-color: #f8f8f8;
+    overflow: hidden;
+
+    &:focus-visible {
+        outline: none;
+    }
 }
 
 .table-tooling {
     flex: 1;
     display: flex;
     flex-direction: row;
+    overflow: hidden;
 }
 
 .workpane {
@@ -145,6 +152,13 @@ defineExpose({ rootElement, editor, dataTable, deleteSelection });
     .table {
         flex: 1;
         margin: .5em 0;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+
+        >.dt-container {
+            flex: 1;
+        }
     }
 }
 
@@ -180,6 +194,12 @@ defineExpose({ rootElement, editor, dataTable, deleteSelection });
     list-style: none;
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+
+    >.status-panels:first-child {
+        overflow: hidden;
+    }
 }
 
 .filler {
@@ -235,9 +255,45 @@ defineExpose({ rootElement, editor, dataTable, deleteSelection });
         tr.new {
             background: hsl(60, 80%, 80%);
         }
+
         tr.dirty {
             background: hsl(0, 80%, 80%);
         }
+    }
+}
+
+.templates {
+    display: none;
+}
+
+::v-deep(.dataTables_processing) {
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
+    .processing {
+        display: inline-block;
+        border-style: solid;
+        border-width: 2px;
+        border-color: hsl(330, 30%, 70%, 90%);
+        background: hsla(330, 30%, 92%, 90%);
+        padding: 1em 2em;
+        border-radius: 1em;
+        box-shadow: 3px 3px 10px 0px gray;
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
+        color: hsl(330, 30%, 30%, 100%);
+        opacity: 85%;
+        font-style: italic;
+    }
+
+    .processing+* {
+        display: none;
     }
 }
 </style>
