@@ -480,11 +480,13 @@ function main() {
             logformat="$logformat $_date_color$git_log_date$_reset"
 
         logopts=(--graph --format="$logformat")
-        nlogopt=2
+        if [ "$color" = yes ]; then
+            logopts+=(--color)
+        fi
 
         if [ "$1" = '-' ]; then
             shift
-            [ "$#" != 0 ] && logopts[nlogopt++]=--follow
+            [ "$#" != 0 ] && logopts+=(--follow)
         fi
 
         git log "${logopts[@]}" "$@" \
