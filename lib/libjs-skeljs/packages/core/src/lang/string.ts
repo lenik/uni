@@ -23,3 +23,16 @@ if (String.prototype.startsWith == undefined)
 
 if (String.prototype.endsWith == undefined)
     String.prototype.endsWith = (tail) => endsWith(this as unknown as string, tail);
+
+export function replaceLiteralOrRegex(s: string, pattern: string, replacement: string) {
+    if (pattern.charAt(0) == "/") {
+        pattern = pattern.substring(1);
+        let lastSlash = pattern.lastIndexOf("/");
+        let mode = pattern.substring(lastSlash + 1);
+        pattern = pattern.substring(0, lastSlash);
+        let regex = new RegExp(pattern, mode);
+        return s.replace(regex, replacement);
+    } else {
+        return s.replace(pattern, replacement);
+    }
+}
