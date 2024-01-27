@@ -200,7 +200,7 @@ export type Href = string;
 export interface Command extends UiComponent {
 
     type?: undefined | 'button' | 'toggle'
-    checked?: boolean
+    checked?: boolean | Ref<boolean>
 
     href?: string
     action?: 'close' | 'maximize' | 'toggle' | 'accept'
@@ -250,6 +250,7 @@ export type MessageFunc = () => string;
 
 export interface Status extends UiComponent {
 
-    message?: string | Ref<any | undefined>
+    message?: any | Ref<any>
 
 }
+
