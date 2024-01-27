@@ -20,3 +20,15 @@ update-lib: order.lst
 order.lst:
 	m2mklib -B
 
+                                                                           
+DBNAME=unknown
+createdb: predao                                                                    
+	if-database-exists $(DBNAME) || \
+	    (. pgcmds; \
+	    createdb $(DBNAME); \
+	    psql -d $(DBNAME) -1 -f ../sql/out/$(DBNAME).sql)
+	set-search-path $(DBNAME)
+
+dropdb:
+	. pgcmds; dropdb $(DBNAME)
+

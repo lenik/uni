@@ -23,6 +23,9 @@ CLEANFILES = \
     ${dist_bin_SCRIPTS} \
     ${dist_setup_SCRIPTS}
 
+install-debug:
+	sudo ln -snf $$PWD/m2proj.mf $(DESTDIR)${incdir}
+
 install-data-hook:
 	mkdir -p ${DESTDIR}${pkgdatadir}/dist-util
 	cp -a dist-util ${DESTDIR}${pkgdatadir}/
