@@ -3,6 +3,7 @@ import $ from 'jquery';
 import DataTables from 'datatables.net';
 import type { Api } from 'datatables.net';
 
+import { replaceLiteralOrRegex } from '@skeljs/core/src/lang/string.js';
 import type { ColumnType, SymbolCompileFunc } from './types';
 import { compileOnCreate, compileRender, parseOrder, parseSpecParams } from './types';
 
@@ -52,6 +53,19 @@ export function getColumns(table: any, compile: SymbolCompileFunc): ColumnType[]
 }
 
 export function getColumnsConfig(columns: ColumnType[]) {
+
+    function renderRegExp(data: string | null, type: string, row: any[], meta: any) {
+        if (data == null)
+            return;
+        // slow:
+        // let api = new $.fn.dataTable.Api(meta.settings);
+        let th = $(meta.settings.aoColumns[meta.col].nTh);
+        let pattern = th.attr("pattern");
+        if (pattern == null) return;
+        let replacement = th.attr("replacement") || "";
+        data = replaceLiteralOrRegex(data, pattern, replacement);
+    }
+
     let config: any = {};
     let columnDefs: any[] = [
         { targets: "hidden", visible: false },
@@ -136,33 +150,21 @@ export function getExtrasConfig(table: any) {
     return config;
 }
 
-export function keepSelection(dt: Api<any>, callback?: any) {
-    dt.on('click', 'tbody tr', function (this: HTMLElement, event: any) {
+function _selectSingle(callback?: any) {
+    this.on('click', 'tbody tr', (event: any) => {
         let tr = event.currentTarget as HTMLTableRowElement;
-        dt.rows().deselect();
-        dt.row(tr).select();
+        (this.rows() as any).deselect();
+        (this.row(tr) as any).select();
         return;
-
-        // let classList = tr.classList;
-        // let select = !classList.contains('selected');
-        // if (select) {
-        //     dt.rows('.selected').nodes().each((row) => row.classList.remove('selected'));
-        //     classList.add('selected');
-        // } else {
-        //     classList.remove('selected');
-        // }
-
-        // if (callback != null) {
-        //     let index = dt.row(tr).index();
-        //     callback(event, dt, 'row', [index], select);
-        // }
-
-        //$(itab).trigger("rowClick", [ row ]);
-    }); // row tr.onclick
+    });
 }
 
-export function makePageSizeAuto(dt: Api<any>, minPageSize: number = 3) {
-    let table: HTMLTableElement = dt.table().node() as HTMLTableElement;
+$.fn.DataTable.Api.register("selectSingle()", function (this: Api<any>) {
+    return _selectSingle.call(this, ...arguments);
+});
+
+function _autoPageSize(minPageSize: number = 3) {
+    let table: HTMLTableElement = this.table().node() as HTMLTableElement;
 
     // if (paginated && $table.hasClass("page-resize")) {
     const wrapper = table.parentElement;
@@ -173,7 +175,7 @@ export function makePageSizeAuto(dt: Api<any>, minPageSize: number = 3) {
     if (outer == null)
         return;
 
-    function setPageLength() {
+    let setPageLength = () => {
         let outerHeight = $(outer!).height() || 0;
         let wrapperHeight = $(wrapper!).height() || 0;
 
@@ -189,7 +191,7 @@ export function makePageSizeAuto(dt: Api<any>, minPageSize: number = 3) {
         let availableHeight = outerHeight - dtAdds; // - other;
         let rowHeight;
 
-        let rowNode: HTMLElement = dt.row(0).node() as HTMLElement;
+        let rowNode: HTMLElement = this.row(0).node() as HTMLElement;
         if (rowNode == null) {
             let tbody = $('tbody', table)[0];
             let tr: HTMLTableRowElement = tbody.children[0] as HTMLTableRowElement;
@@ -213,21 +215,12 @@ export function makePageSizeAuto(dt: Api<any>, minPageSize: number = 3) {
         if (rowsPerPage < minPageSize)
             rowsPerPage = minPageSize;
 
-        dt.page.len(rowsPerPage).draw();
-    }
+        this.page.len(rowsPerPage).draw();
+    };
     setPageLength();
     $(window).on('resize', setPageLength);
 }
 
-function renderRegExp(data: string | null, type: string, row: any[], meta: any) {
-    if (data == null)
-        return;
-    // slow:
-    // let api = new $.fn.dataTable.Api(meta.settings);
-    let th = $(meta.settings.aoColumns[meta.col].nTh);
-    let pattern = th.attr("pattern");
-    if (pattern == null) return;
-    let replacement = th.attr("replacement") || "";
-    data = _replace(data, pattern, replacement);
-}
-
+$.fn.DataTable.Api.register("autoPageSize()", function (this: Api<any>) {
+    return _autoPageSize.call(this, ...arguments);
+});

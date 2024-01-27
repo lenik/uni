@@ -123,14 +123,37 @@ export function compileRender(js: string): RenderFunc | undefined {
 }
 
 
-export interface Selection {
-    event: any
-    dataTable: Api<any>
-    select: boolean // true for select, false for unselect
-    dataRows: any[][]
-    dataRow: any[] | null // first for multi-select
-    rowIndexes: number[]
-    rowIndex: number
+export class Selection {
+    // select: boolean // true for select, false for unselect
+
+    rows: any[][]
+    dtIndexes: number[]
+
+    constructor(rows: any[][] = [], dtIndexes: number[] = []) {
+        this.rows = rows;
+        this.dtIndexes = dtIndexes;
+    }
+
+    get firstRow() {
+        return this.rows[0];
+    }
+
+    get firstDtIndex() {
+        return this.dtIndexes[0];
+    }
+
+    get size() {
+        return this.rows.length;
+    }
+    
+    get empty() {
+        return this.rows.length == 0;
+    }
+
+    toObject(columns: ColumnType[], index: number = 0) {
+        return null;
+    }
+
 }
 
 

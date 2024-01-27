@@ -1,26 +1,22 @@
 <script setup lang="ts">
 
-import $ from "jquery";
-
-import { ref, onMounted, computed } from "vue";
-
-import { showError } from "@skeljs/core/src/logging/api";
-
-import type { DataTab, SymbolCompileFunc } from "./types";
-import { EntityType } from "./types";
-
-import formats from "./formats";
-import { useAjaxDataTable, useDataTable } from "./apply";
-import { objv2Tab } from "./objconv";
-
-import DataTable from './DataTable.vue';
-import CmdButtons from '@skeljs/core/src/ui/CmdButtons.vue';
-import StatusPanels from '@skeljs/core/src/ui/StatusPanels.vue';
-import Detachable from '@skeljs/core/src/ui/layout/Detachable.vue';
-import Icon from '@skeljs/core/src/ui/Icon.vue';
-import Dialog from '@skeljs/core/src/ui/Dialog.vue';
+import { computed, onMounted, ref } from "vue";
+import moment from "moment";
 
 import { Command, dialogCmds, Status } from "@skeljs/core/src/ui/types";
+import { LogEntry, logsExample, parseException } from "@skeljs/core/src/logging/api";
+import { EntityType } from "./types";
+
+import CmdButtons from '@skeljs/core/src/ui/CmdButtons.vue';
+import Dialog from '@skeljs/core/src/ui/Dialog.vue';
+import Detachable from '@skeljs/core/src/ui/layout/Detachable.vue';
+import StatusPanels from '@skeljs/core/src/ui/StatusPanels.vue';
+import LogMonitor from '@skeljs/core/src/ui/LogMonitor.vue';
+import DataTable from './DataTable.vue';
+
+defineOptions({
+    inheritAttrs: false
+})
 
 const instanceModel = defineModel<any>('instance');
 
@@ -31,22 +27,17 @@ interface Props {
     tools: Command[]
     statuses: Status[]
     previewDetached?: boolean
+    logsDetached?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
     previewDetached: false,
+    logsDetached: false,
     tabindex: 0,
 });
 
-defineOptions({
-    inheritAttrs: false
-})
+// computed properties
 
-const rootElement = ref<HTMLElement>();
-const dataTable = ref<InstanceType<typeof DataTable>>();
-
-const editor = ref<InstanceType<typeof Dialog>>();
-const editorCommands = ref(Object.values(dialogCmds));
 const editorTitle = computed(() => {
     return "Edit " + props.type?.label;
 });
@@ -61,10 +52,25 @@ const editorDialogName = computed(() => {
     }
 });
 
+// DOM reference
+
+const rootElement = ref<HTMLElement>();
+const dataTableComp = ref<undefined | InstanceType<typeof DataTable>>();
+const editorDialog = ref<undefined | InstanceType<typeof Dialog>>();
+
+const editorCommands = ref(Object.values(dialogCmds));
+
+const logs = ref<LogEntry[]>(logsExample);
+
+defineExpose({
+    rootElement, dataTableComp, editorDialog, //
+    deleteSelection, rowNumInfo
+});
+
 function deleteSelection() {
     let before = rowNumInfo()!;
 
-    let dtComp = dataTable.value!;
+    let dtComp = dataTableComp.value!;
     dtComp.deleteSelection();
 
     let pos = before.pos || 0;
@@ -72,12 +78,10 @@ function deleteSelection() {
     dtComp.api?.row(after.nodes[pos]).select();
 }
 
-defineExpose({ rootElement, editor, dataTable, deleteSelection, rowNumInfo });
-
 function rowNumInfo() {
-    let api = dataTable.value?.api;
+    let api = dataTableComp.value?.api;
     if (api == null) return null;
-    let currentNode = api.row({ selected: true }).node();
+    let currentNode = (api as any).row({ selected: true }).node();
     let nodes = api.rows({ order: 'applied' }).nodes();
     let current: number | undefined = undefined;
     if (currentNode != null)
@@ -94,21 +98,9 @@ onMounted(() => {
 
     root.addEventListener('keydown', (e: any) => {
         if (e.target != root) return false;
-
-        let api = dataTable.value?.api;
-        let next = 0;
+        let api = dataTableComp.value?.api;
 
         switch (e.key) {
-            // case 'Insert':
-            //     openNew();
-            //     break;
-            // case 'Delete':
-            //     deleteSelection();
-            //     break;
-            // case 'e':
-            //     openSelected();
-            //     break;
-
             case 'ArrowUp':
             case 'ArrowDown':
             case 'Home':
@@ -149,6 +141,7 @@ onMounted(() => {
     }, true);
 
 });
+
 </script>
 
 <template>
@@ -162,7 +155,7 @@ onMounted(() => {
                 </ul>
                 <div class="table">
                     <slot name="table">
-                        <DataTable ref="dataTable" v-bind="$attrs">
+                        <DataTable ref="dataTableComp" v-bind="$attrs">
                             <slot name="columns">
                             </slot>
                         </DataTable>
@@ -187,6 +180,10 @@ onMounted(() => {
                     <slot name="side-tools">
                     </slot>
                 </div>
+                <Detachable class="logs" title="Logs" :detached="logsDetached" width="20em">
+                    <LogMonitor :src="logs" />
+                    <div style="overflow-anchor: auto;" />
+                </Detachable>
             </div>
         </div>
         <ul class="statusbar">
@@ -196,7 +193,7 @@ onMounted(() => {
                 <StatusPanels :src="statuses" vpos="bottom?" pos="right?" />
             </slot>
         </ul>
-        <Dialog ref="editor" :name="editorDialogName" v-model="instanceModel" modal="true" :title="editorTitle"
+        <Dialog ref="editorDialog" :name="editorDialogName" v-model="instanceModel" modal="true" :title="editorTitle"
             :buttons="editorCommands">
             <slot name="editor"></slot>
         </Dialog>
@@ -242,12 +239,15 @@ onMounted(() => {
     display: flex;
     flex-direction: row;
     overflow: hidden;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .workpane {
     flex: 1;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 
     .table {
         flex: 1;
@@ -266,6 +266,7 @@ onMounted(() => {
     position: relative;
     display: flex;
     flex-direction: column;
+    // overflow: hidden;
 }
 
 .preview.attached {
@@ -412,6 +413,40 @@ onMounted(() => {
             var(--color1) calc(var(--width) * var(--scale)),
             var(--color2) calc(var(--width) * var(--scale)),
             var(--color2) calc(10px * var(--scale)));
+}
+
+.logs {
+    font-size: 70%;
+
+    position: relative;
+    overflow: hidden;
+
+    &.attached {
+        max-height: 8em;
+    }
+
+    ::v-deep() {
+        >.header {
+            background-color: hsl(160, 20%, 65%);
+        }
+
+        >.content {
+            --vskip: .1em;
+
+            padding: calc(var(--vskip)/2) .1em;
+            overflow: auto;
+            overscroll-behavior-y: contain;
+            scroll-snap-type: y proximity;
+
+            >ul>li {
+                padding: calc(var(--vskip)/2) 0;
+
+                &:last-child {
+                    scroll-snap-align: end;
+                }
+            }
+        }
+    }
 }
 
 #waitbox {

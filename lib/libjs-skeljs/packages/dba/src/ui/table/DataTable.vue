@@ -2,19 +2,20 @@
 
 import $ from 'jquery';
 import { ref, onMounted, computed, getCurrentInstance } from "vue";
+import { Api } from "datatables.net";
 
+import { bool } from "@skeljs/core/src/ui/types";
+import { baseName } from "@skeljs/core/src/io/url";
 import { showError } from "@skeljs/core/src/logging/api";
 
-import type { DataTab, SymbolCompileFunc } from "./types";
-import { Selection } from "./types";
-
+import { ColumnType, DataTab, Selection, SymbolCompileFunc } from "./types";
+import { DataTableInstance, useAjaxDataTable, useDataTable } from "./apply";
 import formats from "./formats";
-import { useAjaxDataTable, useDataTable } from "./apply";
 import { objv2Tab } from "./objconv";
-import { baseName } from "@skeljs/core/src/io/url";
-import { bool } from "@skeljs/core/src/ui/types";
-import { Api } from "datatables.net";
-import { keepSelection } from "./utils";
+
+defineOptions({
+    inheritAttrs: false
+})
 
 interface Props {
 
@@ -55,6 +56,14 @@ const props = withDefaults(defineProps<Props>(), {
     watch: false
 });
 
+interface Emits {
+    (e: 'select', selection: Selection): void
+}
+
+const emit = defineEmits<Emits>();
+
+// computed properties
+
 const captionAtTop = computed(() => props.caption != null
     && (props.captionPosition == 'top'
         || props.captionPosition == 'both'
@@ -64,20 +73,9 @@ const captionAtBottom = computed(() => props.caption != null
         || props.captionPosition == 'both'
     ));
 
-const selectedRows = computed(() => {
-    let dt = api.value;
-    return dt.rows({ selected: true }).data();
-});
-const selectedRowIndexes = computed(() => {
-    let dt = api.value;
-    return dt.rows({ selected: true }).index();
-});
+// DataTable shortcuts
 
-defineOptions({
-    inheritAttrs: false
-})
-
-const css = [
+const dataTableCss = [
     "stripe",
     "hover",
     "compact",
@@ -89,17 +87,38 @@ const css = [
 
 const tableRef = ref<HTMLTableElement>();
 const api = ref<Api<any>>();
+const columns = ref<ColumnType[]>();
 
-interface Emits {
-    (e: 'select', selection: Selection): void
+const selectedRows = computed(() => {
+    let dt = api.value;
+    return dt?.rows({ selected: true }).data();
+});
+const selectedRowIndexes = computed(() => {
+    let dt = api.value;
+    return dt?.rows({ selected: true }).indexes();
+});
+
+defineExpose({
+    api, columns,//
+    deleteSelection, reconfigure, reset
+});
+
+function reset() {
+    reconfigure(a => a);
 }
 
-const emit = defineEmits<Emits>();
+function reconfigure(refactorFn: (settings: any) => any) {
+    let dt = api.value;
+    if (dt == null) return;
 
-onMounted(() => {
-    let cur = getCurrentInstance();
+    let settings = dt.settings;
+    let newSettings = refactorFn(settings);
+    dt.destroy();
+    initDataTable();
+}
 
-    let table: HTMLElement = tableRef.value!;
+function initDataTable() {
+    let tableElement: HTMLElement = tableRef.value!;
 
     let config = props.config || {};
 
@@ -111,10 +130,10 @@ onMounted(() => {
             selector: 'td',
         };
 
-    let dt: Api<any> | undefined;
+    let instance: DataTableInstance | undefined;
 
     if (props.dataTab != null) {
-        dt = useDataTable(tableRef.value!, config, props.compile, () => props.dataTab);
+        instance = useDataTable(tableElement, config, props.compile, () => props.dataTab);
     }
 
     else if (props.dataObjv != null) {
@@ -122,7 +141,7 @@ onMounted(() => {
             let dataTab = objv2Tab(props.dataObjv!);
             return dataTab;
         };
-        dt = useDataTable(tableRef.value!, config, props.compile, fetch);
+        instance = useDataTable(tableElement, config, props.compile, fetch);
     }
 
     else {
@@ -135,60 +154,58 @@ onMounted(() => {
             dataUrl = url + "/__data__" + classHint;
             // props.dataUrl = dataUrl;
             // config.url = dataUrl;
-            $(tableRef.value!).data('url', dataUrl);
+            $(tableElement).data('url', dataUrl);
         }
 
         if (dataUrl != null) {
-            dt = useAjaxDataTable(tableRef.value!, config, props.compile);
+            instance = useAjaxDataTable(tableElement, config, props.compile);
         }
     }
 
-    if (dt == null) {
+    if (instance == null) {
         showError('invalid use of <DataTable>');
         throw 'invalid use of <DataTable>';
     }
 
-    api.value = dt;
-
-    function selectionChange(e: Event, dt: Api<any>, type: string, indexes: number[], select: boolean) {
-        let selectedRows = dt.rows({ selected: true }).data().toArray() as any[][];
-        let selectedIndexes = dt.rows({ selected: true }).indexes().toArray() as number[];
-        let selection: Selection = {
-            select: select,
-            event: e,
-            dataTable: dt,
-            dataRows: selectedRows,
-            dataRow: selectedRows[0],
-            rowIndexes: selectedIndexes,
-            rowIndex: selectedIndexes[0],
-        };
-        emit('select', selection);
-    }
+    api.value = instance.api;
+    columns.value = instance.columns;
 
     if (!multiSelect)
-        keepSelection(dt, selectionChange);
+        (instance.api as any).selectSingle(fireSelectionChange);
 
-    dt.on('select', (e, dt, type, indexes) => selectionChange(e, dt, type, indexes, true));
+    instance.api.on('select', (e, dt, type, indexes) => fireSelectionChange(e, dt, type, indexes, true));
     // dt.on('deselect', (e, dt, type, indexes) => selectionChange(e, dt, type, indexes, true));
 
     // dt.on('click', 'tbody td:not(:first-child)', function (e) {
     //     editor.inline(this);
     // });
-});
+}
+
+function fireSelectionChange(e: Event, dt: Api<any>, type: string, indexes: number[], select: boolean) {
+    let selectedRows = dt.rows({ selected: true }).data().toArray() as any[][];
+    let selectedIndexes = dt.rows({ selected: true }).indexes().toArray() as number[];
+    let selection = new Selection(
+        selectedRows,
+        selectedIndexes,
+    );
+    emit('select', selection);
+}
 
 function deleteSelection() {
     let dt = api.value;
     dt!.rows({ selected: true }).remove().draw(false);
 }
 
-defineExpose({ api: api, deleteSelection });
+onMounted(() => {
+    initDataTable();
+});
 
 </script>
 
 <template>
     <div class="dt-container">
         <div class="caption" v-if="captionAtTop">{{ caption }}</div>
-        <table ref="tableRef" class="dataTable second" :class="css" v-bind="$attrs">
+        <table ref="tableRef" class="dataTable second" :class="dataTableCss" v-bind="$attrs">
             <thead>
                 <tr>
                     <slot>
@@ -329,6 +346,7 @@ table.dataTable {
 table.dataTable::v-deep() {
 
     font-size: 85%;
+    user-select: none;
 
     >thead>tr>th {
         background: hsl(200, 60%, 94%);
@@ -361,6 +379,10 @@ table.dataTable::v-deep() {
             >.sorting_3 {
                 box-shadow: none !important;
             }
+        }
+
+        &.selected+tr.selected>td {
+            border-top-color: inherit;
         }
     }
 

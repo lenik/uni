@@ -17,23 +17,26 @@ import type { Api, Config } from "datatables.net";
 import lang_zh from 'datatables.net-plugins/i18n/zh.mjs';
 
 import type { SymbolCompileFunc, SetupDataFunc, ColumnType, OnAppliedFunc } from "./types";
-import { getColumns, getColumnsConfig, getExtrasConfig, keepSelection, makePageSizeAuto } from "./utils";
+import { getColumns, getColumnsConfig, getExtrasConfig } from "./utils";
 
 import { configAjaxData } from './ajax-lily';
 import { convertToDataRows } from './objconv';
 import { showError } from '@skeljs/core/src/logging/api';
+
+export interface DataTableInstance {
+    api: Api<any>,
+    columns: ColumnType[]
+}
 
 export function _useDataTable(table: any,
     configOverride: Config,
     compile: SymbolCompileFunc,
     setupData: SetupDataFunc,
     onApplied?: OnAppliedFunc
-) {
+): DataTableInstance {
 
-    if (table == null) {
-        showError("table is null.");
-        return;
-    }
+    if (table == null)
+        throw "table is null.";
 
     let $table = $(table);
     let dom = $table.attr("dom");
@@ -56,7 +59,7 @@ export function _useDataTable(table: any,
             case 'session':
                 baseConfig.stateDuration = -1; break;
         }
-        baseConfig.stateSave = true;
+        baseConfig.stateSave = false;
         baseConfig.stateSaveParams = function (settings, data) {
             for (var i = 0, ien = data.columns.length; i < ien; i++) {
                 delete data.columns[i].visible;
@@ -100,16 +103,19 @@ export function _useDataTable(table: any,
     let setup = setupData(config, columns);
 
     // console.log(config);
-    let dt = $table.DataTable(config);
+    let dataTableApi = $table.DataTable(config);
     // let dt = new DataTables($table, config);
 
-    // keepSelection(dt);
-    makePageSizeAuto(dt);
+    // dataTableApi.selectSingle();
+    (dataTableApi as any).autoPageSize();
 
     if (onApplied != null)
-        onApplied(dt, table, setup);
+        onApplied(dataTableApi, table, setup);
 
-    return dt;
+    return {
+        api: dataTableApi,
+        columns,
+    };
 }
 
 export function useDataTable(table: HTMLElement, configOverride: Config, compile: SymbolCompileFunc, fetch: () => any) {
@@ -167,7 +173,7 @@ function _reloadSmooth(resetPaging: boolean = false, onReloaded?: any) {
 
     return this.ajax.reload(function () {
         if (lastId != null) {
-            let tr = api.row("[data-id=" + lastId + "]").node();
+            let tr = this.row("[data-id=" + lastId + "]").node();
             $(tr).addClass("selected");
         }
         if (onReloaded != undefined)
