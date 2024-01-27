@@ -1,5 +1,5 @@
 
-import * as types from './types';
+import { ColumnType, DataTab } from './types';
 
 interface KeyOccurs {
     [key: string]: number
@@ -34,7 +34,7 @@ export function objv2Tab(objv: any[], fallback = null) {
     };
 }
 
-export function tab2Objv(tab: types.DataTab) {
+export function tab2Objv(tab: DataTab) {
     let keys = tab.columns.map(c => c.title);
     let objv: any[] = [];
     for (let i = 0; i < tab.data.length; i++) {
@@ -47,7 +47,7 @@ export function tab2Objv(tab: types.DataTab) {
     return objv;
 }
 
-export function row2Obj(row: any, columns: any[]) {
+export function row2ObjSimple(row: any, columns: any[]) {
     let obj: any = {};
     for (let i = 0; i < columns.length; i++) {
         let col = columns[i];
@@ -55,6 +55,89 @@ export function row2Obj(row: any, columns: any[]) {
         obj[key] = row[i];
     }
     return obj;
+}
+
+function splitPropv(field: string): string[] {
+    let propv: string[] = [];
+    field.split(/\./).forEach(a => {
+        // TODO convert [index] to index:number
+        propv.push(a);
+    });
+    return propv;
+}
+
+function getDeep(obj: any, propv: string[]) {
+    let n = propv.length;
+    let node = obj;
+    for (let i = 0; i < n; i++) {
+        let k = propv[i];
+        let v = node[k];
+        if (typeof v != 'object')
+            return v;
+        node = v;
+    }
+    return node;
+}
+
+function setDeep(obj: any, propv: string[], val: any) {
+    let n = propv.length;
+    let node = obj;
+    for (let i = 0; i < n; i++) {
+        let k = propv[i];
+        if (i == n - 1)
+            node[k] = val;
+        else {
+            if (node[k] == null)
+                node = node[k] = {};
+            else
+                node = node[k];
+        }
+    }
+    return obj;
+}
+
+export function row2Obj(row: any[], columns: ColumnType[]) {
+    let obj: any = {};
+    if (columns.length < row.length)
+        throw "insufficient column types";
+    for (let i = 0; i < row.length; i++) {
+        let col = columns[i];
+        let field = col.field;
+        let propv = splitPropv(field);
+        setDeep(obj, propv, row[i]);
+    }
+    return obj;
+}
+
+function _flattenObject(obj: any, row: any[], fields: string[], prefix: string) {
+    for (let k in obj) {
+        let field = prefix.length ? prefix + '.' + k : k;
+        let v = obj[k];
+        if (typeof v == 'object') {
+            _flattenObject(v, row, fields, field);
+        } else {
+            row.push(v);
+            fields.push(field);
+        }
+    }
+}
+
+export function flattenObject(obj: any) {
+    let array: any[] = [];
+    let fields: string[] = [];
+    _flattenObject(obj, array, fields, '');
+    return { array, fields };
+}
+
+export function obj2Row(obj: any, columns: ColumnType[]): any[] {
+    let row: any[] = [];
+    for (let i = 0; i < columns.length; i++) {
+        let field = columns[i].field;
+        let propv = splitPropv(field);
+        let val = getDeep(obj, propv);
+        row.push(val);
+    }
+    return row;
 }
 
 interface VarMatch {
@@ -68,7 +151,7 @@ function findDeepest(varComposite: string, varMap: any): VarMatch {
     while (endpos != -1) {
         endpos = varComposite.lastIndexOf('.', endpos);
         let left = varComposite;
-        let right = undefined;
+        let right: string | undefined;
         if (endpos != -1) {
             left = varComposite.substring(0, endpos);
             right = varComposite.substring(endpos + 1);
