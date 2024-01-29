@@ -142,15 +142,15 @@ function deleteSelection() {
     // url: dataHref + "/delete?id=" + ids.join(",")
     let deleteUrl = url + '/delete?id=' + id;
 
-    let api = dataTableApi.value!;
-    let info = admin.value?.rowNumInfo();
+    let api = dataTableApi.value! as any;
+    let info = api.rowNumInfo();
     let pos = info?.pos || 0;
 
     $.ajax({
         url: deleteUrl
     }).done(function (e) {
         reload(() => {
-            info = admin.value!.rowNumInfo()!;
+            info = api.rowNumInfo()!;
             pos = Math.min(pos, info.nodes.length - 1);
             api.row(info.nodes[pos]).select();
         });

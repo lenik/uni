@@ -62,33 +62,20 @@ const logs = ref<LogEntry[]>(logsExample);
 
 defineExpose({
     rootElement, dataTableComp, editorDialog, //
-    deleteSelection, rowNumInfo
+    deleteSelection
 });
 
 function deleteSelection() {
-    let before = rowNumInfo()!;
+    let api = dataTableApi.value as any;
+    if (api == null) return;
+    let before = api.rowNumInfo()!;
 
     let dtComp = dataTableComp.value!;
     dtComp.deleteSelection();
 
     let pos = before.pos || 0;
-    let after = rowNumInfo()!;
+    let after = (api as any).rowNumInfo()!;
     dtComp.api?.row(after.nodes[pos]).select();
-}
-
-function rowNumInfo() {
-    let api = dataTableComp.value?.api;
-    if (api == null) return null;
-    let currentNode = (api as any).row({ selected: true }).node();
-    let nodes = api.rows({ order: 'applied' }).nodes();
-    let current: number | undefined = undefined;
-    if (currentNode != null)
-        current = nodes.indexOf(currentNode);
-    return {
-        nodes: nodes,
-        n: nodes.length,
-        pos: current,
-    }
 }
 
 onMounted(() => {
@@ -104,7 +91,7 @@ onMounted(() => {
             case 'Home':
             case 'End':
                 if (api != null) {
-                    let info = rowNumInfo()!;
+                    let info = api.rowNumInfo()!;
                     let current = info.pos;
                     let next = 0;
                     if (current != null) {
@@ -127,10 +114,10 @@ onMounted(() => {
             case 'PageUp':
             case 'PageDown':
                 if (api != null) {
-                    let info = rowNumInfo()!;
+                    let info = api.rowNumInfo()!;
                     let current = info.pos;
                     api.page(e.key == 'PageUp' ? 'previous' : 'next').draw(false);
-                    info = rowNumInfo()!;
+                    info = api.rowNumInfo()!;
                     let pos = Math.min(current || 0, info.nodes.length - 1);
                     api.row(info.nodes[pos]).select();
                 }

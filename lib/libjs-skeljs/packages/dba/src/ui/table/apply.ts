@@ -190,3 +190,20 @@ $.fn.DataTable.Api.register("clearCache()", function () {
         settings.clearCache = true;
     });
 });
+
+function _rowNumInfo() {
+    let currentNode = this.row({ selected: true }).node();
+    let nodes = this.rows({ order: 'applied' }).nodes();
+    let current: number | undefined = undefined;
+    if (currentNode != null)
+        current = nodes.indexOf(currentNode);
+    return {
+        nodes: nodes,
+        n: nodes.length,
+        pos: current,
+    }
+}
+
+$.fn.DataTable.Api.register("rowNumInfo()", function (this: Api<any>) {
+    return _rowNumInfo.call(this, ...arguments);
+});
