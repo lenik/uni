@@ -3,7 +3,7 @@
 import { computed, onMounted, ref } from "vue";
 import moment from "moment";
 
-import { Command, dialogCmds, Status } from "@skeljs/core/src/ui/types";
+import { Command, Status } from "@skeljs/core/src/ui/types";
 import { LogEntry, logsExample, parseException } from "@skeljs/core/src/logging/api";
 import { EntityType } from "./types";
 
@@ -57,8 +57,6 @@ const editorDialogName = computed(() => {
 const rootElement = ref<HTMLElement>();
 const dataTableComp = ref<undefined | InstanceType<typeof DataTable>>();
 const editorDialog = ref<undefined | InstanceType<typeof Dialog>>();
-
-const editorCommands = ref(Object.values(dialogCmds));
 
 const logs = ref<LogEntry[]>(logsExample);
 

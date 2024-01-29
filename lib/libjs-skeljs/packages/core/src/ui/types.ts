@@ -194,6 +194,7 @@ export function group<E extends UiGroupItem>(items: E[], defaultGroup: string = 
 
 // Command
 
+export type DialogAction = 'close' | 'maximize' | 'toggle' | 'accept';
 export type EventHandler = (event?: Event, cmd?: Command) => void | Promise<void>;
 export type Href = string;
 
@@ -203,20 +204,28 @@ export interface Command extends UiComponent {
     checked?: boolean | Ref<boolean>
 
     href?: string
-    action?: 'close' | 'maximize' | 'toggle' | 'accept'
+    action?: DialogAction
     run?: EventHandler
 
     sync?: boolean
 
 }
 
-export var dialogCmds = {
-    accept: {
+const defaultDialogCmds = {
+    ok: {
         pos: 'right', name: 'accept',
         icon: 'fa-check', label: 'OK',
         action: 'accept',
         description: 'Confirm and close.',
         tooltip: 'Click on this button to accept the contents in the dialog.',
+    },
+
+    cancel: {
+        pos: 'right', name: 'cancel',
+        icon: 'fa-close', label: 'Cancel',
+        action: 'close',
+        description: 'Cancel the dialog.',
+        tooltip: 'Click on this button to cancel and close the current dialog.',
     },
 
     close: {
@@ -228,6 +237,52 @@ export var dialogCmds = {
     }
 };
 
+export type CommandBehavior = DialogAction | EventHandler | Href | boolean;
+
+export interface CommandBehaviorMap {
+    [name: string]: CommandBehavior
+}
+
+export function getDialogCmds(map: CommandBehaviorMap): Command[] {
+    let cmds: Command[] = [];
+    for (let name in map) {
+        let def = defaultDialogCmds[name];
+        if (def == null)
+            throw "invalid dialog command name: " + name;
+        let cmd = { ...def }; // copy
+
+        let b = map[name];
+        switch (typeof b) {
+            case 'boolean':
+                if (b)
+                    break;
+                else
+                    continue;
+
+            case 'function':
+                cmd.run = b as EventHandler;
+                break;
+
+            case 'string':
+                switch (b) {
+                    case 'close':
+                    case 'maximize':
+                    case 'toggle':
+                    case 'accept':
+                        cmd.action = b;
+                        break;
+                    default:
+                        cmd.href = b;
+                }
+                break;
+
+            default:
+                throw "invalid behavior: " + b;
+        }
+        cmds.push(cmd);
+    }
+    return cmds;
+}
 
 // Validation
 

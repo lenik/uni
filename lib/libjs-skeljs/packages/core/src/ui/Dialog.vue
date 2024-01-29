@@ -4,7 +4,7 @@ import $ from 'jquery';
 
 import { computed, onMounted, ref } from "vue";
 import { resolveChild } from "../dom/create";
-import { bool, Command, dialogCmds } from './types';
+import { bool, Command, CommandBehaviorMap, getDialogCmds } from './types';
 import { makeMovable } from '../dom/movable';
 
 import Icon from './Icon.vue';
@@ -25,8 +25,10 @@ interface Props {
     closable?: boolean | string
     maximizable?: boolean | string
     minimizable?: boolean | string
+    resizable?: boolean
 
-    buttons?: Command[]
+    commands?: Command[]
+    cmds?: any
 
     width?: string | number
     height?: string | number
@@ -36,11 +38,12 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+    modal: false,
     tabindex: 0,
     closable: true,
     maximizable: false,
     minimizable: false,
-    buttons: [dialogCmds.close] as any,
+    cmds: { close: true },
     center: 'window',
     autoOpen: false,
 });
@@ -54,8 +57,20 @@ const isAutoOpen = computed(() => bool(props.autoOpen));
 
 const initDisplay = computed(() => isAutoOpen.value ? 'block' : 'none');
 
+const buttons = computed(() => {
+    let all: Command[] = [];
+    if (props.cmds != null) {
+        let dialogCmds = getDialogCmds(props.cmds);
+        all.concat(...dialogCmds);
+    }
+    if (props.commands != null)
+        all.concat(props.commands);
+    return all;
+});
+
 const hasTitle = computed(() => props.title != null && props.title.length > 0);
-const hasButton = computed(() => props.buttons != null && props.buttons.length > 0);
+const hasButton = computed(() => buttons.value.length > 0);
+const _resizable = computed(() => hasTitle.value || props.resizable);
 
 interface Emits {
     (e: 'created', event: Event): void
@@ -79,7 +94,7 @@ onMounted(() => {
 
     makeMovable(dialogDiv.value!, titleDiv.value!);
 
-    dialogDiv.value!.addEventListener('keydown', (e: Event) => {
+    dialogDiv.value!.addEventListener('keydown', (e: KeyboardEvent) => {
         switch (e.key) {
             case 'Escape':
                 close('close', e);
@@ -87,7 +102,7 @@ onMounted(() => {
             case 'Enter':
                 // find next siblings after e.currentTarget...
                 let allInputs = $("input, select", dialogDiv.value);
-                let i = allInputs.index(e.target);
+                let i = allInputs.index((e as any).target);
                 let next = i + 1;
                 if (next < allInputs.length) {
                     allInputs[next].focus();
@@ -144,14 +159,14 @@ function run(button: Command, event?: Event) {
 }
 
 defineExpose({
-    open
+    open, rootElement
 });
 </script>
 
 <template>
     <div ref="rootElement" class="dialog-container">
         <div class="disabler" :class="{ blink }" v-if="isModal"></div>
-        <div ref="dialogDiv" class="dialog" :class="{ hasTitle, hasButton }" :tabindex="tabindex">
+        <div ref="dialogDiv" class="dialog" :class="{ hasTitle, hasButton, resizable: _resizable }" :tabindex="tabindex">
             <div class="body">
                 <div ref="titleDiv" class="titlebar" v-if="title != null && title.length > 0">
                     <Icon :name="icon" v-if="icon != null"></Icon>
@@ -163,8 +178,8 @@ defineExpose({
                         <slot> Example Dialog Content </slot>
                     </div>
                 </slot>
-                <slot name="commands" v-if="buttons != null && buttons.length > 0">
-                    <div class="commands flex-row" v-if="buttons != null && rootElement != null">
+                <slot name="commands" v-if="hasButton">
+                    <div class="commands flex-row" v-if="rootElement != null">
                         <CmdButtons :src="buttons" :target="rootElement" :runner="run" pos="left" />
                         <div class="filler"></div>
                         <CmdButtons :src="buttons" :target="rootElement" :runner="run" pos="right" />
@@ -218,6 +233,7 @@ defineExpose({
     box-sizing: border-box;
 
     // width: 100%;
+    height: v-bind(height);
     max-width: 90%;
     max-height: 80%;
 
@@ -230,7 +246,11 @@ defineExpose({
     border-radius: .4em;
     box-shadow: 3px 3px 10px 0px gray;
 
-    &.hasTitle {
+    &:focus-visible {
+        outline: none;
+    }
+    
+    &.resizable {
         resize: both;
     }
 
