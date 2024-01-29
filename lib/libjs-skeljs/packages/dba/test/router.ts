@@ -13,7 +13,8 @@ import DataObjvDemo from "./DataTables/DataObjvDemo.vue";
 import AjaxArrayDemo from "./DataTables/AjaxArrayDemo.vue";
 import AjaxObjectDemo from "./DataTables/AjaxObjectDemo.vue";
 import DataAdminDemo from "./DataTables/DataAdminDemo.vue";
-import EntityCmds from "./DataTables/EntityCmds.vue";
+import PersonAdmin from "./DataTables/PersonAdmin.vue";
+import PersonChooseDialog from "./DataTables/PersonChooseDialog.vue";
 
 export const root = uiExtract([
     Index,
@@ -23,7 +24,8 @@ export const root = uiExtract([
         ...ui(AjaxArrayDemo, 'Ajax with row=array'),
         ...ui(AjaxObjectDemo, 'Ajax with row=object'),
         ...ui(DataAdminDemo, 'Data Admin demo'),
-        ...ui(EntityCmds, 'Data Admin with entity commands'),
+        ...ui(PersonAdmin, 'Person Admin'),
+        ...ui(PersonChooseDialog, 'Person choose dialog'),
     }, {
         label: 'index page'
     }

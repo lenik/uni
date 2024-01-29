@@ -6,8 +6,7 @@ import type { Api } from 'datatables.net';
 import { replaceLiteralOrRegex } from '@skeljs/core/src/lang/string.js';
 import type { ColumnType, SymbolCompileFunc } from './types';
 import { compileOnCreate, compileRender, parseOrder, parseSpecParams } from './types';
-
-import { objv2Tab } from './objconv.js';
+import format from './formats';
 
 export function getColumns(table: any, compile: SymbolCompileFunc): ColumnType[] {
     let $table = $(table);
@@ -33,9 +32,9 @@ export function getColumns(table: any, compile: SymbolCompileFunc): ColumnType[]
         }
         column.params = params;
 
-        let format = $th.data("format");
-        if (format != null) {
-            let fn = compile(format);
+        let dataFormat = $th.data("format");
+        if (dataFormat != null) {
+            let fn = compile(dataFormat);
             column.render = function (data: string | null, type: string, row: any[], meta: any) {
                 return fn(data);
             };
@@ -163,7 +162,7 @@ $.fn.DataTable.Api.register("selectSingle()", function (this: Api<any>) {
     return _selectSingle.call(this, ...arguments);
 });
 
-function _autoPageSize(minPageSize: number = 3) {
+function _autoPageSize(minPageSize: number = 1) {
     let table: HTMLTableElement = this.table().node() as HTMLTableElement;
 
     // if (paginated && $table.hasClass("page-resize")) {
@@ -171,12 +170,14 @@ function _autoPageSize(minPageSize: number = 3) {
     if (wrapper == null)
         return;
 
-    const outer = wrapper.parentElement;
+    let outer: HTMLElement = wrapper.parentElement!;
     if (outer == null)
         return;
+    if (outer.parentElement?.classList.contains('content'))
+        outer = outer.parentElement;
 
     let setPageLength = () => {
-        let outerHeight = $(outer!).height() || 0;
+        let outerHeight = $(outer).height() || 0;
         let wrapperHeight = $(wrapper!).height() || 0;
 
         // let headerHeight = $('thead', table).height() || 0;
@@ -186,10 +187,20 @@ function _autoPageSize(minPageSize: number = 3) {
         // height(thead + tfoot + search + pagination)
         let dtAdds = wrapperHeight - bodyHeight;
 
-        // let other = outerHeight - wrapperHeight;
+        let wmTop = $(wrapper).css("margin-top");
+        let wmBottom = $(wrapper).css("margin-bottom");
+        let other = parseInt(wmTop.replace('px', '')) + parseInt(wmBottom.replace('px', ''));
 
-        let availableHeight = outerHeight - dtAdds; // - other;
-        let rowHeight;
+        if (outer == wrapper.parentElement)
+            for (let i = 0; i < outer.children.length; i++) {
+                let child = outer.children[i];
+                if (child.checkVisibility())
+                    if (child != wrapper)
+                        other += $(child).height() || 0;
+            }
+
+        let availableHeight = outerHeight - dtAdds - other;
+        let _rowHeight;
 
         let rowNode: HTMLElement = this.row(0).node() as HTMLElement;
         if (rowNode == null) {
@@ -202,25 +213,64 @@ function _autoPageSize(minPageSize: number = 3) {
                 td.textContent = '&nbsp;'
                 tr.appendChild(td);
             }
-            rowHeight = tr.offsetHeight;
+            _rowHeight = tr.offsetHeight;
             tbody.removeChild(tr);
         } else {
-            rowHeight = rowNode.offsetHeight;
+            _rowHeight = rowNode.offsetHeight;
         }
 
-        if (rowHeight == 0) rowHeight = 20;
-        rowHeight += 2; // border
+        let rowHeight = _rowHeight || 20;
+        rowHeight += 1; // border
 
         let rowsPerPage = Math.floor(availableHeight / rowHeight);
         if (rowsPerPage < minPageSize)
             rowsPerPage = minPageSize;
 
+        debugHtml(outer, {
+            outerHeight, wrapperHeight, bodyHeight, dtAdds, other,
+            availableHeight, _rowHeight, rowHeight, rowsPerPage
+        });
+
         this.page.len(rowsPerPage).draw();
     };
     setPageLength();
-    $(window).on('resize', setPageLength);
+
+    let resizable = $(table).closest(".resizable");
+    if (resizable.length) {
+        let observer = new ResizeObserver((mutations) => setPageLength())
+        observer.observe(resizable[0]);
+    } else {
+        $(window).on('resize', setPageLength);
+    }
 }
 
 $.fn.DataTable.Api.register("autoPageSize()", function (this: Api<any>) {
     return _autoPageSize.call(this, ...arguments);
 });
+
+function debugHtml(outer, vars) {
+    for (let k in vars)
+        vars[k] = format('decimal2', vars[k]);
+    let msg = `<span class='outer'>out ${vars.outerHeight}</span>`
+        + `, <span class='wrapper'>wrapper ${vars.wrapperHeight}</span>`
+        + `, <span class="tbody">tbody ${vars.bodyHeight}</span>`
+        + `, <span class="adds" title="wrapper - tbody">adds ${vars.dtAdds}</span>`
+        + `, <span class="other" title="outer - wrapper">other ${vars.other}</span>`
+        + `, <span class="avail" title="outer - adds - other">avail ${vars.availableHeight}</span>`
+        + `, row ${vars._rowHeight} => ${vars.rowHeight}`
+        + `, num ${vars.rowsPerPage}`
+        ;
+    $('.debug', outer).html(msg);
+
+    outer = $(outer);
+    $('.debug .outer', outer).on('mouseenter', () => outer.addClass('highlight'));
+    $('.debug .outer', outer).on('mouseleave', () => outer.removeClass('highlight'));
+
+    let wrapper = $('.dataTables_wrapper', outer);
+    $('.debug .wrapper').on('mouseenter', () => wrapper.addClass('highlight'));
+    $('.debug .wrapper').on('mouseleave', () => wrapper.removeClass('highlight'));
+
+    let tbody = $('tbody', wrapper);
+    $('.debug .tbody').on('mouseenter', () => tbody.addClass('highlight'));
+    $('.debug .tbody').on('mouseleave', () => tbody.removeClass('highlight'));
+}

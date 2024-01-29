@@ -222,6 +222,7 @@ onMounted(() => {
             <slot name="foot"></slot>
         </table>
         <div class="caption" v-if="captionAtBottom">{{ caption }}</div>
+        <div class="debug"></div>
     </div>
 </template>
 
@@ -284,7 +285,7 @@ table.dataTable {
         line-height: 1em;
         top: 1em;
         transform: translateY(-50%);
-        margin-bottom: 1.5em;
+        // margin-bottom: 1.5em;
     }
 
     .dataTables_paginate {
@@ -402,6 +403,52 @@ ul.pagination {
     li {
         display: inline-block;
         margin: 0 .3em;
+    }
+}
+
+.debug {
+    display: none;
+    border-top: solid 1px gray;
+    box-sizing: border-box;
+    font-weight: 300;
+    font-size: 70%;
+    color: #666;
+    user-select: none;
+    cursor: pointer;
+
+    ::v-deep() {
+        span:hover {
+            background: pink;
+        }
+    }
+}
+
+.dt-container {
+
+    --hi-color: red;
+    --hi-width: 1px;
+
+    &.highlight,
+    ::v-deep(.highlight) {
+        border: solid var(--hi-width) var(--hi-color) !important;
+    }
+
+    ::v-deep(tbody.highlight) {
+        tr:first-child td {
+            border-top: solid var(--hi-width) var(--hi-color) !important;
+        }
+
+        tr:last-child td {
+            border-bottom: solid var(--hi-width) var(--hi-color) !important;
+        }
+
+        tr td:first-child {
+            border-left: solid var(--hi-width) var(--hi-color) !important;
+        }
+
+        tr td:last-child {
+            border-right: solid var(--hi-width) var(--hi-color) !important;
+        }
     }
 }
 </style>

@@ -1,3 +1,4 @@
+import { simpleName } from "@skeljs/core/src/logging/api";
 import type { Api, Config } from "datatables.net";
 
 export interface DataTab {
@@ -145,7 +146,7 @@ export class Selection {
     get size() {
         return this.rows.length;
     }
-    
+
     get empty() {
         return this.rows.length == 0;
     }
@@ -157,13 +158,116 @@ export class Selection {
 }
 
 
-export interface EntityType {
+
+// REFLECTION
+
+
+export type integer = number;
+export type long = number;
+
+export type Integer = integer | undefined;
+export type Long = long | undefined;
+
+export type String = string | undefined;
+export type Boolean = boolean | undefined;
+
+
+
+export interface IEntityType {
     name: string        // Java class name
     icon?: string
 
     label?: string
     description?: string
 
-    columns?: ColumnType[]
+    property: EntityPropertyMap
+}
 
+export class EntityType implements IEntityType {
+    name: string        // Java class name
+    icon?: string
+
+    label?: string
+    description?: string
+
+    property: EntityPropertyMap = {}
+
+    get simpleName() {
+        return simpleName(this.name);
+    }
+}
+
+export interface EntityPropertyMap {
+    [propertyName: string]: EntityProperty
+}
+
+export interface IEntityProperty {
+
+    name?: string
+    type: string // ts type, not java type
+    // javaType: string
+    precision?: number
+    scale?: number
+    nullable?: boolean
+
+    icon?: string
+    label?: string
+    description?: string
+
+}
+
+export class EntityProperty implements IEntityProperty {
+
+    name?: string
+    type: string
+    precision?: number
+    scale?: number
+    nullable?: boolean
+
+    icon?: string
+    label?: string
+    description?: string
+
+    constructor(o: IEntityProperty) {
+        Object.assign(this, o);
+        // this.name = o.name;
+        // this.type = o.type;
+        // this.precision = o.precision;
+        // this.scale = o.scale;
+        // this.nullable = o.nullable != null ? o.nullable : true;
+        // this.icon = o.icon;
+        // this.label = o.label;
+        // this.description = o.description;
+    }
+
+}
+
+export class CoObject {
+    label?: string
+    description?: string
+    comment?: string
+    image?: string
+    imageAlt?: string
+    flags: integer
+    priority: integer
+    state: integer
+    ownerUser: any
+    ownerUserId: integer
+    ownerGroup: any
+    owenrGroupId: integer
+    acl: integer
+    accessMode: integer
+
+    constructor(o: any) {
+        if (o != null) Object.assign(this, o);
+    }
+}
+
+export class IdEntity<Id> extends CoObject {
+    id: Id
+
+    constructor(o: any) {
+        super(o);
+        if (o != null) Object.assign(this, o);
+    }
 }

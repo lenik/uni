@@ -5,10 +5,10 @@ export type FormatsFunc = (format: string, data?: any) => FormatFunc | string;
 
 export class DefaultFormats {
 
-    formats = (format: string, data?: any): FormatFunc | string => {
-        let code = eval('this.' + format);
+    format = (fmt: string, data?: any): FormatFunc | string => {
+        let code = eval('this.' + fmt);
         if (code == null)
-            throw "invalid format: " + format;
+            throw "invalid format: " + fmt;
         if (data === undefined)
             return code;
         else
@@ -61,5 +61,5 @@ function toFixed(o: any, len: number): string {
 export var formats = new DefaultFormats();
 
 export default (format: string, data?: any) => {
-    return formats.formats(format, data);
+    return formats.format(format, data);
 };

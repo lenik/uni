@@ -1,15 +1,11 @@
 <script setup lang="ts">
 
-import $ from 'jquery';
 import { computed, onMounted, ref } from 'vue';
-import { convertToDataRows, objv2Tab } from '../../src/ui/table/objconv';
-import { Selection, EntityType } from '../../src/ui/table/types';
+import { EntityType } from '../../src/ui/table/types';
 
 import LilyAdmin from '../../src/ui/table/LilyAdmin.vue';
-import Dialog from '@skeljs/core/src/ui/Dialog.vue';
 import Editor from './PersonEditor.vue';
 
-import { Command } from '@skeljs/core/src/ui/types';
 import { } from '@skeljs/core/src/logging/api';
 
 interface Props {
@@ -29,12 +25,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const admin = ref<InstanceType<typeof LilyAdmin>>();
 const editModel = ref<any>({});
-
-interface RowInfo {
-    index?: number
-    // rowData?: any[]
-    obj: any
-}
 
 // const editModel = computed<any>(() => admin.value?.editModel);
 

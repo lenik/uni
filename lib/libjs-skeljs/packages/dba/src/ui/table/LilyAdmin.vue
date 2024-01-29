@@ -279,8 +279,8 @@ onMounted(() => {
 
 }
 
-.editor {
-    ::v-deep(.field-row) {
+::v-deep(.editor) {
+    .field-row {
         margin: .5em 0;
     }
 }

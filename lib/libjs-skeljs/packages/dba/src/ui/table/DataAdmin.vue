@@ -56,6 +56,7 @@ const editorDialogName = computed(() => {
 
 const rootElement = ref<HTMLElement>();
 const dataTableComp = ref<undefined | InstanceType<typeof DataTable>>();
+const dataTableApi = computed(() => dataTableComp.value?.api);
 const editorDialog = ref<undefined | InstanceType<typeof Dialog>>();
 
 const logs = ref<LogEntry[]>(logsExample);
@@ -83,8 +84,7 @@ onMounted(() => {
 
     root.addEventListener('keydown', (e: any) => {
         if (e.target != root) return false;
-        let api = dataTableComp.value?.api;
-
+        let api = dataTableApi.value as any;
         switch (e.key) {
             case 'ArrowUp':
             case 'ArrowDown':
@@ -179,7 +179,7 @@ onMounted(() => {
             </slot>
         </ul>
         <Dialog ref="editorDialog" :name="editorDialogName" v-model="instanceModel" modal="true" :title="editorTitle"
-            :buttons="editorCommands">
+            :cmds="{ ok: true, cancel: true }">
             <slot name="editor"></slot>
         </Dialog>
         <div class="templates">

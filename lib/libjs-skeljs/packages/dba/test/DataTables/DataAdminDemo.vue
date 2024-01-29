@@ -83,8 +83,6 @@ const statuses = ref([
     },
 ]);
 
-let editCommands = Object.values(dialogCmds);
-
 </script>
 
 <template>
@@ -96,18 +94,10 @@ let editCommands = Object.values(dialogCmds);
             <th data-field="info.interest">Interests</th>
             <th data-field="info.hate">Hates</th>
         </template>
-
-        <template #side-tools>
-            Side Tools
-        </template>
-
-        <template #preview>
-            My preview
-        </template>
-
+        <template #side-tools> Side Tools </template>
+        <template #preview> My preview </template>
         <template #editor>
-            <Dialog ref="editDialog" modal="true" title="Edit Something" :buttons="editCommands">
-                Hello, world.
+            <Dialog ref="editDialog" modal="true" title="Edit Something" :cmds="{ ok: true, cancel: true }"> Hello, world.
             </Dialog>
         </template>
     </DataAdmin>
