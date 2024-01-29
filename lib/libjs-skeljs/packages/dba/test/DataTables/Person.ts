@@ -27,7 +27,7 @@ export class CoPartyType extends IdEntityType<number> {
 
     static declaredProperty: EntityPropertyMap = {
         category: property({ type: 'any' }),
-        birthday: property({ type: 'Moment' }),
+        birthday: property({ type: 'Moment', icon: "fab-pagelines" }),
 
         locale: property({ type: 'string' }),
         timeZoneId: property({ type: 'string' }),
@@ -59,12 +59,14 @@ export class PersonType extends CoPartyType {
     description = "A human being regarded as an individual."
 
     static declaredProperty: EntityPropertyMap = {
+        label: property({ type: "string", icon: "fa-user" }),
+
         father: property({ type: "Person" }),
         mother: property({ type: "Person" }),
         roleCount: property({ type: "number" }),
         employee: property({ type: "boolean" }),
         bankCount: property({ type: "string" }),
-        gender: property({ type: "string" }),
+        gender: property({ type: "string", icon: "fa-venus-mars" }),
         homeland: property({ type: "string" }),
         passport: property({ type: "string" }),
         ssn: property({ type: "string" }),

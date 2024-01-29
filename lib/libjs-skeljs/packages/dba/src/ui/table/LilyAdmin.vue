@@ -265,6 +265,13 @@ onMounted(() => {
 .dataTable {
     background: #f8f8f8;
 }
+
+.editor {
+    .field-row {
+        margin: .5em 0;
+    }
+}
+
 </style>
 
 <style scoped lang="scss">
@@ -277,11 +284,5 @@ onMounted(() => {
         padding: .5em 1em;
     }
 
-}
-
-::v-deep(.editor) {
-    .field-row {
-        margin: .5em 0;
-    }
 }
 </style>

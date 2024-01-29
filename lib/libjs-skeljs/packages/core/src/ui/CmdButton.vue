@@ -31,7 +31,10 @@ const withLabel = computed(() => bool(props.showLabel));
 const withBorder = computed(() => bool(props.showBorder));
 
 const button = computed(() => props.cmd.type == null || props.cmd.type == 'button');
-const toggle = computed(() => props.cmd.type == 'toggle');
+const enabled = computed(() => props.cmd.enabled != false);
+const disabled = computed(() => props.cmd.enabled == false);
+
+const toggler = computed(() => props.cmd.type == 'toggle');
 const checked = computed(() => (props.cmd.type == 'toggle' && props.cmd.checked));
 const unchecked = computed(() => (props.cmd.type == 'toggle' && !props.cmd.checked));
 
@@ -78,25 +81,16 @@ defineExpose({
     <component :is="tagName" ref="rootElement" class="cmd-button">
         <div class="btn-with-extras">
             <component :is="cmd.href != null ? 'a' : 'div'"
-                :class="{ withIcon, withLabel, withBorder, button, toggle, checked, unchecked }" :name="cmd.name"
-                :href="cmd.href" :title="cmd.tooltip" @click="(e) => onclick(e)">
-
+                :class="{ withIcon, withLabel, withBorder, button, toggler, enabled, disabled, checked, unchecked }"
+                :name="cmd.name" :href="cmd.href" :title="cmd.tooltip" @click="(e) => onclick(e)">
                 <div class="hover"></div>
-
                 <Icon :name="cmd.icon" v-if="withIcon && cmd.icon != null" />
-
                 <span class="sep" v-if="withIcon && withLabel"></span>
-
                 <span class="label" v-if="withLabel">{{ cmd.label || cmd.name }}</span>
-
             </component>
-
             <Icon name="fa-ques" v-if="cmd.description != null" />
         </div>
-
-        <div class="description" v-if="cmd.description != null">
-            {{ cmd.description }}
-        </div>
+        <div class="description" v-if="cmd.description != null"> {{ cmd.description }} </div>
     </component>
 </template>
 
@@ -105,8 +99,12 @@ defineExpose({
     padding: inherit;
 }
 
+.button.disabled {
+    color: gray;
+}
+
 .button,
-.toggle {
+.toggler {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -179,7 +177,7 @@ defineExpose({
     }
 }
 
-.toggle {
+.toggler {
     &.withBorder {
 
         &.unchecked {

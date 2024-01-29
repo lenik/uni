@@ -48,6 +48,16 @@ const props = withDefaults(defineProps<Props>(), {
     autoOpen: false,
 });
 
+interface Emits {
+    (e: 'created', event: Event): void
+    (e: 'closed', event: Event): void
+    (e: 'select', value: any): void
+}
+
+const emit = defineEmits<Emits>();
+
+// property shortcuts
+
 const blink = computed(() => props.modal == 'blink');
 const isModal = computed(() => bool(props.modal) || props.modal == 'blink');
 const isClosable = computed(() => bool(props.closable));
@@ -61,10 +71,10 @@ const buttons = computed(() => {
     let all: Command[] = [];
     if (props.cmds != null) {
         let dialogCmds = getDialogCmds(props.cmds);
-        all.concat(...dialogCmds);
+        all.push(...dialogCmds);
     }
     if (props.commands != null)
-        all.concat(props.commands);
+        all.push(...props.commands);
     return all;
 });
 
@@ -72,17 +82,58 @@ const hasTitle = computed(() => props.title != null && props.title.length > 0);
 const hasButton = computed(() => buttons.value.length > 0);
 const _resizable = computed(() => hasTitle.value || props.resizable);
 
-interface Emits {
-    (e: 'created', event: Event): void
-    (e: 'closed', event: Event): void
-    (e: 'select', value: any): void
-}
-
-const emit = defineEmits<Emits>();
-
 const rootElement = ref<HTMLElement>();
 const dialogDiv = ref<HTMLElement>();
 const titleDiv = ref<HTMLElement>();
+
+let callback: DialogCallback;
+
+defineExpose({
+    open, rootElement
+});
+
+function open(cb: DialogCallback) {
+    callback = cb;
+    $(rootElement.value!).show();
+    let inputs = $("input, select, textarea", dialogDiv.value!);
+    console.log(inputs);
+    if (inputs.length)
+        inputs[0].focus();
+    else
+        dialogDiv.value!.focus();
+}
+
+function close(action?: string, event?: Event) {
+    if (callback != null)
+        callback(undefined, action, event);
+    $(rootElement.value!).hide();
+}
+
+function select(action?: string, event?: Event) {
+    if (callback != null)
+        if (!callback(model.value, action, event))
+            return; // prevent from close.
+    $(rootElement.value!).hide();
+}
+
+function run(button: Command, event?: Event) {
+    switch (button.action) {
+        case 'close':
+            close('close', event);
+            break;
+
+        case 'select':
+            select('select', event);
+            break;
+
+        case 'maximize':
+        default:
+            break;
+    }
+
+    if (button.run != null)
+        button.run(event);
+}
 
 onMounted(() => {
     let dialogs = resolveChild(document.body, '.dialogs');
@@ -107,60 +158,13 @@ onMounted(() => {
                 if (next < allInputs.length) {
                     allInputs[next].focus();
                 } else {
-                    accept('accept', e);
+                    select('select', e);
                 }
                 break;
         }
     }, true);
 });
 
-let callback: DialogCallback;
-
-function open(cb: DialogCallback) {
-    callback = cb;
-    $(rootElement.value!).show();
-    let inputs = $("input, select, textarea", dialogDiv.value!);
-    console.log(inputs);
-    if (inputs.length)
-        inputs[0].focus();
-    else
-        dialogDiv.value!.focus();
-}
-
-function close(action?: string, event?: Event) {
-    if (callback != null)
-        callback(undefined, action, event);
-    $(rootElement.value!).hide();
-}
-
-function accept(action?: string, event?: Event) {
-    if (callback != null)
-        if (!callback(model.value, action, event))
-            return; // prevent from close.
-    $(rootElement.value!).hide();
-}
-
-function run(button: Command, event?: Event) {
-    switch (button.action) {
-        case 'close':
-            close('close', event);
-            break;
-
-        case 'accept':
-            accept('accept', event);
-            break;
-
-        case 'maximize':
-            break;
-    }
-
-    if (button.run != null)
-        button.run(event);
-}
-
-defineExpose({
-    open, rootElement
-});
 </script>
 
 <template>
@@ -249,7 +253,7 @@ defineExpose({
     &:focus-visible {
         outline: none;
     }
-    
+
     &.resizable {
         resize: both;
     }

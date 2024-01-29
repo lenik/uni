@@ -17,21 +17,23 @@ interface Emits {
 
 const emit = defineEmits<Emits>();
 
+// 
 const rootElement = ref<HTMLElement>();
-onMounted(() => {
-});
+
+//
+defineExpose({ update });
 
 function update() {
 }
 
-defineExpose(update);
-
+onMounted(() => {
+});
 </script>
 
 <template>
     <div class="component-root" ref="rootElement">
         <div @click="emit('error', 'this is a test.')">
-    </div>
+        </div>
 </template>
 
 <style scoped lang="scss">

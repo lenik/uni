@@ -194,7 +194,16 @@ export function group<E extends UiGroupItem>(items: E[], defaultGroup: string = 
 
 // Command
 
-export type DialogAction = 'close' | 'maximize' | 'toggle' | 'accept';
+export type DialogAction =
+    'close'
+    | 'select'
+    | 'maximize'
+    | 'minimize'
+    | 'move'
+    | 'resize'
+    | 'attach'
+    | 'detach'
+    ;
 export type EventHandler = (event?: Event, cmd?: Command) => void | Promise<void>;
 export type Href = string;
 
@@ -202,6 +211,7 @@ export interface Command extends UiComponent {
 
     type?: undefined | 'button' | 'toggle'
     checked?: boolean | Ref<boolean>
+    enabled?: boolean | Ref<boolean>
 
     href?: string
     action?: DialogAction
@@ -213,16 +223,16 @@ export interface Command extends UiComponent {
 
 const defaultDialogCmds = {
     ok: {
-        pos: 'right', name: 'accept',
+        pos: 'right', name: 'select',
         icon: 'fa-check', label: 'OK',
-        action: 'accept',
+        action: 'select',
         description: 'Confirm and close.',
-        tooltip: 'Click on this button to accept the contents in the dialog.',
+        tooltip: 'Click on this button to select the contents in the dialog.',
     },
 
     cancel: {
         pos: 'right', name: 'cancel',
-        icon: 'fa-close', label: 'Cancel',
+        icon: 'fa-ban', label: 'Cancel',
         action: 'close',
         description: 'Cancel the dialog.',
         tooltip: 'Click on this button to cancel and close the current dialog.',
@@ -266,9 +276,13 @@ export function getDialogCmds(map: CommandBehaviorMap): Command[] {
             case 'string':
                 switch (b) {
                     case 'close':
+                    case 'select':
                     case 'maximize':
-                    case 'toggle':
-                    case 'accept':
+                    case 'minimize':
+                    case 'move':
+                    case 'resize':
+                    case 'attach':
+                    case 'detach':
                         cmd.action = b;
                         break;
                     default:
