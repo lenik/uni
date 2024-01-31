@@ -4,15 +4,13 @@ import $ from 'jquery';
 
 import { computed, onMounted, ref } from "vue";
 import { resolveChild } from "../dom/create";
-import { bool, Command, CommandBehaviorMap, getDialogCmds } from './types';
+import { bool, Command, DialogSelectCallback, getDialogCmds } from './types';
 import { makeMovable } from '../dom/movable';
 
 import Icon from './Icon.vue';
 import CmdButtons from './CmdButtons.vue';
 
 const model = defineModel();
-
-type DialogCallback = (value: any, action?: string, e?: Event) => boolean;
 
 interface Props {
     group?: string
@@ -35,6 +33,8 @@ interface Props {
     center?: string
 
     autoOpen?: boolean | string
+    autoFocus?: boolean
+    inputs?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -46,15 +46,15 @@ const props = withDefaults(defineProps<Props>(), {
     cmds: { close: true },
     center: 'window',
     autoOpen: false,
+    autoFocus: true,
+    inputs: "input, select, textarea, [tabindex]",
 });
 
-interface Emits {
-    (e: 'created', event: Event): void
-    (e: 'closed', event: Event): void
-    (e: 'select', value: any): void
-}
-
-const emit = defineEmits<Emits>();
+const emit = defineEmits<{
+    create: [event: Event]
+    close: [event: Event]
+    select: [value: any, event: Event]
+}>();
 
 // property shortcuts
 
@@ -86,44 +86,59 @@ const rootElement = ref<HTMLElement>();
 const dialogDiv = ref<HTMLElement>();
 const titleDiv = ref<HTMLElement>();
 
-let callback: DialogCallback;
-
 defineExpose({
     open, rootElement
 });
 
-function open(cb: DialogCallback) {
-    callback = cb;
+class Frame {
+    selectCallback?: DialogSelectCallback
+}
+var stack: Frame[] = [];
+
+function open(selectCallback?: DialogSelectCallback) {
+    let frame = new Frame();
+    frame.selectCallback = selectCallback;
+    stack.push(frame);
+
     $(rootElement.value!).show();
-    let inputs = $("input, select, textarea", dialogDiv.value!);
-    console.log(inputs);
-    if (inputs.length)
-        inputs[0].focus();
-    else
-        dialogDiv.value!.focus();
+
+    dialogDiv.value!.focus();
+
+    if (props.autoFocus) {
+        let inputs = $(props.inputs, dialogDiv.value!);
+        if (inputs.length)
+            inputs[0].focus();
+    }
 }
 
-function close(action?: string, event?: Event) {
-    if (callback != null)
-        callback(undefined, action, event);
-    $(rootElement.value!).hide();
+function close(e: Event) {
+    if (stack.length) {
+        $(rootElement.value!).hide();
+        stack.pop();
+        emit('close', e);
+    }
 }
 
-function select(action?: string, event?: Event) {
-    if (callback != null)
-        if (!callback(model.value, action, event))
-            return; // prevent from close.
-    $(rootElement.value!).hide();
+function select(e: Event) {
+    if (stack.length) {
+        $(rootElement.value!).hide();
+        let frame = stack.pop()!;
+
+        if (frame.selectCallback != null)
+            frame.selectCallback(model.value, e);
+
+        emit('select', model.value, e);
+    }
 }
 
-function run(button: Command, event?: Event) {
+function run(button: Command, event: Event) {
     switch (button.action) {
         case 'close':
-            close('close', event);
+            close(event);
             break;
 
         case 'select':
-            select('select', event);
+            select(event);
             break;
 
         case 'maximize':
@@ -145,20 +160,23 @@ onMounted(() => {
 
     makeMovable(dialogDiv.value!, titleDiv.value!);
 
-    dialogDiv.value!.addEventListener('keydown', (e: KeyboardEvent) => {
-        switch (e.key) {
+    dialogDiv.value!.addEventListener('keydown', (event: KeyboardEvent) => {
+        switch (event.key) {
             case 'Escape':
-                close('close', e);
+                close(event);
                 break;
+
             case 'Enter':
-                // find next siblings after e.currentTarget...
-                let allInputs = $("input, select", dialogDiv.value);
-                let i = allInputs.index((e as any).target);
-                let next = i + 1;
-                if (next < allInputs.length) {
-                    allInputs[next].focus();
-                } else {
-                    select('select', e);
+                if (props.autoFocus) {
+                    // find next siblings after e.currentTarget...
+                    let allInputs = $(props.inputs, dialogDiv.value);
+                    let i = allInputs.index((event as any).target);
+                    let next = i + 1;
+                    if (next < allInputs.length) {
+                        allInputs[next].focus();
+                    } else {
+                        select(event);
+                    }
                 }
                 break;
         }

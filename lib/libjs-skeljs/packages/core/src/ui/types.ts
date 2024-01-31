@@ -221,6 +221,8 @@ export interface Command extends UiComponent {
 
 }
 
+export type DialogSelectCallback = (value: any, event: Event) => boolean;
+
 const defaultDialogCmds = {
     ok: {
         pos: 'right', name: 'select',
