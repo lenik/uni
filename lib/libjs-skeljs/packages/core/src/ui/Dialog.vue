@@ -1,5 +1,4 @@
-<script setup lang="ts">
-
+<script lang="ts">
 import $ from 'jquery';
 
 import { computed, onMounted, ref } from "vue";
@@ -10,9 +9,7 @@ import { makeMovable } from '../dom/movable';
 import Icon from './Icon.vue';
 import CmdButtons from './CmdButtons.vue';
 
-const model = defineModel();
-
-interface Props {
+export interface Props {
     group?: string
     modal?: boolean | string
 
@@ -35,7 +32,19 @@ interface Props {
     autoOpen?: boolean | string
     autoFocus?: boolean
     inputs?: string
+    zIndex?: number
 }
+
+class ModalFrame {
+    zIndexBackup?: string
+
+    static modalStack: ModalFrame[] = [];
+}
+</script>
+
+<script setup lang="ts">
+
+const model = defineModel();
 
 const props = withDefaults(defineProps<Props>(), {
     modal: false,
@@ -48,6 +57,7 @@ const props = withDefaults(defineProps<Props>(), {
     autoOpen: false,
     autoFocus: true,
     inputs: "input, select, textarea, [tabindex]",
+    zIndex: 1,
 });
 
 const emit = defineEmits<{
@@ -82,27 +92,42 @@ const hasTitle = computed(() => props.title != null && props.title.length > 0);
 const hasButton = computed(() => buttons.value.length > 0);
 const _resizable = computed(() => hasTitle.value || props.resizable);
 
-const rootElement = ref<HTMLElement>();
+const containerDiv = ref<HTMLElement>();
 const dialogDiv = ref<HTMLElement>();
 const titleDiv = ref<HTMLElement>();
 
 defineExpose({
-    open, rootElement
+    open, rootElement: containerDiv
 });
 
-class Frame {
+class LocalFrame {
     selectCallback?: DialogSelectCallback
 }
-var stack: Frame[] = [];
+var localStack: LocalFrame[] = [];
+var modalStack: ModalFrame[] = ModalFrame.modalStack;
 
 function open(selectCallback?: DialogSelectCallback) {
-    let frame = new Frame();
+    let frame = new LocalFrame();
     frame.selectCallback = selectCallback;
-    stack.push(frame);
+    localStack.push(frame);
 
-    $(rootElement.value!).show();
+    let _containerDiv = containerDiv.value!;
+    let _dialogDiv = dialogDiv.value!;
 
-    dialogDiv.value!.focus();
+    if (isModal.value) {
+        let modalFrame = new ModalFrame();
+
+        // let zSrc = _dialogDiv;
+        let zSrc = _containerDiv;
+        modalFrame.zIndexBackup = zSrc.style.zIndex;
+        zSrc.style.zIndex = '' + modalStack.length;
+
+        modalStack.push(modalFrame);
+    }
+
+    $(_containerDiv).show();
+
+    _dialogDiv.focus();
 
     if (props.autoFocus) {
         let inputs = $(props.inputs, dialogDiv.value!);
@@ -111,23 +136,41 @@ function open(selectCallback?: DialogSelectCallback) {
     }
 }
 
+function _destroy() {
+    let frame = localStack.pop();
+    let _containerDiv = containerDiv.value!;
+    let _dialogDiv = dialogDiv.value!;
+
+    if (isModal.value) {
+        let modalFrame = modalStack.pop()!;
+        if (modalFrame.zIndexBackup != null) {
+            // let zSrc = _dialogDiv;
+            let zSrc = _containerDiv;
+            zSrc.style.zIndex = '' + modalFrame.zIndexBackup;
+        }
+    }
+
+    $(_containerDiv).hide();
+
+    return frame;
+}
+
 function close(e: Event) {
-    if (stack.length) {
-        $(rootElement.value!).hide();
-        stack.pop();
+    if (localStack.length) {
         emit('close', e);
+        _destroy();
     }
 }
 
 function select(e: Event) {
-    if (stack.length) {
-        $(rootElement.value!).hide();
-        let frame = stack.pop()!;
+    if (localStack.length) {
+        let frame = localStack[localStack.length - 1];
 
         if (frame.selectCallback != null)
             frame.selectCallback(model.value, e);
 
         emit('select', model.value, e);
+        _destroy();
     }
 }
 
@@ -156,7 +199,7 @@ onMounted(() => {
         let groupId = '#dialog-group-' + props.group;
         dialogs = resolveChild(dialogs, groupId, true);
     }
-    dialogs.appendChild(rootElement.value!);
+    dialogs.appendChild(containerDiv.value!);
 
     makeMovable(dialogDiv.value!, titleDiv.value!);
 
@@ -186,7 +229,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div ref="rootElement" class="dialog-container">
+    <div ref="containerDiv" class="dialog-container">
         <div class="disabler" :class="{ blink }" v-if="isModal"></div>
         <div ref="dialogDiv" class="dialog" :class="{ hasTitle, hasButton, resizable: _resizable }" :tabindex="tabindex">
             <div class="body">
@@ -201,10 +244,10 @@ onMounted(() => {
                     </div>
                 </slot>
                 <slot name="commands" v-if="hasButton">
-                    <div class="commands flex-row" v-if="rootElement != null">
-                        <CmdButtons :src="buttons" :target="rootElement" :runner="run" pos="left" />
+                    <div class="commands flex-row" v-if="containerDiv != null">
+                        <CmdButtons :src="buttons" :target="containerDiv" :runner="run" pos="left" />
                         <div class="filler"></div>
-                        <CmdButtons :src="buttons" :target="rootElement" :runner="run" pos="right" />
+                        <CmdButtons :src="buttons" :target="containerDiv" :runner="run" pos="right" />
                     </div>
                 </slot>
             </div>
@@ -215,6 +258,12 @@ onMounted(() => {
 <style scoped lang="scss">
 .dialog-container {
     display: v-bind(initDisplay);
+
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .disabler {
