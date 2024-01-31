@@ -1,5 +1,7 @@
-import { simpleName } from "@skeljs/core/src/logging/api";
 import type { Api, Config } from "datatables.net";
+
+import { simpleName } from "@skeljs/core/src/logging/api";
+import { row2Obj, obj2Row, row2ObjSimple } from './objconv';
 
 export interface DataTab {
     columns: DataTabColumn[]
@@ -127,10 +129,12 @@ export function compileRender(js: string): RenderFunc | undefined {
 export class Selection {
     // select: boolean // true for select, false for unselect
 
+    columns: ColumnType[]
     rows: any[][]
     dtIndexes: number[]
 
-    constructor(rows: any[][] = [], dtIndexes: number[] = []) {
+    constructor(columns: ColumnType[], rows: any[][] = [], dtIndexes: number[] = []) {
+        this.columns = columns;
         this.rows = rows;
         this.dtIndexes = dtIndexes;
     }
@@ -151,27 +155,20 @@ export class Selection {
         return this.rows.length == 0;
     }
 
-    toObject(columns: ColumnType[], index: number = 0) {
-        return null;
+    toObject(index: number = 0, columns?: ColumnType[]) {
+        let row = this.rows[index];
+        if (row == null)
+            return {};
+        if (columns == null)
+            columns = this.columns;
+        return row2Obj(row, columns);
     }
-
 }
-
-
 
 // REFLECTION
 
-
 export type integer = number;
 export type long = number;
-
-export type Integer = integer | undefined;
-export type Long = long | undefined;
-
-export type String = string | undefined;
-export type Boolean = boolean | undefined;
-
-
 
 export interface IEntityType {
     name: string        // Java class name
@@ -264,7 +261,7 @@ export class CoObject {
 }
 
 export class IdEntity<Id> extends CoObject {
-    id: Id
+    id?: Id
 
     constructor(o: any) {
         super(o);

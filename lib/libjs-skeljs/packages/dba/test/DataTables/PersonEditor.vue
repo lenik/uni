@@ -5,6 +5,9 @@ import { } from "../../src/ui/table/types";
 import { Person } from "./Person";
 
 import FieldRow from '@skeljs/core/src/ui/FieldRow.vue';
+import RefEditor from '../../src/ui/input/RefEditor.vue';
+import PersonChooseDialog from './PersonChooseDialog.vue';
+
 import { getDefaultFieldRowProps } from "../../src/ui/table/defaults";
 
 const model = defineModel<Person>();
@@ -15,11 +18,10 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
 });
 
-interface Emits {
-    (e: 'error', message: string): void
-}
-
-const emit = defineEmits<Emits>();
+const emit = defineEmits<{
+    error: [message: string]
+    change: [e: Event]
+}>();
 
 // property shortcuts
 
@@ -38,6 +40,8 @@ function update() {
 
 onMounted(() => {
 });
+
+const choosePersonDialog = ref();
 
 </script>
 
@@ -71,15 +75,15 @@ onMounted(() => {
         </FieldRow>
         <hr>
         <FieldRow v-bind="fieldRowProps" :icon="property.father.icon" label="Father">
-            <input type="hidden" v-model="model.fatherId">
-            <div class="text">
-                <span class="id">{{ model.fatherId }} </span>
-                <span class="label" v-if="model.father != null">{{ model.father.label }}</span>
-            </div>
-            <div class="btn">...</div>
+            <RefEditor :dialog="choosePersonDialog" v-model="model.father" v-model:id="model.fatherId" />
             <template #description>Father is father</template>
         </FieldRow>
+        <FieldRow v-bind="fieldRowProps" :icon="property.mother.icon" label="Mother">
+            <RefEditor :dialog="choosePersonDialog" v-model="model.mother" v-id="model.motherId" />
+            <template #description>Mother is mother</template>
+        </FieldRow>
     </div>
+    <PersonChooseDialog ref="choosePersonDialog" />
 </template>
 
 <style scoped lang="scss">

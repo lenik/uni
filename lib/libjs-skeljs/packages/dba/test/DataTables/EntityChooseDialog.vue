@@ -2,13 +2,14 @@
 
 import $ from 'jquery';
 import { computed, onMounted, ref } from "vue";
-import { EntityType } from '../../src/ui/table/types';
-
 import { simpleName } from "@skeljs/core/src/logging/api";
-import { serverUrl } from "./server.config";
+import { DialogSelectCallback } from '@skeljs/core/src/ui/types';
+import { EntityType, Selection } from '../../src/ui/table/types';
 
 import Dialog from '@skeljs/core/src/ui/Dialog.vue';
 import DataTable from '../../src/ui/table/DataTable.vue';
+
+import { serverUrl } from "./server.config";
 
 const model = defineModel();
 
@@ -22,11 +23,9 @@ const props = withDefaults(defineProps<Props>(), {
     modal: true,
 });
 
-interface Emits {
-    (e: 'error', message: string): void
-}
-
-const emit = defineEmits<Emits>();
+const emit = defineEmits<{
+    error: [message: string]
+}>();
 
 // property shortcts
 
@@ -46,9 +45,16 @@ const dataTableApi = computed(() => dataTableComp.value?.api);
 
 const selection = ref();
 
-defineExpose({ update });
+defineExpose({
+    open
+});
 
-function update() {
+function open(callback?: DialogSelectCallback) {
+    dialogComp.value?.open(callback);
+}
+
+function onselect(sel: Selection, e: Event) {
+    selection.value = sel.toObject();
 }
 
 onMounted(() => {
@@ -105,7 +111,7 @@ onMounted(() => {
 <template>
     <Dialog ref="dialogComp" class="choose-dialog" :name="dialogName" v-model="selection" :modal="modal"
         :title="dialogTitle" height="25em" :cmds="{ ok: true, cancel: true }">
-        <DataTable ref="dataTableComp" :lilyUrl="lilyUrl">
+        <DataTable ref="dataTableComp" :lilyUrl="lilyUrl" @select="onselect">
             <slot></slot>
         </DataTable>
     </Dialog>

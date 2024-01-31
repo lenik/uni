@@ -98,6 +98,8 @@ function setDeep(obj: any, propv: string[], val: any) {
 
 export function row2Obj(row: any[], columns: ColumnType[]) {
     let obj: any = {};
+    if (columns == null)
+        throw "columns isn't specified";
     if (columns.length < row.length)
         throw "insufficient column types";
     for (let i = 0; i < row.length; i++) {

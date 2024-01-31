@@ -177,11 +177,7 @@ function saveEdits() {
 
 function extractRow(sel: Selection) {
     selection.value = sel;
-    if (sel.firstRow == null)
-        model.value = {};
-    else {
-        model.value = row2Obj(sel.firstRow, columns.value!);
-    }
+    model.value = sel.toObject();
 }
 
 onMounted(() => {
@@ -266,12 +262,11 @@ onMounted(() => {
     background: #f8f8f8;
 }
 
-.editor {
+.entity-editor {
     .field-row {
         margin: .5em 0;
     }
 }
-
 </style>
 
 <style scoped lang="scss">

@@ -1,7 +1,7 @@
 
 import { Moment } from "moment";
 
-import { EntityProperty, EntityPropertyMap, EntityType, IEntityProperty, IdEntity, Integer, integer } from '../../src/ui/table/types';
+import { EntityProperty, EntityPropertyMap, EntityType, IEntityProperty, IdEntity, integer } from '../../src/ui/table/types';
 
 
 // Type Info
@@ -61,8 +61,8 @@ export class PersonType extends CoPartyType {
     static declaredProperty: EntityPropertyMap = {
         label: property({ type: "string", icon: "fa-user" }),
 
-        father: property({ type: "Person" }),
-        mother: property({ type: "Person" }),
+        father: property({ type: "Person", icon: "fa-male" }),
+        mother: property({ type: "Person", icon: "fa-female" }),
         roleCount: property({ type: "number" }),
         employee: property({ type: "boolean" }),
         bankCount: property({ type: "string" }),
@@ -83,34 +83,34 @@ export class PersonType extends CoPartyType {
 
 // 
 
-class Contact extends IdEntity<Integer> {
+class Contact extends IdEntity<integer> {
 
     org: any
     orgUnit: any
     person: any
 
-    rename: String
-    usage: String
+    rename?: string
+    usage?: string
 
     zone: any
-    zoneId: Integer
+    zoneId?: integer
 
-    country: String
-    r1: String
-    r2: String
-    r3: String
-    r4: String
-    address1: String
-    address2: String
-    postalCode: String
+    country?: string
+    r1?: string
+    r2?: string
+    r3?: string
+    r4?: string
+    address1?: string
+    address2?: string
+    postalCode?: string
 
-    tel: String
-    mobile: String
-    fax: String
-    email: String
-    web: String
-    qq: String
-    wechat: String
+    tel?: string
+    mobile?: string
+    fax?: string
+    email?: string
+    web?: string
+    qq?: string
+    wechat?: string
 
     constructor(o: any) {
         super(o);
@@ -118,7 +118,7 @@ class Contact extends IdEntity<Integer> {
     }
 }
 
-class CoParty extends IdEntity<Integer> {
+class CoParty extends IdEntity<integer> {
 
     category?: any
     birthday?: Moment
@@ -132,11 +132,11 @@ class CoParty extends IdEntity<Integer> {
 
     tags: string[]
 
-    subject: String
+    subject?: string
     contacts: Contact[]
 
-    bank: String
-    account: String
+    bank?: string
+    account?: string
 
     constructor(o: any) {
         super(o);
@@ -146,16 +146,22 @@ class CoParty extends IdEntity<Integer> {
 
 export class Person extends CoParty {
 
-    father: Person
-    mother: Person
-    roleCount: integer
+    gender?: string
+
+    father?: Person
+    fatherId?: integer
+    mother?: Person
+    motherId?: integer
+
+    roleCount?: integer
+    // roles: string[]
+
     employee: boolean
-    bankCount: integer
-    gender: String
-    homeland: String
-    passport: String
-    ssn: String
-    dln: String
+    bankCount?: integer
+    homeland?: string
+    passport?: string
+    ssn?: string
+    dln?: string
 
     constructor(o: any) {
         super(o);

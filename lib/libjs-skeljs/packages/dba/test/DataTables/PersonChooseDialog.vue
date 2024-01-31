@@ -7,6 +7,7 @@ import { Person } from './Person';
 
 import EntityChooseDialog from './EntityChooseDialog.vue';
 import Editor from './PersonEditor.vue';
+import { DialogSelectCallback } from "@skeljs/core/src/ui/types";
 
 const model = defineModel();
 
@@ -18,21 +19,21 @@ const props = withDefaults(defineProps<Props>(), {
     modal: true
 });
 
-interface Emits {
-    (e: 'error', message: string): void
-}
-
-const emit = defineEmits<Emits>();
+const emit = defineEmits<{
+    error: [message: string]
+}>();
 
 // property shortcts
 
 const type: EntityType = Person.TYPE;
 
 const selection = ref();
+const entityChooseDialog = ref<undefined | InstanceType<typeof EntityChooseDialog>>();
 
-defineExpose({ update });
+defineExpose({ open });
 
-function update() {
+function open(callback?: DialogSelectCallback) {
+    entityChooseDialog.value?.open(callback);
 }
 
 onMounted(() => {
@@ -40,7 +41,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <EntityChooseDialog :type="Person.TYPE" :modal="modal" autoOpen="true">
+    <EntityChooseDialog ref="entityChooseDialog" :type="Person.TYPE" :modal="modal">
         <th data-field="id">ID</th>
         <th data-field="properties" class="hidden">properties</th>
         <th data-field="label">Name</th>
