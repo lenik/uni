@@ -1,7 +1,6 @@
 <script setup lang="ts">
 
 import { onMounted, ref } from "vue";
-import { } from "../../src/ui/table/types";
 import { Person } from "./Person";
 
 import FieldRow from '@skeljs/core/src/ui/FieldRow.vue';
@@ -25,11 +24,12 @@ const emit = defineEmits<{
 
 // property shortcuts
 
-const property = Person.TYPE.property;
-
-const fieldRowProps = getDefaultFieldRowProps({ labelWidth: '5em' });
+const meta = Person.TYPE.property;
+const fieldRowProps = getDefaultFieldRowProps({ labelWidth: '7rem' });
 
 const rootElement = ref<HTMLElement>();
+const personChooseDialog = ref<InstanceType<typeof PersonChooseDialog>>();
+const valids = ref<any>({});
 
 // methods
 
@@ -41,29 +41,24 @@ function update() {
 onMounted(() => {
 });
 
-const choosePersonDialog = ref();
-
 </script>
 
 <template>
-    <div class="entity-editor person-editor" ref="rootElement" v-if="model != null">
-        <FieldRow v-bind="fieldRowProps" :icon="property.label.icon" label="Name">
+    <div class="entity-editor person-editor" ref="rootElement" v-if="model != null" v-bind="$attrs">
+        <FieldRow v-bind="fieldRowProps" :property="meta.label" v-model="model.label">
             <input type="text" v-model="model.label" placeholder="enter text...">
-            <template #description> A username is a unique identifier used by individuals to access various online platforms
-                or websites. It is typically chosen by the user during the registration process and is often required along
-                with a password to log in to an account. </template>
         </FieldRow>
-        <FieldRow v-bind="fieldRowProps" :icon="property.gender.icon" label="Gender">
+        <FieldRow v-bind="fieldRowProps" :property="meta.description" v-model="model.description">
+            <input type="text" v-model="model.description" placeholder="enter text...">
+        </FieldRow>
+        <FieldRow v-bind="fieldRowProps" :property="meta.gender" v-model="model.gender">
             <select v-model="model.gender">
                 <option value="m">Male</option>
                 <option value="f">Female</option>
                 <option value="x">Other</option>
             </select>
-            <template #description> It's important to note that while sex is typically assigned at birth based on physical
-                characteristics, gender identity is a deeply personal sense of being male, female, or something else, which
-                may or may not align with the sex assigned at birth. </template>
         </FieldRow>
-        <FieldRow v-bind="fieldRowProps" :icon="property.birthday.icon" label="Birthday">
+        <FieldRow v-bind="fieldRowProps" :property="meta.birthday" v-model="model.birthday">
             <input type="date" v-model="model.birthday" placeholder="select birthday...">
             <template #description> Age is a term that refers to the length of time a person has been alive or the number of
                 years that have passed since their birth. It is often used to determine a person's stage of life, rights,
@@ -73,17 +68,22 @@ const choosePersonDialog = ref();
                 retirement. It is important to note that age can vary greatly among individuals and is influenced by factors
                 such as culture, genetics, and lifestyle choices. </template>
         </FieldRow>
-        <hr>
-        <FieldRow v-bind="fieldRowProps" :icon="property.father.icon" label="Father">
-            <RefEditor :dialog="choosePersonDialog" v-model="model.father" v-model:id="model.fatherId" />
+        <FieldRow v-bind="fieldRowProps" :property="meta.father" v-model="model.father">
+            <RefEditor :dialog="personChooseDialog" v-model="model.father" v-model:id="model.fatherId" />
             <template #description>Father is father</template>
         </FieldRow>
-        <FieldRow v-bind="fieldRowProps" :icon="property.mother.icon" label="Mother">
-            <RefEditor :dialog="choosePersonDialog" v-model="model.mother" v-id="model.motherId" />
+        <FieldRow v-bind="fieldRowProps" :property="meta.mother" v-model="model.mother">
+            <RefEditor :dialog="personChooseDialog" v-model="model.mother" v-model:id="model.motherId" />
             <template #description>Mother is mother</template>
         </FieldRow>
+        <FieldRow v-bind="fieldRowProps" :property="meta.ssn" v-model="model.ssn">
+            <input type="text" v-model="model.ssn" placeholder="enter text...">
+        </FieldRow>
+        <FieldRow v-bind="fieldRowProps" :property="meta.dln" v-model="model.dln">
+            <input type="text" v-model="model.dln" placeholder="enter text...">
+        </FieldRow>
     </div>
-    <PersonChooseDialog ref="choosePersonDialog" />
+    <PersonChooseDialog ref="personChooseDialog" />
 </template>
 
 <style scoped lang="scss">

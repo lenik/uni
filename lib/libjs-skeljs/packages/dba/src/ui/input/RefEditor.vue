@@ -4,7 +4,7 @@ import { computed, onMounted, ref } from "vue";
 import { IdEntity } from "../../ui/table/types";
 
 import Icon from "@skeljs/core/src/ui/Icon.vue";
-import Dialog from "@skeljs/core/src/ui/Dialog.vue";
+// import Dialog from "@skeljs/core/src/ui/Dialog.vue";
 
 const model = defineModel<IdEntity<any>>();
 const id = defineModel("id");
@@ -13,7 +13,7 @@ type InfoFunc = (o: any) => string;
 
 interface Props {
     info?: InfoFunc
-    dialog?: InstanceType<typeof Dialog>
+    dialog?: any
     chooseButton?: boolean
     removeButton?: boolean
     rightRemove?: boolean
@@ -54,14 +54,16 @@ function remove2(event: Event) {
     }
 }
 function openDialog() {
-    props.dialog?.open((val: any) => {
-        model.value = val;
-        if (val == undefined)
-            id.value = undefined;
-        else
-            id.value = val;
-        return true;
-    });
+    props.dialog?.open(onDialogSelect);
+}
+
+function onDialogSelect(val: any) {
+    model.value = val;
+    if (val == undefined)
+        id.value = undefined;
+    else
+        id.value = val.id;
+    return true;
 }
 
 onMounted(() => {

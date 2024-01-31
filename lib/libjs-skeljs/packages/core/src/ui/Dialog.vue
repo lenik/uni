@@ -32,7 +32,8 @@ export interface Props {
     autoOpen?: boolean | string
     autoFocus?: boolean
     inputs?: string
-    zIndex?: number
+
+    unique?: boolean
 }
 
 class ModalFrame {
@@ -57,7 +58,7 @@ const props = withDefaults(defineProps<Props>(), {
     autoOpen: false,
     autoFocus: true,
     inputs: "input, select, textarea, [tabindex]",
-    zIndex: 1,
+    unique: false,
 });
 
 const emit = defineEmits<{
@@ -199,7 +200,25 @@ onMounted(() => {
         let groupId = '#dialog-group-' + props.group;
         dialogs = resolveChild(dialogs, groupId, true);
     }
-    dialogs.appendChild(containerDiv.value!);
+
+    let _containerDiv = containerDiv.value!;
+    _containerDiv.remove();
+
+    if (props.unique) {
+        if (_containerDiv.id != null)
+            if (document.getElementById(_containerDiv.id) != null)
+                // duplicated, just skip it.
+                return;
+
+        let dialogName = _containerDiv.getAttribute("name");
+        if (dialogName != null) {
+            let dups = document.getElementsByName(dialogName);
+            if (dups.length) // duplicated by name
+                return;
+        }
+    }
+
+    dialogs.appendChild(_containerDiv);
 
     makeMovable(dialogDiv.value!, titleDiv.value!);
 
