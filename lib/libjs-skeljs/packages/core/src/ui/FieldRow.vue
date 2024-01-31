@@ -2,10 +2,12 @@
 export interface Props {
     tagName?: string
 
+    property?: any
+
     icon?: string
     iconWidth?: string
 
-    label: string
+    label?: string
     labelWidth?: string
     labelMaxLength?: number
 
@@ -38,12 +40,14 @@ const valid = defineModel<ValidateResult>('valid');
 
 const props = withDefaults(defineProps<Props>(), {
     tagName: 'div',
+    label: 'unnamed',
     iconWidth: '1rem',
     after: 'end',
     expandIcon: 'far-question-circle',
     collapseIcon: 'fas-question-circle',
     align: 'middle',
     alignLabel: 'left',
+    showState: false,
     watch: true,
 });
 
@@ -69,6 +73,13 @@ const childTagName = computed(() => {
     }
 });
 
+const _label = computed(() => props.property?.display || props.label)
+const _icon = computed(() => props.property?.icon || props.icon)
+const _description = computed(() => props.property?.description || props.description)
+const _tooltip = computed(() => props.property?.tooltip || props.tooltip)
+const _validator = computed(() => props.property?.validator || props.validator)
+const _required = computed(() => props.property?.required || props.required)
+
 const autoLabelWidth = computed(() => {
     const defaultLabelWidth = '10em';
     const labelLengthLimit = 32;
@@ -83,7 +94,31 @@ const autoLabelWidth = computed(() => {
     return defaultLabelWidth;
 });
 
-const optional = computed(() => props.required == undefined ? undefined : !props.required);
+const labelSize = computed(() => {
+    if (props.labelMaxLength != null)
+        return props.labelMaxLength;
+    else if (props.labelWidth != null)
+        return parseInt(props.labelWidth.replace("rem", "").replace("em", ""));
+    else
+        return undefined;
+});
+const morebit = computed(() => {
+    let size = labelSize.value;
+    let len = _label.value?.length || 0;
+    return len > size && len < size * 1.5;
+});
+const morehalf = computed(() => {
+    let size = labelSize.value;
+    let len = _label.value?.length || 0;
+    return len >= size * 1.5 && len < size * 2;
+});
+const more2 = computed(() => {
+    let size = labelSize.value;
+    let len = _label.value?.length || 0;
+    return len >= size * 2;
+});
+
+const optional = computed(() => _required.value == undefined ? undefined : !_required.value);
 
 const alignItems = computed(() => {
     switch (props.align) {
@@ -111,14 +146,14 @@ function validate(val: any = model.value, event?: Event): ValidateResult {
     let result: ValidateResult = { error: false };
 
     if (val == null) {
-        if (props.required === true)
+        if (_required.value === true)
             result = {
                 error: true,
                 type: 'required',
                 message: 'The field is required.',
             };
     } else {
-        let validator = props.validator;
+        let validator = _validator.value;
         if (validator != null)
             try {
                 result = validator(val);
@@ -163,12 +198,12 @@ if (props.watch) {
 <template>
     <component :is="tagName" class="component-root field-row" :class="{ required, optional, ok, error }" ref="rootElement">
         <component :is="childTagName" class="icon-label">
-            <Icon :name="icon" v-if="icon != null" />
-            <span class="label"> {{ label }} </span>
+            <Icon :name="_icon" v-if="_icon != null" />
+            <span class="label" :class="{ morebit, morehalf, more2 }"> {{ _label }} </span>
             <Icon v-if="after == 'label'" :name="expanded ? collapseIcon : expandIcon" class="toggler"
                 @click="expanded = !expanded" />
         </component>
-        <component :is="childTagName" class="content" v-if="description == null && validator == null && required != true">
+        <component :is="childTagName" class="content" v-if="description == null && _validator == null && _required != true">
             <div class="content">
                 <slot>
                 </slot>
@@ -191,8 +226,8 @@ if (props.watch) {
                     <span class="message" v-if="valid.message != null"> {{ formatError(valid.message) }} </span>
                 </slot>
             </div>
-            <div class="description" v-if="description != null">
-                <slot name="description"> {{ description }} </slot>
+            <div class="description" v-if="_description != null">
+                <slot name="description"> {{ _description }} </slot>
             </div>
         </component>
     </component>
@@ -224,10 +259,21 @@ if (props.watch) {
     }
 }
 
-
 .label {
     width: v-bind(autoLabelWidth);
     text-align: v-bind(alignLabel);
+
+    &.morebit {
+        // font-size: 80%;
+    }
+
+    &.morehalf {
+        // font-size: 80%;
+    }
+
+    &.more2 {
+        font-size: 80%;
+    }
 }
 
 .with-description {

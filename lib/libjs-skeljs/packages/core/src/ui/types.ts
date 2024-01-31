@@ -302,8 +302,8 @@ export function getDialogCmds(map: CommandBehaviorMap): Command[] {
 
 // Validation
 
-export interface ValidateResult {
-    error: boolean
+export interface IValidateResult {
+    error?: boolean
     errorCode?: number
     type?: string
     message?: string
@@ -311,8 +311,26 @@ export interface ValidateResult {
     target?: any
 }
 
+export class ValidateResult implements IValidateResult {
+
+    error?: boolean
+    errorCode?: number
+    type?: string
+    message?: string
+    help?: string
+    target?: any
+
+    constructor(o: IValidateResult) {
+        Object.assign(this, o);
+        if (this.error == undefined)
+            this.error = true;
+    }
+
+    static OK = new ValidateResult({ error: false });
+}
+
 export type Validator
-    = (val: any) => ValidateResult;
+    = (val: any) => ValidateResult | void;
 
 
 // Status
