@@ -20,7 +20,7 @@ export function getColumns(table: any, compile: SymbolCompileFunc): ColumnType[]
             type: $th.data('type'),
             priority: $th.data("priority") || 0,
             ascending: parseOrder($th.data("order")),
-            styleClass: $th.data('class'),
+            styleClass: $th.attr('class'),
             oncreate: compileOnCreate($th.attr("oncreate")),
         };
 

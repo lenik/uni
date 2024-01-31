@@ -59,7 +59,7 @@ export function _useDataTable(table: any,
             case 'session':
                 baseConfig.stateDuration = -1; break;
         }
-        baseConfig.stateSave = false;
+        baseConfig.stateSave = true;
         baseConfig.stateSaveParams = function (settings, data) {
             for (var i = 0, ien = data.columns.length; i < ien; i++) {
                 delete data.columns[i].visible;
@@ -80,12 +80,22 @@ export function _useDataTable(table: any,
         baseConfig.deferRender = true;
     }
 
-
     let columns = getColumns(table, compile);
 
     if (columns.filter(c => c.ascending != null).length == 0) {
         // by default ID-descend
         baseConfig.order = [[0, "desc"]];
+    }
+
+    let idFields = columns.filter(c => c.field == 'id');
+    if (idFields.length) {
+        let simple = idFields.length == 1;
+        let idColumnIndexes = idFields.map(f => f.position);
+        baseConfig.createdRow = (row, data, dataIndex) => {
+            let idVec = idColumnIndexes.map(pos => data[pos]);
+            $(row).attr("pkey", idVec.join(","));
+            $(row).data("id", simple ? idVec[0] : idVec);
+        };
     }
 
     let config = $.extend({},
@@ -171,7 +181,7 @@ function _reloadSmooth(resetPaging: boolean = false, onReloaded?: any) {
         settings.clearCache = true;
     });
 
-    return this.ajax.reload(function () {
+    return this.ajax.reload(() => {
         if (lastId != null) {
             let tr = this.row("[data-id=" + lastId + "]").node();
             $(tr).addClass("selected");
