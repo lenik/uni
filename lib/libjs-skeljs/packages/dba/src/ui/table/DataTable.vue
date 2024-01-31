@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts">
 
 import $ from 'jquery';
 import { ref, onMounted, computed, getCurrentInstance } from "vue";
@@ -13,11 +13,7 @@ import { DataTableInstance, useAjaxDataTable, useDataTable } from "./apply";
 import formats from "./formats";
 import { objv2Tab } from "./objconv";
 
-defineOptions({
-    inheritAttrs: false
-})
-
-interface Props {
+export interface Props {
 
     caption?: string
     captionPosition?: 'top' | 'bottom' | 'both'
@@ -45,6 +41,14 @@ interface Props {
 
     watch?: boolean
 }
+</script>
+
+<script setup lang="ts">
+defineOptions({
+    inheritAttrs: false
+})
+
+const selection = defineModel<Selection>();
 
 const props = withDefaults(defineProps<Props>(), {
     captionPosition: 'bottom',
@@ -56,11 +60,9 @@ const props = withDefaults(defineProps<Props>(), {
     watch: false
 });
 
-interface Emits {
-    (e: 'select', selection: Selection): void
-}
-
-const emit = defineEmits<Emits>();
+const emit = defineEmits<{
+    select: [selection: Selection]
+}>();
 
 // computed properties
 
@@ -171,9 +173,9 @@ function initDataTable() {
     columns.value = instance.columns;
 
     if (!multiSelect)
-        (instance.api as any).selectSingle(fireSelectionChange);
+        (instance.api as any).selectSingle(onDtSelect);
 
-    instance.api.on('select', (e, dt, type, indexes) => fireSelectionChange(e, dt, type, indexes, true));
+    instance.api.on('select', (e, dt, type, indexes) => onDtSelect(e, dt, type, indexes, true));
     // dt.on('deselect', (e, dt, type, indexes) => selectionChange(e, dt, type, indexes, true));
 
     // dt.on('click', 'tbody td:not(:first-child)', function (e) {
@@ -181,14 +183,13 @@ function initDataTable() {
     // });
 }
 
-function fireSelectionChange(e: Event, dt: Api<any>, type: string, indexes: number[], select: boolean) {
+function onDtSelect(e: Event, dt: Api<any>, type: string, indexes: number[], select: boolean) {
+
     let selectedRows = dt.rows({ selected: true }).data().toArray() as any[][];
     let selectedIndexes = dt.rows({ selected: true }).indexes().toArray() as number[];
-    let selection = new Selection(
-        selectedRows,
-        selectedIndexes,
-    );
-    emit('select', selection);
+    let sel = new Selection(columns.value!, selectedRows, selectedIndexes);
+    selection.value = sel;
+    emit('select', sel);
 }
 
 function deleteSelection() {
