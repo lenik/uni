@@ -1,5 +1,7 @@
 import { Command, Status, getDialogCmds } from '@skeljs/core/src/ui/types';
 
+import { Props as FieldRowProps } from '@skeljs/core/src/ui/FieldRow.vue';
+
 export function getDefaultCommands(provides: any) {
     let cmds: Command[] = [];
     for (let k in provides) {
@@ -103,10 +105,9 @@ export function getDefaultStatus(k: string, provides: any): Status | undefined {
     }
 }
 
-
-export function getFieldRowProps(config: any) {
-    let base = {
-        tagName: 'li',
+export function getDefaultFieldRowProps(config: any, tagName = 'li'): Partial<FieldRowProps> {
+    let base: Partial<FieldRowProps> = {
+        tagName: tagName,
         align: 'top',
         alignLabel: 'left',
         labelWidth: '8em',
@@ -118,9 +119,3 @@ export function getFieldRowProps(config: any) {
         Object.assign(base, config);
     return base;
 };
-
-export function getFieldTrProps(config: any) {
-    let props = getFieldRowProps(config);
-    props.tagName = 'tr';
-    return props;
-}

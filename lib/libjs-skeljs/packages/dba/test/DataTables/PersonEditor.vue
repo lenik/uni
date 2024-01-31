@@ -5,7 +5,7 @@ import { } from "../../src/ui/table/types";
 import { Person } from "./Person";
 
 import FieldRow from '@skeljs/core/src/ui/FieldRow.vue';
-import { getFieldRowProps, getFieldTrProps } from "../../src/ui/table/defaults";
+import { getDefaultFieldRowProps } from "../../src/ui/table/defaults";
 
 const model = defineModel<Person>();
 
@@ -25,8 +25,7 @@ const emit = defineEmits<Emits>();
 
 const property = Person.TYPE.property;
 
-const fieldRowProps = getFieldRowProps({ labelWidth: '5em' });
-const fieldTrProps = getFieldTrProps({ labelWidth: '5em' });
+const fieldRowProps = getDefaultFieldRowProps({ labelWidth: '5em' });
 
 const rootElement = ref<HTMLElement>();
 

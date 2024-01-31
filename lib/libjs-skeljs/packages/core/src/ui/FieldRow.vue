@@ -1,15 +1,5 @@
-<script setup lang="ts">
-
-import { computed, onMounted, ref, watch } from "vue";
-
-import Icon from "./Icon.vue";
-import type { ValidateResult, Validator } from "./types";
-
-const model = defineModel();
-const expanded = defineModel<boolean>('expanded');
-const valid = defineModel<ValidateResult>('valid');
-
-interface Props {
+<script lang="ts">
+export interface Props {
     tagName?: string
 
     icon?: string
@@ -34,10 +24,21 @@ interface Props {
     showState?: boolean
     watch?: boolean
 }
+</script>
+<script setup lang="ts">
+
+import { computed, onMounted, ref, watch } from "vue";
+
+import Icon from "./Icon.vue";
+import type { ValidateResult, Validator } from "./types";
+
+const model = defineModel();
+const expanded = defineModel<boolean>('expanded');
+const valid = defineModel<ValidateResult>('valid');
 
 const props = withDefaults(defineProps<Props>(), {
     tagName: 'div',
-    iconWidth: '1em',
+    iconWidth: '1rem',
     after: 'end',
     expandIcon: 'far-question-circle',
     collapseIcon: 'fas-question-circle',
@@ -45,6 +46,14 @@ const props = withDefaults(defineProps<Props>(), {
     alignLabel: 'left',
     watch: true,
 });
+
+const emit = defineEmits<{
+    'update:vaild': [val: ValidateResult]
+    error: [result: ValidateResult, event?: Event]
+    validated: [result: ValidateResult, event?: Event]
+}>();
+
+// property shortcuts
 
 const childTagName = computed(() => {
     switch (props.tagName) {
@@ -92,16 +101,10 @@ const alignItems = computed(() => {
 const ok = computed(() => valid.value == null ? false : !valid.value.error);
 const error = computed(() => valid.value == null ? false : valid.value.error);
 
-interface Emits {
-    (e: "update:vaild", val: ValidateResult): void
-    (e: 'error', result: ValidateResult, event?: Event): void
-    (e: 'validated', result: ValidateResult, event?: Event): void
-}
-
-const emit = defineEmits<Emits>();
-
 const rootElement = ref<HTMLElement>();
-onMounted(() => {
+
+defineExpose({
+    validate
 });
 
 function validate(val: any = model.value, event?: Event): ValidateResult {
@@ -135,14 +138,6 @@ function validate(val: any = model.value, event?: Event): ValidateResult {
     return result;
 }
 
-if (props.watch) {
-    watch(model, (newVal, oldVal) => {
-        validate(newVal);
-    }, {
-        immediate: true
-    });
-}
-
 function formatError(s: string) {
     if (s == null) return "(no more information)";
     let first = s.substring(0, 1);
@@ -152,9 +147,17 @@ function formatError(s: string) {
     return s;
 }
 
-defineExpose({
-    validate
+onMounted(() => {
 });
+
+if (props.watch) {
+    watch(model, (newVal, oldVal) => {
+        validate(newVal);
+    }, {
+        immediate: true
+    });
+}
+
 </script>
 
 <template>
@@ -165,7 +168,6 @@ defineExpose({
             <Icon v-if="after == 'label'" :name="expanded ? collapseIcon : expandIcon" class="toggler"
                 @click="expanded = !expanded" />
         </component>
-
         <component :is="childTagName" class="content" v-if="description == null && validator == null && required != true">
             <div class="content">
                 <slot>
@@ -179,11 +181,9 @@ defineExpose({
                 <Icon class="validate" name="far-check-circle" @click="validate()" v-if="!watch" />
                 <Icon class="validate-state" :name="valid.error ? 'fa-times' : 'fa-check'"
                     v-if="valid != null && (showState || valid.error)" />
-
                 <Icon v-if="after == 'end'" :name="expanded ? collapseIcon : expandIcon" class="toggler"
                     @click="expanded = !expanded" />
             </div>
-
             <div class="error-info" v-if="valid != null && valid.error">
                 <slot name="error" v-bind="valid">
                     <span class="type" v-if="valid.type != null"> {{ valid.type }} </span>
@@ -191,14 +191,10 @@ defineExpose({
                     <span class="message" v-if="valid.message != null"> {{ formatError(valid.message) }} </span>
                 </slot>
             </div>
-
             <div class="description" v-if="description != null">
-                <slot name="description">
-                    {{ description }}
-                </slot>
+                <slot name="description"> {{ description }} </slot>
             </div>
         </component>
-
     </component>
 </template>
 
@@ -222,7 +218,9 @@ defineExpose({
 
     .icon {
         width: v-bind(iconWidth);
-        margin-right: .6em;
+        margin-right: .6rem;
+        text-align: center;
+        font-size: 80%;
     }
 }
 
@@ -235,8 +233,10 @@ defineExpose({
 .with-description {
     flex: 1;
 
-    .content>* {
-        vertical-align: middle;
+    .content {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
     }
 
     .icon {
