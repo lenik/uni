@@ -1,5 +1,5 @@
-import { EntityPropertyMap, integer, property } from '../../src/lily/entity';
-import { CoPartyType, CoParty } from '../../src/lily/concrete';
+import { EntityPropertyMap, integer, property } from '../../../../../../src/lily/entity';
+import { CoPartyType, CoParty } from '../../../../../../src/lily/concrete';
 
 import * as validators from './PersonValidators';
 

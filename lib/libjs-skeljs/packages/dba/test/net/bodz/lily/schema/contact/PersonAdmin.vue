@@ -2,7 +2,7 @@
 
 import { onMounted, ref } from 'vue';
 
-import LilyAdmin from '../../src/ui/table/LilyAdmin.vue';
+import LilyAdmin from '../../../../../../src/ui/lily/LilyAdmin.vue';
 
 import { Person } from './Person';
 import PersonEditor from './PersonEditor.vue';

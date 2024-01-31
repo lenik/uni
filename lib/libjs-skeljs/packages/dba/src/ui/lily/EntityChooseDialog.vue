@@ -4,12 +4,11 @@ import $ from 'jquery';
 import { computed, onMounted, ref } from "vue";
 import { simpleName } from "@skeljs/core/src/logging/api";
 import { DialogSelectCallback } from '@skeljs/core/src/ui/types';
-import { EntityType, Selection } from '../../src/ui/table/types';
+import { Selection } from '../table/types';
+import { EntityType } from '../../lily/entity';
 
 import Dialog from '@skeljs/core/src/ui/Dialog.vue';
-import DataTable from '../../src/ui/table/DataTable.vue';
-
-import { serverUrl } from "./server.config";
+import DataTable from '../table/DataTable.vue';
 
 const model = defineModel();
 
@@ -17,6 +16,7 @@ interface Props {
     modal?: boolean | string
     type: EntityType
     lilyUrl?: string
+    serverUrl?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -36,8 +36,10 @@ const dialogName = computed(() => simpleName(props.type.name) + "Chooser");
 const lilyUrl = computed(() => {
     if (props.lilyUrl != null)
         return props.lilyUrl;
+    else if (props.serverUrl != null)
+        return props.serverUrl + "/" + props.type.simpleName;
     else
-        return serverUrl + "/" + props.type.simpleName;
+        throw "either lily-url or server-url have to be specified."
 });
 
 const dataTableComp = ref();

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 
-import { computed, onMounted, ref } from "vue";
-import { EntityType } from '../../src/ui/table/types';
+import { onMounted, ref } from "vue";
+import { DialogSelectCallback } from "@skeljs/core/src/ui/types";
+
+import { EntityType } from '../../../../../../src/lily/entity';
+import EntityChooseDialog from '../../../../../../src/ui/lily/EntityChooseDialog.vue';
 
 import { Person } from './Person';
-
-import EntityChooseDialog from './EntityChooseDialog.vue';
-import Editor from './PersonEditor.vue';
-import { DialogSelectCallback } from "@skeljs/core/src/ui/types";
+import { serverUrl } from '../../../../../server.config';
 
 const model = defineModel();
 
@@ -25,9 +25,6 @@ const emit = defineEmits<{
 
 // property shortcts
 
-const type: EntityType = Person.TYPE;
-
-const selection = ref();
 const entityChooseDialog = ref<undefined | InstanceType<typeof EntityChooseDialog>>();
 
 defineExpose({ open });
@@ -41,7 +38,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <EntityChooseDialog ref="entityChooseDialog" :type="Person.TYPE" :modal="modal">
+    <EntityChooseDialog ref="entityChooseDialog" :type="Person.TYPE" :modal="modal" :server-url="serverUrl">
         <th data-field="id">ID</th>
         <th data-field="properties" class="hidden">properties</th>
         <th data-field="label">Name</th>

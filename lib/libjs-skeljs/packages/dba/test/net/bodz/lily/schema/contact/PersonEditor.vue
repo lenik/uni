@@ -4,10 +4,10 @@ import { onMounted, ref } from "vue";
 import { Person } from "./Person";
 
 import FieldRow from '@skeljs/core/src/ui/FieldRow.vue';
-import RefEditor from '../../src/ui/input/RefEditor.vue';
+import RefEditor from '../../../../../../src/ui/input/RefEditor.vue';
 import PersonChooseDialog from './PersonChooseDialog.vue';
 
-import { getDefaultFieldRowProps } from "../../src/ui/table/defaults";
+import { getDefaultFieldRowProps } from "../../../../../../src/ui/lily/defaults";
 
 const model = defineModel<Person>();
 
@@ -60,13 +60,6 @@ onMounted(() => {
         </FieldRow>
         <FieldRow v-bind="fieldRowProps" :property="meta.birthday" v-model="model.birthday">
             <input type="date" v-model="model.birthday" placeholder="select birthday...">
-            <template #description> Age is a term that refers to the length of time a person has been alive or the number of
-                years that have passed since their birth. It is often used to determine a person's stage of life, rights,
-                responsibilities, and legal obligations. Age can also be used to classify individuals into different groups,
-                such as children, teenagers, adults, or seniors. In many countries, age is a significant factor in various
-                aspects of life, including education, employment, marriage, voting rights, driving privileges, and
-                retirement. It is important to note that age can vary greatly among individuals and is influenced by factors
-                such as culture, genetics, and lifestyle choices. </template>
         </FieldRow>
         <FieldRow v-bind="fieldRowProps" :property="meta.father" v-model="model.father">
             <RefEditor :dialog="personChooseDialog" v-model="model.father" v-model:id="model.fatherId" />

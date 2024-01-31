@@ -4,16 +4,15 @@ import $ from 'jquery';
 import { computed, onMounted, ref } from 'vue';
 import { Api } from 'datatables.net';
 
-import { Selection, EntityType, ColumnType } from '../table/types';
+import { EntityType } from '../../lily/entity';
+import { Selection, ColumnType } from '../table/types';
 import { Command, Status } from '@skeljs/core/src/ui/types';
 import { showError } from '@skeljs/core/src/logging/api';
-import { slowly } from '@skeljs/core/src/skel/waitbox';
 
-import Dialog from '@skeljs/core/src/ui/Dialog.vue';
-import DataAdmin from './DataAdmin.vue';
-import DataTable from './DataTable.vue';
+import DataAdmin from '../table/DataAdmin.vue';
+import DataTable from '../table/DataTable.vue';
 import { getDefaultCommands, getDefaultStatuses } from './defaults';
-import { row2Obj, obj2Row } from './objconv';
+import { obj2Row } from '../table/objconv';
 
 const model = defineModel<any>();
 
