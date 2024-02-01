@@ -1,6 +1,6 @@
 
 import { Moment } from 'moment';
-import { EntityPropertyMap, EntityType, integer, property } from '../lily/entity';
+import { EntityPropertyMap, EntityType, integer, primaryKey, property } from '../lily/entity';
 
 export class CoObjectType extends EntityType {
 
@@ -39,7 +39,7 @@ export abstract class CoObject {
 export abstract class IdEntityType<Id> extends CoObjectType {
 
     static declaredProperty: EntityPropertyMap = {
-        id: property({ type: 'number', precision: 20, })
+        id: primaryKey({ type: 'number', precision: 20, })
     };
 
     constructor() {

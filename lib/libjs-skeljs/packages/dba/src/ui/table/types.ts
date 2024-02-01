@@ -39,6 +39,7 @@ export interface ColumnType {
     field: string           // data-field
     params?: TextMap
     type?: string           // data-type
+    primaryKey?: boolean
     format?: string         // data-format
     formatter?: FormatFunc   // override format
 

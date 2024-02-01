@@ -22,23 +22,45 @@ export class EntityType implements IEntityType {
     description?: string
 
     property: EntityPropertyMap = {}
+    ordinalPositionBase: number = 0
 
     constructor() {
     }
 
-    declare(properties: EntityPropertyMap) {
-        for (let k in properties) {
-            let prop = properties[k];
+    declare(declaredProperties: EntityPropertyMap) {
+        for (let k in declaredProperties) {
+            let prop = declaredProperties[k];
             prop.name = k;
-            // prop = new EntityProperty(prop);
-            // properties[k] = prop;
         }
-        Object.assign(this.property, properties);
+
+        let base = this.ordinalPositionBase;
+        let sorted = Object.values(declaredProperties).sort((a, b) => a._g_index - b._g_index);
+        for (let i = 0; i < sorted.length; i++) {
+            let prop = sorted[i];
+
+            let name = prop.name!;
+            let prev = this.property[name];
+            if (prev != null)
+                prop.position = prev.position;
+            prop.position ||= base + i;
+
+            delete prop._g_index;
+            this.property[name] = prop;
+        }
+
+        this.ordinalPositionBase += sorted.length;
     }
 
     get simpleName() {
         return simpleName(this.name);
     }
+
+    get properties() {
+        let v = Object.values(this.property);
+        v.sort((a, b) => a.position! - b.position!);
+        return v;
+    }
+
 }
 
 export interface EntityPropertyMap {
@@ -48,7 +70,10 @@ export interface EntityPropertyMap {
 export interface IEntityProperty {
 
     name?: string
+    position?: number
     type: string // ts type, not java type
+    primaryKey?: boolean
+
     // javaType: string
     precision?: number
     scale?: number
@@ -64,7 +89,11 @@ export interface IEntityProperty {
 export class EntityProperty implements IEntityProperty {
 
     name?: string
+    position?: number
     type: string
+    primaryKey?: boolean
+
+    // javaType: string
     precision?: number
     scale?: number
     nullable?: boolean
@@ -74,6 +103,8 @@ export class EntityProperty implements IEntityProperty {
     description?: string
 
     validator?: Validator
+
+    _g_index?: number;
 
     constructor(o: IEntityProperty) {
         Object.assign(this, o);
@@ -90,7 +121,15 @@ export class EntityProperty implements IEntityProperty {
     }
 }
 
+let _next_g_index: number = 1;
 export function property(a: IEntityProperty): EntityProperty {
     let prop = new EntityProperty(a);
+    prop._g_index = _next_g_index++;
+    return prop;
+}
+
+export function primaryKey(a: IEntityProperty): EntityProperty {
+    let prop = property(a);
+    prop.primaryKey = true;
     return prop;
 }
