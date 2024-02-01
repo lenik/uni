@@ -1,11 +1,12 @@
 <script setup lang="ts">
 
 import $ from 'jquery';
-import { computed, onMounted, ref } from "vue";
+import { computed, inject, onMounted, ref } from "vue";
 import { simpleName } from "@skeljs/core/src/logging/api";
 import { DialogSelectCallback } from '@skeljs/core/src/ui/types';
 import { Selection } from '../table/types';
 import { EntityType } from '../../lily/entity';
+import { SERVER_URL } from './context';
 
 import Dialog from '@skeljs/core/src/ui/Dialog.vue';
 import DataTable from '../table/DataTable.vue';
@@ -15,8 +16,8 @@ const model = defineModel();
 interface Props {
     modal?: boolean | string
     type: EntityType
-    lilyUrl?: string
     serverUrl?: string
+    url?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -33,13 +34,16 @@ const dialogComp = ref<undefined | InstanceType<typeof Dialog>>();
 const dialogTitle = computed(() => "Choose " + props.type.label);
 const dialogName = computed(() => simpleName(props.type.name) + "Chooser");
 
-const lilyUrl = computed(() => {
-    if (props.lilyUrl != null)
-        return props.lilyUrl;
-    else if (props.serverUrl != null)
-        return props.serverUrl + "/" + props.type.simpleName;
-    else
-        throw "either lily-url or server-url have to be specified."
+const serverUrl = inject<string>(SERVER_URL)!;
+const _url = computed(() => {
+    if (props.url != null)
+        return props.url;
+    
+    let svr = props.serverUrl || serverUrl;
+    if (svr != null)
+        return svr + "/" + props.type.simpleName;
+
+    throw "either lily-url or server-url have to be specified."
 });
 
 const dataTableComp = ref();
@@ -113,7 +117,7 @@ onMounted(() => {
 <template>
     <Dialog ref="dialogComp" class="choose-dialog" :name="dialogName" v-model="selection" :modal="modal"
         :title="dialogTitle" height="25em" :cmds="{ ok: true, cancel: true }">
-        <DataTable ref="dataTableComp" :lilyUrl="lilyUrl" @select="onselect">
+        <DataTable ref="dataTableComp" :lilyUrl="_url" @select="onselect">
             <slot></slot>
         </DataTable>
     </Dialog>

@@ -1,11 +1,32 @@
 <script setup lang="ts">
 
-import { ref } from 'vue';
+import { provide, ref } from 'vue';
 
 import ModelC from '@skeljs/core/src/ui/layout/ModelC.vue';
 import SiteBar from '@skeljs/core/src/ui/menu/SiteBar.vue';
 import ProjectInfo from '@skeljs/core/src/ui/demo/ProjectInfo.vue';
 import Copyright from '@skeljs/core/src/ui/demo/Copyright.vue';
+import { SERVER_URL } from '../src/ui/lily/context';
+import { serverUrl } from './server.config';
+
+const model = defineModel();
+
+interface Props {
+}
+
+const props = withDefaults(defineProps<Props>(), {
+});
+
+const emit = defineEmits<{
+    error: [message: string]
+}>();
+
+// provides
+provide(SERVER_URL, serverUrl);
+
+// property shortcuts
+
+// consts
 
 const siteMenu = [
     { href: "./index.html", iconfa: "fa-file-o", label: "This" },
