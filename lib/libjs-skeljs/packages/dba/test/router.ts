@@ -13,7 +13,7 @@ import DataObjvDemo from "./DataTables/DataObjvDemo.vue";
 import AjaxArrayDemo from "./DataTables/AjaxArrayDemo.vue";
 import AjaxObjectDemo from "./DataTables/AjaxObjectDemo.vue";
 import DataAdminDemo from "./DataTables/DataAdminDemo.vue";
-import PersonAdmin from "./net/bodz/lily/schema/contact/PersonAdmin.vue";
+import PersonAdmin from "../src/net/bodz/lily/schema/contact/PersonAdmin.vue";
 
 export const root = uiExtract([
     Index,

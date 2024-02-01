@@ -7,7 +7,6 @@ import { EntityType } from '../../../../../../src/lily/entity';
 import EntityChooseDialog from '../../../../../../src/ui/lily/EntityChooseDialog.vue';
 
 import { Person } from './Person';
-import { serverUrl } from '../../../../../server.config';
 
 const model = defineModel();
 
@@ -23,7 +22,7 @@ const emit = defineEmits<{
     error: [message: string]
 }>();
 
-// property shortcts
+// property shortcuts
 
 const entityChooseDialog = ref<undefined | InstanceType<typeof EntityChooseDialog>>();
 
@@ -38,7 +37,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <EntityChooseDialog ref="entityChooseDialog" :type="Person.TYPE" :modal="modal" :server-url="serverUrl">
+    <EntityChooseDialog ref="entityChooseDialog" :type="Person.TYPE" :modal="modal">
         <th data-field="id">ID</th>
         <th data-field="properties" class="hidden">properties</th>
         <th data-field="label">Name</th>

@@ -25,7 +25,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <LilyAdmin ref="admin" url="http://localhost:2800/Person" :type="type" v-model="selection">
+    <LilyAdmin ref="admin" :type="type" v-model="selection">
         <template #columns>
             <th data-field="id" class="id">ID</th>
             <th data-field="properties" class="hidden">properties</th>

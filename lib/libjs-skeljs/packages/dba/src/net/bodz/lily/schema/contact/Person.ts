@@ -1,11 +1,11 @@
 import { EntityPropertyMap, integer, property } from '../../../../../../src/lily/entity';
-import { CoPartyType, CoParty } from '../../../../../../src/lily/concrete';
+import { Party, PartyType, } from './Party';
 
 import * as validators from './PersonValidators';
 
 // Type Info
 
-export class PersonType extends CoPartyType {
+export class PersonType extends PartyType {
 
     name = "net.bodz.lily.schema.contact.Person"
     icon = "fa-user"
@@ -36,7 +36,8 @@ export class PersonType extends CoPartyType {
 }
 
 
-export class Person extends CoParty {
+export class Person extends Party {
+    static TYPE = new PersonType();
 
     gender?: string
 
@@ -59,6 +60,4 @@ export class Person extends CoParty {
         super(o);
         if (o != null) Object.assign(this, o);
     }
-
-    static TYPE = new PersonType();
 }

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 
 import $ from 'jquery';
-import { computed, onMounted, ref } from 'vue';
+import { computed, inject, onMounted, ref } from 'vue';
 import { Api } from 'datatables.net';
 
 import { EntityType } from '../../lily/entity';
 import { Selection, ColumnType } from '../table/types';
+import { SERVER_URL } from './context';
+
 import { Command, Status } from '@skeljs/core/src/ui/types';
 import { showError } from '@skeljs/core/src/logging/api';
 import { VarMap } from '@skeljs/core/src/lang/VarMap';
@@ -18,14 +20,27 @@ import { obj2Row } from '../table/objconv';
 const model = defineModel<any>();
 
 interface Props {
-    url: string
     type: EntityType
+    serverUrl?: string
+    url?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
 });
 
 // computed properties
+
+const serverUrl = inject<string>(SERVER_URL)!;
+const _url = computed(() => {
+    if (props.url != null)
+        return props.url;
+
+    let svr = props.serverUrl || serverUrl;
+    if (svr != null)
+        return svr + "/" + props.type.simpleName;
+
+    throw "either lily-url or server-url have to be specified."
+});
 
 // app states
 
@@ -96,13 +111,22 @@ function reload(callback?: any) {
     (api.ajax as any).reloadSmooth(false, callback);
 }
 
+function getIdPath(instance: any) {
+    let properties = props.type.properties;
+    let pkProps = properties.filter(c => c.primaryKey);
+    let pkCols = pkProps.map(p => ({ position: p.position, field: p.name } as ColumnType));
+    let idVec = obj2Row(instance, pkCols);
+    let idPath = idVec.join('/');
+    return idPath;
+}
+
 let defaultDepth = 2; // props.type.defaultDepth;
 function openNew() {
     let params = new VarMap({
         depth: defaultDepth
     });
 
-    let newUrl = props.url + "/new?" + params.toQueryString;
+    let newUrl = _url.value + "/new?" + params.queryString;
 
     $.ajax(newUrl)
         .done((data) => {
@@ -111,28 +135,12 @@ function openNew() {
         });
 }
 
-function saveNew(obj) {
-    if (obj != null) {
-        let row = obj2Row(obj, columns.value!);
-        let api = dataTableApi.value!;
-        (api.row.add(row).draw() as any)
-            .nodes().to$().addClass('new');
-    }
-    focus();
-    return true;
-}
-
 function openSelected() {
     let params = new VarMap({
         depth: defaultDepth
     });
-
-    let properties = props.type.properties;
-    let pkProps = properties.filter(c => c.primaryKey);
-    let pkCols = pkProps.map(p => ({ position: p.position, field: p.name } as ColumnType));
-    let idVec = obj2Row(model.value, pkCols);
-    let idPath = idVec.join('/');
-    let fetchUrl = props.url + "/" + idPath + "?" + params.queryString;
+    let idPath = getIdPath(model.value);
+    let fetchUrl = _url.value + "/" + idPath + "?" + params.queryString;
 
     $.ajax(fetchUrl).done((data) => {
         console.log(data);
@@ -141,44 +149,64 @@ function openSelected() {
     });
 }
 
+async function saveNew() {
+    let saveUrl = _url.value + "/save";
+    await _save(saveUrl, model.value);
+
+    let api = dataTableApi.value!;
+    let row = obj2Row(model.value, columns.value!);
+
+    (api.row.add(row).draw() as any)
+        .nodes().to$().addClass('new');
+
+    return true;
+}
+
 async function saveSelected(obj) {
-    if (obj != null) {
-        let updateUrl = props.url + "/save";
-        let payload = JSON.stringify(model.value);
-        console.log(payload);
-        await $.ajax({
-            url: updateUrl,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            data: JSON.stringify(model.value),
-            type: "POST"
-        }).done(function (data, status) {
-            console.log(data);
-            let row = obj2Row(obj, columns.value!);
-            let api = dataTableApi.value!;
+    if (obj == null)
+        // unexpected. do nothing
+        return true;
 
-            let dtIndex = selection.value?.firstDtIndex;
-            if (dtIndex != null)
-                (api.row(dtIndex).data(row).draw() as any)
-                    .nodes().to$().addClass('dirty');
+    let idPath = getIdPath(obj);
+    let updateUrl = _url.value + "/" + idPath + "/save";
 
-            focus();
-        }).fail((xhr, status, error) => {
-            console.log(xhr);
-            console.log(status);
-            console.log(error);
-        });
+    await _save(updateUrl, model.value);
+
+    let dtIndex = selection.value?.firstDtIndex;
+    if (dtIndex != null) {
+        let api = dataTableApi.value!;
+        let row = obj2Row(obj, columns.value!);
+        (api.row(dtIndex).data(row).draw() as any)
+            .nodes().to$().addClass('dirty');
     }
+
+    return true;
+}
+
+async function _save(url: string, obj: any) {
+    console.log(model.value);
+    let payload = JSON.stringify(model.value);
+    console.log(payload);
+    await $.ajax({
+        url: url,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        data: JSON.stringify(model.value),
+        type: "POST"
+    }).done(function (data, status) {
+        focus();
+    }).fail((xhr, status, error) => {
+        console.log(error);
+    });
     return true;
 }
 
 function deleteSelection() {
-    let url = props.url;
     let id = model.value?.id;
     if (id == null) return;
 
     // url: dataHref + "/delete?id=" + ids.join(",")
-    let deleteUrl = url + '/delete?id=' + id;
+    let deleteUrl = _url.value + '/delete?id=' + id;
 
     let api = dataTableApi.value! as any;
     let info = api.rowNumInfo();
@@ -270,7 +298,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <DataAdmin ref="admin" :type="type" :tools="tools" :statuses="statuses" dom="frtip" :lily-url="url" fetch-size="10"
+    <DataAdmin ref="admin" :type="type" :tools="tools" :statuses="statuses" dom="frtip" :lily-url="_url" fetch-size="10"
         processing=".processing" v-model:instance="model" :multi="multiMode" @select="extractRow">
         <template #columns>
             <slot name="columns"></slot>
