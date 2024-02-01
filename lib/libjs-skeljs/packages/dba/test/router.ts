@@ -14,7 +14,6 @@ import AjaxArrayDemo from "./DataTables/AjaxArrayDemo.vue";
 import AjaxObjectDemo from "./DataTables/AjaxObjectDemo.vue";
 import DataAdminDemo from "./DataTables/DataAdminDemo.vue";
 import PersonAdmin from "./net/bodz/lily/schema/contact/PersonAdmin.vue";
-import PersonChooseDialog from "./net/bodz/lily/schema/contact/PersonChooseDialog.vue";
 
 export const root = uiExtract([
     Index,
@@ -25,7 +24,6 @@ export const root = uiExtract([
         ...ui(AjaxObjectDemo, 'Ajax with row=object'),
         ...ui(DataAdminDemo, 'Data Admin demo'),
         ...ui(PersonAdmin, 'Person Admin'),
-        ...ui(PersonChooseDialog, 'Person choose dialog'),
     }, {
         label: 'index page'
     }

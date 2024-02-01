@@ -10,14 +10,14 @@ export function sleep(t: number, fn: Callback) {
 
 export function slowly(fn: Callback | ManagedCloser, msg: string = "Wait...") {
     beginWait(msg);
-    var afterJob = endWait;
+    let afterJob = endWait;
     //sleep(.5, function() {
     if (fn.length) {
         let fn1 = fn as ManagedCloser;
         return fn1(afterJob);
     } else {
         let fn0 = fn as Callback;
-        var ret = fn0();
+        let ret = fn0();
         afterJob();
         return ret;
     }

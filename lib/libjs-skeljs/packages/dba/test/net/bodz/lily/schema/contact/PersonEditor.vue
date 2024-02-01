@@ -9,6 +9,10 @@ import PersonChooseDialog from './PersonChooseDialog.vue';
 
 import { getDefaultFieldRowProps } from "../../../../../../src/ui/lily/defaults";
 
+defineOptions({
+    inheritAttrs: false
+});
+
 const model = defineModel<Person>();
 
 interface Props {

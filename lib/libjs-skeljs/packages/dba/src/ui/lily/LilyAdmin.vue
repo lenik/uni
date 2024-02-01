@@ -8,6 +8,7 @@ import { EntityType } from '../../lily/entity';
 import { Selection, ColumnType } from '../table/types';
 import { Command, Status } from '@skeljs/core/src/ui/types';
 import { showError } from '@skeljs/core/src/logging/api';
+import { VarMap } from '@skeljs/core/src/lang/VarMap';
 
 import DataAdmin from '../table/DataAdmin.vue';
 import DataTable from '../table/DataTable.vue';
@@ -95,13 +96,19 @@ function reload(callback?: any) {
     (api.ajax as any).reloadSmooth(false, callback);
 }
 
+let defaultDepth = 2; // props.type.defaultDepth;
 function openNew() {
-    let obj = {
-        gender: 'm',
-        age: 10,
-    };
-    model.value = obj;
-    editorDialog.value?.open(saveNew);
+    let params = new VarMap({
+        depth: defaultDepth
+    });
+
+    let newUrl = props.url + "/new?" + params.toQueryString;
+
+    $.ajax(newUrl)
+        .done((data) => {
+            model.value = data.data;
+            editorDialog.value?.open(saveNew);
+        });
 }
 
 function saveNew(obj) {
@@ -116,20 +123,52 @@ function saveNew(obj) {
 }
 
 function openSelected() {
-    editorDialog.value?.open(saveSelected);
+    let params = new VarMap({
+        depth: defaultDepth
+    });
+
+    let properties = props.type.properties;
+    let pkProps = properties.filter(c => c.primaryKey);
+    let pkCols = pkProps.map(p => ({ position: p.position, field: p.name } as ColumnType));
+    let idVec = obj2Row(model.value, pkCols);
+    let idPath = idVec.join('/');
+    let fetchUrl = props.url + "/" + idPath + "?" + params.queryString;
+
+    $.ajax(fetchUrl).done((data) => {
+        console.log(data);
+        model.value = data.data;
+        editorDialog.value?.open(saveSelected);
+    });
 }
 
-function saveSelected(obj) {
+async function saveSelected(obj) {
     if (obj != null) {
-        let row = obj2Row(obj, columns.value!);
-        let api = dataTableApi.value!;
+        let updateUrl = props.url + "/save";
+        let payload = JSON.stringify(model.value);
+        console.log(payload);
+        await $.ajax({
+            url: updateUrl,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: JSON.stringify(model.value),
+            type: "POST"
+        }).done(function (data, status) {
+            console.log(data);
+            let row = obj2Row(obj, columns.value!);
+            let api = dataTableApi.value!;
 
-        let dtIndex = selection.value?.firstDtIndex;
-        if (dtIndex != null)
-            (api.row(dtIndex).data(row).draw() as any)
-                .nodes().to$().addClass('dirty');
+            let dtIndex = selection.value?.firstDtIndex;
+            if (dtIndex != null)
+                (api.row(dtIndex).data(row).draw() as any)
+                    .nodes().to$().addClass('dirty');
+
+            focus();
+        }).fail((xhr, status, error) => {
+            console.log(xhr);
+            console.log(status);
+            console.log(error);
+        });
     }
-    focus();
     return true;
 }
 
