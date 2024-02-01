@@ -3,7 +3,7 @@ package net.bodz.lily.tool.daogen.dir;
 import java.io.Serializable;
 import java.util.Objects;
 
-import net.bodz.bas.codegen.ImportSet;
+import net.bodz.bas.codegen.JavaImports;
 import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.io.ITreeOut;
@@ -76,7 +76,7 @@ public class Foo_Id__java
         out.println("}");
     }
 
-    void ctors(ITreeOut out, ITableMetadata table, ImportSet imports) {
+    void ctors(ITreeOut out, ITableMetadata table, JavaImports imports) {
         IColumnMetadata[] kv = table.getPrimaryKeyColumns();
 
         // default constructor
@@ -141,7 +141,7 @@ public class Foo_Id__java
         out.println("}");
     }
 
-    void hashCode(ITreeOut out, ITableMetadata table, ImportSet imports) {
+    void hashCode(ITreeOut out, ITableMetadata table, JavaImports imports) {
         out.println("@" + imports.name(Override.class));
         out.println("public int hashCode() {");
         out.enter();
@@ -161,7 +161,7 @@ public class Foo_Id__java
         out.println("}");
     }
 
-    void equals(ITreeOut out, ITableMetadata table, ImportSet imports) {
+    void equals(ITreeOut out, ITableMetadata table, JavaImports imports) {
         out.println("@" + imports.name(Override.class));
         out.println("public boolean equals(Object obj) {");
         out.enter();
@@ -184,7 +184,7 @@ public class Foo_Id__java
         out.println("}");
     }
 
-    void toString(ITreeOut out, ITableMetadata table, ImportSet imports) {
+    void toString(ITreeOut out, ITableMetadata table, JavaImports imports) {
         out.println("@" + imports.name(Override.class));
         out.println("public String toString() {");
         out.enter();

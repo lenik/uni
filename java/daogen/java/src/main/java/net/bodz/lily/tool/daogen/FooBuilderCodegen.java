@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.bodz.bas.c.primitive.Primitives;
-import net.bodz.bas.codegen.ImportSet;
+import net.bodz.bas.codegen.JavaImports;
 import net.bodz.bas.io.BCharOut;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.log.Logger;
@@ -141,7 +141,7 @@ public class FooBuilderCodegen
 
         BCharOut buf = new BCharOut();
         ITreeOut out = buf.indented();
-        ImportSet importSet = new ImportSet(type.getPackageName());
+        JavaImports importSet = new JavaImports(type.getPackageName());
 
         if (innerClass)
             out.enter();
@@ -225,7 +225,7 @@ public class FooBuilderCodegen
             this.field = field;
         }
 
-        public void printFieldDecl(ITreeOut out, ImportSet im) {
+        public void printFieldDecl(ITreeOut out, JavaImports im) {
             Class<?> boxed = Primitives.box(type);
             out.printf("%s %s;\n", //
                     im.name(boxed), name);
@@ -245,7 +245,7 @@ public class FooBuilderCodegen
             return String.format("_%s_specified", name);
         }
 
-        public void printMethod(ITreeOut out, ImportSet im) {
+        public void printMethod(ITreeOut out, JavaImports im) {
             String returnType = builderType;
             String methodName = name;
             String paramName = name;
@@ -262,7 +262,7 @@ public class FooBuilderCodegen
             out.println("}");
         }
 
-        public void printBuildLine(ITreeOut out, ImportSet im) {
+        public void printBuildLine(ITreeOut out, JavaImports im) {
             String specified;
             if (type.isPrimitive()) {
                 specified = String.format("this.%s != null", name);
