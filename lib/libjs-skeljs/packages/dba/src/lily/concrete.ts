@@ -1,5 +1,4 @@
 
-import { Moment } from 'moment';
 import { EntityPropertyMap, EntityType, integer, primaryKey, property } from '../lily/entity';
 
 export class CoObjectType extends EntityType {
@@ -7,6 +6,20 @@ export class CoObjectType extends EntityType {
     static declaredProperty: EntityPropertyMap = {
         label: property({ type: 'string', icon: 'fa-tag' }),
         description: property({ type: 'string', icon: 'far-info-circle' }),
+
+        comment: property({ type: 'string', icon: 'fa-comment' }),
+        image: property({ type: 'string', icon: 'fa-image' }),
+        imageAlt: property({ type: 'string', icon: 'fa-tag' }),
+
+        flags: property({ type: 'integer', icon: 'fa-tag' }),
+        priority: property({ type: 'integer', icon: 'fa-tag' }),
+        state: property({ type: 'integer', icon: 'fa-tag' }),
+
+        ownerUser: property({ type: 'any', icon: 'fa-user' }),
+        ownerGroup: property({ type: 'any', icon: 'fa-group' }),
+
+        acl: property({ type: 'integer', icon: 'fa-tag' }),
+        accessMode: property({ type: 'integer', icon: 'fa-tag' }),
     };
 
     constructor() {
@@ -50,95 +63,6 @@ export abstract class IdEntityType<Id> extends CoObjectType {
 
 export abstract class IdEntity<Id> extends CoObject {
     id?: Id
-
-    constructor(o: any) {
-        super(o);
-        if (o != null) Object.assign(this, o);
-    }
-}
-
-export class Contact extends IdEntity<integer> {
-
-    org: any
-    orgUnit: any
-    person: any
-
-    rename?: string
-    usage?: string
-
-    zone: any
-    zoneId?: integer
-
-    country?: string
-    r1?: string
-    r2?: string
-    r3?: string
-    r4?: string
-    address1?: string
-    address2?: string
-    postalCode?: string
-
-    tel?: string
-    mobile?: string
-    fax?: string
-    email?: string
-    web?: string
-    qq?: string
-    wechat?: string
-
-    constructor(o: any) {
-        super(o);
-        if (o != null) Object.assign(this, o);
-    }
-}
-
-export abstract class CoPartyType extends IdEntityType<number> {
-
-    static declaredProperty: EntityPropertyMap = {
-        category: property({ type: 'any' }),
-        birthday: property({ type: 'Moment', icon: "fab-pagelines" }),
-
-        locale: property({ type: 'string' }),
-        timeZoneId: property({ type: 'string' }),
-
-        peer: property({ type: 'boolean', nullable: false }),
-        customer: property({ type: 'boolean', nullable: false }),
-        supplier: property({ type: 'boolean', nullable: false }),
-
-        tags: property({ type: 'string[]' }),
-
-        subject: property({ type: 'string' }),
-        contacts: property({ type: 'Contact[]' }),
-
-        bank: property({ type: 'string' }),
-        account: property({ type: 'string' }),
-    }
-
-    constructor() {
-        super();
-        this.declare(CoPartyType.declaredProperty);
-    }
-}
-
-export abstract class CoParty extends IdEntity<integer> {
-
-    category?: any
-    birthday?: Moment
-
-    locale: string
-    timeZoneId: string
-
-    peer: boolean = false
-    custoemr: boolean = false
-    supplier: boolean = false
-
-    tags: string[]
-
-    subject?: string
-    contacts: Contact[]
-
-    bank?: string
-    account?: string
 
     constructor(o: any) {
         super(o);
