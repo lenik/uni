@@ -3,11 +3,13 @@ import $ from 'jquery';
 
 import { computed, onMounted, ref } from "vue";
 import { resolveChild } from "../dom/create";
-import { bool, Command, DialogSelectCallback, getDialogCmds } from './types';
+import { bool, Command, getDialogCmds } from './types';
+import type { AsyncDialogSelectCallback, DialogSelectCallback } from './types';
 import { makeMovable } from '../dom/movable';
 
 import Icon from './Icon.vue';
 import CmdButtons from './CmdButtons.vue';
+import { slowly } from '@skeljs/core/src/skel/waitbox';
 
 export interface Props {
     group?: string
@@ -44,7 +46,6 @@ class ModalFrame {
 </script>
 
 <script setup lang="ts">
-
 const model = defineModel();
 
 const props = withDefaults(defineProps<Props>(), {
@@ -102,12 +103,12 @@ defineExpose({
 });
 
 class LocalFrame {
-    selectCallback?: DialogSelectCallback
+    selectCallback?: DialogSelectCallback | AsyncDialogSelectCallback
 }
 var localStack: LocalFrame[] = [];
 var modalStack: ModalFrame[] = ModalFrame.modalStack;
 
-function open(selectCallback?: DialogSelectCallback) {
+function open(selectCallback?: DialogSelectCallback | AsyncDialogSelectCallback) {
     let frame = new LocalFrame();
     frame.selectCallback = selectCallback;
     localStack.push(frame);
@@ -163,14 +164,22 @@ function close(e: Event) {
     }
 }
 
-function select(e: Event) {
+async function select(event: Event) {
     if (localStack.length) {
         let frame = localStack[localStack.length - 1];
 
-        if (frame.selectCallback != null)
-            frame.selectCallback(model.value, e);
+        if (frame.selectCallback != null) {
+            // slowly((end) => {
+            let success = frame.selectCallback(model.value, event);
+            console.log(success);
+            if (typeof success?.then == 'function') {
+                success = await success;
+            }
+            if (!success)
+                return false;
+        }
 
-        emit('select', model.value, e);
+        emit('select', model.value, event);
         _destroy();
     }
 }
