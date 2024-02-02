@@ -6,13 +6,15 @@ export function validate_birthday(val: Moment) {
 }
 
 export function validate_father(val: Person) {
-    if (val.gender != 'm')
-        throw "father should be male.";
+    if (val.gender != null)
+        if (val.gender != 'm')
+            throw "father should be male.";
 }
 
 export function validate_mother(val: Person) {
-    if (val.gender != 'f')
-        throw "mother should be female.";
+    if (val.gender != null)
+        if (val.gender != 'f')
+            throw "mother should be female.";
 }
 
 export function validate_gender(val: string) {

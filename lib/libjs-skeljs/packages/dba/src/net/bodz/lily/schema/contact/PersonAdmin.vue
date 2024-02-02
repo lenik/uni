@@ -33,8 +33,10 @@ onMounted(() => {
             <th data-field="description">Description</th>
             <th data-field="gender">Gender</th>
             <th data-type="date" data-field="birthday">Birthday</th>
-            <!-- <th data-field="properties.interest">Interests</th>
-            <th data-field="properties.hate">Hates</th> -->
+            <th data-field="father.label">Father</th>
+            <th data-field="mother.label">Mother</th>
+            <th data-field="ssn">Social ID</th>
+            <th data-field="dln">#Driver</th>
         </template>
         <template #preview>
             <PersonEditor class="editor" v-model="selection" />

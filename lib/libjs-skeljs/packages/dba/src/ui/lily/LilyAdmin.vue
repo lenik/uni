@@ -143,7 +143,6 @@ function openSelected() {
     let fetchUrl = _url.value + "/" + idPath + "?" + params.queryString;
 
     $.ajax(fetchUrl).done((data) => {
-        console.log(data);
         model.value = data.data;
         editorDialog.value?.open(saveSelected);
     });
@@ -156,13 +155,14 @@ async function saveNew() {
     let api = dataTableApi.value!;
     let row = obj2Row(model.value, columns.value!);
 
-    (api.row.add(row).draw() as any)
-        .nodes().to$().addClass('new');
+    let newRow = api.row.add(row) as any;
+    newRow.draw();
+    newRow.nodes().to$().addClass('new');
 
     return true;
 }
 
-async function saveSelected(obj) {
+async function saveSelected(obj: any) {
     if (obj == null)
         // unexpected. do nothing
         return true;
@@ -176,22 +176,22 @@ async function saveSelected(obj) {
     if (dtIndex != null) {
         let api = dataTableApi.value!;
         let row = obj2Row(obj, columns.value!);
-        (api.row(dtIndex).data(row).draw() as any)
-            .nodes().to$().addClass('dirty');
+
+        let updateRow = api.row(dtIndex).data(row) as any;
+        updateRow.draw();
+        updateRow.nodes().to$().addClass('dirty');
     }
 
     return true;
 }
 
 async function _save(url: string, obj: any) {
-    console.log(model.value);
     let payload = JSON.stringify(model.value);
-    console.log(payload);
     await $.ajax({
         url: url,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
-        data: JSON.stringify(model.value),
+        data: payload,
         type: "POST"
     }).done(function (data, status) {
         focus();
