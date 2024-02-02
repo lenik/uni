@@ -75,7 +75,7 @@ public class VFooMapper__xml
     }
 
     boolean isUpdatable(IColumnMetadata column) {
-        return !column.isReadOnly();
+        return ! column.isReadOnly();
     }
 
     List<IColumnMetadata> getIncludedColumns(Iterable<IColumnMetadata> columns) {
@@ -95,7 +95,7 @@ public class VFooMapper__xml
         {
             List<IColumnMetadata> basicColumns = j.reorder(table.getColumns(), 3);
             for (IColumnMetadata column : basicColumns) {
-                if (!isIncluded(column))
+                if (! isIncluded(column))
                     continue;
                 map(out, table, column, j);
             }
@@ -310,7 +310,7 @@ public class VFooMapper__xml
 
             IColumnMetadata[] parentKV = parent.getPrimaryKeyColumns();
             for (IColumnMetadata c : parentKV)
-                if (!columnUsage.contains(c.getName()))
+                if (! columnUsage.contains(c.getName()))
                     continue L;
 
             // all primary key columns are included in the view.
@@ -338,7 +338,7 @@ public class VFooMapper__xml
         out.println("<select id=\"count\" resultType=\"long\">");
         out.enter();
         {
-            out.println("select count(*) \"rows\" from " + table.getCompactName());
+            out.printf("select count(*) \"rows\" from %s a\n", table.getCompactName());
             out.println("<where>");
             out.enter();
             {
