@@ -138,8 +138,14 @@ export function configAjaxData(config: Config, dataUrl: string, fetchSize: numbe
 
         let mode = {
             search: viewData.search.value,
-            order: viewData.order.map((a: any) =>
-                (a.dir == 'asc' ? '' : '~') + columns[a.column].field)
+            order: viewData.order.map((a: any) => {
+                let prefix = (a.dir == 'asc' ? '' : '~');
+                let field = columns[a.column].field;
+                let dot = field.indexOf('.');
+                if (dot != -1) // sort by the head property.
+                    field = field.substring(0, dot);
+                return prefix + field;
+            })
         };
 
         let hit = true;
