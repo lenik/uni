@@ -231,7 +231,10 @@ function _autoPageSize(minPageSize: number = 1) {
             availableHeight, _rowHeight, rowHeight, rowsPerPage
         });
 
-        this.page.len(rowsPerPage).draw();
+        let len = this.page.len();
+        if (len != rowsPerPage) {
+            this.page.len(rowsPerPage).draw();
+        }
     };
     setPageLength();
 
