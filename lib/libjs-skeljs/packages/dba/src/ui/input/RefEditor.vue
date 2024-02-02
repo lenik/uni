@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { computed, onMounted, ref } from "vue";
-import { IdEntity } from "../../ui/table/types";
+import { IdEntity } from "../../lily/concrete";
 
 import Icon from "@skeljs/core/src/ui/Icon.vue";
 // import Dialog from "@skeljs/core/src/ui/Dialog.vue";
@@ -9,10 +9,7 @@ import Icon from "@skeljs/core/src/ui/Icon.vue";
 const model = defineModel<IdEntity<any>>();
 const id = defineModel("id");
 
-type InfoFunc = (o: any) => string;
-
 interface Props {
-    info?: InfoFunc
     dialog?: any
     chooseButton?: boolean
     removeButton?: boolean
@@ -20,7 +17,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    info: str_idLabel,
     chooseButton: false,
     removeButton: true,
     rightRemove: true,
@@ -33,8 +29,19 @@ const emit = defineEmits<{
 // property shortcuts
 
 const rootElement = ref<HTMLElement>();
-const specified = computed(() => model.value != null);
-const unspecified = computed(() => model.value == null);
+const unspecified = computed(() => justNulls(model.value));
+const specified = computed(() => !unspecified.value);
+
+const hasId = computed(() => model.value?.id != null || id.value != null);
+const hasLabel = computed(() => model.value?.label != null);
+
+function justNulls(o) {
+    if (o == null)
+        return true;
+    if (typeof o != 'object')
+        return false;
+    return o.id == null && o.label == null;
+}
 
 // methods
 
@@ -70,29 +77,24 @@ onMounted(() => {
 });
 </script>
 
-<script lang="ts">
-export function str_idLabel(o) {
-    if (o == null)
-        return "null";
-    else
-        return o.id + " - " + o.label;
-}
-</script>
-
 <template>
-    <span class="ref-editor" ref="rootElement" :class="{ specified, unspecified }">
+    <span class="ref-editor" ref="rootElement" :class="{ specified, unspecified, hasId, hasLabel }">
         <input type="hidden" :value="model?.id || id">
         <div class="info" @click="openDialog" @contextmenu="(e) => remove2(e)">
-            <template v-if="model != null">
+            <template v-if="specified">
                 <slot>
-                    <span> {{ info(model) }} </span>
+                    <span class="id" v-if="hasId"> {{ model?.id || id }} </span>
+                    <span class="label" v-if="hasLabel">{{ model?.label }}</span>
                 </slot>
             </template>
             <template v-else>
-                <slot name="null"><span> Unspecified</span> </slot>
+                <slot name="null">
+                    <Icon name="far-ban" />
+                    <span> Unspecified</span>
+                </slot>
             </template>
         </div>
-        <div class="btn" @click="remove" v-if="model != null && removeButton">
+        <div class="btn" @click="remove" v-if="specified && removeButton">
             <Icon class="normal" name="far-times-circle" />
             <Icon class="highlight" name="fa-times-circle" />
         </div>
@@ -125,6 +127,21 @@ export function str_idLabel(o) {
 
         &:hover {
             background-color: hsl(140, 40%, 92%);
+        }
+
+        .id {
+            display: inline-block;
+            font-style: italic;
+            transform: scaleX(70%);
+            margin: 0 -10%;
+            color: hsl(190, 40%, 50%);
+        }
+
+        .id+.label {
+            &::before {
+                content: " / ";
+                color: #bbb;
+            }
         }
     }
 
