@@ -47,7 +47,7 @@ public class JsonStats
             JsonVariant any = JsonFn.parseAny(json);
             switch (any.getType()) {
             case OBJECT:
-                JsonObject jo = (JsonObject) any.getValue();
+                JsonObject jo = any.getObject();
                 for (String sk : jo.keySet()) {
                     keyStats.add(sk);
                 }
