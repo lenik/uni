@@ -131,12 +131,13 @@ export function flattenObject(obj: any) {
     return { array, fields };
 }
 
-export function obj2Row(obj: any, columns: ColumnType[]): any[] {
+export function obj2Row(obj: any, columns: ColumnType[], _default: any = null): any[] {
     let row: any[] = [];
     for (let i = 0; i < columns.length; i++) {
         let field = columns[i].field;
         let propv = splitPropv(field);
         let val = getDeep(obj, propv);
+        if (val === undefined) val = _default;
         row.push(val);
     }
     return row;
