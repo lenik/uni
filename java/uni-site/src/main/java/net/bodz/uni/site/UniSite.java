@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import net.bodz.bas.i18n.dom.StrFn;
 import net.bodz.bas.i18n.dom.iString;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
@@ -100,8 +101,8 @@ public class UniSite
         Map<String, String> help = new LinkedHashMap<>();
         help.put("About", "about/");
         help.put("Contacts", "contacts/");
-        map.put(iString.fn.wrap("Sites"), sites);
-        map.put(iString.fn.wrap("Help"), help);
+        map.put(StrFn.wrap("Sites"), sites);
+        map.put(StrFn.wrap("Help"), help);
         return map;
     }
 

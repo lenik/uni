@@ -3,6 +3,7 @@ package net.bodz.uni.site.model;
 import java.io.File;
 
 import net.bodz.bas.i18n.dom.iString;
+import net.bodz.bas.i18n.dom.StrFn;
 
 public class PatchProject
         extends Project {
@@ -23,7 +24,7 @@ public class PatchProject
 
     @Override
     public iString getDescription() {
-        return iString.fn.wrap(getName());
+        return StrFn.wrap(getName());
     }
 
 }
