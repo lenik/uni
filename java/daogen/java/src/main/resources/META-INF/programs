@@ -1,3 +1,4 @@
+main 2print = net.bodz.lily.tool.daogen.IndentedOutPrintsCompiler
 main cfgconv = net.bodz.lily.tool.daogen.config.ConfigFormatConv
 main daogen = net.bodz.lily.tool.daogen.DaoCodeGenerator
 main foob = net.bodz.lily.tool.daogen.FooBuilderCodegen

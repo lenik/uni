@@ -1,6 +1,7 @@
 include libauto/project.am
 
 dist_bin_SCRIPTS = \
+    java/2print \
     java/criterion \
     java/daogen \
     java/foob \
@@ -29,6 +30,7 @@ install-data-hook:
 	cp -RL java/lib $(DESTDIR)$(pkgdatadir)
 
 install-debug:
+	sudo ln -snf $$PWD/java/2print.in /bin/2print
 	sudo ln -snf $$PWD/java/criterion.in /bin/criterion
 	sudo ln -snf $$PWD/java/daogen.in /bin/daogen
 	sudo ln -snf $$PWD/java/foob.in /bin/foob
