@@ -29,7 +29,7 @@ public class FooIndex__java
             {
                 out.printf("extends %s<%s> {\n", //
                         out.im.name(CoIndex.class), //
-                        out.im.name(project.Foo));
+                        out.im.name(project.Foo.qName));
                 out.leave();
             }
 //            out.println();

@@ -59,6 +59,11 @@ public class FooBuilderCodegen
      */
     boolean innerClass;
 
+    /**
+     * @option -s
+     */
+    boolean explicitSpecified;
+
     boolean useInherit = true;
 
     @Override
@@ -108,7 +113,7 @@ public class FooBuilderCodegen
 
         Map<String, BuilderField> builderFields = new LinkedHashMap<>();
 
-        if (!noBeanProperties) {
+        if (! noBeanProperties) {
             BeanInfo beanInfo = Introspector.getBeanInfo(type);
             for (PropertyDescriptor prop : beanInfo.getPropertyDescriptors()) {
                 Method setter = prop.getWriteMethod();
@@ -125,7 +130,7 @@ public class FooBuilderCodegen
 
         if (publicFields)
             for (Field field : type.getFields()) {
-                if (!includeField(field))
+                if (! includeField(field))
                     continue;
                 String name = field.getName();
                 builderFields.putIfAbsent(name, new BuilderField(builderType, field, name));
@@ -133,7 +138,7 @@ public class FooBuilderCodegen
 
         if (declaredFields)
             for (Field field : type.getDeclaredFields()) {
-                if (!includeField(field))
+                if (! includeField(field))
                     continue;
                 String name = field.getName();
                 builderFields.putIfAbsent(name, new BuilderField(builderType, field, name));
@@ -236,8 +241,9 @@ public class FooBuilderCodegen
                 // check if specified by testing boxed value with null.
                 return false;
 
-            out.printf("boolean %s;\n", //
-                    nameSpecified(name));
+            if (explicitSpecified)
+                out.printf("boolean %s;\n", //
+                        nameSpecified(name));
             return true;
         }
 
@@ -253,7 +259,7 @@ public class FooBuilderCodegen
                     im.name(type), paramName);
             out.enter();
             out.printf("this.%s = %s;\n", name, paramName);
-            if (!type.isPrimitive()) {
+            if (! type.isPrimitive() && explicitSpecified) {
                 String nameSpecified = nameSpecified(name);
                 out.printf("this.%s = true;\n", nameSpecified);
             }
@@ -263,21 +269,24 @@ public class FooBuilderCodegen
         }
 
         public void printBuildLine(ITreeOut out, JavaImports im) {
-            String specified;
+            String specified = null;
             if (type.isPrimitive()) {
                 specified = String.format("this.%s != null", name);
             } else {
-                specified = nameSpecified(name);
+                if (explicitSpecified)
+                    specified = nameSpecified(name);
             }
 
             if (property != null) {
                 Method setter = property.getWriteMethod();
-                out.printf("if (%s) o.%s(this.%s);\n", //
-                        specified, //
+                if (specified != null)
+                    out.printf("if (%s) ", specified);
+                out.printf("o.%s(this.%s);\n", //
                         setter.getName(), name);
             } else {
-                out.printf("if (%s) o.%s = this.%s;\n", //
-                        specified, //
+                if (specified != null)
+                    out.printf("if (%s) ", specified);
+                out.printf("o.%s = this.%s;\n", //
                         name, name);
             }
         }

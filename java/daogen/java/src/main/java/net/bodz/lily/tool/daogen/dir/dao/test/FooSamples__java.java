@@ -60,6 +60,11 @@ public class FooSamples__java
         super(project, project.FooSamples);
     }
 
+    @Override
+    protected boolean isTest() {
+        return false;
+    }
+
     Random random(Object obj) {
         int prime = 17;
         long seed = project.randomSeed;
@@ -153,12 +158,13 @@ public class FooSamples__java
 
         out.println("@Override");
         out.printf("public %s build()\n", //
-                out.im.name(project.Foo));
+                out.im.name(project.Foo.qName));
         out.println("        throws Exception {");
         out.enter();
         {
             out.printf("%s a = new %s();\n", //
-                    out.im.name(project.Foo), out.im.name(project.Foo));
+                    out.im.name(project.Foo.qName), //
+                    out.im.name(project.Foo.qName));
 
             for (String fkName : table.getForeignKeys().keySet()) {
                 CrossReference xref = table.getForeignKeys().get(fkName);
@@ -271,7 +277,7 @@ public class FooSamples__java
 
         out.println("@Override");
         out.printf("public %s buildWired(%s picker)", //
-                out.im.name(project.Foo.getFullName()), //
+                out.im.name(project.Foo.fullName), //
                 out.im.name(IRandomPicker.class));
         out.println(" throws Exception {");
         out.enter();

@@ -76,7 +76,7 @@ public class MiscTemplates {
             Class<?> kBoxed = Primitives.box(kType);
             return QualifiedName.parse(kBoxed.getCanonicalName());
         default:
-            return project.IFoo_Id;
+            return project.IFoo_Id.qName;
         }
     }
 

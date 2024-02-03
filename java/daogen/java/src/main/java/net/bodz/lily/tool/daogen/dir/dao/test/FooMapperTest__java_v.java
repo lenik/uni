@@ -13,6 +13,11 @@ public class FooMapperTest__java_v
     }
 
     @Override
+    protected boolean isTest() {
+        return true;
+    }
+
+    @Override
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata model) {
         out.println("public class " + project.FooMapperTest.name);
         out.enter();
@@ -21,7 +26,7 @@ public class FooMapperTest__java_v
             {
                 out.printf("extends %s<%s, %s> {\n", //
                         out.im.name("net.bodz.lily.test.AbstractViewTest"), //
-                        out.im.name(project.Foo), //
+                        out.im.name(project.Foo.qName), //
                         project.FooMapper.name);
                 out.leave();
             }

@@ -28,7 +28,7 @@ public class FooMapper__xml
         out.println("PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\"");
         out.println("\"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">");
 
-        out.println("<mapper namespace=\"" + project.FooMapper.getFullName() + "\">");
+        out.println("<mapper namespace=\"" + project.FooMapper.fullName + "\">");
         out.enter();
         {
             out.println();
@@ -86,7 +86,7 @@ public class FooMapper__xml
                     if (ColumnUtils.isIgnoredInCreation(column))
                         continue;
 
-                    if (!first)
+                    if (! first)
                         out.print(",\n");
 
                     ColumnNaming cname = project.naming(column);
@@ -105,7 +105,7 @@ public class FooMapper__xml
                     if (ColumnUtils.isIgnoredInCreation(column))
                         continue;
 
-                    if (!first)
+                    if (! first)
                         out.print(",\n");
 
                     out.print(templates.toSqlVar(column));

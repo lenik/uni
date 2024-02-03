@@ -23,8 +23,8 @@ public class FooManager__java
             {
                 out.printf("extends %s<%s, %s> {\n", //
                         out.im.name(AbstractEntityManager.class), //
-                        out.im.name(project.Foo), //
-                        out.im.name(project.FooMapper));
+                        out.im.name(project.Foo.qName), //
+                        out.im.name(project.FooMapper.qName));
                 out.leave();
             }
 
@@ -35,7 +35,7 @@ public class FooManager__java
             out.enter();
             {
                 out.printf("super(dataContext, %s.class);\n", //
-                        out.im.name(project.FooMapper));
+                        out.im.name(project.FooMapper.qName));
                 out.leave();
             }
             out.println("}");

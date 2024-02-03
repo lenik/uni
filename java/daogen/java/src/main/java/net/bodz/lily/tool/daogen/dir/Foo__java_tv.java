@@ -28,7 +28,7 @@ public class Foo__java_tv
         QualifiedName idType = templates.getIdType(table);
 
         String simpleName = project.Foo.name;
-        String baseClassName = project._Foo_stuff.getFullName();
+        String baseClassName = project._Foo_stuff.fullName;
 
         String params = "";
         String baseParams = "";

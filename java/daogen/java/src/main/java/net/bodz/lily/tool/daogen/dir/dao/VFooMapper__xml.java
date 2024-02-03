@@ -106,7 +106,7 @@ public class VFooMapper__xml
                 ITableMetadata parent = ref.getParentTable();
 
                 String mapperNs = RuntimeSupport.guessMapperNs(parent.getJavaQName());
-                boolean defaultNs = mapperNs.equals(project.FooMapper.getFullName());
+                boolean defaultNs = mapperNs.equals(project.FooMapper.fullName);
                 String nsPrefix = defaultNs ? "" : (mapperNs + ".");
 
                 out.printf("<association property=\"%s\" columnPrefix=\"%s\"\n", //

@@ -168,7 +168,7 @@ public class Foo_stuff__java
                 out.println("@Override");
                 out.printf("public %s id() {\n", out.im.name(idType));
                 // out.printf(" return id;\n");
-                out.printf("    return new %s(this);\n", out.im.name(project.Foo_Id));
+                out.printf("    return new %s(this);\n", out.im.name(project.Foo_Id.qName));
                 out.printf("}\n");
 
                 // id(Foo_Id id) => { this.field* = id.property* }

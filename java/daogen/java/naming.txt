@@ -1,0 +1,19 @@
+
+name:
+
+    [column]
+        db column name
+    
+    [columnQuoted]
+    
+    [javaName]
+        1. name :=
+            1. tableMap[column].columnMap[column].javaName
+            2. columnPropertyMap[column]
+            3. column.javaName
+            4. camelCase(column) if enabled
+            5. error!
+        2. apply fk-decorators()
+        3. apply keyword renaming
+
+

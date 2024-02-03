@@ -1,29 +1,23 @@
 package net.bodz.lily.tool.daogen;
 
 import net.bodz.bas.codegen.ClassPathInfo;
+import net.bodz.bas.log.Logger;
+import net.bodz.bas.log.LoggerFactory;
 
 public class DirConfig {
+
+    static final Logger logger = LoggerFactory.getLogger(DirConfig.class);
 
     public ClassPathInfo modelPath;
     public ClassPathInfo daoPath;
     public ClassPathInfo wsPath;
-    public ClassPathInfo htmlPath;
+    public ClassPathInfo webPath;
 
-    public ClassPathInfo modelTestPath;
-    public ClassPathInfo daoTestPath;
-    public ClassPathInfo wsTestPath;
-    public ClassPathInfo htmlTestPath;
-
-    public DirConfig(ClassPathInfo modelPath, ClassPathInfo daoPath, ClassPathInfo wsPath, ClassPathInfo htmlPath) {
+    public DirConfig(ClassPathInfo modelPath, ClassPathInfo daoPath, ClassPathInfo wsPath, ClassPathInfo webPath) {
         this.modelPath = modelPath;
         this.daoPath = daoPath;
         this.wsPath = wsPath;
-        this.htmlPath = htmlPath;
-
-        this.modelTestPath = modelPath.toSrcTest();
-        this.daoTestPath = daoPath.toSrcTest();
-        this.wsTestPath = wsPath.toSrcTest();
-        this.htmlTestPath = htmlPath.toSrcTest();
+        this.webPath = webPath;
     }
 
 }

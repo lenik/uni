@@ -23,7 +23,7 @@ public class FooMapper__java_tv
                 out.enterln("extends");
                 out.printf("%s<%s> {\n", //
                         out.im.name(IEntityMapper.class), //
-                        out.im.name(project.Foo));
+                        out.im.name(project.Foo.qName));
                 out.leave();
 
                 out.println();

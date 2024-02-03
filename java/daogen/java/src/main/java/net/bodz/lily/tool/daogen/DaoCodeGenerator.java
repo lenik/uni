@@ -4,15 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.c.m2.MavenPomDir;
 import net.bodz.bas.c.string.StringPart;
 import net.bodz.bas.c.system.SysProps;
 import net.bodz.bas.codegen.ClassPathInfo;
+import net.bodz.bas.codegen.ClassPathInfo.Builder;
 import net.bodz.bas.codegen.UpdateMethod;
 import net.bodz.bas.db.ctx.DataContext;
 import net.bodz.bas.db.ctx.DataHub;
@@ -43,6 +41,11 @@ import net.bodz.lily.tool.daogen.dir.dao.test.FooManagerTest__java;
 import net.bodz.lily.tool.daogen.dir.dao.test.FooMapperTest__java;
 import net.bodz.lily.tool.daogen.dir.dao.test.FooMapperTest__java_v;
 import net.bodz.lily.tool.daogen.dir.dao.test.FooSamples__java;
+import net.bodz.lily.tool.daogen.dir.web.FooAdmin__vue;
+import net.bodz.lily.tool.daogen.dir.web.FooChooseDialog__vue;
+import net.bodz.lily.tool.daogen.dir.web.FooEditor__vue;
+import net.bodz.lily.tool.daogen.dir.web.FooValidators__ts;
+import net.bodz.lily.tool.daogen.dir.web.Foo__ts;
 import net.bodz.lily.tool.daogen.dir.ws.FooIndex__java;
 import net.bodz.lily.tool.daogen.util.MavenDirs;
 
@@ -51,7 +54,9 @@ import net.bodz.lily.tool.daogen.util.MavenDirs;
  */
 @ProgramName("daogen")
 public class DaoCodeGenerator
-        extends BasicCLI {
+        extends BasicCLI
+        implements
+            IJDBCLoadSelector {
 
     static Logger logger = LoggerFactory.getLogger(DaoCodeGenerator.class);
 
@@ -71,6 +76,8 @@ public class DaoCodeGenerator
      * @option -p =QNAME
      */
     String parentPackage;
+
+    Class<?> appClass = getClass();
 
     /**
      * Output directory. Use the maven base.dir by default.
@@ -108,13 +115,13 @@ public class DaoCodeGenerator
     File wsDir;
 
     /**
-     * Where to save entity management web pages.
+     * Where to save ES modules for types and components.
      *
      * @option -M =PATH
      */
-    File htmlDir;
+    File webDir;
 
-    boolean checkHeaderDir;
+//    boolean checkHeaderDir;
 
     /**
      * Max parent level to search for the header dir.
@@ -122,6 +129,13 @@ public class DaoCodeGenerator
      * @option --max-api-depth =NUM
      */
     int maxParents = 1;
+
+    /**
+     * Show output paths only, no-op.
+     *
+     * @option
+     */
+    boolean showPath;
 
     /**
      * Generate models for views.
@@ -266,13 +280,16 @@ public class DaoCodeGenerator
         else
             seed = seedMagic.hashCode();
 
-        // ClassPathInfo outPath = ClassPathInfo.srcMain(packageName, simpleName, outDir);
-        ClassPathInfo headerPath = ClassPathInfo.srcMain(packageName, simpleName, headerDir);
-        ClassPathInfo daoPath = ClassPathInfo.srcMain(packageName, simpleName, daoDir);
-        ClassPathInfo wsPath = ClassPathInfo.srcMain(packageName, simpleName, wsDir);
-        ClassPathInfo htmlPath = ClassPathInfo.srcMain(packageName, simpleName, htmlDir);
+        Builder builder = new ClassPathInfo.Builder()//
+                .qName(packageName, simpleName)//
+                .maven(outDir);
+        // ClassPathInfo outPath = builder.build();
+        ClassPathInfo headerPath = builder.maven(headerDir).build();
+        ClassPathInfo daoPath = builder.maven(daoDir).build();
+        ClassPathInfo wsPath = builder.maven(wsDir).build();
+        ClassPathInfo esmPath = builder.npm(webDir).build();
 
-        DirConfig dirConfig = new DirConfig(headerPath, daoPath, wsPath, htmlPath);
+        DirConfig dirConfig = new DirConfig(headerPath, daoPath, wsPath, esmPath);
 
         JavaGenProject project = new JavaGenProject(outDir, dirConfig, seed);
         project.catalog = table.getCatalog();
@@ -314,6 +331,13 @@ public class DaoCodeGenerator
 
         new FooIndex__java(project).buildFile(table);
         // new FooIndexTest__java(project).buildFile(table);
+
+        UpdateMethod esmUpdate = UpdateMethod.OVERWRITE;
+        new Foo__ts(project).buildFile(table, esmUpdate);
+        new FooAdmin__vue(project).buildFile(table, esmUpdate);
+        new FooChooseDialog__vue(project).buildFile(table, esmUpdate);
+        new FooEditor__vue(project).buildFile(table, esmUpdate);
+        new FooValidators__ts(project).buildFile(table, esmUpdate);
     }
 
     public void makeView(IViewMetadata view)
@@ -331,31 +355,26 @@ public class DaoCodeGenerator
         new VFooMapper__xml(project).buildFile(view);
         new FooMapper__java_tv(project).buildFile(view);
         new FooMapperTest__java_v(project).buildFile(view);
+
+        new Foo__ts(project).buildFile(view);
+        new FooChooseDialog__vue(project).buildFile(view);
     }
 
     @Override
     protected void mainImpl(String... args)
             throws Exception {
-        if (parentPackage == null)
-            throw new IllegalArgumentException("parent-package isn't specified.");
 
-        startDir = SysProps.userWorkDir;
-        if (chdir != null)
-            startDir = new File(startDir, chdir).getCanonicalFile();
-
-        if (outDir == null) {
-            MavenPomDir pomDir = MavenDirs.findPomDir(appClass, startDir);
-            outDir = pomDir.getBaseDir();
+        configDirs();
+        if (this.showPath) {
+            logger.info("header: " + this.headerDir);
+            logger.info("dao: " + this.daoDir);
+            logger.info("ws: " + this.wsDir);
+            logger.info("web: " + this.webDir);
+            return;
         }
 
-        if (headerDir == null)
-            headerDir = findSiblingDir("header-dir", 0, "-types", "-model", "model", "-api");
-        if (daoDir == null)
-            daoDir = findSiblingDir("dao-dir", 0, "-dao", "-impl");
-        if (wsDir == null)
-            wsDir = findSiblingDir("ws-dir", 0, "-ws", "-webapp", "-server", "server");
-        if (htmlDir == null)
-            htmlDir = findSiblingDir("html-dir", 0, "-html", "-web", "-ws", "-webapp", "-server", "server");
+        if (parentPackage == null)
+            throw new IllegalArgumentException("parent-package isn't specified.");
 
         if (includeTables == null && includeViews == null)
             includeTables = includeViews = true;
@@ -399,32 +418,7 @@ public class DaoCodeGenerator
             }
         }
 
-        catalog.setJDBCLoadSelector(new IJDBCLoadSelector() {
-            @Override
-            public SelectMode selectSchema(SchemaOid id) {
-                ContainingType type = catalogSubset.contains(id.getSchemaName());
-                if (type != ContainingType.NONE)
-                    return SelectMode.INCLUDE;
-                else
-                    return SelectMode.EXCLUDE;
-            }
-
-            @Override
-            public SelectMode selectTable(TableOid oid, TableType type) {
-                if (type.isTable())
-                    if (includeTables != Boolean.TRUE)
-                        return SelectMode.SKIP;
-                if (type.isView())
-                    if (includeViews != Boolean.TRUE)
-                        return SelectMode.SKIP;
-
-                if (catalogSubset.contains(oid))
-                    return SelectMode.INCLUDE;
-
-                return loadDependedObjects ? SelectMode.EXCLUDE : SelectMode.SKIP;
-            }
-
-        });
+        catalog.setJDBCLoadSelector(this);
 
         try {
             if (loadCatalogFile != null) {
@@ -466,54 +460,67 @@ public class DaoCodeGenerator
         }
     }
 
-    Class<?> appClass = getClass();
+    public void configDirs()
+            throws IOException {
+        this.startDir = SysProps.userWorkDir;
+        if (this.chdir != null)
+            this.startDir = new File(this.startDir, this.chdir).getCanonicalFile();
 
-    File findSiblingDir(String logTitle, int index, String... search) {
-        List<File> list = findSiblingDirs(logTitle, search);
-        if (list.isEmpty())
-            return null;
-
-        if (index < 0)
-            index = list.size() + index;
-        if (index < 0 || index >= list.size())
-            return null;
-        File selection = list.get(index);
-        return selection;
-    }
-
-    List<File> findSiblingDirs(String logTitle, String... search) {
-        MavenPomDir startPomDir = MavenDirs.findPomDir(appClass, startDir);
-        if (startPomDir == null)
-            return Arrays.asList(outDir);
-
-        String moduleName = startPomDir.getName();
-        String prefix = "";
-        int lastDash = moduleName.lastIndexOf('-');
-        if (lastDash != -1)
-            prefix = moduleName.substring(0, lastDash);
-
-        String[] expands = new String[search.length];
-        for (int i = 0; i < search.length; i++) {
-            String s = search[i];
-            if (s.startsWith("-"))
-                s = prefix + s;
-            expands[i] = s;
+        if (this.outDir == null) {
+            MavenPomDir pomDir = MavenDirs.findPomDir(this.appClass, this.startDir);
+            this.outDir = pomDir.getBaseDir();
         }
 
-        List<MavenPomDir> pomDirs = MavenDirs.findPomDirs(//
-                startPomDir.getBaseDir(), //
-                0 /* maxDepth */, maxParents, //
-                expands);
+        DirSearcher searcher = new DirSearcher(this.appClass, this.startDir, this.maxParents);
 
-        if (pomDirs.isEmpty())
-            return Arrays.asList(outDir);
+        if (this.headerDir == null)
+            this.headerDir = searcher.findSiblingDir("header-dir", DirSearcher.MAVEN, 0, //
+                    "-types", "-model", "model", "-api");
+        if (this.daoDir == null)
+            this.daoDir = searcher.findSiblingDir("dao-dir", DirSearcher.MAVEN, 0, //
+                    "-dao", "-impl");
+        if (this.wsDir == null)
+            this.wsDir = searcher.findSiblingDir("ws-dir", DirSearcher.MAVEN, 0, //
+                    "-ws", "-webapp", "-server", "server");
+        if (this.webDir == null)
+            this.webDir = searcher.findSiblingDir("web-dir", DirSearcher.NPM, 0, //
+                    "-web", "html", "client");
 
-        List<File> dirs = new ArrayList<>();
-        for (MavenPomDir pomDir : pomDirs)
-            dirs.add(pomDir.getBaseDir());
-        for (File dir : dirs)
-            logger.log(logTitle + ": " + dir);
-        return dirs;
+        if (this.headerDir == null)
+            this.headerDir = this.outDir;
+        if (this.daoDir == null)
+            this.daoDir = this.outDir;
+        if (this.wsDir == null)
+            this.wsDir = this.outDir;
+        if (this.webDir == null)
+            this.webDir = this.outDir;
+    }
+
+    /** ⇱ Implementation Of {@link IJDBCLoadSelector}. */
+    /* _____________________________ */static section.iface __jdbc_selector__;
+
+    @Override
+    public SelectMode selectSchema(SchemaOid id) {
+        ContainingType type = catalogSubset.contains(id.getSchemaName());
+        if (type != ContainingType.NONE)
+            return SelectMode.INCLUDE;
+        else
+            return SelectMode.EXCLUDE;
+    }
+
+    @Override
+    public SelectMode selectTable(TableOid oid, TableType type) {
+        if (type.isTable())
+            if (includeTables != Boolean.TRUE)
+                return SelectMode.SKIP;
+        if (type.isView())
+            if (includeViews != Boolean.TRUE)
+                return SelectMode.SKIP;
+
+        if (catalogSubset.contains(oid))
+            return SelectMode.INCLUDE;
+
+        return loadDependedObjects ? SelectMode.EXCLUDE : SelectMode.SKIP;
     }
 
     public static void main(String[] args)

@@ -118,7 +118,9 @@ public class Foo_Id__java
         out.println();
 
         // from entity constructor
-        out.printf("public %s(%s o) {\n", project.Foo_Id.name, imports.name(project._Foo_stuff));
+        out.printf("public %s(%s o) {\n", //
+                project.Foo_Id.name, //
+                imports.name(project._Foo_stuff.qName));
         out.enter();
         {
             for (IColumnMetadata k : kv) {

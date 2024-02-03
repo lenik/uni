@@ -1,9 +1,11 @@
 package net.bodz.lily.tool.daogen;
 
 import net.bodz.bas.codegen.ClassPathInfo;
-import net.bodz.bas.codegen.XmlSourceBuffer;
-import net.bodz.bas.err.NotImplementedException;
+import net.bodz.bas.codegen.JavaSourceWriter;
+import net.bodz.bas.codegen.QualifiedName;
+import net.bodz.bas.io.BCharOut;
 import net.bodz.bas.io.ITreeOut;
+import net.bodz.bas.io.impl.TreeOutImpl;
 import net.bodz.bas.t.catalog.ITableMetadata;
 
 public abstract class JavaGen__java
@@ -18,14 +20,32 @@ public abstract class JavaGen__java
         return JAVA;
     }
 
+    protected QualifiedName getClassName(ITableMetadata model) {
+        return pathInfo.getQName();
+    }
+
     @Override
     public void build(ITreeOut out, ITableMetadata model) {
         buildClass(out, model);
     }
 
-    @Override
-    protected void buildXmlBody(XmlSourceBuffer out, ITableMetadata model) {
-        throw new NotImplementedException();
+    protected final void buildClass(ITreeOut out, ITableMetadata model) {
+        QualifiedName name = getClassName(model);
+        out.println("package " + name.packageName + ";");
+        out.println();
+
+        BCharOut body = new BCharOut();
+        JavaSourceWriter buffer = new JavaSourceWriter(name.packageName, TreeOutImpl.from(body));
+        buildClassBody(buffer, model);
+
+        int n = buffer.im.dump(out);
+        if (n != 0)
+            out.println();
+
+        out.print(body.toString());
+        out.flush();
     }
+
+    protected abstract void buildClassBody(JavaSourceWriter out, ITableMetadata model);
 
 }

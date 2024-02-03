@@ -16,7 +16,7 @@ public class FooCriteriaBuilder__java
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
         out.printf("public class %s\n", project.FooCriteriaBuilder.name);
         out.printf("        extends %s<%s> {\n", //
-                out.im.name(project._FooCriteriaBuilder_stuff), //
+                out.im.name(project._FooCriteriaBuilder_stuff.qName), //
                 project.FooCriteriaBuilder.name);
 
         out.println();

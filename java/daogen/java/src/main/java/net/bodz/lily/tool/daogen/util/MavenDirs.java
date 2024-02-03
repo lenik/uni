@@ -57,9 +57,6 @@ public class MavenDirs {
     public static MavenPomDir findPomDir(Class<?> clazz, File startDir) {
         MavenPomDir pomDir = MavenPomDir.closest(startDir);
         if (pomDir == null) {
-            // if (clazz == DaoCodeGenerator.class)
-            // throw new RuntimeException("Can't locate the maven project from " + startDir);
-
             pomDir = MavenPomDir.fromClass(clazz);
             if (pomDir == null)
                 throw new RuntimeException("Can't locate the maven project from " + clazz);

@@ -52,6 +52,12 @@ public class JavaGenProject {
     public final ClassPathInfo FooIndex;
     public final ClassPathInfo FooIndexTest; // test
 
+    public final ClassPathInfo Esm_Foo;
+    public final ClassPathInfo Esm_FooAdmin;
+    public final ClassPathInfo Esm_FooChooseDialog;
+    public final ClassPathInfo Esm_FooEditor;
+    public final ClassPathInfo Esm_FooValidators;
+
     public JavaGenProject(File baseDir, DirConfig dirs, long randomSeed) {
         this.baseDir = baseDir;
         this.randomSeed = randomSeed;
@@ -66,7 +72,7 @@ public class JavaGenProject {
         Foo_Id = Foo.join(Foo.name + "_Id");
         Foo_IdAccessor = Foo.join(Foo.name + ".Id");
 
-        FooTest = dirs.modelTestPath.join(Foo.name + "Test");
+        FooTest = dirs.modelPath.join(Foo.name + "Test");
         _Foo_stuffTest = FooTest.join("_" + Foo.name + "_stuffTest");
         Foo_IdTest = FooTest.join(Foo.name + "_IdTest");
         Foo_IdAccessorTest = FooTest.join(Foo.name + "_IdAccessorTest");
@@ -75,16 +81,23 @@ public class JavaGenProject {
         FooCriteriaBuilder = Foo.join(dao_ + Foo.name + "CriteriaBuilder");
         FooCriteriaBuilderTest = FooTest.join(dao_ + Foo.name + "CriteriaBuilderTest");
 
-        FooSamples = dirs.daoTestPath.join(Foo.name + "Samples", generated);
+        FooSamples = dirs.daoPath.join(Foo.name + "Samples", generated);
 
         FooMapper = dirs.daoPath.join(dao_ + Foo.name + "Mapper");
-        FooMapperTest = dirs.daoTestPath.join(dao_ + Foo.name + "MapperTest");
+        FooMapperTest = dirs.daoPath.join(dao_ + Foo.name + "MapperTest");
         FooManager = dirs.daoPath.join(dao_ + Foo.name + "Manager");
-        FooManagerTest = dirs.daoTestPath.join(dao_ + Foo.name + "ManagerTest");
+        FooManagerTest = dirs.daoPath.join(dao_ + Foo.name + "ManagerTest");
         FooExporter = dirs.daoPath.join(Foo.name + "Exporter", generated);
 
         FooIndex = dirs.wsPath.join(ws_ + Foo.name + "Index");
-        FooIndexTest = dirs.wsTestPath.join(ws_ + Foo.name + "IndexTest");
+        FooIndexTest = dirs.wsPath.join(ws_ + Foo.name + "IndexTest");
+
+        ClassPathInfo module = dirs.webPath;
+        Esm_Foo = module.join(Foo.name);
+        Esm_FooAdmin = module.join(Foo.name + "Admin");
+        Esm_FooChooseDialog = module.join(Foo.name + "ChooseDialog");
+        Esm_FooEditor = module.join(Foo.name + "Editor");
+        Esm_FooValidators = module.join(Foo.name + "Validators");
     }
 
     public UpdateMethod getPreferredUpdateMethod() {

@@ -14,6 +14,11 @@ public class FooMapperTest__java
     }
 
     @Override
+    protected boolean isTest() {
+        return true;
+    }
+
+    @Override
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
         out.println("public class " + project.FooMapperTest.name);
         out.enter();
@@ -22,7 +27,7 @@ public class FooMapperTest__java
             {
                 out.printf("extends %s<%s, %s> {\n", //
                         out.im.name(AbstractTableTest.class), //
-                        out.im.name(project.Foo), //
+                        out.im.name(project.Foo.qName), //
                         project.FooMapper.name);
                 out.leave();
             }
@@ -39,13 +44,13 @@ public class FooMapperTest__java
         out.println();
         out.println("@Override");
         out.printf("public %s buildSample()\n", //
-                out.im.name(project.Foo));
+                out.im.name(project.Foo.qName));
         out.println("        throws Exception {");
         out.enter();
         {
             out.printf("%s a = new %s();\n", //
-                    out.im.name(project.FooSamples), //
-                    out.im.name(project.FooSamples));
+                    out.im.name(project.FooSamples.qName), //
+                    out.im.name(project.FooSamples.qName));
 
             out.println("return a.buildWired(tables);");
             out.leave();
