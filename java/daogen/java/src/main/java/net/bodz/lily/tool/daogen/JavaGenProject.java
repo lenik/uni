@@ -19,7 +19,7 @@ public class JavaGenProject {
     String wsPackage = "ws";
     UpdateMethod updateMethod;
 
-    ICatalogMetadata catalog;
+    public ICatalogMetadata catalog;
     public CatalogConfig config;
     public long randomSeed;
 
@@ -52,7 +52,11 @@ public class JavaGenProject {
     public final ClassPathInfo FooIndex;
     public final ClassPathInfo FooIndexTest; // test
 
+    public final ClassPathInfo Esm_Foo_stuff_Type;
+    public final ClassPathInfo Esm_Foo_stuff;
+    public final ClassPathInfo Esm_FooType;
     public final ClassPathInfo Esm_Foo;
+
     public final ClassPathInfo Esm_FooAdmin;
     public final ClassPathInfo Esm_FooChooseDialog;
     public final ClassPathInfo Esm_FooEditor;
@@ -93,7 +97,11 @@ public class JavaGenProject {
         FooIndexTest = dirs.wsPath.join(ws_ + Foo.name + "IndexTest");
 
         ClassPathInfo module = dirs.webPath;
+        Esm_Foo_stuff_Type = module.join("_" + Foo.name + "_stuff_Type");
+        Esm_Foo_stuff = module.join("_" + Foo.name + "_stuff");
+        Esm_FooType = module.join(Foo.name + "Type");
         Esm_Foo = module.join(Foo.name);
+
         Esm_FooAdmin = module.join(Foo.name + "Admin");
         Esm_FooChooseDialog = module.join(Foo.name + "ChooseDialog");
         Esm_FooEditor = module.join(Foo.name + "Editor");

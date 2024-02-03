@@ -1,5 +1,9 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import net.bodz.bas.codegen.QualifiedName;
 import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.EsmSource;
 import net.bodz.bas.esm.TypeScriptWriter;
@@ -8,11 +12,15 @@ import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
 import net.bodz.lily.tool.daogen.util.TableType;
 
-public class Foo__ts
+public class Foo_stuff__ts
         extends JavaGen__ts {
 
-    public Foo__ts(JavaGenProject project) {
-        super(project, project.Esm_Foo);
+    Set<String> newLineProps = new HashSet<>();
+
+    public Foo_stuff__ts(JavaGenProject project) {
+        super(project, project.Esm_Foo_stuff);
+
+        newLineProps.add("description");
     }
 
     @Override
@@ -20,13 +28,13 @@ public class Foo__ts
         EsmSource validators = EsmModules.local.source("./PersonValidators");
         out.im.add(validators.name("*", "validators"));
 
-        TableType tableType = new TableType(project, out, table, project.Esm_Foo.fullName);
-        String simpleName = tableType.simpleName;
-        String typeName = simpleName + "Type";
+        String className = project.Esm_Foo_stuff.fullName;
+        TableType tableType = new TableType(project, out, table, className);
+        String typeName = tableType.simpleName + "Type";
 
         out.printf("export class %s extends %s {\n", //
-                simpleName, //
-                out.localName(tableType.baseClassName) + tableType.baseParams);
+                tableType.simpleName, //
+                out.localName(QualifiedName.parse(tableType.baseClassName)) + tableType.baseParams);
         out.enter();
         {
             out.printf("static TYPE = new %s();\n", typeName);

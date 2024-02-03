@@ -151,6 +151,10 @@ public class MiscTemplates {
     }
 
     public void FIELD_consts(ITreeOut out, ITableMetadata table, Boolean wantPrimaryKey) {
+        FIELD_consts(out, table, wantPrimaryKey, false);
+    }
+
+    public void FIELD_consts(ITreeOut out, ITableMetadata table, Boolean wantPrimaryKey, boolean ts) {
         List<String> defs = new ArrayList<>();
         for (IColumnMetadata column : table.getColumns()) {
             if (wantPrimaryKey != null)
@@ -164,8 +168,12 @@ public class MiscTemplates {
                 continue;
 
             ColumnNaming cname = project.naming(column);
-            defs.add("public static final String FIELD_" + cname.constFieldName + " = "
-                    + StringQuote.qqJavaString(cname.column) + ";");
+            if (ts)
+                defs.add("static const FIELD_" + cname.constFieldName + " = "//
+                        + StringQuote.qqJavaString(cname.column) + ";");
+            else
+                defs.add("public static final String FIELD_" + cname.constFieldName + " = " //
+                        + StringQuote.qqJavaString(cname.column) + ";");
         }
         if (! defs.isEmpty()) {
             out.println();
@@ -175,6 +183,10 @@ public class MiscTemplates {
     }
 
     public void N_consts(ITreeOut out, ITableMetadata table, Boolean wantPrimaryKey) {
+        N_consts(out, table, wantPrimaryKey, false);
+    }
+
+    public void N_consts(ITreeOut out, ITableMetadata table, Boolean wantPrimaryKey, boolean ts) {
         List<String> defs = new ArrayList<>();
         for (IColumnMetadata column : table.getColumns()) {
             if (wantPrimaryKey != null)
@@ -200,7 +212,10 @@ public class MiscTemplates {
             }
             if (precision > 0) {
                 String precisionVar = "N_" + cname.constFieldName;
-                defs.add("public static final int " + precisionVar + " = " + precision + ";");
+                if (ts)
+                    defs.add("static const " + precisionVar + " = " + precision + ";");
+                else
+                    defs.add("public static final int " + precisionVar + " = " + precision + ";");
                 DefaultColumnMetadata m = (DefaultColumnMetadata) column;
                 m.setPrecisionExpr(precisionVar);
             }

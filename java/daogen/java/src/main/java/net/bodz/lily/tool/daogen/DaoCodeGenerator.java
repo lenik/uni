@@ -41,11 +41,7 @@ import net.bodz.lily.tool.daogen.dir.dao.test.FooManagerTest__java;
 import net.bodz.lily.tool.daogen.dir.dao.test.FooMapperTest__java;
 import net.bodz.lily.tool.daogen.dir.dao.test.FooMapperTest__java_v;
 import net.bodz.lily.tool.daogen.dir.dao.test.FooSamples__java;
-import net.bodz.lily.tool.daogen.dir.web.FooAdmin__vue;
-import net.bodz.lily.tool.daogen.dir.web.FooChooseDialog__vue;
-import net.bodz.lily.tool.daogen.dir.web.FooEditor__vue;
-import net.bodz.lily.tool.daogen.dir.web.FooValidators__ts;
-import net.bodz.lily.tool.daogen.dir.web.Foo__ts;
+import net.bodz.lily.tool.daogen.dir.web.*;
 import net.bodz.lily.tool.daogen.dir.ws.FooIndex__java;
 import net.bodz.lily.tool.daogen.util.MavenDirs;
 
@@ -333,6 +329,9 @@ public class DaoCodeGenerator
         // new FooIndexTest__java(project).buildFile(table);
 
         UpdateMethod esmUpdate = UpdateMethod.OVERWRITE;
+        new Foo_stuff_Type__ts(project).buildFile(table, esmUpdate);
+        new Foo_stuff__ts(project).buildFile(table, esmUpdate);
+        new FooType__ts(project).buildFile(table, esmUpdate);
         new Foo__ts(project).buildFile(table, esmUpdate);
         new FooAdmin__vue(project).buildFile(table, esmUpdate);
         new FooChooseDialog__vue(project).buildFile(table, esmUpdate);

@@ -11,15 +11,12 @@ import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.catalog.TableOid;
 import net.bodz.bas.t.tuple.Split;
-import net.bodz.lily.concrete.CoEntity;
-import net.bodz.lily.concrete.StructRow;
 import net.bodz.lily.entity.IdType;
-import net.bodz.lily.meta.TypeParamType;
 import net.bodz.lily.meta.TypeParameters;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
-import net.bodz.lily.tool.daogen.util.CanonicalClass;
+import net.bodz.lily.tool.daogen.util.TableType;
 
 public class Foo_stuff__java
         extends JavaGen__java {
@@ -32,76 +29,25 @@ public class Foo_stuff__java
 
     @Override
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
-        QualifiedName idType = templates.getIdType(table);
-
-        String simpleName = project._Foo_stuff.name;
-        String baseClassName = table.getBaseTypeName();
-
-        String params = "";
-        String baseParams = "";
-        String typeAgain = null;
-
-        if (baseClassName != null) {
-            Class<?> baseClass;
-            try {
-                baseClass = CanonicalClass.forName(baseClassName);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e.getMessage(), e);
-            }
-            baseClassName = out.im.name(baseClass); // import&compress
-
-            TypeParameters aTypeParams = baseClass.getAnnotation(TypeParameters.class);
-            if (aTypeParams != null) {
-                StringBuilder paramsBuf = new StringBuilder();
-                StringBuilder baseParamsBuf = new StringBuilder();
-                StringBuilder recBuf = new StringBuilder();
-                StringBuilder typeAgainParams = new StringBuilder();
-                for (TypeParamType param : aTypeParams.value()) {
-                    switch (param) {
-                    case ID_TYPE:
-                        baseParamsBuf.append(", " + idType.name);
-                        break;
-                    case THIS_TYPE:
-                        baseParamsBuf.append(", " + simpleName);
-                        break;
-                    case THIS_REC:
-                        paramsBuf.append(", this_t extends " + simpleName + "<%R>");
-                        baseParamsBuf.append(", this_t");
-                        recBuf.append(", this_t");
-                        typeAgainParams.append(", " + out.im.simpleId(TypeParamType.THIS_TYPE));
-                        break;
-                    default:
-                        baseParamsBuf.append(", ?");
-                    }
-                }
-                String rec = recBuf.length() == 0 ? "" : recBuf.substring(2);
-                params = paramsBuf.length() == 0 ? "" : ("<" + paramsBuf.substring(2) + ">");
-                params = params.replace("%R", rec);
-                baseParams = baseParamsBuf.length() == 0 ? "" : "<" + baseParamsBuf.substring(2) + ">";
-                typeAgain = typeAgainParams.length() == 0 ? null : typeAgainParams.substring(2);
-            }
-        } else if (idType != null) {
-            baseClassName = out.im.name(CoEntity.class);
-            baseParams = "<" + out.im.name(idType) + ">";
-        } else
-            baseClassName = out.im.name(StructRow.class);
+        TableType tableType = new TableType(project, out, table, project._Foo_stuff.fullName);
+        QualifiedName idType = tableType.idType;
 
         String description = table.getDescription();
         if (description != null)
             templates.javaDoc(out, description);
 
-        if (typeAgain != null)
+        if (tableType.typeAgain != null)
             out.printf("@%s({ %s })\n", //
                     out.im.name(TypeParameters.class), //
-                    typeAgain);
+                    tableType.typeAgain);
 
-        if (idType != null)
+        if (tableType.idType != null)
             out.printf("@%s(%s.class)\n", //
                     out.im.name(IdType.class), //
                     out.im.name(idType));
 
-        out.printf("public abstract class %s%s\n", simpleName, params);
-        out.printf("        extends %s%s {\n", baseClassName, baseParams);
+        out.printf("public abstract class %s%s\n", tableType.simpleName, tableType.params);
+        out.printf("        extends %s%s {\n", tableType.baseClassName, tableType.baseParams);
         out.enter();
         {
             out.println();

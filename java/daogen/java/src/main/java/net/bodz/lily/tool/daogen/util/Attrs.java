@@ -8,7 +8,7 @@ import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.io.ITreeOut;
 
 public class Attrs
-        extends LinkedHashMap<String, String> {
+        extends LinkedHashMap<String, Object> {
 
     private static final long serialVersionUID = 1L;
 
@@ -20,6 +20,12 @@ public class Attrs
 
     public Attrs(Set<String> newLineKeys) {
         this.newLineKeys = newLineKeys;
+    }
+
+    public void putQuoted(String key, Object value) {
+        String s = value.toString();
+        String quoted = StringQuote.qqJavaString(s);
+        put(key, quoted);
     }
 
     public void toJson(ITreeOut out, boolean embraced) {
@@ -35,7 +41,7 @@ public class Attrs
         boolean lastNewLine = false;
         for (String key : keySet()) {
             boolean newLine = alwaysNewLine || newLineKeys.contains(key);
-            String val = get(key);
+            Object val = get(key);
             if (i++ != 0)
                 out.print(", ");
             if (newLine || lastNewLine) {
@@ -45,7 +51,7 @@ public class Attrs
 
             out.print(key);
             out.print(": ");
-            out.print(StringQuote.qqJavaString(val));
+            out.print(val.toString());
 
             lastNewLine = newLine;
         }
@@ -67,12 +73,12 @@ public class Attrs
 
         int i = 0;
         for (String key : keySet()) {
-            String val = get(key);
+            Object val = get(key);
             if (i++ != 0 || tagName != null)
                 sb.append(" ");
             sb.append(key);
             sb.append("=");
-            sb.append(StringQuote.qqXmlAttr(val));
+            sb.append(StringQuote.qqXmlAttr(val.toString()));
         }
 
         if (tagName != null)
