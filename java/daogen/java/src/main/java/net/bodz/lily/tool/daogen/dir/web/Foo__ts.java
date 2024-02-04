@@ -26,7 +26,7 @@ public class Foo__ts
 
         out.printf("export class %s extends %s {\n", //
                 simpleName, //
-                out.localName(tableType.baseClassName) + tableType.baseParams);
+                tableType.baseClassName + tableType.baseParams);
         out.enter();
         {
             out.printf("static TYPE = new %s();\n", typeName);

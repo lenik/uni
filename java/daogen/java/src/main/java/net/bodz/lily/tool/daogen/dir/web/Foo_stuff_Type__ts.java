@@ -53,7 +53,6 @@ public class Foo_stuff_Type__ts
         out.println();
         out.enter();
         {
-
             TableOid oid = table.getId();
             if (oid.getCatalogName() != null)
                 out.printf("static const CATALOG_NAME = %s;\n", //
@@ -88,7 +87,6 @@ public class Foo_stuff_Type__ts
                     out.im.name(EsmModules.dba.entity.EntityPropertyMap));
             out.enter();
             {
-
                 for (IColumnMetadata column : table.getColumns()) {
                     if (column.isExcluded())
                         continue;
