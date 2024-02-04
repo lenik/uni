@@ -7,7 +7,7 @@ import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.catalog.TableOid;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
-import net.bodz.lily.tool.daogen.util.TableType;
+import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
 public class Foo__java_tv
         extends JavaGen__java {
@@ -21,8 +21,8 @@ public class Foo__java_tv
         TableOid oid = table.getId();
 
         String baseClassName = project._Foo_stuff.fullName;
-        TableType tableType = new TableType(project, out, table, project.Foo.fullName, baseClassName);
-        String simpleName = tableType.simpleName;
+        TypeExtendInfo extend = new TypeExtendInfo(project, out, table, project.Foo.qName, baseClassName);
+        String simpleName = extend.simpleName;
 
         out.print("@" + out.im.name(Table.class) + "(");
         {
@@ -36,8 +36,8 @@ public class Foo__java_tv
             out.println(")");
         }
 
-        out.printf("public class %s%s\n", simpleName, tableType.params);
-        out.printf("        extends %s%s {\n", baseClassName, tableType.baseParams);
+        out.printf("public class %s%s\n", simpleName, extend.params);
+        out.printf("        extends %s%s {\n", baseClassName, extend.baseParams);
         out.enter();
         {
             out.println();

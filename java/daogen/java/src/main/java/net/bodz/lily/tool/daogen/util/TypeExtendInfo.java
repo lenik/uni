@@ -3,7 +3,6 @@ package net.bodz.lily.tool.daogen.util;
 import net.bodz.bas.codegen.IImportNaming;
 import net.bodz.bas.codegen.QualifiedName;
 import net.bodz.bas.t.catalog.ITableMetadata;
-import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.concrete.IdEntity;
 import net.bodz.lily.concrete.StructRow;
 import net.bodz.lily.meta.TypeParamType;
@@ -11,7 +10,7 @@ import net.bodz.lily.meta.TypeParameters;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.MiscTemplates;
 
-public class TableType {
+public class TypeExtendInfo {
 
     public QualifiedName idType;
 
@@ -23,15 +22,15 @@ public class TableType {
     public String baseParams = "";
     public String typeAgain = null;
 
-    public TableType(JavaGenProject project, IImportNaming naming, //
-            ITableMetadata table, String className) {
-        this(project, naming, table, className, null);
+    public TypeExtendInfo(JavaGenProject project, IImportNaming naming, //
+            ITableMetadata table, QualifiedName qName) {
+        this(project, naming, table, qName, null);
     }
 
-    public TableType(JavaGenProject project, IImportNaming naming, //
-            ITableMetadata table, String className, String baseClassName) {
-        this.className = className;
-        this.simpleName = Split.packageName(className).b;
+    public TypeExtendInfo(JavaGenProject project, IImportNaming naming, //
+            ITableMetadata table, QualifiedName qName, String baseClassName) {
+        this.className = qName.getFullName();
+        this.simpleName = qName.name;
 
         MiscTemplates templates = new MiscTemplates(project);
         idType = templates.getIdType(table);
@@ -46,7 +45,7 @@ public class TableType {
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
-            baseClassName = naming.importName(baseClassName); // import&compress
+            baseClassName = naming.importName(baseClass); // import&compress
 
             TypeParameters aTypeParams = baseClass.getAnnotation(TypeParameters.class);
             if (aTypeParams != null) {
@@ -60,8 +59,15 @@ public class TableType {
                         baseParamsBuf.append(", " + idType.name);
                         break;
                     case THIS_TYPE:
-                    case THIS_REC:
                         baseParamsBuf.append(", " + simpleName);
+                        break;
+                    case THIS_REC:
+                        paramsBuf.append(", this_t extends " + simpleName + "<%R>");
+                        baseParamsBuf.append(", this_t");
+                        recBuf.append(", this_t");
+                        typeAgainParams.append(", " + //
+                                naming.importName(TypeParamType.THIS_TYPE.getClass()) //
+                                + "." + TypeParamType.THIS_TYPE.name());
                         break;
                     default:
                         baseParamsBuf.append(", any");
@@ -73,19 +79,14 @@ public class TableType {
                 baseParams = baseParamsBuf.length() == 0 ? "" : "<" + baseParamsBuf.substring(2) + ">";
                 typeAgain = typeAgainParams.length() == 0 ? null : typeAgainParams.substring(2);
             }
-        } else if (idType != null) {
+        } // if baseClassName != null
+        else if (idType != null) {
             baseClassName = naming.importName(IdEntity.class);
             baseParams = "<" + naming.importName(idType) + ">";
         } else
             baseClassName = naming.importName(StructRow.class);
 
-        if (baseClassName == null) {
-            if (idType != null) {
-                baseClassName = IdEntity.class.getName();
-                baseParams = "<" + idType + ">";
-            } else
-                baseClassName = StructRow.class.getName();
-        }
+        this.baseClassName = baseClassName;
     }
 
 }

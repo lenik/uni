@@ -16,7 +16,7 @@ import net.bodz.lily.meta.TypeParameters;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
-import net.bodz.lily.tool.daogen.util.TableType;
+import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
 public class Foo_stuff__java
         extends JavaGen__java {
@@ -29,7 +29,7 @@ public class Foo_stuff__java
 
     @Override
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
-        TableType tableType = new TableType(project, out, table, project._Foo_stuff.fullName);
+        TypeExtendInfo tableType = new TypeExtendInfo(project, out, table, project._Foo_stuff.qName);
         QualifiedName idType = tableType.idType;
 
         String description = table.getDescription();

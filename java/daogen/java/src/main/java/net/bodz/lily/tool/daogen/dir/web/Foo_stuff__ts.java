@@ -15,7 +15,7 @@ import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
-import net.bodz.lily.tool.daogen.util.TableType;
+import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
 public class Foo_stuff__ts
         extends JavaGen__ts {
@@ -28,14 +28,13 @@ public class Foo_stuff__ts
 
     @Override
     protected void buildTsBody(TypeScriptWriter out, ITableMetadata table) {
-        String className = project.Esm_Foo_stuff.fullName;
-        TableType tableType = new TableType(project, out, table, className);
-        String typeName = tableType.simpleName + "Type";
+        TypeExtendInfo extend = new TypeExtendInfo(project, out, table, project.Esm_Foo_stuff.qName);
+        String typeName = extend.simpleName + "Type";
 
         // out.localName(tableType.baseClassName);
         out.printf("export class %s extends %s {\n", //
-                tableType.simpleName, //
-                tableType.baseClassName + tableType.baseParams);
+                extend.simpleName, //
+                extend.baseClassName + extend.baseParams);
         out.enter();
         {
             out.printf("static TYPE = new %s();\n", typeName);
@@ -64,7 +63,7 @@ public class Foo_stuff__ts
                     continue;
 
                 out.println();
-                declForeignKeyProperty(out, xref, table);
+                defineForeignKeyProperty(out, xref, table);
 
                 for (String fkColumnName : xref.getForeignKey().getColumnNames()) {
                     IColumnMetadata column = table.getColumn(fkColumnName);
@@ -121,7 +120,7 @@ public class Foo_stuff__ts
         out.println(";");
     }
 
-    public void declForeignKeyProperty(TypeScriptWriter out, CrossReference xref, ITableMetadata table) {
+    public void defineForeignKeyProperty(TypeScriptWriter out, CrossReference xref, ITableMetadata table) {
         TableKey foreignKey = xref.getForeignKey();
         IColumnMetadata[] columns = foreignKey.resolve(table);
         TableOid parentOid = xref.getParentKey().getId();
@@ -148,8 +147,8 @@ public class Foo_stuff__ts
             out.print("?");
         out.print(": ");
 
-        System.out.println("PT=" + parentType);
-        out.localName(parentType);
+        String tsType = out.localName(parentType);
+        out.print(tsType);
         out.println(";");
     }
 

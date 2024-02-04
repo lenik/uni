@@ -11,7 +11,7 @@ import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
 import net.bodz.lily.tool.daogen.util.Attrs;
-import net.bodz.lily.tool.daogen.util.TableType;
+import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
 public class FooType__ts
         extends JavaGen__ts {
@@ -25,12 +25,12 @@ public class FooType__ts
         EsmSource validators = EsmModules.local.source("./PersonValidators");
         out.im.add(validators.name("*", "validators"));
 
-        TableType tableType = new TableType(project, out, table, project.Esm_FooType.fullName);
-        String simpleName = tableType.simpleName;
+        TypeExtendInfo extend = new TypeExtendInfo(project, out, table, project.Esm_FooType.qName);
+        String simpleName = extend.simpleName;
 
         String description = table.getDescription();
 
-        String baseClassTypeName = tableType.baseClassName + "Type";
+        String baseClassTypeName = extend.baseClassName + "Type";
 
         out.println("// Type Info");
         out.println();

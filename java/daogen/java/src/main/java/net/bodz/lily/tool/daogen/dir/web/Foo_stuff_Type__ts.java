@@ -21,7 +21,7 @@ import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
 import net.bodz.lily.tool.daogen.util.Attrs;
-import net.bodz.lily.tool.daogen.util.TableType;
+import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
 public class Foo_stuff_Type__ts
         extends JavaGen__ts {
@@ -37,13 +37,12 @@ public class Foo_stuff_Type__ts
         EsmSource validators = EsmModules.local.source("./PersonValidators");
         out.im.add(validators.name("*", "validators"));
 
-        String className = project.Esm_Foo_stuff_Type.fullName;
-        TableType tableType = new TableType(project, out, table, className);
+        TypeExtendInfo extend = new TypeExtendInfo(project, out, table, project.Esm_Foo_stuff_Type.qName);
 
         String description = table.getDescription();
 
-        String typeClassName = tableType.simpleName + "Type";
-        String superTypeClassName = tableType.baseClassName + "Type";
+        String typeClassName = extend.simpleName + "Type";
+        String superTypeClassName = extend.baseClassName + "Type";
 
         out.println("// Type Info");
         out.println();
@@ -150,7 +149,7 @@ public class Foo_stuff_Type__ts
 
     void declProperty(TypeScriptWriter out, IColumnMetadata column) {
         boolean primaryKey = column.isPrimaryKey();
-        boolean notNull = ! column.isNullable(true);
+        boolean notNull = !column.isNullable(true);
 
         String javaType = project.config.javaType(column);
         // String simpleType = Split.packageName(javaType).b;
@@ -180,7 +179,7 @@ public class Foo_stuff_Type__ts
 
         // attrs.put("icon", "fa-user");
         // attrs.put("label", "label");
-        if (description != null && ! description.isEmpty())
+        if (description != null && !description.isEmpty())
             attrs.putQuoted("description", description);
 
         attrs.put("validator", "validators.validate_" + cname.propertyName);
@@ -209,7 +208,7 @@ public class Foo_stuff_Type__ts
 
         boolean anyNotNull = false;
         for (IColumnMetadata c : columns)
-            if (! c.isNullable(false)) {
+            if (!c.isNullable(false)) {
                 anyNotNull = true;
                 break;
             }
@@ -231,7 +230,7 @@ public class Foo_stuff_Type__ts
 
         // attrs.put("icon", "fa-user");
         // attrs.put("label", "label");
-        if (description != null && ! description.isEmpty()) {
+        if (description != null && !description.isEmpty()) {
             if (inheritDocFrom != null)
                 ; // description = "(" + description + ")";
             attrs.putQuoted("description", description);

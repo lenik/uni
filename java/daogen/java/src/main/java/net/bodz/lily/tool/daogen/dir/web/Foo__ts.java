@@ -6,7 +6,7 @@ import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
-import net.bodz.lily.tool.daogen.util.TableType;
+import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
 public class Foo__ts
         extends JavaGen__ts {
@@ -20,13 +20,13 @@ public class Foo__ts
         EsmSource validators = EsmModules.local.source("./PersonValidators");
         out.im.add(validators.name("*", "validators"));
 
-        TableType tableType = new TableType(project, out, table, project.Esm_Foo.fullName);
-        String simpleName = tableType.simpleName;
+        TypeExtendInfo extend = new TypeExtendInfo(project, out, table, project.Esm_Foo.qName);
+        String simpleName = extend.simpleName;
         String typeName = simpleName + "Type";
 
         out.printf("export class %s extends %s {\n", //
-                simpleName, //
-                tableType.baseClassName + tableType.baseParams);
+                extend.simpleName, //
+                extend.baseClassName + extend.baseParams);
         out.enter();
         {
             out.printf("static TYPE = new %s();\n", typeName);
