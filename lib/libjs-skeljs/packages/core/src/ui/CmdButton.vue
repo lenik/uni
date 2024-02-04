@@ -10,7 +10,10 @@ import Icon from './Icon.vue';
 const modelValue = defineModel();
 
 interface Props {
-    cmd: Command
+    cmd?: Command
+    label?: string
+    icon?: string
+
     tagName?: string
     target?: any
 
@@ -20,6 +23,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+    cmd: { name: 'unspecified' },
     tagName: 'div',
     showIcon: true,
     showLabel: true,
@@ -84,9 +88,9 @@ defineExpose({
                 :class="{ withIcon, withLabel, withBorder, button, toggler, enabled, disabled, checked, unchecked }"
                 :name="cmd.name" :href="cmd.href" :title="cmd.tooltip" @click="(e) => onclick(e)">
                 <div class="hover"></div>
-                <Icon :name="cmd.icon" v-if="withIcon && cmd.icon != null" />
+                <Icon :name="icon || cmd.icon" v-if="withIcon && (icon != null || cmd.icon != null)" />
                 <span class="sep" v-if="withIcon && withLabel"></span>
-                <span class="label" v-if="withLabel">{{ cmd.label || cmd.name }}</span>
+                <span class="label" v-if="withLabel">{{ label || cmd.label || cmd.name }}</span>
             </component>
             <Icon name="fa-ques" v-if="cmd.description != null" />
         </div>
@@ -97,6 +101,7 @@ defineExpose({
 <style scoped lang="scss">
 .cmd-button {
     padding: inherit;
+    display: inline-block;
 }
 
 .button.disabled {
