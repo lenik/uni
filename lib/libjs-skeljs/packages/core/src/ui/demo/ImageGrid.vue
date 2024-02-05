@@ -1,9 +1,9 @@
 <script lang="ts">
+import $ from 'jquery';
 import { computed, onMounted, ref } from "vue";
 import { } from "./types";
 
 export interface Props {
-    srcs: string[]
     columns?: number
     randomCount?: number
     blankRatio?: number
@@ -57,8 +57,9 @@ const emit = defineEmits<{
 // property shortcuts
 
 const rootElement = ref<HTMLElement>();
-const shuffle = computed(() => props.randomCount == null ? props.srcs :
-    randomPick(props.srcs, props.randomCount, props.blankRatio, props.blankImage));
+const srcs = ref<string[]>([]);
+const shuffle = computed(() => props.randomCount == null ? srcs.value :
+    randomPick(srcs.value, props.randomCount, props.blankRatio, props.blankImage));
 const rows = computed(() => split(shuffle.value, props.columns));
 
 // methods
@@ -69,11 +70,28 @@ function update() {
 }
 
 onMounted(() => {
+    // let v = $(".srcs img", rootElement.value).map((i, node: any) => $(node).attr('src'));
+    let v: string[] = [];
+    let srcsDivs = rootElement.value!.getElementsByClassName("srcs");
+    if (srcsDivs.length != 0) {
+        let srcsDiv = srcsDivs.item(0)!;
+        let imgs = srcsDiv.getElementsByTagName('img');
+        for (let i = 0; i < imgs.length; i++) {
+            let src = imgs[i].getAttribute('src');
+            if (src != null)
+                v.push(src);
+        }
+        srcs.value = v;
+        srcsDiv.remove();
+    }
 });
 </script>
 
 <template>
     <div class="image-grid" ref="rootElement">
+        <div class="srcs">
+            <slot></slot>
+        </div>
         <ul class="image-rows">
             <li v-for="(row, i) in rows" :key="i">
                 <ol class="image-row">

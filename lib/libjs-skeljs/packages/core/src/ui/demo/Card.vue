@@ -1,9 +1,8 @@
 <script lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { } from "./types";
 
-import Icon from '@skeljs/core/src/ui/Icon.vue';
-import FieldRow from '@skeljs/core/src/ui/FieldRow.vue';
+import Icon from '../Icon.vue';
+import FieldRow from '../FieldRow.vue';
 
 export interface Props {
     label: string

@@ -4,7 +4,7 @@ import { routeRecordsFromTree, ui, uiExtract } from '@skeljs/core/src/ui/routes'
 import Index from "./Index.vue";
 import Main from "./Main.vue";
 import About from "./About.vue";
-import Project from "./Project.vue";
+import Project from '@skeljs/core/src/ui/demo/Project.vue';
 
 export const root = uiExtract([
     Index,

@@ -1,7 +1,7 @@
 <script lang="ts">
 import { onMounted, ref } from "vue";
 
-import Icon from '@skeljs/core/src/ui/Icon.vue';
+import Icon from '../Icon.vue';
 import Card from './Card.vue';
 
 export interface Props {
