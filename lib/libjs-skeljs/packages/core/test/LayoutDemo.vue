@@ -3,24 +3,22 @@
 import { ref } from 'vue';
 
 import NotImpl from '../src/ui/demo/NotImpl.vue';
-import TabViews from '../src/ui/layout/TabViews.vue';
+import TabViews, { getSelectedViewName, ViewHandles } from '../src/ui/layout/TabViews.vue';
 import View from '../src/ui/layout/View.vue';
 
-import { Menu, getSelection } from '../src/ui/menu/menu';
-
-const views: Menu = {
+const views: ViewHandles = {
     about: {
         label: "About",
-        iconfa: "info",
+        icon: "fa-info",
     },
     options: {
         selected: true,
         label: "Options",
-        iconfa: "cog",
+        icon: "fa-cog",
     },
 };
 
-const initialView = getSelection(views)[0];
+const initialView = getSelectedViewName(views);
 const view = ref(initialView);
 
 function msg(s: string) {
@@ -32,12 +30,10 @@ function msg(s: string) {
 <template>
     <TabViews :views="views" v-model:view="view">
         <View name="about" :selection="view" @enter="msg('enter about')" @leave="msg('leave about')">
-            <div>
-                about
-            </div>
+            <div> about </div>
         </View>
         <View name="options" :selection="view">
-            <NotImpl></NotImpl>
+            <NotImpl />
         </View>
     </TabViews>
 </template>

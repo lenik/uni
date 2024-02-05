@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { computed, ref } from 'vue';
-import { VarMap } from '../src/cgi/QueryString';
+import { VarMap } from '../src/lang/VarMap';
 
 const queryString = ref('');
 const varMap = computed(() => {

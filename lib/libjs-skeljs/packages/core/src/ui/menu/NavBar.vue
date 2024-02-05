@@ -2,11 +2,11 @@
 
 import $ from 'jquery';
 import { ref, watch } from 'vue';
-
-import type { Menu } from "./menu";
+import { Command } from '../types';
+import { ViewHandles } from '../layout/TabViews.vue';
 
 interface Props {
-    items: Menu
+    items: ViewHandles
 }
 
 const model = defineModel<string>();
@@ -14,7 +14,7 @@ const viewData = defineModel<any>('data');
 
 const props = defineProps<Props>();
 const emit = defineEmits<{
-    (e: 'viewChanged', newView: string, oldView: string): void
+    viewChanged: [newView: string, oldView?: string]
 }>();
 
 var rootElement = ref();
@@ -52,10 +52,11 @@ watch(model, async (toVal, fromVal) => {
 
 <template>
     <nav ref="rootElement" class="-tabular -bw">
-        <a v-for="(it, k) in items" :key="k" :href="k" :class="{ selected: modelValue == k }" onclick="return false"
+        <a v-for="(item, k) in items" :key="k" :href="k" :class="{ selected: model == k }" onclick="return false"
             @click.stop="select(k)">
-            <i :class="'fa fa-' + it.iconfa"></i>
-            {{ it.label }}</a>
+            <Icon :name="item.icon" />
+            <span class="label"> {{ item.label }} </span>
+        </a>
     </nav>
 </template>
 

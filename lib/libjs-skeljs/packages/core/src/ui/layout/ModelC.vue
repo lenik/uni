@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
 import "../../skel/skel.scss";
+import "../../font/NotoSansSC.scss";
 
 </script>
 

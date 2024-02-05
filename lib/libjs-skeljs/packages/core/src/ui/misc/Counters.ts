@@ -1,20 +1,20 @@
 
-declare interface CounterType {
+export interface CounterType {
     priority?: number
     label: string
-    iconfa: string
+    icon?: string
     format?: (val: number) => string
-    cformat?: (vals: CounterValues) => string
+    cformat?: (vals: CounterValues) => string | undefined
 }
 
-declare interface CounterTypes {
+export interface CounterTypes {
     [key: string]: CounterType
 }
 
-declare interface CounterValues {
+export interface CounterValues {
     [key: string]: number
 }
 
-declare interface CounterTypedValue extends CounterType {
+export interface CounterTypedValue extends CounterType {
     value: number
 }

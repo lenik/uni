@@ -30,11 +30,9 @@ const props = withDefaults(defineProps<Props>(), {
     transparent: false,
 });
 
-interface Emits {
-    (e: 'error', message: string): void
-}
-
-const emit = defineEmits<Emits>();
+const emit = defineEmits<{
+    error: [message: string]
+}>();
 
 const _detached = ref(props.detached);
 const _attached = computed(() => !_detached.value);

@@ -2,24 +2,22 @@
 
 import { ref } from 'vue';
 
-import type { Menu } from '../src/ui/menu/menu';
-import { getSelection } from '../src/ui/menu/menu';
+import TabViews, { ViewHandles, getSelectedViewName } from '../src/ui/layout/TabViews.vue';
 
-import TabViews from '../src/ui/layout/TabViews.vue';
 import View from '../src/ui/layout/View.vue';
 import NodeTree from '../src/ui/tree/NodeTree.vue';
 
 import { root } from './router';
 
-const views: Menu = {
+const views: ViewHandles = {
     dtn: {
         selected: true,
         label: "DataTable",
-        iconfa: "table",
+        icon: "far-table",
     },
 };
 
-const initialView = getSelection(views)[0];
+const initialView = getSelectedViewName(views);
 const view = ref(initialView);
 
 </script>
@@ -29,9 +27,7 @@ const view = ref(initialView);
         <View name="dtn" :selection="view">
             <node-tree :node="root">
                 <template v-slot="{ path, node }">
-                    <router-link :to="path">
-                        {{ node[2]?.label || path }}
-                    </router-link>
+                    <router-link :to="path"> {{ node[2]?.label || path }} </router-link>
                 </template>
             </node-tree>
         </View>

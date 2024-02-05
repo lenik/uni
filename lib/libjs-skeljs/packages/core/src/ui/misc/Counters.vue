@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-import * as C from "./Counters";
+import { CounterType, CounterTypedValue, CounterTypes, CounterValues } from "./Counters";
+import Icon from "../Icon.vue";
 
 interface Props {
-    types: C.CounterTypes
-    values: C.CounterValues
+    types: CounterTypes
+    values: CounterValues
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -23,7 +24,7 @@ function compareCounterKey(k1, k2) {
     let cmp = p1 - p2;
     if (cmp != 0)
         return cmp;
-    
+
     cmp = k1.localeCompare(k2);
     return cmp;
 }
@@ -31,7 +32,7 @@ function compareCounterKey(k1, k2) {
 const results = computed(() => {
     let types = props.types;
     let values = props.values;
-    let array: C.CounterTypedValue[] = [];
+    let array: CounterTypedValue[] = [];
     let keys = Object.keys(types);
     keys.sort(compareCounterKey);
     for (let k of keys) {
@@ -54,23 +55,15 @@ const results = computed(() => {
     }
     return array;
 });
-
-function faClasses(type: C.CounterType) {
-    let array: string[] = [];
-    if (type.iconfa != null) {
-        array.push('fa');
-        array.push('fa-' + type.iconfa);
-    }
-    return array;
-}
 </script>
 
 <template>
     <ul class="inline-block">
         <li class="counter-pair" v-for="(item, k) in results" :key="k">
             <span class="name">
-                <i :class="faClasses(item)"></i>
-                {{ item.label }}</span>
+                <Icon :name="item.icon" v-if="item.icon != null" />
+                <span class="label"> {{ item.label }}</span>
+            </span>
             <span class="val">{{ item.value }}</span>
         </li>
     </ul>
@@ -97,16 +90,27 @@ function faClasses(type: C.CounterType) {
         border-right: solid 1px gray;
         border-radius: 4px 0 0 4px;
         cursor: pointer;
+        display: inline-flex;
+        flex-direction: row;
+        align-items: center;
 
         &:hover {
             background: #ddd;
         }
 
-        i.fa {
-            margin: 0 .2em;
+        .icon {
+            margin: 0 .4rem;
+            font-size: 80%;
+            color: hsl(200, 20%, 50%);
+        }
+
+        .label {
+            font-weight: 300;
         }
     }
 
-    .val {}
+    .val {
+        color: hsl(200, 30%, 40%);
+    }
 }
 </style>

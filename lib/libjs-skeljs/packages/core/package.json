@@ -13,6 +13,7 @@
     },
     "dependencies": {
         "@eirslett/jquery-ui-esm": "1.12.1-alpha",
+        "@fontsource/noto-sans-sc": "^5.0.17",
         "bootstrap": "^4.6.2",
         "clipboard": "^2.0.11",
         "font-awesome": "^4.7.0",

@@ -1,18 +1,56 @@
-<script setup lang="ts">
-
+<script lang="ts">
 import "../../skel/skel.scss";
 
 import NavBar from '../menu/NavBar.vue';
-import type { Menu } from "../menu/menu";
 
-interface Props {
-    views: Menu
+export interface ViewHandle {
+    priotity?: number
+    label: string
+    icon?: string
+    checked?: boolean
+    selected?: boolean
 }
 
+export interface ViewHandles {
+    [viewName: string]: ViewHandle
+}
+
+export function getSelectedViewNames(handles: ViewHandles) {
+    return Object.entries(handles).filter(entry => entry[1].selected).map(entry => entry[0]);
+}
+
+export function getSelectedViewName(handles: ViewHandles) {
+    return getSelectedViewNames(handles)[0];
+}
+
+function compareView(a: ViewHandle, b: ViewHandle) {
+    let p1: number = a.priotity || 0;
+    let p2: number = a.priotity || 0;
+    let cmp = p1 - p2;
+    if (cmp != 0) return cmp;
+
+    cmp = a.label.localeCompare(b.label);
+    if (cmp != 0) return cmp;
+
+    return -1;
+}
+
+export function sortViews(handles: ViewHandles): ViewHandle[] {
+    let v: ViewHandle[] = Object.values(handles);
+    v.sort(compareView);
+    return v;
+}
+
+export interface Props {
+    views: ViewHandles
+}
+</script>
+
+<script setup lang="ts">
 const view = defineModel('view');
 const props = defineProps<Props>();
 const emit = defineEmits<{
-    (e: 'viewChanged', newView: string, oldView: string): void
+    viewChanged: [newView: string, oldView: string]
 }>();
 
 </script>
