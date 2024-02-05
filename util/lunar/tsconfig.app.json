@@ -16,8 +16,6 @@
         "noEmit": true,
         "baseUrl": "./packages",
         "paths": {
-        },
-        "references": [
-        ]
+        }
     }
 }

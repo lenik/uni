@@ -2,7 +2,8 @@
 
 import { ref } from 'vue';
 
-import TabViews, { ViewHandles, getSelectedViewName } from '@skeljs/core/src/ui/layout/TabViews.vue';
+import type { ViewHandles } from '@skeljs/core/src/ui/layout/TabViews.vue';
+import TabViews, { getSelectedViewName } from '@skeljs/core/src/ui/layout/TabViews.vue';
 import View from '@skeljs/core/src/ui/layout/View.vue';
 import NodeTree from '@skeljs/core/src/ui/tree/NodeTree.vue';
 

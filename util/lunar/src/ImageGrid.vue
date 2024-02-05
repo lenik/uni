@@ -12,7 +12,7 @@ export interface Props {
     cellHeight?: string
 }
 
-export function split(array, columns = 4) {
+export function split(array: any[], columns = 4) {
     let rows: any[] = [];
     let n = array.length;
     let row: any[] = [];

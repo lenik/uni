@@ -27,7 +27,7 @@ const base = defineConfig({
 })
 
 const build = ({ command }: Args) => defineConfig({
-    root: './test',
+    root: './src',
     base: './',
     build: {
         target: command === 'serve' ? 'esnext' : 'es2015',
