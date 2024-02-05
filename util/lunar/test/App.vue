@@ -39,7 +39,7 @@ const images = [
 <template>
     <ModelC>
         <template #site-bar>
-            <SiteBar />
+            <SiteBar home="route-to:main" />
         </template>
         <template #project-info>
             <ProjectInfo :stat="stat" label="Lunar Birthday"
@@ -47,9 +47,9 @@ const images = [
                 <ImageGrid :srcs="images" :columns="15" :randomCount="100" />
             </ProjectInfo>
         </template>
-        <Main />
+        <router-view />
         <template #footer>
-            <Copyright />
+            <Copyright author="Lenik" org="boDz Inventions" />
         </template>
     </ModelC>
 </template>

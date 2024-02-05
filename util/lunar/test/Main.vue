@@ -89,13 +89,13 @@ onMounted(() => {
 
 <template>
     <div class="component-root" ref="rootElement">
-        <FieldRow label="预设" icon="far-user">
+        <FieldRow label="预设 (Preset)" icon="far-user">
             <select v-model="localDate.string">
                 <option value="1982-04-27">雨田</option>
                 <option value="1983-02-06">女鬼</option>
             </select>
         </FieldRow>
-        <FieldRow label="阳历" icon="far-sun">
+        <FieldRow label="阳历 (Solar Birthday)" icon="far-sun">
             <input class="year" type="number" v-model="localDate.year">
             <span class='hint'>年</span>
             <input class="month" type="number" v-model="localDate.month1">
@@ -104,7 +104,7 @@ onMounted(() => {
             <span class='hint'>日</span>
             <input type="date" v-model="localDate.string">
         </FieldRow>
-        <FieldRow label="阴历" icon="far-moon">
+        <FieldRow label="阴历 (Lunar Birthday)" icon="far-moon">
             <input class="year" type="number" v-model="lunar.year">
             <span class='hint'>年</span>
             <input class="month" type="number" v-model="lunar.month">
@@ -112,10 +112,10 @@ onMounted(() => {
             <input class="day" type="number" v-model="lunar.date">
             <span class='hint'>日</span>
             <input class="leap" type="checkbox" v-model="lunar.isLeapMonth">
-            <span class='hint'>润月</span>
+            <span class='hint'>润月 (Leap Month)</span>
         </FieldRow>
         <p> 你的一生中, 有哪些日子是阳历生日, 同时又是阴历生日的? 点击:
-            <CmdButton label="计算" icon="fa-calculator" @click="calc()" />
+            <CmdButton label="计算" icon="fa-calculator" />
         </p>
         <ol>
             <li v-for="(d, i) in matches" :key="i"> {{ d }} </li>

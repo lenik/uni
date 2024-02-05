@@ -2,22 +2,33 @@
 
 import { ref } from 'vue';
 
-import type { Menu } from '@skeljs/core/src/ui/menu/menu';
-import { getSelection } from '@skeljs/core/src/ui/menu/menu';
-
-import TabViews from '@skeljs/core/src/ui/layout/TabViews.vue';
+import TabViews, { ViewHandles, getSelectedViewName } from '@skeljs/core/src/ui/layout/TabViews.vue';
 import View from '@skeljs/core/src/ui/layout/View.vue';
 import NodeTree from '@skeljs/core/src/ui/tree/NodeTree.vue';
 
-const views: Menu = {
-    dtn: {
+import { root } from './router';
+
+const views: ViewHandles = {
+    index: {
         selected: true,
-        label: "DataTable",
-        iconfa: "table",
+        label: "Index",
+        icon: "fa-list",
     },
+    main: {
+        label: "Lunar Birthday Matcher",
+        icon: "far-moon",
+    },
+    about: {
+        label: "About",
+        icon: "far-info-circle",
+    },
+    project: {
+        label: "Project",
+        icon: "fab-github",
+    }
 };
 
-const initialView = getSelection(views)[0];
+const initialView = getSelectedViewName(views);
 const view = ref(initialView);
 
 </script>
@@ -27,9 +38,7 @@ const view = ref(initialView);
         <View name="dtn" :selection="view">
             <node-tree :node="root">
                 <template v-slot="{ path, node }">
-                    <router-link :to="path">
-                        {{ node[2]?.label || path }}
-                    </router-link>
+                    <router-link :to="path"> {{ node[2]?.label || path }} </router-link>
                 </template>
             </node-tree>
         </View>
