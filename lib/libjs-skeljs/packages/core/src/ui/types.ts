@@ -214,6 +214,7 @@ export interface Command extends UiComponent {
     enabled?: boolean | Ref<boolean>
 
     href?: string
+    routeTo?: string // router-link to
     action?: DialogAction
     run?: EventHandler
 

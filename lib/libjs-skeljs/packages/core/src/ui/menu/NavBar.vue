@@ -4,6 +4,7 @@ import $ from 'jquery';
 import { ref, watch } from 'vue';
 import { Command } from '../types';
 import { ViewHandles } from '../layout/TabViews.vue';
+import Icon from '../Icon.vue';
 
 interface Props {
     items: ViewHandles
@@ -67,6 +68,10 @@ nav {
     >a {
         display: inline-block;
         cursor: pointer;
+
+        .icon {
+            margin-right: .5em;
+        }
     }
 
     &.-tabular {

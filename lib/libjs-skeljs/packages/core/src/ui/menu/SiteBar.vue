@@ -4,6 +4,7 @@ import { computed, onMounted, ref } from "vue"
 
 import { Command } from '../types';
 
+import Link from '../Link.vue';
 import Icon from '../Icon.vue';
 import ShareMenu from './ShareMenu.vue';
 
@@ -19,14 +20,14 @@ export const defaultMenu: Command[] = [
     {
         name: 'about',
         icon: 'far-info-circle',
-        href: 'about:blank',
+        href: 'route-to:about',
     },
 
     {
         name: 'project',
         icon: 'fab-github',
         tooltip: 'The @skeljs framework of Uni toolset.',
-        href: 'https://github.com/lenik/uni/tree/master/lib/libjs-skeljs',
+        href: 'route-to:project',
     },
 
 ];
@@ -93,16 +94,16 @@ function ucfirst(s: string) {
 
 <template>
     <div class="sitebar" ref="rootElement" v-bind="$attrs">
-        <Icon class="app" :name="icon" />
+        <Icon class="app" :name="icon" :href="home" />
         <ul class="menu left">
             <li v-if="title != null">
-                <a :href="home">{{ title }}</a>
+                <Link :href="home">{{ title }}</Link>
             </li>
             <li v-for="(item, i) in menu" :key="i" :title="item.tooltip">
-                <a target="blank" :href="item.href" @click="(e) => clickCommand(item, e)">
-                    <Icon :name="item.icon" v-if="item.icon != null" />
-                    <span class="label"> {{ item.label || ucfirst(item.name) }}</span>
-                </a>
+                <Link target="blank" :href="item.href" @click="(e) => clickCommand(item, e)">
+                <Icon :name="item.icon" v-if="item.icon != null" />
+                <span class="label"> {{ item.label || ucfirst(item.name) }} </span>
+                </Link>
             </li>
         </ul>
         <div>
@@ -115,7 +116,7 @@ function ucfirst(s: string) {
                 </li>
             </ul>
         </div>
-        <Icon class="app" :name="icon" />
+        <Icon class="app" :name="icon" :href="home" />
     </div>
 </template>
 

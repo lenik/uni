@@ -1,12 +1,13 @@
-<script setup lang="ts">
-
+<script lang="ts">
 import 'font-awesome/css/font-awesome.css';
 import 'velbit-fontawesome-pro/css/all.css';
 
 import { computed, onMounted, ref } from "vue";
+import Link from "./Link.vue"
 
-interface Props {
+export interface Props {
     name: string
+    href?: string
     spin?: boolean
     invert?: boolean
     hFlip?: boolean
@@ -14,7 +15,9 @@ interface Props {
     color?: string
     border?: 'none' | 'circle' | 'box'
 }
+</script>
 
+<script setup lang="ts">
 const props = withDefaults(defineProps<Props>(), {
     spin: false,
     invert: false,
@@ -22,8 +25,6 @@ const props = withDefaults(defineProps<Props>(), {
     vFlip: false,
     border: 'none',
 });
-
-const rootElement = ref<HTMLElement | null>();
 
 const type = computed<string>(() => {
     const name = props.name;
@@ -59,13 +60,10 @@ defineExpose({
 </script>
 
 <template>
-    <span ref="rootElement" class="icon">
-
-        <i :class="faClassList" v-if="type == 'fa'"></i>
-
-        <i class="unknown" :title="'unknown icon ' + name" v-if="type == 'unknown'">?</i>
-
-    </span>
+    <Link :href="href" class="icon">
+    <i :class="faClassList" v-if="type == 'fa'"></i>
+    <i class="unknown" :title="'unknown icon ' + name" v-if="type == 'unknown'">?</i>
+    </Link>
 </template>
 
 <style scoped lang="scss">
