@@ -1,36 +1,24 @@
 <script lang="ts">
 import $ from 'jquery';
-import { computed, onMounted, ref } from "vue";
-import { } from "./types";
+import { computed, defineComponent, onMounted, ref } from "vue";
 
 export interface Props {
-    columns?: number
-    randomCount?: number
+    random?: boolean
     blankRatio?: number
     blankImage?: string
     cellWidth?: string
     cellHeight?: string
 }
 
-export function split(array: any[], columns = 4) {
-    let rows: any[] = [];
-    let n = array.length;
-    let row: any[] = [];
-    for (let i = 0; i < n; i++) {
-        row.push(array[i]);
-        if (row.length % columns == 0) {
-            rows.push(row);
-            row = [];
-        }
-    }
-    if (row.length) rows.push(row);
-    return rows;
-}
-
-export function randomPick(array: any[], count: number, blankRatio = 0, blankImage?: string) {
+export function generate(random: boolean, array: any[], count: number, blankRatio = 0, blankImage?: string) {
     let v: any[] = [];
     for (let i = 0; i < count; i++) {
-        let index = Math.floor(Math.random() * array.length);
+        let index: number;
+        if (random)
+            index = Math.floor(Math.random() * array.length);
+        else
+            index = i % array.length;
+
         if (Math.random() < blankRatio)
             v.push(blankImage);
         else
@@ -45,7 +33,7 @@ export function randomPick(array: any[], count: number, blankRatio = 0, blankIma
 const model = defineModel();
 
 const props = withDefaults(defineProps<Props>(), {
-    columns: 12,
+    random: false,
     cellWidth: '6em',
     cellHeight: '6em',
 });
@@ -57,10 +45,59 @@ const emit = defineEmits<{
 // property shortcuts
 
 const rootElement = ref<HTMLElement>();
+const version = ref(0);
 const srcs = ref<string[]>([]);
-const shuffle = computed(() => props.randomCount == null ? srcs.value :
-    randomPick(srcs.value, props.randomCount, props.blankRatio, props.blankImage));
-const rows = computed(() => split(shuffle.value, props.columns));
+
+const rowCountAppx = ref(0);
+const columnCountAppx = ref(0);
+
+const shuffle = computed(() => {
+    version.value == 0;
+    let count = computeAppxCount();
+    return generate(props.random, srcs.value, count, props.blankRatio, props.blankImage);
+});
+
+function computeAppxCount(defaultCount = 3) {
+    if (rootElement.value == null) return defaultCount;
+    let cells = rootElement.value.getElementsByClassName('cell');
+    if (cells.length == 0) return defaultCount;
+
+    let parent: HTMLElement | null = rootElement.value;
+    let parentStyle;
+    while (parent != null) {
+        parentStyle = parent.computedStyleMap();
+        if (parentStyle.get("overflow") == 'hidden')
+            break;
+        parent = parent.parentElement;
+    }
+    if (parent == null) return defaultCount;
+
+    let refCell = cells.item(0)!;
+    let pw = parent.offsetWidth;
+    let ph = parent.offsetHeight;
+    let cw = refCell.clientHeight;
+    let ch = refCell.clientHeight;
+
+    let cellstyle = refCell.computedStyleMap();
+    let marginLeft = cellstyle.get("margin-left")! as any;
+    let marginRight = cellstyle.get("margin-right")!;
+    let marginTop = cellstyle.get("margin-top")! as any;
+    let marginBottom = cellstyle.get("margin-bottom")!;
+    let marginH = marginLeft.add(marginRight);
+    let marginV = marginTop.add(marginBottom);
+    cw += marginH.value;
+    ch += marginV.value;
+
+    // let cols = Math.floor((pw + cw - 1) / cw);
+    // let rows = Math.floor((ph + ch - 1) / ch);
+    let cols = Math.floor(pw / cw) + 1;
+    let rows = Math.floor(ph / ch) + 1;
+
+    rowCountAppx.value = rows;
+    columnCountAppx.value = cols;
+    let count = cols * rows;
+    return count;
+}
 
 // methods
 
@@ -70,7 +107,6 @@ function update() {
 }
 
 onMounted(() => {
-    // let v = $(".srcs img", rootElement.value).map((i, node: any) => $(node).attr('src'));
     let v: string[] = [];
     let srcsDivs = rootElement.value!.getElementsByClassName("srcs");
     if (srcsDivs.length != 0) {
@@ -84,6 +120,10 @@ onMounted(() => {
         srcs.value = v;
         srcsDiv.remove();
     }
+
+    window.addEventListener('resize', () => {
+        version.value++;
+    });
 });
 </script>
 
@@ -92,13 +132,9 @@ onMounted(() => {
         <div class="srcs">
             <slot></slot>
         </div>
-        <ul class="image-rows">
-            <li v-for="(row, i) in rows" :key="i">
-                <ol class="image-row">
-                    <li class="cell" v-for="(image, j) in row" :key="j">
-                        <img :src="image" v-if="image != null" />
-                    </li>
-                </ol>
+        <ul class="series">
+            <li class="cell" v-for="(image, j) in shuffle" :key="j">
+                <img :src="image" v-if="image != null" />
             </li>
         </ul>
     </div>
@@ -123,15 +159,11 @@ onMounted(() => {
         }
     }
 
-    .image-rows {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .image-row {
+    .series {
         display: flex;
         flex-direction: row;
+        flex-wrap: wrap;
+        margin-right: calc(-1* v-bind(cellWidth));
         align-items: center;
     }
 

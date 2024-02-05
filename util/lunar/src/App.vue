@@ -1,5 +1,7 @@
 <script setup lang="ts">
 
+import { ref } from 'vue';
+
 import ModelC from '@skeljs/core/src/ui/layout/ModelC.vue';
 import SiteBar from '@skeljs/core/src/ui/menu/SiteBar.vue';
 import ProjectInfo from '@skeljs/core/src/ui/demo/ProjectInfo.vue';
@@ -14,6 +16,7 @@ const stat = {
     downvotes: 0,
 };
 
+const size = ref("2.5em");
 </script>
 
 <template>
@@ -24,7 +27,7 @@ const stat = {
         <template #project-info>
             <ProjectInfo :stat="stat" label="Lunar Birthday"
                 description="在一些亚洲国家，特别是中国、韩国和越南等地，人们更加重视传统文化和习俗。阴历生日在这些文化中被认为是更为重要和吉利的。选择阴历生日可以与传统节日和庆祝活动相结合，增加庆祝的乐趣和意义。">
-                <ImageGrid :columns="15" :randomCount="100">
+                <ImageGrid :random="false" :cell-width="size" :cell-height="size">
                     <img src="./img/fotor-ai-2024020512818.jpg">
                     <img src="./img/fotor-ai-2024020512858_10.jpg">
                     <img src="./img/fotor-ai-2024020512858_12.jpg">
