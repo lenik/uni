@@ -1,5 +1,5 @@
 
-import type { UiNode } from "skeljs-core/src/vue/uinode";
+import type { UiNode } from "../ui-node";
 
 export interface NodeTypes {
     style?: any;

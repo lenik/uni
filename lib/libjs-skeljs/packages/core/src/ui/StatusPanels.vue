@@ -1,7 +1,8 @@
 <script setup lang="ts">
 
 import { computed, onMounted, ref } from "vue";
-import { group, select, Status } from "./types";
+import type { Status } from "./types";
+import { group, select } from "./types";
 
 import StatusPanel from './StatusPanel.vue';
 

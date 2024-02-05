@@ -1,15 +1,10 @@
-<script setup lang="ts">
-
+<script lang="ts">
 import $ from 'jquery';
-
 import { computed, onMounted, ref } from "vue";
-import { } from "./types";
 
 import Icon from '../Icon.vue';
 
-const model = defineModel();
-
-interface Props {
+export interface Props {
     autohide?: boolean
     delay?: number
     icon?: string
@@ -19,6 +14,10 @@ interface Props {
     notice?: string
     count?: number | string
 }
+</script>
+
+<script setup lang="ts">
+const model = defineModel();
 
 const props = withDefaults(defineProps<Props>(), {
     autohide: true,
@@ -57,7 +56,10 @@ function hide() {
     $(rootElement.value!).slideUp();
 }
 
-function format(n) {
+function formatDecimal3(n: number | string) {
+    if (n == null) return null;
+    if (typeof n == 'string') return n;
+
     let s = '';
     while (n != 0) {
         let mod = n % 1000;
@@ -76,41 +78,28 @@ defineExpose({ show, hide });
 <template>
     <div class="copyright" ref="rootElement">
         <ul class="info">
-
             <li class="head">
                 <Icon :name="icon" />
-
-                <span class="literal">
-                    Copyright
-                </span>
+                <span class="literal"> Copyright </span>
             </li>
-
-            <li class="date">
-                {{ dateRange }}
-            </li>
-
+            <li class="date"> {{ dateRange }} </li>
             <li class="author" v-if="author != null">
                 <Icon name="far-user-circle" />
                 <span> {{ author }} </span>
             </li>
-
             <li class="org" v-if="org != null">
                 <Icon name="far-building" />
                 <span> {{ org }}</span>
             </li>
-
             <li class="notice">
                 <Icon name="far-exclamation-circle" />
                 <span> {{ notice }} </span>
             </li>
         </ul>
-
         <div class="count" v-if="count != null">
             <Icon name="far-eye" />
             <span class="label"> Visit Count: </span>
-            <span class="number" v-if="countIsNumber">
-                {{ format(count) }}
-            </span>
+            <span class="number" v-if="countIsNumber"> {{ formatDecimal3(count) }} </span>
             <div id="statcounter">
                 <img class="statcounter">
             </div>

@@ -6,9 +6,10 @@ export function makeMovable(element: HTMLElement, handle?: HTMLElement) {
     handle = $(handle)[0];
     if (element == null || handle == null) return;
 
-    let oldLeft, oldTop;
+    let oldLeft: number;
+    let oldTop: number;
 
-    function moveElement(e) {
+    function moveElement(e: MouseEvent) {
         let left = e.clientX - oldLeft;
         let top = e.clientY - oldTop;
 
@@ -28,7 +29,7 @@ export function makeMovable(element: HTMLElement, handle?: HTMLElement) {
         element.style.top = top + 'px';
     }
 
-    handle.addEventListener('mousedown', (e) => {
+    handle.addEventListener('mousedown', (e: MouseEvent) => {
         e.preventDefault();
         oldLeft = e.clientX - element.offsetLeft;
         oldTop = e.clientY - element.offsetTop;
@@ -48,7 +49,7 @@ export function makeMovable(element: HTMLElement, handle?: HTMLElement) {
         window.addEventListener('mousemove', moveElement, false);
     });
 
-    handle.addEventListener('mouseup', (e) => {
+    handle.addEventListener('mouseup', (e: MouseEvent) => {
         window.removeEventListener('mousemove', moveElement, false);
     });
 

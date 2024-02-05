@@ -3,13 +3,13 @@ import $ from 'jquery';
 
 import { computed, onMounted, ref } from "vue";
 import { resolveChild } from "../dom/create";
-import { bool, Command, getDialogCmds } from './types';
+import type { Command } from './types';
+import { bool, getDialogCmds } from './types';
 import type { AsyncDialogSelectCallback, DialogSelectCallback } from './types';
 import { makeMovable } from '../dom/movable';
 
 import Icon from './Icon.vue';
 import CmdButtons from './CmdButtons.vue';
-import { slowly } from '@skeljs/core/src/skel/waitbox';
 
 export interface Props {
     group?: string
@@ -172,9 +172,10 @@ async function select(event: Event) {
             // slowly((end) => {
             let success = frame.selectCallback(model.value, event);
             console.log(success);
-            if (typeof success?.then == 'function') {
-                success = await success;
-            }
+            if (typeof success == 'object')
+                if (typeof success.then == 'function') {
+                    success = await success;
+                }
             if (!success)
                 return false;
         }

@@ -1,9 +1,8 @@
 <script setup lang="ts">
 
-import $ from 'jquery';
-
 import { computed, onMounted, ref } from "vue";
-import { bool, Status } from './types';
+import type { Status } from './types';
+import { bool } from './types';
 
 import Icon from './Icon.vue';
 

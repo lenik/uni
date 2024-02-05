@@ -37,14 +37,14 @@ function openShareWindow(url: string) {
         height: width,
         top: top,
         left: left,
-    };
+    } as any;
     let s = '';
     for (let k in params)
         s += k + '=' + params[k] + ',';
     window.open(url, "NewWindow", s);
 }
 
-function openShareDialog(url) {
+function openShareDialog(url: string) {
     let iframe = iframeElement.value;
     iframe.src = url;
     let dialog = iframeDialog.value;

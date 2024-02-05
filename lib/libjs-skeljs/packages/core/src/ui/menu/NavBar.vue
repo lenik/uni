@@ -2,8 +2,7 @@
 
 import $ from 'jquery';
 import { ref, watch } from 'vue';
-import { Command } from '../types';
-import { ViewHandles } from '../layout/TabViews.vue';
+import type { ViewHandles } from '../layout/TabViews.vue';
 import Icon from '../Icon.vue';
 
 interface Props {
@@ -53,9 +52,9 @@ watch(model, async (toVal, fromVal) => {
 
 <template>
     <nav ref="rootElement" class="-tabular -bw">
-        <a v-for="(item, k) in items" :key="k" :href="k" :class="{ selected: model == k }" onclick="return false"
-            @click.stop="select(k)">
-            <Icon :name="item.icon" />
+        <a v-for="(item, k) in items" :key="k" :href="'' + k" :class="{ selected: model == k }" onclick="return false"
+            @click.stop="select('' + k)">
+            <Icon :name="item.icon" v-if="item.icon != null" />
             <span class="label"> {{ item.label }} </span>
         </a>
     </nav>

@@ -38,12 +38,12 @@ function convert(items: RouteRecordRaw[], path: string, node: CNode) {
 }
 
 interface HasName {
-    __name: string;
+    __name?: string;
 }
 
 export function ui<Named extends HasName>(val: Named, label?: string, icon?: string): UiElementMap<Named> {
     let el = new UiElement<Named>(val, label, icon);
-    let k = val.__name;
+    let k = val.__name!;
     let map: UiElementMap<Named> = {};
     map[k] = el;
     return map;

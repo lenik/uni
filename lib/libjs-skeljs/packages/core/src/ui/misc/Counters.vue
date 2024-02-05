@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-import { CounterType, CounterTypedValue, CounterTypes, CounterValues } from "./Counters";
+import type { CounterType, CounterTypedValue, CounterTypes, CounterValues } from "./Counters";
+
 import Icon from "../Icon.vue";
 
 interface Props {
@@ -12,7 +13,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
 });
 
-function compareCounterKey(k1, k2) {
+function compareCounterKey(k1: string, k2: string) {
     let types = props.types;
     let t1 = types[k1];
     let t2 = types[k2];
@@ -37,7 +38,7 @@ const results = computed(() => {
     keys.sort(compareCounterKey);
     for (let k of keys) {
         let type = types[k];
-        let s;
+        let s: string | undefined;
         if (type.cformat != undefined) {
             s = type.cformat(values);
         } else {
@@ -45,7 +46,7 @@ const results = computed(() => {
             if (type.format != undefined) {
                 s = type.format(val);
             } else {
-                s = val;
+                s = val + '';
             }
         }
         if (s == undefined) continue;

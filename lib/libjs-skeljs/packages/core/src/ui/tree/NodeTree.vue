@@ -2,7 +2,7 @@
 
 import { computed, ref, watch } from 'vue';
 
-import type { UiNode } from './ui-node';
+import type { UiNode } from '../ui-node';
 
 import { defaultTyper, type NodeTyperFunc } from './typer';
 
@@ -61,12 +61,10 @@ const rootElement = ref();
 
 <template>
     <div ref="rootElement">
-        <slot :node="node" :value="value" :path="path" :_key="_key" :depth="depth">
-            {{ value }}
-        </slot>
-        <component :is="tagName" v-if="depth < maxDepth">
-            <li v-for="(child, k) in children" :key="k">
-                <node-tree :node="child" :depth="depth + 1" :_key="k" :path="prefix + k">
+        <slot :node="node" :value="value" :path="path" :_key="_key" :depth="depth"> {{ value }} </slot>
+        <component :is="tagName" v-if="depth < maxDepth && children != null">
+            <li v-for="(child, k) in children" :key="k + ''">
+                <node-tree :node="child" :depth="depth + 1" :_key="k + ''" :path="prefix + k">
                     <template v-for="(_, slotName) of $slots" v-slot:[slotName]="slotProps" :key="slotName">
                         <component :is="$slots[slotName]!(slotProps)[0]" />
                     </template>
@@ -76,5 +74,4 @@ const rootElement = ref();
     </div>
 </template>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

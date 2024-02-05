@@ -3,7 +3,8 @@
 import $ from 'jquery';
 
 import { computed, onMounted, ref } from "vue";
-import { bool, Command } from './types';
+import type { Command } from './types';
+import { bool } from './types';
 
 import Icon from './Icon.vue';
 
@@ -55,7 +56,7 @@ const rootElement = ref<HTMLElement | null>();
 onMounted(() => {
 });
 
-function onclick(event) {
+function onclick(event: Event) {
     let cmd = props.cmd;
     switch (cmd.type) {
         case 'toggle':

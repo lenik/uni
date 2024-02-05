@@ -16,5 +16,5 @@ export interface CounterValues {
 }
 
 export interface CounterTypedValue extends CounterType {
-    value: number
+    value: number | string
 }

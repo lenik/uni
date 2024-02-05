@@ -1,5 +1,5 @@
 <script lang="ts">
-import { CounterTypes, CounterValues } from '../misc/Counters';
+import type { CounterTypes, CounterValues } from '../misc/Counters';
 import Counters from '../misc/Counters.vue';
 
 export interface Props {

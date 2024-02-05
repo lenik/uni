@@ -104,16 +104,19 @@ const labelSize = computed(() => {
 });
 const morebit = computed(() => {
     let size = labelSize.value;
+    if (size == null) return false;
     let len = _label.value?.length || 0;
     return len > size && len < size * 1.5;
 });
 const morehalf = computed(() => {
     let size = labelSize.value;
+    if (size == null) return false;
     let len = _label.value?.length || 0;
     return len >= size * 1.5 && len < size * 2;
 });
 const more2 = computed(() => {
     let size = labelSize.value;
+    if (size == null) return false;
     let len = _label.value?.length || 0;
     return len >= size * 2;
 });

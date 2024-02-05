@@ -1,7 +1,8 @@
 <script setup lang="ts">
 
 import { computed, onMounted, ref } from "vue";
-import { Command, UiGroup, group, select } from "./types";
+import type { Command, UiGroup } from "./types";
+import { group, select } from "./types";
 
 import CmdButton from './CmdButton.vue';
 
@@ -82,7 +83,7 @@ defineExpose();
     <ul class="cmd-buttons" ref="rootElement">
         <template v-for="(groupName) in groupNames" :key="groupName">
             <CmdButton tag-name="li" v-for="cmd in groupMap.get(groupName).items" :key="cmd.name" :cmd="cmd"
-                :target="target" @click="(event) => runCmd(cmd, event)" v-bind="$attrs">
+                :target="target" @click="(e: Event) => runCmd(cmd, e)" v-bind="$attrs">
             </CmdButton>
             <li class="sep" />
         </template>

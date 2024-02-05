@@ -4,7 +4,8 @@ import { onMounted, ref } from "vue";
 import { Moment } from "moment";
 
 // import { } from "./types";
-import { LogEntry, levelIcon, simpleName, causes } from "../logging/api";
+import type { LogEntry } from "../logging/api";
+import { levelIcon, simpleName, causes } from "../logging/api";
 
 import Icon from './Icon.vue';
 

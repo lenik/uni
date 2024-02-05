@@ -4,9 +4,6 @@
 // // import 'jquery-ui/themes/base/selectable.css';
 
 import $ from "jquery";
-// await import "jquery-ui/ui/core";
-// import "jquery-ui/ui/widgets/resizable";
-// // import "jquery-ui-esm/widgets/draggable";
 
 import { computed, onMounted, ref } from "vue";
 

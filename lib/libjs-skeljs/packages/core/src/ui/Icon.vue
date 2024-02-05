@@ -3,7 +3,7 @@ import 'font-awesome/css/font-awesome.css';
 import 'velbit-fontawesome-pro/css/all.css';
 
 import { computed, onMounted, ref } from "vue";
-import Link from "./Link.vue"
+import Link from "./Link.vue";
 
 export interface Props {
     name: string

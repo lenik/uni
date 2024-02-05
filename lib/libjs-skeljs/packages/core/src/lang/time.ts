@@ -1,6 +1,6 @@
 import moment from 'moment-timezone';
-import { Moment } from 'moment-timezone';
-import { Solar, Lunar, LunarYear } from 'lunar-javascript';
+import type { Moment } from 'moment-timezone';
+import { Solar, Lunar } from 'lunar-javascript';
 
 export class MomentWrapper {
     moment: Moment

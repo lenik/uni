@@ -2,7 +2,7 @@
 import $ from 'jquery';
 import { computed, onMounted, ref } from "vue"
 
-import { Command } from '../types';
+import type { Command } from '../types';
 
 import Link from '../Link.vue';
 import Icon from '../Icon.vue';
@@ -59,14 +59,14 @@ onMounted(() => {
 });
 
 let timeout = 300;
-let killer;
+let killer: number | undefined;
 
 function showContextMenu(e: Event) {
     let shareMenu = $(".share-menu");
     shareMenu.slideDown();
     if (killer != null) {
         window.clearTimeout(killer);
-        killer = null;
+        killer = undefined;
     }
 }
 
@@ -74,9 +74,9 @@ function hideContextMenu(e: Event) {
     let shareMenu = $(".share-menu");
     if (killer != null) {
         window.clearTimeout(killer);
-        killer = null;
+        killer = undefined;
     }
-    killer = setTimeout(() => shareMenu.slideUp(), timeout);
+    killer = setTimeout(() => shareMenu.slideUp(), timeout, 'slide-up');
 }
 
 function clickCommand(cmd: Command, e: Event) {
@@ -90,6 +90,8 @@ function ucfirst(s: string) {
     return first + s.substring(1);
 }
 
+function login() {
+}
 </script>
 
 <template>
@@ -110,9 +112,10 @@ function ucfirst(s: string) {
             <ul class="menu right">
                 <li><a><i class="fa fa-user" @click="login()"></i></a>
                 </li>
-                <li><a><i class="fa fa-share-alt" @mouseenter="(e) => showContextMenu(e)"
-                            @mouseleave="(e) => hideContextMenu(e)"></i> </a>
-                    <ShareMenu @mouseenter="(e) => showContextMenu(e)" @mouseleave="(e) => hideContextMenu(e)" />
+                <li><a><i class="fa fa-share-alt" @mouseenter="(e: Event) => showContextMenu(e)"
+                            @mouseleave="(e: Event) => hideContextMenu(e)"></i> </a>
+                    <ShareMenu @mouseenter="(e: Event) => showContextMenu(e)"
+                        @mouseleave="(e: Event) => hideContextMenu(e)" />
                 </li>
             </ul>
         </div>
