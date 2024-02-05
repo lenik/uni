@@ -1,8 +1,6 @@
 <script lang="ts">
 import { computed, onMounted, Ref, ref } from "vue";
 import moment from 'moment-timezone';
-import { Moment } from 'moment-timezone';
-import { Solar, Lunar, LunarYear } from 'lunar-javascript';
 import { LocalDate, LunarDate } from "@skeljs/core/src/lang/time";
 
 import FieldRow from "@skeljs/core/src/ui/FieldRow.vue";

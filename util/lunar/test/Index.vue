@@ -9,8 +9,6 @@ import TabViews from '@skeljs/core/src/ui/layout/TabViews.vue';
 import View from '@skeljs/core/src/ui/layout/View.vue';
 import NodeTree from '@skeljs/core/src/ui/tree/NodeTree.vue';
 
-import { root } from './router';
-
 const views: Menu = {
     dtn: {
         selected: true,
