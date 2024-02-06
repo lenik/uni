@@ -126,7 +126,6 @@ onMounted(() => {
 <style scoped lang="scss">
 .component-root {
     padding: 0;
-    font-weight: 300;
 }
 
 select {
@@ -147,7 +146,6 @@ input[type=date] {
     margin-left: 2em;
     // border: none;
     // border-bottom: dashed 1px gray;
-    font-weight: 300;
     padding: .2em 1em;
 }
 

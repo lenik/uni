@@ -35,32 +35,37 @@ onMounted(() => {
 <template>
     <div class="component-root" ref="rootElement">
         <p>这是一个计算生日的小程序。</p>
-        <p>使用方法：</p>
+        <p>Usage:</p>
         <el-steps direction="vertical" space="5em" :active="active">
             <el-step title="Step 1" @click="active = 0">
-                <template #title>输入生日 </template>
+                <template #title>Specify the birthday </template>
                 <template #description>
-                    <p>可以通过阳历或阴历指定出生日期。</p>
-                    <p>当用任一种方式（比如阳历/格里高历历）指定日期后，程序将自动计算出 另一种日历法（月历或称农历）表示的日期。</p>
+                    <p>The date of birth can be specified by the solar or lunar calendar.</p>
+                    <p> When a date is specified using any method (such as solar calendar/Gregorian calendar), the program
+                        will automatically calculate the date represented by another calendar method (lunar calendar). </p>
                 </template>
             </el-step>
             <el-step title="Step 2" @click="active = 1">
-                <template #title>检查 </template>
+                <template #title>Confirmation </template>
                 <template #description>
-                    <p>仔细观察输入的日期，确保阳历和阴历的生日是您的出生日期。</p>
-                    <p>当你用农历日历法来输入日期时，也许会存在润月的情况。</p>
-                    <p> 严格来说，按农历日历法计算生日时，农历润月出生的生日也应在农历润月时才能算作生日。</p>
+                    <p>Verify the date you entered carefully to make sure the solar and lunar dates match your birth date.
+                    </p>
+                    <p>When you use the lunar calendar method to enter dates, there may be a leap month situation.</p>
+                    <p> Strictly speaking, when calculating birthdays according to the lunar calendar method, birthdays born
+                        in a leap month of the lunar calendar should also be counted as birthdays in a leap month of the
+                        lunar calendar.</p>
                 </template>
             </el-step>
             <el-step title="Step 3" @click="active = 2">
-                <template #title>计算匹配的生日日期 </template>
+                <template #title>Calculate matching birthday dates </template>
                 <template #description>
-                    <p>点击计算按钮</p>
-                    <p>系统将从出生日开始起的120年内寻找阳历和阴历同时匹配的所有生日日期（可能不存在），并将它们列出来。</p>
+                    <p>Click the Calculate button</p>
+                    <p>The program will look for all birthday dates that match both the solar and lunar calendars (which may
+                        not exist) within 120 years from the date of birth, and list them.</p>
                 </template>
             </el-step>
             <el-step title="Step 4" @click="active = 4">
-                <template #title>完成或重新来过 </template>
+                <template #title>Finish or start over </template>
             </el-step>
         </el-steps>
     </div>
@@ -69,12 +74,22 @@ onMounted(() => {
 <style scoped lang="scss">
 .component-root {
     padding: 1em;
-    font-weight: 300;
     margin: 0;
     overflow: auto;
 
     p {
-        margin: 0.5em 0;
+        margin: 1em 0;
+    }
+
+    .el-steps {
+        margin-left: 2em;
+    }
+
+    ::v-deep() {
+        .el-step__title {
+            font-family: serif;
+            font-weight: 500;
+        }
     }
 }
 </style>
