@@ -1,6 +1,5 @@
 <script lang="ts">
 import { onMounted, ref } from "vue";
-import { } from "./types";
 
 export interface Props {
 }
@@ -34,8 +33,8 @@ onMounted(() => {
 
 <template>
     <div class="component-root" ref="rootElement">
-        <p>这是一个计算生日的小程序。</p>
-        <p>Usage:</p>
+        <p>这是一个计算特别生日的小程序。 <br> This is a small program that calculates special birthdays.</p>
+        <p>How to use:</p>
         <el-steps direction="vertical" space="5em" :active="active">
             <el-step title="Step 1" @click="active = 0">
                 <template #title>Specify the birthday </template>
@@ -87,8 +86,13 @@ onMounted(() => {
 
     ::v-deep() {
         .el-step__title {
-            font-family: serif;
             font-weight: 500;
+            line-height: inherit;
+        }
+
+        .el-step__description {
+            font-weight: 300;
+            line-height: inherit;
         }
     }
 }
