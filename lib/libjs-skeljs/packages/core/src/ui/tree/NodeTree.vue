@@ -60,7 +60,7 @@ const rootElement = ref();
 </script>
 
 <template>
-    <div ref="rootElement">
+    <div ref="rootElement" class="tree-node" :class="{ 'root-node': depth == 0 }" :depth="depth">
         <slot :node="node" :value="value" :path="path" :_key="_key" :depth="depth"> {{ value }} </slot>
         <component :is="tagName" v-if="depth < maxDepth && children != null">
             <li v-for="(child, k) in children" :key="k + ''">

@@ -26,13 +26,6 @@ provide(SERVER_URL, serverUrl);
 
 // property shortcuts
 
-// consts
-
-const siteMenu = [
-    { href: "./index.html", iconfa: "fa-file-o", label: "This" },
-    { href: "about:blank", iconfa: "fa-modx", label: "Blank" },
-];
-
 const version = "1.0";
 const stat = {
     views: 100,
@@ -46,10 +39,11 @@ const stat = {
 <template>
     <ModelC>
         <template #site-bar>
-            <SiteBar :items="siteMenu" :title="'Title1'" />
+            <SiteBar :title="'DBA Examples'" />
         </template>
         <template #project-info>
-            <ProjectInfo :stat="stat" label="DBA Test Apps"> Test applications of skeljs::dba package. </ProjectInfo>
+            <ProjectInfo :stat="stat" label="DBA Test Apps" description="Test applications of skeljs::dba package. ">
+            </ProjectInfo>
         </template>
         <router-view></router-view>
         <template #footer>

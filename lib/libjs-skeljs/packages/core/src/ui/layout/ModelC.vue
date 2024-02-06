@@ -1,37 +1,49 @@
-<script setup lang="ts">
+<script lang="ts">
+
+import { computed } from "vue";
 
 import "../../skel/skel.scss";
-import "../../font/NotoSansSC.scss";
+import "@fontsource/noto-sans-sc/chinese-simplified.css";
+
+export interface Props {
+    scrollable?: boolean
+}
+
+</script>
+
+<script setup lang="ts">
+
+const props = withDefaults(defineProps<Props>(), {
+    scrollable: true,
+});
+
+const emit = defineEmits<{
+    error: [message: string]
+}>();
+
+const mainOverflowType = computed(() => props.scrollable ? 'auto' : 'hidden');
 
 </script>
 
 <template>
-    <div class="flex-column full-size">
-
+    <div class="model-c">
         <div class="header clear-each">
             <slot name="header">
                 <slot name="site-bar"></slot>
                 <slot name="project-info"></slot>
             </slot>
         </div>
-
-        <slot name="body">
-            <div class="body flex-row flex-1">
-
-                <div class="menu">
-                    <slot name="menu"></slot>
-                </div>
-
-                <slot name="main">
-                    <div class="main">
-                        <slot>
-                        </slot>
-                    </div>
-                </slot>
+        <div class="nav-main">
+            <div class="navleft">
+                <slot name="navleft"></slot>
             </div>
-        </slot>
-
-
+            <slot name="main">
+                <div class="main">
+                    <slot>
+                    </slot>
+                </div>
+            </slot>
+        </div>
         <slot name="footer">
         </slot>
     </div>
@@ -44,6 +56,18 @@ import "../../font/NotoSansSC.scss";
 </style>
 
 <style scoped lang="scss">
+.model-c {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+
+    font-family: "Noto Sans SC";
+    font-weight: 300;
+}
+
 .header {
     &.hide {
         background: #89a;
@@ -55,14 +79,15 @@ import "../../font/NotoSansSC.scss";
     }
 }
 
-::v-deep() {
-    .body {
-        overflow: hidden;
+.nav-main {
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    flex: 1;
 
-        >.main {
-            flex: 1;
-            overflow: hidden;
-        }
+    >.main {
+        flex: 1;
+        overflow: v-bind(mainOverflowType);
     }
 }
 </style>

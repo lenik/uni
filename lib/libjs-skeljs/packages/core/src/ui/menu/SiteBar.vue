@@ -13,6 +13,8 @@ export interface Props {
     icon?: string
     home?: string
     menu?: Command[]
+    showAbout?: boolean
+    showProject?: boolean
 }
 
 export const defaultMenu: Command[] = [
@@ -45,13 +47,21 @@ const props = withDefaults(defineProps<Props>(), {
     title: 'Example App',
     icon: 'far-gift',
     menu: defaultMenu,
+    showAbout: false,
+    showProject: true,
 });
 
 const emit = defineEmits<{
     error: [message: string]
 }>();
 
-// app state
+var menu2 = computed(() => {
+    let sel = {
+        about: props.showAbout,
+        project: props.showProject,
+    };
+    return props.menu.filter(a => sel[a.name] == true);
+});
 
 var rootElement = ref();
 
@@ -101,7 +111,7 @@ function login() {
             <li v-if="title != null">
                 <Link :href="home">{{ title }}</Link>
             </li>
-            <li v-for="(item, i) in menu" :key="i" :title="item.tooltip">
+            <li v-for="(item, i) in menu2" :key="i" :title="item.tooltip">
                 <Link target="blank" :href="item.href" @click="(e) => clickCommand(item, e)">
                 <Icon :name="item.icon" v-if="item.icon != null" />
                 <span class="label"> {{ item.label || ucfirst(item.name) }} </span>

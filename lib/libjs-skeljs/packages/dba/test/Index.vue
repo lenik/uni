@@ -2,24 +2,22 @@
 
 import { ref } from 'vue';
 
-import type { Menu } from '@skeljs/core/src/ui/menu/menu';
-import { getSelection } from '@skeljs/core/src/ui/menu/menu';
-
-import TabViews from '@skeljs/core/src/ui/layout/TabViews.vue';
+import type { ViewHandles } from '@skeljs/core/src/ui/layout/TabViews.vue';
+import TabViews, { getSelectedViewName } from '@skeljs/core/src/ui/layout/TabViews.vue';
 import View from '@skeljs/core/src/ui/layout/View.vue';
 import NodeTree from '@skeljs/core/src/ui/tree/NodeTree.vue';
 
 import { root } from './router';
 
-const views: Menu = {
+const views: ViewHandles = {
     dtn: {
         selected: true,
         label: "DataTable",
-        iconfa: "table",
+        icon: "far-table",
     },
 };
 
-const initialView = getSelection(views)[0];
+const initialView = getSelectedViewName(views);
 const view = ref(initialView);
 
 </script>
@@ -27,13 +25,11 @@ const view = ref(initialView);
 <template>
     <TabViews :views="views" v-model:view="view">
         <View name="dtn" :selection="view">
-            <node-tree :node="root">
+            <NodeTree :node="root">
                 <template v-slot="{ path, node }">
-                    <router-link :to="path">
-                        {{ node[2]?.label || path }}
-                    </router-link>
+                    <router-link :to="path"> {{ node[2]?.label || path }} </router-link>
                 </template>
-            </node-tree>
+            </NodeTree>
         </View>
     </TabViews>
 </template>

@@ -1,13 +1,12 @@
 
 import { createRouter, createWebHashHistory } from 'vue-router';
-import { RouterComponent } from 'vue-router';
 
 import { routeRecordsFromTree, ui, uiExtract } from '@skeljs/core/src/ui/routes';
-
 import type { UiNode } from '@skeljs/core/src/ui/tree/ui-node';
 import { extract } from '@skeljs/core/src/ui/tree/ui-node';
 
 import Index from "./Index.vue";
+import Project from '@skeljs/core/src/ui/demo/Project.vue';
 import DataTabDemo from "./DataTables/DataTabDemo.vue";
 import DataObjvDemo from "./DataTables/DataObjvDemo.vue";
 import AjaxArrayDemo from "./DataTables/AjaxArrayDemo.vue";
@@ -18,6 +17,7 @@ import PersonAdmin from "../src/net/bodz/lily/schema/contact/PersonAdmin.vue";
 export const root = uiExtract([
     Index,
     {
+        ...ui(Project, 'Project Info'),
         ...ui(DataTabDemo, 'Table data modeled in DataTab type'),
         ...ui(DataObjvDemo, 'Data row by object[]'),
         ...ui(AjaxArrayDemo, 'Ajax with row=array'),
