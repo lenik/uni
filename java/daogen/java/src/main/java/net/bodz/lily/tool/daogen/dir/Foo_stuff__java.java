@@ -16,6 +16,7 @@ import net.bodz.lily.meta.TypeParameters;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
+import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
 public class Foo_stuff__java
@@ -29,25 +30,27 @@ public class Foo_stuff__java
 
     @Override
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
-        TypeExtendInfo tableType = new TypeExtendInfo(project, out, table, project._Foo_stuff.qName);
-        QualifiedName idType = tableType.idType;
+        TypeExtendInfo extend = new TypeAnalyzer(project, out)//
+                .getExtendInfo(table, project._Foo_stuff.qName);
+
+        QualifiedName idType = extend.idType;
 
         String description = table.getDescription();
         if (description != null)
             templates.javaDoc(out, description);
 
-        if (tableType.typeAgain != null)
+        if (extend.typeAgain != null)
             out.printf("@%s({ %s })\n", //
-                    out.im.name(TypeParameters.class), //
-                    tableType.typeAgain);
+                    out.importName(TypeParameters.class), //
+                    extend.typeAgain);
 
-        if (tableType.idType != null)
+        if (extend.idType != null)
             out.printf("@%s(%s.class)\n", //
-                    out.im.name(IdType.class), //
-                    out.im.name(idType));
+                    out.importName(IdType.class), //
+                    out.importName(idType));
 
-        out.printf("public abstract class %s%s\n", tableType.simpleName, tableType.params);
-        out.printf("        extends %s%s {\n", tableType.baseClassName, tableType.baseParams);
+        out.printf("public abstract class %s%s\n", extend.simpleName, extend.params);
+        out.printf("        extends %s%s {\n", out.importName(extend.baseClassName), extend.baseParams);
         out.enter();
         {
             out.println();
@@ -112,15 +115,15 @@ public class Foo_stuff__java
                 // K id() => new Foo_Id(this)
                 out.println();
                 out.println("@Override");
-                out.printf("public %s id() {\n", out.im.name(idType));
+                out.printf("public %s id() {\n", out.importName(idType));
                 // out.printf(" return id;\n");
-                out.printf("    return new %s(this);\n", out.im.name(project.Foo_Id.qName));
+                out.printf("    return new %s(this);\n", out.importName(project.Foo_Id.qName));
                 out.printf("}\n");
 
                 // id(Foo_Id id) => { this.field* = id.property* }
                 out.println();
                 out.println("@Override");
-                out.printf("public void id(%s id) {\n", out.im.name(idType));
+                out.printf("public void id(%s id) {\n", out.importName(idType));
                 // out.printf(" this.id = id;\n");
                 for (IColumnMetadata k : primaryKeyCols) {
                     ColumnNaming cname = project.naming(k);
@@ -132,12 +135,12 @@ public class Foo_stuff__java
                     ColumnNaming cname = project.naming(k);
                     out.println();
                     out.println("@Override");
-                    out.printf("public %s id() {\n", out.im.name(idType));
+                    out.printf("public %s id() {\n", out.importName(idType));
                     out.printf("    return get%s();\n", cname.ucfirstPropertyName);
                     out.printf("}\n");
                     out.println();
                     out.println("@Override");
-                    out.printf("public void id(%s id) {\n", out.im.name(idType));
+                    out.printf("public void id(%s id) {\n", out.importName(idType));
                     out.printf("    set%s(id);\n", cname.ucfirstPropertyName);
                     out.printf("}\n");
                 }

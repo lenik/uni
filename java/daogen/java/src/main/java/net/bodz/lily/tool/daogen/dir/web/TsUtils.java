@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import net.bodz.bas.c.type.TypeId;
 import net.bodz.bas.c.type.TypeKind;
+import net.bodz.bas.codegen.QualifiedName;
 import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.EsmName;
 
@@ -24,6 +25,10 @@ public class TsUtils {
         return aliases.get(type);
     }
 
+    public static String toTsType(QualifiedName javaType) {
+        return toTsType(javaType.getFullName());
+    }
+
     public static String toTsType(String javaType) {
         Class<?> clazz;
         try {
@@ -31,6 +36,10 @@ public class TsUtils {
         } catch (ClassNotFoundException e) {
             return javaType;
         }
+        return toTsType(clazz);
+    }
+
+    public static String toTsType(Class<?> clazz) {
         int typeId = TypeKind.getTypeId(clazz);
         switch (typeId) {
         case TypeId._char:
@@ -60,6 +69,7 @@ public class TsUtils {
 
         case TypeId.DATE:
         case TypeId.SQL_DATE:
+        case TypeId.TIMESTAMP:
             return "Date";
 
         case TypeId.INSTANT:
@@ -73,7 +83,7 @@ public class TsUtils {
         case TypeId.STRING:
             return "string";
         }
-        return javaType;
+        return clazz.getName();
     }
 
 }

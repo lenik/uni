@@ -1,7 +1,12 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.TypeScriptWriter;
+import net.bodz.bas.t.catalog.CrossReference;
+import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__vue;
@@ -9,18 +14,21 @@ import net.bodz.lily.tool.daogen.JavaGen__vue;
 public class FooAdmin__vue
         extends JavaGen__vue {
 
+    TsTemplates templates;
+
     public FooAdmin__vue(JavaGenProject project) {
         super(project, project.Esm_FooAdmin);
+        templates = new TsTemplates(project);
     }
 
     @Override
-    protected void buildScript1(TypeScriptWriter out, ITableMetadata model) {
+    protected void buildScript1(TypeScriptWriter out, ITableMetadata table) {
         out.println("export interface Props {");
         out.println("}");
     }
 
     @Override
-    protected void buildSetupScript(TypeScriptWriter out, ITableMetadata model) {
+    protected void buildSetupScript(TypeScriptWriter out, ITableMetadata table) {
         out.println();
         out.println("const props = withDefaults(defineProps<Props>(), {");
         out.println("});");
@@ -32,11 +40,12 @@ public class FooAdmin__vue
                 out.localName(project.Esm_Foo.qName));
         out.println("const selection = ref<any>({});");
 
-        String defaultDialogVar = "defaultPersonChooseDialog";
-        out.printf("const %s = ref<InstanceType<typeof %s>>();\n", //
-                defaultDialogVar, //
-                out.localVue(project.Esm_FooChooseDialog.qName));
-        out.println();
+        // String defaultDialogVar = "defaultPersonChooseDialog";
+        // out.printf("const %s = ref<InstanceType<typeof %s>>();\n", //
+        // defaultDialogVar, //
+        // out.localVue(project.Esm_FooChooseDialog.qName));
+        // out.println();
+
         out.printf("%s(() => {\n", //
                 out.name(EsmModules.vue.onMounted));
         out.println("});");
@@ -44,11 +53,11 @@ public class FooAdmin__vue
     }
 
     @Override
-    protected void buildScript2(TypeScriptWriter out, ITableMetadata model) {
+    protected void buildScript2(TypeScriptWriter out, ITableMetadata table) {
     }
 
     @Override
-    protected void buildTemplate(TypeScriptWriter out, ITableMetadata model) {
+    protected void buildTemplate(TypeScriptWriter out, ITableMetadata table) {
 
         out.println("<template>");
         out.enter();
@@ -60,9 +69,24 @@ public class FooAdmin__vue
                 out.println("<template #columns>");
                 out.enter();
                 {
-                    out.println("<th data-field=\"id\" class=\"id\">ID</th>");
-                    out.println("<th data-field=\"properties\" class=\"hidden\">properties</th>");
-                    out.println("<th data-field=\"label\">Name</th>");
+
+                    Set<String> handledXrefs = new HashSet<>();
+
+                    for (IColumnMetadata column : table.getColumns()) {
+                        if (column.isCompositeProperty()) {
+                            // checkCompositeProperty(table, column);
+                            continue;
+                        }
+
+                        if (column.isForeignKey()) {
+                            CrossReference xref = table.getForeignKeyFromColumn(column.getName());
+                            if (handledXrefs.add(xref.getConstraintName()))
+                                templates.declFKColumn(out, xref);
+                        } else {
+                            templates.declColumn(out, column);
+                        }
+                    }
+
                     out.leave();
                 }
                 out.println("</template>");

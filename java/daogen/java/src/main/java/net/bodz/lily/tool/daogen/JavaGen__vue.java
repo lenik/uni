@@ -27,6 +27,10 @@ public abstract class JavaGen__vue
         BCharOut buf = new BCharOut();
         TypeScriptWriter tsOut = new TypeScriptWriter(pathInfo.getQName(), buf.indented());
 
+        BCharOut templateBuf = new BCharOut();
+        TypeScriptWriter templateOut = new TypeScriptWriter(pathInfo.getQName(), templateBuf.indented(), tsOut.im);
+        buildTemplate(templateOut, model);
+
         buildScript1(tsOut, model);
         tsOut.println("</script>");
         tsOut.println();
@@ -35,6 +39,8 @@ public abstract class JavaGen__vue
         buildSetupScript(tsOut, model);
         tsOut.println("</script>");
         tsOut.println();
+
+        tsOut.print(templateBuf);
 
         BCharOut buf2 = new BCharOut();
         TypeScriptWriter out2 = new TypeScriptWriter(pathInfo.getQName(), buf2.indented(), tsOut.im);
@@ -47,8 +53,7 @@ public abstract class JavaGen__vue
             tsOut.println();
         }
 
-        buildTemplate(tsOut, model);
-
+        // merge all buffer
         out.println("<script lang=\"ts\">");
         int lines = tsOut.im.dump(out);
         if (lines > 0)

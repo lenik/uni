@@ -1,7 +1,12 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.TypeScriptWriter;
+import net.bodz.bas.t.catalog.CrossReference;
+import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__vue;
@@ -9,12 +14,15 @@ import net.bodz.lily.tool.daogen.JavaGen__vue;
 public class FooChooseDialog__vue
         extends JavaGen__vue {
 
+    TsTemplates templates;
+
     public FooChooseDialog__vue(JavaGenProject project) {
         super(project, project.Esm_FooChooseDialog);
+        templates = new TsTemplates(project);
     }
 
     @Override
-    protected void buildScript1(TypeScriptWriter out, ITableMetadata model) {
+    protected void buildScript1(TypeScriptWriter out, ITableMetadata table) {
         out.println("export interface Props {");
         out.enter();
         {
@@ -25,7 +33,7 @@ public class FooChooseDialog__vue
     }
 
     @Override
-    protected void buildSetupScript(TypeScriptWriter out, ITableMetadata model) {
+    protected void buildSetupScript(TypeScriptWriter out, ITableMetadata table) {
         out.println("const model = defineModel();");
         out.println();
         out.println("const props = withDefaults(defineProps<Props>(), {");
@@ -67,23 +75,34 @@ public class FooChooseDialog__vue
     }
 
     @Override
-    protected void buildScript2(TypeScriptWriter out, ITableMetadata model) {
+    protected void buildScript2(TypeScriptWriter out, ITableMetadata table) {
     }
 
     @Override
-    protected void buildTemplate(TypeScriptWriter out, ITableMetadata model) {
+    protected void buildTemplate(TypeScriptWriter out, ITableMetadata table) {
         out.println("<template>");
         out.enter();
         {
             out.println("<EntityChooseDialog ref=\"entityChooseDialog\" :type=\"Person.TYPE\" :modal=\"modal\">");
             out.enter();
             {
-                out.println("<th data-field=\"id\">ID</th>");
-                out.println("<th data-field=\"properties\" class=\"hidden\">properties</th>");
-                out.println("<th data-field=\"label\">Name</th>");
-                out.println("<th data-field=\"description\">Description</th>");
-                out.println("<th data-field=\"gender\">Gender</th>");
-                out.println("<th data-type=\"date\" data-field=\"birthday\">Birthday</th>");
+                Set<String> handledXrefs = new HashSet<>();
+
+                for (IColumnMetadata column : table.getColumns()) {
+                    if (column.isCompositeProperty()) {
+                        // checkCompositeProperty(table, column);
+                        continue;
+                    }
+
+                    if (column.isForeignKey()) {
+                        CrossReference xref = table.getForeignKeyFromColumn(column.getName());
+                        if (handledXrefs.add(xref.getConstraintName()))
+                            templates.declFKColumn(out, xref);
+                    } else {
+                        templates.declColumn(out, column);
+                    }
+                }
+
                 out.leave();
             }
             out.println("</EntityChooseDialog>");

@@ -27,7 +27,7 @@ public class IFoo_Id__java
 
         out.printf("public interface %s\n", project.IFoo_Id.name);
         out.println("        implements");
-        out.println("            " + out.im.name(Serializable.class) + " {");
+        out.println("            " + out.importName(Serializable.class) + " {");
         out.enter();
         {
 

@@ -21,6 +21,7 @@ import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
 import net.bodz.lily.tool.daogen.util.Attrs;
+import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
 public class Foo_stuff_Type__ts
@@ -37,17 +38,17 @@ public class Foo_stuff_Type__ts
         EsmSource validators = EsmModules.local.source("./PersonValidators");
         out.im.add(validators.name("*", "validators"));
 
-        TypeExtendInfo extend = new TypeExtendInfo(project, out, table, project.Esm_Foo_stuff_Type.qName);
+        TypeExtendInfo extend = new TypeAnalyzer(project, out, true)//
+                .getExtendInfo(table, project.Esm_Foo_stuff_Type.qName);
 
         String description = table.getDescription();
 
-        String typeClassName = extend.simpleName + "Type";
         String superTypeClassName = extend.baseClassName + "Type";
 
         out.println("// Type Info");
         out.println();
         out.printf("export class %s extends %s {\n", //
-                typeClassName, //
+                extend.simpleName, //
                 out.localName(superTypeClassName));
         out.println();
         out.enter();
@@ -125,7 +126,7 @@ public class Foo_stuff_Type__ts
             {
                 out.println("super();");
                 out.printf("this.declare(%s.declaredProperty);\n", //
-                        typeClassName);
+                        extend.simpleName);
                 out.leave();
             }
             out.println("}");
@@ -149,10 +150,10 @@ public class Foo_stuff_Type__ts
 
     void declProperty(TypeScriptWriter out, IColumnMetadata column) {
         boolean primaryKey = column.isPrimaryKey();
-        boolean notNull = !column.isNullable(true);
+        boolean notNull = ! column.isNullable(true);
 
         String javaType = project.config.javaType(column);
-        // String simpleType = Split.packageName(javaType).b;
+        String tsType = TsUtils.toTsType(javaType);
 
         String description = column.getDescription();
 
@@ -165,7 +166,7 @@ public class Foo_stuff_Type__ts
             out.print(out.name(EsmModules.dba.entity.property));
 
         Attrs attrs = new Attrs(TsConfig.newLineProps);
-        attrs.putQuoted("type", javaType);
+        attrs.putQuoted("type", tsType);
         if (notNull)
             attrs.put("nullable", false);
 
@@ -179,7 +180,7 @@ public class Foo_stuff_Type__ts
 
         // attrs.put("icon", "fa-user");
         // attrs.put("label", "label");
-        if (description != null && !description.isEmpty())
+        if (description != null && ! description.isEmpty())
             attrs.putQuoted("description", description);
 
         attrs.put("validator", "validators.validate_" + cname.propertyName);
@@ -208,7 +209,7 @@ public class Foo_stuff_Type__ts
 
         boolean anyNotNull = false;
         for (IColumnMetadata c : columns)
-            if (!c.isNullable(false)) {
+            if (! c.isNullable(false)) {
                 anyNotNull = true;
                 break;
             }
@@ -216,6 +217,7 @@ public class Foo_stuff_Type__ts
         String parentType = parentTable.getJavaQName();
         if (parentType == null)
             throw new NullPointerException("parentType");
+        String parentTsType = TsUtils.toTsType(parentType);
 
         String property = xref.getJavaName();
 
@@ -224,13 +226,13 @@ public class Foo_stuff_Type__ts
         out.print(out.name(EsmModules.dba.entity.property));
 
         Attrs attrs = new Attrs(TsConfig.newLineProps);
-        attrs.putQuoted("type", out.localName(parentType));
+        attrs.putQuoted("type", parentTsType);
         if (anyNotNull)
             attrs.put("nullable", false);
 
         // attrs.put("icon", "fa-user");
         // attrs.put("label", "label");
-        if (description != null && !description.isEmpty()) {
+        if (description != null && ! description.isEmpty()) {
             if (inheritDocFrom != null)
                 ; // description = "(" + description + ")";
             attrs.putQuoted("description", description);

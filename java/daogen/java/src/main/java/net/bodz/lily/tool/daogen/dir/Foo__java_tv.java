@@ -7,6 +7,7 @@ import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.catalog.TableOid;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
+import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
 public class Foo__java_tv
@@ -20,8 +21,9 @@ public class Foo__java_tv
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
         TableOid oid = table.getId();
 
-        String baseClassName = project._Foo_stuff.fullName;
-        TypeExtendInfo extend = new TypeExtendInfo(project, out, table, project.Foo.qName, baseClassName);
+        TypeExtendInfo extend = new TypeAnalyzer(project, out)//
+                .getExtendInfo(table, project.Foo.qName, project._Foo_stuff.qName);
+
         String simpleName = extend.simpleName;
 
         out.print("@" + out.im.name(Table.class) + "(");
@@ -37,7 +39,7 @@ public class Foo__java_tv
         }
 
         out.printf("public class %s%s\n", simpleName, extend.params);
-        out.printf("        extends %s%s {\n", baseClassName, extend.baseParams);
+        out.printf("        extends %s%s {\n", out.importName(extend.baseClassName), extend.baseParams);
         out.enter();
         {
             out.println();

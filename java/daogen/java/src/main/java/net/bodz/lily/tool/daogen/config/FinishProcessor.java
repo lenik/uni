@@ -20,7 +20,8 @@ import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.t.catalog.*;
 import net.bodz.bas.t.tuple.Split;
-import net.bodz.lily.concrete.IdEntity;
+import net.bodz.lily.concrete.CoEntity;
+import net.bodz.lily.concrete.StructRow;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.TableName;
 import net.bodz.lily.tool.daogen.util.CanonicalClass;
@@ -72,7 +73,11 @@ public class FinishProcessor
     }
 
     void excludeInheritedColumns(DefaultTableMetadata tableView) {
-        Class<?> superclass = IdEntity.class;
+        Class<?> superclass;
+        if (tableView.getPrimaryKey() == null)
+            superclass = StructRow.class;
+        else
+            superclass = CoEntity.class;
 
         String parentType = tableView.getBaseTypeName();
         if (parentType != null) {
@@ -206,7 +211,7 @@ public class FinishProcessor
             String columnHead = trimSuffix(fv, pv, //
                     (ColumnNaming name) -> name.column, //
                     trimRightUnderline);
-            if (!Nullables.isEmpty(columnHead))
+            if (! Nullables.isEmpty(columnHead))
                 property = StringId.UL.toCamel(columnHead);
         }
 
@@ -274,7 +279,7 @@ public class FinishProcessor
             ColumnNaming p = pv[i];
             if (f.propertyName.endsWith(p.ucfirstPropertyName)) {
                 String head = f.propertyName.substring(0, f.propertyName.length() - p.propertyName.length());
-                if (!head.equals(property))
+                if (! head.equals(property))
                     throw new UnexpectedException();
             } else {
                 IColumnMetadata column = columns[i];
@@ -323,7 +328,7 @@ public class FinishProcessor
 
             if (commonHead == null)
                 commonHead = head;
-            else if (!commonHead.equals(head))
+            else if (! commonHead.equals(head))
                 return null;
         }
         return commonHead;

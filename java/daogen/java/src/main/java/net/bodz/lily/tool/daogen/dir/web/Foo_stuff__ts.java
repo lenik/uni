@@ -1,5 +1,6 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
+import net.bodz.bas.codegen.QualifiedName;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.esm.EsmName;
 import net.bodz.bas.esm.TypeScriptWriter;
@@ -15,6 +16,7 @@ import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
+import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
 public class Foo_stuff__ts
@@ -28,16 +30,21 @@ public class Foo_stuff__ts
 
     @Override
     protected void buildTsBody(TypeScriptWriter out, ITableMetadata table) {
-        TypeExtendInfo extend = new TypeExtendInfo(project, out, table, project.Esm_Foo_stuff.qName);
-        String typeName = extend.simpleName + "Type";
+        TypeExtendInfo extend = new TypeAnalyzer(project, out, true)//
+                .getExtendInfo(table, project.Esm_Foo_stuff.qName);
+
+        QualifiedName typeName = project.Esm_Foo_stuff_Type.qName;
 
         // out.localName(tableType.baseClassName);
-        out.printf("export class %s extends %s {\n", //
+        out.printf("export class %s%s extends %s%s {\n", //
                 extend.simpleName, //
-                extend.baseClassName + extend.baseParams);
+                extend.params, //
+                out.localName(extend.baseClassName), //
+                extend.baseParams);
         out.enter();
         {
-            out.printf("static TYPE = new %s();\n", typeName);
+            out.printf("static TYPE = new %s();\n", //
+                    out.localName(typeName));
             out.println();
 
             for (IColumnMetadata column : table.getColumns()) {
@@ -76,7 +83,7 @@ public class Foo_stuff__ts
             out.enter();
             {
                 out.println("super(o);");
-                out.println("if (o != null) Object.assign(this, o);");
+                // out.println("if (o != null) Object.assign(this, o);");
                 out.leave();
             }
             out.println("}");
@@ -110,7 +117,7 @@ public class Foo_stuff__ts
         String tsType = TsUtils.toTsType(javaType);
 
         if (tsType.contains("."))
-            out.localName(tsType);
+            tsType = out.localName(tsType);
         EsmName esmName = TsUtils.getAlias(tsType);
         if (esmName != null)
             out.name(esmName);
@@ -131,7 +138,7 @@ public class Foo_stuff__ts
 
         boolean anyNotNull = false;
         for (IColumnMetadata c : columns)
-            if (!c.isNullable(false)) {
+            if (! c.isNullable(false)) {
                 anyNotNull = true;
                 break;
             }
@@ -143,7 +150,7 @@ public class Foo_stuff__ts
         String property = xref.getJavaName();
 
         out.print(property);
-        if (!anyNotNull)
+        if (! anyNotNull)
             out.print("?");
         out.print(": ");
 
