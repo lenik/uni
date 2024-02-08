@@ -5,6 +5,7 @@ import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.io.BCharOut;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.lily.tool.daogen.dir.web.TsUtils;
 
 public abstract class JavaGen__ts
         extends JavaGenFileType {
@@ -25,7 +26,7 @@ public abstract class JavaGen__ts
 
     protected final void buildTs(ITreeOut out, ITableMetadata model) {
         BCharOut buf = new BCharOut();
-        TypeScriptWriter tsOut = new TypeScriptWriter(pathInfo.getQName(), buf.indented());
+        TypeScriptWriter tsOut = new TypeScriptWriter(pathInfo.getQName(), buf.indented(), TsUtils.getPackageMap());
         buildTsBody(tsOut, model);
 
         int lines = tsOut.im.dump(out);

@@ -1,10 +1,13 @@
 package net.bodz.lily.tool.daogen;
 
 import net.bodz.bas.codegen.ClassPathInfo;
+import net.bodz.bas.esm.EsmImports;
+import net.bodz.bas.esm.EsmPackageMap;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.io.BCharOut;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.lily.tool.daogen.dir.web.TsUtils;
 
 public abstract class JavaGen__vue
         extends JavaGenFileType {
@@ -24,12 +27,16 @@ public abstract class JavaGen__vue
     }
 
     protected final void buildVue(ITreeOut out, ITableMetadata model) {
-        BCharOut buf = new BCharOut();
-        TypeScriptWriter tsOut = new TypeScriptWriter(pathInfo.getQName(), buf.indented());
+        EsmImports imports = new EsmImports(null);
+        EsmPackageMap packageMap = TsUtils.getPackageMap();
 
-        BCharOut templateBuf = new BCharOut();
-        TypeScriptWriter templateOut = new TypeScriptWriter(pathInfo.getQName(), templateBuf.indented(), tsOut.im);
+        BCharOut buf = new BCharOut();
+        TypeScriptWriter tsOut = new TypeScriptWriter(pathInfo.getQName(), buf.indented(), //
+                imports, packageMap);
+
+        TypeScriptWriter templateOut = tsOut.buffer();
         buildTemplate(templateOut, model);
+        String template = templateOut.toString();
 
         buildScript1(tsOut, model);
         tsOut.println("</script>");
@@ -40,11 +47,10 @@ public abstract class JavaGen__vue
         tsOut.println("</script>");
         tsOut.println();
 
-        tsOut.print(templateBuf);
+        tsOut.print(template);
 
-        BCharOut buf2 = new BCharOut();
-        TypeScriptWriter out2 = new TypeScriptWriter(pathInfo.getQName(), buf2.indented(), tsOut.im);
-        buildScript2(out2, model);
+        TypeScriptWriter buf2 = tsOut.buffer();
+        buildScript2(buf2, model);
         String script2 = buf2.toString();
         if (! script2.isEmpty()) {
             tsOut.println("<script  lang=\"ts\">");

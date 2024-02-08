@@ -35,7 +35,7 @@ public class Foo__ts
 
         out.printf("export class %s extends %s%s {\n", //
                 javaExtend.simpleName, //
-                out.localName(javaExtend.baseClassName), //
+                out.importName(javaExtend.baseClassName), //
                 javaExtend.baseParams);
         out.enter();
         {
@@ -79,7 +79,7 @@ public class Foo__ts
         if (! notNull)
             out.print("?");
         out.print(": ");
-        out.print(out.localName(tsType));
+        out.print(out.importName(tsType));
         out.println();
     }
 

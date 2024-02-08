@@ -45,7 +45,7 @@ public class FooType__ts
         out.println();
         out.printf("export class %s extends %s {\n", //
                 tsName, //
-                out.localName(baseType));
+                out.importName(baseType));
         out.println();
         out.enter();
         {

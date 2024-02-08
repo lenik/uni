@@ -59,7 +59,7 @@ public class FooValidators__ts
         // String simpleType = Split.packageName(javaType).b;
         String tsType = TsUtils.toTsType(javaType);
         if (tsType.contains("."))
-            tsType = out.localName(tsType);
+            tsType = out.importName(tsType);
 
         out.printf("export function validate_%s(val: %s) {\n", //
                 cname.propertyName, //
@@ -73,7 +73,7 @@ public class FooValidators__ts
 
         out.printf("export function validate_%s(val: %s) {\n", //
                 xref.getJavaName(), //
-                out.localName(tsType));
+                out.importName(tsType));
         out.println("}");
     }
 }

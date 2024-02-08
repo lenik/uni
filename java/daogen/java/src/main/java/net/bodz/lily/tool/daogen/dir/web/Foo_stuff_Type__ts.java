@@ -49,7 +49,7 @@ public class Foo_stuff_Type__ts
         out.println();
         out.printf("export class %s extends %s {\n", //
                 extend.simpleName, //
-                out.localName(superTypeClassName));
+                out.importName(superTypeClassName));
         out.println();
         out.enter();
         {
@@ -204,7 +204,7 @@ public class Foo_stuff_Type__ts
         if (description == null) {
             description = parentTable.getDescription();
             if (description != null)
-                inheritDocFrom = out.localName(parentTable.getJavaQName());
+                inheritDocFrom = out.importName(parentTable.getJavaQName());
         }
 
         boolean anyNotNull = false;

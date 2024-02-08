@@ -43,7 +43,7 @@ public class FooEditor__vue
 
     @Override
     protected void buildScript1(TypeScriptWriter out, ITableMetadata model) {
-        out.name(EsmModules.coreVue.FieldRow.FieldRow);
+        out.name(EsmModules.core.FieldRow.FieldRow);
 
         out.println("export interface Props {");
         out.println("}");
@@ -78,7 +78,7 @@ public class FooEditor__vue
         out.println();
 
         out.printf("const meta = %s.TYPE.property;\n", //
-                out.localName(project.Esm_Foo.qName));
+                out.importName(project.Esm_Foo.qName));
 
         int labelWidth = 7;
         out.printf("const fieldRowProps = %s({ labelWidth: '%drem' });\n", //
@@ -300,7 +300,7 @@ public class FooEditor__vue
             QualifiedName qType = QualifiedName.parse(className);
             String dialogType = qType.name + "ChooseDialog";
             QualifiedName qDialogType = qType.name(dialogType);
-            EsmSource dialogSource = out.localSource(qDialogType, "vue", project.Esm_FooEditor.qName);
+            EsmSource dialogSource = out.packageMap.findSource(qDialogType, "vue", project.Esm_FooEditor.qName);
 
             String dialogVar = Strings.lcfirst(dialogType);
 
@@ -312,7 +312,7 @@ public class FooEditor__vue
             attrs.put("v-model:id", "model." + propertyName + "Id");
 
             String xml = attrs.toXml(out.im.name(//
-                    EsmModules.dbaVue.RefEditor.RefEditor), true);
+                    EsmModules.dba.RefEditor), true);
             out.println(xml);
 
             out.leave();

@@ -35,9 +35,9 @@ public class FooAdmin__vue
         out.println();
         out.printf("const admin = %s<InstanceType<typeof %s>>();\n", //
                 out.name(EsmModules.vue.ref), //
-                out.name(EsmModules.dbaVue.LilyAdmin.LilyAdmin));
+                out.name(EsmModules.dba.LilyAdmin));
         out.printf("const type = %s.TYPE;\n", //
-                out.localName(project.Esm_Foo.qName));
+                out.importName(project.Esm_Foo.qName));
         out.println("const selection = ref<any>({});");
 
         // String defaultDialogVar = "defaultPersonChooseDialog";
@@ -63,7 +63,7 @@ public class FooAdmin__vue
         out.enter();
         {
             out.printf("<%s ref=\"admin\" :type=\"type\" v-model=\"selection\">\n", //
-                    out.name(EsmModules.dbaVue.LilyAdmin.LilyAdmin));
+                    out.name(EsmModules.dba.LilyAdmin));
             out.enter();
             {
                 out.println("<template #columns>");
@@ -94,7 +94,7 @@ public class FooAdmin__vue
                 out.enter();
                 {
                     out.printf("<%s class=\"editor\" v-model=\"selection\" />\n", //
-                            out.localVue(project.Esm_FooEditor.qName));
+                            out.importVue(project.Esm_FooEditor.qName));
                     out.leave();
                 }
                 out.println("</template>");
@@ -103,7 +103,7 @@ public class FooAdmin__vue
                 out.enter();
                 {
                     out.printf("<%s class=\"editor\" v-model=\"selection\" />\n",
-                            out.localVue(project.Esm_FooEditor.qName));
+                            out.importVue(project.Esm_FooEditor.qName));
                     out.leave();
                 }
                 out.println("</template>");

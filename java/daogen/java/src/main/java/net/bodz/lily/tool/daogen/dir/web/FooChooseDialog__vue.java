@@ -55,7 +55,7 @@ public class FooChooseDialog__vue
         out.println("// property shortcuts");
         out.println();
         out.printf("const entityChooseDialog = ref<undefined | InstanceType<typeof %s>>();", //
-                out.name(EsmModules.dbaVue.EntityChooseDiaog.EntityChooseDialog));
+                out.name(EsmModules.dba.EntityChooseDialog));
         out.println();
         out.println("defineExpose({ open });");
         out.println();

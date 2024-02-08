@@ -7,6 +7,7 @@ import net.bodz.bas.c.type.TypeKind;
 import net.bodz.bas.codegen.QualifiedName;
 import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.EsmName;
+import net.bodz.bas.esm.EsmPackageMap;
 
 public class TsUtils {
 
@@ -84,6 +85,16 @@ public class TsUtils {
             return "string";
         }
         return clazz.getName();
+    }
+
+    static final EsmPackageMap packageMap = new EsmPackageMap();
+    static {
+        packageMap.put("net.bodz.lily.concrete", EsmModules.dba);
+        packageMap.put("net.bodz.lily.schema.contact", EsmModules.basic);
+    }
+
+    public static EsmPackageMap getPackageMap() {
+        return packageMap;
     }
 
 }
