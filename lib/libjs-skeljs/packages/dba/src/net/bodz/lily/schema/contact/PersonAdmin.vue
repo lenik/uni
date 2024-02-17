@@ -1,5 +1,4 @@
-<script setup lang="ts">
-
+<script lang="ts">
 import { onMounted, ref } from 'vue';
 
 import LilyAdmin from '../../../../../../src/ui/lily/LilyAdmin.vue';
@@ -8,8 +7,14 @@ import { Person } from './Person';
 import PersonEditor from './PersonEditor.vue';
 import PersonChooseDialog from './PersonChooseDialog.vue';
 
-interface Props {
+export const title = 'Person Admin';
+
+export interface Props {
 }
+
+</script>
+
+<script setup lang="ts">
 
 const props = withDefaults(defineProps<Props>(), {
 });

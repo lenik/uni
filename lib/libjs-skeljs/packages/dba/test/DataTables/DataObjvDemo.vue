@@ -1,9 +1,12 @@
-<script setup lang="ts">
-
+<script lang="ts">
 import DataTable from '../../src/ui/table/DataTable.vue';
 import people from '../people-objv.js';
 import { Converter } from '../objv2ddl';
 
+export const title = 'Data row by object[]';
+</script>
+
+<script setup lang="ts">
 function plusYears(date: Date, n: number) {
     let year = date.getFullYear();
     let newDate = new Date(date);
@@ -25,9 +28,6 @@ let ddl = new Converter({
     }
 }).toInsert('person', ...personList);
 
-</script>
-
-<script lang="ts">
 </script>
 
 <template>

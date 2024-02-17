@@ -1,10 +1,10 @@
-<script setup lang="ts">
-
+<script lang="ts">
 import DataTable from '../../src/ui/table/DataTable.vue';
 
+export const title = 'Ajax with row=array';
 </script>
 
-<script lang="ts">
+<script setup lang="ts">
 
 </script>
 

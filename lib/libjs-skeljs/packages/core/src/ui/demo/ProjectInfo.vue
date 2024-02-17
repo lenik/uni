@@ -2,6 +2,8 @@
 import type { CounterTypes, CounterValues } from '../misc/Counters';
 import Counters from '../misc/Counters.vue';
 
+export const title = 'Project Info';
+
 export interface Props {
     label?: string
     description?: string
