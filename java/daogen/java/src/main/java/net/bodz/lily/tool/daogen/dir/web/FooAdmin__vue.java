@@ -117,7 +117,8 @@ public class FooAdmin__vue
         out.println("<style lang=\"scss\"></style>");
         out.println();
         out.println("<style scoped lang=\"scss\">");
-        out.println(".lily-admin {}");
+        out.println(".lily-admin {");
+        out.println("    padding: 0;");
         out.println("}");
         out.println("</style>");
     }

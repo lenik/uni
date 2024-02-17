@@ -59,8 +59,8 @@ public class FooEditor__vue
         }
         out.println("});");
         out.println();
-        out.println("const model = defineModel<%s>();", //
-                "Person");
+        out.printf("const model = defineModel<%s>();\n", //
+                out.importName(project.Esm_Foo.qName));
         out.println();
         out.println("const props = withDefaults(defineProps<Props>(), {");
         out.println("});");
@@ -85,7 +85,8 @@ public class FooEditor__vue
                 out.name(EsmModules.dba.defaults.getDefaultFieldRowProps), //
                 labelWidth);
         out.println();
-        out.println("const rootElement = ref<HTMLElement>();");
+        out.printf("const rootElement = %s<HTMLElement>();\n", //
+                out.name(EsmModules.vue.ref));
 
         for (String dialogVar : dialogs.keySet()) {
             EsmName dialogTag = dialogs.get(dialogVar);
@@ -105,8 +106,6 @@ public class FooEditor__vue
         out.printf("%s(() => {\n", //
                 out.name(EsmModules.vue.onMounted));
         out.println("});");
-        out.println();
-        out.println("</script>");
         out.println();
     }
 
@@ -230,7 +229,7 @@ public class FooEditor__vue
         String propertyName = cname.propertyName;
 
         Class<?> type = column.getJavaClass();
-        String tsType = TsUtils.toTsType(type);
+        String tsType = tsTypes.resolve(type);
 
         out.printf("<FieldRow v-bind=\"fieldRowProps\" :property=\"meta.%s\" v-model=\"model.%s\">\n", //
                 propertyName, //
@@ -298,7 +297,7 @@ public class FooEditor__vue
         {
 
             QualifiedName qType = QualifiedName.parse(className);
-            QualifiedName qDialogType = qType.name(qType.name + "ChooseDialog");
+            QualifiedName qDialogType = qType.nameAdd("ChooseDialog");
             EsmSource dialogSource = out.packageMap.findSource(qDialogType, "vue", project.Esm_FooEditor.qName);
             if (dialogSource == null)
                 throw new NullPointerException("can't find source for dialog type " + qDialogType + ", qType=" + qType);

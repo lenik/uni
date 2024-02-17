@@ -57,7 +57,7 @@ public class FooValidators__ts
 
         String javaType = project.config.javaType(column);
         // String simpleType = Split.packageName(javaType).b;
-        String tsType = TsUtils.toTsType(javaType);
+        String tsType = tsTypes.resolve(javaType);
         if (tsType.contains("."))
             tsType = out.importName(tsType);
 
@@ -69,11 +69,11 @@ public class FooValidators__ts
 
     void validateForeignKeyProperty(TypeScriptWriter out, CrossReference xref, ITableMetadata table) {
         Class<?> type = xref.getParentTable().getEntityClass();
-        String tsType = TsUtils.toTsType(type);
+        String tsType = tsTypes.resolve(type);
 
         out.printf("export function validate_%s(val: %s) {\n", //
                 xref.getJavaName(), //
-                out.importName(tsType));
+                tsType);
         out.println("}");
     }
 }

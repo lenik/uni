@@ -21,6 +21,8 @@ public class TsTemplates {
     }
 
     public void declColumn(TypeScriptWriter out, IColumnMetadata column) {
+        TsTypeResolver tsTypes = new TsTypeResolver(out);
+
         ColumnNaming cname = project.config.naming(column);
         String label = column.getLabel();
         String description = column.getDescription();
@@ -31,7 +33,7 @@ public class TsTemplates {
 
         IProperty property = column.getProperty();
         Class<?> type = property.getPropertyClass();
-        String tsType = TsUtils.toTsType(type);
+        String tsType = tsTypes.resolve(type);
 
         Attrs a = new Attrs();
         a.put("data-type", tsType);

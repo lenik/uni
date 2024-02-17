@@ -68,7 +68,7 @@ public class FooChooseDialog__vue
         }
         out.println("}");
         out.println();
-        out.println("%s(() => {\n", //
+        out.printf("%s(() => {\n", //
                 out.name(EsmModules.vue.onMounted));
         out.println("});");
 

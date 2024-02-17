@@ -9,7 +9,7 @@ import net.bodz.lily.meta.TypeParamType;
 import net.bodz.lily.meta.TypeParameters;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.MiscTemplates;
-import net.bodz.lily.tool.daogen.dir.web.TsUtils;
+import net.bodz.lily.tool.daogen.dir.web.TsTypeResolver;
 
 public class TypeAnalyzer {
 
@@ -34,6 +34,8 @@ public class TypeAnalyzer {
     public TypeExtendInfo getExtendInfo(ITableMetadata table, //
             QualifiedName qName, //
             QualifiedName baseClassName) {
+
+        TsTypeResolver tsTypes = new TsTypeResolver(naming);
 
         TypeExtendInfo info = new TypeExtendInfo();
         info.className = qName.getFullName();
@@ -79,7 +81,7 @@ public class TypeAnalyzer {
                 for (TypeParamType param : aTypeParams.value()) {
                     switch (param) {
                     case ID_TYPE:
-                        String idType = typeScript ? TsUtils.toTsType(info.idType) //
+                        String idType = typeScript ? tsTypes.resolve(info.idType) //
                                 : info.idType.getFullName();
                         baseParamsBuf.append(", " + naming.importName(idType));
                         break;

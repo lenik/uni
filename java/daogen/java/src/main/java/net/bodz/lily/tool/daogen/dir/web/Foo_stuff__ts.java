@@ -114,7 +114,7 @@ public class Foo_stuff__ts
 
         String javaType = project.config.javaType(column);
         // String simpleType = Split.packageName(javaType).b;
-        String tsType = TsUtils.toTsType(javaType);
+        String tsType = tsTypes.resolve(javaType);
 
         if (tsType.contains("."))
             tsType = out.importName(tsType);

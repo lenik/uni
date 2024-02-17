@@ -100,7 +100,7 @@ public class FooType__ts
         Class<?> type = property.getPropertyType().getJavaClass();
         boolean notNull = type.isPrimitive() || aNotNull;
 
-        String tsType = TsUtils.toTsType(type);
+        String tsType = tsTypes.resolve(type);
 
         String label = property.getLabel().toString();
         String description = property.getDescription().toString();

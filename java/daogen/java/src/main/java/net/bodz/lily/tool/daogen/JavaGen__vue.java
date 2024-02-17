@@ -7,10 +7,13 @@ import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.io.BCharOut;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.lily.tool.daogen.dir.web.TsTypeResolver;
 import net.bodz.lily.tool.daogen.dir.web.TsUtils;
 
 public abstract class JavaGen__vue
         extends JavaGenFileType {
+
+    protected TsTypeResolver tsTypes;
 
     public JavaGen__vue(JavaGenProject project, ClassPathInfo name) {
         super(project, name);
@@ -33,6 +36,7 @@ public abstract class JavaGen__vue
         BCharOut buf = new BCharOut();
         TypeScriptWriter tsOut = new TypeScriptWriter(pathInfo.getQName(), buf.indented(), //
                 imports, packageMap);
+        tsTypes = new TsTypeResolver(tsOut);
 
         TypeScriptWriter templateOut = tsOut.buffer();
         buildTemplate(templateOut, model);
@@ -52,7 +56,7 @@ public abstract class JavaGen__vue
         TypeScriptWriter buf2 = tsOut.buffer();
         buildScript2(buf2, model);
         String script2 = buf2.toString();
-        if (! script2.isEmpty()) {
+        if (!script2.isEmpty()) {
             tsOut.println("<script  lang=\"ts\">");
             tsOut.print(script2);
             tsOut.println("</script>");

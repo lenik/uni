@@ -153,7 +153,7 @@ public class Foo_stuff_Type__ts
         boolean notNull = ! column.isNullable(true);
 
         String javaType = project.config.javaType(column);
-        String tsType = TsUtils.toTsType(javaType);
+        String tsType = tsTypes.resolve(javaType);
 
         String description = column.getDescription();
 
@@ -217,7 +217,7 @@ public class Foo_stuff_Type__ts
         String parentType = parentTable.getJavaQName();
         if (parentType == null)
             throw new NullPointerException("parentType");
-        String parentTsType = TsUtils.toTsType(parentType);
+        String parentTsType = tsTypes.resolve(parentType);
 
         String property = xref.getJavaName();
 
