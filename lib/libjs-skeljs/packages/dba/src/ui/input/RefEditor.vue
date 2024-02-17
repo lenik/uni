@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { computed, onMounted, ref } from "vue";
-import { IdEntity } from "../../lily/concrete";
+import { IdEntity } from "../../net/bodz/lily/concrete/IdEntity";
 
 import Icon from "@skeljs/core/src/ui/Icon.vue";
 // import Dialog from "@skeljs/core/src/ui/Dialog.vue";

@@ -1,5 +1,5 @@
 
-import { EntityPropertyMap, EntityType, integer, primaryKey, property } from '../lily/entity';
+import { EntityPropertyMap, EntityType, primaryKey, property } from '../entity';
 
 export class CoObjectType extends EntityType {
 
@@ -28,44 +28,3 @@ export class CoObjectType extends EntityType {
     }
 }
 
-export abstract class CoObject {
-    label?: string
-    description?: string
-    comment?: string
-    image?: string
-    imageAlt?: string
-    flags: integer
-    priority: integer
-    state: integer
-    ownerUser: any
-    ownerUserId: integer
-    ownerGroup: any
-    owenrGroupId: integer
-    acl: integer
-    accessMode: integer
-
-    constructor(o: any) {
-        if (o != null) Object.assign(this, o);
-    }
-}
-
-export abstract class IdEntityType<Id> extends CoObjectType {
-
-    static declaredProperty: EntityPropertyMap = {
-        id: primaryKey({ type: 'number', precision: 20, })
-    };
-
-    constructor() {
-        super();
-        this.declare(IdEntityType.declaredProperty);
-    }
-}
-
-export abstract class IdEntity<Id> extends CoObject {
-    id?: Id
-
-    constructor(o: any) {
-        super(o);
-        if (o != null) Object.assign(this, o);
-    }
-}
