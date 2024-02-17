@@ -1,19 +1,21 @@
-<script setup lang="ts">
-
+<script lang="ts">
 import { ref } from 'vue';
 
 import type { ViewHandles } from '@skeljs/core/src/ui/layout/TabViews.vue';
 import TabViews, { getSelectedViewName } from '@skeljs/core/src/ui/layout/TabViews.vue';
 import View from '@skeljs/core/src/ui/layout/View.vue';
-import NodeTree from '@skeljs/core/src/ui/tree/NodeTree.vue';
 
-import { root } from './router';
+import { links } from './router';
 
+export const title = 'Directory';
+</script>
+
+<script setup lang="ts">
 const views: ViewHandles = {
-    dtn: {
+    index: {
         selected: true,
-        label: "DataTable",
-        icon: "far-table",
+        label: "Directory",
+        icon: "far-list",
     },
 };
 
@@ -24,12 +26,12 @@ const view = ref(initialView);
 
 <template>
     <TabViews :views="views" v-model:view="view">
-        <View name="dtn" :selection="view">
-            <NodeTree :node="root">
-                <template v-slot="{ path, node }">
-                    <router-link :to="path"> {{ node[2]?.label || path }} </router-link>
-                </template>
-            </NodeTree>
+        <View name="index" :selection="view">
+            <ul>
+                <li v-for="(it, k) in links" :key="k">
+                    <router-link :to="k"> {{ it }} </router-link>
+                </li>
+            </ul>
         </View>
     </TabViews>
 </template>
