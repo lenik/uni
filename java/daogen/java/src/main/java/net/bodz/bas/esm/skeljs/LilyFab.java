@@ -6,7 +6,7 @@ public class LilyFab
         extends EsmModule {
 
     public LilyFab(int priority) {
-        super("@lily/fab/src", priority);
+        super("@lily/fab", "src", priority);
     }
 
 }

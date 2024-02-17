@@ -1,6 +1,9 @@
 package net.bodz.lily.tool.daogen;
 
 import net.bodz.bas.codegen.ClassPathInfo;
+import net.bodz.bas.codegen.QualifiedName;
+import net.bodz.bas.esm.EsmImports;
+import net.bodz.bas.esm.EsmPackageMap;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.io.BCharOut;
 import net.bodz.bas.io.ITreeOut;
@@ -26,14 +29,20 @@ public abstract class JavaGen__ts
 
     protected final void buildTs(ITreeOut out, ITableMetadata model) {
         BCharOut buf = new BCharOut();
-        TypeScriptWriter tsOut = new TypeScriptWriter(pathInfo.getQName(), buf.indented(), TsUtils.getPackageMap());
+
+        QualifiedName qName = pathInfo.getQName();
+        EsmImports imports = EsmImports.forLocal(qName);
+
+        EsmPackageMap packageMap = TsUtils.getPackageMap(project.web.baseDir);
+        TypeScriptWriter tsOut = new TypeScriptWriter(qName, buf.indented(), imports, packageMap);
+
         buildTsBody(tsOut, model);
 
         int lines = tsOut.im.dump(out);
         if (lines > 0)
             out.println();
 
-        out.print(buf.toString());
+        out.print(buf);
         out.flush();
     }
 

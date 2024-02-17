@@ -150,7 +150,7 @@ public class FooEditor__vue
                     Class<?> bringToTopClass = info.baseClass;
 
                     for (Class<?> decl : TypeChain.supersFromRoot(info.clazz)) {
-                        if (! StructRow.class.isAssignableFrom(decl))
+                        if (!StructRow.class.isAssignableFrom(decl))
                             continue;
 
                         out.printf("<FieldGroup decl=\"%s\">\n", decl.getName());
@@ -288,7 +288,7 @@ public class FooEditor__vue
 
     void fkRow(TypeScriptWriter out, CrossReference xref, IProperty property) {
         String propertyName = xref.getJavaName(); // property.getName();
-        String className = xref.getParentTable().getJavaName();
+        String className = xref.getParentTable().getJavaQName();
 
         out.printf("<FieldRow v-bind=\"fieldRowProps\" :property=\"meta.%s\" v-model=\"model.%s\">\n", //
                 propertyName, //
@@ -298,13 +298,14 @@ public class FooEditor__vue
         {
 
             QualifiedName qType = QualifiedName.parse(className);
-            String dialogType = qType.name + "ChooseDialog";
-            QualifiedName qDialogType = qType.name(dialogType);
+            QualifiedName qDialogType = qType.name(qType.name + "ChooseDialog");
             EsmSource dialogSource = out.packageMap.findSource(qDialogType, "vue", project.Esm_FooEditor.qName);
+            if (dialogSource == null)
+                throw new NullPointerException("can't find source for dialog type " + qDialogType + ", qType=" + qType);
 
-            String dialogVar = Strings.lcfirst(dialogType);
+            String dialogVar = Strings.lcfirst(qDialogType.name);
 
-            dialogs.put(dialogVar, dialogSource.defaultExport(dialogType));
+            dialogs.put(dialogVar, dialogSource.defaultExport(qDialogType.name));
 
             Attrs attrs = new Attrs();
             attrs.put(":dialog", dialogVar);

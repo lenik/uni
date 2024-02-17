@@ -31,7 +31,7 @@ public class Foo_stuff__ts
     @Override
     protected void buildTsBody(TypeScriptWriter out, ITableMetadata table) {
         TypeExtendInfo extend = new TypeAnalyzer(project, out, true)//
-                .getExtendInfo(table, project.Esm_Foo_stuff.qName);
+                .getExtendInfo(table, project._Foo_stuff.qName);
 
         QualifiedName typeName = project.Esm_Foo_stuff_Type.qName;
 
@@ -138,7 +138,7 @@ public class Foo_stuff__ts
 
         boolean anyNotNull = false;
         for (IColumnMetadata c : columns)
-            if (! c.isNullable(false)) {
+            if (!c.isNullable(false)) {
                 anyNotNull = true;
                 break;
             }
@@ -150,7 +150,7 @@ public class Foo_stuff__ts
         String property = xref.getJavaName();
 
         out.print(property);
-        if (! anyNotNull)
+        if (!anyNotNull)
             out.print("?");
         out.print(": ");
 

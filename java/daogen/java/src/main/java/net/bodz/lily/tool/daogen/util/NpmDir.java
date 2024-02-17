@@ -1,8 +1,13 @@
 package net.bodz.lily.tool.daogen.util;
 
 import java.io.File;
+import java.io.IOException;
 
 import net.bodz.bas.c.object.Nullables;
+import net.bodz.bas.err.ParseException;
+import net.bodz.bas.fmt.json.JsonFn;
+import net.bodz.bas.io.res.ResFn;
+import net.bodz.bas.json.JsonObject;
 
 public class NpmDir {
 
@@ -38,6 +43,14 @@ public class NpmDir {
     public File getPreferredPackageDir(String packageName) {
         String dir = packageName.replace('.', '/');
         return new File(baseDir, "src/" + dir);
+    }
+
+    public JsonObject resolve()
+            throws ParseException, IOException {
+        if (! packageFile.exists())
+            return null;
+        String json = ResFn.file(packageFile).read().readString();
+        return JsonFn.parseObject(json);
     }
 
     public static NpmDir closest(String child) {

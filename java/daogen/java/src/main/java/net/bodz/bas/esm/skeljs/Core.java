@@ -8,10 +8,10 @@ public class Core
         extends EsmModule {
 
     public Core(int priority) {
-        super("@skeljs/core", priority);
+        super("@skeljs/core", "src", priority);
     }
 
-    @SourcePath("src/logging/api")
+    @SourcePath("logging/api")
     public class LoggingApi
             extends Source {
 
@@ -28,7 +28,7 @@ public class Core
 
     }
 
-    @SourcePath("src/ui/types")
+    @SourcePath("ui/types")
     public class UiTypes
             extends Source {
 
@@ -57,7 +57,7 @@ public class Core
 
     }
 
-    @SourcePath("src/lang/VarMap")
+    @SourcePath("lang/VarMap")
     public class VarMap
             extends Source {
 
@@ -67,13 +67,13 @@ public class Core
 
     }
 
-    @SourcePath("src/ui/Dialog.vue")
+    @SourcePath("ui/Dialog.vue")
     public class Dialog
             extends Source {
         public final EsmName Dialog = defaultExport("Dialog");
     }
 
-    @SourcePath("src/ui/FieldRow.vue")
+    @SourcePath("ui/FieldRow.vue")
     public class FieldRow
             extends Source {
         public final EsmName FieldRow = defaultExport("FieldRow");

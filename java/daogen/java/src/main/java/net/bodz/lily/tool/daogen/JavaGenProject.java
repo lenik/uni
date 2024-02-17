@@ -26,6 +26,8 @@ public class JavaGenProject {
     boolean parentColumnInParallelMode = true;
     public boolean extraDDLs;
 
+    public final ClassPathInfo web;
+
     public final ClassPathInfo Foo;
     public final ClassPathInfo _Foo_stuff;
     public final ClassPathInfo IFoo_Id;
@@ -96,16 +98,17 @@ public class JavaGenProject {
         FooIndex = dirs.wsPath.join(ws_ + Foo.name + "Index");
         FooIndexTest = dirs.wsPath.join(ws_ + Foo.name + "IndexTest");
 
-        ClassPathInfo module = dirs.webPath;
-        Esm_Foo_stuff_Type = module.join("_" + Foo.name + "_stuff_Type");
-        Esm_Foo_stuff = module.join("_" + Foo.name + "_stuff");
-        Esm_FooType = module.join(Foo.name + "Type");
-        Esm_Foo = module.join(Foo.name);
+        ClassPathInfo web = dirs.webPath;
+        this.web = web;
+        Esm_Foo_stuff_Type = web.join("_" + Foo.name + "_stuff_Type");
+        Esm_Foo_stuff = web.join("_" + Foo.name + "_stuff");
+        Esm_FooType = web.join(Foo.name + "Type");
+        Esm_Foo = web.join(Foo.name);
 
-        Esm_FooAdmin = module.join(Foo.name + "Admin");
-        Esm_FooChooseDialog = module.join(Foo.name + "ChooseDialog");
-        Esm_FooEditor = module.join(Foo.name + "Editor");
-        Esm_FooValidators = module.join(Foo.name + "Validators");
+        Esm_FooAdmin = web.join(Foo.name + "Admin");
+        Esm_FooChooseDialog = web.join(Foo.name + "ChooseDialog");
+        Esm_FooEditor = web.join(Foo.name + "Editor");
+        Esm_FooValidators = web.join(Foo.name + "Validators");
     }
 
     public UpdateMethod getPreferredUpdateMethod() {

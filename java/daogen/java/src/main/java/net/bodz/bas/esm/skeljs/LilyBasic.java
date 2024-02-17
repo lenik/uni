@@ -6,7 +6,7 @@ public class LilyBasic
         extends EsmModule {
 
     public LilyBasic(int priority) {
-        super("@lily/basic/src", priority);
+        super("@lily/basic", "src", priority);
     }
 
 }

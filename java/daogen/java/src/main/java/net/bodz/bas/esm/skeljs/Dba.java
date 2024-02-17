@@ -8,7 +8,7 @@ public class Dba
         extends EsmModule {
 
     public Dba(int priority) {
-        super("@skeljs/dba/src", priority);
+        super("@skeljs/dba", "src", priority);
     }
 
     @SourcePath("net/bodz/lily/conrete")
@@ -72,10 +72,10 @@ public class Dba
     public final UiTableTypes tableTypes = add(new UiTableTypes());
     public final UiLilyDefaults defaults = add(new UiLilyDefaults());
 
-    public final EsmName DataAdmin = vue("src/ui/table/DataAdmin.vue");
-    public final EsmName DataTable = vue("src/ui/table/DataTable.vue");
-    public final EsmName LilyAdmin = vue("src/ui/lily/LilyAdmin.vue");
-    public final EsmName EntityChooseDialog = vue("src/ui/lily/EntityChooseDialog.vue");
-    public final EsmName RefEditor = vue("src/ui/input/RefEditor.vue");
+    public final EsmName DataAdmin = vue("ui/table/DataAdmin.vue");
+    public final EsmName DataTable = vue("ui/table/DataTable.vue");
+    public final EsmName LilyAdmin = vue("ui/lily/LilyAdmin.vue");
+    public final EsmName EntityChooseDialog = vue("ui/lily/EntityChooseDialog.vue");
+    public final EsmName RefEditor = vue("ui/input/RefEditor.vue");
 
 }

@@ -28,7 +28,7 @@ public abstract class JavaGen__vue
 
     protected final void buildVue(ITreeOut out, ITableMetadata model) {
         EsmImports imports = new EsmImports(null);
-        EsmPackageMap packageMap = TsUtils.getPackageMap();
+        EsmPackageMap packageMap = TsUtils.getPackageMap(project.web.baseDir);
 
         BCharOut buf = new BCharOut();
         TypeScriptWriter tsOut = new TypeScriptWriter(pathInfo.getQName(), buf.indented(), //
