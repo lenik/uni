@@ -1,35 +1,9 @@
 import { Moment } from 'moment';
 
-import { EntityPropertyMap, integer, property } from '../../../../../../src/lily/entity';
-import { IdEntity, IdEntityType } from '../../../../../lily/concrete';
+import { integer } from '../../entity';
+import { IdEntity } from '../../concrete/IdEntity';
 
-export abstract class PartyType extends IdEntityType<number> {
-
-    static declaredProperty: EntityPropertyMap = {
-        category: property({ type: 'any' }),
-        birthday: property({ type: 'Moment', icon: "fab-pagelines" }),
-
-        locale: property({ type: 'string' }),
-        timeZoneId: property({ type: 'string' }),
-
-        peer: property({ type: 'boolean', nullable: false }),
-        customer: property({ type: 'boolean', nullable: false }),
-        supplier: property({ type: 'boolean', nullable: false }),
-
-        tags: property({ type: 'string[]' }),
-
-        subject: property({ type: 'string' }),
-        contacts: property({ type: 'Contact[]' }),
-
-        bank: property({ type: 'string' }),
-        account: property({ type: 'string' }),
-    }
-
-    constructor() {
-        super();
-        this.declare(PartyType.declaredProperty);
-    }
-}
+import { PartyType } from './PartyType';
 
 export abstract class Party extends IdEntity<integer> {
 

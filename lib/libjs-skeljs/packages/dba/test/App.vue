@@ -26,7 +26,6 @@ provide(SERVER_URL, serverUrl);
 
 // property shortcuts
 
-const version = "1.0";
 const stat = {
     views: 100,
     stars: 5,
@@ -39,7 +38,7 @@ const stat = {
 <template>
     <ModelC>
         <template #site-bar>
-            <SiteBar :title="'DBA Examples'" />
+            <SiteBar title="DBA Examples" />
         </template>
         <template #project-info>
             <ProjectInfo :stat="stat" label="DBA Test Apps" description="Test applications of skeljs::dba package. ">
