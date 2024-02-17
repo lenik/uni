@@ -11,19 +11,6 @@ public class Dba
         super("@skeljs/dba", "src", priority);
     }
 
-    @SourcePath("net/bodz/lily/conrete")
-    public class LilyConcrete
-            extends Source {
-
-        public final EsmName CoObjectType = _class("CoObjectType");
-        public final EsmName CoObject = _class("CoObject");
-        public final EsmName CoMessageType = _class("CoMessageType");
-        public final EsmName CoMessage = _class("CoMessage");
-        public final EsmName IdEntityType = _class("IdEntityType");
-        public final EsmName IdEntity = _class("IdEntity");
-
-    }
-
     @SourcePath("net/bodz/lily/entity")
     public class LilyEntity
             extends Source {
@@ -67,10 +54,17 @@ public class Dba
 
     }
 
-    public final LilyConcrete concrete = add(new LilyConcrete());
     public final LilyEntity entity = add(new LilyEntity());
     public final UiTableTypes tableTypes = add(new UiTableTypes());
     public final UiLilyDefaults defaults = add(new UiLilyDefaults());
+
+    static final String concrete = "net/bodz/lily/concrete/";
+    public final EsmName CoObjectType = _class(concrete + "CoObjectType");
+    public final EsmName CoObject = _class(concrete + "CoObject");
+    public final EsmName CoMessageType = _class(concrete + "CoMessageType");
+    public final EsmName CoMessage = _class(concrete + "CoMessage");
+    public final EsmName IdEntityType = _class(concrete + "IdEntityType");
+    public final EsmName IdEntity = _class(concrete + "IdEntity");
 
     public final EsmName DataAdmin = vue("ui/table/DataAdmin.vue");
     public final EsmName DataTable = vue("ui/table/DataTable.vue");

@@ -43,7 +43,8 @@ public class FooEditor__vue
 
     @Override
     protected void buildScript1(TypeScriptWriter out, ITableMetadata model) {
-        out.name(EsmModules.core.FieldRow.FieldRow);
+        out.name(EsmModules.core.FieldGroup);
+        out.name(EsmModules.core.FieldRow);
 
         out.println("export interface Props {");
         out.println("}");
@@ -149,7 +150,7 @@ public class FooEditor__vue
                     Class<?> bringToTopClass = info.baseClass;
 
                     for (Class<?> decl : TypeChain.supersFromRoot(info.clazz)) {
-                        if (!StructRow.class.isAssignableFrom(decl))
+                        if (! StructRow.class.isAssignableFrom(decl))
                             continue;
 
                         out.printf("<FieldGroup decl=\"%s\">\n", decl.getName());

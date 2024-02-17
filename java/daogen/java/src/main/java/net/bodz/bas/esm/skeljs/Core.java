@@ -67,23 +67,12 @@ public class Core
 
     }
 
-    @SourcePath("ui/Dialog.vue")
-    public class Dialog
-            extends Source {
-        public final EsmName Dialog = defaultExport("Dialog");
-    }
-
-    @SourcePath("ui/FieldRow.vue")
-    public class FieldRow
-            extends Source {
-        public final EsmName FieldRow = defaultExport("FieldRow");
-    }
-
     public final LoggingApi loggingApi = add(new LoggingApi());
     public final UiTypes uiTypes = add(new UiTypes());
     public final VarMap VarMap = add(new VarMap());
 
-    public final Dialog Dialog = add(new Dialog());
-    public final FieldRow FieldRow = add(new FieldRow());
+    public final EsmName Dialog = vue("ui/Dialog.vue");
+    public final EsmName FieldGroup = vue("ui/FieldGroup.vue");
+    public final EsmName FieldRow = vue("ui/FieldRow.vue");
 
 }

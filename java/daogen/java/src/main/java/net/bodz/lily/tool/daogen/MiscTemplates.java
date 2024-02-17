@@ -150,11 +150,7 @@ public class MiscTemplates {
         out.println("}");
     }
 
-    public void FIELD_consts(ITreeOut out, ITableMetadata table, Boolean wantPrimaryKey) {
-        FIELD_consts(out, table, wantPrimaryKey, false);
-    }
-
-    public void FIELD_consts(ITreeOut out, ITableMetadata table, Boolean wantPrimaryKey, boolean ts) {
+    public void FIELD_consts(ITreeOut out, ITableMetadata table, Boolean wantPrimaryKey, OutFormat fmt) {
         List<String> defs = new ArrayList<>();
         for (IColumnMetadata column : table.getColumns()) {
             if (wantPrimaryKey != null)
@@ -168,12 +164,23 @@ public class MiscTemplates {
                 continue;
 
             ColumnNaming cname = project.naming(column);
-            if (ts)
-                defs.add("static const FIELD_" + cname.constFieldName + " = "//
-                        + StringQuote.qqJavaString(cname.column) + ";");
-            else
+            switch (fmt) {
+            case JAVA:
                 defs.add("public static final String FIELD_" + cname.constFieldName + " = " //
                         + StringQuote.qqJavaString(cname.column) + ";");
+                break;
+
+            case TS_NAMESPACE:
+                defs.add("export const FIELD_" + cname.constFieldName + " = "//
+                        + StringQuote.qqJavaString(cname.column) + ";");
+                break;
+
+            case TS_CLASS:
+                // defs.add("get FIELD_" + cname.constFieldName + "() { return "//
+                // + StringQuote.qqJavaString(cname.column) + "; }");
+                defs.add("static FIELD_" + cname.constFieldName + " = "//
+                        + StringQuote.qqJavaString(cname.column) + ";");
+            }
         }
         if (! defs.isEmpty()) {
             out.println();
@@ -182,11 +189,7 @@ public class MiscTemplates {
         }
     }
 
-    public void N_consts(ITreeOut out, ITableMetadata table, Boolean wantPrimaryKey) {
-        N_consts(out, table, wantPrimaryKey, false);
-    }
-
-    public void N_consts(ITreeOut out, ITableMetadata table, Boolean wantPrimaryKey, boolean ts) {
+    public void N_consts(ITreeOut out, ITableMetadata table, Boolean wantPrimaryKey, OutFormat fmt) {
         List<String> defs = new ArrayList<>();
         for (IColumnMetadata column : table.getColumns()) {
             if (wantPrimaryKey != null)
@@ -212,10 +215,21 @@ public class MiscTemplates {
             }
             if (precision > 0) {
                 String precisionVar = "N_" + cname.constFieldName;
-                if (ts)
-                    defs.add("static const " + precisionVar + " = " + precision + ";");
-                else
+                switch (fmt) {
+                case JAVA:
                     defs.add("public static final int " + precisionVar + " = " + precision + ";");
+                    break;
+
+                case TS_CLASS:
+                    // defs.add("get " + precisionVar + "() { return " + precision + "; }");
+                    defs.add("static " + precisionVar + " = " + precision + ";");
+                    break;
+
+                case TS_NAMESPACE:
+                    defs.add("export const " + precisionVar + " = " + precision + ";");
+                    break;
+                }
+
                 DefaultColumnMetadata m = (DefaultColumnMetadata) column;
                 m.setPrecisionExpr(precisionVar);
             }
@@ -232,7 +246,7 @@ public class MiscTemplates {
 
     public static final String OrdinalPrefix = "_ord_";
 
-    public void ord_consts(ITreeOut out, ITableMetadata table, Boolean wantPrimaryKey) {
+    public void ord_consts(ITreeOut out, ITableMetadata table, Boolean wantPrimaryKey, OutFormat fmt) {
         List<String> defs = new ArrayList<>();
         String lastVarName = null;
         int lastOrdinal = 0;
@@ -258,7 +272,21 @@ public class MiscTemplates {
                 expr = lastVarName + (diff < 0 ? " - " + -diff : " + " + diff);
             else
                 expr = "" + ordinal;
-            defs.add("private static final int " + varName + " = " + expr + ";");
+
+            switch (fmt) {
+            case JAVA:
+                defs.add("private static final int " + varName + " = " + expr + ";");
+                break;
+
+            case TS_CLASS:
+                // defs.add("get " + varName + "() { return " + expr + "; }");
+                defs.add("static " + varName + " = " + expr + ";");
+                break;
+
+            case TS_NAMESPACE:
+                defs.add("export const " + varName + " = " + expr + ";");
+                break;
+            }
 
             lastVarName = varName;
             lastOrdinal = ordinal;

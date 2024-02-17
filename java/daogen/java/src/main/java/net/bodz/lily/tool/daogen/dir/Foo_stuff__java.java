@@ -16,6 +16,7 @@ import net.bodz.lily.meta.TypeParameters;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
+import net.bodz.lily.tool.daogen.OutFormat;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
@@ -68,9 +69,9 @@ public class Foo_stuff__java
                 out.printf("public static final String TABLE_NAME = %s;\n", //
                         StringQuote.qqJavaString(oid.getTableName()));
 
-            templates.FIELD_consts(out, table, null);
-            templates.N_consts(out, table, null);
-            templates.ord_consts(out, table, null);
+            templates.FIELD_consts(out, table, null, OutFormat.JAVA);
+            templates.N_consts(out, table, null, OutFormat.JAVA);
+            templates.ord_consts(out, table, null, OutFormat.JAVA);
 
             for (IColumnMetadata column : table.getColumns()) {
                 if (column.isExcluded())

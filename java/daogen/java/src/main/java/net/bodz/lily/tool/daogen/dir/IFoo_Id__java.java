@@ -7,6 +7,7 @@ import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
+import net.bodz.lily.tool.daogen.OutFormat;
 
 public class IFoo_Id__java
         extends JavaGen__java {
@@ -31,9 +32,9 @@ public class IFoo_Id__java
         out.enter();
         {
 
-            templates.FIELD_consts(out, table, true);
-            templates.N_consts(out, table, true);
-            templates.ord_consts(out, table, true);
+            templates.FIELD_consts(out, table, true, OutFormat.JAVA);
+            templates.N_consts(out, table, true, OutFormat.JAVA);
+            templates.ord_consts(out, table, true, OutFormat.JAVA);
 
             for (IColumnMetadata column : primaryKeyCols) {
                 out.println();

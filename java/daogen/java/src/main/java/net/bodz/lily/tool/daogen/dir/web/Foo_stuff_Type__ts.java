@@ -20,6 +20,7 @@ import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
+import net.bodz.lily.tool.daogen.OutFormat;
 import net.bodz.lily.tool.daogen.util.Attrs;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
@@ -47,22 +48,30 @@ public class Foo_stuff_Type__ts
 
         out.println("// Type Info");
         out.println();
+
+        boolean useNs = false;
+
+        if (useNs) {
+            out.printf("export namespace %s_NS {\n", //
+                    extend.simpleName);
+            out.enter();
+            {
+                staticFields1(out, table, OutFormat.TS_NAMESPACE);
+                staticFields2(out, table, OutFormat.TS_NAMESPACE);
+
+                out.println("}");
+                out.leave();
+            }
+            out.println();
+        }
+
         out.printf("export class %s extends %s {\n", //
                 extend.simpleName, //
                 out.importName(superTypeClassName));
         out.println();
         out.enter();
         {
-            TableOid oid = table.getId();
-            if (oid.getCatalogName() != null)
-                out.printf("static const CATALOG_NAME = %s;\n", //
-                        StringQuote.qqJavaString(oid.getCatalogName()));
-            if (oid.getSchemaName() != null)
-                out.printf("static const SCHEMA_NAME = %s;\n", //
-                        StringQuote.qqJavaString(oid.getSchemaName()));
-            if (oid.getTableName() != null)
-                out.printf("static const TABLE_NAME = %s;\n", //
-                        StringQuote.qqJavaString(oid.getTableName()));
+            staticFields1(out, table, OutFormat.TS_CLASS);
 
             IType type = table.getEntityType();
             String iconName = "fa-tag";
@@ -79,8 +88,7 @@ public class Foo_stuff_Type__ts
             if (description != null)
                 out.printf("description = \"%s\"\n", description);
 
-            templates.FIELD_consts(out, table, null, true);
-            templates.N_consts(out, table, null, true);
+            staticFields2(out, table, OutFormat.TS_CLASS);
 
             out.println();
             out.printf("static declaredProperty: %s = {\n", //
@@ -134,6 +142,26 @@ public class Foo_stuff_Type__ts
             out.leave();
         }
         out.println("}");
+    }
+
+    void staticFields1(TypeScriptWriter out, ITableMetadata table, OutFormat fmt) {
+        String mod = fmt == OutFormat.TS_NAMESPACE ? "export const" : "static";
+
+        TableOid oid = table.getId();
+        if (oid.getCatalogName() != null)
+            out.printf("%s CATALOG_NAME = %s;\n", //
+                    mod, StringQuote.qqJavaString(oid.getCatalogName()));
+        if (oid.getSchemaName() != null)
+            out.printf("%s SCHEMA_NAME = %s;\n", //
+                    mod, StringQuote.qqJavaString(oid.getSchemaName()));
+        if (oid.getTableName() != null)
+            out.printf("%s TABLE_NAME = %s;\n", //
+                    mod, StringQuote.qqJavaString(oid.getTableName()));
+    }
+
+    void staticFields2(TypeScriptWriter out, ITableMetadata table, OutFormat fmt) {
+        templates.FIELD_consts(out, table, null, fmt);
+        templates.N_consts(out, table, null, fmt);
     }
 
     void checkCompositeProperty(ITableMetadata table, IColumnMetadata column) {
