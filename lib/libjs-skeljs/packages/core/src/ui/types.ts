@@ -1,5 +1,8 @@
 import type { Ref } from "vue";
 
+export type boolTrue = true | 1 | 'true' | '1' | '';
+export type boolFalse = false | 0 | 'false' | '0' | null | undefined;
+
 export function bool(val: boolean | number | string | null | undefined) {
     switch (val) {
         case true:

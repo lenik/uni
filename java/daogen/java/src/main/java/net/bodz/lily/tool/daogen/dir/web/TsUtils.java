@@ -17,8 +17,13 @@ public class TsUtils {
 
     static HashMap<String, EsmName> aliases = new HashMap<>();
     static {
-        aliases.put("integer", EsmModules.dba.entity.integer);
-        aliases.put("long", EsmModules.dba.entity._long);
+        aliases.put("byte", EsmModules.core.type._byte);
+        aliases.put("short", EsmModules.core.type._short);
+        aliases.put("integer", EsmModules.core.type.integer);
+        aliases.put("long", EsmModules.core.type._long);
+        aliases.put("float", EsmModules.core.type._float);
+        aliases.put("double", EsmModules.core.type._double);
+        aliases.put("char", EsmModules.core.type._char);
         aliases.put("Moment", EsmModules.moment.Moment);
     }
 

@@ -9,13 +9,13 @@ import net.bodz.bas.c.type.TypeId;
 import net.bodz.bas.c.type.TypeKind;
 import net.bodz.bas.c.type.TypeParam;
 import net.bodz.bas.codegen.IImportNaming;
-import net.bodz.bas.codegen.QualifiedName;
+import net.bodz.bas.t.tuple.QualifiedName;
 
 import antlr.collections.List;
 
 public class TsTypeResolver {
 
-    IImportNaming naming;
+    final IImportNaming naming;
 
     public TsTypeResolver(IImportNaming naming) {
         if (naming == null)
@@ -65,25 +65,36 @@ public class TsTypeResolver {
         switch (typeId) {
         case TypeId._char:
         case TypeId.CHARACTER:
-            return "string";
+            return "char";
+
         case TypeId._byte:
         case TypeId.BYTE:
+            return "byte";
+
         case TypeId._short:
         case TypeId.SHORT:
+            return "short";
+
         case TypeId._int:
         case TypeId.INTEGER:
             return "integer";
+
         case TypeId._long:
         case TypeId.LONG:
             return "long";
+
         case TypeId._float:
         case TypeId.FLOAT:
+            return "float";
+
         case TypeId._double:
         case TypeId.DOUBLE:
-            return "number";
+            return "double";
+
         case TypeId._boolean:
         case TypeId.BOOLEAN:
             return "boolean";
+
         case TypeId.BIG_INTEGER:
         case TypeId.BIG_DECIMAL:
             return "BigInteger";

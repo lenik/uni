@@ -11,6 +11,18 @@ public class Core
         super("@skeljs/core", "src", priority);
     }
 
+    @SourcePath("lang/type")
+    public class LangType
+            extends Source {
+        public final EsmName _char = type("char");
+        public final EsmName _byte = type("byte");
+        public final EsmName _short = type("short");
+        public final EsmName integer = type("integer");
+        public final EsmName _long = type("long");
+        public final EsmName _float = type("float");
+        public final EsmName _double = type("double");
+    }
+
     @SourcePath("logging/api")
     public class LoggingApi
             extends Source {
@@ -66,6 +78,8 @@ public class Core
         public final EsmName VarMap = _interface("VarMap");
 
     }
+
+    public final LangType type = add(new LangType());
 
     public final LoggingApi loggingApi = add(new LoggingApi());
     public final UiTypes uiTypes = add(new UiTypes());

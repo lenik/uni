@@ -1,8 +1,6 @@
+import type { integer } from '@skeljs/core/src/lang/type';
 import { simpleName } from "@skeljs/core/src/logging/api";
 import type { Validator } from "@skeljs/core/src/ui/types";
-
-export type integer = number;
-export type long = number;
 
 export interface IEntityType {
     name: string        // Java class name
@@ -34,7 +32,8 @@ export class EntityType implements IEntityType {
         }
 
         let base = this.ordinalPositionBase;
-        let sorted = Object.values(declaredProperties).sort((a, b) => a._g_index - b._g_index);
+        let sorted = Object.values(declaredProperties).sort(
+            (a, b) => a._g_index! - b._g_index!);
         for (let i = 0; i < sorted.length; i++) {
             let prop = sorted[i];
 
@@ -70,13 +69,13 @@ export interface EntityPropertyMap {
 export interface IEntityProperty {
 
     name?: string
-    position?: number
+    position?: integer
     type: string // ts type, not java type
     primaryKey?: boolean
 
     // javaType: string
-    precision?: number
-    scale?: number
+    precision?: integer
+    scale?: integer
     nullable?: boolean
 
     icon?: string
@@ -89,13 +88,13 @@ export interface IEntityProperty {
 export class EntityProperty implements IEntityProperty {
 
     name?: string
-    position?: number
+    position?: integer
     type: string
     primaryKey?: boolean
 
     // javaType: string
-    precision?: number
-    scale?: number
+    precision?: integer
+    scale?: integer
     nullable?: boolean
 
     icon?: string
@@ -104,7 +103,7 @@ export class EntityProperty implements IEntityProperty {
 
     validator?: Validator
 
-    _g_index?: number;
+    _g_index?: integer;
 
     constructor(o: IEntityProperty) {
         Object.assign(this, o);

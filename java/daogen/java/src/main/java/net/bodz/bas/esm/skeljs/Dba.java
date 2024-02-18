@@ -15,9 +15,6 @@ public class Dba
     public class LilyEntity
             extends Source {
 
-        public final EsmName integer = type("integer");
-        public final EsmName _long = type("long");
-
         public final EsmName IEntityType = _interface("IEntityType");
         public final EsmName EntityType = _class("EntityType");
         public final EsmName EntityPropertyMap = _interface("EntityPropertyMap");
