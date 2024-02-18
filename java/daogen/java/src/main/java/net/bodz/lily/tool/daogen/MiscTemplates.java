@@ -817,7 +817,7 @@ public class MiscTemplates {
             CrossReference xref = table.getForeignKeys().get(fkName);
             if (xref.isCompositeProperty()) {
                 IColumnMetadata column = xref.getForeignColumns()[0];
-                String propertyPath = column.getJavaName();
+                String propertyPath = column.getJavaQName().getFullName();
                 String head = Split.headDomain(propertyPath).a;
                 compositeHeads.add(head);
             }
@@ -827,8 +827,8 @@ public class MiscTemplates {
             if (column.isExcluded()) // mixin?
                 continue;
             if (column.isCompositeProperty()) {
-                String propertyPath = column.getJavaName();
-                String head = Split.headDomain(propertyPath).a;
+                // head name of the property-path
+                String head = column.getJavaQName().getHead();
                 compositeHeads.add(head);
             }
         }

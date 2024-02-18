@@ -5,10 +5,12 @@ import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Set;
 
+import net.bodz.bas.c.primitive.Primitives;
 import net.bodz.bas.c.type.TypeId;
 import net.bodz.bas.c.type.TypeKind;
 import net.bodz.bas.c.type.TypeParam;
 import net.bodz.bas.codegen.IImportNaming;
+import net.bodz.bas.site.json.JsonMap;
 import net.bodz.bas.t.tuple.QualifiedName;
 
 import antlr.collections.List;
@@ -53,7 +55,7 @@ public class TsTypeResolver {
     public String resolve(String javaType) {
         Class<?> clazz;
         try {
-            clazz = Class.forName(javaType);
+            clazz = Primitives.forName(javaType);
         } catch (ClassNotFoundException e) {
             return javaType;
         }
@@ -110,11 +112,16 @@ public class TsTypeResolver {
         case TypeId.LOCAL_DATE_TIME:
         case TypeId.LOCAL_DATE:
         case TypeId.LOCAL_TIME:
+        case TypeId.OFFSET_TIME:
             return "Moment";
 
         case TypeId.STRING:
             return "string";
         }
+
+        if (JsonMap.class.isAssignableFrom(clazz))
+            return "any";
+
         return naming.importName(clazz);
     }
 

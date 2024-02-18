@@ -18,7 +18,16 @@ import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.potato.element.IType;
-import net.bodz.bas.t.catalog.*;
+import net.bodz.bas.t.catalog.CrossReference;
+import net.bodz.bas.t.catalog.DefaultColumnMetadata;
+import net.bodz.bas.t.catalog.DefaultTableMetadata;
+import net.bodz.bas.t.catalog.ICatalogVisitor;
+import net.bodz.bas.t.catalog.IColumnMetadata;
+import net.bodz.bas.t.catalog.ISchemaMetadata;
+import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.bas.t.catalog.TableKey;
+import net.bodz.bas.t.catalog.TableOid;
+import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.concrete.CoEntity;
 import net.bodz.lily.concrete.StructRow;
@@ -49,16 +58,19 @@ public class FinishProcessor
     }
 
     void setDefaultClassName(DefaultTableMetadata table) {
-        String fullName = table.getJavaType().getFullName();
+        QualifiedName qName = table.getJavaType();
         String packageName = config.defaultPackageName;
         String simpleName;
 
-        if (fullName != null) {
-            table.setJavaType(fullName);
+        if (qName != null) {
+            if (qName.packageName == null) {
+                qName = qName.packageName(packageName);
+                table.setJavaType(qName);
+            }
         } else {
             ISchemaMetadata schema = table.getParent();
 
-            String schemaQName = schema.getJavaType().getFullName();
+            QualifiedName schemaQName = schema.getJavaQName();
             if (schemaQName != null)
                 packageName += "." + schemaQName;
 
@@ -240,7 +252,7 @@ public class FinishProcessor
                 throw new IllegalUsageException("can't determine the xref property name.");
         }
 
-        crossRef.setJavaName(property);
+        crossRef.setJavaQName(property);
 
         // Assemble descriptions.
         StringBuilder labels = null;
@@ -283,7 +295,7 @@ public class FinishProcessor
                     String fkFieldProp = property + Strings.ucfirst(p.propertyName);
                     String orig = column.getJavaName();
                     if (Nullables.notEquals(orig, fkFieldProp))
-                        mutable.setJavaName(fkFieldProp);
+                        mutable.setJavaQName(fkFieldProp);
                 }
             }
         }

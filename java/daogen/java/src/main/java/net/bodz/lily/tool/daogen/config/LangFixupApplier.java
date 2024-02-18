@@ -27,7 +27,7 @@ public class LangFixupApplier
         if (JavaLang.isKeyword(name)) {
             DefaultColumnMetadata mutable = (DefaultColumnMetadata) column;
             String renamed = JavaLang.renameKeyword(name);
-            mutable.setJavaName(renamed);
+            mutable.setJavaQName(renamed);
         }
     }
 

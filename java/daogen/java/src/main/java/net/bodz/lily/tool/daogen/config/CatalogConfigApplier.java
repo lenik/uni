@@ -61,7 +61,7 @@ public class CatalogConfigApplier
                 if (propertyName.isEmpty() || "-".equals(propertyName))
                     mutable.setExcluded(true);
                 else {
-                    mutable.setJavaName(propertyName);
+                    mutable.setJavaQName(propertyName);
                     if (column.getAnnotation(Derived.class) != null)
                         mutable.setExcluded(true);
                 }
@@ -77,7 +77,7 @@ public class CatalogConfigApplier
 
             if (columnSettings != null) {
                 if (columnSettings.javaName != null)
-                    mutable.setJavaName(columnSettings.javaName);
+                    mutable.setJavaQName(columnSettings.javaName);
 
                 if (columnSettings.javaType != null) {
                     Class<?> javaClass;
