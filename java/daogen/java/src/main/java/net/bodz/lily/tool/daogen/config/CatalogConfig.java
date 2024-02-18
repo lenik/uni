@@ -114,7 +114,7 @@ public class CatalogConfig
         n.fullName = table.getId().getFullName();
         n.fullNameQuoted = DialectFn.quoteQName(n.fullName);
 
-        String simple = table.getJavaName();
+        String simple = table.getJavaType().name;
         if (simple == null) {
             simple = StringId.UL.toCamel(n.tableName);
             simple = Strings.ucfirst(simple);

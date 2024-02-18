@@ -21,7 +21,6 @@ import net.bodz.bas.c.string.StringEscape;
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.codegen.JavaSourceWriter;
-import net.bodz.bas.codegen.QualifiedName;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.io.ITreeOut;
@@ -38,6 +37,7 @@ import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.catalog.TableKey;
 import net.bodz.bas.t.catalog.TableOid;
+import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.tool.daogen.util.CriteriaBuilderFieldInfo;
 import net.bodz.lily.tool.daogen.util.JavaLang;
@@ -464,7 +464,7 @@ public class MiscTemplates {
         if (description == null) {
             description = parentTable.getDescription();
             if (description != null)
-                inheritDocFrom = out.im.name(parentTable.getJavaQName());
+                inheritDocFrom = out.im.name(parentTable.getJavaType());
         }
 
         out.print("/** ");
@@ -485,7 +485,7 @@ public class MiscTemplates {
         if (notNull)
             out.println("@" + out.im.name(NotNull.class));
 
-        String parentType = parentTable.getJavaQName();
+        QualifiedName parentType = parentTable.getJavaType();
         if (parentType == null)
             throw new NullPointerException("parentType");
 
@@ -510,7 +510,7 @@ public class MiscTemplates {
         if (description == null) {
             description = parentTable.getDescription();
             if (description != null)
-                inheritDocFrom = out.im.name(parentTable.getJavaQName());
+                inheritDocFrom = out.im.name(parentTable.getJavaType());
         }
 
         out.println("/**");
@@ -534,7 +534,7 @@ public class MiscTemplates {
         if (notNull)
             out.println("@" + out.im.name(NotNull.class));
 
-        String parentType = parentTable.getJavaQName();
+        QualifiedName parentType = parentTable.getJavaType();
         if (parentType == null)
             throw new NullPointerException("parentType");
 

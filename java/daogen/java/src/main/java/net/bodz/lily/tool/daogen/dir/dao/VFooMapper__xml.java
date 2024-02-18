@@ -105,7 +105,7 @@ public class VFooMapper__xml
                 CrossReference ref = j.aliasMap.get(alias);
                 ITableMetadata parent = ref.getParentTable();
 
-                String mapperNs = RuntimeSupport.guessMapperNs(parent.getJavaQName());
+                String mapperNs = RuntimeSupport.guessMapperNs(parent.getJavaType().getFullName());
                 boolean defaultNs = mapperNs.equals(project.FooMapper.fullName);
                 String nsPrefix = defaultNs ? "" : (mapperNs + ".");
 
@@ -113,7 +113,7 @@ public class VFooMapper__xml
                         ref.getJavaName(), // property
                         alias + "_" // columnPrefix
                 );
-                out.printf("    javaType=\"%s\" \n", ref.getParentTable().getJavaQName());
+                out.printf("    javaType=\"%s\" \n", ref.getParentTable().getJavaType());
                 out.printf("    resultMap=\"%s\" />\n", nsPrefix + "objlist_map");
             }
 

@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import net.bodz.bas.codegen.JavaSourceWriter;
-import net.bodz.bas.codegen.QualifiedName;
 import net.bodz.bas.potato.PotatoTypes;
 import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.concrete.*;
 import net.bodz.lily.meta.CriteriaClass;
 import net.bodz.lily.schema.account.dao.CoPrincipalCriteriaBuilder;
@@ -38,12 +38,12 @@ public class FooCriteriaBuilder_stuff__java
 
     @Override
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
-        String javaType = table.getJavaQName();
+        QualifiedName javaType = table.getJavaType();
         Class<?> parentClass = null;
 
         if (javaType != null) {
             try {
-                Class<?> entityClass = CanonicalClass.forName(javaType);
+                Class<?> entityClass = CanonicalClass.forName(javaType.getFullName());
 
                 for (Class<?> base : defaultBases.keySet()) {
                     if (base.isAssignableFrom(entityClass)) {

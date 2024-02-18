@@ -1,13 +1,13 @@
 package net.bodz.lily.tool.daogen;
 
 import net.bodz.bas.codegen.ClassPathInfo;
-import net.bodz.bas.codegen.QualifiedName;
 import net.bodz.bas.esm.EsmImports;
 import net.bodz.bas.esm.EsmPackageMap;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.io.BCharOut;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.tool.daogen.dir.web.TsTypeResolver;
 import net.bodz.lily.tool.daogen.dir.web.TsUtils;
 

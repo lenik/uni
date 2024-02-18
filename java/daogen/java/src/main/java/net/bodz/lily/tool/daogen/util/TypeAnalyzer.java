@@ -1,8 +1,8 @@
 package net.bodz.lily.tool.daogen.util;
 
 import net.bodz.bas.codegen.IImportNaming;
-import net.bodz.bas.codegen.QualifiedName;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.concrete.CoEntity;
 import net.bodz.lily.concrete.StructRow;
 import net.bodz.lily.meta.TypeParamType;

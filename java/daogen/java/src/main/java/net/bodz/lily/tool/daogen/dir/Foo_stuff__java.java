@@ -2,7 +2,6 @@ package net.bodz.lily.tool.daogen.dir;
 
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.codegen.JavaSourceWriter;
-import net.bodz.bas.codegen.QualifiedName;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.potato.element.IProperty;
@@ -10,6 +9,7 @@ import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.catalog.TableOid;
+import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.entity.IdType;
 import net.bodz.lily.meta.TypeParameters;

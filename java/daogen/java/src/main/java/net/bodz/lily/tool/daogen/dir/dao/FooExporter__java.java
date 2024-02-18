@@ -39,7 +39,7 @@ public class FooExporter__java
 
     protected void mtdExportDDL(JavaSourceWriter out, ITableMetadata table) {
         out.printf("public static String exportDDL(%s obj) {\n", //
-                out.im.name(table.getJavaQName()));
+                out.im.name(table.getJavaType()));
         out.enter();
         {
             Map<String, String> map = new LinkedHashMap<>();

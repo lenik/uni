@@ -49,27 +49,22 @@ public class FinishProcessor
     }
 
     void setDefaultClassName(DefaultTableMetadata table) {
-        String simpleName = table.getJavaQName();
+        String fullName = table.getJavaType().getFullName();
         String packageName = config.defaultPackageName;
+        String simpleName;
 
-        if (simpleName != null) {
-            if (simpleName.contains(".")) {
-                int lastDot = simpleName.lastIndexOf('.');
-                packageName = simpleName.substring(0, lastDot);
-                simpleName = simpleName.substring(lastDot + 1);
-            }
+        if (fullName != null) {
+            table.setJavaType(fullName);
         } else {
             ISchemaMetadata schema = table.getParent();
 
-            String schemaJavaQName = schema.getJavaQName();
-            if (schemaJavaQName != null)
-                packageName += "." + schemaJavaQName;
+            String schemaQName = schema.getJavaType().getFullName();
+            if (schemaQName != null)
+                packageName += "." + schemaQName;
 
-            if (simpleName == null)
-                simpleName = Phrase.foo_bar(table.getId().getTableName()).FooBar;
+            simpleName = Phrase.foo_bar(table.getId().getTableName()).FooBar;
+            table.setJavaType(packageName, simpleName);
         }
-        table.setJavaPackage(packageName);
-        table.setJavaName(simpleName);
     }
 
     void excludeInheritedColumns(DefaultTableMetadata tableView) {

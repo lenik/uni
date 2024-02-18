@@ -2,7 +2,6 @@ package net.bodz.lily.tool.daogen.dir.web;
 
 import java.lang.reflect.Type;
 
-import net.bodz.bas.codegen.QualifiedName;
 import net.bodz.bas.esm.EsmSource;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.potato.element.IProperty;
@@ -10,6 +9,7 @@ import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.potato.provider.bean.BeanTypeProvider;
 import net.bodz.bas.repr.form.validate.NotNull;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;

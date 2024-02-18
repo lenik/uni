@@ -85,7 +85,8 @@ public class DaoCodeGenerator
     /**
      * Where to save header files include entity, mask, samples types.
      *
-     * By default, search sibling -api or -model projects and put header files in src/main/java. fallback to out-dir.
+     * By default, search sibling -api or -model projects and put header files in src/main/java.
+     * fallback to out-dir.
      *
      * @option -H =PATH
      */
@@ -94,7 +95,8 @@ public class DaoCodeGenerator
     /**
      * Where to save -mapper files, exporters.
      *
-     * By default, search sibling -impl or -dao projects and put class files in src/main/java. fallback to out-dir.
+     * By default, search sibling -impl or -dao projects and put class files in src/main/java.
+     * fallback to out-dir.
      *
      * @option =PATH
      */
@@ -103,8 +105,8 @@ public class DaoCodeGenerator
     /**
      * Where to save web-service related files include -Index.
      *
-     * By default, search sibling -webapp, -web, -ws, -server projects and put class files in src/main/java. fallback to
-     * out-dir.
+     * By default, search sibling -webapp, -web, -ws, -server projects and put class files in
+     * src/main/java. fallback to out-dir.
      *
      * @option -W =PATH
      */
@@ -263,13 +265,6 @@ public class DaoCodeGenerator
     }
 
     JavaGenProject createProject(ITableMetadata table) {
-        String simpleName = table.getJavaName();
-        String packageName = table.getJavaPackage();
-        if (simpleName == null)
-            throw new NullPointerException("simpleName");
-        if (packageName == null)
-            throw new NullPointerException("packageName");
-
         long seed;
         if (seedRandom)
             seed = System.currentTimeMillis();
@@ -277,7 +272,7 @@ public class DaoCodeGenerator
             seed = seedMagic.hashCode();
 
         Builder builder = new ClassPathInfo.Builder()//
-                .qName(packageName, simpleName)//
+                .qName(table.getJavaType())//
                 .maven(outDir);
         // ClassPathInfo outPath = builder.build();
         ClassPathInfo headerPath = builder.maven(headerDir).build();

@@ -32,9 +32,9 @@ public class CatalogConfigApplier
 
             String javaName = config.tableNameMap.get(table.getName());
             if (javaName != null) {
-                if (!javaName.contains("."))
+                if (! javaName.contains("."))
                     javaName = config.defaultPackageName + "." + javaName;
-                mutable.setJavaQName(javaName);
+                mutable.setJavaType(javaName);
             }
 
             String base = config.getTableBase(table.getName());
@@ -126,7 +126,7 @@ public class CatalogConfigApplier
             ref.add(parentColumnOid.getColumnName(), alias);
         }
 
-        if (!map.isEmpty()) {
+        if (! map.isEmpty()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Auto added column-ref references:");
                 map.dump();

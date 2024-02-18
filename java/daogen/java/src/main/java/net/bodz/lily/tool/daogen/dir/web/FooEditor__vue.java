@@ -5,7 +5,6 @@ import java.util.*;
 import net.bodz.bas.c.string.StringEscape;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.c.type.TypeChain;
-import net.bodz.bas.codegen.QualifiedName;
 import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.EsmName;
 import net.bodz.bas.esm.EsmSource;
@@ -21,6 +20,7 @@ import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.order.OrdinalComparator;
 import net.bodz.bas.t.predef.Predef;
 import net.bodz.bas.t.predef.PredefMetadata;
+import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.concrete.CoEntity;
 import net.bodz.lily.concrete.StructRow;
 import net.bodz.lily.tool.daogen.ColumnNaming;
@@ -288,7 +288,7 @@ public class FooEditor__vue
 
     void fkRow(TypeScriptWriter out, CrossReference xref, IProperty property) {
         String propertyName = xref.getJavaName(); // property.getName();
-        String className = xref.getParentTable().getJavaQName();
+        String className = xref.getParentTable().getJavaType().getFullName();
 
         out.printf("<FieldRow v-bind=\"fieldRowProps\" :property=\"meta.%s\" v-model=\"model.%s\">\n", //
                 propertyName, //
@@ -309,7 +309,7 @@ public class FooEditor__vue
 
             Attrs attrs = new Attrs();
             attrs.put(":dialog", dialogVar);
-            attrs.put("v-model", "model." + property.getName());
+            attrs.put("v-model", "model." + xref.getJavaName());
             attrs.put("v-model:id", "model." + propertyName + "Id");
 
             String xml = attrs.toXml(out.im.name(//

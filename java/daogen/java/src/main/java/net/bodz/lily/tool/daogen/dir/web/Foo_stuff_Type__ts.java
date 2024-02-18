@@ -16,6 +16,7 @@ import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.catalog.TableKey;
 import net.bodz.bas.t.catalog.TableOid;
+import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
@@ -232,7 +233,7 @@ public class Foo_stuff_Type__ts
         if (description == null) {
             description = parentTable.getDescription();
             if (description != null)
-                inheritDocFrom = out.importName(parentTable.getJavaQName());
+                inheritDocFrom = out.importName(parentTable.getJavaType());
         }
 
         boolean anyNotNull = false;
@@ -242,7 +243,7 @@ public class Foo_stuff_Type__ts
                 break;
             }
 
-        String parentType = parentTable.getJavaQName();
+        QualifiedName parentType = parentTable.getJavaType();
         if (parentType == null)
             throw new NullPointerException("parentType");
         String parentTsType = tsTypes.resolve(parentType);

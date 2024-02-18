@@ -36,12 +36,12 @@ public class ColumnUtils {
 
     public static ColumnMember getMemberInfo(IColumnMetadata column, ColumnNaming n, int infoset) {
         IRowSetMetadata rowSet = column.getParent();
-        if (!(rowSet instanceof ITableMetadata))
+        if (! (rowSet instanceof ITableMetadata))
             return null;
 
         ITableMetadata table = (ITableMetadata) rowSet;
         ColumnMember m = new ColumnMember();
-        m.declaringClassName = table.getJavaQName();
+        m.declaringClassName = table.getJavaType().getFullName();
         try {
             m.declaringClass = CanonicalClass.forName(m.declaringClassName);
             m.bestKnownClass = m.declaringClass;

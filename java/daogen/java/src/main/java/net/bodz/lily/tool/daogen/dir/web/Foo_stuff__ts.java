@@ -1,6 +1,5 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
-import net.bodz.bas.codegen.QualifiedName;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.esm.EsmName;
 import net.bodz.bas.esm.TypeScriptWriter;
@@ -12,6 +11,7 @@ import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.catalog.TableKey;
 import net.bodz.bas.t.catalog.TableOid;
+import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
@@ -138,19 +138,19 @@ public class Foo_stuff__ts
 
         boolean anyNotNull = false;
         for (IColumnMetadata c : columns)
-            if (!c.isNullable(false)) {
+            if (! c.isNullable(false)) {
                 anyNotNull = true;
                 break;
             }
 
-        String parentType = parentTable.getJavaQName();
+        QualifiedName parentType = parentTable.getJavaType();
         if (parentType == null)
             throw new NullPointerException("parentType");
 
         String property = xref.getJavaName();
 
         out.print(property);
-        if (!anyNotNull)
+        if (! anyNotNull)
             out.print("?");
         out.print(": ");
 

@@ -2,11 +2,11 @@ package net.bodz.lily.tool.daogen;
 
 import net.bodz.bas.codegen.ClassPathInfo;
 import net.bodz.bas.codegen.JavaSourceWriter;
-import net.bodz.bas.codegen.QualifiedName;
 import net.bodz.bas.io.BCharOut;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.io.impl.TreeOutImpl;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.bas.t.tuple.QualifiedName;
 
 public abstract class JavaGen__java
         extends JavaGenFileType {

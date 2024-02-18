@@ -1,6 +1,6 @@
 package net.bodz.lily.tool.daogen.util;
 
-import net.bodz.bas.codegen.QualifiedName;
+import net.bodz.bas.t.tuple.QualifiedName;
 
 public class TypeExtendInfo {
 

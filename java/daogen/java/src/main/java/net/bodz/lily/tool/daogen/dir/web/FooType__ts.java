@@ -2,7 +2,6 @@ package net.bodz.lily.tool.daogen.dir.web;
 
 import org.apache.logging.log4j.util.Strings;
 
-import net.bodz.bas.codegen.QualifiedName;
 import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.EsmSource;
 import net.bodz.bas.esm.TypeScriptWriter;
@@ -13,6 +12,7 @@ import net.bodz.bas.repr.form.meta.TextInput;
 import net.bodz.bas.repr.form.validate.NotNull;
 import net.bodz.bas.repr.form.validate.Precision;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
 import net.bodz.lily.tool.daogen.util.Attrs;
