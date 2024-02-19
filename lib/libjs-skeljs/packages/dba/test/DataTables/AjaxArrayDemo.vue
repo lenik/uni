@@ -1,14 +1,13 @@
 <script lang="ts">
-import DataTable from '../../src/ui/table/DataTable.vue';
-
 export const title = 'Ajax with row=array';
 </script>
 
 <script setup lang="ts">
+import DataTable from '../../src/ui/table/DataTable.vue';
 
 </script>
 
-<template class="k">
+<template>
     <DataTable data-url="people-array.json" dom="ftip">
         <th data-field="name">Name</th>
         <th data-field="sex">Gender</th>

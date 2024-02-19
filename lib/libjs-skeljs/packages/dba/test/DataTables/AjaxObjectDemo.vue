@@ -1,11 +1,10 @@
 <script lang="ts">
 import { onMounted } from 'vue';
-import DataTable from '../../src/ui/table/DataTable.vue';
-
 export const title = 'Ajax with row=object';
 </script>
 
 <script setup lang="ts">
+import DataTable from '../../src/ui/table/DataTable.vue';
 
 </script>
 

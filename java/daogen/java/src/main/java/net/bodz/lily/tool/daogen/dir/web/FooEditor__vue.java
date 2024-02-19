@@ -1,8 +1,17 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import net.bodz.bas.c.string.StringEscape;
+import net.bodz.bas.c.string.StringId;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.c.type.TypeChain;
 import net.bodz.bas.esm.EsmModules;
@@ -39,6 +48,14 @@ public class FooEditor__vue
 
     public FooEditor__vue(JavaGenProject project) {
         super(project, project.Esm_FooEditor);
+    }
+
+    @Override
+    protected String getTitle(ITableMetadata model) {
+        String name = model.getJavaType().name;
+        String words = StringId.SPACE.breakCamel(name);
+        words = Strings.ucfirst(words);
+        return "Editor view of: " + words;
     }
 
     @Override
@@ -107,7 +124,6 @@ public class FooEditor__vue
         out.printf("%s(() => {\n", //
                 out.name(EsmModules.vue.onMounted));
         out.println("});");
-        out.println();
     }
 
     @Override

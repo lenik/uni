@@ -3,6 +3,8 @@ package net.bodz.lily.tool.daogen.dir.web;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.bodz.bas.c.string.StringId;
+import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.t.catalog.CrossReference;
@@ -19,6 +21,14 @@ public class FooChooseDialog__vue
     public FooChooseDialog__vue(JavaGenProject project) {
         super(project, project.Esm_FooChooseDialog);
         templates = new TsTemplates(project);
+    }
+
+    @Override
+    protected String getTitle(ITableMetadata model) {
+        String name = model.getJavaType().name;
+        String words = StringId.SPACE.breakCamel(name);
+        words = Strings.ucfirst(words);
+        return "Choose dialog for: " + words;
     }
 
     @Override
@@ -71,7 +81,6 @@ public class FooChooseDialog__vue
         out.printf("%s(() => {\n", //
                 out.name(EsmModules.vue.onMounted));
         out.println("});");
-
     }
 
     @Override

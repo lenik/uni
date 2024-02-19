@@ -3,6 +3,8 @@ package net.bodz.lily.tool.daogen.dir.web;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.bodz.bas.c.string.StringId;
+import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.t.catalog.CrossReference;
@@ -22,6 +24,14 @@ public class FooAdmin__vue
     }
 
     @Override
+    protected String getTitle(ITableMetadata model) {
+        String name = model.getJavaType().name;
+        String words = StringId.SPACE.breakCamel(name);
+        words = Strings.ucfirst(words);
+        return "Admin view of: " + words;
+    }
+
+    @Override
     protected void buildScript1(TypeScriptWriter out, ITableMetadata table) {
         out.println("export interface Props {");
         out.println("}");
@@ -29,7 +39,6 @@ public class FooAdmin__vue
 
     @Override
     protected void buildSetupScript(TypeScriptWriter out, ITableMetadata table) {
-        out.println();
         out.println("const props = withDefaults(defineProps<Props>(), {");
         out.println("});");
         out.println();
@@ -58,7 +67,6 @@ public class FooAdmin__vue
 
     @Override
     protected void buildTemplate(TypeScriptWriter out, ITableMetadata table) {
-
         out.println("<template>");
         out.enter();
         {

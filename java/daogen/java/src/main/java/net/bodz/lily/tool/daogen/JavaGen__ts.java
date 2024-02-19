@@ -42,7 +42,7 @@ public abstract class JavaGen__ts
 
         buildTsBody(tsOut, model);
 
-        int lines = tsOut.im.dump(out);
+        int lines = tsOut.im.dump(out, null);
         if (lines > 0)
             out.println();
 
