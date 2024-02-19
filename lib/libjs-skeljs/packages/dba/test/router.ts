@@ -1,8 +1,8 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 
 export const links = {
-    "Index": 'Directory',
-    "ProjectInfo": 'Project Info',
+    "": 'Directory',
+    "Project": 'Project',
     "AjaxArrayDemo": 'Ajax with row=array',
     "AjaxObjectDemo": 'Ajax with row=object',
     "DataAdminDemo": 'Data Admin demo',

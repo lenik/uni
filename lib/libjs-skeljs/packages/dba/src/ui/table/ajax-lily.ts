@@ -76,6 +76,9 @@ let defaultFetchSize = 500;
 
 export function configAjaxData(config: Config, dataUrl: string, fetchSize: number | undefined,
     columns: ColumnType[], params?: any) {
+
+    if (dataUrl == null) throw "dataUrl null";
+
     let batch = fetchSize || defaultFetchSize;
     let ratio = 0.2;
     let before = Math.floor(batch * ratio);

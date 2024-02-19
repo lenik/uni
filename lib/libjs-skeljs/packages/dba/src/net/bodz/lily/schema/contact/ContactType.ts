@@ -1,7 +1,7 @@
 import { EntityPropertyMap, property } from '../../entity';
 import { IdEntityType } from '../../concrete/IdEntityType';
 
-export class ContactType extends IdEntityType<number> {
+export default class ContactType extends IdEntityType<number> {
 
     name = "net.bodz.lily.schema.contact.Contact"
     icon = "fa-address-card"
