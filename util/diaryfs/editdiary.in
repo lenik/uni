@@ -199,11 +199,39 @@ function open_new() {
         fi
     fi
     if [ ! -f "$file" ]; then
-        if ! touch "$file"; then
+        if ! create-new "$file"; then
             _error "failed to create file $file"
         fi
     fi
     open "$file"
+}
+
+function create-new() {
+    local file="$1"
+    local dir="${file%/*}"
+    local base="${file##*/}"
+    if [ "$dir" = "$file" ]; then
+        dir=.
+    fi
+    
+    local name="${base%.*}"
+    local ext="${base##*.}"
+    if [ "$name" = "$base" ]; then
+        ext=
+    fi
+    
+    local template=
+    case "$base" in
+        beatLog)
+            template=beatLog;;
+        *)
+            touch "$file";;
+    esac
+    
+    if [ -n "$template" ]; then
+        _log2 "create new file $file as from $template"
+        -$template >"$file"
+    fi
 }
 
 function create-as() {
@@ -305,6 +333,14 @@ function activate_vscode_for_folder() {
     
     _log2 "not found any vscode window for folder $folder."
     return 1
+}
+
+function -beatLog() {
+    local date=$(date '+%a %b %e %H:%M:%S %p %Z')
+    echo
+    echo "    Diary-Creation: $date"
+    echo
+    echo -n "    "
 }
 
 boot "$@"
