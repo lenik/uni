@@ -1,13 +1,16 @@
 <script lang="ts">
 import { onMounted, ref } from "vue";
-import { } from "./types";
+import { } from "../../../../core/src/ui/types";
+import { IEntityType } from "../../net/bodz/lily/entity";
 
 export interface Props {
-    decl?: string
+    type: IEntityType
 }
 </script>
 
 <script setup lang="ts">
+import Icon from "@skeljs/core/src/ui/Icon.vue";
+
 const model = defineModel();
 
 const props = withDefaults(defineProps<Props>(), {
@@ -33,6 +36,12 @@ onMounted(() => {
 </script>
 
 <template>
+    <div class="header">
+        <Icon :name="type.icon" v-if="type.icon != null" />
+        <span class="label" v-if="type.label != null">{{ type.label }}</span>
+        <span class="fqcn" v-else>{{ type.name }}</span>
+        <hr>
+    </div>
     <slot></slot>
 </template>
 

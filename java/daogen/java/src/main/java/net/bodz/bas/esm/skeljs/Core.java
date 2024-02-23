@@ -86,7 +86,6 @@ public class Core
     public final VarMap VarMap = add(new VarMap());
 
     public final EsmName Dialog = vue("ui/Dialog.vue");
-    public final EsmName FieldGroup = vue("ui/FieldGroup.vue");
     public final EsmName FieldRow = vue("ui/FieldRow.vue");
 
 }

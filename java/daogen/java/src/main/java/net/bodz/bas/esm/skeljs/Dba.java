@@ -67,6 +67,7 @@ public class Dba
     public final EsmName DataTable = vue("ui/table/DataTable.vue");
     public final EsmName LilyAdmin = vue("ui/lily/LilyAdmin.vue");
     public final EsmName EntityChooseDialog = vue("ui/lily/EntityChooseDialog.vue");
+    public final EsmName FieldGroup = vue("ui/lily/FieldGroup.vue");
     public final EsmName RefEditor = vue("ui/input/RefEditor.vue");
 
 }
