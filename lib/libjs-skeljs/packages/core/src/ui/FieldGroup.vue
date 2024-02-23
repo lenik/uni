@@ -3,6 +3,7 @@ import { onMounted, ref } from "vue";
 import { } from "./types";
 
 export interface Props {
+    decl?: string
 }
 </script>
 
