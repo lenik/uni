@@ -1,8 +1,11 @@
 
 import { EntityPropertyMap, primaryKey, property } from '../entity';
-import { IdEntityType } from './IdEntityType';
+import CoNodeValidators from './CoNodeValidators';
+import IdEntityType from './IdEntityType';
 
 export class CoNodeType extends IdEntityType {
+
+    static validators = new CoNodeValidators();
 
     static declaredProperty: EntityPropertyMap = {
         parent: property({ type: 'any', }),
@@ -14,6 +17,7 @@ export class CoNodeType extends IdEntityType {
         super();
         this.declare(CoNodeType.declaredProperty);
     }
+
 }
 
 export default CoNodeType;

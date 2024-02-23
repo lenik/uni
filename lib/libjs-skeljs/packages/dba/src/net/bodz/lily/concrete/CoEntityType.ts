@@ -1,8 +1,11 @@
 
 import { EntityPropertyMap, primaryKey, property } from '../entity';
-import { CoObjectType } from './CoObjectType';
+import CoEntityValidators from './CoEntityValidators';
+import CoObjectType from './CoObjectType';
 
 export class CoEntityType extends CoObjectType {
+
+    static validators = new CoEntityValidators();
 
     static declaredProperty: EntityPropertyMap = {
         // id: primaryKey({ type: 'number', precision: 20, })
@@ -12,6 +15,7 @@ export class CoEntityType extends CoObjectType {
         super();
         this.declare(CoEntityType.declaredProperty);
     }
+
 }
 
 export default CoEntityType;

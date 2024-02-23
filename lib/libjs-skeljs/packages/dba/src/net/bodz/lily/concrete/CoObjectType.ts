@@ -1,9 +1,11 @@
 
 import { EntityPropertyMap, primaryKey, property } from '../entity';
-
+import CoObjectValidators from './CoObjectValidators';
 import StructRowType from './StructRowType';
 
 export class CoObjectType extends StructRowType {
+
+    static validators = new CoObjectValidators();
 
     static declaredProperty: EntityPropertyMap = {
         label: property({ type: 'string', icon: 'fa-tag' }),
@@ -25,6 +27,7 @@ export class CoObjectType extends StructRowType {
         super();
         this.declare(CoObjectType.declaredProperty);
     }
+
 }
 
 export default CoObjectType;

@@ -2,7 +2,8 @@
 import { EntityPropertyMap } from '../entity';
 import { CoNodeValidators } from './CoNodeValidators';
 
-export abstract class CoCategoryValidators extends CoNodeValidators {
+export class CoCategoryValidators extends CoNodeValidators {
 
 }
 
+export default CoCategoryValidators;
