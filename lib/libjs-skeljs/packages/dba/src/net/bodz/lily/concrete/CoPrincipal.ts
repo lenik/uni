@@ -1,12 +1,17 @@
+import { integer } from '@skeljs/core/src/lang/type';
+import { IdEntity } from './IdEntity';
 
-import { integer } from '../entity';
-import { CoObject } from './CoObject';
+export abstract class CoPrincipal extends IdEntity<integer> {
 
-export abstract class CoPrincipal extends CoObject {
-    id?: integer
+    name?: string
+    properties: any
+
+    get uniqueName() { return this.name; }
+    set uniqueName(val: string | undefined) { this.name = val; }
 
     constructor(o: any) {
         super(o);
-        if (o != null) Object.assign(this, o);
     }
 }
+
+export default CoPrincipal;

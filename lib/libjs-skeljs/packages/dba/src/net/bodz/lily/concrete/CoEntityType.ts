@@ -2,16 +2,16 @@
 import { EntityPropertyMap, primaryKey, property } from '../entity';
 import { CoObjectType } from './CoObjectType';
 
-export abstract class IdEntityType extends CoObjectType {
+export abstract class CoEntityType extends CoObjectType {
 
     static declaredProperty: EntityPropertyMap = {
-        id: primaryKey({ type: 'number', precision: 20, })
+        // id: primaryKey({ type: 'number', precision: 20, })
     };
 
     constructor() {
         super();
-        this.declare(IdEntityType.declaredProperty);
+        this.declare(CoEntityType.declaredProperty);
     }
 }
 
-export default IdEntityType;
+export default CoEntityType;

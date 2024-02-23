@@ -8,7 +8,7 @@ export abstract class CoObject {
     // content
 
     creationDate: Moment = moment()
-    lastModified: Moment = moment()
+    lastModifiedDate: Moment = moment()
 
     // UI
 
@@ -39,3 +39,4 @@ export abstract class CoObject {
     }
 }
 
+export default CoObject;

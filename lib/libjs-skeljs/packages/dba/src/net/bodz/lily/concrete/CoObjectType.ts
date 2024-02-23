@@ -28,3 +28,4 @@ export class CoObjectType extends EntityType {
     }
 }
 
+export default CoObjectType;

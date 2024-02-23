@@ -5,7 +5,8 @@ import { CoObjectType } from './CoObjectType';
 export abstract class CoPrincipalType<Id> extends CoObjectType {
 
     static declaredProperty: EntityPropertyMap = {
-        id: primaryKey({ type: 'number', precision: 20, })
+        name: property({ type: 'string', precision: 30, }),
+        properties: property({ type: 'any' }),
     };
 
     constructor() {
@@ -14,3 +15,4 @@ export abstract class CoPrincipalType<Id> extends CoObjectType {
     }
 }
 
+export default CoPrincipalType;
