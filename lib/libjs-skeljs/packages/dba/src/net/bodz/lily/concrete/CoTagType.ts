@@ -1,7 +1,7 @@
 import { EntityPropertyMap, primaryKey, property } from '../entity';
 import { CoCodeType } from './CoCodeType';
 
-export abstract class CoTagType extends CoCodeType {
+export class CoTagType extends CoCodeType {
 
     static declaredProperty: EntityPropertyMap = {
         // id: primaryKey({ type: 'number', precision: 20, })

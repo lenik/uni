@@ -1,7 +1,8 @@
 import { integer } from '@skeljs/core/src/lang/type';
-import { EntityPropertyMap, primaryKey, property } from '../entity';
 
-export class CoObjectValidators {
+import StructRowValidators from './StructRowValidators';
+
+export class CoObjectValidators extends StructRowValidators {
 
     validateLabel(val: string) {
 

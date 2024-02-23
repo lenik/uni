@@ -1,15 +1,14 @@
 
-import { EntityPropertyMap, EntityType, primaryKey, property } from '../entity';
+import { EntityPropertyMap, primaryKey, property } from '../entity';
 
-export class CoObjectType extends EntityType {
+import StructRowType from './StructRowType';
+
+export class CoObjectType extends StructRowType {
 
     static declaredProperty: EntityPropertyMap = {
         label: property({ type: 'string', icon: 'fa-tag' }),
         description: property({ type: 'string', icon: 'far-info-circle' }),
-
-        comment: property({ type: 'string', icon: 'fa-comment' }),
-        image: property({ type: 'string', icon: 'fa-image' }),
-        imageAlt: property({ type: 'string', icon: 'fa-tag' }),
+        icon: property({ type: 'string', icon: 'fa-image' }),
 
         flags: property({ type: 'integer', icon: 'fa-tag' }),
         priority: property({ type: 'integer', icon: 'fa-tag' }),

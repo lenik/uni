@@ -113,10 +113,11 @@ export class EntityProperty implements IEntityProperty {
         if (this.label != null && this.label.length)
             return this.label;
         let name = this.name;
-        if (name == null)
-            return this.label;
-        let ucfirst = name.substring(0, 1).toUpperCase();
-        return ucfirst + name.substring(1);
+        if (name != null) {
+            let ucfirst = name.substring(0, 1).toUpperCase();
+            return ucfirst + name.substring(1);
+        }
+        return null;
     }
 }
 

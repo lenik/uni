@@ -3,12 +3,11 @@ import { Moment } from 'moment';
 
 import { integer } from '@skeljs/core/src/lang/type';
 
-export abstract class CoObject {
+import StructRow from './StructRow';
+import CoObjectType from './CoObjectType';
 
-    // content
-
-    creationDate: Moment = moment()
-    lastModifiedDate: Moment = moment()
+export abstract class CoObject extends StructRow {
+    static TYPE = new CoObjectType();
 
     // UI
 
@@ -23,7 +22,6 @@ export abstract class CoObject {
     flags: integer = 0
     priority: integer = 0
     state: integer = 0
-    version: integer = 0
 
     // access control
 
@@ -35,7 +33,7 @@ export abstract class CoObject {
     accessMode: integer
 
     constructor(o: any) {
-        if (o != null) Object.assign(this, o);
+        super(o);
     }
 }
 

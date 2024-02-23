@@ -2,7 +2,7 @@
 import { EntityPropertyMap, primaryKey, property } from '../entity';
 import { CoObjectType } from './CoObjectType';
 
-export abstract class CoEntityType extends CoObjectType {
+export class CoEntityType extends CoObjectType {
 
     static declaredProperty: EntityPropertyMap = {
         // id: primaryKey({ type: 'number', precision: 20, })
