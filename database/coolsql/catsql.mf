@@ -23,3 +23,6 @@ out/%.sql: %.sql
 		-e 's/create\(\s\+or\s\+replace\)\?\s\+sequence\s\+\(\S\+\).*$$/drop sequence \2;/' \
 		>>$@
 
+%-rotate.sql: %.sql
+	rotate.pl $< >$@
+
