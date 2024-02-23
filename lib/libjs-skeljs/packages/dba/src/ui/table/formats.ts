@@ -15,6 +15,8 @@ export class DefaultFormats {
             return code(data);
     }
 
+    label = (o: any) => o.label;
+
     decimal = (n: number, scale: number): string | FormatFunc => {
         if (scale == null) {
             scale = n;
